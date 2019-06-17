@@ -1,6 +1,4 @@
 version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@6.0.0
 jobs:
   download-dapp:
     working_directory: ~/probers
@@ -52,22 +50,6 @@ jobs:
             cd probers
             npm test
 
-  coverage:
-    working_directory: ~/audius-dapp
-    docker:
-      - image: circleci/node:10.13
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ./
-      - run:
-          name: build-staging
-          command: npm run build:staging
-      - persist_to_workspace:
-          root: ./
-          paths:
-            - build-staging
-
 workflows:
   version: 2
   commit:
@@ -75,7 +57,7 @@ workflows:
       - download-dapp
       - coverage:
           requires:
-            - hold-dist-production
+            - download-dapp
   nightly:
     triggers:
       - schedule:
@@ -89,6 +71,6 @@ workflows:
       - download-dapp
       - coverage:
           requires:
-            - hold-dist-production
+            - download-dapp
 
 
