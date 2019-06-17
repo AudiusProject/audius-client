@@ -3,20 +3,24 @@ orbs:
   aws-ecr: circleci/aws-ecr@6.0.0
 jobs:
   download-dapp:
-    working_directory: ~/
+    working_directory: ~/probers
     docker:
       - image: circleci/python:2.7-jessie
     steps:
+      - checkout
       - run:
           name: install-awscli
           command: sudo pip install awscli
       - run:
           name: Download Dapp from S3
-          command: aws s3 sync s3://app.staging.audius.co ./dapp
+          command: | 
+            cd ../
+            aws s3 sync s3://app.staging.audius.co ./dapp
       - persist_to_workspace:
           root: ./
           paths:
             - dapp
+            - probers
 
   coverage:
     working_directory: ~/
