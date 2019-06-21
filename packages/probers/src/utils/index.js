@@ -29,4 +29,22 @@ export const waitForResponse = async (page, pathname) => {
   })
 }
 
+export const waitForSplashScreen = async page => {
+  await waitForExit(page, "div[class*=splashScreenWrapper]")
+}
+
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
+
+export const fillInput = async (page, name, value) => page.type(`input[name='${name}']`, value)
+ 
+export const waitForAndClickButton = async (page, name, selector = '') => {
+  await page.waitForSelector(`button${selector}[name="${name}"]`)
+  const btn = await page.$(`button${selector}[name="${name}"]`)
+  await btn.click()
+}
+
+export const resetBrowser = async (page, baseUrl) => {
+  await page.goto(baseUrl, { waitUntil: "networkidle2" })
+  await page.evaluate(() => localStorage.clear())
+  await page.goto(baseUrl, { waitUntil: "networkidle0" })
+}

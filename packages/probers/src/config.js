@@ -7,7 +7,6 @@ export const config = {
   }
 }
 
-
-export default function getCofig (env = 'local') {
+export default function getCofig(env = "local") {
   return config[env]
 }

@@ -1,0 +1,52 @@
+import path from "path"
+import { 
+  waitForExit,
+  waitForResponse, 
+  getRandomInt, 
+  waitForSplashScreen,
+  waitForAndClickButton,
+  resetBrowser
+} from "../utils"
+import getConfig from "../config"
+
+export const uploadTrack = async (page, baseUrl) => {
+  const testTrackPath = "../assets/track.mp3"
+
+  await page.goto(`${baseUrl}/upload`, {
+    waitUntil: "networkidle0"
+  })
+  await waitForSplashScreen(page)
+
+  /** ======== Upload Media Page ======== */
+  await page.waitForSelector("div[class^=Dropzone]")
+  // NOTE: Clicking the dropzone and opening the file uploader modal is possible, but
+  // there is currently no way to close the file upload modal. https://github.com/GoogleChrome/puppeteer/issues/2946
+  const dropZone = await page.$(
+    `div[class^="Dropzone_dropzone"] input[type="file"]`
+  )
+  await dropZone.uploadFile(path.resolve(__dirname, testTrackPath))
+
+  // Wait until track preview
+  await page.waitForSelector("div[class^=TrackPreview]")
+  await waitForAndClickButton(page, 'continue')
+
+  /** ======== Edit Track Upload Page ======== */
+  // Wait until track preview
+  await page.waitForXPath(
+    "//div[contains(text(), 'Complete Your Track')]"
+  )
+
+  const selectCategory = await page.$(`div[class^=DropdownInput_wrapper]`)
+  await selectCategory.click()
+
+  const categoryChoice = await page.$x("//li[contains(text(), 'Rock')]")
+  await categoryChoice[0].click()
+
+  await waitForAndClickButton(page, 'continue')
+
+  /** ======== Finish Track Upload Page ======== */
+  await page.waitForXPath("//span[contains(text(), 'Upload More')]")
+  await waitForAndClickButton(page, 'viewMedia')
+}
+
+export default uploadTrack
