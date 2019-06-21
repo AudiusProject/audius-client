@@ -7,16 +7,19 @@ import path from "path"
 
 const DIR = path.join(os.tmpdir(), "jest_puppeteer_global_setup")
 
+const width = 1600
+const height = 1080
+
 export default async function() {
   console.log(chalk.green("Setup Puppeteer"))
   const browser = await puppeteer.launch({
-    defaultViewport: {
-      width: 1080,
-      height: 800,
-      deviceScaleFactor: 1
-    },
+    defaultViewport: { width, height },
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: [
+      "--no-sandbox", 
+      "--disable-setuid-sandbox",
+      `--window-size=${width},${height}`
+    ]
   })
   // This global is not available inside tests but only in global teardown
   global.__BROWSER_GLOBAL__ = browser

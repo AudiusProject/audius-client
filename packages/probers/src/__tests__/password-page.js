@@ -1,10 +1,9 @@
-const timeout = 10000
-import getConfig from '../config'
+import getConfig from "../config"
+import { resetBrowser } from '../utils'
+import fillBetaPassword from '../flows/fill-beta-password'
 
-const pageValues = {
-  password: "LOUD",
-  listenText: "Start Listening!"
-}
+// Allow a max time of 2 minutes to create an account and run the test
+const timeout = 1000 /** ms */ * 60 /** sec */ * 2 /** min */
 
 describe(
   "Input Password",
@@ -15,43 +14,21 @@ describe(
 
     beforeAll(async () => {
       page = await global.__BROWSER__.newPage()
-      await page.goto(config.baseUrl, { waitUntil: "networkidle2" })
-      await page.evaluate(() => {
-        localStorage.removeItem("hedgehog-entropy-key")
-        localStorage.removeItem("betaPassword")
-      })
-      await page.goto(config.baseUrl, { waitUntil: "networkidle2" })
+      await page.setViewport({ width: 1600, height: 1080 })
+      await resetBrowser(page, config.baseUrl)
     }, timeout)
 
     afterAll(async () => {
       await page.close()
     })
 
-    it("should redirect the user to the password route", async () => {
-      const url = page.url()
-      const pageUrl = new URL(url)
-      expect(pageUrl.pathname).toBe("/password")
-    })
-
-    it("should enter the password", async () => {
-      await page.keyboard.type(pageValues.password)
-      await page.waitForXPath(
-        `//span[contains(text(), '${pageValues.listenText}')]`
-      )
-      const [startButton] = await page.$x(
-        `//span[contains(text(), '${pageValues.listenText}')]`
-      )
-      expect(startButton).toBeTruthy()
-      startListeningButton = startButton
-    })
-
-    it("should redirect to trending on start listening", async () => {
-      await startListeningButton.click()
-      await page.waitForNavigation({ waitUntil: "networkidle0" })
-
+    it("should fill in the password and redirect to trending", async () => {
+      await fillBetaPassword(page, config.baseUrl)
+      await new Promise(resolve => setTimeout(resolve, 2000))
       const pageUrl = new URL(page.url())
       expect(pageUrl.pathname).toBe("/trending")
-    })
+    }, timeout)
+
   },
   timeout
 )
