@@ -63,6 +63,7 @@ export const createAccount = async (page, baseUrl) => {
   await fillInput(page, 'password', testUser.password)
   await fillInput(page, 'confirmPassword', testUser.password)
 
+  await new Promise(resolve => setTimeout(resolve, 100)) // Allow time for js confirmation of pwd
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Profile Page ... */
@@ -75,8 +76,10 @@ export const createAccount = async (page, baseUrl) => {
     "//div[contains(text(), 'fill out my profile manually')]"
   )
   await manualProfileButtons[0].click()
+  const checkHandle = waitForResponse(page, "/twitter/handle_lookup")
   await fillInput(page, 'name', testUser.name)
   await fillInput(page, 'nickname', testUser.handle)
+  await checkEmail
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Follow Page ... */
