@@ -8,6 +8,14 @@ export const fillBetaPassword = async (page, baseUrl) => {
   // Be sure to be on the password page
   await page.goto(`${baseUrl}/password`, { waitUntil: "networkidle0" })
 
+  // Go to beta password page
+  await page.waitForXPath("//span[contains(text(), 'Click Here')]")
+  const gotoBetaPassword = await page.$x("//span[contains(text(), 'Click Here')]")
+  await gotoBetaPassword[0].click()
+
+  // Wait for Password input
+  await page.waitForXPath("//div[contains(text(), 'Password Required To Continue')]")
+
   // Enter the password
   await page.keyboard.type(pageValues.password)
 
