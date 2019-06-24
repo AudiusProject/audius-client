@@ -33,7 +33,7 @@ describe(
 
     beforeAll(async () => {
       page = await global.__BROWSER__.newPage()
-      await page.setViewport({ width: 1600, height: 1080 })
+      // await page.setViewport({ width: 1600, height: 1080 })
       await resetBrowser(page, config.baseUrl)
       await fillBetaPassword(page, config.baseUrl)
     }, timeout)
