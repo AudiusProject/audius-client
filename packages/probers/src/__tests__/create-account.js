@@ -1,4 +1,5 @@
 import { 
+  newPage,
   waitForResponse, 
   getRandomInt, 
   waitForSplashScreen,
@@ -32,8 +33,7 @@ describe(
     let config = getConfig()
 
     beforeAll(async () => {
-      page = await global.__BROWSER__.newPage()
-      // await page.setViewport({ width: 1600, height: 1080 })
+      page = await newPage()
       await resetBrowser(page, config.baseUrl)
       await fillBetaPassword(page, config.baseUrl)
     }, timeout)

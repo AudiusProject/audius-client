@@ -1,5 +1,6 @@
 import path from "path"
 import { 
+  newPage,
   waitForExit,
   waitForResponse, 
   getRandomInt, 
@@ -21,8 +22,7 @@ describe(
     let user
     const config = getConfig()
     beforeAll(async () => {
-      page = await global.__BROWSER__.newPage()
-      // await page.setViewport({ width: 1600, height: 1080 })
+      page = await newPage()
       await resetBrowser(page, config.baseUrl)
       await fillBetaPassword(page, config.baseUrl)
       user = await createAccount(page, config.baseUrl)
