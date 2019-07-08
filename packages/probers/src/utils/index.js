@@ -1,3 +1,12 @@
+export const newPage = async (width = 1600, height = 1080) => {
+  let page = await global.__BROWSER__.newPage()
+  page.setViewport({
+    width,
+    height
+  })
+  return page
+}
+
 export const waitForExit = async (page, selector, exitTimeout = 8000) => {
   return Promise.race([
     new Promise((resolve, reject) =>

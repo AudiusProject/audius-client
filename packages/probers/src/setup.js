@@ -4,17 +4,25 @@ import fs from "fs"
 import mkdirp from "mkdirp"
 import os from "os"
 import path from "path"
+import program from 'commander'
 
 const DIR = path.join(os.tmpdir(), "jest_puppeteer_global_setup")
 
 const width = 1600
 const height = 1080
 
+program
+  .option('-i, --runInBand', 'Whether or not to run the tests serially')
+  .option('-w, --watch', 'Run the tests in watch mode')
+  .option('-b, --browser', 'Run the tests with a viewable browser (not headless mode)')
+
 export default async function() {
-  console.log(chalk.green("Setup Puppeteer"))
+  program.parse(process.argv)
+  console.log('\n')
+  console.log(chalk.green("Setup Puppeteer."))
   const browser = await puppeteer.launch({
     defaultViewport: { width, height },
-    headless: true,
+    headless: !program.browser,
     args: [
       "--no-sandbox", 
       "--disable-setuid-sandbox",

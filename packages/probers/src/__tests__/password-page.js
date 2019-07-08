@@ -1,5 +1,5 @@
 import getConfig from "../config"
-import { resetBrowser } from '../utils'
+import { newPage, resetBrowser } from '../utils'
 import fillBetaPassword from '../flows/fill-beta-password'
 
 // Allow a max time of 2 minutes to create an account and run the test
@@ -13,8 +13,7 @@ describe(
     let config = getConfig()
 
     beforeAll(async () => {
-      page = await global.__BROWSER__.newPage()
-      // await page.setViewport({ width: 1600, height: 1080 })
+      page = await newPage()
       await resetBrowser(page, config.baseUrl)
     }, timeout)
 

@@ -1,5 +1,5 @@
 {
-  "name": "Probers",
+  "name": "probers",
   "version": "0.0.1",
   "description": "Automated client tests",
   "main": "index.js",
@@ -16,6 +16,7 @@
     "@babel/preset-env": "^7.4.5",
     "babel-jest": "^24.8.0",
     "chalk": "^2.4.2",
+    "commander": "^2.20.0",
     "jest": "^24.8.0",
     "jest-puppeteer": "^4.2.0",
     "prettier": "^1.18.2",
