@@ -1,16 +1,16 @@
 import path from "path"
-import { 
+import {
   newPage,
   waitForExit,
-  waitForResponse, 
-  getRandomInt, 
+  waitForResponse,
+  getRandomInt,
   waitForSplashScreen,
   resetBrowser
 } from "../utils"
 import getConfig from "../config"
-import createAccount from '../flows/create-account'
-import fillBetaPassword from '../flows/fill-beta-password'
-import uploadTrack from '../flows/upload-track'
+import createAccount from "../flows/create-account"
+import fillBetaPassword from "../flows/fill-beta-password"
+import uploadTrack from "../flows/upload-track"
 
 // Allow a max time of 3 minutes to create an account and run the test
 const timeout = 1000 /** ms */ * 60 /** sec */ * 3 /** min */
