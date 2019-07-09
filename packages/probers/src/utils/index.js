@@ -1,10 +1,14 @@
-export const newPage = async (width = 1600, height = 1080) => {
+export const newPage = async (width = 1600, height = 960) => {
   let page = await global.__BROWSER__.newPage()
   page.setViewport({
     width,
     height
   })
   return page
+}
+
+export const wait = async milliseconds => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
 export const waitForExit = async (page, selector, exitTimeout = 8000) => {
@@ -44,9 +48,10 @@ export const waitForSplashScreen = async page => {
 
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
 
-export const fillInput = async (page, name, value) => page.type(`input[name='${name}']`, value)
- 
-export const waitForAndClickButton = async (page, name, selector = '') => {
+export const fillInput = async (page, name, value) =>
+  page.type(`input[name='${name}']`, value)
+
+export const waitForAndClickButton = async (page, name, selector = "") => {
   await page.waitForSelector(`button${selector}[name="${name}"]`)
   const btn = await page.$(`button${selector}[name="${name}"]`)
   await btn.click()

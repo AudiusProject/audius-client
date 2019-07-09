@@ -1,8 +1,8 @@
 import path from "path"
-import { 
+import {
   waitForExit,
-  waitForResponse, 
-  getRandomInt, 
+  waitForResponse,
+  getRandomInt,
   waitForSplashScreen,
   waitForAndClickButton,
   resetBrowser
@@ -28,13 +28,11 @@ export const uploadTrack = async (page, baseUrl) => {
 
   // Wait until track preview
   await page.waitForSelector("div[class^=TrackPreview]")
-  await waitForAndClickButton(page, 'continue')
+  await waitForAndClickButton(page, "continue")
 
   /** ======== Edit Track Upload Page ======== */
   // Wait until track preview
-  await page.waitForXPath(
-    "//div[contains(text(), 'Complete Your Track')]"
-  )
+  await page.waitForXPath("//div[contains(text(), 'Complete Your Track')]")
 
   const selectCategory = await page.$(`div[class^=DropdownInput_wrapper]`)
   await selectCategory.click()
@@ -42,11 +40,11 @@ export const uploadTrack = async (page, baseUrl) => {
   const categoryChoice = await page.$x("//li[contains(text(), 'Rock')]")
   await categoryChoice[0].click()
 
-  await waitForAndClickButton(page, 'continue')
+  await waitForAndClickButton(page, "continue")
 
   /** ======== Finish Track Upload Page ======== */
   await page.waitForXPath("//span[contains(text(), 'Upload More')]")
-  await waitForAndClickButton(page, 'viewMedia')
+  await waitForAndClickButton(page, "viewMedia")
 }
 
 export default uploadTrack

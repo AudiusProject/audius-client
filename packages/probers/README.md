@@ -12,10 +12,11 @@ Note, tests are run [inBand](https://jestjs.io/docs/en/cli#runinband) b/c the te
 
 To run a test in watch mode:  
 ```
-npm run test -- __tests__/<test-file-name> --watch
+npm run test -- <test-file-name> --watch
 ```
 
-To run a test and view its progress in chromium:
+To run a test and view its progress in a browser:
 ```
-npm run test -- __tests__/<test-file-name> --browser
+npm run test -- <test-file-name> -- --browser
+npm run test -- <test-file-name> -- --browser --slow 2000  # Slow down operations by 2000 ms
 ```
