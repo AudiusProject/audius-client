@@ -1,8 +1,8 @@
-import { wait, waitForSplashScreen } from "../utils"
+import { wait, waitForSplashScreen } from '../utils'
 
 export const playTrack = async (page, baseUrl, route) => {
   await page.goto(`${baseUrl}/${route}`, {
-    waitUntil: "networkidle0"
+    waitUntil: 'networkidle0'
   })
   await waitForSplashScreen(page)
   await page.waitForSelector(`div[class*=TrackTile_loaded]`)
