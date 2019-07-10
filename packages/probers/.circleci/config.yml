@@ -15,9 +15,10 @@ jobs:
             cd ../
             aws s3 sync s3://app.staging.audius.co ./build-staging
       - persist_to_workspace:
-          root: ./
+          root: ../
           paths:
-            - ./
+            - build-staging
+            - probers
 
   coverage:
     working_directory: ~/
