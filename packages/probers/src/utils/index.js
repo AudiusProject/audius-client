@@ -13,6 +13,50 @@ export const wait = async milliseconds => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
+export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0) => {
+  page.on('request', onRequestStarted)
+  page.on('requestfinished', onRequestFinished)
+  page.on('requestfailed', onRequestFinished)
+
+  let inflight = 0
+  let fulfill
+  let promise = new Promise(resolve => { fulfill = resolve })
+  let timeoutId = setTimeout(onTimeoutDone, timeout)
+  return promise
+
+  function onTimeoutDone () {
+    page.removeListener('request', onRequestStarted)
+    page.removeListener('requestfinished', onRequestFinished)
+    page.removeListener('requestfailed', onRequestFinished)
+    fulfill()
+  }
+
+  function onRequestStarted () {
+    ++inflight
+    if (inflight > maxInflightRequests) { clearTimeout(timeoutId) }
+  }
+
+  function onRequestFinished () {
+    if (inflight === 0) { return }
+    --inflight
+    if (inflight === maxInflightRequests) { timeoutId = setTimeout(onTimeoutDone, timeout) }
+  }
+}
+
+export const waitForNetworkIdle0 = (page, action) => {
+  return Promise.all([
+    action,
+    waitForNetworkIdle(page, 500, 0)
+  ])
+}
+
+export const waitForNetworkIdle2 = (page, action) => {
+  return Promise.all([
+    action,
+    waitForNetworkIdle(page, 500, 2)
+  ])
+}
+
 export const waitForExit = async (page, selector, exitTimeout = 8000) => {
   return Promise.race([
     new Promise((resolve, reject) =>
@@ -50,8 +94,9 @@ export const waitForSplashScreen = async page => {
 
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
 
-export const fillInput = async (page, name, value) =>
-  page.type(`input[name='${name}']`, value)
+export const fillInput = async (page, name, value) => {
+  return page.type(`input[name='${name}']`, value)
+}
 
 export const waitForAndClickButton = async (page, name, selector = '') => {
   await page.waitForSelector(`button${selector}[name="${name}"]`)
@@ -60,7 +105,19 @@ export const waitForAndClickButton = async (page, name, selector = '') => {
 }
 
 export const resetBrowser = async (page, baseUrl) => {
-  await page.goto(baseUrl, { waitUntil: 'networkidle2' })
+  // let inprog = new Set({})
+  // page.on('request', req => {
+  //   inprog.add(req._url)
+  // })
+  // page.on('requestfinished', async (req) => {
+  //   inprog.delete(req._url)
+  //   console.log(inprog)
+  // })
+  // await Promise.all([
+  //   page.goto('https://google.com'),
+  //   waitForNetworkIdle(page, 500, 0) // equivalent to 'networkidle0'
+  // ])
+  await waitForNetworkIdle0(page, page.goto(baseUrl))
   await page.evaluate(() => localStorage.clear())
-  await page.goto(baseUrl, { waitUntil: 'networkidle0' })
+  await waitForNetworkIdle0(page, page.goto(baseUrl))
 }

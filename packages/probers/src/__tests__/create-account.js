@@ -1,6 +1,7 @@
 import {
   newPage,
-  resetBrowser
+  resetBrowser,
+  waitForNetworkIdle2
 } from '../utils'
 import getConfig from '../config'
 import createAccount from '../flows/create-account'
@@ -30,9 +31,7 @@ describe(
       async () => {
         const user = await createAccount(page, config.baseUrl)
 
-        await page.goto(`${config.baseUrl}/${user.handle}`, {
-          waitUntil: 'networkidle0'
-        })
+        await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/${user.handle}`))
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).toBe(`/${user.handle}`)
       },
