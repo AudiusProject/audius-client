@@ -1,9 +1,12 @@
+![Prober](https://user-images.githubusercontent.com/2731362/61009053-44363a00-a326-11e9-8bde-c16901b9932b.png "Prober")
+
+
 # Probers
+
 ## Summary
 Probers is a set of integration tests for the audius dapp using a headless browser.
 
 ## Usage
-The tests must be configured to use a `baseUrl` endpoint pointing to the running dapp instance. By default the baseUrl is set to `localhost:3000`. To test, run  
 ```
 npm run test
 ```
@@ -23,5 +26,7 @@ npm run test -- <test-file-name> -- --browser --slow 2000  # Slow down operation
 
 To run a test against a specific endpoint:
 ```
+npm run test -- <test-file-name> -- --endpoint http://localhost:3000
 npm run test -- <test-file-name> -- --endpoint https://app.staging.audius.co
 ```
+**IMPORTANT: Probers by default will make accounts. Don't do this against prod.**

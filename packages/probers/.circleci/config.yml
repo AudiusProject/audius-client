@@ -13,11 +13,11 @@ jobs:
           name: Download Dapp from S3
           command: | 
             cd ../
-            aws s3 sync s3://app.staging.audius.co ./dapp
+            aws s3 sync s3://app.staging.audius.co ./build-staging
       - persist_to_workspace:
           root: ./
           paths:
-            - dapp
+            - build-staging
             - probers
 
   coverage:
@@ -46,9 +46,9 @@ jobs:
           name: serve and run prober tests
           command: |
             npm install serve
-            node node_modules/serve/bin/serve.js -l 3000 -s dapp &
+            node node_modules/serve/bin/serve.js -l 3000 -s build-staging &
             cd probers
-            npm test
+            npm run test:ci
 
 workflows:
   version: 2
@@ -58,10 +58,10 @@ workflows:
       - coverage:
           requires:
             - download-dapp
-  nightly:
+  hourly:
     triggers:
       - schedule:
-          cron: "0 4 * * *"
+          cron: "17 * * * *"
           filters:
             branches:
               only:
