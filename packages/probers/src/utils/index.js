@@ -105,18 +105,6 @@ export const waitForAndClickButton = async (page, name, selector = '') => {
 }
 
 export const resetBrowser = async (page, baseUrl) => {
-  // let inprog = new Set({})
-  // page.on('request', req => {
-  //   inprog.add(req._url)
-  // })
-  // page.on('requestfinished', async (req) => {
-  //   inprog.delete(req._url)
-  //   console.log(inprog)
-  // })
-  // await Promise.all([
-  //   page.goto('https://google.com'),
-  //   waitForNetworkIdle(page, 500, 0) // equivalent to 'networkidle0'
-  // ])
   await waitForNetworkIdle0(page, page.goto(baseUrl))
   await page.evaluate(() => localStorage.clear())
   await waitForNetworkIdle0(page, page.goto(baseUrl))
