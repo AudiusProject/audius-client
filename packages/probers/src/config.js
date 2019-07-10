@@ -1,3 +1,5 @@
+import args from './args'
+
 export const config = {
   staging: {
     baseUrl: 'https://app.staging.audius.co'
@@ -8,5 +10,9 @@ export const config = {
 }
 
 export default function getCofig (env = 'local') {
-  return config[env]
+  let c = config[env]
+  if (args.endpoint) {
+    c.baseUrl = args.endpoint
+  }
+  return c
 }
