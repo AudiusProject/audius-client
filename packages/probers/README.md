@@ -20,3 +20,8 @@ To run a test and view its progress in a browser:
 npm run test -- <test-file-name> -- --browser
 npm run test -- <test-file-name> -- --browser --slow 2000  # Slow down operations by 2000 ms
 ```
+
+To run a test against a specific endpoint:
+```
+npm run test -- <test-file-name> -- --endpoint https://app.staging.audius.co
+```
