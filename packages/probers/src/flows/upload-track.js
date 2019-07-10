@@ -1,15 +1,14 @@
 import path from 'path'
 import {
   waitForSplashScreen,
-  waitForAndClickButton
+  waitForAndClickButton,
+  waitForNetworkIdle2
 } from '../utils'
 
 export const uploadTrack = async (page, baseUrl) => {
   const testTrackPath = '../assets/track.mp3'
 
-  await page.goto(`${baseUrl}/upload`, {
-    waitUntil: 'networkidle0'
-  })
+  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/upload`))
   await waitForSplashScreen(page)
 
   /** ======== Upload Media Page ======== */

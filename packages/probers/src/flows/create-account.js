@@ -2,7 +2,8 @@ import {
   waitForResponse,
   waitForSplashScreen,
   fillInput,
-  waitForAndClickButton
+  waitForAndClickButton,
+  waitForNetworkIdle2
 } from '../utils'
 
 const mockNames = [
@@ -24,12 +25,12 @@ const mockNames = [
   'Kelly Kapoor'
 ]
 
-const generateTestUser = async () => {
+const generateTestUser = () => {
   const ts = Date.now()
   let email = `prober+${ts}@audius.co`
   let password = `Pa$$w0rdTest`
   let name = `Prober ${ts} ${mockNames[Math.floor(Math.random() * mockNames.length)]}`
-  let handle = `prober-${ts}`
+  let handle = `prober_${ts}`
   return {
     email,
     password,
@@ -41,7 +42,7 @@ const generateTestUser = async () => {
 export const createAccount = async (page, baseUrl) => {
   let testUser = generateTestUser()
   // Go to the signup page
-  await page.goto(`${baseUrl}/signup`, { waitUntil: 'networkidle0' })
+  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
   await waitForSplashScreen(page)
 
   /** Email Page ... */
