@@ -12,7 +12,7 @@ program
   )
   .option(
     '-e, --endpoint <s>',
-    'Use a specific endpoint to test against'
+    'Use a specific endpoint to test against, e.g. https://app.staging.audius.co'
   )
 
 // Fetch extra argv's (-- separated) passed to jest and parse them with commander.
