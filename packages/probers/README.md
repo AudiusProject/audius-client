@@ -1,9 +1,7 @@
 ![Prober](https://user-images.githubusercontent.com/2731362/61009053-44363a00-a326-11e9-8bde-c16901b9932b.png "Prober")
 
-
 # Probers
 
-## Summary
 Probers is a set of integration tests for the audius dapp using a headless browser.
 
 ## Usage
