@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   download-dapp:
-    working_directory: ~/
+    working_directory: ~/probers
     docker:
       - image: circleci/python:2.7-jessie
     steps:
@@ -12,7 +12,7 @@ jobs:
       - run:
           name: Download Dapp from S3
           command: | 
-            aws s3 sync s3://app.staging.audius.co ./build-staging
+            aws s3 sync s3://app.staging.audius.co ../build-staging
       - persist_to_workspace:
           root: ./
           paths:
