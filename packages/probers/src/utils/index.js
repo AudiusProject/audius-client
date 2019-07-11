@@ -13,18 +13,24 @@ export const wait = async milliseconds => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0) => {
+export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 30000) => {
   page.on('request', onRequestStarted)
   page.on('requestfinished', onRequestFinished)
   page.on('requestfailed', onRequestFinished)
 
   let inflight = 0
   let fulfill
-  let promise = new Promise(resolve => { fulfill = resolve })
+  let fail
+  let promise = new Promise((resolve, reject) => {
+    fulfill = resolve
+    fail = reject
+  })
   let timeoutId = setTimeout(onTimeoutDone, timeout)
+  let exitTimeoutId = setTimeout(onExit, exitTimeout)
   return promise
 
   function onTimeoutDone () {
+    clearTimeout(exitTimeoutId)
     page.removeListener('request', onRequestStarted)
     page.removeListener('requestfinished', onRequestFinished)
     page.removeListener('requestfailed', onRequestFinished)
@@ -40,6 +46,10 @@ export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0) => {
     if (inflight === 0) { return }
     --inflight
     if (inflight === maxInflightRequests) { timeoutId = setTimeout(onTimeoutDone, timeout) }
+  }
+
+  function onExit () {
+    fail()
   }
 }
 
@@ -58,16 +68,18 @@ export const waitForNetworkIdle2 = (page, action) => {
 }
 
 export const waitForExit = async (page, selector, exitTimeout = 8000) => {
+  let interval
   return Promise.race([
     new Promise((resolve, reject) =>
       setTimeout(() => {
+        clearInterval(interval)
         return reject(new Error(
           `Element w/ selector ${selector}, did not disappear from fom within timeout of ${exitTimeout}`
         ))
       }, exitTimeout)
     ),
     new Promise((resolve, reject) => {
-      let interval = setInterval(async () => {
+      interval = setInterval(async () => {
         const element = await page.$(selector)
         if (element) return
         clearInterval(interval)
