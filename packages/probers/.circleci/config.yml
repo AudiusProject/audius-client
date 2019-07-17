@@ -58,14 +58,14 @@ workflows:
       - coverage:
           requires:
             - download-dapp
-  # hourly:
-  #   triggers:
-  #     - schedule:
-  #         cron: "17 * * * *"
-  #         filters:
-  #           branches:
-  #             only:
-  #               - master
+  hourly:
+    triggers:
+      - schedule:
+          cron: "17 * * * *"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - download-dapp
       - coverage:
