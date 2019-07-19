@@ -1,7 +1,7 @@
 /* global localStorage */
 
 import {
-  waitForNetworkIdle2
+  waitForNetworkIdle2, wait
 } from '../utils'
 
 const pageValues = {
@@ -24,6 +24,8 @@ export const fillBetaPassword = async (page, baseUrl) => {
   await page.waitForXPath(
     "//div[contains(text(), 'Password Required To Continue')]"
   )
+
+  await wait(1000)
 
   // Enter the password
   await page.keyboard.type(pageValues.password)

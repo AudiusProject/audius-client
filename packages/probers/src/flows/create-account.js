@@ -1,3 +1,4 @@
+import moment from 'moment'
 import {
   waitForResponse,
   waitForSplashScreen,
@@ -6,31 +7,12 @@ import {
   waitForNetworkIdle2
 } from '../utils'
 
-const mockNames = [
-  'Michael Scott',
-  'Dwight Schrute',
-  'Jim Halpert',
-  'Pam Beesly',
-  'Ryan Howard',
-  'Andy Bernard',
-  'Robert California',
-  'Jan Levinson',
-  'Roy Anderson',
-  'Stanley Hudson',
-  'Kevin Malone',
-  'Meredith Palmer',
-  'Angela Martin',
-  'Oscar Martinez',
-  'Phyllis Lapin',
-  'Kelly Kapoor'
-]
-
 const generateTestUser = () => {
-  const ts = Date.now()
+  const ts = moment().format('YYMMDD_HHmmss')
   let email = `prober+${ts}@audius.co`
   let password = `Pa$$w0rdTest`
-  let name = `Prober ${ts} ${mockNames[Math.floor(Math.random() * mockNames.length)]}`
-  let handle = `prober_${ts}`
+  let name = `Prober ${ts}`
+  let handle = `pbr_${ts}`
   return {
     email,
     password,
@@ -42,8 +24,8 @@ const generateTestUser = () => {
 export const createAccount = async (page, baseUrl) => {
   let testUser = generateTestUser()
   // Go to the signup page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
   await waitForSplashScreen(page)
+  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
 
   /** Email Page ... */
   // Fill in email, intercept email exists check request and hit continue
