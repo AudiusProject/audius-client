@@ -12,7 +12,7 @@ const generateTestUser = () => {
   let email = `prober+${ts}@audius.co`
   let password = `Pa$$w0rdTest`
   let name = `Prober ${ts}`
-  let handle = `pbr_${ts}`
+  let handle = `p_${ts}`
   return {
     email,
     password,
