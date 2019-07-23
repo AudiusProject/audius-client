@@ -78,7 +78,7 @@ export const createAccount = async (page, baseUrl) => {
 
   /** Start Listening Page */
   await page.waitForXPath("//span[contains(text(), 'Start Listening')]", {
-    timeout: 45000
+    timeout: 90 /* sec */ * 1000 /* ms */
   })
   await waitForAndClickButton(page, 'startListening')
   return testUser
