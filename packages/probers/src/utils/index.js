@@ -101,7 +101,7 @@ export const waitForResponse = async (page, pathname) => {
 }
 
 export const waitForSplashScreen = async page => {
-  await waitForExit(page, 'div[class*=splashScreenWrapper]')
+  await waitForExit(page, 'div[class*=splashScreenWrapper]', 16 /* sec */ * 1000 /* ms */)
 }
 
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
@@ -120,4 +120,26 @@ export const resetBrowser = async (page, baseUrl) => {
   await waitForNetworkIdle0(page, page.goto(baseUrl))
   await page.evaluate(() => localStorage.clear())
   await waitForNetworkIdle0(page, page.goto(baseUrl))
+}
+
+const logRequestServices = ['discoveryprovider', 'identityservice', 'creatornode']
+export const logPageRequests = async (page) => {
+  const onRequest = (request) => {
+    const uri = request.url()
+    if (logRequestServices.some(service => uri.includes(service))) console.log(`Making Request to URI: ${uri}`)
+  }
+  const onResponse = async (response) => {
+    const uri = response.url()
+    if (logRequestServices.some(service => uri.includes(service))) {
+      console.log(`Reponse status: ${response.status()} from URI: ${uri}`)
+    }
+  }
+
+  page.on('request', onRequest);
+  page.on('response', onResponse)
+  
+  return () => {
+    page.removeListener('request', onRequest)
+    page.removeListener('response', onResponse)
+  }
 }

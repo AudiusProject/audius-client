@@ -37,7 +37,9 @@ export const uploadTrack = async (page, baseUrl) => {
   await waitForAndClickButton(page, 'continue')
 
   /** ======== Finish Track Upload Page ======== */
-  await page.waitForXPath("//span[contains(text(), 'Upload More')]")
+  await page.waitForXPath("//span[contains(text(), 'Upload More')]", {
+    timeout: 60 /* sec */ * 1000 /* ms */
+  })
   await waitForAndClickButton(page, 'viewMedia')
 }
 
