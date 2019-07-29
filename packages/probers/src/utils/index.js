@@ -135,9 +135,9 @@ export const logPageRequests = async (page) => {
     }
   }
 
-  page.on('request', onRequest);
+  page.on('request', onRequest)
   page.on('response', onResponse)
-  
+
   return () => {
     page.removeListener('request', onRequest)
     page.removeListener('response', onResponse)
