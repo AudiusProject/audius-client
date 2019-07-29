@@ -12,7 +12,9 @@ export const uploadTrack = async (page, baseUrl) => {
   await waitForSplashScreen(page)
 
   /** ======== Upload Media Page ======== */
-  await page.waitForSelector('div[class^=Dropzone]')
+  await page.waitForSelector('div[class^=Dropzone]', {
+    timeout: 60 /* seconds */ * 1000 /* ms */
+  })
   // NOTE: Clicking the dropzone and opening the file uploader modal is possible, but
   // there is currently no way to close the file upload modal. https://github.com/GoogleChrome/puppeteer/issues/2946
   const dropZone = await page.$(
