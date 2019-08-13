@@ -25,7 +25,9 @@ export const fillBetaPassword = async (page, baseUrl) => {
     "//div[contains(text(), 'Password Required To Continue')]"
   )
 
-  await wait(1000)
+  // Focus on password input field
+  await page.waitForSelector(`input[class*=passwordInputCharacter]`)
+  await page.focus(`input[class*=passwordInputCharacter]`)
 
   // Enter the password
   await page.keyboard.type(pageValues.password)
