@@ -5,7 +5,9 @@ module.exports = {
   },
   extends: [
     'standard',
-    'plugin:jest/recommended'
+    'plugin:@typescript-eslint/recommended',
+    'plugin:jest/recommended',
+    'plugin:react/recommended',
   ],
   globals: {
     Atomics: 'readonly',
@@ -21,9 +23,14 @@ module.exports = {
   },
   plugins: [
     'react',
+    'react-hooks',
     '@typescript-eslint',
     'jest'
   ],
   rules: {
+    '@typescript-eslint/explicit-function-return-type': "off",
+    '@typescript-eslint/no-non-null-assertion': "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }

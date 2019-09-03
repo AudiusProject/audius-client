@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import ExampleComponent from 'stems'
+import ExampleComponent from '@audius/stems'
 
 export default class App extends Component {
   render () {
