@@ -1,4 +1,5 @@
-import typescript from 'rollup-plugin-typescript2'
+import rollupTypescript from 'rollup-plugin-typescript2'
+import typescript from 'typescript'
 import commonjs from 'rollup-plugin-commonjs'
 import external from 'rollup-plugin-peer-deps-external'
 import postcss from 'rollup-plugin-postcss'
@@ -43,9 +44,10 @@ export default {
     url(),
     svgr(),
     resolve(),
-    typescript({
+    rollupTypescript({
       rollupCommonJSResolveHack: true,
-      clean: true
+      clean: true,
+      typescript
     }),
     commonjs()
   ]

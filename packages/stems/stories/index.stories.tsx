@@ -21,10 +21,7 @@ storiesOf('Stems', module)
   )
   .add('Scrubber', () =>
     <Scrubber
-      uniqueId='1'
-      isPlaying={false}
-      isDisabled={false}
-      includeTimestamps
+      uniqueKey='1'
       elapsedSeconds={0}
       totalSeconds={100}
     />
