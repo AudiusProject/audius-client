@@ -198,10 +198,18 @@ const Scrubber = ({
 
   const onHandleScrubRelease = (seconds: number) => {
     onScrubRelease && onScrubRelease(seconds)
-    setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT)
+    if (isPlaying) {
+      setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT)
+    }
   }
 
-  const timestampStart = dragSeconds || elapsedSeconds
+  useEffect(() => {
+    if (isPlaying) {
+      setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT)
+    }
+  }, [isPlaying])
+
+  const timestampStart = dragSeconds !== null ? dragSeconds : elapsedSeconds
 
   return (
     <div
