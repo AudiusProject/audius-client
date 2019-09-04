@@ -31,7 +31,9 @@ export const useAnimations = (
    */
   const pause = useCallback(() => {
     const trackWidth = trackRef.current.offsetWidth
-    const trackRemaining = -1 * parseFloat(window.getComputedStyle(trackRef.current).getPropertyValue('transform').split(',')[4])
+    const trackTransform = window.getComputedStyle(trackRef.current).getPropertyValue('transform')
+
+    const trackRemaining = -1 * parseFloat(trackTransform.split(',')[4])
     const percentComplete = (trackWidth - trackRemaining) / trackWidth * 100
     animate('none', `translate(${-100 + percentComplete}%)`)
   }, [trackRef, animate])
