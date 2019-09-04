@@ -7,30 +7,36 @@
 ## Install
 
 ```bash
-npm install --save stems
+npm install --save @audius/stems
 ```
 
 ## Development
 
-Run the example app:
+Run storybook:
+
+```bash
+npm run storybook
+```
+
+Run the example app (docs site):
 
 ```bash
 cd example
 npm start
 ```
 
-Run a local Stems against another repo:
+Run local Stems against another repo:
 
-```bash 
+```bash
+git clone git@github.com:AudiusProject/stems.git
 # Create a system link
 npm link
-# You may need this line
+
+# You may need this line so React versons don't conflict
 # https://reactjs.org/warnings/invalid-hook-call-warning.html#duplicate-react
 # npm link <other repo>/node_modules/react
 
+npm start
 
 <other repo> npm link @audius/stems
-
-# For hot-reloading
-npm start
 ```
