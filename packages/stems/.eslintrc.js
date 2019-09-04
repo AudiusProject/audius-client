@@ -28,8 +28,11 @@ module.exports = {
     'jest'
   ],
   rules: {
-    '@typescript-eslint/explicit-function-return-type': "off",
-    '@typescript-eslint/no-non-null-assertion': "off",
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/member-delimiter-style': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
+    'no-undef': 'off',
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn"
   }

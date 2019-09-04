@@ -1,9 +1,36 @@
 .scrubber {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.bar {
   width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin: 0 var(--unit-3);
+}
+
+.scrubber.isMobile .bar {
+  margin: 0 var(--unit-4);
+}
+
+.scrubber.isDisabled .bar {
+  cursor: default
+}
+
+/* Use a psuedo-element to "increase" the clickable area of the bar. */
+.bar:after {
+  position: absolute;
+  opacity: 0;
+  border-radius: 2px;
+  content: "";
+  width: 100%;
+  height: 500%;
+  top: -300%;
+  left: 0;
 }
 
 .rail {
@@ -27,12 +54,24 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: var(--neutral);
+  background: var(--neutral);
+}
+
+.track:before {
+  content: "";
+  position: absolute;
+  background: var(--primary-gradient);
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  right: 0;
+  opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
 
-.scrubber:hover .track {
-  background: var(--primary-gradient);
+.scrubber:hover .track:before {
+  opacity: 1;
 }
 
 .handleWrapper {
@@ -46,14 +85,33 @@
 
 .handle {
   position: absolute;
-  right: 0;
-  height: var(--unit-3);
-  width: var(--unit-3);
+  right: var(--negative-unit);
+  height: var(--unit-2);
+  width: var(--unit-2);
   border-radius: 50%;
   background: var(--white);
   box-shadow: 0 0 2px 0 rgba(133,129,153,0.5), 0 2px 5px -2px rgba(133,129,153,0.5);
+  transition: transform 0.18s ease-in-out;
 }
 
-.scrubber:hover .handle {
-  transform: scale(1.25);
+.scrubber.isMobile .handle {
+  height: var(--unit-4);
+  width: var(--unit-4);
+  right: var(--negative-unit-2);
+}
+
+.scrubber:not(.isDisabled):not(.isMobile):hover .handle {
+  transform: scale(1.5);
+}
+
+.timestampStart, .timestampEnd {
+  color: var(--neutral);
+  font-size: var(--font-2xs);
+  line-height: 12px;
+  font-family: var(--font-family);
+}
+
+.scrubber.isMobile .timestampStart,
+.scrubber.isMobile .timestampEnd {
+  font-size: var(--font-xs);
 }
