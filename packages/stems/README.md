@@ -1,4 +1,4 @@
-# stems
+<img src="https://user-images.githubusercontent.com/2731362/64272626-9c3b8800-cef4-11e9-973e-0e38a666ec46.png" alt="stems" width="500">
 
 > 
 
