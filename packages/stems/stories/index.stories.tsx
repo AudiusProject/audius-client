@@ -21,7 +21,7 @@ storiesOf('Stems', module)
   )
   .add('Scrubber', () =>
     <Scrubber
-      uniqueKey='1'
+      mediaKey='1'
       elapsedSeconds={0}
       totalSeconds={100}
     />

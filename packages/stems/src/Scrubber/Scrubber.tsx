@@ -7,7 +7,7 @@ import ScrubberProps, { defaultScrubberProps } from './types'
 import styles from './Scrubber.module.css'
 
 /** Timeout applied when releasing the drag-handle before timestamps reset. */
-const SCRUB_RELEASE_TIMEOUT = 200
+const SCRUB_RELEASE_TIMEOUT_MS = 200
 
 /** Pretty formats seconds into m:ss. */
 const formatSeconds = (seconds: number) => {
@@ -30,6 +30,12 @@ const Scrubber = ({
 }: ScrubberProps) => {
   const [dragSeconds, setDragSeconds] = useState<number | null>(null)
 
+  const resetDragSeconds = (isPlaying: boolean) => {
+    if (isPlaying) {
+      setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT_MS)
+    }
+  }
+
   const onHandleScrub = (seconds: number) => {
     setDragSeconds(seconds)
     onScrub(seconds)
@@ -37,15 +43,11 @@ const Scrubber = ({
 
   const onHandleScrubRelease = (seconds: number) => {
     onScrubRelease(seconds)
-    if (isPlaying) {
-      setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT)
-    }
+    resetDragSeconds(isPlaying)
   }
 
   useEffect(() => {
-    if (isPlaying) {
-      setTimeout(() => setDragSeconds(null), SCRUB_RELEASE_TIMEOUT)
-    }
+    resetDragSeconds(isPlaying)
   }, [isPlaying])
 
   const timestampStart = dragSeconds !== null ? dragSeconds : elapsedSeconds

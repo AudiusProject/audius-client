@@ -6,7 +6,7 @@ import ScrubberProps from './types'
 import styles from './Slider.module.css'
 
 /** Gets the X-position of a div. */
-const getXPosition = (element: HTMLDivElement): number => {
+const getXPosition = (element: HTMLDivElement) => {
   const coords = element.getBoundingClientRect()
   return window.pageXOffset + coords.left
 }
@@ -29,7 +29,7 @@ const Slider = ({
 
   // Percentage of the complete scrubber being dragged to.
   // e.g. 0.25 means the user has dragged the scrubber 1/4th of the way.
-  const dragPercent = useRef<number>(0)
+  const dragPercent = useRef(0)
 
   // Refs to handle event listeners
   const mouseMoveRef = useRef(null)
@@ -40,7 +40,7 @@ const Slider = ({
   const trackRef = useRef<HTMLDivElement>(null)
   const handleRef = useRef<HTMLDivElement>(null)
 
-  const { play, pause, set } = useAnimations(trackRef, handleRef, elapsedSeconds, totalSeconds)
+  const { play, pause, setPercent } = useAnimations(trackRef, handleRef, elapsedSeconds, totalSeconds)
 
   /**
    * Sets the percentage across the scrubber for a given mouse event.
@@ -60,11 +60,11 @@ const Slider = ({
     e.preventDefault()
 
     setDragPercent(e)
-    set(dragPercent.current)
+    setPercent(dragPercent.current)
 
     const seconds = dragPercent.current * totalSeconds
     onScrub(seconds)
-  }, [dragPercent, totalSeconds, set, onScrub])
+  }, [dragPercent, totalSeconds, setPercent, onScrub])
 
   /**
    * Watches for a mouse-up action (which may not occur on the scrubber itself),
@@ -92,7 +92,7 @@ const Slider = ({
     document.addEventListener('mouseup', mouseUpRef.current)
 
     setDragPercent(e)
-    set(dragPercent.current)
+    setPercent(dragPercent.current)
   }
 
   // Watch interactions to the scrubber and call to animate
@@ -107,13 +107,13 @@ const Slider = ({
   useEffect(() => {
     if (uniqueKey !== previousUniqueKey) {
       if (!totalSeconds) {
-        set(0)
+        setPercent(0)
       } else {
-        set(elapsedSeconds / totalSeconds)
+        setPercent(elapsedSeconds / totalSeconds)
       }
       setPreviousUniqueKey(uniqueKey)
     }
-  }, [uniqueKey, previousUniqueKey, setPreviousUniqueKey, set, elapsedSeconds, totalSeconds])
+  }, [uniqueKey, previousUniqueKey, setPreviousUniqueKey, setPercent, elapsedSeconds, totalSeconds])
 
   return (
     <div

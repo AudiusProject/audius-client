@@ -1,14 +1,14 @@
 type ScrubberProps = {
   /**
-   * A unique identifier for the thing being scrubbed.
+   * A unique identifier for the media being scrubbed.
    * Usually a "track id" suffices here. This property
    * is similar to a `key` in React and is used to
-   * reset the scrubber animation for a new item.
+   * reset the scrubber animation for a new media item.
    */
-  uniqueKey: string
+  mediaKey: string
 
   /**
-   * Whether or not the item being scrubbed is playing (or paused).
+   * Whether or not the media being scrubbed is playing (or paused).
    */
   isPlaying: boolean
 
@@ -29,7 +29,7 @@ type ScrubberProps = {
   includeTimestamps?: boolean
 
   /**
-   * The current progress of the thing being scrubbed.
+   * The current progress of the media being scrubbed.
    * The scrubber reacts to changes in the elapsed seconds
    * to re-calibrate. This value should be updated relatively frequently
    * (0.1s < x < 1s).
@@ -37,7 +37,7 @@ type ScrubberProps = {
   elapsedSeconds: number
 
   /**
-   * Total duration of the thing being scrubbed.
+   * Total duration of the media being scrubbed.
    */
   totalSeconds: number
 

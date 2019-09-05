@@ -1,27 +1,36 @@
 import React, { useCallback } from 'react'
 
+/** Sets animation properties on the handle and track. */
+const animate = (
+  trackRef: React.MutableRefObject<HTMLDivElement>,
+  handleRef: React.MutableRefObject<HTMLDivElement>,
+  transition: string,
+  transform: string
+) => {
+  if (handleRef.current && trackRef.current) {
+    handleRef.current.style.transition = transition
+    handleRef.current.style.transform = transform
+
+    trackRef.current.style.transition = transition
+    trackRef.current.style.transform = transform
+  }
+}
+
+/**
+ * Hook for initializing animations for a scrubber.
+ * const animations = useAnimations()
+ */
 export const useAnimations = (
   trackRef: React.MutableRefObject<HTMLDivElement>,
   handleRef: React.MutableRefObject<HTMLDivElement>,
   elapsedSeconds: number,
   totalSeconds: number
 ) => {
-  /** Sets animation properties on the handle and track. */
-  const animate = useCallback((transition: string, transform: string) => {
-    if (handleRef.current && trackRef.current) {
-      handleRef.current.style.transition = transition
-      handleRef.current.style.transform = transform
-
-      trackRef.current.style.transition = transition
-      trackRef.current.style.transform = transform
-    }
-  }, [handleRef, trackRef])
-
   /** Animates from the current position to the end over the remaining seconds. */
   const play = useCallback(() => {
     const timeRemaining = totalSeconds - elapsedSeconds
-    animate(`transform ${timeRemaining}s linear`, 'translate(0%)')
-  }, [totalSeconds, elapsedSeconds, animate])
+    animate(trackRef, handleRef, `transform ${timeRemaining}s linear`, 'translate(0%)')
+  }, [trackRef, handleRef, totalSeconds, elapsedSeconds])
 
   /**
    * Pauses the animation at the current position.
@@ -35,13 +44,13 @@ export const useAnimations = (
 
     const trackRemaining = -1 * parseFloat(trackTransform.split(',')[4])
     const percentComplete = (trackWidth - trackRemaining) / trackWidth * 100
-    animate('none', `translate(${-100 + percentComplete}%)`)
-  }, [trackRef, animate])
+    animate(trackRef, handleRef, 'none', `translate(${-100 + percentComplete}%)`)
+  }, [trackRef, handleRef])
 
-  /** Sets the animation to a given percentage: [0, 1] */
-  const set = useCallback((percentComplete: number) => {
-    animate('none', `translate(${-100 + percentComplete * 100}%)`)
-  }, [animate])
+  /** Sets the animation to a given percentage: [0, 1]. */
+  const setPercent = useCallback((percentComplete: number) => {
+    animate(trackRef, handleRef, 'none', `translate(${-100 + percentComplete * 100}%)`)
+  }, [trackRef, handleRef])
 
-  return { play, pause, set }
+  return { play, pause, setPercent }
 }
