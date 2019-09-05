@@ -16,7 +16,7 @@ const getXPosition = (element: HTMLDivElement) => {
  * than progress ticks to achieve fluidity.
  */
 const Slider = ({
-  uniqueKey,
+  mediaKey,
   isPlaying,
   isMobile,
   isDisabled,
@@ -25,7 +25,7 @@ const Slider = ({
   onScrub,
   onScrubRelease
 }: ScrubberProps) => {
-  const [previousUniqueKey, setPreviousUniqueKey] = useState('')
+  const [previousmediaKey, setPreviousmediaKey] = useState('')
 
   // Percentage of the complete scrubber being dragged to.
   // e.g. 0.25 means the user has dragged the scrubber 1/4th of the way.
@@ -105,15 +105,15 @@ const Slider = ({
 
   // When the key changes, reset the animation
   useEffect(() => {
-    if (uniqueKey !== previousUniqueKey) {
+    if (mediaKey !== previousmediaKey) {
       if (!totalSeconds) {
         setPercent(0)
       } else {
         setPercent(elapsedSeconds / totalSeconds)
       }
-      setPreviousUniqueKey(uniqueKey)
+      setPreviousmediaKey(mediaKey)
     }
-  }, [uniqueKey, previousUniqueKey, setPreviousUniqueKey, setPercent, elapsedSeconds, totalSeconds])
+  }, [mediaKey, previousmediaKey, setPreviousmediaKey, setPercent, elapsedSeconds, totalSeconds])
 
   return (
     <div

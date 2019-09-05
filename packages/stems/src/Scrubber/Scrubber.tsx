@@ -18,7 +18,7 @@ const formatSeconds = (seconds: number) => {
  * Wraps the `<Slider />` component and provides timestamp indicators.
  */
 const Scrubber = ({
-  uniqueKey,
+  mediaKey,
   isPlaying,
   isDisabled,
   isMobile,
@@ -62,7 +62,7 @@ const Scrubber = ({
       {includeTimestamps &&
         <div className={styles.timestampStart}>{formatSeconds(timestampStart)}</div>}
       <Slider
-        uniqueKey={uniqueKey}
+        mediaKey={mediaKey}
         isPlaying={isPlaying}
         isDisabled={isDisabled}
         elapsedSeconds={elapsedSeconds}
