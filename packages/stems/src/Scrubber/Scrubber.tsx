@@ -65,6 +65,7 @@ const Scrubber = ({
         mediaKey={mediaKey}
         isPlaying={isPlaying}
         isDisabled={isDisabled}
+        isMobile={isMobile}
         elapsedSeconds={elapsedSeconds}
         totalSeconds={totalSeconds}
         onScrub={onHandleScrub}

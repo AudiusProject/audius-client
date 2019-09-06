@@ -29,7 +29,7 @@ export const useAnimations = (
   /** Animates from the current position to the end over the remaining seconds. */
   const play = useCallback(() => {
     const timeRemaining = totalSeconds - elapsedSeconds
-    animate(trackRef, handleRef, `transform ${timeRemaining}s linear`, 'translate(0%)')
+    animate(trackRef, handleRef, `transform ${timeRemaining}s linear`, 'translate(100%)')
   }, [trackRef, handleRef, totalSeconds, elapsedSeconds])
 
   /**
@@ -42,14 +42,14 @@ export const useAnimations = (
     const trackWidth = trackRef.current.offsetWidth
     const trackTransform = window.getComputedStyle(trackRef.current).getPropertyValue('transform')
 
-    const trackRemaining = -1 * parseFloat(trackTransform.split(',')[4])
-    const percentComplete = (trackWidth - trackRemaining) / trackWidth * 100
-    animate(trackRef, handleRef, 'none', `translate(${-100 + percentComplete}%)`)
+    const trackPosition = parseFloat(trackTransform.split(',')[4])
+    const percentComplete = trackPosition / trackWidth
+    animate(trackRef, handleRef, 'none', `translate(${percentComplete * 100}%)`)
   }, [trackRef, handleRef])
 
   /** Sets the animation to a given percentage: [0, 1]. */
   const setPercent = useCallback((percentComplete: number) => {
-    animate(trackRef, handleRef, 'none', `translate(${-100 + percentComplete * 100}%)`)
+    animate(trackRef, handleRef, 'none', `translate(${percentComplete * 100}%)`)
   }, [trackRef, handleRef])
 
   return { play, pause, setPercent }
