@@ -176,7 +176,8 @@ const Slider = ({
   return (
     <div
       className={cn(styles.slider, {
-        [styles.isMobile]: isMobile
+        [styles.isMobile]: isMobile,
+        [styles.isDisabled]: isDisabled
       })}
       onMouseDown={isDisabled ? () => {} : onMouseDown}
       onTouchStart={isDisabled ? () => {} : onTouchStart}
