@@ -9,6 +9,15 @@
   font-size: var(--font-2xs);
   line-height: 12px;
   font-family: var(--font-family);
+  min-width: 40px;
+}
+
+.timestampStart {
+  text-align: right;
+}
+
+.timestampEnd {
+  text-align: left;
 }
 
 .scrubber.isMobile .timestampStart,
