@@ -1,6 +1,5 @@
 import getConfig from '../config'
 import { newPage, resetBrowser, wait } from '../utils'
-import { skipBetaPassword } from '../flows/fill-beta-password'
 import playTrack from '../flows/play-track'
 
 // Allow a max time of 2 minutes to run the test
@@ -15,7 +14,6 @@ describe(
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-      await skipBetaPassword(page)
     }, timeout)
 
     afterAll(async () => {
