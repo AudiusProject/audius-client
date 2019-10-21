@@ -13,7 +13,7 @@ jobs:
           name: Download Dapp from S3
           command: | 
             cd ../
-            aws s3 sync s3://app.staging.audius.co ./build-staging
+            aws s3 sync s3://staging.audius.co ./build-staging
       - persist_to_workspace:
           root: ../
           paths:

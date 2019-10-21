@@ -4,7 +4,6 @@ import {
 } from '../utils'
 import getConfig from '../config'
 import createAccount from '../flows/create-account'
-import fillBetaPassword from '../flows/fill-beta-password'
 import uploadTrack from '../flows/upload-track'
 
 // Allow a max time of 3 minutes to create an account and run the test
@@ -18,7 +17,6 @@ describe(
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-      await fillBetaPassword(page, config.baseUrl)
       await createAccount(page, config.baseUrl)
     }, timeout)
 

@@ -26,11 +26,13 @@ export const createAccount = async (page, baseUrl) => {
   // Go to the signup page
   await waitForSplashScreen(page)
   await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
+  await waitForSplashScreen(page)
+  // await new Promise(resolve => setTimeout(resolve, 5000)) // Allow time for js confirmation of pwd
 
   /** Email Page ... */
   // Fill in email, intercept email exists check request and hit continue
   const checkEmail = waitForResponse(page, '/users/check')
-  await page.waitForSelector(`input[name='email']`, { timeout: 2000 })
+  await page.waitForSelector(`input[type='email']`, { timeout: 2000 })
   await fillInput(page, 'email', testUser.email)
   const checkEmailRes = await checkEmail
   if (checkEmailRes.exists !== false) throw new Error('email is in use')
