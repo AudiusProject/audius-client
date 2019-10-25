@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react'
+import React, { useRef, useCallback, useEffect } from 'react'
+import { TimeData } from './types'
 
 /** Sets animation properties on the handle and track. */
 const animate = (
@@ -30,7 +31,7 @@ export const useAnimations = (
   const play = useCallback(() => {
     const timeRemaining = totalSeconds - elapsedSeconds
     animate(trackRef, handleRef, `transform ${timeRemaining}s linear`, 'translate(100%)')
-  }, [trackRef, handleRef, totalSeconds, elapsedSeconds])
+  }, [trackRef, handleRef, elapsedSeconds, totalSeconds])
 
   /**
    * Pauses the animation at the current position.
@@ -51,6 +52,20 @@ export const useAnimations = (
   const setPercent = useCallback((percentComplete: number) => {
     animate(trackRef, handleRef, 'none', `translate(${percentComplete * 100}%)`)
   }, [trackRef, handleRef])
+
+  /**
+   * Handle window focus events so that the scrubber can repair itself
+   * if/when the browser loses focus and kills animations.
+   */
+  const timeData = useRef<TimeData>(null)
+  timeData.current = { elapsedSeconds, totalSeconds }
+  useEffect(() => {
+    const onWindowFocus = () => {
+      setPercent(timeData.current.elapsedSeconds / timeData.current.totalSeconds)
+    }
+    window.addEventListener('focus', onWindowFocus)
+    return () => window.removeEventListener('focus', onWindowFocus)
+  }, [timeData, setPercent])
 
   return { play, pause, setPercent }
 }

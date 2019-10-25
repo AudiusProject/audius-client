@@ -52,6 +52,15 @@ type ScrubberProps = {
   onScrubRelease?: (seconds: number) => void
 }
 
+/**
+ * Encapsulates time-data for detecting and animating the position
+ * of a scrubber.
+ */
+export type TimeData = {
+  elapsedSeconds: number
+  totalSeconds: number
+}
+
 export const defaultScrubberProps = {
   isPlaying: false,
   isDisabled: false,
