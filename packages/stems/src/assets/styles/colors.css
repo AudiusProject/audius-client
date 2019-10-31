@@ -4,6 +4,14 @@
  * Each defined color has variants defined by the 'dark' or 'light'
  * keyword. The number signifies an increasing value for the property, e.g.
  * -dark-2 is darker than -dark-1.
+ *
+ * The palette can be themed by simply adding css or js overrides of these
+ * color values. E.g.
+ * ** your styles.css **
+ * :root {
+ *   --background: red;
+ *   --neutral: blue;
+ * }
  */
  :root {
   --background: #F3F0F7;
@@ -53,4 +61,3 @@
   --primary-gradient: linear-gradient(135deg, #EE00ED 0%, #C514E0 100%);
   --secondary-gradient: linear-gradient(315deg, #6B0FB3 0%, #7E1BCC 100%);
 }
-

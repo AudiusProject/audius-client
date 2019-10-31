@@ -31,7 +31,7 @@ export default {
     postcss({
       plugins: [
         postcssCustomProperties({
-          preserve: false,
+          preserve: true,
           importFrom: [
             'src/assets/styles/colors.css',
             'src/assets/styles/fonts.css',

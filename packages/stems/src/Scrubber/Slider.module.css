@@ -1,3 +1,7 @@
+:root {
+  --slider-handle: var(--white);
+}
+
 .slider {
   width: 100%;
   position: relative;
@@ -84,7 +88,7 @@
   height: var(--unit-2);
   width: var(--unit-2);
   border-radius: 50%;
-  background: var(--white);
+  background: var(--slider-handle);
   box-shadow: 0 0 2px 0 rgba(133,129,153,0.5), 0 2px 5px -1px rgba(133,129,153,0.5);
   transition: transform 0.18s ease-in-out;
 }
