@@ -1,7 +1,6 @@
-
 const GENERAL_ADMISSION_URL = process.env.PREACT_APP_GENERAL_ADMISSION_URL
 
-const enum PathComponents {
+export enum RequestedEntity {
   TRACKS = 'tracks',
   COLLECTIONS = 'collections'
 }
@@ -42,16 +41,16 @@ const makeRequest = async (url: string) => {
   }
 }
 
-const constructEndpoint = (component: PathComponents, id: number, ownerId: number) => `${GENERAL_ADMISSION_URL}/embed/api/${component}/${id}?ownerId=${ownerId}`
+const constructEndpoint = (entity: RequestedEntity, id: number, ownerId: number) => `${GENERAL_ADMISSION_URL}/embed/api/${entity}/${id}?ownerId=${ownerId}`
 
 export const getTrack = async (id: number, ownerId: number): Promise<GetTracksResponse> => {
-  const url = constructEndpoint(PathComponents.TRACKS, id, ownerId)
+  const url = constructEndpoint(RequestedEntity.TRACKS, id, ownerId)
   const resp: GetTracksResponse = await makeRequest(url)
   return resp
 }
 
 export const getCollection = async (id: number, ownerId: number): Promise<GetCollectionsResponse> => {
-  const url = constructEndpoint(PathComponents.COLLECTIONS, id, ownerId)
+  const url = constructEndpoint(RequestedEntity.COLLECTIONS, id, ownerId)
   const resp: GetCollectionsResponse = await makeRequest(url)
   return resp
 }
