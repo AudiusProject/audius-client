@@ -30,6 +30,7 @@ export interface GetCollectionsResponse {
 
 const makeRequest = async (url: string) => {
   try {
+    console.log(`Making request to: ${url}`)
     const resp = await fetch(url)
     if (!resp.ok) {
       throw new Error(`HTTP Error: Status Code [${resp.status}]`)
@@ -45,13 +46,11 @@ const constructEndpoint = (entity: RequestedEntity, id: number, ownerId: number)
 
 export const getTrack = async (id: number, ownerId: number): Promise<GetTracksResponse> => {
   const url = constructEndpoint(RequestedEntity.TRACKS, id, ownerId)
-  const resp: GetTracksResponse = await makeRequest(url)
-  return resp
+  return makeRequest(url)
 }
 
 export const getCollection = async (id: number, ownerId: number): Promise<GetCollectionsResponse> => {
   const url = constructEndpoint(RequestedEntity.COLLECTIONS, id, ownerId)
-  const resp: GetCollectionsResponse = await makeRequest(url)
-  return resp
+  return makeRequest(url)
 }
 

@@ -1,7 +1,10 @@
 import { h } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
-import AudioStream from '../audio/AudioStream'
-import { getCollection, getTrack } from '../util/BedtimeClient'
+import { useCallback, useEffect, useState } from 'preact/hooks'
+import { getCollection, GetCollectionsResponse, getTrack, GetTracksResponse } from '../util/BedtimeClient'
+import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
+import TrackPlayerContainer from './track/TrackPlayerContainer'
+
+import styles from './App.module.css'
 
 if ((module as any).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -13,22 +16,23 @@ const enum RequestType {
   COLLECTION = 'collection'
 }
 
-const enum PlayerFlavor {
+export enum PlayerFlavor {
   CARD = 'card',
   COMPACT = 'compact'
 }
 
-const audio = new AudioStream()
-
 // Returns null if the URL scheme was invalid
 const getRequestDataFromURL = () => {
-  const pathName = window.location.pathname.split('/')[1]
+  console.log('Getting request!')
+  console.log(window.location.pathname)
+  const components = window.location.pathname.split('/')
+  const lastComponent = components[components.length - 1]
 
   // Pull off the request type
   let requestType: RequestType
-  if (pathName === RequestType.COLLECTION) {
+  if (lastComponent === RequestType.COLLECTION) {
     requestType = RequestType.COLLECTION
-  } else if (pathName === RequestType.TRACK) {
+  } else if (lastComponent === RequestType.TRACK) {
     requestType = RequestType.TRACK
   } else {
     return null
@@ -74,11 +78,30 @@ const App = () => {
   // TODO: unhardcode this
   /* const trackId = 6000
    * const ownerId = 6932 */
-  const trackId = 619
-  const ownerId = 5708
 
   const [didError, setDidError] = useState(false)
   const [requestState, setRequestState] = useState<RequestState | null>(null)
+  const [tracksResponse, setTracksResponse] = useState<GetTracksResponse | null>(null)
+  const [collectionsResponse, setCollectionsResponse] = useState<GetCollectionsResponse | null>(null)
+
+  const requestMetadata = useCallback(async (request: RequestState) => {
+    console.log('Requesting metadata')
+    try {
+      if (request.requestType === RequestType.TRACK) {
+        const track = await getTrack(request.id, request.ownerId)
+        console.log('Got track')
+        console.log(JSON.stringify(track))
+        setTracksResponse(track)
+      } else if (request.requestType === RequestType.COLLECTION) {
+        console.log('Got coll')
+        const collection = await getCollection(request.id, request.ownerId)
+        setCollectionsResponse(collection)
+        console.log(JSON.stringify(collection))
+      }
+    } catch (e) {
+      setDidError(true)
+    }
+  }, [])
 
   useEffect(() => {
     const request = getRequestDataFromURL()
@@ -89,29 +112,38 @@ const App = () => {
     }
     console.log('settin')
     setRequestState(request)
+    requestMetadata(request)
   }, [])
 
-  useEffect(() => {
-    const callback = async () => {
-      if (requestState?.requestType === RequestType.TRACK) {
-        const track = await getTrack(requestState.id, requestState.ownerId)
-        console.log(JSON.stringify(track))
-      } else if (requestState?.requestType === RequestType.COLLECTION) {
-        const collection = await getCollection(requestState.id, requestState.ownerId)
-        console.log(JSON.stringify(collection))
-      }
+
+  const renderPlayerContainer = () => {
+    if (didError) {
+      return <div>"This is the error div"</div>
     }
 
-    callback()
-  }, [requestState])
+    if (tracksResponse && requestState) {
+      console.log('trying to render the tracks container')
+      return (<TrackPlayerContainer
+        track={tracksResponse}
+        flavor={requestState.playerFlavor}
+      />)
+    }
+
+    if (collectionsResponse && requestState) {
+      return (<CollectionPlayerContainer
+        collection={collectionsResponse}
+        flavor={requestState.playerFlavor}
+      />)
+    }
+
+    return null
+  }
 
   return (
-    <div id='app'>
-      This is my preact app
-      <button onClick={() => audio.play() }>Play</button>
+    <div id='app' className={styles.app}>
+      {renderPlayerContainer()}
     </div>
   )
 }
 
 export default App
-

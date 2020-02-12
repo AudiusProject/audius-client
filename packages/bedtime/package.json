@@ -4,9 +4,10 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "start:production": "env-cmd -f .env.prodocution npm run -s serve",
+    "start:production": "env-cmd -f .env.production npm run -s serve",
     "start:staging": "env-cmd -f .env.staging npm run -s dev",
     "start:development": "env-cmd -f .env.development npm run -s dev",
+    "build:staging": "env-cmd -f .env.staging npm run build",
     "build": "preact build --no-prerender",
     "serve": "preact build --no-prerender && preact serve",
     "dev": "preact watch",
@@ -53,6 +54,7 @@
     "typings-for-css-modules-loader": "^1.7.0"
   },
   "dependencies": {
+    "@audius/stems": "^0.1.4",
     "axios": "^0.19.2",
     "env-cmd": "^10.0.1",
     "hls.js": "^0.13.1",
