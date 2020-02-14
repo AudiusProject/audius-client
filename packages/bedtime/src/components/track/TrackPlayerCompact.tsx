@@ -1,19 +1,24 @@
-import { Scrubber } from '@audius/stems'
 import { h } from 'preact'
 
-import PlayButton from '../PlayButton'
-import { PlayingState } from '../PlayButton'
+import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 // TODO: return to icons
 
-import styles, { trackInfo } from './TrackPlayerCompact.module.css'
-
+import Artwork from '../artwork/Artwork'
+import AudiusLogoButton from '../button/AudiusLogoButton'
+import ShareButton from '../button/ShareButton'
+import EmbedScrubber from '../scrubber/BedtimeScrubber'
+import Titles from '../titles/Titles'
+import styles from './TrackPlayerCompact.module.css'
 
 interface TrackPlayerCompactProps {
   title: string
+  mediaKey: number
+  artistName: string
   handle: string
+  trackURL: string
   playingState: PlayingState
-  albumArtUrl: string
+  albumArtURL: string
   isVerified: boolean
   position: number
   duration: number
@@ -25,46 +30,56 @@ interface TrackPlayerCompactProps {
 
 const TrackPlayerCompact = ({
   title,
+  mediaKey,
   handle,
+  artistName,
+  trackURL,
   playingState,
   onTogglePlay,
-  albumArtUrl,
+  albumArtURL,
   isVerified,
   position,
   duration,
   seekTo
 }: TrackPlayerCompactProps) => {
+  console.log({position, duration})
   return (
     <div className={styles.container}>
       <div className={styles.shareButton}/>
-      <div className={styles.albumArt} style={{ backgroundImage: `url(${albumArtUrl})`}}/>
+      <Artwork
+        artworkURL={albumArtURL}
+        onClickURL={trackURL}
+      />
       <div className={styles.trackInfo}>
         <div className={styles.topSection}>
-          <Scrubber
-            // TODO: is this going to create trouble w multiple tracks
-            // of the same name?
-            mediaKey={title}
-            isPlaying={playingState === PlayingState.Playing}
-            isDisabled={playingState === PlayingState.Buffering} // TODO: disable here?
-            isMobile={true}
-            // includeTimestamps={false}
-            onScrubRelease={seekTo}
-            totalSeconds={duration}
+          <EmbedScrubber
+            mediaKey={`title-${mediaKey}`}
+            playingState={playingState}
+            seekTo={seekTo}
+            duration={duration}
             elapsedSeconds={position}
           />
+          <div className={styles.logo}>
+            <AudiusLogoButton />
+          </div>
         </div>
         <div className={styles.bottomSection}>
           <PlayButton
             playingState={playingState}
             onTogglePlay={onTogglePlay}
+            iconColor={'orange'} // TODO: avg color
           />
-          <div className={styles.titles}>
-            <div className={styles.title}>
-              {title}
-            </div>
-            <div className={styles.handle}>
-              {handle}
-            </div>
+          <Titles
+            title={title}
+            artistName={artistName}
+            handle={handle}
+            isVerified={isVerified}
+            titleUrl={trackURL}
+          />
+          <div className={styles.shareButtonHolder}>
+            <ShareButton
+              url={trackURL}
+            />
           </div>
         </div>
       </div>

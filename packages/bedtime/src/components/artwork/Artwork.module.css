@@ -1,0 +1,7 @@
+.albumArt {
+  border-radius: 6px;
+  margin: 4px;
+  height: 112px;
+  width: 112px;
+  background-size: cover;
+}

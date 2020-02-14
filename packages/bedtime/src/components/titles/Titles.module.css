@@ -1,0 +1,25 @@
+.titles {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+
+.title {
+}
+
+.artistName {
+  display: flex;
+  align-items: center;
+}
+
+.artistName svg {
+  width: 14px;
+  height: 14px;
+  margin-left: 8px;
+  position: relative;
+  top: -1px;
+}
+
+.artistName path {
+  fill: #ffffff;
+}

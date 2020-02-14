@@ -1,5 +1,5 @@
 {
     "presets": [ 
-        ["preact-cli/babel", { "modules": "commonjs" }]
+      ["preact-cli/babel", "es2017"]
     ]
 }

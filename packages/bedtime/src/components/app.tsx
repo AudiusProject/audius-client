@@ -75,15 +75,12 @@ interface RequestState {
 }
 
 const App = () => {
-  // TODO: unhardcode this
-  /* const trackId = 6000
-   * const ownerId = 6932 */
-
   const [didError, setDidError] = useState(false)
   const [requestState, setRequestState] = useState<RequestState | null>(null)
   const [tracksResponse, setTracksResponse] = useState<GetTracksResponse | null>(null)
   const [collectionsResponse, setCollectionsResponse] = useState<GetCollectionsResponse | null>(null)
 
+  // TODO: pull these out into separate functions?
   const requestMetadata = useCallback(async (request: RequestState) => {
     console.log('Requesting metadata')
     try {

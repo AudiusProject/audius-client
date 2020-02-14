@@ -2,21 +2,12 @@
   border-radius: 8px;
   display: flex;
   justify-content: stretch;
-  align-items: center;
   /* TODO add dimensions */
   /* TODO add average color */
   /* TODO MAX & MIN WIDTH */
   height: 120px;
   background-color: orange;
   position: relative;
-}
-
-.albumArt {
-  border-radius: 6px;
-  margin: 4px;
-  height: 112px;
-  width: 112px;
-  background-size: cover;
 }
 
 .trackInfo {
@@ -28,26 +19,30 @@
 
 .topSection {
   height: 10px;
-  width: 100px;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .bottomSection {
+  margin-top: 18px;
   display: flex;
-}
-
-.titles {
-  display: flex;
-  flex-direction: column;
-  margin-left: 12px;
-}
-
-.title {
-}
-
-.handle {
+  align-items: center;
 }
 
 .shareButton {
   position: absolute;
   right: 6px;
+}
+
+.logo {
+  margin: 0px 16px;
+}
+
+.logo path {
+  fill: #ffffff;
+}
+
+.shareButtonHolder {
+  margin: 0px 16px 0px auto;
 }
