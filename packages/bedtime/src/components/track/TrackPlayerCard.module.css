@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bottomSection {
+  display: flex;
+  align-items: center;
+}

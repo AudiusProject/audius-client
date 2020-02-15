@@ -2,12 +2,10 @@ import { h } from 'preact'
 
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
-// TODO: return to icons
-
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import EmbedScrubber from '../scrubber/BedtimeScrubber'
+import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import styles from './TrackPlayerCompact.module.css'
 
@@ -22,6 +20,7 @@ interface TrackPlayerCompactProps {
   isVerified: boolean
   position: number
   duration: number
+  backgroundColor: string
 
   seekTo: (location: number) => void
   onTogglePlay: () => void
@@ -40,9 +39,9 @@ const TrackPlayerCompact = ({
   isVerified,
   position,
   duration,
-  seekTo
+  seekTo,
+  backgroundColor
 }: TrackPlayerCompactProps) => {
-  console.log({position, duration})
   return (
     <div className={styles.container}>
       <div className={styles.shareButton}/>
@@ -52,7 +51,7 @@ const TrackPlayerCompact = ({
       />
       <div className={styles.trackInfo}>
         <div className={styles.topSection}>
-          <EmbedScrubber
+          <BedtimeScrubber
             mediaKey={`title-${mediaKey}`}
             playingState={playingState}
             seekTo={seekTo}
@@ -67,7 +66,7 @@ const TrackPlayerCompact = ({
           <PlayButton
             playingState={playingState}
             onTogglePlay={onTogglePlay}
-            iconColor={'orange'} // TODO: avg color
+            iconColor={backgroundColor}
           />
           <Titles
             title={title}
