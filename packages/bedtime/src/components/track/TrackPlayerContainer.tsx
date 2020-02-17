@@ -6,6 +6,7 @@ import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
 
 import usePlayback from '../../hooks/usePlayback'
+import TrackPlayerCard from './TrackPlayerCard'
 
 interface TrackPlayerContainerProps {
   flavor: PlayerFlavor
@@ -38,27 +39,36 @@ const TrackPlayerContainer = ({
 
   }, [])
 
+  const props = {
+    title: track.title,
+    mediaKey,
+    handle: track.handle,
+    artistName: track.userName,
+    playingState,
+    albumArtURL: track.coverArt,
+    onTogglePlay,
+    onShare: () => {},
+    isVerified: track.isVerified,
+    seekTo,
+    position,
+    duration,
+    trackURL: track.urlPath,
+    backgroundColor
+  }
+
   if (flavor === PlayerFlavor.COMPACT) {
     return (
       <TrackPlayerCompact
-        title={track.title}
-        mediaKey={mediaKey}
-        handle={track.handle}
-        artistName={track.userName}
-        playingState={playingState}
-        albumArtURL={track.coverArt}
-        onTogglePlay={onTogglePlay}
-        onShare={() => {}}
-        isVerified={track.isVerified}
-        seekTo={seekTo}
-        position={position}
-        duration={duration}
-        trackURL={track.urlPath}
-        backgroundColor={backgroundColor}
+        {...props}
       />
     )
   }
-  return null
+
+  return (
+    <TrackPlayerCard
+      {...props}
+    />
+  )
 }
 
 export default TrackPlayerContainer

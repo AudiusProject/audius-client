@@ -8,6 +8,10 @@ import Titles from '../titles/Titles'
 
 import styles from './TrackPlayerCard.module.css'
 
+// TODO: move this important into a shared thingy
+import cardStyles from '../collection/CollectionPlayerCard.module.css'
+
+
 interface TrackPlayerCardProps {
   title: string
   mediaKey: number
@@ -43,23 +47,27 @@ const TrackPlayerCard = ({
 }: TrackPlayerCardProps) => {
   // TODO: Figure out what media key should be for the scrubber
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{backgroundColor}}>
       <Artwork
         onClickURL={trackURL}
         artworkURL={albumArtURL} 
+        className={styles.artworkStyle}
       />
-      <BedtimeScrubber
-        duration={duration}
-        elapsedSeconds={position}
-        mediaKey={`${mediaKey}`} 
-        playingState={playingState}
-        seekTo={seekTo}
-      />
+      <div className={styles.scrubber}>
+        <BedtimeScrubber
+          duration={duration}
+          elapsedSeconds={position}
+          mediaKey={`${mediaKey}`} 
+          playingState={playingState}
+          seekTo={seekTo}
+        />
+      </div>
       <div className={styles.bottomSection}>
         <PlayButton
           onTogglePlay={onTogglePlay}
           playingState={playingState}
           iconColor={backgroundColor}
+          className={styles.playButton}
         />
         <Titles
           artistName={artistName}
@@ -68,6 +76,11 @@ const TrackPlayerCard = ({
           title={title}
           titleUrl={trackURL}
         />
+        <div className={styles.shareWrapper}>
+          <ShareButton
+            url={trackURL}
+          />
+        </div>
       </div>
     </div>
   )
