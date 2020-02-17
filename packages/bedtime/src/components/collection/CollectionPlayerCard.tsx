@@ -7,7 +7,7 @@ import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 
-import styles from 'CollectionPlayerContainer.module.css'
+import styles from './CollectionPlayerCard.module.css'
 
 interface CollectionPlayerListRowProps {
   playingState: PlayingState
@@ -37,15 +37,21 @@ const CollectionListRow = ({
   }
 
   return (
-    <div className={styles.trackListRow}>
+    <div
+      className={styles.trackListRow}
+      onClick={(e) => e.stopPropagation && onTogglePlay()}
+      style={isActive && playingState !== PlayingState.Stopped? { backgroundColor: 'rgba(0, 0, 0, 0.04)' } : {}}
+    >
+      <div className={styles.backgroundElement}/>
       <div className={styles.leftElement}>
         {isActive ?
          <PlayButton
            onTogglePlay={onTogglePlay}
            playingState={playingState}
            iconColor={iconColor}
+           className={styles.playButton}
          /> :
-         {trackIndex}
+         trackIndex
         }
       </div>
       <div className={styles.rightElement}>
@@ -75,6 +81,7 @@ interface CollectionPlayerCardProps {
   mediaKey: string
   playingState: PlayingState
   backgroundColor: string
+  rowBackgroundColor: string
   activeTrackIndex: number
 }
 
@@ -86,6 +93,7 @@ const CollectionPlayerCard = ({
   mediaKey,
   playingState,
   backgroundColor,
+  rowBackgroundColor,
   activeTrackIndex,
   onTogglePlay,
 }: CollectionPlayerCardProps) => {
@@ -109,6 +117,7 @@ const CollectionPlayerCard = ({
       </div>
       <div className={styles.middleRow}>
         <Artwork
+          className={styles.artwork}
           artworkURL={collection.coverArt}
           onClickURL={collection.collectionURLPath}
         />
@@ -129,7 +138,10 @@ const CollectionPlayerCard = ({
           />
         </div>
       </div>
-      <div className={styles.listContainer}>
+      <div
+        className={styles.listContainer}
+        style={{ backgroundColor: rowBackgroundColor }}
+      >
         {collection.tracks.map((t, i) => {
           return (
             <CollectionListRow
@@ -138,10 +150,10 @@ const CollectionPlayerCard = ({
               artistName={t.userName}
               isActive={i === activeTrackIndex}
               playingState={playingState}
-              trackIndex={i}
+              trackIndex={i + 1}
               trackURL={t.urlPath}
               trackTitle={t.title}
-              iconColor={backgroundColor}
+              iconColor={rowBackgroundColor}
               onTogglePlay={makeOnTogglePlay(i)}
             />
           )

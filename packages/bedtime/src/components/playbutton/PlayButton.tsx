@@ -1,5 +1,6 @@
 import { h } from 'preact'
 
+import cn from 'classnames'
 import { useEffect } from 'preact/hooks'
 import IconPause from '../../assets/img/iconPause.svg'
 import IconPlay from '../../assets/img/iconPlay.svg'
@@ -17,6 +18,7 @@ interface PlayButtonProps {
   playingState: PlayingState
   onTogglePlay: () => void
   iconColor?: string
+  className?: string
 }
 
 const stateIconMap = {
@@ -29,7 +31,8 @@ const stateIconMap = {
 const PlayButton = ({
   playingState,
   onTogglePlay,
-  iconColor
+  iconColor,
+  className
 }: PlayButtonProps) => {
   useEffect(() => {
     const root = document.getElementById('app')
@@ -38,7 +41,13 @@ const PlayButton = ({
   }, [])
 
   return (
-    <div onClick={onTogglePlay} className={styles.container}>
+    <div
+      onClick={(e) => {
+        e.stopPropagation()
+        onTogglePlay()
+      }}
+      className={cn(styles.container, className)}
+    >
       {stateIconMap[playingState]}
     </div>
   )

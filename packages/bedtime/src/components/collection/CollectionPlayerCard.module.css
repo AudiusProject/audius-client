@@ -2,15 +2,29 @@
   border-radius: 16px;
   display: flex;
   flex-direction: column;
+  padding: 10px 14px 14px;
+  /* TODO remove these to make it responsive */
+  width: 400px;
+  height: 480px;
 }
 
 .topRow {
   display: flex;
   align-items: center;
+  margin-bottom: 14px;
 }
 
 .logo {
   margin-right: auto;
+}
+
+.logo svg {
+  width: 75px;
+  height: 20px;
+}
+
+.logo path {
+  fill: white;
 }
 
 .share {
@@ -29,37 +43,90 @@
 
 .middleRow {
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 
 .middleRowRight {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  margin-left: 12px;
+}
+
+.middleRowRight div {
+  margin-top: auto;
 }
 
 .listContainer {
   display: flex;
   flex-direction: column;
+  border-radius: 6px;
+  margin-top: 14px;
+  overflow: scroll;
+  flex: 1;
 }
 
 .trackListRow {
   display: flex;
-  overflow: scroll;
+  height: 48px;
+  align-items: center;
+  position: relative;
+}
+
+.backgroundElement {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  opacity: 0;
+  transition: all 0.17s;
+  background-color: #000000;
+}
+
+.backgroundElement:hover {
+  opacity: 0.04;
 }
 
 .leftElement {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  z-index: 1;
 }
 
 .rightElement {
   display: flex;
   justify-content: center;
+  flex-direction: column;
+  z-index: 1;
 }
 
 .rowTitle {
+  font-size: 14px;
+  line-height: 18px;
 }
 
 .rowSubtitle {
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.artwork {
+  height: 80px;
+  width: 80px;
+  margin: 0px;
+}
+
+.playButton {
+  height: 20px;
+  width: 20px;
+  border-radius: 10px;
+}
+
+.playButton svg {
+  height: 12px;
+  width: 12px;
 }

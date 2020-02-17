@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import { h } from 'preact'
 
 import styles from './Artwork.module.css'
@@ -5,11 +6,13 @@ import styles from './Artwork.module.css'
 interface ArtworkProps {
   onClickURL: string
   artworkURL: string
+  className?: string
 }
 
 const Artwork = ({
   onClickURL,
-  artworkURL
+  artworkURL,
+  className
 }: ArtworkProps) => {
   const onClick = () => {
     window.open(onClickURL, '_blank')
@@ -18,7 +21,7 @@ const Artwork = ({
   return (
     <div
       onClick={onClick}
-      className={styles.albumArt}
+      className={cn(styles.albumArt, className)}
       style={{ backgroundImage: `url(${artworkURL})`}}
     />
   )

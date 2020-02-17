@@ -8,6 +8,7 @@
     ],
     "rules": {
         "interface-name": [true, "never-prefix"],
+        "no-shadowed-variable": false,
         "object-literal-sort-keys": false,
         "no-empty-interface": false,
         "no-submodule-imports": false,

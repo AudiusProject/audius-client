@@ -29,7 +29,8 @@ const PUBLIC_IPFS_GATEWAY = `http://cloudflare-ipfs.com/ipfs/`;
 // Account for possibility of no-window in Preact pre-render
 const IS_CHROME_LIKE =
   typeof window !== "undefined" &&
-  /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  /Chrome/.test(navigator.userAgent) &&
+  /Google Inc/.test(navigator.vendor);
 
 // Custom fragment loader for HLS that utilizes the audius CID resolver.
 class fLoader extends Hls.DefaultConfig.loader {
@@ -235,9 +236,9 @@ class AudioStream {
     // Normally canplaythrough should be required to set currentTime, but in the case
     // of setting curtingTime to zero, pushing to the end of the event loop works.
     // This fixes issues in Firefox, in particular `the operation was aborted`
-    setImmediate(() => {
+    setTimeout(() => {
       this.audio.currentTime = 0;
-    });
+    }, 0);
   };
 
   isPlaying = () => {

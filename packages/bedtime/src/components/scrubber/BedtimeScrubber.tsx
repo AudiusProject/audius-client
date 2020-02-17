@@ -41,7 +41,7 @@ const EmbedScrubber = ({
       <Scrubber
         mediaKey={mediaKey}
         isPlaying={playingState === PlayingState.Playing}
-        isDisabled={playingState === PlayingState.Buffering} // TODO: disable here?
+        isDisabled={false}
         isMobile={true}
         includeTimestamps={false}
         onScrubRelease={seekTo}
@@ -50,7 +50,8 @@ const EmbedScrubber = ({
         style={{
           railListenedColor: RAIL_LISTENED_COLOR,
           railUnlistenedColor: RAIL_UNLISTENED_COLOR,
-          showHandle: false
+          showHandle: false,
+          sliderMargin: `0px`
         }}
       />
     </div>

@@ -1,7 +1,6 @@
 .titles {
   display: flex;
   flex-direction: column;
-  margin-left: 12px;
 }
 
 .title {

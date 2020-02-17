@@ -68,13 +68,15 @@ const TrackPlayerCompact = ({
             onTogglePlay={onTogglePlay}
             iconColor={backgroundColor}
           />
-          <Titles
-            title={title}
-            artistName={artistName}
-            handle={handle}
-            isVerified={isVerified}
-            titleUrl={trackURL}
-          />
+          <div className={styles.titleContainer}>
+            <Titles
+              title={title}
+              artistName={artistName}
+              handle={handle}
+              isVerified={isVerified}
+              titleUrl={trackURL}
+            />
+          </div>
           <div className={styles.shareButtonHolder}>
             <ShareButton
               url={trackURL}
