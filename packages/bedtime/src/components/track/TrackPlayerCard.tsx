@@ -11,8 +11,7 @@ import styles from './TrackPlayerCard.module.css'
 
 // TODO: move this important into a shared thingy
 import cardStyles from '../collection/CollectionPlayerCard.module.css'
-import PausedPopoverCard from '../pausedpopover/PausedPopoverCard'
-
+import PausedPopoverCard, { Flavor } from '../pausedpopover/PausedPopoverCard'
 
 interface TrackPlayerCardProps {
   title: string
@@ -60,6 +59,7 @@ const TrackPlayerCard = ({
           artworkURL={albumArtURL}
           listenOnAudiusURL={trackURL}
           onClickDismiss={() => setPausePopoverVisible(false)}
+          flavor={Flavor.CARD}
         />
       }
       <Artwork

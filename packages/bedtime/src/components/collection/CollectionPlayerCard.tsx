@@ -6,7 +6,7 @@ import { GetCollectionsResponse } from '../../util/BedtimeClient'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import PausedPopoverCard from '../pausedpopover/PausedPopoverCard'
+import PausedPopoverCard, { Flavor } from '../pausedpopover/PausedPopoverCard'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
@@ -125,6 +125,7 @@ const CollectionPlayerCard = ({
           artworkURL={collection.coverArt}
           listenOnAudiusURL={collection.collectionURLPath}
           onClickDismiss={() => setPausePopoverVisible(false)}
+          flavor={Flavor.CARD}
         />
       }
       <div className={styles.topRow}>

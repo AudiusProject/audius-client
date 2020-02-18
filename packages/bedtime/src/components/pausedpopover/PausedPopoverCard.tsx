@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import IconRemove from '../../assets/img/iconRemove.svg'
 import Artwork from '../artwork/Artwork'
@@ -7,33 +8,46 @@ import PrimaryLabel from './PrimaryLabel'
 
 import styles from './PausedPopoverCard.module.css'
 
+export enum Flavor {
+  CARD = 'CARD',
+  COMPACT = 'COMPACT'
+}
+
 interface PausedPopoverCardProps {
   artworkURL: string
   artworkClickURL: string
   listenOnAudiusURL: string
   onClickDismiss: () => void
+  flavor: Flavor
 }
 
 const PausedPopoverCard = ({
   artworkURL,
   artworkClickURL,
   listenOnAudiusURL,
-  onClickDismiss
+  onClickDismiss,
+  flavor
 }: PausedPopoverCardProps) => {
   return (
     <div className={styles.container}>
-      <div className={styles.logo}>
-        <AudiusLogo />
-      </div>
-      <div className={styles.artwork}>
-        <Artwork
-          artworkURL={artworkURL}
-          onClickURL={artworkClickURL}
-          className={styles.artworkSizing}
+      { (flavor === Flavor.CARD) && 
+        <>
+          <div className={styles.logo}>
+            <AudiusLogo />
+          </div>
+          <div className={styles.artwork}>
+            <Artwork
+              artworkURL={artworkURL}
+              onClickURL={artworkClickURL}
+              className={styles.artworkSizing}
+            />
+          </div>
+        </>
+      }
+      <div className={cn(styles.label, { [styles.compactLabel]: flavor === Flavor.COMPACT})}>
+        <PrimaryLabel
+          className={flavor === Flavor.COMPACT ? styles.compactLabelFont : undefined}
         />
-      </div>
-      <div className={styles.label}>
-        <PrimaryLabel/>
       </div>
       <ListenOnAudiusCTA
         audiusURL={listenOnAudiusURL}
