@@ -18,10 +18,10 @@ const Button = ({
 }: ButtonProps) => {
   return (
     <div className={cn(styles.container, className)} onClick={onClick}>
-      {icon}
       {label && <div>
         {label}
       </div>}
+      {icon}
     </div>
   )
 }

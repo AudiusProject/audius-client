@@ -4,8 +4,9 @@
   flex-direction: column;
   padding: 10px 14px 14px;
   /* TODO remove these to make it responsive */
-  width: 400px;
-  height: 480px;
+  width: 352px;
+  height: 432px;
+  position: relative;
 }
 
 .topRow {
@@ -63,8 +64,8 @@
   flex-direction: column;
   border-radius: 6px;
   margin-top: 14px;
-  overflow: scroll;
   flex: 1;
+  max-height: 304px;
 }
 
 .trackListRow {

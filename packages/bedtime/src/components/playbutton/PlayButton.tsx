@@ -17,6 +17,7 @@ export enum PlayingState {
 interface PlayButtonProps {
   playingState: PlayingState
   onTogglePlay: () => void
+  onAfterPause: () => void
   iconColor?: string
   className?: string
 }
@@ -31,6 +32,7 @@ const stateIconMap = {
 const PlayButton = ({
   playingState,
   onTogglePlay,
+  onAfterPause,
   iconColor,
   className
 }: PlayButtonProps) => {
@@ -45,6 +47,7 @@ const PlayButton = ({
       onClick={(e) => {
         e.stopPropagation()
         onTogglePlay()
+        if (playingState === PlayingState.Playing) { onAfterPause() }
       }}
       className={cn(styles.container, className)}
     >

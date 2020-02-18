@@ -24,7 +24,7 @@ const CollectionPlayerContainer = (props: CollectionPlayerContainerProps) => {
     if (activeTrackIndex === props.collection.tracks.length - 1) {
       setActiveTrackIndex(0)
       load(getSegments(0))
-      return 
+      return
     }
 
     setActiveTrackIndex(i => i + 1)

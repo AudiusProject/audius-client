@@ -1,0 +1,37 @@
+.container {
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  position: absolute;
+  display: flex;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.logo {
+  margin: 24px 0px 30px;
+}
+
+.artwork {
+  margin: 0px 0px 42px;
+}
+
+.artworkSizing {
+  height: 196px;
+  width: 196px;
+}
+
+.dismissIcon {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+}
+
+.label {
+  margin-bottom: 16px;
+}

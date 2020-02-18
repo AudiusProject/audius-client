@@ -62,7 +62,8 @@
     "env-cmd": "^10.0.1",
     "hls.js": "^0.13.1",
     "preact": "^10.0.0",
-    "preact-render-to-string": "^5.0.6"
+    "preact-render-to-string": "^5.0.6",
+    "simplebar-react": "^2.1.0"
   },
   "peerDependencies": {
     "prettier": ">1.0.0",

@@ -1,8 +1,12 @@
 import { h } from 'preact'
+import { useState } from 'preact/hooks'
+import SimpleBar from 'simplebar-react'
+import 'simplebar/dist/simplebar.min.css'
 import { GetCollectionsResponse } from '../../util/BedtimeClient'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
+import PausedPopoverCard from '../pausedpopover/PausedPopoverCard'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
@@ -19,6 +23,7 @@ interface CollectionPlayerListRowProps {
   isActive: boolean
   onTogglePlay: () => void
   iconColor: string
+  onAfterPause: () => void
 }
 
 const CollectionListRow = ({
@@ -30,7 +35,8 @@ const CollectionListRow = ({
   trackIndex,
   onTogglePlay,
   iconColor,
-  isActive
+  isActive,
+  onAfterPause
 }: CollectionPlayerListRowProps) => {
   const makeOnClickURL = (url: string) => () => {
     window.open(url, '_blank')
@@ -39,7 +45,11 @@ const CollectionListRow = ({
   return (
     <div
       className={styles.trackListRow}
-      onClick={(e) => e.stopPropagation && onTogglePlay()}
+      onClick={(e) => {
+        e.stopPropagation()
+        onTogglePlay()
+        if (playingState === PlayingState.Playing) { onAfterPause() }
+      }}
       style={isActive && playingState !== PlayingState.Stopped? { backgroundColor: 'rgba(0, 0, 0, 0.04)' } : {}}
     >
       <div className={styles.backgroundElement}/>
@@ -50,6 +60,7 @@ const CollectionListRow = ({
            playingState={playingState}
            iconColor={iconColor}
            className={styles.playButton}
+           onAfterPause={onAfterPause}
          /> :
          trackIndex
         }
@@ -98,6 +109,9 @@ const CollectionPlayerCard = ({
   onTogglePlay,
 }: CollectionPlayerCardProps) => {
 
+  const [pausePopoverVisible, setPausePopoverVisible] = useState(false)
+  const onAfterPause = () => setPausePopoverVisible(true)
+
   const makeOnTogglePlay = (index: number) => () => {onTogglePlay(index)}
 
   return (
@@ -105,6 +119,14 @@ const CollectionPlayerCard = ({
       className={styles.container}
       style={{backgroundColor}}
     >
+      { pausePopoverVisible &&
+        <PausedPopoverCard
+          artworkClickURL={collection.collectionURLPath} 
+          artworkURL={collection.coverArt}
+          listenOnAudiusURL={collection.collectionURLPath}
+          onClickDismiss={() => setPausePopoverVisible(false)}
+        />
+      }
       <div className={styles.topRow}>
         <div className={styles.logo}>
           <AudiusLogoButton />
@@ -142,22 +164,29 @@ const CollectionPlayerCard = ({
         className={styles.listContainer}
         style={{ backgroundColor: rowBackgroundColor }}
       >
-        {collection.tracks.map((t, i) => {
-          return (
-            <CollectionListRow
-              key={i}
-              artistHandle={t.handle}
-              artistName={t.userName}
-              isActive={i === activeTrackIndex}
-              playingState={playingState}
-              trackIndex={i + 1}
-              trackURL={t.urlPath}
-              trackTitle={t.title}
-              iconColor={rowBackgroundColor}
-              onTogglePlay={makeOnTogglePlay(i)}
-            />
-          )
-        })}
+        <SimpleBar
+          style={{
+            maxHeight: '100%'
+          }}
+        >
+          {collection.tracks.map((t, i) => {
+            return (
+              <CollectionListRow
+                key={i}
+                artistHandle={t.handle}
+                artistName={t.userName}
+                isActive={i === activeTrackIndex}
+                playingState={playingState}
+                trackIndex={i + 1}
+                trackURL={t.urlPath}
+                trackTitle={t.title}
+                iconColor={rowBackgroundColor}
+                onTogglePlay={makeOnTogglePlay(i)}
+                onAfterPause={onAfterPause}
+              />
+            )
+          })}
+        </SimpleBar>
       </div>
     </div>
   )

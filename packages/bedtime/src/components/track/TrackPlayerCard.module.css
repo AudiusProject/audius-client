@@ -4,8 +4,9 @@
   flex-direction: column;
   padding: 24px;
   /* TODO remove these to make it responsive */
-  width: 400px;
-  height: 480px;
+  width: 352px;
+  height: 432px;
+  position: relative;
 }
 
 .bottomSection {

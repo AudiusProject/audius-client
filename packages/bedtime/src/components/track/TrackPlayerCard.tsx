@@ -1,4 +1,5 @@
 import { h } from 'preact'
+import { useState } from 'preact/hooks'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
@@ -10,6 +11,7 @@ import styles from './TrackPlayerCard.module.css'
 
 // TODO: move this important into a shared thingy
 import cardStyles from '../collection/CollectionPlayerCard.module.css'
+import PausedPopoverCard from '../pausedpopover/PausedPopoverCard'
 
 
 interface TrackPlayerCardProps {
@@ -45,9 +47,21 @@ const TrackPlayerCard = ({
   seekTo,
   backgroundColor
 }: TrackPlayerCardProps) => {
+  const [pausePopoverVisible, setPausePopoverVisible] = useState(false)
+
+  const onAfterPause = () => setPausePopoverVisible(true)
+
   // TODO: Figure out what media key should be for the scrubber
   return (
     <div className={styles.container} style={{backgroundColor}}>
+      { pausePopoverVisible &&
+        <PausedPopoverCard
+          artworkClickURL={trackURL} 
+          artworkURL={albumArtURL}
+          listenOnAudiusURL={trackURL}
+          onClickDismiss={() => setPausePopoverVisible(false)}
+        />
+      }
       <Artwork
         onClickURL={trackURL}
         artworkURL={albumArtURL} 
@@ -68,6 +82,7 @@ const TrackPlayerCard = ({
           playingState={playingState}
           iconColor={backgroundColor}
           className={styles.playButton}
+          onAfterPause={onAfterPause}
         />
         <Titles
           artistName={artistName}
