@@ -32,7 +32,7 @@ export const ToastContext = createContext<ToastContextProps>({
 
 // TODO: This ToastContextProvider is copied from AudiusDapp. In the future we should
 // pull it out of dapp into stems.
-export const ToastContextProvider = (props: { children: JSX.Element }) => {
+export const ToastContextProvider = (props: { children: JSX.Element | null }) => {
   const [toastState, setToastState] = useState<Toast | null>(null)
 
   const toast = useCallback((text: string, timeout: number = DEFAULT_TIMEOUT) => {

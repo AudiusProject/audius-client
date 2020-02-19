@@ -62,6 +62,11 @@ const TrackPlayerCompact = ({
       <Artwork
         artworkURL={albumArtURL}
         onClickURL={trackURL}
+        displayHoverPlayButton={true}
+        onAfterPause={onAfterPause}
+        onTogglePlay={onTogglePlay}
+        playingState={playingState}
+        iconColor={backgroundColor}
       />
       <div className={styles.trackInfo}>
         <div className={styles.topSection}>

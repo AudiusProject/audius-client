@@ -145,6 +145,11 @@ const CollectionPlayerCard = ({
           className={styles.artwork}
           artworkURL={collection.coverArt}
           onClickURL={collection.collectionURLPath}
+          displayHoverPlayButton={true}
+          onAfterPause={onAfterPause}
+          onTogglePlay={makeOnTogglePlay(activeTrackIndex)}
+          playingState={playingState}
+          iconColor={rowBackgroundColor}
         />
         <div className={styles.middleRowRight}>
           <Titles

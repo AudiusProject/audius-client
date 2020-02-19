@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useCallback, useEffect } from 'preact/hooks'
+import { useCallback, useEffect, useState } from 'preact/hooks'
 
 import { GetTracksResponse } from '../../util/BedtimeClient'
 import { PlayerFlavor } from '../app'
@@ -19,6 +19,7 @@ const TrackPlayerContainer = ({
 }: TrackPlayerContainerProps) => {
 
   const backgroundColor = 'orange'
+  const [didInitAudio, setDidInitAudio] = useState(false)
 
   const {
     playingState,
@@ -27,16 +28,21 @@ const TrackPlayerContainer = ({
     loadTrack,
     mediaKey,
     seekTo,
-    onTogglePlay
+    onTogglePlay,
+    initAudio
   } = usePlayback()
 
-  // Load the audio ref
-  useEffect(() => {
-    loadTrack(track.segments)
-  }, [])
+  const didTogglePlay = () => {
+    if (!didInitAudio) {
+      initAudio()
+      loadTrack(track.segments)
+      setDidInitAudio(true)
+    }
+    onTogglePlay()
+  }
 
   const onShare = useCallback(() => {
-
+    // TODO: TRACK PLAYER SHARE
   }, [])
 
   const props = {
@@ -46,7 +52,7 @@ const TrackPlayerContainer = ({
     artistName: track.userName,
     playingState,
     albumArtURL: track.coverArt,
-    onTogglePlay,
+    onTogglePlay: didTogglePlay,
     onShare: () => {},
     isVerified: track.isVerified,
     seekTo,

@@ -66,6 +66,11 @@ const TrackPlayerCard = ({
         onClickURL={trackURL}
         artworkURL={albumArtURL} 
         className={styles.artworkStyle}
+        displayHoverPlayButton={true}
+        onAfterPause={onAfterPause}
+        onTogglePlay={onTogglePlay} 
+        playingState={playingState}
+        iconColor={backgroundColor}
       />
       <div className={styles.scrubber}>
         <BedtimeScrubber
