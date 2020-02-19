@@ -17,7 +17,13 @@ const usePlayback = (onAfterAudioEnd: ((args: OnAfterAudioEndArguments) => void)
   const [prevPlayCounter, setPrevPlayCounter] = useState<number>(0)
   const [mediaKey, setMediaKey] = useState(0)
   const playingStateRef = useRef<PlayingState>(PlayingState.Stopped)
-  const audioRef = useRef(new AudioStream())
+
+  // The AudioStream must be initialized in response
+  // to a user event to avoid angering the Chrome gods.
+  const audioRef = useRef<AudioStream | null>(null)
+  const initAudio = () => {
+    audioRef.current = new AudioStream()
+  }
 
   // We may need to manually trigger a rerender in the case
   // that the playingStateRef changes. We need to store the playingState
@@ -56,6 +62,7 @@ const usePlayback = (onAfterAudioEnd: ((args: OnAfterAudioEndArguments) => void)
   }, [onAfterAudioEndRef, onAfterAudioEnd])
 
   const onAudioEnd = () => {
+    if (!audioRef.current) { throw new Error('Init not called') }
     console.log('Audio ended!')
     setPlayingStateRef(PlayingState.Stopped)
     clearInterval(seekInterval.current)
@@ -66,6 +73,7 @@ const usePlayback = (onAfterAudioEnd: ((args: OnAfterAudioEndArguments) => void)
 
   // TODO: type trackSegments
   const loadTrack = useCallback((trackSegments: any) => {
+    if (!audioRef.current) { throw new Error('Init not called') }
     audioRef.current.load(trackSegments, onAudioEnd)
     setTiming({ position: 0, duration: audioRef.current.getDuration() })
   }, [audioRef, setTiming])
@@ -144,6 +152,7 @@ const usePlayback = (onAfterAudioEnd: ((args: OnAfterAudioEndArguments) => void)
   stopRef.current = stop
 
   return {
+    initAudio,
     playingState: playingStateRef.current,
     duration: timing.duration,
     position: timing.position,

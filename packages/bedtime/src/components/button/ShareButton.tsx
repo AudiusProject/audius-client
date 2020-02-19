@@ -25,7 +25,6 @@ const ShareButton = ({
 
   const { toast } = useContext(ToastContext)
 
-  // TODO
   const onShare = () => {
     // Only toast if not-mobile
     // @ts-ignore

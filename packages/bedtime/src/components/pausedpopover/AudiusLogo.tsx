@@ -1,12 +1,13 @@
 import { h } from 'preact'
 import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
 
+import { getAudiusURL } from '../../util/shareUtil'
 import styles from './AudiusLogo.module.css'
 
 const AudiusLogo = () => {
   const onClick = () => {
-    // TODO: correct hostname
-    window.open('https://audius.co', '_blank')
+    const audiusURL = 
+    window.open(getAudiusURL(), '_blank')
   }
 
   return (

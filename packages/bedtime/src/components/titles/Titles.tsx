@@ -1,6 +1,7 @@
 import { h } from 'preact'
 import IconVerified from '../../assets/img/iconVerified.svg'
 
+import { getAudiusURL } from '../../util/shareUtil'
 import styles from './Titles.module.css'
 
 
@@ -20,12 +21,11 @@ const Titles = ({
   isVerified
 }: TitlesProps) => {
   const onClickTitle = () => {
-    // TODO: add envvars for host
-    window.open(`https://staging.audius.co/${titleUrl}`, '_blank')
+    window.open(`${getAudiusURL()}/${titleUrl}`, '_blank')
   }
 
   const onClickArtist = () => {
-    window.open(`https://staging.audius.co/${handle}`, '_blank')
+    window.open(`${getAudiusURL()}/${handle}`, '_blank')
   }
 
   return (

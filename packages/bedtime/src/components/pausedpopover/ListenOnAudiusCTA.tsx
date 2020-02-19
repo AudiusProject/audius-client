@@ -2,6 +2,7 @@ import { h } from 'preact'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import Button from '../button/Button'
 
+import { getAudiusURL } from '../../util/shareUtil'
 import styles from './ListenOnAudiusCTA.module.css'
 
 interface ListenOnAudiusCTAProps {
@@ -14,8 +15,7 @@ const messages = {
 
 const ListenOnAudiusCTA = ({ audiusURL }: ListenOnAudiusCTAProps) => {
   const onClick = () => {
-    // TODO: add host
-    window.open(audiusURL, '_blank')
+    window.open(`${getAudiusURL()}/${audiusURL}`, '_blank')
   }
 
   return (

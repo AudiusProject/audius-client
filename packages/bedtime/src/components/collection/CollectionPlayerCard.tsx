@@ -48,7 +48,7 @@ const CollectionListRow = ({
       onClick={(e) => {
         e.stopPropagation()
         onTogglePlay()
-        if (playingState === PlayingState.Playing) { onAfterPause() }
+        if (isActive && playingState === PlayingState.Playing) { onAfterPause() }
       }}
       style={isActive && playingState !== PlayingState.Stopped? { backgroundColor: 'rgba(0, 0, 0, 0.04)' } : {}}
     >

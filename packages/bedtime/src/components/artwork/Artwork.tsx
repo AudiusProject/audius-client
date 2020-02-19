@@ -1,6 +1,7 @@
 import cn from 'classnames'
 import { h } from 'preact'
 
+import { getAudiusURL } from '../../util/shareUtil'
 import styles from './Artwork.module.css'
 
 interface ArtworkProps {
@@ -15,7 +16,7 @@ const Artwork = ({
   className
 }: ArtworkProps) => {
   const onClick = () => {
-    window.open(onClickURL, '_blank')
+    window.open(`${getAudiusURL()}/${onClickURL}`, '_blank')
   }
 
   return (

@@ -13,6 +13,7 @@ interface CollectionPlayerContainerProps {
 
 const CollectionPlayerContainer = (props: CollectionPlayerContainerProps) => {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0)
+  const [didInitAudio, setDidInitAudio] = useState(false)
 
   const getSegments = (i: number) => props.collection.tracks[i].segments
 
@@ -42,12 +43,17 @@ const CollectionPlayerContainer = (props: CollectionPlayerContainerProps) => {
     seekTo,
     onTogglePlay,
     play,
-    stop
+    stop,
+    initAudio
   } = usePlayback(onTrackEnd)
 
-
-  // TODO: what about the start? -1
   const onTogglePlayTrack = (trackIndex: number) => {
+    if (!didInitAudio) {
+      initAudio()
+      loadTrack(getSegments(trackIndex))
+      setDidInitAudio(true)
+    }
+
     if (trackIndex === activeTrackIndex) {
       onTogglePlay()
       return
@@ -55,15 +61,9 @@ const CollectionPlayerContainer = (props: CollectionPlayerContainerProps) => {
 
     setActiveTrackIndex(trackIndex)
     stop()
-    // TODO: do I need to press stop here?
     loadTrack(getSegments(trackIndex))
     onTogglePlay()
   }
-
-  useEffect(() => {
-    if (!props.collection.tracks.length) { return }
-    loadTrack(getSegments(0))
-  }, [])
 
   // TODO: mediakey just a string, does this work?
 
