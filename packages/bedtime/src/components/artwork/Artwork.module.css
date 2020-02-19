@@ -1,7 +1,32 @@
 .albumArt {
-  border-radius: 6px;
-  margin: 4px;
   height: 112px;
   width: 112px;
   background-size: cover;
+}
+
+.playButton {
+}
+
+.container {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.playButtonWrapper {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all 0.25s;
+}
+
+.playButtonWrapper:hover {
+  opacity: 1;
 }
