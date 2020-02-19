@@ -95,6 +95,8 @@ const TrackPlayerCompact = ({
           <div className={styles.shareButtonHolder}>
             <ShareButton
               url={trackURL}
+              creator={artistName}
+              title={title} 
             />
           </div>
         </div>

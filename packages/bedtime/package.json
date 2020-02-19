@@ -59,10 +59,12 @@
     "@audius/stems": "^0.1.4",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
+    "copy-to-clipboard": "^3.2.1",
     "env-cmd": "^10.0.1",
     "hls.js": "^0.13.1",
     "preact": "^10.0.0",
     "preact-render-to-string": "^5.0.6",
+    "react-spring": "^8.0.27",
     "simplebar-react": "^2.1.0"
   },
   "peerDependencies": {

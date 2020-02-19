@@ -5,6 +5,7 @@ import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 
 import styles from './App.module.css'
+import { ToastContextProvider } from './toast/ToastContext'
 
 if ((module as any).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -138,7 +139,9 @@ const App = () => {
 
   return (
     <div id='app' className={styles.app}>
-      {renderPlayerContainer()}
+      <ToastContextProvider>
+        {renderPlayerContainer()}
+      </ToastContextProvider>
     </div>
   )
 }

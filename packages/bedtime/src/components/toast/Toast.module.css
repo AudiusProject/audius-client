@@ -1,0 +1,21 @@
+.container {
+  z-index: 100;
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  padding: 12px 28px;
+  margin: 0px 64px;
+  min-width: 268px;
+
+  color: #ffffff;
+  font-size: 18px;
+  /* Need to add the correct font weight (600) */
+  font-weight: bold;
+  text-align: center;
+  z-index: 100;
+}

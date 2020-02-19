@@ -135,6 +135,8 @@ const CollectionPlayerCard = ({
         <div className={styles.share}>
           <ShareButton
             url={collection.collectionURLPath}
+            creator={collection.ownerName}
+            title={collection.name}
           />
         </div>
       </div>

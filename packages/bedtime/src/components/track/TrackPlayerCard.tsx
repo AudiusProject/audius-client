@@ -94,6 +94,8 @@ const TrackPlayerCard = ({
         <div className={styles.shareWrapper}>
           <ShareButton
             url={trackURL}
+            creator={artistName}
+            title={title}
           />
         </div>
       </div>
