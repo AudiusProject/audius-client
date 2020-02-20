@@ -1,12 +1,9 @@
 .container {
-  border-radius: 16px;
   display: flex;
   flex-direction: column;
   padding: 24px;
-  /* TODO remove these to make it responsive */
-  width: 352px;
-  height: 432px;
   position: relative;
+  border-radius: 12px;
 }
 
 .bottomSection {

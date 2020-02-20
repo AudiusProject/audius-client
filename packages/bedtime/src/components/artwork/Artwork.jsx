@@ -1,10 +1,10 @@
-import cn from "classnames";
-import { h } from "preact";
-import { useState } from "preact/hooks";
-import { getAudiusURL } from "../../util/shareUtil";
-import PlayButton, { PlayingState } from "../playbutton/PlayButton";
+import cn from 'classnames'
+import { h } from 'preact'
+import { useState } from 'preact/hooks'
+import { getAudiusURL } from '../../util/shareUtil'
+import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
-import styles from "./Artwork.module.css";
+import styles from './Artwork.module.css'
 
 // interface ArtworkProps {
 //   onClickURL: string
@@ -25,28 +25,31 @@ const Artwork = ({
   onAfterPause = () => {},
   onTogglePlay = () => {},
   playingState = PlayingState.Playing,
-  iconColor = "#ffffff"
-}: ArtworkProps) => {
+  iconColor = '#ffffff'
+}) => {
   const onClick = () => {
-    window.open(`${getAudiusURL()}/${onClickURL}`, "_blank");
-  };
+    window.open(`${getAudiusURL()}/${onClickURL}`, '_blank')
+  }
 
-  const [isHovering, setIsHovering] = useState(false);
+  const [isHovering, setIsHovering] = useState(false)
 
   const onClickWrapper = () => {
-    onTogglePlay();
+    onTogglePlay()
     if (playingState === PlayingState.Playing) {
-      onAfterPause();
+      onAfterPause()
     }
-  };
+  }
   return (
     <div
       className={styles.container}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {displayHoverPlayButton && (
-        <div className={styles.playButtonWrapper} onClick={onClickWrapper}>
+      {displayHoverPlayButton &&
+       <div
+         className={styles.playButtonWrapper}
+         onClick={onClickWrapper}
+       >
           <PlayButton
             className={styles.playButton}
             onAfterPause={onAfterPause}
@@ -55,14 +58,28 @@ const Artwork = ({
             iconColor={iconColor}
           />
         </div>
-      )}
+      }
       <div
         onClick={onClick}
         className={cn(styles.albumArt, className)}
-        style={{ backgroundImage: `url(${artworkURL})` }}
+        style={{ backgroundImage: `url(${artworkURL})`}}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Artwork;
+// TODO: proptypes
+// Artwork.propTypes = {
+//   onClickURL: PropTypes.string
+//   artworkURL: PropTypes.string
+//   className: PropTypes.string
+//   displayHoverPlayButton?: boolean
+//   onAfterPause?: () => void
+//   onTogglePlay?: () => void
+//   playingState?: PlayingState
+//   iconColor?: string
+
+// }
+
+export default Artwork
+

@@ -11,6 +11,7 @@
   position: relative;
   border-radius: 6px;
   overflow: hidden;
+  box-shadow: 0 2px 15px -3px rgba(44,19,8,0.2);
 }
 
 .playButtonWrapper {

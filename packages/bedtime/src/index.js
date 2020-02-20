@@ -1,3 +1,3 @@
-import App from "./components/app.tsx";
+import App from './components/app';
 
 export default App;

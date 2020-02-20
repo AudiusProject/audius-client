@@ -1,13 +1,10 @@
 .container {
-  border-radius: 8px;
   display: flex;
   justify-content: stretch;
-  /* TODO add dimensions */
-  /* TODO add average color */
-  /* TODO MAX & MIN WIDTH */
-  height: 120px;
-  background-color: orange;
+  background-color: #ED6C32;
   position: relative;
+  height: 100%;
+  width: 100%;
 }
 
 .trackInfo {
@@ -49,4 +46,15 @@
 
 .titleContainer {
   margin: 0px auto 0px 12px;
+}
+
+.artwork {
+  height: 106px;
+  width: 106px;
+}
+
+.artworkWrapper {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
 }

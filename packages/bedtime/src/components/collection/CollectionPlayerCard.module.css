@@ -1,12 +1,10 @@
 .container {
-  border-radius: 16px;
   display: flex;
   flex-direction: column;
   padding: 10px 14px 14px;
-  /* TODO remove these to make it responsive */
-  width: 352px;
-  height: 432px;
   position: relative;
+  height: calc(100vh - 24px);
+  border-radius: 12px;
 }
 
 .topRow {
@@ -65,7 +63,8 @@
   border-radius: 6px;
   margin-top: 14px;
   flex: 1;
-  max-height: 304px;
+  background-color: rgba(0, 0, 0, 0.1);
+  min-height: 0;
 }
 
 .trackListRow {

@@ -7,20 +7,21 @@ import IconPlay from '../../assets/img/iconPlay.svg'
 
 import styles from './PlayButton.module.css'
 
-export enum PlayingState {
-  Playing = 'PLAYING',
-  Paused = 'PAUSED',
-  Buffering = 'BUFFERING',
-  Stopped = 'STOPPED'
-}
+export const PlayingState = Object.seal({
+  Playing: 'PLAYING',
+  Paused: 'PAUSED',
+  Buffering: 'BUFFERING',
+  Stopped: 'STOPPED'
+})
 
-interface PlayButtonProps {
-  playingState: PlayingState
-  onTogglePlay: () => void
-  onAfterPause: () => void
-  iconColor?: string
-  className?: string
-}
+// TODO: add proptypes
+// interface PlayButtonProps {
+//   playingState: PlayingState
+//   onTogglePlay: () => void
+//   onAfterPause: () => void
+//   iconColor?: string
+//   className?: string
+// }
 
 const stateIconMap = {
   [PlayingState.Playing]: <IconPause />,
@@ -35,7 +36,7 @@ const PlayButton = ({
   onAfterPause,
   iconColor,
   className
-}: PlayButtonProps) => {
+}) => {
   useEffect(() => {
     const root = document.getElementById('app')
     if (!root) { return }

@@ -12,11 +12,20 @@
   src: url("../assets/fonts/Gilroy-Bold.otf") format("opentype");
 }
 
+body {
+  margin: 0px;
+}
+
 .app {
   color: white;
   font-family: "Avenir Next LT Pro";
   font-style: normal;
   font-weight: 500;
+  user-select: none;
+  height: 100vh;
+  width: 100vw;
+  border-radius: 12px;
+  overflow: hidden;
 
   /* fonts */
   --unit: 4px;
@@ -105,3 +114,8 @@
   --scrubber-hover: var(--primary-gradient);
   --play-button-fill: #ffffff;
 }
+
+.compactApp {
+    height: 120px;
+}
+

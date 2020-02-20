@@ -1,19 +1,22 @@
-# embed-test
+# no-ts
 
 ## CLI Commands
 
-- `npm install`: Installs dependencies
+``` bash
+# install dependencies
+npm install
 
-- `npm run start`: Runs `serve` or `dev`, depending on `NODE_ENV` value. Defaults to `dev server`
+# serve with hot reload at localhost:8080
+npm run dev
 
-- `npm run dev`: Run a development, HMR server
+# build for production with minification
+npm run build
 
-- `npm run serve`: Run a production-like server
+# test the production build locally
+npm run serve
 
-- `npm run build`: Production-ready build
-
-- `npm run lint`: Pass TypeScript files using TSLint
-
-- `npm run test`: Run Jest and [`preact-render-spy`](https://github.com/mzgoddard/preact-render-spy) for your tests
+# run tests with jest and preact-render-spy 
+npm run test
+```
 
 For detailed explanation on how things work, checkout the [CLI Readme](https://github.com/developit/preact-cli/blob/master/README.md).
