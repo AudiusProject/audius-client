@@ -12,7 +12,7 @@ if ((module as any).hot) {
     require('preact/debug')
 }
 
-enum RequestType {
+const enum RequestType {
   TRACK = 'track',
   COLLECTION = 'collection'
 }
