@@ -126,7 +126,7 @@ const App = () => {
           setCollectionsResponse(collection)
         }
       }
-      
+
       onGoingRequest.current = false
       setDidError(false)
       setShowLoadingAnimation(false)

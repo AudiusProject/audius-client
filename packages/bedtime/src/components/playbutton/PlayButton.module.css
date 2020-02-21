@@ -12,3 +12,12 @@
 .container path {
   fill: var(--play-button-fill);
 }
+
+.spinner {
+  height: 20px;
+  width: 20px;
+}
+
+.spinner circle {
+  stroke-width: 20px;
+}

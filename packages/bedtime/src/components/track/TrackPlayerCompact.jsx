@@ -27,7 +27,6 @@ import styles from './TrackPlayerCompact.module.css'
 
 //   seekTo: (location: number) => void
 //   onTogglePlay: () => void
-//   onShare: () => void
 // }
 
 const TrackPlayerCompact = ({

@@ -4,6 +4,7 @@ import cn from 'classnames'
 import { useEffect } from 'preact/hooks'
 import IconPause from '../../assets/img/iconPause.svg'
 import IconPlay from '../../assets/img/iconPlay.svg'
+import Spinner from '../spinner/Spinner'
 
 import styles from './PlayButton.module.css'
 
@@ -23,12 +24,6 @@ export const PlayingState = Object.seal({
 //   className?: string
 // }
 
-const stateIconMap = {
-  [PlayingState.Playing]: <IconPause />,
-  [PlayingState.Paused]: <IconPlay />,
-  [PlayingState.Stopped]: <IconPlay />,
-  [PlayingState.Buffering]: <IconPlay />  // TODO: swap this out with an actual buffering animation
-}
 
 const PlayButton = ({
   playingState,
@@ -37,6 +32,13 @@ const PlayButton = ({
   iconColor,
   className
 }) => {
+  const stateIconMap = {
+    [PlayingState.Playing]: <IconPause />,
+    [PlayingState.Paused]: <IconPlay />,
+    [PlayingState.Stopped]: <IconPlay />,
+    [PlayingState.Buffering]: <Spinner className={styles.spinner} svgStyle={{ stroke: iconColor }} />
+  }
+
   useEffect(() => {
     const root = document.getElementById('app')
     if (!root) { return }

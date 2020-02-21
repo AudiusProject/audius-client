@@ -30,7 +30,8 @@ const TrackPlayerContainer = ({
     mediaKey,
     seekTo,
     onTogglePlay,
-    initAudio
+    initAudio,
+    isBuffering
   } = usePlayback()
 
   const didTogglePlay = () => {
@@ -42,10 +43,6 @@ const TrackPlayerContainer = ({
     onTogglePlay()
   }
 
-  const onShare = useCallback(() => {
-    // TODO: TRACK PLAYER SHARE
-  }, [])
-
   const props = {
     title: track.title,
     mediaKey,
@@ -54,7 +51,6 @@ const TrackPlayerContainer = ({
     playingState,
     albumArtURL: track.coverArt,
     onTogglePlay: didTogglePlay,
-    onShare: () => {},
     isVerified: track.isVerified,
     seekTo,
     position,

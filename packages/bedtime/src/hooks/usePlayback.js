@@ -89,6 +89,18 @@ const usePlayback = (onAfterAudioEnd) => {
       const position = audio.getPosition()
       const duration = audio.getDuration()
       setTiming({ position, duration })
+
+      const isBuffering = audio.isBuffering()
+      if (isBuffering && playingStateRef.current !== PlayingState.Buffering) {
+        playingStateRef.current = PlayingState.Buffering
+        console.log('Setting buffering')
+        setRerenderBool(r => !r)
+      } else if (!isBuffering && playingStateRef.current === PlayingState.Buffering) {
+        playingStateRef.current = PlayingState.Playing
+        console.log('Unsetting buffering')
+        setRerenderBool(r => !r)
+      }
+
     }, SEEK_INTERVAL)
   }, [audioRef, setTiming])
 
@@ -162,7 +174,7 @@ const usePlayback = (onAfterAudioEnd) => {
     seekTo,
     onTogglePlay,
     play,
-    stop
+    stop,
   }
 }
 

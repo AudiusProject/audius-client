@@ -1,6 +1,10 @@
 .container {
     height: 40px;
     width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
 }
 
 @keyframes spin {
@@ -13,6 +17,9 @@
     }
 }
 
+.container svg {
+    overflow: visible;
+}
 
 .container circle {
     fill: transparent;
