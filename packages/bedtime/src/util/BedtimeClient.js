@@ -35,12 +35,13 @@ const makeRequest = async (url) => {
     const resp = await fetch(url)
     if (!resp.ok) {
       // If we have a 404, that means the track was deleted
-      if (status === 404) return null
+      if (resp.status === 404) return null
       // Otherwise throw
       throw new Error(`HTTP Error: Status Code [${resp.status}]`)
     }
     return resp.json()
   } catch (e) {
+    console.log(e)
     console.error(`Saw error requesting URL [${url}]: []${e.message}]`)
     throw e
   }

@@ -4,6 +4,7 @@ import { getCollection, GetCollectionsResponse, getTrack, GetTracksResponse } fr
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 import Error from './error/Error'
+import DeletedContent from './deleted/DeletedContent'
 import cn from 'classnames'
 
 import styles from './App.module.css'
@@ -19,6 +20,12 @@ const RequestType = Object.seal({
   COLLECTION: 'collection'
 })
 
+const pathComponentRequestTypeMap = {
+  "playlist": RequestType.COLLECTION,
+  "album": RequestType.COLLECTION,
+  "track": RequestType.TRACK,
+}
+
 export const PlayerFlavor = Object.seal({
   CARD: 'card',
   COMPACT: 'compact'
@@ -32,14 +39,8 @@ const getRequestDataFromURL = () => {
   const lastComponent = components[components.length - 1]
 
   // Pull off the request type
-  let requestType
-  if (lastComponent === RequestType.COLLECTION) {
-    requestType = RequestType.COLLECTION
-  } else if (lastComponent === RequestType.TRACK) {
-    requestType = RequestType.TRACK
-  } else {
-    return null
-  }
+  let requestType = pathComponentRequestTypeMap[lastComponent]
+  if (!requestType) return null
 
   // Pull off the seach params
   const searchParams = new URLSearchParams(window.location.search)
@@ -151,12 +152,21 @@ const App = () => {
   }
 
 
+  const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
   const renderPlayerContainer = () => {
     if (didError) {
       return (
         <Error
           onRetry={retryRequestMetadata}
           isRetrying={isRetrying}
+        />
+      )
+    }
+
+    if (did404) {
+      return (
+        <DeletedContent
+          isCard={!isCompact}
         />
       )
     }
@@ -179,7 +189,6 @@ const App = () => {
     return null
   }
 
-  const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
 
   return (
     <div id='app' className={cn(styles.app, { [styles.compactApp]: isCompact })}>
