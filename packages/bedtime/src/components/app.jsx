@@ -1,11 +1,12 @@
 import { h } from 'preact'
-import { useCallback, useEffect, useState } from 'preact/hooks'
+import { useCallback, useEffect, useState, useRef } from 'preact/hooks'
 import { getCollection, GetCollectionsResponse, getTrack, GetTracksResponse } from '../util/BedtimeClient'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 import Error from './error/Error'
 import DeletedContent from './deleted/DeletedContent'
 import cn from 'classnames'
+import Loading from './loading/Loading'
 
 import styles from './App.module.css'
 import { ToastContextProvider } from './toast/ToastContext'
@@ -78,16 +79,30 @@ const getRequestDataFromURL = () => {
 //   ownerId: number
 // }
 
+const LOADING_WAIT_MSEC = 1000
+
 const App = () => {
   const [didError, setDidError] = useState(false)
   const [did404, setDid404] = useState(false)
   const [requestState, setRequestState] = useState(null)
   const [tracksResponse, setTracksResponse] = useState(null)
   const [collectionsResponse, setCollectionsResponse] = useState(null)
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(false)
+  const onGoingRequest = useRef(false)
+
 
   // TODO: pull these out into separate functions?
   const requestMetadata = useCallback(async (request) => {
     console.log('Requesting metadata')
+    onGoingRequest.current = true
+
+    // Queue up the loading animation
+    setTimeout(() => {
+      if (onGoingRequest.current) {
+        setShowLoadingAnimation(true)
+      }
+    }, LOADING_WAIT_MSEC)
+
     try {
       if (request.requestType === RequestType.TRACK) {
         const track = await getTrack(request.id, request.ownerId)
@@ -111,9 +126,14 @@ const App = () => {
           setCollectionsResponse(collection)
         }
       }
+      
+      onGoingRequest.current = false
       setDidError(false)
+      setShowLoadingAnimation(false)
     } catch (e) {
+      onGoingRequest.current = false
       setDidError(true)
+      setShowLoadingAnimation(false)
       setDid404(false)
       setTracksResponse(null)
       setCollectionsResponse(null)
@@ -131,7 +151,6 @@ const App = () => {
     setRequestState(request)
     requestMetadata(request)
   }, [])
-
 
   // Retries
   const [isRetrying, setIsRetrying] = useState(false)
@@ -169,6 +188,10 @@ const App = () => {
           isCard={!isCompact}
         />
       )
+    }
+
+    if (showLoadingAnimation) {
+      return <Loading />
     }
 
     if (tracksResponse && requestState) {
