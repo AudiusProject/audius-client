@@ -125,7 +125,7 @@ body {
 .twitter {
     margin: 24px;
     height: calc(100vh - 48px);
-    width: calc(100vh - 48px);
+    width: calc(100vw - 48px);
     overflow: visible;
 }
 

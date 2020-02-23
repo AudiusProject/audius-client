@@ -8,7 +8,7 @@
 }
 
 .container:not(.disabled):hover {
-  transform: scale(1.05, 1.05);
+  transform: scale(1.03, 1.03);
 }
 
 .container:active {

@@ -1,5 +1,6 @@
+import { h } from 'preact'
 
-
+import cn from 'classnames'
 import styles from './PrimaryLabel.module.css'
 
 const messages = {

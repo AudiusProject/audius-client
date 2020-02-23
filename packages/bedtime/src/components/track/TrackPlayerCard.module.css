@@ -1,11 +1,3 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  border-radius: 12px;
-  overflow: visible;
-}
-
 .paddingContainer {
   margin: 0px 22px;
   flex: 1;
@@ -50,9 +42,3 @@
   margin-bottom: 18px;
 }
 
-.twitterContainer {
-  flex: 0.14;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  overflow: hidden;
-}

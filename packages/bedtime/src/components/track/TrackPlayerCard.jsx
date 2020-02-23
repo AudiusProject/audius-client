@@ -1,12 +1,10 @@
 import { h } from 'preact'
-import { useState, useRef, useCallback } from 'preact/hooks'
 import Artwork from '../artwork/Artwork'
-import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import PlayButton, { PlayingState } from '../playbutton/PlayButton'
+import PlayButton from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
-import TwitterFooter from '../twitterfooter/TwitterFooter'
+import Card from '../card/Card'
 
 import styles from './TrackPlayerCard.module.css'
 
@@ -51,49 +49,13 @@ const TrackPlayerCard = ({
   onAfterPause
 }) => {
 
-  const [cardStyle, setCardStyle] = useState({})
-
-  const callbackRef = useCallback((element) => {
-    if (!element) return
-
-    const aspectRatio = isTwitter ? 0.728 : 0.833
-    const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
-    console.log({viewportAspectRatio})
-
-    // TODO: return when I have brainpower
-    // Viewport is wider
-    if (aspectRatio < viewportAspectRatio) {
-      // In this case, we have 'extra' width so height is the constraining factor
-      console.log('In case 1')
-      console.log({clientHeight: element.parentElement.clientHeight})
-      setCardStyle({
-        height: `${element.parentElement.clientHeight}px`,
-        width: `${element.parentElement.clientHeight * aspectRatio}px`
-      })
-    } else {
-      setCardStyle({
-        height: `${element.parentElement.clientWidth / aspectRatio}px`,
-        width: `${element.parentElement.clientWidth}px`
-      })
-      console.log('CASE 2')
-      // Here we have extra height, so constrain by width
-    }
-  }, [setCardStyle])
-
-  console.log({style2: cardStyle })
-
-  const getDropshadow = () => (isTwitter ? { boxShadow: '0 3px 34px 0 rgba(0, 0 ,0, 0.25)' } : {})
-
   // TODO: Figure out what media key should be for the scrubber
   return (
-    <div
-      className={styles.container}
-      style={{
-        backgroundColor,
-        ...cardStyle,
-        ...getDropshadow()
-      }}
-      ref={callbackRef}>
+    <Card
+      isTwitter={isTwitter}
+      backgroundColor={backgroundColor}
+      twitterURL={trackURL}
+    >
       <div className={styles.paddingContainer}>
         <div className={styles.artworkWrapper}>
           <Artwork
@@ -142,12 +104,7 @@ const TrackPlayerCard = ({
           </div>
         </div>
       </div>
-    {
-      isTwitter && <div className={styles.twitterContainer}>
-        <TwitterFooter onClickPath={trackURL} />
-      </div>
-    }
-    </div>
+    </Card>
   )
 }
 

@@ -3,7 +3,9 @@ import { useCallback, useState } from 'preact/hooks'
 import Toast from './Toast'
 import cn from 'classnames'
 
+import transitions from './ToastTransitions.module.css'
 import styles from './ToastContext.module.css'
+import { CSSTransition } from 'react-transition-group'
 
 const DEFAULT_TIMEOUT = 3000
 
@@ -38,17 +40,21 @@ export const ToastContextProvider = (props) => {
     <ToastContext.Provider value={{
       toast
     }}>
-      {
-         <div
-           className={cn(styles.container, { [styles.down]: isVisible })}
-         >
+      <div className={styles.container}>
+        <CSSTransition
+          classNames={transitions}
+          mountOnEnter
+          unmountOnExit
+          in={isVisible}
+          timeout={1000}
+        >
           <Toast
             text={toastState ? toastState.text : ''}
             isControlled={true}
             isOpen={true}
           />
-        </div>
-      }
+        </CSSTransition>
+      </div>
       { props.children }
     </ToastContext.Provider>
   )

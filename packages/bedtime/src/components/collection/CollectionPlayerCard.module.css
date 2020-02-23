@@ -1,10 +1,8 @@
-.container {
+.padding {
+  padding: 10px 14px 14px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 10px 14px 14px;
-  position: relative;
-  flex: 1;
-  min-height: 0;
 }
 
 .topRow {
@@ -51,6 +49,7 @@
   justify-content: center;
   flex: 1;
   margin-left: 12px;
+  min-width: 0;
 }
 
 .middleRowRight div {
@@ -72,6 +71,7 @@
   height: 48px;
   align-items: center;
   position: relative;
+  cursor: pointer;
 }
 
 .backgroundElement {
@@ -102,6 +102,17 @@
   justify-content: center;
   flex-direction: column;
   z-index: 1;
+  min-width: 0;
+}
+
+.rightElement > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rightElement > div:hover {
+  text-decoration: underline;
 }
 
 .rowTitle {
@@ -112,6 +123,7 @@
 .rowSubtitle {
   font-size: 12px;
   line-height: 14px;
+  opacity: 0.7;
 }
 
 .artwork {

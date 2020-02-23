@@ -1,12 +1,10 @@
 import { h } from 'preact'
-import { useState } from 'preact/hooks'
 
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import { Flavor } from '../pausedpopover/PausePopover'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import styles from './TrackPlayerCompact.module.css'

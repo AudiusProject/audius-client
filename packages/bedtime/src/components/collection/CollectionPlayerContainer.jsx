@@ -1,11 +1,12 @@
 import { h } from 'preact'
-import { useEffect, useState, useRef } from 'preact/hooks'
+import { useState, useContext } from 'preact/hooks'
 
-import usePlayback, { OnAfterAudioEndArguments } from '../../hooks/usePlayback'
+import usePlayback from '../../hooks/usePlayback'
 import { recordListen } from '../../util/BedtimeClient'
-import { PlayerFlavor } from '../app'
 import CollectionPlayerCard from './CollectionPlayerCard'
 import { PauseContext } from '../pausedpopover/PauseProvider'
+import { useSpacebar } from '../../hooks/useSpacebar'
+import { useRecordListens } from '../../hooks/useRecordListens'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -14,16 +15,6 @@ const LISTEN_INTERVAL_SECONDS = 1
 //   flavor: PlayerFlavor
 //   collection: GetCollectionsResponse
 // }
-
-const useRecordListens = (position, listenId, trackId, listenThresholdSec) => {
-  const [lastListenId, setLastListenId] = useState(null)
-
-  if (position > listenThresholdSec && listenId !== lastListenId) {
-    setLastListenId(listenId)
-    console.log('RECORDING PLAY!')
-    recordListen(trackId)
-  }
-}
 
 const CollectionPlayerContainer = (props) => {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0)
@@ -63,9 +54,10 @@ const CollectionPlayerContainer = (props) => {
     initAudio
   } = usePlayback(onTrackEnd)
 
-  useRecordListens(position, mediaKey, props.collection.tracks[activeTrackIndex].id ,LISTEN_INTERVAL_SECONDS)
-  
+  useRecordListens(position, mediaKey, props.collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
+
   const onTogglePlayTrack = (trackIndex) => {
+    console.log('running TOGGLE')
     if (!didInitAudio) {
       initAudio()
       loadTrack(getSegments(trackIndex))
@@ -83,7 +75,10 @@ const CollectionPlayerContainer = (props) => {
     onTogglePlay()
   }
 
-  const { pause, unpause } = useContext(PauseContext)
+  // Setup spacebar
+  useSpacebar(() => onTogglePlayTrack(activeTrackIndex))
+
+  const { pause } = useContext(PauseContext)
 
   return (
     <CollectionPlayerCard
@@ -98,6 +93,7 @@ const CollectionPlayerContainer = (props) => {
       playingState={playingState}
       seekTo={seekTo}
       onAfterPause={pause}
+      isTwitter={props.isTwitter}
     />
   )
 }
