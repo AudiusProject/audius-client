@@ -116,6 +116,9 @@ const CollectionPlayerCard = ({
 
   const makeOnTogglePlay = (index) => () => onTogglePlay(index)
 
+  // TODO: Substitue this for some other loading mechanism?
+  if (!backgroundColor) return null
+
   return (
     <Card
       isTwitter={isTwitter}

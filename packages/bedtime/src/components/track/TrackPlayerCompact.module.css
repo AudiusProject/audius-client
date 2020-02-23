@@ -1,11 +1,11 @@
 .container {
   display: flex;
   justify-content: stretch;
-  background-color: #ED6C32;
   position: relative;
   width: 100%;
   flex: 1;
   min-height: 0px;
+  transition: background 0.5s ease-in-out;
 }
 
 .trackInfo {

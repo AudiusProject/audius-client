@@ -49,6 +49,8 @@ const TrackPlayerCard = ({
   onAfterPause
 }) => {
 
+  if (!backgroundColor) return null
+
   // TODO: Figure out what media key should be for the scrubber
   return (
     <Card

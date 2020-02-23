@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useContext } from 'preact/hooks'
+import { useState, useContext, useEffect } from 'preact/hooks'
 
 import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
@@ -8,6 +8,7 @@ import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
+import { getDominantColor } from '../../util/image/dominantColor'
 
 // TODO: props
 // interface TrackPlayerContainerProps {
@@ -22,9 +23,19 @@ const TrackPlayerContainer = ({
   track,
   isTwitter
 }) => {
-  const backgroundColor = '#ED6C32'
+  const [backgroundColor, setBackgroundColor] = useState('')
   const [didInitAudio, setDidInitAudio] = useState(false)
   const { pause } = useContext(PauseContext)
+
+  useEffect(() => {
+    const a = async () => {
+      if (track.coverArt) {
+        const color = await getDominantColor(track.coverArt)
+        setBackgroundColor(color)
+      }
+    }
+    a()
+  }, [track, setBackgroundColor])
 
   const {
     playingState,

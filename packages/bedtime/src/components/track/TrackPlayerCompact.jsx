@@ -44,7 +44,12 @@ const TrackPlayerCompact = ({
   onAfterPause,
 }) => {
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={{
+        backgroundColor
+      }}
+    >
       <div className={styles.shareButton}/>
       <div className={styles.artworkWrapper}>
         <Artwork

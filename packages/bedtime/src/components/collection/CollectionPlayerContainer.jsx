@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useContext } from 'preact/hooks'
+import { useState, useContext, useEffect } from 'preact/hooks'
 
 import usePlayback from '../../hooks/usePlayback'
 import { recordListen } from '../../util/BedtimeClient'
@@ -7,6 +7,8 @@ import CollectionPlayerCard from './CollectionPlayerCard'
 import { PauseContext } from '../pausedpopover/PauseProvider'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
+import { getDominantColor } from '../../util/image/dominantColor'
+import { shadeColor } from '../../util/shadeColor'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -16,18 +18,33 @@ const LISTEN_INTERVAL_SECONDS = 1
 //   collection: GetCollectionsResponse
 // }
 
-const CollectionPlayerContainer = (props) => {
+const CollectionPlayerContainer = ({
+  collection,
+  isTwitter
+}) => {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0)
   const [didInitAudio, setDidInitAudio] = useState(false)
 
-  const getSegments = (i) => props.collection.tracks[i].segments
+  const getSegments = (i) => collection.tracks[i].segments
 
   // TODO: color
-  const color = '#ED6C32'
-  const rowBackgroundColor = '#d78f0c'
+  const [backgroundColor, setBackgroundColor] = useState('')
+  const [rowBackgroundColor, setRowBackgroundColor] = useState('')
+
+  useEffect(() => {
+    const a = async () => {
+      if (collection) {
+        const color = await getDominantColor(collection.coverArt)
+        setBackgroundColor(color)
+        setRowBackgroundColor(shadeColor(color, -20))
+      }
+    }
+    a()
+  }, [collection, setBackgroundColor])
+
 
   const onTrackEnd = ({ stop, onTogglePlay, load }) => {
-    if (activeTrackIndex === props.collection.tracks.length - 1) {
+    if (activeTrackIndex === collection.tracks.length - 1) {
       setActiveTrackIndex(0)
       load(getSegments(0))
       // set a new track for logging a listen
@@ -54,7 +71,7 @@ const CollectionPlayerContainer = (props) => {
     initAudio
   } = usePlayback(onTrackEnd)
 
-  useRecordListens(position, mediaKey, props.collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
+  useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
 
   const onTogglePlayTrack = (trackIndex) => {
     console.log('running TOGGLE')
@@ -83,9 +100,9 @@ const CollectionPlayerContainer = (props) => {
   return (
     <CollectionPlayerCard
       activeTrackIndex={activeTrackIndex}
-      backgroundColor={color}
+      backgroundColor={backgroundColor}
       rowBackgroundColor={rowBackgroundColor}
-      collection={props.collection}
+      collection={collection}
       duration={duration}
       elapsedSeconds={position}
       mediaKey={`${mediaKey}`}
@@ -93,7 +110,7 @@ const CollectionPlayerContainer = (props) => {
       playingState={playingState}
       seekTo={seekTo}
       onAfterPause={pause}
-      isTwitter={props.isTwitter}
+      isTwitter={isTwitter}
     />
   )
 }

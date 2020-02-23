@@ -34,8 +34,6 @@ const useAspectRatio = (isTwitter) => {
     }
   }, [setCardStyle])
 
-  console.log({style2: cardStyle })
-
   return { cardStyle, callbackRef }
 
 }

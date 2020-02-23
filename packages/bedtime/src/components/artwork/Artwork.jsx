@@ -1,6 +1,6 @@
 import cn from 'classnames'
 import { h } from 'preact'
-import { useState } from 'preact/hooks'
+import { useState, useEffect } from 'preact/hooks'
 import { getAudiusURL } from '../../util/shareUtil'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
@@ -17,6 +17,26 @@ import styles from './Artwork.module.css'
 //   iconColor?: string
 // }
 
+const preloadImage = (url, callback) => {
+  const img = new Image()
+  img.onload = callback
+  img.onerror = (e) => {
+    resolve('')
+  }
+  img.src = url
+}
+
+const usePreloadImage = (url) => {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  useEffect(() => {
+    if (url && !imageLoaded) {
+      preloadImage(url, () => setImageLoaded(true))
+    }
+  }, [url, imageLoaded, setImageLoaded])
+
+  return imageLoaded
+}
+
 const Artwork = ({
   onClickURL,
   artworkURL,
@@ -32,13 +52,16 @@ const Artwork = ({
   }
 
   const [isHovering, setIsHovering] = useState(false)
-
+  
   const onClickWrapper = () => {
     onTogglePlay()
     if (playingState === PlayingState.Playing) {
       onAfterPause()
     }
   }
+
+  const hasImageLoaded = usePreloadImage(artworkURL)
+  
   return (
     <div
       className={styles.container}
@@ -61,8 +84,10 @@ const Artwork = ({
       }
       <div
         onClick={onClick}
-        className={cn(styles.albumArt, className)}
-        style={{ backgroundImage: `url(${artworkURL})`}}
+        className={cn(styles.albumArt, className, {
+          [styles.hasLoaded]: hasImageLoaded
+        })}
+        style={{ backgroundImage: hasImageLoaded ? `url(${artworkURL})` : '' }}
       />
     </div>
   )

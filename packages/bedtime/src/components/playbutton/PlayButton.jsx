@@ -52,7 +52,9 @@ const PlayButton = ({
         onTogglePlay()
         if (playingState === PlayingState.Playing) { onAfterPause() }
       }}
-      className={cn(styles.container, className)}
+      className={cn(styles.container, className, {
+        [styles.isBuffering]: playingState === PlayingState.Buffering
+      })}
     >
       {stateIconMap[playingState]}
     </div>

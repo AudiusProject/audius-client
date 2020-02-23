@@ -2,6 +2,12 @@
   height: 112px;
   width: 112px;
   background-size: cover;
+  opacity: 0;
+  transition: opacity 0.50s ease-in-out;
+}
+
+.albumArt.hasLoaded {
+  opacity: 1;
 }
 
 .playButton {

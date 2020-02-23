@@ -22,8 +22,6 @@ const Button = ({
     !disabled && onClick()
   }
 
-  console.log( {disabled })
-
   return (
     <div className={cn(styles.container, { [styles.disabled]: disabled }, className)} onClick={wrappedOnClick}>
       {label && <div>
