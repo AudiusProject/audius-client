@@ -4,4 +4,14 @@
   width: 100vw;
   display: flex;
   justify-content: center;
+  transform: translateY(-40px);
+  transition: all 0.25s cubic-bezier(.88,.04,.94,.44);
+  opacity: 0;
 }
+
+.down {
+  transform: translateY(20px);
+  transition: all 1s cubic-bezier(.12,.81,.19,1);
+  opacity: 1;
+}
+

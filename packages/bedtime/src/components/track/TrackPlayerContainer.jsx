@@ -1,11 +1,11 @@
 import { h } from 'preact'
-import { useCallback, useEffect, useState } from 'preact/hooks'
+import { useCallback, useEffect, useState, useContext } from 'preact/hooks'
 
 import { GetTracksResponse } from '../../util/BedtimeClient'
 import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
-
 import usePlayback from '../../hooks/usePlayback'
+import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
 
 // TODO: props
@@ -16,11 +16,13 @@ import TrackPlayerCard from './TrackPlayerCard'
 
 const TrackPlayerContainer = ({
   flavor,
-  track
+  track,
+  isTwitter
 }) => {
 
   const backgroundColor = '#ED6C32'
   const [didInitAudio, setDidInitAudio] = useState(false)
+  const { pause } = useContext(PauseContext)
 
   const {
     playingState,
@@ -56,7 +58,9 @@ const TrackPlayerContainer = ({
     position,
     duration,
     trackURL: track.urlPath,
-    backgroundColor
+    backgroundColor,
+    isTwitter,
+    onAfterPause: pause
   }
 
   if (flavor === PlayerFlavor.COMPACT) {

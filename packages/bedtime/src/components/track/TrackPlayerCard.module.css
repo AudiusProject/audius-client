@@ -1,15 +1,24 @@
 .container {
   display: flex;
   flex-direction: column;
-  padding: 24px;
   position: relative;
   border-radius: 12px;
+  overflow: visible;
+}
+
+.paddingContainer {
+  margin: 0px 22px;
+  flex: 1;
 }
 
 .bottomSection {
   display: flex;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 12px;
+}
+
+.artworkWrapper {
+    margin-top: 22px;
 }
 
 .artworkStyle {
@@ -23,7 +32,7 @@
 }
 
 .scrubber {
-  margin-top: 22px;
+  margin-top: 20px;
 }
 
 .playButton {
@@ -35,4 +44,15 @@
 
 .shareWrapper {
   margin-left: auto;
+}
+
+.bottomWrapper {
+  margin-bottom: 18px;
+}
+
+.twitterContainer {
+  flex: 0.14;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  overflow: hidden;
 }

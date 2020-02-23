@@ -28,8 +28,8 @@ const ShareButton = ({
 
   const onShare = () => {
     // Only toast if not-mobile
-    // @ts-ignore
-    if (!navigator) {
+    if (!navigator.share) {
+      console.log('tryna toast')
       toast(messages.toast)
     }
     share(url, title, creator)

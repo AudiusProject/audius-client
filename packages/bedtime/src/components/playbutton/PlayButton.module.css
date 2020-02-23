@@ -7,6 +7,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease-out;
+  transform: scale(1);
+  cursor: pointer;
+}
+
+.container:hover {
+  transform: scale(1.07);
+}
+
+.container:active {
+  transform: scale(0.98);
 }
 
 .container path {

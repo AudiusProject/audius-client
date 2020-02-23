@@ -1,14 +1,26 @@
 .titles {
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
+
 .title {
+  font-size: 18px;
+}
+
+.title:hover {
+  text-decoration: underline;
 }
 
 .artistName {
+  font-size: 15px;
   display: flex;
   align-items: center;
+}
+
+.artistName:hover {
+  text-decoration: underline;
 }
 
 .artistName svg {

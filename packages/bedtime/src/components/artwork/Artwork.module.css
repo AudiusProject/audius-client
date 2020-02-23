@@ -12,6 +12,17 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 15px -3px rgba(44,19,8,0.2);
+  transition: all 0.2s ease-out;
+  transform: scale(1);
+  cursor: pointer;
+}
+
+.container:hover {
+  transform: scale(1.02);
+}
+
+.container:active {
+  transform: scale(0.95);
 }
 
 .playButtonWrapper {

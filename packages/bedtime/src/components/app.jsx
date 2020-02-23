@@ -7,9 +7,12 @@ import Error from './error/Error'
 import DeletedContent from './deleted/DeletedContent'
 import cn from 'classnames'
 import Loading from './loading/Loading'
+import TwitterFooter from './twitterfooter/TwitterFooter'
+import { ToastContextProvider } from './toast/ToastContext'
+import { PauseContextProvider } from './pausedpopover/PauseProvider'
+import PausePopover from './pausedpopover/PausePopover'
 
 import styles from './App.module.css'
-import { ToastContextProvider } from './toast/ToastContext'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -45,7 +48,7 @@ const getRequestDataFromURL = () => {
 
   // Pull off the seach params
   const searchParams = new URLSearchParams(window.location.search)
-  const [id, ownerId, flavor] = [searchParams.get('id'), searchParams.get('ownerId'), searchParams.get('flavor')]
+  const [id, ownerId, flavor, isTwitter] = [searchParams.get('id'), searchParams.get('ownerId'), searchParams.get('flavor'), searchParams.get('twitter')]
 
   // Validate the search params
   if ([id, ownerId, flavor].some(e => e === null)) {
@@ -68,7 +71,8 @@ const getRequestDataFromURL = () => {
     requestType,
     playerFlavor,
     id: intId,
-    ownerId: intOwnerId
+    ownerId: intOwnerId,
+    isTwitter
   }
 }
 
@@ -199,6 +203,7 @@ const App = () => {
       return (<TrackPlayerContainer
         track={tracksResponse}
         flavor={requestState.playerFlavor}
+        isTwitter={requestState.isTwitter}
       />)
     }
 
@@ -206,17 +211,60 @@ const App = () => {
       return (<CollectionPlayerContainer
         collection={collectionsResponse}
         flavor={requestState.playerFlavor}
+        isTwitter={requestState.isTwitter}
       />)
     }
 
     return null
   }
 
+  // TODO: can I delete this?
+  const renderTwitterFooter = () => {
+     if (didError ||
+        did404 ||
+        showLoadingAnimation ||
+        (!tracksResponse && !collectionsResponse) ||
+        requestState === null ||
+        !requestState.isTwitter ||
+        requestState.playerFlavor !== PlayerFlavor.CARD
+       ) return null
+
+    console.log("TRYA RENDER TWITTER")
+    // TODO: this lack of consistent naming here is gross
+    const url = tracksResponse ? tracksResponse.urlPath : collectionsResponse.collectionURLPath
+
+    return <TwitterFooter onClickPath={url} />
+  }
+
+  const renderPausePopover = () => {
+    if (!requestState || (!tracksResponse && !collectionsResponse)) {
+      return null
+    }
+    let artworkURL = tracksResponse?.coverArt || collectionsResponse?.coverArt
+    let artworkClickURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
+    let listenOnAudiusURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
+    let flavor = requestState.playerFlavor
+    return <PausePopover
+             artworkURL={artworkURL}
+             artworkClickURL={artworkClickURL}
+             listenOnAudiusURL={listenOnAudiusURL}
+             flavor={flavor}
+           />
+  }
 
   return (
-    <div id='app' className={cn(styles.app, { [styles.compactApp]: isCompact })}>
+    <div
+      id='app'
+      className={
+        cn(styles.app,
+           { [styles.compactApp]: isCompact },
+           { [styles.twitter]: requestState && requestState.isTwitter}
+          )}>
       <ToastContextProvider>
-        {renderPlayerContainer()}
+        <PauseContextProvider>
+          {renderPausePopover()}
+          {renderPlayerContainer()}
+        </PauseContextProvider>
       </ToastContextProvider>
     </div>
   )

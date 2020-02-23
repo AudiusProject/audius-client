@@ -26,6 +26,9 @@ body {
   width: 100vw;
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   /* fonts */
   --unit: 4px;
@@ -117,5 +120,12 @@ body {
 
 .compactApp {
     height: 120px;
+}
+
+.twitter {
+    margin: 24px;
+    height: calc(100vh - 48px);
+    width: calc(100vh - 48px);
+    overflow: visible;
 }
 

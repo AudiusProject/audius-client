@@ -1,9 +1,25 @@
 const GENERAL_ADMISSION_URL = process.env.PREACT_APP_GENERAL_ADMISSION_URL
+const IDENTITY_SERVICE_ENDPOINT = process.env.PREACT_APP_IDENTITY_ENDPOINT
 
 export const RequestedEntity = Object.seal({
   TRACKS: 'tracks',
   COLLECTIONS: 'collections'
 })
+
+export const uuid = () => {
+  // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/873856#873856
+  var s = []
+  var hexDigits = '0123456789abcdef'
+  for (var i = 0; i < 36; i++) {
+    s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
+  }
+  s[14] = '4' // bits 12-15 of the time_hi_and_version field to 0010
+  s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1) // bits 6-7 of the clock_seq_hi_and_reserved to 01
+  s[8] = s[13] = s[18] = s[23] = '-'
+
+  var uuid = s.join('')
+  return uuid
+}
 
 // TODO: proptypes
 // export interface TrackResponse {
@@ -28,6 +44,28 @@ export const RequestedEntity = Object.seal({
 //     coverArt: string
 // }
 
+// TODO: make this an env var, point to staging 
+
+export const recordListen = async (
+  trackId
+) => {
+  const url = `${IDENTITY_SERVICE_ENDPOINT}/tracks/${trackId}/listen`
+  const method = 'POST'
+  const headers = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  }
+
+  const body = JSON.stringify({
+    userId: uuid()
+  })
+
+  try {
+    await fetch(url, { method, headers, body })
+  } catch (e) {
+    console.error(`Got error storing playcount: [${e.message}]`)
+  }
+}
 
 const makeRequest = async (url) => {
   try {

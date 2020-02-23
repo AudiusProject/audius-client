@@ -3,8 +3,9 @@
   justify-content: stretch;
   background-color: #ED6C32;
   position: relative;
-  height: 100%;
   width: 100%;
+  flex: 1;
+  min-height: 0px;
 }
 
 .trackInfo {

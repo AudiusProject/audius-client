@@ -1,11 +1,17 @@
 import { createContext } from 'preact'
 import { useCallback, useState } from 'preact/hooks'
 import Toast from './Toast'
-import cn from 'classnames'
 
+import { animated, useTransition } from 'react-spring'
 import styles from './ToastContext.module.css'
 
 const DEFAULT_TIMEOUT = 3000
+
+const animationConfig = {
+  tension: 125,
+  friction: 20,
+  precision: 0.1
+}
 
 // TODO: props
 // interface ToastContextProps {
@@ -16,6 +22,11 @@ const DEFAULT_TIMEOUT = 3000
 //   text: string,
 // }
 
+const FROM_POSITION = -20
+const ENTER_POSITION = 20
+
+const interp = (y) => `translate3d(0,${y}px,0)`
+
 export const ToastContext = createContext({
   toast: () => {}
 })
@@ -24,31 +35,44 @@ export const ToastContext = createContext({
 // pull it out of dapp into stems.
 export const ToastContextProvider = (props) => {
   const [toastState, setToastState] = useState(null)
-  const [isVisible, setIsVisible] = useState(false)
 
   const toast = useCallback((text, timeout = DEFAULT_TIMEOUT) => {
+    console.log("DID US A TOASTY")
     setToastState({ text })
-    setIsVisible(true)
     setTimeout(() => {
-      setIsVisible(false)
+      setToastState(null)
     }, timeout)
-  }, [setToastState, setIsVisible])
+  }, [setToastState])
+
+  const transitions = useTransition(toastState, null, {
+    from: (toast) => ({ y: FROM_POSITION, opacity: 0 }),
+    enter: (toast) => ({ y: ENTER_POSITION, opacity: 1 }),
+    leave: (toast) => ({ y: FROM_POSITION, opacity: 0 }),
+    unique: true,
+    config: animationConfig
+  })
 
   return (
     <ToastContext.Provider value={{
       toast
     }}>
-      {
-         <div
-           className={cn(styles.container, { [styles.down]: isVisible })}
-         >
+      { transitions.map(({ item, props, key }, i) => (
+        item && <animated.div
+          key={key}
+          className={styles.container}
+          style={{
+            // @ts-ignore
+            transform: props.y.interpolate(interp),
+            opacity: props.opacity
+          }}
+        >
           <Toast
-            text={toastState ? toastState.text : ''}
+            text={item.text}
             isControlled={true}
             isOpen={true}
           />
-        </div>
-      }
+        </animated.div>
+      ))}
       { props.children }
     </ToastContext.Provider>
   )

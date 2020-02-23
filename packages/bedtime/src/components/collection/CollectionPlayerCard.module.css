@@ -3,7 +3,8 @@
   flex-direction: column;
   padding: 10px 14px 14px;
   position: relative;
-  height: calc(100vh - 24px);
+  flex: 1;
+  min-height: 0;
 }
 
 .topRow {

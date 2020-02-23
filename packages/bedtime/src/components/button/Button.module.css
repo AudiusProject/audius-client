@@ -1,6 +1,6 @@
 .container {
   display: flex;
-  transition: all 0.76 ease-in-out;
+  transition: all 0.25s ease-out;
   transform: scale(1, 1);
   cursor: pointer;
   justify-content: center;
@@ -12,7 +12,7 @@
 }
 
 .container:active {
-  transform: scale(0.9, 0.9);
+  transform: scale(0.95, 0.95);
 }
 
 .disabled {

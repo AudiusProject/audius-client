@@ -1,12 +1,12 @@
 import { h } from 'preact'
-import { useState } from 'preact/hooks'
+import { useState, useContext } from 'preact/hooks'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 import { GetCollectionsResponse } from '../../util/BedtimeClient'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import PausedPopoverCard, { Flavor } from '../pausedpopover/PausedPopoverCard'
+import { Flavor } from '../pausedpopover/PausePopover'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
@@ -111,25 +111,13 @@ const CollectionPlayerCard = ({
   onTogglePlay,
 }) => {
 
-  const [pausePopoverVisible, setPausePopoverVisible] = useState(false)
-  const onAfterPause = () => setPausePopoverVisible(true)
-
-  const makeOnTogglePlay = (index) => () => {onTogglePlay(index)}
+  const makeOnTogglePlay = (index) => () => { onTogglePlay(index) }
 
   return (
     <div
       className={styles.container}
       style={{backgroundColor}}
     >
-      { pausePopoverVisible &&
-        <PausedPopoverCard
-          artworkClickURL={collection.collectionURLPath}
-          artworkURL={collection.coverArt}
-          listenOnAudiusURL={collection.collectionURLPath}
-          onClickDismiss={() => setPausePopoverVisible(false)}
-          flavor={Flavor.CARD}
-        />
-      }
       <div className={styles.topRow}>
         <div className={styles.logo}>
           <AudiusLogoButton />

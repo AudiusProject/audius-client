@@ -6,7 +6,7 @@ import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import PausedPopoverCard, { Flavor } from '../pausedpopover/PausedPopoverCard'
+import { Flavor } from '../pausedpopover/PausePopover'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import styles from './TrackPlayerCompact.module.css'
@@ -42,22 +42,11 @@ const TrackPlayerCompact = ({
   position,
   duration,
   seekTo,
-  backgroundColor
+  backgroundColor,
+  onAfterPause,
 }) => {
-  const [pausePopoverVisible, setPausePopoverVisible] = useState(false)
-  const onAfterPause = () => setPausePopoverVisible(true)
-
   return (
     <div className={styles.container}>
-      { pausePopoverVisible &&
-        <PausedPopoverCard
-          artworkClickURL={trackURL}
-          artworkURL={albumArtURL}
-          listenOnAudiusURL={trackURL}
-          onClickDismiss={() => setPausePopoverVisible(false)}
-          flavor={Flavor.COMPACT}
-        />
-      }
       <div className={styles.shareButton}/>
       <div className={styles.artworkWrapper}>
         <Artwork
