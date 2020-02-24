@@ -8,13 +8,10 @@ const publicGateways = [
   "https://cloudflare-ipfs.com/ipfs/"
 ];
 
-// TODO: put this as an envar
-const CREATOR_NODE_GATEWAY_WHITELIST = new Set([
-  "https://usermetadata.audius.co",
-  "https://creatornode.audius.co",
-  "https://creatornode2.audius.co",
-  "https://creatornode3.audius.co"
-]);
+const creatorNodes = process.env.PREACT_APP_CREATOR_NODE_WHITELIST
+const creatorNodeWhitelist = new Set(creatorNodes.split(','))
+
+console.log({creatorNodeWhitelist})
 
 // These two are from identity services
 
@@ -83,7 +80,7 @@ async function raceRequests(urls, callback) {
 }
 
 export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
-  let allGateways = CREATOR_NODE_GATEWAY_WHITELIST;
+  let allGateways = creatorNodeWhitelist;
 
   try {
     const image = await _fetchCID(cid, allGateways);
