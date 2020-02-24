@@ -44,7 +44,6 @@ export const ToastContextProvider = (props) => {
         <CSSTransition
           classNames={transitions}
           mountOnEnter
-          unmountOnExit
           in={isVisible}
           timeout={1000}
         >

@@ -46,12 +46,8 @@ const TrackPlayerCard = ({
   seekTo,
   backgroundColor,
   isTwitter,
-  onAfterPause
 }) => {
 
-  if (!backgroundColor) return null
-
-  // TODO: Figure out what media key should be for the scrubber
   return (
     <Card
       isTwitter={isTwitter}
@@ -65,7 +61,6 @@ const TrackPlayerCard = ({
             artworkURL={albumArtURL}
             className={styles.artworkStyle}
             displayHoverPlayButton={true}
-            onAfterPause={onAfterPause}
             onTogglePlay={onTogglePlay}
             playingState={playingState}
             iconColor={backgroundColor}
@@ -87,7 +82,6 @@ const TrackPlayerCard = ({
               playingState={playingState}
               iconColor={backgroundColor}
               className={styles.playButton}
-              onAfterPause={onAfterPause}
             />
             <Titles
               artistName={artistName}

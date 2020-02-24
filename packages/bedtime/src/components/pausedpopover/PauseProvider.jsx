@@ -2,22 +2,18 @@ import { createContext } from 'preact'
 import { useState } from 'preact/hooks'
 
 export const PauseContext = createContext({
-  pause: () => {},
-  unpause: () => {},
-  isPaused: false
+  setPopoverVisibility: (isVisible) => {},
+  popoverVisibility: false
 })
 
 export const PauseContextProvider = (props) => {
-  const [isPaused, setIsPaused] = useState(false)
-  const pause = () => setIsPaused(true)
-  const unpause = () => setIsPaused(false)
+  const [popoverVisibility, setPopoverVisibility] = useState(false)
 
   return (
     <PauseContext.Provider
       value={{
-        pause, 
-        unpause,
-        isPaused
+        popoverVisibility,
+        setPopoverVisibility
       }}
     >
       { props.children }

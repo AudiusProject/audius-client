@@ -28,7 +28,6 @@ export const PlayingState = Object.seal({
 const PlayButton = ({
   playingState,
   onTogglePlay,
-  onAfterPause,
   iconColor,
   className
 }) => {
@@ -50,7 +49,6 @@ const PlayButton = ({
       onClick={(e) => {
         e.stopPropagation()
         onTogglePlay()
-        if (playingState === PlayingState.Playing) { onAfterPause() }
       }}
       className={cn(styles.container, className, {
         [styles.isBuffering]: playingState === PlayingState.Buffering

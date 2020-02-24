@@ -25,7 +25,6 @@ import Card from '../card/Card'
 //   isActive: boolean
 //   onTogglePlay: () => void
 //   iconColor: string
-//   onAfterPause: () => void
 // }
 
 const CollectionListRow = ({
@@ -38,7 +37,6 @@ const CollectionListRow = ({
   onTogglePlay,
   iconColor,
   isActive,
-  onAfterPause
 }) => {
   const makeOnClickURL = (url) => () => {
     window.open(url, '_blank')
@@ -50,7 +48,6 @@ const CollectionListRow = ({
       onClick={(e) => {
         e.stopPropagation()
         onTogglePlay()
-        if (isActive && playingState === PlayingState.Playing) { onAfterPause() }
       }}
       style={isActive && playingState !== PlayingState.Stopped? { backgroundColor: 'rgba(0, 0, 0, 0.04)' } : {}}
     >
@@ -62,7 +59,6 @@ const CollectionListRow = ({
            playingState={playingState}
            iconColor={iconColor}
            className={styles.playButton}
-           onAfterPause={onAfterPause}
          /> :
          trackIndex
         }
@@ -110,14 +106,10 @@ const CollectionPlayerCard = ({
   rowBackgroundColor,
   activeTrackIndex,
   onTogglePlay,
-  onAfterPause,
   isTwitter
 }) => {
 
   const makeOnTogglePlay = (index) => () => onTogglePlay(index)
-
-  // TODO: Substitue this for some other loading mechanism?
-  if (!backgroundColor) return null
 
   return (
     <Card
@@ -144,7 +136,6 @@ const CollectionPlayerCard = ({
             artworkURL={collection.coverArt}
             onClickURL={collection.collectionURLPath}
             displayHoverPlayButton={true}
-            onAfterPause={onAfterPause}
             onTogglePlay={makeOnTogglePlay(activeTrackIndex)}
             playingState={playingState}
             iconColor={rowBackgroundColor}
@@ -187,7 +178,6 @@ const CollectionPlayerCard = ({
                   trackTitle={t.title}
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
-                  onAfterPause={onAfterPause}
                 />
               )
             })}

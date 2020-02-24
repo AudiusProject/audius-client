@@ -41,7 +41,6 @@ const TrackPlayerCompact = ({
   duration,
   seekTo,
   backgroundColor,
-  onAfterPause,
 }) => {
   return (
     <div
@@ -56,7 +55,6 @@ const TrackPlayerCompact = ({
           artworkURL={albumArtURL}
           onClickURL={trackURL}
           displayHoverPlayButton={true}
-          onAfterPause={onAfterPause}
           onTogglePlay={onTogglePlay}
           playingState={playingState}
           iconColor={backgroundColor}
@@ -81,7 +79,6 @@ const TrackPlayerCompact = ({
             playingState={playingState}
             onTogglePlay={onTogglePlay}
             iconColor={backgroundColor}
-            onAfterPause={onAfterPause}
           />
           <div className={styles.titleContainer}>
             <Titles

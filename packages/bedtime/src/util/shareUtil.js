@@ -5,16 +5,19 @@ export const formatShareText = (title, creator) => {
 }
 
 export const getAudiusURL = () => {
+  // We only have hostname in develop env,
+  // otherwise we pull it from the window.location.
   const hostname = process.env.PREACT_APP_AUDIUS_HOSTNAME
+  if (!hostname) {
+    return `https://${window.location.host}`
+
+  }
   const scheme = process.env.PREACT_APP_AUDIUS_SCHEME
 
   return `${scheme}://${hostname}`
 }
 
 const getCopyableLink = (path) => {
-  const hostname = process.env.PREACT_APP_AUDIUS_HOSTNAME
-  const scheme = process.env.PREACT_APP_AUDIUS_SCHEME
-
   return `${getAudiusURL()}/${path}`
 }
 

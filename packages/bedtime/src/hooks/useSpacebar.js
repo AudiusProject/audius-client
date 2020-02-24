@@ -1,9 +1,9 @@
 import { useEffect } from 'preact/hooks'
 
-export const useSpacebar = (onSpaceBar) => {
+export const useSpacebar = (onSpaceBar, enabled) => {
   useEffect(() => {
     const onKeydown = (e) => {
-      if (event.keyCode === 32) {
+      if (enabled && event.keyCode === 32) {
         onSpaceBar()
       }
     }

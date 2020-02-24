@@ -9,6 +9,7 @@ import TrackPlayerCard from './TrackPlayerCard'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { getDominantColor } from '../../util/image/dominantColor'
+import { PlayingState } from '../playbutton/PlayButton'
 
 // TODO: props
 // interface TrackPlayerContainerProps {
@@ -25,7 +26,7 @@ const TrackPlayerContainer = ({
 }) => {
   const [backgroundColor, setBackgroundColor] = useState('')
   const [didInitAudio, setDidInitAudio] = useState(false)
-  const { pause } = useContext(PauseContext)
+  const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
   useEffect(() => {
     const a = async () => {
@@ -55,11 +56,14 @@ const TrackPlayerContainer = ({
       loadTrack(track.segments)
       setDidInitAudio(true)
     }
-    pause()
     onTogglePlay()
+    if (playingState === PlayingState.Playing) {
+      setPopoverVisibility(true)
+    }
   }
 
-  useSpacebar(didTogglePlay)
+  const playbarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
+  useSpacebar(didTogglePlay, playbarEnabled)
 
   useRecordListens(position, mediaKey, track.id, LISTEN_INTERVAL_SECONDS)
 

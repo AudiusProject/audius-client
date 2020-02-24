@@ -26,15 +26,13 @@ const PausedPopoverCard = ({
   artworkURL,
   artworkClickURL,
   listenOnAudiusURL,
-
   flavor,
 }) => {
-  const { isPaused, unpause } = useContext(PauseContext)
-  console.log({flavor})
+  const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
   return (
       <CSSTransition
-        in={isPaused}
+        in={popoverVisibility}
         mountOnEnter
         unmountOnExit
         timeout={1000}
@@ -65,7 +63,7 @@ const PausedPopoverCard = ({
         />
         <div
           className={styles.dismissIcon}
-          onClick={unpause}
+          onClick={() => setPopoverVisibility(false)}
         >
           <IconRemove />
         </div>

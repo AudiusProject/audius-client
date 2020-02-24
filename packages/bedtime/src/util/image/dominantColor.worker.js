@@ -5,7 +5,8 @@ export default () => {
   const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
   const SAMPLE_RATE = 20
 
-  const script = '/assets/scripts/jimp.min.js'
+  // TODO: don't hardcode `embed into this - only`
+  const script = `${process.env.PREACT_APP_SCRIPT_DIRECTORY}/jimp.min.js`
   // eslint-disable-next-line
   importWorkerScript(script)
 
@@ -19,14 +20,16 @@ export default () => {
   const dominantRgb = ({ key, imageUrl }) => {
     Jimp.read(imageUrl)
       .then(img => {
-
+        console.time('start')
+        img.posterize(15)
+        // without quantize: 16ms
         const imageData = img.bitmap;
         const pixels = imageData.data;
         const pixelCount = imageData.width * imageData.height;
 
         let counts = {}
 
-        for (let i = 0, offset, r, g, b, a; i < pixelCount; i = i + SAMPLE_RATE) {
+        for (let i = 0; i < pixelCount; i += SAMPLE_RATE) {
           const offset = i * 4
 
           const r = pixels[offset]
@@ -51,6 +54,7 @@ export default () => {
 
         // eslint-disable-next-line
         postMessage({key, result})
+        console.timeEnd('start')
       })
       .catch(err => {
         if (tries > 2) {

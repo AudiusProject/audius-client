@@ -13,7 +13,6 @@ export const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/previe
 //   artworkURL: string
 //   className?: string
 //   displayHoverPlayButton?: boolean
-//   onAfterPause?: () => void
 //   onTogglePlay?: () => void
 //   playingState?: PlayingState
 //   iconColor?: string
@@ -50,7 +49,6 @@ const Artwork = ({
   artworkURL,
   className,
   displayHoverPlayButton = false,
-  onAfterPause = () => {},
   onTogglePlay = () => {},
   playingState = PlayingState.Playing,
   iconColor = '#ffffff'
@@ -60,17 +58,14 @@ const Artwork = ({
   }
 
   const [isHovering, setIsHovering] = useState(false)
-  
+
   const onClickWrapper = () => {
     onTogglePlay()
-    if (playingState === PlayingState.Playing) {
-      onAfterPause()
-    }
   }
 
   const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)
   if (hasImageErrored) artworkURL = DEFAULT_IMAGE
-  
+
   return (
     <div
       className={cn(styles.container, {
@@ -86,7 +81,6 @@ const Artwork = ({
        >
           <PlayButton
             className={styles.playButton}
-            onAfterPause={onAfterPause}
             onTogglePlay={onTogglePlay}
             playingState={playingState}
             iconColor={iconColor}
@@ -108,7 +102,6 @@ const Artwork = ({
 //   artworkURL: PropTypes.string
 //   className: PropTypes.string
 //   displayHoverPlayButton?: boolean
-//   onAfterPause?: () => void
 //   onTogglePlay?: () => void
 //   playingState?: PlayingState
 //   iconColor?: string

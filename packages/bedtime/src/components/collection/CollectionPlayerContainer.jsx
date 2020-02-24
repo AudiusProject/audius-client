@@ -9,6 +9,7 @@ import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { getDominantColor } from '../../util/image/dominantColor'
 import { shadeColor } from '../../util/shadeColor'
+import { PlayingState } from '../playbutton/PlayButton'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -74,12 +75,18 @@ const CollectionPlayerContainer = ({
 
   useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
 
+  const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
+
   const onTogglePlayTrack = (trackIndex) => {
     console.log('running TOGGLE')
     if (!didInitAudio) {
       initAudio()
       loadTrack(getSegments(trackIndex))
       setDidInitAudio(true)
+    }
+
+    if (playingState === PlayingState.Playing) {
+      setPopoverVisibility(true)
     }
 
     if (trackIndex === activeTrackIndex) {
@@ -94,9 +101,9 @@ const CollectionPlayerContainer = ({
   }
 
   // Setup spacebar
-  useSpacebar(() => onTogglePlayTrack(activeTrackIndex))
-
-  const { pause } = useContext(PauseContext)
+  console.log({popoverVisibility})
+  const spacebarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
+  useSpacebar(() => onTogglePlayTrack(activeTrackIndex), spacebarEnabled)
 
   return (
     <CollectionPlayerCard
@@ -110,7 +117,6 @@ const CollectionPlayerContainer = ({
       onTogglePlay={onTogglePlayTrack}
       playingState={playingState}
       seekTo={seekTo}
-      onAfterPause={pause}
       isTwitter={isTwitter}
     />
   )

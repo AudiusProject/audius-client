@@ -14,6 +14,8 @@ import PausePopover from './pausedpopover/PausePopover'
 
 import styles from './App.module.css'
 import { recordOpen, recordError } from '../analytics/analytics'
+import transitions from './AppTransitions.module.css'
+import { CSSTransition } from 'react-transition-group'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -218,11 +220,21 @@ const App = () => {
     }
 
     if (collectionsResponse && requestState) {
-      return (<CollectionPlayerContainer
-        collection={collectionsResponse}
-        flavor={requestState.playerFlavor}
-        isTwitter={requestState.isTwitter}
-      />)
+      return (
+        <CSSTransition
+          classNames={transitions}
+          mountOnEnter
+          appear
+          in
+          timeout={500}
+        >
+          <CollectionPlayerContainer
+            collection={collectionsResponse}
+            flavor={requestState.playerFlavor}
+            isTwitter={requestState.isTwitter}
+          />
+        </CSSTransition>
+      )
     }
 
     return null

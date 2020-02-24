@@ -11,6 +11,7 @@
     "build": "preact build --no-prerender --no-sw --template src/template.html",
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
+    "deploy": "aws s3 sync build s3://bedtime.audius.co --delete",
     "lint": "eslint src",
     "test": "jest"
   },
