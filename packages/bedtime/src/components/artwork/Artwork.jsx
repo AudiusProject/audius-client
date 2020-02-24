@@ -64,7 +64,9 @@ const Artwork = ({
   
   return (
     <div
-      className={styles.container}
+      className={cn(styles.container, {
+        [styles.hasLoaded]: hasImageLoaded
+      })}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -84,9 +86,7 @@ const Artwork = ({
       }
       <div
         onClick={onClick}
-        className={cn(styles.albumArt, className, {
-          [styles.hasLoaded]: hasImageLoaded
-        })}
+        className={cn(styles.albumArt, className)}
         style={{ backgroundImage: hasImageLoaded ? `url(${artworkURL})` : '' }}
       />
     </div>

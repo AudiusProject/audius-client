@@ -2,6 +2,7 @@
 
 export default () => {
   const DEFAULT_RGB = { r: 13, g: 16, b: 18 }
+  const SAMPLE_RATE = 20
 
   const script = '/assets/scripts/jimp.min.js'
   // eslint-disable-next-line
@@ -13,21 +14,32 @@ export default () => {
    * @param {string} imageUrl url of the image to use
    */
   const dominantRgb = ({ key, imageUrl }) => {
-    const counts = {}
+    console.time('start')
 
     Jimp.read(imageUrl)
       .then(img => {
-        img.scan(0, 0, img.bitmap.width, img.bitmap.height, (x, y, idx) => {
-          const r = img.bitmap.data[idx]
-          const g = img.bitmap.data[idx + 1]
-          const b = img.bitmap.data[idx + 2]
+
+        const imageData = img.bitmap;
+        const pixels = imageData.data;
+        const pixelCount = imageData.width * imageData.height;
+
+        let counts = {}
+
+        for (let i = 0, offset, r, g, b, a; i < pixelCount; i = i + SAMPLE_RATE) {
+          const offset = i * 4
+
+          const r = pixels[offset]
+          const g = pixels[offset + 1]
+          const b = pixels[offset + 2]
           const rgb = `rgb(${r},${g},${b})`
           if (rgb in counts) {
             counts[rgb] += 1
           } else {
             counts[rgb] = 1
           }
-        })
+        }
+
+
         let result
         Object.keys(counts).reduce((acc, i) => {
           if (counts[i] > acc) {

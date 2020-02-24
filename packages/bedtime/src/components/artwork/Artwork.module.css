@@ -1,26 +1,14 @@
-.albumArt {
-  height: 112px;
-  width: 112px;
-  background-size: cover;
-  opacity: 0;
-  transition: opacity 0.50s ease-in-out;
-}
-
-.albumArt.hasLoaded {
-  opacity: 1;
-}
-
-.playButton {
-}
-
 .container {
   position: relative;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 15px -3px rgba(44,19,8,0.2);
   transition: all 0.2s ease-out;
   transform: scale(1);
   cursor: pointer;
+}
+
+.container.hasLoaded {
+  box-shadow: 0 2px 15px -3px rgba(44,19,8,0.2);
 }
 
 .container:hover {
@@ -29,6 +17,18 @@
 
 .container:active {
   transform: scale(0.95);
+}
+
+.albumArt {
+  height: 112px;
+  width: 112px;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 0.50s ease-in-out;
+}
+
+.hasLoaded .albumArt {
+  opacity: 1;
 }
 
 .playButtonWrapper {
