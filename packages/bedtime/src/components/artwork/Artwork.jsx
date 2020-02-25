@@ -17,24 +17,30 @@ import styles from './Artwork.module.css'
 //   iconColor?: string
 // }
 
-const preloadImage = (url, callback) => {
+const preloadImage = (url, callback, onError) => {
   const img = new Image()
   img.onload = callback
   img.onerror = (e) => {
-    resolve('')
+    console.error(e)
+    onError()
   }
   img.src = url
 }
 
 const usePreloadImage = (url) => {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [hasErrored, setHasErrored] = useState(false)
   useEffect(() => {
     if (url && !imageLoaded) {
-      preloadImage(url, () => setImageLoaded(true))
+      preloadImage(
+        url,
+        () => setImageLoaded(true),
+        () => setHasErrored(true)
+      )
     }
-  }, [url, imageLoaded, setImageLoaded])
+  }, [url, imageLoaded, setImageLoaded, setHasErrored])
 
-  return imageLoaded
+  return [imageLoaded, hasErrored]
 }
 
 const Artwork = ({
@@ -60,12 +66,15 @@ const Artwork = ({
     }
   }
 
-  const hasImageLoaded = usePreloadImage(artworkURL)
+  const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)
+  console.log(hasImageErrored)
+  if (hasImageErrored) artworkURL = 'https://download.audius.co/static-resources/preview-image.jpg'
+  console.log(artworkURL)
   
   return (
     <div
       className={cn(styles.container, {
-        [styles.hasLoaded]: hasImageLoaded
+        [styles.hasLoaded]: hasImageLoaded || hasImageErrored
       })}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -87,7 +96,7 @@ const Artwork = ({
       <div
         onClick={onClick}
         className={cn(styles.albumArt, className)}
-        style={{ backgroundImage: hasImageLoaded ? `url(${artworkURL})` : '' }}
+        style={{ backgroundImage: hasImageLoaded || hasImageErrored ? `url(${artworkURL})` : '' }}
       />
     </div>
   )

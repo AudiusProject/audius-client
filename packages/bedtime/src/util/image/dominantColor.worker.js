@@ -1,12 +1,14 @@
 /* globals Jimp */
 
 export default () => {
-  const DEFAULT_RGB = { r: 13, g: 16, b: 18 }
+  const DEFAULT_RGB = `rgb(13,16,18)`
   const SAMPLE_RATE = 20
 
   const script = '/assets/scripts/jimp.min.js'
   // eslint-disable-next-line
   importWorkerScript(script)
+
+  let tries = 0
 
   /**
    * Returns the dominant RGB color of an image.
@@ -14,8 +16,6 @@ export default () => {
    * @param {string} imageUrl url of the image to use
    */
   const dominantRgb = ({ key, imageUrl }) => {
-    console.time('start')
-
     Jimp.read(imageUrl)
       .then(img => {
 
@@ -52,9 +52,17 @@ export default () => {
         postMessage({key, result})
       })
       .catch(err => {
+        if (tries > 2) {
+          postMessage({key, result: DEFAULT_RGB})
+          return
+        }
+        tries += 1
         console.error(imageUrl, err)
+        dominantRgb({
+          key,
+          imageUrl: 'https://download.audius.co/static-resources/preview-image.jpg'
+        })
         // eslint-disable-next-line
-        postMessage({key, result: DEFAULT_RGB})
       })
   }
 

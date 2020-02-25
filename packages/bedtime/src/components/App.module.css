@@ -57,6 +57,8 @@ body {
   --unit-23: 92px;
   --unit-24: 96px;
   --unit-half: 2px;
+  --negative-unit: -4px;
+  --negative-unit-2: -8px;
 
   /* colors */
   --background: #f3f0f7;
@@ -115,6 +117,7 @@ body {
   );
 
   --scrubber-hover: var(--primary-gradient);
+  --slider-handle: var(--white);
   --play-button-fill: #ffffff;
 }
 
