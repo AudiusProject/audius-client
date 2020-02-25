@@ -6,6 +6,8 @@ import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import styles from './Artwork.module.css'
 
+export const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
+
 // interface ArtworkProps {
 //   onClickURL: string
 //   artworkURL: string
@@ -67,9 +69,7 @@ const Artwork = ({
   }
 
   const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)
-  console.log(hasImageErrored)
-  if (hasImageErrored) artworkURL = 'https://download.audius.co/static-resources/preview-image.jpg'
-  console.log(artworkURL)
+  if (hasImageErrored) artworkURL = DEFAULT_IMAGE
   
   return (
     <div

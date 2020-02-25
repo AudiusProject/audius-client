@@ -2,6 +2,7 @@
 
 export default () => {
   const DEFAULT_RGB = `rgb(13,16,18)`
+  const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
   const SAMPLE_RATE = 20
 
   const script = '/assets/scripts/jimp.min.js'
@@ -60,7 +61,7 @@ export default () => {
         console.error(imageUrl, err)
         dominantRgb({
           key,
-          imageUrl: 'https://download.audius.co/static-resources/preview-image.jpg'
+          imageUrl: DEFAULT_IMAGE
         })
         // eslint-disable-next-line
       })
