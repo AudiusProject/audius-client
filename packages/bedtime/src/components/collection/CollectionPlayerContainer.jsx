@@ -1,56 +1,35 @@
 import { h } from 'preact'
-import { useState, useContext, useEffect } from 'preact/hooks'
+import { useState, useContext, useCallback } from 'preact/hooks'
 
 import usePlayback from '../../hooks/usePlayback'
-import { recordListen } from '../../util/BedtimeClient'
 import CollectionPlayerCard from './CollectionPlayerCard'
 import { PauseContext } from '../pausedpopover/PauseProvider'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
-import { getDominantColor } from '../../util/image/dominantColor'
-import { shadeColor } from '../../util/shadeColor'
 import { PlayingState } from '../playbutton/PlayButton'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
-// TODO: Add proptypes
-// interface CollectionPlayerContainerProps {
-//   flavor: PlayerFlavor
-//   collection: GetCollectionsResponse
-// }
-
 const CollectionPlayerContainer = ({
   collection,
-  isTwitter
+  isTwitter,
+  backgroundColor,
+  rowBackgroundColor
 }) => {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0)
   const [didInitAudio, setDidInitAudio] = useState(false)
+  const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
-  const getSegments = (i) => collection.tracks[i].segments
-  const getId = (i) => collection.tracks[i].id
+  // Helper fn to get segements
+  const getSegments = useCallback((i) => collection.tracks[i].segments, [collection])
+  const getId = useCallback((i) => collection.tracks[i].id, [collection])
 
-  // TODO: color
-  const [backgroundColor, setBackgroundColor] = useState('')
-  const [rowBackgroundColor, setRowBackgroundColor] = useState('')
-
-  useEffect(() => {
-    const a = async () => {
-      if (collection) {
-        const color = await getDominantColor(collection.coverArt)
-        setBackgroundColor(color)
-        setRowBackgroundColor(shadeColor(color, -20))
-      }
-    }
-    a()
-  }, [collection, setBackgroundColor])
-
-
-  const onTrackEnd = ({ stop, onTogglePlay, load }) => {
+  // callback for usePlayback
+  const onTrackEnd = useCallback(({ stop, onTogglePlay, load }) => {
+    // Handle last track case
     if (activeTrackIndex === collection.tracks.length - 1) {
       setActiveTrackIndex(0)
       load(getSegments(0))
-      // set a new track for logging a listen
-      setNewTrackRef.current && setNewTrackRef.current()
       return
     }
 
@@ -58,8 +37,9 @@ const CollectionPlayerContainer = ({
     stop()
     load(getSegments(activeTrackIndex + 1))
     onTogglePlay()
-  }
+  }, [activeTrackIndex, setActiveTrackIndex, collection, ])
 
+  // Setup audio
   const {
     playingState,
     duration,
@@ -68,28 +48,27 @@ const CollectionPlayerContainer = ({
     mediaKey,
     seekTo,
     onTogglePlay,
-    play,
     stop,
     initAudio
   } = usePlayback(getId(activeTrackIndex), onTrackEnd)
 
+  // Setup recording listens
   useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
 
-  const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
-
-  const onTogglePlayTrack = (trackIndex) => {
-    console.log('running TOGGLE')
+  const onTogglePlayTrack = useCallback((trackIndex) => {
     if (!didInitAudio) {
       initAudio()
       loadTrack(getSegments(trackIndex))
       setDidInitAudio(true)
     }
 
-    if (playingState === PlayingState.Playing) {
-      setPopoverVisibility(true)
-    }
-
     if (trackIndex === activeTrackIndex) {
+      // Only show popover if we just toggled the already
+      // active track
+      if (playingState === PlayingState.Playing) {
+        setPopoverVisibility(true)
+      }
+
       onTogglePlay()
       return
     }
@@ -98,10 +77,9 @@ const CollectionPlayerContainer = ({
     stop()
     loadTrack(getSegments(trackIndex))
     onTogglePlay(getId(trackIndex))
-  }
+  }, [didInitAudio, setDidInitAudio, loadTrack, activeTrackIndex, playingState, setPopoverVisibility, onTogglePlay, stop, getId])
 
   // Setup spacebar
-  console.log({popoverVisibility})
   const spacebarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(() => onTogglePlayTrack(activeTrackIndex), spacebarEnabled)
 

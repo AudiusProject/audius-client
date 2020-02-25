@@ -1,6 +1,7 @@
 .paddingContainer {
   margin: 0px 22px;
   flex: 1;
+  min-height: 0;
 }
 
 .bottomSection {

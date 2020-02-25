@@ -19,7 +19,6 @@ const DeletedContent = ({ isCard }) => {
   const onClickFindMore = () => {
     window.open(getAudiusURL(), '_blank')
   }
-  console.log({isCard})
 
   return (
     <div className={cn(styles.container, { [styles.cardContainer]: isCard })}>

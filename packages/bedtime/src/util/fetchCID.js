@@ -11,9 +11,7 @@ const publicGateways = [
 const creatorNodes = process.env.PREACT_APP_CREATOR_NODE_WHITELIST
 const creatorNodeWhitelist = new Set(creatorNodes.split(','))
 
-console.log({creatorNodeWhitelist})
-
-// These two are from identity services
+// Stolen from libs :)
 
 const wait = async milliseconds => {
   return new Promise(resolve => setTimeout(resolve, milliseconds));

@@ -4,4 +4,10 @@
     width: 100%;
     justify-content: center;
     align-items: center;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+}
+
+.didLoad {
+    opacity: 1;
 }

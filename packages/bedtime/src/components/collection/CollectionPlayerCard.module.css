@@ -73,29 +73,28 @@
   align-items: center;
   position: relative;
   cursor: pointer;
-}
-
-.backgroundElement {
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  right: 0px;
-  left: 0px;
-  opacity: 0;
   transition: all 0.17s;
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0);
 }
 
-.backgroundElement:hover {
-  opacity: 0.04;
+.trackListRow:hover {
+  background-color: rgba(0, 0, 0, 0.055);
+}
+
+.rowShaded {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .leftElement {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
   z-index: 1;
+  flex: 0 0 40px;
+}
+
+.trackIndex {
+  opacity: 0.5;
 }
 
 .rightElement {
@@ -104,6 +103,7 @@
   flex-direction: column;
   z-index: 1;
   min-width: 0;
+  margin-right: 12px;
 }
 
 .rightElement > div {
@@ -112,7 +112,7 @@
   white-space: nowrap;
 }
 
-.rightElement > div:hover {
+.clickableText > div:hover {
   text-decoration: underline;
 }
 

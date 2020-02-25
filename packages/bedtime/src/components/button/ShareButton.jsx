@@ -7,13 +7,6 @@ import { share } from '../../util/shareUtil'
 import { ToastContext } from '../toast/ToastContext'
 import styles from './ShareButton.module.css'
 
-// TODO: Proptypes
-// interface ShareButtonProps {
-//   url: string
-//   title: string
-//   creator: string
-// }
-
 const messages = {
   toast: 'Link Copied To Clipboard'
 }
@@ -29,13 +22,10 @@ const ShareButton = ({
   const onShare = () => {
     // Only toast if not-mobile
     if (!navigator.share) {
-      console.log('tryna toast')
       toast(messages.toast)
     }
     share(url, title, creator)
-    console.log(url)
   }
-
 
   return (
     <Button
@@ -47,4 +37,3 @@ const ShareButton = ({
 }
 
 export default ShareButton
-

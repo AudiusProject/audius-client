@@ -7,11 +7,6 @@ const messages = {
   label: 'Looking for more like this?'
 }
 
-// TODO: proptypes
-// interface PrimaryLabelProps {
-//   className?: string
-// }
-
 const PrimaryLabel = ({
   className
 }) => {

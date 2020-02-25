@@ -9,6 +9,7 @@
   justify-content: center;
   transition: all 0.15s ease-out;
   transform: scale(1);
+  overflow: visible;
   cursor: pointer;
 }
 

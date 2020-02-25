@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks'
 
+// Calls `onSpaceBar` on spacebar press
 export const useSpacebar = (onSpaceBar, enabled) => {
   useEffect(() => {
     const onKeydown = (e) => {
@@ -12,5 +13,5 @@ export const useSpacebar = (onSpaceBar, enabled) => {
     return () => {
       window.document.removeEventListener('keydown', onKeydown)
     }
-  }, [onSpaceBar])
+  }, [onSpaceBar, enabled])
 }

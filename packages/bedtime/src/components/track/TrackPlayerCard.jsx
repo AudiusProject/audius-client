@@ -8,28 +8,8 @@ import Card from '../card/Card'
 
 import styles from './TrackPlayerCard.module.css'
 
-// TODO: move this important into a shared thingy
 import cardStyles from '../collection/CollectionPlayerCard.module.css'
 import { Flavor } from '../pausedpopover/PausePopover'
-
-// TODO: props
-// interface TrackPlayerCardProps {
-//   title: string
-//   mediaKey: number
-//   artistName: string
-//   handle: string
-//   trackURL: string
-//   playingState: PlayingState
-//   albumArtURL: string
-//   isVerified: boolean
-//   position: number
-//   duration: number
-//   backgroundColor: string
-
-//   seekTo: (location: number) => void
-//   onTogglePlay: () => void
-//   onShare: () => void
-// }
 
 const TrackPlayerCard = ({
   title,

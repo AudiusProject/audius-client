@@ -1,18 +1,8 @@
 import { h } from 'preact'
-import IconVerified from '../../assets/img/iconVerified.svg'
 
+import IconVerified from '../../assets/img/iconVerified.svg'
 import { getAudiusURL } from '../../util/shareUtil'
 import styles from './Titles.module.css'
-
-
-// TODO: props
-// interface TitlesProps {
-//   title: string
-//   artistName: string
-//   handle: string
-//   titleUrl: string
-//   isVerified: boolean
-// }
 
 const Titles = ({
   title,
@@ -48,4 +38,3 @@ const Titles = ({
 }
 
 export default Titles
-

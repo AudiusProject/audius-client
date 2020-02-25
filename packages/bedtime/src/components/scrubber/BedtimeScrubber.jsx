@@ -9,16 +9,6 @@ const RAIL_LISTENED_COLOR = 'rgba(255, 255, 255, 0.8)'
 const RAIL_UNLISTENED_COLOR = 'rgba(255, 255, 255, 0.1)'
 const RAIL_HOVER_COLOR = 'rgba(255, 255, 255, 1)'
 
-
-// TODO: proptypes
-// interface EmbedScrubberProps {
-//   mediaKey: string
-//   playingState: PlayingState
-//   seekTo: (location: number) => void
-//   duration: number
-//   elapsedSeconds: number
-// }
-
 const EmbedScrubber = ({
   mediaKey,
   playingState,
@@ -27,10 +17,9 @@ const EmbedScrubber = ({
   elapsedSeconds,
 }) => {
 
-  // TODO fix this gross hack:
+  // Gross hack:
   // Stems relies on a :before pseudo selector to style
-  // the rail hover color. The fix is to break the dependence
-  // between stems and the dapp color set.
+  // the rail hover color. We manually set that here.
   useEffect(() => {
     const root = document.getElementById('app')
     if (!root) { return }

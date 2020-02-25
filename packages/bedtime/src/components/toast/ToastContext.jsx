@@ -9,26 +9,16 @@ import { CSSTransition } from 'react-transition-group'
 
 const DEFAULT_TIMEOUT = 3000
 
-// TODO: props
-// interface ToastContextProps {
-//   toast: (text: string, timeout?: number) => void
-// }
-
-// interface Toast {
-//   text: string,
-// }
-
 export const ToastContext = createContext({
   toast: () => {}
 })
 
-// TODO: This ToastContextProvider is copied from AudiusDapp. In the future we should
-// pull it out of dapp into stems.
 export const ToastContextProvider = (props) => {
   const [toastState, setToastState] = useState(null)
   const [isVisible, setIsVisible] = useState(false)
 
   const toast = useCallback((text, timeout = DEFAULT_TIMEOUT) => {
+    if (isVisible) return
     setToastState({ text })
     setIsVisible(true)
     setTimeout(() => {
@@ -44,6 +34,7 @@ export const ToastContextProvider = (props) => {
         <CSSTransition
           classNames={transitions}
           mountOnEnter
+          unmountOnExit
           in={isVisible}
           timeout={1000}
         >

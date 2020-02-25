@@ -3,39 +3,51 @@ import { useCallback, useState } from 'preact/hooks'
 
 import styles from './Card.module.css'
 import TwitterFooter from '../twitterfooter/TwitterFooter'
+import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
 
-const useAspectRatio = (isTwitter) => {
+const ASPECT_RATIOS = {
+  standard:  0.833,
+  twitter: 0.728
+}
+
+
+// Calculates height and width of the card given
+// it's desired aspect ratio and the parent's
+// intrinsic dimensions.
+const useAspectRatio = (isTwitter, mobileWebTwitter) => {
   const [cardStyle, setCardStyle] = useState({})
 
   const callbackRef = useCallback((element) => {
     if (!element) return
 
-    const aspectRatio = isTwitter ? 0.728 : 0.833
-    const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
-    console.log({viewportAspectRatio})
+    // Specialcase check for mobile twitter
+    // If it's a square aspect ratio and
+    // below a certain width, we should render
+    // the card square fullscreen.
+    if (mobileWebTwitter) {
+      setCardStyle({ height: '100vh', width: '100vw' })
+      return
+    }
 
-    // TODO: return when I have brainpower
-    // Viewport is wider
+    const aspectRatio = isTwitter ? ASPECT_RATIOS.twitter : ASPECT_RATIOS.standard
+    const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
+
     if (aspectRatio < viewportAspectRatio) {
       // In this case, we have 'extra' width so height is the constraining factor
-      console.log('In case 1')
-      console.log({clientHeight: element.parentElement.clientHeight})
       setCardStyle({
         height: `${element.parentElement.clientHeight}px`,
         width: `${element.parentElement.clientHeight * aspectRatio}px`
       })
     } else {
+      // Extra height, so width constrains.
       setCardStyle({
         height: `${element.parentElement.clientWidth / aspectRatio}px`,
         width: `${element.parentElement.clientWidth}px`
       })
-      console.log('CASE 2')
-      // Here we have extra height, so constrain by width
     }
   }, [setCardStyle])
 
   return { cardStyle, callbackRef }
-
 }
 
 const Card = ({
@@ -45,30 +57,45 @@ const Card = ({
   children
 }) => {
 
-  const getDropshadow = () => (isTwitter ? { boxShadow: '0 3px 34px 0 rgba(0, 0 ,0, 0.25)' } : {})
+  // Need to make the injected BG color slightly transparent
+  const transparentBg = `${backgroundColor.slice(0, backgroundColor.length - 1)}, 0.5)`
+  const mobileWebTwitter = isMobileWebTwitter(isTwitter)
 
-  const { cardStyle, callbackRef } = useAspectRatio(isTwitter)
-  console.log({cardStyle})
+  // Don't display dropshadow on mobile web twitter
+  // bc we want to display it fullscreen
+  const getDropshadow = () => (isTwitter && !mobileWebTwitter ? { boxShadow: `0 3px 34px 0 ${transparentBg}` } : {})
+  // No border radius on mobile web twitter
+  const getBorderRadius = () => mobileWebTwitter ? 0 : 12
 
-    return (
-      <div
-        className={styles.container}
-        style={{
-          backgroundColor,
-          ...cardStyle,
-          ...getDropshadow()
-        }}
-        ref={callbackRef}
-      >
-        {children}
-        {
-          isTwitter &&
-            <div className={styles.twitterContainer}>
-              <TwitterFooter onClickPath={twitterURL} />
-            </div>
-        }
-      </div>
-    )
+  const { cardStyle, callbackRef } = useAspectRatio(isTwitter, mobileWebTwitter)
+  const displayTwitterFooter = isTwitter && !mobileWebTwitter
+
+  return (
+    <div
+      className={styles.container}
+      style={{
+        backgroundColor,
+        ...cardStyle,
+        ...getDropshadow(),
+        ...{ borderRadius: `${getBorderRadius()}px`}
+      }}
+      ref={callbackRef}
+    >
+      {children}
+      {
+        displayTwitterFooter &&
+        <div
+          className={styles.twitterContainer}
+          style={{
+            borderBottomLeftRadius: `${getBorderRadius()}px`,
+            borderBottomRightRadius: `${getBorderRadius()}px`
+          }}
+        >
+          <TwitterFooter onClickPath={twitterURL} />
+        </div>
+      }
+    </div>
+  )
 }
 
 export default Card

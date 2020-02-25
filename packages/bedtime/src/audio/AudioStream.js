@@ -1,19 +1,13 @@
 /* globals Audio, Hls, Event, Blob */
+/* This file is copied straightaway from Audius dapp */
 
 import Hls from "hls.js";
 
 import fetchCID from "../util/fetchCID";
-import { generateM3U8, generateM3u8Variants } from "../util/hlsUtil";
+import { generateM3U8, generateM3U8Variants } from "../util/hlsUtil";
 
-// Account for Preact prerendering
-// https://preactjs.com/cli/pre-rendering/
-let FADE_IN_EVENT = null;
-let FADE_OUT_EVENT = null;
-if (typeof window !== "undefined") {
-  FADE_IN_EVENT = new window.Event("fade-in");
-  FADE_OUT_EVENT = new window.Event("fade-out");
-}
-
+const FADE_IN_EVENT = new window.Event("fade-in");
+const FADE_OUT_EVENT = new window.Event("fade-out");
 const VOLUME_CHANGE_BASE = 10;
 const BUFFERING_DELAY_MILLISECONDS = 500;
 

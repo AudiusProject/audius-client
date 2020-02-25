@@ -1,22 +1,12 @@
-import cn from 'classnames'
 import { h } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
 import { getAudiusURL } from '../../util/shareUtil'
+import cn from 'classnames'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import styles from './Artwork.module.css'
 
 export const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
-
-// interface ArtworkProps {
-//   onClickURL: string
-//   artworkURL: string
-//   className?: string
-//   displayHoverPlayButton?: boolean
-//   onTogglePlay?: () => void
-//   playingState?: PlayingState
-//   iconColor?: string
-// }
 
 const preloadImage = (url, callback, onError) => {
   const img = new Image()
@@ -96,17 +86,4 @@ const Artwork = ({
   )
 }
 
-// TODO: proptypes
-// Artwork.propTypes = {
-//   onClickURL: PropTypes.string
-//   artworkURL: PropTypes.string
-//   className: PropTypes.string
-//   displayHoverPlayButton?: boolean
-//   onTogglePlay?: () => void
-//   playingState?: PlayingState
-//   iconColor?: string
-
-// }
-
 export default Artwork
-

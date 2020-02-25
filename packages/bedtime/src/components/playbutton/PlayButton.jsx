@@ -1,5 +1,4 @@
 import { h } from 'preact'
-
 import cn from 'classnames'
 import { useEffect } from 'preact/hooks'
 import IconPause from '../../assets/img/iconPause.svg'
@@ -15,22 +14,13 @@ export const PlayingState = Object.seal({
   Stopped: 'STOPPED'
 })
 
-// TODO: add proptypes
-// interface PlayButtonProps {
-//   playingState: PlayingState
-//   onTogglePlay: () => void
-//   onAfterPause: () => void
-//   iconColor?: string
-//   className?: string
-// }
-
-
 const PlayButton = ({
   playingState,
   onTogglePlay,
   iconColor,
   className
 }) => {
+
   const stateIconMap = {
     [PlayingState.Playing]: <IconPause />,
     [PlayingState.Paused]: <IconPlay />,
@@ -60,4 +50,3 @@ const PlayButton = ({
 }
 
 export default PlayButton
-

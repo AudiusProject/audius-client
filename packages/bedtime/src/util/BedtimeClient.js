@@ -6,6 +6,7 @@ export const RequestedEntity = Object.seal({
   COLLECTIONS: 'collections'
 })
 
+// From DAPP
 export const uuid = () => {
   // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/873856#873856
   var s = []
@@ -43,8 +44,6 @@ export const uuid = () => {
 //     tracks: TrackResponse[]
 //     coverArt: string
 // }
-
-// TODO: make this an env var, point to staging 
 
 export const recordListen = async (
   trackId

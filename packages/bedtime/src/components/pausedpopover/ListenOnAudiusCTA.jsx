@@ -5,11 +5,6 @@ import Button from '../button/Button'
 import { getAudiusURL } from '../../util/shareUtil'
 import styles from './ListenOnAudiusCTA.module.css'
 
-// TODO: proptypes
-// interface ListenOnAudiusCTAProps {
-//   audiusURL: string
-// }
-
 const messages = {
   label: 'Listen on'
 }

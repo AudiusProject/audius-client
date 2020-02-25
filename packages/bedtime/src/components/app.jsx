@@ -16,11 +16,17 @@ import styles from './App.module.css'
 import { recordOpen, recordError } from '../analytics/analytics'
 import transitions from './AppTransitions.module.css'
 import { CSSTransition } from 'react-transition-group'
+import { getDominantColor } from '../util/image/dominantColor'
+import { shadeColor } from '../util/shadeColor'
+import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
     require('preact/debug')
 }
+
+// How long to wait for GA before we show the loading screen
+const LOADING_WAIT_MSEC = 1
 
 const RequestType = Object.seal({
   TRACK: 'track',
@@ -38,29 +44,30 @@ export const PlayerFlavor = Object.seal({
   COMPACT: 'compact'
 })
 
-// Returns null if the URL scheme was invalid
+// Attemps to parse a the window's url.
+// Returns null if the URL scheme is invalid.
 const getRequestDataFromURL = () => {
-  console.log('Getting request!')
-  console.log(window.location.pathname)
   const components = window.location.pathname.split('/')
   const lastComponent = components[components.length - 1]
-
   // Pull off the request type
   let requestType = pathComponentRequestTypeMap[lastComponent]
   if (!requestType) return null
 
   // Pull off the seach params
   const searchParams = new URLSearchParams(window.location.search)
-  const [id, ownerId, flavor, isTwitter] = [searchParams.get('id'), searchParams.get('ownerId'), searchParams.get('flavor'), searchParams.get('twitter')]
+  const [id, ownerId, flavor, isTwitter] = ['id', 'ownerId', 'flavor', 'twitter'].map(x => searchParams.get(x))
 
-  // Validate the search params
+  // Validate the search params not null
   if ([id, ownerId, flavor].some(e => e === null)) {
     return null
   }
+  // Parse them as ints
   const [intId, intOwnerId] = [parseInt(id), parseInt(ownerId)]
   if (isNaN(intId) || isNaN(intOwnerId)) {
     return null
   }
+
+  // Get the flavor
   let playerFlavor
   if (flavor === PlayerFlavor.CARD) {
     playerFlavor = PlayerFlavor.CARD
@@ -79,23 +86,17 @@ const getRequestDataFromURL = () => {
   }
 }
 
-// interface RequestState {
-//   requestType: RequestType,
-//   playerFlavor: PlayerFlavor,
-//   id: number,
-//   ownerId: number
-// }
-
-const LOADING_WAIT_MSEC = 1000
-
 const App = () => {
-  const [didError, setDidError] = useState(false)
-  const [did404, setDid404] = useState(false)
-  const [requestState, setRequestState] = useState(null)
+  const [didError, setDidError] = useState(false) // General errors
+  const [did404, setDid404] = useState(false) // 404s indicate content was deleted
+  const [requestState, setRequestState] = useState(null) // Parsed request state
+  const [isRetrying, setIsRetrying] = useState(false) // Currently retrying?
+
   const [tracksResponse, setTracksResponse] = useState(null)
   const [collectionsResponse, setCollectionsResponse] = useState(null)
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(false)
   const onGoingRequest = useRef(false)
+  const [dominantColor, setDominantColor] = useState(null)
 
   useEffect(() => {
     recordOpen()
@@ -108,8 +109,9 @@ const App = () => {
   }, [didError])
 
   // TODO: pull these out into separate functions?
+  // Request metadata from GA, computing
+  // dominant color on success.
   const requestMetadata = useCallback(async (request) => {
-    console.log('Requesting metadata')
     onGoingRequest.current = true
 
     // Queue up the loading animation
@@ -122,17 +124,18 @@ const App = () => {
     try {
       if (request.requestType === RequestType.TRACK) {
         const track = await getTrack(request.id, request.ownerId)
-        console.log('Got track')
-        console.log(JSON.stringify(track))
         if (!track) {
           setDid404(true)
           setTracksResponse(null)
         } else {
           setDid404(false)
           setTracksResponse(track)
+
+          // set average color
+          const color = await getDominantColor(track.coverArt)
+          setDominantColor({ primary: color })
         }
-      } else if (request.requestType === RequestType.COLLECTION) {
-        console.log('Got coll')
+      } else {
         const collection = await getCollection(request.id, request.ownerId)
         if (!collection) {
           setDid404(true)
@@ -140,6 +143,10 @@ const App = () => {
         } else {
           setDid404(false)
           setCollectionsResponse(collection)
+
+          // Set dominant color
+          const color = await getDominantColor(collection.coverArt)
+          setDominantColor({ primary: color, secondary: shadeColor(color, -20) })
         }
       }
 
@@ -148,6 +155,7 @@ const App = () => {
       setShowLoadingAnimation(false)
     } catch (e) {
       onGoingRequest.current = false
+      console.error(`Got error: ${e.message}`)
       setDidError(true)
       setShowLoadingAnimation(false)
       setDid404(false)
@@ -156,20 +164,18 @@ const App = () => {
     }
   }, [])
 
+  // Perform initial request
   useEffect(() => {
     const request = getRequestDataFromURL()
     if (!request) {
-      console.error('bad req')
       setDidError(true)
       return
     }
-    console.log('settin')
     setRequestState(request)
     requestMetadata(request)
   }, [])
 
   // Retries
-  const [isRetrying, setIsRetrying] = useState(false)
   const retryRequestMetadata = async () => {
     if (isRetrying) return
     setIsRetrying(true)
@@ -186,8 +192,11 @@ const App = () => {
     setIsRetrying(false)
   }
 
-
   const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
+
+  // The idea is to show nothing (null) until either we
+  // get metadata back from GA, or we pass the loading threshold
+  // and display the loading screen.
   const renderPlayerContainer = () => {
     if (didError) {
       return (
@@ -210,29 +219,34 @@ const App = () => {
       return <Loading />
     }
 
-    if (tracksResponse && requestState) {
-      console.log('trying to render the tracks container')
-      return (<TrackPlayerContainer
-        track={tracksResponse}
-        flavor={requestState.playerFlavor}
-        isTwitter={requestState.isTwitter}
-      />)
-    }
+    const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
 
-    if (collectionsResponse && requestState) {
+    if (requestState && dominantColor) {
       return (
         <CSSTransition
-          classNames={transitions}
-          mountOnEnter
+          classNames={{
+            appear: mobileWebTwitter ? transitions.appearMobileWebTwitter : transitions.appear,
+            appearActive: mobileWebTwitter ? transitions.appearActiveMobileWebTwitter : transitions.appearActive
+          }}
           appear
           in
-          timeout={500}
+          timeout={1000}
         >
-          <CollectionPlayerContainer
-            collection={collectionsResponse}
-            flavor={requestState.playerFlavor}
-            isTwitter={requestState.isTwitter}
-          />
+        { tracksResponse
+          ? <TrackPlayerContainer
+              track={tracksResponse}
+              flavor={requestState.playerFlavor}
+              isTwitter={requestState.isTwitter}
+              backgroundColor={dominantColor.primary}
+            />
+          : <CollectionPlayerContainer
+              collection={collectionsResponse}
+              flavor={requestState.playerFlavor}
+              isTwitter={requestState.isTwitter}
+              backgroundColor={dominantColor.primary}
+              rowBackgroundColor={dominantColor.secondary}
+            />
+        }
         </CSSTransition>
       )
     }
@@ -240,39 +254,29 @@ const App = () => {
     return null
   }
 
-  // TODO: can I delete this?
-  const renderTwitterFooter = () => {
-     if (didError ||
-        did404 ||
-        showLoadingAnimation ||
-        (!tracksResponse && !collectionsResponse) ||
-        requestState === null ||
-        !requestState.isTwitter ||
-        requestState.playerFlavor !== PlayerFlavor.CARD
-       ) return null
-
-    console.log("TRYA RENDER TWITTER")
-    // TODO: this lack of consistent naming here is gross
-    const url = tracksResponse ? tracksResponse.urlPath : collectionsResponse.collectionURLPath
-
-    return <TwitterFooter onClickPath={url} />
-  }
-
   const renderPausePopover = () => {
     if (!requestState || (!tracksResponse && !collectionsResponse)) {
       return null
     }
+
     let artworkURL = tracksResponse?.coverArt || collectionsResponse?.coverArt
     let artworkClickURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
     let listenOnAudiusURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
     let flavor = requestState.playerFlavor
-    return <PausePopover
+    return (<PausePopover
              artworkURL={artworkURL}
              artworkClickURL={artworkClickURL}
              listenOnAudiusURL={listenOnAudiusURL}
              flavor={flavor}
-           />
+            />)
   }
+
+  const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
+  useEffect(() => {
+    if (requestState?.isTwitter) {
+      document.body.style.backgroundColor = '#ffffff'
+    }
+  }, [requestState])
 
   return (
     <div
@@ -280,7 +284,7 @@ const App = () => {
       className={
         cn(styles.app,
            { [styles.compactApp]: isCompact },
-           { [styles.twitter]: requestState && requestState.isTwitter}
+           { [styles.twitter]: requestState && requestState.isTwitter && !mobileWebTwitter}
           )}>
       <ToastContextProvider>
         <PauseContextProvider>

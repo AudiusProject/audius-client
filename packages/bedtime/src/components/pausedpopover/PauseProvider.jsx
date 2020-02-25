@@ -20,4 +20,3 @@ export const PauseContextProvider = (props) => {
     </PauseContext.Provider>
   )
 }
-

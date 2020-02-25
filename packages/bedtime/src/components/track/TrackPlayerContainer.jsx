@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useContext, useEffect } from 'preact/hooks'
+import { useState, useContext, useCallback } from 'preact/hooks'
 
 import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
@@ -8,35 +8,18 @@ import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
-import { getDominantColor } from '../../util/image/dominantColor'
 import { PlayingState } from '../playbutton/PlayButton'
-
-// TODO: props
-// interface TrackPlayerContainerProps {
-//   flavor: PlayerFlavor
-//   track: GetTracksResponse
-// }
 
 const LISTEN_INTERVAL_SECONDS = 1
 
 const TrackPlayerContainer = ({
   flavor,
   track,
-  isTwitter
+  isTwitter,
+  backgroundColor,
 }) => {
-  const [backgroundColor, setBackgroundColor] = useState('')
   const [didInitAudio, setDidInitAudio] = useState(false)
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
-
-  useEffect(() => {
-    const a = async () => {
-      if (track.coverArt) {
-        const color = await getDominantColor(track.coverArt)
-        setBackgroundColor(color)
-      }
-    }
-    a()
-  }, [track, setBackgroundColor])
 
   const {
     playingState,
@@ -50,7 +33,7 @@ const TrackPlayerContainer = ({
     isBuffering
   } = usePlayback(track.id)
 
-  const didTogglePlay = () => {
+  const didTogglePlay = useCallback(() => {
     if (!didInitAudio) {
       initAudio()
       loadTrack(track.segments)
@@ -60,7 +43,7 @@ const TrackPlayerContainer = ({
     if (playingState === PlayingState.Playing) {
       setPopoverVisibility(true)
     }
-  }
+  }, [didInitAudio, initAudio, loadTrack, setDidInitAudio, onTogglePlay, playingState, setPopoverVisibility])
 
   const playbarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(didTogglePlay, playbarEnabled)
@@ -85,7 +68,6 @@ const TrackPlayerContainer = ({
   }
 
   if (flavor === PlayerFlavor.COMPACT) {
-    console.log('Rending compact')
     return (
       <TrackPlayerCompact
         {...props}

@@ -6,6 +6,7 @@
   flex: 1;
   min-height: 0px;
   transition: background 0.5s ease-in-out;
+  border-radius: 12px;
 }
 
 .trackInfo {

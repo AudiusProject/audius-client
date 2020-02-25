@@ -9,24 +9,6 @@ import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import styles from './TrackPlayerCompact.module.css'
 
-// TODO: props
-// interface TrackPlayerCompactProps {
-//   title: string
-//   mediaKey: number
-//   artistName: string
-//   handle: string
-//   trackURL: string
-//   playingState: PlayingState
-//   albumArtURL: string
-//   isVerified: boolean
-//   position: number
-//   duration: number
-//   backgroundColor: string
-
-//   seekTo: (location: number) => void
-//   onTogglePlay: () => void
-// }
-
 const TrackPlayerCompact = ({
   title,
   mediaKey,

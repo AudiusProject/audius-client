@@ -1,31 +1,16 @@
 import { h } from 'preact'
-import { useState, useContext } from 'preact/hooks'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
-import { GetCollectionsResponse } from '../../util/BedtimeClient'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
-import { Flavor } from '../pausedpopover/PausePopover'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
-
-import styles from './CollectionPlayerCard.module.css'
+import cn from 'classnames'
 import Card from '../card/Card'
 
-// TODO:
-// interface CollectionPlayerListRowProps {
-//   playingState: PlayingState
-//   trackTitle: string
-//   artistName: string
-//   trackURL: string
-//   artistHandle: string
-//   trackIndex: number
-//   isActive: boolean
-//   onTogglePlay: () => void
-//   iconColor: string
-// }
+import styles from './CollectionPlayerCard.module.css'
 
 const CollectionListRow = ({
   playingState,
@@ -37,22 +22,23 @@ const CollectionListRow = ({
   onTogglePlay,
   iconColor,
   isActive,
+  textIsClickable
 }) => {
   const makeOnClickURL = (url) => () => {
-    window.open(url, '_blank')
+    textIsClickable && window.open(url, '_blank')
   }
+
+  const isPlaying = isActive && playingState !== PlayingState.Stopped
 
   return (
     <div
-      className={styles.trackListRow}
+      className={cn(styles.trackListRow, { [styles.rowShaded]: isPlaying })}
       onClick={(e) => {
         e.stopPropagation()
         onTogglePlay()
       }}
-      style={isActive && playingState !== PlayingState.Stopped? { backgroundColor: 'rgba(0, 0, 0, 0.04)' } : {}}
     >
-      <div className={styles.backgroundElement}/>
-      <div className={styles.leftElement}>
+      <div className={cn(styles.leftElement, { [styles.trackIndex]: !isActive })}>
         {isActive ?
          <PlayButton
            onTogglePlay={onTogglePlay}
@@ -63,7 +49,7 @@ const CollectionListRow = ({
          trackIndex
         }
       </div>
-      <div className={styles.rightElement}>
+      <div className={cn(styles.rightElement, { [styles.clickableText]: textIsClickable })}>
         <div
           className={styles.rowTitle}
           onClick={makeOnClickURL(trackURL)}
@@ -80,20 +66,6 @@ const CollectionListRow = ({
     </div>
   )
 }
-
-// TODO: Add proptypes
-// interface CollectionPlayerCardProps {
-//   collection: GetCollectionsResponse
-//   seekTo: (location: number) => void
-//   onTogglePlay: (trackIndex: number) => void
-//   duration: number
-//   elapsedSeconds: number
-//   mediaKey: string
-//   playingState: PlayingState
-//   backgroundColor: string
-//   rowBackgroundColor: string
-//   activeTrackIndex: number
-// }
 
 const CollectionPlayerCard = ({
   collection,
@@ -178,6 +150,7 @@ const CollectionPlayerCard = ({
                   trackTitle={t.title}
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
+                  textIsClickable={!isTwitter}
                 />
               )
             })}
@@ -189,4 +162,3 @@ const CollectionPlayerCard = ({
 }
 
 export default CollectionPlayerCard
-

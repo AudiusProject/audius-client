@@ -3,14 +3,6 @@ import { h } from 'preact'
 
 import styles from './Button.module.css'
 
-// TODO: proptypes
-// interface ButtonProps {
-//   onClick: () => void
-//   icon?: JSX.Element
-//   label?: string
-//   className?: string
-// }
-
 const Button = ({
   onClick,
   icon,
@@ -33,4 +25,3 @@ const Button = ({
 }
 
 export default Button
-

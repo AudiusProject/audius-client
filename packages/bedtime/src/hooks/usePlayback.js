@@ -5,13 +5,10 @@ import { recordPlay, recordPause } from '../analytics/analytics'
 
 const SEEK_INTERVAL = 200
 
-// TODO: proptypes
-// export interface OnAfterAudioEndArguments {
-//   stop: () => void
-//   onTogglePlay: () => void
-//   load: (trackSegments: any) => void
-// }
-
+// Sets up playback.
+//
+// Accepts a function, onAfterAudioEnd, which is called internally with
+// stop, onTogglePlay, and load functions as arguments.
 const usePlayback = (id, onAfterAudioEnd) => {
   const [timing, setTiming] = useState({ position: 0, duration: 0 })
   const seekInterval = useRef(null)
@@ -65,7 +62,6 @@ const usePlayback = (id, onAfterAudioEnd) => {
 
   const onAudioEnd = () => {
     if (!audioRef.current) { throw new Error('Init not called') }
-    console.log('Audio ended!')
     setPlayingStateRef(PlayingState.Stopped)
     clearInterval(seekInterval.current)
     setTiming({ position: 0, duration: audioRef.current.getDuration() })
@@ -73,7 +69,6 @@ const usePlayback = (id, onAfterAudioEnd) => {
     onAfterAudioEndCallback()
   }
 
-  // TODO: type trackSegments
   const loadTrack = useCallback((trackSegments) => {
     if (!audioRef.current) { throw new Error('Init not called') }
     audioRef.current.load(trackSegments, onAudioEnd)
@@ -84,21 +79,20 @@ const usePlayback = (id, onAfterAudioEnd) => {
   const startSeeking = useCallback(() => {
     clearInterval(seekInterval.current)
 
-    seekInterval.current = window.setInterval(async () => {
+    seekInterval.current = setInterval(async () => {
       const audio = audioRef.current
       if (!audio) { return }
       const position = audio.getPosition()
       const duration = audio.getDuration()
       setTiming({ position, duration })
 
+      // Handle buffering state
       const isBuffering = audio.isBuffering()
       if (isBuffering && playingStateRef.current !== PlayingState.Buffering) {
         playingStateRef.current = PlayingState.Buffering
-        console.log('Setting buffering')
         setRerenderBool(r => !r)
       } else if (!isBuffering && playingStateRef.current === PlayingState.Buffering) {
         playingStateRef.current = PlayingState.Playing
-        console.log('Unsetting buffering')
         setRerenderBool(r => !r)
       }
 
@@ -151,7 +145,6 @@ const usePlayback = (id, onAfterAudioEnd) => {
   }, [playingStateRef, setPlayingStateRef, id])
   togglePlayRef.current = onTogglePlay
 
-  // TODO: remove this?
   const play = useCallback(() => {
     audioRef.current?.play()
     setPlayingStateRef(PlayingState.Playing)

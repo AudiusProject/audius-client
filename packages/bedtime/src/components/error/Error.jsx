@@ -8,7 +8,6 @@ const messages = {
   retry: 'Retry'
 }
 
-// TODO: propTypes
 const Error = ({ onRetry, isRetrying }) => {
   return (
     <div className={styles.container}>

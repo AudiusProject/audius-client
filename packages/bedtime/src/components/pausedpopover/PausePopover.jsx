@@ -13,15 +13,6 @@ import { PlayerFlavor } from '../app'
 import styles from './PausePopover.module.css'
 import pauseTransitions from './PauseTransitions.module.css'
 
-// TODO: proptypes
-// interface PausedPopoverCardProps {
-//   artworkURL: string
-//   artworkClickURL: string
-//   listenOnAudiusURL: string
-//   onClickDismiss: () => void
-//   flavor: Flavor
-// }
-
 const PausedPopoverCard = ({
   artworkURL,
   artworkClickURL,
@@ -73,4 +64,3 @@ const PausedPopoverCard = ({
 }
 
 export default PausedPopoverCard
-
