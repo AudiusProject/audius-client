@@ -138,22 +138,28 @@ const App = () => {
       } else {
         const collection = await getCollection(request.id, request.ownerId)
         if (!collection) {
+          console.log(1)
           setDid404(true)
           setCollectionsResponse(null)
         } else {
+          console.log(2)
           setDid404(false)
           setCollectionsResponse(collection)
 
           // Set dominant color
+          console.log({ collection })
           const color = await getDominantColor(collection.coverArt)
           setDominantColor({ primary: color, secondary: shadeColor(color, -20) })
+          console.log(2.5)
         }
       }
+      console.log(3)
 
       onGoingRequest.current = false
       setDidError(false)
       setShowLoadingAnimation(false)
     } catch (e) {
+      console.log(4)
       onGoingRequest.current = false
       console.error(`Got error: ${e.message}`)
       setDidError(true)
@@ -193,6 +199,7 @@ const App = () => {
   }
 
   const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
+  const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
 
   // The idea is to show nothing (null) until either we
   // get metadata back from GA, or we pass the loading threshold
@@ -268,10 +275,10 @@ const App = () => {
              artworkClickURL={artworkClickURL}
              listenOnAudiusURL={listenOnAudiusURL}
              flavor={flavor}
+             isMobileWebTwitter={mobileWebTwitter}
             />)
   }
 
-  const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
   useEffect(() => {
     if (requestState?.isTwitter) {
       document.body.style.backgroundColor = '#ffffff'

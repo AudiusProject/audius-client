@@ -18,6 +18,7 @@ const PausedPopoverCard = ({
   artworkClickURL,
   listenOnAudiusURL,
   flavor,
+  isMobileWebTwitter
 }) => {
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
@@ -35,11 +36,11 @@ const PausedPopoverCard = ({
             <div className={styles.logo}>
               <AudiusLogo />
             </div>
-            <Artwork
+            { !isMobileWebTwitter && <Artwork
               artworkURL={artworkURL}
               onClickURL={artworkClickURL}
               className={styles.artworkSizing}
-            />
+            /> }
           </>
         }
         <PrimaryLabel
