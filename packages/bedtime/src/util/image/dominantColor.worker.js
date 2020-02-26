@@ -1,9 +1,10 @@
 /* globals Jimp */
 
 export default () => {
-  const DEFAULT_RGB = `rgb(13,16,18)`
+  const DEFAULT_RGB = `rgb(172, 36, 200)`
   const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
   const SAMPLE_RATE = 20
+  const REQUEST_TIMEOUT = 1500
 
   // Based off this site: https://app.contrast-finder.org/result.html?foreground=%23FFFFFF&background=%23cdc8c8&ratio=4.5&isBackgroundTested=true&algo=Rgb
   // the brightest color we want to support, given white text, is
@@ -31,15 +32,26 @@ export default () => {
   // eslint-disable-next-line
   importWorkerScript(script)
 
-  let tries = 0
+  let didFulfill = false
 
   /**
    * Returns the dominant RGB color of an image.
    * @param {string} key identifies this computation
    * @param {string} imageUrl url of the image to use
    */
-  const dominantRgb = ({ key, imageUrl }) => {
-    Jimp.read(imageUrl)
+  const dominantRgb = ({ key, imageUrl, attempt = 0 }) => {
+    if (attempt > 2) {
+      console.log('Failed all attempts, returning default')
+      postMessage({key, result: DEFAULT_RGB})
+      return
+    }
+
+    if (didFulfill) {
+      return
+    }
+
+    const processImage = () => {
+      return Jimp.read({ url: imageUrl })
       .then(img => {
         img.posterize(15)
         const imageData = img.bitmap;
@@ -75,21 +87,21 @@ export default () => {
         result = formatRGB(...result)
 
         // eslint-disable-next-line
+        didFulfill = true
         postMessage({key, result})
       })
-      .catch(err => {
-        if (tries > 2) {
-          postMessage({key, result: DEFAULT_RGB})
-          return
-        }
-        tries += 1
-        console.error(imageUrl, err)
-        dominantRgb({
-          key,
-          imageUrl: DEFAULT_IMAGE
-        })
-        // eslint-disable-next-line
-      })
+    }
+
+    const timeouter = () => new Promise((fulfill, reject) => {
+      setTimeout(() => {
+        reject(new Error('Timeout'))
+      }, REQUEST_TIMEOUT)
+    })
+
+    Promise.race([processImage(), timeouter()]).catch((err) => {
+      console.log(`Failed attempt ${attempt} with err ${err.message}`)
+      dominantRgb({key, imageUrl, attempt: attempt + 1})
+    })
   }
 
   // eslint-disable-next-line

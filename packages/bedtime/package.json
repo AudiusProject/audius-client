@@ -11,7 +11,7 @@
     "build": "preact build --no-prerender --no-sw --template src/template.html",
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
-    "deploy": "aws s3 sync build s3://bedtime.audius.co --delete",
+    "deploy": "aws s3 sync build s3://bedtime.audius.co --delete && aws cloudfront create-invalidation --distribution-id E33HWSH5ZFFGR1 --paths \"*\"",
     "lint": "eslint src",
     "test": "jest"
   },
