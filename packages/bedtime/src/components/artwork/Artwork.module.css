@@ -41,10 +41,27 @@
   justify-content: center;
   align-items: center;
   opacity: 0;
-  background-color: rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.3) 100%);
   transition: all 0.25s;
+}
+
+.playButtonLarge {
+  width: 20%;
+  height: 20%;
 }
 
 .playButtonWrapper:hover {
   opacity: 1;
+}
+
+.logoWrapper {
+  position: absolute;
+  top: 8px;
+  z-index: 1;
+  right: 8px;
+  transition: opacity 0.25s ease-in-out;
+  height: 36px;
+  width: 108px;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
 }

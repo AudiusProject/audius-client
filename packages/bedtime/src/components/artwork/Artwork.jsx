@@ -5,6 +5,7 @@ import cn from 'classnames'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import styles from './Artwork.module.css'
+import audiusLogo from '../../assets/img/logoEmbedPlayer.png'
 
 export const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
 
@@ -34,6 +35,8 @@ const usePreloadImage = (url) => {
   return [imageLoaded, hasErrored]
 }
 
+const getWrapperTint = (rgbString) => `${rgbString.slice(0, rgbString.length - 1)}, 0.5)`
+
 const Artwork = ({
   onClickURL,
   artworkURL,
@@ -41,7 +44,9 @@ const Artwork = ({
   displayHoverPlayButton = false,
   onTogglePlay = () => {},
   playingState = PlayingState.Playing,
-  iconColor = '#ffffff'
+  iconColor = '#ffffff',
+  isLargeFlavor = false,
+  showLogo = false
 }) => {
   const onClick = () => {
     window.open(`${getAudiusURL()}/${onClickURL}`, '_blank')
@@ -64,16 +69,26 @@ const Artwork = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
+      { showLogo && <div
+        className={styles.logoWrapper}
+        style={{
+          background: `url(${audiusLogo})`,
+          opacity: isHovering ? 1 : 0.6
+        }}
+        /> }
       {displayHoverPlayButton &&
        <div
          className={styles.playButtonWrapper}
          onClick={onClickWrapper}
+         style={{
+           backgroundColor: `${getWrapperTint(iconColor)}`
+         }}
        >
           <PlayButton
-            className={styles.playButton}
+            className={cn({ [styles.playButtonLarge]: isLargeFlavor })}
             onTogglePlay={onTogglePlay}
             playingState={playingState}
-            iconColor={iconColor}
+            iconColor={getWrapperTint(iconColor)}
           />
         </div>
       }

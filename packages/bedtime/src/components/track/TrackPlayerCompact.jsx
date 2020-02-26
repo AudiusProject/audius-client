@@ -1,6 +1,6 @@
 import { h } from 'preact'
 
-import PlayButton, { PlayingState } from '../playbutton/PlayButton'
+import PlayButton from '../playbutton/PlayButton'
 
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'

@@ -10,15 +10,11 @@
   flex-direction: column;
   align-items: center;
   z-index: 1;
+  justify-content: space-evenly;
 }
 
 .logo {
-  margin: 24px 0px 30px;
   cursor: pointer;
-}
-
-.artwork {
-  margin: 0px 0px 42px;
 }
 
 .artworkSizing {
@@ -36,6 +32,11 @@
   cursor: pointer;
 }
 
+.dismissIcon svg {
+  height: 36px;
+  width: 36px;
+}
+
 .dismissIcon:hover {
   opacity: 0.3;
   transform: scale(1.05);
@@ -43,15 +44,6 @@
 
 .dismissIcon:active {
   transform: scale(0.98);
-}
-
-.label {
-  margin-bottom: 16px;
-}
-
-.compactLabel {
-  margin-top: 18px;
-  margin-bottom: 12px;
 }
 
 .compactLabelFont {

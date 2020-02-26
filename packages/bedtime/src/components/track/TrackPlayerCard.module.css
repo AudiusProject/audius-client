@@ -2,6 +2,8 @@
   margin: 0px 22px;
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .bottomSection {
@@ -11,7 +13,15 @@
 }
 
 .artworkWrapper {
-    margin-top: 22px;
+  margin-top: 22px;
+  position: relative;
+}
+
+.audiusLogoWrapper {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 1;
 }
 
 .artworkStyle {

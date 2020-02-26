@@ -35,20 +35,16 @@ const PausedPopoverCard = ({
             <div className={styles.logo}>
               <AudiusLogo />
             </div>
-            <div className={styles.artwork}>
-              <Artwork
-                artworkURL={artworkURL}
-                onClickURL={artworkClickURL}
-                className={styles.artworkSizing}
-              />
-            </div>
+            <Artwork
+              artworkURL={artworkURL}
+              onClickURL={artworkClickURL}
+              className={styles.artworkSizing}
+            />
           </>
         }
-        <div className={cn(styles.label, { [styles.compactLabel]: flavor === PlayerFlavor.COMPACT})}>
-          <PrimaryLabel
-            className={flavor === PlayerFlavor.COMPACT ? styles.compactLabelFont : undefined}
-          />
-        </div>
+        <PrimaryLabel
+          className={flavor === PlayerFlavor.COMPACT ? styles.compactLabelFont : undefined}
+        />
         <ListenOnAudiusCTA
           audiusURL={listenOnAudiusURL}
         />
