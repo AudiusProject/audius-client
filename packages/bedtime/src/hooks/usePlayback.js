@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import AudioStream from '../audio/AudioStream'
 import { PlayingState } from '../components/playbutton/PlayButton'
+import { recordPlay, recordPause } from '../analytics/analytics'
 
 const SEEK_INTERVAL = 200
 
@@ -11,7 +12,7 @@ const SEEK_INTERVAL = 200
 //   load: (trackSegments: any) => void
 // }
 
-const usePlayback = (onAfterAudioEnd) => {
+const usePlayback = (id, onAfterAudioEnd) => {
   const [timing, setTiming] = useState({ position: 0, duration: 0 })
   const seekInterval = useRef(null)
   const [playCounter, setPlayCounter] = useState(0)
@@ -126,27 +127,28 @@ const usePlayback = (onAfterAudioEnd) => {
     audio.seek(location)
   }, [])
 
-  const onTogglePlay = useCallback(() => {
-    console.log('Setting play')
-    console.log(`State was: `)
+  const onTogglePlay = useCallback((idOverride) => {
     switch (playingStateRef.current) {
       case PlayingState.Stopped:
         setPlayingStateRef(PlayingState.Playing)
         audioRef.current?.play()
         setPlayCounter(p => p + 1)
+        recordPlay(idOverride || id)
         break
       case PlayingState.Buffering:
         break
       case PlayingState.Paused:
         setPlayingStateRef(PlayingState.Playing)
         audioRef.current?.play()
+        recordPlay(idOverride || id)
         break
       case PlayingState.Playing:
         setPlayingStateRef(PlayingState.Paused)
         audioRef.current?.pause()
+        recordPause(idOverride || id)
         break
     }
-  }, [playingStateRef, setPlayingStateRef])
+  }, [playingStateRef, setPlayingStateRef, id])
   togglePlayRef.current = onTogglePlay
 
   // TODO: remove this?

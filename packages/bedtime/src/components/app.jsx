@@ -13,6 +13,7 @@ import { PauseContextProvider } from './pausedpopover/PauseProvider'
 import PausePopover from './pausedpopover/PausePopover'
 
 import styles from './App.module.css'
+import { recordOpen, recordError } from '../analytics/analytics'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -94,6 +95,15 @@ const App = () => {
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(false)
   const onGoingRequest = useRef(false)
 
+  useEffect(() => {
+    recordOpen()
+  }, [])
+
+  useEffect(() => {
+    if (didError) {
+      recordError()
+    }
+  }, [didError])
 
   // TODO: pull these out into separate functions?
   const requestMetadata = useCallback(async (request) => {

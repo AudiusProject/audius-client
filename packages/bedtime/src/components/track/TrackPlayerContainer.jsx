@@ -47,7 +47,7 @@ const TrackPlayerContainer = ({
     onTogglePlay,
     initAudio,
     isBuffering
-  } = usePlayback()
+  } = usePlayback(track.id)
 
   const didTogglePlay = () => {
     if (!didInitAudio) {

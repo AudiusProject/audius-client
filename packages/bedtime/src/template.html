@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Audius</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+    <% preact.headEnd %>
+    
+    <!-- start Google Analytics -->
+    <script async src="/assets/scripts/gtag.js?id=UA-120325397-2"></script>
+    <script>
+      try {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-120325397-2');
+      } catch (e) {
+        console.error(e)
+      }
+    </script>
+    <!-- end Google Analytics -->
+
+    <!-- start Segment -->
+    <script async type="text/javascript">
+      try {
+        const segmentWriteKey = 'mMDKOOXtkLRB7rejE17lprMnZlE9TjpK'
+        !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t,e){var n=document.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://analytics.audius.co/"+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(n,a);analytics._loadOptions=e};analytics.SNIPPET_VERSION="4.1.0";
+          analytics.load(segmentWriteKey)
+        }}();
+      } catch (e) {
+        console.error(e)
+      }
+    </script>
+    <!-- end Segment -->
+    
+	</head>
+	<body>
+		<% preact.bodyEnd %>
+	</body>
+</html>

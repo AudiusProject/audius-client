@@ -26,6 +26,7 @@ const CollectionPlayerContainer = ({
   const [didInitAudio, setDidInitAudio] = useState(false)
 
   const getSegments = (i) => collection.tracks[i].segments
+  const getId = (i) => collection.tracks[i].id
 
   // TODO: color
   const [backgroundColor, setBackgroundColor] = useState('')
@@ -69,7 +70,7 @@ const CollectionPlayerContainer = ({
     play,
     stop,
     initAudio
-  } = usePlayback(onTrackEnd)
+  } = usePlayback(getId(activeTrackIndex), onTrackEnd)
 
   useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
 
@@ -89,7 +90,7 @@ const CollectionPlayerContainer = ({
     setActiveTrackIndex(trackIndex)
     stop()
     loadTrack(getSegments(trackIndex))
-    onTogglePlay()
+    onTogglePlay(getId(trackIndex))
   }
 
   // Setup spacebar
