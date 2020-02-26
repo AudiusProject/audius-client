@@ -145,11 +145,6 @@ const usePlayback = (id, onAfterAudioEnd) => {
   }, [playingStateRef, setPlayingStateRef, id])
   togglePlayRef.current = onTogglePlay
 
-  const play = useCallback(() => {
-    audioRef.current?.play()
-    setPlayingStateRef(PlayingState.Playing)
-  }, [audioRef])
-
   const stop = useCallback(() => {
     audioRef.current?.stop()
     setPlayingStateRef(PlayingState.Stopped)
@@ -168,9 +163,9 @@ const usePlayback = (id, onAfterAudioEnd) => {
     mediaKey,
     seekTo,
     onTogglePlay,
-    play,
     stop,
   }
+
 }
 
 export default usePlayback

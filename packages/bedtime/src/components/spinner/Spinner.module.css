@@ -4,7 +4,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: visible;
+    overflow: hidden;
+}
+
+.container svg {
+    height: 100%;
+    width: 100%;
 }
 
 @keyframes spin {

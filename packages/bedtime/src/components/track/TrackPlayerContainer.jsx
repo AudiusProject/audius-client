@@ -30,7 +30,6 @@ const TrackPlayerContainer = ({
     seekTo,
     onTogglePlay,
     initAudio,
-    isBuffering
   } = usePlayback(track.id)
 
   const didTogglePlay = useCallback(() => {

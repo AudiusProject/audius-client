@@ -31,7 +31,7 @@ const EmbedScrubber = ({
       <Scrubber
         mediaKey={mediaKey}
         isPlaying={playingState === PlayingState.Playing}
-        isDisabled={false}
+        isDisabled={playingState === PlayingState.Stopped}
         isMobile={true}
         includeTimestamps={false}
         onScrubRelease={seekTo}
