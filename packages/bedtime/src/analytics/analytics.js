@@ -1,3 +1,5 @@
+const SOURCE = 'embed player'
+
 const OPEN = 'Embed: Open Player'
 const ERROR = 'Embed: Player Error'
 const PLAYBACK_PLAY = 'Playback: Play'
@@ -10,17 +12,23 @@ const track = (event, properties) => {
 }
 
 export const recordOpen = () => {
-  track(OPEN)
+  track(OPEN, { referrer: document.referrer })
 }
 
 export const recordError = () => {
-  track(ERROR)
+  track(ERROR, { referrer: document.referrer })
 }
 
 export const recordPlay = (id) => {
-  track(PLAYBACK_PLAY, { id: `${id}`, source: 'embed player' })
+  track(
+    PLAYBACK_PLAY,
+    { id: `${id}`, source: SOURCE, referrer: document.referrer }
+  )
 }
 
 export const recordPause = (id) => {
-  track(PLAYBACK_PAUSE, { id: `${id}`, source: 'embed player' })
+  track(
+    PLAYBACK_PAUSE,
+    { id: `${id}`, source: SOURCE, referrer: document.referrer }
+  )
 }
