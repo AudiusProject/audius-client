@@ -8,6 +8,7 @@
     "start:staging": "env-cmd -f .env.staging npm run -s dev",
     "start:development": "env-cmd -f .env.development npm run -s dev",
     "build:staging": "env-cmd -f .env.staging npm run build",
+    "build:production": "env-cmd -f .env.production npm run build",
     "build": "preact build --no-prerender --no-sw --template src/template.html",
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
