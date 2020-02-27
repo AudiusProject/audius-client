@@ -34,7 +34,9 @@ const Scrubber = ({
   elapsedSeconds,
   totalSeconds,
   onScrub,
-  onScrubRelease
+  onScrubRelease,
+  style,
+  className
 }: ScrubberProps) => {
   const [dragSeconds, setDragSeconds] = useState<number | null>(null)
 
@@ -64,7 +66,8 @@ const Scrubber = ({
     <div
       className={cn(styles.scrubber, {
         [styles.isDisabled]: isDisabled,
-        [styles.isMobile]: isMobile
+        [styles.isMobile]: isMobile,
+        className
       })}
     >
       {includeTimestamps &&
@@ -78,6 +81,7 @@ const Scrubber = ({
         totalSeconds={totalSeconds}
         onScrub={onHandleScrub}
         onScrubRelease={onHandleScrubRelease}
+        style={style}
       />
       {includeTimestamps &&
         <div className={styles.timestampEnd}>{formatSeconds(totalSeconds)}</div>}

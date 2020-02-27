@@ -50,6 +50,21 @@ type ScrubberProps = {
    * Fired effectively on "mouse up" when the user is done scrubbing.
    */
   onScrubRelease?: (seconds: number) => void
+
+  /**
+   * Individually exposed styling options.
+   */
+  style?:  {
+    railListenedColor?: string
+    railUnlistenedColor?: string
+    showHandle?: boolean
+    sliderMargin?: string
+  }
+
+  /**
+   * Escape hatch for styles.
+   */
+  className?: string
 }
 
 /**
