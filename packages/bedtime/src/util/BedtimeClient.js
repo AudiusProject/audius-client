@@ -1,5 +1,7 @@
-const GENERAL_ADMISSION_URL = process.env.PREACT_APP_GENERAL_ADMISSION_URL
-const IDENTITY_SERVICE_ENDPOINT = process.env.PREACT_APP_IDENTITY_ENDPOINT
+import { getIdentityEndpoint, getAPIHostname } from './getEnv'
+
+const HOSTNAME = getAPIHostname()
+const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
 
 export const RequestedEntity = Object.seal({
   TRACKS: 'tracks',
@@ -84,7 +86,7 @@ const makeRequest = async (url) => {
   }
 }
 
-const constructEndpoint = (entity, id, ownerId) => `${GENERAL_ADMISSION_URL}/embed/api/${entity}/${id}?ownerId=${ownerId}`
+const constructEndpoint = (entity, id, ownerId) => `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/${id}?ownerId=${ownerId}`
 
 export const getTrack = async (id, ownerId) => {
   const url = constructEndpoint(RequestedEntity.TRACKS, id, ownerId)

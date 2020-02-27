@@ -1,3 +1,5 @@
+import { getCreatorNodeWhitelist } from './getEnv';
+
 const axios = require("axios");
 
 const CancelToken = axios.CancelToken;
@@ -8,7 +10,7 @@ const publicGateways = [
   "https://cloudflare-ipfs.com/ipfs/"
 ];
 
-const creatorNodes = process.env.PREACT_APP_CREATOR_NODE_WHITELIST
+const creatorNodes = getCreatorNodeWhitelist()
 const creatorNodeWhitelist = new Set(creatorNodes.split(','))
 
 // Stolen from libs :)

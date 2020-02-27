@@ -1,4 +1,5 @@
 import copy from 'copy-to-clipboard'
+import { getAPIHostname } from './getEnv'
 
 export const formatShareText = (title, creator) => {
   return `${title} by ${creator} on Audius`
@@ -7,7 +8,7 @@ export const formatShareText = (title, creator) => {
 export const getAudiusURL = () => {
   // This envvar only exists in the develop config -
   // otherwise it's lifted from the window.location in production.
-  const hostname = process.env.PREACT_APP_AUDIUS_HOSTNAME
+  const hostname = getAPIHostname()
   if (!hostname) {
     return `https://${window.location.host}`
 

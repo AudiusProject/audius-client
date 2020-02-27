@@ -1,3 +1,5 @@
+import { getScriptDirectory } from '../getEnv'
+
 /* globals Jimp */
 
 export default () => {
@@ -27,8 +29,8 @@ export default () => {
   }
 
   const formatRGB = (r, g, b) => `rgb(${r},${g},${b})`
-
-  const script = `${process.env.PREACT_APP_SCRIPT_DIRECTORY}/jimp.min.js`
+  const scriptDir = getScriptDirectory()
+  const script = `${scriptDir}/jimp.min.js`
   // eslint-disable-next-line
   importWorkerScript(script)
 
