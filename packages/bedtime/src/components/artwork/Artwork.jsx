@@ -59,6 +59,10 @@ const Artwork = ({
     onTogglePlay()
   }
 
+  const onLogoClick = () => {
+    window.open(getAudiusURL(), '_blank')
+  }
+
   const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)
   if (hasImageErrored) artworkURL = DEFAULT_IMAGE
 
@@ -74,6 +78,7 @@ const Artwork = ({
     >
       { showLogo && <div
         className={styles.logoWrapper}
+        onClick={onLogoClick}
         style={{
           background: `url(${audiusLogo})`,
           opacity: isHovering ? 1 : 0.6

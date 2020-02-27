@@ -60,8 +60,9 @@
   z-index: 1;
   right: 8px;
   transition: opacity 0.25s ease-in-out;
-  height: 36px;
-  width: 108px;
-  background-size: contain !important;
+  height: 60px;
+  width: 150px;
+  background-size: 108px 36px !important;
   background-repeat: no-repeat !important;
+  background-position: top right !important;
 }

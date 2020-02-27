@@ -21,6 +21,10 @@ const TrackPlayerContainer = ({
   const [didInitAudio, setDidInitAudio] = useState(false)
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
+  const onTrackEnd = useCallback(() => {
+    setPopoverVisibility(true)
+  }, [setPopoverVisibility])
+
   const {
     playingState,
     duration,
@@ -30,7 +34,7 @@ const TrackPlayerContainer = ({
     seekTo,
     onTogglePlay,
     initAudio,
-  } = usePlayback(track.id)
+  } = usePlayback(track.id, onTrackEnd)
 
   const didTogglePlay = useCallback(() => {
     if (!didInitAudio) {

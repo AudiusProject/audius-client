@@ -30,6 +30,7 @@ const CollectionPlayerContainer = ({
     if (activeTrackIndex === collection.tracks.length - 1) {
       setActiveTrackIndex(0)
       load(getSegments(0))
+      setPopoverVisibility(true)
       return
     }
 

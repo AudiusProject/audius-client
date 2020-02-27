@@ -6,7 +6,6 @@ import styles from './AudiusLogo.module.css'
 
 const AudiusLogo = () => {
   const onClick = () => {
-    const audiusURL =
     window.open(getAudiusURL(), '_blank')
   }
 

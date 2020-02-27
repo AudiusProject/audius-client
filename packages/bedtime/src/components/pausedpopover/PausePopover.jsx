@@ -30,7 +30,15 @@ const PausedPopoverCard = ({
         timeout={1000}
         classNames={pauseTransitions}
       >
-        <div className={styles.container}>
+        <div
+          className={styles.container}
+          // Ensure that when the popover
+          // is animating out, it's not clickable.
+          style={popoverVisibility
+            ? {}
+            : { pointerEvents: 'none' }
+          }
+        >
         { (flavor === PlayerFlavor.CARD) &&
           <>
             <div className={styles.logo}>

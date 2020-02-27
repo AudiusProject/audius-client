@@ -11,21 +11,17 @@
     font-weight: bold;
     font-size: 20px;
     cursor: pointer;
+    transition: all 0.25s ease-in-out;
 }
 
-.container > div {
-    transition: all 0.6s ease-in-out;
-    transform: scale(1);
-}
-
-.container:hover > div {
-    transform: scale(1.05);
+.container:hover {
+    background-color: #ECECEC;
 }
 
 .logo {
     height: 36px;
     width: 136px;
-    margin-left: 16px;
+    margin-left: 2px;
     background-size: contain !important;
     background-repeat: no-repeat !important;
 }

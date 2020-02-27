@@ -1,7 +1,7 @@
 /* globals Jimp */
 
 export default () => {
-  const DEFAULT_RGB = `rgb(172, 36, 200)`
+  const DEFAULT_RGB = '#7e1bcc'
   const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
   const SAMPLE_RATE = 20
   const REQUEST_TIMEOUT = 1500
