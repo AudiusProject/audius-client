@@ -70,7 +70,6 @@ export const recordListen = async (
 
 const makeRequest = async (url) => {
   try {
-    console.log(`Making request to: ${url}`)
     const resp = await fetch(url)
     if (!resp.ok) {
       // If we have a 404, that means the track was deleted

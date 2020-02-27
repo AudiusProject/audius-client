@@ -1,4 +1,4 @@
-const env = Object.seal({
+const Environment = Object.seal({
   PRODUCTION: 'PRODUCTION',
   STAGING: 'STAGING',
   DEVELOPMENT: 'DEVELOPMENT'
@@ -10,9 +10,9 @@ const STAGING_HOSTNAME = "staging.audius.co"
 const LOCALHOST = "localhost"
 
 const envHostnameMap = {
-  [PROD_HOSTNAME]: env.PRODUCTION,
-  [STAGING_HOSTNAME]: env.STAGING,
-  [LOCALHOST]: env.DEVELOPMENT
+  [PROD_HOSTNAME]: Environment.PRODUCTION,
+  [STAGING_GA]: Environment.STAGING,
+  [LOCALHOST]: Environment.DEVELOPMENT
 }
 
 const getEnv = () => {
@@ -23,10 +23,10 @@ const getEnv = () => {
 export const getIdentityEndpoint = () => {
   const env = getEnv()
   switch (env) {
-    case env.PRODUCTION:
+    case Environment.PRODUCTION:
       return process.env.PREACT_APP_IDENTITY_ENDPOINT_PROD
-    case env.STAGING:
-    case env.DEVELOPMENT:
+    case Environment.STAGING:
+    case Environment.DEVELOPMENT:
     default:
       return process.env.PREACT_APP_IDENTITY_ENDPOINT_STAGE
   }
@@ -35,10 +35,10 @@ export const getIdentityEndpoint = () => {
 export const getCreatorNodeWhitelist = () => {
   const env = getEnv()
   switch (env) {
-    case env.PRODUCTION:
+    case Environment.PRODUCTION:
       return process.env.PREACT_APP_CREATOR_NODE_WHITELIST_PROD
-    case env.STAGING:
-    case env.DEVELOPMENT:
+    case Environment.STAGING:
+    case Environment.DEVELOPMENT:
     default:
       return process.env.PREACT_APP_CREATOR_NODE_WHITELIST_STAGE
   }
@@ -53,10 +53,10 @@ export const getAPIHostname = () => {
 
   const env = getEnv()
   switch (env) {
-    case env.PRODUCTION:
+    case Environment.PRODUCTION:
       return window.location.hostname
-    case env.STAGING:
-    case env.DEVELOPMENT:
+    case Environment.STAGING:
+    case Environment.DEVELOPMENT:
     default:
       return STAGING_GA
   }
@@ -65,23 +65,11 @@ export const getAPIHostname = () => {
 export const getAudiusHostname = () => {
   const env = getEnv()
   switch (env) {
-    case env.PRODUCTION:
+    case Environment.PRODUCTION:
       return PROD_HOSTNAME
-    case env.DEVELOPMENT:
-    case env.STAGING:
+    case Environment.DEVELOPMENT:
+    case Environment.STAGING:
     default:
       return STAGING_HOSTNAME
-  }
-}
-
-export const getScriptDirectory = () => {
-  const env = getEnv()
-  switch (env) {
-    case env.PRODUCTION:
-    case env.STAGING:
-      return process.env.PREACT_APP_SCRIPT_DIRECTORY
-    case env.DEVELOPMENT:
-    default:
-      return process.env.PREACT_APP_SCRIPT_DIRECTORY_DEV
   }
 }

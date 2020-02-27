@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "env-cmd -f .env npm run -s dev",
-    "start:development": "env-cmd -f .env env-cmd -f .env.development npm run -s dev",
+    "start": "env-cmd -f .env env-cmd -f .env.local npm run -s dev",
+    "start:development": "env-cmd -f .env env-cmd -f .env.development env-cmd -f .env.local npm run -s dev",
     "build": "env-cmd -f .env preact build --no-prerender --no-sw --template src/template.html",
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
