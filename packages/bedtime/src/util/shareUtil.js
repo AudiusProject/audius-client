@@ -31,9 +31,6 @@ export const share = (url, title, creator) => {
       shareText,
       url: shareableLink
     })
-    .catch(() => {
-      copy(shareableLink)
-    })
   } else {
     copy(shareableLink)
   }

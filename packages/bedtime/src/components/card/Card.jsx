@@ -1,5 +1,5 @@
-import { h } from 'preact'
-import { useCallback, useState } from 'preact/hooks'
+import { h, createContext } from 'preact'
+import { useCallback, useState, useContext, useMemo } from 'preact/hooks'
 
 import styles from './Card.module.css'
 import TwitterFooter from '../twitterfooter/TwitterFooter'
@@ -10,6 +10,31 @@ const ASPECT_RATIOS = {
   twitter: 0.728
 }
 
+
+export const CardDimensionsContext = createContext({
+  height: 0,
+  width: 0,
+  setDimensions: (dimension) => {}
+})
+
+export const CardContextProvider = (props) => {
+  const [dimensions, setDimensions] = useState({ height: 0, width: 0 })
+
+  return (
+    <CardDimensionsContext.Provider
+      value={{
+        height: dimensions.height,
+        width: dimensions.width,
+        setDimensions: (d) => {
+          console.log('setting dimensions' + JSON.stringify(d))
+          setDimensions(d)
+        }
+      }}
+    >
+    { props.children }
+    </CardDimensionsContext.Provider>
+  )
+}
 
 // Calculates height and width of the card given
 // it's desired aspect ratio and the parent's
@@ -25,7 +50,10 @@ const useAspectRatio = (isTwitter, mobileWebTwitter) => {
     // below a certain width, we should render
     // the card square fullscreen.
     if (mobileWebTwitter) {
-      setCardStyle({ height: '100vh', width: '100vw' })
+      setCardStyle({
+        height: `${window.document.documentElement.clientHeight}px`,
+        width: `${window.document.documentElement.clientWidth}px`
+      })
       return
     }
 
@@ -66,8 +94,23 @@ const Card = ({
   const getDropshadow = () => (isTwitter && !mobileWebTwitter ? { boxShadow: `0 3px 34px 0 ${transparentBg}` } : {})
   // No border radius on mobile web twitter
   const getBorderRadius = () => mobileWebTwitter ? 0 : 12
-
+  const { setDimensions } = useContext(CardDimensionsContext)
   const { cardStyle, callbackRef } = useAspectRatio(isTwitter, mobileWebTwitter)
+  const height = cardStyle.height
+
+  useMemo(() => {
+    console.log({cardStyle})
+    if (!cardStyle.width || cardStyle.width === 0) {
+      return
+    }
+    // Feed the style into the card dimensions context
+    const newStyle = {
+      width: parseInt(cardStyle.width.replace('px', '')),
+      height: parseInt(cardStyle.height.replace('px', ''))
+    }
+    setDimensions(newStyle)
+  }, [height])
+
   const displayTwitterFooter = isTwitter && !mobileWebTwitter
 
   return (

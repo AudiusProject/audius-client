@@ -19,6 +19,7 @@ import { CSSTransition } from 'react-transition-group'
 import { getDominantColor } from '../util/image/dominantColor'
 import { shadeColor } from '../util/shadeColor'
 import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
+import { CardContextProvider } from './card/Card'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -138,28 +139,22 @@ const App = () => {
       } else {
         const collection = await getCollection(request.id, request.ownerId)
         if (!collection) {
-          console.log(1)
           setDid404(true)
           setCollectionsResponse(null)
         } else {
-          console.log(2)
           setDid404(false)
           setCollectionsResponse(collection)
 
           // Set dominant color
-          console.log({ collection })
           const color = await getDominantColor(collection.coverArt)
           setDominantColor({ primary: color, secondary: shadeColor(color, -20) })
-          console.log(2.5)
         }
       }
-      console.log(3)
 
       onGoingRequest.current = false
       setDidError(false)
       setShowLoadingAnimation(false)
     } catch (e) {
-      console.log(4)
       onGoingRequest.current = false
       console.error(`Got error: ${e.message}`)
       setDidError(true)
@@ -295,8 +290,10 @@ const App = () => {
           )}>
       <ToastContextProvider>
         <PauseContextProvider>
-          {renderPausePopover()}
-          {renderPlayerContainer()}
+          <CardContextProvider>
+            {renderPausePopover()}
+            {renderPlayerContainer()}
+          </CardContextProvider>
         </PauseContextProvider>
       </ToastContextProvider>
     </div>

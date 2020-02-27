@@ -13,9 +13,4 @@
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     overflow: hidden;
-    transition: all 0.6s ease-in-out;
-}
-
-.twitterContainer:hover {
-    flex: 0.15;
 }

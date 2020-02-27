@@ -41,6 +41,7 @@ const Artwork = ({
   onClickURL,
   artworkURL,
   className,
+  containerClassName,
   displayHoverPlayButton = false,
   onTogglePlay = () => {},
   playingState = PlayingState.Playing,
@@ -64,8 +65,10 @@ const Artwork = ({
   return (
     <div
       className={cn(styles.container, {
-        [styles.hasLoaded]: hasImageLoaded || hasImageErrored
-      })}
+          [styles.hasLoaded]: hasImageLoaded || hasImageErrored
+        },
+        containerClassName
+      )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >

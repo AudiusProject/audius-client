@@ -9,6 +9,7 @@ import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import cn from 'classnames'
 import Card from '../card/Card'
+import IconVerified from '../../assets/img/iconVerified.svg'
 
 import styles from './CollectionPlayerCard.module.css'
 
@@ -22,7 +23,8 @@ const CollectionListRow = ({
   onTogglePlay,
   iconColor,
   isActive,
-  textIsClickable
+  textIsClickable,
+  isVerified
 }) => {
   const makeOnClickURL = (url) => () => {
     textIsClickable && window.open(url, '_blank')
@@ -61,6 +63,7 @@ const CollectionListRow = ({
           onClick={makeOnClickURL(artistHandle)}
         >
           {artistName}
+          {isVerified && <IconVerified />}
         </div>
       </div>
     </div>
@@ -116,7 +119,7 @@ const CollectionPlayerCard = ({
             <Titles
               artistName={collection.ownerName}
               handle={collection.ownerHandle}
-              isVerified={false}
+              isVerified={collection.isVerified}
               title={collection.name}
               titleUrl={collection.collectionURLPath}
             />
@@ -151,6 +154,7 @@ const CollectionPlayerCard = ({
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
                   textIsClickable={!isTwitter}
+                  isVerified={t.isVerified}
                 />
               )
             })}

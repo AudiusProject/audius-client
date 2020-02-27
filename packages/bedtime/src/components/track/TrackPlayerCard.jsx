@@ -1,11 +1,11 @@
 import { h } from 'preact'
-import { useState, useCallback } from 'preact/hooks'
+import { useState, useCallback, useContext, useEffect } from 'preact/hooks'
 import Artwork from '../artwork/Artwork'
 import ShareButton from '../button/ShareButton'
 import PlayButton from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
-import Card from '../card/Card'
+import Card, { CardDimensionsContext } from '../card/Card'
 
 import styles from './TrackPlayerCard.module.css'
 
@@ -33,18 +33,32 @@ const TrackPlayerCard = ({
 
   const mobileWebTwitter = isMobileWebTwitter(isTwitter)
   const getBottomWrapperStyle = () => mobileWebTwitter ? { flex: '0 0 84px' } : {}
-  const [artworkWrapperStyle, setArtworkWrapperStyle] = useState({})
-  const artworkWrapperCallbackRef = useCallback((element) => {
-    if (!mobileWebTwitter || !element) return
-    const width = element.clientHeight
-    console.log({element})
-    console.log('Setting width:' + width)
-    setArtworkWrapperStyle({
-      width: `calc(100vh - 120px)`,
+  const [artworkWrapperStyle, setArtworkWrapperStyle] = useState({
+    // Need to start the wrapper with 0
+    // opacity bc it doesn't have valid
+    // size information until the
+    // cardDimensionsContext gives us
+    // non-zero values post-mount.
+    opacity: 0
+  })
+  const { height, width } = useContext(CardDimensionsContext)
+
+  useEffect(() => {
+    if (width === 0 ) return
+    // 124px: 84px bottom component, 18 px bottom margin, 24px top margin
+    const desiredHeight = height - 124
+    // 48 width to account for horizontal margins
+    const maxWidth = width - 48
+    const side = Math.min(desiredHeight, maxWidth)
+    const newStyle = {
+      width: `${side}px`,
+      height: `${side}px`,
       marginLeft: 'auto',
-      marginRight: 'auto'
-     })
-  }, [mobileWebTwitter, setArtworkWrapperStyle])
+      marginRight: 'auto',
+      opacity: 1,
+    }
+    setArtworkWrapperStyle(newStyle)
+  }, [height, width])
 
   return (
     <Card
@@ -55,13 +69,13 @@ const TrackPlayerCard = ({
       <div className={styles.paddingContainer}>
         <div
           className={styles.artworkWrapper}
-          ref={artworkWrapperCallbackRef}
           style={artworkWrapperStyle}
         >
           <Artwork
             onClickURL={trackURL}
             artworkURL={albumArtURL}
             className={styles.artworkStyle}
+            containerClassName={styles.artworkContainer}
             displayHoverPlayButton={true}
             onTogglePlay={onTogglePlay}
             playingState={playingState}
@@ -90,13 +104,15 @@ const TrackPlayerCard = ({
               iconColor={backgroundColor}
               className={styles.playButton}
             />
-            <Titles
-              artistName={artistName}
-              handle={handle}
-              isVerified={isVerified}
-              title={title}
-              titleUrl={trackURL}
-            />
+            <div className={styles.titlesWrapper}>
+              <Titles
+                artistName={artistName}
+                handle={handle}
+                isVerified={isVerified}
+                title={title}
+                titleUrl={trackURL}
+              />
+            </div>
             <div className={styles.shareWrapper}>
               <ShareButton
                 url={trackURL}

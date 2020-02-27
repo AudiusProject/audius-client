@@ -14,6 +14,7 @@
   flex-direction: column;
   flex: 1;
   margin-left: 20px;
+  min-width: 0;
 }
 
 .topSection {
@@ -48,6 +49,7 @@
 
 .titleContainer {
   margin: 0px auto 0px 12px;
+  min-width: 0;
 }
 
 .artwork {

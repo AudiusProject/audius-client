@@ -17,7 +17,7 @@ const TwitterFooter = ({ onClickPath }) => {
       className={styles.container}
       onClick={onClick}
     >
-      {messages.title}
+      <div>{messages.title}</div>
       <div
         style={{ background: `url(${FullColorLogo})`}}
         className={styles.logo}/>

@@ -11,6 +11,7 @@
   align-items: center;
   z-index: 1;
   justify-content: space-evenly;
+  padding: 0px 16px;
 }
 
 .logo {
@@ -28,7 +29,7 @@
   left: 12px;
   opacity: 0.5;
   transform: scale(1);
-  transiton: all 0.25s ease-out;
+  transition: all 0.25s ease-out;
   cursor: pointer;
 }
 
