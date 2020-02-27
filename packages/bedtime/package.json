@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "no-ts",
-  "version": "0.0.0",
+  "name": "AudiusBedtime",
+  "version": "1.0.0",
   "license": "MIT",
   "scripts": {
     "start": "env-cmd -f .env env-cmd -f .env.local npm run -s dev",
@@ -10,21 +10,16 @@
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
     "deploy": "aws s3 sync build s3://bedtime.audius.co --delete && aws cloudfront create-invalidation --distribution-id E33HWSH5ZFFGR1 --paths \"/*\"",
-    "lint": "eslint src",
-    "test": "jest"
+    "lint": "eslint src"
   },
   "eslintIgnore": [
     "build/*"
   ],
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "enzyme": "^3.10.0",
-    "enzyme-adapter-preact-pure": "^2.0.0",
     "eslint": "^6.0.1",
     "eslint-config-synacor": "^3.0.4",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^24.9.0",
-    "jest-preset-preact": "^1.0.0",
     "per-env": "^1.0.2",
     "preact-cli": "3.0.0-rc.7",
     "preact-cli-plugin-env-vars": "^1.2.1",
@@ -33,7 +28,7 @@
     "serve": "^11.1.0"
   },
   "dependencies": {
-    "@audius/stems": "^0.1.4",
+    "@audius/stems": "^0.1.5",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.2.1",
@@ -43,12 +38,5 @@
     "preact-router": "^3.0.0",
     "react-transition-group": "^4.3.0",
     "simplebar-react": "^2.1.0"
-  },
-  "jest": {
-    "preset": "jest-preset-preact",
-    "setupFiles": [
-      "<rootDir>/tests/__mocks__/browserMocks.js",
-      "<rootDir>/tests/__mocks__/setupTests.js"
-    ]
   }
 }
