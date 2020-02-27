@@ -25,10 +25,7 @@ export const CardContextProvider = (props) => {
       value={{
         height: dimensions.height,
         width: dimensions.width,
-        setDimensions: (d) => {
-          console.log('setting dimensions' + JSON.stringify(d))
-          setDimensions(d)
-        }
+        setDimensions
       }}
     >
     { props.children }
@@ -99,7 +96,6 @@ const Card = ({
   const height = cardStyle.height
 
   useMemo(() => {
-    console.log({cardStyle})
     if (!cardStyle.width || cardStyle.width === 0) {
       return
     }

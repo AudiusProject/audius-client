@@ -42,7 +42,7 @@ export default () => {
    */
   const dominantRgb = ({ key, imageUrl, attempt = 0 }) => {
     if (attempt > 2) {
-      console.log('Failed all attempts, returning default')
+      console.info('Failed all attempts, returning default')
       postMessage({key, result: DEFAULT_RGB})
       return
     }
@@ -100,7 +100,7 @@ export default () => {
     })
 
     Promise.race([processImage(), timeouter()]).catch((err) => {
-      console.log(`Failed attempt ${attempt} with err ${err.message}`)
+      console.warn(`Failed attempt ${attempt} with err ${err.message}`)
       dominantRgb({key, imageUrl, attempt: attempt + 1})
     })
   }

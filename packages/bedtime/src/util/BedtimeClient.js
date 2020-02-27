@@ -79,8 +79,7 @@ const makeRequest = async (url) => {
     }
     return resp.json()
   } catch (e) {
-    console.log(e)
-    console.error(`Saw error requesting URL [${url}]: []${e.message}]`)
+    console.error(`Saw error requesting URL [${url}]: [${e.message}]`)
     throw e
   }
 }
