@@ -59,6 +59,7 @@ export const getAPIHostname = () => {
     case Environment.DEVELOPMENT:
     default:
       return STAGING_GA
+          mountOnEnter
   }
 }
 

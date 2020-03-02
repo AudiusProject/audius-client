@@ -11,7 +11,7 @@
     font-weight: bold;
     font-size: 20px;
     cursor: pointer;
-    transition: all 0.25s ease-in-out;
+    transition: all 0.15s ease-in-out;
 }
 
 .container:hover {

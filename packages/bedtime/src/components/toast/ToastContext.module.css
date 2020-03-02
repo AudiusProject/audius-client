@@ -1,8 +1,10 @@
 .container {
   position: fixed;
   top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
   z-index: 1000;
-  width: 100vw;
   display: flex;
   justify-content: center;
   pointer-events: none;

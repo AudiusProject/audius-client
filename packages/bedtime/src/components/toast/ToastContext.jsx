@@ -33,15 +33,11 @@ export const ToastContextProvider = (props) => {
       <div className={styles.container}>
         <CSSTransition
           classNames={transitions}
-          mountOnEnter
-          unmountOnExit
           in={isVisible}
           timeout={1000}
         >
           <Toast
             text={toastState ? toastState.text : ''}
-            isControlled={true}
-            isOpen={true}
           />
         </CSSTransition>
       </div>

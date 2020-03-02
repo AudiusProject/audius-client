@@ -5,13 +5,14 @@
 }
 
 .enterActive, .enterDone {
-  transform: translateY(50px) scaleY(1);
+  transform: translateY(30px) scaleY(1);
+  transition: all 1s cubic-bezier(.12,.81,.19,1);
   opacity: 1;
 }
 
 .exit {
   transition: all 0.25s cubic-bezier(.88,.04,.94,.44);
-  transform: translateY(50px) scaleY(1);
+  transform: translateY(30px) scaleY(1);
 }
 
 .exitActive, .exitDone {

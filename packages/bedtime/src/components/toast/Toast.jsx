@@ -3,9 +3,7 @@ import { h } from 'preact'
 import styles from './Toast.module.css'
 
 export const Toast = ({
-  children,
-  text,
-  containerClassName,
+  text
 }) => {
   return (
     <div className={styles.container}>

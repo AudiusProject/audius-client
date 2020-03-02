@@ -12,6 +12,12 @@
   z-index: 1;
   justify-content: space-evenly;
   padding: 0px 16px;
+  opacity: 0;
+}
+
+.container > div {
+  transform: scale(0.65);
+  transition: all 0.45s cubic-bezier(.09,1.36,.48,.97);
 }
 
 .logo {

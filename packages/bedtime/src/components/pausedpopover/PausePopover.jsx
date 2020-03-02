@@ -25,8 +25,6 @@ const PausedPopoverCard = ({
   return (
       <CSSTransition
         in={popoverVisibility}
-        mountOnEnter
-        unmountOnExit
         timeout={1000}
         classNames={pauseTransitions}
       >
