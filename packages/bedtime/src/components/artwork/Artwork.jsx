@@ -83,10 +83,12 @@ const Artwork = ({
   }, [playButtonParentRef, setSideLength])
 
   const getPlayButtonStyle = () => {
+    const boxShadow = '0px 2px 8px -2px rgba(0, 0, 0, 0.5)'
     return isLargeFlavor ? {
+      boxShadow,
       height: `${sideLength}px`,
       width: `${sideLength}px`
-    } : {}
+    } : { boxShadow }
   }
   return (
     <div
