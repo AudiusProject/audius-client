@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useEffect } from 'preact/hooks'
+import { useState, useEffect, useRef } from 'preact/hooks'
 import { getAudiusURL } from '../../util/shareUtil'
 import cn from 'classnames'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
@@ -66,6 +66,28 @@ const Artwork = ({
   const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)
   if (hasImageErrored) artworkURL = DEFAULT_IMAGE
 
+  // Get height & width for large mode, percentage doesn't work bc of chrome
+  // subpixel issues
+  const [sideLength, setSideLength] = useState(0)
+  const playButtonParentRef = useRef(null)
+  useEffect(() => {
+    // Parent component doesn't initially have height,
+    // so wait 100ms before checking the ref for the height.
+    setTimeout(() => {
+      if (!playButtonParentRef.current) return
+      console.log(playButtonParentRef.current)
+      console.log(playButtonParentRef.current.clientHeight)
+      const side = Math.ceil(playButtonParentRef.current.clientHeight * 0.2)
+      setSideLength(side)
+    }, 100)
+  }, [playButtonParentRef, setSideLength])
+
+  const getPlayButtonStyle = () => {
+    return isLargeFlavor ? {
+      height: `${sideLength}px`,
+      width: `${sideLength}px`
+    } : {}
+  }
   return (
     <div
       className={cn(styles.container, {
@@ -88,12 +110,13 @@ const Artwork = ({
        <div
          className={styles.playButtonWrapper}
          onClick={onClickWrapper}
+         ref={playButtonParentRef}
          style={{
            backgroundColor: `${getWrapperTint(iconColor)}`
          }}
        >
           <PlayButton
-            className={cn({ [styles.playButtonLarge]: isLargeFlavor })}
+            style={getPlayButtonStyle()}
             onTogglePlay={onTogglePlay}
             playingState={playingState}
             iconColor={getWrapperTint(iconColor)}

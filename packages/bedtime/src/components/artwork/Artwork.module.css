@@ -45,11 +45,6 @@
   transition: all 0.25s;
 }
 
-.playButtonLarge {
-  width: 20%;
-  height: 20%;
-}
-
 .playButtonWrapper:hover {
   opacity: 1;
 }

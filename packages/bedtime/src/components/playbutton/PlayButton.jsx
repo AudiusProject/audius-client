@@ -18,7 +18,8 @@ const PlayButton = ({
   playingState,
   onTogglePlay,
   iconColor,
-  className
+  className,
+  style={}
 }) => {
 
   const stateIconMap = {
@@ -43,6 +44,7 @@ const PlayButton = ({
       className={cn(styles.container, className, {
         [styles.isBuffering]: playingState === PlayingState.Buffering
       })}
+      style={style}
     >
       {stateIconMap[playingState]}
     </div>
