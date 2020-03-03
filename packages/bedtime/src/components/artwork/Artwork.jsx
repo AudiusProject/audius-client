@@ -75,8 +75,6 @@ const Artwork = ({
     // so wait 100ms before checking the ref for the height.
     setTimeout(() => {
       if (!playButtonParentRef.current) return
-      console.log(playButtonParentRef.current)
-      console.log(playButtonParentRef.current.clientHeight)
       const side = Math.ceil(playButtonParentRef.current.clientHeight * 0.2)
       setSideLength(side)
     }, 100)
