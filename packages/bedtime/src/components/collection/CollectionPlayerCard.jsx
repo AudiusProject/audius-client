@@ -153,7 +153,7 @@ const CollectionPlayerCard = ({
                   trackTitle={t.title}
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
-                  textIsClickable={!isTwitter}
+                  textIsClickable={false}
                   isVerified={t.isVerified}
                 />
               )
