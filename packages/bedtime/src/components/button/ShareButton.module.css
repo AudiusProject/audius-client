@@ -3,5 +3,9 @@
 }
 
 .container:hover {
-  transform: scale(1.2, 1.2) !important;
+  transform: scale(1.2) !important;
+}
+
+.container:active {
+  transform: scale(0.9) !important;
 }
