@@ -6,6 +6,13 @@
 }
 
 @font-face {
+  font-family: "Avenir Next LT Pro";
+  font-style: bold;
+  font-weight: 700;
+  src: url("../assets/fonts/AvenirNextLTPro-Demi-Bold.ttf") format("truetype");
+}
+
+@font-face {
   font-family: "Gilroy";
   font-style: normal;
   font-weight: 700;
@@ -20,8 +27,8 @@ body {
 .app {
   color: white;
   font-family: "Avenir Next LT Pro";
-  font-style: normal;
-  font-weight: 500;
+  font-style: bold;
+  font-weight: 700;
   user-select: none;
   height: 100vh;
   width: 100vw;
