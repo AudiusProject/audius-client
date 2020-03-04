@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useContext, useCallback } from 'preact/hooks'
+import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
 
 import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
@@ -9,6 +9,7 @@ import TrackPlayerCard from './TrackPlayerCard'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
+import { isMobile } from '../../util/isMobile'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -52,6 +53,16 @@ const TrackPlayerContainer = ({
   useSpacebar(didTogglePlay, playbarEnabled)
 
   useRecordListens(position, mediaKey, track.id, LISTEN_INTERVAL_SECONDS)
+
+  // Setup autoplay on twitter
+  useEffect(() => {
+    const mobile = isMobile()
+    if (!isTwitter || mobile) return
+    initAudio()
+    loadTrack(track.segments)
+    setDidInitAudio(true)
+    onTogglePlay()
+  }, [])
 
   const props = {
     title: track.title,

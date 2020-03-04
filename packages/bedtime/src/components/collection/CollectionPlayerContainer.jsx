@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { useState, useContext, useCallback } from 'preact/hooks'
+import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
 
 import usePlayback from '../../hooks/usePlayback'
 import CollectionPlayerCard from './CollectionPlayerCard'
@@ -7,6 +7,7 @@ import { PauseContext } from '../pausedpopover/PauseProvider'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
+import { isMobile } from '../../util/isMobile'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -55,6 +56,16 @@ const CollectionPlayerContainer = ({
 
   // Setup recording listens
   useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
+
+  // Setup twitter autoplay
+  useEffect(() => {
+    const mobile = isMobile()
+    if (!isTwitter || mobile || !collection.tracks.length) return
+    initAudio()
+    loadTrack(getSegments(0))
+    setDidInitAudio(true)
+    onTogglePlay()
+  }, [])
 
   const onTogglePlayTrack = useCallback((trackIndex) => {
     if (!didInitAudio) {
