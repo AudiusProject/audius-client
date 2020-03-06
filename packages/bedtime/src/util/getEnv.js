@@ -4,9 +4,9 @@ const Environment = Object.seal({
   DEVELOPMENT: 'DEVELOPMENT'
 })
 
-const PROD_HOSTNAME = "audius.co"
+const PROD_HOSTNAME = "redirect.audius.co"
 const STAGING_GA = "general-admission.staging.audius.co"
-const STAGING_HOSTNAME = "staging.audius.co"
+const STAGING_HOSTNAME = "redirect.staging.audius.co"
 const LOCALHOST = "localhost"
 
 const envHostnameMap = {
@@ -59,7 +59,6 @@ export const getAPIHostname = () => {
     case Environment.DEVELOPMENT:
     default:
       return STAGING_GA
-          mountOnEnter
   }
 }
 

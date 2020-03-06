@@ -2,7 +2,7 @@ import { h } from 'preact'
 import Button from '../button/Button'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 import cn from 'classnames'
 
 import styles from './DeletedContent.module.css'
@@ -17,7 +17,7 @@ const messages = {
 
 const DeletedContent = ({ isCard }) => {
   const onClickFindMore = () => {
-    window.open(getAudiusURL(), '_blank')
+    window.open(getCopyableLink(), '_blank')
   }
 
   return (

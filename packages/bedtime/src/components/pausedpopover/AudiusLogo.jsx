@@ -1,12 +1,12 @@
 import { h } from 'preact'
 import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
 
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 import styles from './AudiusLogo.module.css'
 
 const AudiusLogo = () => {
   const onClick = () => {
-    window.open(getAudiusURL(), '_blank')
+    window.open(getCopyableLink(), '_blank')
   }
 
   return (

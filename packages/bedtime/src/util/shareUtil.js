@@ -18,8 +18,8 @@ export const getAudiusURL = () => {
   return `${scheme}://${hostname}`
 }
 
-const getCopyableLink = (path) => {
-  return `${getAudiusURL()}/${path}`
+export const getCopyableLink = (path) => {
+  return `${getAudiusURL()}/app-redirect${path ? ("/" + path) : ""}?embed=true`
 }
 
 export const share = (url, title, creator) => {

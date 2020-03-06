@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { useState, useEffect, useRef } from 'preact/hooks'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 import cn from 'classnames'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
@@ -50,7 +50,7 @@ const Artwork = ({
   showLogo = false
 }) => {
   const onClick = () => {
-    window.open(`${getAudiusURL()}/${onClickURL}`, '_blank')
+    window.open(getCopyableLink(onClickURL), '_blank')
   }
 
   const [isHovering, setIsHovering] = useState(false)
@@ -60,7 +60,7 @@ const Artwork = ({
   }
 
   const onLogoClick = () => {
-    window.open(getAudiusURL(), '_blank')
+    window.open(getCopyableLink(), '_blank')
   }
 
   const [hasImageLoaded, hasImageErrored] = usePreloadImage(artworkURL)

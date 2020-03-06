@@ -2,7 +2,7 @@ import { h } from 'preact'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import Button from '../button/Button'
 
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 import styles from './ListenOnAudiusCTA.module.css'
 
 const messages = {
@@ -11,7 +11,7 @@ const messages = {
 
 const ListenOnAudiusCTA = ({ audiusURL }) => {
   const onClick = () => {
-    window.open(`${getAudiusURL()}/${audiusURL}`, '_blank')
+    window.open(getCopyableLink(audiusURL), '_blank')
   }
 
   return (

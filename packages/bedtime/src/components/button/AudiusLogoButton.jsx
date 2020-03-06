@@ -2,10 +2,10 @@ import { h } from 'preact'
 
 import AudiusLogoHorizontal from '../../assets/img/audiusLogoHorizontal.svg'
 import Button from './Button'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 
 const AudiusLogoButton = () => {
-  const onClick = () => window.open(getAudiusURL(), '_blank')
+  const onClick = () => window.open(getCopyableLink(), '_blank')
 
   return (
     <Button

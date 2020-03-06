@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 
 import styles from './TwitterFooter.module.css'
 
@@ -10,7 +10,7 @@ const messages = {
 
 const TwitterFooter = ({ onClickPath }) => {
 
-  const onClick = () => window.open(`${getAudiusURL()}/${onClickPath}`, '_blank')
+  const onClick = () => window.open(getCopyableLink(onClickPath), '_blank')
 
   return (
     <div
