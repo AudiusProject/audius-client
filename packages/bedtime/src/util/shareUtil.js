@@ -1,5 +1,5 @@
 import copy from 'copy-to-clipboard'
-import { getAPIHostname } from './getEnv'
+import { getAudiusHostname } from './getEnv'
 
 export const formatShareText = (title, creator) => {
   return `${title} by ${creator} on Audius`
@@ -8,7 +8,7 @@ export const formatShareText = (title, creator) => {
 export const getAudiusURL = () => {
   // This envvar only exists in the develop config -
   // otherwise it's lifted from the window.location in production.
-  const hostname = getAPIHostname()
+  const hostname = getAudiusHostname()
   if (!hostname) {
     return `https://${window.location.host}`
 
@@ -19,7 +19,7 @@ export const getAudiusURL = () => {
 }
 
 export const getCopyableLink = (path) => {
-  return `${getAudiusURL()}/app-redirect${path ? ("/" + path) : ""}?embed=true`
+  return `${getAudiusURL()}/app-redirect${path ? ("/" + path) : ""}#embed`
 }
 
 export const share = (url, title, creator) => {

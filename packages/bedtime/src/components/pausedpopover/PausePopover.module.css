@@ -9,7 +9,7 @@
   bottom: 0;
   flex-direction: column;
   align-items: center;
-  z-index: 1;
+  z-index: 3;
   justify-content: space-evenly;
   padding: 0px 16px;
   opacity: 0;

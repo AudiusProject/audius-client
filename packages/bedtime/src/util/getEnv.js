@@ -4,14 +4,15 @@ const Environment = Object.seal({
   DEVELOPMENT: 'DEVELOPMENT'
 })
 
-const PROD_HOSTNAME = "redirect.audius.co"
-const STAGING_GA = "general-admission.staging.audius.co"
-const STAGING_HOSTNAME = "redirect.staging.audius.co"
+const PROD_HOSTNAME = "audius.co"
+const PROD_HOSTNAME_REDIRECT = "redirect.audius.co"
+const STAGING_HOSTNAME = "general-admission.staging.audius.co"
+const STAGING_HOSTNAME_REDIRECT = "redirect.staging.audius.co"
 const LOCALHOST = "localhost"
 
 const envHostnameMap = {
   [PROD_HOSTNAME]: Environment.PRODUCTION,
-  [STAGING_GA]: Environment.STAGING,
+  [STAGING_HOSTNAME]: Environment.STAGING,
   [LOCALHOST]: Environment.DEVELOPMENT
 }
 
@@ -58,7 +59,7 @@ export const getAPIHostname = () => {
     case Environment.STAGING:
     case Environment.DEVELOPMENT:
     default:
-      return STAGING_GA
+      return STAGING_HOSTNAME
   }
 }
 
@@ -66,10 +67,10 @@ export const getAudiusHostname = () => {
   const env = getEnv()
   switch (env) {
     case Environment.PRODUCTION:
-      return PROD_HOSTNAME
+      return PROD_HOSTNAME_REDIRECT
     case Environment.DEVELOPMENT:
     case Environment.STAGING:
     default:
-      return STAGING_HOSTNAME
+      return STAGING_HOSTNAME_REDIRECT
   }
 }
