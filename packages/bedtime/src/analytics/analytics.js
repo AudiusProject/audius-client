@@ -11,8 +11,11 @@ const track = (event, properties) => {
   }
 }
 
-export const recordOpen = () => {
-  track(OPEN, { referrer: document.referrer })
+export const recordOpen = (id, title, handle, path) => {
+  track(
+    OPEN,
+    { id: `${id}`, handle, title, path, referrer: document.referrer }
+  )
 }
 
 export const recordError = () => {

@@ -100,10 +100,6 @@ const App = () => {
   const [dominantColor, setDominantColor] = useState(null)
 
   useEffect(() => {
-    recordOpen()
-  }, [])
-
-  useEffect(() => {
     if (didError) {
       recordError()
     }
@@ -131,6 +127,7 @@ const App = () => {
         } else {
           setDid404(false)
           setTracksResponse(track)
+          recordOpen(track.id, track.title, track.handle, track.urlPath)
 
           // set average color
           const color = await getDominantColor(track.coverArt)
@@ -144,6 +141,7 @@ const App = () => {
         } else {
           setDid404(false)
           setCollectionsResponse(collection)
+          recordOpen(collection.id, collection.name, collection.ownerHandle, collection.collectionURLPath)
 
           // Set dominant color
           const color = await getDominantColor(collection.coverArt)
