@@ -12,6 +12,9 @@ import { PlayerFlavor } from '../app'
 
 import styles from './PausePopover.module.css'
 import pauseTransitions from './PauseTransitions.module.css'
+import { CardDimensionsContext } from '../card/Card'
+
+const DISMISS_BUTTON_CARD_LEFT_MARGIN = 12
 
 const PausedPopoverCard = ({
   artworkURL,
@@ -21,6 +24,17 @@ const PausedPopoverCard = ({
   isMobileWebTwitter
 }) => {
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
+  const { width } = useContext(CardDimensionsContext)
+
+  // Get the proper offset for the dismiss button in case we're in card mode
+  const getDismissButtonStyle = () => {
+    if (flavor === PlayerFlavor.COMPACT) return {}
+    const bodyWidth = window.document.body.clientWidth
+    const leftInset = (bodyWidth - width) / 2 + DISMISS_BUTTON_CARD_LEFT_MARGIN
+    return {
+      left: `${leftInset}px`
+    }
+  }
 
   return (
       <CSSTransition
@@ -58,6 +72,7 @@ const PausedPopoverCard = ({
         <div
           className={styles.dismissIcon}
           onClick={() => setPopoverVisibility(false)}
+          style={getDismissButtonStyle()}
         >
           <IconRemove />
         </div>

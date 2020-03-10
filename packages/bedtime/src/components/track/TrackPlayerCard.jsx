@@ -10,7 +10,6 @@ import Card, { CardDimensionsContext } from '../card/Card'
 import styles from './TrackPlayerCard.module.css'
 
 import cardStyles from '../collection/CollectionPlayerCard.module.css'
-import { Flavor } from '../pausedpopover/PausePopover'
 import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
 import AudiusLogo from '../pausedpopover/AudiusLogo'
 
