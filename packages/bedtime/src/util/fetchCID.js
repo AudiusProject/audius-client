@@ -11,7 +11,7 @@ const publicGateways = [
 ];
 
 const creatorNodes = getCreatorNodeWhitelist()
-const creatorNodeWhitelist = new Set(creatorNodes.split(','))
+const creatorNodeWhitelist = new Set(creatorNodes.split(',').map(c => `${c}/ipfs/`))
 
 // Stolen from libs :)
 
