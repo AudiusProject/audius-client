@@ -97,13 +97,13 @@ export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
  * Fetches a file from IPFS with a given CID. Public gateways are tried first, then
  * fallback to a specified gateway and then to the default gateway.
  * @param {string} cid IPFS content identifier
- * @param {Array<string>} creatorNodeGateways fallback ipfs gateways from creator nodes
+ * @param {Set<string>} creatorNodeGateways fallback ipfs gateways from creator nodes
  * @param {?function} callback callback called on each successful/failed fetch with
  *  [String, Bool](gateway, succeeded)
  *  Can be used for tracking metrics on which gateways were used.
  */
 const _fetchCID = async (cid, creatorNodeGateways, callback = () => {}) => {
-  const gateways = publicGateways.concat(creatorNodeGateways);
+  const gateways = publicGateways.concat(...creatorNodeGateways);
   const urls = gateways.map(gateway => `${gateway}${cid}`);
 
   try {
