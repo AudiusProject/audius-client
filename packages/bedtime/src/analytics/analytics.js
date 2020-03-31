@@ -4,6 +4,7 @@ const OPEN = 'Embed: Open Player'
 const ERROR = 'Embed: Player Error'
 const PLAYBACK_PLAY = 'Playback: Play'
 const PLAYBACK_PAUSE = 'Playback: Pause'
+const LISTEN = 'Listen'
 
 const track = (event, properties) => {
   if (window.analytics) {
@@ -33,5 +34,12 @@ export const recordPause = (id) => {
   track(
     PLAYBACK_PAUSE,
     { id: `${id}`, source: SOURCE, referrer: document.referrer }
+  )
+}
+
+export const recordListen = (id) => {
+  track(
+    LISTEN,
+    { id: `${id}` }
   )
 }

@@ -1,4 +1,5 @@
 import { getIdentityEndpoint, getAPIHostname } from './getEnv'
+import { recordListen as recordAnalyticsListen } from '../analytics/analytics'
 
 const HOSTNAME = getAPIHostname()
 const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
@@ -63,6 +64,7 @@ export const recordListen = async (
 
   try {
     await fetch(url, { method, headers, body })
+    recordAnalyticsListen(trackId)
   } catch (e) {
     console.error(`Got error storing playcount: [${e.message}]`)
   }
