@@ -1,6 +1,5 @@
 .container {
   background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
   position: fixed;
   display: flex;
   top: 0;
@@ -13,6 +12,10 @@
   justify-content: space-evenly;
   padding: 0px 16px;
   opacity: 0;
+}
+
+.container.blur {
+  backdrop-filter: blur(4px);
 }
 
 .container > div {

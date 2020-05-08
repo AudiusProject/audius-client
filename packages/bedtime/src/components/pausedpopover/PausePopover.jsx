@@ -43,7 +43,9 @@ const PausedPopoverCard = ({
         classNames={pauseTransitions}
       >
         <div
-          className={styles.container}
+          className={cn(styles.container, {
+            [styles.blur]: popoverVisibility
+          })}
           // Ensure that when the popover
           // is animating out, it's not clickable.
           style={popoverVisibility
