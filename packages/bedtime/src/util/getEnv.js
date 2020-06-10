@@ -5,18 +5,23 @@ const Environment = Object.seal({
 })
 
 const PROD_HOSTNAME = "audius.co"
+const PROD_GA_HOSTNAME = "general-admission.audius.co"
 const PROD_HOSTNAME_REDIRECT = "redirect.audius.co"
-const STAGING_HOSTNAME = "general-admission.staging.audius.co"
+const STAGING_HOSTNAME = "staging.audius.co"
+const STAGING_GA_HOSTNAME = "general-admission.staging.audius.co"
 const STAGING_HOSTNAME_REDIRECT = "redirect.staging.audius.co"
 const LOCALHOST = "localhost"
 
 const envHostnameMap = {
   [PROD_HOSTNAME]: Environment.PRODUCTION,
+  [PROD_GA_HOSTNAME]: Environment.PRODUCTION,
   [STAGING_HOSTNAME]: Environment.STAGING,
+  [STAGING_GA_HOSTNAME]: Environment.STAGING,
   [LOCALHOST]: Environment.DEVELOPMENT
 }
 
 const getEnv = () => {
+  // Determine what env we are in at runtime by checking window.location
   const hostname = window.location.hostname
   return envHostnameMap[hostname]
 }
@@ -52,14 +57,19 @@ export const getAPIHostname = () => {
     return `http://localhost:${localGAPort}`
   }
 
+  // Switch on the current env and determine where to send API
+  // requests.
   const env = getEnv()
   switch (env) {
     case Environment.PRODUCTION:
-      return window.location.hostname
+      return PROD_GA_HOSTNAME
     case Environment.STAGING:
     case Environment.DEVELOPMENT:
+      return STAGING_GA_HOSTNAME
     default:
-      return STAGING_HOSTNAME
+      // There shouldn't be a case where we hit default,
+      // but err on the side of caution and use prod
+      return PROD_GA_HOSTNAME
   }
 }
 
