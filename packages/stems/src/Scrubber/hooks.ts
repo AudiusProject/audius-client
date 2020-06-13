@@ -30,7 +30,12 @@ export const useAnimations = (
   /** Animates from the current position to the end over the remaining seconds. */
   const play = useCallback(() => {
     const timeRemaining = totalSeconds - elapsedSeconds
-    animate(trackRef, handleRef, `transform ${timeRemaining}s linear`, 'translate(100%)')
+    animate(
+      trackRef,
+      handleRef,
+      `transform ${timeRemaining}s linear`,
+      'translate(100%)'
+    )
   }, [trackRef, handleRef, elapsedSeconds, totalSeconds])
 
   /**
@@ -41,7 +46,9 @@ export const useAnimations = (
    */
   const pause = useCallback(() => {
     const trackWidth = trackRef.current.offsetWidth
-    const trackTransform = window.getComputedStyle(trackRef.current).getPropertyValue('transform')
+    const trackTransform = window
+      .getComputedStyle(trackRef.current)
+      .getPropertyValue('transform')
 
     const trackPosition = parseFloat(trackTransform.split(',')[4])
     const percentComplete = trackPosition / trackWidth
@@ -49,9 +56,17 @@ export const useAnimations = (
   }, [trackRef, handleRef])
 
   /** Sets the animation to a given percentage: [0, 1]. */
-  const setPercent = useCallback((percentComplete: number) => {
-    animate(trackRef, handleRef, 'none', `translate(${percentComplete * 100}%)`)
-  }, [trackRef, handleRef])
+  const setPercent = useCallback(
+    (percentComplete: number) => {
+      animate(
+        trackRef,
+        handleRef,
+        'none',
+        `translate(${percentComplete * 100}%)`
+      )
+    },
+    [trackRef, handleRef]
+  )
 
   /**
    * Handle window focus events so that the scrubber can repair itself
@@ -61,7 +76,9 @@ export const useAnimations = (
   timeData.current = { elapsedSeconds, totalSeconds }
   useEffect(() => {
     const onWindowFocus = () => {
-      setPercent(timeData.current.elapsedSeconds / timeData.current.totalSeconds)
+      setPercent(
+        timeData.current.elapsedSeconds / timeData.current.totalSeconds
+      )
     }
     window.addEventListener('focus', onWindowFocus)
     return () => window.removeEventListener('focus', onWindowFocus)

@@ -70,8 +70,11 @@ const Scrubber = ({
         className
       })}
     >
-      {includeTimestamps &&
-        <div className={styles.timestampStart}>{formatSeconds(timestampStart)}</div>}
+      {includeTimestamps && (
+        <div className={styles.timestampStart}>
+          {formatSeconds(timestampStart)}
+        </div>
+      )}
       <Slider
         mediaKey={mediaKey}
         isPlaying={isPlaying}
@@ -83,8 +86,9 @@ const Scrubber = ({
         onScrubRelease={onHandleScrubRelease}
         style={style}
       />
-      {includeTimestamps &&
-        <div className={styles.timestampEnd}>{formatSeconds(totalSeconds)}</div>}
+      {includeTimestamps && (
+        <div className={styles.timestampEnd}>{formatSeconds(totalSeconds)}</div>
+      )}
     </div>
   )
 }

@@ -54,7 +54,7 @@ type ScrubberProps = {
   /**
    * Individually exposed styling options.
    */
-  style?:  {
+  style?: {
     railListenedColor?: string
     railUnlistenedColor?: string
     showHandle?: boolean

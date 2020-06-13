@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef, CSSProperties } from 'react'
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  CSSProperties
+} from 'react'
 import cn from 'classnames'
 
 import { useAnimations } from './hooks'
@@ -43,59 +49,80 @@ const Slider = ({
   const trackRef = useRef<HTMLDivElement>(null)
   const handleRef = useRef<HTMLDivElement>(null)
 
-  const { play, pause, setPercent } = useAnimations(trackRef, handleRef, elapsedSeconds, totalSeconds)
+  const { play, pause, setPercent } = useAnimations(
+    trackRef,
+    handleRef,
+    elapsedSeconds,
+    totalSeconds
+  )
 
   /**
    * Sets the percentage across the scrubber for a given pageX position.
    */
-  const setDragPercent = useCallback((pageX: number) => {
-    const clickPosition = pageX - getXPosition(railRef.current)
-    const railWidth = railRef.current.offsetWidth
-    const percent = Math.min(Math.max(0, clickPosition), railWidth) / railWidth
-    dragPercent.current = percent
-  }, [dragPercent])
+  const setDragPercent = useCallback(
+    (pageX: number) => {
+      const clickPosition = pageX - getXPosition(railRef.current)
+      const railWidth = railRef.current.offsetWidth
+      const percent =
+        Math.min(Math.max(0, clickPosition), railWidth) / railWidth
+      dragPercent.current = percent
+    },
+    [dragPercent]
+  )
 
   /**
    * Sets the percentage across the scrubber for a given mouse event.
    */
-  const setDragPercentMouse = useCallback((e: React.MouseEvent | MouseEvent) => {
-    setDragPercent(e.pageX)
-  }, [setDragPercent])
+  const setDragPercentMouse = useCallback(
+    (e: React.MouseEvent | MouseEvent) => {
+      setDragPercent(e.pageX)
+    },
+    [setDragPercent]
+  )
 
   /**
    * Sets the percentage across the scurbber for a given touch event.
    */
-  const setDragPercentTouch = useCallback((e: React.TouchEvent | TouchEvent) => {
-    setDragPercent(e.touches[0].pageX)
-  }, [setDragPercent])
+  const setDragPercentTouch = useCallback(
+    (e: React.TouchEvent | TouchEvent) => {
+      setDragPercent(e.touches[0].pageX)
+    },
+    [setDragPercent]
+  )
 
   /**
    * Watches user mouse movements while the scrubber handle is being dragged.
    */
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
+  const onMouseMove = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
 
-    setDragPercentMouse(e)
-    setPercent(dragPercent.current)
+      setDragPercentMouse(e)
+      setPercent(dragPercent.current)
 
-    const seconds = dragPercent.current * totalSeconds
-    onScrub(seconds)
-  }, [dragPercent, setDragPercentMouse, totalSeconds, setPercent, onScrub])
+      const seconds = dragPercent.current * totalSeconds
+      onScrub(seconds)
+    },
+    [dragPercent, setDragPercentMouse, totalSeconds, setPercent, onScrub]
+  )
 
   /**
    * Watches user touch movements while the scrubber handle is being dragged.
    */
-  const onTouchMove = useCallback((e: TouchEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
+  const onTouchMove = useCallback(
+    (e: TouchEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
 
-    setDragPercentTouch(e)
-    setPercent(dragPercent.current)
+      setDragPercentTouch(e)
+      setPercent(dragPercent.current)
 
-    const seconds = dragPercent.current * totalSeconds
-    onScrub(seconds)
-  }, [dragPercent, setDragPercentTouch, totalSeconds, setPercent, onScrub])
+      const seconds = dragPercent.current * totalSeconds
+      onScrub(seconds)
+    },
+    [dragPercent, setDragPercentTouch, totalSeconds, setPercent, onScrub]
+  )
 
   /**
    * Watches for a mouse-up action (which may not occur on the scrubber itself),
@@ -172,11 +199,17 @@ const Slider = ({
       }
       setPreviousMediaKey(mediaKey)
     }
-  }, [mediaKey, previousmediaKey, setPreviousMediaKey, setPercent, elapsedSeconds, totalSeconds])
+  }, [
+    mediaKey,
+    previousmediaKey,
+    setPreviousMediaKey,
+    setPercent,
+    elapsedSeconds,
+    totalSeconds
+  ])
 
-  const getShowHandle = () => ((!style || style.showHandle === undefined)
-    ? true
-    : style.showHandle)
+  const getShowHandle = () =>
+    !style || style.showHandle === undefined ? true : style.showHandle
 
   const getRailStyle = () => {
     const s: CSSProperties = {}
@@ -216,7 +249,11 @@ const Slider = ({
     >
       <div ref={railRef} className={styles.rail} style={getRailStyle()}>
         <div ref={trackRef} className={styles.trackWrapper}>
-          <div ref={trackRef} className={styles.track} style={getTrackStyle()}/>
+          <div
+            ref={trackRef}
+            className={styles.track}
+            style={getTrackStyle()}
+          />
         </div>
       </div>
       <div ref={handleRef} className={styles.handleWrapper}>
@@ -227,4 +264,3 @@ const Slider = ({
 }
 
 export default Slider
-

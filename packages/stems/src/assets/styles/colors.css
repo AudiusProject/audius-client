@@ -61,3 +61,50 @@
   --primary-gradient: linear-gradient(135deg, #EE00ED 0%, #C514E0 100%);
   --secondary-gradient: linear-gradient(315deg, #6B0FB3 0%, #7E1BCC 100%);
 }
+
+/**
+ * Static color palette. Never overridden by theme.
+ * You should not override these values!
+ */
+ :root {
+  --static-primary: #CC0FE0;
+  --static-primary-dark-1: #B80ECA;
+  --static-primary-dark-2: #A30CB3;
+  --static-primary-light-1: #D127E3;
+  --static-primary-light-2: #D63FE6;
+
+  --static-secondary: #7E1BCC;
+  --static-secondary-transparent: rgba(126, 27, 204, 0.85);
+  --static-secondary-dark-1: #7118B8;
+  --static-secondary-dark-2: #6516A3;
+  --static-secondary-light-1: #8B32D1;
+  --static-secondary-light-2: #9849D6;
+
+  --static-neutral: #858199;
+  --static-neutral-dark-1: #78748A;
+  --static-neutral-dark-2: #6A677A;
+  --static-neutral-dark-3: #4D535A;
+  --static-neutral-light-1: #9D9AAD;
+  --static-neutral-light-2: #AAA7B8;
+  --static-neutral-light-3: #B6B3C2;
+  --static-neutral-light-4: #C2C0CC;
+  --static-neutral-light-5: #CECDD6;
+  --static-neutral-light-6: #DAD9E0;
+  --static-neutral-light-7: #E7E6EB;
+  --static-neutral-light-8: #F2F2F4;
+  --static-neutral-light-9: #F7F7F9;
+  --static-neutral-light-10: #FCFCFC;
+  --static-white: #FFFFFF;
+
+  --static-accent-red: #D0021B;
+  --static-accent-red-dark-1: #AA0115;
+  --static-accent-red-light-1: #D51B32;
+
+  --static-accent-green: #0BA400;
+  --static-accent-green-dark-1: #0A9400;
+  --static-accent-green-light-1: #23AD1A;
+
+  --static-accent-orange: #FF9400;
+  --static-accent-orange-dark-1: #F28100;
+  --static-accent-orange-light-1: #FFA70F;
+}

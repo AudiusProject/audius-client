@@ -8,6 +8,9 @@ module.exports = ({ config }) => {
       },
       {
         loader: require.resolve('react-docgen-typescript-loader'),
+        options: {
+          shouldExtractLiteralValuesFromEnum: true
+        }
       }
     ],
   });
@@ -30,6 +33,20 @@ module.exports = ({ config }) => {
       }
     ]
   });
+
+  // Typescript
   config.resolve.extensions.push('.ts', '.tsx');
+
+  // SVGR
+  const assetRule = config.module.rules.find(({ test }) => test.test('.svg'));
+  const assetLoader = {
+    loader: assetRule.loader,
+    options: assetRule.options || assetRule.query,
+  };
+  config.module.rules.unshift({
+    test: /\.svg$/,
+    use: ['@svgr/webpack', assetLoader],
+  });
+  
   return config;
 };

@@ -7,10 +7,13 @@ import { host } from 'storybook-host'
 import '../src/assets/styles/colors.css'
 import '../src/assets/styles/fonts.css'
 import '../src/assets/styles/sizes.css'
+import '../src/assets/styles/animations.css'
+import Button from '../src/Button'
 import Scrubber from '../src/Scrubber'
+import { IconPlay } from '../src/Icons'
 
 storiesOf('Stems', module)
-  .addDecorator(withSmartKnobs)
+  .addDecorator(withSmartKnobs())
   .addDecorator(withKnobs)
   .addDecorator(
     host({
@@ -19,10 +22,7 @@ storiesOf('Stems', module)
       width: 800
     })
   )
-  .add('Scrubber', () =>
-    <Scrubber
-      mediaKey='1'
-      elapsedSeconds={0}
-      totalSeconds={100}
-    />
-  )
+  .add('Button', () => <Button leftIcon={<IconPlay />} text='Click Me' />)
+  .add('Scrubber', () => (
+    <Scrubber mediaKey='1' elapsedSeconds={0} totalSeconds={100} />
+  ))
