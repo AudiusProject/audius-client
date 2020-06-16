@@ -42,11 +42,10 @@ export default {
         postcssCustomProperties({
           // Don't preserve var names so they cannot be overridden
           preserve: false,
-          importFrom: [
-            'src/assets/styles/animations.css'
-          ]
+          importFrom: ['src/assets/styles/animations.css']
         })
       ],
+      extract: 'dist/stems.css',
       modules: true
     }),
     url(),
