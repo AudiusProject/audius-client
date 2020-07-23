@@ -1,6 +1,6 @@
 {
   "name": "@audius/stems",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "The Audius React component library",
   "author": "",
   "license": "",
@@ -86,6 +86,7 @@
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-postcss": "^2.0.3",

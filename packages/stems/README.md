@@ -11,10 +11,31 @@
 
 [![NPM](https://img.shields.io/npm/v/stems.svg)](https://www.npmjs.com/package/stems) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-## Install
+## Installation
 
 ```bash
 npm install --save @audius/stems
+```
+
+## Usage
+
+```js
+import React from 'react'
+import { Button } from '@audius/stems'
+
+import '@audius/stems/dist/stems.css'
+
+const App = () => {
+  return (
+    <Button text='Hello World!' />
+  )
+}
+```
+
+Optional: You may also wish to include the Avenir font, which is provided as a css file
+
+```js
+import '@audius/stems/dist/avenir.css'
 ```
 
 ## Development

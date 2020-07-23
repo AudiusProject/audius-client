@@ -5,6 +5,6 @@
  * easings across the app, prefer using predefined values.
  */
 
-:root {
+:root, root {
   --quick: 0.07s ease-in-out;
 }

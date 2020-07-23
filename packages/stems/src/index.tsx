@@ -1,3 +1,7 @@
+import './assets/styles/sizes.css'
+import './assets/styles/fonts.css'
+import './assets/styles/colors.css'
+
 export * from './Icons'
 
 export {

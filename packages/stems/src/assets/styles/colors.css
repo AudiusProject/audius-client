@@ -13,7 +13,7 @@
  *   --neutral: blue;
  * }
  */
- :root {
+ :root, root {
   --background: #F3F0F7;
 
   --primary: #CC0FE0;
@@ -66,7 +66,7 @@
  * Static color palette. Never overridden by theme.
  * You should not override these values!
  */
- :root {
+ :root, root {
   --static-primary: #CC0FE0;
   --static-primary-dark-1: #B80ECA;
   --static-primary-dark-2: #A30CB3;

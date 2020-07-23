@@ -58,6 +58,7 @@ type ScrubberProps = {
     railListenedColor?: string
     railUnlistenedColor?: string
     showHandle?: boolean
+    handleColor?: string
     sliderMargin?: string
   }
 

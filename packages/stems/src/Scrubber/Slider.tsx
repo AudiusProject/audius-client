@@ -236,6 +236,11 @@ const Slider = ({
     return {}
   }
 
+  const getHandleStyle = () => {
+    if (style && style.handleColor) return { background: style.handleColor }
+    return {}
+  }
+
   return (
     <div
       className={cn(styles.slider, {
@@ -257,7 +262,11 @@ const Slider = ({
         </div>
       </div>
       <div ref={handleRef} className={styles.handleWrapper}>
-        <div ref={handleRef} className={styles.handle} />
+        <div
+          ref={handleRef}
+          className={styles.handle}
+          style={getHandleStyle()}
+        />
       </div>
     </div>
   )

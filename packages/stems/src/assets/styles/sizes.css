@@ -5,7 +5,7 @@
  * defined in this file rather than establishing their own sizings, particularly
  * for margin/padding spacing.
  */
- :root {
+ :root, root {
   --unit: 4px;
   --unit-1: 4px;
   --unit-2: 8px;

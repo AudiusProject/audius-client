@@ -6,6 +6,7 @@ import postcss from 'rollup-plugin-postcss'
 import resolve from 'rollup-plugin-node-resolve'
 import url from 'rollup-plugin-url'
 import postcssCustomProperties from 'postcss-custom-properties'
+import copy from 'rollup-plugin-copy'
 import svgr from '@svgr/rollup'
 
 import pkg from './package.json'
@@ -45,6 +46,7 @@ export default {
           importFrom: ['src/assets/styles/animations.css']
         })
       ],
+      minimize: true,
       extract: 'dist/stems.css',
       modules: true
     }),
@@ -56,6 +58,9 @@ export default {
       clean: true,
       typescript
     }),
-    commonjs()
+    commonjs(),
+    copy({
+      targets: [{ src: 'src/assets/fonts/avenir.css', dest: 'dist' }]
+    })
   ]
 }
