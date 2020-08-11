@@ -1,6 +1,5 @@
 import path from 'path'
 import {
-  waitForSplashScreen,
   waitForAndClickButton,
   waitForNetworkIdle2
 } from '../utils'
@@ -9,9 +8,8 @@ export const uploadTrack = async (page, baseUrl) => {
   const testTrackPath = '../assets/track.mp3'
 
   await waitForNetworkIdle2(page, page.goto(`${baseUrl}/upload`))
-  await waitForSplashScreen(page)
 
-  /** ======== Upload Media Page ======== */
+  /** ======== `Upload Media Page` ======== */
   await page.waitForSelector('div[class^=Dropzone]', {
     timeout: 60 /* seconds */ * 1000 /* ms */
   })
@@ -28,7 +26,7 @@ export const uploadTrack = async (page, baseUrl) => {
 
   /** ======== Edit Track Upload Page ======== */
   // Wait until track preview
-  await page.waitForXPath("//div[contains(text(), 'Complete Your Track')]")
+  await page.waitForXPath("//h1[contains(text(), 'Complete Your Track')]")
 
   const selectCategory = await page.$(`div[class^=DropdownInput_wrapper]`)
   await selectCategory.click()
@@ -38,11 +36,12 @@ export const uploadTrack = async (page, baseUrl) => {
 
   await waitForAndClickButton(page, 'continue')
 
-  /** ======== Finish Track Upload Page ======== */
-  await page.waitForXPath("//span[contains(text(), 'Upload More')]", {
-    timeout: 120 /* sec */ * 1000 /* ms */
+
+  await page.waitForXPath("//h1[contains(text(), 'Upload Complete')]", {
+    timeout: 2 * 60 * 1000
   })
-  await waitForAndClickButton(page, 'viewMedia')
+  const viewButton = await page.$(`div[name=viewMedia]`)
+  viewButton.click()
 }
 
 export default uploadTrack

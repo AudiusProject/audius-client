@@ -100,18 +100,14 @@ export const waitForResponse = async (page, pathname) => {
   })
 }
 
-export const waitForSplashScreen = async page => {
-  await waitForExit(page, 'div[class*=splashScreenWrapper]', 16 /* sec */ * 1000 /* ms */)
-}
-
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
 
 export const fillInput = async (page, name, value) => {
   return page.type(`input[name='${name}']`, value)
 }
 
-export const waitForAndClickButton = async (page, name, selector = '') => {
-  await page.waitForSelector(`button${selector}[name="${name}"]`)
+export const waitForAndClickButton = async (page, name, selector = '', config) => {
+  await page.waitForSelector(`button${selector}[name="${name}"]`, config)
   const btn = await page.$(`button${selector}[name="${name}"]`)
   await btn.click()
 }

@@ -33,6 +33,10 @@ export default async function () {
       `--window-size=${width},${height}`
     ]
   }
+  console.info('with config: ')
+  console.info(config)
+  console.info('\n')
+
   if (args.browser) {
     config.ignoreDefaultArgs = '--mute-audio'
   }
