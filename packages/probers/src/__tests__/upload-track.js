@@ -7,7 +7,7 @@ import createAccount from '../flows/create-account'
 import uploadTrack from '../flows/upload-track'
 
 // Allow a max time of 3 minutes to create an account and run the test
-const timeout = 1000 /** ms */ * 60 /** sec */ * 3 /** min */
+const timeout = 3 /** min */ * 60 /** sec */ * 1000 /** ms */
 
 describe(
   'Upload Track',

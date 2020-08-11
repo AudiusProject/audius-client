@@ -1,10 +1,10 @@
 import moment from 'moment'
 import {
   waitForResponse,
-  waitForSplashScreen,
   fillInput,
   waitForAndClickButton,
-  waitForNetworkIdle2
+  waitForNetworkIdle2,
+  wait
 } from '../utils'
 
 const generateTestUser = () => {
@@ -24,9 +24,7 @@ const generateTestUser = () => {
 export const createAccount = async (page, baseUrl) => {
   let testUser = generateTestUser()
   // Go to the signup page
-  await waitForSplashScreen(page)
   await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
-  await waitForSplashScreen(page)
   // await new Promise(resolve => setTimeout(resolve, 5000)) // Allow time for js confirmation of pwd
 
   /** Email Page ... */
@@ -41,17 +39,19 @@ export const createAccount = async (page, baseUrl) => {
 
   /** Password Page ... */
   // Fill in password twice
-  await new Promise(resolve => setTimeout(resolve, 500)) // Allow time for transition
+  await wait(500) // Allow time for transition
   await page.waitForSelector(`input[name='password']`, { timeout: 2000 })
   await fillInput(page, 'password', testUser.password)
   await fillInput(page, 'confirmPassword', testUser.password)
+
+  
 
   await new Promise(resolve => setTimeout(resolve, 100)) // Allow time for js confirmation of pwd
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Profile Page ... */
   // Fill in name and handle
-  await new Promise(resolve => setTimeout(resolve, 500)) // Allow time for transition
+  await wait(500) // Allow time for transition
   await page.waitForXPath(
     "//div[contains(text(), 'fill out my profile manually')]"
   )
@@ -66,13 +66,19 @@ export const createAccount = async (page, baseUrl) => {
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Follow Page ... */
-  // Select Followers and continue
-  await new Promise(resolve => setTimeout(resolve, 500)) // Allow time for transition
+  // Select Followers and continue  
+  await wait(500) // Allow time for transition
+
   await page.waitForSelector(`div[class^=UserCard_cardContainer]`)
   const userCards = await page.$$('div[class^=UserCard_cardContainer]')
   for (let userCard of userCards) {
     await userCard.click()
   }
+  await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
+
+  /** Get The App Page ... */
+  await wait(500) // Allow time for transition
+  // Select "Continue"
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Loading Page ... */

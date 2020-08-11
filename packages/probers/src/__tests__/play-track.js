@@ -17,7 +17,6 @@ describe(
     }, timeout)
 
     afterAll(async () => {
-      await wait(2000)
       await page.close()
     })
 

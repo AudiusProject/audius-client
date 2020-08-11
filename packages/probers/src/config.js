@@ -2,10 +2,10 @@ import args from './args'
 
 export const config = {
   staging: {
-    baseUrl: 'https://app.staging.audius.co'
+    baseUrl: 'https://staging.audius.co'
   },
   local: {
-    baseUrl: 'http://localhost:3000'
+    baseUrl: 'http://localhost:3001'
   }
 }
 
