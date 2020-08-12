@@ -14,6 +14,10 @@ program
     '-e, --endpoint <s>',
     'Use a specific endpoint to test against, e.g. https://staging.audius.co'
   )
+  .option(
+    '-i, --idempotent',
+    'Run the tests entirely idempotently (no account re-use). By default tests that need a logged in state will try and re-use an account'
+  )
 
 // Fetch extra argv's (-- separated) passed to jest and parse them with commander.
 const index = process.argv.findIndex(i => i === '--')
@@ -25,6 +29,7 @@ program.parse(extraArgs)
 const args = {
   browser: program.browser,
   slow: program.slow,
-  endpoint: program.endpoint
+  endpoint: program.endpoint,
+  idempotent: program.idempotent
 }
 export default args

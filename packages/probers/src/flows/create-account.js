@@ -4,8 +4,10 @@ import {
   fillInput,
   waitForAndClickButton,
   waitForNetworkIdle2,
-  wait
+  wait,
+  getEntropy
 } from '../utils'
+import { exportAccount } from '../utils/account-credentials'
 
 const generateTestUser = () => {
   const ts = moment().format('YYMMDD_HHmmss')
@@ -89,6 +91,11 @@ export const createAccount = async (page, baseUrl) => {
     timeout: 180 /* sec */ * 1000 /* ms */
   })
   await waitForAndClickButton(page, 'startListening')
+
+  // Export account so it can be re-used in other tests that don't want a fresh state
+  const entropy = await getEntropy(page)
+  exportAccount(testUser.email, testUser.password, entropy)
+
   return testUser
 }
 

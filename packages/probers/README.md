@@ -28,3 +28,10 @@ npm run test -- <test-file-name> -- --endpoint http://localhost:3000
 npm run test -- <test-file-name> -- --endpoint https://app.staging.audius.co
 ```
 **IMPORTANT: Probers by default will make accounts. Don't do this against prod.**
+
+Idempotency:
+
+Many tests require an account to run (e.g. uploading a track). In order to optimize execution of multiple tests, account credentials are persisted between tests and potentially re-used. To avoid this behavior and make each test run truly idempotently,
+```
+npm run test -- <test-file-name> -- --idempotent
+```
