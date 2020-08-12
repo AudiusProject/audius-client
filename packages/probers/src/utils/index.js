@@ -13,6 +13,7 @@ export const wait = async milliseconds => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
+// See https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#framegotourl-options
 export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 30000) => {
   page.on('request', onRequestStarted)
   page.on('requestfinished', onRequestFinished)
@@ -116,6 +117,17 @@ export const resetBrowser = async (page, baseUrl) => {
   await waitForNetworkIdle0(page, page.goto(baseUrl))
   await page.evaluate(() => localStorage.clear())
   await waitForNetworkIdle0(page, page.goto(baseUrl))
+}
+
+export const urlLogin = async (page, baseUrl, route, entropy) => {
+  const base64Entropy = Buffer.from(entropy).toString('base64')
+  const url = `${baseUrl}/${route}?login=${base64Entropy}`
+  await waitForNetworkIdle0(page, page.goto(url))
+}
+
+export const getEntropy = async (page) => {
+  const entropy = await page.evaluate(() => localStorage.getItem('hedgehog-entropy-key'))
+  return entropy
 }
 
 const logRequestServices = ['discoveryprovider', 'identityservice', 'creatornode']
