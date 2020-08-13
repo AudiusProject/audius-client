@@ -1,11 +1,10 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
-import { createSignedInAccountIfNecessary } from '../../flows/create-account-if-necessary'
 
 const config = getConfig()
 const timeout = config.defaultTestTimeout
 
-describe('Smoke test -- feed page', () => {
+describe('Smoke test -- trending page', () => {
   let page
 
   beforeAll(async () => {
@@ -17,15 +16,7 @@ describe('Smoke test -- feed page', () => {
     await page.close()
   })
 
-  it('should load feed page when visited', async () => {
-    // load trending page not signed in
-    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/trending`))
-    await page.waitForXPath("//h1[contains(text(), 'Trending')]")
-
-    // sign in
-    await createSignedInAccountIfNecessary(page, config.baseUrl)
-
-    // load trending page signed in
+  it('should load trending page when visited', async () => {
     await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/trending`))
     await page.waitForXPath("//h1[contains(text(), 'Trending')]")
   }, timeout)
