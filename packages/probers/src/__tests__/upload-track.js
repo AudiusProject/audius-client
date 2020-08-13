@@ -5,21 +5,20 @@ import {
 import getConfig from '../config'
 import createAccount from '../flows/create-account'
 import uploadTrack from '../flows/upload-track'
-import { createAccountIfNecessary } from '../flows/create-account-if-necessary'
+import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
-// Allow a max time of 3 minutes to create an account and run the test
-const timeout = 3 /** min */ * 60 /** sec */ * 1000 /** ms */
+const config = getConfig()
 
 describe(
   'Upload Track',
   () => {
     let page
-    const config = getConfig()
+
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-      await createAccountIfNecessary(page, config.baseUrl)
-    }, timeout)
+      await createSignedInAccountIfNecessary(page, config.baseUrl)
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -34,8 +33,8 @@ describe(
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).not.toBe('/404')
       },
-      timeout
+     config.defaultTestTimeout
     )
   },
-  timeout
+ config.defaultTestTimeout
 )

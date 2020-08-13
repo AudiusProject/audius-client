@@ -26,6 +26,6 @@ export const clearAccount = () => {
   try {
     fs.unlinkSync(ACCOUNT_CREDENTIALS_FILE)
   } catch (e) {
-    console.error(e)
+    // Swallow the error -- probalby means the file didn't exist
   }
 }

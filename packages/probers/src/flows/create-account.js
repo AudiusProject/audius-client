@@ -96,6 +96,7 @@ export const createAccount = async (page, baseUrl) => {
   const entropy = await getEntropy(page)
   exportAccount(testUser.email, testUser.password, entropy)
 
+  testUser.entropy = entropy
   return testUser
 }
 
