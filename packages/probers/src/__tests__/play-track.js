@@ -2,19 +2,17 @@ import getConfig from '../config'
 import { newPage, resetBrowser, wait } from '../utils'
 import playTrack from '../flows/play-track'
 
-// Allow a max time of 2 minutes to run the test
-const timeout = 1000 /** ms */ * 60 /** sec */ * 2 /** min */
+const config = getConfig()
 
 describe(
   'Play Track',
   () => {
     let page
-    const config = getConfig()
 
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-    }, timeout)
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -29,8 +27,8 @@ describe(
         })
         expect(playing).toBe(true)
       },
-      timeout
+      config.defaultTestTimeout
     )
   },
-  timeout
+  config.defaultTestTimeout
 )
