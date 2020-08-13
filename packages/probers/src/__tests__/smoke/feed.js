@@ -7,12 +7,11 @@ const timeout = config.defaultTestTimeout
 
 describe('Smoke test -- feed page', () => {
     let page
-    let account
 
     beforeAll(async () => {
         page = await newPage()
         await resetBrowser(page, config.baseUrl)
-        account = await createSignedInAccountIfNecessary(page, config.baseUrl)
+        await createSignedInAccountIfNecessary(page, config.baseUrl)
     }, timeout)
 
     afterAll(async () => {
