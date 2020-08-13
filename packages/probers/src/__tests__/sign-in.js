@@ -1,5 +1,5 @@
 import getConfig from '../config'
-import { newPage, resetBrowser, wait } from '../utils'
+import { newPage, resetBrowser } from '../utils'
 import { createSignedOutAccountIfNecessary } from '../flows/create-account-if-necessary'
 import { signIn } from '../flows/sign-in'
 
