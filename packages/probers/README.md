@@ -25,7 +25,7 @@ npm run test -- <test-file-name> -- --browser --slow 2000  # Slow down operation
 To run a test against a specific endpoint:
 ```
 npm run test -- <test-file-name> -- --endpoint http://localhost:3000
-npm run test -- <test-file-name> -- --endpoint https://app.staging.audius.co
+npm run test -- <test-file-name> -- --endpoint https://staging.audius.co
 ```
 **IMPORTANT: Probers by default will make accounts. Don't do this against prod.**
 
