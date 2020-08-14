@@ -2,7 +2,9 @@ import args from './args'
 
 // Generic config applies to all environments
 const genericConfig = {
-  defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */
+  defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */,
+  fiveSeconds: 5 /* sec */ * 1000 /* ms */,
+  tenSeconds: 10 /* sec */ * 1000 /* ms */
 }
 
 export const config = {
