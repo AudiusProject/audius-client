@@ -3,7 +3,6 @@ import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
 
 const config = getConfig('staging')
 const testTimeout = config.defaultTestTimeout
-const actionTimeout = config.tenSeconds
 
 describe('Smoke test -- playlist page', () => {
   let page
@@ -25,6 +24,6 @@ describe('Smoke test -- playlist page', () => {
     expect(page.url()).not.toMatch(/(error|404)/)
 
     // Verify 'playlist' label is present
-    await page.waitForXPath("//div[contains(@class, 'typeLabel') and normalize-space(text())='playlist']", { timeout: actionTimeout })
+    await page.waitForXPath("//div[contains(@class, 'typeLabel') and normalize-space(text())='playlist']")
   }, testTimeout)
 }, testTimeout)

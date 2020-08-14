@@ -25,6 +25,6 @@ describe('Smoke test -- track page', () => {
     expect(page.url()).not.toMatch(/(error|404)/)
 
     // Verify that 'Track' label is present on page
-    await page.waitForXPath("//div[starts-with(@class, 'GiantTrackTile_typeLabel') and normalize-space(text())='TRACK']", { timeout: actionTimeout })
+    await page.waitForXPath("//div[starts-with(@class, 'GiantTrackTile_typeLabel') and normalize-space(text())='TRACK']")
   }, testTimeout)
 }, testTimeout)
