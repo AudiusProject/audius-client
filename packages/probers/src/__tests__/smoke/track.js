@@ -17,11 +17,11 @@ describe('Smoke test -- track page', () => {
     await page.close()
   })
 
-  it('should load track page when visited', async () => {
-    // // Go to trending page
+  it('should load a track page when visited', async () => {
+    // Go to trending page
     await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/trending`))
 
-    // Wait for trending page to load
+    // Wait for trending page track tile to load
     await page.waitForSelector(`span[class^=TrackTile_title]`, { timeout: actionTimeout })
 
     // Click the first track tile to go to a track page
@@ -30,7 +30,7 @@ describe('Smoke test -- track page', () => {
       page.waitForNavigation() // Resolves after navigations has finished
     ])
 
-    // Verify track page loaded
+    // Verify track page loaded with track tile and play button
     await page.waitForXPath("//button[contains(@class, 'playButton')]", { timeout: actionTimeout })
     await page.waitForXPath("//div[starts-with(@class, 'GiantTrackTile')]", { timeout: actionTimeout })
   }, testTimeout)
