@@ -10,7 +10,9 @@ const genericConfig = {
 export const config = {
   staging: {
     ...genericConfig,
-    baseUrl: 'https://staging.audius.co'
+    baseUrl: 'https://staging.audius.co',
+    playlistUrl: 'https://staging.audius.co/df/playlist/probers_playlist_do_not_delete-511',
+    trackUrl: 'https://staging.audius.co/df/probers_track_do_not_delete-2851'
   },
   local: {
     ...genericConfig,

@@ -19,7 +19,13 @@ describe('Smoke test -- feed page', () => {
   })
 
   it('should load feed page when visited', async () => {
+    // Visit feed page
     await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/feed`))
+
+    // Verify that page url is not 404 nor error
+    expect(page.url()).not.toMatch(/(error|404)/)
+
+    // Verify that 'Feed' label is present
     await page.waitForXPath("//h1[contains(text(), 'Feed')]")
   }, timeout)
 }, timeout)
