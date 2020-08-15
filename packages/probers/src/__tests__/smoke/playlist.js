@@ -18,7 +18,7 @@ describe('Smoke test -- playlist page', () => {
 
   it('should load a playlist page when visited', async () => {
     // Go to playlist url
-    await waitForNetworkIdle2(page, page.goto(`${config.playlistUrl}`))
+    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/${config.playlistRoute}`))
 
     // Verify that page url is not 404 nor error
     expect(page.url()).not.toMatch(/(error|404)/)
