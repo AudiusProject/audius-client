@@ -1,6 +1,4 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/2731362/64272626-9c3b8800-cef4-11e9-973e-0e38a666ec46.png" alt="stems" width="340">
-
   <p align="center">
     An audio-forward React Component library built with ❤️ from the team <a href="https://audius.org">@Audius</a>.
   </p>
