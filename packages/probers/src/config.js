@@ -4,15 +4,15 @@ import args from './args'
 const genericConfig = {
   defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */,
   fiveSeconds: 5 /* sec */ * 1000 /* ms */,
-  tenSeconds: 10 /* sec */ * 1000 /* ms */
+  tenSeconds: 10 /* sec */ * 1000 /* ms */,
+  playlistRoute: 'df/playlist/probers_playlist_do_not_delete-511',
+  trackRoute: 'df/probers_track_do_not_delete-2851'
 }
 
 export const config = {
   staging: {
     ...genericConfig,
-    baseUrl: 'https://staging.audius.co',
-    playlistRoute: 'df/playlist/probers_playlist_do_not_delete-511',
-    trackRoute: 'df/probers_track_do_not_delete-2851'
+    baseUrl: 'https://staging.audius.co'
   },
   local: {
     ...genericConfig,
