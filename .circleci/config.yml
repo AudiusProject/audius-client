@@ -508,6 +508,7 @@ workflows:
             branches:
               ignore: /^master$/
       - deploy-demo:
+          context: Audius Client
           requires:
             - build-demo
           filters:
@@ -534,6 +535,7 @@ workflows:
               only: /(^master)|(^hotfix.*)$/
 
       - test-staging:
+          context: Audius Client
           requires:
             - build-staging
 
@@ -544,6 +546,7 @@ workflows:
             branches:
               only: /^master$/
       - deploy-release:
+          context: Audius Client
           requires:
             - init
             - test-staging
@@ -559,6 +562,7 @@ workflows:
             branches:
               only: /^master$/
       - deploy-mobile-staging:
+          context: Audius Client
           requires:
             - build-mobile-staging
           filters:
@@ -573,6 +577,7 @@ workflows:
             branches:
               only: /^master$/
       - deploy-mobile-production:
+          context: Audius Client
           requires:
             - build-mobile-production
           filters:
@@ -588,6 +593,7 @@ workflows:
             branches:
               only: /(^master)|(^hotfix.*)$/
       - deploy-production:
+          context: Audius Client
           requires:
             - hold-production
           filters:
@@ -596,6 +602,7 @@ workflows:
 
       # Upload sourcemaps
       - deploy-sentry-sourcemaps:
+          context: Audius Client
           requires:
             - deploy-production
           filters:
@@ -603,6 +610,7 @@ workflows:
               only: /^master$/
 
       - publish-github-release:
+          context: Audius Client
           requires:
             - hold-production
           filters:
@@ -618,6 +626,7 @@ workflows:
             branches:
               only: /(^master)|(^bounce.*)$/
       - dist-mac-staging:
+          context: Audius Client
           requires:
             - hold-dist-mac-staging
           filters:
@@ -631,6 +640,7 @@ workflows:
             branches:
               only: /(^master)|(^bounce.*)$/
       - dist-win-staging:
+          context: Audius Client
           requires:
               - hold-dist-win-staging
           filters:
@@ -644,6 +654,7 @@ workflows:
             branches:
               only: /(^master)|(^bounce.*)$/
       - dist-linux-staging:
+          context: Audius Client
           requires:
             - hold-dist-linux-staging
           filters:
@@ -659,6 +670,7 @@ workflows:
             branches:
               only: /(^master)|(^hotfix.*)$/
       - dist-mac-production:
+          context: Audius Client
           requires:
             - hold-dist-mac-production
           filters:
@@ -672,6 +684,7 @@ workflows:
             branches:
               only: /(^master)|(^hotfix.*)$/
       - dist-win-production:
+          context: Audius Client
           requires:
             - hold-dist-win-production
           filters:
@@ -685,6 +698,7 @@ workflows:
             branches:
               only: /(^master)|(^hotfix.*)$/
       - dist-linux-production:
+          context: Audius Client
           requires:
             - hold-dist-linux-production
           filters:
