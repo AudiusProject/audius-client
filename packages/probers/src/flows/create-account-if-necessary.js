@@ -8,8 +8,8 @@ import args from '../args'
  * Creates an account if necessary, otherwise reuses exported account credentials
  * By default, this also signs the account in to Audius. This behavior can be modified
  * with the `signIn` param.
- * @param page 
- * @param baseUrl 
+ * @param page
+ * @param baseUrl
  * @param {Boolean} signIn whether or not to be signed in after account retrieval
  * @param {String} route to visit after creating the account
  */
@@ -46,8 +46,8 @@ const createAccountIfNecessary = async (
 /**
  * Creates an account if necessary that's signed in after the account is
  * created.
- * @param page 
- * @param baseUrl 
+ * @param page
+ * @param baseUrl
  * @param {String} route to visit after creating the account
  */
 export const createSignedInAccountIfNecessary = async (
@@ -61,8 +61,8 @@ export const createSignedInAccountIfNecessary = async (
 /**
  * Creates an account if necessary that's signed out after the account is
  * created.
- * @param page 
- * @param baseUrl 
+ * @param page
+ * @param baseUrl
  * @param {String} route to visit after creating the account
  */
 export const createSignedOutAccountIfNecessary = async (
