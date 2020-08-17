@@ -1,7 +1,7 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
 
-const config = getConfig('staging')
+const config = getConfig()
 const testTimeout = config.defaultTestTimeout
 
 describe('Smoke test -- playlist page', () => {
