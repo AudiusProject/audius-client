@@ -2,6 +2,9 @@
   <p align="center">
     An audio-forward React Component library built with ❤️ from the team <a href="https://audius.org">@Audius</a>.
   </p>
+  <p align="center">
+    <b>🚧  Actively under development, not recommended for production use! 🚧</b>
+  </p>
 </p>
 
 <br/>
