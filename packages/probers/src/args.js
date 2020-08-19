@@ -18,6 +18,10 @@ program
     '-i, --idempotent',
     'Run the tests entirely idempotently (no account re-use). By default tests that need a logged in state will try and re-use an account'
   )
+  .option(
+    '-p, --persist',
+    'Persists account info after test teardown. Useful in local development to make tests that require accounts faster'
+  )
 
 // Fetch extra argv's (-- separated) passed to jest and parse them with commander.
 const index = process.argv.findIndex(i => i === '--')
@@ -30,6 +34,7 @@ const args = {
   browser: program.browser,
   slow: program.slow,
   endpoint: program.endpoint,
-  idempotent: program.idempotent
+  idempotent: program.idempotent,
+  persist: program.persist
 }
 export default args

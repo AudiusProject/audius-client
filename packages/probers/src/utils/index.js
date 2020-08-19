@@ -54,17 +54,17 @@ export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitT
   }
 }
 
-export const waitForNetworkIdle0 = (page, action) => {
+export const waitForNetworkIdle0 = (page, action, timeout = 500) => {
   return Promise.all([
     action,
-    waitForNetworkIdle(page, 500, 0)
+    waitForNetworkIdle(page, timeout, 0)
   ])
 }
 
-export const waitForNetworkIdle2 = (page, action) => {
+export const waitForNetworkIdle2 = (page, action, timeout = 500) => {
   return Promise.all([
     action,
-    waitForNetworkIdle(page, 500, 2)
+    waitForNetworkIdle(page, timeout, 2)
   ])
 }
 
@@ -99,6 +99,13 @@ export const waitForResponse = async (page, pathname) => {
       }
     })
   })
+}
+
+export const reload = async (page) => {
+  await page.evaluate(() => {
+    location.reload(true)
+  })
+  await waitForNetworkIdle2(page)
 }
 
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
