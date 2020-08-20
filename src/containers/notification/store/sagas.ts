@@ -537,7 +537,7 @@ function* watchTogglePanel() {
 }
 
 // On Native App open, clear the notification badges
-function* notificationsInit() {
+function* resetNotificationBadgeCount() {
   try {
     yield call(waitForBackendSetup)
 
@@ -553,8 +553,7 @@ function* notificationsInit() {
 }
 
 export default function sagas() {
-  return [
-    notificationsInit,
+  const sagas: (() => Generator)[] = [
     watchFetchNotifications,
     watchFetchNotificationUsers,
     watchMarkNotificationsRead,
@@ -567,4 +566,8 @@ export default function sagas() {
     watchTogglePanel,
     watchNotificationError
   ]
+  if (NATIVE_MOBILE) {
+    sagas.push(resetNotificationBadgeCount)
+  }
+  return sagas
 }
