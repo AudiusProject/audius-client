@@ -423,6 +423,7 @@ class AudiusBackend {
         web3Config,
         ethWeb3Config,
         discoveryProviderConfig: AudiusLibs.configDiscoveryProvider(
+          null,
           getRemoteVar(IntKeys.DISCOVERY_PROVIDER_SELECTION_TIMEOUT_MS),
           discoveryProviderSelectionCallback
         ),
