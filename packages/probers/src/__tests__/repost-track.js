@@ -4,6 +4,7 @@ import { repostTrack, undoRepostTrack, checkIfReposted } from '../flows/repost-t
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
 const config = getConfig()
+const testTimeout = 3 /* min */ * 60 /* sec */ * 1000 /* ms */
 
 describe(
   'Repost Track',
@@ -30,7 +31,7 @@ describe(
         await repostTrack(page, config.baseUrl, { trackRoute: config.trackRoute })
 
         // Wait for confirmer and reload
-        await waitForNetworkIdle(page, config.confirmerTimeout, 0)
+        await waitForNetworkIdle(page, config.confirmerTimeout, 1)
         await reload(page)
 
         isReposted = await checkIfReposted(page)
@@ -39,14 +40,14 @@ describe(
         await undoRepostTrack(page, config.baseUrl, { trackRoute: config.trackRoute })
 
         // Wait for confirmer and reload
-        await waitForNetworkIdle(page, config.confirmerTimeout, 0)
+        await waitForNetworkIdle(page, config.confirmerTimeout, 1)
         await reload(page)
 
         isReposted = await checkIfReposted(page)
         expect(isReposted).toBe(false)
       },
-      config.defaultTestTimeout
+      testTimeout
     )
   },
-  config.defaultTestTimeout
+  testTimeout
 )
