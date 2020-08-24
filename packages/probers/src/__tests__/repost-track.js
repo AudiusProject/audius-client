@@ -4,7 +4,7 @@ import { repostTrack, undoRepostTrack, checkIfReposted } from '../flows/repost-t
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
 const config = getConfig()
-const testTimeout = 3 /* min */ * 60 /* sec */ * 1000 /* ms */
+const testTimeout = 5 /* min */ * 60 /* sec */ * 1000 /* ms */
 
 describe(
   'Repost Track',
