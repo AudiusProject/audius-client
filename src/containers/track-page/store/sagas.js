@@ -95,10 +95,15 @@ function* getMoreByThisArtist(trackId, ownerHandle) {
 function* watchFetchTrack() {
   yield takeEvery(trackPageActions.FETCH_TRACK, function* (action) {
     const { trackId, trackName, ownerHandle } = action
+    const canBeUnlisted = trackName && ownerHandle
+    const ids = canBeUnlisted
+      ? [{ id: trackId, url_title: trackName, handle: ownerHandle }]
+      : [trackId]
+
     try {
       const trackIds = yield call(retrieveTracks, {
-        trackIds: [{ id: trackId, url_title: trackName, handle: ownerHandle }],
-        canBeUnlisted: true,
+        trackIds: ids,
+        canBeUnlisted,
         withStems: true,
         withRemixes: true,
         withRemixParents: true

@@ -52,7 +52,8 @@ import {
   FOLLOWING_USERS_ROUTE,
   FOLLOWERS_USERS_ROUTE,
   TRENDING_GENRES,
-  APP_REDIRECT
+  APP_REDIRECT,
+  TRACK_ID_PAGE
 } from 'utils/route'
 import 'utils/redirect'
 import { isMobile, getClient } from 'utils/clientUtil'
@@ -705,6 +706,7 @@ class App extends Component {
               />
 
               <Route exact path={TRACK_PAGE} component={TrackPage} />
+              <Redirect from={TRACK_ID_PAGE} to={TRACK_PAGE} />
 
               <Route
                 exact
