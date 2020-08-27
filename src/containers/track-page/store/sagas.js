@@ -111,7 +111,7 @@ function* watchFetchTrack() {
       if (
         !trackIds ||
         !trackIds.length ||
-        trackIds.every(id => id === undefined)
+        trackIds.every(track => track === undefined || !track.track_id)
       ) {
         // If no tracks because no internet, do nothing. Else navigate to 404.
         const isReachable = yield select(getIsReachable)
