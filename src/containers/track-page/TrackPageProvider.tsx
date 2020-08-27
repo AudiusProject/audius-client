@@ -122,9 +122,12 @@ class TrackPageProvider extends Component<
     if (status === Status.ERROR) {
       this.props.goToRoute(NOT_FOUND_PAGE)
     }
-    if (pathname !== this.state.pathname) {
-      this.setState({ pathname })
-      this.fetchTracks(pathname)
+    if (!isMobile()) {
+      // Refetch if the pathname changes because on desktop the component is shared
+      if (pathname !== this.state.pathname) {
+        this.setState({ pathname })
+        this.fetchTracks(pathname)
+      }
     }
 
     // Set the lineup source in state once it's set in redux
@@ -174,7 +177,6 @@ class TrackPageProvider extends Component<
   }
 
   componentWillUnmount() {
-    this.props.reset(this.state.source)
     if (!isMobile()) {
       // Don't reset on mobile because there are two
       // track pages mounted at a time due to animations.

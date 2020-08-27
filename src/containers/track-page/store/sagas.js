@@ -15,7 +15,7 @@ import TimeRange from 'models/TimeRange'
 import { push as pushRoute } from 'connected-react-router'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
-import { getUsers } from 'store/cache/users/selectors'
+import { getUsers, getUserFromTrack } from 'store/cache/users/selectors'
 
 function* watchTrackBadge() {
   yield takeEvery(trackPageActions.GET_TRACK_RANKS, function* (action) {
@@ -87,8 +87,12 @@ function* getTrackRanks(trackId) {
 }
 
 function* getMoreByThisArtist(trackId, ownerHandle) {
+  const owner = yield select(getUserFromTrack, { id: trackId })
   yield put(
-    tracksActions.fetchLineupMetadatas(0, 6, false, { ownerHandle, trackId })
+    tracksActions.fetchLineupMetadatas(0, 6, false, {
+      ownerHandle: owner.handle,
+      trackId
+    })
   )
 }
 
