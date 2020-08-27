@@ -145,10 +145,10 @@ class TrackPageProvider extends Component<
       refetchTracksLinup()
     }
 
-    // Check that the track name hasn't changed. If so, update url.
     if (track) {
       const params = parseTrackRoute(pathname)
       if (params) {
+        // Check if we are coming from a non-canonical route and replace route if necessary.
         const { trackTitle, trackId, handle } = params
         const newTrackTitle = formatUrlName(track.title)
         if (!trackTitle || !handle) {
@@ -161,6 +161,7 @@ class TrackPageProvider extends Component<
             this.props.replaceRoute(newPath)
           }
         } else {
+          // Check that the track name hasn't changed. If so, update url.
           if (track.track_id === trackId) {
             if (newTrackTitle !== trackTitle) {
               const newPath = pathname.replace(trackTitle, newTrackTitle)
@@ -196,7 +197,12 @@ class TrackPageProvider extends Component<
       }
       this.props.reset()
       this.props.setTrackId(trackId)
-      this.props.fetchTrack(trackId, trackTitle, handle)
+      this.props.fetchTrack(
+        trackId,
+        trackTitle,
+        handle,
+        !!(trackTitle && handle)
+      )
       if (handle) {
         this.setState({ ownerHandle: handle })
       }
@@ -494,8 +500,17 @@ function mapDispatchToProps(dispatch: Dispatch) {
     fetchTrack: (
       trackId: ID,
       trackName: string | null,
-      ownerHandle: string | null
-    ) => dispatch(trackPageActions.fetchTrack(trackId, trackName, ownerHandle)),
+      ownerHandle: string | null,
+      canBeUnlisted: boolean
+    ) =>
+      dispatch(
+        trackPageActions.fetchTrack(
+          trackId,
+          trackName,
+          ownerHandle,
+          canBeUnlisted
+        )
+      ),
     setTrackId: (trackId: number) =>
       dispatch(trackPageActions.setTrackId(trackId)),
     resetTrackPage: () => dispatch(trackPageActions.resetTrackPage()),

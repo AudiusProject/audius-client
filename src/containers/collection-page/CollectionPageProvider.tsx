@@ -213,7 +213,6 @@ class CollectionPage extends Component<
       this.setState({ updatingRoute: false })
     }
 
-    // Check that the collection name hasn't changed. If so, update url.
     const {
       collection: { metadata: prevMetadata }
     } = prevProps
@@ -223,12 +222,16 @@ class CollectionPage extends Component<
         const { collectionId, title, collectionType, handle } = params
         const newCollectionName = formatUrlName(metadata.playlist_name)
 
-        if ((!title || !handle || !collectionType) && user) {
+        const routeLacksCollectionInfo =
+          (!title || !handle || !collectionType) && user
+        if (routeLacksCollectionInfo) {
+          // Check if we are coming from a non-canonical route and replace route if necessary.
           const newPath = metadata.is_album
-            ? albumPage(user.handle, metadata.playlist_name, collectionId)
-            : playlistPage(user.handle, metadata.playlist_name, collectionId)
+            ? albumPage(user!.handle, metadata.playlist_name, collectionId)
+            : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else if (
+          // Check that the collection name hasn't changed. If so, update url.
           prevMetadata &&
           metadata.playlist_name !== prevMetadata.playlist_name &&
           title &&

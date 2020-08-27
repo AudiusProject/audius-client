@@ -9,7 +9,9 @@ export const decodeHashId = (id: string): number | null => {
   try {
     const ids = hashids.decode(id)
     if (!ids.length) return null
-    return Number(ids[0])
+    const num = Number(ids[0])
+    if (isNaN(num)) return null
+    return num
   } catch (e) {
     console.error(`Failed to decode ${id}`, e)
     return null
