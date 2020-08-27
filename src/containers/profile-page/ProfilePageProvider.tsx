@@ -117,7 +117,11 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         this.props.resetProfile()
         this.props.resetArtistTracks()
         this.props.resetUserFeedTracks()
-        this.fetchProfile(location.pathname)
+        const params = parseUserRoute(location.pathname)
+        if (params) {
+          // Fetch profile if this is a new profile page
+          this.fetchProfile(location.pathname)
+        }
         this.setState({
           ...INITIAL_UPDATE_FIELDS
         })
