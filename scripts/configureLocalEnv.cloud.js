@@ -1,3 +1,9 @@
+/**
+ * This is a modified version of configureLocalEnv.js, to enable running dapp on a remote host.
+ * It allows you to interact with dapp from local browser by configuring env to point to services on a remote host.
+ * This script requires AUDIUS_REMOTE_DEV_HOST envvar to point to ip address of remote host
+ */
+
 const AUDIUS_CONFIG = '.audius/config.json'
 const AUDIUS_ETH_CONFIG = '.audius/eth-config.json'
 
@@ -5,7 +11,10 @@ const fs = require('fs')
 const path = require('path')
 const homeDir = require('os').homedir()
 
-const EC2URL='18.205.56.189'
+const REMOTE_DEV_HOST = process.env.AUDIUS_REMOTE_DEV_HOST
+if (!REMOTE_DEV_HOST) {
+  throw new Error('Misconfigured local env. Ensure AUDIUS_REMOTE_DEV_HOST envvar has been exported.')
+}
 
 try {
   const configFile = require(path.join(homeDir, AUDIUS_CONFIG))
@@ -14,15 +23,15 @@ try {
   const REACT_APP_ENVIRONMENT = 'development'
   const REACT_APP_DISCOVERY_PROVIDER_FALLBACKS =
     'http://audius-disc-prov_web-server_1:5000'
-  const REACT_APP_IDENTITY_SERVICE = `http://${EC2URL}:7000`
+  const REACT_APP_IDENTITY_SERVICE = `http://${REMOTE_DEV_HOST}:7000`
   const REACT_APP_USER_NODE = 'http://cn1_creator-node_1:4000'
 
   const REACT_APP_REGISTRY_ADDRESS = configFile.registryAddress
   const REACT_APP_WEB3_PROVIDER_URLS =
-    `http://${EC2URL}:8545,http://${EC2URL}:8545`
+    `http://${REMOTE_DEV_HOST}:8545,http://${REMOTE_DEV_HOST}:8545`
 
   const REACT_APP_ETH_REGISTRY_ADDRESS = ethConfigFile.registryAddress
-  const REACT_APP_ETH_PROVIDER_URL = `http://${EC2URL}:8546`
+  const REACT_APP_ETH_PROVIDER_URL = `http://${REMOTE_DEV_HOST}:8546`
   const REACT_APP_ETH_TOKEN_ADDRESS = ethConfigFile.audiusTokenAddress
   const REACT_APP_ETH_OWNER_WALLET = ethConfigFile.ownerWallet
 
