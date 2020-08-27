@@ -54,7 +54,8 @@ import {
   TRENDING_GENRES,
   APP_REDIRECT,
   TRACK_ID_PAGE,
-  USER_ID_PAGE
+  USER_ID_PAGE,
+  PLAYLIST_ID_PAGE
 } from 'utils/route'
 import 'utils/redirect'
 import { isMobile, getClient } from 'utils/clientUtil'
@@ -718,6 +719,7 @@ class App extends Component {
                 )}
               />
               <Route exact path={TRACK_ID_PAGE} component={TrackPage} />
+              <Route exact path={PLAYLIST_ID_PAGE} component={CollectionPage} />
 
               <Route exact path={TRACK_PAGE} component={TrackPage} />
 

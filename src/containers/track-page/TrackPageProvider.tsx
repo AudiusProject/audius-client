@@ -150,9 +150,9 @@ class TrackPageProvider extends Component<
       const params = parseTrackRoute(pathname)
       if (params) {
         const { trackTitle, trackId, handle } = params
+        const newTrackTitle = formatUrlName(track.title)
         if (!trackTitle || !handle) {
           if (this.props.user) {
-            const newTrackTitle = formatUrlName(track.title)
             const newPath = trackPage(
               this.props.user.handle,
               newTrackTitle,
@@ -161,7 +161,6 @@ class TrackPageProvider extends Component<
             this.props.replaceRoute(newPath)
           }
         } else {
-          const newTrackTitle = formatUrlName(track.title)
           if (track.track_id === trackId) {
             if (newTrackTitle !== trackTitle) {
               const newPath = pathname.replace(trackTitle, newTrackTitle)
