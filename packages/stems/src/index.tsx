@@ -1,6 +1,7 @@
 import './assets/styles/sizes.css'
 import './assets/styles/fonts.css'
 import './assets/styles/colors.css'
+import './assets/styles/animations.css'
 
 export * from './Icons'
 

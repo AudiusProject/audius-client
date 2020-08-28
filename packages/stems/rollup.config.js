@@ -37,13 +37,14 @@ export default {
           importFrom: [
             'src/assets/styles/colors.css',
             'src/assets/styles/fonts.css',
-            'src/assets/styles/sizes.css'
+            'src/assets/styles/sizes.css',
+            'src/assets/styles/animations.css'
           ]
         }),
         postcssCustomProperties({
           // Don't preserve var names so they cannot be overridden
           preserve: false,
-          importFrom: ['src/assets/styles/animations.css']
+          importFrom: []
         })
       ],
       minimize: true,
