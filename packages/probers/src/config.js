@@ -5,9 +5,11 @@ const genericConfig = {
   // Amount of time that most tests should time out after
   defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */,
 
-  // Amount of time that should be spent waiting for 0 inflight requests
+  // Worst case 5s for chain op, 5s for indexing
+  confirmerTimeout: 10 /* sec */ * 1000 /* ms */,
+  // Amount of time that should be spent waiting for inflight requests
   // to know that the confirmer is done "confirming"
-  confirmerTimeout: 5 /* sec */ * 1000 /* ms */,
+  confirmerPollingTimeout: 5 /* sec */ * 1000 /* ms */,
 
   tenSeconds: 10 /* sec */ * 1000 /* ms */,
 

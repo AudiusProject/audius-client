@@ -1,4 +1,5 @@
 /* global localStorage */
+import getConfig from '../config'
 
 export const newPage = async (width = 1600, height = 960) => {
   let page = await global.__BROWSER__.newPage()
@@ -52,6 +53,12 @@ export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitT
   function onExit () {
     fail()
   }
+}
+
+export const waitForConfirmer = async (page) => {
+  const config = getConfig()
+  await wait(config.confirmerTimeout)
+  await waitForNetworkIdle(page, config.confirmerPollingTimeout, 1)
 }
 
 export const waitForNetworkIdle0 = (page, action, timeout = 500) => {
