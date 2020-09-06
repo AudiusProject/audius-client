@@ -1,4 +1,4 @@
-import jsmediatags from 'jsmediatags'
+import musicMetadata from 'music-metadata-browser'
 import * as schemas from 'schemas'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
@@ -51,23 +51,6 @@ const ALLOWED_AUDIO_FILE_EXTENSIONS = [
 
 const ALLOWED_AUDIO_FILE_MIME = /^audio/
 
-const readMediaTags = (file: File): Promise<any> => {
-  return new Promise(function (resolve, reject) {
-    jsmediatags.read(file, {
-      onSuccess: function (tag: any) {
-        let tags
-        if (tag && tag.tags) {
-          tags = tag.tags
-        }
-        resolve(tags)
-      },
-      onError: function (error) {
-        reject(error)
-      }
-    })
-  })
-}
-
 const createArtwork = async (selectedFiles: File[]) => {
   const file = selectedFiles[0]
   const convertedBlob = await resizeImage(file)
@@ -105,12 +88,11 @@ export const processFiles = (
     const title = file.name.replace(/\.[^/.]+$/, '') // strip file extension
     let artwork = { file: null, url: '' }
     try {
-      const tags = await readMediaTags(file)
-      if (tags && tags.picture) {
-        const dataArray = new Uint8Array(tags.picture.data)
-        const blob = new window.Blob([dataArray])
-        const artworkFile = new File([blob], 'Artwork', {
-          type: tags.picture.format
+      const {common} = await musicMetadata.parseBlob(file)
+      const cover = musicMetadata.selectCover(common.picture);
+      if (cover) {
+        const artworkFile = new File([cover.data], 'Artwork', {
+          type: cover.format
         })
         // @ts-ignore
         artwork = await createArtwork([artworkFile])
