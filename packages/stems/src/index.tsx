@@ -12,3 +12,9 @@ export {
   Size as ButtonSize
 } from './Button'
 export { default as Scrubber } from './Scrubber'
+export { default as Modal, ModalProps, Anchor } from './Modal'
+export { default as TabSlider, TabSliderProps, Option } from './TabSlider'
+
+export { default as useHotkeys } from 'hooks/useHotKeys'
+export { default as useClickOutside } from 'hooks/useClickOutside'
+export { default as useScrollLock } from 'hooks/useScrollLock'

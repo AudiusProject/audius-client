@@ -59,7 +59,11 @@ export default {
       clean: true,
       typescript
     }),
-    commonjs(),
+    commonjs({
+      namedExports: {
+        'node_modules/lodash/lodash.js': ['size', 'throttle']
+      }
+    }),
     copy({
       targets: [{ src: 'src/assets/fonts/avenir.css', dest: 'dist' }]
     })
