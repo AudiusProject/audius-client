@@ -126,7 +126,7 @@ class TrackPageProvider extends Component<
       // Refetch if the pathname changes because on desktop the component is shared
       if (pathname !== this.state.pathname) {
         this.setState({ pathname })
-        this.fetchTracks(pathname)
+        this.fetchTracks(pathname, false)
       }
     }
 
@@ -184,7 +184,7 @@ class TrackPageProvider extends Component<
     }
   }
 
-  fetchTracks = (pathname: string) => {
+  fetchTracks = (pathname: string, redirectToNotFound = true) => {
     const { track } = this.props
     const params = parseTrackRoute(pathname)
     if (params) {
@@ -208,7 +208,7 @@ class TrackPageProvider extends Component<
       if (handle) {
         this.setState({ ownerHandle: handle })
       }
-    } else {
+    } else if (redirectToNotFound) {
       // Go to 404 if the track id isn't parsed correctly
       this.props.goToRoute(NOT_FOUND_PAGE)
     }
