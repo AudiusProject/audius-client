@@ -4,10 +4,9 @@ import AudiusBackend from 'services/AudiusBackend'
 import Track from 'models/Track'
 
 /**
- * Adds cover_art_url to a track object if it does not have one set
+ * Adds _cover_art_sizes to a track object if it does not have one set
  */
 const addTrackImages = (track: Track) => {
-  if (track.cover_art_url) return track
   return AudiusBackend.getTrackImages(track)
 }
 

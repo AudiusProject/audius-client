@@ -41,9 +41,13 @@ function* getTrendingOrderAndStats(timeRange, genre) {
     timeRange,
     genre: genre
   })
+
+  // A sorted array of Ids
   const trendingOrder = trendingResponse.listen_counts
     .sort(sortByTrendingScore(timeRange))
     .map(t => t.track_id)
+
+  // Makes a map of id => score
   const trendingStats = trendingResponse.listen_counts.reduce((stats, t) => {
     stats[t.track_id] = {
       ...t,
@@ -79,6 +83,7 @@ function makeGetTracks(timeRangeProvider) {
 }
 
 function* getTracks({ timeRangeProvider, offset, limit }) {
+  // Get the time range
   const timeRange = yield timeRangeProvider()
   const [getTrendingOrder, getTrendingStats] = [
     makeGetTrendingOrder(timeRange),
