@@ -269,7 +269,7 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
   }
 
   // Attempt to fetch/load the image using the first creator node gateway
-  const firstImageUrl = `${creatorNodeGateways[0]}${cid}`
+  const firstImageUrl = `${allGateways[0]}${cid}`
   const preloadedImageUrl = await preloadImage(firstImageUrl)
 
   // If the image is loaded, add to cache and return
