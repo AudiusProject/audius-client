@@ -7,8 +7,12 @@ type Environment = 'production' | 'staging' | 'development'
 
 const ENDPOINT_PROVIDER_MAP: { [env in Environment]: string } = {
   development: 'http://docker.for.mac.localhost:5000',
-  staging: '',
+  staging: 'https://general-admission.staging.audius.co/api/',
   production: 'https://api.audius.co'
+}
+
+const ENDPOINT_MAP = {
+  trending: '/tracks/trending'
 }
 
 type GetTrendingArgs = {
@@ -38,16 +42,17 @@ class AudiusAPIClient {
     genre
   }: GetTrendingArgs) {
     await this._awaitInitialization()
-    // TODO: use a query builder
-    let endpoint = `${this.endpoint}/tracks/trending?time=${timeRange}&limit=${limit}&offset=${offset}`
-    if (currentUserId) {
-      endpoint = `${endpoint}&user_id=${currentUserId}`
-    }
-    if (genre) {
-      endpoint = `${endpoint}&genre=${genre}`
+    const params = {
+      time: timeRange,
+      limit,
+      offset,
+      user_id: currentUserId,
+      genre
     }
 
-    const trendingResponse: APIResponse<APITrack[]> = await this.getResponse(
+    const endpoint = this._constructUrl(ENDPOINT_MAP.trending, params)
+
+    const trendingResponse: APIResponse<APITrack[]> = await this._getResponse(
       endpoint
     )
     const adapted = trendingResponse.data
@@ -82,6 +87,8 @@ class AudiusAPIClient {
     }
   }
 
+  // Helpers
+
   _awaitInitialization() {
     if (this.isInitialized) return
     return new Promise(resolve => {
@@ -89,13 +96,36 @@ class AudiusAPIClient {
     })
   }
 
-  // Helpers
-  async getResponse<T>(resource: string): Promise<T> {
+  async _getResponse<T>(resource: string): Promise<T> {
     const response = await fetch(resource)
     return response.json()
   }
+
+  _constructUrl(
+    path: string,
+    queryParams: { [key: string]: string | number | undefined | null }
+  ) {
+    const params = Object.entries(queryParams)
+      .filter(p => p[1] !== undefined && p[1] !== null)
+      .map(p => `${p[0]}=${p[1]}`)
+      .join('&')
+    return `${this.endpoint}${path}?${params}`
+  }
 }
 
-const instance = new AudiusAPIClient({ environment: 'development' })
+const getEnv = () => {
+  const env = process.env.REACT_APP_ENVIRONMENT
+  switch (env) {
+    case 'production':
+      return 'production'
+    case 'staging':
+      return 'staging'
+    case 'development':
+    default:
+      return 'development'
+  }
+}
+
+const instance = new AudiusAPIClient({ environment: getEnv() })
 
 export default instance
