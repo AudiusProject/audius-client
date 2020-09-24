@@ -4,7 +4,7 @@ import { ID } from 'models/common/Identifiers'
 import TimeRange from 'models/TimeRange'
 import Track, { UserTrackMetadata } from 'models/Track'
 import { select } from 'redux-saga/effects'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getTracks } from 'store/cache/tracks/selectors'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
 import { AppState } from 'store/types'
@@ -18,8 +18,6 @@ type RetrieveTrendingArgs = {
   currentUserId?: ID
 }
 
-const apiClient = new AudiusAPIClient({ environment: 'development' })
-apiClient.init()
 export function* retrieveTrending({
   timeRange,
   genre,

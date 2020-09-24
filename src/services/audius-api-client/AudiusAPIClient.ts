@@ -37,9 +37,7 @@ class AudiusAPIClient {
     currentUserId,
     genre
   }: GetTrendingArgs) {
-    console.log('Getting trending, awaiting init')
     await this._awaitInitialization()
-    console.log('Got trending! running')
     // TODO: use a query builder
     let endpoint = `${this.endpoint}/tracks/trending?time=${timeRange}&limit=${limit}&offset=${offset}`
     if (currentUserId) {
@@ -62,18 +60,12 @@ class AudiusAPIClient {
     if (this.isInitialized) return
 
     try {
+      console.debug('Initializing AudiusAPIClient')
       let endpoint
       if (this.environment === 'development') {
         // Hardcode local DP as endpoint if in development
         // env
         endpoint = ENDPOINT_PROVIDER_MAP[this.environment]
-        await new Promise(resolve => {
-          console.log('inside init promise')
-          setTimeout(() => {
-            console.log('RESOLVING')
-            resolve()
-          }, 5000)
-        })
       } else {
         const endpointProvider = ENDPOINT_PROVIDER_MAP[this.environment]
         const endpointsResponse = await fetch(endpointProvider)
@@ -84,6 +76,7 @@ class AudiusAPIClient {
       this.endpoint = `${endpoint}/v1/full`
       this.isInitialized = true
       if (this.awaitFunc) this.awaitFunc()
+      console.debug('Initialized AudiusAPIClient')
     } catch {
       // TODO: handle this
     }
@@ -103,4 +96,6 @@ class AudiusAPIClient {
   }
 }
 
-export default AudiusAPIClient
+const instance = new AudiusAPIClient({ environment: 'development' })
+
+export default instance
