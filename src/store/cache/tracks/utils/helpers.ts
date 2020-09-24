@@ -5,14 +5,13 @@ import { put } from 'redux-saga/effects'
 import * as cacheActions from 'store/cache/actions'
 import { reformat as reformatUser } from 'store/cache/users/utils'
 import { makeUid } from 'utils/uid'
+import { UserTrackMetadata } from 'services/audius-api-client/AudiusAPIClient'
 
 /**
  * Adds users from track metadata to cache.
  * @param metadataArray
  */
-export function* addUsersFromTracks(
-  metadataArray: Array<Track & { user?: User }>
-) {
+export function* addUsersFromTracks(metadataArray: UserTrackMetadata[]) {
   const users = metadataArray
     .filter(m => m.user)
     .map(m => {

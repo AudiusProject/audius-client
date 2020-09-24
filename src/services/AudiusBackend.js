@@ -1041,25 +1041,6 @@ class AudiusBackend {
     }
   }
 
-  static async getTrendingTracks({ genre, offset, limit, timeRange }) {
-    try {
-      const computedGenre = genre ? encodeURIComponent(genre) : null
-      return withEagerOption(
-        {
-          normal: libs => libs.Track.getTrendingTracks,
-          eager: DiscoveryAPI.getTrendingTracks
-        },
-        computedGenre,
-        timeRange,
-        null /* all tracks */,
-        limit,
-        offset
-      )
-    } catch (err) {
-      console.error(err.message)
-    }
-  }
-
   static async repostTrack(trackId) {
     try {
       return audiusLibs.Track.addTrackRepost(trackId)

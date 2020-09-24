@@ -43,7 +43,7 @@ export type ComputedUserProperties = {
   _cover_photo_sizes: CoverPhotoSizes
   _collectionIds?: string[]
   _profile_picture_color?: Color
-  _artist_pick: ID
+  _artist_pick?: ID
 }
 
 type User = UserMetadata & ComputedUserProperties

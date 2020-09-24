@@ -6,6 +6,7 @@ import {
 } from 'models/common/ImageSizes'
 import Favorite, { FavoriteType } from 'models/Favorite'
 import Repost from 'models/Repost'
+import TimeRange from 'models/TimeRange'
 import {
   Download,
   FieldVisibility,
@@ -18,7 +19,6 @@ import { decodeHashId } from 'utils/route/hashIds'
 import { Nullable, removeNullable } from 'utils/typeUtils'
 
 type Environment = 'production' | 'staging' | 'development'
-type TrendingTimeRange = 'week' | 'month' | 'year' | 'allTime'
 
 const ENDPOINT_PROVIDER_MAP: { [env in Environment]: string } = {
   development: 'http://docker.for.mac.localhost:5000',
@@ -114,13 +114,14 @@ export type APITrack = {
   user_id: OpaqueID
   is_delete: boolean
   cover_art: Nullable<string>
+  play_count: number
 }
 
 type APIResponse<T> = {
   data: T
 }
 
-type UserTrackMetadata = TrackMetadata & { user: UserMetadata }
+export type UserTrackMetadata = TrackMetadata & { user: UserMetadata }
 
 class APIClientMarshaller {
   marshalUser(user: APIUser): UserMetadata | undefined {
@@ -214,24 +215,41 @@ class APIClientMarshaller {
       followee_saves: saves,
       followee_reposts: reposts,
       save_count: track.favorite_count,
-      remix_of: {
-        tracks: remixes
-      },
+      remix_of:
+        remixes.length > 0
+          ? {
+              tracks: remixes
+            }
+          : null,
+
+      stem_of: track.stem_of.parent_track_id === null ? null : track.stem_of,
 
       // Fields to prune
       id: undefined,
       user_id: undefined,
       followee_favorites: undefined,
       artwork: undefined,
-      downloadable: undefined
+      downloadable: undefined,
+      favorite_count: undefined
     }
 
     delete marshalled.id
     delete marshalled.user_id
     delete marshalled.followee_favorites
+    delete marshalled.artwork
+    delete marshalled.downloadable
+    delete marshalled.favorite_count
 
     return marshalled
   }
+}
+
+type GetTrendingArgs = {
+  timeRange?: TimeRange
+  offset?: number
+  limit?: number
+  currentUserId?: string
+  genre?: string
 }
 
 class AudiusAPIClient {
@@ -245,13 +263,26 @@ class AudiusAPIClient {
     this.marshaller = new APIClientMarshaller()
   }
 
-  async getTrending(timeRange: TrendingTimeRange) {
+  async getTrending({
+    timeRange = TimeRange.WEEK,
+    limit = 200,
+    offset = 0,
+    currentUserId,
+    genre
+  }: GetTrendingArgs) {
     this.assertDidIntialize()
-    const endpoint = `${this.endpoint}/tracks/trending?timeRange=${timeRange}`
+    // TODO: use a query builder
+    let endpoint = `${this.endpoint}/tracks/trending?time=${timeRange}&limit=${limit}&offset=${offset}`
+    if (currentUserId) {
+      endpoint = `${endpoint}&user_id=${currentUserId}`
+    }
+    if (genre) {
+      endpoint = `${endpoint}&genre=${genre}`
+    }
+
     const trendingResponse: APIResponse<APITrack[]> = await this.getResponse(
       endpoint
     )
-    console.log({ response: trendingResponse.data })
     const marshalled = trendingResponse.data
       .map(t => this.marshaller.marshalTrack(t))
       .filter(removeNullable)
@@ -260,6 +291,8 @@ class AudiusAPIClient {
   }
 
   async init() {
+    if (this.isInitialized) return
+
     try {
       let endpoint
       if (this.environment === 'development') {

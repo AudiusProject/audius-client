@@ -80,6 +80,7 @@ export type TrackMetadata = {
   title: string
   track_segments: TrackSegment[]
   cover_art: Nullable<CID>
+  cover_art_sizes: Nullable<CID>
   is_unlisted: boolean
   field_visibility?: FieldVisibility
   listenCount?: number
@@ -102,8 +103,6 @@ export type Stem = {
   category: StemCategory
 }
 
-export type LibsTrack = TrackMetadata
-
 export type ComputedTrackProperties = {
   // All below, added clientside
   _cover_art_sizes: CoverArtSizes
@@ -124,7 +123,7 @@ export type ComputedTrackProperties = {
   _co_sign?: Nullable<Remix>
 }
 
-export type Track = LibsTrack & ComputedTrackProperties
+export type Track = TrackMetadata & ComputedTrackProperties
 
 export type UserTrack = Track & {
   user: User

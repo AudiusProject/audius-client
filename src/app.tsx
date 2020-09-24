@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
@@ -10,7 +10,6 @@ import AppContext from 'AppContext'
 import App from './containers/App'
 import './services/webVitals'
 import './index.css'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
 
 declare global {
   interface Window {
@@ -35,14 +34,6 @@ const AudiusApp = ({
   setConnectivityFailure,
   shouldShowPopover
 }: AudiusAppProps) => {
-  useEffect(() => {
-    const fn = async () => {
-      const client = new AudiusAPIClient({ environment: 'development' })
-      await client.init()
-      await client.getTrending('week')
-    }
-    fn()
-  }, [])
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>

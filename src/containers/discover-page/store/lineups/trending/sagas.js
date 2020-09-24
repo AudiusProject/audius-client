@@ -1,7 +1,5 @@
-import { call, put, select } from 'redux-saga/effects'
+import { put, select } from 'redux-saga/effects'
 
-import AudiusBackend from 'services/AudiusBackend'
-import { makeGetTrendingOrder, makeGetTrendingStats } from './selectors'
 import {
   setLastFetchedTrendingGenre,
   setLastFetchedTimeRange
@@ -9,12 +7,7 @@ import {
 import { LineupSagas } from 'store/lineup/sagas'
 import TimeRange from 'models/TimeRange'
 
-import { getTrendingScore, sortByTrendingScore } from 'utils/trendingScorer'
-
-import {
-  getTrendingGenre,
-  getLastFetchedTrendingGenre
-} from 'containers/discover-page/store/selectors'
+import { getTrendingGenre } from 'containers/discover-page/store/selectors'
 
 import {
   TRENDING_WEEK_PREFIX,
@@ -24,113 +17,38 @@ import {
   trendingMonthActions,
   trendingYearActions
 } from './actions'
-import { retrieveTracks } from 'store/cache/tracks/utils'
+import { getUserId } from 'store/account/selectors'
+import { retrieveTrending } from 'containers/track-page/store/retrieveTrending'
 
-const getActionSet = timeRange => {
-  return {
-    [TimeRange.WEEK]: trendingWeekActions,
-    [TimeRange.MONTH]: trendingMonthActions,
-    [TimeRange.YEAR]: trendingYearActions
-  }[timeRange]
-}
-
-function* getTrendingOrderAndStats(timeRange, genre) {
-  const trendingResponse = yield call(AudiusBackend.getTrendingTracks, {
-    offset: 0,
-    limit: 200,
-    timeRange,
-    genre: genre
-  })
-
-  // A sorted array of Ids
-  const trendingOrder = trendingResponse.listen_counts
-    .sort(sortByTrendingScore(timeRange))
-    .map(t => t.track_id)
-
-  // Makes a map of id => score
-  const trendingStats = trendingResponse.listen_counts.reduce((stats, t) => {
-    stats[t.track_id] = {
-      ...t,
-      score: getTrendingScore(t, timeRange)
-    }
-    return stats
-  }, {})
-  return { trendingOrder, trendingStats }
-}
-
-// This will return true if it stored the response, false if the genre changed and it didn't store.
-function* fetchTrendingScores(timeRange, genreAtStart) {
-  const { trendingOrder, trendingStats } = yield call(
-    getTrendingOrderAndStats,
-    timeRange,
-    genreAtStart
-  )
-
-  const actionSet = getActionSet(timeRange)
-  const genreAtEnd = yield select(getTrendingGenre)
-  if (genreAtStart !== genreAtEnd) return false
-
-  yield put(actionSet.setTrendingScores(trendingOrder, trendingStats))
-  return true
-}
-
-// Injects a timeRange provider function getTracks. Allows us to
-// specialize a getTracks function for different lineup sagas.
-function makeGetTracks(timeRangeProvider) {
+function getTracks(timeRange) {
   return function* ({ offset, limit }) {
-    return yield getTracks({ timeRangeProvider, offset, limit })
-  }
-}
+    // Possibly abort early
+    const genreAtStart = yield select(getTrendingGenre)
+    // const lastGenre = yield select(getLastFetchedTrendingGenre)
+    // const trendingEntries = yield select(getTrendingEntries(timeRange))
+    // TODO: figure out how to handle this with pagination now...
+    // const needsRefetch =
+    //   !Object.keys(trendingEntries).length || genreAtStart !== lastGenre
+    // if (!needsRefetch) return []
 
-function* getTracks({ timeRangeProvider, offset, limit }) {
-  // Get the time range
-  const timeRange = yield timeRangeProvider()
-  const [getTrendingOrder, getTrendingStats] = [
-    makeGetTrendingOrder(timeRange),
-    makeGetTrendingStats(timeRange)
-  ]
-
-  // Refetch when the last fetched genre isn't the one being requested
-  const genreAtStart = yield select(getTrendingGenre)
-  const lastGenre = yield select(getLastFetchedTrendingGenre)
-
-  let trendingStats = yield select(getTrendingStats)
-  let trendingOrder = yield select(getTrendingOrder)
-
-  const needsNewScores =
-    !Object.keys(trendingStats).length ||
-    !trendingOrder.length ||
-    genreAtStart !== lastGenre
-
-  if (needsNewScores) {
-    const didFetch = yield call(fetchTrendingScores, timeRange, genreAtStart)
-    if (!didFetch) return null
-
-    trendingStats = yield select(getTrendingStats)
-    trendingOrder = yield select(getTrendingOrder)
-  }
-
-  let ret
-  if (trendingOrder.length > 0) {
-    const trackIds = yield call(retrieveTracks, {
-      trackIds: trendingOrder.slice(offset, offset + limit)
+    const userId = yield select(getUserId)
+    const tracks = yield retrieveTrending({
+      timeRange,
+      limit,
+      offset,
+      genre: genreAtStart,
+      currentUserId: userId
     })
 
-    // If we've changed genres since we kicked off this call, we shouldn't
-    // save the trackIds.
-    const genreAtEnd = yield select(getTrendingGenre)
-    if (genreAtStart !== genreAtEnd) {
-      return null
-    }
+    // const genreAtEnd = yield select(getTrendingGenre)
+    // if (genreAtStart !== genreAtEnd) {
+    //   return null
+    // }
 
-    ret = trackIds
-  } else {
-    ret = []
+    yield put(setLastFetchedTrendingGenre(genreAtStart))
+    yield put(setLastFetchedTimeRange(timeRange))
+    return tracks
   }
-
-  yield put(setLastFetchedTrendingGenre(genreAtStart))
-  yield put(setLastFetchedTimeRange(timeRange))
-  return ret
 }
 
 class TrendingWeekSagas extends LineupSagas {
@@ -139,9 +57,7 @@ class TrendingWeekSagas extends LineupSagas {
       TRENDING_WEEK_PREFIX,
       trendingWeekActions,
       store => store.discover.trendingWeek,
-      makeGetTracks(function* () {
-        return yield TimeRange.WEEK
-      })
+      getTracks(TimeRange.WEEK)
     )
   }
 }
@@ -152,9 +68,7 @@ class TrendingMonthSagas extends LineupSagas {
       TRENDING_MONTH_PREFIX,
       trendingMonthActions,
       store => store.discover.trendingMonth,
-      makeGetTracks(function* () {
-        return yield TimeRange.MONTH
-      })
+      getTracks(TimeRange.MONTH)
     )
   }
 }
@@ -165,9 +79,7 @@ class TrendingYearSagas extends LineupSagas {
       TRENDING_YEAR_PREFIX,
       trendingYearActions,
       store => store.discover.trendingYear,
-      makeGetTracks(function* () {
-        return yield TimeRange.YEAR
-      })
+      getTracks(TimeRange.YEAR)
     )
   }
 }
