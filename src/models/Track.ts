@@ -50,11 +50,6 @@ export type RemixOf = {
 }
 
 export type TrackMetadata = {
-  // create_date: string | null
-  // file_type: string | null
-  // is_current: boolean
-  // length: number | null
-  // cover_art_url: string
   activity_timestamp?: string
   is_delete: boolean
   track_id: number

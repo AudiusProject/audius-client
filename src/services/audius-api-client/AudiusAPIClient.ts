@@ -2,14 +2,7 @@ import TimeRange from 'models/TimeRange'
 import { removeNullable } from 'utils/typeUtils'
 import { APIResponse, APITrack } from './types'
 import * as adapter from './ResponseAdapter'
-
-type Environment = 'production' | 'staging' | 'development'
-
-const ENDPOINT_PROVIDER_MAP: { [env in Environment]: string } = {
-  development: 'http://docker.for.mac.localhost:5000',
-  staging: 'https://general-admission.staging.audius.co/api/',
-  production: 'https://api.audius.co'
-}
+import AudiusBackend from 'services/AudiusBackend'
 
 const ENDPOINT_MAP = {
   trending: '/tracks/trending'
@@ -23,15 +16,24 @@ type GetTrendingArgs = {
   genre?: string
 }
 
-class AudiusAPIClient {
-  isInitialized = false
-  endpoint: string | null = null
-  environment: Environment
-  awaitFunc: (() => void) | null
+type InitializationState =
+  | { state: 'uninitialized ' }
+  | {
+      state: 'initializing'
+      initPromise: Promise<void>
+    }
+  | {
+      state: 'initialized'
+      endpoint: string
+    }
 
-  constructor({ environment }: { environment: Environment }) {
-    this.environment = environment
-    this.awaitFunc = null
+class AudiusAPIClient {
+  initializationState: InitializationState = { state: 'uninitialized ' }
+  overrideEndpoint?: string
+
+  constructor({ overrideEndpoint }: { overrideEndpoint?: string } = {}) {
+    console.debug('cons')
+    this.overrideEndpoint = overrideEndpoint
   }
 
   async getTrending({
@@ -41,7 +43,9 @@ class AudiusAPIClient {
     currentUserId,
     genre
   }: GetTrendingArgs) {
+    console.log('AWAITING TRENDING')
     await this._awaitInitialization()
+    console.log('GOING FORTH W TRENDING')
     const params = {
       time: timeRange,
       limit,
@@ -62,38 +66,51 @@ class AudiusAPIClient {
   }
 
   async init() {
-    if (this.isInitialized) return
+    console.debug('init')
+    // Initialized state
+    if (this.initializationState.state === 'initialized') return
 
-    try {
-      console.debug('Initializing AudiusAPIClient')
-      let endpoint
-      if (this.environment === 'development') {
-        // Hardcode local DP as endpoint if in development
-        // env
-        endpoint = ENDPOINT_PROVIDER_MAP[this.environment]
-      } else {
-        const endpointProvider = ENDPOINT_PROVIDER_MAP[this.environment]
-        const endpointsResponse = await fetch(endpointProvider)
-        const endpointsJson = await endpointsResponse.json()
-        const { data: endpoints }: { data: string[] } = endpointsJson
-        endpoint = endpoints[Math.floor(Math.random() * endpoints.length)]
-      }
-      this.endpoint = `${endpoint}/v1/full`
-      this.isInitialized = true
-      if (this.awaitFunc) this.awaitFunc()
-      console.debug('Initialized AudiusAPIClient')
-    } catch {
-      // TODO: handle this
+    // Initializing state
+    if (this.initializationState.state === 'initializing') {
+      return this.initializationState.initPromise
     }
+
+    // Uninitialized state
+    // If override passed, use that and return
+    if (this.overrideEndpoint) {
+      const endpoint = `${this.overrideEndpoint}/v1/full`
+      console.log('Using endpoint: ' + endpoint)
+      this.initializationState = { state: 'initialized', endpoint: endpoint }
+      console.debug('using override')
+      return
+    }
+
+    // Await for libs discprov selection
+    const initPromise: Promise<void> = new Promise(resolve => {
+      console.debug('Initializing AudiusAPIClient')
+      AudiusBackend.addDiscoveryProviderSelectionListener(
+        (endpoint: string) => {
+          const fullEndpoint = `${endpoint}/v1/full`
+          this.initializationState = {
+            state: 'initialized',
+            endpoint: fullEndpoint
+          }
+          console.debug('Initialized AudiusAPIClient')
+          resolve()
+        }
+      )
+    })
+    console.log('setting initializing')
+    this.initializationState = { state: 'initializing', initPromise }
   }
 
   // Helpers
 
   _awaitInitialization() {
-    if (this.isInitialized) return
-    return new Promise(resolve => {
-      this.awaitFunc = resolve
-    })
+    if (this.initializationState.state === 'initialized') return
+    if (this.initializationState.state === 'initializing')
+      return this.initializationState.initPromise
+    throw new Error('Must call init before calling methods on AudiusAPIClient')
   }
 
   async _getResponse<T>(resource: string): Promise<T> {
@@ -105,27 +122,18 @@ class AudiusAPIClient {
     path: string,
     queryParams: { [key: string]: string | number | undefined | null }
   ) {
+    if (this.initializationState.state !== 'initialized')
+      throw new Error("Can't construct URL in non-initialized state")
     const params = Object.entries(queryParams)
       .filter(p => p[1] !== undefined && p[1] !== null)
       .map(p => `${p[0]}=${p[1]}`)
       .join('&')
-    return `${this.endpoint}${path}?${params}`
+    return `${this.initializationState.endpoint}${path}?${params}`
   }
 }
 
-const getEnv = () => {
-  const env = process.env.REACT_APP_ENVIRONMENT
-  switch (env) {
-    case 'production':
-      return 'production'
-    case 'staging':
-      return 'staging'
-    case 'development':
-    default:
-      return 'development'
-  }
-}
-
-const instance = new AudiusAPIClient({ environment: getEnv() })
+const override = 'http://docker.for.mac.localhost:5000'
+const instance = new AudiusAPIClient({ overrideEndpoint: override })
+// const instance = new AudiusAPIClient()
 
 export default instance

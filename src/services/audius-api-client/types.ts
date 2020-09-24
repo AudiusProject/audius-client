@@ -70,7 +70,6 @@ export type APITrack = {
   favorite_count: number
   tags: Nullable<string>
   title: string
-  // TODO
   user: APIUser
   duration: number
   downloadable: boolean

@@ -5,9 +5,6 @@ import { Nullable } from 'utils/typeUtils'
 import Timestamped from './common/Timestamped'
 
 export type UserMetadata = {
-  // profile_picture_url: string
-  // cover_photo_url: string
-
   album_count: number
   bio: string | null
   cover_photo: Nullable<CID>
