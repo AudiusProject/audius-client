@@ -2,7 +2,7 @@ import Color from 'models/common/Color'
 import { CID, ID, UID } from 'models/common/Identifiers'
 import { CoverArtSizes } from 'models/common/ImageSizes'
 import Repost from 'models/Repost'
-import User from 'models/User'
+import User, { UserMetadata } from 'models/User'
 import Favorite from 'models/Favorite'
 import Timestamped from './common/Timestamped'
 import { StemCategory } from './Stems'
@@ -124,6 +124,8 @@ export type ComputedTrackProperties = {
 }
 
 export type Track = TrackMetadata & ComputedTrackProperties
+
+export type UserTrackMetadata = TrackMetadata & { user: UserMetadata }
 
 export type UserTrack = Track & {
   user: User

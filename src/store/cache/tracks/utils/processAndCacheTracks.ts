@@ -4,8 +4,7 @@ import { reformat } from './reformat'
 import { Kind } from 'store/types'
 import { makeUid } from 'utils/uid'
 import { addUsersFromTracks } from './helpers'
-import { UserTrackMetadata } from 'services/audius-api-client/AudiusAPIClient'
-import Track from 'models/Track'
+import Track, { UserTrackMetadata } from 'models/Track'
 
 /**
  * Processes tracks, adding users and calling `reformat`, before
