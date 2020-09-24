@@ -24,7 +24,6 @@ function getTracks(timeRange) {
   return function* ({ offset, limit }) {
     // Possibly abort early
     const genreAtStart = yield select(getTrendingGenre)
-    // const lastGenre = yield select(getLastFetchedTrendingGenre)
     // const trendingEntries = yield select(getTrendingEntries(timeRange))
     // TODO: figure out how to handle this with pagination now...
     // const needsRefetch =

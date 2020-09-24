@@ -1,4 +1,5 @@
 import { getTrendingEntries } from 'containers/discover-page/store/lineups/trending/selectors'
+import { getLastFetchedTrendingGenre } from 'containers/discover-page/store/selectors'
 import { ID } from 'models/common/Identifiers'
 import TimeRange from 'models/TimeRange'
 import Track from 'models/Track'
@@ -31,11 +32,14 @@ export function* retrieveTrending({
     typeof getTrendingEntries
   >> = yield select(getTrendingEntries(timeRange))
 
+  const lastGenre = yield select(getLastFetchedTrendingGenre)
   // TODO: remove this out
   yield apiClient.init()
 
   const useCached =
-    cachedTracks?.length > 0 && cachedTracks.length > offset + limit
+    lastGenre === genre &&
+    cachedTracks?.length > 0 &&
+    cachedTracks.length > offset + limit
 
   if (useCached) {
     const trackIds = cachedTracks.slice(offset, limit + offset).map(t => t.id)
