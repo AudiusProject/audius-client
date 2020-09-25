@@ -20,15 +20,19 @@ function getTracks(timeRange) {
   return function* ({ offset, limit }) {
     const genreAtStart = yield select(getTrendingGenre)
     const userId = yield select(getUserId)
-    const tracks = yield retrieveTrending({
-      timeRange,
-      limit,
-      offset,
-      genre: genreAtStart,
-      currentUserId: userId
-    })
-
-    return tracks
+    try {
+      const tracks = yield retrieveTrending({
+        timeRange,
+        limit,
+        offset,
+        genre: genreAtStart,
+        currentUserId: userId
+      })
+      return tracks
+    } catch (e) {
+      console.error(`Trending error: ${e.message}`)
+      return []
+    }
   }
 }
 

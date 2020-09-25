@@ -61,10 +61,8 @@ class AudiusAPIClient {
   }
 
   init() {
-    // Initialized state
     if (this.initializationState.state === 'initialized') return
 
-    // Uninitialized state
     // If override passed, use that and return
     if (this.overrideEndpoint) {
       const endpoint = this._formatEndpoint(this.overrideEndpoint)
@@ -103,6 +101,7 @@ class AudiusAPIClient {
 
   async _getResponse<T>(resource: string): Promise<T> {
     const response = await fetch(resource)
+    if (!response.ok) throw new Error(response.statusText)
     return response.json()
   }
 
