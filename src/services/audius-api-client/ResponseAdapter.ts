@@ -29,7 +29,6 @@ const makeFavorite = (favorite: APIFavorite): Favorite | undefined => {
   const decodedSaveItemId = decodeHashId(favorite.favorite_item_id)
   const decodedUserId = decodeHashId(favorite.user_id)
   if (!decodedSaveItemId || !decodedUserId) {
-    // TODO: handle this better
     return undefined
   }
   return {
@@ -43,7 +42,6 @@ const makeRepost = (repost: APIRepost): Repost | undefined => {
   const decodedRepostItemId = decodeHashId(repost.repost_item_id)
   const decodedUserId = decodeHashId(repost.user_id)
   if (!decodedRepostItemId || !decodedUserId) {
-    // TODO
     return undefined
   }
 
@@ -69,12 +67,10 @@ const makeRemix = (remix: APIRemix): Remix | undefined => {
 }
 
 export const makeTrack = (track: APITrack): UserTrackMetadata | undefined => {
-  // TODO: if I get this working, let's look into io.TS...
   const decodedTrackId = decodeHashId(track.id)
   const decodedOwnerId = decodeHashId(track.user_id)
   const user = makeUser(track.user)
   if (!decodedTrackId || !decodedOwnerId || !user) {
-    // TODO: handle errors better
     return undefined
   }
 

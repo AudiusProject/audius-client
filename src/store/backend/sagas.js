@@ -93,6 +93,7 @@ export function* setupBackend() {
       return
     }
     yield spawn(hydrateStoreFromCache)
+    console.log('BE SUCCEEDED: ' + Date.now())
     yield put(backendActions.setupBackendSucceeded(web3Error))
   }
 }

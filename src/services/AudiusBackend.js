@@ -368,6 +368,7 @@ class AudiusBackend {
 
   // Record the endpoint and reason for selecting the endpoint
   static discoveryProviderSelectionCallback(endpoint, decisionTree) {
+    console.log('GET DP: ' + Date.now())
     track(Name.DISCOVERY_PROVIDER_SELECTION, {
       endpoint,
       reason: decisionTree.map(reason => reason.stage).join(' -> ')

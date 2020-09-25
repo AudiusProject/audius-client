@@ -3,6 +3,7 @@ import { removeNullable } from 'utils/typeUtils'
 import { APIResponse, APITrack } from './types'
 import * as adapter from './ResponseAdapter'
 import AudiusBackend from 'services/AudiusBackend'
+import { getEagerDiscprov } from 'services/audius-backend/eagerLoadUtils'
 
 const ENDPOINT_MAP = {
   trending: '/tracks/trending'
@@ -19,10 +20,6 @@ type GetTrendingArgs = {
 type InitializationState =
   | { state: 'uninitialized ' }
   | {
-      state: 'initializing'
-      initPromise: Promise<void>
-    }
-  | {
       state: 'initialized'
       endpoint: string
     }
@@ -32,7 +29,6 @@ class AudiusAPIClient {
   overrideEndpoint?: string
 
   constructor({ overrideEndpoint }: { overrideEndpoint?: string } = {}) {
-    console.debug('cons')
     this.overrideEndpoint = overrideEndpoint
   }
 
@@ -43,9 +39,7 @@ class AudiusAPIClient {
     currentUserId,
     genre
   }: GetTrendingArgs) {
-    console.log('AWAITING TRENDING')
-    await this._awaitInitialization()
-    console.log('GOING FORTH W TRENDING')
+    this._assertInitialized()
     const params = {
       time: timeRange,
       limit,
@@ -55,7 +49,6 @@ class AudiusAPIClient {
     }
 
     const endpoint = this._constructUrl(ENDPOINT_MAP.trending, params)
-
     const trendingResponse: APIResponse<APITrack[]> = await this._getResponse(
       endpoint
     )
@@ -65,52 +58,45 @@ class AudiusAPIClient {
     return adapted
   }
 
-  async init() {
-    console.debug('init')
+  init() {
     // Initialized state
     if (this.initializationState.state === 'initialized') return
-
-    // Initializing state
-    if (this.initializationState.state === 'initializing') {
-      return this.initializationState.initPromise
-    }
 
     // Uninitialized state
     // If override passed, use that and return
     if (this.overrideEndpoint) {
-      const endpoint = `${this.overrideEndpoint}/v1/full`
-      console.log('Using endpoint: ' + endpoint)
+      const endpoint = this._formatEndpoint(this.overrideEndpoint)
+      console.debug(`APIClient: Using override endpoint: ${endpoint}`)
       this.initializationState = { state: 'initialized', endpoint: endpoint }
-      console.debug('using override')
       return
     }
 
-    // Await for libs discprov selection
-    const initPromise: Promise<void> = new Promise(resolve => {
-      console.debug('Initializing AudiusAPIClient')
-      AudiusBackend.addDiscoveryProviderSelectionListener(
-        (endpoint: string) => {
-          const fullEndpoint = `${endpoint}/v1/full`
-          this.initializationState = {
-            state: 'initialized',
-            endpoint: fullEndpoint
-          }
-          console.debug('Initialized AudiusAPIClient')
-          resolve()
-        }
-      )
+    // Set the state to the eager discprov
+    const eagerDiscprov = getEagerDiscprov()
+    const fullDiscprov = this._formatEndpoint(eagerDiscprov)
+    console.debug(`APIClient: setting to eager discprov: ${fullDiscprov}`)
+    this.initializationState = {
+      state: 'initialized',
+      endpoint: fullDiscprov
+    }
+
+    // Listen for libs on chain selection
+    AudiusBackend.addDiscoveryProviderSelectionListener((endpoint: string) => {
+      const fullEndpoint = this._formatEndpoint(endpoint)
+      console.debug(`APIClient: Setting to libs discprov: ${fullEndpoint}`)
+      this.initializationState = {
+        state: 'initialized',
+        endpoint: fullEndpoint
+      }
     })
-    console.log('setting initializing')
-    this.initializationState = { state: 'initializing', initPromise }
+    console.debug('APIClient: Initialized')
   }
 
   // Helpers
 
-  _awaitInitialization() {
-    if (this.initializationState.state === 'initialized') return
-    if (this.initializationState.state === 'initializing')
-      return this.initializationState.initPromise
-    throw new Error('Must call init before calling methods on AudiusAPIClient')
+  _assertInitialized() {
+    if (this.initializationState.state !== 'initialized')
+      throw new Error('AudiusAPIClient must be initialized before use')
   }
 
   async _getResponse<T>(resource: string): Promise<T> {
@@ -118,12 +104,16 @@ class AudiusAPIClient {
     return response.json()
   }
 
+  _formatEndpoint(endpoint: string) {
+    return `${endpoint}/v1/full`
+  }
+
   _constructUrl(
     path: string,
     queryParams: { [key: string]: string | number | undefined | null }
   ) {
     if (this.initializationState.state !== 'initialized')
-      throw new Error("Can't construct URL in non-initialized state")
+      throw new Error('_constructURL called uninitialized')
     const params = Object.entries(queryParams)
       .filter(p => p[1] !== undefined && p[1] !== null)
       .map(p => `${p[0]}=${p[1]}`)
