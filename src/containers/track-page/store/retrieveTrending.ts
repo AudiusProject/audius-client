@@ -1,6 +1,9 @@
 import { setLastFetchedTrendingGenre } from 'containers/discover-page/store/actions'
 import { getTrendingEntries } from 'containers/discover-page/store/lineups/trending/selectors'
-import { getLastFetchedTrendingGenre } from 'containers/discover-page/store/selectors'
+import {
+  getLastFetchedTrendingGenre,
+  getTrendingGenre
+} from 'containers/discover-page/store/selectors'
 import { ID } from 'models/common/Identifiers'
 import TimeRange from 'models/TimeRange'
 import Track, { UserTrackMetadata } from 'models/Track'
@@ -56,10 +59,10 @@ export function* retrieveTrending({
     timeRange
   })
 
-  const currentGenre = yield select(getLastFetchedTrendingGenre)
+  const currentGenre = yield select(getTrendingGenre)
 
   // If we changed genres, do nothing
-  if (currentGenre !== lastGenre) return []
+  if (currentGenre !== genre) return []
 
   const processed: Track[] = yield processAndCacheTracks(apiTracks)
   return processed
