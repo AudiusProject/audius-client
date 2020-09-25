@@ -1,9 +1,5 @@
-import { put, select } from 'redux-saga/effects'
+import { select } from 'redux-saga/effects'
 
-import {
-  setLastFetchedTrendingGenre,
-  setLastFetchedTimeRange
-} from 'containers/discover-page/store/actions'
 import { LineupSagas } from 'store/lineup/sagas'
 import TimeRange from 'models/TimeRange'
 
@@ -24,12 +20,6 @@ function getTracks(timeRange) {
   return function* ({ offset, limit }) {
     // Possibly abort early
     const genreAtStart = yield select(getTrendingGenre)
-    // const trendingEntries = yield select(getTrendingEntries(timeRange))
-    // TODO: figure out how to handle this with pagination now...
-    // const needsRefetch =
-    //   !Object.keys(trendingEntries).length || genreAtStart !== lastGenre
-    // if (!needsRefetch) return []
-
     const userId = yield select(getUserId)
     const tracks = yield retrieveTrending({
       timeRange,
@@ -39,13 +29,6 @@ function getTracks(timeRange) {
       currentUserId: userId
     })
 
-    // const genreAtEnd = yield select(getTrendingGenre)
-    // if (genreAtStart !== genreAtEnd) {
-    //   return null
-    // }
-
-    yield put(setLastFetchedTrendingGenre(genreAtStart))
-    yield put(setLastFetchedTimeRange(timeRange))
     return tracks
   }
 }

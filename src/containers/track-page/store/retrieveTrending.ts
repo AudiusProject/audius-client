@@ -1,9 +1,10 @@
+import { setLastFetchedTrendingGenre } from 'containers/discover-page/store/actions'
 import { getTrendingEntries } from 'containers/discover-page/store/lineups/trending/selectors'
 import { getLastFetchedTrendingGenre } from 'containers/discover-page/store/selectors'
 import { ID } from 'models/common/Identifiers'
 import TimeRange from 'models/TimeRange'
 import Track, { UserTrackMetadata } from 'models/Track'
-import { select } from 'redux-saga/effects'
+import { put, select } from 'redux-saga/effects'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getTracks } from 'store/cache/tracks/selectors'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
@@ -30,8 +31,7 @@ export function* retrieveTrending({
   >> = yield select(getTrendingEntries(timeRange))
 
   const lastGenre = yield select(getLastFetchedTrendingGenre)
-  // TODO: remove this out
-  // yield apiClient.init()
+  yield put(setLastFetchedTrendingGenre(genre))
 
   const useCached =
     lastGenre === genre &&
@@ -58,6 +58,11 @@ export function* retrieveTrending({
     currentUserId: encodedUserId,
     timeRange
   })
+
+  const currentGenre = yield select(getLastFetchedTrendingGenre)
+
+  // If we changed genres, do nothing
+  if (currentGenre !== lastGenre) return []
 
   const processed: Track[] = yield processAndCacheTracks(apiTracks)
   return processed
