@@ -75,7 +75,7 @@ export function* setupBackend() {
     console.info('Reconnected')
   }
 
-  yield call(apiClient.init)
+  yield call(() => apiClient.init())
 
   if (getIsReadOnlyClient()) {
     // Read only clients do a paired down version of libs init
