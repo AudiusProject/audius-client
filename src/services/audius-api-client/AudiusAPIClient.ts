@@ -9,6 +9,8 @@ const ENDPOINT_MAP = {
   trending: '/tracks/trending'
 }
 
+const TRENDING_LIMIT = 100
+
 type GetTrendingArgs = {
   timeRange?: TimeRange
   offset?: number
@@ -34,7 +36,7 @@ class AudiusAPIClient {
 
   async getTrending({
     timeRange = TimeRange.WEEK,
-    limit = 200,
+    limit = TRENDING_LIMIT,
     offset = 0,
     currentUserId,
     genre
@@ -122,8 +124,6 @@ class AudiusAPIClient {
   }
 }
 
-const override = 'http://docker.for.mac.localhost:5000'
-const instance = new AudiusAPIClient({ overrideEndpoint: override })
-// const instance = new AudiusAPIClient()
+const instance = new AudiusAPIClient()
 
 export default instance

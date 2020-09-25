@@ -106,7 +106,6 @@ export type ComputedTrackProperties = {
   _cover_art_color?: Color
   _marked_deleted?: boolean
   _is_publishing?: boolean
-  // Computed!
   _stems?: Stem[]
 
   // Present iff remixes have been fetched for a track

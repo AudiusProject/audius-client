@@ -197,7 +197,6 @@ class TrackPageProvider extends Component<
   }
 
   fetchTracks = (params: NonNullable<TrackRouteParams>) => {
-    console.log('fetch track')
     const { track } = this.props
     const { trackTitle, trackId, handle } = params
 
@@ -209,7 +208,6 @@ class TrackPageProvider extends Component<
       }
     }
     this.props.reset()
-    console.log('setting track: ' + trackId)
     this.props.setTrackId(trackId)
     this.props.fetchTrack(trackId, trackTitle, handle, !!(trackTitle && handle))
     if (handle) {

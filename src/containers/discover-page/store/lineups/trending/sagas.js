@@ -18,7 +18,6 @@ import { retrieveTrending } from 'containers/track-page/store/retrieveTrending'
 
 function getTracks(timeRange) {
   return function* ({ offset, limit }) {
-    // Possibly abort early
     const genreAtStart = yield select(getTrendingGenre)
     const userId = yield select(getUserId)
     const tracks = yield retrieveTrending({

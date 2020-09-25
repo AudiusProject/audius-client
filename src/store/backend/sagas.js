@@ -75,8 +75,7 @@ export function* setupBackend() {
     console.info('Reconnected')
   }
 
-  // Fire and forget init AudiusAPIClient
-  apiClient.init()
+  yield call(apiClient.init)
 
   if (getIsReadOnlyClient()) {
     // Read only clients do a paired down version of libs init
@@ -93,7 +92,6 @@ export function* setupBackend() {
       return
     }
     yield spawn(hydrateStoreFromCache)
-    console.log('BE SUCCEEDED: ' + Date.now())
     yield put(backendActions.setupBackendSucceeded(web3Error))
   }
 }

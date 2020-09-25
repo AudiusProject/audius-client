@@ -59,7 +59,6 @@ export const reformat = <T extends TrackMetadata>(track: T): Track => {
   const withImages = addTrackImages(withoutUser)
   const withCosign = setIsCoSigned(withImages)
 
-  // TODO: we can possibly remove this now, look into it
   const withDefaultSaves = setDefaultFolloweeSaves(withCosign)
   return withDefaultSaves
 }

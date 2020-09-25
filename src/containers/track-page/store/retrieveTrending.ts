@@ -33,10 +33,7 @@ export function* retrieveTrending({
   const lastGenre = yield select(getLastFetchedTrendingGenre)
   yield put(setLastFetchedTrendingGenre(genre))
 
-  const useCached =
-    lastGenre === genre &&
-    cachedTracks?.length > 0 &&
-    cachedTracks.length > offset + limit
+  const useCached = lastGenre === genre && cachedTracks.length > offset + limit
 
   if (useCached) {
     const trackIds = cachedTracks.slice(offset, limit + offset).map(t => t.id)
