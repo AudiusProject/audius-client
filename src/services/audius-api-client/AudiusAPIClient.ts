@@ -117,7 +117,7 @@ class AudiusAPIClient {
       throw new Error('_constructURL called uninitialized')
     const params = Object.entries(queryParams)
       .filter(p => p[1] !== undefined && p[1] !== null)
-      .map(p => `${p[0]}=${p[1]}`)
+      .map(p => `${p[0]}=${encodeURIComponent(p[1]!)}`)
       .join('&')
     return `${this.initializationState.endpoint}${path}?${params}`
   }

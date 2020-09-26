@@ -398,7 +398,7 @@ class TrackPageProvider extends Component<
     const description = getTrackPageDescription({
       releaseDate: releaseDate ? formatDate(releaseDate) : '',
       description: track?.description ?? '',
-      mood: track?.description ?? '',
+      mood: track?.mood ?? '',
       genre: track ? getCannonicalName(track.genre) : '',
       duration: track ? formatSeconds(track.duration) : '',
       tags: track ? (track.tags || '').split(',').filter(Boolean) : []
