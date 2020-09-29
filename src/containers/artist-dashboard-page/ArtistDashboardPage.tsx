@@ -251,7 +251,7 @@ export class ArtistDashboardPage extends Component<
         time: metadata.duration,
         saves: metadata.save_count,
         reposts: metadata.repost_count,
-        plays: metadata.listenCount
+        plays: metadata.play_count
       }))
       .filter(meta => !meta.is_invalid)
   }
