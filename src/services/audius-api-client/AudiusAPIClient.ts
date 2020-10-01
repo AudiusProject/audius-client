@@ -16,7 +16,9 @@ const ENDPOINT_MAP = {
   playlistRepostUsers: (playlistId: string) =>
     `/playlists/${playlistId}/reposts`,
   playlistFavoriteUsers: (playlistId: string) =>
-    `/playlists/${playlistId}/favorites`
+    `/playlists/${playlistId}/favorites`,
+  userByHandle: (handle: string) => `/users/handle/${handle}`,
+  userTracksByHandle: (handle: string) => `/users/handle/${handle}/tracks`
 }
 
 const TRENDING_LIMIT = 100
@@ -69,6 +71,19 @@ type GetPlaylistFavoriteUsersArgs = {
   currentUserId: ID | null
   limit?: number
   offset?: number
+}
+
+type GetUserByHandleArgs = {
+  handle: string
+  currentUserId?: string
+}
+
+type GetUserTracksByHandleArgs = {
+  handle: string
+  currentUserId?: string
+  sort?: 'date' | 'plays'
+  offset?: number
+  limit?: number
 }
 
 type InitializationState =
@@ -292,6 +307,45 @@ class AudiusAPIClient {
     return adapted
   }
 
+  async getUserByHandle({ handle, currentUserId }: GetUserByHandleArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId
+    }
+
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.userByHandle(handle),
+      params
+    )
+    const response: APIResponse<APIUser[]> = await this._getResponse(endpoint)
+    const adapted = response.data.map(adapter.makeUser).filter(removeNullable)
+    return adapted
+  }
+
+  async getUserTracksByHandle({
+    handle,
+    currentUserId,
+    sort = 'date',
+    limit,
+    offset
+  }: GetUserTracksByHandleArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      sort,
+      limit,
+      offset
+    }
+
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.userTracksByHandle(handle),
+      params
+    )
+    const response: APIResponse<APITrack[]> = await this._getResponse(endpoint)
+    const adapted = response.data.map(adapter.makeTrack).filter(removeNullable)
+    return adapted
+  }
+
   init() {
     if (this.initializationState.state === 'initialized') return
 
@@ -355,6 +409,8 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient()
+const instance = new AudiusAPIClient({
+  overrideEndpoint: 'http://localhost:5000'
+})
 
 export default instance

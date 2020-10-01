@@ -14,6 +14,9 @@ import {
 import { retrieveCollections } from 'store/cache/collections/utils'
 import { retrieve } from 'store/cache/sagas'
 import { DefaultSizes } from 'models/common/ImageSizes'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getUserId } from 'store/account/selectors'
+import { encodeHashId } from 'utils/route/hashIds'
 
 /**
  * @param {Array<number>} userIds array of user ids to fetch
@@ -39,6 +42,19 @@ export function* fetchUsers(
   })
 }
 
+function* retrieveUserByHandle(handle) {
+  const userId = yield select(getUserId)
+  if (Array.isArray(handle)) {
+    handle = handle[0]
+  }
+  const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
+  const user = yield apiClient.getUserByHandle({
+    handle,
+    currentUserId: encodedUserId
+  })
+  return user
+}
+
 export function* fetchUserByHandle(
   handle,
   requiredFields,
@@ -54,7 +70,7 @@ export function* fetchUserByHandle(
     getEntriesTimestamp: function* (handles) {
       return yield select(getUserTimestamps, { handles })
     },
-    retrieveFromSource: AudiusBackend.getUserByHandle,
+    retrieveFromSource: retrieveUserByHandle,
     kind: Kind.USERS,
     idField: 'user_id',
     requiredFields,

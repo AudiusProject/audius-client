@@ -413,7 +413,7 @@ class TrackPageProvider extends Component<
       !!getRemixParentTrackId(track) &&
       (!remixParentTrack || remixParentTrack.is_delete === false)
 
-    if (track?.is_delete || track?._marked_deleted) {
+    if ((track?.is_delete || track?._marked_deleted) && user) {
       return (
         <DeletedPage
           title={title}
