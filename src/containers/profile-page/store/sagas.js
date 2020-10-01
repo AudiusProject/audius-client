@@ -23,7 +23,7 @@ import {
   getProfileFollowers,
   getProfileUser
 } from './selectors'
-import { makeUid, makeUids, makeKindId } from 'utils/uid'
+import { makeUid, makeKindId } from 'utils/uid'
 
 import {
   fetchUsers,
@@ -38,6 +38,9 @@ import { DefaultSizes } from 'models/common/ImageSizes'
 import { squashNewLines } from 'utils/formatUtil'
 import { getIsReachable } from 'store/reachability/selectors'
 import { isMobile } from 'utils/clientUtil'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { encodeHashId } from 'utils/route/hashIds'
+import { processAndCacheUsers } from 'store/cache/users/utils'
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -160,12 +163,17 @@ function* fetchMostUsedTags(userId, trackCount) {
 function* fetchFollowerUsers(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const followers = yield call(
-    AudiusBackend.getFollowers,
-    profileUserId,
-    action.limit,
-    action.offset
-  )
+  const userId = yield select(getUserId)
+  const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
+  const encodedProfileId = encodeHashId(profileUserId)
+
+  const followers = yield apiClient.getFollowing({
+    currentUserId: encodedUserId,
+    profileUserId: encodedProfileId,
+    limit: action.limit,
+    offset: action.offset
+  })
+
   const followerIds = yield call(followAndCacheUsers, followers)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
@@ -180,12 +188,17 @@ function* fetchFollowerUsers(action) {
 function* fetchFollowees(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const followees = yield call(
-    AudiusBackend.getFollowees,
-    profileUserId,
-    action.limit,
-    action.offset
-  )
+  const userId = yield select(getUserId)
+  const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
+  const encodedProfileId = encodeHashId(profileUserId)
+
+  const followees = yield apiClient.getFollowers({
+    currentUserId: encodedUserId,
+    profileUserId: encodedProfileId,
+    limit: action.limit,
+    offset: action.offset
+  })
+
   const followerIds = yield call(followAndCacheUsers, followees)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
@@ -218,17 +231,8 @@ function* fetchFolloweeFollows(action) {
 }
 
 function* followAndCacheUsers(followers) {
-  const followersUids = makeUids(
-    Kind.USERS,
-    followers.map(f => f.user_id)
-  )
-  const followersEntries = followers.map((m, idx) => ({
-    id: m.user_id,
-    uid: followersUids[idx],
-    metadata: m
-  }))
-  yield put(cacheActions.add(Kind.USERS, followersEntries))
-  return followers.map((f, idx) => ({ id: f.user_id, uid: followersUids[idx] }))
+  const users = yield processAndCacheUsers(followers)
+  return users.map(f => ({ id: f.user_id }))
 }
 
 function* watchUpdateProfile() {

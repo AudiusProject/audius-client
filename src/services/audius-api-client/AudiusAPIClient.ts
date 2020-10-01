@@ -1,12 +1,14 @@
 import TimeRange from 'models/TimeRange'
 import { removeNullable } from 'utils/typeUtils'
-import { APIResponse, APITrack } from './types'
+import { APIResponse, APITrack, APIUser } from './types'
 import * as adapter from './ResponseAdapter'
 import AudiusBackend from 'services/AudiusBackend'
 import { getEagerDiscprov } from 'services/audius-backend/eagerLoadUtils'
 
 const ENDPOINT_MAP = {
-  trending: '/tracks/trending'
+  trending: '/tracks/trending',
+  following: (userId: string) => `/users/${userId}/following`,
+  followers: (userId: string) => `/users/${userId}/followers`
 }
 
 const TRENDING_LIMIT = 100
@@ -17,6 +19,20 @@ type GetTrendingArgs = {
   limit?: number
   currentUserId?: string
   genre?: string
+}
+
+type GetFollowingArgs = {
+  profileUserId: string
+  currentUserId?: string
+  offset?: number
+  limit?: number
+}
+
+type GetFollowersArgs = {
+  profileUserId: string
+  currentUserId?: string
+  offset?: number
+  limit?: number
 }
 
 type InitializationState =
@@ -56,6 +72,56 @@ class AudiusAPIClient {
     )
     const adapted = trendingResponse.data
       .map(adapter.makeTrack)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getFollowing({
+    currentUserId,
+    profileUserId,
+    limit,
+    offset
+  }: GetFollowingArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.following(profileUserId),
+      params
+    )
+    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = followingResponse.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getFollowers({
+    currentUserId,
+    profileUserId,
+    limit,
+    offset
+  }: GetFollowersArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.followers(profileUserId),
+      params
+    )
+    const followersResponse: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = followersResponse.data
+      .map(adapter.makeUser)
       .filter(removeNullable)
     return adapted
   }
