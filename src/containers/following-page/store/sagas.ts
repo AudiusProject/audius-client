@@ -9,7 +9,6 @@ import { watchFollowingError } from './errorSagas'
 import User from 'models/User'
 import { getUser } from 'store/cache/users/selectors'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const provider = createUserListProvider<User>({
   getExistingEntity: getUser,
@@ -25,13 +24,9 @@ const provider = createUserListProvider<User>({
     entityId: ID
     currentUserId: ID | null
   }) => {
-    const encodedUserId = currentUserId
-      ? encodeHashId(currentUserId) ?? undefined
-      : undefined
-    const profileUserId = encodeHashId(entityId)!
     return apiClient.getFollowing({
-      currentUserId: encodedUserId,
-      profileUserId,
+      currentUserId,
+      profileUserId: entityId,
       limit: limit,
       offset: offset
     })

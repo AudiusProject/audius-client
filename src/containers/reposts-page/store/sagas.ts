@@ -12,24 +12,18 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { createUserListProvider } from 'containers/user-list/utils'
 import { trackRepostError, playlistRepostError } from './actions'
 import { watchRepostsError } from './errorSagas'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const getPlaylistReposts = createUserListProvider<Collection>({
   getExistingEntity: getCollection,
   extractUserIDSubsetFromEntity: (collection: Collection) =>
     collection.followee_reposts.map(r => r.user_id),
-  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) => {
-    const playlistId = encodeHashId(entityId)!
-    const encodedUserId = currentUserId
-      ? encodeHashId(currentUserId) ?? undefined
-      : undefined
-    return apiClient.getPlaylistRepostUsers({
+  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) =>
+    apiClient.getPlaylistRepostUsers({
       limit,
       offset,
-      playlistId,
-      currentUserId: encodedUserId
-    })
-  },
+      playlistId: entityId,
+      currentUserId
+    }),
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (collection: Collection, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < collection.repost_count,
@@ -50,18 +44,13 @@ const getTrackReposts = createUserListProvider<Track>({
     offset: number
     entityId: ID
     currentUserId: ID | null
-  }) => {
-    const trackId = encodeHashId(entityId)!
-    const encodedUserId = currentUserId
-      ? encodeHashId(currentUserId) ?? undefined
-      : undefined
-    return apiClient.getTrackRepostUsers({
+  }) =>
+    apiClient.getTrackRepostUsers({
       limit,
       offset,
-      trackId,
-      currentUserId: encodedUserId
-    })
-  },
+      trackId: entityId,
+      currentUserId
+    }),
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (track: Track, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < track.repost_count,

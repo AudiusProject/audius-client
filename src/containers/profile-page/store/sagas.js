@@ -39,7 +39,6 @@ import { squashNewLines } from 'utils/formatUtil'
 import { getIsReachable } from 'store/reachability/selectors'
 import { isMobile } from 'utils/clientUtil'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { encodeHashId } from 'utils/route/hashIds'
 import { processAndCacheUsers } from 'store/cache/users/utils'
 
 function* watchFetchProfile() {
@@ -163,13 +162,10 @@ function* fetchMostUsedTags(userId, trackCount) {
 function* fetchFollowerUsers(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const userId = yield select(getUserId)
-  const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
-  const encodedProfileId = encodeHashId(profileUserId)
-
+  const currentUserId = yield select(getUserId)
   const followers = yield apiClient.getFollowers({
-    currentUserId: encodedUserId,
-    profileUserId: encodedProfileId,
+    currentUserId,
+    profileUserId,
     limit: action.limit,
     offset: action.offset
   })
@@ -188,13 +184,10 @@ function* fetchFollowerUsers(action) {
 function* fetchFollowees(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const userId = yield select(getUserId)
-  const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
-  const encodedProfileId = encodeHashId(profileUserId)
-
+  const currentUserId = yield select(getUserId)
   const followees = yield apiClient.getFollowing({
-    currentUserId: encodedUserId,
-    profileUserId: encodedProfileId,
+    currentUserId,
+    profileUserId,
     limit: action.limit,
     offset: action.offset
   })

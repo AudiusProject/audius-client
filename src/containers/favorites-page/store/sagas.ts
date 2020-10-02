@@ -12,24 +12,18 @@ import { createUserListProvider } from 'containers/user-list/utils'
 import { FavoriteType } from 'models/Favorite'
 import { trackFavoriteError, playlistFavoriteError } from './actions'
 import { watchFavoriteError } from './errorSagas'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const getPlaylistFavorites = createUserListProvider<Collection>({
   getExistingEntity: getCollection,
   extractUserIDSubsetFromEntity: (collection: Collection) =>
     collection.followee_saves.map(r => r.user_id),
-  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) => {
-    const playlistId = encodeHashId(entityId)!
-    const encodedUserId = currentUserId
-      ? encodeHashId(currentUserId) ?? undefined
-      : undefined
-    return apiClient.getPlaylistFavoriteUsers({
+  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) =>
+    apiClient.getPlaylistFavoriteUsers({
       limit,
       offset,
-      playlistId,
-      currentUserId: encodedUserId
-    })
-  },
+      playlistId: entityId,
+      currentUserId
+    }),
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (collection: Collection, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < collection.save_count,
@@ -40,18 +34,13 @@ const getTrackFavorites = createUserListProvider<Track>({
   getExistingEntity: getTrack,
   extractUserIDSubsetFromEntity: (track: Track) =>
     track.followee_saves.map(r => r.user_id),
-  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) => {
-    const trackId = encodeHashId(entityId)!
-    const encodedUserId = currentUserId
-      ? encodeHashId(currentUserId) ?? undefined
-      : undefined
-    return apiClient.getTrackFavoriteUsers({
+  fetchAllUsersForEntity: ({ limit, offset, entityId, currentUserId }) =>
+    apiClient.getTrackFavoriteUsers({
       limit,
       offset,
-      trackId,
-      currentUserId: encodedUserId
-    })
-  },
+      trackId: entityId,
+      currentUserId
+    }),
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (track: Track, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < track.save_count,

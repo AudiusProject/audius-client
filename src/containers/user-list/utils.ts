@@ -100,7 +100,6 @@ export function createUserListProvider<T>({
 
     // Insert new users into the cache
     yield processAndCacheUsers(allUsers)
-
     const hasMoreUsers = canFetchMoreUsers(existingEntity, combinedUserIds)
 
     return { userIds: combinedUserIds, hasMore: hasMoreUsers }
