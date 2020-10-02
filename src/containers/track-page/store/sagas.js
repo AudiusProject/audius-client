@@ -142,6 +142,7 @@ function* watchFetchTrackSucceeded() {
 
 function* watchRefetchLineup() {
   yield takeEvery(trackPageActions.REFETCH_LINEUP, function* (action) {
+    console.log('refetch')
     const { track_id } = yield select(getTrack)
     const { handle } = yield select(getUser)
     yield put(tracksActions.reset())

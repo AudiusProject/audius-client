@@ -150,11 +150,14 @@ class TrackPageProvider extends Component<
       this.setState({ source: this.props.source })
     }
 
-    // If the remix of this track changed, refetch the entire lineup
+    // If the remix of this track changed and we have
+    // already fetched the track, refetch the entire lineup
     // because the remix parent track needs to be retrieved
     if (
       prevProps.track &&
+      prevProps.track.track_id &&
       track &&
+      track.track_id &&
       getRemixParentTrackId(prevProps.track) !== getRemixParentTrackId(track)
     ) {
       refetchTracksLinup()
