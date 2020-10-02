@@ -3,12 +3,13 @@ import { USER_LIST_TAG } from '../FollowersPage'
 import { put, select } from 'redux-saga/effects'
 import { getId, getUserList, getUserIds } from './selectors'
 import { ID } from 'models/common/Identifiers'
-import AudiusBackend from 'services/AudiusBackend'
 import { createUserListProvider } from 'containers/user-list/utils'
 import { getFollowersError } from './actions'
 import { watchFollowersError } from './errorSagas'
 import User from 'models/User'
 import { getUser } from 'store/cache/users/selectors'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { encodeHashId } from 'utils/route/hashIds'
 
 const provider = createUserListProvider<User>({
   getExistingEntity: getUser,
@@ -16,12 +17,25 @@ const provider = createUserListProvider<User>({
   fetchAllUsersForEntity: ({
     limit,
     offset,
-    entityId
+    entityId,
+    currentUserId
   }: {
     limit: number
     offset: number
     entityId: ID
-  }) => AudiusBackend.getFollowers(entityId, limit, offset),
+    currentUserId: ID | null
+  }) => {
+    const encodedUserId = currentUserId
+      ? encodeHashId(currentUserId) ?? undefined
+      : undefined
+    const profileUserId = encodeHashId(entityId)!
+    return apiClient.getFollowers({
+      currentUserId: encodedUserId,
+      profileUserId,
+      limit: limit,
+      offset: offset
+    })
+  },
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < user.follower_count,

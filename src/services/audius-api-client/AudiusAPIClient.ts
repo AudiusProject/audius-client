@@ -8,7 +8,13 @@ import { getEagerDiscprov } from 'services/audius-backend/eagerLoadUtils'
 const ENDPOINT_MAP = {
   trending: '/tracks/trending',
   following: (userId: string) => `/users/${userId}/following`,
-  followers: (userId: string) => `/users/${userId}/followers`
+  followers: (userId: string) => `/users/${userId}/followers`,
+  trackRepostUsers: (trackId: string) => `/tracks/${trackId}/reposts`,
+  trackFavoriteUsers: (trackId: string) => `/tracks/${trackId}/favorites`,
+  playlistRepostUsers: (playlistId: string) =>
+    `/playlists/${playlistId}/reposts`,
+  playlistFavoriteUsers: (playlistId: string) =>
+    `/playlists/${playlistId}/favorites`
 }
 
 const TRENDING_LIMIT = 100
@@ -33,6 +39,34 @@ type GetFollowersArgs = {
   currentUserId?: string
   offset?: number
   limit?: number
+}
+
+type GetTrackRepostUsersArgs = {
+  trackId: string
+  currentUserId?: string
+  limit?: number
+  offset?: number
+}
+
+type GetTrackFavoriteUsersArgs = {
+  trackId: string
+  currentUserId?: string
+  limit?: number
+  offset?: number
+}
+
+type GetPlaylistRepostUsersArgs = {
+  playlistId: string
+  currentUserId?: string
+  limit?: number
+  offset?: number
+}
+
+type GetPlaylistFavoriteUsersArgs = {
+  playlistId: string
+  currentUserId?: string
+  limit?: number
+  offset?: number
 }
 
 type InitializationState =
@@ -121,6 +155,106 @@ class AudiusAPIClient {
       endpoint
     )
     const adapted = followersResponse.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getTrackRepostUsers({
+    currentUserId,
+    trackId,
+    limit,
+    offset
+  }: GetTrackRepostUsersArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.trackRepostUsers(trackId),
+      params
+    )
+    const repostUsers: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = repostUsers.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getTrackFavoriteUsers({
+    currentUserId,
+    trackId,
+    limit,
+    offset
+  }: GetTrackFavoriteUsersArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.trackFavoriteUsers(trackId),
+      params
+    )
+    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = followingResponse.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getPlaylistRepostUsers({
+    currentUserId,
+    playlistId,
+    limit,
+    offset
+  }: GetPlaylistRepostUsersArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.playlistRepostUsers(playlistId),
+      params
+    )
+    const repostUsers: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = repostUsers.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getPlaylistFavoriteUsers({
+    currentUserId,
+    playlistId,
+    limit,
+    offset
+  }: GetPlaylistFavoriteUsersArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.playlistFavoriteUsers(playlistId),
+      params
+    )
+    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = followingResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
     return adapted

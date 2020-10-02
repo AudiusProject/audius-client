@@ -167,7 +167,7 @@ function* fetchFollowerUsers(action) {
   const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
   const encodedProfileId = encodeHashId(profileUserId)
 
-  const followers = yield apiClient.getFollowing({
+  const followers = yield apiClient.getFollowers({
     currentUserId: encodedUserId,
     profileUserId: encodedProfileId,
     limit: action.limit,
@@ -192,7 +192,7 @@ function* fetchFollowees(action) {
   const encodedUserId = userId ? encodeHashId(userId) ?? undefined : undefined
   const encodedProfileId = encodeHashId(profileUserId)
 
-  const followees = yield apiClient.getFollowers({
+  const followees = yield apiClient.getFollowing({
     currentUserId: encodedUserId,
     profileUserId: encodedProfileId,
     limit: action.limit,
