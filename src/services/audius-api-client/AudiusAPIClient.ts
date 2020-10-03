@@ -1,7 +1,7 @@
 import TimeRange from 'models/TimeRange'
 import { removeNullable } from 'utils/typeUtils'
-import { APIResponse, APITrack, APIUser } from './types'
 import { ID } from 'models/common/Identifiers'
+import { APIActivity, APIResponse, APITrack, APIUser } from './types'
 import * as adapter from './ResponseAdapter'
 import AudiusBackend from 'services/AudiusBackend'
 import { getEagerDiscprov } from 'services/audius-backend/eagerLoadUtils'
@@ -20,6 +20,7 @@ const ENDPOINT_MAP = {
   userByHandle: (handle: string) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: string) => `/users/handle/${handle}/tracks`,
   userFavoritedTracks: (userId: string) => `/users/${userId}/favorites/tracks`,
+  userRepostsByHandle: (handle: string) => `/users/handle/${handle}/reposts`,
   topGenreUsers: '/users/genre/top'
 }
 
@@ -99,6 +100,13 @@ type GetTopArtistGenresArgs = {
   genres?: string[]
   limit?: number
   offset?: number
+}
+
+type GetUserRepostsByHandleArgs = {
+  handle: string
+  currentUserId?: string
+  offset?: number
+  limit?: number
 }
 
 type InitializationState =
@@ -386,14 +394,39 @@ class AudiusAPIClient {
       ENDPOINT_MAP.userFavoritedTracks(encodedProfileUserId),
       params
     )
+
     const favoritedTrackResponse: APIResponse<
       { timestamp: string; item_type: 'track'; item: APITrack }[]
     > = await this._getResponse(endpoint)
-    const adapted = favoritedTrackResponse.data
-      .map(({ item, ...props }) => ({
-        timestamp: props.timestamp,
-        track: adapter.makeTrack(item)
-      }))
+    const adapted = favoritedTrackResponse.data.map(({ item, ...props }) => ({
+      timestamp: props.timestamp,
+      track: adapter.makeTrack(item)
+    }))
+    return adapted
+  }
+
+  async getUserRepostsByHandle({
+    handle,
+    currentUserId,
+    limit,
+    offset
+  }: GetUserRepostsByHandleArgs) {
+    this._assertInitialized()
+    const params = {
+      user_id: currentUserId,
+      limit,
+      offset
+    }
+
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.userRepostsByHandle(handle),
+      params
+    )
+    const response: APIResponse<APIActivity[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = response.data
+      .map(adapter.makeActivity)
       .filter(removeNullable)
     return adapted
   }

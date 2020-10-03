@@ -97,6 +97,12 @@ export type APITrack = {
   is_delete: boolean
   cover_art: Nullable<string>
   play_count: number
+  is: string
+}
+
+export type APIActivity = {
+  timestamp: string
+  item: APITrack
 }
 
 export type APIResponse<T> = {

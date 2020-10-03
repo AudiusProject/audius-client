@@ -4,7 +4,14 @@ import { Remix, UserTrackMetadata } from 'models/Track'
 import { UserMetadata } from 'models/User'
 import { decodeHashId } from 'utils/route/hashIds'
 import { removeNullable } from 'utils/typeUtils'
-import { APIFavorite, APIRemix, APIRepost, APITrack, APIUser } from './types'
+import {
+  APIActivity,
+  APIFavorite,
+  APIRemix,
+  APIRepost,
+  APITrack,
+  APIUser
+} from './types'
 
 export const makeUser = (user: APIUser): UserMetadata | undefined => {
   const decodedUserId = decodeHashId(user.id)
@@ -117,4 +124,17 @@ export const makeTrack = (track: APITrack): UserTrackMetadata | undefined => {
   delete marshalled.favorite_count
 
   return marshalled
+}
+
+export const makeActivity = (
+  activity: APIActivity
+): UserTrackMetadata | undefined => {
+  const { item } = activity
+  if (item.is === 'track') {
+    return makeTrack(item)
+  }
+  if (item.is === 'playlist') {
+    // return makePl
+  }
+  return undefined
 }
