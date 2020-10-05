@@ -6,7 +6,8 @@
   "scripts": {
     "start": "env-cmd -f .env env-cmd -f .env.local npm run -s dev",
     "start:development": "env-cmd -f .env env-cmd -f .env.development env-cmd -f .env.local npm run -s dev",
-    "build": "env-cmd -f .env preact build --no-prerender --no-sw --template src/template.html",
+    "build": "env-cmd -f .env preact build --no-prerender --no-sw --template src/template.html && npm run build-api",
+    "build-api": "webpack --config src/api/webpack.config.js -o build/api.js",
     "serve": "preact build --no-prerender --no-sw --template src/template.html && preact serve",
     "dev": "preact watch --no-sw --template src/template.html",
     "deploy": "aws s3 sync build s3://bedtime.audius.co --delete && aws s3 cp s3://bedtime.audius.co/index.html s3://bedtime.audius.co/index.html  --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html --metadata-directive REPLACE --acl public-read && aws cloudfront create-invalidation --distribution-id E33HWSH5ZFFGR1 --paths \"/*\"",

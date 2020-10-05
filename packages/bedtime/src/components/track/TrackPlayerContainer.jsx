@@ -35,6 +35,7 @@ const TrackPlayerContainer = ({
     seekTo,
     onTogglePlay,
     initAudio,
+    stop
   } = usePlayback(track.id, onTrackEnd)
 
   const didTogglePlay = useCallback(() => {
@@ -46,12 +47,13 @@ const TrackPlayerContainer = ({
     onTogglePlay()
     if (playingState === PlayingState.Playing) {
       setPopoverVisibility(true)
+    } else if (playingState === PlayingState.Paused){
+      setPopoverVisibility(false)
     }
   }, [didInitAudio, initAudio, loadTrack, setDidInitAudio, onTogglePlay, playingState, setPopoverVisibility])
 
   const playbarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(didTogglePlay, playbarEnabled)
-
   useRecordListens(position, mediaKey, track.id, LISTEN_INTERVAL_SECONDS)
 
   // Setup autoplay on twitter
@@ -63,6 +65,28 @@ const TrackPlayerContainer = ({
     setDidInitAudio(true)
     onTogglePlay()
   }, [])
+
+  useEffect(() => {
+    const handleMessage = (e) => {
+      if(e.data){
+        try {
+          const messageData = JSON.parse(e.data)
+          const { from, method, value } = messageData
+          if(from && from == 'audiusapi'){
+            if(method === 'togglePlay') didTogglePlay()
+            if(method === 'stop') stop()
+            if(method === 'seekTo') seekTo(value)
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [didTogglePlay])
 
   const props = {
     title: track.title,
