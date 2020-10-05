@@ -2,11 +2,10 @@ import { ID } from 'models/common/Identifiers'
 import Track from 'models/Track'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
-import { encodeHashId } from 'utils/route/hashIds'
 
 type RetrieveUserTracksArgs = {
   handle: string
-  currentUserId?: ID
+  currentUserId: ID | null
   sort?: 'date' | 'plays'
   offset?: number
   limit?: number
@@ -19,13 +18,9 @@ export function* retrieveUserTracks({
   offset,
   limit
 }: RetrieveUserTracksArgs): Generator<any, Track[], any> {
-  const encodedUserId = currentUserId
-    ? encodeHashId(currentUserId) ?? undefined
-    : undefined
-
   const apiTracks = yield apiClient.getUserTracksByHandle({
     handle,
-    currentUserId: encodedUserId,
+    currentUserId,
     sort,
     limit,
     offset
