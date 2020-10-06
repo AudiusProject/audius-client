@@ -19,7 +19,7 @@ const ENDPOINT_MAP = {
     `/playlists/${playlistId}/favorites`,
   userByHandle: (handle: string) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: string) => `/users/handle/${handle}/tracks`,
-  favoritedTracks: (userId: string) => `/users/${userId}/favorites/tracks`
+  userFavoritedTracks: (userId: string) => `/users/${userId}/favorites/tracks`
 }
 
 const TRENDING_LIMIT = 100
@@ -376,7 +376,7 @@ class AudiusAPIClient {
     }
 
     const endpoint = this._constructUrl(
-      ENDPOINT_MAP.favoritedTracks(encodedProfileUserId),
+      ENDPOINT_MAP.userFavoritedTracks(encodedProfileUserId),
       params
     )
     const favoritedTrackResponse: APIResponse<
