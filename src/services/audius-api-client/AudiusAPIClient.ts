@@ -6,7 +6,8 @@ import {
   APIResponse,
   APITrack,
   APIPlaylist,
-  APIUser
+  APIUser,
+  OpaqueID
 } from './types'
 import * as adapter from './ResponseAdapter'
 import AudiusBackend from 'services/AudiusBackend'
@@ -15,23 +16,33 @@ import { encodeHashId } from 'utils/route/hashIds'
 
 const ENDPOINT_MAP = {
   trending: '/tracks/trending',
-  following: (userId: string) => `/users/${userId}/following`,
-  followers: (userId: string) => `/users/${userId}/followers`,
-  trackRepostUsers: (trackId: string) => `/tracks/${trackId}/reposts`,
-  trackFavoriteUsers: (trackId: string) => `/tracks/${trackId}/favorites`,
-  playlistRepostUsers: (playlistId: string) =>
+  following: (userId: OpaqueID) => `/users/${userId}/following`,
+  followers: (userId: OpaqueID) => `/users/${userId}/followers`,
+  trackRepostUsers: (trackId: OpaqueID) => `/tracks/${trackId}/reposts`,
+  trackFavoriteUsers: (trackId: OpaqueID) => `/tracks/${trackId}/favorites`,
+  playlistRepostUsers: (playlistId: OpaqueID) =>
     `/playlists/${playlistId}/reposts`,
-  playlistFavoriteUsers: (playlistId: string) =>
+  playlistFavoriteUsers: (playlistId: OpaqueID) =>
     `/playlists/${playlistId}/favorites`,
-  userByHandle: (handle: string) => `/users/handle/${handle}`,
-  userTracksByHandle: (handle: string) => `/users/handle/${handle}/tracks`,
-  userFavoritedTracks: (userId: string) => `/users/${userId}/favorites/tracks`,
-  userRepostsByHandle: (handle: string) => `/users/handle/${handle}/reposts`,
-  getPlaylist: (playlistId: string) => `/playlists/${playlistId}`,
-  topGenreUsers: '/users/genre/top'
+  userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
+  userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
+  userFavoritedTracks: (userId: OpaqueID) => `/users/${userId}/favorites/tracks`,
+  userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
+  getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
+  topGenreUsers: '/users/genre/top',
+  track: (trackId: OpaqueID) => `/tracks/${trackId}`
 }
 
 const TRENDING_LIMIT = 100
+
+export type GetTrackArgs = {
+  id: ID
+  currentUserId?: ID | null
+  unlistedArgs?: {
+    urlTitle: string
+    handle: string
+  }
+}
 
 type GetTrendingArgs = {
   timeRange?: TimeRange
@@ -343,6 +354,34 @@ class AudiusAPIClient {
     return adapted
   }
 
+  async getTrack({ id, currentUserId, unlistedArgs }: GetTrackArgs) {
+    const encodedTrackId = encodeHashId(id)
+    if (!encodedTrackId) {
+      throw new Error(`Unable to encode track ID: ${id}`)
+    }
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+
+    this._assertInitialized()
+
+    const args = {
+      user_id: encodedCurrentUserId,
+      url_title: unlistedArgs?.urlTitle,
+      handle: unlistedArgs?.handle,
+      show_unlisted: !!unlistedArgs
+    }
+
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.track(encodedTrackId),
+      args
+    )
+    const trackResponse: APIResponse<APITrack> = await this._getResponse(
+      endpoint
+    )
+    const adapted = adapter.makeTrack(trackResponse.data)
+    console.log({ adapted })
+    return adapted
+  }
+
   async getUserByHandle({ handle, currentUserId }: GetUserByHandleArgs) {
     const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
@@ -538,9 +577,13 @@ class AudiusAPIClient {
 
   _constructUrl(
     path: string,
+<<<<<<< HEAD
     queryParams: {
       [key: string]: string | number | undefined | null | Array<string>
     }
+=======
+    queryParams: { [key: string]: string | number | undefined | boolean | null }
+>>>>>>> c3f7794... Use API tracks endpoint
   ) {
     if (this.initializationState.state !== 'initialized')
       throw new Error('_constructURL called uninitialized')
@@ -557,8 +600,14 @@ class AudiusAPIClient {
   }
 }
 
+<<<<<<< HEAD
 const instance = new AudiusAPIClient({
   overrideEndpoint: 'http://localhost:5000'
+=======
+// const instance = new AudiusAPIClient()
+const instance = new AudiusAPIClient({
+  overrideEndpoint: 'http://docker.for.mac.localhost:5000/'
+>>>>>>> c3f7794... Use API tracks endpoint
 })
 
 export default instance
