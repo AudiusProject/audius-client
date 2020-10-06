@@ -6,6 +6,7 @@ import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import { UserCollection } from 'models/Collection'
 import { retrieveTracksForCollections } from './retrieveCollections'
+import { addTracksFromCollections } from './addTracksFromCollections'
 
 /**
  * Processes and caches a collection
@@ -20,6 +21,7 @@ export function* processAndCacheCollections(
   excludedTrackIds = []
 ) {
   yield addUsersFromCollections(collections)
+  yield addTracksFromCollections(collections)
 
   let reformattedCollections = collections.map(c => reformat(c))
 

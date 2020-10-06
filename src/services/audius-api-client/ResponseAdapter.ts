@@ -1,3 +1,4 @@
+import { UserCollection } from 'models/Collection'
 import Favorite from 'models/Favorite'
 import Repost from 'models/Repost'
 import { Remix, UserTrackMetadata } from 'models/Track'
@@ -10,6 +11,7 @@ import {
   APIRemix,
   APIRepost,
   APITrack,
+  APIPlaylist,
   APIUser
 } from './types'
 
@@ -126,15 +128,73 @@ export const makeTrack = (track: APITrack): UserTrackMetadata | undefined => {
   return marshalled
 }
 
+export const makePlaylist = (
+  playlist: APIPlaylist
+): UserCollection | undefined => {
+  const decodedPlaylistId = decodeHashId(playlist.id)
+  const decodedOwnerId = decodeHashId(playlist.user_id)
+  const user = makeUser(playlist.user)
+  if (!decodedPlaylistId || !decodedOwnerId || !user) {
+    return undefined
+  }
+
+  const saves = playlist.followee_favorites
+    .map(makeFavorite)
+    .filter(removeNullable)
+
+  const reposts = playlist.followee_reposts
+    .map(makeRepost)
+    .filter(removeNullable)
+
+  const playlistContents = {
+    track_ids: playlist.added_timestamps.map(ts => ({
+      track: decodeHashId(ts.track_id),
+      time: ts.timestamp
+    }))
+  }
+
+  const tracks = playlist.tracks.map(track => makeTrack(track))
+
+  const marshalled = {
+    ...playlist,
+    user,
+    tracks,
+    playlist_id: decodedPlaylistId,
+    playlist_owner_id: decodedOwnerId,
+    followee_saves: saves,
+    followee_reposts: reposts,
+    save_count: playlist.favorite_count,
+    playlist_contents: playlistContents,
+
+    // Fields to prune
+    id: undefined,
+    user_id: undefined,
+    followee_favorites: undefined,
+    artwork: undefined,
+    favorite_count: undefined,
+    added_timestamps: undefined
+  }
+
+  delete marshalled.id
+  delete marshalled.user_id
+  delete marshalled.followee_favorites
+  delete marshalled.artwork
+  delete marshalled.favorite_count
+  delete marshalled.added_timestamps
+
+  // @ts-ignore
+  return marshalled as UserCollection
+}
+
 export const makeActivity = (
   activity: APIActivity
-): UserTrackMetadata | undefined => {
-  const { item } = activity
-  if (item.is === 'track') {
-    return makeTrack(item)
+): UserTrackMetadata | UserCollection | undefined => {
+  const { item, item_type: type } = activity
+  if (type === 'track') {
+    return makeTrack(item as APITrack)
   }
-  if (item.is === 'playlist') {
-    // return makePl
+  if (type === 'playlist') {
+    return makePlaylist(item as APIPlaylist)
   }
   return undefined
 }

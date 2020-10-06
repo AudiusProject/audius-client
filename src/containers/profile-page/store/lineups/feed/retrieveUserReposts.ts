@@ -4,7 +4,6 @@ import { all } from 'redux-saga/effects'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { processAndCacheCollections } from 'store/cache/collections/utils'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const getTracksAndCollections = (feed: any) =>
   feed.reduce(
@@ -15,7 +14,7 @@ const getTracksAndCollections = (feed: any) =>
 
 type RetrieveUserRepostsArgs = {
   handle: string
-  currentUserId?: ID
+  currentUserId: ID | null
   offset?: number
   limit?: number
 }
@@ -26,13 +25,9 @@ export function* retrieveUserReposts({
   offset,
   limit
 }: RetrieveUserRepostsArgs): Generator<any, Track[], any> {
-  const encodedUserId = currentUserId
-    ? encodeHashId(currentUserId) ?? undefined
-    : undefined
-
   const reposts = yield apiClient.getUserRepostsByHandle({
     handle,
-    currentUserId: encodedUserId,
+    currentUserId,
     limit,
     offset
   })
@@ -40,7 +35,11 @@ export function* retrieveUserReposts({
   const trackIds = tracks.map((t: any) => t.track_id)
   const [processedTracks, processedCollections] = yield all([
     processAndCacheTracks(tracks),
-    processAndCacheCollections(collections, true, trackIds)
+    processAndCacheCollections(
+      collections,
+      /* shouldRetrieveTracks */ false,
+      trackIds
+    )
   ])
   const processedTracksMap = processedTracks.reduce(
     (acc: any, cur: any) => ({ ...acc, [cur.track_id]: cur }),

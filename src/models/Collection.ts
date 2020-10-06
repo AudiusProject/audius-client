@@ -6,6 +6,7 @@ import Repost from 'models/Repost'
 import User from './User'
 import Favorite from './Favorite'
 import { ReactNode } from 'react'
+import { UserTrack } from './Track'
 
 export enum Variant {
   USER_GENERATED = 'user-generated',
@@ -31,8 +32,9 @@ type Collection = OnChain &
     playlist_contents: {
       track_ids: Array<{ time: number; track: ID; uid: UID }>
     }
+    tracks?: UserTrack[]
     playlist_id: ID
-    playlist_image_multihash: CID | null
+    cover_art: CID | null
     playlist_name: string
     playlist_owner_id: ID
     repost_count: number

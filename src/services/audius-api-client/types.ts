@@ -10,6 +10,9 @@ import { FavoriteType } from 'models/Favorite'
 import { Download, FieldVisibility, TrackSegment } from 'models/Track'
 
 type OpaqueID = string
+type PlaylistContents = {
+  track_ids: Array<{ time: number; track: number }>
+}
 
 export type APIUser = {
   album_count: number
@@ -100,9 +103,40 @@ export type APITrack = {
   is: string
 }
 
+export type APIPlaylistAddedTimestamp = {
+  timestamp: string
+  track_id: OpaqueID
+}
+
+export type APIPlaylist = {
+  artwork: CoverArtSizes
+  description: Nullable<string>
+  id: OpaqueID
+  is_album: boolean
+  playlist_name: string
+  repost_count: number
+  favorite_count: number
+  total_play_count: number
+  user_id: OpaqueID
+  user: APIUser
+  created_at: string
+  updated_at: string
+  followee_reposts: APIRepost[]
+  followee_favorites: APIFavorite[]
+  has_current_user_reposted: boolean
+  has_current_user_saved: boolean
+  is_delete: boolean
+  is_private: boolean
+  added_timestamps: APIPlaylistAddedTimestamp[]
+  tracks: APITrack[]
+}
+
+export type APIItemType = 'track' | 'playlist'
+
 export type APIActivity = {
   timestamp: string
-  item: APITrack
+  item_type: APIItemType
+  item: APITrack | APIPlaylist
 }
 
 export type APIResponse<T> = {

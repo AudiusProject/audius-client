@@ -1,7 +1,13 @@
 import TimeRange from 'models/TimeRange'
 import { removeNullable } from 'utils/typeUtils'
 import { ID } from 'models/common/Identifiers'
-import { APIActivity, APIResponse, APITrack, APIUser } from './types'
+import {
+  APIActivity,
+  APIResponse,
+  APITrack,
+  APIPlaylist,
+  APIUser
+} from './types'
 import * as adapter from './ResponseAdapter'
 import AudiusBackend from 'services/AudiusBackend'
 import { getEagerDiscprov } from 'services/audius-backend/eagerLoadUtils'
@@ -21,6 +27,7 @@ const ENDPOINT_MAP = {
   userTracksByHandle: (handle: string) => `/users/handle/${handle}/tracks`,
   userFavoritedTracks: (userId: string) => `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: string) => `/users/handle/${handle}/reposts`,
+  getPlaylist: (playlistId: string) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top'
 }
 
@@ -104,9 +111,14 @@ type GetTopArtistGenresArgs = {
 
 type GetUserRepostsByHandleArgs = {
   handle: string
-  currentUserId?: string
+  currentUserId: ID | null
   offset?: number
   limit?: number
+}
+
+type GetPlaylistArgs = {
+  playlistId: ID
+  currentUserId: ID | null
 }
 
 type InitializationState =
@@ -354,8 +366,8 @@ class AudiusAPIClient {
     limit,
     offset
   }: GetUserTracksByHandleArgs) {
-    const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
     const params = {
       user_id: encodedCurrentUserId || undefined,
       sort,
@@ -412,8 +424,9 @@ class AudiusAPIClient {
     offset
   }: GetUserRepostsByHandleArgs) {
     this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
     const params = {
-      user_id: currentUserId,
+      user_id: encodedCurrentUserId || undefined,
       limit,
       offset
     }
@@ -446,6 +459,30 @@ class AudiusAPIClient {
     > = await this._getResponse(endpoint)
     const adapted = favoritedTrackResponse.data
       .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const encodedPlaylistId = encodeHashId(playlistId)
+    if (!encodedPlaylistId) {
+      throw new Error(`Unable to encode profile user id: ${playlistId}`)
+    }
+    const params = {
+      user_id: encodedCurrentUserId || undefined
+    }
+
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.getPlaylist(encodedPlaylistId),
+      params
+    )
+    const response: APIResponse<APIPlaylist[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = response.data
+      .map(adapter.makePlaylist)
       .filter(removeNullable)
     return adapted
   }
@@ -520,6 +557,8 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient()
+const instance = new AudiusAPIClient({
+  overrideEndpoint: 'http://localhost:5000'
+})
 
 export default instance
