@@ -407,12 +407,12 @@ class AudiusAPIClient {
       params
     )
 
-    const favoritedTrackResponse: APIResponse<
-      { timestamp: string; item_type: 'track'; item: APITrack }[]
-    > = await this._getResponse(endpoint)
-    const adapted = favoritedTrackResponse.data.map(({ item, ...props }) => ({
+    const response: APIResponse<APIActivity[]> = await this._getResponse(
+      endpoint
+    )
+    const adapted = response.data.map(({ item, ...props }) => ({
       timestamp: props.timestamp,
-      track: adapter.makeTrack(item)
+      track: adapter.makeTrack(item as APITrack)
     }))
     return adapted
   }
@@ -557,8 +557,6 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'http://localhost:5000'
-})
+const instance = new AudiusAPIClient()
 
 export default instance
