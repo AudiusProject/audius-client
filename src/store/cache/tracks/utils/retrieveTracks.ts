@@ -108,6 +108,9 @@ export function* retrieveTracks({
       let fetched: UserTrackMetadata[]
       if (canBeUnlisted) {
         const ids = trackIds as UnlistedTrackRequest[]
+        // TODO: remove the AudiusBackend
+        // branches here when we support
+        // bulk track fetches in the API.
         if (ids.length > 1) {
           fetched = yield call(
             AudiusBackend.getTracksIncludingUnlisted,

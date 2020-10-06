@@ -26,7 +26,8 @@ const ENDPOINT_MAP = {
     `/playlists/${playlistId}/favorites`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
-  userFavoritedTracks: (userId: OpaqueID) => `/users/${userId}/favorites/tracks`,
+  userFavoritedTracks: (userId: OpaqueID) =>
+    `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
@@ -378,7 +379,6 @@ class AudiusAPIClient {
       endpoint
     )
     const adapted = adapter.makeTrack(trackResponse.data)
-    console.log({ adapted })
     return adapted
   }
 
@@ -577,13 +577,15 @@ class AudiusAPIClient {
 
   _constructUrl(
     path: string,
-<<<<<<< HEAD
     queryParams: {
-      [key: string]: string | number | undefined | null | Array<string>
+      [key: string]:
+        | string
+        | number
+        | undefined
+        | boolean
+        | Array<string>
+        | null
     }
-=======
-    queryParams: { [key: string]: string | number | undefined | boolean | null }
->>>>>>> c3f7794... Use API tracks endpoint
   ) {
     if (this.initializationState.state !== 'initialized')
       throw new Error('_constructURL called uninitialized')
@@ -600,14 +602,6 @@ class AudiusAPIClient {
   }
 }
 
-<<<<<<< HEAD
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'http://localhost:5000'
-=======
-// const instance = new AudiusAPIClient()
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'http://docker.for.mac.localhost:5000/'
->>>>>>> c3f7794... Use API tracks endpoint
-})
+const instance = new AudiusAPIClient()
 
 export default instance

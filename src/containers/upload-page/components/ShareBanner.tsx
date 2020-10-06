@@ -78,18 +78,12 @@ const getShareTextUrl = async (
       const title = upload.tracks[0].metadata.title
       const parent_track_id =
         upload.tracks[0].metadata?.remix_of?.tracks[0].parent_track_id
-      if (!parent_track_id) {
-        return { text: '', url: '' }
-      }
+      if (!parent_track_id) return { text: '', url: '' }
 
       const getPage = fullUrl ? fullTrackPage : trackPage
       const url = getPage(user.handle, title, upload.completionId)
-      const parentTrack = await apiClient.getTrack({
-        id: parent_track_id
-      })
-      if (!parentTrack) {
-        return { text: '', url: '' }
-      }
+      const parentTrack = await apiClient.getTrack({ id: parent_track_id })
+      if (!parentTrack) return { text: '', url: '' }
 
       const parentTrackUser = parentTrack.user
 
