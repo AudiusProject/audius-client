@@ -7,6 +7,7 @@ import { Kind } from 'store/types'
 import { UserCollection } from 'models/Collection'
 import { retrieveTracksForCollections } from './retrieveCollections'
 import { addTracksFromCollections } from './addTracksFromCollections'
+import { ID } from 'models/common/Identifiers'
 
 /**
  * Processes and caches a collection
@@ -18,7 +19,7 @@ import { addTracksFromCollections } from './addTracksFromCollections'
 export function* processAndCacheCollections(
   collections: UserCollection[],
   shouldRetrieveTracks = true,
-  excludedTrackIds = []
+  excludedTrackIds: ID[] = []
 ) {
   yield addUsersFromCollections(collections)
   yield addTracksFromCollections(collections)

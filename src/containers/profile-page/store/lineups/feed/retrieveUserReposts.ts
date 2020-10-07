@@ -1,14 +1,25 @@
+import { UserCollection } from 'models/Collection'
 import { ID } from 'models/common/Identifiers'
-import Track from 'models/Track'
+import Track, { UserTrackMetadata } from 'models/Track'
 import { all } from 'redux-saga/effects'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { processAndCacheCollections } from 'store/cache/collections/utils'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
 
-const getTracksAndCollections = (feed: any) =>
+const getTracksAndCollections = (
+  feed: (UserTrackMetadata | UserCollection)[]
+) =>
   feed.reduce(
-    (acc: any, cur: any) =>
-      cur.track_id ? [[...acc[0], cur], acc[1]] : [acc[0], [...acc[1], cur]],
+    (
+      acc: [UserTrackMetadata[], UserCollection[]],
+      cur: UserTrackMetadata | UserCollection
+    ) =>
+      ('track_id' in cur
+        ? [[...acc[0], cur], acc[1]]
+        : [acc[0], [...acc[1], cur]]) as [
+        UserTrackMetadata[],
+        UserCollection[]
+      ],
     [[], []]
   )
 
@@ -32,7 +43,7 @@ export function* retrieveUserReposts({
     offset
   })
   const [tracks, collections] = getTracksAndCollections(reposts)
-  const trackIds = tracks.map((t: any) => t.track_id)
+  const trackIds = tracks.map(t => t.track_id)
   const [processedTracks, processedCollections] = yield all([
     processAndCacheTracks(tracks),
     processAndCacheCollections(

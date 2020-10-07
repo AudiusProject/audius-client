@@ -557,6 +557,8 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient()
+const instance = new AudiusAPIClient({
+  overrideEndpoint: 'http://localhost:5000'
+})
 
 export default instance

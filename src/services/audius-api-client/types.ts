@@ -104,7 +104,7 @@ export type APITrack = {
 }
 
 export type APIPlaylistAddedTimestamp = {
-  timestamp: string
+  timestamp: number
   track_id: OpaqueID
 }
 
@@ -129,15 +129,16 @@ export type APIPlaylist = {
   is_private: boolean
   added_timestamps: APIPlaylistAddedTimestamp[]
   tracks: APITrack[]
+  cover_art: Nullable<string>
+  cover_art_sies: Nullable<string>
 }
 
 export type APIItemType = 'track' | 'playlist'
 
-export type APIActivity = {
-  timestamp: string
-  item_type: APIItemType
-  item: APITrack | APIPlaylist
-}
+export type APIActivity = { timestamp: string } & (
+  | { item_type: 'track'; item: APITrack }
+  | { item_type: 'playlist'; item: APIPlaylist }
+)
 
 export type APIResponse<T> = {
   data: T

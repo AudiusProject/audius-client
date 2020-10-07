@@ -13,7 +13,6 @@ import { makeUid } from 'utils/uid'
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { getUserId } from 'store/account/selectors'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { waitForValue } from 'utils/sagaHelpers'
 
 function* markCollectionDeleted(
   collectionMetadatas: Collection[]
@@ -78,7 +77,7 @@ export function* retrieveTracksForCollections(
  * @param playlistId
  */
 function* retrieveCollection(playlistId: ID) {
-  const userId = yield call(waitForValue, getUserId)
+  const userId = yield select(getUserId)
   const playlists = yield apiClient.getPlaylist({
     playlistId,
     currentUserId: userId
@@ -113,6 +112,7 @@ export function* retrieveCollections(
       if (ids.length === 1) {
         metadatas = yield call(retrieveCollection, ids[0])
       } else {
+        // TODO: Remove this branch when we have batched endpoints in new V1 api.
         metadatas = yield call(AudiusBackend.getPlaylists, userId, ids)
       }
 
