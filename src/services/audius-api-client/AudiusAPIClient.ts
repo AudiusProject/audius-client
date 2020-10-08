@@ -1,5 +1,5 @@
 import TimeRange from 'models/TimeRange'
-import { removeNullable } from 'utils/typeUtils'
+import { Nullable, removeNullable } from 'utils/typeUtils'
 import { ID } from 'models/common/Identifiers'
 import {
   APIActivity,
@@ -34,7 +34,9 @@ const ENDPOINT_MAP = {
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
   track: (trackId: OpaqueID) => `/tracks/${trackId}`,
-  stems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`
+  stems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
+  remixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
+  remixing: (trackId: OpaqueID) => `/tracks/${trackId}/remixing`
 }
 
 const TRENDING_LIMIT = 100
@@ -105,7 +107,7 @@ type GetUserByHandleArgs = {
 
 type GetUserTracksByHandleArgs = {
   handle: string
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   sort?: 'date' | 'plays'
   offset?: number
   limit?: number
@@ -113,7 +115,7 @@ type GetUserTracksByHandleArgs = {
 
 type GetProfileListArgs = {
   profileUserId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   limit?: number
   offset?: number
 }
@@ -126,18 +128,37 @@ type GetTopArtistGenresArgs = {
 
 type GetUserRepostsByHandleArgs = {
   handle: string
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   offset?: number
   limit?: number
 }
 
 type GetPlaylistArgs = {
   playlistId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
 }
 
 type GetStemsArgs = {
   trackId: ID
+}
+
+type GetRemixesArgs = {
+  trackId: ID
+  currentUserId: Nullable<ID>
+  limit: number
+  offset: number
+}
+
+type RemixesResponse = {
+  tracks: APITrack[]
+  count: number
+}
+
+type GetRemixingArgs = {
+  trackId: ID
+  currentUserId: Nullable<ID>
+  limit: number
+  offset: number
 }
 
 type InitializationState =
@@ -377,6 +398,52 @@ class AudiusAPIClient {
       .map(adapter.makeStemTrack)
       .filter(removeNullable)
     return adapted
+  }
+
+  async getRemixes({ trackId, limit, offset, currentUserId }: GetRemixesArgs) {
+    this._assertInitialized()
+    const encodedTrackId = this._encodeOrThrow(trackId)
+    const encodedUserId = encodeHashId(currentUserId)
+    const params = {
+      userId: encodedUserId ?? undefined,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.remixes(encodedTrackId),
+      params
+    )
+    const remixesResponse: APIResponse<RemixesResponse> = await this._getResponse(
+      endpoint
+    )
+
+    const tracks = remixesResponse.data.tracks.map(adapter.makeTrack)
+    return { count: remixesResponse.data.count, tracks }
+  }
+
+  async getRemixing({
+    trackId,
+    limit,
+    offset,
+    currentUserId
+  }: GetRemixingArgs) {
+    this._assertInitialized()
+    const encodedTrackId = this._encodeOrThrow(trackId)
+    const encodedUserId = encodeHashId(currentUserId)
+    const params = {
+      userId: encodedUserId ?? undefined,
+      limit,
+      offset
+    }
+    const endpoint = this._constructUrl(
+      ENDPOINT_MAP.remixing(encodedTrackId),
+      params
+    )
+    const remixingResponse: APIResponse<APITrack[]> = await this._getResponse(
+      endpoint
+    )
+    const tracks = remixingResponse.data.map(adapter.makeTrack)
+    return tracks
   }
 
   async getUserByHandle({ handle, currentUserId }: GetUserByHandleArgs) {

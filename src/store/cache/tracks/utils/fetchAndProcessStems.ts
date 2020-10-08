@@ -23,10 +23,6 @@ export function* fetchAndProcessStems(trackId: ID) {
       trackId
     }
   )
-  console.log({ stems })
-  // const stems: Array<StemUserTrack> = yield call(AudiusBackend.getStems, {
-  //   trackId
-  // })
 
   if (stems.length) {
     yield call(processAndCacheTracks, stems)
