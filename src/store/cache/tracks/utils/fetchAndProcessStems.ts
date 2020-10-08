@@ -37,7 +37,6 @@ export function* fetchAndProcessStems(trackId: ID) {
     category: StemCategory[s.stem_of.category]
   }))
 
-  console.log({ stemsUpdate })
   yield put(
     cacheActions.update(Kind.TRACKS, [
       {

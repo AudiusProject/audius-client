@@ -212,7 +212,6 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
   const [id, parentId, ownerId] = [stem.id, stem.parent_id, stem.user_id].map(
     decodeHashId
   )
-  console.log({ id, parentId, ownerId })
   if (!(id && parentId && ownerId)) return undefined
 
   return {

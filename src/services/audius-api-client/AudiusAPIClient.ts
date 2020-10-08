@@ -43,7 +43,7 @@ const TRENDING_LIMIT = 100
 
 export type GetTrackArgs = {
   id: ID
-  currentUserId?: ID | null
+  currentUserId?: Nullable<ID>
   unlistedArgs?: {
     urlTitle: string
     handle: string
@@ -54,55 +54,55 @@ type GetTrendingArgs = {
   timeRange?: TimeRange
   offset?: number
   limit?: number
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   genre?: string
 }
 
 type GetFollowingArgs = {
   profileUserId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   offset?: number
   limit?: number
 }
 
 type GetFollowersArgs = {
   profileUserId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   offset?: number
   limit?: number
 }
 
 type GetTrackRepostUsersArgs = {
   trackId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   limit?: number
   offset?: number
 }
 
 type GetTrackFavoriteUsersArgs = {
   trackId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   limit?: number
   offset?: number
 }
 
 type GetPlaylistRepostUsersArgs = {
   playlistId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   limit?: number
   offset?: number
 }
 
 type GetPlaylistFavoriteUsersArgs = {
   playlistId: ID
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
   limit?: number
   offset?: number
 }
 
 type GetUserByHandleArgs = {
   handle: string
-  currentUserId: ID | null
+  currentUserId: Nullable<ID>
 }
 
 type GetUserTracksByHandleArgs = {
@@ -668,9 +668,6 @@ class AudiusAPIClient {
   }
 }
 
-// const instance = new AudiusAPIClient()
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'http://docker.for.mac.localhost:5000'
-})
+const instance = new AudiusAPIClient()
 
 export default instance
