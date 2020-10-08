@@ -33,10 +33,10 @@ const ENDPOINT_MAP = {
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
-  track: (trackId: OpaqueID) => `/tracks/${trackId}`,
-  stems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
-  remixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
-  remixing: (trackId: OpaqueID) => `/tracks/${trackId}/remixing`
+  getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
+  getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
+  getRemixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
+  getRemixing: (trackId: OpaqueID) => `/tracks/${trackId}/remixing`
 }
 
 const TRENDING_LIMIT = 100
@@ -379,7 +379,7 @@ class AudiusAPIClient {
     }
 
     const endpoint = this._constructUrl(
-      ENDPOINT_MAP.track(encodedTrackId),
+      ENDPOINT_MAP.getTrack(encodedTrackId),
       args
     )
     const trackResponse: APIResponse<APITrack> = await this._getResponse(
@@ -392,7 +392,7 @@ class AudiusAPIClient {
   async getStems({ trackId }: GetStemsArgs): Promise<StemTrackMetadata[]> {
     this._assertInitialized()
     const encodedTrackId = this._encodeOrThrow(trackId)
-    const endpoint = this._constructUrl(ENDPOINT_MAP.stems(encodedTrackId))
+    const endpoint = this._constructUrl(ENDPOINT_MAP.getStems(encodedTrackId))
     const response: APIResponse<APIStem[]> = await this._getResponse(endpoint)
     const adapted = response.data
       .map(adapter.makeStemTrack)
@@ -410,7 +410,7 @@ class AudiusAPIClient {
       offset
     }
     const endpoint = this._constructUrl(
-      ENDPOINT_MAP.remixes(encodedTrackId),
+      ENDPOINT_MAP.getRemixes(encodedTrackId),
       params
     )
     const remixesResponse: APIResponse<RemixesResponse> = await this._getResponse(
@@ -436,7 +436,7 @@ class AudiusAPIClient {
       offset
     }
     const endpoint = this._constructUrl(
-      ENDPOINT_MAP.remixing(encodedTrackId),
+      ENDPOINT_MAP.getRemixing(encodedTrackId),
       params
     )
     const remixingResponse: APIResponse<APITrack[]> = await this._getResponse(

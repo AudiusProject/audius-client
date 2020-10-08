@@ -240,20 +240,16 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     repost_count: 0,
     save_count: 0,
     tags: null,
-    title: '', // TODO: do we need this field?
+    title: '',
     track_segments: [],
     cover_art: null,
     cover_art_sizes: null,
     is_unlisted: false,
-
-    // Optional Fields
     stem_of: {
       parent_track_id: parentId,
       category: stem.category
     },
     remix_of: null,
-
-    // Added fields
     duration: 0,
     updated_at: ''
   }
