@@ -32,14 +32,14 @@ const combineLists = (
 }
 
 type ProcessSearchResultsArgs = {
-  tracks?: Array<UserTrackMetadata>
-  albums?: Array<UserCollectionMetadata>
-  playlists?: Array<UserCollectionMetadata>
-  users?: Array<UserMetadata>
-  saved_tracks?: Array<UserTrackMetadata>
-  saved_albums?: Array<UserCollectionMetadata>
-  saved_playlists?: Array<UserCollectionMetadata>
-  followed_users?: Array<UserMetadata>
+  tracks?: UserTrackMetadata[]
+  albums?: UserCollectionMetadata[]
+  playlists?: UserCollectionMetadata[]
+  users?: UserMetadata[]
+  saved_tracks?: UserTrackMetadata[]
+  saved_albums?: UserCollectionMetadata[]
+  saved_playlists?: UserCollectionMetadata[]
+  followed_users?: UserMetadata[]
   searchText?: string | null
 }
 

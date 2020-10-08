@@ -13,7 +13,9 @@ import {
   APITrack,
   APIPlaylist,
   APIUser,
-  APIStem
+  APIStem,
+  APIResponse,
+  APISearch
 } from './types'
 
 export const makeUser = (user: APIUser): UserMetadata | undefined => {
@@ -249,5 +251,37 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     remix_of: null,
     duration: 0,
     updated_at: ''
+  }
+}
+
+export const adaptSearchResponse = (searchResponse: APIResponse<APISearch>) => {
+  return {
+    tracks:
+      searchResponse.data.tracks?.map(makeTrack).filter(removeNullable) ??
+      undefined,
+    saved_tracks:
+      searchResponse.data.saved_tracks?.map(makeTrack).filter(removeNullable) ??
+      undefined,
+    users:
+      searchResponse.data.users?.map(makeUser).filter(removeNullable) ??
+      undefined,
+    followed_users:
+      searchResponse.data.followed_users
+        ?.map(makeUser)
+        .filter(removeNullable) ?? undefined,
+    playlists:
+      searchResponse.data.playlists?.map(makePlaylist).filter(removeNullable) ??
+      undefined,
+    saved_playlists:
+      searchResponse.data.saved_playlists
+        ?.map(makePlaylist)
+        .filter(removeNullable) ?? undefined,
+    albums:
+      searchResponse.data.albums?.map(makePlaylist).filter(removeNullable) ??
+      undefined,
+    saved_albums:
+      searchResponse.data.saved_albums
+        ?.map(makePlaylist)
+        .filter(removeNullable) ?? undefined
   }
 }
