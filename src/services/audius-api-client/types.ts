@@ -149,6 +149,17 @@ export type APIActivity = { timestamp: string } & (
   | { item_type: 'playlist'; item: APIPlaylist }
 )
 
+export type APISearch = {
+  users?: APIUser[]
+  followed_users?: APIUser[]
+  tracks?: APITrack[]
+  saved_tracks?: APITrack[]
+  playlists?: any[]
+  saved_playlists?: any[]
+  albums?: any[]
+  saved_albums?: any[]
+}
+
 export type APIResponse<T> = {
   data: T
 }

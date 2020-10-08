@@ -84,11 +84,11 @@ export const makeTrack = (track: APITrack): UserTrackMetadata | undefined => {
     return undefined
   }
 
-  const saves = track.followee_favorites
-    .map(makeFavorite)
-    .filter(removeNullable)
+  const saves =
+    track.followee_favorites?.map(makeFavorite).filter(removeNullable) ?? []
 
-  const reposts = track.followee_reposts.map(makeRepost).filter(removeNullable)
+  const reposts =
+    track.followee_reposts?.map(makeRepost).filter(removeNullable) ?? []
 
   const remixes =
     track.remix_of.tracks?.map(makeRemix).filter(removeNullable) ?? []
@@ -139,13 +139,11 @@ export const makePlaylist = (
     return undefined
   }
 
-  const saves = playlist.followee_favorites
-    .map(makeFavorite)
-    .filter(removeNullable)
+  const saves =
+    playlist.followee_favorites?.map(makeFavorite).filter(removeNullable) ?? []
 
-  const reposts = playlist.followee_reposts
-    .map(makeRepost)
-    .filter(removeNullable)
+  const reposts =
+    playlist.followee_reposts?.map(makeRepost).filter(removeNullable) ?? []
 
   const playlistContents = {
     track_ids: playlist.added_timestamps
@@ -162,9 +160,8 @@ export const makePlaylist = (
       .filter(removeNullable)
   }
 
-  const tracks = playlist.tracks
-    .map(track => makeTrack(track))
-    .filter(removeNullable)
+  const tracks =
+    playlist.tracks?.map(track => makeTrack(track)).filter(removeNullable) ?? []
 
   const marshalled = {
     ...playlist,
