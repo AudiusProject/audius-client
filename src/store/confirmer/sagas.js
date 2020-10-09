@@ -59,7 +59,7 @@ export function* pollTrack(
           return apiClient.getTrack(args)
         } catch (e) {
           // TODO: for now we treat all errors from DP
-          // here as cause to try, we should just
+          // here as cause to retry, we should just
           // retry for 404s
           return null
         }
