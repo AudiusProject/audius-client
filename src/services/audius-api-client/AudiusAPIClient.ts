@@ -208,9 +208,12 @@ class AudiusAPIClient {
     }
 
     const endpoint = this._constructUrl(ENDPOINT_MAP.trending, params)
-    const trendingResponse: APIResponse<APITrack[]> = await this._getResponse(
-      endpoint
-    )
+    const trendingResponse: Nullable<APIResponse<
+      APITrack[]
+    >> = await this._getResponse(endpoint)
+
+    if (!trendingResponse) return []
+
     const adapted = trendingResponse.data
       .map(adapter.makeTrack)
       .filter(removeNullable)
@@ -235,9 +238,10 @@ class AudiusAPIClient {
       ENDPOINT_MAP.following(encodedProfileUserId),
       params
     )
-    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const followingResponse: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+    if (!followingResponse) return []
     const adapted = followingResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -262,9 +266,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.followers(encodedProfileUserId),
       params
     )
-    const followersResponse: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const followersResponse: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+
+    if (!followersResponse) return []
+
     const adapted = followersResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -289,9 +296,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.trackRepostUsers(encodedTrackId),
       params
     )
-    const repostUsers: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const repostUsers: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+
+    if (!repostUsers) return []
+
     const adapted = repostUsers.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -316,9 +326,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.trackFavoriteUsers(encodedTrackId),
       params
     )
-    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const followingResponse: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+
+    if (!followingResponse) return []
+
     const adapted = followingResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -343,9 +356,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.playlistRepostUsers(encodedPlaylistId),
       params
     )
-    const repostUsers: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const repostUsers: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+
+    if (!repostUsers) return []
+
     const adapted = repostUsers.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -370,9 +386,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.playlistFavoriteUsers(encodedPlaylistId),
       params
     )
-    const followingResponse: APIResponse<APIUser[]> = await this._getResponse(
-      endpoint
-    )
+    const followingResponse: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(endpoint)
+
+    if (!followingResponse) return []
+
     const adapted = followingResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -396,9 +415,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.getTrack(encodedTrackId),
       args
     )
-    const trackResponse: APIResponse<APITrack> = await this._getResponse(
-      endpoint
-    )
+    const trackResponse: Nullable<APIResponse<
+      APITrack
+    >> = await this._getResponse(endpoint)
+
+    if (!trackResponse) return null
+
     const adapted = adapter.makeTrack(trackResponse.data)
     return adapted
   }
@@ -407,7 +429,12 @@ class AudiusAPIClient {
     this._assertInitialized()
     const encodedTrackId = this._encodeOrThrow(trackId)
     const endpoint = this._constructUrl(ENDPOINT_MAP.getStems(encodedTrackId))
-    const response: APIResponse<APIStem[]> = await this._getResponse(endpoint)
+    const response: Nullable<APIResponse<APIStem[]>> = await this._getResponse(
+      endpoint
+    )
+
+    if (!response) return []
+
     const adapted = response.data
       .map(adapter.makeStemTrack)
       .filter(removeNullable)
@@ -427,9 +454,11 @@ class AudiusAPIClient {
       ENDPOINT_MAP.getRemixes(encodedTrackId),
       params
     )
-    const remixesResponse: APIResponse<RemixesResponse> = await this._getResponse(
-      endpoint
-    )
+    const remixesResponse: Nullable<APIResponse<
+      RemixesResponse
+    >> = await this._getResponse(endpoint)
+
+    if (!remixesResponse) return []
 
     const tracks = remixesResponse.data.tracks.map(adapter.makeTrack)
     return { count: remixesResponse.data.count, tracks }
@@ -453,9 +482,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.getRemixing(encodedTrackId),
       params
     )
-    const remixingResponse: APIResponse<APITrack[]> = await this._getResponse(
-      endpoint
-    )
+    const remixingResponse: Nullable<APIResponse<
+      APITrack[]
+    >> = await this._getResponse(endpoint)
+
+    if (!remixingResponse) return []
+
     const tracks = remixingResponse.data.map(adapter.makeTrack)
     return tracks
   }
@@ -471,7 +503,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.userByHandle(handle),
       params
     )
-    const response: APIResponse<APIUser[]> = await this._getResponse(endpoint)
+    const response: Nullable<APIResponse<APIUser[]>> = await this._getResponse(
+      endpoint
+    )
+
+    if (!response) return []
+
     const adapted = response.data.map(adapter.makeUser).filter(removeNullable)
     return adapted
   }
@@ -496,7 +533,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.userTracksByHandle(handle),
       params
     )
-    const response: APIResponse<APITrack[]> = await this._getResponse(endpoint)
+    const response: Nullable<APIResponse<APITrack[]>> = await this._getResponse(
+      endpoint
+    )
+
+    if (!response) return []
+
     const adapted = response.data.map(adapter.makeTrack).filter(removeNullable)
     return adapted
   }
@@ -521,9 +563,12 @@ class AudiusAPIClient {
       params
     )
 
-    const response: APIResponse<APIActivity[]> = await this._getResponse(
-      endpoint
-    )
+    const response: Nullable<APIResponse<
+      APIActivity[]
+    >> = await this._getResponse(endpoint)
+
+    if (!response) return []
+
     const adapted = response.data.map(({ item, ...props }) => ({
       timestamp: props.timestamp,
       track: adapter.makeTrack(item as APITrack)
@@ -549,9 +594,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.userRepostsByHandle(handle),
       params
     )
-    const response: APIResponse<APIActivity[]> = await this._getResponse(
-      endpoint
-    )
+    const response: Nullable<APIResponse<
+      APIActivity[]
+    >> = await this._getResponse(endpoint)
+
+    if (!response) return []
+
     const adapted = response.data
       .map(adapter.makeActivity)
       .filter(removeNullable)
@@ -568,9 +616,12 @@ class AudiusAPIClient {
     }
 
     const endpoint = this._constructUrl(ENDPOINT_MAP.topGenreUsers, params)
-    const favoritedTrackResponse: APIResponse<
+    const favoritedTrackResponse: Nullable<APIResponse<
       APIUser[]
-    > = await this._getResponse(endpoint)
+    >> = await this._getResponse(endpoint)
+
+    if (!favoritedTrackResponse) return []
+
     const adapted = favoritedTrackResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
@@ -589,9 +640,12 @@ class AudiusAPIClient {
       ENDPOINT_MAP.getPlaylist(encodedPlaylistId),
       params
     )
-    const response: APIResponse<APIPlaylist[]> = await this._getResponse(
-      endpoint
-    )
+    const response: Nullable<APIResponse<
+      APIPlaylist[]
+    >> = await this._getResponse(endpoint)
+
+    if (!response) return []
+
     const adapted = response.data
       .map(adapter.makePlaylist)
       .filter(removeNullable)
@@ -689,9 +743,12 @@ class AudiusAPIClient {
       throw new Error('AudiusAPIClient must be initialized before use')
   }
 
-  async _getResponse<T>(resource: string): Promise<T> {
+  async _getResponse<T>(resource: string): Promise<Nullable<T>> {
     const response = await fetch(resource)
-    if (!response.ok) throw new Error(response.statusText)
+    if (!response.ok) {
+      if (response.status === 404) return null
+      throw new Error(response.statusText)
+    }
     return response.json()
   }
 
