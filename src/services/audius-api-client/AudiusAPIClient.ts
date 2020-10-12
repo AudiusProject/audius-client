@@ -182,6 +182,19 @@ type InitializationState =
       endpoint: string
     }
 
+const emptySearchResponse: APIResponse<APISearch> = {
+  data: {
+    users: [],
+    followed_users: [],
+    tracks: [],
+    saved_tracks: [],
+    playlists: [],
+    saved_playlists: [],
+    saved_albums: [],
+    albums: []
+  }
+}
+
 class AudiusAPIClient {
   initializationState: InitializationState = { state: 'uninitialized ' }
   overrideEndpoint?: string
@@ -671,9 +684,9 @@ class AudiusAPIClient {
 
     const endpoint = this._constructUrl(ENDPOINT_MAP.searchFull, params)
 
-    const searchResponse: APIResponse<APISearch> = await this._getResponse(
-      endpoint
-    )
+    const searchResponse: Nullable<APIResponse<APISearch>> =
+      (await this._getResponse(endpoint)) ?? emptySearchResponse
+
     const adapted = adapter.adaptSearchResponse(searchResponse)
     return processSearchResults({ searchText: query, ...adapted })
   }
@@ -697,9 +710,8 @@ class AudiusAPIClient {
 
     const endpoint = this._constructUrl(ENDPOINT_MAP.searchAutocomplete, params)
 
-    const searchResponse: APIResponse<APISearchAutocomplete> = await this._getResponse(
-      endpoint
-    )
+    const searchResponse: Nullable<APIResponse<APISearchAutocomplete>> =
+      (await this._getResponse(endpoint)) ?? emptySearchResponse
     const adapted = adapter.adaptSearchAutocompleteResponse(searchResponse)
     return processSearchResults({ searchText: query, ...adapted })
   }
