@@ -40,7 +40,8 @@
   "peerDependencies": {
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react-dom": "^16.9.0",
+    "bn.js": ">= 4.0.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^5.3.19",
@@ -50,6 +51,7 @@
     "@storybook/addons": "^5.3.19",
     "@storybook/react": "^5.3.19",
     "@svgr/rollup": "^4.3.2",
+    "@types/bn.js": "^4.11.6",
     "@types/classnames": "^2.2.9",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.161",
