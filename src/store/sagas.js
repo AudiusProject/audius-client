@@ -33,6 +33,7 @@ import firstUploadModalSagas from 'containers/first-upload-modal/store/sagas'
 import addToPlaylistSagas from 'containers/add-to-playlist/store/sagas'
 import remixSettingsModalSagas from 'containers/remix-settings-modal/store/sagas'
 import remoteConfigSagas from 'containers/remote-config/sagas'
+import tokenDashboardSagas from 'containers/token-dashboard/sagas'
 
 import analyticsSagas from 'store/analytics/sagas'
 import accountSagas from 'store/account/sagas'
@@ -45,6 +46,7 @@ import cookieBannerSagas from 'store/application/ui/cookieBanner/sagas'
 
 import queueSagas from 'store/queue/sagas'
 import playerSagas from 'store/player/sagas'
+import walletSagas from 'store/wallet/sagas'
 
 import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
@@ -100,6 +102,9 @@ export default function* rootSaga() {
     playerSagas(),
     queueSagas(),
 
+    // Wallet
+    walletSagas(),
+
     // Application
     scrollLockSagas(),
     themeSagas(),
@@ -116,6 +121,7 @@ export default function* rootSaga() {
     stemUploadSagas(),
     remixesSagas(),
     deletedSagas(),
+    tokenDashboardSagas(),
 
     // Remote config
     remoteConfigSagas(),

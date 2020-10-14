@@ -44,6 +44,7 @@ import nowPlaying from 'containers/now-playing/store/reducers'
 import firstUploadModal from 'containers/first-upload-modal/store/slice'
 import remixSettingsModal from 'containers/remix-settings-modal/store/slice'
 import remoteConfig from 'containers/remote-config/slice'
+import tokenDashboard from 'containers/token-dashboard/slice'
 
 import account from 'store/account/reducer'
 import tracksReducer from 'store/cache/tracks/reducer'
@@ -65,6 +66,8 @@ import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import stemsUpload from 'store/application/ui/stemsUpload/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
+
+import wallet from 'store/wallet/slice'
 
 const createRootReducer = routeHistory =>
   combineReducers({
@@ -107,6 +110,9 @@ const createRootReducer = routeHistory =>
     // Remote config/flags
     remoteConfig,
 
+    // Wallet
+    wallet,
+
     application: combineReducers({
       ui: combineReducers({
         createPlaylistModal,
@@ -141,7 +147,8 @@ const createRootReducer = routeHistory =>
         addToPlaylist,
         remixes,
         deleted,
-        nowPlaying
+        nowPlaying,
+        tokenDashboard
       })
     })
   })
