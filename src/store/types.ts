@@ -27,6 +27,7 @@ import PlayerReducer from 'store/player/slice'
 import QueueReducer from 'store/queue/slice'
 import { PasswordResetState } from 'containers/password-reset/store/types'
 import AccountReducer from 'store/account/reducer'
+import tokenDashboard from 'store/token-dashboard/slice'
 
 import Collection from 'models/Collection'
 import Cache from 'models/common/Cache'
@@ -60,6 +61,8 @@ import StemsUploadReducer from 'store/application/ui/stemsUpload/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import ServiceSelectionReducer from 'containers/service-selection/store/slice'
 
+import wallet from 'store/wallet/slice'
+
 export enum Kind {
   TRACKS = 'TRACKS',
   COLLECTIONS = 'COLLECTIONS',
@@ -83,6 +86,9 @@ export type AppState = {
   // UI
   dragndrop: DragNDropState
   serviceSelection: ReturnType<typeof ServiceSelectionReducer>
+
+  // Wallet
+  wallet: ReturnType<typeof wallet>
 
   // Global
   application: {
@@ -120,6 +126,7 @@ export type AppState = {
       exploreCollections: ExploreCollectionsState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
+      tokenDashboard: ReturnType<typeof tokenDashboard>
     }
   }
 

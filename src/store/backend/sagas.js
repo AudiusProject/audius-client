@@ -20,6 +20,7 @@ import { hydrateStoreFromCache } from 'store/cache/sagas'
 import { getIsReadOnlyClient } from 'utils/clientUtil'
 import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecycle'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getBalance, getClaim } from 'store/wallet/slice'
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const REACHABILITY_TIMEOUT_MS = 8 * 1000
@@ -75,7 +76,11 @@ export function* setupBackend() {
     console.info('Reconnected')
   }
 
+  // Init APICLient
   yield call(() => apiClient.init())
+
+  // Fetch wallet claim + balance
+  yield all([put(getClaim()), put(getBalance())])
 
   if (getIsReadOnlyClient()) {
     // Read only clients do a paired down version of libs init
