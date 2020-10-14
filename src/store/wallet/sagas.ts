@@ -37,7 +37,7 @@ function* claimAsync() {
   const balance: ReturnType<typeof getClaimableBalance> = yield select(
     getClaimableBalance
   )
-  if (!balance || !balance.gt(new BN(0))) return
+  if (!balance || balance.isZero()) return
   try {
     yield call(() => walletClient.claim())
     yield all([

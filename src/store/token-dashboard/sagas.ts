@@ -46,7 +46,7 @@ function* claim() {
   const claimableBalance: ReturnType<typeof getClaimableBalance> = yield select(
     getClaimableBalance
   )
-  if (!claimableBalance) return
+  if (!claimableBalance || claimableBalance.isZero()) return
 
   const claimingState: ModalState = {
     stage: 'CLAIM',

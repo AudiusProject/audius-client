@@ -44,7 +44,6 @@ import nowPlaying from 'containers/now-playing/store/reducers'
 import firstUploadModal from 'containers/first-upload-modal/store/slice'
 import remixSettingsModal from 'containers/remix-settings-modal/store/slice'
 import remoteConfig from 'containers/remote-config/slice'
-import tokenDashboard from 'containers/token-dashboard/slice'
 
 import account from 'store/account/reducer'
 import tracksReducer from 'store/cache/tracks/reducer'
@@ -53,6 +52,7 @@ import usersReducer from 'store/cache/users/reducer'
 
 import queue from 'store/queue/slice'
 import player from 'store/player/slice'
+import tokenDashboard from 'store/token-dashboard/slice'
 
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import browserPushPermissionConfirmation from 'store/application/ui/browserPushPermissionConfirmation/reducer'

@@ -33,7 +33,6 @@ import firstUploadModalSagas from 'containers/first-upload-modal/store/sagas'
 import addToPlaylistSagas from 'containers/add-to-playlist/store/sagas'
 import remixSettingsModalSagas from 'containers/remix-settings-modal/store/sagas'
 import remoteConfigSagas from 'containers/remote-config/sagas'
-import tokenDashboardSagas from 'containers/token-dashboard/sagas'
 
 import analyticsSagas from 'store/analytics/sagas'
 import accountSagas from 'store/account/sagas'
@@ -53,6 +52,8 @@ import themeSagas from 'store/application/ui/theme/sagas'
 import reachabilitySagas from 'store/reachability/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
+
+import tokenDashboardSagas from 'store/token-dashboard/sagas'
 
 import errorSagas from 'store/errors/sagas'
 

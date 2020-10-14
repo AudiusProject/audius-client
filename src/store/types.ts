@@ -27,7 +27,7 @@ import PlayerReducer from 'store/player/slice'
 import QueueReducer from 'store/queue/slice'
 import { PasswordResetState } from 'containers/password-reset/store/types'
 import AccountReducer from 'store/account/reducer'
-import tokenDashboard from 'containers/token-dashboard/slice'
+import tokenDashboard from 'store/token-dashboard/slice'
 
 import Collection from 'models/Collection'
 import Cache from 'models/common/Cache'
