@@ -212,5 +212,8 @@
     "storybook-addon-smart-knobs": "^4.1.0",
     "terser": "^3.14.1",
     "typescript": "^3.6.3"
+  },
+  "peerDependencies": {
+    "bn.js": ">= 4.0.0"
   }
 }
