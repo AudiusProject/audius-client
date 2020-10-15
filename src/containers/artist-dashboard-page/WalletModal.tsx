@@ -142,7 +142,6 @@ const ModalContent = ({
           if (!amountPendingTransfer) return null
           ret = (
             <SendInputConfirmation
-              balance={balance}
               amountToTransfer={amountPendingTransfer.amount}
               recipientAddress={amountPendingTransfer.recipientWallet}
               onSend={onConfirmSend}
