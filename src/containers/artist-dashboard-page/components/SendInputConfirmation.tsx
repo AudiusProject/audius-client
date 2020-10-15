@@ -25,7 +25,7 @@ type SendInputConfirmationProps = {
   onSend: () => void
 }
 
-const AddressWithArrow = ({ address }: { address: WalletAddress }) => {
+export const AddressWithArrow = ({ address }: { address: WalletAddress }) => {
   return (
     <div className={styles.addressWrapper}>
       <IconArrow className={styles.arrow} />
