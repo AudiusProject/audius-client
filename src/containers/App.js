@@ -466,7 +466,7 @@ class App extends Component {
           />
         ) : null}
         {this.props.showCookieBanner ? <CookieBanner /> : null}
-        <Notice />
+        <Notice shouldPadTop={showBanner} />
         <Navigator
           className={cn({
             [styles.bannerMargin]: showBanner && client !== Client.ELECTRON

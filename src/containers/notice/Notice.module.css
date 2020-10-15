@@ -18,6 +18,10 @@
   transition-delay: 3s;
 }
 
+.notice.shouldPadTop {
+  top: 48px;
+}
+
 .content {
   pointer-events: all;
   margin: 0 20px;

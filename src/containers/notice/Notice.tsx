@@ -18,7 +18,7 @@ const DegradedFunctionalityNotice = () => (
   </>
 )
 
-const Notice = () => {
+const Notice = ({ shouldPadTop }: { shouldPadTop: boolean }) => {
   const [isHidden, setIsHidden] = useState(false)
   const hide = useCallback(() => setIsHidden(true), [setIsHidden])
 
@@ -33,7 +33,8 @@ const Notice = () => {
   return (
     <div
       className={cn(styles.notice, {
-        [styles.show]: !!content && !isHidden
+        [styles.show]: !!content && !isHidden,
+        [styles.shouldPadTop]: shouldPadTop
       })}
     >
       <div className={styles.content}>
