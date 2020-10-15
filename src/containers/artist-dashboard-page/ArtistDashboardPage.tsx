@@ -29,6 +29,7 @@ import User from 'models/User'
 import { withClassNullGuard } from 'utils/withNullGuard'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import { ClaimTile, ExplainerTile, WalletTile } from './Tiles'
+import WalletModal from './WalletModal'
 
 const TotalPlaysChart = lazyWithPreload(() =>
   import('./components/TotalPlaysChart')
@@ -372,6 +373,7 @@ export class ArtistDashboardPage extends Component<
         contentClassName={styles.pageContainer}
         header={header}
       >
+        <WalletModal />
         {!account || status === Status.LOADING ? (
           <Spin size='large' className={styles.spin} />
         ) : (

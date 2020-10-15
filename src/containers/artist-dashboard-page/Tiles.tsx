@@ -1,6 +1,23 @@
 import React from 'react'
 import styles from './Tiles.module.css'
 import cn from 'classnames'
+import { useSelector } from 'utils/reducer'
+import { getAccountBalance, getClaimableBalance } from 'store/wallet/slice'
+import BN from 'bn.js'
+import { Button } from '@audius/stems'
+import { useDispatch } from 'react-redux'
+import {
+  pressClaim,
+  pressReceive,
+  pressSend
+} from 'store/token-dashboard/slice'
+
+const messages = {
+  claimCTA: 'CLAIM $AUDIO',
+  balance: '$AUDIO BALANCE',
+  receiveLabel: 'RECEIVE',
+  sendLabel: 'SEND'
+}
 
 type TileProps = {
   className?: string
@@ -14,17 +31,39 @@ const Tile = ({ className, children }: TileProps) => {
 }
 
 export const ClaimTile = ({ className }: { className?: string }) => {
+  const unclaimedAudio = useSelector(getClaimableBalance) ?? new BN(0)
+
+  const dispatch = useDispatch()
+  const onClick = () => dispatch(pressClaim())
+
   return (
     <Tile className={cn([styles.claimTile, className])}>
-      <div> Claimy boi</div>
+      <>
+        <div> {unclaimedAudio.toString()}</div>
+        <Button text={messages.claimCTA} onClick={onClick} />
+      </>
     </Tile>
   )
 }
 
 export const WalletTile = ({ className }: { className?: string }) => {
+  const balance = useSelector(getAccountBalance) ?? new BN(0)
+
+  const dispatch = useDispatch()
+
+  const onClickReceive = () => dispatch(pressReceive())
+  const onClickSend = () => dispatch(pressSend())
+
   return (
     <Tile className={cn([styles.walletTile, className])}>
-      <div> WalletBoi boi</div>
+      <>
+        <div>{balance.toString()}</div>
+        {messages.balance}
+        <div>
+          <Button text={messages.receiveLabel} onClick={onClickReceive} />
+          <Button text={messages.sendLabel} onClick={onClickSend} />
+        </div>
+      </>
     </Tile>
   )
 }
