@@ -13,7 +13,7 @@ const messages = {
   warningSubtitle: 'If you send $AUDIO to the wrong address it will be lost.',
   addressPlaceholder: '0xC7EF9651259197aA26544Af724441a46e491c12c',
   sendAudio: 'SEND $AUDIO',
-  insufficientBalance: 'Account does not have enoguh $AUDIO',
+  insufficientBalance: 'Account does not have enough $AUDIO',
   amountRequired: 'Amount is a required field',
   amountMalformed: 'Amount must be a valid number',
   addressMalformed: 'Please enter a valid address',

@@ -18,6 +18,7 @@ import {
   WalletAddress
 } from 'store/wallet/slice'
 import { useSelector } from 'utils/reducer'
+import { Nullable } from 'utils/typeUtils'
 import ClaimingModalBody from './components/ClaimingModalBody'
 import ClaimSuccessBody from './components/ClaimSuccessBody'
 import ReceiveBody from './components/ReceiveBody'
@@ -95,7 +96,9 @@ const ModalContent = ({
 
   if (!modalState || !account) return null
 
-  let ret: JSX.Element | null = null
+  // This silly `ret` dance is to satisfy
+  // TS's no-fallthrough rule...
+  let ret: Nullable<JSX.Element> = null
 
   switch (modalState.stage) {
     case 'CLAIM': {

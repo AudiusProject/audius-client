@@ -11,7 +11,7 @@ type ClaimingModalBodyProps = {
 
 const messages = {
   message1:
-    "Please don't go anywhere. This may takea couple minutes, but it will be worth it.",
+    "Please don't go anywhere. This may take a couple minutes, but it will be worth it.",
   message2:
     "You now own a small part of Audius. You can earn more just by using the platform and contributing to it's success!"
 }
