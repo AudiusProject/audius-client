@@ -443,7 +443,6 @@ class App extends Component {
     }
 
     const SwitchComponent = isMobile() ? AnimatedSwitch : Switch
-    console.log('rhere')
 
     return (
       <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
