@@ -22,7 +22,7 @@ function* send() {
   // Set modal state to input
   const inputStage: ModalState = {
     stage: 'SEND',
-    sendingState: {
+    flowState: {
       stage: 'INPUT'
     }
   }
@@ -50,7 +50,7 @@ function* claim() {
 
   const claimingState: ModalState = {
     stage: 'CLAIM',
-    claimState: {
+    flowState: {
       stage: 'CLAIMING'
     }
   }
@@ -71,7 +71,7 @@ function* claim() {
   if (error) {
     const errorState: ModalState = {
       stage: 'CLAIM',
-      claimState: {
+      flowState: {
         stage: 'ERROR',
         error: error.payload.error ?? ''
       }
@@ -83,7 +83,7 @@ function* claim() {
   // Set modal state + new token + claim balances
   const claimedState: ModalState = {
     stage: 'CLAIM',
-    claimState: {
+    flowState: {
       stage: 'SUCCESS'
     }
   }

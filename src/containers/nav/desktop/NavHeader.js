@@ -66,15 +66,13 @@ const NavHeader = ({
           >
             <IconSettings />
           </NavLink>
-          {account.is_creator ? (
-            <NavLink
-              to={DASHBOARD_PAGE}
-              activeClassName='active'
-              className={styles.headerIconWrapper}
-            >
-              <IconDashboard />
-            </NavLink>
-          ) : null}
+          <NavLink
+            to={DASHBOARD_PAGE}
+            activeClassName='active'
+            className={styles.headerIconWrapper}
+          >
+            <IconDashboard />
+          </NavLink>
           <div
             onClick={toggleNotificationPanel}
             className={cn(styles.headerIconWrapper, styles.iconNotification, {
