@@ -10,9 +10,9 @@ import {
   weiToAudio
 } from 'store/wallet/slice'
 import { Nullable } from 'utils/typeUtils'
-import { ModalBodyWrapper } from '../WalletModal'
+import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import styles from './SendInputBody.module.css'
-import DashboardTokenValueInput from './DashboardTokenValueInput'
+import DashboardTokenValueInput from './DashboardTokenValueSlider'
 
 const messages = {
   warningTitle: 'PROCEED WITH CAUTION',
@@ -127,7 +127,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
   return (
     <ModalBodyWrapper>
       <div className={styles.titleContainer}>
-        <div className={styles.title}>{messages.warningTitle}</div>
+        <ModalBodyTitle text={messages.warningTitle} />
         <div className={styles.subtitle}>{messages.warningSubtitle}</div>
       </div>
       <DashboardTokenValueInput min={min} max={max} value={amountToSendBN} />

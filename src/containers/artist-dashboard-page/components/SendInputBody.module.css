@@ -2,15 +2,6 @@
   margin: 24px auto;
 }
 
-.title {
-  font-weight: 800;
-  font-size: 16px;
-  line-height: 24px;
-  text-align: center;
-  color: #9147CC;
-  margin-bottom: 4px;
-}
-
 .subtitle {
   font-weight: 500;
   font-size: 16px;
@@ -58,7 +49,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: start;
+  justify-content: flex-start;
   margin-top: 6px;
   font-weight: var(--font-medium);
   font-size: var(--font-m);

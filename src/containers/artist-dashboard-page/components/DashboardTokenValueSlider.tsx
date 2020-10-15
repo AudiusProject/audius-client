@@ -3,9 +3,9 @@ import BN from 'bn.js'
 import React from 'react'
 import { BNAudio } from 'store/wallet/slice'
 
-import styles from './DashboardTokenValueInput.module.css'
+import styles from './DashboardTokenValueSlider.module.css'
 
-type DashboardTokenValueInputProps = {
+type DashboardTokenValueSliderProps = {
   min: BNAudio
   max: BNAudio
   value: BNAudio
@@ -15,11 +15,11 @@ const MinMaxWrapper = ({ value }: { value: BN }) => {
   return <div className={styles.minMaxWrapper}>{`${value} $AUDIO`}</div>
 }
 
-const DashboardTokenValueInput = ({
+const DashboardTokenValueSlider = ({
   min,
   max,
   value
-}: DashboardTokenValueInputProps) => {
+}: DashboardTokenValueSliderProps) => {
   return (
     <TokenValueSlider
       className={styles.sliderContainer}
@@ -35,4 +35,4 @@ const DashboardTokenValueInput = ({
   )
 }
 
-export default DashboardTokenValueInput
+export default DashboardTokenValueSlider

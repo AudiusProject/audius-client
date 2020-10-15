@@ -75,6 +75,13 @@ const getTitle = (state: ModalState) => {
 const ClaimErrorBody = () => null
 const SentErrorBody = () => null
 
+/**
+ * Common title across modals
+ */
+export const ModalBodyTitle = ({ text }: { text: string }) => {
+  return <div className={styles.title}>{text}</div>
+}
+
 export const ModalBodyWrapper = ({
   children
 }: {
@@ -145,6 +152,7 @@ const ModalContent = ({
               amountToTransfer={amountPendingTransfer.amount}
               recipientAddress={amountPendingTransfer.recipientWallet}
               onSend={onConfirmSend}
+              balance={balance}
             />
           )
           break

@@ -9,3 +9,12 @@
   justify-content: center;
   align-items: center;
 }
+
+.title {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #9147CC;
+  margin-bottom: 4px;
+}
