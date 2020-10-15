@@ -37,7 +37,7 @@ const ETH_REGISTRY_ADDRESS = process.env.REACT_APP_ETH_REGISTRY_ADDRESS
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const ETH_TOKEN_ADDRESS = process.env.REACT_APP_ETH_TOKEN_ADDRESS
 const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
-const COM_STOCK_URL = process.env.REACT_APP_COM_STOCK_URL
+const COM_STOCKURL = process.env.REACT_APP_COMSTOCK_URL
 const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
   process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
 
@@ -455,7 +455,7 @@ class AudiusBackend {
           IDENTITY_SERVICE
         ),
         creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
-        comStockConfig: AudiusLibs.configComStock(COM_STOCK_URL),
+        comStockConfig: AudiusLibs.configComStock(COM_STOCKURL),
         isServer: false
       })
       await audiusLibs.init()
