@@ -363,7 +363,7 @@ export class ArtistDashboardPage extends Component<
 
   render() {
     const { account, status } = this.props
-    const header = <Header primary='Your Artist Dashboard' />
+    const header = <Header primary='Dashboard' />
 
     return (
       <Page

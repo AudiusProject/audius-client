@@ -47,10 +47,10 @@ type SendInputBodyProps = {
   onSend: (balance: StringAudio, destinationAddress: WalletAddress) => void
 }
 
-// TODO: replace the inputs with fancy comma adding inputs :o
-
-// TODO: REGEX for validating destination
-const isValidDestination = (wallet: WalletAddress) => true
+const isValidDestination = (wallet: WalletAddress) => {
+  const libs = window.audiusLibs
+  return libs.web3Manager.web3.utils.isAddress(wallet)
+}
 
 const validateWallet = (wallet: Nullable<string>): Nullable<AddressError> => {
   if (!wallet) return 'EMPTY'
