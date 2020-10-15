@@ -285,14 +285,7 @@ export class ArtistDashboardPage extends Component<
   }
 
   renderCreatorContent() {
-    const {
-      account,
-      goToRoute,
-      listenData,
-      tracks,
-      unlistedTracks,
-      stats
-    } = this.props
+    const { account, listenData, tracks, unlistedTracks, stats } = this.props
     if (!account.is_creator) return null
 
     const { selectedTrack } = this.state
@@ -314,17 +307,6 @@ export class ArtistDashboardPage extends Component<
     const unlistedDataSource = this.formatMetadata(unlistedTracks)
     return (
       <>
-        <div className={styles.sectionContainer}>
-          <ArtistProfile
-            userId={account.user_id}
-            profilePictureSizes={account._profile_picture_sizes}
-            isVerified={account.is_verified}
-            name={account.name}
-            handle={account.handle}
-            onViewProfile={() => goToRoute(profilePage(account.handle))}
-          />
-          {/* <AchievementTile /> */}
-        </div>
         <div className={styles.sectionContainer}>
           <Suspense fallback={<div className={styles.chartFallback} />}>
             <TotalPlaysChart
@@ -362,6 +344,23 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
+  renderProfileSection() {
+    const { account, goToRoute } = this.props
+
+    return (
+      <div className={styles.profileContainer}>
+        <ArtistProfile
+          userId={account.user_id}
+          profilePictureSizes={account._profile_picture_sizes}
+          isVerified={account.is_verified}
+          name={account.name}
+          handle={account.handle}
+          onViewProfile={() => goToRoute(profilePage(account.handle))}
+        />
+      </div>
+    )
+  }
+
   render() {
     const { account, status } = this.props
     const header = <Header primary='Your Artist Dashboard' />
@@ -378,6 +377,7 @@ export class ArtistDashboardPage extends Component<
           <Spin size='large' className={styles.spin} />
         ) : (
           <>
+            {this.renderProfileSection()}
             {this.renderCryptoContent()}
             {this.renderCreatorContent()}
           </>
