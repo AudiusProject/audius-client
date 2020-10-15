@@ -1,6 +1,6 @@
 .amount {
   font-weight: 800;
-  font-size: 32px;
+  font-size: var(--font-3xl);
   line-height: 39px;
 
   background: linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
@@ -9,12 +9,12 @@
 }
 
 .label {
-  font-weight: bold;
-  font-size: 32px;
+  font-weight: var(--font-bold);
+  font-size: var(--font-3xl);
   line-height: 39px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #C2C0CC;
+  color: var(--neutral-light-4);
   margin-left: 8px;
 }
 
