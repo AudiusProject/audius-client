@@ -1,8 +1,8 @@
 import { Button } from '@audius/stems'
-import BN from 'bn.js'
 import React from 'react'
-import { WalletAddress } from 'store/wallet/slice'
+import { BNWei, WalletAddress } from 'store/wallet/slice'
 import { ModalBodyWrapper } from '../WalletModal'
+import DisplayAudio from './DisplayAudio'
 
 const messages = {
   title: "YOU'RE ABOUT TO SEND",
@@ -10,14 +10,12 @@ const messages = {
 }
 
 type SendInputConfirmationProps = {
-  balance: BN
-  amountToTransfer: BN
+  amountToTransfer: BNWei
   recipientAddress: WalletAddress
   onSend: () => void
 }
 
 const SendInputConfirmation = ({
-  balance,
   amountToTransfer,
   recipientAddress,
   onSend
@@ -26,7 +24,8 @@ const SendInputConfirmation = ({
     <ModalBodyWrapper>
       {messages.title}
       {/* ValSlider goes here! */}
-      {`${amountToTransfer.toString()} $AUDIO`}${recipientAddress}
+      <DisplayAudio amount={amountToTransfer} />
+      <div>{recipientAddress}</div>
       <Button text={messages.sendButton} onClick={onSend} />
     </ModalBodyWrapper>
   )

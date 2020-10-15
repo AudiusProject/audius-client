@@ -1,12 +1,13 @@
-import BN from 'bn.js'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import React from 'react'
 import { ModalBodyWrapper } from '../WalletModal'
+import DisplayAudio from './DisplayAudio'
 
 import styles from './ClaimingModalBody.module.css'
+import { BNWei } from 'store/wallet/slice'
 
 type ClaimingModalBodyProps = {
-  balance: BN
+  balance: BNWei
 }
 
 const messages = {
@@ -19,7 +20,7 @@ const messages = {
 const ClaimingModalBody = ({ balance }: ClaimingModalBodyProps) => {
   return (
     <ModalBodyWrapper>
-      {`${balance.toString()} $AUDIO`}
+      <DisplayAudio amount={balance} />
       <LoadingSpinner className={styles.spinner} />
       {messages.message1}
       {messages.message2}
