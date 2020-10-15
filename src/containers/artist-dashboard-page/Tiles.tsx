@@ -1,22 +1,44 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styles from './Tiles.module.css'
 import cn from 'classnames'
 import { useSelector } from 'utils/reducer'
 import { getAccountBalance, getClaimableBalance } from 'store/wallet/slice'
 import BN from 'bn.js'
-import { Button } from '@audius/stems'
+import { Button, ButtonType } from '@audius/stems'
+import Tooltip from 'components/tooltip/Tooltip'
 import { useDispatch } from 'react-redux'
+import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
+import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
+import { ReactComponent as IconDiscord } from 'assets/img/iconDiscord.svg'
+import platformTokenImage from 'assets/img/platformToken@2x.png'
+import featureChartLevel0 from 'assets/img/featureChartLevel0@2x.png'
+import featureChartLevel1 from 'assets/img/featureChartLevel1@2x.png'
 import {
   pressClaim,
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
+import { formatWei, formatAudio } from 'utils/formatUtil'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
+  noClaim:
+    'You earn $AUDIO by using Audius.The more you use Audius, the more $AUDIO you earn.',
   balance: '$AUDIO BALANCE',
   receiveLabel: 'RECEIVE',
-  sendLabel: 'SEND'
+  sendLabel: 'SEND',
+  unclaimed: 'UNCLAIMED $AUDIO',
+  whatIsAudio: 'WHAT IS $AUDIO',
+  whyCare: 'And why should YOU care?',
+  audioDescription:
+    '$AUDIO gives you partial ownership of the Audius platform. Yep, that’s right, Audius is owned by people like you, not major corporations. Holding $AUDIO will also give you access to special features as they are released.',
+  learnMore: 'Learn More',
+  level1: 'LEVEL 1',
+  level1More: '(1 or more $AUDIO)',
+  vip: 'Access to our VIP Discord',
+  vipDiscord: 'Launch The VIP Discord',
+  level2: 'LEVEL 2',
+  tba: 'To Be Announced!'
 }
 
 type TileProps = {
@@ -32,15 +54,34 @@ const Tile = ({ className, children }: TileProps) => {
 
 export const ClaimTile = ({ className }: { className?: string }) => {
   const unclaimedAudio = useSelector(getClaimableBalance) ?? new BN(0)
-
+  const hasNoClaim = !unclaimedAudio || unclaimedAudio.isZero()
   const dispatch = useDispatch()
   const onClick = () => dispatch(pressClaim())
 
   return (
     <Tile className={cn([styles.claimTile, className])}>
       <>
-        <div> {unclaimedAudio.toString()}</div>
-        <Button text={messages.claimCTA} onClick={onClick} />
+        <Tooltip
+          text={formatWei(unclaimedAudio)}
+          disabled={unclaimedAudio.isZero()}
+          className={styles.tooltip}
+          placement={'top'}
+          mouseEnterDelay={0.2}
+        >
+          <div className={styles.claimAmount}>
+            {formatAudio(unclaimedAudio)}
+          </div>
+        </Tooltip>
+        <div className={styles.unclaimed}> {messages.unclaimed}</div>
+        {hasNoClaim ? (
+          <div className={styles.noClaim}>{messages.noClaim}</div>
+        ) : (
+          <Button
+            className={styles.claimBtn}
+            text={messages.claimCTA}
+            onClick={onClick}
+          />
+        )}
       </>
     </Tile>
   )
@@ -48,7 +89,7 @@ export const ClaimTile = ({ className }: { className?: string }) => {
 
 export const WalletTile = ({ className }: { className?: string }) => {
   const balance = useSelector(getAccountBalance) ?? new BN(0)
-
+  const hasBalance = balance && !balance.isZero()
   const dispatch = useDispatch()
 
   const onClickReceive = () => dispatch(pressReceive())
@@ -57,11 +98,37 @@ export const WalletTile = ({ className }: { className?: string }) => {
   return (
     <Tile className={cn([styles.walletTile, className])}>
       <>
-        <div>{balance.toString()}</div>
-        {messages.balance}
+        <Tooltip
+          text={formatWei(balance)}
+          disabled={balance.isZero()}
+          className={styles.tooltip}
+          placement={'top'}
+          mouseEnterDelay={0.2}
+        >
+          <div className={styles.balanceAmount}>{formatAudio(balance)}</div>
+        </Tooltip>
+        <div className={styles.balanceLabel}>{messages.balance}</div>
         <div>
-          <Button text={messages.receiveLabel} onClick={onClickReceive} />
-          <Button text={messages.sendLabel} onClick={onClickSend} />
+          <Button
+            className={cn(styles.balanceBtn, styles.receiveBtn)}
+            text={messages.receiveLabel}
+            textClassName={styles.textClassName}
+            onClick={onClickReceive}
+            leftIcon={<IconReceive className={styles.iconStyle} />}
+            type={ButtonType.GLASS}
+          />
+          <Button
+            className={cn(styles.balanceBtn, {
+              [styles.balanceDisabled]: !hasBalance
+            })}
+            text={messages.sendLabel}
+            isDisabled={!hasBalance}
+            includeHoverAnimations={hasBalance}
+            textClassName={styles.textClassName}
+            onClick={onClickSend}
+            leftIcon={<IconSend className={styles.iconStyle} />}
+            type={ButtonType.GLASS}
+          />
         </div>
       </>
     </Tile>
@@ -69,9 +136,58 @@ export const WalletTile = ({ className }: { className?: string }) => {
 }
 
 export const ExplainerTile = ({ className }: { className?: string }) => {
+  const balance = useSelector(getAccountBalance) ?? new BN(0)
+  const hasAudio = balance && !balance.isZero()
+  const featureChart = hasAudio ? featureChartLevel1 : featureChartLevel0
+  const disabled = { [styles.disabled]: !hasAudio }
+  const onClickVipDiscord = useCallback(() => {
+    alert('todo')
+  }, [])
   return (
     <Tile className={cn([styles.explainerTile, className])}>
-      <div> Explainy boi</div>
+      <>
+        <div className={styles.platformToken}>
+          <img className={styles.platformTokenImage} src={platformTokenImage} />
+        </div>
+        <div className={styles.whatIsAudioContainer}>
+          <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>
+          <div className={styles.whyCare}>{messages.whyCare}</div>
+          <p className={styles.description}>{messages.audioDescription}</p>
+          <div className={styles.learnMore}>{messages.learnMore}</div>
+          <div className={styles.levels}>
+            <img className={styles.levelImg} src={featureChart} />
+            <div className={cn(styles.levelContainer, disabled)}>
+              <div className={styles.level}>
+                <span className={styles.levelText}>{messages.level1} </span>
+                <span className={styles.levelMore}>{messages.level1More}</span>
+              </div>
+              <div className={styles.vip}>{messages.vip}</div>
+              <Button
+                className={cn(styles.vipButton, {
+                  [styles.vipDiscordDisabled]: !hasAudio
+                })}
+                text={messages.vipDiscord}
+                isDisabled={!hasAudio}
+                includeHoverAnimations={hasAudio}
+                textClassName={styles.vipTextClassName}
+                onClick={onClickVipDiscord}
+                leftIcon={<IconDiscord className={styles.iconDiscord} />}
+                type={ButtonType.GLASS}
+              />
+            </div>
+            <div className={cn(styles.levelContainer, styles.disabled)}>
+              <div
+                className={cn(styles.level, styles.levelText, styles.disabled)}
+              >
+                {messages.level2}
+              </div>
+              <div className={cn(styles.tba, styles.disabled)}>
+                {messages.tba}
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     </Tile>
   )
 }

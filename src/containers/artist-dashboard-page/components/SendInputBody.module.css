@@ -1,0 +1,64 @@
+.titleContainer {
+  margin: 24px auto;
+}
+
+.title {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #9147CC;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #858199;
+}
+
+/* Slider Styles */
+.sliderContainer {
+
+}
+
+.sliderContainer .slider {
+  background-color: #F3F0F7;
+  box-shadow: inset 1px 1px 7px -2px rgba(53, 54, 79, 0.25);
+}
+
+
+/* Input Styles */
+.inputContainer {
+  margin-top: 24px;
+  width: 100%;
+}
+
+.label {
+  text-align: left;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 17px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #858199;
+}
+
+.input {
+  background: #F7F7F9;
+  font-family: Avenir Next LT Pro;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  border: none;
+  color: #858199;
+}
+
+
+/* Button */
+.sendBtn {
+  margin: 24px;
+}

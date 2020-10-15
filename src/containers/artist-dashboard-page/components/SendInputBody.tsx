@@ -1,11 +1,16 @@
-import { Button } from '@audius/stems'
+import {
+  Button,
+  TokenValueSlider,
+  TokenValueInput,
+  Format
+} from '@audius/stems'
 import BN from 'bn.js'
-import Input from 'components/data-entry/Input'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { WalletAddress } from 'store/wallet/slice'
 import { Nullable } from 'utils/typeUtils'
 import { ModalBodyWrapper } from '../WalletModal'
-
+import styles from './SendInputBody.module.css'
+import { checkWeiNumber, parseWeiNumber } from 'utils/formatUtil'
 // @ts-ignore
 window.bn = BN
 const messages = {
@@ -17,7 +22,9 @@ const messages = {
   amountRequired: 'Amount is a required field',
   amountMalformed: 'Amount must be a valid number',
   addressMalformed: 'Please enter a valid address',
-  addressRequired: 'Address is required'
+  addressRequired: 'Address is required',
+  sendAmountLabel: 'Amount to SEND',
+  destination: 'Destination Address'
 }
 
 type BalanceError = 'INSUFFICIENT_BALANCE' | 'EMPTY' | 'MALFORMED'
@@ -67,7 +74,22 @@ const validateSendAmount = (
 
 const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
   const [amountToSend, setAmountToSend] = useState('')
+  const [amountToSendBN, setAmountToSendBN] = useState(new BN('0'))
   const [destinationAddress, setDestinationAddress] = useState('')
+
+  const setTextAmount = useCallback(
+    (newVal: string) => {
+      console.log(`Settings: ${newVal}`)
+      setAmountToSend(newVal)
+      if (checkWeiNumber(newVal)) {
+        setAmountToSendBN(parseWeiNumber(newVal)!)
+      }
+    },
+    [setAmountToSend, setAmountToSendBN]
+  )
+
+  const min = new BN('')
+  const max = new BN('100000000000000000000000000')
 
   const [balanceError, setBalanceError] = useState<Nullable<BalanceError>>(null)
   const [addressError, setAddressError] = useState<Nullable<AddressError>>(null)
@@ -93,20 +115,54 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
 
   return (
     <ModalBodyWrapper>
-      <div>
-        {messages.warningTitle}
-        {messages.warningSubtitle}
+      <div className={styles.titleContainer}>
+        <div className={styles.title}>{messages.warningTitle}</div>
+        <div className={styles.subtitle}>{messages.warningSubtitle}</div>
       </div>
-      {/* Slider go here */}
-      <Input value={amountToSend} placeholder='0' onChange={setAmountToSend} />
+      <TokenValueSlider
+        className={styles.sliderContainer} // ?: string
+        sliderClassName={styles.slider} // ?: string
+        min={min} // ?: BN
+        max={max} // ?: BN
+        value={amountToSendBN} // : BN
+        minSliderWidth={4} // ?: number
+        isIncrease={true} // ?: boolean
+        // minWrapper={undefined} // ?: React.ComponentType<{ value: BN }>
+        // maxWrapper={undefined} // ?: React.ComponentType<{ value: BN }>
+      />
+      <TokenValueInput
+        className={styles.inputContainer}
+        labelClassName={styles.label}
+        rightLabelClassName={styles.label}
+        inputClassName={styles.input}
+        label={messages.sendAmountLabel}
+        format={Format.INPUT}
+        placeholder={'0'}
+        rightLabel={'$AUDIO'}
+        value={amountToSend}
+        isNumeric={true}
+        onChange={setTextAmount}
+      />
       {renderBalanceError()}
-      <Input
-        value={destinationAddress}
+      <TokenValueInput
+        className={styles.inputContainer}
+        labelClassName={styles.label}
+        rightLabelClassName={styles.label}
+        inputClassName={styles.input}
+        label={messages.destination}
+        format={Format.INPUT}
         placeholder={messages.addressPlaceholder}
+        rightLabel={'$AUDIO'}
+        value={destinationAddress}
+        isNumeric={false}
         onChange={setDestinationAddress}
       />
       {renderAddressError()}
-      <Button text={messages.sendAudio} onClick={onClickSend} />
+      <Button
+        className={styles.sendBtn}
+        text={messages.sendAudio}
+        onClick={onClickSend}
+      />
     </ModalBodyWrapper>
   )
 }
