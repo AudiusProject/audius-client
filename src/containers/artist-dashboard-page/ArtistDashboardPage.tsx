@@ -28,6 +28,8 @@ import TableOptionsButton from 'components/tracks-table/TableOptionsButton'
 import User from 'models/User'
 import { withClassNullGuard } from 'utils/withNullGuard'
 import lazyWithPreload from 'utils/lazyWithPreload'
+import { ClaimTile, ExplainerTile, WalletTile } from './Tiles'
+import WalletModal from './WalletModal'
 
 const TotalPlaysChart = lazyWithPreload(() =>
   import('./components/TotalPlaysChart')
@@ -282,16 +284,17 @@ export class ArtistDashboardPage extends Component<
     )
   }
 
-  render() {
+  renderCreatorContent() {
     const {
       account,
-      status,
-      stats,
+      goToRoute,
+      listenData,
       tracks,
       unlistedTracks,
-      listenData,
-      goToRoute
+      stats
     } = this.props
+    if (!account.is_creator) return null
+
     const { selectedTrack } = this.state
 
     const statTiles: React.ReactNode[] = []
@@ -299,16 +302,68 @@ export class ArtistDashboardPage extends Component<
       statTiles.push(<StatTile key={title} title={title} value={stat} />)
     )
 
-    const listedDataSource = this.formatMetadata(tracks)
-    const unlistedDataSource = this.formatMetadata(unlistedTracks)
+    const chartData =
+      selectedTrack === -1 ? listenData.all : listenData[selectedTrack]
 
     const chartTracks = tracks.map((track: any) => ({
       id: track.track_id,
       name: track.title
     }))
-    const chartData =
-      selectedTrack === -1 ? listenData.all : listenData[selectedTrack]
 
+    const listedDataSource = this.formatMetadata(tracks)
+    const unlistedDataSource = this.formatMetadata(unlistedTracks)
+    return (
+      <>
+        <div className={styles.sectionContainer}>
+          <ArtistProfile
+            userId={account.user_id}
+            profilePictureSizes={account._profile_picture_sizes}
+            isVerified={account.is_verified}
+            name={account.name}
+            handle={account.handle}
+            onViewProfile={() => goToRoute(profilePage(account.handle))}
+          />
+          {/* <AchievementTile /> */}
+        </div>
+        <div className={styles.sectionContainer}>
+          <Suspense fallback={<div className={styles.chartFallback} />}>
+            <TotalPlaysChart
+              data={chartData}
+              tracks={chartTracks}
+              selectedTrack={selectedTrack}
+              onSetYearOption={this.onSetYearOption}
+              onSetTrackOption={this.onSetTrackOption}
+              accountCreatedAt={account.created_at}
+            />
+          </Suspense>
+        </div>
+        <div className={cn(styles.sectionContainer, styles.statsContainer)}>
+          {statTiles}
+        </div>
+        <div className={styles.tracksTableWrapper}>
+          <TracksTableContainer
+            onClickRow={this.onClickRow}
+            listedDataSource={listedDataSource}
+            unlistedDataSource={unlistedDataSource}
+            account={account}
+          />
+        </div>
+      </>
+    )
+  }
+
+  renderCryptoContent() {
+    return (
+      <div className={styles.cryptoContentContainer}>
+        <ClaimTile />
+        <WalletTile />
+        <ExplainerTile className={styles.explainerTile} />
+      </div>
+    )
+  }
+
+  render() {
+    const { account, status } = this.props
     const header = <Header primary='Your Artist Dashboard' />
 
     return (
@@ -318,44 +373,13 @@ export class ArtistDashboardPage extends Component<
         contentClassName={styles.pageContainer}
         header={header}
       >
+        <WalletModal />
         {!account || status === Status.LOADING ? (
           <Spin size='large' className={styles.spin} />
         ) : (
           <>
-            <div className={styles.sectionContainer}>
-              <ArtistProfile
-                userId={account.user_id}
-                profilePictureSizes={account._profile_picture_sizes}
-                isVerified={account.is_verified}
-                name={account.name}
-                handle={account.handle}
-                onViewProfile={() => goToRoute(profilePage(account.handle))}
-              />
-              {/* <AchievementTile /> */}
-            </div>
-            <div className={styles.sectionContainer}>
-              <Suspense fallback={<div className={styles.chartFallback} />}>
-                <TotalPlaysChart
-                  data={chartData}
-                  tracks={chartTracks}
-                  selectedTrack={selectedTrack}
-                  onSetYearOption={this.onSetYearOption}
-                  onSetTrackOption={this.onSetTrackOption}
-                  accountCreatedAt={account.created_at}
-                />
-              </Suspense>
-            </div>
-            <div className={cn(styles.sectionContainer, styles.statsContainer)}>
-              {statTiles}
-            </div>
-            <div className={styles.tracksTableWrapper}>
-              <TracksTableContainer
-                onClickRow={this.onClickRow}
-                listedDataSource={listedDataSource}
-                unlistedDataSource={unlistedDataSource}
-                account={account}
-              />
-            </div>
+            {this.renderCryptoContent()}
+            {this.renderCreatorContent()}
           </>
         )}
       </Page>

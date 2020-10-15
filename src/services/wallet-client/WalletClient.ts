@@ -28,7 +28,7 @@ class WalletClient {
     return new Promise(resolve => {
       setTimeout(() => {
         resolve()
-      }, 1500)
+      }, 3500)
     })
   }
 
@@ -38,7 +38,7 @@ class WalletClient {
     return new Promise(resolve => {
       setTimeout(() => {
         resolve()
-      }, 1500)
+      }, 3500)
     })
   }
 }

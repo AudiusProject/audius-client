@@ -25,9 +25,9 @@ type SendingState =
   | { stage: 'ERROR'; error: string }
 
 export type ModalState = Nullable<
-  | { stage: 'CLAIM'; claimState: ClaimState }
-  | { stage: 'RECEIVE'; recieveState: ReceiveState }
-  | { stage: 'SEND'; sendingState: SendingState }
+  | { stage: 'CLAIM'; flowState: ClaimState }
+  | { stage: 'RECEIVE'; flowState: ReceiveState }
+  | { stage: 'SEND'; flowState: SendingState }
 >
 
 type TokenDashboardState = {
@@ -66,7 +66,7 @@ const slice = createSlice({
     ) => {
       const newState: ModalState = {
         stage: 'SEND' as 'SEND',
-        sendingState: {
+        flowState: {
           stage: 'AWAITING_CONFIRMATION',
           amount,
           recipientWallet: wallet
@@ -77,21 +77,27 @@ const slice = createSlice({
     confirmSend: state => {
       if (
         state.modalState?.stage !== 'SEND' ||
-        state.modalState.sendingState.stage !== 'AWAITING_CONFIRMATION'
+        state.modalState.flowState.stage !== 'AWAITING_CONFIRMATION'
       )
         return
 
-      state.modalState.sendingState = {
+      state.modalState.flowState = {
         stage: 'CONFIRMED_SEND',
-        recipientWallet: state.modalState.sendingState.recipientWallet,
-        amount: state.modalState.sendingState.amount
+        recipientWallet: state.modalState.flowState.recipientWallet,
+        amount: state.modalState.flowState.amount
       }
+    },
+    pressReceive: state => {
+      state.modalState = {
+        stage: 'RECEIVE',
+        flowState: { stage: 'KEY_DISPLAY' }
+      }
+      state.modalVisible = true
     },
 
     // Saga Actions
 
     pressClaim: () => {},
-    pressReceive: () => {},
     pressSend: () => {}
   }
 })
@@ -103,13 +109,19 @@ export const getSendData = (state: AppState) => {
   if (
     !(
       modalState?.stage === 'SEND' &&
-      modalState.sendingState.stage === 'CONFIRMED_SEND'
+      (modalState.flowState.stage === 'CONFIRMED_SEND' ||
+        modalState.flowState.stage === 'AWAITING_CONFIRMATION')
     )
   )
     return null
-  const { recipientWallet, amount } = modalState.sendingState
+  const { recipientWallet, amount } = modalState.flowState
   return { recipientWallet, amount: new BN(amount) }
 }
+
+export const getModalState = (state: AppState) =>
+  state.application.pages.tokenDashboard.modalState
+export const getModalVisible = (state: AppState) =>
+  state.application.pages.tokenDashboard.modalVisible
 
 export const {
   setModalState,

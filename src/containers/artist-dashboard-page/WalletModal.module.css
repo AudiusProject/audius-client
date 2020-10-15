@@ -1,0 +1,11 @@
+.modalBody {
+  max-width: 720px;
+  min-height: 320px;
+}
+
+.modalContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
