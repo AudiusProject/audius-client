@@ -177,6 +177,14 @@ const ModalContent = ({
   return ret
 }
 
+const shouldAllowDismiss = (modalState: Nullable<ModalState>) => {
+  // Allow dismiss on every stage except claiming
+  if (!modalState) return true
+  return !(
+    modalState.stage === 'CLAIM' && modalState.flowState.stage === 'CLAIMING'
+  )
+}
+
 const WalletModal = () => {
   const modalVisible = useSelector(getModalVisible)
   const modalState = useSelector(getModalState)
@@ -195,6 +203,7 @@ const WalletModal = () => {
   const onConfirmSend = () => {
     dispatch(confirmSend())
   }
+  const allowDismiss = shouldAllowDismiss(modalState)
 
   return (
     <AudiusModal
@@ -203,6 +212,8 @@ const WalletModal = () => {
       bodyClassName={styles.modalBody}
       showTitleHeader
       title={getTitle(modalState)}
+      showDismissButton={allowDismiss}
+      dismissOnClickOutside={allowDismiss}
     >
       <div className={styles.modalContainer}>
         <ModalContent
