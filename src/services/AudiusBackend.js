@@ -37,6 +37,9 @@ const ETH_REGISTRY_ADDRESS = process.env.REACT_APP_ETH_REGISTRY_ADDRESS
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const ETH_TOKEN_ADDRESS = process.env.REACT_APP_ETH_TOKEN_ADDRESS
 const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
+const COM_STOCK_URL = process.env.REACT_APP_COM_STOCK_URL
+const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
+  process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
 
 const SEARCH_MAX_SAVED_RESULTS = 10
 const SEARCH_MAX_TOTAL_RESULTS = 50
@@ -452,6 +455,7 @@ class AudiusBackend {
           IDENTITY_SERVICE
         ),
         creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
+        comStockConfig: AudiusLibs.configComStock(COM_STOCK_URL),
         isServer: false
       })
       await audiusLibs.init()
@@ -496,7 +500,8 @@ class AudiusBackend {
         ETH_TOKEN_ADDRESS,
         ETH_REGISTRY_ADDRESS,
         ETH_PROVIDER_URLS,
-        ETH_OWNER_WALLET
+        ETH_OWNER_WALLET,
+        CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
       )
     }
   }
@@ -2361,6 +2366,59 @@ class AudiusBackend {
       }).then(res => res.json())
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  /**
+   * Retrieves the claim distribution amount
+   * @returns {BN} amount The claim amount
+   */
+  static async getClaimDistributionAmount() {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return
+    try {
+      const amount = await audiusLibs.Account.getClaimDistributionAmount()
+      return amount
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+  /**
+   * Make the claim for the distribution
+   * NOTE: if the claim was already made, the response will 500 and error
+   * @returns {Promise<boolean>} didMakeClaim
+   */
+  static async makeDistributionClaim() {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return
+    try {
+      await audiusLibs.Account.makeDistributionClaim()
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
+    }
+  }
+
+  /**
+   * Make a request to check if the user has already claimed
+   * @returns {Promise<boolean>} doesHaveClaim
+   */
+  static async getHasClaimed() {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return
+
+    try {
+      const hasClaimed = await audiusLibs.Account.getHasClaimed()
+      return hasClaimed
+    } catch (e) {
+      console.error(e)
+      return null
     }
   }
 }
