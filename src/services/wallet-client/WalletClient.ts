@@ -1,23 +1,27 @@
-import BN from 'bn.js'
-import { WalletAddress } from 'store/wallet/slice'
+import {
+  audioToWei,
+  BNWei,
+  StringAudio,
+  WalletAddress
+} from 'store/wallet/slice'
 
 class WalletClient {
   init() {}
 
-  async getCurrentBalance(): Promise<BN> {
+  async getCurrentBalance(): Promise<BNWei> {
     // TODO: replace placeholder
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve(new BN('100000'))
+        resolve(audioToWei('100000' as StringAudio))
       }, 1500)
     })
   }
 
-  async getClaimableBalance(): Promise<BN> {
+  async getClaimableBalance(): Promise<BNWei> {
     // TODO: replace placeholder
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve(new BN('10000'))
+        resolve(audioToWei('1000' as StringAudio))
       }, 1500)
     })
   }
@@ -32,7 +36,7 @@ class WalletClient {
     })
   }
 
-  async sendTokens(address: WalletAddress, amount: BN): Promise<void> {
+  async sendTokens(address: WalletAddress, amount: BNWei): Promise<void> {
     // TODO: replace placeholder
     console.log('Sending tokens')
     return new Promise(resolve => {

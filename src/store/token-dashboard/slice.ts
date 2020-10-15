@@ -1,7 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import BN from 'bn.js'
 import { AppState } from 'store/types'
-import { StringBN, WalletAddress } from 'store/wallet/slice'
+import {
+  BNWei,
+  StringWei,
+  stringWeiToBN,
+  WalletAddress
+} from 'store/wallet/slice'
 import { Nullable } from 'utils/typeUtils'
 
 export type ClaimState =
@@ -14,12 +18,12 @@ type SendingState =
   | { stage: 'INPUT' }
   | {
       stage: 'AWAITING_CONFIRMATION'
-      amount: StringBN
+      amount: StringWei
       recipientWallet: string
     }
   | {
       stage: 'CONFIRMED_SEND'
-      amount: StringBN
+      amount: StringWei
       recipientWallet: WalletAddress
     }
   | { stage: 'ERROR'; error: string }
@@ -62,7 +66,7 @@ const slice = createSlice({
       state,
       {
         payload: { amount, wallet }
-      }: PayloadAction<{ amount: StringBN; wallet: WalletAddress }>
+      }: PayloadAction<{ amount: StringWei; wallet: WalletAddress }>
     ) => {
       const newState: ModalState = {
         stage: 'SEND' as 'SEND',
@@ -104,7 +108,9 @@ const slice = createSlice({
 
 // Selectors
 
-export const getSendData = (state: AppState) => {
+export const getSendData = (
+  state: AppState
+): Nullable<{ recipientWallet: string; amount: BNWei }> => {
   const modalState = state.application.pages.tokenDashboard.modalState
   if (
     !(
@@ -115,7 +121,7 @@ export const getSendData = (state: AppState) => {
   )
     return null
   const { recipientWallet, amount } = modalState.flowState
-  return { recipientWallet, amount: new BN(amount) }
+  return { recipientWallet, amount: stringWeiToBN(amount) }
 }
 
 export const getModalState = (state: AppState) =>

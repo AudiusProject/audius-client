@@ -15,7 +15,8 @@ import {
   send as walletSend,
   claimSucceeded,
   claimFailed,
-  getClaimableBalance
+  getClaimableBalance,
+  weiToString
 } from 'store/wallet/slice'
 
 function* send() {
@@ -39,7 +40,7 @@ function* send() {
   const sendData: ReturnType<typeof getSendData> = yield select(getSendData)
   if (!sendData) return
   const { recipientWallet, amount } = sendData
-  yield put(walletSend({ recipientWallet, amount: amount.toString() }))
+  yield put(walletSend({ recipientWallet, amount: weiToString(amount) }))
 }
 
 function* claim() {

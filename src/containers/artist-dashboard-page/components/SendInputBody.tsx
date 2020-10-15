@@ -6,7 +6,12 @@ import {
 } from '@audius/stems'
 import BN from 'bn.js'
 import React, { useCallback, useState } from 'react'
-import { WalletAddress } from 'store/wallet/slice'
+import {
+  audioToWei,
+  BNWei,
+  StringAudio,
+  WalletAddress
+} from 'store/wallet/slice'
 import { Nullable } from 'utils/typeUtils'
 import { ModalBodyWrapper } from '../WalletModal'
 import styles from './SendInputBody.module.css'
@@ -42,8 +47,8 @@ const addressErrorMap: { [A in AddressError]: string } = {
 }
 
 type SendInputBodyProps = {
-  currentBalance: BN
-  onSend: (balance: BN, destinationAddress: WalletAddress) => void
+  currentBalance: BNWei
+  onSend: (balance: StringAudio, destinationAddress: WalletAddress) => void
 }
 
 // TODO: replace the inputs with fancy comma adding inputs :o
@@ -58,13 +63,14 @@ const validateWallet = (wallet: Nullable<string>): Nullable<AddressError> => {
 }
 
 const validateSendAmount = (
-  stringAmount: string,
-  balance: BN
+  stringAudioAmount: string,
+  balanceWei: BNWei
 ): Nullable<BalanceError> => {
-  if (!stringAmount.length) return 'EMPTY'
+  if (!stringAudioAmount.length) return 'EMPTY'
   try {
-    const amount = new BN(stringAmount)
-    if (amount.gte(balance)) return 'INSUFFICIENT_BALANCE'
+    const stringAudio = stringAudioAmount as StringAudio
+    const sendWeiBN = audioToWei(stringAudio)
+    if (sendWeiBN.gte(balanceWei)) return 'INSUFFICIENT_BALANCE'
   } catch (e) {
     return 'MALFORMED'
   }
@@ -100,7 +106,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
     setBalanceError(balanceError)
     setAddressError(walletError)
     if (balanceError || walletError) return
-    onSend(new BN(amountToSend), destinationAddress)
+    onSend(amountToSend as StringAudio, destinationAddress)
   }
 
   const renderBalanceError = () => {
