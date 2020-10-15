@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useState } from 'react'
 import cn from 'classnames'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import { BooleanKeys } from 'services/remote-config'
@@ -19,21 +19,27 @@ const DegradedFunctionalityNotice = () => (
 )
 
 const Notice = ({ shouldPadTop }: { shouldPadTop: boolean }) => {
-  const [isHidden, setIsHidden] = useState(false)
-  const hide = useCallback(() => setIsHidden(true), [setIsHidden])
+  const [isVisible, setIsVisible] = useState(false)
+  const hide = useCallback(() => setIsVisible(false), [setIsVisible])
 
   const showDegradedFunctionality = useRemoteVar(
     BooleanKeys.NOTICE_DEGRADED_FUNCTIONALITY
   )
-  let content
+  let content: ReactNode = null
   if (showDegradedFunctionality) {
     content = <DegradedFunctionalityNotice />
   }
 
+  useEffect(() => {
+    if (showDegradedFunctionality) {
+      setIsVisible(true)
+    }
+  }, [showDegradedFunctionality])
+
   return (
     <div
       className={cn(styles.notice, {
-        [styles.show]: !!content && !isHidden,
+        [styles.show]: isVisible,
         [styles.shouldPadTop]: shouldPadTop
       })}
     >

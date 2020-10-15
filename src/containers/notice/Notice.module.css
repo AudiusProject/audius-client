@@ -18,8 +18,11 @@
   transition-delay: 3s;
 }
 
-.notice.shouldPadTop {
+.notice.show.shouldPadTop {
+  opacity: 1;
   top: 48px;
+  /* Delay coming in since this triggers on page load */
+  transition-delay: 3s;
 }
 
 .content {
