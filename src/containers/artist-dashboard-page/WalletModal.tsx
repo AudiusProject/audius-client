@@ -243,7 +243,6 @@ const WalletModal = () => {
       title={getTitle(modalState)}
       showDismissButton={allowDismiss}
       dismissOnClickOutside={allowDismiss}
-      contentHorizontalPadding={24}
     >
       <div className={styles.modalContainer}>
         <ModalContent
