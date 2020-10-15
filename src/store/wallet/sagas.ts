@@ -11,10 +11,12 @@ import {
   claimFailed,
   send,
   getAccountBalance,
-  decreaseBalance
+  decreaseBalance,
+  stringWeiToBN,
+  weiToString,
+  BNWei
 } from 'store/wallet/slice'
 import walletClient from 'services/wallet-client/WalletClient'
-import BN from 'bn.js'
 import { select } from 'redux-saga-test-plan/matchers'
 
 // TODO: handle errors
@@ -22,27 +24,27 @@ import { select } from 'redux-saga-test-plan/matchers'
 function* sendAsync({
   payload: { recipientWallet, amount }
 }: ReturnType<typeof send>) {
-  const bnAmount = new BN(amount)
-  const balance: ReturnType<typeof getAccountBalance> = yield select(
+  const weiBNAmount = stringWeiToBN(amount)
+  const weiBNBalance: ReturnType<typeof getAccountBalance> = yield select(
     getAccountBalance
   )
-  if (!balance || !balance.gte(bnAmount)) return
+  if (!weiBNBalance || !weiBNBalance.gte(weiBNAmount)) return
   yield all([
-    call(() => walletClient.sendTokens(recipientWallet, bnAmount)),
+    call(() => walletClient.sendTokens(recipientWallet, weiBNAmount)),
     put(decreaseBalance({ amount }))
   ])
 }
 
 function* claimAsync() {
-  const balance: ReturnType<typeof getClaimableBalance> = yield select(
+  const weiBNClaimable: ReturnType<typeof getClaimableBalance> = yield select(
     getClaimableBalance
   )
-  if (!balance || balance.isZero()) return
+  if (!weiBNClaimable || weiBNClaimable.isZero()) return
   try {
     yield call(() => walletClient.claim())
     yield all([
-      put(setClaim({ balance: '0' })),
-      put(increaseBalance({ amount: balance.toString() })),
+      put(setClaim({ balance: weiToString(weiBNClaimable) })),
+      put(increaseBalance({ amount: weiToString(weiBNClaimable) })),
       put(claimSucceeded())
     ])
   } catch (e) {
@@ -51,13 +53,17 @@ function* claimAsync() {
 }
 
 function* fetchBalanceAsync() {
-  const currentBalance: BN = yield call(() => walletClient.getCurrentBalance())
-  yield put(setBalance({ balance: currentBalance.toString() }))
+  const currentBalance: BNWei = yield call(() =>
+    walletClient.getCurrentBalance()
+  )
+  yield put(setBalance({ balance: weiToString(currentBalance) }))
 }
 
 function* fetchClaimsAsync() {
-  const pendingClaims: BN = yield call(() => walletClient.getClaimableBalance())
-  yield put(setClaim({ balance: pendingClaims.toString() }))
+  const pendingClaims: BNWei = yield call(() =>
+    walletClient.getClaimableBalance()
+  )
+  yield put(setClaim({ balance: weiToString(pendingClaims) }))
 }
 
 function* watchSend() {

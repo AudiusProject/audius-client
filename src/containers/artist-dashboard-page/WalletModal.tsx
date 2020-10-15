@@ -1,4 +1,3 @@
-import BN from 'bn.js'
 import AudiusModal from 'components/general/AudiusModal'
 import React, { ReactNode, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
@@ -13,9 +12,15 @@ import {
   setModalVisibility
 } from 'store/token-dashboard/slice'
 import {
+  audioToWei,
+  BNWei,
   getAccountBalance,
   getClaimableBalance,
-  WalletAddress
+  StringAudio,
+  StringWei,
+  stringWeiToBN,
+  WalletAddress,
+  weiToString
 } from 'store/wallet/slice'
 import { useSelector } from 'utils/reducer'
 import { Nullable } from 'utils/typeUtils'
@@ -80,7 +85,7 @@ export const ModalBodyWrapper = ({
 
 type ModalContentProps = {
   modalState: ModalState
-  onInputSendData: (amount: BN, wallet: WalletAddress) => void
+  onInputSendData: (amount: StringAudio, wallet: WalletAddress) => void
   onConfirmSend: () => void
 }
 
@@ -89,9 +94,11 @@ const ModalContent = ({
   onInputSendData,
   onConfirmSend
 }: ModalContentProps) => {
-  const balance = useSelector(getAccountBalance) ?? new BN('0')
+  const balance: BNWei =
+    useSelector(getAccountBalance) ?? stringWeiToBN('0' as StringWei)
   const account = useSelector(getAccountUser)
-  const claimableBalance = useSelector(getClaimableBalance) ?? new BN('0')
+  const claimableBalance: BNWei =
+    useSelector(getClaimableBalance) ?? stringWeiToBN('0' as StringWei)
   const amountPendingTransfer = useSelector(getSendData)
 
   if (!modalState || !account) return null
@@ -172,8 +179,10 @@ const WalletModal = () => {
     dispatch(setModalVisibility({ isVisible: false }))
   }, [dispatch])
 
-  const onInputSendData = (amount: BN, wallet: WalletAddress) => {
-    dispatch(inputSendData({ amount: amount.toString(), wallet }))
+  const onInputSendData = (amount: StringAudio, wallet: WalletAddress) => {
+    const wei = audioToWei(amount)
+    const stringWei = weiToString(wei)
+    dispatch(inputSendData({ amount: stringWei, wallet }))
   }
 
   const onConfirmSend = () => {
