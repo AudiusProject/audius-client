@@ -1,9 +1,9 @@
 import React from 'react'
-import { BNWei } from 'store/wallet/slice'
+import { BNWei, formatWei } from 'store/wallet/slice'
 import Tooltip from 'components/tooltip/Tooltip'
 import styles from './DisplayAudio.module.css'
 import cn from 'classnames'
-import { formatWei, formatAudio } from 'utils/formatUtil'
+import { formatAudio } from 'utils/formatUtil'
 
 type DisplayAudioProps = {
   amount: BNWei

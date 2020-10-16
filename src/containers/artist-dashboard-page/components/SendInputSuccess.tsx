@@ -1,6 +1,6 @@
 import React from 'react'
-import { BNWei, WalletAddress } from 'store/wallet/slice'
-import { formatAudio, formatWei } from 'utils/formatUtil'
+import { BNWei, WalletAddress, formatWei } from 'store/wallet/slice'
+import { formatAudio } from 'utils/formatUtil'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import Tooltip from 'components/tooltip/Tooltip'
 import DisplayAudio from './DisplayAudio'

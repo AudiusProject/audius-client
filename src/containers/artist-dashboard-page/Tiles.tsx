@@ -6,7 +6,9 @@ import {
   getAccountBalance,
   getClaimableBalance,
   StringWei,
-  stringWeiToBN
+  stringWeiToBN,
+  formatWei,
+  BNWei
 } from 'store/wallet/slice'
 import BN from 'bn.js'
 import { Button, ButtonType } from '@audius/stems'
@@ -23,7 +25,7 @@ import {
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
-import { formatWei, formatAudio } from 'utils/formatUtil'
+import { formatAudio } from 'utils/formatUtil'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
@@ -103,7 +105,7 @@ export const ClaimTile = ({ className }: { className?: string }) => {
 }
 
 export const WalletTile = ({ className }: { className?: string }) => {
-  const balance = useSelector(getAccountBalance) ?? new BN(0)
+  const balance = useSelector(getAccountBalance) ?? (new BN(0) as BNWei)
   const hasBalance = balance && !balance.isZero()
   const dispatch = useDispatch()
 
