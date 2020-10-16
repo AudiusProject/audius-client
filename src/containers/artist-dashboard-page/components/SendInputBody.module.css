@@ -30,14 +30,14 @@
 }
 
 .input {
-  background: #F7F7F9;
+  background: var(--neutral-light-9);
   font-family: Avenir Next LT Pro;
   font-style: normal;
   font-weight: 500;
   font-size: 16px;
   line-height: 20px;
   border: none;
-  color: #858199;
+  color: var(--neutral);
 }
 
 

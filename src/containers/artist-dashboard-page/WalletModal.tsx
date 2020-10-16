@@ -3,6 +3,7 @@ import AudiusModal from 'components/general/AudiusModal'
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { useDispatch } from 'react-redux'
+import cn from 'classnames'
 import { getAccountUser } from 'store/account/selectors'
 import {
   confirmSend,
@@ -112,11 +113,17 @@ export const ModalBodyTitle = ({ text }: { text: string }) => {
 }
 
 export const ModalBodyWrapper = ({
-  children
+  children,
+  className
 }: {
+  className?: string
   children: React.ReactNode
 }) => {
-  return <div className={styles.modalContainer}>{children}</div>
+  return (
+    <div className={cn(styles.modalContainer, { [className!]: !!className })}>
+      {children}
+    </div>
+  )
 }
 
 type ModalContentProps = {

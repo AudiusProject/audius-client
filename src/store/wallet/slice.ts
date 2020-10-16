@@ -1,7 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 import { AppState } from 'store/types'
-import { formatWeiToAudioString, parseWeiNumber } from 'utils/formatUtil'
+import {
+  WEI,
+  trimRightZeros,
+  formatNumberCommas,
+  formatWeiToAudioString,
+  parseWeiNumber
+} from 'utils/formatUtil'
 import { Brand, Nullable } from 'utils/typeUtils'
 
 export type StringWei = Brand<string, 'stringWEI'>
@@ -81,7 +87,6 @@ export const weiToAudioString = (bnWei: BNWei): StringAudio => {
 
 export const weiToAudio = (bnWei: BNWei): BNAudio => {
   const stringAudio = formatWeiToAudioString(bnWei) as StringAudio
-  console.log({ stringAudio })
   return stringAudioToBN(stringAudio)
 }
 
@@ -106,6 +111,21 @@ export const stringWeiToAudioBN = (stringWei: StringWei): BNAudio => {
 
 export const weiToString = (wei: BNWei): StringWei => {
   return wei.toString() as StringWei
+}
+
+/**
+ * Format wei BN to the full $AUDIO currency with decimals
+ * @param {BN} amount The wei amount
+ * @returns {string} $AUDIO The $AUDIO amount with decimals
+ */
+export const formatWei = (amount: BNWei): StringAudio => {
+  const aud = amount.div(WEI)
+  const wei = amount.sub(aud.mul(WEI))
+  if (wei.isZero()) {
+    return formatNumberCommas(aud.toString()) as StringAudio
+  }
+  const decimals = wei.toString().padStart(18, '0')
+  return formatNumberCommas(`${aud}.${trimRightZeros(decimals)}`) as StringAudio
 }
 
 // Selectors
