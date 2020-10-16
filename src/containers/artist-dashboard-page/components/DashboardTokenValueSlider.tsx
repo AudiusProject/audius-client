@@ -2,6 +2,7 @@ import { TokenValueSlider } from '@audius/stems'
 import BN from 'bn.js'
 import React from 'react'
 import { BNAudio } from 'store/wallet/slice'
+import { formatNumberCommas } from 'utils/formatUtil'
 
 import styles from './DashboardTokenValueSlider.module.css'
 
@@ -12,7 +13,11 @@ type DashboardTokenValueSliderProps = {
 }
 
 const MinMaxWrapper = ({ value }: { value: BN }) => {
-  return <div className={styles.minMaxWrapper}>{`${value} $AUDIO`}</div>
+  return (
+    <div className={styles.minMaxWrapper}>{`${formatNumberCommas(
+      value.toString()
+    )} $AUDIO`}</div>
+  )
 }
 
 const DashboardTokenValueSlider = ({

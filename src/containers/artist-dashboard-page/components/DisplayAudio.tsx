@@ -3,7 +3,6 @@ import { BNWei, formatWei } from 'store/wallet/slice'
 import Tooltip from 'components/tooltip/Tooltip'
 import styles from './DisplayAudio.module.css'
 import cn from 'classnames'
-import { formatAudio } from 'utils/formatUtil'
 
 type DisplayAudioProps = {
   amount: BNWei
@@ -24,7 +23,7 @@ const DisplayAudio = ({ amount, className }: DisplayAudioProps) => {
         mount={'parent'}
         mouseEnterDelay={0.2}
       >
-        <span className={styles.amount}>{formatAudio(amount)}</span>
+        <span className={styles.amount}>{formatWei(amount, true)}</span>
       </Tooltip>
       <span className={styles.label}>{messages.currency}</span>
     </div>
