@@ -62,6 +62,11 @@
   display: inline-flex;
   flex-direction: column;
   padding-top: 36px;
+  transition: flex-grow 0.7s ease-in-out;
+}
+
+.claimCollapsed {
+  flex: 0.5;
 }
 
 .claimAmount {
@@ -91,6 +96,8 @@
   text-align: center;
   color: var(--static-white);
   max-width: 250px;
+  display: flex;
+  flex-direction: column;
 }
 
 .claimTile .claimBtn {
@@ -261,7 +268,7 @@
   font-weight: 500;
   font-size: var(--font-m);
   line-height: 24px;
-  
+
   color: var(--neutral);
 }
 
@@ -276,6 +283,6 @@
 }
 
 .tooltip :global(.ant-tooltip-content) :global(.ant-tooltip-arrow) {
-  border-bottom-color: black; 
-  border-right-color: black; 
+  border-bottom-color: black;
+  border-right-color: black;
 }

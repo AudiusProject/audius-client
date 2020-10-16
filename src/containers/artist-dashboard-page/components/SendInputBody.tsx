@@ -1,23 +1,19 @@
-import {
-  Button,
-  TokenValueSlider,
-  TokenValueInput,
-  Format
-} from '@audius/stems'
-import BN from 'bn.js'
-import React, { useCallback, useState } from 'react'
+import { Button, TokenValueInput, Format, IconValidationX } from '@audius/stems'
+import React, { useMemo, useState } from 'react'
 import {
   audioToWei,
+  BNAudio,
   BNWei,
   StringAudio,
-  WalletAddress
+  stringAudioToBN,
+  WalletAddress,
+  weiToAudio
 } from 'store/wallet/slice'
 import { Nullable } from 'utils/typeUtils'
-import { ModalBodyWrapper } from '../WalletModal'
+import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import styles from './SendInputBody.module.css'
-import { checkWeiNumber, parseWeiNumber } from 'utils/formatUtil'
-// @ts-ignore
-window.bn = BN
+import DashboardTokenValueSlider from './DashboardTokenValueSlider'
+
 const messages = {
   warningTitle: 'PROCEED WITH CAUTION',
   warningSubtitle: 'If you send $AUDIO to the wrong address it will be lost.',
@@ -51,10 +47,10 @@ type SendInputBodyProps = {
   onSend: (balance: StringAudio, destinationAddress: WalletAddress) => void
 }
 
-// TODO: replace the inputs with fancy comma adding inputs :o
-
-// TODO: REGEX for validating destination
-const isValidDestination = (wallet: WalletAddress) => true
+const isValidDestination = (wallet: WalletAddress) => {
+  const libs = window.audiusLibs
+  return libs.web3Manager.web3.utils.isAddress(wallet)
+}
 
 const validateWallet = (wallet: Nullable<string>): Nullable<AddressError> => {
   if (!wallet) return 'EMPTY'
@@ -70,7 +66,7 @@ const validateSendAmount = (
   try {
     const stringAudio = stringAudioAmount as StringAudio
     const sendWeiBN = audioToWei(stringAudio)
-    if (sendWeiBN.gte(balanceWei)) return 'INSUFFICIENT_BALANCE'
+    if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
   } catch (e) {
     return 'MALFORMED'
   }
@@ -78,24 +74,33 @@ const validateSendAmount = (
   return null
 }
 
+const ErrorLabel = ({ text }: { text: string }) => {
+  return (
+    <div className={styles.errorLabel}>
+      <IconValidationX /> {text}
+    </div>
+  )
+}
+
 const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
-  const [amountToSend, setAmountToSend] = useState('')
-  const [amountToSendBN, setAmountToSendBN] = useState(new BN('0'))
+  const [amountToSend, setAmountToSend] = useState<StringAudio>(
+    '' as StringAudio
+  )
+  const amountToSendBN: BNAudio = useMemo(() => {
+    if (!amountToSend.length) return stringAudioToBN('0' as StringAudio)
+    try {
+      return stringAudioToBN(amountToSend)
+    } catch {
+      return stringAudioToBN('0' as StringAudio)
+    }
+  }, [amountToSend])
   const [destinationAddress, setDestinationAddress] = useState('')
 
-  const setTextAmount = useCallback(
-    (newVal: string) => {
-      console.log(`Settings: ${newVal}`)
-      setAmountToSend(newVal)
-      if (checkWeiNumber(newVal)) {
-        setAmountToSendBN(parseWeiNumber(newVal)!)
-      }
-    },
-    [setAmountToSend, setAmountToSendBN]
-  )
-
-  const min = new BN('')
-  const max = new BN('100000000000000000000000000')
+  const [min, max]: [BNAudio, BNAudio] = useMemo(() => {
+    const min = stringAudioToBN('0' as StringAudio)
+    const max = weiToAudio(currentBalance)
+    return [min, max]
+  }, [currentBalance])
 
   const [balanceError, setBalanceError] = useState<Nullable<BalanceError>>(null)
   const [addressError, setAddressError] = useState<Nullable<AddressError>>(null)
@@ -111,31 +116,21 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
 
   const renderBalanceError = () => {
     if (!balanceError) return null
-    return balanceErrorMap[balanceError]
+    return <ErrorLabel text={balanceErrorMap[balanceError]} />
   }
 
   const renderAddressError = () => {
     if (!addressError) return null
-    return addressErrorMap[addressError]
+    return <ErrorLabel text={addressErrorMap[addressError]} />
   }
 
   return (
     <ModalBodyWrapper>
       <div className={styles.titleContainer}>
-        <div className={styles.title}>{messages.warningTitle}</div>
+        <ModalBodyTitle text={messages.warningTitle} />
         <div className={styles.subtitle}>{messages.warningSubtitle}</div>
       </div>
-      <TokenValueSlider
-        className={styles.sliderContainer} // ?: string
-        sliderClassName={styles.slider} // ?: string
-        min={min} // ?: BN
-        max={max} // ?: BN
-        value={amountToSendBN} // : BN
-        minSliderWidth={4} // ?: number
-        isIncrease={true} // ?: boolean
-        // minWrapper={undefined} // ?: React.ComponentType<{ value: BN }>
-        // maxWrapper={undefined} // ?: React.ComponentType<{ value: BN }>
-      />
+      <DashboardTokenValueSlider min={min} max={max} value={amountToSendBN} />
       <TokenValueInput
         className={styles.inputContainer}
         labelClassName={styles.label}
@@ -147,7 +142,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
         rightLabel={'$AUDIO'}
         value={amountToSend}
         isNumeric={true}
-        onChange={setTextAmount}
+        onChange={v => setAmountToSend(v as StringAudio)}
       />
       {renderBalanceError()}
       <TokenValueInput

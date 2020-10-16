@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 import { AppState } from 'store/types'
-import { formatAudio, parseWeiNumber } from 'utils/formatUtil'
+import { formatWeiToAudioString, parseWeiNumber } from 'utils/formatUtil'
 import { Brand, Nullable } from 'utils/typeUtils'
 
 export type StringWei = Brand<string, 'stringWEI'>
@@ -74,9 +74,15 @@ const slice = createSlice({
 
 // Conversion Fns
 
-export const weiToAudio = (bnWei: BNWei): StringAudio => {
-  const stringAudio = formatAudio(bnWei) as StringAudio
+export const weiToAudioString = (bnWei: BNWei): StringAudio => {
+  const stringAudio = formatWeiToAudioString(bnWei) as StringAudio
   return stringAudio
+}
+
+export const weiToAudio = (bnWei: BNWei): BNAudio => {
+  const stringAudio = formatWeiToAudioString(bnWei) as StringAudio
+  console.log({ stringAudio })
+  return stringAudioToBN(stringAudio)
 }
 
 export const audioToWei = (stringAudio: StringAudio): BNWei => {
@@ -88,9 +94,13 @@ export const stringWeiToBN = (stringWei: StringWei): BNWei => {
   return new BN(stringWei) as BNWei
 }
 
+export const stringAudioToBN = (stringAudio: StringAudio): BNAudio => {
+  return new BN(stringAudio) as BNAudio
+}
+
 export const stringWeiToAudioBN = (stringWei: StringWei): BNAudio => {
   const bnWei = stringWeiToBN(stringWei)
-  const stringAudio = weiToAudio(bnWei)
+  const stringAudio = weiToAudioString(bnWei)
   return new BN(stringAudio) as BNAudio
 }
 

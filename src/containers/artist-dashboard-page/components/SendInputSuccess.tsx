@@ -1,13 +1,15 @@
-import BN from 'bn.js'
 import React from 'react'
-import { BNWei, WalletAddress } from 'store/wallet/slice'
-import { ModalBodyWrapper } from '../WalletModal'
+import { BNWei, WalletAddress, weiToAudioString } from 'store/wallet/slice'
+import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import DisplayAudio from './DisplayAudio'
+import { AddressWithArrow } from './SendInputConfirmation'
+
+import styles from './SendInputSuccess.module.css'
 
 type SendInputSuccessProps = {
   sentAmount: BNWei
   recipientAddress: WalletAddress
-  balance: BN
+  balance: BNWei
 }
 
 const messages = {
@@ -23,13 +25,14 @@ const SendInputSuccess = ({
 }: SendInputSuccessProps) => {
   return (
     <ModalBodyWrapper>
-      {messages.success}
+      <div className={styles.titleWrapper}>
+        <ModalBodyTitle text={messages.success} />
+      </div>
       <DisplayAudio amount={sentAmount} />
-      {recipientAddress}
-      {messages.note}
+      <AddressWithArrow address={recipientAddress} />
+      <div className={styles.noteWrapper}>{messages.note}</div>
       <div>
-        {messages.newBalance}
-        {balance.toString()}
+        {messages.newBalance} {weiToAudioString(balance)}
       </div>
     </ModalBodyWrapper>
   )

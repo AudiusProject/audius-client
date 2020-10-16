@@ -2,31 +2,12 @@
   margin: 24px auto;
 }
 
-.title {
-  font-weight: 800;
-  font-size: 16px;
-  line-height: 24px;
-  text-align: center;
-  color: #9147CC;
-  margin-bottom: 4px;
-}
-
 .subtitle {
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
   text-align: center;
   color: #858199;
-}
-
-/* Slider Styles */
-.sliderContainer {
-
-}
-
-.sliderContainer .slider {
-  background-color: #F3F0F7;
-  box-shadow: inset 1px 1px 7px -2px rgba(53, 54, 79, 0.25);
 }
 
 
@@ -43,7 +24,9 @@
   line-height: 17px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #858199;
+  color: var(--neutral);
+  opacity: 0.5;
+  margin-right: 8px;
 }
 
 .input {
@@ -61,4 +44,20 @@
 /* Button */
 .sendBtn {
   margin: 24px;
+}
+
+.errorLabel {
+  color: var(--accent-red);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-start;
+  margin-top: 6px;
+  font-weight: var(--font-medium);
+  font-size: var(--font-m);
+  line-height: 24px;
+}
+
+.errorLabel > * {
+  margin-right: 16px;
 }

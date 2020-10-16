@@ -2,7 +2,12 @@ import React, { useCallback } from 'react'
 import styles from './Tiles.module.css'
 import cn from 'classnames'
 import { useSelector } from 'utils/reducer'
-import { getAccountBalance, getClaimableBalance } from 'store/wallet/slice'
+import {
+  getAccountBalance,
+  getClaimableBalance,
+  StringWei,
+  stringWeiToBN
+} from 'store/wallet/slice'
 import BN from 'bn.js'
 import { Button, ButtonType } from '@audius/stems'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -22,8 +27,8 @@ import { formatWei, formatAudio } from 'utils/formatUtil'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
-  noClaim:
-    'You earn $AUDIO by using Audius.The more you use Audius, the more $AUDIO you earn.',
+  noClaim1: 'You earn $AUDIO by using Audius.',
+  noClaim2: 'The more you use Audius, the more $AUDIO you earn.',
   balance: '$AUDIO BALANCE',
   receiveLabel: 'RECEIVE',
   sendLabel: 'SEND',
@@ -53,13 +58,20 @@ const Tile = ({ className, children }: TileProps) => {
 }
 
 export const ClaimTile = ({ className }: { className?: string }) => {
-  const unclaimedAudio = useSelector(getClaimableBalance) ?? new BN(0)
+  const unclaimedAudio =
+    useSelector(getClaimableBalance) ?? stringWeiToBN('0' as StringWei)
   const hasNoClaim = !unclaimedAudio || unclaimedAudio.isZero()
   const dispatch = useDispatch()
   const onClick = () => dispatch(pressClaim())
 
   return (
-    <Tile className={cn([styles.claimTile, className])}>
+    <Tile
+      className={cn([
+        styles.claimTile,
+        { [styles.claimCollapsed]: hasNoClaim },
+        className
+      ])}
+    >
       <>
         <Tooltip
           text={formatWei(unclaimedAudio)}
@@ -74,7 +86,10 @@ export const ClaimTile = ({ className }: { className?: string }) => {
         </Tooltip>
         <div className={styles.unclaimed}> {messages.unclaimed}</div>
         {hasNoClaim ? (
-          <div className={styles.noClaim}>{messages.noClaim}</div>
+          <div className={styles.noClaim}>
+            <div>{messages.noClaim1}</div>
+            <div>{messages.noClaim2}</div>
+          </div>
         ) : (
           <Button
             className={styles.claimBtn}

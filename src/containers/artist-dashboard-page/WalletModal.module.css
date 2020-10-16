@@ -9,3 +9,31 @@
   justify-content: center;
   align-items: center;
 }
+
+.title {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #9147CC;
+  margin-bottom: 4px;
+}
+
+.titleWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.titleWrapper > *:first-child {
+  margin-right: 4px;
+}
+
+.titleWrapper svg {
+  height: 20px;
+  width: 20px;
+
+}
+
+.titleWrapper path {
+  fill: var(--neutral-light-4);
+}
