@@ -1,5 +1,7 @@
+import React, { useCallback } from 'react'
 import AudiusModal from 'components/general/AudiusModal'
-import React, { ReactNode, useCallback } from 'react'
+import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
+import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { useDispatch } from 'react-redux'
 import { getAccountUser } from 'store/account/selectors'
 import {
@@ -43,6 +45,21 @@ const messages = {
   sendError: 'Uh oh! Something went wrong sending your $AUDIO.'
 }
 
+const TitleWrapper = ({
+  children,
+  label
+}: {
+  children: React.ReactNode
+  label: string
+}) => {
+  return (
+    <div className={styles.titleWrapper}>
+      {children}
+      {label}
+    </div>
+  )
+}
+
 const titlesMap = {
   CLAIM: {
     CLAIMING: messages.claimingTitle,
@@ -50,11 +67,23 @@ const titlesMap = {
     ERROR: messages.claimError
   },
   RECEIVE: {
-    KEY_DISPLAY: messages.receive
+    KEY_DISPLAY: (
+      <TitleWrapper label={messages.receive}>
+        <IconReceive className={styles.receiveWrapper} />
+      </TitleWrapper>
+    )
   },
   SEND: {
-    INPUT: messages.send,
-    AWAITING_CONFIRMATION: messages.confirmSend,
+    INPUT: (
+      <TitleWrapper label={messages.send}>
+        <IconSend className={styles.sendIconWrapper} />
+      </TitleWrapper>
+    ),
+    AWAITING_CONFIRMATION: (
+      <TitleWrapper label={messages.confirmSend}>
+        <IconSend className={styles.sendIconWrapper} />
+      </TitleWrapper>
+    ),
     CONFIRMED_SEND: messages.sent,
     ERROR: messages.sendError
   }
