@@ -55,8 +55,8 @@ jobs:
     docker:
       - image: circleci/node:latest-browsers
     steps:
-      - attach_workspace:
-          at: ./
+      - checkout
+
       # Download and cache dependencies
       - restore_cache:
           keys:
