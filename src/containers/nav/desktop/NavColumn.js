@@ -216,7 +216,6 @@ const NavColumn = ({
     accountStatus === Status.SUCCESS || accountStatus === Status.ERROR
 
   const isPendingClaim = pendingClaim && !pendingClaim.isZero()
-  console.log({ pendingClaim, isPendingClaim })
 
   return (
     <nav id='navColumn' className={styles.navColumn}>

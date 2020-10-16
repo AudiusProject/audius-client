@@ -6,7 +6,9 @@ import {
   getAccountBalance,
   getClaimableBalance,
   StringWei,
-  stringWeiToBN
+  stringWeiToBN,
+  formatWei,
+  BNWei
 } from 'store/wallet/slice'
 import BN from 'bn.js'
 import { Button, ButtonType } from '@audius/stems'
@@ -23,7 +25,7 @@ import {
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
-import { formatWei, formatAudio } from 'utils/formatUtil'
+import { formatAudio } from 'utils/formatUtil'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
@@ -103,7 +105,7 @@ export const ClaimTile = ({ className }: { className?: string }) => {
 }
 
 export const WalletTile = ({ className }: { className?: string }) => {
-  const balance = useSelector(getAccountBalance) ?? new BN(0)
+  const balance = useSelector(getAccountBalance) ?? (new BN(0) as BNWei)
   const hasBalance = balance && !balance.isZero()
   const dispatch = useDispatch()
 
@@ -162,7 +164,11 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
     <Tile className={cn([styles.explainerTile, className])}>
       <>
         <div className={styles.platformToken}>
-          <img className={styles.platformTokenImage} src={platformTokenImage} />
+          <img
+            alt={'Platform Token'}
+            className={styles.platformTokenImage}
+            src={platformTokenImage}
+          />
         </div>
         <div className={styles.whatIsAudioContainer}>
           <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>
@@ -170,7 +176,11 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
           <p className={styles.description}>{messages.audioDescription}</p>
           <div className={styles.learnMore}>{messages.learnMore}</div>
           <div className={styles.levels}>
-            <img className={styles.levelImg} src={featureChart} />
+            <img
+              alt={'Feature Chart'}
+              className={styles.levelImg}
+              src={featureChart}
+            />
             <div className={cn(styles.levelContainer, disabled)}>
               <div className={styles.level}>
                 <span className={styles.levelText}>{messages.level1} </span>

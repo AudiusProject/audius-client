@@ -12,6 +12,7 @@
 }
 
 .arrow {
+  margin: 10px auto;
   transform: rotateZ(90deg);
   height: 18px;
   width: 18px;
