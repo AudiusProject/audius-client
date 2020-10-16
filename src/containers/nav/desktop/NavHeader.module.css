@@ -51,6 +51,10 @@ svg.logo path {
   background-color: var(--accent-orange);
 }
 
+.dashboardIcon svg path {
+  fill: var(--white) !important;
+}
+
 .dashboardIcon:hover:not(:global(.active)) {
   background-color: var(--accent-orange-light-1) !important;
 }
