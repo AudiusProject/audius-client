@@ -12,7 +12,7 @@ import {
 import { Nullable } from 'utils/typeUtils'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import styles from './SendInputBody.module.css'
-import DashboardTokenValueInput from './DashboardTokenValueSlider'
+import DashboardTokenValueSlider from './DashboardTokenValueSlider'
 
 const messages = {
   warningTitle: 'PROCEED WITH CAUTION',
@@ -130,7 +130,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
         <ModalBodyTitle text={messages.warningTitle} />
         <div className={styles.subtitle}>{messages.warningSubtitle}</div>
       </div>
-      <DashboardTokenValueInput min={min} max={max} value={amountToSendBN} />
+      <DashboardTokenValueSlider min={min} max={max} value={amountToSendBN} />
       <TokenValueInput
         className={styles.inputContainer}
         labelClassName={styles.label}
