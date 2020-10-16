@@ -25,7 +25,6 @@ import {
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
-import { formatAudio } from 'utils/formatUtil'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
@@ -83,7 +82,7 @@ export const ClaimTile = ({ className }: { className?: string }) => {
           mouseEnterDelay={0.2}
         >
           <div className={styles.claimAmount}>
-            {formatAudio(unclaimedAudio)}
+            {formatWei(unclaimedAudio, true)}
           </div>
         </Tooltip>
         <div className={styles.unclaimed}> {messages.unclaimed}</div>
@@ -122,7 +121,7 @@ export const WalletTile = ({ className }: { className?: string }) => {
           placement={'top'}
           mouseEnterDelay={0.2}
         >
-          <div className={styles.balanceAmount}>{formatAudio(balance)}</div>
+          <div className={styles.balanceAmount}>{formatWei(balance, true)}</div>
         </Tooltip>
         <div className={styles.balanceLabel}>{messages.balance}</div>
         <div>

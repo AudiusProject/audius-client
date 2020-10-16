@@ -6,6 +6,8 @@ import {
   BNWei,
   StringAudio,
   stringAudioToBN,
+  StringWei,
+  stringWeiToBN,
   WalletAddress,
   weiToAudio
 } from 'store/wallet/slice'
@@ -13,6 +15,8 @@ import { Nullable } from 'utils/typeUtils'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import styles from './SendInputBody.module.css'
 import DashboardTokenValueSlider from './DashboardTokenValueSlider'
+import { convertFloatToWei } from 'utils/formatUtil'
+import { MIN_TRANSFERRABLE_WEI } from 'services/wallet-client/WalletClient'
 
 const messages = {
   warningTitle: 'PROCEED WITH CAUTION',
@@ -21,6 +25,7 @@ const messages = {
   sendAudio: 'SEND $AUDIO',
   insufficientBalance: 'Account does not have enough $AUDIO',
   amountRequired: 'Amount is a required field',
+  amountInsufficient: 'This amount of $AUDIO is too low to send.',
   amountMalformed: 'Amount must be a valid number',
   addressMalformed: 'Please enter a valid address',
   addressRequired: 'Address is required',
@@ -28,13 +33,18 @@ const messages = {
   destination: 'Destination Address'
 }
 
-type BalanceError = 'INSUFFICIENT_BALANCE' | 'EMPTY' | 'MALFORMED'
+type BalanceError =
+  | 'INSUFFICIENT_BALANCE'
+  | 'INSUFFICIENT_TRANSFER_AMOUNT'
+  | 'EMPTY'
+  | 'MALFORMED'
 type AddressError = 'MALFORMED' | 'EMPTY'
 
 const balanceErrorMap: { [B in BalanceError]: string } = {
   INSUFFICIENT_BALANCE: messages.insufficientBalance,
   EMPTY: messages.amountRequired,
-  MALFORMED: messages.amountMalformed
+  MALFORMED: messages.amountMalformed,
+  INSUFFICIENT_TRANSFER_AMOUNT: messages.amountInsufficient
 }
 
 const addressErrorMap: { [A in AddressError]: string } = {
@@ -44,7 +54,7 @@ const addressErrorMap: { [A in AddressError]: string } = {
 
 type SendInputBodyProps = {
   currentBalance: BNWei
-  onSend: (balance: StringAudio, destinationAddress: WalletAddress) => void
+  onSend: (balance: BNWei, destinationAddress: WalletAddress) => void
 }
 
 const isValidDestination = (wallet: WalletAddress) => {
@@ -59,17 +69,14 @@ const validateWallet = (wallet: Nullable<string>): Nullable<AddressError> => {
 }
 
 const validateSendAmount = (
-  stringAudioAmount: string,
+  stringAudioAmount: StringAudio,
   balanceWei: BNWei
 ): Nullable<BalanceError> => {
   if (!stringAudioAmount.length) return 'EMPTY'
-  try {
-    const stringAudio = stringAudioAmount as StringAudio
-    const sendWeiBN = audioToWei(stringAudio)
-    if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
-  } catch (e) {
-    return 'MALFORMED'
-  }
+  const sendWeiBN = parseAudioInputToWei(stringAudioAmount)
+  if (!sendWeiBN) return 'MALFORMED'
+  if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
+  if (sendWeiBN.lt(MIN_TRANSFERRABLE_WEI)) return 'INSUFFICIENT_TRANSFER_AMOUNT'
 
   return null
 }
@@ -82,17 +89,26 @@ const ErrorLabel = ({ text }: { text: string }) => {
   )
 }
 
+const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
+  if (!audio.length) return null
+  // First try converting from float, in case audio has decimal value
+  const floatWei = convertFloatToWei(audio) as Nullable<BNWei>
+  if (floatWei) return floatWei
+  // Safe to assume no decimals
+  try {
+    return audioToWei(audio)
+  } catch {
+    return null
+  }
+}
+
 const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
   const [amountToSend, setAmountToSend] = useState<StringAudio>(
     '' as StringAudio
   )
-  const amountToSendBN: BNAudio = useMemo(() => {
-    if (!amountToSend.length) return stringAudioToBN('0' as StringAudio)
-    try {
-      return stringAudioToBN(amountToSend)
-    } catch {
-      return stringAudioToBN('0' as StringAudio)
-    }
+  const amountToSendBNWei: BNWei = useMemo(() => {
+    const zeroWei = stringWeiToBN('0' as StringWei)
+    return parseAudioInputToWei(amountToSend) ?? zeroWei
   }, [amountToSend])
   const [destinationAddress, setDestinationAddress] = useState('')
 
@@ -111,7 +127,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
     setBalanceError(balanceError)
     setAddressError(walletError)
     if (balanceError || walletError) return
-    onSend(amountToSend as StringAudio, destinationAddress)
+    onSend(amountToSendBNWei, destinationAddress)
   }
 
   const renderBalanceError = () => {
@@ -130,7 +146,11 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
         <ModalBodyTitle text={messages.warningTitle} />
         <div className={styles.subtitle}>{messages.warningSubtitle}</div>
       </div>
-      <DashboardTokenValueSlider min={min} max={max} value={amountToSendBN} />
+      <DashboardTokenValueSlider
+        min={min}
+        max={max}
+        value={weiToAudio(amountToSendBNWei)}
+      />
       <TokenValueInput
         className={styles.inputContainer}
         labelClassName={styles.label}
