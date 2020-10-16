@@ -116,11 +116,14 @@ export const weiToString = (wei: BNWei): StringWei => {
 /**
  * Format wei BN to the full $AUDIO currency with decimals
  * @param {BN} amount The wei amount
+ * @param {boolean} shouldTruncate truncate decimals at truncation length
+ * @param {number} significantDigits if truncation set to true, how many significant digits to include
  * @returns {string} $AUDIO The $AUDIO amount with decimals
  */
 export const formatWei = (
   amount: BNWei,
-  shouldTruncate = false
+  shouldTruncate = false,
+  significantDigits = 4
 ): StringAudio => {
   const aud = amount.div(WEI)
   const wei = amount.sub(aud.mul(WEI))
@@ -133,7 +136,7 @@ export const formatWei = (
   if (shouldTruncate) {
     let [before, after] = trimmed.split('.')
     // If we have only zeros, just lose the decimal
-    after = after.substr(0, 4)
+    after = after.substr(0, significantDigits)
     if (parseInt(after) === 0) {
       trimmed = before
     } else {
