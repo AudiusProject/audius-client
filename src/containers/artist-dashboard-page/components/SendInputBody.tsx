@@ -91,8 +91,10 @@ const ErrorLabel = ({ text }: { text: string }) => {
 
 const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
   if (!audio.length) return null
-  const floatToWei = convertFloatToWei(audio) as Nullable<BNWei>
-  if (floatToWei) return floatToWei
+  // First try converting from float, in case audio has decimal value
+  const floatWei = convertFloatToWei(audio) as Nullable<BNWei>
+  if (floatWei) return floatWei
+  // Safe to assume no decimals
   try {
     return audioToWei(audio)
   } catch {
@@ -106,12 +108,9 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
   )
   const amountToSendBNWei: BNWei = useMemo(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
-    const toSendBNWei = parseAudioInputToWei(amountToSend) ?? zeroWei
-    console.log({ toSendBNWei })
-    return toSendBNWei
+    return parseAudioInputToWei(amountToSend) ?? zeroWei
   }, [amountToSend])
   const [destinationAddress, setDestinationAddress] = useState('')
-  console.log({ weiAmt: amountToSendBNWei.toString() })
 
   const [min, max]: [BNAudio, BNAudio] = useMemo(() => {
     const min = stringAudioToBN('0' as StringAudio)
