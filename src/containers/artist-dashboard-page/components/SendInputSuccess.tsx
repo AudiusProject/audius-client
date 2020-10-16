@@ -1,6 +1,5 @@
 import React from 'react'
 import { BNWei, WalletAddress, formatWei } from 'store/wallet/slice'
-import { formatAudio } from 'utils/formatUtil'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import Tooltip from 'components/tooltip/Tooltip'
 import DisplayAudio from './DisplayAudio'
@@ -47,7 +46,7 @@ const SendInputSuccess = ({
               mount={'parent'}
               mouseEnterDelay={0.2}
             >
-              <span className={styles.amount}>{formatAudio(balance)}</span>
+              <span className={styles.amount}>{formatWei(balance, true)}</span>
             </Tooltip>
             <span className={styles.label}>{messages.currency}</span>
           </>
