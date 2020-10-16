@@ -2,8 +2,15 @@ import {
   audioToWei,
   BNWei,
   StringAudio,
+  StringWei,
+  stringWeiToBN,
   WalletAddress
 } from 'store/wallet/slice'
+
+// 0.001 Audio
+export const MIN_TRANSFERRABLE_WEI = stringWeiToBN(
+  '1000000000000000' as StringWei
+)
 
 class WalletClient {
   init() {}
@@ -39,6 +46,9 @@ class WalletClient {
   async sendTokens(address: WalletAddress, amount: BNWei): Promise<void> {
     // TODO: replace placeholder
     console.log('Sending tokens')
+    if (amount.lt(MIN_TRANSFERRABLE_WEI)) {
+      throw new Error('Insufficient Audio to transfer')
+    }
     return new Promise(resolve => {
       setTimeout(() => {
         resolve()

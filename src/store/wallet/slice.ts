@@ -118,14 +118,29 @@ export const weiToString = (wei: BNWei): StringWei => {
  * @param {BN} amount The wei amount
  * @returns {string} $AUDIO The $AUDIO amount with decimals
  */
-export const formatWei = (amount: BNWei): StringAudio => {
+export const formatWei = (
+  amount: BNWei,
+  shouldTruncate = false
+): StringAudio => {
   const aud = amount.div(WEI)
   const wei = amount.sub(aud.mul(WEI))
   if (wei.isZero()) {
     return formatNumberCommas(aud.toString()) as StringAudio
   }
   const decimals = wei.toString().padStart(18, '0')
-  return formatNumberCommas(`${aud}.${trimRightZeros(decimals)}`) as StringAudio
+
+  let trimmed = `${aud}.${trimRightZeros(decimals)}`
+  if (shouldTruncate) {
+    let [before, after] = trimmed.split('.')
+    // If we have only zeros, just lose the decimal
+    after = after.substr(0, 4)
+    if (parseInt(after) === 0) {
+      trimmed = before
+    } else {
+      trimmed = `${before}.${after}`
+    }
+  }
+  return formatNumberCommas(trimmed) as StringAudio
 }
 
 // Selectors

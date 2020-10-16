@@ -15,11 +15,9 @@ import {
   setModalVisibility
 } from 'store/token-dashboard/slice'
 import {
-  audioToWei,
   BNWei,
   getAccountBalance,
   getClaimableBalance,
-  StringAudio,
   StringWei,
   stringWeiToBN,
   WalletAddress,
@@ -128,7 +126,7 @@ export const ModalBodyWrapper = ({
 
 type ModalContentProps = {
   modalState: ModalState
-  onInputSendData: (amount: StringAudio, wallet: WalletAddress) => void
+  onInputSendData: (amount: BNWei, wallet: WalletAddress) => void
   onConfirmSend: () => void
 }
 
@@ -230,9 +228,8 @@ const WalletModal = () => {
     dispatch(setModalVisibility({ isVisible: false }))
   }, [dispatch])
 
-  const onInputSendData = (amount: StringAudio, wallet: WalletAddress) => {
-    const wei = audioToWei(amount)
-    const stringWei = weiToString(wei)
+  const onInputSendData = (amount: BNWei, wallet: WalletAddress) => {
+    const stringWei = weiToString(amount)
     dispatch(inputSendData({ amount: stringWei, wallet }))
   }
 
