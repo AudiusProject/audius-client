@@ -33,6 +33,7 @@ import ReceiveBody from './components/ReceiveBody'
 import SendInputBody from './components/SendInputBody'
 import SendInputConfirmation from './components/SendInputConfirmation'
 import SendInputSuccess from './components/SendInputSuccess'
+import ErrorBody from './components/ErrorBody'
 import styles from './WalletModal.module.css'
 
 const messages = {
@@ -102,9 +103,6 @@ const getTitle = (state: ModalState) => {
   }
 }
 
-const ClaimErrorBody = () => null
-const SentErrorBody = () => null
-
 /**
  * Common title across modals
  */
@@ -130,12 +128,14 @@ type ModalContentProps = {
   modalState: ModalState
   onInputSendData: (amount: StringAudio, wallet: WalletAddress) => void
   onConfirmSend: () => void
+  onClose: () => void
 }
 
 const ModalContent = ({
   modalState,
   onInputSendData,
-  onConfirmSend
+  onConfirmSend,
+  onClose
 }: ModalContentProps) => {
   const balance: BNWei =
     useSelector(getAccountBalance) ?? stringWeiToBN('0' as StringWei)
@@ -152,8 +152,8 @@ const ModalContent = ({
 
   switch (modalState.stage) {
     case 'CLAIM': {
-      const claimStage = modalState.flowState.stage
-      switch (claimStage) {
+      const claimStage = modalState.flowState
+      switch (claimStage.stage) {
         case 'CLAIMING':
           ret = <ClaimingModalBody balance={claimableBalance} />
           break
@@ -161,7 +161,7 @@ const ModalContent = ({
           ret = <ClaimSuccessBody balance={balance} />
           break
         case 'ERROR':
-          ret = <ClaimErrorBody />
+          ret = <ErrorBody error={claimStage.error} onClose={onClose} />
           break
       }
       break
@@ -174,8 +174,8 @@ const ModalContent = ({
       break
     }
     case 'SEND': {
-      const sendStage = modalState.flowState.stage
-      switch (sendStage) {
+      const sendStage = modalState.flowState
+      switch (sendStage.stage) {
         case 'INPUT':
           ret = (
             <SendInputBody currentBalance={balance} onSend={onInputSendData} />
@@ -205,7 +205,7 @@ const ModalContent = ({
           break
 
         case 'ERROR':
-          ret = <SentErrorBody />
+          ret = <ErrorBody error={sendStage.error} onClose={onClose} />
           break
       }
     }
@@ -257,6 +257,7 @@ const WalletModal = () => {
           modalState={modalState}
           onInputSendData={onInputSendData}
           onConfirmSend={onConfirmSend}
+          onClose={onClose}
         />
       </div>
     </AudiusModal>
