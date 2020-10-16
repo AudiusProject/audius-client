@@ -1,4 +1,4 @@
-import { all, call, put, takeEvery } from 'redux-saga/effects'
+import { all, call, put, take, takeEvery } from 'redux-saga/effects'
 import {
   getBalance,
   getClaim,
@@ -17,8 +17,10 @@ import {
   BNWei,
   StringWei
 } from 'store/wallet/slice'
+import { fetchAccountSucceeded } from 'store/account/reducer'
 import walletClient from 'services/wallet-client/WalletClient'
 import { select } from 'redux-saga-test-plan/matchers'
+import { SETUP_BACKEND_SUCCEEDED } from 'store/backend/actions'
 
 // TODO: handle errors
 
@@ -53,6 +55,10 @@ function* claimAsync() {
   }
 }
 
+function* getWalletBalanceAndClaim() {
+  yield all([put(getClaim()), put(getBalance())])
+}
+
 function* fetchBalanceAsync() {
   const currentBalance: BNWei = yield call(() =>
     walletClient.getCurrentBalance()
@@ -83,8 +89,23 @@ function* watchGetClaims() {
   yield takeEvery(getClaim.type, fetchClaimsAsync)
 }
 
+function* watchFetchAccountSucceeded() {
+  try {
+    yield all([take(fetchAccountSucceeded.type), take(SETUP_BACKEND_SUCCEEDED)])
+    yield getWalletBalanceAndClaim()
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 const sagas = () => {
-  return [watchGetBalance, watchGetClaims, watchClaim, watchSend]
+  return [
+    watchGetBalance,
+    watchGetClaims,
+    watchClaim,
+    watchSend,
+    watchFetchAccountSucceeded
+  ]
 }
 
 export default sagas

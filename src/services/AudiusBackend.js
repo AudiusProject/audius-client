@@ -455,7 +455,7 @@ class AudiusBackend {
           IDENTITY_SERVICE
         ),
         creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
-        comStockConfig: AudiusLibs.configComStock(COM_STOCKURL),
+        comstockConfig: AudiusLibs.configComstock(COM_STOCKURL),
         isServer: false
       })
       await audiusLibs.init()
@@ -2375,8 +2375,9 @@ class AudiusBackend {
    */
   static async getClaimDistributionAmount() {
     await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
     try {
       const amount = await audiusLibs.Account.getClaimDistributionAmount()
       return amount
@@ -2393,8 +2394,9 @@ class AudiusBackend {
    */
   static async makeDistributionClaim() {
     await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
     try {
       await audiusLibs.Account.makeDistributionClaim()
       return true
@@ -2410,12 +2412,35 @@ class AudiusBackend {
    */
   static async getHasClaimed() {
     await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
 
     try {
       const hasClaimed = await audiusLibs.Account.getHasClaimed()
       return hasClaimed
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+  /**
+   * Make a request to check if the user has already claimed
+   * @returns {Promise<BN>} doesHaveClaim
+   */
+  static async getBalance() {
+    await waitForLibsInit()
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    console.log({ wallet })
+    if (!wallet) return
+
+    try {
+      const ethWeb3 = audiusLibs.ethWeb3Manager.getWeb3()
+      const checksumWallet = ethWeb3.utils.toChecksumAddress(wallet)
+      const balance = await audiusLibs.ethContracts.AudiusTokenClient.balanceOf(
+        checksumWallet
+      )
+      return balance
     } catch (e) {
       console.error(e)
       return null

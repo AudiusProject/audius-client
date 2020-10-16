@@ -1,11 +1,11 @@
 import {
-  audioToWei,
   BNWei,
-  StringAudio,
   StringWei,
   stringWeiToBN,
   WalletAddress
 } from 'store/wallet/slice'
+import AudiusBackend from 'services/AudiusBackend'
+import BN from 'bn.js'
 
 // 0.001 Audio
 export const MIN_TRANSFERRABLE_WEI = stringWeiToBN(
@@ -16,31 +16,34 @@ class WalletClient {
   init() {}
 
   async getCurrentBalance(): Promise<BNWei> {
-    // TODO: replace placeholder
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(audioToWei('100000' as StringAudio))
-      }, 1500)
-    })
+    try {
+      const balance = await AudiusBackend.getBalance()
+      return balance as BNWei
+    } catch (err) {
+      console.log(err)
+      return new BN('0') as BNWei
+    }
   }
 
   async getClaimableBalance(): Promise<BNWei> {
-    // TODO: replace placeholder
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(audioToWei('1000' as StringAudio))
-      }, 1500)
-    })
+    try {
+      const hasClaimed = await AudiusBackend.getHasClaimed()
+      if (hasClaimed) return new BN('0') as BNWei
+      const claimAmount = await AudiusBackend.getClaimDistributionAmount()
+      if (claimAmount) return claimAmount as BNWei
+      return new BN('0') as BNWei
+    } catch (err) {
+      console.log(err)
+      return new BN('0') as BNWei
+    }
   }
 
   async claim(): Promise<void> {
-    // TODO: replace placeholder
-    console.log('Claiming')
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve()
-      }, 3500)
-    })
+    try {
+      await AudiusBackend.makeDistributionClaim()
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   async sendTokens(address: WalletAddress, amount: BNWei): Promise<void> {
