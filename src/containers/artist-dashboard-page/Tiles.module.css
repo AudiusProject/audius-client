@@ -38,6 +38,7 @@
 }
 
 .balanceBtn {
+  background: transparent !important;
   border: 1px solid var(--neutral-light-6);
   width: 144px;
 }
@@ -238,6 +239,7 @@
 }
 
 .explainerTile .vipButton {
+  background: transparent !important;
   border: 1px solid var(--neutral-light-6);
   height: 48px;
   margin-bottom: 32px;

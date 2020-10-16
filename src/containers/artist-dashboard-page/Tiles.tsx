@@ -162,7 +162,11 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
     <Tile className={cn([styles.explainerTile, className])}>
       <>
         <div className={styles.platformToken}>
-          <img className={styles.platformTokenImage} src={platformTokenImage} />
+          <img
+            alt={'Platform Token'}
+            className={styles.platformTokenImage}
+            src={platformTokenImage}
+          />
         </div>
         <div className={styles.whatIsAudioContainer}>
           <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>
@@ -170,7 +174,11 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
           <p className={styles.description}>{messages.audioDescription}</p>
           <div className={styles.learnMore}>{messages.learnMore}</div>
           <div className={styles.levels}>
-            <img className={styles.levelImg} src={featureChart} />
+            <img
+              alt={'Feature Chart'}
+              className={styles.levelImg}
+              src={featureChart}
+            />
             <div className={cn(styles.levelContainer, disabled)}>
               <div className={styles.level}>
                 <span className={styles.levelText}>{messages.level1} </span>

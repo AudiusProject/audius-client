@@ -153,7 +153,6 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
         label={messages.destination}
         format={Format.INPUT}
         placeholder={messages.addressPlaceholder}
-        rightLabel={'$AUDIO'}
         value={destinationAddress}
         isNumeric={false}
         onChange={setDestinationAddress}

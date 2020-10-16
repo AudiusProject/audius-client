@@ -1,5 +1,6 @@
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import React from 'react'
+import cn from 'classnames'
 import { ModalBodyWrapper } from '../WalletModal'
 import DisplayAudio from './DisplayAudio'
 
@@ -19,11 +20,15 @@ const messages = {
 
 const ClaimingModalBody = ({ balance }: ClaimingModalBodyProps) => {
   return (
-    <ModalBodyWrapper>
-      <DisplayAudio amount={balance} />
+    <ModalBodyWrapper className={styles.container}>
+      <DisplayAudio amount={balance} className={styles.displayAudio} />
       <LoadingSpinner className={styles.spinner} />
-      {messages.message1}
-      {messages.message2}
+      <div className={cn(styles.message, styles.msgSpacing)}>
+        {messages.message1}
+      </div>
+      <div className={cn(styles.message, styles.msgWidth)}>
+        {messages.message2}
+      </div>
     </ModalBodyWrapper>
   )
 }

@@ -1,8 +1,11 @@
 import React from 'react'
-import { BNWei, WalletAddress, weiToAudioString } from 'store/wallet/slice'
+import { BNWei, WalletAddress } from 'store/wallet/slice'
+import { formatAudio, formatWei } from 'utils/formatUtil'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
+import Tooltip from 'components/tooltip/Tooltip'
 import DisplayAudio from './DisplayAudio'
 import { AddressWithArrow } from './SendInputConfirmation'
+import PurpleBox from './PurpleBox'
 
 import styles from './SendInputSuccess.module.css'
 
@@ -15,7 +18,8 @@ type SendInputSuccessProps = {
 const messages = {
   success: 'You have successfully sent',
   note: 'Note: The $AUDIO may take a couple minutes to show up',
-  newBalance: 'YOUR BALANCE IS NOW'
+  newBalance: 'YOUR BALANCE IS NOW',
+  currency: '$AUDIO'
 }
 
 const SendInputSuccess = ({
@@ -31,9 +35,24 @@ const SendInputSuccess = ({
       <DisplayAudio amount={sentAmount} />
       <AddressWithArrow address={recipientAddress} />
       <div className={styles.noteWrapper}>{messages.note}</div>
-      <div>
-        {messages.newBalance} {weiToAudioString(balance)}
-      </div>
+      <PurpleBox
+        className={styles.box}
+        label={messages.newBalance}
+        text={
+          <>
+            <Tooltip
+              text={formatWei(balance)}
+              className={styles.tooltip}
+              placement={'top'}
+              mount={'parent'}
+              mouseEnterDelay={0.2}
+            >
+              <span className={styles.amount}>{formatAudio(balance)}</span>
+            </Tooltip>
+            <span className={styles.label}>{messages.currency}</span>
+          </>
+        }
+      />
     </ModalBodyWrapper>
   )
 }

@@ -109,7 +109,7 @@ export const pluralize = (
  */
 export const formatAudio = amount => {
   if (!BN.isBN(amount)) return ''
-  let aud = amount.div(new BN('1000000000000000000')).toString()
+  let aud = amount.div(WEI).toString()
   aud = numeral(aud).format('0,0')
   return aud
 }
@@ -133,6 +133,25 @@ const formatNumberCommas = num => {
   )
 }
 
+const trimRightZeros = number => {
+  return number.replace(/(\d)0+$/gm, '$1')
+}
+
+/**
+ * Format wei BN to the full $AUDIO currency with decimals
+ * @param {BN} amount The wei amount
+ * @returns {string} $AUDIO The $AUDIO amount with decimals
+ */
+const formtWeiAsAudioDecimalString = amount => {
+  const aud = amount.div(WEI)
+  const wei = amount.sub(aud.mul(WEI))
+  if (wei.isZero()) {
+    return aud.toString()
+  }
+  const decimals = wei.toString().padStart(18, '0')
+  return `${aud}.${trimRightZeros(decimals)}`
+}
+
 /**
  * Format a BN to the full $AUDIO currency with decimals
  * @param {BN} amount The wei amount
@@ -140,7 +159,7 @@ const formatNumberCommas = num => {
  */
 export const formatWei = amount => {
   if (!BN.isBN(amount)) return ''
-  const aud = formatNumberCommas(amount.toString())
+  const aud = formatNumberCommas(formtWeiAsAudioDecimalString(amount))
   return aud
 }
 

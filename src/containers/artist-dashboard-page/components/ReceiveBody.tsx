@@ -1,6 +1,8 @@
 import React from 'react'
 import { WalletAddress } from 'store/wallet/slice'
 import { ModalBodyWrapper } from '../WalletModal'
+import DisplayAddress from './DisplayAddress'
+import styles from './ReceiveBody.module.css'
 
 type ReceiveBodyProps = { wallet: WalletAddress }
 
@@ -13,14 +15,13 @@ const messages = {
 
 const ReceiveBody = ({ wallet }: ReceiveBodyProps) => {
   return (
-    <ModalBodyWrapper>
-      {messages.warning}
-      {messages.warning2}
-      {messages.warning3}
-      <div>
-        {messages.yourAddress}
-        {wallet}
+    <ModalBodyWrapper className={styles.container}>
+      <div className={styles.warning}>{messages.warning}</div>
+      <div className={styles.description}>
+        <div>{messages.warning2}</div>
+        <div>{messages.warning3}</div>
       </div>
+      <DisplayAddress address={wallet} />
     </ModalBodyWrapper>
   )
 }

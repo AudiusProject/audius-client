@@ -81,7 +81,6 @@ export const weiToAudioString = (bnWei: BNWei): StringAudio => {
 
 export const weiToAudio = (bnWei: BNWei): BNAudio => {
   const stringAudio = formatWeiToAudioString(bnWei) as StringAudio
-  console.log({ stringAudio })
   return stringAudioToBN(stringAudio)
 }
 
