@@ -84,7 +84,7 @@ const Button = ({
         TYPE_STYLE_MAP[type],
         {
           [styles.noIcon]: !leftIcon && !rightIcon,
-          [styles.isDisabled]: isDisabled,
+          [styles.disabled]: isDisabled,
           [styles.includeHoverAnimations]: includeHoverAnimations
         },
         className

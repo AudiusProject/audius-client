@@ -9,7 +9,8 @@ export type ValueSliderProps = {
   minSliderWidth?: number
   initialValue?: BN
   isIncrease?: boolean
-  valueWrapper?: React.ComponentType<{ value: BN }>
+  minWrapper?: React.ComponentType<{ value: BN }>
+  maxWrapper?: React.ComponentType<{ value: BN }>
 }
 
 export default ValueSliderProps

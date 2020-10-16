@@ -19,7 +19,8 @@ const ValueSlider: React.FC<ValueSliderProps> = ({
   value,
   initialValue,
   isIncrease,
-  valueWrapper
+  minWrapper: MinWrapper,
+  maxWrapper: MaxWrapper
 }: ValueSliderProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const maxValueRef = useRef<HTMLDivElement | null>(null)
@@ -27,7 +28,6 @@ const ValueSlider: React.FC<ValueSliderProps> = ({
 
   const [initialSliderWidth, setInitialSliderWidth] = useState(0)
   const [sliderWidth, setSliderWidth] = useState(0)
-  const ValueWrapper = valueWrapper
   useEffect(() => {
     if (containerRef.current) {
       const percentage = getBNPercentage(value.sub(min), max.sub(min))
@@ -83,34 +83,38 @@ const ValueSlider: React.FC<ValueSliderProps> = ({
       <div className={styles.minMax}>
         {min && (
           <div ref={maxValueRef} className={styles.minValue}>
-            <span className={styles.minLabel}>
-              {isIncrease !== undefined
-                ? isIncrease
-                  ? messages.current
-                  : messages.min
-                : messages.min}
-            </span>
-            {ValueWrapper ? (
-              <ValueWrapper value={min} />
+            {MinWrapper ? (
+              <MinWrapper value={min} />
             ) : (
-              <span>{min.toString()}</span>
+              <>
+                <span className={styles.minLabel}>
+                  {isIncrease !== undefined
+                    ? isIncrease
+                      ? messages.current
+                      : messages.min
+                    : messages.min}
+                </span>
+                <span>{min.toString()}</span>
+              </>
             )}
           </div>
         )}
         {max && (
           <div ref={minValueRef} className={styles.maxValues}>
-            {ValueWrapper ? (
-              <ValueWrapper value={max} />
+            {MaxWrapper ? (
+              <MaxWrapper value={max} />
             ) : (
-              <span>{max.toString()}</span>
+              <>
+                <span>{max.toString()}</span>
+                <span className={styles.maxLabel}>
+                  {isIncrease !== undefined
+                    ? isIncrease
+                      ? messages.max
+                      : messages.current
+                    : messages.max}
+                </span>
+              </>
             )}
-            <span className={styles.maxLabel}>
-              {isIncrease !== undefined
-                ? isIncrease
-                  ? messages.max
-                  : messages.current
-                : messages.max}
-            </span>
           </div>
         )}
       </div>
