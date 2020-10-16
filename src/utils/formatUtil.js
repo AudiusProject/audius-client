@@ -114,6 +114,13 @@ export const formatAudio = amount => {
   return aud
 }
 
+// Wei -> Audio
+
+export const formatWeiToAudioString = wei => {
+  const aud = wei.div(WEI)
+  return aud.toString()
+}
+
 /**
  * Format a number to have commas
  * @param {number|string} num
@@ -169,6 +176,7 @@ export const checkWeiNumber = number => {
   return checkOnlyNumeric(number) || checkOnlyWeiFloat(number)
 }
 
+// Audio -> Wei
 export const parseWeiNumber = number => {
   if (checkOnlyNumeric(number)) {
     return new BN(number).mul(WEI)

@@ -14,7 +14,8 @@ import {
   decreaseBalance,
   stringWeiToBN,
   weiToString,
-  BNWei
+  BNWei,
+  StringWei
 } from 'store/wallet/slice'
 import walletClient from 'services/wallet-client/WalletClient'
 import { select } from 'redux-saga-test-plan/matchers'
@@ -43,7 +44,7 @@ function* claimAsync() {
   try {
     yield call(() => walletClient.claim())
     yield all([
-      put(setClaim({ balance: weiToString(weiBNClaimable) })),
+      put(setClaim({ balance: '0' as StringWei })),
       put(increaseBalance({ amount: weiToString(weiBNClaimable) })),
       put(claimSucceeded())
     ])

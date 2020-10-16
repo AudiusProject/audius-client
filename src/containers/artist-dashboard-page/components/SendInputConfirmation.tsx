@@ -1,8 +1,17 @@
-import { Button } from '@audius/stems'
+import { Button, IconArrow } from '@audius/stems'
 import React from 'react'
-import { BNWei, WalletAddress } from 'store/wallet/slice'
-import { ModalBodyWrapper } from '../WalletModal'
+import {
+  BNWei,
+  StringAudio,
+  stringAudioToBN,
+  WalletAddress,
+  weiToAudio
+} from 'store/wallet/slice'
+import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import DisplayAudio from './DisplayAudio'
+import DashboardTokenValueSlider from './DashboardTokenValueSlider'
+
+import styles from './SendInputConfirmation.module.css'
 
 const messages = {
   title: "YOU'RE ABOUT TO SEND",
@@ -10,23 +19,42 @@ const messages = {
 }
 
 type SendInputConfirmationProps = {
+  balance: BNWei
   amountToTransfer: BNWei
   recipientAddress: WalletAddress
   onSend: () => void
 }
 
+export const AddressWithArrow = ({ address }: { address: WalletAddress }) => {
+  return (
+    <div className={styles.addressWrapper}>
+      <IconArrow className={styles.arrow} />
+      {address}
+    </div>
+  )
+}
+
 const SendInputConfirmation = ({
   amountToTransfer,
+  balance,
   recipientAddress,
   onSend
 }: SendInputConfirmationProps) => {
   return (
     <ModalBodyWrapper>
-      {messages.title}
-      {/* ValSlider goes here! */}
+      <div className={styles.titleWrapper}>
+        <ModalBodyTitle text={messages.title} />
+      </div>
+      <DashboardTokenValueSlider
+        min={stringAudioToBN('0' as StringAudio)}
+        max={weiToAudio(balance)}
+        value={weiToAudio(amountToTransfer)}
+      />
       <DisplayAudio amount={amountToTransfer} />
-      <div>{recipientAddress}</div>
-      <Button text={messages.sendButton} onClick={onSend} />
+      <AddressWithArrow address={recipientAddress} />
+      <div className={styles.buttonWrapper}>
+        <Button text={messages.sendButton} onClick={onSend} />
+      </div>
     </ModalBodyWrapper>
   )
 }
