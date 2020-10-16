@@ -66,7 +66,7 @@ const validateSendAmount = (
   try {
     const stringAudio = stringAudioAmount as StringAudio
     const sendWeiBN = audioToWei(stringAudio)
-    if (sendWeiBN.gte(balanceWei)) return 'INSUFFICIENT_BALANCE'
+    if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
   } catch (e) {
     return 'MALFORMED'
   }
