@@ -90,6 +90,7 @@ export const ClaimTile = ({ className }: { className?: string }) => {
             className={styles.claimBtn}
             text={messages.claimCTA}
             onClick={onClick}
+            type={ButtonType.COMMON}
           />
         )}
       </>
