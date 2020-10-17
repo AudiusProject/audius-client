@@ -13,7 +13,6 @@ const TokenHoverTooltip = ({
   children,
   parentMount = false
 }: TokenHoverTooltipProps) => {
-  console.log({ balance })
   return (
     <Tooltip
       text={`${formatWei(balance)} $AUDIO`}

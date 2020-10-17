@@ -20,6 +20,8 @@ import {
 } from 'store/wallet/slice'
 import { addConfirmationCall, clear } from 'store/confirmer/actions'
 
+const CLAIM_UID = 'CLAIM_UID'
+
 function* send() {
   // Set modal state to input
   const inputStage: ModalState = {
@@ -56,8 +58,6 @@ function* claim() {
       stage: 'CLAIMING'
     }
   }
-
-  const CLAIM_UID = 'CLAIM_UID'
 
   // Set loading state
   yield all([
