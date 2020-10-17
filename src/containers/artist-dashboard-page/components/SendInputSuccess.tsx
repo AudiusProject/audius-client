@@ -1,12 +1,13 @@
 import React from 'react'
 import { BNWei, WalletAddress, formatWei } from 'store/wallet/slice'
+import { formatAudio } from 'utils/formatUtil'
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
-import Tooltip from 'components/tooltip/Tooltip'
 import DisplayAudio from './DisplayAudio'
 import { AddressWithArrow } from './SendInputConfirmation'
 import PurpleBox from './PurpleBox'
 
 import styles from './SendInputSuccess.module.css'
+import TokenHoverTooltip from './TokenHoverTooltip'
 
 type SendInputSuccessProps = {
   sentAmount: BNWei
@@ -15,7 +16,7 @@ type SendInputSuccessProps = {
 }
 
 const messages = {
-  success: 'You have successfully sent',
+  success: 'YOU HAVE SUCCESSFULLY SENT',
   note: 'Note: The $AUDIO may take a couple minutes to show up',
   newBalance: 'YOUR BALANCE IS NOW',
   currency: '$AUDIO'
@@ -39,15 +40,9 @@ const SendInputSuccess = ({
         label={messages.newBalance}
         text={
           <>
-            <Tooltip
-              text={formatWei(balance)}
-              className={styles.tooltip}
-              placement={'top'}
-              mount={'parent'}
-              mouseEnterDelay={0.2}
-            >
+            <TokenHoverTooltip balance={balance}>
               <span className={styles.amount}>{formatWei(balance, true)}</span>
-            </Tooltip>
+            </TokenHoverTooltip>
             <span className={styles.label}>{messages.currency}</span>
           </>
         }

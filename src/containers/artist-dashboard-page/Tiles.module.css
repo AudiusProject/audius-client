@@ -277,14 +277,3 @@
 .disabled {
   opacity: 0.5;
 }
-
-
-/* Global on tiles */
-.tooltip :global(.ant-tooltip-content) :global(.ant-tooltip-inner) {
-  background: black;
-}
-
-.tooltip :global(.ant-tooltip-content) :global(.ant-tooltip-arrow) {
-  border-bottom-color: black;
-  border-right-color: black;
-}

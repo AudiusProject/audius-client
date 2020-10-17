@@ -12,7 +12,6 @@ import {
 } from 'store/wallet/slice'
 import BN from 'bn.js'
 import { Button, ButtonType } from '@audius/stems'
-import Tooltip from 'components/tooltip/Tooltip'
 import { useDispatch } from 'react-redux'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
@@ -25,6 +24,7 @@ import {
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
+import TokenHoverTooltip from './components/TokenHoverTooltip'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
@@ -74,17 +74,11 @@ export const ClaimTile = ({ className }: { className?: string }) => {
       ])}
     >
       <>
-        <Tooltip
-          text={formatWei(unclaimedAudio)}
-          disabled={unclaimedAudio.isZero()}
-          className={styles.tooltip}
-          placement={'top'}
-          mouseEnterDelay={0.2}
-        >
+        <TokenHoverTooltip balance={unclaimedAudio}>
           <div className={styles.claimAmount}>
             {formatWei(unclaimedAudio, true)}
           </div>
-        </Tooltip>
+        </TokenHoverTooltip>
         <div className={styles.unclaimed}> {messages.unclaimed}</div>
         {hasNoClaim ? (
           <div className={styles.noClaim}>
@@ -114,15 +108,9 @@ export const WalletTile = ({ className }: { className?: string }) => {
   return (
     <Tile className={cn([styles.walletTile, className])}>
       <>
-        <Tooltip
-          text={formatWei(balance)}
-          disabled={balance.isZero()}
-          className={styles.tooltip}
-          placement={'top'}
-          mouseEnterDelay={0.2}
-        >
+        <TokenHoverTooltip balance={balance}>
           <div className={styles.balanceAmount}>{formatWei(balance, true)}</div>
-        </Tooltip>
+        </TokenHoverTooltip>
         <div className={styles.balanceLabel}>{messages.balance}</div>
         <div>
           <Button
