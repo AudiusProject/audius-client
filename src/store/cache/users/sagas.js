@@ -16,6 +16,7 @@ import { retrieve } from 'store/cache/sagas'
 import { DefaultSizes } from 'models/common/ImageSizes'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'store/account/selectors'
+import { reformat } from './utils'
 
 /**
  * @param {Array<number>} userIds array of user ids to fetch
@@ -46,10 +47,10 @@ function* retrieveUserByHandle(handle) {
   if (Array.isArray(handle)) {
     handle = handle[0]
   }
-  const user = yield apiClient.getUserByHandle({
+  const user = (yield apiClient.getUserByHandle({
     handle,
     currentUserId: userId
-  })
+  })).map(reformat)
   return user
 }
 
