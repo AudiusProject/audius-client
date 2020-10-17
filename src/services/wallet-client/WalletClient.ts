@@ -47,8 +47,6 @@ class WalletClient {
   }
 
   async sendTokens(address: WalletAddress, amount: BNWei): Promise<void> {
-    // TODO: replace placeholder
-    console.log('Sending tokens')
     if (amount.lt(MIN_TRANSFERRABLE_WEI)) {
       throw new Error('Insufficient Audio to transfer')
     }
