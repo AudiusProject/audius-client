@@ -2432,7 +2432,6 @@ class AudiusBackend {
   static async getBalance() {
     await waitForLibsInit()
     const wallet = audiusLibs.web3Manager.getWalletAddress()
-    console.log({ wallet })
     if (!wallet) return
 
     try {
@@ -2458,7 +2457,6 @@ class AudiusBackend {
       address,
       amount
     )
-    console.log(receipt)
     return receipt
   }
 }
