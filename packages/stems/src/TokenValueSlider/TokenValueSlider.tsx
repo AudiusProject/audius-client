@@ -13,6 +13,7 @@ const messages = {
 const ValueSlider: React.FC<ValueSliderProps> = ({
   className,
   sliderClassName,
+  sliderBarClassName,
   min,
   max,
   minSliderWidth,
@@ -70,7 +71,7 @@ const ValueSlider: React.FC<ValueSliderProps> = ({
           className={cn(styles.newValueSlider, {
             [styles.invalid]: value.gt(max) || value.lt(min),
             [styles.lighter]: isIncrease
-          })}
+          }, sliderBarClassName)}
           style={{ width: sliderWidth }}
         />
         <div
