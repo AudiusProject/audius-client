@@ -36,7 +36,11 @@ const WEB3_NETWORK_ID = process.env.REACT_APP_WEB3_NETWORK_ID
 const ETH_REGISTRY_ADDRESS = process.env.REACT_APP_ETH_REGISTRY_ADDRESS
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const ETH_TOKEN_ADDRESS = process.env.REACT_APP_ETH_TOKEN_ADDRESS
+const ETH_RELAYER_PUBLIC_KEY = process.env.REACT_APP_ETH_RELAYER_PUBLIC_KEY
 const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
+const COM_STOCKURL = process.env.REACT_APP_COMSTOCK_URL
+const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
+  process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
 
 const SEARCH_MAX_SAVED_RESULTS = 10
 const SEARCH_MAX_TOTAL_RESULTS = 50
@@ -449,6 +453,7 @@ class AudiusBackend {
           IDENTITY_SERVICE
         ),
         creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
+        comstockConfig: AudiusLibs.configComstock(COM_STOCKURL),
         isServer: false
       })
       await audiusLibs.init()
@@ -493,7 +498,8 @@ class AudiusBackend {
         ETH_TOKEN_ADDRESS,
         ETH_REGISTRY_ADDRESS,
         ETH_PROVIDER_URLS,
-        ETH_OWNER_WALLET
+        ETH_OWNER_WALLET,
+        CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
       )
     }
   }
@@ -2359,6 +2365,96 @@ class AudiusBackend {
     } catch (e) {
       console.error(e)
     }
+  }
+
+  /**
+   * Retrieves the claim distribution amount
+   * @returns {BN} amount The claim amount
+   */
+  static async getClaimDistributionAmount() {
+    await waitForLibsInit()
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
+    try {
+      const amount = await audiusLibs.Account.getClaimDistributionAmount()
+      return amount
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+  /**
+   * Make the claim for the distribution
+   * NOTE: if the claim was already made, the response will 500 and error
+   * @returns {Promise<boolean>} didMakeClaim
+   */
+  static async makeDistributionClaim() {
+    await waitForLibsInit()
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
+    try {
+      await audiusLibs.Account.makeDistributionClaim()
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
+    }
+  }
+
+  /**
+   * Make a request to check if the user has already claimed
+   * @returns {Promise<boolean>} doesHaveClaim
+   */
+  static async getHasClaimed() {
+    await waitForLibsInit()
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
+    try {
+      const hasClaimed = await audiusLibs.Account.getHasClaimed()
+      return hasClaimed
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+  /**
+   * Make a request to check if the user has already claimed
+   * @returns {Promise<BN>} doesHaveClaim
+   */
+  static async getBalance() {
+    await waitForLibsInit()
+    const wallet = audiusLibs.web3Manager.getWalletAddress()
+    if (!wallet) return
+
+    try {
+      const ethWeb3 = audiusLibs.ethWeb3Manager.getWeb3()
+      const checksumWallet = ethWeb3.utils.toChecksumAddress(wallet)
+      const balance = await audiusLibs.ethContracts.AudiusTokenClient.balanceOf(
+        checksumWallet
+      )
+      return balance
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+  /**
+   * Make a request to send
+   */
+  static async sendTokens(address, amount) {
+    await waitForLibsInit()
+    const receipt = await audiusLibs.Account.permitAndSendTokens(
+      ETH_RELAYER_PUBLIC_KEY,
+      address,
+      amount
+    )
+    return receipt
   }
 }
 

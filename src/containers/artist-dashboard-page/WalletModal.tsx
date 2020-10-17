@@ -33,6 +33,7 @@ import SendInputConfirmation from './components/SendInputConfirmation'
 import SendInputSuccess from './components/SendInputSuccess'
 import ErrorBody from './components/ErrorBody'
 import styles from './WalletModal.module.css'
+import SendingModalBody from './components/SendingModalBody'
 
 const messages = {
   claimingTitle: "Hold Tight, We're Claiming Your $AUDIO!",
@@ -41,6 +42,7 @@ const messages = {
   receive: 'Receive $AUDIO',
   send: 'Send $AUDIO',
   confirmSend: 'Send $AUDIO',
+  sending: 'Your $AUDIO is Sending',
   sent: 'Your $AUDIO Has Been Sent',
   sendError: 'Uh oh! Something went wrong sending your $AUDIO.'
 }
@@ -85,6 +87,11 @@ const titlesMap = {
       </TitleWrapper>
     ),
     CONFIRMED_SEND: messages.sent,
+    SENDING: (
+      <TitleWrapper label={messages.send}>
+        <IconSend className={styles.sending} />
+      </TitleWrapper>
+    ),
     ERROR: messages.sendError
   }
 }
@@ -190,6 +197,15 @@ const ModalContent = ({
             />
           )
           break
+        case 'SENDING':
+          if (!amountPendingTransfer) return null
+          ret = (
+            <SendingModalBody
+              amountToTransfer={amountPendingTransfer.amount}
+              recipientAddress={amountPendingTransfer.recipientWallet}
+            />
+          )
+          break
         case 'CONFIRMED_SEND':
           if (!amountPendingTransfer) return null
           ret = (
@@ -199,7 +215,6 @@ const ModalContent = ({
               balance={balance}
             />
           )
-
           break
 
         case 'ERROR':

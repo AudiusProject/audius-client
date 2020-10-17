@@ -22,6 +22,11 @@ type SendingState =
       recipientWallet: string
     }
   | {
+      stage: 'SENDING'
+      amount: StringWei
+      recipientWallet: WalletAddress
+    }
+  | {
       stage: 'CONFIRMED_SEND'
       amount: StringWei
       recipientWallet: WalletAddress
@@ -86,7 +91,7 @@ const slice = createSlice({
         return
 
       state.modalState.flowState = {
-        stage: 'CONFIRMED_SEND',
+        stage: 'SENDING',
         recipientWallet: state.modalState.flowState.recipientWallet,
         amount: state.modalState.flowState.amount
       }
@@ -116,6 +121,7 @@ export const getSendData = (
     !(
       modalState?.stage === 'SEND' &&
       (modalState.flowState.stage === 'CONFIRMED_SEND' ||
+        modalState.flowState.stage === 'SENDING' ||
         modalState.flowState.stage === 'AWAITING_CONFIRMATION')
     )
   )

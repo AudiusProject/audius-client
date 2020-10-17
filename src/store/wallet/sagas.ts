@@ -1,4 +1,4 @@
-import { all, call, put, takeEvery } from 'redux-saga/effects'
+import { all, call, put, take, takeEvery } from 'redux-saga/effects'
 import {
   getBalance,
   getClaim,
@@ -10,6 +10,8 @@ import {
   claimSucceeded,
   claimFailed,
   send,
+  sendSucceeded,
+  sendFailed,
   getAccountBalance,
   decreaseBalance,
   stringWeiToBN,
@@ -17,8 +19,10 @@ import {
   BNWei,
   StringWei
 } from 'store/wallet/slice'
+import { fetchAccountSucceeded } from 'store/account/reducer'
 import walletClient from 'services/wallet-client/WalletClient'
 import { select } from 'redux-saga-test-plan/matchers'
+import { SETUP_BACKEND_SUCCEEDED } from 'store/backend/actions'
 
 // TODO: handle errors
 
@@ -30,10 +34,12 @@ function* sendAsync({
     getAccountBalance
   )
   if (!weiBNBalance || !weiBNBalance.gte(weiBNAmount)) return
-  yield all([
-    call(() => walletClient.sendTokens(recipientWallet, weiBNAmount)),
-    put(decreaseBalance({ amount }))
-  ])
+  try {
+    yield call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
+    yield all([put(decreaseBalance({ amount })), put(sendSucceeded())])
+  } catch (e) {
+    yield put(sendFailed({ error: e.message }))
+  }
 }
 
 function* claimAsync() {
@@ -51,6 +57,10 @@ function* claimAsync() {
   } catch (e) {
     yield put(claimFailed({ error: e.message }))
   }
+}
+
+function* getWalletBalanceAndClaim() {
+  yield all([put(getClaim()), put(getBalance())])
 }
 
 function* fetchBalanceAsync() {
@@ -83,8 +93,23 @@ function* watchGetClaims() {
   yield takeEvery(getClaim.type, fetchClaimsAsync)
 }
 
+function* watchFetchAccountSucceeded() {
+  try {
+    yield all([take(fetchAccountSucceeded.type), take(SETUP_BACKEND_SUCCEEDED)])
+    yield getWalletBalanceAndClaim()
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 const sagas = () => {
-  return [watchGetBalance, watchGetClaims, watchClaim, watchSend]
+  return [
+    watchGetBalance,
+    watchGetClaims,
+    watchClaim,
+    watchSend,
+    watchFetchAccountSucceeded
+  ]
 }
 
 export default sagas

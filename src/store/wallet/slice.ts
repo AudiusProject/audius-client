@@ -74,7 +74,9 @@ const slice = createSlice({
     send: (
       state,
       action: PayloadAction<{ recipientWallet: string; amount: StringWei }>
-    ) => {}
+    ) => {},
+    sendSucceeded: () => {},
+    sendFailed: (state, action: PayloadAction<{ error?: string }>) => {}
   }
 })
 
@@ -170,6 +172,8 @@ export const {
   claim,
   claimSucceeded,
   claimFailed,
-  send
+  send,
+  sendSucceeded,
+  sendFailed
 } = slice.actions
 export default slice.reducer
