@@ -1,8 +1,8 @@
 import React from 'react'
 import { BNWei, formatWei } from 'store/wallet/slice'
-import Tooltip from 'components/tooltip/Tooltip'
 import styles from './DisplayAudio.module.css'
 import cn from 'classnames'
+import TokenHoverTooltip from './TokenHoverTooltip'
 
 type DisplayAudioProps = {
   amount: BNWei
@@ -16,15 +16,9 @@ const messages = {
 const DisplayAudio = ({ amount, className }: DisplayAudioProps) => {
   return (
     <div className={cn({ [className!]: !!className })}>
-      <Tooltip
-        text={formatWei(amount)}
-        className={styles.tooltip}
-        placement={'top'}
-        mount={'parent'}
-        mouseEnterDelay={0.2}
-      >
+      <TokenHoverTooltip balance={amount} parentMount>
         <span className={styles.amount}>{formatWei(amount, true)}</span>
-      </Tooltip>
+      </TokenHoverTooltip>
       <span className={styles.label}>{messages.currency}</span>
     </div>
   )

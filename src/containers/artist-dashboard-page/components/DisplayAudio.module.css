@@ -3,7 +3,7 @@
   font-size: var(--font-3xl);
   line-height: 39px;
 
-  background: linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  background: var(--page-header-gradient);
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
 }
@@ -16,15 +16,4 @@
   text-transform: uppercase;
   color: var(--neutral-light-4);
   margin-left: 8px;
-}
-
-
-/* Global on tiles */
-.tooltip :global(.ant-tooltip-content) :global(.ant-tooltip-inner) {
-  background: black;
-}
-
-.tooltip :global(.ant-tooltip-content) :global(.ant-tooltip-arrow) {
-  border-bottom-color: black; 
-  border-right-color: black; 
 }

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import styles from './DisplayAddress.module.css'
+import styles from './ClickableAddress.module.css'
 import cn from 'classnames'
 import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { copyToClipboard } from 'utils/clipboardUtil'
@@ -19,7 +19,7 @@ const messages = {
   yourAddr: 'YOUR ADDRESS'
 }
 
-const DisplayAddress = ({ address, className }: DisplayAddressProps) => {
+const ClickableAddress = ({ address, className }: DisplayAddressProps) => {
   const onClickAddress = useCallback(() => {
     copyToClipboard(address)
   }, [address])
@@ -50,4 +50,4 @@ const DisplayAddress = ({ address, className }: DisplayAddressProps) => {
   )
 }
 
-export default DisplayAddress
+export default ClickableAddress
