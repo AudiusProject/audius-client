@@ -1,7 +1,7 @@
 import React from 'react'
 import { WalletAddress } from 'store/wallet/slice'
 import { ModalBodyWrapper } from '../WalletModal'
-import DisplayAddress from './DisplayAddress'
+import ClickableAddress from './ClickableAddress'
 import styles from './ReceiveBody.module.css'
 
 type ReceiveBodyProps = { wallet: WalletAddress }
@@ -21,7 +21,7 @@ const ReceiveBody = ({ wallet }: ReceiveBodyProps) => {
         <div>{messages.warning2}</div>
         <div>{messages.warning3}</div>
       </div>
-      <DisplayAddress address={wallet} />
+      <ClickableAddress address={wallet} />
     </ModalBodyWrapper>
   )
 }

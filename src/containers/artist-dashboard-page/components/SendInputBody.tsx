@@ -1,4 +1,10 @@
-import { Button, TokenValueInput, Format, IconValidationX } from '@audius/stems'
+import {
+  Button,
+  TokenValueInput,
+  Format,
+  IconValidationX,
+  ButtonType
+} from '@audius/stems'
 import React, { useMemo, useState } from 'react'
 import {
   audioToWei,
@@ -182,6 +188,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
         className={styles.sendBtn}
         text={messages.sendAudio}
         onClick={onClickSend}
+        type={ButtonType.PRIMARY_ALT}
       />
     </ModalBodyWrapper>
   )
