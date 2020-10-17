@@ -47,10 +47,10 @@ function* retrieveUserByHandle(handle) {
   if (Array.isArray(handle)) {
     handle = handle[0]
   }
-  const user = (yield apiClient.getUserByHandle({
+  const user = yield apiClient.getUserByHandle({
     handle,
     currentUserId: userId
-  })).map(reformat)
+  })
   return user
 }
 
@@ -70,6 +70,9 @@ export function* fetchUserByHandle(
       return yield select(getUserTimestamps, { handles })
     },
     retrieveFromSource: retrieveUserByHandle,
+    onBeforeAddToCache: function (users) {
+      return users.map(reformat)
+    },
     kind: Kind.USERS,
     idField: 'user_id',
     requiredFields,
