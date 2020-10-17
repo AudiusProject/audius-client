@@ -1,6 +1,6 @@
 import React from 'react'
-import { BNWei, WalletAddress, formatWei } from 'store/wallet/slice'
-import { formatAudio } from 'utils/formatUtil'
+import { WalletAddress, formatWei, BNWei } from 'store/wallet/slice'
+
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import DisplayAudio from './DisplayAudio'
 import { AddressWithArrow } from './SendInputConfirmation'
