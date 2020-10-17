@@ -29,11 +29,12 @@ const DashboardTokenValueSlider = ({
     <TokenValueSlider
       className={styles.sliderContainer}
       sliderClassName={styles.slider}
+      sliderBarClassName={styles.sliderBar}
       min={min}
       max={max}
       value={value}
-      minSliderWidth={4} // ?: number
-      isIncrease={true} // ?: boolean
+      minSliderWidth={4}
+      isIncrease={true}
       minWrapper={MinMaxWrapper}
       maxWrapper={MinMaxWrapper}
     />

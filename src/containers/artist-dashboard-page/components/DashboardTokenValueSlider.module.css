@@ -8,6 +8,10 @@
   box-shadow: inset 1px 1px 7px -2px rgba(53, 54, 79, 0.25);
 }
 
+.sliderBar {
+  background: var(--page-header-gradient) !important;
+}
+
 .minMaxWrapper {
   color: var(--neutral-light-4);
   font-size: var(--font-s);

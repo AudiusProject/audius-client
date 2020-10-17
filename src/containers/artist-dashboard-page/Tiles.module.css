@@ -19,7 +19,7 @@
 .balanceAmount {
   font-weight: 800;
   font-size: 64px;
-  background: -webkit-linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  background: var(--page-header-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 6px;
@@ -59,7 +59,7 @@
 
 /* Claim Tile */
 .claimTile {
-  background: linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  background: var(--page-header-gradient);
   display: inline-flex;
   flex-direction: column;
   padding-top: 36px;
@@ -161,7 +161,7 @@
   font-weight: 800;
   font-size: 40px;
   line-height: 49px;
-  background: -webkit-linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  background: var(--page-header-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0px 0px 2px 0px;
@@ -222,7 +222,7 @@
   font-weight: 800;
   font-size: var(--font-m);
   line-height: 20px;
-  background: -webkit-linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  background: var(--page-header-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
