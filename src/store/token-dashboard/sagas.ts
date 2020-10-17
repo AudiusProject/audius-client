@@ -18,6 +18,7 @@ import {
   getClaimableBalance,
   weiToString
 } from 'store/wallet/slice'
+import { addConfirmationCall, clear } from 'store/confirmer/actions'
 
 function* send() {
   // Set modal state to input
@@ -56,11 +57,14 @@ function* claim() {
     }
   }
 
+  const CLAIM_UID = 'CLAIM_UID'
+
   // Set loading state
   yield all([
     // Set modal state
     put(setModalVisibility({ isVisible: true })),
-    put(setModalState({ modalState: claimingState }))
+    put(setModalState({ modalState: claimingState })),
+    put(addConfirmationCall(CLAIM_UID, () => {}))
   ])
 
   yield put(walletClaim())
@@ -68,6 +72,9 @@ function* claim() {
     success: take(claimSucceeded),
     error: take(claimFailed)
   })
+
+  // Finish confirmation
+  yield put(clear(CLAIM_UID))
 
   if (error) {
     const errorState: ModalState = {
