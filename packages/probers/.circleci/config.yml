@@ -51,7 +51,7 @@ jobs:
             npm run test:ci
 
   pings:
-    working_directory: ~/
+    working_directory: ~/probers
     docker:
       - image: circleci/node:latest-browsers
     steps:
@@ -60,22 +60,20 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - probers-dependency-cache-{{ checksum "probers/package.json" }}
+            - probers-dependency-cache-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
             - probers-dependency-cache-
       - run:
           name: install probers dependencies
           command: |
-            cd probers
             npm install
       - save_cache:
-          key: probers-dependency-cache-{{ checksum "probers/package.json" }}
+          key: probers-dependency-cache-{{ checksum "package.json" }}
           paths:
-            - ./probers/node_modules
+            - ./node_modules
       - run:
           name: serve and run prober pings
           command: |
-            cd probers
             npm run pings
 
 workflows:
