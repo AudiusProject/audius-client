@@ -2446,6 +2446,16 @@ class AudiusBackend {
       return null
     }
   }
+
+  /**
+   * Make a request to send
+   */
+  static async sendTokens(address, amount) {
+    await waitForLibsInit()
+    const receipt = await audiusLibs.Account.sendTokens(address, amount)
+    console.log(receipt)
+    return receipt
+  }
 }
 
 export default AudiusBackend

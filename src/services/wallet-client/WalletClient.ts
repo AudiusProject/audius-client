@@ -52,11 +52,12 @@ class WalletClient {
     if (amount.lt(MIN_TRANSFERRABLE_WEI)) {
       throw new Error('Insufficient Audio to transfer')
     }
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve()
-      }, 3500)
-    })
+    try {
+      await AudiusBackend.sendTokens(address, amount)
+    } catch (err) {
+      console.error(err)
+      throw err
+    }
   }
 }
 

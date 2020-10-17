@@ -10,6 +10,8 @@ import {
   claimSucceeded,
   claimFailed,
   send,
+  sendSucceeded,
+  sendFailed,
   getAccountBalance,
   decreaseBalance,
   stringWeiToBN,
@@ -32,10 +34,12 @@ function* sendAsync({
     getAccountBalance
   )
   if (!weiBNBalance || !weiBNBalance.gte(weiBNAmount)) return
-  yield all([
-    call(() => walletClient.sendTokens(recipientWallet, weiBNAmount)),
-    put(decreaseBalance({ amount }))
-  ])
+  try {
+    yield call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
+    yield all([put(decreaseBalance({ amount })), put(sendSucceeded())])
+  } catch (e) {
+    yield put(sendFailed({ error: e.message }))
+  }
 }
 
 function* claimAsync() {

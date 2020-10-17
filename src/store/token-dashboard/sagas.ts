@@ -16,7 +16,9 @@ import {
   claimSucceeded,
   claimFailed,
   getClaimableBalance,
-  weiToString
+  weiToString,
+  sendSucceeded,
+  sendFailed
 } from 'store/wallet/slice'
 import { addConfirmationCall, clear } from 'store/confirmer/actions'
 
@@ -44,6 +46,34 @@ function* send() {
   if (!sendData) return
   const { recipientWallet, amount } = sendData
   yield put(walletSend({ recipientWallet, amount: weiToString(amount) }))
+
+  const { error }: { error: ReturnType<typeof claimFailed> } = yield race({
+    success: take(sendSucceeded),
+    error: take(sendFailed)
+  })
+
+  if (error) {
+    const errorState: ModalState = {
+      stage: 'SEND',
+      flowState: {
+        stage: 'ERROR',
+        error: error.payload.error ?? ''
+      }
+    }
+    yield put(setModalState({ modalState: errorState }))
+    return
+  }
+
+  // Set modal state + new token + claim balances
+  const sentState: ModalState = {
+    stage: 'SEND',
+    flowState: {
+      stage: 'CONFIRMED_SEND',
+      amount: weiToString(amount),
+      recipientWallet
+    }
+  }
+  yield put(setModalState({ modalState: sentState }))
 }
 
 function* claim() {
