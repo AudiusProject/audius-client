@@ -1,4 +1,4 @@
-import { Button, IconArrow } from '@audius/stems'
+import { Button, ButtonType, IconArrow } from '@audius/stems'
 import React from 'react'
 import {
   BNWei,
@@ -53,7 +53,11 @@ const SendInputConfirmation = ({
       <DisplayAudio amount={amountToTransfer} />
       <AddressWithArrow address={recipientAddress} />
       <div className={styles.buttonWrapper}>
-        <Button text={messages.sendButton} onClick={onSend} />
+        <Button
+          text={messages.sendButton}
+          onClick={onSend}
+          type={ButtonType.PRIMARY_ALT}
+        />
       </div>
     </ModalBodyWrapper>
   )
