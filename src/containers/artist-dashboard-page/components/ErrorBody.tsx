@@ -21,7 +21,7 @@ const ErrorBody = ({ error, className, onClose }: ErrorBodyProps) => {
       <Button
         className={styles.btn}
         text={messages.okay}
-        type={ButtonType.PRIMARY}
+        type={ButtonType.PRIMARY_ALT}
         onClick={onClose}
       />
     </div>
