@@ -68,10 +68,14 @@ const ValueSlider: React.FC<ValueSliderProps> = ({
         className={cn(styles.slider, { [sliderClassName!]: !!sliderClassName })}
       >
         <div
-          className={cn(styles.newValueSlider, {
-            [styles.invalid]: value.gt(max) || value.lt(min),
-            [styles.lighter]: isIncrease
-          }, sliderBarClassName)}
+          className={cn(
+            styles.newValueSlider,
+            {
+              [styles.invalid]: value.gt(max) || value.lt(min),
+              [styles.lighter]: isIncrease
+            },
+            sliderBarClassName
+          )}
           style={{ width: sliderWidth }}
         />
         <div

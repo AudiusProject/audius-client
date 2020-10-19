@@ -1,3 +1,8 @@
+:root {
+  --stems-token-value-slider-background: linear-gradient(315deg, #7652CC 2.04%, #B05CE6 100%);
+  --stems-token-value-slider-background-error: linear-gradient(180deg, #F15064 0%, #C03A4B 100%);
+}
+
 .container {
   display: inline-flex;
   flex-direction: column;
@@ -26,20 +31,20 @@
 
 .newValueSlider {
   position: absolute;
-  background: linear-gradient(315deg, #7652CC 2.04%, #B05CE6 100%);
+  background: var(--stems-token-value-slider-background);
   height: 100%;
   transition: width 0.2s ease-in-out;
 }
 
 .initialValueSlider {
   position: absolute;
-  background: linear-gradient(315deg, #7652CC 2.04%, #B05CE6 100%);
+  background: var(--stems-token-value-slider-background);
   height: 100%;
   transition: width 0.2s ease-in-out;
 }
 
 .invalid {
-  background: linear-gradient(180deg, #F15064 0%, #C03A4B 100%);
+  background: var(--stems-token-value-slider-background-error);
   z-index: 1;
 }
 
