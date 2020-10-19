@@ -42,7 +42,8 @@ class WalletClient {
     try {
       await AudiusBackend.makeDistributionClaim()
     } catch (err) {
-      console.log(err)
+      console.error(err)
+      throw err
     }
   }
 

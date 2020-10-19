@@ -2394,13 +2394,7 @@ class AudiusBackend {
     const wallet = audiusLibs.web3Manager.getWalletAddress()
     if (!wallet) return
 
-    try {
-      await audiusLibs.Account.makeDistributionClaim()
-      return true
-    } catch (e) {
-      console.error(e)
-      return false
-    }
+    await audiusLibs.Account.makeDistributionClaim()
   }
 
   /**
