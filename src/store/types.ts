@@ -26,6 +26,7 @@ import { DragNDropState } from './dragndrop/types'
 import PlayerReducer from 'store/player/slice'
 import QueueReducer from 'store/queue/slice'
 import { PasswordResetState } from 'containers/password-reset/store/types'
+import MusicConfetti from 'containers/music-confetti/store/slice'
 import AccountReducer from 'store/account/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
 
@@ -109,6 +110,7 @@ export type AppState = {
       visualizer: ReturnType<typeof VisualizerReducer>
       stemsUpload: ReturnType<typeof StemsUploadReducer>
       appCTAModal: ReturnType<typeof AppCTAModalReducer>
+      musicConfetti: ReturnType<typeof MusicConfetti>
     }
     pages: {
       explore: ExplorePageState

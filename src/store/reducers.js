@@ -44,6 +44,7 @@ import nowPlaying from 'containers/now-playing/store/reducers'
 import firstUploadModal from 'containers/first-upload-modal/store/slice'
 import remixSettingsModal from 'containers/remix-settings-modal/store/slice'
 import remoteConfig from 'containers/remote-config/slice'
+import musicConfetti from 'containers/music-confetti/store/slice'
 
 import account from 'store/account/reducer'
 import tracksReducer from 'store/cache/tracks/reducer'
@@ -130,7 +131,8 @@ const createRootReducer = routeHistory =>
         visualizer,
         remixSettingsModal,
         stemsUpload,
-        appCTAModal
+        appCTAModal,
+        musicConfetti
       }),
       pages: combineReducers({
         explore,

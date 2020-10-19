@@ -23,6 +23,7 @@ import { fetchAccountSucceeded } from 'store/account/reducer'
 import walletClient from 'services/wallet-client/WalletClient'
 import { select } from 'redux-saga-test-plan/matchers'
 import { SETUP_BACKEND_SUCCEEDED } from 'store/backend/actions'
+import { show as showMusicConfetti } from 'containers/music-confetti/store/slice'
 
 // TODO: handle errors
 
@@ -52,7 +53,8 @@ function* claimAsync() {
     yield all([
       put(setClaim({ balance: '0' as StringWei })),
       put(increaseBalance({ amount: weiToString(weiBNClaimable) })),
-      put(claimSucceeded())
+      put(claimSucceeded()),
+      put(showMusicConfetti())
     ])
   } catch (e) {
     yield put(claimFailed({ error: e.message }))
