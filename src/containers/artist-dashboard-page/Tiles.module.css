@@ -123,7 +123,7 @@
 
 /* Explainer Tile */
 .explainerTile {
-  height: 520px;
+  min-height: 520px;
   background-color: var(--white);
   display: inline-flex;
   flex-direction: row;
@@ -155,6 +155,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 32px 72px 0px 0px;
+  margin-bottom: 74px;
 }
 
 .whatIsAudio {
