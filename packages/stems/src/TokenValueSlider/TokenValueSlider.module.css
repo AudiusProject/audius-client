@@ -1,4 +1,4 @@
-:root {
+:root, root {
   --stems-token-value-slider-background: linear-gradient(315deg, #7652CC 2.04%, #B05CE6 100%);
   --stems-token-value-slider-background-error: linear-gradient(180deg, #F15064 0%, #C03A4B 100%);
 }
