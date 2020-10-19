@@ -151,6 +151,10 @@ const ModalContent = ({
 
   if (!modalState || !account) return null
 
+  // @ts-ignore
+  // TODO: user models need to have wallets
+  const wallet = account.wallet as WalletAddress
+
   // This silly `ret` dance is to satisfy
   // TS's no-fallthrough rule...
   let ret: Nullable<JSX.Element> = null
@@ -172,9 +176,6 @@ const ModalContent = ({
       break
     }
     case 'RECEIVE': {
-      // @ts-ignore
-      // TODO: users need to have wallets...
-      const wallet = account.wallet
       ret = <ReceiveBody wallet={wallet} />
       break
     }
@@ -183,7 +184,11 @@ const ModalContent = ({
       switch (sendStage.stage) {
         case 'INPUT':
           ret = (
-            <SendInputBody currentBalance={balance} onSend={onInputSendData} />
+            <SendInputBody
+              currentBalance={balance}
+              onSend={onInputSendData}
+              wallet={wallet}
+            />
           )
           break
         case 'AWAITING_CONFIRMATION':

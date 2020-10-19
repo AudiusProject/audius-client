@@ -35,6 +35,7 @@ const messages = {
   amountMalformed: 'Amount must be a valid number',
   addressMalformed: 'Please enter a valid address',
   addressRequired: 'Address is required',
+  addressIsSelf: 'Address can not be your own',
   sendAmountLabel: 'Amount to SEND',
   destination: 'Destination Address'
 }
@@ -44,7 +45,7 @@ type BalanceError =
   | 'INSUFFICIENT_TRANSFER_AMOUNT'
   | 'EMPTY'
   | 'MALFORMED'
-type AddressError = 'MALFORMED' | 'EMPTY'
+type AddressError = 'MALFORMED' | 'EMPTY' | 'SEND_TO_SELF'
 
 const balanceErrorMap: { [B in BalanceError]: string } = {
   INSUFFICIENT_BALANCE: messages.insufficientBalance,
@@ -55,12 +56,14 @@ const balanceErrorMap: { [B in BalanceError]: string } = {
 
 const addressErrorMap: { [A in AddressError]: string } = {
   MALFORMED: messages.addressMalformed,
-  EMPTY: messages.addressRequired
+  EMPTY: messages.addressRequired,
+  SEND_TO_SELF: messages.addressIsSelf
 }
 
 type SendInputBodyProps = {
   currentBalance: BNWei
   onSend: (balance: BNWei, destinationAddress: WalletAddress) => void
+  wallet: WalletAddress
 }
 
 const isValidDestination = (wallet: WalletAddress) => {
@@ -68,9 +71,13 @@ const isValidDestination = (wallet: WalletAddress) => {
   return libs.web3Manager.web3.utils.isAddress(wallet)
 }
 
-const validateWallet = (wallet: Nullable<string>): Nullable<AddressError> => {
+const validateWallet = (
+  wallet: Nullable<WalletAddress>,
+  ownWallet: WalletAddress
+): Nullable<AddressError> => {
   if (!wallet) return 'EMPTY'
   if (!isValidDestination(wallet)) return 'MALFORMED'
+  if (wallet.toLowerCase() === ownWallet.toLowerCase()) return 'SEND_TO_SELF'
   return null
 }
 
@@ -108,7 +115,11 @@ const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
   }
 }
 
-const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
+const SendInputBody = ({
+  currentBalance,
+  onSend,
+  wallet
+}: SendInputBodyProps) => {
   const [amountToSend, setAmountToSend] = useState<StringAudio>(
     '' as StringAudio
   )
@@ -129,7 +140,7 @@ const SendInputBody = ({ currentBalance, onSend }: SendInputBodyProps) => {
 
   const onClickSend = () => {
     const balanceError = validateSendAmount(amountToSend, currentBalance)
-    const walletError = validateWallet(destinationAddress)
+    const walletError = validateWallet(destinationAddress, wallet)
     setBalanceError(balanceError)
     setAddressError(walletError)
     if (balanceError || walletError) return
