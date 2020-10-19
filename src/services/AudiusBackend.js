@@ -36,7 +36,6 @@ const WEB3_NETWORK_ID = process.env.REACT_APP_WEB3_NETWORK_ID
 const ETH_REGISTRY_ADDRESS = process.env.REACT_APP_ETH_REGISTRY_ADDRESS
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const ETH_TOKEN_ADDRESS = process.env.REACT_APP_ETH_TOKEN_ADDRESS
-const ETH_RELAYER_PUBLIC_KEY = process.env.REACT_APP_ETH_RELAYER_PUBLIC_KEY
 const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
 const COM_STOCKURL = process.env.REACT_APP_COMSTOCK_URL
 const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
@@ -2450,7 +2449,6 @@ class AudiusBackend {
   static async sendTokens(address, amount) {
     await waitForLibsInit()
     const receipt = await audiusLibs.Account.permitAndSendTokens(
-      ETH_RELAYER_PUBLIC_KEY,
       address,
       amount
     )
