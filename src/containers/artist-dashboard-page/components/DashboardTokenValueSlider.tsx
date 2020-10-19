@@ -29,7 +29,6 @@ const DashboardTokenValueSlider = ({
     <TokenValueSlider
       className={styles.sliderContainer}
       sliderClassName={styles.slider}
-      sliderBarClassName={styles.sliderBar}
       min={min}
       max={max}
       value={value}
