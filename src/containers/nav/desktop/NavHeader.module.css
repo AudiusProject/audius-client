@@ -48,15 +48,15 @@ svg.logo path {
 }
 
 .dashboardIcon {
-  background-color: var(--accent-orange);
+  background-color: var(--accent-orange-light-1);
 }
 
 .dashboardIcon svg path {
-  fill: var(--white) !important;
+  fill: var(--static-white) !important;
 }
 
 .dashboardIcon:hover:not(:global(.active)) {
-  background-color: var(--accent-orange-light-1) !important;
+  background-color: var(--accent-orange) !important;
 }
 
 .headerIconWrapper:global(.active),
