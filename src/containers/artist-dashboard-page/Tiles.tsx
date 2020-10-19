@@ -26,6 +26,8 @@ import {
 } from 'store/token-dashboard/slice'
 import TokenHoverTooltip from './components/TokenHoverTooltip'
 
+const DISCORD_URL = 'https://discord.com/invite/kZkT9ZK'
+
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
   noClaim1: 'You earn $AUDIO by using Audius.',
@@ -146,7 +148,7 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
   const featureChart = hasAudio ? featureChartLevel1 : featureChartLevel0
   const disabled = { [styles.disabled]: !hasAudio }
   const onClickVipDiscord = useCallback(() => {
-    alert('todo')
+    window.open(DISCORD_URL, '_blank')
   }, [])
   return (
     <Tile className={cn([styles.explainerTile, className])}>
