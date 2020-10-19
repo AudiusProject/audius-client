@@ -3,7 +3,7 @@ import {
   resetBrowser
 } from '../utils'
 
-const timeout = 60 * 1000
+const timeout = 2 * 60 * 1000
 
 it(
   'visits',
