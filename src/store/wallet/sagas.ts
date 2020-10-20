@@ -100,7 +100,7 @@ function* watchFetchAccountSucceeded() {
     yield all([take(fetchAccountSucceeded.type), take(SETUP_BACKEND_SUCCEEDED)])
     yield getWalletBalanceAndClaim()
   } catch (err) {
-    console.log(err)
+    console.error(err)
   }
 }
 
