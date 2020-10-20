@@ -62,12 +62,12 @@
   background: var(--page-header-gradient);
   display: inline-flex;
   flex-direction: column;
-  padding-top: 36px;
+  padding: 36px 16px 16px;
   transition: flex-grow 0.7s ease-in-out;
 }
 
 .claimCollapsed {
-  flex: 0.5;
+  flex: 0.55;
 }
 
 .claimAmount {
