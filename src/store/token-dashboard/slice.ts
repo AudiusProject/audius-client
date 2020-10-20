@@ -114,8 +114,6 @@ const slice = createSlice({
       state,
       { payload: { code } }: PayloadAction<{ code: Nullable<string> }>
     ) => {
-      console.log('RUNNING SET DISCORD CODE')
-      console.log({ code })
       state.discordCode = code
     },
 

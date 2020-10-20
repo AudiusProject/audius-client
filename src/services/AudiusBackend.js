@@ -2451,9 +2451,7 @@ class AudiusBackend {
 
   static async getSignature(data) {
     await waitForLibsInit()
-    const web3Manager = audiusLibs.web3Manager
-    const signature = await web3Manager.sign(data)
-    return signature
+    return audiusLibs.web3Manager.sign(data)
   }
 }
 
