@@ -11,7 +11,11 @@ import { profilePage, trackPage } from 'utils/route'
 import Header from 'components/general/header/desktop/Header'
 import Page from 'components/general/Page'
 import TracksTable, { alphaSortFn } from 'components/tracks-table/TracksTable'
-import { fetchDashboard, fetchDashboardListenData } from './store/actions'
+import {
+  fetchDashboard,
+  fetchDashboardListenData,
+  resetDashboard
+} from './store/actions'
 import {
   getDashboardListenData,
   getDashboardStatus,
@@ -242,6 +246,10 @@ export class ArtistDashboardPage extends Component<
     TotalPlaysChart.preload()
   }
 
+  componentWillUnmount() {
+    this.props.resetDashboard()
+  }
+
   formatMetadata(trackMetadatas: Track[]): DataSourceTrack[] {
     return trackMetadatas
       .map((metadata, i) => ({
@@ -400,6 +408,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchDashboard: () => dispatch(fetchDashboard()),
   fetchDashboardListenData: (trackIds: ID[], start: string, end: string) =>
     dispatch(fetchDashboardListenData(trackIds, start, end, 'month')),
+  resetDashboard: () => dispatch(resetDashboard()),
   goToRoute: (route: string) => dispatch(pushRoute(route))
 })
 
