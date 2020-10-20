@@ -2448,6 +2448,13 @@ class AudiusBackend {
     )
     return receipt
   }
+
+  static async getSignature(data) {
+    await waitForLibsInit()
+    const web3Manager = audiusLibs.web3Manager
+    const signature = await web3Manager.sign(data)
+    return signature
+  }
 }
 
 export default AudiusBackend
