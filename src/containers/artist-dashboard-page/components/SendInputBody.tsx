@@ -35,7 +35,7 @@ const messages = {
   amountMalformed: 'Amount must be a valid number',
   addressMalformed: 'Please enter a valid address',
   addressRequired: 'Address is required',
-  addressIsSelf: 'Address can not be your own',
+  addressIsSelf: 'You cannot send $AUDIO to your own wallet!',
   sendAmountLabel: 'Amount to SEND',
   destination: 'Destination Address'
 }

@@ -37,8 +37,9 @@ const ClickableAddress = ({ address, className }: DisplayAddressProps) => {
           <PurpleBox
             label={messages.yourAddr}
             className={styles.container}
+            onClick={onClickAddress}
             text={
-              <div className={styles.addressContainer} onClick={onClickAddress}>
+              <div className={styles.addressContainer}>
                 <div className={styles.address}>{address}</div>
                 <IconCopy className={styles.icon} />
               </div>

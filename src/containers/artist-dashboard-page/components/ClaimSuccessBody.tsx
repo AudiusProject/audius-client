@@ -17,7 +17,7 @@ type ClaimSuccessBodyProps = { balance: BNWei }
 const ClaimSuccessBody = ({ balance }: ClaimSuccessBodyProps) => {
   const onTwitterClick = useCallback(() => {
     const url = 'https://audius.co'
-    const text = 'I just claimed tokens on @AudiusProject #Audius'
+    const text = 'I just claimed my $AUDIO tokens on @AudiusProject! #Audius'
     openTwitterLink(url, text)
   }, [])
 
