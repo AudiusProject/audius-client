@@ -1,6 +1,7 @@
 import {
   newPage,
-  resetBrowser
+  resetBrowser,
+  waitForNetworkIdle0
 } from '../utils'
 
 const timeout = 2 * 60 * 1000
@@ -9,7 +10,12 @@ it(
   'visits',
   async () => {
     const page = await newPage()
-    await resetBrowser(page, 'https://dashboard.audius.org')
+    await waitForNetworkIdle0(
+      page,
+      page.goto('https://dashboard.audius.org'),
+      500,
+      timeout
+    )
     await page.close()
   },
   timeout

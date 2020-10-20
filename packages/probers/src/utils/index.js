@@ -61,10 +61,10 @@ export const waitForConfirmer = async (page) => {
   await waitForNetworkIdle(page, config.confirmerPollingTimeout, 1)
 }
 
-export const waitForNetworkIdle0 = (page, action, timeout = 500) => {
+export const waitForNetworkIdle0 = (page, action, timeout = 500, exitTimeout = 30000) => {
   return Promise.all([
     action,
-    waitForNetworkIdle(page, timeout, 0)
+    waitForNetworkIdle(page, timeout, 0, exitTimeout)
   ])
 }
 
