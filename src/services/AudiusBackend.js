@@ -37,7 +37,7 @@ const ETH_REGISTRY_ADDRESS = process.env.REACT_APP_ETH_REGISTRY_ADDRESS
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const ETH_TOKEN_ADDRESS = process.env.REACT_APP_ETH_TOKEN_ADDRESS
 const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
-const COM_STOCKURL = process.env.REACT_APP_COMSTOCK_URL
+const COMSTOCK_URL = process.env.REACT_APP_COMSTOCK_URL
 const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
   process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
 
@@ -452,7 +452,7 @@ class AudiusBackend {
           IDENTITY_SERVICE
         ),
         creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
-        comstockConfig: AudiusLibs.configComstock(COM_STOCKURL),
+        comstockConfig: AudiusLibs.configComstock(COMSTOCK_URL),
         isServer: false
       })
       await audiusLibs.init()
@@ -2392,7 +2392,7 @@ class AudiusBackend {
   static async makeDistributionClaim() {
     await waitForLibsInit()
     const wallet = audiusLibs.web3Manager.getWalletAddress()
-    if (!wallet) return
+    if (!wallet) return null
 
     await audiusLibs.Account.makeDistributionClaim()
   }
