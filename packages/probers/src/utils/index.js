@@ -15,7 +15,7 @@ export const wait = async milliseconds => {
 }
 
 // See https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#framegotourl-options
-export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 30000) => {
+export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 60000) => {
   page.on('request', onRequestStarted)
   page.on('requestfinished', onRequestFinished)
   page.on('requestfailed', onRequestFinished)
@@ -61,17 +61,17 @@ export const waitForConfirmer = async (page) => {
   await waitForNetworkIdle(page, config.confirmerPollingTimeout, 1)
 }
 
-export const waitForNetworkIdle0 = (page, action, timeout = 500, exitTimeout = 30000) => {
+export const waitForNetworkIdle0 = (page, action, timeout = 500, exitTimeout = 60000) => {
   return Promise.all([
     action,
     waitForNetworkIdle(page, timeout, 0, exitTimeout)
   ])
 }
 
-export const waitForNetworkIdle2 = (page, action, timeout = 500) => {
+export const waitForNetworkIdle2 = (page, action, timeout = 500, exitTimeout = 60000) => {
   return Promise.all([
     action,
-    waitForNetworkIdle(page, timeout, 2)
+    waitForNetworkIdle(page, timeout, 2, exitTimeout)
   ])
 }
 
