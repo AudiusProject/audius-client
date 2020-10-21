@@ -42,7 +42,7 @@ const TokenValueInput: React.FC<TokenValueInputProps> = ({
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       let value = e.target.value
       if (isNumeric) {
-        value = value.replace(/,/g, '')
+        value = value.replace(/[^0-9.]+/g, '')
       }
       setInputValue(value)
       if (onChange) onChange(value)
