@@ -1064,9 +1064,15 @@ class AudiusBackend {
   }
 
   static async getCreatorSocialHandle(handle) {
-    return fetch(
-      `${IDENTITY_SERVICE}/social_handles?handle=${handle}`
-    ).then(res => res.json())
+    try {
+      const res = await fetch(
+        `${IDENTITY_SERVICE}/social_handles?handle=${handle}`
+      ).then(res => res.json())
+      return res
+    } catch (e) {
+      console.error(e)
+      return {}
+    }
   }
 
   static async getUserByHandle(handle) {
@@ -1865,7 +1871,7 @@ class AudiusBackend {
     if (!account) return
     try {
       const { data, signature } = await AudiusBackend.signData()
-      return fetch(`${IDENTITY_SERVICE}/notifications/settings`, {
+      const res = await fetch(`${IDENTITY_SERVICE}/notifications/settings`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -1873,6 +1879,7 @@ class AudiusBackend {
           [AuthHeaders.Signature]: signature
         }
       }).then(res => res.json())
+      return res
     } catch (e) {
       console.error(e)
     }
@@ -1884,7 +1891,7 @@ class AudiusBackend {
     if (!account) return
     try {
       const { data, signature } = await AudiusBackend.signData()
-      return fetch(`${IDENTITY_SERVICE}/notifications/settings`, {
+      const res = await fetch(`${IDENTITY_SERVICE}/notifications/settings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1893,6 +1900,7 @@ class AudiusBackend {
         },
         body: JSON.stringify({ settings: { emailFrequency } })
       }).then(res => res.json())
+      return res
     } catch (e) {
       console.error(e)
     }
@@ -2211,7 +2219,7 @@ class AudiusBackend {
     try {
       const { data, signature } = await AudiusBackend.signData()
       const timezone = moment.tz.guess()
-      return fetch(`${IDENTITY_SERVICE}/users/update`, {
+      const res = await fetch(`${IDENTITY_SERVICE}/users/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2220,6 +2228,7 @@ class AudiusBackend {
         },
         body: JSON.stringify({ timezone })
       }).then(res => res.json())
+      return res
     } catch (e) {
       console.error(e)
     }
@@ -2315,7 +2324,7 @@ class AudiusBackend {
     if (!account) return
     try {
       const { data, signature } = await AudiusBackend.signData()
-      return fetch(`${IDENTITY_SERVICE}/userEvents`, {
+      const res = await fetch(`${IDENTITY_SERVICE}/userEvents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2324,6 +2333,7 @@ class AudiusBackend {
         },
         body: JSON.stringify({ hasSignedInNativeMobile })
       }).then(res => res.json())
+      return res
     } catch (e) {
       console.error(e)
     }
