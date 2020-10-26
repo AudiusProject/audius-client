@@ -360,6 +360,15 @@ class AudiusBackend {
     )
   }
 
+  static async sanityChecks(audiusLibs) {
+    try {
+      const sanityChecks = new SanityChecks(audiusLibs)
+      await sanityChecks.run()
+    } catch (e) {
+      console.error(`Sanity checks failed: ${e}`)
+    }
+  }
+
   static async setup() {
     // Wait for web3 to load if necessary
     if (!window.web3Loaded) {
@@ -411,8 +420,7 @@ class AudiusBackend {
       const event = new CustomEvent(LIBS_INITTED_EVENT)
       window.dispatchEvent(event)
 
-      const sanityChecks = new SanityChecks(audiusLibs)
-      sanityChecks.run()
+      AudiusBackend.sanityChecks(audiusLibs)
     } catch (err) {
       libsError = err.message
     }
