@@ -8,7 +8,7 @@ const PROD_HOSTNAME = "audius.co"
 const PROD_GA_HOSTNAME = "general-admission.audius.co"
 const PROD_HOSTNAME_REDIRECT = "redirect.audius.co"
 const STAGING_HOSTNAME = "staging.audius.co"
-const STAGING_GA_HOSTNAME = "general-admission.staging.audius.co"
+const STAGING_GA_HOSTNAME = "staging.audius.co"
 const STAGING_HOSTNAME_REDIRECT = "redirect.staging.audius.co"
 const LOCALHOST = "localhost"
 
