@@ -45,7 +45,8 @@ export function* watchFetchServices() {
         yield call(
           AudiusBackend.creatorNodeSelectionCallback,
           primary,
-          secondaries
+          secondaries,
+          'autoselect'
         )
       }
 
@@ -99,7 +100,12 @@ function* watchSetSelected() {
 
     const currentSecondaries = yield select(getSecondaries)
     const { primary, secondaries } = action.payload
-    yield call(AudiusBackend.creatorNodeSelectionCallback, primary, secondaries)
+    yield call(
+      AudiusBackend.creatorNodeSelectionCallback,
+      primary,
+      secondaries,
+      'manual'
+    )
     const newEndpoint = `${primary},${secondaries.join(',')}`
 
     const [oldPrimary, ...oldSecondaries] = yield select(getSelectedServices)
