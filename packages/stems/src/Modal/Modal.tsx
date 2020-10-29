@@ -32,35 +32,35 @@ const getOffset = (anchor: Anchor, verticalAnchorOffset: number) => {
   return { [anchorPropertyMap[anchor]]: verticalAnchorOffset }
 }
 
-const useModalRoot = () => {
+const useModalRoot = (zIndex?: number) => {
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null)
   const [modalBg, setModalBg] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     let el = document.getElementById(rootId)
     let bgEl = document.getElementById(bgId)
+    let container = document.getElementById(rootContainer)
 
-    if (el) {
-      setModalRoot(el)
-    } else {
-      const container = document.createElement('div')
+    if (!el) {
+      container = document.createElement('div')
       container.id = rootContainer
       el = document.createElement('div')
       el.id = rootId
       container.appendChild(el)
       document.body.appendChild(container)
-      setModalRoot(el)
-    }
-
-    if (bgEl) {
-      setModalBg(bgEl)
-    } else {
       bgEl = document.createElement('div')
       bgEl.id = bgId
       document.body.appendChild(bgEl)
-      setModalBg(bgEl)
     }
-  }, [])
+
+    if (zIndex) {
+      container.style.zIndex = `${zIndex}`
+      bgEl.style.zIndex = `${zIndex - 1}`
+    }
+
+    setModalRoot(el)
+    setModalBg(bgEl)
+  }, [zIndex])
 
   return [modalRoot, modalBg]
 }
@@ -85,7 +85,8 @@ const Modal = ({
   title = '',
   showTitleHeader = false,
   dismissOnClickOutside = true,
-  showDismissButton = false
+  showDismissButton = false,
+  zIndex
 }: ModalProps) => {
   const onTouchMove = useCallback(
     (e: any) => {
@@ -94,7 +95,7 @@ const Modal = ({
     [allowScroll]
   )
 
-  const [modalRoot, bgModal] = useModalRoot()
+  const [modalRoot, bgModal] = useModalRoot(zIndex)
   const [isDestroyed, setIsDestroyed] = useState(isOpen)
 
   useScrollLock(isDestroyed, incrementScrollCount, decrementScrollCount)

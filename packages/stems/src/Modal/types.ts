@@ -29,6 +29,19 @@ export type ModalProps = {
    */
   showDismissButton?: boolean
 
+  /**
+   * Manually set z-index
+   */
+  zIndex?: number
+
+  allowScroll?: boolean
+
+  // Increments the scroll count for scrollLock
+  incrementScrollCount: () => void
+
+  // Decrements the scroll count for scrollLock
+  decrementScrollCount: () => void
+
   // Classnames
 
   wrapperClassName?: string
@@ -53,13 +66,6 @@ export type ModalProps = {
    * Horizontal padding between outside of modal and inner content
    */
   contentHorizontalPadding?: number
-  allowScroll?: boolean
-
-  // Increments the scroll count for scrollLock
-  incrementScrollCount: () => void
-
-  // Decrements the scroll count for scrollLock
-  decrementScrollCount: () => void
 }
 
 export default ModalProps
