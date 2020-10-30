@@ -41,13 +41,19 @@ const useModalRoot = (zIndex?: number) => {
     let bgEl = document.getElementById(bgId)
     let container = document.getElementById(rootContainer)
 
-    if (!el) {
+    if (!container) {
       container = document.createElement('div')
       container.id = rootContainer
+      document.body.appendChild(container)
+    }
+
+    if (!el) {
       el = document.createElement('div')
       el.id = rootId
       container.appendChild(el)
-      document.body.appendChild(container)
+    }
+
+    if (!bgEl) {
       bgEl = document.createElement('div')
       bgEl.id = bgId
       document.body.appendChild(bgEl)
@@ -55,6 +61,7 @@ const useModalRoot = (zIndex?: number) => {
 
     if (zIndex) {
       container.style.zIndex = `${zIndex}`
+      el.style.zIndex = `${zIndex}`
       bgEl.style.zIndex = `${zIndex - 1}`
     }
 
