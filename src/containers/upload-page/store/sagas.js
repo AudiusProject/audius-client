@@ -432,6 +432,7 @@ export function* handleUploads({
   // Now wait for our workers to finish or error
   console.debug('Awaiting workers')
   let numOutstandingRequests = tracks.length
+  let numSuccessRequests = 0 // Technically not needed, but adding defensively
   const trackIds = []
   const creatorNodeMetadata = []
   const failedRequests = [] // Array of shape [{ id, timeout, message }]
@@ -484,8 +485,9 @@ export function* handleUploads({
       trackIds[trackObj.index] = newId
     }
 
-    // Finally, decrement the request count
+    // Finally, decrement the request count and increase success count
     numOutstandingRequests -= 1
+    numSuccessRequests += 1
   }
 
   // Regardless of whether we stopped due to finishing
@@ -503,7 +505,7 @@ export function* handleUploads({
     : 'multi_track'
   yield reportSuccessAndFailureEvents({
     // Don't report non-uploaded tracks due to playlist upload abort
-    numSuccess: tracks.length - failedRequests.length - numOutstandingRequests,
+    numSuccess: numSuccessRequests,
     numFailure: failedRequests.length,
     errors: failedRequests.map(r => r.message),
     uploadType
