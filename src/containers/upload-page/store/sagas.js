@@ -341,7 +341,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
  *
  * tracks is of type [{ track: ..., metadata: ... }]
  */
-export function* handleUploads(tracks, isCollection, isStem = false) {
+export function* handleUploads({ tracks, isCollection, isStem = false }) {
   const numWorkers = getNumWorkers(tracks.map(t => t.track.file))
 
   // Map of shape {[trackId]: { track: track, metadata: object, artwork?: file, index: number }}
@@ -603,7 +603,10 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
       metadata
     }
   })
-  const { trackIds, error } = yield call(handleUploads, tracksWithMetadata)
+  const { trackIds, error } = yield call(handleUploads, {
+    tracks: tracksWithMetadata,
+    isCollection: true
+  })
 
   // If we errored, return early
   if (error) {
@@ -876,7 +879,11 @@ function* uploadSingleTrack(track) {
 export function* uploadStems({ parentTrackIds, stems }) {
   const updatedStems = updateAndFlattenStems(stems, parentTrackIds)
 
-  const uploadedTracks = yield call(handleUploads, updatedStems, false, true)
+  const uploadedTracks = yield call(handleUploads, {
+    tracks: updatedStems,
+    isCollection: false,
+    isStem: true
+  })
   if (uploadedTracks.trackIds) {
     for (let i = 0; i < uploadedTracks.trackIds.length; i += 1) {
       const trackId = uploadedTracks.trackIds[i]
@@ -898,7 +905,10 @@ function* uploadMultipleTracks(tracks) {
     metadata: track.metadata
   }))
 
-  const { trackIds } = yield call(handleUploads, tracksWithMetadata)
+  const { trackIds } = yield call(handleUploads, {
+    tracks: tracksWithMetadata,
+    isCollection: false
+  })
   const stems = yield select(getStems)
   if (stems.length) {
     yield call(uploadStems, {
@@ -914,6 +924,7 @@ function* uploadMultipleTracks(tracks) {
       kind: 'tracks'
     })
   )
+  yield all(trackIds.map)
   const account = yield select(getAccountUser)
 
   // If the hide remixes is turned on, send analytics event
