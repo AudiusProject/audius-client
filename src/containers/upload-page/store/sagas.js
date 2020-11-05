@@ -42,6 +42,7 @@ import { Name } from 'services/analytics'
 import { getStems } from 'containers/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'containers/upload-page/store/utils/stems'
 import { trackNewRemixEvent } from 'store/cache/tracks/sagas'
+import { reportSuccessAndFailureEvents } from './utils/sagaHelpers'
 
 const MAX_CONCURRENT_UPLOADS = 4
 const MAX_CONCURRENT_TRACK_SIZE_BYTES = 40 /* MB */ * 1024 * 1024
@@ -341,7 +342,12 @@ function* uploadWorker(requestChan, respChan, progressChan) {
  *
  * tracks is of type [{ track: ..., metadata: ... }]
  */
-export function* handleUploads({ tracks, isCollection, isStem = false }) {
+export function* handleUploads({
+  tracks,
+  isCollection,
+  isStem = false,
+  isAlbum = false
+}) {
   const numWorkers = getNumWorkers(tracks.map(t => t.track.file))
 
   // Map of shape {[trackId]: { track: track, metadata: object, artwork?: file, index: number }}
@@ -488,6 +494,21 @@ export function* handleUploads({ tracks, isCollection, isStem = false }) {
   yield all(workerTasks.map(t => cancel(t)))
 
   let returnVal = { trackIds }
+
+  // Report success + failure events
+  const uploadType = isCollection
+    ? isAlbum
+      ? 'album'
+      : 'playlist'
+    : 'multi_track'
+  yield reportSuccessAndFailureEvents({
+    // Don't report non-uploaded tracks due to playlist upload abort
+    numSuccess: tracks.length - failedRequests.length - numOutstandingRequests,
+    numFailure: failedRequests.length,
+    errors: failedRequests.map(r => r.message),
+    uploadType
+  })
+
   if (isCollection) {
     // If this was a collection and we didn't error,
     // now we go write all this out to chain
@@ -605,7 +626,8 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
   })
   const { trackIds, error } = yield call(handleUploads, {
     tracks: tracksWithMetadata,
-    isCollection: true
+    isCollection: true,
+    isAlbum
   })
 
   // If we errored, return early
@@ -822,6 +844,14 @@ function* uploadSingleTrack(track) {
   )
 
   const { confirmedTrack, error } = yield take(responseChan)
+
+  yield reportSuccessAndFailureEvents({
+    numSuccess: error ? 0 : 1,
+    numFailure: error ? 1 : 0,
+    uploadType: 'single_track',
+    errors: error ? [error] : []
+  })
+
   if (error) {
     return
   }
@@ -924,7 +954,6 @@ function* uploadMultipleTracks(tracks) {
       kind: 'tracks'
     })
   )
-  yield all(trackIds.map)
   const account = yield select(getAccountUser)
 
   // If the hide remixes is turned on, send analytics event
