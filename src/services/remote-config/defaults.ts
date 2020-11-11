@@ -16,7 +16,9 @@ export const remoteConfigStringDefaults: {
   [StringKeys.AUDIUS_LOGO_VARIANT]: null,
   [StringKeys.AUDIUS_LOGO_VARIANT_CLICK_TARGET]: null,
   [StringKeys.APP_WIDE_NOTICE_TEXT]: null,
-  [StringKeys.ETH_PROVIDER_URLS]: ETH_PROVIDER_URLS
+  [StringKeys.ETH_PROVIDER_URLS]: ETH_PROVIDER_URLS,
+  [StringKeys.PRIMARY_CN_OVERRIDE]: null,
+  [StringKeys.PRIMARY_CN_OVERRIDE_TRIGGER]: null
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null

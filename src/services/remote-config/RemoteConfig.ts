@@ -52,7 +52,17 @@ export enum StringKeys {
   /**
    * Custom eth provider urls to use for talking to main-net contracts
    */
-  ETH_PROVIDER_URLS = 'ETH_PROVIDER_URLS'
+  ETH_PROVIDER_URLS = 'ETH_PROVIDER_URLS',
+
+  /**
+   * Primary CN Override
+   */
+  PRIMARY_CN_OVERRIDE = 'PRIMARY_CN_OVERRIDE',
+
+  /**
+   * Primary CN Override trigger
+   */
+  PRIMARY_CN_OVERRIDE_TRIGGER = 'PRIMARY_CN_OVERRIDE_TRIGGER'
 }
 
 export type AllRemoteConfigKeys =

@@ -10,7 +10,7 @@ import {
   all,
   race
 } from 'redux-saga/effects'
-import { range } from 'lodash'
+import { range, sample } from 'lodash'
 
 import * as uploadActions from './actions'
 import { push as pushRoute } from 'connected-react-router'
@@ -43,6 +43,7 @@ import { getStems } from 'containers/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'containers/upload-page/store/utils/stems'
 import { trackNewRemixEvent } from 'store/cache/tracks/sagas'
 import { reportSuccessAndFailureEvents } from './utils/sagaHelpers'
+import { getRemoteVar, StringKeys } from 'services/remote-config'
 
 const MAX_CONCURRENT_UPLOADS = 4
 const MAX_CONCURRENT_TRACK_SIZE_BYTES = 40 /* MB */ * 1024 * 1024
@@ -335,6 +336,90 @@ function* uploadWorker(requestChan, respChan, progressChan) {
 
     yield take(uploadDoneChan)
   }
+}
+
+async function primaryCNOverride() {
+  const libs = window.audiusLibs
+
+  // 1. Pick a new primary, early return if nothing found
+  const overrides = getRemoteVar(StringKeys.PRIMARY_CN_OVERRIDE)
+  const overrideTrigger = getRemoteVar(StringKeys.PRIMARY_CN_OVERRIDE_TRIGGER)
+  console.log('HOTFIX - overrides', overrides)
+  console.log('HOTFIX - override trigger', overrideTrigger)
+  if (!overrides) return
+  if (!overrideTrigger) return
+
+  const newPrimary = sample(overrides.split(','))
+  console.log('HOTFIX - new primary', overrides)
+  if (!newPrimary) return
+
+  // 2. Reconfigure user with new primary as a secondary
+  const user = libs.userStateManager.getCurrentUser()
+  console.log('HOTFIX - user', user)
+  // Bail if they're not a creator
+  if (!user.is_creator) return
+
+  let endpoints = user.creator_node_endpoint.split(',').filter(Boolean)
+  console.log('HOTFIX - current endpoints', endpoints)
+  const primary = endpoints[0]
+  const secondaries = endpoints.slice(1)
+
+  // No primary, not sure what's going on, bail out
+  if (!primary) return
+  // If existing primary is desired new primary, ok, bail out
+  if (primary === newPrimary) return
+  // If the existing primary is not in the trigger, bail out
+  if (!overrideTrigger.split(',').includes(primary)) return
+
+  // Need to add new primary as secondary first so it syncs
+  if (!endpoints.includes(newPrimary)) {
+    if (secondaries.length === 2) {
+      secondaries[1] = newPrimary // flip last
+    } else if (secondaries.length === 1 || secondaries.length === 0) {
+      secondaries.push(newPrimary) // push it on
+    }
+
+    // don't want to change primary yet
+    endpoints = [primary, ...secondaries]
+    console.log('HOTFIX - new endpoints', endpoints)
+
+    // 3. Update user
+    const newMetadata = { ...user }
+    newMetadata.creator_node_endpoint = endpoints.join(',')
+    console.log('HOTFIX - upgrading user metadata', newMetadata)
+    await libs.User.updateCreator(user.user_id, newMetadata)
+  }
+
+  // 4. wait for secondary to catch up (sync)
+  console.log('HOTFIX - waiting for secondary to catch up')
+  libs.creatorNode.syncSecondary(newPrimary, null, true)
+
+  // Add some initial delay for sync to be kicked off
+  await new Promise(resolve => {
+    const interval = setInterval(async () => {
+      const { isBehind, isConfigured } = await libs.creatorNode.getSyncStatus(
+        newPrimary
+      )
+      console.log('HOTFIX - isSyncing', isBehind, isConfigured)
+      if (isConfigured && !isBehind) {
+        clearInterval(interval)
+        resolve()
+      }
+    }, 3000)
+  })
+
+  // 5. switch to new primary (just swap current primary and new primary)
+  // `endpoints` should be correct at this point
+  const newEndpoints = [newPrimary, ...endpoints.filter(s => s !== newPrimary)]
+  const newMetadata = { ...user }
+  console.log('HOTFIX - new endpoints with primary', newEndpoints)
+  newMetadata.creator_node_endpoint = newEndpoints.join(',')
+  // Set the new endpoint to write to
+  await AudiusBackend.setCreatorNodeEndpoint(newPrimary)
+
+  await libs.User.updateCreator(user.user_id, newMetadata)
+
+  console.log('HOTFIX - done, continuing upload')
 }
 
 /*
@@ -1056,6 +1141,8 @@ function* uploadTracksAsync(action) {
       ])
     )
   }
+
+  yield call(primaryCNOverride)
 
   const uploadType = (() => {
     switch (action.uploadType) {
