@@ -397,6 +397,16 @@ class AudiusBackend {
         window.addEventListener('WEB3_LOADED', onLoad)
       })
     }
+    // Wait for optimizely to load if necessary
+    if (!window.optimizelyDatafile) {
+      await new Promise(resolve => {
+        const onLoad = () => {
+          window.removeEventListener('OPTIMIZELY_LOADED', onLoad)
+          resolve()
+        }
+        window.addEventListener('OPTIMIZELY_LOADED', onLoad)
+      })
+    }
 
     const { libs, libsUtils, libsSanityChecks } = await import(
       './audius-backend/AudiusLibsLazyLoader'
