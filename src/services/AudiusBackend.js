@@ -398,7 +398,10 @@ class AudiusBackend {
       })
     }
     // Wait for optimizely to load if necessary
-    if (!window.optimizelyDatafile) {
+    if (
+      process.env.REACT_APP_ENVIRONMENT === 'production' &&
+      !window.optimizelyDatafile
+    ) {
       await new Promise(resolve => {
         const onLoad = () => {
           window.removeEventListener('OPTIMIZELY_LOADED', onLoad)
