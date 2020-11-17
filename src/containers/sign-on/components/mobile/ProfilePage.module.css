@@ -27,6 +27,8 @@
   width: 100%;
   max-width: 320px;
   min-height: 536px;
+  height: 100%;
+  margin-top: 105px;
 }
 
 .backButton {

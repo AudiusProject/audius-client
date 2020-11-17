@@ -6,6 +6,7 @@ import styles from './ProfilePage.module.css'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import TwitterOverlay from 'containers/sign-on/components/mobile/TwitterOverlay'
 import ProfileForm from 'containers/sign-on/components/ProfileForm'
+import { InstagramProfile } from 'store/account/reducer'
 
 const messages = {
   header: 'Tell Us About Yourself So Others Can Find You'
@@ -24,6 +25,11 @@ type ProfilePageProps = {
     profileImg?: { url: string; file: any },
     coverBannerImg?: { url: string; file: any }
   ) => void
+  setInstagramProfile: (
+    uuid: string,
+    profile: InstagramProfile,
+    profileImg?: { url: string; file: any }
+  ) => void
   onHandleChange: (handle: string) => void
   onNameChange: (name: string) => void
   setProfileImage: (img: { url: string; file: any }) => void
@@ -37,6 +43,11 @@ const ProfilePage = (props: ProfilePageProps) => {
     props.handle.status !== 'disabled'
   )
   const [isInitial, setIsInitial] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const setLoading = useCallback(() => setIsLoading(true), [setIsLoading])
+  const setFinishedLoading = useCallback(() => setIsLoading(false), [
+    setIsLoading
+  ])
 
   const {
     name,
@@ -48,7 +59,8 @@ const ProfilePage = (props: ProfilePageProps) => {
     onNameChange,
     onNextPage,
     twitterId,
-    setTwitterProfile
+    setTwitterProfile,
+    setInstagramProfile
   } = props
 
   const onToggleTwitterOverlay = useCallback(() => {
@@ -108,6 +120,30 @@ const ProfilePage = (props: ProfilePageProps) => {
     } finally {
       setShowTwitterOverlay(false)
       setIsInitial(false)
+      setIsLoading(false)
+    }
+  }
+
+  const onInstagramLogin = async (uuid: string, profile: InstagramProfile) => {
+    try {
+      if (profile.profile_pic_url_hd) {
+        const profileUrl = profile.profile_pic_url_hd
+        const imageBlob = await fetch(profileUrl).then(r => r.blob())
+        const artworkFile = new File([imageBlob], 'Artwork', {
+          type: 'image/jpeg'
+        })
+        const file = await resizeImage(artworkFile)
+        const url = URL.createObjectURL(file)
+        setInstagramProfile(uuid, profile, { url, file })
+      } else {
+        setInstagramProfile(uuid, profile)
+      }
+    } catch (err) {
+      // Continue if error
+    } finally {
+      setShowTwitterOverlay(false)
+      setIsInitial(false)
+      setIsLoading(false)
     }
   }
 
@@ -133,8 +169,12 @@ const ProfilePage = (props: ProfilePageProps) => {
           header={messages.header}
           isMobile
           initial={isInitial}
+          onClick={setLoading}
+          isLoading={isLoading}
+          onFailure={setFinishedLoading}
           showTwitterOverlay={showTwitterOverlay}
           onTwitterLogin={onTwitterLogin}
+          onInstagramLogin={onInstagramLogin}
           onToggleTwitterOverlay={onToggleTwitterOverlay}
         />
         <ProfileForm

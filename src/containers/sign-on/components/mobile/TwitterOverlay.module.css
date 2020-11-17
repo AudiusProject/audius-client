@@ -1,6 +1,6 @@
 /* Title */
 .header {
-  margin: 64px 0px 24px;
+  margin: 0px 0px 48px;
   color: var(--secondary);
   font-size: var(--font-l);
   font-weight: bold;
@@ -8,6 +8,12 @@
   text-align: center;
   line-height: 26px;
   width: 250px;
+}
+
+.divider {
+  width: 224px;
+  border-top: 1px solid var(--neutral-light-8);
+  margin: 20px auto;
 }
 
 /* Twitter Button */
@@ -19,6 +25,7 @@
   flex-direction: column;
   background-color: var(--white);
   transition: all .07s ease-in-out;
+  padding-bottom: 32px
 }
 
 .twitterOverlayContainer.isMobile {
@@ -27,9 +34,8 @@
 }
 
 .twitterButton {
-  margin-bottom: 28px;
-  height: 48px !important;
-  width: 300px !important;
+  height: 80px !important;
+  width: 320px !important;
   border-radius: 6px;
   background-color: var(--static-twitter-blue);
   box-shadow: 0 2px 5px -2px rgba(133,129,153,0.5), 0 2px 8px -2px rgba(27,161,241,0.25);
@@ -48,6 +54,78 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.15px;
   margin-left: 36px;
+}
+
+.instagramButton {
+  height: 80px !important;
+  width: 320px !important;
+  margin-bottom: 20px;
+}
+
+.autofill {
+  font-weight: var(--font-demi-bold);
+  margin-bottom: 18px;
+  cursor: default;
+  user-select: none;
+  max-width: 320px;
+  font-style: normal;
+  font-weight: var(--font-medium);
+  font-size: var(--font-m);
+  line-height: 23px;
+}
+
+.autofillChecklist {
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 224px;
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+
+.checkItem {
+  width: 100%;
+  max-width: 154px;
+  display: inline-flex;
+  margin-bottom: 16px;
+  color: var(--neutral);
+  font-size: var(--font-l);
+  font-weight: var(--font-bold);
+  cursor: default;
+  user-select: none;
+}
+
+.checkIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 12px;
+  border-radius: 50%;
+}
+
+.checkIcon > svg path {
+  fill: var(--white);
+}
+.checkIcon > svg circle {
+  fill: var(--secondary);
+}
+
+.verified {
+  height: 14px;
+  width: 14px;
+}
+
+
+.ifApplicable  {
+  margin-top: 6px;
+  font-weight: var(--font-medium);
+  font-size: var(--font-xs);
+  text-align: left;
+  color: var(--neutral-light-4);
 }
 
 .reasons {
