@@ -218,6 +218,17 @@ function* signUp(action) {
             yield put(signOnActions.setTwitterProfileError(error))
           }
         }
+        if (!signOn.useMetaMask && signOn.instagramId) {
+          const { error } = yield call(
+            AudiusBackend.associateInstagramAccount,
+            signOn.instagramId,
+            userId,
+            handle
+          )
+          if (error) {
+            yield put(signOnActions.setInstagramProfileError(error))
+          }
+        }
 
         yield put(
           identify(handle, {
