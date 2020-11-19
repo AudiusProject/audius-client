@@ -1,12 +1,11 @@
 import React, { memo, useState, useEffect } from 'react'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
-import { Button, ButtonSize, ButtonType } from '@audius/stems'
+import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 
 import * as schemas from 'schemas'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
-import Modal from 'components/general/Modal'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
@@ -102,8 +101,13 @@ const CreatePlaylistModal = props => {
   return (
     <Modal
       title={props.title}
-      width={1080}
-      visible={props.visible}
+      showTitleHeader
+      dismissOnClickOutside
+      showDismissButton
+      bodyClassName={styles.modalBody}
+      headerContainerClassName={styles.modalHeader}
+      titleClassName={styles.modalTitle}
+      isOpen={props.visible}
       onClose={onCancel}
     >
       <div className={styles.createPlaylist}>

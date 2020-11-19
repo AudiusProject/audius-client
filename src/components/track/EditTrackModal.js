@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { mapValues } from 'lodash'
-import { Button, ButtonSize, ButtonType } from '@audius/stems'
+import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 
 import * as schemas from 'schemas'
 
-import Modal from 'components/general/Modal'
 import FormTile from 'components/data-entry/FormTile'
 
 import styles from './EditTrackModal.module.css'
@@ -83,14 +82,19 @@ const EditTrackModal = props => {
     return Object.values(newInvalidFields).every(f => !f)
   }
 
+  console.log({ visible })
   return (
     <Modal
       title={title}
-      width={1080}
-      visible={visible}
+      isOpen={visible}
       onClose={onClose}
       // Antd modal default value, behind DropdownInput
-      zIndex={1000}
+      // zIndex={1000}
+      bodyClassName={styles.modalBody}
+      titleClassName={styles.modalTitle}
+      headerContainerClassName={styles.modalHeader}
+      showDismissButton
+      showTitleHeader
     >
       <div className={styles.editTrack}>
         <FormTile
