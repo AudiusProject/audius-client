@@ -1,6 +1,9 @@
 .modalBody {
   max-width: 1080px;
   width: 100%;
+  /* Need to account for the dropdown outside modal */
+  overflow-y: visible !important;
+  overflow-x: visible !important;
 }
 
 .modalHeader {

@@ -88,8 +88,8 @@ const EditTrackModal = props => {
       title={title}
       isOpen={visible}
       onClose={onClose}
-      // Antd modal default value, behind DropdownInput
-      // zIndex={1000}
+      // Antd modal default value, behind antd DropdownInput
+      zIndex={1000}
       bodyClassName={styles.modalBody}
       titleClassName={styles.modalTitle}
       headerContainerClassName={styles.modalHeader}

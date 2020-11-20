@@ -117,6 +117,9 @@ const RemixSettingsModal = ({
       subtitle={messages.subtitle}
       dismissOnClickOutside
       showDismissButton
+      // Since this can be nested in the edit track modal
+      // Appear on top of it
+      zIndex={1002}
       bodyClassName={styles.modalContainer}
       headerContainerClassName={styles.modalHeader}
       titleClassName={styles.modalTitle}

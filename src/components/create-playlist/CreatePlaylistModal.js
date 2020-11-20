@@ -100,6 +100,7 @@ const CreatePlaylistModal = props => {
 
   return (
     <Modal
+      modalKey='createplaylist'
       title={props.title}
       showTitleHeader
       dismissOnClickOutside
