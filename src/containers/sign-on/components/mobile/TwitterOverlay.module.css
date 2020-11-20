@@ -16,16 +16,22 @@
   margin: 20px auto;
 }
 
+.lowerDivider {
+  margin: 16px auto;
+}
+
 /* Twitter Button */
 .twitterOverlayContainer {
+  padding-top: 72px;
   width: 100%;
-  height: 100%;
   display: inline-flex;
   align-items: center;
   flex-direction: column;
   background-color: var(--white);
   transition: all .07s ease-in-out;
-  padding-bottom: 32px
+  padding-bottom: 32px;
+  overflow: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 .twitterOverlayContainer.isMobile {
@@ -44,8 +50,8 @@
   align-items: center;
 }
 .twitterButton svg {
-  height: 32px !important;
-  width: 32px !important;
+  height: 48px !important;
+  width: 48px !important;
 }
 
 .twitterButton :global(.btnTextLabel) {
@@ -53,13 +59,18 @@
   font-size: var(--font-l);
   font-weight: var(--font-bold);
   letter-spacing: 0.15px;
-  margin-left: 36px;
+  margin-left: 16px;
 }
 
 .instagramButton {
   height: 80px !important;
   width: 320px !important;
   margin-bottom: 20px;
+}
+
+.btnIcon svg {
+  height: 48px !important;
+  width: 48px !important;
 }
 
 .autofill {
@@ -82,14 +93,13 @@
   margin-bottom: 16px;
   width: 100%;
   max-width: 224px;
-  border-bottom: 1px solid var(--neutral-light-8);
 }
 
 .checkItem {
   width: 100%;
-  max-width: 154px;
+  max-width: 180px;
   display: inline-flex;
-  margin-bottom: 16px;
+  align-items: center;
   color: var(--neutral);
   font-size: var(--font-l);
   font-weight: var(--font-bold);
@@ -101,17 +111,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 16px;
-  height: 16px;
+  height: 32px;
+  width: 32px;
   margin-right: 12px;
   border-radius: 50%;
 }
 
-.checkIcon > svg path {
-  fill: var(--white);
-}
-.checkIcon > svg circle {
-  fill: var(--secondary);
+.checkIcon svg {
+  height: 32px;
+  width: 32px;
 }
 
 .verified {
@@ -119,9 +127,9 @@
   width: 14px;
 }
 
-
 .ifApplicable  {
   margin-top: 6px;
+  margin-bottom: -18px;
   font-weight: var(--font-medium);
   font-size: var(--font-xs);
   text-align: left;

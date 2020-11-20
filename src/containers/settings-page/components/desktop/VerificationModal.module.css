@@ -5,7 +5,7 @@
 }
 
 .container {
-  border-top: 1px solid #F2F2F4;
+  border-top: 1px solid var(--neutral-light-8);
   padding: 24px 20px;
   margin: 0px 24px;
   font-weight: var(--font-demi-bold);
@@ -36,11 +36,17 @@
 }
 
 .btn {
+  height: 64px !important;
   padding: 0px 35px;
 }
 
-.btnIcon path {
+.disabledBtn .btnIcon path,
+.btn .btnIcon path {
   fill: var(--primary) !important;
+}
+
+.btn .btnText {
+  font-size: var(--font-l);
 }
 
 .twitterClassName {
@@ -111,7 +117,7 @@
 }
 
 .container .successBtn {
-  height: 64px;
+  height: 64px !important;
   padding: 0px 56px;
 }
 

@@ -18,6 +18,7 @@ type InstagramAuthButtonProps = {
   disabled?: boolean
   text?: string
 }
+
 const InstagramAuthButton = ({
   className,
   textClassName,
@@ -34,8 +35,8 @@ const InstagramAuthButton = ({
       disabled={disabled}
       onFailure={onFailure}
       onSuccess={onSuccess}
-      profileUrl={`${IDENTITY_SERVICE}/instagram`}
-      // profileUrl={`http://localhost:7000/instagram`}
+      getUserUrl={`${IDENTITY_SERVICE}/instagram`}
+      setProfileUrl={`${IDENTITY_SERVICE}/instagram/profile`}
     >
       <Button
         type={ButtonType.PRIMARY_ALT}

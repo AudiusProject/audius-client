@@ -202,6 +202,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               <Button
                 onClick={this.downloadDesktopApp}
                 className={styles.downloadButton}
+                textClassName={styles.settingButtonText}
                 type={ButtonType.COMMON_ALT}
                 text='Get App'
                 leftIcon={
@@ -227,6 +228,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               <Button
                 onClick={this.showEmailToast}
                 className={styles.resetButton}
+                textClassName={styles.settingButtonText}
                 iconClassName={styles.resetButtonIcon}
                 type={ButtonType.COMMON_ALT}
                 text='Resend'
@@ -264,9 +266,10 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
             <Button
               onClick={this.showNotificationSettings}
               className={styles.resetButton}
+              textClassName={styles.settingButtonText}
               type={ButtonType.COMMON_ALT}
               text='Review'
-              leftIcon={<IconNotification />}
+              leftIcon={<IconNotification className={styles.reviewIcon} />}
             />
           </SettingsCard>
         </div>

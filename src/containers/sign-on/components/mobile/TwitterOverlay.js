@@ -7,7 +7,8 @@ import styles from './TwitterOverlay.module.css'
 import TwitterAuthButton from 'components/general/TwitterAuthButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import InstagramButton from 'components/general/InstagramButton'
-import { IconValidationCheck, IconVerified } from '@audius/stems'
+import { IconVerified } from '@audius/stems'
+import { ReactComponent as IconGradientSave } from 'assets/img/gradientSave.svg'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import { BooleanKeys } from 'services/remote-config'
 
@@ -85,6 +86,7 @@ const TwitterOverlay = props => {
                     showIcon={false}
                     onClick={props.onClick}
                     className={styles.twitterButton}
+                    iconClassName={styles.btnIcon}
                     textLabel={messages.twitterButton}
                     onSuccess={props.onTwitterLogin}
                     onFailure={props.onFailure}
@@ -99,13 +101,14 @@ const TwitterOverlay = props => {
                         <div key={ind} className={styles.checkItem}>
                           <div className={styles.checkIcon}>
                             {' '}
-                            <IconValidationCheck />
+                            <IconGradientSave />
                           </div>
                           {check}
                         </div>
                       ))}
                     </div>
                   </div>
+                  <div className={cn(styles.divider, styles.lowerDivider)} />
                   <div
                     className={styles.manualText}
                     onClick={props.onToggleTwitterOverlay}

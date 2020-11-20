@@ -24,6 +24,8 @@ import { TwitterProfile, InstagramProfile } from 'store/account/reducer'
 import { profilePage } from 'utils/route'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import { BooleanKeys } from 'services/remote-config'
+import { show as showMusicConfetti } from 'containers/music-confetti/store/slice'
+import { useDispatch } from 'react-redux'
 
 const messages = {
   title: 'Verification',
@@ -167,13 +169,18 @@ type VerificationModalProps = {
 // well as toggle individual metadata field visibility.
 const VerificationModal = (props: VerificationModalProps) => {
   const { handle, onInstagramLogin, onTwitterLogin } = props
+  const dispatch = useDispatch()
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+
   const onClick = useCallback(() => setStatus(Status.LOADING), [setStatus])
+
   const onFailure = useCallback(() => {
     setError(messages.failure)
     setStatus(Status.ERROR)
   }, [setError, setStatus])
+
   const instagramLogin = useCallback(
     (uuid: string, profile: InstagramProfile) => {
       if (!profile.is_verified) {
@@ -183,11 +190,12 @@ const VerificationModal = (props: VerificationModalProps) => {
         setError(messages.errorHandle)
         setStatus(Status.ERROR)
       } else {
+        dispatch(showMusicConfetti())
         onInstagramLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
     },
-    [handle, onInstagramLogin, setError]
+    [dispatch, handle, onInstagramLogin, setError]
   )
 
   const twitterLogin = useCallback(
@@ -199,19 +207,20 @@ const VerificationModal = (props: VerificationModalProps) => {
         setError(messages.errorHandle)
         setStatus(Status.ERROR)
       } else {
+        dispatch(showMusicConfetti())
         onTwitterLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
     },
-    [handle, onTwitterLogin, setError]
+    [dispatch, handle, onTwitterLogin, setError]
   )
 
-  const [isOpen, setIsOpen] = useState(false)
   const onOpen = useCallback(() => setIsOpen(true), [setIsOpen])
   const onClose = useCallback(() => {
     setIsOpen(false)
     setError('')
   }, [setIsOpen, setError])
+
   let body
   if (status === Status.LOADING) {
     body = <LoadingBody />
@@ -237,27 +246,28 @@ const VerificationModal = (props: VerificationModalProps) => {
     )
   }
   const canDismiss = status !== Status.LOADING
-  if (props.isVerified) {
-    return (
-      <Button
-        isDisabled={true}
-        text={messages.verifiedBtn}
-        className={styles.disabledBtn}
-        textClassName={styles.disabledBtnText}
-        type={ButtonType.COMMON_ALT}
-        leftIcon={<IconVerified className={styles.btnIcon} />}
-      />
-    )
-  }
   return (
     <>
-      <Button
-        text={messages.title}
-        onClick={onOpen}
-        className={styles.btn}
-        type={ButtonType.COMMON_ALT}
-        leftIcon={<IconVerified className={styles.btnIcon} />}
-      />
+      {props.isVerified ? (
+        <Button
+          isDisabled={true}
+          text={messages.verifiedBtn}
+          className={styles.disabledBtn}
+          textClassName={styles.disabledBtnText}
+          type={ButtonType.COMMON_ALT}
+          leftIcon={<IconVerified className={styles.btnIcon} />}
+        />
+      ) : (
+        <Button
+          text={messages.title}
+          onClick={onOpen}
+          className={styles.btn}
+          textClassName={styles.btnText}
+          size={ButtonSize.MEDIUM}
+          type={ButtonType.COMMON_ALT}
+          leftIcon={<IconVerified className={styles.btnIcon} />}
+        />
+      )}
       <AudiusModal
         isOpen={isOpen}
         onClose={onClose}

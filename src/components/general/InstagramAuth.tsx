@@ -8,12 +8,34 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
 const INSTAGRAM_APP_ID = process.env.REACT_APP_INSTAGRAM_APP_ID
 const INSTAGRAM_REDIRECT_URL = process.env.REACT_APP_INSTAGRAM_REDIRECT_URL
-const instagramAuthorizeUrl = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${INSTAGRAM_REDIRECT_URL}&scope=user_profile,user_media&response_type=code`
+const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${INSTAGRAM_REDIRECT_URL}&scope=user_profile,user_media&response_type=code`
+
+// Route to fetch instagram user data w/ the username
+export const getIGUserUrl = (username: string) =>
+  `https://instagram.com/${username}/?__a=1`
+
+// Instagram User profile fields to capture
+const igUserFields = [
+  'id',
+  'username',
+  'biography',
+  'full_name',
+  'is_verified',
+  'is_private',
+  'external_url',
+  'business_email',
+  'is_business_account',
+  'profile_pic_url',
+  'profile_pic_url_hd',
+  'edge_followed_by',
+  'edge_follow'
+]
 
 type InstagramAuthProps = {
   dialogWidth?: number
   dialogHeight?: number
-  profileUrl: string
+  setProfileUrl: string
+  getUserUrl: string
   onClick: () => void
   onSuccess: (uuid: string, profile: any) => void
   onFailure: (error: any) => void
@@ -27,7 +49,8 @@ type InstagramAuthProps = {
 const InstagramAuth = ({
   dialogWidth = 400,
   dialogHeight = 740,
-  profileUrl,
+  setProfileUrl,
+  getUserUrl,
   onClick = () => {},
   onSuccess = (uuid: string, profile: any) => {},
   onFailure = () => {},
@@ -49,19 +72,43 @@ const InstagramAuth = ({
   const getProfile = useCallback(
     async code => {
       try {
-        const profileResp = await window.fetch(profileUrl, {
+        const profileResp = await window.fetch(getUserUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code })
         })
         const profileRespJson = await profileResp.json()
-        return onSuccess(profileRespJson.id, profileRespJson)
+        if (!profileRespJson.username) {
+          return onFailure(new Error('Unable to fetch information'))
+        }
+        const fetchIGUserUrl = getIGUserUrl(profileRespJson.username)
+        const igProfile = await window.fetch(fetchIGUserUrl)
+        const igProfileJson = await igProfile.json()
+        if (!igProfileJson.graphql || !igProfileJson.graphql.user) {
+          return onFailure(new Error('Unable to fetch information'))
+        }
+        const igUserProfile = igUserFields.reduce((profile: any, field) => {
+          profile[field] = igProfileJson.graphql.user[field]
+          return profile
+        }, {})
+
+        const setProfileResponse = await window.fetch(setProfileUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: igUserProfile })
+        })
+
+        if (!setProfileResponse.ok) {
+          return onFailure(new Error('Unable to fetch information'))
+        }
+
+        return onSuccess(igUserProfile.id, igUserProfile)
       } catch (err) {
         console.log(err)
         onFailure(err.message)
       }
     },
-    [profileUrl, onSuccess, onFailure]
+    [getUserUrl, setProfileUrl, onSuccess, onFailure]
   )
 
   const polling = useCallback(
@@ -80,6 +127,7 @@ const InstagramAuth = ({
         }
         try {
           if (
+            popup.location.hostname.includes('audius.co') ||
             popup.location.hostname.includes(HOSTNAME) ||
             popup.location.hostname.includes(window.location.hostname)
           ) {
@@ -118,7 +166,7 @@ const InstagramAuth = ({
     try {
       if (popup) {
         // @ts-ignore
-        popup.location = instagramAuthorizeUrl
+        popup.location = INSTAGRAM_AUTHORIZE_URL
         // @ts-ignore
         polling(popup)
       }
@@ -131,7 +179,7 @@ const InstagramAuth = ({
   const onNativeVerification = useCallback(async () => {
     try {
       if (onClick) onClick()
-      const message = new RequestInstagramAuthMessage(instagramAuthorizeUrl)
+      const message = new RequestInstagramAuthMessage(INSTAGRAM_AUTHORIZE_URL)
       message.send()
       const response = await message.receive()
       if (response.code) {

@@ -196,6 +196,7 @@ export class ProfilePage extends Component {
             profileImage={profileImage}
             name={name}
             onTwitterLogin={this.onTwitterLogin}
+            onInstagramLogin={this.onInstagramLogin}
             onToggleTwitterOverlay={this.onToggleTwitterOverlay}
             canUpdateHandle={canUpdateHandle}
             handle={handle}

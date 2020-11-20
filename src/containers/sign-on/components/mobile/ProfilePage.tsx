@@ -1,5 +1,5 @@
 /* globals fetch, File */
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import cn from 'classnames'
 
 import styles from './ProfilePage.module.css'
@@ -7,6 +7,7 @@ import { resizeImage } from 'utils/imageProcessingUtil'
 import TwitterOverlay from 'containers/sign-on/components/mobile/TwitterOverlay'
 import ProfileForm from 'containers/sign-on/components/ProfileForm'
 import { InstagramProfile } from 'store/account/reducer'
+import { MAIN_CONTENT_ID } from 'containers/App'
 
 const messages = {
   header: 'Tell Us About Yourself So Others Can Find You'
@@ -48,6 +49,20 @@ const ProfilePage = (props: ProfilePageProps) => {
   const setFinishedLoading = useCallback(() => setIsLoading(false), [
     setIsLoading
   ])
+
+  /**
+   * The margin top causes a secondary scroll for mobile web causing the container to be larger than 100vh
+   * This removes the margin top to make the container height 100vh
+   */
+  useEffect(() => {
+    const mainContent = document.getElementById(MAIN_CONTENT_ID)
+    if (mainContent) {
+      mainContent.classList.add(styles.removeMarginTop)
+      return () => {
+        mainContent.classList.remove(styles.removeMarginTop)
+      }
+    }
+  }, [])
 
   const {
     name,
@@ -164,7 +179,11 @@ const ProfilePage = (props: ProfilePageProps) => {
   const profileValid = getProfileValid()
   return (
     <div className={cn(styles.container)}>
-      <div className={styles.profileContentContainer}>
+      <div
+        className={cn(styles.profileContentContainer, {
+          [styles.authOverlay]: showTwitterOverlay
+        })}
+      >
         <TwitterOverlay
           header={messages.header}
           isMobile

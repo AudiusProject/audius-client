@@ -9,7 +9,7 @@ import styles from './TwitterOverlay.module.css'
 import TwitterAuthButton from 'components/general/TwitterAuthButton'
 import InstagramButton from 'components/general/InstagramButton'
 
-import { ReactComponent as IconValidationCheck } from 'assets/img/iconValidationCheck.svg'
+import { ReactComponent as IconGradientSave } from 'assets/img/gradientSave.svg'
 import { BooleanKeys } from 'services/remote-config'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 
@@ -98,13 +98,14 @@ const TwitterOverlay = props => {
                       <div key={ind} className={styles.checkItem}>
                         <div className={styles.checkIcon}>
                           {' '}
-                          <IconValidationCheck />
+                          <IconGradientSave />
                         </div>
                         {check}
                       </div>
                     ))}
                   </div>
                 </div>
+                <div className={styles.divider}></div>
                 <div
                   className={styles.manualText}
                   onClick={props.onToggleTwitterOverlay}
