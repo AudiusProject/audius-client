@@ -596,16 +596,16 @@ workflows:
       - build-mobile-staging:
           requires:
             - init
-          # filters:
-          #   branches:
-          #     only: /^master$/
+          filters:
+            branches:
+              only: /^master$/
       - deploy-mobile-staging:
           context: Audius Client
           requires:
             - build-mobile-staging
-          # filters:
-          #   branches:
-          #     only: /^master$/
+          filters:
+            branches:
+              only: /^master$/
 
       # Native Mobile
       - build-mobile-production:
