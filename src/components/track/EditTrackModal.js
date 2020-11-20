@@ -82,7 +82,6 @@ const EditTrackModal = props => {
     return Object.values(newInvalidFields).every(f => !f)
   }
 
-  console.log({ visible })
   return (
     <Modal
       title={title}
