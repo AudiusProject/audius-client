@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from 'react'
+import React, { memo, useState, useEffect, useCallback } from 'react'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
@@ -98,12 +98,21 @@ const CreatePlaylistModal = props => {
     props.onCancel()
   }
 
+  const [isArtworkPopupOpen, setIsArtworkPopupOpen] = useState(false)
+  const onOpenArtworkPopup = useCallback(() => {
+    setIsArtworkPopupOpen(true)
+  }, [setIsArtworkPopupOpen])
+
+  const onCloseArtworkPopup = useCallback(() => {
+    setIsArtworkPopupOpen(false)
+  }, [setIsArtworkPopupOpen])
+
   return (
     <Modal
       modalKey='createplaylist'
       title={props.title}
       showTitleHeader
-      dismissOnClickOutside
+      dismissOnClickOutside={!isArtworkPopupOpen}
       showDismissButton
       bodyClassName={styles.modalBody}
       headerContainerClassName={styles.modalHeader}
@@ -117,6 +126,8 @@ const CreatePlaylistModal = props => {
           onDropArtwork={onDropArtwork}
           error={errors.artwork}
           imageProcessingError={formFields.artwork.error}
+          onOpenPopup={onOpenArtworkPopup}
+          onClosePopup={onCloseArtworkPopup}
         />
         <div className={styles.form}>
           <Input

@@ -21,6 +21,8 @@
 
 .editTrack {
   padding: 16px;
+  max-height: calc(85vh - 60px);
+  overflow: scroll;
 }
 
 .buttons {
