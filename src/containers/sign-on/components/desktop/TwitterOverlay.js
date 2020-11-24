@@ -14,8 +14,8 @@ import { BooleanKeys } from 'services/remote-config'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 
 const messages = {
-  instagramButton: 'Complete with Instagram',
-  twitterButton: 'Complete With Twitter',
+  instagramButton: 'Link to Instagram',
+  twitterButton: 'Link To Twitter',
   linkProfile:
     'Quickly complete your profile by linking one of your social accounts.',
   twitterChecks: [

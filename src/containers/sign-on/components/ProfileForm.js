@@ -24,8 +24,8 @@ const messages = {
     twitterReserved: 'This verified Twitter handle is reserved.',
     instagramReserved: 'This verified Instagram handle is reserved.'
   },
-  completeWithTwitter: 'Complete with Twitter to claim',
-  completeWithInstagram: 'Complete with Instagram to claim'
+  completeWithTwitter: 'Link to Twitter to claim',
+  completeWithInstagram: 'Link to Instagram to claim'
 }
 
 const ProfileForm = props => {
