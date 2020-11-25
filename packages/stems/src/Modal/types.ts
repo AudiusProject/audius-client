@@ -7,8 +7,26 @@ export enum Anchor {
 }
 
 export type ModalProps = {
+  /**
+   * Optional unique key to assign to the modal.
+   * If not provided, it is auto-generated.
+   */
+  modalKey?: string
+
+  /**
+   * Modal contents
+   */
   children: ReactNode
+
+  /**
+   * Callback to fire when the modal is closed
+   * Should set isOpen accordingly
+   */
   onClose: () => void
+
+  /**
+   * Whether or not the modal is open
+   */
   isOpen: boolean
 
   /**
@@ -30,17 +48,17 @@ export type ModalProps = {
   showDismissButton?: boolean
 
   /**
-   * Manually set z-index
+   * Manually set z-index.
+   *
+   * By default, the z-index is 10000 and the modal background shadow is
+   * set to z-index - 1 so that the modal appears on top of the shadow.
+   *
+   * If you would like to nest modals, it's important to increase the z-index by
+   * 2 for every modal so that the parent modal lives behind the child modal's shadow.
    */
   zIndex?: number
 
   allowScroll?: boolean
-
-  // Increments the scroll count for scrollLock
-  incrementScrollCount: () => void
-
-  // Decrements the scroll count for scrollLock
-  decrementScrollCount: () => void
 
   // Classnames
 

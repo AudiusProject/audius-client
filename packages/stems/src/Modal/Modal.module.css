@@ -1,4 +1,4 @@
-:global(#bgModal) {
+:global(.bgModal) {
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
   position: fixed;
@@ -10,7 +10,7 @@
   height: 100vh;
 }
 
-:global(#bgModal):global(.bgModalVisible) {
+:global(.bgModal):global(.bgModalVisible) {
   overflow: hidden;
   pointer-events: all;
   opacity: 1;
@@ -29,7 +29,7 @@
   height: auto !important;
 }
 
-:global(#modalRootContainer) {
+:global(.modalRootContainer) {
   /* This needs to position `absolute` instead of `fixed` (which is what it should be)
    * due to this utterly absurd webkit iOS bug:
    * https://gist.github.com/avesus/957889b4941239490c6c441adbe32398

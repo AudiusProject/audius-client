@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import ReactDOM from 'react-dom'
+import uniqueId from 'lodash/uniqueId'
 
 import cn from 'classnames'
 import { animated, useTransition } from 'react-spring'
@@ -11,10 +12,13 @@ import { IconRemove } from 'Icons'
 import useHotkeys from 'hooks/useHotKeys'
 import useClickOutside from 'hooks/useClickOutside'
 import useScrollLock from 'hooks/useScrollLock'
+import { useModalScrollCount } from './hooks'
+import findAncestor from 'utils/findAncestor'
 
 const rootContainer = 'modalRootContainer'
 const rootId = 'modalRoot'
 const bgId = 'bgModal'
+const wrapperClass = 'modalWrapper'
 
 const anchorStyleMap = {
   [Anchor.TOP]: styles.top,
@@ -32,31 +36,37 @@ const getOffset = (anchor: Anchor, verticalAnchorOffset: number) => {
   return { [anchorPropertyMap[anchor]]: verticalAnchorOffset }
 }
 
-const useModalRoot = (zIndex?: number) => {
+const useModalRoot = (id: string, zIndex?: number) => {
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null)
   const [modalBg, setModalBg] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    let el = document.getElementById(rootId)
-    let bgEl = document.getElementById(bgId)
-    let container = document.getElementById(rootContainer)
+    const uniqueRootId = `${id}-${rootId}`
+    const uniqueBgId = `${id}-${bgId}`
+    const uniqueRootContainerId = `${id}-${rootContainer}`
+    let el = document.getElementById(uniqueRootId)
+    let bgEl = document.getElementById(uniqueBgId)
+    let container = document.getElementById(uniqueRootContainerId)
+
+    if (!bgEl) {
+      bgEl = document.createElement('div')
+      bgEl.id = uniqueBgId
+      bgEl.classList.add(bgId)
+      document.body.appendChild(bgEl)
+    }
 
     if (!container) {
       container = document.createElement('div')
-      container.id = rootContainer
+      container.id = uniqueRootContainerId
+      container.classList.add(rootContainer)
       document.body.appendChild(container)
     }
 
     if (!el) {
       el = document.createElement('div')
-      el.id = rootId
+      el.id = uniqueRootId
+      el.classList.add(rootId)
       container.appendChild(el)
-    }
-
-    if (!bgEl) {
-      bgEl = document.createElement('div')
-      bgEl.id = bgId
-      document.body.appendChild(bgEl)
     }
 
     if (zIndex) {
@@ -67,12 +77,13 @@ const useModalRoot = (zIndex?: number) => {
 
     setModalRoot(el)
     setModalBg(bgEl)
-  }, [zIndex])
+  }, [id, zIndex])
 
   return [modalRoot, modalBg]
 }
 
 const Modal = ({
+  modalKey,
   children,
   onClose,
   isOpen,
@@ -81,8 +92,6 @@ const Modal = ({
   titleClassName,
   subtitleClassName,
   headerContainerClassName,
-  incrementScrollCount,
-  decrementScrollCount,
   anchor = Anchor.CENTER,
   subtitle,
   verticalAnchorOffset = 0,
@@ -95,6 +104,7 @@ const Modal = ({
   showDismissButton = false,
   zIndex
 }: ModalProps) => {
+  const id = useMemo(() => modalKey || uniqueId('modal-'), [modalKey])
   const onTouchMove = useCallback(
     (e: any) => {
       !allowScroll && e.preventDefault()
@@ -102,9 +112,10 @@ const Modal = ({
     [allowScroll]
   )
 
-  const [modalRoot, bgModal] = useModalRoot(zIndex)
+  const [modalRoot, bgModal] = useModalRoot(id, zIndex)
   const [isDestroyed, setIsDestroyed] = useState(isOpen)
 
+  const { incrementScrollCount, decrementScrollCount } = useModalScrollCount()
   useScrollLock(isDestroyed, incrementScrollCount, decrementScrollCount)
   useEffect(() => {
     if (isOpen) setIsDestroyed(true)
@@ -112,7 +123,9 @@ const Modal = ({
 
   useEffect(() => {
     if (isOpen) {
-      if (bgModal) bgModal.classList.add('bgModalVisible')
+      if (bgModal) {
+        bgModal.classList.add('bgModalVisible')
+      }
 
       // Need to prevent safari iOS bounce
       // overscroll effect by intercepting
@@ -122,7 +135,6 @@ const Modal = ({
         if (bgModal) bgModal.classList.remove('bgModalVisible')
       }
     }
-
     if (bgModal) bgModal.classList.remove('bgModalVisible')
     if (modalRoot) modalRoot.removeEventListener('touchmove', onTouchMove)
     return () => {}
@@ -143,12 +155,39 @@ const Modal = ({
     }
   })
 
-  const outsideClickRef = useClickOutside(onClose)
+  const outsideClickRef = useClickOutside(
+    onClose,
+    // Check to see if the click outside is not another modal wrapper.
+    // If it is, that means we have a nested modal situation and shouldn't
+    // dismiss "this" modal. We let the useClickOutside in "that" modal to
+    // dismiss it.
+    (e: EventTarget) => {
+      if (e instanceof HTMLElement) {
+        const modalElement = findAncestor(e, `.${wrapperClass}`)
+        if (!modalElement) return false
+        const isModalWrapper = modalElement.classList.contains(wrapperClass)
+        const isThisModalWrapper = modalElement.classList.contains(
+          `${wrapperClass}-${id}`
+        )
+        return isModalWrapper && !isThisModalWrapper
+      }
+      return false
+    }
+  )
+
   useHotkeys({ 27 /* escape */: onClose })
 
-  const wrapperClassNames = cn(styles.wrapper, anchorStyleMap[anchor], {
-    [wrapperClassName!]: !!wrapperClassName
-  })
+  const wrapperClassNames = cn(
+    styles.wrapper,
+    anchorStyleMap[anchor],
+    {
+      [wrapperClassName!]: !!wrapperClassName
+    },
+    wrapperClass,
+    // Add a unique id class name to detect whether, if we're using
+    // click outside to dismiss the modal, the correct "outside" is being clicked.
+    `${wrapperClass}-${id}`
+  )
 
   const wrapperStyle = {
     paddingLeft: `${horizontalPadding}px`,
