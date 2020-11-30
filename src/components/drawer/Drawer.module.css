@@ -1,0 +1,18 @@
+.drawer {
+  z-index: 22;
+  position: fixed;
+  right: 0;
+  left: 0;
+  top: 100vh;
+  background: var(--white);
+  margin-bottom: 0px;
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: 0px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+
+  user-select: none;
+  touch-action: none;
+  border-radius: 40px 40px 0px 0px;
+  box-shadow: 0 16px 20px 15px var(--notification-panel-box-shadow);
+}
+
