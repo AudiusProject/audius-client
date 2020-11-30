@@ -365,6 +365,7 @@ class AudiusBackend {
           monitoringCallbacks.contentNode
         ),
         comstockConfig: AudiusLibs.configComstock(COMSTOCK_URL),
+        captchaConfig: { siteKey: '6LfVR-0ZAAAAADFcqNM1P1IafKwQwN0E_l-gxQ9q' },
         isServer: false
       })
       await audiusLibs.init()
