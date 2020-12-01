@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useRef, ReactNode } from 'react'
+import cn from 'classnames'
 
 import styles from './Drawer.module.css'
 
@@ -11,6 +12,8 @@ import {
 } from 'services/native-mobile-interface/android/pulltorefresh'
 import { usePortal } from 'hooks/usePortal'
 import { useClickOutside } from '@audius/stems'
+
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 // Translation values for the play bar stub
 const STUB_HIDDEN_TRANSLATION = -96
@@ -252,7 +255,9 @@ const Drawer = ({
     <Portal>
       <animated.div
         ref={clickOutsideRef}
-        className={styles.drawer}
+        className={cn(styles.drawer, {
+          [styles.native]: NATIVE_MOBILE
+        })}
         {...bind()}
         style={{
           // @ts-ignore

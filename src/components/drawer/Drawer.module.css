@@ -6,9 +6,7 @@
   top: 100vh;
   background: var(--white);
   margin-bottom: 0px;
-  margin-bottom: env(safe-area-inset-bottom, 0px);
   padding-top: 0px;
-  padding-top: calc(env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
 
   user-select: none;
   touch-action: none;
@@ -18,7 +16,7 @@
 
 /* Fixes positioning on ios Safari */
 @supports (-webkit-overflow-scrolling: touch) {
-  .drawer {
+  .drawer:not(.native) {
     top: calc(100vh - 100px);
   }
 }
