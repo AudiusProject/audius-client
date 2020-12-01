@@ -143,7 +143,6 @@ import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import ConfirmerPreview from 'containers/confirmer-preview/ConfirmerPreview'
 import Notice from './notice/Notice'
 import SignOn from 'containers/sign-on/SignOn'
-import Drawer from 'components/drawer/Drawer'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -815,7 +814,6 @@ class App extends Component {
 
         {/* Mobile-only */}
         {isMobileClient && <ConnectedReachabilityBar />}
-        {isMobileClient && <Drawer />}
 
         {shouldShowPopover && isMobileClient && !NATIVE_MOBILE && (
           <AppRedirectPopover

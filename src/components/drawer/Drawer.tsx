@@ -1,17 +1,16 @@
-import React, { useEffect, useCallback, useRef } from 'react'
+import React, { useEffect, useCallback, useRef, ReactNode } from 'react'
 
 import styles from './Drawer.module.css'
 
 import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
-import cn from 'classnames'
 import useInstanceVar from 'hooks/useInstanceVar'
 import {
   EnablePullToRefreshMessage,
   DisablePullToRefreshMessage
 } from 'services/native-mobile-interface/android/pulltorefresh'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+import { usePortal } from 'hooks/usePortal'
+import { useClickOutside } from '@audius/stems'
 
 // Translation values for the play bar stub
 const STUB_HIDDEN_TRANSLATION = -96 // 20 //-96
@@ -53,11 +52,21 @@ const interpY = (y: number) => `translate3d(0, ${y}px, 0)`
 
 type DrawerProps = {
   isOpen: boolean
-  keyboardVisible: boolean
-  shouldClose: boolean
+  children: ReactNode
+  keyboardVisible?: boolean
+  shouldClose?: boolean
+  onClose?: () => void
 }
 
-const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
+const Drawer = ({
+  isOpen,
+  children,
+  keyboardVisible,
+  shouldClose,
+  onClose
+}: DrawerProps) => {
+  const Portal = usePortal({})
+
   // Stores whether or not the drawer is "open"
   const [height, setHeight] = useInstanceVar(0)
 
@@ -66,10 +75,10 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
     if (contentRef.current) {
       setHeight(contentRef.current.getBoundingClientRect().height)
     }
-  }, [contentRef, setHeight])
+  }, [contentRef, setHeight, Portal])
 
   // Stores the initial translation of the drawer
-  const [initialTranslation, setInitialTranslation] = useInstanceVar(0)
+  const [initialTranslation] = useInstanceVar(0)
   // Stores the last transition
   const [currentTranslation, setCurrentTranslation] = useInstanceVar(0)
 
@@ -82,10 +91,6 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
       setCurrentTranslation(frame.y)
     }
   }))
-  // setInterval(() => {
-  //   // @ts-ignore
-  //   console.log(drawerSlideProps.y.value)
-  // }, 500)
 
   const [contentFadeProps, setContentFadeProps] = useSpring(() => ({
     to: {
@@ -94,37 +99,7 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
     config: stiff
   }))
 
-  useEffect(() => {
-    if (isOpen) {
-      const newY = -1 * height()
-      setDrawerSlideProps({
-        to: {
-          y: newY
-        },
-        config: wobble
-      })
-    }
-  }, [setDrawerSlideProps, setInitialTranslation, height, isOpen])
-
-  // useEffect(() => {
-  //   window.onresize = () => {
-  //     // const diff = Math.abs(height - window.innerHeight)
-  //     const drawer = document.getElementById('now-playing-drawer')
-  //     if (drawer) {
-  //       const h = window.innerHeight
-  //       setHeight(h)
-  //       // @ts-ignore
-  //       drawer.style.height = `${h}px`
-  //       // @ts-ignore
-  //       drawer.style.bottom = `-${h}px`
-  //     }
-  //   }
-  //   // @ts-ignore
-  //   window.onresize()
-  // }, [setHeight])
-
-  const open = () => {
-    console.log('open')
+  const open = useCallback(() => {
     new DisablePullToRefreshMessage().send()
     setDrawerSlideProps({
       to: {
@@ -140,10 +115,9 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
       immediate: false,
       config: stiff
     })
-  }
+  }, [setDrawerSlideProps, setContentFadeProps, height])
 
   const close = useCallback(() => {
-    console.log('close', initialTranslation())
     new EnablePullToRefreshMessage(true).send()
     setDrawerSlideProps({
       to: {
@@ -159,9 +133,16 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
       immediate: false,
       config: stiff
     })
-  }, [initialTranslation, setDrawerSlideProps, setContentFadeProps])
+    if (onClose) onClose()
+  }, [initialTranslation, setDrawerSlideProps, setContentFadeProps, onClose])
 
   // Handle the "controlled" component
+  useEffect(() => {
+    if (isOpen) {
+      open()
+    }
+  }, [open, height, isOpen])
+
   useEffect(() => {
     if (shouldClose) {
       close()
@@ -208,7 +189,6 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
       }
 
       if (last) {
-        console.log('result', newY, vy, height)
         // If this is the last touch event, potentially open or close the drawer
         if (vy === 0) {
           if (Math.abs(newY) > height * OPEN_CUTOFF) {
@@ -244,13 +224,6 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
           immediate: true,
           config: stiff
         })
-        console.log(
-          newY,
-          height,
-          1 -
-            (height / FADE_FRACTION_DENOMINATOR - Math.abs(newY)) /
-              (height / FADE_FRACTION_DENOMINATOR)
-        )
         let newFade
         if (Math.abs(newY) > height / FADE_FRACTION_DENOMINATOR) {
           newFade = 1
@@ -273,13 +246,13 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
     }
   )
 
+  const clickOutsideRef = useClickOutside(() => close())
+
   return (
-    <>
+    <Portal>
       <animated.div
-        className={cn(styles.drawer, {
-          // [styles.native]: NATIVE_MOBILE
-        })}
-        // id='test-drawer'
+        ref={clickOutsideRef}
+        className={styles.drawer}
         {...bind()}
         style={{
           // @ts-ignore
@@ -287,15 +260,12 @@ const Drawer = ({ isOpen, keyboardVisible, shouldClose }: DrawerProps) => {
         }}
       >
         <animated.div className={styles.playBar} style={contentFadeProps}>
-          <div ref={contentRef}>
-            <p>p1</p>
-            <p>p2</p>
-            <p>p3</p>
-            <p>p4</p>
-          </div>
+          <div ref={contentRef}>{children}</div>
         </animated.div>
+        {/* "Bottom padding" so over drags upwards of the drawer are white */}
+        <div className={styles.skirt} />
       </animated.div>
-    </>
+    </Portal>
   )
 }
 
