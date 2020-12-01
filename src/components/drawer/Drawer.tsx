@@ -13,7 +13,7 @@ import { usePortal } from 'hooks/usePortal'
 import { useClickOutside } from '@audius/stems'
 
 // Translation values for the play bar stub
-const STUB_HIDDEN_TRANSLATION = -96 // 20 //-96
+const STUB_HIDDEN_TRANSLATION = -96
 // Hide the drawer when the keyboard is down
 const DRAWER_KEYBOARD_UP = 50
 
