@@ -15,8 +15,6 @@ import { useClickOutside } from '@audius/stems'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
-// Translation values for the play bar stub
-const STUB_HIDDEN_TRANSLATION = -96
 // Hide the drawer when the keyboard is down
 const DRAWER_KEYBOARD_UP = 50
 
@@ -188,7 +186,7 @@ const Drawer = ({
       // Add friction
       const bottomOverflow = newY
       if (bottomOverflow > 0) {
-        newY = STUB_HIDDEN_TRANSLATION + bottomOverflow / OVERFLOW_FRICTION
+        newY = bottomOverflow / OVERFLOW_FRICTION
       }
 
       if (last) {
@@ -238,7 +236,7 @@ const Drawer = ({
         }
         setContentFadeProps({
           to: {
-            // Animate from opacity 1 to 0 at 1/4th the height
+            // Animate from opacity 1 to 0 at 1/FADE_FRACTION_DENOMINATOR the height
             opacity: Math.max(0, newFade)
           },
           immediate: true,
