@@ -52,7 +52,6 @@ function* fetchProfileAsync(action) {
   try {
     let user
     if (action.handle) {
-      yield fork(fetchUserSocials, action.handle)
       user = yield call(
         fetchUserByHandle,
         action.handle,
@@ -79,7 +78,12 @@ function* fetchProfileAsync(action) {
       return
     }
     yield put(profileActions.fetchProfileSucceeded(user.handle, user.user_id))
+
+    // Fetch user socials and collections after fetching the user itself
+    yield fork(fetchUserSocials, action.handle)
     yield fork(fetchUserCollections, user.user_id)
+
+    // Get current user notification & subscription status
     const isSubscribed = yield call(
       AudiusBackend.getUserSubscribed,
       user.user_id
@@ -117,8 +121,10 @@ function* fetchProfileAsync(action) {
 }
 
 function* fetchUserSocials(handle) {
+  console.log('fetch socials', handle)
   const user = yield call(waitForValue, getUser, { handle })
   const socials = yield call(AudiusBackend.getCreatorSocialHandle, user.handle)
+  console.log('got socials', socials)
   yield put(
     cacheActions.update(Kind.USERS, [
       {
