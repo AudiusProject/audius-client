@@ -121,10 +121,8 @@ function* fetchProfileAsync(action) {
 }
 
 function* fetchUserSocials(handle) {
-  console.log('fetch socials', handle)
   const user = yield call(waitForValue, getUser, { handle })
   const socials = yield call(AudiusBackend.getCreatorSocialHandle, user.handle)
-  console.log('got socials', socials)
   yield put(
     cacheActions.update(Kind.USERS, [
       {
