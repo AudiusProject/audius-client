@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getIsOpen } from './store/selectors'
-import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
 
 import Drawer from 'components/drawer/Drawer'
 import styles from './EnablePushNotificationsDrawer.module.css'
@@ -18,7 +17,8 @@ import {
   IconRepost
 } from '@audius/stems'
 import { hide } from './store/slice'
-import { EnablePushNotificationsMessage } from 'services/native-mobile-interface/notifications'
+import { togglePushNotificationSetting } from 'containers/settings-page/store/actions'
+import { PushNotificationSetting } from 'containers/settings-page/store/types'
 
 const messages = {
   dontMiss: `Don't Miss a Beat!`,
@@ -34,19 +34,20 @@ const messages = {
 const EnablePushNotificationsDrawer = () => {
   const dispatch = useDispatch()
   const isOpen = useSelector(getIsOpen)
-  const keyboardVisible = useSelector(getKeyboardVisibility)
 
   const onClose = useCallback(() => {
     dispatch(hide())
   }, [dispatch])
 
   const enablePushNotifications = useCallback(() => {
-    const message = new EnablePushNotificationsMessage()
-    message.send()
-  }, [])
+    dispatch(
+      togglePushNotificationSetting(PushNotificationSetting.MobilePush, true)
+    )
+    onClose()
+  }, [dispatch, onClose])
 
   return (
-    <Drawer isOpen={isOpen} keyboardVisible={keyboardVisible} onClose={onClose}>
+    <Drawer isOpen={isOpen} onClose={onClose} shouldClose={!isOpen}>
       <div className={styles.drawer}>
         <div className={styles.top}>
           <div className={styles.cta}>
