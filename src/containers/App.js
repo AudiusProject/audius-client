@@ -816,9 +816,7 @@ class App extends Component {
         {/* Mobile-only */}
         {isMobileClient && <ConnectedReachabilityBar />}
         {/* Native Mobile-only */}
-        {isMobileClient /* && NATIVE_MOBILE */ && (
-          <EnablePushNotificationsDrawer />
-        )}
+        {isMobileClient && NATIVE_MOBILE && <EnablePushNotificationsDrawer />}
 
         {shouldShowPopover && isMobileClient && !NATIVE_MOBILE && (
           <AppRedirectPopover
