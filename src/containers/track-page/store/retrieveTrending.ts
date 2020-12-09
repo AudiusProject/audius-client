@@ -15,7 +15,7 @@ import { AppState } from 'store/types'
 
 type RetrieveTrendingArgs = {
   timeRange: TimeRange
-  genre?: string
+  genre: string | null
   offset: number
   limit: number
   currentUserId: ID | null
