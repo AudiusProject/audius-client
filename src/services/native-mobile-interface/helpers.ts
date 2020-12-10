@@ -89,7 +89,7 @@ export class NativeMobileMessage {
   public payload: object
   private id: string
 
-  constructor(type: MessageType, message: object) {
+  constructor(type: MessageType, message: object = {}) {
     this.type = type
     this.payload = message
     this.id = uuid()
