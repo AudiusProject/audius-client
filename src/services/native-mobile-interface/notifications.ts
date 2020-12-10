@@ -18,3 +18,9 @@ export class ResetNotificationsBadgeCount extends NativeMobileMessage {
     super(MessageType.RESET_NOTIFICATIONS_BADGE_COUNT, {})
   }
 }
+
+export class PromptPushNotificationPermissions extends NativeMobileMessage {
+  constructor() {
+    super(MessageType.PROMPT_PUSH_NOTIFICATION_REMINDER, {})
+  }
+}
