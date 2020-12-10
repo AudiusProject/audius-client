@@ -293,11 +293,7 @@ function* confirmUpdateProfile(userId, metadata) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
       function* () {
-        if (metadata.is_creator) {
-          yield call(AudiusBackend.updateCreator, metadata, userId)
-        } else {
-          yield call(AudiusBackend.updateUser, metadata, userId)
-        }
+        yield call(AudiusBackend.updateUser, metadata, userId)
         const toConfirm = pick(metadata, ['name', 'bio', 'location'])
         // If the user is trying to upload a new profile picture or cover photo, check that it gets changed
         let coverPhotoCheck = user => user

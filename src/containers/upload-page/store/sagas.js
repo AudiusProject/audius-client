@@ -1001,7 +1001,7 @@ function* uploadTracksAsync(action) {
     )
   )
 
-  if (!user.is_creator || !user.creator_node_endpoint) {
+  if (!user.creator_node_endpoint) {
     const serviceSelectionStatus = yield select(getStatus)
     if (serviceSelectionStatus === Status.ERROR) {
       yield put(uploadActions.uploadTrackFailed())
@@ -1032,30 +1032,29 @@ function* uploadTracksAsync(action) {
       return
     }
     const newEndpoint = selectedServices.join(',')
-
-    // Try to upgrade to creator, early return if failure
-    try {
-      console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
-      yield call(AudiusBackend.upgradeToCreator, newEndpoint)
-    } catch (err) {
-      console.error(`Upgrade to creator failed with error: ${err}`)
-      yield put(uploadActions.uploadTrackFailed())
-      yield put(uploadActions.upgradeToCreatorError(err))
-      return
-    }
-
-    yield put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: user.user_id,
-          metadata: {
-            creator_node_endpoint: newEndpoint,
-            is_creator: true
-          }
-        }
-      ])
-    )
   }
+
+  // Try to upgrade to creator, early return if failure
+  try {
+    console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
+    yield call(AudiusBackend.upgradeToCreator, user)
+  } catch (err) {
+    console.error(`Upgrade to creator failed with error: ${err}`)
+    yield put(uploadActions.uploadTrackFailed())
+    yield put(uploadActions.upgradeToCreatorError(err))
+    return
+  }
+
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: {
+          is_creator: true
+        }
+      }
+    ])
+  )
 
   const uploadType = (() => {
     switch (action.uploadType) {

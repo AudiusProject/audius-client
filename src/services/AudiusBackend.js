@@ -438,11 +438,14 @@ class AudiusBackend {
         identityServiceConfig: AudiusLibs.configIdentityService(
           IDENTITY_SERVICE
         ),
-        creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
+        // Set empty URL for endpoint -- will update after audiusLibs init as this
+        // is when ServiceProvider initializes
+        creatorNodeConfig: AudiusLibs.configCreatorNode('', true),
         comstockConfig: AudiusLibs.configComstock(COMSTOCK_URL),
         isServer: false
       })
       await audiusLibs.init()
+
       window.audiusLibs = audiusLibs
       const event = new CustomEvent(LIBS_INITTED_EVENT)
       window.dispatchEvent(event)
@@ -1190,67 +1193,18 @@ class AudiusBackend {
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
 
-      const idVal = await audiusLibs.User.updateCreator(
+      await audiusLibs.User.updateUserMetadata(
         newMetadata.user_id,
         newMetadata
       )
-      return idVal
-    } catch (err) {
-      console.error(err.message)
-      return false
-    }
-  }
-
-  static async updateUser(metadata, id) {
-    let newMetadata = { ...metadata }
-    try {
-      if (newMetadata.updatedProfilePicture) {
-        const resp = await audiusLibs.File.uploadImage(
-          newMetadata.updatedProfilePicture.file
-        )
-        newMetadata.profile_picture_sizes = resp.dirCID
-      }
-
-      if (newMetadata.updatedCoverPhoto) {
-        const resp = await audiusLibs.File.uploadImage(
-          newMetadata.updatedCoverPhoto.file,
-          false
-        )
-        newMetadata.cover_photo_sizes = resp.dirCID
-      }
-
-      if (
-        newMetadata.twitter_handle ||
-        newMetadata.instagram_handle ||
-        newMetadata.website ||
-        newMetadata.donation
-      ) {
-        await fetch(`${IDENTITY_SERVICE}/social_handles`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            handle: newMetadata.handle,
-            twitterHandle: newMetadata.twitter_handle,
-            instagramHandle: newMetadata.instagram_handle,
-            website: newMetadata.website,
-            donation: newMetadata.donation
-          })
-        })
-      }
-
-      newMetadata = schemas.newUserMetadata(newMetadata, true)
-
-      await audiusLibs.User.updateUser(id, newMetadata)
       return true
     } catch (err) {
-      console.error(err.message)
+      console.error(`i have failed updating user: ${err}`)
       return false
     }
   }
 
-  static async updateIsVerified(userId, verified) {
+  static async updateIsVerified (userId, verified) {
     try {
       await audiusLibs.User.updateIsVerified(userId, verified)
       return true

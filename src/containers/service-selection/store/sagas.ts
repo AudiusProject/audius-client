@@ -133,7 +133,7 @@ function* watchSetSelected() {
     if (user.is_creator) {
       user.creator_node_endpoint = newEndpoint
       const success = yield call(
-        AudiusBackend.updateCreator,
+        AudiusBackend.updateUser,
         user,
         user.user_id
       )
