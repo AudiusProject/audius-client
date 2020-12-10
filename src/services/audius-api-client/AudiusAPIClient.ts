@@ -71,7 +71,7 @@ type GetTrendingArgs = {
   offset?: number
   limit?: number
   currentUserId: Nullable<ID>
-  genre: string | null
+  genre: Nullable<string>
 }
 
 type GetFollowingArgs = {
