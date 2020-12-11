@@ -1622,7 +1622,7 @@ class AudiusBackend {
 
   static async signIn(email, password) {
     await waitForLibsInit()
-    return audiusLibs.Account.login(email, password)
+    return audiusLibs.Account.login(email, password, audiusLibs.ServiceProvider)
   }
 
   static async signOut() {

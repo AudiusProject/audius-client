@@ -1001,6 +1001,7 @@ function* uploadTracksAsync(action) {
     )
   )
 
+  let newEndpoint = ''
   if (!user.creator_node_endpoint) {
     const serviceSelectionStatus = yield select(getStatus)
     if (serviceSelectionStatus === Status.ERROR) {
@@ -1031,7 +1032,11 @@ function* uploadTracksAsync(action) {
       )
       return
     }
-    const newEndpoint = selectedServices.join(',')
+    newEndpoint = selectedServices.join(',')
+  }
+
+  if (newEndpoint) {
+    user.creator_node_endpoint = newEndpoint
   }
 
   // Try to upgrade to creator, early return if failure
