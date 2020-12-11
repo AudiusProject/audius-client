@@ -87,7 +87,7 @@ const getAchievementText = (notification: any) => {
 
 const getTrendingTrackText = (notification: TrendingTrack) => {
   const link = getEntityLink(notification.entity, true)
-  const text = `My Track ${notification.entity.title} is trending ${
+  const text = `My track ${notification.entity.title} is trending ${
     notification.rank
   }${getRankSuffix(
     notification.rank
