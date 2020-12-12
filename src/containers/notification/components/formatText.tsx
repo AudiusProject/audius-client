@@ -304,7 +304,8 @@ export const formatBody = (
           <span onClick={getEntityClick(entity)} className={styles.headerLink}>
             {getEntityName(entity)}
           </span>
-          {` is ${rank}${rankSuffix} on Trending Right Now!`}
+          {` is ${rank}${rankSuffix} on Trending Right Now! `}
+          <i className='emoji bottle-with-popping-cork' />
         </span>
       )
     }
