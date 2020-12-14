@@ -1152,7 +1152,7 @@ class AudiusBackend {
     return AudiusBackend.getUserImages(creators[0])
   }
 
-  static async updateCreator(metadata, id) {
+  static async updateUser (metadata, id) {
     let newMetadata = { ...metadata }
     try {
       if (newMetadata.updatedProfilePicture) {
