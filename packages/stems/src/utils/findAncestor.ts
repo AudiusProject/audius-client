@@ -1,9 +1,9 @@
 /**
- * Legacy browser support for `HTMLElement.closest`
+ * Legacy browser support for `Element.closest`
  * @param el
  * @param selector query selector
  */
-const findAncestor = (el: HTMLElement, selector: string) => {
+const findAncestor = (el: Element, selector: string) => {
   if (el.closest) {
     return el.closest(selector)
   }

@@ -162,7 +162,7 @@ const Modal = ({
     // dismiss "this" modal. We let the useClickOutside in "that" modal to
     // dismiss it.
     (e: EventTarget) => {
-      if (e instanceof HTMLElement) {
+      if (e instanceof Element) {
         const modalElement = findAncestor(e, `.${wrapperClass}`)
         if (!modalElement) return false
         const isModalWrapper = modalElement.classList.contains(wrapperClass)
