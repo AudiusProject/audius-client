@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 
 declare global {
   interface Window {
@@ -15,21 +15,27 @@ window.AudiusStems = window.AudiusStems || {}
  * @param name shared name between users of a useGlobal
  * @param initialValue
  * @returns getter, setter
- *  Similar to useState, except the getter is a function and the
- *  setter should only be invoked with a mutator function rather than a "new value"
+ *  Similar to useState, except
+ *  1. The getter is a function to allow for fresh fetches (pulls off of window at each invocation)
+ *  2. The setter can/should only be invoked with a mutator function rather than a "new value"
  */
 const useGlobal = <T>(
   name: string,
   initialValue: T
 ): [() => T, (mutator: (cur: T) => void) => void] => {
   useEffect(() => {
-    window.AudiusStems[name] = initialValue
+    if (window.AudiusStems[name] === undefined) {
+      window.AudiusStems[name] = initialValue
+    }
   }, [name, initialValue])
 
-  const getter = () => window.AudiusStems[name]
-  const setter = (mutator: (cur: T) => void) => {
-    window.AudiusStems[name] = mutator(window.AudiusStems[name])
-  }
+  const getter = useMemo(() => () => window.AudiusStems[name], [name])
+  const setter = useMemo(
+    () => (mutator: (cur: T) => void) => {
+      window.AudiusStems[name] = mutator(window.AudiusStems[name])
+    },
+    [name]
+  )
 
   return [getter, setter]
 }

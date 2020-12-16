@@ -2,12 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 
 /**
  * `useScrollLock` will prevent the root app div from scrolling. This is useful for modals, or for presenting
- * full screen pages on top of the existing app (e.g. in SignOn).
- *
- * Beacuse useScrollLock may be called from multiple components simultaneously, in order to prevent brittle code
- * and race conditions we use the Redux store to keep a count of attempts to lock vs unlock,
- * and only lock the app when the count > 0.
- *
+ * full screen pages on top of the existing app.
  */
 const useScrollLock = (
   lock: boolean,

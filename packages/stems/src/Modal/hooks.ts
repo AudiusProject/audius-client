@@ -18,7 +18,10 @@ export const setModalRootTop = () => {
 
 export const useModalScrollCount = () => {
   const [getCount, setCount] = useGlobal('modal-scroll-count', 0)
+  // Keep a state toggle to trigger recomputations of the effect
+  const [toggle, setToggle] = useState(false)
   const [isOverflowHidden, setIsOverflowHidden] = useState(false)
+
   useEffect(() => {
     if (!isOverflowHidden && getCount() > 0) {
       setIsOverflowHidden(true)
@@ -28,14 +31,18 @@ export const useModalScrollCount = () => {
       setIsOverflowHidden(false)
       removeOverflowHidden()
     }
-  }, [getCount, isOverflowHidden])
+  }, [getCount, isOverflowHidden, toggle])
 
-  const incrementScrollCount = useCallback(() => setCount(count => count + 1), [
-    setCount
-  ])
-  const decrementScrollCount = useCallback(() => setCount(count => count - 1), [
-    setCount
-  ])
+  const incrementScrollCount = useCallback(() => {
+    setCount(count => count + 1)
+    setToggle(toggle => !toggle)
+  }, [setCount, setToggle])
+  const decrementScrollCount = useCallback(() => {
+    // Though we should in theory never be decrementing past zero, getting into
+    // that state would be bad for us, so guard against it defensively
+    setCount(count => Math.max(0, count - 1))
+    setToggle(toggle => !toggle)
+  }, [setCount, setToggle])
 
   return {
     incrementScrollCount,
