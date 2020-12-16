@@ -108,6 +108,7 @@
   font-weight: var(--font-bold);
   color: var(--neutral);
   margin: 0px 16px 0px;
+  white-space: nowrap;
 }
 
 .subtitle {
