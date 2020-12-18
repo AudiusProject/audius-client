@@ -107,7 +107,13 @@ export enum Name {
   REMIX_NEW_REMIX = 'Remix: New Remix',
   REMIX_COSIGN = 'Remix: CoSign',
   REMIX_COSIGN_INDICATOR = 'Remix: CoSign Indicator',
-  REMIX_HIDE = 'Remix: Hide'
+  REMIX_HIDE = 'Remix: Hide',
+  CLAIM_AUDIO_REQUEST = 'Claim $AUDIO: Request',
+  CLAIM_AUDIO_SUCCESS = 'Claim $AUDIO: Success',
+  CLAIM_AUDIO_FAILURE = 'Claim $AUDIO: Failure',
+  SEND_AUDIO_REQUEST = 'Send $AUDIO: Request',
+  SEND_AUDIO_SUCCESS = 'Send $AUDIO: Success',
+  SEND_AUDIO_FAILURE = 'Send $AUDIO: Failure'
 }
 
 type PageView = {
@@ -664,6 +670,39 @@ type RemixHide = {
   handle: string
 }
 
+type ClaimAudioRequest = {
+  eventName: Name.CLAIM_AUDIO_REQUEST
+  wallet: string
+}
+
+type ClaimAudioSuccess = {
+  eventName: Name.CLAIM_AUDIO_SUCCESS
+  wallet: string
+}
+
+type ClaimAudioFailure = {
+  eventName: Name.CLAIM_AUDIO_FAILURE
+  wallet: string
+}
+
+type SendAudioRequest = {
+  eventName: Name.SEND_AUDIO_REQUEST
+  from: string
+  recipient: string
+}
+
+type SendAudioSuccess = {
+  eventName: Name.SEND_AUDIO_SUCCESS
+  from: string
+  recipient: string
+}
+
+type SendAudioFailure = {
+  eventName: Name.SEND_AUDIO_FAILURE
+  from: string
+  recipient: string
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -760,3 +799,9 @@ export type AllTrackingEvents =
   | RemixCosign
   | RemixCosignIndicator
   | RemixHide
+  | ClaimAudioRequest
+  | ClaimAudioSuccess
+  | ClaimAudioFailure
+  | SendAudioRequest
+  | SendAudioSuccess
+  | SendAudioFailure
