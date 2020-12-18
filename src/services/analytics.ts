@@ -1,6 +1,7 @@
 import TimeRange from 'models/TimeRange'
 import FeedFilter from 'models/FeedFilter'
 import { ID, PlayableType } from 'models/common/Identifiers'
+import { WalletAddress } from 'store/wallet/slice'
 
 export const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
@@ -672,35 +673,35 @@ type RemixHide = {
 
 type ClaimAudioRequest = {
   eventName: Name.CLAIM_AUDIO_REQUEST
-  wallet: string
+  wallet: WalletAddress
 }
 
 type ClaimAudioSuccess = {
   eventName: Name.CLAIM_AUDIO_SUCCESS
-  wallet: string
+  wallet: WalletAddress
 }
 
 type ClaimAudioFailure = {
   eventName: Name.CLAIM_AUDIO_FAILURE
-  wallet: string
+  wallet: WalletAddress
 }
 
 type SendAudioRequest = {
   eventName: Name.SEND_AUDIO_REQUEST
-  from: string
-  recipient: string
+  from: WalletAddress
+  recipient: WalletAddress
 }
 
 type SendAudioSuccess = {
   eventName: Name.SEND_AUDIO_SUCCESS
-  from: string
-  recipient: string
+  from: WalletAddress
+  recipient: WalletAddress
 }
 
 type SendAudioFailure = {
   eventName: Name.SEND_AUDIO_FAILURE
-  from: string
-  recipient: string
+  from: WalletAddress
+  recipient: WalletAddress
 }
 
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
