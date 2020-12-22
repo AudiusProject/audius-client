@@ -1,19 +1,20 @@
 import React, { useCallback, useState } from 'react'
 import cn from 'classnames'
 
-import AudiusModal from 'components/general/AudiusModal'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-
-import styles from './VerificationModal.module.css'
-import InstagramAccountVerification from '../InstagramAccountVerified'
-import TwitterAccountVerification from '../TwitterAccountVerified'
 import {
+  Modal,
   IconVerified,
   Button,
   ButtonType,
   IconNote,
   ButtonSize
 } from '@audius/stems'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+
+import styles from './VerificationModal.module.css'
+import InstagramAccountVerification from '../InstagramAccountVerified'
+import TwitterAccountVerification from '../TwitterAccountVerified'
+
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
 import { Status } from 'store/types'
 import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
@@ -268,7 +269,7 @@ const VerificationModal = (props: VerificationModalProps) => {
           leftIcon={<IconVerified className={styles.btnIcon} />}
         />
       )}
-      <AudiusModal
+      <Modal
         isOpen={isOpen}
         onClose={onClose}
         showDismissButton={canDismiss}
@@ -280,7 +281,7 @@ const VerificationModal = (props: VerificationModalProps) => {
         headerContainerClassName={styles.headerContainer}
       >
         {body}
-      </AudiusModal>
+      </Modal>
     </>
   )
 }

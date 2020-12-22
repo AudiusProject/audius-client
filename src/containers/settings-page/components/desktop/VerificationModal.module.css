@@ -1,7 +1,10 @@
 .wrapperClassName {
-  max-width: 736px;
   width: 100%;
   margin: auto;
+}
+
+.modalBodyStyle {
+  max-width: 736px;
 }
 
 .container {
