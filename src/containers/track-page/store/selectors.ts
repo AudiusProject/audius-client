@@ -32,5 +32,7 @@ export const getStatus = (state: AppState) =>
 
 export const getLineup = (state: AppState) => getBaseState(state).tracks
 export const getTrackRank = (state: AppState) => getBaseState(state).rank
+export const getTrendingTrackRanks = (state: AppState) =>
+  getBaseState(state).trendingTrackRanks
 export const getSourceSelector = (state: AppState) =>
   `${PREFIX}:${getTrackId(state)}`
