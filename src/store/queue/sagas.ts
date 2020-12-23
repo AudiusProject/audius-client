@@ -3,9 +3,11 @@ import {
   call,
   put,
   select,
+  take,
   takeLatest,
   takeEvery
 } from 'redux-saga/effects'
+import { eventChannel } from 'redux-saga'
 
 import {
   play,
@@ -281,6 +283,44 @@ export function* watchRemove() {
   })
 }
 
+/**
+ * Set media session action handlers
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/API/MediaSession/setActionHandler
+ * NOTE: in chrome there'a a hack in AudioStream where we do not call pause and thus play/pause
+ * does not work.
+ */
+const mediaEvents = ['play', 'pause', 'previoustrack', 'nexttrack', 'stop']
+function* setMediaSession() {
+  if (!NATIVE_MOBILE && 'mediaSession' in window.navigator) {
+    const mediaSession = (window.navigator as any).mediaSession
+    const mediaSessionChannel = eventChannel(emitter => {
+      mediaEvents.forEach(eventName => {
+        mediaSession.setActionHandler(eventName, () => emitter(eventName))
+      })
+      return () => {}
+    })
+    while (true) {
+      const message = yield take(mediaSessionChannel)
+      switch (message) {
+        case 'play':
+          yield put(play({}))
+          break
+        case 'pause':
+          yield put(pause({}))
+          break
+        case 'previoustrack':
+          yield put(previous({}))
+          break
+        case 'nexttrack':
+          yield put(next({}))
+          break
+        case 'stop':
+          yield put(playerActions.stop({}))
+          break
+      }
+    }
+  }
+}
 const sagas = () => {
   const sagas = [
     watchPlay,
@@ -288,7 +328,8 @@ const sagas = () => {
     watchNext,
     watchPrevious,
     watchAdd,
-    watchRemove
+    watchRemove,
+    setMediaSession
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
