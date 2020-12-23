@@ -19,44 +19,48 @@ export const TRENDING_BADGE_LIMIT = 10
 
 function* watchTrackBadge() {
   yield takeEvery(trackPageActions.GET_TRACK_RANKS, function* (action) {
-    yield call(waitForBackendSetup)
-    let trendingTrackRanks = yield select(getTrendingTrackRanks)
-    if (trendingTrackRanks.week === null) {
-      const trendingRanks = yield apiClient.getTrendingIds({
-        limit: TRENDING_BADGE_LIMIT
-      })
-      yield put(trackPageActions.setTrackTrendingRanks(trendingRanks))
-      trendingTrackRanks = yield select(getTrendingTrackRanks)
+    try {
+      yield call(waitForBackendSetup)
+      let trendingTrackRanks = yield select(getTrendingTrackRanks)
+      if (!trendingTrackRanks) {
+        const trendingRanks = yield apiClient.getTrendingIds({
+          limit: TRENDING_BADGE_LIMIT
+        })
+        yield put(trackPageActions.setTrackTrendingRanks(trendingRanks))
+        trendingTrackRanks = yield select(getTrendingTrackRanks)
+      }
+
+      const weeklyTrackIndex = trendingTrackRanks.week.findIndex(
+        trackId => trackId === action.trackId
+      )
+      const monthlyTrackIndex = trendingTrackRanks.month.findIndex(
+        trackId => trackId === action.trackId
+      )
+      const yearlyTrackIndex = trendingTrackRanks.year.findIndex(
+        trackId => trackId === action.trackId
+      )
+
+      yield put(
+        trackPageActions.setTrackRank(
+          'week',
+          weeklyTrackIndex !== -1 ? weeklyTrackIndex + 1 : null
+        )
+      )
+      yield put(
+        trackPageActions.setTrackRank(
+          'month',
+          monthlyTrackIndex !== -1 ? monthlyTrackIndex + 1 : null
+        )
+      )
+      yield put(
+        trackPageActions.setTrackRank(
+          'year',
+          yearlyTrackIndex !== -1 ? yearlyTrackIndex + 1 : null
+        )
+      )
+    } catch (error) {
+      console.error(`Unable to fetch track badge: ${error.message}`)
     }
-
-    const weeklyTrackIndex = trendingTrackRanks.week.findIndex(
-      trackId => trackId === action.trackId
-    )
-    const monthlyTrackIndex = trendingTrackRanks.month.findIndex(
-      trackId => trackId === action.trackId
-    )
-    const yearlyTrackIndex = trendingTrackRanks.year.findIndex(
-      trackId => trackId === action.trackId
-    )
-
-    yield put(
-      trackPageActions.setTrackRank(
-        'week',
-        weeklyTrackIndex !== -1 ? weeklyTrackIndex + 1 : null
-      )
-    )
-    yield put(
-      trackPageActions.setTrackRank(
-        'month',
-        monthlyTrackIndex !== -1 ? monthlyTrackIndex + 1 : null
-      )
-    )
-    yield put(
-      trackPageActions.setTrackRank(
-        'year',
-        yearlyTrackIndex !== -1 ? yearlyTrackIndex + 1 : null
-      )
-    )
   })
 }
 
