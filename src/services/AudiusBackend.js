@@ -438,7 +438,9 @@ class AudiusBackend {
         identityServiceConfig: AudiusLibs.configIdentityService(
           IDENTITY_SERVICE
         ),
-        creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
+        // Set empty URL for endpoint -- will update after audiusLibs init as this
+        // is when ServiceProvider initializes
+        creatorNodeConfig: AudiusLibs.configCreatorNode('', true),
         comstockConfig: AudiusLibs.configComstock(COMSTOCK_URL),
         isServer: false
       })
@@ -1704,7 +1706,7 @@ class AudiusBackend {
       email,
       password,
       metadata,
-      metadata.is_creator /* false */,
+      audiusLibs.ServiceProvider,
       formFields.profilePicture,
       formFields.coverPhoto,
       hasWallet,
