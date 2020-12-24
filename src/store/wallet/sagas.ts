@@ -18,7 +18,7 @@ import {
   weiToString,
   BNWei,
   StringWei,
-  getLocalBalanceChange
+  getLocalBalanceDidChange
 } from 'store/wallet/slice'
 import { fetchAccountSucceeded } from 'store/account/reducer'
 import walletClient from 'services/wallet-client/WalletClient'
@@ -114,7 +114,9 @@ function* getWalletBalanceAndClaim() {
 }
 
 function* fetchBalanceAsync() {
-  const localBalanceChange = yield select(getLocalBalanceChange)
+  const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> = yield select(
+    getLocalBalanceDidChange
+  )
   const currentBalance: BNWei = yield call(() =>
     walletClient.getCurrentBalance(/* bustCache */ localBalanceChange)
   )
