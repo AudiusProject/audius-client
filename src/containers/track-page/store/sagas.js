@@ -70,6 +70,7 @@ function* watchTrackBadge() {
         /**
          * Use the legacy get trending track ranks if the optimizely
          * flag OPTIMIZED_TRENDING_BADGE_ENDPOINT is set to false
+         * Relies on Protocol changes https://github.com/AudiusProject/audius-protocol/pull/1137
          */
         const trendingRanks = useOptimizedTrendingIds
           ? yield apiClient.getTrendingIds({
