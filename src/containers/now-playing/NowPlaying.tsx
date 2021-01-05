@@ -447,8 +447,7 @@ function makeMapStateToProps() {
         ? getAverageColor(state, {
             multihash:
               currentQueueItem.track.cover_art_sizes ??
-              currentQueueItem.track.cover_art ??
-              ''
+              currentQueueItem.track.cover_art
           })
         : null
     }

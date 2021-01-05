@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import Color from 'models/common/Color'
 import { CID } from 'models/common/Identifiers'
 import { AppState } from 'store/types'
+import { Nullable } from 'utils/typeUtils'
 
 const initialState: { colors: { [multihash: string]: Color } } = {
   colors: {}
@@ -29,7 +30,8 @@ export const { setColor } = slice.actions
 
 export const getAverageColor = (
   state: AppState,
-  { multihash }: { multihash: CID }
-): Color | undefined => state.application.ui.averageColor.colors[multihash]
+  { multihash }: { multihash: Nullable<CID> }
+): Nullable<Color> =>
+  (multihash && state.application.ui.averageColor.colors[multihash]) || null
 
 export default slice.reducer
