@@ -56,7 +56,7 @@ const EditPlaylistModal = ({
     onClose()
     deletePlaylist(playlistId!)
     const playlistRoute = playlistPage(handle, title, playlistId!)
-    // If on the playlist page, direct user to teed
+    // If on the playlist page, direct user to feed
     if (location.pathname === playlistRoute) goToRoute(FEED_PAGE)
   }
   const onSaveEdit = (formFields: any) => {

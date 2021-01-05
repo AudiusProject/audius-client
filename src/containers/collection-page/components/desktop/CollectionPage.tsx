@@ -23,16 +23,10 @@ const messages = {
       'Find a track you want to add and click the ••• button to add it to your playlist',
     visitor: 'This Playlist is Empty...'
   },
-  title: {
-    playlist: 'PLAYLIST',
-    album: 'ALBUM'
-  },
   type: {
     playlist: 'Playlist',
     album: 'Album'
   },
-  edit: 'EDIT',
-  delete: 'DELETE',
   remove: 'Remove from this'
 }
 
