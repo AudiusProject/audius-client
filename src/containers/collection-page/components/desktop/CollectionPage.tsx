@@ -4,8 +4,6 @@ import { Status } from 'store/types'
 
 import Page from 'components/general/Page'
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
-import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
-import DeleteConfirmationModal from 'components/delete-confirmation/DeleteConfirmationModal'
 import { ID } from 'models/common/Identifiers'
 import Collection, { SmartCollection, Variant } from 'models/Collection'
 import TracksTable from 'components/tracks-table/TracksTable'
@@ -53,8 +51,6 @@ export type CollectionPageProps = {
   title: string
   description: string
   canonicalUrl: string
-  showEditPlaylist: boolean
-  showDeleteConfirmation: boolean
   playlistId: ID
   playing: boolean
   getPlayingUid: () => string | null
@@ -94,11 +90,6 @@ export type CollectionPageProps = {
     uid: string,
     timestamp: number
   ) => void
-  onSaveEdit: (formField: any) => void
-  onDeletePlaylist: () => void
-  onCancelEditPlaylist: () => void
-  onDelete: () => void
-  onCancelDelete: () => void
   onFollow: () => void
   onUnfollow: () => void
   onClickReposts: () => void
@@ -110,8 +101,6 @@ const CollectionPage = ({
   title,
   description: pageDescription,
   canonicalUrl,
-  showEditPlaylist,
-  showDeleteConfirmation,
   playlistId,
   allowReordering,
   playing,
@@ -138,11 +127,6 @@ const CollectionPage = ({
   onSortTracks,
   onReorderTracks,
   onClickRemove,
-  onDeletePlaylist,
-  onSaveEdit,
-  onCancelEditPlaylist,
-  onDelete,
-  onCancelDelete,
   onFollow,
   onUnfollow,
   onClickReposts,
@@ -283,28 +267,6 @@ const CollectionPage = ({
             )}
           </div>
         )}
-        <CreatePlaylistModal
-          key={playlistId}
-          title={`${messages.edit} ${
-            isAlbum ? messages.title.album : messages.title.playlist
-          }`}
-          isAlbum={isAlbum}
-          visible={showEditPlaylist}
-          metadata={metadata}
-          editMode
-          onDelete={onDeletePlaylist}
-          onSave={onSaveEdit}
-          onCancel={onCancelEditPlaylist}
-        />
-        <DeleteConfirmationModal
-          title={`${messages.delete} ${
-            isAlbum ? messages.title.album : messages.title.playlist
-          }`}
-          entity={isAlbum ? messages.type.album : messages.type.playlist}
-          visible={showDeleteConfirmation}
-          onDelete={onDelete}
-          onCancel={onCancelDelete}
-        />
       </div>
     </Page>
   )
