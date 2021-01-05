@@ -50,7 +50,6 @@ const messages = {
 
 const CollectionMenu: React.FC<CollectionMenuProps> = props => {
   const getMenu = () => {
-    const includeEdit = true
     const {
       type,
       handle,
@@ -59,7 +58,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = props => {
       isOwner,
       isFavorited,
       isReposted,
-      // includeEdit,
+      includeEdit,
       includeShare,
       includeRepost,
       includeFavorite,
