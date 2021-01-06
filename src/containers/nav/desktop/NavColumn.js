@@ -65,7 +65,7 @@ import { make, useRecord } from 'store/analytics/actions'
 import { Name, CreatePlaylistSource } from 'services/analytics'
 import { Variant } from 'models/Collection'
 import { getClaimableBalance } from 'store/wallet/slice'
-import { getAverageColor } from 'store/application/ui/average-color/slice'
+import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 
 const NavColumn = ({
   account,
@@ -473,13 +473,9 @@ const makeMapStateToProps = () => {
       upload: state.upload,
       showCreatePlaylistModal: getIsOpen(state),
       pendingClaim: getClaimableBalance(state),
-      averageRGBColor: currentQueueItem.track
-        ? getAverageColor(state, {
-            multihash:
-              currentQueueItem.track.cover_art_sizes ??
-              currentQueueItem.track.cover_art
-          })
-        : null
+      averageRGBColor: getAverageColorByTrack(state, {
+        track: currentQueueItem.track
+      })
     }
   }
   return mapStateToProps

@@ -66,7 +66,7 @@ import { useRecord, make } from 'store/analytics/actions'
 import { AudioState } from 'store/player/types'
 import { withNullGuard } from 'utils/withNullGuard'
 import CoSign, { Size } from 'components/co-sign/CoSign'
-import { getAverageColor } from 'store/application/ui/average-color/slice'
+import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -443,13 +443,9 @@ function makeMapStateToProps() {
       isBuffering: getBuffering(state),
       isCasting: getIsCasting(state),
       castMethod: getCastMethod(state),
-      averageRGBColor: currentQueueItem.track
-        ? getAverageColor(state, {
-            multihash:
-              currentQueueItem.track.cover_art_sizes ??
-              currentQueueItem.track.cover_art
-          })
-        : null
+      averageRGBColor: getAverageColorByTrack(state, {
+        track: currentQueueItem.track
+      })
     }
   }
   return mapStateToProps

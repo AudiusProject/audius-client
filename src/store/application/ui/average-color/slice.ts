@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import Color from 'models/common/Color'
 import { CID } from 'models/common/Identifiers'
+import Track from 'models/Track'
 import { AppState } from 'store/types'
 import { Nullable } from 'utils/typeUtils'
 
@@ -33,5 +34,14 @@ export const getAverageColor = (
   { multihash }: { multihash: Nullable<CID> }
 ): Nullable<Color> =>
   (multihash && state.application.ui.averageColor.colors[multihash]) || null
+
+export const getAverageColorByTrack = (
+  state: AppState,
+  { track }: { track: Nullable<Track> }
+): Nullable<Color> => {
+  const multihash = track?.cover_art_sizes ?? track?.cover_art
+  if (!multihash) return null
+  return state.application.ui.averageColor.colors[multihash] ?? null
+}
 
 export default slice.reducer
