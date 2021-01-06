@@ -6,9 +6,10 @@ import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
 import DeleteConfirmationModal from 'components/delete-confirmation/DeleteConfirmationModal'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import {
-  getCollectionAndUser,
-  getIsOpen
+  getIsOpen,
+  getCollectionId
 } from 'store/application/ui/editPlaylistModal/selectors'
+import { getCollectionWithUser } from 'store/cache/collections/selectors'
 import { close } from 'store/application/ui/editPlaylistModal/slice'
 import { editPlaylist, deletePlaylist } from 'store/cache/collections/actions'
 import { ID } from 'models/common/Identifiers'
@@ -38,15 +39,18 @@ type EditPlaylistModalProps = OwnProps &
 const EditPlaylistModal = ({
   isOpen,
   collection,
-  user,
   location,
   onClose,
   editPlaylist,
   deletePlaylist,
   goToRoute
 }: EditPlaylistModalProps) => {
-  const { playlist_id: playlistId, is_album: isAlbum, playlist_name: title } =
-    collection || {}
+  const {
+    playlist_id: playlistId,
+    is_album: isAlbum,
+    playlist_name: title,
+    user
+  } = collection || {}
   const { handle } = user || {}
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const onClickDelete = () => setShowDeleteConfirmation(true)
@@ -95,9 +99,10 @@ const EditPlaylistModal = ({
 }
 
 const mapStateToProps = (state: AppState) => {
+  const collectionId = getCollectionId(state)
   return {
     isOpen: getIsOpen(state),
-    ...getCollectionAndUser(state)
+    collection: getCollectionWithUser(state, { id: collectionId || undefined })
   }
 }
 

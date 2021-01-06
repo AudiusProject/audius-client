@@ -193,7 +193,6 @@ CreatePlaylistModal.propTypes = {
   onSave: PropTypes.func,
   // When the delete button is clicked
   onDelete: PropTypes.func,
-  // When the delete button is clicked
   zIndex: PropTypes.number
 }
 
