@@ -12,7 +12,6 @@ export class AccountVerified extends Component {
   onTwitterLoginSuccess = async twitterProfile => {
     const { uuid, profile } = await twitterProfile.json()
     this.props.onSuccess(uuid, profile)
-    this.props.onTwitterCompleteOauth(profile.verified)
     if (!profile.verified) {
       this.onTwitterLoginFailure()
     }
@@ -44,7 +43,6 @@ export class AccountVerified extends Component {
 
 AccountVerified.propTypes = {
   isVerified: PropTypes.bool,
-  onTwitterCompleteOauth: PropTypes.func,
   onClick: PropTypes.func,
   onSuccess: PropTypes.func,
   isMobile: PropTypes.bool
