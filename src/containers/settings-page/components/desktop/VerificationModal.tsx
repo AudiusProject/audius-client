@@ -202,7 +202,7 @@ const VerificationModal = (props: VerificationModalProps) => {
   const twitterLogin = useCallback(
     (uuid: string, profile: TwitterProfile) => {
       if (!profile.verified) {
-        setError(messages.errorVerifiedInstagram)
+        setError(messages.errorVerifiedTwitter)
         setStatus(Status.ERROR)
       } else if (profile.screen_name.toLowerCase() !== handle.toLowerCase()) {
         setError(messages.errorHandle)

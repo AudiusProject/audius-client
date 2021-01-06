@@ -7,8 +7,12 @@ import { RequestInstagramAuthMessage } from 'services/native-mobile-interface/oa
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
 const INSTAGRAM_APP_ID = process.env.REACT_APP_INSTAGRAM_APP_ID
-const INSTAGRAM_REDIRECT_URL = process.env.REACT_APP_INSTAGRAM_REDIRECT_URL
-const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${INSTAGRAM_REDIRECT_URL}&scope=user_profile,user_media&response_type=code`
+const INSTAGRAM_REDIRECT_URL =
+  process.env.REACT_APP_INSTAGRAM_REDIRECT_URL || ''
+const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
+  INSTAGRAM_REDIRECT_URL
+)}&scope=user_profile,user_media&response_type=code`
+console.log(INSTAGRAM_AUTHORIZE_URL)
 
 // Route to fetch instagram user data w/ the username
 export const getIGUserUrl = (username: string) =>
@@ -165,6 +169,7 @@ const InstagramAuth = ({
     }
     try {
       if (popup) {
+        console.log(INSTAGRAM_AUTHORIZE_URL)
         // @ts-ignore
         popup.location = INSTAGRAM_AUTHORIZE_URL
         // @ts-ignore
