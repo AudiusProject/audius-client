@@ -1001,7 +1001,9 @@ function* uploadTracksAsync(action) {
     )
   )
 
-  if (!user.is_creator || !user.creator_node_endpoint) {
+  // If user already has creator_node_endpoint, do not reselct replica set
+  let newEndpoint = ''
+  if (!user.creator_node_endpoint) {
     const serviceSelectionStatus = yield select(getStatus)
     if (serviceSelectionStatus === Status.ERROR) {
       yield put(uploadActions.uploadTrackFailed())
@@ -1031,31 +1033,40 @@ function* uploadTracksAsync(action) {
       )
       return
     }
-    const newEndpoint = selectedServices.join(',')
-
-    // Try to upgrade to creator, early return if failure
-    try {
-      console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
-      yield call(AudiusBackend.upgradeToCreator, newEndpoint)
-    } catch (err) {
-      console.error(`Upgrade to creator failed with error: ${err}`)
-      yield put(uploadActions.uploadTrackFailed())
-      yield put(uploadActions.upgradeToCreatorError(err))
-      return
-    }
-
-    yield put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: user.user_id,
-          metadata: {
-            creator_node_endpoint: newEndpoint,
-            is_creator: true
-          }
-        }
-      ])
-    )
+    newEndpoint = selectedServices.join(',')
   }
+
+  // Try to upgrade to creator, early return if failure
+  let metadata = { is_creator: true }
+  try {
+    console.error(`Attempting to upgrade user ${user.user_id} to creator`)
+    if (newEndpoint && newEndpoint.length > 0) {
+      // If new endpoint was selected via the selection logic above, update
+      // the user's creator_node_endpoint and is_creator flag
+      console.error(`Upgrading user ${user.user_id} to creator...`)
+      yield call(AudiusBackend.upgradeToCreator, newEndpoint)
+      metadata['creator_node_endpoint'] = newEndpoint
+    } else {
+      // Else, the user has been assigned a replica set on signup.
+      // Only upgrade their is_creator flag to true.
+      console.error(`Updating user ${user.user_id} is_creator to true...`)
+      yield call(AudiusBackend.updateIsCreatorFlagToTrue)
+    }
+  } catch (err) {
+    console.error(`Upgrade to creator failed with error: ${err}`)
+    yield put(uploadActions.uploadTrackFailed())
+    yield put(uploadActions.upgradeToCreatorError(err))
+    return
+  }
+
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata
+      }
+    ])
+  )
 
   const uploadType = (() => {
     switch (action.uploadType) {
