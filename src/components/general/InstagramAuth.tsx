@@ -12,7 +12,6 @@ const INSTAGRAM_REDIRECT_URL =
 const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
   INSTAGRAM_REDIRECT_URL
 )}&scope=user_profile,user_media&response_type=code`
-console.log(INSTAGRAM_AUTHORIZE_URL)
 
 // Route to fetch instagram user data w/ the username
 export const getIGUserUrl = (username: string) =>
@@ -162,20 +161,21 @@ const InstagramAuth = ({
     [getProfile, onFailure]
   )
 
-  const getRequestToken = useCallback(() => {
+  const getRequestToken = useCallback(async () => {
     const popup = openPopup()
+    await new Promise(resolve => setTimeout(resolve, 500))
     if (!popup) {
       console.error('unable to open window')
     }
     try {
       if (popup) {
-        console.log(INSTAGRAM_AUTHORIZE_URL)
         // @ts-ignore
         popup.location = INSTAGRAM_AUTHORIZE_URL
         // @ts-ignore
         polling(popup)
       }
     } catch (error) {
+      console.log(error)
       if (popup) popup.close()
       return onFailure(error)
     }
