@@ -11,7 +11,7 @@ const messages = {
 export class AccountVerified extends Component {
   onTwitterLoginSuccess = async twitterProfile => {
     const { uuid, profile } = await twitterProfile.json()
-    this.props.onTwitterLogin(uuid, profile)
+    this.props.onSuccess(uuid, profile)
     this.props.onTwitterCompleteOauth(profile.verified)
     if (!profile.verified) {
       this.onTwitterLoginFailure()
@@ -46,7 +46,7 @@ AccountVerified.propTypes = {
   isVerified: PropTypes.bool,
   onTwitterCompleteOauth: PropTypes.func,
   onClick: PropTypes.func,
-  onTwitterLogin: PropTypes.func,
+  onSuccess: PropTypes.func,
   isMobile: PropTypes.bool
 }
 
