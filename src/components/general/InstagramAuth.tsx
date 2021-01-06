@@ -102,7 +102,7 @@ const InstagramAuth = ({
           return onFailure(new Error('Unable to fetch information'))
         }
 
-        return onSuccess(igUserProfile.id, igUserProfile)
+        return onSuccess(igUserProfile.username, igUserProfile)
       } catch (err) {
         console.log(err)
         onFailure(err.message)
