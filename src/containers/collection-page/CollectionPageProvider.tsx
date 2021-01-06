@@ -259,13 +259,11 @@ class CollectionPage extends Component<
 
   componentWillUnmount() {
     if (this.unlisten) this.unlisten()
-    // If we're on mobile, account for transition delay before
-    // resetting collection
-    if (this.props.isMobile) {
-      setTimeout(() => {
-        this.resetCollection()
-      }, 300)
-    } else {
+    // On mobile, because the transitioning-out collection page unmounts
+    // after the transitioning-in collection page mounts, we do not want to reset
+    // the collection in unmount. That would end up clearing the content AFTER
+    // new content is loaded.
+    if (!this.props.isMobile) {
       this.resetCollection()
     }
   }
