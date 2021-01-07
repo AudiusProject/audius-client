@@ -15,7 +15,8 @@ import styles from './FollowButton.module.css'
 const messages = {
   follow: 'FOLLOW',
   following: 'FOLLOWING',
-  unfollow: 'UNFOLLOW'
+  unfollow: 'UNFOLLOW',
+  unfollowed: 'UNFOLLOWED'
 }
 
 const FollowButton = props => {
@@ -63,7 +64,7 @@ const FollowButton = props => {
     text = messages.unfollow
   } else if (!props.following && isHoveringClicked) {
     icon = <IconUnfollow />
-    text = messages.unfollow
+    text = messages.unfollowed
   }
 
   if (!props.showIcon) icon = null
