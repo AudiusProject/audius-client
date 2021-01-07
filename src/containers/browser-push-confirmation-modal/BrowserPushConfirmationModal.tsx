@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import Modal, { Anchor } from 'components/general/AudiusModal'
+import { Modal, Anchor, Button, ButtonType, ButtonSize } from '@audius/stems'
 import { isElectron, isMobile } from 'utils/clientUtil'
 import cn from 'classnames'
-import { Button, ButtonType, ButtonSize } from '@audius/stems'
 
 import { AppState } from 'store/types'
 import { getIsOpen } from 'store/application/ui/browserPushPermissionConfirmation/selectors'
@@ -18,7 +17,7 @@ import {
   Permission
 } from 'utils/browserNotifications'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
-import styles from './styles.module.css'
+import styles from './BrowserPushConfirmationModal.module.css'
 
 type BrowerPushConfirmationModal = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
@@ -61,7 +60,7 @@ const ConnectedBrowserPushConfirmationModal = ({
         if (permission === Permission.GRANTED) onClose()
       } else if (isSafariPushAvailable) {
         // NOTE: The request browser permission must be done directly
-        // b/c safari requires the user action to trigger the premission request
+        // b/c safari requires the user action to trigger the permission request
         if (permission === Permission.GRANTED) {
           subscribeBrowserPushNotifications()
         } else {
@@ -84,6 +83,7 @@ const ConnectedBrowserPushConfirmationModal = ({
         }
       }
     }
+    onClose()
     return () => {
       cancelled = true
     }

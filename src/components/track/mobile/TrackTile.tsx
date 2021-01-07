@@ -95,8 +95,8 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   }, [artworkLoaded, hasLoaded, index, showSkeleton])
 
   const fadeIn = {
-    [styles.show]: artworkLoaded,
-    [styles.hide]: !artworkLoaded
+    [styles.show]: artworkLoaded && !showSkeleton,
+    [styles.hide]: !artworkLoaded || showSkeleton
   }
 
   return (
@@ -105,6 +105,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
       <div
         className={styles.mainContent}
         onClick={() => {
+          if (showSkeleton) return
           props.togglePlay(props.uid, id)
         }}
       >
@@ -131,7 +132,8 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
           />
           <div
             className={cn(styles.titles, {
-              [styles.titlesActive]: props.isPlaying
+              [styles.titlesActive]: props.isPlaying,
+              [styles.titlesSkeleton]: props.showSkeleton
             })}
           >
             <div className={styles.title} onClick={props.goToTrackPage}>

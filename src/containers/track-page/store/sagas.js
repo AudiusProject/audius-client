@@ -8,69 +8,111 @@ import { tracksActions } from './lineups/tracks/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { getIsReachable } from 'store/reachability/selectors'
 import { getTrack as getCachedTrack } from 'store/cache/tracks/selectors'
-import { getTrack, getUser } from './selectors'
-import TimeRange from 'models/TimeRange'
+import { getTrack, getTrendingTrackRanks, getUser } from './selectors'
 import { push as pushRoute } from 'connected-react-router'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
 import { getUsers } from 'store/cache/users/selectors'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import TimeRange from 'models/TimeRange'
 import { retrieveTrending } from 'containers/track-page/store/retrieveTrending'
+import { getRemoteVar, BooleanKeys } from 'services/remote-config'
 
-const TRENDING_LIMIT = 5
+export const TRENDING_BADGE_LIMIT = 10
+
+/**
+ * Get the trending track ranks by requesting trending for
+ * each time frame
+ */
+function* legacyGetTrendingTrackBadges() {
+  yield call(waitForBackendSetup)
+  const [
+    weeklyTrendingTracks,
+    monthlyTrendingTracks,
+    yearlyTrendingTracks
+  ] = yield all([
+    call(retrieveTrending, {
+      timeRange: TimeRange.WEEK,
+      offset: 0,
+      limit: TRENDING_BADGE_LIMIT,
+      genre: null
+    }),
+    call(retrieveTrending, {
+      timeRange: TimeRange.MONTH,
+      offset: 0,
+      limit: TRENDING_BADGE_LIMIT,
+      genre: null
+    }),
+    call(retrieveTrending, {
+      timeRange: TimeRange.YEAR,
+      offset: 0,
+      limit: TRENDING_BADGE_LIMIT,
+      genre: null
+    })
+  ])
+  const mapTrackToId = track => track.track_id
+  return {
+    week: weeklyTrendingTracks.map(mapTrackToId),
+    month: monthlyTrendingTracks.map(mapTrackToId),
+    year: yearlyTrendingTracks.map(mapTrackToId)
+  }
+}
 
 function* watchTrackBadge() {
   yield takeEvery(trackPageActions.GET_TRACK_RANKS, function* (action) {
-    yield call(waitForBackendSetup)
-    const [
-      weeklyTrendingTracks,
-      monthlyTrendingTracks,
-      yearlyTrendingTracks
-    ] = yield all([
-      call(retrieveTrending, {
-        timeRange: TimeRange.WEEK,
-        offset: 0,
-        limit: TRENDING_LIMIT
-      }),
-      call(retrieveTrending, {
-        timeRange: TimeRange.MONTH,
-        offset: 0,
-        limit: TRENDING_LIMIT
-      }),
-      call(retrieveTrending, {
-        timeRange: TimeRange.YEAR,
-        offset: 0,
-        limit: TRENDING_LIMIT
-      })
-    ])
+    try {
+      yield call(waitForBackendSetup)
+      let trendingTrackRanks = yield select(getTrendingTrackRanks)
+      if (!trendingTrackRanks) {
+        const useOptimizedTrendingIds = getRemoteVar(
+          BooleanKeys.OPTIMIZED_TRENDING_BADGE_ENDPOINT
+        )
+        /**
+         * Use the legacy get trending track ranks if the optimizely
+         * flag OPTIMIZED_TRENDING_BADGE_ENDPOINT is set to false
+         * Relies on Protocol changes https://github.com/AudiusProject/audius-protocol/pull/1137
+         */
+        const trendingRanks = useOptimizedTrendingIds
+          ? yield apiClient.getTrendingIds({
+              limit: TRENDING_BADGE_LIMIT
+            })
+          : yield call(legacyGetTrendingTrackBadges)
 
-    const weeklyTrackIndex = weeklyTrendingTracks.findIndex(
-      ({ track_id: trackId }) => trackId === action.trackId
-    )
-    const monthlyTrackIndex = monthlyTrendingTracks.findIndex(
-      ({ track_id: trackId }) => trackId === action.trackId
-    )
-    const yearlyTrackIndex = yearlyTrendingTracks.findIndex(
-      ({ track_id: trackId }) => trackId === action.trackId
-    )
+        yield put(trackPageActions.setTrackTrendingRanks(trendingRanks))
+        trendingTrackRanks = yield select(getTrendingTrackRanks)
+      }
 
-    yield put(
-      trackPageActions.setTrackRank(
-        'week',
-        weeklyTrackIndex !== -1 ? weeklyTrackIndex + 1 : null
+      const weeklyTrackIndex = trendingTrackRanks.week.findIndex(
+        trackId => trackId === action.trackId
       )
-    )
-    yield put(
-      trackPageActions.setTrackRank(
-        'month',
-        monthlyTrackIndex !== -1 ? monthlyTrackIndex + 1 : null
+      const monthlyTrackIndex = trendingTrackRanks.month.findIndex(
+        trackId => trackId === action.trackId
       )
-    )
-    yield put(
-      trackPageActions.setTrackRank(
-        'year',
-        yearlyTrackIndex !== -1 ? yearlyTrackIndex + 1 : null
+      const yearlyTrackIndex = trendingTrackRanks.year.findIndex(
+        trackId => trackId === action.trackId
       )
-    )
+
+      yield put(
+        trackPageActions.setTrackRank(
+          'week',
+          weeklyTrackIndex !== -1 ? weeklyTrackIndex + 1 : null
+        )
+      )
+      yield put(
+        trackPageActions.setTrackRank(
+          'month',
+          monthlyTrackIndex !== -1 ? monthlyTrackIndex + 1 : null
+        )
+      )
+      yield put(
+        trackPageActions.setTrackRank(
+          'year',
+          yearlyTrackIndex !== -1 ? yearlyTrackIndex + 1 : null
+        )
+      )
+    } catch (error) {
+      console.error(`Unable to fetch track badge: ${error.message}`)
+    }
   })
 }
 

@@ -45,6 +45,8 @@ import firstUploadModal from 'containers/first-upload-modal/store/slice'
 import remixSettingsModal from 'containers/remix-settings-modal/store/slice'
 import remoteConfig from 'containers/remote-config/slice'
 import musicConfetti from 'containers/music-confetti/store/slice'
+import mobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
+import enablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 
 import account from 'store/account/reducer'
 import tracksReducer from 'store/cache/tracks/reducer'
@@ -58,6 +60,7 @@ import tokenDashboard from 'store/token-dashboard/slice'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import browserPushPermissionConfirmation from 'store/application/ui/browserPushPermissionConfirmation/reducer'
 import createPlaylistModal from 'store/application/ui/createPlaylistModal/reducer'
+import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
 import theme from 'store/application/ui/theme/reducer'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
@@ -67,6 +70,7 @@ import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import stemsUpload from 'store/application/ui/stemsUpload/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
+import averageColor from 'store/application/ui/average-color/slice'
 
 import wallet from 'store/wallet/slice'
 
@@ -116,6 +120,7 @@ const createRootReducer = routeHistory =>
 
     application: combineReducers({
       ui: combineReducers({
+        editPlaylistModal,
         createPlaylistModal,
         editTrackModal,
         embedModal,
@@ -132,7 +137,10 @@ const createRootReducer = routeHistory =>
         remixSettingsModal,
         stemsUpload,
         appCTAModal,
-        musicConfetti
+        musicConfetti,
+        mobileUploadDrawer,
+        enablePushNotificationsDrawer,
+        averageColor
       }),
       pages: combineReducers({
         explore,

@@ -27,7 +27,18 @@ export enum IntKeys {
   NOTIFICATION_POLLING_FREQ_MS = 'NOTIFICATION_POLLING_FREQ_MS'
 }
 
-export enum BooleanKeys {}
+export enum BooleanKeys {
+  /**
+   * If the optimized trending track ids endpoint should be used for badges
+   * else the trending tracks endpoint will be used
+   */
+  OPTIMIZED_TRENDING_BADGE_ENDPOINT = 'OPTIMIZED_TRENDING_BADGE_ENDPOINT',
+
+  /*
+   * Boolean to show instagram verification.
+   */
+  DISPLAY_INSTAGRAM_VERIFICATION = 'DISPLAY_INSTAGRAM_VERIFICATION'
+}
 
 export enum DoubleKeys {}
 
@@ -52,7 +63,17 @@ export enum StringKeys {
   /**
    * Custom eth provider urls to use for talking to main-net contracts
    */
-  ETH_PROVIDER_URLS = 'ETH_PROVIDER_URLS'
+  ETH_PROVIDER_URLS = 'ETH_PROVIDER_URLS',
+
+  /**
+   * Blocks content
+   */
+  CONTENT_BLOCK_LIST = 'CONTENT_BLOCK_LIST',
+
+  /**
+   * Blocks content nodes from selection
+   */
+  CONTENT_NODE_BLOCK_LIST = 'CONTENT_NODE_BLOCK_LIST'
 }
 
 export type AllRemoteConfigKeys =

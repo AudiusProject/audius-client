@@ -72,6 +72,8 @@ const BasicForm = props => {
             onDropArtwork={props.onDropArtwork}
             error={props.invalidFields.artwork}
             imageProcessingError={props.imageProcessingError}
+            onOpenPopup={props.onOpenArtworkPopup}
+            onClosePopup={props.onCloseArtworkPopup}
           />
         </div>
         <div className={styles.form}>
@@ -109,6 +111,7 @@ const BasicForm = props => {
           <div className={styles.categorization}>
             <DropdownInput
               placeholder='Pick a Genre'
+              mount='parent'
               menu={{ items: GENRES }}
               defaultValue={getCannonicalName(props.defaultFields.genre) || ''}
               isRequired={props.requiredFields.genre}
@@ -123,6 +126,7 @@ const BasicForm = props => {
             />
             <DropdownInput
               placeholder='Pick a Mood'
+              mount='parent'
               menu={{ items: MOODS }}
               defaultValue={props.defaultFields.mood || ''}
               isRequired={props.requiredFields.mood}
@@ -742,7 +746,13 @@ FormTile.propTypes = {
   onSelectStemCategory: PropTypes.func,
 
   /** function of type (index) => void */
-  onDeleteStem: PropTypes.func
+  onDeleteStem: PropTypes.func,
+
+  /** callback when artwork popup is opened */
+  onOpenArtworkPopup: PropTypes.func,
+
+  /** callback when artwork popup is closed */
+  onCloseArtworkPopup: PropTypes.func
 }
 
 FormTile.defaultProps = {

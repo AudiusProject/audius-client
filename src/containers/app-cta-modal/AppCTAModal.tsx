@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import AudiusModal from 'components/general/AudiusModal'
+import { Modal, Button, IconDownload, ButtonType } from '@audius/stems'
 import { useSelector } from 'utils/reducer'
 import { useDispatch } from 'react-redux'
 import { setVisibility } from 'store/application/ui/app-cta-modal/slice'
@@ -7,7 +7,7 @@ import QRCode from 'assets/img/imageQR.png'
 import DownloadApp from 'services/download-app/DownloadApp'
 
 import styles from './AppCTAModal.module.css'
-import { Button, IconDownload, ButtonType } from '@audius/stems'
+
 import { getOS } from 'utils/clientUtil'
 import { make } from 'store/analytics/actions'
 import { Name } from 'services/analytics'
@@ -60,7 +60,7 @@ const AppCTAModal = () => {
   const { isOpen, downloadDesktopApp, onClose } = useCallbacks()
 
   return (
-    <AudiusModal
+    <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={messages.title}
@@ -68,6 +68,7 @@ const AppCTAModal = () => {
       showTitleHeader
       showDismissButton
       contentHorizontalPadding={16}
+      allowScroll
     >
       <div className={styles.container}>
         <img className={styles.qr} src={QRCode} alt='QR Code' />
@@ -85,7 +86,7 @@ const AppCTAModal = () => {
           />
         </div>
       </div>
-    </AudiusModal>
+    </Modal>
   )
 }
 export default AppCTAModal

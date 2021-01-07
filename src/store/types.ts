@@ -17,6 +17,7 @@ import { UploadPageState } from 'containers/upload-page/store/types'
 import VisualizerReducer from 'containers/visualizer/store/slice'
 import { ThemeState } from './application/ui/theme/types'
 import { CreatePlaylistModalState } from './application/ui/createPlaylistModal/types'
+import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
 import { CookieBannerState } from './application/ui/cookieBanner/types'
 import { ScrollLockState } from './application/ui/scrollLock/types'
 import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPickConfirmation/types'
@@ -27,6 +28,8 @@ import PlayerReducer from 'store/player/slice'
 import QueueReducer from 'store/queue/slice'
 import { PasswordResetState } from 'containers/password-reset/store/types'
 import MusicConfetti from 'containers/music-confetti/store/slice'
+import MobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
+import EnablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import AccountReducer from 'store/account/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
 
@@ -61,6 +64,7 @@ import RemoteConfigReducer from 'containers/remote-config/slice'
 import StemsUploadReducer from 'store/application/ui/stemsUpload/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import ServiceSelectionReducer from 'containers/service-selection/store/slice'
+import averageColor from 'store/application/ui/average-color/slice'
 
 import wallet from 'store/wallet/slice'
 
@@ -95,6 +99,7 @@ export type AppState = {
   application: {
     ui: {
       createPlaylistModal: CreatePlaylistModalState
+      editPlaylistModal: EditPlaylistModalState
       editTrackModal: EditTrackModalState
       theme: ThemeState
       scrollLock: ScrollLockState
@@ -111,6 +116,11 @@ export type AppState = {
       stemsUpload: ReturnType<typeof StemsUploadReducer>
       appCTAModal: ReturnType<typeof AppCTAModalReducer>
       musicConfetti: ReturnType<typeof MusicConfetti>
+      mobileUploadDrawer: ReturnType<typeof MobileUploadDrawer>
+      enablePushNotificationsDrawer: ReturnType<
+        typeof EnablePushNotificationsDrawer
+      >
+      averageColor: ReturnType<typeof averageColor>
     }
     pages: {
       explore: ExplorePageState

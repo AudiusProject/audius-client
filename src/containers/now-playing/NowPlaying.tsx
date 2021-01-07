@@ -13,7 +13,12 @@ import { Scrubber } from '@audius/stems'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import { ID } from 'models/common/Identifiers'
 import { seek, reset } from 'store/player/slice'
-import { getAudio, getCounter, getPlaying } from 'store/player/selectors'
+import {
+  getAudio,
+  getBuffering,
+  getCounter,
+  getPlaying
+} from 'store/player/selectors'
 import { next, pause, play, previous, repeat, shuffle } from 'store/queue/slice'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { RepeatMode } from 'store/queue/types'
@@ -61,13 +66,13 @@ import { useRecord, make } from 'store/analytics/actions'
 import { AudioState } from 'store/player/types'
 import { withNullGuard } from 'utils/withNullGuard'
 import CoSign, { Size } from 'components/co-sign/CoSign'
+import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 type OwnProps = {
   onClose: () => void
   audio: AudioState
-  playing: boolean
 }
 
 type NowPlayingProps = OwnProps &
@@ -99,7 +104,8 @@ const NowPlaying = g(
     currentUserId,
     playCounter,
     audio,
-    playing,
+    isPlaying,
+    isBuffering,
     play,
     pause,
     reset,
@@ -116,7 +122,8 @@ const NowPlaying = g(
     clickOverflow,
     goToRoute,
     isCasting,
-    castMethod
+    castMethod,
+    averageRGBColor
   }) => {
     const { uid } = currentQueueItem
     const { track, user } = currentQueueItem
@@ -194,9 +201,9 @@ const NowPlaying = g(
     )
 
     let playButtonStatus
-    if (audio?.isBuffering()) {
+    if (isBuffering) {
       playButtonStatus = PlayButtonStatus.LOAD
-    } else if (playing) {
+    } else if (isPlaying) {
       playButtonStatus = PlayButtonStatus.PAUSE
     } else {
       playButtonStatus = PlayButtonStatus.PLAY
@@ -205,7 +212,7 @@ const NowPlaying = g(
     const togglePlay = () => {
       const message = new HapticFeedbackMessage()
       message.send()
-      if (playing) {
+      if (isPlaying) {
         pause()
         record(
           make(Name.PLAYBACK_PAUSE, {
@@ -293,16 +300,15 @@ const NowPlaying = g(
       }
     }
 
-    const artworkAverageColor =
-      track && track._cover_art_color
-        ? {
-            boxShadow: `0 1px 15px -2px rgba(
-          ${track._cover_art_color.r},
-          ${track._cover_art_color.g},
-          ${track._cover_art_color.b}
+    const artworkAverageColor = averageRGBColor
+      ? {
+          boxShadow: `0 1px 15px -2px rgba(
+          ${averageRGBColor.r},
+          ${averageRGBColor.g},
+          ${averageRGBColor.b}
           , 0.5)`
-          }
-        : {}
+        }
+      : {}
 
     return (
       <div
@@ -360,7 +366,7 @@ const NowPlaying = g(
             // Include the duration in the media key because the play counter can
             // potentially udpate before the duration coming from the native layer if present
             mediaKey={`${uid}${mediaKey}${timing.duration}`}
-            isPlaying={playing && !audio?.isBuffering()}
+            isPlaying={isPlaying && !isBuffering}
             isDisabled={!uid}
             isMobile
             elapsedSeconds={timing.position}
@@ -427,14 +433,19 @@ function makeMapStateToProps() {
   const getCurrentQueueItem = makeGetCurrent()
 
   const mapStateToProps = (state: AppState) => {
+    const currentQueueItem = getCurrentQueueItem(state)
     return {
-      currentQueueItem: getCurrentQueueItem(state),
+      currentQueueItem,
       currentUserId: getUserId(state),
       playCounter: getCounter(state),
       audio: getAudio(state),
-      playing: getPlaying(state),
+      isPlaying: getPlaying(state),
+      isBuffering: getBuffering(state),
       isCasting: getIsCasting(state),
-      castMethod: getCastMethod(state)
+      castMethod: getCastMethod(state),
+      averageRGBColor: getAverageColorByTrack(state, {
+        track: currentQueueItem.track
+      })
     }
   }
   return mapStateToProps

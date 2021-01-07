@@ -1,12 +1,11 @@
-import React, { memo, useState, useEffect } from 'react'
+import React, { memo, useState, useEffect, useCallback } from 'react'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
-import { Button, ButtonSize, ButtonType } from '@audius/stems'
+import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 
 import * as schemas from 'schemas'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
-import Modal from 'components/general/Modal'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
@@ -26,7 +25,7 @@ const CreatePlaylistModal = props => {
     artwork: false
   })
 
-  const { visible, metadata, editMode } = props
+  const { zIndex, visible, metadata, editMode } = props
 
   // On modal open (similar to componentDidMount, but this component is mounted before being displayed)
   useEffect(() => {
@@ -99,12 +98,28 @@ const CreatePlaylistModal = props => {
     props.onCancel()
   }
 
+  const [isArtworkPopupOpen, setIsArtworkPopupOpen] = useState(false)
+  const onOpenArtworkPopup = useCallback(() => {
+    setIsArtworkPopupOpen(true)
+  }, [setIsArtworkPopupOpen])
+
+  const onCloseArtworkPopup = useCallback(() => {
+    setIsArtworkPopupOpen(false)
+  }, [setIsArtworkPopupOpen])
+
   return (
     <Modal
+      modalKey='createplaylist'
       title={props.title}
-      width={1080}
-      visible={props.visible}
+      showTitleHeader
+      dismissOnClickOutside={!isArtworkPopupOpen}
+      showDismissButton
+      bodyClassName={styles.modalBody}
+      headerContainerClassName={styles.modalHeader}
+      titleClassName={styles.modalTitle}
+      isOpen={props.visible}
       onClose={onCancel}
+      zIndex={zIndex}
     >
       <div className={styles.createPlaylist}>
         <UploadArtwork
@@ -112,6 +127,8 @@ const CreatePlaylistModal = props => {
           onDropArtwork={onDropArtwork}
           error={errors.artwork}
           imageProcessingError={formFields.artwork.error}
+          onOpenPopup={onOpenArtworkPopup}
+          onClosePopup={onCloseArtworkPopup}
         />
         <div className={styles.form}>
           <Input
@@ -175,7 +192,8 @@ CreatePlaylistModal.propTypes = {
   // When the save button is clicked
   onSave: PropTypes.func,
   // When the delete button is clicked
-  onDelete: PropTypes.func
+  onDelete: PropTypes.func,
+  zIndex: PropTypes.number
 }
 
 CreatePlaylistModal.defaultProps = {

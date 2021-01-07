@@ -16,11 +16,16 @@ export const remoteConfigStringDefaults: {
   [StringKeys.AUDIUS_LOGO_VARIANT]: null,
   [StringKeys.AUDIUS_LOGO_VARIANT_CLICK_TARGET]: null,
   [StringKeys.APP_WIDE_NOTICE_TEXT]: null,
-  [StringKeys.ETH_PROVIDER_URLS]: ETH_PROVIDER_URLS
+  [StringKeys.ETH_PROVIDER_URLS]: ETH_PROVIDER_URLS,
+  [StringKeys.CONTENT_BLOCK_LIST]: null,
+  [StringKeys.CONTENT_NODE_BLOCK_LIST]: null
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null
 } = {}
 export const remoteConfigBooleanDefaults: {
   [key in BooleanKeys]: boolean | null
-} = {}
+} = {
+  [BooleanKeys.OPTIMIZED_TRENDING_BADGE_ENDPOINT]: false,
+  [BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION]: true
+}

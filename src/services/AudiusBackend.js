@@ -3,8 +3,6 @@
 import moment from 'moment-timezone'
 import * as schemas from 'schemas'
 import CIDCache from 'store/cache/CIDCache'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { trimToAlphaNumeric } from 'utils/formatUtil'
 import { DefaultSizes } from 'models/common/ImageSizes'
 import { uuid } from 'utils/uid'
 import FeedFilter from 'models/FeedFilter'
@@ -24,6 +22,7 @@ import {
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
 import { Timer } from 'utils/performance'
+import { waitForRemoteConfig } from './remote-config/Provider'
 
 export const IDENTITY_SERVICE = process.env.REACT_APP_IDENTITY_SERVICE
 export const USER_NODE = process.env.REACT_APP_USER_NODE
@@ -58,6 +57,18 @@ export const AuthHeaders = Object.freeze({
   Signature: 'Encoded-Data-Signature'
 })
 
+export const waitForWeb3 = async () => {
+  if (!window.web3Loaded) {
+    await new Promise(resolve => {
+      const onLoad = () => {
+        window.removeEventListener('WEB3_LOADED', onLoad)
+        resolve()
+      }
+      window.addEventListener('WEB3_LOADED', onLoad)
+    })
+  }
+}
+
 let AudiusLibs = null
 let Utils = null
 let SanityChecks = null
@@ -87,89 +98,6 @@ const combineLists = (
 }
 
 const notDeleted = e => !e.is_delete
-
-const processSearchResults = async ({
-  tracks = [],
-  albums = [],
-  playlists = [],
-  users = [],
-  saved_tracks: savedTracks = [],
-  saved_albums: savedAlbums = [],
-  saved_playlists: savedPlaylists = [],
-  followed_users: followedUsers = [],
-  searchText = null
-}) => {
-  const combinedTracks = await Promise.all(
-    combineLists(
-      savedTracks.filter(notDeleted),
-      tracks.filter(notDeleted),
-      'track_id'
-    ).map(async track => {
-      let gateways = []
-      if (track.user)
-        gateways = getCreatorNodeIPFSGateways(track.user.creator_node_endpoint)
-      return AudiusBackend.getTrackImages(track, gateways)
-    })
-  )
-
-  const combinedAlbums = await Promise.all(
-    combineLists(
-      savedAlbums.filter(notDeleted),
-      albums.filter(notDeleted),
-      'playlist_id'
-    ).map(async album => {
-      let gateways = []
-      if (album.user)
-        gateways = getCreatorNodeIPFSGateways(album.user.creator_node_endpoint)
-      return AudiusBackend.getCollectionImages(album, gateways)
-    })
-  )
-
-  const combinedPlaylists = await Promise.all(
-    combineLists(
-      savedPlaylists.filter(notDeleted),
-      playlists.filter(notDeleted),
-      'playlist_id'
-    ).map(async (playlist, i) => {
-      let gateways = []
-      if (playlist.user)
-        gateways = getCreatorNodeIPFSGateways(
-          playlist.user.creator_node_endpoint
-        )
-      const image = await AudiusBackend.getCollectionImages(playlist, gateways)
-      return image
-    })
-  )
-
-  const combinedUsers = await Promise.all(
-    combineLists(followedUsers, users, 'user_id').map(async user =>
-      AudiusBackend.getUserImages(user)
-    )
-  )
-
-  // Move any exact handle or name matches to the front of our returned users list
-  const compSearchText = trimToAlphaNumeric(searchText).toLowerCase()
-  const foundIndex = combinedUsers.findIndex(user => {
-    if (!user.name) return -1
-    return (
-      trimToAlphaNumeric(user.name).toLowerCase() === compSearchText ||
-      trimToAlphaNumeric(user.handle_lc) === compSearchText
-    )
-  })
-
-  if (foundIndex !== -1) {
-    const user = combinedUsers[foundIndex]
-    combinedUsers.splice(foundIndex, 1)
-    combinedUsers.unshift(user)
-  }
-
-  return {
-    tracks: combinedTracks,
-    albums: combinedAlbums,
-    playlists: combinedPlaylists,
-    users: combinedUsers
-  }
-}
 
 export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
   await waitForLibsInit()
@@ -388,25 +316,9 @@ class AudiusBackend {
 
   static async setup() {
     // Wait for web3 to load if necessary
-    if (!window.web3Loaded) {
-      await new Promise(resolve => {
-        const onLoad = () => {
-          window.removeEventListener('WEB3_LOADED', onLoad)
-          resolve()
-        }
-        window.addEventListener('WEB3_LOADED', onLoad)
-      })
-    }
+    await waitForWeb3()
     // Wait for optimizely to load if necessary
-    if (!window.optimizelyDatafile) {
-      await new Promise(resolve => {
-        const onLoad = () => {
-          window.removeEventListener('OPTIMIZELY_LOADED', onLoad)
-          resolve()
-        }
-        window.addEventListener('OPTIMIZELY_LOADED', onLoad)
-      })
-    }
+    await waitForRemoteConfig()
 
     const { libs, libsUtils, libsSanityChecks } = await import(
       './audius-backend/AudiusLibsLazyLoader'
@@ -549,13 +461,36 @@ class AudiusBackend {
   }
 
   static async autoSelectCreatorNodes() {
+    let contentNodeBlockList = getRemoteVar(StringKeys.CONTENT_NODE_BLOCK_LIST)
+    if (contentNodeBlockList) {
+      try {
+        contentNodeBlockList = new Set(contentNodeBlockList.split(','))
+      } catch (e) {
+        console.error(e)
+        contentNodeBlockList = null
+      }
+    }
     return audiusLibs.ServiceProvider.autoSelectCreatorNodes(
-      /* numberOfNodes */ 3
+      /* numberOfNodes */ 3,
+      /* whitelist */ null,
+      /* blacklist */ contentNodeBlockList
     )
   }
 
   static async getSelectableCreatorNodes() {
-    return audiusLibs.ServiceProvider.getSelectableCreatorNodes()
+    let contentNodeBlockList = getRemoteVar(StringKeys.CONTENT_NODE_BLOCK_LIST)
+    if (contentNodeBlockList) {
+      try {
+        contentNodeBlockList = new Set(contentNodeBlockList.split(','))
+      } catch (e) {
+        console.error(e)
+        contentNodeBlockList = null
+      }
+    }
+    return audiusLibs.ServiceProvider.getSelectableCreatorNodes(
+      /* whitelist */ null,
+      /* blacklist */ contentNodeBlockList
+    )
   }
 
   static async getAccount(fromSource = false) {
@@ -577,6 +512,8 @@ class AudiusBackend {
         account.website = body.website || null
         account.donation = body.donation || null
         account._artist_pick = body.pinnedTrackId || null
+        account.twitterVerified = body.twitterVerified || false
+        account.instagramVerified = body.instagramVerified || false
         return AudiusBackend.getUserImages(account)
       } catch (e) {
         // Failed to fetch social handles and artist pick, but return what we have
@@ -745,57 +682,6 @@ class AudiusBackend {
     }
   }
 
-  static async searchAutocomplete({ searchText, offset, limit }) {
-    try {
-      const results = await withEagerOption(
-        {
-          normal: libs => libs.Account.searchAutocomplete,
-          eager: DiscoveryAPI.searchAutocomplete
-        },
-        searchText,
-        limit,
-        offset
-      )
-      results.searchText = searchText
-      const processedResults = await processSearchResults(results)
-      return processedResults
-    } catch (e) {
-      console.error(e)
-      return {
-        tracks: [],
-        albums: [],
-        playlists: [],
-        users: []
-      }
-    }
-  }
-
-  static async searchFull({ searchText, kind, offset, limit }) {
-    try {
-      const results = await withEagerOption(
-        {
-          normal: libs => libs.Account.searchFull,
-          eager: DiscoveryAPI.searchFull
-        },
-        searchText,
-        kind,
-        limit,
-        offset
-      )
-      results.searchText = searchText
-      const processedResults = await processSearchResults(results)
-      return processedResults
-    } catch (e) {
-      console.error(e)
-      return {
-        tracks: [],
-        albums: [],
-        playlists: [],
-        users: []
-      }
-    }
-  }
-
   static async searchTags({
     searchText,
     minTagThreshold,
@@ -847,86 +733,6 @@ class AudiusBackend {
         tracks: [],
         users: []
       }
-    }
-  }
-
-  static async getFavoritersForTrack({
-    limit,
-    offset,
-    trackId,
-    withUsers = true
-  }) {
-    try {
-      return withEagerOption(
-        {
-          normal: libs => libs.Track.getSaversForTrack,
-          eager: DiscoveryAPI.getSaversForTrack
-        },
-        limit,
-        offset,
-        trackId,
-        withUsers
-      )
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
-  }
-
-  static async getFavoritersForPlaylist({
-    limit,
-    offset,
-    playlistId,
-    withUsers = true
-  }) {
-    try {
-      return withEagerOption(
-        {
-          normal: libs => libs.Track.getSaversForPlaylist,
-          eager: DiscoveryAPI.getSaversForPlaylist
-        },
-        limit,
-        offset,
-        playlistId,
-        withUsers
-      )
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
-  }
-
-  static async getRepostersForTrack({ limit, offset, trackId }) {
-    try {
-      return withEagerOption(
-        {
-          normal: libs => libs.Track.getRepostersForTrack,
-          eager: DiscoveryAPI.getRepostersForTrack
-        },
-        limit,
-        offset,
-        trackId
-      )
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
-  }
-
-  static async getRepostersForPlaylist({ limit, offset, playlistId }) {
-    try {
-      return withEagerOption(
-        {
-          normal: libs => libs.Track.getRepostersForPlaylist,
-          eager: DiscoveryAPI.getRepostersForPlaylist
-        },
-        limit,
-        offset,
-        playlistId
-      )
-    } catch (e) {
-      console.error(e)
-      throw e
     }
   }
 
@@ -1117,51 +923,6 @@ class AudiusBackend {
     }
   }
 
-  static async getUserByHandle(handle) {
-    if (Array.isArray(handle)) {
-      handle = handle[0]
-    }
-    let creators = await withEagerOption(
-      {
-        normal: libs => libs.User.getUsers,
-        eager: DiscoveryAPI.getUsers
-      },
-      1,
-      0,
-      null,
-      null,
-      handle
-    )
-    if (!creators || creators.length === 0) {
-      return null
-    }
-
-    creators = await Promise.all(
-      creators.map(async creator => {
-        try {
-          const body = await AudiusBackend.getCreatorSocialHandle(
-            creator.handle
-          )
-          if (body) {
-            creator.twitter_handle = body.twitterHandle || null
-            creator.instagram_handle = body.instagramHandle || null
-            creator.website = body.website || null
-            creator.donation = body.donation || null
-            creator._artist_pick = body.pinnedTrackId || null
-          }
-          return creator
-        } catch (err) {
-          console.error(
-            `Error fetching social handles from identity service: ${err.message}`
-          )
-          return creator
-        }
-      })
-    )
-
-    return AudiusBackend.getUserImages(creators[0])
-  }
-
   static async updateCreator(metadata, id) {
     let newMetadata = { ...metadata }
     try {
@@ -1288,46 +1049,6 @@ class AudiusBackend {
     } catch (err) {
       console.error(err.message)
       throw err
-    }
-  }
-
-  static async getFollowees(userId, limit = 100, offset = 0) {
-    try {
-      const followees = await withEagerOption(
-        {
-          normal: libs => libs.User.getFolloweesForUser,
-          eager: DiscoveryAPI.getFolloweesForUser
-        },
-        limit,
-        offset,
-        userId
-      )
-      return Promise.all(
-        followees.map(followee => AudiusBackend.getUserImages(followee))
-      )
-    } catch (err) {
-      console.error(err.message)
-      return []
-    }
-  }
-
-  static async getFollowers(userId, limit = 100, offset = 0) {
-    try {
-      const followers = await withEagerOption(
-        {
-          normal: libs => libs.User.getFollowersForUser,
-          eager: DiscoveryAPI.getFollowersForUser
-        },
-        limit,
-        offset,
-        userId
-      )
-      return Promise.all(
-        followers.map(follower => AudiusBackend.getUserImages(follower))
-      )
-    } catch (err) {
-      console.error(err.message)
-      return []
     }
   }
 
@@ -1797,6 +1518,21 @@ class AudiusBackend {
     }
   }
 
+  static async associateInstagramAccount(instagramId, userId, handle) {
+    await waitForLibsInit()
+    try {
+      await audiusLibs.Account.associateInstagramUser(
+        instagramId,
+        userId,
+        handle
+      )
+      return { success: true }
+    } catch (error) {
+      console.error(error.message)
+      return { success: false, error }
+    }
+  }
+
   static async getNotifications(limit, timeOffset) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -1808,8 +1544,8 @@ class AudiusBackend {
         : ''
       const limitQuery = `&limit=${limit}`
       const handleQuery = `&handle=${account.handle}`
-      return fetch(
-        `${IDENTITY_SERVICE}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}&withRemix=true`,
+      const notifications = await fetch(
+        `${IDENTITY_SERVICE}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}&withRemix=true&withTrendingTrack=true`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -1818,6 +1554,7 @@ class AudiusBackend {
           }
         }
       ).then(res => res.json())
+      return notifications
     } catch (e) {
       console.error(e)
       return { success: false, error: e }
@@ -2321,25 +2058,6 @@ class AudiusBackend {
     }
   }
 
-  static async getTopAristGenres(genres, limit) {
-    try {
-      const { users } = await withEagerOption(
-        {
-          normal: libs => libs.User.getTopCreatorsByGenres,
-          eager: DiscoveryAPI.getTopCreatorsByGenres
-        },
-        genres,
-        limit,
-        0,
-        true
-      )
-      return { error: false, users }
-    } catch (error) {
-      console.error(error.message)
-      return { error }
-    }
-  }
-
   static async sendWelcomeEmail({ name }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -2434,7 +2152,7 @@ class AudiusBackend {
    * Make a request to check if the user has already claimed
    * @returns {Promise<BN>} doesHaveClaim
    */
-  static async getBalance() {
+  static async getBalance(bustCache = false) {
     await waitForLibsInit()
     const wallet = audiusLibs.web3Manager.getWalletAddress()
     if (!wallet) return
@@ -2442,6 +2160,9 @@ class AudiusBackend {
     try {
       const ethWeb3 = audiusLibs.ethWeb3Manager.getWeb3()
       const checksumWallet = ethWeb3.utils.toChecksumAddress(wallet)
+      if (bustCache) {
+        audiusLibs.ethContracts.AudiusTokenClient.bustCache()
+      }
       const balance = await audiusLibs.ethContracts.AudiusTokenClient.balanceOf(
         checksumWallet
       )
