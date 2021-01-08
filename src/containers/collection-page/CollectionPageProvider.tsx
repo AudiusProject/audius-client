@@ -79,6 +79,7 @@ import {
 import { SmartCollection } from 'models/Collection'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
+import { getLocationPathname } from 'store/routing/selectors'
 
 type OwnProps = {
   type: CollectionsPageType
@@ -148,7 +149,7 @@ class CollectionPage extends Component<
       collection: { userUid, metadata, status, user },
       smartCollection,
       tracks,
-      location: { pathname },
+      pathname,
       fetchCollectionSucceeded
     } = this.props
 
@@ -230,16 +231,14 @@ class CollectionPage extends Component<
             ? albumPage(user!.handle, metadata.playlist_name, collectionId)
             : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
-        } else if (
-          // Check that the collection name hasn't changed. If so, update url.
-          prevMetadata &&
-          metadata.playlist_name !== prevMetadata.playlist_name &&
-          title &&
-          newCollectionName !== title &&
-          collectionId === metadata.playlist_id
-        ) {
-          const newPath = pathname.replace(title, newCollectionName)
-          this.props.replaceRoute(newPath)
+        } else {
+          // Check that the playlist name hasn't changed. If so, update url.
+          if (collectionId === metadata.playlist_id && title) {
+            if (newCollectionName !== title) {
+              const newPath = pathname.replace(title, newCollectionName)
+              this.props.replaceRoute(newPath)
+            }
+          }
         }
       }
     }
@@ -791,7 +790,8 @@ function makeMapStateToProps() {
       userPlaylists: getAccountCollections(state, {}),
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),
-      buffering: getBuffering(state)
+      buffering: getBuffering(state),
+      pathname: getLocationPathname(state)
     }
   }
   return mapStateToProps
