@@ -350,9 +350,7 @@ class AudiusBackend {
         identityServiceConfig: AudiusLibs.configIdentityService(
           IDENTITY_SERVICE
         ),
-        // Set empty URL for endpoint -- will update after audiusLibs init as this
-        // is when ServiceProvider initializes
-        creatorNodeConfig: AudiusLibs.configCreatorNode('', true),
+        creatorNodeConfig: AudiusLibs.configCreatorNode(USER_NODE, true),
         comstockConfig: AudiusLibs.configComstock(COMSTOCK_URL),
         isServer: false
       })
@@ -831,7 +829,7 @@ class AudiusBackend {
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
   static async upgradeToCreator (newCreatorNodeEndpoint) {
-    return audiusLibs.User.upgradeToCreator('', newCreatorNodeEndpoint)
+    return audiusLibs.User.upgradeToCreator(USER_NODE, newCreatorNodeEndpoint)
   }
 
   // Uploads a single track
