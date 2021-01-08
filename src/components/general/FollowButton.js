@@ -63,8 +63,8 @@ const FollowButton = props => {
     icon = <IconUnfollow />
     text = messages.unfollow
   } else if (!props.following && isHoveringClicked) {
-    icon = <IconUnfollow />
-    text = messages.unfollowed
+    icon = <IconFollow />
+    text = messages.follow
   }
 
   if (!props.showIcon) icon = null
