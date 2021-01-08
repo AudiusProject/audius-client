@@ -15,8 +15,7 @@ import styles from './FollowButton.module.css'
 const messages = {
   follow: 'FOLLOW',
   following: 'FOLLOWING',
-  unfollow: 'UNFOLLOW',
-  unfollowed: 'UNFOLLOWED'
+  unfollow: 'UNFOLLOW'
 }
 
 const FollowButton = props => {
