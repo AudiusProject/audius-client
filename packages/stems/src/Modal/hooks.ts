@@ -31,6 +31,23 @@ export const useModalScrollCount = () => {
       setIsOverflowHidden(false)
       removeOverflowHidden()
     }
+    return () => {
+      /**
+       * On cleanup of the `useScrollLock` hook, if the modal is open,
+       * the count is decremented. Because the cleanup of this method
+       * depends on the cleanup of `useScrollLock`, setImmediate is
+       * used to push this check to the end of the event loop.
+       * This guarantees that the getCount call will return
+       * an updated number. Else, getCount() may non-deterministically
+       * return 0 or 1 on cleanup of a final modal.
+       * NOTE: This should only be triggered on un-mount when not closed
+       */
+      setImmediate(() => {
+        if (isOverflowHidden && getCount() === 0) {
+          removeOverflowHidden()
+        }
+      })
+    }
   }, [getCount, isOverflowHidden, toggle])
 
   const incrementScrollCount = useCallback(() => {
