@@ -217,9 +217,11 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         yield put(accountActions.removeAccountPlaylist({ collectionId: uid }))
         yield put(
           accountActions.addAccountPlaylist({
-            id: reformattedPlaylist.playlist_id,
+            id: confirmedPlaylist.playlist_id,
+            // Take playlist name from the "local" state because the user
+            // may have edited the name before we got the confirmed result back.
             name: reformattedPlaylist.playlist_name,
-            isAlbum: reformattedPlaylist.is_album,
+            isAlbum: confirmedPlaylist.is_album,
             user: {
               id: user.user_id,
               handle: user.handle
