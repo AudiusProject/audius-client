@@ -31,6 +31,7 @@ type TrackListProps = {
   noDividerMargin?: boolean
   showBorder?: boolean
   onSave?: (isSaved: boolean, trackId: ID) => void
+  onRemove?: (index: number) => void
   togglePlay?: (uid: string, trackId: ID) => void
   trackItemAction?: TrackItemAction
   isReorderable?: boolean
@@ -42,6 +43,7 @@ const TrackList = ({
   itemClassName,
   tracks,
   onSave,
+  onRemove,
   showTopDivider,
   showDivider,
   noDividerMargin,
@@ -91,6 +93,7 @@ const TrackList = ({
           ></div>
         ) : null}
         <TrackListItem
+          index={idx}
           trackId={track.trackId}
           className={itemClassName}
           isLoading={track.isLoading}
@@ -105,6 +108,7 @@ const TrackList = ({
           uid={track.uid}
           isDeleted={track.isDeleted}
           onSave={onSave}
+          onRemove={onRemove}
           togglePlay={togglePlay}
           trackItemAction={trackItemAction}
           isReorderable={isReorderable}
