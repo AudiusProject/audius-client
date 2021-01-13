@@ -41,8 +41,10 @@ export function* watchSetTheme() {
   yield takeEvery(SET_THEME, function* (action: ThemeActions) {
     const { theme } = action
     setTheme(theme)
-    const message = new ThemeChangeMessage(theme)
-    message.send()
+    if (NATIVE_MOBILE) {
+      const message = new ThemeChangeMessage(theme)
+      message.send()
+    }
 
     // If the user switches to auto, add a media query listener that
     // updates their theme setting again if the OS theme preference changes
