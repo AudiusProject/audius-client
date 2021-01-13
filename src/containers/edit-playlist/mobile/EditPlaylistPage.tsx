@@ -199,8 +199,8 @@ const EditPlaylistPage = g(
       if (formFields.description === undefined) {
         formFields.description = null
       }
-      // Copty the metdata playlist contents so that a reference is not changed between
-      // removing tracks, updating orderm and edit playlist
+      // Copy the metadata playlist contents so that a reference is not changed between
+      // removing tracks, updating track order, and edit playlist
       const playlistTrackIds = [
         ...(metadata?.playlist_contents?.track_ids ?? [])
       ]
