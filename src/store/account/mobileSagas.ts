@@ -1,7 +1,7 @@
 import { takeEvery, put } from 'redux-saga/effects'
 import * as accountActions from 'store/account/reducer'
 import { push as pushRoute } from 'connected-react-router'
-import { SIGN_UP_PAGE } from 'utils/route'
+import { SIGN_UP_PAGE, SIGN_IN_PAGE, doesMatchRoute } from 'utils/route'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { setNeedsAccountRecovery } from './reducer'
 import { ReloadMessage } from 'services/native-mobile-interface/linking'
@@ -11,7 +11,9 @@ export const ENTROPY_KEY = 'hedgehog-entropy-key'
 
 function* watchFetchAccountFailed() {
   yield takeEvery(accountActions.fetchAccountFailed.type, function* () {
-    yield put(pushRoute(SIGN_UP_PAGE))
+    if (!doesMatchRoute(SIGN_IN_PAGE) && !doesMatchRoute(SIGN_UP_PAGE)) {
+      yield put(pushRoute(SIGN_UP_PAGE))
+    }
   })
 }
 
