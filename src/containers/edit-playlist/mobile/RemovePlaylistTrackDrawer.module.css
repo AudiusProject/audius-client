@@ -1,5 +1,5 @@
 .drawer {
-  height: 341px;
+  min-height: 341px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,8 +14,7 @@
   line-height: 34px;
   text-align: center;
   
-  /* Header Gradient [day] */
-  color: linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  color: var(--page-header-gradient);
   user-select: none;
   background-image: var(--page-header-gradient);
   -webkit-text-fill-color: transparent;
@@ -26,7 +25,8 @@
 .description {
   font-weight: var(--font-demi-bold);
   font-size: var(--font-xl);
-  height: 118px;
+  min-height: 102px;
+  margin-bottom: 16px;
   line-height: 150%;
   text-align: center;
   letter-spacing: -0.3px;

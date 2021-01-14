@@ -23,6 +23,7 @@ type TrackListProps = {
     trackTitle: string
     trackId: ID
     uid?: string
+    time?: number
     coverArtSizes?: CoverArtSizes
     isDeleted: boolean
   }>
@@ -116,12 +117,11 @@ const TrackList = ({
         />
       </div>
     )
+    const key = track?.time
+      ? `${track.trackId}:${track.time}`
+      : track.trackId.toString()
     return isReorderable ? (
-      <Draggable
-        key={track.trackId}
-        draggableId={`${track.trackId}`}
-        index={idx}
-      >
+      <Draggable key={key} draggableId={key} index={idx}>
         {(provided: any, snapshot: any) => {
           const updatedStyles = provided.draggableProps.style.transform
             ? {

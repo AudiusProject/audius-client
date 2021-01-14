@@ -338,12 +338,14 @@ const EditPlaylistPage = g(
     if (tracks && reorderedTracks.length > 0) {
       trackList = reorderedTracks.map(i => {
         const t = tracks[i]
+        const playlistTrack = metadata?.playlist_contents.track_ids[i]
         return {
           isLoading: false,
           artistName: t.user.name,
           artistHandle: t.user.handle,
           trackTitle: t.title,
           trackId: t.track_id,
+          time: playlistTrack?.time,
           isDeleted: t.is_delete
         }
       })
