@@ -19,7 +19,7 @@ export const isMobile = () => {
       )
     )
       check = true
-  })(navigator.userAgent || navigator.vendor || window.opera)
+  })(navigator.userAgent || navigator.vendor || (window as any).opera)
   // iPad iOS 13
   if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     check = true
@@ -48,7 +48,8 @@ export const getOS = () => {
 }
 
 export const getMobileOS = () => {
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera
+  const userAgent =
+    navigator.userAgent || navigator.vendor || (window as any).opera
 
   // Windows Phone must come first because its UA also contains "Android"
   if (/windows phone/i.test(userAgent)) {
@@ -65,7 +66,8 @@ export const getMobileOS = () => {
 }
 
 export const getIsReadOnlyClient = () => {
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera
+  const userAgent =
+    navigator.userAgent || navigator.vendor || (window as any).opera
 
   if (/.*ogle.*/i.test(userAgent)) return true
   return false
