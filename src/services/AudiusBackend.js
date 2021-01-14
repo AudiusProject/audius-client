@@ -818,13 +818,6 @@ class AudiusBackend {
   }
 
   /**
-   * Updates a user's is_creator metadata field to true
-   */
-  static async updateIsCreatorFlagToTrue () {
-    audiusLibs.User.updateIsCreatorFlagToTrue()
-  }
-
-  /**
    * Upgrades a user to a creator.
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
