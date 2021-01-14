@@ -2,6 +2,11 @@ import { useMemo } from 'react'
 
 import { OS, MobileOS } from 'models/OS'
 import Client from 'models/Client'
+declare global {
+  interface Window {
+    opera: any
+  }
+}
 
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -19,7 +24,7 @@ export const isMobile = () => {
       )
     )
       check = true
-  })(navigator.userAgent || navigator.vendor || (window as any).opera)
+  })(navigator.userAgent || navigator.vendor || window.opera)
   // iPad iOS 13
   if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     check = true
@@ -48,8 +53,7 @@ export const getOS = () => {
 }
 
 export const getMobileOS = () => {
-  const userAgent =
-    navigator.userAgent || navigator.vendor || (window as any).opera
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera
 
   // Windows Phone must come first because its UA also contains "Android"
   if (/windows phone/i.test(userAgent)) {
@@ -66,8 +70,7 @@ export const getMobileOS = () => {
 }
 
 export const getIsReadOnlyClient = () => {
-  const userAgent =
-    navigator.userAgent || navigator.vendor || (window as any).opera
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera
 
   if (/.*ogle.*/i.test(userAgent)) return true
   return false
@@ -87,7 +90,7 @@ export const useIsMobile = () =>
   }, [])
 
 /**
- * Whether we're deployed on our host or running locally
+ * Whether we're deployed on our host or running elsewhere
  */
 export const getIsDeployedOnHost = () =>
   window.location.host === process.env.REACT_APP_PUBLIC_HOSTNAME
