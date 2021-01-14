@@ -11,6 +11,8 @@ export const ENTROPY_KEY = 'hedgehog-entropy-key'
 
 function* watchFetchAccountFailed() {
   yield takeEvery(accountActions.fetchAccountFailed.type, function* () {
+    // Do not push route if the user is already on the signup or signin page
+    // or else it will toggle the UI page.
     if (!doesMatchRoute(SIGN_IN_PAGE) && !doesMatchRoute(SIGN_UP_PAGE)) {
       yield put(pushRoute(SIGN_UP_PAGE))
     }
