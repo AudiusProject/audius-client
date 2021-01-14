@@ -1411,7 +1411,7 @@ class AudiusBackend {
   /**
    * @param {string} email
    * @param {string} password
-   * @param {object} formFields
+   * @param {Object} formFields {name, handle, profilePicture, coverPhoto, isVerified, location
    * @param {boolean?} hasWallet the user already has a wallet but didn't complete sign up
    */
   static async signUp(email, password, formFields, hasWallet = false) {
@@ -1436,7 +1436,6 @@ class AudiusBackend {
       email,
       password,
       metadata,
-      audiusLibs.ServiceProvider,
       formFields.profilePicture,
       formFields.coverPhoto,
       hasWallet,
