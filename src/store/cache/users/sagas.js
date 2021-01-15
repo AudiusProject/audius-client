@@ -129,6 +129,33 @@ function* watchAdd() {
   })
 }
 
+/**
+ * Prunes blob url values off of a user.
+ * @param {User} user
+ */
+const pruneBlobValues = user => {
+  const returned = {
+    ...user,
+    _profile_picture_sizes: { ...user._profile_picture_sizes },
+    _cover_photo_sizes: { ...user._cover_photo_sizes }
+  }
+  if (returned._profile_picture_sizes) {
+    Object.keys(returned._profile_picture_sizes).forEach(size => {
+      if (returned._profile_picture_sizes[size].startsWith('blob')) {
+        delete returned._profile_picture_sizes[size]
+      }
+    })
+  }
+  if (returned._cover_photo_sizes) {
+    Object.keys(returned._cover_photo_sizes).forEach(size => {
+      if (returned._cover_photo_sizes[size].startsWith('blob')) {
+        returned._cover_photo_sizes[size] = 'pokemon'
+      }
+    })
+  }
+  return returned
+}
+
 // For updates and adds, sync the account user to local storage.
 // We use the same mergeCustomizer we use in cacheSagas to merge
 // with the local state.
@@ -143,9 +170,15 @@ function* watchSyncLocalStorageUser() {
       action.entries[0].id === currentId
     ) {
       const addedUser = action.entries[0].metadata
+      // Get existing locally stored user
       const existing = getAudiusAccountUser()
+      // Merge with the new metadata
       const merged = mergeWith({}, existing, addedUser, mergeCustomizer)
-      setAudiusAccountUser(merged)
+      // Remove blob urls if any
+      // Blob urls only last for the session so we don't want to store those
+      const cleaned = pruneBlobValues(merged)
+      // Set user back to local storage
+      setAudiusAccountUser(cleaned)
     }
   }
   yield takeEvery(cacheActions.ADD_SUCCEEDED, syncLocalStorageUser)
