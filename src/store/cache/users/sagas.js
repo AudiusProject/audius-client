@@ -16,7 +16,7 @@ import { retrieve } from 'store/cache/sagas'
 import { DefaultSizes } from 'models/common/ImageSizes'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getAccountUser, getUserId } from 'store/account/selectors'
-import { reformat } from './utils'
+import { pruneBlobValues, reformat } from './utils'
 import {
   getAudiusAccountUser,
   setAudiusAccountUser
@@ -127,33 +127,6 @@ function* watchAdd() {
       )
     }
   })
-}
-
-/**
- * Prunes blob url values off of a user.
- * @param {User} user
- */
-const pruneBlobValues = user => {
-  const returned = {
-    ...user,
-    _profile_picture_sizes: { ...user._profile_picture_sizes },
-    _cover_photo_sizes: { ...user._cover_photo_sizes }
-  }
-  if (returned._profile_picture_sizes) {
-    Object.keys(returned._profile_picture_sizes).forEach(size => {
-      if (returned._profile_picture_sizes[size].startsWith('blob')) {
-        delete returned._profile_picture_sizes[size]
-      }
-    })
-  }
-  if (returned._cover_photo_sizes) {
-    Object.keys(returned._cover_photo_sizes).forEach(size => {
-      if (returned._cover_photo_sizes[size].startsWith('blob')) {
-        delete returned._cover_photo_sizes[size]
-      }
-    })
-  }
-  return returned
 }
 
 // For updates and adds, sync the account user to local storage.
