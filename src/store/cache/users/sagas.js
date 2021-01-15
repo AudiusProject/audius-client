@@ -149,7 +149,7 @@ const pruneBlobValues = user => {
   if (returned._cover_photo_sizes) {
     Object.keys(returned._cover_photo_sizes).forEach(size => {
       if (returned._cover_photo_sizes[size].startsWith('blob')) {
-        returned._cover_photo_sizes[size] = 'pokemon'
+        delete returned._cover_photo_sizes[size]
       }
     })
   }
