@@ -1038,8 +1038,6 @@ function* uploadTracksAsync(action) {
 
   // Try to upgrade to creator, early return if failure
   try {
-    // If new endpoint was selected via the selection logic above, update
-    // the user's creator_node_endpoint and is_creator flag
     console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
     yield call(AudiusBackend.upgradeToCreator, newEndpoint)
   } catch (err) {
