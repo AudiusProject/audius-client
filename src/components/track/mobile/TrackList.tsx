@@ -18,11 +18,13 @@ type TrackListProps = {
     isReposted?: boolean
     isActive?: boolean
     isPlaying?: boolean
+    isRemoveActive?: boolean
     artistHandle: string
     artistName: string
     trackTitle: string
     trackId: ID
     uid?: string
+    time?: number
     coverArtSizes?: CoverArtSizes
     isDeleted: boolean
   }>
@@ -31,6 +33,7 @@ type TrackListProps = {
   noDividerMargin?: boolean
   showBorder?: boolean
   onSave?: (isSaved: boolean, trackId: ID) => void
+  onRemove?: (index: number) => void
   togglePlay?: (uid: string, trackId: ID) => void
   trackItemAction?: TrackItemAction
   isReorderable?: boolean
@@ -42,6 +45,7 @@ const TrackList = ({
   itemClassName,
   tracks,
   onSave,
+  onRemove,
   showTopDivider,
   showDivider,
   noDividerMargin,
@@ -91,6 +95,7 @@ const TrackList = ({
           ></div>
         ) : null}
         <TrackListItem
+          index={idx}
           trackId={track.trackId}
           className={itemClassName}
           isLoading={track.isLoading}
@@ -105,6 +110,8 @@ const TrackList = ({
           uid={track.uid}
           isDeleted={track.isDeleted}
           onSave={onSave}
+          isRemoveActive={track.isRemoveActive}
+          onRemove={onRemove}
           togglePlay={togglePlay}
           trackItemAction={trackItemAction}
           isReorderable={isReorderable}
@@ -112,12 +119,11 @@ const TrackList = ({
         />
       </div>
     )
+    const key = track?.time
+      ? `${track.trackId}:${track.time}`
+      : track.trackId.toString()
     return isReorderable ? (
-      <Draggable
-        key={track.trackId}
-        draggableId={`${track.trackId}`}
-        index={idx}
-      >
+      <Draggable key={key} draggableId={key} index={idx}>
         {(provided: any, snapshot: any) => {
           const updatedStyles = provided.draggableProps.style.transform
             ? {
