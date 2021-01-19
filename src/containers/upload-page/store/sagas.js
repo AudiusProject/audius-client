@@ -1002,8 +1002,8 @@ function* uploadTracksAsync(action) {
   )
 
   // If user already has creator_node_endpoint, do not reselect replica set
-  let newEndpoint = ''
-  if (!user.creator_node_endpoint) {
+  let newEndpoint = user.creator_node_endpoint || ''
+  if (newEndpoint) {
     const serviceSelectionStatus = yield select(getStatus)
     if (serviceSelectionStatus === Status.ERROR) {
       yield put(uploadActions.uploadTrackFailed())
@@ -1037,7 +1037,7 @@ function* uploadTracksAsync(action) {
   }
 
   // Try to upgrade to creator, early return if failure
-  let metadata = { is_creator: true }
+  const metadata = { is_creator: true }
   try {
     // If new endpoint was selected via the selection logic above, update
     // the user's creator_node_endpoint and is_creator flag
