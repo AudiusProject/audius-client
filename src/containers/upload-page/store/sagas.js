@@ -1037,13 +1037,11 @@ function* uploadTracksAsync(action) {
   }
 
   // Try to upgrade to creator, early return if failure
-  const metadata = { is_creator: true }
   try {
     // If new endpoint was selected via the selection logic above, update
     // the user's creator_node_endpoint and is_creator flag
     console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
     yield call(AudiusBackend.upgradeToCreator, newEndpoint)
-    metadata.creator_node_endpoint = newEndpoint
   } catch (err) {
     console.error(`Upgrade to creator failed with error: ${err}`)
     yield put(uploadActions.uploadTrackFailed())
@@ -1055,7 +1053,10 @@ function* uploadTracksAsync(action) {
     cacheActions.update(Kind.USERS, [
       {
         id: user.user_id,
-        metadata
+        metadata: {
+          creator_node_endpoint: newEndpoint,
+          is_creator: true
+        }
       }
     ])
   )
