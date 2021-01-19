@@ -818,10 +818,10 @@ class AudiusBackend {
   }
 
   /**
-   * Upgrades a user to a creator.
+   * Upgrades a user to a creator
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
-  static async upgradeToCreator (newCreatorNodeEndpoint) {
+  static async upgradeToCreator(newCreatorNodeEndpoint) {
     return audiusLibs.User.upgradeToCreator(USER_NODE, newCreatorNodeEndpoint)
   }
 
