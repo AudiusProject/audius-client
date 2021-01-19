@@ -1003,7 +1003,7 @@ function* uploadTracksAsync(action) {
 
   // If user already has creator_node_endpoint, do not reselect replica set
   let newEndpoint = user.creator_node_endpoint || ''
-  if (newEndpoint) {
+  if (!newEndpoint) {
     const serviceSelectionStatus = yield select(getStatus)
     if (serviceSelectionStatus === Status.ERROR) {
       yield put(uploadActions.uploadTrackFailed())
