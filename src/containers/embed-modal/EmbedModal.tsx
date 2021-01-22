@@ -136,15 +136,12 @@ const EmbedModal = ({ isOpen, kind, id, metadata, close }: EmbedModalProps) => {
     {
       key: Size.COMPACT,
       text: Size.COMPACT
-    }
-  ]
-
-  if (kind === PlayableType.TRACK) {
-    tabOptions.push({
+    },
+    {
       key: Size.TINY,
       text: Size.TINY
-    })
-  }
+    }
+  ]
 
   let frameString
   switch (size) {
