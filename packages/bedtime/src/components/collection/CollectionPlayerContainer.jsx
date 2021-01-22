@@ -8,10 +8,12 @@ import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
 import { isMobile } from '../../util/isMobile'
+import { PlayerFlavor } from '../app'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
 const CollectionPlayerContainer = ({
+  flavor,
   collection,
   isTwitter,
   backgroundColor,
@@ -94,6 +96,9 @@ const CollectionPlayerContainer = ({
   // Setup spacebar
   const spacebarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(() => onTogglePlayTrack(activeTrackIndex), spacebarEnabled)
+
+  // Tiny flavor isn't allowed for collections
+  if (flavor === PlayerFlavor.TINY) return null
 
   return (
     <CollectionPlayerCard

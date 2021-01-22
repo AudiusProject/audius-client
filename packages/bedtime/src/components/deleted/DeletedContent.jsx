@@ -3,9 +3,11 @@ import Button from '../button/Button'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
 import { getCopyableLink } from '../../util/shareUtil'
+import DeletedContentTiny from './DeletedContentTiny'
 import cn from 'classnames'
 
 import styles from './DeletedContent.module.css'
+import { PlayerFlavor } from '../app'
 
 const messages = {
   mainLabel: 'This content was removed by the creator.',
@@ -15,9 +17,15 @@ const messages = {
   buttonLabel: 'Find more on'
 }
 
-const DeletedContent = ({ isCard }) => {
+const DeletedContent = ({ flavor }) => {
   const onClickFindMore = () => {
     window.open(getCopyableLink(), '_blank')
+  }
+
+  const isCard = flavor === PlayerFlavor.CARD
+  const isTiny = flavor === PlayerFlavor.TINY
+  if (isTiny) {
+    return <DeletedContentTiny onClick={onClickFindMore} />
   }
 
   return (

@@ -3,6 +3,7 @@ import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
 
 import { PlayerFlavor } from '../app'
 import TrackPlayerCompact from './TrackPlayerCompact'
+import TrackPlayerTiny from './TrackPlayerTiny'
 import usePlayback from '../../hooks/usePlayback'
 import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
@@ -18,13 +19,16 @@ const TrackPlayerContainer = ({
   track,
   isTwitter,
   backgroundColor,
+  did404
 }) => {
   const [didInitAudio, setDidInitAudio] = useState(false)
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
   const onTrackEnd = useCallback(() => {
-    setPopoverVisibility(true)
-  }, [setPopoverVisibility])
+    if (flavor !== PlayerFlavor.TINY) {
+      setPopoverVisibility(true)
+    }
+  }, [flavor, setPopoverVisibility])
 
   const {
     playingState,
@@ -45,12 +49,21 @@ const TrackPlayerContainer = ({
       setDidInitAudio(true)
     }
     onTogglePlay()
-    if (playingState === PlayingState.Playing) {
+    if (playingState === PlayingState.Playing && flavor !== PlayerFlavor.TINY) {
       setPopoverVisibility(true)
     } else if (playingState === PlayingState.Paused){
       setPopoverVisibility(false)
     }
-  }, [didInitAudio, initAudio, loadTrack, setDidInitAudio, onTogglePlay, playingState, setPopoverVisibility])
+  }, [
+    didInitAudio,
+    initAudio,
+    loadTrack,
+    setDidInitAudio,
+    onTogglePlay,
+    playingState,
+    setPopoverVisibility,
+    flavor
+  ])
 
   const playbarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(didTogglePlay, playbarEnabled)
@@ -68,14 +81,14 @@ const TrackPlayerContainer = ({
 
   useEffect(() => {
     const handleMessage = (e) => {
-      if(e.data){
+      if (e.data) {
         try {
           const messageData = JSON.parse(e.data)
           const { from, method, value } = messageData
-          if(from && from == 'audiusapi'){
-            if(method === 'togglePlay') didTogglePlay()
-            if(method === 'stop') stop()
-            if(method === 'seekTo') seekTo(value)
+          if (from && from == 'audiusapi') {
+            if (method === 'togglePlay') didTogglePlay()
+            if (method === 'stop') stop()
+            if (method === 'seekTo') seekTo(value)
           }
         } catch (error) {
           console.log(error)
@@ -103,11 +116,20 @@ const TrackPlayerContainer = ({
     trackURL: track.urlPath,
     backgroundColor,
     isTwitter,
+    did404
   }
 
   if (flavor === PlayerFlavor.COMPACT) {
     return (
       <TrackPlayerCompact
+        {...props}
+      />
+    )
+  }
+
+  if (flavor === PlayerFlavor.TINY) {
+    return (
+      <TrackPlayerTiny
         {...props}
       />
     )

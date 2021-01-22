@@ -42,7 +42,8 @@ const pathComponentRequestTypeMap = {
 
 export const PlayerFlavor = Object.seal({
   CARD: 'card',
-  COMPACT: 'compact'
+  COMPACT: 'compact',
+  TINY: 'tiny'
 })
 
 // Attemps to parse a the window's url.
@@ -74,6 +75,8 @@ const getRequestDataFromURL = () => {
     playerFlavor = PlayerFlavor.CARD
   } else if (flavor === PlayerFlavor.COMPACT) {
     playerFlavor = PlayerFlavor.COMPACT
+  } else if (flavor === PlayerFlavor.TINY) {
+    playerFlavor = PlayerFlavor.TINY
   } else {
     return null
   }
@@ -192,6 +195,7 @@ const App = () => {
   }
 
   const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
+  const isTiny = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.TINY
   const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
 
   // The idea is to show nothing (null) until either we
@@ -207,15 +211,16 @@ const App = () => {
       )
     }
 
+    // Tiny variant renders its own deleted content
     if (did404) {
       return (
         <DeletedContent
-          isCard={!isCompact}
+          flavor={requestState.playerFlavor}
         />
       )
     }
 
-    if (showLoadingAnimation) {
+    if (showLoadingAnimation && !isTiny) {
       return <Loading />
     }
 
