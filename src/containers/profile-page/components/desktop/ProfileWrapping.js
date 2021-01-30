@@ -72,7 +72,6 @@ const Followers = props => {
               name={follower.name}
               followers={follower.follower_count}
               onClickArtistName={() => props.onClickArtistName(follower.handle)}
-              verified={follower.is_verified}
             />
           ))}
       </div>
@@ -312,6 +311,7 @@ const ProfileWrapping = props => {
             editable={props.editMode}
             verified={props.verified}
             onChange={props.onUpdateName}
+            userId={props.userId}
           />
           <h2 className={styles.handle}>{props.handle}</h2>
         </div>

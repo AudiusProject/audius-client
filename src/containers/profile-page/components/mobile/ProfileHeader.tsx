@@ -25,7 +25,6 @@ import { FOLLOWING_USERS_ROUTE, FOLLOWERS_USERS_ROUTE } from 'utils/route'
 import { formatCount, squashNewLines } from 'utils/formatUtil'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import styles from './ProfileHeader.module.css'
 import FollowButton from 'components/general/FollowButton'
@@ -35,6 +34,7 @@ import SubscribeButton from 'components/general/SubscribeButton'
 import { make, useRecord } from 'store/analytics/actions'
 import { Name } from 'services/analytics'
 import UploadButton from './UploadButton'
+import UserBadges from 'containers/user-badges/UserBadges'
 
 const messages = {
   tracks: 'Tracks',
@@ -316,11 +316,11 @@ const ProfileHeader = ({
             <div className={styles.left}>
               <div className={styles.artistName}>
                 <h1>{name}</h1>
-                {verified ? (
-                  <span className={styles.iconVerified}>
-                    <IconVerified />
-                  </span>
-                ) : null}
+                <UserBadges
+                  userId={userId}
+                  className={styles.iconVerified}
+                  badgeSize={12}
+                />
               </div>
               <h2 className={styles.artistHandle}>{handle}</h2>
             </div>

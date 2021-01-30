@@ -4,7 +4,6 @@ import { UID, ID } from 'models/common/Identifiers'
 
 import styles from './PlaylistTile.module.css'
 
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import cn from 'classnames'
 import { formatCount } from 'utils/formatUtil'
@@ -15,6 +14,7 @@ import TrackTileArt from './TrackTileArt'
 import FavoriteButton from 'components/general/alt-button/FavoriteButton'
 import RepostButton from 'components/general/alt-button/RepostButton'
 import { LineupTrack } from 'models/Track'
+import UserBadges from 'containers/user-badges/UserBadges'
 
 type TrackItemProps = {
   index: number
@@ -103,6 +103,8 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
     [styles.hide]: !artworkLoaded
   }
 
+  console.log({ ownerId: props.ownerId })
+
   return (
     <div className={styles.container}>
       <div className={styles.mainContent} onClick={props.togglePlay}>
@@ -138,9 +140,12 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
               <span className={cn(styles.userName, fadeIn)}>
                 {props.artistName}
               </span>
-              {props.artistIsVerified && (
-                <IconVerified className={styles.iconVerified} />
-              )}
+              <UserBadges
+                // userId={props.ownerId}
+                userId={74667}
+                badgeSize={10}
+                className={styles.iconVerified}
+              />
               {!artworkLoaded && (
                 <Skeleton
                   className={styles.skeleton}
