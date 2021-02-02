@@ -289,10 +289,6 @@
   margin-left: 4px;
 }
 
-.iconVerified path {
-  fill: var(--primary);
-}
-
 .artistPick {
   margin-right: 8px;
   display: inline-flex;

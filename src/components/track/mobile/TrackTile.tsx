@@ -154,7 +154,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               </span>
               <UserBadges
                 userId={userId}
-                badgeSize={10}
+                badgeSize={12}
                 className={styles.iconVerified}
               />
               {(!artworkLoaded || showSkeleton) && (
