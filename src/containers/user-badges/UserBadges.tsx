@@ -1,5 +1,5 @@
 import { ID } from 'models/common/Identifiers'
-import React, { cloneElement, ReactElement, useMemo } from 'react'
+import React, { cloneElement, ReactElement } from 'react'
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import IconBronzeBadge from 'assets/img/tokenBadgeBronze40@2x.png'
 import IconSilverBadge from 'assets/img/tokenBadgeSilver40@2x.png'
