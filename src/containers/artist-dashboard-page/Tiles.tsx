@@ -142,7 +142,7 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
   const onClickLearnMore = () => window.open(LEARN_MORE_URL, '_blank')
   const [mouseOver, setMouseOver] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [initialPlaysRemaining, setInitialPlays] = useState(2)
+  const [initialPlaysRemaining, setInitialPlays] = useState(1)
 
   const handleOnEnded = useCallback(() => {
     setInitialPlays(p => p - 1)
