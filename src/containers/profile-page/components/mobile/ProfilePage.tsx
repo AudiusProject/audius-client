@@ -326,6 +326,7 @@ const ProfilePage = g(
         <Card
           key={playlist.playlist_id}
           id={playlist.playlist_id}
+          userId={playlist.playlist_owner_id}
           imageSize={playlist._cover_art_sizes}
           primaryText={playlist.playlist_name}
           secondaryText={formatCardSecondaryText(
@@ -350,6 +351,7 @@ const ProfilePage = g(
           <Card
             key={album.playlist_id}
             id={album.playlist_id}
+            userId={album.playlist_owner_id}
             imageSize={album._cover_art_sizes}
             primaryText={album.playlist_name}
             secondaryText={formatCardSecondaryText(
