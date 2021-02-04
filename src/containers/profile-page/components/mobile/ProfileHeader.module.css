@@ -158,6 +158,11 @@
 .socials {
   display: inline-flex;
   justify-content: flex-start;
+  align-items: center;
+}
+
+.badge {
+  margin-right: 32px;
 }
 
 .socialIcon {

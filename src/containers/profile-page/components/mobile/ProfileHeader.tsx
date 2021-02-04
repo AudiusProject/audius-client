@@ -35,6 +35,7 @@ import { make, useRecord } from 'store/analytics/actions'
 import { Name } from 'services/analytics'
 import UploadButton from './UploadButton'
 import UserBadges from 'containers/user-badges/UserBadges'
+import ProfilePageBadge from 'containers/user-badges/ProfilePageBadge'
 
 const messages = {
   tracks: 'Tracks',
@@ -123,7 +124,6 @@ const ProfileHeader = ({
   handle,
   isArtist,
   bio,
-  verified,
   userId,
   loading,
   coverPhotoSizes,
@@ -385,6 +385,11 @@ const ProfileHeader = ({
             </div>
           </div>
           <div className={styles.socials}>
+            <ProfilePageBadge
+              userId={userId}
+              isCompact
+              className={styles.badge}
+            />
             {twitterHandle && (
               <IconTwitterBird
                 className={cn(styles.socialIcon)}
