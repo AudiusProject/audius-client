@@ -24,9 +24,9 @@ const messages = {
   subtitle1: `Unlock $AUDIO VIP Tiers by simply holding more $AUDIO!`,
   subtitle2: `Advancing to a new tier will earn your profile a badge, visible throughout the app, and unlock various new features as they are released.`,
   unlocks: 'UNLOCKS',
-  badgeType: (badge: string) => `✅ ${badge} Badge`,
-  badgeRole: (badge: string) => `✅ ${badge} Discord Role`,
-  moreSoon: '✨ More Coming Soon!',
+  badgeType: (badge: string) => `${badge} Badge`,
+  badgeRole: (badge: string) => `${badge} Discord Role`,
+  moreSoon: 'More Coming Soon!',
   updateRole: 'UPDATE ROLE',
   tierNumber: (tier: number) => `TIER ${tier}`,
   currentTier: 'CURRENT TIER',
@@ -123,8 +123,16 @@ export const Tier = ({
           <>
             <div className={styles.unlocks}>{messages.unlocks}</div>
             <div className={styles.tierTextContainer}>
-              <span>{messages.badgeType(tier)}</span>
-              <span>{messages.badgeRole(tier)}</span>
+              <span>
+                <i className='emoji large white-heavy-check-mark' />
+                &nbsp;
+                {messages.badgeType(tier)}
+              </span>
+              <span>
+                <i className='emoji large white-heavy-check-mark' />
+                &nbsp;
+                {messages.badgeRole(tier)}
+              </span>
               {isActive && (
                 <Button
                   text={messages.updateRole}
@@ -135,7 +143,11 @@ export const Tier = ({
                   onClick={onClickDiscord}
                 />
               )}
-              <span>{messages.moreSoon}</span>
+              <span className={styles.sparkles}>
+                <i className='emoji large sparkles' />
+                &nbsp;
+                {messages.moreSoon}
+              </span>
             </div>
           </>
         )}

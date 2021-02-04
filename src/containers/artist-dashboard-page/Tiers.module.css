@@ -114,11 +114,17 @@
   font-weight: 600;
   font-size: 17px;
   text-transform: capitalize;
+  margin-right: auto;
 }
 
 .tierTextContainer > * {
   margin-bottom: 12px;
   line-height: 160%;
+}
+
+.tierTextContainer span:not(.sparkles) i {
+  height: 18px !important;
+  width: 18px !important;
 }
 
 .discordButton {
