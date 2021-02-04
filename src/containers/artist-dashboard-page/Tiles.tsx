@@ -15,13 +15,9 @@ import { Button, ButtonType } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
-import { ReactComponent as IconDiscord } from 'assets/img/iconDiscord.svg'
-import platformTokenImage from 'assets/img/platformToken@2x.png'
-import featureChartLevel0 from 'assets/img/featureChartLevel0@2x.png'
-import featureChartLevel1 from 'assets/img/featureChartLevel1@2x.png'
+import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
 import {
   pressClaim,
-  pressDiscord,
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
@@ -36,17 +32,10 @@ const messages = {
   sendLabel: 'SEND',
   unclaimed: 'UNCLAIMED $AUDIO',
   whatIsAudio: 'WHAT IS $AUDIO',
-  whyCare: 'And why should YOU care?',
-  audioDescription:
-    '$AUDIO gives you partial ownership of the Audius platform. Yep, that’s right, Audius is owned by people like you, not major corporations. Holding $AUDIO will also give you access to special features as they are released.',
+  audioDescription1: `Audius is owned by people like you, not major corporations.`,
+  audioDescription2: `Holding $AUDIO grants you partial ownership of the Audius platform and gives you access to special features as they are released.`,
   confused: 'Still confused? Don’t worry, more details coming soon!',
-  learnMore: 'Learn More',
-  level1: 'LEVEL 1',
-  level1More: '(1 or more $AUDIO)',
-  vip: 'Access to our VIP Discord',
-  vipDiscord: 'Launch The VIP Discord',
-  level2: 'LEVEL 2',
-  tba: 'To Be Announced!'
+  learnMore: 'Learn More'
 }
 
 const LEARN_MORE_URL =
@@ -54,10 +43,9 @@ const LEARN_MORE_URL =
 
 type TileProps = {
   className?: string
-  children: React.ReactChild
 }
 
-const Tile = ({ className, children }: TileProps) => {
+export const Tile: React.FC<TileProps> = ({ className, children }) => {
   return (
     <div className={cn([styles.tileContainer, className])}> {children}</div>
   )
@@ -146,68 +134,25 @@ export const WalletTile = ({ className }: { className?: string }) => {
 }
 
 export const ExplainerTile = ({ className }: { className?: string }) => {
-  const balance = useSelector(getAccountBalance) ?? new BN(0)
-  const hasAudio = balance && !balance.isZero()
-  const featureChart = hasAudio ? featureChartLevel1 : featureChartLevel0
-  const disabled = { [styles.disabled]: !hasAudio }
-  const dispatch = useDispatch()
-  const onClickDiscord = () => dispatch(pressDiscord())
   const onClickLearnMore = () => window.open(LEARN_MORE_URL, '_blank')
 
   return (
     <Tile className={cn([styles.explainerTile, className])}>
       <>
-        <div className={styles.platformToken}>
-          <img
-            alt={'Platform Token'}
-            className={styles.platformTokenImage}
-            src={platformTokenImage}
-          />
+        <div className={styles.tokenHero}>
+          <IconGoldBadgeSVG />
         </div>
         <div className={styles.whatIsAudioContainer}>
           <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>
-          <div className={styles.whyCare}>{messages.whyCare}</div>
-          <p className={styles.description}>{messages.audioDescription}</p>
+          <p className={styles.description}>
+            {messages.audioDescription1}
+            <br />
+            {messages.audioDescription2}
+          </p>
           <div className={styles.learnMore} onClick={onClickLearnMore}>
             {messages.learnMore}
           </div>
-          <div className={styles.confused}>{messages.confused}</div>
-          <div className={styles.levels}>
-            <img
-              alt={'Feature Chart'}
-              className={styles.levelImg}
-              src={featureChart}
-            />
-            <div className={cn(styles.levelContainer, disabled)}>
-              <div className={styles.level}>
-                <span className={styles.levelText}>{messages.level1} </span>
-                <span className={styles.levelMore}>{messages.level1More}</span>
-              </div>
-              <div className={styles.vip}>{messages.vip}</div>
-              <Button
-                className={cn(styles.vipButton, {
-                  [styles.vipDiscordDisabled]: !hasAudio
-                })}
-                text={messages.vipDiscord}
-                isDisabled={!hasAudio}
-                includeHoverAnimations={hasAudio}
-                textClassName={styles.vipTextClassName}
-                onClick={onClickDiscord}
-                leftIcon={<IconDiscord className={styles.iconDiscord} />}
-                type={ButtonType.GLASS}
-              />
-            </div>
-            <div className={cn(styles.levelContainer, styles.disabled)}>
-              <div
-                className={cn(styles.level, styles.levelText, styles.disabled)}
-              >
-                {messages.level2}
-              </div>
-              <div className={cn(styles.tba, styles.disabled)}>
-                {messages.tba}
-              </div>
-            </div>
-          </div>
+          <div className={styles.description}>{messages.confused}</div>
         </div>
       </>
     </Tile>
