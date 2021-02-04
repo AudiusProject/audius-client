@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './Tiles.module.css'
 import cn from 'classnames'
 import { useSelector } from 'utils/reducer'
@@ -15,13 +15,13 @@ import { Button, ButtonType } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
-import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
 import {
   pressClaim,
   pressReceive,
   pressSend
 } from 'store/token-dashboard/slice'
 import TokenHoverTooltip from './components/TokenHoverTooltip'
+import spinnyVideo from 'assets/animations/spinnytoken.mp4'
 
 const messages = {
   claimCTA: 'CLAIM $AUDIO',
@@ -133,14 +133,45 @@ export const WalletTile = ({ className }: { className?: string }) => {
   )
 }
 
+/**
+ * Explainer tile for badging system.
+ * Has a spinny badge animation that should animate in a loop in a few times
+ * on mount, and then again on mouse over.
+ */
 export const ExplainerTile = ({ className }: { className?: string }) => {
   const onClickLearnMore = () => window.open(LEARN_MORE_URL, '_blank')
+  const [mouseOver, setMouseOver] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [initialPlaysRemaining, setInitialPlays] = useState(2)
+
+  const handleOnEnded = useCallback(() => {
+    setInitialPlays(p => p - 1)
+    if ((initialPlaysRemaining > 0 || mouseOver) && videoRef.current) {
+      videoRef.current.play()
+    }
+  }, [initialPlaysRemaining, mouseOver])
+
+  useEffect(() => {
+    if (mouseOver && videoRef.current) {
+      videoRef.current.play()
+    }
+  }, [mouseOver])
 
   return (
     <Tile className={cn([styles.explainerTile, className])}>
       <>
         <div className={styles.tokenHero}>
-          <IconGoldBadgeSVG />
+          <video
+            autoPlay
+            src={spinnyVideo}
+            height={200}
+            width={200}
+            onMouseOver={() => setMouseOver(true)}
+            onMouseOut={() => setMouseOver(false)}
+            ref={videoRef}
+            onEnded={handleOnEnded}
+            muted
+          />
         </div>
         <div className={styles.whatIsAudioContainer}>
           <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>

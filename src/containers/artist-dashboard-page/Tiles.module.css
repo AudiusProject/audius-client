@@ -297,9 +297,5 @@
 
 .tokenHero {
   margin: 66px 64px 66px 108px;
-}
-
-.tokenHero svg {
-  height: 200px;
-  width: 200px;
+  cursor: pointer;
 }
