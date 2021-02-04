@@ -139,7 +139,6 @@ class FinishPage extends Component {
     const erroredTrackSet = new Set(erroredTracks)
     const isCreator = account.is_creator
 
-    console.log({ account })
     let content
     if (
       uploadType === UploadType.INDIVIDUAL_TRACK ||

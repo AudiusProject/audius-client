@@ -103,8 +103,6 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
     [styles.hide]: !artworkLoaded
   }
 
-  console.log({ ownerId: props.ownerId })
-
   return (
     <div className={styles.container}>
       <div className={styles.mainContent} onClick={props.togglePlay}>
@@ -141,8 +139,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
                 {props.artistName}
               </span>
               <UserBadges
-                // userId={props.ownerId}
-                userId={74667}
+                userId={props.ownerId}
                 badgeSize={10}
                 className={styles.iconVerified}
               />

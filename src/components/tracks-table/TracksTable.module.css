@@ -104,10 +104,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* position: absolute; */
-  /* top: 0;
-  left: 0;
-  width: 100%; */
 }
 
 /* Body Row Hover */

@@ -80,7 +80,6 @@ const trackNameCell = (val, record, props) => {
 }
 
 const artistNameCell = (val, record, props) => {
-  console.log({ record })
   return (
     <ArtistPopover handle={record.handle}>
       <div
