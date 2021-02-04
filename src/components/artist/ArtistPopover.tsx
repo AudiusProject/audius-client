@@ -107,7 +107,6 @@ const ArtistPopover = ({
         profilePictureSizes={creator._profile_picture_sizes}
         coverPhotoSizes={creator._cover_photo_sizes}
         isArtist={creator.is_creator || creator.track_count > 0}
-        isVerified={creator.is_verified}
         onNameClick={onNameClick}
         following={following}
         onFollow={onClickFollow}
