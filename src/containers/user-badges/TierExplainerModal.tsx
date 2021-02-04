@@ -10,6 +10,8 @@ import {
 } from 'store/application/ui/modals/slice'
 import { useDispatch } from 'react-redux'
 import { useProfileTier } from './hooks'
+import { push as pushRoute } from 'connected-react-router'
+import { DASHBOARD_PAGE } from 'utils/route'
 
 export const messages = {
   title: '$AUDIO VIP Tiers',
@@ -30,6 +32,11 @@ const TierExplainerModal = () => {
   const handleDismiss = useCallback(() => {
     dispatch(setVisibility({ modal: 'TiersExplainer', visible: false }))
   }, [dispatch])
+
+  const onClickLearnMore = useCallback(() => {
+    handleDismiss()
+    dispatch(pushRoute(DASHBOARD_PAGE))
+  }, [dispatch, handleDismiss])
 
   return (
     <Modal
@@ -55,9 +62,10 @@ const TierExplainerModal = () => {
             size={ButtonSize.MEDIUM}
             text={messages.learnMore}
             className={styles.button}
+            onClick={onClickLearnMore}
           />
         </div>
-        {tier !== 'none' && <Tier isCompact tier={tier} />}
+        <Tier isCompact tier={tier} />
       </div>
     </Modal>
   )

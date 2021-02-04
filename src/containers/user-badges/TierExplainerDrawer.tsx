@@ -28,8 +28,6 @@ const TierExplainerDrawer = () => {
 
   const tier = useProfileTier()
 
-  if (tier === 'none') return null
-
   return (
     <Drawer isOpen={isOpen} keyboardVisible={keyboardVisible} onClose={onClose}>
       <div className={styles.drawer}>
