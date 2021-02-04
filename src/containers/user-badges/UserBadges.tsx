@@ -1,6 +1,5 @@
 import { ID } from 'models/common/Identifiers'
 import React, { cloneElement, ReactElement, useMemo } from 'react'
-import { useSelector } from 'utils/reducer'
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import IconBronzeBadge from 'assets/img/tokenBadgeBronze40@2x.png'
 import IconSilverBadge from 'assets/img/tokenBadgeSilver40@2x.png'
@@ -11,9 +10,10 @@ import { ReactComponent as IconSilverBadgeSVG } from 'assets/img/IconSilverBadge
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
 import { ReactComponent as IconPlatinumBadgeSVG } from 'assets/img/IconPlatinumBadge.svg'
 import styles from './UserBadges.module.css'
-import { BadgeTier, makeGetTierAndVerifiedForUser } from './utils'
+import { BadgeTier } from './utils'
 import cn from 'classnames'
 import { Nullable } from 'utils/typeUtils'
+import { useSelectTierInfo } from './hooks'
 
 const audioTierMapSVG: { [tier in BadgeTier]: Nullable<ReactElement> } = {
   none: null,
@@ -23,7 +23,9 @@ const audioTierMapSVG: { [tier in BadgeTier]: Nullable<ReactElement> } = {
   platinum: <IconPlatinumBadgeSVG />
 }
 
-const audioTierMapPng: { [tier in BadgeTier]: Nullable<ReactElement> } = {
+export const audioTierMapPng: {
+  [tier in BadgeTier]: Nullable<ReactElement>
+} = {
   none: null,
   bronze: <img alt='' src={IconBronzeBadge} />,
   silver: <img alt='' src={IconSilverBadge} />,
@@ -44,16 +46,7 @@ const UserBadges: React.FC<UserBadgesProps> = ({
   className,
   useSVGTiers = false
 }) => {
-  // Getting reselect selectors w/props to play nicely with useSelector
-  // is a bit of a song-and-dance:
-  // https://react-redux.js.org/next/api/hooks#useselector-examples
-  // const tierAndVerifiedSelector = useMemo(makeGetTierAndVerifiedForUser, [])
-
-  const tierAndVerifiedSelector = useMemo(makeGetTierAndVerifiedForUser, [])
-  const { tier, isVerified } = useSelector(state => {
-    return tierAndVerifiedSelector(state, { userId })
-  })
-
+  const { tier, isVerified } = useSelectTierInfo(userId)
   const tierMap = useSVGTiers ? audioTierMapSVG : audioTierMapPng
   const audioBadge = tierMap[tier]
 
