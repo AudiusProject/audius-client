@@ -2,7 +2,11 @@ import React, { ReactElement, useCallback, useMemo } from 'react'
 import cn from 'classnames'
 
 import styles from './Tiers.module.css'
-import { BadgeTier, badgeTiers } from 'containers/user-badges/utils'
+import {
+  BadgeTier,
+  badgeTiers,
+  getTierNumber
+} from 'containers/user-badges/utils'
 import { BadgeTierText } from 'containers/user-badges/ProfilePageBadge'
 import { useSelector } from 'utils/reducer'
 import { useSelectTierInfo } from 'containers/user-badges/hooks'
@@ -18,6 +22,8 @@ import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { useDispatch } from 'react-redux'
 import { setVisibility } from 'store/application/ui/modals/slice'
 import { pressDiscord } from 'store/token-dashboard/slice'
+import MusicConfetti from 'components/background-animations/MusicConfetti'
+import { show } from 'containers/music-confetti/store/slice'
 
 const messages = {
   title: '$AUDIO VIP TIERS',
@@ -48,6 +54,30 @@ export const audioTierMapPng: {
   silver: <img alt='' src={IconSilverBadge} />,
   gold: <img alt='' src={IconGoldBadge} />,
   platinum: <img alt='' src={IconPlatinumBadge} />
+}
+
+const BADGE_LOCAL_STORAGE_KEY = 'last_badge_tier'
+
+const useShowConfetti = (tier: BadgeTier) => {
+  // No tier or no local storage, never show confetti
+  if (tier === 'none' || !window.localStorage) return false
+
+  const lastBadge = window.localStorage.getItem(BADGE_LOCAL_STORAGE_KEY) as
+    | BadgeTier
+    | undefined
+
+  // set last tier
+  window.localStorage.setItem(BADGE_LOCAL_STORAGE_KEY, tier)
+
+  // if we just got our first tier, always show confetti
+  if (!lastBadge) return true
+
+  const [oldTierNum, newTierNum] = [
+    getTierNumber(lastBadge),
+    getTierNumber(tier)
+  ]
+
+  return newTierNum > oldTierNum
 }
 
 /** Renders out the level # associated with a given tier */
@@ -167,6 +197,11 @@ const Tiers = () => {
   const onClickExplainMore = useCallback(() => {
     dispatch(setVisibility({ modal: 'TiersExplainer', visible: true }))
   }, [dispatch])
+
+  const showConfetti = useShowConfetti(tier)
+  if (showConfetti) {
+    dispatch(show())
+  }
 
   return (
     <Tile className={styles.container}>
