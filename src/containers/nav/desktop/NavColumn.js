@@ -246,7 +246,7 @@ const NavColumn = ({
                 <div className={styles.name} onClick={goToProfile}>
                   {name}
                   <UserBadges
-                    userId={account.userId}
+                    userId={account.user_id}
                     badgeSize={12}
                     className={styles.badge}
                   />
