@@ -13,7 +13,7 @@ import { createSelector } from 'reselect'
 
 export type BadgeTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum'
 
-const badgeTiers: { tier: BadgeTier; minAudio: BNAudio }[] = [
+export const badgeTiers: { tier: BadgeTier; minAudio: BNAudio }[] = [
   {
     tier: 'platinum',
     minAudio: stringAudioToBN('100000' as StringAudio)
@@ -66,14 +66,19 @@ export const getWeiBalanceForUser = (
 export const makeGetTierAndVerifiedForUser = () =>
   createSelector(
     [getWeiBalanceForUser, getVerifiedForUser],
-    (wei, isVerified) => {
+    (
+      wei,
+      isVerified
+    ): { tier: BadgeTier; isVerified: boolean; tierNumber: number } => {
       const audio = stringWeiToAudioBN(wei)
 
-      const tier =
-        badgeTiers.find(t => {
-          return t.minAudio.lte(audio)
-        })?.tier ?? 'none'
+      const index = badgeTiers.findIndex(t => {
+        return t.minAudio.lte(audio)
+      })
 
-      return { tier, isVerified }
+      const tier = index === -1 ? 'none' : badgeTiers[index].tier
+      const tierNumber = index === -1 ? 0 : 4 - index
+
+      return { tier, isVerified, tierNumber }
     }
   )

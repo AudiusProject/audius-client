@@ -26,7 +26,7 @@ const ArtistProfile = props => {
             <span>{props.name}</span>
             <UserBadges
               userId={props.userId}
-              badgeSize={16}
+              badgeSize={20}
               className={styles.iconVerified}
             />
           </div>
