@@ -22,6 +22,7 @@ import { formatCount, squashNewLines } from 'utils/formatUtil'
 
 import styles from './ProfilePage.module.css'
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
+import ProfilePageBadge from 'containers/user-badges/ProfilePageBadge'
 
 const Tags = props => {
   const { tags, goToRoute } = props
@@ -208,6 +209,7 @@ const ProfileWrapping = props => {
   } else if (!props.loading) {
     leftNav = (
       <div className={styles.about}>
+        <ProfilePageBadge userId={props.userId} className={styles.badge} />
         <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
           <div className={styles.description}>{squashNewLines(props.bio)}</div>
         </Linkify>
