@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useMemo } from 'react'
+import React, { ReactElement, useCallback, useEffect, useMemo } from 'react'
 import cn from 'classnames'
 
 import styles from './Tiers.module.css'
@@ -22,7 +22,6 @@ import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { useDispatch } from 'react-redux'
 import { setVisibility } from 'store/application/ui/modals/slice'
 import { pressDiscord } from 'store/token-dashboard/slice'
-import MusicConfetti from 'components/background-animations/MusicConfetti'
 import { show } from 'containers/music-confetti/store/slice'
 
 const messages = {
@@ -199,9 +198,11 @@ const Tiers = () => {
   }, [dispatch])
 
   const showConfetti = useShowConfetti(tier)
-  if (showConfetti) {
-    dispatch(show())
-  }
+  useEffect(() => {
+    if (showConfetti) {
+      dispatch(show())
+    }
+  }, [showConfetti, dispatch])
 
   return (
     <Tile className={styles.container}>
