@@ -63,6 +63,10 @@ export const getWeiBalanceForUser = (
   return wei
 }
 
+/** Gets tier number, highest tier being badgeTiers.length, lowest being 1  */
+export const getTierNumber = (tier: BadgeTier) =>
+  badgeTiers.length - badgeTiers.findIndex(t => t.tier === tier)
+
 export const makeGetTierAndVerifiedForUser = () =>
   createSelector(
     [getWeiBalanceForUser, getVerifiedForUser],
