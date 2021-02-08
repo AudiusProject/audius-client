@@ -55,7 +55,7 @@ export const audioTierMapPng: {
   platinum: <img alt='' src={IconPlatinumBadge} />
 }
 
-const BADGE_LOCAL_STORAGE_KEY = 'last_badge_tier'
+export const BADGE_LOCAL_STORAGE_KEY = 'last_badge_tier'
 
 const useShowConfetti = (tier: BadgeTier) => {
   // No tier or no local storage, never show confetti
