@@ -702,6 +702,7 @@ type SendAudioFailure = {
   eventName: Name.SEND_AUDIO_FAILURE
   from: WalletAddress
   recipient: WalletAddress
+  error: string
 }
 
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
