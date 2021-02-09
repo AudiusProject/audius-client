@@ -20,7 +20,6 @@ import { Nullable } from 'utils/typeUtils'
 import { Tile } from './Tiles'
 import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { useDispatch } from 'react-redux'
-import { setVisibility } from 'store/application/ui/modals/slice'
 import { pressDiscord } from 'store/token-dashboard/slice'
 import { show } from 'containers/music-confetti/store/slice'
 
@@ -185,6 +184,8 @@ export const Tier = ({
   )
 }
 
+const BLOG_POST_URL = 'https://blog.audius.co/2020/12/17/how-to-delegate-audio/'
+
 /** Tile with multiple tiers */
 const Tiers = () => {
   const accountUser = useSelector(getAccountUser)
@@ -194,8 +195,8 @@ const Tiers = () => {
   const dispatch = useDispatch()
   const onClickDiscord = useCallback(() => dispatch(pressDiscord()), [dispatch])
   const onClickExplainMore = useCallback(() => {
-    dispatch(setVisibility({ modal: 'TiersExplainer', visible: true }))
-  }, [dispatch])
+    window.open(BLOG_POST_URL, '_blank')
+  }, [])
 
   const showConfetti = useShowConfetti(tier)
   useEffect(() => {
