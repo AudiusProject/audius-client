@@ -101,7 +101,7 @@
 }
 
 .unlocks {
-  color: var(--neutral-light-day-4);
+  color: var(--neutral-light-4);
   font-weight: 900;
   font-size: 16px;
   margin-bottom: 16px;
@@ -114,7 +114,7 @@
   font-weight: 600;
   font-size: 17px;
   text-transform: capitalize;
-  margin-right: auto;
+  width: 100%;
 }
 
 .tierTextContainer > * {
@@ -130,6 +130,7 @@
 .discordButton {
   background: transparent !important;
   border: 1px solid var(--neutral-light-6);
+  width: 100%;
 }
 
 .discordButton .iconDiscord {
@@ -141,10 +142,10 @@
   fill: var(--neutral);
 }
 
-.discordButtonText {
+.discordButton .discordButtonText {
   color: var(--neutral) !important;
-  font-size: 14;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .currentTier {
