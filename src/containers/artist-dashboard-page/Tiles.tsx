@@ -38,7 +38,7 @@ const messages = {
   learnMore: 'Learn More'
 }
 
-const LEARN_MORE_URL =
+export const LEARN_MORE_URL =
   'https://audiusproject.medium.com/community-meet-audio-cf1e1d052fd6'
 
 type TileProps = {

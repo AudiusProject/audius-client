@@ -130,6 +130,9 @@
 .discordButton {
   background: transparent !important;
   border: 1px solid var(--neutral-light-6);
+}
+
+.updateRole {
   width: 100%;
 }
 

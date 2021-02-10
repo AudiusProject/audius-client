@@ -17,7 +17,7 @@ import IconSilverBadge from 'assets/img/tokenBadgeSilver108@2x.png'
 import IconGoldBadge from 'assets/img/tokenBadgeGold108@2x.png'
 import IconPlatinumBadge from 'assets/img/tokenBadgePlatinum108@2x.png'
 import { Nullable } from 'utils/typeUtils'
-import { Tile } from './Tiles'
+import { LEARN_MORE_URL, Tile } from './Tiles'
 import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { useDispatch } from 'react-redux'
 import { pressDiscord } from 'store/token-dashboard/slice'
@@ -166,7 +166,7 @@ export const Tier = ({
                   text={messages.updateRole}
                   type={ButtonType.GLASS}
                   leftIcon={<IconDiscord className={styles.iconDiscord} />}
-                  className={styles.discordButton}
+                  className={cn(styles.discordButton, styles.updateRole)}
                   textClassName={styles.discordButtonText}
                   onClick={onClickDiscord}
                 />
@@ -184,8 +184,6 @@ export const Tier = ({
   )
 }
 
-const BLOG_POST_URL = 'https://blog.audius.co/2020/12/17/how-to-delegate-audio/'
-
 /** Tile with multiple tiers */
 const Tiers = () => {
   const accountUser = useSelector(getAccountUser)
@@ -195,7 +193,7 @@ const Tiers = () => {
   const dispatch = useDispatch()
   const onClickDiscord = useCallback(() => dispatch(pressDiscord()), [dispatch])
   const onClickExplainMore = useCallback(() => {
-    window.open(BLOG_POST_URL, '_blank')
+    window.open(LEARN_MORE_URL, '_blank')
   }, [])
 
   const showConfetti = useShowConfetti(tier)
