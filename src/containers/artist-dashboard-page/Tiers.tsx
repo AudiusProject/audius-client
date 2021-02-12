@@ -17,10 +17,9 @@ import IconSilverBadge from 'assets/img/tokenBadgeSilver108@2x.png'
 import IconGoldBadge from 'assets/img/tokenBadgeGold108@2x.png'
 import IconPlatinumBadge from 'assets/img/tokenBadgePlatinum108@2x.png'
 import { Nullable } from 'utils/typeUtils'
-import { Tile } from './Tiles'
+import { LEARN_MORE_URL, Tile } from './Tiles'
 import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { useDispatch } from 'react-redux'
-import { setVisibility } from 'store/application/ui/modals/slice'
 import { pressDiscord } from 'store/token-dashboard/slice'
 import { show } from 'containers/music-confetti/store/slice'
 
@@ -167,7 +166,7 @@ export const Tier = ({
                   text={messages.updateRole}
                   type={ButtonType.GLASS}
                   leftIcon={<IconDiscord className={styles.iconDiscord} />}
-                  className={styles.discordButton}
+                  className={cn(styles.discordButton, styles.updateRole)}
                   textClassName={styles.discordButtonText}
                   onClick={onClickDiscord}
                 />
@@ -194,8 +193,8 @@ const Tiers = () => {
   const dispatch = useDispatch()
   const onClickDiscord = useCallback(() => dispatch(pressDiscord()), [dispatch])
   const onClickExplainMore = useCallback(() => {
-    dispatch(setVisibility({ modal: 'TiersExplainer', visible: true }))
-  }, [dispatch])
+    window.open(LEARN_MORE_URL, '_blank')
+  }, [])
 
   const showConfetti = useShowConfetti(tier)
   useEffect(() => {

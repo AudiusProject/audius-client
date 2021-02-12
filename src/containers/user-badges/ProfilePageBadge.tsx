@@ -38,10 +38,7 @@ const tierGradientMap: { [tier in BadgeTier]: any } = {
     backgroundColor: 'rgba(236, 173, 11, 1)'
   },
   platinum: {
-    backgroundBlendMode: 'overlay, screen',
-    backgroundImage:
-      'linear-gradient(136.33deg, rgba(255, 255, 255, 0.24) 9.6%, rgba(255, 255, 255, 0) 95.26%), linear-gradient(135deg, #BBC3CE 4.17%, #758B9E 95.83%)',
-    backgroundColor: 'rgba(51, 204, 237, 0.5)'
+    backgroundImage: 'linear-gradient(135deg, #B3ECF9 4.17%, #57C2D7 95.83%)'
   }
 }
 
