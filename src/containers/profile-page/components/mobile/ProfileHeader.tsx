@@ -315,12 +315,17 @@ const ProfileHeader = ({
           <div className={styles.titleContainer}>
             <div className={styles.left}>
               <div className={styles.artistName}>
-                <h1>{name}</h1>
-                <UserBadges
-                  userId={userId}
-                  className={styles.iconVerified}
-                  badgeSize={12}
-                />
+                <h1>
+                  {name}
+                  &nbsp;
+                  <span className={styles.badgesSpan}>
+                    <UserBadges
+                      userId={userId}
+                      className={styles.iconVerified}
+                      badgeSize={12}
+                    />
+                  </span>
+                </h1>
               </div>
               <h2 className={styles.artistHandle}>{handle}</h2>
             </div>
