@@ -316,8 +316,7 @@ const ProfileHeader = ({
             <div className={styles.left}>
               <div className={styles.artistName}>
                 <h1>
-                  {name}
-                  &nbsp;
+                  {`${name} `}
                   <span className={styles.badgesSpan}>
                     <UserBadges
                       userId={userId}
