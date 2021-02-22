@@ -17,6 +17,7 @@ import {
   getNotificationUsers
 } from './selectors'
 import { ConnectedNotification, Notification, NotificationType } from './types'
+import { getNotifications } from './sagas'
 
 const USER_LENGTH_LIMIT = 7
 
@@ -45,6 +46,20 @@ function* watchFetchNotifications() {
   yield call(waitForBackendSetup)
   yield takeEvery(MessageType.FETCH_NOTIFICATIONS, function* () {
     yield put(notificationActions.fetchNotifications(10))
+  })
+}
+
+function* watchRefreshNotifications() {
+  yield call(waitForBackendSetup)
+  yield takeEvery(MessageType.REFRESH_NOTIFICATIONS, function* () {
+    yield call(getNotifications, true)
+    yield put(
+      notificationActions.fetchNotificationSucceeded(
+        [], // notifications
+        0, // totalUnread
+        false // hasMore
+      )
+    )
   })
 }
 
@@ -119,7 +134,8 @@ const sagas = () => {
     watchFetchNotificationsSuccess,
     watchFetchSetNotifications,
     watchFetchNotificationsFailed,
-    watchMarkAllNotificationsViewed
+    watchMarkAllNotificationsViewed,
+    watchRefreshNotifications
   ]
 }
 

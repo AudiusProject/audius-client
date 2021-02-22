@@ -35,7 +35,7 @@ import { getIsReachable } from 'store/reachability/selectors'
 import { retrieveCollections } from 'store/cache/collections/utils'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import Track from 'models/Track'
-import { IntKeys } from 'services/remote-config'
+import { getRemoteVar, IntKeys } from 'services/remote-config'
 import { remoteConfigIntDefaults } from 'services/remote-config/defaults'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
@@ -46,7 +46,7 @@ export const USER_INITIAL_LOAD_COUNT = 9
 
 // Gets the polling interval from remoteconfig
 const getPollingIntervalMs = () => {
-  const pollingInterval = 1000 // getRemoteVar(IntKeys.NOTIFICATION_POLLING_FREQ_MS)
+  const pollingInterval = getRemoteVar(IntKeys.NOTIFICATION_POLLING_FREQ_MS)
   return (
     pollingInterval ??
     (remoteConfigIntDefaults[IntKeys.NOTIFICATION_POLLING_FREQ_MS] as number)
@@ -390,7 +390,7 @@ const checkIfNotifcationsChanged = (
   )
 }
 
-function* getNotifications(isFirstFetch: boolean) {
+export function* getNotifications(isFirstFetch: boolean) {
   try {
     const isOpen = yield select(getNotificationPanelIsOpen)
     const status = yield select(getNotificationStatus)
