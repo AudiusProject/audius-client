@@ -4,6 +4,7 @@
   "description": "Automated client tests",
   "main": "index.js",
   "scripts": {
+    "test:target": "env-cmd -f .env jest --runInBand",
     "test": "env-cmd -f .env jest ../__tests__ --runInBand",
     "test:ci": "env-cmd -f .env.ci jest ../__tests__ --runInBand",
     "pings": "jest ../__ping__ --runInBand",
