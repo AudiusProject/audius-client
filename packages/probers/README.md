@@ -13,19 +13,19 @@ Note, tests are run [inBand](https://jestjs.io/docs/en/cli#runinband) b/c the te
 
 To run a test in watch mode:  
 ```
-npm run test -- <test-file-name> --watch
+npm run test:target -- <test-file-name> --watch
 ```
 
 To run a test and view its progress in a browser:
 ```
-npm run test -- <test-file-name> -- --browser
-npm run test -- <test-file-name> -- --browser --slow 2000  # Slow down operations by 2000 ms
+npm run test:target -- <test-file-name> -- --browser
+npm run test:target -- <test-file-name> -- --browser --slow 2000  # Slow down operations by 2000 ms
 ```
 
 To run a test against a specific endpoint:
 ```
-npm run test -- <test-file-name> -- --endpoint http://localhost:3000
-npm run test -- <test-file-name> -- --endpoint https://staging.audius.co
+npm run test:target -- <test-file-name> -- --endpoint http://localhost:3000
+npm run test:target -- <test-file-name> -- --endpoint https://staging.audius.co
 ```
 **IMPORTANT: Probers by default will make accounts. Don't do this against prod.**
 
@@ -33,5 +33,5 @@ Idempotency:
 
 Many tests require an account to run (e.g. uploading a track). In order to optimize execution of multiple tests, account credentials are persisted between tests and potentially re-used. To avoid this behavior and make each test run truly idempotently,
 ```
-npm run test -- <test-file-name> -- --idempotent
+npm run test:target -- <test-file-name> -- --idempotent
 ```
