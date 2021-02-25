@@ -19,7 +19,9 @@ import {
 import { ConnectedNotification, Notification, NotificationType } from './types'
 import { getNotifications } from './sagas'
 
-const USER_LENGTH_LIMIT = 7
+// The maximum number of users to fetch along with a notification,
+// which determines the number of profile pictures to show
+const USER_LENGTH_LIMIT = 8
 
 // Clear the notification badges if the user is signed in
 function* resetNotificationBadgeCount() {
