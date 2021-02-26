@@ -23,6 +23,7 @@ const PlaylistTile = memo(
     isActive,
     isDisabled,
     isDarkMode,
+    isMatrixMode,
     artwork,
     rightActions,
     header,
@@ -73,6 +74,7 @@ const PlaylistTile = memo(
             isActive={isActive}
             isDisabled={isDisabled}
             isDarkMode={isDarkMode}
+            isMatrix={isMatrixMode}
             artwork={artwork}
             rightActions={rightActions}
             header={header}
