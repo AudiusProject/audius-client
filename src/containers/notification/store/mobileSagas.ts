@@ -76,6 +76,16 @@ function* connectNotification(notification: Notification) {
     notification,
     USER_LENGTH_LIMIT
   )
+  if (
+    notification.type === NotificationType.RemixCosign ||
+    notification.type === NotificationType.RemixCreate
+  ) {
+    const { twitterHandle } = yield call(
+      AudiusBackend.getCreatorSocialHandle,
+      user.handle
+    )
+    user.twitterHandle = twitterHandle || ''
+  }
   const entity = yield select(getNotificationEntity, notification)
   const entities = yield select(getNotificationEntities, notification)
   connected.user = user

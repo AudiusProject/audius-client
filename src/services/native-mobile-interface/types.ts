@@ -72,6 +72,7 @@ export enum MessageType {
   ON_FIRST_PAGE = 'nav-on-first-page',
   NOT_ON_FIRST_PAGE = 'nav-not-on-first-page',
   GO_BACK = 'nav-go-back',
+  CHANGED_PAGE = 'nav-changed-page',
 
   // Analytics
   ANALYTICS_IDENTIFY = 'analytics-identify',
