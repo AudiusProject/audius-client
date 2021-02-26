@@ -429,7 +429,7 @@ const NowPlaying = g(
             onShare={onShare}
             onClickOverflow={onClickOverflow}
             isDarkMode={isDarkMode()}
-            isMatrix={matrix}
+            isMatrixMode={matrix}
           />
         </div>
       </div>

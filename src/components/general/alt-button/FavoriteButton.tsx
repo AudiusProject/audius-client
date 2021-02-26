@@ -14,7 +14,7 @@ import heartInactiveMatrix from 'assets/img/iconHeartInactiveMatrix@2x.png'
 
 type FavoriteButtonProps = {
   isDarkMode: boolean
-  isMatrix: boolean
+  isMatrixMode: boolean
   onClick?: (e: MouseEvent) => void
   className?: string
   wrapperClassName?: string
@@ -60,7 +60,7 @@ const iconMap = {
 
 const FavoriteButton = ({
   isDarkMode,
-  isMatrix,
+  isMatrixMode,
   className,
   wrapperClassName,
   onClick = () => {},
@@ -74,7 +74,7 @@ const FavoriteButton = ({
   const [yAnim, setYAnim] = useState(false)
 
   const icon =
-    iconMap[isMatrix ? 'matrix' : isDarkMode ? 'dark' : 'light'][
+    iconMap[isMatrixMode ? 'matrix' : isDarkMode ? 'dark' : 'light'][
       isActive ? 'active' : 'inactive'
     ][altVariant ? 'variant' : 'regular']
 

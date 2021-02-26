@@ -31,7 +31,7 @@ type ActionsBarProps = {
   onShare: () => void
   onClickOverflow: () => void
   isDarkMode: boolean
-  isMatrix: boolean
+  isMatrixMode: boolean
 }
 
 const messages = {
@@ -49,7 +49,7 @@ const ActionsBar = ({
   onShare,
   onClickOverflow,
   isDarkMode,
-  isMatrix
+  isMatrixMode
 }: ActionsBarProps) => {
   const { toast } = useContext(ToastContext)
   const handleShare = useCallback(() => {
@@ -79,7 +79,7 @@ const ActionsBar = ({
       )}
       <RepostButton
         isDarkMode={isDarkMode}
-        isMatrix={isMatrix}
+        isMatrixMode={isMatrixMode}
         isActive={hasReposted}
         isDisabled={isOwner}
         onClick={onToggleRepost}
@@ -91,7 +91,7 @@ const ActionsBar = ({
         isActive={hasFavorited}
         isDisabled={isOwner}
         isDarkMode={isDarkMode}
-        isMatrix={isMatrix}
+        isMatrixMode={isMatrixMode}
         onClick={onToggleFavorite}
         wrapperClassName={styles.icon}
         className={styles.favoriteButton}

@@ -113,7 +113,7 @@ export type DeaktopTrackTileProps = {
   isDarkMode?: boolean
 
   /** Are we in matrix mode? */
-  isMatrix: boolean
+  isMatrixMode: boolean
 
   /** The artwork for the track tile */
   artwork: ReactNode

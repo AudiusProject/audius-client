@@ -1,6 +1,5 @@
 /* global Image */
 import React, { useRef, useState, useEffect, useCallback } from 'react'
-// import styles from './MusicConfetti.module.css'
 import heartIconPrimary from 'assets/img/particles/particleHeartPrimary.svg'
 import heartIconSecondary from 'assets/img/particles/particleHeartSecondary.svg'
 import noteIconSecondary from 'assets/img/particles/particleNoteSecondary.svg'

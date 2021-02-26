@@ -9,7 +9,7 @@ import shareMatrix from 'assets/img/iconShareInactiveMatrix@2x.png'
 
 type ShareButtonProps = {
   onClick: (e: MouseEvent) => void
-  isMatrix: boolean
+  isMatrixMode: boolean
   isDarkMode: boolean
   className?: string
   stopPropagation?: boolean
@@ -25,10 +25,10 @@ const ShareButton = ({
   onClick,
   isDarkMode,
   className,
-  isMatrix,
+  isMatrixMode,
   stopPropagation = true
 }: ShareButtonProps) => {
-  const icon = iconMap[isMatrix ? 'matrix' : isDarkMode ? 'dark' : 'light']
+  const icon = iconMap[isMatrixMode ? 'matrix' : isDarkMode ? 'dark' : 'light']
 
   return (
     <div

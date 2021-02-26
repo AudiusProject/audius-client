@@ -202,7 +202,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                 {formatCount(props.repostCount)}
                 <RepostButton
                   iconMode
-                  isMatrix={isMatrix}
+                  isMatrixMode={isMatrix}
                   isDarkMode={darkMode}
                   className={styles.repostButton}
                 />
@@ -219,7 +219,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                 <FavoriteButton
                   iconMode
                   isDarkMode={darkMode}
-                  isMatrix={isMatrix}
+                  isMatrixMode={isMatrix}
                   className={styles.favoriteButton}
                 />
               </div>
@@ -237,8 +237,8 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
           onShare={onClickShare}
           onClickOverflow={onClickOverflowMenu}
           isOwner={props.isOwner}
-          darkMode={darkMode}
-          isMatrix={isMatrix}
+          isDarkMode={darkMode}
+          isMatrixMode={isMatrix}
         />
       </div>
     </div>

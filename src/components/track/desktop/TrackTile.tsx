@@ -49,7 +49,7 @@ const TrackTile = memo(
     stats,
     bottomBar,
     isDarkMode,
-    isMatrix,
+    isMatrixMode,
     showIconButtons = true,
     containerClassName,
     onClickTitle,
@@ -166,7 +166,7 @@ const TrackTile = memo(
                       isActive={isReposted}
                       isDisabled={isOwner}
                       isDarkMode={!!isDarkMode}
-                      isMatrix={isMatrix}
+                      isMatrixMode={isMatrixMode}
                       wrapperClassName={styles.iconButton}
                     />
                   </div>
@@ -186,7 +186,7 @@ const TrackTile = memo(
                       isActive={isFavorited}
                       isDisabled={isOwner}
                       isDarkMode={!!isDarkMode}
-                      isMatrix={isMatrix}
+                      isMatrixMode={isMatrixMode}
                       wrapperClassName={styles.iconButton}
                     />
                   </div>
@@ -215,7 +215,7 @@ const TrackTile = memo(
                           isDarkMode={!!isDarkMode}
                           className={styles.iconButton}
                           stopPropagation={false}
-                          isMatrix={isMatrix}
+                          isMatrixMode={isMatrixMode}
                         />
                       </div>
                     </Toast>

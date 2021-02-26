@@ -14,7 +14,7 @@ import repostInactiveMatrix from 'assets/img/iconRepostInactiveMatrix@2x.png'
 
 type RepostButtonProps = {
   isDarkMode: boolean
-  isMatrix: boolean
+  isMatrixMode: boolean
   onClick?: (e: MouseEvent) => void
   className?: string
   wrapperClassName?: string
@@ -60,7 +60,7 @@ const iconMap = {
 
 const RepostButton = ({
   isDarkMode,
-  isMatrix,
+  isMatrixMode,
   className,
   wrapperClassName,
   onClick = () => {},
@@ -71,7 +71,7 @@ const RepostButton = ({
   altVariant = false
 }: RepostButtonProps) => {
   const icon =
-    iconMap[isMatrix ? 'matrix' : isDarkMode ? 'dark' : 'light'][
+    iconMap[isMatrixMode ? 'matrix' : isDarkMode ? 'dark' : 'light'][
       isActive ? 'active' : 'inactive'
     ][altVariant ? 'variant' : 'regular']
   const [isSpinning, setIsSpinning] = useState(false)

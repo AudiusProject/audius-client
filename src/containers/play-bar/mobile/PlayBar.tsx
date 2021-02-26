@@ -128,7 +128,7 @@ const PlayBar = ({
           <FavoriteButton
             onClick={toggleFavorite}
             isDarkMode={isDarkMode()}
-            isMatrix={isMatrix()}
+            isMatrixMode={isMatrix()}
             isActive={has_current_user_saved}
             className={styles.favorite}
           />

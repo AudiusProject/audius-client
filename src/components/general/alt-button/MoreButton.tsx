@@ -10,7 +10,7 @@ import moreMatrix from 'assets/img/iconKebabInactiveMatrix@2x.png'
 type MoreButtonProps = {
   onClick: () => void
   isDarkMode: boolean
-  isMatrix: boolean
+  isMatrixMode: boolean
   className?: string
   stopPropagation?: boolean
 }
@@ -24,11 +24,11 @@ const iconMap = {
 const MoreButton = ({
   onClick,
   isDarkMode,
-  isMatrix,
+  isMatrixMode,
   className,
   stopPropagation = true
 }: MoreButtonProps) => {
-  const icon = iconMap[isMatrix ? 'matrix' : isDarkMode ? 'dark' : 'light']
+  const icon = iconMap[isMatrixMode ? 'matrix' : isDarkMode ? 'dark' : 'light']
 
   return (
     <div
