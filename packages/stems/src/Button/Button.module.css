@@ -114,14 +114,14 @@
 }
 
 .primaryAlt .textLabel {
-  color: var(--static-white);
+  color: var(--darkmode-static-white);
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
 }
 
 .primaryAlt .icon path, .primaryAlt .icon use {
-  fill: var(--static-white);
+  fill: var(--darkmode-static-white);
 }
 
 .primaryAlt.includeHoverAnimations:hover {
@@ -138,7 +138,7 @@
 /* Secondary Button */
 
 .secondary {
-  border: 1px solid #BD10E0;
+  border: 1px solid var(--primary-dark-1);
   border-radius: 4px;
   background: var(--white);
 }
@@ -187,8 +187,8 @@
 /* Common Button */
 
 .common {
-  border: 1px solid var(--neutral-light-6); 
-  border-radius: 4px; 
+  border: 1px solid var(--neutral-light-6);
+  border-radius: 4px;
   background: var(--white);
 }
 
@@ -244,8 +244,8 @@
 /* Common Alt Button */
 
 .commonAlt {
-  border: 1px solid var(--neutral-light-6); 
-  border-radius: 4px; 
+  border: 1px solid var(--neutral-light-6);
+  border-radius: 4px;
   background: var(--white);
 }
 
@@ -276,7 +276,7 @@
 
 .glass {
   border: 1px solid var(--white);
-  border-radius: 4px; 
+  border-radius: 4px;
   background-color: rgba(255,255,255,0.1);
 }
 
@@ -304,7 +304,7 @@
 /* Disabled Button */
 
 .disabled {
-  border-radius: 4px; 
+  border-radius: 4px;
   background-color: var(--neutral-light-7);
   cursor: default;
 }
