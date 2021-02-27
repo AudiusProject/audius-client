@@ -1,4 +1,6 @@
-.button {}
+.button {
+  background-color: var(--static-primary);
+}
 
 .button .text {
   font-size: var(--font-l);

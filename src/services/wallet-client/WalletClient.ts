@@ -19,8 +19,9 @@ class WalletClient {
 
   async getCurrentBalance(bustCache = false): Promise<BNWei> {
     try {
-      const balance = await AudiusBackend.getBalance(bustCache)
-      return balance as BNWei
+      return new BN('1000000000000000000000000') as BNWei
+      // const balance = await AudiusBackend.getBalance(bustCache)
+      // return balance as BNWei
     } catch (err) {
       console.log(err)
       return BN_ZERO
