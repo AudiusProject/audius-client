@@ -1,4 +1,5 @@
 import React, { ReactNode, useCallback } from 'react'
+import * as Sentry from '@sentry/browser'
 import cn from 'classnames'
 import 'url-search-params-polyfill'
 
@@ -122,6 +123,7 @@ const InstagramAuth = ({
       } catch (err) {
         console.log(err)
         onFailure(err.message)
+        Sentry.captureException(`Instagram getProfile failed with ${err}`)
       }
     },
     [getUserUrl, setProfileUrl, onSuccess, onFailure]
