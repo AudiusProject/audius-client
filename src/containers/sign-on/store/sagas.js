@@ -154,18 +154,11 @@ function* validateHandle(action) {
         call(AudiusBackend.twitterHandle, action.handle),
         call(getInstagramUser, action.handle)
       ])
-      console.log({ inUse, twitterUserQuery, instagramUser })
-
-      console.log({ handle: action.handle })
-      console.log({ verified })
-      console.log({ twitterUser })
-      console.log({ instagramUser })
       const handleCheckStatus = checkHandle(
         verified,
         twitterUserQuery?.user?.profile?.[0] ?? null,
         instagramUser || null
       )
-      console.log({ handleCheckStatus })
 
       if (handleCheckStatus !== 'notReserved') {
         yield put(
