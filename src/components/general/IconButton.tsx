@@ -21,15 +21,21 @@ const IconButton = ({
   icon,
   disabled = false
 }: IconButtonProps) => {
+  const handleClick = (event: React.MouseEvent) => {
+    if (!disabled && onClick) {
+      onClick(event)
+    }
+  }
+
   return (
     <div
       className={cn(
         styles.container,
         className,
         { [activeClassName || '']: isActive },
-        { [styles.diabled]: disabled }
+        { [styles.disabled]: disabled }
       )}
-      onClick={onClick || undefined}
+      onClick={handleClick}
     >
       {icon}
     </div>

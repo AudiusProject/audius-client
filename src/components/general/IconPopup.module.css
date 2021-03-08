@@ -1,0 +1,71 @@
+.fit {
+    width: fit-content;
+    height: fit-content;
+}
+
+.popup {
+    cursor: pointer;
+    user-select: none;
+    font-size: var(--font-xs);
+    background-color: var(--white);
+}
+
+.popup svg:hover {
+    border-radius: 4px;
+    background: var(--secondary) !important;
+}
+
+.popup svg:hover path {
+    fill: var(--white);
+}
+
+.popup.disabled {
+    cursor: default !important;
+}
+
+.popup.disabled path {
+    fill: var(--neutral-light-8);
+}
+
+.menu {
+    background-color: var(--white);
+    text-align: start;
+}
+
+.icon {
+    margin-right: 8px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    margin: 0 !important;
+    padding: 8px 16px !important;
+    border-radius: 4px;
+    font-size: var(--font-l) !important;
+    font-weight: var(--font-demi-bold);
+    color: var(--neutral);
+}
+
+.item svg {
+    border-radius: 100%;
+    background: var(--static-neutral-light-4);
+}
+
+.item path {
+    fill: var(--white);
+}
+
+.item:hover {
+    cursor: pointer;
+    color: var(--white);
+    background: var(--secondary) !important;
+}
+
+.item:hover svg {
+    background: var(--white) !important;
+}
+
+.item:hover path {
+    fill: var(--secondary);
+}
