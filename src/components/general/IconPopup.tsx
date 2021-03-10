@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import cn from 'classnames'
 import Popup from 'components/general/Popup'
 import styles from './IconPopup.module.css'
@@ -27,14 +27,22 @@ const IconPopup: React.FC<IconPopupProps> = ({
 }) => {
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
 
-  const handleIconClick = () => setIsPopupVisible(!isPopupVisible)
+  const handleIconClick = useCallback(
+    () => setIsPopupVisible(!isPopupVisible),
+    [isPopupVisible, setIsPopupVisible]
+  )
 
-  const handleMenuItemClick = (item: IconPopupItemProps) => () => {
-    item.onClick()
-    setIsPopupVisible(false)
-  }
+  const handleMenuItemClick = useCallback(
+    (item: IconPopupItemProps) => () => {
+      item.onClick()
+      setIsPopupVisible(false)
+    },
+    [setIsPopupVisible]
+  )
 
-  const handlePopupClose = () => setIsPopupVisible(false)
+  const handlePopupClose = useCallback(() => setIsPopupVisible(false), [
+    setIsPopupVisible
+  ])
 
   const style = {
     [styles.focused]: isPopupVisible,
