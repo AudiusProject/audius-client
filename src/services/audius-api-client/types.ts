@@ -43,6 +43,7 @@ export type APIUser = {
   cover_photo_legacy: Nullable<CID>
   profile_picture_sizes: Nullable<CID>
   profile_picture_legacy: Nullable<CID>
+  metadata_multihash: Nullable<CID>
 }
 
 export type APISearchUser = Omit<
