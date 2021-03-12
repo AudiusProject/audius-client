@@ -26,6 +26,7 @@ export type UserMetadata = {
   track_count: number
   cover_photo_sizes: Nullable<CID>
   profile_picture_sizes: Nullable<CID>
+  metadata_multihash: Nullable<CID>
 
   // Only present on the "current" account
   track_save_count?: number
