@@ -15,7 +15,7 @@ import { waitForBackendSetup } from 'store/backend/sagas'
 import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import * as confirmerActions from 'store/confirmer/actions'
-import AudiusBackend from 'services/AudiusBackend'
+import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { pollUser } from 'store/confirmer/sagas'
 import { getUserId } from 'store/account/selectors'
 import {
@@ -43,9 +43,31 @@ import { processAndCacheUsers } from 'store/cache/users/utils'
 import { getUser } from 'store/cache/users/selectors'
 import { waitForValue } from 'utils/sagaHelpers'
 import { setAudiusAccountUser } from 'services/LocalStorage'
+import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
+}
+
+function* fetchUserCustomizedCollectibles(user) {
+  const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+  const cid = user?.metadata_multihash ?? null
+  if (cid) {
+    const metadata = yield call(
+      fetchCID,
+      cid,
+      gateways,
+      /* cache */ false,
+      /* asUrl */ false
+    )
+    if (metadata?.collectibles) {
+      return metadata.collectibles
+    } else {
+      // TODO
+      console.log('something went wrong, could not get user order')
+    }
+  }
+  return {}
 }
 
 function* fetchProfileAsync(action) {
@@ -82,6 +104,7 @@ function* fetchProfileAsync(action) {
     // Fetch user socials and collections after fetching the user itself
     yield fork(fetchUserSocials, action.handle)
     yield fork(fetchUserCollections, user.user_id)
+    yield fork(fetchUserCustomizedCollectibles, user)
 
     // Get current user notification & subscription status
     const isSubscribed = yield call(
@@ -293,11 +316,17 @@ function* updateProfileAsync(action) {
 }
 
 function* confirmUpdateProfile(userId, metadata) {
+  metadata.collectibles = {
+    TOKEN_ID1: {},
+    TOKEN_ID2: {},
+    order: ['TOKEN_ID1', 'TOKEN_ID2']
+  }
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
       function* () {
         if (metadata.creator_node_endpoint) {
+          console.log(metadata)
           yield call(AudiusBackend.updateCreator, metadata, userId)
         } else {
           yield call(AudiusBackend.updateUser, metadata, userId)

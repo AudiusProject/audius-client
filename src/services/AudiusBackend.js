@@ -105,20 +105,31 @@ const combineLists = (
 
 const notDeleted = e => !e.is_delete
 
-export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
+export const fetchCID = async (
+  cid,
+  creatorNodeGateways = [],
+  cache = true,
+  asUrl = true
+) => {
   await waitForLibsInit()
   try {
-    const image = await audiusLibs.File.fetchCID(
+    const res = await audiusLibs.File.fetchCID(
       cid,
       creatorNodeGateways,
-      () => {}
+      () => {},
+      // If requesting a url (we mean a blob url for the file),
+      // otherwise, default to JSON
+      asUrl ? 'blob' : 'json'
     )
-    const url = URL.createObjectURL(image.data)
-    if (cache) CIDCache.add(cid, url)
-    return url
+    if (asUrl) {
+      const url = URL.createObjectURL(res.data)
+      if (cache) CIDCache.add(cid, url)
+      return url
+    }
+    return res?.data ?? null
   } catch (e) {
     console.error(e)
-    return ''
+    return asUrl ? '' : null
   }
 }
 
