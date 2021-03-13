@@ -106,6 +106,7 @@ const userMetadataSchema = {
   is_verified: false,
   creator_node_endpoint: null,
   updated_at: null,
+  associated_wallets: null,
   collectibles: null
 }
 
