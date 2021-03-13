@@ -1,7 +1,7 @@
 import React, { MouseEvent } from 'react'
 import cn from 'classnames'
 
-import horizontalLogo from 'assets/img/responsive/Horizontal-Logo-Full-Color-486x122@2x.png'
+import horizontalLogo from 'assets/img/responsive/Horizontal-Logo-Full-Color@2x.png'
 import { IconInstagram, IconTwitterBird, IconDiscord } from '@audius/stems'
 
 import styles from './Footer.module.css'
