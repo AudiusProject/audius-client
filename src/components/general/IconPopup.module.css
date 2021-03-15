@@ -1,0 +1,75 @@
+.fit {
+    width: fit-content;
+    height: fit-content;
+}
+
+.popup {
+    cursor: pointer;
+    user-select: none;
+    font-size: var(--font-xs);
+    background-color: var(--white);
+}
+
+.popup svg:hover {
+    border-radius: 4px;
+    background: var(--secondary);
+}
+
+.popup svg:hover path {
+    fill: var(--white);
+}
+
+.popup.disabled {
+    cursor: default;
+}
+
+.popup.disabled svg:hover {
+    background: var(--white);
+}
+
+.popup.disabled path,
+.popup.disabled svg:hover path {
+    fill: var(--neutral-light-4);
+}
+
+.menu {
+    background-color: var(--white);
+    text-align: start;
+}
+
+.icon {
+    margin-right: 8px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: var(--font-l);
+    font-weight: var(--font-demi-bold);
+    color: var(--neutral);
+}
+
+.item svg {
+    border-radius: 100%;
+    background: var(--static-neutral-light-4);
+}
+
+.item path {
+    fill: var(--white);
+}
+
+.item:hover {
+    cursor: pointer;
+    color: var(--white);
+    background: var(--secondary);
+}
+
+.item:hover svg {
+    background: var(--white);
+}
+
+.item:hover path {
+    fill: var(--secondary);
+}
