@@ -3,12 +3,11 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
 import { useTransition, animated } from 'react-spring'
-
-import useClickOutside from 'hooks/useClickOutside'
-
+import { useClickOutside } from '@audius/stems'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
-
 import styles from './Popup.module.css'
+import { iconPopupClass } from './IconPopup'
+import { findAncestor } from 'utils/domUtils'
 
 /**
  * A popup is an in-place menu that shows on top of the UI. A popup does
@@ -18,11 +17,13 @@ import styles from './Popup.module.css'
  */
 const Popup = ({
   className,
+  wrapperClassName,
   isVisible,
   animationDuration,
   onClose,
   onAfterClose,
   title,
+  noHeader,
   children
 }) => {
   const wrapper = useRef()
@@ -47,7 +48,13 @@ const Popup = ({
     }, animationDuration)
   }, [onClose, onAfterClose, animationDuration])
 
-  const ref = useClickOutside(handleClose)
+  const clickOutsideRef = useClickOutside(handleClose, target => {
+    if (target instanceof Element) {
+      const popupIconElement = findAncestor(target, `.${iconPopupClass}`)
+      return popupIconElement?.classList.contains(iconPopupClass)
+    }
+    return false
+  })
 
   const transitions = useTransition(isVisible, null, {
     from: { transform: `scale(0)`, opacity: 0, transformOrigin: 'top center' },
@@ -62,22 +69,24 @@ const Popup = ({
       <div ref={placeholder} className={cn(styles.placeholder, className)} />
       {/* Portal the actual popup out of this dom structure so that it can break out of overflows */}
       {ReactDOM.createPortal(
-        <div ref={wrapper} className={styles.wrapper}>
+        <div ref={wrapper} className={cn(styles.wrapper, wrapperClassName)}>
           {transitions.map(({ item, key, props }) =>
             item ? (
               <animated.div
                 className={cn(styles.popup, className)}
-                ref={ref}
+                ref={clickOutsideRef}
                 key={key}
                 style={props}
               >
-                <div className={styles.header}>
-                  <IconRemove
-                    className={styles.iconRemove}
-                    onClick={handleClose}
-                  />
-                  <div className={styles.title}>{title}</div>
-                </div>
+                {!noHeader && (
+                  <div className={styles.header}>
+                    <IconRemove
+                      className={styles.iconRemove}
+                      onClick={handleClose}
+                    />
+                    <div className={styles.title}>{title}</div>
+                  </div>
+                )}
                 {children}
               </animated.div>
             ) : null
