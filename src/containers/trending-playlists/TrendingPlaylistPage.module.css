@@ -1,0 +1,6 @@
+.mobileLineupContainer {
+  margin-top: 12px;
+  padding: 0px 12px;
+  min-width: 0;
+  flex: 1;
+}
