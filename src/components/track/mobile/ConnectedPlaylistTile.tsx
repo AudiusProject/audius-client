@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 import { push as pushRoute } from 'connected-react-router'
@@ -49,30 +49,19 @@ import {
 } from 'store/cache/collections/selectors'
 import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import Track from 'models/Track'
-import { withNullGuard } from 'utils/withNullGuard'
+import { getCollectionWithFallback, getUserWithFallback } from '../helpers'
 
 type ConnectedPlaylistTileProps = PlaylistTileProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
-const g = withNullGuard((props: ConnectedPlaylistTileProps) => {
-  const { user, collection } = props
-  if (user && collection) {
-    return {
-      ...props,
-      user,
-      collection
-    }
-  }
-})
-
-const ConnectedPlaylistTile = g(
+const ConnectedPlaylistTile = memo(
   ({
     uid,
     index,
     size,
-    collection,
-    user,
+    collection: nullableCollection,
+    user: nullableUser,
     tracks,
     playTrack,
     pauseTrack,
@@ -81,6 +70,7 @@ const ConnectedPlaylistTile = g(
     isPlaying,
     goToRoute,
     isLoading,
+    numLoadingSkeletonRows,
     hasLoaded,
     playingTrackId,
     uploading,
@@ -94,7 +84,9 @@ const ConnectedPlaylistTile = g(
     clickOverflow,
     currentUserId,
     darkMode
-  }) => {
+  }: ConnectedPlaylistTileProps) => {
+    const collection = getCollectionWithFallback(nullableCollection)
+    const user = getUserWithFallback(nullableUser)
     const record = useRecord()
     const isActive = useMemo(() => {
       return tracks.some(track => track.uid === playingUid)
@@ -271,6 +263,7 @@ const ConnectedPlaylistTile = g(
         hasCurrentUserReposted={collection.has_current_user_reposted}
         hasCurrentUserSaved={collection.has_current_user_saved}
         activityTimestamp={collection.activity_timestamp}
+        numLoadingSkeletonRows={numLoadingSkeletonRows}
         // Playback
         togglePlay={togglePlay}
         playTrack={playTrack}
