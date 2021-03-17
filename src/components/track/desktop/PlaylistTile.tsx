@@ -9,7 +9,7 @@ import {
 } from 'components/track/types'
 import styles from './PlaylistTile.module.css'
 
-const DefaultTileConatiner = ({ children }: { children: ReactChildren }) =>
+const DefaultTileContainer = ({ children }: { children: ReactChildren }) =>
   children
 
 const PlaylistTile = memo(
@@ -42,7 +42,7 @@ const PlaylistTile = memo(
     onClickShare,
     onTogglePlay,
     trackList,
-    TileTrackContainer = DefaultTileConatiner
+    TileTrackContainer = DefaultTileContainer
   }: PlaylistTileProps) => {
     const bar = (
       <SimpleBar
