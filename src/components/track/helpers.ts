@@ -45,6 +45,7 @@ export const getCollectionWithFallback = (collection: Collection | null) => {
       is_delete: false,
       activity_timestamp: '',
       _co_sign: undefined,
+      playlist_owner_id: -1,
       _cover_art_sizes: {
         '150x150': '',
         '480x480': '',

@@ -73,6 +73,7 @@ import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
 import Menu from 'containers/menu/Menu'
 import UserBadges from 'containers/user-badges/UserBadges'
+import { range } from 'lodash'
 
 type OwnProps = {
   uid: UID
@@ -87,6 +88,7 @@ type OwnProps = {
   isUploading?: boolean
   isLoading: boolean
   hasLoaded: (index: number) => void
+  numLoadingSkeletonRows?: number
 }
 
 type ConnectedPlaylistTileProps = OwnProps &
@@ -113,6 +115,7 @@ const ConnectedPlaylistTile = memo(
     record,
     playingTrackId,
     isLoading,
+    numLoadingSkeletonRows,
     isUploading,
     hasLoaded,
     setRepostUsers,
@@ -376,7 +379,29 @@ const ConnectedPlaylistTile = memo(
     )
 
     const renderTrackList = useCallback(() => {
-      return tracks.map((track: any, i: number) => (
+      const showSkeletons = !!(
+        !tracks.length &&
+        isLoading &&
+        numLoadingSkeletonRows
+      )
+      if (showSkeletons) {
+        return range(numLoadingSkeletonRows as number).map(i => (
+          <TrackListItem
+            index={i}
+            key={i}
+            isLoading={true}
+            forceSkeleton
+            active={false}
+            size={size}
+            disableActions={disableActions}
+            playing={isPlaying}
+            togglePlay={togglePlay}
+            goToRoute={goToRoute}
+            artistHandle={handle}
+          />
+        ))
+      }
+      return tracks.map((track, i) => (
         <Draggable
           key={`${track.title}+${i}`}
           text={track.title}
@@ -410,7 +435,8 @@ const ConnectedPlaylistTile = memo(
       isPlaying,
       togglePlay,
       goToRoute,
-      handle
+      handle,
+      numLoadingSkeletonRows
     ])
 
     const artwork = renderImage()
@@ -436,6 +462,7 @@ const ConnectedPlaylistTile = memo(
         isReposted={isReposted}
         isOwner={isOwner}
         isLoading={isLoading}
+        numLoadingSkeletonRows={numLoadingSkeletonRows}
         isDarkMode={isDarkMode()}
         isMatrixMode={isMatrix()}
         isActive={isActive}

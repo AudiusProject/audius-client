@@ -3,7 +3,7 @@ import cn from 'classnames'
 import styles from './TrackTile.module.css'
 import {
   TrackTileSize,
-  DeaktopTrackTileProps as TrackTileProps
+  DesktopTrackTileProps as TrackTileProps
 } from '../types'
 
 import FavoriteButton from 'components/general/alt-button/FavoriteButton'
