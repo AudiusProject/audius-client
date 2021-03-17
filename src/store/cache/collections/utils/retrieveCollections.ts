@@ -5,7 +5,7 @@ import { getCollections } from 'store/cache/collections/selectors'
 import { retrieve } from 'store/cache/sagas'
 import { getEntryTimestamp } from 'store/cache/selectors'
 import AudiusBackend from 'services/AudiusBackend'
-import Collection, { UserCollection } from 'models/Collection'
+import { CollectionMetadata, UserCollectionMetadata } from 'models/Collection'
 import { reformat } from './reformat'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import { addUsersFromCollections } from './addUsersFromCollections'
@@ -13,10 +13,11 @@ import { makeUid } from 'utils/uid'
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { getUserId } from 'store/account/selectors'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import Track from 'models/Track'
 
 function* markCollectionDeleted(
-  collectionMetadatas: Collection[]
-): Generator<any, Collection[], any> {
+  collectionMetadatas: CollectionMetadata[]
+): Generator<any, CollectionMetadata[], any> {
   const collections = yield select(getCollections, {
     ids: collectionMetadatas.map(c => c.playlist_id)
   })
@@ -30,7 +31,7 @@ function* markCollectionDeleted(
 }
 
 export function* retrieveTracksForCollections(
-  collections: Collection[],
+  collections: CollectionMetadata[],
   excludedTrackIdSet: Set<ID>
 ) {
   const allTrackIds = collections.reduce((acc, cur) => {
@@ -40,7 +41,9 @@ export function* retrieveTracksForCollections(
   const filteredTrackIds = [
     ...new Set(allTrackIds.filter(id => !excludedTrackIdSet.has(id)))
   ]
-  const tracks = yield call(retrieveTracks, { trackIds: filteredTrackIds })
+  const tracks: Track[] = yield call(retrieveTracks, {
+    trackIds: filteredTrackIds
+  })
 
   // If any tracks failed to be retrieved for some reason,
   // remove them from their collection.
@@ -77,8 +80,8 @@ export function* retrieveTracksForCollections(
  * @param playlistId
  */
 function* retrieveCollection(playlistId: ID) {
-  const userId = yield select(getUserId)
-  const playlists = yield apiClient.getPlaylist({
+  const userId: ReturnType<typeof getUserId> = yield select(getUserId)
+  const playlists: UserCollectionMetadata[] = yield apiClient.getPlaylist({
     playlistId,
     currentUserId: userId
   })
@@ -93,21 +96,23 @@ export function* retrieveCollections(
   const { entries, uids } = yield call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
-      return yield select(getCollections, { ids })
+      const res: ReturnType<typeof getCollections> = yield select(
+        getCollections,
+        { ids }
+      )
+      return res
     },
     getEntriesTimestamp: function* (ids: ID[]) {
-      const selected = yield select(
-        (state: AppState, ids) =>
-          ids.reduce((acc, id) => {
-            acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
-            return acc
-          }, {} as { [id: number]: number | null }),
-        ids
-      )
+      const selector = (state: AppState, ids: ID[]) =>
+        ids.reduce((acc, id) => {
+          acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
+          return acc
+        }, {} as { [id: number]: number | null })
+      const selected: ReturnType<typeof selector> = yield select(selector, ids)
       return selected
     },
     retrieveFromSource: function* (ids: ID[]) {
-      let metadatas: UserCollection[]
+      let metadatas: UserCollectionMetadata[]
 
       if (ids.length === 1) {
         metadatas = yield call(retrieveCollection, ids[0])
@@ -117,14 +122,14 @@ export function* retrieveCollections(
       }
 
       // Process any local deletions on the client
-      const metadatasWithDeleted: UserCollection[] = yield call(
+      const metadatasWithDeleted: UserCollectionMetadata[] = yield call(
         markCollectionDeleted,
         metadatas
       )
 
       return metadatasWithDeleted
     },
-    onBeforeAddToCache: function* (metadatas: UserCollection[]) {
+    onBeforeAddToCache: function* (metadatas: UserCollectionMetadata[]) {
       yield addUsersFromCollections(metadatas)
       yield addTracksFromCollections(metadatas)
 

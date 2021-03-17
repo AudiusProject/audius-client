@@ -66,6 +66,7 @@ import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import ServiceSelectionReducer from 'containers/service-selection/store/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import modals from 'store/application/ui/modals/slice'
+import trendingPlaylistsReducer from 'containers/trending-playlists/store/slice'
 
 import wallet from 'store/wallet/slice'
 
@@ -141,6 +142,7 @@ export type AppState = {
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
       tokenDashboard: ReturnType<typeof tokenDashboard>
+      trendingPlaylists: ReturnType<typeof trendingPlaylistsReducer>
     }
   }
 

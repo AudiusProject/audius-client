@@ -118,6 +118,8 @@
   display: flex;
   align-items: center;
   position: relative;
+  min-height: 20px;
+  min-width: 90px;
 }
 
 .title:active {
@@ -137,6 +139,7 @@
   flex-wrap: nowrap;
   align-items: center;
   position: relative;
+  min-height: 20px;
 }
 
 .artist:active {
@@ -253,7 +256,7 @@
 }
 
 .hide {
-  opacity: 0;
+  opacity: 0 !important;
 }
 
 .show {

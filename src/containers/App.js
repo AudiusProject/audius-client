@@ -56,7 +56,8 @@ import {
   APP_REDIRECT,
   TRACK_ID_PAGE,
   USER_ID_PAGE,
-  PLAYLIST_ID_PAGE
+  PLAYLIST_ID_PAGE,
+  TRENDING_PLAYLISTS_PAGE
 } from 'utils/route'
 import 'utils/redirect'
 import { isMobile, getClient } from 'utils/clientUtil'
@@ -146,6 +147,7 @@ import Notice from './notice/Notice'
 import SignOn from 'containers/sign-on/SignOn'
 import EnablePushNotificationsDrawer from './enable-push-notifications-drawer/EnablePushNotificationsDrawer'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
+import TrendingPlaylistsPage from 'containers/trending-playlists/TrendingPlaylistPage'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -567,6 +569,15 @@ class App extends Component {
                 render={() => (
                   <Discover
                     feedIsMain={false}
+                    containerRef={this.state.mainContent}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path={TRENDING_PLAYLISTS_PAGE}
+                render={() => (
+                  <TrendingPlaylistsPage
                     containerRef={this.state.mainContent}
                   />
                 )}
