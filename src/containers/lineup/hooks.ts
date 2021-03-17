@@ -11,7 +11,7 @@ import { isMobile } from 'utils/clientUtil'
 
 type LineupActions = any
 
-type UseLineupProps = {
+type useLineupPropsProps = {
   getLineupSelector: (state: AppState) => LineupState<{}>
   actions: LineupActions
   variant?: LineupVariant
@@ -24,13 +24,13 @@ type UseLineupProps = {
  * Requires at least a selector and actions
  * See example usage in `TrendingPlaylistPage`
  * */
-export const useLineup = ({
+export const useLineupProps = ({
   getLineupSelector,
   actions,
   variant,
   numPlaylistSkeletonRows,
   scrollParent
-}: UseLineupProps) => {
+}: useLineupPropsProps) => {
   const dispatch = useDispatch()
 
   // Create memoized selectors

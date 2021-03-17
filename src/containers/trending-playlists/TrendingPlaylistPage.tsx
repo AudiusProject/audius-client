@@ -10,7 +10,7 @@ import MobilePageContainer from 'components/general/MobilePageContainer'
 import { isMobile } from 'utils/clientUtil'
 import styles from './TrendingPlaylistPage.module.css'
 import { BASE_URL, TRENDING_PLAYLISTS_PAGE } from 'utils/route'
-import { useLineup } from 'containers/lineup/hooks'
+import { useLineupProps } from 'containers/lineup/hooks'
 import { useMobileHeader } from 'components/general/header/mobile/hooks'
 
 const messages = {
@@ -18,9 +18,9 @@ const messages = {
   description: 'Trending Playlists on Audius'
 }
 
-/** Wraps useLineup to return trending playlist lineup props */
+/** Wraps useLineupProps to return trending playlist lineup props */
 const useTrendingPlaylistLineup = (containerRef: HTMLElement) => {
-  return useLineup({
+  return useLineupProps({
     actions: trendingPlaylistLineupActions,
     getLineupSelector: getLineup,
     variant: LineupVariant.PLAYLIST,
