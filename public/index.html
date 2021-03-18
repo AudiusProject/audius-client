@@ -162,7 +162,11 @@
       const fetchBItems = async () => {
         const bItemsUrl = '%REACT_APP_B_ITEMS_URL%'
         if (bItemsUrl) {
-          window.bItems = new Set((await (await fetch(bItemsUrl)).json()).i)
+          try {
+            window.bItems = new Set((await (await fetch(bItemsUrl)).json()).i)
+          } catch (e) {
+            window.bItems = new Set()
+          }
         }
         window.dispatchEvent(new CustomEvent('B_ITEMS_LOADED'))
       }
