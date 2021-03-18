@@ -20,6 +20,7 @@ import { getDominantColor } from '../util/image/dominantColor'
 import { shadeColor } from '../util/shadeColor'
 import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
 import { CardContextProvider } from './card/Card'
+import { isBItem } from '../util/bitems'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -93,6 +94,7 @@ const getRequestDataFromURL = () => {
 const App = () => {
   const [didError, setDidError] = useState(false) // General errors
   const [did404, setDid404] = useState(false) // 404s indicate content was deleted
+  const [isBlocked, setIsBlocked] = useState(false) // Whether or not the content was blocked
   const [requestState, setRequestState] = useState(null) // Parsed request state
   const [isRetrying, setIsRetrying] = useState(false) // Currently retrying?
 
@@ -126,6 +128,10 @@ const App = () => {
         const track = await getTrack(request.id, request.ownerId)
         if (!track) {
           setDid404(true)
+          setTracksResponse(null)
+        } else if (isBItem(track.id)) {
+          setDid404(true)
+          setIsBlocked(true)
           setTracksResponse(null)
         } else {
           setDid404(false)
@@ -216,6 +222,7 @@ const App = () => {
       return (
         <DeletedContent
           flavor={requestState.playerFlavor}
+          isBlocked={isBlocked}
         />
       )
     }

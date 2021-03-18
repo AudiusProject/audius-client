@@ -11,13 +11,14 @@ import { PlayerFlavor } from '../app'
 
 const messages = {
   mainLabel: 'This content was removed by the creator.',
+  deleted: 'Deleted',
   subLabel1: 'Unlimited Uploads.',
   subLabel2: '320kbps Streaming.',
   subLabel3: '100% Free.',
   buttonLabel: 'Find more on'
 }
 
-const DeletedContent = ({ flavor }) => {
+const DeletedContent = ({ flavor, isBlocked }) => {
   const onClickFindMore = () => {
     window.open(getCopyableLink(), '_blank')
   }
@@ -25,7 +26,7 @@ const DeletedContent = ({ flavor }) => {
   const isCard = flavor === PlayerFlavor.CARD
   const isTiny = flavor === PlayerFlavor.TINY
   if (isTiny) {
-    return <DeletedContentTiny onClick={onClickFindMore} />
+    return <DeletedContentTiny onClick={onClickFindMore} isBlocked={isBlocked} />
   }
 
   return (
@@ -40,7 +41,7 @@ const DeletedContent = ({ flavor }) => {
         />
       }
       <div className={styles.label}>
-        {messages.mainLabel}
+        {isBlocked ? messages.deleted : messages.mainLabel}
       </div>
       {
         isCard &&

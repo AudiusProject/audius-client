@@ -8,11 +8,13 @@ import { getCopyableLink } from '../../util/shareUtil'
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 
 const messages = {
-  deleted: 'Track Deleted By Artist'
+  deletedBy: 'Track Deleted By Artist',
+  deleted: 'Deleted'
 }
 
 const DeletedContentTiny = ({
-  onClick
+  onClick,
+  isBlocked
 }) => {
   return (
     <div className={styles.wrapper}>
@@ -25,7 +27,7 @@ const DeletedContentTiny = ({
         onClick={onClick}
       >
         <div className={styles.info}>
-          {messages.deleted}
+          {isBlocked ? messages.deleted : messages.deletedBy}
         </div>
         <AudiusLogoGlyph
           className={styles.logo}

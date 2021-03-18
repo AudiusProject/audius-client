@@ -22,6 +22,20 @@
     </script>
     <!-- end Google Analytics -->
 
+    <!-- start bItems -->
+    <script type="text/javascript">
+      const fetchBItems = async () => {
+        const bItemsUrl = 'https://bitems.audius.co'
+        try {
+          window.bItems = new Set((await (await fetch(bItemsUrl)).json()).i)
+        } catch (e) {
+          window.bItems = new Set()
+        }
+      }
+      fetchBItems()
+    </script>
+    <!-- end bItems -->
+
     <!-- start Segment -->
     <script async type="text/javascript">
       try {

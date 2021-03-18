@@ -12,6 +12,7 @@ import Card from '../card/Card'
 import IconVerified from '../../assets/img/iconVerified.svg'
 
 import styles from './CollectionPlayerCard.module.css'
+import { isBItem } from '../../util/bitems'
 
 const CollectionListRow = ({
   playingState,
@@ -83,7 +84,6 @@ const CollectionPlayerCard = ({
   onTogglePlay,
   isTwitter
 }) => {
-
   const makeOnTogglePlay = (index) => () => onTogglePlay(index)
 
   return (
@@ -141,6 +141,7 @@ const CollectionPlayerCard = ({
             }}
           >
             {collection.tracks.map((t, i) => {
+              if (isBItem(t.id)) return null
               return (
                 <CollectionListRow
                   key={i}
