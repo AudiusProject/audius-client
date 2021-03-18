@@ -5,12 +5,12 @@ import { useSpring, useTransition, animated } from 'react-spring'
 import useHasViewed from 'hooks/useHasViewed'
 import useCardWeight from 'hooks/useCardWeight'
 
-import artistBlau from 'assets/img/responsive/artist-blau@2x.jpg'
-import artistDeadmau5 from 'assets/img/responsive/artist-deadmau5@2x.jpg'
-import artistMrCarmack from 'assets/img/responsive/artist-mrcarmack@2x.jpg'
-import artistRezz from 'assets/img/responsive/artist-rezz@2x.jpg'
-import artistStaffordsBros from 'assets/img/responsive/artist-staffordbros@2x.jpg'
-import dots2x from 'assets/img/responsive/dots@2x.jpg'
+import artistBlau from 'assets/img/publicSite/artist-blau@2x.jpg'
+import artistDeadmau5 from 'assets/img/publicSite/artist-deadmau5@2x.jpg'
+import artistMrCarmack from 'assets/img/publicSite/artist-mrcarmack@2x.jpg'
+import artistRezz from 'assets/img/publicSite/artist-rezz@2x.jpg'
+import artistStaffordsBros from 'assets/img/publicSite/artist-staffordbros@2x.jpg'
+import dots2x from 'assets/img/publicSite/dots@2x.jpg'
 
 const messages = {
   title: 'Built With The Best',

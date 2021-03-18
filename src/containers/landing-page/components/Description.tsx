@@ -3,10 +3,10 @@ import { useChain, useSpring, useTrail, animated } from 'react-spring'
 import cn from 'classnames'
 import styles from './Description.module.css'
 
-import productShot1x from 'assets/img/responsive/product-shot@1x.png'
-import productShot2x from 'assets/img/responsive/product-shot@2x.png'
-import dotsLogo1x from 'assets/img/responsive/dot-logo@1x.jpg'
-import dotsLogo2x from 'assets/img/responsive/dot-logo@2x.jpg'
+import productShot1x from 'assets/img/publicSite/product-shot@1x.png'
+import productShot2x from 'assets/img/publicSite/product-shot@2x.png'
+import dotsLogo1x from 'assets/img/publicSite/dot-logo@1x.jpg'
+import dotsLogo2x from 'assets/img/publicSite/dot-logo@2x.jpg'
 
 const messages = {
   title1: 'We Give Everyone the',

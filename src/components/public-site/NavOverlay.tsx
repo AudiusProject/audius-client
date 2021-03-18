@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import cn from 'classnames'
 
-import HorizontalLogo from 'assets/img/responsive/Horizontal-Logo-Full-Color@2x.png'
-import HeroBackground from 'assets/img/responsive/Hero-Background@2x.jpg'
+import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
+import HeroBackground from 'assets/img/publicSite/Hero-Background@2x.jpg'
 
 import {
   IconRemove,

@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
 
-import podcastImage2x from 'assets/img/responsive/podcast@2x.jpg'
-import cypherImage2x from 'assets/img/responsive/cypher@2x.jpg'
+import podcastImage2x from 'assets/img/publicSite/podcast@2x.jpg'
+import cypherImage2x from 'assets/img/publicSite/cypher@2x.jpg'
 
 import useHasViewed from 'hooks/useHasViewed'
 import useCardWeight from 'hooks/useCardWeight'
