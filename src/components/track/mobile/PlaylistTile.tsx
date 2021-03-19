@@ -16,6 +16,7 @@ import RepostButton from 'components/general/alt-button/RepostButton'
 import { LineupTrack } from 'models/Track'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { range } from 'lodash'
+import { RankIcon } from './TrackTile'
 
 type TrackItemProps = {
   index: number
@@ -120,7 +121,14 @@ type ExtraProps = {
 }
 
 const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
-  const { hasLoaded, index, showSkeleton, numLoadingSkeletonRows } = props
+  const {
+    hasLoaded,
+    index,
+    showSkeleton,
+    numLoadingSkeletonRows,
+    isTrending,
+    showRankIcon
+  } = props
   const [artworkLoaded, setArtworkLoaded] = useState(false)
   useEffect(() => {
     if (artworkLoaded && !showSkeleton) {
@@ -185,6 +193,12 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
           </div>
         </div>
         <div className={cn(styles.stats, styles.statText)}>
+          <RankIcon
+            className={styles.rankIcon}
+            index={index}
+            isVisible={isTrending && shouldShow}
+            showCrown={showRankIcon}
+          />
           {!!(props.repostCount || props.saveCount) && (
             <>
               <div
