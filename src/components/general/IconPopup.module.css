@@ -1,6 +1,15 @@
+.fitWrapper {
+    width: fit-content;
+    height: fit-content;
+    box-shadow: 0 16px 20px var(--table-shadow);
+}
+
 .fit {
     width: fit-content;
     height: fit-content;
+    box-shadow: 0 16px 20px var(--table-shadow);
+    border: 1px solid var(--neutral-light-7);
+    border-radius: 8px;
 }
 
 .popup {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import cn from 'classnames'
 import Popup from 'components/general/Popup'
 import styles from './IconPopup.module.css'
@@ -17,14 +17,24 @@ type IconPopupProps = {
   menu: { items: IconPopupItemProps[] }
   disabled: boolean
   title?: string
+  position?:
+    | 'topLeft'
+    | 'topCenter'
+    | 'topRight'
+    | 'bottomLeft'
+    | 'bottomCenter'
+    | 'bottomRight'
 }
 
 const IconPopup: React.FC<IconPopupProps> = ({
   icon,
   menu,
   disabled,
-  title
+  title,
+  position
 }) => {
+  const ref = useRef<any>()
+
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
 
   const handleIconClick = useCallback(
@@ -52,6 +62,7 @@ const IconPopup: React.FC<IconPopupProps> = ({
   return (
     <div className={cn(styles.popup, style)}>
       <IconButton
+        ref={ref}
         className={cn(styles.icon, iconPopupClass)}
         icon={icon}
         disabled={disabled}
@@ -59,10 +70,12 @@ const IconPopup: React.FC<IconPopupProps> = ({
       />
 
       <Popup
+        triggerRef={ref}
         className={styles.fit}
-        wrapperClassName={styles.fit}
+        wrapperClassName={styles.fitWrapper}
         isVisible={isPopupVisible}
         onClose={handlePopupClose}
+        position={position}
         title={title || ''}
         noHeader={!title}
       >

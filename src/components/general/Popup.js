@@ -24,6 +24,8 @@ const Popup = ({
   onAfterClose,
   title,
   noHeader,
+  triggerRef,
+  position = 'bottomCenter',
   children
 }) => {
   const wrapper = useRef()
@@ -34,12 +36,57 @@ const Popup = ({
       // When the popup becomes visible, set the position based on the placeholder
       const rect = placeholder.current.getBoundingClientRect()
       const wrapperRect = wrapper.current.getBoundingClientRect()
-      wrapper.current.style.left = `${
-        rect.x - wrapperRect.width / 2 + rect.width / 2
-      }px`
-      wrapper.current.style.top = `${rect.y}px`
+      const triggerRect = triggerRef.current.getBoundingClientRect()
+
+      if (!triggerRef) {
+        wrapper.current.style.left = `${
+          rect.x - wrapperRect.width / 2 + rect.width / 2
+        }px`
+        wrapper.current.style.top = `${rect.y}px`
+      } else {
+        switch (position) {
+          case 'topCenter':
+            wrapper.current.style.top = `${
+              rect.y - wrapperRect.height - triggerRect.height
+            }px`
+            wrapper.current.style.left = `${
+              rect.x - wrapperRect.width / 2 + triggerRect.width / 2
+            }px`
+            break
+          case 'topRight':
+            wrapper.current.style.top = `${
+              rect.y - wrapperRect.height - triggerRect.height
+            }px`
+            wrapper.current.style.left = `${rect.x}px`
+            break
+          case 'topLeft':
+            wrapper.current.style.top = `${
+              rect.y - wrapperRect.height - triggerRect.height
+            }px`
+            wrapper.current.style.left = `${
+              rect.x - wrapperRect.width + triggerRect.width
+            }px`
+            break
+          case 'bottomRight':
+            wrapper.current.style.top = `${rect.y}px`
+            wrapper.current.style.left = `${rect.x}px`
+            break
+          case 'bottomLeft':
+            wrapper.current.style.top = `${rect.y}px`
+            wrapper.current.style.left = `${
+              rect.x - wrapperRect.width + triggerRect.width
+            }px`
+            break
+          case 'bottomCenter':
+          default:
+            wrapper.current.style.top = `${rect.y}px`
+            wrapper.current.style.left = `${
+              rect.x - wrapperRect.width / 2 + triggerRect.width / 2
+            }px`
+        }
+      }
     }
-  }, [isVisible, wrapper, placeholder])
+  }, [isVisible, wrapper, placeholder, triggerRef, position])
 
   const handleClose = useCallback(() => {
     onClose()
