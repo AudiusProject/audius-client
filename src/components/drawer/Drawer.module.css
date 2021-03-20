@@ -20,10 +20,6 @@
   height: 110vh;
 }
 
-/* .fullDrawer.isOpen {
-  border-radius: 0px 0px 0px 0px;
-} */
-
 .dismissContainer {
   position: absolute;
   top: 16px;
