@@ -283,7 +283,7 @@ const DraggableDrawer = ({
 
 const interpolateBorderRadius = (r: number) => {
   // multiply R by some constant and then clamp so that for the majority
-  // of the transition, it stays at it's intiial value
+  // of the transition, it stays at it's initial value
   const r2 = Math.max(Math.min(r * 10, 40), 0)
   return `${r2}px ${r2}px 0px 0px`
 }
