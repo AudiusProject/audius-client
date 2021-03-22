@@ -83,7 +83,9 @@ const ConnectedPlaylistTile = memo(
     setFavoritePlaylistId,
     clickOverflow,
     currentUserId,
-    darkMode
+    darkMode,
+    showRankIcon,
+    isTrending
   }: ConnectedPlaylistTileProps) => {
     const collection = getCollectionWithFallback(nullableCollection)
     const user = getUserWithFallback(nullableUser)
@@ -284,6 +286,8 @@ const ConnectedPlaylistTile = memo(
         isOwner={isOwner}
         darkMode={darkMode}
         isMatrix={isMatrix()}
+        isTrending={isTrending}
+        showRankIcon={showRankIcon}
       />
     )
   }

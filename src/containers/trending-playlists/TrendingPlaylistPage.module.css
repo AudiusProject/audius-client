@@ -4,3 +4,11 @@
   min-width: 0;
   flex: 1;
 }
+
+.bannerContainer {
+  margin-bottom: 14px;
+}
+
+.mobileBannerContainer {
+  margin: 12px 0px 8px;
+}

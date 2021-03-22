@@ -33,6 +33,8 @@ export type TileProps = {
   isLoading: boolean
   hasLoaded: (index: number) => void
   goToRoute: (route: string) => void
+  isTrending: boolean
+  showRankIcon: boolean
 }
 
 export type TrackTileProps = TileProps & {
@@ -173,6 +175,12 @@ export type DesktopTrackTileProps = {
 
   /** On click track tile that's does not trigger another action (ie. button or text) */
   onTogglePlay: (e?: MouseEvent) => void
+
+  /** Are we in a trending lineup? Allows tiles to specialize their rendering */
+  isTrending?: boolean
+
+  /** Whether to show an icon indicating rank in lineup */
+  showRankIcon: boolean
 }
 
 export type DesktopPlaylistTileProps = {
@@ -268,6 +276,12 @@ export type DesktopPlaylistTileProps = {
 
   /** The wrapper react compoenent for the track tile - can be used for drag and drop */
   TileTrackContainer?: any
+
+  /** Are we in a trending lineup? Allows tiles to specialize their rendering */
+  isTrending?: boolean
+
+  /** Whether to show an icon indicating rank in lineup */
+  showRankIcon: boolean
 }
 
 export type SkeletonTileProps = {
