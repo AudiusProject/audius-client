@@ -36,6 +36,7 @@ export const SAVED_PAGE = '/favorites'
 export const FAVORITES_PAGE = '/favorites'
 export const HISTORY_PAGE = '/history'
 export const DASHBOARD_PAGE = '/dashboard'
+export const AUDIO_PAGE = '/audio'
 export const UPLOAD_PAGE = '/upload'
 export const UPLOAD_ALBUM_PAGE = '/upload/album'
 export const UPLOAD_PLAYLIST_PAGE = '/upload/playlist'
@@ -103,6 +104,7 @@ export const orderedRoutes = [
   SAVED_PAGE,
   HISTORY_PAGE,
   DASHBOARD_PAGE,
+  AUDIO_PAGE,
   SETTINGS_PAGE,
   ACCOUNT_SETTINGS_PAGE,
   NOTIFICATION_SETTINGS_PAGE,
@@ -127,6 +129,7 @@ export const staticRoutes = new Set([
   FAVORITES_PAGE,
   HISTORY_PAGE,
   DASHBOARD_PAGE,
+  AUDIO_PAGE,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE,
