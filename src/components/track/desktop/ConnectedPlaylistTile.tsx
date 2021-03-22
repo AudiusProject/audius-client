@@ -89,6 +89,8 @@ type OwnProps = {
   isLoading: boolean
   hasLoaded: (index: number) => void
   numLoadingSkeletonRows?: number
+  isTrending: boolean
+  showRankIcon: boolean
 }
 
 type ConnectedPlaylistTileProps = OwnProps &
@@ -125,7 +127,9 @@ const ConnectedPlaylistTile = memo(
     repostCollection,
     undoRepostCollection,
     saveCollection,
-    unsaveCollection
+    unsaveCollection,
+    isTrending,
+    showRankIcon
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
@@ -445,7 +449,7 @@ const ConnectedPlaylistTile = memo(
     const userName = renderUserName()
     const trackList = renderTrackList()
 
-    const order = ordered && index ? index : undefined
+    const order = ordered && index !== undefined ? index + 1 : undefined
     const header =
       size === TrackTileSize.LARGE
         ? isAlbum
@@ -493,6 +497,8 @@ const ConnectedPlaylistTile = memo(
         tileClassName={cn(styles.trackTile)}
         tracksContainerClassName={cn(styles.tracksContainer)}
         trackList={trackList}
+        isTrending={isTrending}
+        showRankIcon={showRankIcon}
       />
     )
   }
