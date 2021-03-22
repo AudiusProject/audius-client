@@ -184,6 +184,12 @@ export interface LineupProviderProps {
   delayLoad?: boolean
   /** How many rows to show for a loading playlist tile. Defaults to 0 */
   numPlaylistSkeletonRows?: number
+
+  /** Are we in a trending lineup? Allows tiles to specialize their rendering */
+  isTrending?: boolean
+
+  /** How many icons to show for top ranked entries in the lineup. Defaults to 0, showing none */
+  rankIconCount?: number
 }
 
 interface LineupProviderState {
@@ -460,7 +466,9 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
       isMobile,
       showLeadingElementArtistPick = true,
       lineup: { isMetadataLoading, page },
-      numPlaylistSkeletonRows
+      numPlaylistSkeletonRows,
+      isTrending = false,
+      rankIconCount = 0
     } = this.props
     const status = lineup.status
     const {
@@ -508,7 +516,9 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
             uid: entry.uid,
             showArtistPick: showLeadingElementArtistPick && !!leadingElementId,
             isLoading: !this.canLoad(index),
-            hasLoaded: this.hasLoaded
+            hasLoaded: this.hasLoaded,
+            isTrending,
+            showRankIcon: index < rankIconCount
           }
           if (entry.id === leadingElementId) {
             trackProps = { ...trackProps, ...leadingElementTileProps }
@@ -523,13 +533,16 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
             index,
             uid: entry.uid,
             size: tileSize,
+            ordered,
             playTrack,
             pauseTrack,
             playingTrackId,
             togglePlay: this.togglePlay,
             isLoading: !this.canLoad(index),
             hasLoaded: this.hasLoaded,
-            numLoadingSkeletonRows: numPlaylistSkeletonRows
+            numLoadingSkeletonRows: numPlaylistSkeletonRows,
+            isTrending,
+            showRankIcon: index < rankIconCount
           }
 
           return <this.props.playlistTile key={index} {...playlistProps} />
@@ -567,6 +580,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
           size: tileSize,
           ordered: this.props.ordered,
           isLoading: true,
+          isTrending,
           numLoadingSkeletonRows: numPlaylistSkeletonRows
         }
 

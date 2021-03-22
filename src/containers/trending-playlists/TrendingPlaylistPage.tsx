@@ -12,6 +12,7 @@ import styles from './TrendingPlaylistPage.module.css'
 import { BASE_URL, TRENDING_PLAYLISTS_PAGE } from 'utils/route'
 import { useLineupProps } from 'containers/lineup/hooks'
 import { useMobileHeader } from 'components/general/header/mobile/hooks'
+import RewardsBanner from 'containers/discover-page/components/RewardsBanner'
 
 const messages = {
   trendingPlaylistTile: 'Trending Playlists',
@@ -25,7 +26,10 @@ const useTrendingPlaylistLineup = (containerRef: HTMLElement) => {
     getLineupSelector: getLineup,
     variant: LineupVariant.PLAYLIST,
     numPlaylistSkeletonRows: 5,
-    scrollParent: containerRef
+    scrollParent: containerRef,
+    rankIconCount: 5,
+    isTrending: true,
+    isOrdered: true
   })
 }
 
@@ -49,6 +53,9 @@ const DesktopTrendingPlaylistPage = ({
       size='large'
       header={header}
     >
+      <div className={styles.bannerContainer}>
+        <RewardsBanner bannerType='playlists' />
+      </div>
       <Lineup {...lineupProps} />
     </Page>
   )
@@ -69,6 +76,9 @@ const MobileTrendingPlaylistPage = ({
       hasDefaultHeader
     >
       <div className={styles.mobileLineupContainer}>
+        <div className={styles.mobileBannerContainer}>
+          <RewardsBanner bannerType='playlists' />
+        </div>
         <Lineup {...lineupProps} />
       </div>
     </MobilePageContainer>

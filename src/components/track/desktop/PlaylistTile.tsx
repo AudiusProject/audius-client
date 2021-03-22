@@ -42,6 +42,8 @@ const PlaylistTile = memo(
     onClickShare,
     onTogglePlay,
     trackList,
+    isTrending,
+    showRankIcon,
     TileTrackContainer = DefaultTileContainer
   }: PlaylistTileProps) => {
     const bar = (
@@ -90,6 +92,8 @@ const PlaylistTile = memo(
             onClickFavorite={onClickFavorite}
             onClickShare={onClickShare}
             onTogglePlay={onTogglePlay}
+            showRankIcon={showRankIcon}
+            isTrending={isTrending}
           />
         </TileTrackContainer>
         {bar}
