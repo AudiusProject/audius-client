@@ -164,7 +164,7 @@ export interface LineupProviderProps {
 
   /**
    * Whether or not to apply leading element tile props and styles to the
-   * skeleton tile rendered in its placa
+   * skeleton tile rendered in its place
    */
   applyLeadingElementStylesToSkeleton?: boolean
 

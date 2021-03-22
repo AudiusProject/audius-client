@@ -75,16 +75,12 @@ export const RankIcon = ({
   isVisible?: boolean
   className?: string
 }) => {
-  return (
-    <>
-      {isVisible && (
-        <div className={cn(styles.rankContainer, className)}>
-          {showCrown ? <IconCrown /> : <IconTrending />}
-          {index + 1}
-        </div>
-      )}
-    </>
-  )
+  return isVisible ? (
+    <div className={cn(styles.rankContainer, className)}>
+      {showCrown ? <IconCrown /> : <IconTrending />}
+      {index + 1}
+    </div>
+  ) : null
 }
 
 const TrackTile = (props: TrackTileProps & ExtraProps) => {
