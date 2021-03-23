@@ -81,7 +81,6 @@ import SomethingWrong from 'containers/something-wrong/SomethingWrong'
 import RequiresUpdate from 'containers/requires-update/RequiresUpdate'
 import PlayBarProvider from 'containers/play-bar/PlayBarProvider'
 import UploadType from 'containers/upload-page/components/uploadType'
-import Visualizer from 'containers/visualizer/Visualizer'
 import { Pages as SignOnPages } from 'containers/sign-on/store/types'
 import {
   incrementScrollCount as incrementScrollCountAction,
@@ -843,7 +842,6 @@ class App extends Component {
         {/* Non-mobile */}
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
-        {!isMobileClient && <Visualizer />}
         {!isMobileClient && <PinnedTrackConfirmation />}
 
         {/* Mobile-only */}
