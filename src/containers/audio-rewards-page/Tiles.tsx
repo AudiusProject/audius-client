@@ -36,7 +36,7 @@ export const BalanceTile = ({ className }: { className?: string }) => {
   const balance = useSelector(getAccountBalance) ?? (new BN(0) as BNWei)
 
   return (
-    <Tile className={cn([styles.balanceTile, className])}>
+    <Tile className={cn(styles.balanceTile, className)}>
       <>
         <TokenHoverTooltip balance={balance}>
           <div className={styles.balanceAmount}>{formatWei(balance, true)}</div>

@@ -120,15 +120,10 @@ export const Tier = ({
 
   return (
     <div
-      className={cn(
-        styles.tierContainerWrapper,
-        {
-          [styles.tierContainerActive]: isActive
-        },
-        {
-          [styles.compact]: isCompact
-        }
-      )}
+      className={cn(styles.tierContainerWrapper, {
+        [styles.tierContainerActive]: isActive,
+        [styles.compact]: isCompact
+      })}
     >
       {isActive && (
         <div className={styles.currentTier}>
