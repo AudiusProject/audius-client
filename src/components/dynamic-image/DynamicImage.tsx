@@ -53,7 +53,6 @@ const fadeIn = (
 
     if (image === placeholder) {
       ref.current.style.backgroundColor = 'unset'
-      // Apply an empty url here so we can use the background image prop to set a gradient
       ref.current.style.backgroundImage = `${image}`
       ref.current.style.transition = 'unset'
       ref.current.style.opacity = '1'
