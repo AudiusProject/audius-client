@@ -118,3 +118,4 @@ export { ReactComponent as PbIconShuffle } from '../assets/icons/pbIconShuffle.s
 export { ReactComponent as PbIconVolume } from '../assets/icons/pbIconVolume.svg'
 export { ReactComponent as IconTrending } from '../assets/icons/iconTrending.svg'
 export { ReactComponent as IconCampFire } from '../assets/icons/iconCampFire.svg'
+export { ReactComponent as IconCrown } from '../assets/icons/iconCrown.svg'
