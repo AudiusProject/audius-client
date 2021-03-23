@@ -65,7 +65,9 @@ const TierExplainerModal = () => {
             onClick={onClickLearnMore}
           />
         </div>
-        <Tier isCompact tier={tier} />
+        <div className={styles.tierWrapper}>
+          <Tier isCompact tier={tier} />
+        </div>
       </div>
     </Modal>
   )
