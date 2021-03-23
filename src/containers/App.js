@@ -713,7 +713,7 @@ class App extends Component {
                 isMobile={isMobileClient}
                 component={ArtistDashboardPage}
               />
-              <DesktopRoute
+              <Route
                 exact
                 path={AUDIO_PAGE}
                 isMobile={isMobileClient}

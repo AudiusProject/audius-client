@@ -4,6 +4,7 @@ import cn from 'classnames'
 import { getTheme, isDarkMode as getIsDarkMode } from 'utils/theme/theme'
 import TokenStill from 'assets/img/tokenSpinStill.png'
 import Theme from 'models/Theme'
+import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 const TOKEN_ANIMATION_URL =
   'https://d1ne8ucs302cxl.cloudfront.net/animations/spinnytoken.mp4'
@@ -12,8 +13,7 @@ const TOKEN_ANIMATION_DARK_URL =
 
 const messages = {
   whatIsAudio: 'WHAT IS $AUDIO',
-  audioDescription1: `Audius is owned by people like you, not major corporations.`,
-  audioDescription2: `Holding $AUDIO grants you partial ownership of the Audius platform and gives you access to special features as they are released.`,
+  audioDescription: `Audius is owned by people like you, not major corporations. Holding $AUDIO grants you partial ownership of the Audius platform and gives you access to special features as they are released.`,
   confused: 'Still confused? Don’t worry, more details coming soon!',
   learnMore: 'Learn More'
 }
@@ -57,10 +57,11 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
   const isDarkMode = getIsDarkMode()
   const isMatrixMode = getTheme() === Theme.MATRIX
 
+  const wm = useWithMobileStyle(styles.mobile)
   return (
-    <Tile className={cn([styles.explainerTile, className])}>
+    <Tile className={wm([styles.explainerTile, className])}>
       <>
-        <div className={styles.tokenHero}>
+        <div className={wm(styles.tokenHero)}>
           {isMatrixMode ? (
             <img src={TokenStill} alt='' />
           ) : (
@@ -77,13 +78,9 @@ export const ExplainerTile = ({ className }: { className?: string }) => {
             />
           )}
         </div>
-        <div className={styles.whatIsAudioContainer}>
-          <h4 className={styles.whatIsAudio}>{messages.whatIsAudio}</h4>
-          <p className={styles.description}>
-            {messages.audioDescription1}
-            <br />
-            {messages.audioDescription2}
-          </p>
+        <div className={wm(styles.whatIsAudioContainer)}>
+          <h4 className={wm(styles.whatIsAudio)}>{messages.whatIsAudio}</h4>
+          <p className={styles.description}>{messages.audioDescription}</p>
           <div className={styles.learnMore} onClick={onClickLearnMore}>
             {messages.learnMore}
           </div>
