@@ -1,84 +1,97 @@
 .fitWrapper {
-    width: fit-content;
-    height: fit-content;
-    box-shadow: 0 16px 20px var(--table-shadow);
+  width: fit-content;
+  height: fit-content;
 }
 
 .fit {
-    width: fit-content;
-    height: fit-content;
-    box-shadow: 0 16px 20px var(--table-shadow);
-    border: 1px solid var(--neutral-light-7);
-    border-radius: 8px;
+  width: fit-content;
+  height: fit-content;
+  box-shadow: 0 16px 20px var(--table-shadow);
+  border: 1px solid var(--neutral-light-7);
+  border-radius: 8px;
 }
 
 .popup {
-    cursor: pointer;
-    user-select: none;
-    font-size: var(--font-xs);
-    background-color: var(--white);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-xs);
+  background-color: var(--white);
 }
 
-.popup svg:hover {
-    border-radius: 4px;
-    background: var(--secondary);
+.popup:hover {
+  border-radius: 4px;
 }
 
-.popup svg:hover path {
-    fill: var(--white);
+.popup:hover .icon {
+  background: var(--secondary);
+}
+
+.popup:active .icon {
+  transform: scale(0.95);
+}
+
+.popup:hover svg path {
+  fill: var(--white);
+}
+
+.popup svg {
+  /* Scale the animation on the icon rather than the svg */
+  transform: none !important;
 }
 
 .popup.disabled {
-    cursor: default;
+  cursor: default;
 }
 
 .popup.disabled svg:hover {
-    background: var(--white);
+  background: var(--white);
 }
 
 .popup.disabled path,
 .popup.disabled svg:hover path {
-    fill: var(--neutral-light-4);
+  fill: var(--neutral-light-4);
 }
 
 .menu {
-    background-color: var(--white);
-    text-align: start;
+  background-color: var(--white);
+  text-align: start;
 }
 
 .icon {
-    margin-right: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--neutral-light-6);
+  overflow: hidden;
 }
 
 .item {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: var(--font-l);
-    font-weight: var(--font-demi-bold);
-    color: var(--neutral);
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: var(--font-l);
+  font-weight: var(--font-demi-bold);
+  color: var(--neutral);
 }
 
 .item svg {
-    border-radius: 100%;
-    background: var(--static-neutral-light-4);
+  border-radius: 100%;
+  background: var(--static-neutral-light-4);
 }
 
 .item path {
-    fill: var(--white);
+  fill: var(--white);
 }
 
 .item:hover {
-    cursor: pointer;
-    color: var(--white);
-    background: var(--secondary);
+  cursor: pointer;
+  color: var(--white);
+  background: var(--secondary);
 }
 
 .item:hover svg {
-    background: var(--white);
+  background: var(--white);
 }
 
 .item:hover path {
-    fill: var(--secondary);
+  fill: var(--secondary);
 }
