@@ -99,7 +99,10 @@ export enum StringKeys {
    * User ids omitted from trending playlists (used to omit Audius from rewards).
    * Comma-separated.
    */
-  TRENDING_PLAYLIST_OMITTED_USER_IDS = 'TRENDING_PLAYLIST_OMITTED_USER_IDS'
+  TRENDING_PLAYLIST_OMITTED_USER_IDS = 'TRENDING_PLAYLIST_OMITTED_USER_IDS',
+
+  /** Rewards IDs as comma-separated array */
+  REWARDS_IDS = 'REWARDS_IDS'
 }
 
 export type AllRemoteConfigKeys =

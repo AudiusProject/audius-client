@@ -25,7 +25,9 @@ export const remoteConfigStringDefaults: {
   [StringKeys.INSTAGRAM_API_PROFILE_URL]:
     'https://instagram.com/$USERNAME$/?__a=1',
   // Audius user id
-  [StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS]: '51'
+  [StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS]: '51',
+  [StringKeys.REWARDS_IDS]:
+    'trending-track,trending-playlist,top-api,verified-upload'
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null

@@ -4,8 +4,8 @@ import styles from './RewardsTile.module.css'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { useSetVisibility } from 'store/application/ui/modals/hooks'
 import ButtonWithArrow from './components/ButtonWithArrow'
-
-// TODO: pull from optimizely
+import { useRemoteVar } from 'containers/remote-config/hooks'
+import { StringKeys } from 'services/remote-config'
 
 type RewardID =
   | 'trending-track'
@@ -78,19 +78,29 @@ type RewardsTileProps = {
   className?: string
 }
 
-// TODO: optimizely
-const rewardIds: RewardID[] = [
-  'trending-track',
-  'trending-playlist',
-  'top-api',
-  'verified-upload'
-]
+const validRewardIds: { [k in RewardID]: any } = {
+  'trending-track': 1,
+  'trending-playlist': 1,
+  'top-api': 1,
+  'verified-upload': 1
+}
+
+const isValidRewardId = (s: string): s is RewardID => s in validRewardIds
 
 const messages = {
   title: '$AUDIO REWARDS',
   description1: 'Win contests and complete tasks to earn $AUDIO tokens!',
   description2:
     'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!'
+}
+
+/** Pulls rewards from remoteconfig */
+const useRewardIds = () => {
+  const rewardsString = useRemoteVar(StringKeys.REWARDS_IDS)
+  if (!rewardsString) return []
+  const rewards = rewardsString.split(',')
+  const filteredRewards: RewardID[] = rewards.filter(isValidRewardId)
+  return filteredRewards
 }
 
 const RewardsTile = ({ className }: RewardsTileProps) => {
@@ -109,6 +119,10 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       setVisibility('LinkSocialRewardsExplainer')(true)
     }
   }
+
+  const rewardIds = useRewardIds()
+
+  console.log({ rewardIds })
 
   const rewardsTiles = rewardIds
     .map(id => rewardsMap[id])
