@@ -86,7 +86,7 @@ const IconPopup: React.FC<IconPopupProps> = ({
               className={styles.item}
               onClick={handleMenuItemClick(item)}
             >
-              <span className={styles.icon}>{item.icon}</span>
+              {item.icon && <span className={styles.icon}>{item.icon}</span>}
               {item.text}
             </div>
           ))}
