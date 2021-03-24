@@ -4,7 +4,7 @@
   padding: 42px 28px 32px;
 }
 .title {
-  font-weight: 700;
+  font-weight: 900;
   font-size: 48px;
   line-height: 49px;
   background: var(--page-header-gradient);
@@ -92,11 +92,4 @@
 .rewardDescription.mobile {
   font-size: var(--font-s);
   line-height: 17px;
-}
-.rewardButton {
-  padding: 8px 12px;
-  height: 34px !important;
-}
-.buttonIcon {
-  margin: 0 2px 0 0px !important;
 }

@@ -1,8 +1,9 @@
 import React, { ReactNode } from 'react'
 import { Tile } from './components/ExplainerTile'
 import styles from './RewardsTile.module.css'
-import { Button, ButtonType, IconArrow } from '@audius/stems'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { useSetVisibility } from 'store/application/ui/modals/hooks'
+import ButtonWithArrow from './components/ButtonWithArrow'
 
 // TODO: pull from optimizely
 
@@ -37,50 +38,39 @@ const RewardPanel = ({
         {title}
       </span>
       <span className={wm(styles.rewardDescription)}>{description}</span>
-      <Button
-        className={styles.rewardButton}
-        text={buttonText}
-        onClick={onClickButton}
-        type={ButtonType.PRIMARY_ALT}
-        rightIcon={<IconArrow />}
-        iconClassName={styles.buttonIcon}
-      />
+      <ButtonWithArrow text={buttonText} onClick={onClickButton} />
     </div>
   )
 }
 
-const rewardsMap: { [id in RewardID]: RewardPanelProps } = {
+const rewardsMap = {
   'trending-playlist': {
     title: 'Top 5 Trending Playlists',
     icon: <i className='emoji large chart-increasing' />,
     description: 'Winners are selected every Friday at Noon PT!',
     buttonText: 'See More',
-    onClickButton: () => {},
-    id: 'trending-playlist'
+    id: 'trending-playlist' as 'trending-playlist'
   },
   'trending-track': {
     title: 'Top 5 Trending Tracks',
     icon: <i className='emoji large chart-increasing' />,
     description: 'Winners are selected every Friday at Noon PT!',
     buttonText: 'See More',
-    onClickButton: () => {},
-    id: 'trending-track'
+    id: 'trending-track' as 'trending-track'
   },
   'top-api': {
     title: 'Top 10 API Apps',
     icon: <i className='emoji large nerd-face' />,
     description: 'The top 10 Audius API apps each month win',
     buttonText: 'More Info',
-    onClickButton: () => {},
-    id: 'top-api'
+    id: 'top-api' as 'top-api'
   },
   'verified-upload': {
     title: 'Verified Upload',
     icon: <i className='emoji large white-heavy-check-mark' />,
     description: 'Verified on Twitter/Instagram? Upload & tag us',
     buttonText: 'More Info',
-    onClickButton: () => {},
-    id: 'verified-upload'
+    id: 'verified-upload' as 'verified-upload'
   }
 }
 
@@ -104,9 +94,31 @@ const messages = {
 }
 
 const RewardsTile = ({ className }: RewardsTileProps) => {
+  const setVisibility = useSetVisibility()
+  const callbacksMap = {
+    'trending-track': () => {
+      setVisibility('TrendingRewardsExplainer')(true)
+    },
+    'trending-playlist': () => {
+      setVisibility('TrendingRewardsExplainer')(true)
+    },
+    'top-api': () => {
+      setVisibility('APIRewardsExplainer')(true)
+    },
+    'verified-upload': () => {
+      setVisibility('LinkSocialRewardsExplainer')(true)
+    }
+  }
+
   const rewardsTiles = rewardIds
     .map(id => rewardsMap[id])
-    .map(props => <RewardPanel {...props} key={props.id} />)
+    .map(props => (
+      <RewardPanel
+        {...props}
+        onClickButton={callbacksMap[props.id]}
+        key={props.id}
+      />
+    ))
 
   const wm = useWithMobileStyle(styles.mobile)
 

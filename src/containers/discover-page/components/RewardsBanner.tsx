@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import cn from 'classnames'
 
 import styles from './RewardsBanner.module.css'
 import { IconArrow, IconCrown } from '@audius/stems'
 import { isMobile } from 'utils/clientUtil'
+import { useModalState } from 'store/application/ui/modals/hooks'
+import { useDispatch } from 'react-redux'
+import {
+  setTrendingRewardsModalType,
+  TrendingRewardsModalType
+} from 'containers/audio-rewards-page/store/slice'
 
 const messages = {
   rewards: '$AUDIO REWARDS',
@@ -23,17 +29,31 @@ const messageMap = {
 
 type RewardsBannerProps = {
   bannerType: 'tracks' | 'playlists'
-  onClick?: () => void
 }
 
-const RewardsBanner = ({
-  bannerType,
-  onClick = () => {}
-}: RewardsBannerProps) => {
+const useHandleBannerClick = () => {
+  const [, setModal] = useModalState('TrendingRewardsExplainer')
+  const dispatch = useDispatch()
+  const onClickBanner = useCallback(
+    (modalType: TrendingRewardsModalType) => {
+      setModal(true)
+      dispatch(setTrendingRewardsModalType({ modalType }))
+    },
+    [dispatch, setModal]
+  )
+  return onClickBanner
+}
+
+const RewardsBanner = ({ bannerType }: RewardsBannerProps) => {
   const mobile = isMobile()
   const mobileStyle = { [styles.mobile]: mobile }
+  const onClick = useHandleBannerClick()
+
   return (
-    <div className={cn(cn(styles.container, mobileStyle))} onClick={onClick}>
+    <div
+      className={cn(cn(styles.container, mobileStyle))}
+      onClick={() => onClick(bannerType)}
+    >
       <div className={cn(styles.rewardsText, mobileStyle)}>
         <div className={styles.iconCrown}>
           <IconCrown />
