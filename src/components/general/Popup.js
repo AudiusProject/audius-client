@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
@@ -8,6 +8,66 @@ import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import styles from './Popup.module.css'
 import { iconPopupClass } from './IconPopup'
 import { findAncestor } from 'utils/domUtils'
+import useInstanceVar from 'hooks/useInstanceVar'
+import { getScrollParent } from 'utils/scrollParent'
+
+/**
+ * Gets the css transform origin prop from the display position
+ * @param {string} position
+ * @returns transform origin
+ */
+const getTransformOrigin = position => {
+  switch (position) {
+    case 'topCenter':
+      return 'bottom center'
+    case 'topRight':
+      return 'bottom left'
+    case 'topLeft':
+      return 'bottom right'
+    case 'bottomRight':
+      return 'top left'
+    case 'bottomLeft':
+      return 'top right'
+    case 'bottomCenter':
+    default:
+      return 'top center'
+  }
+}
+
+/**
+ * Figures out whether the specified position would overflow the window
+ * and picks a better position accordingly
+ * @param {string} position
+ * @param {ClientRect} rect the content
+ * @param {ClientRect} wrapper the wrapper of the content
+ * @return {string | null} null if it would not overflow
+ */
+const getComputedPosition = (position, rect, wrapper) => {
+  if (!rect || !wrapper) return position
+  const windowWidth = window.innerWidth
+  const windowHeight = window.innerHeight
+
+  const overflowRight = rect.x + wrapper.width > windowWidth
+  const overflowLeft = rect.x - wrapper.width < 0
+  const overflowBottom = rect.y + wrapper.height > windowHeight
+  const overflowTop = rect.y - wrapper.height < 0
+
+  let computedPosition = position
+  // TODO: Clean this funky string replacing up when we move this file to typescript
+  if (overflowRight) {
+    computedPosition = computedPosition.replace('Right', 'Left')
+  }
+  if (overflowLeft) {
+    computedPosition = computedPosition.replace('Left', 'Right')
+  }
+  if (overflowTop) {
+    computedPosition = computedPosition.replace('top', 'bottom')
+  }
+  if (overflowBottom) {
+    computedPosition = computedPosition.replace('bottom', 'top')
+  }
+  return computedPosition
+}
 
 /**
  * A popup is an in-place menu that shows on top of the UI. A popup does
@@ -25,68 +85,102 @@ const Popup = ({
   title,
   noHeader,
   triggerRef,
+  // The direction that the popup expands in
   position = 'bottomCenter',
   children
 }) => {
   const wrapper = useRef()
   const placeholder = useRef()
+  const [getOriginalTopPosition, setOriginalTopPosition] = useInstanceVar(0)
+  const [computedPosition, setComputedPosition] = useState(position)
 
+  useEffect(() => {
+    if (isVisible) {
+      const rect = placeholder.current.getBoundingClientRect()
+      const wrapperRect = wrapper.current.getBoundingClientRect()
+      const computed = getComputedPosition(position, rect, wrapperRect)
+      setComputedPosition(computed)
+    }
+  }, [isVisible, setComputedPosition, position, placeholder, wrapper])
+
+  // On visible, set the position
   useEffect(() => {
     if (isVisible) {
       // When the popup becomes visible, set the position based on the placeholder
       const rect = placeholder.current.getBoundingClientRect()
       const wrapperRect = wrapper.current.getBoundingClientRect()
-      const triggerRect = triggerRef.current.getBoundingClientRect()
 
+      let left
+      let top
       if (!triggerRef) {
-        wrapper.current.style.left = `${
-          rect.x - wrapperRect.width / 2 + rect.width / 2
-        }px`
-        wrapper.current.style.top = `${rect.y}px`
+        left = rect.x - wrapperRect.width / 2 + rect.width / 2
+        top = rect.y
       } else {
-        switch (position) {
+        const triggerRect = triggerRef.current.getBoundingClientRect()
+        switch (computedPosition) {
           case 'topCenter':
-            wrapper.current.style.top = `${
-              rect.y - wrapperRect.height - triggerRect.height
-            }px`
-            wrapper.current.style.left = `${
-              rect.x - wrapperRect.width / 2 + triggerRect.width / 2
-            }px`
+            top = rect.y - wrapperRect.height - triggerRect.height
+            left = rect.x - wrapperRect.width / 2 + triggerRect.width / 2
             break
           case 'topRight':
-            wrapper.current.style.top = `${
-              rect.y - wrapperRect.height - triggerRect.height
-            }px`
-            wrapper.current.style.left = `${rect.x}px`
+            top = rect.y - wrapperRect.height - triggerRect.height
+            left = rect.x
             break
           case 'topLeft':
-            wrapper.current.style.top = `${
-              rect.y - wrapperRect.height - triggerRect.height
-            }px`
-            wrapper.current.style.left = `${
-              rect.x - wrapperRect.width + triggerRect.width
-            }px`
+            top = rect.y - wrapperRect.height - triggerRect.height
+            left = rect.x - wrapperRect.width + triggerRect.width
             break
           case 'bottomRight':
-            wrapper.current.style.top = `${rect.y}px`
-            wrapper.current.style.left = `${rect.x}px`
+            top = rect.y
+            left = rect.x
             break
           case 'bottomLeft':
-            wrapper.current.style.top = `${rect.y}px`
-            wrapper.current.style.left = `${
-              rect.x - wrapperRect.width + triggerRect.width
-            }px`
+            top = rect.y
+            left = rect.x - wrapperRect.width + triggerRect.width
             break
           case 'bottomCenter':
           default:
-            wrapper.current.style.top = `${rect.y}px`
-            wrapper.current.style.left = `${
-              rect.x - wrapperRect.width / 2 + triggerRect.width / 2
-            }px`
+            top = rect.y
+            left = rect.x - wrapperRect.width / 2 + triggerRect.width / 2
         }
       }
+      wrapper.current.style.top = `${top}px`
+      wrapper.current.style.left = `${left}px`
+
+      setOriginalTopPosition(top)
     }
-  }, [isVisible, wrapper, placeholder, triggerRef, position])
+  }, [
+    isVisible,
+    wrapper,
+    placeholder,
+    triggerRef,
+    computedPosition,
+    setOriginalTopPosition
+  ])
+
+  // Callback invoked on each scroll. Uses original top position to scroll with content.
+  const watchScroll = useCallback(
+    (scrollParent, initialScrollPosition) => {
+      const scrollTop = scrollParent.scrollTop
+      wrapper.current.style.top = `${
+        getOriginalTopPosition() - scrollTop + initialScrollPosition
+      }px`
+    },
+    [wrapper, getOriginalTopPosition]
+  )
+
+  // Set up scroll listeners
+  useEffect(() => {
+    if (isVisible && placeholder.current) {
+      const scrollParent = getScrollParent(placeholder.current)
+      const initialScrollPosition = scrollParent.scrollTop
+      const listener = () => watchScroll(scrollParent, initialScrollPosition)
+      scrollParent.addEventListener('scroll', listener)
+      return () => {
+        scrollParent.removeEventListener('scroll', listener)
+      }
+    }
+  }, [isVisible, watchScroll, placeholder])
 
   const handleClose = useCallback(() => {
     onClose()
@@ -104,9 +198,18 @@ const Popup = ({
   })
 
   const transitions = useTransition(isVisible, null, {
-    from: { transform: `scale(0)`, opacity: 0, transformOrigin: 'top center' },
-    enter: { transform: `scale(1)`, opacity: 1, transformOrigin: 'top center' },
-    leave: { transform: `scale(0)`, opacity: 0, transformOrigin: 'top center' },
+    from: {
+      transform: `scale(0)`,
+      opacity: 0
+    },
+    enter: {
+      transform: `scale(1)`,
+      opacity: 1
+    },
+    leave: {
+      transform: `scale(0)`,
+      opacity: 0
+    },
     config: { duration: 180 },
     unique: true
   })
@@ -123,7 +226,10 @@ const Popup = ({
                 className={cn(styles.popup, className)}
                 ref={clickOutsideRef}
                 key={key}
-                style={props}
+                style={{
+                  ...props,
+                  transformOrigin: getTransformOrigin(computedPosition)
+                }}
               >
                 {!noHeader && (
                   <div className={styles.header}>
