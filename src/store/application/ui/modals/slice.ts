@@ -1,12 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppState } from 'store/types'
 
-type Modals = 'TiersExplainer'
+export type Modals =
+  | 'TiersExplainer'
+  | 'TrendingRewardsExplainer'
+  | 'LinkSocialRewardsExplainer'
+  | 'APIRewardsExplainer'
 
 type InitialModalsState = { [modal in Modals]: boolean }
 
 const initialState: InitialModalsState = {
-  TiersExplainer: false
+  TiersExplainer: false,
+  TrendingRewardsExplainer: false,
+  LinkSocialRewardsExplainer: false,
+  APIRewardsExplainer: false
 }
 
 const slice = createSlice({

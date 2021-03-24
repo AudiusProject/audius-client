@@ -48,6 +48,7 @@ import musicConfetti from 'containers/music-confetti/store/slice'
 import mobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
 import enablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import trendingPlaylists from 'containers/trending-playlists/store/slice'
+import rewardsUI from 'containers/audio-rewards-page/store/slice'
 
 import account from 'store/account/reducer'
 import tracksReducer from 'store/cache/tracks/reducer'
@@ -143,7 +144,8 @@ const createRootReducer = routeHistory =>
         mobileUploadDrawer,
         enablePushNotificationsDrawer,
         averageColor,
-        modals
+        modals,
+        rewardsUI
       }),
       pages: combineReducers({
         explore,
