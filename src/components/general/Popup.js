@@ -159,6 +159,8 @@ const Popup = ({
   ])
 
   // Callback invoked on each scroll. Uses original top position to scroll with content.
+  // Takes scrollParent to get the current scroll position as well as the intitial scroll position
+  // when the popup became visible.
   const watchScroll = useCallback(
     (scrollParent, initialScrollPosition) => {
       const scrollTop = scrollParent.scrollTop
