@@ -1,4 +1,4 @@
-import Web3Modal from 'web3modal'
+import Web3Modal, { IProviderOptions } from 'web3modal'
 
 import WalletConnectProvider from '@walletconnect/web3-provider'
 import { Bitski } from 'bitski'
@@ -12,37 +12,44 @@ const ETH_PROVIDER_URLS = (process.env.REACT_APP_ETH_PROVIDER_URL || '').split(
   ','
 )
 
-// TODO: Put the providers behind a optimizely flag
+type Config = {
+  isBitkiEnabled: boolean
+  isWalletConnectEnabled: boolean
+}
 
-export const createSession = async () => {
+export const createSession = async (config: Config): Promise<any> => {
   try {
     const Web3 = window.Web3
 
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: {
-          rpc: {
-            [WEB3_NETWORK_ID]: ETH_PROVIDER_URLS[0]
-          }
-        }
-      },
-      // torus: {
-      //   package: Torus, // required
-      //   options: {}
-      // },
-      // frame: {
-      //   package: ethProvider // required
-      // },
-      bitski: {
+    const providerOptions: IProviderOptions = {}
+    if (config.isBitkiEnabled && BITSKI_CLIENT_ID && BITSKI_CALLBACK_URL) {
+      providerOptions.bitski = {
         package: Bitski, // required
         options: {
           clientId: BITSKI_CLIENT_ID,
           callbackUrl: BITSKI_CALLBACK_URL
         }
       }
-      /* See Provider Options Section */
     }
+    if (config.isWalletConnectEnabled) {
+      providerOptions.walletconnect = {
+        package: WalletConnectProvider,
+        options: {
+          rpc: {
+            [WEB3_NETWORK_ID]: ETH_PROVIDER_URLS[0]
+          }
+        }
+      }
+    }
+
+    // Other provider options
+    // torus: {
+    //   package: Torus, // required
+    //   options: {}
+    // },
+    // frame: {
+    //   package: ethProvider // required
+    // },
 
     const web3Modal = new Web3Modal({ providerOptions })
 

@@ -45,6 +45,7 @@ import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { upgradeToCreator } from 'store/cache/users/sagas'
 import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
+import { BooleanKeys, getRemoteVar } from 'services/remote-config'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
@@ -172,7 +173,17 @@ function* compareIndexedWallets(
 
 function* connectWallet() {
   try {
-    const web3Instance: any = yield connectWeb3Wallet()
+    const isBitkiEnabled = getRemoteVar(
+      BooleanKeys.DISPLAY_WEB3_PROVIDER_BITSKI
+    ) as boolean
+    const isWalletConnectEnabled = getRemoteVar(
+      BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_CONNECT
+    ) as boolean
+
+    const web3Instance: any = yield connectWeb3Wallet({
+      isBitkiEnabled,
+      isWalletConnectEnabled
+    })
 
     if (!web3Instance) {
       yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
