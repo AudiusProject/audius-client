@@ -102,12 +102,20 @@
 
 .ctaRight span {
   margin-bottom: 2px;
+  line-height: 20px;
 }
 
 .link {
   cursor: pointer;
   color: var(--secondary);
   font-size: 16px;
+  opacity: 1;
+  transition: all 0.15s ease-in-out;
+}
+
+.link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 .instagramButton {

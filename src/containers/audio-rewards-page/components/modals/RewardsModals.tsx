@@ -1,5 +1,6 @@
 import React from 'react'
 import TopAPIModal from './TopAPI'
+import TransferAudioMobileDrawer from './TransferAudioMobileDrawer'
 import TrendingRewardsModal from './TrendingRewards'
 import VerifiedUpload from './VerifiedUpload'
 
@@ -9,6 +10,7 @@ const RewardsModals = () => {
       <TrendingRewardsModal />
       <VerifiedUpload />
       <TopAPIModal />
+      <TransferAudioMobileDrawer />
     </>
   )
 }
