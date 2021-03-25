@@ -233,6 +233,7 @@ const ConnectedPlaylistTile = memo(
       goToRoute(FAVORITING_USERS_ROUTE)
     }
 
+    console.log({ collection })
     return (
       <PlaylistTile
         uid={uid}
