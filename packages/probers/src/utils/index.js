@@ -99,10 +99,12 @@ export const waitForExit = async (page, selector, exitTimeout = 8000) => {
 
 export const waitForResponse = async (page, pathname) => {
   return new Promise((resolve, reject) => {
-    page.on('response', response => {
+    page.on('response', async response => {
       const resUrl = new URL(response.url())
-      if (resUrl.pathname === pathname) {
-        return resolve(response.json())
+      const requestMethod = response.request().method()
+      if (resUrl.pathname === pathname && requestMethod !== 'OPTIONS') {
+        const json = await response.json()
+        return resolve(json)
       }
     })
   })
