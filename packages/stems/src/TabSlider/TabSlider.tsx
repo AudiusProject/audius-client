@@ -84,10 +84,15 @@ const TabSlider = (props: TabSliderProps) => {
           <React.Fragment key={option.key}>
             <div
               ref={ref}
-              className={cn(styles.tab, {
-                [styles.activeTab]: selectedOption === option.key,
-                [styles.tabFullWidth]: !!props.fullWidth
-              })}
+              className={cn(
+                styles.tab,
+                {
+                  [styles.activeTab]: selectedOption === option.key,
+                  [styles.tabFullWidth]: !!props.fullWidth
+                },
+                props.textClassName,
+                { [props.activeTextClassName]: selectedOption === option.key }
+              )}
               onClick={() => onSetSelected(option.key)}
             >
               {option.text}

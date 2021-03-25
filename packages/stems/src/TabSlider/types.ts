@@ -21,6 +21,16 @@ export type TabSliderProps = {
    * Escape hatch for styles.
    */
   className?: string
+
+  /**
+   * Styles specificlaly applied to slider text
+   */
+  textClassName?: string
+
+  /**
+   * Styles applied only to active cell text
+   */
+  activeTextClassName?: string
 }
 
 export default TabSliderProps
