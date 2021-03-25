@@ -91,6 +91,15 @@ function* retrieveCollection(playlistId: ID) {
   return playlists
 }
 
+/**
+ * Retrieves collections from the cache or from source
+ * @param userId optional owner of collections to fetch (TODO: to be removed)
+ * @param collectionIds ids to retrieve
+ * @param fetchTracks whether or not to fetch the tracks inside the playlist
+ * @param requiresAllTracks whether or not fetching this collection requires it to havhe all its tracks.
+ * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
+ * @returns
+ */
 export function* retrieveCollections(
   userId: ID | null,
   collectionIds: ID[],
@@ -107,8 +116,9 @@ export function* retrieveCollections(
         const keys = Object.keys(res) as any
         keys.forEach((collectionId: number) => {
           const fullTrackCount = res[collectionId].track_count
-          const currentTrackCount = res[collectionId]?.tracks?.length ?? 0
-          if (fullTrackCount > currentTrackCount) {
+          const currentTrackCount = res[collectionId].tracks?.length ?? 0
+          if (currentTrackCount < fullTrackCount) {
+            // Remove the collection from the res so retrieve knows to get it from source
             delete res[collectionId]
           }
         })
