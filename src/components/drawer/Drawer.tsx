@@ -12,6 +12,7 @@ import {
 } from 'services/native-mobile-interface/android/pulltorefresh'
 import { usePortal } from 'hooks/usePortal'
 import { IconRemove, useClickOutside } from '@audius/stems'
+import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -288,7 +289,17 @@ const interpolateBorderRadius = (r: number) => {
   return `${r2}px ${r2}px 0px 0px`
 }
 
+const rootElement = document.querySelector('#root')
+
 const FullscreenDrawer = ({ children, isOpen, onClose }: DrawerProps) => {
+  // Lock to prevent double scrollbars
+  useEffect(() => {
+    rootElement && isOpen && disableBodyScroll(rootElement)
+    return () => {
+      clearAllBodyScrollLocks()
+    }
+  }, [isOpen])
+
   const Portal = usePortal({})
   // @ts-ignore
   const transitions = useTransition(isOpen, null, {
