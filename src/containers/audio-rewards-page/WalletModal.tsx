@@ -7,9 +7,11 @@ import cn from 'classnames'
 import { getAccountUser } from 'store/account/selectors'
 import {
   confirmSend,
+  getAssociatedWallets,
   getDiscordCode,
   getModalState,
   getModalVisible,
+  getRemoveWallet,
   getSendData,
   inputSendData,
   ModalState,
@@ -18,7 +20,6 @@ import {
 import {
   BNWei,
   getAccountBalance,
-  getClaimableBalance,
   StringWei,
   stringWeiToBN,
   WalletAddress,
@@ -26,30 +27,30 @@ import {
 } from 'store/wallet/slice'
 import { useSelector } from 'utils/reducer'
 import { Nullable } from 'utils/typeUtils'
-import ClaimingModalBody from './components/ClaimingModalBody'
-import ClaimSuccessBody from './components/ClaimSuccessBody'
 import ReceiveBody from './components/ReceiveBody'
 import SendInputBody from './components/SendInputBody'
 import SendInputConfirmation from './components/SendInputConfirmation'
 import SendInputSuccess from './components/SendInputSuccess'
+import ConnectWalletsBody from './components/ConnectWalletsBody'
 import ErrorBody from './components/ErrorBody'
 import styles from './WalletModal.module.css'
 import SendingModalBody from './components/SendingModalBody'
 import DiscordModalBody from './components/DiscordModalBody'
+import RemoveWalletBody from './components/RemoveWalletBody'
 
 const DISCORD_URL = 'https://discord.com/invite/kZkT9ZK'
 
 const messages = {
-  claimingTitle: "Hold Tight, We're Claiming Your $AUDIO!",
-  claimSuccess: 'Your $AUDIO Is Claimed!',
-  claimError: 'Uh oh! Something went wrong with your claim.',
   receive: 'Receive $AUDIO',
   send: 'Send $AUDIO',
   confirmSend: 'Send $AUDIO',
   sending: 'Your $AUDIO is Sending',
   sent: 'Your $AUDIO Has Been Sent',
   sendError: 'Uh oh! Something went wrong sending your $AUDIO.',
-  discord: 'Launch the VIP Discord'
+  discord: 'Launch the VIP Discord',
+  connectOtherWallets: 'Connect Other Wallets',
+  manageWallets: 'Manage Wallets',
+  removeWallets: 'Remove Wallet'
 }
 
 const TitleWrapper = ({
@@ -67,11 +68,23 @@ const TitleWrapper = ({
   )
 }
 
+const AddWalletTitle = () => {
+  const { connectedWallets: wallets } = useSelector(getAssociatedWallets)
+  const hasMultipleWallets = (wallets?.length ?? 0) > 0
+  return (
+    <>
+      {hasMultipleWallets
+        ? messages.manageWallets
+        : messages.connectOtherWallets}
+    </>
+  )
+}
+
 const titlesMap = {
-  CLAIM: {
-    CLAIMING: messages.claimingTitle,
-    SUCCESS: messages.claimSuccess,
-    ERROR: messages.claimError
+  CONNECT_WALLETS: {
+    ADD_WALLET: <AddWalletTitle />,
+    REMOVE_WALLET: messages.removeWallets,
+    ERROR: messages.sendError
   },
   RECEIVE: {
     KEY_DISPLAY: (
@@ -109,8 +122,8 @@ const titlesMap = {
 const getTitle = (state: ModalState) => {
   if (!state?.stage) return ''
   switch (state.stage) {
-    case 'CLAIM':
-      return titlesMap.CLAIM[state.flowState.stage]
+    case 'CONNECT_WALLETS':
+      return titlesMap.CONNECT_WALLETS[state.flowState.stage]
     case 'RECEIVE':
       return titlesMap.RECEIVE[state.flowState.stage]
     case 'SEND':
@@ -159,8 +172,6 @@ const ModalContent = ({
   const balance: BNWei =
     useSelector(getAccountBalance) ?? stringWeiToBN('0' as StringWei)
   const account = useSelector(getAccountUser)
-  const claimableBalance: BNWei =
-    useSelector(getClaimableBalance) ?? stringWeiToBN('0' as StringWei)
   const amountPendingTransfer = useSelector(getSendData)
   const discordCode = useSelector(getDiscordCode)
 
@@ -175,17 +186,14 @@ const ModalContent = ({
   let ret: Nullable<JSX.Element> = null
 
   switch (modalState.stage) {
-    case 'CLAIM': {
+    case 'CONNECT_WALLETS': {
       const claimStage = modalState.flowState
       switch (claimStage.stage) {
-        case 'CLAIMING':
-          ret = <ClaimingModalBody balance={claimableBalance} />
+        case 'ADD_WALLET':
+          ret = <ConnectWalletsBody />
           break
-        case 'SUCCESS':
-          ret = <ClaimSuccessBody balance={balance} />
-          break
-        case 'ERROR':
-          ret = <ErrorBody error={claimStage.error} onClose={onClose} />
+        case 'REMOVE_WALLET':
+          ret = <RemoveWalletBody />
           break
       }
       break
@@ -259,10 +267,14 @@ const ModalContent = ({
 const shouldAllowDismiss = (modalState: Nullable<ModalState>) => {
   // Allow dismiss on every stage except claiming
   if (!modalState) return true
-  return !(
-    (modalState.stage === 'CLAIM' &&
-      modalState.flowState.stage === 'CLAIMING') ||
-    (modalState.stage === 'SEND' && modalState.flowState.stage === 'SENDING')
+  return (
+    !(
+      modalState.stage === 'SEND' && modalState.flowState.stage === 'SENDING'
+    ) &&
+    !(
+      modalState.stage === 'CONNECT_WALLETS' &&
+      modalState.flowState.stage === 'REMOVE_WALLET'
+    )
   )
 }
 
@@ -288,13 +300,21 @@ const WalletModal = () => {
     window.open(DISCORD_URL, '_blank')
   }
 
-  const allowDismiss = shouldAllowDismiss(modalState)
+  const { status } = useSelector(getAssociatedWallets)
+  const removeWallets = useSelector(getRemoveWallet)
+  const isWalletConfirming =
+    removeWallets.status === 'Confirming' ||
+    status === 'Connecting' ||
+    status === 'Confirming'
+  const allowDismiss = !isWalletConfirming && shouldAllowDismiss(modalState)
 
   return (
     <Modal
       isOpen={modalVisible}
       onClose={onClose}
-      bodyClassName={styles.modalBody}
+      bodyClassName={cn(styles.modalBody, {
+        [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS'
+      })}
       showTitleHeader
       title={getTitle(modalState)}
       showDismissButton={allowDismiss}

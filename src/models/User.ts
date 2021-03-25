@@ -38,6 +38,7 @@ export type UserMetadata = {
   twitterVerified?: boolean
   instagramVerified?: boolean
   balance?: Nullable<StringWei>
+  associated_wallets_balance?: Nullable<StringWei>
 } & Timestamped
 
 export type ComputedUserProperties = {

@@ -19,6 +19,7 @@ export type APIUser = {
   album_count: number
   blocknumber: number
   balance: string
+  associated_wallets_balance: string
   bio: Nullable<string>
   cover_photo: CoverPhotoSizes
   followee_count: number
