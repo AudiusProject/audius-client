@@ -1,5 +1,5 @@
 import { TabSlider } from '@audius/stems'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styles from './TrendingRewards.module.css'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 import {} from 'store/application/ui/modals/slice'
@@ -16,6 +16,9 @@ import {
   setTrendingRewardsModalType
 } from 'containers/audio-rewards-page/store/slice'
 import { useDispatch } from 'react-redux'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { useRemoteVar } from 'containers/remote-config/hooks'
+import { StringKeys } from 'services/remote-config'
 
 const messages = {
   tracksTitle: 'Top 5 Tracks Each Week Receive 100 $AUDIO',
@@ -56,7 +59,11 @@ const useRewardsType = (): [
   return [rewardsType, setTrendingRewardsType]
 }
 
-const TWEET_ID = '1369707723726544896'
+const useTweetId = (type: TrendingRewardsModalType) => {
+  const tracksId = useRemoteVar(StringKeys.REWARDS_TWEET_ID_TRACKS)
+  const playlistsId = useRemoteVar(StringKeys.REWARDS_TWEET_ID_PLAYLISTS)
+  return type === 'tracks' ? tracksId : playlistsId
+}
 
 const TrendingRewardsBody = ({
   dismissModal
@@ -87,6 +94,14 @@ const TrendingRewardsBody = ({
 
   const wm = useWithMobileStyle(styles.mobile)
 
+  // If we change type, show the spinner again
+  const [showSpinner, setShowSpinner] = useState(true)
+  useEffect(() => {
+    setShowSpinner(true)
+  }, [modalType])
+
+  const tweetId = useTweetId(modalType)
+
   return (
     <div className={wm(styles.container)}>
       <div className={styles.sliderContainer}>
@@ -107,7 +122,19 @@ const TrendingRewardsBody = ({
       <div className={styles.insetRegion}>
         <span className={styles.lastWeek}>{messages.lastWeek}</span>
         <div className={styles.embedWrapper}>
-          <TwitterTweetEmbed tweetId={TWEET_ID} />
+          {showSpinner && <LoadingSpinner className={styles.spinner} />}
+          <TwitterTweetEmbed
+            // Refresh it when we toggle
+            key={`twitter-${modalType}`}
+            tweetId={tweetId}
+            onLoad={() => setShowSpinner(false)}
+            options={{
+              conversation: 'none',
+              hide_thread: true,
+              width: 550,
+              height: 390
+            }}
+          />
         </div>
       </div>
       <ButtonWithArrow

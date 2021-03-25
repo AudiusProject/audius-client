@@ -42,11 +42,28 @@
   flex-direction: column;
   align-items: center;
   padding: 24px;
-  width: 602px;
-  /* TODO: can this be a fixed height? */
-  /* height: 482px; */
+  max-width: 602px;
+  width: 100%;
   min-height: 300px;
   margin-bottom: 32px;
+  position: relative;
+}
+.mobile .insetRegion {
+  padding: unset;
+}
+
+.embedWrapper {
+  max-width: 550px;
+  min-height: 483px;
+  width: 100%;
+}
+
+.spinner {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
+  width: 30px;
+  height: 30px;
 }
 
 .mobile .insetRegion {
