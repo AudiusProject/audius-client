@@ -64,6 +64,7 @@ const PlaylistTile = memo(
     const renderMoreTracks = useCallback(() => {
       const hasMoreTracks = trackCount && trackCount > trackList.length
       return (
+        !isLoading &&
         hasMoreTracks && (
           <div onClick={onClickTitle} className={styles.moreTracks}>
             {`${trackCount - trackList.length} More Tracks`}
@@ -71,7 +72,7 @@ const PlaylistTile = memo(
           </div>
         )
       )
-    }, [trackCount, trackList, onClickTitle])
+    }, [trackCount, trackList, onClickTitle, isLoading])
 
     return (
       <div
