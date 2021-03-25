@@ -326,7 +326,6 @@ function* confirmUpdateProfile(userId, metadata) {
       makeKindId(Kind.USERS, userId),
       function* () {
         if (metadata.creator_node_endpoint) {
-          console.log(metadata)
           yield call(AudiusBackend.updateCreator, metadata, userId)
         } else {
           yield call(AudiusBackend.updateUser, metadata, userId)
