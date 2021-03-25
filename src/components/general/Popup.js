@@ -132,7 +132,7 @@ const Popup = ({
             break
           case 'bottomRight':
             top = rect.y
-            left = rect.x
+            left = rect.x + triggerRect.width
             break
           case 'bottomLeft':
             top = rect.y
