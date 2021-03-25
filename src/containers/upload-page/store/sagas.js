@@ -553,16 +553,17 @@ export function* handleUploads({
           error: roundHadError
         } = yield AudiusBackend.registerUploadedTracks(concurrentMetadata)
 
-        // Any errors should break out
-        if (roundHadError) {
-          error = roundHadError
-          break
-        }
-
         trackIds = trackIds.concat(roundTrackIds)
         console.debug(
           `Finished registering: ${roundTrackIds}, Registered so far: ${trackIds}`
         )
+
+        // Any errors should break out, but we need to record the associated tracks first
+        // so that we can delete the orphaned ones.
+        if (roundHadError) {
+          error = roundHadError
+          break
+        }
       }
 
       if (error) {
