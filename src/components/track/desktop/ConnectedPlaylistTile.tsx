@@ -142,7 +142,8 @@ const ConnectedPlaylistTile = memo(
       followee_reposts: followeeReposts,
       followee_saves: followeeSaves,
       has_current_user_reposted: isReposted,
-      has_current_user_saved: isFavorited
+      has_current_user_saved: isFavorited,
+      track_count: trackCount
     } = getCollectionWithFallback(collection)
 
     const { name, handle, is_creator: isCreator } = getUserWithFallback(user)
@@ -497,6 +498,7 @@ const ConnectedPlaylistTile = memo(
         tileClassName={cn(styles.trackTile)}
         tracksContainerClassName={cn(styles.tracksContainer)}
         trackList={trackList}
+        trackCount={trackCount}
         isTrending={isTrending}
         showRankIcon={showRankIcon}
       />

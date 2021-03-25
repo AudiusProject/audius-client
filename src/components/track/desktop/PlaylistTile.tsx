@@ -1,4 +1,4 @@
-import React, { memo, ReactChildren } from 'react'
+import React, { memo, ReactChildren, useCallback } from 'react'
 
 import TrackTile from './TrackTile'
 import cn from 'classnames'
@@ -8,6 +8,7 @@ import {
   DesktopPlaylistTileProps as PlaylistTileProps
 } from 'components/track/types'
 import styles from './PlaylistTile.module.css'
+import { IconArrow } from '@audius/stems'
 
 const DefaultTileContainer = ({ children }: { children: ReactChildren }) =>
   children
@@ -42,19 +43,36 @@ const PlaylistTile = memo(
     onClickShare,
     onTogglePlay,
     trackList,
+    trackCount,
     isTrending,
     showRankIcon,
     TileTrackContainer = DefaultTileContainer
   }: PlaylistTileProps) => {
-    const bar = (
-      <SimpleBar
-        className={cn(styles.playlistTracks, {
-          [tracksContainerClassName!]: !!tracksContainerClassName
-        })}
-      >
-        {trackList}
-      </SimpleBar>
+    const renderTracks = useCallback(
+      () => (
+        <SimpleBar
+          className={cn(styles.playlistTracks, {
+            [tracksContainerClassName!]: !!tracksContainerClassName
+          })}
+        >
+          {trackList}
+        </SimpleBar>
+      ),
+      [tracksContainerClassName, trackList]
     )
+
+    const renderMoreTracks = useCallback(() => {
+      const hasMoreTracks = trackCount ? trackCount > trackList.length : false
+      return (
+        !isLoading &&
+        hasMoreTracks && (
+          <div onClick={onClickTitle} className={styles.moreTracks}>
+            {`${trackCount - trackList.length} More Tracks`}
+            <IconArrow className={styles.moreArrow} />
+          </div>
+        )
+      )
+    }, [trackCount, trackList, onClickTitle, isLoading])
 
     return (
       <div
@@ -96,7 +114,8 @@ const PlaylistTile = memo(
             isTrending={isTrending}
           />
         </TileTrackContainer>
-        {bar}
+        {renderTracks()}
+        {renderMoreTracks()}
       </div>
     )
   }

@@ -23,7 +23,9 @@ export const remoteConfigStringDefaults: {
   [StringKeys.CONTENT_NODE_BLOCK_LIST]: null,
   [StringKeys.DISCOVERY_NODE_BLOCK_LIST]: null,
   [StringKeys.INSTAGRAM_API_PROFILE_URL]:
-    'https://instagram.com/$USERNAME$/?__a=1'
+    'https://instagram.com/$USERNAME$/?__a=1',
+  // Audius user id
+  [StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS]: '51'
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null

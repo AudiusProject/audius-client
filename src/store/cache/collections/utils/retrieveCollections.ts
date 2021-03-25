@@ -5,7 +5,10 @@ import { getCollections } from 'store/cache/collections/selectors'
 import { retrieve } from 'store/cache/sagas'
 import { getEntryTimestamp } from 'store/cache/selectors'
 import AudiusBackend from 'services/AudiusBackend'
-import { CollectionMetadata, UserCollectionMetadata } from 'models/Collection'
+import Collection, {
+  CollectionMetadata,
+  UserCollectionMetadata
+} from 'models/Collection'
 import { reformat } from './reformat'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import { addUsersFromCollections } from './addUsersFromCollections'
@@ -88,18 +91,38 @@ function* retrieveCollection(playlistId: ID) {
   return playlists
 }
 
+/**
+ * Retrieves collections from the cache or from source
+ * @param userId optional owner of collections to fetch (TODO: to be removed)
+ * @param collectionIds ids to retrieve
+ * @param fetchTracks whether or not to fetch the tracks inside the playlist
+ * @param requiresAllTracks whether or not fetching this collection requires it to have all its tracks.
+ * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
+ * @returns
+ */
 export function* retrieveCollections(
   userId: ID | null,
   collectionIds: ID[],
-  fetchTracks = false
+  fetchTracks = false,
+  requiresAllTracks = false
 ) {
   const { entries, uids } = yield call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
-      const res: ReturnType<typeof getCollections> = yield select(
-        getCollections,
-        { ids }
-      )
+      const res: {
+        [id: number]: Collection
+      } = yield select(getCollections, { ids })
+      if (requiresAllTracks) {
+        const keys = Object.keys(res) as any
+        keys.forEach((collectionId: number) => {
+          const fullTrackCount = res[collectionId].track_count
+          const currentTrackCount = res[collectionId].tracks?.length ?? 0
+          if (currentTrackCount < fullTrackCount) {
+            // Remove the collection from the res so retrieve knows to get it from source
+            delete res[collectionId]
+          }
+        })
+      }
       return res
     },
     getEntriesTimestamp: function* (ids: ID[]) {

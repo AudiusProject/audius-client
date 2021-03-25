@@ -93,7 +93,13 @@ export enum StringKeys {
   /**
    * Instagram Profile API url. Must contain $USERNAME$
    */
-  INSTAGRAM_API_PROFILE_URL = 'INSTAGRAM_API_PROFILE_URL'
+  INSTAGRAM_API_PROFILE_URL = 'INSTAGRAM_API_PROFILE_URL',
+
+  /**
+   * User ids omitted from trending playlists (used to omit Audius from rewards).
+   * Comma-separated.
+   */
+  TRENDING_PLAYLIST_OMITTED_USER_IDS = 'TRENDING_PLAYLIST_OMITTED_USER_IDS'
 }
 
 export type AllRemoteConfigKeys =

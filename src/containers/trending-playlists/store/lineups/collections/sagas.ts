@@ -6,6 +6,7 @@ import { getLineup } from './selectors'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { processAndCacheCollections } from 'store/cache/collections/utils'
 import Collection, { UserCollectionMetadata } from 'models/Collection'
+import { getRemoteVar, StringKeys } from 'services/remote-config'
 
 function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
   const time = 'week' as 'week'
@@ -20,8 +21,18 @@ function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
     }
   )
 
+  // Omit playlists owned by Audius
+  const userIdsToOmit = new Set(
+    (getRemoteVar(StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS) || '').split(
+      ','
+    )
+  )
+  const trendingPlaylists = playlists.filter(
+    playlist => !userIdsToOmit.has(`${playlist.playlist_owner_id}`)
+  )
+
   const processed: Collection[] = yield processAndCacheCollections(
-    playlists,
+    trendingPlaylists,
     false
   )
 
