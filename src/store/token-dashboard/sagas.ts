@@ -18,7 +18,6 @@ import {
   confirmRemoveWallet,
   ConfirmRemoveWalletAction,
   getAssociatedWallets,
-  AssociatedWalletsState,
   updateWalletError
 } from './slice'
 import {
@@ -185,17 +184,27 @@ function* connectWallet() {
     const accountUserId: Nullable<ID> = yield select(getUserId)
     const connectingWallet = accounts[0]
 
-    const currentAssociatedWallets: AssociatedWalletsState = yield select(
+    const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> = yield select(
       getAssociatedWallets
+    )
+
+    const associatedUserId: Nullable<ID> = yield apiClient.getAssociatedWalletUserId(
+      { address: connectingWallet }
     )
 
     if (
       (currentAssociatedWallets?.connectedWallets ?? []).some(
         wallet => wallet === connectingWallet
-      )
+      ) ||
+      associatedUserId !== null
     ) {
       // The wallet already exists in the assocaited wallets set
-      yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
+      yield put(
+        updateWalletError({
+          errorMessage:
+            'Unable to connect wallet: already associated with a user account'
+        })
+      )
       return
     }
 
@@ -204,7 +213,9 @@ function* connectWallet() {
       `AudiusUserID:${accountUserId}`,
       accounts[0]
     )
-    const userMetadata: any = yield select(getAccountUser)
+    const userMetadata: ReturnType<typeof getAccountUser> = yield select(
+      getAccountUser
+    )
     const updatedMetadata = newUserMetadata({ ...userMetadata })
 
     if (
@@ -214,7 +225,9 @@ function* connectWallet() {
       const upgradedToCreator: boolean = yield call(upgradeToCreator)
       if (!upgradedToCreator) {
         yield put(
-          updateWalletError({ errorMessage: 'Unable to connect wallet' })
+          updateWalletError({
+            errorMessage: 'Unable to connect wallet: User had no creator nodes'
+          })
         )
         return
       }
@@ -235,7 +248,7 @@ function* connectWallet() {
         CONNECT_WALLET_CONFIRMATION_UID,
         function* () {
           const updatedWallets = updatedMetadata.associated_wallets
-          let equivalentIndexedWallets: any = yield call(
+          let equivalentIndexedWallets: boolean = yield call(
             compareIndexedWallets,
             accountUserId!,
             updatedWallets
@@ -269,7 +282,9 @@ function* connectWallet() {
         },
         function* () {
           yield put(
-            updateWalletError({ errorMessage: 'Unable to connect wallet' })
+            updateWalletError({
+              errorMessage: 'Unable to connect wallet: Failed to update creator'
+            })
           )
         }
       )
@@ -283,7 +298,9 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
   try {
     const removeWallet = action.payload.wallet
     const accountUserId: Nullable<ID> = yield select(getUserId)
-    const userMetadata: any = yield select(getAccountUser)
+    const userMetadata: ReturnType<typeof getAccountUser> = yield select(
+      getAccountUser
+    )
     const updatedMetadata = newUserMetadata({ ...userMetadata })
 
     // NOTE: This should never happen where the user has a wallet to remove and is not a creator
@@ -321,7 +338,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
         CONNECT_WALLET_CONFIRMATION_UID,
         function* () {
           const updatedWallets = updatedMetadata.associated_wallets
-          let equivalentIndexedWallets: any = yield call(
+          let equivalentIndexedWallets: boolean = yield call(
             compareIndexedWallets,
             accountUserId!,
             updatedWallets
@@ -340,7 +357,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
           // Update the user's balance w/ the new wallet
           yield put(getBalance())
           yield put(removeWalletAction({ wallet: removeWallet }))
-          const updatedCID: string = yield call(getAccountMetadataCID)
+          const updatedCID: Nullable<string> = yield call(getAccountMetadataCID)
           yield put(
             cacheActions.update(Kind.USERS, [
               {
@@ -370,7 +387,7 @@ const getSignableData = () => {
 function* watchForDiscordCode() {
   yield take(FETCH_DASHBOARD)
   const data = getSignableData()
-  const signature = yield call(AudiusBackend.getSignature, data)
+  const signature: string = yield call(AudiusBackend.getSignature, data)
   const appended = `${signature}:${data}`
   yield put(setDiscordCode({ code: appended }))
 }
