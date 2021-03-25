@@ -17,8 +17,8 @@ function* watchFetchCollection() {
       retrieveCollections,
       null,
       [collectionId],
-      false,
-      true
+      /* fetchTracks */ false,
+      /* requiresAllTracks */ true
     )
 
     if (Object.values(collections).length === 0) {

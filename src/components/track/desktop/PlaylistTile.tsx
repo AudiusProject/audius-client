@@ -62,7 +62,7 @@ const PlaylistTile = memo(
     )
 
     const renderMoreTracks = useCallback(() => {
-      const hasMoreTracks = trackCount && trackCount > trackList.length
+      const hasMoreTracks = trackCount ? trackCount > trackList.length : null
       return (
         !isLoading &&
         hasMoreTracks && (

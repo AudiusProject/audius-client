@@ -96,7 +96,7 @@ function* retrieveCollection(playlistId: ID) {
  * @param userId optional owner of collections to fetch (TODO: to be removed)
  * @param collectionIds ids to retrieve
  * @param fetchTracks whether or not to fetch the tracks inside the playlist
- * @param requiresAllTracks whether or not fetching this collection requires it to havhe all its tracks.
+ * @param requiresAllTracks whether or not fetching this collection requires it to have all its tracks.
  * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
  * @returns
  */
