@@ -64,16 +64,15 @@ export const createAccount = async (page, baseUrl) => {
   waitForResponse(page, '/twitter/handle_lookup')
   await fillInput(page, 'name', testUser.name)
   await fillInput(page, 'nickname', testUser.handle)
-  await checkEmail
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Follow Page ... */
   // Select Followers and continue  
-  await wait(500) // Allow time for transition
+  await wait(1000) // Allow time for transition
 
   await page.waitForSelector(`div[class^=UserCard_cardContainer]`)
   const userCards = await page.$$('div[class^=UserCard_cardContainer]')
-  for (let userCard of userCards) {
+  for (let userCard of userCards.slice(0,5)) {
     await userCard.click()
   }
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
