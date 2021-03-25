@@ -182,14 +182,6 @@ const slice = createSlice({
         state.associatedWallets.connectedWallets || []
       ).concat(wallet)
     },
-    setWalletRemovedConfirmed: (
-      state,
-      { payload: { wallet } }: PayloadAction<{ wallet: string }>
-    ) => {
-      state.associatedWallets.connectedWallets = (
-        state.associatedWallets.connectedWallets || []
-      ).filter(connectedWallet => connectedWallet === wallet)
-    },
     addWallet: state => {},
     requestRemoveWallet: (
       state,
