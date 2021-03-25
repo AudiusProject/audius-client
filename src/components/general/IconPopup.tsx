@@ -10,13 +10,19 @@ type IconPopupItemProps = {
   text: string
   onClick: () => void
   icon?: object
+  className?: string
+  menuIconClassName?: string
 }
 
 type IconPopupProps = {
   icon: object
   menu: { items: IconPopupItemProps[] }
-  disabled: boolean
+  disabled?: boolean
   title?: string
+  menuClassName?: string
+  iconClassName?: string
+  menuIconClassName?: string
+
   position?:
     | 'topLeft'
     | 'topCenter'
@@ -29,9 +35,12 @@ type IconPopupProps = {
 const IconPopup: React.FC<IconPopupProps> = ({
   icon,
   menu,
-  disabled,
   title,
-  position
+  position,
+  menuClassName,
+  iconClassName,
+  menuIconClassName,
+  disabled = false
 }) => {
   const ref = useRef<any>()
 
@@ -63,7 +72,7 @@ const IconPopup: React.FC<IconPopupProps> = ({
     <div className={cn(styles.popup, style)}>
       <IconButton
         ref={ref}
-        className={cn(styles.icon, iconPopupClass)}
+        className={cn(styles.icon, iconPopupClass, iconClassName)}
         icon={icon}
         disabled={disabled}
         onClick={handleIconClick}
@@ -83,10 +92,20 @@ const IconPopup: React.FC<IconPopupProps> = ({
           {menu.items.map((item, i) => (
             <div
               key={`${item.text}_${i}`}
-              className={styles.item}
+              className={cn(styles.item, menuClassName, item.className)}
               onClick={handleMenuItemClick(item)}
             >
-              {item.icon && <span className={styles.icon}>{item.icon}</span>}
+              {item.icon && (
+                <span
+                  className={cn(
+                    styles.icon,
+                    menuIconClassName,
+                    item.menuIconClassName
+                  )}
+                >
+                  {item.icon}
+                </span>
+              )}
               {item.text}
             </div>
           ))}
