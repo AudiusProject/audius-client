@@ -122,8 +122,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
 
   const rewardIds = useRewardIds()
 
-  console.log({ rewardIds })
-
   const rewardsTiles = rewardIds
     .map(id => rewardsMap[id])
     .map(props => (

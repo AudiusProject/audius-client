@@ -44,6 +44,8 @@ const textMap = {
   }
 }
 
+// Getters and setters for whether we're looking at
+// trending playlists or trending tracks
 const useRewardsType = (): [
   TrendingRewardsModalType,
   (type: TrendingRewardsModalType) => void

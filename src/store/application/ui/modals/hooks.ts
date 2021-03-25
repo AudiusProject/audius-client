@@ -5,6 +5,18 @@ import { getModalVisibility, Modals, setVisibility } from './slice'
 
 /**
  * Sets visibility for a modal
+ * *Returns a higher order function*
+ *
+ * Usage:
+ * ```
+ * const setVisibility = useSetVisibility()
+ * const setModalA = setVisibility('ModalA')
+ * const setModalB = setVisibility('ModalB')
+ * ---- later ----
+ * setModalA(true)
+ * setModalB(false)
+ * ```
+ *
  */
 export const useSetVisibility = () => {
   const dispatch = useDispatch()
@@ -26,7 +38,10 @@ export const useGetVisibility = (modalName: Modals) => {
 
 /**
  * Convenience wrapper to return getter and setter for modals,
- * in the familiar form of useState
+ * in the familiar form of useState.
+ *
+ * If you need more *power*, use the individual setter and getter
+ * hooks above.
  */
 export const useModalState = (
   modalName: Modals
