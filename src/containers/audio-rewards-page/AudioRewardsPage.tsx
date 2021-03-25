@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 
 import Header from 'components/general/header/desktop/Header'
 import Page from 'components/general/Page'
@@ -14,6 +14,10 @@ import { useMobileHeader } from 'components/general/header/mobile/hooks'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import { AUDIO_PAGE, BASE_URL } from 'utils/route'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import NavContext, {
+  LeftPreset,
+  RightPreset
+} from 'containers/nav/store/context'
 
 export const messages = {
   title: '$AUDIO & Rewards',
@@ -51,8 +55,17 @@ export const DesktopPage = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
-export const MobilePage = ({ children }: { children: React.ReactNode }) => {
+const useMobileNavContext = () => {
   useMobileHeader({ title: messages.title })
+  const { setLeft, setRight } = useContext(NavContext)!
+  useEffect(() => {
+    setLeft(LeftPreset.NOTIFICATION)
+    setRight(RightPreset.SEARCH)
+  }, [setLeft, setRight])
+}
+
+export const MobilePage = ({ children }: { children: React.ReactNode }) => {
+  useMobileNavContext()
   return (
     <MobilePageContainer
       title={messages.title}
