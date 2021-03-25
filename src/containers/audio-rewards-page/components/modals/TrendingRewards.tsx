@@ -137,9 +137,10 @@ const TrendingRewardsBody = ({
             tweetId={tweetId}
             onLoad={() => setShowSpinner(false)}
             options={{
+              cards: 'none',
               conversation: 'none',
               hide_thread: true,
-              width: 550,
+              width: 554,
               height: 390
             }}
           />

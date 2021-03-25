@@ -44,7 +44,7 @@
   padding: 24px;
   max-width: 602px;
   width: 100%;
-  min-height: 300px;
+  min-height: 354px;
   margin-bottom: 32px;
   position: relative;
 }
@@ -54,7 +54,6 @@
 
 .embedWrapper {
   max-width: 550px;
-  min-height: 483px;
   width: 100%;
 }
 
