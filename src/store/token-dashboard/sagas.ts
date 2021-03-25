@@ -138,7 +138,6 @@ function* fetchUserAssociatedWallets(user: any) {
       /* cache */ false,
       /* asUrl */ false
     )
-    console.log({ metadata })
     if (metadata?.associated_wallets) {
       return metadata.associated_wallets
     } else {
@@ -196,7 +195,6 @@ function* connectWallet() {
       )
     ) {
       // The wallet already exists in the assocaited wallets set
-      console.log('wallet exists')
       yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
       return
     }
@@ -215,7 +213,6 @@ function* connectWallet() {
     ) {
       const upgradedToCreator: boolean = yield call(upgradeToCreator)
       if (!upgradedToCreator) {
-        console.log('unable to upgrade user to creator')
         yield put(
           updateWalletError({ errorMessage: 'Unable to connect wallet' })
         )
@@ -227,7 +224,6 @@ function* connectWallet() {
       fetchUserAssociatedWallets,
       updatedMetadata
     )
-    console.log({ currentWalletSignatures })
     updatedMetadata.associated_wallets = {
       ...currentWalletSignatures,
       [connectingWallet]: { signature }
@@ -252,7 +248,6 @@ function* connectWallet() {
               updatedWallets
             )
           }
-          console.log('successful')
           return Object.keys(updatedWallets)
         },
         // @ts-ignore: remove when confirmer is typed
@@ -280,7 +275,6 @@ function* connectWallet() {
       )
     )
   } catch (error) {
-    console.log({ error })
     yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
   }
 }
@@ -299,7 +293,6 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
     ) {
       const upgradedToCreator: boolean = yield call(upgradeToCreator)
       if (!upgradedToCreator) {
-        console.log('unable to upgrade user to creator')
         yield put(
           updateWalletError({ errorMessage: 'Unable to remove wallet' })
         )
@@ -314,7 +307,6 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
 
     if (!(removeWallet in currentAssociatedWallest)) {
       // The wallet already exists in the assocaited wallets set
-      console.log('wallet doesn;t exists')
       yield put(updateWalletError({ errorMessage: 'Unable to remove wallet' }))
       return
     }
@@ -328,9 +320,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       requestConfirmation(
         CONNECT_WALLET_CONFIRMATION_UID,
         function* () {
-          console.log('polling here')
           const updatedWallets = updatedMetadata.associated_wallets
-          console.log({ updatedWallets })
           let equivalentIndexedWallets: any = yield call(
             compareIndexedWallets,
             accountUserId!,
@@ -347,10 +337,8 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
         },
         // @ts-ignore: remove when confirmer is typed
         function* () {
-          console.log('in success')
           // Update the user's balance w/ the new wallet
           yield put(getBalance())
-          console.log({ removeWallet })
           yield put(removeWalletAction({ wallet: removeWallet }))
           const updatedCID: string = yield call(getAccountMetadataCID)
           yield put(
@@ -370,7 +358,6 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       )
     )
   } catch (error) {
-    console.log({ error })
     yield put(updateWalletError({ errorMessage: 'Unable to remove wallet' }))
   }
 }
