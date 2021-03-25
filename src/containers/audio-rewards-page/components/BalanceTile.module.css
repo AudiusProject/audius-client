@@ -24,12 +24,21 @@
   color: var(--static-white);
   text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 17px;
+  opacity: 1;
+  transition: all 0.07s ease-in-out;
 }
 
 .multipleWalletsContainer {}
 
 .balanceLabel {
   margin-bottom: 16px;
+  opacity: 1;
+  transition: all 0.07s ease-in-out;
+}
+
+.balanceAmount.hidden,
+.balanceLabel.hidden {
+  opacity: 0;
 }
 
 .multipleWalletsMessage {}

@@ -11,6 +11,7 @@ import {
 import BN from 'bn.js'
 import TokenHoverTooltip from './TokenHoverTooltip'
 import { getAssociatedWallets } from 'store/token-dashboard/slice'
+import { Nullable } from 'utils/typeUtils'
 
 const messages = {
   audio: '$AUDIO',
@@ -28,20 +29,32 @@ export const Tile: React.FC<TileProps> = ({ className, children }) => {
 }
 
 export const BalanceTile = ({ className }: { className?: string }) => {
-  const balance = useSelector(getAccountBalance) ?? (new BN(0) as BNWei)
-  const totalBalance =
-    useSelector(getAccountTotalBalance) ?? (new BN(0) as BNWei)
+  const balance = useSelector(getAccountBalance) ?? null
+  const totalBalance: Nullable<BNWei> =
+    useSelector(getAccountTotalBalance) ?? null
   const { connectedWallets: wallets } = useSelector(getAssociatedWallets)
   const hasMultipleWallets = (wallets?.length ?? 0) > 0
 
   return (
     <Tile className={cn([styles.container, className])}>
       <>
-        <TokenHoverTooltip balance={balance}>
-          <div className={styles.balanceAmount}>{formatWei(balance, true)}</div>
+        <TokenHoverTooltip balance={balance || (new BN(0) as BNWei)}>
+          <div
+            className={cn(styles.balanceAmount, {
+              [styles.hidden]: !balance
+            })}
+          >
+            {formatWei(balance || (new BN(0) as BNWei), true)}
+          </div>
         </TokenHoverTooltip>
-        <div className={styles.balanceLabel}>{messages.audio}</div>
-        {hasMultipleWallets && (
+        <div
+          className={cn(styles.balanceLabel, {
+            [styles.hidden]: !balance
+          })}
+        >
+          {messages.audio}
+        </div>
+        {hasMultipleWallets && totalBalance && (
           <div className={styles.multipleWalletsContainer}>
             <span className={styles.multipleWalletsMessage}>
               {messages.multipleWallets}
