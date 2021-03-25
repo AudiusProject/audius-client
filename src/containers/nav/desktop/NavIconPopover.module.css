@@ -1,0 +1,50 @@
+.headerIconWrapper {
+  position: relative;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+  border: 1px solid var(--neutral-light-8);
+  border-radius: 50%;
+  margin-left: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all ease-in-out .07s;
+  background-color: var(--neutral-light-9);
+}
+
+.headerIconWrapper > svg path {
+  fill: var(--neutral-light-4);
+}
+
+.headerIconWrapper:global(.active),
+.headerIconWrapper:hover {
+  background-color: var(--secondary-light-2);
+  transform: scale3d(1.1,1.1,1.1);
+}
+
+.menu {
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--neutral);
+}
+
+.rewardsMenu {
+  color: var(--accent-orange)
+}
+
+.menuIcon {
+  border: none;
+  margin-right: 8px;
+}
+
+.menuIcon svg {
+  height: 24px;
+  width: 24px;
+  padding: 2px;
+}
+
+.crownIcon svg {
+  padding: 4px;
+  background: var(--accent-orange);
+}

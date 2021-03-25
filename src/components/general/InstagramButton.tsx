@@ -12,8 +12,8 @@ type InstagramAuthButtonProps = {
   textClassName?: string
   iconClassName?: string
   onClick?: () => void
-  onSuccess: (uuid: string, profile: any) => void
-  onFailure: (error: any) => void
+  onSuccess?: (uuid: string, profile: any) => void
+  onFailure?: (error: any) => void
   style?: object
   disabled?: boolean
   text?: string
@@ -33,8 +33,8 @@ const InstagramAuthButton = ({
     <InstagramAuth
       onClick={onClick}
       disabled={disabled}
-      onFailure={onFailure}
-      onSuccess={onSuccess}
+      onFailure={onFailure || (() => {})}
+      onSuccess={onSuccess || (() => {})}
       getUserUrl={`${IDENTITY_SERVICE}/instagram`}
       setProfileUrl={`${IDENTITY_SERVICE}/instagram/profile`}
     >

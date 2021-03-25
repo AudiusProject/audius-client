@@ -56,7 +56,7 @@ const fast = {
 // Interpolates a single y-value into a string translate3d
 const interpY = (y: number) => `translate3d(0, ${y}px, 0)`
 
-type DrawerProps = {
+export type DrawerProps = {
   isOpen: boolean
   children: ReactNode
   keyboardVisible?: boolean

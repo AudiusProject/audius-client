@@ -67,6 +67,7 @@ import ServiceSelectionReducer from 'containers/service-selection/store/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import modals from 'store/application/ui/modals/slice'
 import trendingPlaylistsReducer from 'containers/trending-playlists/store/slice'
+import rewardsUI from 'containers/audio-rewards-page/store/slice'
 
 import wallet from 'store/wallet/slice'
 
@@ -124,6 +125,7 @@ export type AppState = {
       >
       averageColor: ReturnType<typeof averageColor>
       modals: ReturnType<typeof modals>
+      rewardsUI: ReturnType<typeof rewardsUI>
     }
     pages: {
       explore: ExplorePageState
