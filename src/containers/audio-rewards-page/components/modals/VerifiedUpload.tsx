@@ -9,11 +9,11 @@ import TwitterButton from 'components/general/TwitterButton'
 import React, { useCallback } from 'react'
 import { useModalState } from 'store/application/ui/modals/hooks'
 import ModalDrawer from './ModalDrawer'
-import InstagramButton from 'components/general/InstagramButton'
+import { InstagramButton } from 'components/general/InstagramButton'
 
 import styles from './VerifiedUpload.module.css'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
-import { UPLOAD_PAGE } from 'utils/route'
+import { SETTINGS_PAGE, UPLOAD_PAGE } from 'utils/route'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 const messages = {
@@ -53,6 +53,11 @@ const VerifiedUpload = ({ dismissModal }: { dismissModal: () => void }) => {
     dismissModal()
   }, [navigate, dismissModal])
 
+  const onClickVerify = useCallback(() => {
+    navigate(SETTINGS_PAGE)
+    dismissModal()
+  }, [navigate, dismissModal])
+
   const wm = useWithMobileStyle(styles.mobile)
   return (
     <div className={wm(styles.container)}>
@@ -63,13 +68,12 @@ const VerifiedUpload = ({ dismissModal }: { dismissModal: () => void }) => {
           textLabel={messages.verifyTwitterButton}
           size='large'
           className={styles.twitterButton}
+          onClick={onClickVerify}
         />
         <InstagramButton
-          // TODO: handle these
-          onFailure={() => {}}
-          onSuccess={() => {}}
           className={styles.instagramButton}
           text={messages.verifyIGButton}
+          onClick={onClickVerify}
         />
       </div>
       <Divider />
