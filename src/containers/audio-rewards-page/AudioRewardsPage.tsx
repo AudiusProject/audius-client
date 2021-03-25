@@ -4,10 +4,11 @@ import Header from 'components/general/header/desktop/Header'
 import Page from 'components/general/Page'
 
 import styles from './AudioRewardsPage.module.css'
+import ExplainerTile from './components/ExplainerTile'
+import BalanceTile from './components/BalanceTile'
+import WalletActionsTile from './components/WalletActionsTile'
 import WalletModal from './WalletModal'
 import Tiers from './Tiers'
-import { BalanceTile, WalletTile } from './Tiles'
-import ExplainerTile from './components/ExplainerTile'
 import RewardsTile from './RewardsTile'
 import { isMobile } from 'utils/clientUtil'
 import { useMobileHeader } from 'components/general/header/mobile/hooks'
@@ -29,7 +30,7 @@ export const RewardsContent = () => {
       <WalletModal />
       <div className={wm(styles.cryptoContentContainer)}>
         <BalanceTile className={wm(styles.balanceTile)} />
-        <WalletTile className={styles.walletTile} />
+        <WalletActionsTile />
       </div>
       <RewardsTile className={styles.mobile} />
       <Tiers />
