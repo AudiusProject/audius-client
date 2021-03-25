@@ -233,7 +233,6 @@ const ConnectedPlaylistTile = memo(
       goToRoute(FAVORITING_USERS_ROUTE)
     }
 
-    console.log({ collection })
     return (
       <PlaylistTile
         uid={uid}
@@ -258,6 +257,7 @@ const ConnectedPlaylistTile = memo(
           0
         )}
         tracks={tracks}
+        trackCount={collection.track_count}
         size={size}
         repostCount={collection.repost_count}
         saveCount={collection.save_count}

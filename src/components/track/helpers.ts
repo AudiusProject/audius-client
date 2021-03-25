@@ -36,6 +36,7 @@ export const getCollectionWithFallback = (collection: Collection | null) => {
       repost_count: 0,
       save_count: 0,
       track_ids: [],
+      track_count: 0,
       followee_reposts: [],
       followee_saves: [],
       has_current_user_reposted: false,

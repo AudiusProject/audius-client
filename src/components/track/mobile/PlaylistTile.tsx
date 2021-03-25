@@ -60,6 +60,7 @@ type TrackListProps = {
   goToCollectionPage: (e: React.MouseEvent<HTMLElement>) => void
   isLoading?: boolean
   numLoadingSkeletonRows?: number
+  trackCount?: number
 }
 
 const TrackList = ({
@@ -67,7 +68,8 @@ const TrackList = ({
   activeTrackUid,
   goToCollectionPage,
   isLoading,
-  numLoadingSkeletonRows
+  numLoadingSkeletonRows,
+  trackCount
 }: TrackListProps) => {
   if (!tracks.length && isLoading && numLoadingSkeletonRows) {
     return (
@@ -89,11 +91,11 @@ const TrackList = ({
           track={track}
         />
       ))}
-      {tracks.length > 5 && (
+      {trackCount && trackCount > 5 && (
         <>
           <div className={styles.trackItemDivider}></div>
           <div className={cn(styles.trackItem, styles.trackItemMore)}>
-            {`+${tracks.length - DISPLAY_TRACK_COUNT} more tracks`}
+            {`+${trackCount - tracks.length} more tracks`}
           </div>
         </>
       )}
@@ -127,7 +129,8 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
     showSkeleton,
     numLoadingSkeletonRows,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    trackCount
   } = props
   const [artworkLoaded, setArtworkLoaded] = useState(false)
   useEffect(() => {
@@ -247,6 +250,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
             tracks={props.tracks}
             isLoading={showSkeleton}
             numLoadingSkeletonRows={numLoadingSkeletonRows}
+            trackCount={trackCount}
           />
         }
         <div className={cn(fadeIn)}>

@@ -73,6 +73,7 @@ export type PlaylistTileProps = TileProps & {
   activeTrackUid: UID | null
   saveCount: number
   tracks: LineupTrack[]
+  trackCount: number
   showArtworkIcon?: boolean
   showSkeleton?: boolean
   pauseTrack: () => void
@@ -273,6 +274,9 @@ export type DesktopPlaylistTileProps = {
 
   /** The list of tracks to be rendered under the tracktile  */
   trackList: ReactNode[]
+
+  /** The fll track count for the playlist (may include tracks not rendered) */
+  trackCount: number
 
   /** The wrapper react compoenent for the track tile - can be used for drag and drop */
   TileTrackContainer?: any

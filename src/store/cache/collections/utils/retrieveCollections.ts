@@ -5,7 +5,10 @@ import { getCollections } from 'store/cache/collections/selectors'
 import { retrieve } from 'store/cache/sagas'
 import { getEntryTimestamp } from 'store/cache/selectors'
 import AudiusBackend from 'services/AudiusBackend'
-import { CollectionMetadata, UserCollectionMetadata } from 'models/Collection'
+import Collection, {
+  CollectionMetadata,
+  UserCollectionMetadata
+} from 'models/Collection'
 import { reformat } from './reformat'
 import { retrieveTracks } from 'store/cache/tracks/utils'
 import { addUsersFromCollections } from './addUsersFromCollections'
@@ -91,15 +94,25 @@ function* retrieveCollection(playlistId: ID) {
 export function* retrieveCollections(
   userId: ID | null,
   collectionIds: ID[],
-  fetchTracks = false
+  fetchTracks = false,
+  requiresAllTracks = false
 ) {
   const { entries, uids } = yield call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
-      const res: ReturnType<typeof getCollections> = yield select(
-        getCollections,
-        { ids }
-      )
+      const res: {
+        [id: number]: Collection
+      } = yield select(getCollections, { ids })
+      if (requiresAllTracks) {
+        const keys = Object.keys(res) as any
+        keys.forEach((collectionId: number) => {
+          const fullTrackCount = res[collectionId].track_count
+          const currentTrackCount = res[collectionId]?.tracks?.length ?? 0
+          if (fullTrackCount > currentTrackCount) {
+            delete res[collectionId]
+          }
+        })
+      }
       return res
     },
     getEntriesTimestamp: function* (ids: ID[]) {
