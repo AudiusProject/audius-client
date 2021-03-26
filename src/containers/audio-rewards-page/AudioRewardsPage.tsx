@@ -28,7 +28,7 @@ export const RewardsContent = () => {
   const wm = useWithMobileStyle(styles.mobile)
 
   return (
-    <>
+    <div className={styles.wrapperModal}>
       <ExplainerTile className={wm(styles.explainerTile)} />
       <WalletModal />
       <div className={wm(styles.cryptoContentContainer)}>
@@ -37,7 +37,7 @@ export const RewardsContent = () => {
       </div>
       <RewardsTile className={styles.mobile} />
       <Tiers />
-    </>
+    </div>
   )
 }
 

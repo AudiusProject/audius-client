@@ -67,7 +67,7 @@
 
 .balanceAmount {
   font-weight: 800;
-  font-size: 64px;
+  font-size: 96px;
   text-align: center;
   color: var(--static-white);
   text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
