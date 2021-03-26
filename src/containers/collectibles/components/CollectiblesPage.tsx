@@ -468,17 +468,15 @@ const CollectiblesPage: React.FC<{
         <div
           className={cn(styles.content, { [styles.mobileContent]: isMobile })}
         >
-          {isLoading && (
+          {isLoading ? (
             <div className={styles.spinnerContainer}>
               <Spin className={styles.spinner} size='large' />
             </div>
-          )}
-          {!isLoading && !getVisibleCollectibles().length && (
+          ) : !getVisibleCollectibles().length ? (
             <div className={styles.noVisibleCollectible}>
               {collectibleMessages.noVisibleCollectible}
             </div>
-          )}
-          {!isLoading && (
+          ) : (
             <div className={styles.container}>
               {getVisibleCollectibles().map(collectible => (
                 <CollectibleDetails
