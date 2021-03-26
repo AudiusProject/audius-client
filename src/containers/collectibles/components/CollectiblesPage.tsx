@@ -8,106 +8,52 @@ import {
   Modal
 } from '@audius/stems'
 import cn from 'classnames'
-import styles from './CollectiblesPage.module.css'
+import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'containers/user-badges/UserBadges'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult
+} from 'react-beautiful-dnd'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
-import { ReactComponent as IconShow } from 'assets/img/iconMultiselectAdd.svg'
-import { ReactComponent as IconHide } from 'assets/img/iconRemoveTrack.svg'
-import { ReactComponent as IconDrag } from 'assets/img/iconDrag.svg'
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
-import Tooltip from 'components/tooltip/Tooltip'
 import { Collectible, CollectiblesMetadata, CollectibleType } from './types'
 import { ProfileUser } from 'containers/profile-page/store/types'
 import { formatDate } from 'utils/timeUtil'
 import Drawer from 'components/drawer/Drawer'
 import Spin from 'antd/lib/spin'
+import {
+  HiddenCollectibleRow,
+  VisibleCollectibleRow
+} from 'containers/collectibles/components/CollectibleRow'
 
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
 
-const messages = {
+export const collectibleMessages = {
   title: 'COLLECTIBLES',
-  subtitlePrefix: 'A collection of NFT collectibles owned and created by '
-}
-
-// @ts-ignore
-const VisibleCollectible = props => {
-  const {
-    name,
-    imageUrl,
-    isOwned,
-    dateCreated,
-    onHideClick,
-    forwardRef,
-    handleProps,
-    ...otherProps
-  } = props
-  return (
-    <div className={styles.editRow} ref={forwardRef} {...otherProps}>
-      <Tooltip text='Hide collectible'>
-        <IconHide onClick={onHideClick} />
-      </Tooltip>
-      <div className={styles.verticalDivider} />
-      <div>
-        <img
-          className={styles.editMedia}
-          src={imageUrl}
-          alt='Visible collectible thumbnail'
-        />
-      </div>
-      <div className={styles.editRowTitle}>{name}</div>
-      <div>
-        {isOwned ? (
-          <span className={cn(styles.owned, styles.editStamp)}>OWNED</span>
-        ) : (
-          <span className={cn(styles.created, styles.editStamp)}>CREATED</span>
-        )}
-      </div>
-      {dateCreated && <div>{formatDate(dateCreated)}</div>}
-      <div className={styles.verticalDivider} />
-      <div className={styles.drag} {...handleProps}>
-        <IconDrag />
-      </div>
-    </div>
-  )
-}
-
-const HiddenCollectible: React.FC<{
-  name: string
-  imageUrl: string
-  isOwned: boolean
-  dateCreated: string | null
-  onShowClick: () => void
-}> = props => {
-  const { name, imageUrl, isOwned, dateCreated, onShowClick } = props
-  return (
-    <div className={cn(styles.editRow, styles.editHidden)}>
-      <Tooltip className={styles.showButton} text='Show collectible'>
-        <IconShow onClick={onShowClick} />
-      </Tooltip>
-      <div className={styles.verticalDivider} />
-      <div>
-        <img
-          className={styles.editMedia}
-          src={imageUrl}
-          alt='Hidden collectible thumbnail'
-        />
-      </div>
-      <div className={styles.editRowTitle}>{name}</div>
-      <div>
-        {isOwned ? (
-          <span className={cn(styles.owned, styles.editStamp)}>OWNED</span>
-        ) : (
-          <span className={cn(styles.created, styles.editStamp)}>CREATED</span>
-        )}
-      </div>
-      {dateCreated && <div>{formatDate(dateCreated)}</div>}
-    </div>
-  )
+  subtitlePrefix: 'A collection of NFT collectibles owned and created by ',
+  owned: 'OWNED',
+  created: 'CREATED',
+  edit: 'EDIT',
+  linkToCollectible: 'Link To Collectible',
+  noVisibleCollectible:
+    "Visitors to your profile won't see this tab until you show at least one NFT Collectible.",
+  sortCollectibles: 'Sort Your Collectibles',
+  editCollectibles: 'Edit Collectibles',
+  visibleCollectibles: 'Visible Collectibles',
+  hiddenCollectibles: 'Hidden Collectibles',
+  showCollectible: 'Show collectible',
+  hideCollectible: 'Hide collectible',
+  visibleThumbnail: 'Visible collectible thumbnail',
+  hiddenThumbnail: 'Hidden collectible thumbnail',
+  editInBrowser:
+    'Visit audius.co from a desktop browser to hide and sort your NFT collectibles.',
+  videoNotSupported: 'Your browser does not support the video tag.'
 }
 
 const CollectibleMedia: React.FC<{
@@ -130,7 +76,7 @@ const CollectibleMedia: React.FC<{
             animationUrl!.lastIndexOf('.') + 1
           )}`}
         />
-        Your browser does not support the video tag.
+        {collectibleMessages.videoNotSupported}
       </video>
       {isMuted ? (
         <IconMute className={styles.volumeIcon} />
@@ -181,9 +127,11 @@ const CollectibleDetails: React.FC<{
           )}
           <div className={styles.stamp}>
             {collectible.isOwned ? (
-              <span className={styles.owned}>OWNED</span>
+              <span className={styles.owned}>{collectibleMessages.owned}</span>
             ) : (
-              <span className={styles.created}>CREATED</span>
+              <span className={styles.created}>
+                {collectibleMessages.created}
+              </span>
             )}
           </div>
         </div>
@@ -216,9 +164,13 @@ const CollectibleDetails: React.FC<{
             <div className={styles.detailsTitle}>{collectible.name}</div>
             <div className={styles.detailsStamp}>
               {collectible.isOwned ? (
-                <span className={styles.owned}>OWNED</span>
+                <span className={styles.owned}>
+                  {collectibleMessages.owned}
+                </span>
               ) : (
-                <span className={styles.created}>CREATED</span>
+                <span className={styles.created}>
+                  {collectibleMessages.created}
+                </span>
               )}
             </div>
 
@@ -248,7 +200,7 @@ const CollectibleDetails: React.FC<{
                 rel='noopener noreferrer'
               >
                 <IconLink className={styles.linkIcon} />
-                Link To Collectible
+                {collectibleMessages.linkToCollectible}
               </a>
             )}
           </div>
@@ -273,9 +225,13 @@ const CollectibleDetails: React.FC<{
             <div className={styles.detailsTitle}>{collectible.name}</div>
             <div className={cn(styles.detailsStamp, styles.mobileDetailsStamp)}>
               {collectible.isOwned ? (
-                <span className={styles.owned}>OWNED</span>
+                <span className={styles.owned}>
+                  {collectibleMessages.owned}
+                </span>
               ) : (
-                <span className={styles.created}>CREATED</span>
+                <span className={styles.created}>
+                  {collectibleMessages.created}
+                </span>
               )}
             </div>
 
@@ -314,7 +270,7 @@ const CollectibleDetails: React.FC<{
                 rel='noopener noreferrer'
               >
                 <IconLink className={styles.linkIcon} />
-                Link To Collectible
+                {collectibleMessages.linkToCollectible}
               </a>
             )}
           </div>
@@ -432,7 +388,7 @@ const CollectiblesPage: React.FC<{
     [setCollectiblesMetadata, collectiblesMetadata]
   )
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
 
     if (!destination || destination.index === source.index) {
@@ -481,13 +437,13 @@ const CollectiblesPage: React.FC<{
       <div className={styles.wrapper}>
         <div className={cn(styles.header, { [styles.mobileHeader]: isMobile })}>
           <div className={styles.headerText}>
-            <div className={styles.title}>{messages.title}</div>
+            <div className={styles.title}>{collectibleMessages.title}</div>
             <div
               className={cn(styles.subtitle, {
                 [styles.mobileSubtitle]: isMobile
               })}
             >
-              {`${messages.subtitlePrefix}${name}`}
+              {`${collectibleMessages.subtitlePrefix}${name}`}
               {userId && (
                 <UserBadges
                   className={styles.badges}
@@ -502,7 +458,7 @@ const CollectiblesPage: React.FC<{
             <Button
               type={ButtonType.COMMON}
               size={ButtonSize.TINY}
-              text='EDIT'
+              text={collectibleMessages.edit}
               leftIcon={<IconPencil />}
               onClick={handleEditClick}
             />
@@ -519,8 +475,7 @@ const CollectiblesPage: React.FC<{
           )}
           {!isLoading && !getVisibleCollectibles().length && (
             <div className={styles.noVisibleCollectible}>
-              Visitors to your profile won&#39;t see this tab until you show at
-              least one NFT Collectible.
+              {collectibleMessages.noVisibleCollectible}
             </div>
           )}
           {!isLoading && (
@@ -538,7 +493,7 @@ const CollectiblesPage: React.FC<{
       </div>
 
       <Modal
-        title='Sort Your Collectibles'
+        title={collectibleMessages.sortCollectibles}
         isOpen={isEditingPreferences}
         onClose={() => setIsEditingPreferences(false)}
         showTitleHeader
@@ -551,16 +506,18 @@ const CollectiblesPage: React.FC<{
         <div className={styles.editModal}>
           <div className={styles.editListSection}>
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className={styles.editListHeader}>Visible Collectibles</div>
+              <div className={styles.editListHeader}>
+                {collectibleMessages.visibleCollectibles}
+              </div>
 
               <div className={styles.editTableContainer}>
                 <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
-                  {(provided, snapshot) => (
+                  {provided => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                       {getVisibleCollectibles().map((c, index) => (
                         <Draggable key={c.id} draggableId={c.id} index={index}>
-                          {(provided, snapshot) => (
-                            <VisibleCollectible
+                          {provided => (
+                            <VisibleCollectibleRow
                               {...provided.draggableProps}
                               handleProps={provided.dragHandleProps}
                               forwardRef={provided.innerRef}
@@ -583,11 +540,13 @@ const CollectiblesPage: React.FC<{
           </div>
 
           <div className={styles.editListSection}>
-            <div className={styles.editListHeader}>Hidden Collectibles</div>
+            <div className={styles.editListHeader}>
+              {collectibleMessages.hiddenCollectibles}
+            </div>
 
             <div className={styles.editTableContainer}>
               {getHiddenCollectibles().map(c => (
-                <HiddenCollectible
+                <HiddenCollectibleRow
                   key={c.id}
                   name={c.name!}
                   imageUrl={c.imageUrl!}
@@ -615,10 +574,11 @@ const CollectiblesPage: React.FC<{
       >
         <div className={styles.editDrawer}>
           <IconGradientCollectibles className={styles.editDrawerIcon} />
-          <div className={styles.editDrawerTitle}>Edit Collectibles</div>
+          <div className={styles.editDrawerTitle}>
+            {collectibleMessages.editCollectibles}
+          </div>
           <div className={styles.editDrawerContent}>
-            Visit audius.co from a desktop browser to hide and sort your NFT
-            collectibles.
+            {collectibleMessages.editInBrowser}
           </div>
         </div>
       </Drawer>

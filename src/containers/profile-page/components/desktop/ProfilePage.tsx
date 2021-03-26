@@ -165,7 +165,6 @@ const ProfilePage = ({
   loadMoreUserFeed,
   loadMoreArtistTracks,
   openCreatePlaylistModal,
-  // Collectibles
   updateProfile,
 
   mostUsedTags,

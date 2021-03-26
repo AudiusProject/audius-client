@@ -309,7 +309,7 @@
   max-height: 512px;
 }
 
-video {
+.container video {
   width: 342px;
   height: 342px;
   max-width: 512px;

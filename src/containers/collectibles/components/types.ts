@@ -1,3 +1,5 @@
+import { Nullable } from 'utils/typeUtils'
+
 export type CollectiblesMetadata = {
   [key: string]: object
   order: string[]
@@ -10,18 +12,18 @@ export enum CollectibleType {
 
 export type Collectible = {
   id: string
-  name: string | null
-  description: string | null
+  name: Nullable<string>
+  description: Nullable<string>
   type: CollectibleType
-  imageUrl: string | null
-  imagePreviewUrl: string | null
-  imageThumbnailUrl: string | null
-  imageOriginalUrl: string | null
-  animationUrl: string | null
-  animationOriginalUrl: string | null
-  youtubeUrl: string | null
+  imageUrl: Nullable<string>
+  imagePreviewUrl: Nullable<string>
+  imageThumbnailUrl: Nullable<string>
+  imageOriginalUrl: Nullable<string>
+  animationUrl: Nullable<string>
+  animationOriginalUrl: Nullable<string>
+  youtubeUrl: Nullable<string>
   isOwned: boolean
-  dateCreated: string | null
-  dateLastTransferred: string | null
-  externalLink: string | null
+  dateCreated: Nullable<string>
+  dateLastTransferred: Nullable<string>
+  externalLink: Nullable<string>
 }
