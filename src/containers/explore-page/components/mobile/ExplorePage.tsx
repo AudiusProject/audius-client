@@ -33,6 +33,7 @@ import Card from 'components/card/mobile/Card'
 import ColorTile from './ColorTile'
 import CardLineup from 'containers/lineup/CardLineup'
 import { useMainPageHeader } from 'containers/nav/store/context'
+import cn from 'classnames'
 
 import { ReactComponent as IconForYou } from 'assets/img/iconExploreMobileForYou.svg'
 import { ReactComponent as IconMoods } from 'assets/img/iconExploreMobileMoods.svg'
@@ -81,12 +82,12 @@ you based on your likes, reposts, and follows. Refreshes often so if you like a 
 }
 
 const justForYou = [
+  TRENDING_PLAYLISTS,
   HEAVY_ROTATION,
   LET_THEM_DJ,
   BEST_NEW_RELEASES,
   UNDER_THE_RADAR,
   TOP_ALBUMS,
-  TRENDING_PLAYLISTS,
   MOST_LOVED,
   FEELING_LUCKY
 ]
@@ -267,7 +268,9 @@ const ExplorePage = ({
         title={messages.justForYou}
         description={messages.justForYouDescription}
       >
-        <div className={styles.section}>{justForYouTiles}</div>
+        <div className={cn(styles.section, styles.doubleHeaderSection)}>
+          {justForYouTiles}
+        </div>
       </TabBodyHeader>,
       <TabBodyHeader
         key='moodPlaylists'
