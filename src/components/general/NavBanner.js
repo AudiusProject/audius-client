@@ -38,7 +38,7 @@ const NavBanner = props => {
                   icon={<SortIcon />}
                   menu={menu}
                   disabled={false}
-                  position='bottomRight'
+                  position='bottomLeft'
                 />
               )}
             </div>

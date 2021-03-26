@@ -11,7 +11,7 @@ import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { pressReceive, pressSend } from 'store/token-dashboard/slice'
 import TokenHoverTooltip from './components/TokenHoverTooltip'
 import { isMobile } from 'utils/clientUtil'
-import { useModalState } from 'store/application/ui/modals/hooks'
+import { useModalState } from 'hooks/useModalState'
 
 const messages = {
   noClaim1: 'You earn $AUDIO by using Audius.',

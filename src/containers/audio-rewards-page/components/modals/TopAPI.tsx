@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useModalState } from 'store/application/ui/modals/hooks'
+import { useModalState } from 'hooks/useModalState'
 import ModalDrawer from './ModalDrawer'
 import AudiusAPI from 'assets/img/audiusAPI.png'
 import ButtonWithArrow from '../ButtonWithArrow'
