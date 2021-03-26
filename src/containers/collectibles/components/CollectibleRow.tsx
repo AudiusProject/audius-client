@@ -1,13 +1,13 @@
 import React from 'react'
-import styles from './CollectiblesPage.module.css'
+import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import cn from 'classnames'
-import Tooltip from '../../../components/tooltip/Tooltip'
-import { formatDate } from '../../../utils/timeUtil'
-import { ReactComponent as IconDrag } from '../../../assets/img/iconDrag.svg'
-import { ReactComponent as IconShow } from '../../../assets/img/iconMultiselectAdd.svg'
-import { ReactComponent as IconHide } from '../../../assets/img/iconRemoveTrack.svg'
-import { collectibleMessages } from './CollectiblesPage'
+import Tooltip from 'components/tooltip/Tooltip'
+import { formatDate } from 'utils/timeUtil'
 import { Nullable } from 'utils/typeUtils'
+import { ReactComponent as IconDrag } from 'assets/img/iconDrag.svg'
+import { ReactComponent as IconShow } from 'assets/img/iconMultiselectAdd.svg'
+import { ReactComponent as IconHide } from 'assets/img/iconRemoveTrack.svg'
+import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
 
 // @ts-ignore
 export const VisibleCollectibleRow = props => {
