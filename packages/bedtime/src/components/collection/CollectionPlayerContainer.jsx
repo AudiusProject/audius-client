@@ -9,6 +9,7 @@ import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
 import { isMobile } from '../../util/isMobile'
 import { PlayerFlavor } from '../app'
+import { formatGateways } from '../../util/gatewayUtil'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -26,20 +27,21 @@ const CollectionPlayerContainer = ({
   // Helper fn to get segements
   const getSegments = useCallback((i) => collection.tracks[i].segments, [collection])
   const getId = useCallback((i) => collection.tracks[i].id, [collection])
+  const getGateways = useCallback((i) => formatGateways(collection.tracks[i].gateways))
 
   // callback for usePlayback
   const onTrackEnd = useCallback(({ stop, onTogglePlay, load }) => {
     // Handle last track case
     if (activeTrackIndex === collection.tracks.length - 1) {
       setActiveTrackIndex(0)
-      load(getSegments(0))
+      load(getSegments(0), getGateways(0))
       setPopoverVisibility(true)
       return
     }
 
     setActiveTrackIndex(i => i + 1)
     stop()
-    load(getSegments(activeTrackIndex + 1))
+    load(getSegments(activeTrackIndex + 1), getGateways(activeTrackIndex + 1))
     onTogglePlay()
   }, [activeTrackIndex, setActiveTrackIndex, collection, ])
 
@@ -64,7 +66,7 @@ const CollectionPlayerContainer = ({
     const mobile = isMobile()
     if (!isTwitter || mobile || !collection.tracks.length) return
     initAudio()
-    loadTrack(getSegments(0))
+    loadTrack(getSegments(0), getGateways(0))
     setDidInitAudio(true)
     onTogglePlay()
   }, [])
@@ -72,7 +74,7 @@ const CollectionPlayerContainer = ({
   const onTogglePlayTrack = useCallback((trackIndex) => {
     if (!didInitAudio) {
       initAudio()
-      loadTrack(getSegments(trackIndex))
+      loadTrack(getSegments(trackIndex), getGateways(trackIndex))
       setDidInitAudio(true)
     }
 
@@ -89,7 +91,7 @@ const CollectionPlayerContainer = ({
 
     setActiveTrackIndex(trackIndex)
     stop()
-    loadTrack(getSegments(trackIndex))
+    loadTrack(getSegments(trackIndex), getGateways(trackIndex))
     onTogglePlay(getId(trackIndex))
   }, [didInitAudio, setDidInitAudio, loadTrack, activeTrackIndex, playingState, setPopoverVisibility, onTogglePlay, stop, getId])
 

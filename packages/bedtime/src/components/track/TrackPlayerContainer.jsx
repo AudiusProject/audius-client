@@ -11,6 +11,7 @@ import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
 import { isMobile } from '../../util/isMobile'
+import { formatGateways } from '../../util/gatewayUtil'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -45,7 +46,7 @@ const TrackPlayerContainer = ({
   const didTogglePlay = useCallback(() => {
     if (!didInitAudio) {
       initAudio()
-      loadTrack(track.segments)
+      loadTrack(track.segments, formatGateways(track.gateways))
       setDidInitAudio(true)
     }
     onTogglePlay()
@@ -74,7 +75,7 @@ const TrackPlayerContainer = ({
     const mobile = isMobile()
     if (!isTwitter || mobile) return
     initAudio()
-    loadTrack(track.segments)
+    loadTrack(track.segments, formatGateways(track.gateways))
     setDidInitAudio(true)
     onTogglePlay()
   }, [])

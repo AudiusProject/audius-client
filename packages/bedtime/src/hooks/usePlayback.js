@@ -72,9 +72,9 @@ const usePlayback = (id, onAfterAudioEnd) => {
     onAfterAudioEndCallback()
   }
 
-  const loadTrack = useCallback((trackSegments) => {
+  const loadTrack = useCallback((trackSegments, gateways) => {
     if (!audioRef.current) { throw new Error('Init not called') }
-    audioRef.current.load(trackSegments, onAudioEnd)
+    audioRef.current.load(trackSegments, onAudioEnd, [], gateways)
     const newTiming = { position: 0, duration: audioRef.current.getDuration() }
     setTiming(newTiming)
     sendPostMessage({ event: 'ready' })

@@ -26,7 +26,8 @@
     "preact-cli-plugin-env-vars": "^1.2.1",
     "preact-cli-svg-loader": "^1.0.0",
     "preact-render-spy": "^1.2.1",
-    "serve": "^11.1.0"
+    "serve": "^11.1.0",
+    "webpack-cli": "^4.5.0"
   },
   "dependencies": {
     "@audius/stems": "^0.1.5",
