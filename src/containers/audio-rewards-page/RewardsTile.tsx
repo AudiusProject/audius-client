@@ -6,6 +6,8 @@ import { useSetVisibility } from 'store/application/ui/modals/hooks'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import { StringKeys } from 'services/remote-config'
+import { useDispatch } from 'react-redux'
+import { setTrendingRewardsModalType } from './store/slice'
 
 type RewardID =
   | 'trending-track'
@@ -105,11 +107,14 @@ const useRewardIds = () => {
 
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
+  const dispatch = useDispatch()
   const callbacksMap = {
     'trending-track': () => {
+      dispatch(setTrendingRewardsModalType({ modalType: 'tracks' }))
       setVisibility('TrendingRewardsExplainer')(true)
     },
     'trending-playlist': () => {
+      dispatch(setTrendingRewardsModalType({ modalType: 'playlists' }))
       setVisibility('TrendingRewardsExplainer')(true)
     },
     'top-api': () => {
