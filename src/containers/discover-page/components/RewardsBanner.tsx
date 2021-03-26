@@ -4,7 +4,7 @@ import cn from 'classnames'
 import styles from './RewardsBanner.module.css'
 import { IconArrow, IconCrown } from '@audius/stems'
 import { isMobile } from 'utils/clientUtil'
-import { useModalState } from 'store/application/ui/modals/hooks'
+import { useModalState } from 'hooks/useModalState'
 import { useDispatch } from 'react-redux'
 import {
   setTrendingRewardsModalType,

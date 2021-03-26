@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { useSelector } from 'utils/reducer'
-import { getModalVisibility, Modals, setVisibility } from './slice'
+import {
+  getModalVisibility,
+  Modals,
+  setVisibility
+} from '../store/application/ui/modals/slice'
 
 /**
  * Sets visibility for a modal
