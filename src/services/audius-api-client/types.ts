@@ -45,6 +45,7 @@ export type APIUser = {
   profile_picture_sizes: Nullable<CID>
   profile_picture_legacy: Nullable<CID>
   metadata_multihash: Nullable<CID>
+  has_collectibles: boolean
 }
 
 export type APISearchUser = Omit<

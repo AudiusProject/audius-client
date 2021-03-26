@@ -44,12 +44,13 @@ import { getUser } from 'store/cache/users/selectors'
 import { waitForValue } from 'utils/sagaHelpers'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
 }
 
-function* fetchUserCustomizedCollectibles(user) {
+function* fetchProfileCustomizedCollectibles(user) {
   const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
   const cid = user?.metadata_multihash ?? null
   if (cid) {
@@ -61,13 +62,44 @@ function* fetchUserCustomizedCollectibles(user) {
       /* asUrl */ false
     )
     if (metadata?.collectibles) {
-      return metadata.collectibles
+      yield put(
+        cacheActions.update(Kind.USERS, [
+          {
+            id: user.user_id,
+            metadata
+          }
+        ])
+      )
     } else {
-      // TODO
-      console.log('something went wrong, could not get user order')
+      console.log('something went wrong, could not get user collectibles order')
     }
   }
-  return {}
+}
+
+function* fetchOpenSeaAssets(user) {
+  const associatedWallets = yield apiClient.getAssociatedWallets({
+    userID: user.user_id
+  })
+  const collectibleList = yield call(OpenSeaClient.getAllCollectibles, [
+    user.wallet,
+    ...associatedWallets.wallets
+  ])
+  if (collectibleList) {
+    if (collectibleList.length) {
+      yield put(
+        cacheActions.update(Kind.USERS, [
+          {
+            id: user.user_id,
+            metadata: { collectibleList }
+          }
+        ])
+      )
+    } else {
+      console.log('profile has no assets in OpenSea')
+    }
+  } else {
+    console.log('could not fetch OpenSea assets')
+  }
 }
 
 function* fetchProfileAsync(action) {
@@ -104,7 +136,8 @@ function* fetchProfileAsync(action) {
     // Fetch user socials and collections after fetching the user itself
     yield fork(fetchUserSocials, action.handle)
     yield fork(fetchUserCollections, user.user_id)
-    yield fork(fetchUserCustomizedCollectibles, user)
+    yield fork(fetchProfileCustomizedCollectibles, user)
+    yield fork(fetchOpenSeaAssets, user)
 
     // Get current user notification & subscription status
     const isSubscribed = yield call(
@@ -316,11 +349,6 @@ function* updateProfileAsync(action) {
 }
 
 function* confirmUpdateProfile(userId, metadata) {
-  metadata.collectibles = {
-    TOKEN_ID1: {},
-    TOKEN_ID2: {},
-    order: ['TOKEN_ID1', 'TOKEN_ID2']
-  }
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
