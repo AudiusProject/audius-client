@@ -19,6 +19,7 @@ import {
   EXPLORE_LET_THEM_DJ_PAGE,
   EXPLORE_BEST_NEW_RELEASES_PAGE,
   EXPLORE_UNDER_THE_RADAR_PAGE,
+  EXPLORE_TOP_ALBUMS_PAGE,
   EXPLORE_MOST_LOVED_PAGE,
   EXPLORE_FEELING_LUCKY_PAGE,
   EXPLORE_MOOD_PLAYLISTS_PAGE,
@@ -617,6 +618,15 @@ class App extends Component {
                 render={() => (
                   <SmartCollectionPage
                     variant={SmartCollectionVariant.UNDER_THE_RADAR}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path={EXPLORE_TOP_ALBUMS_PAGE}
+                render={() => (
+                  <ExploreCollectionsPage
+                    variant={ExploreCollectionsVariant.TOP_ALBUMS}
                   />
                 )}
               />

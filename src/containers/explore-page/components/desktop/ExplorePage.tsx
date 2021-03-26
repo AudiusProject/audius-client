@@ -30,15 +30,13 @@ import {
 import {
   LET_THEM_DJ,
   TOP_ALBUMS,
-  TOP_PLAYLISTS,
+  TRENDING_PLAYLISTS,
   CHILL_PLAYLISTS,
   UPBEAT_PLAYLISTS,
   INTENSE_PLAYLISTS,
   PROVOKING_PLAYLISTS,
   INTIMATE_PLAYLISTS
 } from 'containers/explore-page/collections'
-import { useFlag } from 'containers/remote-config/hooks'
-import { FeatureFlags } from 'services/remote-config'
 import { ExploreCollectionsVariant } from 'containers/explore-page/store/types'
 
 const messages = {
@@ -54,7 +52,7 @@ reposts, and follows. Refreshes often so if you like a track, favorite it.`,
 }
 
 const justForYou = [
-  TOP_PLAYLISTS,
+  TRENDING_PLAYLISTS,
   HEAVY_ROTATION,
   LET_THEM_DJ,
   BEST_NEW_RELEASES,

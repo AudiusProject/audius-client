@@ -25,5 +25,5 @@ export enum ExploreCollectionsVariant {
   TOP_ALBUMS = 'Top Albums',
   MOOD = 'Mood',
   DIRECT_LINK = 'Direct Link',
-  TOP_PLAYLISTS = 'Top Playlists'
+  TRENDING_PLAYLISTS = 'Top Playlists'
 }

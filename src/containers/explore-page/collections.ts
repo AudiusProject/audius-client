@@ -11,7 +11,6 @@ import {
 import { ReactComponent as IconExploreDJ } from 'assets/img/iconExploreDJ.svg'
 import { ReactComponent as IconExploreTopAlbums } from 'assets/img/iconExploreTopAlbums.svg'
 import { ReactComponent as IconExploreTopPlaylists } from 'assets/img/iconExploreTopPlaylists.svg'
-import { ReactComponent as IconBLM } from 'assets/img/iconBLMGlyph.svg'
 
 export type ExploreCollection = {
   variant: ExploreCollectionsVariant
@@ -48,8 +47,8 @@ export const TOP_ALBUMS: ExploreCollection = {
   link: EXPLORE_TOP_ALBUMS_PAGE
 }
 
-export const TOP_PLAYLISTS: ExploreCollection = {
-  variant: ExploreCollectionsVariant.TOP_PLAYLISTS,
+export const TRENDING_PLAYLISTS: ExploreCollection = {
+  variant: ExploreCollectionsVariant.TRENDING_PLAYLISTS,
   title: 'Trending Playlists',
   subtitle: 'The top playlists on Audius right now',
   gradient: 'linear-gradient(315deg, #57ABFF 0%, #CD98FF 100%)',
@@ -111,7 +110,7 @@ export const INTENSE_PLAYLISTS: ExploreMoodCollection = {
 export const EXPLORE_COLLECTIONS_MAP = {
   [ExploreCollectionsVariant.LET_THEM_DJ]: LET_THEM_DJ,
   [ExploreCollectionsVariant.TOP_ALBUMS]: TOP_ALBUMS,
-  [ExploreCollectionsVariant.TOP_PLAYLISTS]: TOP_PLAYLISTS
+  [ExploreCollectionsVariant.TRENDING_PLAYLISTS]: TRENDING_PLAYLISTS
 }
 
 type ExploreMoodMap = { [key in string]: ExploreMoodCollection }
