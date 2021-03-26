@@ -108,11 +108,7 @@ const CollectibleDetails: React.FC<{
   }, [isMuted, setIsMuted])
 
   return (
-    <div
-      className={cn(styles.detailsContainer, {
-        [styles.mobileDetailsContainer]: isMobile
-      })}
-    >
+    <div className={styles.detailsContainer}>
       <PerspectiveCard
         className={styles.perspectiveCard}
         onClick={handleItemClick}
@@ -223,7 +219,7 @@ const CollectibleDetails: React.FC<{
 
           <div className={styles.details}>
             <div className={styles.detailsTitle}>{collectible.name}</div>
-            <div className={cn(styles.detailsStamp, styles.mobileDetailsStamp)}>
+            <div className={styles.detailsStamp}>
               {collectible.isOwned ? (
                 <span className={styles.owned}>
                   {collectibleMessages.owned}
@@ -235,30 +231,25 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
 
-            <div className={styles.mobileDateWrapper}>
+            <div className={styles.dateWrapper}>
               <div>Date Created:</div>
-              <div className={cn(styles.date, styles.mobileDate)}>
+              <div className={styles.date}>
                 {collectible.dateCreated
                   ? formatDate(collectible.dateCreated)
                   : ''}
               </div>
             </div>
 
-            <div className={styles.mobileDateWrapper}>
+            <div className={styles.dateWrapper}>
               <div>Last Transferred:</div>
-              <div className={cn(styles.date, styles.mobileDate)}>
+              <div className={styles.date}>
                 {collectible.dateLastTransferred
                   ? formatDate(collectible.dateLastTransferred)
                   : ''}
               </div>
             </div>
 
-            <div
-              className={cn(
-                styles.detailsDescription,
-                styles.mobileDetailsDescription
-              )}
-            >
+            <div className={styles.detailsDescription}>
               {collectible.description}
             </div>
 
@@ -433,16 +424,14 @@ const CollectiblesPage: React.FC<{
   }, [getVisibleCollectibles, collectibleList])
 
   return (
-    <div className={styles.collectiblesWrapper}>
+    <div
+      className={cn(styles.collectiblesWrapper, { [styles.mobile]: isMobile })}
+    >
       <div className={styles.wrapper}>
-        <div className={cn(styles.header, { [styles.mobileHeader]: isMobile })}>
+        <div className={styles.header}>
           <div className={styles.headerText}>
             <div className={styles.title}>{collectibleMessages.title}</div>
-            <div
-              className={cn(styles.subtitle, {
-                [styles.mobileSubtitle]: isMobile
-              })}
-            >
+            <div className={styles.subtitle}>
               {`${collectibleMessages.subtitlePrefix}${name}`}
               {userId && (
                 <UserBadges
@@ -465,9 +454,7 @@ const CollectiblesPage: React.FC<{
           )}
         </div>
 
-        <div
-          className={cn(styles.content, { [styles.mobileContent]: isMobile })}
-        >
+        <div className={styles.content}>
           {isLoading ? (
             <div className={styles.spinnerContainer}>
               <Spin className={styles.spinner} size='large' />

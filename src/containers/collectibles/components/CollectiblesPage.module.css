@@ -24,23 +24,6 @@
   flex-direction: column;
 }
 
-.mobileHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.mobileHeader button {
-  width: 100%;
-}
-
-.titleRow {
-  display: flex;
-  justify-content: space-between;
-}
-
 .title {
   font-weight: var(--font-heavy);
   font-size: var(--font-2xl);
@@ -54,23 +37,6 @@
   font-weight: var(--font-bold);
   font-size: var(--font-m);
   margin-bottom: 16px;
-}
-
-.mobileTitleRow {
-  flex-direction: column;
-  align-items: center;
-}
-
-.mobileSubtitle {
-  text-align: center;
-}
-
-.content {
-  padding: 0 24px;
-}
-
-.mobileContent {
-  padding: 0 12px;
 }
 
 .badges {
@@ -184,15 +150,6 @@
   width: inherit;
 }
 
-.mobileDetailsContainer {
-  display: flex;
-  flex-grow: 1;
-}
-
-.mobileDetailsContainer > div {
-  flex-grow: 1;
-}
-
 .details {
   margin: 56px 24px 24px 0;
   width: 312px;
@@ -210,23 +167,10 @@
   color: var(--white);
 }
 
-.mobileDetailsStamp {
-  margin-top: 28px;
-}
-
 .date {
   margin-top: 8px;
   margin-bottom: 20px;
   font-weight: var(--font-medium);
-}
-
-.mobileDateWrapper {
-  display: flex;
-  margin: 8px 0;
-}
-
-.mobileDate {
-  margin: 0 8px;
 }
 
 .detailsStamp .created, .detailsStamp .owned {
@@ -237,11 +181,6 @@
   margin-bottom: 16px;
   font-weight: var(--font-medium);
   line-height: 125%;
-}
-
-.mobileDetailsDescription {
-  margin-top: 16px;
-  margin-bottom: 24px;
 }
 
 .link {
@@ -525,4 +464,67 @@
   width: 36px;
   height: 36px;
   background-color: var(--secondary) !important;
+}
+
+.mobile .header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.mobile .header button {
+  width: 100%;
+}
+
+.mobile .subtitle {
+  text-align: center;
+}
+
+.content {
+  padding: 0 24px;
+}
+
+.mobile .content {
+  padding: 0 12px;
+}
+
+.mobile .detailsStamp {
+  margin-top: 28px;
+}
+
+.mobile .dateWrapper {
+  display: flex;
+  margin: 8px 0;
+}
+
+.mobile .date {
+  margin: 0 8px;
+}
+
+.mobile .detailsContainer {
+  display: flex;
+  flex-grow: 1;
+}
+
+.mobile .detailsContainer > div {
+  flex-grow: 1;
+}
+
+.mobile .detailsDescription {
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.mobileSubtitle {
+  text-align: center;
+}
+
+.content {
+  padding: 0 24px;
+}
+
+.mobileContent {
+  padding: 0 12px;
 }
