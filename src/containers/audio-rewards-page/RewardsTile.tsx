@@ -34,7 +34,7 @@ const RewardPanel = ({
   const wm = useWithMobileStyle(styles.mobile)
 
   return (
-    <div className={wm(styles.rewardPanelContainer)}>
+    <div className={wm(styles.rewardPanelContainer)} onClick={onClickButton}>
       <span className={wm(styles.rewardTitle)}>
         {icon}
         {title}
