@@ -44,6 +44,8 @@ const textMap = {
   }
 }
 
+const TOS_URL = 'https://audius.co/legal/terms-of-use'
+
 // Getters and setters for whether we're looking at
 // trending playlists or trending tracks
 const useRewardsType = (): [
@@ -73,6 +75,10 @@ const TrendingRewardsBody = ({
   dismissModal: () => void
 }) => {
   const [modalType, setModalType] = useRewardsType()
+
+  const onClickToS = useCallback(() => {
+    window.open(TOS_URL, '_blank')
+  }, [])
 
   const tabOptions = [
     {
@@ -131,9 +137,10 @@ const TrendingRewardsBody = ({
             tweetId={tweetId}
             onLoad={() => setShowSpinner(false)}
             options={{
+              cards: 'none',
               conversation: 'none',
               hide_thread: true,
-              width: 550,
+              width: 554,
               height: 390
             }}
           />
@@ -144,9 +151,9 @@ const TrendingRewardsBody = ({
         onClick={onButtonClick}
         className={styles.button}
       />
-      <a href='' className={styles.terms}>
+      <span onClick={onClickToS} className={styles.terms}>
         {messages.terms}
-      </a>
+      </span>
     </div>
   )
 }

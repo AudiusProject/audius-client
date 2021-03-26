@@ -44,7 +44,7 @@
   padding: 24px;
   max-width: 602px;
   width: 100%;
-  min-height: 300px;
+  min-height: 354px;
   margin-bottom: 32px;
   position: relative;
 }
@@ -54,7 +54,6 @@
 
 .embedWrapper {
   max-width: 550px;
-  min-height: 483px;
   width: 100%;
 }
 
@@ -100,6 +99,13 @@
   color: var(--neutral-light-4);
   font-weight: 400;
   margin: 12px 0px 24px;
+  text-decoration: underline;
+  transition: all .07s ease-in-out;
+  user-select: none;
+}
+
+.terms:hover {
+  color: var(--neutral-light-6);
 }
 
 .mobile .button {

@@ -6,6 +6,7 @@ export type Modals =
   | 'TrendingRewardsExplainer'
   | 'LinkSocialRewardsExplainer'
   | 'APIRewardsExplainer'
+  | 'TransferAudioMobileWarning'
 
 type InitialModalsState = { [modal in Modals]: boolean }
 
@@ -13,7 +14,8 @@ const initialState: InitialModalsState = {
   TiersExplainer: false,
   TrendingRewardsExplainer: false,
   LinkSocialRewardsExplainer: false,
-  APIRewardsExplainer: false
+  APIRewardsExplainer: false,
+  TransferAudioMobileWarning: false
 }
 
 const slice = createSlice({

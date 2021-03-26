@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styles from './Tiles.module.css'
 import cn from 'classnames'
 import { useSelector } from 'utils/reducer'
@@ -10,6 +10,8 @@ import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { pressReceive, pressSend } from 'store/token-dashboard/slice'
 import TokenHoverTooltip from './components/TokenHoverTooltip'
+import { isMobile } from 'utils/clientUtil'
+import { useModalState } from 'store/application/ui/modals/hooks'
 
 const messages = {
   noClaim1: 'You earn $AUDIO by using Audius.',
@@ -51,9 +53,24 @@ export const WalletTile = ({ className }: { className?: string }) => {
   const balance = useSelector(getAccountBalance) ?? (new BN(0) as BNWei)
   const hasBalance = balance && !balance.isZero()
   const dispatch = useDispatch()
+  const [, openTransferDrawer] = useModalState('TransferAudioMobileWarning')
 
-  const onClickReceive = () => dispatch(pressReceive())
-  const onClickSend = () => dispatch(pressSend())
+  const mobile = isMobile()
+  const onClickReceive = useCallback(() => {
+    if (mobile) {
+      openTransferDrawer(true)
+    } else {
+      dispatch(pressReceive())
+    }
+  }, [dispatch, mobile, openTransferDrawer])
+
+  const onClickSend = useCallback(() => {
+    if (mobile) {
+      openTransferDrawer(true)
+    } else {
+      dispatch(pressSend())
+    }
+  }, [mobile, dispatch, openTransferDrawer])
 
   return (
     <Tile className={cn([styles.walletTile, className])}>

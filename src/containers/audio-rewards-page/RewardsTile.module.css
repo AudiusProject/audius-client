@@ -53,6 +53,11 @@
   border-radius: 8px;
   margin: 8px;
   box-shadow: 0 2px 5px -2px var(--tile-shadow-3), 0 1px 0 -2px var(--tile-shadow-2), 0 2px 5px -2px var(--tile-shadow-1);
+  cursor: pointer;
+  transition: all .18s ease-in-out;
+}
+.rewardPanelContainer:hover {
+  transform: scale3d(1.005, 1.005, 1.005);
 }
 .rewardPanelContainer.mobile {
   flex: 1 1 320px;
