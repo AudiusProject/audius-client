@@ -1,5 +1,6 @@
 .pageContainer {
   user-select: none;
+  min-width: 1080px;
 }
 
 .mobile {
@@ -48,3 +49,4 @@
   flex-direction: column;
   padding: 0px 12px;
 }
+

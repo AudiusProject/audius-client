@@ -1,26 +1,51 @@
 .headerIconWrapper {
   position: relative;
   cursor: pointer;
-  height: 24px;
-  width: 24px;
-  border: 1px solid var(--neutral-light-8);
-  border-radius: 50%;
-  margin-left: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all ease-in-out .07s;
-  background-color: var(--neutral-light-9);
 }
 
-.headerIconWrapper > svg path {
+.iconClass {
+  border: 1px solid var(--neutral-light-8);
+  border-radius: 50%;
+  background-color: var(--neutral-light-9);
+  height: 24px;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.iconClass svg {
+  height: 20px;
+  width: 20px;
+  background-color: unset !important;
+}
+
+.iconClass > svg path {
   fill: var(--neutral-light-4);
 }
 
-.headerIconWrapper:global(.active),
-.headerIconWrapper:hover {
-  background-color: var(--secondary-light-2);
+.scalingWrapper {
+  transition: all ease-in-out .07s;
+  /* Need to account for 2px popup placeholder */
+  height: 24px;
+}
+
+/* Apply color svg transitions on hover of outermost scalingWrapper */
+.scalingWrapper:hover > svg path, .scalingWrapper:active > svg path {
+  fill: var(--static-neutral-light-10);
+}
+
+.scalingWrapper:global(.active),
+.scalingWrapper:hover {
   transform: scale3d(1.1,1.1,1.1);
+}
+
+.scalingWrapper:global(.active) .iconClass,
+.scalingWrapper:hover .iconClass {
+  background-color: var(--secondary-light-2);
 }
 
 .menu {

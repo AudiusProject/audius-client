@@ -22,16 +22,16 @@
   border-radius: 4px;
 }
 
-.popup:hover .icon {
+.popup:hover svg {
   background: var(--secondary);
 }
 
-.popup:active .icon {
+.popup svg:active {
   transform: scale(0.95);
 }
 
-.popup:hover svg path {
-  fill: var(--white);
+.popup:hover path {
+  fill: var(--static-white);
 }
 
 .popup svg {
@@ -43,12 +43,12 @@
   cursor: default;
 }
 
-.popup.disabled svg:hover {
+.popup.disabled:hover svg {
   background: var(--white);
 }
 
 .popup.disabled path,
-.popup.disabled svg:hover path {
+.popup.disabled:hover path {
   fill: var(--neutral-light-4);
 }
 
@@ -75,7 +75,7 @@
 
 .item svg {
   border-radius: 100%;
-  background: var(--static-neutral-light-4);
+  background: var(--neutral-light-4);
 }
 
 .item path {
