@@ -489,59 +489,67 @@ const CollectiblesPage: React.FC<{
         allowScroll
       >
         <div className={styles.editModal}>
-          <div className={styles.editListSection}>
-            <DragDropContext onDragEnd={onDragEnd}>
+          {getVisibleCollectibles().length > 0 && (
+            <div className={styles.editListSection}>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <div className={styles.editListHeader}>
+                  {collectibleMessages.visibleCollectibles}
+                </div>
+
+                <div className={styles.editTableContainer}>
+                  <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
+                    {provided => (
+                      <div ref={provided.innerRef} {...provided.droppableProps}>
+                        {getVisibleCollectibles().map((c, index) => (
+                          <Draggable
+                            key={c.id}
+                            draggableId={c.id}
+                            index={index}
+                          >
+                            {provided => (
+                              <VisibleCollectibleRow
+                                {...provided.draggableProps}
+                                handleProps={provided.dragHandleProps}
+                                forwardRef={provided.innerRef}
+                                name={c.name}
+                                imageUrl={c.imageUrl}
+                                isOwned={c.isOwned}
+                                dateCreated={c.dateCreated}
+                                onHideClick={handleHideCollectible(c.id)}
+                              />
+                            )}
+                          </Draggable>
+                        ))}
+
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              </DragDropContext>
+            </div>
+          )}
+
+          {getHiddenCollectibles().length > 0 && (
+            <div className={styles.editListSection}>
               <div className={styles.editListHeader}>
-                {collectibleMessages.visibleCollectibles}
+                {collectibleMessages.hiddenCollectibles}
               </div>
 
               <div className={styles.editTableContainer}>
-                <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
-                  {provided => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                      {getVisibleCollectibles().map((c, index) => (
-                        <Draggable key={c.id} draggableId={c.id} index={index}>
-                          {provided => (
-                            <VisibleCollectibleRow
-                              {...provided.draggableProps}
-                              handleProps={provided.dragHandleProps}
-                              forwardRef={provided.innerRef}
-                              name={c.name}
-                              imageUrl={c.imageUrl}
-                              isOwned={c.isOwned}
-                              dateCreated={c.dateCreated}
-                              onHideClick={handleHideCollectible(c.id)}
-                            />
-                          )}
-                        </Draggable>
-                      ))}
-
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
+                {getHiddenCollectibles().map(c => (
+                  <HiddenCollectibleRow
+                    key={c.id}
+                    name={c.name!}
+                    imageUrl={c.imageUrl!}
+                    isOwned={c.isOwned}
+                    dateCreated={c.dateCreated}
+                    onShowClick={handleShowCollectible(c.id)}
+                  />
+                ))}
               </div>
-            </DragDropContext>
-          </div>
-
-          <div className={styles.editListSection}>
-            <div className={styles.editListHeader}>
-              {collectibleMessages.hiddenCollectibles}
             </div>
-
-            <div className={styles.editTableContainer}>
-              {getHiddenCollectibles().map(c => (
-                <HiddenCollectibleRow
-                  key={c.id}
-                  name={c.name!}
-                  imageUrl={c.imageUrl!}
-                  isOwned={c.isOwned}
-                  dateCreated={c.dateCreated}
-                  onShowClick={handleShowCollectible(c.id)}
-                />
-              ))}
-            </div>
-          </div>
+          )}
 
           <Button
             className={styles.editDoneButton}
