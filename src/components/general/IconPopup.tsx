@@ -19,6 +19,7 @@ type IconPopupProps = {
   menu: { items: IconPopupItemProps[] }
   disabled?: boolean
   title?: string
+  popupClassName?: string
   menuClassName?: string
   iconClassName?: string
   menuIconClassName?: string
@@ -37,6 +38,7 @@ const IconPopup: React.FC<IconPopupProps> = ({
   menu,
   title,
   position,
+  popupClassName,
   menuClassName,
   iconClassName,
   menuIconClassName,
@@ -69,7 +71,7 @@ const IconPopup: React.FC<IconPopupProps> = ({
   }
 
   return (
-    <div className={cn(styles.popup, style)}>
+    <div className={cn(styles.popup, style, popupClassName)}>
       <IconButton
         ref={ref}
         className={cn(styles.icon, iconPopupClass, iconClassName)}
