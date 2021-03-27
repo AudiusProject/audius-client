@@ -18,6 +18,8 @@ import { useDispatch } from 'react-redux'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import { StringKeys } from 'services/remote-config'
+import { getTheme, isDarkMode } from 'utils/theme/theme'
+import Theme from 'models/Theme'
 
 const messages = {
   tracksTitle: 'Top 5 Tracks Each Week Receive 100 $AUDIO',
@@ -66,6 +68,10 @@ const useTweetId = (type: TrendingRewardsModalType) => {
   const tracksId = useRemoteVar(StringKeys.REWARDS_TWEET_ID_TRACKS)
   const playlistsId = useRemoteVar(StringKeys.REWARDS_TWEET_ID_PLAYLISTS)
   return type === 'tracks' ? tracksId : playlistsId
+}
+const shouldUseDarkTwitter = () => {
+  const theme = getTheme()
+  return theme === Theme.MATRIX || isDarkMode()
 }
 
 const TrendingRewardsBody = ({
@@ -136,6 +142,7 @@ const TrendingRewardsBody = ({
             tweetId={tweetId}
             onLoad={() => setShowSpinner(false)}
             options={{
+              theme: shouldUseDarkTwitter() ? 'dark' : 'light',
               cards: 'none',
               conversation: 'none',
               hide_thread: true,
