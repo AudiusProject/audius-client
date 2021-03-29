@@ -36,6 +36,7 @@ import ErrorBody from './components/ErrorBody'
 import styles from './WalletModal.module.css'
 import SendingModalBody from './components/SendingModalBody'
 import DiscordModalBody from './components/DiscordModalBody'
+import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 const DISCORD_URL = 'https://discord.com/invite/kZkT9ZK'
 
@@ -290,6 +291,8 @@ const WalletModal = () => {
 
   const allowDismiss = shouldAllowDismiss(modalState)
 
+  const wm = useWithMobileStyle(styles.mobile)
+
   return (
     <Modal
       isOpen={modalVisible}
@@ -301,7 +304,7 @@ const WalletModal = () => {
       dismissOnClickOutside={allowDismiss}
       contentHorizontalPadding={24}
     >
-      <div className={styles.modalContainer}>
+      <div className={wm(styles.modalContainer)}>
         <ModalContent
           modalState={modalState}
           onInputSendData={onInputSendData}
