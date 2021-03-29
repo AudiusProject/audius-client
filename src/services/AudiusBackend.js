@@ -16,6 +16,7 @@ import {
   IntKeys,
   getRemoteVar,
   StringKeys,
+  BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
 import {
@@ -399,7 +400,10 @@ class AudiusBackend {
       const event = new CustomEvent(LIBS_INITTED_EVENT)
       window.dispatchEvent(event)
 
-      AudiusBackend.sanityChecks(audiusLibs)
+      const sanityCheckOptions = {
+        skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
+      }
+      AudiusBackend.sanityChecks(audiusLibs, sanityCheckOptions)
     } catch (err) {
       libsError = err.message
     }
