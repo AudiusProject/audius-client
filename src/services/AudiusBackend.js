@@ -311,9 +311,12 @@ class AudiusBackend {
     })
   }
 
-  static async sanityChecks(audiusLibs, options) {
+  static async sanityChecks(audiusLibs) {
     try {
-      const sanityChecks = new SanityChecks(audiusLibs, options)
+      const sanityCheckOptions = {
+        skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
+      }
+      const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
       await sanityChecks.run()
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
@@ -400,10 +403,7 @@ class AudiusBackend {
       const event = new CustomEvent(LIBS_INITTED_EVENT)
       window.dispatchEvent(event)
 
-      const sanityCheckOptions = {
-        skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
-      }
-      AudiusBackend.sanityChecks(audiusLibs, sanityCheckOptions)
+      AudiusBackend.sanityChecks(audiusLibs)
     } catch (err) {
       libsError = err.message
     }
