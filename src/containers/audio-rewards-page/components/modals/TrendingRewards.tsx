@@ -30,8 +30,8 @@ const messages = {
   topPlaylists: 'TOP PLAYLISTS',
   terms: 'Terms and Conditions Apply',
   modalTitle: '$AUDIO REWARDS',
-  buttonTextTracks: 'Trending Tracks',
-  buttonTextPlaylists: 'Trending Playlists'
+  buttonTextTracks: 'Current Trending Tracks',
+  buttonTextPlaylists: 'Current Trending Playlists'
 }
 
 const textMap = {
