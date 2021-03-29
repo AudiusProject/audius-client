@@ -4,7 +4,8 @@ import { PREFIX } from './actions'
 
 export const initialState = {
   ...initialLineupState,
-  prefix: PREFIX
+  prefix: PREFIX,
+  maxEntries: 30
 }
 
 const actionsMap: { [key in string]: any } = {
