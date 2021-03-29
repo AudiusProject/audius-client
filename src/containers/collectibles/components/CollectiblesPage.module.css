@@ -24,6 +24,10 @@
   flex-direction: column;
 }
 
+.content {
+  padding: 0 24px;
+}
+
 .title {
   font-weight: var(--font-heavy);
   font-size: var(--font-2xl);
@@ -147,7 +151,8 @@
 
 .details {
   margin: 56px 24px 24px 0;
-  width: 312px;
+  max-width: 312px;
+  min-width: 208px;
 }
 
 .detailsTitle {
@@ -199,11 +204,10 @@
   fill: var(--secondary);
 }
 
-
 .volumeIcon {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 32px;
+  margin-left: -40px;
   width: 32px;
   height: 32px;
   padding: 6px;
@@ -234,23 +238,19 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.modalMediaWrapper {
-  position: relative;
+.detailsMediaWrapper {
   margin: 24px;
-  width: 342px;
-  height: 342px;
-  max-width: 512px;
-  max-height: 512px;
+  max-width: 50vw;
+  max-height: 70vh;
+  overflow: hidden;
 }
 
-.modalMediaWrapper video {
-  width: 342px;
-  height: 342px;
-  max-width: 512px;
-  max-height: 512px;
+.detailsMediaWrapper img {
+  width: 100%;
 }
 
-.modalMedia {
+.detailsMediaWrapper video {
+  width: 100%;
   border-radius: 8px;
   box-sizing: border-box;
   background-size: cover;
@@ -275,14 +275,23 @@
   font-weight: var(--font-bold);
 }
 
-.nftDrawer .modalMediaWrapper {
-  margin: auto;
-  width: 328px;
-  height: 328px;
+.nftDrawer .detailsMediaWrapper {
+  margin: 48px 24px 0;
+  max-width: none;
+  height: auto;
+}
+
+.nftDrawer .volumeIcon {
+  position: relative;
+  margin: 0;
+  top: -40px;
+  right: calc(-100vw + 88px);
 }
 
 .nftDrawer .details {
   width: 100%;
+  max-width: none;
+  min-width: unset;
   margin: 0;
   padding: 24px;
 }
@@ -326,6 +335,7 @@
   border-bottom: 1px solid var(--neutral-light-7);
   border-left: 1px solid var(--neutral-light-7);
   font-size: var(--font-xs);
+  animation: fadeInVisible 1s;
 }
 
 .editRow > div {
@@ -367,6 +377,10 @@
 .editStamp {
   font-size: var(--font-2xs);
   color: var(--white);
+}
+
+.editHidden {
+  animation: fadeInHidden 1s;
 }
 
 .editHidden div {
@@ -474,16 +488,26 @@
   width: 100%;
 }
 
+.mobile .content {
+  padding: 0 12px;
+}
+
 .mobile .subtitle {
   text-align: center;
 }
 
-.content {
-  padding: 0 24px;
+.mobile .playIcon {
+  top: calc(40vw - 16px);
+  left: calc(40vw - 16px);
 }
 
-.mobile .content {
-  padding: 0 12px;
+.mobile .media {
+  width: 80vw;
+  height: 80vw;
+}
+
+.mobile .stamp {
+  top: calc(80vw - 20px);
 }
 
 .mobile .detailsStamp {
@@ -523,4 +547,14 @@
 
 .mobileContent {
   padding: 0 12px;
+}
+
+@keyframes fadeInVisible {
+  from {opacity:0;}
+  to {opacity:1;}
+}
+
+@keyframes fadeInHidden {
+  from {opacity:0;}
+  to {opacity:.5;}
 }
