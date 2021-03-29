@@ -13,7 +13,7 @@ import { InstagramButton } from 'components/general/InstagramButton'
 
 import styles from './VerifiedUpload.module.css'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
-import { SETTINGS_PAGE, UPLOAD_PAGE } from 'utils/route'
+import { ACCOUNT_SETTINGS_PAGE, SETTINGS_PAGE, UPLOAD_PAGE } from 'utils/route'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { isMobile } from 'utils/clientUtil'
 
@@ -56,7 +56,8 @@ const VerifiedUpload = ({ dismissModal }: { dismissModal: () => void }) => {
   }, [navigate, dismissModal])
 
   const onClickVerify = useCallback(() => {
-    navigate(SETTINGS_PAGE)
+    const destination = isMobile() ? ACCOUNT_SETTINGS_PAGE : SETTINGS_PAGE
+    navigate(destination)
     dismissModal()
   }, [navigate, dismissModal])
 
