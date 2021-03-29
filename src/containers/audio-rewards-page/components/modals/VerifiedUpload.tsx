@@ -23,7 +23,8 @@ const messages = {
   verifyTwitterButton: 'Verify With Twitter',
   verifyIGButton: 'Verify With Instagram',
   step2Title: 'Step 2: Upload a Track',
-  step2Subtitle: 'Upload some music to your verified Account',
+  step2SubtitleDesktop: 'Upload your first track from your verified account',
+  step2SubtitleMobile: 'Upload your first track from your computer',
   uploadButton: 'Upload',
   step3Title: 'Step 3: Tag us And Let Us Know',
   step3Subtitle:
