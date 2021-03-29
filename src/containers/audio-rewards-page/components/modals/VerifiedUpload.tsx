@@ -15,6 +15,7 @@ import styles from './VerifiedUpload.module.css'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { SETTINGS_PAGE, UPLOAD_PAGE } from 'utils/route'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { isMobile } from 'utils/clientUtil'
 
 const messages = {
   title: 'Verified Upload',
@@ -79,7 +80,11 @@ const VerifiedUpload = ({ dismissModal }: { dismissModal: () => void }) => {
       </div>
       <Divider />
       <span className={styles.title}>{messages.step2Title}</span>
-      <span className={styles.subtitle}>{messages.step2Subtitle}</span>
+      <span className={styles.subtitle}>
+        {isMobile()
+          ? messages.step2SubtitleMobile
+          : messages.step2SubtitleDesktop}
+      </span>
       <Button
         className={styles.uploadButton}
         text={messages.uploadButton}
