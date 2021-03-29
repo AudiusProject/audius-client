@@ -18,12 +18,18 @@
   background-color: var(--white);
 }
 
+.popup path {
+  fill: var(--neutral-light-4);
+}
+
 .popup:hover {
   border-radius: 4px;
 }
 
 .popup:hover svg {
   background: var(--secondary);
+  border: 1px solid var(--secondary-dark-2);
+  transform: scale(1.07);
 }
 
 .popup svg:active {

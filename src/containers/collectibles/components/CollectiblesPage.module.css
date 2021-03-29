@@ -363,6 +363,7 @@
   flex-grow: 1;
   font-size: var(--font-m);
   width: 260px;
+  line-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
