@@ -311,9 +311,9 @@ class AudiusBackend {
     })
   }
 
-  static async sanityChecks(audiusLibs) {
+  static async sanityChecks(audiusLibs, options) {
     try {
-      const sanityChecks = new SanityChecks(audiusLibs)
+      const sanityChecks = new SanityChecks(audiusLibs, options)
       await sanityChecks.run()
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
