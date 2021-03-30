@@ -189,7 +189,11 @@ function* connectWallet() {
     })
 
     if (!web3Instance) {
-      yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
+      yield put(
+        updateWalletError({
+          errorMessage: 'Unable to connect with web3 to connect your wallet.'
+        })
+      )
       // The user may have exited the modal
       return
     }
@@ -212,11 +216,15 @@ function* connectWallet() {
       ) ||
       associatedUserId !== null
     ) {
+      if (web3Instance.currentProvider.disconnect)
+        yield web3Instance.currentProvider.disconnect()
+      if (web3Instance.currentProvider.close)
+        yield web3Instance.currentProvider.close()
       // The wallet already exists in the assocaited wallets set
       yield put(
         updateWalletError({
           errorMessage:
-            'Unable to connect wallet: already associated with a user account'
+            'This wallet has already been associated with an Audius account.'
         })
       )
       return
@@ -227,6 +235,11 @@ function* connectWallet() {
       `AudiusUserID:${accountUserId}`,
       accounts[0]
     )
+    if (web3Instance.currentProvider.disconnect)
+      yield web3Instance.currentProvider.disconnect()
+    if (web3Instance.currentProvider.close)
+      yield web3Instance.currentProvider.close()
+
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
     )
@@ -241,7 +254,8 @@ function* connectWallet() {
       if (!upgradedToCreator) {
         yield put(
           updateWalletError({
-            errorMessage: 'Unable to connect wallet: User had no creator nodes'
+            errorMessage:
+              'An error occured while connecting a wallet with your account.'
           })
         )
         return
@@ -302,14 +316,20 @@ function* connectWallet() {
         function* () {
           yield put(
             updateWalletError({
-              errorMessage: 'Unable to connect wallet: Failed to update creator'
+              errorMessage:
+                'An error occured while connecting a wallet with your account.'
             })
           )
         }
       )
     )
   } catch (error) {
-    yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
+    yield put(
+      updateWalletError({
+        errorMessage:
+          'An error occured while connecting a wallet with your account.'
+      })
+    )
   }
 }
 

@@ -1,15 +1,16 @@
 .drawer {
-  height: 460px;
+  height: 320px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  padding: 40px 36px;
+  padding: 40px 32px;
 }
 
-.cta {
+.title {
   font-weight: var(--font-heavy);
   font-size: 28px;
   line-height: 34px;
+  margin-bottom: 24px;
   text-align: center;
   user-select: none;
   background-image: var(--page-header-gradient);
@@ -23,12 +24,4 @@
   font-size: var(--font-2xl);
   line-height: 29px;
   text-align: center;
-  margin-top: 4px;
-}
-
-.bottom {
-  margin-bottom: 16px;
-  font-weight: var(--font-bold);
-  font-size: var(--font-l);
-  line-height: 24px;
 }

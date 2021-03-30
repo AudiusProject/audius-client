@@ -166,3 +166,11 @@
 :global(#bitski-dialog-container) {
   z-index: 1000000 !important;
 }
+
+.error {
+  text-align: center;
+  margin: 8px 0px 8px;
+  color: var(--accent-red);
+  font-size: var(--font-m);
+  font-weight: var(--font-medium);
+}

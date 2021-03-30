@@ -104,9 +104,12 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
     dispatch(connectNewWallet())
   }, [dispatch])
 
-  const { status, confirmingWallet, connectedWallets: wallets } = useSelector(
-    getAssociatedWallets
-  )
+  const {
+    status,
+    confirmingWallet,
+    errorMessage,
+    connectedWallets: wallets
+  } = useSelector(getAssociatedWallets)
   const removeWallets = useSelector(getRemoveWallet)
   const hasReachedLimit = !!wallets && wallets.length >= WALLET_COUNT_LIMIT
 
@@ -149,6 +152,7 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
             isConfirmRemoving={false}
           />
         )}
+        {errorMessage && <div className={styles.error}>{errorMessage}</div>}
       </div>
     </div>
   )
