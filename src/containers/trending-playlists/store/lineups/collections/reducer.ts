@@ -5,6 +5,8 @@ import { PREFIX } from './actions'
 export const initialState = {
   ...initialLineupState,
   prefix: PREFIX,
+  // Trending is limited to 30 playlists
+  // on the backend, so safe to cap it here
   maxEntries: 30
 }
 
