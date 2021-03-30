@@ -5,8 +5,7 @@ import Page from 'components/general/Page'
 
 import styles from './AudioRewardsPage.module.css'
 import ExplainerTile from './components/ExplainerTile'
-import BalanceTile from './components/BalanceTile'
-import WalletActionsTile from './components/WalletActionsTile'
+import { BalanceTile, WalletTile } from './Tiles'
 import WalletModal from './WalletModal'
 import Tiers from './Tiers'
 import RewardsTile from './RewardsTile'
@@ -34,7 +33,7 @@ export const RewardsContent = () => {
       <WalletModal />
       <div className={wm(styles.cryptoContentContainer)}>
         <BalanceTile className={wm(styles.balanceTile)} />
-        <WalletActionsTile />
+        <WalletTile className={styles.walletTile} />
       </div>
       <RewardsTile className={styles.mobile} />
       <Tiers />

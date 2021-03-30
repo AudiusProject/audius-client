@@ -163,9 +163,11 @@ const slice = createSlice({
       }
       state.modalVisible = true
       state.associatedWallets.removeWallet.wallet = null
+      state.associatedWallets.errorMessage = null
     },
     connectNewWallet: state => {
       state.associatedWallets.status = 'Connecting'
+      state.associatedWallets.errorMessage = null
     },
     setIsConnectingWallet: (
       state,
@@ -192,6 +194,7 @@ const slice = createSlice({
         stage: 'CONNECT_WALLETS',
         flowState: { stage: 'REMOVE_WALLET' }
       }
+      state.associatedWallets.errorMessage = null
     },
     confirmRemoveWallet: (
       state,

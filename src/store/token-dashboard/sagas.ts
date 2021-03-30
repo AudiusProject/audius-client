@@ -48,6 +48,7 @@ import { upgradeToCreator } from 'store/cache/users/sagas'
 import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import { BooleanKeys, getRemoteVar } from 'services/remote-config'
+import { fetchServices } from 'containers/service-selection/store/slice'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
@@ -188,7 +189,11 @@ function* connectWallet() {
     })
 
     if (!web3Instance) {
-      yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
+      yield put(
+        updateWalletError({
+          errorMessage: 'Unable to connect with web3 to connect your wallet.'
+        })
+      )
       // The user may have exited the modal
       return
     }
@@ -211,11 +216,15 @@ function* connectWallet() {
       ) ||
       associatedUserId !== null
     ) {
+      if (web3Instance.currentProvider.disconnect)
+        yield web3Instance.currentProvider.disconnect()
+      if (web3Instance.currentProvider.close)
+        yield web3Instance.currentProvider.close()
       // The wallet already exists in the assocaited wallets set
       yield put(
         updateWalletError({
           errorMessage:
-            'Unable to connect wallet: already associated with a user account'
+            'This wallet has already been associated with an Audius account.'
         })
       )
       return
@@ -226,24 +235,35 @@ function* connectWallet() {
       `AudiusUserID:${accountUserId}`,
       accounts[0]
     )
+    if (web3Instance.currentProvider.disconnect)
+      yield web3Instance.currentProvider.disconnect()
+    if (web3Instance.currentProvider.close)
+      yield web3Instance.currentProvider.close()
+
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
     )
-    const updatedMetadata = newUserMetadata({ ...userMetadata })
+    let updatedMetadata = newUserMetadata({ ...userMetadata })
 
     if (
       !updatedMetadata.creator_node_endpoint ||
       !updatedMetadata.metadata_multihash
     ) {
+      yield put(fetchServices())
       const upgradedToCreator: boolean = yield call(upgradeToCreator)
       if (!upgradedToCreator) {
         yield put(
           updateWalletError({
-            errorMessage: 'Unable to connect wallet: User had no creator nodes'
+            errorMessage:
+              'An error occured while connecting a wallet with your account.'
           })
         )
         return
       }
+      const updatedUserMetadata: ReturnType<typeof getAccountUser> = yield select(
+        getAccountUser
+      )
+      updatedMetadata = newUserMetadata({ ...updatedUserMetadata })
     }
 
     const currentWalletSignatures: Record<string, any> = yield call(
@@ -296,14 +316,20 @@ function* connectWallet() {
         function* () {
           yield put(
             updateWalletError({
-              errorMessage: 'Unable to connect wallet: Failed to update creator'
+              errorMessage:
+                'An error occured while connecting a wallet with your account.'
             })
           )
         }
       )
     )
   } catch (error) {
-    yield put(updateWalletError({ errorMessage: 'Unable to connect wallet' }))
+    yield put(
+      updateWalletError({
+        errorMessage:
+          'An error occured while connecting a wallet with your account.'
+      })
+    )
   }
 }
 
@@ -315,20 +341,6 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       getAccountUser
     )
     const updatedMetadata = newUserMetadata({ ...userMetadata })
-
-    // NOTE: This should never happen where the user has a wallet to remove and is not a creator
-    if (
-      !updatedMetadata.creator_node_endpoint ||
-      !updatedMetadata.metadata_multihash
-    ) {
-      const upgradedToCreator: boolean = yield call(upgradeToCreator)
-      if (!upgradedToCreator) {
-        yield put(
-          updateWalletError({ errorMessage: 'Unable to remove wallet' })
-        )
-        return
-      }
-    }
 
     const currentAssociatedWallest: Record<string, any> = yield call(
       fetchUserAssociatedWallets,

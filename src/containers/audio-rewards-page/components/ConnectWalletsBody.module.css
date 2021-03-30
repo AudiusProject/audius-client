@@ -36,6 +36,12 @@
   color: var(--white);
 }
 
+.connectBtn.disabled:hover,
+.connectBtn.disabled:active {
+  transform: scale3d(1, 1, 1) !important;
+  background-color: var(--neutral-light-7);
+}
+
 .limit {
   font-weight: var(--font-medium);
   font-size: var(--font-m);
@@ -159,4 +165,12 @@
 
 :global(#bitski-dialog-container) {
   z-index: 1000000 !important;
+}
+
+.error {
+  text-align: center;
+  margin: 8px 0px 8px;
+  color: var(--accent-red);
+  font-size: var(--font-m);
+  font-weight: var(--font-medium);
 }

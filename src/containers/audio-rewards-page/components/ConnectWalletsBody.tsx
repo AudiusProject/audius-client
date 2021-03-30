@@ -104,9 +104,12 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
     dispatch(connectNewWallet())
   }, [dispatch])
 
-  const { status, confirmingWallet, connectedWallets: wallets } = useSelector(
-    getAssociatedWallets
-  )
+  const {
+    status,
+    confirmingWallet,
+    errorMessage,
+    connectedWallets: wallets
+  } = useSelector(getAssociatedWallets)
   const removeWallets = useSelector(getRemoveWallet)
   const hasReachedLimit = !!wallets && wallets.length >= WALLET_COUNT_LIMIT
 
@@ -114,17 +117,20 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
     removeWallets.status === 'Confirming' ||
     status === 'Connecting' ||
     status === 'Confirming'
+  const isConnectDisabled = hasReachedLimit || isDisabled
   return (
     <div className={cn(styles.container, { [className!]: !!className })}>
       <h4 className={styles.title}>{messages.title}</h4>
       <p className={styles.description}>{messages.description}</p>
       <Button
-        className={styles.connectBtn}
+        className={cn(styles.connectBtn, {
+          [styles.disabled]: isConnectDisabled
+        })}
         textClassName={styles.connectBtnText}
         type={ButtonType.PRIMARY_ALT}
         text={messages.connectBtn}
         onClick={onConnectWallets}
-        isDisabled={hasReachedLimit || isDisabled}
+        isDisabled={isConnectDisabled}
       />
       {hasReachedLimit && <p className={styles.limit}>{messages.limit}</p>}
       <div className={styles.walletsContainer}>
@@ -146,6 +152,7 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
             isConfirmRemoving={false}
           />
         )}
+        {errorMessage && <div className={styles.error}>{errorMessage}</div>}
       </div>
     </div>
   )
