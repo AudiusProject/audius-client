@@ -42,3 +42,7 @@
 .titleWrapper path {
   fill: var(--neutral-light-4);
 }
+
+.discordDrawerTitle {
+  margin-top: 24px;
+}
