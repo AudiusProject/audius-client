@@ -16,8 +16,8 @@
 
 .cryptoContentContainer {
   display: inline-flex;
-  width: 100%;
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .cryptoContentContainer.mobile {
@@ -49,4 +49,3 @@
   flex-direction: column;
   padding: 0px 12px;
 }
-
