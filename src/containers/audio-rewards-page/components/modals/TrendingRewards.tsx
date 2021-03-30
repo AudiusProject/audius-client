@@ -45,7 +45,7 @@ const textMap = {
   }
 }
 
-const TOS_URL = 'https://audius.co/legal/terms-of-use'
+const TOS_URL = 'https://blog.audius.co/posts/audio-rewards'
 
 // Getters and setters for whether we're looking at
 // trending playlists or trending tracks
