@@ -67,6 +67,17 @@ export function* upgradeToCreator() {
       return false
     }
   }
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: {
+          creator_node_endpoint: newEndpoint,
+          is_creator: true
+        }
+      }
+    ])
+  )
   return true
 }
 

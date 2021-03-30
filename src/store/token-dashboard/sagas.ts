@@ -48,6 +48,7 @@ import { upgradeToCreator } from 'store/cache/users/sagas'
 import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import { BooleanKeys, getRemoteVar } from 'services/remote-config'
+import { fetchServices } from 'containers/service-selection/store/slice'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
@@ -229,12 +230,13 @@ function* connectWallet() {
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
     )
-    const updatedMetadata = newUserMetadata({ ...userMetadata })
+    let updatedMetadata = newUserMetadata({ ...userMetadata })
 
     if (
       !updatedMetadata.creator_node_endpoint ||
       !updatedMetadata.metadata_multihash
     ) {
+      yield put(fetchServices())
       const upgradedToCreator: boolean = yield call(upgradeToCreator)
       if (!upgradedToCreator) {
         yield put(
@@ -244,6 +246,10 @@ function* connectWallet() {
         )
         return
       }
+      const updatedUserMetadata: ReturnType<typeof getAccountUser> = yield select(
+        getAccountUser
+      )
+      updatedMetadata = newUserMetadata({ ...updatedUserMetadata })
     }
 
     const currentWalletSignatures: Record<string, any> = yield call(
@@ -315,20 +321,6 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       getAccountUser
     )
     const updatedMetadata = newUserMetadata({ ...userMetadata })
-
-    // NOTE: This should never happen where the user has a wallet to remove and is not a creator
-    if (
-      !updatedMetadata.creator_node_endpoint ||
-      !updatedMetadata.metadata_multihash
-    ) {
-      const upgradedToCreator: boolean = yield call(upgradeToCreator)
-      if (!upgradedToCreator) {
-        yield put(
-          updateWalletError({ errorMessage: 'Unable to remove wallet' })
-        )
-        return
-      }
-    }
 
     const currentAssociatedWallest: Record<string, any> = yield call(
       fetchUserAssociatedWallets,
