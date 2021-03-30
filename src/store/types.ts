@@ -29,7 +29,6 @@ import QueueReducer from 'store/queue/slice'
 import { PasswordResetState } from 'containers/password-reset/store/types'
 import MusicConfetti from 'containers/music-confetti/store/slice'
 import MobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
-import MobileConnectWalletsDrawer from 'containers/mobile-connect-wallets-drawer/store/slice'
 import EnablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import AccountReducer from 'store/account/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
@@ -121,7 +120,6 @@ export type AppState = {
       appCTAModal: ReturnType<typeof AppCTAModalReducer>
       musicConfetti: ReturnType<typeof MusicConfetti>
       mobileUploadDrawer: ReturnType<typeof MobileUploadDrawer>
-      mobileConnectWalletsDrawer: ReturnType<typeof MobileConnectWalletsDrawer>
       enablePushNotificationsDrawer: ReturnType<
         typeof EnablePushNotificationsDrawer
       >

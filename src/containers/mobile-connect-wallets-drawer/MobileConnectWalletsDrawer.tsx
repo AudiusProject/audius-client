@@ -1,11 +1,11 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector } from 'utils/reducer'
 
-import { getIsOpen } from './store/selectors'
 import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
 
 import Drawer from 'components/drawer/Drawer'
 import styles from './MobileConnectWalletsDrawer.module.css'
+import { getModalVisibility } from 'store/application/ui/modals/slice'
 
 const messages = {
   title: 'Connect Wallets',
@@ -14,8 +14,11 @@ const messages = {
 }
 
 const MobileConnectWalletsDrawer = ({ onClose }: { onClose: () => void }) => {
-  const isOpen = useSelector(getIsOpen)
   const keyboardVisible = useSelector(getKeyboardVisibility)
+  const isOpen = useSelector(state =>
+    getModalVisibility(state, 'MobileConnectWalletsDrawer')
+  )
+
   return (
     <Drawer isOpen={isOpen} keyboardVisible={keyboardVisible} onClose={onClose}>
       <div className={styles.drawer}>

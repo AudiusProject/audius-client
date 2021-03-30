@@ -25,10 +25,6 @@ import { useModalState } from 'hooks/useModalState'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { Nullable } from 'utils/typeUtils'
 import MobileConnectWalletsDrawer from 'containers/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
-import {
-  show as showConnectWalletsDrawer,
-  hide as hideConnectWalletsDrawer
-} from 'containers/mobile-connect-wallets-drawer/store/slice'
 const messages = {
   noClaim1: 'You earn $AUDIO by using Audius.',
   noClaim2: 'The more you use Audius, the more $AUDIO you earn.',
@@ -120,17 +116,19 @@ export const WalletTile = ({ className }: { className?: string }) => {
       dispatch(pressSend())
     }
   }, [mobile, dispatch, openTransferDrawer])
+  const [, setOpen] = useModalState('MobileConnectWalletsDrawer')
+
   const onClickConnectWallets = useCallback(() => {
     if (mobile) {
-      dispatch(showConnectWalletsDrawer())
+      setOpen(true)
     } else {
       dispatch(pressConnectWallets())
     }
-  }, [mobile, dispatch])
+  }, [mobile, setOpen, dispatch])
 
   const onCloseConnectWalletsDrawer = useCallback(() => {
-    dispatch(hideConnectWalletsDrawer())
-  }, [dispatch])
+    setOpen(false)
+  }, [setOpen])
 
   const { connectedWallets: wallets } = useSelector(getAssociatedWallets)
   const hasMultipleWallets = (wallets?.length ?? 0) > 0

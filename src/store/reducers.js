@@ -46,7 +46,6 @@ import remixSettingsModal from 'containers/remix-settings-modal/store/slice'
 import remoteConfig from 'containers/remote-config/slice'
 import musicConfetti from 'containers/music-confetti/store/slice'
 import mobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
-import mobileConnectWalletsDrawer from 'containers/mobile-connect-wallets-drawer/store/slice'
 import enablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import trendingPlaylists from 'containers/trending-playlists/store/slice'
 import rewardsUI from 'containers/audio-rewards-page/store/slice'
@@ -143,7 +142,6 @@ const createRootReducer = routeHistory =>
         appCTAModal,
         musicConfetti,
         mobileUploadDrawer,
-        mobileConnectWalletsDrawer,
         enablePushNotificationsDrawer,
         averageColor,
         modals,
