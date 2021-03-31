@@ -64,12 +64,12 @@ const CollectibleMedia: React.FC<{
   toggleMute: () => void
 }> = ({ type, imageUrl, animationUrl, isMuted, toggleMute }) => {
   return type === CollectibleType.IMAGE ? (
-    <div className={styles.modalMediaWrapper}>
-      <DynamicImage image={imageUrl!} wrapperClassName={styles.modalMedia} />
+    <div className={styles.detailsMediaWrapper}>
+      <img src={imageUrl!} alt='Collectible' />
     </div>
   ) : (
-    <div className={styles.modalMediaWrapper} onClick={toggleMute}>
-      <video className={styles.modalMedia} muted={isMuted} autoPlay loop>
+    <div className={styles.detailsMediaWrapper} onClick={toggleMute}>
+      <video muted={isMuted} autoPlay loop>
         <source
           src={animationUrl!}
           type={`video/${animationUrl!.slice(
