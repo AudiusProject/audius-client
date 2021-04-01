@@ -9,6 +9,7 @@ import {
   StringWei,
   stringWeiToAudioBN
 } from 'store/wallet/slice'
+import BN from 'bn.js'
 import { createSelector } from 'reselect'
 
 export type BadgeTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum'
@@ -55,9 +56,15 @@ export const getWeiBalanceForUser = (
 
   const wei: StringWei = (() => {
     if (accountUser?.user_id === userId) {
-      return state.wallet.balance ?? ('0' as StringWei)
+      return state.wallet.totalBalance ?? ('0' as StringWei)
     }
-    return user?.balance ?? ('0' as StringWei)
+    const userOwnerWalletBalance = user?.balance ?? ('0' as StringWei)
+    const userAssociatedWalletBalance =
+      user?.associated_wallets_balance ?? ('0' as StringWei)
+    const total = new BN(userOwnerWalletBalance).add(
+      new BN(userAssociatedWalletBalance)
+    )
+    return total.toString() as StringWei
   })()
 
   return wei
