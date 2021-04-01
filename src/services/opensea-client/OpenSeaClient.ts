@@ -7,7 +7,7 @@ import {
 } from 'containers/collectibles/helpers'
 import { Collectible } from 'containers/collectibles/components/types'
 
-const OPENSEA_API_URL = 'https://api.opensea.io/api/v1'
+const OPENSEA_API_URL = process.env.REACT_APP_OPENSEA_API_URL
 
 class OpenSeaClient {
   readonly url = OPENSEA_API_URL
