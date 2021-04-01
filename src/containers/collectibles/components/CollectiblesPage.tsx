@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Button,
   ButtonSize,
@@ -302,6 +302,31 @@ const CollectiblesPage: React.FC<{
     false
   )
 
+  const visibleTableRef = useRef<HTMLDivElement | null>(null)
+  const [showTableTopShadow, setShowTableTopShadow] = useState<boolean>(false)
+  const [showTableBottomShadow, setShowTableBottomShadow] = useState<boolean>(
+    false
+  )
+
+  useEffect(() => {
+    const visibleTableElement = visibleTableRef?.current
+    if (visibleTableElement) {
+      setShowTableBottomShadow(
+        visibleTableElement.scrollHeight > visibleTableElement.clientHeight
+      )
+      const listener = () => {
+        const { scrollTop, scrollHeight, clientHeight } = visibleTableElement
+        setShowTableTopShadow(scrollTop > 0)
+        setShowTableBottomShadow(scrollTop < scrollHeight - clientHeight)
+      }
+      visibleTableElement.addEventListener('scroll', listener)
+
+      return () => {
+        visibleTableElement.removeEventListener('scroll', listener)
+      }
+    }
+  }, [isEditingPreferences])
+
   useEffect(() => {
     if (!collectiblesMetadata) {
       /**
@@ -496,7 +521,11 @@ const CollectiblesPage: React.FC<{
                   {collectibleMessages.visibleCollectibles}
                 </div>
 
-                <div className={styles.editTableContainer}>
+                {showTableTopShadow && <div className={styles.tableShadow} />}
+                <div
+                  className={styles.editTableContainer}
+                  ref={visibleTableRef}
+                >
                   <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
                     {provided => (
                       <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -526,6 +555,9 @@ const CollectiblesPage: React.FC<{
                     )}
                   </Droppable>
                 </div>
+                {showTableBottomShadow && (
+                  <div className={cn(styles.tableShadow, styles.bottom)} />
+                )}
               </DragDropContext>
             </div>
           )}
