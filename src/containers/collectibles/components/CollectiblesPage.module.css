@@ -90,6 +90,7 @@
   overflow: hidden;
   width: 200px;
   height: 200px;
+  animation: fadeInVisible 1s;
 }
 
 .playIcon {
@@ -273,11 +274,15 @@
   margin-top: 64px;
   font-size: var(--font-s);
   font-weight: var(--font-bold);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 100;
 }
 
 .nftDrawer .detailsMediaWrapper {
   margin: 48px 24px 0;
   max-width: none;
+  max-height: none;
   height: auto;
 }
 
@@ -404,6 +409,20 @@
 .editTableContainer {
   max-height: 400px;
   overflow-y: auto;
+}
+
+.tableShadow {
+  position: relative;
+  width: 100%;
+  height: 5px;
+  top: 5px;
+  background: var(--neutral-light-8);
+  box-shadow: 0px -2px 14px -1px rgba(0, 0, 0, 0.1);
+  animation: fadeInVisible 1s;
+}
+
+.tableShadow.bottom {
+  top: -5px;
 }
 
 .verticalDivider {
