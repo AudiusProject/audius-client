@@ -184,7 +184,6 @@ const slice = createSlice({
         state.associatedWallets.connectedWallets || []
       ).concat(wallet)
     },
-    addWallet: state => {},
     requestRemoveWallet: (
       state,
       { payload: { wallet } }: PayloadAction<{ wallet: WalletAddress }>
@@ -226,7 +225,8 @@ const slice = createSlice({
       state.associatedWallets.removeWallet.wallet = null
       state.associatedWallets.confirmingWallet = null
       state.associatedWallets.status = null
-    }
+    },
+    preloadWalletProviders: state => {}
   }
 })
 
@@ -273,12 +273,12 @@ export const {
   setAssociatedWallets,
   connectNewWallet,
   pressConnectWallets,
-  addWallet,
   setIsConnectingWallet,
   requestRemoveWallet,
   confirmRemoveWallet,
   removeWallet,
-  updateWalletError
+  updateWalletError,
+  preloadWalletProviders
 } = slice.actions
 
 export default slice.reducer

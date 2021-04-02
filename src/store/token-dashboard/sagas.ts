@@ -19,7 +19,7 @@ import {
   ConfirmRemoveWalletAction,
   getAssociatedWallets,
   updateWalletError,
-  pressConnectWallets
+  preloadWalletProviders
 } from './slice'
 import {
   send as walletSend,
@@ -421,7 +421,7 @@ function* watchForDiscordCode() {
   yield put(setDiscordCode({ code: appended }))
 }
 
-function* preloadWalletProviders() {
+function* preloadProviders() {
   yield loadWalletConnect()
   yield loadBitski()
 }
@@ -438,8 +438,8 @@ function* watchConnectNewWallet() {
   yield takeLatest(connectNewWallet.type, connectWallet)
 }
 
-function* watchPressConnectWallets() {
-  yield takeLatest(pressConnectWallets.type, preloadWalletProviders)
+function* watchPreloadWalletProviders() {
+  yield takeLatest(preloadWalletProviders.type, preloadProviders)
 }
 
 function* watchRemoveWallet() {
@@ -453,7 +453,7 @@ const sagas = () => {
     watchGetAssociatedWallets,
     watchConnectNewWallet,
     watchRemoveWallet,
-    watchPressConnectWallets
+    watchPreloadWalletProviders
   ]
 }
 
