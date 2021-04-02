@@ -25,7 +25,7 @@ export const badgeTiers: { tier: BadgeTier; minAudio: BNAudio }[] = [
   },
   {
     tier: 'silver',
-    minAudio: stringAudioToBN('1000' as StringAudio)
+    minAudio: stringAudioToBN('100' as StringAudio)
   },
   {
     tier: 'bronze',
