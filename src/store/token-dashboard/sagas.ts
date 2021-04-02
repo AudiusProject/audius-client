@@ -18,7 +18,8 @@ import {
   confirmRemoveWallet,
   ConfirmRemoveWalletAction,
   getAssociatedWallets,
-  updateWalletError
+  updateWalletError,
+  pressConnectWallets
 } from './slice'
 import {
   send as walletSend,
@@ -38,7 +39,10 @@ import apiClient, {
 import { getUserId, getAccountUser } from 'store/account/selectors'
 import { Nullable } from 'utils/typeUtils'
 import { ID } from 'models/common/Identifiers'
-import connectWeb3Wallet from 'services/web3-modal/index'
+import connectWeb3Wallet, {
+  loadBitski,
+  loadWalletConnect
+} from 'services/web3-modal/index'
 import { newUserMetadata } from 'schemas'
 
 import { fetchAccountSucceeded } from 'store/account/reducer'
@@ -417,6 +421,11 @@ function* watchForDiscordCode() {
   yield put(setDiscordCode({ code: appended }))
 }
 
+function* preloadWalletProviders() {
+  yield loadWalletConnect()
+  yield loadBitski()
+}
+
 function* watchPressSend() {
   yield takeLatest(pressSend.type, send)
 }
@@ -429,6 +438,10 @@ function* watchConnectNewWallet() {
   yield takeLatest(connectNewWallet.type, connectWallet)
 }
 
+function* watchPressConnectWallets() {
+  yield takeLatest(pressConnectWallets.type, preloadWalletProviders)
+}
+
 function* watchRemoveWallet() {
   yield takeLatest(confirmRemoveWallet.type, removeWallet)
 }
@@ -439,7 +452,8 @@ const sagas = () => {
     watchForDiscordCode,
     watchGetAssociatedWallets,
     watchConnectNewWallet,
-    watchRemoveWallet
+    watchRemoveWallet,
+    watchPressConnectWallets
   ]
 }
 
