@@ -277,6 +277,7 @@
   overflow-y: scroll;
   overflow-x: hidden;
   z-index: 100;
+  height: 100%;
 }
 
 .nftDrawer .detailsMediaWrapper {
