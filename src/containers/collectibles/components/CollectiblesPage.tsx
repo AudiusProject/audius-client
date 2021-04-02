@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Button,
   ButtonSize,
@@ -31,6 +31,8 @@ import {
   HiddenCollectibleRow,
   VisibleCollectibleRow
 } from 'containers/collectibles/components/CollectibleRow'
+import { getCollectibleImage, isConsideredVideo } from '../helpers'
+import { Nullable } from 'utils/typeUtils'
 
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
 
@@ -58,8 +60,8 @@ export const collectibleMessages = {
 
 const CollectibleMedia: React.FC<{
   type: CollectibleType
-  imageUrl: string | null
-  animationUrl: string | null
+  imageUrl: Nullable<string>
+  animationUrl: Nullable<string>
   isMuted: boolean
   toggleMute: () => void
 }> = ({ type, imageUrl, animationUrl, isMuted, toggleMute }) => {
@@ -94,6 +96,11 @@ const CollectibleDetails: React.FC<{
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
+  const [image, setImage] = useState<Nullable<string>>(null)
+
+  useEffect(() => {
+    getCollectibleImage(collectible).then(frame => setImage(frame))
+  }, [collectible])
 
   const handleItemClick = useCallback(() => {
     if (isMobile) {
@@ -113,24 +120,27 @@ const CollectibleDetails: React.FC<{
         className={styles.perspectiveCard}
         onClick={handleItemClick}
       >
-        <div>
-          <DynamicImage
-            image={collectible.imageUrl!}
-            wrapperClassName={styles.media}
-          />
-          {collectible.type === CollectibleType.VIDEO && (
-            <IconPlay className={styles.playIcon} />
-          )}
-          <div className={styles.stamp}>
-            {collectible.isOwned ? (
-              <span className={styles.owned}>{collectibleMessages.owned}</span>
-            ) : (
-              <span className={styles.created}>
-                {collectibleMessages.created}
-              </span>
+        {image ? (
+          <div>
+            <DynamicImage image={image} wrapperClassName={styles.media} />
+            {isConsideredVideo(collectible) && (
+              <IconPlay className={styles.playIcon} />
             )}
+            <div className={styles.stamp}>
+              {collectible.isOwned ? (
+                <span className={styles.owned}>
+                  {collectibleMessages.owned}
+                </span>
+              ) : (
+                <span className={styles.created}>
+                  {collectibleMessages.created}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.media} />
+        )}
         <div className={styles.nftTitle}>{collectible.name}</div>
       </PerspectiveCard>
 
@@ -170,19 +180,23 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
 
-            <div>Date Created:</div>
-            <div className={styles.date}>
-              {collectible.dateCreated
-                ? formatDate(collectible.dateCreated)
-                : ''}
-            </div>
+            {collectible.dateCreated && (
+              <div>
+                <div>Date Created:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateCreated)}
+                </div>
+              </div>
+            )}
 
-            <div>Last Transferred:</div>
-            <div className={styles.date}>
-              {collectible.dateLastTransferred
-                ? formatDate(collectible.dateLastTransferred)
-                : ''}
-            </div>
+            {collectible.dateLastTransferred && (
+              <div>
+                <div>Last Transferred:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateLastTransferred)}
+                </div>
+              </div>
+            )}
 
             <div className={styles.detailsDescription}>
               {collectible.description}
@@ -231,23 +245,23 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
 
-            <div className={styles.dateWrapper}>
-              <div>Date Created:</div>
-              <div className={styles.date}>
-                {collectible.dateCreated
-                  ? formatDate(collectible.dateCreated)
-                  : ''}
+            {collectible.dateCreated && (
+              <div className={styles.dateWrapper}>
+                <div>Date Created:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateCreated)}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className={styles.dateWrapper}>
-              <div>Last Transferred:</div>
-              <div className={styles.date}>
-                {collectible.dateLastTransferred
-                  ? formatDate(collectible.dateLastTransferred)
-                  : ''}
+            {collectible.dateLastTransferred && (
+              <div className={styles.dateWrapper}>
+                <div>Last Transferred:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateLastTransferred)}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className={styles.detailsDescription}>
               {collectible.description}
@@ -301,6 +315,31 @@ const CollectiblesPage: React.FC<{
   const [showUseDesktopDrawer, setShowUseDesktopDrawer] = useState<boolean>(
     false
   )
+
+  const visibleTableRef = useRef<HTMLDivElement | null>(null)
+  const [showTableTopShadow, setShowTableTopShadow] = useState<boolean>(false)
+  const [showTableBottomShadow, setShowTableBottomShadow] = useState<boolean>(
+    false
+  )
+
+  useEffect(() => {
+    const visibleTableElement = visibleTableRef?.current
+    if (visibleTableElement) {
+      setShowTableBottomShadow(
+        visibleTableElement.scrollHeight > visibleTableElement.clientHeight
+      )
+      const listener = () => {
+        const { scrollTop, scrollHeight, clientHeight } = visibleTableElement
+        setShowTableTopShadow(scrollTop > 0)
+        setShowTableBottomShadow(scrollTop < scrollHeight - clientHeight)
+      }
+      visibleTableElement.addEventListener('scroll', listener)
+
+      return () => {
+        visibleTableElement.removeEventListener('scroll', listener)
+      }
+    }
+  }, [isEditingPreferences])
 
   useEffect(() => {
     if (!collectiblesMetadata) {
@@ -496,7 +535,11 @@ const CollectiblesPage: React.FC<{
                   {collectibleMessages.visibleCollectibles}
                 </div>
 
-                <div className={styles.editTableContainer}>
+                {showTableTopShadow && <div className={styles.tableShadow} />}
+                <div
+                  className={styles.editTableContainer}
+                  ref={visibleTableRef}
+                >
                   <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
                     {provided => (
                       <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -526,6 +569,9 @@ const CollectiblesPage: React.FC<{
                     )}
                   </Droppable>
                 </div>
+                {showTableBottomShadow && (
+                  <div className={cn(styles.tableShadow, styles.bottom)} />
+                )}
               </DragDropContext>
             </div>
           )}

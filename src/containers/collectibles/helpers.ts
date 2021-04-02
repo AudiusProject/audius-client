@@ -3,8 +3,10 @@ import {
   Collectible,
   CollectibleType
 } from 'containers/collectibles/components/types'
+import { resizeImage } from 'utils/imageProcessingUtil'
 
 const OPENSEA_AUDIO_EXTENSIONS = ['mp3', 'wav', 'oga']
+const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 const isAssetImage = (asset: OpenSeaAsset) => {
   return !!asset.image_url
@@ -65,4 +67,32 @@ export const transferEventToCollectible = (
     ...assetToCollectible(asset),
     dateLastTransferred: created_date
   }
+}
+
+export const isNotFromNullAddress = (event: OpenSeaEvent) => {
+  return event.from_account.address !== NULL_ADDRESS
+}
+
+const getFrameFromGif = async (url: string, name: string) => {
+  const imageBlob = await fetch(url).then(r => r.blob())
+  const imageFile = new File([imageBlob], name, {
+    type: 'image/jpeg'
+  })
+  const resized = await resizeImage(imageFile, 200, true, name)
+  return URL.createObjectURL(resized)
+}
+
+export const getCollectibleImage = async (collectible: Collectible) => {
+  const { imageUrl, name } = collectible
+  if (imageUrl?.endsWith('.gif')) {
+    return await getFrameFromGif(imageUrl, name || '')
+  }
+  return imageUrl
+}
+
+export const isConsideredVideo = (collectible: Collectible) => {
+  return (
+    collectible.type === CollectibleType.VIDEO ||
+    collectible.imageUrl?.endsWith('.gif')
+  )
 }

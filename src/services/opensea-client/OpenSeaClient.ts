@@ -1,9 +1,10 @@
 import { OpenSeaAsset, OpenSeaEvent } from 'services/opensea-client/types'
 import {
+  isAssetImageOrVideo,
   assetToCollectible,
   creationEventToCollectible,
-  isAssetImageOrVideo,
-  transferEventToCollectible
+  transferEventToCollectible,
+  isNotFromNullAddress
 } from 'containers/collectibles/helpers'
 import { Collectible } from 'containers/collectibles/components/types'
 
@@ -117,21 +118,26 @@ class OpenSeaClient {
       creationEvents
         .filter(event => event && isAssetImageOrVideo(event.asset))
         .forEach(event => {
-          if (ownedCollectibleKeySet.has(event.asset.token_id)) {
-            collectiblesMap[event.asset.token_id] = {
-              ...collectiblesMap[event.asset.token_id],
+          const tokenId = event.asset.token_id
+          if (ownedCollectibleKeySet.has(tokenId)) {
+            collectiblesMap[tokenId] = {
+              ...collectiblesMap[tokenId],
               dateCreated: event.created_date,
               isOwned: false
             }
           } else {
-            collectiblesMap[event.asset.token_id] = creationEventToCollectible(
-              event
-            )
+            collectiblesMap[tokenId] = creationEventToCollectible(event)
+            ownedCollectibleKeySet.add(tokenId)
           }
         })
 
       const latestTransferEventsMap = transferEvents
-        .filter(event => event && isAssetImageOrVideo(event.asset))
+        .filter(
+          event =>
+            event &&
+            isAssetImageOrVideo(event.asset) &&
+            isNotFromNullAddress(event)
+        )
         .reduce((acc: { [key: string]: OpenSeaEvent }, curr) => {
           if (
             acc[curr.asset.token_id] &&
