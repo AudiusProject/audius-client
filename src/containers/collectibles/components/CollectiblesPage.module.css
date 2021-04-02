@@ -273,11 +273,15 @@
   margin-top: 64px;
   font-size: var(--font-s);
   font-weight: var(--font-bold);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 100;
 }
 
 .nftDrawer .detailsMediaWrapper {
   margin: 48px 24px 0;
   max-width: none;
+  max-height: none;
   height: auto;
 }
 
