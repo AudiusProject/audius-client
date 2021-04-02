@@ -170,19 +170,23 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
 
-            <div>Date Created:</div>
-            <div className={styles.date}>
-              {collectible.dateCreated
-                ? formatDate(collectible.dateCreated)
-                : ''}
-            </div>
+            {collectible.dateCreated && (
+              <div>
+                <div>Date Created:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateCreated)}
+                </div>
+              </div>
+            )}
 
-            <div>Last Transferred:</div>
-            <div className={styles.date}>
-              {collectible.dateLastTransferred
-                ? formatDate(collectible.dateLastTransferred)
-                : ''}
-            </div>
+            {collectible.dateLastTransferred && (
+              <div>
+                <div>Last Transferred:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateLastTransferred)}
+                </div>
+              </div>
+            )}
 
             <div className={styles.detailsDescription}>
               {collectible.description}
@@ -231,23 +235,23 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
 
-            <div className={styles.dateWrapper}>
-              <div>Date Created:</div>
-              <div className={styles.date}>
-                {collectible.dateCreated
-                  ? formatDate(collectible.dateCreated)
-                  : ''}
+            {collectible.dateCreated && (
+              <div className={styles.dateWrapper}>
+                <div>Date Created:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateCreated)}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className={styles.dateWrapper}>
-              <div>Last Transferred:</div>
-              <div className={styles.date}>
-                {collectible.dateLastTransferred
-                  ? formatDate(collectible.dateLastTransferred)
-                  : ''}
+            {collectible.dateLastTransferred && (
+              <div className={styles.dateWrapper}>
+                <div>Last Transferred:</div>
+                <div className={styles.date}>
+                  {formatDate(collectible.dateLastTransferred)}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className={styles.detailsDescription}>
               {collectible.description}

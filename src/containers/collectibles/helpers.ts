@@ -5,6 +5,7 @@ import {
 } from 'containers/collectibles/components/types'
 
 const OPENSEA_AUDIO_EXTENSIONS = ['mp3', 'wav', 'oga']
+const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 const isAssetImage = (asset: OpenSeaAsset) => {
   return !!asset.image_url
@@ -65,4 +66,8 @@ export const transferEventToCollectible = (
     ...assetToCollectible(asset),
     dateLastTransferred: created_date
   }
+}
+
+export const isNotFromNullAddress = (event: OpenSeaEvent) => {
+  return event.from_account.address !== NULL_ADDRESS
 }
