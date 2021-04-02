@@ -329,7 +329,11 @@ const WalletModal = () => {
       contentHorizontalPadding={24}
       useGradientTitle={false}
     >
-      <div className={wm(styles.modalContainer)}>
+      <div
+        className={wm(styles.modalContainer, {
+          [styles.sendModalContainer]: modalState?.stage === 'SEND'
+        })}
+      >
         <ModalContent
           modalState={modalState}
           onInputSendData={onInputSendData}
