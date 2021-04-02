@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 
 import Header from 'components/general/header/desktop/Header'
 import Page from 'components/general/Page'
@@ -18,6 +19,7 @@ import NavContext, {
   LeftPreset,
   RightPreset
 } from 'containers/nav/store/context'
+import { preloadWalletProviders } from 'store/token-dashboard/slice'
 
 export const messages = {
   title: '$AUDIO & Rewards',
@@ -42,6 +44,10 @@ export const RewardsContent = () => {
 }
 
 export const DesktopPage = ({ children }: { children: React.ReactNode }) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(preloadWalletProviders())
+  }, [dispatch])
   const header = <Header primary={messages.title} />
   return (
     <Page
