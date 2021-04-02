@@ -1,10 +1,5 @@
 import Web3Modal, { IProviderOptions } from 'web3modal'
 
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import { Bitski } from 'bitski'
-// import Torus from '@toruslabs/torus-embed'
-// import ethProvider from 'eth-provider'
-
 const BITSKI_CLIENT_ID = process.env.REACT_APP_BITSKI_CLIENT_ID
 const BITSKI_CALLBACK_URL = process.env.REACT_APP_BITSKI_CALLBACK_URL
 const WEB3_NETWORK_ID = parseInt(process.env.REACT_APP_ETH_NETWORK_ID || '')
@@ -17,9 +12,24 @@ type Config = {
   isWalletConnectEnabled: boolean
 }
 
+export const loadWalletConnect = async () => {
+  const { default: WalletConnectProvider } = await import(
+    '@walletconnect/web3-provider'
+  )
+  return WalletConnectProvider
+}
+
+export const loadBitski = async () => {
+  const { Bitski } = await import('bitski')
+  return Bitski
+}
+
 export const createSession = async (config: Config): Promise<any> => {
   try {
     const Web3 = window.Web3
+
+    const WalletConnectProvider = await loadWalletConnect()
+    const Bitski = await loadBitski()
 
     const providerOptions: IProviderOptions = {}
     if (config.isBitkiEnabled && BITSKI_CLIENT_ID && BITSKI_CALLBACK_URL) {
