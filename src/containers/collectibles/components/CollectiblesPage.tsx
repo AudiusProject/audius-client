@@ -31,6 +31,8 @@ import {
   HiddenCollectibleRow,
   VisibleCollectibleRow
 } from 'containers/collectibles/components/CollectibleRow'
+import { getCollectibleImage, isConsideredVideo } from '../helpers'
+import { Nullable } from 'utils/typeUtils'
 
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
 
@@ -58,8 +60,8 @@ export const collectibleMessages = {
 
 const CollectibleMedia: React.FC<{
   type: CollectibleType
-  imageUrl: string | null
-  animationUrl: string | null
+  imageUrl: Nullable<string>
+  animationUrl: Nullable<string>
   isMuted: boolean
   toggleMute: () => void
 }> = ({ type, imageUrl, animationUrl, isMuted, toggleMute }) => {
@@ -94,6 +96,11 @@ const CollectibleDetails: React.FC<{
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
+  const [image, setImage] = useState<Nullable<string>>(null)
+
+  useEffect(() => {
+    getCollectibleImage(collectible).then(frame => setImage(frame))
+  }, [collectible])
 
   const handleItemClick = useCallback(() => {
     if (isMobile) {
@@ -113,24 +120,27 @@ const CollectibleDetails: React.FC<{
         className={styles.perspectiveCard}
         onClick={handleItemClick}
       >
-        <div>
-          <DynamicImage
-            image={collectible.imageUrl!}
-            wrapperClassName={styles.media}
-          />
-          {collectible.type === CollectibleType.VIDEO && (
-            <IconPlay className={styles.playIcon} />
-          )}
-          <div className={styles.stamp}>
-            {collectible.isOwned ? (
-              <span className={styles.owned}>{collectibleMessages.owned}</span>
-            ) : (
-              <span className={styles.created}>
-                {collectibleMessages.created}
-              </span>
+        {image ? (
+          <div>
+            <DynamicImage image={image} wrapperClassName={styles.media} />
+            {isConsideredVideo(collectible) && (
+              <IconPlay className={styles.playIcon} />
             )}
+            <div className={styles.stamp}>
+              {collectible.isOwned ? (
+                <span className={styles.owned}>
+                  {collectibleMessages.owned}
+                </span>
+              ) : (
+                <span className={styles.created}>
+                  {collectibleMessages.created}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.media} />
+        )}
         <div className={styles.nftTitle}>{collectible.name}</div>
       </PerspectiveCard>
 
