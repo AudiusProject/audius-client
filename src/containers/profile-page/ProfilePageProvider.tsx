@@ -136,7 +136,12 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   componentWillUnmount() {
-    if (this.unlisten) this.unlisten()
+    if (this.unlisten) {
+      // Push unlisten to end of event loop. On some browsers, the back button
+      // will cause the component to unmount and remove the unlisten faster than
+      // the history listener will run. See [AUD-403].
+      setImmediate(this.unlisten)
+    }
   }
 
   componentDidUpdate(prevProps: ProfilePageProps, prevState: ProfilePageState) {
