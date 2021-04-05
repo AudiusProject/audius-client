@@ -535,9 +535,13 @@ const CollectiblesPage: React.FC<{
                   {collectibleMessages.visibleCollectibles}
                 </div>
 
-                {showTableTopShadow && <div className={styles.tableShadow} />}
                 <div
-                  className={styles.editTableContainer}
+                  className={cn(styles.editTableContainer, {
+                    [styles.tableTopShadow]: showTableTopShadow,
+                    [styles.tableBottomShadow]: showTableBottomShadow,
+                    [styles.tableVerticalShadow]:
+                      showTableTopShadow && showTableBottomShadow
+                  })}
                   ref={visibleTableRef}
                 >
                   <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
@@ -554,10 +558,7 @@ const CollectiblesPage: React.FC<{
                                 {...provided.draggableProps}
                                 handleProps={provided.dragHandleProps}
                                 forwardRef={provided.innerRef}
-                                name={c.name}
-                                imageUrl={c.imageUrl}
-                                isOwned={c.isOwned}
-                                dateCreated={c.dateCreated}
+                                collectible={c}
                                 onHideClick={handleHideCollectible(c.id)}
                               />
                             )}
@@ -569,9 +570,6 @@ const CollectiblesPage: React.FC<{
                     )}
                   </Droppable>
                 </div>
-                {showTableBottomShadow && (
-                  <div className={cn(styles.tableShadow, styles.bottom)} />
-                )}
               </DragDropContext>
             </div>
           )}
@@ -586,10 +584,7 @@ const CollectiblesPage: React.FC<{
                 {getHiddenCollectibles().map(c => (
                   <HiddenCollectibleRow
                     key={c.id}
-                    name={c.name!}
-                    imageUrl={c.imageUrl!}
-                    isOwned={c.isOwned}
-                    dateCreated={c.dateCreated}
+                    collectible={c}
                     onShowClick={handleShowCollectible(c.id)}
                   />
                 ))}

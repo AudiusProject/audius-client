@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import cn from 'classnames'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -8,32 +8,43 @@ import { ReactComponent as IconDrag } from 'assets/img/iconDrag.svg'
 import { ReactComponent as IconShow } from 'assets/img/iconMultiselectAdd.svg'
 import { ReactComponent as IconHide } from 'assets/img/iconRemoveTrack.svg'
 import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
+import { getCollectibleImage } from 'containers/collectibles/helpers'
+import { Collectible } from 'containers/collectibles/components/types'
 
 // @ts-ignore
 export const VisibleCollectibleRow = props => {
   const {
-    name,
-    imageUrl,
-    isOwned,
-    dateCreated,
+    collectible,
     onHideClick,
     forwardRef,
     handleProps,
     ...otherProps
   } = props
+  const { name, isOwned, dateCreated } = collectible
+
+  const [image, setImage] = useState<Nullable<string>>(null)
+
+  useEffect(() => {
+    getCollectibleImage(collectible).then(frame => setImage(frame))
+  }, [collectible])
+
   return (
     <div className={styles.editRow} ref={forwardRef} {...otherProps}>
       <Tooltip text={collectibleMessages.hideCollectible}>
         <IconHide onClick={onHideClick} />
       </Tooltip>
       <div className={styles.verticalDivider} />
-      <div>
-        <img
-          className={styles.editMedia}
-          src={imageUrl}
-          alt={collectibleMessages.visibleThumbnail}
-        />
-      </div>
+      {image ? (
+        <div>
+          <img
+            className={styles.editMedia}
+            src={image}
+            alt={collectibleMessages.visibleThumbnail}
+          />
+        </div>
+      ) : (
+        <div className={styles.editMediaEmpty} />
+      )}
       <div className={styles.editRowTitle}>{name}</div>
       <div>
         {isOwned ? (
@@ -56,13 +67,18 @@ export const VisibleCollectibleRow = props => {
 }
 
 export const HiddenCollectibleRow: React.FC<{
-  name: string
-  imageUrl: string
-  isOwned: boolean
-  dateCreated: Nullable<string>
+  collectible: Collectible
   onShowClick: () => void
 }> = props => {
-  const { name, imageUrl, isOwned, dateCreated, onShowClick } = props
+  const { collectible, onShowClick } = props
+  const { name, isOwned, dateCreated } = collectible
+
+  const [image, setImage] = useState<Nullable<string>>(null)
+
+  useEffect(() => {
+    getCollectibleImage(collectible).then(frame => setImage(frame))
+  }, [collectible])
+
   return (
     <div className={cn(styles.editRow, styles.editHidden)}>
       <Tooltip
@@ -72,13 +88,17 @@ export const HiddenCollectibleRow: React.FC<{
         <IconShow onClick={onShowClick} />
       </Tooltip>
       <div className={styles.verticalDivider} />
-      <div>
-        <img
-          className={styles.editMedia}
-          src={imageUrl}
-          alt={collectibleMessages.hiddenThumbnail}
-        />
-      </div>
+      {image ? (
+        <div>
+          <img
+            className={styles.editMedia}
+            src={image}
+            alt={collectibleMessages.hiddenThumbnail}
+          />
+        </div>
+      ) : (
+        <div className={styles.editMediaEmpty} />
+      )}
       <div className={styles.editRowTitle}>{name}</div>
       <div>
         {isOwned ? (
