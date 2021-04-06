@@ -319,26 +319,66 @@ const CollectiblesPage: React.FC<{
   )
 
   const visibleTableRef = useRef<HTMLDivElement | null>(null)
-  const [showTableTopShadow, setShowTableTopShadow] = useState<boolean>(false)
-  const [showTableBottomShadow, setShowTableBottomShadow] = useState<boolean>(
-    false
-  )
+  const [showVisibleTableTopShadow, setShowVisibleTableTopShadow] = useState<
+    boolean
+  >(false)
+  const [
+    showVisibleTableBottomShadow,
+    setShowVisibleTableBottomShadow
+  ] = useState<boolean>(false)
+
+  const hiddenTableRef = useRef<HTMLDivElement | null>(null)
+  const [showHiddenTableTopShadow, setShowHiddenTableTopShadow] = useState<
+    boolean
+  >(false)
+  const [
+    showHiddenTableBottomShadow,
+    setShowHiddenTableBottomShadow
+  ] = useState<boolean>(false)
 
   useEffect(() => {
+    let visibleTableScrollListener: EventListenerOrEventListenerObject,
+      hiddenTableScrollListener: EventListenerOrEventListenerObject
+
     const visibleTableElement = visibleTableRef?.current
     if (visibleTableElement) {
-      setShowTableBottomShadow(
+      setShowVisibleTableBottomShadow(
         visibleTableElement.scrollHeight > visibleTableElement.clientHeight
       )
-      const listener = () => {
+      visibleTableScrollListener = () => {
         const { scrollTop, scrollHeight, clientHeight } = visibleTableElement
-        setShowTableTopShadow(scrollTop > 0)
-        setShowTableBottomShadow(scrollTop < scrollHeight - clientHeight)
+        setShowVisibleTableTopShadow(scrollTop > 0)
+        setShowVisibleTableBottomShadow(scrollTop < scrollHeight - clientHeight)
       }
-      visibleTableElement.addEventListener('scroll', listener)
+      visibleTableElement.addEventListener('scroll', visibleTableScrollListener)
+    }
 
-      return () => {
-        visibleTableElement.removeEventListener('scroll', listener)
+    const hiddenTableElement = hiddenTableRef?.current
+    if (hiddenTableElement) {
+      setShowHiddenTableBottomShadow(
+        hiddenTableElement.scrollHeight > hiddenTableElement.clientHeight
+      )
+      hiddenTableScrollListener = () => {
+        const { scrollTop, scrollHeight, clientHeight } = hiddenTableElement
+        setShowHiddenTableTopShadow(scrollTop > 0)
+        setShowHiddenTableBottomShadow(scrollTop < scrollHeight - clientHeight)
+      }
+      hiddenTableElement.addEventListener('scroll', hiddenTableScrollListener)
+    }
+
+    return () => {
+      if (visibleTableElement) {
+        visibleTableElement.removeEventListener(
+          'scroll',
+          visibleTableScrollListener
+        )
+      }
+
+      if (hiddenTableElement) {
+        hiddenTableElement.removeEventListener(
+          'scroll',
+          hiddenTableScrollListener
+        )
       }
     }
   }, [isEditingPreferences])
@@ -542,10 +582,11 @@ const CollectiblesPage: React.FC<{
                     styles.editTableContainer,
                     editTableContainerClass,
                     {
-                      [styles.tableTopShadow]: showTableTopShadow,
-                      [styles.tableBottomShadow]: showTableBottomShadow,
+                      [styles.tableTopShadow]: showVisibleTableTopShadow,
+                      [styles.tableBottomShadow]: showVisibleTableBottomShadow,
                       [styles.tableVerticalShadow]:
-                        showTableTopShadow && showTableBottomShadow
+                        showVisibleTableTopShadow &&
+                        showVisibleTableBottomShadow
                     }
                   )}
                   ref={visibleTableRef}
@@ -587,7 +628,15 @@ const CollectiblesPage: React.FC<{
                 {collectibleMessages.hiddenCollectibles}
               </div>
 
-              <div className={styles.editTableContainer}>
+              <div
+                className={cn(styles.editTableContainer, {
+                  [styles.tableTopShadow]: showHiddenTableTopShadow,
+                  [styles.tableBottomShadow]: showHiddenTableBottomShadow,
+                  [styles.tableVerticalShadow]:
+                    showHiddenTableTopShadow && showHiddenTableBottomShadow
+                })}
+                ref={hiddenTableRef}
+              >
                 {getHiddenCollectibles().map(c => (
                   <HiddenCollectibleRow
                     key={c.id}
