@@ -937,6 +937,11 @@ class AudiusBackend {
     }
   }
 
+  /**
+   * Retrieves the user's associated wallets from IPFS using the user's metadata CID and creator node endpoints
+   * @param {Object} user The user metadata which contains the CID for the metadata multihash
+   * @returns Object The associated wallets mapping of address to nested signature
+   */
   static async fetchUserAssociatedWallets(user) {
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
