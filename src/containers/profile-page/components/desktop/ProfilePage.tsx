@@ -442,9 +442,11 @@ const ProfilePage = ({
     ]
 
     if (
-      profileHasCollectiblesTierRequirement &&
-      (profileHasVisibleImageOrVideoCollectibles ||
-        (profileHasCollectibles && isUserOnTheirProfile))
+      // `has_collectibles` is a shortcut that is only true iff the user has a modified collectibles state
+      profile?.has_collectibles ||
+      (profileHasCollectiblesTierRequirement &&
+        (profileHasVisibleImageOrVideoCollectibles ||
+          (profileHasCollectibles && isUserOnTheirProfile)))
     ) {
       headers.push({
         icon: <IconCollectibles />,
@@ -561,9 +563,10 @@ const ProfilePage = ({
     ]
 
     if (
-      profileHasCollectiblesTierRequirement &&
-      (profileHasVisibleImageOrVideoCollectibles ||
-        (profileHasCollectibles && isUserOnTheirProfile))
+      profile?.has_collectibles ||
+      (profileHasCollectiblesTierRequirement &&
+        (profileHasVisibleImageOrVideoCollectibles ||
+          (profileHasCollectibles && isUserOnTheirProfile)))
     ) {
       headers.push({
         icon: <IconCollectibles />,

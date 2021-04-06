@@ -431,7 +431,6 @@ const CollectiblesPage: React.FC<{
     if (updateProfile) {
       updateProfile({
         ...profile,
-        has_collectibles: true,
         collectibles: { ...collectiblesMetadata }
       })
     }
