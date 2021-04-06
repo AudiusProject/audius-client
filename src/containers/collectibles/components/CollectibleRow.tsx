@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import cn from 'classnames'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -7,15 +7,20 @@ import { Nullable } from 'utils/typeUtils'
 import { ReactComponent as IconDrag } from 'assets/img/iconDrag.svg'
 import { ReactComponent as IconShow } from 'assets/img/iconMultiselectAdd.svg'
 import { ReactComponent as IconHide } from 'assets/img/iconRemoveTrack.svg'
-import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
+import {
+  collectibleMessages,
+  editTableContainerClass
+} from 'containers/collectibles/components/CollectiblesPage'
 import { getCollectibleImage } from 'containers/collectibles/helpers'
 import { Collectible } from 'containers/collectibles/components/types'
+import { findAncestor } from 'utils/domUtils'
 
 // @ts-ignore
 export const VisibleCollectibleRow = props => {
   const {
     collectible,
     onHideClick,
+    isDragging,
     forwardRef,
     handleProps,
     ...otherProps
@@ -27,6 +32,31 @@ export const VisibleCollectibleRow = props => {
   useEffect(() => {
     getCollectibleImage(collectible).then(frame => setImage(frame))
   }, [collectible])
+
+  const dragRef = useRef<HTMLDivElement>(null)
+  const [tableElement, setTableElement] = useState<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (dragRef?.current) {
+      setTableElement(
+        findAncestor(
+          dragRef.current,
+          `.${editTableContainerClass}`
+        ) as HTMLDivElement
+      )
+    }
+  }, [dragRef])
+
+  useEffect(() => {
+    const rowElement = dragRef?.current?.parentElement
+    if (tableElement && rowElement && isDragging) {
+      const offset =
+        rowElement.getBoundingClientRect().top -
+        tableElement.getBoundingClientRect().top
+      rowElement.style.top = `${offset}px`
+      rowElement.style.left = '0'
+    }
+  }, [tableElement, isDragging])
 
   return (
     <div className={styles.editRow} ref={forwardRef} {...otherProps}>
@@ -59,7 +89,7 @@ export const VisibleCollectibleRow = props => {
       </div>
       {dateCreated && <div>{formatDate(dateCreated)}</div>}
       <div className={styles.verticalDivider} />
-      <div className={styles.drag} {...handleProps}>
+      <div className={styles.drag} ref={dragRef} {...handleProps}>
         <IconDrag />
       </div>
     </div>

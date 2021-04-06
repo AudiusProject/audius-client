@@ -34,6 +34,8 @@ import {
 import { getCollectibleImage, isConsideredVideo } from '../helpers'
 import { Nullable } from 'utils/typeUtils'
 
+export const editTableContainerClass = 'editTableContainer'
+
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
 
 export const collectibleMessages = {
@@ -536,12 +538,16 @@ const CollectiblesPage: React.FC<{
                 </div>
 
                 <div
-                  className={cn(styles.editTableContainer, {
-                    [styles.tableTopShadow]: showTableTopShadow,
-                    [styles.tableBottomShadow]: showTableBottomShadow,
-                    [styles.tableVerticalShadow]:
-                      showTableTopShadow && showTableBottomShadow
-                  })}
+                  className={cn(
+                    styles.editTableContainer,
+                    editTableContainerClass,
+                    {
+                      [styles.tableTopShadow]: showTableTopShadow,
+                      [styles.tableBottomShadow]: showTableBottomShadow,
+                      [styles.tableVerticalShadow]:
+                        showTableTopShadow && showTableBottomShadow
+                    }
+                  )}
                   ref={visibleTableRef}
                 >
                   <Droppable droppableId={VISIBLE_COLLECTIBLES_DROPPABLE_ID}>
@@ -553,11 +559,12 @@ const CollectiblesPage: React.FC<{
                             draggableId={c.id}
                             index={index}
                           >
-                            {provided => (
+                            {(provided, snapshot) => (
                               <VisibleCollectibleRow
                                 {...provided.draggableProps}
                                 handleProps={provided.dragHandleProps}
                                 forwardRef={provided.innerRef}
+                                isDragging={snapshot.isDragging}
                                 collectible={c}
                                 onHideClick={handleHideCollectible(c.id)}
                               />
