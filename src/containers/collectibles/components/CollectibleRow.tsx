@@ -50,11 +50,19 @@ export const VisibleCollectibleRow = props => {
   useEffect(() => {
     const rowElement = dragRef?.current?.parentElement
     if (tableElement && rowElement && isDragging) {
-      const offset =
-        rowElement.getBoundingClientRect().top -
-        tableElement.getBoundingClientRect().top
-      rowElement.style.top = `${offset}px`
-      rowElement.style.left = '0'
+      let topOffset = 0
+      const rowHeight = rowElement.getBoundingClientRect().height
+      const { previousElementSibling, nextElementSibling } = rowElement
+      if (previousElementSibling) {
+        topOffset =
+          previousElementSibling.getBoundingClientRect().top -
+          tableElement.getBoundingClientRect().top +
+          rowHeight * 3
+      } else if (nextElementSibling) {
+        topOffset = rowHeight * 2
+      }
+      rowElement.style.top = `${topOffset}px`
+      rowElement.style.left = '24px'
     }
   }, [tableElement, isDragging])
 
