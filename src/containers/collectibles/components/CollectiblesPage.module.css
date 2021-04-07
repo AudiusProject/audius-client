@@ -248,6 +248,8 @@
 
 .detailsMediaWrapper img {
   width: 100%;
+  pointer-events: none;
+  cursor: default;
 }
 
 .detailsMediaWrapper video {
