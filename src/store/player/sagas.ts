@@ -80,7 +80,7 @@ export function* watchPlay() {
       const forceStreamMp3 =
         encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId)
       const forceStreamMp3Url = forceStreamMp3
-        ? yield call(apiClient.makeUrl, `/tracks/${encodedTrackId}/stream`)
+        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
         : null
 
       const endChannel = eventChannel(emitter => {

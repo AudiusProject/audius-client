@@ -915,11 +915,7 @@ class AudiusAPIClient {
     console.debug('APIClient: Initialized')
   }
 
-  makeUrl = async (
-    path: string,
-    queryParams: QueryParams = {},
-    useFull = false
-  ) => {
+  makeUrl = (path: string, queryParams: QueryParams = {}, useFull = false) => {
     const formattedPath = useFull
       ? this._formatFullPath(path)
       : this._formatPath(path)
