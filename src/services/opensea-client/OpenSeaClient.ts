@@ -119,13 +119,7 @@ class OpenSeaClient {
         .filter(event => event && isAssetValid(event.asset))
         .forEach(event => {
           const tokenId = event.asset.token_id
-          if (ownedCollectibleKeySet.has(tokenId)) {
-            collectiblesMap[tokenId] = {
-              ...collectiblesMap[tokenId],
-              dateCreated: event.created_date,
-              isOwned: false
-            }
-          } else {
+          if (!ownedCollectibleKeySet.has(tokenId)) {
             collectiblesMap[tokenId] = creationEventToCollectible(event)
             ownedCollectibleKeySet.add(tokenId)
           }
@@ -157,6 +151,7 @@ class OpenSeaClient {
             dateLastTransferred: event.created_date
           }
         } else if (wallets.includes(event.to_account.address)) {
+          ownedCollectibleKeySet.add(event.asset.token_id)
           collectiblesMap[event.asset.token_id] = transferEventToCollectible(
             event
           )
