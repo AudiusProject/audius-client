@@ -1,6 +1,6 @@
 import { OpenSeaAsset, OpenSeaEvent } from 'services/opensea-client/types'
 import {
-  isAssetImageOrVideo,
+  isAssetValid,
   assetToCollectible,
   creationEventToCollectible,
   transferEventToCollectible,
@@ -105,7 +105,7 @@ class OpenSeaClient {
       client.getTransferredCollectiblesForMultipleWallets(wallets)
     ]).then(([assets, creationEvents, transferEvents]) => {
       const collectiblesMap: { [key: string]: Collectible } = assets
-        .filter(asset => asset && isAssetImageOrVideo(asset))
+        .filter(asset => asset && isAssetValid(asset))
         .reduce(
           (acc, curr) => ({
             ...acc,
@@ -116,7 +116,7 @@ class OpenSeaClient {
       const ownedCollectibleKeySet = new Set(Object.keys(collectiblesMap))
 
       creationEvents
-        .filter(event => event && isAssetImageOrVideo(event.asset))
+        .filter(event => event && isAssetValid(event.asset))
         .forEach(event => {
           const tokenId = event.asset.token_id
           if (ownedCollectibleKeySet.has(tokenId)) {
@@ -134,9 +134,7 @@ class OpenSeaClient {
       const latestTransferEventsMap = transferEvents
         .filter(
           event =>
-            event &&
-            isAssetImageOrVideo(event.asset) &&
-            isNotFromNullAddress(event)
+            event && isAssetValid(event.asset) && isNotFromNullAddress(event)
         )
         .reduce((acc: { [key: string]: OpenSeaEvent }, curr) => {
           if (

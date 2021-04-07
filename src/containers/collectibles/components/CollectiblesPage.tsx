@@ -31,7 +31,7 @@ import {
   HiddenCollectibleRow,
   VisibleCollectibleRow
 } from 'containers/collectibles/components/CollectibleRow'
-import { getCollectibleImage, isConsideredVideo } from '../helpers'
+import { getCollectibleImage } from '../helpers'
 import { Nullable } from 'utils/typeUtils'
 import useInstanceVar from 'hooks/useInstanceVar'
 
@@ -68,19 +68,13 @@ const CollectibleMedia: React.FC<{
   isMuted: boolean
   toggleMute: () => void
 }> = ({ type, imageUrl, animationUrl, isMuted, toggleMute }) => {
-  return type === CollectibleType.IMAGE ? (
+  return type === CollectibleType.IMAGE || type === CollectibleType.GIF ? (
     <div className={styles.detailsMediaWrapper}>
       <img src={imageUrl!} alt='Collectible' />
     </div>
   ) : (
     <div className={styles.detailsMediaWrapper} onClick={toggleMute}>
-      <video muted={isMuted} autoPlay loop>
-        <source
-          src={animationUrl!}
-          type={`video/${animationUrl!.slice(
-            animationUrl!.lastIndexOf('.') + 1
-          )}`}
-        />
+      <video muted={isMuted} autoPlay loop src={animationUrl!}>
         {collectibleMessages.videoNotSupported}
       </video>
       {isMuted ? (
@@ -126,9 +120,10 @@ const CollectibleDetails: React.FC<{
         {image ? (
           <div>
             <DynamicImage image={image} wrapperClassName={styles.media} />
-            {isConsideredVideo(collectible) && (
+            {collectible.type === CollectibleType.VIDEO ||
+            collectible.type === CollectibleType.GIF ? (
               <IconPlay className={styles.playIcon} />
-            )}
+            ) : null}
             <div className={styles.stamp}>
               {collectible.isOwned ? (
                 <span className={styles.owned}>
@@ -140,6 +135,16 @@ const CollectibleDetails: React.FC<{
                 </span>
               )}
             </div>
+          </div>
+        ) : collectible.type === CollectibleType.VIDEO ? (
+          <div className={styles.media}>
+            <video
+              muted={isMuted}
+              autoPlay={false}
+              controls={false}
+              style={{ height: '100%', width: '100%' }}
+              src={collectible.animationUrl!}
+            />
           </div>
         ) : (
           <div className={styles.media} />
