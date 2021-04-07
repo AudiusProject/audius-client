@@ -416,7 +416,7 @@
 }
 
 .editTableContainer {
-  max-height: 400px;
+  max-height: 20vh;
   overflow-y: auto;
 }
 

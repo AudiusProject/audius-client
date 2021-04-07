@@ -138,6 +138,7 @@ const CollectibleDetails: React.FC<{
           </div>
         ) : collectible.type === CollectibleType.VIDEO ? (
           <div className={styles.media}>
+            <IconPlay className={styles.playIcon} />
             <video
               muted={isMuted}
               autoPlay={false}
@@ -145,6 +146,17 @@ const CollectibleDetails: React.FC<{
               style={{ height: '100%', width: '100%' }}
               src={collectible.animationUrl!}
             />
+            <div className={styles.stamp}>
+              {collectible.isOwned ? (
+                <span className={styles.owned}>
+                  {collectibleMessages.owned}
+                </span>
+              ) : (
+                <span className={styles.created}>
+                  {collectibleMessages.created}
+                </span>
+              )}
+            </div>
           </div>
         ) : (
           <div className={styles.media} />
