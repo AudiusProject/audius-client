@@ -184,7 +184,7 @@ class AudioStream {
     onEnd: () => void,
     prefetchedSegments = [],
     gateways = [],
-    info = { id: '', title: '', artist: '' },
+    info = { title: '', artist: '' },
     forceStreamSrc: string | null = null
   ) => {
     if (forceStreamSrc) {
