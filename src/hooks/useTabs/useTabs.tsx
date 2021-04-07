@@ -1034,7 +1034,9 @@ const useTabs = ({
   if (tabs.length !== getPrevTabs().length) {
     // After adding new tabs, the active index should be whatever active index
     // is currently in state or the controlled index if provided
-    const index = controlledIndex || activeIndex
+    let index
+    if (controlledIndex) index = controlledIndex
+    else index = activeIndex
     const newTab = Math.max(0, Math.min(index, tabs.length - 1))
     // Set active index and last active index so that no animation is
     // triggered.

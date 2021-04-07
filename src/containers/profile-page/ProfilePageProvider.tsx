@@ -129,6 +129,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
           this.fetchProfile(location.pathname)
         }
         this.setState({
+          activeTab: null,
           ...INITIAL_UPDATE_FIELDS
         })
       }
