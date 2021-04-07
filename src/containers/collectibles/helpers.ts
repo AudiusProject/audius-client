@@ -4,6 +4,7 @@ import {
   CollectibleType
 } from 'containers/collectibles/components/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
+import { preload } from 'utils/image'
 
 const OPENSEA_AUDIO_EXTENSIONS = ['mp3', 'wav', 'oga']
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -86,6 +87,9 @@ export const getCollectibleImage = async (collectible: Collectible) => {
   const { imageUrl, name } = collectible
   if (imageUrl?.endsWith('.gif')) {
     return await getFrameFromGif(imageUrl, name || '')
+  }
+  if (imageUrl) {
+    await preload(imageUrl)
   }
   return imageUrl
 }
