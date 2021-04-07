@@ -33,6 +33,7 @@ import {
 } from 'containers/collectibles/components/CollectibleRow'
 import { getCollectibleImage, isConsideredVideo } from '../helpers'
 import { Nullable } from 'utils/typeUtils'
+import useInstanceVar from 'hooks/useInstanceVar'
 
 export const editTableContainerClass = 'editTableContainer'
 
@@ -304,7 +305,7 @@ const CollectiblesPage: React.FC<{
 }) => {
   const isLoading = profile.collectibleList === undefined
 
-  const collectibleList = profile.collectibleList || []
+  const collectibleList = profile?.collectibleList ?? null
 
   const [
     collectiblesMetadata,
@@ -383,40 +384,56 @@ const CollectiblesPage: React.FC<{
     }
   }, [isEditingPreferences])
 
+  // Define an instance var (ref) version of the collectibles metadata
+  // so we can capture the "first setting" of it
+  const [
+    getInitializedCollectiblesMetadata,
+    setInitializedCollectiblesMetadata
+  ] = useInstanceVar(collectiblesMetadata)
   useEffect(() => {
-    if (!collectiblesMetadata) {
-      /**
-       * set local collectible preferences if user never saved them before
-       */
-      setCollectiblesMetadata({
-        ...collectibleList.reduce(
-          (acc, curr) => ({ ...acc, [curr.id]: {} }),
-          {}
-        ),
-        order: collectibleList.map(c => c.id)
-      })
-    } else {
-      /**
-       * include collectibles returned by OpenSea which have not been stored in the user preferences
-       */
-      const collectiblesMetadataKeySet = new Set(
-        Object.keys(collectiblesMetadata)
-      )
-      const newCollectiblesMap = collectibleList
-        .map(c => c.id)
-        .filter(id => !collectiblesMetadataKeySet.has(id))
-        .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
-
-      setCollectiblesMetadata({
-        ...collectiblesMetadata,
-        ...newCollectiblesMap,
-        order: collectiblesMetadata.order.concat(
-          Object.keys(newCollectiblesMap)
+    if (collectibleList) {
+      const collectiblesMetadata = getInitializedCollectiblesMetadata()
+      if (!collectiblesMetadata) {
+        /**
+         * set local collectible preferences if user never saved them before
+         */
+        const newMetadata = {
+          ...collectibleList.reduce(
+            (acc, curr) => ({ ...acc, [curr.id]: {} }),
+            {}
+          ),
+          order: collectibleList.map(c => c.id)
+        }
+        setCollectiblesMetadata(newMetadata)
+        setInitializedCollectiblesMetadata(newMetadata)
+      } else {
+        /**
+         * include collectibles returned by OpenSea which have not been stored in the user preferences
+         */
+        const collectiblesMetadataKeySet = new Set(
+          Object.keys(collectiblesMetadata)
         )
-      })
+        const newCollectiblesMap = collectibleList
+          .map(c => c.id)
+          .filter(id => !collectiblesMetadataKeySet.has(id))
+          .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
+
+        const newMetadata = {
+          ...collectiblesMetadata,
+          ...newCollectiblesMap,
+          order: collectiblesMetadata.order.concat(
+            Object.keys(newCollectiblesMap)
+          )
+        }
+        setCollectiblesMetadata(newMetadata)
+        setInitializedCollectiblesMetadata(newMetadata)
+      }
     }
-    // eslint-disable-next-line
-  }, [])
+  }, [
+    collectibleList,
+    getInitializedCollectiblesMetadata,
+    setInitializedCollectiblesMetadata
+  ])
 
   const handleEditClick = useCallback(() => {
     if (isMobile) {
@@ -482,25 +499,34 @@ const CollectiblesPage: React.FC<{
   }
 
   const getVisibleCollectibles = useCallback(() => {
-    if (collectiblesMetadata?.order === undefined) {
-      return [...collectibleList]
+    if (collectibleList) {
+      if (collectiblesMetadata?.order === undefined) {
+        return [...collectibleList]
+      }
+
+      const collectibleMap: {
+        [key: string]: Collectible
+      } = collectibleList.reduce(
+        (acc, curr) => ({ ...acc, [curr.id]: curr }),
+        {}
+      )
+      const collectibleKeySet = new Set(Object.keys(collectibleMap))
+
+      return collectiblesMetadata.order
+        .filter(id => collectibleKeySet.has(id))
+        .map(id => collectibleMap[id])
     }
-
-    const collectibleMap: {
-      [key: string]: Collectible
-    } = collectibleList.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {})
-    const collectibleKeySet = new Set(Object.keys(collectibleMap))
-
-    return collectiblesMetadata.order
-      .filter(id => collectibleKeySet.has(id))
-      .map(id => collectibleMap[id])
+    return []
   }, [collectiblesMetadata, collectibleList])
 
   const getHiddenCollectibles = useCallback(() => {
-    const visibleCollectibleKeySet = new Set(
-      getVisibleCollectibles().map(c => c.id)
-    )
-    return collectibleList.filter(c => !visibleCollectibleKeySet.has(c.id))
+    if (collectibleList) {
+      const visibleCollectibleKeySet = new Set(
+        getVisibleCollectibles().map(c => c.id)
+      )
+      return collectibleList.filter(c => !visibleCollectibleKeySet.has(c.id))
+    }
+    return []
   }, [getVisibleCollectibles, collectibleList])
 
   return (

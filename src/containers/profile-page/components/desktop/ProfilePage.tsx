@@ -602,6 +602,7 @@ const ProfilePage = ({
     isMobile: false,
     tabs: headers,
     bodyClassName: styles.tabBody,
+    initialTab: activeTab || undefined,
     elements
   })
 

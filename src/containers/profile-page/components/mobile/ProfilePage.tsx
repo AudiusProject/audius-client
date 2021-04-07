@@ -233,6 +233,7 @@ const ProfilePage = g(
     setNotificationSubscription,
     onClickMobileOverflow,
     didChangeTabsFrom,
+    activeTab,
     onShare
   }) => {
     const { setHeader } = useContext(HeaderContext)
@@ -581,7 +582,8 @@ const ProfilePage = g(
     const { tabs, body } = useTabs({
       didChangeTabsFrom,
       tabs: isLoading ? [] : profileTabs || [],
-      elements: isLoading ? [] : profileElements || []
+      elements: isLoading ? [] : profileElements || [],
+      initialTab: activeTab || undefined
     })
 
     if (!isLoading && !isEditing) {
