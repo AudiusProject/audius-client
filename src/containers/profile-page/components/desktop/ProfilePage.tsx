@@ -257,6 +257,8 @@ const ProfilePage = ({
   const profileHasVisibleImageOrVideoCollectibles =
     profileHasCollectibles &&
     (profileNeverSetCollectiblesOrder || profileHasNonEmptyCollectiblesOrder)
+  const didCollectiblesLoadAndWasEmpty =
+    profileHasCollectibles && !profileHasNonEmptyCollectiblesOrder
 
   const isUserOnTheirProfile = accountUserId === userId
 
@@ -443,7 +445,9 @@ const ProfilePage = ({
 
     if (
       // `has_collectibles` is a shortcut that is only true iff the user has a modified collectibles state
-      profile?.has_collectibles ||
+      (profile?.has_collectibles &&
+        profileHasCollectiblesTierRequirement &&
+        !didCollectiblesLoadAndWasEmpty) ||
       (profileHasCollectiblesTierRequirement &&
         (profileHasVisibleImageOrVideoCollectibles ||
           (profileHasCollectibles && isUserOnTheirProfile)))
@@ -563,7 +567,9 @@ const ProfilePage = ({
     ]
 
     if (
-      profile?.has_collectibles ||
+      (profile?.has_collectibles &&
+        profileHasCollectiblesTierRequirement &&
+        !didCollectiblesLoadAndWasEmpty) ||
       (profileHasCollectiblesTierRequirement &&
         (profileHasVisibleImageOrVideoCollectibles ||
           (profileHasCollectibles && isUserOnTheirProfile)))

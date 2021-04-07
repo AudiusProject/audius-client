@@ -303,14 +303,16 @@ const CollectiblesPage: React.FC<{
   updateProfile,
   isUserOnTheirProfile
 }) => {
-  const isLoading = profile.collectibleList === undefined
-
   const collectibleList = profile?.collectibleList ?? null
+  const hasCollectibles = profile?.has_collectibles ?? false
+  const isLoading =
+    profile.collectibleList === undefined ||
+    (hasCollectibles && !profile.collectibles)
 
   const [
     collectiblesMetadata,
     setCollectiblesMetadata
-  ] = useState<CollectiblesMetadata | null>(profile.collectibles || null)
+  ] = useState<CollectiblesMetadata | null>(null)
 
   const [isEditingPreferences, setIsEditingPreferences] = useState<boolean>(
     false
@@ -384,16 +386,10 @@ const CollectiblesPage: React.FC<{
     }
   }, [isEditingPreferences])
 
-  // Define an instance var (ref) version of the collectibles metadata
-  // so we can capture the "first setting" of it
-  const [
-    getInitializedCollectiblesMetadata,
-    setInitializedCollectiblesMetadata
-  ] = useInstanceVar(collectiblesMetadata)
+  const [getHasSetCollectibles, setHasSetCollectibles] = useInstanceVar(false)
   useEffect(() => {
-    if (collectibleList) {
-      const collectiblesMetadata = getInitializedCollectiblesMetadata()
-      if (!collectiblesMetadata) {
+    if (collectibleList && !getHasSetCollectibles()) {
+      if (!hasCollectibles) {
         /**
          * set local collectible preferences if user never saved them before
          */
@@ -405,13 +401,13 @@ const CollectiblesPage: React.FC<{
           order: collectibleList.map(c => c.id)
         }
         setCollectiblesMetadata(newMetadata)
-        setInitializedCollectiblesMetadata(newMetadata)
-      } else {
+        setHasSetCollectibles(true)
+      } else if (profile.collectibles) {
         /**
          * include collectibles returned by OpenSea which have not been stored in the user preferences
          */
         const collectiblesMetadataKeySet = new Set(
-          Object.keys(collectiblesMetadata)
+          Object.keys(profile.collectibles)
         )
         const newCollectiblesMap = collectibleList
           .map(c => c.id)
@@ -419,20 +415,23 @@ const CollectiblesPage: React.FC<{
           .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
 
         const newMetadata = {
-          ...collectiblesMetadata,
+          ...profile.collectibles,
           ...newCollectiblesMap,
-          order: collectiblesMetadata.order.concat(
+          order: profile.collectibles.order.concat(
             Object.keys(newCollectiblesMap)
           )
         }
+        setHasSetCollectibles(true)
         setCollectiblesMetadata(newMetadata)
-        setInitializedCollectiblesMetadata(newMetadata)
       }
     }
   }, [
+    profile,
+    hasCollectibles,
     collectibleList,
-    getInitializedCollectiblesMetadata,
-    setInitializedCollectiblesMetadata
+    collectiblesMetadata,
+    getHasSetCollectibles,
+    setHasSetCollectibles
   ])
 
   const handleEditClick = useCallback(() => {
@@ -500,7 +499,7 @@ const CollectiblesPage: React.FC<{
 
   const getVisibleCollectibles = useCallback(() => {
     if (collectibleList) {
-      if (collectiblesMetadata?.order === undefined) {
+      if (!hasCollectibles && collectiblesMetadata?.order === undefined) {
         return [...collectibleList]
       }
 
@@ -512,12 +511,13 @@ const CollectiblesPage: React.FC<{
       )
       const collectibleKeySet = new Set(Object.keys(collectibleMap))
 
-      return collectiblesMetadata.order
+      const visible = collectiblesMetadata?.order
         .filter(id => collectibleKeySet.has(id))
         .map(id => collectibleMap[id])
+      return visible || []
     }
     return []
-  }, [collectiblesMetadata, collectibleList])
+  }, [collectiblesMetadata, collectibleList, hasCollectibles])
 
   const getHiddenCollectibles = useCallback(() => {
     if (collectibleList) {
