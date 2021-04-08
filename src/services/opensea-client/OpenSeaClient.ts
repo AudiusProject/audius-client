@@ -104,6 +104,7 @@ class OpenSeaClient {
       client.getCreatedCollectiblesForMultipleWallets(wallets),
       client.getTransferredCollectiblesForMultipleWallets(wallets)
     ]).then(([assets, creationEvents, transferEvents]) => {
+      console.log({ assets, creationEvents, transferEvents })
       const collectiblesMap: { [key: string]: Collectible } = assets
         .filter(asset => asset && isAssetValid(asset))
         .reduce(

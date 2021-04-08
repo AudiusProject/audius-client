@@ -4,7 +4,6 @@ import {
   CollectibleType
 } from 'containers/collectibles/components/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
-import { preload } from 'utils/image'
 
 const OPENSEA_AUDIO_EXTENSIONS = ['mp3', 'wav', 'oga']
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -103,6 +102,16 @@ const getFrameFromGif = async (url: string, name: string) => {
   return URL.createObjectURL(resized)
 }
 
+// Simple preloader that resolves on image load or on error
+export const preload = async (src: string) => {
+  return new Promise((resolve, reject) => {
+    const i = new Image()
+    i.onload = resolve
+    i.onerror = reject
+    i.src = src
+  })
+}
+
 export const getCollectibleImage = async (collectible: Collectible) => {
   const {
     imageUrl,
@@ -124,7 +133,12 @@ export const getCollectibleImage = async (collectible: Collectible) => {
     return await getFrameFromGif(imageThumbnailUrl, name || '')
   }
   if (imageUrl) {
-    await preload(imageUrl)
+    try {
+      await preload(imageUrl)
+    } catch (e) {
+      console.log('caught error in prelod', collectible.id, imageUrl)
+      return ''
+    }
   }
   return imageUrl
 }

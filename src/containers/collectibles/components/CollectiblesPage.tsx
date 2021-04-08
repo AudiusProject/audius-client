@@ -94,10 +94,22 @@ const CollectibleDetails: React.FC<{
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const [image, setImage] = useState<Nullable<string>>(null)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [renderType, setRenderType] = useState(collectible.type)
 
   useEffect(() => {
-    getCollectibleImage(collectible).then(frame => setImage(frame))
-  }, [collectible])
+    if (!image) {
+      getCollectibleImage(collectible).then(frame => {
+        if (frame) {
+          setImage(frame)
+          setImageLoaded(true)
+        } else {
+          setRenderType(CollectibleType.VIDEO)
+          setImage(collectible.imageUrl)
+        }
+      })
+    }
+  }, [collectible, image])
 
   const handleItemClick = useCallback(() => {
     if (isMobile) {
@@ -117,11 +129,11 @@ const CollectibleDetails: React.FC<{
         className={styles.perspectiveCard}
         onClick={handleItemClick}
       >
-        {image ? (
+        {imageLoaded ? (
           <div>
-            <DynamicImage image={image} wrapperClassName={styles.media} />
-            {collectible.type === CollectibleType.VIDEO ||
-            collectible.type === CollectibleType.GIF ? (
+            <DynamicImage image={image!} wrapperClassName={styles.media} />
+            {renderType === CollectibleType.VIDEO ||
+            renderType === CollectibleType.GIF ? (
               <IconPlay className={styles.playIcon} />
             ) : null}
             <div className={styles.stamp}>
@@ -136,7 +148,7 @@ const CollectibleDetails: React.FC<{
               )}
             </div>
           </div>
-        ) : collectible.type === CollectibleType.VIDEO ? (
+        ) : renderType === CollectibleType.VIDEO ? (
           <div className={styles.media}>
             <IconPlay className={styles.playIcon} />
             <video
@@ -144,7 +156,7 @@ const CollectibleDetails: React.FC<{
               autoPlay={false}
               controls={false}
               style={{ height: '100%', width: '100%' }}
-              src={collectible.animationUrl!}
+              src={collectible.animationUrl || image!}
             />
             <div className={styles.stamp}>
               {collectible.isOwned ? (
