@@ -35,7 +35,7 @@ const useTrendingUndergroundLineup = (containerRef: HTMLElement) => {
 
 const messages = {
   trendingUndergroundTitle: 'Underground Trending',
-  description: 'Test Description'
+  description: "Listen to what's trending on the Audius platform"
 }
 
 type TrendingUndergroundPageProps = {
@@ -109,6 +109,9 @@ const TrendingUndergroundPage = (props: TrendingUndergroundPageProps) => {
   const mobile = isMobile()
   const { isEnabled, isLoaded } = useIsTrendingUndergroundEnabled()
 
+  // If we haven't loaded remote config yet, wait
+  // If we have, then either show trending underground
+  // or navigate to 404
   const navigate = useNavigateToPage()
   useEffect(() => {
     if (isLoaded && !isEnabled) {
