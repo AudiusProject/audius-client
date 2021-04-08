@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import useInstanceVar from 'hooks/useInstanceVar'
 
 /**
  * Custom hook that fires a callback when the route changes
@@ -10,13 +11,13 @@ import { useLocation } from 'react-router-dom'
  */
 const useHasChangedRoute = (onRouteChange: () => void) => {
   const { pathname } = useLocation()
-  const [currentRoute, setCurrentRoute] = useState(pathname)
+  const [getCurrentRoute, setCurrentRoute] = useInstanceVar(pathname)
   useEffect(() => {
-    if (pathname !== currentRoute) {
+    if (pathname !== getCurrentRoute()) {
       setCurrentRoute(pathname)
       onRouteChange()
     }
-  }, [pathname, currentRoute, setCurrentRoute, onRouteChange])
+  }, [pathname, getCurrentRoute, setCurrentRoute, onRouteChange])
 }
 
 export default useHasChangedRoute
