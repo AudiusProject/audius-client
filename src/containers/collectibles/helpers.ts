@@ -135,11 +135,13 @@ export const getCollectibleImage = async (collectible: Collectible) => {
   if (imageOriginalUrl?.endsWith('.gif')) {
     return await getFrameFromGif(imageOriginalUrl, name || '')
   }
-  if (imageUrl) {
-    const res = await fetch(imageUrl)
+  const foundImage =
+    imageUrl || imageThumbnailUrl || imagePreviewUrl || imageOriginalUrl
+  if (foundImage) {
+    const res = await fetch(foundImage)
     if (res.headers.get('Content-Type')?.includes('gif')) {
-      return await getFrameFromGif(imageUrl, name || '')
+      return await getFrameFromGif(foundImage, name || '')
     }
   }
-  return imageUrl
+  return foundImage
 }
