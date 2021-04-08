@@ -327,7 +327,7 @@ class AudiusAPIClient {
 
     const trendingResponse: Nullable<APIResponse<
       APITrack[]
-    >> = await this._getResponse(ENDPOINT_MAP.trendingUnderground, params)
+    >> = await this._getResponse(FULL_ENDPOINT_MAP.trendingUnderground, params)
 
     if (!trendingResponse) return []
 
@@ -1044,8 +1044,6 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'http://localhost:5000'
-})
+const instance = new AudiusAPIClient()
 
 export default instance
