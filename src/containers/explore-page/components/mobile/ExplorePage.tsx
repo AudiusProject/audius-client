@@ -167,6 +167,7 @@ const ExplorePage = ({
             // @ts-ignore
             icon={<Icon />}
             goToRoute={goToRoute}
+            isIncentivized={t.incentivized}
           />
         )
       }
