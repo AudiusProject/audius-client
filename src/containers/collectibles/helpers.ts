@@ -208,10 +208,12 @@ export const isNotFromNullAddress = (event: OpenSeaEvent) => {
 
 const getFrameFromGif = async (url: string, name: string) => {
   const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1
+  const isSafariMobile =
+    navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i)
   let preview
   try {
     // Firefox does not handle partial gif rendering well
-    if (isFirefox) {
+    if (isFirefox || isSafariMobile) {
       throw new Error('partial gif not supported')
     }
     const req = await fetch(url, {

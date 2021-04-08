@@ -119,7 +119,7 @@ const CollectibleDetails: React.FC<{
       >
         {type === CollectibleType.GIF ||
         (type === CollectibleType.VIDEO && frameUrl) ? (
-          <div>
+          <div className={styles.imageWrapper}>
             <DynamicImage image={frameUrl!} wrapperClassName={styles.media} />
             <IconPlay className={styles.playIcon} />
             <div className={styles.stamp}>
