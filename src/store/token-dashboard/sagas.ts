@@ -40,6 +40,7 @@ import { getUserId, getAccountUser } from 'store/account/selectors'
 import { Nullable } from 'utils/typeUtils'
 import { ID } from 'models/common/Identifiers'
 import connectWeb3Wallet, {
+  loadWalletLink,
   loadBitski,
   loadWalletConnect
 } from 'services/web3-modal/index'
@@ -151,7 +152,17 @@ function* compareIndexedWallets(
   )
 }
 
+function* disconnectWeb3(web3Instance: any) {
+  if (web3Instance?.currentProvider?.disconnect) {
+    yield web3Instance.currentProvider.disconnect()
+  }
+  if (web3Instance?.currentProvider?.close) {
+    yield web3Instance.currentProvider.close()
+  }
+}
+
 function* connectWallet() {
+  let web3Instance: any
   try {
     const isBitkiEnabled = getRemoteVar(
       BooleanKeys.DISPLAY_WEB3_PROVIDER_BITSKI
@@ -159,11 +170,17 @@ function* connectWallet() {
     const isWalletConnectEnabled = getRemoteVar(
       BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_CONNECT
     ) as boolean
+    const isWalletLinkEnabled = getRemoteVar(
+      BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_LINK
+    ) as boolean
 
-    const web3Instance: any = yield connectWeb3Wallet({
+    web3Instance = yield connectWeb3Wallet({
       isBitkiEnabled,
-      isWalletConnectEnabled
+      isWalletConnectEnabled,
+      isWalletLinkEnabled
     })
+    // @ts-ignore
+    window.w3inst = web3Instance
 
     if (!web3Instance) {
       yield put(
@@ -193,10 +210,7 @@ function* connectWallet() {
       ) ||
       associatedUserId !== null
     ) {
-      if (web3Instance.currentProvider.disconnect)
-        yield web3Instance.currentProvider.disconnect()
-      if (web3Instance.currentProvider.close)
-        yield web3Instance.currentProvider.close()
+      yield disconnectWeb3(web3Instance)
       // The wallet already exists in the assocaited wallets set
       yield put(
         updateWalletError({
@@ -212,10 +226,6 @@ function* connectWallet() {
       `AudiusUserID:${accountUserId}`,
       accounts[0]
     )
-    if (web3Instance.currentProvider.disconnect)
-      yield web3Instance.currentProvider.disconnect()
-    if (web3Instance.currentProvider.close)
-      yield web3Instance.currentProvider.close()
 
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
@@ -289,6 +299,7 @@ function* connectWallet() {
               ])
             )
           }
+          yield disconnectWeb3(web3Instance)
         },
         function* () {
           yield put(
@@ -297,10 +308,12 @@ function* connectWallet() {
                 'An error occured while connecting a wallet with your account.'
             })
           )
+          yield disconnectWeb3(web3Instance)
         }
       )
     )
   } catch (error) {
+    yield disconnectWeb3(web3Instance)
     yield put(
       updateWalletError({
         errorMessage:
@@ -399,6 +412,7 @@ function* watchForDiscordCode() {
 function* preloadProviders() {
   yield loadWalletConnect()
   yield loadBitski()
+  yield loadWalletLink()
 }
 
 function* watchPressSend() {
