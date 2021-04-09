@@ -179,8 +179,6 @@ function* connectWallet() {
       isWalletConnectEnabled,
       isWalletLinkEnabled
     })
-    // @ts-ignore
-    window.w3inst = web3Instance
 
     if (!web3Instance) {
       yield put(
