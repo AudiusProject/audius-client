@@ -65,7 +65,7 @@
 .body {
   border-radius: 6px;
   background-color: var(--white);
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   max-height: 85vh;
   -webkit-overflow-scrolling: touch;
