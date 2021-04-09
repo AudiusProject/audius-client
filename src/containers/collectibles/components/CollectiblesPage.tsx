@@ -10,7 +10,6 @@ import {
 import cn from 'classnames'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
-import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'containers/user-badges/UserBadges'
 import {
   DragDropContext,
@@ -33,6 +32,7 @@ import {
   VisibleCollectibleRow
 } from 'containers/collectibles/components/CollectibleRow'
 import useInstanceVar from 'hooks/useInstanceVar'
+import PreloadImage from 'components/preload-image/PreloadImage'
 
 export const editTableContainerClass = 'editTableContainer'
 
@@ -120,7 +120,7 @@ const CollectibleDetails: React.FC<{
         {type === CollectibleType.GIF ||
         (type === CollectibleType.VIDEO && frameUrl) ? (
           <div className={styles.imageWrapper}>
-            <DynamicImage image={frameUrl!} wrapperClassName={styles.media} />
+            <PreloadImage src={frameUrl!} className={styles.media} />
             <IconPlay className={styles.playIcon} />
             <div className={styles.stamp}>
               {collectible.isOwned ? (
@@ -158,7 +158,7 @@ const CollectibleDetails: React.FC<{
           </div>
         ) : type === CollectibleType.IMAGE ? (
           <div className={styles.imageWrapper}>
-            <DynamicImage image={frameUrl!} wrapperClassName={styles.media} />
+            <PreloadImage src={frameUrl!} className={styles.media} />
             <div className={styles.stamp}>
               {collectible.isOwned ? (
                 <span className={styles.owned}>
