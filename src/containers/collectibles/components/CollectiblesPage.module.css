@@ -193,6 +193,7 @@
   align-items: center;
   color: var(--secondary);
   text-decoration: underline !important;
+  margin-bottom: 16px;
 }
 
 .link:hover {

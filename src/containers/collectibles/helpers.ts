@@ -102,60 +102,67 @@ export const assetToCollectible = async (
     asset.image_thumbnail_url
   ]
 
-  if (isAssetGif(asset)) {
-    type = CollectibleType.GIF
-    const urlForFrame = imageUrlsLowToHighRes.find(url =>
-      url?.endsWith('.gif')
-    )!
-    frameUrl = await getFrameFromGif(urlForFrame, name || '')
-    gifUrl = imageUrlsHighToLowRes.find(url => url?.endsWith('.gif'))!
-  } else if (isAssetVideo(asset)) {
-    type = CollectibleType.VIDEO
-    frameUrl =
-      imageUrlsLowToHighRes.find(
-        url => url && OPENSEA_VIDEO_EXTENSIONS.every(ext => !url.endsWith(ext))
-      ) ?? null
+  try {
+    if (isAssetGif(asset)) {
+      type = CollectibleType.GIF
+      const urlForFrame = imageUrlsLowToHighRes.find(url =>
+        url?.endsWith('.gif')
+      )!
+      frameUrl = await getFrameFromGif(urlForFrame, name || '')
+      gifUrl = imageUrlsHighToLowRes.find(url => url?.endsWith('.gif'))!
+    } else if (isAssetVideo(asset)) {
+      type = CollectibleType.VIDEO
+      frameUrl =
+        imageUrlsLowToHighRes.find(
+          url =>
+            url && OPENSEA_VIDEO_EXTENSIONS.every(ext => !url.endsWith(ext))
+        ) ?? null
 
-    /**
-     * make sure frame url is not a video
-     * if it is avideo, unset frame url so that component will use a video url instead
-     */
-    if (frameUrl) {
+      /**
+       * make sure frame url is not a video
+       * if it is avideo, unset frame url so that component will use a video url instead
+       */
+      if (frameUrl) {
+        const res = await fetch(frameUrl, { method: 'HEAD' })
+        const isVideo = OPENSEA_VIDEO_EXTENSIONS.some(ext =>
+          res.headers.get('Content-Type')?.includes(ext)
+        )
+        if (isVideo) {
+          frameUrl = null
+        }
+      }
+
+      videoUrl =
+        [animation_url, animation_original_url].find(
+          url => url && !isAudio(url)
+        ) ?? null
+      if (!videoUrl) {
+        videoUrl = imageUrlsHighToLowRes.find(
+          url => url && OPENSEA_VIDEO_EXTENSIONS.some(ext => url.endsWith(ext))
+        )!
+      }
+    } else {
+      type = CollectibleType.IMAGE
+      frameUrl = imageUrlsLowToHighRes.find(url => !!url)!
       const res = await fetch(frameUrl, { method: 'HEAD' })
-      const isVideo = OPENSEA_VIDEO_EXTENSIONS.some(ext =>
-        res.headers.get('Content-Type')?.includes(ext)
-      )
-      if (isVideo) {
+      const isGif = res.headers.get('Content-Type')?.includes('gif')
+      const isVideo = res.headers.get('Content-Type')?.includes('video')
+      if (isGif) {
+        type = CollectibleType.GIF
+        frameUrl = await getFrameFromGif(frameUrl, name || '')
+        gifUrl = imageUrlsHighToLowRes.find(url => !!url)!
+      } else if (isVideo) {
+        type = CollectibleType.VIDEO
         frameUrl = null
+        videoUrl = imageUrlsHighToLowRes.find(url => !!url)!
+      } else {
+        imageUrl = imageUrlsHighToLowRes.find(url => !!url)!
       }
     }
-
-    videoUrl =
-      [animation_url, animation_original_url].find(
-        url => url && !isAudio(url)
-      ) ?? null
-    if (!videoUrl) {
-      videoUrl = imageUrlsHighToLowRes.find(
-        url => url && OPENSEA_VIDEO_EXTENSIONS.some(ext => url.endsWith(ext))
-      )!
-    }
-  } else {
+  } catch (e) {
+    console.error('Error fetching collectible', e)
     type = CollectibleType.IMAGE
     frameUrl = imageUrlsLowToHighRes.find(url => !!url)!
-    const res = await fetch(frameUrl, { method: 'HEAD' })
-    const isGif = res.headers.get('Content-Type')?.includes('gif')
-    const isVideo = res.headers.get('Content-Type')?.includes('video')
-    if (isGif) {
-      type = CollectibleType.GIF
-      frameUrl = await getFrameFromGif(frameUrl, name || '')
-      gifUrl = imageUrlsHighToLowRes.find(url => !!url)!
-    } else if (isVideo) {
-      type = CollectibleType.VIDEO
-      frameUrl = null
-      videoUrl = imageUrlsHighToLowRes.find(url => !!url)!
-    } else {
-      imageUrl = imageUrlsHighToLowRes.find(url => !!url)!
-    }
   }
 
   return {
@@ -170,7 +177,8 @@ export const assetToCollectible = async (
     isOwned: true,
     dateCreated: null,
     dateLastTransferred: null,
-    externalLink: asset.external_link
+    externalLink: asset.external_link,
+    permaLink: asset.permalink
   }
 }
 

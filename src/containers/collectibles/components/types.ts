@@ -24,4 +24,5 @@ export type Collectible = {
   dateCreated: Nullable<string>
   dateLastTransferred: Nullable<string>
   externalLink: Nullable<string>
+  permaLink: Nullable<string>
 }

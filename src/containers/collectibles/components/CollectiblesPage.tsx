@@ -135,7 +135,7 @@ const CollectibleDetails: React.FC<{
             </div>
           </div>
         ) : type === CollectibleType.VIDEO ? (
-          <div className={styles.media}>
+          <div className={cn(styles.media, styles.imageWrapper)}>
             <IconPlay className={styles.playIcon} />
             <video
               muted={true}
@@ -157,7 +157,7 @@ const CollectibleDetails: React.FC<{
             </div>
           </div>
         ) : type === CollectibleType.IMAGE ? (
-          <div>
+          <div className={styles.imageWrapper}>
             <DynamicImage image={frameUrl!} wrapperClassName={styles.media} />
             <div className={styles.stamp}>
               {collectible.isOwned ? (
@@ -239,6 +239,18 @@ const CollectibleDetails: React.FC<{
               <a
                 className={styles.link}
                 href={collectible.externalLink}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <IconLink className={styles.linkIcon} />
+                {new URL(collectible.externalLink).hostname}
+              </a>
+            )}
+
+            {collectible.permaLink && (
+              <a
+                className={styles.link}
+                href={collectible.permaLink}
                 target='_blank'
                 rel='noopener noreferrer'
               >
