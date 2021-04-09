@@ -4,15 +4,14 @@ import args from './args'
 const genericConfig = {
   // Amount of time that most tests should time out after
   defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */,
-
   // Worst case 5s for chain op, 5s for indexing
   confirmerTimeout: 10 /* sec */ * 1000 /* ms */,
   // Amount of time that should be spent waiting for inflight requests
   // to know that the confirmer is done "confirming"
   confirmerPollingTimeout: 5 /* sec */ * 1000 /* ms */,
-
+  uploadTrackTimeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */,
+  uploadProfilePictureTimeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */,
   tenSeconds: 10 /* sec */ * 1000 /* ms */,
-
   playlistRoute: 'df/playlist/probers_playlist_do_not_delete-511',
   trackRoute: 'df/probers_track_do_not_delete-2851',
   albumRoute: 'df/album/probers_album_do_not_delete-512',
@@ -31,7 +30,7 @@ export const config = {
   }
 }
 
-export default function getCofig (env = 'local') {
+export default function getConfig (env = 'local') {
   let c = config[env]
   if (args.endpoint) {
     c.baseUrl = args.endpoint

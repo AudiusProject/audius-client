@@ -1,4 +1,5 @@
 import moment from 'moment'
+import path from 'path'
 import {
   waitForResponse,
   fillInput,
@@ -8,6 +9,8 @@ import {
   getEntropy
 } from '../utils'
 import { exportAccount } from '../utils/account-credentials'
+
+const TEST_PHOTO_PATH = '../assets/ray_stack_Trace.png'
 
 const generateTestUser = () => {
   const ts = moment().format('YYMMDD_HHmmss')
@@ -23,7 +26,7 @@ const generateTestUser = () => {
   }
 }
 
-export const createAccount = async (page, baseUrl) => {
+export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
   let testUser = generateTestUser()
   // Go to the signup page
   await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
@@ -46,8 +49,6 @@ export const createAccount = async (page, baseUrl) => {
   await fillInput(page, 'password', testUser.password)
   await fillInput(page, 'confirmPassword', testUser.password)
 
-  
-
   await new Promise(resolve => setTimeout(resolve, 100)) // Allow time for js confirmation of pwd
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
@@ -64,15 +65,22 @@ export const createAccount = async (page, baseUrl) => {
   waitForResponse(page, '/twitter/handle_lookup')
   await fillInput(page, 'name', testUser.name)
   await fillInput(page, 'nickname', testUser.handle)
+
+  if (uploadPhoto) {
+    const uploadProfilePhotoElement = await page.$('input[type=file]')
+    await uploadProfilePhotoElement.uploadFile(path.resolve(__dirname, TEST_PHOTO_PATH))
+    await page.waitForXPath("//span[contains(text(), 'Change')]", { timeout: 5 * 60 * 1000 }) // 5 min..
+  }
+
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Follow Page ... */
-  // Select Followers and continue  
+  // Select Followers and continue
   await wait(1000) // Allow time for transition
 
   await page.waitForSelector(`div[class^=UserCard_cardContainer]`)
   const userCards = await page.$$('div[class^=UserCard_cardContainer]')
-  for (let userCard of userCards.slice(0,5)) {
+  for (let userCard of userCards.slice(0, 5)) {
     await userCard.click()
   }
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')

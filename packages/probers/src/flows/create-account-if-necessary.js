@@ -1,6 +1,6 @@
-import { importAccount, exportAccount } from '../utils/account-credentials'
+import { importAccount } from '../utils/account-credentials'
 import chalk from 'chalk'
-import { urlLogin, waitForNetworkIdle0, resetBrowser } from '../utils'
+import { urlLogin, resetBrowser } from '../utils'
 import createAccount from './create-account'
 import args from '../args'
 
@@ -29,7 +29,8 @@ const createAccountIfNecessary = async (
   if (account && account.entropy) {
     if (signIn) {
       await urlLogin(page, baseUrl, route, account.entropy)
-      await waitForNetworkIdle0(page)
+      // This "DON'T MISS A THING!" modal might pop up. Close it if so
+      await clickOutOfNotificationsModalIfNecessary(page)
     }
   } else {
     console.info(chalk.yellow('No account credentials to import'))
@@ -71,4 +72,13 @@ export const createSignedOutAccountIfNecessary = async (
   route = 'trending'
 ) => {
   return createAccountIfNecessary(page, baseUrl, false, route)
+}
+
+export const clickOutOfNotificationsModalIfNecessary = async (page) => {
+  try {
+    const dontMissAThingX = await page.waitForXPath("//div[contains(@class, 'Modal-module_dismissButton')]")
+    await dontMissAThingX.click()
+  } catch (e) {
+    // swallow error -- perhaps the modal did not appear
+  }
 }

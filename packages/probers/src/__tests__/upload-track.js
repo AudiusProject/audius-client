@@ -23,6 +23,7 @@ describe(
     afterAll(async () => {
       await page.close()
     })
+
     it(
       'should upload a track',
       async () => {
@@ -33,8 +34,8 @@ describe(
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).not.toBe('/404')
       },
-     config.defaultTestTimeout
+      config.uploadTrackTimeout
     )
   },
- config.defaultTestTimeout
+  config.defaultTestTimeout
 )
