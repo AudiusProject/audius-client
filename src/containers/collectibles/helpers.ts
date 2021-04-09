@@ -95,10 +95,9 @@ export const assetToCollectible = async (
     asset.image_thumbnail_url
   ]
   const imageUrlsLowToHighRes = [
-    asset.image_preview_url,
     asset.image_url,
     asset.image_original_url,
-    // Put thumbnail last because it's too low res for use
+    asset.image_preview_url,
     asset.image_thumbnail_url
   ]
 

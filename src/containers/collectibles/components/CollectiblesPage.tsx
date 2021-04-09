@@ -321,6 +321,17 @@ const CollectibleDetails: React.FC<{
                 {collectibleMessages.linkToCollectible}
               </a>
             )}
+            {collectible.permaLink && (
+              <a
+                className={styles.link}
+                href={collectible.permaLink}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <IconLink className={styles.linkIcon} />
+                {collectibleMessages.linkToCollectible}
+              </a>
+            )}
           </div>
         </div>
       </Drawer>
