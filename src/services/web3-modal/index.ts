@@ -9,7 +9,7 @@ const ETH_PROVIDER_URLS = (process.env.REACT_APP_ETH_PROVIDER_URL || '').split(
 )
 
 type Config = {
-  isBitkiEnabled: boolean
+  isBitSkiEnabled: boolean
   isWalletConnectEnabled: boolean
   isWalletLinkEnabled: boolean
 }
@@ -40,7 +40,7 @@ export const createSession = async (config: Config): Promise<any> => {
     const WalletLink = await loadWalletLink()
 
     const providerOptions: IProviderOptions = {}
-    if (config.isBitkiEnabled && BITSKI_CLIENT_ID && BITSKI_CALLBACK_URL) {
+    if (config.isBitSkiEnabled && BITSKI_CLIENT_ID && BITSKI_CALLBACK_URL) {
       providerOptions.bitski = {
         package: Bitski, // required
         options: {

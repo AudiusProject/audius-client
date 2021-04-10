@@ -53,6 +53,7 @@ import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import { BooleanKeys, getRemoteVar } from 'services/remote-config'
 import { fetchServices } from 'containers/service-selection/store/slice'
+import { WalletLinkProvider } from 'walletlink'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
@@ -153,18 +154,45 @@ function* compareIndexedWallets(
 }
 
 function* disconnectWeb3(web3Instance: any) {
-  if (web3Instance?.currentProvider?.disconnect) {
-    yield web3Instance.currentProvider.disconnect()
-  }
-  if (web3Instance?.currentProvider?.close) {
-    yield web3Instance.currentProvider.close()
+  try {
+    if (web3Instance?.currentProvider?.disconnect) {
+      web3Instance.currentProvider.disconnect()
+    }
+    if (web3Instance?.currentProvider?.close) {
+      if (web3Instance?.currentProvider instanceof WalletLinkProvider) {
+        // If we are using wallet link, re-define relay connection close
+        // which triggers a document reload. If the redefinition fails
+        // See source:
+        // https://github.com/walletlink/walletlink/blob/522e9239c47aa2417c967fac2c4422024055c4d2/js/src/relay/WalletLinkRelay.ts#L131
+        try {
+          web3Instance.currentProvider._relay.resetAndReload = () => {
+            const relay = web3Instance.currentProvider._relay
+            relay.connection
+              .setSessionMetadata('__destroyed', '1')
+              .subscribe(() => {
+                relay.connection.destroy()
+                relay.storage.clear()
+                // Intentionally leave out document.location.reload()
+              })
+          }
+        } catch (e) {
+          console.error(e)
+          // Do nothing
+        }
+      }
+      yield web3Instance.currentProvider.close()
+    }
+  } catch (e) {
+    console.error('Failed to disconnect web3 instance')
+    console.error(e)
+    // Do nothing
   }
 }
 
 function* connectWallet() {
   let web3Instance: any
   try {
-    const isBitkiEnabled = getRemoteVar(
+    const isBitSkiEnabled = getRemoteVar(
       BooleanKeys.DISPLAY_WEB3_PROVIDER_BITSKI
     ) as boolean
     const isWalletConnectEnabled = getRemoteVar(
@@ -174,8 +202,9 @@ function* connectWallet() {
       BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_LINK
     ) as boolean
 
+    // @ts-ignore: type web3Instance
     web3Instance = yield connectWeb3Wallet({
-      isBitkiEnabled,
+      isBitSkiEnabled,
       isWalletConnectEnabled,
       isWalletLinkEnabled
     })
@@ -297,6 +326,7 @@ function* connectWallet() {
               ])
             )
           }
+          // Disconnect the web3 instance because after we've linked, we no longer need it
           yield disconnectWeb3(web3Instance)
         },
         function* () {
@@ -306,11 +336,13 @@ function* connectWallet() {
                 'An error occured while connecting a wallet with your account.'
             })
           )
+          // Disconnect the web3 instance in the event of an error, we no longer need it
           yield disconnectWeb3(web3Instance)
         }
       )
     )
   } catch (error) {
+    // Disconnect the web3 instance in the event of an error, we no longer need it
     yield disconnectWeb3(web3Instance)
     yield put(
       updateWalletError({
