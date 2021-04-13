@@ -574,10 +574,7 @@ class App extends Component {
                 exact
                 path={TRENDING_PAGE}
                 render={() => (
-                  <TrendingPage
-                    feedIsMain={false}
-                    containerRef={this.state.mainContent}
-                  />
+                  <TrendingPage containerRef={this.state.mainContent} />
                 )}
               />
               <Route
