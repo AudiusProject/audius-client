@@ -19,7 +19,7 @@ import {
 import { useMobileHeader } from 'components/general/header/mobile/hooks'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import styles from './TrendingUndergroundPage.module.css'
-import RewardsBanner from 'containers/discover-page/components/RewardsBanner'
+import RewardsBanner from 'containers/trending-page/components/RewardsBanner'
 
 const useTrendingUndergroundLineup = (containerRef: HTMLElement) => {
   return useLineupProps({
