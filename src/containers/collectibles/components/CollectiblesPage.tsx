@@ -63,19 +63,27 @@ const CollectiblesPage: React.FC<{
   isUserOnTheirProfile: boolean
   profile: ProfileUser
   updateProfile?: (metadata: any) => void
+  onLoad?: () => void
 }> = ({
   userId,
   name,
   isMobile,
   profile,
   updateProfile,
-  isUserOnTheirProfile
+  isUserOnTheirProfile,
+  onLoad
 }) => {
   const collectibleList = profile?.collectibleList ?? null
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
     profile.collectibleList === undefined ||
     (hasCollectibles && !profile.collectibles)
+
+  useEffect(() => {
+    if (!isLoading && onLoad) {
+      onLoad()
+    }
+  }, [isLoading, onLoad])
 
   const [
     collectiblesMetadata,
