@@ -54,6 +54,7 @@
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.27",
+    "npm-force-resolutions": "0.0.10",
     "numeral": "^2.0.6",
     "orbit-controls": "0.0.1",
     "perspective-camera": "^2.0.1",
@@ -220,5 +221,8 @@
     "terser": "^3.16.1",
     "typescript": "^3.6.3"
   },
-  "peerDependencies": {}
+  "peerDependencies": {},
+  "resolutions": {
+    "terser": "3.16.1"
+  }
 }
