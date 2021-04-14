@@ -12,7 +12,7 @@ it(
     const page = await newPage()
     await waitForNetworkIdle0(
       page,
-      page.goto('https://dashboard.audius.org/analytics'),
+      page.goto('https://dashboard.audius.org'),
       500,
       timeout
     )
