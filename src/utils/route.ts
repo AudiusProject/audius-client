@@ -1,10 +1,8 @@
-import { encodeUrlName } from 'utils/formatUtil'
+import { MouseEvent } from 'react'
 import { matchPath } from 'react-router'
 import { push as pushRoute } from 'connected-react-router'
-
-// TODO: Move to route.js
-import { MouseEvent } from 'react'
 import { ID } from 'models/common/Identifiers'
+import { encodeUrlName } from 'utils/formatUtil'
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING
 
@@ -105,15 +103,10 @@ export const AUDIUS_HOT_AND_NEW =
   '/audius/playlist/hot-new-on-audius-%F0%9F%94%A5-4281'
 export const AUDIUS_EXPLORE_LINK = '/explore'
 
-// TODO: de-dupe from links in route.js
-export const AUDIUS_PRIVACY_POLICY_LINK = '/legal/privacy-policy'
-export const AUDIUS_TERMS_OF_USE_LINK = '/legal/terms-of-use'
 export const AUDIUS_CAREERS_LINK = 'https://jobs.lever.co/audius'
-
 export const AUDIUS_PODCAST_LINK =
   'https://www.youtube.com/playlist?list=PLKEECkHRxmPag5iYp4dTK5fGoRcoX40RY'
 export const AUDIUS_CYPHER_LINK = 'https://discord.gg/yNUg2e2'
-
 export const AUDIUS_PRESS_KIT_ZIP =
   'https://s3-us-west-1.amazonaws.com/download.audius.co/Audius+Press+Kit+2.0.zip'
 
