@@ -680,11 +680,14 @@ class CollectionPage extends Component<
 
     const title = metadata?.playlist_name ?? ''
     const description = metadata?.description ?? ''
-    const canonicalUrl = fullPlaylistPage(
-      user?.handle,
-      metadata?.playlist_name,
-      metadata?.playlist_id
-    )
+    const canonicalUrl =
+      user && metadata
+        ? fullPlaylistPage(
+            user?.handle,
+            metadata?.playlist_name,
+            metadata?.playlist_id
+          )
+        : ''
 
     const childProps = {
       title,

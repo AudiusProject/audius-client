@@ -28,7 +28,7 @@ import {
   AUDIUS_TERMS_OF_USE_LINK,
   AUDIUS_HOT_AND_NEW,
   AUDIUS_EXPLORE_LINK
-} from 'utils/links'
+} from 'utils/route'
 
 import styles from './NavOverlay.module.css'
 

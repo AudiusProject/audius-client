@@ -20,7 +20,7 @@ import {
   AUDIUS_HOT_AND_NEW,
   AUDIUS_EXPLORE_LINK,
   pushWindowRoute
-} from 'utils/links'
+} from 'utils/route'
 
 const handleClickRoute = (route: string) => (e: MouseEvent) => {
   e.preventDefault()
