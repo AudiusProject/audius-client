@@ -308,7 +308,7 @@ class App extends Component {
       !this.props.hasAccount &&
       this.props.accountStatus !== Status.LOADING &&
       authenticatedRoutes.some(route => {
-        const match = matchPath(this.props.location.pathname, {
+        const match = matchPath(getPathname(this.props.location), {
           path: route,
           exact: true
         })
@@ -467,7 +467,7 @@ class App extends Component {
           onUpdate={this.acceptUpdateApp}
         />
       )
-    if (didError || this.props.location.pathname === ERROR_PAGE)
+    if (didError || getPathname(this.props.location) === ERROR_PAGE)
       return <SomethingWrong lastRoute={lastRoute} />
 
     const showBanner =

@@ -26,7 +26,8 @@ import {
   FAVORITING_USERS_ROUTE,
   fullPlaylistPage,
   playlistPage,
-  albumPage
+  albumPage,
+  getPathname
 } from 'utils/route'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import { setRepost } from 'containers/reposts-page/store/actions'
@@ -130,9 +131,9 @@ class CollectionPage extends Component<
   unlisten!: UnregisterCallback
 
   componentDidMount() {
-    this.fetchCollection(this.props.location.pathname)
+    this.fetchCollection(getPathname(this.props.location))
     this.unlisten = this.props.history.listen((location, action) => {
-      this.fetchCollection(location.pathname)
+      this.fetchCollection(getPathname(location))
       this.setState({
         initialOrder: null,
         reordering: null
@@ -310,7 +311,7 @@ class CollectionPage extends Component<
   }
 
   refreshCollection = () => {
-    this.fetchCollection(this.props.location.pathname, true)
+    this.fetchCollection(getPathname(this.props.location), true)
   }
 
   onFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
