@@ -111,7 +111,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     this.props.resetProfile()
     this.props.resetArtistTracks()
     this.props.resetUserFeedTracks()
-    console.log(this.props.location, getPathname(this.props.location))
     this.fetchProfile(getPathname(this.props.location))
 
     // Switching from profile page => profile page
