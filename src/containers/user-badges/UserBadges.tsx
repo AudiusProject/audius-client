@@ -52,7 +52,7 @@ const UserBadges: React.FC<UserBadgesProps> = ({
   className,
   useSVGTiers = false,
   inline = false,
-  isVerifiedOverride = false
+  isVerifiedOverride
 }) => {
   const { tier, isVerified } = useSelectTierInfo(userId)
   const tierMap = useSVGTiers ? audioTierMapSVG : audioTierMapPng
@@ -61,7 +61,7 @@ const UserBadges: React.FC<UserBadgesProps> = ({
   if (inline) {
     return (
       <span className={cn(styles.inlineContainer, className)}>
-        {(isVerified || isVerifiedOverride) && (
+        {(isVerifiedOverride ?? isVerified) && (
           <IconVerified height={badgeSize} width={badgeSize} />
         )}
         {audioBadge &&
@@ -71,7 +71,7 @@ const UserBadges: React.FC<UserBadgesProps> = ({
   }
   return (
     <div className={cn(styles.container, className)}>
-      {(isVerified || isVerifiedOverride) && (
+      {(isVerifiedOverride ?? isVerified) && (
         <IconVerified height={badgeSize} width={badgeSize} />
       )}
       {audioBadge &&
