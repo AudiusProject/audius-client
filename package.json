@@ -230,5 +230,8 @@
     "terser": "^3.16.1",
     "typescript": "^3.6.3"
   },
+  "resolutions": {
+    "terser-webpack-plugin": "4.2.3"
+  },
   "peerDependencies": {}
 }
