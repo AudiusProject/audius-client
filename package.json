@@ -141,8 +141,6 @@
     "dist:win-publish-production": "node ./scripts/dist.js --win --publish always --env production",
     "dist:linux-publish-production": "node ./scripts/dist.js --linux --publish always --env production",
     "dist:win:linux-publish-production": "node ./scripts/dist.js --win --linux --publish always --env production",
-    "storybook": "start-storybook -p 9009 -s public,src/assets/fonts",
-    "build:storybook": "build-storybook -s public,src/assets/fonts",
     "write-sha": "./scripts/writeSHA.sh",
     "analyze": "source-map-explorer build-production/static/js/*.js",
     "analyzeBundle": "npm run build:prod && node ./scripts/analyzeBundle.js",
@@ -175,12 +173,6 @@
   ],
   "devDependencies": {
     "@pinata/sdk": "^1.1.13",
-    "@storybook/addon-actions": "^4.1.6",
-    "@storybook/addon-info": "^4.1.11",
-    "@storybook/addon-knobs": "^4.1.6",
-    "@storybook/addon-links": "^4.1.6",
-    "@storybook/addon-options": "^4.1.6",
-    "@storybook/react": "^4.1.6",
     "@types/body-scroll-lock": "^2.6.1",
     "@types/classnames": "^2.2.9",
     "@types/hls.js": "^0.13.0",
@@ -226,12 +218,8 @@
     "redux-saga-test-plan": "^3.7.0",
     "source-map-explorer": "^2.4.2",
     "standard": "^12.0.1",
-    "storybook-addon-smart-knobs": "^4.1.0",
-    "terser": "^3.16.1",
+    "terser": "3.14.1",
     "typescript": "^3.6.3"
-  },
-  "resolutions": {
-    "terser-webpack-plugin": "4.2.3"
   },
   "peerDependencies": {}
 }
