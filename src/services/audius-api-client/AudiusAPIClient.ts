@@ -34,7 +34,7 @@ const FULL_ENDPOINT_MAP = {
   trending: '/tracks/trending',
   trendingIds: '/tracks/trending/ids',
   trendingUnderground: '/tracks/trending/underground',
-  random: '/tracks/random',
+  recommended: '/tracks/recommended',
   following: (userId: OpaqueID) => `/users/${userId}/following`,
   followers: (userId: OpaqueID) => `/users/${userId}/followers`,
   trackRepostUsers: (trackId: OpaqueID) => `/tracks/${trackId}/reposts`,
@@ -98,7 +98,7 @@ type GetTrendingIdsArgs = {
   genre?: Nullable<string>
 }
 
-type GetRandomArgs = {
+type GetRecommendedArgs = {
   genre: Nullable<string>
   exclusionList: number[]
   currentUserId: Nullable<ID>
@@ -379,7 +379,11 @@ class AudiusAPIClient {
     return res
   }
 
-  async getRandom({ genre, exclusionList, currentUserId }: GetRandomArgs) {
+  async getRecommended({
+    genre,
+    exclusionList,
+    currentUserId
+  }: GetRecommendedArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
     const params = {
@@ -389,13 +393,13 @@ class AudiusAPIClient {
         exclusionList.length > 0 ? exclusionList.map(String) : undefined,
       user_id: encodedCurrentUserId || undefined
     }
-    const randomResponse: Nullable<APIResponse<
+    const recommendedResponse: Nullable<APIResponse<
       APITrack[]
-    >> = await this._getResponse(FULL_ENDPOINT_MAP.random, params)
+    >> = await this._getResponse(FULL_ENDPOINT_MAP.recommended, params)
 
-    if (!randomResponse) return []
+    if (!recommendedResponse) return []
 
-    const adapted = randomResponse.data
+    const adapted = recommendedResponse.data
       .map(adapter.makeTrack)
       .filter(removeNullable)
     return adapted

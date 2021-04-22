@@ -43,7 +43,7 @@ import { make } from 'store/analytics/actions'
 import { Name, PlaybackSource } from 'services/analytics'
 import { ID, UID } from 'models/common/Identifiers'
 import Track from 'models/Track'
-import { getRandomTracks } from '../recommendation/sagas'
+import { getRecommendedTracks } from '../recommendation/sagas'
 import { getUserId } from 'store/account/selectors'
 import { Nullable } from '../../utils/typeUtils'
 
@@ -212,13 +212,13 @@ export function* watchNext() {
       const length = yield select(getLength)
       if (index >= 0) {
         if (index + 1 >= length) {
-          const randomTracks: Queueable[] = yield call(
+          const recommendedTracks: Queueable[] = yield call(
             getQueueAutoplay,
             track?.genre,
             track ? [track.track_id] : [],
             userId
           )
-          yield put(add({ entries: randomTracks }))
+          yield put(add({ entries: recommendedTracks }))
         }
         const uid = yield select(getUid)
         yield put(play({ uid, trackId: id, source }))
@@ -302,7 +302,7 @@ export function* getQueueAutoplay(
   currentUserId: Nullable<ID>
 ): Generator<any, Queueable[], any> {
   const tracks: Track[] = yield call(
-    getRandomTracks,
+    getRecommendedTracks,
     genre,
     exclusionList,
     currentUserId
@@ -310,7 +310,7 @@ export function* getQueueAutoplay(
   const result = tracks.map(({ track_id }) => ({
     id: track_id,
     uid: makeUid(Kind.TRACKS, track_id),
-    source: Source.RANDOM_TRACKS
+    source: Source.RECOMMENDED_TRACKS
   }))
   return result
 }

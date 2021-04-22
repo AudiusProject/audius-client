@@ -7,12 +7,12 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { Nullable } from '../../utils/typeUtils'
 import { ID } from '../../models/common/Identifiers'
 
-export function* getRandomTracks(
+export function* getRecommendedTracks(
   genre: string,
   exclusionList: number[],
   currentUserId: Nullable<ID>
 ): Generator<any, Track[], any> {
-  const tracks = yield apiClient.getRandom({
+  const tracks = yield apiClient.getRecommended({
     genre,
     exclusionList,
     currentUserId

@@ -139,11 +139,11 @@ describe('watchPause', () => {
 
 describe('watchNext', () => {
   it('autoplay tracks', async () => {
-    const randomTracks = [
+    const recommendedTracks = [
       {
         id: 1,
         uid: 'kind:TRACKS-id:1-count:1',
-        source: Source.RANDOM_TRACKS
+        source: Source.RECOMMENDED_TRACKS
       }
     ]
     const initialQueue = makeInitialQueue({ index: 1 })
@@ -170,9 +170,9 @@ describe('watchNext', () => {
           account: initialAccount
         }
       )
-      .provide([[matchers.call.fn(getQueueAutoplay), randomTracks]])
+      .provide([[matchers.call.fn(getQueueAutoplay), recommendedTracks]])
       .dispatch(actions.next({}))
-      .put(actions.add({ entries: [randomTracks[0]] }))
+      .put(actions.add({ entries: [recommendedTracks[0]] }))
       .put(
         actions.play({
           uid: nextPlayingEntry.uid,
