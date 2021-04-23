@@ -6,10 +6,9 @@ import {
 } from 'services/native-mobile-interface/search'
 import { MessageType } from 'services/native-mobile-interface/types'
 import * as searchBarActions from './actions'
-// import { ConnectedNotification, Notification, NotificationType } from './types'
 
 function* watchOpenSeach() {
-  yield takeEvery(searchBarActions.OPEN_MOBILE_SEARCH_BAR, function* () {
+  yield takeEvery(searchBarActions.OPEN_MOBILE_SEARCH_BAR, function () {
     const message = new OpenSearchMessage()
     message.send()
   })
@@ -25,7 +24,7 @@ function* watchFetchSearch() {
 }
 
 function* watchSetSearchSucceeded() {
-  yield takeEvery(searchBarActions.FETCH_SEARCH_SUCCEEDED, function* (
+  yield takeEvery(searchBarActions.FETCH_SEARCH_SUCCEEDED, function (
     action: searchBarActions.FetchSearchSucceededAction
   ) {
     const results = action.results
@@ -39,7 +38,7 @@ function* watchSetSearchSucceeded() {
 }
 
 function* watchSetSearchFailed() {
-  yield takeEvery(searchBarActions.FETCH_SEARCH_FAILED, function* (
+  yield takeEvery(searchBarActions.FETCH_SEARCH_FAILED, function (
     action: searchBarActions.FetchSearchFailedAction
   ) {
     const message = new FetchSearchFailureMessage({
