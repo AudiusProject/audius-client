@@ -310,11 +310,13 @@ const SearchPageContent = (props: SearchPageContentProps) => {
   // Set nav header
   const { setLeft, setCenter, setRight } = useContext(NavContext)!
   useEffect(() => {
+    // If native, add the ability to navigate back to the native search
     if (NATIVE_MOBILE) {
       setLeft(LeftPreset.BACK)
       setCenter(CenterPreset.LOGO)
       setRight(null)
     } else {
+      // If non-native mobile, show the notification and search icons
       setLeft(LeftPreset.NOTIFICATION)
       setCenter(CenterPreset.LOGO)
       setRight(RightPreset.SEARCH)
