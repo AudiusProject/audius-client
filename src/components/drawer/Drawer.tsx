@@ -158,6 +158,7 @@ const DraggableDrawer = ({
   }, [shouldClose, close])
 
   useEffect(() => {
+    // Toggle drawer if isOpen and keyboard visibility toggles
     if (isOpen) {
       const drawerY = keyboardVisible ? DRAWER_KEYBOARD_UP : -1 * height()
       setDrawerSlideProps({
