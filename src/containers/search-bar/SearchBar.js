@@ -60,11 +60,12 @@ class SearchBar extends Component {
       this.setState({ value: '' })
       return
     }
+    const decodedValue = decodeURIComponent(value)
 
     if (!this.isTagSearch() && fetch) {
-      this.props.fetchSearch(value)
+      this.props.fetchSearch(decodedValue)
     }
-    this.setState({ value })
+    this.setState({ value: decodedValue })
   }
 
   onSubmit = value => {
@@ -220,6 +221,7 @@ class SearchBar extends Component {
       0
     )
     const { status, searchText } = this.props.search
+    console.log({ searchText, val: this.state.value })
     return (
       <div className={styles.search}>
         <Bar
