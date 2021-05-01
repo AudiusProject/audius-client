@@ -410,6 +410,9 @@ class AudiusBackend {
         isServer: false,
         enableUserReplicaSetManagerContract: getFeatureEnabled(
           FeatureFlags.ENABLE_USER_REPLICA_SET_MANAGER
+        ),
+        useTrackContentPolling: getFeatureEnabled(
+          FeatureFlags.USE_TRACK_CONTENT_POLLING
         )
       })
       await audiusLibs.init()
