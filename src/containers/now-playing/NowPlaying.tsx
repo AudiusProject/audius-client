@@ -38,9 +38,9 @@ import { open } from 'store/application/ui/mobileOverflowModal/actions'
 import { AppState } from 'store/types'
 import { getCastMethod } from 'containers/settings-page/store/selectors'
 
-import NextButton from 'components/play-bar/NextButton'
+import NextButton from 'components/play-bar/next-button/NextButton'
 import PlayButton from 'components/play-bar/PlayButton'
-import PreviousButton from 'components/play-bar/PreviousButton'
+import PreviousButton from 'components/play-bar/previous-button/PreviousButton'
 import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButtonProvider'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 

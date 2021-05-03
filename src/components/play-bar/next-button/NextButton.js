@@ -4,7 +4,7 @@ import cn from 'classnames'
 
 import { ReactComponent as IconNext } from 'assets/img/pbIconNext.svg'
 
-import styles from './PlayBarButton.module.css'
+import styles from '../PlayBarButton.module.css'
 
 class NextButton extends Component {
   render() {

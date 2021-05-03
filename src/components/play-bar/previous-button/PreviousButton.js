@@ -4,7 +4,7 @@ import cn from 'classnames'
 
 import { ReactComponent as IconPrev } from 'assets/img/pbIconPrev.svg'
 
-import styles from './PlayBarButton.module.css'
+import styles from '../PlayBarButton.module.css'
 
 class PreviousButton extends Component {
   render() {
