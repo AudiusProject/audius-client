@@ -22,6 +22,7 @@ import placeholderArt from 'assets/img/imageBlank2x.png'
 import profilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
 
 import Bar from 'components/search/SearchBar'
+import { getTierForUser } from 'containers/user-badges/utils'
 
 class SearchBar extends Component {
   state = {
@@ -140,7 +141,8 @@ class SearchBar extends Component {
                 : null,
               creatorNodeEndpoint: user.creator_node_endpoint,
               defaultImage: profilePicEmpty,
-              isVerifiedUser: user.is_verified
+              isVerifiedUser: user.is_verified,
+              tier: getTierForUser(user)
             }
           })
         },
@@ -160,7 +162,9 @@ class SearchBar extends Component {
               creatorNodeEndpoint: track.user
                 ? track.user.creator_node_endpoint
                 : '',
-              defaultImage: placeholderArt
+              defaultImage: placeholderArt,
+              isVerifiedUser: track.user.is_verified,
+              tier: getTierForUser(track.user)
             }
           })
         },
@@ -186,7 +190,9 @@ class SearchBar extends Component {
               defaultImage: placeholderArt,
               creatorNodeEndpoint: playlist.user
                 ? playlist.user.creator_node_endpoint
-                : ''
+                : '',
+              isVerifiedUser: playlist.user.is_verified,
+              tier: getTierForUser(playlist.user)
             }
           })
         },
@@ -210,7 +216,9 @@ class SearchBar extends Component {
               defaultImage: placeholderArt,
               creatorNodeEndpoint: album.user
                 ? album.user.creator_node_endpoint
-                : ''
+                : '',
+              isVerifiedUser: album.user.is_verified,
+              tier: getTierForUser(album.user)
             }
           })
         }
