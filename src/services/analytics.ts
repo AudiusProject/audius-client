@@ -195,16 +195,22 @@ type SettingsChangeTheme = {
 }
 type SettingsStartTwitterOauth = {
   eventName: Name.SETTINGS_START_TWITTER_OAUTH
+  handle: string
 }
 type SettingsCompleteTwitterOauth = {
   eventName: Name.SETTINGS_COMPLETE_TWITTER_OAUTH
+  handle: string
+  screen_name: string
   is_verified: boolean
 }
 type SettingsStartInstagramOauth = {
   eventName: Name.SETTINGS_START_INSTAGRAM_OAUTH
+  handle: string
 }
 type SettingsCompleteInstagramOauth = {
   eventName: Name.SETTINGS_COMPLETE_INSTAGRAM_OAUTH
+  handle: string
+  username: string
   is_verified: boolean
 }
 type SettingsResetAccountRecovery = {

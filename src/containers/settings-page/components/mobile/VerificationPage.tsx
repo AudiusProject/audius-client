@@ -49,6 +49,7 @@ const messages = {
 }
 
 type VerifyBodyProps = {
+  handle: string
   onClick: () => void
   onFailure: () => void
   onTwitterLogin: (uuid: string, profile: any) => void
@@ -62,18 +63,22 @@ const VerifyBody = (props: VerifyBodyProps) => {
   )
 
   const record = useRecord()
-  const { onClick } = props
+  const { handle, onClick } = props
   const onTwitterClick = useCallback(() => {
     onClick()
-    const trackEvent: TrackEvent = make(Name.SETTINGS_START_TWITTER_OAUTH, {})
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_TWITTER_OAUTH, {
+      handle
+    })
     record(trackEvent)
-  }, [record, onClick])
+  }, [record, onClick, handle])
 
   const onInstagramClick = useCallback(() => {
     onClick()
-    const trackEvent: TrackEvent = make(Name.SETTINGS_START_INSTAGRAM_OAUTH, {})
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_INSTAGRAM_OAUTH, {
+      handle
+    })
     record(trackEvent)
-  }, [record, onClick])
+  }, [record, onClick, handle])
 
   return (
     <div className={styles.container}>
@@ -205,7 +210,7 @@ const VerificationPage = ({
       }
       const trackEvent: TrackEvent = make(
         Name.SETTINGS_COMPLETE_INSTAGRAM_OAUTH,
-        { is_verified: profile.is_verified }
+        { is_verified: profile.is_verified, handle, username: profile.username }
       )
       record(trackEvent)
     },
@@ -226,7 +231,11 @@ const VerificationPage = ({
       }
       const trackEvent: TrackEvent = make(
         Name.SETTINGS_COMPLETE_TWITTER_OAUTH,
-        { is_verified: profile.verified }
+        {
+          is_verified: profile.verified,
+          handle,
+          screen_name: profile.screen_name
+        }
       )
       record(trackEvent)
     },
@@ -238,6 +247,7 @@ const VerificationPage = ({
   } else if (status === '' || status === Status.ERROR) {
     body = (
       <VerifyBody
+        handle={handle}
         onClick={onClick}
         onFailure={onFailure}
         onInstagramLogin={instagramLogin}
