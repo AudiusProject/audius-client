@@ -27,6 +27,8 @@ import { ID } from 'models/common/Identifiers'
 import { BooleanKeys } from 'services/remote-config'
 import { useRemoteVar } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
+import { useRecord, make, TrackEvent } from 'store/analytics/actions'
+import { Name } from 'services/analytics'
 
 const messages = {
   title: 'VERIFICATION',
@@ -59,20 +61,34 @@ const VerifyBody = (props: VerifyBodyProps) => {
     BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION
   )
 
+  const record = useRecord()
+  const { onClick } = props
+  const onTwitterClick = useCallback(() => {
+    onClick()
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_TWITTER_OAUTH, {})
+    record(trackEvent)
+  }, [record, onClick])
+
+  const onInstagramClick = useCallback(() => {
+    onClick()
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_INSTAGRAM_OAUTH, {})
+    record(trackEvent)
+  }, [record, onClick])
+
   return (
     <div className={styles.container}>
       <div>{messages.instructions}</div>
       <div className={styles.warning}>{messages.warning}</div>
       <div className={styles.btnContainer}>
         <TwitterAccountVerification
-          onClick={props.onClick}
+          onClick={onTwitterClick}
           onSuccess={props.onTwitterLogin}
           onFailure={props.onFailure}
           className={styles.twitterBtn}
         />
         {displayInstagram && (
           <InstagramAccountVerification
-            onClick={props.onClick}
+            onClick={onInstagramClick}
             onSuccess={props.onInstagramLogin}
             onFailure={props.onFailure}
           />
@@ -168,6 +184,7 @@ const VerificationPage = ({
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
 
+  const record = useRecord()
   const onClick = useCallback(() => setStatus(Status.LOADING), [setStatus])
   const onFailure = useCallback(() => {
     setError(messages.failure)
@@ -186,8 +203,13 @@ const VerificationPage = ({
         onInstagramLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
+      const trackEvent: TrackEvent = make(
+        Name.SETTINGS_COMPLETE_INSTAGRAM_OAUTH,
+        { is_verified: profile.is_verified }
+      )
+      record(trackEvent)
     },
-    [handle, onInstagramLogin, setError]
+    [handle, onInstagramLogin, setError, record]
   )
 
   const twitterLogin = useCallback(
@@ -202,8 +224,13 @@ const VerificationPage = ({
         onTwitterLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
+      const trackEvent: TrackEvent = make(
+        Name.SETTINGS_COMPLETE_TWITTER_OAUTH,
+        { is_verified: profile.verified }
+      )
+      record(trackEvent)
     },
-    [handle, onTwitterLogin, setError]
+    [handle, onTwitterLogin, setError, record]
   )
   let body
   if (status === Status.LOADING) {

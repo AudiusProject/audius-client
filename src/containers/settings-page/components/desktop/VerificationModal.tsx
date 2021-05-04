@@ -28,6 +28,8 @@ import { BooleanKeys } from 'services/remote-config'
 import { show as showMusicConfetti } from 'containers/music-confetti/store/slice'
 import { useDispatch } from 'react-redux'
 import UserBadges from 'containers/user-badges/UserBadges'
+import { useRecord, make, TrackEvent } from 'store/analytics/actions'
+import { Name } from 'services/analytics'
 
 const messages = {
   title: 'Verification',
@@ -60,6 +62,19 @@ const VerifyBody = (props: VerifyBodyProps) => {
   const displayInstagram = useRemoteVar(
     BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP
   )
+  const record = useRecord()
+  const { onClick } = props
+  const onTwitterClick = useCallback(() => {
+    onClick()
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_TWITTER_OAUTH, {})
+    record(trackEvent)
+  }, [record, onClick])
+
+  const onInstagramClick = useCallback(() => {
+    onClick()
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_INSTAGRAM_OAUTH, {})
+    record(trackEvent)
+  }, [record, onClick])
 
   return (
     <div className={styles.container}>
@@ -70,11 +85,11 @@ const VerifyBody = (props: VerifyBodyProps) => {
           onSuccess={props.onTwitterLogin}
           onFailure={props.onFailure}
           className={styles.twitterClassName}
-          onClick={props.onClick}
+          onClick={onTwitterClick}
         />
         {displayInstagram && (
           <InstagramAccountVerification
-            onClick={props.onClick}
+            onClick={onInstagramClick}
             onSuccess={props.onInstagramLogin}
             onFailure={props.onFailure}
           />
@@ -181,7 +196,7 @@ const VerificationModal = (props: VerificationModalProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const onClick = useCallback(() => setStatus(Status.LOADING), [setStatus])
-
+  const record = useRecord()
   const onFailure = useCallback(() => {
     setError(messages.failure)
     setStatus(Status.ERROR)
@@ -200,8 +215,13 @@ const VerificationModal = (props: VerificationModalProps) => {
         onInstagramLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
+      const trackEvent: TrackEvent = make(
+        Name.SETTINGS_COMPLETE_INSTAGRAM_OAUTH,
+        { is_verified: profile.is_verified }
+      )
+      record(trackEvent)
     },
-    [dispatch, handle, onInstagramLogin, setError]
+    [dispatch, handle, onInstagramLogin, setError, record]
   )
 
   const twitterLogin = useCallback(
@@ -217,8 +237,13 @@ const VerificationModal = (props: VerificationModalProps) => {
         onTwitterLogin(uuid, profile)
         setStatus(Status.SUCCESS)
       }
+      const trackEvent: TrackEvent = make(
+        Name.SETTINGS_COMPLETE_TWITTER_OAUTH,
+        { is_verified: profile.verified }
+      )
+      record(trackEvent)
     },
-    [dispatch, handle, onTwitterLogin, setError]
+    [dispatch, handle, onTwitterLogin, setError, record]
   )
 
   const onOpen = useCallback(() => setIsOpen(true), [setIsOpen])
