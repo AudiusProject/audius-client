@@ -5,7 +5,7 @@ import { ReactComponent as IconPrev } from 'assets/img/pbIconPrev.svg'
 
 import styles from '../PlayBarButton.module.css'
 
-type PreviousButtonProps = {
+export type PreviousButtonProps = {
   onClick: () => void
   isMobile: boolean
 }

@@ -38,10 +38,10 @@ import { open } from 'store/application/ui/mobileOverflowModal/actions'
 import { AppState } from 'store/types'
 import { getCastMethod } from 'containers/settings-page/store/selectors'
 
-import NextButton from 'components/play-bar/next-button/NextButton'
 import PlayButton from 'components/play-bar/PlayButton'
-import PreviousButton from 'components/play-bar/previous-button/PreviousButton'
 import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButtonProvider'
+import NextButtonProvider from 'components/play-bar/next-button/NextButtonProvider'
+import PreviousButtonProvider from 'components/play-bar/previous-button/PreviousButtonProvider'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
@@ -67,6 +67,7 @@ import { withNullGuard } from 'utils/withNullGuard'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 import UserBadges from 'containers/user-badges/UserBadges'
+import { Genre } from 'utils/genres'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -81,6 +82,7 @@ type NowPlayingProps = OwnProps &
 
 const SEEK_INTERVAL = 200
 const RESTART_THRESHOLD_SEC = 3
+const SKIP_DURATION_SEC = 15
 
 const messages = {
   nowPlaying: 'Now Playing'
@@ -292,12 +294,32 @@ const NowPlaying = g(
     ])
 
     const onPrevious = () => {
+      if (track.genre === Genre.PODCASTS) {
+        const position = timing.position
+        const newPosition = position - SKIP_DURATION_SEC
+        if (newPosition > 0) {
+          seek(newPosition)
+          return
+        }
+      }
+
       const shouldGoToPrevious = timing.position < RESTART_THRESHOLD_SEC
       if (shouldGoToPrevious) {
         previous()
       } else {
         reset(true /* shouldAutoplay */)
       }
+    }
+
+    const onNext = () => {
+      if (track.genre === Genre.PODCASTS) {
+        const newPosition = timing.position + SKIP_DURATION_SEC
+        if (newPosition < timing.duration) {
+          seek(newPosition)
+          return
+        }
+      }
+      next()
     }
 
     const artworkAverageColor = averageRGBColor
@@ -396,7 +418,7 @@ const NowPlaying = g(
             />
           </div>
           <div className={styles.previousButton}>
-            <PreviousButton isMobile onClick={onPrevious} />
+            <PreviousButtonProvider isMobile onClick={onPrevious} />
           </div>
           <div className={styles.playButton}>
             <PlayButton
@@ -406,7 +428,7 @@ const NowPlaying = g(
             />
           </div>
           <div className={styles.nextButton}>
-            <NextButton isMobile onClick={next} />
+            <NextButtonProvider isMobile onClick={onNext} />
           </div>
           <div className={styles.shuffleButton}>
             <ShuffleButtonProvider

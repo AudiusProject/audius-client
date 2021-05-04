@@ -1,16 +1,16 @@
 import React from 'react'
 import cn from 'classnames'
 
-import { ReactComponent as IconNext } from 'assets/img/pbIconNext.svg'
+import { ReactComponent as IconPodcastBack } from 'assets/img/iconPodcastBack.svg'
 
 import styles from '../PlayBarButton.module.css'
 
-export type NextButtonProps = {
+export type BackwardSkipButtonProps = {
   onClick: () => void
   isMobile: boolean
 }
 
-const NextButton = ({ onClick, isMobile }: NextButtonProps) => {
+const BackwardSkipButton = ({ onClick, isMobile }: BackwardSkipButtonProps) => {
   return (
     <button
       className={cn(styles.button, {
@@ -19,9 +19,9 @@ const NextButton = ({ onClick, isMobile }: NextButtonProps) => {
       })}
       onClick={onClick}
     >
-      <IconNext className={styles.noAnimation} />
+      <IconPodcastBack className={styles.noAnimation} />
     </button>
   )
 }
 
-export default NextButton
+export default BackwardSkipButton
