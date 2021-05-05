@@ -61,7 +61,13 @@ class SearchBar extends Component {
       this.setState({ value: '' })
       return
     }
-    const decodedValue = decodeURIComponent(value)
+
+    // decodeURIComponent can fail with searches that include
+    // a % sign (malformed URI), so wrap this in a try catch
+    let decodedValue = value
+    try {
+      decodedValue = decodeURIComponent(value)
+    } catch {}
 
     if (!this.isTagSearch() && fetch) {
       this.props.fetchSearch(decodedValue)
