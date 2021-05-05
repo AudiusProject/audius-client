@@ -229,7 +229,6 @@ class SearchBar extends Component {
       0
     )
     const { status, searchText } = this.props.search
-    console.log({ searchText, val: this.state.value })
     return (
       <div className={styles.search}>
         <Bar
