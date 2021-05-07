@@ -9,6 +9,8 @@ import ProfileForm from 'containers/sign-on/components/ProfileForm'
 import { InstagramProfile } from 'store/account/reducer'
 import { MAIN_CONTENT_ID } from 'containers/App'
 
+const GENERAL_ADMISSION = process.env.REACT_APP_GENERAL_ADMISSION
+
 const messages = {
   header: 'Tell Us About Yourself So Others Can Find You'
 }
@@ -142,14 +144,21 @@ const ProfilePage = (props: ProfilePageProps) => {
   const onInstagramLogin = async (uuid: string, profile: InstagramProfile) => {
     try {
       if (profile.profile_pic_url_hd) {
-        const profileUrl = profile.profile_pic_url_hd
-        const imageBlob = await fetch(profileUrl).then(r => r.blob())
-        const artworkFile = new File([imageBlob], 'Artwork', {
-          type: 'image/jpeg'
-        })
-        const file = await resizeImage(artworkFile)
-        const url = URL.createObjectURL(file)
-        setInstagramProfile(uuid, profile, { url, file })
+        try {
+          const profileUrl = `${GENERAL_ADMISSION}/proxy/simple?url=${encodeURIComponent(
+            profile.profile_pic_url_hd
+          )}`
+          const imageBlob = await fetch(profileUrl).then(r => r.blob())
+          const artworkFile = new File([imageBlob], 'Artwork', {
+            type: 'image/jpeg'
+          })
+          const file = await resizeImage(artworkFile)
+          const url = URL.createObjectURL(file)
+          setInstagramProfile(uuid, profile, { url, file })
+        } catch (e) {
+          console.error('Failed to fetch profile_pic_url_hd', e)
+          setInstagramProfile(uuid, profile)
+        }
       } else {
         setInstagramProfile(uuid, profile)
       }
