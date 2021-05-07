@@ -4,7 +4,7 @@ import {
   waitForNetworkIdle0
 } from '../utils'
 
-const timeout = 2 * 60 * 1000
+const timeout = 4 * 60 * 1000
 
 it(
   'visits',
