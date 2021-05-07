@@ -236,16 +236,15 @@ class PlayBar extends Component {
     if (track.genre === Genre.PODCASTS) {
       const position = audio.getPosition()
       const newPosition = position - SKIP_DURATION_SEC
-      if (newPosition > 0) {
-        seek(newPosition)
-        return
-      }
-    }
-    const shouldGoToPrevious = this.state.trackPosition < RESTART_THRESHOLD_SEC
-    if (shouldGoToPrevious) {
-      previous()
+      seek(Math.max(0, newPosition))
     } else {
-      reset(true /* shouldAutoplay */)
+      const shouldGoToPrevious =
+        this.state.trackPosition < RESTART_THRESHOLD_SEC
+      if (shouldGoToPrevious) {
+        previous()
+      } else {
+        reset(true /* shouldAutoplay */)
+      }
     }
   }
 
@@ -260,12 +259,10 @@ class PlayBar extends Component {
       const duration = audio.getDuration()
       const position = audio.getPosition()
       const newPosition = position + SKIP_DURATION_SEC
-      if (newPosition < duration) {
-        seek(newPosition)
-        return
-      }
+      seek(Math.min(newPosition, duration))
+    } else {
+      next()
     }
-    next()
   }
 
   playable = () =>

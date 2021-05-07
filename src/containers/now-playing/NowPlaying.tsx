@@ -297,29 +297,24 @@ const NowPlaying = g(
       if (track.genre === Genre.PODCASTS) {
         const position = timing.position
         const newPosition = position - SKIP_DURATION_SEC
-        if (newPosition > 0) {
-          seek(newPosition)
-          return
-        }
-      }
-
-      const shouldGoToPrevious = timing.position < RESTART_THRESHOLD_SEC
-      if (shouldGoToPrevious) {
-        previous()
+        seek(Math.max(0, newPosition))
       } else {
-        reset(true /* shouldAutoplay */)
+        const shouldGoToPrevious = timing.position < RESTART_THRESHOLD_SEC
+        if (shouldGoToPrevious) {
+          previous()
+        } else {
+          reset(true /* shouldAutoplay */)
+        }
       }
     }
 
     const onNext = () => {
       if (track.genre === Genre.PODCASTS) {
         const newPosition = timing.position + SKIP_DURATION_SEC
-        if (newPosition < timing.duration) {
-          seek(newPosition)
-          return
-        }
+        seek(Math.min(newPosition, timing.duration))
+      } else {
+        next()
       }
-      next()
     }
 
     const artworkAverageColor = averageRGBColor
