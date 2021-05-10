@@ -84,8 +84,6 @@ export function* confirmFollowUser(userId: ID, accountId: ID) {
             `Could not confirm follow user for user id ${userId} and account id ${accountId}`
           )
         }
-        // todo do we really need to return anything here?
-        return confirmed
       },
       // @ts-ignore: remove when confirmer is typed
       function* () {
@@ -189,8 +187,6 @@ export function* confirmUnfollowUser(userId: ID, accountId: ID) {
             `Could not confirm unfollow user for user id ${userId} and account id ${accountId}`
           )
         }
-        // todo do we really need to return anything here?
-        return confirmed
       },
       // @ts-ignore: remove when confirmer is typed
       function* () {
