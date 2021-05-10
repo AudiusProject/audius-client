@@ -14,6 +14,12 @@ import {
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'store/account/selectors'
 
+const BlockConfirmation = Object.freeze({
+  CONFIRMED: 'CONFIRMED',
+  DENIED: 'DENIED',
+  UNKNOWN: 'UNKNOWN'
+})
+
 const POLLING_FREQUENCY_MILLIS = 2000
 
 /* Exported  */
@@ -95,6 +101,30 @@ export function* pollUser(userId, check = user => user) {
     users = yield call(AudiusBackend.getCreators, [userId])
   }
   return users[0]
+}
+
+export function* confirmTransaction(blockHash, blockNumber) {
+  console.log({ blockHash, blockNumber })
+
+  function* confirmBlock() {
+    const { block_found, block_passed } = yield apiClient.getBlockConfirmation(
+      blockHash,
+      blockNumber
+    )
+    console.log({ block_found, block_passed })
+    return block_found
+      ? BlockConfirmation.CONFIRMED
+      : block_passed
+      ? BlockConfirmation.DENIED
+      : BlockConfirmation.UNKNOWN
+  }
+
+  let confirmation = yield call(confirmBlock)
+  while (confirmation === BlockConfirmation.UNKNOWN) {
+    yield delay(POLLING_FREQUENCY_MILLIS)
+    confirmation = yield call(confirmBlock)
+  }
+  return confirmation === BlockConfirmation.CONFIRMED
 }
 
 /* Private */
