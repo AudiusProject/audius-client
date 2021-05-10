@@ -12,7 +12,6 @@ import {
   getIsDone
 } from 'store/confirmer/selectors'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { getUserId } from 'store/account/selectors'
 
 const BlockConfirmation = Object.freeze({
   CONFIRMED: 'CONFIRMED',
@@ -42,50 +41,6 @@ export function* pollPlaylist(
     playlists = yield call(AudiusBackend.getPlaylists, userId, [playlistId])
   }
   return playlists[0]
-}
-
-/**
- * Polls a track in discprov and checks for existence as well as whether a custom check
- * on the track is fulfilled.
- * @param {number} trackId
- * @param {function} check single argument function that takes a track and returns a boolean.
- */
-export function* pollTrack(
-  trackId,
-  trackTitle,
-  handle,
-  check = track => track
-) {
-  const userId = yield select(getUserId)
-
-  function* fetchTrack() {
-    return yield call(
-      args => {
-        try {
-          return apiClient.getTrack(args, /* retry */ false)
-        } catch (e) {
-          // TODO: for now we treat all errors from DP
-          // here as cause to retry, we should just
-          // retry for 404s
-          return null
-        }
-      },
-      {
-        id: trackId,
-        currentUserId: userId,
-        unlistedArgs: {
-          urlTitle: trackTitle,
-          handle
-        }
-      }
-    )
-  }
-  let track = yield call(fetchTrack)
-  while (!(track && check(track))) {
-    yield delay(POLLING_FREQUENCY_MILLIS)
-    track = yield call(fetchTrack)
-  }
-  return track
 }
 
 /**
