@@ -934,8 +934,6 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
         if (!confirmed) {
           throw new Error(`Could not confirm delete album for id ${playlistId}`)
         }
-        // todo do we really need to return anything here?
-        return confirmed
       },
       function* () {
         console.debug(`Successfully deleted album ${playlistId}`)
@@ -1019,10 +1017,6 @@ function* confirmDeletePlaylist(userId, playlistId) {
             `Could not confirm delete playlist track for playlist id ${playlistId}`
           )
         }
-        // todo do we really need to return anything here?
-        return (yield call(AudiusBackend.getPlaylists, userId, [
-          confirmedPlaylistId
-        ]))[0]
       },
       function* () {
         console.debug(`Successfully deleted playlist ${playlistId}`)
