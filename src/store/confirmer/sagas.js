@@ -59,14 +59,17 @@ export function* pollUser(userId, check = user => user) {
 }
 
 export function* confirmTransaction(blockHash, blockNumber) {
-  console.log({ blockHash, blockNumber })
+  /**
+   * Assume confirmation when there is nothing to confirm
+   */
+  if (!blockHash || !blockNumber) return true
 
   function* confirmBlock() {
     const { block_found, block_passed } = yield apiClient.getBlockConfirmation(
       blockHash,
       blockNumber
     )
-    console.log({ block_found, block_passed })
+
     return block_found
       ? BlockConfirmation.CONFIRMED
       : block_passed
