@@ -16,8 +16,7 @@ import {
   IntKeys,
   getRemoteVar,
   StringKeys,
-  BooleanKeys,
-  FeatureFlags
+  BooleanKeys
 } from 'services/remote-config'
 import {
   waitForLibsInit,
@@ -28,10 +27,7 @@ import {
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
 import { Timer } from 'utils/performance'
-import {
-  getFeatureEnabled,
-  waitForRemoteConfig
-} from './remote-config/Provider'
+import { waitForRemoteConfig } from './remote-config/Provider'
 import { monitoringCallbacks } from './serviceMonitoring'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
@@ -408,9 +404,6 @@ class AudiusBackend {
           ? undefined
           : { siteKey: RECAPTCHA_SITE_KEY },
         isServer: false,
-        enableUserReplicaSetManagerContract: getFeatureEnabled(
-          FeatureFlags.ENABLE_USER_REPLICA_SET_MANAGER
-        ),
         useTrackContentPolling: getFeatureEnabled(
           FeatureFlags.USE_TRACK_CONTENT_POLLING
         )
@@ -1599,11 +1592,20 @@ class AudiusBackend {
             [AuthHeaders.Signature]: signature
           }
         }
-      ).then(res => res.json())
+      ).then(res => {
+        if (res.status !== 200) {
+          return {
+            success: false,
+            error: new Error('Invalid Server Response'),
+            isRequestError: true
+          }
+        }
+        return res.json()
+      })
       return notifications
     } catch (e) {
       console.error(e)
-      return { success: false, error: e }
+      return { success: false, error: e, isRequestError: true }
     }
   }
 
