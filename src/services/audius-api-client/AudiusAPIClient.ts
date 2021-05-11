@@ -55,6 +55,7 @@ const FULL_ENDPOINT_MAP = {
     `/playlists/${playlistId}/reposts`,
   playlistFavoriteUsers: (playlistId: OpaqueID) =>
     `/playlists/${playlistId}/favorites`,
+  getUser: (userId: OpaqueID) => `/users/${userId}`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
   userFavoritedTracks: (userId: OpaqueID) =>
@@ -156,6 +157,11 @@ type GetPlaylistFavoriteUsersArgs = {
   currentUserId: Nullable<ID>
   limit?: number
   offset?: number
+}
+
+type GetUserArgs = {
+  userId: ID
+  currentUserId: Nullable<ID>
 }
 
 type GetUserByHandleArgs = {
@@ -689,6 +695,25 @@ class AudiusAPIClient {
 
     const tracks = remixingResponse.data.map(adapter.makeTrack)
     return tracks
+  }
+
+  async getUser({ userId, currentUserId }: GetUserArgs) {
+    const encodedUserId = this._encodeOrThrow(userId)
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    this._assertInitialized()
+    const params = {
+      user_id: encodedCurrentUserId || undefined
+    }
+
+    const response: Nullable<APIResponse<APIUser[]>> = await this._getResponse(
+      FULL_ENDPOINT_MAP.getUser(encodedUserId),
+      params
+    )
+
+    if (!response) return []
+
+    const adapted = response.data.map(adapter.makeUser).filter(removeNullable)
+    return adapted
   }
 
   async getUserByHandle({ handle, currentUserId }: GetUserByHandleArgs) {

@@ -15,7 +15,7 @@ import * as cacheActions from 'store/cache/actions'
 import { Kind } from 'store/types'
 import * as confirmerActions from 'store/confirmer/actions'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
-import { confirmTransaction, pollUser } from 'store/confirmer/sagas'
+import { confirmTransaction } from 'store/confirmer/sagas'
 import { getUserId } from 'store/account/selectors'
 import {
   getProfileUserId,
@@ -366,7 +366,11 @@ function* confirmUpdateProfile(userId, metadata) {
             `Could not confirm update profile for user id ${userId}`
           )
         }
-        return yield call(pollUser, userId)
+        const currentUserId = yield select(getUserId)
+        return apiClient.getUser({
+          userId,
+          currentUserId
+        })
       },
       function* (confirmedUser) {
         // Store the update in local storage so it is correct upon reload
