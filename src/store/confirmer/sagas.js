@@ -1,7 +1,6 @@
 import { delay } from 'redux-saga'
 import { call, put, race, select, takeEvery } from 'redux-saga/effects'
 
-import AudiusBackend from 'services/AudiusBackend'
 import { waitForValue } from 'utils/sagaHelpers'
 import * as confirmerActions from 'store/confirmer/actions'
 import {
@@ -22,41 +21,6 @@ const BlockConfirmation = Object.freeze({
 const POLLING_FREQUENCY_MILLIS = 2000
 
 /* Exported  */
-
-/**
- * Polls a playlist in discprov and checks for existence as well as whether a custom check
- * on the playlist is fulfilled.
- * @param {number} playlistId
- * @param {?number} userId playlist owner id. Can be null ONLY if the playlist is PUBLIC.
- * @param {function} check single argument function that takes a playlist and returns a boolean.
- */
-export function* pollPlaylist(
-  playlistId,
-  userId,
-  check = playlist => playlist
-) {
-  let playlists = yield call(AudiusBackend.getPlaylists, userId, [playlistId])
-  while (playlists.length === 0 || !check(playlists[0])) {
-    yield delay(POLLING_FREQUENCY_MILLIS)
-    playlists = yield call(AudiusBackend.getPlaylists, userId, [playlistId])
-  }
-  return playlists[0]
-}
-
-/**
- * Polls a user in discprov and checks for existence as well as whether a custom check
- * on the user is fulfilled.
- * @param {number} userId
- * @param {function} check single argument function that takes a user and returns a boolean.
- */
-export function* pollUser(userId, check = user => user) {
-  let users = yield call(AudiusBackend.getCreators, [userId])
-  while (users.length === 0 || !check(users[0])) {
-    yield delay(POLLING_FREQUENCY_MILLIS)
-    users = yield call(AudiusBackend.getCreators, [userId])
-  }
-  return users[0]
-}
 
 export function* confirmTransaction(blockHash, blockNumber) {
   /**
