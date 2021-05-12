@@ -1191,11 +1191,9 @@ class AudiusBackend {
        * and return that block number along with its corresponding block hash
        */
       if (updatePromises.length > 0) {
-        const latestReceipt = (
+        const latestReceipt = this.getLatestTxReceipt(
           await Promise.all(updatePromises)
-        ).sort((receipt1, receipt2) =>
-          receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
-        )[0]
+        )
         blockHash = latestReceipt.blockHash
         blockNumber = latestReceipt.blockNumber
       }
@@ -1237,11 +1235,9 @@ class AudiusBackend {
        * and return that block number along with its corresponding block hash
        */
       if (promises.length > 0) {
-        const latestReceipt = (
+        const latestReceipt = this.getLatestTxReceipt(
           await Promise.all(promises)
-        ).sort((receipt1, receipt2) =>
-          receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
-        )[0]
+        )
         blockHash = latestReceipt.blockHash
         blockNumber = latestReceipt.blockNumber
       }
@@ -1375,11 +1371,9 @@ class AudiusBackend {
       const deleteTrackReceipts = results.slice(0, -1).map(r => r.txReceipt)
       const deletePlaylistReceipt = results.slice(-1)[0].txReceipt
 
-      const { blockHash, blockNumber } = deleteTrackReceipts
-        .concat(deletePlaylistReceipt)
-        .sort((receipt1, receipt2) =>
-          receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
-        )[0]
+      const { blockHash, blockNumber } = this.getLatestTxReceipt(
+        deleteTrackReceipts.concat(deletePlaylistReceipt)
+      )
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(error.message)
@@ -2344,6 +2338,18 @@ class AudiusBackend {
   static async getSignature(data) {
     await waitForLibsInit()
     return audiusLibs.web3Manager.sign(data)
+  }
+
+  /**
+   * Get latest transaction receipt based on block number
+   * Used by confirmer
+   */
+
+  static getLatestTxReceipt(receipts) {
+    if (!receipts.length) return {}
+    return receipts.sort((receipt1, receipt2) =>
+      receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
+    )[0]
   }
 }
 
