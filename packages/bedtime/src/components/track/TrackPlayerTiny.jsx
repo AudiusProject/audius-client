@@ -2,6 +2,7 @@ import { h } from 'preact'
 import cn from 'classnames'
 
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
+import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import styles from './TrackPlayerTiny.module.css'
 import AudiusLogoGlyph from '../../assets/img/audiusLogoGlyph.svg'
 import { getCopyableLink } from '../../util/shareUtil'
@@ -21,6 +22,9 @@ const TrackPlayerTiny = ({
   artistName,
   trackURL,
   playingState,
+  position,
+  duration,
+  seekTo,
   onTogglePlay,
   albumArtURL,
   isVerified
@@ -99,6 +103,21 @@ const TrackPlayerTiny = ({
             className={styles.logo}
           />
         </div>
+      </div>
+      <div className={styles.scrubber}>
+        <BedtimeScrubber
+          mediaKey={`title-${mediaKey}`}
+          playingState={playingState}
+          seekTo={seekTo}
+          handleColor='rgba(0,0,0,0)'
+          handleShadow='var(--accent-red)'
+          duration={duration}
+          elapsedSeconds={position}
+          includeExpandedTargets={false}
+          railListenedColor={'var(--primary)'}
+          railUnlistenedColor={'var(--neutral-light-8)'}
+          railHoverColor={'var(--primary)'}
+        />
       </div>
     </div>
   )

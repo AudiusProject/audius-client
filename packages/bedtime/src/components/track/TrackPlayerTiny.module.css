@@ -1,17 +1,19 @@
 .wrapper {
   width: 100%;
   position: relative;
+  border-radius: 36px;
+  overflow: hidden;
 }
 
 .container {
   display: flex;
   align-items: center;
   background: #FFFFFF;
-  height: 20px !important;
+  height: 24px !important;
   border: 1px solid #F7F7F9;
   box-sizing: border-box;
   border-radius: 36px;
-  max-height: 20px;
+  max-height: 24px;
   width: 100%;
   cursor: pointer;
   overflow: hidden;
@@ -23,7 +25,7 @@
   left: 0;
   background: linear-gradient(90deg, #FFFFFF 73.44%, rgba(255, 255, 255, 0) 100%);
   min-width: 26px;
-  height: 20px;
+  height: 24px;
   display: flex;
   z-index: 1;
   align-items: center;
@@ -31,12 +33,12 @@
 
 .playButton {
   position: absolute;
-  height: 20px;
-  width: 20px;
-  z-index: 2;
+  height: 24px;
+  width: 24px;
+  z-index: 3;
   box-shadow: none;
-  padding: 1px;
   box-sizing: border-box;
+  border: 1px solid #FFFFFF;
 }
 
 .playButton:hover {
@@ -57,7 +59,7 @@
 }
 
 .infoContainer {
-  height: 20px;
+  height: 24px;
 }
 
 .info {
@@ -96,7 +98,7 @@
   right: 0;
   background: linear-gradient(270deg, #FFFFFF 73.44%, rgba(255, 255, 255, 0) 100%);
   min-width: 22px;
-  height: 20px;
+  height: 24px;
   display: flex;
   z-index: 1;
   align-items: center;
@@ -111,4 +113,12 @@
 
 .logo path {
   fill: var(--neutral-light-4);
+}
+
+.scrubber {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  right: 0px;
+  top: 19px;
 }

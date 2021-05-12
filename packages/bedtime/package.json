@@ -30,7 +30,7 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@audius/stems": "^0.1.5",
+    "@audius/stems": "^0.3.9",
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.2.1",

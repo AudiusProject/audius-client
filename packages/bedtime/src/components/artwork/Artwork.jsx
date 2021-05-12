@@ -85,7 +85,8 @@ const Artwork = ({
     return isLargeFlavor ? {
       boxShadow,
       height: `${sideLength}px`,
-      width: `${sideLength}px`
+      width: `${sideLength}px`,
+      borderRadius: '50%'
     } : { boxShadow }
   }
   return (
