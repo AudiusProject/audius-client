@@ -30,9 +30,10 @@ const Slider = ({
   totalSeconds,
   onScrub,
   onScrubRelease,
+  includeExpandedTargets = true,
   style
 }: ScrubberProps) => {
-  const [previousmediaKey, setPreviousMediaKey] = useState('')
+  const [previousMediaKey, setPreviousMediaKey] = useState('')
 
   // Percentage of the complete scrubber being dragged to.
   // e.g. 0.25 means the user has dragged the scrubber 1/4th of the way.
@@ -191,7 +192,7 @@ const Slider = ({
 
   // When the key changes, reset the animation
   useEffect(() => {
-    if (mediaKey !== previousmediaKey) {
+    if (mediaKey !== previousMediaKey) {
       if (!totalSeconds) {
         setPercent(0)
       } else {
@@ -201,7 +202,7 @@ const Slider = ({
     }
   }, [
     mediaKey,
-    previousmediaKey,
+    previousMediaKey,
     setPreviousMediaKey,
     setPercent,
     elapsedSeconds,
@@ -237,8 +238,12 @@ const Slider = ({
   }
 
   const getHandleStyle = () => {
-    if (style && style.handleColor) return { background: style.handleColor }
-    return {}
+    const s: CSSProperties = {}
+    if (style) {
+      if (style.handleColor) s.background = style.handleColor
+      if (style.handleShadow) s.boxShadow = style.handleShadow
+    }
+    return s
   }
 
   return (
@@ -246,7 +251,8 @@ const Slider = ({
       className={cn(styles.slider, {
         [styles.isMobile]: isMobile,
         [styles.isDisabled]: isDisabled,
-        [styles.showHandle]: getShowHandle()
+        [styles.showHandle]: getShowHandle(),
+        [styles.expandedTargets]: includeExpandedTargets
       })}
       onMouseDown={isDisabled ? () => {} : onMouseDown}
       onTouchStart={isDisabled ? () => {} : onTouchStart}

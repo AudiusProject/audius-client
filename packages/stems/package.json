@@ -1,6 +1,6 @@
 {
   "name": "@audius/stems",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "The Audius React component library",
   "author": "",
   "license": "",
@@ -21,7 +21,7 @@
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
     "lint": "./node_modules/.bin/eslint '**/*.ts*'",
-    "lint-fix": "./node_modules/.bin/eslint '**/*.ts*' --fix",
+    "lint:fix": "./node_modules/.bin/eslint '**/*.ts*' --fix",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

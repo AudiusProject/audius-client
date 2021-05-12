@@ -35,6 +35,7 @@ const Scrubber = ({
   totalSeconds,
   onScrub,
   onScrubRelease,
+  includeExpandedTargets,
   style,
   className
 }: ScrubberProps) => {
@@ -84,6 +85,7 @@ const Scrubber = ({
         totalSeconds={totalSeconds}
         onScrub={onHandleScrub}
         onScrubRelease={onHandleScrubRelease}
+        includeExpandedTargets={includeExpandedTargets}
         style={style}
       />
       {includeTimestamps && (

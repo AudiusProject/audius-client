@@ -59,8 +59,15 @@ type ScrubberProps = {
     railUnlistenedColor?: string
     showHandle?: boolean
     handleColor?: string
+    handleShadow?: string
     sliderMargin?: string
   }
+
+  /**
+   * Include larger click targets to that it's hard to misclick
+   * Defaults to true
+   */
+  includeExpandedTargets?: boolean
 
   /**
    * Escape hatch for styles.
