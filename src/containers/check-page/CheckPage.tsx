@@ -8,7 +8,7 @@ import AudiusBackend from 'services/AudiusBackend'
 import './CheckPage.module.css'
 
 const COGNITO_KEY = process.env.REACT_APP_COGNITO_KEY
-const COGNITO_TEMPLATE_ID = process.env.REACT_APP_CONGITO_TEMPLATE_ID
+const COGNITO_TEMPLATE_ID = process.env.REACT_APP_COGNITO_TEMPLATE_ID
 
 const CheckPage = () => {
   const dispatch = useDispatch()
@@ -42,7 +42,7 @@ const CheckPage = () => {
           publishableKey: COGNITO_KEY,
           templateId: COGNITO_TEMPLATE_ID,
           user: {
-            customerReference: user.handle,
+            customerReference: user.wallet,
             signature
           }
         })
