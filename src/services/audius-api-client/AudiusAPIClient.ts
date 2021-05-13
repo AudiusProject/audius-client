@@ -986,7 +986,6 @@ class AudiusAPIClient {
       true,
       PathType.RootPath
     )
-    console.log('block confirmation response', response)
     if (!response) return {}
     return response.data
   }
