@@ -1,4 +1,3 @@
-import { delay } from 'redux-saga'
 import {
   all,
   call,
@@ -32,8 +31,7 @@ import { Name } from 'services/analytics'
 import watchTrackErrors from './errorSagas'
 import { retrieveCollections } from './utils/retrieveCollections'
 import { reformat } from './utils'
-
-const POLLING_FREQUENCY_MILLIS = 2000
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -519,22 +517,6 @@ function* removeTrackFromPlaylistAsync(action) {
   )
 }
 
-/**
- * Polls a playlist in discprov and checks for existence as well as whether a custom check
- * on the playlist is fulfilled.
- * @param {number} playlistId
- * @param {?number} userId playlist owner id. Can be null ONLY if the playlist is PUBLIC.
- * @param {function} check single argument function that takes a playlist and returns a boolean.
- */
-function* pollPlaylist(playlistId, userId, check = playlist => playlist) {
-  let playlists = yield call(AudiusBackend.getPlaylists, userId, [playlistId])
-  while (playlists.length === 0 || !check(playlists[0])) {
-    yield delay(POLLING_FREQUENCY_MILLIS)
-    playlists = yield call(AudiusBackend.getPlaylists, userId, [playlistId])
-  }
-  return playlists[0]
-}
-
 // Removes the invalid track ids from the playlist by calling `dangerouslySetPlaylistOrder`
 function* fixInvalidTracksInPlaylist(playlistId, userId, invalidTrackIds) {
   yield call(waitForBackendSetup)
@@ -551,16 +533,13 @@ function* fixInvalidTracksInPlaylist(playlistId, userId, invalidTrackIds) {
     trackIds
   )
   if (error) throw error
-  const updatedPlaylist = yield call(
-    pollPlaylist,
+
+  const currentUserId = yield select(getUserId)
+  const playlists = yield apiClient.getPlaylist({
     playlistId,
-    userId,
-    playlist =>
-      playlist.playlist_contents.track_ids
-        .map(t => t.track)
-        .every((e, i) => e === trackIds[i])
-  )
-  return updatedPlaylist
+    currentUserId
+  })
+  return playlists[0]
 }
 
 function* confirmRemoveTrackFromPlaylist(

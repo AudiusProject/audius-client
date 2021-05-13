@@ -367,10 +367,11 @@ function* confirmUpdateProfile(userId, metadata) {
           )
         }
         const currentUserId = yield select(getUserId)
-        return apiClient.getUser({
+        const users = yield apiClient.getUser({
           userId,
           currentUserId
         })
+        return users[0]
       },
       function* (confirmedUser) {
         // Store the update in local storage so it is correct upon reload
