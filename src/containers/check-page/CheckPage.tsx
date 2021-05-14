@@ -42,7 +42,7 @@ const CheckPage = () => {
           publishableKey: COGNITO_KEY,
           templateId: COGNITO_TEMPLATE_ID,
           user: {
-            customerReference: user.wallet,
+            customerReference: user.handle,
             signature
           }
         })
