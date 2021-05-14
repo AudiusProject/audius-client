@@ -218,7 +218,7 @@ function* confirmEditTrack(
         const userId = yield select(getUserId)
         const handle = yield select(getUserHandle)
 
-        return apiClient.getTrack(
+        return yield apiClient.getTrack(
           {
             id: trackId,
             currentUserId: userId,
@@ -328,7 +328,7 @@ function* confirmDeleteTrack(trackId) {
         const handle = yield select(getUserHandle)
         const userId = yield select(getUserId)
 
-        return apiClient.getTrack(
+        return yield apiClient.getTrack(
           {
             id: trackId,
             currentUserId: userId,

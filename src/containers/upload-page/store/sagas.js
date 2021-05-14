@@ -870,7 +870,7 @@ function* uploadSingleTrack(track) {
           throw new Error(`Could not confirm upload single track ${trackId}`)
         }
 
-        return apiClient.getTrack({
+        return yield apiClient.getTrack({
           id: trackId,
           currentUserId: userId,
           unlistedArgs: {
