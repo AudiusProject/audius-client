@@ -10,5 +10,5 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.TRENDING_UNDERGROUND]: false,
   [FeatureFlags.USE_TRACK_CONTENT_POLLING]: true,
   [FeatureFlags.SOLANA_LISTEN_ENABLED]: false,
-  [FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD]: true
+  [FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD]: true 
 }
