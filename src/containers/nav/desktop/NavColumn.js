@@ -21,10 +21,14 @@ import {
   EXPLORE_PAGE
 } from 'utils/route'
 
-import { toggleNotificationPanel } from 'containers/notification/store/actions'
+import {
+  toggleNotificationPanel,
+  updatePlaylistView
+} from 'containers/notification/store/actions'
 import {
   getNotificationPanelIsOpen,
-  getNotificationUnreadCount
+  getNotificationUnreadCount,
+  getPlaylistUpdates
 } from 'containers/notification/store/selectors'
 import { resetState as resetUploadState } from 'containers/upload-page/store/actions'
 import {
@@ -87,6 +91,8 @@ const NavColumn = ({
   upload,
   accountStatus,
   playlists = [],
+  playlistUpdates = [],
+  updatePlaylistView,
   resetUploadState,
   goToRoute,
   goToSignUp: routeToSignup,
@@ -148,14 +154,16 @@ const NavColumn = ({
   ])
 
   const onClickNavLinkWithAccount = useCallback(
-    e => {
+    (e, id) => {
       if (!account) {
         e.preventDefault()
         goToSignUp('restricted page')
         showActionRequiresAccount()
+      } else if (id) {
+        updatePlaylistView(id)
       }
     },
-    [account, goToSignUp, showActionRequiresAccount]
+    [account, goToSignUp, showActionRequiresAccount, updatePlaylistView]
   )
 
   /** @param {bool} full whether or not to get the full page link */
@@ -365,6 +373,7 @@ const NavColumn = ({
                 {account &&
                   playlists.map(playlist => {
                     if (playlist.variant === Variant.SMART) {
+                      const id = playlist.playlist_id
                       const name = playlist.playlist_name
                       const url = playlist.link
                       return (
@@ -373,11 +382,16 @@ const NavColumn = ({
                           to={url}
                           isActive={() => url === getPathname()}
                           activeClassName='active'
-                          onClick={onClickNavLinkWithAccount}
+                          onClick={e => onClickNavLinkWithAccount(e, id)}
                           className={cn(styles.link, {
                             [styles.disabledLink]: !account || dragging
                           })}
                         >
+                          {playlistUpdates.includes(id) && (
+                            <Tooltip text='Recently Updated'>
+                              <span className={styles.updateDot} />
+                            </Tooltip>
+                          )}
                           {name}
                         </NavLink>
                       )
@@ -412,8 +426,13 @@ const NavColumn = ({
                               ((kind !== 'track' && kind !== 'playlist') ||
                                 !isOwner)
                           })}
-                          onClick={onClickNavLinkWithAccount}
+                          onClick={e => onClickNavLinkWithAccount(e, id)}
                         >
+                          {playlistUpdates.includes(id) && (
+                            <Tooltip text='Recently Updated'>
+                              <span className={styles.updateDot} />
+                            </Tooltip>
+                          )}
                           {name}
                         </NavLink>
                       </Droppable>
@@ -476,7 +495,8 @@ const makeMapStateToProps = () => {
       showCreatePlaylistModal: getIsOpen(state),
       averageRGBColor: getAverageColorByTrack(state, {
         track: currentQueueItem.track
-      })
+      }),
+      playlistUpdates: getPlaylistUpdates(state)
     }
   }
   return mapStateToProps
@@ -496,6 +516,7 @@ const mapDispatchToProps = dispatch => ({
   toggleNotificationPanel: () => dispatch(toggleNotificationPanel()),
   openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
+  updatePlaylistView: playlistId => dispatch(updatePlaylistView(playlistId)),
   goToUpload: () => dispatch(pushRoute(UPLOAD_PAGE)),
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
   goToSignUp: () => dispatch(signOnActions.openSignOn(/** signIn */ false)),

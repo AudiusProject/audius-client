@@ -307,6 +307,16 @@ svg.logo path {
   color: var(--secondary);
 }
 
+.updateDot {
+  position: absolute;
+  top: 8px;
+  left: 30px;
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  background: var(--secondary);
+}
+
 .droppable {
   background-color: rgba(0,0,0,0);
   transition: background 0.07s ease-in-out;

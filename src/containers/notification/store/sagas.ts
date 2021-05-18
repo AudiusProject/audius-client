@@ -93,15 +93,20 @@ export function* fetchNotifications(
     }
     const {
       notifications: notificationItems,
-      totalUnread
+      totalUnread,
+      playlistUpdates
     }: {
       notifications: Notification[]
       totalUnread: number
+      playlistUpdates: number[]
     } = notificationsResponse
 
     const notifications = yield parseAndProcessNotifications(notificationItems)
 
     const hasMore = notifications.length >= limit
+
+    yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
+
     yield put(
       notificationActions.fetchNotificationSucceeded(
         notifications,
@@ -318,6 +323,12 @@ export function* unsubscribeUserSettings(
   yield call(AudiusBackend.updateUserSubscription, action.userId, false)
 }
 
+export function* updatePlaylistView(
+  action: notificationActions.UpdatePlaylistView
+) {
+  yield call(AudiusBackend.updateLastPlaylistView, action.playlistId)
+}
+
 // Action Watchers
 function* watchFetchNotifications() {
   yield takeEvery(notificationActions.FETCH_NOTIFICATIONS, fetchNotifications)
@@ -360,6 +371,10 @@ function* watchUnsubscribeUserSettings() {
   yield takeEvery(notificationActions.UNSUBSCRIBE_USER, unsubscribeUserSettings)
 }
 
+function* watchUpdatePlaylistView() {
+  yield takeEvery(notificationActions.UPDATE_PLAYLIST_VIEW, updatePlaylistView)
+}
+
 type ResponseNotification = Notification & {
   id: string
   entityIds: number[]
@@ -367,8 +382,8 @@ type ResponseNotification = Notification & {
 }
 
 // Notifications have changed if some of the incoming ones have
-// different ids or changed lenght in unique entities/users
-const checkIfNotifcationsChanged = (
+// different ids or changed length in unique entities/users
+const checkIfNotificationsChanged = (
   current: ResponseNotification[],
   incoming: ResponseNotification[]
 ): boolean => {
@@ -432,15 +447,19 @@ export function* getNotifications(isFirstFetch: boolean) {
       }
       const {
         notifications: notificationItems,
-        totalUnread
+        totalUnread,
+        playlistUpdates
       }: {
         notifications: ResponseNotification[]
         totalUnread: number
+        playlistUpdates: number[]
       } = notificationsResponse
+
+      yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
 
       if (notificationItems.length > 0) {
         const currentNotifications = yield select(makeGetAllNotifications())
-        const isChanged = checkIfNotifcationsChanged(
+        const isChanged = checkIfNotificationsChanged(
           currentNotifications,
           notificationItems
         )
@@ -473,7 +492,7 @@ export function* getNotifications(isFirstFetch: boolean) {
     if (isReachable) {
       yield put(
         notificationActions.fetchNotificationsFailed(
-          `Notifcation Polling Daemon Error: ${e.message}`
+          `Notification Polling Daemon Error: ${e.message}`
         )
       )
     }
@@ -582,7 +601,8 @@ export default function sagas() {
     watchUnsubscribeUserSettings,
     notificationPollingDaemon,
     watchTogglePanel,
-    watchNotificationError
+    watchNotificationError,
+    watchUpdatePlaylistView
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

@@ -32,6 +32,9 @@ export const SET_NOTIFICATION_MODAL = 'NOTIFICATION/SET_NOTIFICATION_MODAL'
 export const SUBSCRIBE_USER = 'NOTIFICATION/SUBSCRIBE_USER'
 export const UNSUBSCRIBE_USER = 'NOTIFICATION/UNSUBSCRIBE_USER'
 
+export const SET_PLAYLIST_UPDATES = 'NOTIFICATION/SET_PLAYLIST_UPDATES'
+export const UPDATE_PLAYLIST_VIEW = 'NOTIFICATION/UPDATE_PLAYLIST_VIEW'
+
 export const fetchNotifications = (limit = 10) => ({
   type: FETCH_NOTIFICATIONS,
   limit
@@ -126,6 +129,16 @@ export const unsubscribeUser = (userId: ID) => ({
   userId
 })
 
+export const setPlaylistUpdates = (playlistUpdates: number[]) => ({
+  type: SET_PLAYLIST_UPDATES,
+  playlistUpdates
+})
+
+export const updatePlaylistView = (playlistId: number) => ({
+  type: UPDATE_PLAYLIST_VIEW,
+  playlistId
+})
+
 export type FetchNotifications = ReturnType<typeof fetchNotifications>
 export type FetchNotificationsRequested = ReturnType<
   typeof fetchNotificationsRequested
@@ -156,6 +169,8 @@ export type SetNotificationModal = ReturnType<typeof setNotificationModal>
 export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
 export type SubscribeUser = ReturnType<typeof subscribeUser>
 export type UnsubscribeUser = ReturnType<typeof unsubscribeUser>
+export type SetPlaylistUpdates = ReturnType<typeof setPlaylistUpdates>
+export type UpdatePlaylistView = ReturnType<typeof updatePlaylistView>
 
 export type NotificationAction =
   | FetchNotifications
@@ -176,3 +191,5 @@ export type NotificationAction =
   | ToggleNotificationPanel
   | SubscribeUser
   | UnsubscribeUser
+  | SetPlaylistUpdates
+  | UpdatePlaylistView

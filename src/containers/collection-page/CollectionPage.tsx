@@ -17,6 +17,7 @@ type OwnProps = {
 const isMobileClient = isMobile()
 
 type CollectionPageProps = ReturnType<typeof mapStateToProps> & OwnProps
+// why is this called SignOn
 const SignOn = ({ type, smartCollection }: CollectionPageProps) => {
   const content = isMobileClient ? MobileCollectionPage : DesktopCollectionPage
 

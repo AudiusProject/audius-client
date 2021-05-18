@@ -127,3 +127,15 @@
   letter-spacing: 0;
   line-height: 8px;
 }
+
+.updateDot {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--white);
+  border-radius: 100%;
+  background: var(--secondary);
+  z-index: 100;
+}

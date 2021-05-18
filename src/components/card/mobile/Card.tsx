@@ -61,6 +61,7 @@ type CardProps = {
   onClickReposts?: () => void
   onClickFavorites?: () => void
   onClick: () => void
+  updateDot?: boolean
 }
 
 const Card = ({
@@ -76,7 +77,8 @@ const Card = ({
   favorites,
   onClickReposts,
   onClickFavorites,
-  onClick
+  onClick,
+  updateDot
 }: CardProps) => {
   const showRepostFavoriteStats =
     !isUser && reposts && favorites && onClickReposts && onClickFavorites
@@ -87,6 +89,7 @@ const Card = ({
       })}
       onClick={onClick}
     >
+      {updateDot && <div className={styles.updateDot} />}
       <div className={styles.tileCoverArtContainer}>
         {isUser ? (
           <UserImage id={id} imageSize={imageSize as ProfilePictureSizes} />
