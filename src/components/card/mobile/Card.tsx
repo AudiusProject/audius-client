@@ -19,6 +19,7 @@ import RepostFavoritesStats, {
   Size
 } from 'components/repost-favorites-stats/RepostFavoritesStats'
 import UserBadges from 'containers/user-badges/UserBadges'
+import UpdateDot from 'components/general/UpdateDot'
 
 const UserImage = (props: { id: ID; imageSize: ProfilePictureSizes }) => {
   const image = useUserProfilePicture(
@@ -89,7 +90,7 @@ const Card = ({
       })}
       onClick={onClick}
     >
-      {updateDot && <div className={styles.updateDot} />}
+      {updateDot && <UpdateDot />}
       <div className={styles.tileCoverArtContainer}>
         {isUser ? (
           <UserImage id={id} imageSize={imageSize as ProfilePictureSizes} />

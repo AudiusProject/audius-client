@@ -70,6 +70,7 @@ import { Name, CreatePlaylistSource } from 'services/analytics'
 import { Variant } from 'models/Collection'
 import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 import UserBadges from 'containers/user-badges/UserBadges'
+import UpdateDot from 'components/general/UpdateDot'
 
 const NavColumn = ({
   account,
@@ -384,20 +385,25 @@ const NavColumn = ({
                           activeClassName='active'
                           onClick={e => onClickNavLinkWithAccount(e, id)}
                           className={cn(styles.link, {
-                            [styles.disabledLink]: !account || dragging
+                            [styles.disabledLink]: !account || dragging,
+                            [styles.playlistUpdate]: playlistUpdates.includes(
+                              id
+                            )
                           })}
                         >
                           {playlistUpdates.includes(id) ? (
-                            <div className={styles.playlistUpdateContainer}>
+                            <div className={styles.updateDotContainer}>
                               <Tooltip
-                                className={styles.tooltipArrow}
+                                className={styles.updateDotTooltip}
                                 shouldWrapContent={true}
                                 shouldDismissOnClick={false}
                                 mount={null}
                                 mouseEnterDelay={0.1}
                                 text='Recently Updated'
                               >
-                                <div className={styles.updateDot} />
+                                <div>
+                                  <UpdateDot />
+                                </div>
                               </Tooltip>
                               <span>{name}</span>
                             </div>
@@ -443,16 +449,18 @@ const NavColumn = ({
                           onClick={e => onClickNavLinkWithAccount(e, id)}
                         >
                           {playlistUpdates.includes(id) ? (
-                            <div className={styles.playlistUpdateContainer}>
+                            <div className={styles.updateDotContainer}>
                               <Tooltip
-                                className={styles.tooltipArrow}
+                                className={styles.updateDotTooltip}
                                 shouldWrapContent={true}
                                 shouldDismissOnClick={false}
                                 mount={null}
                                 mouseEnterDelay={0.1}
                                 text='Recently Updated'
                               >
-                                <div className={styles.updateDot} />
+                                <div>
+                                  <UpdateDot />
+                                </div>
                               </Tooltip>
                               <span>{name}</span>
                             </div>

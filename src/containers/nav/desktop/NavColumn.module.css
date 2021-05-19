@@ -307,29 +307,6 @@ svg.logo path {
   color: var(--secondary);
 }
 
-.playlistUpdate {
-  height: 18px;
-}
-
-.playlistUpdateContainer {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  left: 30px;
-}
-
-.playlistUpdateContainer .updateDot {
-  margin-right: 4px;
-  width: 6px;
-  height: 6px;
-  border-radius: 100%;
-  background: var(--secondary);
-}
-
-.tooltipArrow :global(.ant-tooltip-arrow) {
-  left: 33px;
-}
-
 .droppable {
   background-color: rgba(0,0,0,0);
   transition: background 0.07s ease-in-out;
@@ -402,4 +379,19 @@ svg.logo path {
 .profileCompletionContainer {
   display: flex;
   justify-content: center;
+}
+
+.playlistUpdate {
+  height: 18px;
+}
+
+.updateDotContainer {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 30px;
+}
+
+.updateDotTooltip :global(.ant-tooltip-arrow) {
+  left: 33px;
 }
