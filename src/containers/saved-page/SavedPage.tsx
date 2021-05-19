@@ -10,8 +10,7 @@ import DesktopSavedPage from './components/desktop/SavedPage'
 type OwnProps = {}
 
 type SavedPageProps = ReturnType<typeof mapStateToProps> & OwnProps
-// why is this called SignOn
-const SignOn = ({ isMobile }: SavedPageProps) => {
+const SavedPage = ({ isMobile }: SavedPageProps) => {
   const content = isMobile ? MobileSavedPage : DesktopSavedPage
 
   return <SavedPageProvider>{content}</SavedPageProvider>
@@ -23,4 +22,4 @@ function mapStateToProps(state: AppState) {
   }
 }
 
-export default connect(mapStateToProps)(SignOn)
+export default connect(mapStateToProps)(SavedPage)
