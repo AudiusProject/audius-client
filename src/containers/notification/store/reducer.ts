@@ -188,7 +188,7 @@ const actionsMap: any = {
   ) {
     return {
       ...state,
-      playlistUpdates: action.playlistUpdates
+      playlistUpdates: action.playlistUpdates || []
     }
   },
   [actions.UPDATE_PLAYLIST_VIEW](

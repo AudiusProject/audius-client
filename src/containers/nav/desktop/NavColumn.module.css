@@ -307,14 +307,27 @@ svg.logo path {
   color: var(--secondary);
 }
 
-.updateDot {
+.playlistUpdate {
+  height: 18px;
+}
+
+.playlistUpdateContainer {
+  display: flex;
+  align-items: center;
   position: absolute;
-  top: 8px;
   left: 30px;
+}
+
+.playlistUpdateContainer .updateDot {
+  margin-right: 4px;
   width: 6px;
   height: 6px;
   border-radius: 100%;
   background: var(--secondary);
+}
+
+.tooltipArrow :global(.ant-tooltip-arrow) {
+  left: 33px;
 }
 
 .droppable {

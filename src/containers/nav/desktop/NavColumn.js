@@ -387,12 +387,23 @@ const NavColumn = ({
                             [styles.disabledLink]: !account || dragging
                           })}
                         >
-                          {playlistUpdates.includes(id) && (
-                            <Tooltip text='Recently Updated'>
-                              <span className={styles.updateDot} />
-                            </Tooltip>
+                          {playlistUpdates.includes(id) ? (
+                            <div className={styles.playlistUpdateContainer}>
+                              <Tooltip
+                                className={styles.tooltipArrow}
+                                shouldWrapContent={true}
+                                shouldDismissOnClick={false}
+                                mount={null}
+                                mouseEnterDelay={0.1}
+                                text='Recently Updated'
+                              >
+                                <div className={styles.updateDot} />
+                              </Tooltip>
+                              <span>{name}</span>
+                            </div>
+                          ) : (
+                            <span>{name}</span>
                           )}
-                          {name}
                         </NavLink>
                       )
                     }
@@ -424,16 +435,30 @@ const NavColumn = ({
                             [styles.disabledLink]:
                               dragging &&
                               ((kind !== 'track' && kind !== 'playlist') ||
-                                !isOwner)
+                                !isOwner),
+                            [styles.playlistUpdate]: playlistUpdates.includes(
+                              id
+                            )
                           })}
                           onClick={e => onClickNavLinkWithAccount(e, id)}
                         >
-                          {playlistUpdates.includes(id) && (
-                            <Tooltip text='Recently Updated'>
-                              <span className={styles.updateDot} />
-                            </Tooltip>
+                          {playlistUpdates.includes(id) ? (
+                            <div className={styles.playlistUpdateContainer}>
+                              <Tooltip
+                                className={styles.tooltipArrow}
+                                shouldWrapContent={true}
+                                shouldDismissOnClick={false}
+                                mount={null}
+                                mouseEnterDelay={0.1}
+                                text='Recently Updated'
+                              >
+                                <div className={styles.updateDot} />
+                              </Tooltip>
+                              <span>{name}</span>
+                            </div>
+                          ) : (
+                            <span>{name}</span>
                           )}
-                          {name}
                         </NavLink>
                       </Droppable>
                     )
