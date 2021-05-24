@@ -2242,7 +2242,7 @@ class AudiusBackend {
    * Sets the playlist as viewed to reset the playlist updates notifications timer
    * @param {playlistId} playlistId playlist id or folder id
    */
-  static async updateLastPlaylistView(playlistId) {
+  static async updatePlaylistLastViewedAt(playlistId) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return

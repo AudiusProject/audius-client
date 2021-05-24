@@ -193,7 +193,7 @@ const actionsMap: any = {
   },
   [actions.UPDATE_PLAYLIST_VIEW](
     state: NotificationState,
-    action: actions.UpdatePlaylistView
+    action: actions.UpdatePlaylistLastViewedAt
   ) {
     return {
       ...state,

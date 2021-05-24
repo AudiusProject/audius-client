@@ -323,10 +323,10 @@ export function* unsubscribeUserSettings(
   yield call(AudiusBackend.updateUserSubscription, action.userId, false)
 }
 
-export function* updatePlaylistView(
-  action: notificationActions.UpdatePlaylistView
+export function* updatePlaylistLastViewedAt(
+  action: notificationActions.UpdatePlaylistLastViewedAt
 ) {
-  yield call(AudiusBackend.updateLastPlaylistView, action.playlistId)
+  yield call(AudiusBackend.updatePlaylistLastViewedAt, action.playlistId)
 }
 
 // Action Watchers
@@ -371,8 +371,11 @@ function* watchUnsubscribeUserSettings() {
   yield takeEvery(notificationActions.UNSUBSCRIBE_USER, unsubscribeUserSettings)
 }
 
-function* watchUpdatePlaylistView() {
-  yield takeEvery(notificationActions.UPDATE_PLAYLIST_VIEW, updatePlaylistView)
+function* watchUpdatePlaylistLastViewedAt() {
+  yield takeEvery(
+    notificationActions.UPDATE_PLAYLIST_VIEW,
+    updatePlaylistLastViewedAt
+  )
 }
 
 type ResponseNotification = Notification & {
@@ -602,7 +605,7 @@ export default function sagas() {
     notificationPollingDaemon,
     watchTogglePanel,
     watchNotificationError,
-    watchUpdatePlaylistView
+    watchUpdatePlaylistLastViewedAt
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

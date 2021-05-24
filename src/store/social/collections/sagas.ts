@@ -296,7 +296,9 @@ export function* saveCollectionAsync(
   )
 
   if (!collection.is_album) {
-    yield put(notificationActions.updatePlaylistView(action.collectionId))
+    yield put(
+      notificationActions.updatePlaylistLastViewedAt(action.collectionId)
+    )
   }
 
   const subscribedUid = makeUid(

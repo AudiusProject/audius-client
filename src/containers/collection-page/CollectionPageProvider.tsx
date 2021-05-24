@@ -82,7 +82,7 @@ import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
 import { getLocationPathname } from 'store/routing/selectors'
 import { getPlaylistUpdates } from 'containers/notification/store/selectors'
-import { updatePlaylistView } from 'containers/notification/store/actions'
+import { updatePlaylistLastViewedAt } from 'containers/notification/store/actions'
 
 type OwnProps = {
   type: CollectionsPageType
@@ -152,7 +152,7 @@ class CollectionPage extends Component<
       fetchCollectionSucceeded,
       type,
       playlistUpdates,
-      updatePlaylistView
+      updatePlaylistLastViewedAt
     } = this.props
 
     if (
@@ -160,7 +160,7 @@ class CollectionPage extends Component<
       this.state.playlistId &&
       playlistUpdates.includes(this.state.playlistId)
     ) {
-      updatePlaylistView(this.state.playlistId)
+      updatePlaylistLastViewedAt(this.state.playlistId)
     }
 
     if (!prevProps.smartCollection && smartCollection) {
@@ -934,8 +934,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
     setModalVisibility: () => dispatch(setVisibility(true)),
     onEditCollection: (playlistId: ID) =>
       dispatch(openEditCollectionModal(playlistId)),
-    updatePlaylistView: (playlistId: ID) =>
-      dispatch(updatePlaylistView(playlistId))
+    updatePlaylistLastViewedAt: (playlistId: ID) =>
+      dispatch(updatePlaylistLastViewedAt(playlistId))
   }
 }
 

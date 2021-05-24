@@ -36,7 +36,7 @@ import {
 import { TrackEvent, make } from 'store/analytics/actions'
 import { isMobile } from 'utils/clientUtil'
 import { getPlaylistUpdates } from 'containers/notification/store/selectors'
-import { updatePlaylistView } from 'containers/notification/store/actions'
+import { updatePlaylistLastViewedAt } from 'containers/notification/store/actions'
 
 const messages = {
   title: 'Favorites',
@@ -387,7 +387,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
 
     const mobileProps = {
       playlistUpdates: this.props.playlistUpdates,
-      updatePlaylistView: this.props.updatePlaylistView,
+      updatePlaylistLastViewedAt: this.props.updatePlaylistLastViewedAt,
 
       onSave: this.onSave,
       onTogglePlay: this.onTogglePlay,
@@ -433,8 +433,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(tracksActions.updateLineupOrder(updatedOrderIndices)),
     fetchSavedAlbums: () => dispatch(accountActions.fetchSavedAlbums()),
     fetchSavedPlaylists: () => dispatch(accountActions.fetchSavedPlaylists()),
-    updatePlaylistView: (playlistId: number) =>
-      dispatch(updatePlaylistView(playlistId)),
+    updatePlaylistLastViewedAt: (playlistId: number) =>
+      dispatch(updatePlaylistLastViewedAt(playlistId)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     play: (uid?: UID) => dispatch(tracksActions.play(uid)),
     pause: () => dispatch(tracksActions.pause()),

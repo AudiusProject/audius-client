@@ -134,7 +134,7 @@ export const setPlaylistUpdates = (playlistUpdates: number[]) => ({
   playlistUpdates
 })
 
-export const updatePlaylistView = (playlistId: number) => ({
+export const updatePlaylistLastViewedAt = (playlistId: number) => ({
   type: UPDATE_PLAYLIST_VIEW,
   playlistId
 })
@@ -170,7 +170,9 @@ export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
 export type SubscribeUser = ReturnType<typeof subscribeUser>
 export type UnsubscribeUser = ReturnType<typeof unsubscribeUser>
 export type SetPlaylistUpdates = ReturnType<typeof setPlaylistUpdates>
-export type UpdatePlaylistView = ReturnType<typeof updatePlaylistView>
+export type UpdatePlaylistLastViewedAt = ReturnType<
+  typeof updatePlaylistLastViewedAt
+>
 
 export type NotificationAction =
   | FetchNotifications
@@ -192,4 +194,4 @@ export type NotificationAction =
   | SubscribeUser
   | UnsubscribeUser
   | SetPlaylistUpdates
-  | UpdatePlaylistView
+  | UpdatePlaylistLastViewedAt

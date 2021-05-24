@@ -23,7 +23,7 @@ import {
 
 import {
   toggleNotificationPanel,
-  updatePlaylistView
+  updatePlaylistLastViewedAt
 } from 'containers/notification/store/actions'
 import {
   getNotificationPanelIsOpen,
@@ -93,7 +93,7 @@ const NavColumn = ({
   accountStatus,
   playlists = [],
   playlistUpdates = [],
-  updatePlaylistView,
+  updatePlaylistLastViewedAt,
   resetUploadState,
   goToRoute,
   goToSignUp: routeToSignup,
@@ -161,10 +161,10 @@ const NavColumn = ({
         goToSignUp('restricted page')
         showActionRequiresAccount()
       } else if (id) {
-        updatePlaylistView(id)
+        updatePlaylistLastViewedAt(id)
       }
     },
-    [account, goToSignUp, showActionRequiresAccount, updatePlaylistView]
+    [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
   )
 
   /** @param {bool} full whether or not to get the full page link */
@@ -549,7 +549,8 @@ const mapDispatchToProps = dispatch => ({
   toggleNotificationPanel: () => dispatch(toggleNotificationPanel()),
   openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
-  updatePlaylistView: playlistId => dispatch(updatePlaylistView(playlistId)),
+  updatePlaylistLastViewedAt: playlistId =>
+    dispatch(updatePlaylistLastViewedAt(playlistId)),
   goToUpload: () => dispatch(pushRoute(UPLOAD_PAGE)),
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
   goToSignUp: () => dispatch(signOnActions.openSignOn(/** signIn */ false)),
