@@ -17,7 +17,6 @@ import {
   fullTrackPage,
   profilePage,
   playlistPage,
-  getPathname,
   EXPLORE_PAGE
 } from 'utils/route'
 
@@ -27,8 +26,7 @@ import {
 } from 'containers/notification/store/actions'
 import {
   getNotificationPanelIsOpen,
-  getNotificationUnreadCount,
-  getPlaylistUpdates
+  getNotificationUnreadCount
 } from 'containers/notification/store/selectors'
 import { resetState as resetUploadState } from 'containers/upload-page/store/actions'
 import {
@@ -67,11 +65,9 @@ import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
 import { make, useRecord } from 'store/analytics/actions'
 import { Name, CreatePlaylistSource } from 'services/analytics'
-import { Variant } from 'models/Collection'
 import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 import UserBadges from 'containers/user-badges/UserBadges'
-import UpdateDot from 'components/general/UpdateDot'
-import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
+import PlaylistLibrary from './PlaylistLibrary'
 
 const NavColumn = ({
   account,
@@ -93,7 +89,6 @@ const NavColumn = ({
   upload,
   accountStatus,
   playlists = [],
-  playlistUpdates = [],
   updatePlaylistLastViewedAt,
   resetUploadState,
   goToRoute,
@@ -376,113 +371,9 @@ const NavColumn = ({
                     </Tooltip>
                   </div>
                 </div>
-                {account &&
-                  playlists.map(playlist => {
-                    if (playlist.variant === Variant.SMART) {
-                      const id = playlist.playlist_id
-                      const name = playlist.playlist_name
-                      const url = playlist.link
-                      return (
-                        <NavLink
-                          key={name}
-                          to={url}
-                          isActive={() => url === getPathname()}
-                          activeClassName='active'
-                          onClick={e => onClickNavLinkWithAccount(e, id)}
-                          className={cn(styles.link, {
-                            [styles.disabledLink]: !account || dragging,
-                            [styles.playlistUpdate]: playlistUpdates.includes(
-                              id
-                            )
-                          })}
-                        >
-                          {!!arePlaylistUpdatesEnabled &&
-                          playlistUpdates.includes(id) ? (
-                            <div className={styles.updateDotContainer}>
-                              <Tooltip
-                                className={styles.updateDotTooltip}
-                                shouldWrapContent={true}
-                                shouldDismissOnClick={false}
-                                mount={null}
-                                mouseEnterDelay={0.1}
-                                text='Recently Updated'
-                              >
-                                <div>
-                                  <UpdateDot />
-                                </div>
-                              </Tooltip>
-                              <span>{name}</span>
-                            </div>
-                          ) : (
-                            <span>{name}</span>
-                          )}
-                        </NavLink>
-                      )
-                    }
-
-                    const id = playlist.id
-                    const name = playlist.name
-                    const url = playlistPage(playlist.user.handle, name, id)
-                    const addTrack = trackId => addTrackToPlaylist(trackId, id)
-                    const isOwner = playlist.user.handle === account.handle
-                    return (
-                      <Droppable
-                        key={id}
-                        className={styles.droppable}
-                        hoverClassName={styles.droppableHover}
-                        onDrop={addTrack}
-                        acceptedKinds={['track']}
-                        disabled={!isOwner}
-                      >
-                        <NavLink
-                          key={id}
-                          to={url}
-                          isActive={() => url === getPathname()}
-                          activeClassName='active'
-                          className={cn(styles.link, {
-                            [styles.droppableLink]:
-                              isOwner &&
-                              dragging &&
-                              (kind === 'track' || kind === 'playlist'),
-                            [styles.disabledLink]:
-                              dragging &&
-                              ((kind !== 'track' && kind !== 'playlist') ||
-                                !isOwner),
-                            [styles.playlistUpdate]: playlistUpdates.includes(
-                              id
-                            )
-                          })}
-                          onClick={e => onClickNavLinkWithAccount(e, id)}
-                        >
-                          {!!arePlaylistUpdatesEnabled &&
-                          playlistUpdates.includes(id) ? (
-                            <div className={styles.updateDotContainer}>
-                              <Tooltip
-                                className={styles.updateDotTooltip}
-                                shouldWrapContent={true}
-                                shouldDismissOnClick={false}
-                                mount={null}
-                                mouseEnterDelay={0.1}
-                                text='Recently Updated'
-                              >
-                                <div>
-                                  <UpdateDot />
-                                </div>
-                              </Tooltip>
-                              <span>{name}</span>
-                            </div>
-                          ) : (
-                            <span>{name}</span>
-                          )}
-                        </NavLink>
-                      </Droppable>
-                    )
-                  })}
-                {playlists.length === 0 ? (
-                  <div className={cn(styles.link, styles.disabled)}>
-                    Create your first playlist!
-                  </div>
-                ) : null}
+                <PlaylistLibrary
+                  onClickNavLinkWithAccount={onClickNavLinkWithAccount}
+                />
               </Droppable>
             </div>
           </div>
@@ -535,8 +426,7 @@ const makeMapStateToProps = () => {
       showCreatePlaylistModal: getIsOpen(state),
       averageRGBColor: getAverageColorByTrack(state, {
         track: currentQueueItem.track
-      }),
-      playlistUpdates: getPlaylistUpdates(state)
+      })
     }
   }
   return mapStateToProps

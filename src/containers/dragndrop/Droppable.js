@@ -88,12 +88,13 @@ Droppable.propTypes = {
   onDrop: PropTypes.func,
   acceptedKinds: PropTypes.arrayOf(PropTypes.string),
   disabled: PropTypes.bool,
-  acceptOwner: PropTypes.bool
+  acceptOwner: PropTypes.bool,
+  children: PropTypes.any
 }
 
 Droppable.defaultProps = {
   onDrop: id => {},
-  acceptedKinds: ['track', 'album', 'playlist'],
+  acceptedKinds: ['track', 'album', 'playlist', 'library-playlist'],
   disabled: false,
   acceptOwner: true
 }

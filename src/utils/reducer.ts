@@ -5,10 +5,19 @@ import {
 } from 'react-redux'
 import { AppState } from 'store/types'
 
+// The TypedUseSelectorHook can't handle selectors created by reselect,
+// as the OutputSelector and OutputParameterSelector
+interface UseSelectorHook<TState> extends TypedUseSelectorHook<TState> {
+  <TSelected>(
+    selector: (state: TState, ...args: any[]) => TSelected,
+    equalityFn?: (left: TSelected, right: TSelected) => boolean
+  ): TSelected
+}
+
 /**
  * Typed version of Redux useSelector
  */
-export const useSelector: TypedUseSelectorHook<AppState> = untypedUseSelector
+export const useSelector: UseSelectorHook<AppState> = untypedUseSelector
 
 /**
  * Handy util for generating a reducer function from an actionmap.

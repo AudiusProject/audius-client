@@ -47,6 +47,9 @@ export const getAccountProfilePictureSizes = (state: AppState) => {
   const user = internalGetAccountUser(state)
   return user ? user._profile_picture_sizes : null
 }
+export const getPlaylistLibrary = (state: AppState) => {
+  return getAccountUser(state)?.playlist_library ?? null
+}
 
 /**
  * Gets the account and full playlist metadatas.
@@ -75,6 +78,12 @@ export const getAccountWithCollections = createSelector(
     }
   }
 )
+
+/**
+ * Gets the account's playlist nav bar info
+ */
+export const getAccountNavigationPlaylists = (state: AppState) =>
+  state.account.collections
 
 /**
  * Gets user playlists with playlists marked delete removed.
@@ -169,6 +178,7 @@ export const getAccountWithSavedPlaylistsAndAlbums = createSelector(
   }
 )
 
+// TODO(ray): Update this selector to just use the user playlist library
 export const getAccountPlaylists = createSelector(
   [getUserPlaylists, getUserPlaylistOrder],
   (collections, order) => {
