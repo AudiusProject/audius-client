@@ -23,6 +23,7 @@ import {
   getLength,
   getOvershot,
   getRepeat,
+  getShuffle,
   getSource,
   getUid,
   getUndershot
@@ -201,17 +202,27 @@ export function* watchNext() {
       return
     }
 
+    // Skip deleted track
     const id = yield select(getQueueTrackId)
     const track = yield select(getTrack, { id })
-    const source = yield select(getSource)
-    const userId = yield select(getUserId)
     if (track && track.is_delete) {
       yield put(next({ skip }))
     } else {
       const index = yield select(getIndex)
-      const length = yield select(getLength)
       if (index >= 0) {
-        if (index + 1 >= length) {
+        const source = yield select(getSource)
+        const length = yield select(getLength)
+        const shuffle = yield select(getShuffle)
+        const repeatMode = yield select(getRepeat)
+
+        const isCloseToEndOfQueue = index + 1 >= length
+        const isNotRepeating =
+          repeatMode === RepeatMode.OFF ||
+          (repeatMode === RepeatMode.SINGLE && skip)
+
+        // Get recommended tracks if not in shuffle and repeat modes and close to end of queue
+        if (!shuffle && isNotRepeating && isCloseToEndOfQueue) {
+          const userId = yield select(getUserId)
           const recommendedTracks: Queueable[] = yield call(
             getQueueAutoplay,
             track?.genre,
