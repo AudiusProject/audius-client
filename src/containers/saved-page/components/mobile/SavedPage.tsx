@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useContext,
-  useState
-} from 'react'
+import React, { ReactNode, useCallback, useEffect, useContext } from 'react'
 import { Button, ButtonType } from '@audius/stems'
 
 import useTabs from 'hooks/useTabs/useTabs'
@@ -37,8 +31,7 @@ import {
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import Spin from 'antd/lib/spin'
-import { useFlag } from 'containers/remote-config/hooks'
-import { FeatureFlags, flagDefaults } from 'services/remote-config/FeatureFlags'
+import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
 
 const emptyTabMessages = {
   afterSaved: "Once you have, this is where you'll find them!",
@@ -273,15 +266,9 @@ const PlaylistCardLineup = ({
   playlistUpdates: number[]
   updatePlaylistLastViewedAt: (playlistId: number) => void
 }) => {
-  const { isLoaded, isEnabled } = useFlag(FeatureFlags.PLAYLIST_UPDATES_ENABLED)
-  const [arePlaylistUpdatesEnabled, setArePlaylistUpdatesEnabled] = useState(
-    flagDefaults[FeatureFlags.PLAYLIST_UPDATES_ENABLED]
-  )
-  useEffect(() => {
-    if (isLoaded) {
-      setArePlaylistUpdatesEnabled(!!isEnabled)
-    }
-  }, [isLoaded, isEnabled])
+  const {
+    isEnabled: arePlaylistUpdatesEnabled
+  } = useArePlaylistUpdatesEnabled()
 
   const filteredPlaylists = getFilteredPlaylists(playlists || [])
   const playlistCards = filteredPlaylists.map(playlist => {
@@ -308,7 +295,7 @@ const PlaylistCardLineup = ({
           )
         }}
         updateDot={
-          arePlaylistUpdatesEnabled &&
+          !!arePlaylistUpdatesEnabled &&
           playlistUpdates.includes(playlist.playlist_id)
         }
       />

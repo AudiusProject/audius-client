@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 import { withRouter, NavLink } from 'react-router-dom'
 import { push as pushRoute } from 'connected-react-router'
@@ -71,8 +71,7 @@ import { Variant } from 'models/Collection'
 import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
 import UserBadges from 'containers/user-badges/UserBadges'
 import UpdateDot from 'components/general/UpdateDot'
-import { useFlag } from 'containers/remote-config/hooks'
-import { FeatureFlags, flagDefaults } from 'services/remote-config/FeatureFlags'
+import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
 
 const NavColumn = ({
   account,
@@ -102,15 +101,9 @@ const NavColumn = ({
   goToUpload,
   averageRGBColor
 }) => {
-  const { isLoaded, isEnabled } = useFlag(FeatureFlags.PLAYLIST_UPDATES_ENABLED)
-  const [arePlaylistUpdatesEnabled, setArePlaylistUpdatesEnabled] = useState(
-    flagDefaults[FeatureFlags.PLAYLIST_UPDATES_ENABLED]
-  )
-  useEffect(() => {
-    if (isLoaded) {
-      setArePlaylistUpdatesEnabled(!!isEnabled)
-    }
-  }, [isLoaded, isEnabled])
+  const {
+    isEnabled: arePlaylistUpdatesEnabled
+  } = useArePlaylistUpdatesEnabled()
 
   const record = useRecord()
   const goToSignUp = useCallback(
@@ -403,7 +396,7 @@ const NavColumn = ({
                             )
                           })}
                         >
-                          {arePlaylistUpdatesEnabled &&
+                          {!!arePlaylistUpdatesEnabled &&
                           playlistUpdates.includes(id) ? (
                             <div className={styles.updateDotContainer}>
                               <Tooltip
@@ -461,7 +454,7 @@ const NavColumn = ({
                           })}
                           onClick={e => onClickNavLinkWithAccount(e, id)}
                         >
-                          {arePlaylistUpdatesEnabled &&
+                          {!!arePlaylistUpdatesEnabled &&
                           playlistUpdates.includes(id) ? (
                             <div className={styles.updateDotContainer}>
                               <Tooltip
