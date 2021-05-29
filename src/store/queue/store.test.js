@@ -3,6 +3,7 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { take } from 'redux-saga/effects'
 import { RepeatMode, Source } from 'store/queue/types'
 import reducer, * as actions from 'store/queue/slice'
+import * as queueActions from 'store/queue/actions'
 import accountReducer from 'store/account/reducer'
 import playerReducer, * as playerActions from 'store/player/slice'
 import * as sagas from 'store/queue/sagas'
@@ -12,6 +13,7 @@ import { Kind } from 'store/types'
 import AudioStream from 'audio/AudioStream'
 import * as matchers from 'redux-saga-test-plan/matchers'
 import { getQueueAutoplay } from 'store/queue/sagas'
+import { getRecommendedTracks } from 'store/recommendation/sagas'
 
 const initialTracks = {
   entries: {
@@ -138,14 +140,7 @@ describe('watchPause', () => {
 })
 
 describe('watchNext', () => {
-  it('autoplay tracks', async () => {
-    const recommendedTracks = [
-      {
-        id: 1,
-        uid: 'kind:TRACKS-id:1-count:1',
-        source: Source.RECOMMENDED_TRACKS
-      }
-    ]
+  it('queues autoplay', async () => {
     const initialQueue = makeInitialQueue({ index: 1 })
     const playingEntry = initialQueue.order[initialQueue.index]
     const nextPlayingEntry = initialQueue.order[initialQueue.index + 1]
@@ -170,9 +165,14 @@ describe('watchNext', () => {
           account: initialAccount
         }
       )
-      .provide([[matchers.call.fn(getQueueAutoplay), recommendedTracks]])
       .dispatch(actions.next({}))
-      .put(actions.add({ entries: [recommendedTracks[0]] }))
+      .put(
+        queueActions.queueAutoplay(
+          initialTracks.entries[1].genre,
+          [initialTracks.entries[1].track_id],
+          1
+        )
+      )
       .put(
         actions.play({
           uid: nextPlayingEntry.uid,
@@ -184,7 +184,7 @@ describe('watchNext', () => {
     expect(storeState.queue.index).toEqual(2)
   })
 
-  it('does not autoplay tracks when in shuffle mode', async () => {
+  it('does not queue autoplay when in shuffle mode', async () => {
     const initialQueue = makeInitialQueue({
       index: 0,
       shuffle: true,
@@ -214,7 +214,7 @@ describe('watchNext', () => {
       .forEach(action => expect(action.type).not.toEqual('queue/add'))
   })
 
-  it('does not autoplay tracks when in repeat mode', async () => {
+  it('does not queue autoplay when in repeat mode', async () => {
     let initialQueue, playingEntry, nextPlayingEntry, initialPlayer
     initialQueue = makeInitialQueue({ index: 0, repeat: RepeatMode.ALL })
     playingEntry = initialQueue.order[initialQueue.index]
@@ -393,6 +393,28 @@ describe('watchNext', () => {
       )
       .silentRun()
   }
+})
+
+describe('watchQueueAutoplay', () => {
+  it('adds tracks to queue', async () => {
+    const recommendedTracks = [
+      {
+        track_id: 1
+      }
+    ]
+    const expectedRecommendedTracks = [
+      {
+        id: 1,
+        uid: 'kind:TRACKS-id:1-count:1',
+        source: Source.RECOMMENDED_TRACKS
+      }
+    ]
+    await expectSaga(sagas.watchQueueAutoplay, queueActions)
+      .provide([[matchers.call.fn(getRecommendedTracks), recommendedTracks]])
+      .dispatch(queueActions.queueAutoplay())
+      .put(actions.add({ entries: expectedRecommendedTracks }))
+      .silentRun()
+  })
 })
 
 describe('watchPrevious', () => {
