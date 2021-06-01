@@ -118,7 +118,8 @@ const createWindow = () => {
     titleBarStyle: 'hidden',
     nativeWindowOpen: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     }
   }
 
