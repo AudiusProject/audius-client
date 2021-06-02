@@ -6,7 +6,8 @@ import {
 import { AppState } from 'store/types'
 
 // The TypedUseSelectorHook can't handle selectors created by reselect,
-// as the OutputSelector and OutputParameterSelector
+// as the OutputSelector and OutputParameterSelector take additional
+// args beyond state: TState. Override the UserSelectorHook here to play ball.
 interface UseSelectorHook<TState> extends TypedUseSelectorHook<TState> {
   <TSelected>(
     selector: (state: TState, ...args: any[]) => TSelected,

@@ -178,38 +178,6 @@ export const getAccountWithSavedPlaylistsAndAlbums = createSelector(
   }
 )
 
-// TODO(ray): Update this selector to just use the user playlist library
-export const getAccountPlaylists = createSelector(
-  [getUserPlaylists, getUserPlaylistOrder],
-  (collections, order) => {
-    const playlists = collections.filter(c => !c.is_album)
-    const keyedPlaylists = keyBy(playlists, c => c.id)
-
-    let orderedResult: any[] = []
-    if (order) {
-      order.forEach((i: string) => {
-        if (parseInt(i, 10) in keyedPlaylists) {
-          orderedResult.push(keyedPlaylists[i])
-          delete keyedPlaylists[i]
-        } else {
-          const smartKey = i as SmartCollectionVariant
-          if (smartKey in SMART_COLLECTION_MAP) {
-            orderedResult.push(SMART_COLLECTION_MAP[smartKey])
-          }
-        }
-      })
-    }
-
-    // Sort by id desc so new playlist show up on top. (temp ids >> nominal ids).
-    // TODO: Remove this sorting when we fully support custom ordering
-    const remainingPlaylists = Object.values(keyedPlaylists).sort(
-      (a, b) => b.id - a.id
-    )
-    orderedResult = orderedResult.concat(remainingPlaylists)
-    return orderedResult
-  }
-)
-
 export const getAccountOwnedPlaylists = createSelector(
   [getUserPlaylists, getUserId],
   (collections, userId) =>

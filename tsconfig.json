@@ -24,8 +24,5 @@
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "src/**/*.js"
   ]
 }

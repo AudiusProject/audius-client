@@ -78,7 +78,7 @@ describe('findIndexInPlaylistLibrary', () => {
       ]
     }
     const index = findIndexInPlaylistLibrary(library, 10)
-    expect(index).toEqual(false)
+    expect(index).toEqual(-1)
   })
 })
 

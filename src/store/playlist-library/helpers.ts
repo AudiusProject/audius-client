@@ -44,8 +44,8 @@ export const findInPlaylistLibrary = (
 export const findIndexInPlaylistLibrary = (
   library: PlaylistLibrary | PlaylistLibraryFolder,
   playlistId: ID | SmartCollectionVariant
-): number | false => {
-  if (!library.contents) return false
+): number => {
+  if (!library.contents) return -1
 
   // Simple DFS (this likely is very small, so this is fine)
   for (const [i, item] of library.contents.entries()) {
@@ -60,7 +60,7 @@ export const findIndexInPlaylistLibrary = (
         break
     }
   }
-  return false
+  return -1
 }
 
 /**
@@ -100,6 +100,7 @@ export const removeFromPlaylistLibrary = (
           removed = item
           newItem = null
         }
+        break
     }
     if (newItem) {
       newContents.push(newItem)
@@ -156,7 +157,7 @@ export const reorderPlaylistLibrary = (
   } else {
     // Find the droppable id and place the draggable id after it
     const found = findIndexInPlaylistLibrary(newLibrary, droppingId)
-    if (found === false) return library
+    if (found === -1) return library
     index = found + 1
   }
   // Doesn't support folder reorder

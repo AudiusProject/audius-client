@@ -36,11 +36,7 @@ import {
 import { makeGetCurrent } from 'store/queue/selectors'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { getIsOpen } from 'store/application/ui/createPlaylistModal/selectors'
-import {
-  getAccountUser,
-  getAccountStatus,
-  getAccountPlaylists
-} from 'store/account/selectors'
+import { getAccountUser, getAccountStatus } from 'store/account/selectors'
 import * as signOnActions from 'containers/sign-on/store/actions'
 import * as createPlaylistModalActions from 'store/application/ui/createPlaylistModal/actions'
 import { saveTrack } from 'store/social/tracks/actions'
@@ -88,7 +84,6 @@ const NavColumn = ({
   addTrackToPlaylist,
   upload,
   accountStatus,
-  playlists = [],
   updatePlaylistLastViewedAt,
   resetUploadState,
   goToRoute,
@@ -418,7 +413,6 @@ const makeMapStateToProps = () => {
       currentQueueItem,
       account: getAccountUser(state),
       accountStatus: getAccountStatus(state),
-      playlists: getAccountPlaylists(state),
       dragging: getIsDragging(state),
       notificationCount: getNotificationUnreadCount(state),
       notificationPanelIsOpen: getNotificationPanelIsOpen(state),
