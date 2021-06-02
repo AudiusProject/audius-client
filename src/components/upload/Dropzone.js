@@ -86,8 +86,7 @@ Dropzone.propTypes = {
   subtitle: PropTypes.string,
   allowMultiple: PropTypes.bool,
   onDrop: PropTypes.func,
-  disabled: PropTypes.bool,
-  accept: PropTypes.string
+  disabled: PropTypes.bool
 }
 
 Dropzone.defaultProps = {
