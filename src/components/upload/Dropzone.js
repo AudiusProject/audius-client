@@ -56,6 +56,7 @@ const Dropzone = ({
       className={cn(styles.dropzone, className)}
       disabled={disabled}
       disableClick={disabled || disableClick}
+      accept={type === 'image' ? 'image/jpeg, image/png' : 'audio/*'}
     >
       <div className={styles.hoverBoundingBox}>
         <span className={styles.contentWrapper}>
@@ -85,7 +86,8 @@ Dropzone.propTypes = {
   subtitle: PropTypes.string,
   allowMultiple: PropTypes.bool,
   onDrop: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  accept: PropTypes.string
 }
 
 Dropzone.defaultProps = {

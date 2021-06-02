@@ -77,7 +77,7 @@ const ImageSelectionButton = ({
           <ReactDropzone
             onDrop={onSelect}
             className={styles.dropzone}
-            accept='image/*'
+            accept='image/png, image/jpeg'
           >
             <Button
               className={cn(styles.button, styles.noPopup, {
