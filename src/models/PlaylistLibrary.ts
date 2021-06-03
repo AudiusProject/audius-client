@@ -10,9 +10,16 @@ export type ExplorePlaylistIdentifier = {
   playlist_id: SmartCollectionVariant
 }
 
+// Never written to backends
+export type TempPlaylistIdentifier = {
+  type: 'temp_playlist'
+  playlist_id: string
+}
+
 export type PlaylistLibraryIdentifier =
   | PlaylistIdentifier
   | ExplorePlaylistIdentifier
+  | TempPlaylistIdentifier
 
 export type PlaylistLibraryFolder = {
   type: 'folder'

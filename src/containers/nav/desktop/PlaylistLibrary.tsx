@@ -77,7 +77,9 @@ const DraggableNavLink = ({
       >
         <NavLink
           {...navLinkProps}
-          className={cn(className, { [styles.dragging]: isDragging })}
+          className={cn(className, styles.navLink, {
+            [styles.dragging]: isDragging
+          })}
         >
           {children}
         </NavLink>
@@ -229,6 +231,18 @@ const PlaylistLibrary = ({
                 delete playlistsNotInLibrary[identifier.playlist_id]
               }
               return renderPlaylist(playlist)
+            }
+            case 'temp_playlist': {
+              try {
+                const playlist = playlists[parseInt(identifier.playlist_id)]
+                if (playlist) {
+                  delete playlistsNotInLibrary[parseInt(identifier.playlist_id)]
+                }
+                return renderPlaylist(playlist)
+              } catch (e) {
+                console.debug(e)
+                break
+              }
             }
             case 'folder':
               // TODO support folders!

@@ -1,3 +1,7 @@
+.navLink {
+  transition: opacity 1s ease-in-out;
+}
+
 .dragging {
   opacity: 0.5;
 }

@@ -28,6 +28,7 @@ export const findInPlaylistLibrary = (
       }
       case 'playlist':
       case 'explore_playlist':
+      case 'temp_playlist':
         if (item.playlist_id === playlistId) return item
         break
     }
@@ -56,6 +57,7 @@ export const findIndexInPlaylistLibrary = (
       }
       case 'playlist':
       case 'explore_playlist':
+      case 'temp_playlist':
         if (item.playlist_id === playlistId) return i
         break
     }
@@ -96,6 +98,7 @@ export const removeFromPlaylistLibrary = (
       }
       case 'playlist':
       case 'explore_playlist':
+      case 'temp_playlist':
         if (item.playlist_id === playlistId) {
           removed = item
           newItem = null
@@ -140,9 +143,15 @@ export const reorderPlaylistLibrary = (
         type: 'playlist',
         playlist_id: draggingId
       }
-    } else {
+    } else if (Object.values(SmartCollectionVariant).includes(draggingId)) {
       entry = {
         type: 'explore_playlist',
+        playlist_id: draggingId
+      }
+    } else {
+      // This is a temp ID. We want to reorder it, but pay special attention
+      entry = {
+        type: 'temp_playlist',
         playlist_id: draggingId
       }
     }

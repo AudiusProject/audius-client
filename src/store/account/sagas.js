@@ -157,7 +157,7 @@ export function* fetchAccountAsync(action) {
     ? accountPlaylistFavorites.favorites
     : []
 
-  if (orderedPlaylists && !account.playlist_library) {
+  if (orderedPlaylists.length > 0 && !account.playlist_library) {
     const contents = orderedPlaylists.map(id => ({
       type: 'explore_playlist',
       playlist_id: id
