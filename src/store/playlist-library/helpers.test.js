@@ -1,4 +1,5 @@
 import {
+  containsTempPlaylist,
   findIndexInPlaylistLibrary,
   findInPlaylistLibrary,
   removeFromPlaylistLibrary,
@@ -291,5 +292,52 @@ describe('reorderPlaylistLibrary', () => {
         { type: 'playlist', playlist_id: 4 }
       ]
     })
+  })
+})
+
+describe('containsTempPlaylist', () => {
+  it('finds a temp', () => {
+    const library = {
+      contents: [
+        { type: 'playlist', playlist_id: 1 },
+        { type: 'playlist', playlist_id: 2 },
+        { type: 'playlist', playlist_id: 3 },
+        { type: 'temp_playlist', playlist_id: 'asdf' }
+      ]
+    }
+    const ret = containsTempPlaylist(library)
+    expect(ret).toEqual(true)
+  })
+
+  it('finds a temp in a folder', () => {
+    const library = {
+      contents: [
+        { type: 'playlist', playlist_id: 1 },
+        { type: 'playlist', playlist_id: 2 },
+        {
+          type: 'folder',
+          name: 'favorites',
+          contents: [
+            { type: 'playlist', playlist_id: 3 },
+            { type: 'temp_playlist', playlist_id: 'asdf' }
+          ]
+        },
+        { type: 'playlist', playlist_id: 4 }
+      ]
+    }
+    const ret = containsTempPlaylist(library)
+    expect(ret).toEqual(true)
+  })
+
+  it('finds no temp', () => {
+    const library = {
+      contents: [
+        { type: 'playlist', playlist_id: 1 },
+        { type: 'playlist', playlist_id: 2 },
+        { type: 'playlist', playlist_id: 3 }
+      ]
+    }
+    const ret = containsTempPlaylist(library)
+    expect(ret).toEqual(false)
   })
 })

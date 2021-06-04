@@ -176,3 +176,30 @@ export const reorderPlaylistLibrary = (
     contents: newContents
   }
 }
+
+/**
+ * Determines whether or not a library contains a temp playlist
+ * @param library
+ * @returns boolean
+ */
+export const containsTempPlaylist = (
+  library: PlaylistLibrary | PlaylistLibraryFolder
+): boolean => {
+  if (!library.contents) return false
+
+  // Simple DFS (this likely is very small, so this is fine)
+  for (const item of library.contents) {
+    switch (item.type) {
+      case 'folder': {
+        const contains = containsTempPlaylist(item)
+        if (contains) return contains
+        break
+      }
+      case 'temp_playlist':
+        return true
+      default:
+        break
+    }
+  }
+  return false
+}

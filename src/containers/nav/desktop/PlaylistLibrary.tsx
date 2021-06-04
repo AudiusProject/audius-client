@@ -32,7 +32,7 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
 
 type DraggableNavLinkProps = NavLinkProps & {
-  key: ID | SmartCollectionVariant
+  droppableKey: ID | SmartCollectionVariant
   playlistId: ID | SmartCollectionVariant
   name: string
   onReorder: (
@@ -43,7 +43,7 @@ type DraggableNavLinkProps = NavLinkProps & {
 }
 
 const DraggableNavLink = ({
-  key,
+  droppableKey,
   playlistId,
   name,
   link,
@@ -61,7 +61,7 @@ const DraggableNavLink = ({
   }, [setIsDragging])
   return (
     <Droppable
-      key={key}
+      key={droppableKey}
       className={styles.droppable}
       hoverClassName={styles.droppableHover}
       onDrop={(id: ID | SmartCollectionVariant) => onReorder(id, playlistId)}
@@ -123,7 +123,7 @@ const PlaylistLibrary = ({
     return (
       <DraggableNavLink
         playlistId={name as SmartCollectionVariant}
-        key={name as SmartCollectionVariant}
+        droppableKey={name as SmartCollectionVariant}
         name={name}
         to={url}
         onReorder={onReorder}
@@ -156,7 +156,7 @@ const PlaylistLibrary = ({
         disabled={!isOwner}
       >
         <DraggableNavLink
-          key={id}
+          droppableKey={id}
           playlistId={id}
           name={name}
           link={url}
