@@ -266,6 +266,7 @@ export function* saveSmartCollection(
       ...(playlistLibrary.contents || [])
     ]
   }
+  console.log({ newPlaylistLibrary })
   yield put(updatePlaylistLibrary({ playlistLibrary: newPlaylistLibrary }))
 
   const event = make(Name.FAVORITE, {

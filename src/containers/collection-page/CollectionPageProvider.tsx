@@ -84,7 +84,7 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { SmartCollection } from 'models/Collection'
+import Collection, { SmartCollection } from 'models/Collection'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
 import { getLocationPathname } from 'store/routing/selectors'
@@ -783,7 +783,7 @@ function makeMapStateToProps() {
     return {
       tracks: getTracksLineup(state, {}),
       collectionUid: getCollectionUid(state) || '',
-      collection: getCollection(state),
+      collection: getCollection(state) as Collection,
       user: getUser(state),
       userUid: getUserUid(state) || '',
       status: getCollectionStatus(state) || '',

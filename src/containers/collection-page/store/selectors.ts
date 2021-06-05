@@ -15,8 +15,13 @@ export const getCollectionStatus = (state: AppState) => state.collection.status
 export const getSmartCollectionVariant = (state: AppState) =>
   state.collection.smartCollectionVariant
 
-export const getCollection = (state: AppState) =>
-  getCachedCollection(state, { uid: getCollectionUid(state) })
+export const getCollection = (state: AppState) => {
+  const smartCollectionVariant = getSmartCollectionVariant(state)
+  if (smartCollectionVariant) {
+    return getSmartCollection(state, { variant: smartCollectionVariant })
+  }
+  return getCachedCollection(state, { uid: getCollectionUid(state) })
+}
 export const getUser = (state: AppState) =>
   getCachedUser(state, { uid: getUserUid(state) })
 
