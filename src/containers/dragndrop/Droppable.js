@@ -41,7 +41,7 @@ const Droppable = props => {
     setHovered(false)
   }
 
-  const debounceDrop = debounce(drop, 150)
+  const debounceDrop = debounce(drop, 150, { leading: true })
 
   // When a new drag takes place, check if this droppable is appropriate and reattach
   // event listeners.
