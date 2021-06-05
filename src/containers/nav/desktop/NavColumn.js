@@ -91,10 +91,6 @@ const NavColumn = ({
   goToUpload,
   averageRGBColor
 }) => {
-  const {
-    isEnabled: arePlaylistUpdatesEnabled
-  } = useArePlaylistUpdatesEnabled()
-
   const record = useRecord()
   const goToSignUp = useCallback(
     source => {
