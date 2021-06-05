@@ -30,7 +30,6 @@ const Draggable = props => {
   useEffect(() => {
     const dragStart = e => {
       drag(kind, id, isOwner)
-      onDrag()
 
       const dt = e.dataTransfer
       dt.effectAllowed = 'copy'
@@ -55,12 +54,13 @@ const Draggable = props => {
 
         dt.setDragImage(wrapper, 0, 0)
       }
+      if (onDrag) onDrag()
     }
 
     const dragEnd = e => {
       document.getElementById('ghost').outerHTML = ''
       drop()
-      onDrop()
+      if (onDrop) onDrop()
     }
 
     if (draggableRef.current) {

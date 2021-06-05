@@ -69,20 +69,20 @@ function* watchUpdatePlaylistLibrary() {
 
     const account: User = yield select(getAccountUser)
     account.playlist_library = playlistLibrary
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: account.user_id,
+          metadata: account
+        }
+      ])
+    )
 
     const containsTemps = containsTempPlaylist(playlistLibrary)
     if (containsTemps) {
       // Deal with temp playlists
       // If there's a temp playlist, write to the cache, but dispatch
       // to a helper to watch for the update.
-      yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: account.user_id,
-            metadata: account
-          }
-        ])
-      )
       yield put({
         type: TEMP_PLAYLIST_UPDATE_HELPER,
         payload: { playlistLibrary }

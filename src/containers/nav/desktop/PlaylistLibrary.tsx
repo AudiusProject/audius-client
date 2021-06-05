@@ -11,13 +11,12 @@ import { getPlaylistUpdates } from 'containers/notification/store/selectors'
 import { useSelector } from 'utils/reducer'
 import { playlistPage, getPathname } from 'utils/route'
 
-import { addTrackToPlaylist } from 'store/cache/collections/actions'
-
 import Droppable from 'containers/dragndrop/Droppable'
 import UpdateDot from 'components/general/UpdateDot'
 import navColumnStyles from './NavColumn.module.css'
 import styles from './PlaylistLibrary.module.css'
 
+import { addTrackToPlaylist } from 'store/cache/collections/actions'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { ID } from 'models/common/Identifiers'
 import { SMART_COLLECTION_MAP } from 'containers/smart-collection/smartCollections'
@@ -77,6 +76,7 @@ const DraggableNavLink = ({
       >
         <NavLink
           {...navLinkProps}
+          draggable={false}
           className={cn(className, styles.navLink, {
             [styles.dragging]: isDragging
           })}
@@ -144,7 +144,7 @@ const PlaylistLibrary = ({
     if (!account || !playlist) return
     const { id, name } = playlist
     const url = playlistPage(playlist.user.handle, name, id)
-    const addTrack = (trackId: ID) => addTrackToPlaylist(trackId, id)
+    const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
     return (
       <Droppable
