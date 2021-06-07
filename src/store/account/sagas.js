@@ -15,7 +15,8 @@ import {
   getAccountUser,
   getAccountAlbumIds,
   getAccountSavedPlaylistIds,
-  getAccountOwnedPlaylistIds
+  getAccountOwnedPlaylistIds,
+  getAccountToCache
 } from 'store/account/selectors'
 import { retrieveCollections } from 'store/cache/collections/utils'
 import { open as openBrowserPushPermissionModal } from 'store/application/ui/browserPushPermissionConfirmation/actions'
@@ -193,6 +194,11 @@ function* cacheAccount(account) {
   setAudiusAccountUser(account)
 
   yield put(accountActions.fetchAccountSucceeded(formattedAccount))
+}
+
+function* reCacheAccount(action) {
+  const account = yield select(getAccountToCache)
+  setAudiusAccount(account)
 }
 
 /**
@@ -427,6 +433,10 @@ function* watchFetchSavedPlaylists() {
   )
 }
 
+function* watchAddAccountPlaylist() {
+  yield takeEvery(accountActions.addAccountPlaylist.type, reCacheAccount)
+}
+
 function* getBrowserPushNotifcations() {
   yield takeEvery(
     accountActions.fetchBrowserPushNotifications.type,
@@ -464,6 +474,7 @@ export default function sagas() {
     watchFetchSavedPlaylists,
     watchShowPushNotificationConfirmation,
     watchUploadAccountCreator,
+    watchAddAccountPlaylist,
     getBrowserPushNotifcations,
     subscribeBrowserPushNotification,
     unsubscribeBrowserPushNotification

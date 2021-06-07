@@ -1,11 +1,8 @@
-import { keyBy } from 'lodash'
 import { AppState } from 'store/types'
 import { getCollections } from 'store/cache/collections/selectors'
 import { getUser, getUsers } from 'store/cache/users/selectors'
 import { createSelector } from 'reselect'
 import { removeNullable } from 'utils/typeUtils'
-import { SMART_COLLECTION_MAP } from 'containers/smart-collection/smartCollections'
-import { SmartCollectionVariant } from 'containers/smart-collection/types'
 import { AccountCollection } from './reducer'
 
 const internalGetAccountCollections = (state: AppState) =>
@@ -24,6 +21,11 @@ export const getConnectivityFailure = (state: AppState) =>
   state.account.connectivityFailure
 export const getNeedsAccountRecovery = (state: AppState) =>
   state.account.needsAccountRecovery
+export const getAccountToCache = (state: AppState) => ({
+  userId: state.account.userId,
+  collections: state.account.collections,
+  hasFavoritedItem: state.account.hasFavoritedItem
+})
 
 export const getAccountUser = createSelector(
   [internalGetAccountUser],
