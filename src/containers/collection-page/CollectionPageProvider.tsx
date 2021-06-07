@@ -225,7 +225,7 @@ class CollectionPage extends Component<
     if (metadata && metadata._moved && !updatingRoute) {
       this.setState({ updatingRoute: true })
       const collectionId = Uid.fromString(metadata._moved).id
-      // TODO: Put fetch collection succeeded and then replace routem
+      // TODO: Put fetch collection succeeded and then replace route
       fetchCollectionSucceeded(collectionId, metadata._moved, userUid)
       const newPath = pathname.replace(`${metadata.playlist_id}`, collectionId)
       this.setState(
@@ -259,8 +259,12 @@ class CollectionPage extends Component<
             : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else {
+          // Id matches or temp id matches
+          const idMatches =
+            collectionId === metadata.playlist_id ||
+            (metadata._temp && `${collectionId}` === `${metadata.playlist_id}`)
           // Check that the playlist name hasn't changed. If so, update url.
-          if (collectionId === metadata.playlist_id && title) {
+          if (idMatches && title) {
             if (newCollectionName !== title) {
               const newPath = pathname.replace(title, newCollectionName)
               this.props.replaceRoute(newPath)
