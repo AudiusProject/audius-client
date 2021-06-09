@@ -14,3 +14,10 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD]: true,
   [FeatureFlags.PLAYLIST_UPDATES_ENABLED]: false
 }
+
+export enum FeatureFlagIdentifierType {
+  USER_ID = 'user_id',
+  SESSION_ID = 'session_id'
+}
+
+export const OPTIMIZELY_LOCAL_STORAGE_KEY = 'optimizelyKey'

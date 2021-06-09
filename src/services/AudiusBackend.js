@@ -35,6 +35,10 @@ import {
 import { monitoringCallbacks } from './serviceMonitoring'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import {
+  FeatureFlagIdentifierType,
+  OPTIMIZELY_LOCAL_STORAGE_KEY
+} from './remote-config/FeatureFlags'
 
 export const IDENTITY_SERVICE = process.env.REACT_APP_IDENTITY_SERVICE
 export const USER_NODE = process.env.REACT_APP_USER_NODE
@@ -381,6 +385,9 @@ class AudiusBackend {
     }
 
     try {
+      // Set sessionId for feature flag bucketing
+      window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, uuid())
+
       audiusLibs = new AudiusLibs({
         web3Config,
         ethWeb3Config,
@@ -409,10 +416,16 @@ class AudiusBackend {
           : { siteKey: RECAPTCHA_SITE_KEY },
         isServer: false,
         useTrackContentPolling: getFeatureEnabled(
-          FeatureFlags.USE_TRACK_CONTENT_POLLING
+          FeatureFlags.USE_TRACK_CONTENT_POLLING,
+          FeatureFlagIdentifierType.SESSION_ID
         ),
         useResumableTrackUpload: getFeatureEnabled(
-          FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD
+          FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD,
+          FeatureFlagIdentifierType.SESSION_ID
+        ),
+        vickyTest: getFeatureEnabled(
+          FeatureFlags.USE_TRACK_CONTENT_POLLING,
+          FeatureFlagIdentifierType.SESSION_ID
         )
       })
       await audiusLibs.init()

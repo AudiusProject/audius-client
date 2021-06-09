@@ -6,7 +6,12 @@ import {
   BooleanKeys,
   AllRemoteConfigKeys
 } from './RemoteConfig'
-import { FeatureFlags, flagDefaults } from './FeatureFlags'
+import {
+  FeatureFlags,
+  flagDefaults,
+  FeatureFlagIdentifierType,
+  OPTIMIZELY_LOCAL_STORAGE_KEY
+} from './FeatureFlags'
 import {
   remoteConfigIntDefaults,
   remoteConfigStringDefaults,
@@ -115,15 +120,28 @@ export function getRemoteVar(
  * Gets whether a given feature flag is enabled.
  * @param flag
  */
-export function getFeatureEnabled(flag: FeatureFlags) {
+export function getFeatureEnabled(
+  flag: FeatureFlags,
+  idType: FeatureFlagIdentifierType = FeatureFlagIdentifierType.USER_ID
+) {
   // If the provider is not ready yet, return early with `null`
   if (!provider) return null
 
   const defaultVal = flagDefaults[flag]
+
+  // Set the id to the userId or sessionId
+  // Default to userId if localStorage key is not found
+  let id = state.userId
+  if (idType === FeatureFlagIdentifierType.SESSION_ID) {
+    id =
+      window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY) || state.userId
+  }
+
+  if (!id || id === ANONYMOUS_USER_ID) return defaultVal
+
   try {
     const enabled = state.didInitialize
-      ? provider.isFeatureEnabled((flag as unknown) as string, state.userId) ??
-        defaultVal
+      ? provider.isFeatureEnabled((flag as unknown) as string, id) ?? defaultVal
       : defaultVal
     return enabled
   } catch (err) {
