@@ -137,7 +137,7 @@ export function getFeatureEnabled(
       window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY) || state.userId
   }
 
-  if (!id || id === ANONYMOUS_USER_ID) return defaultVal
+  if (id === ANONYMOUS_USER_ID) return false
 
   try {
     const enabled = state.didInitialize

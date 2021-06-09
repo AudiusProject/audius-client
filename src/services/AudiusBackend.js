@@ -386,7 +386,9 @@ class AudiusBackend {
 
     try {
       // Set sessionId for feature flag bucketing
-      window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, uuid())
+      if (!window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY)) {
+        window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, uuid())
+      }
 
       audiusLibs = new AudiusLibs({
         web3Config,
@@ -421,10 +423,6 @@ class AudiusBackend {
         ),
         useResumableTrackUpload: getFeatureEnabled(
           FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD,
-          FeatureFlagIdentifierType.SESSION_ID
-        ),
-        vickyTest: getFeatureEnabled(
-          FeatureFlags.USE_TRACK_CONTENT_POLLING,
           FeatureFlagIdentifierType.SESSION_ID
         )
       })
