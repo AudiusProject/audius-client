@@ -9,8 +9,9 @@ import {
 import {
   FeatureFlags,
   flagDefaults,
-  FeatureFlagIdentifierType,
-  OPTIMIZELY_LOCAL_STORAGE_KEY
+  flagBucketType,
+  OPTIMIZELY_LOCAL_STORAGE_KEY,
+  FeatureFlagBucketType
 } from './FeatureFlags'
 import {
   remoteConfigIntDefaults,
@@ -19,17 +20,20 @@ import {
   remoteConfigBooleanDefaults
 } from './defaults'
 import { ID } from 'models/common/Identifiers'
+import { uuid } from 'utils/uid'
 
 // Constants
 // All optimizely feature keys are lowercase_snake
 const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 const ANONYMOUS_USER_ID = 'ANONYMOUS_USER'
+const ANONYMOUS_SESSION_ID = 'ANONYMOUS_SESSION'
 
 // Internal State
 const state = {
   didInitialize: false,
   onDidInitializeFunc: undefined as (() => void) | undefined,
-  userId: ANONYMOUS_USER_ID
+  userId: ANONYMOUS_USER_ID,
+  sessionId: ANONYMOUS_SESSION_ID
 }
 
 // Don't spam logs. Comment out this line for info logs.
@@ -60,6 +64,10 @@ export function onProviderReady(func: () => void) {
  */
 export function setUserId(userId: ID) {
   state.userId = userId.toString()
+}
+
+export function setSessionId(sessionId: string) {
+  state.sessionId = sessionId
 }
 
 /**
@@ -120,23 +128,28 @@ export function getRemoteVar(
  * Gets whether a given feature flag is enabled.
  * @param flag
  */
-export function getFeatureEnabled(
-  flag: FeatureFlags,
-  idType: FeatureFlagIdentifierType = FeatureFlagIdentifierType.USER_ID
-) {
+export function getFeatureEnabled(flag: FeatureFlags) {
   // If the provider is not ready yet, return early with `null`
   if (!provider) return null
 
   const defaultVal = flagDefaults[flag]
 
-  // Set the id to the userId or sessionId
-  // Default to userId if localStorage key is not found
-  let id = state.userId
-  if (idType === FeatureFlagIdentifierType.SESSION_ID) {
-    id =
-      window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY) || state.userId
+  // Set the unique identifier as the userId or sessionId
+  // depending on the feature flag
+  let id
+  const bucketType = flagBucketType[flag]
+  switch (bucketType) {
+    case FeatureFlagBucketType.USER_ID: {
+      id = state.userId
+      break
+    }
+    case FeatureFlagBucketType.SESSION_ID:
+    default: {
+      id = state.sessionId
+    }
   }
 
+  // If the id is still anonymous, do not enable feature
   if (id === ANONYMOUS_USER_ID) return false
 
   try {
@@ -177,6 +190,15 @@ export const waitForRemoteConfigDataFile = async () => {
 const init = async () => {
   console.time('remote-config')
   await waitForRemoteConfigDataFile()
+
+  // Set sessionId for feature flag bucketing
+  let sessionId = window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY)
+  if (!sessionId) {
+    sessionId = uuid()
+    window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, sessionId)
+  }
+
+  setSessionId(sessionId)
 
   provider = optimizely.createInstance({
     // @ts-ignore: injected in index.html

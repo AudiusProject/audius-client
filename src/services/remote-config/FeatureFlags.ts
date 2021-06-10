@@ -15,9 +15,19 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.PLAYLIST_UPDATES_ENABLED]: false
 }
 
-export enum FeatureFlagIdentifierType {
+export enum FeatureFlagBucketType {
   USER_ID = 'user_id',
   SESSION_ID = 'session_id'
+}
+
+export const flagBucketType: {
+  [key in FeatureFlags]: FeatureFlagBucketType
+} = {
+  [FeatureFlags.USE_TRACK_CONTENT_POLLING]: FeatureFlagBucketType.SESSION_ID,
+  [FeatureFlags.SOLANA_LISTEN_ENABLED]: FeatureFlagBucketType.SESSION_ID,
+  [FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD]: FeatureFlagBucketType.SESSION_ID,
+  [FeatureFlags.TRENDING_UNDERGROUND]: FeatureFlagBucketType.USER_ID,
+  [FeatureFlags.PLAYLIST_UPDATES_ENABLED]: FeatureFlagBucketType.USER_ID
 }
 
 export const OPTIMIZELY_LOCAL_STORAGE_KEY = 'optimizelyKey'
