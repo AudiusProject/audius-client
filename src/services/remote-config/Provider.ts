@@ -26,14 +26,13 @@ import { uuid } from 'utils/uid'
 // All optimizely feature keys are lowercase_snake
 const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 const ANONYMOUS_USER_ID = 'ANONYMOUS_USER'
-const ANONYMOUS_SESSION_ID = 'ANONYMOUS_SESSION'
 
 // Internal State
 const state = {
   didInitialize: false,
   onDidInitializeFunc: undefined as (() => void) | undefined,
   userId: ANONYMOUS_USER_ID,
-  sessionId: ANONYMOUS_SESSION_ID
+  sessionId: window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY) || uuid()
 }
 
 // Don't spam logs. Comment out this line for info logs.
@@ -64,10 +63,6 @@ export function onProviderReady(func: () => void) {
  */
 export function setUserId(userId: ID) {
   state.userId = userId.toString()
-}
-
-export function setSessionId(sessionId: string) {
-  state.sessionId = sessionId
 }
 
 /**
@@ -192,13 +187,9 @@ const init = async () => {
   await waitForRemoteConfigDataFile()
 
   // Set sessionId for feature flag bucketing
-  let sessionId = window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY)
-  if (!sessionId) {
-    sessionId = uuid()
-    window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, sessionId)
+  if (!window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY)) {
+    window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, state.sessionId)
   }
-
-  setSessionId(sessionId)
 
   provider = optimizely.createInstance({
     // @ts-ignore: injected in index.html
