@@ -9,9 +9,9 @@ import {
 import {
   FeatureFlags,
   flagDefaults,
-  flagBucketType,
-  OPTIMIZELY_LOCAL_STORAGE_KEY,
-  FeatureFlagBucketType
+  flagCohortType,
+  FeatureFlagCohortType,
+  FEATURE_FLAG_SESSION_ID
 } from './FeatureFlags'
 import {
   remoteConfigIntDefaults,
@@ -25,14 +25,20 @@ import { uuid } from 'utils/uid'
 // Constants
 // All optimizely feature keys are lowercase_snake
 const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
-const ANONYMOUS_USER_ID = 'ANONYMOUS_USER'
 
 // Internal State
-const state = {
+type State = {
+  didInitialize: boolean
+  onDidInitializeFunc: (() => void) | undefined
+  userId: string | null
+  sessionId: string
+}
+
+const state: State = {
   didInitialize: false,
-  onDidInitializeFunc: undefined as (() => void) | undefined,
-  userId: ANONYMOUS_USER_ID,
-  sessionId: window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY) || uuid()
+  onDidInitializeFunc: undefined,
+  userId: null,
+  sessionId: window.localStorage.getItem(FEATURE_FLAG_SESSION_ID) || uuid()
 }
 
 // Don't spam logs. Comment out this line for info logs.
@@ -82,11 +88,14 @@ export function getRemoteVar(
   // If the provider is not ready yet, return early with `null`
   if (!provider) return null
 
+  // If userId is null, set to string default. May effectively capture all users
+  const id = state.userId || 'ANONYMOUS_USER'
+
   if (isIntKey(key)) {
     return getValueHelper(
       remoteConfigIntDefaults,
       key,
-      state.userId,
+      id,
       provider.getFeatureVariableInteger.bind(provider)
     )
   }
@@ -97,7 +106,7 @@ export function getRemoteVar(
     return getValueHelper(
       remoteConfigStringDefaults,
       (key as unknown) as string,
-      state.userId,
+      id,
       provider.getFeatureVariableString.bind(provider)
     )
   }
@@ -106,7 +115,7 @@ export function getRemoteVar(
     return getValueHelper(
       remoteConfigDoubleDefaults,
       (key as unknown) as string,
-      state.userId,
+      id,
       provider.getFeatureVariableDouble.bind(provider)
     )
   }
@@ -114,7 +123,7 @@ export function getRemoteVar(
   return getValueHelper(
     remoteConfigBooleanDefaults,
     (key as unknown) as string,
-    state.userId,
+    id,
     provider.getFeatureVariableBoolean.bind(provider)
   )
 }
@@ -131,21 +140,20 @@ export function getFeatureEnabled(flag: FeatureFlags) {
 
   // Set the unique identifier as the userId or sessionId
   // depending on the feature flag
-  let id
-  const bucketType = flagBucketType[flag]
-  switch (bucketType) {
-    case FeatureFlagBucketType.USER_ID: {
+  let id: string
+  const cohortType = flagCohortType[flag]
+  switch (cohortType) {
+    case FeatureFlagCohortType.USER_ID: {
+      // If the id is anonymous, do not enable feature
+      if (!state.userId) return false
       id = state.userId
       break
     }
-    case FeatureFlagBucketType.SESSION_ID:
-    default: {
+    case FeatureFlagCohortType.SESSION_ID: {
       id = state.sessionId
+      break
     }
   }
-
-  // If the id is still anonymous, do not enable feature
-  if (id === ANONYMOUS_USER_ID) return false
 
   try {
     const enabled = state.didInitialize
@@ -187,8 +195,8 @@ const init = async () => {
   await waitForRemoteConfigDataFile()
 
   // Set sessionId for feature flag bucketing
-  if (!window.localStorage.getItem(OPTIMIZELY_LOCAL_STORAGE_KEY)) {
-    window.localStorage.setItem(OPTIMIZELY_LOCAL_STORAGE_KEY, state.sessionId)
+  if (!window.localStorage.getItem(FEATURE_FLAG_SESSION_ID)) {
+    window.localStorage.setItem(FEATURE_FLAG_SESSION_ID, state.sessionId)
   }
 
   provider = optimizely.createInstance({
