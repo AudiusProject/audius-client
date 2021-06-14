@@ -88,7 +88,7 @@ export function getRemoteVar(
   // If the provider is not ready yet, return early with `null`
   if (!provider) return null
 
-  // If userId is null, set to string default. May effectively capture all users
+  // If userId is null, set to string default. This will effectively capture all users as intended for remote config
   const id = state.userId || 'ANONYMOUS_USER'
 
   if (isIntKey(key)) {
