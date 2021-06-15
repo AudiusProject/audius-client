@@ -944,7 +944,7 @@ class AudiusAPIClient {
       time
     }
 
-    const experiment = getRemoteVar(StringKeys.TRENDING_EXPERIMENT)
+    const experiment = getRemoteVar(StringKeys.PLAYLIST_TRENDING_EXPERIMENT)
     const response: Nullable<APIResponse<
       APIPlaylist[]
     >> = await this._getResponse(
