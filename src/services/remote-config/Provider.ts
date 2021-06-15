@@ -11,7 +11,7 @@ import {
   flagDefaults,
   flagCohortType,
   FeatureFlagCohortType,
-  FEATURE_FLAG_SESSION_ID
+  FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY
 } from './FeatureFlags'
 import {
   remoteConfigIntDefaults,
@@ -30,7 +30,7 @@ const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 type State = {
   didInitialize: boolean
   onDidInitializeFunc: (() => void) | undefined
-  userId: string | null
+  userId: Nullable<string>
   sessionId: string
 }
 
@@ -38,7 +38,7 @@ const state: State = {
   didInitialize: false,
   onDidInitializeFunc: undefined,
   userId: null,
-  sessionId: window.localStorage.getItem(FEATURE_FLAG_SESSION_ID) || uuid()
+  sessionId: window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY) || uuid()
 }
 
 // Don't spam logs. Comment out this line for info logs.
@@ -195,8 +195,8 @@ const init = async () => {
   await waitForRemoteConfigDataFile()
 
   // Set sessionId for feature flag bucketing
-  if (!window.localStorage.getItem(FEATURE_FLAG_SESSION_ID)) {
-    window.localStorage.setItem(FEATURE_FLAG_SESSION_ID, state.sessionId)
+  if (!window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY)) {
+    window.localStorage.setItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY, state.sessionId)
   }
 
   provider = optimizely.createInstance({

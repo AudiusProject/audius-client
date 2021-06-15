@@ -25,7 +25,7 @@ export enum FeatureFlagCohortType {
    */
   USER_ID = 'user_id',
   /**
-   * Segments feature experiments by a random uuid set in local storage defined by FEATURE_FLAG_SESSION_ID.
+   * Segments feature experiments by a random uuid set in local storage defined by FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY.
    * There should always be a value for sessionId. This is managed in Provider.ts
    */
   SESSION_ID = 'session_id'
@@ -41,4 +41,4 @@ export const flagCohortType: {
   [FeatureFlags.PLAYLIST_UPDATES_ENABLED]: FeatureFlagCohortType.USER_ID
 }
 
-export const FEATURE_FLAG_SESSION_ID = 'featureFlagSessionId'
+export const FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY = 'featureFlagSessionId'
