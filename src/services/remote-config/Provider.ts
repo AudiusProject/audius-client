@@ -38,7 +38,9 @@ const state: State = {
   didInitialize: false,
   onDidInitializeFunc: undefined,
   userId: null,
-  sessionId: window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY) || uuid()
+  sessionId: 
+    window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY) ||
+    uuid()
 }
 
 // Don't spam logs. Comment out this line for info logs.
@@ -196,7 +198,10 @@ const init = async () => {
 
   // Set sessionId for feature flag bucketing
   if (!window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY)) {
-    window.localStorage.setItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY, state.sessionId)
+    window.localStorage.setItem(
+      FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY,
+      state.sessionId
+    )
   }
 
   provider = optimizely.createInstance({
