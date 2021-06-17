@@ -6,7 +6,7 @@ import IconButton from './IconButton'
 
 export const iconPopupClass = 'iconPopup'
 
-type IconPopupItemProps = {
+export type IconPopupItemProps = {
   text: string
   onClick: () => void
   icon?: object
@@ -15,7 +15,7 @@ type IconPopupItemProps = {
 }
 
 type IconPopupProps = {
-  icon: object
+  icon: React.ReactElement
   menu: { items: IconPopupItemProps[] }
   disabled?: boolean
   title?: string

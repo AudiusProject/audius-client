@@ -155,25 +155,28 @@ const ConnectedTrackTile = memo(
 
     const renderOverflowMenu = () => {
       const menu: TrackMenuProps = {
+        extraMenuItems: [],
         handle: handle,
-        isFavorited,
-        isReposted,
-        mount: 'page',
-        isArtistPick: isArtistPick,
-        type: 'track',
-        trackId: trackId,
-        trackTitle: title,
-        isDeleted: is_delete,
-        isOwner,
+        icon: (
+          <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
+        ),
+        includeAddToPlaylist: true,
         includeArtistPick: handle === userHandle,
         includeEdit: handle === userHandle,
-        includeShare: false,
-        includeRepost: false,
-        includeFavorite: false,
         includeEmbed: true,
+        includeFavorite: false,
+        includeRepost: false,
+        includeShare: false,
         includeTrackPage: true,
-        includeAddToPlaylist: true,
-        extraMenuItems: []
+        isArtistPick: isArtistPick,
+        isDeleted: is_delete,
+        isFavorited,
+        isOwner,
+        isReposted,
+        mount: 'page',
+        trackId: trackId,
+        trackTitle: title,
+        type: 'track'
       }
 
       return (

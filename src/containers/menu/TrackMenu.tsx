@@ -25,7 +25,6 @@ import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtis
 import { getAccountOwnedPlaylists } from 'store/account/selectors'
 import { newCollectionMetadata } from 'schemas'
 
-import CascadingMenu from 'components/navigation/CascadingMenu'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
 import {
   FavoriteSource,
@@ -34,47 +33,49 @@ import {
   CreatePlaylistSource
 } from 'services/analytics'
 import { removeNullable } from 'utils/typeUtils'
+import IconPopup, { IconPopupItemProps } from 'components/general/IconPopup'
 
 const messages = {
-  share: 'Share',
-  copiedToClipboard: 'Copied To Clipboard!',
-  undoRepost: 'Undo Repost',
-  repost: 'Repost',
-  unreposted: 'Un-Reposted!',
-  reposted: 'Reposted!',
-  unfavorite: 'Unfavorite',
-  favorite: 'Favorite',
-  addToPlaylist: 'Add to Playlist',
   addToNewPlaylist: 'Add to New Playlist',
-  visitTrackPage: 'Visit Track Page',
-  visitArtistPage: 'Visit Artist Page',
+  addToPlaylist: 'Add to Playlist',
+  copiedToClipboard: 'Copied To Clipboard!',
+  embed: 'Embed',
+  favorite: 'Favorite',
+  repost: 'Repost',
+  reposted: 'Reposted!',
   setArtistPick: 'Set as Artist Pick',
+  share: 'Share',
+  undoRepost: 'Undo Repost',
+  unfavorite: 'Unfavorite',
+  unreposted: 'Un-Reposted!',
   unsetArtistPick: 'Unset as Artist Pick',
-  embed: 'Embed'
+  visitArtistPage: 'Visit Artist Page',
+  visitTrackPage: 'Visit Track Page'
 }
 
 export type OwnProps = {
   children?: ReactNode | JSX.Element
   className?: string
-  type: 'track'
-  mount: 'page' | 'parent' | 'body'
+  extraMenuItems?: IconPopupItemProps[]
   handle: string
-  trackId: ID
-  trackTitle: string
-  isOwner: boolean
-  includeShare: boolean
-  includeRepost: boolean
-  includeEdit: boolean
-  includeEmbed?: boolean
-  isArtistPick: boolean
-  isFavorited: boolean
-  isReposted: boolean
-  isDeleted: boolean
-  includeFavorite: boolean
-  includeTrackPage: boolean
+  icon: React.ReactElement
   includeAddToPlaylist: boolean
   includeArtistPick: boolean
-  extraMenuItems?: object[]
+  includeEdit: boolean
+  includeEmbed?: boolean
+  includeFavorite: boolean
+  includeRepost: boolean
+  includeShare: boolean
+  includeTrackPage: boolean
+  isArtistPick: boolean
+  isDeleted: boolean
+  isFavorited: boolean
+  isOwner: boolean
+  isReposted: boolean
+  mount: 'page' | 'parent' | 'body'
+  trackId: ID
+  trackTitle: string
+  type: 'track'
 }
 
 export type TrackMenuProps = OwnProps &
@@ -84,36 +85,36 @@ export type TrackMenuProps = OwnProps &
 const TrackMenu = (props: TrackMenuProps) => {
   const getMenu = () => {
     const {
-      playlists,
-      handle,
-      trackId,
-      trackTitle,
-      includeShare,
-      includeRepost,
-      includeEdit,
-      includeEmbed,
-      isOwner,
-      includeFavorite,
-      includeAddToPlaylist,
-      includeTrackPage,
+      addTrackToPlaylist,
+      createEmptyPlaylist,
       extraMenuItems,
       goToRoute,
-      createEmptyPlaylist,
-      addTrackToPlaylist,
+      handle,
+      includeAddToPlaylist,
+      includeArtistPick,
+      includeEdit,
+      includeEmbed,
+      includeFavorite,
+      includeRepost,
+      includeShare,
+      includeTrackPage,
       isArtistPick,
-      isFavorited,
-      isReposted,
       isDeleted,
-      shareTrack,
-      saveTrack,
-      unsaveTrack,
-      repostTrack,
-      undoRepostTrack,
-      setArtistPick,
-      unsetArtistPick,
+      isFavorited,
+      isOwner,
+      isReposted,
       openEditTrackModal,
       openEmbedModal,
-      includeArtistPick
+      playlists,
+      repostTrack,
+      saveTrack,
+      setArtistPick,
+      shareTrack,
+      trackId,
+      trackTitle,
+      undoRepostTrack,
+      unsaveTrack,
+      unsetArtistPick
     } = props
 
     const shareMenuItem = {
@@ -147,32 +148,22 @@ const TrackMenu = (props: TrackMenuProps) => {
         }, 0)
     }
 
-    const playlistMenuItems = playlists
-      .map(playlist => {
-        // Don't allow adding to this playlist if already on this playlist's page.
-        if (playlist && playlist.id !== props.currentCollectionId) {
-          return {
-            text: playlist.name,
-            onClick: () => addTrackToPlaylist(trackId, playlist.id)
-          }
-        }
-        return null
-      })
-      .filter(removeNullable)
+    // const playlistMenuItems = playlists
+    //   .map(playlist => {
+    //     // Don't allow adding to this playlist if already on this playlist's page.
+    //     if (playlist && playlist.id !== props.currentCollectionId) {
+    //       return {
+    //         text: playlist.name,
+    //         onClick: () => addTrackToPlaylist(trackId, playlist.id)
+    //       }
+    //     }
+    //     return null
+    //   })
+    //   .filter(removeNullable)
 
     const addToPlaylistMenuItem = {
       text: messages.addToPlaylist,
-      subItems: [
-        {
-          text: messages.addToNewPlaylist,
-          onClick: () => {
-            const tempId = Date.now()
-            createEmptyPlaylist(tempId, trackTitle, trackId)
-            addTrackToPlaylist(trackId, tempId)
-          }
-        },
-        ...playlistMenuItems
-      ]
+      onClick: () => console.log('show modal here')
     }
 
     const trackPageMenuItem = {
@@ -208,7 +199,7 @@ const TrackMenu = (props: TrackMenuProps) => {
       onClick: () => openEmbedModal(trackId)
     }
 
-    const menu: { items: object[] } = { items: [] }
+    const menu: { items: IconPopupItemProps[] } = { items: [] }
 
     if (includeShare && !isDeleted) {
       menu.items.push(shareMenuItem)
@@ -250,9 +241,12 @@ const TrackMenu = (props: TrackMenuProps) => {
   const menu = getMenu()
 
   return (
-    <CascadingMenu menu={menu} mount={props.mount} className={props.className}>
-      {props.children}
-    </CascadingMenu>
+    <IconPopup
+      icon={props.icon}
+      menu={menu}
+      disabled={false}
+      position='bottomLeft'
+    />
   )
 }
 

@@ -89,22 +89,23 @@ const TrackListItem = ({
 
   const menu: TrackMenuProps = {
     handle: track.user.handle,
-    trackId: track.track_id,
-    trackTitle: track.title,
-    type: 'track',
-    isOwner: false,
-    isDeleted: deleted,
+    icon: <IconKebabHorizontal className={styles.iconKebabHorizontal} />,
+    includeAddToPlaylist: true,
+    includeArtistPick: false,
     includeEdit: false,
     includeFavorite: true,
-    includeShare: true,
     includeRepost: true,
-    includeArtistPick: false,
+    includeShare: true,
     includeTrackPage: true,
-    includeAddToPlaylist: true,
     isArtistPick: track.user._artist_pick === track.track_id,
-    isReposted: track.has_current_user_reposted,
+    isDeleted: deleted,
     isFavorited: track.has_current_user_saved,
-    mount: 'page'
+    isOwner: false,
+    isReposted: track.has_current_user_reposted,
+    mount: 'page',
+    trackId: track.track_id,
+    trackTitle: track.title,
+    type: 'track'
   }
 
   return (
