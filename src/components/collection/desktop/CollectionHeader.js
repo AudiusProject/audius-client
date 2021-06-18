@@ -162,13 +162,17 @@ const ViewerHasTracksButtons = props => {
       </Tooltip>
       <span>
         <Menu {...props.overflowMenu}>
-          <Button
-            className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-            textClassName={styles.buttonTextFormatting}
-            type={ButtonType.COMMON}
-            text={null}
-            leftIcon={<IconKebabHorizontal />}
-          />
+          {(ref, triggerPopup) => (
+            <Button
+              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+              leftIcon={<IconKebabHorizontal />}
+              onClick={triggerPopup}
+              ref={ref}
+              text={null}
+              textClassName={styles.buttonTextFormatting}
+              type={ButtonType.COMMON}
+            />
+          )}
         </Menu>
       </span>
     </>
@@ -207,14 +211,18 @@ const ViewerNoTracksButtons = props => {
       />
       <span>
         <Menu {...props.overflowMenu}>
-          <Button
-            className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-            textClassName={styles.buttonTextFormatting}
-            type={ButtonType.COMMON}
-            text={null}
-            leftIcon={<IconKebabHorizontal />}
-            widthToHideText={1400}
-          />
+          {(ref, triggerPopup) => (
+            <Button
+              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+              leftIcon={<IconKebabHorizontal />}
+              textClassName={styles.buttonTextFormatting}
+              ref={ref}
+              text={null}
+              onClick={triggerPopup}
+              type={ButtonType.COMMON}
+              widthToHideText={1400}
+            />
+          )}
         </Menu>
       </span>
     </>
@@ -355,13 +363,17 @@ const OwnerPublishedButtons = props => {
       />
       <span>
         <Menu {...props.overflowMenu}>
-          <Button
-            className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-            textClassName={styles.buttonTextFormatting}
-            type={ButtonType.COMMON}
-            text={null}
-            leftIcon={<IconKebabHorizontal />}
-          />
+          {(ref, triggerPopup) => (
+            <Button
+              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+              leftIcon={<IconKebabHorizontal />}
+              onClick={triggerPopup}
+              ref={ref}
+              text={null}
+              textClassName={styles.buttonTextFormatting}
+              type={ButtonType.COMMON}
+            />
+          )}
         </Menu>
       </span>
     </>

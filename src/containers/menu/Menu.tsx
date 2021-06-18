@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { PopupMenuProps } from 'components/general/PopupMenu'
 import CollectionMenu, {
   OwnProps as CollectionMenuProps
 } from './CollectionMenu'
@@ -16,8 +17,8 @@ export type MenuOptionType =
   | NotificationMenuProps
 
 export type MenuProps = {
-  children: JSX.Element
-  menu: MenuOptionType
+  children: PopupMenuProps['renderTrigger']
+  menu: Omit<MenuOptionType, 'children'>
   className?: string
   onClose?: () => void
 }

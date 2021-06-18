@@ -33,7 +33,7 @@ export type NotificationBlockProps = {
   notification: any
   goToRoute: (route: string) => void
   toggleNotificationPanel: () => void
-  menuProps: NotificationMenuProps
+  menuProps: Omit<NotificationMenuProps, 'children'>
   markAsRead: (notificationId: string) => void
   setNotificationUsers: (userIds: ID[], limit: number) => void
   onClick?: () => void
@@ -203,9 +203,14 @@ const NotificationBlock = (props: NotificationBlockProps) => {
           {header}
           <div className={styles.menuContainer} onClick={onMenuClick}>
             <Menu menu={props.menuProps}>
-              <div className={styles.iconContainer}>
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+              {(ref, triggerPopup) => (
+                <div className={styles.iconContainer} onClick={triggerPopup}>
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </div>
         </div>
@@ -222,9 +227,14 @@ const NotificationBlock = (props: NotificationBlockProps) => {
         {!header && (
           <div className={styles.menuContainer} onClick={onMenuClick}>
             <Menu menu={props.menuProps}>
-              <div className={styles.iconContainer}>
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+              {ref => (
+                <div className={styles.iconContainer}>
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </div>
         )}

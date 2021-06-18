@@ -8,18 +8,16 @@ import styles from './NavBanner.module.css'
 import cn from 'classnames'
 
 const NavBanner = props => {
-  const menu = {
-    items: [
-      {
-        text: 'Sort by Recent',
-        onClick: props.onSortByRecent
-      },
-      {
-        text: 'Sort by Popular',
-        onClick: props.onSortByPopular
-      }
-    ]
-  }
+  const menuItems = [
+    {
+      text: 'Sort by Recent',
+      onClick: props.onSortByRecent
+    },
+    {
+      text: 'Sort by Popular',
+      onClick: props.onSortByPopular
+    }
+  ]
   return (
     <div className={styles.wrapper}>
       <div className={styles.background} />
@@ -36,7 +34,7 @@ const NavBanner = props => {
               {!props.dropdownDisabled && (
                 <PopupMenuIconButton
                   icon={<SortIcon />}
-                  menu={menu}
+                  items={menuItems}
                   disabled={false}
                   position='bottomLeft'
                 />

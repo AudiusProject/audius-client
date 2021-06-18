@@ -33,7 +33,11 @@ import {
   CreatePlaylistSource
 } from 'services/analytics'
 import { removeNullable } from 'utils/typeUtils'
-import IconPopup, { IconPopupItemProps } from 'components/general/IconPopup'
+import {
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuProps
+} from 'components/general/PopupMenu'
 
 const messages = {
   addToNewPlaylist: 'Add to New Playlist',
@@ -54,11 +58,10 @@ const messages = {
 }
 
 export type OwnProps = {
-  children?: ReactNode | JSX.Element
+  children: PopupMenuProps['renderTrigger']
   className?: string
-  extraMenuItems?: IconPopupItemProps[]
+  extraMenuItems?: PopupMenuItem[]
   handle: string
-  icon: React.ReactElement
   includeAddToPlaylist: boolean
   includeArtistPick: boolean
   includeEdit: boolean
@@ -72,7 +75,6 @@ export type OwnProps = {
   isFavorited: boolean
   isOwner: boolean
   isReposted: boolean
-  mount: 'page' | 'parent' | 'body'
   trackId: ID
   trackTitle: string
   type: 'track'
@@ -199,7 +201,7 @@ const TrackMenu = (props: TrackMenuProps) => {
       onClick: () => openEmbedModal(trackId)
     }
 
-    const menu: { items: IconPopupItemProps[] } = { items: [] }
+    const menu: { items: PopupMenuItem[] } = { items: [] }
 
     if (includeShare && !isDeleted) {
       menu.items.push(shareMenuItem)
@@ -240,12 +242,13 @@ const TrackMenu = (props: TrackMenuProps) => {
 
   const menu = getMenu()
 
+  console.log('MENU', menu)
   return (
-    <IconPopup
-      icon={props.icon}
-      menu={menu}
+    <PopupMenu
+      items={menu.items}
       disabled={false}
-      position='bottomLeft'
+      position='bottomRight'
+      renderTrigger={props.children}
     />
   )
 }

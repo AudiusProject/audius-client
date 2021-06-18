@@ -87,7 +87,7 @@ const TrackListItem = ({
     [styles.show]: !isLoading
   })
 
-  const menu: TrackMenuProps = {
+  const menu: Omit<TrackMenuProps, 'children'> = {
     handle: track.user.handle,
     includeAddToPlaylist: true,
     includeArtistPick: false,
@@ -101,7 +101,6 @@ const TrackListItem = ({
     isFavorited: track.has_current_user_saved,
     isOwner: false,
     isReposted: track.has_current_user_reposted,
-    mount: 'page',
     trackId: track.track_id,
     trackTitle: track.title,
     type: 'track'
@@ -155,7 +154,13 @@ const TrackListItem = ({
         {!disableActions && !deleted ? (
           <div className={styles.more} onClick={onMoreClick}>
             <Menu menu={menu}>
-              <IconKebabHorizontal className={styles.iconKebabHorizontal} />
+              {(ref, triggerPopup) => (
+                <IconKebabHorizontal
+                  className={styles.iconKebabHorizontal}
+                  onClick={triggerPopup}
+                  ref={ref}
+                />
+              )}
             </Menu>
           </div>
         ) : null}

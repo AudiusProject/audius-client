@@ -89,28 +89,26 @@ export const PopupMenu = ({
         noHeader={!title}
       >
         <div className={styles.menu}>
-          {items
-            .filter(({ condition }) => !condition ?? condition?.())
-            .map((item, i) => (
-              <div
-                key={`${item.text}_${i}`}
-                className={cn(styles.item, menuClassName, item.className)}
-                onClick={handleMenuItemClick(item)}
-              >
-                {item.icon && (
-                  <span
-                    className={cn(
-                      styles.icon,
-                      menuIconClassName,
-                      item.menuIconClassName
-                    )}
-                  >
-                    {item.icon}
-                  </span>
-                )}
-                {item.text}
-              </div>
-            ))}
+          {items.map((item, i) => (
+            <div
+              key={`${item.text}_${i}`}
+              className={cn(styles.item, menuClassName, item.className)}
+              onClick={handleMenuItemClick(item)}
+            >
+              {item.icon && (
+                <span
+                  className={cn(
+                    styles.icon,
+                    menuIconClassName,
+                    item.menuIconClassName
+                  )}
+                >
+                  {item.icon}
+                </span>
+              )}
+              {item.text}
+            </div>
+          ))}
         </div>
         <></>
       </Popup>

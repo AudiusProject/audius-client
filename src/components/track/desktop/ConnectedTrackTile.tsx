@@ -154,12 +154,9 @@ const ConnectedTrackTile = memo(
     }
 
     const renderOverflowMenu = () => {
-      const menu: TrackMenuProps = {
+      const menu: Omit<TrackMenuProps, 'children'> = {
         extraMenuItems: [],
         handle: handle,
-        icon: (
-          <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
-        ),
         includeAddToPlaylist: true,
         includeArtistPick: handle === userHandle,
         includeEdit: handle === userHandle,
@@ -173,7 +170,6 @@ const ConnectedTrackTile = memo(
         isFavorited,
         isOwner,
         isReposted,
-        mount: 'page',
         trackId: trackId,
         trackTitle: title,
         type: 'track'
@@ -181,14 +177,20 @@ const ConnectedTrackTile = memo(
 
       return (
         <Menu menu={menu} className={styles.menuContainer}>
-          <div
-            className={cn(styles.menuKebabContainer, {
-              [styles.small]: size === TrackTileSize.SMALL,
-              [styles.large]: size === TrackTileSize.LARGE
-            })}
-          >
-            <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
-          </div>
+          {(ref, triggerPopup) => (
+            <div
+              className={cn(styles.menuKebabContainer, {
+                [styles.small]: size === TrackTileSize.SMALL,
+                [styles.large]: size === TrackTileSize.LARGE
+              })}
+              ref={ref}
+            >
+              <IconKebabHorizontal
+                className={cn(styles.iconKebabHorizontal)}
+                onClick={triggerPopup}
+              />
+            </div>
+          )}
         </Menu>
       )
     }

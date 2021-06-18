@@ -51,7 +51,7 @@ const NavIconPopover = () => {
   return (
     <div className={styles.headerIconWrapper}>
       <PopupMenuIconButton
-        menu={{ items: menuItems }}
+        items={menuItems}
         icon={<IconKebabHorizontal />}
         popupClassName={styles.scalingWrapper}
         iconClassName={styles.iconClass}

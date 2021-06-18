@@ -5,19 +5,20 @@ import { Dispatch } from 'redux'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
 import { NotificationType } from 'containers/notification/store/types'
 
-import CascadingMenu from 'components/navigation/CascadingMenu'
+import {
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuProps
+} from 'components/general/PopupMenu'
 import { AppState } from 'store/types'
 
 export type OwnProps = {
-  type: 'notification'
+  children: PopupMenuProps['renderTrigger']
   notificationId: string
   notificationType: NotificationType
-  children?: JSX.Element
-  mount?: string
   onHide: (notificationId: string) => void
   onToggleNotification?: () => void
-  mountRef: JSX.Element
-  scrollRef: JSX.Element
+  type: 'notification'
 }
 
 export type NotificationMenuProps = OwnProps &
@@ -31,7 +32,7 @@ const NotificationMenu = (props: NotificationMenuProps) => {
   }, [onHide, notificationId])
 
   const getMenu = () => {
-    const menu: { items: object[] } = {
+    const menu: { items: PopupMenuItem[] } = {
       items: [
         {
           text: 'Hide this notification',
@@ -42,19 +43,15 @@ const NotificationMenu = (props: NotificationMenuProps) => {
     return menu
   }
 
-  const NotificationMenu = getMenu()
-  const { mountRef } = props
-  const getContainer = useCallback(() => (mountRef as any).current, [mountRef])
+  const menu = getMenu()
+
   return (
-    <CascadingMenu
-      getContainer={getContainer}
-      scrollRef={props.scrollRef}
-      autoAdjustOverflow={false}
-      menu={NotificationMenu}
-      mount={props.mount}
-    >
-      {props.children}
-    </CascadingMenu>
+    <PopupMenu
+      items={menu.items}
+      disabled={false}
+      position='bottomRight'
+      renderTrigger={props.children}
+    />
   )
 }
 
@@ -68,10 +65,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route))
   }
-}
-
-NotificationMenu.defaultProps = {
-  mount: 'page'
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationMenu)

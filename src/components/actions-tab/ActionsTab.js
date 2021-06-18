@@ -44,9 +44,15 @@ const MinimizedActionsTab = props => {
         </div>
       ) : (
         <Menu {...overflowMenu}>
-          <div className={styles.iconContainer}>
-            <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
-          </div>
+          {(ref, triggerPopup) => (
+            <div className={styles.iconContainer}>
+              <IconKebabHorizontal
+                className={cn(styles.iconKebabHorizontal)}
+                ref={ref}
+                onClick={triggerPopup}
+              />
+            </div>
+          )}
         </Menu>
       )}
     </div>
@@ -124,9 +130,17 @@ const ExpandedActionsTab = props => {
           </div>
         ) : (
           <Menu {...overflowMenu}>
-            <div className={styles.iconKebabHorizontalWrapper}>
-              <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-            </div>
+            {(ref, triggerPopup) => (
+              <div
+                className={styles.iconKebabHorizontalWrapper}
+                onClick={triggerPopup}
+              >
+                <IconKebabHorizontal
+                  className={styles.iconKebabHorizontal}
+                  ref={ref}
+                />
+              </div>
+            )}
           </Menu>
         )}
       </div>

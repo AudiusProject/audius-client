@@ -6,6 +6,7 @@ import AntDropdown from 'antd/lib/dropdown'
 import { ReactComponent as IconCaretDown } from 'assets/img/iconCaretDown.svg'
 import styles from './Dropdown.module.css'
 
+// TODO: sk - remove this component
 class Dropdown extends Component {
   state = {
     index: this.props.defaultIndex || 0,
