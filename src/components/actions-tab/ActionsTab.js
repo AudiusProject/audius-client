@@ -129,7 +129,7 @@ const ExpandedActionsTab = props => {
             <IconKebabHorizontal className={styles.iconKebabHorizontal} />
           </div>
         ) : (
-          <Menu {...overflowMenu}>
+          <Menu {...overflowMenu} className={styles.menuKebabContainer}>
             {(ref, triggerPopup) => (
               <div
                 className={styles.iconKebabHorizontalWrapper}

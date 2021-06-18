@@ -183,11 +183,11 @@ const ConnectedTrackTile = memo(
                 [styles.small]: size === TrackTileSize.SMALL,
                 [styles.large]: size === TrackTileSize.LARGE
               })}
-              ref={ref}
+              onClick={triggerPopup}
             >
               <IconKebabHorizontal
                 className={cn(styles.iconKebabHorizontal)}
-                onClick={triggerPopup}
+                ref={ref}
               />
             </div>
           )}

@@ -15,7 +15,7 @@ import {
 import { FollowSource, ShareSource } from 'services/analytics'
 
 export type OwnProps = {
-  children: PopupMenuProps['renderTrigger']
+  children: (items: PopupMenuItem[]) => JSX.Element
   currentUserFollows: boolean
   handle: string
   type: 'user'
@@ -62,14 +62,7 @@ const Menu = (props: UserMenuProps) => {
 
   const menu = getMenu()
 
-  return (
-    <PopupMenu
-      items={menu.items}
-      disabled={false}
-      position='bottomRight'
-      renderTrigger={props.children}
-    />
-  )
+  return props.children(menu.items)
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {

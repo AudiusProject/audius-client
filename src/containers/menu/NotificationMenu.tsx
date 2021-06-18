@@ -13,7 +13,7 @@ import {
 import { AppState } from 'store/types'
 
 export type OwnProps = {
-  children: PopupMenuProps['renderTrigger']
+  children: (items: PopupMenuItem[]) => JSX.Element
   notificationId: string
   notificationType: NotificationType
   onHide: (notificationId: string) => void
@@ -45,14 +45,7 @@ const NotificationMenu = (props: NotificationMenuProps) => {
 
   const menu = getMenu()
 
-  return (
-    <PopupMenu
-      items={menu.items}
-      disabled={false}
-      position='bottomRight'
-      renderTrigger={props.children}
-    />
-  )
+  return props.children(menu.items)
 }
 
 function mapStateToProps(store: AppState) {

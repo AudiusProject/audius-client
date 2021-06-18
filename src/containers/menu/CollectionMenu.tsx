@@ -21,8 +21,7 @@ import {
 type PlaylistId = number
 
 export type OwnProps = {
-  children: PopupMenuProps['renderTrigger']
-  className?: string
+  children: (items: PopupMenuItem[]) => JSX.Element
   extraMenuItems: PopupMenuItem[]
   handle: string
   includeEdit?: boolean
@@ -163,14 +162,7 @@ const CollectionMenu = (props: CollectionMenuProps) => {
 
   const menu = getMenu()
 
-  return (
-    <PopupMenu
-      items={menu.items}
-      disabled={false}
-      position='bottomRight'
-      renderTrigger={props.children}
-    />
-  )
+  return props.children(menu.items)
 }
 
 function mapStateToProps(state: AppState, props: OwnProps) {

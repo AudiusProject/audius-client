@@ -58,8 +58,7 @@ const messages = {
 }
 
 export type OwnProps = {
-  children: PopupMenuProps['renderTrigger']
-  className?: string
+  children: (items: PopupMenuItem[]) => JSX.Element
   extraMenuItems?: PopupMenuItem[]
   handle: string
   includeAddToPlaylist: boolean
@@ -242,15 +241,7 @@ const TrackMenu = (props: TrackMenuProps) => {
 
   const menu = getMenu()
 
-  console.log('MENU', menu)
-  return (
-    <PopupMenu
-      items={menu.items}
-      disabled={false}
-      position='bottomRight'
-      renderTrigger={props.children}
-    />
-  )
+  return props.children(menu.items)
 }
 
 function mapStateToProps(state: AppState) {

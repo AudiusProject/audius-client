@@ -9,7 +9,6 @@ import styles from './PopupMenu.module.css'
 export const popupMenuClass = 'popupMenuClass'
 
 export type PopupMenuProps = {
-  disabled?: boolean
   items: PopupMenuItem[]
   menuClassName?: string
   menuIconClassName?: string
@@ -39,7 +38,6 @@ export type PopupMenuItem = {
 }
 
 export const PopupMenu = ({
-  disabled = false,
   items,
   menuClassName,
   menuIconClassName,
@@ -69,15 +67,9 @@ export const PopupMenu = ({
     setIsPopupVisible
   ])
 
-  const style = {
-    [styles.focused]: isPopupVisible,
-    [styles.disabled]: disabled
-  }
-
   return (
-    <div className={cn(styles.popup, style, popupClassName)}>
+    <div className={cn(popupClassName)}>
       {renderTrigger(ref, triggerPopup)}
-
       <Popup
         triggerRef={ref}
         className={styles.fit}

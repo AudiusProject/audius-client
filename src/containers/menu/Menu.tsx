@@ -1,6 +1,10 @@
 import React from 'react'
 
-import { PopupMenuProps } from 'components/general/PopupMenu'
+import {
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuProps
+} from 'components/general/PopupMenu'
 import CollectionMenu, {
   OwnProps as CollectionMenuProps
 } from './CollectionMenu'
@@ -18,36 +22,40 @@ export type MenuOptionType =
 
 export type MenuProps = {
   children: PopupMenuProps['renderTrigger']
-  menu: Omit<MenuOptionType, 'children'>
   className?: string
+  menu: Omit<MenuOptionType, 'children'>
   onClose?: () => void
 }
 
 const Menu = (props: MenuProps) => {
   const { menu, className } = props
 
+  const renderMenu = (items: PopupMenuItem[]) => (
+    <PopupMenu
+      items={items}
+      position='bottomRight'
+      renderTrigger={props.children}
+      popupClassName={className}
+    />
+  )
+
   if (menu.type === 'user') {
-    return <UserMenu {...(menu as UserMenuProps)}>{props.children}</UserMenu>
+    return <UserMenu {...(menu as UserMenuProps)}>{renderMenu}</UserMenu>
   } else if (menu.type === 'album' || menu.type === 'playlist') {
     return (
       <CollectionMenu
-        className={className}
         onClose={props.onClose}
         {...(menu as CollectionMenuProps)}
       >
-        {props.children}
+        {renderMenu}
       </CollectionMenu>
     )
   } else if (menu.type === 'track') {
-    return (
-      <TrackMenu {...(menu as TrackMenuProps)} className={className}>
-        {props.children}
-      </TrackMenu>
-    )
+    return <TrackMenu {...(menu as TrackMenuProps)}>{renderMenu}</TrackMenu>
   } else if (menu.type === 'notification') {
     return (
       <NotificationMenu {...(menu as NotificationMenuProps)}>
-        {props.children}
+        {renderMenu}
       </NotificationMenu>
     )
   }

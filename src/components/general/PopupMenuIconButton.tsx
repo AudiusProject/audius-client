@@ -12,22 +12,33 @@ import IconButton from 'components/general/IconButton'
 import styles from './PopupMenuIconButton.module.css'
 
 type PopupMenuIconButtonProps = {
+  disabled?: boolean
   icon?: React.ReactNode | Element
   iconClassName?: string
 } & Omit<PopupMenuProps, 'renderTrigger'>
 
 export const PopupMenuIconButton = (props: PopupMenuIconButtonProps) => {
-  const { icon, iconClassName, ...popupMenuProps } = props
+  const {
+    disabled,
+    icon,
+    iconClassName,
+    popupClassName,
+    ...popupMenuProps
+  } = props
 
+  const style = {
+    [styles.disabled]: disabled
+  }
   return (
     <PopupMenu
+      popupClassName={cn(styles.popup, style, popupClassName)}
       {...popupMenuProps}
       renderTrigger={(ref, triggerPopup) => (
         <IconButton
           ref={ref}
           className={cn(styles.icon, popupMenuClass, iconClassName)}
           icon={icon}
-          disabled={props.disabled}
+          disabled={disabled}
           onClick={triggerPopup}
         />
       )}
