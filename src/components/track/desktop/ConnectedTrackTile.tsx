@@ -176,19 +176,21 @@ const ConnectedTrackTile = memo(
       }
 
       return (
-        <Menu menu={menu} className={styles.menuContainer}>
+        <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div
-              className={cn(styles.menuKebabContainer, {
-                [styles.small]: size === TrackTileSize.SMALL,
-                [styles.large]: size === TrackTileSize.LARGE
-              })}
-              onClick={triggerPopup}
-            >
-              <IconKebabHorizontal
-                className={cn(styles.iconKebabHorizontal)}
-                ref={ref}
-              />
+            <div className={styles.menuContainer}>
+              <div
+                className={cn(styles.menuKebabContainer, {
+                  [styles.small]: size === TrackTileSize.SMALL,
+                  [styles.large]: size === TrackTileSize.LARGE
+                })}
+                onClick={triggerPopup}
+              >
+                <IconKebabHorizontal
+                  className={cn(styles.iconKebabHorizontal)}
+                  ref={ref}
+                />
+              </div>
             </div>
           )}
         </Menu>

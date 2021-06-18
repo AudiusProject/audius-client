@@ -161,9 +161,10 @@ const NotificationBlock = (props: NotificationBlockProps) => {
   )
 
   const onMenuClick = useCallback(
-    e => {
+    triggerPopup => (e: React.MouseEvent) => {
       e.stopPropagation()
       markNotificationAsRead()
+      triggerPopup()
     },
     [markNotificationAsRead]
   )
@@ -201,10 +202,13 @@ const NotificationBlock = (props: NotificationBlockProps) => {
       {header && (
         <div className={styles.headerContainer}>
           {header}
-          <div className={styles.menuContainer} onClick={onMenuClick}>
+          <div className={styles.menuContainer}>
             <Menu menu={props.menuProps}>
               {(ref, triggerPopup) => (
-                <div className={styles.iconContainer} onClick={triggerPopup}>
+                <div
+                  className={styles.iconContainer}
+                  onClick={onMenuClick(triggerPopup)}
+                >
                   <IconKebabHorizontal
                     className={styles.iconKebabHorizontal}
                     ref={ref}
@@ -225,10 +229,13 @@ const NotificationBlock = (props: NotificationBlockProps) => {
         )}
         <div className={styles.body}>{body}</div>
         {!header && (
-          <div className={styles.menuContainer} onClick={onMenuClick}>
+          <div className={styles.menuContainer}>
             <Menu menu={props.menuProps}>
-              {ref => (
-                <div className={styles.iconContainer}>
+              {(ref, triggerPopup) => (
+                <div
+                  className={styles.iconContainer}
+                  onClick={onMenuClick(triggerPopup)}
+                >
                   <IconKebabHorizontal
                     className={styles.iconKebabHorizontal}
                     ref={ref}
