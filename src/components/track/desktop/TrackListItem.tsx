@@ -89,7 +89,6 @@ const TrackListItem = ({
 
   const menu: TrackMenuProps = {
     handle: track.user.handle,
-    icon: <IconKebabHorizontal className={styles.iconKebabHorizontal} />,
     includeAddToPlaylist: true,
     includeArtistPick: false,
     includeEdit: false,

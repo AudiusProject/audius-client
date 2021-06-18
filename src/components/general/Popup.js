@@ -6,7 +6,7 @@ import { useTransition, animated } from 'react-spring'
 import { useClickOutside } from '@audius/stems'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import styles from './Popup.module.css'
-import { iconPopupClass } from './IconPopup'
+import { popupMenuClass } from './PopupMenu'
 import { findAncestor } from 'utils/domUtils'
 import useInstanceVar from 'hooks/useInstanceVar'
 import { getScrollParent } from 'utils/scrollParent'
@@ -193,8 +193,8 @@ const Popup = ({
 
   const clickOutsideRef = useClickOutside(handleClose, target => {
     if (target instanceof Element) {
-      const popupIconElement = findAncestor(target, `.${iconPopupClass}`)
-      return popupIconElement?.classList.contains(iconPopupClass)
+      const popupIconElement = findAncestor(target, `.${popupMenuClass}`)
+      return popupIconElement?.classList.contains(popupMenuClass)
     }
     return false
   })

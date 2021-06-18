@@ -1,0 +1,21 @@
+.popup:hover .icon {
+  background: var(--secondary);
+  border: 1px solid var(--secondary-dark-2);
+  transform: scale(1.07);
+}
+
+.popup:active .icon {
+  transform: scale(0.95);
+}
+
+.popup.disabled:hover .icon {
+  background: none;
+  border: 1px solid var(--neutral-light-6);
+  transform: none;
+}
+
+.icon {
+  border-radius: 4px;
+  border: 1px solid var(--neutral-light-6);
+  overflow: hidden;
+}
