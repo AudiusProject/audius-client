@@ -479,7 +479,7 @@ class GiantTrackTile extends PureComponent {
               <span>
                 <Menu {...overflowMenu}>
                   {(ref, triggerPopup) => (
-                    <div className={cn(styles.menuKebabContainer)}>
+                    <div className={cn(styles.menuKebabContainer)} ref={ref}>
                       <Button
                         className={cn(
                           styles.buttonFormatting,
@@ -487,7 +487,6 @@ class GiantTrackTile extends PureComponent {
                         )}
                         leftIcon={<IconKebabHorizontal />}
                         onClick={triggerPopup}
-                        ref={ref}
                         text={null}
                         textClassName={styles.buttonTextFormatting}
                         type={ButtonType.COMMON}

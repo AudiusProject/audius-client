@@ -35,7 +35,6 @@ const NavBanner = props => {
                 <PopupMenuIconButton
                   icon={<SortIcon />}
                   items={menuItems}
-                  disabled={false}
                   position='bottomLeft'
                 />
               )}
