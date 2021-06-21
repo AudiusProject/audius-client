@@ -2,11 +2,7 @@ import React from 'react'
 
 import cn from 'classnames'
 
-import {
-  PopupMenu,
-  PopupMenuProps,
-  popupMenuClass
-} from 'components/general/PopupMenu'
+import { PopupMenu, PopupMenuProps } from 'components/general/PopupMenu'
 
 import IconButton from 'components/general/IconButton'
 import styles from './PopupMenuIconButton.module.css'
@@ -36,7 +32,7 @@ export const PopupMenuIconButton = (props: PopupMenuIconButtonProps) => {
       renderTrigger={(ref, triggerPopup) => (
         <IconButton
           ref={ref}
-          className={cn(styles.icon, popupMenuClass, iconClassName)}
+          className={cn(styles.icon, iconClassName)}
           icon={icon}
           disabled={disabled}
           onClick={triggerPopup}

@@ -22,6 +22,7 @@ import {
 import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtistPickConfirmation/actions'
 import { getAccountOwnedPlaylists } from 'store/account/selectors'
 import { newCollectionMetadata } from 'schemas'
+import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 
 import { ToastContext } from 'components/toast/ToastContext'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
@@ -105,6 +106,7 @@ const TrackMenu = (props: TrackMenuProps) => {
       isFavorited,
       isOwner,
       isReposted,
+      openAddToPlaylistModal,
       openEditTrackModal,
       openEmbedModal,
       playlists,
@@ -163,7 +165,9 @@ const TrackMenu = (props: TrackMenuProps) => {
 
     const addToPlaylistMenuItem = {
       text: messages.addToPlaylist,
-      onClick: () => console.log('show modal here')
+      onClick: () => {
+        openAddToPlaylistModal(trackId, trackTitle)
+      }
     }
 
     const trackPageMenuItem = {
@@ -277,6 +281,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           trackId
         )
       ),
+    openAddToPlaylistModal: (trackId: ID, title: string) =>
+      dispatch(openAddToPlaylist(trackId, title)),
     openEditTrackModal: (trackId: ID) =>
       dispatch(editTrackModalActions.open(trackId)),
     openEmbedModal: (trackId: ID) =>

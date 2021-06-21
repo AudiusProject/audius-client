@@ -6,8 +6,6 @@ import Popup from 'components/general/Popup'
 
 import styles from './PopupMenu.module.css'
 
-export const popupMenuClass = 'popupMenuClass'
-
 export type PopupMenuProps = {
   items: PopupMenuItem[]
   menuClassName?: string
@@ -40,6 +38,7 @@ export type PopupMenuItem = {
 
 export const PopupMenu = ({
   items,
+  // TODO: sk - can this be removed?
   menuClassName,
   menuIconClassName,
   popupClassName,
