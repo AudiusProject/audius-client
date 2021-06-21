@@ -15,11 +15,11 @@ const animationConfig = {
 }
 
 type ToastContextProps = {
-  toast: (text: string, timeout?: number) => void
+  toast: (content: string | JSX.Element, timeout?: number) => void
 }
 
 type Toast = {
-  text: string
+  content: string | JSX.Element
   key: string
 }
 
@@ -42,9 +42,9 @@ export const ToastContextProvider = memo((props: { children: JSX.Element }) => {
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const toast = useCallback(
-    (text: string, timeout: number = DEFAULT_TIMEOUT) => {
+    (content: string | JSX.Element, timeout: number = DEFAULT_TIMEOUT) => {
       const key = uuid()
-      setToasts(toasts => [...toasts, { text, key }])
+      setToasts(toasts => [...toasts, { content, key }])
       setTimeout(() => {
         setToasts(toasts => toasts.slice(1))
       }, timeout)
@@ -79,7 +79,7 @@ export const ToastContextProvider = memo((props: { children: JSX.Element }) => {
             opacity: props.opacity
           }}
         >
-          <Toast text={item.text} isControlled isOpen />
+          <Toast content={item.content} isControlled isOpen />
         </animated.div>
       ))}
       {props.children}

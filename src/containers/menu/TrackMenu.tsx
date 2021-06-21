@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useContext } from 'react'
 import { Dispatch } from 'redux'
 import { ID, PlayableType } from 'models/common/Identifiers'
 import { connect } from 'react-redux'
@@ -19,12 +19,11 @@ import {
   undoRepostTrack,
   shareTrack
 } from 'store/social/tracks/actions'
-
 import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtistPickConfirmation/actions'
-
 import { getAccountOwnedPlaylists } from 'store/account/selectors'
 import { newCollectionMetadata } from 'schemas'
 
+import { ToastContext } from 'components/toast/ToastContext'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
 import {
   FavoriteSource,
@@ -84,6 +83,8 @@ export type TrackMenuProps = OwnProps &
   ReturnType<typeof mapStateToProps>
 
 const TrackMenu = (props: TrackMenuProps) => {
+  const { toast } = useContext(ToastContext)
+
   const getMenu = () => {
     const {
       addTrackToPlaylist,
@@ -123,10 +124,9 @@ const TrackMenu = (props: TrackMenuProps) => {
       onClick: () => {
         if (trackId) {
           shareTrack(trackId)
+          toast(messages.copiedToClipboard)
         }
-      },
-      showToast: true,
-      toastText: messages.copiedToClipboard
+      }
     }
 
     const repostMenuItem = {
@@ -135,9 +135,8 @@ const TrackMenu = (props: TrackMenuProps) => {
       onClick: () =>
         setTimeout(() => {
           isReposted ? undoRepostTrack(trackId) : repostTrack(trackId)
-        }, 0),
-      showToast: true,
-      toastText: isReposted ? messages.unreposted : messages.reposted
+          toast(isReposted ? messages.unreposted : messages.reposted)
+        }, 0)
     }
 
     const favoriteMenuItem = {
