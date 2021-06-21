@@ -10,8 +10,6 @@ import AppContext from 'AppContext'
 import App from './containers/App'
 import './services/webVitals'
 import './index.css'
-// TODO: REMOVE, only added for testing
-import './services/solana-client'
 
 declare global {
   interface Window {
