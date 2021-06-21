@@ -265,13 +265,15 @@ const ConnectedPlaylistTile = memo(
       }
 
       return (
-        <Menu menu={menu} className={styles.menuContainer}>
+        <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuKebabContainer} ref={ref}>
-              <IconKebabHorizontal
-                className={cn(styles.iconKebabHorizontal)}
-                onClick={triggerPopup}
-              />
+            <div className={styles.menuContainer}>
+              <div className={styles.menuKebabContainer} onClick={triggerPopup}>
+                <IconKebabHorizontal
+                  className={cn(styles.iconKebabHorizontal)}
+                  ref={ref}
+                />
+              </div>
             </div>
           )}
         </Menu>

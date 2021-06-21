@@ -12,6 +12,7 @@ export type PopupMenuProps = {
   items: PopupMenuItem[]
   menuClassName?: string
   menuIconClassName?: string
+  onClose?: () => void
   popupClassName?: string
   position?:
     | 'topLeft'

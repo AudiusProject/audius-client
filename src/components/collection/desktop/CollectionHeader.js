@@ -163,15 +163,16 @@ const ViewerHasTracksButtons = props => {
       <span>
         <Menu {...props.overflowMenu}>
           {(ref, triggerPopup) => (
-            <Button
-              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-              leftIcon={<IconKebabHorizontal />}
-              onClick={triggerPopup}
-              ref={ref}
-              text={null}
-              textClassName={styles.buttonTextFormatting}
-              type={ButtonType.COMMON}
-            />
+            <div className={cn(styles.buttonSpacing)} ref={ref}>
+              <Button
+                className={cn(styles.buttonFormatting)}
+                leftIcon={<IconKebabHorizontal />}
+                onClick={triggerPopup}
+                text={null}
+                textClassName={styles.buttonTextFormatting}
+                type={ButtonType.COMMON}
+              />
+            </div>
           )}
         </Menu>
       </span>
@@ -212,16 +213,17 @@ const ViewerNoTracksButtons = props => {
       <span>
         <Menu {...props.overflowMenu}>
           {(ref, triggerPopup) => (
-            <Button
-              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-              leftIcon={<IconKebabHorizontal />}
-              textClassName={styles.buttonTextFormatting}
-              ref={ref}
-              text={null}
-              onClick={triggerPopup}
-              type={ButtonType.COMMON}
-              widthToHideText={1400}
-            />
+            <div className={cn(styles.buttonSpacing)} ref={ref}>
+              <Button
+                className={cn(styles.buttonFormatting)}
+                leftIcon={<IconKebabHorizontal />}
+                textClassName={styles.buttonTextFormatting}
+                text={null}
+                onClick={triggerPopup}
+                type={ButtonType.COMMON}
+                widthToHideText={1400}
+              />
+            </div>
           )}
         </Menu>
       </span>
@@ -364,15 +366,16 @@ const OwnerPublishedButtons = props => {
       <span>
         <Menu {...props.overflowMenu}>
           {(ref, triggerPopup) => (
-            <Button
-              className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-              leftIcon={<IconKebabHorizontal />}
-              onClick={triggerPopup}
-              ref={ref}
-              text={null}
-              textClassName={styles.buttonTextFormatting}
-              type={ButtonType.COMMON}
-            />
+            <div className={cn(styles.buttonSpacing)} ref={ref}>
+              <Button
+                className={cn(styles.buttonFormatting)}
+                leftIcon={<IconKebabHorizontal />}
+                onClick={triggerPopup}
+                text={null}
+                textClassName={styles.buttonTextFormatting}
+                type={ButtonType.COMMON}
+              />
+            </div>
           )}
         </Menu>
       </span>
