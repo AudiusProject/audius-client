@@ -76,7 +76,10 @@ const TrackListItem = ({
     }
   }
 
-  const onMoreClick = (e: MouseEvent) => e.stopPropagation()
+  const onMoreClick = (triggerPopup: () => void) => (e: MouseEvent) => {
+    e.stopPropagation()
+    triggerPopup()
+  }
 
   const onPlayTrack = () => {
     if (!deleted && togglePlay) togglePlay(track.uid, track.track_id)
@@ -152,17 +155,17 @@ const TrackListItem = ({
         </div>
         {deleted ? <div className={styles.more} style={{ width: 16 }} /> : null}
         {!disableActions && !deleted ? (
-          <div className={styles.more} onClick={onMoreClick}>
-            <Menu menu={menu}>
-              {(ref, triggerPopup) => (
+          <Menu menu={menu} className={cn(styles.more)}>
+            {(ref, triggerPopup) => (
+              <div className={cn(styles.menuContainer)}>
                 <IconKebabHorizontal
                   className={styles.iconKebabHorizontal}
-                  onClick={triggerPopup}
                   ref={ref}
+                  onClick={onMoreClick(triggerPopup)}
                 />
-              )}
-            </Menu>
-          </div>
+              </div>
+            )}
+          </Menu>
         ) : null}
       </div>
     </div>
