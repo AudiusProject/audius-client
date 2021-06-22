@@ -55,6 +55,7 @@ const NavIconPopover = () => {
         icon={<IconKebabHorizontal />}
         popupClassName={styles.scalingWrapper}
         iconClassName={styles.iconClass}
+        menuClassName={styles.menu}
         menuIconClassName={styles.menuIcon}
         position='bottomRight'
       />

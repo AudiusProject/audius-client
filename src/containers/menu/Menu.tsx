@@ -28,11 +28,12 @@ export type MenuProps = {
 }
 
 const Menu = (props: MenuProps) => {
-  const { menu, className } = props
+  const { className, menu, onClose } = props
 
   const renderMenu = (items: PopupMenuItem[]) => (
     <PopupMenu
       items={items}
+      onClose={props.onClose}
       position='bottomRight'
       renderTrigger={props.children}
       popupClassName={className}

@@ -42,3 +42,39 @@
   font-size: var(--font-xs);
   background-color: var(--white);
 }
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: var(--font-l);
+  font-weight: var(--font-demi-bold);
+  color: var(--neutral);
+}
+
+.listItem:hover {
+  cursor: pointer;
+  color: var(--white);
+  background: var(--secondary);
+}
+
+.add {
+  margin-right: 8px;
+}
+
+.add circle {
+  fill: var(--secondary);
+}
+
+.add path {
+  fill: var(--white);
+}
+
+.listItem:hover .add circle {
+  fill: var(--white);
+}
+
+.listItem:hover .add path {
+  fill: var(--secondary);
+}
