@@ -54,9 +54,11 @@ const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const WAUDIO_MINT_ADDRESS = process.env.REACT_APP_WAUDIO_MINT_ADDRESS
 const SOLANA_TOKEN_ADDRESS = process.env.REACT_APP_SOLANA_TOKEN_PROGRAM_ADDRESS
-const GENERATED_PROGRAM_PDA = process.env.REACT_APP_GENERATED_PROGRAM_PDA
-const FEE_PAYER_ADDRESS = process.env.FEE_PAYER_ADDRESS
-const AUDIUS_PROGRAM_ADDRESS = process.env.AUDIUS_PROGRAM_ADDRESS
+const SOLANA_GENERATED_PROGRAM_PDA =
+  process.env.REACT_APP_SOLANA_GENERATED_PROGRAM_PDA
+const SOLANA_FEE_PAYER_ADDRESS = process.env.REACT_APP_SOLANA_FEE_PAYER_ADDRESS
+const SOLANA_USER_BANK_PROGRAM_ADDRESS =
+  process.env.REACT_APP_SOLANA_USER_BANK_PROGRAM_ADDRESS
 const WORMHOLE_ADDRESS = process.env.REACT_APP_WORMHOLE_ADDRESS
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY
@@ -491,15 +493,16 @@ class AudiusBackend {
     }
   }
 
-  static async getSolanaWeb3Config() {
+  static getSolanaWeb3Config() {
     return {
+      error: false,
       solanaWeb3Config: AudiusLibs.configSolanaWeb3({
         solanaClusterEndpoint: SOLANA_CLUSTER_ENDPOINT,
         mintAddress: WAUDIO_MINT_ADDRESS,
         solanaTokenAddress: SOLANA_TOKEN_ADDRESS,
-        generatedProgramPDA: GENERATED_PROGRAM_PDA,
-        feePayerAddress: FEE_PAYER_ADDRESS,
-        audiusProgramAddress: AUDIUS_PROGRAM_ADDRESS
+        generatedProgramPDA: SOLANA_GENERATED_PROGRAM_PDA,
+        feePayerAddress: SOLANA_FEE_PAYER_ADDRESS,
+        audiusProgramAddress: SOLANA_USER_BANK_PROGRAM_ADDRESS
       })
     }
   }
