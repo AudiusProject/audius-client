@@ -1,0 +1,13 @@
+.text {
+  margin-right: 8px;
+}
+
+.link {
+  color: var(--static-white);
+  text-decoration: underline !important;
+}
+
+.link:hover {
+  text-decoration: none !important;
+  color: var(--static-white);
+}

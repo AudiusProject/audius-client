@@ -10,6 +10,7 @@
 
 .modalBody {
   overflow: hidden;
+  height: 650px;
   max-width: 500px;
   width: 100%;
   display: flex;

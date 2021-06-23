@@ -56,7 +56,8 @@ export const PopupMenu = ({
   ])
 
   const handleMenuItemClick = useCallback(
-    (item: PopupMenuItem) => () => {
+    (item: PopupMenuItem) => (e: React.MouseEvent) => {
+      e.stopPropagation()
       item.onClick()
       setIsPopupVisible(false)
     },

@@ -16,6 +16,7 @@ const animationConfig = {
 
 type ToastContextProps = {
   toast: (content: string | JSX.Element, timeout?: number) => void
+  clear: () => void
 }
 
 type Toast = {
@@ -35,6 +36,7 @@ const interp = (i: number) => (y: number) =>
     : `translate3d(0, ${y + i * TOAST_SPACING}px, 0)`
 
 export const ToastContext = createContext<ToastContextProps>({
+  clear: () => {},
   toast: () => {}
 })
 
@@ -52,6 +54,8 @@ export const ToastContextProvider = memo((props: { children: JSX.Element }) => {
     [setToasts]
   )
 
+  const clear = useCallback(() => setToasts([]), [setToasts])
+
   const transitions = useTransition(toasts, toast => toast.key, {
     from: (toast: Toast) => ({ y: FROM_POSITION, opacity: 0 }),
     enter: (toast: Toast) => ({
@@ -66,6 +70,7 @@ export const ToastContextProvider = memo((props: { children: JSX.Element }) => {
   return (
     <ToastContext.Provider
       value={{
+        clear,
         toast
       }}
     >

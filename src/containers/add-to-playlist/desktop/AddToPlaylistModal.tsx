@@ -27,13 +27,16 @@ import { SquareSizes } from 'models/common/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Collection from 'models/Collection'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
+import { Link } from 'react-router-dom'
+import LinkToastContent from 'components/toast/mobile/LinkToastContent'
 
 const messages = {
   title: 'Add to Playlist',
   newPlaylist: 'New Playlist',
   searchPlaceholder: 'Find one of your playlists',
   addedToast: 'Added To Playlist!',
-  createdToast: 'Playlist Created!'
+  createdToast: 'Playlist Created!',
+  view: 'View'
 }
 
 const AddToPlaylistModal = () => {
@@ -65,7 +68,15 @@ const AddToPlaylistModal = () => {
 
   const handlePlaylistClick = (playlist: Collection) => {
     dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
-    toast(messages.addedToast)
+    if (account && trackTitle) {
+      toast(
+        <LinkToastContent
+          text={messages.addedToast}
+          linkText={messages.view}
+          link={playlistPage(account.handle, trackTitle, playlist.playlist_id)}
+        />
+      )
+    }
     dispatch(close())
   }
 
@@ -78,11 +89,15 @@ const AddToPlaylistModal = () => {
     dispatch(
       createPlaylist(tempId, metadata, CreatePlaylistSource.FROM_TRACK, trackId)
     )
-    console.log('TRACKID', trackId)
     dispatch(addTrackToPlaylist(trackId, tempId))
-    toast(messages.createdToast)
     if (account && trackTitle) {
-      dispatch(pushRoute(playlistPage(account.handle, trackTitle, tempId)))
+      toast(
+        <LinkToastContent
+          text={messages.createdToast}
+          linkText={messages.view}
+          link={playlistPage(account.handle, trackTitle, tempId)}
+        />
+      )
     }
     dispatch(close())
   }
