@@ -54,11 +54,10 @@ const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const WAUDIO_MINT_ADDRESS = process.env.REACT_APP_WAUDIO_MINT_ADDRESS
 const SOLANA_TOKEN_ADDRESS = process.env.REACT_APP_SOLANA_TOKEN_PROGRAM_ADDRESS
-const SOLANA_GENERATED_PROGRAM_PDA =
-  process.env.REACT_APP_SOLANA_GENERATED_PROGRAM_PDA
+const CLAIMABLE_TOKEN_PDA = process.env.REACT_APP_CLAIMABLE_TOKEN_PDA
 const SOLANA_FEE_PAYER_ADDRESS = process.env.REACT_APP_SOLANA_FEE_PAYER_ADDRESS
-const SOLANA_USER_BANK_PROGRAM_ADDRESS =
-  process.env.REACT_APP_SOLANA_USER_BANK_PROGRAM_ADDRESS
+const CLAIMABLE_TOKEN_PROGRAM_ADDRESS =
+  process.env.REACT_APP_CLAIMABLE_TOKEN_PROGRAM_ADDRESS
 const WORMHOLE_ADDRESS = process.env.REACT_APP_WORMHOLE_ADDRESS
 
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY
@@ -500,9 +499,9 @@ class AudiusBackend {
         solanaClusterEndpoint: SOLANA_CLUSTER_ENDPOINT,
         mintAddress: WAUDIO_MINT_ADDRESS,
         solanaTokenAddress: SOLANA_TOKEN_ADDRESS,
-        generatedProgramPDA: SOLANA_GENERATED_PROGRAM_PDA,
+        claimableTokenPDA: CLAIMABLE_TOKEN_PDA,
         feePayerAddress: SOLANA_FEE_PAYER_ADDRESS,
-        audiusProgramAddress: SOLANA_USER_BANK_PROGRAM_ADDRESS
+        claimableTokenProgramAddress: CLAIMABLE_TOKEN_PROGRAM_ADDRESS
       })
     }
   }
@@ -1581,7 +1580,8 @@ class AudiusBackend {
       formFields.profilePicture,
       formFields.coverPhoto,
       hasWallet,
-      AudiusBackend._getHostUrl()
+      AudiusBackend._getHostUrl(),
+      getFeatureEnabled(FeatureFlags.CREATE_WAUDIO_USER_BANK_ON_SIGN_UP)
     )
   }
 
