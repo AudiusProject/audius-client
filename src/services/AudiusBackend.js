@@ -493,6 +493,19 @@ class AudiusBackend {
   }
 
   static getSolanaWeb3Config() {
+    if (
+      !SOLANA_CLUSTER_ENDPOINT ||
+      !WAUDIO_MINT_ADDRESS ||
+      !SOLANA_TOKEN_ADDRESS ||
+      !CLAIMABLE_TOKEN_PDA ||
+      !SOLANA_FEE_PAYER_ADDRESS ||
+      !CLAIMABLE_TOKEN_PROGRAM_ADDRESS
+    ) {
+      console.error('Missing solana configs')
+      return {
+        error: true
+      }
+    }
     return {
       error: false,
       solanaWeb3Config: AudiusLibs.configSolanaWeb3({
