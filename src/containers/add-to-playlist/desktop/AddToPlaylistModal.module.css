@@ -1,6 +1,6 @@
 .searchBar {
   height: 54px;
-  margin: 0px 16px;
+  margin: 24px 48px 0px;
 }
 
 .searchIcon {
@@ -18,7 +18,7 @@
 }
 
 .listContent {
-  padding: 24px 32px;
+  padding: 0px 32px 24px;
 }
 
 .simpleBar {

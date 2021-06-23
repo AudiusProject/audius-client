@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -48,6 +48,17 @@ const AddToPlaylistModal = () => {
 
   const [searchValue, setSearchValue] = useState('')
 
+  const filteredPlaylists = useMemo(() => {
+    const playlists = account?.playlists ?? []
+    return searchValue
+      ? playlists.filter((playlist: Collection) =>
+          playlist.playlist_name
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
+        )
+      : playlists
+  }, [searchValue, account])
+
   const handlePlaylistClick = (playlist: Collection) => {
     dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
     toast(messages.addedToast)
@@ -82,25 +93,25 @@ const AddToPlaylistModal = () => {
       allowScroll={false}
       bodyClassName={styles.modalBody}
     >
+      <SearchBar
+        className={styles.searchBar}
+        iconClassname={styles.searchIcon}
+        open
+        value={searchValue}
+        onSearch={setSearchValue}
+        onOpen={() => {}}
+        onClose={() => {}}
+        placeholder={messages.searchPlaceholder}
+        shouldAutoFocus={false}
+      />
       <SimpleBar className={styles.simpleBar}>
         <div className={styles.listContent}>
-          <SearchBar
-            className={styles.searchBar}
-            iconClassname={styles.searchIcon}
-            open
-            value={searchValue}
-            onSearch={setSearchValue}
-            onOpen={() => {}}
-            onClose={() => {}}
-            placeholder={messages.searchPlaceholder}
-            shouldAutoFocus={false}
-          />
           <div className={cn(styles.listItem)} onClick={handleCreatePlaylist}>
             <IconMultiselectAdd className={styles.add} />
             <span>{messages.newPlaylist}</span>
           </div>
           <div className={styles.list}>
-            {account?.playlists.map(playlist => (
+            {filteredPlaylists.map(playlist => (
               <div key={`${playlist.playlist_id}`}>
                 <PlaylistItem
                   playlist={playlist}
