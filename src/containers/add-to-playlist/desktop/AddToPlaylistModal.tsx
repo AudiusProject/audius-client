@@ -26,6 +26,7 @@ import { CreatePlaylistSource } from 'services/analytics'
 import { SquareSizes } from 'models/common/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Collection from 'models/Collection'
+import { getCollectionId } from 'containers/collection-page/store/selectors'
 
 const messages = {
   title: 'Add to Playlist',
@@ -42,6 +43,7 @@ const AddToPlaylistModal = () => {
   const isOpen = useSelector(getIsOpen)
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
+  const currentCollectionId = useSelector(getCollectionId)
   const account = useSelector((state: AppState) =>
     getAccountWithOwnPlaylists(state, {})
   )
@@ -49,14 +51,16 @@ const AddToPlaylistModal = () => {
   const [searchValue, setSearchValue] = useState('')
 
   const filteredPlaylists = useMemo(() => {
-    const playlists = account?.playlists ?? []
-    return searchValue
-      ? playlists.filter((playlist: Collection) =>
-          playlist.playlist_name
-            .toLowerCase()
-            .includes(searchValue.toLowerCase())
-        )
-      : playlists
+    return (account?.playlists ?? []).filter(
+      (playlist: Collection) =>
+        // Don't allow adding to this playlist if already on this playlist's page.
+        playlist.playlist_id !== currentCollectionId &&
+        (searchValue
+          ? playlist.playlist_name
+              .toLowerCase()
+              .includes(searchValue.toLowerCase())
+          : true)
+    )
   }, [searchValue, account])
 
   const handlePlaylistClick = (playlist: Collection) => {
