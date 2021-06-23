@@ -33,7 +33,7 @@ const Menu = (props: MenuProps) => {
   const renderMenu = (items: PopupMenuItem[]) => (
     <PopupMenu
       items={items}
-      onClose={props.onClose}
+      onClose={onClose}
       position='bottomRight'
       renderTrigger={props.children}
       popupClassName={className}

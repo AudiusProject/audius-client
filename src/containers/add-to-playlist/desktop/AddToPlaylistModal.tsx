@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react'
 
 import cn from 'classnames'
+import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from '@audius/stems'
 import SimpleBar from 'simplebar-react'
@@ -13,12 +14,18 @@ import {
   addTrackToPlaylist,
   createPlaylist
 } from 'store/cache/collections/actions'
+import { useCollectionCoverArt } from 'hooks/useImageSize'
 import { AppState } from 'store/types'
 
 import { getIsOpen, getTrackId, getTrackTitle } from '../store/selectors'
 import { close } from '../store/actions'
 import styles from './AddToPlaylistModal.module.css'
 import { newCollectionMetadata } from 'schemas'
+import { playlistPage } from 'utils/route'
+import { CreatePlaylistSource } from 'services/analytics'
+import { SquareSizes } from 'models/common/ImageSizes'
+import DynamicImage from 'components/dynamic-image/DynamicImage'
+import Collection from 'models/Collection'
 
 const messages = {
   title: 'Add to Playlist',
@@ -35,15 +42,13 @@ const AddToPlaylistModal = () => {
   const isOpen = useSelector(getIsOpen)
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
-  const [searchValue, setSearchValue] = useState('')
-
   const account = useSelector((state: AppState) =>
     getAccountWithOwnPlaylists(state, {})
   )
 
-  const handlePlaylistClick = (
-    playlist: NonNullable<typeof account>['playlists'][1]
-  ) => {
+  const [searchValue, setSearchValue] = useState('')
+
+  const handlePlaylistClick = (playlist: Collection) => {
     dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
     toast(messages.addedToast)
     dispatch(close())
@@ -55,9 +60,15 @@ const AddToPlaylistModal = () => {
       is_private: false
     })
     const tempId = `${Date.now()}`
-    dispatch(createPlaylist(tempId, metadata, trackId))
+    dispatch(
+      createPlaylist(tempId, metadata, CreatePlaylistSource.FROM_TRACK, trackId)
+    )
+    console.log('TRACKID', trackId)
     dispatch(addTrackToPlaylist(trackId, tempId))
-    toast(messages.addedToast)
+    toast(messages.createdToast)
+    if (account && trackTitle) {
+      dispatch(pushRoute(playlistPage(account.handle, trackTitle, tempId)))
+    }
     dispatch(close())
   }
 
@@ -89,19 +100,42 @@ const AddToPlaylistModal = () => {
             <span>{messages.newPlaylist}</span>
           </div>
           <div className={styles.list}>
-            {account?.playlists.map((playlist, i) => (
-              <div
-                key={`${playlist.playlist_id}`}
-                className={cn(styles.listItem)}
-                onClick={() => handlePlaylistClick(playlist)}
-              >
-                {playlist.playlist_name}
+            {account?.playlists.map(playlist => (
+              <div key={`${playlist.playlist_id}`}>
+                <PlaylistItem
+                  playlist={playlist}
+                  handleClick={handlePlaylistClick}
+                />
               </div>
             ))}
           </div>
         </div>
       </SimpleBar>
     </Modal>
+  )
+}
+
+type PlaylistItemProps = {
+  handleClick: (playlist: Collection) => void
+  playlist: Collection
+}
+
+const PlaylistItem = ({ handleClick, playlist }: PlaylistItemProps) => {
+  const image = useCollectionCoverArt(
+    playlist.playlist_id,
+    playlist._cover_art_sizes,
+    SquareSizes.SIZE_150_BY_150
+  )
+
+  return (
+    <div className={cn(styles.listItem)} onClick={() => handleClick(playlist)}>
+      <DynamicImage
+        className={styles.image}
+        wrapperClassName={styles.imageWrapper}
+        image={image}
+      />
+      <span>{playlist.playlist_name}</span>
+    </div>
   )
 }
 

@@ -1,5 +1,6 @@
 .searchBar {
   height: 54px;
+  margin: 0px 16px;
 }
 
 .searchIcon {
@@ -17,7 +18,7 @@
 }
 
 .listContent {
-  padding: 24px 42px 42px;
+  padding: 24px 32px;
 }
 
 .simpleBar {
@@ -60,7 +61,7 @@
 }
 
 .add {
-  margin-right: 8px;
+  margin-right: 16px;
 }
 
 .add circle {
@@ -77,4 +78,18 @@
 
 .listItem:hover .add path {
   fill: var(--secondary);
+}
+
+.listItem:hover .image {
+  border: 1px solid var(--white);
+}
+
+.imageWrapper {
+  height: 32px;
+  width: 32px;
+  margin-right: 8px;
+}
+
+.image {
+  border-radius: 4px;
 }
