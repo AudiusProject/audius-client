@@ -112,7 +112,6 @@ const ProfilePage = (props: ProfilePageProps) => {
         requiresUserReview
       } = await formatTwitterProfile(twitterProfile)
 
-      // call validate here with callback
       validateHandle(profile.screen_name, (error: boolean) => {
         setTwitterProfile(
           uuid,
