@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext } from 'react'
+import { useContext } from 'react'
 import { Dispatch } from 'redux'
 import { ID, PlayableType } from 'models/common/Identifiers'
 import { connect } from 'react-redux'
@@ -32,12 +32,7 @@ import {
   ShareSource,
   CreatePlaylistSource
 } from 'services/analytics'
-import { removeNullable } from 'utils/typeUtils'
-import {
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuProps
-} from 'components/general/PopupMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 
 const messages = {
   addToNewPlaylist: 'Add to New Playlist',
@@ -88,8 +83,6 @@ const TrackMenu = (props: TrackMenuProps) => {
 
   const getMenu = () => {
     const {
-      addTrackToPlaylist,
-      createEmptyPlaylist,
       extraMenuItems,
       goToRoute,
       handle,
@@ -109,7 +102,6 @@ const TrackMenu = (props: TrackMenuProps) => {
       openAddToPlaylistModal,
       openEditTrackModal,
       openEmbedModal,
-      playlists,
       repostTrack,
       saveTrack,
       setArtistPick,
@@ -149,19 +141,6 @@ const TrackMenu = (props: TrackMenuProps) => {
           isFavorited ? unsaveTrack(trackId) : saveTrack(trackId)
         }, 0)
     }
-
-    // const playlistMenuItems = playlists
-    //   .map(playlist => {
-    //     // Don't allow adding to this playlist if already on this playlist's page.
-    //     if (playlist && playlist.id !== props.currentCollectionId) {
-    //       return {
-    //         text: playlist.name,
-    //         onClick: () => addTrackToPlaylist(trackId, playlist.id)
-    //       }
-    //     }
-    //     return null
-    //   })
-    //   .filter(removeNullable)
 
     const addToPlaylistMenuItem = {
       text: messages.addToPlaylist,

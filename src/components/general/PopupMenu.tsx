@@ -38,7 +38,6 @@ export type PopupMenuItem = {
 
 export const PopupMenu = ({
   items,
-  // TODO: sk - can this be removed?
   menuClassName,
   menuIconClassName,
   popupClassName,

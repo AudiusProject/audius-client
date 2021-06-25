@@ -1,4 +1,3 @@
-import React from 'react'
 import { Dispatch } from 'redux'
 import { ID } from 'models/common/Identifiers'
 import { connect } from 'react-redux'
@@ -7,11 +6,7 @@ import { profilePage } from 'utils/route'
 
 import * as socialActions from 'store/social/users/actions'
 
-import {
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuProps
-} from 'components/general/PopupMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 import { FollowSource, ShareSource } from 'services/analytics'
 
 export type OwnProps = {

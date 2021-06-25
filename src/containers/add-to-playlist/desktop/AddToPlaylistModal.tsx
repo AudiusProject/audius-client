@@ -1,7 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
 
 import cn from 'classnames'
-import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { Modal } from '@audius/stems'
 import SimpleBar from 'simplebar-react'
@@ -27,8 +26,7 @@ import { SquareSizes } from 'models/common/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Collection from 'models/Collection'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
-import { Link } from 'react-router-dom'
-import LinkToastContent from 'components/toast/mobile/LinkToastContent'
+import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 
 const messages = {
   title: 'Add to Playlist',
@@ -70,7 +68,7 @@ const AddToPlaylistModal = () => {
     dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
     if (account && trackTitle) {
       toast(
-        <LinkToastContent
+        <ToastLinkContent
           text={messages.addedToast}
           linkText={messages.view}
           link={playlistPage(account.handle, trackTitle, playlist.playlist_id)}
@@ -92,7 +90,7 @@ const AddToPlaylistModal = () => {
     dispatch(addTrackToPlaylist(trackId, tempId))
     if (account && trackTitle) {
       toast(
-        <LinkToastContent
+        <ToastLinkContent
           text={messages.createdToast}
           linkText={messages.view}
           link={playlistPage(account.handle, trackTitle, tempId)}

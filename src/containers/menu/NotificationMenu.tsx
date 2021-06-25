@@ -1,15 +1,11 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { connect } from 'react-redux'
 import { push as pushRoute } from 'connected-react-router'
 import { Dispatch } from 'redux'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
 import { NotificationType } from 'containers/notification/store/types'
 
-import {
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuProps
-} from 'components/general/PopupMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 import { AppState } from 'store/types'
 
 export type OwnProps = {

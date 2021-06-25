@@ -1,4 +1,3 @@
-import React from 'react'
 import { connect } from 'react-redux'
 import { push as pushRoute } from 'connected-react-router'
 import { Dispatch } from 'redux'
@@ -12,11 +11,7 @@ import { ShareSource, FavoriteSource, RepostSource } from 'services/analytics'
 import { PlayableType, ID } from 'models/common/Identifiers'
 import { AppState } from 'store/types'
 import { getUser } from 'store/cache/users/selectors'
-import {
-  PopupMenu,
-  PopupMenuItem,
-  PopupMenuProps
-} from 'components/general/PopupMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 
 type PlaylistId = number
 
