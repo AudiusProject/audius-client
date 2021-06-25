@@ -76,6 +76,9 @@ const getComputedPosition = (position, rect, wrapper) => {
 const Popup = ({
   className,
   wrapperClassName,
+  // An optional ref to a container that, when a click happens inside
+  // will ignore the clickOutside logic
+  ignoreClickOutsideRef,
   isVisible,
   animationDuration,
   onClose,
@@ -189,7 +192,12 @@ const Popup = ({
     }, animationDuration)
   }, [onClose, onAfterClose, animationDuration])
 
-  const clickOutsideRef = useClickOutside(handleClose)
+  const clickOutsideRef = useClickOutside(handleClose, target => {
+    if (target instanceof Element && ignoreClickOutsideRef) {
+      return ignoreClickOutsideRef.current.contains(target)
+    }
+    return false
+  })
 
   const transitions = useTransition(isVisible, null, {
     from: {

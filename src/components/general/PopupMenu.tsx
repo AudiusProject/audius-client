@@ -45,7 +45,8 @@ export const PopupMenu = ({
   renderTrigger,
   title
 }: PopupMenuProps) => {
-  const ref = useRef<any>()
+  const ignoreClickOutsideRef = useRef<any>()
+  const triggerRef = useRef<any>()
 
   const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
 
@@ -68,10 +69,11 @@ export const PopupMenu = ({
   ])
 
   return (
-    <div className={cn(popupClassName)}>
-      {renderTrigger(ref, triggerPopup)}
+    <div className={cn(popupClassName)} ref={ignoreClickOutsideRef}>
+      {renderTrigger(triggerRef, triggerPopup)}
       <Popup
-        triggerRef={ref}
+        ignoreClickOutsideRef={ignoreClickOutsideRef}
+        triggerRef={triggerRef}
         className={styles.fit}
         wrapperClassName={styles.fitWrapper}
         isVisible={isPopupVisible}
