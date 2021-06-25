@@ -153,10 +153,10 @@ const CollectionArtCard = g(
               // @ts-ignore
               menu={menu}
               onClose={() => setIsPerspectiveDisabled(false)}
+              className={styles.iconKebabHorizontalWrapper}
             >
               {(ref, triggerPopup) => (
                 <div
-                  className={styles.iconKebabHorizontalWrapper}
                   onClick={e => {
                     e.stopPropagation()
                     setIsPerspectiveDisabled(true)
