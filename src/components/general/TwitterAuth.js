@@ -12,8 +12,6 @@ class TwitterLogin extends Component {
     super(props)
 
     this.onButtonClick = this.onButtonClick.bind(this)
-    this.getOauthToken = this.getOauthToken.bind(this)
-    window.getOauthToken = this.getOauthToken
   }
 
   onButtonClick(e) {
@@ -176,8 +174,6 @@ class TwitterLogin extends Component {
     )
   }
 }
-
-window.TwitterLogin = TwitterLogin
 
 TwitterLogin.propTypes = {
   tag: PropTypes.string,
