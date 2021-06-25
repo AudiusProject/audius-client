@@ -29,8 +29,8 @@ export const useFlag = (flag: FeatureFlags) => {
   const userIdFlag = flagCohortType[flag] === FeatureFlagCohortType.USER_ID
   const hasAccount = useSelector(getAccountUser)
   const shouldRecompute = userIdFlag ? hasAccount : true
-  // eslint complains about configLoaded as part of the deps array
   const isEnabled = useMemo(
+    // We want configLoaded and shouldRecompute to trigger refreshes of the memo
     // eslint-disable-next-line
     () => getFeatureEnabled(flag), [flag, configLoaded, shouldRecompute]
   )
