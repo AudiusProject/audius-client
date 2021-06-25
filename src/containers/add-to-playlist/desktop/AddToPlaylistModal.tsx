@@ -64,7 +64,7 @@ const AddToPlaylistModal = () => {
               .includes(searchValue.toLowerCase())
           : true)
     )
-  }, [searchValue, account])
+  }, [searchValue, account, currentCollectionId])
 
   const handlePlaylistClick = (playlist: Collection) => {
     dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
