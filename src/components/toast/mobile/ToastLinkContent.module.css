@@ -4,10 +4,11 @@
 
 .link {
   color: var(--static-white);
-  text-decoration: underline !important;
+  border-bottom: 1px solid var(--static-white);
+  transition: border-color 100ms;
 }
 
 .link:hover {
-  text-decoration: none !important;
   color: var(--static-white);
+  border-color: rgba(0, 0, 0, 0);
 }
