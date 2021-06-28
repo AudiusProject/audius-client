@@ -104,9 +104,14 @@ const Announcement = ({
           <span className={styles.date}>{displayTime}</span>
           <div className={styles.menuContainer} onClick={onMenuClick}>
             <Menu menu={menuProps}>
-              <div className={styles.iconContainer}>
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+              {(ref, triggerPopup) => (
+                <div className={styles.iconContainer} onClick={triggerPopup}>
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </div>
         </div>

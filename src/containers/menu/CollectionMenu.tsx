@@ -1,10 +1,8 @@
-import React from 'react'
-
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import CascadingMenu from 'components/navigation/CascadingMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 import * as embedModalActions from 'containers/embed-modal/store/actions'
 import { PlayableType, ID } from 'models/common/Identifiers'
 import { ShareSource, FavoriteSource, RepostSource } from 'services/analytics'
@@ -15,29 +13,28 @@ import { AppState } from 'store/types'
 import { albumPage, playlistPage, profilePage } from 'utils/route'
 
 type PlaylistId = number
+
 export type OwnProps = {
-  mount: string
-  children?: JSX.Element
-  className?: string
-  type: 'album' | 'playlist'
+  children: (items: PopupMenuItem[]) => JSX.Element
+  extraMenuItems: PopupMenuItem[]
   handle: string
-  playlistName: string
-  isOwner: boolean
-  isArtist: boolean
-  isPublic: boolean
-  playlistId: PlaylistId
   includeEdit?: boolean
-  includeShare: boolean
-  includeRepost: boolean
-  includeFavorite: boolean
   includeEmbed: boolean
+  includeFavorite: boolean
+  includeRepost: boolean
+  includeShare: boolean
   includeVisitPage: boolean
+  isArtist: boolean
   isFavorited: boolean
+  isOwner: boolean
+  isPublic: boolean
   isReposted: boolean
-  extraMenuItems: object[]
-  onShare?: () => void
-  onRepost?: () => void
   onClose?: () => void
+  onRepost?: () => void
+  onShare?: () => void
+  playlistId: PlaylistId
+  playlistName: string
+  type: 'album' | 'playlist'
 }
 
 export type CollectionMenuProps = OwnProps &
@@ -48,7 +45,7 @@ const messages = {
   embed: 'Embed'
 }
 
-const CollectionMenu: React.FC<CollectionMenuProps> = props => {
+const CollectionMenu = (props: CollectionMenuProps) => {
   const getMenu = () => {
     const {
       type,
@@ -131,7 +128,7 @@ const CollectionMenu: React.FC<CollectionMenuProps> = props => {
         )
     }
 
-    const menu: { items: object[] } = { items: [] }
+    const menu: { items: PopupMenuItem[] } = { items: [] }
 
     if (menu) {
       if (includeShare) menu.items.push(shareMenuItem)
@@ -157,18 +154,9 @@ const CollectionMenu: React.FC<CollectionMenuProps> = props => {
     return menu
   }
 
-  const collectionMenu = getMenu()
+  const menu = getMenu()
 
-  return (
-    <CascadingMenu
-      menu={collectionMenu}
-      mount={props.mount}
-      onClose={props.onClose}
-      className={props.className}
-    >
-      {props.children}
-    </CascadingMenu>
-  )
+  return props.children(menu.items)
 }
 
 function mapStateToProps(state: AppState, props: OwnProps) {

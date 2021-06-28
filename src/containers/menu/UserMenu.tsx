@@ -1,22 +1,19 @@
-import React from 'react'
-
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import CascadingMenu from 'components/navigation/CascadingMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 import { ID } from 'models/common/Identifiers'
 import { FollowSource, ShareSource } from 'services/analytics'
 import * as socialActions from 'store/social/users/actions'
 import { profilePage } from 'utils/route'
 
 export type OwnProps = {
-  children?: JSX.Element
-  type: 'user'
-  mount?: string
-  handle: string
-  userId: ID
+  children: (items: PopupMenuItem[]) => JSX.Element
   currentUserFollows: boolean
+  handle: string
+  type: 'user'
+  userId: ID
 }
 
 export type UserMenuProps = OwnProps & ReturnType<typeof mapDispatchToProps>
@@ -59,11 +56,7 @@ const Menu = (props: UserMenuProps) => {
 
   const menu = getMenu()
 
-  return (
-    <CascadingMenu menu={menu} mount={props.mount}>
-      {props.children}
-    </CascadingMenu>
-  )
+  return props.children(menu.items)
 }
 
 function mapDispatchToProps(dispatch: Dispatch) {

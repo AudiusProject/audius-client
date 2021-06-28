@@ -3,7 +3,7 @@ import React from 'react'
 import { IconCrown, IconDashboard, IconSettings } from '@audius/stems'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontalAlt.svg'
-import IconPopup from 'components/general/IconPopup'
+import { PopupMenuIconButton } from 'components/general/PopupMenuIconButton'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { getAccountIsCreator } from 'store/account/selectors'
 import { useSelector } from 'utils/reducer'
@@ -50,8 +50,8 @@ const NavIconPopover = () => {
 
   return (
     <div className={styles.headerIconWrapper}>
-      <IconPopup
-        menu={{ items: menuItems }}
+      <PopupMenuIconButton
+        items={menuItems}
         icon={<IconKebabHorizontal />}
         popupClassName={styles.scalingWrapper}
         iconClassName={styles.iconClass}

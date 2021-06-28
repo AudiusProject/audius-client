@@ -243,11 +243,10 @@ const ConnectedPlaylistTile = memo(
     ])
 
     const renderOverflowMenu = () => {
-      const menu: CollectionkMenuProps = {
+      const menu: Omit<CollectionkMenuProps, 'children'> = {
         handle: handle,
         isFavorited,
         isReposted,
-        mount: 'page',
         type: isAlbum ? 'album' : 'playlist', // playlist or album
         playlistId: id,
         playlistName: title,
@@ -263,10 +262,17 @@ const ConnectedPlaylistTile = memo(
       }
 
       return (
-        <Menu menu={menu} className={styles.menuContainer}>
-          <div className={styles.menuKebabContainer}>
-            <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
-          </div>
+        <Menu menu={menu}>
+          {(ref, triggerPopup) => (
+            <div className={styles.menuContainer}>
+              <div className={styles.menuKebabContainer} onClick={triggerPopup}>
+                <IconKebabHorizontal
+                  className={cn(styles.iconKebabHorizontal)}
+                  ref={ref}
+                />
+              </div>
+            </div>
+          )}
         </Menu>
       )
     }

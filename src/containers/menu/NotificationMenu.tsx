@@ -1,24 +1,21 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import CascadingMenu from 'components/navigation/CascadingMenu'
+import { PopupMenuItem } from 'components/general/PopupMenu'
 import { NotificationType } from 'containers/notification/store/types'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
 import { AppState } from 'store/types'
 
 export type OwnProps = {
-  type: 'notification'
+  children: (items: PopupMenuItem[]) => JSX.Element
   notificationId: string
   notificationType: NotificationType
-  children?: JSX.Element
-  mount?: string
   onHide: (notificationId: string) => void
   onToggleNotification?: () => void
-  mountRef: JSX.Element
-  scrollRef: JSX.Element
+  type: 'notification'
 }
 
 export type NotificationMenuProps = OwnProps &
@@ -32,7 +29,7 @@ const NotificationMenu = (props: NotificationMenuProps) => {
   }, [onHide, notificationId])
 
   const getMenu = () => {
-    const menu: { items: object[] } = {
+    const menu: { items: PopupMenuItem[] } = {
       items: [
         {
           text: 'Hide this notification',
@@ -43,20 +40,9 @@ const NotificationMenu = (props: NotificationMenuProps) => {
     return menu
   }
 
-  const NotificationMenu = getMenu()
-  const { mountRef } = props
-  const getContainer = useCallback(() => (mountRef as any).current, [mountRef])
-  return (
-    <CascadingMenu
-      getContainer={getContainer}
-      scrollRef={props.scrollRef}
-      autoAdjustOverflow={false}
-      menu={NotificationMenu}
-      mount={props.mount}
-    >
-      {props.children}
-    </CascadingMenu>
-  )
+  const menu = getMenu()
+
+  return props.children(menu.items)
 }
 
 function mapStateToProps(store: AppState) {
@@ -69,10 +55,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route))
   }
-}
-
-NotificationMenu.defaultProps = {
-  mount: 'page'
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationMenu)

@@ -13,6 +13,8 @@ type IconButtonProps = {
   icon: ReactNode
 }
 
+// TODO: sk - this should use the Button component from Stems
+
 // A button that is just an icon, no text.
 const IconButton = forwardRef(
   (

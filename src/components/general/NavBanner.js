@@ -4,23 +4,21 @@ import cn from 'classnames'
 import PropTypes from 'prop-types'
 
 import { ReactComponent as SortIcon } from 'assets/img/iconSort.svg'
+import { PopupMenuIconButton } from 'components/general/PopupMenuIconButton'
 
-import IconPopup from './IconPopup'
 import styles from './NavBanner.module.css'
 
 const NavBanner = props => {
-  const menu = {
-    items: [
-      {
-        text: 'Sort by Recent',
-        onClick: props.onSortByRecent
-      },
-      {
-        text: 'Sort by Popular',
-        onClick: props.onSortByPopular
-      }
-    ]
-  }
+  const menuItems = [
+    {
+      text: 'Sort by Recent',
+      onClick: props.onSortByRecent
+    },
+    {
+      text: 'Sort by Popular',
+      onClick: props.onSortByPopular
+    }
+  ]
   return (
     <div className={styles.wrapper}>
       <div className={styles.background} />
@@ -35,10 +33,9 @@ const NavBanner = props => {
           {props.isArtist && (
             <div className={styles.dropdown}>
               {!props.dropdownDisabled && (
-                <IconPopup
+                <PopupMenuIconButton
                   icon={<SortIcon />}
-                  menu={menu}
-                  disabled={false}
+                  items={menuItems}
                   position='bottomLeft'
                 />
               )}
