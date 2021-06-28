@@ -109,6 +109,7 @@ const AddToPlaylistModal = () => {
       onClose={() => dispatch(close())}
       allowScroll={false}
       bodyClassName={styles.modalBody}
+      headerContainerClassName={styles.modalHeader}
     >
       <SearchBar
         className={styles.searchBar}
