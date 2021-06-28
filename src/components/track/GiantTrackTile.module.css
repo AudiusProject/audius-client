@@ -30,6 +30,7 @@
   display: flex;
   justify-content: space-between;
   overflow-x: hidden;
+  overflow-y: hidden;
   overflow-wrap: break-word;
   padding-bottom: 4px;
   margin-bottom: -4px;
