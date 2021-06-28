@@ -1,11 +1,12 @@
 import React from 'react'
+
+import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import IconPopup from './IconPopup'
 import { ReactComponent as SortIcon } from 'assets/img/iconSort.svg'
 
+import IconPopup from './IconPopup'
 import styles from './NavBanner.module.css'
-import cn from 'classnames'
 
 const NavBanner = props => {
   const menu = {

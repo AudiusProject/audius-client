@@ -1,12 +1,15 @@
+import React from 'react'
+
 import { IconCrown, IconDashboard, IconSettings } from '@audius/stems'
+
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontalAlt.svg'
 import IconPopup from 'components/general/IconPopup'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
-import React from 'react'
 import { getAccountIsCreator } from 'store/account/selectors'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE, DASHBOARD_PAGE, SETTINGS_PAGE } from 'utils/route'
 import { removeNullable } from 'utils/typeUtils'
+
 import styles from './NavIconPopover.module.css'
 
 const messages = {

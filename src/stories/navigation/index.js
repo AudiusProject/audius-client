@@ -1,8 +1,9 @@
 import React from 'react'
+
 import { storiesOf } from '@storybook/react'
 
-import Dropdown from 'components/navigation/Dropdown'
 import CascadingMenu from 'components/navigation/CascadingMenu'
+import Dropdown from 'components/navigation/Dropdown'
 import Tabs from 'components/navigation/Tabs'
 
 export default () => {

@@ -1,23 +1,23 @@
 import React from 'react'
 
-import ServiceSelectionModal from 'containers/service-selection/ServiceSelectionModal'
+import DeletePlaylistConfirmationModal from 'containers/delete-playlist-confirmation-modal/DeletePlaylistConfirmationModal'
+import EditPlaylistModal from 'containers/edit-playlist/desktop/EditPlaylistModal'
 import EditTrackModal from 'containers/edit-track/EditTrackModal'
+import FirstUploadModal from 'containers/first-upload-modal/FirstUploadModal'
 import PasswordResetModal from 'containers/password-reset/PasswordResetModal'
+import ServiceSelectionModal from 'containers/service-selection/ServiceSelectionModal'
 import ConnectedMobileOverflowModal from 'containers/track-overflow-modal/ConnectedMobileOverflowModal'
 import UnfollowConfirmationModal from 'containers/unfollow-confirmation-modal/UnfollowConfirmationModal'
-import DeletePlaylistConfirmationModal from 'containers/delete-playlist-confirmation-modal/DeletePlaylistConfirmationModal'
-import EmbedModal from './embed-modal/EmbedModal'
-import ConnectedUserListModal from 'containers/user-list-modal/ConnectedUserListModal'
-import BrowserPushConfirmationModal from './browser-push-confirmation-modal/BrowserPushConfirmationModal'
-import FirstUploadModal from 'containers/first-upload-modal/FirstUploadModal'
 import UnloadDialog from 'containers/unload-dialog/UnloadDialog'
-import EditPlaylistModal from 'containers/edit-playlist/desktop/EditPlaylistModal'
-
-import { getClient } from 'utils/clientUtil'
+import ConnectedUserListModal from 'containers/user-list-modal/ConnectedUserListModal'
 import Client from 'models/Client'
+import { getClient } from 'utils/clientUtil'
+
 import AppCTAModal from './app-cta-modal/AppCTAModal'
-import TierExplainerModal from './user-badges/TierExplainerModal'
 import RewardsModals from './audio-rewards-page/components/modals/RewardsModals'
+import BrowserPushConfirmationModal from './browser-push-confirmation-modal/BrowserPushConfirmationModal'
+import EmbedModal from './embed-modal/EmbedModal'
+import TierExplainerModal from './user-badges/TierExplainerModal'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 

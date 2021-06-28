@@ -1,8 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react'
+
 import cn from 'classnames'
+
 import Popup from 'components/general/Popup'
-import styles from './IconPopup.module.css'
+
 import IconButton from './IconButton'
+import styles from './IconPopup.module.css'
 
 export const iconPopupClass = 'iconPopup'
 

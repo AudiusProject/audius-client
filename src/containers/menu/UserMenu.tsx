@@ -1,14 +1,14 @@
 import React from 'react'
-import { Dispatch } from 'redux'
-import { ID } from 'models/common/Identifiers'
-import { connect } from 'react-redux'
-import { push as pushRoute } from 'connected-react-router'
-import { profilePage } from 'utils/route'
 
-import * as socialActions from 'store/social/users/actions'
+import { push as pushRoute } from 'connected-react-router'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 
 import CascadingMenu from 'components/navigation/CascadingMenu'
+import { ID } from 'models/common/Identifiers'
 import { FollowSource, ShareSource } from 'services/analytics'
+import * as socialActions from 'store/social/users/actions'
+import { profilePage } from 'utils/route'
 
 export type OwnProps = {
   children?: JSX.Element

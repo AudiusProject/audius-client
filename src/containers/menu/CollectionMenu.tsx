@@ -1,18 +1,18 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { push as pushRoute } from 'connected-react-router'
-import { Dispatch } from 'redux'
-import { albumPage, playlistPage, profilePage } from 'utils/route'
 
-import * as socialActions from 'store/social/collections/actions'
-import * as embedModalActions from 'containers/embed-modal/store/actions'
-import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
+import { push as pushRoute } from 'connected-react-router'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 
 import CascadingMenu from 'components/navigation/CascadingMenu'
-import { ShareSource, FavoriteSource, RepostSource } from 'services/analytics'
+import * as embedModalActions from 'containers/embed-modal/store/actions'
 import { PlayableType, ID } from 'models/common/Identifiers'
-import { AppState } from 'store/types'
+import { ShareSource, FavoriteSource, RepostSource } from 'services/analytics'
+import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import { getUser } from 'store/cache/users/selectors'
+import * as socialActions from 'store/social/collections/actions'
+import { AppState } from 'store/types'
+import { albumPage, playlistPage, profilePage } from 'utils/route'
 
 type PlaylistId = number
 export type OwnProps = {
