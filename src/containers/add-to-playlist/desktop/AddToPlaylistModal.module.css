@@ -92,8 +92,15 @@
   height: 32px;
   width: 32px;
   margin-right: 8px;
+  flex-shrink: 0;
 }
 
 .image {
   border-radius: 4px;
+}
+
+.playlistName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

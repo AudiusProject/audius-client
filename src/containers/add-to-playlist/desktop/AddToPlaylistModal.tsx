@@ -163,7 +163,7 @@ const PlaylistItem = ({ handleClick, playlist }: PlaylistItemProps) => {
         wrapperClassName={styles.imageWrapper}
         image={image}
       />
-      <span>{playlist.playlist_name}</span>
+      <span className={styles.playlistName}>{playlist.playlist_name}</span>
     </div>
   )
 }
