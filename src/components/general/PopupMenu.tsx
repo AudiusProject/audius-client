@@ -24,6 +24,7 @@ export type PopupMenuProps = {
     ref: React.MutableRefObject<any>,
     triggerPopup: () => void
   ) => React.ReactNode | Element
+  zIndex?: number
 }
 
 export type PopupMenuItem = {
@@ -43,7 +44,8 @@ export const PopupMenu = ({
   popupClassName,
   position,
   renderTrigger,
-  title
+  title,
+  zIndex
 }: PopupMenuProps) => {
   const ignoreClickOutsideRef = useRef<any>()
   const triggerRef = useRef<any>()
@@ -81,6 +83,7 @@ export const PopupMenu = ({
         position={position}
         title={title || ''}
         noHeader={!title}
+        zIndex={zIndex}
       >
         <div className={styles.menu}>
           {items.map((item, i) => (

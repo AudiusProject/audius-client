@@ -88,7 +88,8 @@ const Popup = ({
   triggerRef,
   // The direction that the popup expands in
   position = 'bottomCenter',
-  children
+  children,
+  zIndex
 }) => {
   const wrapper = useRef()
   const placeholder = useRef()
@@ -216,12 +217,18 @@ const Popup = ({
     unique: true
   })
 
+  const wrapperStyle = zIndex ? { zIndex } : {}
+
   return (
     <>
       <div ref={placeholder} className={cn(styles.placeholder, className)} />
       {/* Portal the actual popup out of this dom structure so that it can break out of overflows */}
       {ReactDOM.createPortal(
-        <div ref={wrapper} className={cn(styles.wrapper, wrapperClassName)}>
+        <div
+          ref={wrapper}
+          className={cn(styles.wrapper, wrapperClassName)}
+          style={wrapperStyle}
+        >
           {transitions.map(({ item, key, props }) =>
             item ? (
               <animated.div
@@ -264,7 +271,8 @@ Popup.propTypes = {
   onAfterClose: PropTypes.func,
   // Top of popup title
   title: PropTypes.string.isRequired,
-  children: PropTypes.arrayOf(PropTypes.element)
+  children: PropTypes.arrayOf(PropTypes.element),
+  zIndex: PropTypes.number
 }
 
 Popup.defaultProps = {

@@ -37,6 +37,7 @@ const Menu = (props: MenuProps) => {
       position='bottomRight'
       renderTrigger={props.children}
       popupClassName={className}
+      zIndex={12}
     />
   )
 
