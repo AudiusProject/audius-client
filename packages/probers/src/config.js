@@ -3,7 +3,7 @@ import args from './args'
 // Generic config applies to all environments
 const genericConfig = {
   // Amount of time that most tests should time out after
-  defaultTestTimeout: 2 /* min */ * 60 /* sec */ * 1000 /* ms */,
+  defaultTestTimeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */,
   // Worst case 5s for chain op, 5s for indexing
   confirmerTimeout: 10 /* sec */ * 1000 /* ms */,
   // Amount of time that should be spent waiting for inflight requests
