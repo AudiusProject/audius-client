@@ -95,7 +95,7 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
 
   /** Start Listening Page */
   await page.waitForXPath("//span[contains(text(), 'Start Listening')]", {
-    timeout: 180 /* sec */ * 1000 /* ms */
+    timeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */
   })
   await waitForAndClickButton(page, 'startListening')
 
