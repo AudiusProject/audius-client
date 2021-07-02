@@ -1,9 +1,13 @@
 import React from 'react'
 
-import { IconCrown, IconDashboard, IconSettings } from '@audius/stems'
-
+import {
+  IconCrown,
+  IconDashboard,
+  IconSettings,
+  PopupMenu,
+  PopupPosition
+} from '@audius/stems'
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontalAlt.svg'
-import { PopupMenuIconButton } from 'components/general/PopupMenuIconButton'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { getAccountIsCreator } from 'store/account/selectors'
 import { useSelector } from 'utils/reducer'
@@ -43,21 +47,27 @@ const NavIconPopover = () => {
       text: messages.audio,
       onClick: () => navigate(AUDIO_PAGE),
       className: styles.rewardsMenu,
-      menuIconClassName: styles.crownIcon,
-      icon: <IconCrown />
+      icon: (
+        <div className={styles.crownIcon}>
+          <IconCrown />
+        </div>
+      )
     }
   ].filter(removeNullable)
 
   return (
     <div className={styles.headerIconWrapper}>
-      <PopupMenuIconButton
+      <PopupMenu
         items={menuItems}
-        icon={<IconKebabHorizontal />}
-        popupClassName={styles.scalingWrapper}
-        iconClassName={styles.iconClass}
-        menuClassName={styles.menu}
-        menuIconClassName={styles.menuIcon}
-        position='bottomRight'
+        position={PopupPosition.BOTTOM_RIGHT}
+        renderTrigger={(anchorRef, triggerPopup) => {
+          return (
+            <div className={styles.icon}>
+              <IconKebabHorizontal ref={anchorRef} onClick={triggerPopup} />
+            </div>
+          )
+        }}
+        zIndex={15}
       />
     </div>
   )
