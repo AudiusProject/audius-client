@@ -3,8 +3,9 @@ import React from 'react'
 import {
   PopupMenu,
   PopupMenuItem,
-  PopupMenuProps
-} from 'components/general/PopupMenu'
+  PopupMenuProps,
+  PopupPosition
+} from '@audius/stems'
 
 import CollectionMenu, {
   OwnProps as CollectionMenuProps
@@ -35,9 +36,8 @@ const Menu = (props: MenuProps) => {
     <PopupMenu
       items={items}
       onClose={onClose}
-      position='bottomRight'
+      position={PopupPosition.BOTTOM_RIGHT}
       renderTrigger={props.children}
-      popupClassName={className}
       zIndex={12}
     />
   )
