@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { useCallback, useEffect, useState, useRef } from 'preact/hooks'
-import { getCollection, GetCollectionsResponse, getTrack, GetTracksResponse } from '../util/BedtimeClient'
+import { getCollection, GetCollectionsResponse, getCollectionWithHashId, getTrack, GetTracksResponse, getTrackWithHashId } from '../util/BedtimeClient'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 import Error from './error/Error'
@@ -21,6 +21,7 @@ import { shadeColor } from '../util/shadeColor'
 import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
 import { CardContextProvider } from './card/Card'
 import { isBItem } from '../util/bitems'
+import { HASH_ID_ROUTE, ID_ROUTE } from '../routes'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -49,27 +50,16 @@ export const PlayerFlavor = Object.seal({
 
 // Attemps to parse a the window's url.
 // Returns null if the URL scheme is invalid.
-const getRequestDataFromURL = () => {
-  const components = window.location.pathname.split('/')
-  const lastComponent = components[components.length - 1]
-  // Pull off the request type
-  let requestType = pathComponentRequestTypeMap[lastComponent]
+const getRequestDataFromURL = ({
+  path,
+  type,
+  flavor,
+  matches
+}) => {
+  // Get request type
+  const requestType = pathComponentRequestTypeMap[type]
   if (!requestType) return null
-
-  // Pull off the seach params
-  const searchParams = new URLSearchParams(window.location.search)
-  const [id, ownerId, flavor, isTwitter] = ['id', 'ownerId', 'flavor', 'twitter'].map(x => searchParams.get(x))
-
-  // Validate the search params not null
-  if ([id, ownerId, flavor].some(e => e === null)) {
-    return null
-  }
-  // Parse them as ints
-  const [intId, intOwnerId] = [parseInt(id), parseInt(ownerId)]
-  if (isNaN(intId) || isNaN(intOwnerId)) {
-    return null
-  }
-
+      
   // Get the flavor
   let playerFlavor
   if (flavor === PlayerFlavor.CARD) {
@@ -79,19 +69,47 @@ const getRequestDataFromURL = () => {
   } else if (flavor === PlayerFlavor.TINY) {
     playerFlavor = PlayerFlavor.TINY
   } else {
-    return null
+    playerFlavor = PlayerFlavor.CARD
   }
 
-  return {
-    requestType,
-    playerFlavor,
-    id: intId,
-    ownerId: intOwnerId,
-    isTwitter
+  switch (path) {
+    case ID_ROUTE: {
+      const { id, ownerId, isTwitter } = matches
+
+      // Validate the search params not null
+      if ([id, ownerId].some(e => e === null)) {
+        return null
+      }
+      // Parse them as ints
+      const [intId, intOwnerId] = [parseInt(id), parseInt(ownerId)]
+      if (isNaN(intId) || isNaN(intOwnerId)) {
+        return null
+      }
+    
+      return {
+        requestType,
+        playerFlavor,
+        id: intId,
+        ownerId: intOwnerId,
+        isTwitter
+      }
+    }
+    case HASH_ID_ROUTE: {
+      const { hashId, isTwitter } = matches
+
+      return {
+        requestType,
+        playerFlavor,
+        hashId,
+        isTwitter
+      }
+    }
+    default:
+      return null
   }
 }
 
-const App = () => {
+const App = (props) => {
   const [didError, setDidError] = useState(false) // General errors
   const [did404, setDid404] = useState(false) // 404s indicate content was deleted
   const [isBlocked, setIsBlocked] = useState(false) // Whether or not the content was blocked
@@ -125,7 +143,13 @@ const App = () => {
 
     try {
       if (request.requestType === RequestType.TRACK) {
-        const track = await getTrack(request.id, request.ownerId)
+        let track
+        if (request.hashId) {
+          track = await getTrackWithHashId(request.hashId)
+        } else {
+          track = await getTrack(request.id, request.ownerId)
+        }
+
         if (!track) {
           setDid404(true)
           setTracksResponse(null)
@@ -143,7 +167,13 @@ const App = () => {
           setDominantColor({ primary: color })
         }
       } else {
-        const collection = await getCollection(request.id, request.ownerId)
+        let collection
+        if (request.hashId) {
+          collection = await getCollectionWithHashId(request.hashId)
+        } else {
+          collection = await getCollection(request.id, request.ownerId)
+        }
+
         if (!collection) {
           setDid404(true)
           setCollectionsResponse(null)
@@ -174,7 +204,7 @@ const App = () => {
 
   // Perform initial request
   useEffect(() => {
-    const request = getRequestDataFromURL()
+    const request = getRequestDataFromURL(props)
     if (!request) {
       setDidError(true)
       return

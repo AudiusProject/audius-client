@@ -34,9 +34,15 @@ export default function(config, env, helpers) {
     use: ["preact-svg-loader"]
   });
 
-  // Set relative imports
-  // https://github.com/preactjs/preact-cli/issues/279
-  config.output.publicPath = "./";
+  if (process.env.NODE_ENV === 'production') {
+    // In the production env, we serve the embed player at a path audius.co/embed.
+    // Set prefix in the public path so assets can load properly
+    config.output.publicPath = "/embed";
+  } else {
+    // In the dev environment, we're just running at localhost:<port>, so we can
+    // use absolute paths for the public assets
+    config.output.publicPath = "/";
+  }
 
   return config;
 }

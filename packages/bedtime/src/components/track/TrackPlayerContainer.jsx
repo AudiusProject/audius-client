@@ -92,7 +92,7 @@ const TrackPlayerContainer = ({
             if (method === 'seekTo') seekTo(value)
           }
         } catch (error) {
-          console.log(error)
+          console.error(error)
         }
       }
     }
