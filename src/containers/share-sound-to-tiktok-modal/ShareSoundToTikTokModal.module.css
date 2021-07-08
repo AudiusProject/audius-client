@@ -1,0 +1,21 @@
+.modalBody {
+  overflow: hidden;
+  height: 216px;
+  max-width: 528px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  margin: 0px 16px;
+}
+
+.modalContent {
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: space-around;
+}

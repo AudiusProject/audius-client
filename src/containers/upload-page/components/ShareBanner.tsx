@@ -7,6 +7,8 @@ import backgroundPlaceholder from 'assets/img/1-Concert-3-1.jpg'
 import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
+import { useModalState } from 'hooks/useModalState'
+import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import User from 'models/User'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
@@ -44,6 +46,7 @@ const messages = {
     `Your ${type} ${type === 'Tracks' ? 'Are' : 'Is'} Live!`,
   description: 'Now it’s time to spread the word and share it with your fans!',
   share: 'Share With Your Fans',
+  shareToTikTok: 'Share Sound to TikTok',
   copy: (page: ContinuePage) => `Copy Link to ${page}`,
   copiedToClipboard: 'Copied to Clipboard'
 }
@@ -131,7 +134,11 @@ const getShareTextUrl = async (
 const TOAST_DELAY = 3000
 
 const ShareBanner = ({ type, user, isHidden, upload }: ShareBannerProps) => {
+  const [isTikTokModalOpen, setIsTikTokModalOpen] = useModalState(
+    'ShareSoundToTikTok'
+  )
   const record = useRecord()
+  const withTikTokAuth = useTikTokAuth({ onError: console.log })
 
   const onClickTwitter = useCallback(async () => {
     const { url, text } = await getShareTextUrl(type, user, upload)
@@ -142,6 +149,23 @@ const ShareBanner = ({ type, user, isHidden, upload }: ShareBannerProps) => {
         text
       })
     )
+  }, [type, user, upload, record])
+
+  const onClickTikTok = useCallback(async () => {
+    setIsTikTokModalOpen(true)
+    // Fetch track data
+    // Check requirements
+    // Start download
+
+    withTikTokAuth(console.log)
+
+    // TODO: sk - TikTok analytics
+    // record(
+    //   make(Name.TRACK_UPLOAD_SHARE_WITH_FANS, {
+    //     uploadType: type,
+    //     text
+    //   })
+    // )
   }, [type, user, upload, record])
 
   const onCopy = useCallback(async () => {
@@ -166,14 +190,28 @@ const ShareBanner = ({ type, user, isHidden, upload }: ShareBannerProps) => {
     >
       <div className={styles.title}>{messages.title(type)}</div>
       <div className={styles.description}>{messages.description}</div>
-      <Button
-        onClick={onClickTwitter}
-        className={styles.button}
-        textClassName={styles.buttonText}
-        type={ButtonType.WHITE}
-        text={messages.share}
-        leftIcon={<IconTwitterBird />}
-      />
+      <div className={styles.buttonContainer}>
+        <Button
+          onClick={onClickTwitter}
+          className={styles.button}
+          textClassName={styles.buttonText}
+          type={ButtonType.WHITE}
+          text={messages.share}
+          leftIcon={<IconTwitterBird />}
+        />
+        {type === 'Track' ? (
+          <Button
+            onClick={onClickTikTok}
+            className={cn(styles.button, styles.buttonTikTok)}
+            textClassName={cn(styles.buttonText, styles.buttonTextTikTok)}
+            type={ButtonType.WHITE}
+            text={messages.shareToTikTok}
+            leftIcon={<IconTwitterBird />}
+          />
+        ) : (
+          <></>
+        )}
+      </div>
       <div className={styles.copyLinkWrapper} onClick={onCopy}>
         <Toast
           useCaret={false}
