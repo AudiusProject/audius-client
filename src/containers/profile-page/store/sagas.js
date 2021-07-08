@@ -305,12 +305,12 @@ function* fetchFolloweeFollows(action) {
   )
 }
 
-function* cacheUsers(followers) {
+function* cacheUsers(users) {
   const currentUserId = yield select(getUserId)
-  const toCache = followers.filter(
-    followee => followee.user_id !== currentUserId
+  // Filter out the current user from the list to cache
+  yield processAndCacheUsers(
+    users.filter(user => user.user_id !== currentUserId)
   )
-  const users = yield processAndCacheUsers(toCache)
   return users.map(f => ({ id: f.user_id }))
 }
 
