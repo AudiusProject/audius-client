@@ -1,6 +1,7 @@
 import BN from 'bn.js'
 import { put, call } from 'redux-saga/effects'
 
+import User from 'models/User'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
 import walletClient from 'services/wallet-client/WalletClient'
@@ -31,11 +32,13 @@ class AudioManager {
     this.getInitState = this.getInitState.bind(this)
     this.updateState = this.updateState.bind(this)
     this.updateStatePhase = this.updateStatePhase.bind(this)
+    this.updateStateMovAudioToWAudio = this.updateStateMovAudioToWAudio.bind(
+      this
+    )
   }
 
   *getInitState() {
-    // @ts-ignore
-    const user = yield call(AudiusBackend.getAccount)
+    const user: User = yield call(AudiusBackend.getAccount)
     if (user.balance === '0') {
       yield call(
         this.updateStatePhase,
@@ -49,45 +52,52 @@ class AudioManager {
   }
 
   *updateState() {
-    if (this.state === AudioManagerState.HasEthAudioInHedgehog) {
-      // @ts-ignore
-      const account = yield call(AudiusBackend.getAccount)
-      yield put(make(Name.SEND_AUDIO_REQUEST, { from: account?.wallet }))
+    switch (this.state) {
+      case AudioManagerState.HasEthAudioInHedgehog:
+        yield call(this.updateStateMovAudioToWAudio)
+        break
+      default:
+    }
+  }
 
+  *updateStateMovAudioToWAudio() {
+    const account: User = yield call(AudiusBackend.getAccount)
+    yield put(make(Name.SEND_AUDIO_REQUEST, { from: account?.wallet }))
+
+    yield call(
+      this.updateStatePhase,
+      AudioManagerState.HasRequestedMoveEthAudioInHedgehog
+    )
+
+    // @ts-ignore
+    yield call(this.requestTransferAudioToWAudio)
+    yield call(
+      this.updateStatePhase,
+      AudioManagerState.TransferringEthAudioInHedgehogToSPLBankAccount
+    )
+    try {
+      yield call(this.transferAudioToWAudio)
       yield call(
         this.updateStatePhase,
-        AudioManagerState.HasRequestedMoveEthAudioInHedgehog
+        AudioManagerState.HasNoEthAudioInHedgehog
       )
-      // @ts-ignore
-      yield call(this.requestTransferAudioToWAudio)
+      yield put(make(Name.SEND_AUDIO_SUCCESS, { from: account?.wallet }))
+    } catch (error) {
       yield call(
         this.updateStatePhase,
-        AudioManagerState.TransferringEthAudioInHedgehogToSPLBankAccount
+        AudioManagerState.ErrorTransferringEthAudioInHedgehogToSPLBankAccount
       )
-      try {
-        yield call(this.transferAudioToWAudio)
-        yield call(
-          this.updateStatePhase,
-          AudioManagerState.HasNoEthAudioInHedgehog
-        )
-        yield put(make(Name.SEND_AUDIO_SUCCESS, { from: account?.wallet }))
-      } catch (error) {
-        yield call(
-          this.updateStatePhase,
-          AudioManagerState.ErrorTransferringEthAudioInHedgehogToSPLBankAccount
-        )
-        yield put(make(Name.SEND_AUDIO_FAILURE, { from: account?.wallet }))
+      yield put(make(Name.SEND_AUDIO_FAILURE, { from: account?.wallet }))
 
-        yield put(
-          errorActions.handleError({
-            message: 'Error Transferring AUDIO to WAUDIO',
-            shouldRedirect: false,
-            shouldReport: true,
-            additionalInfo: { errorMessage: error.message },
-            level: errorActions.Level.Critical
-          })
-        )
-      }
+      yield put(
+        errorActions.handleError({
+          message: 'Error Transferring AUDIO to WAUDIO',
+          shouldRedirect: false,
+          shouldReport: true,
+          additionalInfo: { errorMessage: error.message },
+          level: errorActions.Level.Critical
+        })
+      )
     }
   }
 

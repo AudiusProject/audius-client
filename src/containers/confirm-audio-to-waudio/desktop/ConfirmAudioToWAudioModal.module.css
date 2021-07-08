@@ -78,3 +78,7 @@
   fill: var(--secondary);
   stroke: var(--secondary) !important;
 }
+
+.raisedHandEmoji {
+  margin-right: 4px;
+}

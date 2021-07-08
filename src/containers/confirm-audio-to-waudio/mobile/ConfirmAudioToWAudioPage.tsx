@@ -8,19 +8,9 @@ import MobilePageContainer from 'components/general/MobilePageContainer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { confirmTransferAudioToWAudio } from 'store/audio-manager/slice'
 
-import styles from './ConfirmAudioToWAudioPage.module.css'
+import { messages } from '../utils'
 
-const messages = {
-  title: 'Hang Tight ',
-  header: 'Audius is now much faster!',
-  description:
-    'Before you can start listening we’ll have to upgrade your $AUDIO.',
-  moreInfo: 'More Info',
-  confirm: 'Let’s Do It!',
-  loadingTitle: '✋ Hold on, this will just take a moment.',
-  loadingBody:
-    'We’re now making some changes behind the scenes to keep the music going.'
-}
+import styles from './ConfirmAudioToWAudioPage.module.css'
 
 /**
  * Modal body for loading text while waiting to confirm
@@ -29,6 +19,14 @@ const LoadingBody = () => {
   return (
     <div className={styles.body}>
       <div className={cn(styles.bodyText, styles.loadingTitle)}>
+        <i
+          className={cn(
+            'emoji',
+            'large',
+            'raised-hand',
+            styles.raisedHandEmoji
+          )}
+        />
         {messages.loadingTitle}
       </div>
       <div className={cn(styles.bodyText, styles.loadingBody)}>

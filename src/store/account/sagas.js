@@ -113,12 +113,24 @@ function* requestTransferAudioToWAudio() {
 
 function* initAudioChecks() {
   if (getFeatureEnabled(FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD)) {
-    const audiusManager = new AudioManager({
-      requestTransferAudioToWAudio
-    })
+    try {
+      const audiusManager = new AudioManager({
+        requestTransferAudioToWAudio
+      })
 
-    yield call(audiusManager.getInitState)
-    yield call(audiusManager.updateState)
+      yield call(audiusManager.getInitState)
+      yield call(audiusManager.updateState)
+    } catch (error) {
+      yield put(
+        errorActions.handleError({
+          message: 'Error in Init Audio Checks',
+          shouldRedirect: false,
+          shouldReport: true,
+          additionalInfo: { errorMessage: error.message },
+          level: errorActions.Level.Critical
+        })
+      )
+    }
     yield put(setVisibility({ modal: 'ConfirmAudioToWAudio', visible: false }))
   }
 }

@@ -4,26 +4,14 @@ import { Button, ButtonType, Modal } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
-import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { getModalVisibility } from 'store/application/ui/modals/slice'
 import { confirmTransferAudioToWAudio } from 'store/audio-manager/slice'
-import { isMobile as checkIsMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 
-import styles from './ConfirmAudioToWAudioModal.module.css'
+import { messages } from '../utils'
 
-const messages = {
-  title: 'Hang Tight ',
-  header: 'Audius is now much faster!',
-  description:
-    'Before you can start listening we’ll have to upgrade your $AUDIO.',
-  moreInfo: 'More Info',
-  confirm: 'Let’s Do It!',
-  loadingTitle: '✋ Hold on, this will just take a moment.',
-  loadingBody:
-    'We’re now making some changes behind the scenes to keep the music going.'
-}
+import styles from './ConfirmAudioToWAudioModal.module.css'
 
 /**
  * Modal body for loading text while waiting to confirm
@@ -32,6 +20,14 @@ const LoadingBody = () => {
   return (
     <div className={styles.body}>
       <div className={cn(styles.bodyText, styles.loadingTitle)}>
+        <i
+          className={cn(
+            'emoji',
+            'large',
+            'raised-hand',
+            styles.raisedHandEmoji
+          )}
+        />
         {messages.loadingTitle}
       </div>
       <div className={cn(styles.bodyText, styles.loadingBody)}>
@@ -69,23 +65,7 @@ type AudioToWAudioMobileDrawerProps = {
   onClose: () => void
 }
 
-const AudioToWAudioMobileDrawer = ({
-  isOpen,
-  isLoading,
-  onConfirm,
-  onClose
-}: AudioToWAudioMobileDrawerProps) => {
-  const body = isLoading ? <LoadingBody /> : <CTABody onConfirm={onConfirm} />
-  return (
-    <Drawer isOpen={isOpen} onClose={onClose}>
-      {body}
-    </Drawer>
-  )
-}
-
 const ConfirmAudioToWAudioModal = () => {
-  const isMobile = checkIsMobile()
-
   const dispatch = useDispatch()
 
   const isOpen = useSelector(state =>
@@ -100,16 +80,6 @@ const ConfirmAudioToWAudioModal = () => {
 
   const onClose = useCallback(() => {}, [])
 
-  if (isMobile) {
-    return (
-      <AudioToWAudioMobileDrawer
-        onClose={onClose}
-        isOpen={isOpen}
-        onConfirm={onConfirm}
-        isLoading={isLoading}
-      />
-    )
-  }
   const body = isLoading ? <LoadingBody /> : <CTABody onConfirm={onConfirm} />
 
   return (
@@ -121,7 +91,7 @@ const ConfirmAudioToWAudioModal = () => {
       onClose={onClose}
       title={
         <>
-          {messages.title}{' '}
+          {messages.title}
           <i className={cn('emoji', 'woman-surfing', styles.titleEmoji)} />
         </>
       }
