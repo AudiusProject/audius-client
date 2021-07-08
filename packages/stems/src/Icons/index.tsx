@@ -119,3 +119,5 @@ export { ReactComponent as PbIconVolume } from '../assets/icons/pbIconVolume.svg
 export { ReactComponent as IconTrending } from '../assets/icons/iconTrending.svg'
 export { ReactComponent as IconCampFire } from '../assets/icons/iconCampFire.svg'
 export { ReactComponent as IconCrown } from '../assets/icons/iconCrown.svg'
+export { ReactComponent as IconMinimum } from '../assets/icons/iconMinimum.svg'
+export { ReactComponent as IconDeployerCut } from '../assets/icons/iconDeployerCut.svg'
