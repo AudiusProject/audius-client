@@ -217,7 +217,7 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
       )
     ]
     if (cid.includes('/')) {
-      // Try to fetch the CID without the size if it is one.
+      // Try to fetch the CID without the size if it is one with a size.
       // Very old users have set _sizes that point to a single CID,
       // not a folder of CIDs.
       // This code path should be executed very rarely.
@@ -229,6 +229,8 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
         ).catch(() => new Promise())
       )
     }
+    // Note: the raced promises here have a do-nothing .catch, which makes
+    // this promise.race behave like promise.any
     const image = await Promise.race(promises)
     const url = URL.createObjectURL(image.data)
     if (cache) CIDCache.add(cid, url)
