@@ -244,14 +244,12 @@ function* fetchFollowerUsers(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
   const currentUserId = yield select(getUserId)
-  let followers = yield apiClient.getFollowers({
+  const followers = yield apiClient.getFollowers({
     currentUserId,
     profileUserId,
     limit: action.limit,
     offset: action.offset
   })
-  // Filter out self from results
-  followers = followers.filter(follower => follower.user_id !== currentUserId)
 
   const followerIds = yield call(cacheUsers, followers)
   yield put(
@@ -268,14 +266,12 @@ function* fetchFollowees(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
   const currentUserId = yield select(getUserId)
-  let followees = yield apiClient.getFollowing({
+  const followees = yield apiClient.getFollowing({
     currentUserId,
     profileUserId,
     limit: action.limit,
     offset: action.offset
   })
-  // Filter out self from results
-  followees = followees.filter(followee => followee.user_id !== currentUserId)
 
   const followerIds = yield call(cacheUsers, followees)
   yield put(
@@ -291,16 +287,11 @@ function* fetchFollowees(action) {
 function* fetchFolloweeFollows(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const currentUserId = yield select(getUserId)
-  let followeeFollows = yield call(
+  const followeeFollows = yield call(
     AudiusBackend.getFolloweeFollows,
     profileUserId,
     action.limit,
     action.offset
-  )
-  // Filter out self from results
-  followeeFollows = followeeFollows.filter(
-    followee => followee.user_id !== currentUserId
   )
 
   const followerIds = yield call(cacheUsers, followeeFollows)
@@ -315,7 +306,11 @@ function* fetchFolloweeFollows(action) {
 }
 
 function* cacheUsers(followers) {
-  const users = yield processAndCacheUsers(followers)
+  const currentUserId = yield select(getUserId)
+  const toCache = followers.filter(
+    followee => followee.user_id !== currentUserId
+  )
+  const users = yield processAndCacheUsers(toCache)
   return users.map(f => ({ id: f.user_id }))
 }
 
