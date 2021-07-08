@@ -244,14 +244,16 @@ function* fetchFollowerUsers(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
   const currentUserId = yield select(getUserId)
-  const followers = yield apiClient.getFollowers({
+  let followers = yield apiClient.getFollowers({
     currentUserId,
     profileUserId,
     limit: action.limit,
     offset: action.offset
   })
+  // Filter out self from results
+  followers = followers.filter(follower => follower.user_id !== currentUserId)
 
-  const followerIds = yield call(followAndCacheUsers, followers)
+  const followerIds = yield call(cacheUsers, followers)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWERS,
@@ -266,14 +268,16 @@ function* fetchFollowees(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
   const currentUserId = yield select(getUserId)
-  const followees = yield apiClient.getFollowing({
+  let followees = yield apiClient.getFollowing({
     currentUserId,
     profileUserId,
     limit: action.limit,
     offset: action.offset
   })
+  // Filter out self from results
+  followees = followees.filter(followee => followee.user_id !== currentUserId)
 
-  const followerIds = yield call(followAndCacheUsers, followees)
+  const followerIds = yield call(cacheUsers, followees)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWEES,
@@ -287,13 +291,19 @@ function* fetchFollowees(action) {
 function* fetchFolloweeFollows(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
-  const followeeFollows = yield call(
+  const currentUserId = yield select(getUserId)
+  let followeeFollows = yield call(
     AudiusBackend.getFolloweeFollows,
     profileUserId,
     action.limit,
     action.offset
   )
-  const followerIds = yield call(followAndCacheUsers, followeeFollows)
+  // Filter out self from results
+  followeeFollows = followeeFollows.filter(
+    followee => followee.user_id !== currentUserId
+  )
+
+  const followerIds = yield call(cacheUsers, followeeFollows)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWEE_FOLLOWS,
@@ -304,7 +314,7 @@ function* fetchFolloweeFollows(action) {
   )
 }
 
-function* followAndCacheUsers(followers) {
+function* cacheUsers(followers) {
   const users = yield processAndCacheUsers(followers)
   return users.map(f => ({ id: f.user_id }))
 }
