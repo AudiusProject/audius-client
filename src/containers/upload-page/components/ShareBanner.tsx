@@ -2,14 +2,16 @@ import React, { useCallback } from 'react'
 
 import { Button, ButtonType, IconTwitterBird } from '@audius/stems'
 import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 
 import backgroundPlaceholder from 'assets/img/1-Concert-3-1.jpg'
 import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
-import { useModalState } from 'hooks/useModalState'
+import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/actions'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import User from 'models/User'
+import { ID } from 'models/common/Identifiers'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
@@ -35,8 +37,8 @@ type UploadType = 'Track' | 'Tracks' | 'Album' | 'Playlist' | 'Remix'
 type ContinuePage = 'Track' | 'Profile' | 'Album' | 'Playlist' | 'Remix'
 
 type ShareBannerProps = {
-  type: UploadType
   isHidden: boolean
+  type: UploadType
   upload: UploadPageState
   user: User
 }
@@ -133,10 +135,9 @@ const getShareTextUrl = async (
 // The toast appears for copy link
 const TOAST_DELAY = 3000
 
-const ShareBanner = ({ type, user, isHidden, upload }: ShareBannerProps) => {
-  const [isTikTokModalOpen, setIsTikTokModalOpen] = useModalState(
-    'ShareSoundToTikTok'
-  )
+const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
+  const dispatch = useDispatch()
+
   const record = useRecord()
   const withTikTokAuth = useTikTokAuth({ onError: console.log })
 
@@ -152,13 +153,8 @@ const ShareBanner = ({ type, user, isHidden, upload }: ShareBannerProps) => {
   }, [type, user, upload, record])
 
   const onClickTikTok = useCallback(async () => {
-    setIsTikTokModalOpen(true)
-    // Fetch track data
-    // Check requirements
-    // Start download
-
-    withTikTokAuth(console.log)
-
+    const track = upload.tracks[0]
+    dispatch(openTikTokModal(track.metadata.track_id, track.metadata.title))
     // TODO: sk - TikTok analytics
     // record(
     //   make(Name.TRACK_UPLOAD_SHARE_WITH_FANS, {
