@@ -5,4 +5,5 @@ const getBaseState = (state: AppState) =>
 
 export const getIsOpen = (state: AppState) => getBaseState(state).isOpen
 export const getTrackId = (state: AppState) => getBaseState(state).trackId
+export const getTrackCid = (state: AppState) => getBaseState(state).trackCid
 export const getTrackTitle = (state: AppState) => getBaseState(state).trackTitle

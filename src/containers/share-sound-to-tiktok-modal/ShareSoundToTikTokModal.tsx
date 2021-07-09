@@ -4,8 +4,13 @@ import { Button, Modal } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import styles from './ShareSoundToTikTokModal.module.css'
-import { close } from './store/actions'
-import { getIsOpen, getTrackId, getTrackTitle } from './store/selectors'
+import { close, share } from './store/actions'
+import {
+  getIsOpen,
+  getTrackCid,
+  getTrackId,
+  getTrackTitle
+} from './store/selectors'
 
 const messages = {
   title: 'Share to TikTok',
@@ -21,15 +26,14 @@ const messages = {
 
 const ShareSoundToTikTikModal = () => {
   const isOpen = useSelector(getIsOpen)
+  // TODO: Might not need trackId
   const trackId = useSelector(getTrackId)
+  const trackCid = useSelector(getTrackCid)
   const trackTitle = useSelector(getTrackTitle)
   const dispatch = useDispatch()
 
   // Fetch track data
   // Check requirements
-  // Start download
-
-  // withTikTokAuth(console.log)
 
   return (
     <Modal
@@ -46,10 +50,23 @@ const ShareSoundToTikTikModal = () => {
         {trackTitle && (
           <div>{messages.confirmation.replace('[Track Name]', trackTitle)}</div>
         )}
-        <Button className={styles.button} text={messages.shareButton}></Button>
+        <Button
+          className={styles.button}
+          text={messages.shareButton}
+          onClick={handleShareButtonClick}
+        ></Button>
       </div>
     </Modal>
   )
+
+  function handleShareButtonClick() {
+    if (trackId && trackCid) {
+      dispatch(share(trackId, trackCid))
+    }
+    // Start download
+
+    // withTikTokAuth(console.log)
+  }
 }
 
 export default ShareSoundToTikTikModal

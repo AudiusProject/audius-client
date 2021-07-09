@@ -11,7 +11,6 @@ import { MountPlacement, ComponentPlacement } from 'components/types'
 import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/actions'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import User from 'models/User'
-import { ID } from 'models/common/Identifiers'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
@@ -154,7 +153,15 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
 
   const onClickTikTok = useCallback(async () => {
     const track = upload.tracks[0]
-    dispatch(openTikTokModal(track.metadata.track_id, track.metadata.title))
+    if (track.metadata.download?.cid) {
+      dispatch(
+        openTikTokModal(
+          track.metadata.track_id,
+          track.metadata.title,
+          track.metadata.download.cid
+        )
+      )
+    }
     // TODO: sk - TikTok analytics
     // record(
     //   make(Name.TRACK_UPLOAD_SHARE_WITH_FANS, {

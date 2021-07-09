@@ -8,12 +8,14 @@ type ShareSoundToTikTokModalActions = ActionType<typeof actions>
 
 export type ShareSoundToTikTokModalState = {
   isOpen: boolean
+  trackCid: string | null
   trackId: ID | null
   trackTitle: string | null
 }
 
 const initialState = {
   isOpen: false,
+  trackCid: null,
   trackId: null,
   trackTitle: null
 }
@@ -26,6 +28,7 @@ const reducer = createReducer<
     return {
       ...state,
       isOpen: true,
+      trackCid: action.trackCid,
       trackId: action.trackId,
       trackTitle: action.trackTitle
     }
@@ -34,6 +37,7 @@ const reducer = createReducer<
     return {
       ...state,
       isOpen: false,
+      trackCid: null,
       trackId: null,
       trackTitle: null
     }

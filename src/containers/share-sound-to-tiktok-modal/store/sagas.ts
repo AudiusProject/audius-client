@@ -1,19 +1,27 @@
-import { takeEvery, put } from 'redux-saga/effects'
+import { takeEvery, put, call, select } from 'redux-saga/effects'
 
-import { fetchSavedPlaylists } from 'store/account/reducer'
-import { requiresAccount } from 'utils/sagaHelpers'
+import User from 'models/User'
+import { getAccountUser } from 'store/account/selectors'
 
 import * as actions from './actions'
 
-// function* handlRequestOpen(action: ReturnType<typeof actions.requestOpen>) {
-//   yield put(fetchSavedPlaylists())
-//   yield put(actions.open(action.trackId, action.trackTitle))
-// }
+function* handleShare(action: ReturnType<typeof actions.share>) {
+  const { creator_node_endpoint }: User = yield select(getAccountUser)
 
-// function* watchHandleRequestOpen() {
-//   yield takeEvery(actions.REQUEST_OPEN, requiresAccount(handlRequestOpen))
-// }
+  const track: Blob = yield call(
+    window.audiusLibs.File.fetchCID,
+    action.cid,
+    [`${creator_node_endpoint}/ipfs/`],
+    (a: any) => {
+      console.log('in callback', a)
+    }
+  )
+}
+
+function* watchHandleShare() {
+  yield takeEvery(actions.share, handleShare)
+}
 
 export default function sagas() {
-  return []
+  return [watchHandleShare]
 }

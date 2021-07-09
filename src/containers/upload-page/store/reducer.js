@@ -54,6 +54,21 @@ const actionsMap = {
     newState.completionId = action.id
     newState.uploadType = null
     newState.stems = []
+
+    // Append the CIDs to the successful tracks, this is used for TikTok sharing
+    if (action.cids) {
+      newState.tracks = state.tracks.map((track, i) => ({
+        ...track,
+        metadata: {
+          ...track.metadata,
+          track_id: action.id,
+          download: {
+            ...track.metadata.download,
+            cid: action.cids[i]
+          }
+        }
+      }))
+    }
     return newState
   },
   [UPLOAD_TRACKS_FAILED](state, action) {
