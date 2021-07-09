@@ -1,9 +1,27 @@
+import { createSelector } from '@reduxjs/toolkit'
+
 import { AppState } from 'store/types'
 
-const getBaseState = (state: AppState) =>
+const shareSoundToTikTokModalState = (state: AppState) =>
   state.application.ui.shareSoundToTikTokModal
 
-export const getIsOpen = (state: AppState) => getBaseState(state).isOpen
-export const getTrackId = (state: AppState) => getBaseState(state).trackId
-export const getTrackCid = (state: AppState) => getBaseState(state).trackCid
-export const getTrackTitle = (state: AppState) => getBaseState(state).trackTitle
+export const getIsOpen = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.isOpen
+)
+export const getTrackId = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.trackId
+)
+export const getTrackCid = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.trackCid
+)
+export const getTrackTitle = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.trackTitle
+)
+export const getIsAuthenticated = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.isAuthenticated
+)

@@ -9,7 +9,6 @@ import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
 import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/actions'
-import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import User from 'models/User'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
@@ -138,7 +137,6 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
   const dispatch = useDispatch()
 
   const record = useRecord()
-  const withTikTokAuth = useTikTokAuth({ onError: console.log })
 
   const onClickTwitter = useCallback(async () => {
     const { url, text } = await getShareTextUrl(type, user, upload)

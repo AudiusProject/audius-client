@@ -3,8 +3,10 @@ import React from 'react'
 import { Button, Modal } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useTikTokAuth } from 'hooks/useTikTokAuth'
+
 import styles from './ShareSoundToTikTokModal.module.css'
-import { close, share } from './store/actions'
+import { authenticated, close, share } from './store/actions'
 import {
   getIsOpen,
   getTrackCid,
@@ -25,6 +27,7 @@ const messages = {
 }
 
 const ShareSoundToTikTikModal = () => {
+  const withTikTokAuth = useTikTokAuth({ onError: console.log })
   const isOpen = useSelector(getIsOpen)
   // TODO: Might not need trackId
   const trackId = useSelector(getTrackId)
@@ -61,11 +64,13 @@ const ShareSoundToTikTikModal = () => {
 
   function handleShareButtonClick() {
     if (trackId && trackCid) {
+      // Trigger the share process, which initially downloads the track to the client
       dispatch(share(trackId, trackCid))
+
+      // Trigger the authentication process
+      withTikTokAuth(() => dispatch(authenticated()))
     }
     // Start download
-
-    // withTikTokAuth(console.log)
   }
 }
 

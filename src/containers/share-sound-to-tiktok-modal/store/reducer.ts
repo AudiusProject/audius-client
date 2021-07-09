@@ -7,17 +7,21 @@ import * as actions from './actions'
 type ShareSoundToTikTokModalActions = ActionType<typeof actions>
 
 export type ShareSoundToTikTokModalState = {
+  isAuthenticated: boolean
   isOpen: boolean
   trackCid: string | null
   trackId: ID | null
   trackTitle: string | null
+  status: string | null
 }
 
 const initialState = {
+  isAuthenticated: false,
   isOpen: false,
   trackCid: null,
   trackId: null,
-  trackTitle: null
+  trackTitle: null,
+  status: null
 }
 
 const reducer = createReducer<
@@ -33,13 +37,34 @@ const reducer = createReducer<
       trackTitle: action.trackTitle
     }
   },
-  [actions.CLOSE](state, action) {
+  [actions.CLOSE](state, _) {
     return {
       ...state,
+      isAuthenticated: false,
       isOpen: false,
       trackCid: null,
       trackId: null,
-      trackTitle: null
+      trackTitle: null,
+      status: null
+    }
+  },
+  [actions.DOWNLOAD_STARTED](state, _) {
+    return {
+      ...state,
+      // TODO: make enum
+      status: 'DOWNLOAD_STARTED'
+    }
+  },
+  [actions.SET_IS_AUTHENTICATED](state, _) {
+    return {
+      ...state,
+      isAuthenticated: true
+    }
+  },
+  [actions.UPLOAD_SUCCESS](state, _) {
+    return {
+      ...state,
+      status: 'UPLOAD_SUCCESS'
     }
   }
 })
