@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { Button, Modal } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,11 +14,11 @@ import {
   getIsOpen,
   getTrackCid,
   getTrackId,
-  getTrackTitle
+  getTrackTitle,
+  getTrackDuration
 } from './store/selectors'
 
 enum FileRequirementError {
-  MAX_FILESIZE,
   MIN_LENGTH,
   MAX_LENGTH
 }
@@ -27,7 +27,6 @@ const messages = {
   completeButton: 'Done',
   confirmation: 'Are you sure you want to share "[Track Name]" to TikTok?',
   error: 'Something went wrong, please try again',
-  errorMaxFilesize: 'Maximum TikTok Filesize Exceeded',
   errorMaxLength: 'Maximum Length for TikTok Sounds is 5 Minutes',
   errorMinLength: 'Minimum Length for TikTok Sounds is 10 Seconds',
   inProgress: 'Sharing "[Track Name]" to TikTok',
@@ -37,7 +36,6 @@ const messages = {
 }
 
 const fileRequirementErrorMessages = {
-  [FileRequirementError.MAX_FILESIZE]: messages.errorMaxFilesize,
   [FileRequirementError.MAX_LENGTH]: messages.errorMaxLength,
   [FileRequirementError.MIN_LENGTH]: messages.errorMinLength
 }
@@ -46,19 +44,30 @@ const ShareSoundToTikTikModal = () => {
   const dispatch = useDispatch()
   const isOpen = useSelector(getIsOpen)
   // TODO: Might use trackId for analytics
+
+  // TODO: change into a single selector
   const trackId = useSelector(getTrackId)
   const trackCid = useSelector(getTrackCid)
   const trackTitle = useSelector(getTrackTitle)
+  const trackDuration = useSelector(getTrackDuration)
+
   const status = useSelector(getStatus)
 
   const withTikTokAuth = useTikTokAuth({
     onError: () => dispatch(setStatus(Status.SHARE_ERROR))
   })
 
-  const fileRequirementErrors: FileRequirementError[] = []
-
-  // Fetch track data
-  // Check requirements
+  const fileRequirementError: FileRequirementError | null = useMemo(() => {
+    if (trackDuration) {
+      if (trackDuration > 300) {
+        return FileRequirementError.MAX_LENGTH
+      }
+      if (trackDuration < 20) {
+        return FileRequirementError.MIN_LENGTH
+      }
+    }
+    return null
+  }, [trackDuration])
 
   return (
     <Modal
@@ -90,7 +99,7 @@ const ShareSoundToTikTikModal = () => {
 
   function renderMessage() {
     const hasError =
-      fileRequirementErrors.length || status === Status.SHARE_ERROR
+      fileRequirementError !== null || status === Status.SHARE_ERROR
 
     const rawMessage =
       {
@@ -100,16 +109,12 @@ const ShareSoundToTikTikModal = () => {
       }[status as Status] ?? messages.confirmation
 
     if (hasError) {
-      const errorMessages =
+      const errorMessage =
         status === Status.SHARE_ERROR
-          ? [messages.error]
-          : fileRequirementErrors.map(e => fileRequirementErrorMessages[e])
+          ? messages.error
+          : fileRequirementErrorMessages[fileRequirementError!]
 
-      return errorMessages.map(em => (
-        <div className={styles.errorMessages} key={em}>
-          {em}
-        </div>
-      ))
+      return <div className={styles.errorMessages}>{errorMessage}</div>
     } else {
       return <div>{rawMessage.replace('[Track Name]', trackTitle ?? '')}</div>
     }
@@ -128,7 +133,7 @@ const ShareSoundToTikTikModal = () => {
       return (
         <Button
           className={styles.button}
-          isDisabled={fileRequirementErrors.length > 0}
+          isDisabled={fileRequirementError !== null}
           onClick={handleShareButtonClick}
           text={messages.shareButton}
         />

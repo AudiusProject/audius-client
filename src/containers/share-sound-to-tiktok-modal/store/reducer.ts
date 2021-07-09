@@ -18,6 +18,7 @@ export type ShareSoundToTikTokModalState = {
   trackCid: string | null
   trackId: ID | null
   trackTitle: string | null
+  trackDuration: number | null
   status: Status | null
 }
 
@@ -27,6 +28,7 @@ const initialState = {
   trackCid: null,
   trackId: null,
   trackTitle: null,
+  trackDuration: null,
   status: null
 }
 
@@ -42,6 +44,7 @@ const reducer = createReducer<
       trackCid: action.trackCid,
       trackId: action.trackId,
       trackTitle: action.trackTitle,
+      trackDuration: action.trackDuration,
       status: null
     }
   },

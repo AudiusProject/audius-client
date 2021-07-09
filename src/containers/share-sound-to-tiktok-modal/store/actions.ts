@@ -16,10 +16,16 @@ export const UPLOAD_SUCCESS = 'SHARE_SOUND_TO_TIKTOK_MODAL/UPLOAD_SUCCESS'
 
 export const open = createCustomAction(
   OPEN,
-  (trackId: ID, trackTitle: string, trackCid: string) => ({
+  (
+    trackId: ID,
+    trackTitle: string,
+    trackCid: string,
+    trackDuration: number
+  ) => ({
     trackId,
     trackTitle,
-    trackCid
+    trackCid,
+    trackDuration
   })
 )
 export const close = createCustomAction(CLOSE, () => {})

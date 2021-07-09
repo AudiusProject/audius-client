@@ -53,8 +53,8 @@ export const uploadTracksRequested = (tracks, metadata, uploadType, stems) => {
   }
 }
 
-export const uploadTracksSucceeded = (id, cids) => {
-  return { type: UPLOAD_TRACKS_SUCCEEDED, id, cids }
+export const uploadTracksSucceeded = (id, trackMetadatas) => {
+  return { type: UPLOAD_TRACKS_SUCCEEDED, id, trackMetadatas }
 }
 
 export const uploadTrackFailed = () => {

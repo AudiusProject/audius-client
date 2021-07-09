@@ -947,7 +947,7 @@ function* uploadSingleTrack(track) {
   )
   yield put(
     uploadActions.uploadTracksSucceeded(confirmedTrack.track_id, [
-      confirmedTrack.download.cid
+      confirmedTrack
     ])
   )
   yield put(

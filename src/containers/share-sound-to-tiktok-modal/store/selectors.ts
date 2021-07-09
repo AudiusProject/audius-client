@@ -21,6 +21,10 @@ export const getTrackTitle = createSelector(
   shareSoundToTikTokModalState,
   state => state.trackTitle
 )
+export const getTrackDuration = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.trackDuration
+)
 export const getIsAuthenticated = createSelector(
   shareSoundToTikTokModalState,
   state => state.isAuthenticated

@@ -156,7 +156,8 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
         openTikTokModal(
           track.metadata.track_id,
           track.metadata.title,
-          track.metadata.download.cid
+          track.metadata.download.cid,
+          track.metadata.duration
         )
       )
     }

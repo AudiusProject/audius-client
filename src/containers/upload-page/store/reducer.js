@@ -55,18 +55,11 @@ const actionsMap = {
     newState.uploadType = null
     newState.stems = []
 
-    // Append the CIDs to the successful tracks, this is used for TikTok sharing
-    if (action.cids) {
-      newState.tracks = state.tracks.map((track, i) => ({
-        ...track,
-        metadata: {
-          ...track.metadata,
-          track_id: action.id,
-          download: {
-            ...track.metadata.download,
-            cid: action.cids[i]
-          }
-        }
+    // Update the upload tracks with resulting CID, id, duration, etc. This is used for TikTok sharing
+    if (action.trackMetadatas) {
+      newState.tracks = state.tracks.map((t, i) => ({
+        ...t,
+        metadata: action.trackMetadatas[i]
       }))
     }
     return newState
