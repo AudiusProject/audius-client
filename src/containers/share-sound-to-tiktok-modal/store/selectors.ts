@@ -25,3 +25,7 @@ export const getIsAuthenticated = createSelector(
   shareSoundToTikTokModalState,
   state => state.isAuthenticated
 )
+export const getStatus = createSelector(
+  shareSoundToTikTokModalState,
+  state => state.status
+)

@@ -12,7 +12,15 @@ type useTikTokAuthOptions = {
 
 type WithAuthCallback = (accessToken: string, openId: string) => void
 
-export const useTikTokAuth = ({ onError }: useTikTokAuthOptions) => {
+/**
+ * A hook that returns a withAuth function that can be passed a function which will
+ * be provided with the TikTok credentials on existing or successful auth
+ * @param {Object} options
+ * @returns {Function}
+ */
+export const useTikTokAuth = ({
+  onError
+}: useTikTokAuthOptions): ((callback: WithAuthCallback) => void) => {
   const withAuth = (callback: WithAuthCallback) => {
     const accessToken = window.localStorage.getItem('tikTokAccessToken')
     const openId = window.localStorage.getItem('tikTokOpenId')
