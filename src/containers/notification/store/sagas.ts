@@ -13,10 +13,12 @@ import {
 import Track from 'models/Track'
 import { ID } from 'models/common/Identifiers'
 import AudiusBackend from 'services/AudiusBackend'
+import { Name } from 'services/analytics'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { getRemoteVar, IntKeys } from 'services/remote-config'
 import { remoteConfigIntDefaults } from 'services/remote-config/defaults'
 import { getUserId, getHasAccount } from 'store/account/selectors'
+import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { retrieveCollections } from 'store/cache/collections/utils'
 import { retrieveTracks } from 'store/cache/tracks/utils'
@@ -36,7 +38,8 @@ import {
   getNotificationPanelIsOpen,
   getNotificationStatus,
   makeGetAllNotifications,
-  getAllNotifications
+  getAllNotifications,
+  getPlaylistUpdates
 } from './selectors'
 import { Notification, Entity, NotificationType, Achievement } from './types'
 
@@ -70,6 +73,9 @@ const getTimeAgo = (now: moment.Moment, date: string) => {
 
 const NOTIFICATION_LIMIT_DEFAULT = 20
 
+/**
+ * Fetch notifications, used by notification pagination
+ */
 export function* fetchNotifications(
   action: notificationActions.FetchNotifications
 ) {
@@ -107,7 +113,17 @@ export function* fetchNotifications(
 
     const hasMore = notifications.length >= limit
 
+    const existingUpdates = yield select(getPlaylistUpdates)
     yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
+    if (
+      playlistUpdates.length > 0 &&
+      existingUpdates.length !== playlistUpdates.length
+    ) {
+      const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
+        count: playlistUpdates.length
+      })
+      yield put(event)
+    }
 
     yield put(
       notificationActions.fetchNotificationSucceeded(
@@ -410,6 +426,9 @@ const checkIfNotificationsChanged = (
   )
 }
 
+/**
+ * Get notifications, used the polling daemon
+ */
 export function* getNotifications(isFirstFetch: boolean) {
   try {
     const isOpen: ReturnType<typeof getNotificationPanelIsOpen> = yield select(
@@ -460,7 +479,17 @@ export function* getNotifications(isFirstFetch: boolean) {
         playlistUpdates: number[]
       } = notificationsResponse
 
+      const existingUpdates = yield select(getPlaylistUpdates)
       yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
+      if (
+        playlistUpdates.length > 0 &&
+        existingUpdates.length !== playlistUpdates.length
+      ) {
+        const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
+          count: playlistUpdates.length
+        })
+        yield put(event)
+      }
 
       if (notificationItems.length > 0) {
         const currentNotifications = yield select(makeGetAllNotifications())
