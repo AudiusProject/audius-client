@@ -4,6 +4,7 @@ import { delay } from 'redux-saga'
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -23,7 +24,7 @@ import { fetchAccountAsync } from 'store/account/sagas'
 import { identify, make } from 'store/analytics/actions'
 import * as backendActions from 'store/backend/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
-import { fetchUsers } from 'store/cache/users/sagas'
+import { fetchUserByHandle, fetchUsers } from 'store/cache/users/sagas'
 import { processAndCacheUsers } from 'store/cache/users/utils'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -45,6 +46,7 @@ import { checkHandle } from './verifiedChecker'
 
 const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production'
 const IS_PRODUCTION = process.env.REACT_APP_ENVIRONMENT === 'production'
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const SUGGESTED_FOLLOW_USER_HANDLE_URL =
   process.env.REACT_APP_SUGGESTED_FOLLOW_HANDLES ||
@@ -109,6 +111,18 @@ function* fetchFollowArtistGenre(followArtistCategory) {
     )
   } catch (err) {
     yield put(signOnActions.fetchFollowArtistsFailed(err))
+  }
+}
+
+function* fetchReferrer(action) {
+  const { location } = action
+  const handle = new URLSearchParams(location.search).get('ref')
+  try {
+    const user = yield call(fetchUserByHandle, handle)
+    if (!user) return
+    yield put(signOnActions.setReferrer(user.user_id))
+  } catch (e) {
+    console.error(e)
   }
 }
 
@@ -227,6 +241,7 @@ function* signUp(action) {
   const password = signOn.password.value
   const handle = signOn.handle.value
   const alreadyExisted = signOn.accountAlreadyExisted
+  const referrer = signOn.referrer
 
   yield put(
     confirmerActions.requestConfirmation(
@@ -234,10 +249,13 @@ function* signUp(action) {
       function* () {
         const { blockHash, blockNumber, userId, error, phase } = yield call(
           AudiusBackend.signUp,
-          email,
-          password,
-          createUserMetadata,
-          alreadyExisted
+          {
+            email,
+            password,
+            formFields: createUserMetadata,
+            hasWallet: alreadyExisted,
+            referrer
+          }
         )
 
         if (error) {
@@ -292,6 +310,9 @@ function* signUp(action) {
       },
       function* () {
         yield put(signOnActions.signUpSucceeded())
+        yield fork(AudiusBackend.updateUserEvent, {
+          hasSignedInNativeMobile: !!NATIVE_MOBILE
+        })
         yield call(fetchAccountAsync)
       },
       function* ({ timeout }) {
@@ -427,6 +448,10 @@ function* watchFetchAllFollowArtists() {
   yield takeEvery(signOnActions.FETCH_ALL_FOLLOW_ARTISTS, fetchAllFollowArtist)
 }
 
+function* watchFetchReferrer() {
+  yield takeLatest(signOnActions.FETCH_REFERRER, fetchReferrer)
+}
+
 function* watchValidateEmail() {
   yield takeLatest(signOnActions.VALIDATE_EMAIL, validateEmail)
 }
@@ -486,6 +511,7 @@ function* watchSendWelcomeEmail() {
 export default function sagas() {
   return [
     watchFetchAllFollowArtists,
+    watchFetchReferrer,
     watchValidateEmail,
     watchValidateHandle,
     watchSignUp,

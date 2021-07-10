@@ -76,10 +76,15 @@ function* onFetchAccount(account) {
   }
 
   yield fork(AudiusBackend.updateUserLocationTimezone)
-  yield fork(AudiusBackend.updateUserEvent, {
-    hasSignedInNativeMobile: !!NATIVE_MOBILE
-  })
   if (NATIVE_MOBILE) {
+    yield fork(AudiusBackend.updateUserEvent, {
+      hasSignedInNativeMobile: true
+    })
+    yield fork(
+      AudiusBackend.updateCreator,
+      { events: { is_mobile_user: true } },
+      account.user_id
+    )
     new SignedIn(account).send()
   }
 
