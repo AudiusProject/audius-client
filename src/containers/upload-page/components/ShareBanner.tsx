@@ -161,13 +161,9 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
         )
       )
     }
-    // TODO: sk - TikTok analytics
-    // record(
-    //   make(Name.TRACK_UPLOAD_SHARE_WITH_FANS, {
-    //     uploadType: type,
-    //     text
-    //   })
-    // )
+    record(
+      make(Name.TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK, {})
+    )
   }, [type, user, upload, record])
 
   const onCopy = useCallback(async () => {
