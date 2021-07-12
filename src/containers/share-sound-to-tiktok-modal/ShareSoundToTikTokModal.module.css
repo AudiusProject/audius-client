@@ -20,3 +20,16 @@
   justify-content: space-around;
   font-weight: var(--font-medium);
 }
+
+.errorMessage {
+  color: var(--accent-red);
+}
+
+.button {
+  display: flex;
+  align-items: center;
+}
+
+.button svg {
+  margin-left: 8px;
+}

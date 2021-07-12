@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 
-import { Button, Modal } from '@audius/stems'
+import { Button, Modal, ButtonType, IconTikTokInverted } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -62,7 +62,7 @@ const ShareSoundToTikTikModal = () => {
       if (trackDuration > 300) {
         return FileRequirementError.MAX_LENGTH
       }
-      if (trackDuration < 20) {
+      if (trackDuration < 10) {
         return FileRequirementError.MIN_LENGTH
       }
     }
@@ -114,7 +114,7 @@ const ShareSoundToTikTikModal = () => {
           ? messages.error
           : fileRequirementErrorMessages[fileRequirementError!]
 
-      return <div className={styles.errorMessages}>{errorMessage}</div>
+      return <div className={styles.errorMessage}>{errorMessage}</div>
     } else {
       return <div>{rawMessage.replace('[Track Name]', trackTitle ?? '')}</div>
     }
@@ -133,9 +133,19 @@ const ShareSoundToTikTikModal = () => {
       return (
         <Button
           className={styles.button}
+          type={
+            fileRequirementError !== null
+              ? ButtonType.DISABLED
+              : ButtonType.PRIMARY
+          }
           isDisabled={fileRequirementError !== null}
           onClick={handleShareButtonClick}
-          text={messages.shareButton}
+          text={
+            <div className={styles.button}>
+              <span>{messages.shareButton}</span>
+              <IconTikTokInverted />
+            </div>
+          }
         />
       )
     }

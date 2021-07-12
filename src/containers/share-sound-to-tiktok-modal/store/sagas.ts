@@ -60,7 +60,7 @@ function* handleUpload(action: ReturnType<typeof actions.upload>) {
   const accessToken = window.localStorage.getItem('tikTokAccessToken')
 
   try {
-    yield window.fetch(
+    const response = yield window.fetch(
       `${TIKTOK_SHARE_SOUND_ENDPOINT}?open_id=${openId}&access_token=${accessToken}`,
       {
         method: 'POST',
@@ -68,6 +68,11 @@ function* handleUpload(action: ReturnType<typeof actions.upload>) {
         body: formData
       }
     )
+
+    if (!response.ok) {
+      throw new Error('TikTok Share sound request unsuccessful')
+    }
+
     yield put(actions.setStatus(Status.SHARE_SUCCESS))
   } catch (e) {
     console.log(e)

@@ -50,12 +50,12 @@
   transition: all 0.14s ease-in-out !important;
 }
 
-.button svg {
+.buttonTwitter svg {
   height: 32px !important;
   width: 32px !important;
 }
 
-.button svg path {
+.buttonTwitter svg path {
   fill: var(--static-twitter-blue) !important;
 }
 
@@ -70,6 +70,12 @@
 
 .button .buttonTextTikTok {
   color: black;
+  display: flex;
+  align-items: center;
+}
+
+.button .buttonTextTikTok svg {
+  margin-right: 8px;
 }
 
 .copyLinkWrapper {

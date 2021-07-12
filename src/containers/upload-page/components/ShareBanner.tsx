@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 
-import { Button, ButtonType, IconTwitterBird } from '@audius/stems'
+import { Button, ButtonType, IconTikTok, IconTwitterBird } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
@@ -195,7 +195,7 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
       <div className={styles.buttonContainer}>
         <Button
           onClick={onClickTwitter}
-          className={styles.button}
+          className={cn(styles.button, styles.buttonTwitter)}
           textClassName={styles.buttonText}
           type={ButtonType.WHITE}
           text={messages.share}
@@ -205,10 +205,14 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
           <Button
             onClick={onClickTikTok}
             className={cn(styles.button, styles.buttonTikTok)}
-            textClassName={cn(styles.buttonText, styles.buttonTextTikTok)}
+            textClassName={styles.buttonText}
             type={ButtonType.WHITE}
-            text={messages.shareToTikTok}
-            leftIcon={<IconTwitterBird />}
+            text={
+              <div className={styles.buttonTextTikTok}>
+                <IconTikTok />
+                <span>{messages.shareToTikTok}</span>
+              </div>
+            }
           />
         ) : (
           <></>
