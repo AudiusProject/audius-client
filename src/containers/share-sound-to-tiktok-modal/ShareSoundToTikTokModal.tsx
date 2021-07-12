@@ -9,14 +9,7 @@ import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import styles from './ShareSoundToTikTokModal.module.css'
 import { authenticated, close, setStatus, share } from './store/actions'
 import { Status } from './store/reducer'
-import {
-  getStatus,
-  getIsOpen,
-  getTrackCid,
-  getTrackId,
-  getTrackTitle,
-  getTrackDuration
-} from './store/selectors'
+import { getStatus, getIsOpen, getTrack } from './store/selectors'
 
 enum FileRequirementError {
   MIN_LENGTH,
@@ -43,13 +36,8 @@ const fileRequirementErrorMessages = {
 const ShareSoundToTikTikModal = () => {
   const dispatch = useDispatch()
   const isOpen = useSelector(getIsOpen)
-  // TODO: Might use trackId for analytics
 
-  // TODO: change into a single selector
-  const trackId = useSelector(getTrackId)
-  const trackCid = useSelector(getTrackCid)
-  const trackTitle = useSelector(getTrackTitle)
-  const trackDuration = useSelector(getTrackDuration)
+  const track = useSelector(getTrack)
 
   const status = useSelector(getStatus)
 
@@ -58,16 +46,16 @@ const ShareSoundToTikTikModal = () => {
   })
 
   const fileRequirementError: FileRequirementError | null = useMemo(() => {
-    if (trackDuration) {
-      if (trackDuration > 300) {
+    if (track) {
+      if (track.duration > 300) {
         return FileRequirementError.MAX_LENGTH
       }
-      if (trackDuration < 10) {
+      if (track.duration < 10) {
         return FileRequirementError.MIN_LENGTH
       }
     }
     return null
-  }, [trackDuration])
+  }, [track])
 
   return (
     <Modal
@@ -88,9 +76,9 @@ const ShareSoundToTikTikModal = () => {
   )
 
   function handleShareButtonClick() {
-    if (trackId && trackCid) {
+    if (track) {
       // Trigger the share process, which initially downloads the track to the client
-      dispatch(share(trackId, trackCid))
+      dispatch(share(track.cid))
 
       // Trigger the authentication process
       withTikTokAuth(() => dispatch(authenticated()))
@@ -116,7 +104,7 @@ const ShareSoundToTikTikModal = () => {
 
       return <div className={styles.errorMessage}>{errorMessage}</div>
     } else {
-      return <div>{rawMessage.replace('[Track Name]', trackTitle ?? '')}</div>
+      return <div>{rawMessage.replace('[Track Name]', track?.title ?? '')}</div>
     }
   }
 

@@ -12,23 +12,23 @@ export enum Status {
   SHARE_ERROR
 }
 
+export type Track = {
+  cid: string
+  id: ID
+  title: string
+  duration: number
+}
+
 export type ShareSoundToTikTokModalState = {
   isAuthenticated: boolean
   isOpen: boolean
-  trackCid: string | null
-  trackId: ID | null
-  trackTitle: string | null
-  trackDuration: number | null
+  track?: Track
   status: Status | null
 }
 
 const initialState = {
   isAuthenticated: false,
   isOpen: false,
-  trackCid: null,
-  trackId: null,
-  trackTitle: null,
-  trackDuration: null,
   status: null
 }
 
@@ -41,10 +41,7 @@ const reducer = createReducer<
       ...state,
       isAuthenticated: false,
       isOpen: true,
-      trackCid: action.trackCid,
-      trackId: action.trackId,
-      trackTitle: action.trackTitle,
-      trackDuration: action.trackDuration,
+      track: action.track,
       status: null
     }
   },

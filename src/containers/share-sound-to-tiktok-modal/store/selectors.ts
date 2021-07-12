@@ -9,21 +9,9 @@ export const getIsOpen = createSelector(
   shareSoundToTikTokModalState,
   state => state.isOpen
 )
-export const getTrackId = createSelector(
+export const getTrack = createSelector(
   shareSoundToTikTokModalState,
-  state => state.trackId
-)
-export const getTrackCid = createSelector(
-  shareSoundToTikTokModalState,
-  state => state.trackCid
-)
-export const getTrackTitle = createSelector(
-  shareSoundToTikTokModalState,
-  state => state.trackTitle
-)
-export const getTrackDuration = createSelector(
-  shareSoundToTikTokModalState,
-  state => state.trackDuration
+  state => state.track
 )
 export const getIsAuthenticated = createSelector(
   shareSoundToTikTokModalState,
