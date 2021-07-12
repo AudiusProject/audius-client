@@ -33,3 +33,7 @@
 .button svg {
   margin-left: 8px;
 }
+
+.disabledIcon {
+  opacity: 0.1;
+}

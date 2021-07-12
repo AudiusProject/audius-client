@@ -130,20 +130,19 @@ const ShareSoundToTikTikModal = () => {
         />
       )
     } else {
+      const isButtonDisabled = fileRequirementError !== null
       return (
         <Button
           className={styles.button}
-          type={
-            fileRequirementError !== null
-              ? ButtonType.DISABLED
-              : ButtonType.PRIMARY
-          }
-          isDisabled={fileRequirementError !== null}
+          type={isButtonDisabled ? ButtonType.DISABLED : ButtonType.PRIMARY}
+          isDisabled={isButtonDisabled}
           onClick={handleShareButtonClick}
           text={
             <div className={styles.button}>
               <span>{messages.shareButton}</span>
-              <IconTikTokInverted />
+              <IconTikTokInverted
+                className={isButtonDisabled ? styles.disabledIcon : ''}
+              />
             </div>
           }
         />

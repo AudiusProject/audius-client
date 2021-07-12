@@ -1,5 +1,7 @@
 import React from 'react'
 
+import moment from 'moment'
+
 // Polyfills
 import 'whatwg-fetch'
 import 'url-search-params-polyfill'
@@ -24,9 +26,12 @@ export const useTikTokAuth = ({
   const withAuth = (callback: WithAuthCallback) => {
     const accessToken = window.localStorage.getItem('tikTokAccessToken')
     const openId = window.localStorage.getItem('tikTokOpenId')
+    const expiration = window.localStorage.getItem(
+      'tikTokAccessTokenExpiration'
+    )
 
-    // TODO: sk - check if not expired
-    if (accessToken && openId) {
+    const isExpired = expiration && moment().isAfter(expiration)
+    if (accessToken && openId && !isExpired) {
       callback(accessToken, openId)
     } else {
       getRequestToken(callback)
@@ -130,15 +135,16 @@ export const useTikTokAuth = ({
 
       const {
         data: {
-          data: { access_token, open_id }
+          data: { access_token, open_id, expires_in }
         }
       } = await response.json()
 
       window.localStorage.setItem('tikTokAccessToken', access_token)
       window.localStorage.setItem('tikTokOpenId', open_id)
 
-      // TODO: handle expiration
-      // window.localStorage.setItem('tikTokAccessTokenExpiration', open_id)
+      const expirationDate = moment().add(expires_in, 's').format()
+      window.localStorage.setItem('tikTokAccessTokenExpiration', expirationDate)
+
       callback(access_token, open_id)
     } catch (error) {
       return onError(error)
