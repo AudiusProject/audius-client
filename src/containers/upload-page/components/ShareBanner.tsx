@@ -8,11 +8,13 @@ import backgroundPlaceholder from 'assets/img/1-Concert-3-1.jpg'
 import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
+import { useFlag } from 'containers/remote-config/hooks'
 import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/actions'
 import User from 'models/User'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { FeatureFlags } from 'services/remote-config'
 import { useRecord, make } from 'store/analytics/actions'
 import { copyLinkToClipboard } from 'utils/clipboardUtil'
 import {
@@ -135,8 +137,10 @@ const TOAST_DELAY = 3000
 
 const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
   const dispatch = useDispatch()
-
   const record = useRecord()
+  const { isEnabled: isShareSoundToTikTokEnabled } = useFlag(
+    FeatureFlags.SHARE_SOUND_TO_TIKTOK
+  )
 
   const onClickTwitter = useCallback(async () => {
     const { url, text } = await getShareTextUrl(type, user, upload)
@@ -196,7 +200,7 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
           text={messages.share}
           leftIcon={<IconTwitterBird />}
         />
-        {type === 'Track' ? (
+        {type === 'Track' && isShareSoundToTikTokEnabled ? (
           <Button
             onClick={onClickTikTok}
             className={cn(styles.button, styles.buttonTikTok)}
