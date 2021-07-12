@@ -35,10 +35,9 @@ const fileRequirementErrorMessages = {
 
 const ShareSoundToTikTikModal = () => {
   const dispatch = useDispatch()
+
   const isOpen = useSelector(getIsOpen)
-
   const track = useSelector(getTrack)
-
   const status = useSelector(getStatus)
 
   const withTikTokAuth = useTikTokAuth({

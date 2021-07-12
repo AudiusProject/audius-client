@@ -60,7 +60,8 @@ function* handleUpload(action: ReturnType<typeof actions.upload>) {
   const accessToken = window.localStorage.getItem('tikTokAccessToken')
 
   try {
-    const response = yield window.fetch(
+    const response = yield call(
+      window.fetch,
       `${TIKTOK_SHARE_SOUND_ENDPOINT}?open_id=${openId}&access_token=${accessToken}`,
       {
         method: 'POST',
