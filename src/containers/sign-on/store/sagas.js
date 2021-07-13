@@ -310,9 +310,6 @@ function* signUp(action) {
       },
       function* () {
         yield put(signOnActions.signUpSucceeded())
-        yield fork(AudiusBackend.updateUserEvent, {
-          hasSignedInNativeMobile: !!NATIVE_MOBILE
-        })
         yield call(fetchAccountAsync)
       },
       function* ({ timeout }) {

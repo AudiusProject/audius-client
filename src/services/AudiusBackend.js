@@ -1,9 +1,9 @@
 /* global web3, localStorage, fetch, Image */
 
-import moment from 'moment-timezone'
-
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
+import moment from 'moment-timezone'
+
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
@@ -18,6 +18,7 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
+import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/segment'
 import CIDCache from 'store/cache/CIDCache'
 import { isElectron } from 'utils/clientUtil'
@@ -1612,8 +1613,16 @@ class AudiusBackend {
     if (formFields.location) {
       metadata.location = formFields.location
     }
+    const hasEvents = referrer || NATIVE_MOBILE
+    if (hasEvents) {
+      metadata.events = {}
+    }
     if (referrer) {
-      metadata.events = { referrer }
+      metadata.events.referrer = referrer
+    }
+    if (NATIVE_MOBILE) {
+      metadata.events.is_mobile_user = true
+      window.localStorage.setItem(IS_MOBILE_USER_KEY, 'true')
     }
 
     // Returns { userId, error, phase }
