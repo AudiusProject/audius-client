@@ -42,7 +42,7 @@ export const useTikTokAuth = ({
     const popup = openPopup()
 
     if (popup) {
-      const authenticationUrl = `${IDENTITY_SERVICE}/tikTok`
+      const authenticationUrl = `${IDENTITY_SERVICE}/tiktok`
 
       popup.location.href = authenticationUrl
       poll(popup, callback)
@@ -119,7 +119,7 @@ export const useTikTokAuth = ({
   ) => {
     try {
       const response = await window.fetch(
-        `${IDENTITY_SERVICE}/tikTok/access_token`,
+        `${IDENTITY_SERVICE}/tiktok/access_token`,
         {
           credentials: 'include',
           method: 'POST',

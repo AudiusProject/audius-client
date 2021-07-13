@@ -202,7 +202,7 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
           text={messages.share}
           leftIcon={<IconTwitterBird />}
         />
-        {type === 'Track' && isShareSoundToTikTokEnabled ? (
+        {type === 'Track' && isShareSoundToTikTokEnabled && (
           <Button
             onClick={onClickTikTok}
             className={cn(styles.button, styles.buttonTikTok)}
@@ -215,8 +215,6 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
               </div>
             }
           />
-        ) : (
-          <></>
         )}
       </div>
       <div className={styles.copyLinkWrapper} onClick={onCopy}>

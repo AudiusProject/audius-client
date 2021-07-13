@@ -62,30 +62,7 @@ const ShareSoundToTikTikModal = () => {
     return null
   }, [track])
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      showTitleHeader
-      showDismissButton
-      title={
-        <div className={styles.titleContainer}>
-          <IconTikTok />
-          <div>{messages.title}</div>
-        </div>
-      }
-      onClose={() => dispatch(close())}
-      allowScroll={false}
-      bodyClassName={styles.modalBody}
-      headerContainerClassName={styles.modalHeader}
-    >
-      <div className={styles.modalContent}>
-        {renderMessage()}
-        {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}
-      </div>
-    </Modal>
-  )
-
-  function handleShareButtonClick() {
+  const handleShareButtonClick = () => {
     if (track) {
       // Trigger the share process, which initially downloads the track to the client
       dispatch(share({ cid: track.cid }))
@@ -95,7 +72,7 @@ const ShareSoundToTikTikModal = () => {
     }
   }
 
-  function renderMessage() {
+  const renderMessage = () => {
     const hasError =
       fileRequirementError !== null || status === Status.SHARE_ERROR
 
@@ -118,7 +95,7 @@ const ShareSoundToTikTikModal = () => {
     }
   }
 
-  function renderButton() {
+  const renderButton = () => {
     if (status === Status.SHARE_SUCCESS) {
       return (
         <Button
@@ -145,6 +122,29 @@ const ShareSoundToTikTikModal = () => {
       )
     }
   }
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      showTitleHeader
+      showDismissButton
+      title={
+        <div className={styles.titleContainer}>
+          <IconTikTok />
+          <div>{messages.title}</div>
+        </div>
+      }
+      onClose={() => dispatch(close())}
+      allowScroll={false}
+      bodyClassName={styles.modalBody}
+      headerContainerClassName={styles.modalHeader}
+    >
+      <div className={styles.modalContent}>
+        {renderMessage()}
+        {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}
+      </div>
+    </Modal>
+  )
 }
 
 export default ShareSoundToTikTikModal
