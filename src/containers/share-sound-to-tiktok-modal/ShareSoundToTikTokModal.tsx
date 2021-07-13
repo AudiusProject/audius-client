@@ -13,9 +13,9 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 
 import styles from './ShareSoundToTikTokModal.module.css'
-import { authenticated, close, setStatus, share } from './store/actions'
-import { Status } from './store/reducer'
 import { getStatus, getIsOpen, getTrack } from './store/selectors'
+import { authenticated, close, setStatus, share } from './store/slice'
+import { Status } from './store/types'
 
 enum FileRequirementError {
   MIN_LENGTH,
@@ -47,7 +47,7 @@ const ShareSoundToTikTikModal = () => {
   const status = useSelector(getStatus)
 
   const withTikTokAuth = useTikTokAuth({
-    onError: () => dispatch(setStatus(Status.SHARE_ERROR))
+    onError: () => dispatch(setStatus({ status: Status.SHARE_ERROR }))
   })
 
   const fileRequirementError: FileRequirementError | null = useMemo(() => {
@@ -88,7 +88,7 @@ const ShareSoundToTikTikModal = () => {
   function handleShareButtonClick() {
     if (track) {
       // Trigger the share process, which initially downloads the track to the client
-      dispatch(share(track.cid))
+      dispatch(share({ cid: track.cid }))
 
       // Trigger the authentication process
       withTikTokAuth(() => dispatch(authenticated()))

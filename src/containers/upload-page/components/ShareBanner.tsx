@@ -9,7 +9,7 @@ import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
 import { useFlag } from 'containers/remote-config/hooks'
-import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/actions'
+import { open as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/slice'
 import User from 'models/User'
 import AudiusBackend from 'services/AudiusBackend'
 import { Name } from 'services/analytics'
@@ -159,10 +159,12 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
     if (track.metadata.download?.cid) {
       dispatch(
         openTikTokModal({
-          id: track.metadata.track_id,
-          title: track.metadata.title,
-          cid: track.metadata.download.cid,
-          duration: track.metadata.duration
+          track: {
+            id: track.metadata.track_id,
+            title: track.metadata.title,
+            cid: track.metadata.download.cid,
+            duration: track.metadata.duration
+          }
         })
       )
     }
