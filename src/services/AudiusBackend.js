@@ -1,9 +1,9 @@
-/* global web3, localStorage, fetch, Image */
+/* globals web3, localStorage, fetch, Image */
+
+import moment from 'moment-timezone'
 
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
-import moment from 'moment-timezone'
-
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
@@ -1589,7 +1589,7 @@ class AudiusBackend {
    * @param {string} password
    * @param {Object} formFields {name, handle, profilePicture, coverPhoto, isVerified, location}
    * @param {boolean?} hasWallet the user already has a wallet but didn't complete sign up
-   * @param {ID} referrer the user_id of the account that referred this one
+   * @param {ID?} referrer the user_id of the account that referred this one
    */
   static async signUp({
     email,
@@ -1613,6 +1613,7 @@ class AudiusBackend {
     if (formFields.location) {
       metadata.location = formFields.location
     }
+
     const hasEvents = referrer || NATIVE_MOBILE
     if (hasEvents) {
       metadata.events = {}

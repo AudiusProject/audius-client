@@ -117,12 +117,14 @@ function* fetchFollowArtistGenre(followArtistCategory) {
 function* fetchReferrer(action) {
   const { location } = action
   const handle = new URLSearchParams(location.search).get('ref')
-  try {
-    const user = yield call(fetchUserByHandle, handle)
-    if (!user) return
-    yield put(signOnActions.setReferrer(user.user_id))
-  } catch (e) {
-    console.error(e)
+  if (handle) {
+    try {
+      const user = yield call(fetchUserByHandle, handle)
+      if (!user) return
+      yield put(signOnActions.setReferrer(user.user_id))
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
 
