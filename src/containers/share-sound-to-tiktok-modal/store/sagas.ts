@@ -1,5 +1,6 @@
 import { takeEvery, put, call, select } from 'redux-saga/effects'
 
+import { show as showConfetti } from 'containers/music-confetti/store/slice'
 import User from 'models/User'
 import { getAccountUser } from 'store/account/selectors'
 
@@ -75,6 +76,7 @@ function* handleUpload(action: ReturnType<typeof actions.upload>) {
     }
 
     yield put(actions.setStatus(Status.SHARE_SUCCESS))
+    yield put(showConfetti())
   } catch (e) {
     console.log(e)
     yield put(actions.setStatus(Status.SHARE_ERROR))

@@ -9,6 +9,18 @@
 
 .modalHeader {
   margin: 0px 16px;
+  padding: 20px 0px;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+}
+
+.titleContainer svg {
+  height: 24px;
+  width: 24px;
+  margin-right: 8px;
 }
 
 .modalContent {
@@ -32,8 +44,4 @@
 
 .button svg {
   margin-left: 8px;
-}
-
-.disabledIcon {
-  opacity: 0.1;
 }

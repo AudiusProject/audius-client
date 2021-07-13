@@ -1,6 +1,12 @@
 import React, { useMemo } from 'react'
 
-import { Button, Modal, ButtonType, IconTikTokInverted } from '@audius/stems'
+import {
+  Button,
+  Modal,
+  ButtonType,
+  IconTikTokInverted,
+  IconTikTok
+} from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -61,7 +67,12 @@ const ShareSoundToTikTikModal = () => {
       isOpen={isOpen}
       showTitleHeader
       showDismissButton
-      title={messages.title}
+      title={
+        <div className={styles.titleContainer}>
+          <IconTikTok />
+          <div>{messages.title}</div>
+        </div>
+      }
       onClose={() => dispatch(close())}
       allowScroll={false}
       bodyClassName={styles.modalBody}
@@ -127,9 +138,7 @@ const ShareSoundToTikTikModal = () => {
           text={
             <div className={styles.button}>
               <span>{messages.shareButton}</span>
-              <IconTikTokInverted
-                className={isButtonDisabled ? styles.disabledIcon : ''}
-              />
+              <IconTikTokInverted />
             </div>
           }
         />
