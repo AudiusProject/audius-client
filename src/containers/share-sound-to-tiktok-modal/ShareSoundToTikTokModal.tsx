@@ -126,6 +126,7 @@ const ShareSoundToTikTokModal = () => {
 
   return (
     <Modal
+      dismissOnClickOutside={status !== Status.SHARE_STARTED}
       isOpen={isOpen}
       showTitleHeader
       showDismissButton
