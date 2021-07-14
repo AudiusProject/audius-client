@@ -53,7 +53,7 @@ export const useTikTokAuth = ({
     return window.open(
       '',
       '',
-      'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=600, height=920'
+      'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=600, height=1000'
     )
   }
 
