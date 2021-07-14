@@ -1,13 +1,14 @@
-import { ID } from 'models/common/Identifiers'
+import { CID, ID } from 'models/common/Identifiers'
 
 export enum Status {
   SHARE_STARTED,
   SHARE_SUCCESS,
-  SHARE_ERROR
+  SHARE_ERROR,
+  SHARE_UNINITIALIZED
 }
 
 export type Track = {
-  cid: string
+  cid: CID
   id: ID
   title: string
   duration: number
@@ -17,7 +18,7 @@ export type ShareSoundToTikTokModalState = {
   isAuthenticated: boolean
   isOpen: boolean
   track?: Track
-  status: Status | null
+  status: Status
 }
 
 export type OpenPayload = {
@@ -25,7 +26,7 @@ export type OpenPayload = {
 }
 
 export type SetStatusPayload = {
-  status: Status | null
+  status: Status
 }
 
 export type SharePayload = {

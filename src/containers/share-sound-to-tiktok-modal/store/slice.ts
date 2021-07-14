@@ -4,13 +4,14 @@ import {
   OpenPayload,
   SetStatusPayload,
   SharePayload,
-  ShareSoundToTikTokModalState
+  ShareSoundToTikTokModalState,
+  Status
 } from './types'
 
 const initialState: ShareSoundToTikTokModalState = {
   isAuthenticated: false,
   isOpen: false,
-  status: null
+  status: Status.SHARE_UNINITIALIZED
 }
 
 // Slice
@@ -28,7 +29,7 @@ const slice = createSlice({
       state.isAuthenticated = false
       state.isOpen = true
       state.track = track
-      state.status = null
+      state.status = Status.SHARE_UNINITIALIZED
     },
     setIsAuthenticated: state => {
       state.isAuthenticated = true

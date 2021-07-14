@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
+import { Nullable } from 'utils/typeUtils'
 
 import styles from './ShareSoundToTikTokModal.module.css'
 import { getStatus, getIsOpen, getTrack } from './store/selectors'
@@ -39,7 +40,7 @@ const fileRequirementErrorMessages = {
   [FileRequirementError.MIN_LENGTH]: messages.errorMinLength
 }
 
-const ShareSoundToTikTikModal = () => {
+const ShareSoundToTikTokModal = () => {
   const dispatch = useDispatch()
 
   const isOpen = useSelector(getIsOpen)
@@ -50,7 +51,7 @@ const ShareSoundToTikTikModal = () => {
     onError: () => dispatch(setStatus({ status: Status.SHARE_ERROR }))
   })
 
-  const fileRequirementError: FileRequirementError | null = useMemo(() => {
+  const fileRequirementError: Nullable<FileRequirementError> = useMemo(() => {
     if (track) {
       if (track.duration > 300) {
         return FileRequirementError.MAX_LENGTH
@@ -76,12 +77,12 @@ const ShareSoundToTikTikModal = () => {
     const hasError =
       fileRequirementError !== null || status === Status.SHARE_ERROR
 
-    const rawMessage =
-      {
-        [Status.SHARE_STARTED]: messages.inProgress,
-        [Status.SHARE_SUCCESS]: messages.success,
-        [Status.SHARE_ERROR]: messages.error
-      }[status as Status] ?? messages.confirmation
+    const rawMessage = {
+      [Status.SHARE_STARTED]: messages.inProgress,
+      [Status.SHARE_SUCCESS]: messages.success,
+      [Status.SHARE_ERROR]: messages.error,
+      [Status.SHARE_UNINITIALIZED]: messages.confirmation
+    }[status as Status]
 
     if (hasError) {
       const errorMessage =
@@ -147,4 +148,4 @@ const ShareSoundToTikTikModal = () => {
   )
 }
 
-export default ShareSoundToTikTikModal
+export default ShareSoundToTikTokModal
