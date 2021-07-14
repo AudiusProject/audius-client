@@ -1169,8 +1169,6 @@ class AudiusAPIClient {
   }
 }
 
-const instance = new AudiusAPIClient({
-  overrideEndpoint: 'https://discovery2-prod.sandbox.audius.co/'
-})
+const instance = new AudiusAPIClient()
 
 export default instance
