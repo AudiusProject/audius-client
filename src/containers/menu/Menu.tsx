@@ -46,10 +46,7 @@ const Menu = (props: MenuProps) => {
     return <UserMenu {...(menu as UserMenuProps)}>{renderMenu}</UserMenu>
   } else if (menu.type === 'album' || menu.type === 'playlist') {
     return (
-      <CollectionMenu
-        onClose={props.onClose}
-        {...(menu as CollectionMenuProps)}
-      >
+      <CollectionMenu {...(menu as CollectionMenuProps)}>
         {renderMenu}
       </CollectionMenu>
     )

@@ -41,6 +41,7 @@ export const PopupMenu = ({
   items,
   menuClassName,
   menuIconClassName,
+  onClose,
   popupClassName,
   position,
   renderTrigger,
@@ -66,9 +67,10 @@ export const PopupMenu = ({
     [setIsPopupVisible]
   )
 
-  const handlePopupClose = useCallback(() => setIsPopupVisible(false), [
-    setIsPopupVisible
-  ])
+  const handlePopupClose = useCallback(() => {
+    setIsPopupVisible(false)
+    onClose?.()
+  }, [onClose, setIsPopupVisible])
 
   return (
     <div className={cn(popupClassName)} ref={ignoreClickOutsideRef}>

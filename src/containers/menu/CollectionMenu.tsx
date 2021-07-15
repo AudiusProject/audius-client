@@ -29,7 +29,6 @@ export type OwnProps = {
   isOwner: boolean
   isPublic: boolean
   isReposted: boolean
-  onClose?: () => void
   onRepost?: () => void
   onShare?: () => void
   playlistId: PlaylistId
