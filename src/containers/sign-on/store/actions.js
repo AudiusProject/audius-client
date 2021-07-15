@@ -317,13 +317,13 @@ export const sendWelcomeEmail = name => ({
 })
 
 /**
- * Fetches the referrer from the sign on URL
- * @param {Location<History.PoorMansUnknown>} location
- *  the history location which captures the ?ref=<handle> param
+ * Fetches the referring user given their handle
+ * @param {string} handle
+ *  the handle captured by the ?ref=<handle> search param
  */
-export const fetchReferrer = location => ({
+export const fetchReferrer = handle => ({
   type: FETCH_REFERRER,
-  location
+  handle
 })
 
 /**

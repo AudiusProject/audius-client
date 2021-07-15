@@ -121,7 +121,13 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       }
     })
 
-    this.props.fetchReferrer(this.props.location)
+    const referrerHandle = new URLSearchParams(this.props.location.search).get(
+      'ref'
+    )
+    if (referrerHandle) {
+      this.props.fetchReferrer(referrerHandle)
+    }
+
     const closeModalHotkey = setupHotkeys({
       27 /* Escape */: () => {
         if (
@@ -476,8 +482,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onSignIn: (email: string, password: string) =>
       dispatch(signOnAction.signIn(email, password)),
     fetchFollowArtists: () => dispatch(signOnAction.fetchAllFollowArtists()),
-    fetchReferrer: (location: Location) =>
-      dispatch(signOnAction.fetchReferrer(location)),
+    fetchReferrer: (handle: string) =>
+      dispatch(signOnAction.fetchReferrer(handle)),
     signUp: (email: string, password: string, handle: string) =>
       dispatch(signOnAction.signUp(email, password, handle)),
     setTwitterProfile: (
