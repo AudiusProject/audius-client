@@ -10,7 +10,6 @@ import {
 
 const initialState: ShareSoundToTikTokModalState = {
   isAuthenticated: false,
-  isOpen: false,
   status: Status.SHARE_UNINITIALIZED
 }
 
@@ -21,13 +20,9 @@ const slice = createSlice({
   initialState,
   reducers: {
     authenticated: () => {},
-    close: state => {
-      state.isOpen = false
-    },
     open: (state, action: PayloadAction<OpenPayload>) => {
       const { track } = action.payload
       state.isAuthenticated = false
-      state.isOpen = true
       state.track = track
       state.status = Status.SHARE_UNINITIALIZED
     },
@@ -37,7 +32,6 @@ const slice = createSlice({
     setStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const { status } = action.payload
       state.status = status
-      state.isOpen = true
     },
     share: (state, action: PayloadAction<SharePayload>) => {},
     upload: () => {}
@@ -46,7 +40,6 @@ const slice = createSlice({
 
 export const {
   authenticated,
-  close,
   open,
   setIsAuthenticated,
   setStatus,
