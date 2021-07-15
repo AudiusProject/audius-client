@@ -37,6 +37,7 @@ const slice = createSlice({
     setStatus: (state, action: PayloadAction<SetStatusPayload>) => {
       const { status } = action.payload
       state.status = status
+      state.isOpen = true
     },
     share: (state, action: PayloadAction<SharePayload>) => {},
     upload: () => {}
