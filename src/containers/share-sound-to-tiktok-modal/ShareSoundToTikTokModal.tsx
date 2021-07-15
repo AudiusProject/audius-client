@@ -42,7 +42,7 @@ const fileRequirementErrorMessages = {
 }
 
 const ShareSoundToTikTokModal = () => {
-  const [isOpen, setIsOpen] = useModalState('ShareSoundToTikTokModal')
+  const [isOpen, setIsOpen] = useModalState('ShareSoundToTikTok')
   const dispatch = useDispatch()
 
   const track = useSelector(getTrack)

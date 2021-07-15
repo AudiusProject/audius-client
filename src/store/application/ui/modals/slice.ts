@@ -9,7 +9,7 @@ export type Modals =
   | 'APIRewardsExplainer'
   | 'TransferAudioMobileWarning'
   | 'MobileConnectWalletsDrawer'
-  | 'ShareSoundToTikTokModal'
+  | 'ShareSoundToTikTok'
 
 type InitialModalsState = { [modal in Modals]: boolean }
 
@@ -20,7 +20,7 @@ const initialState: InitialModalsState = {
   APIRewardsExplainer: false,
   TransferAudioMobileWarning: false,
   MobileConnectWalletsDrawer: false,
-  ShareSoundToTikTokModal: false
+  ShareSoundToTikTok: false
 }
 
 const slice = createSlice({
