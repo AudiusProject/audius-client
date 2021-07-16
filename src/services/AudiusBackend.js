@@ -1,4 +1,4 @@
-/* global web3, localStorage, fetch, Image */
+/* globals web3, localStorage, fetch, Image */
 
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
@@ -18,6 +18,7 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
+import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/segment'
 import CIDCache from 'store/cache/CIDCache'
 import { isElectron } from 'utils/clientUtil'
@@ -210,11 +211,28 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
   await waitForLibsInit()
   // Else, race fetching of the image from all gateways & return the image url blob
   try {
-    const image = await audiusLibs.File.fetchCID(
-      cid,
-      creatorNodeGateways,
-      () => {}
-    )
+    const promises = [
+      // Try to fetch the CID
+      audiusLibs.File.fetchCID(cid, creatorNodeGateways, () => {}).catch(
+        () => new Promise()
+      )
+    ]
+    if (cid.includes('/')) {
+      // Try to fetch the CID without the size if it is one with a size.
+      // Very old users have set _sizes that point to a single CID,
+      // not a folder of CIDs.
+      // This code path should be executed very rarely.
+      promises.push(
+        audiusLibs.File.fetchCID(
+          cid.split('/')[0],
+          creatorNodeGateways,
+          () => {}
+        ).catch(() => new Promise())
+      )
+    }
+    // Note: the raced promises here have a do-nothing .catch, which makes
+    // this promise.race behave like promise.any
+    const image = await Promise.race(promises)
     const url = URL.createObjectURL(image.data)
     if (cache) CIDCache.add(cid, url)
     return url
@@ -1033,13 +1051,15 @@ class AudiusBackend {
         newMetadata.website ||
         newMetadata.donation
       ) {
+        const { data, signature } = await AudiusBackend.signData()
         await fetch(`${IDENTITY_SERVICE}/social_handles`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            [AuthHeaders.Message]: data,
+            [AuthHeaders.Signature]: signature
           },
           body: JSON.stringify({
-            handle: newMetadata.handle,
             twitterHandle: newMetadata.twitter_handle,
             instagramHandle: newMetadata.instagram_handle,
             website: newMetadata.website,
@@ -1536,14 +1556,16 @@ class AudiusBackend {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     try {
+      const { data, signature } = await AudiusBackend.signData()
       await fetch(`${IDENTITY_SERVICE}/artist_pick`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
         },
         body: JSON.stringify({
-          trackId,
-          handle: account.handle
+          trackId
         })
       })
     } catch (err) {
@@ -1567,8 +1589,15 @@ class AudiusBackend {
    * @param {string} password
    * @param {Object} formFields {name, handle, profilePicture, coverPhoto, isVerified, location}
    * @param {boolean?} hasWallet the user already has a wallet but didn't complete sign up
+   * @param {ID?} referrer the user_id of the account that referred this one
    */
-  static async signUp(email, password, formFields, hasWallet = false) {
+  static async signUp({
+    email,
+    password,
+    formFields,
+    hasWallet = false,
+    referrer = null
+  }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
     metadata.is_creator = false
@@ -1583,6 +1612,18 @@ class AudiusBackend {
     }
     if (formFields.location) {
       metadata.location = formFields.location
+    }
+
+    const hasEvents = referrer || NATIVE_MOBILE
+    if (hasEvents) {
+      metadata.events = {}
+    }
+    if (referrer) {
+      metadata.events.referrer = referrer
+    }
+    if (NATIVE_MOBILE) {
+      metadata.events.is_mobile_user = true
+      window.localStorage.setItem(IS_MOBILE_USER_KEY, 'true')
     }
 
     // Returns { userId, error, phase }
@@ -2191,32 +2232,6 @@ class AudiusBackend {
       return res
     } catch (e) {
       console.error(e)
-    }
-  }
-
-  /**
-   * Gets an ordered string-like list of playlists that the
-   * current account has favorited.
-   * @DEPRECATED
-   * TODO: Remove this method after a ~month or so from launch of playlist
-   * library.
-   */
-  static async getAccountPlaylistFavorites() {
-    await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
-    try {
-      const { data, signature } = await AudiusBackend.signData()
-      const res = await fetch(`${IDENTITY_SERVICE}/user_playlist_favorites`, {
-        headers: {
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
-        }
-      }).then(res => res.json())
-      return res.userPlaylistFavorites
-    } catch (e) {
-      console.error(e)
-      return []
     }
   }
 

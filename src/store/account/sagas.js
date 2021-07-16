@@ -53,7 +53,7 @@ import {
 import { isMobile, isElectron } from 'utils/clientUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
-import mobileSagas from './mobileSagas'
+import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -76,13 +76,10 @@ function* onFetchAccount(account) {
   }
 
   yield fork(AudiusBackend.updateUserLocationTimezone)
-  yield fork(AudiusBackend.updateUserEvent, {
-    hasSignedInNativeMobile: !!NATIVE_MOBILE
-  })
   if (NATIVE_MOBILE) {
+    yield fork(setHasSignedInOnMobile, account)
     new SignedIn(account).send()
   }
-
   // Add playlists that might not have made it into the user's library.
   // This could happen if the user creates a new playlist and then leaves their session.
   yield fork(addPlaylistsNotInLibrary)
@@ -147,27 +144,6 @@ export function* fetchAccountAsync(action) {
 
   // Set account ID in remote-config provider
   setUserId(account.user_id)
-
-  // @@@@@ Migration @@@@@
-  // Migrate users with old playlist orderings
-  // TODO: After a sufficient time post release (~month), we should remove this
-  // migration in favor of users being on the proper playlist library.
-  const accountPlaylistFavorites = yield call(
-    AudiusBackend.getAccountPlaylistFavorites
-  )
-  const orderedPlaylists = accountPlaylistFavorites
-    ? accountPlaylistFavorites.favorites
-    : []
-
-  if (orderedPlaylists.length > 0 && !account.playlist_library) {
-    const contents = orderedPlaylists.map(id => ({
-      type: 'explore_playlist',
-      playlist_id: id
-    }))
-    const playlistLibrary = { contents }
-    yield put(updatePlaylistLibrary({ playlistLibrary }))
-  }
-  // @@@@@ End migration @@@@@
 
   // Cache the account and fire the onFetch callback. We're done.
   yield call(cacheAccount, account)
