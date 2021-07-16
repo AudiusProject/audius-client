@@ -24,13 +24,13 @@ export type MenuOptionType =
 
 export type MenuProps = {
   children: PopupMenuProps['renderTrigger']
-  className?: string
   menu: Omit<MenuOptionType, 'children'>
   onClose?: () => void
+  zIndex?: number
 }
 
 const Menu = (props: MenuProps) => {
-  const { className, menu, onClose } = props
+  const { menu, onClose, zIndex } = props
 
   const renderMenu = (items: PopupMenuItem[]) => (
     <PopupMenu
@@ -38,7 +38,7 @@ const Menu = (props: MenuProps) => {
       onClose={onClose}
       position={PopupPosition.BOTTOM_RIGHT}
       renderTrigger={props.children}
-      zIndex={12}
+      zIndex={zIndex}
     />
   )
 

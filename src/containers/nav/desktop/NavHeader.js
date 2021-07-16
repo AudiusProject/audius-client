@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 
 import cn from 'classnames'
 import PropTypes from 'prop-types'
@@ -25,6 +25,7 @@ const NavHeader = ({
   goToRoute,
   isElectron
 }) => {
+  const notificationPanelAnchorRef = useRef()
   const logoVariant = useRemoteVar(StringKeys.AUDIUS_LOGO_VARIANT)
   const logoVariantClickTarget = useRemoteVar(
     StringKeys.AUDIUS_LOGO_VARIANT_CLICK_TARGET
@@ -59,6 +60,7 @@ const NavHeader = ({
         <div className={styles.headerIconContainer}>
           <NavIconPopover />
           <div
+            ref={notificationPanelAnchorRef}
             onClick={toggleNotificationPanel}
             className={cn(styles.headerIconWrapper, styles.iconNotification, {
               [styles.active]: notificationCount > 0,
@@ -73,6 +75,7 @@ const NavHeader = ({
             </div>
           ) : null}
           <NotificationPanel
+            anchorRef={notificationPanelAnchorRef}
             isElectron={isElectron}
             toggleNotificationPanel={toggleNotificationPanel}
           />

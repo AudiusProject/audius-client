@@ -16,6 +16,7 @@ import { Name } from 'services/analytics'
 import { make, useRecord } from 'store/analytics/actions'
 import { formatCount } from 'utils/formatUtil'
 import { profilePage } from 'utils/route'
+import zIndex from 'utils/zIndex'
 
 import TrackContent from '../TrackContent'
 import { getEntityLink, TwitterShare } from '../TwitterShare'
@@ -204,7 +205,7 @@ const NotificationBlock = (props: NotificationBlockProps) => {
         <div className={styles.headerContainer}>
           {header}
           <div className={styles.menuContainer}>
-            <Menu menu={props.menuProps}>
+            <Menu menu={props.menuProps} zIndex={zIndex.NAVIGATOR_POPUP + 1}>
               {(ref, triggerPopup) => (
                 <div
                   className={styles.iconContainer}
@@ -231,7 +232,7 @@ const NotificationBlock = (props: NotificationBlockProps) => {
         <div className={styles.body}>{body}</div>
         {!header && (
           <div className={styles.menuContainer}>
-            <Menu menu={props.menuProps}>
+            <Menu menu={props.menuProps} zIndex={zIndex.NAVIGATOR_POPUP + 1}>
               {(ref, triggerPopup) => (
                 <div
                   className={styles.iconContainer}

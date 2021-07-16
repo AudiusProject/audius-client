@@ -7,12 +7,14 @@ import {
   PopupMenu,
   PopupPosition
 } from '@audius/stems'
+
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontalAlt.svg'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { getAccountIsCreator } from 'store/account/selectors'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE, DASHBOARD_PAGE, SETTINGS_PAGE } from 'utils/route'
 import { removeNullable } from 'utils/typeUtils'
+import zIndex from 'utils/zIndex'
 
 import styles from './NavIconPopover.module.css'
 
@@ -67,7 +69,7 @@ const NavIconPopover = () => {
             </div>
           )
         }}
-        zIndex={15}
+        zIndex={zIndex.NAVIGATOR_POPUP}
       />
     </div>
   )
