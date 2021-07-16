@@ -49,11 +49,21 @@
   background-color: var(--secondary-light-2);
 }
 
-.rewardsMenu {
-  color: var(--accent-orange);
+.menuItemIcon {
+  height: 100%;
+}
+
+.menuItemIcon svg {
+  padding: 2px;
+  height: 24px;
+  width: 24px;
 }
 
 .crownIcon svg {
-  padding: 4px;
   background: var(--accent-orange);
+  padding: 4px;
+}
+
+.rewardsMenuItem {
+  color: var(--accent-orange);
 }
