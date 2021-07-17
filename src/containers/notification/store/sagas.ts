@@ -73,6 +73,20 @@ const getTimeAgo = (now: moment.Moment, date: string) => {
 
 const NOTIFICATION_LIMIT_DEFAULT = 20
 
+function* recordPlaylistUpdatesAnalytics(playlistUpdates: ID[]) {
+  const existingUpdates: ID[] = yield select(getPlaylistUpdates)
+  yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
+  if (
+    playlistUpdates.length > 0 &&
+    existingUpdates.length !== playlistUpdates.length
+  ) {
+    const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
+      count: playlistUpdates.length
+    })
+    yield put(event)
+  }
+}
+
 /**
  * Fetch notifications, used by notification pagination
  */
@@ -113,18 +127,7 @@ export function* fetchNotifications(
 
     const hasMore = notifications.length >= limit
 
-    const existingUpdates = yield select(getPlaylistUpdates)
-    yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
-    if (
-      playlistUpdates.length > 0 &&
-      existingUpdates.length !== playlistUpdates.length
-    ) {
-      const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
-        count: playlistUpdates.length
-      })
-      yield put(event)
-    }
-
+    yield fork(recordPlaylistUpdatesAnalytics, playlistUpdates)
     yield put(
       notificationActions.fetchNotificationSucceeded(
         notifications,
@@ -479,17 +482,7 @@ export function* getNotifications(isFirstFetch: boolean) {
         playlistUpdates: number[]
       } = notificationsResponse
 
-      const existingUpdates = yield select(getPlaylistUpdates)
-      yield put(notificationActions.setPlaylistUpdates(playlistUpdates))
-      if (
-        playlistUpdates.length > 0 &&
-        existingUpdates.length !== playlistUpdates.length
-      ) {
-        const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
-          count: playlistUpdates.length
-        })
-        yield put(event)
-      }
+      yield fork(recordPlaylistUpdatesAnalytics, playlistUpdates)
 
       if (notificationItems.length > 0) {
         const currentNotifications = yield select(makeGetAllNotifications())
