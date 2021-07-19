@@ -128,7 +128,6 @@ const createRootReducer = routeHistory =>
       ui: combineReducers({
         appCTAModal,
         averageColor,
-        browserPushPermissionConfirmation,
         cookieBanner,
         createPlaylistModal,
         editPlaylistModal,
