@@ -4,8 +4,10 @@
  * When using, ensure that the Avenir Next LT Pro font-face is available.
  */
 
-:root, root {
-  --font-family: 'Avenir Next LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+:root,
+root {
+  --font-family: 'Avenir Next LT Pro', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif !important;
 
   --font-2xs: 10px;
   --font-xs: 12px;
@@ -23,4 +25,8 @@
   --font-demi-bold: 600;
   --font-bold: 700;
   --font-heavy: 900;
+}
+
+body * {
+  font-family: var(--font-family) !important;
 }

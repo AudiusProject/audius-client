@@ -3,7 +3,7 @@
  * @param el
  * @param selector query selector
  */
-const findAncestor = (el: Element, selector: string) => {
+export const findAncestor = (el: Element, selector: string) => {
   if (el.closest) {
     return el.closest(selector)
   }
@@ -15,5 +15,3 @@ const findAncestor = (el: Element, selector: string) => {
   );
   return el
 }
-
-export default findAncestor

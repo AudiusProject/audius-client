@@ -3,27 +3,37 @@ import './assets/styles/fonts.css'
 import './assets/styles/colors.css'
 import './assets/styles/animations.css'
 
-export * from './Icons'
+export * from './components/Icons'
 
 export {
-  default as Button,
+  Button,
   ButtonProps,
   Type as ButtonType,
   Size as ButtonSize
-} from './Button'
-export { default as Scrubber } from './Scrubber'
-export { default as Modal, ModalProps, Anchor } from './Modal'
-export { default as TabSlider, TabSliderProps, Option } from './TabSlider'
+} from './components/Button'
+export { Modal, ModalProps, Anchor } from './components/Modal'
 export {
-  default as TokenValueSlider,
+  Popup,
+  Position as PopupPosition,
+  PopupProps
+} from './components/Popup'
+export {
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuProps
+} from './components/PopupMenu'
+export { Scrubber } from './components/Scrubber'
+export { TabSlider, TabSliderProps, Option } from './components/TabSlider'
+export {
+  TokenValueSlider,
   TokenValueSliderProps
-} from './TokenValueSlider'
+} from './components/TokenValueSlider'
 export {
-  default as TokenValueInput,
+  TokenValueInput,
   TokenValueInputProps,
   Format
-} from './TokenValueInput'
+} from './components/TokenValueInput'
 
-export { default as useHotkeys } from 'hooks/useHotKeys'
-export { default as useClickOutside } from 'hooks/useClickOutside'
-export { default as useScrollLock } from 'hooks/useScrollLock'
+export { useHotkeys } from './hooks/useHotKeys'
+export { useClickOutside } from './hooks/useClickOutside'
+export { useScrollLock } from './hooks/useScrollLock'

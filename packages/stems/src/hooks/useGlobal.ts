@@ -19,7 +19,7 @@ window.AudiusStems = window.AudiusStems || {}
  *  1. The getter is a function to allow for fresh fetches (pulls off of window at each invocation)
  *  2. The setter can/should only be invoked with a mutator function rather than a "new value"
  */
-const useGlobal = <T>(
+export const useGlobal = <T>(
   name: string,
   initialValue: T
 ): [() => T, (mutator: (cur: T) => void) => void] => {
@@ -39,5 +39,3 @@ const useGlobal = <T>(
 
   return [getter, setter]
 }
-
-export default useGlobal

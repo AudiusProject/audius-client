@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
  * `useScrollLock` will prevent the root app div from scrolling. This is useful for modals, or for presenting
  * full screen pages on top of the existing app.
  */
-const useScrollLock = (
+export const useScrollLock = (
   lock: boolean,
   increment: () => void,
   decrement: () => void
@@ -38,5 +38,3 @@ const useScrollLock = (
     [decrement]
   )
 }
-
-export default useScrollLock

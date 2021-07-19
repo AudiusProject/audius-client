@@ -11,7 +11,7 @@ import { useEffect, useRef } from 'react'
   
  * @returns a ref that should be used to mark the "inside" element
  */
-const useClickOutside = (
+export const useClickOutside = (
   onClick: () => void,
   ignoreClick: (target: EventTarget) => boolean = () => false
 ) => {
@@ -35,5 +35,3 @@ const useClickOutside = (
 
   return ref
 }
-
-export default useClickOutside
