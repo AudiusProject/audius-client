@@ -103,7 +103,10 @@ const NotificationPanel = ({
       isVisible={panelIsOpen}
       checkIfClickInside={(target: EventTarget) => {
         if (target instanceof Element && anchorRef) {
-          return anchorRef.current.contains(target)
+          return (
+            anchorRef.current.contains(target) ||
+            [...target.classList].some(c => c.includes('PopupMenu'))
+          )
         }
         return false
       }}
