@@ -65,8 +65,8 @@ const NavPopupMenu = () => {
         position={PopupPosition.BOTTOM_RIGHT}
         renderTrigger={(anchorRef, triggerPopup) => {
           return (
-            <div className={styles.icon} ref={anchorRef}>
-              <IconKebabHorizontal onClick={triggerPopup} />
+            <div className={styles.icon} ref={anchorRef} onClick={triggerPopup}>
+              <IconKebabHorizontal />
             </div>
           )
         }}
