@@ -86,6 +86,7 @@
 
 .handle {
   margin-left: var(--negative-unit);
+  height: var(--unit-2);
   width: var(--unit-2);
   border-radius: 50%;
   background: var(--white);
