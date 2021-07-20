@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import cn from 'classnames'
 import ReactDOM from 'react-dom'
@@ -69,21 +75,24 @@ const getComputedPosition = (
  * from modals, which do take over the whole UI and are usually
  * center-screened.
  */
-export const Popup = ({
-  anchorRef,
-  animationDuration,
-  checkIfClickInside,
-  children,
-  className,
-  isVisible,
-  onAfterClose,
-  onClose,
-  position = Position.BOTTOM_CENTER,
-  showHeader,
-  title,
-  wrapperClassName,
-  zIndex
-}: PopupProps) => {
+export const Popup = forwardRef<HTMLElement, PopupProps>(function Popup(
+  {
+    anchorRef,
+    animationDuration,
+    checkIfClickInside,
+    children,
+    className,
+    isVisible,
+    onAfterClose,
+    onClose,
+    position = Position.BOTTOM_CENTER,
+    showHeader,
+    title,
+    wrapperClassName,
+    zIndex
+  },
+  ref
+) {
   const handleClose = useCallback(() => {
     onClose()
     setTimeout(() => {
@@ -93,7 +102,8 @@ export const Popup = ({
 
   const popupRef: React.MutableRefObject<HTMLDivElement> = useClickOutside(
     handleClose,
-    checkIfClickInside
+    checkIfClickInside,
+    typeof ref === 'function' ? undefined : ref
   )
 
   const wrapperRef = useRef<HTMLDivElement>()
@@ -254,6 +264,6 @@ export const Popup = ({
       )}
     </>
   )
-}
+})
 
 Popup.defaultProps = popupDefaultProps

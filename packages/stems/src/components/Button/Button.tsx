@@ -28,7 +28,7 @@ const TYPE_STYLE_MAP = {
  * include and position icons.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
+  function Button(
     {
       text,
       type,
@@ -48,9 +48,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       onMouseLeave,
       onMouseUp,
       onMouseDown
-    }: ButtonProps,
+    },
     ref
-  ) => {
+  ) {
     const { textIsHidden } = useCollapsibleText(widthToHideText)
 
     const renderLeftIcon = () =>

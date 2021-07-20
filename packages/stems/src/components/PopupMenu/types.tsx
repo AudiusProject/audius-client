@@ -1,5 +1,7 @@
 import { PopupProps } from '../Popup'
 
+type ApplicablePopupProps = Pick<PopupProps, 'position' | 'title' | 'zIndex'>
+
 export type PopupMenuProps = {
   /**
    * The items to display in the menu
@@ -18,7 +20,7 @@ export type PopupMenuProps = {
     anchorRef: React.MutableRefObject<any>,
     triggerPopup: () => void
   ) => React.ReactNode | Element
-} & Pick<PopupProps, 'position' | 'title' | 'zIndex'>
+} & ApplicablePopupProps
 
 export type PopupMenuItem = {
   /**
