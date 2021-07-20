@@ -9,6 +9,7 @@ import SimpleBar from 'simplebar-react'
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ID } from 'models/common/Identifiers'
 import { Status } from 'store/types'
+import { Nullable } from 'utils/typeUtils'
 import zIndex from 'utils/zIndex'
 
 import styles from './NotificationPanel.module.css'
@@ -76,8 +77,9 @@ const NotificationPanel = ({
   setNotificationUsers,
   hideNotification
 }: NotificationPanelProps) => {
-  const panelRef = useRef<HTMLDivElement | null>(null)
-  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const panelRef = useRef<Nullable<HTMLDivElement>>(null)
+  const scrollRef = useRef<Nullable<HTMLDivElement>>(null)
+  const overflowMenuRef = useRef<Nullable<HTMLElement>>(null)
   const simpleBarId = 'notificationsPanelScroll'
   const getScrollParent = () => {
     const simpleBarElement = window.document.getElementById(simpleBarId)
@@ -102,10 +104,9 @@ const NotificationPanel = ({
       className={styles.popup}
       isVisible={panelIsOpen}
       checkIfClickInside={(target: EventTarget) => {
-        if (target instanceof Element && anchorRef) {
-          return (
-            anchorRef.current.contains(target) ||
-            [...target.classList].some(c => c.includes('PopupMenu'))
+        if (target instanceof Element) {
+          return [anchorRef?.current, overflowMenuRef?.current].some(r =>
+            r?.contains(target)
           )
         }
         return false
@@ -160,6 +161,7 @@ const NotificationPanel = ({
                           setNotificationUsers={setNotificationUsers}
                           toggleNotificationPanel={toggleNotificationPanel}
                           notification={notification}
+                          overflowMenuRef={overflowMenuRef}
                           panelRef={panelRef}
                           scrollRef={scrollRef}
                           setNotificationModal={setNotificationModal}

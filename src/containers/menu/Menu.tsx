@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
 
 import {
   PopupMenu,
@@ -29,7 +29,7 @@ export type MenuProps = {
   zIndex?: number
 }
 
-const Menu = (props: MenuProps) => {
+const Menu = forwardRef<HTMLElement, MenuProps>((props, ref) => {
   const { menu, onClose, zIndex } = props
 
   const renderMenu = (items: PopupMenuItem[]) => (
@@ -37,6 +37,7 @@ const Menu = (props: MenuProps) => {
       items={items}
       onClose={onClose}
       position={PopupPosition.BOTTOM_RIGHT}
+      ref={ref}
       renderTrigger={props.children}
       zIndex={zIndex}
     />
@@ -63,7 +64,7 @@ const Menu = (props: MenuProps) => {
     )
   }
   return null
-}
+})
 
 Menu.defaultProps = {
   menu: {

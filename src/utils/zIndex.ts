@@ -11,6 +11,7 @@ export enum zIndex {
   // HEADER_CONTAINER = 13,
   // NAVIGATOR = 14,
   NAVIGATOR_POPUP = 15,
+  NAVIGATOR_POPUP_OVERFLOW_POPUP = 16,
 
   // Set to 1000 to account for nested modals inside, which take a higher z-index
   EDIT_TRACK_MODAL = 1000,
