@@ -16,11 +16,6 @@ if (process.argv[2] && process.argv[2] === '--remote-host') {
   }
 }
 
-/*
-REACT_APP_SOLANA_FEE_PAYER_ADDRESS
-REACT_APP_CLAIMABLE_TOKEN_PDA
-*/
-
 try {
   const configFile = require(path.join(homeDir, AUDIUS_CONFIG))
   const ethConfigFile = require(path.join(homeDir, AUDIUS_ETH_CONFIG))

@@ -385,10 +385,8 @@ class AudiusBackend {
     // initialize libs
     let libsError = null
     const { web3Error, web3Config } = await AudiusBackend.getWeb3Config()
-    console.log(web3Config)
     const { ethWeb3Config } = AudiusBackend.getEthWeb3Config()
     const { solanaWeb3Config } = AudiusBackend.getSolanaWeb3Config()
-    console.log(solanaWeb3Config)
 
     let contentNodeBlockList = getRemoteVar(StringKeys.CONTENT_NODE_BLOCK_LIST)
     if (contentNodeBlockList) {
