@@ -71,6 +71,7 @@ const FULL_ENDPOINT_MAP = {
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
+  getTrackByHandleAndSlug: `/tracks/`,
   getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
   getRemixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
   getRemixing: (trackId: OpaqueID) => `/tracks/${trackId}/remixing`,
@@ -96,6 +97,11 @@ export type GetTrackArgs = {
     urlTitle: string
     handle: string
   }
+}
+
+type GetTrackByHandleAndSlugArgs = {
+  handle: string
+  slug: string
 }
 
 type GetTrendingArgs = {
@@ -642,6 +648,21 @@ class AudiusAPIClient {
 
     const adapted = adapter.makeTrack(trackResponse.data)
     return adapted
+  }
+
+  async getTrackByHandleAndSlug(args: GetTrackByHandleAndSlugArgs) {
+    console.log('getTrackByHandleAndSlug', args)
+    this._assertInitialized()
+
+    const trackResponse: Nullable<APIResponse<
+      APITrack
+    >> = await this._getResponse(
+      FULL_ENDPOINT_MAP.getTrackByHandleAndSlug,
+      args,
+      true
+    )
+    if (!trackResponse) return null
+    return adapter.makeTrack(trackResponse.data)
   }
 
   async getStems({ trackId }: GetStemsArgs): Promise<StemTrackMetadata[]> {
