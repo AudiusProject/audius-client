@@ -73,17 +73,19 @@ export function* retrieveTrackByHandleAndSlug({
         )
         return selected
       },
-      onBeforeAddToCache: function* (metadatas: TrackMetadata[]) {
-        console.log('onBeforeAddToCache', metadatas)
+      onBeforeAddToCache: function* (tracks: TrackMetadata[]) {
+        yield addUsersFromTracks(tracks)
         yield put(
           trackActions.setPermalinkStatus([
             {
               permalink,
-              id: metadatas[0].track_id,
+              id: tracks[0].track_id,
               status: Status.SUCCESS
             }
           ])
         )
+        const checkedTracks = yield call(setTracksIsBlocked, tracks)
+        return checkedTracks.map(reformat)
       }
     }
   )
