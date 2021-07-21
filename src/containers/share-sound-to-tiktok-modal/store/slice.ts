@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import {
   OpenPayload,
+  RequestOpenPayload,
   SetStatusPayload,
   SharePayload,
   ShareSoundToTikTokModalState,
@@ -26,6 +27,7 @@ const slice = createSlice({
       state.track = track
       state.status = Status.SHARE_UNINITIALIZED
     },
+    requestOpen: (state, action: PayloadAction<RequestOpenPayload>) => {},
     setIsAuthenticated: state => {
       state.isAuthenticated = true
     },
@@ -41,6 +43,7 @@ const slice = createSlice({
 export const {
   authenticated,
   open,
+  requestOpen,
   setIsAuthenticated,
   setStatus,
   share,

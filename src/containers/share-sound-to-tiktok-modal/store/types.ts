@@ -20,6 +20,10 @@ export type ShareSoundToTikTokModalState = {
   status: Status
 }
 
+export type RequestOpenPayload = {
+  id: ID
+}
+
 export type OpenPayload = {
   track: Track
 }

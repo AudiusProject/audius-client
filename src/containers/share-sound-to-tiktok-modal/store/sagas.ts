@@ -3,11 +3,16 @@ import { takeEvery, put, call, select } from 'redux-saga/effects'
 import { show as showConfetti } from 'containers/music-confetti/store/slice'
 import User from 'models/User'
 import { getAccountUser } from 'store/account/selectors'
+import { setVisibility } from 'store/application/ui/modals/slice'
+import { getTrack } from 'store/cache/tracks/selectors'
+import { AppState } from 'store/types'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import { getIsAuthenticated } from './selectors'
 import {
   authenticated,
+  open,
+  requestOpen,
   setIsAuthenticated,
   setStatus,
   share,
@@ -21,6 +26,24 @@ const TIKTOK_SHARE_SOUND_ENDPOINT =
 // Because the track blob cannot live in an action (not a POJO),
 // we are creating a singleton here to store it
 let track: Blob | null = null
+
+function* handleRequestOpen(action: ReturnType<typeof requestOpen>) {
+  const track = yield select((state: AppState) =>
+    getTrack(state, { id: action.payload.id })
+  )
+
+  yield put(
+    open({
+      track: {
+        id: track.track_id,
+        title: track.title,
+        cid: track.download.cid,
+        duration: track.duration
+      }
+    })
+  )
+  yield put(setVisibility({ modal: 'ShareSoundToTikTok', visible: true }))
+}
 
 function* handleShare(action: ReturnType<typeof share>) {
   yield put(setStatus({ status: Status.SHARE_STARTED }))
@@ -90,6 +113,10 @@ function* handleUpload(action: ReturnType<typeof upload>) {
   }
 }
 
+function* watchHandleRequestOpen() {
+  yield takeEvery(requestOpen, handleRequestOpen)
+}
+
 function* watchHandleShare() {
   yield takeEvery(share, handleShare)
 }
@@ -103,5 +130,10 @@ function* watchHandleUpload() {
 }
 
 export default function sagas() {
-  return [watchHandleShare, watchHandleAuthenticated, watchHandleUpload]
+  return [
+    watchHandleRequestOpen,
+    watchHandleShare,
+    watchHandleAuthenticated,
+    watchHandleUpload
+  ]
 }
