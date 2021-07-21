@@ -117,7 +117,7 @@ class TrackPageProvider extends Component<
   componentDidMount() {
     const params = parseTrackRoute(this.props.pathname)
     // Go to 404 if the track id isn't parsed correctly or if should redirect
-    if (!params || shouldRedirectTrack(params.trackId)) {
+    if (!params || (params.trackId && shouldRedirectTrack(params.trackId))) {
       this.props.goToRoute(NOT_FOUND_PAGE)
       return
     }
@@ -169,24 +169,17 @@ class TrackPageProvider extends Component<
       const params = parseTrackRoute(pathname)
       if (params) {
         // Check if we are coming from a non-canonical route and replace route if necessary.
-        const { trackTitle, trackId, handle } = params
-        const newTrackTitle = formatUrlName(track.title)
-        if (trackTitle === null || handle === null) {
-          if (this.props.user) {
-            const newPath = trackPage(
-              this.props.user.handle,
-              newTrackTitle,
-              track.track_id
-            )
-            this.props.replaceRoute(newPath)
+        const { slug, handle } = params
+        const oldPermalink = `${handle}/${slug}`
+        if (slug === null || handle === null) {
+          if (track.permalink) {
+            console.log('rerouting', track, track.permalink)
+            this.props.replaceRoute(track.permalink)
           }
         } else {
           // Check that the track name hasn't changed. If so, update url.
-          if (track.track_id === trackId) {
-            if (newTrackTitle !== trackTitle) {
-              const newPath = pathname.replace(trackTitle, newTrackTitle)
-              this.props.replaceRoute(newPath)
-            }
+          if (track.permalink && track.permalink !== oldPermalink) {
+            this.props.replaceRoute(track.permalink)
           }
         }
       }
@@ -203,7 +196,7 @@ class TrackPageProvider extends Component<
 
   fetchTracks = (params: NonNullable<TrackRouteParams>) => {
     const { track } = this.props
-    const { trackTitle, trackId, handle } = params
+    const { slug, trackId, handle } = params
 
     // Go to feed if the track is deleted
     if (track && track.track_id === trackId) {
@@ -213,8 +206,15 @@ class TrackPageProvider extends Component<
       }
     }
     this.props.reset()
-    this.props.setTrackId(trackId)
-    this.props.fetchTrack(trackId, trackTitle, handle, !!(trackTitle && handle))
+    if (trackId) {
+      console.log(trackId, slug, handle)
+      this.props.setTrackId(trackId)
+    }
+    this.props.fetchTrack(trackId, slug || '', handle || '', !!(slug && handle))
+    if (slug && handle) {
+      console.log('setTrackPermalink')
+      this.props.setTrackPermalink(`/${handle}/${slug}`)
+    }
     if (handle) {
       this.setState({ ownerHandle: handle })
     }
@@ -510,21 +510,18 @@ function makeMapStateToProps() {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     fetchTrack: (
-      trackId: ID,
-      trackName: string | null,
-      ownerHandle: string | null,
+      trackId: number | null,
+      slug: string,
+      ownerHandle: string,
       canBeUnlisted: boolean
     ) =>
       dispatch(
-        trackPageActions.fetchTrack(
-          trackId,
-          trackName,
-          ownerHandle,
-          canBeUnlisted
-        )
+        trackPageActions.fetchTrack(trackId, slug, ownerHandle, canBeUnlisted)
       ),
     setTrackId: (trackId: number) =>
       dispatch(trackPageActions.setTrackId(trackId)),
+    setTrackPermalink: (permalink: string) =>
+      dispatch(trackPageActions.setTrackPermalink(permalink)),
     resetTrackPage: () => dispatch(trackPageActions.resetTrackPage()),
     makeTrackPublic: (trackId: ID) =>
       dispatch(trackPageActions.makeTrackPublic(trackId)),

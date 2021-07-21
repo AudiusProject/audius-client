@@ -73,11 +73,13 @@ import trendingUndergroundReducer from 'containers/trending-underground/store/sl
 import rewardsUI from 'containers/audio-rewards-page/store/slice'
 
 import wallet from 'store/wallet/slice'
+import TracksCacheState from './cache/tracks/types'
 
 export enum Kind {
   TRACKS = 'TRACKS',
   COLLECTIONS = 'COLLECTIONS',
-  USERS = 'USERS'
+  USERS = 'USERS',
+  TRACK_ROUTES = 'TRACK_ROUTES'
 }
 
 export enum Status {
@@ -171,7 +173,7 @@ export type AppState = {
   notification: NotificationState
 
   // Cache
-  tracks: Cache<Track>
+  tracks: TracksCacheState
   collections: Cache<Collection>
   users: UserCacheState
 

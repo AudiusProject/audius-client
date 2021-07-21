@@ -140,6 +140,7 @@ const TrackPage = ({
   }
 
   const defaults = getTrackDefaults(heroTrack)
+  console.log('heroTrack', heroTrack)
 
   const renderGiantTrackTile = () => (
     <GiantTrackTile

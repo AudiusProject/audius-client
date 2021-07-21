@@ -21,6 +21,7 @@ import {
 import { StringKeys } from 'services/remote-config'
 import { retrieveTrending } from './retrieveTrending'
 import TimeRange from 'models/TimeRange'
+import { retrieveTrackByHandleAndSlug } from 'store/cache/tracks/utils/retrieveTracks'
 
 export const TRENDING_BADGE_LIMIT = 10
 
@@ -140,39 +141,39 @@ function* getMoreByThisArtist(trackId, ownerHandle) {
 
 function* watchFetchTrack() {
   yield takeEvery(trackPageActions.FETCH_TRACK, function* (action) {
-    const { trackId, trackName, ownerHandle, canBeUnlisted } = action
-    const ids = canBeUnlisted
-      ? [{ id: trackId, url_title: trackName, handle: ownerHandle }]
-      : [trackId]
-
+    const { trackId, handle, slug, canBeUnlisted } = action
     try {
-      yield fork(getMoreByThisArtist, trackId, ownerHandle)
-      const trackIds = yield call(retrieveTracks, {
-        trackIds: ids,
-        canBeUnlisted,
-        withStems: true,
-        withRemixes: true,
-        withRemixParents: true
-      })
-      if (
-        !trackIds ||
-        !trackIds.length ||
-        trackIds.every(track => track === undefined || !track.track_id)
-      ) {
-        // If no tracks because no internet, do nothing. Else navigate to 404.
+      let track
+      if (!trackId) {
+        track = yield call(retrieveTrackByHandleAndSlug, {
+          handle,
+          slug
+        })
+      } else {
+        const ids = canBeUnlisted
+          ? [{ id: trackId, url_title: slug, handle }]
+          : [trackId]
+        track = yield call(retrieveTracks, {
+          trackIds: ids,
+          canBeUnlisted,
+          withStems: true,
+          withRemixes: true,
+          withRemixParents: true
+        })
+      }
+      if (!track) {
         const isReachable = yield select(getIsReachable)
         if (isReachable) {
           yield put(pushRoute(NOT_FOUND_PAGE))
           return
         }
       }
-
-      yield fork(getTrackRanks, trackId)
-
-      yield put(trackPageActions.fetchTrackSucceeded(trackId))
+      yield fork(getMoreByThisArtist, track.track_id, handle)
+      yield fork(getTrackRanks, track.track_id)
+      yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
     } catch (e) {
       console.error(e)
-      yield put(trackPageActions.fetchTrackFailed)
+      yield put(trackPageActions.fetchTrackFailed(''))
     }
   })
 }

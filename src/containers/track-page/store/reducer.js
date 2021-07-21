@@ -3,6 +3,7 @@ import tracksReducer from 'containers/track-page/store/lineups/tracks/reducer'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
 import {
   SET_TRACK_ID,
+  SET_TRACK_PERMALINK,
   RESET,
   SET_TRACK_RANK,
   SET_TRACK_TRENDING_RANKS
@@ -27,6 +28,12 @@ const actionsMap = {
     return {
       ...state,
       trackId: action.trackId
+    }
+  },
+  [SET_TRACK_PERMALINK](state, action) {
+    return {
+      ...state,
+      trackPermalink: action.permalink
     }
   },
   [SET_TRACK_RANK](state, action) {
