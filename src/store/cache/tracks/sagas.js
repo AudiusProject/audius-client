@@ -7,7 +7,7 @@ import {
   takeEvery,
   takeLatest
 } from 'redux-saga/effects'
-import { Kind } from 'store/types'
+import { Kind, Status } from 'store/types'
 
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
@@ -87,6 +87,17 @@ function* fetchFirstSegments(entries) {
 function* watchAdd() {
   yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
     if (action.kind === Kind.TRACKS) {
+      yield put(
+        trackActions.setPermalinkStatus(
+          action.entries
+            .filter(entry => !!entry.metadata.permalink)
+            .map(entry => ({
+              permalink: entry.metadata.permalink,
+              id: entry.id,
+              status: Status.SUCCESS
+            }))
+        )
+      )
       if (!NATIVE_MOBILE) {
         yield fork(fetchRepostInfo, action.entries)
         yield fork(fetchFirstSegments, action.entries)

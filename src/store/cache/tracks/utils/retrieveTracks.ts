@@ -1,10 +1,10 @@
-import { spawn, call, select } from 'redux-saga/effects'
+import { spawn, call, select, put } from 'redux-saga/effects'
 import { reformat } from './reformat'
 import { retrieve } from 'store/cache/sagas'
 import { getEntryTimestamp } from 'store/cache/selectors'
 import { ID } from 'models/common/Identifiers'
 import { getTracks as getTracksSelector } from 'store/cache/tracks/selectors'
-import { Kind, AppState } from 'store/types'
+import { Kind, AppState, Status } from 'store/types'
 import { addUsersFromTracks } from './helpers'
 import AudiusBackend from 'services/AudiusBackend'
 import Track, { TrackMetadata, UserTrackMetadata } from 'models/Track'
@@ -16,6 +16,7 @@ import { fetchAndProcessStems } from './fetchAndProcessStems'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'store/account/selectors'
 import { setTracksIsBlocked } from './blocklist'
+import * as trackActions from 'store/cache/tracks/actions'
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
 type RetrieveTracksArgs = {
@@ -25,6 +26,69 @@ type RetrieveTracksArgs = {
   withRemixes?: boolean
   withRemixParents?: boolean
   forceRetrieveFromSource?: boolean
+}
+type RetrieveTrackByHandleAndSlugArgs = { handle: string; slug: string }
+
+export function* retrieveTrackByHandleAndSlug({
+  handle,
+  slug
+}: RetrieveTrackByHandleAndSlugArgs) {
+  console.log('retreiveTrackByHandleAndSlug', handle, slug)
+
+  const permalink = `/${handle}/${slug}`
+  const tracks: { entries: { [permalink: string]: Track } } = yield call(
+    retrieve,
+    {
+      ids: [permalink],
+      selectFromCache: function* (permalinks: string[]) {
+        const track: TrackMetadata = yield select(getTracksSelector, {
+          permalinks
+        })
+        console.log('selectFromCache', track, permalinks)
+        return track
+      },
+      retrieveFromSource: function* (permalinks: string[]) {
+        const track: UserTrackMetadata = yield call(args => {
+          const split = args[0].split('/')
+          const handle = split[1]
+          const slug = split.slice(2).join('')
+          return apiClient.getTrackByHandleAndSlug({ handle, slug })
+        }, permalinks)
+        console.log('retrieveFromSource', track)
+        return track
+      },
+      kind: Kind.TRACKS,
+      idField: 'track_id',
+      forceRetrieveFromSource: false,
+      shouldSetLoading: true,
+      deleteExistingEntry: false,
+      getEntriesTimestamp: function* (ids: ID[]) {
+        const selected = yield select(
+          (state: AppState, ids: ID[]) =>
+            ids.reduce((acc, id) => {
+              acc[id] = getEntryTimestamp(state, { kind: Kind.TRACKS, id })
+              return acc
+            }, {} as { [id: number]: number | null }),
+          ids
+        )
+        return selected
+      },
+      onBeforeAddToCache: function* (metadatas: TrackMetadata[]) {
+        console.log('onBeforeAddToCache', metadatas)
+        yield put(
+          trackActions.setPermalinkStatus([
+            {
+              permalink,
+              id: metadatas[0].track_id,
+              status: Status.SUCCESS
+            }
+          ])
+        )
+      }
+    }
+  )
+  console.log('retrieveTrackByHandleAndSlug', 'end', tracks)
+  return tracks.entries[permalink]
 }
 
 /**

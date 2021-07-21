@@ -6,6 +6,7 @@ import Track from 'models/Track'
 import User from 'models/User'
 import Collection from 'models/Collection'
 import UsersCacheState from './users/types'
+import TracksCacheState from './tracks/types'
 
 /**
  * Selects from the cache and strips away cache-only fields.
@@ -65,7 +66,7 @@ export function getEntry(
 }
 
 /**
- * Selects the tiemstamps fomr the cache.
+ * Selects the timestamps from the cache.
  * @param {AppState} state
  * @param {object} props { kind, ids }
  */
@@ -124,11 +125,11 @@ export function getCache(
 export function getCache(
   state: AppState,
   props: { kind: Kind.TRACKS }
-): Cache<Track>
+): TracksCacheState
 export function getCache(
   state: AppState,
   props: { kind: Kind }
-): Cache<Track> | Cache<Collection> | UsersCacheState
+): TracksCacheState | Cache<Collection> | UsersCacheState
 export function getCache(state: AppState, props: { kind: Kind }) {
   switch (props.kind) {
     case Kind.TRACKS:
