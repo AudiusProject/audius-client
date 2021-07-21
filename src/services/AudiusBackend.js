@@ -2306,6 +2306,27 @@ class AudiusBackend {
     }
   }
 
+  static async updateHCaptchaScore(token) {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return
+
+    try {
+      const { data, signature } = await AudiusBackend.signData()
+      await fetch(`${IDENTITY_SERVICE}/score`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
+        },
+        body: JSON.stringify({ token })
+      })
+    } catch (err) {
+      console.error(err.message)
+    }
+  }
+
   /**
    * Retrieves the claim distribution amount
    * @returns {BN} amount The claim amount
@@ -2441,6 +2462,19 @@ class AudiusBackend {
     return receipts.sort((receipt1, receipt2) =>
       receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
     )[0]
+  }
+
+  /**
+   * Transfers the user's ERC20 AUDIO into SPL WAUDIO to their solana user bank account
+   * @param {BN} balance The amount of AUDIO to be transferred
+   */
+  static async transferAudioToWAudio(balance) {
+    await waitForLibsInit()
+    const userBank = await audiusLibs.solanaWeb3Manager.getUserBank()
+    await audiusLibs.Account.permitAndSendTokensViaWormhole(
+      balance,
+      userBank.toString()
+    )
   }
 }
 

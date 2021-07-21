@@ -10,6 +10,9 @@ export type Modals =
   | 'TransferAudioMobileWarning'
   | 'MobileConnectWalletsDrawer'
   | 'ShareSoundToTikTok'
+  | 'HCaptcha'
+  | 'ConfirmAudioToWAudio'
+  | 'BrowserPushPermissionConfirmation'
 
 type InitialModalsState = { [modal in Modals]: boolean }
 
@@ -20,7 +23,10 @@ const initialState: InitialModalsState = {
   APIRewardsExplainer: false,
   TransferAudioMobileWarning: false,
   MobileConnectWalletsDrawer: false,
-  ShareSoundToTikTok: false
+  ShareSoundToTikTok: false,
+  HCaptcha: false,
+  ConfirmAudioToWAudio: false,
+  BrowserPushPermissionConfirmation: false
 }
 
 const slice = createSlice({
@@ -42,6 +48,9 @@ const slice = createSlice({
 
 export const getModalVisibility = (state: AppState, modal: Modals) =>
   state.application.ui.modals[modal]
+
+export const getModalIsOpen = (state: AppState) =>
+  Object.values(state.application.ui.modals).some(isOpen => isOpen)
 
 export const { setVisibility } = slice.actions
 
