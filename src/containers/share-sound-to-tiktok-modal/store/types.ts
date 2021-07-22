@@ -31,7 +31,3 @@ export type OpenPayload = {
 export type SetStatusPayload = {
   status: Status
 }
-
-export type SharePayload = {
-  cid: string
-}

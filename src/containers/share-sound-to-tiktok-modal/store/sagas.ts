@@ -1,14 +1,13 @@
 import { takeEvery, put, call, select } from 'redux-saga/effects'
 
 import { show as showConfetti } from 'containers/music-confetti/store/slice'
-import User from 'models/User'
-import { getAccountUser } from 'store/account/selectors'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { setVisibility } from 'store/application/ui/modals/slice'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { AppState } from 'store/types'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { encodeHashId } from 'utils/route/hashIds'
 
-import { getIsAuthenticated } from './selectors'
+import { getIsAuthenticated, getTrack as getTrackToShare } from './selectors'
 import {
   authenticated,
   open,
@@ -45,20 +44,25 @@ function* handleRequestOpen(action: ReturnType<typeof requestOpen>) {
   yield put(setVisibility({ modal: 'ShareSoundToTikTok', visible: true }))
 }
 
-function* handleShare(action: ReturnType<typeof share>) {
+function* handleShare() {
   yield put(setStatus({ status: Status.SHARE_STARTED }))
-
-  // Fetch the track blob
-  const { creator_node_endpoint }: User = yield select(getAccountUser)
+  const { id } = yield select(getTrackToShare)
 
   try {
-    const { data } = yield call(
-      window.audiusLibs.File.fetchCID,
-      action.payload.cid,
-      getCreatorNodeIPFSGateways(creator_node_endpoint),
-      () => {}
+    // Fetch the track blob
+    const encodedTrackId = encodeHashId(id)
+
+    const response = yield call(
+      window.fetch,
+      apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
     )
-    track = data
+
+    track = yield response.blob()
+    console.log(track)
+
+    if (!response.ok) {
+      throw new Error('TikTok Share sound request unsuccessful')
+    }
 
     // If already authed with TikTok, start the upload
     const authenticated = yield select(getIsAuthenticated)

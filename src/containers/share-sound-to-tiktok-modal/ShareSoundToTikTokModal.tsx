@@ -67,7 +67,7 @@ const ShareSoundToTikTokModal = () => {
   const handleShareButtonClick = () => {
     if (track) {
       // Trigger the share process, which initially downloads the track to the client
-      dispatch(share({ cid: track.cid }))
+      dispatch(share())
 
       // Trigger the authentication process
       withTikTokAuth(() => dispatch(authenticated()))
