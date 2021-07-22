@@ -170,15 +170,20 @@ class TrackPageProvider extends Component<
       if (params) {
         // Check if we are coming from a non-canonical route and replace route if necessary.
         const { slug, handle } = params
-        const oldPermalink = `${handle}/${slug}`
         if (slug === null || handle === null) {
           if (track.permalink) {
-            console.log('rerouting', track, track.permalink)
             this.props.replaceRoute(track.permalink)
           }
         } else {
-          // Check that the track name hasn't changed. If so, update url.
-          if (track.permalink && track.permalink !== oldPermalink) {
+          // Reroute to the most recent permalink if necessary
+          if (
+            pathname === this.state.pathname &&
+            prevProps.track?.track_id === track?.track_id &&
+            track.permalink &&
+            track.permalink !== pathname
+          ) {
+            // The path is going to change but don't re-fetch as we already have the track
+            this.setState({ pathname: track.permalink })
             this.props.replaceRoute(track.permalink)
           }
         }
@@ -207,14 +212,12 @@ class TrackPageProvider extends Component<
     }
     this.props.reset()
     if (trackId) {
-      console.log(trackId, slug, handle)
       this.props.setTrackId(trackId)
     }
-    this.props.fetchTrack(trackId, slug || '', handle || '', !!(slug && handle))
     if (slug && handle) {
-      console.log('setTrackPermalink')
       this.props.setTrackPermalink(`/${handle}/${slug}`)
     }
+    this.props.fetchTrack(trackId, slug || '', handle || '', !!(slug && handle))
     if (handle) {
       this.setState({ ownerHandle: handle })
     }

@@ -153,13 +153,14 @@ function* watchFetchTrack() {
         const ids = canBeUnlisted
           ? [{ id: trackId, url_title: slug, handle }]
           : [trackId]
-        track = yield call(retrieveTracks, {
+        const tracks = yield call(retrieveTracks, {
           trackIds: ids,
           canBeUnlisted,
           withStems: true,
           withRemixes: true,
           withRemixParents: true
         })
+        track = tracks && tracks.length === 1 ? tracks[0] : null
       }
       if (!track) {
         const isReachable = yield select(getIsReachable)
@@ -167,13 +168,16 @@ function* watchFetchTrack() {
           yield put(pushRoute(NOT_FOUND_PAGE))
           return
         }
+      } else {
+        yield fork(getMoreByThisArtist, track.track_id, handle)
+        yield fork(getTrackRanks, track.track_id)
+        yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
       }
-      yield fork(getMoreByThisArtist, track.track_id, handle)
-      yield fork(getTrackRanks, track.track_id)
-      yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
     } catch (e) {
       console.error(e)
-      yield put(trackPageActions.fetchTrackFailed(''))
+      yield put(
+        trackPageActions.fetchTrackFailed(trackId ?? `/${handle}/${slug}`)
+      )
     }
   })
 }

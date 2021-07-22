@@ -33,8 +33,6 @@ export function* retrieveTrackByHandleAndSlug({
   handle,
   slug
 }: RetrieveTrackByHandleAndSlugArgs) {
-  console.log('retreiveTrackByHandleAndSlug', handle, slug)
-
   const permalink = `/${handle}/${slug}`
   const tracks: { entries: { [permalink: string]: Track } } = yield call(
     retrieve,
@@ -44,7 +42,6 @@ export function* retrieveTrackByHandleAndSlug({
         const track: TrackMetadata = yield select(getTracksSelector, {
           permalinks
         })
-        console.log('selectFromCache', track, permalinks)
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
@@ -54,7 +51,6 @@ export function* retrieveTrackByHandleAndSlug({
           const slug = split.slice(2).join('')
           return apiClient.getTrackByHandleAndSlug({ handle, slug })
         }, permalinks)
-        console.log('retrieveFromSource', track)
         return track
       },
       kind: Kind.TRACKS,
@@ -89,7 +85,6 @@ export function* retrieveTrackByHandleAndSlug({
       }
     }
   )
-  console.log('retrieveTrackByHandleAndSlug', 'end', tracks)
   return tracks.entries[permalink]
 }
 

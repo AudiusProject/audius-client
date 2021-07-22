@@ -71,7 +71,7 @@ const FULL_ENDPOINT_MAP = {
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
-  getTrackByHandleAndSlug: `/tracks/`,
+  getTrackByHandleAndSlug: `/tracks`,
   getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
   getRemixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
   getRemixing: (trackId: OpaqueID) => `/tracks/${trackId}/remixing`,
@@ -651,7 +651,6 @@ class AudiusAPIClient {
   }
 
   async getTrackByHandleAndSlug(args: GetTrackByHandleAndSlugArgs) {
-    console.log('getTrackByHandleAndSlug', args)
     this._assertInitialized()
 
     const trackResponse: Nullable<APIResponse<
