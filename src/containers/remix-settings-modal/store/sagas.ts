@@ -1,10 +1,14 @@
 import { takeEvery, call, put } from 'redux-saga/effects'
 
 import { fetchTrack, fetchTrackSucceeded, fetchTrackFailed } from './slice'
-import { retrieveTracks } from 'store/cache/tracks/utils/retrieveTracks'
+import {
+  retrieveTrackByHandleAndSlug,
+  retrieveTracks
+} from 'store/cache/tracks/utils/retrieveTracks'
 import { parseTrackRoute } from 'utils/route/trackRouteParser'
+import { TrackMetadata } from 'models/Track'
 
-const getTrackId = (url: string) => {
+const getHandleAndSlug = (url: string) => {
   // Get just the pathname part from the url
   try {
     const trackUrl = new URL(url)
@@ -16,12 +20,7 @@ const getTrackId = (url: string) => {
     ) {
       return null
     }
-    const params = parseTrackRoute(pathname)
-    if (params) {
-      const { trackId } = params
-      return trackId
-    }
-    return null
+    return parseTrackRoute(pathname)
   } catch (err) {
     return null
   }
@@ -32,11 +31,20 @@ function* watchFetchTrack() {
     action: ReturnType<typeof fetchTrack>
   ) {
     const { url } = action.payload
-    const trackId = getTrackId(url)
-    if (trackId) {
-      const track = yield call(retrieveTracks, { trackIds: [trackId] })
+    const params = getHandleAndSlug(url)
+    if (params) {
+      const { handle, slug, trackId } = params
+      let track: TrackMetadata | null = null
+      if (handle && slug) {
+        track = yield call(retrieveTrackByHandleAndSlug, {
+          handle,
+          slug
+        })
+      } else if (trackId) {
+        track = yield call(retrieveTracks, { trackIds: [trackId] })
+      }
       if (track) {
-        yield put(fetchTrackSucceeded({ trackId }))
+        yield put(fetchTrackSucceeded({ trackId: track.track_id }))
         return
       }
     }
