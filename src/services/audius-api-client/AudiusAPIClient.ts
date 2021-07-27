@@ -674,7 +674,6 @@ class AudiusAPIClient {
     )
 
     if (!trackResponse) return null
-
     const adapted = adapter.makeTrack(trackResponse.data)
     return adapted
   }

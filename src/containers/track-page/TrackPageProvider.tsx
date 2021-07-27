@@ -63,8 +63,7 @@ import {
   FAVORITING_USERS_ROUTE,
   REPOSTING_USERS_ROUTE,
   fullTrackPage,
-  trackRemixesPage,
-  trackPage
+  trackRemixesPage
 } from 'utils/route'
 import { parseTrackRoute, TrackRouteParams } from 'utils/route/trackRouteParser'
 import { getTrackPageTitle, getTrackPageDescription } from 'utils/seo'
@@ -329,11 +328,9 @@ class TrackPageProvider extends Component<
   }
 
   goToAllRemixesPage = () => {
-    const { track, user } = this.props
-    if (track && user) {
-      this.props.goToRoute(
-        trackRemixesPage(user.handle, track.title, track.track_id)
-      )
+    const { track } = this.props
+    if (track) {
+      this.props.goToRoute(trackRemixesPage(track.permalink))
     }
   }
 
@@ -409,10 +406,7 @@ class TrackPageProvider extends Component<
       duration: track ? formatSeconds(track.duration) : '',
       tags: track ? (track.tags || '').split(',').filter(Boolean) : []
     })
-    const canonicalUrl =
-      user && track
-        ? fullTrackPage(user.handle, track.title, track.track_id)
-        : ''
+    const canonicalUrl = user && track ? fullTrackPage(track.permalink) : ''
 
     // If the track has a remix parent and it's not deleted.
     const hasValidRemixParent =

@@ -206,11 +206,7 @@ function* watchGoToRemixesOfParentPage() {
           ids: [parentTrack.owner_id]
         }))[parentTrack.owner_id]
         if (parentTrackUser) {
-          const route = trackRemixesPage(
-            parentTrackUser.handle,
-            parentTrack.title,
-            parentTrack.track_id
-          )
+          const route = trackRemixesPage(parentTrack.permalink)
           yield put(pushRoute(route))
         }
       }

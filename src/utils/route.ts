@@ -207,18 +207,15 @@ export const findRoute = (pathname: string) => {
 }
 
 // Create full formed urls for routes.
-export const trackPage = (handle: string, title: string, id: ID) => {
-  return `/${encodeUrlName(handle)}/${encodeUrlName(title)}-${id}`
-}
-export const fullTrackPage = (handle: string, title: string, id: ID) => {
-  return `${BASE_URL}${trackPage(handle, title, id)}`
+export const fullTrackPage = (permalink: string) => {
+  return `${BASE_URL}${permalink}`
 }
 
-export const trackRemixesPage = (handle: string, title: string, id: ID) => {
-  return `${trackPage(handle, title, id)}/remixes`
+export const trackRemixesPage = (permalink: string) => {
+  return `${permalink}/remixes`
 }
-export const fullTrackRemixesPage = (handle: string, title: string, id: ID) => {
-  return `${fullTrackPage(handle, title, id)}/remixes`
+export const fullTrackRemixesPage = (permalink: string) => {
+  return `${fullTrackPage(permalink)}/remixes`
 }
 
 export const albumPage = (handle: string, title: string, id: ID) => {

@@ -80,7 +80,7 @@ export type TrackMetadata = {
   is_unlisted: boolean
   field_visibility?: FieldVisibility
   listenCount?: number
-  permalink?: string
+  permalink: string
 
   // Optional Fields
   is_invalid?: boolean
