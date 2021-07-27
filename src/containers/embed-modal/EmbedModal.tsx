@@ -1,25 +1,26 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react'
+
 import { Modal, Button, ButtonType } from '@audius/stems'
-import { connect } from 'react-redux'
 import cn from 'classnames'
-
-import { close } from './store/actions'
-import { getIsOpen, getId, getKind, getMetadata } from './store/selectors'
-
-import styles from './EmbedModal.module.css'
-import { AppState } from 'store/types'
-import { Size } from './types'
+import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { PlayableType, ID } from 'models/common/Identifiers'
 
 import TabSlider from 'components/data-entry/TabSlider'
-import EmbedCopy from './components/EmbedCopy'
-import EmbedFrame from './components/EmbedFrame'
-import { BASE_GA_URL } from 'utils/route'
 import Collection from 'models/Collection'
 import Track from 'models/Track'
-import { useRecord, make } from 'store/analytics/actions'
+import { PlayableType, ID } from 'models/common/Identifiers'
 import { Name } from 'services/analytics'
+import { useRecord, make } from 'store/analytics/actions'
+import { AppState } from 'store/types'
+import { BASE_GA_URL } from 'utils/route'
+import { encodeHashId } from 'utils/route/hashIds'
+
+import styles from './EmbedModal.module.css'
+import EmbedCopy from './components/EmbedCopy'
+import EmbedFrame from './components/EmbedFrame'
+import { close } from './store/actions'
+import { getIsOpen, getId, getKind, getMetadata } from './store/selectors'
+import { Size } from './types'
 
 const BASE_EMBED_URL = `${BASE_GA_URL}/embed`
 
@@ -35,16 +36,10 @@ const KindMap = {
   [PlayableType.ALBUM]: 'album'
 }
 
-const constructUrl = (
-  kind: PlayableType,
-  id: ID,
-  metadata: Track | Collection,
-  size: Size
-) => {
-  const ownerId =
-    'track_id' in metadata ? metadata.owner_id : metadata.playlist_owner_id
-
-  return `${BASE_EMBED_URL}/${KindMap[kind]}?id=${id}&ownerId=${ownerId}&flavor=${FlavorMap[size]}`
+const constructUrl = (kind: PlayableType, id: ID, size: Size) => {
+  return `${BASE_EMBED_URL}/${KindMap[kind]}/${encodeHashId(id)}?flavor=${
+    FlavorMap[size]
+  }`
 }
 
 const formatIFrame = (url: string, size: Size) => {
@@ -111,21 +106,15 @@ const EmbedModal = ({ isOpen, kind, id, metadata, close }: EmbedModalProps) => {
   // Configure frames
   const standardFrameString = useMemo(() => {
     if (!kind || !id || !metadata) return ''
-    return formatIFrame(
-      constructUrl(kind, id, metadata, Size.STANDARD),
-      Size.STANDARD
-    )
+    return formatIFrame(constructUrl(kind, id, Size.STANDARD), Size.STANDARD)
   }, [kind, id, metadata])
   const compactFrameString = useMemo(() => {
     if (!kind || !id || !metadata) return ''
-    return formatIFrame(
-      constructUrl(kind, id, metadata, Size.COMPACT),
-      Size.COMPACT
-    )
+    return formatIFrame(constructUrl(kind, id, Size.COMPACT), Size.COMPACT)
   }, [kind, id, metadata])
   const tinyFrameString = useMemo(() => {
     if (!kind || !id || !metadata) return ''
-    return formatIFrame(constructUrl(kind, id, metadata, Size.TINY), Size.TINY)
+    return formatIFrame(constructUrl(kind, id, Size.TINY), Size.TINY)
   }, [kind, id, metadata])
 
   const tabOptions = [

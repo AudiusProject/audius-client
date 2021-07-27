@@ -1,6 +1,8 @@
 import React from 'react'
+
 import { Modal } from '@audius/stems'
 import SimpleBar from 'simplebar-react'
+
 import GenreSelectionList from 'containers/trending-page/components/GenreSelectionList'
 
 import styles from './GenreSelectionModal.module.css'
@@ -35,6 +37,7 @@ const GenreSelectionModal = ({
       onClose={didClose}
       allowScroll={false}
       bodyClassName={styles.modalBody}
+      headerContainerClassName={styles.modalHeader}
     >
       <SimpleBar className={styles.simpleBar}>
         <GenreSelectionList

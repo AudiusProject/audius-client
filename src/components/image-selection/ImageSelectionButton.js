@@ -1,15 +1,16 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import cn from 'classnames'
-import ReactDropzone from 'react-dropzone'
+import React, { useRef, useState } from 'react'
+
 import { Button, IconCamera, ButtonType } from '@audius/stems'
+import cn from 'classnames'
+import PropTypes from 'prop-types'
+import ReactDropzone from 'react-dropzone'
 
 import InvalidFileType from 'components/upload/InvalidFileType'
-import ImageSelectionPopup from './ImageSelectionPopup'
-
-import { ImageSelectionProps, ImageSelectionDefaults } from './PropTypes'
-import styles from './ImageSelectionButton.module.css'
 import { ALLOWED_IMAGE_FILE_TYPES } from 'utils/imageProcessingUtil'
+
+import styles from './ImageSelectionButton.module.css'
+import ImageSelectionPopup from './ImageSelectionPopup'
+import { ImageSelectionProps, ImageSelectionDefaults } from './PropTypes'
 
 const messages = {
   add: 'Add',
@@ -30,6 +31,7 @@ const ImageSelectionButton = ({
   onAfterClose,
   onSelect
 }) => {
+  const anchorRef = useRef()
   const [showModal, setShowModal] = useState(false)
 
   const closeModal = () => {
@@ -56,6 +58,7 @@ const ImageSelectionButton = ({
       {includePopup ? (
         <>
           <Button
+            ref={anchorRef}
             className={cn(styles.button, buttonClassName, {
               [styles.hide]: showModal
             })}
@@ -65,6 +68,7 @@ const ImageSelectionButton = ({
             onClick={handleClick}
           />
           <ImageSelectionPopup
+            anchorRef={anchorRef}
             className={styles.popup}
             error={error}
             isVisible={showModal}

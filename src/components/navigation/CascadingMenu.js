@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import cn from 'classnames'
+
 import AntMenu from 'antd/lib/menu'
 import AntTooltip from 'antd/lib/tooltip'
-import Toast from 'components/toast/Toast'
+import cn from 'classnames'
+import PropTypes from 'prop-types'
+
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
+import Toast from 'components/toast/Toast'
+
 import styles from './CascadingMenu.module.css'
 
 const SHARE_TIMEOUT = 1500

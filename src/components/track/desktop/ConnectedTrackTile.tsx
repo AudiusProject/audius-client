@@ -1,16 +1,19 @@
 import React, { memo, useState, useCallback, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { push as pushRoute } from 'connected-react-router'
-import cn from 'classnames'
-import styles from './ConnectedTrackTile.module.css'
 
-import { AppState } from 'store/types'
+import cn from 'classnames'
+import { push as pushRoute } from 'connected-react-router'
+import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
-import { UID, ID } from 'models/common/Identifiers'
-import { getTrack } from 'store/cache/tracks/selectors'
+
+import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import ArtistPopover from 'components/artist/ArtistPopover'
+import { TrackArtwork } from 'components/track/desktop/Artwork'
+import Draggable from 'containers/dragndrop/Draggable'
 import Menu from 'containers/menu/Menu'
-import { getUserFromTrack } from 'store/cache/users/selectors'
-import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
+import { OwnProps as TrackMenuProps } from 'containers/menu/TrackMenu'
+import UserBadges from 'containers/user-badges/UserBadges'
+import { UID, ID } from 'models/common/Identifiers'
+import { ShareSource, RepostSource, FavoriteSource } from 'services/analytics'
 import { getUserHandle } from 'store/account/selectors'
 import {
   setUsers,
@@ -20,9 +23,9 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getTrackWithFallback, getUserWithFallback } from '../helpers'
-import { isDarkMode, isMatrix } from 'utils/theme/theme'
-
+import { getTrack } from 'store/cache/tracks/selectors'
+import { getUserFromTrack } from 'store/cache/users/selectors'
+import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import {
   saveTrack,
   unsaveTrack,
@@ -30,23 +33,17 @@ import {
   undoRepostTrack,
   shareTrack
 } from 'store/social/tracks/actions'
-import { ShareSource, RepostSource, FavoriteSource } from 'services/analytics'
+import { AppState } from 'store/types'
+import { fullTrackPage, trackPage, profilePage } from 'utils/route'
+import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
+import { getTrackWithFallback, getUserWithFallback } from '../helpers'
 import { TrackTileSize } from '../types'
 
-import { OwnProps as TrackMenuProps } from 'containers/menu/TrackMenu'
-import { TrackArtwork } from 'components/track/desktop/Artwork'
-import ArtistPopover from 'components/artist/ArtistPopover'
-
-import { fullTrackPage, trackPage, profilePage } from 'utils/route'
-
+import styles from './ConnectedTrackTile.module.css'
+import TrackTile from './TrackTile'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
-
-import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-import TrackTile from './TrackTile'
-import Draggable from 'containers/dragndrop/Draggable'
-import UserBadges from 'containers/user-badges/UserBadges'
 
 type OwnProps = {
   uid: UID
@@ -154,38 +151,45 @@ const ConnectedTrackTile = memo(
     }
 
     const renderOverflowMenu = () => {
-      const menu: TrackMenuProps = {
+      const menu: Omit<TrackMenuProps, 'children'> = {
+        extraMenuItems: [],
         handle: handle,
-        isFavorited,
-        isReposted,
-        mount: 'page',
-        isArtistPick: isArtistPick,
-        type: 'track',
-        trackId: trackId,
-        trackTitle: title,
-        isDeleted: is_delete,
-        isOwner,
+        includeAddToPlaylist: true,
         includeArtistPick: handle === userHandle,
         includeEdit: handle === userHandle,
-        includeShare: false,
-        includeRepost: false,
-        includeFavorite: false,
         includeEmbed: true,
+        includeFavorite: false,
+        includeRepost: false,
+        includeShare: false,
         includeTrackPage: true,
-        includeAddToPlaylist: true,
-        extraMenuItems: []
+        isArtistPick: isArtistPick,
+        isDeleted: is_delete,
+        isFavorited,
+        isOwner,
+        isReposted,
+        trackId: trackId,
+        trackTitle: title,
+        type: 'track'
       }
 
       return (
-        <Menu menu={menu} className={styles.menuContainer}>
-          <div
-            className={cn(styles.menuKebabContainer, {
-              [styles.small]: size === TrackTileSize.SMALL,
-              [styles.large]: size === TrackTileSize.LARGE
-            })}
-          >
-            <IconKebabHorizontal className={cn(styles.iconKebabHorizontal)} />
-          </div>
+        <Menu menu={menu}>
+          {(ref, triggerPopup) => (
+            <div className={styles.menuContainer}>
+              <div
+                className={cn(styles.menuKebabContainer, {
+                  [styles.small]: size === TrackTileSize.SMALL,
+                  [styles.large]: size === TrackTileSize.LARGE
+                })}
+                onClick={triggerPopup}
+              >
+                <IconKebabHorizontal
+                  className={cn(styles.iconKebabHorizontal)}
+                  ref={ref}
+                />
+              </div>
+            </div>
+          )}
         </Menu>
       )
     }

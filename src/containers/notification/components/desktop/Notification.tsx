@@ -1,27 +1,29 @@
-import React from 'react'
+import React, { MutableRefObject } from 'react'
+
 import { connect } from 'react-redux'
-import { AppState } from 'store/types'
 import { Dispatch } from 'redux'
 
+import ErrorWrapper from 'components/general/ErrorWrapper'
 import { OwnProps as NotificationMenuProps } from 'containers/menu/NotificationMenu'
-
-import { NotificationType } from 'containers/notification/store/types'
 import {
   getNotificationUser,
   getNotificationUsers,
   getNotificationEntity,
   getNotificationEntities
 } from 'containers/notification/store/selectors'
-
+import { NotificationType } from 'containers/notification/store/types'
 import { ID } from 'models/common/Identifiers'
+import { AppState } from 'store/types'
+import { Nullable } from 'utils/typeUtils'
 
-import NotificationBlock, { USER_LENGTH_LIMIT } from './NotificationBlock'
 import Announcement from './Announcement'
-import ErrorWrapper from 'components/general/ErrorWrapper'
+import NotificationBlock, { USER_LENGTH_LIMIT } from './NotificationBlock'
+
 type OwnProps = {
   notification: any
-  panelRef: any
-  scrollRef: any
+  overflowMenuRef: MutableRefObject<Nullable<HTMLElement>>
+  panelRef: MutableRefObject<Nullable<HTMLDivElement>>
+  scrollRef: MutableRefObject<Nullable<HTMLDivElement>>
   toggleNotificationPanel: () => void
   goToRoute: (route: string) => void
   markAsRead: (notificationId: string) => void
@@ -37,11 +39,8 @@ type NotificationItemProps = OwnProps &
 
 const NotificationItem = (props: NotificationItemProps) => {
   if (props.notification.type === NotificationType.Announcement) {
-    const menuProps: NotificationMenuProps = {
+    const menuProps: Omit<NotificationMenuProps, 'children'> = {
       type: 'notification',
-      mount: 'parent',
-      mountRef: props.panelRef,
-      scrollRef: props.scrollRef,
       notificationId: props.notification.id,
       notificationType: props.notification.type,
       onHide: props.hideNotification
@@ -56,11 +55,8 @@ const NotificationItem = (props: NotificationItemProps) => {
     )
   }
   const timeLabel = props.notification.timeLabel
-  const menuProps: NotificationMenuProps = {
+  const menuProps: Omit<NotificationMenuProps, 'children'> = {
     type: 'notification',
-    mount: 'parent',
-    mountRef: props.panelRef,
-    scrollRef: props.scrollRef,
     notificationId: props.notification.id,
     notificationType: props.notification.type,
     onHide: props.hideNotification
@@ -78,13 +74,14 @@ const NotificationItem = (props: NotificationItemProps) => {
       errorMessage={`Could not render notification ${notification.id}`}
     >
       <NotificationBlock
-        timeLabel={timeLabel}
-        setNotificationUsers={props.setNotificationUsers}
-        toggleNotificationPanel={props.toggleNotificationPanel}
         goToRoute={props.goToRoute}
         markAsRead={props.markAsRead}
-        notification={notification}
         menuProps={menuProps}
+        notification={notification}
+        overflowMenuRef={props.overflowMenuRef}
+        setNotificationUsers={props.setNotificationUsers}
+        timeLabel={timeLabel}
+        toggleNotificationPanel={props.toggleNotificationPanel}
       />
     </ErrorWrapper>
   )

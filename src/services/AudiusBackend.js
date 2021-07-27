@@ -1,17 +1,16 @@
-/* global web3, localStorage, fetch, Image */
+/* globals web3, localStorage, fetch, Image */
 
+import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
+import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
 import moment from 'moment-timezone'
-import * as schemas from 'schemas'
-import CIDCache from 'store/cache/CIDCache'
-import { DefaultSizes } from 'models/common/ImageSizes'
-import { uuid } from 'utils/uid'
-import FeedFilter from 'models/FeedFilter'
-import { track } from 'store/analytics/providers/segment'
-import { Name } from 'services/analytics'
 
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
-import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
+import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
+import FeedFilter from 'models/FeedFilter'
+import { DefaultSizes } from 'models/common/ImageSizes'
+import * as schemas from 'schemas'
+import { Name } from 'services/analytics'
 import {
   IntKeys,
   getRemoteVar,
@@ -19,22 +18,24 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
+import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
+import { track } from 'store/analytics/providers/segment'
+import CIDCache from 'store/cache/CIDCache'
+import { isElectron } from 'utils/clientUtil'
+import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { Timer } from 'utils/performance'
+import { uuid } from 'utils/uid'
+
 import {
   waitForLibsInit,
   withEagerOption,
   LIBS_INITTED_EVENT
 } from './audius-backend/eagerLoadUtils'
-
-import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
-import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
-import { Timer } from 'utils/performance'
 import {
   getFeatureEnabled,
   waitForRemoteConfig
 } from './remote-config/Provider'
 import { monitoringCallbacks } from './serviceMonitoring'
-import { isElectron } from 'utils/clientUtil'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 export const IDENTITY_SERVICE = process.env.REACT_APP_IDENTITY_SERVICE
 export const USER_NODE = process.env.REACT_APP_USER_NODE
@@ -50,6 +51,16 @@ const ETH_OWNER_WALLET = process.env.REACT_APP_ETH_OWNER_WALLET
 const ETH_PROVIDER_URLS = process.env.REACT_APP_ETH_PROVIDER_URL.split(',')
 const CLAIM_DISTRIBUTION_CONTRACT_ADDRESS =
   process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
+
+const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
+const WAUDIO_MINT_ADDRESS = process.env.REACT_APP_WAUDIO_MINT_ADDRESS
+const SOLANA_TOKEN_ADDRESS = process.env.REACT_APP_SOLANA_TOKEN_PROGRAM_ADDRESS
+const CLAIMABLE_TOKEN_PDA = process.env.REACT_APP_CLAIMABLE_TOKEN_PDA
+const SOLANA_FEE_PAYER_ADDRESS = process.env.REACT_APP_SOLANA_FEE_PAYER_ADDRESS
+const CLAIMABLE_TOKEN_PROGRAM_ADDRESS =
+  process.env.REACT_APP_CLAIMABLE_TOKEN_PROGRAM_ADDRESS
+const WORMHOLE_ADDRESS = process.env.REACT_APP_WORMHOLE_ADDRESS
+
 const RECAPTCHA_SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY
 
 const SEARCH_MAX_SAVED_RESULTS = 10
@@ -200,11 +211,28 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
   await waitForLibsInit()
   // Else, race fetching of the image from all gateways & return the image url blob
   try {
-    const image = await audiusLibs.File.fetchCID(
-      cid,
-      creatorNodeGateways,
-      () => {}
-    )
+    const promises = [
+      // Try to fetch the CID
+      audiusLibs.File.fetchCID(cid, creatorNodeGateways, () => {}).catch(
+        () => new Promise()
+      )
+    ]
+    if (cid.includes('/')) {
+      // Try to fetch the CID without the size if it is one with a size.
+      // Very old users have set _sizes that point to a single CID,
+      // not a folder of CIDs.
+      // This code path should be executed very rarely.
+      promises.push(
+        audiusLibs.File.fetchCID(
+          cid.split('/')[0],
+          creatorNodeGateways,
+          () => {}
+        ).catch(() => new Promise())
+      )
+    }
+    // Note: the raced promises here have a do-nothing .catch, which makes
+    // this promise.race behave like promise.any
+    const image = await Promise.race(promises)
     const url = URL.createObjectURL(image.data)
     if (cache) CIDCache.add(cid, url)
     return url
@@ -358,6 +386,7 @@ class AudiusBackend {
     let libsError = null
     const { web3Error, web3Config } = await AudiusBackend.getWeb3Config()
     const { ethWeb3Config } = AudiusBackend.getEthWeb3Config()
+    const { solanaWeb3Config } = AudiusBackend.getSolanaWeb3Config()
 
     let contentNodeBlockList = getRemoteVar(StringKeys.CONTENT_NODE_BLOCK_LIST)
     if (contentNodeBlockList) {
@@ -384,6 +413,7 @@ class AudiusBackend {
       audiusLibs = new AudiusLibs({
         web3Config,
         ethWeb3Config,
+        solanaWeb3Config,
         discoveryProviderConfig: AudiusLibs.configDiscoveryProvider(
           null,
           discoveryNodeBlockList,
@@ -422,6 +452,7 @@ class AudiusBackend {
 
       AudiusBackend.sanityChecks(audiusLibs)
     } catch (err) {
+      console.log(err)
       libsError = err.message
     }
 
@@ -439,7 +470,8 @@ class AudiusBackend {
         ETH_REGISTRY_ADDRESS,
         ethProviderUrls,
         ETH_OWNER_WALLET,
-        CLAIM_DISTRIBUTION_CONTRACT_ADDRESS
+        CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
+        WORMHOLE_ADDRESS
       )
     }
   }
@@ -476,6 +508,32 @@ class AudiusBackend {
         REGISTRY_ADDRESS,
         WEB3_PROVIDER_URLS
       )
+    }
+  }
+
+  static getSolanaWeb3Config() {
+    if (
+      !SOLANA_CLUSTER_ENDPOINT ||
+      !WAUDIO_MINT_ADDRESS ||
+      !SOLANA_TOKEN_ADDRESS ||
+      !SOLANA_FEE_PAYER_ADDRESS ||
+      !CLAIMABLE_TOKEN_PROGRAM_ADDRESS
+    ) {
+      console.error('Missing solana configs')
+      return {
+        error: true
+      }
+    }
+    return {
+      error: false,
+      solanaWeb3Config: AudiusLibs.configSolanaWeb3({
+        solanaClusterEndpoint: SOLANA_CLUSTER_ENDPOINT,
+        mintAddress: WAUDIO_MINT_ADDRESS,
+        solanaTokenAddress: SOLANA_TOKEN_ADDRESS,
+        claimableTokenPDA: CLAIMABLE_TOKEN_PDA,
+        feePayerAddress: SOLANA_FEE_PAYER_ADDRESS,
+        claimableTokenProgramAddress: CLAIMABLE_TOKEN_PROGRAM_ADDRESS
+      })
     }
   }
 
@@ -993,13 +1051,15 @@ class AudiusBackend {
         newMetadata.website ||
         newMetadata.donation
       ) {
+        const { data, signature } = await AudiusBackend.signData()
         await fetch(`${IDENTITY_SERVICE}/social_handles`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            [AuthHeaders.Message]: data,
+            [AuthHeaders.Signature]: signature
           },
           body: JSON.stringify({
-            handle: newMetadata.handle,
             twitterHandle: newMetadata.twitter_handle,
             instagramHandle: newMetadata.instagram_handle,
             website: newMetadata.website,
@@ -1496,14 +1556,16 @@ class AudiusBackend {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     try {
+      const { data, signature } = await AudiusBackend.signData()
       await fetch(`${IDENTITY_SERVICE}/artist_pick`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
         },
         body: JSON.stringify({
-          trackId,
-          handle: account.handle
+          trackId
         })
       })
     } catch (err) {
@@ -1527,8 +1589,15 @@ class AudiusBackend {
    * @param {string} password
    * @param {Object} formFields {name, handle, profilePicture, coverPhoto, isVerified, location}
    * @param {boolean?} hasWallet the user already has a wallet but didn't complete sign up
+   * @param {ID?} referrer the user_id of the account that referred this one
    */
-  static async signUp(email, password, formFields, hasWallet = false) {
+  static async signUp({
+    email,
+    password,
+    formFields,
+    hasWallet = false,
+    referrer = null
+  }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
     metadata.is_creator = false
@@ -1545,6 +1614,18 @@ class AudiusBackend {
       metadata.location = formFields.location
     }
 
+    const hasEvents = referrer || NATIVE_MOBILE
+    if (hasEvents) {
+      metadata.events = {}
+    }
+    if (referrer) {
+      metadata.events.referrer = referrer
+    }
+    if (NATIVE_MOBILE) {
+      metadata.events.is_mobile_user = true
+      window.localStorage.setItem(IS_MOBILE_USER_KEY, 'true')
+    }
+
     // Returns { userId, error, phase }
     return audiusLibs.Account.signUp(
       email,
@@ -1553,7 +1634,8 @@ class AudiusBackend {
       formFields.profilePicture,
       formFields.coverPhoto,
       hasWallet,
-      AudiusBackend._getHostUrl()
+      AudiusBackend._getHostUrl(),
+      getFeatureEnabled(FeatureFlags.CREATE_WAUDIO_USER_BANK_ON_SIGN_UP)
     )
   }
 
@@ -2153,32 +2235,6 @@ class AudiusBackend {
     }
   }
 
-  /**
-   * Gets an ordered string-like list of playlists that the
-   * current account has favorited.
-   * @DEPRECATED
-   * TODO: Remove this method after a ~month or so from launch of playlist
-   * library.
-   */
-  static async getAccountPlaylistFavorites() {
-    await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
-    try {
-      const { data, signature } = await AudiusBackend.signData()
-      const res = await fetch(`${IDENTITY_SERVICE}/user_playlist_favorites`, {
-        headers: {
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
-        }
-      }).then(res => res.json())
-      return res.userPlaylistFavorites
-    } catch (e) {
-      console.error(e)
-      return []
-    }
-  }
-
   static async sendWelcomeEmail({ name }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -2247,6 +2303,27 @@ class AudiusBackend {
     } catch (err) {
       console.error(err.message)
       return false
+    }
+  }
+
+  static async updateHCaptchaScore(token) {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return
+
+    try {
+      const { data, signature } = await AudiusBackend.signData()
+      await fetch(`${IDENTITY_SERVICE}/score`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
+        },
+        body: JSON.stringify({ token })
+      })
+    } catch (err) {
+      console.error(err.message)
     }
   }
 
@@ -2385,6 +2462,19 @@ class AudiusBackend {
     return receipts.sort((receipt1, receipt2) =>
       receipt1.blockNumber < receipt2.blockNumber ? 1 : -1
     )[0]
+  }
+
+  /**
+   * Transfers the user's ERC20 AUDIO into SPL WAUDIO to their solana user bank account
+   * @param {BN} balance The amount of AUDIO to be transferred
+   */
+  static async transferAudioToWAudio(balance) {
+    await waitForLibsInit()
+    const userBank = await audiusLibs.solanaWeb3Manager.getUserBank()
+    await audiusLibs.Account.permitAndSendTokensViaWormhole(
+      balance,
+      userBank.toString()
+    )
   }
 }
 

@@ -1,23 +1,22 @@
 import React, { useCallback, useState } from 'react'
-import { connect } from 'react-redux'
-import { push as pushRoute } from 'connected-react-router'
 
 import cn from 'classnames'
-import Menu from 'containers/menu/Menu'
+import { push as pushRoute } from 'connected-react-router'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import placeholderArt from 'assets/img/imageBlank2x.png'
-import styles from './CollectionArtCard.module.css'
+import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import { SquareSizes } from 'models/common/ImageSizes'
+import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
+import RepostFavoritesStats, {
+  Size
+} from 'components/repost-favorites-stats/RepostFavoritesStats'
+import Menu from 'containers/menu/Menu'
 import { useCollectionCoverArt } from 'hooks/useImageSize'
 import { ID } from 'models/common/Identifiers'
-import { AppState } from 'store/types'
-import { Dispatch } from 'redux'
-import { getUserFromCollection } from 'store/cache/users/selectors'
-import { getCollection } from 'store/cache/collections/selectors'
-import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
-import { playlistPage, albumPage, profilePage } from 'utils/route'
+import { SquareSizes } from 'models/common/ImageSizes'
 import { getUserId } from 'store/account/selectors'
 import {
   setUsers,
@@ -27,11 +26,13 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import RepostFavoritesStats, {
-  Size
-} from 'components/repost-favorites-stats/RepostFavoritesStats'
-import ArtistPopover from 'components/artist/ArtistPopover'
+import { getCollection } from 'store/cache/collections/selectors'
+import { getUserFromCollection } from 'store/cache/users/selectors'
+import { AppState } from 'store/types'
+import { playlistPage, albumPage, profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
+
+import styles from './CollectionArtCard.module.css'
 
 type OwnProps = {
   className?: string
@@ -153,16 +154,22 @@ const CollectionArtCard = g(
               // @ts-ignore
               menu={menu}
               onClose={() => setIsPerspectiveDisabled(false)}
+              className={styles.iconKebabHorizontalWrapper}
             >
-              <div
-                className={styles.iconKebabHorizontalWrapper}
-                onClick={e => {
-                  e.stopPropagation()
-                  setIsPerspectiveDisabled(true)
-                }}
-              >
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+              {(ref, triggerPopup) => (
+                <div
+                  onClick={e => {
+                    e.stopPropagation()
+                    setIsPerspectiveDisabled(true)
+                    triggerPopup()
+                  }}
+                >
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </DynamicImage>
         </PerspectiveCard>

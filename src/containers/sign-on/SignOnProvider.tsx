@@ -1,39 +1,26 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { AppState } from 'store/types'
-import { Dispatch } from 'redux'
-import { UnregisterCallback } from 'history'
-import { withRouter, RouteComponentProps } from 'react-router-dom'
-import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
+
 import {
   push as pushRoute,
   replace as replaceRoute,
   goBack
 } from 'connected-react-router'
-import {
-  SignOnProps as MobileSignOnProps,
-  MobilePages
-} from './components/mobile/SignOnPage'
-import {
-  SignOnProps as DesktopSignOnProps,
-  ValidDesktopPages
-} from './components/desktop/SignOnPage'
-import { ID } from 'models/common/Identifiers'
-import { make, TrackEvent } from 'store/analytics/actions'
-import { Name } from 'services/analytics'
-import { isElectron } from 'utils/clientUtil'
-import { showPushNotificationConfirmation } from 'store/account/reducer'
-import { Pages, FollowArtistsCategory } from 'containers/sign-on/store/types'
+import { Location, UnregisterCallback } from 'history'
 import { sampleSize } from 'lodash'
+import { connect } from 'react-redux'
+import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { Dispatch } from 'redux'
+
+import { Pages, FollowArtistsCategory } from 'containers/sign-on/store/types'
 import User from 'models/User'
-import {
-  getSignOn,
-  getIsMobileSignOnVisible,
-  getToastText,
-  makeGetFollowArtists,
-  getRouteOnExit
-} from './store/selectors'
-import * as signOnAction from './store/actions'
+import { ID } from 'models/common/Identifiers'
+import { Name } from 'services/analytics'
+import { showPushNotificationConfirmation } from 'store/account/reducer'
+import { getHasAccount } from 'store/account/selectors'
+import { make, TrackEvent } from 'store/analytics/actions'
+import { AppState } from 'store/types'
+import { isElectron } from 'utils/clientUtil'
+import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
 import {
   TRENDING_PAGE,
   UPLOAD_PAGE,
@@ -41,7 +28,23 @@ import {
   SIGN_IN_PAGE,
   SIGN_UP_PAGE
 } from 'utils/route'
-import { getHasAccount } from 'store/account/selectors'
+
+import {
+  SignOnProps as DesktopSignOnProps,
+  ValidDesktopPages
+} from './components/desktop/SignOnPage'
+import {
+  SignOnProps as MobileSignOnProps,
+  MobilePages
+} from './components/mobile/SignOnPage'
+import * as signOnAction from './store/actions'
+import {
+  getSignOn,
+  getIsMobileSignOnVisible,
+  getToastText,
+  makeGetFollowArtists,
+  getRouteOnExit
+} from './store/selectors'
 
 const messages = {
   title: 'Sign Up',
@@ -118,6 +121,13 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       }
     })
 
+    const referrerHandle = new URLSearchParams(this.props.location.search).get(
+      'ref'
+    )
+    if (referrerHandle) {
+      this.props.fetchReferrer(referrerHandle)
+    }
+
     const closeModalHotkey = setupHotkeys({
       27 /* Escape */: () => {
         if (
@@ -190,6 +200,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
         recordCompleteProfile,
         fields: { email, password, handle }
       } = this.props
+
       // Dispatch event to create account
       signUp(email.value, password.value, handle.value)
       recordCompleteProfile(email.value, handle.value)
@@ -337,19 +348,22 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
   setTwitterProfile = (
     twitterId: string,
     profile: { screen_name?: string; verified?: boolean },
-    profileImage: any,
-    coverPhoto: any
+    profileImg?: { url: string; file: any },
+    coverBannerImg?: { url: string; file: any },
+    skipEdit?: boolean
   ) => {
     const {
       fields: { email, handle }
     } = this.props
-    if (profile.screen_name) this.props.validateHandle(profile.screen_name)
-    this.props.setTwitterProfile(twitterId, profile, profileImage, coverPhoto)
+    this.props.setTwitterProfile(twitterId, profile, profileImg, coverBannerImg)
     this.props.recordTwitterComplete(
       !!profile.verified,
       email.value,
       handle.value
     )
+    if (skipEdit) {
+      this.onNextPage()
+    }
   }
 
   onRecordTwitterStart = () => {
@@ -360,10 +374,14 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
   setInstagramProfile = (
     instagramId: string,
     profile: { username?: string; is_verified?: boolean },
-    profileImage?: any
+    profileImg?: { url: string; file: any },
+    skipEdit?: boolean
   ) => {
     if (profile.username) this.props.validateHandle(profile.username)
-    this.props.setInstagramProfile(instagramId, profile, profileImage)
+    this.props.setInstagramProfile(instagramId, profile, profileImg)
+    if (skipEdit) {
+      this.onNextPage()
+    }
   }
 
   onMetaMaskSignIn = () => {
@@ -427,6 +445,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       onViewSignUp: this.onViewSignUp,
       setTwitterProfile: this.setTwitterProfile,
       setInstagramProfile: this.setInstagramProfile,
+      validateHandle: this.props.validateHandle,
       onMetaMaskSignIn: this.onMetaMaskSignIn,
       recordTwitterStart: this.onRecordTwitterStart,
       recordTwitterComplete: this.props.recordTwitterComplete
@@ -463,13 +482,15 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onSignIn: (email: string, password: string) =>
       dispatch(signOnAction.signIn(email, password)),
     fetchFollowArtists: () => dispatch(signOnAction.fetchAllFollowArtists()),
+    fetchReferrer: (handle: string) =>
+      dispatch(signOnAction.fetchReferrer(handle)),
     signUp: (email: string, password: string, handle: string) =>
       dispatch(signOnAction.signUp(email, password, handle)),
     setTwitterProfile: (
       twitterId: string,
       profile: object,
-      profileImage: object,
-      coverPhoto: string
+      profileImage?: { url: string; file: any },
+      coverPhoto?: { url: string; file: any }
     ) =>
       dispatch(
         signOnAction.setTwitterProfile(
@@ -491,8 +512,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(signOnAction.sendWelcomeEmail(name)),
     validateEmail: (email: string) =>
       dispatch(signOnAction.validateEmail(email)),
-    validateHandle: (handle: string) =>
-      dispatch(signOnAction.validateHandle(handle)),
+    validateHandle: (handle: string, onValidate?: (error: boolean) => void) =>
+      dispatch(signOnAction.validateHandle(handle, onValidate)),
     setValueField: (field: string, value: any) =>
       dispatch(signOnAction.setValueField(field, value)),
     setField: (field: string, value: any) =>

@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
+
 import { useDispatch } from 'react-redux'
-import useInstanceVar from 'hooks/useInstanceVar'
+
+import imageEmpty from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import profilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
-import imageEmpty from 'assets/img/imageBlank2x.png'
-
+import useInstanceVar from 'hooks/useInstanceVar'
 import {
   CoverArtSizes,
   CoverPhotoSizes,
@@ -17,7 +19,6 @@ import {
 import { fetchCoverArt as fetchCollectionCoverArt } from 'store/cache/collections/actions'
 import { fetchCoverArt as fetchTrackCoverArt } from 'store/cache/tracks/actions'
 import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
-import { useEffect } from 'react'
 
 type SizeArray = Array<SquareSizes | WidthSizes>
 
@@ -102,7 +103,6 @@ const useImageSize = ({
   const [getPreviousId, setPreviousId] = useInstanceVar<number | null>(null)
 
   const getImageSize = () => {
-    // console.log('get size', { id, prev: getPreviousId(), size })
     if (id === null || id === undefined) {
       return ''
     }

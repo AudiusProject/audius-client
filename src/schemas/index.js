@@ -1,4 +1,5 @@
 import { pick } from 'lodash'
+
 import { createRemixOfMetadata } from 'containers/upload-page/store/utils/remixes'
 
 const trackMetadataSchema = {
@@ -108,7 +109,8 @@ const userMetadataSchema = {
   updated_at: null,
   associated_wallets: null,
   collectibles: null,
-  playlist_library: null
+  playlist_library: null,
+  events: null
 }
 
 export const newUserMetadata = (fields, validate = false) => {

@@ -1,12 +1,13 @@
-import { Kind, AppState } from 'store/types'
-import { ID, UID } from 'models/common/Identifiers'
-import { Uid } from 'utils/uid'
-import Cache from 'models/common/Cache'
+import Collection from 'models/Collection'
 import Track from 'models/Track'
 import User from 'models/User'
-import Collection from 'models/Collection'
-import UsersCacheState from './users/types'
+import Cache from 'models/common/Cache'
+import { ID, UID } from 'models/common/Identifiers'
+import { Kind, AppState } from 'store/types'
+import { Uid } from 'utils/uid'
+
 import TracksCacheState from './tracks/types'
+import UsersCacheState from './users/types'
 
 /**
  * Selects from the cache and strips away cache-only fields.

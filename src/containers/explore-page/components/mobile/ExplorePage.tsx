@@ -5,41 +5,18 @@ import React, {
   ReactNode,
   useCallback
 } from 'react'
+
 import Spin from 'antd/lib/spin'
-
-import useTabs from 'hooks/useTabs/useTabs'
-import User from 'models/User'
-import {
-  UserCollection,
-  SmartCollection,
-  Variant as CollectionVariant
-} from 'models/Collection'
-import {
-  Tabs as ExploreTabs,
-  ExploreCollectionsVariant
-} from 'containers/explore-page/store/types'
-import { Status } from 'store/types'
-import {
-  playlistPage,
-  albumPage,
-  profilePage,
-  BASE_URL,
-  EXPLORE_PAGE
-} from 'utils/route'
-
-import MobilePageContainer from 'components/general/MobilePageContainer'
-import Header from 'components/general/header/mobile/Header'
-import Card from 'components/card/mobile/Card'
-import ColorTile from './ColorTile'
-import CardLineup from 'containers/lineup/CardLineup'
-import { useMainPageHeader } from 'containers/nav/store/context'
 import cn from 'classnames'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconForYou } from 'assets/img/iconExploreMobileForYou.svg'
 import { ReactComponent as IconMoods } from 'assets/img/iconExploreMobileMoods.svg'
 import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import { ReactComponent as IconUser } from 'assets/img/iconUser.svg'
-import styles from './ExplorePage.module.css'
+import Card from 'components/card/mobile/Card'
+import MobilePageContainer from 'components/general/MobilePageContainer'
+import Header from 'components/general/header/mobile/Header'
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
 import {
   CHILL_PLAYLISTS,
@@ -50,10 +27,37 @@ import {
   ExploreCollection,
   ExploreMoodCollection
 } from 'containers/explore-page/collections'
-import { useDispatch, useSelector } from 'react-redux'
-import { getTab } from 'containers/explore-page/store/selectors'
 import { setTab } from 'containers/explore-page/store/actions'
+import { getTab } from 'containers/explore-page/store/selectors'
+import {
+  Tabs as ExploreTabs,
+  ExploreCollectionsVariant
+} from 'containers/explore-page/store/types'
+import CardLineup from 'containers/lineup/CardLineup'
+import { useMainPageHeader } from 'containers/nav/store/context'
+import { useFlag } from 'containers/remote-config/hooks'
+import { REMIXABLES } from 'containers/smart-collection/smartCollections'
+import useTabs from 'hooks/useTabs/useTabs'
+import {
+  UserCollection,
+  SmartCollection,
+  Variant as CollectionVariant
+} from 'models/Collection'
+import User from 'models/User'
+import { FeatureFlags } from 'services/remote-config'
+import { Status } from 'store/types'
+import {
+  playlistPage,
+  albumPage,
+  profilePage,
+  BASE_URL,
+  EXPLORE_PAGE
+} from 'utils/route'
+
 import { justForYou } from '../desktop/ExplorePage'
+
+import ColorTile from './ColorTile'
+import styles from './ExplorePage.module.css'
 
 const messages = {
   pageName: 'Explore',
@@ -132,10 +136,18 @@ const ExplorePage = ({
   formatProfileCardSecondaryText,
   goToRoute
 }: ExplorePageProps) => {
+  const { isEnabled: remixablesEnabled } = useFlag(FeatureFlags.REMIXABLES)
   useMainPageHeader()
 
   const justForYouTiles = justForYou.map(
     (t: SmartCollection | ExploreCollection) => {
+      if (
+        t.variant === CollectionVariant.SMART &&
+        t.playlist_name === REMIXABLES.playlist_name &&
+        !remixablesEnabled
+      ) {
+        return null
+      }
       const Icon = t.icon ? t.icon : React.Fragment
       if (t.variant === CollectionVariant.SMART) {
         return (
@@ -248,7 +260,12 @@ const ExplorePage = ({
         title={messages.justForYou}
         description={messages.justForYouDescription}
       >
-        <div className={cn(styles.section, styles.tripleHeaderSection)}>
+        <div
+          className={cn(styles.section, {
+            [styles.tripleHeaderSection]: !remixablesEnabled,
+            [styles.tripleHeaderSectionTenTile]: remixablesEnabled
+          })}
+        >
           {justForYouTiles}
         </div>
       </TabBodyHeader>,
@@ -282,7 +299,14 @@ const ExplorePage = ({
         )}
       </TabBodyHeader>
     ]
-  }, [playlistCards, profileCards, justForYouTiles, lifestyleTiles, status])
+  }, [
+    playlistCards,
+    profileCards,
+    justForYouTiles,
+    lifestyleTiles,
+    status,
+    remixablesEnabled
+  ])
 
   const initialTab = useSelector(getTab)
   const dispatch = useDispatch()

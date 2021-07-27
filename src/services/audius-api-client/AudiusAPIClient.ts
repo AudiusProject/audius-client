@@ -1,6 +1,19 @@
+import { SearchKind } from 'containers/search-page/store/types'
 import TimeRange from 'models/TimeRange'
-import { Nullable, removeNullable } from 'utils/typeUtils'
+import { StemTrackMetadata } from 'models/Track'
 import { ID } from 'models/common/Identifiers'
+import AudiusBackend from 'services/AudiusBackend'
+import {
+  getEagerDiscprov,
+  waitForLibsInit
+} from 'services/audius-backend/eagerLoadUtils'
+import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
+import { Nullable, removeNullable } from 'utils/typeUtils'
+
+import { getRemoteVar, IntKeys, StringKeys } from '../remote-config'
+
+import * as adapter from './ResponseAdapter'
+import { processSearchResults } from './helper'
 import {
   APIActivity,
   APIBlockConfirmation,
@@ -13,17 +26,6 @@ import {
   APIUser,
   OpaqueID
 } from './types'
-import * as adapter from './ResponseAdapter'
-import AudiusBackend from 'services/AudiusBackend'
-import {
-  getEagerDiscprov,
-  waitForLibsInit
-} from 'services/audius-backend/eagerLoadUtils'
-import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
-import { StemTrackMetadata } from 'models/Track'
-import { SearchKind } from 'containers/search-page/store/types'
-import { processSearchResults } from './helper'
-import { getRemoteVar, IntKeys, StringKeys } from '../remote-config'
 
 declare global {
   interface Window {
@@ -54,6 +56,7 @@ const FULL_ENDPOINT_MAP = {
   trendingPlaylists: (experiment: string | null) =>
     experiment ? `/playlists/trending/${experiment}` : '/playlists/trending',
   recommended: '/tracks/recommended',
+  remixables: '/tracks/remixables',
   following: (userId: OpaqueID) => `/users/${userId}/following`,
   followers: (userId: OpaqueID) => `/users/${userId}/followers`,
   trackRepostUsers: (trackId: OpaqueID) => `/tracks/${trackId}/reposts`,
@@ -126,6 +129,11 @@ type GetTrendingIdsArgs = {
 type GetRecommendedArgs = {
   genre: Nullable<string>
   exclusionList: number[]
+  currentUserId: Nullable<ID>
+}
+
+type GetRemixablesArgs = {
+  limit?: number
   currentUserId: Nullable<ID>
 }
 
@@ -439,6 +447,27 @@ class AudiusAPIClient {
     const adapted = recommendedResponse.data
       .map(adapter.makeTrack)
       .filter(removeNullable)
+    return adapted
+  }
+
+  async getRemixables({ limit = 25, currentUserId }: GetRemixablesArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const params = {
+      limit,
+      user_id: encodedCurrentUserId || undefined,
+      with_users: true
+    }
+    const remixablesResponse: Nullable<APIResponse<
+      APITrack[]
+    >> = await this._getResponse(FULL_ENDPOINT_MAP.remixables, params)
+
+    if (!remixablesResponse) return []
+
+    const adapted = remixablesResponse.data
+      .map(adapter.makeTrack)
+      .filter(removeNullable)
+
     return adapted
   }
 

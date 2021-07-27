@@ -1,34 +1,36 @@
 import React, { useCallback, useState } from 'react'
-import { NavLink, NavLinkProps } from 'react-router-dom'
-import cn from 'classnames'
 
+import cn from 'classnames'
+import { useDispatch } from 'react-redux'
+import { NavLink, NavLinkProps } from 'react-router-dom'
+
+import UpdateDot from 'components/general/UpdateDot'
+import Tooltip from 'components/tooltip/Tooltip'
+import Draggable from 'containers/dragndrop/Draggable'
+import Droppable from 'containers/dragndrop/Droppable'
+import { getPlaylistUpdates } from 'containers/notification/store/selectors'
+import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
+import { SMART_COLLECTION_MAP } from 'containers/smart-collection/smartCollections'
+import { SmartCollectionVariant } from 'containers/smart-collection/types'
+import { SmartCollection } from 'models/Collection'
+import { ID } from 'models/common/Identifiers'
+import { Name } from 'services/analytics'
+import { AccountCollection } from 'store/account/reducer'
 import {
   getAccountNavigationPlaylists,
   getAccountUser,
   getPlaylistLibrary
 } from 'store/account/selectors'
-import { getPlaylistUpdates } from 'containers/notification/store/selectors'
+import { make, useRecord } from 'store/analytics/actions'
+import { addTrackToPlaylist } from 'store/cache/collections/actions'
+import { getIsDragging } from 'store/dragndrop/selectors'
+import { reorderPlaylistLibrary } from 'store/playlist-library/helpers'
+import { update } from 'store/playlist-library/slice'
 import { useSelector } from 'utils/reducer'
 import { playlistPage, getPathname } from 'utils/route'
 
-import Droppable from 'containers/dragndrop/Droppable'
-import UpdateDot from 'components/general/UpdateDot'
 import navColumnStyles from './NavColumn.module.css'
 import styles from './PlaylistLibrary.module.css'
-
-import { addTrackToPlaylist } from 'store/cache/collections/actions'
-import { getIsDragging } from 'store/dragndrop/selectors'
-import { ID } from 'models/common/Identifiers'
-import { SMART_COLLECTION_MAP } from 'containers/smart-collection/smartCollections'
-import { SmartCollection } from 'models/Collection'
-import { AccountCollection } from 'store/account/reducer'
-import Draggable from 'containers/dragndrop/Draggable'
-import { useDispatch } from 'react-redux'
-import { update } from 'store/playlist-library/slice'
-import { SmartCollectionVariant } from 'containers/smart-collection/types'
-import { reorderPlaylistLibrary } from 'store/playlist-library/helpers'
-import Tooltip from 'components/tooltip/Tooltip'
-import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
 
 type DraggableNavLinkProps = NavLinkProps & {
   droppableKey: ID | SmartCollectionVariant
@@ -104,6 +106,7 @@ const PlaylistLibrary = ({
   const {
     isEnabled: arePlaylistUpdatesEnabled
   } = useArePlaylistUpdatesEnabled()
+  const record = useRecord()
 
   const onReorder = useCallback(
     (
@@ -140,12 +143,26 @@ const PlaylistLibrary = ({
     )
   }
 
+  const onClick = useCallback(
+    (playlistId: ID, hasUpdate: boolean) => {
+      onClickNavLinkWithAccount()
+      record(
+        make(Name.PLAYLIST_LIBRARY_CLICKED, {
+          playlistId,
+          hasUpdate
+        })
+      )
+    },
+    [record, onClickNavLinkWithAccount]
+  )
+
   const renderPlaylist = (playlist: AccountCollection) => {
     if (!account || !playlist) return
     const { id, name } = playlist
     const url = playlistPage(playlist.user.handle, name, id)
     const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
+    const hasUpdate = updates.includes(id)
     return (
       <Droppable
         key={id}
@@ -165,7 +182,7 @@ const PlaylistLibrary = ({
           isActive={() => url === getPathname()}
           activeClassName='active'
           className={cn(navColumnStyles.link, {
-            [navColumnStyles.playlistUpdate]: updates.includes(id),
+            [navColumnStyles.playlistUpdate]: hasUpdate,
             [navColumnStyles.droppableLink]:
               isOwner &&
               dragging &&
@@ -177,9 +194,9 @@ const PlaylistLibrary = ({
                 draggingKind !== 'library-playlist') ||
                 !isOwner)
           })}
-          onClick={onClickNavLinkWithAccount}
+          onClick={() => onClick(id, hasUpdate)}
         >
-          {!!arePlaylistUpdatesEnabled && updates.includes(id) ? (
+          {!!arePlaylistUpdatesEnabled && hasUpdate ? (
             <div className={navColumnStyles.updateDotContainer}>
               <Tooltip
                 className={navColumnStyles.updateDotTooltip}

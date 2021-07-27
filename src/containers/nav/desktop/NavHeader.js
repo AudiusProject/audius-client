@@ -1,20 +1,21 @@
-import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
+import React, { useCallback, useRef } from 'react'
+
 import cn from 'classnames'
-import { HOME_PAGE, BASE_URL, stripBaseUrl } from 'utils/route'
+import PropTypes from 'prop-types'
 
-import NavButton from 'containers/nav/desktop/NavButton'
-import NotificationPanel from 'containers/notification/NotificationPanel'
-
-import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
 import { ReactComponent as AudiusLogoHorizontal } from 'assets/img/audiusLogoHorizontal.svg'
-import { formatCount } from 'utils/formatUtil'
-import styles from './NavHeader.module.css'
+import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
+import NavButton from 'containers/nav/desktop/NavButton'
+import NavPopupMenu from 'containers/nav/desktop/NavPopupMenu'
+import NotificationPanel from 'containers/notification/NotificationPanel'
 import { useRemoteVar } from 'containers/remote-config/hooks'
-import { StringKeys } from 'services/remote-config'
-import { getTheme } from 'utils/theme/theme'
 import Theme from 'models/Theme'
-import NavIconPopover from 'containers/nav/desktop/NavIconPopover'
+import { StringKeys } from 'services/remote-config'
+import { formatCount } from 'utils/formatUtil'
+import { HOME_PAGE, BASE_URL, stripBaseUrl } from 'utils/route'
+import { getTheme } from 'utils/theme/theme'
+
+import styles from './NavHeader.module.css'
 
 const NavHeader = ({
   account,
@@ -24,6 +25,7 @@ const NavHeader = ({
   goToRoute,
   isElectron
 }) => {
+  const notificationPanelAnchorRef = useRef()
   const logoVariant = useRemoteVar(StringKeys.AUDIUS_LOGO_VARIANT)
   const logoVariantClickTarget = useRemoteVar(
     StringKeys.AUDIUS_LOGO_VARIANT_CLICK_TARGET
@@ -56,8 +58,9 @@ const NavHeader = ({
       </div>
       {account ? (
         <div className={styles.headerIconContainer}>
-          <NavIconPopover />
+          <NavPopupMenu />
           <div
+            ref={notificationPanelAnchorRef}
             onClick={toggleNotificationPanel}
             className={cn(styles.headerIconWrapper, styles.iconNotification, {
               [styles.active]: notificationCount > 0,
@@ -72,6 +75,7 @@ const NavHeader = ({
             </div>
           ) : null}
           <NotificationPanel
+            anchorRef={notificationPanelAnchorRef}
             isElectron={isElectron}
             toggleNotificationPanel={toggleNotificationPanel}
           />

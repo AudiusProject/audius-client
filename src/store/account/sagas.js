@@ -1,14 +1,27 @@
-import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
+import { call, put, take, fork, select, takeEvery } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'store/backend/sagas'
-import * as accountActions from 'store/account/reducer'
-import * as cacheActions from 'store/cache/actions'
+import {
+  setBrowserNotificationPermission,
+  setBrowserNotificationEnabled,
+  setBrowserNotificationSettingsOn
+} from 'containers/settings-page/store/actions'
 import * as uploadActions from 'containers/upload-page/store/actions'
-import { Kind, Status } from 'store/types'
+import AudioManager from 'services/AudioManager'
 import AudiusBackend from 'services/AudiusBackend'
-import mobileSagas from './mobileSagas'
-import { identify } from 'store/analytics/actions'
-import { waitForValue } from 'utils/sagaHelpers'
+import {
+  getAudiusAccount,
+  getAudiusAccountUser,
+  getCurrentUserExists,
+  setAudiusAccount,
+  setAudiusAccountUser,
+  clearAudiusAccount,
+  clearAudiusAccountUser
+} from 'services/LocalStorage'
+import { SignedIn } from 'services/native-mobile-interface/lifecycle'
+import { FeatureFlags } from 'services/remote-config'
+import { getFeatureEnabled, setUserId } from 'services/remote-config/Provider'
+import { setSentryUser } from 'services/sentry'
+import * as accountActions from 'store/account/reducer'
 import {
   getUserId,
   getUserHandle,
@@ -18,8 +31,18 @@ import {
   getAccountOwnedPlaylistIds,
   getAccountToCache
 } from 'store/account/selectors'
+import { identify } from 'store/analytics/actions'
+import {
+  getModalIsOpen,
+  setVisibility
+} from 'store/application/ui/modals/slice'
+import { confirmTransferAudioToWAudio } from 'store/audio-manager/slice'
+import { waitForBackendSetup } from 'store/backend/sagas'
+import * as cacheActions from 'store/cache/actions'
 import { retrieveCollections } from 'store/cache/collections/utils'
-import { open as openBrowserPushPermissionModal } from 'store/application/ui/browserPushPermissionConfirmation/actions'
+import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
+import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
+import { Kind, Status } from 'store/types'
 import {
   Permission,
   isPushManagerAvailable,
@@ -33,26 +56,10 @@ import {
   removeHasRequestedBrowserPermission,
   shouldRequestBrowserPermission
 } from 'utils/browserNotifications'
-import {
-  setBrowserNotificationPermission,
-  setBrowserNotificationEnabled,
-  setBrowserNotificationSettingsOn
-} from 'containers/settings-page/store/actions'
 import { isMobile, isElectron } from 'utils/clientUtil'
-import { setUserId } from 'services/remote-config/Provider'
-import {
-  getAudiusAccount,
-  getAudiusAccountUser,
-  getCurrentUserExists,
-  setAudiusAccount,
-  setAudiusAccountUser,
-  clearAudiusAccount,
-  clearAudiusAccountUser
-} from 'services/LocalStorage'
-import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
-import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
-import { SignedIn } from 'services/native-mobile-interface/lifecycle'
-import { setSentryUser } from 'services/sentry'
+import { waitForValue } from 'utils/sagaHelpers'
+
+import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -75,16 +82,57 @@ function* onFetchAccount(account) {
   }
 
   yield fork(AudiusBackend.updateUserLocationTimezone)
-  yield fork(AudiusBackend.updateUserEvent, {
-    hasSignedInNativeMobile: !!NATIVE_MOBILE
-  })
   if (NATIVE_MOBILE) {
+    yield fork(setHasSignedInOnMobile, account)
     new SignedIn(account).send()
   }
-
   // Add playlists that might not have made it into the user's library.
   // This could happen if the user creates a new playlist and then leaves their session.
   yield fork(addPlaylistsNotInLibrary)
+
+  yield fork(initAudioChecks)
+}
+
+/**
+ * Opens the Modal for user confirmation of transfering audio to waudio
+ */
+function* requestTransferAudioToWAudio() {
+  // Wait for any other modals to close
+  let modalIsOpen = yield select(getModalIsOpen)
+  while (modalIsOpen) {
+    yield take(setVisibility.type)
+    modalIsOpen = yield select(getModalIsOpen)
+  }
+  // Put an action to show modal
+  yield put(setVisibility({ modal: 'ConfirmAudioToWAudio', visible: true }))
+
+  // Take the action on result of modal
+  yield take(confirmTransferAudioToWAudio.type)
+  return true
+}
+
+function* initAudioChecks() {
+  if (getFeatureEnabled(FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD)) {
+    try {
+      const audiusManager = new AudioManager({
+        requestTransferAudioToWAudio
+      })
+
+      yield call(audiusManager.getInitState)
+      yield call(audiusManager.updateState)
+    } catch (error) {
+      yield put(
+        errorActions.handleError({
+          message: 'Error in Init Audio Checks',
+          shouldRedirect: false,
+          shouldReport: true,
+          additionalInfo: { errorMessage: error.message },
+          level: errorActions.Level.Critical
+        })
+      )
+    }
+    yield put(setVisibility({ modal: 'ConfirmAudioToWAudio', visible: false }))
+  }
 }
 
 export function* fetchAccountAsync(action) {
@@ -147,27 +195,6 @@ export function* fetchAccountAsync(action) {
   // Set account ID in remote-config provider
   setUserId(account.user_id)
 
-  // @@@@@ Migration @@@@@
-  // Migrate users with old playlist orderings
-  // TODO: After a sufficient time post release (~month), we should remove this
-  // migration in favor of users being on the proper playlist library.
-  const accountPlaylistFavorites = yield call(
-    AudiusBackend.getAccountPlaylistFavorites
-  )
-  const orderedPlaylists = accountPlaylistFavorites
-    ? accountPlaylistFavorites.favorites
-    : []
-
-  if (orderedPlaylists.length > 0 && !account.playlist_library) {
-    const contents = orderedPlaylists.map(id => ({
-      type: 'explore_playlist',
-      playlist_id: id
-    }))
-    const playlistLibrary = { contents }
-    yield put(updatePlaylistLibrary({ playlistLibrary }))
-  }
-  // @@@@@ End migration @@@@@
-
   // Cache the account and fire the onFetch callback. We're done.
   yield call(cacheAccount, account)
   yield call(onFetchAccount, account)
@@ -201,6 +228,11 @@ function* reCacheAccount(action) {
   setAudiusAccount(account)
 }
 
+const setBrowerPushPermissionConfirmationModal = setVisibility({
+  modal: 'BrowserPushPermissionConfirmation',
+  visible: true
+})
+
 /**
  * Determine if the push notification modal should appear
  */
@@ -210,7 +242,7 @@ export function* showPushNotificationConfirmation() {
   if (!account) return
   const browserPermission = yield call(fetchBrowserPushNotifcationStatus)
   if (browserPermission === Permission.DEFAULT) {
-    yield put(openBrowserPushPermissionModal())
+    yield put(setBrowerPushPermissionConfirmationModal)
   } else if (browserPermission === Permission.GRANTED) {
     if (isPushManagerAvailable) {
       const subscription = yield call(getPushManagerBrowserSubscription)
@@ -219,7 +251,7 @@ export function* showPushNotificationConfirmation() {
         subscription.endpoint
       )
       if (!enabled) {
-        yield put(openBrowserPushPermissionModal())
+        yield put(setBrowerPushPermissionConfirmationModal)
       }
     } else if (isSafariPushAvailable) {
       try {
@@ -229,7 +261,7 @@ export function* showPushNotificationConfirmation() {
           safariPushBrowser.deviceToken
         )
         if (!enabled) {
-          yield put(openBrowserPushPermissionModal())
+          yield put(setBrowerPushPermissionConfirmationModal)
         }
       } catch (err) {
         console.log(err)

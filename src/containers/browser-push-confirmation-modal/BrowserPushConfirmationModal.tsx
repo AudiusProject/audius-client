@@ -1,22 +1,26 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import { Modal, Anchor, Button, ButtonType, ButtonSize } from '@audius/stems'
-import { isElectron, isMobile } from 'utils/clientUtil'
-import cn from 'classnames'
 
-import { AppState } from 'store/types'
-import { getIsOpen } from 'store/application/ui/browserPushPermissionConfirmation/selectors'
-import { close as closeModal } from 'store/application/ui/browserPushPermissionConfirmation/actions'
+import { Modal, Anchor, Button, ButtonType, ButtonSize } from '@audius/stems'
+import cn from 'classnames'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
+
 import * as settingPageActions from 'containers/settings-page/store/actions'
+import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
 import { subscribeBrowserPushNotifications } from 'store/account/reducer'
+import {
+  setVisibility,
+  getModalVisibility
+} from 'store/application/ui/modals/slice'
+import { AppState } from 'store/types'
 import {
   isPushManagerAvailable,
   isSafariPushAvailable,
   subscribeSafariPushBrowser,
   Permission
 } from 'utils/browserNotifications'
-import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
+import { isElectron, isMobile } from 'utils/clientUtil'
+
 import styles from './BrowserPushConfirmationModal.module.css'
 
 type BrowserPushConfirmationModal = ReturnType<typeof mapStateToProps> &
@@ -147,7 +151,7 @@ const ConnectedBrowserPushConfirmationModal = ({
 
 function mapStateToProps(state: AppState) {
   return {
-    isOpen: getIsOpen(state),
+    isOpen: getModalVisibility(state, 'BrowserPushPermissionConfirmation'),
     browserNotificationSettings: getBrowserNotificationSettings(state)
   }
 }
@@ -162,7 +166,13 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(settingPageActions.setBrowserNotificationEnabled(enabled)),
     setNotificationSettings: (settings: object) =>
       dispatch(settingPageActions.setNotificationSettings(settings)),
-    onClose: () => dispatch(closeModal())
+    onClose: () =>
+      dispatch(
+        setVisibility({
+          modal: 'BrowserPushPermissionConfirmation',
+          visible: false
+        })
+      )
   }
 }
 

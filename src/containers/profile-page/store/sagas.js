@@ -1,3 +1,4 @@
+import { merge } from 'lodash'
 import { delay } from 'redux-saga'
 import {
   call,
@@ -9,41 +10,40 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import * as profileActions from './actions'
+import feedSagas from 'containers/profile-page/store/lineups/feed/sagas.js'
+import tracksSagas from 'containers/profile-page/store/lineups/tracks/sagas.js'
+import { DefaultSizes } from 'models/common/ImageSizes'
+import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
+import { setAudiusAccountUser } from 'services/LocalStorage'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
+import { getUserId } from 'store/account/selectors'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as cacheActions from 'store/cache/actions'
-import { Kind } from 'store/types'
-import * as confirmerActions from 'store/confirmer/actions'
-import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
-import { confirmTransaction } from 'store/confirmer/sagas'
-import { getUserId } from 'store/account/selectors'
-import {
-  getProfileUserId,
-  getProfileFollowers,
-  getProfileUser
-} from './selectors'
-import { makeUid, makeKindId } from 'utils/uid'
-
 import {
   fetchUsers,
   fetchUserByHandle,
   fetchUserCollections
 } from 'store/cache/users/sagas'
-import { FollowType } from './types'
-
-import feedSagas from 'containers/profile-page/store/lineups/feed/sagas.js'
-import tracksSagas from 'containers/profile-page/store/lineups/tracks/sagas.js'
-import { DefaultSizes } from 'models/common/ImageSizes'
-import { squashNewLines } from 'utils/formatUtil'
-import { getIsReachable } from 'store/reachability/selectors'
-import { isMobile } from 'utils/clientUtil'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { processAndCacheUsers } from 'store/cache/users/utils'
 import { getUser } from 'store/cache/users/selectors'
-import { waitForValue } from 'utils/sagaHelpers'
-import { setAudiusAccountUser } from 'services/LocalStorage'
+import { processAndCacheUsers } from 'store/cache/users/utils'
+import * as confirmerActions from 'store/confirmer/actions'
+import { confirmTransaction } from 'store/confirmer/sagas'
+import { getIsReachable } from 'store/reachability/selectors'
+import { Kind } from 'store/types'
+import { isMobile } from 'utils/clientUtil'
+import { squashNewLines } from 'utils/formatUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
+import { waitForValue } from 'utils/sagaHelpers'
+import { makeUid, makeKindId } from 'utils/uid'
+
+import * as profileActions from './actions'
+import {
+  getProfileUserId,
+  getProfileFollowers,
+  getProfileUser
+} from './selectors'
+import { FollowType } from './types'
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -252,7 +252,7 @@ function* fetchFollowerUsers(action) {
     offset: action.offset
   })
 
-  const followerIds = yield call(followAndCacheUsers, followers)
+  const followerIds = yield call(cacheUsers, followers)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWERS,
@@ -274,7 +274,7 @@ function* fetchFollowees(action) {
     offset: action.offset
   })
 
-  const followerIds = yield call(followAndCacheUsers, followees)
+  const followerIds = yield call(cacheUsers, followees)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWEES,
@@ -294,7 +294,8 @@ function* fetchFolloweeFollows(action) {
     action.limit,
     action.offset
   )
-  const followerIds = yield call(followAndCacheUsers, followeeFollows)
+
+  const followerIds = yield call(cacheUsers, followeeFollows)
   yield put(
     profileActions.fetchFollowUsersSucceeded(
       FollowType.FOLLOWEE_FOLLOWS,
@@ -305,8 +306,12 @@ function* fetchFolloweeFollows(action) {
   )
 }
 
-function* followAndCacheUsers(followers) {
-  const users = yield processAndCacheUsers(followers)
+function* cacheUsers(users) {
+  const currentUserId = yield select(getUserId)
+  // Filter out the current user from the list to cache
+  yield processAndCacheUsers(
+    users.filter(user => user.user_id !== currentUserId)
+  )
   return users.map(f => ({ id: f.user_id }))
 }
 
@@ -316,35 +321,58 @@ function* watchUpdateProfile() {
 
 export function* updateProfileAsync(action) {
   yield call(waitForBackendSetup)
-  action.metadata.bio = squashNewLines(action.metadata.bio)
+  let metadata = { ...action.metadata }
+  metadata.bio = squashNewLines(metadata.bio)
 
   const accountUserId = yield select(getUserId)
   yield put(
     cacheActions.update(Kind.USERS, [
-      { id: accountUserId, metadata: { name: action.metadata.name } }
+      { id: accountUserId, metadata: { name: metadata.name } }
     ])
   )
-  yield call(confirmUpdateProfile, action.metadata.user_id, action.metadata)
 
-  const creator = action.metadata
-  if (action.metadata.updatedCoverPhoto) {
-    action.metadata._cover_photo_sizes[DefaultSizes.OVERRIDE] =
-      action.metadata.updatedCoverPhoto.url
+  // Get existing metadata and combine with it
+  const gateways = getCreatorNodeIPFSGateways(metadata.creator_node_endpoint)
+  const cid = metadata.metadata_multihash ?? null
+  if (cid) {
+    try {
+      const metadataFromIPFS = yield call(
+        fetchCID,
+        cid,
+        gateways,
+        /* cache */ false,
+        /* asUrl */ false
+      )
+      metadata = merge(metadataFromIPFS, metadata)
+    } catch (e) {
+      // Although we failed to fetch the existing user metadata, this should only
+      // happen if the user's account data is unavailable across the whole network.
+      // In favor of availability, we write anyway.
+      console.error(e)
+    }
+  }
+
+  yield call(confirmUpdateProfile, metadata.user_id, metadata)
+
+  const creator = metadata
+  if (metadata.updatedCoverPhoto) {
+    metadata._cover_photo_sizes[DefaultSizes.OVERRIDE] =
+      metadata.updatedCoverPhoto.url
   }
   if (creator.updatedProfilePicture) {
-    action.metadata._profile_picture_sizes[DefaultSizes.OVERRIDE] =
-      action.metadata.updatedProfilePicture.url
+    metadata._profile_picture_sizes[DefaultSizes.OVERRIDE] =
+      metadata.updatedProfilePicture.url
   }
 
   yield put(
     cacheActions.update(Kind.USERS, [
       {
         id: creator.user_id,
-        metadata: action.metadata
+        metadata: metadata
       }
     ])
   )
-  yield put(profileActions.updateProfileSucceeded(action.metadata.user_id))
+  yield put(profileActions.updateProfileSucceeded(metadata.user_id))
 }
 
 function* confirmUpdateProfile(userId, metadata) {

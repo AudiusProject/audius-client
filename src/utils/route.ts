@@ -1,9 +1,11 @@
 import { MouseEvent } from 'react'
-import { matchPath } from 'react-router'
+
 import { push as pushRoute } from 'connected-react-router'
+import { Location as HistoryLocation } from 'history'
+import { matchPath } from 'react-router'
+
 import { ID } from 'models/common/Identifiers'
 import { encodeUrlName } from 'utils/formatUtil'
-import { Location as HistoryLocation } from 'history'
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING
 
@@ -37,6 +39,7 @@ export const EXPLORE_FEELING_LUCKY_PAGE = '/explore/feeling-lucky'
 export const EXPLORE_MOOD_PLAYLISTS_PAGE = '/explore/:mood'
 export const TRENDING_PLAYLISTS_PAGE = '/explore/playlists'
 export const TRENDING_UNDERGROUND_PAGE = '/explore/underground'
+export const EXPLORE_REMIXABLES_PAGE = '/explore/remixables'
 
 export const SAVED_PAGE = '/favorites'
 export const FAVORITES_PAGE = '/favorites'
@@ -97,7 +100,7 @@ export const AUDIUS_DISCORD_LINK = 'https://discord.gg/yNUg2e2'
 // Org Links
 export const AUDIUS_ORG = 'https://audius.org'
 export const AUDIUS_TEAM_LINK = 'https://audius.org/team'
-export const AUDIUS_DEV_STAKER_LINK = 'https://audius.org/developers'
+export const AUDIUS_DEV_STAKER_LINK = 'https://audius.org/protocol'
 
 export const AUDIUS_HOME_LINK = '/'
 export const AUDIUS_LISTENING_LINK = '/trending'

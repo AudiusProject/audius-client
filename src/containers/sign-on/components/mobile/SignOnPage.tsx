@@ -1,30 +1,32 @@
 import React, { useEffect, useCallback } from 'react'
+
+import cn from 'classnames'
+import { connect } from 'react-redux'
 import { animated } from 'react-spring'
 import { Transition } from 'react-spring/renderprops'
+import { Dispatch } from 'redux'
 
-import InitialPage from 'containers/sign-on/components/mobile/InitialPage'
-import PasswordPage from 'containers/sign-on/components/mobile/PasswordPage'
-import ProfilePage from 'containers/sign-on/components/mobile/ProfilePage'
+import MobilePageContainer from 'components/general/MobilePageContainer'
+import { show as showEnablePushNotificationsDrawer } from 'containers/enable-push-notifications-drawer/store/slice'
+import * as settingPageActions from 'containers/settings-page/store/actions'
+import { PushNotificationSetting } from 'containers/settings-page/store/types'
 import FollowPage, {
   BottomSection as FollowPageBottom
 } from 'containers/sign-on/components/mobile/FollowPage'
-import NotificationPermissionsPage from 'containers/sign-on/components/mobile/NotificationPermissionsPage'
 import Header from 'containers/sign-on/components/mobile/Header'
-import LoadingPage from './LoadingPage'
-import { ID } from 'models/common/Identifiers'
-import * as settingPageActions from 'containers/settings-page/store/actions'
-
+import InitialPage from 'containers/sign-on/components/mobile/InitialPage'
+import NotificationPermissionsPage from 'containers/sign-on/components/mobile/NotificationPermissionsPage'
+import PasswordPage from 'containers/sign-on/components/mobile/PasswordPage'
+import ProfilePage from 'containers/sign-on/components/mobile/ProfilePage'
 import { Pages, FollowArtistsCategory } from 'containers/sign-on/store/types'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 import User from 'models/User'
-import MobilePageContainer from 'components/general/MobilePageContainer'
-import styles from './SignOnPage.module.css'
-import { PushNotificationSetting } from 'containers/settings-page/store/types'
-import { BASE_URL, SIGN_UP_PAGE } from 'utils/route'
-import cn from 'classnames'
-import { show as showEnablePushNotificationsDrawer } from 'containers/enable-push-notifications-drawer/store/slice'
+import { ID } from 'models/common/Identifiers'
 import { InstagramProfile } from 'store/account/reducer'
+import { BASE_URL, SIGN_UP_PAGE } from 'utils/route'
+
+import LoadingPage from './LoadingPage'
+import styles from './SignOnPage.module.css'
+
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export type SignOnProps = {
@@ -49,15 +51,21 @@ export type SignOnProps = {
   onNameChange: (name: string) => void
   onSetProfileImage: (img: any) => void
   setTwitterProfile: (
-    twitterId: string,
-    profile: { screen_name?: string },
-    profileImage: any,
-    coverPhoto: any
+    uuid: string,
+    profile: any,
+    profileImg?: { url: string; file: any },
+    coverBannerImg?: { url: string; file: any },
+    skipEdit?: boolean
   ) => void
   setInstagramProfile: (
-    instagramId: string,
+    uuid: string,
     profile: InstagramProfile,
-    profileImage?: any
+    profileImg?: { url: string; file: any },
+    skipEdit?: boolean
+  ) => void
+  validateHandle: (
+    handle: string,
+    onValidate?: (error: boolean) => void
   ) => void
   onAddFollows: (followIds: ID[]) => void
   onRemoveFollows: (followIds: ID[]) => void
@@ -98,6 +106,7 @@ const SignOnPage = ({
   onSetProfileImage,
   setTwitterProfile,
   setInstagramProfile,
+  validateHandle,
   onAddFollows,
   onRemoveFollows,
   onAutoSelect,
@@ -221,6 +230,7 @@ const SignOnPage = ({
           setProfileImage={onSetProfileImage}
           setTwitterProfile={setTwitterProfile}
           setInstagramProfile={setInstagramProfile}
+          validateHandle={validateHandle}
           onNextPage={onNextPage}
         />
       </animated.div>

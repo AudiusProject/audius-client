@@ -1,8 +1,10 @@
 /* globals fetch */
+import { push as pushRoute } from 'connected-react-router'
 import { delay } from 'redux-saga'
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -10,39 +12,41 @@ import {
   takeEvery,
   takeLatest
 } from 'redux-saga/effects'
+
+import { getIGUserUrl } from 'components/general/InstagramAuth'
+import AudiusBackend from 'services/AudiusBackend'
+import { getCityAndRegion } from 'services/Location'
+import { Name } from 'services/analytics'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getRemoteVar, IntKeys, StringKeys } from 'services/remote-config'
+import * as accountActions from 'store/account/reducer'
+import { fetchAccountAsync } from 'store/account/sagas'
+import { identify, make } from 'store/analytics/actions'
+import * as backendActions from 'store/backend/actions'
+import { waitForBackendSetup } from 'store/backend/sagas'
+import { fetchUserByHandle, fetchUsers } from 'store/cache/users/sagas'
+import { processAndCacheUsers } from 'store/cache/users/utils'
+import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
+import * as socialActions from 'store/social/users/actions'
+import { setHasRequestedBrowserPermission } from 'utils/browserNotifications'
+import { isValidEmailString } from 'utils/email'
+import { ELECTRONIC_SUBGENRES, Genre } from 'utils/genres'
+import { withTimeout } from 'utils/network'
+import { restrictedHandles } from 'utils/restrictedHandles'
+import { FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
+
+import { MAX_HANDLE_LENGTH } from '../utils/formatSocialProfile'
 
 import * as signOnActions from './actions'
-import * as confirmerActions from 'store/confirmer/actions'
-import * as accountActions from 'store/account/reducer'
-import * as socialActions from 'store/social/users/actions'
-import * as backendActions from 'store/backend/actions'
-
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { getCityAndRegion } from 'services/Location'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import { fetchUsers } from 'store/cache/users/sagas'
-import { processAndCacheUsers } from 'store/cache/users/utils'
-import { getRouteOnCompletion, getSignOn } from './selectors'
-import { push as pushRoute } from 'connected-react-router'
-import { FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
-import { fetchAccountAsync } from 'store/account/sagas'
-import { restrictedHandles } from 'utils/restrictedHandles'
-import { isValidEmailString } from 'utils/email'
 import { watchSignOnError } from './errorSagas'
-import { identify, make } from 'store/analytics/actions'
-import { Name } from 'services/analytics'
+import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
-import { setHasRequestedBrowserPermission } from 'utils/browserNotifications'
-import { ELECTRONIC_SUBGENRES, Genre } from 'utils/genres'
-import { getIGUserUrl } from 'components/general/InstagramAuth'
-import { getRemoteVar, IntKeys, StringKeys } from 'services/remote-config'
 import { checkHandle } from './verifiedChecker'
-import { withTimeout } from 'utils/network'
 
 const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production'
 const IS_PRODUCTION = process.env.REACT_APP_ENVIRONMENT === 'production'
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const SUGGESTED_FOLLOW_USER_HANDLE_URL =
   process.env.REACT_APP_SUGGESTED_FOLLOW_HANDLES ||
@@ -110,8 +114,21 @@ function* fetchFollowArtistGenre(followArtistCategory) {
   }
 }
 
-const isResrtictedHandle = handle => restrictedHandles.has(handle.toLowerCase())
-const isValidHandle = handle => /^[a-zA-Z0-9_]*$/.test(handle)
+function* fetchReferrer(action) {
+  const { handle } = action
+  if (handle) {
+    try {
+      const user = yield call(fetchUserByHandle, handle)
+      if (!user) return
+      yield put(signOnActions.setReferrer(user.user_id))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+}
+
+const isRestrictedHandle = handle => restrictedHandles.has(handle.toLowerCase())
+const isHandleCharacterCompliant = handle => /^[a-zA-Z0-9_]*$/.test(handle)
 
 async function getInstagramUser(handle) {
   try {
@@ -137,24 +154,32 @@ async function getInstagramUser(handle) {
 }
 
 function* validateHandle(action) {
+  const { handle, onValidate } = action
   yield call(waitForBackendSetup)
   try {
-    if (!isValidHandle(action.handle)) {
-      yield put(signOnActions.validateHandleFailed('characters'))
+    if (handle.length > MAX_HANDLE_LENGTH) {
+      yield put(signOnActions.validateHandleFailed('tooLong'))
+      if (onValidate) onValidate(true)
       return
-    } else if (isResrtictedHandle(action.handle)) {
+    } else if (!isHandleCharacterCompliant(handle)) {
+      yield put(signOnActions.validateHandleFailed('characters'))
+      if (onValidate) onValidate(true)
+      return
+    } else if (isRestrictedHandle(handle)) {
       yield put(signOnActions.validateHandleFailed('inUse'))
+      if (onValidate) onValidate(true)
       return
     }
     yield delay(300) // Wait 300 ms to debounce user input
     const signOn = yield select(getSignOn)
     const verified = signOn.verified
 
+    let handleInUse
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
       const [inUse, twitterUserQuery, instagramUser] = yield all([
-        call(AudiusBackend.handleInUse, action.handle),
-        call(AudiusBackend.twitterHandle, action.handle),
-        call(getInstagramUser, action.handle)
+        call(AudiusBackend.handleInUse, handle),
+        call(AudiusBackend.twitterHandle, handle),
+        call(getInstagramUser, handle)
       ])
       const handleCheckStatus = checkHandle(
         verified,
@@ -163,19 +188,25 @@ function* validateHandle(action) {
       )
 
       if (handleCheckStatus !== 'notReserved') {
-        yield put(
-          signOnActions.validateHandleSucceeded(false, handleCheckStatus)
-        )
+        yield put(signOnActions.validateHandleFailed(handleCheckStatus))
+        if (onValidate) onValidate(true)
         return
       }
-
-      yield put(signOnActions.validateHandleSucceeded(!inUse))
+      handleInUse = inUse
     } else {
-      const inUse = yield call(AudiusBackend.handleInUse, action.handle)
-      yield put(signOnActions.validateHandleSucceeded(!inUse))
+      handleInUse = yield call(AudiusBackend.handleInUse, handle)
+    }
+
+    if (handleInUse) {
+      yield put(signOnActions.validateHandleFailed('inUse'))
+      if (onValidate) onValidate(true)
+    } else {
+      yield put(signOnActions.validateHandleSucceeded())
+      if (onValidate) onValidate(false)
     }
   } catch (err) {
     yield put(signOnActions.validateHandleFailed(err.message))
+    if (onValidate) onValidate(true)
   }
 }
 
@@ -211,6 +242,7 @@ function* signUp(action) {
   const password = signOn.password.value
   const handle = signOn.handle.value
   const alreadyExisted = signOn.accountAlreadyExisted
+  const referrer = signOn.referrer
 
   yield put(
     confirmerActions.requestConfirmation(
@@ -218,10 +250,13 @@ function* signUp(action) {
       function* () {
         const { blockHash, blockNumber, userId, error, phase } = yield call(
           AudiusBackend.signUp,
-          email,
-          password,
-          createUserMetadata,
-          alreadyExisted
+          {
+            email,
+            password,
+            formFields: createUserMetadata,
+            hasWallet: alreadyExisted,
+            referrer
+          }
         )
 
         if (error) {
@@ -411,6 +446,10 @@ function* watchFetchAllFollowArtists() {
   yield takeEvery(signOnActions.FETCH_ALL_FOLLOW_ARTISTS, fetchAllFollowArtist)
 }
 
+function* watchFetchReferrer() {
+  yield takeLatest(signOnActions.FETCH_REFERRER, fetchReferrer)
+}
+
 function* watchValidateEmail() {
   yield takeLatest(signOnActions.VALIDATE_EMAIL, validateEmail)
 }
@@ -470,6 +509,7 @@ function* watchSendWelcomeEmail() {
 export default function sagas() {
   return [
     watchFetchAllFollowArtists,
+    watchFetchReferrer,
     watchValidateEmail,
     watchValidateHandle,
     watchSignUp,

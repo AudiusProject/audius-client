@@ -1,25 +1,28 @@
-import { takeEvery, put, call } from 'redux-saga/effects'
+import { takeEvery, put, call, select } from 'redux-saga/effects'
 
-import { fetchSmartCollection, fetchSmartCollectionSucceeded } from './slice'
-import { requiresAccount, waitForValue } from 'utils/sagaHelpers'
+import { setSmartCollection } from 'containers/collection-page/store/actions'
+import Track, { TrackMetadata } from 'models/Track'
+import { ID } from 'models/common/Identifiers'
 import Explore from 'services/audius-backend/Explore'
+import { getAccountStatus, getUserId } from 'store/account/selectors'
+import { waitForBackendSetup } from 'store/backend/sagas'
+import { processAndCacheTracks } from 'store/cache/tracks/utils'
+import { getLuckyTracks } from 'store/recommendation/sagas'
+import { Status } from 'store/types'
+import { EXPLORE_PAGE } from 'utils/route'
+import { requiresAccount, waitForValue } from 'utils/sagaHelpers'
 
 import {
   HEAVY_ROTATION,
   BEST_NEW_RELEASES,
   MOST_LOVED,
   FEELING_LUCKY,
-  UNDER_THE_RADAR
+  UNDER_THE_RADAR,
+  REMIXABLES
 } from '../smartCollections'
 import { SmartCollectionVariant } from '../types'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import { getAccountStatus } from 'store/account/selectors'
-import { setSmartCollection } from 'containers/collection-page/store/actions'
-import Track from 'models/Track'
-import { processAndCacheTracks } from 'store/cache/tracks/utils'
-import { Status } from 'store/types'
-import { EXPLORE_PAGE } from 'utils/route'
-import { getLuckyTracks } from 'store/recommendation/sagas'
+
+import { fetchSmartCollection, fetchSmartCollectionSucceeded } from './slice'
 
 const COLLECTIONS_LIMIT = 25
 
@@ -109,6 +112,29 @@ function* fetchFeelingLucky() {
   }
 }
 
+function* fetchRemixables() {
+  const currentUserId: ID = yield select(getUserId)
+  const tracks: TrackMetadata[] = yield call(
+    Explore.getRemixables,
+    currentUserId,
+    COLLECTIONS_LIMIT
+  )
+
+  const processedTracks: Track[] = yield call(processAndCacheTracks, tracks)
+
+  const trackIds = processedTracks.map((track: Track) => ({
+    time: track.created_at,
+    track: track.track_id
+  }))
+
+  return {
+    ...REMIXABLES,
+    playlist_contents: {
+      track_ids: trackIds
+    }
+  }
+}
+
 const fetchMap = {
   [SmartCollectionVariant.HEAVY_ROTATION]: requiresAccount(
     fetchHeavyRotation,
@@ -126,7 +152,8 @@ const fetchMap = {
     fetchMostLoved,
     EXPLORE_PAGE
   ),
-  [SmartCollectionVariant.FEELING_LUCKY]: fetchFeelingLucky
+  [SmartCollectionVariant.FEELING_LUCKY]: fetchFeelingLucky,
+  [SmartCollectionVariant.REMIXABLES]: fetchRemixables
 }
 
 function* watchFetch() {

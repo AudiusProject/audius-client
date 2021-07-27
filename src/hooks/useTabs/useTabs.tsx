@@ -8,15 +8,17 @@ import React, {
   memo,
   useMemo
 } from 'react'
-import { animated, useTransition, useSpring } from 'react-spring'
+
+import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 import cn from 'classnames'
 import { Cancelable, throttle } from 'lodash'
-import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
+import { animated, useTransition, useSpring } from 'react-spring'
+import { useDrag } from 'react-use-gesture'
+
+import Tooltip from 'components/tooltip/Tooltip'
+import useInstanceVar from 'hooks/useInstanceVar'
 
 import styles from './TabStyles.module.css'
-import useInstanceVar from 'hooks/useInstanceVar'
-import Tooltip from 'components/tooltip/Tooltip'
-import { useDrag } from 'react-use-gesture'
 
 type TabHeader = {
   icon?: React.ReactNode
@@ -431,8 +433,8 @@ const GestureSupportingBodyContainer = memo(
     const snapbackInterval = containerWidth * SNAPBACK_RATIO
 
     // Throttle the callbacks to set the tab accent for performance.
-    const throttledSetTabBarOffset = useCallback(
-      (offset: number) => throttle(setTabBarFractionalOffset, 150)(offset),
+    const throttledSetTabBarOffset = useMemo(
+      () => throttle(setTabBarFractionalOffset, 150),
       [setTabBarFractionalOffset]
     )
 
@@ -815,7 +817,7 @@ const BodyContainer = memo(
         className={cn(
           styles.bodyContainer,
           styles.bodyContainerDesktop,
-          styles.clippedOverflowX,
+          styles.clippedOverflow,
           containerClassName
         )}
         ref={containerCallbackRef}
@@ -850,7 +852,9 @@ type TabRecalculator = {
 
 export const useTabRecalculator = (): TabRecalculator => {
   // eslint-disable-next-line
-  const [getTabRecalculator, setTabRecalculator] = useInstanceVar<{recalculator:(() => void) | null}>({ recalculator: null })
+  const [getTabRecalculator, setTabRecalculator] = useInstanceVar<{
+    recalculator: (() => void) | null
+  }>({ recalculator: null })
 
   const recalculator = useMemo(
     () => ({

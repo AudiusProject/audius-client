@@ -1,6 +1,10 @@
 import React, { useState, useCallback, ReactNode } from 'react'
-import cn from 'classnames'
+
 import { Button, ButtonType } from '@audius/stems'
+import cn from 'classnames'
+
+import { useFlag } from 'containers/remote-config/hooks'
+import { FeatureFlags } from 'services/remote-config'
 
 import styles from './Section.module.css'
 
@@ -34,6 +38,7 @@ const Section = ({
   className,
   children
 }: SectionProps) => {
+  const { isEnabled: remixablesEnabled } = useFlag(FeatureFlags.REMIXABLES)
   const [isExpanded, setIsExpanded] = useState(false)
   const expand = useCallback(() => {
     setIsExpanded(true)
@@ -45,6 +50,10 @@ const Section = ({
         [styles.twoColumnDynamicWithLeadingElement]:
           layout === Layout.TWO_COLUMN_DYNAMIC_WITH_LEADING_ELEMENT,
         [styles.twoColumnDynamicWithDoubleLeadingElement]:
+          !remixablesEnabled &&
+          layout === Layout.TWO_COLUMN_DYNAMIC_WITH_DOUBLE_LEADING_ELEMENT,
+        [styles.twoColumnDynamicWithDoubleLeadingElementTenTile]:
+          remixablesEnabled &&
           layout === Layout.TWO_COLUMN_DYNAMIC_WITH_DOUBLE_LEADING_ELEMENT,
         [styles.expandable]: expandable,
         [styles.expanded]: isExpanded

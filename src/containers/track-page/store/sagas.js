@@ -1,27 +1,28 @@
+import { push as pushRoute } from 'connected-react-router'
 import moment from 'moment'
-import { fork, call, put, select, takeEvery, all } from 'redux-saga/effects'
+import { fork, call, put, select, takeEvery } from 'redux-saga/effects'
 
 import tracksSagas from 'containers/track-page/store/lineups/tracks/sagas'
-import * as trackPageActions from './actions'
-import * as trackCacheActions from 'store/cache/tracks/actions'
-import { tracksActions } from './lineups/tracks/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import { getIsReachable } from 'store/reachability/selectors'
-import { getTrack as getCachedTrack } from 'store/cache/tracks/selectors'
-import { getTrack, getTrendingTrackRanks, getUser } from './selectors'
-import { push as pushRoute } from 'connected-react-router'
-import { retrieveTracks } from 'store/cache/tracks/utils'
-import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
-import { getUsers } from 'store/cache/users/selectors'
+import TimeRange from 'models/TimeRange'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { StringKeys } from 'services/remote-config'
 import {
   getRemoteVar,
   waitForRemoteConfig
 } from 'services/remote-config/Provider'
-import { StringKeys } from 'services/remote-config'
-import { retrieveTrending } from './retrieveTrending'
-import TimeRange from 'models/TimeRange'
+import { waitForBackendSetup } from 'store/backend/sagas'
+import * as trackCacheActions from 'store/cache/tracks/actions'
+import { getTrack as getCachedTrack } from 'store/cache/tracks/selectors'
+import { retrieveTracks } from 'store/cache/tracks/utils'
 import { retrieveTrackByHandleAndSlug } from 'store/cache/tracks/utils/retrieveTracks'
+import { getUsers } from 'store/cache/users/selectors'
+import { getIsReachable } from 'store/reachability/selectors'
+import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
+
+import * as trackPageActions from './actions'
+import { tracksActions } from './lineups/tracks/actions'
+import { retrieveTrending } from './retrieveTrending'
+import { getTrack, getTrendingTrackRanks, getUser } from './selectors'
 
 export const TRENDING_BADGE_LIMIT = 10
 
@@ -30,77 +31,40 @@ function* watchTrackBadge() {
     try {
       yield call(waitForBackendSetup)
       yield call(waitForRemoteConfig)
-      const [
-        weeklyTrendingTracks,
-        monthlyTrendingTracks,
-        yearlyTrendingTracks
-      ] = yield all([
-        call(retrieveTrending, {
-          timeRange: TimeRange.WEEK,
-          offset: 0,
-          limit: TRENDING_BADGE_LIMIT,
-          genre: null
-        }),
-        call(retrieveTrending, {
-          timeRange: TimeRange.MONTH,
-          offset: 0,
-          limit: TRENDING_BADGE_LIMIT,
-          genre: null
-        }),
-        call(retrieveTrending, {
-          timeRange: TimeRange.YEAR,
-          offset: 0,
-          limit: TRENDING_BADGE_LIMIT,
-          genre: null
+      const TF = new Set(getRemoteVar(StringKeys.TF)?.split(',') ?? [])
+      let trendingTrackRanks = yield select(getTrendingTrackRanks)
+      if (!trendingTrackRanks) {
+        const trendingRanks = yield apiClient.getTrendingIds({
+          limit: TRENDING_BADGE_LIMIT
         })
-      ])
+        if (TF.size > 0) {
+          trendingRanks.week = trendingRanks.week.filter(i => {
+            const shaId = window.Web3.utils.sha3(i.toString())
+            return !TF.has(shaId)
+          })
+          trendingRanks.month = trendingRanks.month.filter(i => {
+            const shaId = window.Web3.utils.sha3(i.toString())
+            return !TF.has(shaId)
+          })
+          trendingRanks.year = trendingRanks.year.filter(i => {
+            const shaId = window.Web3.utils.sha3(i.toString())
+            return !TF.has(shaId)
+          })
+        }
 
-      const weeklyTrackIndex = weeklyTrendingTracks.findIndex(
-        ({ track_id: trackId }) => trackId === action.trackId
+        yield put(trackPageActions.setTrackTrendingRanks(trendingRanks))
+        trendingTrackRanks = yield select(getTrendingTrackRanks)
+      }
+
+      const weeklyTrackIndex = trendingTrackRanks.week.findIndex(
+        trackId => trackId === action.trackId
       )
-      const monthlyTrackIndex = monthlyTrendingTracks.findIndex(
-        ({ track_id: trackId }) => trackId === action.trackId
+      const monthlyTrackIndex = trendingTrackRanks.month.findIndex(
+        trackId => trackId === action.trackId
       )
-      const yearlyTrackIndex = yearlyTrendingTracks.findIndex(
-        ({ track_id: trackId }) => trackId === action.trackId
+      const yearlyTrackIndex = trendingTrackRanks.year.findIndex(
+        trackId => trackId === action.trackId
       )
-
-      // TODO: Re-enable flow when https://github.com/AudiusProject/audius-protocol/pull/1557
-      // is released to discovery nodes
-      // const TF = new Set(getRemoteVar(StringKeys.TF)?.split(',') ?? [])
-      // let trendingTrackRanks = yield select(getTrendingTrackRanks)
-      // if (!trendingTrackRanks) {
-      //   const trendingRanks = yield apiClient.getTrendingIds({
-      //     limit: TRENDING_BADGE_LIMIT
-      //   })
-      //   if (TF.size > 0) {
-      //     trendingRanks.week = trendingRanks.week.filter(i => {
-      //       const shaId = window.Web3.utils.sha3(i.toString())
-      //       return !TF.has(shaId)
-      //     })
-      //     trendingRanks.month = trendingRanks.month.filter(i => {
-      //       const shaId = window.Web3.utils.sha3(i.toString())
-      //       return !TF.has(shaId)
-      //     })
-      //     trendingRanks.year = trendingRanks.year.filter(i => {
-      //       const shaId = window.Web3.utils.sha3(i.toString())
-      //       return !TF.has(shaId)
-      //     })
-      //   }
-
-      //   yield put(trackPageActions.setTrackTrendingRanks(trendingRanks))
-      //   trendingTrackRanks = yield select(getTrendingTrackRanks)
-      // }
-
-      // const weeklyTrackIndex = trendingTrackRanks.week.findIndex(
-      //   trackId => trackId === action.trackId
-      // )
-      // const monthlyTrackIndex = trendingTrackRanks.month.findIndex(
-      //   trackId => trackId === action.trackId
-      // )
-      // const yearlyTrackIndex = trendingTrackRanks.year.findIndex(
-      //   trackId => trackId === action.trackId
-      // )
 
       yield put(
         trackPageActions.setTrackRank(

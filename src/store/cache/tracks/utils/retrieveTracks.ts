@@ -1,22 +1,24 @@
 import { spawn, call, select, put } from 'redux-saga/effects'
-import { reformat } from './reformat'
+
+import Track, { TrackMetadata, UserTrackMetadata } from 'models/Track'
+import { ID } from 'models/common/Identifiers'
+import AudiusBackend from 'services/AudiusBackend'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getUserId } from 'store/account/selectors'
 import { retrieve } from 'store/cache/sagas'
 import { getEntryTimestamp } from 'store/cache/selectors'
-import { ID } from 'models/common/Identifiers'
+import * as trackActions from 'store/cache/tracks/actions'
 import { getTracks as getTracksSelector } from 'store/cache/tracks/selectors'
 import { Kind, AppState, Status } from 'store/types'
-import { addUsersFromTracks } from './helpers'
-import AudiusBackend from 'services/AudiusBackend'
-import Track, { TrackMetadata, UserTrackMetadata } from 'models/Track'
+
+import { setTracksIsBlocked } from './blocklist'
 import {
   fetchAndProcessRemixes,
   fetchAndProcessRemixParents
 } from './fetchAndProcessRemixes'
 import { fetchAndProcessStems } from './fetchAndProcessStems'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { getUserId } from 'store/account/selectors'
-import { setTracksIsBlocked } from './blocklist'
-import * as trackActions from 'store/cache/tracks/actions'
+import { addUsersFromTracks } from './helpers'
+import { reformat } from './reformat'
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
 type RetrieveTracksArgs = {

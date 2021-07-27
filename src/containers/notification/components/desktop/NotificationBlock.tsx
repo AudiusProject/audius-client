@@ -1,27 +1,30 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef, MutableRefObject } from 'react'
+
 import cn from 'classnames'
-import { formatCount } from 'utils/formatUtil'
+
+import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import Menu from 'containers/menu/Menu'
+import { OwnProps as NotificationMenuProps } from 'containers/menu/NotificationMenu'
 import {
   Entity,
   NotificationType,
   Achievement
 } from 'containers/notification/store/types'
-import { ID } from 'models/common/Identifiers'
 import Track from 'models/Track'
-
-import { profilePage } from 'utils/route'
-import { make, useRecord } from 'store/analytics/actions'
+import { ID } from 'models/common/Identifiers'
 import { Name } from 'services/analytics'
+import { make, useRecord } from 'store/analytics/actions'
+import { formatCount } from 'utils/formatUtil'
+import { profilePage } from 'utils/route'
+import { Nullable } from 'utils/typeUtils'
+import zIndex from 'utils/zIndex'
+
+import TrackContent from '../TrackContent'
 import { getEntityLink, TwitterShare } from '../TwitterShare'
+import { formatHeader, formatBody } from '../formatText'
 
-import Menu from 'containers/menu/Menu'
-import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-
-import { OwnProps as NotificationMenuProps } from 'containers/menu/NotificationMenu'
 import styles from './NotificationBlock.module.css'
 import UserHeader, { UserImage } from './UserHeader'
-import { formatHeader, formatBody } from '../formatText'
-import TrackContent from '../TrackContent'
 
 // The number of users thumbnail images to show in the top row
 // if there are multiple users associated w/ the notification
@@ -29,15 +32,18 @@ export const USER_LENGTH_LIMIT = 9
 
 export type NotificationBlockProps = {
   body?: React.ReactNode
-  timeLabel: string
-  notification: any
   goToRoute: (route: string) => void
-  toggleNotificationPanel: () => void
-  menuProps: NotificationMenuProps
   markAsRead: (notificationId: string) => void
-  setNotificationUsers: (userIds: ID[], limit: number) => void
+  menuProps: Omit<NotificationMenuProps, 'children'>
+  notification: any
   onClick?: () => void
+  overflowMenuRef: MutableRefObject<Nullable<HTMLElement>>
+  setNotificationUsers: (userIds: ID[], limit: number) => void
+  timeLabel: string
+  toggleNotificationPanel: () => void
 }
+
+export const notificationOverflowMenuClassName = 'notificationOverflowMenu'
 
 const NotificationBlock = (props: NotificationBlockProps) => {
   const { goToRoute, markAsRead, notification, toggleNotificationPanel } = props
@@ -161,9 +167,10 @@ const NotificationBlock = (props: NotificationBlockProps) => {
   )
 
   const onMenuClick = useCallback(
-    e => {
+    triggerPopup => (e: React.MouseEvent) => {
       e.stopPropagation()
       markNotificationAsRead()
+      triggerPopup()
     },
     [markNotificationAsRead]
   )
@@ -201,11 +208,23 @@ const NotificationBlock = (props: NotificationBlockProps) => {
       {header && (
         <div className={styles.headerContainer}>
           {header}
-          <div className={styles.menuContainer} onClick={onMenuClick}>
-            <Menu menu={props.menuProps}>
-              <div className={styles.iconContainer}>
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+          <div className={styles.menuContainer}>
+            <Menu
+              menu={props.menuProps}
+              zIndex={zIndex.NAVIGATOR_POPUP_OVERFLOW_POPUP}
+              ref={props.overflowMenuRef}
+            >
+              {(ref, triggerPopup) => (
+                <div
+                  className={styles.iconContainer}
+                  onClick={onMenuClick(triggerPopup)}
+                >
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </div>
         </div>
@@ -220,11 +239,23 @@ const NotificationBlock = (props: NotificationBlockProps) => {
         )}
         <div className={styles.body}>{body}</div>
         {!header && (
-          <div className={styles.menuContainer} onClick={onMenuClick}>
-            <Menu menu={props.menuProps}>
-              <div className={styles.iconContainer}>
-                <IconKebabHorizontal className={styles.iconKebabHorizontal} />
-              </div>
+          <div className={styles.menuContainer}>
+            <Menu
+              menu={props.menuProps}
+              zIndex={zIndex.NAVIGATOR_POPUP_OVERFLOW_POPUP}
+              ref={props.overflowMenuRef}
+            >
+              {(ref, triggerPopup) => (
+                <div
+                  className={styles.iconContainer}
+                  onClick={onMenuClick(triggerPopup)}
+                >
+                  <IconKebabHorizontal
+                    className={styles.iconKebabHorizontal}
+                    ref={ref}
+                  />
+                </div>
+              )}
             </Menu>
           </div>
         )}

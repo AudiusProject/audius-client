@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { forwardRef } from 'react'
+
+import {
+  PopupMenu,
+  PopupMenuItem,
+  PopupMenuProps,
+  PopupPosition
+} from '@audius/stems'
 
 import CollectionMenu, {
   OwnProps as CollectionMenuProps
 } from './CollectionMenu'
-import TrackMenu, { OwnProps as TrackMenuProps } from './TrackMenu'
-import UserMenu, { OwnProps as UserMenuProps } from './UserMenu'
 import NotificationMenu, {
   OwnProps as NotificationMenuProps
 } from './NotificationMenu'
+import TrackMenu, { OwnProps as TrackMenuProps } from './TrackMenu'
+import UserMenu, { OwnProps as UserMenuProps } from './UserMenu'
 
 export type MenuOptionType =
   | UserMenuProps
@@ -16,42 +23,48 @@ export type MenuOptionType =
   | NotificationMenuProps
 
 export type MenuProps = {
-  children: JSX.Element
-  menu: MenuOptionType
-  className?: string
+  children: PopupMenuProps['renderTrigger']
+  menu: Omit<MenuOptionType, 'children'>
   onClose?: () => void
+  zIndex?: number
 }
 
-const Menu = (props: MenuProps) => {
-  const { menu, className } = props
+const Menu = forwardRef<HTMLElement, MenuProps>((props, ref) => {
+  const { menu, onClose, zIndex } = props
+
+  const renderMenu = (items: PopupMenuItem[]) => (
+    <PopupMenu
+      items={items}
+      onClose={onClose}
+      position={PopupPosition.BOTTOM_RIGHT}
+      ref={ref}
+      renderTrigger={props.children}
+      zIndex={zIndex}
+    />
+  )
 
   if (menu.type === 'user') {
-    return <UserMenu {...(menu as UserMenuProps)}>{props.children}</UserMenu>
+    return <UserMenu {...(menu as UserMenuProps)}>{renderMenu}</UserMenu>
   } else if (menu.type === 'album' || menu.type === 'playlist') {
     return (
       <CollectionMenu
-        className={className}
         onClose={props.onClose}
         {...(menu as CollectionMenuProps)}
       >
-        {props.children}
+        {renderMenu}
       </CollectionMenu>
     )
   } else if (menu.type === 'track') {
-    return (
-      <TrackMenu {...(menu as TrackMenuProps)} className={className}>
-        {props.children}
-      </TrackMenu>
-    )
+    return <TrackMenu {...(menu as TrackMenuProps)}>{renderMenu}</TrackMenu>
   } else if (menu.type === 'notification') {
     return (
       <NotificationMenu {...(menu as NotificationMenuProps)}>
-        {props.children}
+        {renderMenu}
       </NotificationMenu>
     )
   }
   return null
-}
+})
 
 Menu.defaultProps = {
   menu: {

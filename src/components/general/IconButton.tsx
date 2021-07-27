@@ -1,4 +1,5 @@
 import React, { forwardRef, ReactNode } from 'react'
+
 import cn from 'classnames'
 
 import styles from './IconButton.module.css'
@@ -11,6 +12,8 @@ type IconButtonProps = {
   activeClassName?: string
   icon: ReactNode
 }
+
+// TODO: sk - this should use the Button component from Stems
 
 // A button that is just an icon, no text.
 const IconButton = forwardRef(
