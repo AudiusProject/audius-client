@@ -121,3 +121,5 @@ export { ReactComponent as PbIconVolume } from '../../assets/icons/pbIconVolume.
 export { ReactComponent as IconTrending } from '../../assets/icons/iconTrending.svg'
 export { ReactComponent as IconCampFire } from '../../assets/icons/iconCampFire.svg'
 export { ReactComponent as IconCrown } from '../../assets/icons/iconCrown.svg'
+export { ReactComponent as LogoSol } from '../../assets/icons/logoSol.svg'
+export { ReactComponent as LogoEth } from '../../assets/icons/logoEth.svg'
