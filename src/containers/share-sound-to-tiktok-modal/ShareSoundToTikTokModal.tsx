@@ -5,13 +5,17 @@ import {
   Modal,
   ButtonType,
   IconTikTokInverted,
-  IconTikTok
+  IconTikTok,
+  Anchor
 } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { MODAL_OFFSET_PIXELS } from 'components/action-sheet-modal/ActionSheetModal'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useModalState } from 'hooks/useModalState'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
+import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { isMobile } from 'utils/clientUtil'
 import { Nullable } from 'utils/typeUtils'
 
 import styles from './ShareSoundToTikTokModal.module.css'
@@ -42,6 +46,9 @@ const fileRequirementErrorMessages = {
 }
 
 const ShareSoundToTikTokModal = () => {
+  const mobile = isMobile()
+  const wm = useWithMobileStyle(styles.mobile)
+
   const [isOpen, setIsOpen] = useModalState('ShareSoundToTikTok')
   const dispatch = useDispatch()
 
@@ -127,22 +134,24 @@ const ShareSoundToTikTokModal = () => {
 
   return (
     <Modal
+      anchor={Anchor.BOTTOM}
+      allowScroll={false}
+      bodyClassName={wm(styles.modalBody)}
       dismissOnClickOutside={status !== Status.SHARE_STARTED}
+      headerContainerClassName={wm(styles.modalHeader)}
       isOpen={isOpen}
+      onClose={() => setIsOpen(false)}
       showTitleHeader
-      showDismissButton
+      showDismissButton={!mobile}
       title={
-        <div className={styles.titleContainer}>
+        <div className={wm(styles.titleContainer)}>
           <IconTikTok />
           <div>{messages.title}</div>
         </div>
       }
-      onClose={() => setIsOpen(false)}
-      allowScroll={false}
-      bodyClassName={styles.modalBody}
-      headerContainerClassName={styles.modalHeader}
+      verticalAnchorOffset={MODAL_OFFSET_PIXELS}
     >
-      <div className={styles.modalContent}>
+      <div className={wm(styles.modalContent)}>
         {renderMessage()}
         {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}
       </div>

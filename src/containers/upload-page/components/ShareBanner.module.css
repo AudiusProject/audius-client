@@ -60,12 +60,18 @@
 }
 
 .button .buttonText {
+  max-width: 100%;
   color: var(--static-twitter-blue);
   font-size: var(--font-2xl);
   font-weight: var(--font-bold);
   letter-spacing: 0;
-  line-height: 14px;
   text-align: center;
+}
+
+.textOverflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .button .buttonTextTikTok {
@@ -76,6 +82,7 @@
 
 .button .buttonTextTikTok svg {
   margin-right: 8px;
+  min-width: 32px;
 }
 
 .copyLinkWrapper {
