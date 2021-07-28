@@ -6,7 +6,8 @@ import {
   ButtonType,
   IconTikTokInverted,
   IconTikTok,
-  Anchor
+  Anchor,
+  ModalProps
 } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -132,9 +133,14 @@ const ShareSoundToTikTokModal = () => {
     }
   }
 
+  const mobileProps: Partial<ModalProps> = {
+    anchor: Anchor.BOTTOM,
+    showDismissButton: false,
+    verticalAnchorOffset: MODAL_OFFSET_PIXELS
+  }
+
   return (
     <Modal
-      anchor={Anchor.BOTTOM}
       allowScroll={false}
       bodyClassName={wm(styles.modalBody)}
       dismissOnClickOutside={status !== Status.SHARE_STARTED}
@@ -142,14 +148,14 @@ const ShareSoundToTikTokModal = () => {
       isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       showTitleHeader
-      showDismissButton={!mobile}
+      showDismissButton
       title={
         <div className={wm(styles.titleContainer)}>
           <IconTikTok />
           <div>{messages.title}</div>
         </div>
       }
-      verticalAnchorOffset={MODAL_OFFSET_PIXELS}
+      {...(mobile ? mobileProps : {})}
     >
       <div className={wm(styles.modalContent)}>
         {renderMessage()}

@@ -17,7 +17,7 @@
 }
 
 .container.fullHeight {
-  max-height: 304px;
+  max-height: 496px;
   margin-bottom: 52px;
   opacity: 1;
 }
@@ -47,6 +47,7 @@
   height: 64px !important;
   min-height: 64px;
   width: 400px !important;
+  min-width: 400px;
   transition: all 0.14s ease-in-out !important;
 }
 
@@ -68,12 +69,6 @@
   text-align: center;
 }
 
-.textOverflow {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
 .button .buttonTextTikTok {
   color: black;
   display: flex;
@@ -90,7 +85,7 @@
   justify-content: center;
   align-items: center;
   margin: auto;
-  margin-bottom: 48px;
+  margin-bottom: 36px;
 }
 
 .copyLinkContainer {
@@ -143,5 +138,6 @@
 
 .buttonContainer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 }

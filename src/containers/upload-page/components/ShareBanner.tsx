@@ -200,7 +200,7 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
         <Button
           onClick={onClickTwitter}
           className={cn(styles.button, styles.buttonTwitter)}
-          textClassName={cn(styles.buttonText, styles.textOverflow)}
+          textClassName={styles.buttonText}
           type={ButtonType.WHITE}
           text={messages.share}
           leftIcon={<IconTwitterBird />}
@@ -214,9 +214,7 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
             text={
               <div className={styles.buttonTextTikTok}>
                 <IconTikTok />
-                <span className={styles.textOverflow}>
-                  {messages.shareToTikTok}
-                </span>
+                <span>{messages.shareToTikTok}</span>
               </div>
             }
           />
