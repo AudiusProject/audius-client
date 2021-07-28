@@ -28,7 +28,7 @@ export const identify = (
   callback?: () => void
 ) => {
   if (!IS_PRODUCTION_BUILD) {
-    // console.info('Segment | identify', handle, traits, options)
+    console.info('Segment | identify', handle, traits, options)
   }
   if (NATIVE_MOBILE) {
     const message = new SetAnalyticsUser(handle, traits)
@@ -53,7 +53,7 @@ export const track = (
   callback?: () => void
 ) => {
   if (!IS_PRODUCTION_BUILD) {
-    // console.info('Segment | track', event, properties, options)
+    console.info('Segment | track', event, properties, options)
   }
   // stop tracking analytics after we reach session limit
   if (trackCounter++ >= TRACK_LIMIT) return
