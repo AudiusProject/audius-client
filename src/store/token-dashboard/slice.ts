@@ -40,17 +40,32 @@ export type ModalState = Nullable<
   | { stage: 'DISCORD_CODE' }
 >
 
-export type AssociatedWallets = string[]
+export type AssociatedWallets = {
+  address: string
+  balance: BNWei
+  collectibleCount: number
+}[]
 
-export type ConfirmRemoveWalletAction = PayloadAction<{ wallet: WalletAddress }>
+export type ConfirmRemoveWalletAction = PayloadAction<{
+  wallet: WalletAddress
+  chain: Chain
+}>
 
+export type Chain = 'spl' | 'eth'
 export type AssociatedWalletsState = {
   status: Nullable<'Connecting' | 'Confirming'>
-  connectedWallets: Nullable<AssociatedWallets>
-  confirmingWallet: Nullable<WalletAddress>
+  connectedEthWallets: Nullable<AssociatedWallets>
+  connectedSplWallets: Nullable<AssociatedWallets>
+  confirmingWallet: {
+    wallet: Nullable<WalletAddress>
+    chain: Nullable<Chain>
+    balance: Nullable<BNWei>
+    collectibleCount: Nullable<number>
+  }
   errorMessage: Nullable<string>
   removeWallet: {
     wallet: Nullable<string>
+    chain: Nullable<Chain>
     status: Nullable<'Confirming'>
   }
 }
@@ -68,11 +83,18 @@ const initialState: TokenDashboardState = {
   discordCode: null,
   associatedWallets: {
     status: null,
-    confirmingWallet: null,
-    connectedWallets: null,
+    connectedEthWallets: null,
+    confirmingWallet: {
+      wallet: null,
+      chain: null,
+      balance: null,
+      collectibleCount: null
+    },
+    connectedSplWallets: null,
     errorMessage: null,
     removeWallet: {
       wallet: null,
+      chain: null,
       status: null
     }
   }
@@ -150,11 +172,20 @@ const slice = createSlice({
     setAssociatedWallets: (
       state,
       {
-        payload: { associatedWallets }
-      }: PayloadAction<{ associatedWallets: AssociatedWallets }>
+        payload: { associatedWallets, chain }
+      }: PayloadAction<{ associatedWallets: AssociatedWallets; chain: Chain }>
     ) => {
-      state.associatedWallets.connectedWallets = associatedWallets
-      state.associatedWallets.confirmingWallet = null
+      if (chain === 'spl') {
+        state.associatedWallets.connectedSplWallets = associatedWallets
+      } else if (chain === 'eth') {
+        state.associatedWallets.connectedEthWallets = associatedWallets
+      }
+      state.associatedWallets.confirmingWallet = {
+        wallet: null,
+        chain: null,
+        balance: null,
+        collectibleCount: null
+      }
       state.associatedWallets.status = null
     },
     pressConnectWallets: state => {
@@ -172,24 +203,57 @@ const slice = createSlice({
     },
     setIsConnectingWallet: (
       state,
-      { payload: { wallet } }: PayloadAction<{ wallet: string }>
+      {
+        payload: { wallet, chain, balance, collectibleCount }
+      }: PayloadAction<{
+        wallet: string
+        chain: Chain
+        balance: BNWei
+        collectibleCount: number
+      }>
     ) => {
       // is connecting
-      state.associatedWallets.confirmingWallet = wallet
+      state.associatedWallets.confirmingWallet.wallet = wallet
+      state.associatedWallets.confirmingWallet.chain = chain
+      state.associatedWallets.confirmingWallet.balance = balance
+      state.associatedWallets.confirmingWallet.collectibleCount = collectibleCount
     },
     setWalletAddedConfirmed: (
       state,
-      { payload: { wallet } }: PayloadAction<{ wallet: string }>
+      {
+        payload: { wallet, balance, chain, collectibleCount }
+      }: PayloadAction<{
+        wallet: string
+        balance: BNWei
+        chain: Chain
+        collectibleCount: number
+      }>
     ) => {
-      state.associatedWallets.connectedWallets = (
-        state.associatedWallets.connectedWallets || []
-      ).concat(wallet)
+      if (chain === 'spl') {
+        state.associatedWallets.connectedSplWallets = (
+          state.associatedWallets.connectedSplWallets || []
+        ).concat({ address: wallet, balance, collectibleCount })
+      } else if (chain === 'eth') {
+        state.associatedWallets.connectedEthWallets = (
+          state.associatedWallets.connectedEthWallets || []
+        ).concat({ address: wallet, balance, collectibleCount })
+      }
+      state.associatedWallets.confirmingWallet = {
+        wallet: null,
+        chain: null,
+        balance: null,
+        collectibleCount: null
+      }
+      state.associatedWallets.status = null
     },
     requestRemoveWallet: (
       state,
-      { payload: { wallet } }: PayloadAction<{ wallet: WalletAddress }>
+      {
+        payload: { wallet, chain }
+      }: PayloadAction<{ wallet: WalletAddress; chain: Chain }>
     ) => {
       state.associatedWallets.removeWallet.wallet = wallet
+      state.associatedWallets.removeWallet.chain = chain
       state.modalState = {
         stage: 'CONNECT_WALLETS',
         flowState: { stage: 'REMOVE_WALLET' }
@@ -198,7 +262,7 @@ const slice = createSlice({
     },
     confirmRemoveWallet: (
       state,
-      { payload: { wallet } }: ConfirmRemoveWalletAction
+      { payload: { wallet, chain } }: ConfirmRemoveWalletAction
     ) => {
       state.associatedWallets.removeWallet.status = 'Confirming'
       state.modalState = {
@@ -208,14 +272,24 @@ const slice = createSlice({
     },
     removeWallet: (
       state,
-      { payload: { wallet } }: PayloadAction<{ wallet: WalletAddress }>
+      {
+        payload: { wallet, chain }
+      }: PayloadAction<{ wallet: WalletAddress; chain: Chain }>
     ) => {
       state.associatedWallets.removeWallet.status = null
       state.associatedWallets.removeWallet.wallet = null
-      state.associatedWallets.connectedWallets =
-        state.associatedWallets.connectedWallets?.filter(
-          addr => addr !== wallet
-        ) ?? null
+      state.associatedWallets.removeWallet.chain = null
+      if (chain === 'spl') {
+        state.associatedWallets.connectedSplWallets =
+          state.associatedWallets.connectedSplWallets?.filter(
+            a => a.address !== wallet
+          ) ?? null
+      } else if (chain === 'eth') {
+        state.associatedWallets.connectedEthWallets =
+          state.associatedWallets.connectedEthWallets?.filter(
+            a => a.address !== wallet
+          ) ?? null
+      }
     },
     updateWalletError: (
       state,
@@ -224,7 +298,13 @@ const slice = createSlice({
       state.associatedWallets.errorMessage = errorMessage
       state.associatedWallets.removeWallet.status = null
       state.associatedWallets.removeWallet.wallet = null
-      state.associatedWallets.confirmingWallet = null
+      state.associatedWallets.removeWallet.chain = null
+      state.associatedWallets.confirmingWallet = {
+        wallet: null,
+        chain: null,
+        balance: null,
+        collectibleCount: null
+      }
       state.associatedWallets.status = null
     },
     preloadWalletProviders: state => {}
@@ -258,6 +338,13 @@ export const getDiscordCode = (state: AppState) =>
   state.application.pages.tokenDashboard.discordCode ?? ''
 export const getAssociatedWallets = (state: AppState) =>
   state.application.pages.tokenDashboard.associatedWallets
+export const getHasAssociatedWallets = (state: AppState) => {
+  const {
+    connectedEthWallets: ethWallets,
+    connectedSplWallets: splWallets
+  } = state.application.pages.tokenDashboard.associatedWallets
+  return (ethWallets?.length ?? 0) + (splWallets?.length ?? 0) > 0
+}
 export const getRemoveWallet = (state: AppState) =>
   state.application.pages.tokenDashboard.associatedWallets.removeWallet
 
@@ -271,6 +358,7 @@ export const {
   pressDiscord,
   setDiscordCode,
   fetchAssociatedWallets,
+  setWalletAddedConfirmed,
   setAssociatedWallets,
   connectNewWallet,
   pressConnectWallets,

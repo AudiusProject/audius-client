@@ -2,6 +2,7 @@
 
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
+import BN from 'bn.js'
 import moment from 'moment-timezone'
 
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
@@ -24,6 +25,7 @@ import CIDCache from 'store/cache/CIDCache'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { Timer } from 'utils/performance'
+import { Nullable } from 'utils/typeUtils'
 import { uuid } from 'utils/uid'
 
 import {
@@ -1005,7 +1007,7 @@ class AudiusBackend {
    * @param {Object} user The user metadata which contains the CID for the metadata multihash
    * @returns Object The associated wallets mapping of address to nested signature
    */
-  static async fetchUserAssociatedWallets(user) {
+  static async fetchUserAssociatedEthWallets(user) {
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
@@ -1022,13 +1024,40 @@ class AudiusBackend {
     return null
   }
 
+  /**
+   * Retrieves the user's associated wallets from IPFS using the user's metadata CID and creator node endpoints
+   * @param {Object} user The user metadata which contains the CID for the metadata multihash
+   * @returns Object The associated wallets mapping of address to nested signature
+   */
+  static async fetchUserAssociatedSplWallets(user) {
+    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+    const cid = user?.metadata_multihash ?? null
+    if (cid) {
+      const metadata = await fetchCID(
+        cid,
+        gateways,
+        /* cache */ false,
+        /* asUrl */ false
+      )
+      if (metadata?.associated_spl_wallets) {
+        return metadata.associated_spl_wallets
+      }
+    }
+    return null
+  }
+
   static async updateCreator(metadata, id) {
     let newMetadata = { ...metadata }
-    const associatedWallets = await AudiusBackend.fetchUserAssociatedWallets(
+    const associatedEthWallets = await AudiusBackend.fetchUserAssociatedEthWallets(
       metadata
     )
     newMetadata.associated_wallets =
-      newMetadata.associated_wallets || associatedWallets
+      newMetadata.associated_wallets || associatedEthWallets
+    const associatedSplWallets = await AudiusBackend.fetchUserAssociatedSplWallets(
+      metadata
+    )
+    newMetadata.associated_spl_wallets =
+      newMetadata.associated_spl_wallets || associatedSplWallets
 
     try {
       if (newMetadata.updatedProfilePicture) {
@@ -2476,6 +2505,18 @@ class AudiusBackend {
       balance,
       userBank.toString()
     )
+  }
+
+  /**
+   * Transfers the user's ERC20 AUDIO into SPL WAUDIO to their solana user bank account
+   * @param {BN} balance The amount of AUDIO to be transferred
+   */
+  static async getAddressWAudioBalance(address) {
+    await waitForLibsInit()
+    const waudioBalance = await audiusLibs.solanaWeb3Manager.getWAudioBalance(
+      address
+    )
+    return waudioBalance ?? new BN('0')
   }
 }
 

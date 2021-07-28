@@ -213,6 +213,36 @@ class OpenSeaClient {
       return Object.values(collectiblesMap)
     })
   }
+
+  async getCollectibleCount(wallet: string) {
+    try {
+      const collectibles = await client.getCollectiblesForWallet(wallet)
+      return collectibles?.assets?.length ?? 0
+    } catch (error) {
+      return 0
+    }
+  }
+
+  async getCollectibleCountForMultipleWallets(wallets: string[]) {
+    return Promise.allSettled(
+      wallets.map(wallet => client.getAllCollectibles([wallet]))
+    ).then(results =>
+      results.map(result => {
+        if (result.status !== 'fulfilled') return 0
+        return result?.value?.length ?? 0
+      })
+    )
+  }
+
+  async getSPLCollectibleCount(splWallet: string) {
+    // TODO: figure out how to get spl wallet assets
+    return 0
+  }
+
+  async getSPLCollectibleCountForMultipleWallets(wallets: string[]) {
+    // TODO: figure out how to get spl wallet assets
+    return wallets.map(() => 0)
+  }
 }
 
 ;(function () {
