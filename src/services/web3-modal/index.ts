@@ -112,13 +112,10 @@ export const createSession = async (config: Config): Promise<any> => {
         options: {},
         package: PassThrough,
         connector: async (...args: any) => {
-          console.log({ args })
           try {
             // Connect to solana web3
             await window.solana.connect()
             await new Promise(resolve => setTimeout(resolve, 1000))
-            console.log('returning window solana')
-            console.log({ sol: window.solana, jeyss: window.solana.publicKey })
             return window.solana
           } catch (err) {
             console.log(err)
@@ -136,7 +133,6 @@ export const createSession = async (config: Config): Promise<any> => {
         options: {},
         package: PassThrough,
         connector: async (...args: any) => {
-          console.log({ args })
           try {
             // Connect to solana web3
             const network = clusterApiUrl('devnet')
@@ -145,7 +141,6 @@ export const createSession = async (config: Config): Promise<any> => {
             const walletConnection: Promise<string> = new Promise(
               (resolve, reject) => {
                 wallet.on('connect', publicKey => {
-                  console.log('Connected to ' + publicKey.toBase58())
                   resolve(publicKey.toBase58())
                 })
               }

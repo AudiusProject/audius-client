@@ -68,7 +68,11 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
       />
       {hasReachedLimit && <p className={styles.limit}>{messages.limit}</p>}
       {(numConnectedWallets > 0 || Boolean(confirmingWallet.wallet)) && (
-        <WalletsTable className={styles.walletsContainer} hasActions />
+        <WalletsTable
+          className={styles.walletsContainer}
+          hasActions
+          hideCollectibles
+        />
       )}
     </div>
   )

@@ -66,8 +66,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all ease-in-out 0.07s;
-  margin-left: auto;
-  margin-right: 24px;
+  margin: 0px 24px;
 }
 
 .removeContainer.disabled {
@@ -88,7 +87,7 @@
 }
 
 .loading {
-  margin: 0px 24px;
+  margin: 0px 36px;
   height: 24px;
   width: 24px;
 }
@@ -206,6 +205,10 @@
   text-align: right;
 }
 
+.hideCollectibles:not(.noActions) .audioBalance {
+  flex: 1 0 182px;
+}
+
 .noActions .audioBalance {
   flex: 1 0 182px;
   padding-right: 24px;
@@ -214,6 +217,10 @@
 .mobile.noActions .audioBalance {
   flex: 1;
   padding-right: 24px;
+}
+
+.actionSpacing {
+  flex: 0 0 96px;
 }
 
 .walletText {

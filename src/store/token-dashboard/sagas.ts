@@ -117,10 +117,8 @@ function* fetchEthWalletInfo(wallets: string[]) {
     address: string
     balance: BNWei
   }[] = yield call(walletClient.getEthWalletBalances, wallets)
-  const collectibleCounts: number[] = yield call(
-    OpenSeaClient.getCollectibleCountForMultipleWallets,
-    wallets
-  )
+  // TODO: Fetch collectible count
+  const collectibleCounts = wallets.map(_ => 0)
   return wallets.map((_, idx) => ({
     ...ethWalletBalances[idx],
     collectibleCount: collectibleCounts[idx]
@@ -132,10 +130,8 @@ function* fetchSplWalletInfo(wallets: string[]) {
     address: string
     balance: BNWei
   }[] = yield call(walletClient.getSplWalletBalances, wallets)
-  const collectibleCounts: number[] = yield call(
-    OpenSeaClient.getSPLCollectibleCountForMultipleWallets,
-    wallets
-  )
+  // TODO: Fetch collectible count
+  const collectibleCounts = wallets.map(_ => 0)
 
   return wallets.map((_, idx) => ({
     ...splWalletBalances[idx],
@@ -151,7 +147,6 @@ function* fetchAccountAssociatedWallets() {
       userID: accountUserId
     }
   )
-  console.log({ associatedWallets })
   const ethWalletBalances: {
     address: string
     balance: BNWei
@@ -345,10 +340,9 @@ function* connectSPLWallet(
       balance: BNWei
     }[] = yield call(walletClient.getSplWalletBalances, [connectingWallet])
     const walletBalance = splWalletBalances[0].balance
-    const collectibleCount: number = yield call(
-      OpenSeaClient.getSPLCollectibleCount,
-      connectingWallet
-    )
+
+    // TODO: Fetch collectible count
+    const collectibleCount = 0
 
     yield put(
       setIsConnectingWallet({
@@ -447,10 +441,8 @@ function* connectSPLWallet(
             address: string
             balance: BNWei
           }[] = yield call(walletClient.getSplWalletBalances, updatedWallets)
-          const collectibleCount: number = yield call(
-            OpenSeaClient.getSPLCollectibleCount,
-            connectingWallet
-          )
+          // TODO: Fetch collectible count
+          const collectibleCount = 0
 
           yield put(
             setWalletAddedConfirmed({
@@ -535,10 +527,8 @@ function* connectEthWallet(web3Instance: any) {
       balance: BNWei
     }[] = yield call(walletClient.getEthWalletBalances, [connectingWallet])
     const walletBalance = walletBalances[0].balance
-    const collectibleCount: number = yield call(
-      OpenSeaClient.getCollectibleCount,
-      connectingWallet
-    )
+    // TODO: fetch collectible count
+    const collectibleCount = 0
     yield put(
       setIsConnectingWallet({
         wallet: connectingWallet,

@@ -118,19 +118,17 @@ const Wallet = ({
           tokenClassName={styles.balance}
         />
       </div>
-      {hasActions &&
-        (isConfirmAdding || isConfirmRemoving ? (
-          <LoadingSpinner className={styles.loading}></LoadingSpinner>
-        ) : (
-          !isDisabled && (
-            <div
-              className={styles.removeContainer}
-              onClick={onRequestRemoveWallet}
-            >
-              <IconRemove className={styles.iconRemove} />
-            </div>
-          )
-        ))}
+      {hasActions && (isConfirmAdding || isConfirmRemoving) && (
+        <LoadingSpinner className={styles.loading}></LoadingSpinner>
+      )}
+      {hasActions && !(isConfirmAdding || isConfirmRemoving) && !isDisabled && (
+        <div className={styles.removeContainer} onClick={onRequestRemoveWallet}>
+          <IconRemove className={styles.iconRemove} />
+        </div>
+      )}
+      {hasActions && !(isConfirmAdding || isConfirmRemoving) && isDisabled && (
+        <div className={styles.actionSpacing} />
+      )}
     </div>
   )
 }
@@ -168,12 +166,13 @@ const WaleltsTable = ({
     confirmingWallet.chain !== null &&
     confirmingWallet.balance !== null &&
     confirmingWallet.collectibleCount !== null
-  console.log({ confirmingWallet, showConfirmingWallet })
+
   return (
     <div
       className={wm(styles.container, {
         [className!]: !!className,
-        [styles.noActions]: !hasActions
+        [styles.noActions]: !hasActions,
+        [styles.hideCollectibles]: hideCollectibles
       })}
     >
       <div className={styles.walletsHeader}>
