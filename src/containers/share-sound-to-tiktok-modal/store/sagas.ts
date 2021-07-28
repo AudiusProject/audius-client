@@ -58,7 +58,6 @@ function* handleShare() {
     )
 
     track = yield response.blob()
-    console.log(track)
 
     if (!response.ok) {
       throw new Error('TikTok Share sound request unsuccessful')
