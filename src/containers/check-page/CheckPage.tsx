@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
 import { getAccountUser } from 'store/account/selectors'
 import { SIGN_IN_PAGE, TRENDING_PAGE } from 'utils/route'
@@ -15,18 +16,10 @@ const COGNITO_TEMPLATE_ID = process.env.REACT_APP_COGNITO_TEMPLATE_ID
 const CheckPage = () => {
   const dispatch = useDispatch()
   const user = useSelector(getAccountUser)
-  const [scriptLoaded, setScriptLoaded] = useState(false)
+  const scriptLoaded = useScript(
+    'https://flow.cognitohq.com/assets/flow_client.js'
+  )
   const [didOpen, setDidOpen] = useState(false)
-
-  useEffect(() => {
-    const script = document.createElement('script')
-
-    script.src = 'https://flow.cognitohq.com/assets/flow_client.js'
-    script.async = true
-    script.onload = () => setScriptLoaded(true)
-
-    document.body.appendChild(script)
-  }, [])
 
   useEffect(() => {
     if (!user) {
