@@ -21,7 +21,6 @@ import RewardsTile from './RewardsTile'
 import Tiers from './Tiers'
 import { BalanceTile, WalletTile } from './Tiles'
 import WalletModal from './WalletModal'
-import ClaimRewardButton from './components/ClaimRewardButton'
 import ExplainerTile from './components/ExplainerTile'
 
 export const messages = {
@@ -34,7 +33,6 @@ export const RewardsContent = () => {
   useRequiresAccount(TRENDING_PAGE)
   return (
     <>
-      <ClaimRewardButton />
       <ExplainerTile className={wm(styles.explainerTile)} />
       <WalletModal />
       <div className={wm(styles.cryptoContentContainer)}>
