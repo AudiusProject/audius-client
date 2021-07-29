@@ -74,7 +74,6 @@ const getShareTextUrl = async (
   switch (uploadType) {
     case 'Track': {
       const { title, permalink } = upload.tracks[0].metadata
-      console.log(upload.tracks[0])
       const url = fullUrl ? fullTrackPage(permalink) : permalink
       return {
         text: `Check out my new track, ${title} on @AudiusProject #Audius`,
