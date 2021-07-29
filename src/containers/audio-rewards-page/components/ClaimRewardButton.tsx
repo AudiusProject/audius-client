@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
 import { getUserHandle } from 'store/account/selectors'
+import { COGNITO_SCRIPT_URL } from 'utils/constants'
 
 // this button will handle triggering the cognito flow
 // or showing the HCaptchaModal
@@ -13,7 +14,7 @@ import { getUserHandle } from 'store/account/selectors'
 // pending AAO changes and DP undisbursed challenges integration
 const ClaimRewardButton = () => {
   const handle = useSelector(getUserHandle)
-  const scriptLoaded = useScript('https://cdn.cognitohq.com/flow.js')
+  const scriptLoaded = useScript(COGNITO_SCRIPT_URL)
 
   const handleClick = async () => {
     const { signature } = await AudiusBackend.getCognitoSignature()
