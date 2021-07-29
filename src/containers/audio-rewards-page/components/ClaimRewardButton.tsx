@@ -6,6 +6,11 @@ import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
 import { getUserHandle } from 'store/account/selectors'
 
+// this button will handle triggering the cognito flow
+// or showing the HCaptchaModal
+// or both
+// logic for which flow exactly to trigger is TBD
+// pending AAO changes and DP undisbursed challenges integration
 const ClaimRewardButton = () => {
   const handle = useSelector(getUserHandle)
   const scriptLoaded = useScript('https://cdn.cognitohq.com/flow.js')
