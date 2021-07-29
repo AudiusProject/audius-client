@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { useSelector } from 'react-redux'
 
@@ -6,38 +6,38 @@ import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
 import { getUserHandle } from 'store/account/selectors'
 
-let flow: any
-const setFlow = async (customerReference: string) => {
-  if (flow) return
-
-  const { signature } = await AudiusBackend.getCognitoSignature()
-
-  // @ts-ignore
-  flow = new Flow({
-    publishableKey: process.env.REACT_APP_COGNITO_KEY,
-    templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
-    user: {
-      customerReference,
-      signature
-    }
-  })
-}
-
 const ClaimRewardButton = () => {
-  const scriptLoaded = useScript('https://cdn.cognitohq.com/flow.js')
   const handle = useSelector(getUserHandle)
+  const scriptLoaded = useScript('https://cdn.cognitohq.com/flow.js')
 
-  useEffect(() => {
-    if (scriptLoaded && handle) setFlow(handle)
-  }, [scriptLoaded, handle])
+  const handleClick = async () => {
+    const { signature } = await AudiusBackend.getCognitoSignature()
 
-  const handleClick = () => {
-    if (flow) {
-      // @ts-ignore
-      flow.open()
-    }
+    // @ts-ignore
+    const flow = new Flow({
+      publishableKey: process.env.REACT_APP_COGNITO_KEY,
+      templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
+      user: {
+        customerReference: handle,
+        signature
+      }
+    })
+
+    flow.on('ui', (event: any) => {
+      switch (event.action) {
+        // we can add subsequent logic here
+        // e.g. what happens after the cognito window is "opened" or "closed"
+        default:
+        // nothing
+      }
+    })
+
+    flow.open()
   }
-  return <button onClick={handleClick}>Claim your reward</button>
+
+  return handle && scriptLoaded ? (
+    <button onClick={handleClick}>Claim your reward</button>
+  ) : null
 }
 
 export default ClaimRewardButton
