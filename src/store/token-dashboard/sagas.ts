@@ -157,7 +157,7 @@ function* fetchAccountAssociatedWallets() {
     address: string
     balance: BNWei
     collectibleCount: number
-  }[] = yield fetchSplWalletInfo(associatedWallets.spl_wallets)
+  }[] = yield fetchSplWalletInfo(associatedWallets.spl_wallets ?? [])
 
   yield put(
     setAssociatedWallets({

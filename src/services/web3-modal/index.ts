@@ -1,4 +1,3 @@
-import SolWallet from '@project-serum/sol-wallet-adapter'
 import { clusterApiUrl } from '@solana/web3.js'
 import Web3Modal, { IProviderOptions } from 'web3modal'
 
@@ -50,6 +49,13 @@ export const loadWalletLink = async () => {
   return WalletLink
 }
 
+export const loadSolWallet = async () => {
+  const { default: SolWallet } = await import(
+    '@project-serum/sol-wallet-adapter'
+  )
+  return SolWallet
+}
+
 export const createSession = async (config: Config): Promise<any> => {
   try {
     const Web3 = window.Web3
@@ -57,6 +63,7 @@ export const createSession = async (config: Config): Promise<any> => {
     const WalletConnectProvider = await loadWalletConnect()
     const Bitski = await loadBitski()
     const WalletLink = await loadWalletLink()
+    const SolWallet = await loadSolWallet()
 
     const providerOptions: IProviderOptions = {}
     if (config.isBitSkiEnabled && BITSKI_CLIENT_ID && BITSKI_CALLBACK_URL) {
