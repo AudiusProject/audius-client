@@ -24,7 +24,7 @@ const TIKTOK_SHARE_SOUND_ENDPOINT =
 
 // Because the track blob cannot live in an action (not a POJO),
 // we are creating a singleton here to store it
-let track: Blob | null = null
+let trackBlob: Blob | null = null
 
 function* handleRequestOpen(action: ReturnType<typeof requestOpen>) {
   const track = yield select((state: AppState) =>
@@ -56,11 +56,11 @@ function* handleShare() {
       apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
     )
 
-    track = yield response.blob()
-
     if (!response.ok) {
       throw new Error('TikTok Share sound request unsuccessful')
     }
+
+    trackBlob = yield response.blob()
 
     // If already authed with TikTok, start the upload
     const authenticated = yield select(getIsAuthenticated)
@@ -77,7 +77,7 @@ function* handleAuthenticated(action: ReturnType<typeof authenticated>) {
   yield put(setIsAuthenticated())
 
   // If track blob already downloaded, start the upload
-  if (track) {
+  if (trackBlob) {
     yield put(upload())
   }
 }
@@ -85,7 +85,7 @@ function* handleAuthenticated(action: ReturnType<typeof authenticated>) {
 function* handleUpload(action: ReturnType<typeof upload>) {
   // Upload the track blob to TikTok api
   const formData = new FormData()
-  formData.append('sound_file', track as Blob)
+  formData.append('sound_file', trackBlob as Blob)
 
   const openId = window.localStorage.getItem('tikTokOpenId')
   const accessToken = window.localStorage.getItem('tikTokAccessToken')
@@ -111,7 +111,7 @@ function* handleUpload(action: ReturnType<typeof upload>) {
     console.log(e)
     yield put(setStatus({ status: Status.SHARE_ERROR }))
   } finally {
-    track = null
+    trackBlob = null
   }
 }
 
