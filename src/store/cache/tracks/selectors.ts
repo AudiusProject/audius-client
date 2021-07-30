@@ -7,9 +7,6 @@ export const getTrack = (
   state: AppState,
   props: { id?: ID | null; uid?: UID | null; permalink?: string | null }
 ) => {
-  if (props.permalink && typeof props.permalink !== 'string') {
-    console.log(typeof props.permalink, props.permalink)
-  }
   if (
     props.permalink &&
     state.tracks.permalinks[props.permalink.toLowerCase()]
