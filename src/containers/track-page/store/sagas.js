@@ -166,10 +166,10 @@ function* watchFetchTrackSucceeded() {
 
 function* watchRefetchLineup() {
   yield takeEvery(trackPageActions.REFETCH_LINEUP, function* (action) {
-    const { track_id } = yield select(getTrack)
+    const { permalink } = yield select(getTrack)
     const { handle } = yield select(getUser)
     yield put(tracksActions.reset())
-    yield call(getMoreByThisArtist, track_id, handle)
+    yield call(getMoreByThisArtist, permalink, handle)
   })
 }
 
