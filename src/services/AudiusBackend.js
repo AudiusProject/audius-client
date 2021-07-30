@@ -1029,7 +1029,7 @@ class AudiusBackend {
    * @param {Object} user The user metadata which contains the CID for the metadata multihash
    * @returns Object The associated wallets mapping of address to nested signature
    */
-  static async fetchUserAssociatedSplWallets(user) {
+  static async fetchUserAssociatedSolWallets(user) {
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
@@ -1039,8 +1039,8 @@ class AudiusBackend {
         /* cache */ false,
         /* asUrl */ false
       )
-      if (metadata?.associated_spl_wallets) {
-        return metadata.associated_spl_wallets
+      if (metadata?.associated_sol_wallets) {
+        return metadata.associated_sol_wallets
       }
     }
     return null
@@ -1053,11 +1053,11 @@ class AudiusBackend {
     )
     newMetadata.associated_wallets =
       newMetadata.associated_wallets || associatedEthWallets
-    const associatedSplWallets = await AudiusBackend.fetchUserAssociatedSplWallets(
+    const associatedSolWallets = await AudiusBackend.fetchUserAssociatedSolWallets(
       metadata
     )
-    newMetadata.associated_spl_wallets =
-      newMetadata.associated_spl_wallets || associatedSplWallets
+    newMetadata.associated_sol_wallets =
+      newMetadata.associated_sol_wallets || associatedSolWallets
 
     try {
       if (newMetadata.updatedProfilePicture) {

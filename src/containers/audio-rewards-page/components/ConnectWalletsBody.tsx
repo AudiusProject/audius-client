@@ -39,11 +39,11 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
     status,
     confirmingWallet,
     connectedEthWallets: ethWallets,
-    connectedSplWallets: splWallets
+    connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
   const removeWallets = useSelector(getRemoveWallet)
   const numConnectedWallets =
-    (ethWallets?.length ?? 0) + (splWallets?.length ?? 0)
+    (ethWallets?.length ?? 0) + (solWallets?.length ?? 0)
   const hasReachedLimit = numConnectedWallets >= WALLET_COUNT_LIMIT
 
   const isDisabled =

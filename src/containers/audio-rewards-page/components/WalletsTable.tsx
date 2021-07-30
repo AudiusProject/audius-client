@@ -149,7 +149,7 @@ const WaleltsTable = ({
     confirmingWallet,
     errorMessage,
     connectedEthWallets: ethWallets,
-    connectedSplWallets: splWallets
+    connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
   const removeWallets = useSelector(getRemoveWallet)
 
@@ -205,10 +205,10 @@ const WaleltsTable = ({
             isConfirmRemoving={removeWallets.wallet === wallet.address}
           />
         ))}
-      {splWallets &&
-        splWallets.map(wallet => (
+      {solWallets &&
+        solWallets.map(wallet => (
           <Wallet
-            chain={'spl'}
+            chain={'sol'}
             key={wallet.address}
             address={wallet.address}
             collectibleCount={wallet.collectibleCount}

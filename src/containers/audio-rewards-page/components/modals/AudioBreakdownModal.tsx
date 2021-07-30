@@ -30,17 +30,16 @@ const messages = {
 
 const AudioBreakdownBody = () => {
   const wm = useWithMobileStyle(styles.mobile)
-  const mobile = isMobile()
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
 
   const {
     connectedEthWallets: ethWallets,
-    connectedSplWallets: splWallets
+    connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
 
   const linkedWalletsBalance = (ethWallets
-    ?.concat(splWallets ?? [])
+    ?.concat(solWallets ?? [])
     .reduce((total, wallet) => {
       return total.add(wallet.balance)
     }, new BN('0')) ?? new BN('0')) as BNWei

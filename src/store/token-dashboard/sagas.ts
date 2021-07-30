@@ -9,7 +9,6 @@ import AudiusBackend from 'services/AudiusBackend'
 import apiClient, {
   AssociatedWalletsResponse
 } from 'services/audius-api-client/AudiusAPIClient'
-import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import { BooleanKeys, getRemoteVar } from 'services/remote-config'
 import walletClient from 'services/wallet-client/WalletClient'
 import connectWeb3Wallet, {
@@ -129,7 +128,7 @@ function* fetchSplWalletInfo(wallets: string[]) {
   const splWalletBalances: {
     address: string
     balance: BNWei
-  }[] = yield call(walletClient.getSplWalletBalances, wallets)
+  }[] = yield call(walletClient.getSolWalletBalances, wallets)
   // TODO: Fetch collectible count
   const collectibleCounts = wallets.map(_ => 0)
 
@@ -157,7 +156,7 @@ function* fetchAccountAssociatedWallets() {
     address: string
     balance: BNWei
     collectibleCount: number
-  }[] = yield fetchSplWalletInfo(associatedWallets.spl_wallets ?? [])
+  }[] = yield fetchSplWalletInfo(associatedWallets.sol_wallets ?? [])
 
   yield put(
     setAssociatedWallets({
@@ -168,7 +167,7 @@ function* fetchAccountAssociatedWallets() {
   yield put(
     setAssociatedWallets({
       associatedWallets: splWalletBalances,
-      chain: 'spl'
+      chain: 'sol'
     })
   )
 }
@@ -320,7 +319,7 @@ function* connectSPLWallet(
     )
 
     if (
-      (currentAssociatedWallets?.connectedSplWallets ?? []).some(
+      (currentAssociatedWallets?.connectedSolWallets ?? []).some(
         wallet => wallet.address === connectingWallet
       ) ||
       associatedUserId !== null
@@ -338,7 +337,7 @@ function* connectSPLWallet(
     const splWalletBalances: {
       address: string
       balance: BNWei
-    }[] = yield call(walletClient.getSplWalletBalances, [connectingWallet])
+    }[] = yield call(walletClient.getSolWalletBalances, [connectingWallet])
     const walletBalance = splWalletBalances[0].balance
 
     // TODO: Fetch collectible count
@@ -347,7 +346,7 @@ function* connectSPLWallet(
     yield put(
       setIsConnectingWallet({
         wallet: connectingWallet,
-        chain: 'spl',
+        chain: 'sol',
         balance: walletBalance,
         collectibleCount
       })
@@ -401,10 +400,10 @@ function* connectSPLWallet(
     }
 
     const currentWalletSignatures: Record<string, any> = yield call(
-      AudiusBackend.fetchUserAssociatedSplWallets,
+      AudiusBackend.fetchUserAssociatedSolWallets,
       updatedMetadata
     )
-    updatedMetadata.associated_spl_wallets = {
+    updatedMetadata.associated_sol_wallets = {
       ...(currentWalletSignatures || {}),
       [connectingWallet]: { signature }
     }
@@ -430,7 +429,7 @@ function* connectSPLWallet(
             )
           }
 
-          const updatedWallets = updatedMetadata.associated_spl_wallets
+          const updatedWallets = updatedMetadata.associated_sol_wallets
           return Object.keys(updatedWallets)
         },
         // @ts-ignore: remove when confirmer is typed
@@ -440,7 +439,7 @@ function* connectSPLWallet(
           const splWalletBalances: {
             address: string
             balance: BNWei
-          }[] = yield call(walletClient.getSplWalletBalances, updatedWallets)
+          }[] = yield call(walletClient.getSolWalletBalances, updatedWallets)
           // TODO: Fetch collectible count
           const collectibleCount = 0
 
@@ -449,7 +448,7 @@ function* connectSPLWallet(
               wallet: connectingWallet,
               balance: walletBalance,
               collectibleCount,
-              chain: 'spl'
+              chain: 'sol'
             })
           )
           const updatedCID: Nullable<string> = yield call(getAccountMetadataCID)
@@ -686,9 +685,9 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       }
 
       delete updatedMetadata.associated_wallets[removeWallet]
-    } else if (removeChain === 'spl') {
+    } else if (removeChain === 'sol') {
       const currentAssociatedWallets: Record<string, any> = yield call(
-        AudiusBackend.fetchUserAssociatedSplWallets,
+        AudiusBackend.fetchUserAssociatedSolWallets,
         updatedMetadata
       )
       if (
@@ -702,10 +701,10 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
         return
       }
 
-      updatedMetadata.associated_spl_wallets = {
+      updatedMetadata.associated_sol_wallets = {
         ...(currentAssociatedWallets || {})
       }
-      delete updatedMetadata.associated_spl_wallets[removeWallet]
+      delete updatedMetadata.associated_sol_wallets[removeWallet]
     }
 
     yield put(

@@ -77,7 +77,7 @@ class WalletClient {
     }
   }
 
-  async getSplWalletBalances(
+  async getSolWalletBalances(
     wallets: string[]
   ): Promise<{ address: string; balance: BNWei }[]> {
     try {

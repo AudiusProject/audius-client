@@ -51,11 +51,11 @@ export type ConfirmRemoveWalletAction = PayloadAction<{
   chain: Chain
 }>
 
-export type Chain = 'spl' | 'eth'
+export type Chain = 'sol' | 'eth'
 export type AssociatedWalletsState = {
   status: Nullable<'Connecting' | 'Confirming'>
   connectedEthWallets: Nullable<AssociatedWallets>
-  connectedSplWallets: Nullable<AssociatedWallets>
+  connectedSolWallets: Nullable<AssociatedWallets>
   confirmingWallet: {
     wallet: Nullable<WalletAddress>
     chain: Nullable<Chain>
@@ -90,7 +90,7 @@ const initialState: TokenDashboardState = {
       balance: null,
       collectibleCount: null
     },
-    connectedSplWallets: null,
+    connectedSolWallets: null,
     errorMessage: null,
     removeWallet: {
       wallet: null,
@@ -175,8 +175,8 @@ const slice = createSlice({
         payload: { associatedWallets, chain }
       }: PayloadAction<{ associatedWallets: AssociatedWallets; chain: Chain }>
     ) => {
-      if (chain === 'spl') {
-        state.associatedWallets.connectedSplWallets = associatedWallets
+      if (chain === 'sol') {
+        state.associatedWallets.connectedSolWallets = associatedWallets
       } else if (chain === 'eth') {
         state.associatedWallets.connectedEthWallets = associatedWallets
       }
@@ -229,9 +229,9 @@ const slice = createSlice({
         collectibleCount: number
       }>
     ) => {
-      if (chain === 'spl') {
-        state.associatedWallets.connectedSplWallets = (
-          state.associatedWallets.connectedSplWallets || []
+      if (chain === 'sol') {
+        state.associatedWallets.connectedSolWallets = (
+          state.associatedWallets.connectedSolWallets || []
         ).concat({ address: wallet, balance, collectibleCount })
       } else if (chain === 'eth') {
         state.associatedWallets.connectedEthWallets = (
@@ -279,9 +279,9 @@ const slice = createSlice({
       state.associatedWallets.removeWallet.status = null
       state.associatedWallets.removeWallet.wallet = null
       state.associatedWallets.removeWallet.chain = null
-      if (chain === 'spl') {
-        state.associatedWallets.connectedSplWallets =
-          state.associatedWallets.connectedSplWallets?.filter(
+      if (chain === 'sol') {
+        state.associatedWallets.connectedSolWallets =
+          state.associatedWallets.connectedSolWallets?.filter(
             a => a.address !== wallet
           ) ?? null
       } else if (chain === 'eth') {
@@ -341,9 +341,9 @@ export const getAssociatedWallets = (state: AppState) =>
 export const getHasAssociatedWallets = (state: AppState) => {
   const {
     connectedEthWallets: ethWallets,
-    connectedSplWallets: splWallets
+    connectedSolWallets: solWallets
   } = state.application.pages.tokenDashboard.associatedWallets
-  return (ethWallets?.length ?? 0) + (splWallets?.length ?? 0) > 0
+  return (ethWallets?.length ?? 0) + (solWallets?.length ?? 0) > 0
 }
 export const getRemoveWallet = (state: AppState) =>
   state.application.pages.tokenDashboard.associatedWallets.removeWallet

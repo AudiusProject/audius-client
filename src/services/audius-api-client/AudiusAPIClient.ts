@@ -274,7 +274,7 @@ type GetAssociatedWalletsArgs = {
 
 export type AssociatedWalletsResponse = {
   wallets: string[]
-  spl_wallets: string[]
+  sol_wallets: string[]
 }
 
 type GetAssociatedWalletUserIDArgs = {
