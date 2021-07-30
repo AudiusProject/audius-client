@@ -49,10 +49,17 @@ class EditPage extends Component {
     const { uploadType } = this.props
 
     const newInvalidTracksFields = [...this.state.invalidTracksFields]
+
+    // NOTE: sk - Temporarily disallow titles containing only special characters, until track slug generation
+    // is fixed in dp
+    const titleRegex = /!|%|#|\$|&|'|\(|\)|&|\*|\+|,|\/|:|;|=|\?|@|\[|\]|\^/g
+
     const validTracks = tracks.map((track, i) => {
       newInvalidTracksFields[i] = {
         ...this.state.invalidTracksFields[i],
-        title: !track.metadata.title
+        title:
+          !track.metadata.title ||
+          track.metadata.title.replace(titleRegex, '').length === 0
       }
       if (
         uploadType === UploadType.INDIVIDUAL_TRACK ||
