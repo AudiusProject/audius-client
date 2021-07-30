@@ -169,13 +169,6 @@ function* editTrackAsync(action) {
     }
   }
 
-  if (track?.remix_of?.tracks) {
-    const remixParentsUpdate = track.remix_of.tracks.map(t => ({
-      track_id: t.parent_track_id
-    }))
-    track._remix_parents = remixParentsUpdate
-  }
-
   yield put(
     cacheActions.update(Kind.TRACKS, [{ id: track.track_id, metadata: track }])
   )
