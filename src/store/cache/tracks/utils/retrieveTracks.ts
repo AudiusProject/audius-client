@@ -29,11 +29,20 @@ type RetrieveTracksArgs = {
   withRemixParents?: boolean
   forceRetrieveFromSource?: boolean
 }
-type RetrieveTrackByHandleAndSlugArgs = { handle: string; slug: string }
+type RetrieveTrackByHandleAndSlugArgs = {
+  handle: string
+  slug: string
+  withStems?: boolean
+  withRemixes?: boolean
+  withRemixParents?: boolean
+}
 
 export function* retrieveTrackByHandleAndSlug({
   handle,
-  slug
+  slug,
+  withStems,
+  withRemixes,
+  withRemixParents
 }: RetrieveTrackByHandleAndSlugArgs) {
   const permalink = `/${handle}/${slug}`
   const tracks: { entries: { [permalink: string]: Track } } = yield call(
@@ -87,7 +96,27 @@ export function* retrieveTrackByHandleAndSlug({
       }
     }
   )
-  return tracks.entries[permalink]
+  const track = tracks.entries[permalink]
+  if (!track || !track.track_id) return null
+  const trackId = track.track_id
+  if (withStems) {
+    yield spawn(function* () {
+      yield call(fetchAndProcessStems, trackId)
+    })
+  }
+
+  if (withRemixes) {
+    yield spawn(function* () {
+      yield call(fetchAndProcessRemixes, trackId)
+    })
+  }
+
+  if (withRemixParents) {
+    yield spawn(function* () {
+      yield call(fetchAndProcessRemixParents, trackId)
+    })
+  }
+  return track
 }
 
 /**

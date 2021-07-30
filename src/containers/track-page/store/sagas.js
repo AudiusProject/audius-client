@@ -94,11 +94,11 @@ function* getTrackRanks(trackId) {
   yield put(trackPageActions.getTrackRanks(trackId))
 }
 
-function* getMoreByThisArtist(trackId, ownerHandle) {
+function* getMoreByThisArtist(permalink, ownerHandle) {
   yield put(
     tracksActions.fetchLineupMetadatas(0, 6, false, {
       ownerHandle,
-      trackId
+      permalink
     })
   )
 }
@@ -106,12 +106,17 @@ function* getMoreByThisArtist(trackId, ownerHandle) {
 function* watchFetchTrack() {
   yield takeEvery(trackPageActions.FETCH_TRACK, function* (action) {
     const { trackId, handle, slug, canBeUnlisted } = action
+    const permalink = `/${handle}/${slug}`
+    yield fork(getMoreByThisArtist, permalink, handle)
     try {
       let track
       if (!trackId) {
         track = yield call(retrieveTrackByHandleAndSlug, {
           handle,
-          slug
+          slug,
+          withStems: true,
+          withRemixes: true,
+          withRemixParents: true
         })
       } else {
         const ids = canBeUnlisted
@@ -133,7 +138,6 @@ function* watchFetchTrack() {
           return
         }
       } else {
-        yield fork(getMoreByThisArtist, track.track_id, handle)
         yield fork(getTrackRanks, track.track_id)
         yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
       }
