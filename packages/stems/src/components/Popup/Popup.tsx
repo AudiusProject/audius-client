@@ -13,6 +13,7 @@ import { useTransition, animated } from 'react-spring'
 import { IconRemove } from 'components/Icons'
 import { useClickOutside } from 'hooks/useClickOutside'
 import { getScrollParent } from 'utils/scrollParent'
+import { standard } from 'utils/transitions'
 
 import styles from './Popup.module.css'
 import { PopupProps, Position, popupDefaultProps } from './types'
@@ -220,7 +221,7 @@ export const Popup = forwardRef<HTMLElement, PopupProps>(function Popup(
       transform: `scale(0)`,
       opacity: 0
     },
-    config: { duration: 180 },
+    config: standard,
     unique: true
   })
 

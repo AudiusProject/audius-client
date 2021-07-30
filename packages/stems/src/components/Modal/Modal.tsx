@@ -14,6 +14,7 @@ import { findAncestor } from 'utils/findAncestor'
 import styles from './Modal.module.css'
 import { useModalScrollCount } from './hooks'
 import { ModalProps, Anchor } from './types'
+import { standard } from 'utils/transitions'
 
 const rootContainer = 'modalRootContainer'
 const rootId = 'modalRoot'
@@ -145,11 +146,7 @@ export const Modal = ({
     enter: { transform: 'scale(1)', opacity: 1 },
     leave: { transform: 'scale(0)', opacity: 0 },
     unique: true,
-    config: {
-      tension: 310,
-      friction: 26,
-      clamp: true
-    },
+    config: standard,
     onDestroyed: () => {
       if (!isOpen) setIsDestroyed(false)
     }
