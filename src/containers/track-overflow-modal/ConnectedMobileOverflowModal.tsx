@@ -141,7 +141,10 @@ const ConnectedMobileOverflowModal = ({
           onUnfavorite: () => unsaveTrack(id as ID),
           onShare: () => shareTrack(id as ID),
           onAddToPlaylist: () => addToPlaylist(id as ID, title),
-          onVisitTrackPage: () => visitTrackPage(permalink || ''),
+          onVisitTrackPage: () =>
+            permalink === undefined
+              ? console.error(`Permalink missing for track ${id}`)
+              : visitTrackPage(permalink),
           onVisitArtistPage: () => visitArtistPage(handle),
           onFollow: () => follow(ownerId),
           onUnfollow: () => unfollow(ownerId)
