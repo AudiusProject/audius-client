@@ -36,7 +36,6 @@ function* handleRequestOpen(action: ReturnType<typeof requestOpen>) {
       track: {
         id: track.track_id,
         title: track.title,
-        cid: track.download.cid,
         duration: track.duration
       }
     })
