@@ -10,7 +10,7 @@ import { makeGetLineupMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { AppState } from 'store/types'
-import { trackPage, profilePage } from 'utils/route'
+import { profilePage } from 'utils/route'
 
 import { RemixesPageProps as DesktopRemixesPageProps } from './components/desktop/RemixesPage'
 import { RemixesPageProps as MobileRemixesPageProps } from './components/mobile/RemixesPage'
@@ -70,9 +70,7 @@ const RemixesPageProvider = ({
 
   const goToTrackPage = useCallback(() => {
     if (user && originalTrack) {
-      goToRoute(
-        trackPage(user?.handle, originalTrack?.title, originalTrack?.track_id)
-      )
+      goToRoute(originalTrack.permalink)
     }
   }, [goToRoute, originalTrack, user])
 
