@@ -7,3 +7,7 @@ export function getBNPercentage(n1: BN, n2: BN): number {
   if (num.gte(thousand)) return 1
   return num.toNumber() / 1000
 }
+
+export function clampBN(value: BN, min: BN, max: BN): BN {
+  return BN.min(BN.max(value, min), max)
+}
