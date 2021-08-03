@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  forwardRef
+} from 'react'
 
 import cn from 'classnames'
 import uniqueId from 'lodash/uniqueId'
@@ -83,28 +89,31 @@ const useModalRoot = (id: string, zIndex?: number) => {
   return [modalRoot, modalBg]
 }
 
-export const Modal = ({
-  modalKey,
-  children,
-  onClose,
-  isOpen,
-  wrapperClassName,
-  bodyClassName,
-  titleClassName,
-  subtitleClassName,
-  headerContainerClassName,
-  anchor = Anchor.CENTER,
-  subtitle,
-  verticalAnchorOffset = 0,
-  horizontalPadding = 8,
-  contentHorizontalPadding = 0,
-  allowScroll = false,
-  title = '',
-  showTitleHeader = false,
-  dismissOnClickOutside = true,
-  showDismissButton = false,
-  zIndex
-}: ModalProps) => {
+export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
+  {
+    modalKey,
+    children,
+    onClose,
+    isOpen,
+    wrapperClassName,
+    bodyClassName,
+    titleClassName,
+    subtitleClassName,
+    headerContainerClassName,
+    anchor = Anchor.CENTER,
+    subtitle,
+    verticalAnchorOffset = 0,
+    horizontalPadding = 8,
+    contentHorizontalPadding = 0,
+    allowScroll = false,
+    title = '',
+    showTitleHeader = false,
+    dismissOnClickOutside = true,
+    showDismissButton = false,
+    zIndex
+  },
+  ref
+) {
   const id = useMemo(() => modalKey || uniqueId('modal-'), [modalKey])
   const onTouchMove = useCallback(
     (e: any) => {
@@ -230,6 +239,7 @@ export const Modal = ({
                       minHeight: height
                     }}
                     key={key}
+                    ref={ref}
                   >
                     <animated.div
                       ref={dismissOnClickOutside ? outsideClickRef : null}
@@ -269,4 +279,4 @@ export const Modal = ({
         )}
     </>
   )
-}
+})

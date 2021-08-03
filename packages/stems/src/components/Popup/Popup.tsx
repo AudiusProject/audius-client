@@ -76,7 +76,7 @@ const getComputedPosition = (
  * from modals, which do take over the whole UI and are usually
  * center-screened.
  */
-export const Popup = forwardRef<HTMLElement, PopupProps>(function Popup(
+export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   {
     anchorRef,
     animationDuration,

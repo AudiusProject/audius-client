@@ -10,7 +10,7 @@ import { PopupMenuItem, PopupMenuProps } from './types'
 /**
  * A menu that shows on top of the UI. Ideal for overflow menus, dropdowns, etc
  */
-export const PopupMenu = forwardRef<HTMLElement, PopupMenuProps>(
+export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
   function PopupMenu(
     { items, onClose, position, renderTrigger, title, zIndex },
     ref
