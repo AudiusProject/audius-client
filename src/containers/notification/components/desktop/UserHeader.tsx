@@ -116,10 +116,7 @@ const UserHeader = ({
   )
   const showUserListModal = userIds.length > USER_LENGTH_LIMIT
   return (
-    <div
-      className={cn(styles.userHeader, { [styles.notRead]: !isRead })}
-      onClick={onClickContainer}
-    >
+    <div className={cn(styles.userHeader, { [styles.notRead]: !isRead })}>
       {users!
         .slice(0, showUserListModal ? USER_LENGTH_LIMIT - 1 : USER_LENGTH_LIMIT)
         .map(user => (
@@ -143,19 +140,21 @@ const UserHeader = ({
           </div>
         </Tooltip>
       )}
-      <UserListModal
-        hasMore={hasMore}
-        id={id}
-        initialLoad={true}
-        loading={status === Status.LOADING}
-        loadMore={loadMore}
-        onClickArtistName={goToProfileRoute}
-        onClose={onCloseUserListModal}
-        title={userListHeader}
-        users={modalUsers}
-        ref={userListModalRef}
-        visible={userListModalVisible}
-      />
+      <div onClick={onClickContainer}>
+        <UserListModal
+          hasMore={hasMore}
+          id={id}
+          initialLoad={true}
+          loading={status === Status.LOADING}
+          loadMore={loadMore}
+          onClickArtistName={goToProfileRoute}
+          onClose={onCloseUserListModal}
+          title={userListHeader}
+          users={modalUsers}
+          ref={userListModalRef}
+          visible={userListModalVisible}
+        />
+      </div>
     </div>
   )
 }
