@@ -1,4 +1,10 @@
-import React, { memo, useCallback, MouseEvent, useEffect } from 'react'
+import React, {
+  memo,
+  useCallback,
+  MouseEvent,
+  useEffect,
+  MutableRefObject
+} from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -19,6 +25,7 @@ import { getUsers } from 'store/cache/users/selectors'
 import { AppState, Status } from 'store/types'
 import { formatCount } from 'utils/formatUtil'
 import { profilePage } from 'utils/route'
+import { Nullable } from 'utils/typeUtils'
 
 import styles from './UserHeader.module.css'
 
@@ -66,6 +73,7 @@ type OwnProps = {
   isRead: boolean
   userListHeader: string
   userListModalVisible: boolean
+  userListModalRef: MutableRefObject<Nullable<HTMLDivElement>>
   onOpenUserListModal: () => void
   onCloseUserListModal: () => void
   toggleNotificationPanel: () => void
@@ -87,6 +95,7 @@ const UserHeader = ({
   userListHeader,
   hasMore,
   userListModalVisible,
+  userListModalRef,
   onOpenUserListModal,
   onCloseUserListModal,
   toggleNotificationPanel,
@@ -135,16 +144,17 @@ const UserHeader = ({
         </Tooltip>
       )}
       <UserListModal
-        id={id}
-        loadMore={loadMore}
-        initialLoad={true}
-        title={userListHeader}
-        visible={userListModalVisible}
-        onClose={onCloseUserListModal}
-        users={modalUsers}
-        loading={status === Status.LOADING}
         hasMore={hasMore}
+        id={id}
+        initialLoad={true}
+        loading={status === Status.LOADING}
+        loadMore={loadMore}
         onClickArtistName={goToProfileRoute}
+        onClose={onCloseUserListModal}
+        title={userListHeader}
+        users={modalUsers}
+        ref={userListModalRef}
+        visible={userListModalVisible}
       />
     </div>
   )
