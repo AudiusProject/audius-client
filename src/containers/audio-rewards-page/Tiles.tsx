@@ -37,7 +37,6 @@ const messages = {
   audio: '$AUDIO',
   manageWallets: 'Manage Wallets',
   connectWallets: 'Connect Other Wallets',
-  multipleWallets: 'Total $AUDIO across Wallets: ',
   totalAudio: 'Total $AUDIO'
 }
 

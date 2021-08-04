@@ -25,7 +25,8 @@ const messages = {
   linkedWallets: 'LINKED WALLETS',
   linkedWalletsDescription:
     'Linked wallets are more secure but not all features are supported',
-  linkedWalletsTooltip: 'Something here'
+  linkedWalletsTooltip:
+    'Linked wallets affect VIP status and NFTs. Upcoming features may require different behavior to support linked wallets. '
 }
 
 const AudioBreakdownBody = () => {
@@ -84,8 +85,9 @@ const AudioBreakdownBody = () => {
           {messages.linkedWalletsDescription}
           <Tooltip
             text={messages.linkedWalletsTooltip}
+            className={styles.tooltip}
             mouseEnterDelay={0.1}
-            mount='parent'
+            mount='body'
           >
             <IconInfo className={wm(styles.iconInfo)} />
           </Tooltip>

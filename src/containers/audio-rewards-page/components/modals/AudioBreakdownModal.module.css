@@ -106,3 +106,7 @@
 .iconInfo path {
   fill: var(--neutral-light-4);
 }
+
+.tooltip {
+  width: 250px;
+}
