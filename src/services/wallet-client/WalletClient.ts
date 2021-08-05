@@ -72,7 +72,7 @@ class WalletClient {
       )
       return balances
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return []
     }
   }
@@ -89,7 +89,7 @@ class WalletClient {
       )
       return balances
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return []
     }
   }

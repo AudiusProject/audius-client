@@ -133,17 +133,17 @@ const Wallet = ({
   )
 }
 
-type WaleltsTableProps = {
+type WalletsTableProps = {
   className?: string
   hasActions?: boolean
   hideCollectibles?: boolean
 }
 
-const WaleltsTable = ({
+const WalletsTable = ({
   hasActions = false,
   className,
   hideCollectibles
-}: WaleltsTableProps) => {
+}: WalletsTableProps) => {
   const {
     status,
     confirmingWallet,
@@ -238,4 +238,4 @@ const WaleltsTable = ({
   )
 }
 
-export default WaleltsTable
+export default WalletsTable

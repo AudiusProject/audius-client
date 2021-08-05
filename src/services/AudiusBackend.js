@@ -2508,8 +2508,8 @@ class AudiusBackend {
   }
 
   /**
-   * Transfers the user's ERC20 AUDIO into SPL WAUDIO to their solana user bank account
-   * @param {BN} balance The amount of AUDIO to be transferred
+   * Fetches the SPL WAUDIO balance for the user's solana wallet address
+   * @param {string} The solana wallet address
    */
   static async getAddressWAudioBalance(address) {
     await waitForLibsInit()

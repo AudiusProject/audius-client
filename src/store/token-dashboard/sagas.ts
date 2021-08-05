@@ -228,15 +228,13 @@ function* connectWallet() {
     const isWalletLinkEnabled = getRemoteVar(
       BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_LINK
     ) as boolean
-    const isPhantomEnabled = true
-    // getRemoteVar(
-    //   BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_PHANTOM
-    // ) as boolean
+    const isPhantomEnabled = getRemoteVar(
+      BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_PHANTOM
+    ) as boolean
 
-    const isSolletEnabled = true
-    // getRemoteVar(
-    //   BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_SOLLET
-    // ) as boolean
+    const isSolletEnabled = getRemoteVar(
+      BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_SOLLET
+    ) as boolean
 
     // @ts-ignore: type web3Instance
     web3Instance = yield connectWeb3Wallet({
@@ -324,7 +322,7 @@ function* connectSPLWallet(
       ) ||
       associatedUserId !== null
     ) {
-      // The wallet already exists in the assocaited wallets set
+      // The wallet already exists in the associated wallets set
       yield put(
         updateWalletError({
           errorMessage:
@@ -512,7 +510,7 @@ function* connectEthWallet(web3Instance: any) {
       associatedUserId !== null
     ) {
       yield disconnectWeb3(web3Instance)
-      // The wallet already exists in the assocaited wallets set
+      // The wallet already exists in the associated wallets set
       yield put(
         updateWalletError({
           errorMessage:
@@ -673,10 +671,8 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
         currentAssociatedWallets &&
         !(removeWallet in currentAssociatedWallets)
       ) {
-        // The wallet already exists in the assocaited wallets set
-        yield put(
-          updateWalletError({ errorMessage: 'Unable to remove wallet' })
-        )
+        // The wallet already removed from the associated wallets set
+        yield put(updateWalletError({ errorMessage: 'Wallet already removed' }))
         return
       }
 
@@ -694,10 +690,8 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
         currentAssociatedWallets &&
         !(removeWallet in currentAssociatedWallets)
       ) {
-        // The wallet already exists in the assocaited wallets set
-        yield put(
-          updateWalletError({ errorMessage: 'Unable to remove wallet' })
-        )
+        // The wallet already removed fromthe associated wallets set
+        yield put(updateWalletError({ errorMessage: 'Wallet already removed' }))
         return
       }
 
