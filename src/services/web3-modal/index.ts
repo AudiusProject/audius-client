@@ -125,7 +125,7 @@ export const createSession = async (config: Config): Promise<any> => {
             await new Promise(resolve => setTimeout(resolve, 1000))
             return window.solana
           } catch (err) {
-            console.log(err)
+            console.error(err)
           }
         }
       }
@@ -153,14 +153,12 @@ export const createSession = async (config: Config): Promise<any> => {
               }
             )
             await wallet.connect()
-            console.log('finihsed')
             const walletPk: string = await walletConnection
             // @ts-ignore
             window.wallet = wallet
-            console.log(`Got wallet with ${walletPk}`)
             return wallet
           } catch (err) {
-            console.log(err)
+            console.error(err)
           }
         }
       }
@@ -173,11 +171,9 @@ export const createSession = async (config: Config): Promise<any> => {
     const web3 = new Web3(provider)
     return web3
   } catch (err) {
-    console.log({ err })
     if ('message' in err && err.message === 'Modal closed by user') {
       console.log('closed by user')
     }
-    console.log(err)
   }
 }
 

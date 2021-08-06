@@ -51,7 +51,11 @@ export type ConfirmRemoveWalletAction = PayloadAction<{
   chain: Chain
 }>
 
-export type Chain = 'sol' | 'eth'
+export enum Chain {
+  Eth = 'eth',
+  Sol = 'sol'
+}
+
 export type AssociatedWalletsState = {
   status: Nullable<'Connecting' | 'Confirming'>
   connectedEthWallets: Nullable<AssociatedWallets>
@@ -175,9 +179,9 @@ const slice = createSlice({
         payload: { associatedWallets, chain }
       }: PayloadAction<{ associatedWallets: AssociatedWallets; chain: Chain }>
     ) => {
-      if (chain === 'sol') {
+      if (chain === Chain.Sol) {
         state.associatedWallets.connectedSolWallets = associatedWallets
-      } else if (chain === 'eth') {
+      } else if (chain === Chain.Eth) {
         state.associatedWallets.connectedEthWallets = associatedWallets
       }
       state.associatedWallets.confirmingWallet = {
@@ -229,11 +233,11 @@ const slice = createSlice({
         collectibleCount: number
       }>
     ) => {
-      if (chain === 'sol') {
+      if (chain === Chain.Sol) {
         state.associatedWallets.connectedSolWallets = (
           state.associatedWallets.connectedSolWallets || []
         ).concat({ address: wallet, balance, collectibleCount })
-      } else if (chain === 'eth') {
+      } else if (chain === Chain.Eth) {
         state.associatedWallets.connectedEthWallets = (
           state.associatedWallets.connectedEthWallets || []
         ).concat({ address: wallet, balance, collectibleCount })
@@ -279,12 +283,12 @@ const slice = createSlice({
       state.associatedWallets.removeWallet.status = null
       state.associatedWallets.removeWallet.wallet = null
       state.associatedWallets.removeWallet.chain = null
-      if (chain === 'sol') {
+      if (chain === Chain.Sol) {
         state.associatedWallets.connectedSolWallets =
           state.associatedWallets.connectedSolWallets?.filter(
             a => a.address !== wallet
           ) ?? null
-      } else if (chain === 'eth') {
+      } else if (chain === Chain.Eth) {
         state.associatedWallets.connectedEthWallets =
           state.associatedWallets.connectedEthWallets?.filter(
             a => a.address !== wallet

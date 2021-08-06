@@ -32,12 +32,12 @@ const messages = {
   audio: '$AUDIO'
 }
 
-const shortedSPLAddress = (addr: string) => {
+const shortenSPLAddress = (addr: string) => {
   return `${addr.substring(0, 4)}...${addr.substr(addr.length - 5)}`
 }
 
 const shortenEthAddress = (addr: string) => {
-  return `0x...${addr.substr(addr.length - 7)}`
+  return `0x${addr.substr(2, 4)}...${addr.substr(addr.length - 5)}`
 }
 
 type WalletProps = {
@@ -72,7 +72,8 @@ const Wallet = ({
     },
     [dispatch, address, chain]
   )
-  const displayAddress = chain === 'eth' ? shortenEthAddress : shortedSPLAddress
+  const displayAddress =
+    chain === Chain.Eth ? shortenEthAddress : shortenSPLAddress
   const copyAddressToClipboard = useCallback(() => {
     copyToClipboard(address)
   }, [address])
@@ -94,7 +95,7 @@ const Wallet = ({
         >
           <>
             <div className={styles.chainIconContainer}>
-              {chain === 'eth' ? (
+              {chain === Chain.Eth ? (
                 <LogoEth className={styles.chainIconEth} />
               ) : (
                 <LogoSol className={styles.chainIconSol} />
@@ -193,7 +194,7 @@ const WalletsTable = ({
       {ethWallets &&
         ethWallets.map(wallet => (
           <Wallet
-            chain={'eth'}
+            chain={Chain.Eth}
             key={wallet.address}
             address={wallet.address}
             collectibleCount={wallet.collectibleCount}
@@ -208,7 +209,7 @@ const WalletsTable = ({
       {solWallets &&
         solWallets.map(wallet => (
           <Wallet
-            chain={'sol'}
+            chain={Chain.Sol}
             key={wallet.address}
             address={wallet.address}
             collectibleCount={wallet.collectibleCount}

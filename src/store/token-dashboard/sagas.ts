@@ -54,7 +54,8 @@ import {
   ConfirmRemoveWalletAction,
   getAssociatedWallets,
   updateWalletError,
-  preloadWalletProviders
+  preloadWalletProviders,
+  Chain
 } from './slice'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
@@ -161,13 +162,13 @@ function* fetchAccountAssociatedWallets() {
   yield put(
     setAssociatedWallets({
       associatedWallets: ethWalletBalances,
-      chain: 'eth'
+      chain: Chain.Eth
     })
   )
   yield put(
     setAssociatedWallets({
       associatedWallets: splWalletBalances,
-      chain: 'sol'
+      chain: Chain.Sol
     })
   )
 }
@@ -344,7 +345,7 @@ function* connectSPLWallet(
     yield put(
       setIsConnectingWallet({
         wallet: connectingWallet,
-        chain: 'sol',
+        chain: Chain.Sol,
         balance: walletBalance,
         collectibleCount
       })
@@ -446,7 +447,7 @@ function* connectSPLWallet(
               wallet: connectingWallet,
               balance: walletBalance,
               collectibleCount,
-              chain: 'sol'
+              chain: Chain.Sol
             })
           )
           const updatedCID: Nullable<string> = yield call(getAccountMetadataCID)
@@ -529,7 +530,7 @@ function* connectEthWallet(web3Instance: any) {
     yield put(
       setIsConnectingWallet({
         wallet: connectingWallet,
-        chain: 'eth',
+        chain: Chain.Eth,
         balance: walletBalance,
         collectibleCount
       })
@@ -611,7 +612,7 @@ function* connectEthWallet(web3Instance: any) {
               wallet: connectingWallet,
               balance: walletBalance,
               collectibleCount,
-              chain: 'eth'
+              chain: Chain.Eth
             })
           )
           const updatedCID: Nullable<string> = yield call(getAccountMetadataCID)
@@ -662,7 +663,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
     )
     const updatedMetadata = newUserMetadata({ ...userMetadata })
 
-    if (removeChain === 'eth') {
+    if (removeChain === Chain.Eth) {
       const currentAssociatedWallets: Record<string, any> = yield call(
         AudiusBackend.fetchUserAssociatedEthWallets,
         updatedMetadata
@@ -681,7 +682,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
       }
 
       delete updatedMetadata.associated_wallets[removeWallet]
-    } else if (removeChain === 'sol') {
+    } else if (removeChain === Chain.Sol) {
       const currentAssociatedWallets: Record<string, any> = yield call(
         AudiusBackend.fetchUserAssociatedSolWallets,
         updatedMetadata

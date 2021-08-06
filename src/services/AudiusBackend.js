@@ -1003,8 +1003,8 @@ class AudiusBackend {
   }
 
   /**
-   * Retrieves the user's associated wallets from IPFS using the user's metadata CID and creator node endpoints
-   * @param {Object} user The user metadata which contains the CID for the metadata multihash
+   * Retrieves the user's eth associated wallets from IPFS using the user's metadata CID and creator node endpoints
+   * @param {User} user The user metadata which contains the CID for the metadata multihash
    * @returns Object The associated wallets mapping of address to nested signature
    */
   static async fetchUserAssociatedEthWallets(user) {
@@ -1025,8 +1025,8 @@ class AudiusBackend {
   }
 
   /**
-   * Retrieves the user's associated wallets from IPFS using the user's metadata CID and creator node endpoints
-   * @param {Object} user The user metadata which contains the CID for the metadata multihash
+   * Retrieves the user's solana associated wallets from IPFS using the user's metadata CID and creator node endpoints
+   * @param {User} user The user metadata which contains the CID for the metadata multihash
    * @returns Object The associated wallets mapping of address to nested signature
    */
   static async fetchUserAssociatedSolWallets(user) {
@@ -1046,18 +1046,39 @@ class AudiusBackend {
     return null
   }
 
+  /**
+   * Retrieves both the user's ETH and SOL associated wallets from the user's metadata CID
+   * @param {User} user The user metadata which contains the CID for the metadata multihash
+   * @returns Object The associated wallets mapping of address to nested signature
+   */
+  static async fetchUserAssociatedWallets(user) {
+    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+    const cid = user?.metadata_multihash ?? null
+    if (cid) {
+      const metadata = await fetchCID(
+        cid,
+        gateways,
+        /* cache */ false,
+        /* asUrl */ false
+      )
+      return {
+        associated_sol_wallets: metadata?.associated_sol_wallets ?? null,
+        associated_wallets: metadata?.associated_wallets ?? null
+      }
+    }
+    return null
+  }
+
   static async updateCreator(metadata, id) {
     let newMetadata = { ...metadata }
-    const associatedEthWallets = await AudiusBackend.fetchUserAssociatedEthWallets(
+    const associatedWallets = await AudiusBackend.fetchUserAssociatedWallets(
       metadata
     )
     newMetadata.associated_wallets =
-      newMetadata.associated_wallets || associatedEthWallets
-    const associatedSolWallets = await AudiusBackend.fetchUserAssociatedSolWallets(
-      metadata
-    )
+      newMetadata.associated_wallets || associatedWallets?.associated_wallets
     newMetadata.associated_sol_wallets =
-      newMetadata.associated_sol_wallets || associatedSolWallets
+      newMetadata.associated_sol_wallets ||
+      associatedWallets?.associated_sol_wallets
 
     try {
       if (newMetadata.updatedProfilePicture) {
