@@ -449,8 +449,8 @@ class AudiusAPIClient {
     const encodedCurrentUserId = encodeHashId(currentUserId)
     const params = {
       limit,
-      user_id: encodedCurrentUserId || undefined,
-      with_users: true
+      user_id: encodedCurrentUserId || undefined
+      // with_users: true
     }
     const remixablesResponse: Nullable<APIResponse<
       APITrack[]
@@ -459,7 +459,7 @@ class AudiusAPIClient {
     if (!remixablesResponse) return []
 
     const adapted = remixablesResponse.data
-      .map(adapter.makeTrack)
+      .map(adapter.makeUserlessTrack)
       .filter(removeNullable)
 
     return adapted
