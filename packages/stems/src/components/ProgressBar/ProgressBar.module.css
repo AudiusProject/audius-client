@@ -2,11 +2,10 @@
   display: inline-flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 8px;
 }
 
 .slider {
-  background-color: var(--background);
+  background-color: var(--neutral-light-9);
   box-shadow: inset 1px 1px 7px -2px rgba(53, 54, 79, 0.25);
   border-radius: 22px;
   height: 24px;
@@ -23,14 +22,14 @@
 }
 
 .labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--font-s);
-    padding: 0 4px;
-    margin-top: 8px;
+  display: flex;
+  font-size: var(--font-s);
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 4px;
 }
 
 .minLabel, .maxLabel {
-    color: var(--neutral-light-4);
-    font-weight: var(--font-bold);
+  color: var(--neutral-light-4);
+  font-weight: var(--font-bold);
 }

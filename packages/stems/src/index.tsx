@@ -22,6 +22,7 @@ export {
   PopupMenuItem,
   PopupMenuProps
 } from './components/PopupMenu'
+export { ProgressBar } from './components/ProgressBar'
 export { Scrubber } from './components/Scrubber'
 export { TabSlider, TabSliderProps, Option } from './components/TabSlider'
 export {
