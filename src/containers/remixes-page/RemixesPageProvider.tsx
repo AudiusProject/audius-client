@@ -94,7 +94,7 @@ const RemixesPageProvider = ({
       actions: tracksActions,
       scrollParent: containerRef as any,
       loadMore: (offset: number, limit: number) => {
-        loadMore(offset, limit, { trackId: originalTrack?.track_id || null })
+        loadMore(offset, limit, { trackId: originalTrack?.track_id ?? null })
       }
     }
   }
