@@ -1,0 +1,233 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem;
+}
+.container h2 {
+  font-weight: 900;
+  font-size: 64px;
+  line-height: 56px;
+  background: var(--page-header-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.container h3 {
+  color: var(--neutral-light-4);
+  font-weight: var(--font-heavy);
+  line-height: 20px;
+  font-size: 16px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.container h4 {
+  color: var(--neutral-light-4);
+  font-weight: var(--font-heavy);
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.container.mobile {
+  padding: 1rem 0rem;
+}
+.container.mobile h2 {
+  font-size: 34px;
+  line-height: 42px;
+}
+.container.mobile h3 {
+  font-size: 16px;
+  line-height: 20px;
+}
+.container.mobile h4 {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.header {
+  padding-bottom: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: var(--font-bold);
+}
+.title i {
+  margin-right: 0.5rem;
+}
+.title.mobile {
+  font-size: 18px;
+}
+
+.progressCard {
+  width: 100%;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  border: 1px solid var(--neutral-light-8);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.progressInfo {
+  display: flex;
+}
+.progressInfo.mobile {
+  padding: 16px 0px;
+}
+
+.progressDescription {
+  flex: 1 1 0;
+  padding: 1rem 1.5rem;
+  font-weight: var(--font-bold);
+}
+.progressDescription.mobile {
+  width: 100%;
+  padding: 0px 20px;
+  margin-bottom: 1rem;
+}
+
+.progressReward {
+  padding: 1rem 2rem;
+  text-align: center;
+  border-left: 1px solid var(--neutral-light-8);
+}
+.progressReward.mobile {
+  padding: 0 16px;
+  border: none;
+}
+
+
+.progressBarSection {
+  border-top: 1px solid var(--neutral-light-8);
+  padding: 24px 72px;
+}
+.progressBarSection.mobile {
+  flex: 1 1 0;
+  border-top: none;
+  border-left: 1px solid var(--neutral-light-8);
+  padding: 0 16px;
+}
+.progressBar.mobile {
+  padding: 14px 0;
+}
+
+.progressStatus {
+  padding: 12px 32px;
+  text-align: center;
+}
+.progressStatus h3 {
+  margin-bottom: 0px;
+}
+.progressStatus.incomplete {
+  background-color: var(--neutral-light-8);
+}
+.progressStatus.incomplete h3 {
+  color: var(--neutral-light-4);
+}
+.progressStatus.inProgress {
+  background-color: var(--neutral-light-8);
+}
+.progressStatus.inProgress h3 {
+  color: var(--secondary-light-1);
+}
+.progressStatus.complete {
+  background-color: var(--static-accent-green-light-1);
+}
+.progressStatus.complete h3 {
+  color: var(--white);
+}
+
+.button {
+  margin-top: 2rem;
+}
+.button * {
+  font-size: var(--font-l) !important;
+  letter-spacing: 0px !important;
+}
+.button.mobile {
+  width: 100%;
+}
+
+/* QR Code Styles */
+.qrContainer {
+  display: flex;
+  margin-top: 2rem;
+}
+.qrContainer.mobile {
+  display: none;
+}
+
+.qr {
+  height: 158px;
+  width: 158px;
+}
+
+.qrTextContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 42px 32px;
+}
+.qrTextContainer .qrText {
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--secondary);
+  font-weight: var(--font-bold);
+}
+.qrTextContainer .qrSubtext {
+  font-size: 16px;
+  text-transform: none;
+  color: var(--neutral);
+  font-weight: var(--font-demi-bold);
+  margin: 0px;
+}
+
+/* Invite Link Styles */
+.inviteButtonContainer {
+  gap: 10px;
+  cursor: pointer;
+  transition: all .07s ease-in-out;
+  transform: scale3d(1, 1, 1);
+}
+
+.inviteButtonContainer:hover {
+  transform: scale3d(1.03, 1.03, 1.03);
+}
+
+.inviteButtonContainer:active {
+  transform: scale3d(0.99, 0.99, 0.99);
+}
+
+.inviteLinkContainer {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.inviteLink {
+  min-width: 0;
+}
+
+.inviteIcon {
+  height: 24px;
+  flex: 0 0 24px;
+  margin-left: 12px;
+}
+
+.inviteIcon path {
+  fill: var(--static-white);
+}
+
+.toastContainer {
+  margin-top: 2rem;
+  position: relative;
+  width: 100%;
+}
+
+.toast {
+  left: 50%;
+  transform: translateX(-50%);
+}

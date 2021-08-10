@@ -1,0 +1,35 @@
+.container {
+  display: inline-flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.slider {
+  background-color: var(--neutral-light-9);
+  box-shadow: inset 1px 1px 7px -2px rgba(53, 54, 79, 0.25);
+  border-radius: 22px;
+  height: 24px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sliderBar {
+  background: linear-gradient(315deg, #5B23E1 2.04%, #A22FEB 100%);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+
+.labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-s);
+    padding: 0 4px;
+    margin-top: 8px;
+}
+
+.minLabel, .maxLabel {
+    color: var(--neutral-light-4);
+    font-weight: var(--font-bold);
+}

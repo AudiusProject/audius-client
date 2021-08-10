@@ -35,7 +35,6 @@
   line-height: 19px;
 }
 
-
 .rewardsContainer {
   display: flex;
   flex-wrap: wrap;
@@ -46,7 +45,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 40px;
+  padding: 40px 20px;
   flex: 1 1 340px;
   min-width: 340px;
   border: 2px solid var(--neutral-light-7);
@@ -85,13 +84,44 @@
 .rewardDescription {
   color: var(--secondary);
   font-size: var(--font-m);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-demi-bold);
   margin-bottom: 24px;
   text-align: left;
 }
 .rewardDescription.mobile {
   font-size: var(--font-s);
   line-height: 17px;
+}
+
+.rewardProgress {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+.rewardProgress.mobile {
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.rewardProgressLabel {
+  color: var(--neutral-light-4);
+  font-weight: var(--font-heavy);
+  line-height: 20px;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+.rewardProgressLabel.complete {
+  color: var(--accent-green);
+}
+.rewardProgressBar {
+  flex: 1 1 0;
+}
+
+.panelButton.mobile {
+  height: var(--unit-8);
+  width: 100%;
 }
 
 .panelButtonText {

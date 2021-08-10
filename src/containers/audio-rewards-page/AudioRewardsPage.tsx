@@ -17,9 +17,10 @@ import { isMobile } from 'utils/clientUtil'
 import { AUDIO_PAGE, BASE_URL, TRENDING_PAGE } from 'utils/route'
 
 import styles from './AudioRewardsPage.module.css'
-import RewardsTile from './RewardsTile'
+import ChallengeRewardsTile from './ChallengeRewardsTile'
 import Tiers from './Tiers'
 import { BalanceTile, WalletTile } from './Tiles'
+import TrendingRewardsTile from './TrendingRewardsTile'
 import WalletModal from './WalletModal'
 import ExplainerTile from './components/ExplainerTile'
 
@@ -39,7 +40,8 @@ export const RewardsContent = () => {
         <BalanceTile className={wm(styles.balanceTile)} />
         <WalletTile className={styles.walletTile} />
       </div>
-      <RewardsTile className={styles.mobile} />
+      <ChallengeRewardsTile className={styles.mobile} />
+      <TrendingRewardsTile className={styles.mobile} />
       <Tiers />
     </>
   )

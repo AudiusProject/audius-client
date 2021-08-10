@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { ReactNode } from 'react'
 
 import { useDispatch } from 'react-redux'
@@ -10,14 +11,9 @@ import { StringKeys } from 'services/remote-config'
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
+import { trendingRewardsConfig } from './config'
 import { setTrendingRewardsModalType } from './store/slice'
-
-type RewardID =
-  | 'trending-track'
-  | 'trending-playlist'
-  | 'top-api'
-  | 'verified-upload'
-  | 'trending-underground'
+import { TrendingRewardID } from './types'
 
 type RewardPanelProps = {
   title: string
@@ -25,7 +21,7 @@ type RewardPanelProps = {
   description: string
   buttonText: string
   onClickButton: () => void
-  id: RewardID
+  id: TrendingRewardID
 }
 
 const RewardPanel = ({
@@ -45,6 +41,7 @@ const RewardPanel = ({
       </span>
       <span className={wm(styles.rewardDescription)}>{description}</span>
       <ButtonWithArrow
+        className={wm(styles.panelButton)}
         text={buttonText}
         onClick={onClickButton}
         textClassName={styles.panelButtonText}
@@ -57,7 +54,7 @@ type RewardsTileProps = {
   className?: string
 }
 
-const validRewardIds: { [k in RewardID]: any } = {
+const validRewardIds: { [k in TrendingRewardID]: any } = {
   'trending-track': 1,
   'trending-playlist': 1,
   'top-api': 1,
@@ -65,60 +62,21 @@ const validRewardIds: { [k in RewardID]: any } = {
   'trending-underground': 1
 }
 
-const isValidRewardId = (s: string): s is RewardID => s in validRewardIds
+const isValidRewardId = (s: string): s is TrendingRewardID =>
+  s in validRewardIds
 
 const messages = {
-  title: '$AUDIO REWARDS',
-  description1: 'Win contests and complete tasks to earn $AUDIO tokens!',
-  description2:
-    'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!'
+  title: 'TRENDING COMPETITIONS',
+  description1: 'Win contests to earn $AUDIO tokens!'
 }
 
 /** Pulls rewards from remoteconfig */
 const useRewardIds = () => {
-  const rewardsString = useRemoteVar(StringKeys.REWARDS_IDS)
+  const rewardsString = useRemoteVar(StringKeys.TRENDING_REWARD_IDS)
   if (!rewardsString) return []
   const rewards = rewardsString.split(',')
-  const filteredRewards: RewardID[] = rewards.filter(isValidRewardId)
+  const filteredRewards: TrendingRewardID[] = rewards.filter(isValidRewardId)
   return filteredRewards
-}
-const rewardsMap = {
-  'trending-playlist': {
-    title: 'Top 5 Trending Playlists',
-    icon: <i className='emoji large chart-increasing' />,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonText: 'See More',
-    id: 'trending-playlist' as const
-  },
-  'trending-track': {
-    title: 'Top 5 Trending Tracks',
-    icon: <i className='emoji large chart-increasing' />,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonText: 'See More',
-    id: 'trending-track' as const
-  },
-  'top-api': {
-    title: 'Top 10 API Apps',
-    icon: <i className='emoji large nerd-face' />,
-    description: 'The top 10 Audius API apps each month win',
-    buttonText: 'More Info',
-    id: 'top-api' as const
-  },
-  'verified-upload': {
-    title: 'First Upload With Your Verified Account',
-    icon: <i className='emoji large white-heavy-check-mark' />,
-    description:
-      'Verified on Twitter/Instagram? Upload your first track, post it on social media, & tag us',
-    buttonText: 'More Info',
-    id: 'verified-upload' as const
-  },
-  'trending-underground': {
-    title: 'Top 5 Underground Trending',
-    icon: <i className='emoji large chart-increasing' />,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonText: 'See More',
-    id: 'trending-underground' as const
-  }
 }
 
 const RewardsTile = ({ className }: RewardsTileProps) => {
@@ -148,7 +106,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const rewardIds = useRewardIds()
 
   const rewardsTiles = rewardIds
-    .map(id => rewardsMap[id])
+    .map(id => trendingRewardsConfig[id])
     .map(props => (
       <RewardPanel
         {...props}
@@ -164,7 +122,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       <span className={wm(styles.title)}>{messages.title}</span>
       <div className={wm(styles.subtitle)}>
         <span>{messages.description1}</span>
-        <span>{messages.description2}</span>
       </div>
       <div className={styles.rewardsContainer}>{rewardsTiles}</div>
     </Tile>
