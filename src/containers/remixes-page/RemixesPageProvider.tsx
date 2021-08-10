@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react'
 
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
+import { useParams } from 'react-router'
 import { Dispatch } from 'redux'
 
 import { LineupVariant } from 'containers/lineup/types'
@@ -14,7 +15,6 @@ import { profilePage } from 'utils/route'
 
 import { RemixesPageProps as DesktopRemixesPageProps } from './components/desktop/RemixesPage'
 import { RemixesPageProps as MobileRemixesPageProps } from './components/mobile/RemixesPage'
-import { useTrackIdFromUrl } from './hooks'
 import { tracksActions } from './store/lineups/tracks/actions'
 import { getTrack, getUser, getLineup, getCount } from './store/selectors'
 import { fetchTrack, reset } from './store/slice'
@@ -54,12 +54,10 @@ const RemixesPageProvider = ({
   reset,
   resetTracks
 }: RemixesPageProviderProps) => {
-  const trackId = useTrackIdFromUrl()
+  const { handle, slug } = useParams<{ handle: string; slug: string }>()
   useEffect(() => {
-    if (trackId) {
-      fetchTrack(trackId)
-    }
-  }, [trackId, fetchTrack])
+    fetchTrack(handle, slug)
+  }, [handle, slug, fetchTrack])
 
   useEffect(() => {
     return function cleanup() {
@@ -96,7 +94,7 @@ const RemixesPageProvider = ({
       actions: tracksActions,
       scrollParent: containerRef as any,
       loadMore: (offset: number, limit: number) => {
-        loadMore(offset, limit, { trackId })
+        loadMore(offset, limit, { trackId: originalTrack?.track_id || null })
       }
     }
   }
@@ -135,7 +133,8 @@ function makeMapStateToProps() {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
-    fetchTrack: (trackId: ID) => dispatch(fetchTrack({ trackId })),
+    fetchTrack: (handle: string, slug: string) =>
+      dispatch(fetchTrack({ handle, slug })),
     loadMore: (
       offset: number,
       limit: number,

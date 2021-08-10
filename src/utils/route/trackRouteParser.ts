@@ -11,8 +11,8 @@ export type TrackRouteParams =
   | null
 
 /**
- * Parses a track route into title, track id, and handle
- * If the route is a hash id route, track title and handle are not returned
+ * Parses a track route into slug, track id, and handle
+ * If the route is a hash id route, track title and handle are not returned, and vice versa
  * @param route
  */
 export const parseTrackRoute = (route: string): TrackRouteParams => {
