@@ -1,12 +1,6 @@
 import React, { useCallback } from 'react'
 
-import {
-  Button,
-  ButtonType,
-  IconArrow,
-  IconUpload,
-  ProgressBar
-} from '@audius/stems'
+import { Button, ButtonType, ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,7 +18,6 @@ import {
   getUserChallenges,
   setChallengeRewardsModalType
 } from 'containers/audio-rewards-page/store/slice'
-import TaskCompletionItem from 'containers/profile-progress/components/TaskCompletionItem'
 import { getHasFavoritedItem } from 'containers/profile-progress/store/selectors'
 import { useModalState } from 'hooks/useModalState'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -32,13 +25,6 @@ import { getAccountUser, getUserHandle } from 'store/account/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import fillString from 'utils/fillString'
-import {
-  profilePage,
-  SETTINGS_PAGE,
-  TRENDING_PAGE,
-  UPLOAD_PAGE
-} from 'utils/route'
-import { Nullable } from 'utils/typeUtils'
 
 import PurpleBox from '../PurpleBox'
 
@@ -59,19 +45,6 @@ const useModalType = (): [
   )
   return [modalType, setModalType]
 }
-
-const modalTypeNavigationMap: Record<
-  ChallengeRewardsModalType,
-  (handle: Nullable<string>) => Nullable<string>
-> = {
-  'invite-friends': () => null,
-  'connect-verified': () => SETTINGS_PAGE,
-  'listen-streak': () => TRENDING_PAGE,
-  'mobile-app': () => null,
-  'profile-completion': (handle: Nullable<string>) =>
-    handle ? profilePage(handle) : null,
-  'track-upload': () => UPLOAD_PAGE
-} as const
 
 const messages = {
   copyLabel: 'Copy to Clipboard',
@@ -165,23 +138,14 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const wm = useWithMobileStyle(styles.mobile)
   const dispalyMobileContent = isMobile()
 
-  const buttonLink = modalTypeNavigationMap[modalType](userHandle)
-  const goToRoute = () => {
-    if (buttonLink === null) return
-    dispatch(pushRoute(buttonLink))
-    dismissModal()
-  }
-
-  const challenge = userChallenges.find(
-    userChallenge => userChallenge.challenge_id === modalType
-  )
+  const challenge = userChallenges[modalType]
 
   const {
     amount,
     fullDescription,
-    buttonText,
     progressLabel,
-    stepCount
+    stepCount,
+    modalButtonInfo
   } = challengeRewardsConfig[modalType]
 
   const currentStepCount = challenge?.current_step_count || 0
@@ -190,6 +154,23 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const isComplete = currentStepCount === stepCount
   // Use for rendering the 'Claim Reward' button
   // const isDisbursed = challenge?.is_disbursed
+
+  let linkType: 'complete' | 'inProgress' | 'incomplete'
+  if (isComplete) {
+    linkType = 'complete'
+  } else if (isInProgress) {
+    linkType = 'inProgress'
+  } else {
+    linkType = 'incomplete'
+  }
+  const buttonInfo = modalButtonInfo[linkType]
+  const buttonLink = buttonInfo?.link(userHandle)
+
+  const goToRoute = useCallback(() => {
+    if (!buttonLink) return
+    dispatch(pushRoute(buttonLink))
+    dismissModal()
+  }, [buttonLink, dispatch, dismissModal])
 
   const progressDescription = (
     <div className={wm(styles.progressDescription)}>
@@ -285,11 +266,10 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         <Button
           className={wm(styles.button)}
           type={ButtonType.PRIMARY_ALT}
-          text={buttonText}
+          text={buttonInfo?.label}
           onClick={goToRoute}
-          rightIcon={
-            modalType === 'track-upload' ? <IconUpload /> : <IconArrow />
-          }
+          leftIcon={buttonInfo?.leftIcon}
+          rightIcon={buttonInfo?.rightIcon}
         />
       )}
     </div>
@@ -316,6 +296,7 @@ export const ChallengeRewardsModal = () => {
       showDismissButton
       isOpen={isOpen}
       onClose={onClose}
+      isFullscreen={false}
       useGradientTitle={false}
       titleClassName={wm(styles.title)}
       headerContainerClassName={styles.header}

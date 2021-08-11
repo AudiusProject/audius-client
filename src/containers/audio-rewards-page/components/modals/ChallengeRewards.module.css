@@ -47,6 +47,7 @@
   padding-bottom: 20px;
   text-align: center;
   border-bottom: 1px solid var(--neutral-light-8);
+  margin: 0 24px;
 }
 
 .title {
@@ -123,13 +124,13 @@
   margin-bottom: 0px;
 }
 .progressStatus.incomplete {
-  background-color: var(--neutral-light-8);
+  background-color: var(--neutral-light-9);
 }
 .progressStatus.incomplete h3 {
   color: var(--neutral-light-4);
 }
 .progressStatus.inProgress {
-  background-color: var(--neutral-light-8);
+  background-color: var(--neutral-light-9);
 }
 .progressStatus.inProgress h3 {
   color: var(--secondary-light-1);

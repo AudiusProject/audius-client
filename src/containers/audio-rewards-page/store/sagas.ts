@@ -12,7 +12,7 @@ import {
   fetchUserChallengesSucceeded
 } from './slice'
 
-export function* watchFetchServices() {
+export function* watchFetchUserChallenges() {
   yield takeEvery(fetchUserChallenges.type, function* () {
     yield call(waitForBackendSetup)
     const currentUserId: number = yield select(getUserId)
@@ -31,7 +31,7 @@ export function* watchFetchServices() {
 }
 
 const sagas = () => {
-  return [watchFetchServices]
+  return [watchFetchUserChallenges]
 }
 
 export default sagas

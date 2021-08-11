@@ -15,13 +15,13 @@ type RewardsUIState = {
   loading: boolean
   trendingRewardsModalType: TrendingRewardsModalType
   challengeRewardsModalType: ChallengeRewardsModalType
-  userChallenges: UserChallenge[]
+  userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
 }
 
 const initialState: RewardsUIState = {
   trendingRewardsModalType: 'tracks',
   challengeRewardsModalType: 'track-upload',
-  userChallenges: [],
+  userChallenges: {},
   loading: true
 }
 
@@ -30,7 +30,7 @@ const slice = createSlice({
   initialState,
   reducers: {
     fetchUserChallenges: state => {
-      state.userChallenges = []
+      state.userChallenges = {}
       state.loading = true
     },
     fetchUserChallengesSucceeded: (
@@ -38,7 +38,14 @@ const slice = createSlice({
       action: PayloadAction<UserChallengesPayload>
     ) => {
       const { userChallenges } = action.payload
-      state.userChallenges = userChallenges ?? []
+      if (userChallenges === null) {
+        state.userChallenges = {}
+      } else {
+        state.userChallenges = userChallenges.reduce((acc, challenge) => {
+          acc[challenge.challenge_id] = challenge
+          return acc
+        }, {} as Partial<Record<ChallengeRewardID, UserChallenge>>)
+      }
       state.loading = false
     },
     fetchUserChallengesFailed: state => {
@@ -81,10 +88,7 @@ export const getUserChallenges = (state: AppState) =>
 export const getUserChallenge = (
   state: AppState,
   challengeId: ChallengeRewardID
-) =>
-  state.application.pages.rewardsPage.userChallenges.find(
-    userChallenge => userChallenge.challenge_id === challengeId
-  )
+) => state.application.pages.rewardsPage.userChallenges[challengeId]
 
 export const getUserChallengesLoading = (state: AppState) =>
   state.application.pages.rewardsPage.loading

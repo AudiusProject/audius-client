@@ -10,8 +10,10 @@ import NavContext, {
   LeftPreset,
   RightPreset
 } from 'containers/nav/store/context'
+import { useFlag } from 'containers/remote-config/hooks'
 import { useRequiresAccount } from 'hooks/useRequiresAccount'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { FeatureFlags } from 'services/remote-config'
 import { preloadWalletProviders } from 'store/token-dashboard/slice'
 import { isMobile } from 'utils/clientUtil'
 import { AUDIO_PAGE, BASE_URL, TRENDING_PAGE } from 'utils/route'
@@ -31,6 +33,9 @@ export const messages = {
 
 export const RewardsContent = () => {
   const wm = useWithMobileStyle(styles.mobile)
+  const { isEnabled: isChallengeRewardsEnabled } = useFlag(
+    FeatureFlags.CHALLENGE_REWARDS_UI
+  )
   useRequiresAccount(TRENDING_PAGE)
   return (
     <>
@@ -40,7 +45,9 @@ export const RewardsContent = () => {
         <BalanceTile className={wm(styles.balanceTile)} />
         <WalletTile className={styles.walletTile} />
       </div>
-      <ChallengeRewardsTile className={styles.mobile} />
+      {isChallengeRewardsEnabled && (
+        <ChallengeRewardsTile className={styles.mobile} />
+      )}
       <TrendingRewardsTile className={styles.mobile} />
       <Tiers />
     </>

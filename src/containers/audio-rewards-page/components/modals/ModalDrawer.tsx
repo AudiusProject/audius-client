@@ -30,7 +30,8 @@ const ModalDrawer = (props: ModalDrawerProps) => {
         <div className={styles.drawer}>
           <div className={styles.titleContainer}>
             <span
-              className={cn(props.titleClassName ? props.titleClassName : '', {
+              className={cn({
+                [props.titleClassName!]: !!props.titleClassName,
                 [styles.drawerGradientTitle]: gradientTitle,
                 [styles.drawerTitle]: !gradientTitle
               })}

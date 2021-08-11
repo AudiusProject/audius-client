@@ -1,6 +1,55 @@
 import React, { ReactNode } from 'react'
 
+import { IconArrow, IconCheck, IconUpload } from '@audius/stems'
+
+import {
+  profilePage,
+  SETTINGS_PAGE,
+  TRENDING_PAGE,
+  UPLOAD_PAGE
+} from 'utils/route'
+import { Nullable } from 'utils/typeUtils'
+
 import { ChallengeRewardID, TrendingRewardID } from './types'
+
+type LinkButtonType =
+  | 'trackUpload'
+  | 'profile'
+  | 'verifyAccount'
+  | 'trendingTracks'
+type LinkButtonInfo = {
+  label: string
+  leftIcon: ReactNode | null
+  rightIcon: ReactNode | null
+  link: (handle: string | null) => string | null
+}
+
+const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
+  trackUpload: {
+    label: 'Upload Tracks',
+    leftIcon: null,
+    rightIcon: <IconUpload />,
+    link: () => UPLOAD_PAGE
+  },
+  profile: {
+    label: 'Your Profile',
+    leftIcon: null,
+    rightIcon: <IconArrow />,
+    link: (handle: Nullable<string>) => (handle ? profilePage(handle) : null)
+  },
+  verifyAccount: {
+    label: 'Verify Your Account',
+    leftIcon: <IconCheck />,
+    rightIcon: null,
+    link: () => SETTINGS_PAGE
+  },
+  trendingTracks: {
+    label: 'Trending Tracks',
+    leftIcon: null,
+    rightIcon: <IconArrow />,
+    link: () => TRENDING_PAGE
+  }
+}
 
 type ChallengeRewardsInfo = {
   id: ChallengeRewardID
@@ -11,7 +60,12 @@ type ChallengeRewardsInfo = {
   progressLabel: string
   amount: number
   stepCount: number
-  buttonText: string
+  panelButtonText: string
+  modalButtonInfo: {
+    incomplete: LinkButtonInfo | null
+    inProgress: LinkButtonInfo | null
+    complete: LinkButtonInfo | null
+  }
 }
 
 export const challengeRewardsConfig: Record<
@@ -28,7 +82,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Invites',
     amount: 10,
     stepCount: 10,
-    buttonText: 'Invite your Friends'
+    panelButtonText: 'Invite your Friends',
+    modalButtonInfo: {
+      incomplete: null,
+      inProgress: null,
+      complete: null
+    }
   },
   'connect-verified': {
     id: 'connect-verified' as ChallengeRewardID,
@@ -40,7 +99,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: 'Not Linked',
     amount: 10,
     stepCount: 1,
-    buttonText: 'Link Verified Account'
+    panelButtonText: 'Link Verified Account',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.verifyAccount,
+      inProgress: linkButtonMap.verifyAccount,
+      complete: linkButtonMap.profile
+    }
   },
   'listen-streak': {
     id: 'listen-streak' as ChallengeRewardID,
@@ -52,7 +116,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Days',
     amount: 5,
     stepCount: 7,
-    buttonText: 'Trending on Audius'
+    panelButtonText: 'Trending on Audius',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.trendingTracks,
+      inProgress: linkButtonMap.trendingTracks,
+      complete: linkButtonMap.trendingTracks
+    }
   },
   'mobile-app': {
     id: 'mobile-app' as ChallengeRewardID,
@@ -64,7 +133,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: 'Not Installed',
     amount: 10,
     stepCount: 1,
-    buttonText: 'Get the App'
+    panelButtonText: 'Get the App',
+    modalButtonInfo: {
+      incomplete: null,
+      inProgress: null,
+      complete: null
+    }
   },
   'profile-completion': {
     id: 'profile-completion' as ChallengeRewardID,
@@ -76,7 +150,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Complete',
     amount: 10,
     stepCount: 7,
-    buttonText: 'Your Profile'
+    panelButtonText: 'More Info',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.profile,
+      inProgress: linkButtonMap.profile,
+      complete: linkButtonMap.profile
+    }
   },
   'track-upload': {
     id: 'track-upload' as ChallengeRewardID,
@@ -87,7 +166,12 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Uploaded',
     amount: 5,
     stepCount: 3,
-    buttonText: 'Upload Tracks'
+    panelButtonText: 'Upload Tracks',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.trackUpload,
+      inProgress: linkButtonMap.trackUpload,
+      complete: linkButtonMap.trackUpload
+    }
   }
 }
 

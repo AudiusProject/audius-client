@@ -36,7 +36,7 @@ type RewardPanelProps = {
   title: string
   icon: ReactNode
   description: string
-  buttonText: string
+  panelButtonText: string
   progressLabel: string
   stepCount: number
   openModal: (modalType: ChallengeRewardsModalType) => void
@@ -47,7 +47,7 @@ const RewardPanel = ({
   id,
   title,
   description,
-  buttonText,
+  panelButtonText,
   openModal,
   progressLabel,
   icon,
@@ -58,9 +58,7 @@ const RewardPanel = ({
 
   const openRewardModal = () => openModal(id)
 
-  const challenge = userChallenges.find(
-    userChallenge => userChallenge.challenge_id === id
-  )
+  const challenge = userChallenges[id]
   const currentStepCount = challenge?.current_step_count || 0
   const isComplete = currentStepCount === stepCount
 
@@ -95,7 +93,7 @@ const RewardPanel = ({
       </div>
       <ButtonWithArrow
         className={wm(styles.panelButton)}
-        text={buttonText}
+        text={panelButtonText}
         onClick={openRewardModal}
         textClassName={styles.panelButtonText}
       />
