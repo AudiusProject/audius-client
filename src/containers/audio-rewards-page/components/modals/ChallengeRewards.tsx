@@ -1,12 +1,18 @@
-// @ts-nocheck
 import React, { useCallback } from 'react'
 
-import { Button, ButtonType, IconArrow, IconUpload } from '@audius/stems'
+import {
+  Button,
+  ButtonType,
+  IconArrow,
+  IconUpload,
+  ProgressBar
+} from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
+import { ReactComponent as IconValidationCheck } from 'assets/img/iconValidationCheck.svg'
 import QRCode from 'assets/img/imageQR.png'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -18,9 +24,11 @@ import {
   getUserChallenges,
   setChallengeRewardsModalType
 } from 'containers/audio-rewards-page/store/slice'
+import TaskCompletionItem from 'containers/profile-progress/components/TaskCompletionItem'
+import { getHasFavoritedItem } from 'containers/profile-progress/store/selectors'
 import { useModalState } from 'hooks/useModalState'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { getUserHandle } from 'store/account/selectors'
+import { getAccountUser, getUserHandle } from 'store/account/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import fillString from 'utils/fillString'
@@ -32,7 +40,6 @@ import {
 } from 'utils/route'
 import { Nullable } from 'utils/typeUtils'
 
-import ProgressBar from '../ProgressBar'
 import PurpleBox from '../PurpleBox'
 
 import styles from './ChallengeRewards.module.css'
@@ -66,10 +73,14 @@ const modalTypeNavigationMap: Record<
   'track-upload': () => UPLOAD_PAGE
 } as const
 
-const COPY_LABEL = 'Copy to Clipboard'
-const COPIED_LABEL = 'Copied to Clipboard'
-const INVITE_LABEL = 'Copy Invite Link'
-const INVITE_LINK = 'audius.co/signup?ref=%0'
+const messages = {
+  copyLabel: 'Copy to Clipboard',
+  copiedLabel: 'Copied to Clipboard',
+  inviteLabel: 'Copy Invite Link',
+  inviteLink: 'audius.co/signup?ref=%0',
+  qrText: 'Download the App',
+  qrSubtext: 'Scan This QR Code with Your Phone Camera'
+}
 
 type InviteLinkProps = {
   className?: string
@@ -77,30 +88,31 @@ type InviteLinkProps = {
 }
 
 const InviteLink = ({ className, handle }: InviteLinkProps) => {
-  const inviteLink = fillString(INVITE_LINK, handle)
+  const inviteLink = fillString(messages.inviteLink, handle)
+  const wm = useWithMobileStyle(styles.mobile)
 
   const onButtonClick = useCallback(() => {
     copyToClipboard(inviteLink)
   }, [inviteLink])
 
   return (
-    <Tooltip text={COPY_LABEL} placement={'top'} mount={'parent'}>
+    <Tooltip text={messages.copyLabel} placement={'top'} mount={'parent'}>
       <div className={cn(styles.toastContainer, { [className!]: !!className })}>
         <Toast
-          text={COPIED_LABEL}
+          text={messages.copiedLabel}
           delay={2000}
           overlayClassName={styles.toast}
           placement={ComponentPlacement.TOP}
           mount={MountPlacement.PARENT}
         >
           <PurpleBox
-            label={INVITE_LABEL}
-            className={styles.inviteButtonContainer}
+            label={messages.inviteLabel}
+            className={wm(styles.inviteButtonContainer)}
             onClick={onButtonClick}
             text={
               <div className={styles.inviteLinkContainer}>
                 <div className={styles.inviteLink}>{inviteLink}</div>
-                <IconCopy className={styles.inviteIcon} />
+                <IconCopy className={wm(styles.inviteIcon)} />
               </div>
             }
           />
@@ -110,8 +122,36 @@ const InviteLink = ({ className, handle }: InviteLinkProps) => {
   )
 }
 
-const QR_TEXT = 'Download the App'
-const QR_SUBTEXT = 'Scan This QR Code with Your Phone Camera'
+const ProfileChecks = () => {
+  const currentUser = useSelector(getAccountUser)
+  const hasFavoritedItem = useSelector(getHasFavoritedItem)
+  const wm = useWithMobileStyle(styles.mobile)
+
+  const config: Record<string, boolean> = {
+    'Name & Handle': !!currentUser?.name,
+    'Profile Picture': !!currentUser?.profile_picture_sizes,
+    'Cover Photo': !!currentUser?.cover_photo_sizes,
+    'Profile Description': !!currentUser?.bio,
+    'Favorite Track/Playlist': hasFavoritedItem,
+    'Repost Track/Playlist': !!currentUser && currentUser.repost_count >= 1,
+    'Follow Five People': !!currentUser && currentUser.followee_count >= 5
+  }
+
+  return (
+    <div className={wm(styles.profileTaskContainer)}>
+      {Object.keys(config).map(key => (
+        <div className={wm(styles.profileTask)} key={key}>
+          {config[key] ? (
+            <IconValidationCheck />
+          ) : (
+            <div className={styles.profileTaskCircle} />
+          )}
+          <p className={cn({ [styles.completeText]: config[key] })}>{key}</p>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 type BodyProps = {
   dismissModal: () => void
@@ -207,6 +247,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             </div>
             {progressStatusLabel}
           </div>
+          {modalType === 'profile-completion' && <ProfileChecks />}
         </>
       ) : (
         <div className={styles.progressCard}>
@@ -216,6 +257,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           </div>
           {stepCount > 1 && (
             <div className={wm(styles.progressBarSection)}>
+              {modalType === 'profile-completion' && <ProfileChecks />}
               <ProgressBar
                 className={wm(styles.progressBar)}
                 value={currentStepCount}
@@ -234,8 +276,8 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         <div className={wm(styles.qrContainer)}>
           <img className={styles.qr} src={QRCode} alt='QR Code' />
           <div className={styles.qrTextContainer}>
-            <h2 className={styles.qrText}>{QR_TEXT}</h2>
-            <h3 className={styles.qrSubtext}>{QR_SUBTEXT}</h3>
+            <h2 className={styles.qrText}>{messages.qrText}</h2>
+            <h3 className={styles.qrSubtext}>{messages.qrSubtext}</h3>
           </div>
         </div>
       )}
@@ -274,7 +316,6 @@ export const ChallengeRewardsModal = () => {
       showDismissButton
       isOpen={isOpen}
       onClose={onClose}
-      allowScroll
       useGradientTitle={false}
       titleClassName={wm(styles.title)}
       headerContainerClassName={styles.header}

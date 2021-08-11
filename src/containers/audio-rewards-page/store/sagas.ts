@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
 import apiClient from 'services/audius-api-client/AudiusAPIClient'

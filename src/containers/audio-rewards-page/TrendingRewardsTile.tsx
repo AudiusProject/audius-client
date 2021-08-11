@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { ReactNode } from 'react'
 
 import { useDispatch } from 'react-redux'
@@ -54,16 +53,13 @@ type RewardsTileProps = {
   className?: string
 }
 
-const validRewardIds: { [k in TrendingRewardID]: any } = {
-  'trending-track': 1,
-  'trending-playlist': 1,
-  'top-api': 1,
-  'verified-upload': 1,
-  'trending-underground': 1
-}
-
-const isValidRewardId = (s: string): s is TrendingRewardID =>
-  s in validRewardIds
+const validRewardIds: Set<TrendingRewardID> = new Set([
+  'trending-track',
+  'trending-playlist',
+  'top-api',
+  'verified-upload',
+  'trending-underground'
+])
 
 const messages = {
   title: 'TRENDING COMPETITIONS',
@@ -74,8 +70,10 @@ const messages = {
 const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.TRENDING_REWARD_IDS)
   if (!rewardsString) return []
-  const rewards = rewardsString.split(',')
-  const filteredRewards: TrendingRewardID[] = rewards.filter(isValidRewardId)
+  const rewards = rewardsString.split(',') as TrendingRewardID[]
+  const filteredRewards: TrendingRewardID[] = rewards.filter(reward =>
+    validRewardIds.has(reward)
+  )
   return filteredRewards
 }
 

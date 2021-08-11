@@ -1,6 +1,6 @@
-// @ts-nocheck
 import React, { ReactNode, useEffect } from 'react'
 
+import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -14,7 +14,6 @@ import fillString from 'utils/fillString'
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
-import ProgressBar from './components/ProgressBar'
 import { challengeRewardsConfig } from './config'
 import {
   fetchUserChallenges,
@@ -25,11 +24,13 @@ import {
 } from './store/slice'
 import { ChallengeRewardID } from './types'
 
-const TILE_TITLE = '$AUDIO REWARDS'
-const TILE_DESC1 = 'Complete tasks to earn $AUDIO tokens!'
-const TILE_DESC2 =
-  'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!'
-const COMPLETE_LABEL = 'COMPLETE'
+const messages = {
+  title: '$AUDIO REWARDS',
+  description1: 'Complete tasks to earn $AUDIO tokens!',
+  description2:
+    'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!',
+  completeLabel: 'COMPLETE'
+}
 
 type RewardPanelProps = {
   title: string
@@ -77,7 +78,7 @@ const RewardPanel = ({
           })}
         >
           {isComplete
-            ? COMPLETE_LABEL
+            ? messages.completeLabel
             : fillString(
                 progressLabel,
                 currentStepCount.toString(),
@@ -96,7 +97,7 @@ const RewardPanel = ({
         className={wm(styles.panelButton)}
         text={buttonText}
         onClick={openRewardModal}
-        textClassName={styles.buttonText}
+        textClassName={styles.panelButtonText}
       />
     </div>
   )
@@ -106,24 +107,23 @@ type RewardsTileProps = {
   className?: string
 }
 
-const validRewardIds: Record<ChallengeRewardID, 1> = {
-  'invite-friends': 1,
-  'connect-verified': 1,
-  'listen-streak': 1,
-  'mobile-app': 1,
-  'profile-completion': 1,
-  'track-upload': 1
-}
-
-const isValidRewardId = (s: string): s is ChallengeRewardID =>
-  s in validRewardIds
+const validRewardIds: Set<ChallengeRewardID> = new Set([
+  'invite-friends',
+  'connect-verified',
+  'listen-streak',
+  'mobile-app',
+  'profile-completion',
+  'track-upload'
+])
 
 /** Pulls rewards from remoteconfig */
 const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
-  if (!rewardsString) return []
-  const rewards = rewardsString.split(',')
-  const filteredRewards: ChallengeRewardID[] = rewards.filter(isValidRewardId)
+  if (rewardsString === null) return []
+  const rewards = rewardsString.split(',') as ChallengeRewardID[]
+  const filteredRewards: ChallengeRewardID[] = rewards.filter(reward =>
+    validRewardIds.has(reward)
+  )
   return filteredRewards
 }
 
@@ -152,10 +152,10 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
 
   return (
     <Tile className={wm(styles.rewardsTile, className)}>
-      <span className={wm(styles.title)}>{TILE_TITLE}</span>
+      <span className={wm(styles.title)}>{messages.title}</span>
       <div className={wm(styles.subtitle)}>
-        <span>{TILE_DESC1}</span>
-        <span>{TILE_DESC2}</span>
+        <span>{messages.description1}</span>
+        <span>{messages.description2}</span>
       </div>
       <div className={styles.rewardsContainer}>
         {userChallengesLoading ? <LoadingSpinner /> : rewardsTiles}

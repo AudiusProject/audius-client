@@ -78,6 +78,14 @@ export const getChallengeRewardsModalType = (state: AppState) =>
 export const getUserChallenges = (state: AppState) =>
   state.application.pages.rewardsPage.userChallenges
 
+export const getUserChallenge = (
+  state: AppState,
+  challengeId: ChallengeRewardID
+) =>
+  state.application.pages.rewardsPage.userChallenges.find(
+    userChallenge => userChallenge.challenge_id === challengeId
+  )
+
 export const getUserChallengesLoading = (state: AppState) =>
   state.application.pages.rewardsPage.loading
 

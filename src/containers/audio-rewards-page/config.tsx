@@ -19,7 +19,7 @@ export const challengeRewardsConfig: Record<
   ChallengeRewardsInfo
 > = {
   'invite-friends': {
-    id: 'invite-friends' as const,
+    id: 'invite-friends' as ChallengeRewardID,
     title: 'Invite your Friends',
     icon: <i className='emoji large incoming-envelope' />,
     description: 'Earn 1 $AUDIO, for you and your friend',
@@ -31,7 +31,7 @@ export const challengeRewardsConfig: Record<
     buttonText: 'Invite your Friends'
   },
   'connect-verified': {
-    id: 'connect-verified' as const,
+    id: 'connect-verified' as ChallengeRewardID,
     title: 'Link Verified Accounts',
     icon: <i className='emoji large white-heavy-check-mark' />,
     description: 'Link your verified social media accounts to earn 10 $AUDIO',
@@ -43,7 +43,7 @@ export const challengeRewardsConfig: Record<
     buttonText: 'Link Verified Account'
   },
   'listen-streak': {
-    id: 'listen-streak' as const,
+    id: 'listen-streak' as ChallengeRewardID,
     title: 'Listening Streak: 7 Days',
     icon: <i className='emoji large headphone' />,
     description: 'Listen to one track a day for seven days to earn 5 $AUDIO',
@@ -55,7 +55,7 @@ export const challengeRewardsConfig: Record<
     buttonText: 'Trending on Audius'
   },
   'mobile-app': {
-    id: 'mobile-app' as const,
+    id: 'mobile-app' as ChallengeRewardID,
     title: 'Get the Audius Mobile App',
     icon: <i className='emoji large mobile-phone-with-arrow' />,
     description: 'Earn 10 $AUDIO',
@@ -67,7 +67,7 @@ export const challengeRewardsConfig: Record<
     buttonText: 'Get the App'
   },
   'profile-completion': {
-    id: 'profile-completion' as const,
+    id: 'profile-completion' as ChallengeRewardID,
     title: 'Complete your Profile',
     icon: <i className='emoji large white-heavy-check-mark' />,
     description: 'Complete your Audius profile to earn 5 $AUDIO',
@@ -79,7 +79,7 @@ export const challengeRewardsConfig: Record<
     buttonText: 'Your Profile'
   },
   'track-upload': {
-    id: 'track-upload' as const,
+    id: 'track-upload' as ChallengeRewardID,
     title: 'Upload 5 Tracks',
     icon: <i className='emoji large multiple-musical-notes' />,
     description: 'Earn 5 $AUDIO',
@@ -108,21 +108,21 @@ export const trendingRewardsConfig: Record<
     icon: <i className='emoji large chart-increasing' />,
     description: 'Winners are selected every Friday at Noon PT!',
     buttonText: 'See More',
-    id: 'trending-playlist' as const
+    id: 'trending-playlist' as TrendingRewardID
   },
   'trending-track': {
     title: 'Top 5 Trending Tracks',
     icon: <i className='emoji large chart-increasing' />,
     description: 'Winners are selected every Friday at Noon PT!',
     buttonText: 'See More',
-    id: 'trending-track' as const
+    id: 'trending-track' as TrendingRewardID
   },
   'top-api': {
     title: 'Top 10 API Apps',
     icon: <i className='emoji large nerd-face' />,
     description: 'The top 10 Audius API apps each month win',
     buttonText: 'More Info',
-    id: 'top-api' as const
+    id: 'top-api' as TrendingRewardID
   },
   'verified-upload': {
     title: 'First Upload With Your Verified Account',
@@ -130,13 +130,13 @@ export const trendingRewardsConfig: Record<
     description:
       'Verified on Twitter/Instagram? Upload your first track, post it on social media, & tag us',
     buttonText: 'More Info',
-    id: 'verified-upload' as const
+    id: 'verified-upload' as TrendingRewardID
   },
   'trending-underground': {
     title: 'Top 5 Underground Trending',
     icon: <i className='emoji large chart-increasing' />,
     description: 'Winners are selected every Friday at Noon PT!',
     buttonText: 'See More',
-    id: 'trending-underground' as const
+    id: 'trending-underground' as TrendingRewardID
   }
 }
