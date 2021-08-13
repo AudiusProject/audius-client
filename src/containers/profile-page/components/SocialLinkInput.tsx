@@ -28,7 +28,7 @@ const sanitizeHandle = (handle: string) => {
         return split.split('/')[0]
       }
     }
-    if (handle.includes('instagram')) {
+    if (handle.includes('tiktok')) {
       const split = handle.split('tiktok.com/')[1]
       if (split) {
         return split.split('/')[0]
