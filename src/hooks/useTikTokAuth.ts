@@ -67,7 +67,7 @@ export const useTikTokAuth = ({
         storeAccessToken(accessToken, openId, expiresIn, callback)
       } else {
         onError(
-          error || new Error('Access token not returned from native layer')
+          new Error(error || 'Access token not returned from native layer')
         )
       }
     } else {
