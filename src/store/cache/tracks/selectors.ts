@@ -19,11 +19,6 @@ export const getTrack = (
   })
 }
 
-export const getTrackByPermalink = (
-  state: AppState,
-  props: { permalink: string }
-) => state.tracks.permalinks[props.permalink.toLowerCase()] || null
-
 export const getStatus = (state: AppState, props: { id?: ID | null }) =>
   (props.id && state.tracks.statuses[props.id]) || null
 
@@ -56,11 +51,8 @@ export const getTracks = (
   } else if (props && props.permalinks) {
     const tracks: { [permalink: string]: Track } = {}
     props.permalinks.forEach(permalink => {
-      const { id } = getTrackByPermalink(state, { permalink }) || {}
-      if (id) {
-        const track = getTrack(state, { id })
-        if (track) tracks[permalink] = track
-      }
+      const track = getTrack(state, { permalink })
+      if (track) tracks[permalink] = track
     })
     return tracks
   }
