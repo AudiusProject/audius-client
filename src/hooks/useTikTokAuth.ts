@@ -31,16 +31,14 @@ export const useTikTokAuth = ({
   const record = useRecord()
 
   const onError = (e: Error) => {
-    record(make(Name.TIKTOK_OAUTH_ERROR, { error: e.message }))
     errorCallback(e)
+    record(make(Name.TIKTOK_OAUTH_ERROR, { error: e.message }))
   }
 
   const withAuth = (successCallback: WithAuthCallback) => {
-    record(make(Name.TIKTOK_START_OAUTH, {}))
-
     const callback: WithAuthCallback = (accessToken, openId) => {
-      record(make(Name.TIKTOK_COMPLETE_OAUTH, {}))
       successCallback(accessToken, openId)
+      record(make(Name.TIKTOK_COMPLETE_OAUTH, {}))
     }
 
     const accessToken = window.localStorage.getItem('tikTokAccessToken')
@@ -53,6 +51,7 @@ export const useTikTokAuth = ({
     if (accessToken && openId && !isExpired) {
       callback(accessToken, openId)
     } else {
+      record(make(Name.TIKTOK_START_OAUTH, {}))
       getRequestToken(callback, !!NATIVE_MOBILE)
     }
   }
