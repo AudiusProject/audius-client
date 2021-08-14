@@ -118,6 +118,7 @@ export enum Name {
   PROFILE_PAGE_SORT = 'Profile Page: Sort',
   PROFILE_PAGE_CLICK_INSTAGRAM = 'Profile Page: Go To Instagram',
   PROFILE_PAGE_CLICK_TWITTER = 'Profile Page: Go To Twitter',
+  PROFILE_PAGE_CLICK_TIKTOK = 'Profile Page: Go To TikTok',
   PROFILE_PAGE_CLICK_WEBSITE = 'ProfilePage: Go To Website',
   PROFILE_PAGE_CLICK_DONATION = 'ProfilePage: Go To Donation',
 
@@ -610,6 +611,11 @@ type ProfilePageClickTwitter = {
   handle: string
   twitterHandle: string
 }
+type ProfilePageClickTikTok = {
+  eventName: Name.PROFILE_PAGE_CLICK_TIKTOK
+  handle: string
+  tikTokHandle: string
+}
 type ProfilePageClickWebsite = {
   eventName: Name.PROFILE_PAGE_CLICK_WEBSITE
   handle: string
@@ -928,6 +934,7 @@ export type AllTrackingEvents =
   | ProfilePageSort
   | ProfilePageClickInstagram
   | ProfilePageClickTwitter
+  | ProfilePageClickTikTok
   | ProfilePageClickWebsite
   | ProfilePageClickDonation
   | TrackPageDownload
