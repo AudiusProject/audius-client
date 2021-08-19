@@ -57,7 +57,6 @@ import {
   playlistPage,
   EXPLORE_PAGE
 } from 'utils/route'
-import zIndex from 'utils/zIndex'
 
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
