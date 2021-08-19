@@ -57,6 +57,7 @@ import {
   playlistPage,
   EXPLORE_PAGE
 } from 'utils/route'
+import zIndex from 'utils/zIndex'
 
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
@@ -362,6 +363,7 @@ const NavColumn = ({
           visible={showCreatePlaylistModal}
           onSave={onCreatePlaylist}
           onCancel={closeCreatePlaylistModal}
+          zIndex={zIndex.CREATE_PLAYLIST_MODAL}
         />
       </div>
       <div className={styles.navAnchor}>
