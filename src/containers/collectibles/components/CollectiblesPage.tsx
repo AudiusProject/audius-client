@@ -83,8 +83,8 @@ const CollectiblesPage: React.FC<{
       : null
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
-    (profile.collectibleList === undefined &&
-      profile.solanaCollectibleList === undefined) ||
+    profile.collectibleList === undefined ||
+    profile.solanaCollectibleList === undefined ||
     (hasCollectibles && !profile.collectibles)
 
   useEffect(() => {
