@@ -9,7 +9,9 @@ import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement, MountPlacement } from 'components/types'
+import { useFlag } from 'containers/remote-config/hooks'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { FeatureFlags } from 'services/remote-config'
 import {
   getAssociatedWallets,
   requestRemoveWallet,
@@ -64,6 +66,10 @@ const Wallet = ({
   hasActions,
   hideCollectibles
 }: WalletProps) => {
+  const { isEnabled: linkedWalletsAudioEnabled } = useFlag(
+    FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED
+  )
+
   const dispatch = useDispatch()
   const onRequestRemoveWallet = useCallback(
     (e: React.MouseEvent) => {
@@ -112,14 +118,16 @@ const Wallet = ({
           {collectibleCount}
         </div>
       )}
-      <div className={cn(styles.audioBalance, styles.walletText)}>
-        <DisplayAudio
-          showLabel={false}
-          amount={audioBalance}
-          className={styles.balanceContainer}
-          tokenClassName={styles.balance}
-        />
-      </div>
+      {linkedWalletsAudioEnabled && (
+        <div className={cn(styles.audioBalance, styles.walletText)}>
+          <DisplayAudio
+            showLabel={false}
+            amount={audioBalance}
+            className={styles.balanceContainer}
+            tokenClassName={styles.balance}
+          />
+        </div>
+      )}
       {hasActions && (isConfirmAdding || isConfirmRemoving) && (
         <LoadingSpinner className={styles.loading}></LoadingSpinner>
       )}
@@ -146,6 +154,10 @@ const WalletsTable = ({
   className,
   hideCollectibles
 }: WalletsTableProps) => {
+  const { isEnabled: linkedWalletsAudioEnabled } = useFlag(
+    FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED
+  )
+
   const {
     status,
     confirmingWallet,
@@ -188,9 +200,11 @@ const WalletsTable = ({
             {messages.collectibles}
           </h6>
         )}
-        <h6 className={cn(styles.walletsHeaderItem, styles.headerAudio)}>
-          {messages.audio}
-        </h6>
+        {linkedWalletsAudioEnabled && (
+          <h6 className={cn(styles.walletsHeaderItem, styles.headerAudio)}>
+            {messages.audio}
+          </h6>
+        )}
       </div>
       {ethWallets &&
         ethWallets.map(wallet => (

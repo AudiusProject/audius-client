@@ -297,7 +297,9 @@ const slice = createSlice({
     },
     updateWalletError: (
       state,
-      { payload: { errorMessage } }: PayloadAction<{ errorMessage: string }>
+      {
+        payload: { errorMessage }
+      }: PayloadAction<{ errorMessage: string | null }>
     ) => {
       state.associatedWallets.errorMessage = errorMessage
       state.associatedWallets.removeWallet.status = null

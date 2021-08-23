@@ -27,7 +27,7 @@ import styles from 'containers/collectibles/components/CollectiblesPage.module.c
 import {
   Collectible,
   CollectiblesMetadata
-} from 'containers/collectibles/components/types'
+} from 'containers/collectibles/types'
 import { ProfileUser } from 'containers/profile-page/store/types'
 import UserBadges from 'containers/user-badges/UserBadges'
 import useInstanceVar from 'hooks/useInstanceVar'
@@ -75,10 +75,16 @@ const CollectiblesPage: React.FC<{
   isUserOnTheirProfile,
   onLoad
 }) => {
-  const collectibleList = profile?.collectibleList ?? null
+  const ethCollectibleList = profile?.collectibleList ?? null
+  const solanaCollectibleList = profile?.solanaCollectibleList ?? null
+  const collectibleList =
+    ethCollectibleList || solanaCollectibleList
+      ? (ethCollectibleList || []).concat(solanaCollectibleList || [])
+      : null
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
-    profile.collectibleList === undefined ||
+    (profile.collectibleList === undefined &&
+      profile.solanaCollectibleList === undefined) ||
     (hasCollectibles && !profile.collectibles)
 
   useEffect(() => {
@@ -164,9 +170,19 @@ const CollectiblesPage: React.FC<{
     }
   }, [isEditingPreferences])
 
-  const [getHasSetCollectibles, setHasSetCollectibles] = useInstanceVar(false)
+  const [getHasSetEthCollectibles, setHasSetEthCollectibles] = useInstanceVar(
+    false
+  )
+  const [
+    getHasSetSolanaCollectibles,
+    setHasSetSolanaCollectibles
+  ] = useInstanceVar(false)
   useEffect(() => {
-    if (collectibleList && !getHasSetCollectibles()) {
+    if (
+      collectibleList &&
+      ((ethCollectibleList && !getHasSetEthCollectibles()) ||
+        (solanaCollectibleList && !getHasSetSolanaCollectibles()))
+    ) {
       if (!hasCollectibles) {
         /**
          * set local collectible preferences if user never saved them before
@@ -179,7 +195,12 @@ const CollectiblesPage: React.FC<{
           order: collectibleList.map(c => c.id)
         }
         setCollectiblesMetadata(newMetadata)
-        setHasSetCollectibles(true)
+        if (ethCollectibleList) {
+          setHasSetEthCollectibles(true)
+        }
+        if (solanaCollectibleList) {
+          setHasSetSolanaCollectibles(true)
+        }
       } else if (profile.collectibles) {
         /**
          * include collectibles returned by OpenSea which have not been stored in the user preferences
@@ -188,6 +209,9 @@ const CollectiblesPage: React.FC<{
           ...profile.collectibles,
           order: [...profile.collectibles.order]
         }
+        /**
+         * Update id of collectibles to use correct format
+         */
         Object.keys(profile.collectibles).forEach(key => {
           if (key !== 'order' && key.indexOf(':::') === -1) {
             const savedCollectible = collectibleList.find(
@@ -216,17 +240,27 @@ const CollectiblesPage: React.FC<{
           ...newCollectiblesMap,
           order: metadata.order.concat(Object.keys(newCollectiblesMap))
         }
-        setHasSetCollectibles(true)
         setCollectiblesMetadata(newMetadata)
+        if (ethCollectibleList) {
+          setHasSetEthCollectibles(true)
+        }
+        if (solanaCollectibleList) {
+          setHasSetSolanaCollectibles(true)
+        }
+        console.log('>>>', { newMetadata })
       }
     }
   }, [
     profile,
     hasCollectibles,
     collectibleList,
+    ethCollectibleList,
+    solanaCollectibleList,
     collectiblesMetadata,
-    getHasSetCollectibles,
-    setHasSetCollectibles
+    getHasSetEthCollectibles,
+    setHasSetEthCollectibles,
+    getHasSetSolanaCollectibles,
+    setHasSetSolanaCollectibles
   ])
 
   const handleEditClick = useCallback(() => {
@@ -360,7 +394,7 @@ const CollectiblesPage: React.FC<{
             <div className={styles.spinnerContainer}>
               <Spin className={styles.spinner} size='large' />
             </div>
-          ) : !getVisibleCollectibles().length ? (
+          ) : !getVisibleCollectibles().length && isUserOnTheirProfile ? (
             <div className={styles.noVisibleCollectible}>
               {collectibleMessages.noVisibleCollectible}
             </div>

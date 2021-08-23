@@ -10,7 +10,8 @@ export enum FeatureFlags {
   REMIXABLES = 'remixables',
   REMIXABLES_WEB = 'remixables_web',
   TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD = 'transfer_audio_to_waudio_on_load',
-  CHALLENGE_REWARDS_UI = 'challenge_rewards_ui'
+  CHALLENGE_REWARDS_UI = 'challenge_rewards_ui',
+  LINKED_WALLETS_AUDIO_ENABLED = 'linked_wallets_audio_enabled'
 }
 
 /**
@@ -27,7 +28,8 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.REMIXABLES]: false,
   [FeatureFlags.REMIXABLES_WEB]: false,
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]: false,
-  [FeatureFlags.CHALLENGE_REWARDS_UI]: false
+  [FeatureFlags.CHALLENGE_REWARDS_UI]: false,
+  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: false
 }
 
 export enum FeatureFlagCohortType {
@@ -60,7 +62,8 @@ export const flagCohortType: {
   [FeatureFlags.REMIXABLES_WEB]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]:
     FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.USER_ID
+  [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.USER_ID,
+  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID
 }
 
 export const FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY = 'featureFlagSessionId'
