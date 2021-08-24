@@ -17,6 +17,8 @@ import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
+import { FeatureFlags } from 'services/remote-config'
+import { getFeatureEnabled } from 'services/remote-config/Provider'
 import SolanaClient from 'services/solana-client/SolanaClient'
 import { getUserId } from 'store/account/selectors'
 import { waitForBackendSetup } from 'store/backend/sagas'
@@ -105,10 +107,18 @@ export function* fetchOpenSeaAssets(user) {
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
+  if (!getFeatureEnabled(FeatureFlags.SOLANA_COLLECTIBLES_ENABLED)) {
+    return {}
+  }
+
   return yield call(SolanaClient.getAllCollectibles, wallets)
 }
 
 export function* fetchSolanaCollectibles(user) {
+  if (!getFeatureEnabled(FeatureFlags.SOLANA_COLLECTIBLES_ENABLED)) {
+    return
+  }
+
   const { sol_wallets: solWallets } = yield apiClient.getAssociatedWallets({
     userID: user.user_id
   })

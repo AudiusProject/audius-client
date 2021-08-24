@@ -11,7 +11,8 @@ export enum FeatureFlags {
   REMIXABLES_WEB = 'remixables_web',
   TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD = 'transfer_audio_to_waudio_on_load',
   CHALLENGE_REWARDS_UI = 'challenge_rewards_ui',
-  LINKED_WALLETS_AUDIO_ENABLED = 'linked_wallets_audio_enabled'
+  LINKED_WALLETS_AUDIO_ENABLED = 'linked_wallets_audio_enabled',
+  SOLANA_COLLECTIBLES_ENABLED = 'solana_collectibles_enabled'
 }
 
 /**
@@ -29,7 +30,8 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.REMIXABLES_WEB]: false,
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]: false,
   [FeatureFlags.CHALLENGE_REWARDS_UI]: false,
-  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: false
+  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: false,
+  [FeatureFlags.SOLANA_COLLECTIBLES_ENABLED]: false
 }
 
 export enum FeatureFlagCohortType {
@@ -51,6 +53,7 @@ export const flagCohortType: {
   [FeatureFlags.USE_TRACK_CONTENT_POLLING]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.SOLANA_LISTEN_ENABLED]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD]: FeatureFlagCohortType.SESSION_ID,
+  [FeatureFlags.SOLANA_COLLECTIBLES_ENABLED]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.TRENDING_UNDERGROUND]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.PLAYLIST_UPDATES_ENABLED]: FeatureFlagCohortType.USER_ID,
   // Create wAudio user bank on sign up is a session id experiment because it only impacts

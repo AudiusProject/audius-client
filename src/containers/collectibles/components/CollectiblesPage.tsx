@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   Button,
@@ -29,8 +29,10 @@ import {
   CollectiblesMetadata
 } from 'containers/collectibles/types'
 import { ProfileUser } from 'containers/profile-page/store/types'
+import { useFlag } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
 import useInstanceVar from 'hooks/useInstanceVar'
+import { FeatureFlags } from 'services/remote-config/FeatureFlags'
 
 export const editTableContainerClass = 'editTableContainer'
 
@@ -75,8 +77,15 @@ const CollectiblesPage: React.FC<{
   isUserOnTheirProfile,
   onLoad
 }) => {
+  const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
+    FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
+  )
   const ethCollectibleList = profile?.collectibleList ?? null
-  const solanaCollectibleList = profile?.solanaCollectibleList ?? null
+  const solanaCollectibleList = useMemo(
+    () =>
+      isSolanaCollectiblesEnabled ? profile?.solanaCollectibleList ?? null : [],
+    [isSolanaCollectiblesEnabled, profile]
+  )
   const collectibleList =
     ethCollectibleList || solanaCollectibleList
       ? (ethCollectibleList || []).concat(solanaCollectibleList || [])
@@ -84,7 +93,8 @@ const CollectiblesPage: React.FC<{
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
     profile.collectibleList === undefined ||
-    profile.solanaCollectibleList === undefined ||
+    (isSolanaCollectiblesEnabled &&
+      profile.solanaCollectibleList === undefined) ||
     (hasCollectibles && !profile.collectibles)
 
   useEffect(() => {
