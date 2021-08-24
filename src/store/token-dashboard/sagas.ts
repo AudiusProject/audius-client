@@ -60,7 +60,8 @@ import {
   getAssociatedWallets,
   updateWalletError,
   preloadWalletProviders,
-  Chain
+  Chain,
+  resetStatus
 } from './slice'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'

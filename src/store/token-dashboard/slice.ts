@@ -57,7 +57,7 @@ export enum Chain {
 }
 
 export type AssociatedWalletsState = {
-  status: Nullable<'Connecting' | 'Confirming'>
+  status: Nullable<'Connecting' | 'Confirming' | 'Confirmed'>
   connectedEthWallets: Nullable<AssociatedWallets>
   connectedSolWallets: Nullable<AssociatedWallets>
   confirmingWallet: {
@@ -248,7 +248,7 @@ const slice = createSlice({
         balance: null,
         collectibleCount: null
       }
-      state.associatedWallets.status = null
+      state.associatedWallets.status = 'Confirmed'
     },
     requestRemoveWallet: (
       state,
@@ -313,7 +313,10 @@ const slice = createSlice({
       }
       state.associatedWallets.status = null
     },
-    preloadWalletProviders: state => {}
+    preloadWalletProviders: state => {},
+    resetStatus: state => {
+      state.associatedWallets.status = null
+    }
   }
 })
 
@@ -373,7 +376,8 @@ export const {
   confirmRemoveWallet,
   removeWallet,
   updateWalletError,
-  preloadWalletProviders
+  preloadWalletProviders,
+  resetStatus
 } = slice.actions
 
 export default slice.reducer

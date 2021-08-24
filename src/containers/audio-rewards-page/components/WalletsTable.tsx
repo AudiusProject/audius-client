@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
@@ -8,6 +8,7 @@ import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
+import { ToastContext } from 'components/toast/ToastContext'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useFlag } from 'containers/remote-config/hooks'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -16,10 +17,12 @@ import {
   getAssociatedWallets,
   requestRemoveWallet,
   getRemoveWallet,
-  Chain
+  Chain,
+  resetStatus
 } from 'store/token-dashboard/slice'
 import { BNWei } from 'store/wallet/slice'
 import { copyToClipboard } from 'utils/clipboardUtil'
+import { NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import { useSelector } from 'utils/reducer'
 
 import DisplayAudio from './DisplayAudio'
@@ -29,6 +32,7 @@ const COPIED_TOAST_TIMEOUT = 2000
 
 const messages = {
   copied: 'Copied To Clipboard!',
+  newWalletConnected: 'New Wallet Successfully Connected!',
   linkedWallets: 'LINKED WALLETS',
   collectibles: 'COLLECTIBLES',
   audio: '$AUDIO'
@@ -165,6 +169,19 @@ const WalletsTable = ({
     connectedEthWallets: ethWallets,
     connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
+
+  const { toast } = useContext(ToastContext)
+  const dispatch = useDispatch()
+  useEffect(() => {
+    if (status === 'Confirmed') {
+      const timeout = NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS
+      toast(messages.newWalletConnected, timeout)
+      setTimeout(() => {
+        dispatch(resetStatus())
+      }, timeout)
+    }
+  }, [toast, dispatch, status])
+
   const removeWallets = useSelector(getRemoveWallet)
 
   const wm = useWithMobileStyle(styles.mobile)
