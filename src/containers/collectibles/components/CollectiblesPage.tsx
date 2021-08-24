@@ -247,7 +247,6 @@ const CollectiblesPage: React.FC<{
         if (solanaCollectibleList) {
           setHasSetSolanaCollectibles(true)
         }
-        console.log('>>>', { newMetadata })
       }
     }
   }, [

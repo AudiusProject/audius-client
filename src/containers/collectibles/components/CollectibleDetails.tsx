@@ -10,6 +10,8 @@ import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'
+import Tooltip from 'components/tooltip/Tooltip'
+import { MountPlacement } from 'components/types'
 import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
 import {
@@ -201,9 +203,13 @@ const CollectibleDetails: React.FC<{
               )}
 
               {collectible.chain === Chain.Eth ? (
-                <LogoEth className={styles.chainIcon} />
+                <Tooltip text='Ethereum' mount={MountPlacement.PARENT}>
+                  <LogoEth className={styles.chainIcon} />
+                </Tooltip>
               ) : (
-                <LogoSol className={styles.chainIcon} />
+                <Tooltip text='Solana' mount={MountPlacement.PARENT}>
+                  <LogoSol className={styles.chainIcon} />
+                </Tooltip>
               )}
             </div>
 
