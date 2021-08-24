@@ -15,6 +15,15 @@ const METADATA_PROGRAM_ID = new PublicKey(
 class SolanaClient {
   private connection = new Connection(SOLANA_CLUSTER_ENDPOINT!, 'confirmed')
 
+  /**
+   * for each given wallet:
+   * - get and parse its token accounts to get the mint addresses
+   * - filter out tokens whose decimal places are not 0
+   * - find the metadata PDAs for the mint addresses
+   * - get the account infos for the PDAs if they exist
+   * - get the metadata urls from the account infos and fetch the metadatas
+   * - transform the nft metadatas to Audius-domain collectibles
+   */
   async getAllCollectibles(wallets: string[]): Promise<CollectibleState> {
     const tokenAccountsByOwnerAddress = await Promise.all(
       wallets.map(async address =>
@@ -27,34 +36,25 @@ class SolanaClient {
       )
     )
 
-    const likelyNFTsByOwnerAddress = tokenAccountsByOwnerAddress
+    const potentialNFTsByOwnerAddress = tokenAccountsByOwnerAddress
       .map(ta => ta.value)
       // value is an array of parsed token info
       .map((value, i) => {
-        const ownerAddress = wallets[i]
         const mintAddresses = value
           .map(v => ({
             mint: v.account.data.parsed.info.mint,
             tokenAmount: v.account.data.parsed.info.tokenAmount
           }))
           .filter(({ tokenAmount }) => {
-            // nfts generally have a supply of 1 and they have 0 decimal places
-            // return tokenAmount.uiAmount === 1 && tokenAmount.decimals === 0
-            return true
+            // nfts generally have 0 decimal places
+            return tokenAmount.decimals === 0
           })
           .map(({ mint }) => mint)
-        /**
-         * {
-         *   mintAddresses: ['mintAddress1', 'mintAddress2', ...],
-         *   ownerAddress: 'solanaAddress'
-         * }
-         */
-        // console.log({ mintAddresses, ownerAddress })
-        return { mintAddresses, ownerAddress }
+        return { mintAddresses }
       })
 
     const nfts = await Promise.all(
-      likelyNFTsByOwnerAddress.map(async ({ mintAddresses }) => {
+      potentialNFTsByOwnerAddress.map(async ({ mintAddresses }) => {
         const programAddresses = await Promise.all(
           mintAddresses.map(
             async mintAddress =>
@@ -85,9 +85,7 @@ class SolanaClient {
           .filter(Boolean)
         const results = await Promise.all(
           urls.map(async url =>
-            // @ts-ignore
-            fetch(url)
-              // @ts-ignore
+            fetch(url!)
               .then(res => res.json())
               .catch(() => null)
           )
@@ -118,9 +116,11 @@ class SolanaClient {
 
   _utf8ArrayToUrl(array: Uint8Array) {
     const str = new TextDecoder().decode(array)
+    // https://github.com/metaplex-foundation/metaplex/blob/81023eb3e52c31b605e1dcf2eb1e7425153600cd/js/packages/web/src/contexts/meta/processMetaData.ts#L29
+    const isArweave = str.includes('arweave')
     const query = 'https://'
     const startIndex = str.indexOf(query)
-    if (startIndex === -1) {
+    if (!isArweave || startIndex === -1) {
       return null
     }
     const endIndex = str.indexOf('/', startIndex + query.length)

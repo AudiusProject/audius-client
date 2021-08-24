@@ -17,6 +17,10 @@ type SolanaNFTMedia = {
   frameUrl: Nullable<string>
 }
 
+/**
+ * NFT is a gif if it has a file with MIME type image/gif
+ * if it's a gif, we compute an image frame from the gif
+ */
 const nftGif = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   const gifFile = nft.properties.files?.find(
     file => typeof file === 'object' && file.type === 'image/gif'
@@ -29,20 +33,27 @@ const nftGif = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   return null
 }
 
+/**
+ * NFT is a video if:
+ * - its category is video, or
+ * - it has an animation url, or
+ * - it has a file whose type is video, or
+ * - it has a file whose url includes watch.videodelivery.net
+ *
+ * if the video has a poster/thumbnail, it would be in the image property
+ * otherwise, we later use the first video frame as the thumbnail
+ */
 const nftVideo = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   const files = nft.properties.files
-  // should we restrict video file extensions here?
-  // MP4, MOV, GLB
-  // GLTF??
+  // In case we want to restrict to specific file extensions, see below link
   // https://github.com/metaplex-foundation/metaplex/blob/81023eb3e52c31b605e1dcf2eb1e7425153600cd/js/packages/web/src/views/artCreate/index.tsx#L318
-  // DO WE CARE ABOUT VR NFTs??
   const videoFile = files?.find(
     file => typeof file === 'object' && file.type.includes('video')
   ) as SolanaNFTPropertiesFile
-  // https://github.com/metaplex-foundation/metaplex/blob/397ceff70b3524aa0543540584c7200c79b198a0/js/packages/web/src/components/ArtContent/index.tsx#L107
   const videoUrl = files?.find(
     file =>
       typeof file === 'string' &&
+      // https://github.com/metaplex-foundation/metaplex/blob/397ceff70b3524aa0543540584c7200c79b198a0/js/packages/web/src/components/ArtContent/index.tsx#L107
       file.startsWith('https://watch.videodelivery.net/')
   ) as string
   const isVideo =
@@ -51,21 +62,22 @@ const nftVideo = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
     videoFile ||
     videoUrl
   if (isVideo) {
-    let url: string, videoType
+    let url: string
     if (nft.animation_url) {
       url = nft.animation_url
     } else if (videoFile) {
       url = videoFile.uri
-      videoType = videoFile.type
     } else if (videoUrl) {
-      url = videoUrl // maybe videoUrl.replace('watch', 'iframe')?
+      url = videoUrl
     } else if (files?.length) {
+      // if there is only one file, then that's the video
+      // otherwise, the second file is the video (the other files are image/audio files)
+      // https://github.com/metaplex-foundation/metaplex/blob/397ceff70b3524aa0543540584c7200c79b198a0/js/packages/web/src/components/ArtContent/index.tsx#L103
       if (files.length === 1) {
         url = typeof files[0] === 'object' ? files[0].uri : files[0]
       } else {
         url = typeof files[1] === 'object' ? files[1].uri : files[1]
       }
-      // videoType = defaultVideoType
     } else {
       return null
     }
@@ -78,10 +90,15 @@ const nftVideo = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   return null
 }
 
+/**
+ * NFT is a video if:
+ * - its category is image, or
+ * - it has a file whose type is image, or
+ * - it has an image property
+ */
 const nftImage = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   const files = nft.properties.files
-  // should we restrict image file extensions here?
-  // PNG, JPG, GIF
+  // In case we want to restrict to specific file extensions, see below link
   // https://github.com/metaplex-foundation/metaplex/blob/81023eb3e52c31b605e1dcf2eb1e7425153600cd/js/packages/web/src/views/artCreate/index.tsx#L316
   const imageFile = files?.find(
     file => typeof file === 'object' && file.type.includes('image')
@@ -112,6 +129,14 @@ const nftImage = async (nft: SolanaNFT): Promise<Nullable<SolanaNFTMedia>> => {
   return null
 }
 
+/**
+ * If not easily discoverable tha nft is gif/video/image, we check whether it has files
+ * if it does not, then we discard the nft
+ * otherwise, we fetch the content type of the first file and check its MIME type:
+ * - if gif, we also compute an image frame from it
+ * - if video, we later use the first video frame as the thumbnail
+ * - if image, the image url is also the frame url
+ */
 const nftComputedMedia = async (
   nft: SolanaNFT
 ): Promise<Nullable<SolanaNFTMedia>> => {
@@ -119,40 +144,37 @@ const nftComputedMedia = async (
   if (!files?.length) {
     return null
   }
+
   const url = typeof files[0] === 'object' ? files[0].uri : files[0]
-  // get mime type
-  // make sure it's gif/video/image
   const headResponse = await fetch(url, { method: 'HEAD' })
   const contentType = headResponse.headers.get('Content-Type')
-  const isGif = contentType?.includes('gif')
-  const isVideo = contentType?.includes('video')
-  if (isGif) {
+  if (contentType?.includes('gif')) {
     const frameUrl = await getFrameFromGif(url, nft.name)
     return { collectibleMediaType: CollectibleMediaType.GIF, url, frameUrl }
   }
-  if (isVideo) {
+  if (contentType?.includes('video')) {
     return {
       collectibleMediaType: CollectibleMediaType.VIDEO,
       url,
       frameUrl: null
     }
   }
-  return {
-    collectibleMediaType: CollectibleMediaType.IMAGE,
-    url,
-    frameUrl: url
+  if (contentType?.includes('image')) {
+    return {
+      collectibleMediaType: CollectibleMediaType.IMAGE,
+      url,
+      frameUrl: url
+    }
   }
+
+  return null
 }
 
 export const solanaNFTToCollectible = async (
   nft: SolanaNFT,
   address: string
 ): Promise<Collectible> => {
-  const identifier = [
-    nft.symbol,
-    nft.name,
-    nft.image /* this would not always be image e.g. could be video or gif?? */
-  ]
+  const identifier = [nft.symbol, nft.name, nft.image]
     .filter(Boolean)
     .join(':::')
 
