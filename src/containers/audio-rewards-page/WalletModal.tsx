@@ -45,7 +45,7 @@ import SendInputSuccess from './components/SendInputSuccess'
 import SendingModalBody from './components/SendingModalBody'
 import ModalDrawer from './components/modals/ModalDrawer'
 
-const DISCORD_URL = ' http://discord.gg/audius'
+const DISCORD_URL = ' https://discord.gg/audius'
 
 const messages = {
   receive: 'Receive $AUDIO',
