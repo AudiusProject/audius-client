@@ -144,6 +144,7 @@ export const signUpFailed = (error, phase) => ({
  * @param {string} password account password
  */
 export function signIn(email, password) {
+  console.log('Signin: Signing in')
   return { type: SIGN_IN, email, password }
 }
 

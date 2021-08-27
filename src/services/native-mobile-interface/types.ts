@@ -20,6 +20,10 @@ export enum MessageType {
 
   SHOW_GOOGLE_CAST_PICKER = 'show-google-cast-picker',
 
+  // Sign-On
+  SUBMIT_SIGNIN = 'submit-signin',
+  SIGN_IN_FAILURE = 'sign-in-failure',
+
   // Notifications
   ENABLE_PUSH_NOTIFICATIONS = 'enable-push-notifications',
   DISABLE_PUSH_NOTIFICATIONS = 'disable-push-notifications',
@@ -62,6 +66,7 @@ export enum MessageType {
   REQUEST_NETWORK_CONNECTED = 'request-network-connected',
   IS_NETWORK_CONNECTED = 'is-network-connected',
   SIGNED_IN = 'signed-in',
+  SIGNED_OUT = 'signed-out',
 
   // Keyboard
   KEYBOARD_VISIBLE = 'keyboard-visible',

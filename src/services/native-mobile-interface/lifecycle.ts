@@ -38,3 +38,9 @@ export class SignedIn extends NativeMobileMessage {
     super(MessageType.SIGNED_IN, { account })
   }
 }
+
+export class SignedOut extends NativeMobileMessage {
+  constructor() {
+    super(MessageType.SIGNED_OUT, {})
+  }
+}

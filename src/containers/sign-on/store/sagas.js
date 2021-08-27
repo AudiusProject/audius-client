@@ -40,6 +40,7 @@ import { MAX_HANDLE_LENGTH } from '../utils/formatSocialProfile'
 
 import * as signOnActions from './actions'
 import { watchSignOnError } from './errorSagas'
+import mobileSagas from './mobileSagas'
 import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
 import { checkHandle } from './verifiedChecker'
@@ -507,7 +508,7 @@ function* watchSendWelcomeEmail() {
 }
 
 export default function sagas() {
-  return [
+  const sagas = [
     watchFetchAllFollowArtists,
     watchFetchReferrer,
     watchValidateEmail,
@@ -521,4 +522,5 @@ export default function sagas() {
     watchSignOnError,
     watchSendWelcomeEmail
   ]
+  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
