@@ -70,8 +70,8 @@ const Wallet = ({
   hasActions,
   hideCollectibles
 }: WalletProps) => {
-  const { isEnabled: linkedWalletsAudioEnabled } = useFlag(
-    FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED
+  const { isEnabled: solWalletAudioEnabled } = useFlag(
+    FeatureFlags.SOL_WALLET_AUDIO_ENABLED
   )
 
   const dispatch = useDispatch()
@@ -122,7 +122,7 @@ const Wallet = ({
           {collectibleCount}
         </div>
       )}
-      {linkedWalletsAudioEnabled && (
+      {(chain === Chain.Eth || solWalletAudioEnabled) && (
         <div className={cn(styles.audioBalance, styles.walletText)}>
           <DisplayAudio
             showLabel={false}
@@ -158,8 +158,8 @@ const WalletsTable = ({
   className,
   hideCollectibles
 }: WalletsTableProps) => {
-  const { isEnabled: linkedWalletsAudioEnabled } = useFlag(
-    FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED
+  const { isEnabled: solWalletAudioEnabled } = useFlag(
+    FeatureFlags.SOL_WALLET_AUDIO_ENABLED
   )
 
   const {
@@ -221,7 +221,7 @@ const WalletsTable = ({
             {messages.collectibles}
           </h6>
         )}
-        {linkedWalletsAudioEnabled && (
+        {(ethWallets?.length || solWalletAudioEnabled) && (
           <h6 className={cn(styles.walletsHeaderItem, styles.headerAudio)}>
             {messages.audio}
           </h6>

@@ -11,7 +11,7 @@ export enum FeatureFlags {
   REMIXABLES_WEB = 'remixables_web',
   TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD = 'transfer_audio_to_waudio_on_load',
   CHALLENGE_REWARDS_UI = 'challenge_rewards_ui',
-  LINKED_WALLETS_AUDIO_ENABLED = 'linked_wallets_audio_enabled',
+  SOL_WALLET_AUDIO_ENABLED = 'sol_wallet_audio_enabled',
   SOLANA_COLLECTIBLES_ENABLED = 'solana_collectibles_enabled'
 }
 
@@ -30,7 +30,7 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.REMIXABLES_WEB]: false,
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]: false,
   [FeatureFlags.CHALLENGE_REWARDS_UI]: false,
-  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: false,
+  [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: false,
   [FeatureFlags.SOLANA_COLLECTIBLES_ENABLED]: false
 }
 
@@ -66,7 +66,7 @@ export const flagCohortType: {
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]:
     FeatureFlagCohortType.USER_ID,
   [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.LINKED_WALLETS_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID
+  [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID
 }
 
 export const FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY = 'featureFlagSessionId'
