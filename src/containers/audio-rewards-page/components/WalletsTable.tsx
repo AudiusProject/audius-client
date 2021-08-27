@@ -180,6 +180,10 @@ const WalletsTable = ({
         dispatch(resetStatus())
       }, timeout)
     }
+
+    return () => {
+      dispatch(resetStatus())
+    }
   }, [toast, dispatch, status])
 
   const removeWallets = useSelector(getRemoveWallet)
