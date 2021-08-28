@@ -90,7 +90,6 @@ const Wallet = ({
     copyToClipboard(address)
   }, [address])
   const isCopyDisabled = isConfirmAdding || isConfirmRemoving
-  console.log(chain, address, audioBalance)
   return (
     <div className={cn(styles.copyContainer)} onClick={copyAddressToClipboard}>
       <div className={styles.addressContainer}>
