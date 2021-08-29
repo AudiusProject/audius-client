@@ -23,6 +23,9 @@ export enum MessageType {
   // Sign-On
   SUBMIT_SIGNIN = 'submit-signin',
   SIGN_IN_FAILURE = 'sign-in-failure',
+  SIGN_UP_VALIDATE_EMAIL = 'sign-up-validate-email',
+  SIGN_UP_VALIDATE_EMAIL_SUCCESS = 'sign-up-validate-email-success',
+  SIGN_UP_VALIDATE_EMAIL_FAILURE = 'sign-up-validate-email-failure',
 
   // Notifications
   ENABLE_PUSH_NOTIFICATIONS = 'enable-push-notifications',
