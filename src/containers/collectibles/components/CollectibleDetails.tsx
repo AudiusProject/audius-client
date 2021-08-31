@@ -21,6 +21,8 @@ import {
 import { Chain } from 'store/token-dashboard/slice'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
 
+import { getFrameFromGif } from '../ethCollectibleHelpers'
+
 const CollectibleMedia: React.FC<{
   collectible: Collectible
   isMuted: boolean
@@ -54,11 +56,19 @@ const CollectibleDetails: React.FC<{
   collectible: Collectible
   isMobile: boolean
 }> = ({ collectible, isMobile }) => {
-  const { mediaType, frameUrl, videoUrl } = collectible
+  const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
+
+  const [frame, setFrame] = useState(frameUrl)
+
+  useEffect(() => {
+    if (mediaType === CollectibleMediaType.GIF && !frameUrl) {
+      getFrameFromGif(gifUrl!, name || '').then(setFrame)
+    }
+  }, [mediaType, frameUrl, gifUrl, name, setFrame])
 
   const handleItemClick = useCallback(() => {
     if (isMobile) {
@@ -101,11 +111,7 @@ const CollectibleDetails: React.FC<{
         {mediaType === CollectibleMediaType.GIF ||
         (mediaType === CollectibleMediaType.VIDEO && frameUrl) ? (
           <div className={styles.imageWrapper}>
-            <PreloadImage
-              asBackground
-              src={frameUrl!}
-              className={styles.media}
-            />
+            <PreloadImage asBackground src={frame!} className={styles.media} />
             <IconPlay className={styles.playIcon} />
             <div className={styles.stamp}>
               {collectible.isOwned ? (
