@@ -19,6 +19,7 @@ import {
   CollectibleMediaType
 } from 'containers/collectibles/types'
 import { Chain } from 'store/token-dashboard/slice'
+import { preload } from 'utils/image'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
@@ -61,14 +62,26 @@ const CollectibleDetails: React.FC<{
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
-
+  const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
 
   useEffect(() => {
-    if (mediaType === CollectibleMediaType.GIF && !frameUrl) {
-      getFrameFromGif(gifUrl!, name || '').then(setFrame)
+    const load = async () => {
+      let f = frameUrl
+      if (!f && mediaType === CollectibleMediaType.GIF) {
+        f = await getFrameFromGif(gifUrl!, name || '')
+      } else if (!f && mediaType === CollectibleMediaType.VIDEO) {
+        setIsLoading(false)
+      }
+
+      if (f) {
+        await preload(f)
+        setFrame(f)
+        setIsLoading(false)
+      }
     }
-  }, [mediaType, frameUrl, gifUrl, name, setFrame])
+    load()
+  }, [mediaType, frameUrl, gifUrl, name, setFrame, setIsLoading])
 
   const handleItemClick = useCallback(() => {
     if (isMobile) {
@@ -82,11 +95,8 @@ const CollectibleDetails: React.FC<{
     setIsMuted(!isMuted)
   }, [isMuted, setIsMuted])
 
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    if (videoRef?.current) {
-      const videoElement = videoRef.current
+  const handleVideo = useCallback(videoElement => {
+    if (videoElement !== null) {
       const listener = () => {
         videoElement.pause()
       }
@@ -100,7 +110,7 @@ const CollectibleDetails: React.FC<{
         })
       }
     }
-  }, [videoRef])
+  }, [])
 
   return (
     <div className={styles.detailsContainer}>
@@ -108,70 +118,87 @@ const CollectibleDetails: React.FC<{
         className={styles.perspectiveCard}
         onClick={handleItemClick}
       >
-        {mediaType === CollectibleMediaType.GIF ||
-        (mediaType === CollectibleMediaType.VIDEO && frameUrl) ? (
-          <div className={styles.imageWrapper}>
-            <PreloadImage asBackground src={frame!} className={styles.media} />
-            <IconPlay className={styles.playIcon} />
-            <div className={styles.stamp}>
-              {collectible.isOwned ? (
-                <span className={styles.owned}>
-                  {collectibleMessages.owned}
-                </span>
-              ) : (
-                <span className={styles.created}>
-                  {collectibleMessages.created}
-                </span>
-              )}
+        <>
+          {isLoading && (
+            <div className={styles.media}>
+              <LoadingSpinner className={styles.loadingSpinner} />
             </div>
-          </div>
-        ) : mediaType === CollectibleMediaType.VIDEO ? (
-          <div className={cn(styles.media, styles.imageWrapper)}>
-            <IconPlay className={styles.playIcon} />
-            <video
-              ref={videoRef}
-              muted
-              autoPlay
-              playsInline
-              style={{ height: '100%', width: '100%' }}
-              src={videoUrl!}
-            />
-            <div className={styles.stamp}>
-              {collectible.isOwned ? (
-                <span className={styles.owned}>
-                  {collectibleMessages.owned}
-                </span>
+          )}
+          {!isLoading && (
+            <>
+              {mediaType === CollectibleMediaType.GIF ||
+              (mediaType === CollectibleMediaType.VIDEO && frame) ? (
+                <div className={styles.imageWrapper}>
+                  <PreloadImage
+                    asBackground
+                    src={frame!}
+                    preloaded={true}
+                    className={styles.media}
+                  />
+                  <IconPlay className={styles.playIcon} />
+                  <div className={styles.stamp}>
+                    {collectible.isOwned ? (
+                      <span className={styles.owned}>
+                        {collectibleMessages.owned}
+                      </span>
+                    ) : (
+                      <span className={styles.created}>
+                        {collectibleMessages.created}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : mediaType === CollectibleMediaType.IMAGE ? (
+                <div className={styles.imageWrapper}>
+                  <PreloadImage
+                    asBackground
+                    src={frame!}
+                    preloaded={true}
+                    className={styles.media}
+                  />
+                  <div className={styles.stamp}>
+                    {collectible.isOwned ? (
+                      <span className={styles.owned}>
+                        {collectibleMessages.owned}
+                      </span>
+                    ) : (
+                      <span className={styles.created}>
+                        {collectibleMessages.created}
+                      </span>
+                    )}
+                  </div>
+                </div>
               ) : (
-                <span className={styles.created}>
-                  {collectibleMessages.created}
-                </span>
+                <></>
               )}
+            </>
+          )}
+          {!isLoading && mediaType === CollectibleMediaType.VIDEO && !frame && (
+            <div className={cn(styles.media, styles.imageWrapper)}>
+              <IconPlay className={styles.playIcon} />
+              <video
+                // ref={videoRef}
+                ref={handleVideo}
+                muted
+                autoPlay
+                playsInline
+                style={{ height: '100%', width: '100%' }}
+                src={videoUrl!}
+              />
+              <div className={styles.stamp}>
+                {collectible.isOwned ? (
+                  <span className={styles.owned}>
+                    {collectibleMessages.owned}
+                  </span>
+                ) : (
+                  <span className={styles.created}>
+                    {collectibleMessages.created}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ) : mediaType === CollectibleMediaType.IMAGE ? (
-          <div className={styles.imageWrapper}>
-            <PreloadImage
-              asBackground
-              src={frameUrl!}
-              className={styles.media}
-            />
-            <div className={styles.stamp}>
-              {collectible.isOwned ? (
-                <span className={styles.owned}>
-                  {collectibleMessages.owned}
-                </span>
-              ) : (
-                <span className={styles.created}>
-                  {collectibleMessages.created}
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className={styles.media}>
-            <LoadingSpinner className={styles.loadingSpinner} />
-          </div>
-        )}
+          )}
+        </>
         <div className={styles.nftTitle}>{collectible.name}</div>
       </PerspectiveCard>
 
