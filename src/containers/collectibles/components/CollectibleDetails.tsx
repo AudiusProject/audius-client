@@ -64,6 +64,14 @@ const CollectibleDetails: React.FC<{
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
+  const [showSpinner, setShowSpinner] = useState(false)
+
+  // Debounce showing the spinner for a second
+  useEffect(() => {
+    setTimeout(() => {
+      setShowSpinner(true)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
     const load = async () => {
@@ -121,7 +129,9 @@ const CollectibleDetails: React.FC<{
         <>
           {isLoading ? (
             <div className={styles.media}>
-              <LoadingSpinner className={styles.loadingSpinner} />
+              {showSpinner && (
+                <LoadingSpinner className={styles.loadingSpinner} />
+              )}
             </div>
           ) : (
             <>
