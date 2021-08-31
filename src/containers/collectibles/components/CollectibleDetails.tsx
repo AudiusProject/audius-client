@@ -119,15 +119,14 @@ const CollectibleDetails: React.FC<{
         onClick={handleItemClick}
       >
         <>
-          {isLoading && (
+          {isLoading ? (
             <div className={styles.media}>
               <LoadingSpinner className={styles.loadingSpinner} />
             </div>
-          )}
-          {!isLoading && (
+          ) : (
             <>
-              {mediaType === CollectibleMediaType.GIF ||
-              (mediaType === CollectibleMediaType.VIDEO && frame) ? (
+              {(mediaType === CollectibleMediaType.GIF ||
+                (mediaType === CollectibleMediaType.VIDEO && frame)) && (
                 <div className={styles.imageWrapper}>
                   <PreloadImage
                     asBackground
@@ -148,7 +147,32 @@ const CollectibleDetails: React.FC<{
                     )}
                   </div>
                 </div>
-              ) : mediaType === CollectibleMediaType.IMAGE ? (
+              )}
+              {mediaType === CollectibleMediaType.VIDEO && !frame && (
+                <div className={cn(styles.media, styles.imageWrapper)}>
+                  <IconPlay className={styles.playIcon} />
+                  <video
+                    ref={handleVideo}
+                    muted
+                    autoPlay
+                    playsInline
+                    style={{ height: '100%', width: '100%' }}
+                    src={videoUrl!}
+                  />
+                  <div className={styles.stamp}>
+                    {collectible.isOwned ? (
+                      <span className={styles.owned}>
+                        {collectibleMessages.owned}
+                      </span>
+                    ) : (
+                      <span className={styles.created}>
+                        {collectibleMessages.created}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {mediaType === CollectibleMediaType.IMAGE && (
                 <div className={styles.imageWrapper}>
                   <PreloadImage
                     asBackground
@@ -168,35 +192,8 @@ const CollectibleDetails: React.FC<{
                     )}
                   </div>
                 </div>
-              ) : (
-                <></>
               )}
             </>
-          )}
-          {!isLoading && mediaType === CollectibleMediaType.VIDEO && !frame && (
-            <div className={cn(styles.media, styles.imageWrapper)}>
-              <IconPlay className={styles.playIcon} />
-              <video
-                // ref={videoRef}
-                ref={handleVideo}
-                muted
-                autoPlay
-                playsInline
-                style={{ height: '100%', width: '100%' }}
-                src={videoUrl!}
-              />
-              <div className={styles.stamp}>
-                {collectible.isOwned ? (
-                  <span className={styles.owned}>
-                    {collectibleMessages.owned}
-                  </span>
-                ) : (
-                  <span className={styles.created}>
-                    {collectibleMessages.created}
-                  </span>
-                )}
-              </div>
-            </div>
           )}
         </>
         <div className={styles.nftTitle}>{collectible.name}</div>
