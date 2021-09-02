@@ -71,6 +71,7 @@ const FULL_ENDPOINT_MAP = {
   userFavoritedTracks: (userId: OpaqueID) =>
     `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
+  getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
@@ -196,6 +197,11 @@ type GetUserTracksByHandleArgs = {
   sort?: 'date' | 'plays'
   offset?: number
   limit?: number
+}
+
+type GetRelatedArtistsArgs = {
+  userId: ID
+  currentUserId: Nullable<ID>
 }
 
 type GetProfileListArgs = {
@@ -887,6 +893,21 @@ class AudiusAPIClient {
     const adapted = response.data
       .map(adapter.makeActivity)
       .filter(removeNullable)
+    return adapted
+  }
+
+  async getRelatedArtists({ userId, currentUserId }: GetRelatedArtistsArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const encodedUserId = this._encodeOrThrow(userId)
+    const response: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(
+      FULL_ENDPOINT_MAP.getRelatedArtists(encodedUserId),
+      { user_id: encodedCurrentUserId || undefined }
+    )
+    if (!response) return []
+    const adapted = response.data.map(adapter.makeUser).filter(removeNullable)
     return adapted
   }
 
