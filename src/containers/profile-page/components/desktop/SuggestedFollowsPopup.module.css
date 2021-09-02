@@ -76,5 +76,5 @@
   line-height: normal;
 }
 .artistLink :global(.artistPopover) {
-  display: inline;
+  display: inline-block;
 }
