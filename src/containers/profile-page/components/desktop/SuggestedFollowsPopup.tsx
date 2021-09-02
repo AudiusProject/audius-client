@@ -89,30 +89,27 @@ export const SuggestedFollowsPopup = ({
         <div className={styles.profilePictureList}>
           {suggestedArtists.map(a => (
             <div key={a.user_id} className={styles.profilePictureWrapper}>
-              <ArtistProfilePicture
+              <ArtistProfilePictureWrapper
                 userId={a.user_id}
                 profilePictureSizes={a._profile_picture_sizes}
               />
             </div>
           ))}
         </div>
-        <p>
+        <div>
           Featuring{' '}
           {suggestedArtists
             .map<React.ReactNode>((a, i) => (
-              <span
+              <ArtistPopoverWrapper
                 key={a.user_id}
-                className={styles.artistLink}
-                role='link'
-                onClick={() => onArtistNameClicked(a.handle)}
-              >
-                <ArtistPopover mount={MountPlacement.PARENT} handle={a.handle}>
-                  {a.name}
-                </ArtistPopover>
-              </span>
+                handle={a.handle}
+                name={a.name}
+                onArtistNameClicked={onArtistNameClicked}
+                closeParent={onClose}
+              />
             ))
             .reduce((prev, curr) => [prev, ',', curr])}
-        </p>
+        </div>
         <div>
           <FollowButton
             following={suggestedArtists.every(a => a.does_current_user_follow)}
@@ -128,7 +125,7 @@ export const SuggestedFollowsPopup = ({
   )
 }
 
-const ArtistProfilePicture = ({
+const ArtistProfilePictureWrapper = ({
   userId,
   profilePictureSizes
 }: {
@@ -142,5 +139,29 @@ const ArtistProfilePicture = ({
   )
   return (
     <DynamicImage className={styles.profilePicture} image={profilePicture} />
+  )
+}
+
+const ArtistPopoverWrapper = ({
+  handle,
+  name,
+  onArtistNameClicked,
+  closeParent
+}: {
+  handle: string
+  name: string
+  onArtistNameClicked: (handle: string) => void
+  closeParent: () => void
+}) => {
+  const onArtistNameClick = useCallback(() => {
+    onArtistNameClicked(handle)
+    closeParent()
+  }, [onArtistNameClicked, handle, closeParent])
+  return (
+    <div className={styles.artistLink} role='link' onClick={onArtistNameClick}>
+      <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
+        {name}
+      </ArtistPopover>
+    </div>
   )
 }

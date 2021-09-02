@@ -69,6 +69,7 @@
 }
 
 .artistLink {
+  display: inline-block;
   color: var(--secondary);
   font-weight: var(--font-bold);
   margin-bottom: 4px;
