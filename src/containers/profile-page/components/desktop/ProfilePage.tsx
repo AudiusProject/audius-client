@@ -247,9 +247,9 @@ const ProfilePage = ({
     record(make(Name.TRACK_UPLOAD_OPEN, { source: 'profile' }))
   }, [goToRoute, record])
 
-  const { tierNumber } = useSelectTierInfo(userId ?? 0)
-  const profileHasCollectiblesTierRequirement =
-    tierNumber >= badgeTiers.findIndex(t => t.tier === MIN_COLLECTIBLES_TIER)
+  // const { tierNumber } = useSelectTierInfo(userId ?? 0)
+  const profileHasCollectiblesTierRequirement = true
+  // tierNumber >= badgeTiers.findIndex(t => t.tier === MIN_COLLECTIBLES_TIER)
 
   const profileHasCollectibles =
     profile?.collectibleList?.length || profile?.solanaCollectibleList?.length
