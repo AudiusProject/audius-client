@@ -74,6 +74,7 @@ const FULL_ENDPOINT_MAP = {
   getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   topGenreUsers: '/users/genre/top',
+  topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
   getTrackByHandleAndSlug: `/tracks`,
   getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
@@ -107,6 +108,11 @@ export type GetTrackArgs = {
 type GetTrackByHandleAndSlugArgs = {
   handle: string
   slug: string
+}
+
+type GetPaginationArgs = {
+  limit?: number
+  offset?: number
 }
 
 type GetTrendingArgs = {
@@ -927,6 +933,26 @@ class AudiusAPIClient {
     if (!favoritedTrackResponse) return []
 
     const adapted = favoritedTrackResponse.data
+      .map(adapter.makeUser)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getTopArtists({ limit, offset }: GetPaginationArgs) {
+    this._assertInitialized()
+
+    const params = {
+      limit,
+      offset
+    }
+
+    const topArtistsResponse: Nullable<APIResponse<
+      APIUser[]
+    >> = await this._getResponse(FULL_ENDPOINT_MAP.topArtists, params)
+
+    if (!topArtistsResponse) return []
+
+    const adapted = topArtistsResponse.data
       .map(adapter.makeUser)
       .filter(removeNullable)
     return adapted

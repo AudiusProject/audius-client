@@ -155,6 +155,20 @@ export function* fetchRelatedArtists() {
   yield put(profileActions.fetchRelatedArtistsSucceeded(relatedArtistIds))
 }
 
+export function* fetchTopArtists() {
+  console.log('Not enough followers, getting top artists')
+  const profileUserId = yield select(getProfileUserId)
+  if (!profileUserId) return
+  const currentUserId = yield select(getUserId)
+  const relatedArtists = yield apiClient.getTopArtists({
+    userId: profileUserId,
+    currentUserId
+  })
+
+  const relatedArtistIds = yield call(cacheUsers, relatedArtists)
+  yield put(profileActions.fetchRelatedArtistsSucceeded(relatedArtistIds))
+}
+
 function* fetchProfileAsync(action) {
   try {
     let user
@@ -192,7 +206,11 @@ function* fetchProfileAsync(action) {
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
     yield fork(fetchSolanaCollectibles, user)
-    yield fork(fetchRelatedArtists)
+    if (user.follower_count >= 200) {
+      yield fork(fetchRelatedArtists)
+    } else {
+      yield fork(fetchTopArtists)
+    }
 
     // Get current user notification & subscription status
     const isSubscribed = yield call(
