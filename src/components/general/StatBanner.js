@@ -113,6 +113,8 @@ const StatBanner = props => {
             isVisible={props.showSuggestedArtists}
             onClose={props.onCloseSuggestedArtists}
             onFollowAll={props.onFollowAllSuggestedArtists}
+            onUnfollowAll={props.onUnfollowAll}
+            onArtistNameClicked={props.onClickArtistName}
           />
         </div>
       )

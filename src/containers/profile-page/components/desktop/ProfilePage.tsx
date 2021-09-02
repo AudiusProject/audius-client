@@ -143,7 +143,8 @@ export type ProfilePageProps = {
   ) => Promise<void>
   setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
-  onFollowAllSuggestedArtists: () => void
+  onFollowAllSuggestedArtists: (userIds: ID[]) => void
+  onUnfollowAllSuggestedArtists: (userIds: ID[]) => void
   onCloseSuggestedArtists: () => void
 }
 
@@ -697,9 +698,9 @@ const ProfilePage = ({
             showSuggestedArtists={showSuggestedArtists}
             onCloseSuggestedArtists={onCloseSuggestedArtists}
             onFollowAllSuggestedArtists={onFollowAllSuggestedArtists}
-            onClickArtistName={(handle: string) =>
+            onClickArtistName={(handle: string) => {
               goToRoute(profilePage(handle))
-            }
+            }}
             onEdit={onEdit}
             onSave={onSave}
             onShare={onShare}

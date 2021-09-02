@@ -257,8 +257,31 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     }
   }
 
-  onFollowAllSuggestedArtists = () => {
-    console.log('FOLLOW ALL SUGGESTED ARTISTS')
+  onFollowAllSuggestedArtists = (userIds: ID[]) => {
+    const {
+      profile: { profile }
+    } = this.props
+    if (!profile) return
+    userIds.forEach(userId => {
+      this.props.onFollow(userId)
+    })
+    if (this.props.account) {
+      this.props.updateCurrentUserFollows(true)
+    }
+  }
+
+  onUnfollowAllSuggestedArtists = (userIds: ID[]) => {
+    const {
+      profile: { profile }
+    } = this.props
+    if (!profile) return
+    userIds.forEach(userId => {
+      this.props.onUnfollow(userId)
+      this.props.setNotificationSubscription(userId, false)
+    })
+    if (this.props.account) {
+      this.props.updateCurrentUserFollows(true)
+    }
   }
 
   onCloseSuggestedArtists = () => {
@@ -936,6 +959,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       shouldMaskContent,
       showSuggestedArtists,
       onFollowAllSuggestedArtists: this.onFollowAllSuggestedArtists,
+      onUnfollowAllSuggestedArtists: this.onUnfollowAllSuggestedArtists,
       onCloseSuggestedArtists: this.onCloseSuggestedArtists,
       setNotificationSubscription,
       isSubscribed: !!isSubscribed,

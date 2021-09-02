@@ -1,4 +1,4 @@
-import React, { RefObject, useState } from 'react'
+import React, { RefObject, useCallback } from 'react'
 
 import { Popup, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
@@ -7,8 +7,10 @@ import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/general/FollowButton'
+import { MountPlacement } from 'components/types'
 import { useUserProfilePicture } from 'hooks/useImageSize'
 import User from 'models/User'
+import { ID } from 'models/common/Identifiers'
 import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
 import zIndex from 'utils/zIndex'
 
@@ -17,12 +19,19 @@ import styles from './SuggestedFollowsPopup.module.css'
 type SuggestedFollowsPopupProps = {
   anchorRef: RefObject<HTMLElement>
   artistName: string
-  suggestedArtists: User[]
+  suggestedArtists: Pick<
+    User,
+    | 'user_id'
+    | 'handle'
+    | 'name'
+    | '_profile_picture_sizes'
+    | 'does_current_user_follow'
+  >[]
   isVisible: boolean
   onClose: () => void
   onArtistNameClicked: (handle: string) => void
-  onFollowAll: () => void
-  onUnfollowAll: () => void
+  onFollowAll: (userIds: ID[]) => void
+  onUnfollowAll: (userIds: ID[]) => void
 }
 
 const messages = {
@@ -41,6 +50,13 @@ export const SuggestedFollowsPopup = ({
   onFollowAll,
   onUnfollowAll
 }: SuggestedFollowsPopupProps) => {
+  const onFollowAllClicked = useCallback(() => {
+    onFollowAll(suggestedArtists.map(a => a.user_id))
+  }, [suggestedArtists, onFollowAll])
+  const onUnfollowAllClicked = useCallback(() => {
+    onUnfollowAll(suggestedArtists.map(a => a.user_id))
+  }, [suggestedArtists, onUnfollowAll])
+
   if (!suggestedArtists || suggestedArtists.length === 0) {
     return null
   }
@@ -71,8 +87,8 @@ export const SuggestedFollowsPopup = ({
         </div>
         <p>Here are some accounts that vibe well with {artistName}:</p>
         <div className={styles.profilePictureList}>
-          {suggestedArtists.map((a, i) => (
-            <div key={i} className={styles.profilePictureWrapper}>
+          {suggestedArtists.map(a => (
+            <div key={a.user_id} className={styles.profilePictureWrapper}>
               <ArtistProfilePicture
                 userId={a.user_id}
                 profilePictureSizes={a._profile_picture_sizes}
@@ -85,23 +101,26 @@ export const SuggestedFollowsPopup = ({
           {suggestedArtists
             .map<React.ReactNode>((a, i) => (
               <span
-                key={i}
+                key={a.user_id}
                 className={styles.artistLink}
                 role='link'
                 onClick={() => onArtistNameClicked(a.handle)}
               >
-                <ArtistPopover handle={a.handle}>{a.name}</ArtistPopover>
+                <ArtistPopover mount={MountPlacement.PARENT} handle={a.handle}>
+                  {a.name}
+                </ArtistPopover>
               </span>
             ))
             .reduce((prev, curr) => [prev, ',', curr])}
         </p>
         <div>
           <FollowButton
+            following={suggestedArtists.every(a => a.does_current_user_follow)}
             invertedColor={true}
             messages={messages}
             size='full'
-            onFollow={onFollowAll}
-            onUnfollow={onUnfollowAll}
+            onFollow={onFollowAllClicked}
+            onUnfollow={onUnfollowAllClicked}
           />
         </div>
       </div>
