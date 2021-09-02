@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 
 import {
   Button,
@@ -13,6 +13,7 @@ import FollowButton from 'components/general/FollowButton'
 import Stats from 'components/general/Stats'
 import SubscribeButton from 'components/general/SubscribeButton'
 import Toast from 'components/toast/Toast'
+import { SuggestedFollowsPopup } from 'containers/profile-page/components/desktop/SuggestedFollowsPopup'
 
 import styles from './StatBanner.module.css'
 
@@ -25,6 +26,7 @@ const SHARE_TIMEOUT = 1500
 
 const StatBanner = props => {
   let buttonOne, buttonTwo, subscribeButton
+  const followButtonRef = useRef()
 
   switch (props.mode) {
     case 'owner':
@@ -98,12 +100,21 @@ const StatBanner = props => {
         </Toast>
       )
       buttonTwo = (
-        <FollowButton
-          following={props.following}
-          onFollow={props.onFollow}
-          onUnfollow={props.onUnfollow}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-        />
+        <div ref={followButtonRef}>
+          <FollowButton
+            following={props.following}
+            onFollow={props.onFollow}
+            onUnfollow={props.onUnfollow}
+            widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
+          />
+          <SuggestedFollowsPopup
+            anchorRef={followButtonRef}
+            suggestedArtists={props.relatedArtists?.slice(0, 5)}
+            isVisible={props.showSuggestedArtists}
+            onClose={props.onCloseSuggestedArtists}
+            onFollowAll={props.onFollowAllSuggestedArtists}
+          />
+        </div>
       )
       if (props.onToggleSubscribe) {
         subscribeButton = (
@@ -152,6 +163,10 @@ StatBanner.propTypes = {
   mode: PropTypes.oneOf(['visitor', 'owner', 'editing']),
   empty: PropTypes.bool,
   handle: PropTypes.string,
+  relatedArtists: PropTypes.array,
+  showSuggestedArtists: PropTypes.bool,
+  onCloseSuggestedArtists: PropTypes.func,
+  onFollowAllSuggestedArtists: PropTypes.func,
   userId: PropTypes.number,
   onClickArtistName: PropTypes.func,
   loadMoreFollowers: PropTypes.func,
@@ -178,7 +193,9 @@ StatBanner.defaultProps = {
     { number: 0, title: 'reposts' }
   ],
   mode: 'visitor',
-  empty: false
+  empty: false,
+  showSuggestedArtists: false,
+  onCloseSuggestedArtists: () => {}
 }
 
 export default StatBanner

@@ -49,6 +49,7 @@ export type ProfilePageProps = {
   // State
   editMode: boolean
   shouldMaskContent: boolean
+  showSuggestedArtists: boolean
 
   mostUsedTags: string[]
   // Computed
@@ -142,6 +143,8 @@ export type ProfilePageProps = {
   ) => Promise<void>
   setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
+  onFollowAllSuggestedArtists: () => void
+  onCloseSuggestedArtists: () => void
 }
 
 const ProfilePage = ({
@@ -196,6 +199,9 @@ const ProfilePage = ({
   activeTab,
   shouldMaskContent,
   editMode,
+  showSuggestedArtists,
+  onFollowAllSuggestedArtists,
+  onCloseSuggestedArtists,
 
   accountUserId,
   userId,
@@ -687,6 +693,10 @@ const ProfilePage = ({
             stats={stats}
             userId={accountUserId}
             handle={handle}
+            relatedArtists={profile?.relatedArtists.users}
+            showSuggestedArtists={showSuggestedArtists}
+            onCloseSuggestedArtists={onCloseSuggestedArtists}
+            onFollowAllSuggestedArtists={onFollowAllSuggestedArtists}
             onClickArtistName={(handle: string) =>
               goToRoute(profilePage(handle))
             }

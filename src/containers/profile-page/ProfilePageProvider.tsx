@@ -94,6 +94,7 @@ type ProfilePageState = {
   updatedWebsite: string | null
   updatedDonation: string | null
   tracksLineupOrder: TracksSortMode
+  showSuggestedArtists: boolean
 }
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'
@@ -106,6 +107,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     editMode: false,
     shouldMaskContent: false,
     tracksLineupOrder: TracksSortMode.RECENT,
+    showSuggestedArtists: false,
     ...INITIAL_UPDATE_FIELDS
   }
 
@@ -233,6 +235,12 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(true)
     }
+    if (
+      profile.relatedArtists.status !== Status.LOADING &&
+      profile.relatedArtists.users?.length > 0
+    ) {
+      this.setState({ showSuggestedArtists: true })
+    }
   }
 
   onUnfollow = () => {
@@ -247,6 +255,14 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
     }
+  }
+
+  onFollowAllSuggestedArtists = () => {
+    console.log('FOLLOW ALL SUGGESTED ARTISTS')
+  }
+
+  onCloseSuggestedArtists = () => {
+    this.setState({ showSuggestedArtists: false })
   }
 
   fetchProfile = (
@@ -723,6 +739,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       activeTab,
       editMode,
       shouldMaskContent,
+      showSuggestedArtists,
       updatedName,
       updatedBio,
       updatedLocation,
@@ -917,6 +934,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const desktopProps = {
       editMode,
       shouldMaskContent,
+      showSuggestedArtists,
+      onFollowAllSuggestedArtists: this.onFollowAllSuggestedArtists,
+      onCloseSuggestedArtists: this.onCloseSuggestedArtists,
       setNotificationSubscription,
       isSubscribed: !!isSubscribed,
 
