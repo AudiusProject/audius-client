@@ -24,6 +24,8 @@ type Follow = {
   status: Status
 }
 
+type RelatedArtist = Follow
+
 export type ProfilePageState = {
   handle: string
   userId: number
@@ -38,6 +40,7 @@ export type ProfilePageState = {
   followers: Follow
   followees: Follow
   followeeFollows: Follow
+  relatedArtists: RelatedArtist
   feed: LineupState<{ id: ID }>
   tracks: LineupState<{ id: ID }>
   isNotificationSubscribed: boolean
@@ -81,8 +84,11 @@ type FollowerGroup = {
   users: User[]
 }
 
+type RelatedArtistState = FollowerGroup
+
 export interface ProfileUser extends User {
   followers: FollowerGroup
   followeeFollows: FollowerGroup
   followees: FollowerGroup
+  relatedArtists: RelatedArtistState
 }

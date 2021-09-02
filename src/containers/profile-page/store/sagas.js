@@ -142,6 +142,19 @@ export function* fetchSolanaCollectibles(user) {
   )
 }
 
+export function* fetchRelatedArtists() {
+  const profileUserId = yield select(getProfileUserId)
+  if (!profileUserId) return
+  const currentUserId = yield select(getUserId)
+  const relatedArtists = yield apiClient.getRelatedArtists({
+    userId: profileUserId,
+    currentUserId
+  })
+
+  const relatedArtistIds = yield call(cacheUsers, relatedArtists)
+  yield put(profileActions.fetchRelatedArtistsSucceeded(relatedArtistIds))
+}
+
 function* fetchProfileAsync(action) {
   try {
     let user
@@ -179,6 +192,7 @@ function* fetchProfileAsync(action) {
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
     yield fork(fetchSolanaCollectibles, user)
+    yield fork(fetchRelatedArtists)
 
     // Get current user notification & subscription status
     const isSubscribed = yield call(

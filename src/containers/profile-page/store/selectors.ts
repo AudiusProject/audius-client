@@ -21,6 +21,8 @@ export const getProfileFollowers = (state: AppState) => state.profile.followers
 export const getProfileFollowees = (state: AppState) => state.profile.followees
 export const getFolloweeFollows = (state: AppState) =>
   state.profile.followeeFollows
+export const getRelatedArtists = (state: AppState) =>
+  state.profile.relatedArtists
 export const getIsSubscribed = (state: AppState) =>
   state.profile.isNotificationSubscribed
 export const getProfileUser = (state: AppState) =>
@@ -40,6 +42,7 @@ export const makeGetProfile = () => {
       getProfileFollowers,
       getProfileFollowees,
       getFolloweeFollows,
+      getRelatedArtists,
       getProfileMostUsedTags,
       // External
       getUsers,
@@ -54,6 +57,7 @@ export const makeGetProfile = () => {
       followers,
       followees,
       followeeFollows,
+      relatedArtists,
       mostUsedTags,
       users,
       collections
@@ -118,6 +122,12 @@ export const makeGetProfile = () => {
           return null
         })
         .filter(removeNullable)
+      const relatedArtistsPopulated = relatedArtists.userIds
+        .map(({ id }) => {
+          if (id in users) return users[id]
+          return null
+        })
+        .filter(removeNullable)
 
       return {
         profile: {
@@ -127,6 +137,10 @@ export const makeGetProfile = () => {
           followeeFollows: {
             status: followeeFollows.status,
             users: followeeFollowsPopulated
+          },
+          relatedArtists: {
+            status: relatedArtists.status,
+            users: relatedArtistsPopulated
           }
         },
         mostUsedTags,
