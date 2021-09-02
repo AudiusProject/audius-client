@@ -25,6 +25,7 @@ const FollowButton = props => {
 
   const style = {
     [styles.noIcon]: !props.showIcon,
+    [styles.full]: props.size === 'full',
     [styles.medium]: props.size === 'medium',
     [styles.small]: props.size === 'small'
   }
@@ -52,19 +53,19 @@ const FollowButton = props => {
   let text
   if (!props.following && !isHoveringClicked) {
     icon = <IconFollow />
-    text = messages.follow
+    text = props.messages.follow
   } else if (props.following && isHoveringClicked) {
     icon = <IconFollowing />
-    text = messages.following
+    text = props.messages.following
   } else if (props.following && !isHovering) {
-    text = messages.following
+    text = props.messages.following
     icon = <IconFollowing />
   } else if (props.following && isHovering) {
     icon = <IconUnfollow />
-    text = messages.unfollow
+    text = props.messages.unfollow
   } else if (!props.following && isHoveringClicked) {
     icon = <IconFollow />
-    text = messages.follow
+    text = props.messages.follow
   }
 
   if (!props.showIcon) icon = null
@@ -87,9 +88,14 @@ const FollowButton = props => {
 }
 
 FollowButton.propTypes = {
+  messages: PropTypes.shape({
+    follow: PropTypes.string.isRequired,
+    following: PropTypes.string.isRequired,
+    unfollow: PropTypes.string.isRequired
+  }),
   invertedColor: PropTypes.bool,
   showIcon: PropTypes.bool,
-  size: PropTypes.oneOf(['small', 'medium']),
+  size: PropTypes.oneOf(['small', 'medium', 'full']),
   widthToHideText: PropTypes.number,
   className: PropTypes.string,
   following: PropTypes.bool,
@@ -101,7 +107,8 @@ FollowButton.defaultProps = {
   invertedColor: false,
   following: false,
   showIcon: true,
-  size: 'medium'
+  size: 'medium',
+  messages: messages
 }
 
 export default FollowButton
