@@ -202,6 +202,7 @@ const ProfilePage = ({
   editMode,
   showSuggestedArtists,
   onFollowAllSuggestedArtists,
+  onUnfollowAllSuggestedArtists,
   onCloseSuggestedArtists,
 
   accountUserId,
@@ -698,6 +699,7 @@ const ProfilePage = ({
             showSuggestedArtists={showSuggestedArtists}
             onCloseSuggestedArtists={onCloseSuggestedArtists}
             onFollowAllSuggestedArtists={onFollowAllSuggestedArtists}
+            onUnfollowAllSuggestedArtists={onUnfollowAllSuggestedArtists}
             onClickArtistName={(handle: string) => {
               goToRoute(profilePage(handle))
             }}

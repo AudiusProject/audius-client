@@ -113,7 +113,7 @@ const StatBanner = props => {
             isVisible={props.showSuggestedArtists}
             onClose={props.onCloseSuggestedArtists}
             onFollowAll={props.onFollowAllSuggestedArtists}
-            onUnfollowAll={props.onUnfollowAll}
+            onUnfollowAll={props.onUnfollowAllSuggestedArtists}
             onArtistNameClicked={props.onClickArtistName}
           />
         </div>
@@ -169,6 +169,7 @@ StatBanner.propTypes = {
   showSuggestedArtists: PropTypes.bool,
   onCloseSuggestedArtists: PropTypes.func,
   onFollowAllSuggestedArtists: PropTypes.func,
+  onUnfollowAllSuggestedArtists: PropTypes.func,
   userId: PropTypes.number,
   onClickArtistName: PropTypes.func,
   loadMoreFollowers: PropTypes.func,
@@ -196,8 +197,7 @@ StatBanner.defaultProps = {
   ],
   mode: 'visitor',
   empty: false,
-  showSuggestedArtists: false,
-  onCloseSuggestedArtists: () => {}
+  showSuggestedArtists: false
 }
 
 export default StatBanner
