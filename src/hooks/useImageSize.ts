@@ -26,57 +26,59 @@ type Size = SquareSizes | WidthSizes
 const getWidth = (size: Size): number => parseInt(size.split('x')[0], 10)
 
 /** Sorts sizes according to their width dimension */
-const sortSizes = <ImageSize extends Size>(
-  sizes: ImageSize[],
-  reverse?: boolean
-): ImageSize[] => {
-  return reverse
-    ? sizes.sort((a, b) => getWidth(b) - getWidth(a))
-    : sizes.sort((a, b) => getWidth(a) - getWidth(b))
+const sortSizes = <ImageSize extends Size>(sizes: ImageSize[]): ImageSize[] => {
+  return sizes.sort((a, b) => getWidth(a) - getWidth(b))
 }
 
 /**
- * Gets the next available image size using a comparator function
+ * Gets the next available image size (sorted largest to smallest) meeeting a condition
  */
 const getNextImage = <
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 >(
-  comparator: (desiredSize: ImageSize, currentSize: ImageSize) => boolean
+  condition: (desiredWidth: number, currentSize: ImageSize) => boolean
 ) => (imageSizes: ImageSizes, size: ImageSize): URL => {
   const keys = Object.keys(imageSizes) as ImageSize[]
 
-  const next = sortSizes(keys.filter(s => !comparator(size, s)))[0]
+  const desiredWidth = getWidth(size)
+  const next = sortSizes(keys.filter(s => condition(desiredWidth, s)))[0]
   return imageSizes[next]
 }
 
 /**
- * Gets the next smallest available image size. If we have images
- * [A > B > C] and we request B, this method returns C.
+ * Returns true when the size is smaller than the desiredWidth
  */
 const smallerWidthComparator = <ImageSize extends Size>(
-  desiredSize: ImageSize,
+  desiredWidth: number,
   size: ImageSize
-) => getWidth(size) < getWidth(desiredSize)
+) => getWidth(size) < desiredWidth
 
 /**
- * Gets the first available larger image size. If we have images
- * [A > B > C] and we request C, this method returns A.
+ * Returns true when the size is larger than the desiredWidth
  */
 const largerWidthComparator = <ImageSize extends Size>(
-  desiredSize: ImageSize,
+  desiredWidth: number,
   size: ImageSize
-) => getWidth(size) > getWidth(desiredSize)
+) => getWidth(size) > desiredWidth
 
 type UseImageSizeProps<
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 > = {
+  // The action to dispatch to fetch the desired size
   action: (id: number, size: ImageSize) => void
+  // The fallback if no sizes are available
   defaultImage?: string
+  // A unique id (used to prevent duplicate fetches)
   id?: number | null
+  // A flag (default = true) that will trigger the image load. Can be used to delay the load
+  load?: boolean
+  // A flag that will cause the return value to be a function that will trigger the image load
   onDemand?: boolean
+  // The desired size of the image
   size: ImageSize
+  // The available sizes of the image
   sizes: ImageSizes | null
 }
 
@@ -95,6 +97,7 @@ const useImageSize = <
   action,
   defaultImage = '',
   id,
+  load = true,
   onDemand,
   size,
   sizes
@@ -117,32 +120,33 @@ const useImageSize = <
       return fallbackImage('')
     }
 
-    // Found an override
+    // An override exists
     const override = sizes[DefaultSizes.OVERRIDE]
     if (override) {
       return fallbackImage(override)
     }
 
-    // Found the desired size
+    // The desired size exists
     const desired = sizes[size]
     if (desired) {
       return desired
     }
 
-    // A larger size does exist
+    // A larger size exists
     const larger = getNextImage(largerWidthComparator)(sizes, size)
     if (larger) {
       return fallbackImage(larger)
     }
 
+    // If no larger size exists, dispatch to get the desired size
     // Don't dispatch twice for the same id
-    if (getPreviousId() !== id) {
+    if (load && getPreviousId() !== id) {
       setPreviousId(id)
       // Request the desired size
       dispatch(action(id, size))
     }
 
-    // A smaller size does exist
+    // A smaller size exists
     const smaller = getNextImage(smallerWidthComparator)(sizes, size)
     if (smaller) {
       return fallbackImage(smaller)
@@ -188,7 +192,8 @@ export const useTrackCoverArt = (
   coverArtSizes: CoverArtSizes | null,
   size: SquareSizes,
   defaultImage: string = imageEmpty,
-  onDemand = false
+  onDemand = false,
+  load = true
 ) =>
   useImageSize({
     id: trackId,
@@ -196,7 +201,8 @@ export const useTrackCoverArt = (
     size,
     action: fetchTrackCoverArt,
     defaultImage,
-    onDemand
+    onDemand,
+    load
   })
 
 export const useCollectionCoverArt = (
@@ -204,7 +210,8 @@ export const useCollectionCoverArt = (
   coverArtSizes: CoverArtSizes | null,
   size: SquareSizes,
   defaultImage: string = imageEmpty,
-  onDemand = false
+  onDemand = false,
+  load = true
 ) =>
   useImageSize({
     id: collectionId,
@@ -212,7 +219,8 @@ export const useCollectionCoverArt = (
     size,
     action: fetchCollectionCoverArt,
     defaultImage,
-    onDemand
+    onDemand,
+    load
   })
 
 export const useUserProfilePicture = (
@@ -220,7 +228,8 @@ export const useUserProfilePicture = (
   profilePictureSizes: ProfilePictureSizes | null,
   size: SquareSizes,
   defaultImage: string = profilePicEmpty,
-  onDemand = false
+  onDemand = false,
+  load = true
 ) =>
   useImageSize({
     id: userId,
@@ -228,7 +237,8 @@ export const useUserProfilePicture = (
     size,
     action: fetchProfilePicture,
     defaultImage,
-    onDemand
+    onDemand,
+    load
   })
 
 export const useUserCoverPhoto = (
@@ -236,7 +246,8 @@ export const useUserCoverPhoto = (
   coverPhotoSizes: CoverPhotoSizes | null,
   size: WidthSizes,
   defaultImage: string = imageCoverPhotoBlank,
-  onDemand = false
+  onDemand = false,
+  load = true
 ) =>
   useImageSize({
     id: userId,
@@ -244,5 +255,6 @@ export const useUserCoverPhoto = (
     size,
     action: fetchCoverPhoto,
     defaultImage,
-    onDemand
+    onDemand,
+    load
   })
