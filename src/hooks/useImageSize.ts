@@ -10,7 +10,7 @@ import {
   CoverArtSizes,
   CoverPhotoSizes,
   DefaultSizes,
-  ImageSizes,
+  ImageSizesObject,
   ProfilePictureSizes,
   SquareSizes,
   URL,
@@ -20,137 +20,140 @@ import { fetchCoverArt as fetchCollectionCoverArt } from 'store/cache/collection
 import { fetchCoverArt as fetchTrackCoverArt } from 'store/cache/tracks/actions'
 import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
 
-type SizeArray = Array<SquareSizes | WidthSizes>
+type Size = SquareSizes | WidthSizes
 
 /** Gets the width dimension of a size */
-const getWidth = (size: SquareSizes | WidthSizes): number =>
-  parseInt(size.split('x')[0], 10)
-
-/** Gets all sizes in an array that are greater than the provided size */
-const filterGreater = (
-  sizes: SizeArray,
-  size: SquareSizes | WidthSizes
-): SizeArray => {
-  return sizes.filter(s => getWidth(s) > getWidth(size))
-}
-
-/** Gets all sizes in an array that are less than the provided size */
-const filterLess = (
-  sizes: SizeArray,
-  size: SquareSizes | WidthSizes
-): SizeArray => {
-  return sizes.filter(s => getWidth(s) < getWidth(size))
-}
+const getWidth = (size: Size): number => parseInt(size.split('x')[0], 10)
 
 /** Sorts sizes according to their width dimension */
-const sortSizes = (sizes: SizeArray, reverse?: boolean): SizeArray => {
+const sortSizes = <ImageSize extends Size>(
+  sizes: ImageSize[],
+  reverse?: boolean
+): ImageSize[] => {
   return reverse
     ? sizes.sort((a, b) => getWidth(b) - getWidth(a))
     : sizes.sort((a, b) => getWidth(a) - getWidth(b))
 }
 
 /**
+ * Gets the next available image size using a comparator function
+ */
+const getNextImage = <
+  ImageSize extends Size,
+  ImageSizes extends ImageSizesObject<ImageSize>
+>(
+  comparator: (desiredSize: ImageSize, currentSize: ImageSize) => boolean
+) => (imageSizes: ImageSizes, size: ImageSize): URL => {
+  const keys = Object.keys(imageSizes) as ImageSize[]
+
+  const next = sortSizes(keys.filter(s => !comparator(size, s)))[0]
+  return imageSizes[next]
+}
+
+/**
  * Gets the next smallest available image size. If we have images
  * [A > B > C] and we request B, this method returns C.
  */
-const getNextSmallest = (
-  imageSizes: ImageSizes,
-  size: SquareSizes | WidthSizes,
-  defaultImage: string
-): URL => {
-  const keys = Object.keys(imageSizes) as SquareSizes[]
-  const nextLargest = sortSizes(filterLess(keys, size))[0]
-  if (!nextLargest) return defaultImage
-  return (imageSizes as any)[nextLargest]
-}
+const smallerWidthComparator = <ImageSize extends Size>(
+  desiredSize: ImageSize,
+  size: ImageSize
+) => getWidth(size) < getWidth(desiredSize)
 
 /**
  * Gets the first available larger image size. If we have images
  * [A > B > C] and we request C, this method returns A.
  */
-const getLarger = (
-  imageSizes: ImageSizes,
-  size: SquareSizes | WidthSizes,
-  defaultImage: string
-): URL | null => {
-  const keys = Object.keys(imageSizes) as SquareSizes[]
-  const larger = sortSizes(filterGreater(keys, size))[0]
-  if (!larger) return defaultImage
-  return (imageSizes as any)[larger]
+const largerWidthComparator = <ImageSize extends Size>(
+  desiredSize: ImageSize,
+  size: ImageSize
+) => getWidth(size) > getWidth(desiredSize)
+
+type UseImageSizeProps<
+  ImageSize extends Size,
+  ImageSizes extends ImageSizesObject<ImageSize>
+> = {
+  action: (id: number, size: ImageSize) => void
+  defaultImage?: string
+  id?: number | null
+  onDemand?: boolean
+  size: ImageSize
+  sizes: ImageSizes | null
 }
 
-type UseImageSizeProps = {
-  id?: number | null
-  sizes: ImageSizes | null
-  size: SquareSizes | WidthSizes
-  action: (id: number, size: SquareSizes | WidthSizes) => void
-  defaultImage?: string
-  onDemand?: boolean
-}
 /**
  * Custom hooks that allow a component to use an image size for a
  * track, collection, or user's image.
+ *
+ * If the desired size is not yet cached, the next best size will be returned.
+ * The desired size will be requested and returned when it becomes available
+ *
  */
-const useImageSize = ({
-  id,
-  sizes,
-  size,
+const useImageSize = <
+  ImageSize extends Size,
+  ImageSizes extends ImageSizesObject<ImageSize>
+>({
   action,
   defaultImage = '',
-  onDemand
-}: UseImageSizeProps) => {
+  id,
+  onDemand,
+  size,
+  sizes
+}: UseImageSizeProps<ImageSize, ImageSizes>) => {
   const dispatch = useDispatch()
   const [getPreviousId, setPreviousId] = useInstanceVar<number | null>(null)
 
-  const getImageSize = () => {
+  const fallbackImage = (url: URL) => {
+    setPreviousId(null)
+    return url
+  }
+
+  const getImageSize = (): URL => {
     if (id === null || id === undefined) {
       return ''
     }
 
     // No image sizes object
-    if (id !== null && id !== undefined && !sizes) {
-      setPreviousId(null)
-      return ''
+    if (!sizes) {
+      return fallbackImage('')
     }
 
     // Found an override
-    // @ts-ignore
-    if (DefaultSizes.OVERRIDE in sizes) {
-      setPreviousId(null)
-      const url = (sizes as any)[DefaultSizes.OVERRIDE]
-      if (!url) return defaultImage
-      return url
+    const override = sizes[DefaultSizes.OVERRIDE]
+    if (override) {
+      return fallbackImage(override)
     }
 
-    // Found the requested size
-    // @ts-ignore
-    if (size in sizes) {
-      setPreviousId(null)
-      const url = (sizes as any)[size]
-      if (!url) return defaultImage
-      return url
+    // Found the desired size
+    const desired = sizes[size]
+    if (desired) {
+      return desired
     }
 
     // A larger size does exist
-    // @ts-ignore
-    const larger = getLarger(sizes, size)
+    const larger = getNextImage(largerWidthComparator)(sizes, size)
     if (larger) {
-      setPreviousId(null)
-      return larger
+      return fallbackImage(larger)
     }
 
-    // Request the right size but return the next best option
+    // Don't dispatch twice for the same id
     if (getPreviousId() !== id) {
       setPreviousId(id)
-      // Don't dispatch twice for the same id
+      // Request the desired size
       dispatch(action(id, size))
     }
-    // @ts-ignore
-    return getNextSmallest(sizes, size)
+
+    // A smaller size does exist
+    const smaller = getNextImage(smallerWidthComparator)(sizes, size)
+    if (smaller) {
+      return fallbackImage(smaller)
+    }
+
+    return defaultImage
   }
 
-  if (!onDemand) return getImageSize()
-  return getImageSize
+  // TODO: sk - disambiguate the return value so it can be typed
+  if (!onDemand) return getImageSize() as any
+  return getImageSize as any
 }
 
 const ARTWORK_HAS_LOADED_TIMEOUT = 1000
