@@ -18,3 +18,15 @@ export class SignUpValidateEmailSuccessMessage extends NativeMobileMessage {
     super(MessageType.SIGN_UP_VALIDATE_EMAIL_SUCCESS, { available })
   }
 }
+
+export class SignUpValidateHandleFailureMessage extends NativeMobileMessage {
+  constructor({ error }: { error: any }) {
+    super(MessageType.SIGN_UP_VALIDATE_HANDLE_FAILURE, { error })
+  }
+}
+
+export class SignUpValidateHandleSuccessMessage extends NativeMobileMessage {
+  constructor() {
+    super(MessageType.SIGN_UP_VALIDATE_HANDLE_SUCCESS)
+  }
+}

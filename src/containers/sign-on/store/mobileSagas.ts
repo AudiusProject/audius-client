@@ -3,7 +3,9 @@ import { put, takeEvery } from 'redux-saga/effects'
 import {
   SignInFailureMessage,
   SignUpValidateEmailFailureMessage,
-  SignUpValidateEmailSuccessMessage
+  SignUpValidateEmailSuccessMessage,
+  SignUpValidateHandleFailureMessage,
+  SignUpValidateHandleSuccessMessage
 } from 'services/native-mobile-interface/signon'
 import { MessageType } from 'services/native-mobile-interface/types'
 
@@ -70,13 +72,49 @@ function* watchSignupValidateEmailSuccess() {
   })
 }
 
+function* watchSignupValidateHandle() {
+  yield takeEvery([MessageType.SIGN_UP_VALIDATE_HANDLE], function* (action: {
+    type: string
+    handle: string
+    onValidate?: (error: boolean) => void
+  }) {
+    yield put(signOnActions.validateHandle(action.handle, action.onValidate))
+  })
+}
+
+function* watchSignupValidateHandleFailed() {
+  yield takeEvery([signOnActions.VALIDATE_HANDLE_FAILED], function (action: {
+    type: string
+    error: string
+  }) {
+    const message = new SignUpValidateHandleFailureMessage({
+      error: action.error
+    })
+    // console.log('HANDLE validation failed ' + action.error)
+    message.send()
+  })
+}
+
+function* watchSignupValidateHandleSuccess() {
+  yield takeEvery([signOnActions.VALIDATE_HANDLE_SUCCEEDED], function (action: {
+    type: string
+  }) {
+    const message = new SignUpValidateHandleSuccessMessage()
+    // console.log('HANDLE: validation suceeded ')
+    message.send()
+  })
+}
+
 const sagas = () => {
   return [
     watchSignIn,
     watchSignInFailed,
     watchSignupValidateEmail,
     watchSignupValidateEmailFailed,
-    watchSignupValidateEmailSuccess
+    watchSignupValidateEmailSuccess,
+    watchSignupValidateHandle,
+    watchSignupValidateHandleFailed,
+    watchSignupValidateHandleSuccess
   ]
 }
 export default sagas
