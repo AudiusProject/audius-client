@@ -22,6 +22,7 @@ import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
 import { greaterThan, lessThan } from 'utils/math'
 
 type Size = SquareSizes | WidthSizes
+type MaybeUrl = URL | undefined
 
 /** Gets the width dimension of a size */
 const getWidth = (size: Size): number => parseInt(size.split('x')[0], 10)
@@ -109,19 +110,22 @@ export const useImageSize = <
     }
 
     // An override exists
-    const override = sizes[DefaultSizes.OVERRIDE]
+    const override: MaybeUrl = sizes[DefaultSizes.OVERRIDE]
     if (override) {
       return fallbackImage(override)
     }
 
     // The desired size exists
-    const desired = sizes[size]
+    const desired: MaybeUrl = sizes[size]
     if (desired) {
       return desired
     }
 
     // A larger size exists
-    const larger = getNextImage<ImageSize, ImageSizes>(greaterThan)(sizes, size)
+    const larger: MaybeUrl = getNextImage<ImageSize, ImageSizes>(greaterThan)(
+      sizes,
+      size
+    )
     if (larger) {
       return fallbackImage(larger)
     }
@@ -135,7 +139,10 @@ export const useImageSize = <
     }
 
     // A smaller size exists
-    const smaller = getNextImage<ImageSize, ImageSizes>(lessThan)(sizes, size)
+    const smaller: MaybeUrl = getNextImage<ImageSize, ImageSizes>(lessThan)(
+      sizes,
+      size
+    )
     if (smaller) {
       return fallbackImage(smaller)
     }
