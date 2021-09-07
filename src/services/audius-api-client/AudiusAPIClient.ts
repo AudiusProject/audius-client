@@ -110,10 +110,14 @@ type GetTrackByHandleAndSlugArgs = {
   slug: string
 }
 
-type GetPaginationArgs = {
+type PaginationArgs = {
   limit?: number
   offset?: number
 }
+
+type CurrentUserIdArg = { currentUserId: Nullable<ID> }
+
+type GetTopArtistsArgs = PaginationArgs & CurrentUserIdArg
 
 type GetTrendingArgs = {
   timeRange?: TimeRange
@@ -938,12 +942,14 @@ class AudiusAPIClient {
     return adapted
   }
 
-  async getTopArtists({ limit, offset }: GetPaginationArgs) {
+  async getTopArtists({ limit, offset, currentUserId }: GetTopArtistsArgs) {
     this._assertInitialized()
+    const encodedUserId = encodeHashId(currentUserId)
 
     const params = {
       limit,
-      offset
+      offset,
+      user_id: encodedUserId
     }
 
     const topArtistsResponse: Nullable<APIResponse<

@@ -383,7 +383,8 @@ export enum FollowSource {
   COLLECTION_PAGE = 'collection page',
   HOVER_TILE = 'hover tile',
   OVERFLOW = 'overflow',
-  USER_LIST = 'user list'
+  USER_LIST = 'user list',
+  ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup'
 }
 
 type Share = {
