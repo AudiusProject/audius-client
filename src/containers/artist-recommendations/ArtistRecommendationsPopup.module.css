@@ -79,3 +79,7 @@
 .artistLink :global(.artistPopover) {
   display: inline-block;
 }
+
+.verified > *:first-child {
+  margin-left: 5px;
+}

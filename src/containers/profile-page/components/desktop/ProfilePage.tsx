@@ -696,6 +696,7 @@ const ProfilePage = ({
             userId={accountUserId}
             handle={handle}
             name={name}
+            profileId={profile?.user_id}
             relatedArtists={profile?.relatedArtists.users}
             showSuggestedArtists={showSuggestedArtists}
             onCloseSuggestedArtists={onCloseSuggestedArtists}

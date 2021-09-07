@@ -1,32 +1,34 @@
-import React, { RefObject, useCallback } from 'react'
+import React, { MutableRefObject, useCallback, useEffect, useMemo } from 'react'
 
 import { Popup, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
+import { push } from 'connected-react-router'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/general/FollowButton'
 import { MountPlacement } from 'components/types'
+import UserBadges from 'containers/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useImageSize'
 import User from 'models/User'
 import { ID } from 'models/common/Identifiers'
 import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
+import { FollowSource } from 'services/analytics'
+import { getUser } from 'store/cache/users/selectors'
+import * as socialActions from 'store/social/users/actions'
+import { AppState } from 'store/types'
+import { profilePage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
-import styles from './SuggestedFollowsPopup.module.css'
+import styles from './ArtistRecommendationsPopup.module.css'
+import { makeGetRelatedArtists } from './store/selectors'
+import { fetchRelatedArtists } from './store/slice'
 
-type SuggestedFollowsPopupProps = {
-  anchorRef: RefObject<HTMLElement>
-  artistName: string
-  suggestedArtists: Pick<
-    User,
-    | 'user_id'
-    | 'handle'
-    | 'name'
-    | '_profile_picture_sizes'
-    | 'does_current_user_follow'
-  >[]
+type ArtistRecommendationsPopupProps = {
+  anchorRef: MutableRefObject<HTMLElement>
+  artistId: ID
   isVisible: boolean
   onClose: () => void
   onArtistNameClicked: (handle: string) => void
@@ -40,31 +42,71 @@ const messages = {
   following: 'Following'
 }
 
-export const SuggestedFollowsPopup = ({
+export const ArtistRecommendationsPopup = ({
   anchorRef,
-  artistName,
-  suggestedArtists,
+  artistId,
   isVisible,
-  onClose,
-  onArtistNameClicked,
-  onFollowAll,
-  onUnfollowAll
-}: SuggestedFollowsPopupProps) => {
-  const onFollowAllClicked = useCallback(() => {
-    onFollowAll(suggestedArtists.map(a => a.user_id))
-  }, [suggestedArtists, onFollowAll])
-  const onUnfollowAllClicked = useCallback(() => {
-    onUnfollowAll(suggestedArtists.map(a => a.user_id))
-  }, [suggestedArtists, onUnfollowAll])
+  onClose
+}: ArtistRecommendationsPopupProps) => {
+  const dispatch = useDispatch()
 
-  if (!suggestedArtists || suggestedArtists.length === 0) {
+  // Start fetching the related artists
+  useEffect(() => {
+    dispatch(
+      fetchRelatedArtists({
+        userId: artistId
+      })
+    )
+  }, [dispatch, artistId])
+
+  // Get the artist
+  const user = useSelector<AppState, User | null>(state =>
+    getUser(state, { id: artistId })
+  )
+
+  // Get the related artists
+  const getRelatedArtists = useMemo(makeGetRelatedArtists, [artistId])
+  const suggestedArtists = useSelector<AppState, User[]>(state =>
+    getRelatedArtists(state, { id: artistId })
+  )
+
+  // Follow/Unfollow listeners
+  const onFollowAllClicked = useCallback(() => {
+    suggestedArtists.forEach(a => {
+      dispatch(
+        socialActions.followUser(
+          a.user_id,
+          FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+        )
+      )
+    })
+  }, [dispatch, suggestedArtists])
+  const onUnfollowAllClicked = useCallback(() => {
+    suggestedArtists.forEach(a => {
+      dispatch(
+        socialActions.unfollowUser(
+          a.user_id,
+          FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+        )
+      )
+    })
+  }, [dispatch, suggestedArtists])
+
+  // Navigate to profile pages on artist links
+  const onArtistNameClicked = useCallback(
+    handle => {
+      dispatch(push(profilePage(handle)))
+    },
+    [dispatch]
+  )
+
+  if (!user || !suggestedArtists || suggestedArtists.length === 0) {
     return null
   }
+  const { name } = user
   return (
     <Popup
       position={PopupPosition.BOTTOM_LEFT}
-      // Popup should allow for non-mutable refs
-      // @ts-ignore
       anchorRef={anchorRef}
       isVisible={isVisible}
       zIndex={zIndex.FOLLOW_RECOMMENDATIONS_POPUP}
@@ -85,7 +127,7 @@ export const SuggestedFollowsPopup = ({
             <h2 className={styles.headerTitle}>Suggested Artists</h2>
           </div>
         </div>
-        <p>Here are some accounts that vibe well with {artistName}:</p>
+        <p>Here are some accounts that vibe well with {name}</p>
         <div className={styles.profilePictureList}>
           {suggestedArtists.map(a => (
             <div key={a.user_id} className={styles.profilePictureWrapper}>
@@ -99,16 +141,21 @@ export const SuggestedFollowsPopup = ({
         <div>
           Featuring{' '}
           {suggestedArtists
+            .slice(0, 3)
             .map<React.ReactNode>((a, i) => (
               <ArtistPopoverWrapper
                 key={a.user_id}
+                userId={a.user_id}
                 handle={a.handle}
                 name={a.name}
                 onArtistNameClicked={onArtistNameClicked}
                 closeParent={onClose}
               />
             ))
-            .reduce((prev, curr) => [prev, ',', curr])}
+            .reduce((prev, curr) => [prev, ', ', curr])}
+          {suggestedArtists.length > 3
+            ? `, and ${suggestedArtists.length - 3} others.`
+            : ''}
         </div>
         <div>
           <FollowButton
@@ -143,11 +190,13 @@ const ArtistProfilePictureWrapper = ({
 }
 
 const ArtistPopoverWrapper = ({
+  userId,
   handle,
   name,
   onArtistNameClicked,
   closeParent
 }: {
+  userId: ID
   handle: string
   name: string
   onArtistNameClicked: (handle: string) => void
@@ -161,6 +210,12 @@ const ArtistPopoverWrapper = ({
     <div className={styles.artistLink} role='link' onClick={onArtistNameClick}>
       <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
         {name}
+        <UserBadges
+          userId={userId}
+          className={styles.verified}
+          badgeSize={10}
+          inline={true}
+        />
       </ArtistPopover>
     </div>
   )
