@@ -19,6 +19,7 @@ import {
 import { fetchCoverArt as fetchCollectionCoverArt } from 'store/cache/collections/actions'
 import { fetchCoverArt as fetchTrackCoverArt } from 'store/cache/tracks/actions'
 import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
+import { greaterThan, lessThan } from 'utils/math'
 
 type Size = SquareSizes | WidthSizes
 
@@ -37,30 +38,16 @@ const getNextImage = <
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 >(
-  condition: (desiredWidth: number, currentSize: ImageSize) => boolean
+  condition: (desiredWidth: number, currentWidth: number) => boolean
 ) => (imageSizes: ImageSizes, size: ImageSize): URL => {
   const keys = Object.keys(imageSizes) as ImageSize[]
 
   const desiredWidth = getWidth(size)
-  const next = sortSizes(keys.filter(s => condition(desiredWidth, s)))[0]
+  const next = sortSizes(
+    keys.filter(s => condition(desiredWidth, getWidth(s)))
+  )[0]
   return imageSizes[next]
 }
-
-/**
- * Returns true when the size is smaller than the desiredWidth
- */
-const smallerWidthComparator = <ImageSize extends Size>(
-  desiredWidth: number,
-  size: ImageSize
-) => getWidth(size) < desiredWidth
-
-/**
- * Returns true when the size is larger than the desiredWidth
- */
-const largerWidthComparator = <ImageSize extends Size>(
-  desiredWidth: number,
-  size: ImageSize
-) => getWidth(size) > desiredWidth
 
 type UseImageSizeProps<
   ImageSize extends Size,
@@ -133,7 +120,7 @@ const useImageSize = <
     }
 
     // A larger size exists
-    const larger = getNextImage(largerWidthComparator)(sizes, size)
+    const larger = getNextImage<ImageSize, ImageSizes>(greaterThan)(sizes, size)
     if (larger) {
       return fallbackImage(larger)
     }
@@ -147,7 +134,7 @@ const useImageSize = <
     }
 
     // A smaller size exists
-    const smaller = getNextImage(smallerWidthComparator)(sizes, size)
+    const smaller = getNextImage<ImageSize, ImageSizes>(lessThan)(sizes, size)
     if (smaller) {
       return fallbackImage(smaller)
     }
