@@ -19,7 +19,6 @@ import {
 import { fetchCoverArt as fetchCollectionCoverArt } from 'store/cache/collections/actions'
 import { fetchCoverArt as fetchTrackCoverArt } from 'store/cache/tracks/actions'
 import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
-import { greaterThan, lessThan } from 'utils/math'
 
 type Size = SquareSizes | WidthSizes
 type MaybeUrl = URL | undefined
@@ -99,6 +98,9 @@ export const useImageSize = <
     return url
   }
 
+  const getSmallerImage = getNextImage<ImageSize, ImageSizes>((a, b) => a < b)
+  const getLargerImage = getNextImage<ImageSize, ImageSizes>((a, b) => a > b)
+
   const getImageSize = (): URL => {
     if (id === null || id === undefined) {
       return ''
@@ -122,10 +124,7 @@ export const useImageSize = <
     }
 
     // A larger size exists
-    const larger: MaybeUrl = getNextImage<ImageSize, ImageSizes>(greaterThan)(
-      sizes,
-      size
-    )
+    const larger: MaybeUrl = getLargerImage(sizes, size)
     if (larger) {
       return fallbackImage(larger)
     }
@@ -139,10 +138,7 @@ export const useImageSize = <
     }
 
     // A smaller size exists
-    const smaller: MaybeUrl = getNextImage<ImageSize, ImageSizes>(lessThan)(
-      sizes,
-      size
-    )
+    const smaller: MaybeUrl = getSmallerImage(sizes, size)
     if (smaller) {
       return fallbackImage(smaller)
     }
