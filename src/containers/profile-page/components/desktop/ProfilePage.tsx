@@ -49,7 +49,7 @@ export type ProfilePageProps = {
   // State
   editMode: boolean
   shouldMaskContent: boolean
-  showSuggestedArtists: boolean
+  areArtistRecommendationsVisible: boolean
 
   mostUsedTags: string[]
   // Computed
@@ -143,9 +143,7 @@ export type ProfilePageProps = {
   ) => Promise<void>
   setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
-  onFollowAllSuggestedArtists: (userIds: ID[]) => void
-  onUnfollowAllSuggestedArtists: (userIds: ID[]) => void
-  onCloseSuggestedArtists: () => void
+  onCloseArtistRecommendations: () => void
 }
 
 const ProfilePage = ({
@@ -200,10 +198,8 @@ const ProfilePage = ({
   activeTab,
   shouldMaskContent,
   editMode,
-  showSuggestedArtists,
-  onFollowAllSuggestedArtists,
-  onUnfollowAllSuggestedArtists,
-  onCloseSuggestedArtists,
+  areArtistRecommendationsVisible,
+  onCloseArtistRecommendations,
 
   accountUserId,
   userId,
@@ -695,13 +691,9 @@ const ProfilePage = ({
             stats={stats}
             userId={accountUserId}
             handle={handle}
-            name={name}
             profileId={profile?.user_id}
-            relatedArtists={profile?.relatedArtists.users}
-            showSuggestedArtists={showSuggestedArtists}
-            onCloseSuggestedArtists={onCloseSuggestedArtists}
-            onFollowAllSuggestedArtists={onFollowAllSuggestedArtists}
-            onUnfollowAllSuggestedArtists={onUnfollowAllSuggestedArtists}
+            areArtistRecommendationsVisible={areArtistRecommendationsVisible}
+            onCloseArtistRecommendations={onCloseArtistRecommendations}
             onClickArtistName={(handle: string) => {
               goToRoute(profilePage(handle))
             }}

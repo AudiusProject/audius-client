@@ -110,8 +110,8 @@ const StatBanner = props => {
           <ArtistRecommendationsPopup
             anchorRef={followButtonRef}
             artistId={props.profileId}
-            isVisible={props.showSuggestedArtists}
-            onClose={props.onCloseSuggestedArtists}
+            isVisible={props.areArtistRecommendationsVisible}
+            onClose={props.onCloseArtistRecommendations}
           />
         </div>
       )
@@ -162,13 +162,9 @@ StatBanner.propTypes = {
   mode: PropTypes.oneOf(['visitor', 'owner', 'editing']),
   empty: PropTypes.bool,
   handle: PropTypes.string,
-  name: PropTypes.string,
   profileId: PropTypes.number,
-  relatedArtists: PropTypes.array,
-  showSuggestedArtists: PropTypes.bool,
-  onCloseSuggestedArtists: PropTypes.func,
-  onFollowAllSuggestedArtists: PropTypes.func,
-  onUnfollowAllSuggestedArtists: PropTypes.func,
+  areArtistRecommendationsVisible: PropTypes.bool,
+  onCloseArtistRecommendations: PropTypes.func,
   userId: PropTypes.number,
   onClickArtistName: PropTypes.func,
   loadMoreFollowers: PropTypes.func,

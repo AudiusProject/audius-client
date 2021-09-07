@@ -117,6 +117,8 @@ type ProfileHeaderProps = {
   onUpdateProfilePicture: (files: any, source: 'original' | 'unsplash') => void
   onUpdateCoverPhoto: (files: any, source: 'original' | 'unsplash') => void
   setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
+  areArtistRecommendationsVisible: boolean
+  onCloseArtistRecommendations: () => void
 }
 
 function isEllipsisActive(e: HTMLElement) {
@@ -154,7 +156,9 @@ const ProfileHeader = ({
   updatedProfilePicture,
   onUpdateCoverPhoto,
   onUpdateProfilePicture,
-  setNotificationSubscription
+  setNotificationSubscription,
+  areArtistRecommendationsVisible,
+  onCloseArtistRecommendations
 }: ProfileHeaderProps) => {
   const [hasEllipsis, setHasEllipsis] = useState(false)
   const [isDescriptionMinimized, setIsDescriptionMinimized] = useState(true)
@@ -480,13 +484,15 @@ const ProfileHeader = ({
               {isDescriptionMinimized ? messages.showMore : messages.showLess}
             </div>
           ) : null}
-          <ArtistRecommendations
-            className={styles.artistRecommendationsSection}
-            itemClassName={styles.artistRecommendationsSectionItems}
-            header={<p>Here are some accounts that vibe well with {name}</p>}
-            artistId={userId}
-            onClose={() => {}}
-          />
+          {areArtistRecommendationsVisible && (
+            <ArtistRecommendations
+              className={styles.artistRecommendationsSection}
+              itemClassName={styles.artistRecommendationsSectionItems}
+              header={<p>Here are some accounts that vibe well with {name}</p>}
+              artistId={userId}
+              onClose={onCloseArtistRecommendations}
+            />
+          )}
         </div>
       )}
       {mode === 'owner' && !isEditing && <UploadButton />}
