@@ -18,7 +18,7 @@ export type URL = string
 
 export type ImageSizesObject<
   ImageSizeEnum extends SquareSizes | WidthSizes
-> = Record<ImageSizeEnum | DefaultSizes, URL>
+> = Partial<Record<ImageSizeEnum | DefaultSizes, URL>>
 
 export type CoverArtSizes = ImageSizesObject<SquareSizes>
 export type ProfilePictureSizes = ImageSizesObject<SquareSizes>

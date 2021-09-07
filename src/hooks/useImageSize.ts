@@ -28,24 +28,25 @@ const getWidth = (size: Size): number => parseInt(size.split('x')[0], 10)
 
 /** Sorts sizes according to their width dimension */
 const sortSizes = <ImageSize extends Size>(sizes: ImageSize[]): ImageSize[] => {
-  return sizes.sort((a, b) => getWidth(a) - getWidth(b))
+  return sizes.sort((a, b) => getWidth(b) - getWidth(a))
 }
 
 /**
- * Gets the next available image size (sorted largest to smallest) meeeting a condition
+ * Gets the next available image size (sorted largest to smallest) meeting a condition
  */
 const getNextImage = <
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 >(
   condition: (desiredWidth: number, currentWidth: number) => boolean
-) => (imageSizes: ImageSizes, size: ImageSize): URL => {
+) => (imageSizes: ImageSizes, size: ImageSize) => {
   const keys = Object.keys(imageSizes) as ImageSize[]
 
   const desiredWidth = getWidth(size)
-  const next = sortSizes(
-    keys.filter(s => condition(desiredWidth, getWidth(s)))
-  )[0]
+  const sorted = sortSizes(
+    keys.filter(s => condition(getWidth(s), desiredWidth))
+  )
+  const next = sorted[0]
   return imageSizes[next]
 }
 
@@ -77,7 +78,7 @@ type UseImageSizeProps<
  * The desired size will be requested and returned when it becomes available
  *
  */
-const useImageSize = <
+export const useImageSize = <
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 >({
