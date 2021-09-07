@@ -123,6 +123,7 @@ export const ArtistRecommendations = ({
           <div key={a.user_id} className={styles.profilePictureWrapper}>
             <ArtistProfilePictureWrapper
               userId={a.user_id}
+              handle={a.handle}
               profilePictureSizes={a._profile_picture_sizes}
             />
           </div>
@@ -163,9 +164,11 @@ export const ArtistRecommendations = ({
 
 const ArtistProfilePictureWrapper = ({
   userId,
+  handle,
   profilePictureSizes
 }: {
   userId: number
+  handle: string
   profilePictureSizes: ProfilePictureSizes | null
 }) => {
   const profilePicture = useUserProfilePicture(
@@ -174,7 +177,14 @@ const ArtistProfilePictureWrapper = ({
     SquareSizes.SIZE_150_BY_150
   )
   return (
-    <DynamicImage className={styles.profilePicture} image={profilePicture} />
+    <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
+      <div>
+        <DynamicImage
+          className={styles.profilePicture}
+          image={profilePicture}
+        />
+      </div>
+    </ArtistPopover>
   )
 }
 
