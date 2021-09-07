@@ -19,9 +19,9 @@ import {
 import { fetchCoverArt as fetchCollectionCoverArt } from 'store/cache/collections/actions'
 import { fetchCoverArt as fetchTrackCoverArt } from 'store/cache/tracks/actions'
 import { fetchCoverPhoto, fetchProfilePicture } from 'store/cache/users/actions'
+import { Maybe } from 'utils/typeUtils'
 
 type Size = SquareSizes | WidthSizes
-type MaybeUrl = URL | undefined
 
 /** Gets the width dimension of a size */
 const getWidth = (size: Size): number => parseInt(size.split('x')[0], 10)
@@ -112,19 +112,19 @@ export const useImageSize = <
     }
 
     // An override exists
-    const override: MaybeUrl = sizes[DefaultSizes.OVERRIDE]
+    const override: Maybe<URL> = sizes[DefaultSizes.OVERRIDE]
     if (override) {
       return fallbackImage(override)
     }
 
     // The desired size exists
-    const desired: MaybeUrl = sizes[size]
+    const desired: Maybe<URL> = sizes[size]
     if (desired) {
       return desired
     }
 
     // A larger size exists
-    const larger: MaybeUrl = getLargerImage(sizes, size)
+    const larger: Maybe<URL> = getLargerImage(sizes, size)
     if (larger) {
       return fallbackImage(larger)
     }
@@ -138,7 +138,7 @@ export const useImageSize = <
     }
 
     // A smaller size exists
-    const smaller: MaybeUrl = getSmallerImage(sizes, size)
+    const smaller: Maybe<URL> = getSmallerImage(sizes, size)
     if (smaller) {
       return fallbackImage(smaller)
     }
