@@ -13,7 +13,7 @@ import FollowButton from 'components/general/FollowButton'
 import Stats from 'components/general/Stats'
 import SubscribeButton from 'components/general/SubscribeButton'
 import Toast from 'components/toast/Toast'
-import { SuggestedFollowsPopup } from 'containers/profile-page/components/desktop/SuggestedFollowsPopup'
+import { ArtistRecommendationsPopup } from 'containers/artist-recommendations/ArtistRecommendationsPopup'
 
 import styles from './StatBanner.module.css'
 
@@ -107,15 +107,11 @@ const StatBanner = props => {
             onUnfollow={props.onUnfollow}
             widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
           />
-          <SuggestedFollowsPopup
+          <ArtistRecommendationsPopup
             anchorRef={followButtonRef}
-            artistName={props.name}
-            suggestedArtists={props.relatedArtists?.slice(0, 5)}
+            artistId={props.profileId}
             isVisible={props.showSuggestedArtists}
             onClose={props.onCloseSuggestedArtists}
-            onFollowAll={props.onFollowAllSuggestedArtists}
-            onUnfollowAll={props.onUnfollowAllSuggestedArtists}
-            onArtistNameClicked={props.onClickArtistName}
           />
         </div>
       )
@@ -167,6 +163,7 @@ StatBanner.propTypes = {
   empty: PropTypes.bool,
   handle: PropTypes.string,
   name: PropTypes.string,
+  profileId: PropTypes.number,
   relatedArtists: PropTypes.array,
   showSuggestedArtists: PropTypes.bool,
   onCloseSuggestedArtists: PropTypes.func,
