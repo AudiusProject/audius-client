@@ -19,6 +19,7 @@ import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/general/FollowButton'
 import SubscribeButton from 'components/general/SubscribeButton'
+import { ArtistRecommendations } from 'containers/artist-recommendations/ArtistRecommendations'
 import ProfilePageBadge from 'containers/user-badges/ProfilePageBadge'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { useUserCoverPhoto, useUserProfilePicture } from 'hooks/useImageSize'
@@ -479,6 +480,13 @@ const ProfileHeader = ({
               {isDescriptionMinimized ? messages.showMore : messages.showLess}
             </div>
           ) : null}
+          <ArtistRecommendations
+            className={styles.artistRecommendationsSection}
+            itemClassName={styles.artistRecommendationsSectionItems}
+            header={<p>Here are some accounts that vibe well with {name}</p>}
+            artistId={userId}
+            onClose={() => {}}
+          />
         </div>
       )}
       {mode === 'owner' && !isEditing && <UploadButton />}
