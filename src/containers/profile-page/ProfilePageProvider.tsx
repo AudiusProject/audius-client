@@ -235,12 +235,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(true)
     }
-    if (
-      profile.relatedArtists.status !== Status.LOADING &&
-      profile.relatedArtists.users?.length > 0
-    ) {
-      this.setState({ areArtistRecommendationsVisible: true })
-    }
+    this.setState({ areArtistRecommendationsVisible: true })
   }
 
   onUnfollow = () => {
@@ -254,33 +249,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
-    }
-  }
-
-  onFollowAllSuggestedArtists = (userIds: ID[]) => {
-    const {
-      profile: { profile }
-    } = this.props
-    if (!profile) return
-    userIds.forEach(userId => {
-      this.props.onFollow(userId)
-    })
-    if (this.props.account) {
-      this.props.updateCurrentUserFollows(true)
-    }
-  }
-
-  onUnfollowAllSuggestedArtists = (userIds: ID[]) => {
-    const {
-      profile: { profile }
-    } = this.props
-    if (!profile) return
-    userIds.forEach(userId => {
-      this.props.onUnfollow(userId)
-      this.props.setNotificationSubscription(userId, false)
-    })
-    if (this.props.account) {
-      this.props.updateCurrentUserFollows(true)
     }
   }
 
