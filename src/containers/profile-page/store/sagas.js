@@ -200,6 +200,16 @@ function* fetchProfileAsync(action) {
       }
     }
 
+    const showArtistRecommendationsPercent =
+      getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
+    if (Math.random() < showArtistRecommendationsPercent) {
+      yield put(
+        artistRecommendationsActions.fetchRelatedArtists({
+          userId: user.user_id
+        })
+      )
+    }
+
     // Delay so the page can load before we fetch followers/followees
     yield delay(2000)
 
@@ -214,16 +224,6 @@ function* fetchProfileAsync(action) {
     }
 
     yield all(followsToFetch)
-
-    const showArtistRecommendationsPercent =
-      getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
-    if (showArtistRecommendationsPercent > Math.random()) {
-      yield put(
-        artistRecommendationsActions.fetchRelatedArtists({
-          userId: user.user_id
-        })
-      )
-    }
   } catch (err) {
     const isReachable = yield select(getIsReachable)
     if (!isReachable) return
