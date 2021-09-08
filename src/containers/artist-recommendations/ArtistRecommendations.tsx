@@ -14,6 +14,7 @@ import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/general/FollowButton'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { MountPlacement } from 'components/types'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useImageSize'
@@ -21,7 +22,6 @@ import User from 'models/User'
 import { ID } from 'models/common/Identifiers'
 import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
 import { FollowSource } from 'services/analytics'
-import { getUser } from 'store/cache/users/selectors'
 import * as socialActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
@@ -105,8 +105,50 @@ export const ArtistRecommendations = forwardRef(
       [dispatch]
     )
 
-    if (!suggestedArtists || suggestedArtists.length === 0) {
-      return null
+    let mainContent = <LoadingSpinner className={styles.spinner} />
+    const isLoading = !suggestedArtists || suggestedArtists.length === 0
+
+    if (!isLoading) {
+      mainContent = (
+        <>
+          <div
+            className={cn(
+              styles.profilePictureList,
+              styles.contentItem,
+              itemClassName
+            )}
+          >
+            {suggestedArtists.map(a => (
+              <div key={a.user_id} className={styles.profilePictureWrapper}>
+                <ArtistProfilePictureWrapper
+                  userId={a.user_id}
+                  handle={a.handle}
+                  profilePictureSizes={a._profile_picture_sizes}
+                />
+              </div>
+            ))}
+          </div>
+          <div className={cn(styles.contentItem, itemClassName)}>
+            Featuring{' '}
+            {suggestedArtists
+              .slice(0, 3)
+              .map<React.ReactNode>((a, i) => (
+                <ArtistPopoverWrapper
+                  key={a.user_id}
+                  userId={a.user_id}
+                  handle={a.handle}
+                  name={a.name}
+                  onArtistNameClicked={onArtistNameClicked}
+                  closeParent={onClose}
+                />
+              ))
+              .reduce((prev, curr) => [prev, ', ', curr])}
+            {suggestedArtists.length > 3
+              ? `, and ${suggestedArtists.length - 3} others.`
+              : ''}
+          </div>
+        </>
+      )
     }
 
     return (
@@ -123,44 +165,10 @@ export const ArtistRecommendations = forwardRef(
           <div>{header}</div>
         </div>
         {subheader}
-        <div
-          className={cn(
-            styles.profilePictureList,
-            styles.contentItem,
-            itemClassName
-          )}
-        >
-          {suggestedArtists.map(a => (
-            <div key={a.user_id} className={styles.profilePictureWrapper}>
-              <ArtistProfilePictureWrapper
-                userId={a.user_id}
-                handle={a.handle}
-                profilePictureSizes={a._profile_picture_sizes}
-              />
-            </div>
-          ))}
-        </div>
-        <div className={cn(styles.contentItem, itemClassName)}>
-          Featuring{' '}
-          {suggestedArtists
-            .slice(0, 3)
-            .map<React.ReactNode>((a, i) => (
-              <ArtistPopoverWrapper
-                key={a.user_id}
-                userId={a.user_id}
-                handle={a.handle}
-                name={a.name}
-                onArtistNameClicked={onArtistNameClicked}
-                closeParent={onClose}
-              />
-            ))
-            .reduce((prev, curr) => [prev, ', ', curr])}
-          {suggestedArtists.length > 3
-            ? `, and ${suggestedArtists.length - 3} others.`
-            : ''}
-        </div>
+        {mainContent}
         <div className={cn(styles.contentItem, itemClassName)}>
           <FollowButton
+            isDisabled={isLoading}
             following={suggestedArtists.every(a => a.does_current_user_follow)}
             invertedColor={true}
             messages={messages}

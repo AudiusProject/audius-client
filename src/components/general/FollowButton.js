@@ -29,7 +29,7 @@ const FollowButton = props => {
     [styles.medium]: props.size === 'medium',
     [styles.small]: props.size === 'small'
   }
-  const { following, onUnfollow, onFollow } = props
+  const { following, onUnfollow, onFollow, isDisabled } = props
 
   const onClick = useCallback(() => {
     if (following) onUnfollow()
@@ -72,6 +72,7 @@ const FollowButton = props => {
 
   return (
     <Button
+      isDisabled={isDisabled}
       className={cn(styles.followButton, props.className, style)}
       textClassName={styles.followButtonText}
       iconClassName={styles.followButtonIcon}
@@ -100,7 +101,8 @@ FollowButton.propTypes = {
   className: PropTypes.string,
   following: PropTypes.bool,
   onFollow: PropTypes.func,
-  onUnfollow: PropTypes.func
+  onUnfollow: PropTypes.func,
+  isDisabled: PropTypes.bool
 }
 
 FollowButton.defaultProps = {
@@ -108,7 +110,8 @@ FollowButton.defaultProps = {
   following: false,
   showIcon: true,
   size: 'medium',
-  messages: messages
+  messages: messages,
+  isDisabled: false
 }
 
 export default FollowButton

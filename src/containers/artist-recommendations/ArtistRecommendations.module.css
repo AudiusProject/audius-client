@@ -72,3 +72,9 @@
 .verified > *:first-child {
   margin-left: 5px;
 }
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+}
