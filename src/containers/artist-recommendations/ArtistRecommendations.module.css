@@ -1,9 +1,18 @@
+.headerBar {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  text-align: start;
+}
 .icon {
   padding: 2px;
   margin: -6px;
   box-sizing: content-box;
   position: relative;
   transition: all 0.17s ease-in-out !important;
+}
+.icon.remove g path {
+  fill: var(--neutral-light-4);
 }
 .closeButton {
   width: 16px;
@@ -13,17 +22,8 @@
   cursor: pointer;
 }
 
-.icon.remove g path {
-  fill: var(--neutral-light-4);
-}
-.header {
-  display: flex;
-  align-items: center;
-  margin-top: 0;
-}
 .content {
-  text-align: start;
-  padding: 8px;
+  text-align: center;
   font-size: var(--font-s);
 }
 .contentItem {
@@ -35,8 +35,8 @@
 
 .profilePictureList {
   display: flex;
+  justify-content: center;
 }
-
 .profilePictureWrapper {
   height: 52px;
   width: 52px;

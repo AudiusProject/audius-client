@@ -46,6 +46,63 @@ const messages = {
   following: 'Following',
   featuring: 'Featuring'
 }
+const ArtistProfilePictureWrapper = ({
+  userId,
+  handle,
+  profilePictureSizes
+}: {
+  userId: number
+  handle: string
+  profilePictureSizes: ProfilePictureSizes | null
+}) => {
+  const profilePicture = useUserProfilePicture(
+    userId,
+    profilePictureSizes,
+    SquareSizes.SIZE_150_BY_150
+  )
+  return (
+    <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
+      <div>
+        <DynamicImage
+          className={styles.profilePicture}
+          image={profilePicture}
+        />
+      </div>
+    </ArtistPopover>
+  )
+}
+
+const ArtistPopoverWrapper = ({
+  userId,
+  handle,
+  name,
+  onArtistNameClicked,
+  closeParent
+}: {
+  userId: ID
+  handle: string
+  name: string
+  onArtistNameClicked: (handle: string) => void
+  closeParent: () => void
+}) => {
+  const onArtistNameClick = useCallback(() => {
+    onArtistNameClicked(handle)
+    closeParent()
+  }, [onArtistNameClicked, handle, closeParent])
+  return (
+    <div className={styles.artistLink} role='link' onClick={onArtistNameClick}>
+      <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
+        {name}
+        <UserBadges
+          userId={userId}
+          className={styles.verified}
+          badgeSize={10}
+          inline={true}
+        />
+      </ArtistPopover>
+    </div>
+  )
+}
 
 export const ArtistRecommendations = forwardRef(
   (
@@ -153,7 +210,9 @@ export const ArtistRecommendations = forwardRef(
 
     return (
       <div className={cn(styles.content, className)} ref={ref}>
-        <div className={cn(styles.header, styles.contentItem, itemClassName)}>
+        <div
+          className={cn(styles.headerBar, styles.contentItem, itemClassName)}
+        >
           <div
             role='button'
             title='Dismiss'
@@ -162,7 +221,7 @@ export const ArtistRecommendations = forwardRef(
           >
             <IconClose className={cn(styles.icon, styles.remove)} />
           </div>
-          <div>{renderHeader()}</div>
+          {renderHeader()}
         </div>
         {renderSubheader && renderSubheader()}
         {renderMainContent()}
@@ -181,61 +240,3 @@ export const ArtistRecommendations = forwardRef(
     )
   }
 )
-
-const ArtistProfilePictureWrapper = ({
-  userId,
-  handle,
-  profilePictureSizes
-}: {
-  userId: number
-  handle: string
-  profilePictureSizes: ProfilePictureSizes | null
-}) => {
-  const profilePicture = useUserProfilePicture(
-    userId,
-    profilePictureSizes,
-    SquareSizes.SIZE_150_BY_150
-  )
-  return (
-    <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
-      <div>
-        <DynamicImage
-          className={styles.profilePicture}
-          image={profilePicture}
-        />
-      </div>
-    </ArtistPopover>
-  )
-}
-
-const ArtistPopoverWrapper = ({
-  userId,
-  handle,
-  name,
-  onArtistNameClicked,
-  closeParent
-}: {
-  userId: ID
-  handle: string
-  name: string
-  onArtistNameClicked: (handle: string) => void
-  closeParent: () => void
-}) => {
-  const onArtistNameClick = useCallback(() => {
-    onArtistNameClicked(handle)
-    closeParent()
-  }, [onArtistNameClicked, handle, closeParent])
-  return (
-    <div className={styles.artistLink} role='link' onClick={onArtistNameClick}>
-      <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
-        {name}
-        <UserBadges
-          userId={userId}
-          className={styles.verified}
-          badgeSize={10}
-          inline={true}
-        />
-      </ArtistPopover>
-    </div>
-  )
-}
