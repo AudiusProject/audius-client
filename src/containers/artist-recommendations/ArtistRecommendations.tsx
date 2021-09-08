@@ -43,7 +43,8 @@ export type ArtistRecommendationsProps = {
 const messages = {
   follow: 'Follow All',
   unfollow: 'Unfollow All',
-  following: 'Following'
+  following: 'Following',
+  featuring: 'Featuring'
 }
 
 export const ArtistRecommendations = forwardRef(
@@ -128,7 +129,7 @@ export const ArtistRecommendations = forwardRef(
             ))}
           </div>
           <div className={cn(styles.contentItem, itemClassName)}>
-            Featuring{' '}
+            {`${messages.featuring} `}
             {suggestedArtists
               .slice(0, 3)
               .map<React.ReactNode>((a, i) => (
