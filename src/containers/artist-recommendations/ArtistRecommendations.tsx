@@ -105,8 +105,8 @@ export const ArtistRecommendations = forwardRef(
       [dispatch]
     )
 
+    const isLoading = !suggestedArtists || suggestedArtists.length === 0
     const renderMainContent = () => {
-      const isLoading = !suggestedArtists || suggestedArtists.length === 0
       if (isLoading) return <LoadingSpinner className={styles.spinner} />
       return (
         <>
