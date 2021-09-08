@@ -10,7 +10,6 @@ const getRelatedArtistIds = (state: AppState, props: { id: ID }) =>
 
 export const makeGetRelatedArtists = () =>
   createSelector([getRelatedArtistIds, getUsers], (relatedArtistIds, users) => {
-    console.log('selector', relatedArtistIds)
     if (!relatedArtistIds) return []
     const relatedArtistsPopulated = relatedArtistIds
       .map(id => {

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, {
+  forwardRef,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo
+} from 'react'
 
 import cn from 'classnames'
 import { push } from 'connected-react-router'
@@ -24,7 +30,8 @@ import styles from './ArtistRecommendations.module.css'
 import { makeGetRelatedArtists } from './store/selectors'
 import { fetchRelatedArtists } from './store/slice'
 
-type ArtistRecommendationsProps = {
+export type ArtistRecommendationsProps = {
+  ref?: MutableRefObject<HTMLDivElement>
   itemClassName?: string
   className?: string
   header: React.ReactNode
@@ -39,128 +46,133 @@ const messages = {
   following: 'Following'
 }
 
-export const ArtistRecommendations = ({
-  className,
-  itemClassName,
-  artistId,
-  header,
-  subheader,
-  onClose
-}: ArtistRecommendationsProps) => {
-  const dispatch = useDispatch()
+export const ArtistRecommendations = forwardRef(
+  (
+    {
+      className,
+      itemClassName,
+      artistId,
+      header,
+      subheader,
+      onClose
+    }: ArtistRecommendationsProps,
+    ref: any
+  ) => {
+    const dispatch = useDispatch()
 
-  // Start fetching the related artists
-  useEffect(() => {
-    dispatch(
-      fetchRelatedArtists({
-        userId: artistId
-      })
+    // Start fetching the related artists
+    useEffect(() => {
+      dispatch(
+        fetchRelatedArtists({
+          userId: artistId
+        })
+      )
+    }, [dispatch, artistId])
+
+    // Get the related artists
+    const getRelatedArtists = useMemo(makeGetRelatedArtists, [artistId])
+    const suggestedArtists = useSelector<AppState, User[]>(state =>
+      getRelatedArtists(state, { id: artistId })
     )
-  }, [dispatch, artistId])
 
-  // Get the related artists
-  const getRelatedArtists = useMemo(makeGetRelatedArtists, [artistId])
-  const suggestedArtists = useSelector<AppState, User[]>(state =>
-    getRelatedArtists(state, { id: artistId })
-  )
-
-  // Follow/Unfollow listeners
-  const onFollowAllClicked = useCallback(() => {
-    suggestedArtists.forEach(a => {
-      dispatch(
-        socialActions.followUser(
-          a.user_id,
-          FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+    // Follow/Unfollow listeners
+    const onFollowAllClicked = useCallback(() => {
+      suggestedArtists.forEach(a => {
+        dispatch(
+          socialActions.followUser(
+            a.user_id,
+            FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+          )
         )
-      )
-    })
-  }, [dispatch, suggestedArtists])
-  const onUnfollowAllClicked = useCallback(() => {
-    suggestedArtists.forEach(a => {
-      dispatch(
-        socialActions.unfollowUser(
-          a.user_id,
-          FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+      })
+    }, [dispatch, suggestedArtists])
+    const onUnfollowAllClicked = useCallback(() => {
+      suggestedArtists.forEach(a => {
+        dispatch(
+          socialActions.unfollowUser(
+            a.user_id,
+            FollowSource.ARTIST_RECOMMENDATIONS_POPUP
+          )
         )
-      )
-    })
-  }, [dispatch, suggestedArtists])
+      })
+    }, [dispatch, suggestedArtists])
 
-  // Navigate to profile pages on artist links
-  const onArtistNameClicked = useCallback(
-    handle => {
-      dispatch(push(profilePage(handle)))
-    },
-    [dispatch]
-  )
+    // Navigate to profile pages on artist links
+    const onArtistNameClicked = useCallback(
+      handle => {
+        dispatch(push(profilePage(handle)))
+      },
+      [dispatch]
+    )
 
-  if (!suggestedArtists || suggestedArtists.length === 0) {
-    return null
-  }
+    if (!suggestedArtists || suggestedArtists.length === 0) {
+      return null
+    }
 
-  return (
-    <div className={cn(styles.content, className)}>
-      <div className={cn(styles.header, styles.contentItem, itemClassName)}>
-        <div
-          role='button'
-          title='Dismiss'
-          className={styles.closeButton}
-          onClick={onClose}
-        >
-          <IconClose className={cn(styles.icon, styles.remove)} />
-        </div>
-        <div>{header}</div>
-      </div>
-      {subheader}
-      <div
-        className={cn(
-          styles.profilePictureList,
-          styles.contentItem,
-          itemClassName
-        )}
-      >
-        {suggestedArtists.map(a => (
-          <div key={a.user_id} className={styles.profilePictureWrapper}>
-            <ArtistProfilePictureWrapper
-              userId={a.user_id}
-              handle={a.handle}
-              profilePictureSizes={a._profile_picture_sizes}
-            />
+    return (
+      <div className={cn(styles.content, className)} ref={ref}>
+        <div className={cn(styles.header, styles.contentItem, itemClassName)}>
+          <div
+            role='button'
+            title='Dismiss'
+            className={styles.closeButton}
+            onClick={onClose}
+          >
+            <IconClose className={cn(styles.icon, styles.remove)} />
           </div>
-        ))}
+          <div>{header}</div>
+        </div>
+        {subheader}
+        <div
+          className={cn(
+            styles.profilePictureList,
+            styles.contentItem,
+            itemClassName
+          )}
+        >
+          {suggestedArtists.map(a => (
+            <div key={a.user_id} className={styles.profilePictureWrapper}>
+              <ArtistProfilePictureWrapper
+                userId={a.user_id}
+                handle={a.handle}
+                profilePictureSizes={a._profile_picture_sizes}
+              />
+            </div>
+          ))}
+        </div>
+        <div className={cn(styles.contentItem, itemClassName)}>
+          Featuring{' '}
+          {suggestedArtists
+            .slice(0, 3)
+            .map<React.ReactNode>((a, i) => (
+              <ArtistPopoverWrapper
+                key={a.user_id}
+                userId={a.user_id}
+                handle={a.handle}
+                name={a.name}
+                onArtistNameClicked={onArtistNameClicked}
+                closeParent={onClose}
+              />
+            ))
+            .reduce((prev, curr) => [prev, ', ', curr])}
+          {suggestedArtists.length > 3
+            ? `, and ${suggestedArtists.length - 3} others.`
+            : ''}
+        </div>
+        <div className={cn(styles.contentItem, itemClassName)}>
+          <FollowButton
+            following={suggestedArtists.every(a => a.does_current_user_follow)}
+            invertedColor={true}
+            messages={messages}
+            size='full'
+            onFollow={onFollowAllClicked}
+            onUnfollow={onUnfollowAllClicked}
+          />
+        </div>
       </div>
-      <div className={cn(styles.contentItem, itemClassName)}>
-        Featuring{' '}
-        {suggestedArtists
-          .slice(0, 3)
-          .map<React.ReactNode>((a, i) => (
-            <ArtistPopoverWrapper
-              key={a.user_id}
-              userId={a.user_id}
-              handle={a.handle}
-              name={a.name}
-              onArtistNameClicked={onArtistNameClicked}
-              closeParent={onClose}
-            />
-          ))
-          .reduce((prev, curr) => [prev, ', ', curr])}
-        {suggestedArtists.length > 3
-          ? `, and ${suggestedArtists.length - 3} others.`
-          : ''}
-      </div>
-      <div className={cn(styles.contentItem, itemClassName)}>
-        <FollowButton
-          following={suggestedArtists.every(a => a.does_current_user_follow)}
-          invertedColor={true}
-          messages={messages}
-          size='full'
-          onFollow={onFollowAllClicked}
-          onUnfollow={onUnfollowAllClicked}
-        />
-      </div>
-    </div>
-  )
-}
+    )
+  }
+)
 
 const ArtistProfilePictureWrapper = ({
   userId,
