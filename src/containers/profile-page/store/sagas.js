@@ -19,7 +19,10 @@ import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import { DoubleKeys, FeatureFlags } from 'services/remote-config'
-import { getFeatureEnabled } from 'services/remote-config/Provider'
+import {
+  getFeatureEnabled,
+  getRemoteVar
+} from 'services/remote-config/Provider'
 import SolanaClient from 'services/solana-client/SolanaClient'
 import { getUserId } from 'store/account/selectors'
 import { waitForBackendSetup } from 'store/backend/sagas'
