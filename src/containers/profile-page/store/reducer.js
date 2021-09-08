@@ -23,8 +23,7 @@ import {
   FETCH_FOLLOW_USERS_FAILED,
   DISMISS_PROFILE_METER,
   UPDATE_MOST_USED_TAGS,
-  SET_NOTIFICATION_SUBSCRIPTION,
-  FETCH_RELATED_ARTISTS_SUCCEEDED
+  SET_NOTIFICATION_SUBSCRIPTION
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -46,8 +45,7 @@ const initialState = {
 
   [FollowType.FOLLOWERS]: { status: Status.LOADING, userIds: [] },
   [FollowType.FOLLOWEES]: { status: Status.LOADING, userIds: [] },
-  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.LOADING, userIds: [] },
-  relatedArtists: { status: Status.LOADING, userIds: [] }
+  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.LOADING, userIds: [] }
 }
 
 const actionsMap = {
@@ -103,15 +101,6 @@ const actionsMap = {
       [action.followerGroup]: {
         ...state[action.followerGroup],
         status: Status.ERROR
-      }
-    }
-  },
-  [FETCH_RELATED_ARTISTS_SUCCEEDED](state, action) {
-    return {
-      ...state,
-      relatedArtists: {
-        userIds: action.userIds,
-        status: Status.SUCCESS
       }
     }
   },

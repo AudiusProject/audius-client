@@ -23,9 +23,6 @@ export const UPDATE_MOST_USED_TAGS = 'PROFILE/UPDATE_MOST_USED_TAGS'
 export const SET_NOTIFICATION_SUBSCRIPTION =
   'PROFILE/SET_NOTIFICATION_SUBSCRIPTION'
 
-export const FETCH_RELATED_ARTISTS_SUCCEEDED =
-  'PROFILE/FETCH_RELATED_ARTISTS_SUCCEEDED'
-
 // Either handle or userId is required
 // TODO: Move this to redux toolkit
 export function fetchProfile(
@@ -102,10 +99,6 @@ export function fetchFollowUsersSucceeded(
 
 export function fetchFollowUsersFailed(followerGroup, limit, offset) {
   return { type: FETCH_FOLLOW_USERS_FAILED, followerGroup, limit, offset }
-}
-
-export function fetchRelatedArtistsSucceeded(userIds) {
-  return { type: FETCH_RELATED_ARTISTS_SUCCEEDED, userIds }
 }
 
 export function profileMeterDismissed() {
