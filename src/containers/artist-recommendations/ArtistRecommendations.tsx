@@ -34,8 +34,8 @@ export type ArtistRecommendationsProps = {
   ref?: MutableRefObject<HTMLDivElement>
   itemClassName?: string
   className?: string
-  header: React.ReactNode
-  subheader?: React.ReactNode
+  renderHeader: () => React.ReactNode
+  renderSubheader?: () => React.ReactNode
   artistId: ID
   onClose: () => void
 }
@@ -52,8 +52,8 @@ export const ArtistRecommendations = forwardRef(
       className,
       itemClassName,
       artistId,
-      header,
-      subheader,
+      renderHeader,
+      renderSubheader,
       onClose
     }: ArtistRecommendationsProps,
     ref: any
@@ -105,11 +105,10 @@ export const ArtistRecommendations = forwardRef(
       [dispatch]
     )
 
-    let mainContent = <LoadingSpinner className={styles.spinner} />
-    const isLoading = !suggestedArtists || suggestedArtists.length === 0
-
-    if (!isLoading) {
-      mainContent = (
+    const renderMainContent = () => {
+      const isLoading = !suggestedArtists || suggestedArtists.length === 0
+      if (isLoading) return <LoadingSpinner className={styles.spinner} />
+      return (
         <>
           <div
             className={cn(
@@ -162,10 +161,10 @@ export const ArtistRecommendations = forwardRef(
           >
             <IconClose className={cn(styles.icon, styles.remove)} />
           </div>
-          <div>{header}</div>
+          <div>{renderHeader()}</div>
         </div>
-        {subheader}
-        {mainContent}
+        {renderSubheader && renderSubheader()}
+        {renderMainContent()}
         <div className={cn(styles.contentItem, itemClassName)}>
           <FollowButton
             isDisabled={isLoading}

@@ -54,12 +54,14 @@ export const ArtistRecommendationsPopup = ({
     >
       <ArtistRecommendations
         itemClassName={styles.popupItem}
-        header={<h2 className={styles.headerTitle}>Suggested Artists</h2>}
-        subheader={
+        renderHeader={() => (
+          <h2 className={styles.headerTitle}>Suggested Artists</h2>
+        )}
+        renderSubheader={() => (
           <p className={styles.popupItem}>
             Here are some accounts that vibe well with {name}
           </p>
-        }
+        )}
         artistId={artistId}
         onClose={onClose}
       />

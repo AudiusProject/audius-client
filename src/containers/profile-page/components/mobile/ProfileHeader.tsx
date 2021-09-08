@@ -486,7 +486,9 @@ const ProfileHeader = ({
           ) : null}
           <ArtistRecommendationsDropdown
             isVisible={areArtistRecommendationsVisible}
-            header={<p>Here are some accounts that vibe well with {name}</p>}
+            renderHeader={() => (
+              <p>Here are some accounts that vibe well with {name}</p>
+            )}
             artistId={userId}
             onClose={onCloseArtistRecommendations}
           />
