@@ -24,8 +24,6 @@ type Follow = {
   status: Status
 }
 
-type RelatedArtist = Follow
-
 export type ProfilePageState = {
   handle: string
   userId: number
