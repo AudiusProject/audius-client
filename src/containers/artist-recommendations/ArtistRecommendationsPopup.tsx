@@ -1,22 +1,18 @@
 import React, { MutableRefObject, useCallback, useEffect, useMemo } from 'react'
 
 import { Popup, PopupPosition } from '@audius/stems'
-import { push } from 'connected-react-router'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
+import { useFlag } from 'containers/remote-config/hooks'
 import User from 'models/User'
 import { ID } from 'models/common/Identifiers'
-import { FollowSource } from 'services/analytics'
+import { FeatureFlags } from 'services/remote-config'
 import { getUser } from 'store/cache/users/selectors'
-import * as socialActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
-import { profilePage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
 import { ArtistRecommendations } from './ArtistRecommendations'
 import styles from './ArtistRecommendationsPopup.module.css'
-import { makeGetRelatedArtists } from './store/selectors'
-import { fetchRelatedArtists } from './store/slice'
 
 type ArtistRecommendationsPopupProps = {
   anchorRef: MutableRefObject<HTMLElement>
@@ -34,6 +30,9 @@ export const ArtistRecommendationsPopup = ({
   isVisible,
   onClose
 }: ArtistRecommendationsPopupProps) => {
+  const { isEnabled, isLoaded } = useFlag(
+    FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED
+  )
   // Get the artist
   const user = useSelector<AppState, User | null>(state =>
     getUser(state, { id: artistId })
@@ -41,6 +40,9 @@ export const ArtistRecommendationsPopup = ({
   if (!user) return null
   const { name } = user
 
+  if (!isEnabled || !isLoaded) {
+    return null
+  }
   return (
     <Popup
       position={PopupPosition.BOTTOM_LEFT}

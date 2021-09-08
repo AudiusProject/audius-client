@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
 
 import { useSpring, animated } from 'react-spring'
+
+import { useFlag } from 'containers/remote-config/hooks'
+import { FeatureFlags } from 'services/remote-config'
 
 import {
   ArtistRecommendations,
@@ -18,6 +21,9 @@ type ArtistRecommendationsDropdownProps = Omit<
 export const ArtistRecommendationsDropdown = (
   props: ArtistRecommendationsDropdownProps
 ) => {
+  const { isEnabled, isLoaded } = useFlag(
+    FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED
+  )
   const { isVisible } = props
   const childRef = useRef<HTMLElement | null>(null)
 
@@ -30,6 +36,9 @@ export const ArtistRecommendationsDropdown = (
     from: { opacity: 0, height: `${childHeight}px` }
   })
 
+  if (!isEnabled || !isLoaded) {
+    return null
+  }
   return (
     <animated.div className={styles.dropdown} style={spring}>
       <ArtistRecommendations
