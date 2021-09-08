@@ -20,29 +20,15 @@ export const ArtistRecommendationsDropdown = (
 ) => {
   const { isVisible } = props
   const childRef = useRef<HTMLElement | null>(null)
-  const [calculatedHeight, setCalculatedHeight] = useState(0)
 
-  useEffect(() => {
-    const rect = childRef.current?.getBoundingClientRect()
-    if (rect) {
-      const height = rect.bottom - rect.top
-      if (height > 0) {
-        setCalculatedHeight(height)
-      }
-    }
-  }, [childRef, isVisible])
+  const rect = childRef.current?.getBoundingClientRect()
+  const childHeight = rect ? rect.bottom - rect.top : 0
 
-  const toHide = {
-    opacity: 0,
-    height: '0'
-  }
-  const toShow = {
-    opacity: 1.0,
-    height: `${calculatedHeight}px`
-  }
-  console.log({ toShow })
-  const spring = useSpring(isVisible && calculatedHeight > 0 ? toShow : toHide)
-  console.log({ spring })
+  const spring = useSpring({
+    opacity: isVisible ? 1 : 0,
+    height: isVisible ? `${childHeight}px` : '0',
+    from: { opacity: 0, height: `${childHeight}px` }
+  })
 
   return (
     <animated.div className={styles.dropdown} style={spring}>
