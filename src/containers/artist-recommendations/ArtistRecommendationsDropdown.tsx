@@ -18,6 +18,11 @@ type ArtistRecommendationsDropdownProps = Omit<
   isVisible: boolean
 }
 
+const fast = {
+  tension: 300,
+  friction: 40
+}
+
 export const ArtistRecommendationsDropdown = (
   props: ArtistRecommendationsDropdownProps
 ) => {
@@ -33,7 +38,8 @@ export const ArtistRecommendationsDropdown = (
   const spring = useSpring({
     opacity: isVisible ? 1 : 0,
     height: isVisible ? `${childHeight}px` : '0',
-    from: { opacity: 0, height: `${childHeight}px` }
+    from: { opacity: 0, height: `${childHeight}px` },
+    config: fast
   })
 
   if (!isEnabled || !isLoaded) {
