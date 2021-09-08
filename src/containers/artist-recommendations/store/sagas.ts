@@ -4,6 +4,7 @@ import { call, put, select, takeEvery } from 'redux-saga/effects'
 import User from 'models/User'
 import { ID } from 'models/common/Identifiers'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { DoubleKeys, getRemoteVar } from 'services/remote-config'
 import { getUserId } from 'store/account/selectors'
 import { processAndCacheUsers } from 'store/cache/users/utils'
 
@@ -23,8 +24,10 @@ export function* fetchRelatedArtists(action: Action) {
       .filter(user => !user.does_current_user_follow)
       .slice(0, 5)
     if (filteredArtists.length === 0) {
-      // Only show top artists 1/3 of the time
-      const showTopArtists = Math.floor(Math.random() * 3) % 3 === 0
+      const showTopArtistRecommendationsPercent =
+        getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_FALLBACK_PERCENT) ||
+        0
+      const showTopArtists = Math.random() < showTopArtistRecommendationsPercent
       if (showTopArtists) {
         filteredArtists = yield fetchTopArtists()
       }

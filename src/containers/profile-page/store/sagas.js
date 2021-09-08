@@ -18,7 +18,7 @@ import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
-import { FeatureFlags } from 'services/remote-config'
+import { DoubleKeys, FeatureFlags } from 'services/remote-config'
 import { getFeatureEnabled } from 'services/remote-config/Provider'
 import SolanaClient from 'services/solana-client/SolanaClient'
 import { getUserId } from 'store/account/selectors'
@@ -212,9 +212,15 @@ function* fetchProfileAsync(action) {
 
     yield all(followsToFetch)
 
-    yield put(
-      artistRecommendationsActions.fetchRelatedArtists({ userId: user.user_id })
-    )
+    const showArtistRecommendationsPercent =
+      getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
+    if (showArtistRecommendationsPercent > Math.random()) {
+      yield put(
+        artistRecommendationsActions.fetchRelatedArtists({
+          userId: user.user_id
+        })
+      )
+    }
   } catch (err) {
     const isReachable = yield select(getIsReachable)
     if (!isReachable) return
