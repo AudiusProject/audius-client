@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
+import { makeGetRelatedArtists } from 'containers/artist-recommendations/store/selectors'
 import { setFollowers } from 'containers/followers-page/store/actions'
 import { setFollowing } from 'containers/following-page/store/actions'
 import {
@@ -51,7 +52,8 @@ import { tracksActions } from './store/lineups/tracks/actions'
 import {
   makeGetProfile,
   getProfileFeedLineup,
-  getProfileTracksLineup
+  getProfileTracksLineup,
+  getProfileUserId
 } from './store/selectors'
 
 const INITIAL_UPDATE_FIELDS = {
@@ -235,7 +237,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(true)
     }
-    this.setState({ areArtistRecommendationsVisible: true })
+    if (this.props.relatedArtists && this.props.relatedArtists.length > 0) {
+      this.setState({ areArtistRecommendationsVisible: true })
+    }
   }
 
   onUnfollow = () => {
@@ -967,6 +971,7 @@ function makeMapStateToProps() {
   const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
   const getProfile = makeGetProfile()
   const getCurrentQueueItem = makeGetCurrent()
+  const getRelatedArtists = makeGetRelatedArtists()
   const mapStateToProps = (state: AppState) => ({
     account: getAccountUser(state),
     profile: getProfile(state, {}),
@@ -978,7 +983,8 @@ function makeMapStateToProps() {
     pathname: getLocationPathname(state),
     isUserConfirming: !getIsDone(state, {
       uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
-    })
+    }),
+    relatedArtists: getRelatedArtists(state, { id: getProfileUserId(state) })
   })
   return mapStateToProps
 }

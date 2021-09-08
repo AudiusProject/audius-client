@@ -10,6 +10,7 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import * as artistRecommendationsActions from 'containers/artist-recommendations/store/slice'
 import feedSagas from 'containers/profile-page/store/lineups/feed/sagas.js'
 import tracksSagas from 'containers/profile-page/store/lineups/tracks/sagas.js'
 import { DefaultSizes } from 'models/common/ImageSizes'
@@ -210,6 +211,10 @@ function* fetchProfileAsync(action) {
     }
 
     yield all(followsToFetch)
+
+    yield put(
+      artistRecommendationsActions.fetchRelatedArtists({ userId: user.user_id })
+    )
   } catch (err) {
     const isReachable = yield select(getIsReachable)
     if (!isReachable) return

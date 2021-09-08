@@ -1,5 +1,4 @@
 import { Action } from '@reduxjs/toolkit'
-import { SagaIterator } from 'redux-saga'
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
 import User from 'models/User'
@@ -16,29 +15,51 @@ export function* fetchRelatedArtists(action: Action) {
     const currentUserId: ID = yield select(getUserId)
     const relatedArtists: User[] = yield apiClient.getRelatedArtists({
       userId,
-      currentUserId
+      currentUserId,
+      limit: 50
     })
 
     let filteredArtists = relatedArtists
       .filter(user => !user.does_current_user_follow)
       .slice(0, 5)
-
     if (filteredArtists.length === 0) {
-      const topArtists: User[] = yield apiClient.getTopArtists({
-        currentUserId
-      })
-      filteredArtists = topArtists
-        .filter(user => !user.does_current_user_follow)
-        .slice(0, 5)
+      // Only show top artists 1/3 of the time
+      const showTopArtists = Math.floor(Math.random() * 3) % 3 === 0
+      if (showTopArtists) {
+        filteredArtists = yield fetchTopArtists()
+      }
     }
-    const relatedArtistIds: ID[] = yield call(cacheUsers, filteredArtists)
-    yield put(
-      artistRecommendationsActions.fetchRelatedArtistsSucceeded({
-        userId,
-        relatedArtistIds
-      })
-    )
+    if (filteredArtists.length > 0) {
+      const relatedArtistIds: ID[] = yield call(cacheUsers, filteredArtists)
+      yield put(
+        artistRecommendationsActions.fetchRelatedArtistsSucceeded({
+          userId,
+          relatedArtistIds
+        })
+      )
+    }
   }
+}
+
+function* fetchTopArtists() {
+  const currentUserId: ID = yield select(getUserId)
+  const topArtists: User[] = yield apiClient.getTopArtists({
+    currentUserId,
+    limit: 50
+  })
+  const filteredArtists = topArtists.filter(
+    user => !user.does_current_user_follow
+  )
+  if (filteredArtists.length > 0) {
+    // Pick 5 at random
+    const selectedArtists = []
+    for (let i = 0; i < 5; i++) {
+      const index = Math.floor(Math.random() * filteredArtists.length)
+      selectedArtists.push(filteredArtists[index])
+    }
+    return selectedArtists
+  }
+  return []
 }
 
 function* cacheUsers(users: User[]) {

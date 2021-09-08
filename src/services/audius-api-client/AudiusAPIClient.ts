@@ -209,10 +209,10 @@ type GetUserTracksByHandleArgs = {
   limit?: number
 }
 
-type GetRelatedArtistsArgs = {
-  userId: ID
-  currentUserId: Nullable<ID>
-}
+type GetRelatedArtistsArgs = CurrentUserIdArg &
+  PaginationArgs & {
+    userId: ID
+  }
 
 type GetProfileListArgs = {
   profileUserId: ID
@@ -906,7 +906,12 @@ class AudiusAPIClient {
     return adapted
   }
 
-  async getRelatedArtists({ userId, currentUserId }: GetRelatedArtistsArgs) {
+  async getRelatedArtists({
+    userId,
+    currentUserId,
+    offset,
+    limit
+  }: GetRelatedArtistsArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
     const encodedUserId = this._encodeOrThrow(userId)
@@ -914,7 +919,7 @@ class AudiusAPIClient {
       APIUser[]
     >> = await this._getResponse(
       FULL_ENDPOINT_MAP.getRelatedArtists(encodedUserId),
-      { user_id: encodedCurrentUserId || undefined }
+      { user_id: encodedCurrentUserId || undefined, offset, limit }
     )
     if (!response) return []
     const adapted = response.data.map(adapter.makeUser).filter(removeNullable)

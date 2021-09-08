@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 
 import { ID } from 'models/common/Identifiers'
-import { getUser, getUsers } from 'store/cache/users/selectors'
+import { getUsers } from 'store/cache/users/selectors'
 import { AppState } from 'store/types'
 import { removeNullable } from 'utils/typeUtils'
 
