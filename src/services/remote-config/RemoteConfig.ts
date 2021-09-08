@@ -96,7 +96,7 @@ export enum DoubleKeys {
    * How often we should show recommendations of top artists as suggested follows
    * if the followed user doesn't have related artists
    */
-  SHOW_ARTIST_RECOMMENDATIONS_FALLBACK_PERCENT = 'SHOW_ARTIST_RECOMMENDATIONS_FALLLBACK_PERCENT',
+  SHOW_ARTIST_RECOMMENDATIONS_FALLBACK_PERCENT = 'SHOW_ARTIST_RECOMMENDATIONS_FALLBACK_PERCENT',
   /**
    * How often we should show suggested follows after a user follows another user
    */
