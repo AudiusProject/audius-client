@@ -12,7 +12,7 @@ jest.mock('react-redux', () => ({
 
 const TestComponent = (props: Parameters<typeof useImageSize>[0]) => {
   const image = useImageSize(props)
-  return <div>{image}</div>
+  return <div>{image ?? 'nothing'}</div>
 }
 
 describe('useImageSize', () => {
@@ -33,6 +33,25 @@ describe('useImageSize', () => {
 
         getByText('override')
       })
+
+      describe('if the url is empty', () => {
+        it('returns the default image', () => {
+          const { getByText } = render(
+            <TestComponent
+              id={1}
+              size={SquareSizes.SIZE_1000_BY_1000}
+              sizes={{
+                [SquareSizes.SIZE_1000_BY_1000]: 'large',
+                [DefaultSizes.OVERRIDE]: ''
+              }}
+              action={() => {}}
+              defaultImage='default'
+            />
+          )
+
+          getByText('default')
+        })
+      })
     })
     describe('if no override exists', () => {
       it('returns the desired size', () => {
@@ -48,6 +67,24 @@ describe('useImageSize', () => {
         )
 
         getByText('large')
+      })
+
+      describe('if the url is empty', () => {
+        it('returns the default image', () => {
+          const { getByText } = render(
+            <TestComponent
+              id={1}
+              size={SquareSizes.SIZE_1000_BY_1000}
+              sizes={{
+                [SquareSizes.SIZE_1000_BY_1000]: ''
+              }}
+              action={() => {}}
+              defaultImage='default'
+            />
+          )
+
+          getByText('default')
+        })
       })
     })
   })
@@ -108,9 +145,9 @@ describe('useImageSize', () => {
         defaultImage: 'default'
       }
 
-      it('returns the default image', () => {
+      it('returns undefined', () => {
         const { getByText } = render(<TestComponent {...props} />)
-        getByText('default')
+        getByText('nothing')
       })
 
       it('dispatches the action to load the desired size', () => {
@@ -150,7 +187,7 @@ describe('useImageSize', () => {
         }
       }, [getImage, props.callFunction])
 
-      return <div>{image || 'nothing'}</div>
+      return <div>{image ?? 'nothing'}</div>
     }
 
     const props = {
@@ -182,7 +219,7 @@ describe('useImageSize', () => {
           callFunction={true}
         />
       )
-      getByText('default')
+      getByText('nothing')
       expect(action).toHaveBeenCalled()
     })
   })

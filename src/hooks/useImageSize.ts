@@ -101,7 +101,7 @@ export const useImageSize = <
   const getSmallerImage = getNextImage<ImageSize, ImageSizes>((a, b) => a < b)
   const getLargerImage = getNextImage<ImageSize, ImageSizes>((a, b) => a > b)
 
-  const getImageSize = (): URL => {
+  const getImageSize = (): Maybe<URL> => {
     if (id === null || id === undefined) {
       return ''
     }
@@ -112,15 +112,23 @@ export const useImageSize = <
     }
 
     // An override exists
-    const override: Maybe<URL> = sizes[DefaultSizes.OVERRIDE]
-    if (override) {
-      return fallbackImage(override)
+    if (DefaultSizes.OVERRIDE in sizes) {
+      const override: Maybe<URL> = sizes[DefaultSizes.OVERRIDE]
+      if (override) {
+        return fallbackImage(override)
+      }
+
+      return defaultImage
     }
 
     // The desired size exists
-    const desired: Maybe<URL> = sizes[size]
-    if (desired) {
-      return desired
+    if (size in sizes) {
+      const desired: Maybe<URL> = sizes[size]
+      if (desired) {
+        return desired
+      }
+
+      return defaultImage
     }
 
     // A larger size exists
@@ -143,7 +151,7 @@ export const useImageSize = <
       return fallbackImage(smaller)
     }
 
-    return defaultImage
+    return undefined
   }
 
   // TODO: sk - disambiguate the return value so it can be typed
