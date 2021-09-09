@@ -23,7 +23,6 @@ import { preload } from 'utils/image'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
-import '@google/model-viewer/dist/model-viewer'
 
 const CollectibleMedia: React.FC<{
   collectible: Collectible
