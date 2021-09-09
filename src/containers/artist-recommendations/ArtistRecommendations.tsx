@@ -24,6 +24,7 @@ import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
 import { FollowSource } from 'services/analytics'
 import * as socialActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
+import { useIsMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './ArtistRecommendations.module.css'
@@ -60,6 +61,12 @@ const ArtistProfilePictureWrapper = ({
     profilePictureSizes,
     SquareSizes.SIZE_150_BY_150
   )
+  const isMobile = useIsMobile()
+  if (isMobile) {
+    return (
+      <DynamicImage className={styles.profilePicture} image={profilePicture} />
+    )
+  }
   return (
     <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
       <div>
@@ -89,17 +96,22 @@ const ArtistPopoverWrapper = ({
     onArtistNameClicked(handle)
     closeParent()
   }, [onArtistNameClicked, handle, closeParent])
+  const isMobile = useIsMobile()
   return (
     <div className={styles.artistLink} role='link' onClick={onArtistNameClick}>
-      <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
-        {name}
-        <UserBadges
-          userId={userId}
-          className={styles.verified}
-          badgeSize={10}
-          inline={true}
-        />
-      </ArtistPopover>
+      {!isMobile ? (
+        <ArtistPopover mount={MountPlacement.PARENT} handle={handle}>
+          {name}
+        </ArtistPopover>
+      ) : (
+        name
+      )}
+      <UserBadges
+        userId={userId}
+        className={styles.verified}
+        badgeSize={10}
+        inline={true}
+      />
     </div>
   )
 }
