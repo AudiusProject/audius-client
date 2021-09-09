@@ -29,6 +29,8 @@ export enum MessageType {
   SIGN_UP_VALIDATE_HANDLE = 'sign-up-validate-handle',
   SIGN_UP_VALIDATE_HANDLE_SUCCESS = 'sign-up-validate-handle-success',
   SIGN_UP_VALIDATE_HANDLE_FAILURE = 'sign-up-validate-handle-failure',
+  FETCH_ALL_FOLLOW_ARTISTS = 'fetch_all_follow_artists',
+  SUBMIT_SIGNUP = 'submit-signup',
 
   // Notifications
   ENABLE_PUSH_NOTIFICATIONS = 'enable-push-notifications',

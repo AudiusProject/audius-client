@@ -105,6 +105,35 @@ function* watchSignupValidateHandleSuccess() {
   })
 }
 
+function* watchFetchAllFollowArtists() {
+  yield takeEvery([MessageType.FETCH_ALL_FOLLOW_ARTISTS], function* (action: {
+    type: string
+  }) {
+    yield put(signOnActions.fetchAllFollowArtists())
+  })
+}
+
+function* watchSignUp() {
+  yield takeEvery([MessageType.SUBMIT_SIGNUP], function* (action: {
+    type: string
+    username: string
+    password: string
+    name: string
+    handle: string
+    profileImage: any
+  }) {
+    // console.log('Signup: hello from client')
+    yield put(signOnActions.setValueField('email', action.username))
+    yield put(signOnActions.setValueField('password', action.password))
+    yield put(signOnActions.setValueField('name', action.name))
+    yield put(signOnActions.setValueField('handle', action.handle))
+    yield put(signOnActions.setField('profileImage', action.profileImage))
+    yield put(
+      signOnActions.signUp(action.username, action.password, action.handle)
+    )
+  })
+}
+
 const sagas = () => {
   return [
     watchSignIn,
@@ -114,7 +143,9 @@ const sagas = () => {
     watchSignupValidateEmailSuccess,
     watchSignupValidateHandle,
     watchSignupValidateHandleFailed,
-    watchSignupValidateHandleSuccess
+    watchSignupValidateHandleSuccess,
+    watchFetchAllFollowArtists,
+    watchSignUp
   ]
 }
 export default sagas
