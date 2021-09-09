@@ -5,7 +5,8 @@ import {
   SignUpValidateEmailFailureMessage,
   SignUpValidateEmailSuccessMessage,
   SignUpValidateHandleFailureMessage,
-  SignUpValidateHandleSuccessMessage
+  SignUpValidateHandleSuccessMessage,
+  SignUpSuccessMessage
 } from 'services/native-mobile-interface/signon'
 import { MessageType } from 'services/native-mobile-interface/types'
 
@@ -134,6 +135,19 @@ function* watchSignUp() {
   })
 }
 
+function* watchSignupSuccess() {
+  yield takeEvery([signOnActions.SIGN_UP_SUCCEEDED_WITH_ID], function (action: {
+    type: string
+    userId: number | null
+  }) {
+    const message = new SignUpSuccessMessage({
+      userId: action.userId
+    })
+    // console.log('SIGNUP: suceeded ')
+    message.send()
+  })
+}
+
 const sagas = () => {
   return [
     watchSignIn,
@@ -145,7 +159,8 @@ const sagas = () => {
     watchSignupValidateHandleFailed,
     watchSignupValidateHandleSuccess,
     watchFetchAllFollowArtists,
-    watchSignUp
+    watchSignUp,
+    watchSignupSuccess
   ]
 }
 export default sagas

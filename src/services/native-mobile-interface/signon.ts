@@ -30,3 +30,9 @@ export class SignUpValidateHandleSuccessMessage extends NativeMobileMessage {
     super(MessageType.SIGN_UP_VALIDATE_HANDLE_SUCCESS)
   }
 }
+
+export class SignUpSuccessMessage extends NativeMobileMessage {
+  constructor({ userId }: { userId: number | null }) {
+    super(MessageType.SIGN_UP_SUCCESS, { userId })
+  }
+}

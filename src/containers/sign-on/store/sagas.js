@@ -301,6 +301,8 @@ function* signUp(action) {
           })
         )
 
+        yield put(signOnActions.signUpSucceededWithId(userId))
+
         // Set the has request browser permission to true as the signon provider will open it
         setHasRequestedBrowserPermission()
 
