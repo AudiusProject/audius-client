@@ -28,7 +28,8 @@ const CollectibleMedia: React.FC<{
   collectible: Collectible
   isMuted: boolean
   toggleMute: () => void
-}> = ({ collectible, isMuted, toggleMute }) => {
+  isMobile: boolean
+}> = ({ collectible, isMuted, toggleMute, isMobile }) => {
   const { mediaType, imageUrl, videoUrl, gifUrl, threeDUrl } = collectible
 
   const [isSvg, setIsSvg] = useState(false)
@@ -56,8 +57,12 @@ const CollectibleMedia: React.FC<{
       const modelViewer = ref3D.current.children[0] as HTMLElement
       modelViewer.style.minWidth = '50vw'
       modelViewer.style.minHeight = '50vh'
+
+      if (isMobile) {
+        modelViewer.style.width = '100%'
+      }
     }
-  }, [threeDUrl, ref3D])
+  }, [threeDUrl, ref3D, isMobile])
 
   return mediaType === CollectibleMediaType.THREE_D ? (
     <div ref={ref3D} />
@@ -262,6 +267,7 @@ const CollectibleDetails: React.FC<{
             collectible={collectible}
             isMuted={isMuted}
             toggleMute={toggleMute}
+            isMobile={isMobile}
           />
 
           <div className={styles.details}>
@@ -349,6 +355,7 @@ const CollectibleDetails: React.FC<{
             collectible={collectible}
             isMuted={isMuted}
             toggleMute={toggleMute}
+            isMobile={isMobile}
           />
 
           <div className={styles.details}>
