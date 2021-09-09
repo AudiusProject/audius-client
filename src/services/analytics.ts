@@ -121,6 +121,7 @@ export enum Name {
   PROFILE_PAGE_CLICK_TIKTOK = 'Profile Page: Go To TikTok',
   PROFILE_PAGE_CLICK_WEBSITE = 'ProfilePage: Go To Website',
   PROFILE_PAGE_CLICK_DONATION = 'ProfilePage: Go To Donation',
+  PROFILE_PAGE_SHOWN_ARTIST_RECOMMENDATIONS = 'ProfilePage: Shown Artist Recommendations',
 
   // Track page
   TRACK_PAGE_DOWNLOAD = 'Track Page: Download',
@@ -627,6 +628,10 @@ type ProfilePageClickDonation = {
   handle: string
   donation: string
 }
+type ProfilePageShownArtistRecommendations = {
+  eventName: Name.PROFILE_PAGE_SHOWN_ARTIST_RECOMMENDATIONS
+  userId: number
+}
 
 // Track Page
 type TrackPageDownload = {
@@ -938,6 +943,7 @@ export type AllTrackingEvents =
   | ProfilePageClickTikTok
   | ProfilePageClickWebsite
   | ProfilePageClickDonation
+  | ProfilePageShownArtistRecommendations
   | TrackPageDownload
   | TrackPagePlayMore
   | PlaybackPlay

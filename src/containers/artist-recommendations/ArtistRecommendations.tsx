@@ -21,7 +21,8 @@ import { useUserProfilePicture } from 'hooks/useImageSize'
 import User from 'models/User'
 import { ID } from 'models/common/Identifiers'
 import { ProfilePictureSizes, SquareSizes } from 'models/common/ImageSizes'
-import { FollowSource } from 'services/analytics'
+import { FollowSource, Name } from 'services/analytics'
+import { make, useRecord } from 'store/analytics/actions'
 import * as socialActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
 import { useIsMobile } from 'utils/clientUtil'
@@ -219,6 +220,15 @@ export const ArtistRecommendations = forwardRef(
         </>
       )
     }
+
+    const record = useRecord()
+    useEffect(() => {
+      record(
+        make(Name.PROFILE_PAGE_SHOWN_ARTIST_RECOMMENDATIONS, {
+          userId: artistId
+        })
+      )
+    }, [record, artistId])
 
     return (
       <div className={cn(styles.content, className)} ref={ref}>
