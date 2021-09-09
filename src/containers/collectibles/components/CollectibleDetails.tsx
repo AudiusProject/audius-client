@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { IconLink, LogoEth, LogoSol, Modal } from '@audius/stems'
 import cn from 'classnames'
@@ -23,13 +23,14 @@ import { preload } from 'utils/image'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
+import '@google/model-viewer/dist/model-viewer'
 
 const CollectibleMedia: React.FC<{
   collectible: Collectible
   isMuted: boolean
   toggleMute: () => void
 }> = ({ collectible, isMuted, toggleMute }) => {
-  const { mediaType, imageUrl, videoUrl, gifUrl } = collectible
+  const { mediaType, imageUrl, videoUrl, gifUrl, threeDUrl } = collectible
 
   const [isSvg, setIsSvg] = useState(false)
 
@@ -48,7 +49,20 @@ const CollectibleMedia: React.FC<{
     [mediaType, imageUrl, setIsSvg]
   )
 
-  return mediaType === CollectibleMediaType.GIF ? (
+  const ref3D = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (threeDUrl && ref3D?.current) {
+      ref3D.current.innerHTML = `<model-viewer src=${threeDUrl} auto-rotate camera-controls />`
+      const modelViewer = ref3D.current.children[0] as HTMLElement
+      modelViewer.style.minWidth = '50vw'
+      modelViewer.style.minHeight = '50vh'
+    }
+  }, [threeDUrl, ref3D])
+
+  return mediaType === CollectibleMediaType.THREE_D ? (
+    <div ref={ref3D} />
+  ) : mediaType === CollectibleMediaType.GIF ? (
     <div className={styles.detailsMediaWrapper}>
       <img src={gifUrl!} alt='Collectible' />
     </div>
@@ -101,6 +115,7 @@ const CollectibleDetails: React.FC<{
       } else if (!f && mediaType === CollectibleMediaType.VIDEO) {
         setIsLoading(false)
       }
+      // we know that images and 3D objects have frame urls so no need to check those
 
       if (f) {
         await preload(f)
@@ -202,7 +217,8 @@ const CollectibleDetails: React.FC<{
                   </div>
                 </div>
               )}
-              {mediaType === CollectibleMediaType.IMAGE && (
+              {(mediaType === CollectibleMediaType.IMAGE ||
+                mediaType === CollectibleMediaType.THREE_D) && (
                 <div className={styles.imageWrapper}>
                   <PreloadImage
                     asBackground
