@@ -13,7 +13,7 @@ const slice = createSlice({
       return {
         ...state,
         [action.payload.userId]: {
-          relatedArtistIds: [],
+          ...state[action.payload.userId],
           status: Status.LOADING
         }
       }
