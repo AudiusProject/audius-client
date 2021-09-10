@@ -131,19 +131,63 @@ class SolanaClient {
   _utf8ArrayToNFTType(
     array: Uint8Array
   ): { type: SolanaNFTType; url: string } | null {
-    console.log({ array })
-    const str = new TextDecoder().decode(array)
-    console.log({ str })
+    const text = new TextDecoder().decode(array)
+
+    // for the sake of simplicty/readability/understandability, we check the decoded url
+    // one by one against metaplex, star atlas, and others
+    return (
+      client._metaplex(text) || client._starAtlas(text) || client._unknown(text)
+    )
+  }
+
+  _metaplex(text: string): { type: SolanaNFTType; url: string } | null {
     const query = 'https://'
-    const startIndex = str.indexOf(query)
+    const startIndex = text.indexOf(query)
+    if (startIndex === -1) return null
 
     // metaplex standard nfts live in arweave, see link below
     // https://github.com/metaplex-foundation/metaplex/blob/81023eb3e52c31b605e1dcf2eb1e7425153600cd/js/packages/web/src/contexts/meta/processMetaData.ts#L29
-    const isMetaplex = str.includes('arweave')
+    const isMetaplex = text.includes('arweave')
+    const foundNFTUrl = startIndex > -1 && isMetaplex
+    if (!foundNFTUrl) return null
+
+    const suffix = '/'
+    const suffixIndex = text.indexOf(suffix, startIndex + query.length)
+    if (suffixIndex === -1) return null
+
+    const hashLength = 43
+    const endIndex = suffixIndex + suffix.length + hashLength
+    const url = text.substring(startIndex, endIndex)
+    return {
+      type: SolanaNFTType.METAPLEX,
+      url
+    }
+  }
+
+  _starAtlas(text: string): { type: SolanaNFTType; url: string } | null {
+    const query = 'https://'
+    const startIndex = text.indexOf(query)
+    if (startIndex === -1) return null
 
     // star atlas nfts live in https://galaxy.staratlas.com/nfts/...
-    const isStarAtlas = str.includes('staratlas')
+    const isStarAtlas = text.includes('staratlas')
+    const foundNFTUrl = startIndex > -1 && isStarAtlas
+    if (!foundNFTUrl) return null
 
+    const suffix = '/nfts/'
+    const suffixIndex = text.indexOf(suffix, startIndex + query.length)
+    if (suffixIndex === -1) return null
+
+    const hashLength = 44
+    const endIndex = suffixIndex + suffix.length + hashLength
+    const url = text.substring(startIndex, endIndex)
+    return {
+      type: SolanaNFTType.STAR_ATLAS,
+      url
+    }
+  }
+
+  _unknown(text: string): { type: SolanaNFTType; url: string } | null {
     // solamander nfts should have 'Solamander' in the decoded TextDecoder
     // todo: remove above ^ line because shouldn't have to check for solamander so that we can get other nfts too
     // if we do find it, then we look for 'https://<...>.json' and that will be the metadata location
@@ -163,35 +207,19 @@ class SolanaClient {
     //     url
     //   }
     // }
+    const query = 'https://'
+    const startIndex = text.indexOf(query)
+    if (startIndex === -1) return null
+
     const extension = '.json'
-    const extensionIndex = str.indexOf(extension)
+    const extensionIndex = text.indexOf(extension)
     const foundNFTUrl = startIndex > -1 && extensionIndex > -1
-    if (foundNFTUrl) {
-      const endIndex = extensionIndex + extension.length
-      const url = str.substring(startIndex, endIndex)
-      return {
-        type: SolanaNFTType.METAPLEX,
-        url
-      }
-    }
+    if (!foundNFTUrl) return null
 
-    const isInvalid = (!isMetaplex && !isStarAtlas) || startIndex === -1
-    if (isInvalid) {
-      return null
-    }
-
-    const suffix = isMetaplex ? '/' : '/nfts/'
-    const suffixIndex = str.indexOf(suffix, startIndex + query.length)
-    if (suffixIndex === -1) {
-      return null
-    }
-
-    const hashLength = isMetaplex ? 43 : 44
-    const endIndex = suffixIndex + suffix.length + hashLength
-
-    const url = str.substring(startIndex, endIndex)
+    const endIndex = extensionIndex + extension.length
+    const url = text.substring(startIndex, endIndex)
     return {
-      type: isMetaplex ? SolanaNFTType.METAPLEX : SolanaNFTType.STAR_ATLAS,
+      type: SolanaNFTType.METAPLEX,
       url
     }
   }
