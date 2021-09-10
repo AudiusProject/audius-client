@@ -188,25 +188,11 @@ class SolanaClient {
   }
 
   _unknown(text: string): { type: SolanaNFTType; url: string } | null {
-    // solamander nfts should have 'Solamander' in the decoded TextDecoder
-    // todo: remove above ^ line because shouldn't have to check for solamander so that we can get other nfts too
-    // if we do find it, then we look for 'https://<...>.json' and that will be the metadata location
+    // Look for 'https://<...>.json' and that will be the metadata location
     // examples:
     // https://d1b6hed00dtfsr.cloudfront.net/9086.json
     // https://cdn.piggygang.com/meta/3ad355d46a9cb2ee57049db4df57088f.json
 
-    // const extension = '.json'
-    // const foundSolamander = str.indexOf('Solamander') > -1
-    // const extensionIndex = str.indexOf(extension)
-    // const isSolamander = foundSolamander && startIndex > -1 && extensionIndex > -1
-    // if (isSolamander) {
-    //   const endIndex = extensionIndex + extension.length
-    //   const url = str.substring(startIndex, endIndex)
-    //   return {
-    //     type: SolanaNFTType.METAPLEX,
-    //     url
-    //   }
-    // }
     const query = 'https://'
     const startIndex = text.indexOf(query)
     if (startIndex === -1) return null

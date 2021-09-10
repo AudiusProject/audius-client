@@ -38,6 +38,7 @@ export type MetaplexNFT = {
   properties: Nullable<MetaplexNFTProperties>
 }
 
+// example: https://galaxy.staratlas.com/nfts/2iMhgB4pbdKvwJHVyitpvX5z1NBNypFonUgaSAt9dtDt
 export type StarAtlasNFT = {
   _id: string
   name: string
