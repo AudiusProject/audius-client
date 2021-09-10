@@ -18,11 +18,16 @@ import {
   Collectible,
   CollectibleMediaType
 } from 'containers/collectibles/types'
+import { useScript } from 'hooks/useScript'
 import { Chain } from 'store/token-dashboard/slice'
 import { preload } from 'utils/image'
+import { getScrollParent } from 'utils/scrollParent'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
+
+const MODEL_VIEWER_SCRIPT_URL =
+  'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
 
 const CollectibleMedia: React.FC<{
   collectible: Collectible
@@ -30,6 +35,10 @@ const CollectibleMedia: React.FC<{
   toggleMute: () => void
   isMobile: boolean
 }> = ({ collectible, isMuted, toggleMute, isMobile }) => {
+  // if it becomes possible to render more than 1 collectible detail (model or mobile drawer), then
+  // update useScript hook to handle multiple in-flight requests
+  const scriptLoaded = useScript(MODEL_VIEWER_SCRIPT_URL, true)
+
   const { mediaType, imageUrl, videoUrl, gifUrl, threeDUrl } = collectible
 
   const [isSvg, setIsSvg] = useState(false)
@@ -52,7 +61,7 @@ const CollectibleMedia: React.FC<{
   const ref3D = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (threeDUrl && ref3D?.current) {
+    if (threeDUrl && ref3D?.current && scriptLoaded) {
       ref3D.current.innerHTML = `<model-viewer src=${threeDUrl} auto-rotate camera-controls />`
       const modelViewer = ref3D.current.children[0] as HTMLElement
       modelViewer.style.minWidth = '50vw'
@@ -60,12 +69,40 @@ const CollectibleMedia: React.FC<{
 
       if (isMobile) {
         modelViewer.style.width = '100%'
+
+        // for 3d objects, disable parent nft drawer element scrollability if user is on 3d object
+        const scrollableAncestor = getScrollParent(modelViewer)
+        let foundDrawerAncestor = false
+        for (const item of (scrollableAncestor?.classList ?? []).values()) {
+          if (item.includes('nftDrawer')) {
+            foundDrawerAncestor = true
+            break
+          }
+        }
+        if (foundDrawerAncestor) {
+          const scrollableAncestorElement = scrollableAncestor as HTMLElement
+          const mouseOverListener = () => {
+            scrollableAncestorElement.style.overflowY = 'hidden'
+            console.log(scrollableAncestorElement.style.overflowY)
+          }
+          const mouseOutListener = () => {
+            scrollableAncestorElement.style.overflowY = 'scroll'
+            console.log(scrollableAncestorElement.style.overflowY)
+          }
+          modelViewer.addEventListener('mouseenter', mouseOverListener)
+          modelViewer.addEventListener('mouseleave', mouseOutListener)
+
+          return () => {
+            modelViewer.removeEventListener('mouseenter', mouseOverListener)
+            modelViewer.removeEventListener('mouseleave', mouseOutListener)
+          }
+        }
       }
     }
-  }, [threeDUrl, ref3D, isMobile])
+  }, [threeDUrl, ref3D, isMobile, scriptLoaded])
 
   return mediaType === CollectibleMediaType.THREE_D ? (
-    <div ref={ref3D} />
+    <div className={styles.detailsMediaWrapper} ref={ref3D} />
   ) : mediaType === CollectibleMediaType.GIF ? (
     <div className={styles.detailsMediaWrapper}>
       <img src={gifUrl!} alt='Collectible' />
