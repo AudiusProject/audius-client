@@ -313,11 +313,9 @@ const starAtlasNFTToCollectible = async (
       .filter(Boolean)
       .some(url => url.endsWith(extension))
   )
-  const hasImageFrame = ['glb', 'gltf'].every(extension =>
-    [nft.image, nft.media?.thumbnailUrl]
-      .filter(Boolean)
-      .some(url => !url.endsWith(extension))
-  )
+  const hasImageFrame = [nft.image, nft.media?.thumbnailUrl]
+    .filter(Boolean)
+    .some(item => ['glb', 'gltf'].every(url => !url.endsWith(item)))
   if (is3DObj && hasImageFrame) {
     collectible.mediaType = CollectibleMediaType.THREE_D
     collectible.threeDUrl = ['glb', 'gltf'].some(extension =>

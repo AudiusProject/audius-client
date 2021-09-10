@@ -145,7 +145,7 @@ export const assetToCollectible = async (
       frameUrl = null
       gifUrl = imageUrls.find(url => url?.endsWith('.gif'))!
     } else if (isAssetThreeDAndIncludesImage(asset)) {
-      mediaType = CollectibleMediaType.VIDEO
+      mediaType = CollectibleMediaType.THREE_D
       frameUrl = imageUrls.find(
         url => url && NON_IMAGE_EXTENSIONS.every(ext => !url.endsWith(ext))
       )!
