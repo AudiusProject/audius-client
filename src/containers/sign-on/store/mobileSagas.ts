@@ -114,6 +114,19 @@ function* watchFetchAllFollowArtists() {
   })
 }
 
+function dataURLtoFile(fileType: string, dataurl: string, filename: string) {
+  const arr = dataurl.split(',')
+  const mime = fileType
+  const bstr = atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  console.log(filename)
+  return new File([u8arr], filename, { type: mime })
+}
+
 function* watchSignUp() {
   yield takeEvery([MessageType.SUBMIT_SIGNUP], function* (action: {
     type: string
@@ -124,13 +137,32 @@ function* watchSignUp() {
     profileImage: any
   }) {
     // console.log('Signup: hello from client')
+    const profileImageFile = dataURLtoFile(
+      action.profileImage.fileType,
+      'data:' + action.profileImage.file,
+      action.profileImage.name
+    )
+    const profileImageReady = {
+      height: action.profileImage.height,
+      width: action.profileImage.width,
+      name: action.profileImage.name,
+      size: action.profileImage.size,
+      fileType: action.profileImage.fileType,
+      uri: action.profileImage.uri,
+      file: profileImageFile
+    }
     yield put(signOnActions.setValueField('email', action.username))
     yield put(signOnActions.setValueField('password', action.password))
     yield put(signOnActions.setValueField('name', action.name))
     yield put(signOnActions.setValueField('handle', action.handle))
-    yield put(signOnActions.setField('profileImage', action.profileImage))
+    yield put(signOnActions.setField('profileImage', profileImageReady))
     yield put(
-      signOnActions.signUp(action.username, action.password, action.handle)
+      signOnActions.signUpWithPhoto(
+        action.username,
+        action.password,
+        action.handle,
+        profileImageReady
+      )
     )
   })
 }

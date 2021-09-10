@@ -464,6 +464,9 @@ function* watchValidateHandle() {
 function* watchSignUp() {
   yield takeLatest(signOnActions.SIGN_UP, signUp)
 }
+function* watchSignUpWithPhoto() {
+  yield takeLatest(signOnActions.SIGN_UP_WITH_PHOTO, signUp)
+}
 
 function* watchSignIn() {
   yield takeLatest(signOnActions.SIGN_IN, signIn)
@@ -516,6 +519,7 @@ export default function sagas() {
     watchValidateEmail,
     watchValidateHandle,
     watchSignUp,
+    watchSignUpWithPhoto,
     watchSignIn,
     watchFollowArtists,
     watchConfigureMetaMask,

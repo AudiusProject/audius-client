@@ -23,6 +23,7 @@ import {
   GO_TO_PAGE,
   SET_STATUS,
   SIGN_UP,
+  SIGN_UP_WITH_PHOTO,
   SIGN_UP_SUCCEEDED,
   SIGN_UP_FAILED,
   SIGN_IN,
@@ -300,6 +301,13 @@ const actionsMap = {
       status: 'loading'
     }
   },
+  [SIGN_UP_WITH_PHOTO](state, action) {
+    return {
+      ...state,
+      status: 'loading',
+      profileImage: action.profileImage
+    }
+  },
   [SIGN_UP_SUCCEEDED](state, action) {
     return {
       ...state,
@@ -348,6 +356,7 @@ const actionsMap = {
     }
   },
   [FETCH_FOLLOW_ARTISTS_SUCCEEDED](state, action) {
+    console.log('FETCH_FOLLOW_ARTISTS_SUCCEEDED')
     return {
       ...state,
       followArtists: {

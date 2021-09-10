@@ -18,6 +18,7 @@ export const SIGN_IN_SUCCEEDED = 'SIGN_ON/SIGN_IN_SUCCEEDED'
 export const SIGN_IN_FAILED = 'SIGN_ON/SIGN_IN_FAILED'
 
 export const SIGN_UP = 'SIGN_ON/SIGN_UP'
+export const SIGN_UP_WITH_PHOTO = 'SIGN_ON/SIGN_UP_WITH_PHOTO'
 export const SIGN_UP_SUCCEEDED = 'SIGN_ON/SIGN_UP_SUCCEEDED'
 export const SIGN_UP_SUCCEEDED_WITH_ID = 'SIGN_ON/SIGN_UP_SUCCEEDED_WITH_ID'
 export const SIGN_UP_FAILED = 'SIGN_ON/SIGN_UP_FAILED'
@@ -130,6 +131,9 @@ export function validateHandleFailed(error) {
  */
 export function signUp(email, password, handle) {
   return { type: SIGN_UP, email, password, handle }
+}
+export function signUpWithPhoto(email, password, handle, profileImage) {
+  return { type: SIGN_UP_WITH_PHOTO, email, password, handle, profileImage }
 }
 
 export const signUpSucceeded = () => ({ type: SIGN_UP_SUCCEEDED })
