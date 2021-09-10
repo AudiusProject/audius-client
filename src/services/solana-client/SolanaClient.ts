@@ -121,10 +121,19 @@ class SolanaClient {
     )
   }
 
+  /**
+   * Decode bytes to get url for nft metadata
+   * Check urls based on nft standard e.g. metaplex, or nft collection e.g. solamander, or known domains e.g. ipfs
+   * This is because there may be multiple different collections of nfts on e.g. metaplex (arweave), also
+   * a given nft collection can have nfts living in different domains e.g. solamander on cloudfront or arweave or etc., also
+   * nfts may live in ipfs or other places
+   */
   _utf8ArrayToNFTType(
     array: Uint8Array
   ): { type: SolanaNFTType; url: string } | null {
+    console.log({ array })
     const str = new TextDecoder().decode(array)
+    console.log({ str })
     const query = 'https://'
     const startIndex = str.indexOf(query)
 
@@ -134,6 +143,37 @@ class SolanaClient {
 
     // star atlas nfts live in https://galaxy.staratlas.com/nfts/...
     const isStarAtlas = str.includes('staratlas')
+
+    // solamander nfts should have 'Solamander' in the decoded TextDecoder
+    // todo: remove above ^ line because shouldn't have to check for solamander so that we can get other nfts too
+    // if we do find it, then we look for 'https://<...>.json' and that will be the metadata location
+    // examples:
+    // https://d1b6hed00dtfsr.cloudfront.net/9086.json
+    // https://cdn.piggygang.com/meta/3ad355d46a9cb2ee57049db4df57088f.json
+
+    // const extension = '.json'
+    // const foundSolamander = str.indexOf('Solamander') > -1
+    // const extensionIndex = str.indexOf(extension)
+    // const isSolamander = foundSolamander && startIndex > -1 && extensionIndex > -1
+    // if (isSolamander) {
+    //   const endIndex = extensionIndex + extension.length
+    //   const url = str.substring(startIndex, endIndex)
+    //   return {
+    //     type: SolanaNFTType.METAPLEX,
+    //     url
+    //   }
+    // }
+    const extension = '.json'
+    const extensionIndex = str.indexOf(extension)
+    const foundNFTUrl = startIndex > -1 && extensionIndex > -1
+    if (foundNFTUrl) {
+      const endIndex = extensionIndex + extension.length
+      const url = str.substring(startIndex, endIndex)
+      return {
+        type: SolanaNFTType.METAPLEX,
+        url
+      }
+    }
 
     const isInvalid = (!isMetaplex && !isStarAtlas) || startIndex === -1
     if (isInvalid) {

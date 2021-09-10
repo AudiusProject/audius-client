@@ -22,14 +22,20 @@ type MetaplexNFTProperties = {
   creators: MetaplexNFTCreator[]
 }
 
+// may live outside arweave and still have this format
+// examples:
+// https://cdn.piggygang.com/meta/3ad355d46a9cb2ee57049db4df57088f.json
+// https://d1b6hed00dtfsr.cloudfront.net/9086.json
+// Also, some nft metadatas are minimal, hence all the many nullable properties
+// e.g. https://ipfs.io/ipfs/QmS2BZecgTM5jy1PWzFbxcP6jDsLoq5EbGNmmwCPbi7YNH/6177.json
 export type MetaplexNFT = {
   name: string
-  description: string
-  symbol: string
+  description: Nullable<string>
+  symbol: Nullable<string>
   image: string
   animation_url: Nullable<string>
-  external_url: string
-  properties: MetaplexNFTProperties
+  external_url: Nullable<string>
+  properties: Nullable<MetaplexNFTProperties>
 }
 
 export type StarAtlasNFT = {
