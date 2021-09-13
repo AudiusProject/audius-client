@@ -41,9 +41,7 @@ export default class WebWorker {
         if (event.data.key) {
           if (event.data.key === key) {
             resolve(event.data.result)
-          } else {
           }
-          // todo: what is the above else here for?
         } else {
           resolve(event.data)
         }
