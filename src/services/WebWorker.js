@@ -43,6 +43,7 @@ export default class WebWorker {
             resolve(event.data.result)
           } else {
           }
+          // todo: what is the above else here for?
         } else {
           resolve(event.data)
         }
