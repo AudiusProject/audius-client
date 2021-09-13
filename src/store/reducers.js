@@ -43,7 +43,6 @@ import trendingUnderground from 'containers/trending-underground/store/slice'
 import unfollowConfirmation from 'containers/unfollow-confirmation-modal/store/reducers'
 import upload from 'containers/upload-page/store/reducer'
 import visualizer from 'containers/visualizer/store/slice'
-import account from 'store/account/reducer'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import cookieBanner from 'store/application/ui/cookieBanner/reducer'
@@ -74,8 +73,15 @@ import tokenDashboard from 'store/token-dashboard/slice'
 import { Kind } from 'store/types'
 import wallet from 'store/wallet/slice'
 
+import { clientStoreReducers } from './clientStore'
+
 const createRootReducer = routeHistory =>
   combineReducers({
+    // Client store
+    // Ideally, these state slices will live in @audius/client-store
+    // but for now they live in the web client
+    ...clientStoreReducers,
+
     // Router
     router: connectRouter(routeHistory),
 
@@ -85,7 +91,6 @@ const createRootReducer = routeHistory =>
     reachability,
 
     // Account
-    account,
     passwordReset,
     playlistLibrary,
 

@@ -3,16 +3,22 @@ import {
   routerMiddleware,
   replace as replaceRoute
 } from 'connected-react-router'
+import { pick } from 'lodash'
 import { createStore, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
 import createSentryMiddleware from 'redux-sentry-middleware'
 
+import { postMessage } from 'services/native-mobile-interface/helpers'
+import { MessageType } from 'services/native-mobile-interface/types'
+import { clientStoreReducers } from 'store/clientStore'
 import createRootReducer from 'store/reducers'
 import rootSaga from 'store/sagas'
 import { getIsDeployedOnHost } from 'utils/clientUtil'
 import history from 'utils/history'
 import { ERROR_PAGE } from 'utils/route'
+
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const onSagaError = (error, extraInfo) => {
   console.error(`Caught saga error: ${error}`)
@@ -114,9 +120,34 @@ const middlewares = applyMiddleware(
 
 let store = null
 
+// As long as the mobile client is dependent on the web client, we need to sync
+// the client store from web -> mobile
+const clientStoreKeys = Object.keys(clientStoreReducers)
+
+const syncClientStateToNativeMobile = store => {
+  if (NATIVE_MOBILE) {
+    let currentState
+    store.subscribe(() => {
+      const state = store.getState()
+      const previousState = currentState
+      currentState = state
+      if (
+        !previousState ||
+        clientStoreKeys.some(k => currentState[k] !== previousState[k])
+      ) {
+        postMessage({
+          type: MessageType.SYNC_CLIENT_STORE,
+          state: pick(state, clientStoreKeys)
+        })
+      }
+    })
+  }
+}
+
 export default function configureStore() {
   const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 })
   store = createStore(createRootReducer(history), composeEnhancers(middlewares))
+  syncClientStateToNativeMobile(store)
   sagaMiddleware.run(rootSaga)
   return store
 }
