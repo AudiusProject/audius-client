@@ -12,12 +12,13 @@ const METADATA_PROGRAM_ID = process.env.REACT_APP_METADATA_PROGRAM_ID
 const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(METADATA_PROGRAM_ID!)
 
 class SolanaClient {
-  private connection
+  private connection: Connection | null = null
   constructor() {
     try {
       this.connection = new Connection(SOLANA_CLUSTER_ENDPOINT!, 'confirmed')
     } catch (e) {
       console.error('Could not establish Solana PRC connection', e)
+      this.connection = null
     }
   }
 
@@ -30,15 +31,15 @@ class SolanaClient {
    * - get the metadata urls from the account infos and fetch the metadatas
    * - transform the nft metadatas to Audius-domain collectibles
    */
-  async getAllCollectibles(wallets: string[]): Promise<CollectibleState> {
+  getAllCollectibles = async (wallets: string[]): Promise<CollectibleState> => {
+    if (this.connection === null) return Promise.resolve({})
+    const connection = this.connection
+
     const tokenAccountsByOwnerAddress = await Promise.all(
       wallets.map(async address =>
-        client.connection.getParsedTokenAccountsByOwner(
-          new PublicKey(address),
-          {
-            programId: TOKEN_PROGRAM_ID
-          }
-        )
+        connection.getParsedTokenAccountsByOwner(new PublicKey(address), {
+          programId: TOKEN_PROGRAM_ID
+        })
       )
     )
 
@@ -81,7 +82,7 @@ class SolanaClient {
           )
         )
 
-        const accountInfos = await client.connection.getMultipleAccountsInfo(
+        const accountInfos = await connection.getMultipleAccountsInfo(
           programAddresses
         )
         const nonNullInfos = accountInfos?.filter(Boolean) ?? []
@@ -135,9 +136,9 @@ class SolanaClient {
    * a given nft collection can have nfts living in different domains e.g. solamander on cloudfront or arweave or etc., also
    * nfts may live in ipfs or other places
    */
-  _utf8ArrayToNFTType(
+  _utf8ArrayToNFTType = (
     array: Uint8Array
-  ): { type: SolanaNFTType; url: string } | null {
+  ): { type: SolanaNFTType; url: string } | null => {
     const text = new TextDecoder().decode(array)
 
     // for the sake of simplicty/readability/understandability, we check the decoded url
@@ -147,7 +148,7 @@ class SolanaClient {
     )
   }
 
-  _metaplex(text: string): { type: SolanaNFTType; url: string } | null {
+  _metaplex = (text: string): { type: SolanaNFTType; url: string } | null => {
     const query = 'https://'
     const startIndex = text.indexOf(query)
     if (startIndex === -1) return null
@@ -171,7 +172,7 @@ class SolanaClient {
     }
   }
 
-  _starAtlas(text: string): { type: SolanaNFTType; url: string } | null {
+  _starAtlas = (text: string): { type: SolanaNFTType; url: string } | null => {
     const query = 'https://'
     const startIndex = text.indexOf(query)
     if (startIndex === -1) return null
@@ -194,7 +195,7 @@ class SolanaClient {
     }
   }
 
-  _unknown(text: string): { type: SolanaNFTType; url: string } | null {
+  _unknown = (text: string): { type: SolanaNFTType; url: string } | null => {
     // Look for 'https://<...>.json' and that will be the metadata location
     // examples:
     // https://d1b6hed00dtfsr.cloudfront.net/9086.json
