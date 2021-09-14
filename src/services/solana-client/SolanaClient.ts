@@ -12,7 +12,14 @@ const METADATA_PROGRAM_ID = process.env.REACT_APP_METADATA_PROGRAM_ID
 const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(METADATA_PROGRAM_ID!)
 
 class SolanaClient {
-  private connection = new Connection(SOLANA_CLUSTER_ENDPOINT!, 'confirmed')
+  private connection
+  constructor() {
+    try {
+      this.connection = new Connection(SOLANA_CLUSTER_ENDPOINT!, 'confirmed')
+    } catch (e) {
+      console.error('Could not establish Solana PRC connection', e)
+    }
+  }
 
   /**
    * for each given wallet:
