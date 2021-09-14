@@ -17,7 +17,7 @@ class SolanaClient {
     try {
       this.connection = new Connection(SOLANA_CLUSTER_ENDPOINT!, 'confirmed')
     } catch (e) {
-      console.error('Could not establish Solana PRC connection', e)
+      console.error('Could create Solana RPC connection', e)
       this.connection = null
     }
   }
@@ -32,101 +32,106 @@ class SolanaClient {
    * - transform the nft metadatas to Audius-domain collectibles
    */
   getAllCollectibles = async (wallets: string[]): Promise<CollectibleState> => {
-    if (this.connection === null) return Promise.resolve({})
-    const connection = this.connection
+    try {
+      if (this.connection === null) throw new Error('No connection')
+      const connection = this.connection
 
-    const tokenAccountsByOwnerAddress = await Promise.all(
-      wallets.map(async address =>
-        connection.getParsedTokenAccountsByOwner(new PublicKey(address), {
-          programId: TOKEN_PROGRAM_ID
+      const tokenAccountsByOwnerAddress = await Promise.all(
+        wallets.map(async address =>
+          connection.getParsedTokenAccountsByOwner(new PublicKey(address), {
+            programId: TOKEN_PROGRAM_ID
+          })
+        )
+      )
+
+      const potentialNFTsByOwnerAddress = tokenAccountsByOwnerAddress
+        .map(ta => ta.value)
+        // value is an array of parsed token info
+        .map((value, i) => {
+          const mintAddresses = value
+            .map(v => ({
+              mint: v.account.data.parsed.info.mint,
+              tokenAmount: v.account.data.parsed.info.tokenAmount
+            }))
+            .filter(({ tokenAmount }) => {
+              // Filter out the token if we don't have any balance
+              const ownsNFT = tokenAmount.amount !== '0'
+              // Filter out the tokens that don't have 0 decimal places.
+              // NFTs really should have 0
+              const hasNoDecimals = tokenAmount.decimals === 0
+              return ownsNFT && hasNoDecimals
+            })
+            .map(({ mint }) => mint)
+          return { mintAddresses }
+        })
+
+      const nfts = await Promise.all(
+        potentialNFTsByOwnerAddress.map(async ({ mintAddresses }) => {
+          const programAddresses = await Promise.all(
+            mintAddresses.map(
+              async mintAddress =>
+                (
+                  await PublicKey.findProgramAddress(
+                    [
+                      Buffer.from('metadata'),
+                      METADATA_PROGRAM_ID_PUBLIC_KEY.toBytes(),
+                      new PublicKey(mintAddress).toBytes()
+                    ],
+                    METADATA_PROGRAM_ID_PUBLIC_KEY
+                  )
+                )[0]
+            )
+          )
+
+          const accountInfos = await connection.getMultipleAccountsInfo(
+            programAddresses
+          )
+          const nonNullInfos = accountInfos?.filter(Boolean) ?? []
+
+          const metadataUrls = nonNullInfos
+            .map(x => client._utf8ArrayToNFTType(x!.data))
+            .filter(Boolean) as { type: SolanaNFTType; url: string }[]
+
+          const results = await Promise.all(
+            metadataUrls.map(async item =>
+              fetch(item!.url)
+                .then(res => res.json())
+                .catch(() => null)
+            )
+          )
+
+          const metadatas = results.map((metadata, i) => ({
+            metadata,
+            type: metadataUrls[i].type
+          }))
+
+          return metadatas.filter(r => !!r.metadata)
         })
       )
-    )
 
-    const potentialNFTsByOwnerAddress = tokenAccountsByOwnerAddress
-      .map(ta => ta.value)
-      // value is an array of parsed token info
-      .map((value, i) => {
-        const mintAddresses = value
-          .map(v => ({
-            mint: v.account.data.parsed.info.mint,
-            tokenAmount: v.account.data.parsed.info.tokenAmount
-          }))
-          .filter(({ tokenAmount }) => {
-            // Filter out the token if we don't have any balance
-            const ownsNFT = tokenAmount.amount !== '0'
-            // Filter out the tokens that don't have 0 decimal places.
-            // NFTs really should have 0
-            const hasNoDecimals = tokenAmount.decimals === 0
-            return ownsNFT && hasNoDecimals
-          })
-          .map(({ mint }) => mint)
-        return { mintAddresses }
-      })
-
-    const nfts = await Promise.all(
-      potentialNFTsByOwnerAddress.map(async ({ mintAddresses }) => {
-        const programAddresses = await Promise.all(
-          mintAddresses.map(
-            async mintAddress =>
-              (
-                await PublicKey.findProgramAddress(
-                  [
-                    Buffer.from('metadata'),
-                    METADATA_PROGRAM_ID_PUBLIC_KEY.toBytes(),
-                    new PublicKey(mintAddress).toBytes()
-                  ],
-                  METADATA_PROGRAM_ID_PUBLIC_KEY
-                )
-              )[0]
+      const solanaCollectibles = await Promise.all(
+        nfts.map(async (nftsForAddress, i) => {
+          const collectibles = await Promise.all(
+            nftsForAddress.map(
+              async nft =>
+                await solanaNFTToCollectible(nft.metadata, wallets[i], nft.type)
+            )
           )
-        )
+          return collectibles.filter(Boolean) as Collectible[]
+        })
+      )
 
-        const accountInfos = await connection.getMultipleAccountsInfo(
-          programAddresses
-        )
-        const nonNullInfos = accountInfos?.filter(Boolean) ?? []
-
-        const metadataUrls = nonNullInfos
-          .map(x => client._utf8ArrayToNFTType(x!.data))
-          .filter(Boolean) as { type: SolanaNFTType; url: string }[]
-
-        const results = await Promise.all(
-          metadataUrls.map(async item =>
-            fetch(item!.url)
-              .then(res => res.json())
-              .catch(() => null)
-          )
-        )
-
-        const metadatas = results.map((metadata, i) => ({
-          metadata,
-          type: metadataUrls[i].type
-        }))
-
-        return metadatas.filter(r => !!r.metadata)
-      })
-    )
-
-    const solanaCollectibles = await Promise.all(
-      nfts.map(async (nftsForAddress, i) => {
-        const collectibles = await Promise.all(
-          nftsForAddress.map(
-            async nft =>
-              await solanaNFTToCollectible(nft.metadata, wallets[i], nft.type)
-          )
-        )
-        return collectibles.filter(Boolean) as Collectible[]
-      })
-    )
-
-    return solanaCollectibles.reduce(
-      (result, collectibles, i) => ({
-        ...result,
-        [wallets[i]]: collectibles
-      }),
-      {} as CollectibleState
-    )
+      return solanaCollectibles.reduce(
+        (result, collectibles, i) => ({
+          ...result,
+          [wallets[i]]: collectibles
+        }),
+        {} as CollectibleState
+      )
+    } catch (e) {
+      console.error('Unable to get collectibles', e)
+      return Promise.resolve({})
+    }
   }
 
   /**
