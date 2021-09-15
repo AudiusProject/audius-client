@@ -73,13 +73,11 @@ import tokenDashboard from 'store/token-dashboard/slice'
 import { Kind } from 'store/types'
 import wallet from 'store/wallet/slice'
 
-import { clientStoreReducers } from './clientStore'
+import { reducers as clientStoreReducers } from './clientStore'
 
 const createRootReducer = routeHistory =>
   combineReducers({
     // Client store
-    // Ideally, these state slices will live in @audius/client-store
-    // but for now they live in the web client
     ...clientStoreReducers,
 
     // Router

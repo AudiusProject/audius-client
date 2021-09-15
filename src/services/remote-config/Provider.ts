@@ -42,7 +42,7 @@ const state: State = {
   onDidInitializeFunc: undefined,
   userId: null,
   sessionId:
-    window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY) ||
+    window.localStorage?.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY) ||
     uuid()
 }
 

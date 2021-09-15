@@ -11,7 +11,7 @@ import createSentryMiddleware from 'redux-sentry-middleware'
 
 import { postMessage } from 'services/native-mobile-interface/helpers'
 import { MessageType } from 'services/native-mobile-interface/types'
-import { clientStoreReducers } from 'store/clientStore'
+import { reducers as clientStoreReducers } from 'store/clientStore'
 import createRootReducer from 'store/reducers'
 import rootSaga from 'store/sagas'
 import { getIsDeployedOnHost } from 'utils/clientUtil'
