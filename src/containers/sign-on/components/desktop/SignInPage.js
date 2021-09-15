@@ -50,6 +50,12 @@ export class SignIn extends PureComponent {
     }
   }
 
+  componentDidMount() {
+    if (this.props.email && this.props.email.value) {
+      this.passwordInput.current.focus()
+    }
+  }
+
   render() {
     const {
       isMobile,

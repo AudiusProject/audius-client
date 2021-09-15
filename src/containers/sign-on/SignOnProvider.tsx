@@ -237,7 +237,8 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     return () => {
       const { email } = this.props.fields
       if (page === Pages.PASSWORD) {
-        this.props.recordCompleteEmail(email.value)
+        this.props.onEmailSubmitted(email.value)
+        return
       } else if (page === Pages.PROFILE) {
         this.props.recordCompletePassword(email.value)
       }
@@ -479,6 +480,8 @@ function makeMapStateToProps(state: AppState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
+    onEmailSubmitted: (email: string) =>
+      dispatch(signOnAction.checkEmail(email)),
     onSignIn: (email: string, password: string) =>
       dispatch(signOnAction.signIn(email, password)),
     fetchFollowArtists: () => dispatch(signOnAction.fetchAllFollowArtists()),

@@ -4,7 +4,6 @@ import { delay } from 'redux-saga'
 import {
   all,
   call,
-  throttle,
   put,
   race,
   select,
@@ -213,13 +212,35 @@ function* validateHandle(action) {
   }
 }
 
+function* checkEmail(action) {
+  if (!isValidEmailString(action.email)) {
+    yield put(signOnActions.validateEmailFailed('characters'))
+    return
+  }
+  try {
+    const inUse = yield call(AudiusBackend.emailInUse, action.email)
+    if (inUse) {
+      yield put(signOnActions.goToPage(Pages.SIGNIN))
+    } else {
+      const trackEvent = make(Name.CREATE_ACCOUNT_COMPLETE_EMAIL, {
+        emailAddress: action.email
+      })
+      yield put(trackEvent)
+      yield put(signOnActions.goToPage(Pages.PASSWORD))
+    }
+  } catch (err) {
+    yield put(signOnActions.validateEmailFailed(err.message))
+  }
+}
+
 function* validateEmail(action) {
   try {
     if (!isValidEmailString(action.email)) {
       yield put(signOnActions.validateEmailFailed('characters'))
       return
     }
-    yield put(signOnActions.validateEmailInUse(action.email))
+    yield delay(2000)
+    yield validateEmailInUse(action)
   } catch (err) {
     yield put(signOnActions.validateEmailFailed(err.message))
   }
@@ -461,16 +482,12 @@ function* watchFetchReferrer() {
   yield takeLatest(signOnActions.FETCH_REFERRER, fetchReferrer)
 }
 
-function* watchValidateEmail() {
-  yield takeLatest(signOnActions.VALIDATE_EMAIL, validateEmail)
+function* watchCheckEmail() {
+  yield takeLatest(signOnActions.CHECK_EMAIL, checkEmail)
 }
 
-function* watchValidateEmailInUse() {
-  yield throttle(
-    THROTTLE_VALIDATE_EMAIL_MS,
-    signOnActions.VALIDATE_EMAIL_IN_USE,
-    validateEmailInUse
-  )
+function* watchValidateEmail() {
+  yield takeLatest(signOnActions.VALIDATE_EMAIL, validateEmail)
 }
 
 function* watchValidateHandle() {
@@ -529,8 +546,8 @@ export default function sagas() {
   return [
     watchFetchAllFollowArtists,
     watchFetchReferrer,
+    watchCheckEmail,
     watchValidateEmail,
-    watchValidateEmailInUse,
     watchValidateHandle,
     watchSignUp,
     watchSignIn,
