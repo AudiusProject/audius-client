@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
+import { makeGetRelatedArtists } from 'containers/artist-recommendations/store/selectors'
 import { setFollowers } from 'containers/followers-page/store/actions'
 import { setFollowing } from 'containers/following-page/store/actions'
 import {
@@ -51,7 +52,8 @@ import { tracksActions } from './store/lineups/tracks/actions'
 import {
   makeGetProfile,
   getProfileFeedLineup,
-  getProfileTracksLineup
+  getProfileTracksLineup,
+  getProfileUserId
 } from './store/selectors'
 
 const INITIAL_UPDATE_FIELDS = {
@@ -94,6 +96,7 @@ type ProfilePageState = {
   updatedWebsite: string | null
   updatedDonation: string | null
   tracksLineupOrder: TracksSortMode
+  areArtistRecommendationsVisible: boolean
 }
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'
@@ -106,6 +109,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     editMode: false,
     shouldMaskContent: false,
     tracksLineupOrder: TracksSortMode.RECENT,
+    areArtistRecommendationsVisible: false,
     ...INITIAL_UPDATE_FIELDS
   }
 
@@ -197,12 +201,11 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       }
     }
 
-    // If editing profile and route to another user profile, exit edit mode
-    if (
-      prevProps.profile?.profile?.handle !== profile?.profile?.handle &&
-      editMode
-    ) {
-      this.setState({ editMode: false })
+    if (prevProps.profile?.profile?.handle !== profile?.profile?.handle) {
+      // If editing profile and route to another user profile, exit edit mode
+      if (editMode) this.setState({ editMode: false })
+      // Close artist recommendations when the profile changes
+      this.setState({ areArtistRecommendationsVisible: false })
     }
   }
 
@@ -233,6 +236,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(true)
     }
+    if (this.props.relatedArtists && this.props.relatedArtists.length > 0) {
+      this.setState({ areArtistRecommendationsVisible: true })
+    }
   }
 
   onUnfollow = () => {
@@ -247,6 +253,10 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
     }
+  }
+
+  onCloseArtistRecommendations = () => {
+    this.setState({ areArtistRecommendationsVisible: false })
   }
 
   fetchProfile = (
@@ -723,6 +733,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       activeTab,
       editMode,
       shouldMaskContent,
+      areArtistRecommendationsVisible,
       updatedName,
       updatedBio,
       updatedLocation,
@@ -917,6 +928,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const desktopProps = {
       editMode,
       shouldMaskContent,
+
+      areArtistRecommendationsVisible,
+      onCloseArtistRecommendations: this.onCloseArtistRecommendations,
       setNotificationSubscription,
       isSubscribed: !!isSubscribed,
 
@@ -956,6 +970,7 @@ function makeMapStateToProps() {
   const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
   const getProfile = makeGetProfile()
   const getCurrentQueueItem = makeGetCurrent()
+  const getRelatedArtists = makeGetRelatedArtists()
   const mapStateToProps = (state: AppState) => ({
     account: getAccountUser(state),
     profile: getProfile(state, {}),
@@ -967,7 +982,8 @@ function makeMapStateToProps() {
     pathname: getLocationPathname(state),
     isUserConfirming: !getIsDone(state, {
       uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
-    })
+    }),
+    relatedArtists: getRelatedArtists(state, { id: getProfileUserId(state) })
   })
   return mapStateToProps
 }
