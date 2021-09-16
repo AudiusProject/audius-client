@@ -52,8 +52,8 @@ const SUGGESTED_FOLLOW_USER_HANDLE_URL =
   'https://download.audius.co/static-resources/signup-follows.json'
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
 
-// Wait 2 seconds between validating an email
-const THROTTLE_VALIDATE_EMAIL_MS = 2 * 1000
+// Wait 500 milliseconds between validating an email
+const DEBOUNCE_VALIDATE_EMAIL_MS = 500
 
 const messages = {
   incompleteAccount:
@@ -239,7 +239,10 @@ function* validateEmail(action) {
       yield put(signOnActions.validateEmailFailed('characters'))
       return
     }
-    yield delay(2000)
+    // Delay before validating the email via API. If another action comes in,
+    // this should cancel before we send the request since we use takeLatest.
+    // Effectively a debounce()
+    yield delay(DEBOUNCE_VALIDATE_EMAIL_MS)
     yield validateEmailInUse(action)
   } catch (err) {
     yield put(signOnActions.validateEmailFailed(err.message))
