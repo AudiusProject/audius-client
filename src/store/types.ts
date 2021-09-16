@@ -46,7 +46,7 @@ import VisualizerReducer from 'containers/visualizer/store/slice'
 import Collection from 'models/Collection'
 import Track from 'models/Track'
 import Cache from 'models/common/Cache'
-import AccountReducer from 'store/account/reducer'
+import AccountSlice from 'store/account/reducer'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import modals from 'store/application/ui/modals/slice'
@@ -95,7 +95,7 @@ export type AppState = {
   reachability: ReachabilityState
 
   // Account
-  account: ReturnType<typeof AccountReducer>
+  account: ReturnType<typeof AccountSlice.reducer>
   passwordReset: PasswordResetState
   playlistLibrary: ReturnType<typeof PlaylistLibraryReducer>
 

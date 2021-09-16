@@ -183,4 +183,4 @@ export const {
   showPushNotificationConfirmation
 } = slice.actions
 
-export default slice.reducer
+export default slice

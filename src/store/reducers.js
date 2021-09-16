@@ -60,10 +60,6 @@ import theme from 'store/application/ui/theme/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import audioManager from 'store/audio-manager/slice'
 import backend from 'store/backend/reducer'
-import collectionsReducer from 'store/cache/collections/reducer'
-import { asCache } from 'store/cache/reducer'
-import tracksReducer from 'store/cache/tracks/reducer'
-import usersReducer from 'store/cache/users/reducer'
 import confirmer from 'store/confirmer/reducer'
 import dragndrop from 'store/dragndrop/reducer'
 import player from 'store/player/slice'
@@ -111,11 +107,6 @@ const createRootReducer = routeHistory =>
     track,
     notification,
     serviceSelection,
-
-    // Cache
-    tracks: asCache(tracksReducer, Kind.TRACKS),
-    collections: asCache(collectionsReducer, Kind.COLLECTIONS),
-    users: asCache(usersReducer, Kind.USERS),
 
     // Playback
     queue,

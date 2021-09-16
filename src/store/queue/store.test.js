@@ -4,7 +4,7 @@ import * as matchers from 'redux-saga-test-plan/matchers'
 import { take } from 'redux-saga/effects'
 
 import AudioStream from 'audio/AudioStream'
-import accountReducer from 'store/account/reducer'
+import accountSlice from 'store/account/reducer'
 import * as cacheActions from 'store/cache/actions'
 import playerReducer, * as playerActions from 'store/player/slice'
 import * as queueActions from 'store/queue/actions'
@@ -157,7 +157,7 @@ describe('watchNext', () => {
           tracks: noopReducer(initialTracks),
           queue: reducer,
           player: playerReducer,
-          account: accountReducer
+          account: accountSlice.reducer
         }),
         {
           player: initialPlayer,
@@ -375,7 +375,7 @@ describe('watchNext', () => {
           tracks: noopReducer(initialTracks),
           queue: reducer,
           player: playerReducer,
-          account: accountReducer
+          account: accountSlice.reducer
         }),
         {
           player: initialPlayer,

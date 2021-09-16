@@ -9,7 +9,9 @@ import { MetaplexNFT, SolanaNFTType } from './types'
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const METADATA_PROGRAM_ID = process.env.REACT_APP_METADATA_PROGRAM_ID
 
-const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(METADATA_PROGRAM_ID || {})
+const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(
+  METADATA_PROGRAM_ID || 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+)
 
 class SolanaClient {
   private connection: Connection | null = null
