@@ -234,28 +234,8 @@ function* checkEmail(action) {
 }
 
 function* validateEmail(action) {
-  try {
-    if (!isValidEmailString(action.email)) {
-      yield put(signOnActions.validateEmailFailed('characters'))
-      return
-    }
-    // Delay before validating the email via API. If another action comes in,
-    // this should cancel before we send the request since we use takeLatest.
-    // Effectively a debounce()
-    yield delay(DEBOUNCE_VALIDATE_EMAIL_MS)
-    yield validateEmailInUse(action)
-  } catch (err) {
-    yield put(signOnActions.validateEmailFailed(err.message))
-  }
-}
-
-function* validateEmailInUse(action) {
-  yield call(waitForBackendSetup)
-  try {
-    const inUse = yield call(AudiusBackend.emailInUse, action.email)
-    yield put(signOnActions.validateEmailSucceeded(!inUse))
-  } catch (err) {
-    yield put(signOnActions.validateEmailFailed(err.message))
+  if (!isValidEmailString(action.email)) {
+    yield put(signOnActions.validateEmailFailed('characters'))
   }
 }
 

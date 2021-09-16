@@ -38,7 +38,7 @@ type EmailPageProps = {
     status: string
     error: 'inUse' | 'characters'
   }
-  onNextPage: () => void
+  onSubmit: (email: string) => void
   onEmailChange: (email: string) => void
   onToggleMetaMaskModal: () => void
   onSignIn: () => void
@@ -73,11 +73,10 @@ export class EmailPage extends Component<EmailPageProps, EmailPageState> {
   }
 
   onSubmit = () => {
-    const { onNextPage } = this.props
+    const { onSubmit, email } = this.props
     this.setState({ showValidation: true, isSubmitting: true })
-    if (!this.props.email.value)
-      this.props.onEmailChange(this.props.email.value)
-    onNextPage()
+    if (!email.value) this.props.onEmailChange(email.value)
+    onSubmit(email.value)
   }
 
   onToggleMetaMaskModal = () => {

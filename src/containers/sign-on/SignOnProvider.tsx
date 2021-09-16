@@ -194,6 +194,13 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
 
   onNextPage = () => {
     const { page, isMobile } = this.props
+    if (page === Pages.PASSWORD) {
+      const {
+        fields: { email },
+        recordCompletePassword
+      } = this.props
+      recordCompletePassword(email.value)
+    }
     if (page === Pages.PROFILE) {
       const {
         signUp,
@@ -231,20 +238,6 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     }
     this.addRouteHash(page)
     this.props.nextPage(isMobile)
-  }
-
-  handleOnContinue = (page: Pages) => {
-    return () => {
-      const { email } = this.props.fields
-      if (page === Pages.PASSWORD) {
-        this.props.onEmailSubmitted(email.value)
-        return
-      } else if (page === Pages.PROFILE) {
-        this.props.recordCompletePassword(email.value)
-      }
-      this.addRouteHash(page)
-      this.props.goToPage(page)
-    }
   }
 
   onPrevPage = () => {
@@ -427,10 +420,10 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       onClickReadMetaMaskConfig: this.onClickReadMetaMaskConfig,
       closeModal: this.closeModal,
       onNextPage: this.onNextPage,
-      handleOnContinue: this.handleOnContinue,
       onPrevPage: this.onPrevPage,
       onConfigureWithMetaMask: this.onConfigureWithMetaMask,
       onEmailChange: this.onEmailChange,
+      onEmailSubmitted: this.props.onEmailSubmitted,
       onPasswordChange: this.onPasswordChange,
       onNameChange: this.onNameChange,
       onAddFollows: this.props.addFollows,
