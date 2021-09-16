@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { Button, ButtonType, IconArrow } from '@audius/stems'
+import { Button, ButtonSize, ButtonType, IconArrow } from '@audius/stems'
 import Spin from 'antd/lib/spin'
 import cn from 'classnames'
 import { Spring } from 'react-spring/renderprops'
@@ -155,40 +155,42 @@ export class EmailPage extends Component<EmailPageProps, EmailPageState> {
             )}
           </Spring>
         ) : null}
-        <Button
-          text='Continue'
-          name='continue'
-          rightIcon={
-            shouldDisableInputs ? (
-              <Spin className={styles.spinner} />
-            ) : (
-              <IconArrow />
-            )
-          }
-          type={ButtonType.PRIMARY_ALT}
-          onClick={this.onSubmit}
-          textClassName={styles.signInButtonText}
-          className={styles.signInButton}
-          isDisabled={shouldDisableInputs}
-        />
-        <div
-          className={cn(styles.hasAccount, {
-            [styles.hasAccountErrMetaMask]: hasMetaMask && showError,
-            [styles.hasAccountErr]: !hasMetaMask && showError
-          })}
-        >
-          Already have an account?{' '}
-          <span className={styles.signInText} onClick={this.props.onSignIn}>
-            Sign In
-          </span>
-        </div>
-        {hasMetaMask ? (
-          <MetaMaskOption
-            text='Sign Up With'
-            subText='not recommended'
-            onClick={this.onToggleMetaMaskModal}
+        <div className={styles.buttonsContainer}>
+          <Button
+            size={ButtonSize.MEDIUM}
+            text='Continue'
+            name='continue'
+            rightIcon={
+              shouldDisableInputs ? (
+                <Spin className={styles.spinner} />
+              ) : (
+                <IconArrow />
+              )
+            }
+            type={ButtonType.PRIMARY_ALT}
+            onClick={this.onSubmit}
+            textClassName={styles.signInButtonText}
+            className={styles.signInButton}
+            isDisabled={shouldDisableInputs}
           />
-        ) : null}
+          {hasMetaMask ? (
+            <MetaMaskOption
+              text='Sign Up With'
+              subText='not recommended'
+              onClick={this.onToggleMetaMaskModal}
+            />
+          ) : null}
+          <Button
+            className={cn(styles.hasAccount, {
+              [styles.hasAccountErrMetaMask]: hasMetaMask && showError,
+              [styles.hasAccountErr]: !hasMetaMask && showError
+            })}
+            size={ButtonSize.MEDIUM}
+            type={ButtonType.COMMON_ALT}
+            text={'Have an account? Sign In'}
+            onClick={this.props.onSignIn}
+          />
+        </div>
       </div>
     )
   }

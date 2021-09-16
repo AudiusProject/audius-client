@@ -13,11 +13,7 @@
   max-width: 159px;
   height: 100%;
   width: 100%;
-  margin: 40px auto 52px;
-}
-
-.metaMask .logo {
-  margin-bottom: 44px;
+  margin: 32px auto;
 }
 
 /* Title */
@@ -55,7 +51,7 @@
 }
 
 .signInInput {
-  margin-top: 50px;
+  margin-top: 32px;
   margin-bottom: 39px;
   text-align: center;
   height: 66px;
@@ -103,26 +99,32 @@
 }
 
 /* Sign In Button */
+.buttonsContainer {
+  width: 230px;
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.metaMask .buttonsContainer {
+  width: 250px;
+}
+
+.signInButton {
+  width: 100%;
+}
+
 .signInButton .signInButtonText {
   font-size: var(--font-l);
   font-weight: var(--font-bold);
 }
 
-/* Bottom Text */
-.metaMask .hasAccount {
-  margin-top: 18px;
-  margin-bottom: 17px;
-}
-
 .hasAccount {
+  width: 100%;
   padding: 4px 0px;
-  margin-top: 45px;
-  color: var(--neutral);
-  font-family: 'Avenir Next LT Pro';
-  font-size: var(--font-s);
-  font-weight: var(--font-medium);
-  user-select: none;
-  cursor: default;
+  margin-bottom: 24px;
+  align-self: flex-end;
 }
 
 .metaMask .hasAccountErrMetaMask {
