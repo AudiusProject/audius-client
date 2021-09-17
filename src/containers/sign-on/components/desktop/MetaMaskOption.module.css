@@ -1,9 +1,7 @@
-
 /* Metamask Button */
 .metaMaskSignupButton {
-  width: 100%;
   color: var(--neutral);
-  font-family: "Avenir Next LT Pro";
+  font-family: 'Avenir Next LT Pro';
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   text-align: center;
@@ -16,9 +14,9 @@
 .metaMaskSignupButton input {
   height: 52px;
   width: 246px;
-  border: 1px solid #DAD9E0;
+  border: 1px solid #dad9e0;
   border-radius: 4px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .metaMaskSignupText {
@@ -28,7 +26,7 @@
   align-items: center;
   color: var(--neutral);
   font-size: var(--font-s);
-  font-weight: var(--font-bold)
+  font-weight: var(--font-bold);
 }
 
 .metaMaskLogo {
