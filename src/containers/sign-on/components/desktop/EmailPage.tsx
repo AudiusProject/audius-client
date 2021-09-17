@@ -179,16 +179,17 @@ export class EmailPage extends Component<EmailPageProps, EmailPageState> {
               onClick={this.onToggleMetaMaskModal}
             />
           ) : null}
-          <Button
-            className={cn(styles.hasAccount, {
-              [styles.hasAccountErrMetaMask]: hasMetaMask && showError,
-              [styles.hasAccountErr]: !hasMetaMask && showError
-            })}
-            size={ButtonSize.MEDIUM}
-            type={ButtonType.COMMON_ALT}
-            text={'Have an account? Sign In'}
-            onClick={this.props.onSignIn}
-          />
+          <div className={styles.hasAccount}>
+            <Button
+              className={cn(styles.hasAccountButton, {
+                [styles.hasAccountErrMetaMask]: hasMetaMask && showError,
+                [styles.hasAccountErr]: !hasMetaMask && showError
+              })}
+              type={ButtonType.COMMON_ALT}
+              text={'Have an Account? Sign In'}
+              onClick={this.props.onSignIn}
+            />
+          </div>
         </div>
       </div>
     )

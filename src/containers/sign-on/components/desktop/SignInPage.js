@@ -132,29 +132,32 @@ export class SignIn extends PureComponent {
             )}
           </Spring>
         )}
-        <Button
-          name='sign-in'
-          text='Sign In'
-          rightIcon={
-            loading ? <Spin className={styles.spinner} /> : <IconArrow />
-          }
-          type={ButtonType.PRIMARY_ALT}
-          onClick={onSignIn}
-          textClassName={styles.signInButtonText}
-          className={styles.signInButton}
-        />
-        <div className={styles.newUserText}>
-          New to Audius?{' '}
-          <span className={styles.createAccountText} onClick={onSignUp}>
-            Create an Account
-          </span>
-        </div>
-        {hasMetaMask ? (
-          <MetaMaskOption
-            text='Sign In With'
-            onClick={this.onSignInWithMetaMask}
+        <div className={styles.buttonsContainer}>
+          <Button
+            name='sign-in'
+            text='Continue'
+            rightIcon={
+              loading ? <Spin className={styles.spinner} /> : <IconArrow />
+            }
+            type={ButtonType.PRIMARY_ALT}
+            onClick={onSignIn}
+            textClassName={styles.signInButtonText}
+            className={styles.signInButton}
           />
-        ) : null}
+          {hasMetaMask ? (
+            <MetaMaskOption
+              text='Sign In With'
+              onClick={this.onSignInWithMetaMask}
+            />
+          ) : null}
+          <div className={styles.createAccount}>
+            <Button
+              text={'New to Audius? Create an account'}
+              type={ButtonType.COMMON_ALT}
+              onClick={onSignUp}
+            />
+          </div>
+        </div>
       </div>
     )
   }

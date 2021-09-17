@@ -46,8 +46,7 @@
 /* Sign In Input */
 
 .metaMask .signInInput {
-  margin-top: 37px;
-  margin-bottom: 23px;
+  margin-bottom: 24px;
 }
 
 .signInInput {
@@ -98,19 +97,13 @@
   margin-bottom: 13px;
 }
 
-/* Sign In Button */
 .buttonsContainer {
-  width: 230px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   flex: 1;
-  justify-content: center;
 }
 
-.metaMask .buttonsContainer {
-  width: 250px;
-}
-
+/* Sign In Button */
 .signInButton {
   width: 100%;
 }
@@ -121,10 +114,10 @@
 }
 
 .hasAccount {
-  width: 100%;
-  padding: 4px 0px;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
   margin-bottom: 24px;
-  align-self: flex-end;
 }
 
 .metaMask .hasAccountErrMetaMask {
