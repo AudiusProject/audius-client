@@ -461,9 +461,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       validateHandle: this.props.validateHandle,
       onMetaMaskSignIn: this.onMetaMaskSignIn,
       recordTwitterStart: this.onRecordTwitterStart,
-      recordTwitterComplete: this.props.recordTwitterComplete,
-      recordInstagramStart: this.onRecordInstagramStart,
-      recordInstagramComplete: this.props.recordInstagramComplete
+      recordInstagramStart: this.onRecordInstagramStart
     }
     if (this.props.isMobile) {
       const Children = this.props.children as React.ComponentType<
