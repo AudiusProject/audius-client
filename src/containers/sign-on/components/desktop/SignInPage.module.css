@@ -16,14 +16,6 @@
   margin: 32px auto;
 }
 
-.metaMask .logo {
-  max-height: 180px;
-  max-width: 159px;
-  height: 100%;
-  width: 100%;
-  margin: 40px auto 20px;
-}
-
 /* Title */
 .title {
   color: var(--secondary);

@@ -152,7 +152,7 @@ export class SignIn extends PureComponent {
           ) : null}
           <div className={styles.createAccount}>
             <Button
-              text={'New to Audius? Create an account'}
+              text={'New to Audius? Create an Account'}
               type={ButtonType.COMMON_ALT}
               onClick={onSignUp}
             />
