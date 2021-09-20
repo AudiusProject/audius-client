@@ -3,9 +3,9 @@ import React, { useCallback } from 'react'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
+import { ID } from 'common/models/Identifiers'
 import { audioTierMapPng } from 'containers/user-badges/UserBadges'
 import { BadgeTier } from 'containers/user-badges/utils'
-import { ID } from 'models/common/Identifiers'
 import { setVisibility } from 'store/application/ui/modals/slice'
 
 import styles from './ProfilePageBadge.module.css'

@@ -2,9 +2,9 @@ import React from 'react'
 
 import { useSelector } from 'react-redux'
 
+import { getUserHandle } from 'common/store/account/selectors'
 import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
-import { getUserHandle } from 'store/account/selectors'
 import { COGNITO_SCRIPT_URL } from 'utils/constants'
 
 // this button will handle triggering the cognito flow

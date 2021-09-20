@@ -67,10 +67,9 @@ import playlistLibrary from 'store/playlist-library/slice'
 import queue from 'store/queue/slice'
 import reachability from 'store/reachability/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
-import { Kind } from 'store/types'
 import wallet from 'store/wallet/slice'
 
-import { reducers as clientStoreReducers } from './clientStore'
+import { reducers as clientStoreReducers } from '../common/store'
 
 const createRootReducer = routeHistory =>
   combineReducers({

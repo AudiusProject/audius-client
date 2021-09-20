@@ -4,11 +4,7 @@ import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { show } from 'containers/music-confetti/store/slice'
-import { makeGetTierAndVerifiedForUser } from 'containers/user-badges/utils'
-import Theme from 'models/Theme'
-import { Name } from 'services/analytics'
-import * as accountActions from 'store/account/reducer'
+import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountVerified,
   getAccountIsCreator,
@@ -16,7 +12,11 @@ import {
   getUserId,
   getUserHandle,
   getUserName
-} from 'store/account/selectors'
+} from 'common/store/account/selectors'
+import { show } from 'containers/music-confetti/store/slice'
+import { makeGetTierAndVerifiedForUser } from 'containers/user-badges/utils'
+import Theme from 'models/Theme'
+import { Name } from 'services/analytics'
 import { make, TrackEvent } from 'store/analytics/actions'
 import { setVisibility } from 'store/application/ui/modals/slice'
 import { setTheme } from 'store/application/ui/theme/actions'

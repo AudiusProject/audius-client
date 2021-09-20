@@ -8,8 +8,12 @@ import moment from 'moment-timezone'
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
+import { DefaultSizes } from 'common/models/ImageSizes'
+import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
+import CIDCache from 'common/store/cache/CIDCache'
+import { Nullable } from 'common/utils/typeUtils'
+import { uuid } from 'common/utils/uid'
 import FeedFilter from 'models/FeedFilter'
-import { DefaultSizes } from 'models/common/ImageSizes'
 import * as schemas from 'schemas'
 import { Name } from 'services/analytics'
 import {
@@ -19,14 +23,10 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
-import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/segment'
-import CIDCache from 'store/cache/CIDCache'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { Timer } from 'utils/performance'
-import { Nullable } from 'utils/typeUtils'
-import { uuid } from 'utils/uid'
 
 import {
   waitForLibsInit,

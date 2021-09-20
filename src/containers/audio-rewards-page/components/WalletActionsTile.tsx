@@ -13,7 +13,8 @@ import {
   pressConnectWallets,
   getHasAssociatedWallets
 } from 'store/token-dashboard/slice'
-import { getAccountBalance, BNWei } from 'store/wallet/slice'
+import { getAccountBalance } from 'store/wallet/selectors'
+import { BNWei } from 'store/wallet/types'
 import { useSelector } from 'utils/reducer'
 
 import styles from './WalletActionsTile.module.css'

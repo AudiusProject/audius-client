@@ -1,7 +1,7 @@
+import { ID, PlayableType } from 'common/models/Identifiers'
 import FeedFilter from 'models/FeedFilter'
 import TimeRange from 'models/TimeRange'
-import { ID, PlayableType } from 'models/common/Identifiers'
-import { WalletAddress } from 'store/wallet/slice'
+import { WalletAddress } from 'store/wallet/types'
 
 import { MonitorPayload, ServiceMonitorType } from './serviceMonitoring'
 

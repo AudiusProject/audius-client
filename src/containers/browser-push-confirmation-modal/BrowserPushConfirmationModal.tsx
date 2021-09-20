@@ -5,9 +5,9 @@ import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import { subscribeBrowserPushNotifications } from 'common/store/account/reducer'
 import * as settingPageActions from 'containers/settings-page/store/actions'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
-import { subscribeBrowserPushNotifications } from 'store/account/reducer'
 import {
   setVisibility,
   getModalVisibility

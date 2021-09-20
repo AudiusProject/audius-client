@@ -1,8 +1,9 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
 
+import { Collectible } from 'common/models/Collectible'
 import { solanaNFTToCollectible } from 'containers/collectibles/solCollectibleHelpers'
-import { Collectible, CollectibleState } from 'containers/collectibles/types'
+import { CollectibleState } from 'containers/collectibles/types'
 
 import { MetaplexNFT, SolanaNFTType } from './types'
 

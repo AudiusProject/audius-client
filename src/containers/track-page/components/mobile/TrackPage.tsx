@@ -1,5 +1,8 @@
 import React, { useEffect, useContext } from 'react'
 
+import { ID } from 'common/models/Identifiers'
+import Track from 'common/models/Track'
+import User from 'common/models/User'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import SectionButton from 'components/general/SectionButton'
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
@@ -13,9 +16,6 @@ import NavContext, {
 import NetworkConnectivityMonitor from 'containers/network-connectivity/NetworkConnectivityMonitor'
 import { tracksActions } from 'containers/track-page/store/lineups/tracks/actions'
 import { getTrackDefaults, emptyStringGuard } from 'containers/track-page/utils'
-import Track from 'models/Track'
-import User from 'models/User'
-import { ID } from 'models/common/Identifiers'
 import { LineupState } from 'models/common/Lineup'
 import { OverflowAction } from 'store/application/ui/mobileOverflowModal/types'
 import { QueueItem } from 'store/queue/types'

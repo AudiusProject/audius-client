@@ -1,5 +1,6 @@
 import { RouterState } from 'connected-react-router'
 
+import { CommonState } from 'common/store'
 import { AddToPlaylistState } from 'containers/add-to-playlist/store/reducers'
 import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
@@ -43,16 +44,11 @@ import trendingUndergroundReducer from 'containers/trending-underground/store/sl
 import { UnfollowConfirmationModalState } from 'containers/unfollow-confirmation-modal/store/types'
 import { UploadPageState } from 'containers/upload-page/store/types'
 import VisualizerReducer from 'containers/visualizer/store/slice'
-import Collection from 'models/Collection'
-import Track from 'models/Track'
-import Cache from 'models/common/Cache'
-import AccountSlice from 'store/account/reducer'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import modals from 'store/application/ui/modals/slice'
 import StemsUploadReducer from 'store/application/ui/stemsUpload/slice'
 import { AudioManagerState } from 'store/audio-manager/slice'
-import UserCacheState from 'store/cache/users/types'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 import QueueReducer from 'store/queue/slice'
@@ -70,32 +66,17 @@ import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPi
 import { ThemeState } from './application/ui/theme/types'
 import { UserListModalState } from './application/ui/userListModal/types'
 import { BackendState } from './backend/types'
-import TracksCacheState from './cache/tracks/types'
 import { ConfirmerState } from './confirmer/types'
 import { DragNDropState } from './dragndrop/types'
 import { ReachabilityState } from './reachability/types'
 
-export enum Kind {
-  TRACKS = 'TRACKS',
-  COLLECTIONS = 'COLLECTIONS',
-  USERS = 'USERS',
-  TRACK_ROUTES = 'TRACK_ROUTES'
-}
-
-export enum Status {
-  LOADING = 'LOADING',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR'
-}
-
-export type AppState = {
+export type AppState = CommonState & {
   // Config
   backend: BackendState
   confirmer: ConfirmerState
   reachability: ReachabilityState
 
   // Account
-  account: ReturnType<typeof AccountSlice.reducer>
   passwordReset: PasswordResetState
   playlistLibrary: ReturnType<typeof PlaylistLibraryReducer>
 
@@ -173,11 +154,6 @@ export type AppState = {
   collection: CollectionsPageState
   track: TrackPageState
   notification: NotificationState
-
-  // Cache
-  tracks: TracksCacheState
-  collections: Cache<Collection>
-  users: UserCacheState
 
   // Playback
   queue: ReturnType<typeof QueueReducer>

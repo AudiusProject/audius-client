@@ -7,6 +7,14 @@ import { matchPath } from 'react-router'
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import semver from 'semver'
 
+import Status from 'common/models/Status'
+import {
+  getHasAccount,
+  getAccountStatus,
+  getUserId,
+  getConnectivityFailure,
+  getUserHandle
+} from 'common/store/account/selectors'
 import MobileDesktopBanner from 'components/banner/CTABanner'
 import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
@@ -62,13 +70,6 @@ import Theme from 'models/Theme'
 import { Name } from 'services/analytics'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { initializeSentry } from 'services/sentry'
-import {
-  getHasAccount,
-  getAccountStatus,
-  getUserId,
-  getConnectivityFailure,
-  getUserHandle
-} from 'store/account/selectors'
 import { make } from 'store/analytics/actions'
 import { setVisibility as setAppModalCTAVisibility } from 'store/application/ui/app-cta-modal/slice'
 import { getShowCookieBanner } from 'store/application/ui/cookieBanner/selectors'
@@ -79,7 +80,6 @@ import {
 import { setTheme } from 'store/application/ui/theme/actions'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getWeb3Error } from 'store/backend/selectors'
-import { Status } from 'store/types'
 import { isMobile, getClient } from 'utils/clientUtil'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import { clearAll } from 'utils/persistentCache'

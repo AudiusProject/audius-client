@@ -3,7 +3,7 @@ import React from 'react'
 import cn from 'classnames'
 
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { BNWei, WalletAddress } from 'store/wallet/slice'
+import { BNWei, WalletAddress } from 'store/wallet/types'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 

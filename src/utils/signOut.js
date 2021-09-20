@@ -1,4 +1,5 @@
 /* globals localStorage */
+import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
 import { BADGE_LOCAL_STORAGE_KEY } from 'containers/audio-rewards-page/Tiers'
 import AudiusBackend from 'services/AudiusBackend'
 import {
@@ -6,7 +7,6 @@ import {
   clearAudiusAccountUser
 } from 'services/LocalStorage'
 import { ReloadMessage } from 'services/native-mobile-interface/linking'
-import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { removeHasRequestedBrowserPermission } from 'utils/browserNotifications'
 
 import { clearTheme } from './theme/theme'
