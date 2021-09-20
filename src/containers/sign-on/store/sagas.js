@@ -156,7 +156,7 @@ async function getInstagramUser(handle) {
 }
 
 function* validateHandle(action) {
-  const { handle, onValidate } = action
+  const { handle, isOauthVerified, onValidate } = action
   yield call(waitForBackendSetup)
   try {
     if (handle.length > MAX_HANDLE_LENGTH) {
@@ -173,8 +173,6 @@ function* validateHandle(action) {
       return
     }
     yield delay(300) // Wait 300 ms to debounce user input
-    const signOn = yield select(getSignOn)
-    const verified = signOn.verified
 
     let handleInUse
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
@@ -184,7 +182,7 @@ function* validateHandle(action) {
         call(getInstagramUser, handle)
       ])
       const handleCheckStatus = checkHandle(
-        verified,
+        isOauthVerified,
         twitterUserQuery?.user?.profile?.[0] ?? null,
         instagramUser || null
       )

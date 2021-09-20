@@ -81,6 +81,7 @@ export type SignOnProps = {
   ) => void
   validateHandle: (
     handle: string,
+    isOauthVerified: boolean,
     onValidate?: (error: boolean) => void
   ) => void
   onAddFollows: (followIds: ID[]) => void
@@ -94,6 +95,7 @@ export type SignOnProps = {
   onToggleMetaMaskModal: () => void
   onConfigureWithMetaMask: () => void
   recordTwitterStart: () => void
+  recordInstagramStart: () => void
   suggestedFollows: User[]
   onSelectArtistCategory: (category: FollowArtistsCategory) => void
   onEmailSubmitted: (email: string) => void
@@ -159,6 +161,7 @@ const SignOnProvider = ({
   onConfigureWithMetaMask,
   suggestedFollows: suggestedFollowEntries,
   recordTwitterStart,
+  recordInstagramStart,
   onSelectArtistCategory,
   onEmailSubmitted
 }: SignOnProps) => {
@@ -264,6 +267,7 @@ const SignOnProvider = ({
           setInstagramProfile={setInstagramProfile}
           validateHandle={validateHandle}
           recordTwitterStart={recordTwitterStart}
+          recordInstagramStart={recordInstagramStart}
           onNextPage={onNextPage}
         />
       </animated.div>
