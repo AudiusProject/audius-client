@@ -2,7 +2,7 @@ import React from 'react'
 
 import cn from 'classnames'
 
-import { BNWei } from 'common/models/types'
+import { BNWei } from 'common/models/Wallet'
 import { formatWei } from 'utils/wallet'
 
 import styles from './DisplayAudio.module.css'

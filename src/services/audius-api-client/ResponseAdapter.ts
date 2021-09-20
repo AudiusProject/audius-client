@@ -9,7 +9,7 @@ import {
   UserTrackMetadata
 } from 'common/models/Track'
 import { UserMetadata } from 'common/models/User'
-import { StringWei } from 'common/models/types'
+import { StringWei } from 'common/models/Wallet'
 import { removeNullable } from 'common/utils/typeUtils'
 import { decodeHashId } from 'utils/route/hashIds'
 

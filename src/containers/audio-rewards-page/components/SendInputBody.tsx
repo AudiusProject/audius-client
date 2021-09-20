@@ -15,7 +15,7 @@ import {
   StringAudio,
   StringWei,
   WalletAddress
-} from 'common/models/types'
+} from 'common/models/Wallet'
 import { Nullable } from 'common/utils/typeUtils'
 import { MIN_TRANSFERRABLE_WEI } from 'services/wallet-client/WalletClient'
 import { convertFloatToWei } from 'utils/formatUtil'

@@ -3,7 +3,7 @@ import Color from 'common/models/Color'
 import { CID, ID } from 'common/models/Identifiers'
 import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
 import { PlaylistLibrary } from 'common/models/PlaylistLibrary'
-import { StringWei } from 'common/models/types'
+import { StringWei } from 'common/models/Wallet'
 import { Nullable } from 'common/utils/typeUtils'
 
 import Timestamped from './Timestamped'

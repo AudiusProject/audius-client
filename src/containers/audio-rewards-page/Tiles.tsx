@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
-import { BNWei } from 'common/models/types'
+import { BNWei } from 'common/models/Wallet'
 import { Nullable } from 'common/utils/typeUtils'
 import MobileConnectWalletsDrawer from 'containers/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { useModalState } from 'hooks/useModalState'

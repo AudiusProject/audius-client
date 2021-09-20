@@ -3,7 +3,7 @@ import React from 'react'
 import { IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 
-import { BNWei } from 'common/models/types'
+import { BNWei } from 'common/models/Wallet'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useModalState } from 'hooks/useModalState'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'

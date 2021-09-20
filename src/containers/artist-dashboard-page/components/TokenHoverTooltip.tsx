@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { BNWei } from 'common/models/types'
+import { BNWei } from 'common/models/Wallet'
 import Tooltip from 'components/tooltip/Tooltip'
 import { formatWei } from 'utils/wallet'
 

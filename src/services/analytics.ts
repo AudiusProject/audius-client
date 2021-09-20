@@ -1,5 +1,5 @@
 import { ID, PlayableType } from 'common/models/Identifiers'
-import { WalletAddress } from 'common/models/types'
+import { WalletAddress } from 'common/models/Wallet'
 import FeedFilter from 'models/FeedFilter'
 import TimeRange from 'models/TimeRange'
 

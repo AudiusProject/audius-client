@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 
 import { ID } from 'common/models/Identifiers'
 import User from 'common/models/User'
-import { BNAudio, StringAudio, StringWei } from 'common/models/types'
+import { BNAudio, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import { AppState } from 'store/types'

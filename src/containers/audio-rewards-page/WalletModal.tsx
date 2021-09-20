@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
-import { BNWei, StringWei, WalletAddress } from 'common/models/types'
+import { BNWei, StringWei, WalletAddress } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { Nullable } from 'common/utils/typeUtils'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
