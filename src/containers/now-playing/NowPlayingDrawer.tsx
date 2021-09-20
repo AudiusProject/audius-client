@@ -5,9 +5,9 @@ import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 
 import { ReactComponent as AudiusLogo } from 'assets/img/audiusLogoHorizontal.svg'
+import useInstanceVar from 'common/hooks/useInstanceVar'
 import ConnectedBottomBar from 'containers/nav/mobile/ConnectedBottomBar'
 import MobilePlayBar from 'containers/play-bar/mobile/PlayBar'
-import useInstanceVar from 'hooks/useInstanceVar'
 import {
   EnablePullToRefreshMessage,
   DisablePullToRefreshMessage

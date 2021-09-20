@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 import imageEmpty from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import profilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
+import useInstanceVar from 'common/hooks/useInstanceVar'
 import {
   CoverArtSizes,
   CoverPhotoSizes,
@@ -22,7 +23,6 @@ import {
   fetchProfilePicture
 } from 'common/store/cache/users/actions'
 import { Maybe } from 'common/utils/typeUtils'
-import useInstanceVar from 'hooks/useInstanceVar'
 
 type Size = SquareSizes | WidthSizes
 

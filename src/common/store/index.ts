@@ -25,10 +25,10 @@ import UserCacheState from 'common/store/cache/users/types'
 
 import TracksCacheState from './cache/tracks/types'
 
-// In the future, these state slices will live in @audius/client-store.
+// In the future, these state slices will live in @audius/client-common.
 // For now they live in the web client. As features get migrated to RN
 // relevant state slices should be added here. Eventually they will be pulled into
-// @audius/client-store and the mobile client will no longer be dependent on the web client
+// @audius/client-common and the mobile client will no longer be dependent on the web client
 
 export const reducers = {
   account: accountSlice.reducer,

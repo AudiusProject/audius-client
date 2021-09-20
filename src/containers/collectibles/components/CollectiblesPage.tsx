@@ -17,6 +17,7 @@ import {
 } from 'react-beautiful-dnd'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
+import useInstanceVar from 'common/hooks/useInstanceVar'
 import { Collectible, CollectiblesMetadata } from 'common/models/Collectible'
 import Drawer from 'components/drawer/Drawer'
 import CollectibleDetails from 'containers/collectibles/components/CollectibleDetails'
@@ -28,7 +29,6 @@ import styles from 'containers/collectibles/components/CollectiblesPage.module.c
 import { ProfileUser } from 'containers/profile-page/store/types'
 import { useFlag } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
-import useInstanceVar from 'hooks/useInstanceVar'
 import { FeatureFlags } from 'services/remote-config/FeatureFlags'
 
 export const editTableContainerClass = 'editTableContainer'
