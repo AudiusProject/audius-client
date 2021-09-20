@@ -6,6 +6,7 @@ import { NavLink, NavLinkProps } from 'react-router-dom'
 
 import { SmartCollection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
+import { SmartCollectionVariant } from 'common/models/types'
 import { AccountCollection } from 'common/store/account/reducer'
 import {
   getAccountNavigationPlaylists,
@@ -20,7 +21,6 @@ import Droppable from 'containers/dragndrop/Droppable'
 import { getPlaylistUpdates } from 'containers/notification/store/selectors'
 import { useArePlaylistUpdatesEnabled } from 'containers/remote-config/hooks'
 import { SMART_COLLECTION_MAP } from 'containers/smart-collection/smartCollections'
-import { SmartCollectionVariant } from 'containers/smart-collection/types'
 import { Name } from 'services/analytics'
 import { make, useRecord } from 'store/analytics/actions'
 import { getIsDragging } from 'store/dragndrop/selectors'

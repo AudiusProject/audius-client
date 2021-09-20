@@ -8,6 +8,7 @@ import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import semver from 'semver'
 
 import Status from 'common/models/Status'
+import { SmartCollectionVariant } from 'common/models/types'
 import {
   getHasAccount,
   getAccountStatus,
@@ -159,7 +160,6 @@ import TopLevelPage from './nav/mobile/TopLevelPage'
 import Notice from './notice/Notice'
 import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
-import { SmartCollectionVariant } from './smart-collection/types'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 

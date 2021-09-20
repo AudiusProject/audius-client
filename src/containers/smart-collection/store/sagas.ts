@@ -3,6 +3,7 @@ import { takeEvery, put, call, select } from 'redux-saga/effects'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import Track, { TrackMetadata } from 'common/models/Track'
+import { SmartCollectionVariant } from 'common/models/types'
 import { getAccountStatus, getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -21,7 +22,6 @@ import {
   UNDER_THE_RADAR,
   REMIXABLES
 } from '../smartCollections'
-import { SmartCollectionVariant } from '../types'
 
 import { fetchSmartCollection, fetchSmartCollectionSucceeded } from './slice'
 

@@ -1,4 +1,4 @@
-import { SmartCollectionVariant } from 'containers/smart-collection/types'
+import { SmartCollectionVariant } from 'common/models/types'
 
 export type PlaylistIdentifier = {
   type: 'playlist'
