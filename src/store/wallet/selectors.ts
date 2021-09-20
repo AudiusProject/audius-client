@@ -2,7 +2,7 @@ import { Nullable } from 'common/utils/typeUtils'
 import { AppState } from 'store/types'
 import { stringWeiToBN } from 'utils/wallet'
 
-import { BNWei } from './types'
+import { BNWei } from '../../common/models/types'
 
 // Selectors
 export const getAccountBalance = (state: AppState): Nullable<BNWei> => {

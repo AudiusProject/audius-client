@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 
-import { BNAudio, BNWei, StringAudio, StringWei } from 'store/wallet/types'
+import { BNAudio, BNWei, StringAudio, StringWei } from 'common/models/types'
 import {
   WEI,
   trimRightZeros,

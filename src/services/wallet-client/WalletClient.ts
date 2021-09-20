@@ -1,9 +1,9 @@
 import BN from 'bn.js'
 
 import { ID } from 'common/models/Identifiers'
+import { BNWei, StringWei, WalletAddress } from 'common/models/types'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { BNWei, StringWei, WalletAddress } from 'store/wallet/types'
 import { stringWeiToBN } from 'utils/wallet'
 
 // 0.001 Audio

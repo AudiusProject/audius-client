@@ -5,6 +5,7 @@ import { WalletLinkProvider } from 'walletlink'
 import { Chain } from 'common/models/Chain'
 import { ID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
+import { BNWei, WalletAddress } from 'common/models/types'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getUserId, getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
@@ -37,7 +38,6 @@ import {
   getBalance,
   sendFailed
 } from 'store/wallet/slice'
-import { BNWei, WalletAddress } from 'store/wallet/types'
 import { weiToString } from 'utils/wallet'
 
 import {

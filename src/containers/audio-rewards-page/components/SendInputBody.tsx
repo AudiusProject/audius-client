@@ -9,15 +9,15 @@ import {
 } from '@audius/stems'
 
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
-import { Nullable } from 'common/utils/typeUtils'
-import { MIN_TRANSFERRABLE_WEI } from 'services/wallet-client/WalletClient'
 import {
   BNAudio,
   BNWei,
   StringAudio,
   StringWei,
   WalletAddress
-} from 'store/wallet/types'
+} from 'common/models/types'
+import { Nullable } from 'common/utils/typeUtils'
+import { MIN_TRANSFERRABLE_WEI } from 'services/wallet-client/WalletClient'
 import { convertFloatToWei } from 'utils/formatUtil'
 import {
   audioToWei,

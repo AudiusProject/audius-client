@@ -1,7 +1,7 @@
 import React from 'react'
 
+import { BNWei } from 'common/models/types'
 import Tooltip from 'components/tooltip/Tooltip'
-import { BNWei } from 'store/wallet/types'
 import { formatWei } from 'utils/wallet'
 
 type TokenHoverTooltipProps = {

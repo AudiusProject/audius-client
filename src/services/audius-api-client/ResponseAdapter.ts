@@ -9,8 +9,8 @@ import {
   UserTrackMetadata
 } from 'common/models/Track'
 import { UserMetadata } from 'common/models/User'
+import { StringWei } from 'common/models/types'
 import { removeNullable } from 'common/utils/typeUtils'
-import { StringWei } from 'store/wallet/types'
 import { decodeHashId } from 'utils/route/hashIds'
 
 import {

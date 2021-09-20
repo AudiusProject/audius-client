@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { WalletAddress, BNWei } from 'store/wallet/types'
+import { WalletAddress, BNWei } from 'common/models/types'
 import { formatWei } from 'utils/wallet'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'

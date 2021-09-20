@@ -2,8 +2,8 @@ import React from 'react'
 
 import cn from 'classnames'
 
+import { BNWei, WalletAddress } from 'common/models/types'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { BNWei, WalletAddress } from 'store/wallet/types'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 

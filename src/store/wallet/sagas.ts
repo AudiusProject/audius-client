@@ -1,6 +1,7 @@
 import { select } from 'redux-saga-test-plan/matchers'
 import { all, call, put, take, takeEvery } from 'redux-saga/effects'
 
+import { BNWei } from 'common/models/types'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
 import { Name } from 'services/analytics'
@@ -20,7 +21,6 @@ import {
   sendFailed,
   decreaseBalance
 } from 'store/wallet/slice'
-import { BNWei } from 'store/wallet/types'
 import { stringWeiToBN, weiToString } from 'utils/wallet'
 
 // TODO: handle errors

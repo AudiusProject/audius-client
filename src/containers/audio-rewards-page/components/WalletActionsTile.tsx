@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
+import { BNWei } from 'common/models/types'
 import {
   pressReceive,
   pressSend,
@@ -14,7 +15,6 @@ import {
   getHasAssociatedWallets
 } from 'store/token-dashboard/slice'
 import { getAccountBalance } from 'store/wallet/selectors'
-import { BNWei } from 'store/wallet/types'
 import { useSelector } from 'utils/reducer'
 
 import styles from './WalletActionsTile.module.css'

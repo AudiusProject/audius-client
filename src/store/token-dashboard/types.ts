@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 
 import { Chain } from 'common/models/Chain'
+import { BNWei, StringWei, WalletAddress } from 'common/models/types'
 import { Nullable } from 'common/utils/typeUtils'
-import { BNWei, StringWei, WalletAddress } from 'store/wallet/types'
 
 type ReceiveState = { stage: 'KEY_DISPLAY' }
 type SendingState =
