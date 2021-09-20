@@ -1,9 +1,9 @@
 import { Moment } from 'moment'
 
 import { ID, UID } from 'common/models/Identifiers'
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
 import { LineupTrack } from 'common/models/Track'
-import { SmartCollectionVariant } from 'common/models/types'
 import { LineupState } from 'models/common/Lineup'
 
 type CollectionsPageState = {

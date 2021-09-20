@@ -7,8 +7,8 @@ import { matchPath } from 'react-router'
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import semver from 'semver'
 
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
-import { SmartCollectionVariant } from 'common/models/types'
 import {
   getHasAccount,
   getAccountStatus,

@@ -6,7 +6,7 @@ import { NavLink, NavLinkProps } from 'react-router-dom'
 
 import { SmartCollection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
-import { SmartCollectionVariant } from 'common/models/types'
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import { AccountCollection } from 'common/store/account/reducer'
 import {
   getAccountNavigationPlaylists,

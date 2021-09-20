@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { SmartCollectionVariant } from 'common/models/types'
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import { getPlaylistLibrary } from 'common/store/account/selectors'
 import CollectionPage from 'containers/collection-page/CollectionPage'
 import { findInPlaylistLibrary } from 'store/playlist-library/helpers'

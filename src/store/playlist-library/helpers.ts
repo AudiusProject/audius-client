@@ -4,7 +4,7 @@ import {
   PlaylistLibraryFolder,
   PlaylistLibraryIdentifier
 } from 'common/models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'common/models/types'
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 
 /**
  * Finds an item by id in the playlist library
