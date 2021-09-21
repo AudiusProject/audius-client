@@ -67,6 +67,13 @@ async function handleEvent(event) {
     const newRequest = new Request(destinationURL, event.request)
     return await fetch(newRequest)
   }
+  const isUndefined = pathname === '/undefined'
+  if (isUndefined) {
+    const destinationURL = url.origin
+    const newRequest = new Request(destinationURL, event.request)
+    newRequest.headers.set('referrer', url.href)
+    return await fetch(newRequest)
+  }
 
   const options = {}
   // Always map requests to `/`
