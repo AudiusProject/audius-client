@@ -41,7 +41,7 @@ async function handleEvent(event) {
       0,
       event.request.url.length - '-517598'.length
     )
-    return Response.redirect(newUrl, 302)
+    return Response.redirect(newUrl, 301)
   }
 
   const url = new URL(event.request.url)
@@ -69,10 +69,7 @@ async function handleEvent(event) {
   }
   const isUndefined = pathname === '/undefined'
   if (isUndefined) {
-    const destinationURL = url.origin
-    const newRequest = new Request(destinationURL, event.request)
-    newRequest.headers.set('referrer', url.href)
-    return await fetch(newRequest)
+    return Response.redirect(url.origin, 302)
   }
 
   const options = {}
