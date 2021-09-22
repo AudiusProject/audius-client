@@ -713,8 +713,9 @@ class AudiusAPIClient {
       true
     )
     // Try the old route method, ensuring that the track once found has the same owner handle
+    // Ensure at least 5 digits (anything lower has old route in the DB)
     if (!trackResponse) {
-      const matches = args.slug.match(/[0-9]{6,}$/)
+      const matches = args.slug.match(/[0-9]{5,}$/)
       if (!matches) return null
       const oldTrackResponse = await this.getTrack({
         id: parseInt(matches[0])
