@@ -1,0 +1,4 @@
+.modalBody div:not(.modalHeader) {
+  display: flex;
+  justify-content: center;
+}
