@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { IconLink, LogoEth, LogoSol, Modal } from '@audius/stems'
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  IconImage,
+  IconLink,
+  LogoEth,
+  LogoSol,
+  Modal
+} from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
@@ -131,10 +140,18 @@ const CollectibleMedia: React.FC<{
 const CollectibleDetails: React.FC<{
   collectible: Collectible
   isMobile: boolean
-}> = ({ collectible, isMobile }) => {
+  updateProfilePicture?: (
+    selectedFiles: any,
+    source: 'original' | 'unsplash' | 'url'
+  ) => void
+  onSave?: () => void
+}> = ({ collectible, isMobile, updateProfilePicture, onSave }) => {
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isPicConfirmModalOpen, setIsPicConfirmaModalOpen] = useState<boolean>(
+    false
+  )
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState(true)
@@ -200,6 +217,16 @@ const CollectibleDetails: React.FC<{
       }
     }
   }, [])
+
+  const onClickProfPicUpload = async () => {
+    const { imageUrl } = collectible
+    if (!updateProfilePicture || !onSave || imageUrl === null) return
+
+    const blob = await fetch(imageUrl).then(r => r.blob())
+    await updateProfilePicture([blob], 'url')
+    await onSave()
+    setIsPicConfirmaModalOpen(false)
+  }
 
   return (
     <div className={styles.detailsContainer}>
@@ -383,6 +410,58 @@ const CollectibleDetails: React.FC<{
                 {collectibleMessages.linkToCollectible}
               </a>
             )}
+
+            {collectible.mediaType === CollectibleMediaType.IMAGE && (
+              <Button
+                className={styles.profPicUploadButton}
+                textClassName={styles.profPicUploadButtonText}
+                iconClassName={styles.profPicUploadButtonIcon}
+                onClick={() => {
+                  setIsModalOpen(false)
+                  setIsPicConfirmaModalOpen(true)
+                }}
+                text='Set As Profile Pic'
+                type={ButtonType.COMMON_ALT}
+                size={ButtonSize.SMALL}
+                leftIcon={<IconImage />}
+              />
+            )}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        showTitleHeader
+        showDismissButton
+        headerContainerClassName={styles.confirmModalHeader}
+        isOpen={isPicConfirmModalOpen}
+        onClose={() => setIsPicConfirmaModalOpen(false)}
+        titleClassName={styles.confirmModalTitle}
+        title={
+          <>
+            <IconImage />
+            <span>Set as Profile Pic</span>
+          </>
+        }
+      >
+        <div className={styles.confirmModalContainer}>
+          <p className={styles.confirmModalText}>
+            Are you sure you want to change your profile picture?
+          </p>
+
+          <div className={styles.confirmButtonContainer}>
+            <Button
+              className={styles.profPicConfirmButton}
+              onClick={() => setIsPicConfirmaModalOpen(false)}
+              text='Nevermind'
+              type={ButtonType.COMMON_ALT}
+            />
+            <Button
+              className={styles.profPicConfirmButton}
+              onClick={onClickProfPicUpload}
+              text='Yes'
+              type={ButtonType.PRIMARY_ALT}
+            />
           </div>
         </div>
       </Modal>
