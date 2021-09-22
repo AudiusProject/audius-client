@@ -712,7 +712,18 @@ class AudiusAPIClient {
       args,
       true
     )
-    if (!trackResponse) return null
+    // Try the old route method, ensuring that the track once found has the same owner handle
+    if (!trackResponse) {
+      const matches = args.slug.match(/[0-9]{6,}$/)
+      if (!matches) return null
+      const oldTrackResponse = await this.getTrack({
+        id: parseInt(matches[0])
+      })
+      if (!oldTrackResponse || oldTrackResponse.user.handle !== args.handle) {
+        return null
+      }
+      return oldTrackResponse
+    }
     return adapter.makeTrack(trackResponse.data)
   }
 
