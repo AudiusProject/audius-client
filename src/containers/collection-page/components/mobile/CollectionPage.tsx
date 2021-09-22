@@ -4,6 +4,7 @@ import Collection, { SmartCollection, Variant } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import User from 'common/models/User'
+import { OverflowAction } from 'common/store/ui/mobileOverflowModal/types'
 import CollectionHeader from 'components/collection/mobile/CollectionHeader'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
@@ -19,7 +20,6 @@ import NavContext, {
   RightPreset
 } from 'containers/nav/store/context'
 import NetworkConnectivityMonitor from 'containers/network-connectivity/NetworkConnectivityMonitor'
-import { OverflowAction } from 'store/application/ui/mobileOverflowModal/types'
 
 import styles from './CollectionPage.module.css'
 

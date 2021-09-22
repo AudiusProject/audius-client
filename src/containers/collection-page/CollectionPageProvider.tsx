@@ -22,6 +22,11 @@ import {
   publishPlaylist,
   deletePlaylist
 } from 'common/store/cache/collections/actions'
+import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import {
+  OverflowAction,
+  OverflowSource
+} from 'common/store/ui/mobileOverflowModal/types'
 import { Uid } from 'common/utils/uid'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { setFavorite } from 'containers/favorites-page/store/actions'
@@ -39,11 +44,6 @@ import {
 } from 'services/analytics'
 import { TrackEvent, make } from 'store/analytics/actions'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
-import { open } from 'store/application/ui/mobileOverflowModal/actions'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'store/application/ui/mobileOverflowModal/types'
 import {
   setUsers,
   setVisibility

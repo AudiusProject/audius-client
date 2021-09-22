@@ -11,6 +11,11 @@ import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
+import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import {
+  OverflowSource,
+  OverflowAction
+} from 'common/store/ui/mobileOverflowModal/types'
 import { makeKindId } from 'common/utils/uid'
 import { makeGetRelatedArtists } from 'containers/artist-recommendations/store/selectors'
 import { setFollowers } from 'containers/followers-page/store/actions'
@@ -28,11 +33,6 @@ import { newUserMetadata } from 'schemas'
 import { Name, FollowSource, ShareSource } from 'services/analytics'
 import { make, TrackEvent } from 'store/analytics/actions'
 import * as createPlaylistModalActions from 'store/application/ui/createPlaylistModal/actions'
-import { open } from 'store/application/ui/mobileOverflowModal/actions'
-import {
-  OverflowSource,
-  OverflowAction
-} from 'store/application/ui/mobileOverflowModal/types'
 import { getIsDone } from 'store/confirmer/selectors'
 import { makeGetLineupMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'

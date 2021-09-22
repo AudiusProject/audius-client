@@ -1,6 +1,7 @@
 import { connectRouter } from 'connected-react-router'
 import { combineReducers } from 'redux'
 
+import { reducers as clientStoreReducers } from 'common/store'
 import addToPlaylist from 'containers/add-to-playlist/store/reducers'
 import dashboard from 'containers/artist-dashboard-page/store/reducer'
 import artistRecommendations from 'containers/artist-recommendations/store/slice'
@@ -51,7 +52,6 @@ import createPlaylistModal from 'store/application/ui/createPlaylistModal/reduce
 import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
 import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
-import mobileOverflowModal from 'store/application/ui/mobileOverflowModal/reducer'
 import modals from 'store/application/ui/modals/slice'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
@@ -68,8 +68,6 @@ import queue from 'store/queue/slice'
 import reachability from 'store/reachability/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
 import wallet from 'store/wallet/slice'
-
-import { reducers as clientStoreReducers } from '../common/store'
 
 const createRootReducer = routeHistory =>
   combineReducers({
@@ -131,7 +129,6 @@ const createRootReducer = routeHistory =>
         enablePushNotificationsDrawer,
         firstUploadModal,
         mobileKeyboard,
-        mobileOverflowModal,
         mobileUploadDrawer,
         modals,
         musicConfetti,

@@ -7,14 +7,14 @@ import { Dispatch } from 'redux'
 import { ID } from 'common/models/Identifiers'
 import { getUserId } from 'common/store/account/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
-import { useFlag } from 'containers/remote-config/hooks'
-import { FavoriteSource, RepostSource } from 'services/analytics'
-import { FeatureFlags } from 'services/remote-config'
-import { open } from 'store/application/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobileOverflowModal/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'store/application/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobileOverflowModal/types'
+import { useFlag } from 'containers/remote-config/hooks'
+import { FavoriteSource, RepostSource } from 'services/analytics'
+import { FeatureFlags } from 'services/remote-config'
 import {
   saveTrack,
   unsaveTrack,

@@ -9,6 +9,9 @@ import { publishPlaylist } from 'common/store/cache/collections/actions'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
+import { close } from 'common/store/ui/mobileOverflowModal/actions'
+import { getMobileOverflowModal } from 'common/store/ui/mobileOverflowModal/selectors'
+import { OverflowSource } from 'common/store/ui/mobileOverflowModal/types'
 import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 import { setOpen as openDeletePlaylist } from 'containers/delete-playlist-confirmation-modal/store/actions'
 import {
@@ -28,9 +31,6 @@ import {
   FavoriteSource
 } from 'services/analytics'
 import { open as openEditPlaylist } from 'store/application/ui/createPlaylistModal/actions'
-import { close } from 'store/application/ui/mobileOverflowModal/actions'
-import { getMobileOverflowModal } from 'store/application/ui/mobileOverflowModal/selectors'
-import { OverflowSource } from 'store/application/ui/mobileOverflowModal/types'
 import {
   repostCollection,
   undoRepostCollection,

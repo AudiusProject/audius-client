@@ -9,6 +9,12 @@ import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
 import { ID } from 'common/models/Identifiers'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getUserId } from 'common/store/account/selectors'
+import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import {
+  OverflowAction,
+  OverflowActionCallbacks,
+  OverflowSource
+} from 'common/store/ui/mobileOverflowModal/types'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -32,12 +38,6 @@ import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
 import { FeatureFlags } from 'services/remote-config'
 import { useRecord, make } from 'store/analytics/actions'
 import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
-import { open } from 'store/application/ui/mobileOverflowModal/actions'
-import {
-  OverflowAction,
-  OverflowActionCallbacks,
-  OverflowSource
-} from 'store/application/ui/mobileOverflowModal/types'
 import {
   getAudio,
   getBuffering,

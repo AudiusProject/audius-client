@@ -60,7 +60,6 @@ import { CreatePlaylistModalState } from './application/ui/createPlaylistModal/t
 import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
 import EditTrackModalState from './application/ui/editTrackModal/types'
 import { MobileKeyboardState } from './application/ui/mobileKeyboard/types'
-import { MobileOverflowModalState } from './application/ui/mobileOverflowModal/types'
 import { ScrollLockState } from './application/ui/scrollLock/types'
 import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPickConfirmation/types'
 import { ThemeState } from './application/ui/theme/types'
@@ -104,7 +103,6 @@ export type AppState = CommonState & {
       >
       firstUploadModal: FirstUploadModalState
       mobileKeyboard: MobileKeyboardState
-      mobileOverflowModal: MobileOverflowModalState
       mobileUploadDrawer: ReturnType<typeof MobileUploadDrawer>
       modals: ReturnType<typeof modals>
       musicConfetti: ReturnType<typeof MusicConfetti>
