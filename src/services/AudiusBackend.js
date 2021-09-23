@@ -424,6 +424,13 @@ class AudiusBackend {
         web3Config,
         ethWeb3Config,
         solanaWeb3Config,
+        // See https://github.com/certusone/wormhole/blob/b39d72e32f6635db089c13e938242f0ac6110f85/bridge_ui/src/utils/consts.ts
+        wormholeConfig: {
+          solChainId: 2,
+          rpcHost: 'https://wormhole-v2-mainnet-api.certus.one',
+          ethBridgeAddress: '0x98f3c9e6E3fAce36bAAd05FE09d375Ef1464288B',
+          solBridgeAddress: 'worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth'
+        },
         discoveryProviderConfig: AudiusLibs.configDiscoveryProvider(
           null,
           discoveryNodeBlockList,
