@@ -68,7 +68,7 @@ const ClaimRewardButton = ({
   const claimReward = useCallback(async () => {
     dispatch(setClaimStatus({ status: ClaimStatus.CLAIMING }))
 
-    const currentUserId = currentUser?.user_id ?? 0
+    const currentUserId = currentUser?.user_id ?? null
     const recipientEthAddress = currentUser?.wallet ?? null
     if (!currentUserId || !recipientEthAddress) {
       throw new Error('user id or wallet not available')
@@ -104,26 +104,25 @@ const ClaimRewardButton = ({
         dispatch(setClaimStatus({ status: ClaimStatus.SUCCESS }))
       }
     } catch (e) {
-      console.log(`Error claiming reward after retry: ${e}`)
+      console.error(`Error claiming reward after retry: ${e}`)
       dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
     }
   }, [claimReward, dispatch])
 
   useEffect(() => {
-    console.log({ hCaptchaStatus })
     switch (hCaptchaStatus) {
       case HCaptchaStatus.SUCCESS:
-        console.log(
+        console.info(
           'User submitted their hcaptcha verification, trying reward claim again...'
         )
         retryClaimReward()
         break
       case HCaptchaStatus.ERROR:
-        console.log('Error claiming reward: hCaptcha verification failed')
+        console.error('Error claiming reward: hCaptcha verification failed')
         dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
         break
       case HCaptchaStatus.USER_CLOSED:
-        console.log('Error claiming reward: user closed hCaptcha modal')
+        console.error('Error claiming reward: user closed hCaptcha modal')
         dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
         break
       case HCaptchaStatus.NONE:
@@ -157,7 +156,7 @@ const ClaimRewardButton = ({
           dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
           break
         case 'closed':
-          console.log(
+          console.error(
             'Error claiming reward: user closed the cognito flow modal'
           )
           dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
@@ -172,20 +171,20 @@ const ClaimRewardButton = ({
     flow.on('session', (event: FlowSessionEvent) => {
       switch (event.action) {
         case 'passed':
-          console.log(
+          console.info(
             'User successfully completed their flow session, trying reward claim again...'
           )
           flow.close()
           retryClaimReward()
           break
         case 'created':
-          console.log('User started a new flow session')
+          console.info('User started a new flow session')
           break
         case 'resumed':
-          console.log('User resumed an existing flow session')
+          console.info('User resumed an existing flow session')
           break
         case 'failed':
-          console.log('Error claiming reward: User failed their flow session')
+          console.error('Error claiming reward: User failed their flow session')
           flow.close()
           dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
           break
@@ -196,7 +195,7 @@ const ClaimRewardButton = ({
     })
 
     flow.on('error', (event: FlowErrorEvent) => {
-      console.log(`Error claiming reward: Flow error! ${event.message}`)
+      console.error(`Error claiming reward: Flow error! ${event.message}`)
       dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
     })
 

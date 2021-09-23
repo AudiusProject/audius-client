@@ -2378,11 +2378,11 @@ class AudiusBackend {
   static async updateHCaptchaScore(token) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    if (!account) return { error: true }
 
     try {
       const { data, signature } = await AudiusBackend.signData()
-      return fetch(`${IDENTITY_SERVICE}/score/hcaptcha`, {
+      return await fetch(`${IDENTITY_SERVICE}/score/hcaptcha`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
