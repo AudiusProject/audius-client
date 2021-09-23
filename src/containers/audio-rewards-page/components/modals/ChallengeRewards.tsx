@@ -224,7 +224,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const claimStatus = useSelector(getClaimStatus)
   const [hideClaimButton, setHideClaimButton] = useState(false)
   const [displayClaimError, setDisplayClaimError] = useState(false)
-  const [icon, setIcon] = useState(<IconCheck />)
 
   const resetClaimState = useCallback(() => {
     setHideClaimButton(true)
@@ -247,11 +246,8 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         setTimeout(resetClaimState, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
         break
       case ClaimStatus.CLAIMING:
-        setIcon(<LoadingSpinner className={styles.spinner} />)
-        break
       case ClaimStatus.NONE:
       default:
-        setIcon(<IconCheck />)
         break
     }
   }, [claimStatus, resetClaimState, setDisplayClaimError, toast])
@@ -333,12 +329,18 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             specifier={specifier}
             amount={amount}
             isDisabled={claimStatus !== ClaimStatus.NONE}
-            icon={icon}
+            icon={
+              claimStatus === ClaimStatus.CLAIMING ? (
+                <LoadingSpinner className={styles.spinner} />
+              ) : (
+                <IconCheck />
+              )
+            }
           />
         )}
       </div>
       {displayClaimError && (
-        <div className={styles.claimError}>Oops, something’s gone wrong 😞</div>
+        <div className={styles.claimError}>Oops, something’s gone wrong</div>
       )}
     </div>
   )
