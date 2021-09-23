@@ -84,7 +84,7 @@ const ClaimRewardButton = ({
       challengeId,
       encodedUserId,
       handle,
-      recipientEthAddress, // TODO: double-check this, is it correct?
+      recipientEthAddress,
       specifier,
       oracleEthAddress,
       amount,
@@ -215,9 +215,11 @@ const ClaimRewardButton = ({
           case FailureReason.COGNITO_FLOW:
             triggerCognitoFlow()
             break
+          case FailureReason.BLOCKED:
+            throw new Error('user is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
           default:
-            throw new Error('unknown attestation error')
+            throw new Error()
         }
       } else {
         dispatch(setClaimStatus({ status: ClaimStatus.SUCCESS }))

@@ -31,6 +31,7 @@ export type TrendingRewardID =
 export enum FailureReason {
   HCAPTCHA = 'HCAPTCHA',
   COGNITO_FLOW = 'COGNITO_FLOW',
+  BLOCKED = 'BLOCKED',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
