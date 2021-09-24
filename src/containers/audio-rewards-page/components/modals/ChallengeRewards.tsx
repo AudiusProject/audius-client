@@ -232,7 +232,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   }, [dispatch])
 
   useEffect(() => {
-    console.log({ claimStatus })
     switch (claimStatus) {
       case ClaimStatus.ERROR:
         // attestation failed both the first claim attempt and the attempt after hCaptcha/flow verification
@@ -367,7 +366,7 @@ export const ChallengeRewardsModal = () => {
       showTitleHeader
       isOpen={isOpen}
       onClose={onClose}
-      isFullscreen={false}
+      isFullscreen={true}
       useGradientTitle={false}
       titleClassName={wm(styles.title)}
       headerContainerClassName={styles.header}

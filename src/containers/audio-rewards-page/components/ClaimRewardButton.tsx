@@ -1,11 +1,13 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useRemoteVar } from 'containers/remote-config/hooks'
 import { useModalState } from 'hooks/useModalState'
 import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
+import { IntKeys, StringKeys } from 'services/remote-config'
 import { getAccountUser, getUserHandle } from 'store/account/selectors'
 import { COGNITO_SCRIPT_URL } from 'utils/constants'
 import { encodeHashId } from 'utils/route/hashIds'
@@ -27,8 +29,6 @@ import {
   FlowUIOpenEvent
 } from '../types'
 
-import styles from './modals/ChallengeRewards.module.css'
-
 const messages = {
   claimYourReward: 'Claim Your Reward'
 }
@@ -42,13 +42,6 @@ type ClaimRewardButtonProps = {
   className?: string
 }
 
-// TODO: Closing modal (meaning this button no longer on screen) should reset both claim and hcaptcha statuses
-// =============
-// this button will handle triggering the cognito flow
-// or showing the HCaptchaModal
-// or both
-// logic for which flow exactly to trigger is TBD
-// pending AAO changes and DP undisbursed challenges integration
 const ClaimRewardButton = ({
   challengeId,
   specifier,
@@ -57,6 +50,11 @@ const ClaimRewardButton = ({
   icon,
   className
 }: ClaimRewardButtonProps) => {
+  const quorumSize = useRemoteVar(IntKeys.ATTESTATION_QUORUM_SIZE)
+  const oracleEthAddress = useRemoteVar(StringKeys.ORACLE_ETH_ADDRESS)
+  const AAOEndpoint = useRemoteVar(StringKeys.ORACLE_ENDPOINT)
+  const hasConfig = oracleEthAddress && AAOEndpoint && quorumSize > 0
+
   const handle = useSelector(getUserHandle)
   const currentUser = useSelector(getAccountUser)
   const hCaptchaStatus = useSelector(getHCaptchaStatus)
@@ -75,10 +73,6 @@ const ClaimRewardButton = ({
     }
 
     const encodedUserId = encodeHashId(currentUserId)
-    // TODO: should these be in env var or remote config?
-    const quorumSize = 2
-    const oracleEthAddress = '0xEc3a6aad822630a37210531411A4CD625EC59b33'
-    const AAOEndpoint = 'http://34.83.140.15:8000'
 
     const response = await AudiusBackend.submitAndEvaluateAttestations({
       challengeId,
@@ -93,7 +87,17 @@ const ClaimRewardButton = ({
     })
 
     return response
-  }, [dispatch, currentUser, handle, challengeId, specifier, amount])
+  }, [
+    oracleEthAddress,
+    AAOEndpoint,
+    quorumSize,
+    dispatch,
+    currentUser,
+    handle,
+    challengeId,
+    specifier,
+    amount
+  ])
 
   const retryClaimReward = useCallback(async () => {
     try {
@@ -229,7 +233,7 @@ const ClaimRewardButton = ({
     }
   }
 
-  return handle && scriptLoaded ? (
+  return hasConfig && handle && scriptLoaded ? (
     <Button
       className={className}
       text={messages.claimYourReward}
