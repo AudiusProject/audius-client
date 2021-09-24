@@ -52,9 +52,6 @@ const SUGGESTED_FOLLOW_USER_HANDLE_URL =
   'https://download.audius.co/static-resources/signup-follows.json'
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
 
-// Wait 500 milliseconds between validating an email
-const DEBOUNCE_VALIDATE_EMAIL_MS = 500
-
 const messages = {
   incompleteAccount:
     'Oops, it looks like your account was never fully completed!'
