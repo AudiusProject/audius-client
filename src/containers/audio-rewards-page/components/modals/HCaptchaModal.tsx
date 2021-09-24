@@ -48,7 +48,6 @@ export const HCaptchaModal = () => {
     <ModalDrawer
       isOpen={isOpen}
       onClose={() => {
-        console.log('in here closing')
         dispatch(setHCaptchaStatus({ status: HCaptchaStatus.USER_CLOSED }))
         handleClose()
       }}
