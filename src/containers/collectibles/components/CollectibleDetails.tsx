@@ -27,7 +27,9 @@ import {
   Collectible,
   CollectibleMediaType
 } from 'containers/collectibles/types'
+import { useFlag } from 'containers/remote-config/hooks'
 import { useScript } from 'hooks/useScript'
+import { FeatureFlags } from 'services/remote-config'
 import { Chain } from 'store/token-dashboard/slice'
 import { preload } from 'utils/image'
 import { getScrollParent } from 'utils/scrollParent'
@@ -157,6 +159,10 @@ const CollectibleDetails: React.FC<{
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
   const [showSpinner, setShowSpinner] = useState(false)
+
+  const { isEnabled: isCollectibleOptionEnabled } = useFlag(
+    FeatureFlags.NFT_IMAGE_PICKER_TAB
+  )
 
   // Debounce showing the spinner for a second
   useEffect(() => {
@@ -411,21 +417,22 @@ const CollectibleDetails: React.FC<{
               </a>
             )}
 
-            {collectible.mediaType === CollectibleMediaType.IMAGE && (
-              <Button
-                className={styles.profPicUploadButton}
-                textClassName={styles.profPicUploadButtonText}
-                iconClassName={styles.profPicUploadButtonIcon}
-                onClick={() => {
-                  setIsModalOpen(false)
-                  setIsPicConfirmaModalOpen(true)
-                }}
-                text='Set As Profile Pic'
-                type={ButtonType.COMMON_ALT}
-                size={ButtonSize.SMALL}
-                leftIcon={<IconImage />}
-              />
-            )}
+            {isCollectibleOptionEnabled &&
+              collectible.mediaType === CollectibleMediaType.IMAGE && (
+                <Button
+                  className={styles.profPicUploadButton}
+                  textClassName={styles.profPicUploadButtonText}
+                  iconClassName={styles.profPicUploadButtonIcon}
+                  onClick={() => {
+                    setIsModalOpen(false)
+                    setIsPicConfirmaModalOpen(true)
+                  }}
+                  text='Set As Profile Pic'
+                  type={ButtonType.COMMON_ALT}
+                  size={ButtonSize.SMALL}
+                  leftIcon={<IconImage />}
+                />
+              )}
           </div>
         </div>
       </Modal>
@@ -433,7 +440,7 @@ const CollectibleDetails: React.FC<{
       <Modal
         showTitleHeader
         showDismissButton
-        headerContainerClassName={styles.confirmModalHeader}
+        headerContainerClassName={styles.modalHeader}
         isOpen={isPicConfirmModalOpen}
         onClose={() => setIsPicConfirmaModalOpen(false)}
         titleClassName={styles.confirmModalTitle}

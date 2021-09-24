@@ -18,6 +18,7 @@ import zIndex from 'utils/zIndex'
 import styles from './ImageSelectionPopup.module.css'
 import { ImageSelectionProps, ImageSelectionDefaults } from './PropTypes'
 
+const COLLECTIBLES_PER_PAGE = 15
 const POPULAR_TERMS = ['neon', 'space', 'beach', 'nature', 'abstract']
 
 const messages = {
@@ -122,15 +123,24 @@ const RandomPage = ({ onSelect }) => {
 }
 
 const CollectionPage = ({ onSelect, source }) => {
-  const { collectibleList } = useSelector(getAccountUser)
+  const [loadedImgs, setLoadedImgs] = useState([])
   const [page, setPage] = useState(1)
-  const numPerPage = 15
+  const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
+    FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
+  )
+  const { collectibles, collectibleList, solanaCollectibleList } = useSelector(
+    getAccountUser
+  )
+  const allCollectibles = [
+    ...(collectibleList || []),
+    ...((isSolanaCollectiblesEnabled && solanaCollectibleList) || [])
+  ]
+  const visibleCollectibles = allCollectibles.filter(c =>
+    collectibles?.order?.includes(c.id)
+  )
 
-  const imgs = collectibleList
-    ? collectibleList.filter(c => c.mediaType === 'IMAGE')
-    : []
-
-  const maxPages = Math.ceil(imgs.length / numPerPage)
+  const imgs = visibleCollectibles.filter(c => c.mediaType === 'IMAGE')
+  const maxPages = Math.ceil(imgs.length / COLLECTIBLES_PER_PAGE)
 
   const prevPage = () => {
     if (page > 1) setPage(page - 1)
@@ -149,16 +159,20 @@ const CollectionPage = ({ onSelect, source }) => {
   return (
     <div className={styles.collection}>
       <div className={styles.collectiblesContainer}>
-        {/* TODO: Add a loader if imgs are not loaded */}
         {imgs
-          .slice(numPerPage * (page - 1), numPerPage * page)
+          .slice(
+            COLLECTIBLES_PER_PAGE * (page - 1),
+            COLLECTIBLES_PER_PAGE * page
+          )
           .map(collectible => (
             <img
-              className={cn(styles.collectibleImg, {
-                [styles.profileImg]: source === 'ProfilePicture'
-              })}
               key={collectible.id}
+              className={cn(styles.collectibleImg, {
+                [styles.profileImg]: source === 'ProfilePicture',
+                [styles.fadeIn]: loadedImgs.includes(collectible.id)
+              })}
               src={collectible.imageUrl}
+              onLoad={() => setLoadedImgs([...loadedImgs, collectible.id])}
               onClick={() => selectImg(collectible.imageUrl)}
             />
           ))}
@@ -202,9 +216,21 @@ const ImageSelectionPopup = ({
   source
 }) => {
   const [page, setPage] = useState(messages.uploadYourOwn)
-  const { collectibleList } = useSelector(getAccountUser)
+  const { collectibles, collectibleList, solanaCollectibleList } = useSelector(
+    getAccountUser
+  )
   const { isEnabled: isCollectibleOptionEnabled } = useFlag(
     FeatureFlags.NFT_IMAGE_PICKER_TAB
+  )
+  const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
+    FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
+  )
+  const allCollectibles = [
+    ...(collectibleList || []),
+    ...((isSolanaCollectiblesEnabled && solanaCollectibleList) || [])
+  ]
+  const visibleCollectibles = allCollectibles.filter(c =>
+    collectibles?.order?.includes(c.id)
   )
 
   const handleClose = () => {
@@ -232,7 +258,7 @@ const ImageSelectionPopup = ({
       text: messages.findArtwork
     }
   ]
-  if (isCollectibleOptionEnabled && collectibleList?.length) {
+  if (isCollectibleOptionEnabled && visibleCollectibles.length) {
     tabSliderOptions.push({
       key: messages.yourCollectibles,
       text: messages.yourCollectibles

@@ -233,7 +233,8 @@
 }
 
 .modalHeader {
-  margin: 0 16px;
+  margin: 0 var(--unit-6);
+  border-bottom: 1px solid var(--neutral-light-8);
 }
 
 .modalTitle {
@@ -244,7 +245,7 @@
 .modalBody {
   width: 100%;
   max-width: fit-content;
-  border-radius: 6px;
+  border-radius: 12px;
   background-color: var(--neutral-light-10);
   overflow-y: scroll;
   overflow-x: hidden;
@@ -297,10 +298,6 @@
 
 .confirmModalContainer {
   padding: 0 var(--unit-6);
-}
-.confirmModalHeader {
-  margin: 0 var(--unit-6);
-  border-bottom: 1px solid var(--neutral-light-8);
 }
 .confirmModalTitle {
   color: var(--neutral-light-4);

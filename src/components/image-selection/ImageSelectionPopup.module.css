@@ -159,6 +159,10 @@
   object-fit: cover;
   border-radius: 2px;
   transition: 0.07s ease-in-out;
+  opacity: 0;
+}
+.fadeIn {
+  animation: fadeIn 0.5s forwards;
 }
 .collectibleImg:hover {
   cursor: pointer;
@@ -190,4 +194,9 @@
 .nextLabel {
   text-align: right;
   cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
