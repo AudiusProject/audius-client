@@ -3,7 +3,6 @@ import preactSVGLoader from "preact-cli-svg-loader";
 import envVars from "preact-cli-plugin-env-vars";
 
 export default function(config, env, helpers) {
-
   // Use any `index` file, not just index.js
   config.resolve.alias["preact-cli-entrypoint"] = resolve(
     process.cwd(),
@@ -34,10 +33,10 @@ export default function(config, env, helpers) {
     use: ["preact-svg-loader"]
   });
 
-  if (process.env.NODE_ENV === 'production') {
+  if (env.production) {
     // In the production env, we serve the embed player at a path audius.co/embed.
     // Set prefix in the public path so assets can load properly
-    config.output.publicPath = "/embed";
+    config.output.publicPath = "/embed/";
   } else {
     // In the dev environment, we're just running at localhost:<port>, so we can
     // use absolute paths for the public assets

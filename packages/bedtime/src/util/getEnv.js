@@ -54,7 +54,7 @@ export const getCreatorNodeWhitelist = () => {
 export const getAPIHostname = () => {
   const localGAPort = process.env.PREACT_APP_LOCAL_GA_PORT
   if (localGAPort) {
-    return `http://localhost:${localGAPort}`
+    return `localhost:${localGAPort}`
   }
 
   // Switch on the current env and determine where to send API

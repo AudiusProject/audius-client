@@ -71,7 +71,7 @@ const getRequestDataFromURL = ({
   } else {
     playerFlavor = PlayerFlavor.CARD
   }
-
+  
   switch (path) {
     case ID_ROUTE: {
       const { id, ownerId, isTwitter } = matches
