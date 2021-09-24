@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 
 import { Button, ButtonSize, ButtonType, IconArrow } from '@audius/stems'
-import Spin from 'antd/lib/spin'
 import cn from 'classnames'
 import { Spring } from 'react-spring/renderprops'
 
 import audiusLogoColored from 'assets/img/audiusLogoColored.png'
 import Input from 'components/data-entry/Input'
 import StatusMessage from 'components/general/StatusMessage'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PreloadImage from 'components/preload-image/PreloadImage'
 
 import styles from './EmailPage.module.css'
@@ -161,7 +161,7 @@ export class EmailPage extends Component<EmailPageProps, EmailPageState> {
             name='continue'
             rightIcon={
               shouldDisableInputs ? (
-                <Spin className={styles.spinner} />
+                <LoadingSpinner className={styles.spinner} />
               ) : (
                 <IconArrow />
               )

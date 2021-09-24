@@ -16,6 +16,7 @@ import audiusLogoHorizontal from 'assets/img/Horizontal-Logo-Full-Color.png'
 import signupCtaImage from 'assets/img/signUpCTA.png'
 import Input from 'components/data-entry/Input'
 import StatusMessage from 'components/general/StatusMessage'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PreloadImage from 'components/preload-image/PreloadImage'
 import { RouterContext } from 'containers/animated-switch/RouterContextProvider'
 
@@ -178,7 +179,11 @@ const SignUpEmail = ({
         text={messages.signUp}
         name='continue'
         rightIcon={
-          isSubmitting ? <Spin className={styles.spinner} /> : <IconArrow />
+          isSubmitting ? (
+            <LoadingSpinner className={styles.spinner} />
+          ) : (
+            <IconArrow />
+          )
         }
         type={ButtonType.PRIMARY_ALT}
         onClick={onSubmitEmail}
@@ -272,7 +277,7 @@ const SignIn = ({
         text='Sign In'
         rightIcon={
           isLoading || (didSucceed && !hasAccount) ? (
-            <Spin className={styles.spinner} />
+            <LoadingSpinner className={styles.spinner} />
           ) : (
             <IconArrow />
           )
