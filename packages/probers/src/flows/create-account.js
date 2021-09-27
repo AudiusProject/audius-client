@@ -34,10 +34,10 @@ export const createAccount = async (page, baseUrl) => {
   const checkEmail = waitForResponse(page, '/users/check')
   await page.waitForSelector(`input[type='email']`, { timeout: 2000 })
   await fillInput(page, 'email', testUser.email)
-  const checkEmailRes = await checkEmail
-  if (checkEmailRes.exists !== false) throw new Error('email is in use')
 
   await waitForAndClickButton(page, 'continue')
+  const checkEmailRes = await checkEmail
+  if (checkEmailRes.exists !== false) throw new Error('email is in use')
 
   /** Password Page ... */
   // Fill in password twice
