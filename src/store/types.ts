@@ -18,7 +18,6 @@ import { FirstUploadModalState } from 'containers/first-upload-modal/store/slice
 import { FollowersPageState } from 'containers/followers-page/store/types'
 import { FollowingPageState } from 'containers/following-page/store/types'
 import HistoryPageState from 'containers/history-page/store/types'
-import MobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
 import MusicConfetti from 'containers/music-confetti/store/slice'
 import { NotificationUsersPageState } from 'containers/notification-users-page/store/types'
 import NotificationState from 'containers/notification/store/types'
@@ -103,7 +102,6 @@ export type AppState = CommonState & {
       >
       firstUploadModal: FirstUploadModalState
       mobileKeyboard: MobileKeyboardState
-      mobileUploadDrawer: ReturnType<typeof MobileUploadDrawer>
       modals: ReturnType<typeof modals>
       musicConfetti: ReturnType<typeof MusicConfetti>
       remixSettingsModal: ReturnType<typeof RemixSettingsModalReducer>

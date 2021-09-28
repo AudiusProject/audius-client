@@ -19,7 +19,6 @@ import firstUploadModal from 'containers/first-upload-modal/store/slice'
 import followers from 'containers/followers-page/store/reducers'
 import following from 'containers/following-page/store/reducers'
 import history from 'containers/history-page/store/reducer'
-import mobileUploadDrawer from 'containers/mobile-upload-drawer/store/slice'
 import musicConfetti from 'containers/music-confetti/store/slice'
 import notificationUsers from 'containers/notification-users-page/store/reducers'
 import notification from 'containers/notification/store/reducer'
@@ -129,7 +128,6 @@ const createRootReducer = routeHistory =>
         enablePushNotificationsDrawer,
         firstUploadModal,
         mobileKeyboard,
-        mobileUploadDrawer,
         modals,
         musicConfetti,
         remixSettingsModal,

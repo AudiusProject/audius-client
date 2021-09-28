@@ -16,6 +16,9 @@ import TracksCacheState from 'common/store/cache/tracks/types'
 import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import UserCacheState from 'common/store/cache/users/types'
+import mobileUploadDrawerReducer, {
+  MobileUploadDrawerState
+} from 'common/store/ui/mobile-upload-drawer/slice'
 import mobileOverflowModalReducer from 'common/store/ui/mobileOverflowModal/reducer'
 import { MobileOverflowModalState } from 'common/store/ui/mobileOverflowModal/types'
 
@@ -34,7 +37,8 @@ export const reducers = {
 
   // UI
   ui: combineReducers({
-    mobileOverflowModal: mobileOverflowModalReducer
+    mobileOverflowModal: mobileOverflowModalReducer,
+    mobileUploadDrawer: mobileUploadDrawerReducer
   })
 }
 
@@ -57,5 +61,6 @@ export type CommonState = {
 
   ui: {
     mobileOverflowModal: MobileOverflowModalState
+    mobileUploadDrawer: MobileUploadDrawerState
   }
 }

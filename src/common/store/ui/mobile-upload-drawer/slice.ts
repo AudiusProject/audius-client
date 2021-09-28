@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-type MobileUploadDrawerState = {
+export type MobileUploadDrawerState = {
   isOpen: boolean
 }
 
