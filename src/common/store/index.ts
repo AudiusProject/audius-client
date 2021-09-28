@@ -21,6 +21,9 @@ import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/t
 import mobileUploadDrawerReducer, {
   MobileUploadDrawerState
 } from 'common/store/ui/mobile-upload-drawer/slice'
+import pushNotificationsDrawerReducer, {
+  PushNotificationsDrawerState
+} from 'common/store/ui/push-notifications-drawer/slice'
 
 // In the future, these state slices will live in @audius/client-common.
 // For now they live in the web client. As features get migrated to RN
@@ -38,7 +41,8 @@ export const reducers = {
   // UI
   ui: combineReducers({
     mobileOverflowModal: mobileOverflowModalReducer,
-    mobileUploadDrawer: mobileUploadDrawerReducer
+    mobileUploadDrawer: mobileUploadDrawerReducer,
+    enablePushNotificationsDrawer: pushNotificationsDrawerReducer
   })
 }
 
@@ -62,5 +66,6 @@ export type CommonState = {
   ui: {
     mobileOverflowModal: MobileOverflowModalState
     mobileUploadDrawer: MobileUploadDrawerState
+    enablePushNotificationsDrawer: PushNotificationsDrawerState
   }
 }

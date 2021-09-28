@@ -9,7 +9,6 @@ import CollectionsPageState from 'containers/collection-page/store/types'
 import { DeletePlaylistConfirmationModalState } from 'containers/delete-playlist-confirmation-modal/store/types'
 import DeletedPageReducer from 'containers/deleted-page/store/slice'
 import { EmbedModalState } from 'containers/embed-modal/store/types'
-import EnablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import { CollectionsState as ExploreCollectionsState } from 'containers/explore-page/store/collections/slice'
 import ExplorePageState from 'containers/explore-page/store/types'
 import { FavoritesPageState } from 'containers/favorites-page/store/types'
@@ -97,9 +96,6 @@ export type AppState = CommonState & {
       editPlaylistModal: EditPlaylistModalState
       editTrackModal: EditTrackModalState
       embedModal: EmbedModalState
-      enablePushNotificationsDrawer: ReturnType<
-        typeof EnablePushNotificationsDrawer
-      >
       firstUploadModal: FirstUploadModalState
       mobileKeyboard: MobileKeyboardState
       modals: ReturnType<typeof modals>

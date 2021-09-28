@@ -10,7 +10,6 @@ import collection from 'containers/collection-page/store/reducer'
 import deletePlaylistConfirmation from 'containers/delete-playlist-confirmation-modal/store/reducers'
 import deleted from 'containers/deleted-page/store/slice'
 import embedModal from 'containers/embed-modal/store/reducers'
-import enablePushNotificationsDrawer from 'containers/enable-push-notifications-drawer/store/slice'
 import exploreCollections from 'containers/explore-page/store/collections/slice'
 import explore from 'containers/explore-page/store/reducer'
 import favorites from 'containers/favorites-page/store/reducers'
@@ -125,7 +124,6 @@ const createRootReducer = routeHistory =>
         editPlaylistModal,
         editTrackModal,
         embedModal,
-        enablePushNotificationsDrawer,
         firstUploadModal,
         mobileKeyboard,
         modals,

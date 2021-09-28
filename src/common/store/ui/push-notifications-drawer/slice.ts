@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-type EnablePushNotificationsDrawerState = {
+export type PushNotificationsDrawerState = {
   isOpen: boolean
 }
 
-const initialState: EnablePushNotificationsDrawerState = {
+const initialState: PushNotificationsDrawerState = {
   isOpen: false
 }
 
