@@ -10,11 +10,11 @@ import Status from 'common/models/Status'
 import Track from 'common/models/Track'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheTrackActions from 'common/store/cache/tracks/actions'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import { Uid } from 'common/utils/uid'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { setFavorite } from 'containers/favorites-page/store/actions'

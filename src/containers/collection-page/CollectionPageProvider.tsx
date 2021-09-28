@@ -22,11 +22,11 @@ import {
   publishPlaylist,
   deletePlaylist
 } from 'common/store/cache/collections/actions'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import { Uid } from 'common/utils/uid'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { setFavorite } from 'containers/favorites-page/store/actions'

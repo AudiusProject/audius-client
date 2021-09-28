@@ -13,11 +13,11 @@ import {
   getTracksFromCollection
 } from 'common/store/cache/collections/selectors'
 import { getUserFromCollection } from 'common/store/cache/users/selectors'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import { PlaylistTileProps } from 'components/track/types'
 import { setFavorite } from 'containers/favorites-page/store/actions'
 import { setRepost } from 'containers/reposts-page/store/actions'

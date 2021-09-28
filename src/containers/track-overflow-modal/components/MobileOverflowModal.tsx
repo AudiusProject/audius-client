@@ -3,7 +3,7 @@ import React from 'react'
 import {
   OverflowAction,
   OverflowActionCallbacks
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import ActionSheetModal from 'components/action-sheet-modal/ActionSheetModal'
 
 type MobileOverflowModalProps = {

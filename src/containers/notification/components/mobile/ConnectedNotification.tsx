@@ -4,11 +4,11 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ID } from 'common/models/Identifiers'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import ErrorWrapper from 'components/general/ErrorWrapper'
 import {
   getNotificationUser,

@@ -16,11 +16,11 @@ import TracksCacheState from 'common/store/cache/tracks/types'
 import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import UserCacheState from 'common/store/cache/users/types'
+import mobileOverflowModalReducer from 'common/store/ui/mobile-overflow-menu/reducer'
+import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/types'
 import mobileUploadDrawerReducer, {
   MobileUploadDrawerState
 } from 'common/store/ui/mobile-upload-drawer/slice'
-import mobileOverflowModalReducer from 'common/store/ui/mobileOverflowModal/reducer'
-import { MobileOverflowModalState } from 'common/store/ui/mobileOverflowModal/types'
 
 // In the future, these state slices will live in @audius/client-common.
 // For now they live in the web client. As features get migrated to RN

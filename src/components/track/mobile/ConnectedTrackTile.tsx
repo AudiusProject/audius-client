@@ -9,11 +9,11 @@ import { ID } from 'common/models/Identifiers'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
   OverflowSource
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import { TrackTileProps } from 'components/track/types'
 import { setFavorite } from 'containers/favorites-page/store/actions'
 import { useFlag } from 'containers/remote-config/hooks'

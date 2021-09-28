@@ -8,7 +8,7 @@ import PropTypes from 'prop-types'
 
 import { Variant } from 'common/models/Collection'
 import { SquareSizes } from 'common/models/ImageSizes'
-import { OverflowAction } from 'common/store/ui/mobileOverflowModal/types'
+import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import ActionButtonRow from 'containers/track-page/components/mobile/ActionButtonRow'
 import StatsButtonRow from 'containers/track-page/components/mobile/StatsButtonRow'

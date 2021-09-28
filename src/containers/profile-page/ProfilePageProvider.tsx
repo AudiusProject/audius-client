@@ -11,11 +11,11 @@ import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
-import { open } from 'common/store/ui/mobileOverflowModal/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowSource,
   OverflowAction
-} from 'common/store/ui/mobileOverflowModal/types'
+} from 'common/store/ui/mobile-overflow-menu/types'
 import { makeKindId } from 'common/utils/uid'
 import { makeGetRelatedArtists } from 'containers/artist-recommendations/store/selectors'
 import { setFollowers } from 'containers/followers-page/store/actions'
