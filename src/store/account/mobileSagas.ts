@@ -9,7 +9,7 @@ import { ReloadMessage } from 'services/native-mobile-interface/linking'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { SIGN_UP_PAGE, SIGN_IN_PAGE, doesMatchRoute } from 'utils/route'
 
-import { setNeedsAccountRecovery } from './reducer'
+import { setNeedsAccountRecovery } from '../../common/store/account/reducer'
 
 export const RESET_REQUIRED_KEY = 'password-reset-required'
 export const ENTROPY_KEY = 'hedgehog-entropy-key'

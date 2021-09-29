@@ -4,7 +4,6 @@ import Cache from 'common/models/Cache'
 import { Collection } from 'common/models/Collection'
 import Kind from 'common/models/Kind'
 import accountSlice from 'common/store/account/reducer'
-import accountSagas from 'common/store/account/sagas'
 import collectionsErrorSagas from 'common/store/cache/collections/errorSagas'
 import collectionsReducer from 'common/store/cache/collections/reducer'
 import collectionsSagas from 'common/store/cache/collections/sagas'
@@ -53,7 +52,6 @@ export const reducers = {
 }
 
 export const sagas = {
-  account: accountSagas,
   cache: cacheSagas,
   collectionsError: collectionsErrorSagas,
   collections: collectionsSagas,

@@ -9,7 +9,6 @@ import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
 import { DefaultSizes } from 'common/models/ImageSizes'
-import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
 import CIDCache from 'common/store/cache/CIDCache'
 import { Nullable } from 'common/utils/typeUtils'
 import { uuid } from 'common/utils/uid'
@@ -23,6 +22,7 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'services/remote-config'
+import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/segment'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
