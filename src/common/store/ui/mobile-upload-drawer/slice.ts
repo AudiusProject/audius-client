@@ -9,7 +9,7 @@ const initialState: MobileUploadDrawerState = {
 }
 
 const slice = createSlice({
-  name: 'mobile-upload-drawer',
+  name: 'ui/mobile-upload-drawer',
   initialState,
   reducers: {
     show: state => {

@@ -22,6 +22,9 @@ import mobileUploadDrawerReducer, {
   MobileUploadDrawerState
 } from 'common/store/ui/mobile-upload-drawer/slice'
 import modalsReducer, { ModalsState } from 'common/store/ui/modals/slice'
+import nowPlayingReducer, {
+  NowPlayingState
+} from 'common/store/ui/now-playing/slice'
 import pushNotificationsDrawerReducer, {
   PushNotificationsDrawerState
 } from 'common/store/ui/push-notifications-drawer/slice'
@@ -35,16 +38,17 @@ export const reducers = {
   account: accountSlice.reducer,
 
   // Cache
-  tracks: asCache(tracksReducer, Kind.TRACKS),
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
+  tracks: asCache(tracksReducer, Kind.TRACKS),
   users: asCache(usersReducer, Kind.USERS),
 
   // UI
   ui: combineReducers({
+    enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
     mobileUploadDrawer: mobileUploadDrawerReducer,
-    enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
-    modals: modalsReducer
+    modals: modalsReducer,
+    nowPlaying: nowPlayingReducer
   })
 }
 
@@ -61,14 +65,15 @@ export type CommonState = {
   account: ReturnType<typeof accountSlice.reducer>
 
   // Cache
-  tracks: TracksCacheState
   collections: Cache<Collection>
+  tracks: TracksCacheState
   users: UserCacheState
 
   ui: {
+    enablePushNotificationsDrawer: PushNotificationsDrawerState
     mobileOverflowModal: MobileOverflowModalState
     mobileUploadDrawer: MobileUploadDrawerState
-    enablePushNotificationsDrawer: PushNotificationsDrawerState
     modals: ModalsState
+    nowPlaying: NowPlayingState
   }
 }

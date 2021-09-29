@@ -9,7 +9,7 @@ const initialState: PushNotificationsDrawerState = {
 }
 
 const slice = createSlice({
-  name: 'enable-push-notifications-drawer',
+  name: 'ui/enable-push-notifications-drawer',
   initialState,
   reducers: {
     show: state => {
