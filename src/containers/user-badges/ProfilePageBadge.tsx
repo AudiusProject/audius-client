@@ -4,9 +4,9 @@ import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ID } from 'common/models/Identifiers'
+import { setVisibility } from 'common/store/ui/modals/slice'
 import { audioTierMapPng } from 'containers/user-badges/UserBadges'
 import { BadgeTier } from 'containers/user-badges/utils'
-import { setVisibility } from 'store/application/ui/modals/slice'
 
 import styles from './ProfilePageBadge.module.css'
 import { useSelectTierInfo } from './hooks'

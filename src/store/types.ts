@@ -1,6 +1,7 @@
 import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
+import modals from 'common/store/ui/modals/slice'
 import { AddToPlaylistState } from 'containers/add-to-playlist/store/reducers'
 import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
@@ -44,7 +45,6 @@ import { UploadPageState } from 'containers/upload-page/store/types'
 import VisualizerReducer from 'containers/visualizer/store/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import averageColor from 'store/application/ui/average-color/slice'
-import modals from 'store/application/ui/modals/slice'
 import StemsUploadReducer from 'store/application/ui/stemsUpload/slice'
 import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
@@ -98,7 +98,6 @@ export type AppState = CommonState & {
       embedModal: EmbedModalState
       firstUploadModal: FirstUploadModalState
       mobileKeyboard: MobileKeyboardState
-      modals: ReturnType<typeof modals>
       musicConfetti: ReturnType<typeof MusicConfetti>
       remixSettingsModal: ReturnType<typeof RemixSettingsModalReducer>
       scrollLock: ScrollLockState

@@ -21,6 +21,7 @@ import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/t
 import mobileUploadDrawerReducer, {
   MobileUploadDrawerState
 } from 'common/store/ui/mobile-upload-drawer/slice'
+import modalsReducer, { ModalsState } from 'common/store/ui/modals/slice'
 import pushNotificationsDrawerReducer, {
   PushNotificationsDrawerState
 } from 'common/store/ui/push-notifications-drawer/slice'
@@ -42,7 +43,8 @@ export const reducers = {
   ui: combineReducers({
     mobileOverflowModal: mobileOverflowModalReducer,
     mobileUploadDrawer: mobileUploadDrawerReducer,
-    enablePushNotificationsDrawer: pushNotificationsDrawerReducer
+    enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
+    modals: modalsReducer
   })
 }
 
@@ -67,5 +69,6 @@ export type CommonState = {
     mobileOverflowModal: MobileOverflowModalState
     mobileUploadDrawer: MobileUploadDrawerState
     enablePushNotificationsDrawer: PushNotificationsDrawerState
+    modals: ModalsState
   }
 }

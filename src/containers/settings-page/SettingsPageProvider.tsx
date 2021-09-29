@@ -13,12 +13,12 @@ import {
   getUserHandle,
   getUserName
 } from 'common/store/account/selectors'
+import { setVisibility } from 'common/store/ui/modals/slice'
 import { show } from 'containers/music-confetti/store/slice'
 import { makeGetTierAndVerifiedForUser } from 'containers/user-badges/utils'
 import Theme from 'models/Theme'
 import { Name } from 'services/analytics'
 import { make, TrackEvent } from 'store/analytics/actions'
-import { setVisibility } from 'store/application/ui/modals/slice'
 import { setTheme } from 'store/application/ui/theme/actions'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { AppState } from 'store/types'

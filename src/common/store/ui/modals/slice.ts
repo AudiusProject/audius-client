@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { AppState } from 'store/types'
+import { CommonState } from 'common/store'
 
 export type Modals =
   | 'TiersExplainer'
@@ -16,9 +16,9 @@ export type Modals =
   | 'BrowserPushPermissionConfirmation'
   | 'AudioBreakdown'
 
-type InitialModalsState = { [modal in Modals]: boolean }
+export type ModalsState = { [modal in Modals]: boolean }
 
-const initialState: InitialModalsState = {
+const initialState: ModalsState = {
   TiersExplainer: false,
   TrendingRewardsExplainer: false,
   ChallengeRewardsExplainer: false,
@@ -50,11 +50,11 @@ const slice = createSlice({
   }
 })
 
-export const getModalVisibility = (state: AppState, modal: Modals) =>
-  state.application.ui.modals[modal]
+export const getModalVisibility = (state: CommonState, modal: Modals) =>
+  state.ui.modals[modal]
 
-export const getModalIsOpen = (state: AppState) =>
-  Object.values(state.application.ui.modals).some(isOpen => isOpen)
+export const getModalIsOpen = (state: CommonState) =>
+  Object.values(state.ui.modals).some(isOpen => isOpen)
 
 export const { setVisibility } = slice.actions
 

@@ -6,12 +6,9 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { subscribeBrowserPushNotifications } from 'common/store/account/reducer'
+import { setVisibility, getModalVisibility } from 'common/store/ui/modals/slice'
 import * as settingPageActions from 'containers/settings-page/store/actions'
 import { getBrowserNotificationSettings } from 'containers/settings-page/store/selectors'
-import {
-  setVisibility,
-  getModalVisibility
-} from 'store/application/ui/modals/slice'
 import { AppState } from 'store/types'
 import {
   isPushManagerAvailable,

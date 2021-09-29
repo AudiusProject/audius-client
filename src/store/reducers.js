@@ -50,7 +50,6 @@ import createPlaylistModal from 'store/application/ui/createPlaylistModal/reduce
 import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
 import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
-import modals from 'store/application/ui/modals/slice'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import stemsUpload from 'store/application/ui/stemsUpload/slice'
@@ -126,7 +125,6 @@ const createRootReducer = routeHistory =>
         embedModal,
         firstUploadModal,
         mobileKeyboard,
-        modals,
         musicConfetti,
         remixSettingsModal,
         scrollLock,

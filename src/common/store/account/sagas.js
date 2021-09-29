@@ -15,6 +15,11 @@ import {
 import * as cacheActions from 'common/store/cache/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import {
+  getModalIsOpen,
+  getModalVisibility,
+  setVisibility
+} from 'common/store/ui/modals/slice'
+import {
   setBrowserNotificationPermission,
   setBrowserNotificationEnabled,
   setBrowserNotificationSettingsOn
@@ -36,11 +41,6 @@ import { FeatureFlags } from 'services/remote-config'
 import { getFeatureEnabled, setUserId } from 'services/remote-config/Provider'
 import { setSentryUser } from 'services/sentry'
 import { identify } from 'store/analytics/actions'
-import {
-  getModalIsOpen,
-  getModalVisibility,
-  setVisibility
-} from 'store/application/ui/modals/slice'
 import { confirmTransferAudioToWAudio } from 'store/audio-manager/slice'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
