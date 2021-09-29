@@ -50,6 +50,7 @@ export enum MessageType {
   SYNC_QUEUE = 'action/sync-queue',
   SYNC_PLAYER = 'action/sync-player',
   PUSH_ROUTE = 'action/push-route',
+  SCROLL_TO_TOP = 'action/scroll-to-top',
 
   // OAuth
   REQUEST_INSTAGRAM_AUTH = 'request-instagram-auth',
