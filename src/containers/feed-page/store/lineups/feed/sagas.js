@@ -7,6 +7,7 @@ import {
 import { getFeedFilter } from 'containers/feed-page/store/selectors'
 import {
   getAccountReady,
+  getFollowIds,
   getStartedSignOnProcess
 } from 'containers/sign-on/store/selectors'
 import AudiusBackend from 'services/AudiusBackend'
@@ -25,12 +26,25 @@ function* getTracks({ offset, limit }) {
   }
 
   const filter = yield select(getFeedFilter)
-  // NOTE: The `/feed` does not paginate, so the feed is requested from 0 to N
-  const feed = yield call(AudiusBackend.getSocialFeed, {
+
+  const params = {
     offset: 0,
     limit: offset + limit,
     filter: filter
-  })
+  }
+
+  // If the user just signed up, we might not have a feed ready.
+  // Optimistically load the feed as though the follows are all confirmed.
+  // null == N/A, true == ready, false == waiting for follows
+  const isAccountReady = select(getAccountReady) !== false
+  if (!isAccountReady) {
+    // Get the artists the user selected in signup:
+    const followeeUserIds = select(getFollowIds)
+    params.followeeUserIds = followeeUserIds
+  }
+
+  // NOTE: The `/feed` does not paginate, so the feed is requested from 0 to N
+  const feed = yield call(AudiusBackend.getSocialFeed, params)
   if (!feed.length) return []
   const [tracks, collections] = getTracksAndCollections(feed)
   const trackIds = tracks.map(t => t.track_id)
