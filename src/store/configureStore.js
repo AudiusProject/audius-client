@@ -3,7 +3,7 @@ import {
   routerMiddleware,
   replace as replaceRoute
 } from 'connected-react-router'
-import { pick } from 'lodash'
+import { debounce, pick } from 'lodash'
 import { createStore, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
@@ -127,6 +127,8 @@ const clientStoreKeys = Object.keys(clientStoreReducers)
 const syncClientStateToNativeMobile = store => {
   if (NATIVE_MOBILE) {
     let currentState
+    const postMessageDebounced = debounce(postMessage, 500, { leading: true })
+
     store.subscribe(() => {
       const state = store.getState()
       const previousState = currentState
@@ -135,7 +137,10 @@ const syncClientStateToNativeMobile = store => {
         !previousState ||
         clientStoreKeys.some(k => currentState[k] !== previousState[k])
       ) {
-        postMessage({
+        // Debounce messages to minimize expensive stringify and parse.
+        // Leading and trailing states are sent, state will be out of sync
+        // a maximum of 500ms
+        postMessageDebounced({
           type: MessageType.SYNC_CLIENT_STORE,
           state: pick(state, clientStoreKeys)
         })
