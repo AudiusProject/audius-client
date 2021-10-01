@@ -127,14 +127,14 @@
 }
 
 .created {
-  padding: 4px 6px;
+  padding: var(--unit-1) var(--unit-2);
   border-radius: 50px;
   border: 1px solid var(--white);
   background: var(--primary);
 }
 
 .owned {
-  padding: 4px 6px;
+  padding: var(--unit-1) var(--unit-2);
   border-radius: 50px;
   border: 1px solid var(--white);
   background: var(--secondary);
@@ -166,7 +166,7 @@
 
 .detailsTitle {
   margin-bottom: 20px;
-  font-size: var(--font-2xl);
+  font-size: 28px;
   line-height: 32px;
 }
 
@@ -174,7 +174,8 @@
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  font-size: var(--font-2xs);
+  font-size: var(--font-xs);
+  line-height: 15px;
   color: var(--white);
 }
 
@@ -189,9 +190,10 @@
 }
 
 .detailsDescription {
-  margin-bottom: 16px;
+  margin: var(--unit-6) 0;
+  color: var(--neutral-light-2);
   font-weight: var(--font-medium);
-  line-height: 125%;
+  line-height: 18px;
   overflow-wrap: break-word;
 }
 
@@ -199,8 +201,9 @@
   display: flex;
   align-items: center;
   color: var(--secondary);
+  font-weight: var(--font-demi-bold);
   text-decoration: underline !important;
-  margin-bottom: 16px;
+  margin-bottom: var(--unit-6);
 }
 
 .link:hover {
@@ -233,18 +236,20 @@
 }
 
 .modalHeader {
-  margin: 0 16px;
+  margin: 0 var(--unit-6);
+  padding: var(--unit-6);
+  border-bottom: 1px solid var(--neutral-light-8);
 }
 
 .modalTitle {
   color: var(--neutral);
-  font-size: var(--font-l);
+  font-size: 22px;
 }
 
 .modalBody {
   width: 100%;
   max-width: fit-content;
-  border-radius: 6px;
+  border-radius: 12px;
   background-color: var(--neutral-light-10);
   overflow-y: scroll;
   overflow-x: hidden;
@@ -276,6 +281,73 @@
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
+}
+
+.dateWrapper {
+  display: flex;
+  margin: 8px 0;
+}
+
+.dateTitle {
+  color: var(--neutral-light-4);
+}
+
+.date {
+  margin: 0 8px;
+  color: var(--neutral-light-2);
+}
+
+.profPicUploadButton {
+  padding: 0 var(--unit-4);
+}
+.profPicUploadButton .profPicUploadButtonText {
+  color: var(--neutral-light-4);
+  font-size: var(--font-m);
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.profPicUploadButton .profPicUploadButtonIcon {
+  margin-right: var(--unit-1) !important;
+}
+.profPicUploadButton .profPicUploadButtonIcon path {
+  fill: var(--neutral-light-4);
+}
+
+
+.confirmModalContainer {
+  padding: 0 var(--unit-6);
+}
+.confirmModalTitle {
+  color: var(--neutral-light-4);
+  font-size: 22px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+.confirmModalTitle span {
+  margin-left: var(--unit-2);
+}
+.confirmModalTitle path {
+  fill: var(--neutral-light-4);
+}
+
+.confirmModalText {
+  margin: 2rem 4rem;
+  font-size: var(--font-l);
+  font-weight: var(--font-medium);
+}
+
+.confirmButtonContainer {
+  display: flex;
+  gap: var(--unit-8);
+  justify-content: center;
+  margin-bottom: var(--unit-6);
+}
+.confirmButtonContainer .profPicConfirmButton {
+  padding: var(--unit-3) var(--unit-6);
+}
+.confirmButtonContainer .profPicConfirmButton span {
+  font-size: var(--font-l);
+  letter-spacing: 0;
 }
 
 .nftModal {
@@ -570,15 +642,6 @@
 
 .mobile .detailsStamp {
   margin-top: 28px;
-}
-
-.mobile .dateWrapper {
-  display: flex;
-  margin: 8px 0;
-}
-
-.mobile .date {
-  margin: 0 8px;
 }
 
 .mobile .detailsContainer {

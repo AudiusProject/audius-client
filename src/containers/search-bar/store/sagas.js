@@ -1,6 +1,7 @@
 import { call, cancel, fork, put, race, select, take } from 'redux-saga/effects'
 
 import { getUserId } from 'common/store/account/selectors'
+import { setTracksIsBlocked } from 'common/store/cache/tracks/utils/blocklist'
 import * as searchActions from 'containers/search-bar/store/actions'
 import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
@@ -21,7 +22,10 @@ export function* getSearchResults(searchText) {
   })
 
   const { tracks, albums, playlists, users } = results
-  return { users, tracks, albums, playlists }
+  const checkedTracks = (yield call(setTracksIsBlocked, tracks)).filter(
+    t => !t.is_delete && !t._blocked
+  )
+  return { users, tracks: checkedTracks, albums, playlists }
 }
 
 function* fetchSearchAsync(action) {

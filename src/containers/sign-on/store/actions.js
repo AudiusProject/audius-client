@@ -14,6 +14,8 @@ export const VALIDATE_HANDLE_FAILED = 'SIGN_ON/VALIDATE_HANDLE_FAILED'
 export const FOLLOW_ARTISTS = 'SIGN_ON/FOLLOW_ARTISTS'
 export const SET_ACCOUNT_READY = 'SIGN_ON/SET_ACCOUNT_READY'
 
+export const CHECK_EMAIL = 'SIGN_ON/CHECK_EMAIL'
+
 export const SIGN_IN = 'SIGN_ON/SIGN_IN'
 export const SIGN_IN_SUCCEEDED = 'SIGN_ON/SIGN_IN_SUCCEEDED'
 export const SIGN_IN_FAILED = 'SIGN_ON/SIGN_IN_FAILED'
@@ -81,6 +83,10 @@ export function resetSignOn() {
   return { type: RESET_SIGN_ON }
 }
 
+export function checkEmail(email) {
+  return { type: CHECK_EMAIL, email }
+}
+
 /**
  * Requests the backend to check if email is valid
  * @param {string} email the email to check
@@ -108,11 +114,12 @@ export function validateEmailFailed(error) {
 /**
  * Requests the backend to check if handle is valid
  * @param {string} handle the handle to check
+ * @param {boolean} isOauthVerified whether or not the user is verified via oauth
  * @param {((error: boolean) => void) | undefined} onValidate
  *  callback to fire on successful validation
  */
-export function validateHandle(handle, onValidate) {
-  return { type: VALIDATE_HANDLE, handle, onValidate }
+export function validateHandle(handle, isOauthVerified, onValidate) {
+  return { type: VALIDATE_HANDLE, handle, isOauthVerified, onValidate }
 }
 
 export function validateHandleSucceeded() {

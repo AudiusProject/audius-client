@@ -296,7 +296,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   updateCoverPhoto = async (
     selectedFiles: any,
-    source: 'original' | 'unsplash'
+    source: 'original' | 'unsplash' | 'url'
   ) => {
     try {
       let file = selectedFiles[0]
@@ -317,7 +317,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   updateProfilePicture = async (
     selectedFiles: any,
-    source: 'original' | 'unsplash'
+    source: 'original' | 'unsplash' | 'url'
   ) => {
     try {
       let file = selectedFiles[0]
@@ -1084,14 +1084,14 @@ function mapDispatchToProps(dispatch: Dispatch) {
       const trackEvent: TrackEvent = make(Name.PROFILE_PAGE_SORT, { sort })
       dispatch(trackEvent)
     },
-    recordUpdateProfilePicture: (source: 'original' | 'unsplash') => {
+    recordUpdateProfilePicture: (source: 'original' | 'unsplash' | 'url') => {
       const trackEvent: TrackEvent = make(
         Name.ACCOUNT_HEALTH_UPLOAD_PROFILE_PICTURE,
         { source }
       )
       dispatch(trackEvent)
     },
-    recordUpdateCoverPhoto: (source: 'original' | 'unsplash') => {
+    recordUpdateCoverPhoto: (source: 'original' | 'unsplash' | 'url') => {
       const trackEvent: TrackEvent = make(
         Name.ACCOUNT_HEALTH_UPLOAD_COVER_PHOTO,
         { source }

@@ -194,6 +194,13 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
 
   onNextPage = () => {
     const { page, isMobile } = this.props
+    if (page === Pages.PASSWORD) {
+      const {
+        fields: { email },
+        recordCompletePassword
+      } = this.props
+      recordCompletePassword(email.value)
+    }
     if (page === Pages.PROFILE) {
       const {
         signUp,
@@ -233,19 +240,6 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     this.props.nextPage(isMobile)
   }
 
-  handleOnContinue = (page: Pages) => {
-    return () => {
-      const { email } = this.props.fields
-      if (page === Pages.PASSWORD) {
-        this.props.recordCompleteEmail(email.value)
-      } else if (page === Pages.PROFILE) {
-        this.props.recordCompletePassword(email.value)
-      }
-      this.addRouteHash(page)
-      this.props.goToPage(page)
-    }
-  }
-
   onPrevPage = () => {
     this.props.previousPage()
   }
@@ -268,7 +262,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
   onSetProfileImage = (img: any) => this.props.setField('profileImage', img)
   onHandleChange = (handle: string) => {
     this.props.setValueField('handle', handle)
-    if (handle) this.props.validateHandle(handle)
+    if (handle) this.props.validateHandle(handle, false)
   }
 
   finishSignup = () => {
@@ -359,7 +353,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     this.props.recordTwitterComplete(
       !!profile.verified,
       email.value,
-      handle.value
+      profile.screen_name || 'unknown'
     )
     if (skipEdit) {
       this.onNextPage()
@@ -371,14 +365,27 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     this.props.recordTwitterStart(email.value)
   }
 
+  onRecordInstagramStart = () => {
+    const { email } = this.props.fields
+    this.props.recordInstagramStart(email.value)
+  }
+
   setInstagramProfile = (
     instagramId: string,
     profile: { username?: string; is_verified?: boolean },
     profileImg?: { url: string; file: any },
     skipEdit?: boolean
   ) => {
-    if (profile.username) this.props.validateHandle(profile.username)
+    const {
+      fields: { email, handle }
+    } = this.props
     this.props.setInstagramProfile(instagramId, profile, profileImg)
+    this.props.recordInstagramComplete(
+      !!profile.is_verified,
+      email.value,
+      profile.username || 'unknown'
+    )
+
     if (skipEdit) {
       this.onNextPage()
     }
@@ -426,10 +433,10 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       onClickReadMetaMaskConfig: this.onClickReadMetaMaskConfig,
       closeModal: this.closeModal,
       onNextPage: this.onNextPage,
-      handleOnContinue: this.handleOnContinue,
       onPrevPage: this.onPrevPage,
       onConfigureWithMetaMask: this.onConfigureWithMetaMask,
       onEmailChange: this.onEmailChange,
+      onEmailSubmitted: this.props.onEmailSubmitted,
       onPasswordChange: this.onPasswordChange,
       onNameChange: this.onNameChange,
       onAddFollows: this.props.addFollows,
@@ -448,7 +455,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       validateHandle: this.props.validateHandle,
       onMetaMaskSignIn: this.onMetaMaskSignIn,
       recordTwitterStart: this.onRecordTwitterStart,
-      recordTwitterComplete: this.props.recordTwitterComplete
+      recordInstagramStart: this.onRecordInstagramStart
     }
     if (this.props.isMobile) {
       const Children = this.props.children as React.ComponentType<
@@ -479,6 +486,8 @@ function makeMapStateToProps(state: AppState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
+    onEmailSubmitted: (email: string) =>
+      dispatch(signOnAction.checkEmail(email)),
     onSignIn: (email: string, password: string) =>
       dispatch(signOnAction.signIn(email, password)),
     fetchFollowArtists: () => dispatch(signOnAction.fetchAllFollowArtists()),
@@ -512,8 +521,14 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(signOnAction.sendWelcomeEmail(name)),
     validateEmail: (email: string) =>
       dispatch(signOnAction.validateEmail(email)),
-    validateHandle: (handle: string, onValidate?: (error: boolean) => void) =>
-      dispatch(signOnAction.validateHandle(handle, onValidate)),
+    validateHandle: (
+      handle: string,
+      isOauthVerified: boolean,
+      onValidate?: (error: boolean) => void
+    ) =>
+      dispatch(
+        signOnAction.validateHandle(handle, isOauthVerified, onValidate)
+      ),
     setValueField: (field: string, value: any) =>
       dispatch(signOnAction.setValueField(field, value)),
     setField: (field: string, value: any) =>
@@ -587,6 +602,23 @@ function mapDispatchToProps(dispatch: Dispatch) {
     ) => {
       const trackEvent: TrackEvent = make(
         Name.CREATE_ACCOUNT_COMPLETE_TWITTER,
+        { isVerified, emailAddress, handle }
+      )
+      dispatch(trackEvent)
+    },
+    recordInstagramStart: (emailAddress: string) => {
+      const trackEvent: TrackEvent = make(Name.CREATE_ACCOUNT_START_INSTAGRAM, {
+        emailAddress
+      })
+      dispatch(trackEvent)
+    },
+    recordInstagramComplete: (
+      isVerified: boolean,
+      emailAddress: string,
+      handle: string
+    ) => {
+      const trackEvent: TrackEvent = make(
+        Name.CREATE_ACCOUNT_COMPLETE_INSTAGRAM,
         { isVerified, emailAddress, handle }
       )
       dispatch(trackEvent)

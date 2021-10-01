@@ -19,6 +19,10 @@ export enum Name {
   CREATE_ACCOUNT_START_TWITTER = 'Create Account: Start Twitter',
   // When the user continues past the "twitter connection page"
   CREATE_ACCOUNT_COMPLETE_TWITTER = 'Create Account: Complete Twitter',
+  // When the user starts integrating with instagram
+  CREATE_ACCOUNT_START_INSTAGRAM = 'Create Account: Start Instagram',
+  // When the user continues past the "instagram connection page"
+  CREATE_ACCOUNT_COMPLETE_INSTAGRAM = 'Create Account: Complete Instagram',
   // When the user continues past the "profile info page"
   CREATE_ACCOUNT_COMPLETE_PROFILE = 'Create Account: Complete Profile',
   // When the user continues past the follow page
@@ -221,6 +225,16 @@ type CreateAccountCompleteTwitter = {
   emailAddress: string
   handle: string
 }
+type CreateAccountStartInstagram = {
+  eventName: Name.CREATE_ACCOUNT_START_INSTAGRAM
+  emailAddress: string
+}
+type CreateAccountCompleteInstagram = {
+  eventName: Name.CREATE_ACCOUNT_COMPLETE_INSTAGRAM
+  isVerified: boolean
+  emailAddress: string
+  handle: string
+}
 type CreateAccountCompleteProfile = {
   eventName: Name.CREATE_ACCOUNT_COMPLETE_PROFILE
   emailAddress: string
@@ -334,11 +348,11 @@ type AccountHealthMeterFull = {
 }
 type AccountHealthUploadCoverPhoto = {
   eventName: Name.ACCOUNT_HEALTH_UPLOAD_COVER_PHOTO
-  source: 'original' | 'unsplash'
+  source: 'original' | 'unsplash' | 'url'
 }
 type AccountHealthUploadProfilePhoto = {
   eventName: Name.ACCOUNT_HEALTH_UPLOAD_PROFILE_PICTURE
-  source: 'original' | 'unsplash'
+  source: 'original' | 'unsplash' | 'url'
 }
 type AccountHealthDownloadDesktop = {
   eventName: Name.ACCOUNT_HEALTH_DOWNLOAD_DESKTOP
@@ -876,6 +890,8 @@ export type AllTrackingEvents =
   | CreateAccoutCompletePassword
   | CreateAccountStartTwitter
   | CreateAccountCompleteTwitter
+  | CreateAccountStartInstagram
+  | CreateAccountCompleteInstagram
   | CreateAccountCompleteProfile
   | CreateAccountCompleteFollow
   | CreateAccountCompleteCreating

@@ -45,8 +45,8 @@ export type SignOnProps = {
   onViewSignUp: () => void
   onViewSignIn: () => void
   onEmailChange: (email: string, validate?: boolean) => void
+  onEmailSubmitted: (email: string) => void
   onPasswordChange: (password: string) => void
-  handleOnContinue: (page: Pages) => () => void
   onHandleChange: (handle: string) => void
   onNameChange: (name: string) => void
   onSetProfileImage: (img: any) => void
@@ -63,8 +63,11 @@ export type SignOnProps = {
     profileImg?: { url: string; file: any },
     skipEdit?: boolean
   ) => void
+  recordInstagramStart: () => void
+  recordTwitterStart: () => void
   validateHandle: (
     handle: string,
+    isOauthVerified: boolean,
     onValidate?: (error: boolean) => void
   ) => void
   onAddFollows: (followIds: ID[]) => void
@@ -99,13 +102,15 @@ const SignOnPage = ({
   onViewSignUp,
   onViewSignIn,
   onEmailChange,
+  onEmailSubmitted,
   onPasswordChange,
-  handleOnContinue,
   onHandleChange,
   onNameChange,
   onSetProfileImage,
   setTwitterProfile,
   setInstagramProfile,
+  recordTwitterStart,
+  recordInstagramStart,
   validateHandle,
   onAddFollows,
   onRemoveFollows,
@@ -180,7 +185,7 @@ const SignOnPage = ({
           onPasswordChange={onPasswordChange}
           onEmailChange={onEmailChange}
           onAllowNotifications={onAllowNotifications}
-          onNextPage={handleOnContinue(Pages.PASSWORD)}
+          onEmailSubmitted={onEmailSubmitted}
         />
       </animated.div>
     ),
@@ -201,7 +206,7 @@ const SignOnPage = ({
           password={password}
           inputStatus={''}
           onPasswordChange={onPasswordChange}
-          onNextPage={handleOnContinue(Pages.PROFILE)}
+          onNextPage={onNextPage}
           onTermsOfServiceClick={() => {}}
           onPrivacyPolicyClick={() => {}}
         />
@@ -230,6 +235,8 @@ const SignOnPage = ({
           setProfileImage={onSetProfileImage}
           setTwitterProfile={setTwitterProfile}
           setInstagramProfile={setInstagramProfile}
+          recordTwitterStart={recordTwitterStart}
+          recordInstagramStart={recordInstagramStart}
           validateHandle={validateHandle}
           onNextPage={onNextPage}
         />

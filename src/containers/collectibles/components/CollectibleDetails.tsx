@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { IconLink, LogoEth, LogoSol, Modal } from '@audius/stems'
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  IconImage,
+  IconLink,
+  LogoEth,
+  LogoSol,
+  Modal
+} from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
@@ -16,7 +25,9 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { MountPlacement } from 'components/types'
 import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
+import { useFlag } from 'containers/remote-config/hooks'
 import { useScript } from 'hooks/useScript'
+import { FeatureFlags } from 'services/remote-config'
 import { preload } from 'utils/image'
 import { getScrollParent } from 'utils/scrollParent'
 import { formatDateWithTimezoneOffset } from 'utils/timeUtil'
@@ -128,15 +139,27 @@ const CollectibleMedia: React.FC<{
 const CollectibleDetails: React.FC<{
   collectible: Collectible
   isMobile: boolean
-}> = ({ collectible, isMobile }) => {
+  updateProfilePicture?: (
+    selectedFiles: any,
+    source: 'original' | 'unsplash' | 'url'
+  ) => void
+  onSave?: () => void
+}> = ({ collectible, isMobile, updateProfilePicture, onSave }) => {
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isPicConfirmModalOpen, setIsPicConfirmaModalOpen] = useState<boolean>(
+    false
+  )
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
   const [showSpinner, setShowSpinner] = useState(false)
+
+  const { isEnabled: isCollectibleOptionEnabled } = useFlag(
+    FeatureFlags.NFT_IMAGE_PICKER_TAB
+  )
 
   // Debounce showing the spinner for a second
   useEffect(() => {
@@ -197,6 +220,16 @@ const CollectibleDetails: React.FC<{
       }
     }
   }, [])
+
+  const onClickProfPicUpload = async () => {
+    const { imageUrl } = collectible
+    if (!updateProfilePicture || !onSave || imageUrl === null) return
+
+    const blob = await fetch(imageUrl).then(r => r.blob())
+    await updateProfilePicture([blob], 'url')
+    await onSave()
+    setIsPicConfirmaModalOpen(false)
+  }
 
   return (
     <div className={styles.detailsContainer}>
@@ -334,8 +367,8 @@ const CollectibleDetails: React.FC<{
             </div>
 
             {collectible.dateCreated && (
-              <div>
-                <div>Date Created:</div>
+              <div className={styles.dateWrapper}>
+                <div className={styles.dateTitle}>Date Created:</div>
                 <div className={styles.date}>
                   {formatDateWithTimezoneOffset(collectible.dateCreated)}
                 </div>
@@ -343,8 +376,8 @@ const CollectibleDetails: React.FC<{
             )}
 
             {collectible.dateLastTransferred && (
-              <div>
-                <div>Last Transferred:</div>
+              <div className={styles.dateWrapper}>
+                <div className={styles.dateTitle}>Last Transferred:</div>
                 <div className={styles.date}>
                   {formatDateWithTimezoneOffset(
                     collectible.dateLastTransferred
@@ -380,6 +413,59 @@ const CollectibleDetails: React.FC<{
                 {collectibleMessages.linkToCollectible}
               </a>
             )}
+
+            {isCollectibleOptionEnabled &&
+              collectible.mediaType === CollectibleMediaType.IMAGE && (
+                <Button
+                  className={styles.profPicUploadButton}
+                  textClassName={styles.profPicUploadButtonText}
+                  iconClassName={styles.profPicUploadButtonIcon}
+                  onClick={() => {
+                    setIsModalOpen(false)
+                    setIsPicConfirmaModalOpen(true)
+                  }}
+                  text='Set As Profile Pic'
+                  type={ButtonType.COMMON_ALT}
+                  size={ButtonSize.SMALL}
+                  leftIcon={<IconImage />}
+                />
+              )}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        showTitleHeader
+        showDismissButton
+        headerContainerClassName={styles.modalHeader}
+        isOpen={isPicConfirmModalOpen}
+        onClose={() => setIsPicConfirmaModalOpen(false)}
+        titleClassName={styles.confirmModalTitle}
+        title={
+          <>
+            <IconImage />
+            <span>Set as Profile Pic</span>
+          </>
+        }
+      >
+        <div className={styles.confirmModalContainer}>
+          <p className={styles.confirmModalText}>
+            Are you sure you want to change your profile picture?
+          </p>
+
+          <div className={styles.confirmButtonContainer}>
+            <Button
+              className={styles.profPicConfirmButton}
+              onClick={() => setIsPicConfirmaModalOpen(false)}
+              text='Nevermind'
+              type={ButtonType.COMMON_ALT}
+            />
+            <Button
+              className={styles.profPicConfirmButton}
+              onClick={onClickProfPicUpload}
+              text='Yes'
+              type={ButtonType.PRIMARY_ALT}
+            />
           </div>
         </div>
       </Modal>
@@ -419,7 +505,7 @@ const CollectibleDetails: React.FC<{
 
             {collectible.dateCreated && (
               <div className={styles.dateWrapper}>
-                <div>Date Created:</div>
+                <div className={styles.dateTitle}>Date Created:</div>
                 <div className={styles.date}>
                   {formatDateWithTimezoneOffset(collectible.dateCreated)}
                 </div>
@@ -428,7 +514,7 @@ const CollectibleDetails: React.FC<{
 
             {collectible.dateLastTransferred && (
               <div className={styles.dateWrapper}>
-                <div>Last Transferred:</div>
+                <div className={styles.dateTitle}>Last Transferred:</div>
                 <div className={styles.date}>
                   {formatDateWithTimezoneOffset(
                     collectible.dateLastTransferred
