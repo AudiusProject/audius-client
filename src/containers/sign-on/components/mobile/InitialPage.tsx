@@ -7,10 +7,8 @@ import React, {
 } from 'react'
 
 import { Button, ButtonType, IconArrow } from '@audius/stems'
-import Spin from 'antd/lib/spin'
 import cn from 'classnames'
 import { Spring } from 'react-spring/renderprops'
-import { Timeout } from 'redux-saga-test-plan'
 
 import djBackgroundImage from 'assets/img/2-DJ-4-3.jpg'
 import audiusLogoHorizontal from 'assets/img/Horizontal-Logo-Full-Color.png'
@@ -21,7 +19,6 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PreloadImage from 'components/preload-image/PreloadImage'
 import { RouterContext } from 'containers/animated-switch/RouterContextProvider'
 import { useDelayedEffect } from 'hooks/useDelayedEffect'
-import useInstanceVar from 'hooks/useInstanceVar'
 
 import styles from './InitialPage.module.css'
 
