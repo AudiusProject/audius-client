@@ -34,4 +34,4 @@ Wraps the react router `useLocation` hook to allow a function to be called on ro
 Loads a script in the DOM given a source url
 
 ### `useDelayedEffect`
-Runs an effect, but only 
+Runs an "effect," but only after a designated timeout occurs. Is also cancelable.
