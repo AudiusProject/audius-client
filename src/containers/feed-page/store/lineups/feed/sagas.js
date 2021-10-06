@@ -15,7 +15,6 @@ import { processAndCacheCollections } from 'store/cache/collections/utils'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
 import { LineupSagas } from 'store/lineup/sagas'
 import { Kind } from 'store/types'
-import { waitForValue } from 'utils/sagaHelpers'
 
 function* getTracks({ offset, limit }) {
   const filter = yield select(getFeedFilter)
