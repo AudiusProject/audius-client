@@ -34,8 +34,7 @@ import {
   UPDATE_ROUTE_ON_EXIT,
   ADD_FOLLOW_ARTISTS,
   REMOVE_FOLLOW_ARTISTS,
-  SET_REFERRER,
-  FOLLOW_ARTISTS
+  SET_REFERRER
 } from './actions'
 import { Pages, FollowArtistsCategory } from './types'
 
@@ -58,7 +57,7 @@ const initialState = {
   accountAlreadyExisted: false,
   verified: false,
   useMetaMask: false,
-  accountReady: null,
+  accountReady: false,
   twitterId: '',
   twitterScreenName: '',
   instagramId: '',
@@ -390,12 +389,6 @@ const actionsMap = {
           id => !removeUserIds.has(id)
         )
       }
-    }
-  },
-  [FOLLOW_ARTISTS](state, action) {
-    return {
-      ...state,
-      accountReady: false
     }
   },
   [UPDATE_ROUTE_ON_EXIT](state, action) {

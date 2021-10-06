@@ -27,7 +27,6 @@ function* getTracks({ offset, limit }) {
 
   // If the user just signed up, we might not have a feed ready.
   // Optimistically load the feed as though the follows are all confirmed.
-  // null == N/A, true == ready, false == waiting for follows
   const startedSignOn = yield select(getStartedSignOnProcess)
   if (startedSignOn) {
     const isAccountReady = yield select(getAccountReady)
