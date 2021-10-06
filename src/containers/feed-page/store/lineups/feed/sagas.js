@@ -10,7 +10,7 @@ import {
   getFollowIds,
   getStartedSignOnProcess
 } from 'containers/sign-on/store/selectors'
-import AudiusBackend from 'services/AudiusBackend'
+import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { processAndCacheCollections } from 'store/cache/collections/utils'
 import { processAndCacheTracks } from 'store/cache/tracks/utils'
 import { LineupSagas } from 'store/lineup/sagas'
@@ -18,13 +18,6 @@ import { Kind } from 'store/types'
 import { waitForValue } from 'utils/sagaHelpers'
 
 function* getTracks({ offset, limit }) {
-  // In the case of sign on, we get an account before we have followed anyone,
-  // so we should also wait for account ready.
-  const startedSignOn = yield select(getStartedSignOnProcess)
-  if (startedSignOn) {
-    yield call(waitForValue, getAccountReady)
-  }
-
   const filter = yield select(getFeedFilter)
 
   const params = {
@@ -36,15 +29,18 @@ function* getTracks({ offset, limit }) {
   // If the user just signed up, we might not have a feed ready.
   // Optimistically load the feed as though the follows are all confirmed.
   // null == N/A, true == ready, false == waiting for follows
-  const isAccountReady = select(getAccountReady) !== false
-  if (!isAccountReady) {
-    // Get the artists the user selected in signup:
-    const followeeUserIds = select(getFollowIds)
-    params.followeeUserIds = followeeUserIds
+  const startedSignOn = yield select(getStartedSignOnProcess)
+  if (startedSignOn) {
+    const isAccountReady = yield select(getAccountReady)
+    if (!isAccountReady) {
+      // Get the artists the user selected in signup:
+      const followeeUserIds = yield select(getFollowIds)
+      params.followee_user_ids = followeeUserIds
+    }
   }
 
   // NOTE: The `/feed` does not paginate, so the feed is requested from 0 to N
-  const feed = yield call(AudiusBackend.getSocialFeed, params)
+  const feed = yield apiClient.getSocialFeed(params)
   if (!feed.length) return []
   const [tracks, collections] = getTracksAndCollections(feed)
   const trackIds = tracks.map(t => t.track_id)
