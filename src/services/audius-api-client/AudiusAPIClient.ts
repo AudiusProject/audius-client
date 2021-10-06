@@ -315,7 +315,7 @@ type GetUserChallengesArgs = {
 
 type UserChallengesResponse = {}
 
-type GetSocialFeedArgs = QueryParams & {
+export type GetSocialFeedArgs = QueryParams & {
   filter: string
   with_users?: boolean
   tracks_only?: boolean
