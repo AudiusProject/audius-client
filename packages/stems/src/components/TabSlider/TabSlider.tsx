@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
@@ -6,11 +6,8 @@ import { useSpring, animated } from 'react-spring'
 import styles from './TabSlider.module.css'
 import { TabSliderProps } from './types'
 
-// Note, offset is the inner padding of the container div
-const OFFSET = 3
-
 export const TabSlider = (props: TabSliderProps) => {
-  const optionRefs = useRef<Array<React.MutableRefObject<HTMLElement>>>(
+  const optionRefs = useRef<Array<React.MutableRefObject<HTMLDivElement>>>(
     props.options.map(() => React.createRef())
   )
   const [selected, setSelected] = useState(props.options[0].key)
@@ -28,14 +25,14 @@ export const TabSlider = (props: TabSliderProps) => {
   }))
 
   useEffect(() => {
-    const selectedRefIdx = props.options.findIndex(
+    let selectedRefIdx = props.options.findIndex(
       option => option.key === selectedOption
     )
-    const selectedRef = optionRefs.current[selectedRefIdx]
-    const left = optionRefs.current
-      .slice(0, selectedRefIdx)
-      .reduce((totalWidth, ref) => totalWidth + ref.current.clientWidth, OFFSET)
-    const width = selectedRef.current.clientWidth
+    if (selectedRefIdx === -1) selectedRefIdx = 0
+
+    const { clientWidth: width, offsetLeft: left } = optionRefs.current[
+      selectedRefIdx
+    ].current
 
     setAnimatedProps({ to: { left: `${left}px`, width: `${width}px` } })
   }, [
@@ -47,30 +44,6 @@ export const TabSlider = (props: TabSliderProps) => {
     optionRefs
   ])
 
-  const getFirstOptionRef = useCallback(
-    node => {
-      if (node !== null) {
-        setAnimatedProps({
-          to: {
-            left: `${OFFSET}px`,
-            width: `${node.clientWidth}px`
-          }
-        })
-        optionRefs.current[0].current = node
-      }
-    },
-    [setAnimatedProps]
-  )
-
-  const setRefObject = useCallback(
-    (index: number) => (node: null | HTMLElement) => {
-      if (node !== null) {
-        optionRefs.current[index].current = node
-      }
-    },
-    []
-  )
-
   return (
     <div
       className={cn(styles.tabs, props.className, {
@@ -80,20 +53,14 @@ export const TabSlider = (props: TabSliderProps) => {
     >
       <animated.div className={styles.tabBackground} style={animatedProps} />
       {props.options.map((option, idx) => {
-        const ref = idx === 0 ? getFirstOptionRef : setRefObject(idx) // optionRefs.current[idx]
         return (
           <React.Fragment key={option.key}>
             <div
-              ref={ref}
-              className={cn(
-                styles.tab,
-                {
-                  [styles.activeTab]: selectedOption === option.key,
-                  [styles.tabFullWidth]: !!props.fullWidth
-                },
-                props.textClassName,
-                { [props.activeTextClassName]: selectedOption === option.key }
-              )}
+              ref={optionRefs.current[idx]}
+              className={cn(styles.tab, {
+                [styles.tabFullWidth]: !!props.fullWidth,
+                [styles.isMobile]: props.isMobile
+              })}
               onClick={() => onSetSelected(option.key)}
             >
               {option.text}
