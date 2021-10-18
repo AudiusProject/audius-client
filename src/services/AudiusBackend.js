@@ -2579,7 +2579,7 @@ class AudiusBackend {
   static async transferAudioToWAudio(balance) {
     await waitForLibsInit()
     const userBank = await audiusLibs.solanaWeb3Manager.getUserBank()
-    await audiusLibs.Account.permitAndSendTokensViaWormhole(
+    await audiusLibs.Account.sendTokensFromEthToSol(
       balance,
       userBank.toString()
     )
