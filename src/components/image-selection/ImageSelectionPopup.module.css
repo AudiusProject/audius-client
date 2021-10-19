@@ -148,9 +148,9 @@
 }
 
 .collectiblesContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 7.5px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px 0;
 }
 
 .collectibleImg {
