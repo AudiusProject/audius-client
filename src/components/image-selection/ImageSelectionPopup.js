@@ -10,7 +10,10 @@ import { getAccountUser } from 'common/store/account/selectors'
 import TabSlider from 'components/data-entry/TabSlider'
 import Dropzone from 'components/upload/Dropzone'
 import InvalidFileType from 'components/upload/InvalidFileType'
+import { MIN_COLLECTIBLES_TIER } from 'containers/profile-page/ProfilePageProvider'
 import { useFlag } from 'containers/remote-config/hooks'
+import { useSelectTierInfo } from 'containers/user-badges/hooks'
+import { badgeTiers } from 'containers/user-badges/utils'
 import RandomImage from 'services/RandomImage'
 import { FeatureFlags } from 'services/remote-config'
 import zIndex from 'utils/zIndex'
@@ -135,9 +138,14 @@ const CollectionPage = ({ onSelect, source }) => {
     ...(collectibleList || []),
     ...((isSolanaCollectiblesEnabled && solanaCollectibleList) || [])
   ]
-  const visibleCollectibles = allCollectibles.filter(c =>
-    collectibles?.order?.includes(c.id)
-  )
+  const collectibleIdMap = allCollectibles.reduce((acc, c) => {
+    acc[c.id] = c
+    return acc
+  }, {})
+
+  const visibleCollectibles = collectibles?.order
+    ? collectibles.order.map(id => collectibleIdMap[id])
+    : allCollectibles
 
   const imgs = visibleCollectibles.filter(c => c.mediaType === 'IMAGE')
   const maxPages = Math.ceil(imgs.length / COLLECTIBLES_PER_PAGE)
@@ -216,22 +224,31 @@ const ImageSelectionPopup = ({
   source
 }) => {
   const [page, setPage] = useState(messages.uploadYourOwn)
-  const { collectibles, collectibleList, solanaCollectibleList } = useSelector(
-    getAccountUser
-  )
-  const { isEnabled: isCollectibleOptionEnabled } = useFlag(
+  const {
+    collectibles,
+    collectibleList,
+    solanaCollectibleList,
+    user_id: userId
+  } = useSelector(getAccountUser)
+  const { isEnabled: isCollectibleOptionEnabledFlag } = useFlag(
     FeatureFlags.NFT_IMAGE_PICKER_TAB
   )
   const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
     FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
   )
+
+  const { tierNumber } = useSelectTierInfo(userId ?? 0)
+  const isCollectibleOptionEnabled =
+    isCollectibleOptionEnabledFlag &&
+    tierNumber >= badgeTiers.findIndex(t => t.tier === MIN_COLLECTIBLES_TIER)
+
   const allCollectibles = [
     ...(collectibleList || []),
     ...((isSolanaCollectiblesEnabled && solanaCollectibleList) || [])
   ]
-  const visibleCollectibles = allCollectibles.filter(c =>
-    collectibles?.order?.includes(c.id)
-  )
+  const visibleCollectibles = collectibles?.order
+    ? allCollectibles.filter(c => collectibles?.order?.includes(c.id))
+    : allCollectibles
 
   const handleClose = () => {
     setPage(messages.uploadYourOwn)

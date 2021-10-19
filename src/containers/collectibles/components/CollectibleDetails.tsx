@@ -11,12 +11,14 @@ import {
   Modal
 } from '@audius/stems'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
 import { Chain } from 'common/models/Chain'
 import { Collectible, CollectibleMediaType } from 'common/models/Collectible'
+import { getAccountUser } from 'common/store/account/selectors'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
@@ -25,7 +27,10 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { MountPlacement } from 'components/types'
 import { collectibleMessages } from 'containers/collectibles/components/CollectiblesPage'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
+import { MIN_COLLECTIBLES_TIER } from 'containers/profile-page/ProfilePageProvider'
 import { useFlag } from 'containers/remote-config/hooks'
+import { useSelectTierInfo } from 'containers/user-badges/hooks'
+import { badgeTiers } from 'containers/user-badges/utils'
 import { useScript } from 'hooks/useScript'
 import { FeatureFlags } from 'services/remote-config'
 import { preload } from 'utils/image'
@@ -157,9 +162,15 @@ const CollectibleDetails: React.FC<{
   const [frame, setFrame] = useState(frameUrl)
   const [showSpinner, setShowSpinner] = useState(false)
 
-  const { isEnabled: isCollectibleOptionEnabled } = useFlag(
+  const { isEnabled: isCollectibleOptionEnabledFlag } = useFlag(
     FeatureFlags.NFT_IMAGE_PICKER_TAB
   )
+  const accountUser = useSelector(getAccountUser)
+  const userId = accountUser?.user_id ?? 0
+  const { tierNumber } = useSelectTierInfo(userId)
+  const isCollectibleOptionEnabled =
+    isCollectibleOptionEnabledFlag &&
+    tierNumber >= badgeTiers.findIndex(t => t.tier === MIN_COLLECTIBLES_TIER)
 
   // Debounce showing the spinner for a second
   useEffect(() => {
