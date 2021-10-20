@@ -1,7 +1,8 @@
 import React, { FormEvent, useEffect, useState } from 'react'
 
 import { Button, ButtonType, IconArrow } from '@audius/stems'
-import { useDispatch, useStore } from 'react-redux'
+import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 import { Spring } from 'react-spring/renderprops'
 
 import Input from 'components/data-entry/Input'
@@ -116,7 +117,11 @@ export const ConfirmCredentials = (props: ConfirmCredentialsProps) => {
         </Spring>
       )}
       <Button
-        className={styles.continueButton}
+        className={
+          isMobile
+            ? cn(styles.continueButton, styles.isMobile)
+            : styles.continueButton
+        }
         text={messages.continueButtonText}
         rightIcon={
           status === Status.LOADING ? (

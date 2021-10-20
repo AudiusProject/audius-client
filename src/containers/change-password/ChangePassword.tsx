@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Button, IconMail } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
@@ -24,11 +25,14 @@ const messages = {
 }
 
 type ChangePasswordProps = {
-  onComplete: () => {}
+  isMobile: boolean
+  onComplete: () => void
 }
 
-export const ChangePassword = ({ onComplete }: ChangePasswordProps) => {
-  const isMobile = false
+export const ChangePassword = ({
+  isMobile,
+  onComplete
+}: ChangePasswordProps) => {
   const [email, setEmail] = useState('')
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -89,7 +93,7 @@ export const ChangePassword = ({ onComplete }: ChangePasswordProps) => {
           <EnterPassword
             continueLabel={messages.changePassword}
             continueIcon={<IconMail />}
-            isMobile={false}
+            isMobile={true}
             onSubmit={onNewPasswordSubmitted}
           />
         )
@@ -109,8 +113,23 @@ export const ChangePassword = ({ onComplete }: ChangePasswordProps) => {
     }
   }
   return (
-    <div className={styles.content}>
-      <div className={styles.helpText}>{messages.helpTexts[currentPage]}</div>
+    <div
+      className={
+        isMobile ? cn(styles.content, styles.isMobile) : styles.content
+      }
+    >
+      {currentPage === Page.CONFIRM_CREDENTIALS && isMobile ? (
+        <>
+          <div className={styles.headerText}>{messages.changePassword}</div>
+          <div className={styles.helpText}>
+            {messages.helpTexts[currentPage]}
+          </div>
+        </>
+      ) : (
+        <div className={styles.headerText}>
+          {messages.helpTexts[currentPage]}
+        </div>
+      )}
       {getPageContents()}
     </div>
   )

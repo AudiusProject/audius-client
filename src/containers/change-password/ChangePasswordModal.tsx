@@ -38,7 +38,7 @@ export const ChangePasswordModal = (props: any) => {
       isOpen={showModal}
       onClose={onClose}
     >
-      <ChangePassword onComplete={onClose} />
+      <ChangePassword isMobile={false} onComplete={onClose} />
     </Modal>
   )
 }

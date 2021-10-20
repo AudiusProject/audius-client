@@ -194,8 +194,13 @@ const EnterPassword = ({
   )
 
   return (
-    <div className={styles.container}>
+    <div
+      className={
+        isMobile ? cn(styles.container, styles.isMobile) : styles.container
+      }
+    >
       <form
+        className={styles.form}
         method='post'
         onSubmit={e => {
           e.preventDefault()
