@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { Button, IconMail } from '@audius/stems'
+import { Button, IconLock } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -92,7 +92,7 @@ export const ChangePassword = ({
         return (
           <EnterPassword
             continueLabel={messages.changePassword}
-            continueIcon={<IconMail />}
+            continueIcon={<IconLock />}
             isMobile={true}
             onSubmit={onNewPasswordSubmitted}
           />

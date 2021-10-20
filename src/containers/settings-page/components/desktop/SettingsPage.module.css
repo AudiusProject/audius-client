@@ -33,12 +33,14 @@
   fill: var(--neutral-light-4);
 }
 
-.resetButton {
+.resetButton,
+.changePasswordButton {
   height: 64px !important;
   padding: 0px 35px !important;
 }
 
-.resetButton .resetButtonIcon path {
+.resetButton .resetButtonIcon path,
+.changePasswordButton .changePasswordIcon path {
   fill: var(--secondary);
 }
 

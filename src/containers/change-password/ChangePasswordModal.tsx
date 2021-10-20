@@ -8,7 +8,11 @@ import { getCurrentPage } from './store/selectors'
 import { changePage, Page } from './store/slice'
 
 const messages = {
-  title: '🔒 Change Password'
+  title: (
+    <>
+      <i className='emoji lock'></i>&nbsp;Change Password
+    </>
+  )
 }
 
 export const ChangePasswordModal = (props: any) => {

@@ -5,6 +5,7 @@ import {
   Button,
   ButtonType,
   IconMail,
+  IconLock,
   IconNotification,
   IconSignOut
 } from '@audius/stems'
@@ -306,11 +307,11 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
           >
             <Button
               onClick={this.showChangePasswordModal}
-              className={cn(styles.cardButton, styles.resetButton)}
+              className={cn(styles.cardButton, styles.changePasswordButton)}
               textClassName={styles.settingButtonText}
               type={ButtonType.COMMON_ALT}
               text='Change'
-              leftIcon={<IconMail />}
+              leftIcon={<IconLock className={styles.changePasswordIcon} />}
             />
           </SettingsCard>
         </div>
