@@ -57,6 +57,7 @@ const getCommonPasswordCheck = (password: string) => {
 
 type EnterPasswordProps = {
   continueLabel: string
+  continueIcon?: JSX.Element
   isMobile: boolean
   onSubmit: (password: string) => void
   isLoading?: boolean
@@ -72,6 +73,7 @@ type Requirements = {
 
 const EnterPassword = ({
   continueLabel,
+  continueIcon,
   isMobile,
   onSubmit,
   isLoading
@@ -251,7 +253,7 @@ const EnterPassword = ({
           isLoading ? (
             <LoadingSpinner className={styles.spinner} />
           ) : (
-            <IconArrow />
+            continueIcon || <IconArrow />
           )
         }
         type={

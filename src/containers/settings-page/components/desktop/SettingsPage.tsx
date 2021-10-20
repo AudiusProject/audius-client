@@ -17,6 +17,7 @@ import Page from 'components/general/Page'
 import Header from 'components/general/header/desktop/Header'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement } from 'components/types'
+import { ChangePasswordModal } from 'containers/change-password/ChangePasswordModal'
 import SelectedServices from 'containers/service-selection/SelectedServices'
 import { OS } from 'models/OS'
 import Theme from 'models/Theme'
@@ -57,7 +58,9 @@ const messages = {
   darkModeAuto: 'Auto',
   verifiedTitle: 'Verified on twitter or Instagram?',
   getVerified: 'Get verified by linking a verified social account to Audius',
-  matrixMode: '🕳 🐇 Matrix'
+  matrixMode: '🕳 🐇 Matrix',
+  changePassword: 'Change Password',
+  changePasswordDescription: 'Change the password to your Audius account'
 }
 
 type OwnProps = {
@@ -98,12 +101,14 @@ type SettingsPageState = {
   showNotificationSettings: boolean
   showModalSignOut: boolean
   emailToastText: string
+  showChangePasswordModal: boolean
 }
 
 class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   state = {
     showNotificationSettings: false,
     showModalSignOut: false,
+    showChangePasswordModal: false,
     emailToastText: ''
   }
 
@@ -147,6 +152,14 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   downloadDesktopApp = () => {
     DownloadApp.start(getOS() || OS.WIN)
     this.props.recordDownloadDesktopApp()
+  }
+
+  showChangePasswordModal = () => {
+    this.setState({ showChangePasswordModal: true })
+  }
+
+  closeChangePasswordModal = () => {
+    this.setState({ showChangePasswordModal: false })
   }
 
   renderThemeCard() {
@@ -287,6 +300,19 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               leftIcon={<IconNotification className={styles.reviewIcon} />}
             />
           </SettingsCard>
+          <SettingsCard
+            title={messages.changePassword}
+            description={messages.changePasswordDescription}
+          >
+            <Button
+              onClick={this.showChangePasswordModal}
+              className={cn(styles.cardButton, styles.resetButton)}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text='Change'
+              leftIcon={<IconMail />}
+            />
+          </SettingsCard>
         </div>
         <div className={styles.version}>
           <Button
@@ -328,6 +354,10 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
             leftClick={this.onSignOut}
           />
         </Modal>
+        <ChangePasswordModal
+          showModal={this.state.showChangePasswordModal}
+          onClose={this.closeChangePasswordModal}
+        />
         <NotificationSettings
           isOpen={this.state.showNotificationSettings}
           toggleBrowserPushNotificationPermissions={

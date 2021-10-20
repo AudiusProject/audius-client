@@ -4,6 +4,7 @@ import { AddToPlaylistState } from 'containers/add-to-playlist/store/reducers'
 import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
+import { ChangePasswordState } from 'containers/change-password/store/slice'
 import CollectionsPageState from 'containers/collection-page/store/types'
 import { DeletePlaylistConfirmationModalState } from 'containers/delete-playlist-confirmation-modal/store/types'
 import DeletedPageReducer from 'containers/deleted-page/store/slice'
@@ -113,6 +114,7 @@ export type AppState = {
       appCTAModal: ReturnType<typeof AppCTAModalReducer>
       artistRecommendations: ReturnType<typeof ArtistRecommendationsReducer>
       averageColor: ReturnType<typeof averageColor>
+      changePassword: ChangePasswordState
       cookieBanner: CookieBannerState
       createPlaylistModal: CreatePlaylistModalState
       editPlaylistModal: EditPlaylistModalState

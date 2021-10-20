@@ -1715,6 +1715,18 @@ class AudiusBackend {
     return audiusLibs.Account.resetPassword(email, password)
   }
 
+  static async changePassword(email, password, oldpassword) {
+    await waitForLibsInit()
+    return true
+    // return audiusLibs.Account.resetPassword(email, password, oldpassword)
+  }
+
+  static async confirmCredentials(email, password) {
+    await waitForLibsInit()
+    return true
+    // return audiusLibs.Account.confirmCredentials(email, password)
+  }
+
   static async sendRecoveryEmail() {
     await waitForLibsInit()
     const host = AudiusBackend._getHostUrl()
