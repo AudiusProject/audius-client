@@ -3,10 +3,10 @@ import React from 'react'
 import { Story } from '@storybook/react'
 
 import { Button } from 'components/Button'
+import { IconCamera, IconLock, IconMail, IconPencil } from 'components/Icons'
 
 import { PopupMenu } from './PopupMenu'
 import { PopupMenuProps } from './types'
-import { IconCamera, IconMail, IconPencil } from 'components/Icons'
 
 export default {
   component: PopupMenu,
@@ -69,6 +69,11 @@ const withIconsProps: Omit<PopupMenuProps, 'renderTrigger'> = {
     {
       text: 'Item 3',
       icon: <IconPencil></IconPencil>,
+      onClick: () => {}
+    },
+    {
+      text: 'Item 4',
+      icon: <IconLock></IconLock>,
       onClick: () => {}
     }
   ]

@@ -66,6 +66,7 @@ export { ReactComponent as IconKebabHorizontal } from '../../assets/icons/iconKe
 export { ReactComponent as IconKebabVertical } from '../../assets/icons/iconKebabVertical.svg'
 export { ReactComponent as IconLink } from '../../assets/icons/iconLink.svg'
 export { ReactComponent as IconListens } from '../../assets/icons/iconListens.svg'
+export { ReactComponent as IconLock } from '../../assets/icons/iconLock.svg'
 export { ReactComponent as IconMail } from '../../assets/icons/iconMail.svg'
 export { ReactComponent as IconMonth } from '../../assets/icons/iconMonth.svg'
 export { ReactComponent as IconMore } from '../../assets/icons/iconMore.svg'
