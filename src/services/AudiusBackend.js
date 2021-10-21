@@ -1717,14 +1717,12 @@ class AudiusBackend {
 
   static async changePassword(email, password, oldpassword) {
     await waitForLibsInit()
-    return true
-    // return audiusLibs.Account.resetPassword(email, password, oldpassword)
+    return audiusLibs.Account.resetPassword(email, password, oldpassword)
   }
 
   static async confirmCredentials(email, password) {
     await waitForLibsInit()
-    return true
-    // return audiusLibs.Account.confirmCredentials(email, password)
+    return audiusLibs.Account.confirmCredentials(email, password)
   }
 
   static async sendRecoveryEmail() {

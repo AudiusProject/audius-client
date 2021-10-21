@@ -25,14 +25,17 @@ function* handleConfirmCredentials(
 
 function* handleChangePassword(action: ReturnType<typeof changePassword>) {
   yield call(waitForBackendSetup)
-  const success: boolean = yield call(
-    AudiusBackend.changePassword,
-    action.payload.email,
-    action.payload.password,
-    action.payload.oldPassword
-  )
-  yield delay(1000)
-  yield put(changePasswordCompleted({ success }))
+  try {
+    yield call(
+      AudiusBackend.changePassword,
+      action.payload.email,
+      action.payload.password,
+      action.payload.oldPassword
+    )
+    yield put(changePasswordCompleted({ success: true }))
+  } catch {
+    yield put(changePasswordCompleted({ success: false }))
+  }
 }
 
 function* watchConfirmCredentials() {
