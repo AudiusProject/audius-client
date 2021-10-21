@@ -1,6 +1,7 @@
 export const ADD = 'CACHE/ADD'
 export const ADD_SUCCEEDED = 'CACHE/ADD_SUCCEEDED'
 export const UPDATE = 'CACHE/UPDATE'
+export const INCREMENT = 'CACHE/INCREMENT'
 export const SET_STATUS = 'CACHE/SET_STATUS'
 export const SUBSCRIBE = 'CACHE/SUBSCRIBE'
 export const UNSUBSCRIBE = 'CACHE/UNSUBSCRIBE'
@@ -51,17 +52,26 @@ export const addSucceeded = (
  * @param {Kind} kind
  * @param {array} entries { id, metadata }
  * @param {?array} subscriptions { id, kind, uids }
- * @param {?boolean} isDelta whether or not this update is just a mathematical delta
- *  only numeric fields should be part of the update if so, e.g.
- *  entries = [{ id: 2, metadata: { followee_count: 1 } }]
- *  would yield an update to the cached followee_count of id 2 by 1.
  */
-export const update = (kind, entries, subscriptions = [], isDelta = false) => ({
+export const update = (kind, entries, subscriptions = []) => ({
   type: UPDATE,
   kind,
   entries,
-  subscriptions,
-  isDelta
+  subscriptions
+})
+
+/**
+ * Issues a mathematical delta update to a cache entry's numeric field.
+ * Only numeric fields should be part of the update if so, e.g.
+ *  entries = [{ id: 2, metadata: { followee_count: 1 } }]
+ * would yield an update to the cached followee_count of id 2 by 1.
+ * @param {Kind} kind
+ * @param {array} entries { id, metadata }
+ */
+export const increment = (kind, entries) => ({
+  type: INCREMENT,
+  kind,
+  entries
 })
 
 /**

@@ -221,19 +221,14 @@ function* watchSyncLocalStorageUser() {
 // The cache respects the delta and merges the objects adding the field values
 export function* adjustUserField({ user, fieldName, delta }) {
   yield put(
-    cacheActions.update(
-      Kind.USERS,
-      [
-        {
-          id: user.user_id,
-          metadata: {
-            [fieldName]: delta
-          }
+    cacheActions.increment(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: {
+          [fieldName]: delta
         }
-      ],
-      [],
-      /* isDelta */ true
-    )
+      }
+    ])
   )
 }
 

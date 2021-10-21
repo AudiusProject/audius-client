@@ -8,7 +8,8 @@ import {
   SET_STATUS,
   SUBSCRIBE,
   UNSUBSCRIBE_SUCCEEDED,
-  SET_EXPIRED
+  SET_EXPIRED,
+  INCREMENT
 } from 'common/store/cache/actions'
 
 /**
@@ -163,7 +164,7 @@ const actionsMap = {
           {},
           { ...unwrapEntry(state.entries[e.id]) },
           e.metadata,
-          action.isDelta ? add : mergeCustomizer
+          mergeCustomizer
         )
       )
     })
@@ -183,6 +184,21 @@ const actionsMap = {
       ...state,
       entries: newEntries,
       subscriptions: newSubscriptions
+    }
+  },
+  [INCREMENT](state, action) {
+    const newEntries = { ...state.entries }
+    const newSubscriptions = { ...state.subscriptions }
+
+    action.entries.forEach(e => {
+      newEntries[e.id] = wrapEntry(
+        mergeWith({}, { ...unwrapEntry(state.entries[e.id]) }, e.metadata, add)
+      )
+    })
+
+    return {
+      ...state,
+      entries: newEntries
     }
   },
   [SET_STATUS](state, action) {
