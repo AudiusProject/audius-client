@@ -1,7 +1,6 @@
 import React, { Suspense, useEffect } from 'react'
 
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
 import { animated } from 'react-spring'
 import { Transition } from 'react-spring/renderprops'
 
@@ -31,7 +30,7 @@ import StartPlatformPage from 'containers/sign-on/components/desktop/StartPlatfo
 import { getStatus } from 'containers/sign-on/store/selectors'
 import { Pages, FollowArtistsCategory } from 'containers/sign-on/store/types'
 import lazyWithPreload from 'utils/lazyWithPreload'
-// import { useSelector } from 'utils/reducer'
+import { useSelector } from 'utils/reducer'
 import { BASE_URL, SIGN_UP_PAGE } from 'utils/route'
 
 import AppCTA from './AppCTA'
