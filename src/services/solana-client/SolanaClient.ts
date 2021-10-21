@@ -1,15 +1,18 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
 
+import { Collectible } from 'common/models/Collectible'
 import { solanaNFTToCollectible } from 'containers/collectibles/solCollectibleHelpers'
-import { Collectible, CollectibleState } from 'containers/collectibles/types'
+import { CollectibleState } from 'containers/collectibles/types'
 
 import { MetaplexNFT, SolanaNFTType } from './types'
 
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const METADATA_PROGRAM_ID = process.env.REACT_APP_METADATA_PROGRAM_ID
 
-const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(METADATA_PROGRAM_ID!)
+const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey(
+  METADATA_PROGRAM_ID || 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+)
 
 class SolanaClient {
   private connection: Connection | null = null
@@ -100,7 +103,7 @@ class SolanaClient {
             )
           )
 
-          const metadatas = results.map((metadata, i) => ({
+          const metadatas = results.filter(Boolean).map((metadata, i) => ({
             metadata,
             type: metadataUrls[i].type
           }))
@@ -149,7 +152,10 @@ class SolanaClient {
     // for the sake of simplicty/readability/understandability, we check the decoded url
     // one by one against metaplex, star atlas, and others
     return (
-      client._metaplex(text) || client._starAtlas(text) || client._unknown(text)
+      client._metaplex(text) ||
+      client._starAtlas(text) ||
+      client._jsonExtension(text) ||
+      client._ipfs(text)
     )
   }
 
@@ -200,7 +206,9 @@ class SolanaClient {
     }
   }
 
-  _unknown = (text: string): { type: SolanaNFTType; url: string } | null => {
+  _jsonExtension = (
+    text: string
+  ): { type: SolanaNFTType; url: string } | null => {
     // Look for 'https://<...>.json' and that will be the metadata location
     // examples:
     // https://d1b6hed00dtfsr.cloudfront.net/9086.json
@@ -216,6 +224,32 @@ class SolanaClient {
     if (!foundNFTUrl) return null
 
     const endIndex = extensionIndex + extension.length
+    const url = text.substring(startIndex, endIndex)
+    return {
+      type: SolanaNFTType.METAPLEX,
+      url
+    }
+  }
+
+  _ipfs = (text: string): { type: SolanaNFTType; url: string } | null => {
+    // Look for 'https://ipfs.io/ipfs/<...alphanumeric...>' and that will be the metadata location
+    // e.g. https://ipfs.io/ipfs/QmWJC47JYuvxYw63cRq81bBNGFXPjhQH8nXg71W5JeRMrC
+
+    const query = 'https://'
+    const startIndex = text.indexOf(query)
+    if (startIndex === -1) return null
+
+    const isIpfs = text.includes('ipfs')
+    const foundNFTUrl = startIndex > -1 && isIpfs
+    if (!foundNFTUrl) return null
+
+    const suffix = '/ipfs/'
+    const suffixIndex = text.indexOf(suffix, startIndex + query.length)
+    if (suffixIndex === -1) return null
+
+    let endIndex = suffixIndex + suffix.length
+    while (/[a-zA-Z0-9]/.test(text.charAt(endIndex++))) {}
+
     const url = text.substring(startIndex, endIndex)
     return {
       type: SolanaNFTType.METAPLEX,

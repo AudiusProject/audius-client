@@ -1,5 +1,11 @@
-import { call, select, all } from 'redux-saga/effects'
+import { select, all } from 'redux-saga/effects'
 
+import Collection, { UserCollectionMetadata } from 'common/models/Collection'
+import { ID } from 'common/models/Identifiers'
+import Kind from 'common/models/Kind'
+import { LineupTrack, TrackMetadata } from 'common/models/Track'
+import { processAndCacheCollections } from 'common/store/cache/collections/utils'
+import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import {
   PREFIX,
   feedActions
@@ -10,16 +16,11 @@ import {
   getFollowIds,
   getStartedSignOnProcess
 } from 'containers/sign-on/store/selectors'
-import Collection, { UserCollectionMetadata } from 'models/Collection'
-import { LineupTrack, TrackMetadata } from 'models/Track'
-import { ID } from 'models/common/Identifiers'
 import apiClient, {
   GetSocialFeedArgs
 } from 'services/audius-api-client/AudiusAPIClient'
-import { processAndCacheCollections } from 'store/cache/collections/utils'
-import { processAndCacheTracks } from 'store/cache/tracks/utils'
 import { LineupSagas } from 'store/lineup/sagas'
-import { AppState, Kind } from 'store/types'
+import { AppState } from 'store/types'
 
 type FeedItem = LineupTrack | Collection
 

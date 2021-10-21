@@ -1,7 +1,7 @@
+import { ID, PlayableType } from 'common/models/Identifiers'
+import { WalletAddress } from 'common/models/Wallet'
 import FeedFilter from 'models/FeedFilter'
 import TimeRange from 'models/TimeRange'
-import { ID, PlayableType } from 'models/common/Identifiers'
-import { WalletAddress } from 'store/wallet/slice'
 
 import { MonitorPayload, ServiceMonitorType } from './serviceMonitoring'
 
@@ -390,7 +390,8 @@ export enum FavoriteSource {
   HISTORY_PAGE = 'history page',
   FAVORITES_PAGE = 'favorites page',
   OVERFLOW = 'overflow',
-  TRACK_LIST = 'track list'
+  TRACK_LIST = 'track list',
+  SIGN_UP = 'sign up'
 }
 export enum FollowSource {
   PROFILE_PAGE = 'profile page',
@@ -399,7 +400,8 @@ export enum FollowSource {
   HOVER_TILE = 'hover tile',
   OVERFLOW = 'overflow',
   USER_LIST = 'user list',
-  ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup'
+  ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup',
+  EMPTY_FEED = 'empty feed'
 }
 
 type Share = {
