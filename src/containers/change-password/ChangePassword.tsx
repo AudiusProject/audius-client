@@ -19,7 +19,9 @@ const messages = {
     'Create A New Password That Is\n Secure And Easy To Remember!',
     'Changing Password, Please wait',
     'Your Password Has Been Changed',
-    "We couldn't change your password"
+    <span key={Page.FAILURE} className={styles.error}>
+      Something went wrong. Please try again.
+    </span>
   ],
   changePassword: 'Change Password'
 }
@@ -59,10 +61,6 @@ export const ChangePassword = ({
     dispatch(changePassword({ email, password, oldPassword }))
   }
 
-  const retry = useCallback(() => {
-    dispatch(changePassword({ email, password: newPassword, oldPassword }))
-  }, [dispatch, email, newPassword, oldPassword])
-
   const setCurrentPage = useCallback(
     (page: Page) => {
       dispatch(changePage(page))
@@ -100,7 +98,6 @@ export const ChangePassword = ({
       case Page.LOADING:
         return <LoadingSpinnerFullPage />
       case Page.FAILURE:
-        return <Button text='Try again' onClick={retry} />
       case Page.SUCCESS:
         return <Button text='Done' onClick={onComplete} />
       default:
