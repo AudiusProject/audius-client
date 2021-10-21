@@ -11,14 +11,16 @@ import {
   Modal
 } from '@audius/stems'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import { Chain } from 'common/models/Chain'
 import { Collectible, CollectibleMediaType } from 'common/models/Collectible'
 import { getAccountUser } from 'common/store/account/selectors'
+import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
@@ -150,13 +152,13 @@ const CollectibleDetails: React.FC<{
   ) => void
   onSave?: () => void
 }> = ({ collectible, isMobile, updateProfilePicture, onSave }) => {
+  const dispatch = useDispatch()
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isModalOpen, setIsModalOpen] = useModalState('CollectibleDetails')
   const [isPicConfirmModalOpen, setIsPicConfirmaModalOpen] = useState<boolean>(
     false
   )
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false)
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
@@ -204,12 +206,14 @@ const CollectibleDetails: React.FC<{
   }, [mediaType, frameUrl, gifUrl, name, setFrame, setIsLoading])
 
   const handleItemClick = useCallback(() => {
-    if (isMobile) {
-      setIsDrawerOpen(true)
-    } else {
-      setIsModalOpen(true)
-    }
-  }, [isMobile, setIsDrawerOpen, setIsModalOpen])
+    dispatch(setCollectible({ collectible }))
+    setIsModalOpen(true)
+  }, [collectible, dispatch, setIsModalOpen])
+
+  const handleClose = useCallback(() => {
+    dispatch(setCollectible({ collectible: null }))
+    setIsModalOpen(false)
+  }, [dispatch, setIsModalOpen])
 
   const toggleMute = useCallback(() => {
     setIsMuted(!isMuted)
@@ -334,10 +338,8 @@ const CollectibleDetails: React.FC<{
 
       <Modal
         title='Collectible'
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-        }}
+        isOpen={isModalOpen && !isMobile}
+        onClose={handleClose}
         showTitleHeader
         showDismissButton
         bodyClassName={styles.modalBody}
@@ -482,8 +484,8 @@ const CollectibleDetails: React.FC<{
       </Modal>
 
       <Drawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        isOpen={isModalOpen && isMobile}
+        onClose={handleClose}
         isFullscreen
       >
         <div className={styles.nftDrawer}>
