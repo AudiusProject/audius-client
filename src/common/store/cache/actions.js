@@ -51,12 +51,17 @@ export const addSucceeded = (
  * @param {Kind} kind
  * @param {array} entries { id, metadata }
  * @param {?array} subscriptions { id, kind, uids }
+ * @param {?boolean} isDelta whether or not this update is just a mathematical delta
+ *  only numeric fields should be part of the update if so, e.g.
+ *  entries = [{ id: 2, metadata: { followee_count: 1 } }]
+ *  would yield an update to the cached followee_count of id 2 by 1.
  */
-export const update = (kind, entries, subscriptions = []) => ({
+export const update = (kind, entries, subscriptions = [], isDelta = false) => ({
   type: UPDATE,
   kind,
   entries,
-  subscriptions
+  subscriptions,
+  isDelta
 })
 
 /**

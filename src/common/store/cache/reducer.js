@@ -1,4 +1,4 @@
-import { mergeWith } from 'lodash'
+import { mergeWith, add } from 'lodash'
 
 import {
   ADD_SUCCEEDED,
@@ -163,7 +163,7 @@ const actionsMap = {
           {},
           { ...unwrapEntry(state.entries[e.id]) },
           e.metadata,
-          mergeCustomizer
+          action.isDelta ? add : mergeCustomizer
         )
       )
     })
