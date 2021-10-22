@@ -44,7 +44,6 @@ import { identify } from 'store/analytics/actions'
 import { confirmTransferAudioToWAudio } from 'store/audio-manager/slice'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
-import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import {
   Permission,
   isPushManagerAvailable,
@@ -166,6 +165,7 @@ export function* fetchAccountAsync(action) {
     }
   }
 
+  // todo: should we return in the if block above the below be in an else block
   const account = yield call(AudiusBackend.getAccount, fromSource)
   if (!account) {
     yield put(accountActions.fetchAccountFailed())
