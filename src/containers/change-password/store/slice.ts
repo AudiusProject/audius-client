@@ -45,14 +45,19 @@ const slice = createSlice({
         }
       }
     },
-    confirmCredentialsCompleted: (
-      state,
-      action: PayloadAction<{ success: boolean }>
-    ) => {
+    confirmCredentialsSucceeded: state => {
       return {
         ...state,
         confirmCredentials: {
-          status: action.payload.success ? Status.SUCCESS : Status.ERROR
+          status: Status.SUCCESS
+        }
+      }
+    },
+    confirmCredentialsFailed: state => {
+      return {
+        ...state,
+        confirmCredentials: {
+          status: Status.ERROR
         }
       }
     },
@@ -71,14 +76,19 @@ const slice = createSlice({
         }
       }
     },
-    changePasswordCompleted: (
-      state,
-      action: PayloadAction<{ success: boolean }>
-    ) => {
+    changePasswordSucceeded: state => {
       return {
         ...state,
         changePassword: {
-          status: action.payload.success ? Status.SUCCESS : Status.ERROR
+          status: Status.SUCCESS
+        }
+      }
+    },
+    changePasswordFailed: state => {
+      return {
+        ...state,
+        changePassword: {
+          status: Status.ERROR
         }
       }
     },
@@ -93,9 +103,11 @@ const slice = createSlice({
 
 export const {
   confirmCredentials,
-  confirmCredentialsCompleted,
+  confirmCredentialsSucceeded,
+  confirmCredentialsFailed,
   changePassword,
-  changePasswordCompleted,
+  changePasswordSucceeded,
+  changePasswordFailed,
   changePage
 } = slice.actions
 

@@ -6,21 +6,30 @@ import { waitForBackendSetup } from 'store/backend/sagas'
 
 import {
   confirmCredentials,
-  confirmCredentialsCompleted,
+  confirmCredentialsSucceeded,
+  confirmCredentialsFailed,
   changePassword,
-  changePasswordCompleted
+  changePasswordSucceeded,
+  changePasswordFailed
 } from './slice'
 
 function* handleConfirmCredentials(
   action: ReturnType<typeof confirmCredentials>
 ) {
   yield call(waitForBackendSetup)
-  const confirmed: boolean = yield call(
-    AudiusBackend.confirmCredentials,
-    action.payload.email,
-    action.payload.password
-  )
-  yield put(confirmCredentialsCompleted({ success: confirmed }))
+  try {
+    const confirmed: boolean = yield call(
+      AudiusBackend.confirmCredentials,
+      action.payload.email,
+      action.payload.password
+    )
+    if (!confirmed) {
+      throw new Error('Invalid credentials')
+    }
+    yield put(confirmCredentialsSucceeded())
+  } catch {
+    yield put(confirmCredentialsFailed())
+  }
 }
 
 function* handleChangePassword(action: ReturnType<typeof changePassword>) {
@@ -32,9 +41,9 @@ function* handleChangePassword(action: ReturnType<typeof changePassword>) {
       action.payload.password,
       action.payload.oldPassword
     )
-    yield put(changePasswordCompleted({ success: true }))
+    yield put(changePasswordSucceeded())
   } catch {
-    yield put(changePasswordCompleted({ success: false }))
+    yield put(changePasswordFailed())
   }
 }
 
