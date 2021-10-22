@@ -57,7 +57,7 @@ const messages = {
   darkModeOn: 'On',
   darkModeOff: 'Off',
   darkModeAuto: 'Auto',
-  verifiedTitle: 'Verified on twitter or Instagram?',
+  verifiedTitle: 'Verify your account',
   getVerified: 'Get verified by linking a verified social account to Audius',
   matrixMode: '🕳 🐇 Matrix',
   changePassword: 'Change Password',
@@ -186,10 +186,11 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
 
     return (
       <SettingsCard
-        title='Dark Mode'
+        title='Appearance'
         description="Enable dark mode or choose 'Auto' to change with your system settings"
       >
         <TabSlider
+          className={styles.cardSlider}
           options={options}
           selected={theme || Theme.DEFAULT}
           onSelectOption={option => toggleTheme(option)}
@@ -230,6 +231,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
         header={header}
       >
         <div className={styles.settings}>
+          {this.renderThemeCard()}
           <SettingsCard
             title={messages.verifiedTitle}
             description={messages.getVerified}
@@ -244,6 +246,41 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               onInstagramLogin={onInstagramLogin}
               onTwitterLogin={onTwitterLogin}
             />
+          </SettingsCard>
+          <SettingsCard
+            title='NOTIFICATIONS'
+            description='Review your notifications preferences'
+          >
+            <Button
+              onClick={this.showNotificationSettings}
+              className={cn(styles.cardButton, styles.resetButton)}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text='Review'
+              leftIcon={<IconNotification className={styles.reviewIcon} />}
+            />
+          </SettingsCard>
+          <SettingsCard
+            title='Account Recovery Email'
+            description='Resend your password reset email and store it safely. This email is the only way to recover your account if you forget your password.'
+          >
+            <Toast
+              tooltipClassName={styles.cardToast}
+              text={this.state.emailToastText}
+              open={!!this.state.emailToastText}
+              placement={ComponentPlacement.RIGHT}
+              fillParent={false}
+            >
+              <Button
+                onClick={this.showEmailToast}
+                className={cn(styles.cardButton, styles.resetButton)}
+                textClassName={styles.settingButtonText}
+                iconClassName={styles.resetButtonIcon}
+                type={ButtonType.COMMON_ALT}
+                text='Resend'
+                leftIcon={<IconMail />}
+              />
+            </Toast>
           </SettingsCard>
           {!isMobile() && !isElectron() && (
             <SettingsCard
@@ -266,41 +303,6 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               />
             </SettingsCard>
           )}
-          <SettingsCard
-            title='Account Recovery Email'
-            description='Resend your password reset email and store it safely. This email is the only way to recover your account if you forget your password.'
-          >
-            <Toast
-              text={this.state.emailToastText}
-              open={!!this.state.emailToastText}
-              placement={ComponentPlacement.RIGHT}
-              fillParent={false}
-            >
-              <Button
-                onClick={this.showEmailToast}
-                className={cn(styles.cardButton, styles.resetButton)}
-                textClassName={styles.settingButtonText}
-                iconClassName={styles.resetButtonIcon}
-                type={ButtonType.COMMON_ALT}
-                text='Resend'
-                leftIcon={<IconMail />}
-              />
-            </Toast>
-          </SettingsCard>
-          {this.renderThemeCard()}
-          <SettingsCard
-            title='NOTIFICATIONS'
-            description='Review your notifications preferences'
-          >
-            <Button
-              onClick={this.showNotificationSettings}
-              className={cn(styles.cardButton, styles.resetButton)}
-              textClassName={styles.settingButtonText}
-              type={ButtonType.COMMON_ALT}
-              text='Review'
-              leftIcon={<IconNotification className={styles.reviewIcon} />}
-            />
-          </SettingsCard>
           <SettingsCard
             title={messages.changePassword}
             description={messages.changePasswordDescription}
