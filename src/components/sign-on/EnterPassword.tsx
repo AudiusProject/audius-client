@@ -194,11 +194,7 @@ const EnterPassword = ({
   )
 
   return (
-    <div
-      className={
-        isMobile ? cn(styles.container, styles.isMobile) : styles.container
-      }
-    >
+    <div className={cn(styles.container, { [styles.isMobile]: isMobile })}>
       <form
         className={styles.form}
         method='post'

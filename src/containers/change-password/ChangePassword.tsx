@@ -108,11 +108,7 @@ export const ChangePassword = ({
     }
   }
   return (
-    <div
-      className={
-        isMobile ? cn(styles.content, styles.isMobile) : styles.content
-      }
-    >
+    <div className={cn(styles.content, { [styles.isMobile]: isMobile })}>
       {currentPage === Page.CONFIRM_CREDENTIALS && isMobile ? (
         <>
           <div className={styles.headerText}>{messages.changePassword}</div>

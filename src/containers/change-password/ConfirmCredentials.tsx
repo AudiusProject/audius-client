@@ -117,11 +117,7 @@ export const ConfirmCredentials = (props: ConfirmCredentialsProps) => {
         </Spring>
       )}
       <Button
-        className={
-          isMobile
-            ? cn(styles.continueButton, styles.isMobile)
-            : styles.continueButton
-        }
+        className={cn(styles.continueButton, { [styles.isMobile]: isMobile })}
         text={messages.continueButtonText}
         rightIcon={
           status === Status.LOADING ? (
