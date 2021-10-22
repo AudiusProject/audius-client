@@ -9,6 +9,8 @@ import NavContext, {
   CenterPreset,
   LeftPreset
 } from 'containers/nav/store/context'
+import { Name } from 'services/analytics'
+import { make, TrackEvent } from 'store/analytics/actions'
 
 import styles from './ChangePasswordPage.module.css'
 import { SettingsPageProps } from './SettingsPage'
@@ -37,6 +39,8 @@ export const ChangePasswordPage = ({ goBack }: SettingsPageProps) => {
   // On initial render, set the page to confirm credentials
   useEffect(() => {
     dispatch(changePage(Page.CONFIRM_CREDENTIALS))
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_CHANGE_PASSWORD, {})
+    dispatch(trackEvent)
   }, [dispatch])
 
   return (

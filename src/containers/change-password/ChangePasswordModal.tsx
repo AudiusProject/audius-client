@@ -1,7 +1,10 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import { Modal } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { Name } from 'services/analytics'
+import { make, TrackEvent } from 'store/analytics/actions'
 
 import { ChangePassword } from './ChangePassword'
 import { getCurrentPage } from './store/selectors'
@@ -30,6 +33,11 @@ export const ChangePasswordModal = (props: any) => {
   useEffect(() => {
     if (showModal) {
       dispatch(changePage(Page.CONFIRM_CREDENTIALS))
+      const trackEvent: TrackEvent = make(
+        Name.SETTINGS_START_CHANGE_PASSWORD,
+        {}
+      )
+      dispatch(trackEvent)
     }
   }, [dispatch, showModal])
 

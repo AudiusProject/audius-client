@@ -1,7 +1,8 @@
-import { delay } from 'redux-saga'
 import { call, put, takeEvery } from 'redux-saga/effects'
 
 import AudiusBackend from 'services/AudiusBackend'
+import { Name } from 'services/analytics'
+import { make, TrackEvent } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 
 import {
@@ -42,8 +43,22 @@ function* handleChangePassword(action: ReturnType<typeof changePassword>) {
       action.payload.oldPassword
     )
     yield put(changePasswordSucceeded())
+    const trackEvent: TrackEvent = make(
+      Name.SETTINGS_COMPLETE_CHANGE_PASSWORD,
+      {
+        status: 'success'
+      }
+    )
+    yield put(trackEvent)
   } catch {
     yield put(changePasswordFailed())
+    const trackEvent: TrackEvent = make(
+      Name.SETTINGS_COMPLETE_CHANGE_PASSWORD,
+      {
+        status: 'failure'
+      }
+    )
+    yield put(trackEvent)
   }
 }
 

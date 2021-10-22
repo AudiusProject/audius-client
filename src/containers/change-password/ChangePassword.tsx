@@ -37,7 +37,6 @@ export const ChangePassword = ({
 }: ChangePasswordProps) => {
   const [email, setEmail] = useState('')
   const [oldPassword, setOldPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
 
   const dispatch = useDispatch()
 
@@ -57,7 +56,6 @@ export const ChangePassword = ({
   }
 
   const onNewPasswordSubmitted = (password: string) => {
-    setNewPassword(password)
     dispatch(changePassword({ email, password, oldPassword }))
   }
 
