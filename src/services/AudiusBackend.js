@@ -1717,7 +1717,7 @@ class AudiusBackend {
 
   static async changePassword(email, password, oldpassword) {
     await waitForLibsInit()
-    return audiusLibs.Account.resetPassword(email, password, oldpassword)
+    return audiusLibs.Account.changePassword(email, password, oldpassword)
   }
 
   static async confirmCredentials(email, password) {
