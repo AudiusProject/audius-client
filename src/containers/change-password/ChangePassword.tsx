@@ -19,9 +19,7 @@ const messages = {
     'Create A New Password That Is\n Secure And Easy To Remember!',
     'Changing Password, Please wait',
     'Your Password Has Been Changed',
-    <span key={Page.FAILURE} className={styles.error}>
-      Something went wrong. Please try again.
-    </span>
+    'Something went wrong. Please try again.'
   ],
   changePassword: 'Change Password'
 }
@@ -117,7 +115,11 @@ export const ChangePassword = ({
           </div>
         </>
       ) : (
-        <div className={styles.headerText}>
+        <div
+          className={cn(styles.headerText, {
+            [styles.error]: currentPage === Page.FAILURE
+          })}
+        >
           {messages.helpTexts[currentPage]}
         </div>
       )}
