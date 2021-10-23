@@ -38,6 +38,8 @@ export const ConfirmCredentials = (props: ConfirmCredentialsProps) => {
   const [errorSeen, setErrorSeen] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
 
+  const isSubmitDisabled = status !== Status.ERROR && hasSubmitted
+
   const onEmailChange = (newEmail: string) => {
     setEmail(newEmail)
   }
@@ -126,10 +128,8 @@ export const ConfirmCredentials = (props: ConfirmCredentialsProps) => {
             <IconArrow />
           )
         }
-        isDisabled={status === Status.LOADING}
-        type={
-          status === Status.LOADING ? ButtonType.DISABLED : ButtonType.PRIMARY
-        }
+        isDisabled={isSubmitDisabled}
+        type={isSubmitDisabled ? ButtonType.DISABLED : ButtonType.PRIMARY}
         onClick={onSubmit}
       />
     </form>
