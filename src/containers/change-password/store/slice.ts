@@ -1,4 +1,4 @@
-import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Status } from 'store/types'
 
@@ -38,28 +38,13 @@ const slice = createSlice({
       state,
       _action: PayloadAction<{ email: string; password: string }>
     ) => {
-      return {
-        ...state,
-        confirmCredentials: {
-          status: Status.LOADING
-        }
-      }
+      state.confirmCredentials.status = Status.LOADING
     },
     confirmCredentialsSucceeded: state => {
-      return {
-        ...state,
-        confirmCredentials: {
-          status: Status.SUCCESS
-        }
-      }
+      state.confirmCredentials.status = Status.SUCCESS
     },
     confirmCredentialsFailed: state => {
-      return {
-        ...state,
-        confirmCredentials: {
-          status: Status.ERROR
-        }
-      }
+      state.confirmCredentials.status = Status.ERROR
     },
     changePassword: (
       state,
@@ -69,34 +54,16 @@ const slice = createSlice({
         oldPassword: string
       }>
     ) => {
-      return {
-        ...state,
-        changePassword: {
-          status: Status.LOADING
-        }
-      }
+      state.changePassword.status = Status.LOADING
     },
     changePasswordSucceeded: state => {
-      return {
-        ...state,
-        changePassword: {
-          status: Status.SUCCESS
-        }
-      }
+      state.changePassword.status = Status.SUCCESS
     },
     changePasswordFailed: state => {
-      return {
-        ...state,
-        changePassword: {
-          status: Status.ERROR
-        }
-      }
+      state.changePassword.status = Status.ERROR
     },
     changePage: (state, action: PayloadAction<Page>) => {
-      return {
-        ...state,
-        currentPage: action.payload
-      }
+      state.currentPage = action.payload
     }
   }
 })
