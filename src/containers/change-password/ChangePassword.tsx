@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { Button, IconLock } from '@audius/stems'
+import { Button, ButtonType, IconLock } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -95,7 +95,13 @@ export const ChangePassword = ({
         return <LoadingSpinnerFullPage />
       case Page.FAILURE:
       case Page.SUCCESS:
-        return <Button text='Done' onClick={onComplete} />
+        return (
+          <Button
+            text='Done'
+            onClick={onComplete}
+            type={ButtonType.PRIMARY_ALT}
+          />
+        )
       default:
         return (
           <ConfirmCredentials

@@ -129,7 +129,7 @@ export const ConfirmCredentials = (props: ConfirmCredentialsProps) => {
           )
         }
         isDisabled={isSubmitDisabled}
-        type={isSubmitDisabled ? ButtonType.DISABLED : ButtonType.PRIMARY}
+        type={isSubmitDisabled ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT}
         onClick={onSubmit}
       />
     </form>
