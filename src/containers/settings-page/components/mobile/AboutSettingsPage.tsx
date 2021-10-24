@@ -19,6 +19,7 @@ import { SettingsPageProps } from './SettingsPage'
 import settingsPageStyles from './SettingsPage.module.css'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const currentYear = new Date().getFullYear().toString()
 
 const links = {
   discord: 'https://discordapp.com/invite/yNUg2e2',
@@ -41,7 +42,7 @@ const messages = {
 
   title: 'Audius Music',
   version: 'Audius Version',
-  copyright: 'Copyright © 2019 Audius'
+  copyright: `Copyright © ${currentYear} Audius`
 }
 
 /** Gets the latest app or dapp version */

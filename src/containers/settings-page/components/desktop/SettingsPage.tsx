@@ -48,10 +48,11 @@ const SIGN_OUT_MODAL_TEXT = `
 `
 
 const EMAIL_TOAST_TIMEOUT = 2000
+const currentYear = new Date().getFullYear().toString()
 
 const messages = {
   version: 'Audius Version',
-  copyright: 'Copyright © 2019 Audius',
+  copyright: `Copyright © ${currentYear} Audius`,
   emailSent: 'Email Sent!',
   emailNotSent: 'Something broke! Please try again!',
   darkModeOn: 'On',
