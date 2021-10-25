@@ -46,6 +46,11 @@
   width: 176px;
   margin: 4px auto;
 }
+@media (max-width: 780px) {
+  .btn {
+    margin: 8px auto;
+  }
+}
 
 .disabledBtn .btnIcon path,
 .btn .btnIcon path {
