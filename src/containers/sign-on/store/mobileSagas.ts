@@ -1,6 +1,8 @@
-import { call, put, takeEvery } from 'redux-saga/effects'
+import { push as pushRoute } from 'connected-react-router'
+import { all, call, put, select, take, takeEvery } from 'redux-saga/effects'
 
 import User from 'common/models/User'
+import * as accountActions from 'common/store/account/reducer'
 import {
   SignInFailureMessage,
   SignUpValidateEmailFailureMessage,
@@ -15,8 +17,10 @@ import {
 } from 'services/native-mobile-interface/signon'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
+import { FEED_PAGE } from 'utils/route'
 
 import * as signOnActions from './actions'
+import { getSignOn } from './selectors'
 import { FollowArtistsCategory } from './types'
 
 const GENERAL_ADMISSION = process.env.REACT_APP_GENERAL_ADMISSION
@@ -175,18 +179,21 @@ function* watchSetUsersToFollow() {
   })
 }
 
-function* watchSetAccountAvailable() {
-  yield takeEvery([signOnActions.SET_ACCOUNT_AVAILABLE], function* (action: {
-    type: string
-    email: string
-    handle: string
-  }) {
+function* watchAccountAvailable(): any {
+  while (
+    yield all([
+      take(signOnActions.SIGN_UP_SUCCEEDED),
+      take(accountActions.fetchAccountSucceeded.type)
+    ])
+  ) {
+    yield put(pushRoute(FEED_PAGE))
+    const signOn = yield select(getSignOn)
     const message = new SetAccountAvailableMessage({
-      email: action.email,
-      handle: action.handle
+      email: signOn.email.value,
+      handle: signOn.handle.value
     })
     message.send()
-  })
+  }
 }
 
 function* watchSetFollowArtists() {
@@ -340,7 +347,7 @@ const sagas = () => {
     watchGetUsersToFollow,
     watchSetUsersToFollow,
     watchSetFollowArtists,
-    watchSetAccountAvailable,
+    watchAccountAvailable,
     watchSignUp,
     watchSignupSuccess
   ]

@@ -13,7 +13,6 @@ export const VALIDATE_HANDLE_FAILED = 'SIGN_ON/VALIDATE_HANDLE_FAILED'
 
 export const FOLLOW_ARTISTS = 'SIGN_ON/FOLLOW_ARTISTS'
 export const SET_ACCOUNT_READY = 'SIGN_ON/SET_ACCOUNT_READY'
-export const SET_ACCOUNT_AVAILABLE = 'SIGN_ON/SET_ACCOUNT_AVAILABLE'
 
 export const CHECK_EMAIL = 'SIGN_ON/CHECK_EMAIL'
 
@@ -273,13 +272,6 @@ export function setStatus(status) {
  */
 export function configureMetaMask() {
   return { type: CONFIGURE_META_MASK }
-}
-
-/**
- * Lets the mobile client know that the account is available after sign up
- */
-export function setAccountAvailable(email, handle) {
-  return { type: SET_ACCOUNT_AVAILABLE, email, handle }
 }
 
 /**

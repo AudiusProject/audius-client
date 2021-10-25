@@ -547,20 +547,6 @@ function* watchFollowArtists() {
   }
 }
 
-function* watchAccountAvailable() {
-  while (
-    yield all([
-      take(signOnActions.SIGN_UP_SUCCEEDED),
-      take(accountActions.fetchAccountSucceeded.type)
-    ])
-  ) {
-    const signOn = yield select(getSignOn)
-    yield put(
-      signOnActions.setAccountAvailable(signOn.email.value, signOn.handle.value)
-    )
-  }
-}
-
 function* watchShowToast() {
   yield takeLatest(signOnActions.SET_TOAST, function* (action) {
     if (action.text) {
@@ -596,7 +582,6 @@ export default function sagas() {
     watchSignIn,
     watchFollowArtists,
     watchGetArtistsToFollow,
-    watchAccountAvailable,
     watchConfigureMetaMask,
     watchShowToast,
     watchOpenSignOn,
