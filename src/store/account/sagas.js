@@ -165,7 +165,6 @@ export function* fetchAccountAsync(action) {
     }
   }
 
-  // todo: should we return in the if block above the below be in an else block
   const account = yield call(AudiusBackend.getAccount, fromSource)
   if (!account) {
     yield put(accountActions.fetchAccountFailed())

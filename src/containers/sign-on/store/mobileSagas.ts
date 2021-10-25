@@ -208,8 +208,7 @@ const handleImage = async (
   const artworkFile = new File([imageBlob], 'Artwork', {
     type: `image/${fileType}`
   })
-  const file = await resizeImage(...[artworkFile, ...resizeArgs])
-  return file
+  return resizeImage(...[artworkFile, ...resizeArgs])
 }
 
 const dataURLtoFile = (dataUrl: string) => {
@@ -260,7 +259,6 @@ function* watchSignUp() {
               profilePictureUrl
             )}`
           : profilePictureUrl
-        console.log('url: ' + url)
         profileImage = {
           url,
           file: yield call(handleImage, url, 'jpeg')
