@@ -99,6 +99,7 @@ module.exports = {
     'space-before-function-paren': 'off',
     'generator-star-spacing': 'off',
 
+    'import/no-unresolved': 'error',
     'import/order': [
       'error',
       {
