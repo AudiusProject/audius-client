@@ -16,11 +16,11 @@ import { useClickOutside } from 'hooks/useClickOutside'
 import { useHotkeys } from 'hooks/useHotKeys'
 import { useScrollLock } from 'hooks/useScrollLock'
 import { findAncestor } from 'utils/findAncestor'
+import { standard } from 'utils/transitions'
 
 import styles from './Modal.module.css'
 import { useModalScrollCount } from './hooks'
 import { ModalProps, Anchor } from './types'
-import { standard } from 'utils/transitions'
 
 const rootContainer = 'modalRootContainer'
 const rootId = 'modalRoot'
@@ -181,7 +181,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     }
   )
 
-  useHotkeys({ 27 /* escape */: onClose })
+  const handleEscape = useCallback(() => {
+    if (isOpen) onClose()
+  }, [isOpen, onClose])
+
+  useHotkeys({ 27 /* escape */: handleEscape })
 
   const wrapperClassNames = cn(
     styles.wrapper,
