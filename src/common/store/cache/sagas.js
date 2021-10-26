@@ -312,7 +312,7 @@ export function* add(kind, entries, replace, persist) {
     // If something is confirming and in the cache, we probably don't
     // want to replace it (unless explicit) because we would lose client
     // state, e.g. "has_current_user_reposted"
-    if (!replace && makeKindId(kind, entry.id) in confirmCallsInCache) {
+    if (!replace && entry.id in confirmCallsInCache) {
       entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
     } else {
       entriesToAdd.push(entry)
