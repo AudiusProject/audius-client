@@ -36,6 +36,8 @@ import { getScrollParent } from 'utils/scrollParent'
 import { collectibleMessages } from './CollectiblesPage'
 import styles from './CollectiblesPage.module.css'
 
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
 const MODEL_VIEWER_SCRIPT_URL =
   'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
 
@@ -341,7 +343,7 @@ const CollectibleDetailsModal = ({
       </Modal>
 
       <Drawer
-        isOpen={isModalOpen && isMobile}
+        isOpen={isModalOpen && isMobile && !NATIVE_MOBILE}
         onClose={handleClose}
         isFullscreen
       >
