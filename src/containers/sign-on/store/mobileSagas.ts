@@ -200,7 +200,11 @@ function* watchAccountAvailable(): any {
 function* watchSetFollowArtists() {
   yield takeEvery([MessageType.SET_FOLLOW_ARTISTS], function* (action: {
     type: string
-    followArtists: any
+    followArtists: {
+      selectedCategory: FollowArtistsCategory
+      categories: { [key in FollowArtistsCategory]?: number[] }
+      selectedUserIds: number[]
+    }
   }) {
     yield put(signOnActions.setField('followArtists', action.followArtists))
     yield put(signOnActions.followArtists(action.followArtists.selectedUserIds))
