@@ -11,6 +11,7 @@ import GroupableList from 'components/groupable-list/GroupableList'
 import Grouping from 'components/groupable-list/Grouping'
 import Row from 'components/groupable-list/Row'
 import { GetVersion } from 'services/native-mobile-interface/version'
+import { COPYRIGHT_TEXT } from 'utils/copyright'
 
 import { version } from '../../../../../package.json'
 
@@ -19,7 +20,6 @@ import { SettingsPageProps } from './SettingsPage'
 import settingsPageStyles from './SettingsPage.module.css'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-const currentYear = new Date().getFullYear().toString()
 
 const links = {
   discord: 'https://discordapp.com/invite/yNUg2e2',
@@ -42,7 +42,7 @@ const messages = {
 
   title: 'Audius Music',
   version: 'Audius Version',
-  copyright: `Copyright © ${currentYear} Audius`
+  copyright: COPYRIGHT_TEXT
 }
 
 /** Gets the latest app or dapp version */
