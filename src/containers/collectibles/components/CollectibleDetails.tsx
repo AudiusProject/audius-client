@@ -64,23 +64,6 @@ const CollectibleDetails: React.FC<{
     setIsModalOpen(true)
   }, [collectible, dispatch, setIsModalOpen])
 
-  const handleVideo = useCallback(videoElement => {
-    if (videoElement !== null) {
-      const listener = () => {
-        videoElement.pause()
-      }
-      ;['loadeddata', 'timeupdate'].forEach(event => {
-        videoElement.addEventListener(event, listener)
-      })
-
-      return () => {
-        ;['loadeddata', 'timeupdate'].forEach(event => {
-          videoElement.removeEventListener(event, listener)
-        })
-      }
-    }
-  }, [])
-
   return (
     <div className={styles.detailsContainer}>
       <PerspectiveCard
@@ -119,16 +102,12 @@ const CollectibleDetails: React.FC<{
                   </div>
                 </div>
               )}
-              {mediaType === CollectibleMediaType.VIDEO && !frame && (
+              {mediaType === CollectibleMediaType.VIDEO && !frame && videoUrl && (
                 <div className={cn(styles.media, styles.imageWrapper)}>
                   <IconPlay className={styles.playIcon} />
                   <video
-                    ref={handleVideo}
-                    muted
-                    autoPlay
-                    playsInline
                     style={{ height: '100%', width: '100%' }}
-                    src={videoUrl!}
+                    src={`${videoUrl}#t=0.1`}
                   />
                   <div className={styles.stamp}>
                     {collectible.isOwned ? (
