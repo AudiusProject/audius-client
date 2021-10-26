@@ -214,7 +214,7 @@ function* watchSetFollowArtists() {
 const handleImage = async (
   url: string,
   fileType: string,
-  ...resizeArgs: any[]
+  ...resizeArgs: (number | boolean)[]
 ) => {
   const imageBlob = await fetch(url).then(r => r.blob())
   const artworkFile = new File([imageBlob], 'Artwork', {
@@ -271,7 +271,13 @@ function* watchSignUp() {
       // only possible with twitter oauth
       coverPhoto = {
         url: coverPhotoUrl,
-        file: yield call(handleImage, coverPhotoUrl, 'jpeg')
+        file: yield call(
+          handleImage,
+          coverPhotoUrl,
+          'jpeg',
+          /* maxWidth */ 2000,
+          /* square= */ false
+        )
       }
       yield put(signOnActions.setField('coverPhoto', coverPhoto))
     } else {
