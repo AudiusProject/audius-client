@@ -31,8 +31,12 @@
   padding: 0px 12px;
 }
 
-.btnIcon path {
-  fill: var(--primary) !important;
+/** Verified icon should always be primary/white */
+.btnIcon path:first-child {
+  fill: #cc0fe0 !important;
+}
+.btnIcon path:nth-child(2) {
+  fill: white !important;
 }
 
 .error {
@@ -113,7 +117,6 @@
   text-transform: capitalize;
   color: var(--neutral);
 }
-
 
 .disabledBtn {
   background-color: var(--white);
