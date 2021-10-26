@@ -319,7 +319,7 @@ export type GetSocialFeedArgs = QueryParams & {
   filter: string
   with_users?: boolean
   tracks_only?: boolean
-  followee_user_ids?: ID[]
+  followee_user_id?: ID[]
   current_user_id?: ID
 }
 
