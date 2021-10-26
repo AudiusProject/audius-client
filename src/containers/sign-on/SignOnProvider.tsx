@@ -568,13 +568,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
       })
       dispatch(trackEvent)
     },
-    // todo: do we need this below function (the event is tracked in signon saga)
-    recordCompleteEmail: (emailAddress: string) => {
-      const trackEvent: TrackEvent = make(Name.CREATE_ACCOUNT_COMPLETE_EMAIL, {
-        emailAddress
-      })
-      dispatch(trackEvent)
-    },
     recordCompletePassword: (emailAddress: string) => {
       const trackEvent: TrackEvent = make(
         Name.CREATE_ACCOUNT_COMPLETE_PASSWORD,

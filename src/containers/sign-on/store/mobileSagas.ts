@@ -16,6 +16,7 @@ import {
   FetchAllFollowArtistsFailureMessage
 } from 'services/native-mobile-interface/signon'
 import { MessageType } from 'services/native-mobile-interface/types'
+import { dataURLtoFile } from 'utils/fileUtils'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { FEED_PAGE } from 'utils/route'
 
@@ -218,19 +219,6 @@ const handleImage = async (
   return resizeImage(...[artworkFile, ...resizeArgs])
 }
 
-const dataURLtoFile = (dataUrl: string) => {
-  const arr = dataUrl.split(',')
-  const bstr = atob(arr[1])
-  let n = bstr.length
-  const u8arr = new Uint8Array(n)
-
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n)
-  }
-
-  return new File([u8arr], 'Artwork', { type: 'image/jpeg' })
-}
-
 function* watchSignUp() {
   yield takeEvery([MessageType.SUBMIT_SIGNUP], function* (action: {
     type: string
@@ -257,7 +245,6 @@ function* watchSignUp() {
         profileImage = {
           file: dataURLtoFile(profilePictureUrl)
         }
-        yield put(signOnActions.setField('profileImage', profileImage))
       } else {
         // if instagram, go through GA to simplify url and proxy the image fetch
         // otherwise, simply use given url
