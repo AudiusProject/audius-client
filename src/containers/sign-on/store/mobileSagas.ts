@@ -187,7 +187,7 @@ function* watchAccountAvailable(): any {
       take(accountActions.fetchAccountSucceeded.type)
     ])
   ) {
-    yield put(pushRoute(FEED_PAGE))
+    yield put(pushRoute(FEED_PAGE, { noAnimation: true }))
     const signOn = yield select(getSignOn)
     const message = new SetAccountAvailableMessage({
       email: signOn.email.value,
