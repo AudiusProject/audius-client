@@ -31,14 +31,6 @@
   padding: 0px 12px;
 }
 
-/** Verified icon should always be primary/white */
-.btnIcon path:first-child {
-  fill: #cc0fe0 !important;
-}
-.btnIcon path:nth-child(2) {
-  fill: white !important;
-}
-
 .error {
   color: var(--accent-red);
   font-weight: var(--font-medium);
