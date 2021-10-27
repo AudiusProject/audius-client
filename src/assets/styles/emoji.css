@@ -46,6 +46,9 @@
 .emoji.cloud-with-rain {
 	background-image: url('../fonts/emojis/cloud-with-rain.png');
 }
+.emoji.confused-face {
+	background-image: url('../fonts/emojis/confused-face.png');
+}
 .emoji.crying-face {
 	background-image: url('../fonts/emojis/crying-face.png');
 }
@@ -84,6 +87,9 @@
 }
 .emoji.heart-with-arrow.xxl {
 	background-image: url('../fonts/emojis/heart-with-arrow-160.png');
+}
+.emoji.lock {
+	background-image: url('../fonts/emojis/lock.png');
 }
 .emoji.multiple-musical-notes {
 	background-image: url('../fonts/emojis/multiple-musical-notes.png');

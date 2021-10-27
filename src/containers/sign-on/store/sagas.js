@@ -22,7 +22,7 @@ import { getCityAndRegion } from 'services/Location'
 import { FavoriteSource, Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getRemoteVar, IntKeys, StringKeys } from 'services/remote-config'
-import { fetchAccountAsync } from 'store/account/sagas'
+import { fetchAccountAsync, reCacheAccount } from 'store/account/sagas'
 import { identify, make } from 'store/analytics/actions'
 import * as backendActions from 'store/backend/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
@@ -326,7 +326,6 @@ function* signUp(action) {
         if (!confirmed) {
           throw new Error(`Could not confirm sign up for user id ${userId}`)
         }
-        return yield call(AudiusBackend.getCreators, [userId])[0]
       },
       function* () {
         yield put(signOnActions.signUpSucceeded())
@@ -439,7 +438,7 @@ function* followArtists() {
   try {
     // Auto-follow Hot & New Playlist
     if (IS_PRODUCTION) {
-      yield fork(followCollections, [4281], FavoriteSource.SIGN_UP)
+      yield call(followCollections, [4281], FavoriteSource.SIGN_UP)
     }
 
     const signOn = yield select(getSignOn)
@@ -468,7 +467,11 @@ function* followArtists() {
     // The update user location depends on the user being discoverable in discprov
     // So we wait until both the user is indexed and the follow user actions are finished
     yield call(AudiusBackend.updateUserLocationTimezone)
-    yield call(fetchAccountAsync, { fromSource: true })
+
+    // Re-cache the account here (in local storage). This is to make sure that the follows are
+    // persisted across the next refresh of the client. Initially the user is pulled in from
+    // local storage before we get any response back from a discovery node.
+    yield call(reCacheAccount)
   } catch (err) {
     console.error({ err })
   }

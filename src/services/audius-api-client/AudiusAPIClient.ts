@@ -40,6 +40,7 @@ enum PathType {
 }
 
 const ROOT_ENDPOINT_MAP = {
+  feed: `/feed`,
   healthCheck: '/health_check',
   blockConfirmation: '/block_confirmation'
 }
@@ -313,6 +314,16 @@ type GetUserChallengesArgs = {
 }
 
 type UserChallengesResponse = {}
+
+export type GetSocialFeedArgs = QueryParams & {
+  filter: string
+  with_users?: boolean
+  tracks_only?: boolean
+  followee_user_ids?: ID[]
+  current_user_id?: ID
+}
+
+type GetSocialFeedResponse = {}
 
 type InitializationState =
   | { state: 'uninitialized' }
@@ -1156,6 +1167,43 @@ class AudiusAPIClient {
     return response.data
   }
 
+  async getSocialFeed({
+    offset,
+    limit,
+    with_users,
+    filter,
+    tracks_only,
+    followee_user_ids,
+    current_user_id
+  }: GetSocialFeedArgs) {
+    this._assertInitialized()
+    const headers = current_user_id
+      ? {
+          'X-User-Id': current_user_id.toString()
+        }
+      : undefined
+    const response: Nullable<APIResponse<
+      GetSocialFeedResponse
+    >> = await this._getResponse(
+      ROOT_ENDPOINT_MAP.feed,
+      {
+        offset,
+        limit,
+        with_users,
+        filter,
+        tracks_only,
+        followee_user_id: followee_user_ids
+          ? followee_user_ids.map(id => id.toString())
+          : undefined
+      },
+      true,
+      PathType.RootPath,
+      headers
+    )
+    if (!response) return []
+    return response.data
+  }
+
   init() {
     if (this.initializationState.state === 'initialized') return
 
@@ -1216,7 +1264,8 @@ class AudiusAPIClient {
     path: string,
     params: QueryParams = {},
     retry = true,
-    pathType: PathType = PathType.VersionFullPath
+    pathType: PathType = PathType.VersionFullPath,
+    headers?: { [key: string]: string }
   ): Promise<Nullable<T>> {
     if (this.initializationState.state !== 'initialized')
       throw new Error('_constructURL called uninitialized')
@@ -1245,7 +1294,7 @@ class AudiusAPIClient {
     // Initialization type is manual. Make requests with fetch and handle failures.
     const resource = this._constructUrl(formattedPath, sanitizedParams)
     try {
-      const response = await fetch(resource)
+      const response = await fetch(resource, { headers })
       if (!response.ok) {
         if (response.status === 404) return null
         throw new Error(response.statusText)

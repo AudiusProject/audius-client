@@ -25,7 +25,6 @@
   font-weight: var(--font-bold);
 }
 
-
 .headerContainer {
   margin: 0px 8px;
   position: relative;
@@ -43,13 +42,25 @@
 }
 
 .btn {
-  height: 64px !important;
-  padding: 0px 35px;
+  height: 52px !important;
+  width: 176px;
+  margin: 4px auto;
+}
+/** Breakpoint for settings card **/
+@media (max-width: 780px) {
+  .btn {
+    margin: 8px auto;
+  }
 }
 
-.disabledBtn .btnIcon path,
-.btn .btnIcon path {
-  fill: var(--primary) !important;
+/** Verified icon should always be primary/white */
+.disabledBtn .btnIcon path:first-child,
+.btn .btnIcon path:first-child {
+  fill: #cc0fe0 !important;
+}
+.disabledBtn .btnIcon path:first-child,
+.btn .btnIcon path:nth-child(2) {
+  fill: white !important;
 }
 
 .btn .btnText {
@@ -116,7 +127,7 @@
   font-weight: normal;
   font-size: var(--font-m);
   color: var(--neutral-light-4);
-  margin-bottom: 24px
+  margin-bottom: 24px;
 }
 
 .iconVerified {
@@ -134,7 +145,6 @@
   text-transform: capitalize;
   color: var(--neutral);
 }
-
 
 .disabledBtn {
   background-color: var(--white);

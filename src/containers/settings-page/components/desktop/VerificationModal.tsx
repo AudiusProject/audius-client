@@ -1,17 +1,11 @@
 import React, { useCallback, useState } from 'react'
 
-import {
-  Modal,
-  IconVerified,
-  Button,
-  ButtonType,
-  IconNote,
-  ButtonSize
-} from '@audius/stems'
+import { Modal, Button, ButtonType, IconNote, ButtonSize } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
+import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { ID } from 'common/models/Identifiers'
 import { ProfilePictureSizes, SquareSizes } from 'common/models/ImageSizes'
 import Status from 'common/models/Status'
@@ -34,6 +28,7 @@ import styles from './VerificationModal.module.css'
 
 const messages = {
   title: 'Verification',
+  buttonText: 'Verify',
   description:
     'Getting verified on Audius is easy! Just link your verified Twitter or Instagram account and you’ll be verified immediately.',
   warning: (
@@ -301,7 +296,7 @@ const VerificationModal = (props: VerificationModalProps) => {
         />
       ) : (
         <Button
-          text={messages.title}
+          text={messages.buttonText}
           onClick={onOpen}
           className={styles.btn}
           textClassName={styles.btnText}

@@ -429,6 +429,7 @@ const CollectiblesPage: React.FC<{
 
       <CollectibleDetailsModal
         isMobile={isMobile}
+        isUserOnTheirProfile={isUserOnTheirProfile}
         updateProfilePicture={updateProfilePicture}
         onSave={onSave}
       />

@@ -43,6 +43,8 @@ export enum Name {
   SETTINGS_START_INSTAGRAM_OAUTH = 'Settings: Start Instagram OAuth',
   SETTINGS_COMPLETE_INSTAGRAM_OAUTH = 'Settings: Complete Instagram OAuth',
   SETTINGS_RESEND_ACCOUNT_RECOVERY = 'Settings: Resend Account Recovery',
+  SETTINGS_START_CHANGE_PASSWORD = 'Settings: Start Change Password',
+  SETTINGS_COMPLETE_CHANGE_PASSWORD = 'Settings: Complete Change Password',
   SETTINGS_LOG_OUT = 'Settings: Log Out',
 
   // TikTok
@@ -296,6 +298,13 @@ type SettingsCompleteInstagramOauth = {
 type SettingsResetAccountRecovery = {
   eventName: Name.SETTINGS_RESEND_ACCOUNT_RECOVERY
 }
+type SettingsStartChangePassword = {
+  eventName: Name.SETTINGS_START_CHANGE_PASSWORD
+}
+type SettingsCompleteChangePassword = {
+  eventName: Name.SETTINGS_COMPLETE_CHANGE_PASSWORD
+  status: 'success' | 'failure'
+}
 type SettingsLogOut = {
   eventName: Name.SETTINGS_LOG_OUT
 }
@@ -400,7 +409,8 @@ export enum FollowSource {
   HOVER_TILE = 'hover tile',
   OVERFLOW = 'overflow',
   USER_LIST = 'user list',
-  ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup'
+  ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup',
+  EMPTY_FEED = 'empty feed'
 }
 
 type Share = {
@@ -905,6 +915,8 @@ export type AllTrackingEvents =
   | SettingsStartInstagramOauth
   | SettingsCompleteInstagramOauth
   | SettingsResetAccountRecovery
+  | SettingsStartChangePassword
+  | SettingsCompleteChangePassword
   | SettingsLogOut
   | TikTokStartOAuth
   | TikTokCompleteOAuth
