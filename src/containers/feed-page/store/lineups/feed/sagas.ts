@@ -60,7 +60,7 @@ function* getTracks({
     if (!isAccountReady) {
       // Get the artists the user selected in signup:
       const followeeUserIds = yield select(getFollowIds)
-      params.followee_user_id = followeeUserIds
+      params.followee_user_ids = followeeUserIds
     }
   }
 
