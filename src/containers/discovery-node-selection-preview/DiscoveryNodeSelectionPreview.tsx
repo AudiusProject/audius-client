@@ -1,33 +1,20 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
 import { ChangeEvent } from 'react-slick/node_modules/@types/react'
 
-import useHotkeys from 'hooks/useHotkey'
+import { usePreviewHotkey } from 'hooks/useHotkey'
 
 import styles from './DiscoveryNodeSelectionPreview.module.css'
 
-const ENABLE_KEY = 'enable-discovery-node-selection-preview'
-
-const useSetupHotkey = (keyCode: number) => {
-  const [isEnabled, setIsEnabled] = useState(false)
-
-  const listener = useCallback(() => {
-    if (
-      process.env.REACT_APP_ENVIRONMENT === 'production' &&
-      (!window.localStorage || !window.localStorage.getItem(ENABLE_KEY))
-    )
-      return
-    setIsEnabled(e => !e)
-  }, [])
-
-  useHotkeys({ [keyCode]: listener })
-
-  return isEnabled
-}
+const DISCOVERY_NODE_SELECTION_ENABLE_KEY =
+  'enable-discovery-node-selection-preview'
 
 const DiscoveryNodeSelectionPreview = () => {
-  const isEnabled = useSetupHotkey(68 /* d */)
+  const isEnabled = usePreviewHotkey(
+    68 /* d */,
+    DISCOVERY_NODE_SELECTION_ENABLE_KEY
+  )
   const [endpoint, setEndpoint] = useState('')
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
@@ -62,7 +49,6 @@ const DiscoveryNodeSelectionPreview = () => {
       <div className={styles.title}>Discovery Node Selection Preview</div>
       <div className={styles.inputContainer}>
         <input
-          autoFocus
           // not using messages variable because this is not intended for end user
           placeholder='Please enter a valid discovery node'
           value={endpoint}
@@ -78,15 +64,17 @@ const DiscoveryNodeSelectionPreview = () => {
           onClick={handleDiscoveryNodeSelection}
         />
       </div>
+
       {success && (
         <div className={styles.success}>
           New discovery provider successfully set
         </div>
       )}
+
       {error && (
         <div className={styles.error}>
           Could not set discovery provider (does not exist or currently
-          unhealty)
+          unhealthy)
         </div>
       )}
     </div>

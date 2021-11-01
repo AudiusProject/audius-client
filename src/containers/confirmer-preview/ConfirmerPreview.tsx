@@ -1,36 +1,19 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 
 import { connect } from 'react-redux'
 
-import useHotkeys from 'hooks/useHotkey'
+import { usePreviewHotkey } from 'hooks/useHotkey'
 import { AppState } from 'store/types'
 
 import styles from './ConfirmerPreview.module.css'
 
 type ConfirmerPreviewProps = {} & ReturnType<typeof mapStateToProps>
 
-const ENABLE_KEY = 'enable-confirmer-preview'
-
-const useSetupHotkey = () => {
-  const [isEnabled, setIsEnabled] = useState(false)
-
-  const listener = useCallback(() => {
-    if (
-      process.env.REACT_APP_ENVIRONMENT === 'production' &&
-      (!window.localStorage || !window.localStorage.getItem(ENABLE_KEY))
-    )
-      return
-    setIsEnabled(e => !e)
-  }, [])
-
-  useHotkeys({ 67 /* c */: listener })
-
-  return isEnabled
-}
+const CONFIRMER_PREVIEW_ENABLE_KEY = 'enable-confirmer-preview'
 
 const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
   const entities = Object.keys(confirmer.confirm)
-  const isEnabled = useSetupHotkey()
+  const isEnabled = usePreviewHotkey(67 /* c */, CONFIRMER_PREVIEW_ENABLE_KEY)
   if (!isEnabled) return null
 
   return (
