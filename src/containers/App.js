@@ -152,7 +152,7 @@ import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
 import styles from './App.module.css'
 import AnimatedSwitch from './animated-switch/AnimatedSwitch'
-import DiscoveryNodeSelectionPreview from './discovery-node-selection-preview/DiscoveryNodeSelectionPreview'
+import DiscoveryNodeSelection from './discovery-node-selection/DiscoveryNodeSelection'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import { ExploreCollectionsVariant } from './explore-page/store/types'
 import FollowersPage from './followers-page/FollowersPage'
@@ -916,7 +916,7 @@ class App extends Component {
         {/* Non-mobile */}
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
-        {!isMobileClient && <DiscoveryNodeSelectionPreview />}
+        {!isMobileClient && <DiscoveryNodeSelection />}
         {!isMobileClient && <Visualizer />}
         {!isMobileClient && <PinnedTrackConfirmation />}
 

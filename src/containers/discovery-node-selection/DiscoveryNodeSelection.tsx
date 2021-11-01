@@ -3,12 +3,12 @@ import React, { useState } from 'react'
 import { Button, ButtonType } from '@audius/stems'
 import { ChangeEvent } from 'react-slick/node_modules/@types/react'
 
-import { usePreviewHotkey } from 'hooks/useHotkey'
+import { useDevModeHotkey } from 'hooks/useHotkey'
 
-import styles from './DiscoveryNodeSelectionPreview.module.css'
+import styles from './DiscoveryNodeSelection.module.css'
 
-const DiscoveryNodeSelectionPreview = () => {
-  const isEnabled = usePreviewHotkey(68 /* d */)
+const DiscoveryNodeSelection = () => {
+  const isEnabled = useDevModeHotkey(68 /* d */)
   const [endpoint, setEndpoint] = useState('')
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
@@ -72,4 +72,4 @@ const DiscoveryNodeSelectionPreview = () => {
   ) : null
 }
 
-export default DiscoveryNodeSelectionPreview
+export default DiscoveryNodeSelection

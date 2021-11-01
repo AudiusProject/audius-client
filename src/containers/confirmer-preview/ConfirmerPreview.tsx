@@ -2,7 +2,7 @@ import React from 'react'
 
 import { connect } from 'react-redux'
 
-import { usePreviewHotkey } from 'hooks/useHotkey'
+import { useDevModeHotkey } from 'hooks/useHotkey'
 import { AppState } from 'store/types'
 
 import styles from './ConfirmerPreview.module.css'
@@ -11,7 +11,7 @@ type ConfirmerPreviewProps = {} & ReturnType<typeof mapStateToProps>
 
 const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
   const entities = Object.keys(confirmer.confirm)
-  const isEnabled = usePreviewHotkey(67 /* c */)
+  const isEnabled = useDevModeHotkey(67 /* c */)
   if (!isEnabled) return null
 
   return (

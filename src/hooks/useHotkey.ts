@@ -31,7 +31,7 @@ const useHotkeys = (mapping: Mapping) => {
 }
 
 const ENABLE_DEV_MODE_KEY = 'enable-dev-mode'
-export const usePreviewHotkey = (keyCode: number) => {
+export const useDevModeHotkey = (keyCode: number) => {
   const [isEnabled, setIsEnabled] = useState(false)
 
   const listener = useCallback(() => {
