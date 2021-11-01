@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
 
@@ -28,6 +28,23 @@ const useHotkeys = (mapping: Mapping) => {
       removeHotkeys(hook)
     }
   }, [mapping])
+}
+
+export const usePreviewHotkey = (keyCode: number, enableKey: string) => {
+  const [isEnabled, setIsEnabled] = useState(false)
+
+  const listener = useCallback(() => {
+    if (
+      process.env.REACT_APP_ENVIRONMENT === 'production' &&
+      (!window.localStorage || !window.localStorage.getItem(enableKey))
+    )
+      return
+    setIsEnabled(e => !e)
+  }, [enableKey])
+
+  useHotkeys({ [keyCode]: listener })
+
+  return isEnabled
 }
 
 export default useHotkeys
