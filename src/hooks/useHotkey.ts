@@ -30,17 +30,19 @@ const useHotkeys = (mapping: Mapping) => {
   }, [mapping])
 }
 
-export const usePreviewHotkey = (keyCode: number, enableKey: string) => {
+const ENABLE_DEV_MODE_KEY = 'enable-dev-mode'
+export const usePreviewHotkey = (keyCode: number) => {
   const [isEnabled, setIsEnabled] = useState(false)
 
   const listener = useCallback(() => {
     if (
       process.env.REACT_APP_ENVIRONMENT === 'production' &&
-      (!window.localStorage || !window.localStorage.getItem(enableKey))
+      (!window.localStorage ||
+        !window.localStorage.getItem(ENABLE_DEV_MODE_KEY))
     )
       return
     setIsEnabled(e => !e)
-  }, [enableKey])
+  }, [])
 
   useHotkeys({ [keyCode]: listener })
 

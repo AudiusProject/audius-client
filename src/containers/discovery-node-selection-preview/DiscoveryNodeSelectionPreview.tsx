@@ -7,26 +7,17 @@ import { usePreviewHotkey } from 'hooks/useHotkey'
 
 import styles from './DiscoveryNodeSelectionPreview.module.css'
 
-const DISCOVERY_NODE_SELECTION_ENABLE_KEY =
-  'enable-discovery-node-selection-preview'
-
 const DiscoveryNodeSelectionPreview = () => {
-  const isEnabled = usePreviewHotkey(
-    68 /* d */,
-    DISCOVERY_NODE_SELECTION_ENABLE_KEY
-  )
+  const isEnabled = usePreviewHotkey(68 /* d */)
   const [endpoint, setEndpoint] = useState('')
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
 
   const handleDiscoveryNodeSelection = async () => {
-    const healthyEndpoints = (
-      await (await fetch('https://api.audius.co')).json()
-    ).data
-    const url = endpoint.endsWith('/')
-      ? endpoint.substring(0, endpoint.length - 1)
-      : endpoint
-    if (healthyEndpoints.includes(url)) {
+    try {
+      const url = endpoint.endsWith('/')
+        ? endpoint.substring(0, endpoint.length - 1)
+        : endpoint
       const item = {
         endpoint: url,
         timestamp: Date.now()
@@ -38,7 +29,7 @@ const DiscoveryNodeSelectionPreview = () => {
       setEndpoint('')
       setSuccess(true)
       setError(false)
-    } else {
+    } catch (e) {
       setError(true)
       setSuccess(false)
     }

@@ -9,11 +9,9 @@ import styles from './ConfirmerPreview.module.css'
 
 type ConfirmerPreviewProps = {} & ReturnType<typeof mapStateToProps>
 
-const CONFIRMER_PREVIEW_ENABLE_KEY = 'enable-confirmer-preview'
-
 const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
   const entities = Object.keys(confirmer.confirm)
-  const isEnabled = usePreviewHotkey(67 /* c */, CONFIRMER_PREVIEW_ENABLE_KEY)
+  const isEnabled = usePreviewHotkey(67 /* c */)
   if (!isEnabled) return null
 
   return (
