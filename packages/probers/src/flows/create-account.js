@@ -4,7 +4,7 @@ import {
   waitForResponse,
   fillInput,
   waitForAndClickButton,
-  waitForNetworkIdle2,
+  waitForNetworkIdle0,
   wait,
   getEntropy
 } from '../utils'
@@ -29,12 +29,12 @@ const generateTestUser = () => {
 export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
   let testUser = generateTestUser()
   // Go to the signup page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signup`))
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/signup`))
   // await new Promise(resolve => setTimeout(resolve, 5000)) // Allow time for js confirmation of pwd
 
   /** Email Page ... */
-  // Fill in email, intercept email exists check request and hit continue
   const checkEmail = waitForResponse(page, '/users/check')
+  // Fill in email, intercept email exists check request and hit continue
   await page.waitForSelector(`input[type='email']`, { timeout: 2000 })
   await fillInput(page, 'email', testUser.email)
 
@@ -44,17 +44,17 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
 
   /** Password Page ... */
   // Fill in password twice
-  await wait(500) // Allow time for transition
+  await wait(2000) // Allow time for transition
   await page.waitForSelector(`input[name='password']`, { timeout: 2000 })
   await fillInput(page, 'password', testUser.password)
   await fillInput(page, 'confirmPassword', testUser.password)
 
-  await new Promise(resolve => setTimeout(resolve, 100)) // Allow time for js confirmation of pwd
+  await wait(2000) // Allow time for js confirmation of pwd
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Profile Page ... */
   // Fill in name and handle
-  await wait(500) // Allow time for transition
+  await wait(2000) // Allow time for transition
   await page.waitForXPath(
     "//div[contains(text(), 'fill out my profile manually')]"
   )
@@ -69,14 +69,14 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
   if (uploadPhoto) {
     const uploadProfilePhotoElement = await page.$('input[type=file]')
     await uploadProfilePhotoElement.uploadFile(path.resolve(__dirname, TEST_PHOTO_PATH))
-    await page.waitForXPath("//span[contains(text(), 'Change')]", { timeout: 5 * 60 * 1000 }) // 5 min..
+    await page.waitForXPath("//span[contains(text(), 'Change')]", { timeout: 60 * 1000 }) // 1 min..
   }
 
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Follow Page ... */
   // Select Followers and continue
-  await wait(1000) // Allow time for transition
+  await wait(2000) // Allow time for transition
 
   await page.waitForSelector(`div[class^=UserCard_cardContainer]`)
   const userCards = await page.$$('div[class^=UserCard_cardContainer]')
@@ -86,7 +86,7 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
   /** Get The App Page ... */
-  await wait(500) // Allow time for transition
+  await wait(2000) // Allow time for transition
   // Select "Continue"
   await waitForAndClickButton(page, 'continue', '[class*="primaryAlt"]')
 
@@ -98,6 +98,9 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
     timeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */
   })
   await waitForAndClickButton(page, 'startListening')
+
+  // We still may be following users and playlists in the background, so wait
+  await waitForNetworkIdle0(page)
 
   // Export account so it can be re-used in other tests that don't want a fresh state
   const entropy = await getEntropy(page)

@@ -1,5 +1,5 @@
 import getConfig from '../../config'
-import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
+import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 import { createSignedInAccountIfNecessary } from '../../flows/create-account-if-necessary'
 
 const config = getConfig()
@@ -20,7 +20,7 @@ describe('Smoke test -- feed page', () => {
 
   it('should load feed page when visited', async () => {
     // Visit feed page
-    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/feed`))
+    await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/feed`))
 
     // Verify that page url is not 404 nor error
     expect(page.url()).not.toMatch(/(error|404)/)

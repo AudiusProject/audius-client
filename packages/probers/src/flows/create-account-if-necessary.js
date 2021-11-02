@@ -1,6 +1,6 @@
 import { importAccount } from '../utils/account-credentials'
 import chalk from 'chalk'
-import { urlLogin, resetBrowser } from '../utils'
+import { urlLogin, resetBrowser, waitForNetworkIdle0 } from '../utils'
 import createAccount from './create-account'
 import args from '../args'
 
@@ -19,6 +19,7 @@ const createAccountIfNecessary = async (
   signIn,
   route
 ) => {
+  console.log("creating signed in account")
   let account = null
 
   // Don't re-use an account if in idempotent mode
@@ -40,6 +41,7 @@ const createAccountIfNecessary = async (
       await resetBrowser(page, baseUrl)
     }
   }
+  waitForNetworkIdle0(page)
 
   return account
 }

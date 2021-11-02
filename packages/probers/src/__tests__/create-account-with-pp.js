@@ -2,7 +2,7 @@ import {
   newPage,
   resetBrowser,
   waitForAndClickButton,
-  waitForNetworkIdle2
+  waitForNetworkIdle0
 } from '../utils'
 import getConfig from '../config'
 import createAccount from '../flows/create-account'
@@ -27,7 +27,7 @@ describe(
       'should fill out the signup flow inputs',
       async () => {
         const user = await createAccount(page, config.baseUrl, true)
-        await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/${user.handle}`))
+        await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/${user.handle}`))
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).toBe(`/${user.handle}`)
       },

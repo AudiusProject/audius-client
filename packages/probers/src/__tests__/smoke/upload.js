@@ -1,5 +1,5 @@
 import getConfig from '../../config'
-import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
+import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 import { createSignedInAccountIfNecessary } from '../../flows/create-account-if-necessary'
 
 const config = getConfig()
@@ -20,7 +20,7 @@ describe('Smoke test -- upload page', () => {
 
   it('should load upload page when visited', async () => {
     // Visit upload page
-    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/upload`))
+    await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/upload`))
 
     // Verify that page url is not 404 nor error
     expect(page.url()).not.toMatch(/(error|404)/)

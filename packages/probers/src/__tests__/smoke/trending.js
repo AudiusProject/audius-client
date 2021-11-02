@@ -1,5 +1,5 @@
 import getConfig from '../../config'
-import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
+import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
 const config = getConfig()
 const timeout = config.defaultTestTimeout
@@ -18,7 +18,7 @@ describe('Smoke test -- trending page', () => {
 
   it('should load trending page when visited', async () => {
     // Go to trending page
-    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/trending`))
+    await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/trending`))
 
     // Verify that page url is not 404 nor error
     expect(page.url()).not.toMatch(/(error|404)/)

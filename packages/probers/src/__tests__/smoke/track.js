@@ -1,5 +1,5 @@
 import getConfig from '../../config'
-import { newPage, resetBrowser, waitForNetworkIdle2 } from '../../utils'
+import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
 const config = getConfig()
 const testTimeout = config.defaultTestTimeout
@@ -18,7 +18,7 @@ describe('Smoke test -- track page', () => {
 
   it('should load a track page when visited', async () => {
     // Go to track url
-    await waitForNetworkIdle2(page, page.goto(`${config.baseUrl}/${config.trackRoute}`))
+    await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/${config.trackRoute}`))
 
     // Verify that page url is not 404 nor error
     expect(page.url()).not.toMatch(/(error|404)/)

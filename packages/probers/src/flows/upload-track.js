@@ -1,13 +1,13 @@
 import path from 'path'
 import {
   waitForAndClickButton,
-  waitForNetworkIdle2
+  waitForNetworkIdle0
 } from '../utils'
 
 export const uploadTrack = async (page, baseUrl) => {
   const testTrackPath = '../assets/track.mp3'
 
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/upload`))
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/upload`))
 
   /** ======== `Upload Media Page` ======== */
   await page.waitForSelector('div[class^=Dropzone]', {

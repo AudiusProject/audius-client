@@ -1,4 +1,4 @@
-import { waitForNetworkIdle2, fillInput, waitForAndClickButton, wait, getElement } from "../utils"
+import { waitForNetworkIdle0, fillInput, waitForAndClickButton, wait, getElement } from "../utils"
 
 /* Checks if a track is reposted by inspecting the button */
 export const checkIfReposted = async (page) => {
@@ -8,39 +8,33 @@ export const checkIfReposted = async (page) => {
 }
 
 /**
- * Reposts if needed
- * @param page 
- * @param baseUrl 
+ * Reposts
+ * @param page
+ * @param baseUrl
  * @param {config} config
  * @param {string} config.trackRoute the track page string to visit
  */
 export const repostTrack = async (page, baseUrl, { trackRoute }) => {
   // Go to a track page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/${trackRoute}`))
-
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/${trackRoute}`))
   const isReposted = await checkIfReposted(page)
-  if (!isReposted) {
-    await waitForAndClickButton(page, 'repost')
-  }
-  // Allow button click time to propagate
-  await wait(1000)
+  if (isReposted) throw new Error('Already was reposted')
+
+  await waitForNetworkIdle0(page, waitForAndClickButton(page, 'repost'))
 }
 
 /**
- * Undoes a repost if needed
- * @param page 
- * @param baseUrl 
+ * Undoes a repost
+ * @param page
+ * @param baseUrl
  * @param {config} config
  * @param {string} config.trackRoute the track page string to visit
  */
 export const undoRepostTrack = async (page, baseUrl, { trackRoute }) => {
   // Go to a track page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/${trackRoute}`))
-
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/${trackRoute}`))
   const isReposted = await checkIfReposted(page)
-  if (isReposted) {
-    await waitForAndClickButton(page, 'repost')
-  }
-  // Allow button click time to propagate
-  await wait(1000)
+  if (!isReposted) throw new Error('Was not reposted')
+
+  await waitForNetworkIdle0(page, waitForAndClickButton(page, 'repost'))
 }

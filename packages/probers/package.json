@@ -9,7 +9,7 @@
     "test:ci": "env-cmd -f .env.ci jest ../__tests__ --runInBand",
     "pings": "jest ../__ping__ --runInBand",
     "lint": "./node_modules/.bin/standard",
-    "lint-fix": "./node_modules/.bin/standard --fix"
+    "lint:fix": "./node_modules/.bin/standard --fix"
   },
   "author": "",
   "license": "ISC",

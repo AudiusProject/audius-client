@@ -1,15 +1,15 @@
-const { waitForNetworkIdle2, wait, waitForAndClickButton } = require("../utils")
+const { waitForNetworkIdle0, wait, waitForAndClickButton } = require("../utils")
 
 export const signOut = async (page, baseUrl) => {
   // Go to the settings page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/settings`))
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/settings`))
 
   await waitForAndClickButton(page, 'sign-out')
 
-  // Wait for animation
-  await wait(500)
+  // Wait for confirmation popup
+  await wait(2000)
 
   await waitForAndClickButton(page, 'confirm-sign-out')
 
-  await waitForNetworkIdle2(page)
+  await waitForNetworkIdle0(page)
 }

@@ -7,6 +7,7 @@ export const newPage = async (width = 1600, height = 960) => {
     width,
     height
   })
+  await page.setDefaultNavigationTimeout(0);
   return page
 }
 
@@ -14,8 +15,10 @@ export const wait = async milliseconds => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
+const IGNORED_REQUESTS = /recaptcha|notifications|sentry/
+
 // See https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#framegotourl-options
-export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 60000) => {
+const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitTimeout = 2 * 60 * 1000) => {
   page.on('request', onRequestStarted)
   page.on('requestfinished', onRequestFinished)
   page.on('requestfailed', onRequestFinished)
@@ -29,49 +32,48 @@ export const waitForNetworkIdle = (page, timeout, maxInflightRequests = 0, exitT
   })
   let timeoutId = setTimeout(onTimeoutDone, timeout)
   let exitTimeoutId = setTimeout(onExit, exitTimeout)
+  let remaining = new Set()
   return promise
+
 
   function onTimeoutDone () {
     clearTimeout(exitTimeoutId)
     page.removeListener('request', onRequestStarted)
     page.removeListener('requestfinished', onRequestFinished)
     page.removeListener('requestfailed', onRequestFinished)
+    // console.log(`On timeout done, inflight: ${inflight}`)
     fulfill()
   }
 
-  function onRequestStarted () {
+  function onRequestStarted (r) {
+    const url = r.url()
+    if (IGNORED_REQUESTS.test(url)) return
     ++inflight
+    remaining.add(r.url())
     if (inflight > maxInflightRequests) { clearTimeout(timeoutId) }
   }
 
-  function onRequestFinished () {
+  function onRequestFinished (r) {
+    const url = r.url()
+    if (IGNORED_REQUESTS.test(url)) return
+    // console.log(`${inflight} Requests In-Flight`)
+    remaining.delete(r.url())
     if (inflight === 0) { return }
     --inflight
     if (inflight === maxInflightRequests) { timeoutId = setTimeout(onTimeoutDone, timeout) }
   }
 
   function onExit () {
+    console.log("FAILING DUE TO TIMEOUT")
+    console.log(`Inflight requests ${inflight}: ${remaining}`)
     fail()
   }
 }
 
-export const waitForConfirmer = async (page) => {
-  const config = getConfig()
-  await wait(config.confirmerTimeout)
-  await waitForNetworkIdle(page, config.confirmerPollingTimeout, 1)
-}
-
-export const waitForNetworkIdle0 = (page, action, timeout = 500, exitTimeout = 60000) => {
+export const waitForNetworkIdle0 = (page, action, timeout = 3000, exitTimeout = 60000) => {
   return Promise.all([
     action,
     waitForNetworkIdle(page, timeout, 0, exitTimeout)
-  ])
-}
-
-export const waitForNetworkIdle2 = (page, action, timeout = 500, exitTimeout = 60000) => {
-  return Promise.all([
-    action,
-    waitForNetworkIdle(page, timeout, 2, exitTimeout)
   ])
 }
 
@@ -114,13 +116,14 @@ export const reload = async (page) => {
   await page.evaluate(() => {
     location.reload(true)
   })
-  await waitForNetworkIdle2(page)
+  await waitForNetworkIdle0(page)
 }
 
 export const getRandomInt = max => Math.floor(Math.random() * Math.floor(max))
 
 export const fillInput = async (page, name, value) => {
-  return page.type(`input[name='${name}']`, value)
+  await page.type(`input[name='${name}']`, value)
+  await wait(500) // debounce input
 }
 
 export const waitForAndClickButton = async (page, name, selector = '', config) => {

@@ -1,8 +1,8 @@
-import { waitForNetworkIdle2, fillInput, waitForAndClickButton } from "../utils"
+import { waitForNetworkIdle0, fillInput, waitForAndClickButton } from "../utils"
 
 export const signIn = async (page, baseUrl, { email, password }) => {
   // Go to the signin page
-  await waitForNetworkIdle2(page, page.goto(`${baseUrl}/signin`))
+  await waitForNetworkIdle0(page, page.goto(`${baseUrl}/signin`))
 
   await page.waitForSelector(`input[type='email']`, { timeout: 2000 })
   await fillInput(page, 'email', email)

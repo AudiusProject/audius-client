@@ -1,5 +1,5 @@
 import getConfig from '../config'
-import { newPage, resetBrowser, waitForConfirmer, reload } from '../utils'
+import { newPage, resetBrowser, reload, wait, waitForNetworkIdle0 } from '../utils'
 import { repostTrack, undoRepostTrack, checkIfReposted } from '../flows/repost-track'
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
@@ -29,20 +29,14 @@ describe(
         let isReposted
 
         await repostTrack(page, config.baseUrl, { trackRoute: config.trackRoute })
-
-        // Wait for confirmer and reload
-        await waitForConfirmer(page)
         await reload(page)
-
+        await waitForNetworkIdle0(page)
         isReposted = await checkIfReposted(page)
         expect(isReposted).toBe(true)
 
         await undoRepostTrack(page, config.baseUrl, { trackRoute: config.trackRoute })
-
-        // Wait for confirmer and reload
-        await waitForConfirmer(page)
         await reload(page)
-
+        await waitForNetworkIdle0(page)
         isReposted = await checkIfReposted(page)
         expect(isReposted).toBe(false)
       },
