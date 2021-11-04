@@ -76,15 +76,13 @@ const DraggableDrawer = ({
 }: DrawerProps) => {
   const Portal = usePortal({})
 
-  // Stores whether or not the drawer is "open"
-  const [height, setHeight] = useInstanceVar(0)
-
   const contentRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (contentRef.current) {
-      setHeight(contentRef.current.getBoundingClientRect().height)
-    }
-  }, [contentRef, setHeight, Portal])
+
+  const getHeight = useCallback(() => {
+    if (!contentRef.current) return 0
+
+    return contentRef.current.getBoundingClientRect().height
+  }, [contentRef])
 
   // Stores the initial translation of the drawer
   const [initialTranslation] = useInstanceVar(0)
@@ -93,7 +91,7 @@ const DraggableDrawer = ({
 
   const [drawerSlideProps, setDrawerSlideProps] = useSpring(() => ({
     to: {
-      y: -1 * height()
+      y: -1 * getHeight()
     },
     config: wobble,
     onFrame(frame: any) {
@@ -112,7 +110,7 @@ const DraggableDrawer = ({
     new DisablePullToRefreshMessage().send()
     setDrawerSlideProps({
       to: {
-        y: -1 * height()
+        y: -1 * getHeight()
       },
       immediate: false,
       config: wobble
@@ -124,7 +122,7 @@ const DraggableDrawer = ({
       immediate: false,
       config: stiff
     })
-  }, [setDrawerSlideProps, setContentFadeProps, height])
+  }, [setDrawerSlideProps, setContentFadeProps, getHeight])
 
   const close = useCallback(() => {
     new EnablePullToRefreshMessage(true).send()
@@ -150,7 +148,7 @@ const DraggableDrawer = ({
     if (isOpen) {
       open()
     }
-  }, [open, height, isOpen])
+  }, [open, isOpen])
 
   useEffect(() => {
     if (shouldClose) {
@@ -161,7 +159,7 @@ const DraggableDrawer = ({
   useEffect(() => {
     // Toggle drawer if isOpen and keyboard visibility toggles
     if (isOpen) {
-      const drawerY = keyboardVisible ? DRAWER_KEYBOARD_UP : -1 * height()
+      const drawerY = keyboardVisible ? DRAWER_KEYBOARD_UP : -1 * getHeight()
       setDrawerSlideProps({
         to: {
           y: drawerY
@@ -170,7 +168,7 @@ const DraggableDrawer = ({
         config: fast
       })
     }
-  }, [isOpen, keyboardVisible, setDrawerSlideProps, height])
+  }, [isOpen, keyboardVisible, setDrawerSlideProps, getHeight])
 
   const bind = useDrag(
     ({
@@ -180,8 +178,7 @@ const DraggableDrawer = ({
       movement: [, my],
       memo = currentTranslation()
     }) => {
-      if (!contentRef.current) return
-      const height = contentRef.current.getBoundingClientRect().height
+      const height = getHeight()
 
       let newY = memo + my
 
@@ -257,12 +254,12 @@ const DraggableDrawer = ({
     }
   )
 
-  const clickOutsideRef = useClickOutside(() => close())
+  const clickOutsideRef = useClickOutside(close)
 
   return (
     <Portal>
       <animated.div
-        ref={clickOutsideRef}
+        ref={isOpen ? clickOutsideRef : undefined}
         className={cn(styles.drawer, {
           [styles.isOpen]: isOpen,
           [styles.native]: NATIVE_MOBILE

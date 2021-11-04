@@ -22,7 +22,7 @@ const actionsMap: ActionsMap<MobileOverflowModalState> = {
     }
   },
   [CLOSE](state, action): MobileOverflowModalState {
-    return initialState
+    return { ...state, isOpen: false }
   }
 }
 

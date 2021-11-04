@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { Anchor, Modal } from '@audius/stems'
 import cn from 'classnames'
 
+import Drawer from 'components/drawer/Drawer'
 import { isDarkMode } from 'utils/theme/theme'
 
 import styles from './ActionSheetModal.module.css'
@@ -35,13 +35,7 @@ const ActionSheetModal = ({
   const isDark = isDarkMode()
 
   return (
-    <Modal
-      bodyClassName={styles.modalBodyStyle}
-      onClose={onClose}
-      isOpen={isOpen}
-      anchor={Anchor.BOTTOM}
-      verticalAnchorOffset={MODAL_OFFSET_PIXELS}
-    >
+    <Drawer onClose={onClose} isOpen={isOpen} shouldClose={!isOpen}>
       <div className={styles.container}>
         {title && <div className={styles.title}>{title}</div>}
         {actions.map(({ text, isDestructive = false }, index) => (
@@ -60,7 +54,7 @@ const ActionSheetModal = ({
           </div>
         ))}
       </div>
-    </Modal>
+    </Drawer>
   )
 }
 

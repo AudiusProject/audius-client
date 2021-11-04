@@ -13,6 +13,7 @@
   border-radius: 40px 40px 0px 0px;
   box-shadow: none;
   transition: box-shadow 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 .fullDrawer {
