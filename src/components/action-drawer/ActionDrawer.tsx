@@ -5,16 +5,16 @@ import cn from 'classnames'
 import Drawer from 'components/drawer/Drawer'
 import { isDarkMode } from 'utils/theme/theme'
 
-import styles from './ActionSheetModal.module.css'
+import styles from './ActionDrawer.module.css'
 
-type ActionSheetAction = {
+type Action = {
   text: string
   isDestructive?: boolean
 }
 
 type ActionSheetModalProps = {
   didSelectRow: (index: number) => void
-  actions: ActionSheetAction[]
+  actions: Action[]
   isOpen: boolean
   onClose: () => void
   title?: string
@@ -22,10 +22,8 @@ type ActionSheetModalProps = {
 
 export const MODAL_OFFSET_PIXELS = 41
 
-// `ActionSheetModal` is a modal that presents a list of clickable rows with text
-// styled like an iOS Action Sheet.
-// See: https://developer.apple.com/design/human-interface-guidelines/ios/views/action-sheets/
-const ActionSheetModal = ({
+// `ActionDrawer` is a drawer that presents a list of clickable rows with text
+const ActionDrawer = ({
   didSelectRow,
   actions,
   isOpen,
@@ -58,4 +56,4 @@ const ActionSheetModal = ({
   )
 }
 
-export default ActionSheetModal
+export default ActionDrawer

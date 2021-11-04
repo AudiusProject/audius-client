@@ -22,6 +22,8 @@ const actionsMap: ActionsMap<MobileOverflowModalState> = {
     }
   },
   [CLOSE](state, action): MobileOverflowModalState {
+    // We don't clear out the actions because
+    // it causes an empty drawer while it is animating out
     return { ...state, isOpen: false }
   }
 }

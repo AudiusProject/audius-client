@@ -1,10 +1,11 @@
 import React from 'react'
 
+import ActionSheetModal from 'components/action-sheet-modal/ActionDrawer'
+
 import {
   OverflowAction,
   OverflowActionCallbacks
 } from 'common/store/ui/mobile-overflow-menu/types'
-import ActionSheetModal from 'components/action-sheet-modal/ActionSheetModal'
 
 type MobileOverflowModalProps = {
   // Actions to show in the modal

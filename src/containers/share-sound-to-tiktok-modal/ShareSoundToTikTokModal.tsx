@@ -10,11 +10,11 @@ import {
   ModalProps
 } from '@audius/stems'
 import cn from 'classnames'
+import { MODAL_OFFSET_PIXELS } from 'components/action-sheet-modal/ActionDrawer'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { Nullable } from 'common/utils/typeUtils'
-import { MODAL_OFFSET_PIXELS } from 'components/action-sheet-modal/ActionSheetModal'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
