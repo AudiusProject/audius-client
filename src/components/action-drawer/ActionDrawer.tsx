@@ -20,8 +20,6 @@ type ActionSheetModalProps = {
   title?: string
 }
 
-export const MODAL_OFFSET_PIXELS = 41
-
 // `ActionDrawer` is a drawer that presents a list of clickable rows with text
 const ActionDrawer = ({
   didSelectRow,

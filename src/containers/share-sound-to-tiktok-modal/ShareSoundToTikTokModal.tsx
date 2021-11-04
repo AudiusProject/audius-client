@@ -14,7 +14,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { Nullable } from 'common/utils/typeUtils'
-import { MODAL_OFFSET_PIXELS } from 'components/action-drawer/ActionDrawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -24,6 +23,8 @@ import styles from './ShareSoundToTikTokModal.module.css'
 import { getStatus, getTrack } from './store/selectors'
 import { authenticated, setStatus, share } from './store/slice'
 import { Status } from './store/types'
+
+const MODAL_OFFSET_PIXELS = 41
 
 enum FileRequirementError {
   MIN_LENGTH,
