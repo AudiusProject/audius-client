@@ -34,7 +34,6 @@ import searchBar from 'containers/search-bar/store/reducer'
 import search from 'containers/search-page/store/reducer'
 import serviceSelection from 'containers/service-selection/store/slice'
 import settings from 'containers/settings-page/store/reducer'
-import shareSoundToTikTokModal from 'containers/share-sound-to-tiktok-modal/store/slice'
 import signOn from 'containers/sign-on/store/reducer'
 import smartCollection from 'containers/smart-collection/store/slice'
 import track from 'containers/track-page/store/reducer'
@@ -131,7 +130,6 @@ const createRootReducer = routeHistory =>
         remixSettingsModal,
         scrollLock,
         setAsArtistPickConfirmation,
-        shareSoundToTikTokModal,
         stemsUpload,
         theme,
         userListModal,

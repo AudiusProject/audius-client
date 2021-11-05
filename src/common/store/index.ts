@@ -30,6 +30,8 @@ import nowPlayingReducer, {
 import pushNotificationsDrawerReducer, {
   PushNotificationsDrawerState
 } from 'common/store/ui/push-notifications-drawer/slice'
+import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
+import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
 
 // In the future, these state slices will live in @audius/client-common.
 // For now they live in the web client. As features get migrated to RN
@@ -51,7 +53,8 @@ export const reducers = {
     mobileOverflowModal: mobileOverflowModalReducer,
     mobileUploadDrawer: mobileUploadDrawerReducer,
     modals: modalsReducer,
-    nowPlaying: nowPlayingReducer
+    nowPlaying: nowPlayingReducer,
+    shareSoundToTikTokModal: shareSoundToTikTokModalReducer
   })
 }
 
@@ -78,5 +81,6 @@ export type CommonState = {
     mobileUploadDrawer: MobileUploadDrawerState
     modals: ModalsState
     nowPlaying: NowPlayingState
+    shareSoundToTikTokModal: ShareSoundToTikTokModalState
   }
 }

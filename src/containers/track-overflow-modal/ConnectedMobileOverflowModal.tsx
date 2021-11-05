@@ -25,6 +25,7 @@ import {
 import { close } from 'common/store/ui/mobile-overflow-menu/actions'
 import { getMobileOverflowModal } from 'common/store/ui/mobile-overflow-menu/selectors'
 import { OverflowSource } from 'common/store/ui/mobile-overflow-menu/types'
+import { requestOpen as openTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 import { setOpen as openDeletePlaylist } from 'containers/delete-playlist-confirmation-modal/store/actions'
 import {
@@ -36,7 +37,6 @@ import {
   Notification,
   NotificationType
 } from 'containers/notification/store/types'
-import { requestOpen as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/slice'
 import { open as openEditPlaylist } from 'store/application/ui/createPlaylistModal/actions'
 import {
   repostCollection,

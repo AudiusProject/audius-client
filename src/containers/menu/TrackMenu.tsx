@@ -24,11 +24,11 @@ import {
   undoRepostTrack,
   shareTrack
 } from 'common/store/social/tracks/actions'
+import { requestOpen as openTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ToastContext } from 'components/toast/ToastContext'
 import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
 import * as embedModalActions from 'containers/embed-modal/store/actions'
-import { requestOpen as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/slice'
 import { newCollectionMetadata } from 'schemas'
 import { FeatureFlags, getFeatureEnabled } from 'services/remote-config'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
