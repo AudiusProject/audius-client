@@ -14,6 +14,13 @@ import { ID } from 'common/models/Identifiers'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import {
+  saveTrack,
+  unsaveTrack,
+  repostTrack,
+  undoRepostTrack,
+  shareTrack
+} from 'common/store/social/tracks/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
@@ -27,13 +34,6 @@ import { RepostType } from 'containers/reposts-page/store/types'
 import { FeatureFlags } from 'services/remote-config'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack,
-  shareTrack
-} from 'store/social/tracks/actions'
 import { AppState } from 'store/types'
 import {
   profilePage,

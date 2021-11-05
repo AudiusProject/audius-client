@@ -17,6 +17,13 @@ import {
   createPlaylist,
   addTrackToPlaylist
 } from 'common/store/cache/collections/actions'
+import {
+  saveTrack,
+  unsaveTrack,
+  repostTrack,
+  undoRepostTrack,
+  shareTrack
+} from 'common/store/social/tracks/actions'
 import { ToastContext } from 'components/toast/ToastContext'
 import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 import { getCollectionId } from 'containers/collection-page/store/selectors'
@@ -26,13 +33,6 @@ import { newCollectionMetadata } from 'schemas'
 import { FeatureFlags, getFeatureEnabled } from 'services/remote-config'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
 import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtistPickConfirmation/actions'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack,
-  shareTrack
-} from 'store/social/tracks/actions'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 

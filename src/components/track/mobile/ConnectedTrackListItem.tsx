@@ -8,6 +8,12 @@ import { FavoriteSource, RepostSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { getUserId } from 'common/store/account/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import {
+  saveTrack,
+  unsaveTrack,
+  repostTrack,
+  undoRepostTrack
+} from 'common/store/social/tracks/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
@@ -15,12 +21,6 @@ import {
 } from 'common/store/ui/mobile-overflow-menu/types'
 import { useFlag } from 'containers/remote-config/hooks'
 import { FeatureFlags } from 'services/remote-config'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack
-} from 'store/social/tracks/actions'
 import { AppState } from 'store/types'
 
 import TrackListItem, { TrackListItemProps } from './TrackListItem'

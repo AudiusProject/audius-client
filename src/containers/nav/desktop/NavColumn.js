@@ -19,6 +19,7 @@ import {
   createPlaylist,
   addTrackToPlaylist
 } from 'common/store/cache/collections/actions'
+import { saveTrack } from 'common/store/social/tracks/actions'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Pill from 'components/general/Pill'
@@ -47,7 +48,6 @@ import { getIsOpen } from 'store/application/ui/createPlaylistModal/selectors'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { saveCollection } from 'store/social/collections/actions'
-import { saveTrack } from 'store/social/tracks/actions'
 import {
   FEED_PAGE,
   TRENDING_PAGE,

@@ -30,6 +30,7 @@ import {
   publishPlaylist,
   deletePlaylist
 } from 'common/store/cache/collections/actions'
+import * as socialTracksActions from 'common/store/social/tracks/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowAction,
@@ -60,7 +61,6 @@ import { getPlaying, getBuffering } from 'store/player/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import * as socialCollectionsActions from 'store/social/collections/actions'
-import * as socialTracksActions from 'store/social/tracks/actions'
 import * as socialUsersActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
 import { formatUrlName } from 'utils/formatUtil'

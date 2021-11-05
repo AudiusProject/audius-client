@@ -12,6 +12,12 @@ import {
   PlaybackSource
 } from 'common/models/Analytics'
 import { getUserId } from 'common/store/account/selectors'
+import {
+  repostTrack,
+  undoRepostTrack,
+  saveTrack,
+  unsaveTrack
+} from 'common/store/social/tracks/actions'
 import FavoriteButton from 'components/general/FavoriteButton'
 import RepostButton from 'components/general/RepostButton'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -36,12 +42,6 @@ import { seek, reset } from 'store/player/slice'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { play, pause, next, previous, repeat, shuffle } from 'store/queue/slice'
 import { RepeatMode } from 'store/queue/types'
-import {
-  repostTrack,
-  undoRepostTrack,
-  saveTrack,
-  unsaveTrack
-} from 'store/social/tracks/actions'
 import { Genre } from 'utils/genres'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { profilePage } from 'utils/route'

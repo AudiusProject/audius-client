@@ -15,6 +15,13 @@ import { UID, ID } from 'common/models/Identifiers'
 import { getUserHandle } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import {
+  saveTrack,
+  unsaveTrack,
+  repostTrack,
+  undoRepostTrack,
+  shareTrack
+} from 'common/store/social/tracks/actions'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import { TrackArtwork } from 'components/track/desktop/Artwork'
 import Draggable from 'containers/dragndrop/Draggable'
@@ -30,13 +37,6 @@ import {
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack,
-  shareTrack
-} from 'store/social/tracks/actions'
 import { AppState } from 'store/types'
 import { fullTrackPage, profilePage } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
