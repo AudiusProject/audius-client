@@ -3,7 +3,7 @@ import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { Name, CreatePlaylistSource } from 'services/analytics'
+import { Name, CreatePlaylistSource } from 'common/models/Analytics'
 import { useRecord, make } from 'store/analytics/actions'
 import * as createPlaylistActions from 'store/application/ui/createPlaylistModal/actions'
 import { AppState } from 'store/types'

@@ -5,16 +5,16 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { ID, UID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
-import { getUserId } from 'common/store/account/selectors'
-import { getHistoryTracksLineup } from 'containers/history-page/store/selectors'
 import {
   RepostSource,
   FavoriteSource,
   Name,
   PlaybackSource
-} from 'services/analytics'
+} from 'common/models/Analytics'
+import { ID, UID } from 'common/models/Identifiers'
+import Status from 'common/models/Status'
+import { getUserId } from 'common/store/account/selectors'
+import { getHistoryTracksLineup } from 'containers/history-page/store/selectors'
 import { useRecord, make } from 'store/analytics/actions'
 import { makeGetTableMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'

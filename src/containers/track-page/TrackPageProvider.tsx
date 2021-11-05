@@ -4,6 +4,14 @@ import { push as pushRoute, replace } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import {
+  FollowSource,
+  FavoriteSource,
+  RepostSource,
+  ShareSource,
+  Name,
+  PlaybackSource
+} from 'common/models/Analytics'
 import { FavoriteType } from 'common/models/Favorite'
 import { ID, CID, PlayableType } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
@@ -31,14 +39,6 @@ import {
   getSourceSelector
 } from 'containers/track-page/store/selectors'
 import * as unfollowConfirmationActions from 'containers/unfollow-confirmation-modal/store/actions'
-import {
-  FollowSource,
-  FavoriteSource,
-  RepostSource,
-  ShareSource,
-  Name,
-  PlaybackSource
-} from 'services/analytics'
 import { TrackEvent, make } from 'store/analytics/actions'
 import {
   setUsers,

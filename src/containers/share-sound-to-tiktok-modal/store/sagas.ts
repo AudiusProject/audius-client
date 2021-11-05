@@ -1,9 +1,9 @@
 import { takeEvery, put, call, select } from 'redux-saga/effects'
 
+import { Name } from 'common/models/Analytics'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { show as showConfetti } from 'containers/music-confetti/store/slice'
-import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { make } from 'store/analytics/actions'
 import { AppState } from 'store/types'

@@ -4,6 +4,12 @@ import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import {
+  FollowSource,
+  ShareSource,
+  RepostSource,
+  FavoriteSource
+} from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { publishPlaylist } from 'common/store/cache/collections/actions'
 import { getCollection } from 'common/store/cache/collections/selectors'
@@ -24,12 +30,6 @@ import {
   NotificationType
 } from 'containers/notification/store/types'
 import { requestOpen as openTikTokModal } from 'containers/share-sound-to-tiktok-modal/store/slice'
-import {
-  FollowSource,
-  ShareSource,
-  RepostSource,
-  FavoriteSource
-} from 'services/analytics'
 import { open as openEditPlaylist } from 'store/application/ui/createPlaylistModal/actions'
 import {
   repostCollection,

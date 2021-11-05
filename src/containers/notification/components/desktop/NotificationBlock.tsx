@@ -3,6 +3,7 @@ import React, { useState, useCallback, useRef, MutableRefObject } from 'react'
 import cn from 'classnames'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import Track from 'common/models/Track'
 import { Nullable } from 'common/utils/typeUtils'
@@ -13,7 +14,6 @@ import {
   NotificationType,
   Achievement
 } from 'containers/notification/store/types'
-import { Name } from 'services/analytics'
 import { make, useRecord } from 'store/analytics/actions'
 import { formatCount } from 'utils/formatUtil'
 import { profilePage } from 'utils/route'

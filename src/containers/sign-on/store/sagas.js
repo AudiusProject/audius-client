@@ -12,6 +12,7 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import { FavoriteSource, Name } from 'common/models/Analytics'
 import * as accountActions from 'common/store/account/reducer'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUserByHandle, fetchUsers } from 'common/store/cache/users/sagas'
@@ -20,7 +21,6 @@ import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import { getIGUserUrl } from 'components/general/InstagramAuth'
 import AudiusBackend from 'services/AudiusBackend'
 import { getCityAndRegion } from 'services/Location'
-import { FavoriteSource, Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getRemoteVar, IntKeys, StringKeys } from 'services/remote-config'
 import { fetchAccountAsync, reCacheAccount } from 'store/account/sagas'

@@ -13,6 +13,7 @@ import {
   race
 } from 'redux-saga/effects'
 
+import { Name } from 'common/models/Analytics'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import * as accountActions from 'common/store/account/reducer'
@@ -36,7 +37,6 @@ import UploadType from 'containers/upload-page/components/uploadType'
 import { getStems } from 'containers/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'containers/upload-page/store/utils/stems'
 import AudiusBackend from 'services/AudiusBackend'
-import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'

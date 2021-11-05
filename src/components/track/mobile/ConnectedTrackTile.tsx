@@ -4,6 +4,11 @@ import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import {
+  FavoriteSource,
+  RepostSource,
+  ShareSource
+} from 'common/models/Analytics'
 import { FavoriteType } from 'common/models/Favorite'
 import { ID } from 'common/models/Identifiers'
 import { getUserId } from 'common/store/account/selectors'
@@ -19,7 +24,6 @@ import { setFavorite } from 'containers/favorites-page/store/actions'
 import { useFlag } from 'containers/remote-config/hooks'
 import { setRepost } from 'containers/reposts-page/store/actions'
 import { RepostType } from 'containers/reposts-page/store/types'
-import { FavoriteSource, RepostSource, ShareSource } from 'services/analytics'
 import { FeatureFlags } from 'services/remote-config'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'

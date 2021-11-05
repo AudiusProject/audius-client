@@ -8,6 +8,7 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import { Name } from 'common/models/Analytics'
 import { DefaultSizes } from 'common/models/ImageSizes'
 import Kind from 'common/models/Kind'
 import * as accountActions from 'common/store/account/reducer'
@@ -21,7 +22,6 @@ import { getUser } from 'common/store/cache/users/selectors'
 import { makeKindId, makeUid } from 'common/utils/uid'
 import * as signOnActions from 'containers/sign-on/store/actions'
 import AudiusBackend from 'services/AudiusBackend'
-import { Name } from 'services/analytics'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'

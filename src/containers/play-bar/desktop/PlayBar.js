@@ -5,6 +5,12 @@ import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 
+import {
+  RepostSource,
+  FavoriteSource,
+  Name,
+  PlaybackSource
+} from 'common/models/Analytics'
 import { getUserId } from 'common/store/account/selectors'
 import FavoriteButton from 'components/general/FavoriteButton'
 import RepostButton from 'components/general/RepostButton'
@@ -15,12 +21,6 @@ import PreviousButtonProvider from 'components/play-bar/previous-button/Previous
 import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButtonProvider'
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import Tooltip from 'components/tooltip/Tooltip'
-import {
-  RepostSource,
-  FavoriteSource,
-  Name,
-  PlaybackSource
-} from 'services/analytics'
 import { make } from 'store/analytics/actions'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'

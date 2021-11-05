@@ -6,6 +6,14 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
+import {
+  RepostSource,
+  FavoriteSource,
+  Name,
+  PlaybackSource,
+  ShareSource,
+  FollowSource
+} from 'common/models/Analytics'
 import Collection, { SmartCollection } from 'common/models/Collection'
 import { FavoriteType } from 'common/models/Favorite'
 import { ID, UID, PlayableType } from 'common/models/Identifiers'
@@ -34,14 +42,6 @@ import { updatePlaylistLastViewedAt } from 'containers/notification/store/action
 import { getPlaylistUpdates } from 'containers/notification/store/selectors'
 import { setRepost } from 'containers/reposts-page/store/actions'
 import { RepostType } from 'containers/reposts-page/store/types'
-import {
-  RepostSource,
-  FavoriteSource,
-  Name,
-  PlaybackSource,
-  ShareSource,
-  FollowSource
-} from 'services/analytics'
 import { TrackEvent, make } from 'store/analytics/actions'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import {

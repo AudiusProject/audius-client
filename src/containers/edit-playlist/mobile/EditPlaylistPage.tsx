@@ -6,6 +6,7 @@ import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCamera } from 'assets/img/iconCamera.svg'
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
+import { CreatePlaylistSource } from 'common/models/Analytics'
 import Collection from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import { SquareSizes } from 'common/models/ImageSizes'
@@ -31,7 +32,6 @@ import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import { useCollectionCoverArt } from 'hooks/useImageSize'
 import * as schemas from 'schemas'
 import RandomImage from 'services/RandomImage'
-import { CreatePlaylistSource } from 'services/analytics'
 import * as createPlaylistActions from 'store/application/ui/createPlaylistModal/actions'
 import {
   getMetadata,

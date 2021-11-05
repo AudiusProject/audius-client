@@ -14,6 +14,13 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import {
+  ShareSource,
+  RepostSource,
+  FavoriteSource,
+  PlaybackSource,
+  Name
+} from 'common/models/Analytics'
 import { UID, ID } from 'common/models/Identifiers'
 import Track from 'common/models/Track'
 import { getUserHandle } from 'common/store/account/selectors'
@@ -29,13 +36,6 @@ import Draggable from 'containers/dragndrop/Draggable'
 import { OwnProps as CollectionkMenuProps } from 'containers/menu/CollectionMenu'
 import Menu from 'containers/menu/Menu'
 import UserBadges from 'containers/user-badges/UserBadges'
-import {
-  ShareSource,
-  RepostSource,
-  FavoriteSource,
-  PlaybackSource,
-  Name
-} from 'services/analytics'
 import { TrackEvent, make } from 'store/analytics/actions'
 import {
   setUsers,
