@@ -27,6 +27,7 @@ import { reformat } from 'common/store/cache/collections/utils'
 import * as tracksActions from 'common/store/cache/tracks/actions'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
+import { formatUrlName } from 'common/utils/formatUtil'
 import { makeUid } from 'common/utils/uid'
 import {
   getSelectedServices,
@@ -42,7 +43,6 @@ import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import { formatUrlName } from 'utils/formatUtil'
 import { ERROR_PAGE } from 'utils/route'
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
 

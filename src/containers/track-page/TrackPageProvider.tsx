@@ -24,6 +24,7 @@ import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { formatUrlName } from 'common/utils/formatUtil'
 import { formatSeconds, formatDate } from 'common/utils/timeUtil'
 import { Uid } from 'common/utils/uid'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
@@ -56,7 +57,6 @@ import { getLocationPathname } from 'store/routing/selectors'
 import * as socialUsersActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
-import { formatUrlName } from 'utils/formatUtil'
 import { getCannonicalName } from 'utils/genres'
 import {
   profilePage,

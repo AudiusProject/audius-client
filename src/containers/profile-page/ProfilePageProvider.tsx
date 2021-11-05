@@ -17,6 +17,7 @@ import {
   OverflowSource,
   OverflowAction
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { formatCount } from 'common/utils/formatUtil'
 import { makeKindId } from 'common/utils/uid'
 import { makeGetRelatedArtists } from 'containers/artist-recommendations/store/selectors'
 import { setFollowers } from 'containers/followers-page/store/actions'
@@ -40,7 +41,6 @@ import { makeGetCurrent } from 'store/queue/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import * as socialActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
-import { formatCount } from 'utils/formatUtil'
 import { verifiedHandleWhitelist } from 'utils/handleWhitelist'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { getPathname, NOT_FOUND_PAGE, profilePage } from 'utils/route'

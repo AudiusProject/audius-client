@@ -36,6 +36,7 @@ import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { formatUrlName } from 'common/utils/formatUtil'
 import { Uid } from 'common/utils/uid'
 import DeletedPage from 'containers/deleted-page/DeletedPage'
 import { setFavorite } from 'containers/favorites-page/store/actions'
@@ -63,7 +64,6 @@ import { getLocationPathname } from 'store/routing/selectors'
 import * as socialCollectionsActions from 'store/social/collections/actions'
 import * as socialUsersActions from 'store/social/users/actions'
 import { AppState } from 'store/types'
-import { formatUrlName } from 'utils/formatUtil'
 import {
   profilePage,
   NOT_FOUND_PAGE,

@@ -24,6 +24,7 @@ import {
   WidthSizes,
   SquareSizes
 } from 'common/models/ImageSizes'
+import { formatCount, squashNewLines } from 'common/utils/formatUtil'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/general/FollowButton'
 import SubscribeButton from 'components/general/SubscribeButton'
@@ -32,7 +33,6 @@ import ProfilePageBadge from 'containers/user-badges/ProfilePageBadge'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { useUserCoverPhoto, useUserProfilePicture } from 'hooks/useImageSize'
 import { make, useRecord } from 'store/analytics/actions'
-import { formatCount, squashNewLines } from 'utils/formatUtil'
 import { FOLLOWING_USERS_ROUTE, FOLLOWERS_USERS_ROUTE } from 'utils/route'
 
 import GrowingCoverPhoto from './GrowingCoverPhoto'

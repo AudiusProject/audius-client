@@ -6,6 +6,7 @@ import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHoriz
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import Track from 'common/models/Track'
+import { formatCount } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
 import Menu from 'containers/menu/Menu'
 import { OwnProps as NotificationMenuProps } from 'containers/menu/NotificationMenu'
@@ -15,7 +16,6 @@ import {
   Achievement
 } from 'containers/notification/store/types'
 import { make, useRecord } from 'store/analytics/actions'
-import { formatCount } from 'utils/formatUtil'
 import { profilePage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
