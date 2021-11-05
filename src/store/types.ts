@@ -1,9 +1,6 @@
 import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
-import modals from 'common/store/ui/modals/slice'
-import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
-import { AddToPlaylistState } from 'containers/add-to-playlist/store/reducers'
 import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
@@ -104,7 +101,6 @@ export type AppState = CommonState & {
       remixSettingsModal: ReturnType<typeof RemixSettingsModalReducer>
       scrollLock: ScrollLockState
       setAsArtistPickConfirmation: SetAsArtistPickConfirmationState
-      shareSoundToTikTokModal: ShareSoundToTikTokModalState
       stemsUpload: ReturnType<typeof StemsUploadReducer>
       theme: ThemeState
       userListModal: UserListModalState
@@ -120,7 +116,6 @@ export type AppState = CommonState & {
       notificationUsers: NotificationUsersPageState
       unfollowConfirmation: UnfollowConfirmationModalState
       deletePlaylistConfirmation: DeletePlaylistConfirmationModalState
-      addToPlaylist: AddToPlaylistState
       nowPlaying: NowPlayingState
       smartCollection: SmartCollectionState
       exploreCollections: ExploreCollectionsState

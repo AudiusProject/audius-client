@@ -15,6 +15,9 @@ import TracksCacheState from 'common/store/cache/tracks/types'
 import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import UserCacheState from 'common/store/cache/users/types'
+import addToPlaylistReducer, {
+  AddToPlaylistState
+} from 'common/store/ui/add-to-playlist/reducer'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
 } from 'common/store/ui/collectible-details/slice'
@@ -48,6 +51,7 @@ export const reducers = {
 
   // UI
   ui: combineReducers({
+    addToPlaylist: addToPlaylistReducer,
     collectibleDetails: collectibleDetailsReducer,
     enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
@@ -64,6 +68,10 @@ export const sagas = {
   collections: collectionsSagas,
   tracks: tracksSagas,
   users: usersSagas
+
+  // TODO: pull in the following from audius-client
+  // containers/add-to-playlist/store/sagas.ts
+  // containers/share-sound-to-tiktok-modal/store/sagas.ts
 }
 
 export type CommonState = {
@@ -75,6 +83,7 @@ export type CommonState = {
   users: UserCacheState
 
   ui: {
+    addToPlaylist: AddToPlaylistState
     collectibleDetails: CollectibleDetailsState
     enablePushNotificationsDrawer: PushNotificationsDrawerState
     mobileOverflowModal: MobileOverflowModalState

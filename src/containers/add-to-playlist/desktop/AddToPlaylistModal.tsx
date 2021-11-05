@@ -24,8 +24,12 @@ import { newCollectionMetadata } from 'schemas'
 import { AppState } from 'store/types'
 import { playlistPage } from 'utils/route'
 
-import { close } from '../store/actions'
-import { getIsOpen, getTrackId, getTrackTitle } from '../store/selectors'
+import { close } from '../../../common/store/ui/add-to-playlist/actions'
+import {
+  getIsOpen,
+  getTrackId,
+  getTrackTitle
+} from '../../../common/store/ui/add-to-playlist/selectors'
 
 import styles from './AddToPlaylistModal.module.css'
 

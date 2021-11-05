@@ -2,7 +2,6 @@ import { connectRouter } from 'connected-react-router'
 import { combineReducers } from 'redux'
 
 import { reducers as clientStoreReducers } from 'common/store'
-import addToPlaylist from 'containers/add-to-playlist/store/reducers'
 import dashboard from 'containers/artist-dashboard-page/store/reducer'
 import artistRecommendations from 'containers/artist-recommendations/store/slice'
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
@@ -136,7 +135,6 @@ const createRootReducer = routeHistory =>
         visualizer
       }),
       pages: combineReducers({
-        addToPlaylist,
         deleted,
         deletePlaylistConfirmation,
         explore,

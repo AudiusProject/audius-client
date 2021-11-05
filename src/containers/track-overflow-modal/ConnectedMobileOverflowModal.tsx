@@ -22,11 +22,11 @@ import {
   unsaveTrack,
   shareTrack
 } from 'common/store/social/tracks/actions'
+import { requestOpen as openAddToPlaylist } from 'common/store/ui/add-to-playlist/actions'
 import { close } from 'common/store/ui/mobile-overflow-menu/actions'
 import { getMobileOverflowModal } from 'common/store/ui/mobile-overflow-menu/selectors'
 import { OverflowSource } from 'common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as openTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
-import { requestOpen as openAddToPlaylist } from 'containers/add-to-playlist/store/actions'
 import { setOpen as openDeletePlaylist } from 'containers/delete-playlist-confirmation-modal/store/actions'
 import {
   unsubscribeUser,

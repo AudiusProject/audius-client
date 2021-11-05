@@ -25,8 +25,11 @@ import { AppState } from 'store/types'
 import { playlistPage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 
-import { close } from '../store/actions'
-import { getTrackId, getTrackTitle } from '../store/selectors'
+import { close } from '../../../common/store/ui/add-to-playlist/actions'
+import {
+  getTrackId,
+  getTrackTitle
+} from '../../../common/store/ui/add-to-playlist/selectors'
 
 import styles from './AddToPlaylist.module.css'
 
