@@ -35,6 +35,7 @@ import {
   shareUser
 } from 'common/store/social/users/actions'
 import { requestOpen as openAddToPlaylist } from 'common/store/ui/add-to-playlist/actions'
+import { open as openEditPlaylist } from 'common/store/ui/createPlaylistModal/actions'
 import { close } from 'common/store/ui/mobile-overflow-menu/actions'
 import { getMobileOverflowModal } from 'common/store/ui/mobile-overflow-menu/selectors'
 import { OverflowSource } from 'common/store/ui/mobile-overflow-menu/types'
@@ -49,7 +50,6 @@ import {
   Notification,
   NotificationType
 } from 'containers/notification/store/types'
-import { open as openEditPlaylist } from 'store/application/ui/createPlaylistModal/actions'
 import { AppState } from 'store/types'
 import { profilePage, playlistPage, albumPage } from 'utils/route'
 

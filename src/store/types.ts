@@ -51,8 +51,9 @@ import QueueReducer from 'store/queue/slice'
 import tokenDashboard from 'store/token-dashboard/slice'
 import wallet from 'store/wallet/slice'
 
+import { CreatePlaylistModalState } from '../common/store/ui/createPlaylistModal/types'
+
 import { CookieBannerState } from './application/ui/cookieBanner/types'
-import { CreatePlaylistModalState } from './application/ui/createPlaylistModal/types'
 import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
 import EditTrackModalState from './application/ui/editTrackModal/types'
 import { MobileKeyboardState } from './application/ui/mobileKeyboard/types'

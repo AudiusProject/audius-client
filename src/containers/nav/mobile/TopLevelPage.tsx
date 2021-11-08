@@ -5,12 +5,12 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { getIsOpen as getIsAddToPlaylistPageOpen } from 'common/store/ui/add-to-playlist/selectors'
+import { getIsOpen as getIsCreatePlaylistModalOpen } from 'common/store/ui/createPlaylistModal/selectors'
 import { getModalVisibility } from 'common/store/ui/modals/slice'
 import AddToPlaylistPage from 'containers/add-to-playlist/mobile/AddToPlaylist'
 import ConfirmAudioToWAudioPage from 'containers/confirm-audio-to-waudio/mobile/ConfirmAudioToWAudioPage'
 import EditPlaylistPage from 'containers/edit-playlist/mobile/EditPlaylistPage'
 import useScrollLock from 'hooks/useScrollLock'
-import { getIsOpen as getIsCreatePlaylistModalOpen } from 'store/application/ui/createPlaylistModal/selectors'
 import { AppState } from 'store/types'
 
 import styles from './TopLevelPage.module.css'

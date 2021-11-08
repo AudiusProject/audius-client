@@ -13,6 +13,7 @@ import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
 import * as socialActions from 'common/store/social/users/actions'
+import * as createPlaylistModalActions from 'common/store/ui/createPlaylistModal/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/actions'
 import {
   OverflowSource,
@@ -34,7 +35,6 @@ import * as unfollowConfirmationActions from 'containers/unfollow-confirmation-m
 import { BadgeTier } from 'containers/user-badges/utils'
 import { newUserMetadata } from 'schemas'
 import { make, TrackEvent } from 'store/analytics/actions'
-import * as createPlaylistModalActions from 'store/application/ui/createPlaylistModal/actions'
 import { getIsDone } from 'store/confirmer/selectors'
 import { makeGetLineupMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'

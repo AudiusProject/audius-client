@@ -45,7 +45,6 @@ import visualizer from 'containers/visualizer/store/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
 import averageColor from 'store/application/ui/average-color/slice'
 import cookieBanner from 'store/application/ui/cookieBanner/reducer'
-import createPlaylistModal from 'store/application/ui/createPlaylistModal/reducer'
 import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
 import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
@@ -119,7 +118,6 @@ const createRootReducer = routeHistory =>
         averageColor,
         changePassword,
         cookieBanner,
-        createPlaylistModal,
         editPlaylistModal,
         editTrackModal,
         embedModal,
