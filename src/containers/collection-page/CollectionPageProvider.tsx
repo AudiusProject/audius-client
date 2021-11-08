@@ -30,6 +30,7 @@ import {
   publishPlaylist,
   deletePlaylist
 } from 'common/store/cache/collections/actions'
+import * as socialCollectionsActions from 'common/store/social/collections/actions'
 import * as socialTracksActions from 'common/store/social/tracks/actions'
 import * as socialUsersActions from 'common/store/social/users/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/actions'
@@ -62,7 +63,6 @@ import {
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
-import * as socialCollectionsActions from 'store/social/collections/actions'
 import { AppState } from 'store/types'
 import {
   profilePage,

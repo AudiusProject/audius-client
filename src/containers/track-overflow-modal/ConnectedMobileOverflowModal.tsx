@@ -16,6 +16,13 @@ import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import {
+  repostCollection,
+  undoRepostCollection,
+  saveCollection,
+  unsaveCollection,
+  shareCollection
+} from 'common/store/social/collections/actions'
+import {
   repostTrack,
   undoRepostTrack,
   saveTrack,
@@ -43,13 +50,6 @@ import {
   NotificationType
 } from 'containers/notification/store/types'
 import { open as openEditPlaylist } from 'store/application/ui/createPlaylistModal/actions'
-import {
-  repostCollection,
-  undoRepostCollection,
-  saveCollection,
-  unsaveCollection,
-  shareCollection
-} from 'store/social/collections/actions'
 import { AppState } from 'store/types'
 import { profilePage, playlistPage, albumPage } from 'utils/route'
 

@@ -75,6 +75,7 @@ export const sagas = {
   // containers/share-sound-to-tiktok-modal/store/sagas.ts
   // store/social/tracks/sagas.ts
   // store/social/users/sagas.ts
+  // store/social/collections/sagas.ts
 }
 
 export type CommonState = {

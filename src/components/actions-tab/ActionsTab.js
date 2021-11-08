@@ -10,6 +10,11 @@ import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import { ShareSource, RepostSource } from 'common/models/Analytics'
 import { getUserHandle } from 'common/store/account/selectors'
 import {
+  repostCollection,
+  undoRepostCollection,
+  shareCollection
+} from 'common/store/social/collections/actions'
+import {
   repostTrack,
   undoRepostTrack,
   shareTrack
@@ -17,11 +22,6 @@ import {
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
 import Menu from 'containers/menu/Menu'
-import {
-  repostCollection,
-  undoRepostCollection,
-  shareCollection
-} from 'store/social/collections/actions'
 import { isShareToastDisabled } from 'utils/clipboardUtil'
 import {
   REPOST_TOAST_TIMEOUT_MILLIS,
