@@ -70,8 +70,11 @@ export const sagas = {
   users: usersSagas
 
   // TODO: pull in the following from audius-client
+  // once AudiusBackend and dependencies are migrated
   // containers/add-to-playlist/store/sagas.ts
   // containers/share-sound-to-tiktok-modal/store/sagas.ts
+  // store/social/tracks/sagas.ts
+  // store/social/users/sagas.ts
 }
 
 export type CommonState = {

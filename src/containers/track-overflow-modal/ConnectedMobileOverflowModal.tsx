@@ -22,6 +22,11 @@ import {
   unsaveTrack,
   shareTrack
 } from 'common/store/social/tracks/actions'
+import {
+  followUser,
+  unfollowUser,
+  shareUser
+} from 'common/store/social/users/actions'
 import { requestOpen as openAddToPlaylist } from 'common/store/ui/add-to-playlist/actions'
 import { close } from 'common/store/ui/mobile-overflow-menu/actions'
 import { getMobileOverflowModal } from 'common/store/ui/mobile-overflow-menu/selectors'
@@ -45,7 +50,6 @@ import {
   unsaveCollection,
   shareCollection
 } from 'store/social/collections/actions'
-import { followUser, unfollowUser, shareUser } from 'store/social/users/actions'
 import { AppState } from 'store/types'
 import { profilePage, playlistPage, albumPage } from 'utils/route'
 

@@ -5,7 +5,7 @@ import { Dispatch } from 'redux'
 
 import { FollowSource, ShareSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import * as socialActions from 'store/social/users/actions'
+import * as socialActions from 'common/store/social/users/actions'
 import { profilePage } from 'utils/route'
 
 export type OwnProps = {
