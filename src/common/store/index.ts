@@ -23,6 +23,8 @@ import collectibleDetailsReducer, {
 } from 'common/store/ui/collectible-details/slice'
 import createPlaylistModalReducer from 'common/store/ui/createPlaylistModal/reducer'
 import { CreatePlaylistModalState } from 'common/store/ui/createPlaylistModal/types'
+import deletePlaylistConfirmationReducer from 'common/store/ui/delete-playlist-confirmation-modal/reducers'
+import { DeletePlaylistConfirmationModalState } from 'common/store/ui/delete-playlist-confirmation-modal/types'
 import mobileOverflowModalReducer from 'common/store/ui/mobile-overflow-menu/reducer'
 import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/types'
 import mobileUploadDrawerReducer, {
@@ -56,6 +58,7 @@ export const reducers = {
     addToPlaylist: addToPlaylistReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
+    deletePlaylistConfirmationModal: deletePlaylistConfirmationReducer,
     enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
     mobileUploadDrawer: mobileUploadDrawerReducer,
@@ -93,6 +96,7 @@ export type CommonState = {
     addToPlaylist: AddToPlaylistState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
+    deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
     enablePushNotificationsDrawer: PushNotificationsDrawerState
     mobileOverflowModal: MobileOverflowModalState
     mobileUploadDrawer: MobileUploadDrawerState

@@ -6,7 +6,6 @@ import ArtistRecommendationsReducer from 'containers/artist-recommendations/stor
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
 import { ChangePasswordState } from 'containers/change-password/store/slice'
 import CollectionsPageState from 'containers/collection-page/store/types'
-import { DeletePlaylistConfirmationModalState } from 'containers/delete-playlist-confirmation-modal/store/types'
 import DeletedPageReducer from 'containers/deleted-page/store/slice'
 import { EmbedModalState } from 'containers/embed-modal/store/types'
 import { CollectionsState as ExploreCollectionsState } from 'containers/explore-page/store/collections/slice'
@@ -116,7 +115,6 @@ export type AppState = CommonState & {
       following: FollowingPageState
       notificationUsers: NotificationUsersPageState
       unfollowConfirmation: UnfollowConfirmationModalState
-      deletePlaylistConfirmation: DeletePlaylistConfirmationModalState
       nowPlaying: NowPlayingState
       smartCollection: SmartCollectionState
       exploreCollections: ExploreCollectionsState

@@ -7,7 +7,6 @@ import artistRecommendations from 'containers/artist-recommendations/store/slice
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
 import changePassword from 'containers/change-password/store/slice'
 import collection from 'containers/collection-page/store/reducer'
-import deletePlaylistConfirmation from 'containers/delete-playlist-confirmation-modal/store/reducers'
 import deleted from 'containers/deleted-page/store/slice'
 import embedModal from 'containers/embed-modal/store/reducers'
 import exploreCollections from 'containers/explore-page/store/collections/slice'
@@ -134,7 +133,6 @@ const createRootReducer = routeHistory =>
       }),
       pages: combineReducers({
         deleted,
-        deletePlaylistConfirmation,
         explore,
         exploreCollections,
         favorites,
