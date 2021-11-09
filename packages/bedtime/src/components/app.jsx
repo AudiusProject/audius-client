@@ -1,6 +1,16 @@
 import { h } from 'preact'
 import { useCallback, useEffect, useState, useRef } from 'preact/hooks'
-import { getCollection, GetCollectionsResponse, getCollectionWithHashId, getTrack, GetTracksResponse, getTrackWithHashId } from '../util/BedtimeClient'
+import {
+  getCollectible,
+  getCollectibles,
+  getCollection,
+  GetCollectionsResponse,
+  getCollectionWithHashId,
+  getTrack,
+  GetTracksResponse,
+  getTrackWithHashId
+} from '../util/BedtimeClient'
+import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 import Error from './error/Error'
@@ -21,7 +31,7 @@ import { shadeColor } from '../util/shadeColor'
 import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
 import { CardContextProvider } from './card/Card'
 import { isBItem } from '../util/bitems'
-import { HASH_ID_ROUTE, ID_ROUTE } from '../routes'
+import { ID_ROUTE, HASH_ID_ROUTE, COLLECTIBLES_ROUTE, COLLECTIBLE_ID_ROUTE } from '../routes'
 
 if ((module).hot) {
     // tslint:disable-next-line:no-var-requires
@@ -33,13 +43,15 @@ const LOADING_WAIT_MSEC = 1
 
 const RequestType = Object.seal({
   TRACK: 'track',
-  COLLECTION: 'collection'
+  COLLECTION: 'collection',
+  COLLECTIBLES: 'collectibles'
 })
 
 const pathComponentRequestTypeMap = {
   "playlist": RequestType.COLLECTION,
   "album": RequestType.COLLECTION,
   "track": RequestType.TRACK,
+  "collectibles": RequestType.COLLECTIBLES,
 }
 
 export const PlayerFlavor = Object.seal({
@@ -59,7 +71,7 @@ const getRequestDataFromURL = ({
   // Get request type
   const requestType = pathComponentRequestTypeMap[type]
   if (!requestType) return null
-      
+
   // Get the flavor
   let playerFlavor
   if (flavor === PlayerFlavor.CARD) {
@@ -71,7 +83,7 @@ const getRequestDataFromURL = ({
   } else {
     playerFlavor = PlayerFlavor.CARD
   }
-  
+
   switch (path) {
     case ID_ROUTE: {
       const { id, ownerId, isTwitter } = matches
@@ -85,7 +97,7 @@ const getRequestDataFromURL = ({
       if (isNaN(intId) || isNaN(intOwnerId)) {
         return null
       }
-    
+
       return {
         requestType,
         playerFlavor,
@@ -104,6 +116,25 @@ const getRequestDataFromURL = ({
         isTwitter
       }
     }
+    case COLLECTIBLES_ROUTE: {
+      const { handle, isTwitter } = matches
+      return {
+        requestType,
+        playerFlavor,
+        handle,
+        isTwitter
+      }
+    }
+    case COLLECTIBLE_ID_ROUTE: {
+      const { handle, collectibleId, isTwitter } = matches
+      return {
+        requestType,
+        playerFlavor,
+        handle,
+        collectibleId,
+        isTwitter
+      }
+    }
     default:
       return null
   }
@@ -118,6 +149,7 @@ const App = (props) => {
 
   const [tracksResponse, setTracksResponse] = useState(null)
   const [collectionsResponse, setCollectionsResponse] = useState(null)
+  const [collectiblesResponse, setCollectiblesResponse] = useState(null)
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(false)
   const onGoingRequest = useRef(false)
   const [dominantColor, setDominantColor] = useState(null)
@@ -142,7 +174,9 @@ const App = (props) => {
     }, LOADING_WAIT_MSEC)
 
     try {
-      if (request.requestType === RequestType.TRACK) {
+      const { requestType } = request
+
+      if (requestType === RequestType.TRACK) {
         let track
         if (request.hashId) {
           track = await getTrackWithHashId(request.hashId)
@@ -166,7 +200,7 @@ const App = (props) => {
           const color = await getDominantColor(track.coverArt)
           setDominantColor({ primary: color })
         }
-      } else {
+      } else if (requestType === RequestType.COLLECTION) {
         let collection
         if (request.hashId) {
           collection = await getCollectionWithHashId(request.hashId)
@@ -185,6 +219,23 @@ const App = (props) => {
           // Set dominant color
           const color = await getDominantColor(collection.coverArt)
           setDominantColor({ primary: color, secondary: shadeColor(color, -20) })
+        }
+      } else if (requestType === RequestType.COLLECTIBLES) {
+        let collectibleData
+        if (request.collectibleId) {
+          collectibleData = await getCollectible(request.handle, request.collectibleId)
+        } else {
+          collectibleData = await getCollectibles(request.handle)
+        }
+
+        if (!collectibleData) {
+          setDid404(true)
+          setCollectiblesResponse(null)
+        } else {
+          setDid404(false)
+          setCollectiblesResponse(collectibleData)
+          recordOpen(request.collectibleId, collectibleData.name, request.handle, request.url)
+          setDominantColor({ primary: '#fff' })
         }
       }
 
@@ -274,21 +325,31 @@ const App = (props) => {
           in
           timeout={1000}
         >
-        { tracksResponse
-          ? <TrackPlayerContainer
-              track={tracksResponse}
-              flavor={requestState.playerFlavor}
-              isTwitter={requestState.isTwitter}
-              backgroundColor={dominantColor.primary}
-            />
-          : <CollectionPlayerContainer
-              collection={collectionsResponse}
-              flavor={requestState.playerFlavor}
-              isTwitter={requestState.isTwitter}
-              backgroundColor={dominantColor.primary}
-              rowBackgroundColor={dominantColor.secondary}
-            />
-        }
+        {tracksResponse && (
+          <TrackPlayerContainer
+            track={tracksResponse}
+            flavor={requestState.playerFlavor}
+            isTwitter={requestState.isTwitter}
+            backgroundColor={dominantColor.primary}
+          />
+        )}
+        {collectionsResponse && (
+          <CollectionPlayerContainer
+            collection={collectionsResponse}
+            flavor={requestState.playerFlavor}
+            isTwitter={requestState.isTwitter}
+            backgroundColor={dominantColor.primary}
+            rowBackgroundColor={dominantColor.secondary}
+          />
+        )}
+        {collectiblesResponse && (
+          <CollectiblesPlayerContainer
+            collectiblesInfo={collectiblesResponse}
+            flavor={requestState.playerFlavor}
+            isTwitter={requestState.isTwitter}
+            backgroundColor={dominantColor.primary}
+          />
+        )}
         </CSSTransition>
       )
     }
@@ -297,13 +358,13 @@ const App = (props) => {
   }
 
   const renderPausePopover = () => {
-    if (!requestState || (!tracksResponse && !collectionsResponse)) {
+    if (!requestState || (!tracksResponse && !collectionsResponse && !collectiblesResponse)) {
       return null
     }
 
-    let artworkURL = tracksResponse?.coverArt || collectionsResponse?.coverArt
-    let artworkClickURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
-    let listenOnAudiusURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath
+    let artworkURL = tracksResponse?.coverArt || collectionsResponse?.coverArt || null
+    let artworkClickURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
+    let listenOnAudiusURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
     let flavor = requestState.playerFlavor
     return (<PausePopover
              artworkURL={artworkURL}

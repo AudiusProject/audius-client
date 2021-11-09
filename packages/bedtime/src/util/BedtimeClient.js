@@ -6,7 +6,8 @@ const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
 
 export const RequestedEntity = Object.seal({
   TRACKS: 'tracks',
-  COLLECTIONS: 'collections'
+  COLLECTIONS: 'collections',
+  COLLECTIBLES: 'collectibles'
 })
 
 // From DAPP
@@ -87,11 +88,14 @@ const makeRequest = async (url) => {
 }
 
 const constructEndpoint = (entity, id, ownerId) =>
-  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/${id}?ownerId=${ownerId}`
+  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/${id}${ownerId ? `?ownerId=${ownerId}` : ''}`
+
+const constructCollectibleIdEndpoint = (handle, collectibleId) =>
+  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${RequestedEntity.COLLECTIBLES}/${handle}/${collectibleId}`
 
 // For hash id based requests, we don't care about the owner id, since
 // this avoids the monotonically increasing issues track ids have
-const constructHashIdEndpoint = (entity, hashId) => 
+const constructHashIdEndpoint = (entity, hashId) =>
 `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/hashid/${hashId}`
 
 export const getTrack = async (id, ownerId) => {
@@ -111,5 +115,15 @@ export const getCollection = async (id, ownerId) => {
 
 export const getCollectionWithHashId = async (hashId) => {
   const url = constructHashIdEndpoint(RequestedEntity.COLLECTIONS, hashId)
+  return makeRequest(url)
+}
+
+export const getCollectible = async (handle, collectibleId) => {
+  const url = constructCollectibleIdEndpoint(handle, collectibleId)
+  return makeRequest(url)
+}
+
+export const getCollectibles = async (handle) => {
+  const url = constructEndpoint(RequestedEntity.COLLECTIBLES, handle)
   return makeRequest(url)
 }

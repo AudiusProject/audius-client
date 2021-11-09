@@ -1,5 +1,6 @@
 import { h, createContext } from 'preact'
 import { useCallback, useState, useContext, useMemo } from 'preact/hooks'
+import cn from 'classnames'
 
 import styles from './Card.module.css'
 import TwitterFooter from '../twitterfooter/TwitterFooter'
@@ -79,7 +80,8 @@ const Card = ({
   isTwitter,
   backgroundColor,
   twitterURL,
-  children
+  children,
+  className
 }) => {
 
   // Need to make the injected BG color slightly transparent
@@ -111,7 +113,7 @@ const Card = ({
 
   return (
     <div
-      className={styles.container}
+      className={cn(styles.container, className)}
       style={{
         backgroundColor,
         ...cardStyle,

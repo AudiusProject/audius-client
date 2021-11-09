@@ -93,6 +93,18 @@ export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
   }
 };
 
+export const fetchJsonFromCID = async (cid) => {
+  let allGateways = creatorNodeWhitelist;
+
+  try {
+    const image = await _fetchCID(cid, allGateways);
+    return JSON.parse(await image.data.text());
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
 /**
  * Fetches a file from IPFS with a given CID. Public gateways are tried first, then
  * fallback to a specified gateway and then to the default gateway.
