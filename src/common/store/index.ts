@@ -34,9 +34,6 @@ import modalsReducer, { ModalsState } from 'common/store/ui/modals/slice'
 import nowPlayingReducer, {
   NowPlayingState
 } from 'common/store/ui/now-playing/slice'
-import pushNotificationsDrawerReducer, {
-  PushNotificationsDrawerState
-} from 'common/store/ui/push-notifications-drawer/slice'
 import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
 
@@ -59,7 +56,6 @@ export const reducers = {
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
     deletePlaylistConfirmationModal: deletePlaylistConfirmationReducer,
-    enablePushNotificationsDrawer: pushNotificationsDrawerReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
     mobileUploadDrawer: mobileUploadDrawerReducer,
     modals: modalsReducer,
@@ -97,7 +93,6 @@ export type CommonState = {
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
     deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
-    enablePushNotificationsDrawer: PushNotificationsDrawerState
     mobileOverflowModal: MobileOverflowModalState
     mobileUploadDrawer: MobileUploadDrawerState
     modals: ModalsState

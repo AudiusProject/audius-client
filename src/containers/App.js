@@ -152,7 +152,7 @@ import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
 import styles from './App.module.css'
 import AnimatedSwitch from './animated-switch/AnimatedSwitch'
-import EnablePushNotificationsDrawer from './enable-push-notifications-drawer/EnablePushNotificationsDrawer'
+import DiscoveryNodeSelection from './discovery-node-selection/DiscoveryNodeSelection'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import { ExploreCollectionsVariant } from './explore-page/store/types'
 import FollowersPage from './followers-page/FollowersPage'
@@ -916,13 +916,12 @@ class App extends Component {
         {/* Non-mobile */}
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
+        {!isMobileClient && <DiscoveryNodeSelection />}
         {!isMobileClient && <Visualizer />}
         {!isMobileClient && <PinnedTrackConfirmation />}
 
         {/* Mobile-only */}
         {isMobileClient && <ConnectedReachabilityBar />}
-        {/* Native Mobile-only */}
-        {isMobileClient && NATIVE_MOBILE && <EnablePushNotificationsDrawer />}
 
         {shouldShowPopover && isMobileClient && !NATIVE_MOBILE && (
           <AppRedirectPopover
