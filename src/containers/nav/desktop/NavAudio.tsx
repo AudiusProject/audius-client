@@ -1,6 +1,7 @@
 import React, { cloneElement } from 'react'
 
 import BN from 'bn.js'
+import cn from 'classnames'
 
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
@@ -33,7 +34,7 @@ const NavAudio = () => {
   }
 
   return positiveTotalBalance ? (
-    <div className={styles.audio}>
+    <div className={cn(styles.audio, { [styles.show]: true })}>
       {audioBadge &&
         cloneElement(audioBadge, {
           height: 16,
@@ -44,7 +45,7 @@ const NavAudio = () => {
       </span>
     </div>
   ) : nonNullTotalBalance ? (
-    <div className={styles.audio}>
+    <div className={cn(styles.audio, { [styles.show]: true })}>
       <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
       <span className={styles.audioAmount}>
         {formatWei(totalBalance!, true, 0)}

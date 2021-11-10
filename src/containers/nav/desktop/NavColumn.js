@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 
-import BN from 'bn.js'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'

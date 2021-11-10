@@ -3,6 +3,12 @@
   align-items: center;
   padding-left: 8px;
   height: 16px;
+  opacity: 0;
+}
+
+.audio.show {
+  transition: opacity ease-in-out 0.5s;
+  opacity: 1;
 }
 
 .audioAmount {
