@@ -27,7 +27,10 @@ const NavAudio = () => {
   // so below null-coalescing is okay
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
-  console.log({ totalBalance, tier })
+
+  if (!account) {
+    return <div className={styles.audio} />
+  }
 
   return positiveTotalBalance ? (
     <div className={styles.audio}>
