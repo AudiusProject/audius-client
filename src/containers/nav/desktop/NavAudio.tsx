@@ -8,8 +8,10 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { getAccountUser } from 'common/store/account/selectors'
 import { audioTierMapPng } from 'containers/user-badges/UserBadges'
 import { useSelectTierInfo } from 'containers/user-badges/hooks'
+import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { getAccountTotalBalance } from 'store/wallet/selectors'
 import { useSelector } from 'utils/reducer'
+import { AUDIO_PAGE } from 'utils/route'
 import { formatWei } from 'utils/wallet'
 
 import styles from './NavAudio.module.css'
@@ -19,6 +21,7 @@ const messages = {
 }
 
 const NavAudio = () => {
+  const navigate = useNavigateToPage()
   const account = useSelector(getAccountUser)
   const totalBalance = useSelector(getAccountTotalBalance) ?? null
   const nonNullTotalBalance = totalBalance !== null
@@ -45,7 +48,10 @@ const NavAudio = () => {
       </span>
     </div>
   ) : nonNullTotalBalance ? (
-    <div className={cn(styles.audio, { [styles.show]: true })}>
+    <div
+      className={cn(styles.audio, { [styles.show]: true })}
+      onClick={() => navigate(AUDIO_PAGE)}
+    >
       <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
       <span className={styles.audioAmount}>
         {formatWei(totalBalance!, true, 0)}

@@ -11,6 +11,14 @@
   opacity: 1;
 }
 
+.audio.show .earnAudio:hover {
+  cursor: pointer;
+}
+
+.audio.show .earnAudio:active {
+  transform: scale(.97);
+}
+
 .audioAmount {
   margin-left: 4px;
   font-size: var(--font-s);
