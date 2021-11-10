@@ -65,10 +65,14 @@ svg.logo path {
   width: var(--nav-width);
 }
 
-.navColumn .accountWrapper {
-  display: block;
+.navColumn .userHeader {
   margin-left: 24px;
   margin-bottom: 24px;
+}
+
+.navColumn .accountWrapper {
+  display: block;
+  margin-bottom: 16px;
 
   display: flex;
   flex-direction: row;
@@ -77,6 +81,43 @@ svg.logo path {
   transition: all ease-in-out 0.18s;
 
   color: var(--neutral);
+}
+
+.navColumn .audio {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  height: 16px;
+}
+
+.navColumn .audioAmount {
+  margin-left: 4px;
+  font-size: var(--font-s);
+  font-weight: var(--font-heavy);
+  color: var(--neutral-light-4);
+}
+
+.navColumn .earnAudio {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  padding: 4px 8px;
+  color: var(--white);
+  background: var(--secondary);
+  border-radius: 16px;
+  font-size: var(--font-2xs);
+  font-weight: var(--font-bold);
+  letter-spacing: .1em;
+}
+
+.navColumn .earnAudioCaret{
+  margin-left: 2px;
+  height: 12px;
+  width: 10px;
+}
+
+.navColumn .earnAudioCaret path {
+  fill: var(--white);
 }
 
 .navColumn .accountWrapper .wrapperPhoto {
