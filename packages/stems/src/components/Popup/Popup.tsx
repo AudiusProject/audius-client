@@ -1,5 +1,6 @@
 import React, {
   forwardRef,
+  MutableRefObject,
   useCallback,
   useEffect,
   useRef,
@@ -17,6 +18,12 @@ import { standard } from 'utils/transitions'
 
 import styles from './Popup.module.css'
 import { PopupProps, Position, popupDefaultProps } from './types'
+
+/**
+ * Number of pixels between the edge of the container and the popup
+ * before the popup needs to reposition itself to be in view.
+ */
+const CONTAINER_INSET_PADDING = 16
 
 /**
  * Gets the css transform origin prop from the display position
@@ -44,28 +51,40 @@ const getTransformOrigin = (position: Position) =>
 const getComputedPosition = (
   position: Position,
   anchorRect: DOMRect,
-  wrapperRect: DOMRect
+  wrapperRect: DOMRect,
+  containerRef?: MutableRefObject<HTMLDivElement | null>
 ): Position => {
   if (!anchorRect || !wrapperRect) return position
-  const windowWidth = window.innerWidth
-  const windowHeight = window.innerHeight
 
-  const overflowRight = anchorRect.x + wrapperRect.width > windowWidth
+  let containerWidth, containerHeight
+  if (containerRef && containerRef.current) {
+    containerWidth =
+      containerRef.current.getBoundingClientRect().width -
+      CONTAINER_INSET_PADDING
+    containerHeight =
+      containerRef.current.getBoundingClientRect().height -
+      CONTAINER_INSET_PADDING
+  } else {
+    containerWidth = window.innerWidth - CONTAINER_INSET_PADDING
+    containerHeight = window.innerHeight - CONTAINER_INSET_PADDING
+  }
+
+  const overflowRight = anchorRect.x + wrapperRect.width > containerWidth
   const overflowLeft = anchorRect.x - wrapperRect.width < 0
-  const overflowBottom = anchorRect.y + wrapperRect.height > windowHeight
+  const overflowBottom = anchorRect.y + wrapperRect.height > containerHeight
   const overflowTop = anchorRect.y - wrapperRect.height < 0
 
   if (overflowRight) {
-    return position.replace('Right', 'Left') as Position
+    position = position.replace('Right', 'Left') as Position
   }
   if (overflowLeft) {
-    return position.replace('Left', 'Right') as Position
+    position = position.replace('Left', 'Right') as Position
   }
   if (overflowTop) {
-    return position.replace('top', 'bottom') as Position
+    position = position.replace('top', 'bottom') as Position
   }
   if (overflowBottom) {
-    return position.replace('bottom', 'top') as Position
+    position = position.replace('bottom', 'top') as Position
   }
   return position
 }
@@ -82,15 +101,16 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
     animationDuration,
     checkIfClickInside,
     children,
-    className,
     isVisible,
     onAfterClose,
     onClose,
     position = Position.BOTTOM_CENTER,
     showHeader,
     title,
+    className,
     wrapperClassName,
-    zIndex
+    zIndex,
+    containerRef
   },
   ref
 ) {
@@ -111,21 +131,22 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   const originalTopPosition = useRef<number>(0)
   const [computedPosition, setComputedPosition] = useState(position)
 
-  const getRects = () =>
-    [anchorRef, wrapperRef].map(r => r.current.getBoundingClientRect())
-
-  useEffect(() => {
-    if (isVisible) {
-      const [anchorRect, wrapperRect] = getRects()
-      const computed = getComputedPosition(position, anchorRect, wrapperRect)
-      setComputedPosition(computed)
-    }
-  }, [isVisible, setComputedPosition, position, anchorRef, wrapperRef])
+  const getRects = useCallback(
+    () => [anchorRef, wrapperRef].map(r => r.current.getBoundingClientRect()),
+    [anchorRef, wrapperRef]
+  )
 
   // On visible, set the position
   useEffect(() => {
     if (isVisible) {
       const [anchorRect, wrapperRect] = getRects()
+      const computed = getComputedPosition(
+        position,
+        anchorRect,
+        wrapperRect,
+        containerRef
+      )
+      setComputedPosition(computed)
 
       const positionMap = {
         [Position.TOP_LEFT]: [
@@ -155,14 +176,24 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
       }
 
       const [top, left] =
-        positionMap[computedPosition] ?? positionMap[Position.BOTTOM_CENTER]
+        positionMap[computed] ?? positionMap[Position.BOTTOM_CENTER]
 
       wrapperRef.current.style.top = `${top}px`
       wrapperRef.current.style.left = `${left}px`
 
       originalTopPosition.current = top
     }
-  }, [isVisible, wrapperRef, anchorRef, computedPosition, originalTopPosition])
+  }, [
+    position,
+    isVisible,
+    wrapperRef,
+    anchorRef,
+    computedPosition,
+    setComputedPosition,
+    getRects,
+    originalTopPosition,
+    containerRef
+  ])
 
   // Callback invoked on each scroll. Uses original top position to scroll with content.
   // Takes scrollParent to get the current scroll position as well as the intitial scroll position

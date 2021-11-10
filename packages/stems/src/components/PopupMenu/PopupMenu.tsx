@@ -12,7 +12,7 @@ import { PopupMenuItem, PopupMenuProps } from './types'
  */
 export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
   function PopupMenu(
-    { items, onClose, position, renderTrigger, title, zIndex },
+    { items, onClose, position, renderTrigger, title, zIndex, containerRef },
     ref
   ) {
     const clickInsideRef = useRef<any>()
@@ -25,19 +25,19 @@ export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
       setIsPopupVisible
     ])
 
+    const handlePopupClose = useCallback(() => {
+      setIsPopupVisible(false)
+      if (onClose) onClose()
+    }, [setIsPopupVisible, onClose])
+
     const handleMenuItemClick = useCallback(
       (item: PopupMenuItem) => (e: React.MouseEvent) => {
         e.stopPropagation()
         item.onClick()
         handlePopupClose()
       },
-      [setIsPopupVisible]
+      [handlePopupClose]
     )
-
-    const handlePopupClose = useCallback(() => {
-      setIsPopupVisible(false)
-      onClose?.()
-    }, [setIsPopupVisible])
 
     return (
       <div ref={clickInsideRef}>
@@ -57,6 +57,7 @@ export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
           ref={ref}
           title={title || ''}
           zIndex={zIndex}
+          containerRef={containerRef}
         >
           <div className={styles.menu}>
             {items.map((item, i) => (
