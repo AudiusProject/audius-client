@@ -6,9 +6,11 @@ import cn from 'classnames'
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { getAccountUser } from 'common/store/account/selectors'
+import { useFlag } from 'containers/remote-config/hooks'
 import { audioTierMapPng } from 'containers/user-badges/UserBadges'
 import { useSelectTierInfo } from 'containers/user-badges/hooks'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
+import { FeatureFlags } from 'services/remote-config/FeatureFlags'
 import { getAccountTotalBalance } from 'store/wallet/selectors'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
@@ -21,6 +23,8 @@ const messages = {
 }
 
 const NavAudio = () => {
+  const { isEnabled } = useFlag(FeatureFlags.SURFACE_AUDIO_ENABLED)
+
   const navigate = useNavigateToPage()
   const account = useSelector(getAccountUser)
   const totalBalance = useSelector(getAccountTotalBalance) ?? null
@@ -32,8 +36,8 @@ const NavAudio = () => {
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
 
-  if (!account) {
-    return <div className={styles.audio} />
+  if (!isEnabled || !account) {
+    return null
   }
 
   return positiveTotalBalance ? (
