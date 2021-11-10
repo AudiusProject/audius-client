@@ -1,4 +1,4 @@
-import React, { useCallback, cloneElement } from 'react'
+import React, { useCallback } from 'react'
 
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -8,9 +8,7 @@ import { withRouter, NavLink } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 
-import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import imageProfilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
-import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { SquareSizes } from 'common/models/ImageSizes'
 import Status from 'common/models/Status'
 import {
@@ -40,8 +38,7 @@ import {
 import ConnectedProfileCompletionPane from 'containers/profile-progress/ConnectedProfileCompletionPane'
 import * as signOnActions from 'containers/sign-on/store/actions'
 import { resetState as resetUploadState } from 'containers/upload-page/store/actions'
-import UserBadges, { audioTierMapPng } from 'containers/user-badges/UserBadges'
-import { useSelectTierInfo } from 'containers/user-badges/hooks'
+import UserBadges from 'containers/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useImageSize'
 import { Name, CreatePlaylistSource } from 'services/analytics'
 import { make, useRecord } from 'store/analytics/actions'
@@ -52,8 +49,6 @@ import { getIsDragging } from 'store/dragndrop/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { saveCollection } from 'store/social/collections/actions'
 import { saveTrack } from 'store/social/tracks/actions'
-import { getAccountTotalBalance } from 'store/wallet/selectors'
-import { useSelector } from 'utils/reducer'
 import {
   FEED_PAGE,
   TRENDING_PAGE,
@@ -66,8 +61,8 @@ import {
   playlistPage,
   EXPLORE_PAGE
 } from 'utils/route'
-import { formatWei } from 'utils/wallet'
 
+import NavAudio from './NavAudio'
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
 import PlaylistLibrary from './PlaylistLibrary'
@@ -216,15 +211,6 @@ const NavColumn = ({
   const navLoaded =
     accountStatus === Status.SUCCESS || accountStatus === Status.ERROR
 
-  const totalBalance = useSelector(getAccountTotalBalance) ?? null
-  const nonNullTotalBalance = totalBalance !== null
-  const positiveTotalBalance = nonNullTotalBalance && totalBalance.gt(new BN(0))
-  // we only show the audio balance and respective badge when there is an account
-  // so below null-coalescing is okay
-  const { tier } = useSelectTierInfo(account?.user_id ?? 0)
-  const audioBadge = audioTierMapPng[tier]
-  console.log({ totalBalance, tier })
-
   return (
     <nav id='navColumn' className={styles.navColumn}>
       {isElectron && <RouteNav />}
@@ -264,36 +250,7 @@ const NavColumn = ({
                   </div>
                 </div>
               </div>
-              {positiveTotalBalance ? (
-                <div className={styles.audio}>
-                  {audioBadge &&
-                    cloneElement(audioBadge, {
-                      height: 16,
-                      width: 16
-                    })}
-                  <span className={styles.audioAmount}>
-                    {formatWei(totalBalance, true, 0)}
-                  </span>
-                </div>
-              ) : nonNullTotalBalance ? (
-                <div className={styles.audio}>
-                  <img
-                    alt='no tier'
-                    src={IconNoTierBadge}
-                    width='16'
-                    height='16'
-                  />
-                  <span className={styles.audioAmount}>
-                    {formatWei(totalBalance, true, 0)}
-                  </span>
-                  <span className={styles.earnAudio}>
-                    <span>EARN $AUDIO</span>
-                    <IconCaretRight className={styles.earnAudioCaret} />
-                  </span>
-                </div>
-              ) : (
-                <div className={styles.audio} />
-              )}
+              <NavAudio />
             </div>
           ) : (
             <div className={styles.accountWrapper}>

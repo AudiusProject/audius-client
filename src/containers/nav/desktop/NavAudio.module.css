@@ -1,0 +1,36 @@
+.audio {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  height: 16px;
+}
+
+.audioAmount {
+  margin-left: 4px;
+  font-size: var(--font-s);
+  font-weight: var(--font-heavy);
+  color: var(--neutral-light-4);
+}
+
+.earnAudio {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+  padding: 4px 8px;
+  color: var(--white);
+  background: var(--secondary);
+  border-radius: 16px;
+  font-size: var(--font-2xs);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.1em;
+}
+
+.earnAudioCaret {
+  margin-left: 2px;
+  height: 12px;
+  width: 10px;
+}
+
+.earnAudioCaret path {
+  fill: var(--white);
+}
