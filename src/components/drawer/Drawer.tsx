@@ -1,6 +1,12 @@
-import React, { useEffect, useCallback, useRef, ReactNode } from 'react'
+import React, {
+  useEffect,
+  useCallback,
+  useRef,
+  ReactNode,
+  useState
+} from 'react'
 
-import { IconRemove, useClickOutside } from '@audius/stems'
+import { IconRemove } from '@audius/stems'
 import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 import cn from 'classnames'
 import { useSpring, animated, useTransition } from 'react-spring'
@@ -32,6 +38,9 @@ const VELOCITY_CUTOFF = 0.5
 
 // Controls the amount of friction in swiping when overflowing up or down
 const OVERFLOW_FRICTION = 4
+
+// The opacity of the background when the drawer is open
+const BACKGROUND_OPACITY = 0.5
 
 const wobble = {
   mass: 1,
@@ -88,6 +97,8 @@ const DraggableDrawer = ({
   const [initialTranslation] = useInstanceVar(0)
   // Stores the last transition
   const [currentTranslation, setCurrentTranslation] = useInstanceVar(0)
+  // isBackgroundVisible will be true until the close animation finishes
+  const [isBackgroundVisible, setIsBackgroundVisible] = useState(false)
 
   const [drawerSlideProps, setDrawerSlideProps] = useSpring(() => ({
     to: {
@@ -106,14 +117,23 @@ const DraggableDrawer = ({
     config: stiff
   }))
 
+  const [backgroundOpacityProps, setBackgroundOpacityProps] = useSpring(() => ({
+    to: {
+      opacity: 0
+    },
+    config: stiff
+  }))
+
   const open = useCallback(() => {
+    setIsBackgroundVisible(true)
     new DisablePullToRefreshMessage().send()
     setDrawerSlideProps({
       to: {
         y: -1 * getHeight()
       },
       immediate: false,
-      config: wobble
+      config: wobble,
+      onRest: () => {}
     })
     setContentFadeProps({
       to: {
@@ -122,7 +142,20 @@ const DraggableDrawer = ({
       immediate: false,
       config: stiff
     })
-  }, [setDrawerSlideProps, setContentFadeProps, getHeight])
+    setBackgroundOpacityProps({
+      to: {
+        opacity: BACKGROUND_OPACITY
+      },
+      immediate: false,
+      config: stiff
+    })
+  }, [
+    setDrawerSlideProps,
+    setContentFadeProps,
+    setBackgroundOpacityProps,
+    setIsBackgroundVisible,
+    getHeight
+  ])
 
   const close = useCallback(() => {
     new EnablePullToRefreshMessage(true).send()
@@ -131,7 +164,8 @@ const DraggableDrawer = ({
         y: initialTranslation()
       },
       immediate: false,
-      config: wobble
+      config: wobble,
+      onRest: () => setIsBackgroundVisible(false)
     })
     setContentFadeProps({
       to: {
@@ -140,8 +174,21 @@ const DraggableDrawer = ({
       immediate: false,
       config: stiff
     })
+    setBackgroundOpacityProps({
+      to: {
+        opacity: 0
+      },
+      immediate: false,
+      config: stiff
+    })
     if (onClose) onClose()
-  }, [initialTranslation, setDrawerSlideProps, setContentFadeProps, onClose])
+  }, [
+    initialTranslation,
+    setDrawerSlideProps,
+    setContentFadeProps,
+    setBackgroundOpacityProps,
+    onClose
+  ])
 
   // Handle the "controlled" component
   useEffect(() => {
@@ -249,17 +296,25 @@ const DraggableDrawer = ({
           immediate: true,
           config: stiff
         })
+
+        const percentOpen = Math.abs(newY) / height
+        const newOpacity = BACKGROUND_OPACITY * percentOpen
+
+        setBackgroundOpacityProps({
+          to: {
+            opacity: newOpacity
+          },
+          immediate: true,
+          config: stiff
+        })
       }
       return memo
     }
   )
 
-  const clickOutsideRef = useClickOutside(close)
-
   return (
     <Portal>
       <animated.div
-        ref={isOpen ? clickOutsideRef : undefined}
         className={cn(styles.drawer, {
           [styles.isOpen]: isOpen,
           [styles.native]: NATIVE_MOBILE
@@ -277,7 +332,16 @@ const DraggableDrawer = ({
         <div className={styles.skirt} />
       </animated.div>
       {/* Display transparent BG to block clicks behind drawer */}
-      {isOpen && <div className={styles.background} />}
+      {isBackgroundVisible && (
+        <animated.div
+          onClick={close}
+          className={styles.background}
+          style={{
+            ...backgroundOpacityProps,
+            ...(isOpen ? {} : { pointerEvents: 'none' })
+          }}
+        />
+      )}
     </Portal>
   )
 }
