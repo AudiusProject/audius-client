@@ -33,22 +33,24 @@ const ActionDrawer = ({
   return (
     <Drawer onClose={onClose} isOpen={isOpen} shouldClose={!isOpen}>
       <div className={styles.container}>
-        {title && <div className={styles.title}>{title}</div>}
-        {actions.map(({ text, isDestructive = false }, index) => (
-          <div
-            key={`${text}-${index}`}
-            onClick={() => {
-              didSelectRow(index)
-            }}
-            className={cn(
-              styles.row,
-              { [styles.darkAction]: isDark },
-              { [styles.destructiveAction]: isDestructive }
-            )}
-          >
-            {text}
-          </div>
-        ))}
+        <div className={styles.content}>
+          {title && <div className={styles.title}>{title}</div>}
+          {actions.map(({ text, isDestructive = false }, index) => (
+            <div
+              key={`${text}-${index}`}
+              onClick={() => {
+                didSelectRow(index)
+              }}
+              className={cn(
+                styles.row,
+                { [styles.darkAction]: isDark },
+                { [styles.destructiveAction]: isDestructive }
+              )}
+            >
+              {text}
+            </div>
+          ))}
+        </div>
       </div>
     </Drawer>
   )
