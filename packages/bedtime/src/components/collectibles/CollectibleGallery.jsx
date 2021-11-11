@@ -16,7 +16,7 @@ const CollectibleGallery = ({
 }) => {
   const [modalCollectible, setModalCollectible] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [order, setOrder] = useState([])
+  const [order, setOrder] = useState(null)
 
   const fetchCollectiblesOrder = async () => {
     const result = await fetchJsonFromCID(user.metadata_multihash)

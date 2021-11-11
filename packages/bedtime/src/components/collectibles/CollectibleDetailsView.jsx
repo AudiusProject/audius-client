@@ -5,6 +5,7 @@ import styles from './CollectibleDetailsView.module.css'
 import Button from '../button/Button'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import { getHash } from './collectibleHelpers'
+import { getAudiusURL } from '../../util/shareUtil'
 
 
 const MODEL_VIEWER_SCRIPT_URL =
