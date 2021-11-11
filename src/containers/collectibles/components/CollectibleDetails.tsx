@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
+import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
-import { useModalState } from 'common/hooks/useModalState'
 import { Collectible, CollectibleMediaType } from 'common/models/Collectible'
-import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'
+import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { preload } from 'utils/image'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
+import { getHash } from '../helpers'
 
 import { collectibleMessages } from './CollectiblesPage'
 import styles from './CollectiblesPage.module.css'
@@ -20,10 +20,10 @@ import styles from './CollectiblesPage.module.css'
 const CollectibleDetails: React.FC<{
   collectible: Collectible
 }> = ({ collectible }) => {
-  const dispatch = useDispatch()
+  const match = useRouteMatch()
+  const navigate = useNavigateToPage()
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
-  const [isModalOpen, setIsModalOpen] = useModalState('CollectibleDetails')
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
   const [showSpinner, setShowSpinner] = useState(false)
@@ -60,9 +60,10 @@ const CollectibleDetails: React.FC<{
   }, [mediaType, frameUrl, gifUrl, name, setFrame, setIsLoading])
 
   const handleItemClick = useCallback(() => {
-    dispatch(setCollectible({ collectible }))
-    setIsModalOpen(true)
-  }, [collectible, dispatch, setIsModalOpen])
+    // Ignore needed bc typescript doesn't think that match.params has handle property
+    // @ts-ignore
+    navigate(`/${match.params.handle}/collectibles/${getHash(collectible.id)}`)
+  }, [collectible.id, match.params, navigate])
 
   return (
     <div className={styles.detailsContainer}>
