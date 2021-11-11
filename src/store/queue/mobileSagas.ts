@@ -176,8 +176,10 @@ function* watchSyncPlayer() {
   })
 }
 
-export function* watchQueueAutoplay() {
-  yield takeEvery(MessageType.QUEUE_AUTOPLAY, function* (action: Message) {
+export function* watchRequestQueueAutoplay() {
+  yield takeEvery(MessageType.REQUEST_QUEUE_AUTOPLAY, function* (
+    action: Message
+  ) {
     const { genre, trackId } = action
     const userId = yield select(getUserId)
     yield put(
@@ -197,7 +199,7 @@ const sagas = () => {
     watchSyncQueue,
     watchSyncPlayer,
     watchShuffle,
-    watchQueueAutoplay
+    watchRequestQueueAutoplay
   ]
 }
 
