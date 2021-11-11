@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 
-export const useCollapsibleText = (widthToHideText: number) => {
+export const useCollapsibleText = (widthToHideText?: number) => {
   // Stores whether text should be hidden
   const [textIsHidden, setTextIsHidden] = useState(false)
 

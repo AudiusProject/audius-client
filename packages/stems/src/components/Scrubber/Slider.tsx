@@ -38,13 +38,17 @@ export const Slider = ({
 
   // Percentage of the complete scrubber being dragged to.
   // e.g. 0.25 means the user has dragged the scrubber 1/4th of the way.
-  const dragPercent = useRef(0)
+  const dragPercent = useRef<number | null>(0)
 
   // Refs to handle event listeners
-  const mouseMoveRef = useRef(null)
-  const mouseUpRef = useRef(null)
-  const touchMoveRef = useRef(null)
-  const touchEndRef = useRef(null)
+  const mouseMoveRef = useRef<((this: Document, ev: MouseEvent) => any) | null>(
+    null
+  )
+  const mouseUpRef = useRef<((this: Document, ev: MouseEvent) => any) | null>(
+    null
+  )
+  const touchMoveRef = useRef<((e: TouchEvent) => any) | null>(null)
+  const touchEndRef = useRef<((e: TouchEvent) => any) | null>(null)
 
   // Div refs
   const railRef = useRef<HTMLDivElement>(null)
@@ -63,11 +67,13 @@ export const Slider = ({
    */
   const setDragPercent = useCallback(
     (pageX: number) => {
-      const clickPosition = pageX - getXPosition(railRef.current)
-      const railWidth = railRef.current.offsetWidth
-      const percent =
-        Math.min(Math.max(0, clickPosition), railWidth) / railWidth
-      dragPercent.current = percent
+      if (railRef.current) {
+        const clickPosition = pageX - getXPosition(railRef.current)
+        const railWidth = railRef.current.offsetWidth
+        const percent =
+          Math.min(Math.max(0, clickPosition), railWidth) / railWidth
+        dragPercent.current = percent
+      }
     },
     [dragPercent]
   )
@@ -101,10 +107,13 @@ export const Slider = ({
       e.preventDefault()
 
       setDragPercentMouse(e)
-      setPercent(dragPercent.current)
-
-      const seconds = dragPercent.current * totalSeconds
-      onScrub(seconds)
+      if (dragPercent.current !== null) {
+        setPercent(dragPercent.current)
+        const seconds = dragPercent.current * totalSeconds
+        if (onScrub) {
+          onScrub(seconds)
+        }
+      }
     },
     [dragPercent, setDragPercentMouse, totalSeconds, setPercent, onScrub]
   )
@@ -118,10 +127,14 @@ export const Slider = ({
       e.preventDefault()
 
       setDragPercentTouch(e)
-      setPercent(dragPercent.current)
+      if (dragPercent.current !== null) {
+        setPercent(dragPercent.current)
 
-      const seconds = dragPercent.current * totalSeconds
-      onScrub(seconds)
+        const seconds = dragPercent.current * totalSeconds
+        if (onScrub) {
+          onScrub(seconds)
+        }
+      }
     },
     [dragPercent, setDragPercentTouch, totalSeconds, setPercent, onScrub]
   )
@@ -131,13 +144,21 @@ export const Slider = ({
    * calls the release callback, and resets dragging state.
    */
   const onMouseUp = useCallback(() => {
-    document.removeEventListener('mousemove', mouseMoveRef.current)
-    document.removeEventListener('mouseup', mouseUpRef.current)
+    if (mouseMoveRef.current) {
+      document.removeEventListener('mousemove', mouseMoveRef.current)
+    }
+    if (mouseUpRef.current) {
+      document.removeEventListener('mouseup', mouseUpRef.current)
+    }
 
-    const seconds = dragPercent.current * totalSeconds
-    onScrubRelease(seconds)
+    if (dragPercent.current !== null) {
+      const seconds = dragPercent.current * totalSeconds
+      if (onScrubRelease) {
+        onScrubRelease(seconds)
+      }
 
-    dragPercent.current = null
+      dragPercent.current = null
+    }
   }, [mouseMoveRef, mouseUpRef, dragPercent, totalSeconds, onScrubRelease])
 
   /**
@@ -145,13 +166,21 @@ export const Slider = ({
    * calls the release callback, and resets dragging state.
    */
   const onTouchEnd = useCallback(() => {
-    document.removeEventListener('touchmove', touchMoveRef.current)
-    document.removeEventListener('touchend', touchEndRef.current)
+    if (touchMoveRef.current) {
+      document.removeEventListener('touchmove', touchMoveRef.current)
+    }
+    if (touchEndRef.current) {
+      document.removeEventListener('touchend', touchEndRef.current)
+    }
 
-    const seconds = dragPercent.current * totalSeconds
-    onScrubRelease(seconds)
+    if (dragPercent.current !== null) {
+      const seconds = dragPercent.current * totalSeconds
+      if (onScrubRelease) {
+        onScrubRelease(seconds)
+      }
 
-    dragPercent.current = null
+      dragPercent.current = null
+    }
   }, [touchMoveRef, touchEndRef, dragPercent, totalSeconds, onScrubRelease])
 
   /**
@@ -167,7 +196,9 @@ export const Slider = ({
     document.addEventListener('mouseup', mouseUpRef.current)
 
     setDragPercentMouse(e)
-    setPercent(dragPercent.current)
+    if (dragPercent.current !== null) {
+      setPercent(dragPercent.current)
+    }
   }
 
   /**
@@ -180,7 +211,9 @@ export const Slider = ({
     document.addEventListener('touchend', touchEndRef.current)
 
     setDragPercentTouch(e)
-    setPercent(dragPercent.current)
+    if (dragPercent.current !== null) {
+      setPercent(dragPercent.current)
+    }
   }
 
   // Watch interactions to the scrubber and call to animate

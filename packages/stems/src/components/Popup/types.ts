@@ -13,7 +13,7 @@ export type PopupProps = {
   /**
    * A ref to the element whose position will be used to anchor the Popup
    */
-  anchorRef: MutableRefObject<HTMLElement>
+  anchorRef: MutableRefObject<HTMLElement | undefined>
 
   /**
    * Duration of the animations in ms
@@ -42,7 +42,7 @@ export type PopupProps = {
    * to be the size of the container it belongs to. If the popup expands outside
    * the bounds of the container, it repositions itself.
    */
-  containerRef?: MutableRefObject<HTMLDivElement | null>
+  containerRef?: MutableRefObject<HTMLDivElement | undefined>
 
   /**
    * Boolean representing whether the Popup is visible

@@ -26,10 +26,11 @@ export type Mapping = {
  */
 function allowGlobalHotkeyPress() {
   return (
-    document.activeElement === document.body ||
-    document.activeElement.nodeName === 'A' /* <a> */ ||
-    document.activeElement.nodeName === 'BUTTON' /* <button> */ ||
-    document.activeElement.getAttribute('role') === 'button'
+    document.activeElement &&
+    (document.activeElement === document.body ||
+      document.activeElement.nodeName === 'A' /* <a> */ ||
+      document.activeElement.nodeName === 'BUTTON' /* <button> */ ||
+      document.activeElement.getAttribute('role') === 'button')
   ) /* Lottie button */
 }
 

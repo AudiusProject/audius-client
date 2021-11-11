@@ -85,8 +85,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         className={cn(
           styles.button,
-          SIZE_STYLE_MAP[size],
-          TYPE_STYLE_MAP[type],
+          SIZE_STYLE_MAP[size || Size.MEDIUM],
+          TYPE_STYLE_MAP[type || Type.COMMON],
           {
             [styles.noIcon]: !leftIcon && !rightIcon,
             [styles.disabled]: isDisabled,

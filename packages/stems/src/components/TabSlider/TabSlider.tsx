@@ -7,7 +7,7 @@ import styles from './TabSlider.module.css'
 import { TabSliderProps } from './types'
 
 export const TabSlider = (props: TabSliderProps) => {
-  const optionRefs = useRef<Array<React.MutableRefObject<HTMLDivElement>>>(
+  const optionRefs = useRef<Array<React.RefObject<HTMLDivElement>>>(
     props.options.map(() => React.createRef())
   )
   const [selected, setSelected] = useState(props.options[0].key)
@@ -32,7 +32,7 @@ export const TabSlider = (props: TabSliderProps) => {
 
     const { clientWidth: width, offsetLeft: left } = optionRefs.current[
       selectedRefIdx
-    ].current
+    ]?.current ?? { clientWidth: 0, offsetLeft: 0 }
 
     setAnimatedProps({ to: { left: `${left}px`, width: `${width}px` } })
   }, [

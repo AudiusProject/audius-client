@@ -4,10 +4,10 @@ export type TokenValueSliderProps = {
   className?: string
   sliderClassName?: string
   sliderBarClassName?: string
-  min?: BN
-  max?: BN
+  min: BN
+  max: BN
   value: BN
-  minSliderWidth?: number
+  minSliderWidth: number
   initialValue?: BN
   isIncrease?: boolean
   minWrapper?: React.ComponentType<{ value: BN }>

@@ -52,7 +52,7 @@ const getComputedPosition = (
   position: Position,
   anchorRect: DOMRect,
   wrapperRect: DOMRect,
-  containerRef?: MutableRefObject<HTMLDivElement | null>
+  containerRef?: MutableRefObject<HTMLDivElement | undefined>
 ): Position => {
   if (!anchorRect || !wrapperRect) return position
 
@@ -117,7 +117,9 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   const handleClose = useCallback(() => {
     onClose()
     setTimeout(() => {
-      onAfterClose()
+      if (onAfterClose) {
+        onAfterClose()
+      }
     }, animationDuration)
   }, [onClose, onAfterClose, animationDuration])
 
@@ -127,12 +129,12 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
     typeof ref === 'function' ? undefined : ref
   )
 
-  const wrapperRef = useRef<HTMLDivElement>()
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const originalTopPosition = useRef<number>(0)
   const [computedPosition, setComputedPosition] = useState(position)
 
   const getRects = useCallback(
-    () => [anchorRef, wrapperRef].map(r => r.current.getBoundingClientRect()),
+    () => [anchorRef, wrapperRef].map(r => r?.current?.getBoundingClientRect()),
     [anchorRef, wrapperRef]
   )
 
@@ -140,6 +142,8 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   useEffect(() => {
     if (isVisible) {
       const [anchorRect, wrapperRect] = getRects()
+      if (!anchorRect || !wrapperRect) return
+
       const computed = getComputedPosition(
         position,
         anchorRect,
@@ -178,8 +182,10 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
       const [top, left] =
         positionMap[computed] ?? positionMap[Position.BOTTOM_CENTER]
 
-      wrapperRef.current.style.top = `${top}px`
-      wrapperRef.current.style.left = `${left}px`
+      if (wrapperRef.current) {
+        wrapperRef.current.style.top = `${top}px`
+        wrapperRef.current.style.left = `${left}px`
+      }
 
       originalTopPosition.current = top
     }
@@ -201,9 +207,11 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   const watchScroll = useCallback(
     (scrollParent, initialScrollPosition) => {
       const scrollTop = scrollParent.scrollTop
-      wrapperRef.current.style.top = `${
-        originalTopPosition.current - scrollTop + initialScrollPosition
-      }px`
+      if (wrapperRef.current) {
+        wrapperRef.current.style.top = `${
+          originalTopPosition.current - scrollTop + initialScrollPosition
+        }px`
+      }
     },
     [wrapperRef, originalTopPosition]
   )
@@ -212,6 +220,8 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   useEffect(() => {
     if (isVisible && anchorRef.current) {
       const scrollParent = getScrollParent(anchorRef.current)
+      if (!scrollParent) return
+
       const initialScrollPosition = scrollParent.scrollTop
       const listener = () => watchScroll(scrollParent, initialScrollPosition)
       scrollParent.addEventListener('scroll', listener)
@@ -237,7 +247,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
       return () => window.removeEventListener('keydown', escapeListener)
     }
     return () => {}
-  }, [isVisible])
+  }, [isVisible, handleClose])
 
   const transitions = useTransition(isVisible, null, {
     from: {

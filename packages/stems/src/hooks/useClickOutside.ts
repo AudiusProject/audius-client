@@ -15,18 +15,20 @@ import { MutableRefObject, useEffect, useRef } from 'react'
 export const useClickOutside = (
   onClick: () => void,
   ignoreClick: (target: EventTarget) => boolean = () => false,
-  defaultRef?: MutableRefObject<any>
+  defaultRef?: MutableRefObject<any> | null
 ) => {
   const ref = useRef(defaultRef?.current ?? null)
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (
-        !ref.current ||
-        (ref.current && ref.current.contains(e.target)) ||
-        ignoreClick(e.target)
-      ) {
-        return
+      if (e.target) {
+        if (
+          !ref.current ||
+          (ref.current && ref.current.contains(e.target)) ||
+          ignoreClick(e.target)
+        ) {
+          return
+        }
       }
       onClick()
     }

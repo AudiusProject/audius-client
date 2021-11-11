@@ -4,8 +4,8 @@ import { TimeData } from './types'
 
 /** Sets animation properties on the handle and track. */
 const animate = (
-  trackRef: React.MutableRefObject<HTMLDivElement>,
-  handleRef: React.MutableRefObject<HTMLDivElement>,
+  trackRef: React.MutableRefObject<HTMLDivElement | null>,
+  handleRef: React.MutableRefObject<HTMLDivElement | null>,
   transition: string,
   transform: string
 ) => {
@@ -23,8 +23,8 @@ const animate = (
  * const animations = useAnimations()
  */
 export const useAnimations = (
-  trackRef: React.MutableRefObject<HTMLDivElement>,
-  handleRef: React.MutableRefObject<HTMLDivElement>,
+  trackRef: React.MutableRefObject<HTMLDivElement | null>,
+  handleRef: React.MutableRefObject<HTMLDivElement | null>,
   elapsedSeconds: number,
   totalSeconds: number
 ) => {
@@ -46,14 +46,21 @@ export const useAnimations = (
    * cause jumping if elapsed seconds doesn't precisely reflect the animation.
    */
   const pause = useCallback(() => {
-    const trackWidth = trackRef.current.offsetWidth
-    const trackTransform = window
-      .getComputedStyle(trackRef.current)
-      .getPropertyValue('transform')
+    if (trackRef.current) {
+      const trackWidth = trackRef.current.offsetWidth
+      const trackTransform = window
+        .getComputedStyle(trackRef.current)
+        .getPropertyValue('transform')
 
-    const trackPosition = parseFloat(trackTransform.split(',')[4])
-    const percentComplete = trackPosition / trackWidth
-    animate(trackRef, handleRef, 'none', `translate(${percentComplete * 100}%)`)
+      const trackPosition = parseFloat(trackTransform.split(',')[4])
+      const percentComplete = trackPosition / trackWidth
+      animate(
+        trackRef,
+        handleRef,
+        'none',
+        `translate(${percentComplete * 100}%)`
+      )
+    }
   }, [trackRef, handleRef])
 
   /** Sets the animation to a given percentage: [0, 1]. */
@@ -73,13 +80,15 @@ export const useAnimations = (
    * Handle window focus events so that the scrubber can repair itself
    * if/when the browser loses focus and kills animations.
    */
-  const timeData = useRef<TimeData>(null)
+  const timeData = useRef<TimeData>()
   timeData.current = { elapsedSeconds, totalSeconds }
   useEffect(() => {
     const onWindowFocus = () => {
-      setPercent(
-        timeData.current.elapsedSeconds / timeData.current.totalSeconds
-      )
+      if (timeData.current) {
+        setPercent(
+          timeData.current.elapsedSeconds / timeData.current.totalSeconds
+        )
+      }
     }
     window.addEventListener('focus', onWindowFocus)
     return () => window.removeEventListener('focus', onWindowFocus)

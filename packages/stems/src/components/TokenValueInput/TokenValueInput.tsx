@@ -109,7 +109,7 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
       {rightLabel && (
         <div
           className={cn(styles.rightLabel, {
-            [rightLabelClassName]: !!rightLabelClassName
+            [rightLabelClassName as string]: !!rightLabelClassName
           })}
           ref={setLabelRef}
         >

@@ -50,11 +50,15 @@ export const Scrubber = ({
 
   const onHandleScrub = (seconds: number) => {
     setDragSeconds(seconds)
-    onScrub(seconds)
+    if (onScrub) {
+      onScrub(seconds)
+    }
   }
 
   const onHandleScrubRelease = (seconds: number) => {
-    onScrubRelease(seconds)
+    if (onScrubRelease) {
+      onScrubRelease(seconds)
+    }
     resetDragSeconds(isPlaying)
   }
 
