@@ -159,7 +159,7 @@ function* watchSyncQueue() {
 
 function* watchSyncPlayer() {
   yield takeEvery(MessageType.SYNC_PLAYER, function* (action: Message) {
-    const { isPlaying } = action
+    const { isPlaying, incrementCounter } = action
     const id = yield select(getQueueTrackId)
     const track = yield select(getTrack, { id })
     console.info(`Syncing player: isPlaying ${isPlaying}`)
@@ -169,6 +169,9 @@ function* watchSyncPlayer() {
       yield put(playerActions.playSucceeded({}))
     } else {
       yield put(playerActions.pause({ onlySetState: true }))
+    }
+    if (incrementCounter) {
+      yield put(playerActions.incrementCount())
     }
   })
 }
