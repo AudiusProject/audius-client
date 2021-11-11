@@ -1,5 +1,7 @@
 .card {
+    height: 100% !important;
     width: 100% !important;
+    max-width: 1200px;
     overflow: hidden;
 }
 
@@ -11,6 +13,7 @@
 .collectiblesContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    overflow: hidden;
 }
 
 .imgContainer {
@@ -24,6 +27,7 @@
     top: 54px;
     left: 0;
     right: 0;
+    bottom: 0;
     transform: scale(0.94);
     opacity: 0;
     pointer-events: none;

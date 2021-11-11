@@ -38,6 +38,7 @@ const CollectiblesPlayerContainer = ({
           <CollectiblesHeader user={collectiblesInfo.user} />
           <CollectibleDetailsView
             collectible={collectiblesInfo.collectible}
+            user={collectiblesInfo.user}
             isTwitter={isTwitter}
           />
         </Card>

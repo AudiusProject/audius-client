@@ -1,17 +1,19 @@
 .container {
-    display: flex;
-    justify-content: center;
-    align-content: flex-start;
     position: relative;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    right: 0;
     padding: 1.5rem 1rem 1rem;
     background: rgba(255, 255, 255, 0.9);
     mix-blend-mode: normal;
     backdrop-filter: blur(50px);
-    overflow: scroll;
+    box-sizing: border-box;
+    height: 100%;
+    overflow: hidden auto;
+}
+
+.contentContainer {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-content: flex-start;
 }
 
 .imgContainer {
@@ -30,8 +32,9 @@
 }
 
 .detailsMediaWrapper model-viewer {
-    min-height: 30vh;
+    height: 100%;
     width: 100%;
+    min-height: 30vh;
     border-radius: 0.25rem;
 }
 
@@ -49,7 +52,8 @@
 
 .detailsMediaWrapper video {
     border-radius: 0.25rem;
-    max-height: 70vh;
+    width: 100%;
+    max-width: 45rem;
     box-sizing: border-box;
     background-size: cover;
     background-position: center;
@@ -61,7 +65,7 @@
     flex: 1 1 20rem;
     display: flex;
     flex-direction: column;
-    padding: 2rem 2rem 8rem;
+    padding: 2rem;
     gap: 1rem;
 }
 .nftInfo .header {
@@ -97,6 +101,20 @@
     fill: #ffffff;
 }
 
+.volumeIcon {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  height: 1.25rem;
+  width: 1.25rem;
+  padding: 0.25rem;
+  border: 2px solid var(--neutral-light-5);
+  border-radius: 100%;
+}
+.volumeIcon path {
+  fill: var(--neutral-light-5);
+}
+
 .fadeIn {
     animation: fadeIn 0.3s forwards;
 }
@@ -106,9 +124,8 @@
 }
 
 @media only screen and (max-width: 600px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
+    .contentContainer {
+        display: block;
     }
 
     .imgContainer {
@@ -124,8 +141,7 @@
     }
 
     .nftInfo {
-        width: 100%;
-        padding: 1rem 0.5rem 8rem;
+        padding: 1rem 0.5rem 2rem;
     }
     .nftInfo .button {
         display: flex;

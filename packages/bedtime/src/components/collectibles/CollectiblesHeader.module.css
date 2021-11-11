@@ -11,7 +11,6 @@
     background: rgba(255, 255, 255, 0.8);
     mix-blend-mode: normal;
     backdrop-filter: blur(40px);
-    /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.03), 0 1px 0 0 #f2f2f4; */
     box-shadow: 0 1px 0 0 #f2f2f4;
     color: #7E1BCC;
     transition: 0.2s ease;
@@ -57,6 +56,10 @@
     opacity: 1;
     transform: translate(1rem,-50%) rotate(180deg);
     pointer-events: all;
+}
+
+.logo path {
+  fill: #7E1BCC;
 }
 
 @media only screen and (max-width: 600px) {

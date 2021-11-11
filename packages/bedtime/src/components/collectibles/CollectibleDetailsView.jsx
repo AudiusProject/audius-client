@@ -1,3 +1,4 @@
+import { IconVolume0, IconVolume2 } from '@audius/stems'
 import { h } from 'preact'
 import cn from 'classnames'
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks'
@@ -10,6 +11,10 @@ import { getAudiusURL } from '../../util/shareUtil'
 
 const MODEL_VIEWER_SCRIPT_URL =
   'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
+
+const messages = {
+  videoNotSupported: 'Your browser does not support the video tag.'
+}
 
 const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   const { mediaType, imageUrl, videoUrl, gifUrl, threeDUrl } = collectible
@@ -93,12 +98,12 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   ) : mediaType === 'VIDEO' ? (
     <div className={cn(styles.detailsMediaWrapper, { [styles.fadeIn]: !isLoading })} onClick={toggleMute}>
       <video muted={isMuted} autoPlay loop playsInline src={videoUrl}>
-        {collectibleMessages.videoNotSupported}
+        {messages.videoNotSupported}
       </video>
       {isMuted ? (
-        <IconMute className={styles.volumeIcon} />
+        <IconVolume0 className={styles.volumeIcon} />
       ) : (
-        <IconVolume className={styles.volumeIcon} />
+        <IconVolume2 className={styles.volumeIcon} />
       )}
     </div>
   ) : (
@@ -111,44 +116,50 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   )
 }
 
-const CollectibleDetailsView = ({ collectible }) => (
-  <div className={styles.container}>
-    <div className={styles.imgContainer}>
-      {collectible.name && (
-        <CollectibleMedia
-          collectible={collectible}
-          isMuted={false}
-          isMobile={false}
-          toggleMute={() => {}}
-        />
-      )}
-    </div>
+const CollectibleDetailsView = ({ collectible, user }) => {
+  const [isMuted, setIsMuted] = useState(false)
 
-    <div className={styles.nftInfo}>
-      {collectible.name && (
-        <div className={styles.header}>
-          {collectible.name}
+  return (
+    <div className={styles.container}>
+      <div className={styles.contentContainer}>
+        <div className={styles.imgContainer}>
+          {collectible.name && (
+            <CollectibleMedia
+              collectible={collectible}
+              isMuted={isMuted}
+              isMobile={false}
+              toggleMute={() => setIsMuted(!isMuted)}
+            />
+          )}
         </div>
-      )}
-      {collectible.description && (
-        <div className={styles.desc}>
-          {collectible.description}
+
+        <div className={styles.nftInfo}>
+          {collectible.name && (
+            <div className={styles.header}>
+              {collectible.name}
+            </div>
+          )}
+          {collectible.description && (
+            <div className={styles.desc}>
+              {collectible.description}
+            </div>
+          )}
+          {collectible.id && (
+            <div>
+              <Button
+                className={styles.button}
+                onClick={() => {
+                  window.open(`${getAudiusURL()}/${user.handle}/collectibles/${getHash(collectible.id)}`, '_blank')
+                }}
+                label="View on "
+                icon={<AudiusLogo />}
+              />
+            </div>
+          )}
         </div>
-      )}
-      {collectible.id && (
-        <div>
-          <Button
-            className={styles.button}
-            onClick={() => {
-              window.open(`${getAudiusURL()}/${handle}/collectibles/${getHash(collectible.id)}`, '_blank')
-            }}
-            label="View on "
-            icon={<AudiusLogo />}
-          />
-        </div>
-      )}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export default CollectibleDetailsView

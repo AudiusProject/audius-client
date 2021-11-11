@@ -25,9 +25,15 @@ const CollectibleGallery = ({
 
   useEffect(() => { fetchCollectiblesOrder() }, [])
 
-  const collectiblesArray = order
-    ? order.map(collectibleId => collectibles.find(c => c.id === collectibleId))
-    : collectibles
+  let collectiblesArray = collectibles
+
+  if (order) {
+    const orderedArray = order
+      .map(collectibleId => collectibles.find(c => c.id === collectibleId))
+      .filter(c => c)
+
+    if (orderedArray.length) collectiblesArray = orderedArray
+  }
 
   return (
     <Card

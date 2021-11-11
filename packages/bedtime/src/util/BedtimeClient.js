@@ -90,8 +90,11 @@ const makeRequest = async (url) => {
 const constructEndpoint = (entity, id, ownerId) =>
   `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/${id}${ownerId ? `?ownerId=${ownerId}` : ''}`
 
+const constructCollectiblesEndpoint = (handle) =>
+  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${handle}/${RequestedEntity.COLLECTIBLES}`
+
 const constructCollectibleIdEndpoint = (handle, collectibleId) =>
-  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${RequestedEntity.COLLECTIBLES}/${handle}/${collectibleId}`
+  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${handle}/${RequestedEntity.COLLECTIBLES}/${collectibleId}`
 
 // For hash id based requests, we don't care about the owner id, since
 // this avoids the monotonically increasing issues track ids have
@@ -124,6 +127,6 @@ export const getCollectible = async (handle, collectibleId) => {
 }
 
 export const getCollectibles = async (handle) => {
-  const url = constructEndpoint(RequestedEntity.COLLECTIBLES, handle)
+  const url = constructCollectiblesEndpoint(handle)
   return makeRequest(url)
 }
