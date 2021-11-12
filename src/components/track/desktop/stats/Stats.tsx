@@ -80,9 +80,9 @@ const Stats = memo(
                 contentTitle={contentTitle}
                 // Map out all of the users so that the selector is cheaper inside the
                 // rendered component
-                userId1={slice[0] ? slice[0].user_id : undefined}
-                userId2={slice[1] ? slice[1].user_id : undefined}
-                userId3={slice[3] ? slice[2].user_id : undefined}
+                userIds={(slice as Array<Repost | Favorite>).map(
+                  (s: Repost | Favorite) => s.user_id
+                )}
               />
             ) : (
               <span>{formatCount(count)}</span>

@@ -5,7 +5,7 @@ import { Dispatch } from 'redux'
 
 import { ID } from 'common/models/Identifiers'
 import User from 'common/models/User'
-import { getUser } from 'common/store/cache/users/selectors'
+import { getUser, getUsers } from 'common/store/cache/users/selectors'
 import { AppState } from 'store/types'
 import { formatCount, pluralize } from 'utils/formatUtil'
 
@@ -75,9 +75,7 @@ export const formatLongString = (
 }
 
 type OwnProps = {
-  userId1?: ID
-  userId2?: ID
-  userId3?: ID
+  userIds: ID[]
   count: number
   contentTitle: string
   flavor: Flavor
@@ -88,7 +86,7 @@ type RepostTextProps = OwnProps &
   ReturnType<typeof mapDispatchToProps>
 
 const StatsText = memo(
-  ({ user1, user2, user3, count, contentTitle, flavor }: RepostTextProps) => {
+  ({ users, count, contentTitle, flavor }: RepostTextProps) => {
     if (count === 0) {
       return (
         <div className={styles.first}>
@@ -100,7 +98,7 @@ const StatsText = memo(
     const { longString, endString } = formatLongString(
       flavor,
       count,
-      [user1, user2, user3].filter(Boolean) as User[]
+      users.filter(u => !!u && !u.is_deactivated).slice(0, 2)
     )
 
     return (
@@ -118,9 +116,7 @@ const StatsText = memo(
 
 function mapStateToProps(state: AppState, ownProps: OwnProps) {
   return {
-    user1: getUser(state, { id: ownProps.userId1 }),
-    user2: getUser(state, { id: ownProps.userId2 }),
-    user3: getUser(state, { id: ownProps.userId3 })
+    users: Object.values(getUsers(state, { ids: ownProps.userIds }))
   }
 }
 
