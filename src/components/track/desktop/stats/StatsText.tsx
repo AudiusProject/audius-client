@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ID } from 'common/models/Identifiers'
-import User from 'common/models/User'
-import { getUser, getUsers } from 'common/store/cache/users/selectors'
+import { User } from 'common/models/User'
+import { getUsers } from 'common/store/cache/users/selectors'
 import { AppState } from 'store/types'
 import { formatCount, pluralize } from 'utils/formatUtil'
 
