@@ -90,6 +90,7 @@ export const getAccountNavigationPlaylists = (state: CommonState) => {
   return Object.keys(state.account.collections).reduce((acc, cur) => {
     const collection = state.account.collections[(cur as unknown) as number]
     if (collection.is_album) return acc
+    if (getUser(state, { id: collection.user.id })?.is_deactivated) return acc
     return {
       ...acc,
       [cur]: collection
