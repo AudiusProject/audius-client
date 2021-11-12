@@ -63,7 +63,7 @@ const TrackListItem = ({
 
   if (!track) return null
 
-  const { is_delete: deleted } = track
+  const deleted = track.is_delete || !!track.user?.is_deactivated
   const strings = makeStrings({ deleted })
 
   const onClickArtistName = (e: MouseEvent) => {

@@ -166,7 +166,7 @@ const ConnectedTrackTile = memo(
         includeShareToTikTok: !is_unlisted,
         includeTrackPage: true,
         isArtistPick: isArtistPick,
-        isDeleted: is_delete,
+        isDeleted: is_delete || !!user?.is_deactivated,
         isFavorited,
         isOwner,
         isReposted,
@@ -286,7 +286,7 @@ const ConnectedTrackTile = memo(
       togglePlay(uid, trackId)
     }, [togglePlay, uid, trackId])
 
-    if (is_delete) return null
+    if (is_delete || user?.is_deactivated) return null
 
     const order = ordered && index !== undefined ? index + 1 : undefined
     const artwork = renderImage()
