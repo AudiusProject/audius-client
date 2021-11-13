@@ -62,11 +62,11 @@ const CollectiblesHeader = ({
           <IconArrowGrey />
         </div>
         <h2>NFT COLLECTIBLES</h2>
-        <h2>
-          {name}
+        <div className={styles.userInfo}>
+          <h2>{name}</h2>
           {is_verified && <IconVerified />}
           {getTierIcon(total_balance)}
-        </h2>
+        </div>
       </div>
       <div className={styles.logo}>
         <AudiusLogoButton />

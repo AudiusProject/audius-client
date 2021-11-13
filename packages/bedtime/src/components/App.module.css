@@ -13,6 +13,13 @@
 }
 
 @font-face {
+  font-family: "Avenir Next LT Pro";
+  font-style: bold;
+  font-weight: 900;
+  src: url("../assets/fonts/AvenirNextLTPro-Bold.ttf") format("truetype");
+}
+
+@font-face {
   font-family: "Gilroy";
   font-style: normal;
   font-weight: 700;

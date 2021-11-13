@@ -117,7 +117,7 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
 }
 
 const CollectibleDetailsView = ({ collectible, user }) => {
-  const [isMuted, setIsMuted] = useState(false)
+  const [isMuted, setIsMuted] = useState(true)
 
   return (
     <div className={styles.container}>

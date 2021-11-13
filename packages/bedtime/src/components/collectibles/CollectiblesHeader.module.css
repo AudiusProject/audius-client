@@ -26,9 +26,6 @@
     gap: 0.75rem;
 }
 .headerInfo h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
     padding: 0;
     margin: 0;
     font-weight: 800;
@@ -36,7 +33,15 @@
     line-height: 22px;
     text-transform: uppercase;
 }
-.headerInfo h2 svg {
+.headerInfo .userInfo {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+.headerInfo .userInfo h2 {
+    opacity: 0.5;
+}
+.headerInfo .userInfo svg {
     height: 1rem;
     width: 1rem;
 }
@@ -56,6 +61,9 @@
     opacity: 1;
     transform: translate(1rem,-50%) rotate(180deg);
     pointer-events: all;
+}
+.backButton path {
+    fill: var(--neutral-light-4);
 }
 
 .logo path {

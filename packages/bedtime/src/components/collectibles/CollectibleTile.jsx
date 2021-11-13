@@ -16,6 +16,7 @@ const preload = async (src) => (
 
 const CollectibleTile = ({ collectible, onClick }) => {
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
+  const [isHidden, setIsHidden] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
 
@@ -38,8 +39,10 @@ const CollectibleTile = ({ collectible, onClick }) => {
     load()
   }, [mediaType, frameUrl, gifUrl, name, setFrame, setIsLoading])
 
+  if (isHidden) return false
+
   return (
-    <div className={styles.detailsContainer}>
+    <div className={styles.imgContainer}>
       {!isLoading && (
         <div className={cn(styles.imageWrapper, { [styles.fadeIn]: !isLoading })} onClick={onClick}>
           {(mediaType === 'VIDEO' && !frame && videoUrl)
@@ -52,6 +55,10 @@ const CollectibleTile = ({ collectible, onClick }) => {
               <img
                 className={styles.image}
                 src={frame}
+                onError={() => {
+                  console.error(`Error loading: ${name}`)
+                  setIsHidden(true)
+                }}
               />
             )
           }

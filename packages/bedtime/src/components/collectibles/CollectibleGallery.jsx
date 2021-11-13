@@ -52,16 +52,14 @@ const CollectibleGallery = ({
         />
         <div className={styles.collectiblesContainer}>
           {collectiblesArray.map(collectible => (
-            <div className={styles.imgContainer}>
-              <CollectibleTile
-                key={collectible.id}
-                collectible={collectible}
-                onClick={() => {
-                  setModalCollectible(collectible)
-                  setIsModalOpen(true)
-                }}
-              />
-            </div>
+            <CollectibleTile
+              key={collectible.id}
+              collectible={collectible}
+              onClick={() => {
+                setModalCollectible(collectible)
+                setIsModalOpen(true)
+              }}
+            />
           ))}
         </div>
       </div>
