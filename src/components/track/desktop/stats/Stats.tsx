@@ -1,11 +1,17 @@
-import React, { memo } from 'react'
+import React, { memo, useMemo } from 'react'
 
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
+import { createSelector } from 'reselect'
 
 import { ReactComponent as IconFavorite } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRepost } from 'assets/img/iconRepost.svg'
 import { Favorite } from 'common/models/Favorite'
+import { ID } from 'common/models/Identifiers'
 import { Repost } from 'common/models/Repost'
+import { CommonState } from 'common/store'
+import { getUsers } from 'common/store/cache/users/selectors'
+import { AppState } from 'store/types'
 import { formatCount } from 'utils/formatUtil'
 
 import ProfileImage from './ProfileImage'
@@ -13,6 +19,16 @@ import styles from './Stats.module.css'
 import StatsText, { Flavor } from './StatsText'
 
 const MAX_REPOST_IMAGES = 3
+
+const makeFolloweeActionsUsers = () =>
+  createSelector(
+    getUsers,
+    (_state: AppState, userIds: ID[] | undefined) => userIds,
+    (users, userIds: ID[] | undefined) =>
+      userIds
+        ? userIds.map(id => users[id]).filter(u => !!u && !u.is_deactivated)
+        : []
+  )
 
 type StatsProps = {
   count: number
@@ -47,7 +63,17 @@ const Stats = memo(
       [styles.large]: size === 'large'
     })
 
-    const slice = followeeActions.slice(0, MAX_REPOST_IMAGES)
+    const getFolloweeActionsUsers = useMemo(makeFolloweeActionsUsers, [])
+    const followeeActionUsers = useSelector((state: AppState) =>
+      getFolloweeActionsUsers(
+        state,
+        (followeeActions as Array<Repost | Favorite>).map(
+          (a: Repost | Favorite) => a.user_id
+        )
+      )
+    )
+
+    const slice = followeeActionUsers.slice(0, MAX_REPOST_IMAGES)
 
     // @ts-ignore
     const items = slice.map(item => (
@@ -78,11 +104,7 @@ const Stats = memo(
                 flavor={flavor}
                 count={count}
                 contentTitle={contentTitle}
-                // Map out all of the users so that the selector is cheaper inside the
-                // rendered component
-                userIds={(slice as Array<Repost | Favorite>).map(
-                  (s: Repost | Favorite) => s.user_id
-                )}
+                users={followeeActionUsers}
               />
             ) : (
               <span>{formatCount(count)}</span>

@@ -1,12 +1,6 @@
 import React, { memo } from 'react'
 
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
-
-import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
-import { getUsers } from 'common/store/cache/users/selectors'
-import { AppState } from 'store/types'
 import { formatCount, pluralize } from 'utils/formatUtil'
 
 import styles from './StatsText.module.css'
@@ -75,16 +69,13 @@ export const formatLongString = (
 }
 
 type OwnProps = {
-  userIds: ID[]
+  users: User[]
   count: number
   contentTitle: string
   flavor: Flavor
 }
 
-type RepostTextProps = OwnProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>
-
+type RepostTextProps = OwnProps
 const StatsText = memo(
   ({ users, count, contentTitle, flavor }: RepostTextProps) => {
     if (count === 0) {
@@ -95,11 +86,7 @@ const StatsText = memo(
       )
     }
 
-    const { longString, endString } = formatLongString(
-      flavor,
-      count,
-      users.filter(u => !!u && !u.is_deactivated).slice(0, 2)
-    )
+    const { longString, endString } = formatLongString(flavor, count, users)
 
     return (
       <>
@@ -114,14 +101,4 @@ const StatsText = memo(
   }
 )
 
-function mapStateToProps(state: AppState, ownProps: OwnProps) {
-  return {
-    users: Object.values(getUsers(state, { ids: ownProps.userIds }))
-  }
-}
-
-function mapDispatchToProps(dispatch: Dispatch) {
-  return {}
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(StatsText)
+export default StatsText
