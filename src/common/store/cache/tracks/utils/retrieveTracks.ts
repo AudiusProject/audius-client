@@ -3,7 +3,7 @@ import { spawn, call, select, put } from 'redux-saga/effects'
 import { ID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
-import Track, { TrackMetadata, UserTrackMetadata } from 'common/models/Track'
+import { Track, TrackMetadata, UserTrackMetadata } from 'common/models/Track'
 import { CommonState } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { retrieve } from 'common/store/cache/sagas'
@@ -58,11 +58,16 @@ export function* retrieveTrackByHandleAndSlug({
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
+        const userId = yield select(getUserId)
         const track: UserTrackMetadata = yield call(args => {
           const split = args[0].split('/')
           const handle = split[1]
           const slug = split.slice(2).join('')
-          return apiClient.getTrackByHandleAndSlug({ handle, slug })
+          return apiClient.getTrackByHandleAndSlug({
+            handle,
+            slug,
+            currentUserId: userId
+          })
         }, permalinks)
         return track
       },

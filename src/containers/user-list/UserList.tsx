@@ -6,7 +6,7 @@ import { Dispatch } from 'redux'
 
 import { FollowSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import User from 'common/models/User'
+import { User } from 'common/models/User'
 import { getUserId } from 'common/store/account/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import * as socialActions from 'common/store/social/users/actions'

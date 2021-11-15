@@ -2,9 +2,9 @@ import React, { useCallback } from 'react'
 
 import { ReactComponent as IconTwitterBird } from 'assets/img/iconTwitterBird.svg'
 import { Name } from 'common/models/Analytics'
-import Collection from 'common/models/Collection'
-import Track from 'common/models/Track'
-import User from 'common/models/User'
+import { Collection } from 'common/models/Collection'
+import { Track } from 'common/models/Track'
+import { User } from 'common/models/User'
 import {
   Notification,
   NotificationType,

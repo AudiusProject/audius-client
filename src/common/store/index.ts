@@ -11,10 +11,10 @@ import { asCache } from 'common/store/cache/reducer'
 import cacheSagas from 'common/store/cache/sagas'
 import tracksReducer from 'common/store/cache/tracks/reducer'
 import tracksSagas from 'common/store/cache/tracks/sagas'
-import TracksCacheState from 'common/store/cache/tracks/types'
+import { TracksCacheState } from 'common/store/cache/tracks/types'
 import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
-import UserCacheState from 'common/store/cache/users/types'
+import { UsersCacheState } from 'common/store/cache/users/types'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from 'common/store/ui/add-to-playlist/reducer'
@@ -86,7 +86,7 @@ export type CommonState = {
   // Cache
   collections: Cache<Collection>
   tracks: TracksCacheState
-  users: UserCacheState
+  users: UsersCacheState
 
   ui: {
     addToPlaylist: AddToPlaylistState

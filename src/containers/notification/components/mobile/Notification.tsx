@@ -5,7 +5,7 @@ import cn from 'classnames'
 
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import Track from 'common/models/Track'
+import { Track } from 'common/models/Track'
 import IconButton from 'components/general/IconButton'
 import {
   Entity,

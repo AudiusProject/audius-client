@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { CreatePlaylistSource } from 'common/models/Analytics'
-import Collection from 'common/models/Collection'
+import { Collection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import { getAccountWithOwnPlaylists } from 'common/store/account/selectors'
 import {

@@ -22,7 +22,7 @@ import {
   Name
 } from 'common/models/Analytics'
 import { UID, ID } from 'common/models/Identifiers'
-import Track from 'common/models/Track'
+import { Track } from 'common/models/Track'
 import { getUserHandle } from 'common/store/account/selectors'
 import {
   getCollection,

@@ -13,7 +13,7 @@ import { Dispatch } from 'redux'
 
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import User from 'common/models/User'
+import { User } from 'common/models/User'
 import { showPushNotificationConfirmation } from 'common/store/account/reducer'
 import { getHasAccount } from 'common/store/account/selectors'
 import { Pages, FollowArtistsCategory } from 'containers/sign-on/store/types'

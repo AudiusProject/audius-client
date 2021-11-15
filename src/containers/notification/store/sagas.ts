@@ -13,7 +13,7 @@ import {
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
-import Track from 'common/models/Track'
+import { Track } from 'common/models/Track'
 import { getUserId, getHasAccount } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'

@@ -15,7 +15,7 @@ import {
 import { FavoriteType } from 'common/models/Favorite'
 import { ID, CID, PlayableType } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
-import Track from 'common/models/Track'
+import { Track } from 'common/models/Track'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheTrackActions from 'common/store/cache/tracks/actions'
 import * as socialTracksActions from 'common/store/social/tracks/actions'
