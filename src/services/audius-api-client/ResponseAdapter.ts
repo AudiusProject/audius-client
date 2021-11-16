@@ -69,8 +69,7 @@ export const makeUser = (
     cover_photo: user.cover_photo_sizes || user.cover_photo_legacy,
     profile_picture: user.profile_picture_sizes || user.profile_picture_legacy,
     metadata_multihash: user.metadata_multihash || null,
-    id: undefined,
-    is_deactivated: false
+    id: undefined
   }
 
   delete newUser.id
