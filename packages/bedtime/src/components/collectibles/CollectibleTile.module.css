@@ -16,15 +16,8 @@
     position: absolute;
     height: calc(100% + 1px);
     width: calc(100% + 1px);
-    transition: 0.07s ease-out;
     backface-visibility: hidden;
     opacity: 0;
-}
-.imageWrapper:hover {
-    z-index: 2;
-    cursor: pointer;
-    transition: 0.17s ease-out;
-    transform: perspective(1px) scale3d(1.08, 1.08, 1.08);
 }
 
 .video {
@@ -39,6 +32,12 @@
     height: calc(100% + 10px);
     width: calc(100% + 10px);
     object-fit: cover;
+    cursor: pointer;
+    transition: 0.15s ease-in-out;
+    will-change: transform;
+}
+.image:hover {
+    transform: scale(1.08);
 }
 
 .fadeIn {

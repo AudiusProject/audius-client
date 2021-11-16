@@ -97,14 +97,16 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
     </div>
   ) : mediaType === 'VIDEO' ? (
     <div className={cn(styles.detailsMediaWrapper, { [styles.fadeIn]: !isLoading })} onClick={toggleMute}>
-      <video muted={isMuted} autoPlay loop playsInline src={videoUrl}>
-        {messages.videoNotSupported}
-      </video>
-      {isMuted ? (
-        <IconVolume0 className={styles.volumeIcon} />
-      ) : (
-        <IconVolume2 className={styles.volumeIcon} />
-      )}
+      <div style={{ position: 'relative' }}>
+        <video muted={isMuted} autoPlay loop playsInline src={videoUrl}>
+          {messages.videoNotSupported}
+        </video>
+        {isMuted ? (
+          <IconVolume0 className={styles.volumeIcon} />
+        ) : (
+          <IconVolume2 className={styles.volumeIcon} />
+        )}
+      </div>
     </div>
   ) : (
     <div
