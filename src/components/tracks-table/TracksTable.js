@@ -80,6 +80,9 @@ const trackNameCell = (val, record, props) => {
 }
 
 const artistNameCell = (val, record, props) => {
+  if (record.user?.is_deactivated) {
+    return `${record.user?.name} [Deactivated]`
+  }
   return (
     <ArtistPopover handle={record.handle}>
       <div
