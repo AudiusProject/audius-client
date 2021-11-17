@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 
 import { User } from 'common/models/User'
-import { formatCount, pluralize } from 'utils/formatUtil'
+import { formatCount, pluralize } from 'common/utils/formatUtil'
 
 import styles from './StatsText.module.css'
 
