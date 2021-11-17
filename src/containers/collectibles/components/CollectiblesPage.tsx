@@ -444,7 +444,14 @@ const CollectiblesPage: React.FC<{
     return []
   }, [getVisibleCollectibles, collectibleList])
 
+  // On first mount, if the route matches a collectible id route,
+  // trigger the modal to open.
+  // Afterwards, allow the user to trigger opening the modal only.
   const collectible = useSelector(getCollectible)
+  const [
+    hasSetDeepLinkedCollectible,
+    setHasSetDeepLinkedCollectible
+  ] = useState(false)
   // Handle rendering details modal based on route
   useEffect(() => {
     // @ts-ignore
@@ -452,7 +459,7 @@ const CollectiblesPage: React.FC<{
 
     // If the URL matches a collectible ID and we haven't set a collectible in the
     // store yet, open up the modal
-    if (collectibleId && !collectible) {
+    if (collectibleId && !collectible && !hasSetDeepLinkedCollectible) {
       const collectibleFromUrl =
         getVisibleCollectibles().find(c => getHash(c.id) === collectibleId) ??
         null
@@ -460,9 +467,12 @@ const CollectiblesPage: React.FC<{
         dispatch(setCollectible({ collectible: collectibleFromUrl }))
         setIsDetailsModalOpen(true)
         setEmbedCollectibleHash(collectibleId)
+        setHasSetDeepLinkedCollectible(true)
       }
     }
   }, [
+    hasSetDeepLinkedCollectible,
+    setHasSetDeepLinkedCollectible,
     collectible,
     dispatch,
     getVisibleCollectibles,
@@ -545,6 +555,9 @@ const CollectiblesPage: React.FC<{
                 <CollectibleDetails
                   key={collectible.id}
                   collectible={collectible}
+                  onClick={() =>
+                    setEmbedCollectibleHash(getHash(collectible.id))
+                  }
                 />
               ))}
             </div>
@@ -559,6 +572,7 @@ const CollectiblesPage: React.FC<{
         onSave={onSave}
         shareUrl={shareUrl}
         setIsEmbedModalOpen={setIsEmbedModalOpen}
+        onClose={() => setEmbedCollectibleHash(null)}
       />
 
       <Modal

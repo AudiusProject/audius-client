@@ -22,7 +22,8 @@ import styles from './CollectiblesPage.module.css'
 
 const CollectibleDetails: React.FC<{
   collectible: Collectible
-}> = ({ collectible }) => {
+  onClick: () => void
+}> = ({ collectible, onClick }) => {
   const dispatch = useDispatch()
   const match = useRouteMatch()
   const navigate = useNavigateToPage()
@@ -74,7 +75,8 @@ const CollectibleDetails: React.FC<{
     window.history.pushState('', '', url)
     dispatch(setCollectible({ collectible }))
     setIsModalOpen(true)
-  }, [collectible, match.params, dispatch, setIsModalOpen])
+    onClick()
+  }, [collectible, match.params, dispatch, setIsModalOpen, onClick])
 
   return (
     <div className={styles.detailsContainer}>

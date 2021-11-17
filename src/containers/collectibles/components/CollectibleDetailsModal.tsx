@@ -153,7 +153,8 @@ const CollectibleDetailsModal = ({
   updateProfilePicture,
   isUserOnTheirProfile,
   shareUrl,
-  setIsEmbedModalOpen
+  setIsEmbedModalOpen,
+  onClose
 }: {
   isMobile: boolean
   onSave?: () => void
@@ -164,6 +165,7 @@ const CollectibleDetailsModal = ({
   isUserOnTheirProfile: boolean
   shareUrl: string
   setIsEmbedModalOpen: (val: boolean) => void
+  onClose: () => void
 }) => {
   const match = useRouteMatch()
   const dispatch = useDispatch()
@@ -194,7 +196,8 @@ const CollectibleDetailsModal = ({
     const url = `/${match.params.handle}/collectibles`
     // Push window state as to not trigger router change & component remount
     window.history.pushState('', '', url)
-  }, [match.params, dispatch, setIsModalOpen])
+    onClose()
+  }, [match.params, dispatch, setIsModalOpen, onClose])
 
   const toggleMute = useCallback(() => {
     setIsMuted(!isMuted)
