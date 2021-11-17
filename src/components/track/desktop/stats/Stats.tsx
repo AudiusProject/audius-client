@@ -11,8 +11,7 @@ import { ID } from 'common/models/Identifiers'
 import { Repost } from 'common/models/Repost'
 import { CommonState } from 'common/store'
 import { getUsers } from 'common/store/cache/users/selectors'
-import { AppState } from 'store/types'
-import { formatCount } from 'utils/formatUtil'
+import { formatCount } from 'common/utils/formatUtil'
 
 import ProfileImage from './ProfileImage'
 import styles from './Stats.module.css'
@@ -23,7 +22,7 @@ const MAX_REPOST_IMAGES = 3
 const makeFolloweeActionsUsers = () =>
   createSelector(
     getUsers,
-    (_state: AppState, userIds: ID[] | undefined) => userIds,
+    (_state: CommonState, userIds: ID[] | undefined) => userIds,
     (users, userIds: ID[] | undefined) =>
       userIds
         ? userIds.map(id => users[id]).filter(u => !!u && !u.is_deactivated)
@@ -64,7 +63,7 @@ const Stats = memo(
     })
 
     const getFolloweeActionsUsers = useMemo(makeFolloweeActionsUsers, [])
-    const followeeActionUsers = useSelector((state: AppState) =>
+    const followeeActionUsers = useSelector((state: CommonState) =>
       getFolloweeActionsUsers(
         state,
         (followeeActions as Array<Repost | Favorite>).map(

@@ -7,6 +7,7 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import { Name, PlaybackSource } from 'common/models/Analytics'
 import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import { Track } from 'common/models/Track'
@@ -18,7 +19,6 @@ import { getId } from 'common/store/cache/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import { makeUid, Uid } from 'common/utils/uid'
-import { Name, PlaybackSource } from 'services/analytics'
 import { make } from 'store/analytics/actions'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
 import {
