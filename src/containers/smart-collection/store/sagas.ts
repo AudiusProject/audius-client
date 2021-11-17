@@ -3,7 +3,7 @@ import { takeEvery, put, call, select } from 'redux-saga/effects'
 import { ID } from 'common/models/Identifiers'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
-import { Track, TrackMetadata } from 'common/models/Track'
+import { Track, TrackMetadata, UserTrack } from 'common/models/Track'
 import { getAccountStatus, getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -30,9 +30,11 @@ const COLLECTIONS_LIMIT = 25
 function* fetchHeavyRotation() {
   const topListens = yield call(Explore.getTopUserListens)
 
-  const trackIds = topListens.map((listen: any) => ({
-    track: listen.trackId
-  }))
+  const trackIds = topListens
+    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .map((listen: any) => ({
+      track: listen.trackId
+    }))
 
   return {
     ...HEAVY_ROTATION,
@@ -45,10 +47,12 @@ function* fetchHeavyRotation() {
 function* fetchBestNewReleases() {
   const tracks = yield call(Explore.getTopFolloweeTracksFromWindow, 'month')
 
-  const trackIds = tracks.map((track: Track) => ({
-    time: track.created_at,
-    track: track.track_id
-  }))
+  const trackIds = tracks
+    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .map((track: Track) => ({
+      time: track.created_at,
+      track: track.track_id
+    }))
 
   yield call(processAndCacheTracks, tracks)
 
@@ -63,10 +67,12 @@ function* fetchBestNewReleases() {
 function* fetchUnderTheRadar() {
   const tracks = yield call(Explore.getFeedNotListenedTo)
 
-  const trackIds = tracks.map((track: Track) => ({
-    time: track.activity_timestamp,
-    track: track.track_id
-  }))
+  const trackIds = tracks
+    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .map((track: Track) => ({
+      time: track.activity_timestamp,
+      track: track.track_id
+    }))
 
   yield call(processAndCacheTracks, tracks)
 
@@ -82,10 +88,12 @@ function* fetchUnderTheRadar() {
 function* fetchMostLoved() {
   const tracks = yield call(Explore.getTopFolloweeSaves)
 
-  const trackIds = tracks.map((track: Track) => ({
-    time: track.created_at,
-    track: track.track_id
-  }))
+  const trackIds = tracks
+    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .map((track: Track) => ({
+      time: track.created_at,
+      track: track.track_id
+    }))
 
   yield call(processAndCacheTracks, tracks)
 
@@ -100,10 +108,12 @@ function* fetchMostLoved() {
 function* fetchFeelingLucky() {
   const tracks = yield call(getLuckyTracks, COLLECTIONS_LIMIT)
 
-  const trackIds = tracks.map((track: Track) => ({
-    time: track.created_at,
-    track: track.track_id
-  }))
+  const trackIds = tracks
+    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .map((track: Track) => ({
+      time: track.created_at,
+      track: track.track_id
+    }))
 
   return {
     ...FEELING_LUCKY,
