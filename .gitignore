@@ -6,6 +6,7 @@
 # exposed public scripts except sw.js
 /public/scripts/*
 !/public/scripts/sw.js
+!/public/scripts/gif-frames.js
 
 # env
 .env/.env.dev.local

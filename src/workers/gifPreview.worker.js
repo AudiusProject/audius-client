@@ -1,7 +1,7 @@
-/* globals Jimp */
+/* globals gifFrames */
 
 export default () => {
-  const script = '/scripts/jimp.min.js'
+  const script = '/scripts/gif-frames.js'
   // eslint-disable-next-line
   importWorkerScript(script)
 
@@ -11,24 +11,24 @@ export default () => {
    * @param {string} imageUrl url of the image to use
    */
   const gifPreview = ({ key, imageUrl }) => {
-    Jimp.read({
-      url: imageUrl
+    gifFrames({
+      url: imageUrl,
+      frames: 0
     })
-      .then(img => {
-        // eslint-disable-next-line
-        self.console.log(imageUrl, img)
-        const mimeType = 'image/jpeg'
-        img.getBufferAsync(mimeType).then(buffer => {
-          // eslint-disable-next-line
-          let convertedBlob = new self.Blob([buffer], { type: mimeType })
-          // eslint-disable-next-line
-          postMessage({key, result: convertedBlob})
+      .then(frameData => {
+        if (!frameData.length) {
+          console.error(imageUrl, 'frame data is empty')
+          postMessage({ key, result: new Blob() })
+        }
+        postMessage({
+          key,
+          result: frameData[0].savedPixels._obj
         })
       })
       .catch(err => {
         console.error(imageUrl, err)
         // eslint-disable-next-line
-        postMessage({key, result: new Blob()})
+        postMessage({ key, result: new Blob() })
       })
   }
 
