@@ -111,7 +111,12 @@ const ConnectedTrackTile = memo(
       duration
     } = getTrackWithFallback(track)
 
-    const { _artist_pick, name, handle } = getUserWithFallback(user)
+    const {
+      _artist_pick,
+      name,
+      handle,
+      is_deactivated: isOwnerDeactivated
+    } = getUserWithFallback(user)
 
     const isActive = uid === playingUid
     const isTrackBuffering = isActive && isBuffering
@@ -166,7 +171,7 @@ const ConnectedTrackTile = memo(
         includeShareToTikTok: !is_unlisted,
         includeTrackPage: true,
         isArtistPick: isArtistPick,
-        isDeleted: is_delete || !!user?.is_deactivated,
+        isDeleted: is_delete || isOwnerDeactivated,
         isFavorited,
         isOwner,
         isReposted,
