@@ -149,9 +149,13 @@ const TrackListItem = ({
           </div>
           <div className={styles.artistName} onClick={onClickArtistName}>
             <div className={styles.by}>{strings.by}</div>
-            <ArtistPopover handle={track.user.handle}>
-              {track.user.name}
-            </ArtistPopover>
+            {track.user.is_deactivated ? (
+              `${track.user.name} [Deactivated]`
+            ) : (
+              <ArtistPopover handle={track.user.handle}>
+                {track.user.name}
+              </ArtistPopover>
+            )}
           </div>
         </div>
         <div className={styles.duration}>

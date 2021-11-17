@@ -37,16 +37,21 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
     .map(metadata => {
       // If we said to remove deleted tracks and it is deleted, remove it
       if (removeDeleted && metadata.is_delete) return null
-      // If the track was not cached, keep it
-      else if (!tracks[metadata.track_id]) return metadata
-      // If we said to remove deleted and it's marked deleted remove it
-      else if (removeDeleted && tracks[metadata.track_id]._marked_deleted)
-        return null
-      // If we said to remove deleted and the track owner is deactivated, remove it
+      // If we said to remove deleted and the track/playlist owner is deactivated, remove it
       else if (
         removeDeleted &&
         users[metadata.owner_id]?.is_deactivated === true
       )
+        return null
+      else if (
+        removeDeleted &&
+        users[metadata.playlist_owner_id]?.is_deactivated === true
+      )
+        return null
+      // If the track was not cached, keep it
+      else if (!tracks[metadata.track_id]) return metadata
+      // If we said to remove deleted and it's marked deleted remove it
+      else if (removeDeleted && tracks[metadata.track_id]._marked_deleted)
         return null
       return {
         ...metadata,
