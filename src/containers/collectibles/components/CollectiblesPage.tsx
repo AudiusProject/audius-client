@@ -25,13 +25,14 @@ import {
   Droppable,
   DropResult
 } from 'react-beautiful-dnd'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
 import useInstanceVar from 'common/hooks/useInstanceVar'
 import { useModalState } from 'common/hooks/useModalState'
 import { Collectible, CollectiblesMetadata } from 'common/models/Collectible'
+import { getCollectible } from 'common/store/ui/collectible-details/selectors'
 import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import Drawer from 'components/drawer/Drawer'
 import Toast from 'components/toast/Toast'
@@ -443,23 +444,26 @@ const CollectiblesPage: React.FC<{
     return []
   }, [getVisibleCollectibles, collectibleList])
 
+  const collectible = useSelector(getCollectible)
   // Handle rendering details modal based on route
   useEffect(() => {
     // @ts-ignore
     const collectibleId = match.params.collectibleId ?? null
-    let collectible = null
 
-    if (collectibleId) {
-      collectible =
+    // If the URL matches a collectible ID and we haven't set a collectible in the
+    // store yet, open up the modal
+    if (collectibleId && !collectible) {
+      const collectibleFromUrl =
         getVisibleCollectibles().find(c => getHash(c.id) === collectibleId) ??
         null
+      if (collectibleFromUrl) {
+        dispatch(setCollectible({ collectible: collectibleFromUrl }))
+        setIsDetailsModalOpen(true)
+        setEmbedCollectibleHash(collectibleId)
+      }
     }
-
-    // Set state based on route
-    dispatch(setCollectible({ collectible }))
-    setIsDetailsModalOpen(collectible !== null)
-    setEmbedCollectibleHash(collectibleId)
   }, [
+    collectible,
     dispatch,
     getVisibleCollectibles,
     match,
