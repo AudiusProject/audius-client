@@ -12,7 +12,7 @@ import {
   Modal
 } from '@audius/stems'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconEmbed } from 'assets/img/iconEmbed.svg'
@@ -23,6 +23,7 @@ import { Chain } from 'common/models/Chain'
 import { Collectible, CollectibleMediaType } from 'common/models/Collectible'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getCollectible } from 'common/store/ui/collectible-details/selectors'
+import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import { formatDateWithTimezoneOffset } from 'common/utils/timeUtil'
 import Drawer from 'components/drawer/Drawer'
 import Toast from 'components/toast/Toast'
@@ -152,7 +153,8 @@ const CollectibleDetailsModal = ({
   updateProfilePicture,
   isUserOnTheirProfile,
   shareUrl,
-  setIsEmbedModalOpen
+  setIsEmbedModalOpen,
+  onClose
 }: {
   isMobile: boolean
   onSave?: () => void
@@ -163,9 +165,10 @@ const CollectibleDetailsModal = ({
   isUserOnTheirProfile: boolean
   shareUrl: string
   setIsEmbedModalOpen: (val: boolean) => void
+  onClose: () => void
 }) => {
   const match = useRouteMatch()
-  const navigate = useNavigateToPage()
+  const dispatch = useDispatch()
   const [isModalOpen, setIsModalOpen] = useModalState('CollectibleDetails')
   const [isMuted, setIsMuted] = useState<boolean>(true)
   const collectible = useSelector(getCollectible)
@@ -186,10 +189,15 @@ const CollectibleDetailsModal = ({
     tierNumber >= badgeTiers.findIndex(t => t.tier === MIN_COLLECTIBLES_TIER)
 
   const handleClose = useCallback(() => {
+    dispatch(setCollectible({ collectible: null }))
+    setIsModalOpen(false)
     // Ignore needed bc typescript doesn't think that match.params has handle property
     // @ts-ignore
-    navigate(`/${match.params.handle}/collectibles`)
-  }, [match.params, navigate])
+    const url = `/${match.params.handle}/collectibles`
+    // Push window state as to not trigger router change & component remount
+    window.history.pushState('', '', url)
+    onClose()
+  }, [match.params, dispatch, setIsModalOpen, onClose])
 
   const toggleMute = useCallback(() => {
     setIsMuted(!isMuted)
