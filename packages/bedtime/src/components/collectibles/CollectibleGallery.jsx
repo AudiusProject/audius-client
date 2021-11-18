@@ -20,7 +20,16 @@ const CollectibleGallery = ({
 
   const fetchCollectiblesOrder = async () => {
     const result = await fetchJsonFromCID(user.metadata_multihash)
-    if (result && result.collectibles && result.collectibles.order) setOrder(result.collectibles.order)
+
+    if (result && result.collectibles) {
+      const collectiblesMetadataKeySet = new Set(Object.keys(result.collectibles))
+      const newCollectiblesMap = collectibles
+        .map(c => c.id)
+        .filter(id => !collectiblesMetadataKeySet.has(id))
+        .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
+
+      setOrder(result.collectibles.order.concat(Object.keys(newCollectiblesMap)))
+    }
   }
 
   useEffect(() => { fetchCollectiblesOrder() }, [])
@@ -30,7 +39,7 @@ const CollectibleGallery = ({
   if (order) {
     const orderedArray = order
       .map(collectibleId => collectibles.find(c => c.id === collectibleId))
-      .filter(c => c)
+      .filter(c => c !== undefined)
 
     if (orderedArray.length) collectiblesArray = orderedArray
   }

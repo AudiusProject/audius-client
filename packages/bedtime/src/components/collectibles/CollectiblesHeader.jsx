@@ -9,7 +9,7 @@ import IconBronzeBadge from '../../assets/img/iconBronzeBadge.svg'
 import IconGoldBadge from '../../assets/img/iconGoldBadge.svg'
 import IconPlatinumBadge from '../../assets/img/iconPlatinumBadge.svg'
 import IconSilverBadge from '../../assets/img/iconSilverBadge.svg'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 
 const badgeTiers = [
   {
@@ -47,7 +47,7 @@ const CollectiblesHeader = ({
   onBackButtonClick = () => {}
 }) => {
   const { name, handle, is_verified, total_balance } = user
-  const onClick = () => window.open(`${getAudiusURL()}/${handle}/collectibles`, '_blank')
+  const onClick = () => window.open(getCopyableLink(`${handle}/collectibles`), '_blank')
 
   return (
     <div className={cn(styles.header, { [styles.leftPad]: backButtonVisible })} onClick={onClick}>

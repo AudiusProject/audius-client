@@ -6,7 +6,7 @@ import styles from './CollectibleDetailsView.module.css'
 import Button from '../button/Button'
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
 import { getHash } from './collectibleHelpers'
-import { getAudiusURL } from '../../util/shareUtil'
+import { getCopyableLink } from '../../util/shareUtil'
 
 
 const MODEL_VIEWER_SCRIPT_URL =
@@ -151,7 +151,7 @@ const CollectibleDetailsView = ({ collectible, user }) => {
               <Button
                 className={styles.button}
                 onClick={() => {
-                  window.open(`${getAudiusURL()}/${user.handle}/collectibles/${getHash(collectible.id)}`, '_blank')
+                  window.open(getCopyableLink(`${user.handle}/collectibles/${getHash(collectible.id)}`), '_blank')
                 }}
                 label="View on "
                 icon={<AudiusLogo />}

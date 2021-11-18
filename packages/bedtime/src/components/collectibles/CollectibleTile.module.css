@@ -18,6 +18,27 @@
     width: calc(100% + 1px);
     backface-visibility: hidden;
     opacity: 0;
+    cursor: pointer;
+}
+.imageWrapper > * {
+    transition: 0.15s ease-in-out;
+    will-change: transform;
+}
+.imageWrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0);
+    transition: 0.15s ease-in-out;
+}
+.imageWrapper:hover > * {
+    transform: scale(1.08);
+}
+.imageWrapper:hover::after {
+    background-color: rgba(0,0,0,0.1);
 }
 
 .video {
@@ -32,12 +53,6 @@
     height: calc(100% + 10px);
     width: calc(100% + 10px);
     object-fit: cover;
-    cursor: pointer;
-    transition: 0.15s ease-in-out;
-    will-change: transform;
-}
-.image:hover {
-    transform: scale(1.08);
 }
 
 .fadeIn {
