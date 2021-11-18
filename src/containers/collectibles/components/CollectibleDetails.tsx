@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
@@ -11,6 +11,7 @@ import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'
+import { getProfileUserHandle } from 'containers/profile-page/store/selectors'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { preload } from 'utils/image'
 
@@ -25,8 +26,6 @@ const CollectibleDetails: React.FC<{
   onClick: () => void
 }> = ({ collectible, onClick }) => {
   const dispatch = useDispatch()
-  const match = useRouteMatch()
-  const navigate = useNavigateToPage()
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
 
   const [isLoading, setIsLoading] = useState(true)
@@ -65,18 +64,17 @@ const CollectibleDetails: React.FC<{
     load()
   }, [mediaType, frameUrl, gifUrl, name, setFrame, setIsLoading])
 
+  const handle = useSelector(getProfileUserHandle)
   const handleItemClick = useCallback(() => {
     // Ignore needed bc typescript doesn't think that match.params has handle property
     // @ts-ignore
-    const url = `/${match.params.handle}/collectibles/${getHash(
-      collectible.id
-    )}`
+    const url = `/${handle}/collectibles/${getHash(collectible.id)}`
     // Push window state as to not trigger router change & component remount
     window.history.pushState('', '', url)
     dispatch(setCollectible({ collectible }))
     setIsModalOpen(true)
     onClick()
-  }, [collectible, match.params, dispatch, setIsModalOpen, onClick])
+  }, [collectible, handle, dispatch, setIsModalOpen, onClick])
 
   return (
     <div className={styles.detailsContainer}>

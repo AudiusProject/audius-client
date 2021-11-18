@@ -26,7 +26,6 @@ import {
   DropResult
 } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
-import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
 import useInstanceVar from 'common/hooks/useInstanceVar'
@@ -50,7 +49,11 @@ import { useFlag } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { FeatureFlags } from 'services/remote-config/FeatureFlags'
 import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
-import { BASE_GA_URL } from 'utils/route'
+import {
+  BASE_GA_URL,
+  PROFILE_PAGE_COLLECTIBLE_DETAILS,
+  doesMatchRoute
+} from 'utils/route'
 import zIndex from 'utils/zIndex'
 
 import { getHash } from '../helpers'
@@ -115,7 +118,6 @@ const CollectiblesPage: React.FC<{
 }) => {
   const { toast } = useContext(ToastContext)
   const dispatch = useDispatch()
-  const match = useRouteMatch()
   const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
     FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
   )
@@ -126,10 +128,12 @@ const CollectiblesPage: React.FC<{
       ? profile?.solanaCollectibleList ?? null
       : []
   }, [isSolanaCollectiblesEnabled, profile])
-  const collectibleList =
-    ethCollectibleList || solanaCollectibleList
+
+  const collectibleList = useMemo(() => {
+    return ethCollectibleList || solanaCollectibleList
       ? (ethCollectibleList || []).concat(solanaCollectibleList || [])
       : null
+  }, [ethCollectibleList, solanaCollectibleList])
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
     profile.collectibleList === undefined ||
@@ -452,22 +456,27 @@ const CollectiblesPage: React.FC<{
     hasSetDeepLinkedCollectible,
     setHasSetDeepLinkedCollectible
   ] = useState(false)
+
   // Handle rendering details modal based on route
   useEffect(() => {
-    // @ts-ignore
-    const collectibleId = match.params.collectibleId ?? null
+    const match = doesMatchRoute(PROFILE_PAGE_COLLECTIBLE_DETAILS)
+    if (match) {
+      // Ignore needed bc typescript doesn't think that match.params has collectibleId property
+      // @ts-ignore
+      const collectibleId = match.params.collectibleId ?? null
 
-    // If the URL matches a collectible ID and we haven't set a collectible in the
-    // store yet, open up the modal
-    if (collectibleId && !collectible && !hasSetDeepLinkedCollectible) {
-      const collectibleFromUrl =
-        getVisibleCollectibles().find(c => getHash(c.id) === collectibleId) ??
-        null
-      if (collectibleFromUrl) {
-        dispatch(setCollectible({ collectible: collectibleFromUrl }))
-        setIsDetailsModalOpen(true)
-        setEmbedCollectibleHash(collectibleId)
-        setHasSetDeepLinkedCollectible(true)
+      // If the URL matches a collectible ID and we haven't set a collectible in the
+      // store yet, open up the modal
+      if (collectibleId && !collectible && !hasSetDeepLinkedCollectible) {
+        const collectibleFromUrl =
+          getVisibleCollectibles().find(c => getHash(c.id) === collectibleId) ??
+          null
+        if (collectibleFromUrl) {
+          dispatch(setCollectible({ collectible: collectibleFromUrl }))
+          setIsDetailsModalOpen(true)
+          setEmbedCollectibleHash(collectibleId)
+          setHasSetDeepLinkedCollectible(true)
+        }
       }
     }
   }, [
@@ -476,7 +485,6 @@ const CollectiblesPage: React.FC<{
     collectible,
     dispatch,
     getVisibleCollectibles,
-    match,
     setIsDetailsModalOpen,
     embedCollectibleHash
   ])
