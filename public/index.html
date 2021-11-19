@@ -116,8 +116,7 @@
         adroll_adv_id,
         adroll_pix_id
       })
-      // if (nodeEnv === 'production' && reactEnv === 'production' && !adroll_adv_id.includes('%') && !adroll_pix_id.includes('%')) {
-      if (!adroll_adv_id.includes('%') && !adroll_pix_id.includes('%')) {
+      if (nodeEnv === 'production' && reactEnv === 'production' && !adroll_adv_id.includes('%') && !adroll_pix_id.includes('%')) {
         (function (w, d, e, o, a) {
           w.__adroll_loaded = true;
           w.adroll = w.adroll || [];
