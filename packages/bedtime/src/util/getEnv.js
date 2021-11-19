@@ -20,6 +20,24 @@ const envHostnameMap = {
   [LOCALHOST]: Environment.DEVELOPMENT
 }
 
+export const getAmplitudeAPIKey = () => {
+  const env = getEnv()
+  switch (env) {
+    case Environment.PRODUCTION:
+      return process.env.PREACT_APP_AMPLITUDE_KEY_PROD
+    case Environment.STAGING:
+      return process.env.PREACT_APP_AMPLITUDE_KEY_STAGE
+    case Environment.DEVELOPMENT:
+      return process.env.PREACT_APP_AMPLITUDE_KEY_STAGE
+    default:
+      return ''
+  }
+}
+
+export const getAmplitudeProxy = () => {
+  return process.env.PREACT_APP_AMPLITUDE_API_PROXY
+}
+
 const getEnv = () => {
   // Determine what env we are in at runtime by checking window.location
   const hostname = window.location.hostname
