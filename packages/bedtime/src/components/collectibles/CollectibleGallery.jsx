@@ -17,9 +17,11 @@ const CollectibleGallery = ({
   const [modalCollectible, setModalCollectible] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [order, setOrder] = useState(null)
+  const [hasFetched, setHasFetched] = useState(false)
 
   const fetchCollectiblesOrder = async () => {
     const result = await fetchJsonFromCID(user.metadata_multihash)
+    setHasFetched(true)
 
     if (result && result.collectibles) {
       const collectiblesMetadataKeySet = new Set(Object.keys(result.collectibles))
@@ -33,6 +35,7 @@ const CollectibleGallery = ({
   }
 
   useEffect(() => { fetchCollectiblesOrder() }, [])
+  if (!hasFetched) return null
 
   let collectiblesArray = collectibles
 
