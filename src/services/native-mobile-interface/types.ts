@@ -125,7 +125,7 @@ export enum MessageType {
   SYNC_CLIENT_STORE = 'sync-client-store',
 
   // hCaptcha
-  UPDATE_HCAPTCHA_SCORE = 'UPDATE_HCAPTCHA_SCORE'
+  UPDATE_HCAPTCHA_SCORE = 'update-hcaptcha-score'
 }
 
 export interface Message {
