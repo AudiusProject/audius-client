@@ -12,7 +12,7 @@ const messages = {
 
 export const DeactivatedProfileTombstone = ({
   goToRoute,
-  isMobile
+  isMobile = false
 }: {
   goToRoute: (route: string) => void
   isMobile?: boolean
@@ -31,5 +31,3 @@ export const DeactivatedProfileTombstone = ({
     </div>
   )
 }
-
-DeactivatedProfileTombstone.defaults = { isMobile: false }

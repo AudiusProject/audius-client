@@ -38,14 +38,11 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
       // If we said to remove deleted tracks and it is deleted, remove it
       if (removeDeleted && metadata.is_delete) return null
       // If we said to remove deleted and the track/playlist owner is deactivated, remove it
-      else if (
-        removeDeleted &&
-        users[metadata.owner_id]?.is_deactivated === true
-      )
+      else if (removeDeleted && users[metadata.owner_id]?.is_deactivated)
         return null
       else if (
         removeDeleted &&
-        users[metadata.playlist_owner_id]?.is_deactivated === true
+        users[metadata.playlist_owner_id]?.is_deactivated
       )
         return null
       // If the track was not cached, keep it
