@@ -123,7 +123,10 @@ const repostButtonCell = (val, record, props) => {
 }
 
 const optionsButtonCell = (val, record, index, props) => {
-  const deleted = record.is_delete || !!record.user?.is_deactivated
+  const deleted = record.is_delete
+  if (record.user?.is_deactivated) {
+    return null
+  }
   return (
     <TableOptionsButton
       className={styles.optionsButtonFormatting}
