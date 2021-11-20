@@ -70,7 +70,8 @@ export const getAccountWithCollections = createSelector(
           collections[collection.id] &&
           !collections[collection.id]?._marked_deleted &&
           !collections[collection.id]?.is_delete &&
-          collection.user.id in users
+          collection.user.id in users &&
+          !users[collection.user.id].is_deactivated
             ? {
                 ...collections[collection.id],
                 ownerHandle: collection.user.handle,
