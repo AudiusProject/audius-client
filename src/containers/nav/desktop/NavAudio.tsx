@@ -39,7 +39,7 @@ const NavAudio = () => {
   const audioBadge = audioTierMapPng[tier]
 
   if (!isEnabled || !account) {
-    return <div className={styles.audio} />
+    return null
   }
 
   return positiveTotalBalance ? (
