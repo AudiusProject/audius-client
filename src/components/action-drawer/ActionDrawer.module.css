@@ -39,6 +39,9 @@
 .destructiveAction {
   color: var(--accent-red-dark-1);
 }
+.darkAction.destructiveAction {
+  color: var(--accent-red);
+}
 
 .darkAction {
   color: var(--static-white);

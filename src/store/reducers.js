@@ -7,6 +7,7 @@ import artistRecommendations from 'containers/artist-recommendations/store/slice
 import rewardsPage from 'containers/audio-rewards-page/store/slice'
 import changePassword from 'containers/change-password/store/slice'
 import collection from 'containers/collection-page/store/reducer'
+import deactivateAccount from 'containers/deactivate-account-page/store/slice'
 import deleted from 'containers/deleted-page/store/slice'
 import embedModal from 'containers/embed-modal/store/reducers'
 import exploreCollections from 'containers/explore-page/store/collections/slice'
@@ -117,6 +118,7 @@ const createRootReducer = routeHistory =>
         averageColor,
         changePassword,
         cookieBanner,
+        deactivateAccount,
         editPlaylistModal,
         editTrackModal,
         embedModal,
