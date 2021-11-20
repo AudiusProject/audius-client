@@ -123,10 +123,7 @@ const repostButtonCell = (val, record, props) => {
 }
 
 const optionsButtonCell = (val, record, index, props) => {
-  const deleted = record.is_delete
-  if (record.user?.is_deactivated) {
-    return null
-  }
+  const deleted = record.is_delete || !!record.user.is_deactivated
   return (
     <TableOptionsButton
       className={styles.optionsButtonFormatting}
@@ -142,6 +139,7 @@ const optionsButtonCell = (val, record, index, props) => {
       date={val.date}
       isFavorited={val.has_current_user_saved}
       isOwner={record.owner_id === props.userId}
+      isOwnerDeactivated={!!record.user.is_deactivated}
       isArtistPick={val.user._artist_pick === val.track_id}
       index={index}
       trackTitle={val.name}

@@ -106,6 +106,7 @@ const TrackListItem = ({
     isDeleted: deleted,
     isFavorited: track.has_current_user_saved,
     isOwner: false,
+    isOwnerDeactivated: !!track.user?.is_deactivated,
     isReposted: track.has_current_user_reposted,
     trackId: track.track_id,
     trackTitle: track.title,
