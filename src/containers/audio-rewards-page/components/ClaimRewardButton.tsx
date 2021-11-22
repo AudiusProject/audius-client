@@ -20,7 +20,7 @@ import {
   FlowSessionEvent,
   FlowUICloseEvent,
   FlowUIOpenEvent
-} from '../../../common/models/AudioRewards'
+} from 'common/models/AudioRewards'
 import {
   ClaimStatus,
   CognitoFlowStatus,
