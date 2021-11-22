@@ -3,7 +3,6 @@ import { RouterState } from 'connected-react-router'
 import { CommonState } from 'common/store'
 import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
-import rewardsPage from 'containers/audio-rewards-page/store/slice'
 import { ChangePasswordState } from 'containers/change-password/store/slice'
 import { CollectionsPageState } from 'containers/collection-page/store/types'
 import { DeactivateAccountState } from 'containers/deactivate-account-page/store/slice'
@@ -121,7 +120,6 @@ export type AppState = CommonState & {
       smartCollection: SmartCollectionState
       exploreCollections: ExploreCollectionsState
       remixes: ReturnType<typeof RemixesPageReducer>
-      rewardsPage: ReturnType<typeof rewardsPage>
       deleted: ReturnType<typeof DeletedPageReducer>
       tokenDashboard: ReturnType<typeof tokenDashboard>
       trendingPlaylists: ReturnType<typeof trendingPlaylistsReducer>

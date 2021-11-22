@@ -1,11 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 
 import {
   Button,
   ButtonSize,
   ButtonType,
+  IconKebabHorizontal,
   IconPencil,
-  Modal
+  IconShare,
+  Modal,
+  PopupMenu,
+  PopupMenuItem,
+  PopupPosition
 } from '@audius/stems'
 import Spin from 'antd/lib/spin'
 import cn from 'classnames'
@@ -15,25 +27,44 @@ import {
   Droppable,
   DropResult
 } from 'react-beautiful-dnd'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
 import useInstanceVar from 'common/hooks/useInstanceVar'
+import { useModalState } from 'common/hooks/useModalState'
 import { Collectible, CollectiblesMetadata } from 'common/models/Collectible'
+import { getCollectible } from 'common/store/ui/collectible-details/selectors'
+import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import Drawer from 'components/drawer/Drawer'
+import Toast from 'components/toast/Toast'
+import { ToastContext } from 'components/toast/ToastContext'
+import { ComponentPlacement, MountPlacement } from 'components/types'
 import CollectibleDetails from 'containers/collectibles/components/CollectibleDetails'
 import {
   HiddenCollectibleRow,
   VisibleCollectibleRow
 } from 'containers/collectibles/components/CollectibleRow'
 import styles from 'containers/collectibles/components/CollectiblesPage.module.css'
+import EmbedFrame from 'containers/embed-modal/components/EmbedFrame'
 import { ProfileUser } from 'containers/profile-page/store/types'
 import { useFlag } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { FeatureFlags } from 'services/remote-config/FeatureFlags'
+import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
+import {
+  BASE_GA_URL,
+  PROFILE_PAGE_COLLECTIBLE_DETAILS,
+  doesMatchRoute
+} from 'utils/route'
+import zIndex from 'utils/zIndex'
+
+import { getHash } from '../helpers'
 
 import CollectibleDetailsModal from './CollectibleDetailsModal'
 
 export const editTableContainerClass = 'editTableContainer'
+
+const BASE_EMBED_URL = `${BASE_GA_URL}/embed`
 
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
 
@@ -48,6 +79,7 @@ export const collectibleMessages = {
     "Visitors to your profile won't see this tab until you show at least one NFT Collectible.",
   sortCollectibles: 'Sort Your Collectibles',
   editCollectibles: 'Edit Collectibles',
+  embedCollectibles: 'Embed Collectibles',
   visibleCollectibles: 'Visible Collectibles',
   hiddenCollectibles: 'Hidden Collectibles',
   showCollectible: 'Show collectible',
@@ -56,7 +88,10 @@ export const collectibleMessages = {
   hiddenThumbnail: 'Hidden collectible thumbnail',
   editInBrowser:
     'Visit audius.co from a desktop browser to hide and sort your NFT collectibles.',
-  videoNotSupported: 'Your browser does not support the video tag.'
+  videoNotSupported: 'Your browser does not support the video tag.',
+  clickCopy: 'Click To Copy',
+  copied: 'Copied to Clipboard',
+  done: 'Done'
 }
 
 const CollectiblesPage: React.FC<{
@@ -83,6 +118,8 @@ const CollectiblesPage: React.FC<{
   onLoad,
   onSave
 }) => {
+  const { toast } = useContext(ToastContext)
+  const dispatch = useDispatch()
   const { isEnabled: isSolanaCollectiblesEnabled } = useFlag(
     FeatureFlags.SOLANA_COLLECTIBLES_ENABLED
   )
@@ -93,10 +130,12 @@ const CollectiblesPage: React.FC<{
       ? profile?.solanaCollectibleList ?? null
       : []
   }, [isSolanaCollectiblesEnabled, profile])
-  const collectibleList =
-    ethCollectibleList || solanaCollectibleList
+
+  const collectibleList = useMemo(() => {
+    return ethCollectibleList || solanaCollectibleList
       ? (ethCollectibleList || []).concat(solanaCollectibleList || [])
       : null
+  }, [ethCollectibleList, solanaCollectibleList])
   const hasCollectibles = profile?.has_collectibles ?? false
   const isLoading =
     profile.collectibleList === undefined ||
@@ -115,12 +154,21 @@ const CollectiblesPage: React.FC<{
     setCollectiblesMetadata
   ] = useState<CollectiblesMetadata | null>(null)
 
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useModalState(
+    'CollectibleDetails'
+  )
+
   const [isEditingPreferences, setIsEditingPreferences] = useState<boolean>(
     false
   )
+  const [isEmbedModalOpen, setIsEmbedModalOpen] = useState<boolean>(false)
   const [showUseDesktopDrawer, setShowUseDesktopDrawer] = useState<boolean>(
     false
   )
+
+  const [embedCollectibleHash, setEmbedCollectibleHash] = useState<
+    string | null
+  >(null)
 
   const visibleTableRef = useRef<HTMLDivElement | null>(null)
   const [showVisibleTableTopShadow, setShowVisibleTableTopShadow] = useState<
@@ -320,6 +368,39 @@ const CollectiblesPage: React.FC<{
     [setCollectiblesMetadata, collectiblesMetadata]
   )
 
+  const shareUrl = useMemo(() => {
+    if (profile === null) return ''
+    return getCopyableLink(
+      `/${profile.handle}/collectibles${
+        embedCollectibleHash ? `/${embedCollectibleHash}` : ''
+      }`
+    )
+  }, [profile, embedCollectibleHash])
+
+  const embedUrl = useMemo(() => {
+    if (profile === null) return ''
+    return `${BASE_EMBED_URL}/${profile.handle}/collectibles${
+      embedCollectibleHash ? `/${embedCollectibleHash}` : ''
+    }`
+  }, [profile, embedCollectibleHash])
+
+  const embedIFrameUrl = useMemo(() => {
+    if (embedUrl === '') return ''
+    return `<iframe src=${embedUrl} width="100%" height="480" allow="encrypted-media" style="border: none;"></iframe>`
+  }, [embedUrl])
+
+  const copyEmbedLink = () => copyToClipboard(embedIFrameUrl)
+
+  const closeEmbedModal = () => {
+    setIsEmbedModalOpen(false)
+    setEmbedCollectibleHash(null)
+  }
+
+  const handleShareClick = useCallback(() => {
+    copyToClipboard(shareUrl)
+    toast(collectibleMessages.copied)
+  }, [shareUrl, toast])
+
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
 
@@ -374,6 +455,64 @@ const CollectiblesPage: React.FC<{
     return []
   }, [getVisibleCollectibles, collectibleList])
 
+  // On first mount, if the route matches a collectible id route,
+  // trigger the modal to open.
+  // Afterwards, allow the user to trigger opening the modal only.
+  const collectible = useSelector(getCollectible)
+  const [
+    hasSetDeepLinkedCollectible,
+    setHasSetDeepLinkedCollectible
+  ] = useState(false)
+
+  // Handle rendering details modal based on route
+  useEffect(() => {
+    const match = doesMatchRoute(PROFILE_PAGE_COLLECTIBLE_DETAILS)
+    if (match) {
+      // Ignore needed bc typescript doesn't think that match.params has collectibleId property
+      // @ts-ignore
+      const collectibleId = match.params.collectibleId ?? null
+
+      // If the URL matches a collectible ID and we haven't set a collectible in the
+      // store yet, open up the modal
+      if (collectibleId && !collectible && !hasSetDeepLinkedCollectible) {
+        const collectibleFromUrl =
+          getVisibleCollectibles().find(c => getHash(c.id) === collectibleId) ??
+          null
+        if (collectibleFromUrl) {
+          dispatch(setCollectible({ collectible: collectibleFromUrl }))
+          setIsDetailsModalOpen(true)
+          setEmbedCollectibleHash(collectibleId)
+          setHasSetDeepLinkedCollectible(true)
+        }
+      }
+    }
+  }, [
+    hasSetDeepLinkedCollectible,
+    setHasSetDeepLinkedCollectible,
+    collectible,
+    dispatch,
+    getVisibleCollectibles,
+    setIsDetailsModalOpen,
+    embedCollectibleHash
+  ])
+
+  const overflowMenuItems: PopupMenuItem[] = [
+    {
+      text: 'Share',
+      onClick: handleShareClick
+    },
+    {
+      text: 'Embed',
+      onClick: () => setIsEmbedModalOpen(true)
+    }
+  ]
+
+  if (isUserOnTheirProfile)
+    overflowMenuItems.unshift({
+      text: 'Edit',
+      onClick: handleEditClick
+    })
+
   return (
     <div
       className={cn(styles.collectiblesWrapper, { [styles.mobile]: isMobile })}
@@ -394,13 +533,46 @@ const CollectiblesPage: React.FC<{
             </div>
           </div>
 
-          {isUserOnTheirProfile && (
-            <Button
-              type={ButtonType.COMMON}
-              size={ButtonSize.TINY}
-              text={collectibleMessages.edit}
-              leftIcon={<IconPencil />}
-              onClick={handleEditClick}
+          {isMobile ? (
+            <div className={styles.mobileButtonContainer}>
+              {isUserOnTheirProfile && (
+                <Button
+                  className={styles.detailsButton}
+                  textClassName={styles.detailsButtonText}
+                  iconClassName={styles.detailsButtonIcon}
+                  onClick={handleEditClick}
+                  text='Edit'
+                  type={ButtonType.COMMON_ALT}
+                  size={ButtonSize.SMALL}
+                  leftIcon={<IconPencil />}
+                />
+              )}
+              <Button
+                className={styles.detailsButton}
+                textClassName={styles.detailsButtonText}
+                iconClassName={styles.detailsButtonIcon}
+                onClick={handleShareClick}
+                text='Share'
+                type={ButtonType.COMMON_ALT}
+                size={ButtonSize.SMALL}
+                leftIcon={<IconShare />}
+              />
+            </div>
+          ) : (
+            <PopupMenu
+              items={overflowMenuItems}
+              position={PopupPosition.BOTTOM_CENTER}
+              renderTrigger={(anchorRef, triggerPopup) => (
+                <Button
+                  leftIcon={<IconKebabHorizontal />}
+                  ref={anchorRef}
+                  onClick={triggerPopup}
+                  text={null}
+                  size={ButtonSize.SMALL}
+                  type={ButtonType.COMMON}
+                />
+              )}
+              zIndex={zIndex.NAVIGATOR_POPUP}
             />
           )}
         </div>
@@ -420,6 +592,9 @@ const CollectiblesPage: React.FC<{
                 <CollectibleDetails
                   key={collectible.id}
                   collectible={collectible}
+                  onClick={() =>
+                    setEmbedCollectibleHash(getHash(collectible.id))
+                  }
                 />
               ))}
             </div>
@@ -432,6 +607,9 @@ const CollectiblesPage: React.FC<{
         isUserOnTheirProfile={isUserOnTheirProfile}
         updateProfilePicture={updateProfilePicture}
         onSave={onSave}
+        shareUrl={shareUrl}
+        setIsEmbedModalOpen={setIsEmbedModalOpen}
+        onClose={() => setEmbedCollectibleHash(null)}
       />
 
       <Modal
@@ -531,6 +709,58 @@ const CollectiblesPage: React.FC<{
             text='Done'
             onClick={handleDoneClick}
           />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isEmbedModalOpen}
+        onClose={closeEmbedModal}
+        showDismissButton
+        showTitleHeader
+        title={collectibleMessages.embedCollectibles}
+        bodyClassName={styles.embedModalBody}
+        titleClassName={styles.embedModalTitle}
+        headerContainerClassName={styles.embedModalHeader}
+        allowScroll
+        zIndex={zIndex.COLLECTIBLE_EMBED_VIEW_MODAL}
+      >
+        <div className={styles.embedContainer}>
+          <EmbedFrame
+            className={styles.embedFrame}
+            frameString={embedIFrameUrl}
+          />
+          <div className={styles.embedDetails}>
+            <div className={styles.embedDetailsTitle}>Embed Code</div>
+            <div className={styles.embedTextPanel}>
+              <Toast
+                text={collectibleMessages.copied}
+                fillParent={false}
+                mount={MountPlacement.PARENT}
+                placement={ComponentPlacement.TOP}
+                requireAccount={false}
+                tooltipClassName={styles.embedTooltip}
+              >
+                <div
+                  className={styles.embedCopyWrapper}
+                  onClick={copyEmbedLink}
+                >
+                  <div className={styles.embedCopyContainer}>
+                    <div className={styles.embedCopyLink}>{embedIFrameUrl}</div>
+                  </div>
+                  <div className={styles.embedClickText}>
+                    {collectibleMessages.clickCopy}
+                  </div>
+                </div>
+              </Toast>
+              <Button
+                type={ButtonType.PRIMARY_ALT}
+                onClick={closeEmbedModal}
+                text={collectibleMessages.done}
+                textClassName={styles.embedButtonText}
+                className={styles.embedButton}
+              />
+            </div>
+          </div>
         </div>
       </Modal>
 

@@ -75,6 +75,8 @@ export const PROFILE_PAGE_ALBUMS = '/:handle/albums'
 export const PROFILE_PAGE_PLAYLISTS = '/:handle/playlists'
 export const PROFILE_PAGE_REPOSTS = '/:handle/reposts'
 export const PROFILE_PAGE_COLLECTIBLES = '/:handle/collectibles'
+export const PROFILE_PAGE_COLLECTIBLE_DETAILS =
+  '/:handle/collectibles/:collectibleId'
 // Opaque id routes
 export const TRACK_ID_PAGE = '/tracks/:id'
 export const USER_ID_PAGE = '/users/:id'
@@ -164,7 +166,8 @@ export const orderedRoutes = [
   FOLLOWING_USERS_ROUTE,
   FOLLOWERS_USERS_ROUTE,
   PROFILE_PAGE,
-  PROFILE_PAGE_COLLECTIBLES
+  PROFILE_PAGE_COLLECTIBLES,
+  PROFILE_PAGE_COLLECTIBLE_DETAILS
 ]
 
 export const staticRoutes = new Set([
