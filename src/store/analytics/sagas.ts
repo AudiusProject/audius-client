@@ -5,17 +5,17 @@ import { Name } from 'common/models/Analytics'
 import { ScreenAnalyticsEvent } from 'services/native-mobile-interface/analytics'
 import * as analyticsActions from 'store/analytics/actions'
 
-import * as amplitude from './providers/amplitude'
+import * as analyticsProvider from './providers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 function* trackEventAsync(action: any) {
   const { eventName, callback, ...eventProps } = action
-  yield call(amplitude.track, eventName, eventProps, callback)
+  yield call(analyticsProvider.track, eventName, eventProps, callback)
 }
 
 function* identifyEventAsync(action: any) {
-  yield call(amplitude.identify, action.handle, action.traits)
+  yield call(analyticsProvider.identify, action.handle, action.traits)
 }
 
 function* watchTrackEvent() {
@@ -28,7 +28,7 @@ function* watchIdentifyEvent() {
 
 function* initProviders() {
   if (!NATIVE_MOBILE) {
-    yield call(amplitude.init)
+    yield call(analyticsProvider.init)
   }
 }
 
@@ -55,7 +55,7 @@ function* trackLocation() {
         message.send()
       } else {
         // Dispatch a track event and then resolve page/screen events with segment
-        amplitude.track(Name.PAGE_VIEW, { route: pathname })
+        analyticsProvider.track(Name.PAGE_VIEW, { route: pathname })
       }
     }
     referrer = href

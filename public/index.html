@@ -112,10 +112,6 @@
       const adroll_adv_id = '%REACT_APP_ADROLL_AVD_ID%';
       const adroll_pix_id = '%REACT_APP_ADROLL_PIX_ID%';
       const adroll_version = "2.0";
-      console.log({
-        adroll_adv_id,
-        adroll_pix_id
-      })
       if (nodeEnv === 'production' && reactEnv === 'production' && !adroll_adv_id.includes('%') && !adroll_pix_id.includes('%')) {
         (function (w, d, e, o, a) {
           w.__adroll_loaded = true;

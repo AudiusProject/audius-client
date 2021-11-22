@@ -1,5 +1,5 @@
 import { Name } from 'common/models/Analytics'
-import { track } from 'store/analytics/providers/amplitude'
+import { track } from 'store/analytics/providers'
 
 const DEFAULT_BATCH_SIZE = 10
 

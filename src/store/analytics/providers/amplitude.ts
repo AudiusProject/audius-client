@@ -1,11 +1,8 @@
 // Amplitude Analytics
+import { Name } from 'common/models/Analytics'
 import { Nullable } from 'common/utils/typeUtils'
-import {
-  SetAnalyticsUser,
-  TrackAnalyticsEvent
-} from 'services/native-mobile-interface/analytics'
 
-import { version } from '../../../../package.json'
+import { getSource } from './segment'
 
 const AMP_API_KEY = process.env.REACT_APP_AMPLITUDE_API_KEY
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
@@ -30,9 +27,11 @@ export const init = async () => {
         .getInstance()
         .init(AMP_API_KEY, undefined, { apiEndpoint: AMPLITUDE_PROXY })
       amp = amplitude
+      const source = getSource()
+      amp.track(Name.SESSION_START, { source })
     }
   } catch (err) {
-    console.log(err)
+    console.error(err)
   }
 }
 
@@ -43,26 +42,16 @@ export const identify = (
   traits?: Record<string, any>,
   callback?: () => void
 ) => {
-  if (!IS_PRODUCTION_BUILD) {
-    console.info('Amplitude | identify', handle, traits)
-  }
-  if (NATIVE_MOBILE) {
-    const message = new SetAnalyticsUser(handle, traits)
-    message.send()
-  } else {
-    if (!amp) {
-      if (callback) callback()
-      return
-    }
-    amp.getInstance().setUserId(handle)
-    if (traits && Object.keys(traits).length > 0) {
-      amp.getInstance().setUserProperties(traits)
-    }
+  if (!amp) {
     if (callback) callback()
+    return
   }
+  amp.getInstance().setUserId(handle)
+  if (traits && Object.keys(traits).length > 0) {
+    amp.getInstance().setUserProperties(traits)
+  }
+  if (callback) callback()
 }
-
-let trackCounter = 0
 
 // Track Event
 // Docs: https://developers.amplitude.com/docs/javascript#sending-events
@@ -71,28 +60,10 @@ export const track = (
   properties?: Record<string, any>,
   callback?: () => void
 ) => {
-  if (!IS_PRODUCTION_BUILD) {
-    console.info('Amplitude | track', event, properties)
+  if (!amp) {
+    if (callback) callback()
+    return
   }
-  // stop tracking analytics after we reach session limit
-  if (trackCounter++ >= TRACK_LIMIT) return
-
-  // Add generic track event context for every event
-  const propertiesWithContext = {
-    ...properties,
-    clientVersion: version
-  }
-
-  if (NATIVE_MOBILE) {
-    const message = new TrackAnalyticsEvent(event, propertiesWithContext)
-    message.send()
-  } else {
-    if (!amp) {
-      if (callback) callback()
-      return
-    }
-    amp.getInstance().logEvent(event, propertiesWithContext)
-  }
-  console.log({ callback })
+  amp.getInstance().logEvent(event, properties)
   if (callback) callback()
 }
