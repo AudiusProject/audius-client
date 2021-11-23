@@ -1,15 +1,13 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 import Status from 'common/models/Status'
 
 export type DeactivateAccountState = {
   status?: Status
-  isConfirmationVisible: boolean
 }
 
 const initialState: DeactivateAccountState = {
-  status: undefined,
-  isConfirmationVisible: false
+  status: undefined
 }
 
 const slice = createSlice({
@@ -22,9 +20,6 @@ const slice = createSlice({
     afterDeactivationSignOut: () => {},
     deactivateAccountFailed: state => {
       state.status = Status.ERROR
-    },
-    setIsConfirmationVisible: (state, action: PayloadAction<boolean>) => {
-      state.isConfirmationVisible = action.payload
     }
   }
 })
@@ -32,7 +27,6 @@ const slice = createSlice({
 export const {
   deactivateAccount,
   afterDeactivationSignOut,
-  deactivateAccountFailed,
-  setIsConfirmationVisible
+  deactivateAccountFailed
 } = slice.actions
 export default slice.reducer

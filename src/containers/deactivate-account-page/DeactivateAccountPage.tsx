@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react'
+import React, { useCallback, useEffect, useContext } from 'react'
 
 import { Button, ButtonType, Modal } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import Status from 'common/models/Status'
 import ActionDrawer from 'components/action-drawer/ActionDrawer'
 import MobilePageContainer from 'components/general/MobilePageContainer'
@@ -19,13 +20,11 @@ import { isMobile } from 'utils/clientUtil'
 import { BASE_URL, DEACTIVATE_PAGE } from 'utils/route'
 
 import styles from './DeactivateAccountPage.module.css'
-import {
-  getDeactivateAccountStatus,
-  getIsConfirmationVisible
-} from './store/selectors'
-import { deactivateAccount, setIsConfirmationVisible } from './store/slice'
+import { getDeactivateAccountStatus } from './store/selectors'
+import { deactivateAccount } from './store/slice'
 
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
 const messages = {
   title: 'Deactivate',
   description: 'Deactivate your account',
@@ -226,17 +225,19 @@ export const DeactivateAccountPage = () => {
   const dispatch = useDispatch()
 
   const deactivateAccountStatus = useSelector(getDeactivateAccountStatus)
-  const isConfirmationVisible = useSelector(getIsConfirmationVisible)
+  const [isConfirmationVisible, setIsConfirmationVisible] = useModalState(
+    'DeactivateAccountConfirmation'
+  )
   const isDeactivating = deactivateAccountStatus === Status.LOADING
 
   const openConfirmation = useCallback(() => {
-    dispatch(setIsConfirmationVisible(true))
-  }, [dispatch])
+    setIsConfirmationVisible(true)
+  }, [setIsConfirmationVisible])
   const closeConfirmation = useCallback(() => {
     if (!isDeactivating) {
-      dispatch(setIsConfirmationVisible(false))
+      setIsConfirmationVisible(false)
     }
-  }, [dispatch, isDeactivating])
+  }, [isDeactivating, setIsConfirmationVisible])
   const onConfirm = useCallback(() => {
     dispatch(deactivateAccount())
   }, [dispatch])
