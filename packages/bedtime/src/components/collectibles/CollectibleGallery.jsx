@@ -53,7 +53,7 @@ const CollectibleGallery = ({
       backgroundColor={backgroundColor}
       className={styles.card}
     >
-      <div className={styles.container}>
+      <div className={cn(styles.container, { [styles.noScroll]: isModalOpen })}>
         <CollectiblesHeader
           user={user}
           backButtonVisible={isModalOpen}
