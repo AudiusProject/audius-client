@@ -37,7 +37,7 @@ const Modals = () => {
       <UnloadDialog />
       <RewardsModals />
       <ShareSoundToTikTokModal />
-      <AudioBreakdownModal />
+      {!NATIVE_MOBILE && <AudioBreakdownModal />}
 
       {!NATIVE_MOBILE && client !== Client.ELECTRON && (
         <BrowserPushConfirmationModal />
