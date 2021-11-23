@@ -39,8 +39,8 @@ const AudioBreakdownBody = () => {
     connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
 
-  const linkedWalletsBalance = (ethWallets
-    ?.concat(solWallets ?? [])
+  const linkedWalletsBalance = ((ethWallets ?? [])
+    .concat(solWallets ?? [])
     .reduce((total, wallet) => {
       return total.add(wallet.balance)
     }, new BN('0')) ?? new BN('0')) as BNWei
