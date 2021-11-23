@@ -176,6 +176,13 @@ const useMobileNavContext = () => {
   }, [setLeft, setRight])
 }
 
+const DrawerTitle = () => (
+  <div className={styles.drawerTitle}>
+    <div className={styles.drawerTitleHeader}>{messages.confirmTitle}</div>
+    <div className={styles.drawerTitleWarning}>{messages.confirm}</div>
+  </div>
+)
+
 export const DeactivateAccountPageMobile = ({
   children,
   isConfirmationVisible,
@@ -199,7 +206,7 @@ export const DeactivateAccountPageMobile = ({
           { text: messages.buttonGoBack }
         ]}
         didSelectRow={onDrawerSelection}
-        title={messages.confirm}
+        renderTitle={DrawerTitle}
       />
     </MobilePageContainer>
   )
