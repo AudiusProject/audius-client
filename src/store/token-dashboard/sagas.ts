@@ -37,7 +37,7 @@ import {
   sendSucceeded,
   getBalance,
   sendFailed
-} from 'store/wallet/slice'
+} from 'common/store/wallet/slice'
 import { weiToString } from 'utils/wallet'
 
 import {

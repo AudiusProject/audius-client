@@ -1,21 +1,21 @@
 import { Nullable } from 'common/utils/typeUtils'
-import { AppState } from 'store/types'
 import { stringWeiToBN } from 'utils/wallet'
 
-import { BNWei } from '../../common/models/Wallet'
+import { BNWei } from 'common/models/Wallet'
+import { CommonState } from '..'
 
-// Selectors
-export const getAccountBalance = (state: AppState): Nullable<BNWei> => {
+export const getAccountBalance = (state: CommonState): Nullable<BNWei> => {
   const balance = state.wallet.balance
   if (!balance) return null
   return stringWeiToBN(balance)
 }
 
-export const getAccountTotalBalance = (state: AppState): Nullable<BNWei> => {
+export const getAccountTotalBalance = (state: CommonState): Nullable<BNWei> => {
   const totalBalance = state.wallet.totalBalance
   if (!totalBalance) return null
   return stringWeiToBN(totalBalance)
 }
-export const getLocalBalanceDidChange = (state: AppState): boolean => {
+
+export const getLocalBalanceDidChange = (state: CommonState): boolean => {
   return state.wallet.localBalanceDidChange
 }

@@ -60,7 +60,6 @@ import playlistLibrary from 'store/playlist-library/slice'
 import queue from 'store/queue/slice'
 import reachability from 'store/reachability/reducer'
 import tokenDashboard from 'store/token-dashboard/slice'
-import wallet from 'store/wallet/slice'
 
 const createRootReducer = routeHistory =>
   combineReducers({
@@ -106,7 +105,6 @@ const createRootReducer = routeHistory =>
     remoteConfig,
 
     // Wallet
-    wallet,
     audioManager,
 
     application: combineReducers({

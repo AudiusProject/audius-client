@@ -9,7 +9,7 @@ import { retrieveUserTracks } from 'containers/profile-page/store/lineups/tracks
 import AudiusBackend from 'services/AudiusBackend'
 import { getRemoteVar, IntKeys } from 'services/remote-config'
 import { waitForBackendSetup } from 'store/backend/sagas'
-import { getBalance } from 'store/wallet/slice'
+import { getBalance } from 'common/store/wallet/slice'
 import { DASHBOARD_PAGE } from 'utils/route'
 import { doEvery, requiresAccount, waitForValue } from 'utils/sagaHelpers'
 

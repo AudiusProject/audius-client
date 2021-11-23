@@ -20,7 +20,7 @@ import {
   sendSucceeded,
   sendFailed,
   decreaseBalance
-} from 'store/wallet/slice'
+} from 'common/store/wallet/slice'
 import { stringWeiToBN, weiToString } from 'utils/wallet'
 
 // TODO: handle errors

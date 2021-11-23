@@ -37,6 +37,7 @@ import nowPlayingReducer, {
 } from 'common/store/ui/now-playing/slice'
 import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
+import wallet from 'common/store/wallet/slice'
 
 // In the future, these state slices will live in @audius/client-common.
 // For now they live in the web client. As features get migrated to RN
@@ -50,6 +51,9 @@ export const reducers = {
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
   tracks: asCache(tracksReducer, Kind.TRACKS),
   users: asCache(usersReducer, Kind.USERS),
+
+  // Wallet
+  wallet,
 
   // UI
   ui: combineReducers({
@@ -85,6 +89,7 @@ export const sagas = {
   // store/social/users/sagas.ts
   // store/social/collections/sagas.ts
   // containers/audio-rewards-page/store/sagas.ts
+  // store/wallet/sagas.ts
 }
 
 export type CommonState = {
@@ -94,6 +99,9 @@ export type CommonState = {
   collections: Cache<Collection>
   tracks: TracksCacheState
   users: UsersCacheState
+
+  // Wallet
+  wallet: ReturnType<typeof wallet>
 
   ui: {
     addToPlaylist: AddToPlaylistState

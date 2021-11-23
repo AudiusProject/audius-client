@@ -47,7 +47,6 @@ import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 import QueueReducer from 'store/queue/slice'
 import tokenDashboard from 'store/token-dashboard/slice'
-import wallet from 'store/wallet/slice'
 
 import { CreatePlaylistModalState } from '../common/store/ui/createPlaylistModal/types'
 
@@ -79,7 +78,6 @@ export type AppState = CommonState & {
   serviceSelection: ReturnType<typeof ServiceSelectionReducer>
 
   // Wallet
-  wallet: ReturnType<typeof wallet>
   audioManager: AudioManagerState
 
   // Global
