@@ -19,9 +19,13 @@ import { isMobile } from 'utils/clientUtil'
 import { BASE_URL, DEACTIVATE_PAGE } from 'utils/route'
 
 import styles from './DeactivateAccountPage.module.css'
-import { getDeactivateAccountStatus } from './store/selectors'
-import { deactivateAccount } from './store/slice'
+import {
+  getDeactivateAccountStatus,
+  getIsConfirmationVisible
+} from './store/selectors'
+import { deactivateAccount, setIsConfirmationVisible } from './store/slice'
 
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const messages = {
   title: 'Deactivate',
   description: 'Deactivate your account',
@@ -198,16 +202,18 @@ export const DeactivateAccountPageMobile = ({
       hasDefaultHeader
     >
       {children}
-      <ActionDrawer
-        isOpen={isConfirmationVisible}
-        onClose={closeConfirmation}
-        actions={[
-          { text: messages.buttonDeactivate, isDestructive: true },
-          { text: messages.buttonGoBack }
-        ]}
-        didSelectRow={onDrawerSelection}
-        renderTitle={DrawerTitle}
-      />
+      {!IS_NATIVE_MOBILE && (
+        <ActionDrawer
+          isOpen={isConfirmationVisible}
+          onClose={closeConfirmation}
+          actions={[
+            { text: messages.buttonDeactivate, isDestructive: true },
+            { text: messages.buttonGoBack }
+          ]}
+          didSelectRow={onDrawerSelection}
+          renderTitle={DrawerTitle}
+        />
+      )}
     </MobilePageContainer>
   )
 }
@@ -216,21 +222,21 @@ export const DeactivateAccountPage = () => {
   const Page = isMobile()
     ? DeactivateAccountPageMobile
     : DeactivateAccountPageDesktop
-  const [isConfirmationVisible, setIsConfirmationVisible] = useState(false)
 
   const dispatch = useDispatch()
 
   const deactivateAccountStatus = useSelector(getDeactivateAccountStatus)
+  const isConfirmationVisible = useSelector(getIsConfirmationVisible)
   const isDeactivating = deactivateAccountStatus === Status.LOADING
 
   const openConfirmation = useCallback(() => {
-    setIsConfirmationVisible(true)
-  }, [setIsConfirmationVisible])
+    dispatch(setIsConfirmationVisible(true))
+  }, [dispatch])
   const closeConfirmation = useCallback(() => {
     if (!isDeactivating) {
-      setIsConfirmationVisible(false)
+      dispatch(setIsConfirmationVisible(false))
     }
-  }, [setIsConfirmationVisible, isDeactivating])
+  }, [dispatch, isDeactivating])
   const onConfirm = useCallback(() => {
     dispatch(deactivateAccount())
   }, [dispatch])
