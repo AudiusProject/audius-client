@@ -1,8 +1,7 @@
+import { BNWei } from 'common/models/Wallet'
+import { CommonState } from 'common/store'
 import { Nullable } from 'common/utils/typeUtils'
 import { stringWeiToBN } from 'utils/wallet'
-
-import { BNWei } from 'common/models/Wallet'
-import { CommonState } from '..'
 
 export const getAccountBalance = (state: CommonState): Nullable<BNWei> => {
   const balance = state.wallet.balance

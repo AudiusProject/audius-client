@@ -5,11 +5,10 @@ import BN from 'bn.js'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { BNWei } from 'common/models/Wallet'
+import { getAssociatedWallets } from 'common/store/pages/token-dashboard/selectors'
+import { getAccountBalance } from 'common/store/wallet/selectors'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { getAssociatedWallets } from 'store/token-dashboard/slice'
-import { getAccountBalance } from 'store/wallet/selectors'
-import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 
 import DisplayAudio from '../DisplayAudio'

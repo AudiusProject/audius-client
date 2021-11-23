@@ -16,6 +16,7 @@ import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
+import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from 'common/store/ui/add-to-playlist/reducer'
@@ -70,7 +71,8 @@ export const reducers = {
 
   // Pages
   pages: combineReducers({
-    audioRewards: audioRewardsSlice.reducer
+    audioRewards: audioRewardsSlice.reducer,
+    tokenDashboard: tokenDashboardSlice.reducer
   })
 }
 
@@ -117,5 +119,6 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    tokenDashboard: ReturnType<typeof tokenDashboardSlice.reducer>
   }
 }

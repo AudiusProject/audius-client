@@ -8,6 +8,14 @@ import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
 import { Chain } from 'common/models/Chain'
 import { BNWei } from 'common/models/Wallet'
+import {
+  getAssociatedWallets,
+  getRemoveWallet
+} from 'common/store/pages/token-dashboard/selectors'
+import {
+  requestRemoveWallet,
+  resetStatus
+} from 'common/store/pages/token-dashboard/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
@@ -15,12 +23,6 @@ import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useFlag } from 'containers/remote-config/hooks'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { FeatureFlags } from 'services/remote-config'
-import {
-  getAssociatedWallets,
-  requestRemoveWallet,
-  getRemoveWallet,
-  resetStatus
-} from 'store/token-dashboard/slice'
 import { useIsMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS } from 'utils/constants'

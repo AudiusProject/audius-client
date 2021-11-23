@@ -46,7 +46,6 @@ import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 import QueueReducer from 'store/queue/slice'
-import tokenDashboard from 'store/token-dashboard/slice'
 
 import { CreatePlaylistModalState } from '../common/store/ui/createPlaylistModal/types'
 
@@ -117,7 +116,6 @@ export type AppState = CommonState & {
       exploreCollections: ExploreCollectionsState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
-      tokenDashboard: ReturnType<typeof tokenDashboard>
       trendingPlaylists: ReturnType<typeof trendingPlaylistsReducer>
       trendingUnderground: ReturnType<typeof trendingUndergroundReducer>
     }

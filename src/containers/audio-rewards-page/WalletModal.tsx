@@ -8,22 +8,24 @@ import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { BNWei, StringWei, WalletAddress } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
-import { Nullable } from 'common/utils/typeUtils'
-import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import {
-  confirmSend,
   getHasAssociatedWallets,
   getAssociatedWallets,
   getDiscordCode,
   getModalState,
   getModalVisible,
   getRemoveWallet,
-  getSendData,
+  getSendData
+} from 'common/store/pages/token-dashboard/selectors'
+import {
+  confirmSend,
   inputSendData,
   setModalVisibility
-} from 'store/token-dashboard/slice'
+} from 'common/store/pages/token-dashboard/slice'
+import { getAccountBalance } from 'common/store/wallet/selectors'
+import { Nullable } from 'common/utils/typeUtils'
+import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { ModalState } from 'store/token-dashboard/types'
-import { getAccountBalance } from 'store/wallet/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 import { stringWeiToBN, weiToString } from 'utils/wallet'
