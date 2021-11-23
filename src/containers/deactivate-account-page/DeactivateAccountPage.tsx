@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useContext } from 'react'
 
 import { Button, ButtonType, Modal } from '@audius/stems'
 import cn from 'classnames'
+import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
@@ -69,6 +70,10 @@ export const DeactivateAcccountPageContents = ({
   isMobile,
   isLoading
 }: DeactivateAccountPageContentsProps) => {
+  const dispatch = useDispatch()
+  const goToSafety = useCallback(() => {
+    dispatch(pushRoute('/'))
+  }, [dispatch])
   return (
     <div className={cn(styles.tile, { [styles.mobile]: isMobile })}>
       <div className={styles.header}>{messages.header}</div>
@@ -95,6 +100,7 @@ export const DeactivateAcccountPageContents = ({
           type={
             isLoading && isMobile ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT
           }
+          onClick={goToSafety}
         />
       </div>
     </div>
