@@ -4,22 +4,6 @@ import { Button, ButtonType } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { getAccountUser, getUserHandle } from 'common/store/account/selectors'
-import { useRemoteVar } from 'containers/remote-config/hooks'
-import { useScript } from 'hooks/useScript'
-import AudiusBackend from 'services/AudiusBackend'
-import { IntKeys, StringKeys } from 'services/remote-config'
-import { COGNITO_SCRIPT_URL } from 'utils/constants'
-import { encodeHashId } from 'utils/route/hashIds'
-
-import {
-  ClaimStatus,
-  CognitoFlowStatus,
-  getHCaptchaStatus,
-  HCaptchaStatus,
-  setClaimStatus,
-  setCognitoFlowStatus
-} from '../store/slice'
 import {
   ChallengeRewardID,
   FailureReason,
@@ -27,7 +11,22 @@ import {
   FlowSessionEvent,
   FlowUICloseEvent,
   FlowUIOpenEvent
-} from '../types'
+} from 'common/models/AudioRewards'
+import { getAccountUser, getUserHandle } from 'common/store/account/selectors'
+import { getHCaptchaStatus } from 'common/store/pages/audio-rewards/selectors'
+import {
+  ClaimStatus,
+  CognitoFlowStatus,
+  HCaptchaStatus,
+  setClaimStatus,
+  setCognitoFlowStatus
+} from 'common/store/pages/audio-rewards/slice'
+import { useRemoteVar } from 'containers/remote-config/hooks'
+import { useScript } from 'hooks/useScript'
+import AudiusBackend from 'services/AudiusBackend'
+import { IntKeys, StringKeys } from 'services/remote-config'
+import { COGNITO_SCRIPT_URL } from 'utils/constants'
+import { encodeHashId } from 'utils/route/hashIds'
 
 declare global {
   interface Window {
