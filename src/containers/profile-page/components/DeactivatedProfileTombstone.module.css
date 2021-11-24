@@ -7,7 +7,8 @@
   margin-top: 38px;
   padding: 3px;
   user-select: none;
-
+}
+.deactivated:not(.mobile) {
   /** Offset to undo desktop left padding **/
   width: calc(100% + 229px);
   margin-left: -229px;
@@ -20,7 +21,7 @@
 .mobile.deactivated {
   margin: 0;
   padding: 24px 12px;
-  background-color: white;
+  background-color: var(--white);
 }
 .mobile .deactivatedText {
   margin: 24px 0 12px;
