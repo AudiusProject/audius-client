@@ -37,7 +37,9 @@ const Modals = () => {
       <UnloadDialog />
       <RewardsModals />
       <ShareSoundToTikTokModal />
-      {!NATIVE_MOBILE && <AudioBreakdownModal />}
+      {/* Enable and use this audio breakdown modal until we get
+      the feature flags to work for native mobile */}
+      <AudioBreakdownModal />
 
       {!NATIVE_MOBILE && client !== Client.ELECTRON && (
         <BrowserPushConfirmationModal />
