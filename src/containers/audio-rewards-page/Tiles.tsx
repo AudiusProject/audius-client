@@ -20,11 +20,11 @@ import {
   getAccountTotalBalance
 } from 'common/store/wallet/selectors'
 import { Nullable } from 'common/utils/typeUtils'
+import { formatWei } from 'common/utils/wallet'
 import MobileConnectWalletsDrawer from 'containers/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
-import { formatWei } from 'utils/wallet'
 
 import styles from './Tiles.module.css'
 import TokenHoverTooltip from './components/TokenHoverTooltip'

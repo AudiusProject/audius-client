@@ -18,10 +18,10 @@ import {
   sendFailed,
   decreaseBalance
 } from 'common/store/wallet/slice'
+import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
 import { SETUP_BACKEND_SUCCEEDED } from 'store/backend/actions'
-import { stringWeiToBN, weiToString } from 'utils/wallet'
 
 // TODO: handle errors
 const errors = {

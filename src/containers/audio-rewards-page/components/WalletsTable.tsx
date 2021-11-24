@@ -16,6 +16,7 @@ import {
   requestRemoveWallet,
   resetStatus
 } from 'common/store/pages/token-dashboard/slice'
+import { shortenEthAddress, shortenSPLAddress } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
@@ -27,7 +28,6 @@ import { useIsMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import { useSelector } from 'utils/reducer'
-import { shortenEthAddress, shortenSPLAddress } from 'utils/wallet'
 
 import DisplayAudio from './DisplayAudio'
 import styles from './WalletsTable.module.css'

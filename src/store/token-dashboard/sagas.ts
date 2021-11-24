@@ -39,6 +39,7 @@ import {
   sendFailed
 } from 'common/store/wallet/slice'
 import { Nullable } from 'common/utils/typeUtils'
+import { weiToString } from 'common/utils/wallet'
 import { CollectibleState } from 'containers/collectibles/types'
 import {
   fetchOpenSeaAssetsForWallets,
@@ -59,7 +60,6 @@ import connectWeb3Wallet, {
 } from 'services/web3-modal/index'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import { weiToString } from 'utils/wallet'
 
 import { ConfirmRemoveWalletAction, ModalState } from './types'
 
