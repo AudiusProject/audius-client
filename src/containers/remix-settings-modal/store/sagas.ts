@@ -34,7 +34,6 @@ function* watchFetchTrack() {
   ) {
     const { url } = action.payload
     const params = getHandleAndSlug(url)
-    console.log({ params })
     if (params) {
       const { handle, slug, trackId } = params
       let track: TrackMetadata | null = null
