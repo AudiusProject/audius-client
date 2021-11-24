@@ -13,8 +13,9 @@ const getHandleAndSlug = (url: string) => {
   // Get just the pathname part from the url
   try {
     const trackUrl = new URL(url)
-    const pathname = trackUrl.pathname
-
+    // Decode the extracted pathname so we don't end up
+    // double encoding it later on
+    const pathname = decodeURIComponent(trackUrl.pathname)
     if (
       trackUrl.hostname !== process.env.REACT_APP_PUBLIC_HOSTNAME &&
       trackUrl.hostname !== window.location.hostname
@@ -33,6 +34,7 @@ function* watchFetchTrack() {
   ) {
     const { url } = action.payload
     const params = getHandleAndSlug(url)
+    console.log({ params })
     if (params) {
       const { handle, slug, trackId } = params
       let track: TrackMetadata | null = null
