@@ -1,32 +1,22 @@
-import React, { useCallback, useEffect, useContext } from 'react'
+import React, { useCallback } from 'react'
 
-import { Button, ButtonType, Modal } from '@audius/stems'
+import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import Status from 'common/models/Status'
-import ActionDrawer from 'components/action-drawer/ActionDrawer'
-import MobilePageContainer from 'components/general/MobilePageContainer'
-import Page from 'components/general/Page'
-import Header from 'components/general/header/desktop/Header'
-import { useMobileHeader } from 'components/general/header/mobile/hooks'
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
-import NavContext, {
-  LeftPreset,
-  RightPreset
-} from 'containers/nav/store/context'
 import { isMobile } from 'utils/clientUtil'
-import { BASE_URL, DEACTIVATE_PAGE } from 'utils/route'
 
 import styles from './DeactivateAccountPage.module.css'
+import { DeactivateAccountPageDesktop } from './components/desktop/DeactivateAccountPage'
+import { DeactivateAccountPageMobile } from './components/mobile/DeactivateAccountPage'
 import { getDeactivateAccountStatus } from './store/selectors'
 import { deactivateAccount } from './store/slice'
 
-const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-
-const messages = {
+export const messages = {
   title: 'Deactivate',
   description: 'Deactivate your account',
   header: 'Are you sure you want to deactivate your account?',
@@ -42,7 +32,7 @@ const messages = {
   buttonGoBack: 'Go Back'
 }
 
-type DeactivateAccountPageProps = {
+export type DeactivateAccountPageProps = {
   children: React.ReactNode
   isConfirmationVisible: boolean
   isLoading: boolean
@@ -56,13 +46,6 @@ type DeactivateAccountPageContentsProps = {
   isMobile?: boolean
   isLoading?: boolean
   openConfirmation: () => void
-}
-
-type DeactivateAccountModalProps = {
-  isVisible: boolean
-  isLoading: boolean
-  onClose: () => void
-  onConfirm: () => void
 }
 
 export const DeactivateAcccountPageContents = ({
@@ -104,122 +87,6 @@ export const DeactivateAcccountPageContents = ({
         />
       </div>
     </div>
-  )
-}
-
-export const DeactivateAccountConfirmationModal = ({
-  isVisible,
-  onClose,
-  isLoading,
-  onConfirm
-}: DeactivateAccountModalProps) => {
-  return (
-    <Modal
-      bodyClassName={styles.confirmModal}
-      isOpen={isVisible}
-      onClose={onClose}
-      showDismissButton
-      showTitleHeader
-      title={messages.confirmTitle}
-    >
-      <div className={styles.container}>
-        {isLoading ? (
-          <LoadingSpinnerFullPage />
-        ) : (
-          <div className={styles.confirmText}>{messages.confirm}</div>
-        )}
-        <div className={styles.buttons}>
-          <Button
-            className={cn(styles.button, {
-              [styles.buttonDanger]: !isLoading
-            })}
-            isDisabled={isLoading}
-            onClick={onConfirm}
-            textClassName={styles.deleteButtonText}
-            text={messages.buttonDeactivate}
-            type={isLoading ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT}
-          />
-          <Button
-            className={styles.button}
-            isDisabled={isLoading}
-            onClick={onClose}
-            text={messages.buttonGoBack}
-            type={isLoading ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT}
-          />
-        </div>
-      </div>
-    </Modal>
-  )
-}
-
-export const DeactivateAccountPageDesktop = ({
-  children,
-  isConfirmationVisible,
-  isLoading,
-  onConfirm,
-  closeConfirmation
-}: DeactivateAccountPageProps) => {
-  return (
-    <Page
-      title={messages.title}
-      description={messages.description}
-      header={<Header primary={messages.title} />}
-    >
-      {children}
-      <DeactivateAccountConfirmationModal
-        isVisible={isConfirmationVisible}
-        onClose={closeConfirmation}
-        onConfirm={onConfirm}
-        isLoading={isLoading}
-      />
-    </Page>
-  )
-}
-
-const useMobileNavContext = () => {
-  useMobileHeader({ title: messages.title })
-  const { setLeft, setRight } = useContext(NavContext)!
-  useEffect(() => {
-    setLeft(LeftPreset.CLOSE)
-    setRight(RightPreset.SEARCH)
-  }, [setLeft, setRight])
-}
-
-const DrawerTitle = () => (
-  <div className={styles.drawerTitle}>
-    <div className={styles.drawerTitleHeader}>{messages.confirmTitle}</div>
-    <div className={styles.drawerTitleWarning}>{messages.confirm}</div>
-  </div>
-)
-
-export const DeactivateAccountPageMobile = ({
-  children,
-  isConfirmationVisible,
-  onDrawerSelection,
-  closeConfirmation
-}: DeactivateAccountPageProps) => {
-  useMobileNavContext()
-  return (
-    <MobilePageContainer
-      title={messages.title}
-      description={messages.description}
-      canonicalUrl={`${BASE_URL}${DEACTIVATE_PAGE}`}
-      hasDefaultHeader
-    >
-      {children}
-      {!IS_NATIVE_MOBILE && (
-        <ActionDrawer
-          isOpen={isConfirmationVisible}
-          onClose={closeConfirmation}
-          actions={[
-            { text: messages.buttonDeactivate, isDestructive: true },
-            { text: messages.buttonGoBack }
-          ]}
-          didSelectRow={onDrawerSelection}
-          renderTitle={DrawerTitle}
-        />
-      )}
-    </MobilePageContainer>
   )
 }
 
