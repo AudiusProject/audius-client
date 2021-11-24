@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
@@ -19,7 +19,7 @@ import { deactivateAccount } from './store/slice'
 export const messages = {
   title: 'Deactivate',
   description: 'Deactivate your account',
-  header: 'Are you sure you want to deactivate your account?',
+  header: 'Are You Sure You Want To Deactivate Your Account?',
   listItems: [
     "There's no going back.",
     'This will remove all of your tracks, albums and playlists.',
@@ -29,7 +29,9 @@ export const messages = {
   confirm: 'Are you sure? This cannot be undone.',
   buttonDeactivate: 'Deactivate',
   buttonSafety: 'Take me back to safety',
-  buttonGoBack: 'Go Back'
+  buttonGoBack: 'Go Back',
+  errorMessage: 'Something went wrong.',
+  errorMessageTryAgain: 'Please try again.'
 }
 
 export type DeactivateAccountPageProps = {
@@ -43,15 +45,17 @@ export type DeactivateAccountPageProps = {
 }
 
 type DeactivateAccountPageContentsProps = {
-  isMobile?: boolean
-  isLoading?: boolean
+  isError: boolean
+  isLoading: boolean
+  isMobile: boolean
   openConfirmation: () => void
 }
 
 export const DeactivateAcccountPageContents = ({
-  openConfirmation,
+  isError,
+  isLoading,
   isMobile,
-  isLoading
+  openConfirmation
 }: DeactivateAccountPageContentsProps) => {
   const dispatch = useDispatch()
   const goToSafety = useCallback(() => {
@@ -66,6 +70,14 @@ export const DeactivateAcccountPageContents = ({
         ))}
       </ul>
       {isLoading && isMobile && <LoadingSpinnerFullPage />}
+      {isError && (
+        <div className={styles.error}>
+          <span className={styles.errorMessage}>{messages.errorMessage}</span>{' '}
+          <span className={styles.errorMessage}>
+            {messages.errorMessageTryAgain}
+          </span>
+        </div>
+      )}
       <div className={styles.buttons}>
         <Button
           className={cn(styles.button, {
@@ -106,14 +118,17 @@ export const DeactivateAccountPage = () => {
   const openConfirmation = useCallback(() => {
     setIsConfirmationVisible(true)
   }, [setIsConfirmationVisible])
+
   const closeConfirmation = useCallback(() => {
     if (!isDeactivating) {
       setIsConfirmationVisible(false)
     }
   }, [isDeactivating, setIsConfirmationVisible])
+
   const onConfirm = useCallback(() => {
     dispatch(deactivateAccount())
   }, [dispatch])
+
   const onDrawerSelection = useCallback(
     (rowNumber: number) => {
       if (rowNumber === 0) {
@@ -126,6 +141,12 @@ export const DeactivateAccountPage = () => {
     [onConfirm, closeConfirmation]
   )
 
+  useEffect(() => {
+    if (deactivateAccountStatus === Status.ERROR) {
+      closeConfirmation()
+    }
+  }, [deactivateAccountStatus, closeConfirmation])
+
   return (
     <Page
       openConfirmation={openConfirmation}
@@ -136,8 +157,9 @@ export const DeactivateAccountPage = () => {
       isLoading={isDeactivating}
     >
       <DeactivateAcccountPageContents
-        isMobile={isMobile()}
+        isError={deactivateAccountStatus === Status.ERROR}
         isLoading={isDeactivating}
+        isMobile={isMobile()}
         openConfirmation={openConfirmation}
       />
     </Page>
