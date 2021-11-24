@@ -1,10 +1,12 @@
 import { delay } from 'redux-saga'
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
+import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { Nullable } from 'common/utils/typeUtils'
 import AudiusBackend from 'services/AudiusBackend'
+import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -31,6 +33,7 @@ function* handleDeactivateAccount() {
       requestConfirmation(
         DEACTIVATE_CONFIRMATION_UID,
         function* () {
+          yield put(make(Name.DEACTIVATE_ACCOUNT_REQUEST, {}))
           const { blockHash, blockNumber } = yield call(
             AudiusBackend.updateCreator,
             { ...userMetadata, is_deactivated: true },
@@ -49,16 +52,19 @@ function* handleDeactivateAccount() {
         },
         // @ts-ignore: confirmer is untyped
         function* () {
+          yield put(make(Name.DEACTIVATE_ACCOUNT_SUCCESS, {}))
           // Do the signout in another action so confirmer can clear
           yield put(afterDeactivationSignOut())
         },
         function* () {
+          yield put(make(Name.DEACTIVATE_ACCOUNT_FAILURE, {}))
           yield put(deactivateAccountFailed())
         }
       )
     )
   } catch (e) {
     console.error(e)
+    yield put(make(Name.DEACTIVATE_ACCOUNT_FAILURE, {}))
     yield put(deactivateAccountFailed())
   }
 }
