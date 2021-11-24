@@ -1,6 +1,5 @@
-import { waitFor } from '@testing-library/dom'
 import { delay } from 'redux-saga'
-import { call, fork, put, select, takeEvery } from 'redux-saga/effects'
+import { call, put, select, takeEvery } from 'redux-saga/effects'
 
 import { ID } from 'common/models/Identifiers'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
@@ -9,11 +8,7 @@ import AudiusBackend from 'services/AudiusBackend'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import {
-  getConfirmCalls,
-  getConfirmLength,
-  getIsConfirming
-} from 'store/confirmer/selectors'
+import { getConfirmCalls } from 'store/confirmer/selectors'
 import { waitForValue } from 'utils/sagaHelpers'
 import { signOut } from 'utils/signOut'
 
