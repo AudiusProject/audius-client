@@ -10,16 +10,16 @@ import { messages } from '../../DeactivateAccountPage'
 import styles from './DeactivateAccountConfirmationModal.module.css'
 
 type DeactivateAccountModalProps = {
-  isVisible: boolean
   isLoading: boolean
+  isVisible: boolean
   onClose: () => void
   onConfirm: () => void
 }
 
 export const DeactivateAccountConfirmationModal = ({
+  isLoading,
   isVisible,
   onClose,
-  isLoading,
   onConfirm
 }: DeactivateAccountModalProps) => {
   return (
