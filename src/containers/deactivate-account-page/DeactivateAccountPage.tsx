@@ -6,8 +6,10 @@ import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
+import { Name } from 'common/models/Analytics'
 import Status from 'common/models/Status'
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
+import { make, useRecord } from 'store/analytics/actions'
 import { isMobile } from 'utils/clientUtil'
 
 import styles from './DeactivateAccountPage.module.css'
@@ -140,6 +142,10 @@ export const DeactivateAccountPage = () => {
     },
     [onConfirm, closeConfirmation]
   )
+  const record = useRecord()
+  useEffect(() => {
+    record(make(Name.DEACTIVATE_ACCOUNT_PAGE_VIEW, {}))
+  }, [record])
 
   useEffect(() => {
     if (deactivateAccountStatus === Status.ERROR) {

@@ -193,6 +193,7 @@ export enum Name {
   PLAYLIST_LIBRARY_CLICKED = 'Playlist Library: Clicked',
 
   // Deactivate Account
+  DEACTIVATE_ACCOUNT_PAGE_VIEW = 'Deactivate Account: Page View',
   DEACTIVATE_ACCOUNT_REQUEST = 'Deactivate Account: Request',
   DEACTIVATE_ACCOUNT_SUCCESS = 'Deactivate Account: Success',
   DEACTIVATE_ACCOUNT_FAILURE = 'Deactivate Account: Failure'
@@ -899,6 +900,9 @@ type PlaylistLibraryClicked = {
   hasUpdate: boolean
 }
 
+type DeactivateAccountPageView = {
+  eventName: Name.DEACTIVATE_ACCOUNT_PAGE_VIEW
+}
 type DeactivateAccountRequest = {
   eventName: Name.DEACTIVATE_ACCOUNT_REQUEST
 }
@@ -1031,6 +1035,7 @@ export type AllTrackingEvents =
   | TransferAudioToWAudioRequest
   | TransferAudioToWAudioSuccess
   | TransferAudioToWAudioFailure
+  | DeactivateAccountPageView
   | DeactivateAccountRequest
   | DeactivateAccountSuccess
   | DeactivateAccountFailure
