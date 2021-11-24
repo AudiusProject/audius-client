@@ -27,6 +27,7 @@ import { useIsMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import { useSelector } from 'utils/reducer'
+import { shortenEthAddress, shortenSPLAddress } from 'utils/wallet'
 
 import DisplayAudio from './DisplayAudio'
 import styles from './WalletsTable.module.css'
@@ -39,14 +40,6 @@ const messages = {
   linkedWallets: 'LINKED WALLETS',
   collectibles: 'COLLECTIBLES',
   audio: '$AUDIO'
-}
-
-const shortenSPLAddress = (addr: string) => {
-  return `${addr.substring(0, 4)}...${addr.substr(addr.length - 5)}`
-}
-
-const shortenEthAddress = (addr: string) => {
-  return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
 }
 
 type WalletProps = {
