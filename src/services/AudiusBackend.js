@@ -23,7 +23,7 @@ import {
   FeatureFlags
 } from 'services/remote-config'
 import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
-import { track } from 'store/analytics/providers/segment'
+import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { Timer } from 'utils/performance'
@@ -556,7 +556,8 @@ class AudiusBackend {
         claimableTokenProgramAddress: CLAIMABLE_TOKEN_PROGRAM_ADDRESS,
         rewardsManagerProgramId: REWARDS_MANAGER_PROGRAM_ID,
         rewardsManagerProgramPDA: REWARDS_MANAGER_PROGRAM_PDA,
-        rewardsManagerTokenPDA: REWARDS_MANAGER_TOKEN_PDA
+        rewardsManagerTokenPDA: REWARDS_MANAGER_TOKEN_PDA,
+        useRelay: true
       })
     }
   }
