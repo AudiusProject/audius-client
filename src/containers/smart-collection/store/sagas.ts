@@ -135,7 +135,7 @@ function* fetchRemixables() {
   const artistCount: Record<number, number> = {}
 
   const filteredTracks = tracks.filter(trackMetadata => {
-    if (!trackMetadata.user || trackMetadata.user.is_deactivated) {
+    if (trackMetadata.user?.is_deactivated) {
       return false
     }
     const id = trackMetadata.owner_id
