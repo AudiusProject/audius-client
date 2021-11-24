@@ -48,7 +48,7 @@ class TableOptionsButton extends Component {
         extraMenuItems: onRemove ? [removeMenuItem] : []
       }
     }
-    if (isOwnerDeactivated && !onRemove && !isFavorited && !isReposted) {
+    if (isOwnerDeactivated && !onRemove && !isFavorited) {
       return null
     }
 
