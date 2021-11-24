@@ -32,6 +32,10 @@ import {
   preloadWalletProviders
 } from 'common/store/pages/token-dashboard/slice'
 import {
+  ConfirmRemoveWalletAction,
+  ModalState
+} from 'common/store/pages/token-dashboard/types'
+import {
   send as walletSend,
   claimFailed,
   sendSucceeded,
@@ -60,8 +64,6 @@ import connectWeb3Wallet, {
 } from 'services/web3-modal/index'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-
-import { ConfirmRemoveWalletAction, ModalState } from './types'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 

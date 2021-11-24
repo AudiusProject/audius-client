@@ -22,11 +22,11 @@ import {
   inputSendData,
   setModalVisibility
 } from 'common/store/pages/token-dashboard/slice'
+import { ModalState } from 'common/store/pages/token-dashboard/types'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { Nullable } from 'common/utils/typeUtils'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { ModalState } from 'store/token-dashboard/types'
 import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 
