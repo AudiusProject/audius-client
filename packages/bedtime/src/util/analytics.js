@@ -12,9 +12,7 @@ export const initTrackSessionStart = async () => {
       const SOURCE = 'embed player'
       const amplitudeInstance = amplitude
         .getInstance()
-      console.log({ amplitudeInstance })
       const res = amplitudeInstance.init(AMP_API_KEY, undefined, { apiEndpoint: AMP_PROXY })
-      console.log({ res, amplitudeInstance })
   
       amplitudeInstance
         .logEvent(
@@ -23,6 +21,6 @@ export const initTrackSessionStart = async () => {
         )  
     }
   } catch (err) {
-    console.log(err)
+    console.error(err)
   }
 }
