@@ -34,7 +34,7 @@ function* getHistoryTracks() {
       if (trackMetadata) {
         lineupTracks.push({
           ...trackMetadata,
-          dateListened: activity.track.listenDate
+          dateListened: activity.timestamp
         })
       }
     })
