@@ -97,10 +97,10 @@ export const createAccount = async (page, baseUrl, uploadPhoto = false) => {
   await page.waitForXPath("//span[contains(text(), 'Start Listening')]", {
     timeout: 5 /* min */ * 60 /* sec */ * 1000 /* ms */
   })
-  await waitForAndClickButton(page, 'startListening')
 
   // We still may be following users and playlists in the background, so wait
-  await waitForNetworkIdle0(page)
+  // for network idle in addition to clicking startListening
+  await waitForNetworkIdle0(page, waitForAndClickButton(page, 'startListening'))
 
   // Export account so it can be re-used in other tests that don't want a fresh state
   const entropy = await getEntropy(page)

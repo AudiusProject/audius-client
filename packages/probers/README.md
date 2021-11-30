@@ -89,5 +89,9 @@ program
 
 Take a screenshot
 ```js
-await page.screenshot({ path: 'test_output/example.png' });
+
+await page.ss('example')
+
+// Under the hood will call (which you may also do)
+// await page.screenshot({ path: 'test_output/example.png' });
 ```

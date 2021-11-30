@@ -3,11 +3,18 @@ import getConfig from '../config'
 
 export const newPage = async (width = 1600, height = 960) => {
   let page = await global.__BROWSER__.newPage()
+
   page.setViewport({
     width,
     height
   })
   await page.setDefaultNavigationTimeout(0);
+
+  // Monkeypatch page screenshot method for ease of debugging
+  page.ss = async (identifier) => {
+    await page.screenshot({ path: `test_output/${identifier}.png` })
+  }
+
   return page
 }
 
