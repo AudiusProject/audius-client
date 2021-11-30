@@ -32,10 +32,10 @@
     "parser": "babel-eslint"
   },
   "dependencies": {
-    "classnames": "^2.2.6",
-    "lodash": "^4.17.20",
-    "moment": "^2.24.0",
-    "react-spring": "^8.0.27"
+    "classnames": "2.2.6",
+    "lodash": "4.17.20",
+    "moment": "2.24.0",
+    "react-spring": "8.0.27"
   },
   "peerDependencies": {
     "bn.js": ">= 4.0.0",
@@ -87,10 +87,10 @@
     "postcss-custom-properties": "^9.0.2",
     "prettier": "^2.0.5",
     "prettier-config-standard": "^1.0.1",
-    "react": "^16.4.1",
+    "react": "16.13.1",
     "react-docgen-typescript-loader": "^3.7.0",
-    "react-dom": "^16.4.1",
-    "react-scripts-ts": "^3.1.0",
+    "react-dom": "16.13.1",
+    "react-scripts-ts": "4.0.3",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
