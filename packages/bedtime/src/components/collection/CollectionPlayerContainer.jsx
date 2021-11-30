@@ -26,7 +26,7 @@ const CollectionPlayerContainer = ({
 
   // Helper fn to get segements
   const getSegments = useCallback((i) => collection.tracks[i].segments, [collection])
-  const getId = useCallback((i) => collection.tracks[i].id, [collection])
+  const getId = useCallback((i) => collection.tracks[i]?.id, [collection])
   const getGateways = useCallback((i) => formatGateways(collection.tracks[i].gateways))
 
   // callback for usePlayback
@@ -59,7 +59,7 @@ const CollectionPlayerContainer = ({
   } = usePlayback(getId(activeTrackIndex), onTrackEnd)
 
   // Setup recording listens
-  useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex].id, LISTEN_INTERVAL_SECONDS)
+  useRecordListens(position, mediaKey, collection.tracks[activeTrackIndex]?.id, LISTEN_INTERVAL_SECONDS)
 
   // Setup twitter autoplay
   useEffect(() => {
