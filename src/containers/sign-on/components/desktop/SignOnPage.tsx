@@ -400,7 +400,7 @@ const SignOnProvider = ({
       contentClassName={styles.pageContent}
       fadeDuration={400}
     >
-      <BackgroundWaves key={'bg-waves'} className={cn(styles.bgWaves)} />
+      {/* <BackgroundWaves key={'bg-waves'} className={cn(styles.bgWaves)} /> */}
       {isPageBeforeFollow ? (
         <IconRemove className={styles.closeIcon} onClick={closeModal} />
       ) : null}
