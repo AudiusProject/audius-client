@@ -46,7 +46,10 @@ const TermsOfUsePage = (props: TermsOfUsePageProps) => {
           ></iframe>
         )}
       </div>
-      <Footer isMobile={props.isMobile} />
+      <Footer
+        isMobile={props.isMobile}
+        setRenderPublicSite={props.setRenderPublicSite}
+      />
     </div>
   )
 }
