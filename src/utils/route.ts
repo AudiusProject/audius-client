@@ -330,10 +330,10 @@ export const pushWindowRoute = (route: string) => {
 
   if (route === AUDIUS_SIGN_UP_LINK) {
     recordGoToSignup(() => {
-      window.location.href = routeToPush
+      window.location.href = `${BASENAME}${routeToPush}`
     })
   } else {
-    window.location.href = routeToPush
+    window.location.href = `${BASENAME}${routeToPush}`
   }
 }
 

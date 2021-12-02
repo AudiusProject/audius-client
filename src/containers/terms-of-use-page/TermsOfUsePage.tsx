@@ -5,11 +5,13 @@ import NavBanner from 'components/public-site/NavBanner'
 
 import styles from './TermsOfUsePage.module.css'
 
+const BASENAME = process.env.PUBLIC_URL
+
 const messages = {
   download: 'Download Terms of Use'
 }
 
-const termsOfUseDocumentRoute = '/documents/TermsOfUse.pdf'
+const termsOfUseDocumentRoute = `${BASENAME}/documents/TermsOfUse.pdf`
 
 type TermsOfUsePageProps = {
   isMobile: boolean
