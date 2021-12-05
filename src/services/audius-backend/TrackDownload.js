@@ -1,4 +1,7 @@
+import urlJoin from 'proper-url-join'
+
 import * as schemas from 'schemas'
+import { DownloadTrackMessage } from 'services/native-mobile-interface/downloadTrack'
 
 import { waitForLibsInit } from './eagerLoadUtils'
 
@@ -13,6 +16,21 @@ class TrackDownload {
       creatorNodeEndpoints,
       filename
     )
+  }
+
+  static async downloadTrackMobile(cid, creatorNodeGateways, filename, title) {
+    if (urlJoin && urlJoin.default) {
+      urlJoin = urlJoin.default
+    }
+    const urls = creatorNodeGateways.map(gateway =>
+      urlJoin(gateway, cid, { query: { filename } })
+    )
+
+    const message = new DownloadTrackMessage({
+      title: title,
+      urls: urls
+    })
+    message.send()
   }
 
   /**

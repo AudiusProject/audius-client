@@ -6,7 +6,7 @@ import Linkify from 'linkifyjs/react'
 
 import placeholderArt from 'assets/img/imageBlank2x.png'
 import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
+import { CID, ID } from 'common/models/Identifiers'
 import { SquareSizes, CoverArtSizes } from 'common/models/ImageSizes'
 import { FieldVisibility, Remix } from 'common/models/Track'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
@@ -99,6 +99,12 @@ type TrackHeaderProps = {
   onShare: () => void
   onSave: () => void
   onRepost: () => void
+  onDownload: (
+    trackId: ID,
+    cid: CID,
+    category?: string,
+    parentTrackId?: ID
+  ) => void
   goToFavoritesPage: (trackId: ID) => void
   goToRepostsPage: (trackId: ID) => void
 }
@@ -136,6 +142,7 @@ const TrackHeader = ({
   onShare,
   onSave,
   onRepost,
+  onDownload,
   onClickMobileOverflow,
   goToFavoritesPage,
   goToRepostsPage
@@ -228,12 +235,10 @@ const TrackHeader = ({
   const renderHiddenDownloadButtons = () => {
     return (
       <DownloadButtons
-        isHidden
         trackId={trackId}
         isOwner={isOwner}
         following={isFollowing}
-        // Downloads not supported on mobile, do nothing
-        onDownload={() => {}}
+        onDownload={onDownload}
       />
     )
   }
