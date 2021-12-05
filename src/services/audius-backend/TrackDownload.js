@@ -1,5 +1,3 @@
-import urlJoin from 'proper-url-join'
-
 import * as schemas from 'schemas'
 import { DownloadTrackMessage } from 'services/native-mobile-interface/downloadTrack'
 
@@ -19,11 +17,8 @@ class TrackDownload {
   }
 
   static async downloadTrackMobile(cid, creatorNodeGateways, filename, title) {
-    if (urlJoin && urlJoin.default) {
-      urlJoin = urlJoin.default
-    }
-    const urls = creatorNodeGateways.map(gateway =>
-      urlJoin(gateway, cid, { query: { filename } })
+    const urls = creatorNodeGateways.map(
+      gateway => new URL(`${gateway}${cid}?filename=${filename}`)
     )
 
     const message = new DownloadTrackMessage({

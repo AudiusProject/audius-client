@@ -232,9 +232,10 @@ const TrackHeader = ({
     )
   }
 
-  const renderHiddenDownloadButtons = () => {
+  const renderDownloadButtons = () => {
     return (
       <DownloadButtons
+        className={styles.downloadButtonsContainer}
         trackId={trackId}
         isOwner={isOwner}
         following={isFollowing}
@@ -358,8 +359,8 @@ const TrackHeader = ({
       >
         {renderTrackLabels()}
       </div>
+      {renderDownloadButtons()}
       {renderTags()}
-      {renderHiddenDownloadButtons()}
     </div>
   )
 }

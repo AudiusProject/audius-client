@@ -61,7 +61,6 @@
     "pixi.js": "4.8.9",
     "promise.allsettled": "1.0.4",
     "prop-types": "15.7.2",
-    "proper-url-join": "^2.1.1",
     "raw-loader": "0.5.1",
     "react": "16.13.1",
     "react-beautiful-dnd": "10.0.4",
