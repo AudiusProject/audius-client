@@ -24,9 +24,9 @@ export const createUseFeatureFlagHook = (
   const hasAccount = useSelector(getAccountUser)
   const shouldRecompute = userIdFlag ? hasAccount : true
   const isEnabled = useMemo(
+    () => remoteConfigInstance.getFeatureEnabled(flag),
     // We want configLoaded and shouldRecompute to trigger refreshes of the memo
     // eslint-disable-next-line
-    () => remoteConfigInstance.getFeatureEnabled(flag),
     [flag, configLoaded, shouldRecompute]
   )
   return { isLoaded: configLoaded, isEnabled }

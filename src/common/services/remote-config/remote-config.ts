@@ -30,13 +30,13 @@ const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 // Internal State
 type State = {
   didInitialize: boolean
-  onDidInitializeFunc: (() => void) | undefined
   userId: Nullable<string>
   sessionId: string
+  initializationCallbacks: (() => void)[]
 }
 
 type RemoteConfigOptions = {
-  createOptimizelyClient: () => optimizely.Client
+  createOptimizelyClient: () => Promise<optimizely.Client>
   getFeatureFlagSessionId: () => string | null
   setFeatureFlagSessionId: (id: string) => void
   setLogLevel: () => void
@@ -52,44 +52,46 @@ export const remoteConfig = ({
 
   const state: State = {
     didInitialize: false,
-    onDidInitializeFunc: undefined,
     userId: null,
-    sessionId: getFeatureFlagSessionId() || uuid()
+    sessionId: getFeatureFlagSessionId() || uuid(),
+    initializationCallbacks: []
   }
 
   setLogLevel()
 
   // Optimizely client
-  const client = createOptimizelyClient()
+  let client: optimizely.Client | undefined
 
-  client.onReady().then(() => {
-    state.didInitialize = true
-    // If we've set an onInitialize callback, call it back.
-    if (state.onDidInitializeFunc) {
-      state.onDidInitializeFunc()
-      state.onDidInitializeFunc = undefined
+  async function init() {
+    client = await createOptimizelyClient()
+
+    client.onReady().then(() => {
+      state.didInitialize = true
+
+      // Call initializationCallbacks
+      state.initializationCallbacks.forEach(cb => cb())
+      state.initializationCallbacks = []
+
+      console.timeEnd('remote-config')
+    })
+
+    // Set sessionId for feature flag bucketing
+    if (!getFeatureFlagSessionId) {
+      setFeatureFlagSessionId(state.sessionId)
     }
-    console.timeEnd('remote-config')
-    window.dispatchEvent(new CustomEvent('REMOTE_CONFIG_LOADED'))
-  })
-
-  // Set sessionId for feature flag bucketing
-  if (!getFeatureFlagSessionId) {
-    setFeatureFlagSessionId(state.sessionId)
   }
 
   // API
 
   /**
-   * Register a callback for client ready. Can
-   * only register a single callback.
+   * Register a callback for client ready.
    * @param func
    */
   function onClientReady(func: () => void) {
     if (state.didInitialize) {
       func()
     } else {
-      state.onDidInitializeFunc = func
+      state.initializationCallbacks = [...state.initializationCallbacks, func]
     }
   }
 
@@ -197,13 +199,7 @@ export const remoteConfig = ({
   }
 
   const waitForRemoteConfig = async () => {
-    if (state.didInitialize) return true
-    let cb
-    await new Promise(resolve => {
-      cb = resolve
-      window.addEventListener('REMOTE_CONFIG_LOADED', cb)
-    })
-    if (cb) window.removeEventListener('REMOTE_CONFIG_LOADED', cb)
+    await new Promise(resolve => onClientReady(() => resolve))
   }
 
   // Type predicates
@@ -231,10 +227,11 @@ export const remoteConfig = ({
   }
 
   return {
+    getFeatureEnabled,
+    getRemoteVar,
+    init,
     onClientReady,
     setUserId,
-    getRemoteVar,
-    getFeatureEnabled,
     waitForRemoteConfig
   }
 }
