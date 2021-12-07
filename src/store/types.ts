@@ -5,6 +5,7 @@ import ArtistDashboardState from 'containers/artist-dashboard-page/store/types'
 import ArtistRecommendationsReducer from 'containers/artist-recommendations/store/slice'
 import { ChangePasswordState } from 'containers/change-password/store/slice'
 import { CollectionsPageState } from 'containers/collection-page/store/types'
+import { DeactivateAccountState } from 'containers/deactivate-account-page/store/slice'
 import DeletedPageReducer from 'containers/deleted-page/store/slice'
 import { EmbedModalState } from 'containers/embed-modal/store/types'
 import { CollectionsState as ExploreCollectionsState } from 'containers/explore-page/store/collections/slice'
@@ -45,8 +46,6 @@ import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 import QueueReducer from 'store/queue/slice'
-import tokenDashboard from 'store/token-dashboard/slice'
-import wallet from 'store/wallet/slice'
 
 import { CreatePlaylistModalState } from '../common/store/ui/createPlaylistModal/types'
 
@@ -78,7 +77,6 @@ export type AppState = CommonState & {
   serviceSelection: ReturnType<typeof ServiceSelectionReducer>
 
   // Wallet
-  wallet: ReturnType<typeof wallet>
   audioManager: AudioManagerState
 
   // Global
@@ -93,6 +91,7 @@ export type AppState = CommonState & {
       editPlaylistModal: EditPlaylistModalState
       editTrackModal: EditTrackModalState
       embedModal: EmbedModalState
+      deactivateAccount: DeactivateAccountState
       firstUploadModal: FirstUploadModalState
       mobileKeyboard: MobileKeyboardState
       musicConfetti: ReturnType<typeof MusicConfetti>
@@ -118,7 +117,6 @@ export type AppState = CommonState & {
       exploreCollections: ExploreCollectionsState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
-      tokenDashboard: ReturnType<typeof tokenDashboard>
       trendingPlaylists: ReturnType<typeof trendingPlaylistsReducer>
       trendingUnderground: ReturnType<typeof trendingUndergroundReducer>
     }

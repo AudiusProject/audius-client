@@ -9,18 +9,21 @@ import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
 import { Chain } from 'common/models/Chain'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
+import {
+  getAssociatedWallets,
+  getRemoveWallet
+} from 'common/store/pages/token-dashboard/selectors'
+import {
+  requestRemoveWallet,
+  resetStatus
+} from 'common/store/pages/token-dashboard/slice'
+import { shortenEthAddress, shortenSPLAddress } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import {
-  getAssociatedWallets,
-  requestRemoveWallet,
-  getRemoveWallet,
-  resetStatus
-} from 'store/token-dashboard/slice'
 import { useIsMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { NEW_WALLET_CONNECTED_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
@@ -37,14 +40,6 @@ const messages = {
   linkedWallets: 'LINKED WALLETS',
   collectibles: 'COLLECTIBLES',
   audio: '$AUDIO'
-}
-
-const shortenSPLAddress = (addr: string) => {
-  return `${addr.substring(0, 4)}...${addr.substr(addr.length - 5)}`
-}
-
-const shortenEthAddress = (addr: string) => {
-  return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
 }
 
 type WalletProps = {

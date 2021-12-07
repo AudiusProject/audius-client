@@ -553,7 +553,8 @@ class AudiusBackend {
         claimableTokenProgramAddress: CLAIMABLE_TOKEN_PROGRAM_ADDRESS,
         rewardsManagerProgramId: REWARDS_MANAGER_PROGRAM_ID,
         rewardsManagerProgramPDA: REWARDS_MANAGER_PROGRAM_PDA,
-        rewardsManagerTokenPDA: REWARDS_MANAGER_TOKEN_PDA
+        rewardsManagerTokenPDA: REWARDS_MANAGER_TOKEN_PDA,
+        useRelay: true
       })
     }
   }
@@ -873,20 +874,6 @@ class AudiusBackend {
         )
       )
       return listen
-    } catch (err) {
-      console.error(err.message)
-    }
-  }
-
-  static async getListenHistoryTracks(limit = 100, offset = 0) {
-    await waitForLibsInit()
-    try {
-      const trackListens = await audiusLibs.Track.getListenHistoryTracks(
-        limit,
-        offset
-      )
-
-      return trackListens
     } catch (err) {
       console.error(err.message)
     }

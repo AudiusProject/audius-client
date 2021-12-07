@@ -6,6 +6,7 @@ import dashboard from 'containers/artist-dashboard-page/store/reducer'
 import artistRecommendations from 'containers/artist-recommendations/store/slice'
 import changePassword from 'containers/change-password/store/slice'
 import collection from 'containers/collection-page/store/reducer'
+import deactivateAccount from 'containers/deactivate-account-page/store/slice'
 import deleted from 'containers/deleted-page/store/slice'
 import embedModal from 'containers/embed-modal/store/reducers'
 import exploreCollections from 'containers/explore-page/store/collections/slice'
@@ -58,8 +59,6 @@ import player from 'store/player/slice'
 import playlistLibrary from 'store/playlist-library/slice'
 import queue from 'store/queue/slice'
 import reachability from 'store/reachability/reducer'
-import tokenDashboard from 'store/token-dashboard/slice'
-import wallet from 'store/wallet/slice'
 
 const createRootReducer = routeHistory =>
   combineReducers({
@@ -102,7 +101,6 @@ const createRootReducer = routeHistory =>
     player,
 
     // Wallet
-    wallet,
     audioManager,
 
     application: combineReducers({
@@ -112,6 +110,7 @@ const createRootReducer = routeHistory =>
         averageColor,
         changePassword,
         cookieBanner,
+        deactivateAccount,
         editPlaylistModal,
         editTrackModal,
         embedModal,
@@ -139,7 +138,6 @@ const createRootReducer = routeHistory =>
         reposts,
         settings,
         smartCollection,
-        tokenDashboard,
         trendingPlaylists,
         trendingUnderground,
         unfollowConfirmation
