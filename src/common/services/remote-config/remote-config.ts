@@ -1,0 +1,242 @@
+import optimizely from '@optimizely/optimizely-sdk'
+
+import { ID } from 'common/models/Identifiers'
+import {
+  remoteConfigIntDefaults,
+  remoteConfigStringDefaults,
+  remoteConfigDoubleDefaults,
+  remoteConfigBooleanDefaults
+} from 'common/services/remote-config/defaults'
+import {
+  FeatureFlags,
+  flagDefaults,
+  flagCohortType,
+  FeatureFlagCohortType
+} from 'common/services/remote-config/feature-flags'
+import {
+  IntKeys,
+  StringKeys,
+  DoubleKeys,
+  BooleanKeys,
+  AllRemoteConfigKeys
+} from 'common/services/remote-config/types'
+import { Nullable } from 'common/utils/typeUtils'
+import { uuid } from 'common/utils/uid'
+
+// Constants
+// All optimizely feature keys are lowercase_snake
+const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
+
+// Internal State
+type State = {
+  didInitialize: boolean
+  onDidInitializeFunc: (() => void) | undefined
+  userId: Nullable<string>
+  sessionId: string
+}
+
+type RemoteConfigOptions = {
+  createOptimizelyClient: () => optimizely.Client
+  getFeatureFlagSessionId: () => string | null
+  setFeatureFlagSessionId: (id: string) => void
+  setLogLevel: () => void
+}
+
+export const remoteConfig = ({
+  createOptimizelyClient,
+  getFeatureFlagSessionId,
+  setFeatureFlagSessionId,
+  setLogLevel
+}: RemoteConfigOptions) => {
+  console.time('remote-config')
+
+  const state: State = {
+    didInitialize: false,
+    onDidInitializeFunc: undefined,
+    userId: null,
+    sessionId: getFeatureFlagSessionId() || uuid()
+  }
+
+  setLogLevel()
+
+  // Optimizely client
+  const client = createOptimizelyClient()
+
+  client.onReady().then(() => {
+    state.didInitialize = true
+    // If we've set an onInitialize callback, call it back.
+    if (state.onDidInitializeFunc) {
+      state.onDidInitializeFunc()
+      state.onDidInitializeFunc = undefined
+    }
+    console.timeEnd('remote-config')
+    window.dispatchEvent(new CustomEvent('REMOTE_CONFIG_LOADED'))
+  })
+
+  // Set sessionId for feature flag bucketing
+  if (!getFeatureFlagSessionId) {
+    setFeatureFlagSessionId(state.sessionId)
+  }
+
+  // API
+
+  /**
+   * Register a callback for client ready. Can
+   * only register a single callback.
+   * @param func
+   */
+  function onClientReady(func: () => void) {
+    if (state.didInitialize) {
+      func()
+    } else {
+      state.onDidInitializeFunc = func
+    }
+  }
+
+  /**
+   * Set the userId for calls to Optimizely.
+   * Prior to calling, uses the ANONYMOUS_USER_ID constant.
+   * @param userId
+   */
+  function setUserId(userId: ID) {
+    state.userId = userId.toString()
+  }
+
+  /**
+   * Access a remotely configured value.
+   * @param key
+   */
+  function getRemoteVar(key: BooleanKeys): boolean | null
+  function getRemoteVar(key: StringKeys): string | null
+  function getRemoteVar(key: IntKeys): number | null
+  function getRemoteVar(key: DoubleKeys): number | null
+  function getRemoteVar(
+    key: AllRemoteConfigKeys
+  ): number | string | boolean | null
+  function getRemoteVar(
+    key: AllRemoteConfigKeys
+  ): number | string | boolean | null {
+    // If the client is not ready yet, return early with `null`
+    if (!client) return null
+
+    // If userId is null, set to string default. This will effectively capture all users as intended for remote config
+    const id = state.userId || 'ANONYMOUS_USER'
+
+    if (isIntKey(key)) {
+      return getValue(
+        remoteConfigIntDefaults,
+        key,
+        id,
+        client.getFeatureVariableInteger.bind(client)
+      )
+    }
+
+    // TODO: We can take out the keyof typeof garbage
+    // once all the enums have keys.
+    if (isStringKey(key)) {
+      return getValue(
+        remoteConfigStringDefaults,
+        (key as unknown) as string,
+        id,
+        client.getFeatureVariableString.bind(client)
+      )
+    }
+
+    if (isDoubleKey(key)) {
+      return getValue(
+        remoteConfigDoubleDefaults,
+        (key as unknown) as string,
+        id,
+        client.getFeatureVariableDouble.bind(client)
+      )
+    }
+
+    return getValue(
+      remoteConfigBooleanDefaults,
+      (key as unknown) as string,
+      id,
+      client.getFeatureVariableBoolean.bind(client)
+    )
+  }
+
+  /**
+   * Gets whether a given feature flag is enabled.
+   * @param flag
+   */
+  function getFeatureEnabled(flag: FeatureFlags) {
+    // If the client is not ready yet, return early with `null`
+    if (!client) return null
+
+    const defaultVal = flagDefaults[flag]
+
+    // Set the unique identifier as the userId or sessionId
+    // depending on the feature flag
+    let id: string
+    const cohortType = flagCohortType[flag]
+    switch (cohortType) {
+      case FeatureFlagCohortType.USER_ID: {
+        // If the id is anonymous, do not enable feature
+        if (!state.userId) return false
+        id = state.userId
+        break
+      }
+      case FeatureFlagCohortType.SESSION_ID: {
+        id = state.sessionId
+        break
+      }
+    }
+
+    try {
+      const enabled = state.didInitialize
+        ? client.isFeatureEnabled((flag as unknown) as string, id) ?? defaultVal
+        : defaultVal
+      return enabled
+    } catch (err) {
+      return defaultVal
+    }
+  }
+
+  const waitForRemoteConfig = async () => {
+    if (state.didInitialize) return true
+    let cb
+    await new Promise(resolve => {
+      cb = resolve
+      window.addEventListener('REMOTE_CONFIG_LOADED', cb)
+    })
+    if (cb) window.removeEventListener('REMOTE_CONFIG_LOADED', cb)
+  }
+
+  // Type predicates
+  function isIntKey(key: AllRemoteConfigKeys): key is IntKeys {
+    return !!Object.values(IntKeys).find(x => x === key)
+  }
+  function isStringKey(key: AllRemoteConfigKeys): key is StringKeys {
+    return !!Object.values(StringKeys).find(x => x === key)
+  }
+  function isDoubleKey(key: AllRemoteConfigKeys): key is DoubleKeys {
+    return !!Object.values(DoubleKeys).find(x => x === key)
+  }
+
+  // Removes some boilerplate around getting values, falling back to defaults,
+  // calling the correct client fn.
+  function getValue<T>(
+    defaults: { [id: string]: T },
+    varKey: string,
+    userId: string,
+    getFn: (featureKey: string, variableKey: string, userId: string) => T | null
+  ): T {
+    const defaultVal = defaults[varKey]
+    if (!state.didInitialize) return defaultVal
+    return getFn(REMOTE_CONFIG_FEATURE_KEY, varKey, userId) ?? defaultVal
+  }
+
+  return {
+    onClientReady,
+    setUserId,
+    getRemoteVar,
+    getFeatureEnabled,
+    waitForRemoteConfig
+  }
+}
+
+export type RemoteConfigInstance = ReturnType<typeof remoteConfig>

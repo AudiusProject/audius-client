@@ -23,7 +23,6 @@ import { PasswordResetState } from 'containers/password-reset/store/types'
 import { ProfilePageState } from 'containers/profile-page/store/types'
 import RemixSettingsModalReducer from 'containers/remix-settings-modal/store/slice'
 import RemixesPageReducer from 'containers/remixes-page/store/slice'
-import RemoteConfigReducer from 'containers/remote-config/slice'
 import { RepostsPageState } from 'containers/reposts-page/store/types'
 import SavesPageState from 'containers/saved-page/store/types'
 import SearchBarState from 'containers/search-bar/store/types'
@@ -146,7 +145,4 @@ export type AppState = CommonState & {
 
   // Misc
   router: RouterState
-
-  // Remote Config + Flags
-  remoteConfig: ReturnType<typeof RemoteConfigReducer>
 }
