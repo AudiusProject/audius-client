@@ -199,7 +199,7 @@ export const remoteConfig = ({
   }
 
   const waitForRemoteConfig = async () => {
-    await new Promise(resolve => onClientReady(() => resolve))
+    await new Promise<void>(resolve => onClientReady(() => resolve()))
   }
 
   // Type predicates
