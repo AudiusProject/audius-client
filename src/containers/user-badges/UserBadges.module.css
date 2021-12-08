@@ -1,9 +1,0 @@
-.container {
-  display: flex;
-  overflow: visible;
-}
-
-.container svg,
-.inlineContainer svg {
-  margin-right: 4px !important;
-}
