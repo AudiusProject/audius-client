@@ -1,0 +1,144 @@
+.pageContainer {
+  user-select: none;
+}
+
+.sectionContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 12px 0px;
+}
+
+/* Stat Tile Styles  */
+
+.statsContainer {
+  margin: 0 -10px;
+}
+
+.statTileContainer {
+  flex: 1 auto 120px;
+  width: 100%;
+  height: 72px;
+  border-radius: 6px;
+  background: var(--secondary-gradient);
+  box-shadow: var(--table-shadow) 0px 16px 20px 0px, var(--secondary-transparent) 0px 4px 20px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 10px;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--static-white);
+  text-shadow: 0 1px 2px rgba(39,31,71,0.25);
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.statTitle {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--stat-tile-text);
+  letter-spacing: 1px;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+
+/* Table styles */
+.tableContainer {
+  border-radius: 6px;
+  background: var(--white);
+  box-shadow: var(--table-shadow) 0px 16px 20px 0px;
+  overflow: hidden;
+}
+
+:global(.ant-table-thead > tr > th.ant-table-column-has-actions.ant-table-column-has-sorters).col:global(.colName),
+.col:global(.colName) {
+  padding-left: 24px !important;
+}
+
+.trackName {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.numericColumn {
+  text-align: right !important;
+}
+
+.spin span i {
+  background-color: var(--secondary);
+}
+
+.tabBorderProvider {
+  width: 100%;
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+
+.tabContainer {
+  width: 100%;
+  display: flex;
+  padding-top: 8px;
+  margin-left: 8px;
+}
+
+.tracksTableWrapper {
+  margin-top: 50px;
+}
+
+.tabBodyWrapper {
+  align-items: flex-start;
+  transition: all 0.5s ease-in-out;
+  margin: 0px;
+  flex-grow: 1;
+}
+
+.overflowContainer {
+  width: 22px;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+.tabBody {
+  transition: height 0.1s ease-out;
+  overflow: hidden;
+}
+
+.overflowAdjustment {
+  position: relative;
+  top: 3px;
+}
+
+.chartFallback {
+  height: 368px;
+}
+
+.cryptoContentContainer {
+  display: flex;
+  width: 1104px;
+  flex-wrap: wrap;
+  margin: -18px -12px 16px -12px;
+}
+
+.cryptoContentContainer > div {
+  margin: 9px 12px;
+}
+
+.explainerTile {
+  flex: 1 1 100% !important;
+}
+
+.profileContainer {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: stretch;
+  margin: 12px 0px 36px;
+}

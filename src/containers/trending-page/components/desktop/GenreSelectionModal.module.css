@@ -1,0 +1,28 @@
+.modalBody {
+  overflow: hidden;
+  height: 650px;
+  max-width: 500px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  margin: 0px 16px;
+}
+
+.simpleBar {
+  flex: 1;
+  min-height: 0px;
+}
+
+.simpleBar :global(.simplebar-scrollbar) {
+  width: 6px;
+  right: 4px;
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.simpleBar :global(.simplebar-scrollbar:before) {
+  width: 6px;
+}

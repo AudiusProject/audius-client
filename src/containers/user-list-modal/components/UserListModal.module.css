@@ -1,0 +1,46 @@
+.modalBody {
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  margin: 0px 16px;
+}
+
+.modalTitle {
+  color: var(--neutral-light-4);
+  font-size: var(--font-l);
+  font-weight: var(--font-heavy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modalTitle {
+  font-weight: var(--font-heavy);
+  letter-spacing: .5px;
+  color: var(--neutral-light-4);
+  font-size: var(--font-l);
+}
+
+.scrollable {
+  display: flex;
+  margin: 16px;
+  min-height: 0;
+  max-height: 690px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0 18px;
+  overflow-x: hidden;
+}
+
+.scrollable :global(.simplebar-scrollbar) {
+  width: 6px;
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.scrollable :global(.simplebar-scrollbar:before) {
+  width: 6px;
+}

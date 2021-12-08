@@ -1,0 +1,109 @@
+.settingsPageContent {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+}
+
+.headerContainer {
+  margin-bottom: 32px;
+}
+
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.signOutButton {
+  margin-bottom: 16px;
+  height: 48px;
+  flex: 0 0 48px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.signOutButton .signOutButtonText {
+  color: var(--neutral-light-4);
+  font-weight: var(--font-demi-bold);
+  font-size: var(--font-m);
+}
+
+.signOutButton .signOutButtonIcon path {
+  fill: var(--neutral-light-4);
+}
+.resetButton .resetButtonIcon path,
+.changePasswordButton .changePasswordIcon path {
+  fill: var(--secondary);
+}
+
+.version {
+  width: 168px;
+  align-self: center;
+  flex: 0 1;
+  margin-top: 80px;
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: var(--neutral-light-5);
+  font-family: var(--font-family);
+  font-size: var(--font-xs);
+  text-align: center;
+}
+
+.version span {
+  line-height: 20px;
+}
+
+.selectedServices > * {
+  justify-content: center;
+}
+
+.modalBody {
+  max-width: 500px;
+  width: 100%;
+}
+
+.modalHeader {
+  margin: 0 16px;
+}
+
+.modalTitle {
+  color: var(--neutral-light-4);
+  font-size: var(--font-l);
+  font-weight: var(--font-heavy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resetButton .reviewIcon path {
+  fill: var(--secondary);
+}
+
+.settingButtonText {
+  font-size: var(--font-l) !important;
+}
+
+.cardSlider {
+  min-width: 176px;
+  margin: 8px 0 8px auto;
+}
+.cardButton,
+.cardToast {
+  width: 176px;
+  margin: 4px auto;
+}
+.cardButton {
+  display: block;
+  height: 52px !important;
+}
+/** Breakpoint for collapsed cards **/
+@media (max-width: 780px) {
+  .cardSlider,
+  .cardButton,
+  .cardToast {
+    margin: 8px auto;
+  }
+}
