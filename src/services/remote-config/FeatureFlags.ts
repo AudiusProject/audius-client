@@ -80,9 +80,10 @@ export const flagCohortType: {
   [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.SURFACE_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]: FeatureFlagCohortType.USER_ID,
+  [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]:
+    FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]:
-    FeatureFlagCohortType.USER_ID
+    FeatureFlagCohortType.SESSION_ID
 }
 
 export const FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY = 'featureFlagSessionId'
