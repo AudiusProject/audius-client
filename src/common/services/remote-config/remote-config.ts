@@ -31,14 +31,14 @@ const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 type State = {
   didInitialize: boolean
   userId: Nullable<string>
-  sessionId: string
+  sessionId: Nullable<string>
   initializationCallbacks: (() => void)[]
 }
 
 type RemoteConfigOptions = {
   createOptimizelyClient: () => Promise<optimizely.Client>
-  getFeatureFlagSessionId: () => string | null
-  setFeatureFlagSessionId: (id: string) => void
+  getFeatureFlagSessionId: () => Promise<string | null>
+  setFeatureFlagSessionId: (id: string) => Promise<void>
   setLogLevel: () => void
 }
 
@@ -53,7 +53,7 @@ export const remoteConfig = ({
   const state: State = {
     didInitialize: false,
     userId: null,
-    sessionId: getFeatureFlagSessionId() || uuid(),
+    sessionId: null,
     initializationCallbacks: []
   }
 
@@ -76,8 +76,13 @@ export const remoteConfig = ({
     })
 
     // Set sessionId for feature flag bucketing
-    if (!getFeatureFlagSessionId) {
-      setFeatureFlagSessionId(state.sessionId)
+    const savedSessionId = await getFeatureFlagSessionId()
+    if (!savedSessionId) {
+      const newSessionId = uuid()
+      setFeatureFlagSessionId(newSessionId)
+      state.sessionId = newSessionId
+    } else {
+      state.sessionId = savedSessionId
     }
   }
 
@@ -183,7 +188,7 @@ export const remoteConfig = ({
         break
       }
       case FeatureFlagCohortType.SESSION_ID: {
-        id = state.sessionId
+        id = state.sessionId!
         break
       }
     }

@@ -22,9 +22,9 @@ export const remoteConfigInstance = remoteConfig({
       datafile: window.optimizelyDatafile
     })
   },
-  getFeatureFlagSessionId: () =>
-    window.localStorage?.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY),
-  setFeatureFlagSessionId: id =>
+  getFeatureFlagSessionId: async () =>
+    window.localStorage.getItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY),
+  setFeatureFlagSessionId: async id =>
     window.localStorage?.setItem(FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY, id),
   setLogLevel: () => optimizely.setLogLevel('warn')
 })
