@@ -35,19 +35,29 @@ type State = {
   initializationCallbacks: (() => void)[]
 }
 
-type RemoteConfigOptions = {
-  createOptimizelyClient: () => Promise<optimizely.Client>
+type RemoteConfigOptions<Client> = {
+  createOptimizelyClient: () => Promise<Client>
   getFeatureFlagSessionId: () => Promise<string | null>
   setFeatureFlagSessionId: (id: string) => Promise<void>
   setLogLevel: () => void
 }
 
-export const remoteConfig = ({
+export const remoteConfig = <
+  Client extends Pick<
+    optimizely.Client,
+    | 'getFeatureVariableBoolean'
+    | 'getFeatureVariableDouble'
+    | 'getFeatureVariableInteger'
+    | 'getFeatureVariableString'
+    | 'isFeatureEnabled'
+    | 'onReady'
+  >
+>({
   createOptimizelyClient,
   getFeatureFlagSessionId,
   setFeatureFlagSessionId,
   setLogLevel
-}: RemoteConfigOptions) => {
+}: RemoteConfigOptions<Client>) => {
   console.time('remote-config')
 
   const state: State = {
@@ -60,7 +70,7 @@ export const remoteConfig = ({
   setLogLevel()
 
   // Optimizely client
-  let client: optimizely.Client | undefined
+  let client: Client | undefined
 
   async function init() {
     client = await createOptimizelyClient()
