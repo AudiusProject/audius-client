@@ -468,10 +468,10 @@ class AudiusBackend {
         useResumableTrackUpload: remoteConfigInstance.getFeatureEnabled(
           FeatureFlags.USE_RESUMABLE_TRACK_UPLOAD
         ),
-        preferHigherPatchForPrimary: getFeatureEnabled(
+        preferHigherPatchForPrimary: remoteConfigInstance.getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY
         ),
-        preferHigherPatchForSecondaries: getFeatureEnabled(
+        preferHigherPatchForSecondaries: remoteConfigInstance.getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES
         )
       })
