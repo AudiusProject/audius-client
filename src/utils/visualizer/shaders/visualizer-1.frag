@@ -14,12 +14,12 @@ varying vec2 uvCoords;
 void main() {
   vec3 tCol = color;
   if (useHue) {
-    float sat = 0.7;
-    float light = 0.6;
+    float sat = 0.9;
+    float light = 0.5;
     
     float rainbow = sin(vAngle * 1.0) * 0.5 + 0.5;
-    float hue = 0.0;
-    hue += mix(0.5, 0.9, rainbow);
+    float hue = 0.4;
+    hue += mix(0.1, 0.2, rainbow);
     tCol = hsl2rgb(vec3(hue, sat, light));
   }
   
