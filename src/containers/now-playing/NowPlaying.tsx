@@ -332,11 +332,11 @@ const NowPlaying = g(
 
     const artworkAverageColor = averageRGBColor
       ? {
-          boxShadow: `0 1px 15px -2px rgba(
+          boxShadow: `0 1px 15px -5px rgba(
           ${averageRGBColor.r},
           ${averageRGBColor.g},
           ${averageRGBColor.b}
-          , 0.5)`
+          , 1)`
         }
       : {}
 

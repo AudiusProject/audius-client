@@ -34,7 +34,7 @@ import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { averageRgb } from 'utils/imageProcessingUtil'
+import { averageRgb, dominantColor } from 'utils/imageProcessingUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
@@ -408,7 +408,7 @@ function* watchFetchCoverArt() {
         cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
       )
 
-      const rgb = yield call(averageRgb, url)
+      const rgb = yield call(dominantColor, url)
       yield put(
         setColor({
           multihash,
