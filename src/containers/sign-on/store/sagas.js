@@ -139,9 +139,9 @@ function* fetchReferrer(action) {
       if (!user) return
       yield put(signOnActions.setReferrer(user.user_id))
 
-      // Check if the user is already signed in, for retroactive referrals
+      // Check if the user is already signed in
+      // If so, apply retroactive referrals
       const currentUser = yield select(getAccountUser)
-      console.log(currentUser)
       if (currentUser && !currentUser?.events?.referrer) {
         yield call(AudiusBackend.updateCreator, {
           ...currentUser,
@@ -405,6 +405,14 @@ function* signIn(action) {
         })
         yield put(trackEvent)
         return
+      }
+
+      // Apply retroactive referral
+      if (!signInResponse.user?.events?.referrer && signOn.referrer) {
+        yield fork(AudiusBackend.updateCreator, {
+          ...signInResponse.user,
+          events: { referrer: signOn.referrer }
+        })
       }
 
       yield put(pushRoute(route || FEED_PAGE))
