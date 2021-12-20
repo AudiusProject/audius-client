@@ -92,7 +92,7 @@ export const getTracksFromCollection = (
   const userIds = Object.keys(tracks)
     .map(id => {
       const track = tracks[(id as unknown) as number]
-      if (track && track.owner_id) {
+      if (track?.owner_id) {
         return track.owner_id
       }
       console.error(
