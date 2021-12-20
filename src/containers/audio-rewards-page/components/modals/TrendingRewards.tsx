@@ -6,17 +6,17 @@ import { useDispatch } from 'react-redux'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 
 import { useModalState } from 'common/hooks/useModalState'
+import { StringKeys } from 'common/services/remote-config'
 import { getTrendingRewardsModalType } from 'common/store/pages/audio-rewards/selectors'
 import {
   TrendingRewardsModalType,
   setTrendingRewardsModalType
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { useRemoteVar } from 'containers/remote-config/hooks'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
+import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import Theme from 'models/Theme'
-import { StringKeys } from 'services/remote-config'
 import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 import {
@@ -30,6 +30,8 @@ import ButtonWithArrow from '../ButtonWithArrow'
 
 import ModalDrawer from './ModalDrawer'
 import styles from './TrendingRewards.module.css'
+
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const messages = {
   tracksTitle: 'Top 5 Tracks Each Week Receive 100 $AUDIO',
@@ -218,7 +220,7 @@ export const TrendingRewardsModal = () => {
 
   return (
     <ModalDrawer
-      isOpen={isOpen}
+      isOpen={!IS_NATIVE_MOBILE && isOpen}
       onClose={() => setOpen(false)}
       title={
         <h2 className={styles.titleHeader}>

@@ -6,6 +6,7 @@ import { Dispatch } from 'redux'
 
 import { FavoriteSource, RepostSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
+import { FeatureFlags } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
 import {
@@ -14,13 +15,12 @@ import {
   repostTrack,
   undoRepostTrack
 } from 'common/store/social/tracks/actions'
-import { open } from 'common/store/ui/mobile-overflow-menu/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
-import { useFlag } from 'containers/remote-config/hooks'
-import { FeatureFlags } from 'services/remote-config'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 
 import TrackListItem, { TrackListItemProps } from './TrackListItem'
@@ -81,7 +81,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TRACK_LIST)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>
-      dispatch(open(OverflowSource.TRACKS, trackId, overflowActions))
+      dispatch(
+        open({ source: OverflowSource.TRACKS, id: trackId, overflowActions })
+      )
   }
 }
 

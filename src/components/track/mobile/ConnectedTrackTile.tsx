@@ -11,6 +11,7 @@ import {
 } from 'common/models/Analytics'
 import { FavoriteType } from 'common/models/Favorite'
 import { ID } from 'common/models/Identifiers'
+import { FeatureFlags } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
@@ -21,17 +22,16 @@ import {
   undoRepostTrack,
   shareTrack
 } from 'common/store/social/tracks/actions'
-import { open } from 'common/store/ui/mobile-overflow-menu/actions'
+import { open } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
 import { TrackTileProps } from 'components/track/types'
 import { setFavorite } from 'containers/favorites-page/store/actions'
-import { useFlag } from 'containers/remote-config/hooks'
 import { setRepost } from 'containers/reposts-page/store/actions'
 import { RepostType } from 'containers/reposts-page/store/types'
-import { FeatureFlags } from 'services/remote-config'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
@@ -266,7 +266,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>
-      dispatch(open(OverflowSource.TRACKS, trackId, overflowActions)),
+      dispatch(
+        open({ source: OverflowSource.TRACKS, id: trackId, overflowActions })
+      ),
     setRepostTrackId: (trackId: ID) =>
       dispatch(setRepost(trackId, RepostType.TRACK)),
     setFavoriteTrackId: (trackId: ID) =>

@@ -17,6 +17,7 @@ import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
 import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
+import remoteConfigSagas from 'common/store/remote-config/sagas'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from 'common/store/ui/add-to-playlist/reducer'
@@ -27,7 +28,7 @@ import createPlaylistModalReducer from 'common/store/ui/createPlaylistModal/redu
 import { CreatePlaylistModalState } from 'common/store/ui/createPlaylistModal/types'
 import deletePlaylistConfirmationReducer from 'common/store/ui/delete-playlist-confirmation-modal/reducers'
 import { DeletePlaylistConfirmationModalState } from 'common/store/ui/delete-playlist-confirmation-modal/types'
-import mobileOverflowModalReducer from 'common/store/ui/mobile-overflow-menu/reducer'
+import mobileOverflowModalReducer from 'common/store/ui/mobile-overflow-menu/slice'
 import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/types'
 import mobileUploadDrawerReducer, {
   MobileUploadDrawerState
@@ -81,7 +82,8 @@ export const sagas = {
   collectionsError: collectionsErrorSagas,
   collections: collectionsSagas,
   tracks: tracksSagas,
-  users: usersSagas
+  users: usersSagas,
+  remoteConfig: remoteConfigSagas
 
   // TODO: pull in the following from audius-client
   // once AudiusBackend and dependencies are migrated

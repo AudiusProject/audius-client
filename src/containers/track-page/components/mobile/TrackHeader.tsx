@@ -6,9 +6,10 @@ import Linkify from 'linkifyjs/react'
 
 import placeholderArt from 'assets/img/imageBlank2x.png'
 import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
+import { CID, ID } from 'common/models/Identifiers'
 import { SquareSizes, CoverArtSizes } from 'common/models/ImageSizes'
 import { FieldVisibility, Remix } from 'common/models/Track'
+import { FeatureFlags } from 'common/services/remote-config'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { formatSeconds, formatDate } from 'common/utils/timeUtil'
@@ -17,10 +18,9 @@ import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import DownloadButtons from 'containers/download-buttons/DownloadButtons'
-import { useFlag } from 'containers/remote-config/hooks'
 import UserBadges from 'containers/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useImageSize'
-import { FeatureFlags } from 'services/remote-config'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { make, useRecord } from 'store/analytics/actions'
 import { isShareToastDisabled } from 'utils/clipboardUtil'
 import { getCannonicalName } from 'utils/genres'
@@ -99,6 +99,12 @@ type TrackHeaderProps = {
   onShare: () => void
   onSave: () => void
   onRepost: () => void
+  onDownload: (
+    trackId: ID,
+    cid: CID,
+    category?: string,
+    parentTrackId?: ID
+  ) => void
   goToFavoritesPage: (trackId: ID) => void
   goToRepostsPage: (trackId: ID) => void
 }
@@ -136,6 +142,7 @@ const TrackHeader = ({
   onShare,
   onSave,
   onRepost,
+  onDownload,
   onClickMobileOverflow,
   goToFavoritesPage,
   goToRepostsPage
@@ -225,15 +232,14 @@ const TrackHeader = ({
     )
   }
 
-  const renderHiddenDownloadButtons = () => {
+  const renderDownloadButtons = () => {
     return (
       <DownloadButtons
-        isHidden
+        className={styles.downloadButtonsContainer}
         trackId={trackId}
         isOwner={isOwner}
         following={isFollowing}
-        // Downloads not supported on mobile, do nothing
-        onDownload={() => {}}
+        onDownload={onDownload}
       />
     )
   }
@@ -353,8 +359,8 @@ const TrackHeader = ({
       >
         {renderTrackLabels()}
       </div>
+      {renderDownloadButtons()}
       {renderTags()}
-      {renderHiddenDownloadButtons()}
     </div>
   )
 }

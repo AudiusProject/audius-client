@@ -1,4 +1,5 @@
 import * as schemas from 'schemas'
+import { DownloadTrackMessage } from 'services/native-mobile-interface/downloadTrack'
 
 import { waitForLibsInit } from './eagerLoadUtils'
 
@@ -13,6 +14,18 @@ class TrackDownload {
       creatorNodeEndpoints,
       filename
     )
+  }
+
+  static async downloadTrackMobile(cid, creatorNodeGateways, filename) {
+    const urls = creatorNodeGateways.map(
+      gateway => new URL(`${gateway}${cid}?filename=${filename}`)
+    )
+
+    const message = new DownloadTrackMessage({
+      title: filename.split('.').slice(0, -1).join(''),
+      urls: urls
+    })
+    message.send()
   }
 
   /**
