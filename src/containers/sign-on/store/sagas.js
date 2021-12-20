@@ -15,6 +15,7 @@ import {
 
 import { FavoriteSource, Name } from 'common/models/Analytics'
 import * as accountActions from 'common/store/account/reducer'
+import { getAccountUser } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUserByHandle, fetchUsers } from 'common/store/cache/users/sagas'
 import { getUsers } from 'common/store/cache/users/selectors'
@@ -137,6 +138,16 @@ function* fetchReferrer(action) {
       const user = yield call(fetchUserByHandle, handle)
       if (!user) return
       yield put(signOnActions.setReferrer(user.user_id))
+
+      // Check if the user is already signed in, for retroactive referrals
+      const currentUser = yield select(getAccountUser)
+      console.log(currentUser)
+      if (currentUser && !currentUser?.events?.referrer) {
+        yield call(AudiusBackend.updateCreator, {
+          ...currentUser,
+          events: { referrer: user.user_id }
+        })
+      }
     } catch (e) {
       console.error(e)
     }
