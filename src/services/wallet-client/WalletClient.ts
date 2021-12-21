@@ -26,6 +26,21 @@ class WalletClient {
     }
   }
 
+  async getCurrentWAudioBalance(): Promise<BNWei> {
+    try {
+      const balance = await AudiusBackend.getWAudioBalance()
+      return balance as BNWei
+    } catch (err) {
+      console.log(err)
+      return BN_ZERO
+    }
+  }
+
+  async transferTokensFromEthToSol(): Promise<void> {
+    const balance = await AudiusBackend.getBalance(true)
+    await AudiusBackend.transferAudioToWAudio(balance)
+  }
+
   async getAssociatedWalletBalance(
     userID: ID,
     bustCache = false

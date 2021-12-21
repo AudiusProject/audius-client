@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { ReactNode, useCallback } from 'react'
 
 import cn from 'classnames'
 
@@ -15,7 +15,7 @@ type DisplayAddressProps = {
   address: string
   className?: string
   isCompact?: boolean
-  label?: string
+  label?: ReactNode
 }
 
 const messages = {

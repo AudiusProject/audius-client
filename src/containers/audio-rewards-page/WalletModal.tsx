@@ -6,7 +6,9 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
+import { Chain } from 'common/models/Chain'
 import { BNWei, StringWei, WalletAddress } from 'common/models/Wallet'
+import { BooleanKeys } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   getHasAssociatedWallets,
@@ -27,6 +29,7 @@ import { getAccountBalance } from 'common/store/wallet/selectors'
 import { Nullable } from 'common/utils/typeUtils'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 
@@ -34,6 +37,7 @@ import styles from './WalletModal.module.css'
 import ConnectWalletsBody from './components/ConnectWalletsBody'
 import DiscordModalBody from './components/DiscordModalBody'
 import ErrorBody from './components/ErrorBody'
+import MigrationModalBody from './components/MigrationModalBody'
 import ReceiveBody from './components/ReceiveBody'
 import RemoveWalletBody from './components/RemoveWalletBody'
 import SendInputBody from './components/SendInputBody'
@@ -42,10 +46,12 @@ import SendInputSuccess from './components/SendInputSuccess'
 import SendingModalBody from './components/SendingModalBody'
 import ModalDrawer from './components/modals/ModalDrawer'
 
+const { getRemoteVar } = remoteConfigInstance
 const DISCORD_URL = ' https://discord.gg/audius'
 
 const messages = {
   receive: 'Receive $AUDIO',
+  receiveSPL: 'Receive SPL $AUDIO',
   send: 'Send $AUDIO',
   confirmSend: 'Send $AUDIO',
   sending: 'Your $AUDIO is Sending',
@@ -54,7 +60,8 @@ const messages = {
   discord: 'Launch the VIP Discord',
   connectOtherWallets: 'Connect Other Wallets',
   manageWallets: 'Manage Wallets',
-  removeWallets: 'Remove Wallet'
+  removeWallets: 'Remove Wallet',
+  awaitConvertingEthToSolAudio: 'Hold On a Moment'
 }
 
 const TitleWrapper = ({
@@ -82,6 +89,7 @@ const AddWalletTitle = () => {
     </>
   )
 }
+const useSolSPLAudio = getRemoteVar(BooleanKeys.USE_SPL_AUDIO) as boolean
 
 const titlesMap = {
   CONNECT_WALLETS: {
@@ -91,7 +99,9 @@ const titlesMap = {
   },
   RECEIVE: {
     KEY_DISPLAY: (
-      <TitleWrapper label={messages.receive}>
+      <TitleWrapper
+        label={useSolSPLAudio ? messages.receiveSPL : messages.receive}
+      >
         <IconReceive className={styles.receiveWrapper} />
       </TitleWrapper>
     )
@@ -104,6 +114,11 @@ const titlesMap = {
     ),
     AWAITING_CONFIRMATION: (
       <TitleWrapper label={messages.confirmSend}>
+        <IconSend className={styles.sendIconWrapper} />
+      </TitleWrapper>
+    ),
+    AWAITING_CONVERTING_ETH_AUDIO_TO_SOL: (
+      <TitleWrapper label={messages.awaitConvertingEthToSolAudio}>
         <IconSend className={styles.sendIconWrapper} />
       </TitleWrapper>
     ),
@@ -161,7 +176,7 @@ export const ModalBodyWrapper = ({
 
 type ModalContentProps = {
   modalState: ModalState
-  onInputSendData: (amount: BNWei, wallet: WalletAddress) => void
+  onInputSendData: (amount: BNWei, wallet: WalletAddress, chain: Chain) => void
   onConfirmSend: () => void
   onClose: () => void
   onLaunchDiscord: () => void
@@ -186,6 +201,8 @@ const ModalContent = ({
   // TODO: user models need to have wallets
   const wallet = account.wallet as WalletAddress
 
+  const solWallet: string = (account as any).userBank?.toString()
+
   // This silly `ret` dance is to satisfy
   // TS's no-fallthrough rule...
   let ret: Nullable<JSX.Element> = null
@@ -204,7 +221,7 @@ const ModalContent = ({
       break
     }
     case 'RECEIVE': {
-      ret = <ReceiveBody wallet={wallet} />
+      ret = <ReceiveBody wallet={wallet} solWallet={solWallet} />
       break
     }
     case 'SEND': {
@@ -216,6 +233,7 @@ const ModalContent = ({
               currentBalance={balance}
               onSend={onInputSendData}
               wallet={wallet}
+              solWallet={solWallet}
             />
           )
           break
@@ -229,6 +247,9 @@ const ModalContent = ({
               balance={balance}
             />
           )
+          break
+        case 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL':
+          ret = <MigrationModalBody />
           break
         case 'SENDING':
           if (!amountPendingTransfer) return null
@@ -279,6 +300,10 @@ const shouldAllowDismiss = (modalState: Nullable<ModalState>) => {
     !(
       modalState.stage === 'CONNECT_WALLETS' &&
       modalState.flowState.stage === 'REMOVE_WALLET'
+    ) &&
+    !(
+      modalState.stage === 'SEND' &&
+      modalState.flowState.stage === 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
     )
   )
 }
@@ -292,9 +317,13 @@ const WalletModal = () => {
     dispatch(setModalVisibility({ isVisible: false }))
   }, [dispatch])
 
-  const onInputSendData = (amount: BNWei, wallet: WalletAddress) => {
+  const onInputSendData = (
+    amount: BNWei,
+    wallet: WalletAddress,
+    chain: Chain
+  ) => {
     const stringWei = weiToString(amount)
-    dispatch(inputSendData({ amount: stringWei, wallet }))
+    dispatch(inputSendData({ amount: stringWei, wallet, chain }))
   }
 
   const onConfirmSend = () => {
@@ -320,7 +349,10 @@ const WalletModal = () => {
       isOpen={modalVisible}
       onClose={onClose}
       bodyClassName={cn(styles.modalBody, {
-        [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS'
+        [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS',
+        [styles.convertingEth]:
+          (modalState as any)?.flowState?.stage ===
+          'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
       })}
       showTitleHeader
       title={getTitle(modalState)}
