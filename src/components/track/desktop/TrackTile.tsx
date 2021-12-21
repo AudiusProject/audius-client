@@ -16,7 +16,7 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { SHARE_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 
-import ArtistPick from '../ArtistPick'
+import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 import {
   TrackTileSize,
   DesktopTrackTileProps as TrackTileProps
@@ -125,7 +125,12 @@ const TrackTile = memo(
         >
           {artwork}
         </div>
-        {isArtistPick && <ArtistPick isMatrixMode={isMatrixMode} />}
+        {isArtistPick && (
+          <TrackBannerIcon
+            type={TrackBannerIconType.STAR}
+            isMatrixMode={isMatrixMode}
+          />
+        )}
         <div
           className={cn(styles.body, {
             // if track and not playlist/album

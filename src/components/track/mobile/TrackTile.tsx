@@ -14,7 +14,7 @@ import RepostButton from 'components/general/alt-button/RepostButton'
 import { TrackTileProps } from 'components/track/types'
 import UserBadges from 'containers/user-badges/UserBadges'
 
-import ArtistPick from '../ArtistPick'
+import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
@@ -129,7 +129,11 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   return (
     <div className={styles.container}>
       {props.showArtistPick && props.isArtistPick && (
-        <ArtistPick isMobile isMatrixMode={isMatrix} />
+        <TrackBannerIcon
+          type={TrackBannerIconType.STAR}
+          isMobile
+          isMatrixMode={isMatrix}
+        />
       )}
       <div
         className={styles.mainContent}
