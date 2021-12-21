@@ -121,7 +121,7 @@ const AppRedirectPopover = ({
     onBeforeClickApp()
     const pathname = getPathname()
     const newHref = `https://redirect.audius.co${APP_REDIRECT}${pathname}`
-    navigator.clipboard.writeText(pathname)
+    navigator.clipboard.writeText(window.location.href)
     window.location.href = newHref
     decrementScroll()
   }
