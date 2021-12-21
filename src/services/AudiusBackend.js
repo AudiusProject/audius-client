@@ -2086,6 +2086,7 @@ class AudiusBackend {
   }
 
   static async signData() {
+    await waitForLibsInit()
     const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
     const data = `Click sign to authenticate with identity service: ${unixTs}`
     const signature = await audiusLibs.Account.web3Manager.sign(data)
