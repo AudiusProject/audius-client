@@ -43,6 +43,8 @@ function* getTracks({ offset, limit, payload }) {
   const sort = payload.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
 
   if (user._artist_pick) {
+    const getUnlisted = true
+
     let [pinnedTrack, processed] = yield all([
       call(retrieveTracks, { trackIds: [user._artist_pick] }),
       call(retrieveUserTracks, {
@@ -50,7 +52,8 @@ function* getTracks({ offset, limit, payload }) {
         currentUserId,
         sort,
         limit,
-        offset
+        offset,
+        getUnlisted
       })
     ])
 

@@ -210,6 +210,7 @@ type GetUserTracksByHandleArgs = {
   sort?: 'date' | 'plays'
   offset?: number
   limit?: number
+  getUnlisted: boolean
 }
 
 type GetRelatedArtistsArgs = CurrentUserIdArg &
@@ -875,7 +876,8 @@ class AudiusAPIClient {
     currentUserId,
     sort = 'date',
     limit,
-    offset
+    offset,
+    getUnlisted
   }: GetUserTracksByHandleArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
@@ -887,7 +889,7 @@ class AudiusAPIClient {
     }
 
     let headers = {}
-    if (encodedCurrentUserId) {
+    if (encodedCurrentUserId && getUnlisted === true) {
       const { data, signature } = await AudiusBackend.signData()
       headers = {
         [AuthHeaders.Message]: data,

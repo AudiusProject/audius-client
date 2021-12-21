@@ -9,6 +9,7 @@ type RetrieveUserTracksArgs = {
   sort?: 'date' | 'plays'
   offset?: number
   limit?: number
+  getUnlisted?: boolean
 }
 
 export function* retrieveUserTracks({
@@ -16,14 +17,16 @@ export function* retrieveUserTracks({
   currentUserId,
   sort,
   offset,
-  limit
+  limit,
+  getUnlisted = false
 }: RetrieveUserTracksArgs): Generator<any, Track[], any> {
   const apiTracks = yield apiClient.getUserTracksByHandle({
     handle,
     currentUserId,
     sort,
     limit,
-    offset
+    offset,
+    getUnlisted
   })
 
   const processed: Track[] = yield processAndCacheTracks(apiTracks)
