@@ -103,6 +103,36 @@ const TrackTile = memo(
       ? fieldVisibility.play_count === false
       : false
 
+    const shareButtonContainer = (
+      <Tooltip text={'Share'} disabled={isDisabled} placement={'bottom'}>
+        <div className={styles.iconButtonContainer} onClick={onStopPropagation}>
+          <Toast
+            text={'Copied To Clipboard!'}
+            disabled={isDisabled}
+            requireAccount={false}
+            delay={SHARE_TOAST_TIMEOUT_MILLIS}
+            fillParent={false}
+            placement={ComponentPlacement.RIGHT}
+            mount={MountPlacement.PAGE}
+          >
+            <div
+              className={cn(styles.iconShareContainer, {
+                [styles.isHidden]: hideShare
+              })}
+            >
+              <ShareButton
+                onClick={onClickShare}
+                isDarkMode={!!isDarkMode}
+                className={styles.iconButton}
+                stopPropagation={false}
+                isMatrixMode={isMatrixMode}
+              />
+            </div>
+          </Toast>
+        </div>
+      </Tooltip>
+    )
+
     return (
       <div
         className={cn(styles.container, {
@@ -220,7 +250,10 @@ const TrackTile = memo(
           <div className={styles.divider} />
           <div className={styles.bottomRow}>
             {bottomBar}
-            {!isLoading && showIconButtons && (
+            {!isLoading && showIconButtons && isUnlisted && (
+              <div className={styles.iconButtons}>{shareButtonContainer}</div>
+            )}
+            {!isLoading && showIconButtons && !isUnlisted && (
               <div className={styles.iconButtons}>
                 <Tooltip
                   text={isReposted ? 'Unrepost' : 'Repost'}
@@ -264,40 +297,7 @@ const TrackTile = memo(
                     />
                   </div>
                 </Tooltip>
-                <Tooltip
-                  text={'Share'}
-                  disabled={isDisabled}
-                  placement={'bottom'}
-                >
-                  <div
-                    className={styles.iconButtonContainer}
-                    onClick={onStopPropagation}
-                  >
-                    <Toast
-                      text={'Copied To Clipboard!'}
-                      disabled={isDisabled}
-                      requireAccount={false}
-                      delay={SHARE_TOAST_TIMEOUT_MILLIS}
-                      fillParent={false}
-                      placement={ComponentPlacement.RIGHT}
-                      mount={MountPlacement.PAGE}
-                    >
-                      <div
-                        className={cn(styles.iconShareContainer, {
-                          [styles.isHidden]: hideShare
-                        })}
-                      >
-                        <ShareButton
-                          onClick={onClickShare}
-                          isDarkMode={!!isDarkMode}
-                          className={styles.iconButton}
-                          stopPropagation={false}
-                          isMatrixMode={isMatrixMode}
-                        />
-                      </div>
-                    </Toast>
-                  </div>
-                </Tooltip>
+                {shareButtonContainer}
               </div>
             )}
             {!isLoading && (

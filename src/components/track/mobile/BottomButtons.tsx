@@ -31,40 +31,61 @@ const messages = {
 const BottomButtons = (props: BottomButtonsProps) => {
   const { toast } = useContext(ToastContext)
 
-  return (
+  const repostButton = (
+    <RepostButton
+      onClick={() => props.toggleRepost()}
+      isActive={props.hasReposted}
+      isDisabled={props.isOwner}
+      isUnlisted={props.isUnlisted}
+      isDarkMode={props.isDarkMode}
+      isMatrixMode={props.isMatrixMode}
+    />
+  )
+
+  const favoriteButton = (
+    <FavoriteButton
+      onClick={() => props.toggleSave()}
+      isActive={props.hasSaved}
+      isDisabled={props.isOwner}
+      isUnlisted={props.isUnlisted}
+      isDarkMode={props.isDarkMode}
+      isMatrixMode={props.isMatrixMode}
+    />
+  )
+
+  const shareButton = (
+    <ShareButton
+      onClick={() => {
+        if (!isShareToastDisabled) {
+          toast(messages.copiedToast, SHARE_TOAST_TIMEOUT_MILLIS)
+        }
+        props.onShare()
+      }}
+      isDarkMode={props.isDarkMode}
+      isMatrixMode={props.isMatrixMode}
+      isShareHidden={props.isShareHidden}
+    />
+  )
+
+  const moreButton = (
+    <MoreButton
+      onClick={props.onClickOverflow}
+      isDarkMode={props.isDarkMode}
+      isMatrixMode={props.isMatrixMode}
+    />
+  )
+
+  return props.isUnlisted ? (
     <div className={styles.bottomButtons}>
-      <RepostButton
-        onClick={() => props.toggleRepost()}
-        isActive={props.hasReposted}
-        isDisabled={props.isOwner}
-        isUnlisted={props.isUnlisted}
-        isDarkMode={props.isDarkMode}
-        isMatrixMode={props.isMatrixMode}
-      />
-      <FavoriteButton
-        onClick={() => props.toggleSave()}
-        isActive={props.hasSaved}
-        isDisabled={props.isOwner}
-        isUnlisted={props.isUnlisted}
-        isDarkMode={props.isDarkMode}
-        isMatrixMode={props.isMatrixMode}
-      />
-      <ShareButton
-        onClick={() => {
-          if (!isShareToastDisabled) {
-            toast(messages.copiedToast, SHARE_TOAST_TIMEOUT_MILLIS)
-          }
-          props.onShare()
-        }}
-        isDarkMode={props.isDarkMode}
-        isMatrixMode={props.isMatrixMode}
-        isShareHidden={props.isShareHidden}
-      />
-      <MoreButton
-        onClick={props.onClickOverflow}
-        isDarkMode={props.isDarkMode}
-        isMatrixMode={props.isMatrixMode}
-      />
+      {shareButton}
+      {moreButton}
+    </div>
+  ) : (
+    <div className={styles.bottomButtons}>
+      {repostButton}
+      {favoriteButton}
+      {shareButton}
+      {moreButton}
     </div>
   )
 }

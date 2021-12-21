@@ -167,7 +167,7 @@ const ConnectedTrackTile = memo(
         extraMenuItems: [],
         handle: handle,
         includeAddToPlaylist: true,
-        includeArtistPick: handle === userHandle,
+        includeArtistPick: handle === userHandle && !is_unlisted,
         includeEdit: handle === userHandle,
         includeEmbed: true,
         includeFavorite: false,
