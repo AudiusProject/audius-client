@@ -105,6 +105,7 @@ const ConnectedTrackTile = memo(
       permalink,
       repost_count,
       save_count,
+      field_visibility,
       followee_reposts,
       followee_saves,
       _co_sign: coSign,
@@ -322,6 +323,7 @@ const ConnectedTrackTile = memo(
           isFavorited={isFavorited}
           isReposted={isReposted}
           isOwner={isOwner}
+          isUnlisted={is_unlisted}
           isLoading={isLoading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
@@ -334,6 +336,7 @@ const ConnectedTrackTile = memo(
           userName={userName}
           duration={duration}
           stats={stats}
+          fieldVisibility={field_visibility}
           containerClassName={cn(styles.container, {
             [containerClassName!]: !!containerClassName,
             [styles.loading]: isLoading,
