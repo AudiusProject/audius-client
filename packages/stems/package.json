@@ -40,8 +40,8 @@
   "peerDependencies": {
     "bn.js": ">= 4.0.0",
     "prop-types": "^15.7.2",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^6.3.1",
@@ -57,8 +57,8 @@
     "@types/classnames": "^2.2.9",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.161",
-    "@types/react": "^16.9.2",
-    "@types/react-dom": "^16.9.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
     "@types/storybook__addon-knobs": "^5.0.4",
     "@types/storybook__react": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^2.1.0",
@@ -87,9 +87,9 @@
     "postcss-custom-properties": "^9.0.2",
     "prettier": "^2.0.5",
     "prettier-config-standard": "^1.0.1",
-    "react": "16.13.1",
+    "react": "17.0.2",
     "react-docgen-typescript-loader": "^3.7.0",
-    "react-dom": "16.13.1",
+    "react-dom": "17.0.2",
     "react-scripts-ts": "4.0.3",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
