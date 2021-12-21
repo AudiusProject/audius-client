@@ -1,6 +1,6 @@
 import React, { memo, MouseEvent, useCallback } from 'react'
 
-import { IconCrown } from '@audius/stems'
+import { IconCrown, IconHidden } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
@@ -26,7 +26,8 @@ import styles from './TrackTile.module.css'
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
-  artistPick: 'Artist Pick'
+  artistPick: 'Artist Pick',
+  hiddenTrack: 'Hidden Track'
 }
 
 const RankAndIndexIndicator = ({
@@ -95,6 +96,12 @@ const TrackTile = memo(
       (e: MouseEvent) => e.stopPropagation(),
       []
     )
+    const hideShare: boolean = fieldVisibility
+      ? fieldVisibility.share === false
+      : false
+    const hidePlays = fieldVisibility
+      ? fieldVisibility.play_count === false
+      : false
 
     return (
       <div
@@ -133,6 +140,12 @@ const TrackTile = memo(
             isMatrixMode={isMatrixMode}
           />
         )}
+        {isUnlisted && (
+          <TrackBannerIcon
+            type={TrackBannerIconType.HIDDEN}
+            isMatrixMode={isMatrixMode}
+          />
+        )}
         <div
           className={cn(styles.body, {
             // if track and not playlist/album
@@ -162,7 +175,12 @@ const TrackTile = memo(
                 userName
               )}
             </div>
-            <div className={styles.socialsRow}>
+
+            <div
+              className={cn(styles.socialsRow, {
+                [styles.isHidden]: isUnlisted
+              })}
+            >
               {isLoading ? (
                 <Skeleton width='30%' className={styles.skeleton} />
               ) : (
@@ -171,9 +189,15 @@ const TrackTile = memo(
             </div>
             <div className={styles.topRight}>
               {isArtistPick && (
-                <div className={styles.artistPickLabel}>
-                  <IconStar className={styles.iconStar} />
+                <div className={styles.topRightIconLabel}>
+                  <IconStar className={styles.topRightIcon} />
                   {messages.artistPick}
+                </div>
+              )}
+              {isUnlisted && (
+                <div className={styles.topRightIconLabel}>
+                  <IconHidden className={styles.topRightIcon} />
+                  {messages.hiddenTrack}
                 </div>
               )}
               {!isLoading && duration && (
@@ -182,7 +206,11 @@ const TrackTile = memo(
             </div>
             <div className={styles.bottomRight}>
               {!isLoading && listenCount !== undefined && listenCount > 0 && (
-                <div className={styles.plays}>
+                <div
+                  className={cn(styles.plays, {
+                    [styles.isHidden]: hidePlays
+                  })}
+                >
                   {formatCount(listenCount)}
                   {messages.getPlays(listenCount)}
                 </div>
@@ -201,7 +229,8 @@ const TrackTile = memo(
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
-                      [styles.isDisabled]: isOwner
+                      [styles.isDisabled]: isOwner,
+                      [styles.isHidden]: isUnlisted
                     })}
                   >
                     <RepostButton
@@ -221,7 +250,8 @@ const TrackTile = memo(
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
-                      [styles.isDisabled]: isOwner
+                      [styles.isDisabled]: isOwner,
+                      [styles.isHidden]: isUnlisted
                     })}
                   >
                     <FavoriteButton
@@ -252,7 +282,11 @@ const TrackTile = memo(
                       placement={ComponentPlacement.RIGHT}
                       mount={MountPlacement.PAGE}
                     >
-                      <div className={styles.iconShareContainer}>
+                      <div
+                        className={cn(styles.iconShareContainer, {
+                          [styles.isHidden]: hideShare
+                        })}
+                      >
                         <ShareButton
                           onClick={onClickShare}
                           isDarkMode={!!isDarkMode}
