@@ -1,11 +1,16 @@
+import BN from 'bn.js'
 import { select } from 'redux-saga-test-plan/matchers'
 import { all, call, put, take, takeEvery } from 'redux-saga/effects'
 
 import { Name } from 'common/models/Analytics'
+import { Chain } from 'common/models/Chain'
 import { BNWei } from 'common/models/Wallet'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
-import { fetchAssociatedWallets } from 'common/store/pages/token-dashboard/slice'
+import {
+  fetchAssociatedWallets,
+  transferingEthAudioToSolWAudio
+} from 'common/store/pages/token-dashboard/slice'
 import {
   getAccountBalance,
   getLocalBalanceDidChange
@@ -29,14 +34,26 @@ const errors = {
 }
 
 function* sendAsync({
-  payload: { recipientWallet, amount }
+  payload: { recipientWallet, amount, chain }
 }: ReturnType<typeof send>) {
   const account = yield select(getAccountUser)
   const weiBNAmount = stringWeiToBN(amount)
-  const weiBNBalance: ReturnType<typeof getAccountBalance> = yield select(
-    getAccountBalance
+  const weiBNBalance: BNWei = yield select(getAccountBalance) ??
+    (new BN('0') as BNWei)
+
+  const waudioWeiAmount: BNWei = yield call(
+    walletClient.getCurrentWAudioBalance
   )
-  if (!weiBNBalance || !weiBNBalance.gte(weiBNAmount)) return
+
+  if (chain === Chain.Eth && (!weiBNBalance || !weiBNBalance.gt(weiBNAmount))) {
+    return
+  } else if (chain === Chain.Sol) {
+    const totalBalance = waudioWeiAmount.add(weiBNBalance)
+    if (weiBNAmount.gt(totalBalance)) {
+      return
+    }
+  }
+
   try {
     yield put(
       make(Name.SEND_AUDIO_REQUEST, {
@@ -44,6 +61,12 @@ function* sendAsync({
         recipient: recipientWallet
       })
     )
+
+    if (chain === Chain.Sol && weiBNAmount.gt(waudioWeiAmount)) {
+      // transfer all eth AUDIO to WAUDIO
+      yield put(transferingEthAudioToSolWAudio())
+      yield call(walletClient.transferTokensFromEthToSol)
+    }
     yield call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
 
     // Only decrease store balance if we haven't already changed
