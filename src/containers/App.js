@@ -338,8 +338,12 @@ class App extends Component {
     }
 
     if (
-      prevProps.accountStatus === Status.LOADING &&
-      this.props.accountStatus !== Status.LOADING
+      (prevProps.accountStatus === Status.LOADING &&
+        this.props.accountStatus !== Status.LOADING) ||
+      matchPath(getPathname(this.props.location), {
+        path: SIGN_UP_PAGE,
+        exact: true
+      })
     ) {
       // Let the UI flush
       setImmediate(this.props.setReady)
