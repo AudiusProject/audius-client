@@ -122,6 +122,8 @@ const AppRedirectPopover = ({
     onBeforeClickApp()
     const pathname = getPathname()
     const newHref = `https://redirect.audius.co${APP_REDIRECT}${pathname}`
+    // If we're on the signup page, copy the URL to clipboard on app redirect
+    // The app can then read the URL on load, persisting through install, to associate referrals
     if (
       window.isSecureContext &&
       matchPath(window.location.pathname, { path: SIGN_UP_PAGE, exact: true })
