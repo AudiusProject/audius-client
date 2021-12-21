@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
+import { matchPath } from 'react-router-dom'
 import { animated, useTransition } from 'react-spring'
 
 import AppIcon from 'assets/img/appIcon240.png'
 import { isMobile } from 'utils/clientUtil'
-import { APP_REDIRECT, getPathname } from 'utils/route'
+import { APP_REDIRECT, getPathname, SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './AppRedirectPopover.module.css'
 
@@ -121,7 +122,10 @@ const AppRedirectPopover = ({
     onBeforeClickApp()
     const pathname = getPathname()
     const newHref = `https://redirect.audius.co${APP_REDIRECT}${pathname}`
-    if (window.isSecureContext) {
+    if (
+      window.isSecureContext &&
+      matchPath(window.location.pathname, { path: SIGN_UP_PAGE, exact: true })
+    ) {
       navigator.clipboard.writeText(window.location.href)
     }
     window.location.href = newHref
