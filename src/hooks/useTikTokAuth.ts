@@ -144,7 +144,6 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
       })
     },
     handleError: (e: Error) => {
-      // TODO: figure out useRecord
       record(make(Name.TIKTOK_OAUTH_ERROR, { error: e.message }))
     }
   })(args)
