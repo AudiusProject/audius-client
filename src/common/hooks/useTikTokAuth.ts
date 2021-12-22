@@ -3,6 +3,7 @@ import moment from 'moment'
 type CreateUseTikTokAuthHookArguments = {
   authenticate: () => Promise<Credentials>
   handleError: (e: Error) => void
+  setLocalStorageItem: (key: string, value: string) => Promise<void>
 }
 
 export type UseTikTokAuthArguments = {
@@ -25,7 +26,8 @@ export type Credentials = {
  */
 export const createUseTikTokAuthHook = ({
   authenticate,
-  handleError
+  handleError,
+  setLocalStorageItem
 }: CreateUseTikTokAuthHookArguments) => ({
   onError: errorCallback
 }: UseTikTokAuthArguments): ((callback: WithAuthCallback) => void) => {
@@ -49,24 +51,24 @@ export const createUseTikTokAuthHook = ({
     } else {
       try {
         const credentials = await authenticate()
-        storeAccessToken(credentials, callback)
+        await storeAccessToken(credentials)
+        callback(credentials.accessToken, credentials.openId)
       } catch (e) {
         onError(e as Error)
       }
     }
   }
 
-  const storeAccessToken = (
-    { accessToken, openId, expiresIn }: Credentials,
-    callback: WithAuthCallback
-  ) => {
-    window.localStorage.setItem('tikTokAccessToken', accessToken)
-    window.localStorage.setItem('tikTokOpenId', openId)
+  const storeAccessToken = async ({
+    accessToken,
+    openId,
+    expiresIn
+  }: Credentials) => {
+    await setLocalStorageItem('tikTokAccessToken', accessToken)
+    await setLocalStorageItem('tikTokOpenId', openId)
 
     const expirationDate = moment().add(expiresIn, 's').format()
-    window.localStorage.setItem('tikTokAccessTokenExpiration', expirationDate)
-
-    callback(accessToken, openId)
+    await setLocalStorageItem('tikTokAccessTokenExpiration', expirationDate)
   }
 
   return withAuth

@@ -145,6 +145,8 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
     },
     handleError: (e: Error) => {
       record(make(Name.TIKTOK_OAUTH_ERROR, { error: e.message }))
-    }
+    },
+    setLocalStorageItem: async (key, value) =>
+      window.localStorage.setItem(key, value)
   })(args)
 }
