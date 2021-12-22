@@ -99,13 +99,13 @@ const ConnectedTrackTile = memo(
   }: ConnectedTrackTileProps) => {
     const {
       is_delete,
-      is_unlisted,
+      is_unlisted: isUnlisted,
       track_id: trackId,
       title,
       permalink,
       repost_count,
       save_count,
-      field_visibility,
+      field_visibility: fieldVisibility,
       followee_reposts,
       followee_saves,
       _co_sign: coSign,
@@ -167,13 +167,13 @@ const ConnectedTrackTile = memo(
         extraMenuItems: [],
         handle: handle,
         includeAddToPlaylist: true,
-        includeArtistPick: handle === userHandle && !is_unlisted,
+        includeArtistPick: handle === userHandle && !isUnlisted,
         includeEdit: handle === userHandle,
         includeEmbed: true,
         includeFavorite: false,
         includeRepost: false,
         includeShare: false,
-        includeShareToTikTok: !is_unlisted,
+        includeShareToTikTok: !isUnlisted,
         includeTrackPage: true,
         isArtistPick: isArtistPick,
         isDeleted: is_delete || isOwnerDeactivated,
@@ -323,7 +323,7 @@ const ConnectedTrackTile = memo(
           isFavorited={isFavorited}
           isReposted={isReposted}
           isOwner={isOwner}
-          isUnlisted={is_unlisted}
+          isUnlisted={isUnlisted}
           isLoading={isLoading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
@@ -336,7 +336,7 @@ const ConnectedTrackTile = memo(
           userName={userName}
           duration={duration}
           stats={stats}
-          fieldVisibility={field_visibility}
+          fieldVisibility={fieldVisibility}
           containerClassName={cn(styles.container, {
             [containerClassName!]: !!containerClassName,
             [styles.loading]: isLoading,

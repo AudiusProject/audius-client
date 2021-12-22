@@ -103,35 +103,40 @@ const TrackTile = memo(
       ? fieldVisibility.play_count === false
       : false
 
-    const shareButtonContainer = (
-      <Tooltip text={'Share'} disabled={isDisabled} placement={'bottom'}>
-        <div className={styles.iconButtonContainer} onClick={onStopPropagation}>
-          <Toast
-            text={'Copied To Clipboard!'}
-            disabled={isDisabled}
-            requireAccount={false}
-            delay={SHARE_TOAST_TIMEOUT_MILLIS}
-            fillParent={false}
-            placement={ComponentPlacement.RIGHT}
-            mount={MountPlacement.PAGE}
+    const renderShareButton = () => {
+      return (
+        <Tooltip text={'Share'} disabled={isDisabled} placement={'bottom'}>
+          <div
+            className={styles.iconButtonContainer}
+            onClick={onStopPropagation}
           >
-            <div
-              className={cn(styles.iconShareContainer, {
-                [styles.isHidden]: hideShare
-              })}
+            <Toast
+              text={'Copied To Clipboard!'}
+              disabled={isDisabled}
+              requireAccount={false}
+              delay={SHARE_TOAST_TIMEOUT_MILLIS}
+              fillParent={false}
+              placement={ComponentPlacement.RIGHT}
+              mount={MountPlacement.PAGE}
             >
-              <ShareButton
-                onClick={onClickShare}
-                isDarkMode={!!isDarkMode}
-                className={styles.iconButton}
-                stopPropagation={false}
-                isMatrixMode={isMatrixMode}
-              />
-            </div>
-          </Toast>
-        </div>
-      </Tooltip>
-    )
+              <div
+                className={cn(styles.iconShareContainer, {
+                  [styles.isHidden]: hideShare
+                })}
+              >
+                <ShareButton
+                  onClick={onClickShare}
+                  isDarkMode={!!isDarkMode}
+                  className={styles.iconButton}
+                  stopPropagation={false}
+                  isMatrixMode={isMatrixMode}
+                />
+              </div>
+            </Toast>
+          </div>
+        </Tooltip>
+      )
+    }
 
     return (
       <div
@@ -251,7 +256,7 @@ const TrackTile = memo(
           <div className={styles.bottomRow}>
             {bottomBar}
             {!isLoading && showIconButtons && isUnlisted && (
-              <div className={styles.iconButtons}>{shareButtonContainer}</div>
+              <div className={styles.iconButtons}>{renderShareButton()}</div>
             )}
             {!isLoading && showIconButtons && !isUnlisted && (
               <div className={styles.iconButtons}>
@@ -297,7 +302,7 @@ const TrackTile = memo(
                     />
                   </div>
                 </Tooltip>
-                {shareButtonContainer}
+                {renderShareButton()}
               </div>
             )}
             {!isLoading && (
