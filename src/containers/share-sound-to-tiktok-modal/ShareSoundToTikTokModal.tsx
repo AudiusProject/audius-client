@@ -5,9 +5,7 @@ import {
   Modal,
   ButtonType,
   IconTikTokInverted,
-  IconTikTok,
-  Anchor,
-  ModalProps
+  IconTikTok
 } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,7 +25,6 @@ import { Nullable } from 'common/utils/typeUtils'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
-import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { isMobile } from 'utils/clientUtil'
 
 import styles from './ShareSoundToTikTokModal.module.css'
