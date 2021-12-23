@@ -120,7 +120,7 @@ export const getTracksFromCollection = (
         user: users[tracks[t.track].owner_id]
       }
     })
-    .filter(Boolean)
+    .filter(Boolean) as EnhancedCollectionTrack[]
 }
 
 type EnhancedCollection = Collection & { user: User }
