@@ -3,6 +3,7 @@ import moment from 'moment'
 type CreateUseTikTokAuthHookArguments = {
   authenticate: () => Promise<Credentials>
   handleError: (e: Error) => void
+  getLocalStorageItem: (key: string) => Promise<string | null>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
 }
 
@@ -27,6 +28,7 @@ export type Credentials = {
 export const createUseTikTokAuthHook = ({
   authenticate,
   handleError,
+  getLocalStorageItem,
   setLocalStorageItem
 }: CreateUseTikTokAuthHookArguments) => ({
   onError: errorCallback
@@ -39,11 +41,9 @@ export const createUseTikTokAuthHook = ({
   }
 
   const withAuth = async (callback: WithAuthCallback) => {
-    const accessToken = window.localStorage.getItem('tikTokAccessToken')
-    const openId = window.localStorage.getItem('tikTokOpenId')
-    const expiration = window.localStorage.getItem(
-      'tikTokAccessTokenExpiration'
-    )
+    const accessToken = await getLocalStorageItem('tikTokAccessToken')
+    const openId = await getLocalStorageItem('tikTokOpenId')
+    const expiration = await getLocalStorageItem('tikTokAccessTokenExpiration')
 
     const isExpired = expiration && moment().isAfter(expiration)
     if (accessToken && openId && !isExpired) {

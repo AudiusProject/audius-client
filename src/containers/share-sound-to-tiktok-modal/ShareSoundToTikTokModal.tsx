@@ -29,6 +29,8 @@ import { isMobile } from 'utils/clientUtil'
 
 import styles from './ShareSoundToTikTokModal.module.css'
 
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
 enum FileRequirementError {
   MIN_LENGTH,
   MAX_LENGTH
@@ -82,7 +84,9 @@ const ShareSoundToTikTokModal = () => {
       dispatch(share())
 
       // Trigger the authentication process
-      withTikTokAuth(() => dispatch(authenticated()))
+      withTikTokAuth((accessToken, openId) =>
+        dispatch(authenticated({ accessToken, openId }))
+      )
     }
   }
 
@@ -148,7 +152,7 @@ const ShareSoundToTikTokModal = () => {
   }
 
   return mobile ? (
-    <Drawer onClose={handleClose} isOpen={isOpen}>
+    <Drawer onClose={handleClose} isOpen={!IS_NATIVE_MOBILE && isOpen}>
       <div className={cn(styles.modalContent, styles.mobile)}>
         <div className={cn(styles.modalHeader, styles.mobile)}>
           <div className={cn(styles.titleContainer, styles.mobile)}>
