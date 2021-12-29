@@ -22,8 +22,6 @@ export type Credentials = {
 /**
  * A hook that returns a withAuth function that can be passed a function which will
  * be provided with the TikTok credentials on existing or successful auth
- * @param {Object} args
- * @returns {Function}
  */
 export const createUseTikTokAuthHook = ({
   authenticate,

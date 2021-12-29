@@ -152,18 +152,24 @@ const ShareSoundToTikTokModal = () => {
   }
 
   return mobile ? (
-    <Drawer onClose={handleClose} isOpen={!IS_NATIVE_MOBILE && isOpen}>
-      <div className={cn(styles.modalContent, styles.mobile)}>
-        <div className={cn(styles.modalHeader, styles.mobile)}>
-          <div className={cn(styles.titleContainer, styles.mobile)}>
-            <IconTikTok />
-            <div>{messages.title}</div>
+    !IS_NATIVE_MOBILE ? (
+      <Drawer onClose={handleClose} isOpen={isOpen}>
+        <div className={cn(styles.modalContent, styles.mobile)}>
+          <div className={cn(styles.modalHeader, styles.mobile)}>
+            <div className={cn(styles.titleContainer, styles.mobile)}>
+              <IconTikTok />
+              <div>{messages.title}</div>
+            </div>
           </div>
+          {renderMessage()}
+          {status === Status.SHARE_STARTED ? (
+            <LoadingSpinner />
+          ) : (
+            renderButton()
+          )}
         </div>
-        {renderMessage()}
-        {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}
-      </div>
-    </Drawer>
+      </Drawer>
+    ) : null
   ) : (
     <Modal
       allowScroll={false}
