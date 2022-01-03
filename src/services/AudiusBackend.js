@@ -591,7 +591,7 @@ class AudiusBackend {
     return {
       error: false,
       wormholeConfig: AudiusLibs.configWormhole({
-        rpcHost: WORMHOLE_RPC_HOSTS,
+        rpcHosts: WORMHOLE_RPC_HOSTS,
         solBridgeAddress: SOL_BRIDGE_ADDRESS,
         solTokenBridgeAddress: SOL_TOKEN_BRIDGE_ADDRESS,
         ethBridgeAddress: ETH_BRIDGE_ADDRESS,
@@ -667,7 +667,7 @@ class AudiusBackend {
       }
       try {
         const userBank = await audiusLibs.solanaWeb3Manager.getUserBank()
-        account.userBank = userBank
+        account.userBank = userBank.toString()
         return AudiusBackend.getUserImages(account)
       } catch (e) {
         // Failed to fetch solana user bank account for user
@@ -2538,7 +2538,7 @@ class AudiusBackend {
 
   /**
    * Make a request to fetch the sol wrapped audio balance of the the user
-   * @returns {Promise<BN>} balance
+   * @returns {Promise<Nullable<BN>>} balance
    */
   static async getWAudioBalance() {
     await waitForLibsInit()
@@ -2598,6 +2598,14 @@ class AudiusBackend {
       amount
     )
     return receipt
+  }
+
+  /**
+   * Make a request to send solana wrapped audio
+   */
+  static async sendWAudioTokens(address, amount) {
+    await waitForLibsInit()
+    return audiusLibs.solanaWeb3Manager.transferWAudio(address, amount)
   }
 
   static async getSignature(data) {

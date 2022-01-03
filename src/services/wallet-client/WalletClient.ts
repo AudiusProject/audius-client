@@ -21,7 +21,7 @@ class WalletClient {
       const balance = await AudiusBackend.getBalance(bustCache)
       return balance as BNWei
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return BN_ZERO
     }
   }
@@ -31,7 +31,7 @@ class WalletClient {
       const balance = await AudiusBackend.getWAudioBalance()
       return balance as BNWei
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return BN_ZERO
     }
   }
@@ -62,7 +62,7 @@ class WalletClient {
       )
       return totalBalance as BNWei
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return BN_ZERO
     }
   }
@@ -120,6 +120,31 @@ class WalletClient {
     }
     try {
       await AudiusBackend.sendTokens(address, amount)
+    } catch (err) {
+      console.error(err)
+      throw err
+    }
+  }
+
+  async sendWAudioTokens(address: WalletAddress, amount: BNWei): Promise<void> {
+    if (amount.lt(MIN_TRANSFERRABLE_WEI)) {
+      throw new Error('Insufficient Audio to transfer')
+    }
+    try {
+      const { res, error, errorCode } = await AudiusBackend.sendWAudioTokens(
+        address,
+        amount
+      )
+      if (error) {
+        console.error(
+          `Error sending sol wrapped audio amount ${amount.toString()} to ${address.toString()}` +
+            `with error ${error.toString()} and errorCode: ${errorCode}`
+        )
+        throw new Error(
+          `Error: ${error.toString()}, with code ${errorCode?.toString()}`
+        )
+      }
+      return res
     } catch (err) {
       console.error(err)
       throw err

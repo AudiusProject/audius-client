@@ -89,67 +89,70 @@ const AddWalletTitle = () => {
     </>
   )
 }
-const useSolSPLAudio = getRemoteVar(BooleanKeys.USE_SPL_AUDIO) as boolean
 
 const titlesMap = {
   CONNECT_WALLETS: {
-    ADD_WALLET: <AddWalletTitle />,
-    REMOVE_WALLET: messages.removeWallets,
-    ERROR: messages.sendError
+    ADD_WALLET: () => <AddWalletTitle />,
+    REMOVE_WALLET: () => messages.removeWallets,
+    ERROR: () => messages.sendError
   },
   RECEIVE: {
-    KEY_DISPLAY: (
-      <TitleWrapper
-        label={useSolSPLAudio ? messages.receiveSPL : messages.receive}
-      >
-        <IconReceive className={styles.receiveWrapper} />
-      </TitleWrapper>
-    )
+    KEY_DISPLAY: () => {
+      const useSolSPLAudio = getRemoteVar(BooleanKeys.USE_SPL_AUDIO) as boolean
+      return (
+        <TitleWrapper
+          label={useSolSPLAudio ? messages.receiveSPL : messages.receive}
+        >
+          <IconReceive className={styles.receiveWrapper} />
+        </TitleWrapper>
+      )
+    }
   },
   SEND: {
-    INPUT: (
+    INPUT: () => (
       <TitleWrapper label={messages.send}>
         <IconSend className={styles.sendIconWrapper} />
       </TitleWrapper>
     ),
-    AWAITING_CONFIRMATION: (
+    AWAITING_CONFIRMATION: () => (
       <TitleWrapper label={messages.confirmSend}>
         <IconSend className={styles.sendIconWrapper} />
       </TitleWrapper>
     ),
-    AWAITING_CONVERTING_ETH_AUDIO_TO_SOL: (
+    AWAITING_CONVERTING_ETH_AUDIO_TO_SOL: () => (
       <TitleWrapper label={messages.awaitConvertingEthToSolAudio}>
         <IconSend className={styles.sendIconWrapper} />
       </TitleWrapper>
     ),
-    CONFIRMED_SEND: messages.sent,
-    SENDING: (
+    CONFIRMED_SEND: () => messages.sent,
+    SENDING: () => (
       <TitleWrapper label={messages.send}>
         <IconSend className={styles.sending} />
       </TitleWrapper>
     ),
-    ERROR: messages.sendError
+    ERROR: () => messages.sendError
   },
-  DISCORD: isMobile() ? (
-    <div className={styles.discordDrawerTitle}>{messages.discord}</div>
-  ) : (
-    <TitleWrapper label={messages.discord}>
-      <IconDiscord />
-    </TitleWrapper>
-  )
+  DISCORD: () =>
+    isMobile() ? (
+      <div className={styles.discordDrawerTitle}>{messages.discord}</div>
+    ) : (
+      <TitleWrapper label={messages.discord}>
+        <IconDiscord />
+      </TitleWrapper>
+    )
 }
 
 const getTitle = (state: ModalState) => {
   if (!state?.stage) return ''
   switch (state.stage) {
     case 'CONNECT_WALLETS':
-      return titlesMap.CONNECT_WALLETS[state.flowState.stage]
+      return titlesMap.CONNECT_WALLETS[state.flowState.stage]()
     case 'RECEIVE':
-      return titlesMap.RECEIVE[state.flowState.stage]
+      return titlesMap.RECEIVE[state.flowState.stage]()
     case 'SEND':
-      return titlesMap.SEND[state.flowState.stage]
+      return titlesMap.SEND[state.flowState.stage]()
     case 'DISCORD_CODE':
-      return titlesMap.DISCORD
+      return titlesMap.DISCORD()
   }
 }
 
@@ -201,7 +204,7 @@ const ModalContent = ({
   // TODO: user models need to have wallets
   const wallet = account.wallet as WalletAddress
 
-  const solWallet: string = (account as any).userBank?.toString()
+  const solWallet = account.userBank!
 
   // This silly `ret` dance is to satisfy
   // TS's no-fallthrough rule...
@@ -351,8 +354,9 @@ const WalletModal = () => {
       bodyClassName={cn(styles.modalBody, {
         [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS',
         [styles.convertingEth]:
-          (modalState as any)?.flowState?.stage ===
-          'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
+          modalState &&
+          'flowState' in modalState &&
+          modalState.flowState?.stage === 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
       })}
       showTitleHeader
       title={getTitle(modalState)}

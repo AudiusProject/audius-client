@@ -35,7 +35,11 @@ const ClickableAddress = ({
   }, [address])
 
   return (
-    <Tooltip text={messages.copy} placement={'top'} mount={'parent'}>
+    <Tooltip
+      text={messages.copy}
+      placement={ComponentPlacement.TOP}
+      mount={MountPlacement.PARENT}
+    >
       <div className={cn(styles.toastContainer, { [className!]: !!className })}>
         <Toast
           text={messages.copied}

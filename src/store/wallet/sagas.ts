@@ -44,12 +44,13 @@ function* sendAsync({
   const waudioWeiAmount: BNWei = yield call(
     walletClient.getCurrentWAudioBalance
   )
-
   if (chain === Chain.Eth && (!weiBNBalance || !weiBNBalance.gt(weiBNAmount))) {
+    yield put(sendFailed({ error: 'Not enough $AUDIO' }))
     return
   } else if (chain === Chain.Sol) {
     const totalBalance = waudioWeiAmount.add(weiBNBalance)
     if (weiBNAmount.gt(totalBalance)) {
+      yield put(sendFailed({ error: 'Not enough $AUDIO' }))
       return
     }
   }
@@ -61,13 +62,19 @@ function* sendAsync({
         recipient: recipientWallet
       })
     )
-
     if (chain === Chain.Sol && weiBNAmount.gt(waudioWeiAmount)) {
       // transfer all eth AUDIO to WAUDIO
       yield put(transferingEthAudioToSolWAudio())
       yield call(walletClient.transferTokensFromEthToSol)
     }
-    yield call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
+
+    if (chain === Chain.Eth) {
+      yield call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
+    } else {
+      yield call(() =>
+        walletClient.sendWAudioTokens(recipientWallet, weiBNAmount)
+      )
+    }
 
     // Only decrease store balance if we haven't already changed
     const newBalance: ReturnType<typeof getAccountBalance> = yield select(

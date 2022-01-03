@@ -50,6 +50,7 @@ export type UserMetadata = {
   balance?: Nullable<StringWei>
   associated_wallets_balance?: Nullable<StringWei>
   playlist_library?: PlaylistLibrary
+  userBank?: string
 } & Timestamped
 
 export type ComputedUserProperties = {
