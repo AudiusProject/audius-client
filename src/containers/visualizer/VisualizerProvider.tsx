@@ -24,7 +24,7 @@ import { SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import AudioStream from 'audio/AudioStream'
 import { webglSupported } from './utils'
-import { getAverageColorByTrack } from 'store/application/ui/average-color/slice'
+import { getDominantColorsByTrack } from 'store/application/ui/average-color/slice'
 
 type VisualizerProps = {
   visualizerVisible: boolean
@@ -63,7 +63,7 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
 
   updateVisibility() {
     if (!webGLExists) return
-    const { audio, playing, theme, recordOpen, recordClose, averageRGBColor } = this.props
+    const { audio, playing, theme, recordOpen, recordClose, dominantColors } = this.props
 
     // Set visibility for the visualizer
     if (this.props.visualizerVisible) {
@@ -82,7 +82,7 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
     if ((audio as AudioStream).audioCtx && playing) Visualizer1?.bind(audio)
     // Update color
     if (Visualizer1) {
-      Visualizer1.setColor(averageRGBColor)
+      Visualizer1.setDominantColors(dominantColors)
     }
   }
 
@@ -164,9 +164,7 @@ const makeMapStateToProps = () => {
       audio: getAudio(state),
       playing: getPlaying(state),
       theme: getTheme(state),
-      averageRGBColor: getAverageColorByTrack(state, {
-        track: currentQueueItem.track
-      })
+      dominantColors: getDominantColorsByTrack(state, { track: currentQueueItem.track })
     }
   }
   return mapStateToProps

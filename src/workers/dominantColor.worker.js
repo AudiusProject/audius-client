@@ -3,7 +3,6 @@
 export default () => {
   const DEFAULT_RGB = '#7e1bcc'
   const SAMPLE_RATE = 20
-  const REQUEST_TIMEOUT = 1500
 
   const script = `/scripts/jimp.min.js`
   // eslint-disable-next-line
@@ -33,11 +32,13 @@ export default () => {
   }
 
   /**
-   * Returns the dominant RGB color of an image.
+   * Returns the 3 dominant RGB colors of an image.
    * @param {string} key identifies this computation
    * @param {string} imageUrl url of the image to use
    */
-  const dominantRgb = ({ key, imageUrl, attempt = 0 }) => {
+  const dominantRgb = ({ key, imageUrl }) => {
+    const NUM_DOMINANT_COLORS = 3
+
     Jimp.read(imageUrl)
       .then(img => {
         img.posterize(15)
@@ -70,12 +71,7 @@ export default () => {
             g: clampedRGBColor(c)[1],
             b: clampedRGBColor(c)[2]
           }))
-        // Object.keys(counts).reduce((acc, i) => {
-        //   if (counts[i] > acc) {
-        //     result = i
-        //     return counts[i]
-        //   }
-        // }, 0)
+          .slice(0, NUM_DOMINANT_COLORS)
 
         // eslint-disable-next-line
         postMessage({ key, result })

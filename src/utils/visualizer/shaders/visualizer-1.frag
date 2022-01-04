@@ -4,21 +4,23 @@ uniform vec3 color;
 uniform float opacity;
 varying float vAngle;
 
+// Colors
+uniform float r1;
+uniform float g1;
+uniform float b1;
+
+uniform float r2;
+uniform float g2;
+uniform float b2;
+
+uniform float r3;
+uniform float g3;
+uniform float b3;
+
 #define PI 3.14
 
 void main() {
   vec3 tCol = color;
-  float r1 = 0.0;
-  float g1 = 0.0;
-  float b1 = 0.0;
-  
-  float r2 = 0.0;
-  float g2 = 0.0;
-  float b2 = 0.0;
-
-  float r3 = 0.0;
-  float g3 = 0.0;
-  float b3 = 0.0;
 
   float interp = sin(vAngle * 1.0);
   float finalR;

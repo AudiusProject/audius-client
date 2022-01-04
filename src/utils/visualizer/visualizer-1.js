@@ -17,6 +17,8 @@ const setIdentity = require('gl-mat4/identity')
 const newArray = require('array-range')
 const lerp = require('lerp')
 const hexRgbByte = require('hex-rgb')
+const gl = require('webgl-context')()
+
 const hexRgb = (str) => hexRgbByte(str).map(x => x / 255)
 let app
 
@@ -27,15 +29,17 @@ let settings = {
   color: '#000'
 }
 
-let computedShader = fragmentShader
-
 const webglExists = webglSupported()
+const shader = createShader(gl,
+  vertexShader,
+  fragmentShader
+)
 
 let Visualizer1 = (function () {
+  if (!webglExists) return null
   let showing = false
   let analyser = null
 
-  const gl = require('webgl-context')()
   const canvas = gl.canvas
 
   function show (darkMode) {
@@ -60,10 +64,6 @@ let Visualizer1 = (function () {
     })
 
     const identity = setIdentity([])
-    const shader = createShader(gl,
-      vertexShader,
-      computedShader
-    )
 
     const camera = createCamera({
       fov: 50 * Math.PI / 180,
@@ -173,30 +173,6 @@ let Visualizer1 = (function () {
     visWrapper.removeChild(canvas)
   }
 
-  function setColor (color) {
-    if (!color || !color[0]) return
-    // Pull out 3 colors
-    const color1 = color[0]
-    const color2 = color[1] || color1
-    const color3 = color[2] || color2
-
-    computedShader = fragmentShader
-    // TODO: Compose the fragment shader string a bit more intelligently
-    computedShader = computedShader.replace('float r1 = 0.0;', `float r1 = ${color1.r > 0 ? color1.r / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float g1 = 0.0;', `float g1 = ${color1.g > 0 ? color1.g / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float b1 = 0.0;', `float b1 = ${color1.b > 0 ? color1.b / 255.0 : '0.0'};`)
-
-    computedShader = computedShader.replace('float r2 = 0.0;', `float r2 = ${color2.r > 0 ? color2.r / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float g2 = 0.0;', `float g2 = ${color2.g > 0 ? color2.g / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float b2 = 0.0;', `float b2 = ${color2.b > 0 ? color2.b / 255.0 : '0.0'};`)
-
-    computedShader = computedShader.replace('float r3 = 0.0;', `float r3 = ${color3.r > 0 ? color3.r / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float g3 = 0.0;', `float g3 = ${color3.g > 0 ? color3.g / 255.0 : '0.0'};`)
-    computedShader = computedShader.replace('float b3 = 0.0;', `float b3 = ${color3.b > 0 ? color3.b / 255.0 : '0.0'};`)
-
-    show()
-  }
-
   function stop () {
     if (app) {
       app.stop()
@@ -207,13 +183,42 @@ let Visualizer1 = (function () {
     return showing
   }
 
+  function setDominantColors (colors) {
+    if (!colors || !colors[0]) return
+    
+    // Pull out 3 colors
+    const color1 = colors[0]
+    const color2 = colors[1] || color1
+    const color3 = colors[2] || color2
+
+    shader.uniforms.r1 = calcuateColorPixel(color1.r)
+    shader.uniforms.g1 = calcuateColorPixel(color1.g)
+    shader.uniforms.b1 = calcuateColorPixel(color1.b)
+    
+    shader.uniforms.r2 = calcuateColorPixel(color2.r)
+    shader.uniforms.g2 = calcuateColorPixel(color2.g)
+    shader.uniforms.b2 = calcuateColorPixel(color2.b)
+
+    shader.uniforms.r3 = calcuateColorPixel(color3.r)
+    shader.uniforms.g3 = calcuateColorPixel(color3.g)
+    shader.uniforms.b3 = calcuateColorPixel(color3.b)
+
+    shader.bind()
+
+    show()
+  }
+  
+  function calcuateColorPixel(colorPixel) {
+    return colorPixel > 0 ? colorPixel / 255.0 : 0.0
+  }
+
   return {
     bind,
     stop,
     show,
     hide,
     isShowing,
-    setColor
+    setDominantColors
   }
 })()
 

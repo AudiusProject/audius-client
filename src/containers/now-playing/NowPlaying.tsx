@@ -124,7 +124,6 @@ const NowPlaying = g(
     castMethod,
     averageRGBColor
   }) => {
-    console.log({ averageRGBColor })
     const { uid } = currentQueueItem
     const { track, user } = currentQueueItem
 
@@ -331,12 +330,12 @@ const NowPlaying = g(
       }
     }
 
-    const artworkAverageColor = averageRGBColor?.[0]
+    const artworkAverageColor = averageRGBColor
       ? {
           boxShadow: `0 1px 15px -5px rgba(
-          ${averageRGBColor[0].r},
-          ${averageRGBColor[0].g},
-          ${averageRGBColor[0].b}
+          ${averageRGBColor.r},
+          ${averageRGBColor.g},
+          ${averageRGBColor.b}
           , 1)`
         }
       : {}

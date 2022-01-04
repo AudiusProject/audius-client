@@ -29,7 +29,10 @@ import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import TrackDownload from 'services/audius-backend/TrackDownload'
 import { make } from 'store/analytics/actions'
-import { setColor } from 'store/application/ui/average-color/slice'
+import {
+  setAverageColor,
+  setDominantColors
+} from 'store/application/ui/average-color/slice'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -408,12 +411,19 @@ function* watchFetchCoverArt() {
         cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
       )
 
-      const colors = yield call(dominantColor, url)
-      console.log({ colors })
+      const rgb = yield call(averageRgb, url)
       yield put(
-        setColor({
+        setAverageColor({
           multihash,
-          color: colors
+          color: rgb
+        })
+      )
+
+      const dominantColors = yield call(dominantColor, url)
+      yield put(
+        setDominantColors({
+          multihash,
+          colors: dominantColors
         })
       )
     } catch (e) {
