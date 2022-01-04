@@ -36,7 +36,7 @@ const CoverPhoto = props => {
       backgroundImage = `${gradient}, url(${imageCoverPhotoBlank})`
       backgroundStyle = {
         backgroundRepeat: 'repeat',
-        backgroundSize: '100% 100%, 35%'
+        backgroundSize: 'auto'
       }
     } else {
       backgroundImage = `${gradient}, url(${props.updatedCoverPhoto || image})`
