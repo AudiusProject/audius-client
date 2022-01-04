@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 
 import cn from 'classnames'
 import { connect } from 'react-redux'
@@ -51,8 +51,27 @@ const DesktopCardContainer = ({
   )
 }
 
+const EmptyMobileCard = () => (
+  <div className={styles.mobileCardContainer}>
+    <div className={styles.emptyMobileCard} />
+  </div>
+)
+
 const MobileCardContainer = ({ cards, containerClassName }: OwnProps) => {
-  const emptyMobileCard = cards.length % 2 === 1
+  let emptyCards: ReactElement | null = null
+  if (cards.length === 1) {
+    emptyCards = (
+      <>
+        <EmptyMobileCard />
+        <EmptyMobileCard />
+      </>
+    )
+  } else if (cards.length === 2) {
+    emptyCards = <EmptyMobileCard />
+  } else if (cards.length % 2 === 1) {
+    emptyCards = <EmptyMobileCard />
+  }
+
   return (
     <div className={cn(styles.mobileContainer, containerClassName)}>
       {cards.map((card, index) => (
@@ -60,14 +79,7 @@ const MobileCardContainer = ({ cards, containerClassName }: OwnProps) => {
           {card}
         </div>
       ))}
-      {emptyMobileCard ? (
-        <div
-          className={cn(
-            styles.mobileCardContainer,
-            styles.emptyMobileContainer
-          )}
-        ></div>
-      ) : null}
+      {emptyCards}
     </div>
   )
 }
