@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 
+import { EmptyCard } from 'components/card/mobile/Card'
 import CategoryHeader from 'components/general/header/desktop/CategoryHeader'
 import Draggable from 'containers/dragndrop/Draggable'
 import { AppState } from 'store/types'
@@ -53,7 +54,7 @@ const DesktopCardContainer = ({
 
 const EmptyMobileCard = () => (
   <div className={styles.mobileCardContainer}>
-    <div className={styles.emptyMobileCard} />
+    <EmptyCard />
   </div>
 )
 
