@@ -57,21 +57,25 @@ const EmptyMobileCard = () => (
   </div>
 )
 
-const MobileCardContainer = ({ cards, containerClassName }: OwnProps) => {
-  let emptyCards: ReactElement | null = null
-  if (cards.length === 1) {
-    emptyCards = (
+const renderEmptyCards = (cardsLength: number) => {
+  if (cardsLength === 1) {
+    return (
       <>
         <EmptyMobileCard />
         <EmptyMobileCard />
       </>
     )
-  } else if (cards.length === 2) {
-    emptyCards = <EmptyMobileCard />
-  } else if (cards.length % 2 === 1) {
-    emptyCards = <EmptyMobileCard />
   }
+  if (cardsLength === 2) {
+    return <EmptyMobileCard />
+  }
+  if (cardsLength % 2 === 1) {
+    ;<EmptyMobileCard />
+  }
+  return null
+}
 
+const MobileCardContainer = ({ cards, containerClassName }: OwnProps) => {
   return (
     <div className={cn(styles.mobileContainer, containerClassName)}>
       {cards.map((card, index) => (
@@ -79,7 +83,7 @@ const MobileCardContainer = ({ cards, containerClassName }: OwnProps) => {
           {card}
         </div>
       ))}
-      {emptyCards}
+      {renderEmptyCards(cards.length)}
     </div>
   )
 }
