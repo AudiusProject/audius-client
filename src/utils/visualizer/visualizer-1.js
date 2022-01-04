@@ -24,8 +24,7 @@ let settings = {
   opacity: 0.5,
   additive: false,
   gradient: [ '#FFFFFF', '#4F4F4F' ],
-  color: '#000',
-  useHue: true
+  color: '#000'
 }
 
 let computedShader = fragmentShader
@@ -121,7 +120,6 @@ let Visualizer1 = (function () {
       shader.uniforms.radius = radius
       shader.uniforms.audioTexture = 0
       shader.uniforms.opacity = settings.opacity
-      shader.uniforms.useHue = settings.useHue
 
       if (analyser) {
         analyser.bindFrequencies(0)
@@ -176,63 +174,26 @@ let Visualizer1 = (function () {
   }
 
   function setColor (color) {
-    if (!color) return
-    const { r: R, g: G, b: B } = color
-    // Make r, g, and b fractions of 1
-    const r = R / 255;
-    const g = G / 255;
-    const b = B / 255;
+    if (!color || !color[0]) return
+    // Pull out 3 colors
+    const color1 = color[0]
+    const color2 = color[1] || color1
+    const color3 = color[2] || color2
 
-    // Find greatest and smallest channel values
-    let cmin = Math.min(r,g,b),
-        cmax = Math.max(r,g,b),
-        delta = cmax - cmin,
-        h = 0,
-        s = 0,
-        l = 0;
-    // Calculate hue
-    // No difference
-    if (delta == 0)
-      h = 0;
-    // Red is max
-    else if (cmax == r)
-      h = ((g - b) / delta) % 6;
-    // Green is max
-    else if (cmax == g)
-      h = (b - r) / delta + 2;
-    // Blue is max
-    else
-      h = (r - g) / delta + 4;
+    computedShader = fragmentShader
+    // TODO: Compose the fragment shader string a bit more intelligently
+    computedShader = computedShader.replace('float r1 = 0.0;', `float r1 = ${color1.r > 0 ? color1.r / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float g1 = 0.0;', `float g1 = ${color1.g > 0 ? color1.g / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float b1 = 0.0;', `float b1 = ${color1.b > 0 ? color1.b / 255.0 : '0.0'};`)
 
-    h = Math.round(h * 60);
-      
-    // Make negative hues positive behind 360°
-    if (h < 0)
-        h += 360;
+    computedShader = computedShader.replace('float r2 = 0.0;', `float r2 = ${color2.r > 0 ? color2.r / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float g2 = 0.0;', `float g2 = ${color2.g > 0 ? color2.g / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float b2 = 0.0;', `float b2 = ${color2.b > 0 ? color2.b / 255.0 : '0.0'};`)
 
-    // Calculate lightness
-    l = (cmax + cmin) / 2;
+    computedShader = computedShader.replace('float r3 = 0.0;', `float r3 = ${color3.r > 0 ? color3.r / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float g3 = 0.0;', `float g3 = ${color3.g > 0 ? color3.g / 255.0 : '0.0'};`)
+    computedShader = computedShader.replace('float b3 = 0.0;', `float b3 = ${color3.b > 0 ? color3.b / 255.0 : '0.0'};`)
 
-    // Calculate saturation
-    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-      
-    // Multiply l and s by 100
-    s = +(s * 100).toFixed(1);
-    l = +(l * 100).toFixed(1);
-
-    console.log({R,G,B})
-    console.log({h,s,l})
-    // const H = h === 0 ? '0.0' : `${h / 360.0}`
-    // const S = s === 0 ? '0.0' : `${s / 100.0}`
-    // const L = l === 0 ? '0.0' : `${l / 100.0}`
-    // const H = '0.0'
-    // const S = '1.0'
-    // const L = '0.5'
-    // computedShader = fragmentShader
-    // computedShader = computedShader.replace('float hue = 0.5;', `float hue = ${H};`)
-    // computedShader = computedShader.replace('float sat = 0.5;', `float sat = ${S};`)
-    // computedShader = computedShader.replace('float light = 0.5;', `float light = ${L};`)
-    // console.log({computedShader})
     show()
   }
 

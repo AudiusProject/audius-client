@@ -16,7 +16,7 @@ type CurrentlyPlayingProps = {
   trackId: number
   trackTitle: string
   coverArtSizes: CoverArtSizes
-  coverArtColor: Color
+  coverArtColor: Color[]
   draggableLink: string
   onClick: () => void
 }
@@ -58,7 +58,8 @@ const CurrentlyPlaying = ({
   let wrapperStyle: WrapperStyle
   let artworkStyle: ArtworkStyle
   if (trackId) {
-    const artworkAverageColor = coverArtColor || { r: 13, g: 16, b: 18 }
+    const artworkAverageColor = coverArtColor?.[0] ?? { r: 13, g: 16, b: 18 }
+    console.log({ coverArtColor, artworkAverageColor })
     wrapperStyle = {
       boxShadow: `0 1px 20px -3px rgba(
         ${artworkAverageColor.r},
