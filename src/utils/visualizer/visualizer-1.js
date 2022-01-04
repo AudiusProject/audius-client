@@ -18,6 +18,7 @@ const newArray = require('array-range')
 const lerp = require('lerp')
 const hexRgbByte = require('hex-rgb')
 const hexRgb = (str) => hexRgbByte(str).map(x => x / 255)
+let app
 
 let settings = {
   opacity: 0.5,
@@ -47,7 +48,7 @@ let Visualizer1 = (function () {
 
     const colorVec = hexRgb(settings.color)
 
-    const app = require('canvas-loop')(canvas, {
+    app = require('canvas-loop')(canvas, {
       scale: window.devicePixelRatio
     })
 
@@ -221,19 +222,24 @@ let Visualizer1 = (function () {
 
     console.log({R,G,B})
     console.log({h,s,l})
-    const H = h === 0 ? '0.0' : `${h / 360.0}`
-    const S = s === 0 ? '0.0' : `${s / 100.0}`
-    const L = l === 0 ? '0.0' : `${l / 100.0}`
-    computedShader = fragmentShader
-    computedShader = computedShader.replace('float hue = 0.5;', `float hue = ${H};`)
-    computedShader = computedShader.replace('float sat = 0.5;', `float sat = ${S};`)
-    computedShader = computedShader.replace('float light = 0.5;', `float light = ${L};`)
-    console.log({computedShader})
+    // const H = h === 0 ? '0.0' : `${h / 360.0}`
+    // const S = s === 0 ? '0.0' : `${s / 100.0}`
+    // const L = l === 0 ? '0.0' : `${l / 100.0}`
+    // const H = '0.0'
+    // const S = '1.0'
+    // const L = '0.5'
+    // computedShader = fragmentShader
+    // computedShader = computedShader.replace('float hue = 0.5;', `float hue = ${H};`)
+    // computedShader = computedShader.replace('float sat = 0.5;', `float sat = ${S};`)
+    // computedShader = computedShader.replace('float light = 0.5;', `float light = ${L};`)
+    // console.log({computedShader})
     show()
   }
 
   function stop () {
-    app.stop()
+    if (app) {
+      app.stop()
+    }
   }
 
   function isShowing () {
