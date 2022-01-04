@@ -408,12 +408,12 @@ function* watchFetchCoverArt() {
         cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
       )
 
-      const rgb = yield call(dominantColor, url)
-      console.log('got dominate', rgb)
+      const colors = yield call(dominantColor, url)
+      console.log({ colors })
       yield put(
         setColor({
           multihash,
-          color: rgb
+          color: colors
         })
       )
     } catch (e) {

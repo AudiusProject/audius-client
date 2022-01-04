@@ -61,16 +61,21 @@ export default () => {
           }
         }
 
-        let result
-        Object.keys(counts).reduce((acc, i) => {
-          if (counts[i] > acc) {
-            result = i
-            return counts[i]
-          }
-        }, 0)
-
-        result = clampedRGBColor(result)
-        result = { r: result[0], g: result[1], b: result[2] }
+        const result = Object.keys(counts)
+          .sort((a, b) => {
+            return counts[b] - counts[a]
+          })
+          .map(c => ({
+            r: clampedRGBColor(c)[0],
+            g: clampedRGBColor(c)[1],
+            b: clampedRGBColor(c)[2]
+          }))
+        // Object.keys(counts).reduce((acc, i) => {
+        //   if (counts[i] > acc) {
+        //     result = i
+        //     return counts[i]
+        //   }
+        // }, 0)
 
         // eslint-disable-next-line
         postMessage({ key, result })

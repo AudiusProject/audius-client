@@ -64,7 +64,6 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
   updateVisibility() {
     if (!webGLExists) return
     const { audio, playing, theme, recordOpen, recordClose, averageRGBColor } = this.props
-    console.log({averageRGBColor})
 
     // Set visibility for the visualizer
     if (this.props.visualizerVisible) {
