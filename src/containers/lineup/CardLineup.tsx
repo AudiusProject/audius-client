@@ -71,7 +71,7 @@ const renderEmptyCards = (cardsLength: number) => {
     return <EmptyMobileCard />
   }
   if (cardsLength % 2 === 1) {
-    ;<EmptyMobileCard />
+    return <EmptyMobileCard />
   }
   return null
 }
