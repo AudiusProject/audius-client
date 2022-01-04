@@ -411,14 +411,6 @@ function* watchFetchCoverArt() {
         cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
       )
 
-      const rgb = yield call(averageRgb, url)
-      yield put(
-        setAverageColor({
-          multihash,
-          color: rgb
-        })
-      )
-
       const dominantColors = yield call(dominantColor, url)
       yield put(
         setDominantColors({
