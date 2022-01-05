@@ -33,8 +33,6 @@ export const remoteConfigStringDefaults: {
   // Audius user id
   [StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS]: '51',
   // Remove when Rewards UI update is live
-  [StringKeys.REWARDS_IDS]:
-    'trending-track,trending-playlist,top-api,verified-upload',
   [StringKeys.TRENDING_REWARD_IDS]:
     'trending-track,trending-playlist,trending-underground,top-api',
   [StringKeys.CHALLENGE_REWARD_IDS]:
