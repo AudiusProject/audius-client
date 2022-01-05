@@ -52,26 +52,25 @@ const ActionDrawer = ({
           <ul aria-labelledby={headerId}>
             {actions.map(
               ({ text, isDestructive = false, className, icon }, index) => (
-                <li key={text}>
-                  <div
-                    role='button'
-                    tabIndex={0}
-                    onClick={() => {
-                      didSelectRow(index)
-                    }}
-                    className={cn(
-                      styles.row,
-                      classes.actionItem,
-                      className,
-                      { [styles.darkAction]: isDark },
-                      { [styles.destructiveAction]: isDestructive }
-                    )}
-                  >
-                    {icon ? (
-                      <div className={styles.actionIcon}>{icon}</div>
-                    ) : null}
-                    {text}
-                  </div>
+                <li
+                  key={text}
+                  role='button'
+                  tabIndex={0}
+                  onClick={() => {
+                    didSelectRow(index)
+                  }}
+                  className={cn(
+                    styles.row,
+                    classes.actionItem,
+                    className,
+                    { [styles.darkAction]: isDark },
+                    { [styles.destructiveAction]: isDestructive }
+                  )}
+                >
+                  {icon ? (
+                    <div className={styles.actionIcon}>{icon}</div>
+                  ) : null}
+                  {text}
                 </li>
               )
             )}
