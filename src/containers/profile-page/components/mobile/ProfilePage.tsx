@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, ReactNode, useCallback } from 'react'
+import React, { useEffect, useContext, ReactNode } from 'react'
 
 import cn from 'classnames'
 
@@ -12,7 +12,6 @@ import { ID, UID } from 'common/models/Identifiers'
 import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
 import Status from 'common/models/Status'
 import { User } from 'common/models/User'
-import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import Card from 'components/card/mobile/Card'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
@@ -81,7 +80,6 @@ export type ProfilePageProps = {
   onEdit: () => void
   onSave: () => void
   onCancel: () => void
-  onClickMobileOverflow: (userId: ID, overflowActions: OverflowAction[]) => void
   stats: Array<{ number: number; title: string; key: string }>
   trackIsActive: boolean
   isUserConfirming: boolean
@@ -266,7 +264,6 @@ const ProfilePage = g(
     updateProfilePicture,
     updateCoverPhoto,
     setNotificationSubscription,
-    onClickMobileOverflow,
     didChangeTabsFrom,
     activeTab,
     areArtistRecommendationsVisible,
@@ -283,20 +280,6 @@ const ProfilePage = g(
     let profileElements
     const isLoading = status === Status.LOADING
     const isEditing = mode === 'editing'
-
-    const onClickOverflow = useCallback(() => {
-      const overflowActions = [
-        !isOwner
-          ? following
-            ? OverflowAction.UNFOLLOW
-            : OverflowAction.FOLLOW
-          : null,
-        OverflowAction.SHARE
-      ].filter(Boolean)
-
-      // @ts-ignore: doesn't respect filter(Boolean)
-      onClickMobileOverflow(userId, overflowActions)
-    }, [onClickMobileOverflow, following, userId, isOwner])
 
     // Set Nav-Bar Menu
     const { setLeft, setCenter, setRight } = useContext(NavContext)!
@@ -333,8 +316,7 @@ const ProfilePage = g(
       isEditing,
       onCancel,
       onSave,
-      hasMadeEdit,
-      onClickOverflow
+      hasMadeEdit
     ])
 
     const { tierNumber } = useSelectTierInfo(userId ?? 0)
