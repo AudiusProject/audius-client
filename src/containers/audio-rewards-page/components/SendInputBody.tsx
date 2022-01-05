@@ -53,7 +53,8 @@ const messages = {
   addressIsSelf: 'You cannot send $AUDIO to your own wallet!',
   validSPLAddress: 'Please enter a valid Solana (SPL) wallet address',
   sendAmountLabel: 'Amount to SEND',
-  destination: 'Destination Address'
+  destination: 'Destination Address',
+  destinationSPL: 'Destination Address (Solana SPL)'
 }
 
 type BalanceError =
@@ -260,6 +261,10 @@ const SendInputBody = ({
     ? messages.addressSolPlaceholder
     : messages.addressEthPlaceholder
 
+  const destinationText = useSolSPLAudio
+    ? messages.destinationSPL
+    : messages.destination
+
   return (
     <ModalBodyWrapper>
       <div className={styles.titleContainer}>
@@ -293,7 +298,7 @@ const SendInputBody = ({
         labelClassName={styles.label}
         rightLabelClassName={styles.label}
         inputClassName={styles.input}
-        label={messages.destination}
+        label={destinationText}
         format={Format.INPUT}
         placeholder={placeholderAddress}
         value={destinationAddress}
