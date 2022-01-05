@@ -1,6 +1,5 @@
 import React, { useEffect, useContext, ReactNode, useCallback } from 'react'
 
-import { IconKebabHorizontal, IconShare } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
@@ -15,7 +14,6 @@ import Status from 'common/models/Status'
 import { User } from 'common/models/User'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import Card from 'components/card/mobile/Card'
-import IconButton from 'components/general/IconButton'
 import MobilePageContainer from 'components/general/MobilePageContainer'
 import { HeaderContext } from 'components/general/header/mobile/HeaderContextProvider'
 import PullToRefresh from 'components/pull-to-refresh/PullToRefresh'
@@ -46,6 +44,7 @@ import { DeactivatedProfileTombstone } from '../DeactivatedProfileTombstone'
 import EditProfile from './EditProfile'
 import ProfileHeader from './ProfileHeader'
 import styles from './ProfilePage.module.css'
+import { ShareUserButton } from './ShareUserButton'
 
 export type ProfilePageProps = {
   // Computed
@@ -135,7 +134,6 @@ export type ProfilePageProps = {
   ) => Promise<void>
   setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
-  onShare: () => void
   areArtistRecommendationsVisible: boolean
   onCloseArtistRecommendations: () => void
 }
@@ -271,7 +269,6 @@ const ProfilePage = g(
     onClickMobileOverflow,
     didChangeTabsFrom,
     activeTab,
-    onShare,
     areArtistRecommendationsVisible,
     onCloseArtistRecommendations
   }) => {
@@ -320,19 +317,7 @@ const ProfilePage = g(
         )
       } else {
         leftNav = isOwner ? LeftPreset.SETTINGS : LeftPreset.BACK
-        rightNav = isOwner ? (
-          <IconButton
-            className={styles.shareButton}
-            icon={<IconShare />}
-            onClick={() => onShare()}
-          />
-        ) : (
-          <IconButton
-            className={styles.overflowNav}
-            icon={<IconKebabHorizontal />}
-            onClick={onClickOverflow}
-          />
-        )
+        rightNav = <ShareUserButton userId={userId} />
       }
       if (userId) {
         setLeft(leftNav)
@@ -349,8 +334,7 @@ const ProfilePage = g(
       onCancel,
       onSave,
       hasMadeEdit,
-      onClickOverflow,
-      onShare
+      onClickOverflow
     ])
 
     const { tierNumber } = useSelectTierInfo(userId ?? 0)
