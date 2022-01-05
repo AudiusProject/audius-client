@@ -198,8 +198,11 @@ const ModalContent = ({
   const account = useSelector(getAccountUser)
   const amountPendingTransfer = useSelector(getSendData)
   const discordCode = useSelector(getDiscordCode)
+  const useSolSPLAudio = getRemoteVar(BooleanKeys.USE_SPL_AUDIO) as boolean
 
-  if (!modalState || !account) return null
+  if (!modalState || !account || (useSolSPLAudio && !account.userBank)) {
+    return null
+  }
 
   // @ts-ignore
   // TODO: user models need to have wallets
@@ -295,7 +298,10 @@ const ModalContent = ({
 }
 
 const shouldAllowDismiss = (modalState: Nullable<ModalState>) => {
-  // Allow dismiss on every stage except claiming
+  // Do not allow dismiss while
+  // 1. In the process of sending tokens
+  // 2. In the process of removing a connected wallet
+  // 3. In the process of transfering audio from eth to sol
   if (!modalState) return true
   return (
     !(

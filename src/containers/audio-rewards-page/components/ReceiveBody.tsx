@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import { Button, ButtonType, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 
-import { WalletAddress } from 'common/models/Wallet'
+import { SolanaWalletAddress, WalletAddress } from 'common/models/Wallet'
 import { BooleanKeys } from 'common/services/remote-config'
-import { getJSONValue, setJSONValue } from 'services/LocalStorage'
+import { useLocalStorage } from 'hooks/useLocalStorage'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 import { ModalBodyWrapper } from '../WalletModal'
@@ -13,7 +13,10 @@ import { ModalBodyWrapper } from '../WalletModal'
 import ClickableAddress from './ClickableAddress'
 import styles from './ReceiveBody.module.css'
 
-type ReceiveBodyProps = { wallet: WalletAddress; solWallet: WalletAddress }
+type ReceiveBodyProps = {
+  wallet: WalletAddress
+  solWallet: SolanaWalletAddress
+}
 
 const { getRemoteVar } = remoteConfigInstance
 const messages = {
@@ -35,12 +38,12 @@ const messages = {
 
 const useLocalStorageClickedReceiveUnderstand = (): [boolean, () => void] => {
   const key = 'receiveSPLAudioUnderstand'
-  const [hasClickedUnderstand, setHasClickedUnderstand] = useState(
-    getJSONValue(key)
+  const [hasClickedUnderstand, setHasClickedUnderstand] = useLocalStorage(
+    key,
+    false
   )
   const onClickUnderstand = () => {
     setHasClickedUnderstand(true)
-    setJSONValue(key, true)
   }
   return [hasClickedUnderstand, onClickUnderstand]
 }

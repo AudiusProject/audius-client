@@ -112,7 +112,7 @@ export enum BooleanKeys {
   USE_AMPLITUDE = 'USE_AMPLITUDE',
 
   /**
-   * Boolean to use solana wrapped audio.
+   * Boolean to use solana wrapped audio instead of erc20 audio for the audio page send/receive.
    */
   USE_SPL_AUDIO = 'USE_SPL_AUDIO'
 }

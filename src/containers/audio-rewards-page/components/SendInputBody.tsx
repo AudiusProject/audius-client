@@ -13,6 +13,7 @@ import { Chain } from 'common/models/Chain'
 import {
   BNAudio,
   BNWei,
+  SolanaWalletAddress,
   StringAudio,
   StringWei,
   WalletAddress
@@ -104,7 +105,7 @@ const isValidEthDestination = (wallet: WalletAddress) => {
   return libs.web3Manager.web3.utils.isAddress(wallet)
 }
 
-const isValidSolDestination = (wallet: WalletAddress) => {
+const isValidSolDestination = (wallet: SolanaWalletAddress) => {
   const solanaweb3 = window.audiusLibs.solanaWeb3Manager.solanaWeb3
   try {
     const _ = new solanaweb3.PublicKey(wallet)
@@ -115,23 +116,26 @@ const isValidSolDestination = (wallet: WalletAddress) => {
   }
 }
 
-const validateWallet = (
-  wallet: Nullable<WalletAddress>,
-  ownEthWallet: WalletAddress,
-  ownSolWallet: WalletAddress,
-  useSPLAudio: boolean
+const validateSolWallet = (
+  wallet: Nullable<SolanaWalletAddress>,
+  ownSolWallet: WalletAddress
 ): Nullable<AddressError> => {
   if (!wallet) return 'EMPTY'
-  if (useSPLAudio) {
-    if (!isValidSolDestination(wallet)) return 'INVALID_SPL_ADDRESS'
-    if (!useSPLAudio && wallet.toLowerCase() === ownSolWallet.toLowerCase()) {
-      return 'SEND_TO_SELF'
-    }
-  } else {
-    if (!isValidEthDestination(wallet)) return 'MALFORMED'
-    if (wallet.toLowerCase() === ownEthWallet.toLowerCase()) {
-      return 'SEND_TO_SELF'
-    }
+  if (!isValidSolDestination(wallet)) return 'INVALID_SPL_ADDRESS'
+  if (wallet.toLowerCase() === ownSolWallet.toLowerCase()) {
+    return 'SEND_TO_SELF'
+  }
+  return null
+}
+
+const validateEthWallet = (
+  wallet: Nullable<WalletAddress>,
+  ownEthWallet: WalletAddress
+): Nullable<AddressError> => {
+  if (!wallet) return 'EMPTY'
+  if (!isValidEthDestination(wallet)) return 'MALFORMED'
+  if (wallet.toLowerCase() === ownEthWallet.toLowerCase()) {
+    return 'SEND_TO_SELF'
   }
   return null
 }
@@ -227,12 +231,15 @@ const SendInputBody = ({
       currentBalance,
       minAudioSendAmount
     )
-    const walletError = validateWallet(
-      destinationAddress,
-      wallet,
-      solWallet,
-      useSolSPLAudio
-    )
+    let walletError: Nullable<AddressError> = null
+    if (useSolSPLAudio) {
+      walletError = validateSolWallet(
+        destinationAddress as SolanaWalletAddress,
+        solWallet
+      )
+    } else {
+      walletError = validateEthWallet(destinationAddress, wallet)
+    }
     setBalanceError(balanceError)
     setAddressError(walletError)
     if (balanceError || walletError) return
