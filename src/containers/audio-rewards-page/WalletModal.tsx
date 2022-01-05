@@ -120,9 +120,10 @@ const titlesMap = {
       </TitleWrapper>
     ),
     AWAITING_CONVERTING_ETH_AUDIO_TO_SOL: () => (
-      <TitleWrapper label={messages.awaitConvertingEthToSolAudio}>
-        <IconSend className={styles.sendIconWrapper} />
-      </TitleWrapper>
+      <>
+        <i className={cn('emoji warning', styles.converting)} />
+        {messages.awaitConvertingEthToSolAudio}
+      </>
     ),
     CONFIRMED_SEND: () => messages.sent,
     SENDING: () => (

@@ -10,7 +10,7 @@
   font-weight: 800;
   line-height: 24px;
   text-align: center;
-  color: #9147cc;
+  color: #9147cc; /* Dark secondary */
 }
 
 .description {
@@ -78,4 +78,8 @@
 
 .understandText {
   font-size: var(--font-s) !important;
+}
+
+.audio {
+  font-weight: var(--font-bold);
 }

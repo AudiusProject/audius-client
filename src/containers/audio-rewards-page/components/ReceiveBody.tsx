@@ -20,7 +20,12 @@ const messages = {
   warning: 'PROCEED WITH CAUTION',
   warning2: 'If $AUDIO is sent to the wrong address it will be lost.',
   warning3: "Don't attempt to send tokens other than $AUDIO to this address.",
-  splWarning1: 'You can only send Solana (SPL) $AUDIO tokens to this address.',
+  splWarning1: (
+    <>
+      {'You can only send Solana (SPL) '}
+      <b className={styles.audio}>{'$AUDIO'}</b> {' tokens to this address.'}
+    </>
+  ),
   splWarning2: 'Be sure to send your $AUDIO to the correct address!',
   splWarning3: 'Be careful, tokens are easy to lose and impossible to recover.',
   understand: 'I UNDERSTAND',
@@ -77,8 +82,8 @@ const ReceiveBody = ({ wallet, solWallet }: ReceiveBodyProps) => {
         <div className={styles.description}>
           <LogoSol className={styles.chainIconSol} />
           <ul className={styles.splWarning}>
+            <li>{messages.splWarning1}</li>
             <li>{messages.splWarning2}</li>
-            <li>{messages.splWarning3}</li>
             <li>{messages.splWarning3}</li>
           </ul>
         </div>

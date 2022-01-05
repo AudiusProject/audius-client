@@ -37,7 +37,7 @@
   font-size: 16px;
   line-height: 24px;
   text-align: center;
-  color: #9147cc;
+  color: #9147cc; /* Dark secondary */
   margin-bottom: 4px;
 }
 
@@ -61,4 +61,8 @@
 
 .discordDrawerTitle {
   margin-top: 24px;
+}
+
+.converting {
+  margin-right: 6px;
 }
