@@ -42,10 +42,10 @@ const errors = {
  * @param {string} action.playload.chain 'eth' or 'sol'
  */
 function* sendAsync({
-  payload: { recipientWallet, amount, chain }
+  payload: { recipientWallet, amount: weiAudioAmount, chain }
 }: ReturnType<typeof send>) {
   const account = yield select(getAccountUser)
-  const weiBNAmount = stringWeiToBN(amount)
+  const weiBNAmount = stringWeiToBN(weiAudioAmount)
   const weiBNBalance: BNWei = yield select(getAccountBalance) ??
     (new BN('0') as BNWei)
 
@@ -90,7 +90,7 @@ function* sendAsync({
       getAccountBalance
     )
     if (newBalance?.eq(weiBNBalance)) {
-      yield put(decreaseBalance({ amount }))
+      yield put(decreaseBalance({ amount: weiAudioAmount }))
     }
 
     yield put(sendSucceeded())
