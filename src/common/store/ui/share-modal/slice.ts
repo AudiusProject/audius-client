@@ -2,9 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 import { ShareModalState, RequestOpenAction, OpenAction } from './types'
 
-const initialState: ShareModalState = {
-  isOpen: false
-}
+const initialState: ShareModalState = {}
 
 const slice = createSlice({
   name: 'applications/ui/shareModal',
