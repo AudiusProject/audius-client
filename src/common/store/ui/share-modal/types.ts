@@ -4,7 +4,6 @@ import { ID } from 'common/models/Identifiers'
 import { Track } from 'common/models/Track'
 
 export type ShareModalState = {
-  isOpen: boolean
   track?: Track
 }
 
