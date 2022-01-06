@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux'
 import { ShareSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { shareUser } from 'common/store/social/users/actions'
-import { requestOpen } from 'common/store/ui/share-modal/slice'
 import { Nullable } from 'common/utils/typeUtils'
 import IconButton from 'components/general/IconButton'
 
@@ -21,7 +20,6 @@ export const ShareUserButton = ({ userId }: ShareUserButtonProps) => {
   const handleClick = useCallback(() => {
     if (userId) {
       dispatch(shareUser(userId, ShareSource.PAGE))
-      dispatch(requestOpen({ trackId: 1234 }))
     }
   }, [dispatch, userId])
 
