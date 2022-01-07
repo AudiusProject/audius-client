@@ -39,6 +39,10 @@ export const ShareDrawer = () => {
               const twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
               const trackLink = getCopyableLink(track.permalink)
               openTwitterLink(trackLink, twitterText)
+            } else {
+              console.error(
+                `Tried to share a track to twitter, but track and/or artist was missing`
+              )
             }
           }
         },
@@ -50,6 +54,10 @@ export const ShareDrawer = () => {
             if (track && source) {
               dispatch(shareTrack(track.track_id, source))
               toast('Copied Link to Track', SHARE_TOAST_TIMEOUT_MILLIS)
+            } else {
+              console.error(
+                `Tried to copy link to track, but track and/or source was missing`
+              )
             }
           }
         }
