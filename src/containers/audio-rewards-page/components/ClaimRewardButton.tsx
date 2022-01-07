@@ -126,7 +126,7 @@ const ClaimRewardButton = ({
       console.error(`Error claiming reward after retry: ${e}`)
       dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
     }
-  }, [challengeId, claimReward, dispatch])
+  }, [challengeId, claimReward, amount, dispatch])
 
   useEffect(() => {
     switch (hCaptchaStatus) {
