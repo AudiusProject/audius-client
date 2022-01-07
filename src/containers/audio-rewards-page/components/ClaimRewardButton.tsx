@@ -22,7 +22,7 @@ import {
   HCaptchaStatus,
   setClaimStatus,
   setCognitoFlowStatus,
-  setUserChallengeComplete
+  setUserChallengeDisbursed
 } from 'common/store/pages/audio-rewards/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
@@ -119,14 +119,14 @@ const ClaimRewardButton = ({
             amount: stringAudioToStringWei(amount.toString() as StringAudio)
           })
         )
-        dispatch(setUserChallengeComplete({ challengeId }))
+        dispatch(setUserChallengeDisbursed({ challengeId }))
         dispatch(setClaimStatus({ status: ClaimStatus.SUCCESS }))
       }
     } catch (e) {
       console.error(`Error claiming reward after retry: ${e}`)
       dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
     }
-  }, [challengeId, amount, claimReward, dispatch])
+  }, [challengeId, claimReward, dispatch])
 
   useEffect(() => {
     switch (hCaptchaStatus) {
@@ -244,7 +244,7 @@ const ClaimRewardButton = ({
             amount: stringAudioToStringWei(amount.toString() as StringAudio)
           })
         )
-        dispatch(setUserChallengeComplete({ challengeId }))
+        dispatch(setUserChallengeDisbursed({ challengeId }))
         dispatch(setClaimStatus({ status: ClaimStatus.SUCCESS }))
       }
     } catch (e) {

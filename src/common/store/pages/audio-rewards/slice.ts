@@ -74,14 +74,14 @@ const slice = createSlice({
     fetchUserChallengesFailed: state => {
       state.loading = false
     },
-    setUserChallengeComplete: (
+    setUserChallengeDisbursed: (
       state,
       action: PayloadAction<{ challengeId: ChallengeRewardID }>
     ) => {
       const { challengeId } = action.payload
       const challenge = state.userChallenges[challengeId]
       if (challenge !== undefined) {
-        challenge.is_complete = true
+        challenge.is_disbursed = true
       }
     },
     setTrendingRewardsModalType: (
@@ -136,7 +136,7 @@ export const {
   setTrendingRewardsModalType,
   setChallengeRewardsModalType,
   setClaimStatus,
-  setUserChallengeComplete,
+  setUserChallengeDisbursed,
   resetClaimStatus,
   setHCaptchaStatus,
   resetHCaptchaStatus,
