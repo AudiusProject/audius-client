@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useCallback, useContext } from 'react'
 
 import {
   IconLink,
@@ -38,7 +38,7 @@ export const ShareDrawer = () => {
   const source = useSelector(getSource)
   const record = useRecord()
 
-  const getActions = () => {
+  const getActions = useCallback(() => {
     const isOwner = account && artist && account.user_id === artist.user_id
 
     const shareToTwitterAction = {
@@ -60,7 +60,7 @@ export const ShareDrawer = () => {
           )
         } else {
           console.error(
-            `Tried to share a track to twitter, but track and/or artist was missing`
+            'Tried to share a track to twitter, but track and/or artist was missing'
           )
         }
       }
@@ -77,6 +77,8 @@ export const ShareDrawer = () => {
         if (track) {
           setIsOpen(false)
           dispatch(requestOpenTikTokModal({ id: track.track_id }))
+        } else {
+          console.error('Tried to share sound to TikTok but track was missing')
         }
       }
     }
@@ -91,7 +93,7 @@ export const ShareDrawer = () => {
           toast('Copied Link to Track', SHARE_TOAST_TIMEOUT_MILLIS)
         } else {
           console.error(
-            `Tried to copy link to track, but track and/or source was missing`
+            'Tried to copy link to track, but track and/or source was missing'
           )
         }
       }
@@ -100,7 +102,7 @@ export const ShareDrawer = () => {
     return isOwner
       ? [shareToTwitterAction, shareToTikTokAction, copyLinkAction]
       : [shareToTwitterAction, copyLinkAction]
-  }
+  }, [account, artist, dispatch, record, setIsOpen, source, toast, track])
 
   return (
     <ActionDrawer
