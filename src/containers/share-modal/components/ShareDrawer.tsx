@@ -4,12 +4,14 @@ import { IconLink, IconTwitterBird } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
+import { Name } from 'common/models/Analytics'
 import { CommonState } from 'common/store'
 import { getUser } from 'common/store/cache/users/selectors'
 import { shareTrack } from 'common/store/social/tracks/actions'
 import { getSource, getTrack } from 'common/store/ui/share-modal/selectors'
 import ActionDrawer from 'components/action-drawer/ActionDrawer'
 import { ToastContext } from 'components/toast/ToastContext'
+import { make, useRecord } from 'store/analytics/actions'
 import { getCopyableLink } from 'utils/clipboardUtil'
 import { SHARE_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import { openTwitterLink } from 'utils/tweet'
@@ -25,6 +27,7 @@ export const ShareDrawer = () => {
     getUser(state, { id: track?.owner_id })
   )
   const source = useSelector(getSource)
+  const record = useRecord()
 
   return (
     <ActionDrawer
@@ -35,10 +38,18 @@ export const ShareDrawer = () => {
           icon: <IconTwitterBird height={20} width={26} />,
           className: styles.shareToTwitterAction,
           onClick: () => {
-            if (track && artist) {
+            if (track && artist && source) {
               const twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
               const trackLink = getCopyableLink(track.permalink)
               openTwitterLink(trackLink, twitterText)
+              record(
+                make(Name.SHARE_TO_TWITTER, {
+                  kind: 'track',
+                  source,
+                  id: track.track_id,
+                  url: trackLink
+                })
+              )
             } else {
               console.error(
                 `Tried to share a track to twitter, but track and/or artist was missing`
