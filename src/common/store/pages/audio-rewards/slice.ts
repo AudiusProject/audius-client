@@ -8,8 +8,15 @@ export type ChallengeRewardsModalType = ChallengeRewardID
 export enum ClaimStatus {
   NONE = 'none',
   CLAIMING = 'claiming',
+  RETRY_PENDING = 'retry_pending',
   SUCCESS = 'success',
   ERROR = 'error'
+}
+
+export type Claim = {
+  challengeId: ChallengeRewardID
+  specifier: string
+  amount: number
 }
 
 export enum HCaptchaStatus {
@@ -34,11 +41,7 @@ type RewardsUIState = {
   challengeRewardsModalType: ChallengeRewardsModalType
   userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
   claimStatus: ClaimStatus
-  currentClaim?: {
-    challengeId: ChallengeRewardID
-    amount: number
-    specifier: string
-  }
+  claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
 }
@@ -134,13 +137,18 @@ const slice = createSlice({
     fetchClaimAttestation: (
       state,
       action: PayloadAction<{
-        challengeId: ChallengeRewardID
-        specifier: string
-        amount: number
+        claim: Claim
         retryOnFailure: boolean
       }>
     ) => {
       state.claimStatus = ClaimStatus.CLAIMING
+    },
+    fetchClaimAttestationRetryPending: (
+      state,
+      action: PayloadAction<Claim>
+    ) => {
+      state.claimStatus = ClaimStatus.RETRY_PENDING
+      state.claimToRetry = action.payload
     },
     fetchClaimAttestationFailed: state => {
       state.claimStatus = ClaimStatus.ERROR
@@ -166,7 +174,8 @@ export const {
   setCognitoFlowStatus,
   fetchClaimAttestation,
   fetchClaimAttestationFailed,
-  fetchClaimAttestationSucceeded
+  fetchClaimAttestationSucceeded,
+  fetchClaimAttestationRetryPending
 } = slice.actions
 
 export default slice

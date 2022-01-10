@@ -7,12 +7,13 @@ import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   getClaimStatus,
-  getCurrentClaim
+  getClaimToRetry
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ClaimStatus,
   fetchClaimAttestation,
   fetchClaimAttestationFailed,
+  fetchClaimAttestationRetryPending,
   fetchClaimAttestationSucceeded,
   HCaptchaStatus,
   setHCaptchaStatus,
@@ -38,26 +39,25 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-// function* onSetHCaptchaStatus(action: ReturnType<typeof setHCaptchaStatus>) {
-//   const { status } = action.payload
-//   const claimStatus: ClaimStatus = yield select(getClaimStatus)
-//   const currentClaim: {
-//     challengeId: ChallengeRewardID
-//     amount: number
-//     specifier: string
-//   } = yield select(getCurrentClaim)
-//   if (
-//     status === HCaptchaStatus.SUCCESS &&
-//     claimStatus === ClaimStatus.CLAIMING
-//   ) {
-//     yield put(fetchClaimAttestation({ ...currentClaim, retryOnFailure: false }))
-//   }
-// }
+function* retryClaimRewards(action: ReturnType<typeof setHCaptchaStatus>) {
+  const { status } = action.payload
+  const claimStatus: ClaimStatus = yield select(getClaimStatus)
+  const claim: {
+    challengeId: ChallengeRewardID
+    amount: number
+    specifier: string
+  } = yield select(getClaimToRetry)
+  if (
+    status === HCaptchaStatus.SUCCESS &&
+    claimStatus === ClaimStatus.RETRY_PENDING
+  ) {
+    yield put(fetchClaimAttestation({ claim, retryOnFailure: false }))
+  }
+}
 
-function* onFetchClaimAttestation(
-  action: ReturnType<typeof fetchClaimAttestation>
-) {
-  const { specifier, challengeId, amount, retryOnFailure } = action.payload
+function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
+  const { claim, retryOnFailure } = action.payload
+  const { specifier, challengeId, amount } = claim
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE
   )
@@ -87,6 +87,7 @@ function* onFetchClaimAttestation(
       if (retryOnFailure) {
         switch (response.error) {
           case FailureReason.HCAPTCHA:
+            yield put(fetchClaimAttestationRetryPending(claim))
             yield put(
               setVisibility({ modal: HCAPTCHA_MODAL_NAME, visible: true })
             )
@@ -119,11 +120,11 @@ function* onFetchClaimAttestation(
 }
 
 function* watchSetAHCaptchaStatus() {
-  // yield takeLatest(setHCaptchaStatus.type, onSetHCaptchaStatus)
+  yield takeLatest(setHCaptchaStatus.type, retryClaimRewards)
 }
 
 function* watchFetchClaimAttestation() {
-  yield takeLatest(fetchClaimAttestation.type, onFetchClaimAttestation)
+  yield takeLatest(fetchClaimAttestation.type, claimRewards)
 }
 
 const sagas = () => {
