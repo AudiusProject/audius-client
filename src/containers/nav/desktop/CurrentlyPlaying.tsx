@@ -2,11 +2,11 @@ import React, { memo, useRef } from 'react'
 
 import cn from 'classnames'
 
+import { useTrackCoverArt } from 'common/hooks/useImageSize'
 import Color from 'common/models/Color'
 import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Draggable from 'containers/dragndrop/Draggable'
-import { useTrackCoverArt } from 'hooks/useImageSize'
 
 import styles from './CurrentlyPlaying.module.css'
 
@@ -58,13 +58,13 @@ const CurrentlyPlaying = ({
   let wrapperStyle: WrapperStyle
   let artworkStyle: ArtworkStyle
   if (trackId) {
-    const artworkAverageColor = coverArtColor || { r: 13, g: 16, b: 18 }
+    const artworkAverageColor = coverArtColor ?? { r: 13, g: 16, b: 18 }
     wrapperStyle = {
-      boxShadow: `0 1px 15px -2px rgba(
+      boxShadow: `0 1px 20px -3px rgba(
         ${artworkAverageColor.r},
         ${artworkAverageColor.g},
         ${artworkAverageColor.b}
-        , 0.5)`
+        , 0.7)`
     }
     artworkStyle = {}
   } else {

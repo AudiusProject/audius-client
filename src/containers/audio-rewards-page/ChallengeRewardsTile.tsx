@@ -63,7 +63,7 @@ const RewardPanel = ({
 
   const challenge = userChallenges[id]
   const currentStepCount = challenge?.current_step_count || 0
-  const isComplete = currentStepCount === stepCount
+  const isComplete = !!challenge?.is_complete
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
@@ -111,7 +111,6 @@ type RewardsTileProps = {
 const validRewardIds: Set<ChallengeRewardID> = new Set([
   'track-upload',
   'referrals',
-  'referred',
   'mobile-install',
   'connect-verified',
   'listen-streak',

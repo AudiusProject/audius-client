@@ -1,0 +1,20 @@
+.actionItem {
+  justify-content: left;
+  padding-left: 25px;
+}
+
+.copyLinkAction {
+  color: var(--secondary);
+}
+
+.copyLinkAction svg path {
+  fill: var(--secondary);
+}
+
+.shareToTwitterAction {
+  color: var(--static-twitter-blue);
+}
+
+.shareToTwitterAction g path {
+  fill: var(--static-twitter-blue);
+}

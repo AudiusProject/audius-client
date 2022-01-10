@@ -15,7 +15,8 @@ export const remoteConfigIntDefaults: { [key in IntKeys]: number | null } = {
   [IntKeys.AUTOPLAY_LIMIT]: 10,
   [IntKeys.DISCOVERY_NODE_SELECTION_REQUEST_TIMEOUT]: 30000,
   [IntKeys.DISCOVERY_NODE_SELECTION_REQUEST_RETRIES]: 5,
-  [IntKeys.ATTESTATION_QUORUM_SIZE]: 0
+  [IntKeys.ATTESTATION_QUORUM_SIZE]: 0,
+  [IntKeys.MIN_AUDIO_SEND_AMOUNT]: 5
 }
 
 export const remoteConfigStringDefaults: {
@@ -32,9 +33,6 @@ export const remoteConfigStringDefaults: {
     'https://instagram.com/$USERNAME$/?__a=1',
   // Audius user id
   [StringKeys.TRENDING_PLAYLIST_OMITTED_USER_IDS]: '51',
-  // Remove when Rewards UI update is live
-  [StringKeys.REWARDS_IDS]:
-    'trending-track,trending-playlist,top-api,verified-upload',
   [StringKeys.TRENDING_REWARD_IDS]:
     'trending-track,trending-playlist,trending-underground,top-api',
   [StringKeys.CHALLENGE_REWARD_IDS]:
@@ -68,5 +66,6 @@ export const remoteConfigBooleanDefaults: {
   [BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_LINK]: true,
   [BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_PHANTOM]: true,
   [BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK]: false,
-  [BooleanKeys.USE_AMPLITUDE]: true
+  [BooleanKeys.USE_AMPLITUDE]: true,
+  [BooleanKeys.USE_SPL_AUDIO]: true
 }
