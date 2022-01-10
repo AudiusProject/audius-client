@@ -40,7 +40,7 @@ export const ShareDrawer = ({
     }
 
     const copyLinkAction = {
-      text: 'Copy Link to Track',
+      text: messages.copyLink,
       icon: <IconLink height={32} width={32} />,
       className: styles.copyLinkAction,
       onClick: onCopyLink
@@ -56,7 +56,7 @@ export const ShareDrawer = ({
       renderTitle={() => (
         <div className={styles.titleContainer}>
           <IconShare className={styles.titleIcon} />
-          <h2 className={styles.title}>Share Track</h2>
+          <h2 className={styles.title}>{messages.modalTitle}</h2>
         </div>
       )}
       actions={getActions()}

@@ -57,7 +57,7 @@ export const ShareDialog = ({
       title={
         <div className={styles.titleContainer}>
           <IconShare className={styles.titleIcon} />
-          <h2 className={styles.title}>Share Track</h2>
+          <h2 className={styles.title}>{messages.modalTitle}</h2>
         </div>
       }
     >
