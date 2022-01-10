@@ -11,6 +11,8 @@ import {
   Modal
 } from '@audius/stems'
 
+import { messages } from '../messages'
+
 import styles from './DesktopShareModal.module.css'
 
 type ShareActionListItemProps = ButtonProps
@@ -67,7 +69,7 @@ export const DesktopShareModal = ({
         <ul className={styles.actionList}>
           <ShareActionListItem
             leftIcon={<IconTwitterBird height={24} width={24} />}
-            text='Share To Twitter'
+            text={messages.twitter}
             onClick={onShareToTwitter}
             iconClassName={styles.twitterIcon}
             textClassName={styles.twitterActionItemText}
@@ -75,7 +77,7 @@ export const DesktopShareModal = ({
           {isOwner ? (
             <ShareActionListItem
               leftIcon={<IconTikTok />}
-              text='Share Sound to TikTok'
+              text={messages.tikTok}
               textClassName={styles.tikTokActionItemText}
               onClick={onShareToTikTok}
             />
@@ -83,7 +85,7 @@ export const DesktopShareModal = ({
           <ShareActionListItem
             leftIcon={<IconLink height={24} width={24} />}
             iconClassName={styles.shareIcon}
-            text='Copy Link to Track'
+            text={messages.copyLink}
             textClassName={styles.shareActionItemText}
             onClick={onCopyLink}
           />
