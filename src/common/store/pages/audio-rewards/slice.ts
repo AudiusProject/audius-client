@@ -34,6 +34,11 @@ type RewardsUIState = {
   challengeRewardsModalType: ChallengeRewardsModalType
   userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
   claimStatus: ClaimStatus
+  currentClaim?: {
+    challengeId: ChallengeRewardID
+    amount: number
+    specifier: string
+  }
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
 }
@@ -125,6 +130,23 @@ const slice = createSlice({
     ) => {
       const { status } = action.payload
       state.cognitoFlowStatus = status
+    },
+    fetchClaimAttestation: (
+      state,
+      action: PayloadAction<{
+        challengeId: ChallengeRewardID
+        specifier: string
+        amount: number
+        retryOnFailure: boolean
+      }>
+    ) => {
+      state.claimStatus = ClaimStatus.CLAIMING
+    },
+    fetchClaimAttestationFailed: state => {
+      state.claimStatus = ClaimStatus.ERROR
+    },
+    fetchClaimAttestationSucceeded: state => {
+      state.claimStatus = ClaimStatus.SUCCESS
     }
   }
 })
@@ -141,7 +163,10 @@ export const {
   setHCaptchaStatus,
   resetHCaptchaStatus,
   updateHCaptchaScore,
-  setCognitoFlowStatus
+  setCognitoFlowStatus,
+  fetchClaimAttestation,
+  fetchClaimAttestationFailed,
+  fetchClaimAttestationSucceeded
 } = slice.actions
 
 export default slice
