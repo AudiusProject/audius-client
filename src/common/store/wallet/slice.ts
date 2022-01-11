@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 
+import { Chain } from 'common/models/Chain'
 import { Nullable } from 'common/utils/typeUtils'
 
 import { StringWei } from '../../models/Wallet'
@@ -40,6 +41,11 @@ const slice = createSlice({
       state.balance = existingBalance
         .add(new BN(amount))
         .toString() as StringWei
+      if (state.totalBalance) {
+        state.totalBalance = new BN(state.totalBalance)
+          .add(new BN(amount))
+          .toString() as StringWei
+      }
       state.localBalanceDidChange = true
     },
     decreaseBalance: (
@@ -60,7 +66,11 @@ const slice = createSlice({
     claimFailed: (state, action: PayloadAction<{ error?: string }>) => {},
     send: (
       state,
-      action: PayloadAction<{ recipientWallet: string; amount: StringWei }>
+      action: PayloadAction<{
+        recipientWallet: string
+        amount: StringWei
+        chain: Chain
+      }>
     ) => {},
     sendSucceeded: () => {},
     sendFailed: (state, action: PayloadAction<{ error?: string }>) => {}
