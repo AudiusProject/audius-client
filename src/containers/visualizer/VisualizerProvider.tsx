@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { push as pushRoute } from 'connected-react-router'
 import { AppState } from 'store/types'
 import { Dispatch } from 'redux'
 import { ID } from 'common/models/Identifiers'
@@ -10,24 +11,27 @@ import { getAudio, getPlaying } from 'store/player/selectors'
 import Visualizer1 from 'utils/visualizer/visualizer-1.js'
 import Toast from 'components/toast/Toast'
 
-import TrackInfo from 'components/track/TrackInfo'
-
 import styles from './VisualizerProvider.module.css'
 import { MountPlacement, ComponentPlacement } from 'components/types'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { shouldShowDark } from 'utils/theme/theme'
+import { profilePage } from 'utils/route'
 import { make, TrackEvent } from 'store/analytics/actions'
 import { Name } from 'common/models/Analytics'
 import { useTrackCoverArt } from 'common/hooks/useImageSize'
 import { Track } from 'common/models/Track'
 import { SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import PlayingTrackInfo from 'containers/play-bar/desktop/components/PlayingTrackInfo'
 import AudioStream from 'audio/AudioStream'
 import { webglSupported } from './utils'
 import { getDominantColorsByTrack } from 'store/application/ui/average-color/slice'
+import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
+import { ReactComponent as AudiusLogoHorizontal } from 'assets/img/audiusLogoHorizontal.svg'
 
 type VisualizerProps = {
-  visualizerVisible: boolean
+  visualizerVisible: boolean,
+  onClose: () => void
 } & ReturnType<typeof mapDispatchToProps> &
   ReturnType<ReturnType<typeof makeMapStateToProps>>
 
@@ -109,11 +113,72 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
   componentDidUpdate() {
     this.updateVisibility()
   }
+  
+  goToTrackPage = () => {
+    const {
+      currentQueueItem: { track, user },
+      goToRoute
+    } = this.props
+
+    if (track && user) {
+      goToRoute(track.permalink)
+    }
+  }
+
+  goToArtistPage = () => {
+    const {
+      currentQueueItem: { user },
+      goToRoute
+    } = this.props
+
+    if (user) {
+      goToRoute(profilePage(user.handle))
+    }
+  }
+
+  renderTrackInfo = () => {
+    const {
+      currentQueueItem: { uid, track, user },
+      onClose,
+      dominantColors,
+    } = this.props
+    const dominantColor = dominantColors ? dominantColors[0] : { r: 0, g: 0, b: 0 }
+
+    return track && user && uid ?
+      (
+        <div className={styles.trackInfoWrapper}>
+          <PlayingTrackInfo
+            profilePictureSizes={user._profile_picture_sizes}
+            trackId={track.track_id}
+            isOwner={track.owner_id === user.user_id}
+            trackTitle={track.title}
+            trackPermalink={track.permalink}
+            artistName={user.name}
+            artistHandle={user.handle}
+            artistUserId={user.user_id}
+            isVerified={user.is_verified}
+            isTrackUnlisted={track.is_unlisted}
+            onClickTrackTitle={() => {
+              this.goToTrackPage()
+              onClose()
+            }}
+            onClickArtistName={() => {
+              this.goToArtistPage()
+              onClose()
+            }}
+            hasShadow={true}
+            dominantColor={dominantColor}
+          />
+        </div>
+      )
+      : null
+  }
 
   render() {
     const {
-      currentQueueItem: { track, user },
-      visualizerVisible
+      currentQueueItem: {track },
+      visualizerVisible,
+      onClose,
     } = this.props
     const { toastText } = this.state
 
@@ -127,20 +192,18 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
         )}
       >
         <div className='visualizer' />
+        <div className={styles.logoWrapper}>
+          <AudiusLogoHorizontal className={styles.logo} />
+        </div>
+        <IconRemove
+          className={styles.closeButtonIcon}
+          onClick={onClose} />
+        <div className={styles.infoOverlayTileShadow}></div>
         <div className={styles.infoOverlayTile}>
           <div className={styles.artworkWrapper}>
             <Artwork track={track} />
           </div>
-          <div className={styles.trackInfo}>
-            <TrackInfo
-              trackTitle={track?.title ?? ''}
-              artistName={user?.name ?? ''}
-              userId={user?.user_id ?? 0}
-              size={'extraLarge'}
-              popover={false}
-              shadow
-            />
-          </div>
+        {this.renderTrackInfo()}
         </div>
         <Toast
           useCaret={false}
@@ -178,7 +241,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   recordClose: () => {
     const trackEvent: TrackEvent = make(Name.VISUALIZER_CLOSE, {})
     dispatch(trackEvent)
-  }
+  },
+  goToRoute: (route: string) => dispatch(pushRoute(route))
 })
 
 export default connect(makeMapStateToProps, mapDispatchToProps)(Visualizer)

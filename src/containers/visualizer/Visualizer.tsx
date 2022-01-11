@@ -48,9 +48,6 @@ const Visualizer = ({
   }, [toggleVisibility, pathname])
 
   const onCloseVisualizer = useCallback(() => {
-    // Don't toggle in the case that we are on a route that disables the visualizer
-    if (NO_VISUALIZER_ROUTES.has(pathname)) return
-
     closeVisualizer()
   }, [closeVisualizer, pathname])
 
@@ -61,8 +58,8 @@ const Visualizer = ({
 
   return (
     <Suspense fallback={<div className={styles.fallback} />}>
-      { hasDisplayed &&
-          <VisualizerProvider visualizerVisible={isVisible} />
+      {hasDisplayed &&
+        <VisualizerProvider visualizerVisible={isVisible} onClose={onCloseVisualizer} />
       }
     </Suspense>
   )

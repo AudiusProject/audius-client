@@ -46,6 +46,7 @@
   padding: 5px;
   background-color: white;
   border-radius: 50%;
+  cursor: pointer;
 }
 
 .visualizerIcon {
@@ -54,13 +55,16 @@
 }
 
 .visualizerIcon:hover {
-  width: 25px;
-  height: 25px;
+  transform: scale(1.10);
   /* TODO: Figure out how to get exact color
   fill: #CC0FE0;
   */
   filter: invert(18%) sepia(82%) saturate(3986%) hue-rotate(287deg) brightness(96%) contrast(109%);
 }
+/* 
+.visualizerIcon:hover g path {
+  fill: #CC0FE0;
+} */
 
 /* Start Squircle Code */
 /* https://medium.com/@zubryjs/squircles-bringing-ios-7s-solution-to-rounded-rectangles-to-css-9fc35779aa65 */
