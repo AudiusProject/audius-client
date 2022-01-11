@@ -18,6 +18,7 @@ export type Modals =
   | 'AudioBreakdown'
   | 'CollectibleDetails'
   | 'DeactivateAccountConfirmation'
+  | 'Cognito'
 
 export type ModalsState = { [modal in Modals]: boolean }
 
@@ -32,6 +33,7 @@ const initialState: ModalsState = {
   Share: false,
   ShareSoundToTikTok: false,
   HCaptcha: false,
+  Cognito: false,
   ConfirmAudioToWAudio: false,
   BrowserPushPermissionConfirmation: false,
   AudioBreakdown: false,

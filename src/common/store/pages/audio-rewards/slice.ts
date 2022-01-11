@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+import Status from 'common/models/Status'
+
 import { UserChallenge, ChallengeRewardID } from '../../../models/AudioRewards'
 
 export type TrendingRewardsModalType = 'tracks' | 'playlists' | 'underground'
@@ -44,6 +46,8 @@ type RewardsUIState = {
   claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
+  cognitoFlowUrlStatus?: Status
+  cognitoFlowUrl?: string
 }
 
 const initialState: RewardsUIState = {
@@ -155,6 +159,16 @@ const slice = createSlice({
     },
     fetchClaimAttestationSucceeded: state => {
       state.claimStatus = ClaimStatus.SUCCESS
+    },
+    fetchCognitoFlowUrl: state => {
+      state.cognitoFlowUrlStatus = Status.LOADING
+    },
+    fetchCognitoFlowUrlSucceeded: (state, action: PayloadAction<string>) => {
+      state.cognitoFlowUrlStatus = Status.SUCCESS
+      state.cognitoFlowUrl = action.payload
+    },
+    fetchCognitoFlowUrlFailed: state => {
+      state.cognitoFlowUrlStatus = Status.ERROR
     }
   }
 })
@@ -175,7 +189,10 @@ export const {
   fetchClaimAttestation,
   fetchClaimAttestationFailed,
   fetchClaimAttestationSucceeded,
-  fetchClaimAttestationRetryPending
+  fetchClaimAttestationRetryPending,
+  fetchCognitoFlowUrl,
+  fetchCognitoFlowUrlFailed,
+  fetchCognitoFlowUrlSucceeded
 } = slice.actions
 
 export default slice

@@ -1,3 +1,4 @@
+import { delay } from 'redux-saga'
 import { takeEvery, put, call, takeLatest, select } from 'redux-saga/effects'
 
 import { ChallengeRewardID, FailureReason } from 'common/models/AudioRewards'
@@ -15,6 +16,9 @@ import {
   fetchClaimAttestationFailed,
   fetchClaimAttestationRetryPending,
   fetchClaimAttestationSucceeded,
+  fetchCognitoFlowUrl,
+  fetchCognitoFlowUrlFailed,
+  fetchCognitoFlowUrlSucceeded,
   HCaptchaStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
@@ -23,12 +27,14 @@ import {
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
-import AudiusBackend from 'services/AudiusBackend'
+import { getCognitoFlow } from 'services/audius-backend/Cognito'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
+const COGNITO_MODAL_NAME = 'Cognito'
+
+const COGNITO_TEMPLATE_ID = process.env.REACT_APP_COGNITO_TEMPLATE_ID
 
 function* watchUpdateHCaptchaScore() {
   yield takeEvery(MessageType.UPDATE_HCAPTCHA_SCORE, function* (action: {
@@ -39,6 +45,15 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
+function* doFetchCognitoFlowUrl() {
+  const { shareable_url } = yield call(getCognitoFlow, COGNITO_TEMPLATE_ID!)
+  if (shareable_url) {
+    yield put(fetchCognitoFlowUrlSucceeded(shareable_url))
+  } else {
+    yield put(fetchCognitoFlowUrlFailed())
+  }
+}
+
 function* retryClaimRewards(action: ReturnType<typeof setHCaptchaStatus>) {
   const { status } = action.payload
   const claimStatus: ClaimStatus = yield select(getClaimStatus)
@@ -47,11 +62,12 @@ function* retryClaimRewards(action: ReturnType<typeof setHCaptchaStatus>) {
     amount: number
     specifier: string
   } = yield select(getClaimToRetry)
-  if (
-    status === HCaptchaStatus.SUCCESS &&
-    claimStatus === ClaimStatus.RETRY_PENDING
-  ) {
-    yield put(fetchClaimAttestation({ claim, retryOnFailure: false }))
+  if (claimStatus === ClaimStatus.RETRY_PENDING) {
+    if (status === HCaptchaStatus.SUCCESS) {
+      yield put(fetchClaimAttestation({ claim, retryOnFailure: false }))
+    } else {
+      yield put(fetchClaimAttestationFailed())
+    }
   }
 }
 
@@ -69,20 +85,22 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
   )
   const currentUser: User = yield select(getAccountUser)
   try {
-    const response: { error?: string } = yield call(
-      AudiusBackend.submitAndEvaluateAttestations,
-      {
-        challengeId,
-        encodedUserId: encodeHashId(currentUser.user_id),
-        handle: currentUser.handle,
-        recipientEthAddress: currentUser.wallet,
-        specifier,
-        oracleEthAddress,
-        amount,
-        quorumSize,
-        AAOEndpoint
-      }
-    )
+    // const response: { error?: string } = yield call(
+    //   AudiusBackend.submitAndEvaluateAttestations,
+    //   {
+    //     challengeId,
+    //     encodedUserId: encodeHashId(currentUser.user_id),
+    //     handle: currentUser.handle,
+    //     recipientEthAddress: currentUser.wallet,
+    //     specifier,
+    //     oracleEthAddress,
+    //     amount,
+    //     quorumSize,
+    //     AAOEndpoint
+    //   }
+    // )
+    yield delay(3000)
+    const response = { error: FailureReason.COGNITO_FLOW }
     if (response.error) {
       if (retryOnFailure) {
         switch (response.error) {
@@ -93,16 +111,18 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
             )
             break
           case FailureReason.COGNITO_FLOW:
-            console.error('cognito')
+            yield put(
+              setVisibility({ modal: COGNITO_MODAL_NAME, visible: true })
+            )
             break
           case FailureReason.BLOCKED:
-            throw new Error('user is blocked from claiming')
+            throw new Error('User is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
           default:
             throw new Error(`Unknown Error: ${response.error}`)
         }
       } else {
-        yield put(fetchClaimAttestationFailed)
+        yield put(fetchClaimAttestationFailed())
       }
     } else {
       yield put(
@@ -114,8 +134,8 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
       yield put(fetchClaimAttestationSucceeded)
     }
   } catch (e) {
-    console.error('Error claiming reward:', e)
-    yield put(fetchClaimAttestationFailed)
+    console.error('Error claiming rewards:', e)
+    yield put(fetchClaimAttestationFailed())
   }
 }
 
@@ -127,11 +147,16 @@ function* watchFetchClaimAttestation() {
   yield takeLatest(fetchClaimAttestation.type, claimRewards)
 }
 
+function* watchFetchCognitoFlowUrl() {
+  yield takeLatest(fetchCognitoFlowUrl.type, doFetchCognitoFlowUrl)
+}
+
 const sagas = () => {
   return [
     watchUpdateHCaptchaScore,
     watchSetAHCaptchaStatus,
-    watchFetchClaimAttestation
+    watchFetchClaimAttestation,
+    watchFetchCognitoFlowUrl
   ]
 }
 
