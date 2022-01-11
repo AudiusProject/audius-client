@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 
 import { IconLink, IconShare, IconTwitterBird } from '@audius/stems'
-import cs from 'classnames'
+import cn from 'classnames'
 
 import ActionDrawer from 'components/action-drawer/ActionDrawer'
 import { isDarkMode } from 'utils/theme/theme'
@@ -20,7 +20,7 @@ export const ShareDrawer = ({
   onCopyLink,
   isOpen,
   onClose,
-  isOwner
+  showTikTokShareAction
 }: ShareDrawerProps) => {
   const getActions = useCallback(() => {
     const shareToTwitterAction = {
@@ -32,8 +32,8 @@ export const ShareDrawer = ({
 
     const shareToTikTokAction = {
       text: messages.tikTok,
-      icon: <IconTikTok height={32} width={32} />,
-      className: cs(styles.shareToTikTokAction, {
+      icon: <IconTikTok height={26} width={26} />,
+      className: cn(styles.shareToTikTokAction, {
         [styles.shareToTikTokActionDark]: isDarkMode()
       }),
       onClick: onShareToTikTok
@@ -41,15 +41,15 @@ export const ShareDrawer = ({
 
     const copyLinkAction = {
       text: messages.copyLink,
-      icon: <IconLink height={32} width={32} />,
+      icon: <IconLink height={26} width={26} />,
       className: styles.copyLinkAction,
       onClick: onCopyLink
     }
 
-    return isOwner
+    return showTikTokShareAction
       ? [shareToTwitterAction, shareToTikTokAction, copyLinkAction]
       : [shareToTwitterAction, copyLinkAction]
-  }, [isOwner, onShareToTwitter, onShareToTikTok, onCopyLink])
+  }, [showTikTokShareAction, onShareToTwitter, onShareToTikTok, onCopyLink])
 
   return (
     <ActionDrawer
