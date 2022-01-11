@@ -56,8 +56,12 @@
 .visualizerIcon:hover {
   transform: scale(1.10);
 }
-.visualizerIcon:hover rect {
+.visualizerIcon:hover path {
   fill: #CC0FE0
+}
+
+.hide {
+  display: none;
 }
 
 /* Start Squircle Code */

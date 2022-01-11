@@ -102,7 +102,11 @@ const CurrentlyPlaying = ({
           className={styles.artwork}
           imageStyle={artworkStyle}
         >
-          <div className={styles.bottomRightContainer}>
+          <div
+            className={cn(styles.bottomRightContainer, {
+              [styles.hide]: !trackId
+            })}
+          >
             <div
               onClick={onShowVisualizer}
               className={styles.visualizerIconContainer}
