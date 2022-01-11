@@ -36,8 +36,6 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
 
-const COGNITO_TEMPLATE_ID = process.env.REACT_APP_COGNITO_TEMPLATE_ID
-
 function* watchUpdateHCaptchaScore() {
   yield takeEvery(MessageType.UPDATE_HCAPTCHA_SCORE, function* (action: {
     type: string
@@ -47,17 +45,12 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-function* doFetchCognitoFlowUrl() {
-  const { shareable_url } = yield call(getCognitoFlow, COGNITO_TEMPLATE_ID!)
-  console.info(shareable_url)
+function* fetchCognitoFlowUriAsync() {
+  const { shareable_url } = yield call(getCognitoFlow)
   if (shareable_url) {
     yield put(fetchCognitoFlowUrlSucceeded(shareable_url))
   } else {
     yield put(fetchCognitoFlowUrlFailed())
-    const claimStatus: ClaimStatus = yield select(getClaimStatus)
-    if (claimStatus === ClaimStatus.RETRY_PENDING) {
-      yield put(fetchClaimAttestationFailed())
-    }
   }
 }
 
@@ -74,9 +67,12 @@ function* retryClaimRewards(
     specifier: string
   } = yield select(getClaimToRetry)
   if (claimStatus === ClaimStatus.RETRY_PENDING) {
-    if (status === HCaptchaStatus.SUCCESS) {
+    if (
+      status === HCaptchaStatus.SUCCESS ||
+      status === CognitoFlowStatus.CLOSED
+    ) {
       yield put(fetchClaimAttestation({ claim, retryOnFailure: false }))
-    } else if (status !== CognitoFlowStatus.OPENED) {
+    } else {
       yield put(fetchClaimAttestationFailed())
     }
   }
@@ -114,9 +110,9 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
     const response = { error: FailureReason.COGNITO_FLOW }
     if (response.error) {
       if (retryOnFailure) {
+        yield put(fetchClaimAttestationRetryPending(claim))
         switch (response.error) {
           case FailureReason.HCAPTCHA:
-            yield put(fetchClaimAttestationRetryPending(claim))
             yield put(
               setVisibility({ modal: HCAPTCHA_MODAL_NAME, visible: true })
             )
@@ -153,19 +149,23 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
 function* watchSetAHCaptchaStatus() {
   yield takeLatest(setHCaptchaStatus.type, retryClaimRewards)
 }
+function* watchSetCognitoFlowStatus() {
+  yield takeLatest(setCognitoFlowStatus.type, retryClaimRewards)
+}
 
 function* watchFetchClaimAttestation() {
   yield takeLatest(fetchClaimAttestation.type, claimRewards)
 }
 
 function* watchFetchCognitoFlowUrl() {
-  yield takeLatest(fetchCognitoFlowUrl.type, doFetchCognitoFlowUrl)
+  yield takeLatest(fetchCognitoFlowUrl.type, fetchCognitoFlowUriAsync)
 }
 
 const sagas = () => {
   return [
     watchUpdateHCaptchaScore,
     watchSetAHCaptchaStatus,
+    watchSetCognitoFlowStatus,
     watchFetchClaimAttestation,
     watchFetchCognitoFlowUrl
   ]

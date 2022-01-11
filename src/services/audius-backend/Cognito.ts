@@ -37,7 +37,7 @@ export const getCognitoSignature = async () => {
 }
 
 type CognitoFlowResponse = { shareable_url: string }
-export const getCognitoFlow = async (templateId: string) => {
+export const getCognitoFlow = async () => {
   await waitForLibsInit()
   const account = libs().Account.getCurrentUser()
   if (!account) return {}
@@ -49,8 +49,7 @@ export const getCognitoFlow = async (templateId: string) => {
         'Content-Type': 'application/json',
         [AuthHeaders.Message]: data,
         [AuthHeaders.Signature]: signature
-      },
-      body: JSON.stringify({ template_id: templateId })
+      }
     })
 
     const json = (await response.json()) as CognitoFlowResponse | ResponseError
