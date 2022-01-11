@@ -12,6 +12,7 @@ import {
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ClaimStatus,
+  CognitoFlowStatus,
   fetchClaimAttestation,
   fetchClaimAttestationFailed,
   fetchClaimAttestationRetryPending,
@@ -20,6 +21,7 @@ import {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   HCaptchaStatus,
+  setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
   updateHCaptchaScore
@@ -47,14 +49,23 @@ function* watchUpdateHCaptchaScore() {
 
 function* doFetchCognitoFlowUrl() {
   const { shareable_url } = yield call(getCognitoFlow, COGNITO_TEMPLATE_ID!)
+  console.info(shareable_url)
   if (shareable_url) {
     yield put(fetchCognitoFlowUrlSucceeded(shareable_url))
   } else {
     yield put(fetchCognitoFlowUrlFailed())
+    const claimStatus: ClaimStatus = yield select(getClaimStatus)
+    if (claimStatus === ClaimStatus.RETRY_PENDING) {
+      yield put(fetchClaimAttestationFailed())
+    }
   }
 }
 
-function* retryClaimRewards(action: ReturnType<typeof setHCaptchaStatus>) {
+function* retryClaimRewards(
+  action:
+    | ReturnType<typeof setHCaptchaStatus>
+    | ReturnType<typeof setCognitoFlowStatus>
+) {
   const { status } = action.payload
   const claimStatus: ClaimStatus = yield select(getClaimStatus)
   const claim: {
@@ -65,7 +76,7 @@ function* retryClaimRewards(action: ReturnType<typeof setHCaptchaStatus>) {
   if (claimStatus === ClaimStatus.RETRY_PENDING) {
     if (status === HCaptchaStatus.SUCCESS) {
       yield put(fetchClaimAttestation({ claim, retryOnFailure: false }))
-    } else {
+    } else if (status !== CognitoFlowStatus.OPENED) {
       yield put(fetchClaimAttestationFailed())
     }
   }

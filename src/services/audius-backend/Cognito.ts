@@ -39,11 +39,12 @@ export const getCognitoSignature = async () => {
 type CognitoFlowResponse = { shareable_url: string }
 export const getCognitoFlow = async (templateId: string) => {
   await waitForLibsInit()
-  const account = libs().Account.getCurrentuser()
+  const account = libs().Account.getCurrentUser()
   if (!account) return {}
   try {
     const { data, signature } = await AudiusBackend.signData()
     const response = await fetch(`${IDENTITY_SERVICE}/cognito_flow`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         [AuthHeaders.Message]: data,
