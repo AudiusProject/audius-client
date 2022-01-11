@@ -1,10 +1,14 @@
-.hideWrapper {
-  display: none;
-}
-
 .visualizer {
   /* Add z-index so it shows search bar and profile page elements. */
   z-index: 15;
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
+
+.visualizer.hideWrapper {
+ /* Hack: Hides visualizer behind everything else when "closing"s */
+ z-index: -1; 
+ opacity: 0;
 }
 
 .closeButtonIcon {
@@ -70,6 +74,7 @@
 
 .artworkWrapper {
   position: relative;
+  cursor: pointer;
 }
 .artworkWrapper .artwork {
   width: 208px;
@@ -77,6 +82,7 @@
   overflow: hidden;
   border: 2px solid var(--currently-playing-border);
   border-radius: 15px;
+  box-shadow: 0 5px 16px -2px rgba(85, 84, 89,.5) !important;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -187,7 +187,6 @@ let Visualizer1 = (function () {
     const defaultDominantColors = [
       {r: 82, g: 224, b: 224},
       {r: 110, g: 82, b: 224},
-      // {r: 196, g: 82, b: 224} // 0.8
       {r: 224, g: 82, b: 167}
     ]
 

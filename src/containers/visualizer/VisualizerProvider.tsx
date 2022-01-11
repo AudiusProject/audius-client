@@ -200,10 +200,14 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
           onClick={onClose} />
         <div className={styles.infoOverlayTileShadow}></div>
         <div className={styles.infoOverlayTile}>
-          <div className={styles.artworkWrapper}>
+          <div className={styles.artworkWrapper}
+            onClick={() => {
+              this.goToTrackPage()
+              onClose()
+            }}>
             <Artwork track={track} />
           </div>
-        {this.renderTrackInfo()}
+          {this.renderTrackInfo()}
         </div>
         <Toast
           useCaret={false}
