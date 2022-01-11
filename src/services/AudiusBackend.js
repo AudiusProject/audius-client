@@ -2693,7 +2693,7 @@ class AudiusBackend {
     } catch (e) {
       console.log(`Failed in libs call to claim reward`)
       console.error(e)
-      return { error: true }
+      return { error: e }
     }
   }
 }
