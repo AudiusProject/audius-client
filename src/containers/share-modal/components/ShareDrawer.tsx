@@ -12,6 +12,8 @@ import { ShareProps } from '../types'
 import { IconTikTok } from './IconTikTok'
 import styles from './ShareDrawer.module.css'
 
+const iconSize = { height: 26, width: 26 }
+
 type ShareDrawerProps = ShareProps
 
 export const ShareDrawer = ({
@@ -24,7 +26,7 @@ export const ShareDrawer = ({
 }: ShareDrawerProps) => {
   const getActions = useCallback(() => {
     const shareToTwitterAction = {
-      icon: <IconTwitterBird height={20} width={26} />,
+      icon: <IconTwitterBird {...iconSize} />,
       text: messages.twitter,
       className: styles.shareToTwitterAction,
       onClick: onShareToTwitter
@@ -32,7 +34,7 @@ export const ShareDrawer = ({
 
     const shareToTikTokAction = {
       text: messages.tikTok,
-      icon: <IconTikTok height={26} width={26} />,
+      icon: <IconTikTok {...iconSize} />,
       className: cn(styles.shareToTikTokAction, {
         [styles.shareToTikTokActionDark]: isDarkMode()
       }),
@@ -41,7 +43,7 @@ export const ShareDrawer = ({
 
     const copyLinkAction = {
       text: messages.copyLink,
-      icon: <IconLink height={26} width={26} />,
+      icon: <IconLink {...iconSize} />,
       className: styles.copyLinkAction,
       onClick: onCopyLink
     }
