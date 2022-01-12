@@ -58,8 +58,7 @@
 }
 
 .infoOverlayTile {
-  padding-left: 16px;
-  padding-bottom: 24px;
+  padding-bottom: 20px;
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -74,6 +73,7 @@
 }
 
 .artworkWrapper {
+  margin-left: 16px;
   position: relative;
   cursor: pointer;
 }
