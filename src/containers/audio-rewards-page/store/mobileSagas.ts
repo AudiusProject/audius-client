@@ -1,4 +1,3 @@
-import { delay } from 'redux-saga'
 import { takeEvery, put, call, takeLatest, select } from 'redux-saga/effects'
 
 import { ChallengeRewardID, FailureReason } from 'common/models/AudioRewards'
@@ -29,9 +28,11 @@ import {
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
+import AudiusBackend from 'services/AudiusBackend'
 import { getCognitoFlow } from 'services/audius-backend/Cognito'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { encodeHashId } from 'utils/route/hashIds'
 
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
@@ -92,22 +93,20 @@ function* claimRewards(action: ReturnType<typeof fetchClaimAttestation>) {
   )
   const currentUser: User = yield select(getAccountUser)
   try {
-    // const response: { error?: string } = yield call(
-    //   AudiusBackend.submitAndEvaluateAttestations,
-    //   {
-    //     challengeId,
-    //     encodedUserId: encodeHashId(currentUser.user_id),
-    //     handle: currentUser.handle,
-    //     recipientEthAddress: currentUser.wallet,
-    //     specifier,
-    //     oracleEthAddress,
-    //     amount,
-    //     quorumSize,
-    //     AAOEndpoint
-    //   }
-    // )
-    yield delay(3000)
-    const response = { error: FailureReason.COGNITO_FLOW }
+    const response: { error?: string } = yield call(
+      AudiusBackend.submitAndEvaluateAttestations,
+      {
+        challengeId,
+        encodedUserId: encodeHashId(currentUser.user_id),
+        handle: currentUser.handle,
+        recipientEthAddress: currentUser.wallet,
+        specifier,
+        oracleEthAddress,
+        amount,
+        quorumSize,
+        AAOEndpoint
+      }
+    )
     if (response.error) {
       if (retryOnFailure) {
         yield put(fetchClaimAttestationRetryPending(claim))
