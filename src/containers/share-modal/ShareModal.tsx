@@ -10,11 +10,7 @@ import { getAccountUser } from 'common/store/account/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import { shareTrack } from 'common/store/social/tracks/actions'
 import { shareUser } from 'common/store/social/users/actions'
-import {
-  getShareState,
-  getSource,
-  getTrack
-} from 'common/store/ui/share-modal/selectors'
+import { getShareState, getTrack } from 'common/store/ui/share-modal/selectors'
 import { requestOpen as requestOpenTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ToastContext } from 'components/toast/ToastContext'
 import { useFlag } from 'hooks/useRemoteConfig'
