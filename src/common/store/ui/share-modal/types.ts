@@ -32,14 +32,15 @@ type SharePlaylistContent = {
   creator: User
 }
 
+export type ShareModalContent =
+  | ShareTrackContent
+  | ShareProfileContent
+  | ShareAlbumContent
+  | SharePlaylistContent
+
 export type ShareModalState = {
   source: Nullable<ShareSource>
-  content: Nullable<
-    | ShareTrackContent
-    | ShareProfileContent
-    | ShareAlbumContent
-    | SharePlaylistContent
-  >
+  content: Nullable<ShareModalContent>
 }
 
 type RequestOpenPayload = { source: ShareSource } & (
