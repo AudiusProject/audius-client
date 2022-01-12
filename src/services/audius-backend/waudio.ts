@@ -20,7 +20,7 @@ export const doesUserBankExist = async () => {
 
 export const createUserBank = async () => {
   await waitForLibsInit()
-  await libs().solanaWeb3Manager.createUserBank()
+  return libs().solanaWeb3Manager.createUserBank()
 }
 
 export const createUserBankIfNeeded = async () => {
@@ -33,8 +33,14 @@ export const createUserBankIfNeeded = async () => {
     const userbankExists = await doesUserBankExist()
     if (userbankExists) return
     console.warn(`Userbank doesn't exist, attempting to create...`)
-    await createUserBank()
-    console.log(`Successfully created userbank!`)
+    const { error, errorCode } = await createUserBank()
+    if (error || errorCode) {
+      console.error(
+        `Failed to create userbank, with err: ${error}, ${errorCode}`
+      )
+    } else {
+      console.log(`Successfully created userbank!`)
+    }
   } catch (err) {
     console.error(`Failed to create userbank, with err: ${err}`)
   }
