@@ -19,14 +19,14 @@ import {
   saveTrack,
   unsaveTrack,
   repostTrack,
-  undoRepostTrack,
-  shareTrack
+  undoRepostTrack
 } from 'common/store/social/tracks/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { TrackTileProps } from 'components/track/types'
 import { setFavorite } from 'containers/favorites-page/store/actions'
 import { setRepost } from 'containers/reposts-page/store/actions'
@@ -80,10 +80,6 @@ const ConnectedTrackTile = memo(
     isTrending,
     showRankIcon
   }: ConnectedTrackTileProps) => {
-    const { isEnabled: isShareSoundToTikTokEnabled } = useFlag(
-      FeatureFlags.SHARE_SOUND_TO_TIKTOK
-    )
-
     const {
       is_delete,
       is_unlisted,
@@ -173,9 +169,6 @@ const ConnectedTrackTile = memo(
             : OverflowAction.FAVORITE
           : null,
         OverflowAction.SHARE,
-        isShareSoundToTikTokEnabled && isOwner && !is_unlisted
-          ? OverflowAction.SHARE_TO_TIKTOK
-          : null,
         OverflowAction.ADD_TO_PLAYLIST,
         OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
@@ -259,7 +252,7 @@ function mapStateToProps(state: AppState, ownProps: TrackTileProps) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     shareTrack: (trackId: ID) =>
-      dispatch(shareTrack(trackId, ShareSource.TILE)),
+      dispatch(requestOpenShareModal({ trackId, source: ShareSource.TILE })),
     saveTrack: (trackId: ID) =>
       dispatch(saveTrack(trackId, FavoriteSource.TILE)),
     unsaveTrack: (trackId: ID) =>

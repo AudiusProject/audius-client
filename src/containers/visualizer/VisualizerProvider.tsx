@@ -133,14 +133,17 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
 
   componentDidUpdate(prevProps: VisualizerProps, prevState: VisualizerState) {
     if (this.props.theme !== prevProps.theme
-      || this.props.visualizerVisible !== prevProps.visualizerVisible) {
+      || this.props.visualizerVisible !== prevProps.visualizerVisible
+      ) {
       this.updateVisibility()
       this.updateAudioStream()
       this.updateDominantColors()
       return
     } 
-    
-    if (this.props.audio !== prevProps.audio) {
+     
+    if (this.props.audio !== prevProps.audio
+      || this.props.playing !== prevProps.playing
+    ) {
       this.updateAudioStream()
     } else if (this.props.dominantColors !== prevProps.dominantColors) {
       this.updateDominantColors()

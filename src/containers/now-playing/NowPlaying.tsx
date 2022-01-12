@@ -16,14 +16,12 @@ import {
 } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { SquareSizes } from 'common/models/ImageSizes'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import {
   saveTrack,
   unsaveTrack,
   repostTrack,
-  undoRepostTrack,
-  shareTrack
+  undoRepostTrack
 } from 'common/store/social/tracks/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
@@ -31,6 +29,7 @@ import {
   OverflowActionCallbacks,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -41,7 +40,6 @@ import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleBut
 import { PlayButtonStatus } from 'components/play-bar/types'
 import { getCastMethod } from 'containers/settings-page/store/selectors'
 import UserBadges from 'containers/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
 import { useRecord, make } from 'store/analytics/actions'
 import { getDominantColorsByTrack } from 'store/application/ui/average-color/slice'
@@ -256,13 +254,8 @@ const NowPlaying = g(
       goToRoute(profilePage(handle))
     }
 
-    const { isEnabled: isShareSoundToTikTokEnabled } = useFlag(
-      FeatureFlags.SHARE_SOUND_TO_TIKTOK
-    )
-
     const onClickOverflow = useCallback(() => {
       const isOwner = currentUserId === owner_id
-      const isUnlisted = track.is_unlisted
 
       const overflowActions = [
         !isOwner
@@ -276,9 +269,6 @@ const NowPlaying = g(
             : OverflowAction.FAVORITE
           : null,
         OverflowAction.SHARE,
-        isShareSoundToTikTokEnabled && isOwner && !isUnlisted
-          ? OverflowAction.SHARE_TO_TIKTOK
-          : null,
         OverflowAction.ADD_TO_PLAYLIST,
         OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
@@ -293,8 +283,6 @@ const NowPlaying = g(
       track_id,
       owner_id,
       clickOverflow,
-      track,
-      isShareSoundToTikTokEnabled,
       has_current_user_saved,
       has_current_user_reposted,
       onClose
@@ -518,7 +506,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(shuffle({ enable }))
     },
     share: (trackId: ID) =>
-      dispatch(shareTrack(trackId, ShareSource.NOW_PLAYING)),
+      dispatch(
+        requestOpenShareModal({ trackId, source: ShareSource.NOW_PLAYING })
+      ),
     save: (trackId: ID) =>
       dispatch(saveTrack(trackId, FavoriteSource.NOW_PLAYING)),
     unsave: (trackId: ID) =>
