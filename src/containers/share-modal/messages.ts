@@ -12,5 +12,13 @@ export const messages = {
   twitter: 'Share to Twitter',
   tikTok: 'Share Sound to TikTok',
   copyLink: (asset: ShareType) => `Copy Link to ${shareTypeMap[asset]}`,
-  toast: (asset: ShareType) => `Copied Link to ${shareTypeMap[asset]}`
+  toast: (asset: ShareType) => `Copied Link to ${shareTypeMap[asset]}`,
+  trackShareText: (title: string, handle: string) =>
+    `Check out ${title} by ${handle} on @AudiusProject #Audius`,
+  profileShareText: (handle: string) =>
+    `Check out ${handle} on @AudiusProject #Audius`,
+  albumShareText: (albumName: string, handle: string) =>
+    `Check out ${albumName} by ${handle} @AudiusProject #Audius`,
+  playlistShareText: (playlistName: string, handle: string) =>
+    `Check out ${playlistName} by ${handle} @AudiusProject #Audius`
 }

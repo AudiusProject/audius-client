@@ -7,6 +7,8 @@ import {
   fullTrackPage
 } from 'utils/route'
 
+import { messages } from './messages'
+
 type ShareToTwitterEvent = Omit<ShareToTwitter, 'eventName' | 'source'>
 
 export const getTwitterShareText = (content: ShareModalContent) => {
@@ -15,17 +17,22 @@ export const getTwitterShareText = (content: ShareModalContent) => {
   let analyticsEvent: ShareToTwitterEvent
   switch (content.type) {
     case 'track': {
-      const { track, artist } = content
-      twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
-      link = fullTrackPage(track.permalink)
-      analyticsEvent = { kind: 'track', id: track.track_id, url: link }
+      const {
+        track: { title, permalink, track_id },
+        artist: { handle }
+      } = content
+      twitterText = messages.trackShareText(title, handle)
+      link = fullTrackPage(permalink)
+      analyticsEvent = { kind: 'track', id: track_id, url: link }
       break
     }
     case 'profile': {
-      const { profile } = content
-      twitterText = `Check out ${profile.handle} on @AudiusProject #Audius`
-      link = fullProfilePage(profile.handle)
-      analyticsEvent = { kind: 'profile', id: profile.user_id, url: link }
+      const {
+        profile: { handle, user_id }
+      } = content
+      twitterText = messages.profileShareText(handle)
+      link = fullProfilePage(handle)
+      analyticsEvent = { kind: 'profile', id: user_id, url: link }
       break
     }
     case 'album': {
@@ -33,7 +40,7 @@ export const getTwitterShareText = (content: ShareModalContent) => {
         album: { playlist_name, playlist_id },
         artist: { handle }
       } = content
-      twitterText = `Check out ${playlist_name} by ${handle} @AudiusProject #Audius`
+      twitterText = messages.albumShareText(playlist_name, handle)
       link = fullAlbumPage(handle, playlist_name, playlist_id)
       analyticsEvent = { kind: 'album', id: playlist_id, url: link }
       break
@@ -43,7 +50,7 @@ export const getTwitterShareText = (content: ShareModalContent) => {
         playlist: { playlist_name, playlist_id },
         creator: { handle }
       } = content
-      twitterText = `Check out ${playlist_name} by ${handle} @AudiusProject #Audius`
+      twitterText = messages.playlistShareText(playlist_name, handle)
       link = fullPlaylistPage(handle, playlist_name, playlist_id)
       analyticsEvent = { kind: 'playlist', id: playlist_id, url: link }
       break
