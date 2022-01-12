@@ -23,7 +23,6 @@ function* handleRequestOpen(action: RequestOpenAction) {
   switch (action.payload.type) {
     case 'track': {
       const { trackId, source, type } = action.payload
-
       const track: Track = yield select(getTrack(trackId))
       const artist: User = yield select(getUser(track.owner_id))
       yield put(open({ type, track, source, artist }))
