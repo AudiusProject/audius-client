@@ -8,24 +8,22 @@ import { FeatureFlags } from 'common/services/remote-config'
 import { CommonState } from 'common/store'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
+import { shareCollection } from 'common/store/social/collections/actions'
 import { shareTrack } from 'common/store/social/tracks/actions'
 import { shareUser } from 'common/store/social/users/actions'
-import {
-  getShareState,
-  getSource,
-  getTrack
-} from 'common/store/ui/share-modal/selectors'
+import { getShareState, getTrack } from 'common/store/ui/share-modal/selectors'
 import { requestOpen as requestOpenTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ToastContext } from 'components/toast/ToastContext'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { make, useRecord } from 'store/analytics/actions'
 import { isMobile } from 'utils/clientUtil'
 import { SHARE_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
-import { fullProfilePage, fullTrackPage } from 'utils/route'
+import { fullAlbumPage, fullProfilePage, fullTrackPage } from 'utils/route'
 import { openTwitterLink } from 'utils/tweet'
 
 import { ShareDialog } from './components/ShareDialog'
 import { ShareDrawer } from './components/ShareDrawer'
+import { messages } from './messages'
 
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -58,30 +56,53 @@ export const ShareModal = () => {
     let twitterText = ''
     let link = ''
     if (!source || !content) return
-    if (content.type === 'track') {
-      const { track, artist } = content
-      twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
-      link = fullTrackPage(track.permalink)
-      record(
-        make(Name.SHARE_TO_TWITTER, {
-          kind: 'track',
-          source,
-          id: track.track_id,
-          url: link
-        })
-      )
-    } else {
-      const { profile } = content
-      twitterText = `Check out ${profile.handle} on @AudiusProject #Audius`
-      link = fullProfilePage(profile.handle)
-      record(
-        make(Name.SHARE_TO_TWITTER, {
-          kind: 'profile',
-          source,
-          id: profile.user_id,
-          url: link
-        })
-      )
+    switch (content.type) {
+      case 'track': {
+        const { track, artist } = content
+        twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
+        link = fullTrackPage(track.permalink)
+        record(
+          make(Name.SHARE_TO_TWITTER, {
+            kind: 'track',
+            source,
+            id: track.track_id,
+            url: link
+          })
+        )
+        break
+      }
+      case 'profile': {
+        const { profile } = content
+        twitterText = `Check out ${profile.handle} on @AudiusProject #Audius`
+        link = fullProfilePage(profile.handle)
+        record(
+          make(Name.SHARE_TO_TWITTER, {
+            kind: 'profile',
+            source,
+            id: profile.user_id,
+            url: link
+          })
+        )
+        break
+      }
+      case 'album': {
+        const { album, artist } = content
+        twitterText = `Check out ${album.playlist_name} by ${artist.handle} @AudiusProject #Audius`
+        link = fullAlbumPage(
+          artist.handle,
+          album.playlist_name,
+          album.playlist_id
+        )
+        record(
+          make(Name.SHARE_TO_TWITTER, {
+            kind: 'album',
+            source,
+            id: album.playlist_id,
+            url: link
+          })
+        )
+        break
+      }
     }
 
     openTwitterLink(link, twitterText)
@@ -99,13 +120,18 @@ export const ShareModal = () => {
 
   const handleCopyLink = useCallback(() => {
     if (!source || !content) return
-    if (content.type === 'track') {
-      dispatch(shareTrack(content.track.track_id, source))
-      toast('Copied Link to Track', SHARE_TOAST_TIMEOUT_MILLIS)
-    } else if (content.type === 'profile') {
-      dispatch(shareUser(content.profile.user_id, source))
-      toast('Copied Link to Profile', SHARE_TOAST_TIMEOUT_MILLIS)
+    switch (content.type) {
+      case 'track':
+        dispatch(shareTrack(content.track.track_id, source))
+        break
+      case 'profile':
+        dispatch(shareUser(content.profile.user_id, source))
+        break
+      case 'album':
+        dispatch(shareCollection(content.album.playlist_id, source))
+        break
     }
+    toast(messages.toast(content.type), SHARE_TOAST_TIMEOUT_MILLIS)
     handleClose()
   }, [dispatch, toast, content, source, handleClose])
 
