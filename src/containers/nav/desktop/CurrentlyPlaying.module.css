@@ -44,7 +44,7 @@
 
 .visualizerIconContainer {
   padding: 5px;
-  background-color: white;
+  background-color: var(--static-white);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -57,7 +57,7 @@
   transform: scale(1.10);
 }
 .visualizerIcon:hover path {
-  fill: #CC0FE0
+  fill: var(--primary)
 }
 
 .hide {

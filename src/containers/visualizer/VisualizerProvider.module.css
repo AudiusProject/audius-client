@@ -26,7 +26,7 @@
 }
 
 .closeButtonIcon g path {
-  fill: #ffffff;
+  fill: var(--static-white);
 }
 
 .logoWrapper {
@@ -91,7 +91,7 @@
 
 .trackInfoWrapper {
   margin-top: 20px;
-  color: #FFFFFF;
+  color: var(--static-white);
 }
 
 .visualizerDisabled {

@@ -39,8 +39,8 @@ type VisualizerState = {
   trackId: ID | null
   trackSegment: any
   toastText: string
-  fadeVisualizer: boolean
-  showVisualizer: boolean
+  fadeVisualizer: boolean // Used to fadeIn/Out the visualizer (opacity 0 -> 1) through a css class
+  showVisualizer: boolean // Used to show/hide the visualizer (display: block/none) through a css class
 }
 
 const Artwork = ({ track }: { track?: Track | null }) => {
