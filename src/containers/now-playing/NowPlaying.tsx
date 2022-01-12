@@ -285,6 +285,8 @@ const NowPlaying = g(
       clickOverflow,
       has_current_user_saved,
       has_current_user_reposted,
+      isShareSoundToTikTokEnabled,
+      track,
       onClose
     ])
 
