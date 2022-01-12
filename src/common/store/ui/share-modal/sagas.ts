@@ -5,7 +5,7 @@ import { ID } from 'common/models/Identifiers'
 import { Track } from 'common/models/Track'
 import { User } from 'common/models/User'
 import { CommonState } from 'common/store'
-import { getCollection } from 'common/store/cache/collections/selectors'
+import { getCollection as getCollectionBase } from 'common/store/cache/collections/selectors'
 import { getTrack as getTrackBase } from 'common/store/cache/tracks/selectors'
 import { getUser as getUserBase } from 'common/store/cache/users/selectors'
 
@@ -16,8 +16,8 @@ import { RequestOpenAction } from './types'
 
 const getTrack = (id: ID) => (state: CommonState) => getTrackBase(state, { id })
 const getUser = (id: ID) => (state: CommonState) => getUserBase(state, { id })
-const getAlbum = (id: ID) => (state: CommonState) =>
-  getCollection(state, { id })
+const getCollection = (id: ID) => (state: CommonState) =>
+  getCollectionBase(state, { id })
 
 function* handleRequestOpen(action: RequestOpenAction) {
   switch (action.payload.type) {
@@ -35,11 +35,25 @@ function* handleRequestOpen(action: RequestOpenAction) {
       yield put(open({ type, profile, source }))
       break
     }
-    case 'album': {
-      const { albumId, source, type } = action.payload
-      const album: Collection = yield select(getAlbum(albumId))
-      const artist: User = yield select(getUser(album.playlist_owner_id))
-      yield put(open({ type, album, artist, source }))
+    case 'collection': {
+      const { collectionId, source, type } = action.payload
+      const collection: Collection = yield select(getCollection(collectionId))
+      const owner: User = yield select(getUser(collection.playlist_owner_id))
+      if (collection.is_album) {
+        yield put(
+          open({ type: 'album', album: collection, artist: owner, source })
+        )
+      } else {
+        yield put(
+          open({
+            type: 'playlist',
+            playlist: collection,
+            creator: owner,
+            source
+          })
+        )
+      }
+      break
     }
   }
 

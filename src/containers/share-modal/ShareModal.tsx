@@ -3,7 +3,7 @@ import React, { useCallback, useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
+import { Name, ShareToTwitter } from 'common/models/Analytics'
 import { FeatureFlags } from 'common/services/remote-config'
 import { CommonState } from 'common/store'
 import { getAccountUser } from 'common/store/account/selectors'
@@ -18,7 +18,12 @@ import { useFlag } from 'hooks/useRemoteConfig'
 import { make, useRecord } from 'store/analytics/actions'
 import { isMobile } from 'utils/clientUtil'
 import { SHARE_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
-import { fullAlbumPage, fullProfilePage, fullTrackPage } from 'utils/route'
+import {
+  fullAlbumPage,
+  fullPlaylistPage,
+  fullProfilePage,
+  fullTrackPage
+} from 'utils/route'
 import { openTwitterLink } from 'utils/tweet'
 
 import { ShareDialog } from './components/ShareDialog'
@@ -26,6 +31,8 @@ import { ShareDrawer } from './components/ShareDrawer'
 import { messages } from './messages'
 
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
+type ShareToTwitterEvent = Omit<ShareToTwitter, 'eventName' | 'source'>
 
 export const ShareModal = () => {
   const [isOpen, setIsOpen] = useModalState('Share')
@@ -55,57 +62,47 @@ export const ShareModal = () => {
   const handleShareToTwitter = useCallback(() => {
     let twitterText = ''
     let link = ''
+    let analyticsEvent: ShareToTwitterEvent
     if (!source || !content) return
     switch (content.type) {
       case 'track': {
         const { track, artist } = content
         twitterText = `Check out ${track.title} by ${artist.handle} on @AudiusProject #Audius`
         link = fullTrackPage(track.permalink)
-        record(
-          make(Name.SHARE_TO_TWITTER, {
-            kind: 'track',
-            source,
-            id: track.track_id,
-            url: link
-          })
-        )
+        analyticsEvent = { kind: 'track', id: track.track_id, url: link }
         break
       }
       case 'profile': {
         const { profile } = content
         twitterText = `Check out ${profile.handle} on @AudiusProject #Audius`
         link = fullProfilePage(profile.handle)
-        record(
-          make(Name.SHARE_TO_TWITTER, {
-            kind: 'profile',
-            source,
-            id: profile.user_id,
-            url: link
-          })
-        )
+        analyticsEvent = { kind: 'profile', id: profile.user_id, url: link }
         break
       }
       case 'album': {
-        const { album, artist } = content
-        twitterText = `Check out ${album.playlist_name} by ${artist.handle} @AudiusProject #Audius`
-        link = fullAlbumPage(
-          artist.handle,
-          album.playlist_name,
-          album.playlist_id
-        )
-        record(
-          make(Name.SHARE_TO_TWITTER, {
-            kind: 'album',
-            source,
-            id: album.playlist_id,
-            url: link
-          })
-        )
+        const {
+          album: { playlist_name, playlist_id },
+          artist: { handle }
+        } = content
+        twitterText = `Check out ${playlist_name} by ${handle} @AudiusProject #Audius`
+        link = fullAlbumPage(handle, playlist_name, playlist_id)
+        analyticsEvent = { kind: 'album', id: playlist_id, url: link }
+        break
+      }
+      case 'playlist': {
+        const {
+          playlist: { playlist_name, playlist_id },
+          creator: { handle }
+        } = content
+        twitterText = `Check out ${playlist_name} by ${handle} @AudiusProject #Audius`
+        link = fullPlaylistPage(handle, playlist_name, playlist_id)
+        analyticsEvent = { kind: 'playlist', id: playlist_id, url: link }
         break
       }
     }
 
     openTwitterLink(link, twitterText)
+    record(make(Name.SHARE_TO_TWITTER, { source, ...analyticsEvent }))
     handleClose()
   }, [content, source, handleClose, record])
 
@@ -129,6 +126,9 @@ export const ShareModal = () => {
         break
       case 'album':
         dispatch(shareCollection(content.album.playlist_id, source))
+        break
+      case 'playlist':
+        dispatch(shareCollection(content.playlist.playlist_id, source))
         break
     }
     toast(messages.toast(content.type), SHARE_TOAST_TIMEOUT_MILLIS)

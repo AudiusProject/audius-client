@@ -3,7 +3,8 @@ import { ShareType } from 'common/store/ui/share-modal/types'
 const shareTypeMap: Record<ShareType, string> = {
   track: 'Track',
   profile: 'Profile',
-  album: 'Album'
+  album: 'Album',
+  playlist: 'Playlist'
 }
 
 export const messages = {
