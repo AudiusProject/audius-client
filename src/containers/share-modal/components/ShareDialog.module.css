@@ -93,7 +93,7 @@
 }
 
 .actionButton .tikTokIconDark path {
-  fill: #fff;
+  fill: var(--static-white);
 }
 
 .actionButton .tikTokActionLabel {
