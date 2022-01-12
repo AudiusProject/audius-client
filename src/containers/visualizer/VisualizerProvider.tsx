@@ -39,6 +39,8 @@ type VisualizerState = {
   trackId: ID | null
   trackSegment: any
   toastText: string
+  fadeVisualizer: boolean
+  showVisualizer: boolean
 }
 
 const Artwork = ({ track }: { track?: Track | null }) => {
@@ -58,7 +60,9 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
   state = {
     trackId: null,
     trackSegment: null,
-    toastText: ''
+    toastText: '',
+    fadeVisualizer: false,
+    showVisualizer: false,
   }
 
   messages = (browser: string) => ({
@@ -67,24 +71,39 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
 
   updateVisibility() {
     if (!webGLExists) return
-    const { audio, playing, theme, recordOpen, recordClose, dominantColors } = this.props
-
+    const { theme, recordOpen, recordClose, visualizerVisible } = this.props
     // Set visibility for the visualizer
-    if (this.props.visualizerVisible) {
+    if (visualizerVisible) {
       if (!Visualizer1?.isShowing()) {
         const darkMode = shouldShowDark(theme)
         Visualizer1?.show(darkMode)
         recordOpen()
       }
+      this.setState({ showVisualizer: true })
+      setImmediate(() => {
+        this.setState({ fadeVisualizer: true })
+      })
     } else {
       if (Visualizer1?.isShowing()) {
         Visualizer1?.hide()
         recordClose()
       }
+      this.setState({ fadeVisualizer: false })
+      setTimeout(() => {
+        this.setState({ showVisualizer: false })
+      }, 300)
     }
-    // Rebind audio
+  }
+
+  updateAudioStream() {
+    if (!webGLExists) return
+    const { audio, playing } = this.props
     if ((audio as AudioStream).audioCtx && playing) Visualizer1?.bind(audio)
-    // Update color
+  }
+
+  updateDominantColors() {
+    if (!webGLExists) return
+    const { dominantColors } = this.props
     if (Visualizer1) {
       Visualizer1.setDominantColors(dominantColors)
     }
@@ -104,16 +123,30 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
     }
 
     this.updateVisibility()
+    this.updateAudioStream()
+    this.updateDominantColors()
   }
 
   componentWillUnmount() {
     Visualizer1?.stop()
   }
 
-  componentDidUpdate() {
-    this.updateVisibility()
+  componentDidUpdate(prevProps: VisualizerProps, prevState: VisualizerState) {
+    if (this.props.theme !== prevProps.theme
+      || this.props.visualizerVisible !== prevProps.visualizerVisible) {
+      this.updateVisibility()
+      this.updateAudioStream()
+      this.updateDominantColors()
+      return
+    } 
+    
+    if (this.props.audio !== prevProps.audio) {
+      this.updateAudioStream()
+    } else if (this.props.dominantColors !== prevProps.dominantColors) {
+      this.updateDominantColors()
+    }
   }
-  
+
   goToTrackPage = () => {
     const {
       currentQueueItem: { track, user },
@@ -176,19 +209,22 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
 
   render() {
     const {
-      currentQueueItem: {track },
+      currentQueueItem: { track },
       visualizerVisible,
       onClose,
     } = this.props
-    const { toastText } = this.state
+    const { toastText, fadeVisualizer, showVisualizer } = this.state
 
     if (!webGLExists) return null
 
     return (
       <div
         className={cn(
-          { [styles.hideWrapper]: !visualizerVisible },
-          styles.visualizer
+          styles.visualizer,
+          {
+            [styles.fade]: fadeVisualizer,
+            [styles.show]: showVisualizer,
+          },
         )}
       >
         <div className='visualizer' />

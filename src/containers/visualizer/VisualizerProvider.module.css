@@ -1,14 +1,15 @@
 .visualizer {
   /* Add z-index so it shows search bar and profile page elements. */
   z-index: 15;
-  opacity: 1;
+  display: none;
+  opacity: 0;
   transition: opacity 0.3s ease-in;
 }
-
-.visualizer.hideWrapper {
- /* Hack: Hides visualizer behind everything else when "closing"s */
- z-index: -1; 
- opacity: 0;
+.visualizer.fade {
+  opacity: 1;
+}
+.visualizer.show {
+  display: block;
 }
 
 .closeButtonIcon {
