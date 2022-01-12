@@ -6,7 +6,7 @@
   "version": "0.24.38",
   "private": true,
   "dependencies": {
-    "@audius/libs": "1.2.49",
+    "@audius/libs": "1.2.50",
     "@audius/stems": "0.3.18",
     "@craco/craco": "6.4.2",
     "@hcaptcha/react-hcaptcha": "0.3.6",
@@ -103,7 +103,9 @@
     "publish-scripts": "./scripts/publishScripts.sh",
     "start": "craco start",
     "start:dev": "npm run write-sha && npm run configure-local-env && npm run publish-scripts && env-cmd ./.env/.env.dev.local npm start",
+    "start:dev:mobile": "env-cmd ./.env/.env.mobile npm run start:dev",
     "start:dev:cloud": "npm run write-sha && npm run configure-local-env-cloud && npm run publish-scripts && env-cmd ./.env/.env.dev.local npm start",
+    "start:dev:mobile:cloud": "env-cmd ./.env/.env.mobile npm run start:dev:cloud",
     "start:stage": "npm run write-sha && npm run publish-scripts && env-cmd ./.env/.env.stage npm start",
     "start:prod": "npm run write-sha && npm run publish-scripts && env-cmd ./.env/.env.prod npm start",
     "start:mobile-prod": "env-cmd ./.env/.env.mobile npm run start:prod",
