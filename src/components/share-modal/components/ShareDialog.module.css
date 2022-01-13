@@ -1,0 +1,118 @@
+.headerContainer {
+  border-bottom-color: var(--neutral-light-8);
+}
+
+.modalBody {
+  display: flex;
+  overflow: hidden;
+  max-width: 528px;
+  width: 100%;
+  flex-direction: column;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+}
+
+.titleIcon {
+  height: var(--unit-8);
+  width: var(--unit-8);
+  margin-right: var(--unit-2);
+}
+
+.titleIcon path {
+  fill: var(--neutral);
+}
+
+.title {
+  font-size: var(--font-xl);
+}
+
+.modalContent {
+  display: flex;
+  padding: 0px var(--unit-8) var(--unit-6);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  justify-content: space-around;
+  font-weight: var(--font-bold);
+}
+
+.description {
+  margin: var(--unit-6) 0px;
+  font-weight: var(--font-demi-bold);
+}
+
+.actionList {
+  width: 100%;
+}
+
+.actionListItem {
+  margin: var(--unit-3) 0px;
+}
+
+.actionItemIcon {
+  min-width: 44px;
+  display: inline-flex;
+}
+
+.actionButton {
+  width: 100%;
+}
+
+/* The following have intentionally increased specificity to override stems button specificity */
+.actionButton .actionButtonLabel {
+  font-size: var(--font-l);
+  font-weight: var(--font-bold);
+}
+
+.actionButton .twitterIcon path {
+  fill: var(--static-twitter-blue);
+}
+
+.actionButton .twitterActionLabel {
+  color: var(--static-twitter-blue);
+}
+
+/* Reconstructing TikTok icon styles due to stems button specificity */
+.actionButton .tikTokIcon path:nth-of-type(1) {
+  fill: #ee1d52;
+}
+
+.actionButton .tikTokIcon path:nth-of-type(2) {
+  fill: #000;
+}
+
+.actionButton .tikTokIcon path:nth-of-type(3) {
+  fill: #69c9d0;
+}
+
+.actionButton .tikTokIcon path:nth-of-type(4) {
+  fill: #69c9d0;
+}
+
+.actionButton .tikTokIcon path:nth-of-type(5) {
+  fill: #69c9d0;
+}
+
+.actionButton .tikTokIconDark path {
+  fill: var(--static-white);
+}
+
+.actionButton .tikTokActionLabel {
+  color: black;
+}
+
+.actionButton .tikTokActionLabelDark {
+  color: var(--static-white);
+}
+
+.actionButton .shareIcon path {
+  fill: var(--secondary) !important;
+}
+
+.actionButton .shareActionLabel {
+  color: var(--secondary);
+}
