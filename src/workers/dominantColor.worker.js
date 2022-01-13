@@ -3,15 +3,16 @@
 export default () => {
   const DEFAULT_RGB = '#7e1bcc'
   const SAMPLE_RATE = 20
-
-  const script = `/scripts/jimp.min.js`
-  // eslint-disable-next-line
-  importWorkerScript(script)
-
+  const NUM_DOMINANT_COLORS = 3
+  const MIN_EUCLIDEAN_DISTANCE = 100
   // Based off this site: https://app.contrast-finder.org/result.html?foreground=%23FFFFFF&background=%23cdc8c8&ratio=4.5&isBackgroundTested=true&algo=Rgb
   // the brightest color we want to support, given white text, is
   // #CDC8C8, which works out to a luminance of 201.
   const LUMINANCE_THRESHOLD = 201
+
+  const script = `/scripts/jimp.min.js`
+  // eslint-disable-next-line
+  importWorkerScript(script)
 
   const clampedRGBColor = (rgbString /* string of 'r,g,b' */) => {
     const rgb = rgbString.split(',').map(x => parseInt(x, 10))
@@ -37,8 +38,6 @@ export default () => {
    * @param {string} imageUrl url of the image to use
    */
   const dominantRgb = ({ key, imageUrl }) => {
-    const NUM_DOMINANT_COLORS = 3
-
     Jimp.read(imageUrl)
       .then(img => {
         img.posterize(15)
@@ -62,7 +61,7 @@ export default () => {
           }
         }
 
-        const result = Object.keys(counts)
+        const sortedResult = Object.keys(counts)
           .sort((a, b) => {
             return counts[b] - counts[a]
           })
@@ -71,9 +70,8 @@ export default () => {
             g: clampedRGBColor(c)[1],
             b: clampedRGBColor(c)[2]
           }))
-          .slice(0, NUM_DOMINANT_COLORS)
 
-        // eslint-disable-next-line
+        const result = findDifferentColors(sortedResult)
         postMessage({ key, result })
       })
       .catch(err => {
@@ -81,6 +79,43 @@ export default () => {
         // eslint-disable-next-line
         postMessage({ key, result: DEFAULT_RGB })
       })
+  }
+
+  const findDifferentColors = sortedResults => {
+    const domColors = [sortedResults[0]]
+    for (let i = 0; i < sortedResults.length; i++) {
+      const curResult = sortedResults[i]
+
+      if (domColors.length >= NUM_DOMINANT_COLORS) {
+        break
+      }
+
+      let isFarEnough = true
+      for (let j = 0; j < domColors.length; j++) {
+        const distance = calculateEuclideanDistance(domColors[j], curResult)
+        if (distance < MIN_EUCLIDEAN_DISTANCE) {
+          isFarEnough = false
+          break
+        }
+      }
+      if (isFarEnough) {
+        domColors.push(curResult)
+      }
+    }
+
+    if (domColors.length < NUM_DOMINANT_COLORS) {
+      return domColors.slice(0, NUM_DOMINANT_COLORS)
+    }
+
+    return domColors
+  }
+
+  const calculateEuclideanDistance = (c1, c2) => {
+    return Math.sqrt(
+      Math.pow(c1.r - c2.r, 2) +
+        Math.pow(c1.g - c2.g, 2) +
+        Math.pow(c1.b - c2.b, 2)
+    )
   }
 
   // eslint-disable-next-line
