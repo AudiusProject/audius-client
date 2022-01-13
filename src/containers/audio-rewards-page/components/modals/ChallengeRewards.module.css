@@ -149,10 +149,6 @@
   font-size: var(--font-l) !important;
   letter-spacing: 0px !important;
 }
-.button.disabled:hover {
-  transform: none;
-  background: var(--neutral-light-7);
-}
 .button.mobile {
   width: 100%;
 }
@@ -195,7 +191,7 @@
 .inviteButtonContainer {
   gap: 10px;
   cursor: pointer;
-  transition: all .07s ease-in-out;
+  transition: all 0.07s ease-in-out;
   transform: scale3d(1, 1, 1);
 }
 .inviteButtonContainer.mobile {

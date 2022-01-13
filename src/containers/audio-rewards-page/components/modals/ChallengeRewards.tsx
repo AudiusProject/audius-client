@@ -22,7 +22,8 @@ import {
   ClaimStatus,
   resetClaimStatus,
   resetHCaptchaStatus,
-  CognitoFlowStatus
+  CognitoFlowStatus,
+  fetchClaimAttestation
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
@@ -37,7 +38,6 @@ import { copyToClipboard } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import fillString from 'utils/fillString'
 
-import ClaimRewardButton from '../ClaimRewardButton'
 import PurpleBox from '../PurpleBox'
 
 import styles from './ChallengeRewards.module.css'
@@ -65,7 +65,9 @@ const messages = {
   inviteLink: 'audius.co/signup?ref=%0',
   qrText: 'Download the App',
   qrSubtext: 'Scan This QR Code with Your Phone Camera',
-  rewardClaimed: 'Reward claimed successfully!'
+  rewardClaimed: 'Reward claimed successfully!',
+  claimYourReward: 'Claim Your Reward',
+  claimFailed: 'Oops, something’s gone wrong'
 }
 
 type InviteLinkProps = {
@@ -162,9 +164,9 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   } = challengeRewardsConfig[modalType]
 
   const currentStepCount = challenge?.current_step_count || 0
+  const isComplete = challenge?.is_complete
   const isIncomplete = currentStepCount === 0
-  const isInProgress = currentStepCount > 0 && currentStepCount !== stepCount
-  const isComplete = currentStepCount === stepCount
+  const isInProgress = currentStepCount > 0 && !isComplete
   const isDisbursed = challenge?.is_disbursed ?? false
   const specifier = challenge?.specifier ?? ''
 
@@ -224,14 +226,29 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   const { toast } = useContext(ToastContext)
   const claimStatus = useSelector(getClaimStatus)
-  const [hideClaimButton, setHideClaimButton] = useState(false)
   const [displayClaimError, setDisplayClaimError] = useState(false)
+  const claimInProgress =
+    claimStatus === ClaimStatus.CLAIMING ||
+    claimStatus === ClaimStatus.RETRY_PENDING
 
   const resetClaimState = useCallback(() => {
-    setHideClaimButton(true)
     dispatch(resetClaimStatus())
     dispatch(resetHCaptchaStatus())
   }, [dispatch])
+  const onClaimRewardClicked = useCallback(() => {
+    if (challenge) {
+      dispatch(
+        fetchClaimAttestation({
+          claim: {
+            challengeId: challenge.challenge_id,
+            specifier,
+            amount
+          },
+          retryOnFailure: true
+        })
+      )
+    }
+  }, [dispatch, challenge, specifier, amount])
 
   useEffect(() => {
     switch (claimStatus) {
@@ -321,27 +338,27 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             rightIcon={buttonInfo?.rightIcon}
           />
         )}
-        {challenge && isComplete && !isDisbursed && !hideClaimButton && (
-          <ClaimRewardButton
-            className={cn(wm(styles.button), {
-              [styles.disabled]: claimStatus !== ClaimStatus.NONE
-            })}
-            challengeId={modalType}
-            specifier={specifier}
-            amount={amount}
-            isDisabled={claimStatus !== ClaimStatus.NONE}
-            icon={
-              claimStatus === ClaimStatus.CLAIMING ? (
+        {challenge && isComplete && !isDisbursed && (
+          <Button
+            text={messages.claimYourReward}
+            className={wm(styles.button)}
+            type={
+              claimInProgress ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT
+            }
+            isDisabled={claimInProgress}
+            rightIcon={
+              claimInProgress ? (
                 <LoadingSpinner className={styles.spinner} />
               ) : (
                 <IconCheck />
               )
             }
+            onClick={onClaimRewardClicked}
           />
         )}
       </div>
       {displayClaimError && (
-        <div className={styles.claimError}>Oops, something’s gone wrong</div>
+        <div className={styles.claimError}>{messages.claimFailed}</div>
       )}
     </div>
   )
