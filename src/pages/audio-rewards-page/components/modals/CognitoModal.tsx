@@ -28,7 +28,7 @@ declare global {
 /**
  * The CognitoModal isn't a true modal. It uses the Cognito Flow SDK to trigger an externally controlled modal
  */
-const CognitoModal = () => {
+export const CognitoModal = () => {
   const dispatch = useDispatch()
   const [isOpen] = useModalState('Cognito')
   const scriptLoaded = useScript(COGNITO_SCRIPT_URL)
@@ -101,4 +101,5 @@ const CognitoModal = () => {
   return null
 }
 
+// Default export for use with lazy loading
 export default CognitoModal
