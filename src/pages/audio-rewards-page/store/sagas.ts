@@ -25,6 +25,8 @@ import {
   claimChallengeRewardWaitForRetry
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
+import { increaseBalance } from 'common/store/wallet/slice'
+import { stringAudioToStringWei } from 'common/utils/wallet'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
