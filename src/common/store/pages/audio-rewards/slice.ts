@@ -8,8 +8,15 @@ export type ChallengeRewardsModalType = ChallengeRewardID
 export enum ClaimStatus {
   NONE = 'none',
   CLAIMING = 'claiming',
+  WAITING_FOR_RETRY = 'waiting for retry',
   SUCCESS = 'success',
   ERROR = 'error'
+}
+
+export type Claim = {
+  challengeId: ChallengeRewardID
+  specifier: string
+  amount: number
 }
 
 export enum HCaptchaStatus {
@@ -34,6 +41,7 @@ type RewardsUIState = {
   challengeRewardsModalType: ChallengeRewardsModalType
   userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
   claimStatus: ClaimStatus
+  claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
 }
@@ -119,6 +127,25 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ token: string }>
     ) => {},
+    claimChallengeReward: (
+      state,
+      _: PayloadAction<{
+        claim: Claim
+        retryOnFailure: boolean
+      }>
+    ) => {
+      state.claimStatus = ClaimStatus.CLAIMING
+    },
+    claimChallengeRewardWaitForRetry: (state, action: PayloadAction<Claim>) => {
+      state.claimStatus = ClaimStatus.WAITING_FOR_RETRY
+      state.claimToRetry = action.payload
+    },
+    claimChallengeRewardFailed: state => {
+      state.claimStatus = ClaimStatus.ERROR
+    },
+    claimChallengeRewardSucceeded: state => {
+      state.claimStatus = ClaimStatus.SUCCESS
+    },
     setCognitoFlowStatus: (
       state,
       action: PayloadAction<{ status: CognitoFlowStatus }>
@@ -141,6 +168,10 @@ export const {
   setHCaptchaStatus,
   resetHCaptchaStatus,
   updateHCaptchaScore,
+  claimChallengeReward,
+  claimChallengeRewardWaitForRetry,
+  claimChallengeRewardFailed,
+  claimChallengeRewardSucceeded,
   setCognitoFlowStatus
 } = slice.actions
 
