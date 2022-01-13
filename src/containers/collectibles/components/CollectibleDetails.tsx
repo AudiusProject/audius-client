@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
-import { useRouteMatch } from 'react-router'
 
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
 import { useModalState } from 'common/hooks/useModalState'
@@ -12,7 +11,6 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'
 import { getProfileUserHandle } from 'containers/profile-page/store/selectors'
-import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { preload } from 'utils/image'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
@@ -31,7 +29,7 @@ const CollectibleDetails: React.FC<{
   const [isLoading, setIsLoading] = useState(true)
   const [frame, setFrame] = useState(frameUrl)
   const [showSpinner, setShowSpinner] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useModalState('CollectibleDetails')
+  const [, setIsModalOpen] = useModalState('CollectibleDetails')
 
   // Debounce showing the spinner for a second
   useEffect(() => {
