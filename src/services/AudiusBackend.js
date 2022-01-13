@@ -2674,6 +2674,7 @@ class AudiusBackend {
     oracleEthAddress,
     amount,
     quorumSize,
+    endpoints,
     AAOEndpoint
   }) {
     await waitForLibsInit()
@@ -2687,6 +2688,7 @@ class AudiusBackend {
         oracleEthAddress,
         amount,
         quorumSize,
+        endpoints,
         AAOEndpoint
       })
       return res
