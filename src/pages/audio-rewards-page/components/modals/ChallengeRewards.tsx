@@ -33,6 +33,7 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
+import { useOptimisticChallengeCompletionStepCounts } from 'pages/audio-rewards-page/hooks'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
@@ -163,7 +164,10 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
     modalButtonInfo
   } = challengeRewardsConfig[modalType]
 
-  const currentStepCount = challenge?.current_step_count || 0
+  const currentStepCountOverrides = useOptimisticChallengeCompletionStepCounts()
+  const currentStepCount =
+    currentStepCountOverrides[modalType] || challenge?.current_step_count || 0
+
   const isIncomplete = currentStepCount === 0
   const isComplete = challenge?.is_complete
   const isInProgress = currentStepCount > 0 && !isComplete

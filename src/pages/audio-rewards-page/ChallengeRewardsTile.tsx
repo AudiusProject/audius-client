@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
@@ -26,6 +26,7 @@ import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { challengeRewardsConfig } from './config'
+import { useOptimisticChallengeCompletionStepCounts } from './hooks'
 
 const messages = {
   title: '$AUDIO REWARDS',
@@ -45,6 +46,7 @@ type RewardPanelProps = {
   stepCount: number
   openModal: (modalType: ChallengeRewardsModalType) => void
   id: ChallengeRewardID
+  currentStepCountOverride?: number
 }
 
 const RewardPanel = ({
@@ -55,7 +57,8 @@ const RewardPanel = ({
   openModal,
   progressLabel,
   icon,
-  stepCount
+  stepCount,
+  currentStepCountOverride
 }: RewardPanelProps) => {
   const wm = useWithMobileStyle(styles.mobile)
   const userChallenges = useSelector(getUserChallenges)
@@ -63,7 +66,19 @@ const RewardPanel = ({
   const openRewardModal = () => openModal(id)
 
   const challenge = userChallenges[id]
-  const currentStepCount = challenge?.current_step_count || 0
+  const currentStepCount =
+    currentStepCountOverride || challenge?.current_step_count || 0
+  if (
+    ['profile-completion', 'track-upload'].includes(
+      challenge?.challenge_id ?? ''
+    )
+  ) {
+    console.log({
+      challenge,
+      currentStepCountOverride,
+      stepCount: challenge?.current_step_count
+    })
+  }
   const isComplete = !!challenge?.is_complete
 
   return (
@@ -133,15 +148,35 @@ const useRewardIds = () => {
   return filteredRewards
 }
 
+const CHALLENGE_REFRESH_INTERVAL_MS = 5000
+
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
   const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
+  const currentStepCountOverrides = useOptimisticChallengeCompletionStepCounts()
+
+  const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   useEffect(() => {
-    dispatch(fetchUserChallenges())
-  }, [dispatch])
+    if (!userChallengesLoading && !haveChallengesLoaded) {
+      setHaveChallengesLoaded(true)
+    }
+  }, [userChallengesLoading, haveChallengesLoaded])
+
+  useEffect(() => {
+    if (!haveChallengesLoaded) {
+      dispatch(fetchUserChallenges())
+    }
+    const interval = setInterval(() => {
+      dispatch(fetchUserChallenges())
+    }, CHALLENGE_REFRESH_INTERVAL_MS)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [dispatch, haveChallengesLoaded])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
     dispatch(setChallengeRewardsModalType({ modalType }))
@@ -151,7 +186,12 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const rewardsTiles = rewardIds
     .map(id => challengeRewardsConfig[id])
     .map(props => (
-      <RewardPanel {...props} openModal={openModal} key={props.id} />
+      <RewardPanel
+        {...props}
+        currentStepCountOverride={currentStepCountOverrides[props.id]}
+        openModal={openModal}
+        key={props.id}
+      />
     ))
 
   const wm = useWithMobileStyle(styles.mobile)
@@ -164,7 +204,11 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
         <span>{messages.description2}</span>
       </div>
       <div className={styles.rewardsContainer}>
-        {userChallengesLoading ? <LoadingSpinner /> : rewardsTiles}
+        {userChallengesLoading && !haveChallengesLoaded ? (
+          <LoadingSpinner />
+        ) : (
+          rewardsTiles
+        )}
       </div>
     </Tile>
   )
