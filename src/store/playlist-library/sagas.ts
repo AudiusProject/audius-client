@@ -26,7 +26,7 @@ import {
 } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import { makeKindId } from 'common/utils/uid'
-import { updateProfileAsync } from 'containers/profile-page/store/sagas'
+import { updateProfileAsync } from 'pages/profile-page/store/sagas'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { getResult } from 'store/confirmer/selectors'

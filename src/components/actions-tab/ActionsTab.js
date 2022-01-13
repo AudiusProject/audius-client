@@ -18,9 +18,9 @@ import {
   undoRepostTrack
 } from 'common/store/social/tracks/actions'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+import Menu from 'components/menu/Menu'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
-import Menu from 'containers/menu/Menu'
 import { REPOST_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 
 import styles from './ActionsTab.module.css'
