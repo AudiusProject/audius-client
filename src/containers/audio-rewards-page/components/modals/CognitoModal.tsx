@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 
 import { useDispatch } from 'react-redux'
-import { Dispatch } from 'redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import {
