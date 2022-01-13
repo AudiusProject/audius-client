@@ -9,8 +9,8 @@ const libs = () => window.audiusLibs
 
 type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH'
 
-type CognitoSignatureResponse = { signature: string }
-type CognitoFlowResponse = { shareable_url: string }
+export type CognitoSignatureResponse = { signature: string }
+export type CognitoFlowResponse = { shareable_url: string }
 
 async function _makeRequest<T>({
   path,

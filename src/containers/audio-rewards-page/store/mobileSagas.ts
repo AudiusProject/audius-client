@@ -6,14 +6,15 @@ import {
   fetchCognitoFlowUrlSucceeded,
   updateHCaptchaScore
 } from 'common/store/pages/audio-rewards/slice'
-import { getCognitoFlow } from 'services/audius-backend/Cognito'
+import {
+  CognitoFlowResponse,
+  getCognitoFlow
+} from 'services/audius-backend/Cognito'
 import { MessageType } from 'services/native-mobile-interface/types'
 
 function* fetchCognitoFlowUriAsync() {
   try {
-    const response: Awaited<ReturnType<typeof getCognitoFlow>> = yield call(
-      getCognitoFlow
-    )
+    const response: CognitoFlowResponse = yield call(getCognitoFlow)
     yield put(fetchCognitoFlowUrlSucceeded(response.shareable_url))
   } catch (e) {
     console.error(e)
