@@ -12,13 +12,13 @@ type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH'
 export type CognitoSignatureResponse = { signature: string }
 export type CognitoFlowResponse = { shareable_url: string }
 
-async function _makeRequest<T>({
+async function _makeRequest<ResponseModel>({
   path,
   method = 'GET'
 }: {
   path: string
   method?: HttpMethod
-}): Promise<T> {
+}): Promise<ResponseModel> {
   await waitForLibsInit()
   const account = libs().Account.getCurrentUser()
   if (!account) {
@@ -36,7 +36,7 @@ async function _makeRequest<T>({
   if (response.status >= 400 && response.status < 600) {
     throw new Error(`Cognito Identity Request Failed: ${response.statusText}`)
   }
-  const json = (await response.json()) as T
+  const json: ResponseModel = await response.json()
   return json
 }
 
