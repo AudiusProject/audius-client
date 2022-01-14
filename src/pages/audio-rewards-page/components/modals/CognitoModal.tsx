@@ -57,9 +57,6 @@ export const CognitoModal = () => {
         case 'closed':
           dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
           break
-        default:
-          // nothing
-          break
       }
     })
 
@@ -81,9 +78,6 @@ export const CognitoModal = () => {
           console.error('COGNITO: User failed their Flow session')
           flow.close()
           break
-        default:
-          // nothing
-          break
       }
     })
 
@@ -93,11 +87,13 @@ export const CognitoModal = () => {
 
     flow.open()
   }, [dispatch, handle])
+
   useEffect(() => {
     if (isOpen && scriptLoaded && handle) {
       triggerFlow()
     }
   }, [triggerFlow, isOpen, scriptLoaded, handle])
+
   return null
 }
 
