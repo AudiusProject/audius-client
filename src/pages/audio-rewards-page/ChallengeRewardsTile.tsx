@@ -5,7 +5,7 @@ import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
-import { StringKeys } from 'common/services/remote-config'
+import { IntKeys, StringKeys } from 'common/services/remote-config'
 import {
   getUserChallenges,
   getUserChallengesLoading
@@ -13,6 +13,7 @@ import {
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import fillString from 'utils/fillString'
 
 import { ChallengeRewardID } from '../../common/models/AudioRewards'
@@ -68,17 +69,6 @@ const RewardPanel = ({
   const challenge = userChallenges[id]
   const currentStepCount =
     currentStepCountOverride || challenge?.current_step_count || 0
-  if (
-    ['profile-completion', 'track-upload'].includes(
-      challenge?.challenge_id ?? ''
-    )
-  ) {
-    console.log({
-      challenge,
-      currentStepCountOverride,
-      stepCount: challenge?.current_step_count
-    })
-  }
   const isComplete = !!challenge?.is_complete
 
   return (
@@ -148,14 +138,13 @@ const useRewardIds = () => {
   return filteredRewards
 }
 
-const CHALLENGE_REFRESH_INTERVAL_MS = 5000
-
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
   const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const currentStepCountOverrides = useOptimisticChallengeCompletionStepCounts()
+  const refreshInterval = useRemoteVar(IntKeys.CHALLENGE_REFRESH_INTERVAL_MS)
 
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
@@ -171,12 +160,12 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     }
     const interval = setInterval(() => {
       dispatch(fetchUserChallenges())
-    }, CHALLENGE_REFRESH_INTERVAL_MS)
+    }, refreshInterval)
 
     return () => {
       clearInterval(interval)
     }
-  }, [dispatch, haveChallengesLoaded])
+  }, [dispatch, haveChallengesLoaded, refreshInterval])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
     dispatch(setChallengeRewardsModalType({ modalType }))

@@ -72,7 +72,12 @@ export enum IntKeys {
   /**
    * The minimum amount of AUDIO needed to be sent
    */
-  MIN_AUDIO_SEND_AMOUNT = 'MIN_AUDIO_SEND_AMOUNT'
+  MIN_AUDIO_SEND_AMOUNT = 'MIN_AUDIO_SEND_AMOUNT',
+
+  /**
+   * The refresh interval in milliseconds for user challenges
+   */
+  CHALLENGE_REFRESH_INTERVAL_MS = 'CHALLENGE_REFRESH_INTERVAL_MS'
 }
 
 export enum BooleanKeys {
