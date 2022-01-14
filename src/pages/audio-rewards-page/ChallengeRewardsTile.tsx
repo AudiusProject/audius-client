@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
 import { ChallengeRewardID } from 'common/models/AudioRewards'
-import { IntKeys, StringKeys } from 'common/services/remote-config'
+import { StringKeys } from 'common/services/remote-config'
 import {
   getUserChallenges,
   getUserChallengesLoading

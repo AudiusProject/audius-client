@@ -1,5 +1,12 @@
 import { User } from '@sentry/browser'
-import { call, put, select, take, takeEvery, takeLatest } from 'redux-saga/effects'
+import {
+  call,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest
+} from 'redux-saga/effects'
 
 import {
   ChallengeRewardID,
@@ -33,9 +40,8 @@ import {
   refreshUserBalance
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
-import { increaseBalance } from 'common/store/wallet/slice'
+import { increaseBalance, getBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
-import { getBalance } from 'common/store/wallet/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
