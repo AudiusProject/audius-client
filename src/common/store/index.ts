@@ -100,6 +100,7 @@ export const sagas = {
   // store/social/collections/sagas.ts
   // pages/audio-rewards-page/store/sagas.ts
   // store/wallet/sagas.ts
+  // store/lineup/sagas.js
   // pages/track/store/lineups/tracks/sagas.js
   // pages/track/store/sagas.js
 }
