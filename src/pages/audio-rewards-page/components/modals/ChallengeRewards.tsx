@@ -154,7 +154,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const challenge = userChallenges[modalType]
 
   const {
-    amount,
     fullDescription,
     progressLabel,
     stepCount,
@@ -195,7 +194,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressReward = (
     <div className={wm(styles.progressReward)}>
       <h3>Reward</h3>
-      <h2>{amount}</h2>
+      <h2>{challenge?.amount}</h2>
       <h4>$AUDIO</h4>
     </div>
   )
@@ -328,7 +327,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             })}
             challengeId={modalType}
             specifier={specifier}
-            amount={amount}
+            amount={challenge.amount}
             isDisabled={claimStatus !== ClaimStatus.NONE}
             icon={
               claimStatus === ClaimStatus.CLAIMING ? (

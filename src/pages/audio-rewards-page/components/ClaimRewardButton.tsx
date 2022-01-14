@@ -45,7 +45,7 @@ const messages = {
 type ClaimRewardButtonProps = {
   challengeId: ChallengeRewardID
   specifier: string
-  amount: number
+  amount: string
   isDisabled: boolean
   icon: JSX.Element
   className?: string
@@ -127,7 +127,7 @@ const ClaimRewardButton = ({
       } else {
         dispatch(
           increaseBalance({
-            amount: stringAudioToStringWei(amount.toString() as StringAudio)
+            amount: stringAudioToStringWei(amount as StringAudio)
           })
         )
         dispatch(setUserChallengeDisbursed({ challengeId }))
