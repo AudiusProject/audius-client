@@ -39,7 +39,7 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { encodeHashId } from 'utils/route/hashIds'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILEconst
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
 const CHALLENGE_REWARDS_MODAL_NAME = 'ChallengeRewardsExplainer'
