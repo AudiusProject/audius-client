@@ -10,12 +10,15 @@ export const getDiscoverTrendingMonthLineup = state =>
   state.trending.trendingMonth
 export const getDiscoverTrendingYearLineup = state =>
   state.trending.trendingYear
+export const getDiscoverTrendingAllTimeLineup = state =>
+  state.trending.trendingAllTime
 
 export const makeGetTrendingLineup = timeRange => state => {
   return {
     [TimeRange.WEEK]: state.trending.trendingWeek,
     [TimeRange.MONTH]: state.trending.trendingMonth,
-    [TimeRange.YEAR]: state.trending.trendingYear
+    [TimeRange.YEAR]: state.trending.trendingYear,
+    [TimeRange.ALL_TIME]: state.trending.trendingAllTime
   }[timeRange]
 }
 

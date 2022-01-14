@@ -53,9 +53,10 @@ const getTimeGenreCacheKey = (timeRange: TimeRange, genre: string | null) => {
 const getRangesToDisable = (timeRange: TimeRange) => {
   switch (timeRange) {
     case TimeRange.ALL_TIME:
+    case TimeRange.YEAR:
     case TimeRange.MONTH:
-      // In the case of TimeRange.ALL_TIME,
-      // we don't want to return ALL TIME because
+      // In the case of TimeRangeALL_TIME,
+      // we don't want to return ALL_TIME because
       // we don't want to disable ALL_TIME (it's the only possible tab left, even if it's empty).
       return [TimeRange.MONTH, TimeRange.WEEK]
     case TimeRange.WEEK:
@@ -117,7 +118,9 @@ const TrendingPageContent = (props: TrendingPageContentProps) => {
         const monthAlsoEmpty = emptyTimeGenreSet.current.has(
           getTimeGenreCacheKey(TimeRange.MONTH, trendingGenre!)
         )
-        const newTimeRange = monthAlsoEmpty ? TimeRange.ALL_TIME : TimeRange.MONTH
+        const newTimeRange = monthAlsoEmpty
+          ? TimeRange.ALL_TIME
+          : TimeRange.MONTH
         reloadAndSwitchTabs(newTimeRange)
         break
       }

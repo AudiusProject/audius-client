@@ -9,6 +9,7 @@ export default interface DiscoveryPageState {
   trendingWeek: LineupState<{ id: ID }>
   trendingMonth: LineupState<{ id: ID }>
   trendingYear: LineupState<{ id: ID }>
+  trendingAllTime: LineupState<{ id: ID }>
   feedFilter: FeedFilter
   trendingTimeRange: TimeRange
   trendingGenre: string | null

@@ -212,7 +212,6 @@ const SavedPage = ({
           secondaryText='Once you have, this is where you’ll find them!'
           buttonLabel='Go to Trending'
           onClick={() => goToRoute('/trending')}
-
         />
       ) : (
         <div className={styles.tableWrapper}>

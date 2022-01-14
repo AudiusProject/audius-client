@@ -9,30 +9,30 @@ export const TRENDING_ALL_TIME_PREFIX = 'DISCOVER_TRENDING_ALL_TIME'
 export const SET_TRENDING_SCORES = 'SET_TRENDING_SCORES'
 
 class TrendingActions extends LineupActions {
-  constructor () {
+  constructor() {
     super(PREFIX)
   }
 }
 
 class TrendingWeekActions extends LineupActions {
-  constructor () {
+  constructor() {
     super(TRENDING_WEEK_PREFIX)
   }
 }
 
 class TrendingMonthActions extends LineupActions {
-  constructor () {
+  constructor() {
     super(TRENDING_MONTH_PREFIX)
   }
 }
 class TrendingYearActions extends LineupActions {
-  constructor () {
+  constructor() {
     super(TRENDING_YEAR_PREFIX)
   }
 }
 
 class TrendingAllTimeActions extends LineupActions {
-  constructor () {
+  constructor() {
     super(TRENDING_ALL_TIME_PREFIX)
   }
 }

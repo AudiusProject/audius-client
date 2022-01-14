@@ -7,12 +7,14 @@ import {
 import {
   TRENDING_WEEK_PREFIX,
   TRENDING_MONTH_PREFIX,
-  TRENDING_YEAR_PREFIX
+  TRENDING_YEAR_PREFIX,
+  TRENDING_ALL_TIME_PREFIX
 } from 'pages/trending-page/store/lineups/trending/actions'
 import {
   trendingWeek,
   trendingMonth,
-  trendingYear
+  trendingYear,
+  trendingAllTime
 } from 'pages/trending-page/store/lineups/trending/reducer'
 import { asLineup } from 'store/lineup/reducer'
 import { GENRES } from 'utils/genres'
@@ -54,6 +56,10 @@ const actionsMap = {
 const trendingWeekReducer = asLineup(TRENDING_WEEK_PREFIX, trendingWeek)
 const trendingMonthReducer = asLineup(TRENDING_MONTH_PREFIX, trendingMonth)
 const trendingYearReducer = asLineup(TRENDING_YEAR_PREFIX, trendingYear)
+const trendingAllTimeReducer = asLineup(
+  TRENDING_ALL_TIME_PREFIX,
+  trendingAllTime
+)
 
 const reducer = (state, action) => {
   // On first run, create our initial state
@@ -62,7 +68,8 @@ const reducer = (state, action) => {
       ...initialState,
       trendingWeek: trendingWeekReducer(state, action),
       trendingMonth: trendingMonthReducer(state, action),
-      trendingYear: trendingYearReducer(state, action)
+      trendingYear: trendingYearReducer(state, action),
+      trendingAllTime: trendingAllTimeReducer(state, action)
     }
   }
 
@@ -74,6 +81,11 @@ const reducer = (state, action) => {
 
   const trendingYear = trendingYearReducer(state.trendingYear, action)
   if (trendingYear !== state.trendingYear) return { ...state, trendingYear }
+
+  const trendingAllTime = trendingAllTimeReducer(state.trendingAllTime, action)
+  if (trendingAllTime !== state.trendingAllTime) {
+    return { ...state, trendingAllTime }
+  }
 
   const matchingReduceFunction = actionsMap[action.type]
   if (!matchingReduceFunction) return state

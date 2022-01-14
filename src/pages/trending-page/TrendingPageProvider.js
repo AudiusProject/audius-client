@@ -15,6 +15,7 @@ import {
   trendingWeekActions,
   trendingMonthActions,
   trendingYearActions,
+  trendingAllTimeActions,
   trendingActions
 } from 'pages/trending-page/store/lineups/trending/actions'
 import {
@@ -23,6 +24,7 @@ import {
   getTrendingGenre,
   getDiscoverTrendingWeekLineup,
   getDiscoverTrendingYearLineup,
+  getDiscoverTrendingAllTimeLineup,
   getDiscoverTrendingMonthLineup,
   getLastFetchedTrendingGenre
 } from 'pages/trending-page/store/selectors'
@@ -46,7 +48,8 @@ const callLineupAction = (timeRange, action, ...args) => {
   const timeRangeMap = {
     [TimeRange.WEEK]: trendingWeekActions,
     [TimeRange.MONTH]: trendingMonthActions,
-    [TimeRange.YEAR]: trendingYearActions
+    [TimeRange.YEAR]: trendingYearActions,
+    [TimeRange.ALL_TIME]: trendingAllTimeActions
   }
   return timeRangeMap[timeRange][action](...args)
 }
@@ -110,6 +113,7 @@ class TrendingPageProvider extends PureComponent {
       this.props.makeResetTrending(TimeRange.WEEK)()
       this.props.makeResetTrending(TimeRange.MONTH)()
       this.props.makeResetTrending(TimeRange.YEAR)()
+      this.props.makeResetTrending(TimeRange.ALL_TIME)()
     }
   }
 
@@ -135,13 +139,19 @@ class TrendingPageProvider extends PureComponent {
       case TimeRange.MONTH:
         return this.getLineupProps(this.props.trendingMonth)
       case TimeRange.YEAR:
-      default:
         return this.getLineupProps(this.props.trendingYear)
+      case TimeRange.ALL_TIME:
+        return this.getLineupProps(this.props.trendingAllTime)
+      default:
+        return this.getLineupProps(this.props.trendingAllTime)
     }
   }
 
   scrollToTop = timeRange => {
+    console.log('scrollToTop: ' + timeRange)
     const lineup = this.getLineupForRange(timeRange)
+    console.log('lineup: ' + lineup)
+
     if (lineup.scrollParent && lineup.scrollParent.scrollTo) {
       lineup.scrollParent.scrollTo(0, 0)
     }
@@ -175,7 +185,7 @@ class TrendingPageProvider extends PureComponent {
       trendingWeek: this.props.trendingWeek,
       trendingMonth: this.props.trendingMonth,
       trendingYear: this.props.trendingYear,
-
+      trendingAllTime: this.props.trendingAllTime,
       playTrendingTrack: this.props.playTrendingTrack,
       pauseTrendingTrack: this.props.pauseTrendingTrack,
       refreshTrendingInView: this.props.refreshTrendingInView,
@@ -201,7 +211,9 @@ class TrendingPageProvider extends PureComponent {
       getLineupForRange: this.getLineupForRange,
       scrollToTop: this.scrollToTop
     }
-
+    console.log(
+      'trendingAllTime: ' + JSON.stringify(childProps.trendingAllTime)
+    )
     return <this.props.children {...childProps} />
   }
 }
@@ -218,6 +230,9 @@ const makeMapStateToProps = () => {
   const getTrendingYearLineup = makeGetLineupMetadatas(
     getDiscoverTrendingYearLineup
   )
+  const getTrendingAllTimeLineup = makeGetLineupMetadatas(
+    getDiscoverTrendingAllTimeLineup
+  )
 
   const mapStateToProps = state => ({
     hasAccount: getHasAccount(state),
@@ -225,6 +240,7 @@ const makeMapStateToProps = () => {
     trendingWeek: getTrendingWeekLineup(state),
     trendingMonth: getTrendingMonthLineup(state),
     trendingYear: getTrendingYearLineup(state),
+    trendingAllTime: getTrendingAllTimeLineup(state),
     currentQueueItem: getCurrentQueueItem(state),
     playing: getPlaying(state),
     buffering: getBuffering(state),

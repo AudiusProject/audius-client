@@ -87,9 +87,10 @@ const TrendingPageMobileContent = ({
     return lineup.lineup.status
   }
 
-  const [weekStatus, monthStatus, allTimeStatus] = [
+  const [weekStatus, monthStatus, yearStatus, allTimeStatus] = [
     getStatus(TimeRange.WEEK),
     getStatus(TimeRange.MONTH),
+    getStatus(TimeRange.YEAR),
     getStatus(TimeRange.ALL_TIME)
   ]
 
@@ -100,6 +101,10 @@ const TrendingPageMobileContent = ({
   )
   const refreshTrendingMonth = useCallback(
     () => makeRefreshTrendingInView(TimeRange.MONTH)(true),
+    [makeRefreshTrendingInView]
+  )
+  const refreshTrendingYear = useCallback(
+    () => makeRefreshTrendingInView(TimeRange.YEAR)(true),
     [makeRefreshTrendingInView]
   )
   const refreshTrendingAllTime = useCallback(
@@ -116,6 +121,11 @@ const TrendingPageMobileContent = ({
     [TimeRange.MONTH]: useAsyncPoll({
       call: refreshTrendingMonth,
       variable: monthStatus,
+      value: Status.SUCCESS
+    }),
+    [TimeRange.YEAR]: useAsyncPoll({
+      call: refreshTrendingYear,
+      variable: yearStatus,
       value: Status.SUCCESS
     }),
     [TimeRange.ALL_TIME]: useAsyncPoll({
