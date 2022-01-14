@@ -1,6 +1,11 @@
 import { User } from '@sentry/browser'
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects'
 
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
@@ -33,12 +38,6 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { encodeHashId } from 'utils/route/hashIds'
-
-import {
-  ChallengeRewardID,
-  FailureReason,
-  UserChallenge
-} from '../../../common/models/AudioRewards'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILEconst
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
@@ -87,10 +86,7 @@ function* claimChallengeRewardAsync(
   const currentUser: User = yield select(getAccountUser)
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
-  let endpoints: string[] | null = null
-  if (rewardsAttestationEndpoints !== null) {
-    endpoints = rewardsAttestationEndpoints.split(',')
-  }
+  const endpoints = rewardsAttestationEndpoints?.split(',') || null
   const hasConfig =
     oracleEthAddress && AAOEndpoint && quorumSize && quorumSize > 0
 

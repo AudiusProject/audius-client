@@ -133,7 +133,7 @@ const slice = createSlice({
     ) => {},
     claimChallengeReward: (
       state,
-      _: PayloadAction<{
+      _action: PayloadAction<{
         claim: Claim
         retryOnFailure: boolean
       }>
