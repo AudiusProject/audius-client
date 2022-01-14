@@ -24,18 +24,18 @@ import {
   saveCollection,
   unsaveCollection,
   repostCollection,
-  undoRepostCollection,
-  shareCollection
+  undoRepostCollection
 } from 'common/store/social/collections/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
   OverflowAction,
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
+import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { PlaylistTileProps } from 'components/track/types'
-import { setFavorite } from 'containers/favorites-page/store/actions'
-import { setRepost } from 'containers/reposts-page/store/actions'
-import { RepostType } from 'containers/reposts-page/store/types'
+import { setFavorite } from 'pages/favorites-page/store/actions'
+import { setRepost } from 'pages/reposts-page/store/actions'
+import { RepostType } from 'pages/reposts-page/store/types'
 import { useRecord, make } from 'store/analytics/actions'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
@@ -157,7 +157,6 @@ const ConnectedPlaylistTile = memo(
         collection.has_current_user_saved
           ? OverflowAction.UNFAVORITE
           : OverflowAction.FAVORITE,
-        OverflowAction.SHARE,
         collection.is_album
           ? OverflowAction.VIEW_ALBUM_PAGE
           : OverflowAction.VIEW_PLAYLIST_PAGE,
@@ -314,7 +313,13 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     shareCollection: (collectionId: ID) =>
-      dispatch(shareCollection(collectionId, ShareSource.TILE)),
+      dispatch(
+        requestOpenShareModal({
+          type: 'collection',
+          collectionId,
+          source: ShareSource.TILE
+        })
+      ),
     saveCollection: (collectionId: ID) =>
       dispatch(saveCollection(collectionId, FavoriteSource.TILE)),
     unsaveCollection: (collectionId: ID) =>

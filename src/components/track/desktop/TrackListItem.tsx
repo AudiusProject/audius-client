@@ -7,10 +7,10 @@ import { UID, ID } from 'common/models/Identifiers'
 import { EnhancedCollectionTrack } from 'common/store/cache/collections/selectors'
 import { formatSeconds } from 'common/utils/timeUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
-import Skeleton from 'components/general/Skeleton'
+import Menu from 'components/menu/Menu'
+import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
+import Skeleton from 'components/skeleton/Skeleton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
-import Menu from 'containers/menu/Menu'
-import { OwnProps as TrackMenuProps } from 'containers/menu/TrackMenu'
 import { profilePage } from 'utils/route'
 
 import { TrackTileSize } from '../types'
@@ -99,7 +99,7 @@ const TrackListItem = ({
     includeEdit: false,
     includeFavorite: true,
     includeRepost: true,
-    includeShare: true,
+    includeShare: false,
     includeTrackPage: true,
     isArtistPick: track.user._artist_pick === track.track_id,
     isDeleted: deleted,

@@ -462,9 +462,6 @@ class AudiusBackend {
           ? undefined
           : { siteKey: RECAPTCHA_SITE_KEY },
         isServer: false,
-        useTrackContentPolling: remoteConfigInstance.getFeatureEnabled(
-          FeatureFlags.USE_TRACK_CONTENT_POLLING
-        ),
         preferHigherPatchForPrimary: remoteConfigInstance.getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY
         ),
@@ -1659,7 +1656,6 @@ class AudiusBackend {
    */
   static async setArtistPick(trackId = null) {
     await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
     try {
       const { data, signature } = await AudiusBackend.signData()
       await fetch(`${IDENTITY_SERVICE}/artist_pick`, {
@@ -2674,6 +2670,7 @@ class AudiusBackend {
     oracleEthAddress,
     amount,
     quorumSize,
+    endpoints,
     AAOEndpoint
   }) {
     await waitForLibsInit()
@@ -2687,6 +2684,7 @@ class AudiusBackend {
         oracleEthAddress,
         amount,
         quorumSize,
+        endpoints,
         AAOEndpoint
       })
       return res

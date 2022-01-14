@@ -44,7 +44,6 @@ module.exports = {
           ['assets', './src/assets'],
           ['common', './src/common'],
           ['components', './src/components'],
-          ['containers', './src/containers'],
           ['hooks', './src/hooks'],
           ['models', './src/models'],
           ['schemas', './src/schemas'],
@@ -53,7 +52,8 @@ module.exports = {
           ['stories', './src/stories'],
           ['types', './src/types'],
           ['utils', './src/utils'],
-          ['workers', './src/workers']
+          ['workers', './src/workers'],
+          ['pages', './src/pages']
         ],
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
       }
@@ -72,7 +72,15 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/no-unused-vars': 'off', // We should turn this one on soon
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        varsIgnorePattern: '[iI]gnored',
+        args: 'none',
+        ignoreRestSiblings: false
+      }
+    ],
     '@typescript-eslint/no-this-alias': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
 

@@ -11,7 +11,6 @@ import {
 } from 'common/models/Analytics'
 import { FavoriteType } from 'common/models/Favorite'
 import { ID } from 'common/models/Identifiers'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
@@ -28,10 +27,9 @@ import {
 } from 'common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { TrackTileProps } from 'components/track/types'
-import { setFavorite } from 'containers/favorites-page/store/actions'
-import { setRepost } from 'containers/reposts-page/store/actions'
-import { RepostType } from 'containers/reposts-page/store/types'
-import { useFlag } from 'hooks/useRemoteConfig'
+import { setFavorite } from 'pages/favorites-page/store/actions'
+import { setRepost } from 'pages/reposts-page/store/actions'
+import { RepostType } from 'pages/reposts-page/store/types'
 import { getTheme } from 'store/application/ui/theme/selectors'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
@@ -168,7 +166,6 @@ const ConnectedTrackTile = memo(
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null,
-        OverflowAction.SHARE,
         OverflowAction.ADD_TO_PLAYLIST,
         OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE

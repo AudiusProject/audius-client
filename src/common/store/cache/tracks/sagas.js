@@ -24,20 +24,17 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { squashNewLines, formatUrlName } from 'common/utils/formatUtil'
 import { makeKindId } from 'common/utils/uid'
-import * as signOnActions from 'containers/sign-on/store/actions'
+import * as signOnActions from 'pages/sign-on/store/actions'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import TrackDownload from 'services/audius-backend/TrackDownload'
 import { make } from 'store/analytics/actions'
-import {
-  setAverageColor,
-  setDominantColors
-} from 'store/application/ui/average-color/slice'
+import { setDominantColors } from 'store/application/ui/average-color/slice'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { averageRgb, dominantColor } from 'utils/imageProcessingUtil'
+import { dominantColor } from 'utils/imageProcessingUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE

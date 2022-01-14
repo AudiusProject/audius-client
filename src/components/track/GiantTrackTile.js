@@ -19,14 +19,14 @@ import PropTypes from 'prop-types'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { formatDate, formatSeconds } from 'common/utils/timeUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
-import Skeleton from 'components/general/Skeleton'
+import DownloadButtons from 'components/download-buttons/DownloadButtons'
+import Menu from 'components/menu/Menu'
 import RepostFavoritesStats from 'components/repost-favorites-stats/RepostFavoritesStats'
+import Skeleton from 'components/skeleton/Skeleton'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
-import DownloadButtons from 'containers/download-buttons/DownloadButtons'
-import Menu from 'containers/menu/Menu'
-import HiddenTrackHeader from 'containers/track-page/components/HiddenTrackHeader'
-import UserBadges from 'containers/user-badges/UserBadges'
+import UserBadges from 'components/user-badges/UserBadges'
+import HiddenTrackHeader from 'pages/track-page/components/HiddenTrackHeader'
 import { getCannonicalName } from 'utils/genres'
 import { moodMap } from 'utils/moods'
 
@@ -44,7 +44,6 @@ const BUTTON_COLLAPSE_WIDTHS = {
 
 // Toast timeouts in ms
 const REPOST_TIMEOUT = 1000
-const SHARE_TIMEOUT = 1500
 const SAVED_TIMEOUT = 1000
 
 const messages = {

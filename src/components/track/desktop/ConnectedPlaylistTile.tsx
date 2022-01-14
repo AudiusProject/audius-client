@@ -33,16 +33,16 @@ import {
   saveCollection,
   unsaveCollection,
   repostCollection,
-  undoRepostCollection,
-  shareCollection
+  undoRepostCollection
 } from 'common/store/social/collections/actions'
+import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import ArtistPopover from 'components/artist/ArtistPopover'
+import Draggable from 'components/dragndrop/Draggable'
+import { OwnProps as CollectionkMenuProps } from 'components/menu/CollectionMenu'
+import Menu from 'components/menu/Menu'
 import { CollectionArtwork } from 'components/track/desktop/Artwork'
 import { TrackTileSize } from 'components/track/types'
-import Draggable from 'containers/dragndrop/Draggable'
-import { OwnProps as CollectionkMenuProps } from 'containers/menu/CollectionMenu'
-import Menu from 'containers/menu/Menu'
-import UserBadges from 'containers/user-badges/UserBadges'
+import UserBadges from 'components/user-badges/UserBadges'
 import { TrackEvent, make } from 'store/analytics/actions'
 import {
   setUsers,
@@ -535,7 +535,13 @@ function mapDispatchToProps(dispatch: Dispatch) {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     record: (event: TrackEvent) => dispatch(event),
     shareCollection: (id: ID) =>
-      dispatch(shareCollection(id, ShareSource.TILE)),
+      dispatch(
+        requestOpenShareModal({
+          type: 'collection',
+          collectionId: id,
+          source: ShareSource.TILE
+        })
+      ),
     repostCollection: (id: ID) =>
       dispatch(repostCollection(id, RepostSource.TILE)),
     undoRepostCollection: (id: ID) =>

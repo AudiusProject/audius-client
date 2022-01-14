@@ -2,10 +2,10 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
 
 import { Collectible } from 'common/models/Collectible'
-import { solanaNFTToCollectible } from 'containers/collectibles/solCollectibleHelpers'
-import { CollectibleState } from 'containers/collectibles/types'
+import { solanaNFTToCollectible } from 'components/collectibles/solCollectibleHelpers'
+import { CollectibleState } from 'components/collectibles/types'
 
-import { MetaplexNFT, SolanaNFTType } from './types'
+import { SolanaNFTType } from './types'
 
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const METADATA_PROGRAM_ID = process.env.REACT_APP_METADATA_PROGRAM_ID
