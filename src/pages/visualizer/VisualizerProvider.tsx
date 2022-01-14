@@ -92,7 +92,7 @@ const Visualizer = ({
     if(dominantColors !== null) {
       Visualizer1?.setDominantColors(dominantColors)
     }
-  }, [isVisible, currentQueueItem])
+  }, [isVisible, dominantColors, playing, currentQueueItem])
 
   // Rebind audio
   useEffect(() => {
@@ -199,7 +199,9 @@ const Visualizer = ({
         onClick={onClose} />
       <div className={styles.infoOverlayTileShadow}></div>
       <div className={styles.infoOverlayTile}>
-        <div className={styles.artworkWrapper}
+        <div className={cn(styles.artworkWrapper, {
+          [styles.playing]: track,
+        })}
           onClick={() => {
             goToTrackPage()
             onClose()

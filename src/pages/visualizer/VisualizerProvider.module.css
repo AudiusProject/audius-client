@@ -75,7 +75,6 @@
 .artworkWrapper {
   margin-left: 16px;
   position: relative;
-  cursor: pointer;
 }
 .artworkWrapper .artwork {
   width: 208px;
@@ -87,6 +86,9 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+.playing {
+  cursor: pointer;
 }
 
 .trackInfoWrapper {

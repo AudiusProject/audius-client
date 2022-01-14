@@ -5,7 +5,6 @@
   border: 2px solid var(--currently-playing-border);
   border-radius: 15px;
   overflow: hidden;
-  cursor: pointer;
   transition: opacity 0.07s ease-in-out;
 }
 
@@ -28,7 +27,7 @@
   background-color: var(--neutral-light-8);
 }
 
-.playing .artwork {
+.playing {
   cursor: pointer;
 }
 
