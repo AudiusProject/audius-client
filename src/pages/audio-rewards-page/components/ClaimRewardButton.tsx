@@ -29,6 +29,7 @@ import { stringAudioToStringWei } from 'common/utils/wallet'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useScript } from 'hooks/useScript'
 import AudiusBackend from 'services/AudiusBackend'
+import { getCognitoSignature } from 'services/audius-backend/Cognito'
 import { COGNITO_SCRIPT_URL } from 'utils/constants'
 import { encodeHashId } from 'utils/route/hashIds'
 
@@ -168,67 +169,73 @@ const ClaimRewardButton = ({
   }
 
   const triggerCognitoFlow = async () => {
-    const { signature } = await AudiusBackend.getCognitoSignature()
+    try {
+      const { signature } = await getCognitoSignature()
 
-    const flow = new window.Flow({
-      publishableKey: process.env.REACT_APP_COGNITO_KEY,
-      templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
-      user: {
-        customerReference: handle,
-        signature
-      }
-    })
+      const flow = new window.Flow({
+        publishableKey: process.env.REACT_APP_COGNITO_KEY,
+        templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
+        user: {
+          customerReference: handle,
+          signature
+        }
+      })
 
-    flow.on('ui', (event: FlowUIOpenEvent | FlowUICloseEvent) => {
-      switch (event.action) {
-        case 'opened':
-          dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
-          break
-        case 'closed':
-          console.error(
-            'Error claiming reward: user closed the cognito flow modal'
-          )
-          dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
-          dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
-          break
-        default:
-          // nothing
-          break
-      }
-    })
+      flow.on('ui', (event: FlowUIOpenEvent | FlowUICloseEvent) => {
+        switch (event.action) {
+          case 'opened':
+            dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
+            break
+          case 'closed':
+            console.error(
+              'Error claiming reward: user closed the cognito flow modal'
+            )
+            dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
+            dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
+            break
+          default:
+            // nothing
+            break
+        }
+      })
 
-    flow.on('session', (event: FlowSessionEvent) => {
-      switch (event.action) {
-        case 'passed':
-          console.info(
-            'User successfully completed their flow session, trying reward claim again...'
-          )
-          flow.close()
-          retryClaimReward()
-          break
-        case 'created':
-          console.info('User started a new flow session')
-          break
-        case 'resumed':
-          console.info('User resumed an existing flow session')
-          break
-        case 'failed':
-          console.error('Error claiming reward: User failed their flow session')
-          flow.close()
-          dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
-          break
-        default:
-          // nothing
-          break
-      }
-    })
+      flow.on('session', (event: FlowSessionEvent) => {
+        switch (event.action) {
+          case 'passed':
+            console.info(
+              'User successfully completed their flow session, trying reward claim again...'
+            )
+            flow.close()
+            retryClaimReward()
+            break
+          case 'created':
+            console.info('User started a new flow session')
+            break
+          case 'resumed':
+            console.info('User resumed an existing flow session')
+            break
+          case 'failed':
+            console.error(
+              'Error claiming reward: User failed their flow session'
+            )
+            flow.close()
+            dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
+            break
+          default:
+            // nothing
+            break
+        }
+      })
 
-    flow.on('error', (event: FlowErrorEvent) => {
-      console.error(`Error claiming reward: Flow error! ${event.message}`)
-      dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
-    })
+      flow.on('error', (event: FlowErrorEvent) => {
+        console.error(`Error claiming reward: Flow error! ${event.message}`)
+        dispatch(setClaimStatus({ status: ClaimStatus.ERROR }))
+      })
 
-    flow.open()
+      flow.open()
+    } catch (e) {
+      console.error('COGNITO: Failed to get signature.', e)
+    }
   }
 
   const handleClick = async () => {
