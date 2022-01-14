@@ -1,5 +1,5 @@
+import { asLineup } from 'common/store/lineup/reducer'
 import tracksReducer from 'pages/track-page/store/lineups/tracks/reducer'
-import { asLineup } from 'store/lineup/reducer'
 
 import {
   SET_TRACK_ID,
