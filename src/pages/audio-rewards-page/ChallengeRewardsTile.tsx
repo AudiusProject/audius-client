@@ -68,7 +68,9 @@ const RewardPanel = ({
 
   const challenge = userChallenges[id]
   const currentStepCount =
-    currentStepCountOverride || challenge?.current_step_count || 0
+    currentStepCountOverride === undefined
+      ? challenge?.current_step_count || 0
+      : currentStepCountOverride
   const isComplete = !!challenge?.is_complete
 
   return (
