@@ -7,8 +7,8 @@ import {
   RESET,
   SET_TRACK_RANK,
   SET_TRACK_TRENDING_RANKS
-} from '../../../common/store/pages/track/actions'
-import { PREFIX as tracksPrefix } from '../../../common/store/pages/track/lineup/actions'
+} from './actions'
+import { PREFIX as tracksPrefix } from './lineup/actions'
 
 const initialState = {
   trackId: null,
