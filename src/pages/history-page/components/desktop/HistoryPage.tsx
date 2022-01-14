@@ -113,6 +113,7 @@ const HistoryPage = ({
             secondaryText='Once you have, this is where you’ll find them!'
             buttonLabel='Start Listening'
             onClick={() => goToRoute('/trending')}
+
           />
         ) : (
           <div className={styles.tableWrapper}>

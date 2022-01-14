@@ -10,13 +10,15 @@ import {
   TRENDING_WEEK_PREFIX,
   TRENDING_MONTH_PREFIX,
   TRENDING_YEAR_PREFIX,
+  TRENDING_ALL_TIME_PREFIX,
   trendingWeekActions,
   trendingMonthActions,
-  trendingYearActions
+  trendingYearActions,
+  trendingAllTimeActions
 } from './actions'
 
-function getTracks(timeRange) {
-  return function* ({ offset, limit }) {
+function getTracks (timeRange) {
+  return function * ({ offset, limit }) {
     const genreAtStart = yield select(getTrendingGenre)
     const userId = yield select(getUserId)
     try {
@@ -36,7 +38,7 @@ function getTracks(timeRange) {
 }
 
 class TrendingWeekSagas extends LineupSagas {
-  constructor() {
+  constructor () {
     super(
       TRENDING_WEEK_PREFIX,
       trendingWeekActions,
@@ -47,7 +49,7 @@ class TrendingWeekSagas extends LineupSagas {
 }
 
 class TrendingMonthSagas extends LineupSagas {
-  constructor() {
+  constructor () {
     super(
       TRENDING_MONTH_PREFIX,
       trendingMonthActions,
@@ -58,7 +60,7 @@ class TrendingMonthSagas extends LineupSagas {
 }
 
 class TrendingYearSagas extends LineupSagas {
-  constructor() {
+  constructor () {
     super(
       TRENDING_YEAR_PREFIX,
       trendingYearActions,
@@ -68,10 +70,22 @@ class TrendingYearSagas extends LineupSagas {
   }
 }
 
-export default function sagas() {
+class TrendingAllTimeSagas extends LineupSagas {
+  constructor () {
+    super(
+      TRENDING_ALL_TIME_PREFIX,
+      trendingAllTimeActions,
+      store => store.trending.trendingAllTime,
+      getTracks(TimeRange.ALL_TIME)
+    )
+  }
+}
+
+export default function sagas () {
   return [
     ...new TrendingWeekSagas().getSagas(),
     ...new TrendingMonthSagas().getSagas(),
-    ...new TrendingYearSagas().getSagas()
+    ...new TrendingYearSagas().getSagas(),
+    ...new TrendingAllTimeSagas().getSagas()
   ]
 }

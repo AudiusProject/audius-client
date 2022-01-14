@@ -1,7 +1,8 @@
 enum TimeRange {
   WEEK = 'week',
   MONTH = 'month',
-  YEAR = 'year'
+  YEAR = 'year',
+  ALL_TIME = 'all_time'
 }
 
 export default TimeRange
