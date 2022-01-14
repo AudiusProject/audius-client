@@ -71,9 +71,10 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
 
   updateVisibility() {
     if (!webGLExists) return
-    const { theme, recordOpen, recordClose, visualizerVisible } = this.props
+    const { audio, playing, theme, recordOpen, recordClose, dominantColors } = this.props
+
     // Set visibility for the visualizer
-    if (visualizerVisible) {
+    if (this.props.visualizerVisible) {
       if (!Visualizer1?.isShowing()) {
         const darkMode = shouldShowDark(theme)
         Visualizer1?.show(darkMode)
@@ -84,27 +85,19 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
         this.setState({ fadeVisualizer: true })
       })
     } else {
-      if (Visualizer1?.isShowing()) {
-        Visualizer1?.hide()
-        recordClose()
-      }
       this.setState({ fadeVisualizer: false })
       setTimeout(() => {
         this.setState({ showVisualizer: false })
+        if (Visualizer1?.isShowing()) {
+          Visualizer1?.hide()
+          recordClose()
+        }
       }, 300)
     }
-  }
-
-  updateAudioStream() {
-    if (!webGLExists) return
-    const { audio, playing } = this.props
+    // Rebind audio
     if ((audio as AudioStream).audioCtx && playing) Visualizer1?.bind(audio)
-  }
-
-  updateDominantColors() {
-    if (!webGLExists) return
-    const { dominantColors } = this.props
-    if (Visualizer1) {
+     // Update color
+     if (Visualizer1) {
       Visualizer1.setDominantColors(dominantColors)
     }
   }
@@ -123,8 +116,6 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
     }
 
     this.updateVisibility()
-    this.updateAudioStream()
-    this.updateDominantColors()
   }
 
   componentWillUnmount() {
@@ -134,19 +125,11 @@ class Visualizer extends Component<VisualizerProps, VisualizerState> {
   componentDidUpdate(prevProps: VisualizerProps, prevState: VisualizerState) {
     if (this.props.theme !== prevProps.theme
       || this.props.visualizerVisible !== prevProps.visualizerVisible
-      ) {
-      this.updateVisibility()
-      this.updateAudioStream()
-      this.updateDominantColors()
-      return
-    } 
-     
-    if (this.props.audio !== prevProps.audio
+      || this.props.audio !== prevProps.audio
       || this.props.playing !== prevProps.playing
+      || this.props.dominantColors !== prevProps.dominantColors
     ) {
-      this.updateAudioStream()
-    } else if (this.props.dominantColors !== prevProps.dominantColors) {
-      this.updateDominantColors()
+      this.updateVisibility()
     }
   }
 
