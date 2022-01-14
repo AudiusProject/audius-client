@@ -1,4 +1,5 @@
 import { User } from '@sentry/browser'
+import { delay } from 'redux-saga'
 import {
   call,
   put,
@@ -18,7 +19,8 @@ import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
-  getClaimToRetry
+  getClaimToRetry,
+  getUserChallenge
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   HCaptchaStatus,
@@ -80,6 +82,27 @@ function* claimChallengeRewardAsync(
 ) {
   const { claim, retryOnFailure } = action.payload
   const { specifier, challengeId, amount } = claim
+
+  const challenge: UserChallenge = yield select(getUserChallenge, challengeId)
+
+  const challengeCompletionCheckDelayMs =
+    remoteConfigInstance.getRemoteVar(
+      IntKeys.CHALLENGE_COMPLETION_CHECK_DELAY_MS
+    ) || 5000
+
+  // Do not proceed to claim if challenge is not complete from DN perspective
+  // This is possible because the client may optimistically set a challenge as complete
+  // Even though the DN has not yet indexed the change that would mark the challenge as factually complete
+  // In this case, we wait for a certain delay and attemt to retry the claim
+  // Meaning this situation will repeat itself until the challenge is truly complete in the DN
+  // Note: we already poll for user challenges at every interval (currently 5 seconds)
+  // which will update the user challenges state, so we should get the latest challenge state periodically
+  if (!challenge.is_complete) {
+    yield put(claimChallengeRewardWaitForRetry(claim))
+    yield delay(challengeCompletionCheckDelayMs)
+    yield call(retryClaimChallengeReward, true)
+  }
+
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE
   )
