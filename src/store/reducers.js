@@ -2,7 +2,6 @@ import { connectRouter } from 'connected-react-router'
 import { combineReducers } from 'redux'
 
 import { reducers as clientStoreReducers } from 'common/store'
-import track from 'common/store/pages/track/reducer'
 import remoteConfig from 'common/store/remote-config/slice'
 import artistRecommendations from 'components/artist-recommendations/store/slice'
 import changePassword from 'components/change-password/store/slice'
@@ -93,7 +92,6 @@ const createRootReducer = routeHistory =>
     searchBar,
     search,
     collection,
-    track,
     notification,
     serviceSelection,
 

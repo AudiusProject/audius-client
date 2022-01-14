@@ -1,7 +1,6 @@
 import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
-import TrackPageState from 'common/store/pages/track/types'
 import RemoteConfigReducer from 'common/store/remote-config/slice'
 import ArtistRecommendationsReducer from 'components/artist-recommendations/store/slice'
 import { ChangePasswordState } from 'components/change-password/store/slice'
@@ -135,7 +134,6 @@ export type AppState = CommonState & {
   searchBar: SearchBarState
   search: SearchPageState
   collection: CollectionsPageState
-  track: TrackPageState
   notification: NotificationState
 
   // Playback
