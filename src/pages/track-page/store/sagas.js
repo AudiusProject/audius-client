@@ -17,8 +17,11 @@ import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
 
 import * as trackPageActions from '../../../common/store/pages/track/actions'
 import { tracksActions } from '../../../common/store/pages/track/lineup/actions'
-
-import { getTrack, getTrendingTrackRanks, getUser } from './selectors'
+import {
+  getTrack,
+  getTrendingTrackRanks,
+  getUser
+} from '../../../common/store/pages/track/selectors'
 
 export const TRENDING_BADGE_LIMIT = 10
 
