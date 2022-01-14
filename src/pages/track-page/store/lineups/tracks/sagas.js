@@ -2,11 +2,8 @@ import { call, select } from 'redux-saga/effects'
 
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
+import { PREFIX, tracksActions } from 'common/store/pages/track/lineup/actions'
 import { retrieveUserTracks } from 'pages/profile-page/store/lineups/tracks/retrieveUserTracks'
-import {
-  PREFIX,
-  tracksActions
-} from 'pages/track-page/store/lineups/tracks/actions'
 import {
   getSourceSelector as sourceSelector,
   getLineup

@@ -4,7 +4,7 @@ import {
   getStatus as getCachedTrackStatus
 } from 'common/store/cache/tracks/selectors'
 import { getUser as getCachedUser } from 'common/store/cache/users/selectors'
-import { PREFIX } from 'pages/track-page/store/lineups/tracks/actions'
+import { PREFIX } from 'common/store/pages/track/lineup/actions'
 import { AppState } from 'store/types'
 
 export const getBaseState = (state: AppState) => state.track
