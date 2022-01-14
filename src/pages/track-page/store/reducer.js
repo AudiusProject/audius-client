@@ -1,15 +1,14 @@
 import { asLineup } from 'common/store/lineup/reducer'
 import tracksReducer from 'common/store/pages/track/lineup/reducer'
 
-import { PREFIX as tracksPrefix } from '../../../common/store/pages/track/lineup/actions'
-
 import {
   SET_TRACK_ID,
   SET_TRACK_PERMALINK,
   RESET,
   SET_TRACK_RANK,
   SET_TRACK_TRENDING_RANKS
-} from './actions'
+} from '../../../common/store/pages/track/actions'
+import { PREFIX as tracksPrefix } from '../../../common/store/pages/track/lineup/actions'
 
 const initialState = {
   trackId: null,

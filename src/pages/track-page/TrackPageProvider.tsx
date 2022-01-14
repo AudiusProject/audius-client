@@ -71,12 +71,12 @@ import {
 import { parseTrackRoute, TrackRouteParams } from 'utils/route/trackRouteParser'
 import { getTrackPageTitle, getTrackPageDescription } from 'utils/seo'
 
+import * as trackPageActions from '../../common/store/pages/track/actions'
 import { tracksActions } from '../../common/store/pages/track/lineup/actions'
 
 import StemsSEOHint from './components/StemsSEOHint'
 import { OwnProps as DesktopTrackPageProps } from './components/desktop/TrackPage'
 import { OwnProps as MobileTrackPageProps } from './components/mobile/TrackPage'
-import * as trackPageActions from './store/actions'
 import { TRENDING_BADGE_LIMIT } from './store/sagas'
 
 const getRemixParentTrackId = (track: Track | null) =>
