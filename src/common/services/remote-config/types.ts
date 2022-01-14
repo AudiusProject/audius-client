@@ -77,7 +77,12 @@ export enum IntKeys {
   /**
    * The refresh interval in milliseconds for user challenges
    */
-  CHALLENGE_REFRESH_INTERVAL_MS = 'CHALLENGE_REFRESH_INTERVAL_MS'
+  CHALLENGE_REFRESH_INTERVAL_MS = 'CHALLENGE_REFRESH_INTERVAL_MS',
+
+  /**
+   * Frequency (in ms) to poll for user wallet balance on the audio rewards page
+   */
+  REWARDS_WALLET_BALANCE_POLLING_FREQ_MS = 'REWARDS_WALLET_BALANCE_POLLING_FREQ_MS'
 }
 
 export enum BooleanKeys {

@@ -5,23 +5,23 @@ import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
+import { ChallengeRewardID } from 'common/models/AudioRewards'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import {
   getUserChallenges,
   getUserChallengesLoading
 } from 'common/store/pages/audio-rewards/selectors'
+import {
+  ChallengeRewardsModalType,
+  setChallengeRewardsModalType,
+  reset,
+  refreshUserBalance,
+  refreshUserChallenges
+} from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import fillString from 'utils/fillString'
-
-import { ChallengeRewardID } from '../../common/models/AudioRewards'
-import {
-  fetchUserChallenges,
-  ChallengeRewardsModalType,
-  setChallengeRewardsModalType
-} from '../../common/store/pages/audio-rewards/slice'
 
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
@@ -146,8 +146,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const currentStepCountOverrides = useOptimisticChallengeCompletionStepCounts()
-  const refreshInterval = useRemoteVar(IntKeys.CHALLENGE_REFRESH_INTERVAL_MS)
-
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   useEffect(() => {
@@ -156,18 +154,14 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     }
   }, [userChallengesLoading, haveChallengesLoaded])
 
+  // poll for user challenges and user balance to refresh
   useEffect(() => {
-    if (!haveChallengesLoaded) {
-      dispatch(fetchUserChallenges())
-    }
-    const interval = setInterval(() => {
-      dispatch(fetchUserChallenges())
-    }, refreshInterval)
-
+    dispatch(refreshUserChallenges())
+    dispatch(refreshUserBalance())
     return () => {
-      clearInterval(interval)
+      dispatch(reset())
     }
-  }, [dispatch, haveChallengesLoaded, refreshInterval])
+  }, [dispatch])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
     dispatch(setChallengeRewardsModalType({ modalType }))

@@ -1,5 +1,5 @@
 import { User } from '@sentry/browser'
-import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects'
+import { call, put, select, take, takeEvery, takeLatest } from 'redux-saga/effects'
 
 import {
   ChallengeRewardID,
@@ -27,17 +27,22 @@ import {
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   claimChallengeReward,
-  claimChallengeRewardWaitForRetry
+  claimChallengeRewardWaitForRetry,
+  reset,
+  refreshUserChallenges,
+  refreshUserBalance
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
+import { getBalance } from 'common/store/wallet/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { encodeHashId } from 'utils/route/hashIds'
+import { doEvery } from 'utils/sagaHelpers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
@@ -213,13 +218,49 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
+function* pollForChallenges(): any {
+  const pollingFreq = remoteConfigInstance.getRemoteVar(
+    IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
+  )
+  if (pollingFreq) {
+    const chan = yield call(doEvery, pollingFreq, function* () {
+      yield put(fetchUserChallenges())
+    })
+    yield take(reset.type)
+    chan.close()
+  }
+}
+
+function* pollForBalance(): any {
+  const pollingFreq = remoteConfigInstance.getRemoteVar(
+    IntKeys.REWARDS_WALLET_BALANCE_POLLING_FREQ_MS
+  )
+  if (pollingFreq) {
+    const chan = yield call(doEvery, pollingFreq, function* () {
+      yield put(getBalance())
+    })
+    yield take(reset.type)
+    chan.close()
+  }
+}
+
+function* watchRefreshUserChallenges() {
+  yield takeEvery(refreshUserChallenges.type, pollForChallenges)
+}
+
+function* watchRefreshUserBalance() {
+  yield takeEvery(refreshUserBalance.type, pollForBalance)
+}
+
 const sagas = () => {
   const sagas = [
     watchFetchUserChallenges,
     watchClaimChallengeReward,
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
-    watchUpdateHCaptchaScore
+    watchUpdateHCaptchaScore,
+    watchRefreshUserChallenges,
+    watchRefreshUserBalance
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
