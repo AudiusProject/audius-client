@@ -149,7 +149,7 @@
     "write-sha": "./scripts/writeSHA.sh",
     "analyze": "source-map-explorer build-production/static/js/*.js",
     "analyzeBundle": "npm run build:prod && node ./scripts/analyzeBundle.js",
-    "typecheck": "tsc --allowJs",
+    "typecheck": "tsc -w --allowJs",
     "update-ipfs-build:dev": "node ./scripts/updateIpfsBuild.js dev",
     "update-ipfs-build:stage": "node ./scripts/updateIpfsBuild.js stage",
     "update-ipfs-build:prod": "node ./scripts/updateIpfsBuild.js prod"
