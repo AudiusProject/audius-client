@@ -25,14 +25,12 @@ export const HCaptchaModal = () => {
 
   const handleClose = useCallback(
     (userInitiated = true) => {
-      if (isOpen) {
-        if (userInitiated) {
-          dispatch(setHCaptchaStatus({ status: HCaptchaStatus.USER_CLOSED }))
-        }
-        setOpen(false)
+      if (userInitiated) {
+        dispatch(setHCaptchaStatus({ status: HCaptchaStatus.USER_CLOSED }))
       }
+      setOpen(false)
     },
-    [isOpen, setOpen, dispatch]
+    [setOpen, dispatch]
   )
 
   const onVerify = useCallback(
