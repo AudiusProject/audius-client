@@ -1,5 +1,5 @@
 import { asLineup } from 'common/store/lineup/reducer'
-import tracksReducer from 'pages/track-page/store/lineups/tracks/reducer'
+import tracksReducer from 'common/store/pages/track/lineup/reducer'
 
 import { PREFIX as tracksPrefix } from '../../../common/store/pages/track/lineup/actions'
 
