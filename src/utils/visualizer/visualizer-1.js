@@ -140,7 +140,6 @@ let Visualizer1 = (function () {
     })
   }
 
-  let showing = false
   let analyser = null
 
   function show (darkMode) {
@@ -155,9 +154,10 @@ let Visualizer1 = (function () {
       , require('canvas-fit')(canvas, window)
       , false
     )
-    let visWrapper = document.querySelector('.visualizer')
-    showing = true
-    visWrapper.appendChild(canvas)
+    const visWrapper = document.querySelector('.visualizer')
+    if(visWrapper && !visWrapper.hasChildNodes()) {
+      visWrapper.appendChild(canvas)
+    }
     app.start()
   }
 
@@ -167,17 +167,14 @@ let Visualizer1 = (function () {
   }
 
   function hide () {
-    let visWrapper = document.querySelector('.visualizer')
-    showing = false
-    visWrapper.removeChild(canvas)
+    const visWrapper = document.querySelector('.visualizer')
+    if(visWrapper && visWrapper.hasChildNodes()) {
+      visWrapper.removeChild(canvas)
+    }
   }
 
   function stop () {
     app.stop()
-  }
-
-  function isShowing () {
-    return showing
   }
 
   function setDominantColors(colors) {
@@ -218,7 +215,6 @@ let Visualizer1 = (function () {
     stop,
     show,
     hide,
-    isShowing,
     setDominantColors
   }
 })()
