@@ -141,6 +141,7 @@ let Visualizer1 = (function () {
   }
 
   let analyser = null
+  setDominantColors()
 
   function show (darkMode) {
     if (darkMode) {

@@ -89,8 +89,10 @@ const Visualizer = ({
 
   // Update Colors
   useEffect(() => {
-    Visualizer1?.setDominantColors(dominantColors)
-  }, [isVisible, dominantColors, currentQueueItem]) // TODO: When to change dominant colors??
+    if(dominantColors !== null) {
+      Visualizer1?.setDominantColors(dominantColors)
+    }
+  }, [isVisible, currentQueueItem])
 
   // Rebind audio
   useEffect(() => {

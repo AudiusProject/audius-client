@@ -104,7 +104,7 @@ export default () => {
     }
 
     if (domColors.length < NUM_DOMINANT_COLORS) {
-      return domColors.slice(0, NUM_DOMINANT_COLORS)
+      return sortedResults.slice(0, NUM_DOMINANT_COLORS)
     }
 
     return domColors

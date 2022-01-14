@@ -3,7 +3,7 @@
   z-index: 15;
   display: none;
   opacity: 0;
-  /* transition: opacity 0.3s ease-in-out; */
+  transition: opacity 0.3s ease-in-out;
 }
 .visualizer.fade {
   opacity: 1;
