@@ -18,6 +18,7 @@ import Status from 'common/models/Status'
 import { Track } from 'common/models/Track'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheTrackActions from 'common/store/cache/tracks/actions'
+import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import * as socialTracksActions from 'common/store/social/tracks/actions'
 import * as socialUsersActions from 'common/store/social/users/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/slice'
@@ -51,7 +52,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { makeGetLineupMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
