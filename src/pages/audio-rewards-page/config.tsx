@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react'
 
 import { IconArrow, IconCheck, IconUpload } from '@audius/stems'
 
+import { ChallengeRewardID, TrendingRewardID } from 'common/models/AudioRewards'
 import { Nullable } from 'common/utils/typeUtils'
 import {
   profilePage,
@@ -9,11 +10,6 @@ import {
   TRENDING_PAGE,
   UPLOAD_PAGE
 } from 'utils/route'
-
-import {
-  ChallengeRewardID,
-  TrendingRewardID
-} from '../../common/models/AudioRewards'
 
 type LinkButtonType =
   | 'trackUpload'
