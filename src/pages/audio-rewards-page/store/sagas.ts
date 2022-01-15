@@ -1,5 +1,4 @@
 import { User } from '@sentry/browser'
-import { delay } from 'redux-saga'
 import {
   call,
   put,
@@ -50,7 +49,7 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { encodeHashId } from 'utils/route/hashIds'
-import { doEvery } from 'utils/sagaHelpers'
+import { doEvery, waitForValue } from 'utils/sagaHelpers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
@@ -83,25 +82,16 @@ function* claimChallengeRewardAsync(
   const { claim, retryOnFailure } = action.payload
   const { specifier, challengeId, amount } = claim
 
-  const challenge: UserChallenge = yield select(getUserChallenge, challengeId)
-
-  const challengeCompletionCheckDelayMs =
-    remoteConfigInstance.getRemoteVar(
-      IntKeys.CHALLENGE_COMPLETION_CHECK_DELAY_MS
-    ) || 5000
-
-  // Do not proceed to claim if challenge is not complete from DN perspective
+  // Do not proceed to claim if challenge is not complete from a DN perspective.
   // This is possible because the client may optimistically set a challenge as complete
-  // Even though the DN has not yet indexed the change that would mark the challenge as factually complete
-  // In this case, we wait for a certain delay and attemt to retry the claim
-  // Meaning this situation will repeat itself until the challenge is truly complete in the DN
-  // Note: we already poll for user challenges at every interval (currently 5 seconds)
-  // which will update the user challenges state, so we should get the latest challenge state periodically
-  if (!challenge.is_complete) {
-    yield put(claimChallengeRewardWaitForRetry(claim))
-    yield delay(challengeCompletionCheckDelayMs)
-    yield call(retryClaimChallengeReward, true)
-  }
+  // even though the DN has not yet indexed the change that would mark the challenge as complete.
+  // In this case, we wait until the challenge is complete in the DN before claiming
+  yield call(
+    waitForValue,
+    getUserChallenge,
+    { challengeId },
+    (challenge: UserChallenge) => challenge.is_complete
+  )
 
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE

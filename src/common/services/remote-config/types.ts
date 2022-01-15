@@ -82,13 +82,7 @@ export enum IntKeys {
   /**
    * Frequency (in ms) to poll for user wallet balance on the audio rewards page
    */
-  REWARDS_WALLET_BALANCE_POLLING_FREQ_MS = 'REWARDS_WALLET_BALANCE_POLLING_FREQ_MS',
-
-  /**
-   * The time delay in milliseconds to wait before checking whether a challenge
-   * for a claim attempt is marked as complete in the discovery provider
-   */
-  CHALLENGE_COMPLETION_CHECK_DELAY_MS = 'CHALLENGE_COMPLETION_CHECK_DELAY_MS'
+  REWARDS_WALLET_BALANCE_POLLING_FREQ_MS = 'REWARDS_WALLET_BALANCE_POLLING_FREQ_MS'
 }
 
 export enum BooleanKeys {
