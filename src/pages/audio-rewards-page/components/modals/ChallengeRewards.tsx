@@ -172,7 +172,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
     : challenge?.current_step_count || 0
 
   const isIncomplete = currentStepCount === 0
-  const isInProgress = currentStepCount > 0 && currentStepCount !== stepCount
+  const isInProgress = currentStepCount > 0 && currentStepCount < stepCount
   const isComplete = shouldOverrideCurrentStepCount
     ? currentStepCountOverride >= stepCount
     : !!challenge?.is_complete
