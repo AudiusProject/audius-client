@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { push as pushRoute } from 'connected-react-router'
 import { AppState } from 'store/types'
 import { Dispatch } from 'redux'
@@ -105,18 +105,13 @@ const Visualizer = ({
       Visualizer1?.show(darkMode)
       recordOpen()
       setShowVisualizer(true)
+      setImmediate(() => {
+        setFadeVisualizer(true)
+      })
     } else {
       setFadeVisualizer(false)
     }
   }, [isVisible, theme])
-
-  // On Opening of visualizer -> fadeIn
-  // FadeVisualizer needs to happen AFTER showVisualizer
-  useEffect(() => {
-    if (showVisualizer) {
-      setFadeVisualizer(true)
-    }
-  }, [showVisualizer])
 
   // On Closing of visualizer -> fadeOut
   // Wait some time before removing the wrapper DOM element to allow time for fading out animation.
@@ -126,24 +121,24 @@ const Visualizer = ({
         setShowVisualizer(false)
         Visualizer1?.hide()
         recordClose()
-      }, 300)
+      }, 400)
     }
   }, [fadeVisualizer])
 
   
-  const goToTrackPage = () => {
+  const goToTrackPage = useCallback(() => {
     const { track, user } = currentQueueItem
     if (track && user) {
       goToRoute(track.permalink)
     }
-  }
+  }, [currentQueueItem])
 
-  const goToArtistPage = () => {
+  const goToArtistPage = useCallback(() => {
     const { user } = currentQueueItem
     if (user) {
       goToRoute(profilePage(user.handle))
     }
-  }
+  }, [currentQueueItem])
 
   const renderTrackInfo = () => {
     const { uid, track, user } = currentQueueItem
