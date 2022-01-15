@@ -4,7 +4,6 @@ export default () => {
   const DEFAULT_RGB = '#7e1bcc'
   const SAMPLE_RATE = 20
   const NUM_DOMINANT_COLORS = 3
-  const MIN_EUCLIDEAN_DISTANCE = 100
   // Based off this site: https://app.contrast-finder.org/result.html?foreground=%23FFFFFF&background=%23cdc8c8&ratio=4.5&isBackgroundTested=true&algo=Rgb
   // the brightest color we want to support, given white text, is
   // #CDC8C8, which works out to a luminance of 201.
@@ -71,7 +70,13 @@ export default () => {
             b: clampedRGBColor(c)[2]
           }))
 
-        const result = findDifferentColors(sortedResult)
+        let result
+        if (sortedResult.length <= NUM_DOMINANT_COLORS) {
+          result = sortedResult
+        } else {
+          result = findDominantColors(sortedResult)
+        }
+
         postMessage({ key, result })
       })
       .catch(err => {
@@ -81,33 +86,38 @@ export default () => {
       })
   }
 
-  const findDifferentColors = sortedResults => {
-    const domColors = [sortedResults[0]]
-    for (let i = 0; i < sortedResults.length; i++) {
-      const curResult = sortedResults[i]
+  const findDominantColors = selectFrom => {
+    const domColors = [selectFrom.shift()]
 
-      if (domColors.length >= NUM_DOMINANT_COLORS) {
-        break
-      }
-
-      let isFarEnough = true
-      for (let j = 0; j < domColors.length; j++) {
-        const distance = calculateEuclideanDistance(domColors[j], curResult)
-        if (distance < MIN_EUCLIDEAN_DISTANCE) {
-          isFarEnough = false
-          break
-        }
-      }
-      if (isFarEnough) {
-        domColors.push(curResult)
-      }
+    while (domColors.length < NUM_DOMINANT_COLORS && selectFrom.length > 0) {
+      const indexOfNextDomColor = findIndexOfMaxEuclideanDistance(
+        domColors,
+        selectFrom
+      )
+      domColors.push(selectFrom[indexOfNextDomColor])
+      selectFrom.splice(indexOfNextDomColor, 1)
     }
-
-    if (domColors.length < NUM_DOMINANT_COLORS) {
-      return sortedResults.slice(0, NUM_DOMINANT_COLORS)
-    }
-
     return domColors
+  }
+
+  const findIndexOfMaxEuclideanDistance = (existing, selectFrom) => {
+    if (existing.length === 0 || selectFrom.length === 0) {
+      throw new Error('Invalid number of colors to pick from')
+    }
+
+    let maxDistance = Number.NEGATIVE_INFINITY
+    let indexOfMaxDistance = -1
+    for (let i = 0; i < selectFrom.length; i++) {
+      let curDistance = 0
+      for (let j = 0; j < existing.length; j++) {
+        curDistance += calculateEuclideanDistance(existing[j], selectFrom[i])
+      }
+      if (curDistance > maxDistance) {
+        indexOfMaxDistance = i
+        maxDistance = curDistance
+      }
+    }
+    return indexOfMaxDistance
   }
 
   const calculateEuclideanDistance = (c1, c2) => {
