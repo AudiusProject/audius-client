@@ -51,6 +51,10 @@ import { waitForBackendSetup } from 'store/backend/sagas'
 import { encodeHashId } from 'utils/route/hashIds'
 import { doEvery, waitForValue } from 'utils/sagaHelpers'
 
+const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
+const REACT_APP_ORACLE_ETH_ADDRESSES =
+  process.env.REACT_APP_ORACLE_ETH_ADDRESSES
+const REACT_APP_AAO_ENDPOINT = process.env.REACT_APP_AAO_ENDPOINT
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
@@ -96,12 +100,21 @@ function* claimChallengeRewardAsync(
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE
   )
-  const oracleEthAddress = remoteConfigInstance.getRemoteVar(
+  let oracleEthAddress = remoteConfigInstance.getRemoteVar(
     StringKeys.ORACLE_ETH_ADDRESS
   )
-  const AAOEndpoint = remoteConfigInstance.getRemoteVar(
+  let AAOEndpoint = remoteConfigInstance.getRemoteVar(
     StringKeys.ORACLE_ENDPOINT
   )
+  if (ENVIRONMENT === 'development') {
+    const oracleEthAddresses = (REACT_APP_ORACLE_ETH_ADDRESSES || '').split(',')
+    if (oracleEthAddresses.length > 0) {
+      oracleEthAddress = oracleEthAddresses[0]
+    }
+    if (REACT_APP_AAO_ENDPOINT) {
+      AAOEndpoint = REACT_APP_AAO_ENDPOINT
+    }
+  }
 
   const rewardsAttestationEndpoints = remoteConfigInstance.getRemoteVar(
     StringKeys.REWARDS_ATTESTATION_ENDPOINTS
