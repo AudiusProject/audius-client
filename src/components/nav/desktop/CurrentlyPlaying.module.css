@@ -43,6 +43,9 @@
 }
 
 .visualizerIconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px;
   background-color: var(--static-white);
   border-radius: 50%;
