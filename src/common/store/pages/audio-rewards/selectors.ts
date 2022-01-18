@@ -12,14 +12,17 @@ export const getUserChallenges = (state: CommonState) =>
 
 export const getUserChallenge = (
   state: CommonState,
-  challengeId: ChallengeRewardID
-) => state.pages.audioRewards.userChallenges[challengeId]
+  props: { challengeId: ChallengeRewardID }
+) => state.pages.audioRewards.userChallenges[props.challengeId]
 
 export const getUserChallengesLoading = (state: CommonState) =>
   state.pages.audioRewards.loading
 
 export const getClaimStatus = (state: CommonState) =>
   state.pages.audioRewards.claimStatus
+
+export const getClaimToRetry = (state: CommonState) =>
+  state.pages.audioRewards.claimToRetry
 
 export const getHCaptchaStatus = (state: CommonState) =>
   state.pages.audioRewards.hCaptchaStatus
