@@ -39,7 +39,7 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.SURFACE_AUDIO_ENABLED]: false,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]: true,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]: true,
-  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: true
+  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: false
 }
 
 export enum FeatureFlagCohortType {
