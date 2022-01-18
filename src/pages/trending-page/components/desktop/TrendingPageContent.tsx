@@ -53,7 +53,6 @@ const getTimeGenreCacheKey = (timeRange: TimeRange, genre: string | null) => {
 const getRangesToDisable = (timeRange: TimeRange) => {
   switch (timeRange) {
     case TimeRange.ALL_TIME:
-    case TimeRange.YEAR:
     case TimeRange.MONTH:
       // In the case of TimeRangeALL_TIME,
       // we don't want to return ALL_TIME because

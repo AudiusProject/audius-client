@@ -9,11 +9,9 @@ import { LineupSagas } from 'store/lineup/sagas'
 import {
   TRENDING_WEEK_PREFIX,
   TRENDING_MONTH_PREFIX,
-  TRENDING_YEAR_PREFIX,
   TRENDING_ALL_TIME_PREFIX,
   trendingWeekActions,
   trendingMonthActions,
-  trendingYearActions,
   trendingAllTimeActions
 } from './actions'
 
@@ -59,17 +57,6 @@ class TrendingMonthSagas extends LineupSagas {
   }
 }
 
-class TrendingYearSagas extends LineupSagas {
-  constructor() {
-    super(
-      TRENDING_YEAR_PREFIX,
-      trendingYearActions,
-      store => store.trending.trendingYear,
-      getTracks(TimeRange.YEAR)
-    )
-  }
-}
-
 class TrendingAllTimeSagas extends LineupSagas {
   constructor() {
     super(
@@ -85,7 +72,6 @@ export default function sagas() {
   return [
     ...new TrendingWeekSagas().getSagas(),
     ...new TrendingMonthSagas().getSagas(),
-    ...new TrendingYearSagas().getSagas(),
     ...new TrendingAllTimeSagas().getSagas()
   ]
 }

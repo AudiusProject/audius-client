@@ -5,7 +5,6 @@ import { LineupState } from 'models/common/Lineup'
 export default interface TrendingPageState {
   trendingWeek: LineupState<{ id: ID }>
   trendingMonth: LineupState<{ id: ID }>
-  trendingYear: LineupState<{ id: ID }>
   trendingAllTime: LineupState<{ id: ID }>
   trendingTimeRange: TimeRange
   trendingGenre: string | null
