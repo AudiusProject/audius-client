@@ -1,54 +1,30 @@
 version: 2.1
 jobs:
-  download-dapp:
-    working_directory: ~/probers
-    docker:
-      - image: circleci/python:2.7-jessie
-    steps:
-      - checkout
-      - run:
-          name: install-awscli
-          command: sudo pip install awscli
-      - run:
-          name: Download Dapp from S3
-          command: | 
-            cd ../
-            aws s3 sync s3://staging.audius.co ./build-staging
-      - persist_to_workspace:
-          root: ../
-          paths:
-            - build-staging
-            - probers
-
   coverage:
-    working_directory: ~/
+    working_directory: ~/probers
     docker:
       - image: circleci/node:14.18-browsers
     resource_class: large
     steps:
-      - attach_workspace:
-          at: ./
+      - checkout
+
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - probers-dependency-cache-{{ checksum "probers/package.json" }}
+            - probers-dependency-cache-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
             - probers-dependency-cache-
       - run:
           name: install probers dependencies
           command: |
-            cd probers
             npm install
       - save_cache:
-          key: probers-dependency-cache-{{ checksum "probers/package.json" }}
+          key: probers-dependency-cache-{{ checksum "package.json" }}
           paths:
-            - ./probers/node_modules
+            - ./node_modules
       - run:
-          name: serve and run prober tests
+          name: run prober tests
           command: |
-            npm install serve
-            node node_modules/serve/bin/serve.js -l 3001 -s build-staging &
-            cd probers
             npm run test:ci
 
   pings:
@@ -73,7 +49,7 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: serve and run prober pings
+          name: run prober pings
           command: |
             npm run pings
 
@@ -81,10 +57,7 @@ workflows:
   version: 2
   commit:
     jobs:
-      - download-dapp
-      - coverage:
-          requires:
-            - download-dapp
+      - coverage
   hourly:
     triggers:
       - schedule:
@@ -94,10 +67,7 @@ workflows:
               only:
                 - master
     jobs:
-      - download-dapp
-      - coverage:
-          requires:
-            - download-dapp
+      - coverage
   hourly_pings:
     triggers:
       - schedule:

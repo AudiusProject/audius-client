@@ -1,8 +1,9 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
+jest.retryTimes(3)
+
 const config = getConfig()
-const testTimeout = config.defaultTestTimeout
 
 describe('Smoke test -- track page', () => {
   let page
@@ -10,7 +11,7 @@ describe('Smoke test -- track page', () => {
   beforeAll(async () => {
     page = await newPage()
     await resetBrowser(page, `${config.baseUrl}`)
-  }, testTimeout)
+  })
 
   afterAll(async () => {
     await page.close()
@@ -25,5 +26,5 @@ describe('Smoke test -- track page', () => {
 
     // Verify that 'Track' label is present on page
     await page.waitForXPath("//div[starts-with(@class, 'GiantTrackTile_typeLabel') and normalize-space(text())='TRACK']")
-  }, testTimeout)
-}, testTimeout)
+  })
+})

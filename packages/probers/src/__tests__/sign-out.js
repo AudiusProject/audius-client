@@ -3,6 +3,8 @@ import { newPage, resetBrowser } from '../utils'
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 import { signOut } from '../flows/sign-out'
 
+jest.retryTimes(3)
+
 const config = getConfig()
 
 describe(
@@ -15,7 +17,7 @@ describe(
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
       account = await createSignedInAccountIfNecessary(page, config.baseUrl)
-    }, config.defaultTestTimeout)
+    })
 
     afterAll(async () => {
       await page.close()
@@ -32,9 +34,7 @@ describe(
         const entropy = await page.evaluate(() => localStorage.getItem('hedgehog-entropy-key'))
         // Make sure the account entropy has changed
         expect(entropy).not.toBe(account.entropy)
-      },
-      config.defaultTestTimeout
+      }
     )
-  },
-  config.defaultTestTimeout
+  }
 )

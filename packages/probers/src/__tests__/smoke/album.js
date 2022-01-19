@@ -1,8 +1,9 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
+jest.retryTimes(3)
+
 const config = getConfig()
-const testTimeout = config.defaultTestTimeout
 const actionTimeout = config.tenSeconds
 
 describe('Smoke test -- album page', () => {
@@ -11,7 +12,7 @@ describe('Smoke test -- album page', () => {
   beforeAll(async () => {
     page = await newPage()
     await resetBrowser(page, `${config.baseUrl}`)
-  }, testTimeout)
+  })
 
   afterAll(async () => {
     await page.close()
@@ -26,5 +27,5 @@ describe('Smoke test -- album page', () => {
 
     // Verify 'album' label is present
     await page.waitForXPath("//div[starts-with(@class, 'CollectionHeader_typeLabel') and normalize-space(text())='album']", { timeout: actionTimeout })
-  }, testTimeout)
-}, testTimeout)
+  })
+})

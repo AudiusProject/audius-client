@@ -7,6 +7,8 @@ import createAccount from '../flows/create-account'
 import uploadTrack from '../flows/upload-track'
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
+jest.retryTimes(3)
+
 const config = getConfig()
 
 describe(
@@ -18,7 +20,7 @@ describe(
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
       await createSignedInAccountIfNecessary(page, config.baseUrl)
-    }, config.defaultTestTimeout)
+    })
 
     afterAll(async () => {
       await page.close()
@@ -33,9 +35,7 @@ describe(
         await page.waitForSelector('div[class^=TrackPage]')
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).not.toBe('/404')
-      },
-      config.uploadTrackTimeout
+      }
     )
-  },
-  config.defaultTestTimeout
+  }
 )

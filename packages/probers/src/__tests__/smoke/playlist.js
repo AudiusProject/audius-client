@@ -1,8 +1,9 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
+jest.retryTimes(3)
+
 const config = getConfig()
-const testTimeout = config.defaultTestTimeout
 
 describe('Smoke test -- playlist page', () => {
   let page
@@ -10,7 +11,7 @@ describe('Smoke test -- playlist page', () => {
   beforeAll(async () => {
     page = await newPage()
     await resetBrowser(page, `${config.baseUrl}`)
-  }, testTimeout)
+  })
 
   afterAll(async () => {
     await page.close()
@@ -25,5 +26,5 @@ describe('Smoke test -- playlist page', () => {
 
     // Verify 'playlist' label is present
     await page.waitForXPath("//div[contains(@class, 'typeLabel') and normalize-space(text())='playlist']")
-  }, testTimeout)
-}, testTimeout)
+  })
+})
