@@ -220,7 +220,16 @@ function* watchSetCognitoFlowStatus() {
 }
 
 function* watchClaimChallengeReward() {
-  yield takeLatest(claimChallengeReward.type, claimChallengeRewardAsync)
+  yield takeLatest(claimChallengeReward.type, function* (
+    args: ReturnType<typeof claimChallengeReward>
+  ) {
+    // Race the claim against the user clicking "close" on the modal,
+    // so that the claim saga gets canceled if the modal is closed
+    yield race({
+      task: call(claimChallengeRewardAsync, args),
+      cancel: take(resetAndCancelClaimReward.type)
+    })
+  })
 }
 
 export function* watchFetchUserChallenges() {
