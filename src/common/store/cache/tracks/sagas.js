@@ -408,13 +408,17 @@ function* watchFetchCoverArt() {
         cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
       )
 
-      const largeImageUrl = yield call(
-        AudiusBackend.getImageUrl,
-        multihash,
-        SquareSizes.SIZE_1000_BY_1000,
-        gateways
-      )
-      const dominantColors = yield call(dominantColor, largeImageUrl)
+      let smallImageUrl = url
+      if (coverArtSize !== SquareSizes.SIZE_150_BY_150) {
+        smallImageUrl = yield call(
+          AudiusBackend.getImageUrl,
+          multihash,
+          SquareSizes.SIZE_150_BY_150,
+          gateways
+        )
+      }
+      const dominantColors = yield call(dominantColor, smallImageUrl)
+
       yield put(
         setDominantColors({
           multihash,
