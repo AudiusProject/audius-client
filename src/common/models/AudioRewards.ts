@@ -82,6 +82,7 @@ export type FlowSessionEvent =
   | FlowSessionFailEvent
 
 /**
+ * Needed for notifications for now as UserChallenges might not be loaded yet
  * @deprecated amounts should be pulled in directly from user challenges instead
  */
 export const amounts: Record<ChallengeRewardID, number> = {
