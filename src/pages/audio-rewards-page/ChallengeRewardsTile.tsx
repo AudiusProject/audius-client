@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useContext, useEffect, useState } from 'react'
 
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
@@ -19,9 +19,13 @@ import {
   refreshUserChallenges
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { ToastContext } from 'components/toast/ToastContext'
+import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import fillString from 'utils/fillString'
+import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
@@ -35,7 +39,9 @@ const messages = {
   description2:
     'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!',
   completeLabel: 'COMPLETE',
-  claimReward: 'Claim Your Reward'
+  claimReward: 'Claim Your Reward',
+  challengeCompleted: 'You’ve Completed an $AUDIO Rewards Challenge!',
+  seeMore: 'See more'
 }
 
 type RewardPanelProps = {
@@ -61,6 +67,8 @@ const RewardPanel = ({
   stepCount,
   currentStepCountOverride
 }: RewardPanelProps) => {
+  const { toast } = useContext(ToastContext)
+
   const wm = useWithMobileStyle(styles.mobile)
   const userChallenges = useSelector(getUserChallenges)
 
@@ -75,6 +83,23 @@ const RewardPanel = ({
   const isComplete = shouldOverrideCurrentStepCount
     ? currentStepCountOverride! >= stepCount
     : !!challenge?.is_complete
+  const [wasChallengeComplete, setWasChallengeComplete] = useState(
+    !!challenge?.is_complete
+  )
+
+  useEffect(() => {
+    if (!wasChallengeComplete && !!challenge?.is_complete) {
+      toast(
+        <ToastLinkContent
+          text={messages.challengeCompleted}
+          linkText={messages.seeMore}
+          link={AUDIO_PAGE}
+        />,
+        CLAIM_REWARD_TOAST_TIMEOUT_MILLIS
+      )
+      setWasChallengeComplete(true)
+    }
+  }, [wasChallengeComplete, challenge, toast])
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
