@@ -2,6 +2,7 @@ import { User } from '@sentry/browser'
 import {
   call,
   put,
+  race,
   select,
   take,
   takeEvery,
@@ -22,6 +23,7 @@ import {
   getUserChallenge
 } from 'common/store/pages/audio-rewards/selectors'
 import {
+  resetAndCancelClaimReward,
   claimChallengeReward,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
