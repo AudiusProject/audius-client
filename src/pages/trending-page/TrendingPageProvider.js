@@ -142,10 +142,7 @@ class TrendingPageProvider extends PureComponent {
   }
 
   scrollToTop = timeRange => {
-    console.log('scrollToTop: ' + timeRange)
     const lineup = this.getLineupForRange(timeRange)
-    console.log('lineup: ' + lineup)
-
     if (lineup.scrollParent && lineup.scrollParent.scrollTo) {
       lineup.scrollParent.scrollTo(0, 0)
     }
