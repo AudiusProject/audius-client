@@ -156,7 +156,6 @@ function* claimChallengeRewardAsync(
     )
     if (response.error) {
       if (retryOnFailure) {
-        yield put(claimChallengeRewardWaitForRetry(claim))
         switch (response.error) {
           case FailureReason.HCAPTCHA:
             // Hide the Challenge Rewards Modal because the HCaptcha modal doesn't look good on top of it.
@@ -182,6 +181,7 @@ function* claimChallengeRewardAsync(
           default:
             throw new Error(`Unknown Error: ${response.error}`)
         }
+        yield put(claimChallengeRewardWaitForRetry(claim))
       } else {
         yield put(claimChallengeRewardFailed())
       }
