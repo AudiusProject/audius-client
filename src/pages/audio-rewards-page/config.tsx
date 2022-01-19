@@ -102,7 +102,7 @@ export const challengeRewardsConfig: Record<
       `Invite your Friends! You’ll earn ${amount} $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)`,
     progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
-    stepCount: 5,
+    stepCount: 1,
     panelButtonText: 'Invite your Friends',
     modalButtonInfo: {
       incomplete: null,
