@@ -139,3 +139,23 @@
   font-weight: var(--font-bold);
   letter-spacing: 0;
 }
+
+.rewardClaimedToast {
+  display: flex;
+  justify-content: center;
+}
+
+.rewardClaimedToastIcon {
+  top: -2px !important;
+  position: relative;
+}
+
+.seeMoreCaret {
+  margin-left: 2px;
+  height: 12px;
+  width: 10px;
+}
+
+.seeMoreCaret path {
+  fill: var(--static-white);
+}

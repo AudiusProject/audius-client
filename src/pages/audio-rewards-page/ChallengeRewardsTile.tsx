@@ -4,6 +4,7 @@ import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import { useSetVisibility } from 'common/hooks/useModalState'
 import { ChallengeRewardID } from 'common/models/AudioRewards'
 import { StringKeys } from 'common/services/remote-config'
@@ -90,11 +91,18 @@ const RewardPanel = ({
   useEffect(() => {
     if (!wasChallengeComplete && !!challenge?.is_complete) {
       toast(
-        <ToastLinkContent
-          text={messages.challengeCompleted}
-          linkText={messages.seeMore}
-          link={AUDIO_PAGE}
-        />,
+        <div className={styles.rewardClaimedToast}>
+          <span className={styles.rewardClaimedToastIcon}>
+            <i className='emoji face-with-party-horn-and-party-hat' />
+          </span>
+          &nbsp;&nbsp;
+          <ToastLinkContent
+            text={messages.challengeCompleted}
+            linkText={messages.seeMore}
+            link={AUDIO_PAGE}
+            linkIcon={<IconCaretRight className={styles.seeMoreCaret} />}
+          />
+        </div>,
         CLAIM_REWARD_TOAST_TIMEOUT_MILLIS
       )
       setWasChallengeComplete(true)
