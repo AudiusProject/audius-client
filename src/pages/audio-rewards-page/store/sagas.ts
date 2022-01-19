@@ -9,13 +9,18 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
+  getUndisbursedChallenges,
   getUserChallenge
 } from 'common/store/pages/audio-rewards/selectors'
 import {
@@ -31,17 +36,19 @@ import {
   fetchUserChallengesFailed,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  refreshUserBalance,
   refreshUserChallenges,
   reset,
   setCognitoFlowStatus,
   setHCaptchaStatus,
+  setUndisbursedChallenges,
   setUserChallengeDisbursed,
+  showRewardsToast,
   updateHCaptchaScore
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
+import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
@@ -239,11 +246,47 @@ export function* watchFetchUserChallenges() {
         }
       )
       yield put(fetchUserChallengesSucceeded({ userChallenges }))
+      yield handleChallengeDisbursements(userChallenges)
     } catch (e) {
       console.error(e)
       yield put(fetchUserChallengesFailed())
     }
   })
+}
+
+function* handleChallengeDisbursements(userChallenges: UserChallenge[]) {
+  const disbursedChallenges = userChallenges
+    .filter(challenge => challenge.is_disbursed)
+    .map(challenge => challenge.challenge_id)
+  const undisbursedChallenges = userChallenges
+    .filter(challenge => !challenge.is_disbursed)
+    .map(challenge => challenge.challenge_id)
+
+  const previouslyUndisbursedChallenges:
+    | ChallengeRewardID[]
+    | null = yield select(getUndisbursedChallenges)
+
+  if (previouslyUndisbursedChallenges === null) {
+    yield put(setUndisbursedChallenges({ undisbursedChallenges }))
+  } else {
+    const disbursedChallengeIdSet = new Set(disbursedChallenges)
+    const challengesStillUndisbursed = previouslyUndisbursedChallenges.filter(
+      challengeId => !disbursedChallengeIdSet.has(challengeId)
+    )
+    const newlyDisbursedChallenges = previouslyUndisbursedChallenges.filter(
+      challengeId => disbursedChallengeIdSet.has(challengeId)
+    )
+    if (newlyDisbursedChallenges.length > 0) {
+      yield put(getBalance())
+      yield put(showRewardsToast())
+      yield put(showMusicConfetti())
+    }
+    yield put(
+      setUndisbursedChallenges({
+        undisbursedChallenges: challengesStillUndisbursed
+      })
+    )
+  }
 }
 
 function* watchUpdateHCaptchaScore() {
@@ -261,6 +304,7 @@ function* watchUpdateHCaptchaScore() {
 }
 
 function* pollForChallenges(): any {
+  yield call(remoteConfigInstance.waitForRemoteConfig)
   const pollingFreq = remoteConfigInstance.getRemoteVar(
     IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
   )
@@ -273,25 +317,8 @@ function* pollForChallenges(): any {
   }
 }
 
-function* pollForBalance(): any {
-  const pollingFreq = remoteConfigInstance.getRemoteVar(
-    IntKeys.REWARDS_WALLET_BALANCE_POLLING_FREQ_MS
-  )
-  if (pollingFreq) {
-    const chan = yield call(doEvery, pollingFreq, function* () {
-      yield put(getBalance())
-    })
-    yield take(reset.type)
-    chan.close()
-  }
-}
-
 function* watchRefreshUserChallenges() {
   yield takeEvery(refreshUserChallenges.type, pollForChallenges)
-}
-
-function* watchRefreshUserBalance() {
-  yield takeEvery(refreshUserBalance.type, pollForBalance)
 }
 
 const sagas = () => {
@@ -301,8 +328,7 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    watchRefreshUserChallenges,
-    watchRefreshUserBalance
+    watchRefreshUserChallenges
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

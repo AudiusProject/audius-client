@@ -37,6 +37,10 @@ type UserChallengesPayload = {
   userChallenges: UserChallenge[] | null
 }
 
+type UndisbursedChallenges = {
+  undisbursedChallenges: ChallengeRewardID[]
+}
+
 type RewardsUIState = {
   loading: boolean
   trendingRewardsModalType: TrendingRewardsModalType
@@ -48,6 +52,8 @@ type RewardsUIState = {
   cognitoFlowStatus: CognitoFlowStatus
   cognitoFlowUrlStatus?: Status
   cognitoFlowUrl?: string
+  undisbursedChallenges: ChallengeRewardID[] | null
+  showToast: boolean
 }
 
 const initialState: RewardsUIState = {
@@ -57,7 +63,9 @@ const initialState: RewardsUIState = {
   loading: true,
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
-  cognitoFlowStatus: CognitoFlowStatus.CLOSED
+  cognitoFlowStatus: CognitoFlowStatus.CLOSED,
+  undisbursedChallenges: null,
+  showToast: false
 }
 
 const slice = createSlice({
@@ -161,8 +169,20 @@ const slice = createSlice({
       state.cognitoFlowUrlStatus = Status.ERROR
     },
     refreshUserChallenges: () => {},
-    refreshUserBalance: () => {},
-    reset: () => {}
+    reset: () => {},
+    setUndisbursedChallenges: (
+      state,
+      action: PayloadAction<UndisbursedChallenges>
+    ) => {
+      const { undisbursedChallenges } = action.payload
+      state.undisbursedChallenges = undisbursedChallenges
+    },
+    showRewardsToast: state => {
+      state.showToast = true
+    },
+    hideRewardsToast: state => {
+      state.showToast = false
+    }
   }
 })
 
@@ -186,8 +206,10 @@ export const {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   refreshUserChallenges,
-  refreshUserBalance,
-  reset
+  reset,
+  setUndisbursedChallenges,
+  showRewardsToast,
+  hideRewardsToast
 } = slice.actions
 
 export default slice

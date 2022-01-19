@@ -1,10 +1,9 @@
-import React, { ReactNode, useContext, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import { useSetVisibility } from 'common/hooks/useModalState'
 import { ChallengeRewardID } from 'common/models/AudioRewards'
 import { StringKeys } from 'common/services/remote-config'
@@ -14,25 +13,21 @@ import {
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ChallengeRewardsModalType,
-  setChallengeRewardsModalType,
-  reset,
-  refreshUserBalance,
-  refreshUserChallenges
+  setChallengeRewardsModalType
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { ToastContext } from 'components/toast/ToastContext'
-import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import fillString from 'utils/fillString'
-import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { challengeRewardsConfig } from './config'
-import { useOptimisticChallengeCompletionStepCounts } from './hooks'
+import {
+  useCheckClaimable,
+  useOptimisticChallengeCompletionStepCounts
+} from './hooks'
 
 const messages = {
   title: '$AUDIO REWARDS',
@@ -68,8 +63,6 @@ const RewardPanel = ({
   stepCount,
   currentStepCountOverride
 }: RewardPanelProps) => {
-  const { toast } = useContext(ToastContext)
-
   const wm = useWithMobileStyle(styles.mobile)
   const userChallenges = useSelector(getUserChallenges)
 
@@ -84,30 +77,8 @@ const RewardPanel = ({
   const isComplete = shouldOverrideCurrentStepCount
     ? currentStepCountOverride! >= stepCount
     : !!challenge?.is_complete
-  const [wasChallengeComplete, setWasChallengeComplete] = useState(
-    !!challenge?.is_complete
-  )
 
-  useEffect(() => {
-    if (!wasChallengeComplete && !!challenge?.is_complete) {
-      toast(
-        <div className={styles.rewardClaimedToast}>
-          <span className={styles.rewardClaimedToastIcon}>
-            <i className='emoji face-with-party-horn-and-party-hat' />
-          </span>
-          &nbsp;&nbsp;
-          <ToastLinkContent
-            text={messages.challengeCompleted}
-            linkText={messages.seeMore}
-            link={AUDIO_PAGE}
-            linkIcon={<IconCaretRight className={styles.seeMoreCaret} />}
-          />
-        </div>,
-        CLAIM_REWARD_TOAST_TIMEOUT_MILLIS
-      )
-      setWasChallengeComplete(true)
-    }
-  }, [wasChallengeComplete, challenge, toast])
+  const { isClaimable } = useCheckClaimable(challenge, isComplete)
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
@@ -142,11 +113,7 @@ const RewardPanel = ({
       </div>
       <ButtonWithArrow
         className={wm(styles.panelButton)}
-        text={
-          challenge?.is_complete && !challenge?.is_disbursed
-            ? messages.claimReward
-            : panelButtonText
-        }
+        text={isClaimable ? messages.claimReward : panelButtonText}
         onClick={openRewardModal}
         textClassName={styles.panelButtonText}
       />
@@ -191,15 +158,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       setHaveChallengesLoaded(true)
     }
   }, [userChallengesLoading, haveChallengesLoaded])
-
-  // poll for user challenges and user balance to refresh
-  useEffect(() => {
-    dispatch(refreshUserChallenges())
-    dispatch(refreshUserBalance())
-    return () => {
-      dispatch(reset())
-    }
-  }, [dispatch])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
     dispatch(setChallengeRewardsModalType({ modalType }))

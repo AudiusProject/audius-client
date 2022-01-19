@@ -35,3 +35,9 @@ export const getCognitoFlowUrl = (state: CommonState) =>
 
 export const getCognitoFlowUrlStatus = (state: CommonState) =>
   state.pages.audioRewards.cognitoFlowUrlStatus
+
+export const getUndisbursedChallenges = (state: CommonState) =>
+  state.pages.audioRewards.undisbursedChallenges
+
+export const getShowToast = (state: CommonState) =>
+  state.pages.audioRewards.showToast

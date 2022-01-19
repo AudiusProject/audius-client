@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useContext } from 'react'
+import React, { useCallback, useEffect, useContext, useState } from 'react'
 
 import { Button, ButtonType, ProgressBar, IconCheck } from '@audius/stems'
 import cn from 'classnames'
@@ -9,11 +9,13 @@ import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconValidationCheck } from 'assets/img/iconValidationCheck.svg'
 import QRCode from 'assets/img/imageQR.png'
 import { useModalState } from 'common/hooks/useModalState'
+import { ChallengeRewardID } from 'common/models/AudioRewards'
 import { getAccountUser, getUserHandle } from 'common/store/account/selectors'
 import {
   getChallengeRewardsModalType,
   getClaimStatus,
   getCognitoFlowStatus,
+  getUndisbursedChallenges,
   getUserChallenges
 } from 'common/store/pages/audio-rewards/selectors'
 import {
@@ -22,9 +24,12 @@ import {
   ClaimStatus,
   resetAndCancelClaimReward,
   CognitoFlowStatus,
-  claimChallengeReward
+  claimChallengeReward,
+  setUndisbursedChallenges
 } from 'common/store/pages/audio-rewards/slice'
+import { getBalance } from 'common/store/wallet/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import { getHasFavoritedItem } from 'components/profile-progress/store/selectors'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
@@ -32,7 +37,10 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
-import { useOptimisticChallengeCompletionStepCounts } from 'pages/audio-rewards-page/hooks'
+import {
+  useCheckClaimable,
+  useOptimisticChallengeCompletionStepCounts
+} from 'pages/audio-rewards-page/hooks'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
@@ -175,8 +183,9 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const isComplete = shouldOverrideCurrentStepCount
     ? currentStepCountOverride! >= stepCount
     : !!challenge?.is_complete
-  const isDisbursed = challenge?.is_disbursed ?? false
   const specifier = challenge?.specifier ?? ''
+
+  const { isClaimable } = useCheckClaimable(challenge, isComplete)
 
   let linkType: 'complete' | 'inProgress' | 'incomplete'
   if (isComplete) {
@@ -253,11 +262,45 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
     }
   }, [dispatch, challenge, specifier])
 
+  const [hasClaimed, setHasClaimed] = useState(false)
+  const previouslyUndisbursedChallenges = useSelector(getUndisbursedChallenges)
+
   useEffect(() => {
-    if (claimStatus === ClaimStatus.SUCCESS) {
+    if (claimStatus === ClaimStatus.SUCCESS && !hasClaimed) {
+      setHasClaimed(true)
+
+      dispatch(getBalance())
       toast(messages.rewardClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+      dispatch(showMusicConfetti())
+
+      const newUndisbursedChallenges =
+        previouslyUndisbursedChallenges === null
+          ? {
+              undisbursedChallenges: Object.keys(userChallenges)
+                .filter(
+                  challengeId =>
+                    !userChallenges[challengeId as ChallengeRewardID]
+                      ?.is_disbursed
+                )
+                .filter(challengeId => challengeId !== challenge?.challenge_id)
+                .map(challengeId => challengeId as ChallengeRewardID)
+            }
+          : {
+              undisbursedChallenges: previouslyUndisbursedChallenges.filter(
+                challengeId => challengeId !== challenge?.challenge_id
+              )
+            }
+      dispatch(setUndisbursedChallenges(newUndisbursedChallenges))
     }
-  }, [claimStatus, toast])
+  }, [
+    claimStatus,
+    hasClaimed,
+    dispatch,
+    toast,
+    previouslyUndisbursedChallenges,
+    userChallenges,
+    challenge
+  ])
 
   return (
     <div className={wm(styles.container)}>
@@ -316,18 +359,14 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         {buttonLink && (
           <Button
             className={wm(styles.button)}
-            type={
-              isComplete && !isDisbursed
-                ? ButtonType.COMMON
-                : ButtonType.PRIMARY_ALT
-            }
+            type={isClaimable ? ButtonType.COMMON : ButtonType.PRIMARY_ALT}
             text={buttonInfo?.label}
             onClick={goToRoute}
             leftIcon={buttonInfo?.leftIcon}
             rightIcon={buttonInfo?.rightIcon}
           />
         )}
-        {challenge && isComplete && !isDisbursed && (
+        {isClaimable && (
           <Button
             text={messages.claimYourReward}
             className={wm(styles.button)}

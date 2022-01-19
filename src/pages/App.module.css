@@ -64,3 +64,23 @@ body {
   margin-top: calc(env(safe-area-inset-top, 0px) + 40px);
   margin-bottom: 0;
 }
+
+.rewardClaimedToast {
+  display: flex;
+  justify-content: center;
+}
+
+.rewardClaimedToastIcon {
+  top: -2px !important;
+  position: relative;
+}
+
+.seeMoreCaret {
+  margin-left: 2px;
+  height: 12px;
+  width: 10px;
+}
+
+.seeMoreCaret path {
+  fill: var(--static-white);
+}

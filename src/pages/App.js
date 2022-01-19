@@ -19,6 +19,10 @@ import {
   getConnectivityFailure,
   getUserHandle
 } from 'common/store/account/selectors'
+import {
+  reset as resetRewardsPolling,
+  refreshUserChallenges
+} from 'common/store/pages/audio-rewards/slice'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
 import AppRedirectPopover from 'components/app-redirect-popover/components/AppRedirectPopover'
 import MobileDesktopBanner from 'components/banner/CTABanner'
@@ -158,6 +162,7 @@ import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
 import styles from './App.module.css'
+import { RewardClaimedToast } from './audio-rewards-page/RewardClaimedToast'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import { ExploreCollectionsVariant } from './explore-page/store/types'
@@ -206,7 +211,9 @@ class App extends Component {
     initialPage: true,
     entryRoute: getPathname(this.props.history.location),
     lastRoute: null,
-    currentRoute: getPathname(this.props.history.location)
+    currentRoute: getPathname(this.props.history.location),
+
+    isPollingUserChallenges: false
   }
 
   ipc = null
@@ -363,6 +370,11 @@ class App extends Component {
     if (prevProps.theme !== this.props.theme) {
       this.handleTheme()
     }
+
+    if (this.props.hasAccount && !this.state.isPollingUserChallenges) {
+      this.props.refreshUserChallenges()
+      this.setState({ isPollingUserChallenges: true })
+    }
   }
 
   componentWillUnmount() {
@@ -373,6 +385,10 @@ class App extends Component {
     if (client === Client.ELECTRON) {
       this.ipc.removeAllListeners('updateDownloaded')
       this.ipc.removeAllListeners('updateAvailable')
+    }
+
+    if (this.props.hasAccount) {
+      this.props.resetRewardsPolling()
     }
   }
 
@@ -929,6 +945,10 @@ class App extends Component {
           </Suspense>
         }
 
+        <Suspense fallback={null}>
+          <RewardClaimedToast />
+        </Suspense>
+
         {/* Non-mobile */}
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
@@ -976,6 +996,12 @@ const mapDispatchToProps = dispatch => ({
   },
   showAppCTAModal: () => {
     dispatch(setAppModalCTAVisibility({ isOpen: true }))
+  },
+  refreshUserChallenges: () => {
+    dispatch(refreshUserChallenges())
+  },
+  resetRewardsPolling: () => {
+    dispatch(resetRewardsPolling())
   }
 })
 
