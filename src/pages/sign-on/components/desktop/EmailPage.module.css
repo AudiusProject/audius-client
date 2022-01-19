@@ -100,12 +100,12 @@
 .buttonsContainer {
   display: flex;
   flex-direction: column;
-  flex: 1;
 }
 
 /* Sign In Button */
 .signInButton {
   width: 100%;
+  margin-bottom: 12px;
 }
 
 .signInButton .signInButtonText {
@@ -270,4 +270,22 @@
 
 .spinner g path {
   stroke: var(--white) !important;
+}
+
+.forgotPasswordTextContainer {
+  font-size: var(--font-s);
+  font-weight: 400;
+  line-height: 22px;
+  margin-bottom: 24px;
+}
+
+.forgotPasswordText {
+  color: var(--secondary);
+  cursor: pointer;
+}
+
+.forgotPasswordText:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-light-2);
 }
