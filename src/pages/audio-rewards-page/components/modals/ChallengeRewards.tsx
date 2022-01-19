@@ -198,7 +198,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressDescription = (
     <div className={wm(styles.progressDescription)}>
       <h3>Task</h3>
-      <p>{fullDescription}</p>
+      <p>{fullDescription(challenge?.amount)}</p>
     </div>
   )
 
