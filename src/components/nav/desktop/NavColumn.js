@@ -184,10 +184,9 @@ const NavColumn = ({
 
   const onShowVisualizer = useCallback(
     e => {
-      e.stopPropagation()
       if (NO_VISUALIZER_ROUTES.has(pathname)) return
-
       showVisualizer()
+      e.stopPropagation()
     },
     [showVisualizer, pathname]
   )
