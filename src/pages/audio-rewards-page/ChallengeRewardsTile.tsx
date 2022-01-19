@@ -41,7 +41,7 @@ const messages = {
 type RewardPanelProps = {
   title: string
   icon: ReactNode
-  description: string
+  description: (amount: string | undefined) => string
   panelButtonText: string
   progressLabel: string
   stepCount: number
@@ -67,7 +67,8 @@ const RewardPanel = ({
   const openRewardModal = () => openModal(id)
 
   const challenge = userChallenges[id]
-  const shouldOverrideCurrentStepCount = currentStepCountOverride !== undefined
+  const shouldOverrideCurrentStepCount =
+    !challenge?.is_complete && currentStepCountOverride !== undefined
   const currentStepCount = shouldOverrideCurrentStepCount
     ? currentStepCountOverride!
     : challenge?.current_step_count || 0
@@ -81,7 +82,9 @@ const RewardPanel = ({
         {icon}
         {title}
       </span>
-      <span className={wm(styles.rewardDescription)}>{description}</span>
+      <span className={wm(styles.rewardDescription)}>
+        {description(challenge?.amount)}
+      </span>
       <div className={wm(styles.rewardProgress)}>
         <p
           className={cn(styles.rewardProgressLabel, {
