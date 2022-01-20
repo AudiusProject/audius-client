@@ -167,9 +167,7 @@ import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
-const SignOn = React.lazy(() =>
-  import(/* webpackChunkName: "sign-on-page" */ 'pages/sign-on/SignOn')
-)
+const SignOn = React.lazy(() => import('pages/sign-on/SignOn'))
 
 const SettingsPage = lazyWithPreload(
   () => import('pages/settings-page/SettingsPage'),
