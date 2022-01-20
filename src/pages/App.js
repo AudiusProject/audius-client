@@ -21,7 +21,7 @@ import {
 } from 'common/store/account/selectors'
 import {
   reset as resetRewardsPolling,
-  refreshUserChallenges
+  pollForUserChallenges
 } from 'common/store/pages/audio-rewards/slice'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
 import AppRedirectPopover from 'components/app-redirect-popover/components/AppRedirectPopover'
@@ -372,7 +372,7 @@ class App extends Component {
     }
 
     if (this.props.hasAccount && !this.state.isPollingUserChallenges) {
-      this.props.refreshUserChallenges()
+      this.props.pollForUserChallenges()
       this.setState({ isPollingUserChallenges: true })
     }
   }
@@ -997,8 +997,8 @@ const mapDispatchToProps = dispatch => ({
   showAppCTAModal: () => {
     dispatch(setAppModalCTAVisibility({ isOpen: true }))
   },
-  refreshUserChallenges: () => {
-    dispatch(refreshUserChallenges())
+  pollForUserChallenges: () => {
+    dispatch(pollForUserChallenges())
   },
   resetRewardsPolling: () => {
     dispatch(resetRewardsPolling())

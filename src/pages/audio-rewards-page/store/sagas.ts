@@ -36,7 +36,7 @@ import {
   fetchUserChallengesFailed,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  refreshUserChallenges,
+  pollForUserChallenges,
   reset,
   setCognitoFlowStatus,
   setHCaptchaStatus,
@@ -317,8 +317,8 @@ function* pollForChallenges(): any {
   }
 }
 
-function* watchRefreshUserChallenges() {
-  yield takeEvery(refreshUserChallenges.type, pollForChallenges)
+function* watchPollForUserChallenges() {
+  yield takeEvery(pollForUserChallenges.type, pollForChallenges)
 }
 
 const sagas = () => {
@@ -328,7 +328,7 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    watchRefreshUserChallenges
+    watchPollForUserChallenges
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
