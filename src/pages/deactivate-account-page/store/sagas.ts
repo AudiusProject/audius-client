@@ -1,4 +1,4 @@
-import { delay } from 'redux-saga'
+import delay from '@redux-saga/delay-p'
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
 import { Name } from 'common/models/Analytics'

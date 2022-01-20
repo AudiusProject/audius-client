@@ -1,4 +1,4 @@
-import { delay } from 'redux-saga'
+import delay from '@redux-saga/delay-p'
 import {
   put,
   all,

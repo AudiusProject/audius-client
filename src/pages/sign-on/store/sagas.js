@@ -1,6 +1,6 @@
 /* globals fetch */
+import delay from '@redux-saga/delay-p'
 import { push as pushRoute } from 'connected-react-router'
-import { delay } from 'redux-saga'
 import {
   all,
   call,

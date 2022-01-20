@@ -1,5 +1,6 @@
+import delay from '@redux-saga/delay-p'
 import moment from 'moment'
-import { delay, eventChannel } from 'redux-saga'
+import { eventChannel } from 'redux-saga'
 import {
   call,
   fork,
