@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, KeyboardEvent } from 'react'
+import React, { useState, useEffect, useCallback, KeyboardEvent } from 'react'
 
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
@@ -10,6 +10,7 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PreloadImage from 'components/preload-image/PreloadImage'
 import StatusMessage from 'components/status-message/StatusMessage'
 
+import { ForgotPasswordHelper } from './ForgotPasswordHelper'
 import { MetaMaskOption } from './MetaMaskOption'
 import styles from './SignInPage.module.css'
 
@@ -18,7 +19,8 @@ const messages = {
   error: {
     inUse: 'Invalid password',
     default: 'Invalid Credentials'
-  }
+  },
+  forgotPasswordText: 'Forgot your password?'
 }
 
 type emailStatus = 'editing' | 'failure' | 'loading' | 'success'
@@ -57,7 +59,8 @@ export const SignInPage = ({
   onSignUp,
   onMetaMaskSignIn
 }: SignInProps) => {
-  // TODO: What the fk are the email and password fields?
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+
   const passwordInput = React.createRef<HTMLInputElement>()
 
   useEffect(() => {
@@ -185,6 +188,20 @@ export const SignInPage = ({
             onClick={onSignUp}
           />
         </div>
+        <div className={styles.forgotPasswordTextContainer}>
+          <span
+            onClick={() => {
+              setShowForgotPassword(true)
+            }}
+            className={styles.forgotPasswordText}
+          >
+            {messages.forgotPasswordText}
+          </span>
+        </div>
+        <ForgotPasswordHelper
+          isOpen={showForgotPassword}
+          onClose={() => setShowForgotPassword(false)}
+        />
       </div>
     </div>
   )

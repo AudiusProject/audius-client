@@ -60,12 +60,12 @@
 .buttonsContainer {
   display: flex;
   flex-direction: column;
-  flex: 1;
 }
 
 /* Sign In Button */
 .signInButton {
   transition: none;
+  margin-bottom: 12px;
 }
 
 .signInError .signInButton {
@@ -212,4 +212,22 @@
   margin-bottom: 24px;
   display: flex;
   align-items: flex-end;
+}
+
+.forgotPasswordTextContainer {
+  font-size: var(--font-s);
+  font-weight: 400;
+  line-height: 22px;
+  margin-bottom: 24px;
+}
+
+.forgotPasswordText {
+  color: var(--secondary);
+  cursor: pointer;
+}
+
+.forgotPasswordText:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-light-2);
 }
