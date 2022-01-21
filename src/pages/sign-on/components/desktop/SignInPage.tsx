@@ -5,6 +5,7 @@ import cn from 'classnames'
 import { Spring } from 'react-spring/renderprops'
 
 import audiusLogoColored from 'assets/img/audiusLogoColored.png'
+import useInstanceVar from 'common/hooks/useInstanceVar'
 import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PreloadImage from 'components/preload-image/PreloadImage'
@@ -60,16 +61,16 @@ export const SignInPage = ({
   onMetaMaskSignIn
 }: SignInProps) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [getInitialEmail] = useInstanceVar(email)
 
   const passwordInput = React.createRef<HTMLInputElement>()
 
   useEffect(() => {
+    const email = getInitialEmail()
     if (email && email.value) {
       passwordInput.current?.focus()
     }
-    // We only want to check on first component render (i.e componentDidMount)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [getInitialEmail, passwordInput])
 
   const onEmailKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -142,9 +143,7 @@ export const SignInPage = ({
         variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
         onChange={onPasswordChange}
         onKeyDown={onPwdKeyDown}
-        className={cn(styles.signInInput, {
-          [styles.hasMetaMask]: hasMetaMask
-        })}
+        className={cn(styles.signInInput)}
       />
       {signInError && (
         <Spring

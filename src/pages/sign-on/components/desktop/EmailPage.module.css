@@ -103,6 +103,10 @@
 }
 
 /* Sign In Button */
+.metaMask .signInButton {
+  margin-bottom: 0px;
+}
+
 .signInButton {
   width: 100%;
   margin-bottom: 12px;
@@ -113,16 +117,15 @@
   font-weight: var(--font-bold);
 }
 
+.metaMask .hasAccount {
+  margin-bottom: 12px;
+}
+
 .hasAccount {
   flex: 1;
   display: flex;
   align-items: flex-end;
   margin-bottom: 24px;
-}
-
-.metaMask .hasAccountErrMetaMask {
-  margin-top: 8px;
-  margin-bottom: 8px;
 }
 
 .hasAccount.hasAccountErr {
@@ -274,7 +277,7 @@
 
 .forgotPasswordTextContainer {
   font-size: var(--font-s);
-  font-weight: 400;
+  font-weight: var(--font-regular);
   line-height: 22px;
   margin-bottom: 24px;
 }

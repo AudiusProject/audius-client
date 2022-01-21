@@ -41,9 +41,6 @@
   border: 1px solid #f2f2f4;
   border-radius: 4px;
 }
-.signInInput.hasMetaMask {
-  margin-top: 15px;
-}
 
 .signInInput :global(.placeholder) {
   top: 37% !important;
@@ -106,6 +103,10 @@
 
 .hidden {
   display: none;
+}
+
+.metaMask .errorContainer {
+  margin: 0px 12px 6px 12px;
 }
 
 .errorContainer {
@@ -207,6 +208,10 @@
   stroke: var(--white) !important;
 }
 
+.metaMask .createAccount {
+  margin-bottom: 12px;
+}
+
 .createAccount {
   flex: 1;
   margin-bottom: 24px;
@@ -216,7 +221,7 @@
 
 .forgotPasswordTextContainer {
   font-size: var(--font-s);
-  font-weight: 400;
+  font-weight: var(--font-regular);
   line-height: 22px;
   margin-bottom: 24px;
 }
