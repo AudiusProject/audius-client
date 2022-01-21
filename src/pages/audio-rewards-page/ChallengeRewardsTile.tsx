@@ -78,10 +78,10 @@ const RewardPanel = ({
       <div className={wm(styles.rewardProgress)}>
         <p
           className={cn(styles.rewardProgressLabel, {
-            [styles.complete]: challenge?.is_complete
+            [styles.complete]: challenge?.state === 'completed'
           })}
         >
-          {challenge?.is_complete
+          {challenge?.state === 'completed'
             ? messages.completeLabel
             : fillString(
                 progressLabel,
@@ -100,7 +100,7 @@ const RewardPanel = ({
       <ButtonWithArrow
         className={wm(styles.panelButton)}
         text={
-          challenge?.is_complete && !challenge?.is_disbursed
+          challenge?.state === 'completed'
             ? messages.claimReward
             : panelButtonText
         }

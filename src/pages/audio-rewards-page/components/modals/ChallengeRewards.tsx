@@ -163,16 +163,12 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   } = challengeRewardsConfig[modalType]
 
   const currentStepCount = challenge?.current_step_count || 0
-  const isIncomplete = currentStepCount === 0
-  const isInProgress = currentStepCount > 0 && currentStepCount < stepCount
-  const isComplete = !!challenge?.is_complete
-  const isDisbursed = challenge?.is_disbursed ?? false
   const specifier = challenge?.specifier ?? ''
 
   let linkType: 'complete' | 'inProgress' | 'incomplete'
-  if (isComplete) {
+  if (challenge?.state === 'completed') {
     linkType = 'complete'
-  } else if (isInProgress) {
+  } else if (challenge?.state === 'in_progress') {
     linkType = 'inProgress'
   } else {
     linkType = 'incomplete'
@@ -204,14 +200,18 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressStatusLabel = (
     <div
       className={cn(styles.progressStatus, {
-        [styles.incomplete]: isIncomplete,
-        [styles.inProgress]: isInProgress,
-        [styles.complete]: isComplete
+        [styles.incomplete]: challenge?.state === 'incomplete',
+        [styles.inProgress]: challenge?.state === 'in_progress',
+        [styles.complete]: challenge?.state === 'completed'
       })}
     >
-      {isIncomplete && <h3 className={styles.incomplete}>Incomplete</h3>}
-      {isComplete && <h3 className={styles.complete}>Complete</h3>}
-      {isInProgress && (
+      {challenge?.state === 'incomplete' && (
+        <h3 className={styles.incomplete}>Incomplete</h3>
+      )}
+      {challenge?.state === 'completed' && (
+        <h3 className={styles.complete}>Complete</h3>
+      )}
+      {challenge?.state === 'in_progress' && (
         <h3 className={styles.inProgress}>
           {fillString(
             progressLabel,
@@ -308,7 +308,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           <Button
             className={wm(styles.button)}
             type={
-              isComplete && !isDisbursed
+              challenge?.state === 'completed'
                 ? ButtonType.COMMON
                 : ButtonType.PRIMARY_ALT
             }
@@ -318,7 +318,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             rightIcon={buttonInfo?.rightIcon}
           />
         )}
-        {challenge && isComplete && !isDisbursed && (
+        {challenge && challenge?.state === 'completed' && (
           <Button
             text={messages.claimYourReward}
             className={wm(styles.button)}
