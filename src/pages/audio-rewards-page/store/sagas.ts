@@ -1,6 +1,9 @@
 import { User } from '@sentry/browser'
+import { Action } from 'redux'
+import { delay, eventChannel } from 'redux-saga'
 import {
   call,
+  fork,
   put,
   race,
   select,
@@ -9,14 +12,20 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
-  getUserChallenge
+  getUserChallenge,
+  getUserChallenges,
+  getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   Claim,
@@ -32,7 +41,6 @@ import {
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
   refreshUserBalance,
-  refreshUserChallenges,
   reset,
   setCognitoFlowStatus,
   setHCaptchaStatus,
@@ -42,11 +50,13 @@ import {
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
+import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
+import { isElectron } from 'utils/clientUtil'
 import { encodeHashId } from 'utils/route/hashIds'
 import { doEvery, waitForValue } from 'utils/sagaHelpers'
 
@@ -238,6 +248,33 @@ export function* watchFetchUserChallenges() {
           userID: currentUserId
         }
       )
+      const prevChallenges: Partial<Record<
+        ChallengeRewardID,
+        UserChallenge
+      >> = yield select(getUserChallenges)
+      const challengesOverrides: Partial<Record<
+        ChallengeRewardID,
+        UserChallenge
+      >> = yield select(getUserChallengesOverrides)
+      let newDisbursement = false
+      for (const challenge of userChallenges) {
+        const prevChallenge = prevChallenges[challenge.challenge_id]
+        const challengeOverrides = challengesOverrides[challenge.challenge_id]
+        if (
+          challenge.is_disbursed &&
+          prevChallenge &&
+          !prevChallenge.is_disbursed && // it wasn't already claimed
+          (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
+        ) {
+          newDisbursement = true
+        }
+      }
+      if (newDisbursement) {
+        yield put(getBalance())
+        yield put(showMusicConfetti())
+        // TODO: showToast
+        // yield put(showToast())
+      }
       yield put(fetchUserChallengesSucceeded({ userChallenges }))
     } catch (e) {
       console.error(e)
@@ -260,19 +297,6 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-function* pollForChallenges(): any {
-  const pollingFreq = remoteConfigInstance.getRemoteVar(
-    IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
-  )
-  if (pollingFreq) {
-    const chan = yield call(doEvery, pollingFreq, function* () {
-      yield put(fetchUserChallenges())
-    })
-    yield take(reset.type)
-    chan.close()
-  }
-}
-
 function* pollForBalance(): any {
   const pollingFreq = remoteConfigInstance.getRemoteVar(
     IntKeys.REWARDS_WALLET_BALANCE_POLLING_FREQ_MS
@@ -286,8 +310,61 @@ function* pollForBalance(): any {
   }
 }
 
-function* watchRefreshUserChallenges() {
-  yield takeEvery(refreshUserChallenges.type, pollForChallenges)
+function* visibilityPollingDaemon(action: Action, delayTimeMs: number) {
+  // Set up daemon that will watch for browser into focus and refetch notifications
+  // as soon as it goes into focus
+  const visibilityChannel = eventChannel(emitter => {
+    if (NATIVE_MOBILE) {
+      // The focus and visibitychange events are wonky on native mobile webviews,
+      // so poll for visiblity change instead
+      let lastHidden = true
+      setInterval(() => {
+        if (!document.hidden && lastHidden) {
+          emitter(true)
+        }
+        lastHidden = document.hidden
+      }, 500)
+    } else {
+      document.addEventListener('visibilitychange ', () => {
+        if (!document.hidden) {
+          emitter(true)
+        }
+      })
+    }
+    return () => {}
+  })
+  yield fork(function* () {
+    while (true) {
+      yield take(visibilityChannel)
+      yield put(action)
+    }
+  })
+
+  // Set up daemon that will poll for notifications every 10s if the browser is
+  // in the foreground
+  let isBrowserInBackground = false
+  document.addEventListener(
+    'visibilitychange',
+    () => {
+      if (document.hidden) {
+        isBrowserInBackground = true
+      } else {
+        isBrowserInBackground = false
+      }
+    },
+    false
+  )
+
+  while (true) {
+    if (!isBrowserInBackground || isElectron()) {
+      yield put(action)
+    }
+    yield delay(delayTimeMs)
+  }
+}
+
+function* userChallengePollingDaemon() {
+  yield* visibilityPollingDaemon(fetchUserChallenges(), 5000)
 }
 
 function* watchRefreshUserBalance() {
@@ -301,7 +378,7 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    watchRefreshUserChallenges,
+    userChallengePollingDaemon,
     watchRefreshUserBalance
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
