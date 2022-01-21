@@ -1,7 +1,6 @@
 import { useSelector } from 'react-redux'
 
 import { ChallengeRewardID, UserChallenge } from 'common/models/AudioRewards'
-import { getUserChallengesOverrides } from 'common/store/pages/audio-rewards/selectors'
 import { getCompletionStages } from 'components/profile-progress/store/selectors'
 
 type OptimisticChallengeCompletionResponse = Partial<
@@ -71,16 +70,13 @@ export const useOptimisticUserChallenge = (
   challenge?: UserChallenge
 ): OptimisticUserChallenge | undefined => {
   const stepCountOverrides = useOptimisticChallengeCompletionStepCounts()
-  const userChallengesOverrides = useSelector(getUserChallengesOverrides)
 
   if (!challenge) {
     return challenge
   }
   const currentStepCountOverride = stepCountOverrides[challenge?.challenge_id]
-  const userChallengeOverrides =
-    userChallengesOverrides[challenge?.challenge_id]
 
-  const challengeOverridden = { ...challenge, ...userChallengeOverrides }
+  const challengeOverridden = { ...challenge }
 
   // The client is more up to date than Discovery Nodes, so override whenever possible.
   // Don't override if the challenge is already marked as completed on Discovery.

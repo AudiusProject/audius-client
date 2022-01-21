@@ -15,9 +15,6 @@ export const getUserChallenge = (
   props: { challengeId: ChallengeRewardID }
 ) => state.pages.audioRewards.userChallenges[props.challengeId]
 
-export const getUserChallengesOverrides = (state: CommonState) =>
-  state.pages.audioRewards.userChallengesOverrides
-
 export const getUserChallengesLoading = (state: CommonState) =>
   state.pages.audioRewards.loading
 
