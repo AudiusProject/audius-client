@@ -163,8 +163,7 @@ const slice = createSlice({
     },
     fetchCognitoFlowUrlFailed: state => {
       state.cognitoFlowUrlStatus = Status.ERROR
-    },
-    reset: () => {}
+    }
   }
 })
 
