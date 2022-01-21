@@ -43,7 +43,8 @@ import {
   setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
-  updateHCaptchaScore
+  updateHCaptchaScore,
+  showRewardClaimedToast
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -270,8 +271,7 @@ export function* watchFetchUserChallenges() {
       if (newDisbursement) {
         yield put(getBalance())
         yield put(showMusicConfetti())
-        // TODO: showToast
-        // yield put(showToast())
+        yield put(showRewardClaimedToast())
       }
       yield put(fetchUserChallengesSucceeded({ userChallenges }))
     } catch (e) {
