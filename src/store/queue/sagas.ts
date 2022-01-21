@@ -181,7 +181,7 @@ export function* watchPlay() {
       // Skip deleted tracks
       if (
         (playActionTrack && playActionTrack.is_delete) ||
-        // @ts-ignore this is technically impossible with typing, but keeping for now to avoid potential runtime issues
+        // @ts-ignore user incorrectly typed as `null`. ignoring until we implement typed-redux-saga
         user?.is_deactivated
       ) {
         yield put(next({}))
