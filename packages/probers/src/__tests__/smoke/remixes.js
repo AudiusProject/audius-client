@@ -1,9 +1,8 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
-jest.retryTimes(3)
-
 const config = getConfig()
+const testTimeout = config.defaultTestTimeout
 const actionTimeout = config.tenSeconds
 
 describe('Smoke test -- remixes page', () => {
@@ -12,7 +11,7 @@ describe('Smoke test -- remixes page', () => {
   beforeAll(async () => {
     page = await newPage()
     await resetBrowser(page, `${config.baseUrl}`)
-  })
+  }, testTimeout)
 
   afterAll(async () => {
     await page.close()
@@ -27,5 +26,5 @@ describe('Smoke test -- remixes page', () => {
 
     // Verify that 'REMIX' label is present on page
     await page.waitForXPath("//span[normalize-space(text())='Remixes']", { timeout: actionTimeout })
-  })
-})
+  }, testTimeout)
+}, testTimeout)

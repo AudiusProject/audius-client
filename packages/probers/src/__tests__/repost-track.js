@@ -3,9 +3,8 @@ import { newPage, resetBrowser, reload, wait, waitForNetworkIdle0 } from '../uti
 import { repostTrack, undoRepostTrack, checkIfReposted } from '../flows/repost-track'
 import { createSignedInAccountIfNecessary } from '../flows/create-account-if-necessary'
 
-jest.retryTimes(3)
-
 const config = getConfig()
+const testTimeout = 5 /* min */ * 60 /* sec */ * 1000 /* ms */
 
 describe(
   'Repost Track',
@@ -16,7 +15,7 @@ describe(
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
       await createSignedInAccountIfNecessary(page, config.baseUrl)
-    })
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -40,7 +39,9 @@ describe(
         await waitForNetworkIdle0(page)
         isReposted = await checkIfReposted(page)
         expect(isReposted).toBe(false)
-      }
+      },
+      testTimeout
     )
-  }
+  },
+  testTimeout
 )

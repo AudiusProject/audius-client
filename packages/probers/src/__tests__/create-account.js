@@ -6,8 +6,6 @@ import {
 import getConfig from '../config'
 import createAccount from '../flows/create-account'
 
-jest.retryTimes(3)
-
 let config = getConfig()
 
 describe(
@@ -18,7 +16,7 @@ describe(
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-    })
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -32,7 +30,9 @@ describe(
         await waitForNetworkIdle0(page, page.goto(`${config.baseUrl}/${user.handle}`))
         const pageUrl = new URL(page.url())
         expect(pageUrl.pathname).toBe(`/${user.handle}`)
-      }
+      },
+      config.defaultTestTimeout
     )
-  }
+  },
+  config.defaultTestTimeout
 )

@@ -1,9 +1,8 @@
 import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 
-jest.retryTimes(3)
-
 const config = getConfig()
+const timeout = config.defaultTestTimeout
 
 describe('Smoke test -- trending page', () => {
   let page
@@ -11,7 +10,7 @@ describe('Smoke test -- trending page', () => {
   beforeAll(async () => {
     page = await newPage()
     await resetBrowser(page, config.baseUrl)
-  })
+  }, timeout)
 
   afterAll(async () => {
     await page.close()
@@ -26,5 +25,5 @@ describe('Smoke test -- trending page', () => {
 
     // Verify that 'Trending' label is present on page
     await page.waitForXPath("//h1[contains(text(), 'Trending')]")
-  })
-})
+  }, timeout)
+}, timeout)

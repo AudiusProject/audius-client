@@ -2,8 +2,6 @@ import getConfig from '../config'
 import { newPage, resetBrowser, wait } from '../utils'
 import playTrack from '../flows/play-track'
 
-jest.retryTimes(3)
-
 const config = getConfig()
 
 describe(
@@ -14,7 +12,7 @@ describe(
     beforeAll(async () => {
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
-    })
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -28,7 +26,9 @@ describe(
           return !window.audio.paused
         })
         expect(playing).toBe(true)
-      }
+      },
+      config.defaultTestTimeout
     )
-  }
+  },
+  config.defaultTestTimeout
 )

@@ -2,9 +2,8 @@ import getConfig from '../../config'
 import { newPage, resetBrowser, waitForNetworkIdle0 } from '../../utils'
 import { createSignedInAccountIfNecessary } from '../../flows/create-account-if-necessary'
 
-jest.retryTimes(3)
-
 const config = getConfig()
+const timeout = config.defaultTestTimeout
 
 describe('Smoke test -- upload page', () => {
   let page
@@ -13,7 +12,7 @@ describe('Smoke test -- upload page', () => {
     page = await newPage()
     await resetBrowser(page, config.baseUrl)
     await createSignedInAccountIfNecessary(page, config.baseUrl)
-  })
+  }, timeout)
 
   afterAll(async () => {
     await page.close()
@@ -28,5 +27,5 @@ describe('Smoke test -- upload page', () => {
 
     // Verify that 'Upload Tracks' label is present
     await page.waitForXPath("//h1[contains(text(), 'Upload Tracks')]")
-  })
-})
+  }, timeout)
+}, timeout)

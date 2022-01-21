@@ -3,8 +3,6 @@ import { newPage, resetBrowser } from '../utils'
 import { createSignedOutAccountIfNecessary } from '../flows/create-account-if-necessary'
 import { signIn } from '../flows/sign-in'
 
-jest.retryTimes(3)
-
 const config = getConfig()
 
 describe(
@@ -17,7 +15,7 @@ describe(
       page = await newPage()
       await resetBrowser(page, config.baseUrl)
       account = await createSignedOutAccountIfNecessary(page, config.baseUrl)
-    })
+    }, config.defaultTestTimeout)
 
     afterAll(async () => {
       await page.close()
@@ -33,7 +31,9 @@ describe(
         await page.waitForSelector('div[class^=NavColumn_name]')
         const entropy = await page.evaluate(() => localStorage.getItem('hedgehog-entropy-key'))
         expect(entropy).toBe(account.entropy)
-      }
+      },
+      config.defaultTestTimeout
     )
-  }
+  },
+  config.defaultTestTimeout
 )

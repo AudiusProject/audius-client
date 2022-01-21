@@ -23,11 +23,11 @@
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
     "env-cmd": "^9.0.3",
-    "jest": "^27.4.7",
-    "jest-puppeteer": "^6.0.3",
-    "puppeteer": "^13.0.1",
-    "rimraf": "^2.6.3",
-    "standard": "^12.0.1"
+    "jest": "^24.8.0",
+    "jest-puppeteer": "^4.2.0",
+    "standard": "^12.0.1",
+    "puppeteer": "^1.17.0",
+    "rimraf": "^2.6.3"
   },
   "standard": {
     "env": [
