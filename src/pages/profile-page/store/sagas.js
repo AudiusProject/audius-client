@@ -1,7 +1,7 @@
-import delay from '@redux-saga/delay-p'
 import { merge } from 'lodash'
 import {
   call,
+  delay,
   fork,
   all,
   put,

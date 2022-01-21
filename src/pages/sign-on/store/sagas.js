@@ -1,9 +1,9 @@
 /* globals fetch */
-import delay from '@redux-saga/delay-p'
 import { push as pushRoute } from 'connected-react-router'
 import {
   all,
   call,
+  delay,
   fork,
   put,
   race,

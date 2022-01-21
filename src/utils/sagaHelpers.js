@@ -1,11 +1,11 @@
 /** Helper Sagas */
 
-import delay from '@redux-saga/delay-p'
 import { push as pushRoute } from 'connected-react-router'
 import { eventChannel, END } from 'redux-saga'
 import {
   all,
   call,
+  delay,
   put,
   select,
   spawn,

@@ -1,8 +1,8 @@
-import delay from '@redux-saga/delay-p'
 import {
   all,
   call,
   cancel,
+  delay,
   put,
   fork,
   select,

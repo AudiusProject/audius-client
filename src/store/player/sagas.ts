@@ -1,6 +1,13 @@
-import delay from '@redux-saga/delay-p'
 import { eventChannel, END } from 'redux-saga'
-import { select, take, call, put, spawn, takeLatest } from 'redux-saga/effects'
+import {
+  select,
+  take,
+  call,
+  put,
+  spawn,
+  takeLatest,
+  delay
+} from 'redux-saga/effects'
 
 import Kind from 'common/models/Kind'
 import { Track } from 'common/models/Track'
