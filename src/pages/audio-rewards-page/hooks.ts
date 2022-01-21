@@ -33,7 +33,8 @@ const getUserChallengeState = (
   }
   if (
     challenge.is_complete ||
-    challenge.current_step_count >= challenge.max_steps
+    (challenge.max_steps !== null &&
+      challenge.current_step_count >= challenge.max_steps)
   ) {
     return 'completed'
   }
