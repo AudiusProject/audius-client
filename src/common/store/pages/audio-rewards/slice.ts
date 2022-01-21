@@ -74,12 +74,7 @@ const slice = createSlice({
         state.userChallenges = {}
       } else {
         state.userChallenges = userChallenges.reduce((acc, challenge) => {
-          acc[challenge.challenge_id] = {
-            ...challenge,
-            is_disbursed:
-              state.userChallenges[challenge.challenge_id]?.is_disbursed ||
-              challenge.is_disbursed
-          }
+          acc[challenge.challenge_id] = challenge
           return acc
         }, {} as Partial<Record<ChallengeRewardID, UserChallenge>>)
       }
