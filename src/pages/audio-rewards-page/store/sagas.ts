@@ -40,8 +40,6 @@ import {
   fetchUserChallengesFailed,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  refreshUserBalance,
-  reset,
   setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
@@ -58,7 +56,7 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { isElectron } from 'utils/clientUtil'
 import { encodeHashId } from 'utils/route/hashIds'
-import { doEvery, waitForValue } from 'utils/sagaHelpers'
+import { waitForValue } from 'utils/sagaHelpers'
 
 const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
 const REACT_APP_ORACLE_ETH_ADDRESSES =
@@ -297,19 +295,6 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-function* pollForBalance(): any {
-  const pollingFreq = remoteConfigInstance.getRemoteVar(
-    IntKeys.REWARDS_WALLET_BALANCE_POLLING_FREQ_MS
-  )
-  if (pollingFreq) {
-    const chan = yield call(doEvery, pollingFreq, function* () {
-      yield put(getBalance())
-    })
-    yield take(reset.type)
-    chan.close()
-  }
-}
-
 function* visibilityPollingDaemon(action: Action, delayTimeMs: number) {
   // Set up daemon that will watch for browser into focus and refetch notifications
   // as soon as it goes into focus
@@ -367,10 +352,6 @@ function* userChallengePollingDaemon() {
   yield* visibilityPollingDaemon(fetchUserChallenges(), 5000)
 }
 
-function* watchRefreshUserBalance() {
-  yield takeEvery(refreshUserBalance.type, pollForBalance)
-}
-
 const sagas = () => {
   const sagas = [
     watchFetchUserChallenges,
@@ -378,8 +359,7 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    userChallengePollingDaemon,
-    watchRefreshUserBalance
+    userChallengePollingDaemon
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
