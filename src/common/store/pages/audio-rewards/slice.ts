@@ -185,8 +185,7 @@ export const {
   setCognitoFlowStatus,
   fetchCognitoFlowUrl,
   fetchCognitoFlowUrlFailed,
-  fetchCognitoFlowUrlSucceeded,
-  reset
+  fetchCognitoFlowUrlSucceeded
 } = slice.actions
 
 export default slice
