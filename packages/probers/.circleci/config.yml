@@ -49,6 +49,7 @@ jobs:
             npm install serve
             node node_modules/serve/bin/serve.js -l 3001 -s build-staging &
             cd probers
+            npm run cypress:run
             npm run test:ci
 
   pings:
