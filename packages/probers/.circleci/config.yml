@@ -19,6 +19,7 @@ jobs:
           paths:
             - build-staging
             - probers
+            - .cache/Cypress
 
   coverage:
     working_directory: ~/
@@ -38,7 +39,7 @@ jobs:
           name: install probers dependencies
           command: |
             cd probers
-            npm install
+            npm ci 
       - save_cache:
           key: probers-dependency-cache-{{ checksum "probers/package.json" }}
           paths:
@@ -68,7 +69,7 @@ jobs:
       - run:
           name: install probers dependencies
           command: |
-            npm install
+            npm ci 
       - save_cache:
           key: probers-dependency-cache-{{ checksum "package.json" }}
           paths:
