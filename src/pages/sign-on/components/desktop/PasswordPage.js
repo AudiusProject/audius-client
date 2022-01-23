@@ -224,11 +224,11 @@ export class PasswordPage extends Component {
           [styles.isMobile]: isMobile
         })}
       >
-        <div className={styles.header}>{messages.header}</div>
+        <h1 className={styles.header}>{messages.header}</h1>
         <div className={styles.warning}>
-          <div className={styles.text}>
+          <p className={styles.text}>
             {isMobile ? messages.warning.mobile : messages.warning.desktop}
-          </div>
+          </p>
         </div>
         <div className={styles.passwordContainer}>
           <Input
@@ -241,6 +241,7 @@ export class PasswordPage extends Component {
             size='medium'
             type='password'
             name='password'
+            id='password-input'
             autoComplete='new-password'
             value={password}
             variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
@@ -257,7 +258,8 @@ export class PasswordPage extends Component {
             placeholder='Confirm Password'
             size='medium'
             type='password'
-            name='confirmPassword'
+            name='variantconfirmPassword'
+            id='confirm-password-input'
             autoComplete='new-password'
             value={passwordConfirm}
             variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
