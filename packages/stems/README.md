@@ -14,6 +14,12 @@
 
 ## Installation
 
+Install `@audius/stems` required peer dependencies:
+```bash
+npm install --save bn.js classnames@2.2.6 lodash@4.17.20 moment@2.24.0 prop-types react react-dom react-spring@8.0.27
+```
+
+Then install `@audius/stems`
 ```bash
 npm install --save @audius/stems
 ```

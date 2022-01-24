@@ -95,7 +95,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className
         )}
         name={name}
-        onClick={isDisabled ? () => {} : onClick}
+        disabled={isDisabled}
+        onClick={onClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onMouseUp={onMouseUp}
