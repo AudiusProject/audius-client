@@ -298,12 +298,23 @@ function* watchUpdateHCaptchaScore() {
 }
 
 function* userChallengePollingDaemon() {
+  // These config options have defaults, they can't be null
+  const defaultChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
+    IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
+  )!
+  const audioRewardsPageChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
+    IntKeys.CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS
+  )!
   yield fork(function* () {
     yield* visibilityPollingDaemon(fetchUserChallenges())
   })
-  yield* foregroundPollingDaemon(fetchUserChallenges(), 15000, {
-    [AUDIO_PAGE]: 3000
-  })
+  yield* foregroundPollingDaemon(
+    fetchUserChallenges(),
+    defaultChallengePollingTimeout,
+    {
+      [AUDIO_PAGE]: audioRewardsPageChallengePollingTimeout
+    }
+  )
 }
 
 const sagas = () => {
