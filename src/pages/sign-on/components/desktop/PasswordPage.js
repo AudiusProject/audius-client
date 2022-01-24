@@ -224,7 +224,7 @@ export class PasswordPage extends Component {
           [styles.isMobile]: isMobile
         })}
       >
-        <h1 className={styles.header}>{messages.header}</h1>
+        <h2 className={styles.header}>{messages.header}</h2>
         <div className={styles.warning}>
           <p className={styles.text}>
             {isMobile ? messages.warning.mobile : messages.warning.desktop}
@@ -299,6 +299,7 @@ export class PasswordPage extends Component {
           name='continue'
           rightIcon={<IconArrow />}
           type={isValid ? ButtonType.PRIMARY_ALT : ButtonType.DISABLED}
+          disabled={!isValid}
           onClick={this.onClickContinue}
           className={styles.continueButton}
           textClassName={styles.continueButtonText}

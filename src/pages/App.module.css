@@ -39,7 +39,7 @@ body {
   left: var(--nav-width);
   right: 0;
   height: 88px;
-  background: rgba(0,0,0,0);
+  background: rgba(0, 0, 0, 0);
   opacity: 0;
   -webkit-app-region: drag;
 }
@@ -49,9 +49,6 @@ body {
   margin-bottom: 88px;
   width: 100%;
   text-align: center;
-  /* Show scrollbar always so the page doesn't jump around. */
-  overflow-y: scroll;
-  overflow-x: hidden;
 }
 
 .mainContentWrapperMobile {
