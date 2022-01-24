@@ -1,11 +1,14 @@
 .rewardClaimedToast {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .rewardClaimedToastIcon {
-  top: -2px !important;
-  position: relative;
+  margin-inline-end: 8px;
+}
+.rewardClaimedToastIcon > :global(.emoji) {
+  margin-bottom: 0;
 }
 
 .seeMoreCaret {

@@ -31,7 +31,6 @@ export const RewardClaimedToast = () => {
           <span className={styles.rewardClaimedToastIcon}>
             <i className='emoji face-with-party-horn-and-party-hat' />
           </span>
-          &nbsp;&nbsp;
           {pathname === AUDIO_PAGE ? (
             messages.challengeCompleted
           ) : (
