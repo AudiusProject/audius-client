@@ -298,7 +298,7 @@ function* watchUpdateHCaptchaScore() {
 }
 
 function* userChallengePollingDaemon() {
-  // These config options have defaults, they can't be null
+  yield call(remoteConfigInstance.waitForRemoteConfig)
   const defaultChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
     IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
   )!
