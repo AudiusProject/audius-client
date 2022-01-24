@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "@audius/libs": "1.2.54",
-    "@audius/stems": "0.3.18",
+    "@audius/stems": "0.3.19",
     "@craco/craco": "6.4.2",
     "@hcaptcha/react-hcaptcha": "0.3.6",
     "@optimizely/optimizely-sdk": "4.0.0",
@@ -150,7 +150,7 @@
     "write-sha": "./scripts/writeSHA.sh",
     "analyze": "source-map-explorer build-production/static/js/*.js",
     "analyzeBundle": "node ./scripts/analyzeBundle.js",
-    "typecheck": "tsc -w --allowJs",
+    "typecheck": "tsc --allowJs",
     "update-ipfs-build:dev": "node ./scripts/updateIpfsBuild.js dev",
     "update-ipfs-build:stage": "node ./scripts/updateIpfsBuild.js stage",
     "update-ipfs-build:prod": "node ./scripts/updateIpfsBuild.js prod"
