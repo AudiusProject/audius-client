@@ -13,6 +13,7 @@ import {
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ChallengeRewardsModalType,
+  fetchUserChallenges,
   setChallengeRewardsModalType
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -144,6 +145,11 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       setHaveChallengesLoaded(true)
     }
   }, [userChallengesLoading, haveChallengesLoaded])
+
+  useEffect(() => {
+    // Refresh user challenges on page visit
+    dispatch(fetchUserChallenges())
+  }, [dispatch])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
     dispatch(setChallengeRewardsModalType({ modalType }))
