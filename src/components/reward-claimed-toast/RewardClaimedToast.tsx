@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import { getShowRewardClaimedToast } from 'common/store/pages/audio-rewards/selectors'
-import { hideRewardClaimedToast } from 'common/store/pages/audio-rewards/slice'
+import { resetRewardClaimedToast } from 'common/store/pages/audio-rewards/slice'
 import { ToastContext } from 'components/toast/ToastContext'
 import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { getLocationPathname } from 'store/routing/selectors'
@@ -23,10 +23,9 @@ export const RewardClaimedToast = () => {
   const dispatch = useDispatch()
   const showToast = useSelector(getShowRewardClaimedToast)
   const pathname = useSelector(getLocationPathname)
-  const isShowing = useRef(false)
 
   useEffect(() => {
-    if (showToast && !isShowing.current) {
+    if (showToast) {
       const toastContent = (
         <div className={styles.rewardClaimedToast}>
           <span className={styles.rewardClaimedToastIcon}>
@@ -46,13 +45,9 @@ export const RewardClaimedToast = () => {
       )
 
       toast(toastContent, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
-      isShowing.current = true
-      setTimeout(() => {
-        dispatch(hideRewardClaimedToast())
-        isShowing.current = false
-      }, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+      dispatch(resetRewardClaimedToast())
     }
-  }, [toast, dispatch, showToast, pathname, isShowing])
+  }, [toast, dispatch, showToast, pathname])
 
   return null
 }

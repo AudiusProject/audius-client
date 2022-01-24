@@ -169,7 +169,7 @@ const slice = createSlice({
     showRewardClaimedToast: state => {
       state.showRewardClaimedToast = true
     },
-    hideRewardClaimedToast: state => {
+    resetRewardClaimedToast: state => {
       state.showRewardClaimedToast = false
     }
   }
@@ -195,7 +195,7 @@ export const {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   showRewardClaimedToast,
-  hideRewardClaimedToast
+  resetRewardClaimedToast
 } = slice.actions
 
 export default slice
