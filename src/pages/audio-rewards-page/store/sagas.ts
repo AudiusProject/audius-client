@@ -1,6 +1,4 @@
 import { User } from '@sentry/browser'
-import { Action } from 'redux'
-import { delay, eventChannel } from 'redux-saga'
 import {
   call,
   fork,
@@ -55,9 +53,13 @@ import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
-import { isElectron } from 'utils/clientUtil'
+import { AUDIO_PAGE } from 'utils/route'
 import { encodeHashId } from 'utils/route/hashIds'
 import { waitForValue } from 'utils/sagaHelpers'
+import {
+  foregroundPollingDaemon,
+  visibilityPollingDaemon
+} from 'utils/sagaPollingDaemons'
 
 const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
 const REACT_APP_ORACLE_ETH_ADDRESSES =
@@ -295,61 +297,13 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-function* visibilityPollingDaemon(action: Action, delayTimeMs: number) {
-  // Set up daemon that will watch for browser into focus and refetch notifications
-  // as soon as it goes into focus
-  const visibilityChannel = eventChannel(emitter => {
-    if (NATIVE_MOBILE) {
-      // The focus and visibitychange events are wonky on native mobile webviews,
-      // so poll for visiblity change instead
-      let lastHidden = true
-      setInterval(() => {
-        if (!document.hidden && lastHidden) {
-          emitter(true)
-        }
-        lastHidden = document.hidden
-      }, 500)
-    } else {
-      document.addEventListener('visibilitychange ', () => {
-        if (!document.hidden) {
-          emitter(true)
-        }
-      })
-    }
-    return () => {}
-  })
-  yield fork(function* () {
-    while (true) {
-      yield take(visibilityChannel)
-      yield put(action)
-    }
-  })
-
-  // Set up daemon that will poll for notifications every 10s if the browser is
-  // in the foreground
-  let isBrowserInBackground = false
-  document.addEventListener(
-    'visibilitychange',
-    () => {
-      if (document.hidden) {
-        isBrowserInBackground = true
-      } else {
-        isBrowserInBackground = false
-      }
-    },
-    false
-  )
-
-  while (true) {
-    if (!isBrowserInBackground || isElectron()) {
-      yield put(action)
-    }
-    yield delay(delayTimeMs)
-  }
-}
-
 function* userChallengePollingDaemon() {
-  yield* visibilityPollingDaemon(fetchUserChallenges(), 5000)
+  yield fork(function* () {
+    yield* visibilityPollingDaemon(fetchUserChallenges())
+  })
+  yield* foregroundPollingDaemon(fetchUserChallenges(), 15000, {
+    [AUDIO_PAGE]: 3000
+  })
 }
 
 const sagas = () => {
