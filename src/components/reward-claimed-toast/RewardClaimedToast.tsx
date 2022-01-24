@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -23,9 +23,10 @@ export const RewardClaimedToast = () => {
   const dispatch = useDispatch()
   const showToast = useSelector(getShowRewardClaimedToast)
   const pathname = useSelector(getLocationPathname)
+  const isShowing = useRef(false)
 
   useEffect(() => {
-    if (showToast) {
+    if (showToast && !isShowing.current) {
       const toastContent = (
         <div className={styles.rewardClaimedToast}>
           <span className={styles.rewardClaimedToastIcon}>
@@ -45,11 +46,13 @@ export const RewardClaimedToast = () => {
       )
 
       toast(toastContent, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+      isShowing.current = true
       setTimeout(() => {
         dispatch(hideRewardClaimedToast())
+        isShowing.current = false
       }, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
     }
-  }, [toast, dispatch, showToast, pathname])
+  }, [toast, dispatch, showToast, pathname, isShowing])
 
   return null
 }
