@@ -49,6 +49,9 @@ body {
   margin-bottom: 88px;
   width: 100%;
   text-align: center;
+  /* Show scrollbar always so the page doesn't jump around. */
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .mainContentWrapperMobile {
