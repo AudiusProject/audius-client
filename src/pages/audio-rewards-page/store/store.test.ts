@@ -58,6 +58,22 @@ const testUserChallenge = {
   amount: 1,
   is_complete: true
 }
+
+const defaultState = {
+  router: {
+    location: '/feed'
+  },
+  backend: {
+    isSetup: true
+  },
+  reachability: {
+    networkReachable: true
+  },
+  account: {
+    userId: testUser.user_id
+  }
+}
+
 const claimAsyncProvisions: StaticProvider[] = [
   [select(getAccountUser), testUser],
   [
@@ -89,8 +105,11 @@ beforeAll(() => {
     [IntKeys.ATTESTATION_QUORUM_SIZE]: 1,
     [StringKeys.ORACLE_ETH_ADDRESS]: 'oracle eth address',
     [StringKeys.ORACLE_ENDPOINT]: 'oracle endpoint',
-    [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: 'rewards attestation endpoints'
+    [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: 'rewards attestation endpoints',
+    [IntKeys.CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS]: 100000000000,
+    [IntKeys.CHALLENGE_REFRESH_INTERVAL_MS]: 1000000000000
   })
+  remoteConfigInstance.waitForRemoteConfig = jest.fn()
   const oldConsoleError = console.error
   jest.spyOn(console, 'error').mockImplementation((...args) => {
     if (
@@ -113,6 +132,7 @@ describe('Claim Rewards Async saga', () => {
             retryOnFailure: true
           })
         )
+        .withState(defaultState)
         .provide([
           ...claimAsyncProvisions,
           [
@@ -143,6 +163,7 @@ describe('Claim Rewards Async saga', () => {
             retryOnFailure: true
           })
         )
+        .withState(defaultState)
         .provide([
           ...claimAsyncProvisions,
           [
@@ -173,6 +194,7 @@ describe('Claim Rewards Async saga', () => {
             retryOnFailure: true
           })
         )
+        .withState(defaultState)
         .provide([
           ...claimAsyncProvisions,
           [
@@ -204,6 +226,7 @@ describe('Claim Rewards Async saga', () => {
             retryOnFailure: true
           })
         )
+        .withState(defaultState)
         .provide([
           ...claimAsyncProvisions,
           [call.fn(AudiusBackend.submitAndEvaluateAttestations), {}]
@@ -229,6 +252,7 @@ describe('Claim Rewards Async saga', () => {
             retryOnFailure: true
           })
         )
+        .withState(defaultState)
         .provide([
           [
             select.like({
@@ -250,6 +274,7 @@ describe('Claim Rewards Async saga', () => {
     it('should reopen the challenge rewards modal on successful hcaptcha', () => {
       return expectSaga(saga)
         .dispatch(setHCaptchaStatus({ status: HCaptchaStatus.SUCCESS }))
+        .withState(defaultState)
         .provide([
           ...retryClaimProvisions,
           ...claimAsyncProvisions,
@@ -264,6 +289,7 @@ describe('Claim Rewards Async saga', () => {
     it('should retry the claim on successful hcaptcha', () => {
       return expectSaga(saga)
         .dispatch(setHCaptchaStatus({ status: HCaptchaStatus.SUCCESS }))
+        .withState(defaultState)
         .provide([
           ...retryClaimProvisions,
           ...claimAsyncProvisions,
@@ -279,6 +305,7 @@ describe('Claim Rewards Async saga', () => {
         // Failed
         expectSaga(saga)
           .dispatch(setHCaptchaStatus({ status: HCaptchaStatus.ERROR }))
+          .withState(defaultState)
           .provide([...retryClaimProvisions, ...claimAsyncProvisions])
           .not.put(
             claimChallengeReward({ claim: testClaim, retryOnFailure: false })
@@ -288,6 +315,7 @@ describe('Claim Rewards Async saga', () => {
         // Closed
         expectSaga(saga)
           .dispatch(setHCaptchaStatus({ status: HCaptchaStatus.USER_CLOSED }))
+          .withState(defaultState)
           .provide([...retryClaimProvisions, ...claimAsyncProvisions])
           .not.put(
             claimChallengeReward({ claim: testClaim, retryOnFailure: false })
@@ -300,6 +328,7 @@ describe('Claim Rewards Async saga', () => {
     it('should retry the claim on cognito close', () => {
       return expectSaga(saga)
         .dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
+        .withState(defaultState)
         .provide([
           ...retryClaimProvisions,
           ...claimAsyncProvisions,
@@ -313,6 +342,7 @@ describe('Claim Rewards Async saga', () => {
     it('should not retry twice', () => {
       return expectSaga(saga)
         .dispatch(setHCaptchaStatus({ status: HCaptchaStatus.SUCCESS }))
+        .withState(defaultState)
         .provide([
           ...retryClaimProvisions,
           ...claimAsyncProvisions,
