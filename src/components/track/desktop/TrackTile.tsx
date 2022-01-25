@@ -24,7 +24,9 @@ import styles from './TrackTile.module.css'
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
   artistPick: 'Artist Pick',
-  hiddenTrack: 'Hidden Track'
+  hiddenTrack: 'Hidden Track',
+  repostLabel: 'Repost',
+  unrepostLabel: 'Unrepost'
 }
 
 const RankAndIndexIndicator = ({
@@ -121,7 +123,9 @@ const TrackTile = memo(
       )
     }
 
-    const repostLabel = isReposted ? 'Unrepost' : 'Repost'
+    const repostLabel = isReposted
+      ? messages.unrepostLabel
+      : messages.repostLabel
 
     return (
       <div

@@ -51,7 +51,9 @@ const messages = {
   remixTitle: 'REMIX',
   hiddenTrackTooltip: 'Anyone with a link to this page will be able to see it',
   makePublic: 'MAKE PUBLIC',
-  isPublishing: 'PUBLISHING'
+  isPublishing: 'PUBLISHING',
+  repostButtonText: 'repost',
+  repostedButtonText: 'reposted'
 }
 
 class GiantTrackTile extends PureComponent {
@@ -168,7 +170,11 @@ class GiantTrackTile extends PureComponent {
                     : ButtonType.COMMON
                 }
                 widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-                text={isReposted ? 'reposted' : 'repost'}
+                text={
+                  isReposted
+                    ? messages.repostedButtonText
+                    : messages.repostButtonText
+                }
                 leftIcon={<IconRepost />}
                 onClick={isOwner ? () => {} : onRepost}
               />

@@ -111,8 +111,8 @@ const BasicForm = props => {
           </div>
           <div className={styles.categorization}>
             <DropdownInput
-              aria-label='Pick a Genre'
-              placeholder='Pick a Genre'
+              aria-label={messages.genre}
+              placeholder={messages.genre}
               mount='parent'
               menu={{ items: GENRES }}
               defaultValue={getCannonicalName(props.defaultFields.genre) || ''}

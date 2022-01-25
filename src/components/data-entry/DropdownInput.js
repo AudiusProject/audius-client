@@ -30,6 +30,7 @@ class DropdownInput extends Component {
 
   render() {
     const {
+      'aria-label': ariaLabel,
       menu,
       defaultValue,
       label,
@@ -42,8 +43,7 @@ class DropdownInput extends Component {
       isRequired,
       error,
       id,
-      focused = this.state.focused,
-      ...other
+      focused = this.state.focused
     } = this.props
     let { placeholder } = this.props
 
@@ -120,6 +120,7 @@ class DropdownInput extends Component {
           <Select
             {...defaultValueProp}
             id={id}
+            aria-label={ariaLabel}
             dropdownClassName={cn(styles.select, style)}
             showSearch
             disabled={disabled}
@@ -136,7 +137,6 @@ class DropdownInput extends Component {
             notFoundContent={''}
             getPopupContainer={popupContainer}
             onDropdownVisibleChange={this.onVisibleChange}
-            {...other}
           >
             {options}
           </Select>
