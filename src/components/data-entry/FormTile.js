@@ -80,6 +80,7 @@ const BasicForm = props => {
           <div className={styles.trackName}>
             <Input
               name='name'
+              id='track-name-input'
               placeholder={`${
                 props.type.charAt(0).toUpperCase() + props.type.slice(1)
               } Name`}
@@ -110,6 +111,7 @@ const BasicForm = props => {
           </div>
           <div className={styles.categorization}>
             <DropdownInput
+              aria-label='Pick a Genre'
               placeholder='Pick a Genre'
               mount='parent'
               menu={{ items: GENRES }}

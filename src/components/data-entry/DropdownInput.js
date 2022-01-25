@@ -41,7 +41,9 @@ class DropdownInput extends Component {
       disabled,
       isRequired,
       error,
-      focused = this.state.focused
+      id,
+      focused = this.state.focused,
+      ...other
     } = this.props
     let { placeholder } = this.props
 
@@ -110,11 +112,14 @@ class DropdownInput extends Component {
     return (
       <div className={cn(styles.wrapper, style)}>
         {label ? (
-          <div className={cn(styles.label, labelStyle)}>{label}</div>
+          <label htmlFor={id} className={cn(styles.label, labelStyle)}>
+            {label}
+          </label>
         ) : null}
         <div className={styles.dropdownInput}>
           <Select
             {...defaultValueProp}
+            id={id}
             dropdownClassName={cn(styles.select, style)}
             showSearch
             disabled={disabled}
@@ -131,6 +136,7 @@ class DropdownInput extends Component {
             notFoundContent={''}
             getPopupContainer={popupContainer}
             onDropdownVisibleChange={this.onVisibleChange}
+            {...other}
           >
             {options}
           </Select>

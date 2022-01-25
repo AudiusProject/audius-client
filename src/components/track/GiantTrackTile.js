@@ -168,7 +168,7 @@ class GiantTrackTile extends PureComponent {
                     : ButtonType.COMMON
                 }
                 widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-                text={isReposted ? 'REPOSTED' : 'REPOST'}
+                text={isReposted ? 'reposted' : 'repost'}
                 leftIcon={<IconRepost />}
                 onClick={isOwner ? () => {} : onRepost}
               />
@@ -462,7 +462,11 @@ class GiantTrackTile extends PureComponent {
               {this.renderStatsRow()}
             </div>
 
-            <div className={cn(styles.commonButtonSection, fadeIn)}>
+            <div
+              className={cn(styles.commonButtonSection, fadeIn)}
+              role='group'
+              aria-label='track actions'
+            >
               {this.renderShareButton()}
               {this.renderMakePublicButton()}
               {this.renderRepostButton()}

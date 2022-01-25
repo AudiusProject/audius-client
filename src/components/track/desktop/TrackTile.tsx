@@ -121,6 +121,8 @@ const TrackTile = memo(
       )
     }
 
+    const repostLabel = isReposted ? 'Unrepost' : 'Repost'
+
     return (
       <div
         className={cn(styles.container, {
@@ -244,7 +246,7 @@ const TrackTile = memo(
             {!isLoading && showIconButtons && !isUnlisted && (
               <div className={styles.iconButtons}>
                 <Tooltip
-                  text={isReposted ? 'Unrepost' : 'Repost'}
+                  text={repostLabel}
                   disabled={isDisabled || isOwner}
                   placement={'bottom'}
                 >
@@ -255,6 +257,7 @@ const TrackTile = memo(
                     })}
                   >
                     <RepostButton
+                      aria-label={repostLabel}
                       onClick={onClickRepost}
                       isActive={isReposted}
                       isDisabled={isOwner}
