@@ -130,7 +130,7 @@ describe('Claim Rewards Async saga', () => {
         .put(
           setVisibility({ modal: 'ChallengeRewardsExplainer', visible: false })
         )
-        .silentRun(5)
+        .silentRun()
     )
   })
 
@@ -160,7 +160,7 @@ describe('Claim Rewards Async saga', () => {
         .not.put(
           setVisibility({ modal: 'ChallengeRewardsExplainer', visible: false })
         )
-        .silentRun(500)
+        .silentRun()
     )
   })
 
@@ -191,7 +191,7 @@ describe('Claim Rewards Async saga', () => {
           setVisibility({ modal: 'ChallengeRewardsExplainer', visible: false })
         )
         .put(claimChallengeRewardFailed())
-        .silentRun(5)
+        .silentRun()
     )
   })
 
@@ -216,7 +216,7 @@ describe('Claim Rewards Async saga', () => {
         )
         .put(setUserChallengeDisbursed({ challengeId: 'connect-verified' }))
         .put(claimChallengeRewardSucceeded())
-        .silentRun(5)
+        .silentRun()
     )
   })
 
@@ -242,7 +242,7 @@ describe('Claim Rewards Async saga', () => {
         .not.call(AudiusBackend.submitAndEvaluateAttestations)
         .not.put(setUserChallengeDisbursed({ challengeId: 'connect-verified' }))
         .not.put(claimChallengeRewardSucceeded())
-        .silentRun(5)
+        .silentRun()
     )
   })
 
@@ -258,7 +258,7 @@ describe('Claim Rewards Async saga', () => {
         .put(
           setVisibility({ modal: 'ChallengeRewardsExplainer', visible: true })
         )
-        .silentRun(5)
+        .silentRun()
     })
 
     it('should retry the claim on successful hcaptcha', () => {
@@ -271,7 +271,7 @@ describe('Claim Rewards Async saga', () => {
         ])
         .put(claimChallengeReward({ claim: testClaim, retryOnFailure: false }))
         .put(claimChallengeRewardSucceeded())
-        .silentRun(10)
+        .silentRun()
     })
 
     it('should not retry the claim on failed/closed hcaptcha', () => {
@@ -293,7 +293,7 @@ describe('Claim Rewards Async saga', () => {
             claimChallengeReward({ claim: testClaim, retryOnFailure: false })
           )
           .put(claimChallengeRewardFailed())
-          .silentRun(5)
+          .silentRun()
       ])
     })
 
@@ -307,7 +307,7 @@ describe('Claim Rewards Async saga', () => {
         ])
         .put(claimChallengeReward({ claim: testClaim, retryOnFailure: false }))
         .put(claimChallengeRewardSucceeded())
-        .silentRun(10)
+        .silentRun()
     })
 
     it('should not retry twice', () => {
@@ -325,7 +325,7 @@ describe('Claim Rewards Async saga', () => {
         .call(AudiusBackend.submitAndEvaluateAttestations, expectedRequestArgs)
         .not.put(claimChallengeRewardWaitForRetry(testClaim))
         .put(claimChallengeRewardFailed())
-        .silentRun(5)
+        .silentRun()
     })
   })
 })
