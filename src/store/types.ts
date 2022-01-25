@@ -22,7 +22,6 @@ import DeletedPageReducer from 'pages/deleted-page/store/slice'
 import { CollectionsState as ExploreCollectionsState } from 'pages/explore-page/store/collections/slice'
 import ExplorePageState from 'pages/explore-page/store/types'
 import { FavoritesPageState } from 'pages/favorites-page/store/types'
-import FeedPageState from 'pages/feed-page/store/types'
 import { FollowersPageState } from 'pages/followers-page/store/types'
 import { FollowingPageState } from 'pages/following-page/store/types'
 import HistoryPageState from 'pages/history-page/store/types'
@@ -126,7 +125,6 @@ export type AppState = CommonState & {
   profile: ProfilePageState
   dashboard: ArtistDashboardState
   signOn: SignOnPageState
-  feed: FeedPageState
   trending: TrendingPageState
   history: HistoryPageState
   saved: SavesPageState

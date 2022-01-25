@@ -2,7 +2,6 @@ import { connectRouter } from 'connected-react-router'
 import { combineReducers } from 'redux'
 
 import { reducers as clientStoreReducers } from 'common/store'
-import feed from 'common/store/pages/feed/reducer'
 import remoteConfig from 'common/store/remote-config/slice'
 import artistRecommendations from 'components/artist-recommendations/store/slice'
 import changePassword from 'components/change-password/store/slice'
@@ -85,7 +84,6 @@ const createRootReducer = routeHistory =>
     profile,
     dashboard,
     signOn,
-    feed,
     trending,
     history,
     saved,

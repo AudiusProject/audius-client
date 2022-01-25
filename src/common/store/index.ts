@@ -16,6 +16,8 @@ import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
+import feed from 'common/store/pages/feed/reducer'
+import { FeedPageState } from 'common/store/pages/feed/types'
 import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
 import track from 'common/store/pages/track/reducer'
 import TrackPageState from 'common/store/pages/track/types'
@@ -78,6 +80,7 @@ export const reducers = {
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
+    feed,
     tokenDashboard: tokenDashboardSlice.reducer,
     track
   })
@@ -101,6 +104,8 @@ export const sagas = {
   // pages/audio-rewards-page/store/sagas.ts
   // store/wallet/sagas.ts
   // store/lineup/sagas.js
+  // pages/feed/store/lineups/feed/sagas.js
+  // pages/feed/store/sagas.js
   // pages/track/store/lineups/tracks/sagas.js
   // pages/track/store/sagas.js
 }
@@ -131,6 +136,7 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    feed: FeedPageState
     tokenDashboard: ReturnType<typeof tokenDashboardSlice.reducer>
     track: TrackPageState
   }
