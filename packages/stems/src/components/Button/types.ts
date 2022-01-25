@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ComponentPropsWithoutRef, ReactNode } from 'react'
 
 export enum Type {
   PRIMARY = 'primary',
@@ -17,6 +17,11 @@ export enum Size {
   MEDIUM = 'medium'
 }
 
+type BaseButtonProps = Omit<
+  ComponentPropsWithoutRef<'button'>,
+  'type' | 'children'
+>
+
 export type ButtonProps = {
   /**
    * The text of the button
@@ -27,6 +32,11 @@ export type ButtonProps = {
    * The type of the button
    */
   type?: Type
+
+  /**
+   * The default behavior of the button.
+   */
+  buttonType?: 'submit' | 'button' | 'reset'
 
   /**
    * The button size
@@ -67,11 +77,6 @@ export type ButtonProps = {
   minWidth?: number
 
   /**
-   * Class name to apply to the outermost <button> element
-   */
-  className?: string
-
-  /**
    * Class name to apply to the icon
    */
   iconClassName?: string
@@ -80,30 +85,4 @@ export type ButtonProps = {
    * Class name to apply to the text label
    */
   textClassName?: string
-
-  /**
-   * HTML name attribute to apply to the button
-   */
-  name?: string
-
-  /**
-   * What happens when the button is clicked
-   */
-  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
-
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
-  onMouseUp?: () => void
-  onMouseDown?: () => void
-}
-
-export const defaultButtonProps = {
-  type: Type.PRIMARY,
-  size: Size.MEDIUM,
-  includeHoverAnimations: true,
-  onClick: () => {},
-  onMouseEnter: () => {},
-  onMouseLeave: () => {},
-  onMouseUp: () => {},
-  onMouseDown: () => {}
-}
+} & BaseButtonProps
