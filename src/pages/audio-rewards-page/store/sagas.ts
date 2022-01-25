@@ -245,7 +245,7 @@ export function* watchFetchUserChallenges() {
 
     try {
       const userChallenges: UserChallenge[] = yield call(
-        apiClient.getUserChallenges,
+        apiClient.getUserChallenges.bind(apiClient),
         {
           userID: currentUserId
         }
