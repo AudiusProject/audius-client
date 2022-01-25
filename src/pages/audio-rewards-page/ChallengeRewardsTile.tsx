@@ -13,11 +13,10 @@ import {
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ChallengeRewardsModalType,
-  setChallengeRewardsModalType,
-  reset,
-  refreshUserBalance,
-  refreshUserChallenges
+  fetchUserChallenges,
+  setChallengeRewardsModalType
 } from 'common/store/pages/audio-rewards/slice'
+import { removeNullable } from 'common/utils/typeUtils'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -27,7 +26,7 @@ import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { challengeRewardsConfig } from './config'
-import { useOptimisticChallengeCompletionStepCounts } from './hooks'
+import { useOptimisticUserChallenge } from './hooks'
 
 const messages = {
   title: '$AUDIO REWARDS',
@@ -41,13 +40,12 @@ const messages = {
 type RewardPanelProps = {
   title: string
   icon: ReactNode
-  description: string
+  description: (amount: number | undefined) => string
   panelButtonText: string
   progressLabel: string
   stepCount: number
   openModal: (modalType: ChallengeRewardsModalType) => void
   id: ChallengeRewardID
-  currentStepCountOverride?: number
 }
 
 const RewardPanel = ({
@@ -58,23 +56,14 @@ const RewardPanel = ({
   openModal,
   progressLabel,
   icon,
-  stepCount,
-  currentStepCountOverride
+  stepCount
 }: RewardPanelProps) => {
   const wm = useWithMobileStyle(styles.mobile)
   const userChallenges = useSelector(getUserChallenges)
 
   const openRewardModal = () => openModal(id)
 
-  const challenge = userChallenges[id]
-  const shouldOverrideCurrentStepCount =
-    !challenge?.is_complete && currentStepCountOverride !== undefined
-  const currentStepCount = shouldOverrideCurrentStepCount
-    ? currentStepCountOverride!
-    : challenge?.current_step_count || 0
-  const isComplete = shouldOverrideCurrentStepCount
-    ? currentStepCountOverride! >= stepCount
-    : !!challenge?.is_complete
+  const challenge = useOptimisticUserChallenge(userChallenges[id])
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
@@ -82,25 +71,27 @@ const RewardPanel = ({
         {icon}
         {title}
       </span>
-      <span className={wm(styles.rewardDescription)}>{description}</span>
+      <span className={wm(styles.rewardDescription)}>
+        {description(challenge?.amount)}
+      </span>
       <div className={wm(styles.rewardProgress)}>
         <p
           className={cn(styles.rewardProgressLabel, {
-            [styles.complete]: isComplete
+            [styles.complete]: challenge?.state === 'completed'
           })}
         >
-          {isComplete
+          {challenge?.state === 'completed'
             ? messages.completeLabel
             : fillString(
                 progressLabel,
-                currentStepCount.toString(),
+                challenge?.current_step_count?.toString() ?? '',
                 stepCount.toString()
               )}
         </p>
         {stepCount > 1 && (
           <ProgressBar
             className={styles.rewardProgressBar}
-            value={currentStepCount}
+            value={challenge?.current_step_count ?? 0}
             max={stepCount}
           />
         )}
@@ -108,7 +99,7 @@ const RewardPanel = ({
       <ButtonWithArrow
         className={wm(styles.panelButton)}
         text={
-          challenge?.is_complete && !challenge?.is_disbursed
+          challenge?.state === 'completed'
             ? messages.claimReward
             : panelButtonText
         }
@@ -126,6 +117,7 @@ type RewardsTileProps = {
 const validRewardIds: Set<ChallengeRewardID> = new Set([
   'track-upload',
   'referrals',
+  'referrals-verified',
   'mobile-install',
   'connect-verified',
   'listen-streak',
@@ -148,7 +140,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const dispatch = useDispatch()
   const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
-  const currentStepCountOverrides = useOptimisticChallengeCompletionStepCounts()
+  const userChallenges = useSelector(getUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   useEffect(() => {
@@ -157,13 +149,9 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     }
   }, [userChallengesLoading, haveChallengesLoaded])
 
-  // poll for user challenges and user balance to refresh
   useEffect(() => {
-    dispatch(refreshUserChallenges())
-    dispatch(refreshUserBalance())
-    return () => {
-      dispatch(reset())
-    }
+    // Refresh user challenges on page visit
+    dispatch(fetchUserChallenges())
   }, [dispatch])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
@@ -172,15 +160,13 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   }
 
   const rewardsTiles = rewardIds
-    .map(id => challengeRewardsConfig[id])
-    .map(props => (
-      <RewardPanel
-        {...props}
-        currentStepCountOverride={currentStepCountOverrides[props.id]}
-        openModal={openModal}
-        key={props.id}
-      />
-    ))
+    // Filter out challenges that DN didn't return
+    .map(id => userChallenges[id]?.challenge_id)
+    .filter(removeNullable)
+    .map(id => {
+      const props = challengeRewardsConfig[id]
+      return <RewardPanel {...props} openModal={openModal} key={props.id} />
+    })
 
   const wm = useWithMobileStyle(styles.mobile)
 

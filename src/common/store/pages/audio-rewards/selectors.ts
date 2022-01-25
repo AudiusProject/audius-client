@@ -15,6 +15,9 @@ export const getUserChallenge = (
   props: { challengeId: ChallengeRewardID }
 ) => state.pages.audioRewards.userChallenges[props.challengeId]
 
+export const getUserChallengesOverrides = (state: CommonState) =>
+  state.pages.audioRewards.userChallengesOverrides
+
 export const getUserChallengesLoading = (state: CommonState) =>
   state.pages.audioRewards.loading
 
@@ -35,3 +38,6 @@ export const getCognitoFlowUrl = (state: CommonState) =>
 
 export const getCognitoFlowUrlStatus = (state: CommonState) =>
   state.pages.audioRewards.cognitoFlowUrlStatus
+
+export const getShowRewardClaimedToast = (state: CommonState) =>
+  state.pages.audioRewards.showRewardClaimedToast

@@ -34,6 +34,7 @@ import NotificationPage from 'components/notification/NotificationPage'
 import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackConfirmation'
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
 import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
+import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaimedToast'
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
 import TrendingGenreSelectionPage from 'components/trending-genre-selection/TrendingGenreSelectionPage'
@@ -55,7 +56,6 @@ import RepostsPage from 'pages/reposts-page/RepostsPage'
 import RequiresUpdate from 'pages/requires-update/RequiresUpdate'
 import SavedPage from 'pages/saved-page/SavedPage'
 import SearchPage from 'pages/search-page/SearchPage'
-import SignOn from 'pages/sign-on/SignOn'
 import {
   openSignOn,
   updateRouteOnCompletion as updateRouteOnSignUpCompletion
@@ -167,6 +167,8 @@ import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
+
+const SignOn = React.lazy(() => import('pages/sign-on/SignOn'))
 
 const SettingsPage = lazyWithPreload(
   () => import('pages/settings-page/SettingsPage'),
@@ -926,6 +928,11 @@ class App extends Component {
         {
           <Suspense fallback={null}>
             <ConnectedMusicConfetti />
+          </Suspense>
+        }
+        {
+          <Suspense fallback={null}>
+            <RewardClaimedToast />
           </Suspense>
         }
 

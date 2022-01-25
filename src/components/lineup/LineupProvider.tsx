@@ -13,6 +13,7 @@ import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import { Lineup } from 'common/models/Lineup'
 import Status from 'common/models/Status'
+import { LineupActions } from 'common/store/lineup/actions'
 import {
   TrackTileProps,
   PlaylistTileProps,
@@ -20,7 +21,6 @@ import {
   TileProps
 } from 'components/track/types'
 import { TrackEvent, make } from 'store/analytics/actions'
-import { LineupActions } from 'store/lineup/actions'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 
@@ -99,6 +99,7 @@ const getInitPage = (
 }
 
 export interface LineupProviderProps {
+  'aria-label'?: string
   // Tile components
   trackTile: React.ComponentType<TrackTileProps> | any
   playlistTile: React.ComponentType<PlaylistTileProps> | any
@@ -753,6 +754,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
             this.props.emptyElement
           ) : (
             <InfiniteScroll
+              aria-label={this.props['aria-label']}
               pageStart={0}
               loadMore={lineup.hasMore ? this.loadMore : () => {}}
               hasMore={lineup.hasMore && canLoadMore}
@@ -762,8 +764,11 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
               initialLoad={false}
               getScrollParent={() => scrollParent}
               threshold={loadMoreThreshold}
+              element='ol'
             >
-              {tiles}
+              {tiles.map((tile, index) => (
+                <li key={index}>{tile}</li>
+              ))}
             </InfiniteScroll>
           )}
         </div>

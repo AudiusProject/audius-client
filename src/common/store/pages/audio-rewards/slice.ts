@@ -42,22 +42,28 @@ type RewardsUIState = {
   trendingRewardsModalType: TrendingRewardsModalType
   challengeRewardsModalType: ChallengeRewardsModalType
   userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
+  userChallengesOverrides: Partial<
+    Record<ChallengeRewardID, Partial<UserChallenge>>
+  >
   claimStatus: ClaimStatus
   claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
   cognitoFlowUrlStatus?: Status
   cognitoFlowUrl?: string
+  showRewardClaimedToast: boolean
 }
 
 const initialState: RewardsUIState = {
   trendingRewardsModalType: 'tracks',
   challengeRewardsModalType: 'track-upload',
   userChallenges: {},
+  userChallengesOverrides: {},
   loading: true,
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
-  cognitoFlowStatus: CognitoFlowStatus.CLOSED
+  cognitoFlowStatus: CognitoFlowStatus.CLOSED,
+  showRewardClaimedToast: false
 }
 
 const slice = createSlice({
@@ -88,9 +94,9 @@ const slice = createSlice({
       action: PayloadAction<{ challengeId: ChallengeRewardID }>
     ) => {
       const { challengeId } = action.payload
-      const challenge = state.userChallenges[challengeId]
-      if (challenge !== undefined) {
-        challenge.is_disbursed = true
+      state.userChallengesOverrides[challengeId] = {
+        ...state.userChallengesOverrides[challengeId],
+        is_disbursed: true
       }
     },
     setTrendingRewardsModalType: (
@@ -160,9 +166,12 @@ const slice = createSlice({
     fetchCognitoFlowUrlFailed: state => {
       state.cognitoFlowUrlStatus = Status.ERROR
     },
-    refreshUserChallenges: () => {},
-    refreshUserBalance: () => {},
-    reset: () => {}
+    showRewardClaimedToast: state => {
+      state.showRewardClaimedToast = true
+    },
+    resetRewardClaimedToast: state => {
+      state.showRewardClaimedToast = false
+    }
   }
 })
 
@@ -185,9 +194,8 @@ export const {
   fetchCognitoFlowUrl,
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
-  refreshUserChallenges,
-  refreshUserBalance,
-  reset
+  showRewardClaimedToast,
+  resetRewardClaimedToast
 } = slice.actions
 
 export default slice

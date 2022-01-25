@@ -1,6 +1,7 @@
 import { User } from '@sentry/browser'
 import {
   call,
+  fork,
   put,
   race,
   select,
@@ -20,9 +21,12 @@ import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
-  getUserChallenge
+  getUserChallenge,
+  getUserChallenges,
+  getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
 import {
+  Claim,
   resetAndCancelClaimReward,
   claimChallengeReward,
   claimChallengeRewardFailed,
@@ -34,24 +38,28 @@ import {
   fetchUserChallengesFailed,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  refreshUserBalance,
-  refreshUserChallenges,
-  reset,
   setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
-  updateHCaptchaScore
+  updateHCaptchaScore,
+  showRewardClaimedToast
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
+import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
+import { AUDIO_PAGE } from 'utils/route'
 import { encodeHashId } from 'utils/route/hashIds'
-import { doEvery, waitForValue } from 'utils/sagaHelpers'
+import { waitForValue } from 'utils/sagaHelpers'
+import {
+  foregroundPollingDaemon,
+  visibilityPollingDaemon
+} from 'utils/sagaPollingDaemons'
 
 const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
 const REACT_APP_ORACLE_ETH_ADDRESSES =
@@ -84,11 +92,7 @@ function getOracleConfig() {
 
 function* retryClaimChallengeReward(errorResolved: boolean) {
   const claimStatus: ClaimStatus = yield select(getClaimStatus)
-  const claim: {
-    challengeId: ChallengeRewardID
-    amount: number
-    specifier: string
-  } = yield select(getClaimToRetry)
+  const claim: Claim = yield select(getClaimToRetry)
   if (claimStatus === ClaimStatus.WAITING_FOR_RETRY) {
     // Restore the challenge rewards modal if necessary
     yield put(
@@ -245,6 +249,32 @@ export function* watchFetchUserChallenges() {
           userID: currentUserId
         }
       )
+      const prevChallenges: Partial<Record<
+        ChallengeRewardID,
+        UserChallenge
+      >> = yield select(getUserChallenges)
+      const challengesOverrides: Partial<Record<
+        ChallengeRewardID,
+        UserChallenge
+      >> = yield select(getUserChallengesOverrides)
+      let newDisbursement = false
+      for (const challenge of userChallenges) {
+        const prevChallenge = prevChallenges[challenge.challenge_id]
+        const challengeOverrides = challengesOverrides[challenge.challenge_id]
+        if (
+          challenge.is_disbursed &&
+          prevChallenge &&
+          !prevChallenge.is_disbursed && // it wasn't already claimed
+          (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
+        ) {
+          newDisbursement = true
+        }
+      }
+      if (newDisbursement) {
+        yield put(getBalance())
+        yield put(showMusicConfetti())
+        yield put(showRewardClaimedToast())
+      }
       yield put(fetchUserChallengesSucceeded({ userChallenges }))
     } catch (e) {
       console.error(e)
@@ -267,38 +297,24 @@ function* watchUpdateHCaptchaScore() {
   })
 }
 
-function* pollForChallenges(): any {
-  const pollingFreq = remoteConfigInstance.getRemoteVar(
+function* userChallengePollingDaemon() {
+  yield call(remoteConfigInstance.waitForRemoteConfig)
+  const defaultChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
     IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
+  )!
+  const audioRewardsPageChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
+    IntKeys.CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS
+  )!
+  yield fork(function* () {
+    yield* visibilityPollingDaemon(fetchUserChallenges())
+  })
+  yield* foregroundPollingDaemon(
+    fetchUserChallenges(),
+    defaultChallengePollingTimeout,
+    {
+      [AUDIO_PAGE]: audioRewardsPageChallengePollingTimeout
+    }
   )
-  if (pollingFreq) {
-    const chan = yield call(doEvery, pollingFreq, function* () {
-      yield put(fetchUserChallenges())
-    })
-    yield take(reset.type)
-    chan.close()
-  }
-}
-
-function* pollForBalance(): any {
-  const pollingFreq = remoteConfigInstance.getRemoteVar(
-    IntKeys.REWARDS_WALLET_BALANCE_POLLING_FREQ_MS
-  )
-  if (pollingFreq) {
-    const chan = yield call(doEvery, pollingFreq, function* () {
-      yield put(getBalance())
-    })
-    yield take(reset.type)
-    chan.close()
-  }
-}
-
-function* watchRefreshUserChallenges() {
-  yield takeEvery(refreshUserChallenges.type, pollForChallenges)
-}
-
-function* watchRefreshUserBalance() {
-  yield takeEvery(refreshUserBalance.type, pollForBalance)
 }
 
 const sagas = () => {
@@ -308,8 +324,7 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    watchRefreshUserChallenges,
-    watchRefreshUserBalance
+    userChallengePollingDaemon
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

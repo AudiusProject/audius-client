@@ -1,7 +1,8 @@
 import moment from 'moment'
-import { delay, eventChannel } from 'redux-saga'
+import { eventChannel } from 'redux-saga'
 import {
   call,
+  delay,
   fork,
   all,
   take,
@@ -556,7 +557,7 @@ function* notificationPollingDaemon() {
         lastHidden = document.hidden
       }, 500)
     } else {
-      document.addEventListener('visibilitychange ', () => {
+      document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           emitter(true)
         }
