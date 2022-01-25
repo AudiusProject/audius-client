@@ -12,8 +12,8 @@ import {
 import { getAccountUser } from 'common/store/account/selectors'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import { PREFIX, feedActions } from 'pages/feed-page/store/lineups/feed/actions'
-import { getFeedFilter } from 'pages/feed-page/store/selectors'
+import { PREFIX, feedActions } from 'common/store/pages/feed/lineup/actions'
+import { getFeedFilter } from 'common/store/pages/feed/selectors'
 import {
   getAccountReady,
   getFollowIds,

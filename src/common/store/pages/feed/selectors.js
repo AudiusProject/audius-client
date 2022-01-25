@@ -1,5 +1,5 @@
 import { getUsers } from 'common/store/cache/users/selectors'
-import { createShallowSelector } from 'utils/selectorHelpers'
+import { createShallowSelector } from 'common/utils/selectorHelpers'
 
 export const getSuggestedFollows = state => state.feed.suggestedFollows
 export const getDiscoverFeedLineup = state => state.feed.feed
