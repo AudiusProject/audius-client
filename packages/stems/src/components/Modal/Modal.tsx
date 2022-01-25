@@ -115,6 +115,8 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   ref
 ) {
   const id = useMemo(() => modalKey || uniqueId('modal-'), [modalKey])
+  const titleId = `${id}-title`
+  const subtitleId = `${id}-subtitle`
   const onTouchMove = useCallback(
     (e: any) => {
       !allowScroll && e.preventDefault()
@@ -249,7 +251,9 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
                       ref={dismissOnClickOutside ? outsideClickRef : null}
                       className={bodyClassNames}
                       style={{ ...props, ...bodyOffset, ...bodyStyle }}
-                      key={key}
+                      role='dialog'
+                      aria-labelledby={titleId}
+                      aria-describedby={subtitleId}
                     >
                       <>
                         {showTitleHeader && (
@@ -262,10 +266,14 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
                                 <IconRemove />
                               </div>
                             )}
-                            <div className={cn(styles.header, titleClassName)}>
+                            <div
+                              id={titleId}
+                              className={cn(styles.header, titleClassName)}
+                            >
                               {title}
                             </div>
                             <div
+                              id={subtitleId}
                               className={cn(styles.subtitle, subtitleClassName)}
                             >
                               {subtitle}
