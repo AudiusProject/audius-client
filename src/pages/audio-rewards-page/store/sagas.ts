@@ -244,7 +244,8 @@ export function* watchFetchUserChallenges() {
     const currentUserId: number = yield select(getUserId)
 
     try {
-      const userChallenges: UserChallenge[] = yield apiClient.getUserChallenges(
+      const userChallenges: UserChallenge[] = yield call(
+        apiClient.getUserChallenges,
         {
           userID: currentUserId
         }
@@ -306,9 +307,10 @@ function* userChallengePollingDaemon() {
     IntKeys.CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS
   )!
   yield fork(function* () {
-    yield* visibilityPollingDaemon(fetchUserChallenges())
+    yield call(visibilityPollingDaemon, fetchUserChallenges())
   })
-  yield* foregroundPollingDaemon(
+  yield call(
+    foregroundPollingDaemon,
     fetchUserChallenges(),
     defaultChallengePollingTimeout,
     {
