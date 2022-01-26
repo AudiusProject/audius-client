@@ -1742,7 +1742,8 @@ class AudiusBackend {
       AudiusBackend._getHostUrl(),
       remoteConfigInstance.getFeatureEnabled(
         FeatureFlags.CREATE_WAUDIO_USER_BANK_ON_SIGN_UP
-      )
+      ),
+      track
     )
   }
 
