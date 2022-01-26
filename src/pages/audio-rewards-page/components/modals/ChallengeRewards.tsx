@@ -79,7 +79,8 @@ const messages = {
   claimYourReward: 'Claim Your Reward',
   twitterShare: (modalType: 'referrals' | 'referrals-verified') =>
     `Share Invite With Your ${modalType === 'referrals' ? 'Friends' : 'Fans'}`,
-  twitterCopy: `Come support me on @audiusproject! Use my link and we both earn $AUDIO when you sign up.\n\n #audius #audiorewards\n\n`
+  twitterCopy: `Come support me on @audiusproject! Use my link and we both earn $AUDIO when you sign up.\n\n #audius #audiorewards\n\n`,
+  verifiedChallenge: 'VERIFIED CHALLENGE'
 }
 
 type InviteLinkProps = {
@@ -222,7 +223,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         {verifiedChallenge ? (
           <div className={styles.verifiedChallenge}>
             <IconVerified />
-            VERIFIED CHALLENGE
+            {messages.verifiedChallenge}
           </div>
         ) : (
           'Task'
