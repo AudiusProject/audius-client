@@ -60,7 +60,7 @@ const CheckPage = () => {
 
           flow.open()
         } catch (e) {
-          console.error('COGNITO: Could not open. Failed to get signature.', e)
+          console.error('COGNITO:', e)
         }
       }
       run()

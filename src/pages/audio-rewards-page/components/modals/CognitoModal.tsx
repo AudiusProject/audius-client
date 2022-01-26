@@ -15,7 +15,7 @@ import {
   setCognitoFlowStatus
 } from 'common/store/pages/audio-rewards/slice'
 import { useScript } from 'hooks/useScript'
-import AudiusBackend from 'services/AudiusBackend'
+import { getCognitoSignature } from 'services/audius-backend/Cognito'
 import { COGNITO_SCRIPT_URL } from 'utils/constants'
 import { useSelector } from 'utils/reducer'
 
@@ -35,57 +35,57 @@ export const CognitoModal = () => {
   const handle = useSelector(getUserHandle)
 
   const triggerFlow = useCallback(async () => {
-    const { signature } = await AudiusBackend.getCognitoSignature()
-    if (!signature) {
-      console.error('COGNITO: Failed to get Cognito signature')
-      return
+    try {
+      const { signature } = await getCognitoSignature()
+      const flow = new window.Flow({
+        publishableKey: process.env.REACT_APP_COGNITO_KEY,
+        templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
+        user: {
+          customerReference: handle,
+          signature
+        }
+      })
+
+      flow.on('ui', (event: FlowUIOpenEvent | FlowUICloseEvent) => {
+        switch (event.action) {
+          case 'opened':
+            dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
+            break
+          case 'closed':
+            dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
+            break
+        }
+      })
+
+      flow.on('session', (event: FlowSessionEvent) => {
+        switch (event.action) {
+          case 'passed':
+            console.info(
+              'COGNITO: User successfully completed their Flow session'
+            )
+            flow.close()
+            break
+          case 'created':
+            console.info('COGNITO: User started a new Flow session')
+            break
+          case 'resumed':
+            console.info('COGNITO: User resumed an existing Flow session')
+            break
+          case 'failed':
+            console.error('COGNITO: User failed their Flow session')
+            flow.close()
+            break
+        }
+      })
+
+      flow.on('error', (event: FlowErrorEvent) => {
+        console.error(`COGNITO: Flow error: ${event.message}`)
+      })
+
+      flow.open()
+    } catch (e) {
+      console.error('COGNITO:', e)
     }
-    const flow = new window.Flow({
-      publishableKey: process.env.REACT_APP_COGNITO_KEY,
-      templateId: process.env.REACT_APP_COGNITO_TEMPLATE_ID,
-      user: {
-        customerReference: handle,
-        signature
-      }
-    })
-
-    flow.on('ui', (event: FlowUIOpenEvent | FlowUICloseEvent) => {
-      switch (event.action) {
-        case 'opened':
-          dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
-          break
-        case 'closed':
-          dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
-          break
-      }
-    })
-
-    flow.on('session', (event: FlowSessionEvent) => {
-      switch (event.action) {
-        case 'passed':
-          console.info(
-            'COGNITO: User successfully completed their Flow session'
-          )
-          flow.close()
-          break
-        case 'created':
-          console.info('COGNITO: User started a new Flow session')
-          break
-        case 'resumed':
-          console.info('COGNITO: User resumed an existing Flow session')
-          break
-        case 'failed':
-          console.error('COGNITO: User failed their Flow session')
-          flow.close()
-          break
-      }
-    })
-
-    flow.on('error', (event: FlowErrorEvent) => {
-      console.error(`COGNITO: Flow error: ${event.message}`)
-    })
-
-    flow.open()
   }, [dispatch, handle])
 
   useEffect(() => {
