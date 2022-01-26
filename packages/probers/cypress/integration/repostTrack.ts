@@ -37,7 +37,9 @@ describe("Repost Track", () => {
     cy.visit(`${track.route}?login=${base64Entropy}`);
 
     cy.findByText(user.name, { timeout: 20000 }).should("exist");
-    cy.findByRole("heading", { name: track.name }).should("exist");
+    cy.findByRole("heading", { name: track.name, timeout: 20000 }).should(
+      "exist"
+    );
 
     cy.findByRole("group", { name: /track actions/i }).within(() => {
       cy.findByRole("button", { name: /repost$/i }).click();
