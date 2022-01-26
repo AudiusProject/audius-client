@@ -1,4 +1,4 @@
-import React, { cloneElement } from 'react'
+import React, { cloneElement, useCallback } from 'react'
 
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -19,7 +19,8 @@ import { AUDIO_PAGE } from 'utils/route'
 import styles from './NavAudio.module.css'
 
 const messages = {
-  earnAudio: 'EARN $AUDIO'
+  earnAudio: 'EARN $AUDIO',
+  claimRewards: 'Claim Rewards'
 }
 
 const NavAudio = () => {
@@ -37,17 +38,26 @@ const NavAudio = () => {
   // so below null-coalescing is okay
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
+  const unclaimedRewards = false
+
+  const goToAudioPage = useCallback(() => {
+    navigate(AUDIO_PAGE)
+  }, [navigate])
 
   if (!isEnabled || !account) {
     return null
   }
 
-  return positiveTotalBalance ? (
+  return nonNullTotalBalance ? (
     <div
-      onClick={() => navigate(AUDIO_PAGE)}
-      className={cn(styles.audio, styles.hasBalance, { [styles.show]: true })}
+      className={cn(
+        styles.audio,
+        { [styles.hasBalance]: positiveTotalBalance },
+        { [styles.show]: true }
+      )}
+      onClick={goToAudioPage}
     >
-      {audioBadge ? (
+      {positiveTotalBalance && audioBadge ? (
         cloneElement(audioBadge, {
           height: 16,
           width: 16
@@ -58,20 +68,18 @@ const NavAudio = () => {
       <span className={styles.audioAmount}>
         {formatWei(totalBalance!, true, 0)}
       </span>
-    </div>
-  ) : nonNullTotalBalance ? (
-    <div
-      className={cn(styles.audio, { [styles.show]: true })}
-      onClick={() => navigate(AUDIO_PAGE)}
-    >
-      <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
-      <span className={styles.audioAmount}>
-        {formatWei(totalBalance!, true, 0)}
-      </span>
-      <span className={styles.earnAudio}>
-        <span>{messages.earnAudio}</span>
-        <IconCaretRight className={styles.earnAudioCaret} />
-      </span>
+      {!positiveTotalBalance && !unclaimedRewards && (
+        <span className={styles.actionBubble}>
+          <span>{messages.earnAudio}</span>
+          <IconCaretRight className={styles.actionCaret} />
+        </span>
+      )}
+      {unclaimedRewards && (
+        <span className={cn(styles.actionBubble, styles.claimRewards)}>
+          <span>{messages.claimRewards}</span>
+          <IconCaretRight className={styles.actionCaret} />
+        </span>
+      )}
     </div>
   ) : (
     <div className={styles.audio} />
