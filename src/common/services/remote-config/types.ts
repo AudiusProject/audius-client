@@ -72,7 +72,17 @@ export enum IntKeys {
   /**
    * The minimum amount of AUDIO needed to be sent
    */
-  MIN_AUDIO_SEND_AMOUNT = 'MIN_AUDIO_SEND_AMOUNT'
+  MIN_AUDIO_SEND_AMOUNT = 'MIN_AUDIO_SEND_AMOUNT',
+
+  /**
+   * The refresh interval in milliseconds for user challenges
+   */
+  CHALLENGE_REFRESH_INTERVAL_MS = 'CHALLENGE_REFRESH_INTERVAL_MS',
+
+  /**
+   * The refresh interval in milliseconds for user challenges when the user is on the $AUDIO page
+   */
+  CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS = 'CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS'
 }
 
 export enum BooleanKeys {
@@ -109,12 +119,7 @@ export enum BooleanKeys {
   /**
    * Boolean to use amplitude as the metrics tracking.
    */
-  USE_AMPLITUDE = 'USE_AMPLITUDE',
-
-  /**
-   * Boolean to use solana wrapped audio instead of erc20 audio for the audio page send/receive.
-   */
-  USE_SPL_AUDIO = 'USE_SPL_AUDIO'
+  USE_AMPLITUDE = 'USE_AMPLITUDE'
 }
 
 export enum DoubleKeys {

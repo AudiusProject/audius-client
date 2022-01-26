@@ -10,8 +10,15 @@ export type ChallengeRewardsModalType = ChallengeRewardID
 export enum ClaimStatus {
   NONE = 'none',
   CLAIMING = 'claiming',
+  WAITING_FOR_RETRY = 'waiting for retry',
   SUCCESS = 'success',
   ERROR = 'error'
+}
+
+export type Claim = {
+  challengeId: ChallengeRewardID
+  specifier: string
+  amount: number
 }
 
 export enum HCaptchaStatus {
@@ -35,31 +42,35 @@ type RewardsUIState = {
   trendingRewardsModalType: TrendingRewardsModalType
   challengeRewardsModalType: ChallengeRewardsModalType
   userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
+  userChallengesOverrides: Partial<
+    Record<ChallengeRewardID, Partial<UserChallenge>>
+  >
   claimStatus: ClaimStatus
+  claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
   cognitoFlowStatus: CognitoFlowStatus
   cognitoFlowUrlStatus?: Status
   cognitoFlowUrl?: string
+  showRewardClaimedToast: boolean
 }
 
 const initialState: RewardsUIState = {
   trendingRewardsModalType: 'tracks',
   challengeRewardsModalType: 'track-upload',
   userChallenges: {},
+  userChallengesOverrides: {},
   loading: true,
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
-  cognitoFlowStatus: CognitoFlowStatus.CLOSED
+  cognitoFlowStatus: CognitoFlowStatus.CLOSED,
+  showRewardClaimedToast: false
 }
 
 const slice = createSlice({
   name: 'rewards-page',
   initialState,
   reducers: {
-    fetchUserChallenges: state => {
-      state.userChallenges = {}
-      state.loading = true
-    },
+    fetchUserChallenges: state => {},
     fetchUserChallengesSucceeded: (
       state,
       action: PayloadAction<UserChallengesPayload>
@@ -83,9 +94,9 @@ const slice = createSlice({
       action: PayloadAction<{ challengeId: ChallengeRewardID }>
     ) => {
       const { challengeId } = action.payload
-      const challenge = state.userChallenges[challengeId]
-      if (challenge !== undefined) {
-        challenge.is_disbursed = true
+      state.userChallengesOverrides[challengeId] = {
+        ...state.userChallengesOverrides[challengeId],
+        is_disbursed: true
       }
     },
     setTrendingRewardsModalType: (
@@ -102,13 +113,6 @@ const slice = createSlice({
       const { modalType } = action.payload
       state.challengeRewardsModalType = modalType
     },
-    setClaimStatus: (state, action: PayloadAction<{ status: ClaimStatus }>) => {
-      const { status } = action.payload
-      state.claimStatus = status
-    },
-    resetClaimStatus: state => {
-      state.claimStatus = ClaimStatus.NONE
-    },
     setHCaptchaStatus: (
       state,
       action: PayloadAction<{ status: HCaptchaStatus }>
@@ -123,6 +127,28 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ token: string }>
     ) => {},
+    resetAndCancelClaimReward: state => {
+      state.claimStatus = ClaimStatus.NONE
+    },
+    claimChallengeReward: (
+      state,
+      _action: PayloadAction<{
+        claim: Claim
+        retryOnFailure: boolean
+      }>
+    ) => {
+      state.claimStatus = ClaimStatus.CLAIMING
+    },
+    claimChallengeRewardWaitForRetry: (state, action: PayloadAction<Claim>) => {
+      state.claimStatus = ClaimStatus.WAITING_FOR_RETRY
+      state.claimToRetry = action.payload
+    },
+    claimChallengeRewardFailed: state => {
+      state.claimStatus = ClaimStatus.ERROR
+    },
+    claimChallengeRewardSucceeded: state => {
+      state.claimStatus = ClaimStatus.SUCCESS
+    },
     setCognitoFlowStatus: (
       state,
       action: PayloadAction<{ status: CognitoFlowStatus }>
@@ -139,6 +165,12 @@ const slice = createSlice({
     },
     fetchCognitoFlowUrlFailed: state => {
       state.cognitoFlowUrlStatus = Status.ERROR
+    },
+    showRewardClaimedToast: state => {
+      state.showRewardClaimedToast = true
+    },
+    resetRewardClaimedToast: state => {
+      state.showRewardClaimedToast = false
     }
   }
 })
@@ -149,16 +181,21 @@ export const {
   fetchUserChallengesFailed,
   setTrendingRewardsModalType,
   setChallengeRewardsModalType,
-  setClaimStatus,
   setUserChallengeDisbursed,
-  resetClaimStatus,
+  resetAndCancelClaimReward,
   setHCaptchaStatus,
   resetHCaptchaStatus,
   updateHCaptchaScore,
+  claimChallengeReward,
+  claimChallengeRewardWaitForRetry,
+  claimChallengeRewardFailed,
+  claimChallengeRewardSucceeded,
   setCognitoFlowStatus,
   fetchCognitoFlowUrl,
   fetchCognitoFlowUrlFailed,
-  fetchCognitoFlowUrlSucceeded
+  fetchCognitoFlowUrlSucceeded,
+  showRewardClaimedToast,
+  resetRewardClaimedToast
 } = slice.actions
 
 export default slice

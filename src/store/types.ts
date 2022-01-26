@@ -2,6 +2,7 @@ import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
 import RemoteConfigReducer from 'common/store/remote-config/slice'
+import { CreatePlaylistModalState } from 'common/store/ui/createPlaylistModal/types'
 import ArtistRecommendationsReducer from 'components/artist-recommendations/store/slice'
 import { ChangePasswordState } from 'components/change-password/store/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
@@ -18,8 +19,6 @@ import ArtistDashboardState from 'pages/artist-dashboard-page/store/types'
 import { CollectionsPageState } from 'pages/collection-page/store/types'
 import { DeactivateAccountState } from 'pages/deactivate-account-page/store/slice'
 import DeletedPageReducer from 'pages/deleted-page/store/slice'
-import { CollectionsState as ExploreCollectionsState } from 'pages/explore-page/store/collections/slice'
-import ExplorePageState from 'pages/explore-page/store/types'
 import { FavoritesPageState } from 'pages/favorites-page/store/types'
 import FeedPageState from 'pages/feed-page/store/types'
 import { FollowersPageState } from 'pages/followers-page/store/types'
@@ -34,7 +33,6 @@ import { SearchPageState } from 'pages/search-page/store/types'
 import SettingsPageState from 'pages/settings-page/store/types'
 import SignOnPageState from 'pages/sign-on/store/types'
 import { SmartCollectionState } from 'pages/smart-collection/store/slice'
-import TrackPageState from 'pages/track-page/store/types'
 import TrendingPageState from 'pages/trending-page/store/types'
 import trendingPlaylistsReducer from 'pages/trending-playlists/store/slice'
 import trendingUndergroundReducer from 'pages/trending-underground/store/slice'
@@ -47,8 +45,6 @@ import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 import QueueReducer from 'store/queue/slice'
-
-import { CreatePlaylistModalState } from '../common/store/ui/createPlaylistModal/types'
 
 import { CookieBannerState } from './application/ui/cookieBanner/types'
 import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
@@ -105,7 +101,6 @@ export type AppState = CommonState & {
       visualizer: ReturnType<typeof VisualizerReducer>
     }
     pages: {
-      explore: ExplorePageState
       settings: SettingsPageState
       reposts: RepostsPageState
       favorites: FavoritesPageState
@@ -115,7 +110,6 @@ export type AppState = CommonState & {
       unfollowConfirmation: UnfollowConfirmationModalState
       nowPlaying: NowPlayingState
       smartCollection: SmartCollectionState
-      exploreCollections: ExploreCollectionsState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
       trendingPlaylists: ReturnType<typeof trendingPlaylistsReducer>
@@ -135,7 +129,6 @@ export type AppState = CommonState & {
   searchBar: SearchBarState
   search: SearchPageState
   collection: CollectionsPageState
-  track: TrackPageState
   notification: NotificationState
 
   // Playback

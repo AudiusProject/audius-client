@@ -12,6 +12,7 @@ import VerifiedUpload from './VerifiedUpload'
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const HCaptchaModal = lazyWithPreload(() => import('./HCaptchaModal'))
+const CognitoModal = lazyWithPreload(() => import('./CognitoModal'))
 
 const RewardsModals = () => {
   // TODO: preload HCaptchaModal when we decide to turn it on
@@ -19,12 +20,13 @@ const RewardsModals = () => {
   return (
     <>
       <TrendingRewardsModal />
-      <ChallengeRewardsModal />
+      {!IS_NATIVE_MOBILE && <ChallengeRewardsModal />}
       <VerifiedUpload />
       <TopAPIModal />
       {!IS_NATIVE_MOBILE && (
         <Suspense fallback={null}>
           <HCaptchaModal />
+          <CognitoModal />
         </Suspense>
       )}
       {!IS_NATIVE_MOBILE && isMobile() && <TransferAudioMobileDrawer />}

@@ -1,15 +1,16 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
+import { all } from 'redux-saga/effects'
 
 import Kind from 'common/models/Kind'
 import { asCache, initialCacheState } from 'common/store/cache/reducer'
 import cacheSagas from 'common/store/cache/sagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
+import { LineupActions } from 'common/store/lineup/actions'
+import { asLineup, initialLineupState } from 'common/store/lineup/reducer'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { initialState as initialConfirmerState } from 'store/confirmer/reducer'
-import { LineupActions } from 'store/lineup/actions'
-import { asLineup, initialLineupState } from 'store/lineup/reducer'
 import { LineupSagas } from 'store/lineup/sagas'
 import playerReducer, {
   initialState as initialPlayerState
@@ -23,7 +24,7 @@ const PREFIX = 'tracks'
 const MOCK_TIMESTAMP = 1479427200000
 
 function* getTracks() {
-  const tracks = yield [
+  const tracks = yield all([
     {
       track_id: 1,
       owner_id: 1,
@@ -44,7 +45,7 @@ function* getTracks() {
       owner_id: 2,
       keep_in_lineup: 44
     }
-  ]
+  ])
   return tracks
 }
 
