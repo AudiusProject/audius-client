@@ -9,7 +9,9 @@ describe("Play Track", () => {
       cy.findAllByRole("listitem").first().click("left");
     });
 
-    cy.findByRole("button", { name: /track loading/i }).should("be.disabled");
+    cy.findByRole("button", { name: /track loading/i, timeout: 10000 }).should(
+      "be.disabled"
+    );
     cy.findByRole("button", {
       name: /pause track/i,
       timeout: 20000,

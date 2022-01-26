@@ -61,6 +61,8 @@ describe("Sign Up", () => {
       cy.findByRole("button", { name: /continue/i }).should("not.be.disabled")
     );
 
+    cy.findByRole("button", { name: /continue/i }).click({ force: true });
+
     cy.findByRole("heading", {
       name: /Follow At Least 3 Artists To Get Started/,
       level: 2,

@@ -51,33 +51,6 @@ jobs:
             node node_modules/serve/bin/serve.js -l 3001 -s build-staging &
             cd probers
             npm run cypress:run
-            npm run test:ci
-
-  pings:
-    working_directory: ~/probers
-    docker:
-      - image: circleci/node:14.18-browsers
-    steps:
-      - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - probers-dependency-cache-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - probers-dependency-cache-
-      - run:
-          name: install probers dependencies
-          command: |
-            npm ci 
-      - save_cache:
-          key: probers-dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-      - run:
-          name: serve and run prober pings
-          command: |
-            npm run pings
 
 workflows:
   version: 2
@@ -100,15 +73,3 @@ workflows:
       - coverage:
           requires:
             - download-dapp
-  hourly_pings:
-    triggers:
-      - schedule:
-          cron: "0 * * * *"
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - pings
-
-

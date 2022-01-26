@@ -19,6 +19,6 @@ describe("Sign Out", () => {
       cy.findByRole("button", { name: /sign out/i }).click();
     });
 
-    cy.findByText(/have an account?/i).should("exist");
+    cy.findByText(/have an account?/i, { timeout: 10000 }).should("exist");
   });
 });
