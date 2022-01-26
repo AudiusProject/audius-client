@@ -1,3 +1,4 @@
 {
-  "userAgent": "probers"
+  "userAgent": "probers",
+  "defaultCommandTimeout": 10000
 }
