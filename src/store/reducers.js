@@ -19,8 +19,6 @@ import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import collection from 'pages/collection-page/store/reducer'
 import deactivateAccount from 'pages/deactivate-account-page/store/slice'
 import deleted from 'pages/deleted-page/store/slice'
-import exploreCollections from 'pages/explore-page/store/collections/slice'
-import explore from 'pages/explore-page/store/reducer'
 import favorites from 'pages/favorites-page/store/reducers'
 import followers from 'pages/followers-page/store/reducers'
 import following from 'pages/following-page/store/reducers'
@@ -127,8 +125,6 @@ const createRootReducer = routeHistory =>
       }),
       pages: combineReducers({
         deleted,
-        explore,
-        exploreCollections,
         favorites,
         followers,
         following,

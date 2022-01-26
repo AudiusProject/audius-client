@@ -13,11 +13,10 @@ import {
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   ChallengeRewardsModalType,
-  setChallengeRewardsModalType,
-  reset,
-  refreshUserBalance,
-  refreshUserChallenges
+  fetchUserChallenges,
+  setChallengeRewardsModalType
 } from 'common/store/pages/audio-rewards/slice'
+import { removeNullable } from 'common/utils/typeUtils'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -118,6 +117,7 @@ type RewardsTileProps = {
 const validRewardIds: Set<ChallengeRewardID> = new Set([
   'track-upload',
   'referrals',
+  'referrals-verified',
   'mobile-install',
   'connect-verified',
   'listen-streak',
@@ -140,6 +140,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const dispatch = useDispatch()
   const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
+  const userChallenges = useSelector(getUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   useEffect(() => {
@@ -148,13 +149,9 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     }
   }, [userChallengesLoading, haveChallengesLoaded])
 
-  // poll for user challenges and user balance to refresh
   useEffect(() => {
-    dispatch(refreshUserChallenges())
-    dispatch(refreshUserBalance())
-    return () => {
-      dispatch(reset())
-    }
+    // Refresh user challenges on page visit
+    dispatch(fetchUserChallenges())
   }, [dispatch])
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
@@ -163,10 +160,13 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   }
 
   const rewardsTiles = rewardIds
-    .map(id => challengeRewardsConfig[id])
-    .map(props => (
-      <RewardPanel {...props} openModal={openModal} key={props.id} />
-    ))
+    // Filter out challenges that DN didn't return
+    .map(id => userChallenges[id]?.challenge_id)
+    .filter(removeNullable)
+    .map(id => {
+      const props = challengeRewardsConfig[id]
+      return <RewardPanel {...props} openModal={openModal} key={props.id} />
+    })
 
   const wm = useWithMobileStyle(styles.mobile)
 
@@ -179,7 +179,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       </div>
       <div className={styles.rewardsContainer}>
         {userChallengesLoading && !haveChallengesLoaded ? (
-          <LoadingSpinner />
+          <LoadingSpinner className={wm(styles.loadingRewardsTile)} />
         ) : (
           rewardsTiles
         )}

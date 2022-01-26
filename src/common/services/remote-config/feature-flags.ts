@@ -16,7 +16,8 @@ export enum FeatureFlags {
   SURFACE_AUDIO_ENABLED = 'surface_audio_enabled',
   PREFER_HIGHER_PATCH_FOR_PRIMARY = 'prefer_higher_patch_for_primary',
   PREFER_HIGHER_PATCH_FOR_SECONDARIES = 'prefer_higher_patch_for_secondaries',
-  REWARDS_NOTIFICATIONS_ENABLED = 'rewards_notifications_enabled'
+  REWARDS_NOTIFICATIONS_ENABLED = 'rewards_notifications_enabled',
+  ENABLE_SPL_AUDIO = 'enable_spl_audio'
 }
 
 /**
@@ -39,7 +40,8 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.SURFACE_AUDIO_ENABLED]: false,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]: true,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]: true,
-  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: false
+  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: false,
+  [FeatureFlags.ENABLE_SPL_AUDIO]: false
 }
 
 export enum FeatureFlagCohortType {
@@ -71,7 +73,7 @@ export const flagCohortType: {
   [FeatureFlags.REMIXABLES_WEB]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.TRANSFER_AUDIO_TO_WAUDIO_ON_LOAD]:
     FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.USER_ID,
+  [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.NFT_IMAGE_PICKER_TAB]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED]: FeatureFlagCohortType.USER_ID,
@@ -80,5 +82,7 @@ export const flagCohortType: {
     FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]:
     FeatureFlagCohortType.SESSION_ID,
-  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: FeatureFlagCohortType.SESSION_ID
+  [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]:
+    FeatureFlagCohortType.SESSION_ID,
+  [FeatureFlags.ENABLE_SPL_AUDIO]: FeatureFlagCohortType.SESSION_ID
 }

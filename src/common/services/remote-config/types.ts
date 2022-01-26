@@ -80,9 +80,9 @@ export enum IntKeys {
   CHALLENGE_REFRESH_INTERVAL_MS = 'CHALLENGE_REFRESH_INTERVAL_MS',
 
   /**
-   * Frequency (in ms) to poll for user wallet balance on the audio rewards page
+   * The refresh interval in milliseconds for user challenges when the user is on the $AUDIO page
    */
-  REWARDS_WALLET_BALANCE_POLLING_FREQ_MS = 'REWARDS_WALLET_BALANCE_POLLING_FREQ_MS'
+  CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS = 'CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS'
 }
 
 export enum BooleanKeys {
@@ -119,12 +119,7 @@ export enum BooleanKeys {
   /**
    * Boolean to use amplitude as the metrics tracking.
    */
-  USE_AMPLITUDE = 'USE_AMPLITUDE',
-
-  /**
-   * Boolean to use solana wrapped audio instead of erc20 audio for the audio page send/receive.
-   */
-  USE_SPL_AUDIO = 'USE_SPL_AUDIO'
+  USE_AMPLITUDE = 'USE_AMPLITUDE'
 }
 
 export enum DoubleKeys {
