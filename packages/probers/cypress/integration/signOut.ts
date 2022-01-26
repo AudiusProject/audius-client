@@ -8,7 +8,7 @@ describe("Sign Out", () => {
   it("should be able to sign out", () => {
     const base64Entropy = Buffer.from(user.entropy).toString("base64");
     cy.visit(`trending?login=${base64Entropy}`);
-    cy.findByText(user.name, { timeout: 10000 }).should("exist");
+    cy.findByText(user.name).should("exist");
 
     cy.visit("settings");
 
@@ -19,6 +19,6 @@ describe("Sign Out", () => {
       cy.findByRole("button", { name: /sign out/i }).click();
     });
 
-    cy.findByText(/have an account?/i, { timeout: 10000 }).should("exist");
+    cy.findByText(/have an account?/i, { timeout: 20000 }).should("exist");
   });
 });
