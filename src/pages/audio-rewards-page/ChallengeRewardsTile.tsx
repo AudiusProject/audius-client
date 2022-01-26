@@ -26,7 +26,7 @@ import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { challengeRewardsConfig } from './config'
-import { useOptimisticUserChallenge } from './hooks'
+import { OptimisticUserChallenge, useOptimisticUserChallenge } from './hooks'
 
 const messages = {
   title: '$AUDIO REWARDS',
@@ -37,10 +37,18 @@ const messages = {
   claimReward: 'Claim Your Reward'
 }
 
+// For aggregate challenges, we show the total amount
+// you'd get when completing every step of the challenge
+// -- i.e. for referrals, show 1 audio x 5 steps = 5 audio
+export const getAmount = (challenge?: OptimisticUserChallenge) =>
+  challenge?.challenge_type === 'aggregate'
+    ? challenge.amount * challenge.max_steps
+    : challenge?.amount
+
 type RewardPanelProps = {
   title: string
   icon: ReactNode
-  description: (amount: number | undefined) => string
+  description: (challenge?: OptimisticUserChallenge) => string
   panelButtonText: string
   progressLabel: string
   stepCount: number
@@ -72,7 +80,7 @@ const RewardPanel = ({
         {title}
       </span>
       <span className={wm(styles.rewardDescription)}>
-        {description(challenge?.amount)}
+        {description(challenge)}
       </span>
       <div className={wm(styles.rewardProgress)}>
         <p

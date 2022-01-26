@@ -13,7 +13,7 @@ type UserChallengeState =
   | 'in_progress'
   | 'completed'
   | 'disbursed'
-type OptimisticUserChallenge = Omit<
+export type OptimisticUserChallenge = Omit<
   UserChallenge,
   'is_complete' | 'is_active' | 'is_disbursed'
 > & {
