@@ -37,31 +37,36 @@ const CheckPage = () => {
     if (user && scriptLoaded && !didOpen) {
       setDidOpen(true)
       const run = async () => {
+        let signature = null
         try {
-          const { signature } = await getCognitoSignature()
-          const flow = new window.Flow({
-            publishableKey: COGNITO_KEY,
-            templateId: COGNITO_TEMPLATE_ID,
-            user: {
-              customerReference: user.handle,
-              signature
-            }
-          })
-
-          flow.on('ui', (event: any) => {
-            switch (event.action) {
-              case 'closed':
-                dispatch(pushRoute(TRENDING_PAGE))
-                break
-              default:
-              // nothing
-            }
-          })
-
-          flow.open()
+          const response = await getCognitoSignature()
+          signature = response.signature
         } catch (e) {
-          console.error('COGNITO:', e)
+          console.error('COGNITO: Failed to get Cognito signature', e)
         }
+        if (!signature) {
+          return
+        }
+        const flow = new window.Flow({
+          publishableKey: COGNITO_KEY,
+          templateId: COGNITO_TEMPLATE_ID,
+          user: {
+            customerReference: user.handle,
+            signature
+          }
+        })
+
+        flow.on('ui', (event: any) => {
+          switch (event.action) {
+            case 'closed':
+              dispatch(pushRoute(TRENDING_PAGE))
+              break
+            default:
+            // nothing
+          }
+        })
+
+        flow.open()
       }
       run()
     }
