@@ -24,7 +24,6 @@
   text-transform: uppercase;
   color: #C675FF;
   text-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-  margin-bottom: 6px;
 }
 .label.mobile {
   font-size: var(--font-s);
