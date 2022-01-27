@@ -100,6 +100,19 @@ const slice = createSlice({
         is_disbursed: true
       }
     },
+    setUserChallengeCurrentStepCount: (
+      state,
+      action: PayloadAction<{
+        challengeId: ChallengeRewardID
+        stepCount: number
+      }>
+    ) => {
+      const { challengeId, stepCount } = action.payload
+      state.userChallengesOverrides[challengeId] = {
+        ...state.userChallengesOverrides[challengeId],
+        current_step_count: stepCount
+      }
+    },
     setTrendingRewardsModalType: (
       state,
       action: PayloadAction<{ modalType: TrendingRewardsModalType }>
@@ -200,7 +213,8 @@ export const {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   showRewardClaimedToast,
-  resetRewardClaimedToast
+  resetRewardClaimedToast,
+  setUserChallengeCurrentStepCount
 } = slice.actions
 
 export default slice

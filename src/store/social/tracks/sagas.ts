@@ -14,6 +14,7 @@ import { getUser } from 'common/store/cache/users/selectors'
 import * as socialActions from 'common/store/social/tracks/actions'
 import { formatShareText } from 'common/utils/formatUtil'
 import { makeKindId } from 'common/utils/uid'
+import { updateOptimisticListenStreak } from 'pages/audio-rewards-page/store/sagas'
 import * as signOnActions from 'pages/sign-on/store/actions'
 import AudiusBackend from 'services/AudiusBackend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
@@ -548,6 +549,9 @@ export function* watchRecordListen() {
     // Record track listen analytics event
     const event = make(Name.LISTEN, { trackId: action.trackId })
     yield put(event)
+
+    // Optimistically update the listen streak if applicable
+    yield call(updateOptimisticListenStreak)
   })
 }
 

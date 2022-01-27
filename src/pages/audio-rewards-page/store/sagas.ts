@@ -44,7 +44,8 @@ import {
   setUserChallengeDisbursed,
   updateHCaptchaScore,
   showRewardClaimedToast,
-  claimChallengeRewardAlreadyClaimed
+  claimChallengeRewardAlreadyClaimed,
+  setUserChallengeCurrentStepCount
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -319,6 +320,23 @@ function* watchFetchUserChallenges() {
   yield takeEvery(fetchUserChallenges.type, function* () {
     yield call(fetchUserChallengesAsync)
   })
+}
+
+export function* updateOptimisticListenStreak() {
+  const listenStreakChallenge: ReturnType<typeof getUserChallenge> = yield select(
+    getUserChallenge,
+    {
+      challengeId: 'listen-streak'
+    }
+  )
+  if (listenStreakChallenge?.current_step_count === 0) {
+    yield put(
+      setUserChallengeCurrentStepCount({
+        challengeId: 'listen-streak',
+        stepCount: 1
+      })
+    )
+  }
 }
 
 function* watchUpdateHCaptchaScore() {
