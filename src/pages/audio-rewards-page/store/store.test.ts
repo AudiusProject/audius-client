@@ -10,6 +10,7 @@ import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
+  getPendingAutoClaims,
   getUserChallenge,
   getUserChallenges,
   getUserChallengesOverrides
@@ -377,7 +378,8 @@ describe('Rewards Page Sagas', () => {
     const fetchUserChallengesProvisions: StaticProvider[] = [
       [select(getIsReachable), true],
       [select(getUserId), testUser.user_id],
-      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse]
+      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse],
+      [select(getPendingAutoClaims), {}]
     ]
     const defaultState = {
       backend: { isSetup: true }
