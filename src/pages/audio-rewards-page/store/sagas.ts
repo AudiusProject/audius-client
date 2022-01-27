@@ -278,22 +278,19 @@ export function* watchFetchUserChallenges() {
           (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
         ) {
           newDisbursement = true
+          if (pendingAutoClaim) {
+            yield put(removePendingAutoClaim(challenge.challenge_id))
+          }
         }
         // Check for newly completed, undisbursed challenges
         else if (
           challenge.is_complete &&
           prevChallenge &&
           !prevChallenge.is_complete &&
-          !challenge.is_complete &&
+          !challenge.is_disbursed &&
           (!challengeOverrides || !challengeOverrides.is_disbursed)
         ) {
           yield put(addPendingAutoClaim(challenge.challenge_id))
-        } else if (
-          pendingAutoClaim &&
-          (challenge.is_disbursed ||
-            (challengeOverrides && challengeOverrides.is_disbursed))
-        ) {
-          yield put(removePendingAutoClaim(challenge.challenge_id))
         }
       }
       if (newDisbursement) {
