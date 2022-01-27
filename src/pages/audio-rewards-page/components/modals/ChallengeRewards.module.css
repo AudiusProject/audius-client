@@ -220,16 +220,16 @@
 
 .inviteLink {
   min-width: 0;
+  font-size: var(--font-m);
 }
 
 .inviteIcon {
   height: 24px;
   flex: 0 0 24px;
-  margin-left: 12px;
+  margin-right: 8px;
 }
 .inviteIcon.mobile {
   height: 20px;
-  margin-left: 8px;
 }
 
 .inviteIcon path {
@@ -353,7 +353,10 @@
 }
 
 .twitterButton .twitterText {
-  font-size: 16px;
+  font-size: var(--font-m);
+}
+.twitterButton .twitterIcon {
+  margin-right: 8px !important;
 }
 .twitterButton .twitterIcon svg {
   width: 24px;
