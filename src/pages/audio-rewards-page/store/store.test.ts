@@ -10,13 +10,11 @@ import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
-  getPendingAutoClaims,
   getUserChallenge,
   getUserChallenges,
   getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
 import {
-  addPendingAutoClaim,
   Claim,
   claimChallengeReward,
   claimChallengeRewardFailed,
@@ -27,7 +25,6 @@ import {
   fetchUserChallenges,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  removePendingAutoClaim,
   setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
@@ -404,8 +401,7 @@ describe('Rewards Page Sagas', () => {
     const fetchUserChallengesProvisions: StaticProvider[] = [
       [select(getIsReachable), true],
       [select(getUserId), testUser.user_id],
-      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse],
-      [select(getPendingAutoClaims), { 'track-upload': 200 }]
+      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse]
     ]
     const defaultState = {
       backend: { isSetup: true }
@@ -488,57 +484,6 @@ describe('Rewards Page Sagas', () => {
           ]
         ])
         .not.put(showRewardClaimedToast())
-        .put(
-          fetchUserChallengesSucceeded({
-            userChallenges: expectedUserChallengesResponse
-          })
-        )
-        .silentRun()
-    })
-
-    it('should mark a challenge as pending auto claim when completed', () => {
-      return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
-        .provide([
-          ...fetchUserChallengesProvisions,
-          [
-            select(getUserChallenges),
-            {
-              referrals: {
-                is_complete: false
-              }
-            }
-          ],
-          [select(getUserChallengesOverrides), {}]
-        ])
-        .put(addPendingAutoClaim('referrals'))
-        .put(
-          fetchUserChallengesSucceeded({
-            userChallenges: expectedUserChallengesResponse
-          })
-        )
-        .silentRun()
-    })
-
-    it('should unmark a challenge as pending auto claim when disbursed', () => {
-      return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
-        .provide([
-          ...fetchUserChallengesProvisions,
-          [
-            select(getUserChallenges),
-            {
-              'track-upload': {
-                is_complete: true,
-                is_disbursed: false
-              }
-            }
-          ],
-          [select(getUserChallengesOverrides), {}]
-        ])
-        .put(removePendingAutoClaim('track-upload'))
         .put(
           fetchUserChallengesSucceeded({
             userChallenges: expectedUserChallengesResponse
