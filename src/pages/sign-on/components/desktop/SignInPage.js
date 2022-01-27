@@ -92,6 +92,7 @@ export class SignIn extends PureComponent {
           size='medium'
           type='email'
           name='email'
+          id='email-input'
           autoComplete='username'
           value={email.value}
           variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
@@ -105,6 +106,7 @@ export class SignIn extends PureComponent {
           placeholder='Password'
           size='medium'
           name='password'
+          id='password-input'
           autoComplete='current-password'
           inputRef={this.passwordInput}
           value={password.value}
