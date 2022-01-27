@@ -15,7 +15,6 @@ import {
   UPLOAD_PAGE
 } from 'utils/route'
 
-import { getAmount } from './ChallengeRewardsTile'
 import { OptimisticUserChallenge } from './hooks'
 
 type LinkButtonType =
@@ -101,7 +100,7 @@ export const challengeRewardsConfig: Record<
     id: 'referrals-verified' as ChallengeRewardID,
     title: 'Invite your Fans',
     icon: <i className='emoji large incoming-envelope' />,
-    description: challenge => `Earn up to ${getAmount(challenge)} $AUDIO`,
+    description: challenge => `Earn up to ${challenge?.totalAmount} $AUDIO`,
     fullDescription: challenge =>
       `Invite your fans! You’ll earn ${challenge?.amount} $AUDIO for each fan who joins with your link (and they’ll get an $AUDIO too)`,
     progressLabel: '%0/%1 Invites',

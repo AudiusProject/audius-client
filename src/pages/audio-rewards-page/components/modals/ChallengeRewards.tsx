@@ -38,7 +38,6 @@ import { ToastContext } from 'components/toast/ToastContext'
 import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { getAmount } from 'pages/audio-rewards-page/ChallengeRewardsTile'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
 import { useOptimisticUserChallenge } from 'pages/audio-rewards-page/hooks'
 import { isMobile } from 'utils/clientUtil'
@@ -236,7 +235,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressReward = (
     <div className={wm(styles.progressReward)}>
       <h3>Reward</h3>
-      <h2>{getAmount(challenge)}</h2>
+      <h2>{challenge?.totalAmount}</h2>
       <h4>$AUDIO</h4>
     </div>
   )

@@ -37,14 +37,6 @@ const messages = {
   claimReward: 'Claim Your Reward'
 }
 
-// For aggregate challenges, we show the total amount
-// you'd get when completing every step of the challenge
-// -- i.e. for referrals, show 1 audio x 5 steps = 5 audio
-export const getAmount = (challenge?: OptimisticUserChallenge) =>
-  challenge?.challenge_type === 'aggregate'
-    ? challenge.amount * challenge.max_steps
-    : challenge?.amount
-
 type RewardPanelProps = {
   title: string
   icon: ReactNode
