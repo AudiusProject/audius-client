@@ -63,7 +63,18 @@
   letter-spacing: 0.1em;
   transition: all 0.07s ease-in-out;
 }
+
+.actionBubble:hover {
+  cursor: pointer;
+  transform: scale3d(1.04, 1.04, 1.04);
+}
+
+.actionBubble:active {
+  transform: scale3d(0.99, 0.99, 0.99);
+}
+
 .actionBubble.claimRewards {
+  transition: opacity 0.2s ease-in-out;
   background: var(--static-accent-green);
 }
 
