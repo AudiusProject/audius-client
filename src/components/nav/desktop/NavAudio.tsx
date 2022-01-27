@@ -43,7 +43,10 @@ const NavAudio = () => {
   // so below null-coalescing is okay
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
+
+  // Pending claim logic
   const pendingAutoClaims = useSelector(getPendingAutoClaims)
+  const [hasExpiredClaim, setHasExpiredClaim] = useState(false)
   const [bubbleType, setBubbleType] = useState<BubbleType>('empty')
   const claimPromptDelayMs = useRemoteVar(IntKeys.MANUAL_CLAIM_PROMPT_DELAY_MS)
 
@@ -52,28 +55,40 @@ const NavAudio = () => {
   }, [navigate])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (
-        Object.values(pendingAutoClaims).some(
-          time => time && new Date().getTime() - time > claimPromptDelayMs
-        )
-      ) {
-        setBubbleType('claim')
-      } else if (nonNullTotalBalance && !positiveTotalBalance) {
-        setBubbleType('earn')
-      } else {
-        setBubbleType('empty')
-      }
-    }, 100)
+    let timeout: ReturnType<typeof setTimeout>
+    if (Object.values(pendingAutoClaims).filter(Boolean).length > 0) {
+      timeout = setTimeout(() => {
+        if (
+          Object.values(pendingAutoClaims).some(
+            time => time && new Date().getTime() - time >= claimPromptDelayMs
+          )
+        ) {
+          setHasExpiredClaim(true)
+        }
+      }, claimPromptDelayMs)
+    } else {
+      setHasExpiredClaim(false)
+    }
     return () => {
-      clearInterval(interval)
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [setHasExpiredClaim, pendingAutoClaims, claimPromptDelayMs])
+
+  useEffect(() => {
+    if (hasExpiredClaim) {
+      setBubbleType('claim')
+    } else if (nonNullTotalBalance && !positiveTotalBalance) {
+      setBubbleType('earn')
+    } else {
+      setBubbleType('empty')
     }
   }, [
     setBubbleType,
-    pendingAutoClaims,
-    claimPromptDelayMs,
-    positiveTotalBalance,
-    nonNullTotalBalance
+    hasExpiredClaim,
+    nonNullTotalBalance,
+    positiveTotalBalance
   ])
 
   if (!isEnabled || !account) {
