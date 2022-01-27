@@ -32,7 +32,7 @@ describe("Repost Track", () => {
     localStorage.setItem("HAS_REQUESTED_BROWSER_PUSH_PERMISSION", "true");
   });
 
-  it("should repost and unrepost track correctly", () => {
+  it.skip("should repost and unrepost track correctly", () => {
     const base64Entropy = Buffer.from(user.entropy).toString("base64");
     cy.visit(`${track.route}?login=${base64Entropy}`);
 
