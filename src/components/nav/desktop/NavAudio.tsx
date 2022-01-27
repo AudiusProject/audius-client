@@ -73,7 +73,6 @@ const NavAudio = () => {
     pendingAutoClaims,
     claimPromptDelayMs,
     positiveTotalBalance,
-    totalBalance,
     nonNullTotalBalance
   ])
 
