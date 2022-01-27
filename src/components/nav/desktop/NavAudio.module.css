@@ -49,6 +49,13 @@
   color: var(--neutral-light-3);
 }
 
+.bubbleContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .actionBubble {
   display: flex;
   align-items: center;
@@ -62,6 +69,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.1em;
   transition: all 0.07s ease-in-out;
+  position: absolute;
 }
 
 .actionBubble:hover {

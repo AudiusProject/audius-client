@@ -2,6 +2,7 @@ import React, { cloneElement, useCallback, useEffect, useState } from 'react'
 
 import BN from 'bn.js'
 import cn from 'classnames'
+import { animated, Transition } from 'react-spring/renderprops'
 
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
@@ -19,6 +20,8 @@ import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './NavAudio.module.css'
+
+type BubbleType = 'empty' | 'claim' | 'earn'
 
 const messages = {
   earnAudio: 'EARN $AUDIO',
@@ -41,7 +44,7 @@ const NavAudio = () => {
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
   const pendingAutoClaims = useSelector(getPendingAutoClaims)
-  const [showUnclaimedRewards, setShowUnclaimedRewards] = useState(false)
+  const [bubbleType, setBubbleType] = useState<BubbleType>('empty')
   const claimPromptDelayMs = useRemoteVar(IntKeys.MANUAL_CLAIM_PROMPT_DELAY_MS)
 
   const goToAudioPage = useCallback(() => {
@@ -55,21 +58,33 @@ const NavAudio = () => {
           time => time && new Date().getTime() - time > claimPromptDelayMs
         )
       ) {
-        setShowUnclaimedRewards(true)
+        setBubbleType('claim')
+      } else if (nonNullTotalBalance && !positiveTotalBalance) {
+        setBubbleType('earn')
       } else {
-        setShowUnclaimedRewards(false)
+        setBubbleType('empty')
       }
     }, 100)
     return () => {
       clearInterval(interval)
     }
-  }, [setShowUnclaimedRewards, pendingAutoClaims, claimPromptDelayMs])
+  }, [
+    setBubbleType,
+    pendingAutoClaims,
+    claimPromptDelayMs,
+    positiveTotalBalance,
+    totalBalance,
+    nonNullTotalBalance
+  ])
 
   if (!isEnabled || !account) {
     return null
   }
+  if (!nonNullTotalBalance) {
+    return <div className={styles.audio} />
+  }
 
-  return nonNullTotalBalance ? (
+  return (
     <div
       className={cn(
         styles.audio,
@@ -89,21 +104,33 @@ const NavAudio = () => {
       <span className={styles.audioAmount}>
         {formatWei(totalBalance!, true, 0)}
       </span>
-      {!positiveTotalBalance && !showUnclaimedRewards && (
-        <span className={styles.actionBubble}>
-          <span>{messages.earnAudio}</span>
-          <IconCaretRight className={styles.actionCaret} />
-        </span>
-      )}
-      {showUnclaimedRewards && (
-        <span className={cn(styles.actionBubble, styles.claimRewards)}>
-          <span>{messages.claimRewards}</span>
-          <IconCaretRight className={styles.actionCaret} />
-        </span>
-      )}
+      <div className={styles.bubbleContainer}>
+        <Transition
+          items={bubbleType}
+          from={{ opacity: 0 }}
+          enter={{ opacity: 1 }}
+          leave={{ opacity: 0 }}
+          config={{ duration: 100 }}
+        >
+          {item => props =>
+            item !== 'empty' && (
+              <animated.span
+                style={props}
+                className={cn(styles.actionBubble, {
+                  [styles.claimRewards]: item === 'claim'
+                })}
+              >
+                <span>
+                  {item === 'claim'
+                    ? messages.claimRewards
+                    : messages.earnAudio}
+                </span>
+                <IconCaretRight className={styles.actionCaret} />
+              </animated.span>
+            )}
+        </Transition>
+      </div>
     </div>
-  ) : (
-    <div className={styles.audio} />
   )
 }
 
