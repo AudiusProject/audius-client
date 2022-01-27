@@ -228,9 +228,6 @@
   flex: 0 0 24px;
   margin-right: 8px;
 }
-.inviteIcon.mobile {
-  height: 20px;
-}
 
 .inviteIcon path {
   fill: var(--static-white);
