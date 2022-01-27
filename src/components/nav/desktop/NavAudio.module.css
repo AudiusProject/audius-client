@@ -24,14 +24,6 @@
   opacity: 1;
 }
 
-.audio.show .earnAudio:hover {
-  transform: scale(1.03);
-}
-
-.audio.show .earnAudio:active {
-  transform: scale(0.97);
-}
-
 .audio.hasBalance {
   cursor: pointer;
 }
@@ -74,15 +66,14 @@
 
 .actionBubble:hover {
   cursor: pointer;
-  transform: scale3d(1.04, 1.04, 1.04);
+  transform: scale3d(1.03, 1.03, 1.03);
 }
 
 .actionBubble:active {
-  transform: scale3d(0.99, 0.99, 0.99);
+  transform: scale3d(0.97, 0.97, 0.97);
 }
 
 .actionBubble.claimRewards {
-  transition: opacity 0.2s ease-in-out;
   background: var(--static-accent-green);
 }
 
