@@ -196,7 +196,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
       <h4>$AUDIO</h4>
     </div>
   )
-  console.log({ challenge })
 
   const progressStatusLabel = (
     <div
