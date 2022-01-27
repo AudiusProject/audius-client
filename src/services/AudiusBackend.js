@@ -1743,7 +1743,12 @@ class AudiusBackend {
       remoteConfigInstance.getFeatureEnabled(
         FeatureFlags.CREATE_WAUDIO_USER_BANK_ON_SIGN_UP
       ),
-      track
+      track,
+      {
+        Request: Name.CREATE_USER_BANK_REQUEST,
+        Success: Name.CREATE_USER_BANK_SUCCESS,
+        Failure: Name.CREATE_USER_BANK_FAILURE
+      }
     )
   }
 
