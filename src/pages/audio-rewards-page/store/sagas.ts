@@ -42,7 +42,8 @@ import {
   setHCaptchaStatus,
   setUserChallengeDisbursed,
   updateHCaptchaScore,
-  showRewardClaimedToast
+  showRewardClaimedToast,
+  claimChallengeRewardAlreadyClaimed
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -179,6 +180,10 @@ function* claimChallengeRewardAsync(
               setVisibility({ modal: COGNITO_MODAL_NAME, visible: true })
             )
             break
+          case FailureReason.ALREADY_DISBURSED:
+            yield put(claimChallengeRewardAlreadyClaimed())
+            // Return out and do not retry. We've already earned this reward.
+            return
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
@@ -199,8 +204,13 @@ function* claimChallengeRewardAsync(
       yield put(claimChallengeRewardSucceeded())
     }
   } catch (e) {
-    console.error('Error claiming rewards:', e)
-    yield put(claimChallengeRewardFailed())
+    // Retry once in the case of generic failure, otherwise log error and abort
+    if (retryOnFailure) {
+      yield put(claimChallengeReward({ claim, retryOnFailure: false }))
+    } else {
+      console.error('Error claiming rewards:', e)
+      yield put(claimChallengeRewardFailed())
+    }
   }
 }
 

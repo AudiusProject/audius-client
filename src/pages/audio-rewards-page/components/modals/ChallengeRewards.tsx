@@ -66,6 +66,7 @@ const messages = {
   qrText: 'Download the App',
   qrSubtext: 'Scan This QR Code with Your Phone Camera',
   rewardClaimed: 'Reward claimed successfully!',
+  rewardAlreadyClaimed: 'Reward already claimed!',
   claimError: 'Oops, something’s gone wrong',
   claimYourReward: 'Claim Your Reward'
 }
@@ -196,7 +197,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
       <h4>$AUDIO</h4>
     </div>
   )
-  console.log({ challenge })
 
   const progressStatusLabel = (
     <div
@@ -250,6 +250,9 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   useEffect(() => {
     if (claimStatus === ClaimStatus.SUCCESS) {
       toast(messages.rewardClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+    }
+    if (claimStatus === ClaimStatus.ALREADY_CLAIMED) {
+      toast(messages.rewardAlreadyClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
     }
   }, [claimStatus, toast])
 

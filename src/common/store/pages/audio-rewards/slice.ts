@@ -11,6 +11,7 @@ export enum ClaimStatus {
   NONE = 'none',
   CLAIMING = 'claiming',
   WAITING_FOR_RETRY = 'waiting for retry',
+  ALREADY_CLAIMED = 'already claimed',
   SUCCESS = 'success',
   ERROR = 'error'
 }
@@ -146,6 +147,9 @@ const slice = createSlice({
     claimChallengeRewardFailed: state => {
       state.claimStatus = ClaimStatus.ERROR
     },
+    claimChallengeRewardAlreadyClaimed: state => {
+      state.claimStatus = ClaimStatus.ALREADY_CLAIMED
+    },
     claimChallengeRewardSucceeded: state => {
       state.claimStatus = ClaimStatus.SUCCESS
     },
@@ -188,6 +192,7 @@ export const {
   updateHCaptchaScore,
   claimChallengeReward,
   claimChallengeRewardWaitForRetry,
+  claimChallengeRewardAlreadyClaimed,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   setCognitoFlowStatus,
