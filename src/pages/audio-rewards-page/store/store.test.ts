@@ -39,7 +39,7 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 // eslint-disable-next-line jest/no-mocks-import
 import { MockRemoteConfigInstance } from 'services/remote-config/__mocks__/remote-config-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { getIsReachable } from 'store/reachability/selectors'
+import { waitForBackendSetup } from 'store/backend/sagas'
 
 import rewardsSagas from './sagas'
 
@@ -248,7 +248,7 @@ describe('Rewards Page Sagas', () => {
       )
     })
 
-    it('should wait until discovery marked the challenge as completed before submitting', () => {
+    it('should NOT submit attestation if DN has not marked the challenge as complete', () => {
       return (
         expectSaga(saga)
           .dispatch(
@@ -264,7 +264,9 @@ describe('Rewards Page Sagas', () => {
                 args: [{ challengeId: testUserChallenge.challenge_id }]
               }),
               { is_completed: false }
-            ]
+            ],
+            [call.fn(waitForBackendSetup), {}],
+            [select(getUserId), testUser.user_id]
           ])
           // Assertions
           .not.call(AudiusBackend.submitAndEvaluateAttestations)
@@ -399,17 +401,13 @@ describe('Rewards Page Sagas', () => {
       }
     ]
     const fetchUserChallengesProvisions: StaticProvider[] = [
-      [select(getIsReachable), true],
+      [call.fn(waitForBackendSetup), {}],
       [select(getUserId), testUser.user_id],
       [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse]
     ]
-    const defaultState = {
-      backend: { isSetup: true }
-    }
     it('should show a toast to the user that they received a reward if the reward was not disbursed yet', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
@@ -436,7 +434,6 @@ describe('Rewards Page Sagas', () => {
     it('should NOT show a toast to the user that they received a reward if the reward was already automatically claimed', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
@@ -462,7 +459,6 @@ describe('Rewards Page Sagas', () => {
     it('should NOT show a toast to the user that they received a reward if the reward was already manually claimed', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
