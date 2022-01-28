@@ -7,7 +7,8 @@ import {
   select,
   take,
   takeEvery,
-  takeLatest
+  takeLatest,
+  delay
 } from 'redux-saga/effects'
 
 import {
@@ -116,12 +117,16 @@ function* claimChallengeRewardAsync(
   // This is possible because the client may optimistically set a challenge as complete
   // even though the DN has not yet indexed the change that would mark the challenge as complete.
   // In this case, we wait until the challenge is complete in the DN before claiming
-  yield call(
-    waitForValue,
-    getUserChallenge,
-    { challengeId },
-    (challenge: UserChallenge) => challenge.is_complete
-  )
+  yield race({
+    isComplete: call(
+      waitForValue,
+      getUserChallenge,
+      { challengeId },
+      (challenge: UserChallenge) => challenge.is_complete
+    ),
+    poll: call(pollUserChallenges),
+    timeout: delay(3000)
+  })
 
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE
@@ -297,6 +302,13 @@ function* watchUpdateHCaptchaScore() {
       yield put(setHCaptchaStatus({ status: HCaptchaStatus.SUCCESS }))
     }
   })
+}
+
+function* pollUserChallenges() {
+  while (true) {
+    yield put(fetchUserChallenges())
+    yield delay(500)
+  }
 }
 
 function* userChallengePollingDaemon() {

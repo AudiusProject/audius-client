@@ -15,6 +15,7 @@ import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useSelectTierInfo } from 'components/user-badges/hooks'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useFlag } from 'hooks/useRemoteConfig'
+import { useOptimisticUserChallenge } from 'pages/audio-rewards-page/hooks'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
@@ -44,9 +45,9 @@ const NavAudio = () => {
   const audioBadge = audioTierMapPng[tier]
 
   const userChallenges = useSelector(getUserChallenges)
-  const hasExpiredClaim = Object.values(userChallenges).some(
-    challenge => challenge?.is_complete && !challenge.is_disbursed
-  )
+  const hasExpiredClaim = Object.values(userChallenges)
+    .map(useOptimisticUserChallenge)
+    .some(challenge => challenge?.state === 'completed')
 
   const [bubbleType, setBubbleType] = useState<BubbleType>('none')
 
