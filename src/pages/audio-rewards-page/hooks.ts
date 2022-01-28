@@ -5,6 +5,7 @@ import {
   getUserChallenges,
   getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
+import { removeNullable } from 'common/utils/typeUtils'
 import { getCompletionStages } from 'components/profile-progress/store/selectors'
 
 type OptimisticChallengeCompletionResponse = Partial<
@@ -107,13 +108,12 @@ const getOptimisticChallenge = (
  * @see useOptimisticUserChallenge
  * @returns all user challenges
  */
-export const useOptimisticUserChallenges = (): Partial<
-  Record<ChallengeRewardID, OptimisticUserChallenge>
-> => {
+export const useOptimisticUserChallenges = () => {
   const stepCountOverrides = useOptimisticChallengeCompletionStepCounts()
   const userChallengesOverrides = useSelector(getUserChallengesOverrides)
   const userChallenges = useSelector(getUserChallenges)
-  return (Object.values(userChallenges).filter(Boolean) as UserChallenge[])
+  return Object.values(userChallenges)
+    .filter(removeNullable)
     .map(challenge =>
       getOptimisticChallenge(
         challenge,
