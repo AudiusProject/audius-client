@@ -102,6 +102,11 @@ const getOptimisticChallenge = (
   }
 }
 
+/**
+ * Get all user challenges but in client-side optimistic state
+ * @see useOptimisticUserChallenge
+ * @returns all user challenges
+ */
 export const useOptimisticUserChallenges = (): Partial<
   Record<ChallengeRewardID, OptimisticUserChallenge>
 > => {
@@ -126,7 +131,7 @@ export const useOptimisticUserChallenges = (): Partial<
  * Given a challenge, returns a challenge that uses an optimistic
  * is_complete and current_step_count based on what the client knows
  * @param challenge The user challenge to get the optimistic state for
- * @returns the same challenge with is_complete and current_step_count overridden as necessary
+ * @returns the same challenge with state and current_step_count overridden as necessary
  */
 export const useOptimisticUserChallenge = (
   challenge?: UserChallenge
