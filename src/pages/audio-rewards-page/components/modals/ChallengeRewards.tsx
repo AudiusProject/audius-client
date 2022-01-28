@@ -41,7 +41,7 @@ import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
 import { useOptimisticUserChallenge } from 'pages/audio-rewards-page/hooks'
 import { isMobile } from 'utils/clientUtil'
-import { copyToClipboard } from 'utils/clipboardUtil'
+import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import fillString from 'utils/fillString'
 import { openTwitterLink } from 'utils/tweet'
@@ -65,15 +65,16 @@ export const useRewardsModalType = (): [
   )
   return [modalType, setModalType]
 }
-
+const inviteLink = getCopyableLink('/signup?ref=%0')
 const messages = {
   copyLabel: 'Copy to Clipboard',
   copiedLabel: 'Copied to Clipboard',
   inviteLabel: 'Copy Invite to Clipboard',
-  inviteLink: 'audius.co/signup?ref=%0',
+  inviteLink,
   qrText: 'Download the App',
   qrSubtext: 'Scan This QR Code with Your Phone Camera',
   rewardClaimed: 'Reward claimed successfully!',
+  rewardAlreadyClaimed: 'Reward already claimed!',
   claimError: 'Oops, something’s gone wrong',
   claimYourReward: 'Claim Your Reward',
   twitterShare: (modalType: 'referrals' | 'referrals-verified') =>
@@ -291,6 +292,9 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   useEffect(() => {
     if (claimStatus === ClaimStatus.SUCCESS) {
       toast(messages.rewardClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+    }
+    if (claimStatus === ClaimStatus.ALREADY_CLAIMED) {
+      toast(messages.rewardAlreadyClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
     }
   }, [claimStatus, toast])
 

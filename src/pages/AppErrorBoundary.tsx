@@ -21,6 +21,7 @@ export const AppErrorBoundary = ({ children }: AppErrorBoundaryProps) => {
     (error, errorInfo) => {
       dispatch(
         handleErrorAction({
+          name: 'ReactErrorBoundary',
           message: error.message,
           shouldRedirect: true,
           additionalInfo: errorInfo,
