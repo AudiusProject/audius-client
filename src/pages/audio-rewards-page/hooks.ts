@@ -129,7 +129,7 @@ export const useOptimisticUserChallenges = (): Partial<
 
 /**
  * Given a challenge, returns a challenge that uses an optimistic
- * is_complete and current_step_count based on what the client knows
+ * state and current_step_count based on what the client knows
  * @param challenge The user challenge to get the optimistic state for
  * @returns the same challenge with state and current_step_count overridden as necessary
  */
