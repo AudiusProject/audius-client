@@ -17,6 +17,7 @@ import {
 import {
   Claim,
   claimChallengeReward,
+  claimChallengeRewardAlreadyClaimed,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   claimChallengeRewardWaitForRetry,
@@ -219,6 +220,58 @@ describe('Rewards Page Sagas', () => {
             })
           )
           .put(claimChallengeRewardFailed())
+          .silentRun()
+      )
+    })
+
+    it('should fail and inform the user when already disbursed', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_DISBURSED }
+            ]
+          ])
+          // Assertions
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          .put(claimChallengeRewardAlreadyClaimed())
+          .silentRun()
+      )
+    })
+
+    it('should fail and retry when already sent', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_SENT }
+            ]
+          ])
+          // Assertions
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          .put(claimChallengeRewardAlreadyClaimed())
           .silentRun()
       )
     })
