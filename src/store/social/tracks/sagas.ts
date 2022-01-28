@@ -11,10 +11,10 @@ import * as cacheActions from 'common/store/cache/actions'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
+import { updateOptimisticListenStreak } from 'common/store/pages/audio-rewards/slice'
 import * as socialActions from 'common/store/social/tracks/actions'
 import { formatShareText } from 'common/utils/formatUtil'
 import { makeKindId } from 'common/utils/uid'
-import { updateOptimisticListenStreak } from 'pages/audio-rewards-page/store/sagas'
 import * as signOnActions from 'pages/sign-on/store/actions'
 import AudiusBackend from 'services/AudiusBackend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
@@ -551,7 +551,7 @@ export function* watchRecordListen() {
     yield put(event)
 
     // Optimistically update the listen streak if applicable
-    yield call(updateOptimisticListenStreak)
+    yield put(updateOptimisticListenStreak())
   })
 }
 

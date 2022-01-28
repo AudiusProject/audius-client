@@ -45,7 +45,9 @@ import {
   updateHCaptchaScore,
   showRewardClaimedToast,
   claimChallengeRewardAlreadyClaimed,
-  setUserChallengeCurrentStepCount
+  setUserChallengeCurrentStepCount,
+  resetUserChallengeCurrentStepCount,
+  updateOptimisticListenStreak
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -265,6 +267,42 @@ function* fetchUserChallengesAsync() {
         userID: currentUserId
       }
     )
+    const prevChallenges: Partial<Record<
+      ChallengeRewardID,
+      UserChallenge
+    >> = yield select(getUserChallenges)
+    const challengesOverrides: Partial<Record<
+      ChallengeRewardID,
+      UserChallenge
+    >> = yield select(getUserChallengesOverrides)
+    let newDisbursement = false
+    for (const challenge of userChallenges) {
+      const prevChallenge = prevChallenges[challenge.challenge_id]
+      const challengeOverrides = challengesOverrides[challenge.challenge_id]
+      if (
+        challenge.is_disbursed &&
+        prevChallenge &&
+        !prevChallenge.is_disbursed && // it wasn't already claimed
+        (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
+      ) {
+        newDisbursement = true
+      }
+      if (
+        (challengeOverrides?.current_step_count ?? 0) > 0 &&
+        challenge.current_step_count !== 0
+      ) {
+        yield put(
+          resetUserChallengeCurrentStepCount({
+            challengeId: challenge.challenge_id
+          })
+        )
+      }
+    }
+    if (newDisbursement) {
+      yield put(getBalance())
+      yield put(showMusicConfetti())
+      yield put(showRewardClaimedToast())
+    }
     yield put(fetchUserChallengesSucceeded({ userChallenges }))
   } catch (e) {
     console.error(e)
@@ -322,21 +360,23 @@ function* watchFetchUserChallenges() {
   })
 }
 
-export function* updateOptimisticListenStreak() {
-  const listenStreakChallenge: ReturnType<typeof getUserChallenge> = yield select(
-    getUserChallenge,
-    {
-      challengeId: 'listen-streak'
-    }
-  )
-  if (listenStreakChallenge?.current_step_count === 0) {
-    yield put(
-      setUserChallengeCurrentStepCount({
-        challengeId: 'listen-streak',
-        stepCount: 1
-      })
+function* watchUpdateOptimisticListenStreak() {
+  yield takeEvery(updateOptimisticListenStreak.type, function* () {
+    const listenStreakChallenge: ReturnType<typeof getUserChallenge> = yield select(
+      getUserChallenge,
+      {
+        challengeId: 'listen-streak'
+      }
     )
-  }
+    if (listenStreakChallenge?.current_step_count === 0) {
+      yield put(
+        setUserChallengeCurrentStepCount({
+          challengeId: 'listen-streak',
+          stepCount: 1
+        })
+      )
+    }
+  })
 }
 
 function* watchUpdateHCaptchaScore() {
@@ -389,7 +429,8 @@ const sagas = () => {
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,
     watchUpdateHCaptchaScore,
-    userChallengePollingDaemon
+    userChallengePollingDaemon,
+    watchUpdateOptimisticListenStreak
   ]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
