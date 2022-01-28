@@ -14,6 +14,7 @@ export type AdditionalInfo = Record<string, unknown>
 
 export type HandleErrorAction = {
   type: typeof HANDLE_ERROR
+  name?: string
   message: string
   shouldRedirect: boolean
   shouldReport: boolean
@@ -24,6 +25,7 @@ export type HandleErrorAction = {
 type HandleActions = HandleErrorAction
 
 type HandleErrorArgs = {
+  name?: string
   message: string
   shouldRedirect: boolean
   shouldReport?: boolean
@@ -32,6 +34,7 @@ type HandleErrorArgs = {
 }
 
 export const handleError = ({
+  name,
   message,
   shouldRedirect,
   shouldReport = true,
@@ -39,6 +42,7 @@ export const handleError = ({
   level
 }: HandleErrorArgs): HandleActions => ({
   type: HANDLE_ERROR,
+  name,
   message,
   shouldRedirect,
   shouldReport,
