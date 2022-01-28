@@ -3,7 +3,11 @@ import { call, select } from 'redux-saga-test-plan/matchers'
 import { StaticProvider } from 'redux-saga-test-plan/providers'
 import { all, fork } from 'redux-saga/effects'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
@@ -66,7 +70,7 @@ const testUser = {
   wallet: 'test-wallet'
 }
 const testUserChallenge = {
-  challenge_id: 'connect-verified',
+  challenge_id: 'connect-verified' as ChallengeRewardID,
   amount: 1,
   is_complete: true
 }
@@ -318,13 +322,17 @@ describe('Rewards Page Sagas', () => {
               }),
               { is_completed: false }
             ],
+            [select(getUserChallenges), {}],
+            [select(getUserChallengesOverrides), {}],
             [call.fn(waitForBackendSetup), {}],
             [select(getUserId), testUser.user_id]
           ])
           // Assertions
           .not.call(AudiusBackend.submitAndEvaluateAttestations)
           .not.put(
-            setUserChallengeDisbursed({ challengeId: 'connect-verified' })
+            setUserChallengeDisbursed({
+              challengeId: testUserChallenge.challenge_id
+            })
           )
           .not.put(claimChallengeRewardSucceeded())
           .silentRun()
