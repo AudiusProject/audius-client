@@ -17,6 +17,8 @@ export type HandleErrorAction = {
   message: string
   shouldRedirect: boolean
   shouldReport: boolean
+  shouldToast?: boolean
+
   additionalInfo?: AdditionalInfo
   level?: Level
 }
@@ -27,7 +29,9 @@ type HandleErrorArgs = {
   message: string
   shouldRedirect: boolean
   shouldReport?: boolean
+  shouldToast?: boolean
   additionalInfo?: AdditionalInfo
+
   level?: Level
 }
 
@@ -35,6 +39,7 @@ export const handleError = ({
   message,
   shouldRedirect,
   shouldReport = true,
+  shouldToast,
   additionalInfo = {},
   level
 }: HandleErrorArgs): HandleActions => ({
@@ -42,6 +47,7 @@ export const handleError = ({
   message,
   shouldRedirect,
   shouldReport,
+  shouldToast,
   additionalInfo,
   level
 })
