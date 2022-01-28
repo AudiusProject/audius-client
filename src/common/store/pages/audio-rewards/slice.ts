@@ -53,6 +53,7 @@ type RewardsUIState = {
   cognitoFlowUrlStatus?: Status
   cognitoFlowUrl?: string
   showRewardClaimedToast: boolean
+  pendingAutoClaims: Partial<Record<ChallengeRewardID, number>>
 }
 
 const initialState: RewardsUIState = {
@@ -64,7 +65,8 @@ const initialState: RewardsUIState = {
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
   cognitoFlowStatus: CognitoFlowStatus.CLOSED,
-  showRewardClaimedToast: false
+  showRewardClaimedToast: false,
+  pendingAutoClaims: {}
 }
 
 const slice = createSlice({
@@ -99,6 +101,7 @@ const slice = createSlice({
         ...state.userChallengesOverrides[challengeId],
         is_disbursed: true
       }
+      state.pendingAutoClaims[challengeId] = undefined
     },
     setTrendingRewardsModalType: (
       state,
@@ -175,6 +178,15 @@ const slice = createSlice({
     },
     resetRewardClaimedToast: state => {
       state.showRewardClaimedToast = false
+    },
+    addPendingAutoClaim: (state, action: PayloadAction<ChallengeRewardID>) => {
+      state.pendingAutoClaims[action.payload] = new Date().getTime()
+    },
+    removePendingAutoClaim: (
+      state,
+      action: PayloadAction<ChallengeRewardID>
+    ) => {
+      state.pendingAutoClaims[action.payload] = undefined
     }
   }
 })
@@ -200,7 +212,9 @@ export const {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   showRewardClaimedToast,
-  resetRewardClaimedToast
+  resetRewardClaimedToast,
+  addPendingAutoClaim,
+  removePendingAutoClaim
 } = slice.actions
 
 export default slice
