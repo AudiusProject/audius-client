@@ -1,4 +1,3 @@
-import delayP from '@redux-saga/delay-p'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call, select } from 'redux-saga-test-plan/matchers'
 import { StaticProvider } from 'redux-saga-test-plan/providers'
@@ -244,11 +243,11 @@ describe('Rewards Page Sagas', () => {
               { error: FailureReason.ALREADY_DISBURSED }
             ]
           ])
+          // Assertions
           .call.like({
             fn: AudiusBackend.submitAndEvaluateAttestations,
             args: [expectedRequestArgs]
           })
-          // Assertions
           .put(claimChallengeRewardAlreadyClaimed())
           .silentRun()
       )
@@ -268,17 +267,14 @@ describe('Rewards Page Sagas', () => {
             [
               call.fn(AudiusBackend.submitAndEvaluateAttestations),
               { error: FailureReason.ALREADY_SENT }
-            ],
-            [call.fn(delayP), null]
+            ]
           ])
           // Assertions
           .call.like({
             fn: AudiusBackend.submitAndEvaluateAttestations,
             args: [expectedRequestArgs]
           })
-          .put(
-            claimChallengeReward({ claim: testClaim, retryOnFailure: false })
-          )
+          .put(claimChallengeRewardAlreadyClaimed())
           .silentRun()
       )
     })

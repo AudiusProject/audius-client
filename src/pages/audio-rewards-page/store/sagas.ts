@@ -1,7 +1,6 @@
 import { User } from '@sentry/browser'
 import {
   call,
-  delay,
   fork,
   put,
   race,
@@ -187,14 +186,8 @@ function* claimChallengeRewardAsync(
             yield put(claimChallengeRewardWaitForRetry(claim))
             break
           case FailureReason.ALREADY_DISBURSED:
-            yield put(claimChallengeRewardAlreadyClaimed())
-            break
           case FailureReason.ALREADY_SENT:
-            if (retryOnFailure) {
-              // In this case, we should retry, but give a bit of time.
-              yield delay(2000)
-              yield put(claimChallengeReward({ claim, retryOnFailure: false }))
-            }
+            yield put(claimChallengeRewardAlreadyClaimed())
             break
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
