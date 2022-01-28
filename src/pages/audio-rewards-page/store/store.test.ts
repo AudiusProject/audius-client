@@ -1,3 +1,4 @@
+import delayP from '@redux-saga/delay-p'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call, select } from 'redux-saga-test-plan/matchers'
 import { StaticProvider } from 'redux-saga-test-plan/providers'
@@ -19,6 +20,7 @@ import {
   addPendingAutoClaim,
   Claim,
   claimChallengeReward,
+  claimChallengeRewardAlreadyClaimed,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   claimChallengeRewardWaitForRetry,
@@ -222,6 +224,61 @@ describe('Rewards Page Sagas', () => {
             })
           )
           .put(claimChallengeRewardFailed())
+          .silentRun()
+      )
+    })
+
+    it('should fail and inform the user when already disbursed', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_DISBURSED }
+            ]
+          ])
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          // Assertions
+          .put(claimChallengeRewardAlreadyClaimed())
+          .silentRun()
+      )
+    })
+
+    it('should fail and retry when already sent', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_SENT }
+            ],
+            [call.fn(delayP), null]
+          ])
+          // Assertions
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          .put(
+            claimChallengeReward({ claim: testClaim, retryOnFailure: false })
+          )
           .silentRun()
       )
     })
