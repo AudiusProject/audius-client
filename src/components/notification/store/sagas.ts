@@ -294,7 +294,7 @@ export function* parseAndProcessNotifications(
 /**
  * Run side effects for new notifications
  */
-export function* processNewNotifications(
+export function* handleNewNotifications(
   notifications: Notification[]
 ): Generator<any, void, any> {
   const hasRewardsNotification = notifications.some(
@@ -530,7 +530,7 @@ export function* getNotifications(isFirstFetch: boolean) {
               hasMore
             )
           )
-          yield processNewNotifications(notificationItems)
+          yield handleNewNotifications(notificationItems)
         }
       } else if (status !== Status.SUCCESS) {
         yield put(
