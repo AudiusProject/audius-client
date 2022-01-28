@@ -8,14 +8,13 @@ import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { FeatureFlags } from 'common/services/remote-config/feature-flags'
 import { getAccountUser } from 'common/store/account/selectors'
-import { getUserChallenges } from 'common/store/pages/audio-rewards/selectors'
 import { getAccountTotalBalance } from 'common/store/wallet/selectors'
 import { formatWei } from 'common/utils/wallet'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useSelectTierInfo } from 'components/user-badges/hooks'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useFlag } from 'hooks/useRemoteConfig'
-import { useOptimisticUserChallenge } from 'pages/audio-rewards-page/hooks'
+import { useOptimisticUserChallenges } from 'pages/audio-rewards-page/hooks'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
@@ -44,10 +43,10 @@ const NavAudio = () => {
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
 
-  const userChallenges = useSelector(getUserChallenges)
-  const hasExpiredClaim = Object.values(userChallenges)
-    .map(useOptimisticUserChallenge)
-    .some(challenge => challenge?.state === 'completed')
+  const userChallenges = useOptimisticUserChallenges()
+  const hasExpiredClaim = Object.values(userChallenges).some(
+    challenge => challenge?.state === 'completed'
+  )
 
   const [bubbleType, setBubbleType] = useState<BubbleType>('none')
 
