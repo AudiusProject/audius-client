@@ -10,12 +10,14 @@ export enum Level {
   'Log' = 'Log'
 }
 
+export type AdditionalInfo = Record<string, unknown>
+
 export type HandleErrorAction = {
   type: typeof HANDLE_ERROR
   message: string
   shouldRedirect: boolean
   shouldReport: boolean
-  additionalInfo?: object
+  additionalInfo?: AdditionalInfo
   level?: Level
 }
 
@@ -25,7 +27,7 @@ type HandleErrorArgs = {
   message: string
   shouldRedirect: boolean
   shouldReport?: boolean
-  additionalInfo?: object
+  additionalInfo?: AdditionalInfo
   level?: Level
 }
 

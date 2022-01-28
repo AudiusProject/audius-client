@@ -29,7 +29,7 @@ function* handleError(action: errorActions.HandleErrorAction) {
           console.debug(
             `Additional error info: ${JSON.stringify(action.additionalInfo)}`
           )
-          scope.setExtras(action.additionalInfo as Record<string, any>)
+          scope.setExtras(action.additionalInfo)
         }
         Sentry.captureException(new Error(action.message))
       })
