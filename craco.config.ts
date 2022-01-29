@@ -8,10 +8,9 @@ export default {
       webpackConfig.resolve?.extensions?.push('.wasm')
 
       webpackConfig.module?.rules.forEach(rule => {
-        ;(rule.oneOf || []).forEach(oneOf => {
+        rule.oneOf?.forEach(oneOf => {
           if (
-            oneOf.loader &&
-            Array.isArray(oneOf.loader) &&
+            typeof oneOf.loader === 'string' &&
             oneOf.loader.indexOf('file-loader') >= 0
           ) {
             if (Array.isArray(oneOf.exclude)) {
