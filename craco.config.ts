@@ -7,12 +7,9 @@ export default {
     plugins: ['lodash']
   },
   webpack: {
-    plugins: [
-      when(
-        process.env.BUNDLE_ANALYZE === 'true',
-        () => new BundleAnalyzerPlugin()
-      )
-    ],
+    plugins: when(process.env.BUNDLE_ANALYZE === 'true', () => [
+      new BundleAnalyzerPlugin()
+    ]),
     configure: (webpackConfig: Configuration) => {
       const wasmExtensionRegExp = /\.wasm$/
       webpackConfig.resolve?.extensions?.push('.wasm')
