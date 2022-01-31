@@ -267,37 +267,6 @@ function* fetchUserChallengesAsync() {
         userID: currentUserId
       }
     )
-    const prevChallenges: Partial<Record<
-      ChallengeRewardID,
-      UserChallenge
-    >> = yield select(getUserChallenges)
-    const challengesOverrides: Partial<Record<
-      ChallengeRewardID,
-      UserChallenge
-    >> = yield select(getUserChallengesOverrides)
-    let newDisbursement = false
-    for (const challenge of userChallenges) {
-      const prevChallenge = prevChallenges[challenge.challenge_id]
-      const challengeOverrides = challengesOverrides[challenge.challenge_id]
-      if (
-        challenge.is_disbursed &&
-        prevChallenge &&
-        !prevChallenge.is_disbursed && // it wasn't already claimed
-        (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
-      ) {
-        newDisbursement = true
-      }
-      yield call(
-        handleOptimisticChallengesOnUpdate,
-        challenge,
-        challengeOverrides
-      )
-    }
-    if (newDisbursement) {
-      yield put(getBalance())
-      yield put(showMusicConfetti())
-      yield put(showRewardClaimedToast())
-    }
     yield put(fetchUserChallengesSucceeded({ userChallenges }))
   } catch (e) {
     console.error(e)
@@ -346,6 +315,7 @@ function* watchFetchUserChallengesSucceeded() {
     action: ReturnType<typeof fetchUserChallengesSucceeded>
   ) {
     yield call(checkForNewDisbursements, action)
+    yield call(handleOptimisticChallengesOnUpdate, action)
   })
 }
 
@@ -356,16 +326,14 @@ function* watchFetchUserChallenges() {
 }
 
 /**
- * Handles challenge specific optimistic updates
- * @param challenge The current user challenge
- * @param challengeOverrides The overriden fields of the user challenge
+ * Resets the listen streak override if current_step_count is fetched and non-zero
+ * This handles the case where discovery can reset the user's listen streak
  */
-function* handleOptimisticChallengesOnUpdate(
+function* handleOptimisticListenStreakUpdate(
   challenge: UserChallenge,
   challengeOverrides?: UserChallenge
 ) {
   if (
-    challenge.challenge_id === 'listen-streak' &&
     (challengeOverrides?.current_step_count ?? 0) > 0 &&
     challenge.current_step_count !== 0
   ) {
@@ -377,6 +345,36 @@ function* handleOptimisticChallengesOnUpdate(
   }
 }
 
+/**
+ * Handles challenge override updates on user challenge updates
+ */
+function* handleOptimisticChallengesOnUpdate(
+  action: ReturnType<typeof fetchUserChallengesSucceeded>
+) {
+  const { userChallenges } = action.payload
+  if (!userChallenges) {
+    return
+  }
+
+  const challengesOverrides: Partial<Record<
+    ChallengeRewardID,
+    UserChallenge
+  >> = yield select(getUserChallengesOverrides)
+
+  for (const challenge of userChallenges) {
+    if (challenge.challenge_id === 'listen-streak') {
+      yield call(
+        handleOptimisticListenStreakUpdate,
+        challenge,
+        challengesOverrides[challenge.challenge_id]
+      )
+    }
+  }
+}
+
+/**
+ * Updates the listen streak optimistically if current_step_count is zero and a track is played
+ */
 function* watchUpdateOptimisticListenStreak() {
   yield takeEvery(updateOptimisticListenStreak.type, function* () {
     const listenStreakChallenge: ReturnType<typeof getUserChallenge> = yield select(

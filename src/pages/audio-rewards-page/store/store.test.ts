@@ -564,18 +564,15 @@ describe('Rewards Page Sagas', () => {
         user_id: '1'
       }
     ]
-    const fetchListenStreakUserChallengesProvisions: StaticProvider[] = [
-      [select(getIsReachable), true],
-      [select(getUserId), testUser.user_id],
-      [call.fn(apiClient.getUserChallenges), listenStreakUserChallenge]
-    ]
 
     it('should not reset the listen streak override', () => {
       return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
+        .dispatch(
+          fetchUserChallengesSucceeded({
+            userChallenges: listenStreakUserChallenge
+          })
+        )
         .provide([
-          ...fetchListenStreakUserChallengesProvisions,
           [
             select(getUserChallenges),
             {
@@ -617,21 +614,15 @@ describe('Rewards Page Sagas', () => {
         user_id: '1'
       }
     ]
-    const fetchListenStreakUserChallengesProvisionsUp: StaticProvider[] = [
-      [select(getIsReachable), true],
-      [select(getUserId), testUser.user_id],
-      [
-        call.fn(apiClient.getUserChallenges),
-        listenStreakUserChallengeStepCountUp
-      ]
-    ]
 
     it('should reset the listen streak override to zero', () => {
       return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
+        .dispatch(
+          fetchUserChallengesSucceeded({
+            userChallenges: listenStreakUserChallengeStepCountUp
+          })
+        )
         .provide([
-          ...fetchListenStreakUserChallengesProvisionsUp,
           [
             select(getUserChallenges),
             {
