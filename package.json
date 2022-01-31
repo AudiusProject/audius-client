@@ -132,7 +132,7 @@
     "lint:fix": "eslint --cache --fix --ext=js,jsx,ts,tsx src",
     "lint": "eslint --cache --ext=js,jsx,ts,tsx src",
     "stylelint": "stylelint 'src/**/*.css'",
-    "stylelint:fix": "stylelint --fix 'src/**/*.css'",
+    "stylelint:fix": "npm run stylelint -- --fix",
     "electron:stage": "electron . staging",
     "electron:prod": "electron . production",
     "electron:localhost": "electron . localhost",
