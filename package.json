@@ -160,7 +160,8 @@
     "update-ipfs-build:prod": "node ./scripts/updateIpfsBuild.js prod"
   },
   "pre-commit": [
-    "lint:fix"
+    "lint",
+    "stylelint"
   ],
   "eslintConfig": {
     "extends": "react-app"
