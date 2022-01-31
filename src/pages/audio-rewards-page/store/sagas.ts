@@ -7,7 +7,8 @@ import {
   select,
   take,
   takeEvery,
-  takeLatest
+  takeLatest,
+  delay
 } from 'redux-saga/effects'
 
 import {
@@ -21,7 +22,6 @@ import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
-  getPendingAutoClaims,
   getUserChallenge,
   getUserChallenges,
   getUserChallengesOverrides
@@ -44,8 +44,7 @@ import {
   setUserChallengeDisbursed,
   updateHCaptchaScore,
   showRewardClaimedToast,
-  addPendingAutoClaim,
-  removePendingAutoClaim
+  claimChallengeRewardAlreadyClaimed
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -119,12 +118,16 @@ function* claimChallengeRewardAsync(
   // This is possible because the client may optimistically set a challenge as complete
   // even though the DN has not yet indexed the change that would mark the challenge as complete.
   // In this case, we wait until the challenge is complete in the DN before claiming
-  yield call(
-    waitForValue,
-    getUserChallenge,
-    { challengeId },
-    (challenge: UserChallenge) => challenge.is_complete
-  )
+  yield race({
+    isComplete: call(
+      waitForValue,
+      getUserChallenge,
+      { challengeId },
+      (challenge: UserChallenge) => challenge.is_complete
+    ),
+    poll: call(pollUserChallenges),
+    timeout: delay(3000)
+  })
 
   const quorumSize = remoteConfigInstance.getRemoteVar(
     IntKeys.ATTESTATION_QUORUM_SIZE
@@ -176,19 +179,28 @@ function* claimChallengeRewardAsync(
             yield put(
               setVisibility({ modal: HCAPTCHA_MODAL_NAME, visible: true })
             )
+            yield put(claimChallengeRewardWaitForRetry(claim))
             break
           case FailureReason.COGNITO_FLOW:
             yield put(
               setVisibility({ modal: COGNITO_MODAL_NAME, visible: true })
             )
+            yield put(claimChallengeRewardWaitForRetry(claim))
+            break
+          case FailureReason.ALREADY_DISBURSED:
+          case FailureReason.ALREADY_SENT:
+            yield put(claimChallengeRewardAlreadyClaimed())
             break
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
-          default:
-            throw new Error(`Unknown Error: ${response.error}`)
+            // Retry once in the case of generic failure, otherwise log error and abort
+            if (retryOnFailure) {
+              yield put(claimChallengeReward({ claim, retryOnFailure: false }))
+            } else {
+              throw new Error(`Unknown Error: ${response.error}`)
+            }
         }
-        yield put(claimChallengeRewardWaitForRetry(claim))
       } else {
         yield put(claimChallengeRewardFailed())
       }
@@ -241,68 +253,71 @@ function* watchClaimChallengeReward() {
   })
 }
 
-export function* watchFetchUserChallenges() {
-  yield takeEvery(fetchUserChallenges.type, function* () {
-    yield call(waitForBackendSetup)
-    const currentUserId: number = yield select(getUserId)
+function* fetchUserChallengesAsync() {
+  yield call(waitForBackendSetup)
+  const currentUserId: number = yield select(getUserId)
 
-    try {
-      const userChallenges: UserChallenge[] = yield call(
-        apiClient.getUserChallenges,
-        {
-          userID: currentUserId
-        }
-      )
-      const prevChallenges: Partial<Record<
-        ChallengeRewardID,
-        UserChallenge
-      >> = yield select(getUserChallenges)
-      const challengesOverrides: Partial<Record<
-        ChallengeRewardID,
-        UserChallenge
-      >> = yield select(getUserChallengesOverrides)
-      const pendingAutoClaims: Partial<Record<
-        ChallengeRewardID,
-        number
-      >> = yield select(getPendingAutoClaims)
-      let newDisbursement = false
-      for (const challenge of userChallenges) {
-        const prevChallenge = prevChallenges[challenge.challenge_id]
-        const challengeOverrides = challengesOverrides[challenge.challenge_id]
-        const pendingAutoClaim = pendingAutoClaims[challenge.challenge_id]
-        // Check for new disbursements
-        if (
-          challenge.is_disbursed &&
-          prevChallenge &&
-          !prevChallenge.is_disbursed && // it wasn't already claimed
-          (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
-        ) {
-          newDisbursement = true
-          if (pendingAutoClaim) {
-            yield put(removePendingAutoClaim(challenge.challenge_id))
-          }
-        }
-        // Check for newly completed, undisbursed challenges
-        else if (
-          challenge.is_complete &&
-          prevChallenge &&
-          !prevChallenge.is_complete &&
-          !challenge.is_disbursed &&
-          (!challengeOverrides || !challengeOverrides.is_disbursed)
-        ) {
-          yield put(addPendingAutoClaim(challenge.challenge_id))
-        }
+  try {
+    const userChallenges: UserChallenge[] = yield call(
+      apiClient.getUserChallenges,
+      {
+        userID: currentUserId
       }
-      if (newDisbursement) {
-        yield put(getBalance())
-        yield put(showMusicConfetti())
-        yield put(showRewardClaimedToast())
-      }
-      yield put(fetchUserChallengesSucceeded({ userChallenges }))
-    } catch (e) {
-      console.error(e)
-      yield put(fetchUserChallengesFailed())
+    )
+    yield put(fetchUserChallengesSucceeded({ userChallenges }))
+  } catch (e) {
+    console.error(e)
+    yield put(fetchUserChallengesFailed())
+  }
+}
+
+function* checkForNewDisbursements(
+  action: ReturnType<typeof fetchUserChallengesSucceeded>
+) {
+  const { userChallenges } = action.payload
+  if (!userChallenges) {
+    return
+  }
+  const prevChallenges: Partial<Record<
+    ChallengeRewardID,
+    UserChallenge
+  >> = yield select(getUserChallenges)
+  const challengesOverrides: Partial<Record<
+    ChallengeRewardID,
+    UserChallenge
+  >> = yield select(getUserChallengesOverrides)
+  let newDisbursement = false
+  for (const challenge of userChallenges) {
+    const prevChallenge = prevChallenges[challenge.challenge_id]
+    const challengeOverrides = challengesOverrides[challenge.challenge_id]
+    // Check for new disbursements
+    if (
+      challenge.is_disbursed &&
+      prevChallenge &&
+      !prevChallenge.is_disbursed && // it wasn't already claimed
+      (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
+    ) {
+      newDisbursement = true
     }
+  }
+  if (newDisbursement) {
+    yield put(getBalance())
+    yield put(showMusicConfetti())
+    yield put(showRewardClaimedToast())
+  }
+}
+
+function* watchFetchUserChallengesSucceeded() {
+  yield takeEvery(fetchUserChallengesSucceeded.type, function* (
+    action: ReturnType<typeof fetchUserChallengesSucceeded>
+  ) {
+    yield call(checkForNewDisbursements, action)
+  })
+}
+
+function* watchFetchUserChallenges() {
+  yield takeEvery(fetchUserChallenges.type, function* () {
+    yield call(fetchUserChallengesAsync)
   })
 }
 
@@ -318,6 +333,13 @@ function* watchUpdateHCaptchaScore() {
       yield put(setHCaptchaStatus({ status: HCaptchaStatus.SUCCESS }))
     }
   })
+}
+
+function* pollUserChallenges() {
+  while (true) {
+    yield put(fetchUserChallenges())
+    yield delay(500)
+  }
 }
 
 function* userChallengePollingDaemon() {
@@ -344,6 +366,7 @@ function* userChallengePollingDaemon() {
 const sagas = () => {
   const sagas = [
     watchFetchUserChallenges,
+    watchFetchUserChallengesSucceeded,
     watchClaimChallengeReward,
     watchSetHCaptchaStatus,
     watchSetCognitoFlowStatus,

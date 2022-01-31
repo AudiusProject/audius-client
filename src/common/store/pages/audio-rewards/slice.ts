@@ -11,6 +11,7 @@ export enum ClaimStatus {
   NONE = 'none',
   CLAIMING = 'claiming',
   WAITING_FOR_RETRY = 'waiting for retry',
+  ALREADY_CLAIMED = 'already claimed',
   SUCCESS = 'success',
   ERROR = 'error'
 }
@@ -52,7 +53,6 @@ type RewardsUIState = {
   cognitoFlowUrlStatus?: Status
   cognitoFlowUrl?: string
   showRewardClaimedToast: boolean
-  pendingAutoClaims: Partial<Record<ChallengeRewardID, number>>
 }
 
 const initialState: RewardsUIState = {
@@ -64,8 +64,7 @@ const initialState: RewardsUIState = {
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
   cognitoFlowStatus: CognitoFlowStatus.CLOSED,
-  showRewardClaimedToast: false,
-  pendingAutoClaims: {}
+  showRewardClaimedToast: false
 }
 
 const slice = createSlice({
@@ -100,7 +99,6 @@ const slice = createSlice({
         ...state.userChallengesOverrides[challengeId],
         is_disbursed: true
       }
-      state.pendingAutoClaims[challengeId] = undefined
     },
     setTrendingRewardsModalType: (
       state,
@@ -149,6 +147,9 @@ const slice = createSlice({
     claimChallengeRewardFailed: state => {
       state.claimStatus = ClaimStatus.ERROR
     },
+    claimChallengeRewardAlreadyClaimed: state => {
+      state.claimStatus = ClaimStatus.ALREADY_CLAIMED
+    },
     claimChallengeRewardSucceeded: state => {
       state.claimStatus = ClaimStatus.SUCCESS
     },
@@ -174,15 +175,6 @@ const slice = createSlice({
     },
     resetRewardClaimedToast: state => {
       state.showRewardClaimedToast = false
-    },
-    addPendingAutoClaim: (state, action: PayloadAction<ChallengeRewardID>) => {
-      state.pendingAutoClaims[action.payload] = new Date().getTime()
-    },
-    removePendingAutoClaim: (
-      state,
-      action: PayloadAction<ChallengeRewardID>
-    ) => {
-      state.pendingAutoClaims[action.payload] = undefined
     }
   }
 })
@@ -200,6 +192,7 @@ export const {
   updateHCaptchaScore,
   claimChallengeReward,
   claimChallengeRewardWaitForRetry,
+  claimChallengeRewardAlreadyClaimed,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   setCognitoFlowStatus,
@@ -207,9 +200,7 @@ export const {
   fetchCognitoFlowUrlFailed,
   fetchCognitoFlowUrlSucceeded,
   showRewardClaimedToast,
-  resetRewardClaimedToast,
-  addPendingAutoClaim,
-  removePendingAutoClaim
+  resetRewardClaimedToast
 } = slice.actions
 
 export default slice

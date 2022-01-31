@@ -3,22 +3,25 @@ import { call, select } from 'redux-saga-test-plan/matchers'
 import { StaticProvider } from 'redux-saga-test-plan/providers'
 import { all, fork } from 'redux-saga/effects'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
-  getPendingAutoClaims,
   getUserChallenge,
   getUserChallenges,
   getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
 import {
-  addPendingAutoClaim,
   Claim,
   claimChallengeReward,
+  claimChallengeRewardAlreadyClaimed,
   claimChallengeRewardFailed,
   claimChallengeRewardSucceeded,
   claimChallengeRewardWaitForRetry,
@@ -27,7 +30,6 @@ import {
   fetchUserChallenges,
   fetchUserChallengesSucceeded,
   HCaptchaStatus,
-  removePendingAutoClaim,
   setCognitoFlowStatus,
   setHCaptchaStatus,
   setUserChallengeDisbursed,
@@ -42,7 +44,7 @@ import apiClient from 'services/audius-api-client/AudiusAPIClient'
 // eslint-disable-next-line jest/no-mocks-import
 import { MockRemoteConfigInstance } from 'services/remote-config/__mocks__/remote-config-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { getIsReachable } from 'store/reachability/selectors'
+import { waitForBackendSetup } from 'store/backend/sagas'
 
 import rewardsSagas from './sagas'
 
@@ -68,7 +70,7 @@ const testUser = {
   wallet: 'test-wallet'
 }
 const testUserChallenge = {
-  challenge_id: 'connect-verified',
+  challenge_id: 'connect-verified' as ChallengeRewardID,
   amount: 1,
   is_complete: true
 }
@@ -226,6 +228,58 @@ describe('Rewards Page Sagas', () => {
       )
     })
 
+    it('should fail and inform the user when already disbursed', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_DISBURSED }
+            ]
+          ])
+          // Assertions
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          .put(claimChallengeRewardAlreadyClaimed())
+          .silentRun()
+      )
+    })
+
+    it('should fail and retry when already sent', () => {
+      return (
+        expectSaga(saga)
+          .dispatch(
+            claimChallengeReward({
+              claim: testClaim,
+              retryOnFailure: true
+            })
+          )
+          .provide([
+            ...claimAsyncProvisions,
+            [
+              call.fn(AudiusBackend.submitAndEvaluateAttestations),
+              { error: FailureReason.ALREADY_SENT }
+            ]
+          ])
+          // Assertions
+          .call.like({
+            fn: AudiusBackend.submitAndEvaluateAttestations,
+            args: [expectedRequestArgs]
+          })
+          .put(claimChallengeRewardAlreadyClaimed())
+          .silentRun()
+      )
+    })
+
     it('should update the audio balance and disbursement status on success', () => {
       return (
         expectSaga(saga)
@@ -251,7 +305,7 @@ describe('Rewards Page Sagas', () => {
       )
     })
 
-    it('should wait until discovery marked the challenge as completed before submitting', () => {
+    it('should NOT submit attestation if DN has not marked the challenge as complete', () => {
       return (
         expectSaga(saga)
           .dispatch(
@@ -267,12 +321,18 @@ describe('Rewards Page Sagas', () => {
                 args: [{ challengeId: testUserChallenge.challenge_id }]
               }),
               { is_completed: false }
-            ]
+            ],
+            [select(getUserChallenges), {}],
+            [select(getUserChallengesOverrides), {}],
+            [call.fn(waitForBackendSetup), {}],
+            [select(getUserId), testUser.user_id]
           ])
           // Assertions
           .not.call(AudiusBackend.submitAndEvaluateAttestations)
           .not.put(
-            setUserChallengeDisbursed({ challengeId: 'connect-verified' })
+            setUserChallengeDisbursed({
+              challengeId: testUserChallenge.challenge_id
+            })
           )
           .not.put(claimChallengeRewardSucceeded())
           .silentRun()
@@ -402,18 +462,13 @@ describe('Rewards Page Sagas', () => {
       }
     ]
     const fetchUserChallengesProvisions: StaticProvider[] = [
-      [select(getIsReachable), true],
+      [call.fn(waitForBackendSetup), {}],
       [select(getUserId), testUser.user_id],
-      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse],
-      [select(getPendingAutoClaims), { 'track-upload': 200 }]
+      [call.fn(apiClient.getUserChallenges), expectedUserChallengesResponse]
     ]
-    const defaultState = {
-      backend: { isSetup: true }
-    }
     it('should show a toast to the user that they received a reward if the reward was not disbursed yet', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
@@ -440,7 +495,6 @@ describe('Rewards Page Sagas', () => {
     it('should NOT show a toast to the user that they received a reward if the reward was already automatically claimed', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
@@ -466,7 +520,6 @@ describe('Rewards Page Sagas', () => {
     it('should NOT show a toast to the user that they received a reward if the reward was already manually claimed', () => {
       return expectSaga(saga)
         .dispatch(fetchUserChallenges())
-        .withState(defaultState)
         .provide([
           ...fetchUserChallengesProvisions,
           [
@@ -488,57 +541,6 @@ describe('Rewards Page Sagas', () => {
           ]
         ])
         .not.put(showRewardClaimedToast())
-        .put(
-          fetchUserChallengesSucceeded({
-            userChallenges: expectedUserChallengesResponse
-          })
-        )
-        .silentRun()
-    })
-
-    it('should mark a challenge as pending auto claim when completed', () => {
-      return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
-        .provide([
-          ...fetchUserChallengesProvisions,
-          [
-            select(getUserChallenges),
-            {
-              referrals: {
-                is_complete: false
-              }
-            }
-          ],
-          [select(getUserChallengesOverrides), {}]
-        ])
-        .put(addPendingAutoClaim('referrals'))
-        .put(
-          fetchUserChallengesSucceeded({
-            userChallenges: expectedUserChallengesResponse
-          })
-        )
-        .silentRun()
-    })
-
-    it('should unmark a challenge as pending auto claim when disbursed', () => {
-      return expectSaga(saga)
-        .dispatch(fetchUserChallenges())
-        .withState(defaultState)
-        .provide([
-          ...fetchUserChallengesProvisions,
-          [
-            select(getUserChallenges),
-            {
-              'track-upload': {
-                is_complete: true,
-                is_disbursed: false
-              }
-            }
-          ],
-          [select(getUserChallengesOverrides), {}]
-        ])
-        .put(removePendingAutoClaim('track-upload'))
         .put(
           fetchUserChallengesSucceeded({
             userChallenges: expectedUserChallengesResponse
