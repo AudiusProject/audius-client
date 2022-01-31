@@ -3,9 +3,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import Color from 'common/models/Color'
 import { CID } from 'common/models/Identifiers'
 import { Track } from 'common/models/Track'
-import { Nullable } from 'common/utils/typeUtils'
-
 import { CommonState } from 'common/store'
+import { Nullable } from 'common/utils/typeUtils'
 
 const initialState: {
   averageColor: { [multihash: string]: Color }
