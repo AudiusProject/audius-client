@@ -287,16 +287,11 @@ function* fetchUserChallengesAsync() {
       ) {
         newDisbursement = true
       }
-      if (
-        (challengeOverrides?.current_step_count ?? 0) > 0 &&
-        challenge.current_step_count !== 0
-      ) {
-        yield put(
-          resetUserChallengeCurrentStepCount({
-            challengeId: challenge.challenge_id
-          })
-        )
-      }
+      yield call(
+        handleOptimisticChallengesOnUpdate,
+        challenge,
+        challengeOverrides
+      )
     }
     if (newDisbursement) {
       yield put(getBalance())
@@ -358,6 +353,28 @@ function* watchFetchUserChallenges() {
   yield takeEvery(fetchUserChallenges.type, function* () {
     yield call(fetchUserChallengesAsync)
   })
+}
+
+/**
+ * Handles challenge specific optimistic updates
+ * @param challenge The current user challenge
+ * @param challengeOverrides The overriden fields of the user challenge
+ */
+function* handleOptimisticChallengesOnUpdate(
+  challenge: UserChallenge,
+  challengeOverrides?: UserChallenge
+) {
+  if (
+    challenge.challenge_id === 'listen-streak' &&
+    (challengeOverrides?.current_step_count ?? 0) > 0 &&
+    challenge.current_step_count !== 0
+  ) {
+    yield put(
+      resetUserChallengeCurrentStepCount({
+        challengeId: challenge.challenge_id
+      })
+    )
+  }
 }
 
 function* watchUpdateOptimisticListenStreak() {

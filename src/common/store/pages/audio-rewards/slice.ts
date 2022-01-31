@@ -121,17 +121,15 @@ const slice = createSlice({
       }>
     ) => {
       const { challengeId } = action.payload
-      const userChallengeOverride =
-        state.userChallengesOverrides[challengeId] || {}
-      if ('current_step_count' in userChallengeOverride) {
+      const userChallengeOverride = state.userChallengesOverrides[challengeId]
+      if (
+        userChallengeOverride &&
+        'current_step_count' in userChallengeOverride
+      ) {
         if (Object.keys(userChallengeOverride).length > 1) {
-          // eslint-disable-next-line
-          const { current_step_count, ...restProps } = userChallengeOverride
-          state.userChallengesOverrides[challengeId] = restProps
+          userChallengeOverride.current_step_count = undefined
         } else {
-          // eslint-disable-next-line
-          const { [challengeId]: restChallenge, ...restProps } = state.userChallengesOverrides
-          state.userChallengesOverrides = restProps
+          state.userChallengesOverrides[challengeId] = undefined
         }
       }
     },
