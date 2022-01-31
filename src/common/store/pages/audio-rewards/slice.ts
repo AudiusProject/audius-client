@@ -126,11 +126,7 @@ const slice = createSlice({
         userChallengeOverride &&
         'current_step_count' in userChallengeOverride
       ) {
-        if (Object.keys(userChallengeOverride).length > 1) {
-          userChallengeOverride.current_step_count = undefined
-        } else {
-          state.userChallengesOverrides[challengeId] = undefined
-        }
+        delete userChallengeOverride.current_step_count
       }
     },
     setTrendingRewardsModalType: (
