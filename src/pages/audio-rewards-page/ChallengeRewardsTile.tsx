@@ -116,7 +116,7 @@ type RewardsTileProps = {
 const validRewardIds: Set<ChallengeRewardID> = new Set([
   'track-upload',
   'referrals',
-  'referrals-verified',
+  'ref-v',
   'mobile-install',
   'connect-verified',
   'listen-streak',
@@ -157,7 +157,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     dispatch(setChallengeRewardsModalType({ modalType }))
     setVisibility('ChallengeRewardsExplainer')(true)
   }
-
   const rewardsTiles = rewardIds
     // Filter out challenges that DN didn't return
     .map(id => userChallenges[id]?.challenge_id)
