@@ -66,23 +66,32 @@ export const ForgotPasswordHelper = ({
             <div>{messages.fromHeader}</div>
             <div>{messages.subjectHeader}</div>
           </div>
-          <Toast
-            text={messages.copied}
-            fillParent={false}
-            mount={MountPlacement.PARENT}
-            placement={ComponentPlacement.TOP_LEFT}
-            requireAccount={false}
-            delay={TOOLTIP_DELAY}
-          >
-            <div className={styles.emailText}>
-              <div onClick={onCopyFrom} className={styles.fromBody}>
+          <div className={styles.emailText}>
+            <Toast
+              text={messages.copied}
+              fillParent={false}
+              mount={MountPlacement.PARENT}
+              placement={ComponentPlacement.TOP_LEFT}
+              requireAccount={false}
+              delay={TOOLTIP_DELAY}
+            >
+              <div onClick={onCopyFrom} className={styles.emailBody}>
                 {messages.from}
               </div>
-              <div onClick={onCopySubject} className={styles.subjectBody}>
+            </Toast>
+            <Toast
+              text={messages.copied}
+              fillParent={false}
+              mount={MountPlacement.PARENT}
+              placement={ComponentPlacement.TOP_LEFT}
+              requireAccount={false}
+              delay={TOOLTIP_DELAY}
+            >
+              <div onClick={onCopySubject} className={styles.emailBody}>
                 {messages.subject}
               </div>
-            </div>
-          </Toast>
+            </Toast>
+          </div>
         </div>
       </div>
     </Modal>
