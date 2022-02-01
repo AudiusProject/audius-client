@@ -5,12 +5,13 @@
  *  - Codesigns and notarizes the binary
  */
 
-const builder = require('electron-builder')
 const fs = require('fs')
-const fse = require('fs-extra')
 const path = require('path')
-const notarize = require('electron-notarize').notarize
+
 const program = require('commander')
+const builder = require('electron-builder')
+const notarize = require('electron-notarize').notarize
+const fse = require('fs-extra')
 
 const PRODUCTION_APP_ID = 'co.audius.app'
 const PRODUCTION_NAME = 'Audius'
@@ -19,12 +20,12 @@ const PRODUCTION_ICNS = 'resources/icons/AudiusIcon.icns'
 const PRODUCTION_DMG_ICNS = 'resources/icons/AudiusDmgIcon.icns'
 const PRODUCTION_ICON = 'resources/icons/AudiusIcon.png'
 
-const STAGING_APP_ID = 'co.audius.bounce.app'
-const STAGING_NAME = 'Audius Bounce'
+const STAGING_APP_ID = 'co.audius.staging.app'
+const STAGING_NAME = 'Audius Staging'
 const STAGING_BUCKET = 'download-internal.audius.co'
-const STAGING_ICNS = 'resources/icons/BounceIcon.icns'
-const STAGING_DMG_ICNS = 'resources/icons/BounceDmgIcon.icns'
-const STAGING_ICON = 'resources/icons/BounceIcon.png'
+const STAGING_ICNS = 'resources/icons/AudiusStagingIcon.icns'
+const STAGING_DMG_ICNS = 'resources/icons/AudiusStagingDmgIcon.icns'
+const STAGING_ICON = 'resources/icons/AudiusStagingIcon.png'
 
 const SCHEME = 'audius'
 
