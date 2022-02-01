@@ -22,7 +22,7 @@ const PRODUCTION_ICON = 'resources/icons/AudiusIcon.png'
 
 const STAGING_APP_ID = 'co.audius.staging.app'
 const STAGING_NAME = 'Audius Staging'
-const STAGING_BUCKET = 'download-internal.audius.co'
+const STAGING_BUCKET = 'download.staging.audius.co'
 const STAGING_ICNS = 'resources/icons/AudiusStagingIcon.icns'
 const STAGING_DMG_ICNS = 'resources/icons/AudiusStagingDmgIcon.icns'
 const STAGING_ICON = 'resources/icons/AudiusStagingIcon.png'
@@ -151,6 +151,15 @@ const makeBuildParams = isProduction => {
         target: 'AppImage',
         icon: icns,
         category: 'Audio'
+      },
+      // Do not publish to snap store, which is enabled by default.
+      // See:
+      // https://github.com/electron-userland/electron-builder/issues/3187#issuecomment-709100071
+      snap: {
+        publish: {
+          provider: 'generic',
+          url: 'https://audius.co'
+        }
       },
       afterSign: async params => notarizeFn(appId, params),
       publish: {
