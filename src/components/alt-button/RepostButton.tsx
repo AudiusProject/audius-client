@@ -87,7 +87,11 @@ const RepostButton = ({
       aria-label={ariaLabel}
       className={cn(
         styles.button,
-        { [styles.depress]: isDepressed, [styles.isHidden]: isUnlisted },
+        {
+          [styles.depress]: isDepressed,
+          [styles.isHidden]: isUnlisted,
+          [styles.isDisabled]: isDisabled
+        },
         wrapperClassName
       )}
       onAnimationEnd={() => {

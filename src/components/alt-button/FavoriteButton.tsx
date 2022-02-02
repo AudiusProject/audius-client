@@ -1,3 +1,5 @@
+// TODO(nkang) - turn into button component like RepostButton, add accessibility
+
 import React, { useState, MouseEvent } from 'react'
 
 import cn from 'classnames'
@@ -84,7 +86,12 @@ const FavoriteButton = ({
   return (
     <div
       className={cn(
-        { [styles.scaleYHolder]: yAnim, [styles.isHidden]: isUnlisted },
+        {
+          [styles.scaleYHolder]: yAnim,
+          [styles.isHidden]: isUnlisted,
+          [styles.isDisabled]: isDisabled
+        },
+        styles.heartWrapper,
         wrapperClassName
       )}
       onAnimationEnd={() => {

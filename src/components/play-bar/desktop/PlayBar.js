@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import { Scrubber } from '@audius/stems'
-import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 
@@ -20,14 +19,14 @@ import {
   unsaveTrack
 } from 'common/store/social/tracks/actions'
 import { Genre } from 'common/utils/genres'
-import FavoriteButton from 'components/favorite-button/FavoriteButton'
+import FavoriteButton from 'components/alt-button/FavoriteButton'
+import RepostButton from 'components/alt-button/RepostButton'
 import PlayButton from 'components/play-bar/PlayButton'
 import VolumeBar from 'components/play-bar/VolumeBar'
 import NextButtonProvider from 'components/play-bar/next-button/NextButtonProvider'
 import PreviousButtonProvider from 'components/play-bar/previous-button/PreviousButtonProvider'
 import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButtonProvider'
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
-import RepostButton from 'components/repost-button/RepostButton'
 import Tooltip from 'components/tooltip/Tooltip'
 import { make } from 'store/analytics/actions'
 import { getTheme } from 'store/application/ui/theme/selectors'
@@ -321,6 +320,9 @@ class PlayBar extends Component {
       playButtonStatus = 'play'
     }
 
+    const favoriteAndRepostIsDisabled = !uid || isOwner
+    const favoriteText = favorited ? 'Unfavorite' : 'Favorite'
+    const repostText = reposted ? 'Reposted' : 'Repost'
     const matrix = isMatrix()
 
     return (
@@ -396,38 +398,49 @@ class PlayBar extends Component {
           </div>
 
           <div className={styles.optionsRight}>
-            <div className={styles.toggleFavoriteContainer}>
-              <Tooltip
-                text={favorited ? 'Unfavorite' : 'Favorite'}
-                mount='parent'
-              >
-                <span>
-                  <FavoriteButton
-                    favoritedClassName={cn(styles.favorited, {
-                      [styles.favoritedMatrix]: isMatrix
-                    })}
-                    disabled={!uid || isOwner}
-                    unfavoritedClassName={cn(styles.unfavorited, {
-                      [styles.unfavoritedMatrix]: isMatrix
-                    })}
-                    favorited={favorited}
-                    onClick={() => this.onToggleFavorite(favorited, trackId)}
-                  />
-                </span>
-              </Tooltip>
-            </div>
             <VolumeBar
               defaultValue={100}
               granularity={VOLUME_GRANULARITY}
               onChange={this.updateVolume}
             />
-            <RepostButton
-              // Disable repost button if not track is playing or for your own tracks
-              disabled={!uid || isOwner}
-              reposted={reposted}
-              onClick={() => this.onToggleRepost(reposted, trackId)}
-              className={styles.repostButton}
-            />
+            <div className={styles.toggleRepostContainer}>
+              <Tooltip
+                text={repostText}
+                disabled={favoriteAndRepostIsDisabled}
+                mount='parent'
+                placement='top'
+              >
+                <span>
+                  <RepostButton
+                    aria-label={repostText}
+                    onClick={() => this.onToggleRepost(reposted, trackId)}
+                    isActive={reposted}
+                    isDisabled={favoriteAndRepostIsDisabled}
+                    isDarkMode={shouldShowDark(theme)}
+                    isMatrixMode={matrix}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+
+            <div className={styles.toggleFavoriteContainer}>
+              <Tooltip
+                text={favoriteText}
+                disabled={favoriteAndRepostIsDisabled}
+                placement='top'
+                mount='parent'
+              >
+                <span>
+                  <FavoriteButton
+                    isDisabled={favoriteAndRepostIsDisabled}
+                    isMatrixMode={matrix}
+                    isActive={favorited}
+                    isDarkMode={shouldShowDark(theme)}
+                    onClick={() => this.onToggleFavorite(favorited, trackId)}
+                  />
+                </span>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
