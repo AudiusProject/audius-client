@@ -10,6 +10,7 @@ import {
 import { Name, PlaybackSource } from 'common/models/Analytics'
 import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
+import { LineupState } from 'common/models/Lineup'
 import { Track } from 'common/models/Track'
 import { User } from 'common/models/User'
 import { getUserId } from 'common/store/account/selectors'
@@ -57,6 +58,12 @@ import mobileSagas from './mobileSagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const QUEUE_SUBSCRIBER_NAME = 'QUEUE'
+
+type Queue = {
+  id: ID
+  uid: string
+  source: string
+}
 
 export function* getToQueue(prefix: string, entry: { kind: Kind; uid: UID }) {
   if (entry.kind === Kind.COLLECTIONS) {
@@ -140,7 +147,7 @@ function* handleQueueAutoplay({
 }
 
 /**
- * Play the queue. The side effects are slightly complicated, but can be summarzed in the following
+ * Play the queue. The side effects are slightly complicated, but can be summarized in the following
  * cases.
  * 1. If the caller provided a uid, play that uid.
  * 2. If no uid was provided and the queue is empty, find whatever lineup is on the page, queue it and play it.
@@ -167,13 +174,14 @@ export function* watchPlay() {
         track: playActionTrack
       })
 
-      const user: User = playActionTrack
+      const user: User | null = playActionTrack
         ? yield select(getUser, { id: playActionTrack.owner_id })
         : null
 
       // Skip deleted tracks
       if (
         (playActionTrack && playActionTrack.is_delete) ||
+        // @ts-ignore user incorrectly typed as `null`. ignoring until we implement typed-redux-saga
         user?.is_deactivated
       ) {
         yield put(next({}))
@@ -181,7 +189,7 @@ export function* watchPlay() {
       }
 
       // Make sure that we should actually play
-      const repeatMode = yield select(getRepeat)
+      const repeatMode: ReturnType<typeof getRepeat> = yield select(getRepeat)
       const noTrackPlaying = !playerTrackId
       const trackIsDifferent = playerTrackId !== playActionTrack.track_id
       const trackIsSameButDifferentUid =
@@ -210,11 +218,14 @@ export function* watchPlay() {
       // If nothing is queued, grab the proper lineup, queue it and play it
       const index = yield select(getIndex)
       if (index === -1) {
-        const lineup = yield select(getLineupSelectorForRoute())
+        // @ts-ignore todo
+        const lineup: LineupState<{ id: number }> = yield select(
+          getLineupSelectorForRoute()
+        )
         if (!lineup) return
         if (lineup.entries.length > 0) {
           yield put(clear({}))
-          const toQueue = yield all(
+          const toQueue: Queue[] = yield all(
             lineup.entries.map((e: { kind: Kind; uid: UID }) =>
               call(getToQueue, lineup.prefix, e)
             )

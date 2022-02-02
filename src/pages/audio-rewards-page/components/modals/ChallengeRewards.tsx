@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react'
+import React, { useCallback, useEffect, useContext, useMemo } from 'react'
 
-import { Button, ButtonType, ProgressBar, IconCheck } from '@audius/stems'
+import {
+  Button,
+  ButtonType,
+  ProgressBar,
+  IconCheck,
+  IconVerified,
+  IconTwitterBird
+} from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
@@ -20,9 +27,9 @@ import {
   ChallengeRewardsModalType,
   setChallengeRewardsModalType,
   ClaimStatus,
-  resetClaimStatus,
-  resetHCaptchaStatus,
-  CognitoFlowStatus
+  resetAndCancelClaimReward,
+  CognitoFlowStatus,
+  claimChallengeReward
 } from 'common/store/pages/audio-rewards/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { getHasFavoritedItem } from 'components/profile-progress/store/selectors'
@@ -32,12 +39,13 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
+import { useOptimisticUserChallenge } from 'pages/audio-rewards-page/hooks'
 import { isMobile } from 'utils/clientUtil'
-import { copyToClipboard } from 'utils/clipboardUtil'
+import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
 import fillString from 'utils/fillString'
+import { openTwitterLink } from 'utils/tweet'
 
-import ClaimRewardButton from '../ClaimRewardButton'
 import PurpleBox from '../PurpleBox'
 
 import styles from './ChallengeRewards.module.css'
@@ -57,24 +65,30 @@ export const useRewardsModalType = (): [
   )
   return [modalType, setModalType]
 }
-
+const inviteLink = getCopyableLink('/signup?ref=%0')
 const messages = {
   copyLabel: 'Copy to Clipboard',
   copiedLabel: 'Copied to Clipboard',
-  inviteLabel: 'Copy Invite Link',
-  inviteLink: 'audius.co/signup?ref=%0',
+  inviteLabel: 'Copy Invite to Clipboard',
+  inviteLink,
   qrText: 'Download the App',
   qrSubtext: 'Scan This QR Code with Your Phone Camera',
-  rewardClaimed: 'Reward claimed successfully!'
+  rewardClaimed: 'Reward claimed successfully!',
+  rewardAlreadyClaimed: 'Reward already claimed!',
+  claimError: 'Oops, something’s gone wrong',
+  claimYourReward: 'Claim Your Reward',
+  twitterShare: (modalType: 'referrals' | 'referrals-verified') =>
+    `Share Invite With Your ${modalType === 'referrals' ? 'Friends' : 'Fans'}`,
+  twitterCopy: `Come support me on @audiusproject! Use my link and we both earn $AUDIO when you sign up.\n\n #audius #audiorewards\n\n`,
+  verifiedChallenge: 'VERIFIED CHALLENGE'
 }
 
 type InviteLinkProps = {
   className?: string
-  handle: string
+  inviteLink: string
 }
 
-const InviteLink = ({ className, handle }: InviteLinkProps) => {
-  const inviteLink = fillString(messages.inviteLink, handle)
+const InviteLink = ({ className, inviteLink }: InviteLinkProps) => {
   const wm = useWithMobileStyle(styles.mobile)
 
   const onButtonClick = useCallback(() => {
@@ -83,28 +97,49 @@ const InviteLink = ({ className, handle }: InviteLinkProps) => {
 
   return (
     <Tooltip text={messages.copyLabel} placement={'top'} mount={'parent'}>
-      <div className={cn(styles.toastContainer, { [className!]: !!className })}>
+      <div className={wm(styles.toastContainer, { [className!]: !!className })}>
         <Toast
           text={messages.copiedLabel}
           delay={2000}
-          overlayClassName={styles.toast}
           placement={ComponentPlacement.TOP}
           mount={MountPlacement.PARENT}
         >
           <PurpleBox
-            label={messages.inviteLabel}
             className={wm(styles.inviteButtonContainer)}
             onClick={onButtonClick}
             text={
               <div className={styles.inviteLinkContainer}>
-                <div className={styles.inviteLink}>{inviteLink}</div>
                 <IconCopy className={wm(styles.inviteIcon)} />
+                <div className={styles.inviteLink}>{messages.inviteLabel}</div>
               </div>
             }
           />
         </Toast>
       </div>
     </Tooltip>
+  )
+}
+
+type TwitterShareButtonProps = {
+  modalType: 'referrals' | 'referrals-verified'
+  inviteLink: string
+}
+
+const TwitterShareButton = ({
+  modalType,
+  inviteLink
+}: TwitterShareButtonProps) => {
+  const wm = useWithMobileStyle(styles.mobile)
+  return (
+    <Button
+      type={ButtonType.PRIMARY_ALT}
+      text={messages.twitterShare(modalType)}
+      leftIcon={<IconTwitterBird />}
+      onClick={() => openTwitterLink(inviteLink, messages.twitterCopy)}
+      className={wm(styles.twitterButton)}
+      textClassName={styles.twitterText}
+      iconClassName={styles.twitterIcon}
+    />
   )
 }
 
@@ -151,27 +186,23 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const wm = useWithMobileStyle(styles.mobile)
   const displayMobileContent = isMobile()
 
-  const challenge = userChallenges[modalType]
+  const challenge = useOptimisticUserChallenge(userChallenges[modalType])
 
   const {
-    amount,
     fullDescription,
     progressLabel,
     stepCount,
-    modalButtonInfo
+    modalButtonInfo,
+    verifiedChallenge
   } = challengeRewardsConfig[modalType]
 
   const currentStepCount = challenge?.current_step_count || 0
-  const isIncomplete = currentStepCount === 0
-  const isInProgress = currentStepCount > 0 && currentStepCount !== stepCount
-  const isComplete = currentStepCount === stepCount
-  const isDisbursed = challenge?.is_disbursed ?? false
   const specifier = challenge?.specifier ?? ''
 
   let linkType: 'complete' | 'inProgress' | 'incomplete'
-  if (isComplete) {
+  if (challenge?.state === 'completed') {
     linkType = 'complete'
-  } else if (isInProgress) {
+  } else if (challenge?.state === 'in_progress') {
     linkType = 'inProgress'
   } else {
     linkType = 'incomplete'
@@ -187,15 +218,24 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   const progressDescription = (
     <div className={wm(styles.progressDescription)}>
-      <h3>Task</h3>
-      <p>{fullDescription}</p>
+      <h3>
+        {verifiedChallenge ? (
+          <div className={styles.verifiedChallenge}>
+            <IconVerified />
+            {messages.verifiedChallenge}
+          </div>
+        ) : (
+          'Task'
+        )}
+      </h3>
+      <p>{fullDescription(challenge)}</p>
     </div>
   )
 
   const progressReward = (
     <div className={wm(styles.progressReward)}>
       <h3>Reward</h3>
-      <h2>{amount}</h2>
+      <h2>{challenge?.totalAmount}</h2>
       <h4>$AUDIO</h4>
     </div>
   )
@@ -203,14 +243,20 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressStatusLabel = (
     <div
       className={cn(styles.progressStatus, {
-        [styles.incomplete]: isIncomplete,
-        [styles.inProgress]: isInProgress,
-        [styles.complete]: isComplete
+        [styles.incomplete]: challenge?.state === 'incomplete',
+        [styles.inProgress]: challenge?.state === 'in_progress',
+        [styles.complete]:
+          challenge?.state === 'completed' || challenge?.state === 'disbursed'
       })}
     >
-      {isIncomplete && <h3 className={styles.incomplete}>Incomplete</h3>}
-      {isComplete && <h3 className={styles.complete}>Complete</h3>}
-      {isInProgress && (
+      {challenge?.state === 'incomplete' && (
+        <h3 className={styles.incomplete}>Incomplete</h3>
+      )}
+      {(challenge?.state === 'completed' ||
+        challenge?.state === 'disbursed') && (
+        <h3 className={styles.complete}>Complete</h3>
+      )}
+      {challenge?.state === 'in_progress' && (
         <h3 className={styles.inProgress}>
           {fillString(
             progressLabel,
@@ -224,34 +270,38 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   const { toast } = useContext(ToastContext)
   const claimStatus = useSelector(getClaimStatus)
-  const [hideClaimButton, setHideClaimButton] = useState(false)
-  const [displayClaimError, setDisplayClaimError] = useState(false)
+  const claimInProgress =
+    claimStatus === ClaimStatus.CLAIMING ||
+    claimStatus === ClaimStatus.WAITING_FOR_RETRY
 
-  const resetClaimState = useCallback(() => {
-    setHideClaimButton(true)
-    dispatch(resetClaimStatus())
-    dispatch(resetHCaptchaStatus())
-  }, [dispatch])
+  const onClaimRewardClicked = useCallback(() => {
+    if (challenge) {
+      dispatch(
+        claimChallengeReward({
+          claim: {
+            challengeId: challenge.challenge_id,
+            specifier,
+            amount: challenge.amount
+          },
+          retryOnFailure: true
+        })
+      )
+    }
+  }, [dispatch, challenge, specifier])
 
   useEffect(() => {
-    switch (claimStatus) {
-      case ClaimStatus.ERROR:
-        // attestation failed both the first claim attempt and the attempt after hCaptcha/flow verification
-        resetClaimState()
-        setDisplayClaimError(true)
-        break
-      case ClaimStatus.SUCCESS:
-        // attestation succeeded and reward was disbursed
-        resetClaimState()
-        toast(messages.rewardClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
-        setTimeout(resetClaimState, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
-        break
-      case ClaimStatus.CLAIMING:
-      case ClaimStatus.NONE:
-      default:
-        break
+    if (claimStatus === ClaimStatus.SUCCESS) {
+      toast(messages.rewardClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
     }
-  }, [claimStatus, resetClaimState, setDisplayClaimError, toast])
+    if (claimStatus === ClaimStatus.ALREADY_CLAIMED) {
+      toast(messages.rewardAlreadyClaimed, CLAIM_REWARD_TOAST_TIMEOUT_MILLIS)
+    }
+  }, [claimStatus, toast])
+
+  const inviteLink = useMemo(
+    () => (userHandle ? fillString(messages.inviteLink, userHandle) : ''),
+    [userHandle]
+  )
 
   return (
     <div className={wm(styles.container)}>
@@ -294,9 +344,14 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         </div>
       )}
 
-      {userHandle && modalType === 'referrals' && (
-        <InviteLink handle={userHandle} />
-      )}
+      {userHandle &&
+        (modalType === 'referrals' || modalType === 'referrals-verified') && (
+          <div className={wm(styles.buttonContainer)}>
+            <TwitterShareButton modalType={modalType} inviteLink={inviteLink} />
+            <div className={styles.buttonSpacer} />
+            <InviteLink inviteLink={inviteLink} />
+          </div>
+        )}
       {modalType === 'mobile-install' && (
         <div className={wm(styles.qrContainer)}>
           <img className={styles.qr} src={QRCode} alt='QR Code' />
@@ -311,7 +366,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           <Button
             className={wm(styles.button)}
             type={
-              isComplete && !isDisbursed
+              challenge?.state === 'completed'
                 ? ButtonType.COMMON
                 : ButtonType.PRIMARY_ALT
             }
@@ -321,27 +376,27 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             rightIcon={buttonInfo?.rightIcon}
           />
         )}
-        {challenge && isComplete && !isDisbursed && !hideClaimButton && (
-          <ClaimRewardButton
-            className={cn(wm(styles.button), {
-              [styles.disabled]: claimStatus !== ClaimStatus.NONE
-            })}
-            challengeId={modalType}
-            specifier={specifier}
-            amount={amount}
-            isDisabled={claimStatus !== ClaimStatus.NONE}
-            icon={
-              claimStatus === ClaimStatus.CLAIMING ? (
+        {challenge && challenge?.state === 'completed' && (
+          <Button
+            text={messages.claimYourReward}
+            className={wm(styles.button)}
+            type={
+              claimInProgress ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT
+            }
+            isDisabled={claimInProgress}
+            rightIcon={
+              claimInProgress ? (
                 <LoadingSpinner className={styles.spinner} />
               ) : (
                 <IconCheck />
               )
             }
+            onClick={onClaimRewardClicked}
           />
         )}
       </div>
-      {displayClaimError && (
-        <div className={styles.claimError}>Oops, something’s gone wrong</div>
+      {claimStatus === ClaimStatus.ERROR && (
+        <div className={styles.claimError}>{messages.claimError}</div>
       )}
     </div>
   )
@@ -350,8 +405,13 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 export const ChallengeRewardsModal = () => {
   const [modalType] = useRewardsModalType()
   const [isOpen, setOpen] = useModalState('ChallengeRewardsExplainer')
+  const dispatch = useDispatch()
   const wm = useWithMobileStyle(styles.mobile)
-  const onClose = () => setOpen(false)
+  const onClose = useCallback(() => {
+    setOpen(false)
+    // Cancel any claims on close so that the state is fresh for other rewards
+    dispatch(resetAndCancelClaimReward())
+  }, [dispatch, setOpen])
   const [isHCaptchaModalOpen] = useModalState('HCaptcha')
   const cognitoFlowStatus = useSelector(getCognitoFlowStatus)
 

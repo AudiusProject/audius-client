@@ -3,7 +3,9 @@
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
 import BN from 'bn.js'
-import moment from 'moment-timezone'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 
 import placeholderCoverArt from 'common/assets/image/imageBlank2x.png'
 import imageCoverPhotoBlank from 'common/assets/image/imageCoverPhotoBlank.jpg'
@@ -33,6 +35,8 @@ import {
   LIBS_INITTED_EVENT
 } from './audius-backend/eagerLoadUtils'
 import { monitoringCallbacks } from './serviceMonitoring'
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
@@ -1146,11 +1150,11 @@ class AudiusBackend {
       }
 
       if (
-        newMetadata.twitter_handle ||
-        newMetadata.instagram_handle ||
-        newMetadata.tiktok_handle ||
-        newMetadata.website ||
-        newMetadata.donation
+        typeof newMetadata.twitter_handle === 'string' ||
+        typeof newMetadata.instagram_handle === 'string' ||
+        typeof newMetadata.tiktok_handle === 'string' ||
+        typeof newMetadata.website === 'string' ||
+        typeof newMetadata.donation === 'string'
       ) {
         const { data, signature } = await AudiusBackend.signData()
         await fetch(`${IDENTITY_SERVICE}/social_handles`, {
@@ -1201,12 +1205,12 @@ class AudiusBackend {
         )
         newMetadata.cover_photo_sizes = resp.dirCID
       }
-
       if (
-        newMetadata.twitter_handle ||
-        newMetadata.instagram_handle ||
-        newMetadata.website ||
-        newMetadata.donation
+        typeof newMetadata.twitter_handle === 'string' ||
+        typeof newMetadata.instagram_handle === 'string' ||
+        typeof newMetadata.tiktok_handle === 'string' ||
+        typeof newMetadata.website === 'string' ||
+        typeof newMetadata.donation === 'string'
       ) {
         await fetch(`${IDENTITY_SERVICE}/social_handles`, {
           method: 'POST',
@@ -1738,7 +1742,13 @@ class AudiusBackend {
       AudiusBackend._getHostUrl(),
       remoteConfigInstance.getFeatureEnabled(
         FeatureFlags.CREATE_WAUDIO_USER_BANK_ON_SIGN_UP
-      )
+      ),
+      track,
+      {
+        Request: Name.CREATE_USER_BANK_REQUEST,
+        Success: Name.CREATE_USER_BANK_SUCCESS,
+        Failure: Name.CREATE_USER_BANK_FAILURE
+      }
     )
   }
 
@@ -1839,7 +1849,7 @@ class AudiusBackend {
     }
   }
 
-  static async getNotifications(limit, timeOffset) {
+  static async getNotifications({ limit, timeOffset, withRewards }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
@@ -1850,8 +1860,10 @@ class AudiusBackend {
         : ''
       const limitQuery = `&limit=${limit}`
       const handleQuery = `&handle=${account.handle}`
+      const withRewardsQuery = withRewards ? `&withRewards=true` : ''
+      // TODO: withRemix and withTrending are always true and should be removed in a future release
       const notifications = await fetch(
-        `${IDENTITY_SERVICE}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}&withRemix=true&withTrendingTrack=true`,
+        `${IDENTITY_SERVICE}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}${withRewardsQuery}&withRemix=true&withTrendingTrack=true`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -2061,26 +2073,6 @@ class AudiusBackend {
       }).then(res => res.json())
     } catch (e) {
       console.error(e)
-    }
-  }
-
-  static async getCognitoSignature() {
-    await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
-    try {
-      const { data, signature } = await AudiusBackend.signData()
-      const response = await fetch(`${IDENTITY_SERVICE}/cognito_signature`, {
-        headers: {
-          'Content-Type': 'application/json',
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
-        }
-      }).then(res => res.json())
-      return response
-    } catch (e) {
-      console.error(e)
-      return {}
     }
   }
 
@@ -2340,7 +2332,7 @@ class AudiusBackend {
     if (!account) return
     try {
       const { data, signature } = await AudiusBackend.signData()
-      const timezone = moment.tz.guess()
+      const timezone = dayjs.tz.guess()
       const res = await fetch(`${IDENTITY_SERVICE}/users/update`, {
         method: 'POST',
         headers: {

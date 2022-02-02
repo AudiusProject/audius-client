@@ -1,7 +1,8 @@
-import React, { cloneElement } from 'react'
+import React, { cloneElement, useCallback, useEffect, useState } from 'react'
 
 import BN from 'bn.js'
 import cn from 'classnames'
+import { animated, Transition } from 'react-spring/renderprops'
 
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
@@ -13,13 +14,17 @@ import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useSelectTierInfo } from 'components/user-badges/hooks'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useFlag } from 'hooks/useRemoteConfig'
+import { useOptimisticUserChallenges } from 'pages/audio-rewards-page/hooks'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './NavAudio.module.css'
 
+type BubbleType = 'none' | 'claim' | 'earn'
+
 const messages = {
-  earnAudio: 'EARN $AUDIO'
+  earnAudio: 'EARN $AUDIO',
+  claimRewards: 'Claim Rewards'
 }
 
 const NavAudio = () => {
@@ -38,16 +43,49 @@ const NavAudio = () => {
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier]
 
+  const userChallenges = useOptimisticUserChallenges()
+  const hasExpiredClaim = Object.values(userChallenges).some(
+    challenge => challenge?.state === 'completed'
+  )
+
+  const [bubbleType, setBubbleType] = useState<BubbleType>('none')
+
+  const goToAudioPage = useCallback(() => {
+    navigate(AUDIO_PAGE)
+  }, [navigate])
+
+  useEffect(() => {
+    if (hasExpiredClaim) {
+      setBubbleType('claim')
+    } else if (nonNullTotalBalance && !positiveTotalBalance) {
+      setBubbleType('earn')
+    } else {
+      setBubbleType('none')
+    }
+  }, [
+    setBubbleType,
+    hasExpiredClaim,
+    nonNullTotalBalance,
+    positiveTotalBalance
+  ])
+
   if (!isEnabled || !account) {
     return null
   }
+  if (!nonNullTotalBalance) {
+    return <div className={styles.audio} />
+  }
 
-  return positiveTotalBalance ? (
+  return (
     <div
-      onClick={() => navigate(AUDIO_PAGE)}
-      className={cn(styles.audio, styles.hasBalance, { [styles.show]: true })}
+      className={cn(
+        styles.audio,
+        { [styles.hasBalance]: positiveTotalBalance },
+        { [styles.show]: true }
+      )}
+      onClick={goToAudioPage}
     >
-      {audioBadge ? (
+      {positiveTotalBalance && audioBadge ? (
         cloneElement(audioBadge, {
           height: 16,
           width: 16
@@ -58,23 +96,33 @@ const NavAudio = () => {
       <span className={styles.audioAmount}>
         {formatWei(totalBalance!, true, 0)}
       </span>
+      <div className={styles.bubbleContainer}>
+        <Transition
+          items={bubbleType}
+          from={{ opacity: 0 }}
+          enter={{ opacity: 1 }}
+          leave={{ opacity: 0 }}
+          config={{ duration: 100 }}
+        >
+          {item => props =>
+            item !== 'none' && (
+              <animated.span
+                style={props}
+                className={cn(styles.actionBubble, {
+                  [styles.claimRewards]: item === 'claim'
+                })}
+              >
+                <span>
+                  {item === 'claim'
+                    ? messages.claimRewards
+                    : messages.earnAudio}
+                </span>
+                <IconCaretRight className={styles.actionCaret} />
+              </animated.span>
+            )}
+        </Transition>
+      </div>
     </div>
-  ) : nonNullTotalBalance ? (
-    <div
-      className={cn(styles.audio, { [styles.show]: true })}
-      onClick={() => navigate(AUDIO_PAGE)}
-    >
-      <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
-      <span className={styles.audioAmount}>
-        {formatWei(totalBalance!, true, 0)}
-      </span>
-      <span className={styles.earnAudio}>
-        <span>{messages.earnAudio}</span>
-        <IconCaretRight className={styles.earnAudioCaret} />
-      </span>
-    </div>
-  ) : (
-    <div className={styles.audio} />
   )
 }
 

@@ -12,6 +12,7 @@ import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
+import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import * as socialActions from 'common/store/social/users/actions'
 import * as createPlaylistModalActions from 'common/store/ui/createPlaylistModal/actions'
 import { open } from 'common/store/ui/mobile-overflow-menu/slice'
@@ -37,7 +38,6 @@ import {
 import { newUserMetadata } from 'schemas'
 import { make, TrackEvent } from 'store/analytics/actions'
 import { getIsDone } from 'store/confirmer/selectors'
-import { makeGetLineupMetadatas } from 'store/lineup/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
@@ -764,11 +764,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       ? moment(profile.created_at).format('YYYY')
       : moment().format('YYYY')
 
-    const name = profile
-      ? updatedName !== null
-        ? updatedName
-        : profile.name || ''
-      : ''
+    const name = profile ? updatedName || profile.name || '' : ''
     const bio = profile
       ? updatedBio !== null
         ? updatedBio

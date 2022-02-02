@@ -19,10 +19,7 @@ import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import collection from 'pages/collection-page/store/reducer'
 import deactivateAccount from 'pages/deactivate-account-page/store/slice'
 import deleted from 'pages/deleted-page/store/slice'
-import exploreCollections from 'pages/explore-page/store/collections/slice'
-import explore from 'pages/explore-page/store/reducer'
 import favorites from 'pages/favorites-page/store/reducers'
-import feed from 'pages/feed-page/store/reducer'
 import followers from 'pages/followers-page/store/reducers'
 import following from 'pages/following-page/store/reducers'
 import history from 'pages/history-page/store/reducer'
@@ -35,14 +32,12 @@ import search from 'pages/search-page/store/reducer'
 import settings from 'pages/settings-page/store/reducer'
 import signOn from 'pages/sign-on/store/reducer'
 import smartCollection from 'pages/smart-collection/store/slice'
-import track from 'pages/track-page/store/reducer'
 import trending from 'pages/trending-page/store/reducer'
 import trendingPlaylists from 'pages/trending-playlists/store/slice'
 import trendingUnderground from 'pages/trending-underground/store/slice'
 import upload from 'pages/upload-page/store/reducer'
 import visualizer from 'pages/visualizer/store/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
-import averageColor from 'store/application/ui/average-color/slice'
 import cookieBanner from 'store/application/ui/cookieBanner/reducer'
 import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
@@ -86,14 +81,12 @@ const createRootReducer = routeHistory =>
     profile,
     dashboard,
     signOn,
-    feed,
     trending,
     history,
     saved,
     searchBar,
     search,
     collection,
-    track,
     notification,
     serviceSelection,
 
@@ -111,7 +104,6 @@ const createRootReducer = routeHistory =>
       ui: combineReducers({
         appCTAModal,
         artistRecommendations,
-        averageColor,
         changePassword,
         cookieBanner,
         deactivateAccount,
@@ -131,8 +123,6 @@ const createRootReducer = routeHistory =>
       }),
       pages: combineReducers({
         deleted,
-        explore,
-        exploreCollections,
         favorites,
         followers,
         following,

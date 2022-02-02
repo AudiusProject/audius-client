@@ -10,11 +10,14 @@ export type UserChallenge = {
   max_steps: number
   specifier: string
   user_id: string
+  amount: number
 }
 
 export type ChallengeRewardID =
   | 'track-upload'
   | 'referrals'
+  | 'referrals-verified'
+  | 'referred'
   | 'mobile-install'
   | 'connect-verified'
   | 'listen-streak'
@@ -28,11 +31,19 @@ export type TrendingRewardID =
   | 'trending-underground'
 
 export enum FailureReason {
+  // The attestation requires the user to fill out a captcha
   HCAPTCHA = 'HCAPTCHA',
+  // The attestation requires the user to fill out cognito
   COGNITO_FLOW = 'COGNITO_FLOW',
+  // The attestation is blocked
   BLOCKED = 'BLOCKED',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-  ALREADY_DISBURSED = 'ALREADY_DISBURSED'
+  // This reward has already been disbursed
+  ALREADY_DISBURSED = 'ALREADY_DISBURSED',
+  // The funds have already been sent, but we have not
+  // indexed the challenge.
+  ALREADY_SENT = 'ALREADY_SENT',
+  // An unknown error has occurred
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
 export type FlowUIOpenEvent = {
@@ -79,3 +90,18 @@ export type FlowSessionEvent =
   | FlowSessionResumeEvent
   | FlowSessionPassEvent
   | FlowSessionFailEvent
+
+/**
+ * Needed for notifications for now as UserChallenges might not be loaded yet
+ * @deprecated amounts should be pulled in directly from user challenges instead
+ */
+export const amounts: Record<ChallengeRewardID, number> = {
+  referrals: 1,
+  referred: 1,
+  'referrals-verified': 1,
+  'connect-verified': 5,
+  'listen-streak': 1,
+  'mobile-install': 1,
+  'profile-completion': 1,
+  'track-upload': 1
+}

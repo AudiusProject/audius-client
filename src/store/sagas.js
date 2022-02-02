@@ -1,12 +1,15 @@
-import { fork } from 'redux-saga/effects'
+import { all, fork } from 'redux-saga/effects'
 
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import errorSagas from 'common/store/errors/sagas'
+import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
+import explorePageSagas from 'common/store/pages/explore/sagas'
 import remoteConfigSagas from 'common/store/remote-config/sagas'
 import shareModalSagas from 'common/store/ui/share-modal/sagas'
+import toastSagas from 'common/store/ui/toast/sagas'
 import addToPlaylistSagas from 'components/add-to-playlist/store/sagas'
 import artistRecommendationsSagas from 'components/artist-recommendations/store/sagas'
 import changePasswordSagas from 'components/change-password/store/sagas'
@@ -22,8 +25,6 @@ import rewardsPageSagas from 'pages/audio-rewards-page/store/sagas'
 import collectionSagas from 'pages/collection-page/store/sagas'
 import deactivateAccountSagas from 'pages/deactivate-account-page/store/sagas'
 import deletedSagas from 'pages/deleted-page/store/sagas'
-import exploreCollectionsPageSagas from 'pages/explore-page/store/collections/sagas'
-import explorePageSagas from 'pages/explore-page/store/sagas'
 import favoritePageSagas from 'pages/favorites-page/store/sagas'
 import feedPageSagas from 'pages/feed-page/store/sagas'
 import followersPageSagas from 'pages/followers-page/store/sagas'
@@ -134,6 +135,7 @@ export default function* rootSaga() {
     repostPageSagas(),
     scrollLockSagas(),
     shareModalSagas(),
+    toastSagas(),
     shareSoundToTikTokModalSagas(),
     smartCollectionPageSagas(),
     stemUploadSagas(),
@@ -151,5 +153,5 @@ export default function* rootSaga() {
   if (NATIVE_MOBILE) {
     sagas.push(initInterface)
   }
-  yield sagas.map(fork)
+  yield all(sagas.map(fork))
 }

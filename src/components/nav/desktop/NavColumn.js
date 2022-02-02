@@ -8,7 +8,6 @@ import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 
 import imageProfilePicEmpty from 'common/assets/image/imageProfilePicEmpty2X.png'
-import { useUserProfilePicture } from 'common/hooks/useImageSize'
 import { Name, CreatePlaylistSource } from 'common/models/Analytics'
 import { SquareSizes } from 'common/models/ImageSizes'
 import Status from 'common/models/Status'
@@ -16,6 +15,7 @@ import {
   getAccountUser,
   getAccountStatus
 } from 'common/store/account/selectors'
+import { getDominantColorsByTrack } from 'common/store/average-color/slice'
 import {
   createPlaylist,
   addTrackToPlaylist
@@ -42,12 +42,12 @@ import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import * as signOnActions from 'pages/sign-on/store/actions'
 import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
-import { toggleVisibility } from 'pages/visualizer/store/slice'
+import { openVisualizer } from 'pages/visualizer/store/slice'
 import { make, useRecord } from 'store/analytics/actions'
-import { getDominantColorsByTrack } from 'store/application/ui/average-color/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { makeGetCurrent } from 'store/queue/selectors'
 import {
@@ -93,7 +93,7 @@ const NavColumn = ({
   goToSignUp: routeToSignup,
   goToSignIn,
   goToUpload,
-  toggleVisualizerVisibility,
+  showVisualizer,
   dominantColors
 }) => {
   const record = useRecord()
@@ -182,11 +182,14 @@ const NavColumn = ({
     if (route) goToRoute(route)
   }, [goToRoute, getTrackPageLink])
 
-  const onShowVisualizer = useCallback(() => {
-    if (NO_VISUALIZER_ROUTES.has(pathname)) return
-
-    toggleVisualizerVisibility()
-  }, [toggleVisualizerVisibility, pathname])
+  const onShowVisualizer = useCallback(
+    e => {
+      if (NO_VISUALIZER_ROUTES.has(pathname)) return
+      showVisualizer()
+      e.stopPropagation()
+    },
+    [showVisualizer, pathname]
+  )
 
   const onClickUpload = useCallback(() => {
     if (!upload.uploading) resetUploadState()
@@ -452,7 +455,7 @@ const mapDispatchToProps = dispatch => ({
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
   goToSignUp: () => dispatch(signOnActions.openSignOn(/** signIn */ false)),
   goToSignIn: () => dispatch(signOnActions.openSignOn(/** signIn */ true)),
-  toggleVisualizerVisibility: () => dispatch(toggleVisibility())
+  showVisualizer: () => dispatch(openVisualizer())
 })
 
 export default withRouter(

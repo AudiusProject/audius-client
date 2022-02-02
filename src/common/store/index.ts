@@ -4,6 +4,7 @@ import Cache from 'common/models/Cache'
 import { Collection } from 'common/models/Collection'
 import Kind from 'common/models/Kind'
 import accountSlice from 'common/store/account/reducer'
+import averageColorReducer from 'common/store/average-color/slice'
 import collectionsErrorSagas from 'common/store/cache/collections/errorSagas'
 import collectionsReducer from 'common/store/cache/collections/reducer'
 import collectionsSagas from 'common/store/cache/collections/sagas'
@@ -16,7 +17,13 @@ import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
+import exploreCollectionsReducer from 'common/store/pages/explore/exploreCollections/slice'
+import explorePageReducer from 'common/store/pages/explore/reducer'
+import feed from 'common/store/pages/feed/reducer'
+import { FeedPageState } from 'common/store/pages/feed/types'
 import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
+import track from 'common/store/pages/track/reducer'
+import TrackPageState from 'common/store/pages/track/types'
 import remoteConfigSagas from 'common/store/remote-config/sagas'
 import addToPlaylistReducer, {
   AddToPlaylistState
@@ -41,6 +48,7 @@ import shareModalReducer from 'common/store/ui/share-modal/slice'
 import { ShareModalState } from 'common/store/ui/share-modal/types'
 import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
+import toastReducer, { ToastState } from 'common/store/ui/toast/slice'
 import wallet from 'common/store/wallet/slice'
 
 // In the future, these state slices will live in @audius/client-common.
@@ -61,6 +69,7 @@ export const reducers = {
 
   // UI
   ui: combineReducers({
+    averageColor: averageColorReducer,
     addToPlaylist: addToPlaylistReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
@@ -70,13 +79,18 @@ export const reducers = {
     modals: modalsReducer,
     nowPlaying: nowPlayingReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
-    shareModal: shareModalReducer
+    shareModal: shareModalReducer,
+    toast: toastReducer
   }),
 
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
-    tokenDashboard: tokenDashboardSlice.reducer
+    feed,
+    explore: explorePageReducer,
+    exploreCollections: exploreCollectionsReducer,
+    tokenDashboard: tokenDashboardSlice.reducer,
+    track
   })
 }
 
@@ -90,6 +104,8 @@ export const sagas = {
 
   // TODO: pull in the following from audius-client
   // once AudiusBackend and dependencies are migrated
+  // common/store/pages/explore/exploreCollections/sagas.ts
+  // common/store/pages/explore/sagas.ts
   // components/add-to-playlist/store/sagas.ts
   // components/share-sound-to-tiktok-modal/store/sagas.ts
   // store/social/tracks/sagas.ts
@@ -97,6 +113,11 @@ export const sagas = {
   // store/social/collections/sagas.ts
   // pages/audio-rewards-page/store/sagas.ts
   // store/wallet/sagas.ts
+  // store/lineup/sagas.js
+  // pages/feed/store/lineups/feed/sagas.js
+  // pages/feed/store/sagas.js
+  // pages/track/store/lineups/tracks/sagas.js
+  // pages/track/store/sagas.js
 }
 
 export type CommonState = {
@@ -111,6 +132,7 @@ export type CommonState = {
   wallet: ReturnType<typeof wallet>
 
   ui: {
+    averageColor: ReturnType<typeof averageColorReducer>
     addToPlaylist: AddToPlaylistState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
@@ -121,10 +143,15 @@ export type CommonState = {
     nowPlaying: NowPlayingState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     shareModal: ShareModalState
+    toast: ToastState
   }
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    feed: FeedPageState
+    explore: ReturnType<typeof explorePageReducer>
+    exploreCollections: ReturnType<typeof exploreCollectionsReducer>
     tokenDashboard: ReturnType<typeof tokenDashboardSlice.reducer>
+    track: TrackPageState
   }
 }

@@ -1,8 +1,8 @@
-import { delay } from 'redux-saga'
 import {
   all,
   call,
   cancel,
+  delay,
   put,
   fork,
   select,
@@ -16,8 +16,8 @@ import * as cacheActions from 'common/store/cache/actions'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
+import * as baseLineupActions from 'common/store/lineup/actions'
 import { makeUid, makeUids, Uid } from 'common/utils/uid'
-import * as baseLineupActions from 'store/lineup/actions'
 import { getUid as getCurrentPlayerTrackUid } from 'store/player/selectors'
 import { getToQueue } from 'store/queue/sagas'
 import { getSource, getUid, getPositions } from 'store/queue/selectors'

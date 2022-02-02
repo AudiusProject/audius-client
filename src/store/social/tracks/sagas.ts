@@ -11,6 +11,7 @@ import * as cacheActions from 'common/store/cache/actions'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
+import { updateOptimisticListenStreak } from 'common/store/pages/audio-rewards/slice'
 import * as socialActions from 'common/store/social/tracks/actions'
 import { formatShareText } from 'common/utils/formatUtil'
 import { makeKindId } from 'common/utils/uid'
@@ -538,7 +539,7 @@ export function* watchRecordListen() {
   ) {
     if (NATIVE_MOBILE) return
     console.debug('Listen recorded for track', action.trackId)
-    const userId = yield select(getUserId)
+    const userId: ReturnType<typeof getUserId> = yield select(getUserId)
     const track: Track = yield select(getTrack, { id: action.trackId })
 
     if (userId !== track.owner_id || track.play_count < 10) {
@@ -548,6 +549,9 @@ export function* watchRecordListen() {
     // Record track listen analytics event
     const event = make(Name.LISTEN, { trackId: action.trackId })
     yield put(event)
+
+    // Optimistically update the listen streak if applicable
+    yield put(updateOptimisticListenStreak())
   })
 }
 
@@ -620,7 +624,7 @@ function* watchShareTrack() {
   ) {
     const { trackId } = action
     const track = yield select(getTrack, { id: trackId })
-    const user = yield select(getUser, { id: track.owner_id })
+    const user: User = yield select(getUser, { id: track.owner_id })
     const link = track.permalink
     share(link, formatShareText(track.title, user.name))
 

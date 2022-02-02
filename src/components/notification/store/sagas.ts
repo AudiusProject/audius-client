@@ -1,7 +1,8 @@
 import moment from 'moment'
-import { delay, eventChannel } from 'redux-saga'
+import { eventChannel } from 'redux-saga'
 import {
   call,
+  delay,
   fork,
   all,
   take,
@@ -14,12 +15,13 @@ import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import { Track } from 'common/models/Track'
-import { IntKeys } from 'common/services/remote-config'
+import { FeatureFlags, IntKeys } from 'common/services/remote-config'
 import { remoteConfigIntDefaults } from 'common/services/remote-config/defaults'
 import { getUserId, getHasAccount } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
+import { getBalance } from 'common/store/wallet/slice'
 import AudiusBackend from 'services/AudiusBackend'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
@@ -101,14 +103,17 @@ export function* fetchNotifications(
     yield put(notificationActions.fetchNotificationsRequested())
     const limit = action.limit || NOTIFICATION_LIMIT_DEFAULT
     const lastNotification = yield select(getLastNotification)
-    const dateOffset = lastNotification
+    const timeOffset = lastNotification
       ? lastNotification.timestamp
       : moment().toISOString()
-    const notificationsResponse = yield call(
-      AudiusBackend.getNotifications,
-      limit,
-      dateOffset
+    const withRewards = remoteConfigInstance.getFeatureEnabled(
+      FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED
     )
+    const notificationsResponse = yield call(AudiusBackend.getNotifications, {
+      limit,
+      timeOffset,
+      withRewards
+    })
     if (notificationsResponse.error) {
       yield put(
         notificationActions.fetchNotificationsFailed(
@@ -286,6 +291,20 @@ export function* parseAndProcessNotifications(
   return processedNotifications
 }
 
+/**
+ * Run side effects for new notifications
+ */
+export function* handleNewNotifications(
+  notifications: Notification[]
+): Generator<any, void, any> {
+  const hasRewardsNotification = notifications.some(
+    notification => notification.type === NotificationType.ChallengeReward
+  )
+  if (hasRewardsNotification) {
+    yield put(getBalance)
+  }
+}
+
 export function* fetchNotificationUsers(
   action: notificationActions.FetchNotificationUsers
 ) {
@@ -451,12 +470,16 @@ export function* getNotifications(isFirstFetch: boolean) {
         getHasAccount
       )
       if (!hasAccount) return
-      const dateOffset = moment().toISOString()
-      const notificationsResponse = yield call(
-        AudiusBackend.getNotifications,
-        limit,
-        dateOffset
+      const timeOffset = moment().toISOString()
+      const withRewards = remoteConfigInstance.getFeatureEnabled(
+        FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED
       )
+
+      const notificationsResponse = yield call(AudiusBackend.getNotifications, {
+        limit,
+        timeOffset,
+        withRewards
+      })
       if (
         !notificationsResponse ||
         (notificationsResponse.error && notificationsResponse.isRequestError)
@@ -507,6 +530,7 @@ export function* getNotifications(isFirstFetch: boolean) {
               hasMore
             )
           )
+          yield handleNewNotifications(notificationItems)
         }
       } else if (status !== Status.SUCCESS) {
         yield put(
@@ -549,7 +573,7 @@ function* notificationPollingDaemon() {
         lastHidden = document.hidden
       }, 500)
     } else {
-      document.addEventListener('visibilitychange ', () => {
+      document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           emitter(true)
         }

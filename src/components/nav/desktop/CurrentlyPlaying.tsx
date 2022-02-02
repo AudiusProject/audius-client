@@ -1,13 +1,13 @@
-import React, { memo, useRef } from 'react'
+import React, { memo, useRef, MouseEvent } from 'react'
 
 import cn from 'classnames'
 
 import { ReactComponent as IconVisualizer } from 'assets/img/iconVisualizer.svg'
-import { useTrackCoverArt } from 'common/hooks/useImageSize'
 import Color from 'common/models/Color'
 import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
 import Draggable from 'components/dragndrop/Draggable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 
 import styles from './CurrentlyPlaying.module.css'
 
@@ -20,7 +20,7 @@ type CurrentlyPlayingProps = {
   coverArtColor: Color
   draggableLink: string
   onClick: () => void
-  onShowVisualizer: () => void
+  onShowVisualizer: (e: MouseEvent) => void
 }
 
 type ArtworkStyle = {
@@ -108,7 +108,7 @@ const CurrentlyPlaying = ({
             })}
           >
             <div
-              onClick={onShowVisualizer}
+              onClick={e => onShowVisualizer(e)}
               className={styles.visualizerIconContainer}
             >
               <IconVisualizer className={styles.visualizerIcon} />
