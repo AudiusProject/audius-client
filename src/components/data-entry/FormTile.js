@@ -5,6 +5,11 @@ import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
+import {
+  GENRES,
+  ELECTRONIC_PREFIX,
+  getCannonicalName
+} from 'common/utils/genres'
 import DatePicker from 'components/data-entry/DatePicker'
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
@@ -26,7 +31,6 @@ import {
   computeLicenseVariables,
   getDescriptionForType
 } from 'utils/creativeCommonsUtil'
-import { GENRES, ELECTRONIC_PREFIX, getCannonicalName } from 'utils/genres'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
