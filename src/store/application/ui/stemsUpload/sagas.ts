@@ -10,7 +10,10 @@ import { handleUploads } from 'pages/upload-page/store/sagas'
 import { createStemMetadata } from 'pages/upload-page/store/utils/stems'
 import { make } from 'store/analytics/actions'
 
-import { startStemUploads, stemUploadsSucceeded } from './slice'
+import {
+  startStemUploads,
+  stemUploadsSucceeded
+} from '../../../../common/store/stems-upload/slice'
 
 function* watchUploadStems() {
   yield takeEvery(startStemUploads.type, function* (

@@ -1,27 +1,28 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 
 import { IconDownload } from '@audius/stems'
 import cn from 'classnames'
+import { useDispatch } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 
 import { ID } from 'common/models/Identifiers'
 import IconButton from 'components/icon-button/IconButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
+import {
+  openSignOn,
+  updateRouteOnExit,
+  updateRouteOnCompletion,
+  showRequiresAccountModal
+} from 'pages/sign-on/store/actions'
+
+import {
+  ButtonState,
+  ButtonType,
+  useDownloadTrackButtons
+} from '../../common/hooks/useDownloadTrackButtons'
 
 import styles from './DownloadButtons.module.css'
-import { useButtons } from './hooks'
-
-export enum ButtonState {
-  PROCESSING,
-  LOG_IN_REQUIRED,
-  DOWNLOADABLE,
-  REQUIRES_FOLLOW
-}
-
-export enum ButtonType {
-  STEM,
-  TRACK
-}
 
 export type DownloadButtonProps = {
   state: ButtonState
@@ -36,9 +37,6 @@ export const messages = {
   followToDownload: 'Must follow artist to download',
   processingTrack: 'Processing',
   processingStem: 'Uploading',
-  getDownloadTrack: (stemCount: number) => `${stemCount ? 'Original' : ''}`,
-  getDownloadStem: (friendlyName: string, categoryCount: number) =>
-    `${friendlyName} ${categoryCount || ''}`,
   addDownloadPrefix: (label: string) => `Download ${label}`
 }
 
@@ -134,7 +132,23 @@ const DownloadButtons = ({
   onDownload,
   className
 }: DownloadButtonsProps) => {
-  const buttons = useButtons(trackId, onDownload, isOwner, following)
+  const dispatch = useDispatch()
+  const { pathname } = useLocation()
+
+  const onNotLoggedInClick = useCallback(() => {
+    dispatch(updateRouteOnCompletion(pathname))
+    dispatch(updateRouteOnExit(pathname))
+    dispatch(openSignOn())
+    dispatch(showRequiresAccountModal())
+  }, [dispatch, pathname])
+
+  const buttons = useDownloadTrackButtons({
+    trackId,
+    onDownload,
+    isOwner,
+    following,
+    onNotLoggedInClick
+  })
   const shouldHide = buttons.length === 0
   if (shouldHide) {
     return null
@@ -146,15 +160,7 @@ const DownloadButtons = ({
         [className!]: !!className
       })}
     >
-      {buttons.map(({ label, state, type, onClick }) => (
-        <DownloadButton
-          label={label}
-          state={state}
-          type={type}
-          key={label}
-          onClick={onClick}
-        />
-      ))}
+      {buttons.map(DownloadButton)}
     </div>
   )
 }
