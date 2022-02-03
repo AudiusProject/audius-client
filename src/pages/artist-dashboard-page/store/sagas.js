@@ -25,7 +25,6 @@ function* fetchDashboardAsync(action) {
       currentUserId: account.user_id,
       // TODO: This only supports up to 500, we need to redesign / paginate
       // the dashboard
-      // limit: account.track_count,
       getUnlisted: true
     }),
     call(AudiusBackend.getPlaylists, account.user_id, [])
