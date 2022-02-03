@@ -1,5 +1,3 @@
-// TODO(nkang) - turn into button component like RepostButton, add accessibility
-
 import React, { useState, MouseEvent } from 'react'
 
 import cn from 'classnames'

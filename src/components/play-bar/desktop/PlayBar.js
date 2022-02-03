@@ -54,6 +54,13 @@ const SEEK_INTERVAL = 200
 const RESTART_THRESHOLD_SEC = 3
 const SKIP_DURATION_SEC = 15
 
+const messages = {
+  favorite: 'Favorite',
+  unfavorite: 'Unfavorite',
+  reposted: 'Reposted',
+  repost: 'Repost'
+}
+
 class PlayBar extends Component {
   constructor(props) {
     super(props)
@@ -320,9 +327,9 @@ class PlayBar extends Component {
       playButtonStatus = 'play'
     }
 
-    const favoriteAndRepostIsDisabled = !uid || isOwner
-    const favoriteText = favorited ? 'Unfavorite' : 'Favorite'
-    const repostText = reposted ? 'Reposted' : 'Repost'
+    const isFavoriteAndRepostDisabled = !uid || isOwner
+    const favoriteText = favorited ? messages.unfavorite : messages.favorite
+    const repostText = reposted ? messages.reposted : messages.repost
     const matrix = isMatrix()
 
     return (
@@ -406,7 +413,7 @@ class PlayBar extends Component {
             <div className={styles.toggleRepostContainer}>
               <Tooltip
                 text={repostText}
-                disabled={favoriteAndRepostIsDisabled}
+                disabled={isFavoriteAndRepostDisabled}
                 mount='parent'
                 placement='top'
               >
@@ -415,7 +422,7 @@ class PlayBar extends Component {
                     aria-label={repostText}
                     onClick={() => this.onToggleRepost(reposted, trackId)}
                     isActive={reposted}
-                    isDisabled={favoriteAndRepostIsDisabled}
+                    isDisabled={isFavoriteAndRepostDisabled}
                     isDarkMode={shouldShowDark(theme)}
                     isMatrixMode={matrix}
                   />
@@ -426,13 +433,13 @@ class PlayBar extends Component {
             <div className={styles.toggleFavoriteContainer}>
               <Tooltip
                 text={favoriteText}
-                disabled={favoriteAndRepostIsDisabled}
+                disabled={isFavoriteAndRepostDisabled}
                 placement='top'
                 mount='parent'
               >
                 <span>
                   <FavoriteButton
-                    isDisabled={favoriteAndRepostIsDisabled}
+                    isDisabled={isFavoriteAndRepostDisabled}
                     isMatrixMode={matrix}
                     isActive={favorited}
                     isDarkMode={shouldShowDark(theme)}
