@@ -16,7 +16,7 @@ const libs = () => window.audiusLibs
 const scoreComparator = <T extends { score: number }>(a: T, b: T) =>
   b.score - a.score
 
-export type TopUserListen = {
+type TopUserListen = {
   userId: number
   trackId: number
 }
