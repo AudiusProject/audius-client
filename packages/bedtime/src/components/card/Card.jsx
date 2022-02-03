@@ -1,5 +1,5 @@
 import { h, createContext } from 'preact'
-import { useEffect, useCallback, useState, useContext, useMemo, useRef } from 'preact/hooks'
+import { useEffect, useState, useContext, useMemo, useRef } from 'preact/hooks'
 import cn from 'classnames'
 
 import styles from './Card.module.css'
@@ -34,6 +34,37 @@ export const CardContextProvider = (props) => {
   )
 }
 
+const setCardSize = (setCardStyle, cardRef, mobileWebTwitter, isTwitter) => {
+  // Specialcase check for mobile twitter
+  // If it's a square aspect ratio and
+  // below a certain width, we should render
+  // the card square fullscreen.
+  if (mobileWebTwitter) {
+    setCardStyle({
+      height: `${window.document.documentElement.clientHeight}px`,
+      width: `${window.document.documentElement.clientWidth}px`
+    })
+    return
+  }
+
+  const aspectRatio = isTwitter ? ASPECT_RATIOS.twitter : ASPECT_RATIOS.standard
+  const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
+
+  if (aspectRatio < viewportAspectRatio) {
+    // In this case, we have 'extra' width so height is the constraining factor
+    setCardStyle({
+      height: `${cardRef.current?.parentElement.clientHeight}px`,
+      width: `${cardRef.current?.parentElement.clientHeight * aspectRatio}px`
+    })
+  } else {
+    // Extra height, so width constrains.
+    setCardStyle({
+      height: `${cardRef.current?.parentElement.clientWidth / aspectRatio}px`,
+      width: `${cardRef.current?.parentElement.clientWidth}px`
+    })
+  }
+}
+
 const Card = ({
   isTwitter,
   backgroundColor,
@@ -58,12 +89,16 @@ const Card = ({
   const { setDimensions } = useContext(CardDimensionsContext)
 
   useEffect(() => {
-    setCardSize()
-    window.addEventListener('resize', setCardSize);
-    return () => {
-      window.removeEventListener('resize', setCardSize);
+    const resizeEventListener = () => {
+      setCardSize(setCardStyle, cardRef, mobileWebTwitter, isTwitter)
     }
-  }, [])
+
+    resizeEventListener()
+    window.addEventListener('resize', resizeEventListener);
+    return () => {
+      window.removeEventListener('resize', resizeEventListener);
+    }
+  }, [setCardSize, setCardStyle, cardRef, mobileWebTwitter, isTwitter])
 
   useMemo(() => {
     if (!cardStyle.width || cardStyle.width === 0) {
@@ -76,37 +111,6 @@ const Card = ({
     }
     setDimensions(newStyle)
   }, [height])
-
-  const setCardSize = useCallback(() => {
-    // Specialcase check for mobile twitter
-    // If it's a square aspect ratio and
-    // below a certain width, we should render
-    // the card square fullscreen.
-    if (mobileWebTwitter) {
-      setCardStyle({
-        height: `${window.document.documentElement.clientHeight}px`,
-        width: `${window.document.documentElement.clientWidth}px`
-      })
-      return
-    }
-
-    const aspectRatio = isTwitter ? ASPECT_RATIOS.twitter : ASPECT_RATIOS.standard
-    const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
-
-    if (aspectRatio < viewportAspectRatio) {
-      // In this case, we have 'extra' width so height is the constraining factor
-      setCardStyle({
-        height: `${cardRef.current?.parentElement.clientHeight}px`,
-        width: `${cardRef.current?.parentElement.clientHeight * aspectRatio}px`
-      })
-    } else {
-      // Extra height, so width constrains.
-      setCardStyle({
-        height: `${cardRef.current?.parentElement.clientWidth / aspectRatio}px`,
-        width: `${cardRef.current?.parentElement.clientWidth}px`
-      })
-    }
-  }, [setCardStyle])
 
   return (
     <div
