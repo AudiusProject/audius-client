@@ -13,7 +13,7 @@ import { ReactComponent as IconDrag } from 'assets/img/iconDrag.svg'
 import {
   GENRES,
   ELECTRONIC_PREFIX,
-  getCannonicalName
+  getCanonicalName
 } from 'common/utils/genres'
 import DropdownInput from 'components/data-entry/DropdownInput'
 import LabeledInput from 'components/data-entry/LabeledInput'
@@ -86,7 +86,7 @@ class InlineFormTile extends Component {
             <DropdownInput
               placeholder='What is the Genre?'
               menu={{ items: GENRES }}
-              defaultValue={getCannonicalName(defaultFields.genre) || ''}
+              defaultValue={getCanonicalName(defaultFields.genre) || ''}
               label='Genre'
               labelStyle={styles.label}
               layout='horizontal'

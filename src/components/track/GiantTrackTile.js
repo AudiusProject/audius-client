@@ -17,7 +17,7 @@ import Linkify from 'linkifyjs/react'
 import PropTypes from 'prop-types'
 
 import { squashNewLines } from 'common/utils/formatUtil'
-import { getCannonicalName } from 'common/utils/genres'
+import { getCanonicalName } from 'common/utils/genres'
 import { formatDate, formatSeconds } from 'common/utils/timeUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
@@ -249,7 +249,7 @@ class GiantTrackTile extends PureComponent {
         <InfoLabel
           className={styles.infoLabelPlacement}
           labelName='genre'
-          labelValue={getCannonicalName(genre)}
+          labelValue={getCanonicalName(genre)}
         />
       )
     )

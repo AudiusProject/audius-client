@@ -8,7 +8,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import {
   GENRES,
   ELECTRONIC_PREFIX,
-  getCannonicalName
+  getCanonicalName
 } from 'common/utils/genres'
 import DatePicker from 'components/data-entry/DatePicker'
 import DropdownInput from 'components/data-entry/DropdownInput'
@@ -119,7 +119,7 @@ const BasicForm = props => {
               placeholder={messages.genre}
               mount='parent'
               menu={{ items: GENRES }}
-              defaultValue={getCannonicalName(props.defaultFields.genre) || ''}
+              defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
               isRequired={props.requiredFields.genre}
               error={props.invalidFields.genre}
               onSelect={value =>
