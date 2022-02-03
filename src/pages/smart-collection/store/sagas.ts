@@ -34,7 +34,11 @@ function* fetchHeavyRotation() {
     topListens.map(t => t.userId)
   )
   const trackIds = topListens
-    .filter(track => !(users.entries[track.userId]?.is_deactivated ?? true))
+    .filter(
+      track =>
+        users.entries[track.userId] &&
+        !users.entries[track.userId].is_deactivated
+    )
     .map(listen => ({
       track: listen.trackId
     }))
