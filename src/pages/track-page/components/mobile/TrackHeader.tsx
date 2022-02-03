@@ -11,7 +11,7 @@ import { SquareSizes, CoverArtSizes } from 'common/models/ImageSizes'
 import { FieldVisibility, Remix } from 'common/models/Track'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { getCannonicalName } from 'common/utils/genres'
+import { getCanonicalName } from 'common/utils/genres'
 import { formatSeconds, formatDate } from 'common/utils/timeUtil'
 import CoSign from 'components/co-sign/CoSign'
 import HoverInfo from 'components/co-sign/HoverInfo'
@@ -156,7 +156,7 @@ const TrackHeader = ({
 
   const trackLabels: { value: any; label: string }[] = [
     { value: formatSeconds(duration), label: 'Duration' },
-    { value: getCannonicalName(genre), label: 'Genre' },
+    { value: getCanonicalName(genre), label: 'Genre' },
     { value: formatDate(released), label: 'Released' },
     {
       // @ts-ignore
