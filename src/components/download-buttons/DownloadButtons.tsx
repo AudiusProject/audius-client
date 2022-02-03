@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react'
 
 import { IconDownload } from '@audius/stems'
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
 import { ID } from 'common/models/Identifiers'
@@ -143,11 +143,12 @@ const DownloadButtons = ({
   }, [dispatch, pathname])
 
   const buttons = useDownloadTrackButtons({
-    trackId,
-    onDownload,
-    isOwner,
     following,
-    onNotLoggedInClick
+    isOwner,
+    onDownload,
+    onNotLoggedInClick,
+    trackId,
+    useSelector
   })
   const shouldHide = buttons.length === 0
   if (shouldHide) {
