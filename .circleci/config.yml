@@ -882,9 +882,9 @@ workflows:
           context: Audius Client
           requires:
             - build-staging
-          # filters:
-          #   branches:
-          #     only: /(^master)$/
+          filters:
+            branches:
+              only: /(^master)$/
       - dist-win-staging:
           context: Audius Client
           requires:
@@ -896,9 +896,9 @@ workflows:
           context: Audius Client
           requires:
             - build-staging
-          # filters:
-          #   branches:
-          #     only: /(^master)$/
+          filters:
+            branches:
+              only: /(^master)$/
 
       # Distribute production desktop binaries.
       - hold-dist-mac-production:
