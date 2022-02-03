@@ -1,11 +1,11 @@
-import { takeEvery, put, call, select } from 'redux-saga/effects'
+import { takeEvery, put, call, select } from 'typed-redux-saga'
 
-import { ID } from 'common/models/Identifiers'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
-import { Track, UserTrack, UserTrackMetadata } from 'common/models/Track'
+import { Track, UserTrack } from 'common/models/Track'
 import { getAccountStatus, getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
+import { fetchUsers as retrieveUsers } from 'common/store/cache/users/sagas'
 import { setSmartCollection } from 'pages/collection-page/store/actions'
 import Explore from 'services/audius-backend/Explore'
 import { waitForBackendSetup } from 'store/backend/sagas'
@@ -27,11 +27,19 @@ import { fetchSmartCollection, fetchSmartCollectionSucceeded } from './slice'
 const COLLECTIONS_LIMIT = 25
 
 function* fetchHeavyRotation() {
-  const topListens = yield call(Explore.getTopUserListens)
+  const topListens = yield* call(Explore.getTopUserListens)
 
+  const users = yield* call(
+    retrieveUsers,
+    topListens.map(t => t.userId)
+  )
   const trackIds = topListens
-    .filter((track: UserTrack) => !track.user.is_deactivated)
-    .map((listen: any) => ({
+    .filter(
+      track =>
+        users.entries[track.userId] &&
+        !users.entries[track.userId].is_deactivated
+    )
+    .map(listen => ({
       track: listen.trackId
     }))
 
@@ -44,16 +52,16 @@ function* fetchHeavyRotation() {
 }
 
 function* fetchBestNewReleases() {
-  const tracks = yield call(Explore.getTopFolloweeTracksFromWindow, 'month')
+  const tracks = yield* call(Explore.getTopFolloweeTracksFromWindow, 'month')
 
   const trackIds = tracks
-    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .filter(track => !track.user.is_deactivated)
     .map((track: Track) => ({
       time: track.created_at,
       track: track.track_id
     }))
 
-  yield call(processAndCacheTracks, tracks)
+  yield* call(processAndCacheTracks, tracks)
 
   return {
     ...BEST_NEW_RELEASES,
@@ -64,7 +72,7 @@ function* fetchBestNewReleases() {
 }
 
 function* fetchUnderTheRadar() {
-  const tracks = yield call(Explore.getFeedNotListenedTo)
+  const tracks = yield* call(Explore.getFeedNotListenedTo)
 
   const trackIds = tracks
     .filter((track: UserTrack) => !track.user.is_deactivated)
@@ -73,7 +81,7 @@ function* fetchUnderTheRadar() {
       track: track.track_id
     }))
 
-  yield call(processAndCacheTracks, tracks)
+  yield* call(processAndCacheTracks, tracks)
 
   // feed minus listened
   return {
@@ -85,10 +93,10 @@ function* fetchUnderTheRadar() {
 }
 
 function* fetchMostLoved() {
-  const tracks = yield call(Explore.getTopFolloweeSaves)
+  const tracks = yield* call(Explore.getTopFolloweeSaves)
 
   const trackIds = tracks
-    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .filter(track => !track.user.is_deactivated)
     .map((track: Track) => ({
       time: track.created_at,
       track: track.track_id
@@ -105,10 +113,10 @@ function* fetchMostLoved() {
 }
 
 function* fetchFeelingLucky() {
-  const tracks = yield call(getLuckyTracks, COLLECTIONS_LIMIT)
+  const tracks = yield* call(getLuckyTracks, COLLECTIONS_LIMIT)
 
   const trackIds = tracks
-    .filter((track: UserTrack) => !track.user.is_deactivated)
+    .filter(track => !track.user.is_deactivated)
     .map((track: Track) => ({
       time: track.created_at,
       track: track.track_id
@@ -123,8 +131,11 @@ function* fetchFeelingLucky() {
 }
 
 function* fetchRemixables() {
-  const currentUserId: ID = yield select(getUserId)
-  const tracks: UserTrackMetadata[] = yield call(
+  const currentUserId = yield* select(getUserId)
+  if (currentUserId == null) {
+    return
+  }
+  const tracks = yield* call(
     Explore.getRemixables,
     currentUserId,
     75 // limit
@@ -146,7 +157,7 @@ function* fetchRemixables() {
     return artistCount[id] <= artistLimit
   })
 
-  const processedTracks: Track[] = yield call(
+  const processedTracks = yield* call(
     processAndCacheTracks,
     filteredTracks.slice(0, COLLECTIONS_LIMIT)
   )
@@ -199,7 +210,7 @@ function* watchFetch() {
 
     const { variant } = action.payload
 
-    const collection = yield call(fetchMap[variant])
+    const collection = yield* call(fetchMap[variant])
 
     yield put(
       fetchSmartCollectionSucceeded({
