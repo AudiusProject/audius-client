@@ -1,10 +1,10 @@
 import { useSelector } from 'react-redux'
 
 import { ChallengeRewardID, UserChallenge } from 'common/models/AudioRewards'
-import { getCompletionStages } from 'common/store/challenges/selectors'
+import { getCompletionStages } from 'common/store/challenges/selectors/profile-progress'
 import {
-  getUserChallenges,
-  getUserChallengesOverrides
+  getUserChallengesOverrides,
+  getUserChallenges
 } from 'common/store/pages/audio-rewards/selectors'
 import { removeNullable } from 'common/utils/typeUtils'
 
