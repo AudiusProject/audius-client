@@ -4,7 +4,7 @@ import {
   replace as replaceRoute
 } from 'connected-react-router'
 import { debounce, pick } from 'lodash'
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, Action, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
 import createSagaMiddleware from 'redux-saga'
 import createSentryMiddleware from 'redux-sentry-middleware'
@@ -16,13 +16,29 @@ import createRootReducer from 'store/reducers'
 import rootSaga from 'store/sagas'
 import { getIsDeployedOnHost } from 'utils/clientUtil'
 import history from 'utils/history'
+import logger from 'utils/logger'
 import { ERROR_PAGE } from 'utils/route'
+
+import { AppState } from './types'
+
+declare global {
+  interface Window {
+    store: any
+  }
+}
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
-const onSagaError = (error, errorInfo) => {
+type RootState = ReturnType<typeof store.getState>
+
+const onSagaError = (
+  error: Error,
+  errorInfo: {
+    sagaStack: string
+  }
+) => {
   console.error(`Caught saga error: ${error} ${errorInfo}`)
-  store.dispatch(replaceRoute(ERROR_PAGE))
+  store!.dispatch(replaceRoute(ERROR_PAGE))
 
   if (!getIsDeployedOnHost()) return
   try {
@@ -37,7 +53,7 @@ const onSagaError = (error, errorInfo) => {
 
 // Can't send up the entire Redux state b/c it's too fat
 // for Sentry to handle, and there is sensitive data
-const statePruner = state => {
+const statePruner = (state: AppState) => {
   return {
     account: {
       status: state.account.status,
@@ -92,7 +108,7 @@ const statePruner = state => {
 // logging sensitive information in the future if additional actions are added.
 // If we discover we want specific action bodies in the future for Sentry
 // debuggability, those should be whitelisted here.
-const actionSanitizer = action => ({ type: action.type })
+const actionSanitizer = (action: Action) => ({ type: action.type })
 const sentryMiddleware = createSentryMiddleware(Sentry, {
   actionTransformer: actionSanitizer,
   stateTransformer: statePruner
@@ -106,24 +122,26 @@ const middlewares = applyMiddleware(
   sentryMiddleware
 )
 
-let store = null
-
 // As long as the mobile client is dependent on the web client, we need to sync
 // the client store from web -> mobile
 const clientStoreKeys = Object.keys(clientStoreReducers)
 
-const syncClientStateToNativeMobile = store => {
+const syncClientStateToNativeMobile = (store: Store) => {
   if (NATIVE_MOBILE) {
-    let currentState
+    let currentState: RootState
     const postMessageDebounced = debounce(postMessage, 500, { leading: true })
 
     store.subscribe(() => {
-      const state = store.getState()
+      const state: RootState = store.getState()
       const previousState = currentState
       currentState = state
       if (
         !previousState ||
-        clientStoreKeys.some(k => currentState[k] !== previousState[k])
+        clientStoreKeys.some(
+          k =>
+            currentState[k as keyof RootState] !==
+            previousState[k as keyof RootState]
+        )
       ) {
         // Debounce messages to minimize expensive stringify and parse.
         // Leading and trailing states are sent, state will be out of sync
@@ -137,10 +155,21 @@ const syncClientStateToNativeMobile = store => {
   }
 }
 
-export default function configureStore() {
+const configureStore = () => {
   const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 })
-  store = createStore(createRootReducer(history), composeEnhancers(middlewares))
+  const store = createStore(
+    createRootReducer(history),
+    composeEnhancers(middlewares)
+  )
   syncClientStateToNativeMobile(store)
   sagaMiddleware.run(rootSaga)
   return store
 }
+
+export const store = configureStore()
+
+// Mount store to window for easy access
+window.store = store
+
+// Set up logger on store
+logger(store)
