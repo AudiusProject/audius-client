@@ -41,13 +41,13 @@ import { isMobile } from 'utils/clientUtil'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
-import * as profileActions from './actions'
+import * as profileActions from '../../common/store/pages/profile/actions'
 import {
   getProfileUserId,
   getProfileFollowers,
   getProfileUser
-} from './selectors'
-import { FollowType } from './types'
+} from '../../common/store/pages/profile/selectors'
+import { FollowType } from '../../common/store/pages/profile/types'
 
 const {
   getRemoteVar,
