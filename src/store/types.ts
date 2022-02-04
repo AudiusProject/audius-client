@@ -108,6 +108,7 @@ export type AppState = CommonState & {
       notificationUsers: NotificationUsersPageState
       unfollowConfirmation: UnfollowConfirmationModalState
       nowPlaying: NowPlayingState
+      profile: ProfilePageState
       smartCollection: SmartCollectionState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>
@@ -118,7 +119,6 @@ export type AppState = CommonState & {
 
   // Pages
   upload: UploadPageState
-  profile: ProfilePageState
   dashboard: ArtistDashboardState
   signOn: SignOnPageState
   trending: TrendingPageState
