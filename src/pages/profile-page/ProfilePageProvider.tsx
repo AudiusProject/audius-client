@@ -13,6 +13,15 @@ import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
+import * as profileActions from 'common/store/pages/profile/actions'
+import { feedActions } from 'common/store/pages/profile/lineups/feed/actions'
+import { tracksActions } from 'common/store/pages/profile/lineups/tracks/actions'
+import {
+  makeGetProfile,
+  getProfileFeedLineup,
+  getProfileTracksLineup,
+  getProfileUserId
+} from 'common/store/pages/profile/selectors'
 import {
   CollectionSortMode,
   Tabs,
@@ -46,16 +55,6 @@ import { verifiedHandleWhitelist } from 'utils/handleWhitelist'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { getPathname, NOT_FOUND_PAGE, profilePage } from 'utils/route'
 import { parseUserRoute } from 'utils/route/userRouteParser'
-
-import * as profileActions from '../../common/store/pages/profile/actions'
-import { feedActions } from '../../common/store/pages/profile/lineups/feed/actions'
-import { tracksActions } from '../../common/store/pages/profile/lineups/tracks/actions'
-import {
-  makeGetProfile,
-  getProfileFeedLineup,
-  getProfileTracksLineup,
-  getProfileUserId
-} from '../../common/store/pages/profile/selectors'
 
 import { ProfilePageProps as DesktopProfilePageProps } from './components/desktop/ProfilePage'
 import { ProfilePageProps as MobileProfilePageProps } from './components/mobile/ProfilePage'
