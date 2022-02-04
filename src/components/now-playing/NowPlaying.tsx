@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
-import { useTrackCoverArt } from 'common/hooks/useImageSize'
 import {
   FavoriteSource,
   RepostSource,
@@ -31,6 +30,7 @@ import {
   OverflowSource
 } from 'common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+import { Genre } from 'common/utils/genres'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -40,6 +40,7 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { getCastMethod } from 'pages/settings-page/store/selectors'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
 import { useRecord, make } from 'store/analytics/actions'
@@ -55,7 +56,6 @@ import { makeGetCurrent } from 'store/queue/selectors'
 import { next, pause, play, previous, repeat, shuffle } from 'store/queue/slice'
 import { RepeatMode } from 'store/queue/types'
 import { AppState } from 'store/types'
-import { Genre } from 'utils/genres'
 import { pushUniqueRoute as pushRoute, profilePage } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 import { withNullGuard } from 'utils/withNullGuard'

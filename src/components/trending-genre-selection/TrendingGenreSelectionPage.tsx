@@ -5,18 +5,18 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import TimeRange from 'common/models/TimeRange'
+import { GENRES, ELECTRONIC_PREFIX } from 'common/utils/genres'
 import * as discoverPageActions from 'pages/trending-page/store/actions'
 import {
   trendingMonthActions,
-  trendingYearActions,
-  trendingWeekActions
+  trendingWeekActions,
+  trendingAllTimeActions
 } from 'pages/trending-page/store/lineups/trending/actions'
 import {
   getTrendingGenre,
   getTrendingTimeRange
 } from 'pages/trending-page/store/selectors'
 import { AppState } from 'store/types'
-import { GENRES, ELECTRONIC_PREFIX } from 'utils/genres'
 import { TRENDING_PAGE } from 'utils/route'
 
 import TrendingGenreSelectionPage from './components/TrendingGenreSelectionPage'
@@ -70,7 +70,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     resetAllTrending: () => {
       dispatch(trendingWeekActions.reset())
       dispatch(trendingMonthActions.reset())
-      dispatch(trendingYearActions.reset())
+      dispatch(trendingAllTimeActions.reset())
     }
   }
 }
