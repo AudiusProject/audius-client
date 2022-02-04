@@ -7,6 +7,8 @@ import createSagaMiddleware from 'redux-saga'
 import createSentryMiddleware from 'redux-sentry-middleware'
 
 import { reducers as clientStoreReducers } from 'common/store'
+import { Level } from 'common/store/errors/level'
+import { reportToSentry } from 'common/store/errors/reportToSentry'
 import { postMessage } from 'services/native-mobile-interface/helpers'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { track as amplitudeTrack } from 'store/analytics/providers/amplitude'
@@ -37,22 +39,12 @@ const onSagaError = (
   console.error(`Caught saga error: ${error} ${errorInfo}`)
   store.dispatch(pushRoute(ERROR_PAGE))
 
-  // Try recording to sentry
-  try {
-    Sentry.withScope(scope => {
-      scope.setExtras(errorInfo)
-      Sentry.captureException(error)
-    })
-  } catch {
-    // no-op
-  }
-
-  // Try recording to amplitude
-  try {
-    amplitudeTrack(ERROR_PAGE, errorInfo)
-  } catch {
-    // no-op
-  }
+  reportToSentry({
+    level: Level.Fatal,
+    error,
+    additionalInfo: errorInfo
+  })
+  amplitudeTrack(ERROR_PAGE, errorInfo)
 }
 
 // Can't send up the entire Redux state b/c it's too fat
