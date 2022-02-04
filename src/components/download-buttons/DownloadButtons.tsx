@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
 import { ID } from 'common/models/Identifiers'
+import { toast } from 'common/store/ui/toast/slice'
 import IconButton from 'components/icon-button/IconButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -15,6 +16,7 @@ import {
   updateRouteOnCompletion,
   showRequiresAccountModal
 } from 'pages/sign-on/store/actions'
+import { useIsMobile } from 'utils/clientUtil'
 
 import {
   ButtonState,
@@ -46,10 +48,12 @@ const DownloadButton = ({
   type,
   onClick = () => {}
 }: DownloadButtonProps) => {
-  const shouldShowTooltip =
+  const dispatch = useDispatch()
+  const isMobile = useIsMobile()
+  const isDisabled =
     state === ButtonState.PROCESSING || state === ButtonState.REQUIRES_FOLLOW
 
-  const getTooltipText = () => {
+  const getTooltipText = useCallback(() => {
     switch (state) {
       case ButtonState.PROCESSING:
         return type === ButtonType.STEM
@@ -66,7 +70,7 @@ const DownloadButton = ({
             return messages.downloadableTrack
         }
     }
-  }
+  }, [state, type])
 
   const renderIcon = () => {
     if (state === ButtonState.PROCESSING) {
@@ -84,16 +88,26 @@ const DownloadButton = ({
     )
   }
 
-  const renderButton = () => {
-    const isDisabled =
-      state === ButtonState.PROCESSING || state === ButtonState.REQUIRES_FOLLOW
+  const handleOnClick = useCallback(() => {
+    if (isMobile && isDisabled) {
+      // On mobile, show a toast instead of a tooltip
+      dispatch(toast({ content: getTooltipText() }))
+    }
 
+    if (isDisabled) {
+      return
+    }
+
+    onClick()
+  }, [dispatch, getTooltipText, isMobile, isDisabled, onClick])
+
+  const renderButton = () => {
     return (
       <div
         className={cn(styles.downloadButtonContainer, {
           [styles.disabled]: isDisabled
         })}
-        onClick={isDisabled ? () => {} : onClick}
+        onClick={handleOnClick}
       >
         <div className={styles.icon}>{renderIcon()}</div>
         {/* h2 here for SEO purposes */}
@@ -102,7 +116,8 @@ const DownloadButton = ({
     )
   }
 
-  return shouldShowTooltip ? (
+  // Do not show tooltip on mobile (showing a toast instead)
+  return !isMobile && isDisabled ? (
     <Tooltip text={getTooltipText()} placement='top' mouseEnterDelay={0}>
       {renderButton()}
     </Tooltip>
@@ -161,7 +176,9 @@ const DownloadButtons = ({
         [className!]: !!className
       })}
     >
-      {buttons.map(DownloadButton)}
+      {buttons.map(props => (
+        <DownloadButton {...props} key={props.label} />
+      ))}
     </div>
   )
 }
