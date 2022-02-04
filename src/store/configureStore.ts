@@ -1,8 +1,5 @@
 import * as Sentry from '@sentry/browser'
-import {
-  routerMiddleware,
-  replace as replaceRoute
-} from 'connected-react-router'
+import { routerMiddleware, push as pushRoute } from 'connected-react-router'
 import { debounce, pick } from 'lodash'
 import { createStore, applyMiddleware, Action, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
@@ -12,9 +9,9 @@ import createSentryMiddleware from 'redux-sentry-middleware'
 import { reducers as clientStoreReducers } from 'common/store'
 import { postMessage } from 'services/native-mobile-interface/helpers'
 import { MessageType } from 'services/native-mobile-interface/types'
+import { track as amplitudeTrack } from 'store/analytics/providers/amplitude'
 import createRootReducer from 'store/reducers'
 import rootSaga from 'store/sagas'
-import { getIsDeployedOnHost } from 'utils/clientUtil'
 import history from 'utils/history'
 import logger from 'utils/logger'
 import { ERROR_PAGE } from 'utils/route'
@@ -38,14 +35,21 @@ const onSagaError = (
   }
 ) => {
   console.error(`Caught saga error: ${error} ${errorInfo}`)
-  store!.dispatch(replaceRoute(ERROR_PAGE))
+  store.dispatch(pushRoute(ERROR_PAGE))
 
-  if (!getIsDeployedOnHost()) return
+  // Try recording to sentry
   try {
     Sentry.withScope(scope => {
       scope.setExtras(errorInfo)
       Sentry.captureException(error)
     })
+  } catch {
+    // no-op
+  }
+
+  // Try recording to amplitude
+  try {
+    amplitudeTrack(ERROR_PAGE, errorInfo)
   } catch {
     // no-op
   }
