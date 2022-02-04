@@ -118,7 +118,7 @@ export const getOrderedCompletionStages = state => {
 }
 
 export const getProfilePageMeterDismissed = state =>
-  state.profile.profileMeterDismissed
+  state.pages.profile.profileMeterDismissed
 
 export const getIsAccountLoaded = state =>
   state.account.status === Status.SUCCESS
