@@ -93,10 +93,7 @@ function* handleHardwareBack() {
 }
 
 const sagas = () => {
-  const sagas: Array<() => Generator<any, void, any>> = [
-    trackLocation,
-    handleHardwareBack
-  ]
+  const sagas = [trackLocation, handleHardwareBack]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
 

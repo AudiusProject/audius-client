@@ -20,7 +20,7 @@ import { AppState } from './types'
 
 declare global {
   interface Window {
-    store: any
+    store: Store<RootState>
   }
 }
 
