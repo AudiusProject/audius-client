@@ -11,7 +11,7 @@ import { getCompletionStages } from 'components/profile-progress/store/selectors
 type OptimisticChallengeCompletionResponse = Partial<
   Record<ChallengeRewardID, number>
 >
-type UserChallengeState =
+export type UserChallengeState =
   | 'inactive'
   | 'incomplete'
   | 'in_progress'
