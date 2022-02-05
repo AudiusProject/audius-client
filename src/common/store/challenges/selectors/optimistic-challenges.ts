@@ -14,6 +14,34 @@ import { CommonState } from '../..'
 
 import { getCompletionStages } from './profile-progress'
 
+/**
+ * Gets the state of a user challenge, with the most progress dominating
+ * Mutually exclusive, eg: a challenge is only 'completed' if it is not also 'disbursed'
+ * @param challenge
+ * @returns The state of the challenge
+ */
+const getUserChallengeState = (
+  challenge: UserChallenge
+): UserChallengeState => {
+  if (challenge.is_disbursed) {
+    return 'disbursed'
+  }
+  if (
+    challenge.is_complete ||
+    (challenge.max_steps !== null &&
+      challenge.current_step_count >= challenge.max_steps)
+  ) {
+    return 'completed'
+  }
+  if (challenge.current_step_count > 0) {
+    return 'in_progress'
+  }
+  if (challenge.is_active) {
+    return 'incomplete'
+  }
+  return 'inactive'
+}
+
 export const getOptimisticUserChallengeStepCounts = (state: CommonState) => {
   const profileCompletionStages = getCompletionStages(state)
   const profileCompletion = Object.values(profileCompletionStages).filter(
@@ -25,25 +53,6 @@ export const getOptimisticUserChallengeStepCounts = (state: CommonState) => {
   }
 
   return completion
-}
-
-export const getOptimisticUserChallenges = (state: CommonState) => {
-  const stepCountOverrides = getOptimisticUserChallengeStepCounts(state)
-  const userChallengesOverrides = getUserChallengesOverrides(state)
-  const userChallenges = getUserChallenges(state)
-  return Object.values(userChallenges)
-    .filter(removeNullable)
-    .map(challenge =>
-      toOptimisticChallenge(
-        challenge,
-        stepCountOverrides,
-        userChallengesOverrides
-      )
-    )
-    .reduce((map, challenge) => {
-      map[challenge.challenge_id] = challenge
-      return map
-    }, {} as Partial<Record<ChallengeRewardID, OptimisticUserChallenge>>)
 }
 
 const toOptimisticChallenge = (
@@ -83,30 +92,21 @@ const toOptimisticChallenge = (
   }
 }
 
-/**
- * Gets the state of a user challenge, with the most progress dominating
- * Mutually exclusive, eg: a challenge is only 'completed' if it is not also 'disbursed'
- * @param challenge
- * @returns The state of the challenge
- */
-const getUserChallengeState = (
-  challenge: UserChallenge
-): UserChallengeState => {
-  if (challenge.is_disbursed) {
-    return 'disbursed'
-  }
-  if (
-    challenge.is_complete ||
-    (challenge.max_steps !== null &&
-      challenge.current_step_count >= challenge.max_steps)
-  ) {
-    return 'completed'
-  }
-  if (challenge.current_step_count > 0) {
-    return 'in_progress'
-  }
-  if (challenge.is_active) {
-    return 'incomplete'
-  }
-  return 'inactive'
+export const getOptimisticUserChallenges = (state: CommonState) => {
+  const stepCountOverrides = getOptimisticUserChallengeStepCounts(state)
+  const userChallengesOverrides = getUserChallengesOverrides(state)
+  const userChallenges = getUserChallenges(state)
+  return Object.values(userChallenges)
+    .filter(removeNullable)
+    .map(challenge =>
+      toOptimisticChallenge(
+        challenge,
+        stepCountOverrides,
+        userChallengesOverrides
+      )
+    )
+    .reduce((map, challenge) => {
+      map[challenge.challenge_id] = challenge
+      return map
+    }, {} as Partial<Record<ChallengeRewardID, OptimisticUserChallenge>>)
 }
