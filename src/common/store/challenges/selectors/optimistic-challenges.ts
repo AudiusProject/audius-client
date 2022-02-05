@@ -54,7 +54,13 @@ export const getOptimisticUserChallengeStepCounts = (state: CommonState) => {
 
   return completion
 }
-
+/**
+ * Converts a user challenge to an optimistic user challenge
+ * @param challenge The original UserChallenge
+ * @param stepCountOverrides the overrides to apply to challenge step counts
+ * @param userChallengesOverrides the overrides to apply to other challenge states (currently used for disbursement)
+ * @returns the optimistic state of that challenge
+ */
 const toOptimisticChallenge = (
   challenge: UserChallenge,
   stepCountOverrides: Partial<Record<ChallengeRewardID, number>>,
@@ -92,6 +98,12 @@ const toOptimisticChallenge = (
   }
 }
 
+/**
+ * Returns all user challenges using an optimistic state and current_step_count
+ * based on what the client tracks. Prevents UI oddness while waiting for discovery to index
+ * @param challenge The user challenge to get the optimistic state for
+ * @returns the same challenge with state and current_step_count overridden as necessary
+ */
 export const getOptimisticUserChallenges = (state: CommonState) => {
   const stepCountOverrides = getOptimisticUserChallengeStepCounts(state)
   const userChallengesOverrides = getUserChallengesOverrides(state)
