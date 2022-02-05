@@ -119,13 +119,12 @@ const makeBuildParams = isProduction => {
       // Inject data into package.json
       // https://www.electron.build/configuration/configuration
       extraMetadata: {
-        // Product name controls the app-data location on most platforms.
+        // We set prod & stage to separate values to ensure that
+        // the app's app-data does not collide (in addition to a different `scheme`).
+        // `productName` controls the app-data location on most platforms.
         // https://github.com/electron-userland/electron-builder/issues/3429#issuecomment-434024379
         productName: productName,
-        // Setting `name` is important because that's how electron
-        // determines what constitutes and instance of the app on some platforms.
-        // We set prod & stage to separate values to ensure that
-        // the apps do not collide (in addition to a different `scheme`).
+        // `name` controls the app-data location on some linux platforms.
         // https://github.com/electron/electron/blob/main/docs/api/app.md#appgetname
         name: packageJsonName
       },
@@ -135,6 +134,7 @@ const makeBuildParams = isProduction => {
       },
       files: [`${buildDir}/**/*`, 'electronConfig.json', 'src/electron.js'],
       protocols: {
+        // Scheme controls deep links as well as local-storage prefix
         name: scheme,
         schemes: [scheme]
       },
