@@ -74,12 +74,15 @@ const messages = {
   qrSubtext: 'Scan This QR Code with Your Phone Camera',
   rewardClaimed: 'Reward claimed successfully!',
   rewardAlreadyClaimed: 'Reward already claimed!',
-  claimError: 'Oops, something’s gone wrong',
+  claimError:
+    'Something has gone wrong, not all your rewards were claimed. Please try again.',
   claimYourReward: 'Claim Your Reward',
   twitterShare: (modalType: 'referrals' | 'ref-v') =>
     `Share Invite With Your ${modalType === 'referrals' ? 'Friends' : 'Fans'}`,
   twitterCopy: `Come support me on @audiusproject! Use my link and we both earn $AUDIO when you sign up.\n\n #audius #audiorewards\n\n`,
-  verifiedChallenge: 'VERIFIED CHALLENGE'
+  verifiedChallenge: 'VERIFIED CHALLENGE',
+  claimAmountLabel: '$AUDIO available to claim',
+  claimedSoFar: '$AUDIO claimed so far'
 }
 
 type InviteLinkProps = {
@@ -272,6 +275,13 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const claimInProgress =
     claimStatus === ClaimStatus.CLAIMING ||
     claimStatus === ClaimStatus.WAITING_FOR_RETRY
+  const audioClaimedSoFar = 2
+  const audioToClaim =
+    challenge?.challenge_type === 'aggregate'
+      ? challenge.amount * challenge.current_step_count - audioClaimedSoFar
+      : challenge?.state === 'completed'
+      ? challenge.amount
+      : 0
 
   const onClaimRewardClicked = useCallback(() => {
     if (challenge) {
@@ -329,16 +339,17 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             {progressDescription}
             {progressReward}
           </div>
-          {stepCount > 1 && (
-            <div className={wm(styles.progressBarSection)}>
-              {modalType === 'profile-completion' && <ProfileChecks />}
-              <ProgressBar
-                className={wm(styles.progressBar)}
-                value={currentStepCount}
-                max={stepCount}
-              />
-            </div>
-          )}
+          {challenge?.state === 'in_progress' &&
+            challenge?.challenge_type !== 'aggregate' && (
+              <div className={wm(styles.progressBarSection)}>
+                {modalType === 'profile-completion' && <ProfileChecks />}
+                <ProgressBar
+                  className={wm(styles.progressBar)}
+                  value={currentStepCount}
+                  max={stepCount}
+                />
+              </div>
+            )}
           {progressStatusLabel}
         </div>
       )}
@@ -360,6 +371,11 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         </div>
       )}
       <div className={wm(styles.claimRewardWrapper)}>
+        {audioToClaim > 0 ? (
+          <div className={styles.claimRewardAmountLabel}>
+            {`${audioToClaim} ${messages.claimAmountLabel}`}
+          </div>
+        ) : null}
         {buttonLink && (
           <Button
             className={wm(styles.button)}
@@ -374,7 +390,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             rightIcon={buttonInfo?.rightIcon}
           />
         )}
-        {challenge && challenge?.state === 'completed' && (
+        {audioToClaim > 0 ? (
           <Button
             text={messages.claimYourReward}
             className={wm(styles.button)}
@@ -391,7 +407,12 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             }
             onClick={onClaimRewardClicked}
           />
-        )}
+        ) : null}
+        {audioClaimedSoFar > 0 && challenge?.state !== 'disbursed' ? (
+          <div className={styles.claimRewardClaimedAmountLabel}>
+            {`(${audioClaimedSoFar} ${messages.claimedSoFar})`}
+          </div>
+        ) : null}
       </div>
       {claimStatus === ClaimStatus.ERROR && (
         <div className={styles.claimError}>{messages.claimError}</div>
