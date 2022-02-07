@@ -43,7 +43,7 @@ if (!env) {
     const config = JSON.parse(data)
     env = config.env
   } catch (e) {
-    console.error('No config file found', e)
+    console.error('Unable to parse config file electronConfig.json', e)
   }
 }
 
