@@ -1,3 +1,4 @@
+import delayP from '@redux-saga/delay-p'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call, select } from 'redux-saga-test-plan/matchers'
 import { StaticProvider } from 'redux-saga-test-plan/providers'
@@ -285,8 +286,6 @@ describe('Rewards Page Sagas', () => {
     })
 
     it('should attempt retry if below max retries', () => {
-      const provideDelay = ({ fn }: any, next: any) =>
-        fn.name === 'delayP' ? null : next()
       return (
         expectSaga(saga)
           .dispatch(
@@ -297,7 +296,7 @@ describe('Rewards Page Sagas', () => {
           )
           .provide([
             ...claimAsyncProvisions,
-            { call: provideDelay },
+            [call.fn(delayP), null],
             [
               call.fn(AudiusBackend.submitAndEvaluateAttestations),
               { error: FailureReason.UNKNOWN_ERROR }

@@ -214,19 +214,14 @@ function* claimChallengeRewardAsync(
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
-            // Retry once in the case of generic failure, otherwise log error and abort
-            if (retryOnFailure) {
-              yield delay(getBackoff(retryCount))
-              yield put(
-                claimChallengeReward({
-                  claim,
-                  retryOnFailure: true,
-                  retryCount: retryCount + 1
-                })
-              )
-            } else {
-              throw new Error(`Unknown Error: ${response.error}`)
-            }
+            yield delay(getBackoff(retryCount))
+            yield put(
+              claimChallengeReward({
+                claim,
+                retryOnFailure: true,
+                retryCount: retryCount + 1
+              })
+            )
         }
       } else {
         yield put(claimChallengeRewardFailed())
