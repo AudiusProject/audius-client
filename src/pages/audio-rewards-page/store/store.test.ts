@@ -62,7 +62,7 @@ function* saga() {
 
 const testClaim: Claim = {
   challengeId: 'connect-verified',
-  specifier: '1',
+  specifiers: ['1'],
   amount: 10
 }
 const testUser = {
@@ -93,11 +93,12 @@ const retryClaimProvisions: StaticProvider[] = [
 ]
 
 const expectedRequestArgs = {
-  ...testClaim,
+  challenges: [{ challenge_id: 'connect-verified', specifier: '1' }],
   encodedUserId: undefined,
   handle: 'test_user',
   recipientEthAddress: 'test-wallet',
   oracleEthAddress: 'oracle eth address',
+  amount: 10,
   quorumSize: 1,
   endpoints: ['rewards attestation endpoints'],
   AAOEndpoint: 'oracle endpoint'

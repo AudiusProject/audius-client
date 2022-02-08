@@ -155,13 +155,14 @@ function* claimChallengeRewardAsync(
     return
   }
   try {
+    const challenges = specifiers.map(specifier => ({
+      challenge_id: challengeId,
+      specifier
+    }))
     const response: { error?: string } = yield call(
       AudiusBackend.submitAndEvaluateAttestations,
       {
-        challenges: specifiers.map(specifier => ({
-          challenge_id: challengeId,
-          specifier
-        })),
+        challenges,
         encodedUserId: encodeHashId(currentUser.user_id),
         handle: currentUser.handle,
         recipientEthAddress: currentUser.wallet,
