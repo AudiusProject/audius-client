@@ -72,21 +72,27 @@ const RewardPanel = ({
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
   const needsDisbursement = challenge?.state === 'completed'
+  const shouldShowProgressBar =
+    stepCount > 1 && challenge?.challenge_type !== 'aggregate'
 
-  const progressLabelFilled = shouldShowCompleted
-    ? messages.completeLabel
-    : challenge?.challenge_type === 'aggregate'
-    ? fillString(
-        remainingLabel ?? '',
-        (challenge?.max_steps - challenge?.current_step_count)?.toString() ??
-          '',
-        stepCount.toString()
-      )
-    : fillString(
-        progressLabel,
-        challenge?.current_step_count?.toString() ?? '',
-        stepCount.toString()
-      )
+  let progressLabelFilled: string
+  if (shouldShowCompleted) {
+    progressLabelFilled = messages.completeLabel
+  } else if (challenge?.challenge_type === 'aggregate') {
+    // Count down
+    progressLabelFilled = fillString(
+      remainingLabel ?? '',
+      (challenge?.max_steps - challenge?.current_step_count)?.toString() ?? '',
+      stepCount.toString()
+    )
+  } else {
+    // Count up
+    progressLabelFilled = fillString(
+      progressLabel,
+      challenge?.current_step_count?.toString() ?? '',
+      stepCount.toString()
+    )
+  }
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
@@ -105,7 +111,7 @@ const RewardPanel = ({
         >
           {progressLabelFilled}
         </p>
-        {stepCount > 1 && challenge?.challenge_type !== 'aggregate' && (
+        {shouldShowProgressBar && (
           <ProgressBar
             className={styles.rewardProgressBar}
             value={challenge?.current_step_count ?? 0}
