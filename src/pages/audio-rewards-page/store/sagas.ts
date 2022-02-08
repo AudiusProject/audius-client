@@ -118,7 +118,7 @@ function* claimChallengeRewardAsync(
   action: ReturnType<typeof claimChallengeReward>
 ) {
   const { claim, retryOnFailure } = action.payload
-  const { specifier, challengeId, amount } = claim
+  const { specifiers, challengeId, amount } = claim
 
   // Do not proceed to claim if challenge is not complete from a DN perspective.
   // This is possible because the client may optimistically set a challenge as complete
@@ -158,11 +158,13 @@ function* claimChallengeRewardAsync(
     const response: { error?: string } = yield call(
       AudiusBackend.submitAndEvaluateAttestations,
       {
-        challengeId,
+        challenges: specifiers.map(specifier => ({
+          challenge_id: challengeId,
+          specifier
+        })),
         encodedUserId: encodeHashId(currentUser.user_id),
         handle: currentUser.handle,
         recipientEthAddress: currentUser.wallet,
-        specifier,
         oracleEthAddress,
         amount,
         quorumSize,

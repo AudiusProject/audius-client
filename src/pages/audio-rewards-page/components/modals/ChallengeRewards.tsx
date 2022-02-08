@@ -303,7 +303,10 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         claimChallengeReward({
           claim: {
             challengeId: challenge.challenge_id,
-            specifier,
+            specifier:
+              challenge.challenge_type === 'aggregate'
+                ? challenge.undisbursedSpecifiers
+                : [challenge.specifier],
             amount: challenge.amount
           },
           retryOnFailure: true

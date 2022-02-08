@@ -2645,11 +2645,10 @@ class AudiusBackend {
    * Aggregate, submit, and evaluate attestations for a given challenge for a user
    */
   static async submitAndEvaluateAttestations({
-    challengeId,
+    challenges,
     encodedUserId,
     handle,
     recipientEthAddress,
-    specifier,
     oracleEthAddress,
     amount,
     quorumSize,
@@ -2659,11 +2658,10 @@ class AudiusBackend {
     await waitForLibsInit()
     try {
       const res = await audiusLibs.Rewards.submitAndEvaluate({
-        challengeId,
+        challenges,
         encodedUserId,
         handle,
         recipientEthAddress,
-        specifier,
         oracleEthAddress,
         amount,
         quorumSize,
