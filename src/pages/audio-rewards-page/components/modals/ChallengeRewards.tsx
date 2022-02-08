@@ -278,6 +278,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   // We could just depend on undisbursedAmount here
   // But DN may have not indexed the challenge so check for client-side completion too
+  // Note that we can't handle aggregate challenges optimistically
   let audioToClaim = 0
   let audioClaimedSoFar = 0
   if (challenge?.challenge_type === 'aggregate') {
