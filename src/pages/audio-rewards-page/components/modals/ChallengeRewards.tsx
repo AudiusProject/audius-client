@@ -292,6 +292,10 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
       challenge.amount * challenge.current_step_count - audioToClaim
   }
 
+  const showProgressBar =
+    challenge?.state === 'in_progress' &&
+    challenge?.challenge_type !== 'aggregate'
+
   const onClaimRewardClicked = useCallback(() => {
     if (challenge) {
       dispatch(
@@ -329,14 +333,16 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           <div className={wm(styles.progressCard)}>
             <div className={wm(styles.progressInfo)}>
               {progressReward}
-              <div className={wm(styles.progressBarSection)}>
-                <h3>Progress</h3>
-                <ProgressBar
-                  className={wm(styles.progressBar)}
-                  value={currentStepCount}
-                  max={stepCount}
-                />
-              </div>
+              {showProgressBar ? (
+                <div className={wm(styles.progressBarSection)}>
+                  <h3>Progress</h3>
+                  <ProgressBar
+                    className={wm(styles.progressBar)}
+                    value={currentStepCount}
+                    max={stepCount}
+                  />
+                </div>
+              ) : null}
             </div>
             {progressStatusLabel}
           </div>
@@ -348,17 +354,16 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
             {progressDescription}
             {progressReward}
           </div>
-          {challenge?.state === 'in_progress' &&
-            challenge?.challenge_type !== 'aggregate' && (
-              <div className={wm(styles.progressBarSection)}>
-                {modalType === 'profile-completion' && <ProfileChecks />}
-                <ProgressBar
-                  className={wm(styles.progressBar)}
-                  value={currentStepCount}
-                  max={stepCount}
-                />
-              </div>
-            )}
+          {showProgressBar && (
+            <div className={wm(styles.progressBarSection)}>
+              {modalType === 'profile-completion' && <ProfileChecks />}
+              <ProgressBar
+                className={wm(styles.progressBar)}
+                value={currentStepCount}
+                max={stepCount}
+              />
+            </div>
+          )}
           {progressStatusLabel}
         </div>
       )}
@@ -379,26 +384,26 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           </div>
         </div>
       )}
+      {buttonLink && (
+        <Button
+          className={wm(cn(styles.button, styles.buttonLink))}
+          type={
+            challenge?.state === 'completed'
+              ? ButtonType.COMMON
+              : ButtonType.PRIMARY_ALT
+          }
+          text={buttonInfo?.label}
+          onClick={goToRoute}
+          leftIcon={buttonInfo?.leftIcon}
+          rightIcon={buttonInfo?.rightIcon}
+        />
+      )}
       <div className={wm(styles.claimRewardWrapper)}>
         {audioToClaim > 0 ? (
           <div className={styles.claimRewardAmountLabel}>
             {`${audioToClaim} ${messages.claimAmountLabel}`}
           </div>
         ) : null}
-        {buttonLink && (
-          <Button
-            className={wm(styles.button)}
-            type={
-              challenge?.state === 'completed'
-                ? ButtonType.COMMON
-                : ButtonType.PRIMARY_ALT
-            }
-            text={buttonInfo?.label}
-            onClick={goToRoute}
-            leftIcon={buttonInfo?.leftIcon}
-            rightIcon={buttonInfo?.rightIcon}
-          />
-        )}
         {audioToClaim > 0 ? (
           <Button
             text={messages.claimYourReward}

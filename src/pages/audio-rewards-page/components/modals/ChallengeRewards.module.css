@@ -76,6 +76,7 @@
 
 .progressInfo {
   display: flex;
+  justify-content: center;
 }
 .progressInfo.mobile {
   padding: 16px 0px;
@@ -151,6 +152,10 @@
 }
 .button.mobile {
   width: 100%;
+}
+
+.buttonLink {
+  margin-top: 32px;
 }
 
 /* QR Code Styles */
@@ -284,6 +289,10 @@
   margin-top: 32px;
 }
 
+.claimRewardWrapper.mobile {
+  width: 100%;
+}
+
 .claimRewardWrapper:not(.mobile) .button {
   margin-left: 16px;
   margin-right: 16px;
@@ -301,7 +310,7 @@
 }
 
 .claimRewardAmountLabel {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   text-align: center;
   text-transform: uppercase;
   color: var(--accent-green);
