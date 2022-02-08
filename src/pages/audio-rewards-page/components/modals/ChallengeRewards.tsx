@@ -199,7 +199,6 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   } = challengeRewardsConfig[modalType]
 
   const currentStepCount = challenge?.current_step_count || 0
-  const specifier = challenge?.specifier ?? ''
 
   let linkType: 'complete' | 'inProgress' | 'incomplete'
   if (challenge?.state === 'completed') {
@@ -303,7 +302,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         claimChallengeReward({
           claim: {
             challengeId: challenge.challenge_id,
-            specifier:
+            specifiers:
               challenge.challenge_type === 'aggregate'
                 ? challenge.undisbursedSpecifiers
                 : [challenge.specifier],
@@ -313,7 +312,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         })
       )
     }
-  }, [dispatch, challenge, specifier])
+  }, [dispatch, challenge])
 
   useEffect(() => {
     if (claimStatus === ClaimStatus.SUCCESS) {
