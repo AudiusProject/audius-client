@@ -327,9 +327,11 @@
 }
 
 .claimError {
-  margin-top: 32px;
+  margin: 32px 32px 0 32px;
   color: var(--accent-red);
   font-weight: var(--font-demi-bold);
+  line-height: 1.2;
+  text-align: center;
 }
 
 .verifiedChallenge {
