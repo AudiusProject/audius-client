@@ -48,7 +48,9 @@ import {
   claimChallengeRewardAlreadyClaimed,
   setUserChallengeCurrentStepCount,
   resetUserChallengeCurrentStepCount,
-  updateOptimisticListenStreak
+  updateOptimisticListenStreak,
+  setUndisbursedChallenges,
+  UndisbursedUserChallenge
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -268,7 +270,12 @@ function* fetchUserChallengesAsync() {
         userID: currentUserId
       }
     )
+    const undisbursedChallenges: UndisbursedUserChallenge[] = yield call(
+      [apiClient, apiClient.getUndisbursedUserChallenges],
+      { userID: currentUserId }
+    )
     yield put(fetchUserChallengesSucceeded({ userChallenges }))
+    yield put(setUndisbursedChallenges(undisbursedChallenges))
   } catch (e) {
     console.error(e)
     yield put(fetchUserChallengesFailed())

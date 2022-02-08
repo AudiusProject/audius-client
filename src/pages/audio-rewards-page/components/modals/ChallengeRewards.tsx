@@ -275,13 +275,22 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const claimInProgress =
     claimStatus === ClaimStatus.CLAIMING ||
     claimStatus === ClaimStatus.WAITING_FOR_RETRY
-  const audioClaimedSoFar = 2
-  const audioToClaim =
-    challenge?.challenge_type === 'aggregate'
-      ? challenge.amount * challenge.current_step_count - audioClaimedSoFar
-      : challenge?.state === 'completed'
-      ? challenge.amount
-      : 0
+
+  // We could just depend on undisbursedAmount here
+  // But DN may have not indexed the challenge so check for client-side completion too
+  let audioToClaim = 0
+  let audioClaimedSoFar = 0
+  if (challenge?.state === 'completed') {
+    audioToClaim = challenge.totalAmount
+    audioClaimedSoFar = 0
+  } else if (challenge?.state === 'disbursed') {
+    audioToClaim = 0
+    audioClaimedSoFar = challenge.totalAmount
+  } else if (challenge?.challenge_type === 'aggregate') {
+    audioToClaim = challenge.undisbursedAmount
+    audioClaimedSoFar =
+      challenge.amount * challenge.current_step_count - audioToClaim
+  }
 
   const onClaimRewardClicked = useCallback(() => {
     if (challenge) {
