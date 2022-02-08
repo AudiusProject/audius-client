@@ -1693,7 +1693,8 @@ class AudiusBackend {
     password,
     formFields,
     hasWallet = false,
-    referrer = null
+    referrer = null,
+    feePayerOverride = null
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
@@ -1740,7 +1741,8 @@ class AudiusBackend {
         Request: Name.CREATE_USER_BANK_REQUEST,
         Success: Name.CREATE_USER_BANK_SUCCESS,
         Failure: Name.CREATE_USER_BANK_FAILURE
-      }
+      },
+      feePayerOverride
     )
   }
 
@@ -2438,6 +2440,24 @@ class AudiusBackend {
     }
   }
 
+  static async getRandomFeePayer() {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return { error: true }
+
+    try {
+      return fetch(`${IDENTITY_SERVICE}/solana/random_fee_payer`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json())
+    } catch (err) {
+      console.error(err.message)
+      return { error: true }
+    }
+  }
+
   /**
    * Retrieves the claim distribution amount
    * @returns {BN} amount The claim amount
@@ -2655,7 +2675,8 @@ class AudiusBackend {
     quorumSize,
     endpoints,
     AAOEndpoint,
-    parallelization
+    parallelization,
+    feePayerOverride
   }) {
     await waitForLibsInit()
     try {
@@ -2684,7 +2705,8 @@ class AudiusBackend {
         quorumSize,
         aaoEndpoint: AAOEndpoint,
         aaoAddress: oracleEthAddress,
-        endpoints: endpoints
+        endpoints: endpoints,
+        feePayerOverride
       })
 
       const res = await attester.processChallenges(
