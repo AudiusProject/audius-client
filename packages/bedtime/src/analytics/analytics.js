@@ -1,3 +1,29 @@
+import amplitude from 'amplitude-js'
+
+import { getAmplitudeAPIKey, getAmplitudeProxy } from '../util/getEnv'
+
+const AMP_API_KEY = getAmplitudeAPIKey()
+const AMP_PROXY = getAmplitudeProxy()
+
+const amp = amplitude.getInstance()
+
+export const initTrackSessionStart = async () => {
+  try {
+    if (AMP_API_KEY && AMP_PROXY) {
+      const SESSION_START = 'Session Start'
+      const SOURCE = 'embed player'
+      amp.init(AMP_API_KEY, undefined, { apiEndpoint: AMP_PROXY })
+      amp
+        .logEvent(
+          SESSION_START,
+          { source: SOURCE, referrer: document.referrer }
+        )
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 const SOURCE = 'embed player'
 
 const OPEN = 'Embed: Open Player'
@@ -7,8 +33,8 @@ const PLAYBACK_PAUSE = 'Playback: Pause'
 const LISTEN = 'Listen'
 
 const track = (event, properties) => {
-  if (window.analytics) {
-    window.analytics.track(event, properties)
+  if (amp) {
+    amp.logEvent(event, properties)
   }
 }
 

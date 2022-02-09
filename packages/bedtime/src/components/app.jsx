@@ -10,7 +10,6 @@ import {
   GetTracksResponse,
   getTrackWithHashId
 } from '../util/BedtimeClient'
-import { initTrackSessionStart } from '../util/analytics'
 import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
@@ -24,7 +23,7 @@ import { PauseContextProvider } from './pausedpopover/PauseProvider'
 import PausePopover from './pausedpopover/PausePopover'
 
 import styles from './App.module.css'
-import { recordOpen, recordError } from '../analytics/analytics'
+import { initTrackSessionStart, recordOpen, recordError } from '../analytics/analytics'
 import transitions from './AppTransitions.module.css'
 import { CSSTransition } from 'react-transition-group'
 import { getDominantColor } from '../util/image/dominantColor'
