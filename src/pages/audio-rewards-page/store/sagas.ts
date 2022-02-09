@@ -120,6 +120,31 @@ export const getBackoff = (retryCount: number) => {
   return 200 * 2 ** (retryCount + 1)
 }
 
+const getClaimingConfig = () => {
+  const quorumSize = remoteConfigInstance.getRemoteVar(
+    IntKeys.ATTESTATION_QUORUM_SIZE
+  )
+  const maxClaimRetries = remoteConfigInstance.getRemoteVar(
+    IntKeys.MAX_CLAIM_RETRIES
+  )
+  const rewardsAttestationEndpoints = remoteConfigInstance.getRemoteVar(
+    StringKeys.REWARDS_ATTESTATION_ENDPOINTS
+  )
+  const parallelization = remoteConfigInstance.getRemoteVar(
+    IntKeys.CLIENT_ATTESTATION_PARALLELIZATION
+  )
+  const { oracleEthAddress, AAOEndpoint } = getOracleConfig()
+
+  return {
+    quorumSize,
+    maxClaimRetries,
+    oracleEthAddress,
+    AAOEndpoint,
+    rewardsAttestationEndpoints,
+    parallelization
+  }
+}
+
 function* claimChallengeRewardAsync(
   action: ReturnType<typeof claimChallengeReward>
 ) {
@@ -141,19 +166,15 @@ function* claimChallengeRewardAsync(
     timeout: delay(3000)
   })
 
-  const quorumSize = remoteConfigInstance.getRemoteVar(
-    IntKeys.ATTESTATION_QUORUM_SIZE
-  )
+  const {
+    quorumSize,
+    maxClaimRetries,
+    oracleEthAddress,
+    AAOEndpoint,
+    rewardsAttestationEndpoints,
+    parallelization
+  } = getClaimingConfig()
 
-  const maxClaimRetries = remoteConfigInstance.getRemoteVar(
-    IntKeys.MAX_CLAIM_RETRIES
-  )
-
-  const { oracleEthAddress, AAOEndpoint } = getOracleConfig()
-
-  const rewardsAttestationEndpoints = remoteConfigInstance.getRemoteVar(
-    StringKeys.REWARDS_ATTESTATION_ENDPOINTS
-  )
   const currentUser: User = yield select(getAccountUser)
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
@@ -186,7 +207,8 @@ function* claimChallengeRewardAsync(
         amount,
         quorumSize,
         endpoints,
-        AAOEndpoint
+        AAOEndpoint,
+        parallelization
       }
     )
     if (response.error) {
@@ -212,6 +234,7 @@ function* claimChallengeRewardAsync(
             )
             yield put(claimChallengeRewardWaitForRetry(claim))
             break
+
           case FailureReason.ALREADY_DISBURSED:
           case FailureReason.ALREADY_SENT:
             yield put(claimChallengeRewardAlreadyClaimed())
@@ -219,6 +242,12 @@ function* claimChallengeRewardAsync(
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
           case FailureReason.UNKNOWN_ERROR:
+            // If this was an aggregate challenges with multiple specifiers,
+            // then libs handles the retries and we shouldn't retry here.
+            if (specifiers.length > 1) {
+              yield put(claimChallengeRewardFailed())
+              break
+            }
             yield delay(getBackoff(retryCount))
             yield put(
               claimChallengeReward({
