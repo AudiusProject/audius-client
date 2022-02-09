@@ -182,6 +182,7 @@ const slice = createSlice({
       _action: PayloadAction<{
         claim: Claim
         retryOnFailure: boolean
+        retryCount?: number
       }>
     ) => {
       state.claimStatus = ClaimStatus.CLAIMING
