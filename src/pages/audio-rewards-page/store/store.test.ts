@@ -104,7 +104,8 @@ const expectedRequestArgs = {
   amount: 10,
   quorumSize: 1,
   endpoints: ['rewards attestation endpoints'],
-  AAOEndpoint: 'oracle endpoint'
+  AAOEndpoint: 'oracle endpoint',
+  parallelization: 20
 }
 beforeAll(() => {
   // Setup remote config
@@ -115,7 +116,8 @@ beforeAll(() => {
     [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: 'rewards attestation endpoints',
     [IntKeys.CHALLENGE_REFRESH_INTERVAL_AUDIO_PAGE_MS]: 100000000000,
     [IntKeys.CHALLENGE_REFRESH_INTERVAL_MS]: 1000000000000,
-    [IntKeys.MAX_CLAIM_RETRIES]: MAX_CLAIM_RETRIES
+    [IntKeys.MAX_CLAIM_RETRIES]: MAX_CLAIM_RETRIES,
+    [IntKeys.CLIENT_ATTESTATION_PARALLELIZATION]: 20
   })
   remoteConfigInstance.waitForRemoteConfig = jest.fn()
 
