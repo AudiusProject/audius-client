@@ -403,27 +403,27 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
       )}
       <div className={wm(styles.claimRewardWrapper)}>
         {audioToClaim > 0 ? (
-          <div className={styles.claimRewardAmountLabel}>
-            {`${audioToClaim} ${messages.claimAmountLabel}`}
-          </div>
-        ) : null}
-        {audioToClaim > 0 ? (
-          <Button
-            text={messages.claimYourReward}
-            className={wm(styles.button)}
-            type={
-              claimInProgress ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT
-            }
-            isDisabled={claimInProgress}
-            rightIcon={
-              claimInProgress ? (
-                <LoadingSpinner className={styles.spinner} />
-              ) : (
-                <IconCheck />
-              )
-            }
-            onClick={onClaimRewardClicked}
-          />
+          <>
+            <div className={styles.claimRewardAmountLabel}>
+              {`${audioToClaim} ${messages.claimAmountLabel}`}
+            </div>
+            <Button
+              text={messages.claimYourReward}
+              className={wm(styles.button)}
+              type={
+                claimInProgress ? ButtonType.DISABLED : ButtonType.PRIMARY_ALT
+              }
+              isDisabled={claimInProgress}
+              rightIcon={
+                claimInProgress ? (
+                  <LoadingSpinner className={styles.spinner} />
+                ) : (
+                  <IconCheck />
+                )
+              }
+              onClick={onClaimRewardClicked}
+            />
+          </>
         ) : null}
         {audioClaimedSoFar > 0 && challenge?.state !== 'disbursed' ? (
           <div className={styles.claimRewardClaimedAmountLabel}>
