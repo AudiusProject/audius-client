@@ -278,7 +278,7 @@ function* fetchUserChallengesAsync() {
       { userID: currentUserId }
     )
     yield put(fetchUserChallengesSucceeded({ userChallenges }))
-    yield put(setUndisbursedChallenges(undisbursedChallenges))
+    yield put(setUndisbursedChallenges(undisbursedChallenges ?? []))
   } catch (e) {
     console.error(e)
     yield put(fetchUserChallengesFailed())
