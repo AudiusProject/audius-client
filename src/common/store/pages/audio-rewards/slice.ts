@@ -47,6 +47,8 @@ export type UndisbursedUserChallenge = Pick<
   wallet: string
 }
 
+type Specifier = string
+
 type RewardsUIState = {
   loading: boolean
   trendingRewardsModalType: TrendingRewardsModalType
@@ -56,7 +58,7 @@ type RewardsUIState = {
   userChallengesOverrides: Partial<
     Record<ChallengeRewardID, Partial<UserChallenge>>
   >
-  disbursedChallenges: Partial<Record<ChallengeRewardID, string[]>>
+  disbursedChallenges: Partial<Record<ChallengeRewardID, Specifier[]>>
   claimStatus: ClaimStatus
   claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
