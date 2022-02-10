@@ -2441,10 +2441,6 @@ class AudiusBackend {
   }
 
   static async getRandomFeePayer() {
-    await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return { error: true }
-
     try {
       return fetch(`${IDENTITY_SERVICE}/solana/random_fee_payer`, {
         method: 'GET',
