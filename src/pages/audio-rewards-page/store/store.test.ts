@@ -367,7 +367,12 @@ describe('Rewards Page Sagas', () => {
               amount: stringAudioToStringWei('10' as StringAudio)
             })
           )
-          .put(setUserChallengesDisbursed(testClaim))
+          .put(
+            setUserChallengesDisbursed({
+              challengeId: testClaim.challengeId,
+              specifiers: testClaim.specifiers
+            })
+          )
           .put(claimChallengeRewardSucceeded())
           .silentRun()
       )
@@ -397,7 +402,12 @@ describe('Rewards Page Sagas', () => {
           ])
           // Assertions
           .not.call(AudiusBackend.submitAndEvaluateAttestations)
-          .not.put(setUserChallengesDisbursed(testClaim))
+          .not.put(
+            setUserChallengesDisbursed({
+              challengeId: testClaim.challengeId,
+              specifiers: testClaim.specifiers
+            })
+          )
           .not.put(claimChallengeRewardSucceeded())
           .silentRun()
       )
