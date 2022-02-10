@@ -125,7 +125,7 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
     stepCount: 1,
-    panelButtonText: 'Invite your Friends',
+    panelButtonText: 'More Info',
     modalButtonInfo: {
       incomplete: null,
       inProgress: null,

@@ -140,16 +140,19 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
   'mobile-install',
   'connect-verified',
   'listen-streak',
-  'profile-completion'
+  'profile-completion',
+  'referred'
 ])
 
 /** Pulls rewards from remoteconfig */
-const useRewardIds = () => {
+const useRewardIds = (
+  hideConfig: Partial<Record<ChallengeRewardID, boolean>>
+) => {
   const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   if (rewardsString === null) return []
   const rewards = rewardsString.split(',') as ChallengeRewardID[]
-  const filteredRewards: ChallengeRewardID[] = rewards.filter(reward =>
-    validRewardIds.has(reward)
+  const filteredRewards: ChallengeRewardID[] = rewards.filter(
+    reward => validRewardIds.has(reward) && !hideConfig[reward]
   )
   return filteredRewards
 }
@@ -157,16 +160,13 @@ const useRewardIds = () => {
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
-  const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const userChallenges = useSelector(getUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
-  // Add a tile for referred challenge if the user was referred and hasn't claimed
-  const needsReferredTile =
-    userChallenges.referred &&
-    userChallenges.referred.is_complete &&
-    !userChallenges.referred.is_disbursed
+  // The referred challenge only needs a tile if the user was referred
+  const hideReferredTile = !userChallenges.referred?.is_complete
+  const rewardIds = useRewardIds({ referred: hideReferredTile })
 
   useEffect(() => {
     if (!userChallengesLoading && !haveChallengesLoaded) {
@@ -184,10 +184,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     setVisibility('ChallengeRewardsExplainer')(true)
   }
 
-  const rewardsTiles = (needsReferredTile
-    ? rewardIds.concat('referred')
-    : rewardIds
-  )
+  const rewardsTiles = rewardIds
     // Filter out challenges that DN didn't return
     .map(id => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
