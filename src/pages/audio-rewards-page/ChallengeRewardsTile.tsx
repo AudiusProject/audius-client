@@ -168,8 +168,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     userChallenges.referred.is_complete &&
     !userChallenges.referred.is_disbursed
 
-  console.log({ needsReferredTile, referred: userChallenges.referred })
-
   useEffect(() => {
     if (!userChallengesLoading && !haveChallengesLoaded) {
       setHaveChallengesLoaded(true)
