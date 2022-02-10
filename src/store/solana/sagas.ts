@@ -1,17 +1,16 @@
-import { put, call, take, select } from 'typed-redux-saga'
+import { put, call, take } from 'typed-redux-saga'
 
-import { getFeePayer } from 'common/store/solana/selectors'
 import { setFeePayer } from 'common/store/solana/slice'
 import AudiusBackend from 'services/AudiusBackend'
 import * as backendActions from 'store/backend/actions'
 
 function* watchForFeePayer() {
-  console.log('watching for fee payer')
   yield take(backendActions.SETUP_BACKEND_SUCCEEDED)
   const { feePayer, error } = yield* call(AudiusBackend.getRandomFeePayer)
-  if (!error) {
+  if (error) {
+    console.error('Could not get fee payer.')
+  } else {
     yield put(setFeePayer({ feePayer }))
-    console.log('the fee payer', yield* select(getFeePayer))
   }
 }
 
