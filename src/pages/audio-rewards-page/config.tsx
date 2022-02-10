@@ -120,7 +120,7 @@ export const challengeRewardsConfig: Record<
     id: 'referred',
     title: 'You Accepted An Invite',
     icon: <i className='emoji large love-letter' />,
-    description: () => `You earned $AUDIO for being referred`,
+    description: () => `You earned $AUDIO for being invited`,
     fullDescription: () => `You earned $AUDIO for being invited`,
     progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
