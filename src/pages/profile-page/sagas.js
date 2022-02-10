@@ -1,6 +1,7 @@
 import { merge } from 'lodash'
 import {
   call,
+  delay,
   fork,
   put,
   select,
@@ -214,20 +215,12 @@ function* fetchProfileAsync(action) {
       )
     }
 
-    // Delay so the page can load before we fetch followers/followees
-    // yield delay(2000)
+    // Delay so the page can load before we fetch mutual followers
+    yield delay(2000)
 
-    // const followsToFetch = [
-    //   put(profileActions.fetchFollowUsers(FollowType.FOLLOWERS)),
-    //   put(profileActions.fetchFollowUsers(FollowType.FOLLOWEES))
-    // ]
-    // if (!isMobileClient) {
-    //   followsToFetch.push(
-    //     put(profileActions.fetchFollowUsers(FollowType.FOLLOWEE_FOLLOWS))
-    //   )
-    // }
-
-    // yield all(followsToFetch)
+    if (!isMobileClient) {
+      yield put(profileActions.fetchFollowUsers(FollowType.FOLLOWEE_FOLLOWS))
+    }
   } catch (err) {
     const isReachable = yield select(getIsReachable)
     if (!isReachable) return

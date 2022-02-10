@@ -1,11 +1,11 @@
 import { takeEvery, put } from 'redux-saga/effects'
 
 import { FavoriteType } from 'common/models/Favorite'
-import * as favoritesActions from 'pages/favorites-page/store/actions'
-import * as followerActions from 'pages/followers-page/store/actions'
-import * as followingActions from 'pages/following-page/store/actions'
-import * as repostActions from 'pages/reposts-page/store/actions'
-import { RepostType } from 'pages/reposts-page/store/types'
+import * as favoritesActions from 'common/store/user-list/favorites/actions'
+import * as followerActions from 'common/store/user-list/followers/actions'
+import * as followingActions from 'common/store/user-list/following/actions'
+import * as repostActions from 'common/store/user-list/reposts/actions'
+import { RepostType } from 'common/store/user-list/reposts/types'
 
 import { setUsers } from './slice'
 import { UserListType, UserListEntityType } from './types'

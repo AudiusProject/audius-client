@@ -6,15 +6,15 @@ import { ID } from 'common/models/Identifiers'
 import { Track } from 'common/models/Track'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
-import UserListSagaFactory from 'components/user-list/store/sagas'
+import UserListSagaFactory from 'common/store/user-list/sagas'
 import { createUserListProvider } from 'components/user-list/utils'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-
-import { USER_LIST_TAG } from '../FavoritesPage'
 
 import { trackFavoriteError, playlistFavoriteError } from './actions'
 import { watchFavoriteError } from './errorSagas'
 import { getId, getUserList, getUserIds, getFavoriteType } from './selectors'
+
+export const USER_LIST_TAG = 'FAVORITES'
 
 const getPlaylistFavorites = createUserListProvider<Collection>({
   getExistingEntity: getCollection,

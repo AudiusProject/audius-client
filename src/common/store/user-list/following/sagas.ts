@@ -3,15 +3,15 @@ import { put, select } from 'redux-saga/effects'
 import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
 import { getUser } from 'common/store/cache/users/selectors'
-import UserListSagaFactory from 'components/user-list/store/sagas'
+import UserListSagaFactory from 'common/store/user-list/sagas'
 import { createUserListProvider } from 'components/user-list/utils'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-
-import { USER_LIST_TAG } from '../FollowingPage'
 
 import { getFollowingError } from './actions'
 import { watchFollowingError } from './errorSagas'
 import { getId, getUserList, getUserIds } from './selectors'
+
+export const USER_LIST_TAG = 'FOLLOWING'
 
 const provider = createUserListProvider<User>({
   getExistingEntity: getUser,

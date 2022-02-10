@@ -16,9 +16,10 @@ import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
+import { loadMore, setPageSize } from '../../common/store/user-list/actions'
+import { UserListStoreState } from '../../common/store/user-list/types'
+
 import UserList from './components/UserList'
-import { loadMore, setPageSize } from './store/actions'
-import { UserListStoreState } from './store/types'
 
 type ConnectedUserListOwnProps = {
   // A tag uniquely identifying this particular instance of a UserList in the store.
