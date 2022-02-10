@@ -116,15 +116,12 @@ export const challengeRewardsConfig: Record<
     },
     verifiedChallenge: true
   },
-  // This is used just for the notifications
   referred: {
-    id: 'referrals' as ChallengeRewardID,
-    title: 'Invite your Friends',
-    icon: <i className='emoji large incoming-envelope' />,
-    description: challenge =>
-      `Earn ${challenge?.amount} $AUDIO, for you and your friend`,
-    fullDescription: challenge =>
-      `Invite your Friends! You’ll earn ${challenge?.amount} $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)`,
+    id: 'referred',
+    title: 'You Accepted An Invite',
+    icon: <i className='emoji large love-letter' />,
+    description: () => `You earned $AUDIO for being referred`,
+    fullDescription: () => `You earned $AUDIO for being invited`,
     progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
     stepCount: 1,

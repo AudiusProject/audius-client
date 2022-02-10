@@ -162,6 +162,14 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const userChallenges = useSelector(getUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
+  // Add a tile for referred challenge if the user was referred and hasn't claimed
+  const needsReferredTile =
+    userChallenges.referred &&
+    userChallenges.referred.is_complete &&
+    !userChallenges.referred.is_disbursed
+
+  console.log({ needsReferredTile, referred: userChallenges.referred })
+
   useEffect(() => {
     if (!userChallengesLoading && !haveChallengesLoaded) {
       setHaveChallengesLoaded(true)
@@ -178,7 +186,10 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     setVisibility('ChallengeRewardsExplainer')(true)
   }
 
-  const rewardsTiles = rewardIds
+  const rewardsTiles = (needsReferredTile
+    ? rewardIds.concat('referred')
+    : rewardIds
+  )
     // Filter out challenges that DN didn't return
     .map(id => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
