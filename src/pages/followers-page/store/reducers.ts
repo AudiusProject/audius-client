@@ -19,7 +19,7 @@ const initialState = {
 const followersPageReducer = createReducer<FollowersOwnState, FollowersActions>(
   initialState,
   {
-    [actions.SET_FOLOWING](state, action) {
+    [actions.SET_FOLLOWERS](state, action) {
       return {
         ...state,
         id: action.id

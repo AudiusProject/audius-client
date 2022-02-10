@@ -3,6 +3,7 @@ import { takeEvery, put } from 'redux-saga/effects'
 import { FavoriteType } from 'common/models/Favorite'
 import * as favoritesActions from 'pages/favorites-page/store/actions'
 import * as followerActions from 'pages/followers-page/store/actions'
+import * as followingActions from 'pages/following-page/store/actions'
 import * as repostActions from 'pages/reposts-page/store/actions'
 import { RepostType } from 'pages/reposts-page/store/types'
 
@@ -14,6 +15,7 @@ function* watchSetUsers() {
     action: ReturnType<typeof setUsers>
   ) {
     const { userListType, entityType, id } = action.payload
+    console.log({ userListType, entityType, id })
     switch (userListType) {
       case UserListType.FAVORITE:
         yield put(
@@ -37,6 +39,11 @@ function* watchSetUsers() {
         break
       case UserListType.FOLLOWER:
         yield put(followerActions.setFollowers(id))
+        break
+      case UserListType.FOLLOWING:
+        yield put(followingActions.setFollowing(id))
+        break
+      case UserListType.MUTUAL_FOLLOWER:
         break
       default:
         break

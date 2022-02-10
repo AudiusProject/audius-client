@@ -19,7 +19,7 @@ const initialState = {
 const followingPageReducer = createReducer<FollowingOwnState, FollowingActions>(
   initialState,
   {
-    [actions.SET_FOLOWING](state, action) {
+    [actions.SET_FOLLOWING](state, action) {
       return {
         ...state,
         id: action.id

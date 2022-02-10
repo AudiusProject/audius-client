@@ -9,6 +9,8 @@ import { USER_LIST_TAG as FAVORITES_TAG } from 'pages/favorites-page/FavoritesPa
 import { getUserList as favoritesSelector } from 'pages/favorites-page/store/selectors'
 import { USER_LIST_TAG as FOLLOWER_TAG } from 'pages/followers-page/FollowersPage'
 import { getUserList as followersSelector } from 'pages/followers-page/store/selectors'
+import { USER_LIST_TAG as FOLLOWING_TAG } from 'pages/following-page/FollowingPage'
+import { getUserList as followingSelector } from 'pages/following-page/store/selectors'
 import { USER_LIST_TAG as REPOST_TAG } from 'pages/reposts-page/RepostsPage'
 import { getUserList as repostsSelector } from 'pages/reposts-page/store/selectors'
 import { UserListType } from 'store/application/ui/userListModal/types'
@@ -27,7 +29,8 @@ type UserListModalProps = {
 const messages = {
   reposts: 'REPOSTS',
   favorites: 'FAVORITES',
-  followers: 'FOLLOWERS'
+  followers: 'FOLLOWERS',
+  following: 'FOLLOWING'
 }
 
 const PAGE_SIZE = 15
@@ -60,6 +63,11 @@ const UserListModal = ({
       tag = FOLLOWER_TAG
       selector = followersSelector
       title = messages.followers
+      break
+    case UserListType.FOLLOWING:
+      tag = FOLLOWING_TAG
+      selector = followingSelector
+      title = messages.following
       break
     // Should not happen but typescript doesn't seem to be
     // smart enough to pass props to components below

@@ -47,6 +47,7 @@ function* errorDispatcher(error: Error) {
 }
 
 function* getFollowing(currentPage: number, pageSize: number) {
+  console.log('get following')
   const id: number | null = yield select(getId)
   if (!id) return { userIds: [], hasMore: false }
   return yield provider({ id, currentPage, pageSize })
