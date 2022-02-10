@@ -95,7 +95,7 @@ const toOptimisticChallenge = (
     challenge.challenge_type === 'aggregate'
       ? challenge.amount * challenge.max_steps
       : challenge.amount
-  const undisbursedAmount =
+  const claimableAmount =
     state === 'completed' && challengeOverridden.challenge_type !== 'aggregate'
       ? totalAmount
       : undisbursed.reduce<number>((acc, val) => acc + val.amount, 0)
@@ -106,7 +106,7 @@ const toOptimisticChallenge = (
     __isOptimistic: true,
     state,
     totalAmount,
-    undisbursedAmount,
+    claimableAmount,
     undisbursedSpecifiers
   }
 }
