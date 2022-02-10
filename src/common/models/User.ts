@@ -60,6 +60,8 @@ export type ComputedUserProperties = {
   _profile_picture_color?: Color
   _artist_pick?: ID
   _has_reposted?: boolean
+  updatedProfilePicture: any
+  updatedCoverPhoto: any
 }
 
 export type User = UserMetadata & ComputedUserProperties
