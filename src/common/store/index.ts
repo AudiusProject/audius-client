@@ -135,10 +135,10 @@ export const sagas = {
   // pages/track/store/lineups/tracks/sagas.js
   // pages/track/store/sagas.js
   // store/ui/stemsUpload/sagas.ts
-  // common/store/ui/user-list/followers/sagas.ts
-  // common/store/ui/user-list/following/sagas.ts
-  // common/store/ui/user-list/reposts/sagas.ts
-  // common/store/ui/user-list/favorites/sagas.ts
+  // pages/user-list/followers/sagas.ts
+  // pages/user-list/following/sagas.ts
+  // pages/user-list/reposts/sagas.ts
+  // pages/user-list/favorites/sagas.ts
 }
 
 export type CommonState = {

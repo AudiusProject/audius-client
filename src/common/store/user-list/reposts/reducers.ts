@@ -3,8 +3,9 @@ import { createReducer, ActionType } from 'typesafe-actions'
 
 import { UserListReducerFactory } from 'common/store/user-list/reducer'
 
+import { USER_LIST_TAG } from '../../../../pages/reposts-page/sagas'
+
 import * as actions from './actions'
-import { USER_LIST_TAG } from './sagas'
 import { RepostsOwnState, RepostType } from './types'
 
 type TrackRepostActions = ActionType<typeof actions>

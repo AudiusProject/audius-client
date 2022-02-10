@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from 'react'
 
-import { USER_LIST_TAG } from 'common/store/user-list/favorites/sagas'
 import { getUserList } from 'common/store/user-list/favorites/selectors'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import NavContext, { LeftPreset } from 'components/nav/store/context'
 import UserList from 'components/user-list/UserList'
+import { USER_LIST_TAG } from 'pages/favorites-page/sagas'
 
 const messages = {
   title: 'Favorites'

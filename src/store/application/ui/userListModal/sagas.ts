@@ -15,7 +15,6 @@ function* watchSetUsers() {
     action: ReturnType<typeof setUsers>
   ) {
     const { userListType, entityType, id } = action.payload
-    console.log({ userListType, entityType, id })
     switch (userListType) {
       case UserListType.FAVORITE:
         yield put(
