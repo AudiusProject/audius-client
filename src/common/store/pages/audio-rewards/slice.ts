@@ -56,6 +56,7 @@ type RewardsUIState = {
   userChallengesOverrides: Partial<
     Record<ChallengeRewardID, Partial<UserChallenge>>
   >
+  disbursedChallenges: Partial<Record<ChallengeRewardID, string[]>>
   claimStatus: ClaimStatus
   claimToRetry?: Claim
   hCaptchaStatus: HCaptchaStatus
@@ -71,6 +72,7 @@ const initialState: RewardsUIState = {
   userChallenges: {},
   undisbursedChallenges: [],
   userChallengesOverrides: {},
+  disbursedChallenges: {},
   loading: true,
   claimStatus: ClaimStatus.NONE,
   hCaptchaStatus: HCaptchaStatus.NONE,
@@ -107,14 +109,28 @@ const slice = createSlice({
     ) => {
       state.undisbursedChallenges = action.payload
     },
-    setUserChallengeDisbursed: (
+    setUserChallengesDisbursed: (
       state,
-      action: PayloadAction<{ challengeId: ChallengeRewardID }>
+      action: PayloadAction<{
+        challengeId: ChallengeRewardID
+        specifiers: string[]
+      }>
     ) => {
-      const { challengeId } = action.payload
-      state.userChallengesOverrides[challengeId] = {
-        ...state.userChallengesOverrides[challengeId],
-        is_disbursed: true
+      const { challengeId, specifiers } = action.payload
+      const userChallenge = state.userChallenges[challengeId]
+      // Keep track of individual challenges for rolled up aggregates
+      if (userChallenge?.challenge_type === 'aggregate') {
+        state.disbursedChallenges[challengeId] = ([] as string[]).concat(
+          state.disbursedChallenges[challengeId] ?? [],
+          specifiers
+        )
+      }
+      // All completed challenges that are disbursed are fully disbursed
+      if (userChallenge?.is_complete) {
+        state.userChallengesOverrides[challengeId] = {
+          ...state.userChallengesOverrides[challengeId],
+          is_disbursed: true
+        }
       }
     },
     updateOptimisticListenStreak: state => {},
@@ -233,7 +249,7 @@ export const {
   setUndisbursedChallenges,
   setTrendingRewardsModalType,
   setChallengeRewardsModalType,
-  setUserChallengeDisbursed,
+  setUserChallengesDisbursed,
   resetAndCancelClaimReward,
   setHCaptchaStatus,
   resetHCaptchaStatus,
