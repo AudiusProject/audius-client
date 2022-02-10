@@ -2,7 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import Status from 'common/models/Status'
 
-import { UserChallenge, ChallengeRewardID } from '../../../models/AudioRewards'
+import {
+  UserChallenge,
+  ChallengeRewardID,
+  Specifier
+} from '../../../models/AudioRewards'
 
 export type TrendingRewardsModalType = 'tracks' | 'playlists' | 'underground'
 export type ChallengeRewardsModalType = ChallengeRewardID
@@ -18,7 +22,7 @@ export enum ClaimStatus {
 
 export type Claim = {
   challengeId: ChallengeRewardID
-  specifiers: string[]
+  specifiers: Specifier[]
   amount: number
 }
 
@@ -46,8 +50,6 @@ export type UndisbursedUserChallenge = Pick<
   handle: string
   wallet: string
 }
-
-type Specifier = string
 
 type RewardsUIState = {
   loading: boolean
@@ -115,7 +117,7 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         challengeId: ChallengeRewardID
-        specifiers: string[]
+        specifiers: Specifier[]
       }>
     ) => {
       const { challengeId, specifiers } = action.payload
