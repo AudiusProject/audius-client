@@ -73,7 +73,7 @@ const Stats = ({ size, clickable, stats, userId }: StatsProps) => {
     [styles.large]: size === 'large'
   }
 
-  const statClick = (stat: StatProps) => {
+  const handleStatClick = (stat: StatProps) => {
     if (clickable) {
       if (stat.key === 'follower') {
         return () => {
@@ -97,7 +97,7 @@ const Stats = ({ size, clickable, stats, userId }: StatsProps) => {
           key={stat.key}
           number={stat.number}
           title={stat.title}
-          onClick={statClick(stat)}
+          onClick={handleStatClick(stat)}
         />
       ))}
     </div>
