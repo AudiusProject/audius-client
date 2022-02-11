@@ -248,6 +248,7 @@ function* claimChallengeRewardAsync(
             yield put(claimChallengeRewardFailed())
             break
           case FailureReason.UNKNOWN_ERROR:
+          default:
             // If this was an aggregate challenges with multiple specifiers,
             // then libs handles the retries and we shouldn't retry here.
             if (specifiers.length > 1) {
