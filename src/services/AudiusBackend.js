@@ -2441,13 +2441,10 @@ class AudiusBackend {
   }
 
   static async getRandomFeePayer() {
+    await waitForLibsInit()
     try {
-      return fetch(`${IDENTITY_SERVICE}/solana/random_fee_payer`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
+      const feePayer = await audiusLibs.solanaWeb3Manager.getRandomFeePayer()
+      return { feePayer }
     } catch (err) {
       console.error(err.message)
       return { error: true }
