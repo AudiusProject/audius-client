@@ -14,7 +14,6 @@ type Props = {
    * The text to be displayed
    */
   text: string
-  accessibilityRole?: 'header'
 }
 
 /**

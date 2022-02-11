@@ -76,7 +76,6 @@
 
 .progressInfo {
   display: flex;
-  justify-content: center;
 }
 .progressInfo.mobile {
   padding: 16px 0px;
@@ -146,16 +145,15 @@
   color: var(--white);
 }
 
+.button {
+  margin-top: 32px;
+}
 .button * {
   font-size: var(--font-l) !important;
   letter-spacing: 0px !important;
 }
 .button.mobile {
   width: 100%;
-}
-
-.buttonLink {
-  margin-top: 32px;
 }
 
 /* QR Code Styles */
@@ -285,14 +283,6 @@
   text-decoration: line-through;
 }
 
-.claimRewardWrapper {
-  margin-top: 32px;
-}
-
-.claimRewardWrapper.mobile {
-  width: 100%;
-}
-
 .claimRewardWrapper:not(.mobile) .button {
   margin-left: 16px;
   margin-right: 16px;
@@ -309,29 +299,10 @@
   stroke-width: 6px;
 }
 
-.claimRewardAmountLabel {
-  margin-bottom: 16px;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--accent-green);
-  font-weight: var(--font-heavy);
-}
-
-.claimRewardClaimedAmountLabel {
-  margin-top: 16px;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--neutral-light-4);
-  font-weight: var(--font-heavy);
-  font-size: var(--font-s);
-}
-
 .claimError {
-  margin: 32px 32px 0 32px;
+  margin-top: 18px;
   color: var(--accent-red);
-  font-weight: var(--font-demi-bold);
-  line-height: 1.2;
-  text-align: center;
+  font-weight: 500;
 }
 
 .verifiedChallenge {

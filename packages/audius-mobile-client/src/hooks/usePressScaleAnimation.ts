@@ -2,10 +2,7 @@ import { useCallback, useRef } from 'react'
 
 import { Animated } from 'react-native'
 
-export const usePressScaleAnimation = (
-  scaleTo = 0.97,
-  useNativeDriver = true
-) => {
+export const usePressScaleAnimation = (scaleTo = 0.97) => {
   const scale = useRef(new Animated.Value(1)).current
 
   const startPress = useCallback(() => {
@@ -13,18 +10,18 @@ export const usePressScaleAnimation = (
       toValue: scaleTo,
       duration: 70,
       delay: 0,
-      useNativeDriver
+      useNativeDriver: true
     }).start()
-  }, [scale, scaleTo, useNativeDriver])
+  }, [scale, scaleTo])
 
   const releasePress = useCallback(() => {
     Animated.timing(scale, {
       toValue: 1,
       duration: 70,
       delay: 0,
-      useNativeDriver
+      useNativeDriver: true
     }).start()
-  }, [scale, useNativeDriver])
+  }, [scale])
 
   return {
     scale,

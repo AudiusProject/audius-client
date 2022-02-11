@@ -7,7 +7,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
 import { Provider } from 'react-redux'
 
-import { AddToPlaylistDrawer } from 'app/components/add-to-playlist-drawer'
 import ApiRewardsDrawer from 'app/components/api-rewards-drawer/ApiRewardsDrawer'
 import AppNavigator from 'app/components/app-navigator/AppNavigator'
 // import AudioBreakdownDrawer from 'app/components/audio-breakdown-drawer'
@@ -75,7 +74,6 @@ const Drawers = () => {
       <TransferAudioMobileDrawer />
       <TrendingRewardsDrawer />
       <ApiRewardsDrawer />
-      <AddToPlaylistDrawer />
       <ShareToTiktokDrawer />
       <ChallengeRewardsDrawerProvider />
       <CognitoDrawer />

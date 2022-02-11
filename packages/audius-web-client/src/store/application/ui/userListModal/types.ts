@@ -1,9 +1,7 @@
 export enum UserListType {
   REPOST = 'REPOST',
   FAVORITE = 'FAVORITE',
-  FOLLOWER = 'FOLLOWER',
-  FOLLOWING = 'FOLLOWING',
-  MUTUAL_FOLLOWER = 'MUTUAL_FOLLOWER'
+  FOLLOWER = 'FOLLOWER'
 }
 
 export enum UserListEntityType {

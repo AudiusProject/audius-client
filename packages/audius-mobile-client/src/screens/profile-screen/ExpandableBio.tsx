@@ -32,7 +32,7 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
     backgroundColor: 'white'
   },
   expandText: {
-    ...typography.h4,
+    ...typography.h2,
     color: palette.primary,
     textTransform: 'capitalize'
   }

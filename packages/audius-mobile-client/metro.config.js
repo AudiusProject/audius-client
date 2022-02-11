@@ -1,11 +1,8 @@
+const path = require('path')
+
 const { getDefaultConfig } = require('metro-config')
 
-// If developing locally and using yalc
-// to manage local audius-client dependency,
-// change this to '.yalc'
-const AUDIUS_CLIENT_LOCATION = 'node_modules'
-const clientPath = path =>
-  `${__dirname}/${AUDIUS_CLIENT_LOCATION}/audius-client/src/${path}`
+const clientPath = p => path.resolve(__dirname, '../audius-web-client/src', p)
 
 module.exports = (async () => {
   const {
@@ -21,13 +18,16 @@ module.exports = (async () => {
       }),
       babelTransformerPath: require.resolve('react-native-svg-transformer')
     },
+    watchFolders: [path.resolve(__dirname, '../audius-web-client')],
     resolver: {
       assetExts: assetExts.filter(ext => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg', 'cjs'],
-
+      nodeModulesPaths: [
+        path.resolve(__dirname, '../audius-web-client/node_modules')
+      ],
       extraNodeModules: {
         // Alias for 'src' to allow for absolute paths
-        app: `${__dirname}/src`,
+        app: path.resolve(__dirname, 'src'),
 
         // This is used to resolve the absolute paths found in audius-client.
         // Eventually all shared state logic will live in @audius/client-common
@@ -50,12 +50,13 @@ module.exports = (async () => {
 
         // Some modules import native node modules without necessarily using them.
         // This mocks them out so the app can build
-        crypto: `${__dirname}/node_modules/expo-crypto`,
-        fs: `${__dirname}/node_modules/react-native-fs`,
-        child_process: `${__dirname}/src/mocks/empty.ts`,
-        http: `${__dirname}/src/mocks/empty.ts`,
-        https: `${__dirname}/src/mocks/empty.ts`,
-        stream: `${__dirname}/src/mocks/empty.ts`
+        'react-native': path.resolve(__dirname, 'node_modules/react-native'),
+        crypto: path.resolve(__dirname, 'node_modules/expo-crypto'),
+        fs: path.resolve(__dirname, 'node_modules/react-native-fs'),
+        child_process: path.resolve(__dirname, 'src/mocks/empty.ts'),
+        http: path.resolve(__dirname, 'src/mocks/empty.ts'),
+        https: path.resolve(__dirname, 'src/mocks/empty.ts'),
+        stream: path.resolve(__dirname, 'src/mocks/empty.t')
       }
     },
     maxWorkers: 2

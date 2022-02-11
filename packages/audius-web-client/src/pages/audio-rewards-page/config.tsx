@@ -62,7 +62,6 @@ type ChallengeRewardsInfo = {
   description: (amount: OptimisticUserChallenge | undefined) => string
   fullDescription: (amount: OptimisticUserChallenge | undefined) => string
   progressLabel: string
-  remainingLabel?: string
   amount: number
   stepCount: number
   panelButtonText: string
@@ -86,8 +85,7 @@ export const challengeRewardsConfig: Record<
       `Earn ${challenge?.amount} $AUDIO, for you and your friend`,
     fullDescription: challenge =>
       `Invite your Friends! You’ll earn ${challenge?.amount} $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)`,
-    progressLabel: '%0/%1 Invites Accepted',
-    remainingLabel: '%0/%1 Invites Remain',
+    progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
     stepCount: 5,
     panelButtonText: 'Invite your Friends',
@@ -104,8 +102,7 @@ export const challengeRewardsConfig: Record<
     description: challenge => `Earn up to ${challenge?.totalAmount} $AUDIO`,
     fullDescription: challenge =>
       `Invite your fans! You’ll earn ${challenge?.amount} $AUDIO for each fan who joins with your link (and they’ll get an $AUDIO too)`,
-    progressLabel: '%0/%1 Invites Accepted',
-    remainingLabel: '%0/%1 Invites Remain',
+    progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
     stepCount: 500,
     panelButtonText: 'Invite your Fans',
@@ -116,16 +113,19 @@ export const challengeRewardsConfig: Record<
     },
     verifiedChallenge: true
   },
+  // This is used just for the notifications
   referred: {
-    id: 'referred',
-    title: 'You Accepted An Invite',
-    icon: <i className='emoji large love-letter' />,
-    description: () => `You earned $AUDIO for being invited`,
-    fullDescription: () => `You earned $AUDIO for being invited`,
+    id: 'referrals' as ChallengeRewardID,
+    title: 'Invite your Friends',
+    icon: <i className='emoji large incoming-envelope' />,
+    description: challenge =>
+      `Earn ${challenge?.amount} $AUDIO, for you and your friend`,
+    fullDescription: challenge =>
+      `Invite your Friends! You’ll earn ${challenge?.amount} $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)`,
     progressLabel: '%0/%1 Invites',
     amount: amounts.referrals,
     stepCount: 1,
-    panelButtonText: 'More Info',
+    panelButtonText: 'Invite your Friends',
     modalButtonInfo: {
       incomplete: null,
       inProgress: null,

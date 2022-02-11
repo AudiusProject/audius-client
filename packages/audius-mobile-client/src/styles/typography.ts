@@ -32,16 +32,11 @@ export const typography = {
     marginBottom: 18 * 0.35
   },
   h2: {
-    fontSize: 16,
-    fontFamily: fontByWeight.bold,
-    marginBottom: 18 * 0.35
-  },
-  h3: {
     fontSize: 14,
     fontFamily: fontByWeight.bold,
     marginBottom: 14 * 0.35
   },
-  h4: {
+  h3: {
     fontSize: 14,
     fontFamily: fontByWeight.medium,
     marginBottom: 14 * 0.35

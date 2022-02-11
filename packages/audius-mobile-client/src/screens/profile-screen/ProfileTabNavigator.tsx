@@ -1,4 +1,5 @@
 import { ProfileUser } from 'audius-client/src/common/store/pages/profile/types'
+import { Text } from 'react-native'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconCollectibles from 'app/assets/images/iconCollectibles.svg'
@@ -11,7 +12,6 @@ import {
 } from 'app/components/app-navigator/TopTabNavigator'
 
 import { AlbumsTab } from './AlbumsTab'
-import { CollectiblesTab } from './CollectiblesTab'
 import { PlaylistsTab } from './PlaylistsTab'
 import { RepostsTab } from './RepostsTab'
 import { TracksTab } from './TracksTab'
@@ -19,6 +19,10 @@ import { useShouldShowCollectiblesTab } from './utils'
 
 type ProfileTabNavigatiorProps = {
   profile: ProfileUser
+}
+
+const CollectiblesTab = () => {
+  return <Text>Collectibles Tab</Text>
 }
 
 export const ProfileTabNavigator = ({ profile }: ProfileTabNavigatiorProps) => {

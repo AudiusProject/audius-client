@@ -5,11 +5,9 @@ import {
   UserChallengeState
 } from 'common/models/AudioRewards'
 import {
-  getUndisbursedUserChallenges,
   getUserChallenges,
   getUserChallengesOverrides
 } from 'common/store/pages/audio-rewards/selectors'
-import { UndisbursedUserChallenge } from 'common/store/pages/audio-rewards/slice'
 import { removeNullable } from 'common/utils/typeUtils'
 
 import { CommonState } from '../..'
@@ -65,7 +63,6 @@ export const getOptimisticUserChallengeStepCounts = (state: CommonState) => {
  */
 const toOptimisticChallenge = (
   challenge: UserChallenge,
-  undisbursed: UndisbursedUserChallenge[],
   stepCountOverrides: Partial<Record<ChallengeRewardID, number>>,
   userChallengesOverrides: Partial<
     Record<ChallengeRewardID, Partial<UserChallenge>>
@@ -76,7 +73,14 @@ const toOptimisticChallenge = (
 
   const challengeOverridden = {
     ...challenge,
-    ...userChallengeOverrides
+    ...userChallengeOverrides,
+    // For aggregate challenges, we show the total amount
+    // you'd get when completing every step of the challenge
+    // -- i.e. for referrals, show 1 audio x 5 steps = 5 audio
+    totalAmount:
+      challenge.challenge_type === 'aggregate'
+        ? challenge.amount * challenge.max_steps
+        : challenge.amount
   }
 
   // The client is more up to date than Discovery Nodes, so override whenever possible.
@@ -87,27 +91,10 @@ const toOptimisticChallenge = (
       currentStepCountOverride >= challengeOverridden.max_steps
   }
 
-  const state = getUserChallengeState(challengeOverridden)
-  // For aggregate challenges, we show the total amount
-  // you'd get when completing every step of the challenge
-  // -- i.e. for referrals, show 1 audio x 5 steps = 5 audio
-  const totalAmount =
-    challenge.challenge_type === 'aggregate'
-      ? challenge.amount * challenge.max_steps
-      : challenge.amount
-  const claimableAmount =
-    state === 'completed' && challengeOverridden.challenge_type !== 'aggregate'
-      ? totalAmount
-      : undisbursed.reduce<number>((acc, val) => acc + val.amount, 0)
-  const undisbursedSpecifiers = undisbursed.map(c => c.specifier)
-
   return {
     ...challengeOverridden,
     __isOptimistic: true,
-    state,
-    totalAmount,
-    claimableAmount,
-    undisbursedSpecifiers
+    state: getUserChallengeState(challengeOverridden)
   }
 }
 
@@ -121,18 +108,11 @@ export const getOptimisticUserChallenges = (state: CommonState) => {
   const stepCountOverrides = getOptimisticUserChallengeStepCounts(state)
   const userChallengesOverrides = getUserChallengesOverrides(state)
   const userChallenges = getUserChallenges(state)
-  const undisbursedUserChallenges = getUndisbursedUserChallenges(state).reduce<
-    Partial<Record<ChallengeRewardID, UndisbursedUserChallenge[]>>
-  >((acc, val) => {
-    acc[val.challenge_id] = [...(acc[val.challenge_id] || []), val]
-    return acc
-  }, {})
   return Object.values(userChallenges)
     .filter(removeNullable)
     .map(challenge =>
       toOptimisticChallenge(
         challenge,
-        undisbursedUserChallenges[challenge.challenge_id] || [],
         stepCountOverrides,
         userChallengesOverrides
       )

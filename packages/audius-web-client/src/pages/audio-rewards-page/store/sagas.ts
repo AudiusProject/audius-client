@@ -42,15 +42,13 @@ import {
   HCaptchaStatus,
   setCognitoFlowStatus,
   setHCaptchaStatus,
-  setUserChallengesDisbursed,
+  setUserChallengeDisbursed,
   updateHCaptchaScore,
   showRewardClaimedToast,
   claimChallengeRewardAlreadyClaimed,
   setUserChallengeCurrentStepCount,
   resetUserChallengeCurrentStepCount,
-  updateOptimisticListenStreak,
-  setUndisbursedChallenges,
-  UndisbursedUserChallenge
+  updateOptimisticListenStreak
 } from 'common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
@@ -114,42 +112,11 @@ function* retryClaimChallengeReward(errorResolved: boolean) {
   }
 }
 
-// Returns the number of ms to wait before next retry using exponential backoff
-// ie. 400 ms, 800 ms, 1.6 sec, 3.2 sec, 6.4 sec
-export const getBackoff = (retryCount: number) => {
-  return 200 * 2 ** (retryCount + 1)
-}
-
-const getClaimingConfig = () => {
-  const quorumSize = remoteConfigInstance.getRemoteVar(
-    IntKeys.ATTESTATION_QUORUM_SIZE
-  )
-  const maxClaimRetries = remoteConfigInstance.getRemoteVar(
-    IntKeys.MAX_CLAIM_RETRIES
-  )
-  const rewardsAttestationEndpoints = remoteConfigInstance.getRemoteVar(
-    StringKeys.REWARDS_ATTESTATION_ENDPOINTS
-  )
-  const parallelization = remoteConfigInstance.getRemoteVar(
-    IntKeys.CLIENT_ATTESTATION_PARALLELIZATION
-  )
-  const { oracleEthAddress, AAOEndpoint } = getOracleConfig()
-
-  return {
-    quorumSize,
-    maxClaimRetries,
-    oracleEthAddress,
-    AAOEndpoint,
-    rewardsAttestationEndpoints,
-    parallelization
-  }
-}
-
 function* claimChallengeRewardAsync(
   action: ReturnType<typeof claimChallengeReward>
 ) {
-  const { claim, retryOnFailure, retryCount = 0 } = action.payload
-  const { specifiers, challengeId, amount } = claim
+  const { claim, retryOnFailure } = action.payload
+  const { specifier, challengeId, amount } = claim
 
   // Do not proceed to claim if challenge is not complete from a DN perspective.
   // This is possible because the client may optimistically set a challenge as complete
@@ -166,53 +133,43 @@ function* claimChallengeRewardAsync(
     timeout: delay(3000)
   })
 
-  const {
-    quorumSize,
-    maxClaimRetries,
-    oracleEthAddress,
-    AAOEndpoint,
-    rewardsAttestationEndpoints,
-    parallelization
-  } = getClaimingConfig()
+  const quorumSize = remoteConfigInstance.getRemoteVar(
+    IntKeys.ATTESTATION_QUORUM_SIZE
+  )
+  const { oracleEthAddress, AAOEndpoint } = getOracleConfig()
 
+  const rewardsAttestationEndpoints = remoteConfigInstance.getRemoteVar(
+    StringKeys.REWARDS_ATTESTATION_ENDPOINTS
+  )
   const currentUser: User = yield select(getAccountUser)
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints = rewardsAttestationEndpoints?.split(',') || null
   const hasConfig =
-    oracleEthAddress &&
-    AAOEndpoint &&
-    quorumSize &&
-    quorumSize > 0 &&
-    maxClaimRetries &&
-    !isNaN(maxClaimRetries)
+    oracleEthAddress && AAOEndpoint && quorumSize && quorumSize > 0
 
   if (!hasConfig) {
     console.error('Error claiming rewards: Config is missing')
     return
   }
   try {
-    const challenges = specifiers.map(specifier => ({
-      challenge_id: challengeId,
-      specifier
-    }))
     const response: { error?: string } = yield call(
       AudiusBackend.submitAndEvaluateAttestations,
       {
-        challenges,
+        challengeId,
         encodedUserId: encodeHashId(currentUser.user_id),
         handle: currentUser.handle,
         recipientEthAddress: currentUser.wallet,
+        specifier,
         oracleEthAddress,
         amount,
         quorumSize,
         endpoints,
-        AAOEndpoint,
-        parallelization
+        AAOEndpoint
       }
     )
     if (response.error) {
-      if (retryOnFailure && retryCount < maxClaimRetries!) {
+      if (retryOnFailure) {
         switch (response.error) {
           case FailureReason.HCAPTCHA:
             // Hide the Challenge Rewards Modal because the HCaptcha modal doesn't look good on top of it.
@@ -234,35 +191,19 @@ function* claimChallengeRewardAsync(
             )
             yield put(claimChallengeRewardWaitForRetry(claim))
             break
-
           case FailureReason.ALREADY_DISBURSED:
           case FailureReason.ALREADY_SENT:
             yield put(claimChallengeRewardAlreadyClaimed())
             break
           case FailureReason.BLOCKED:
             throw new Error('User is blocked from claiming')
-          // For these 'attestation aggregation errors',
-          // we've already retried in libs so unlikely to succeed here.
-          case FailureReason.MISSING_CHALLENGES:
-          case FailureReason.CHALLENGE_INCOMPLETE:
-            yield put(claimChallengeRewardFailed())
-            break
           case FailureReason.UNKNOWN_ERROR:
-          default:
-            // If this was an aggregate challenges with multiple specifiers,
-            // then libs handles the retries and we shouldn't retry here.
-            if (specifiers.length > 1) {
-              yield put(claimChallengeRewardFailed())
-              break
+            // Retry once in the case of generic failure, otherwise log error and abort
+            if (retryOnFailure) {
+              yield put(claimChallengeReward({ claim, retryOnFailure: false }))
+            } else {
+              throw new Error(`Unknown Error: ${response.error}`)
             }
-            yield delay(getBackoff(retryCount))
-            yield put(
-              claimChallengeReward({
-                claim,
-                retryOnFailure: true,
-                retryCount: retryCount + 1
-              })
-            )
         }
       } else {
         yield put(claimChallengeRewardFailed())
@@ -273,7 +214,7 @@ function* claimChallengeRewardAsync(
           amount: stringAudioToStringWei(amount.toString() as StringAudio)
         })
       )
-      yield put(setUserChallengesDisbursed({ challengeId, specifiers }))
+      yield put(setUserChallengeDisbursed({ challengeId }))
       yield put(claimChallengeRewardSucceeded())
     }
   } catch (e) {
@@ -327,12 +268,7 @@ function* fetchUserChallengesAsync() {
         userID: currentUserId
       }
     )
-    const undisbursedChallenges: UndisbursedUserChallenge[] = yield call(
-      [apiClient, apiClient.getUndisbursedUserChallenges],
-      { userID: currentUserId }
-    )
     yield put(fetchUserChallengesSucceeded({ userChallenges }))
-    yield put(setUndisbursedChallenges(undisbursedChallenges ?? []))
   } catch (e) {
     console.error(e)
     yield put(fetchUserChallengesFailed())

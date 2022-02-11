@@ -2,13 +2,10 @@ import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
 import averageColor from 'common/store/average-color/slice'
+import { ProfilePageState } from 'common/store/pages/profile/types'
 import RemoteConfigReducer from 'common/store/remote-config/slice'
 import StemsUploadReducer from 'common/store/stems-upload/slice'
 import { CreatePlaylistModalState } from 'common/store/ui/createPlaylistModal/types'
-import { FavoritesPageState } from 'common/store/user-list/favorites/types'
-import { FollowersPageState } from 'common/store/user-list/followers/types'
-import { FollowingPageState } from 'common/store/user-list/following/types'
-import { RepostsPageState } from 'common/store/user-list/reposts/types'
 import ArtistRecommendationsReducer from 'components/artist-recommendations/store/slice'
 import { ChangePasswordState } from 'components/change-password/store/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
@@ -25,9 +22,13 @@ import ArtistDashboardState from 'pages/artist-dashboard-page/store/types'
 import { CollectionsPageState } from 'pages/collection-page/store/types'
 import { DeactivateAccountState } from 'pages/deactivate-account-page/store/slice'
 import DeletedPageReducer from 'pages/deleted-page/store/slice'
+import { FavoritesPageState } from 'pages/favorites-page/store/types'
+import { FollowersPageState } from 'pages/followers-page/store/types'
+import { FollowingPageState } from 'pages/following-page/store/types'
 import HistoryPageState from 'pages/history-page/store/types'
 import { NotificationUsersPageState } from 'pages/notification-users-page/store/types'
 import RemixesPageReducer from 'pages/remixes-page/store/slice'
+import { RepostsPageState } from 'pages/reposts-page/store/types'
 import SavesPageState from 'pages/saved-page/store/types'
 import { SearchPageState } from 'pages/search-page/store/types'
 import SettingsPageState from 'pages/settings-page/store/types'
@@ -107,6 +108,7 @@ export type AppState = CommonState & {
       notificationUsers: NotificationUsersPageState
       unfollowConfirmation: UnfollowConfirmationModalState
       nowPlaying: NowPlayingState
+      profile: ProfilePageState
       smartCollection: SmartCollectionState
       remixes: ReturnType<typeof RemixesPageReducer>
       deleted: ReturnType<typeof DeletedPageReducer>

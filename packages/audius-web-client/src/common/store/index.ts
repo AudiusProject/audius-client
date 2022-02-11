@@ -18,7 +18,7 @@ import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
 import exploreCollectionsReducer from 'common/store/pages/explore/exploreCollections/slice'
-import explorePageReducer from 'common/store/pages/explore/reducer'
+import explorePageReducer from 'common/store/pages/explore/slice'
 import feed from 'common/store/pages/feed/reducer'
 import { FeedPageState } from 'common/store/pages/feed/types'
 import profileReducer from 'common/store/pages/profile/reducer'
@@ -52,10 +52,6 @@ import { ShareModalState } from 'common/store/ui/share-modal/types'
 import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
 import toastReducer, { ToastState } from 'common/store/ui/toast/slice'
-import favoritesUserListReducer from 'common/store/user-list/favorites/reducers'
-import followersUserListReducer from 'common/store/user-list/followers/reducers'
-import followingUserListReducer from 'common/store/user-list/following/reducers'
-import repostsUserListReducer from 'common/store/user-list/reposts/reducers'
 import wallet from 'common/store/wallet/slice'
 
 // In the future, these state slices will live in @audius/client-common.
@@ -87,13 +83,7 @@ export const reducers = {
     nowPlaying: nowPlayingReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
-    toast: toastReducer,
-    userList: combineReducers({
-      followers: followersUserListReducer,
-      following: followingUserListReducer,
-      reposts: repostsUserListReducer,
-      favorites: favoritesUserListReducer
-    })
+    toast: toastReducer
   }),
 
   // Pages
@@ -134,11 +124,9 @@ export const sagas = {
   // pages/feed/store/sagas.js
   // pages/track/store/lineups/tracks/sagas.js
   // pages/track/store/sagas.js
+  // pages/explore-page/store/sagas.ts
+  // pages/explore-page/store/exploreCollections/sagas.ts
   // store/ui/stemsUpload/sagas.ts
-  // pages/user-list/followers/sagas.ts
-  // pages/user-list/following/sagas.ts
-  // pages/user-list/reposts/sagas.ts
-  // pages/user-list/favorites/sagas.ts
 }
 
 export type CommonState = {
@@ -165,12 +153,6 @@ export type CommonState = {
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     shareModal: ShareModalState
     toast: ToastState
-    userList: {
-      followers: ReturnType<typeof followersUserListReducer>
-      following: ReturnType<typeof followingUserListReducer>
-      reposts: ReturnType<typeof repostsUserListReducer>
-      favorites: ReturnType<typeof favoritesUserListReducer>
-    }
   }
 
   pages: {

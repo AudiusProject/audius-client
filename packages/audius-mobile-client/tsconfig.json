@@ -12,6 +12,7 @@
     "paths": {
       "app/*": ["./src/*"],
       // Remove these when no longer dependent on audius-client
+      // "audius-client/*": ["../audius-web-client/*"],
       "audio/*": ["./node_modules/audius-client/src/audio/*"],
       "common/*": ["./node_modules/audius-client/src/common/*"],
       "components/*": ["./node_modules/audius-client/src/components/*"],

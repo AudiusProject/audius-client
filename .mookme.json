@@ -1,0 +1,8 @@
+{
+  "packagesPath": "./packages",
+  "packages": [
+    "audius-mobile-client",
+    "audius-web-client"
+  ],
+  "addedBehavior": "exit"
+}

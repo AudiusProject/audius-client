@@ -89,8 +89,7 @@ const FULL_ENDPOINT_MAP = {
 const ENDPOINT_MAP = {
   associatedWallets: '/users/associated_wallets',
   associatedWalletUserId: '/users/id',
-  userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`,
-  undisbursedUserChallenges: `/challenges/undisbursed`
+  userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`
 }
 
 const TRENDING_LIMIT = 100
@@ -330,18 +329,6 @@ type UserChallengesResponse = [
     challenge_type: string
     amount: string
     metadata: object
-  }
-]
-
-type UndisbursedUserChallengesResponse = [
-  {
-    challenge_id: string
-    user_id: string
-    specifier: string
-    amount: string
-    completed_blocknumber: number
-    handle: string
-    wallet: string
   }
 ]
 
@@ -1221,33 +1208,6 @@ class AudiusAPIClient {
     if (!userChallenges) return null
     // DN may have amount as a string
     const challenges = userChallenges.data.map(challenge => {
-      return {
-        ...challenge,
-        amount: Number(challenge.amount)
-      }
-    })
-    return challenges
-  }
-
-  getUndisbursedUserChallenges = async ({ userID }: { userID: ID }) => {
-    this._assertInitialized()
-    const encodedCurrentUserId = encodeHashId(userID)
-    if (encodedCurrentUserId === null) return null // throw error
-
-    const params = { user_id: encodedCurrentUserId }
-
-    const undisbursedUserChallenges: Nullable<APIResponse<
-      UndisbursedUserChallengesResponse
-    >> = await this._getResponse(
-      ENDPOINT_MAP.undisbursedUserChallenges,
-      params,
-      true /* retry */,
-      PathType.VersionPath
-    )
-
-    if (!undisbursedUserChallenges) return null
-    // DN may have amount as a string
-    const challenges = undisbursedUserChallenges.data.map(challenge => {
       return {
         ...challenge,
         amount: Number(challenge.amount)

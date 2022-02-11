@@ -29,7 +29,6 @@ export const initializeSentry = () => {
       })
     ],
 
-    normalizeDepth: 5,
     maxBreadcrumbs: MAX_BREADCRUMBS,
     beforeBreadcrumb: (breadCrumb, hint) => {
       // filter out analytics events

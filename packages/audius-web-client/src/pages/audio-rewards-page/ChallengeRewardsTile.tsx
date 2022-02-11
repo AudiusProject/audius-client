@@ -46,7 +46,6 @@ type RewardPanelProps = {
   description: (challenge?: OptimisticUserChallenge) => string
   panelButtonText: string
   progressLabel: string
-  remainingLabel?: string
   stepCount: number
   openModal: (modalType: ChallengeRewardsModalType) => void
   id: ChallengeRewardID
@@ -59,7 +58,6 @@ const RewardPanel = ({
   panelButtonText,
   openModal,
   progressLabel,
-  remainingLabel,
   icon,
   stepCount
 }: RewardPanelProps) => {
@@ -71,28 +69,7 @@ const RewardPanel = ({
   const challenge = userChallenges[id]
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
-  const needsDisbursement = challenge && challenge.claimableAmount > 0
-  const shouldShowProgressBar =
-    stepCount > 1 && challenge?.challenge_type !== 'aggregate'
-
-  let progressLabelFilled: string
-  if (shouldShowCompleted) {
-    progressLabelFilled = messages.completeLabel
-  } else if (challenge?.challenge_type === 'aggregate') {
-    // Count down
-    progressLabelFilled = fillString(
-      remainingLabel ?? '',
-      (challenge?.max_steps - challenge?.current_step_count)?.toString() ?? '',
-      stepCount.toString()
-    )
-  } else {
-    // Count up
-    progressLabelFilled = fillString(
-      progressLabel,
-      challenge?.current_step_count?.toString() ?? '',
-      stepCount.toString()
-    )
-  }
+  const needsDisbursement = challenge?.state === 'completed'
 
   return (
     <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
@@ -109,9 +86,15 @@ const RewardPanel = ({
             [styles.complete]: shouldShowCompleted
           })}
         >
-          {progressLabelFilled}
+          {shouldShowCompleted
+            ? messages.completeLabel
+            : fillString(
+                progressLabel,
+                challenge?.current_step_count?.toString() ?? '',
+                stepCount.toString()
+              )}
         </p>
-        {shouldShowProgressBar && (
+        {stepCount > 1 && (
           <ProgressBar
             className={styles.rewardProgressBar}
             value={challenge?.current_step_count ?? 0}
@@ -140,19 +123,16 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
   'mobile-install',
   'connect-verified',
   'listen-streak',
-  'profile-completion',
-  'referred'
+  'profile-completion'
 ])
 
 /** Pulls rewards from remoteconfig */
-const useRewardIds = (
-  hideConfig: Partial<Record<ChallengeRewardID, boolean>>
-) => {
+const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   if (rewardsString === null) return []
   const rewards = rewardsString.split(',') as ChallengeRewardID[]
-  const filteredRewards: ChallengeRewardID[] = rewards.filter(
-    reward => validRewardIds.has(reward) && !hideConfig[reward]
+  const filteredRewards: ChallengeRewardID[] = rewards.filter(reward =>
+    validRewardIds.has(reward)
   )
   return filteredRewards
 }
@@ -160,13 +140,10 @@ const useRewardIds = (
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
+  const rewardIds = useRewardIds()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const userChallenges = useSelector(getUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
-
-  // The referred challenge only needs a tile if the user was referred
-  const hideReferredTile = !userChallenges.referred?.is_complete
-  const rewardIds = useRewardIds({ referred: hideReferredTile })
 
   useEffect(() => {
     if (!userChallengesLoading && !haveChallengesLoaded) {

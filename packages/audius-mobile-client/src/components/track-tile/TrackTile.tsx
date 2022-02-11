@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
@@ -9,8 +11,10 @@ import { isEqual } from 'lodash'
 import { Animated, Easing, GestureResponderEvent } from 'react-native'
 import { useSelector } from 'react-redux'
 
+import { BaseStackParamList } from 'app/components/app-navigator/types'
 import { TrackTileProps } from 'app/components/track-tile/types'
-import { useNavigation } from 'app/hooks/useNavigation'
+// import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
+import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 
@@ -73,7 +77,12 @@ const TrackTileComponent = ({
     track_id
   } = track
   const { _artist_pick, name, user_id } = user
-  const navigation = useNavigation()
+  const pushRouteWeb = usePushRouteWeb()
+  const navigation = useNavigation<
+    NativeStackNavigationProp<BaseStackParamList>
+  >()
+
+  // const pushRouteWeb = usePushRouteWeb()
 
   const playingUid = useSelector(getPlayingUid)
   const isPlaying = useSelector(getPlaying)
@@ -98,19 +107,14 @@ const TrackTileComponent = ({
 
   const goToTrackPage = useCallback(
     (e: GestureResponderEvent) => {
-      navigation.navigate({
-        native: { screen: 'track', params: { id: track_id } },
-        web: { route: permalink }
-      })
+      pushRouteWeb(permalink)
+      navigation.navigate('track', { id: track_id })
     },
-    [navigation, permalink, track_id]
+    [pushRouteWeb, permalink, navigation, track_id]
   )
 
   const goToArtistPage = (e: GestureResponderEvent) => {
-    navigation.navigate({
-      native: { screen: 'profile', params: { handle: user.handle } },
-      web: { route: user.handle }
-    })
+    navigation.navigate('profile', { handle: user.handle })
   }
 
   const onPressReposts = (e: GestureResponderEvent) => {

@@ -5,11 +5,6 @@ import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
-import {
-  ButtonState,
-  ButtonType,
-  useDownloadTrackButtons
-} from 'common/hooks/useDownloadTrackButtons'
 import { ID } from 'common/models/Identifiers'
 import { toast } from 'common/store/ui/toast/slice'
 import IconButton from 'components/icon-button/IconButton'
@@ -22,6 +17,12 @@ import {
   showRequiresAccountModal
 } from 'pages/sign-on/store/actions'
 import { useIsMobile } from 'utils/clientUtil'
+
+import {
+  ButtonState,
+  ButtonType,
+  useDownloadTrackButtons
+} from '../../common/hooks/useDownloadTrackButtons'
 
 import styles from './DownloadButtons.module.css'
 

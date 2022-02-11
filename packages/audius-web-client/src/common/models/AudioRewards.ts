@@ -8,12 +8,10 @@ export type UserChallenge = {
   is_complete: boolean
   is_disbursed: boolean
   max_steps: number
-  specifier: Specifier
+  specifier: string
   user_id: string
   amount: number
 }
-
-export type Specifier = string
 
 export type ChallengeRewardID =
   | 'track-upload'
@@ -44,10 +42,6 @@ export enum FailureReason {
   // The funds have already been sent, but we have not
   // indexed the challenge.
   ALREADY_SENT = 'ALREADY_SENT',
-  // UserChallenge doesn't exist on DN
-  MISSING_CHALLENGES = 'MISSING_CHALLENGES',
-  // UserChallenge is not in complete state
-  CHALLENGE_INCOMPLETE = 'CHALLENGE_INCOMPLETE',
   // An unknown error has occurred
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
@@ -132,6 +126,4 @@ export type OptimisticUserChallenge = Omit<
   __isOptimistic: true
   state: UserChallengeState
   totalAmount: number
-  claimableAmount: number
-  undisbursedSpecifiers: Specifier[]
 }

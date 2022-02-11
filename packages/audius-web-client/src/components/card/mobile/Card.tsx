@@ -2,7 +2,7 @@ import React from 'react'
 
 import cn from 'classnames'
 
-import placeholderArt from 'common/assets/image/imageBlank2x.png'
+import placeholderArt from 'assets/img/imageBlank2x.png'
 import { ID } from 'common/models/Identifiers'
 import {
   ProfilePictureSizes,

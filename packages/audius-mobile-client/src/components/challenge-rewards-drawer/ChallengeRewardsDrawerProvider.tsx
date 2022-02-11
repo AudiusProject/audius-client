@@ -31,7 +31,6 @@ import { ImageSourcePropType } from 'react-native'
 
 import Headphone from 'app/assets/images/emojis/headphone.png'
 import IncomingEnvelope from 'app/assets/images/emojis/incoming-envelope.png'
-import LoveLetter from 'app/assets/images/emojis/love-letter.png'
 import MobilePhoneWithArrow from 'app/assets/images/emojis/mobile-phone-with-arrow.png'
 import MultipleMusicalNotes from 'app/assets/images/emojis/multiple-musical-notes.png'
 import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
@@ -79,21 +78,17 @@ const messages = {
   referreralsTitle: 'Invite your Friends',
   referralsDescription:
     'Invite your Friends! You’ll earn 1 $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)',
-  referralsProgressLabel: 'Invites Accepted',
+  referralsProgressLabel: 'Invites Sent',
 
   // Verified Referrals
   referreralsVerifiedTitle: 'Invite your Fans',
   referralsVerifiedDescription:
     'Invite your fans! You’ll earn 1 $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)',
-  referralsVerifiedProgressLabel: 'Invites Accepted',
-
-  // Referred
-  referredTitle: 'You Accepted An Invite',
-  referredDescription: 'You earned $AUDIO for being invited',
+  referralsVerifiedProgressLabel: 'Invites Sent',
 
   // Track Upload
-  trackUploadTitle: 'Upload 3 Tracks',
-  trackUploadDescription: 'Upload 3 tracks to your profile',
+  trackUploadTitle: 'Upload 5 Tracks',
+  trackUploadDescription: 'Upload 5 tracks to your profile',
   trackUploadProgressLabel: 'Uploaded',
   trackUploadButton: 'Upload Tracks',
 
@@ -115,7 +110,10 @@ type ChallengeConfig = {
     iconPosition: 'left' | 'right'
   }
 }
-const challengesConfig: Record<ChallengeRewardsModalType, ChallengeConfig> = {
+const challengesConfig: Omit<
+  Record<ChallengeRewardsModalType, ChallengeConfig>,
+  'referred'
+> = {
   'connect-verified': {
     icon: WhiteHeavyCheckMark,
     title: messages.connectVerifiedTitle,
@@ -163,12 +161,6 @@ const challengesConfig: Record<ChallengeRewardsModalType, ChallengeConfig> = {
     progressLabel: messages.referralsVerifiedProgressLabel,
     isVerifiedChallenge: true
   },
-  referred: {
-    icon: LoveLetter,
-    title: messages.referredTitle,
-    description: messages.referredDescription,
-    progressLabel: ''
-  },
   'track-upload': {
     icon: MultipleMusicalNotes,
     title: messages.trackUploadTitle,
@@ -210,24 +202,6 @@ export const ChallengeRewardsDrawerProvider = () => {
   const config = challengesConfig[modalType]
   const hasChallengeCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
-
-  // We could just depend on undisbursedAmount here
-  // But DN may have not indexed the challenge so check for client-side completion too
-  // Note that we can't handle aggregate challenges optimistically
-  let audioToClaim = 0
-  let audioClaimedSoFar = 0
-  if (challenge?.challenge_type === 'aggregate') {
-    audioToClaim = challenge.claimableAmount
-    audioClaimedSoFar =
-      challenge.amount * challenge.current_step_count - audioToClaim
-  } else if (challenge?.state === 'completed') {
-    audioToClaim = challenge.totalAmount
-    audioClaimedSoFar = 0
-  } else if (challenge?.state === 'disbursed') {
-    audioToClaim = 0
-    audioClaimedSoFar = challenge.totalAmount
-  }
-
   const goToRoute = useCallback(() => {
     if (!config.buttonInfo?.link) {
       return
@@ -251,7 +225,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       claimChallengeReward({
         claim: {
           challengeId: modalType,
-          specifiers: [challenge?.specifier ?? ''],
+          specifier: challenge?.specifier ?? '',
           amount: challenge?.amount ?? 0
         },
         retryOnFailure: true
@@ -271,7 +245,7 @@ export const ChallengeRewardsDrawerProvider = () => {
     case 'referrals':
     case 'ref-v':
       contents = (
-        <ReferralRewardContents isVerified={!!config.isVerifiedChallenge} />
+        <ReferralRewardContents isVerified={config.isVerifiedChallenge} />
       )
       break
     case 'track-upload':
@@ -328,14 +302,9 @@ export const ChallengeRewardsDrawerProvider = () => {
       challengeState={challenge.state}
       currentStep={challenge.current_step_count}
       stepCount={challenge.max_steps}
-      claimableAmount={audioToClaim}
-      claimedAmount={audioClaimedSoFar}
       claimStatus={claimStatus}
       onClaim={hasConfig ? onClaim : undefined}
-      isVerifiedChallenge={!!config.isVerifiedChallenge}
-      showProgressBar={
-        challenge.challenge_type !== 'aggregate' && challenge.max_steps > 1
-      }
+      isVerifiedChallenge={config.isVerifiedChallenge}
     >
       {contents}
     </ChallengeRewardsDrawer>
