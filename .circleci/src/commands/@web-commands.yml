@@ -19,7 +19,7 @@ web-pr-comment:
         name: Install Ruby
     - run:
         command: |
-          curl -sL https://raw.githubusercontent.com/stephencelis/ghi/master/ghi > ghi
+          curl -sL https://raw.githubusercontent.com/stephencelis/ghi/main/ghi > ghi
           chmod 755 ghi
           sudo mv ghi /usr/local/bin
         name: Install GHI

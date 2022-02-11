@@ -4,7 +4,7 @@ parameters:
   # Run all workflows for branches that match this regex
   run-all-workflows-branch-regex:
     type: string
-    default: /(^master)|(^release.*)$/
+    default: /(^main)|(^release.*)$/
 
 setup: true
 
@@ -22,7 +22,7 @@ jobs:
       # so we install a version that does
       - run:
           name: Install cli
-          command: curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/master/install.sh | DESTDIR=~/cli bash
+          command: curl -fLSs https://raw.githubusercontent.com/CircleCI-Public/circleci-cli/main/install.sh | DESTDIR=~/cli bash
       - checkout
       - run:
           name: Generate config
@@ -39,7 +39,7 @@ workflows:
 
       # Trigger relevant workflows for the files that have changed
       - path-filtering/filter:
-          base-revision: master
+          base-revision: main
           config-path: ../workspace/.circleci/continue_config.yml
           mapping: |
             packages/audius-web-client/.* run-web-workflow true
