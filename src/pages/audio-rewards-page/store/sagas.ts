@@ -496,7 +496,6 @@ function* watchUpdateHCaptchaScore() {
 
 function* pollUserChallenges(frequency: number) {
   while (true) {
-    console.log('Re-polling challenges...')
     yield put(fetchUserChallenges())
     yield delay(frequency)
   }
