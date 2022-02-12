@@ -78,9 +78,11 @@ export class ClientRewardsReporter {
           phase,
           source: this.source
         })
+        const sentryError = `RewardsClaimFailure:${error}`
         await reportToSentry({
           level: Level.Error,
-          error: new Error('Rewards_Claim_Failure'),
+          error: new Error(sentryError),
+          name: sentryError,
           additionalInfo: {
             userId,
             challengeId,
