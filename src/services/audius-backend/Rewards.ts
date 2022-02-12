@@ -1,6 +1,14 @@
+import { Name } from 'common/models/Analytics'
+import { Level } from 'common/store/errors/level'
+import { reportToSentry } from 'common/store/errors/reportToSentry'
+import { track } from 'store/analytics/providers'
 import { isMobile, isElectron } from 'utils/clientUtil'
 
-// TODO: make the sending attestation stuff fire-and-forget
+/**
+ * Reports Rewards claim outcome to Identity, Amplitude, Sentry
+ * with a fire-and-forget approach
+ */
+
 export class ClientRewardsReporter {
   source: 'mobile' | 'electron' | 'web'
   libs: any
@@ -10,7 +18,7 @@ export class ClientRewardsReporter {
     this.libs = libs
   }
 
-  async reportSuccess({
+  reportSuccess({
     userId,
     challengeId,
     amount,
@@ -21,21 +29,30 @@ export class ClientRewardsReporter {
     amount: number
     specifier: string
   }) {
-    try {
-      await this.libs.Rewards.sendAttestationResult({
-        status: 'success',
-        userId,
-        challengeId,
-        amount,
-        source: this.source,
-        specifier
-      })
-    } catch (e) {
-      console.log(`Report success failure: ${e}`)
-    }
+    ;(async () => {
+      try {
+        await track(Name.REWARDS_CLAIM_SUCCESS, {
+          userId,
+          challengeId,
+          amount,
+          specifier,
+          source: this.source
+        })
+        await this.libs.Rewards.sendAttestationResult({
+          status: 'success',
+          userId,
+          challengeId,
+          amount,
+          source: this.source,
+          specifier
+        })
+      } catch (e) {
+        console.log(`Report success failure: ${e}`)
+      }
+    })()
   }
 
-  async reportFailure({
+  reportFailure({
     userId,
     challengeId,
     amount,
@@ -50,23 +67,46 @@ export class ClientRewardsReporter {
     phase: string
     specifier: string
   }) {
-    try {
-      await this.libs.Rewards.sendAttestationResult({
-        status: 'failure',
-        userId,
-        challengeId,
-        amount,
-        error,
-        phase,
-        source: this.source,
-        specifier
-      })
-    } catch (e) {
-      console.log(`Report failure failure: ${e}`)
-    }
+    ;(async () => {
+      try {
+        await track(Name.REWARDS_CLAIM_FAILURE, {
+          userId,
+          challengeId,
+          amount,
+          specifier,
+          error,
+          phase,
+          source: this.source
+        })
+        await reportToSentry({
+          level: Level.Error,
+          error: new Error('Rewards_Claim_Failure'),
+          additionalInfo: {
+            userId,
+            challengeId,
+            amount,
+            error,
+            phase,
+            specifier
+          }
+        })
+        await this.libs.Rewards.sendAttestationResult({
+          status: 'failure',
+          userId,
+          challengeId,
+          amount,
+          error,
+          phase,
+          source: this.source,
+          specifier
+        })
+      } catch (e) {
+        console.log(`Report failure failure: ${e}`)
+      }
+    })()
   }
 
-  async reportAAORejection({
+  reportAAORejection({
     userId,
     challengeId,
     amount,
@@ -79,18 +119,29 @@ export class ClientRewardsReporter {
     error: string
     specifier: string
   }) {
-    try {
-      await this.libs.Rewards.sendAttestationResult({
-        status: 'rejection',
-        userId,
-        challengeId,
-        amount,
-        error,
-        source: this.source,
-        specifier
-      })
-    } catch (e) {
-      console.log(`Report AAO rejection failure: ${e}`)
-    }
+    ;(async () => {
+      try {
+        await track(Name.REWARDS_CLAIM_BLOCKED, {
+          userId,
+          challengeId,
+          amount,
+          specifier,
+          error,
+          source: this.source
+        })
+
+        await this.libs.Rewards.sendAttestationResult({
+          status: 'rejection',
+          userId,
+          challengeId,
+          amount,
+          error,
+          source: this.source,
+          specifier
+        })
+      } catch (e) {
+        console.log(`Report AAO rejection failure: ${e}`)
+      }
+    })()
   }
 }
