@@ -1,7 +1,8 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react'
+import React, { useContext, useEffect, useCallback } from 'react'
 
 import cn from 'classnames'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { Name } from 'common/models/Analytics'
 import FeedFilter from 'common/models/FeedFilter'
 import Status from 'common/models/Status'
@@ -18,8 +19,10 @@ import { make, useRecord } from 'store/analytics/actions'
 import { BASE_URL, FEED_PAGE } from 'utils/route'
 
 import Filters from './FeedFilterButton'
-import FeedFilterModal from './FeedFilterModal'
+import FeedFilterDrawer from './FeedFilterDrawer'
 import styles from './FeedPageContent.module.css'
+
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const messages = {
   title: 'Your Feed'
@@ -40,6 +43,8 @@ const FeedPageMobileContent = ({
   resetFeedLineup
 }: FeedPageContentProps) => {
   const { setHeader } = useContext(HeaderContext)
+  const [modalIsOpen, setModalIsOpen] = useModalState('FeedFilter')
+
   useEffect(() => {
     setHeader(
       <Header title={messages.title} className={styles.header}>
@@ -52,6 +57,7 @@ const FeedPageMobileContent = ({
         />
       </Header>
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setHeader, feedFilter])
 
   // Set Nav-Bar Menu
@@ -69,7 +75,6 @@ const FeedPageMobileContent = ({
     delineate: true
   }
 
-  const [modalIsOpen, setModalIsOpen] = useState(false)
   const record = useRecord()
   const selectFilter = (filter: FeedFilter) => {
     setModalIsOpen(false)
@@ -99,11 +104,13 @@ const FeedPageMobileContent = ({
       canonicalUrl={`${BASE_URL}${FEED_PAGE}`}
       hasDefaultHeader
     >
-      <FeedFilterModal
-        isOpen={modalIsOpen}
-        didSelectFilter={selectFilter}
-        onClose={() => setModalIsOpen(false)}
-      />
+      {IS_NATIVE_MOBILE ? null : (
+        <FeedFilterDrawer
+          isOpen={modalIsOpen}
+          didSelectFilter={selectFilter}
+          onClose={() => setModalIsOpen(false)}
+        />
+      )}
       <div
         className={cn(styles.lineupContainer, {
           [styles.playing]: !!lineupProps.playingUid

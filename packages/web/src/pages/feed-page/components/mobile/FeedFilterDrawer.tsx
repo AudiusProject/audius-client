@@ -5,7 +5,7 @@ import ActionDrawer from 'components/action-drawer/ActionDrawer'
 
 import styles from './FeedFilterModal.module.css'
 
-interface FeedFilterModalProps {
+interface FeedFilterDrawerProps {
   isOpen: boolean
   onClose: () => void
   didSelectFilter: (filter: FeedFilter) => void
@@ -18,11 +18,11 @@ const messages = {
   filterReposts: 'Reposts'
 }
 
-const FeedFilterModal = ({
+const FeedFilterDrawer = ({
   isOpen,
   didSelectFilter,
   onClose
-}: FeedFilterModalProps) => {
+}: FeedFilterDrawerProps) => {
   const onClickFilter = (filter: FeedFilter) => {
     didSelectFilter(filter)
     onClose()
@@ -51,4 +51,4 @@ const FeedFilterModal = ({
   )
 }
 
-export default FeedFilterModal
+export default FeedFilterDrawer
