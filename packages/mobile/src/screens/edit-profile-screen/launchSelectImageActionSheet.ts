@@ -16,7 +16,8 @@ const photoOptions: ImageLibraryOptions = {
 }
 
 export const launchSelectImageActionSheet = (
-  callback: (image: Image) => void
+  callback: (image: Image) => void,
+  shareSheetTintColor: string
 ) => {
   const handlePhoto = ({ assets }: { assets: Asset[] | undefined }) => {
     const response = assets?.[0]
@@ -60,7 +61,7 @@ export const launchSelectImageActionSheet = (
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: ['Cancel', 'Photo Library', 'Take Photo'],
-        tintColor: '#7E1BCC',
+        tintColor: shareSheetTintColor,
         cancelButtonIndex: 0
       },
       buttonIndex => {

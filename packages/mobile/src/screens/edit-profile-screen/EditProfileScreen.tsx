@@ -35,8 +35,6 @@ const screenHeight = Dimensions.get('window').height
 
 const useStyles = makeStyles(({ palette }) => ({
   screen: {
-    display: 'flex',
-    flexDirection: 'column',
     height: screenHeight,
     backgroundColor: palette.white
   }

@@ -47,6 +47,9 @@ const useStyles = makeStyles(({ palette }) => ({
     bottom: 0,
     backgroundColor: '#000',
     opacity: 0.3
+  },
+  shareSheet: {
+    color: palette.secondary
   }
 }))
 
@@ -64,7 +67,7 @@ export const ProfilePictureInput = () => {
       setValue(image)
       setIsLoading(true)
     }
-    launchSelectImageActionSheet(handleImageSelected)
+    launchSelectImageActionSheet(handleImageSelected, styles.shareSheet.color)
   }, [setValue])
 
   return (
