@@ -54,7 +54,7 @@ export const EditCollectiblesDrawer = () => {
   return (
     <Drawer onClose={handleClose} isOpen={isOpen}>
       <View style={styles.container}>
-        <GradientText text={messages.title} style={styles.title} />
+        <GradientText style={styles.title}>{messages.title}</GradientText>
         <Text style={styles.text} weight='medium'>
           {messages.text}
         </Text>

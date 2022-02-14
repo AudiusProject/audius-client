@@ -225,10 +225,9 @@ const AudioBreakdownDrawer = () => {
       isFullscreen
     >
       <View style={styles.drawer}>
-        <GradientText
-          text={formatWei(totalBalance, true)}
-          style={styles.amount}
-        />
+        <GradientText style={styles.amount}>
+          {formatWei(totalBalance, true)}
+        </GradientText>
 
         <Text style={styles.total} weight='bold'>
           {messages.total}
@@ -240,10 +239,9 @@ const AudioBreakdownDrawer = () => {
               {messages.audiusWallet}
             </Text>
 
-            <GradientText
-              text={formatWei(accountBalance, true)}
-              style={styles.titleAmount}
-            />
+            <GradientText style={styles.titleAmount}>
+              {formatWei(accountBalance, true)}
+            </GradientText>
           </View>
 
           <View style={styles.sectionDescription}>
@@ -259,10 +257,9 @@ const AudioBreakdownDrawer = () => {
               {messages.linkedWallets}
             </Text>
 
-            <GradientText
-              text={formatWei(linkedWalletsBalance, true)}
-              style={styles.titleAmount}
-            />
+            <GradientText style={styles.titleAmount}>
+              {formatWei(linkedWalletsBalance, true)}
+            </GradientText>
           </View>
 
           <View style={styles.walletsHeader}>

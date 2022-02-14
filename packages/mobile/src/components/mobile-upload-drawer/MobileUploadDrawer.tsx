@@ -96,7 +96,7 @@ const MobileUploadDrawer = () => {
             fill={pageHeaderGradientColor2}
             fillSecondary={pageHeaderGradientColor1}
           />
-          <GradientText text={messages.start} style={styles.cta} />
+          <GradientText style={styles.cta}>{messages.start}</GradientText>
           <View>
             <Text style={styles.visit}>{messages.visit}</Text>
           </View>

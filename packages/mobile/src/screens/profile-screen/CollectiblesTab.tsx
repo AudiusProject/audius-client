@@ -87,11 +87,9 @@ export const CollectiblesTab = () => {
         <FlatList
           ListHeaderComponent={
             <View style={styles.header}>
-              <GradientText
-                text={messages.title}
-                accessibilityRole='header'
-                style={styles.title}
-              />
+              <GradientText accessibilityRole='header' style={styles.title}>
+                {messages.title}
+              </GradientText>
               <Text style={styles.subtitle}>{messages.subtitle('you')}</Text>
               <Pressable style={styles.shareButtonRoot}>
                 <IconShare

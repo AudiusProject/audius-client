@@ -75,7 +75,9 @@ const ApiRewardsDrawer = () => {
   return (
     <Drawer isOpen={isOpen} onClose={handleClose}>
       <View style={styles.content}>
-        <GradientText style={styles.drawerTitle} text={messages.modalTitle} />
+        <GradientText style={styles.drawerTitle}>
+          {messages.modalTitle}
+        </GradientText>
         <Image style={styles.image as ImageStyle} source={AudiusAPI} />
         <Text style={styles.title} weight='bold'>
           {messages.title}

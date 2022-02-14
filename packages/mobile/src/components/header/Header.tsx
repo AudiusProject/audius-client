@@ -23,7 +23,7 @@ type HeaderProps = {
 const Header = ({ text }: HeaderProps) => {
   return (
     <View style={styles.container}>
-      <GradientText text={text} style={styles.text} />
+      <GradientText style={styles.text}>{text}</GradientText>
     </View>
   )
 }

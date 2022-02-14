@@ -232,10 +232,9 @@ const TrendingRewardsDrawer = () => {
             style={styles.chartEmoji as ImageStyle}
             source={ChartIncreasing}
           />
-          <GradientText
-            text={textMap[modalType].modalTitle}
-            style={styles.modalTitle}
-          />
+          <GradientText style={styles.modalTitle}>
+            {textMap[modalType].modalTitle}
+          </GradientText>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -256,7 +255,9 @@ const TrendingRewardsDrawer = () => {
             </Text>
           </View>
 
-          <GradientText text={messages.lastWeek} style={styles.lastWeek} />
+          <GradientText style={styles.lastWeek}>
+            {messages.lastWeek}
+          </GradientText>
           <TweetEmbed
             // Refresh it when we toggle
             key={`twitter-${tweetId}`}

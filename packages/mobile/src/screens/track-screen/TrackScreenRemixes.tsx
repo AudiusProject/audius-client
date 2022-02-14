@@ -85,7 +85,7 @@ export const TrackScreenRemixes = ({
     <Tile styles={{ tile: styles.tile }}>
       <View style={styles.header}>
         <IconRemix style={styles.iconRemix} fill={pageHeaderGradientColor2} />
-        <GradientText text={messages.title} style={styles.headerText} />
+        <GradientText style={styles.headerText}>{messages.title}</GradientText>
       </View>
       <View style={styles.tracks}>
         {trackIds.map(id => {

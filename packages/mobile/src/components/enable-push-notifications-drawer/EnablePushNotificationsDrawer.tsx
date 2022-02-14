@@ -153,7 +153,7 @@ const EnablePushNotificationsDrawer = () => {
             fill={pageHeaderGradientColor2}
             fillSecondary={pageHeaderGradientColor1}
           />
-          <GradientText text={messages.dontMiss} style={styles.cta} />
+          <GradientText style={styles.cta}>{messages.dontMiss}</GradientText>
           <Text style={styles.turnOn}>{messages.turnOn}</Text>
         </View>
         <View style={styles.actions}>

@@ -320,7 +320,9 @@ export const ChallengeRewardsDrawer = ({
               <Text style={styles.subheader} weight='heavy'>
                 {messages.reward}
               </Text>
-              <GradientText text={`${amount}`} style={styles.audioAmount} />
+              <GradientText style={styles.audioAmount}>
+                {`${amount}`}
+              </GradientText>
               <Text style={styles.audioLabel} weight='heavy'>
                 {messages.audio}
               </Text>
