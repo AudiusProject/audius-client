@@ -1,5 +1,6 @@
-import { Dimensions, FlatList, View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 
+import { VirtualizedScrollView } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles/makeStyles'
 
@@ -33,26 +34,19 @@ const ProfileScreen = () => {
   if (!profile) return null
 
   return (
-    <FlatList
-      style={styles.screen}
-      ListHeaderComponent={
-        <>
-          <CoverPhoto profile={profile} />
-          <ProfilePhoto profile={profile} />
-          <View style={styles.header}>
-            <ProfileInfo profile={profile} />
-            <ProfileMetrics profile={profile} />
-            <ProfileSocials profile={profile} />
-            <ExpandableBio profile={profile} />
-          </View>
-          <View style={{ flex: 4 }}>
-            <ProfileTabNavigator profile={profile} />
-          </View>
-        </>
-      }
-      data={null}
-      renderItem={() => null}
-    />
+    <VirtualizedScrollView listKey='profile-screen' style={styles.screen}>
+      <CoverPhoto profile={profile} />
+      <ProfilePhoto profile={profile} />
+      <View style={styles.header}>
+        <ProfileInfo profile={profile} />
+        <ProfileMetrics profile={profile} />
+        <ProfileSocials profile={profile} />
+        <ExpandableBio profile={profile} />
+      </View>
+      <View style={{ flex: 4 }}>
+        <ProfileTabNavigator profile={profile} />
+      </View>
+    </VirtualizedScrollView>
   )
 }
 
