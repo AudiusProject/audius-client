@@ -1,0 +1,6 @@
+commit ade173f5dcc2ec43830408addf3d6ccfbb2f5be9
+commit ed6c060ac2187f4e44c3904f5faf1d197a4a2a62
+commit 89c9bf5bea38a05155e6366082519ecc76cea482
+git --git-dir=../audius-mobile-client/.git \
+format-patch -k -1 --stdout 89c9bf5bea38a05155e6366082519ecc76cea482 | \
+git am -3 -k
