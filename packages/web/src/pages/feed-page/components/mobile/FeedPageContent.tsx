@@ -21,8 +21,6 @@ import Filters from './FeedFilterButton'
 import FeedFilterModal from './FeedFilterModal'
 import styles from './FeedPageContent.module.css'
 
-const filters = [FeedFilter.ALL, FeedFilter.ORIGINAL, FeedFilter.REPOST]
-
 const messages = {
   title: 'Your Feed'
 }
@@ -102,7 +100,6 @@ const FeedPageMobileContent = ({
       hasDefaultHeader
     >
       <FeedFilterModal
-        filters={filters}
         isOpen={modalIsOpen}
         didSelectFilter={selectFilter}
         onClose={() => setModalIsOpen(false)}

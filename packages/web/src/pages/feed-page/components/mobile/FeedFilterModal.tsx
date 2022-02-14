@@ -1,13 +1,11 @@
 import React from 'react'
 
-import { Modal, Anchor } from '@audius/stems'
-
 import FeedFilter from 'common/models/FeedFilter'
+import ActionDrawer from 'components/action-drawer/ActionDrawer'
 
 import styles from './FeedFilterModal.module.css'
 
 interface FeedFilterModalProps {
-  filters: FeedFilter[]
   isOpen: boolean
   onClose: () => void
   didSelectFilter: (filter: FeedFilter) => void
@@ -20,16 +18,7 @@ const messages = {
   filterReposts: 'Reposts'
 }
 
-const filterMessageMap = {
-  [FeedFilter.ALL]: messages.filterAll,
-  [FeedFilter.ORIGINAL]: messages.filterOriginal,
-  [FeedFilter.REPOST]: messages.filterReposts
-}
-
-const MODAL_OFFSET_PIXELS = 41
-
 const FeedFilterModal = ({
-  filters,
   isOpen,
   didSelectFilter,
   onClose
@@ -40,28 +29,25 @@ const FeedFilterModal = ({
   }
 
   return (
-    <Modal
-      bodyClassName={styles.modalBody}
+    <ActionDrawer
+      renderTitle={() => <div className={styles.title}>{messages.title}</div>}
+      actions={[
+        {
+          text: messages.filterAll,
+          onClick: () => onClickFilter(FeedFilter.ALL)
+        },
+        {
+          text: messages.filterOriginal,
+          onClick: () => onClickFilter(FeedFilter.ORIGINAL)
+        },
+        {
+          text: messages.filterReposts,
+          onClick: () => onClickFilter(FeedFilter.REPOST)
+        }
+      ]}
       onClose={onClose}
       isOpen={isOpen}
-      anchor={Anchor.BOTTOM}
-      verticalAnchorOffset={MODAL_OFFSET_PIXELS}
-    >
-      <div className={styles.container}>
-        <div className={styles.title}>{messages.title}</div>
-        {filters.map(filter => (
-          <div
-            key={filter}
-            className={styles.filterItem}
-            onClick={() => {
-              onClickFilter(filter)
-            }}
-          >
-            {filterMessageMap[filter]}
-          </div>
-        ))}
-      </div>
-    </Modal>
+    />
   )
 }
 
