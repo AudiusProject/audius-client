@@ -5,7 +5,7 @@ import { StyleProp, ViewStyle, FlatList } from 'react-native'
 type VirtualizedScrollViewProps = {
   children: ReactElement | ReactElement[]
   listKey: string
-  style: StyleProp<ViewStyle>
+  style?: StyleProp<ViewStyle>
 }
 /**
  * ScrollView that can wrap an inner Virtualized List, allowing inner lists to
