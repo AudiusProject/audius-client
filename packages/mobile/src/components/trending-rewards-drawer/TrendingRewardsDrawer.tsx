@@ -28,8 +28,8 @@ import {
 
 import ChartIncreasing from 'app/assets/images/emojis/chart-increasing.png'
 import ButtonWithArrow from 'app/components/button-with-arrow'
+import { GradientText } from 'app/components/core'
 import Drawer from 'app/components/drawer'
-import GradientText from 'app/components/gradient-text'
 import TabSlider from 'app/components/tab-slider'
 import Text from 'app/components/text'
 import TweetEmbed from 'app/components/tweet-embed'

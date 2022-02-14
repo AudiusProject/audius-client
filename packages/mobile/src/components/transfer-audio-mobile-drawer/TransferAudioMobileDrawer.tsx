@@ -7,8 +7,8 @@ import {
 import { StyleSheet, View } from 'react-native'
 
 import IconGold from 'app/assets/images/IconGoldBadge.svg'
+import { GradientText } from 'app/components/core'
 import Drawer from 'app/components/drawer'
-import GradientText from 'app/components/gradient-text'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'

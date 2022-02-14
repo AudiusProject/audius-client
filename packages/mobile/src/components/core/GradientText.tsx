@@ -10,7 +10,7 @@ type GradientTextProps = TextProps
 /**
  * Diagonal gradient text in the Audius colors
  */
-const GradientText = (props: GradientTextProps) => {
+export const GradientText = (props: GradientTextProps) => {
   const { style, children, ...other } = props
   const {
     pageHeaderGradientColor1,
@@ -42,5 +42,3 @@ const GradientText = (props: GradientTextProps) => {
     </MaskedView>
   )
 }
-
-export default GradientText

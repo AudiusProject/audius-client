@@ -1,6 +1,6 @@
 import { View } from 'react-native'
 
-import GradientText from 'app/components/gradient-text'
+import { GradientText } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
 type ScreenHeaderProps = {
@@ -14,7 +14,7 @@ const useStyles = makeStyles(({ palette }) => ({
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight8
   },
-  heading: {
+  header: {
     fontSize: 24,
     marginLeft: 12,
     lineHeight: 52,
@@ -29,7 +29,7 @@ export const ScreenHeader = ({ text }: ScreenHeaderProps) => {
 
   return (
     <View style={styles.root}>
-      <GradientText accessibilityRole='header' style={styles.heading}>
+      <GradientText accessibilityRole='header' style={styles.header}>
         {text}
       </GradientText>
     </View>

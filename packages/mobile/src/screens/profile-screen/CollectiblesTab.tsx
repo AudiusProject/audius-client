@@ -1,8 +1,7 @@
 import { View, Pressable, Text, FlatList } from 'react-native'
 
 import IconShare from 'app/assets/images/iconShare.svg'
-import { Tile } from 'app/components/core'
-import GradientText from 'app/components/gradient-text'
+import { Tile, GradientText } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'

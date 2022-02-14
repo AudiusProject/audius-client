@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 
-import GradientText from 'app/components/gradient-text'
+import { GradientText } from 'app/components/core'
 
 const styles = StyleSheet.create({
   container: {
