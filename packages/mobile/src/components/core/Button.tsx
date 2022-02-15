@@ -53,10 +53,10 @@ const useStyles = makeStyles(
           backgroundColor: palette.white
         },
         text: {
-          color: palette.neutralLight2
+          color: palette.neutral
         },
         icon: {
-          color: palette.neutralLight2
+          color: palette.neutral
         }
       }
     }
