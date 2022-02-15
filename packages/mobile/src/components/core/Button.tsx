@@ -7,7 +7,8 @@ import {
   ButtonProps as RNButtonProps,
   Animated,
   PressableProps,
-  ViewStyle
+  ViewStyle,
+  TextStyle
 } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
@@ -47,15 +48,15 @@ const useStyles = makeStyles(
       },
       common: {
         root: {
-          borderColor: palette.neutral,
+          borderColor: palette.neutralLight6,
           borderWidth: 1,
           backgroundColor: palette.white
         },
         text: {
-          color: palette.neutral
+          color: palette.neutralLight2
         },
         icon: {
-          color: palette.neutral
+          color: palette.neutralLight2
         }
       }
     }
@@ -77,8 +78,8 @@ const useStyles = makeStyles(
           letterSpacing: 0.5
         },
         icon: {
-          height: 20,
-          width: 20
+          height: spacing(5),
+          width: spacing(5)
         },
         iconLeft: {
           marginRight: spacing(1)
@@ -97,8 +98,8 @@ const useStyles = makeStyles(
           letterSpacing: 0.5
         },
         icon: {
-          height: 20,
-          width: 20
+          height: spacing(6),
+          width: spacing(6)
         },
         iconLeft: {
           marginRight: spacing(2)
@@ -141,7 +142,9 @@ type ButtonProps = RNButtonProps &
     size?: 'small' | 'medium' | 'large'
     styles?: StylesProp<{
       root: ViewStyle
+      button: ViewStyle
       icon: ViewStyle
+      text: TextStyle
     }>
     variant?: 'primary' | 'secondary' | 'common'
   }
@@ -206,6 +209,8 @@ export const Button = (props: ButtonProps) => {
         stylesProp?.icon,
         noText && { marginLeft: 0, marginRight: 0 }
       ]}
+      height={styles.icon.height}
+      width={styles.icon.width}
       fill={styles.icon.color}
       {...IconProps}
     />
@@ -221,7 +226,7 @@ export const Button = (props: ButtonProps) => {
       ]}
     >
       <Pressable
-        style={styles.button}
+        style={[styles.button, stylesProp?.button]}
         accessibilityRole='button'
         accessibilityLabel={noText ? title : undefined}
         onPressIn={handlePressIn}
@@ -229,7 +234,9 @@ export const Button = (props: ButtonProps) => {
         {...other}
       >
         {iconPosition !== 'left' ? null : icon}
-        {noText ? null : <Text style={styles.text}>{title}</Text>}
+        {noText ? null : (
+          <Text style={[styles.text, stylesProp?.text]}>{title}</Text>
+        )}
         {iconPosition !== 'right' ? null : icon}
       </Pressable>
     </Animated.View>
