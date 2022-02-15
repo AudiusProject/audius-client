@@ -1,3 +1,5 @@
+import { useCallback, useMemo } from 'react'
+
 import {
   ParamListBase,
   useNavigation as useNavigationNative
@@ -13,6 +15,7 @@ type AppParamList = BaseStackParamList & {
   trending: undefined
   explore: undefined
   favorites: undefined
+  EditProfile: undefined
 }
 
 type UseNavigationConfig<
@@ -20,7 +23,7 @@ type UseNavigationConfig<
   RouteName extends keyof ParamList
 > = {
   native: { screen: RouteName; params: ParamList[RouteName] }
-  web: {
+  web?: {
     route: string
     fromPage?: string
     fromNativeNotifications?: string
@@ -33,18 +36,20 @@ export const useNavigation = () => {
   const nativeNavigation = useNavigationNative<NavigationType>()
   const pushRouteWeb = usePushRouteWeb()
 
-  const navigate = <RouteName extends keyof AppParamList>(
-    config: UseNavigationConfig<AppParamList, RouteName>
-  ) => {
-    const { native, web } = config
+  const navigate = useCallback(
+    <RouteName extends keyof AppParamList>(
+      config: UseNavigationConfig<AppParamList, RouteName>
+    ) => {
+      const { native, web } = config
 
-    nativeNavigation.navigate(native.screen, native.params)
-    pushRouteWeb(web.route, web.fromPage, web.fromNativeNotifications)
-  }
+      nativeNavigation.navigate(native.screen, native.params)
+      if (web) {
+        pushRouteWeb(web.route, web.fromPage, web.fromNativeNotifications)
+      }
+    },
+    [nativeNavigation, pushRouteWeb]
+  )
 
-  const navigation = {
-    navigate
-  }
-
+  const navigation = useMemo(() => ({ navigate }), [navigate])
   return navigation
 }
