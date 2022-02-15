@@ -24,6 +24,10 @@ type Props = NativeStackScreenProps<FeedStackParamList, 'feed-stack'>
 
 const getFeedLineup = makeGetLineupMetadatas(getDiscoverFeedLineup)
 
+const messages = {
+  header: 'Your Feed'
+}
+
 export const FeedScreen = ({ navigation }: Props) => {
   const dispatchWeb = useDispatchWeb()
   const feedLineup = useSelectorWeb(getFeedLineup, isEqual)
@@ -60,7 +64,7 @@ export const FeedScreen = ({ navigation }: Props) => {
 
   return (
     <>
-      <ScreenHeader text={'Your Feed'}>
+      <ScreenHeader text={messages.header}>
         <FeedFilterButton
           onPress={handleFilterButtonPress}
           currentFilter={feedFilter}

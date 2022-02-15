@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Name } from 'audius-client/src/common/models/Analytics'
 import FeedFilter from 'audius-client/src/common/models/FeedFilter'
@@ -61,23 +61,28 @@ export const FeedFilterDrawer = () => {
     [dispatchWeb, handleClose]
   )
 
+  const rows = useMemo(
+    () => [
+      {
+        text: messages.filterAll,
+        callback: () => handleSelectFilter(FeedFilter.ALL)
+      },
+      {
+        text: messages.filterOriginal,
+        callback: () => handleSelectFilter(FeedFilter.ORIGINAL)
+      },
+      {
+        text: messages.filterReposts,
+        callback: () => handleSelectFilter(FeedFilter.REPOST)
+      }
+    ],
+    [handleSelectFilter]
+  )
+
   return (
     <ActionDrawer
       renderTitle={() => <Text style={styles.title}>{messages.title}</Text>}
-      rows={[
-        {
-          text: messages.filterAll,
-          callback: () => handleSelectFilter(FeedFilter.ALL)
-        },
-        {
-          text: messages.filterOriginal,
-          callback: () => handleSelectFilter(FeedFilter.ORIGINAL)
-        },
-        {
-          text: messages.filterReposts,
-          callback: () => handleSelectFilter(FeedFilter.REPOST)
-        }
-      ]}
+      rows={rows}
       onClose={handleClose}
       isOpen={isOpen}
     />

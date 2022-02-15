@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import FeedFilter from 'common/models/FeedFilter'
 import ActionDrawer from 'components/action-drawer/ActionDrawer'
@@ -23,28 +23,36 @@ const FeedFilterDrawer = ({
   didSelectFilter,
   onClose
 }: FeedFilterDrawerProps) => {
-  const onClickFilter = (filter: FeedFilter) => {
-    didSelectFilter(filter)
-    onClose()
-  }
+  const onClickFilter = useCallback(
+    (filter: FeedFilter) => {
+      didSelectFilter(filter)
+      onClose()
+    },
+    [onClose, didSelectFilter]
+  )
+
+  const actions = useMemo(
+    () => [
+      {
+        text: messages.filterAll,
+        onClick: () => onClickFilter(FeedFilter.ALL)
+      },
+      {
+        text: messages.filterOriginal,
+        onClick: () => onClickFilter(FeedFilter.ORIGINAL)
+      },
+      {
+        text: messages.filterReposts,
+        onClick: () => onClickFilter(FeedFilter.REPOST)
+      }
+    ],
+    [onClickFilter]
+  )
 
   return (
     <ActionDrawer
       renderTitle={() => <div className={styles.title}>{messages.title}</div>}
-      actions={[
-        {
-          text: messages.filterAll,
-          onClick: () => onClickFilter(FeedFilter.ALL)
-        },
-        {
-          text: messages.filterOriginal,
-          onClick: () => onClickFilter(FeedFilter.ORIGINAL)
-        },
-        {
-          text: messages.filterReposts,
-          onClick: () => onClickFilter(FeedFilter.REPOST)
-        }
-      ]}
+      actions={actions}
       onClose={onClose}
       isOpen={isOpen}
     />
