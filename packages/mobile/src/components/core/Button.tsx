@@ -18,7 +18,7 @@ import { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(
-  ({ typography, palette, spacing }, { variant, isPressing }) => {
+  ({ palette, spacing, typography }, { isPressing, size, variant }) => {
     const variantStyles = {
       primary: {
         root: {
@@ -65,35 +65,69 @@ const useStyles = makeStyles(
       common: variantStyles.primary
     }
 
+    const sizeStyles = {
+      medium: {
+        root: {
+          height: spacing(8),
+          paddingHorizontal: spacing(2)
+        },
+        text: {
+          textTransform: 'uppercase',
+          fontSize: 11,
+          letterSpacing: 0.5
+        },
+        icon: {
+          height: 20,
+          width: 20
+        },
+        iconLeft: {
+          marginRight: spacing(1)
+        },
+        iconRight: {
+          marginLeft: spacing(1)
+        }
+      },
+      large: {
+        root: {
+          height: spacing(12),
+          paddingHorizontal: spacing(4)
+        },
+        text: {
+          fontSize: 18,
+          letterSpacing: 0.5
+        },
+        icon: {
+          height: 20,
+          width: 20
+        },
+        iconLeft: {
+          marginRight: spacing(2)
+        },
+        iconRight: {
+          marginLeft: spacing(2)
+        }
+      }
+    }
+
     const baseStyles = {
       root: {
-        borderRadius: 4,
-        height: spacing(8),
-        paddingHorizontal: spacing(2),
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        borderRadius: 4
       },
       button: {
         ...flexRowCentered()
       },
       text: {
-        fontSize: 11,
-        fontFamily: typography.fontByWeight.bold,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5
-      },
-      iconLeft: {
-        marginRight: spacing(1)
-      },
-      iconRight: {
-        marginLeft: spacing(1)
+        fontFamily: typography.fontByWeight.bold
       }
     }
 
     return merge(
       baseStyles,
       variantStyles[variant],
-      isPressing && variantPressingStyles[variant]
+      isPressing && variantPressingStyles[variant],
+      sizeStyles[size]
     )
   }
 )
@@ -102,32 +136,34 @@ type ButtonProps = RNButtonProps &
   PressableProps & {
     icon?: ComponentType<SvgProps>
     iconPosition?: 'left' | 'right'
-    variant: 'primary' | 'secondary' | 'common'
+    IconProps?: SvgProps
     noText?: boolean
+    size?: 'small' | 'medium' | 'large'
     styles?: StylesProp<{
       root: ViewStyle
       icon: ViewStyle
     }>
-    IconProps?: SvgProps
+    variant?: 'primary' | 'secondary' | 'common'
   }
 
 export const Button = (props: ButtonProps) => {
   const {
-    title,
     icon: Icon,
     iconPosition = 'right',
-    variant,
+    IconProps,
+    noText,
     onPressIn,
     onPressOut,
-    noText,
+    size = 'medium',
     style,
     styles: stylesProp,
-    IconProps,
+    title,
+    variant = 'primary',
     ...other
   } = props
 
   const [isPressing, setIsPressing] = useState(false)
-  const styles = useStyles({ variant, isPressing })
+  const styles = useStyles({ isPressing, size, variant })
   const {
     scale,
     handlePressIn: handlePressInScale,
@@ -171,8 +207,6 @@ export const Button = (props: ButtonProps) => {
         noText && { marginLeft: 0, marginRight: 0 }
       ]}
       fill={styles.icon.color}
-      height={20}
-      width={20}
       {...IconProps}
     />
   ) : null

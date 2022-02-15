@@ -14,7 +14,7 @@ import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconNewReleases from 'app/assets/images/iconNewReleases.svg'
 import IconRemix from 'app/assets/images/iconRemix.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
-import Button from 'app/components/button'
+import { Button } from 'app/components/core'
 import Drawer from 'app/components/drawer'
 import GradientText from 'app/components/gradient-text'
 import Text from 'app/components/text'
@@ -121,7 +121,7 @@ const createStyles = (themeColors: ThemeColors) =>
     }
   })
 
-const EnablePushNotificationsDrawer = () => {
+export const EnablePushNotificationsDrawer = () => {
   const dispatchWeb = useDispatchWeb()
   const [isOpen, setIsOpen] = useDrawer('EnablePushNotifications')
   const styles = useThemedStyles(createStyles)
@@ -175,11 +175,10 @@ const EnablePushNotificationsDrawer = () => {
         <Button
           title={messages.enable}
           onPress={enablePushNotifications}
-          containerStyle={styles.button}
+          style={styles.button}
+          size='large'
         />
       </View>
     </Drawer>
   )
 }
-
-export default EnablePushNotificationsDrawer
