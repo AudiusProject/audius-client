@@ -2,8 +2,7 @@ import { ProfileUser } from 'audius-client/src/common/store/pages/profile/types'
 
 import IconFollow from 'app/assets/images/iconFollow.svg'
 import IconFollowing from 'app/assets/images/iconFollowing.svg'
-
-import { Button } from './Button'
+import { Button } from 'app/components/core'
 
 const messages = {
   follow: 'follow',
