@@ -42,8 +42,10 @@ export type TileProps<
 > = TileOwnProps<TileComponentType> &
   Omit<ComponentProps<TileComponentType>, keyof TileOwnProps>
 
-export const Tile = <E extends ComponentType = typeof defaultElement>(
-  props: TileProps<E>
+export const Tile = <
+  TileComponentType extends ComponentType = typeof defaultElement
+>(
+  props: TileProps<TileComponentType>
 ) => {
   const styles = useStyles()
 
