@@ -1,17 +1,14 @@
 import { ViewStyle } from 'react-native'
 
 import Button from 'app/components/button'
-import { font, makeStyles, WithStyles } from 'app/styles'
+import { font, makeStyles, StylesProps } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
-type HeaderButtonProps = WithStyles<
-  {
-    onPress: () => void
-    text: string
-  },
-  { root: ViewStyle }
->
+type HeaderButtonProps = {
+  onPress: () => void
+  text: string
+} & StylesProps<{ root: ViewStyle }>
 
 const useStyles = makeStyles(({ palette, typography }) => ({
   root: {
@@ -31,14 +28,19 @@ const useStyles = makeStyles(({ palette, typography }) => ({
   }
 }))
 
-export const HeaderButton = ({ onPress, text, style }: HeaderButtonProps) => {
+export const HeaderButton = ({
+  onPress,
+  text,
+  style,
+  styles: stylesProp
+}: HeaderButtonProps) => {
   const styles = useStyles()
   const { secondary } = useThemeColors()
 
   return (
     <Button
       style={styles.button}
-      containerStyle={[styles.root, style]}
+      containerStyle={[styles.root, style, stylesProp?.root]}
       underlayColor={secondary}
       textStyle={styles.text}
       onPress={onPress}

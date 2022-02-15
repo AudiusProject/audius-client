@@ -57,8 +57,7 @@ const FeedPageMobileContent = ({
         />
       </Header>
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setHeader, feedFilter])
+  }, [setHeader, feedFilter, setModalIsOpen])
 
   // Set Nav-Bar Menu
   useMainPageHeader()
@@ -76,7 +75,7 @@ const FeedPageMobileContent = ({
   }
 
   const record = useRecord()
-  const selectFilter = (filter: FeedFilter) => {
+  const handleSelectFilter = (filter: FeedFilter) => {
     setModalIsOpen(false)
     setFeedFilter(filter)
     // Clear the lineup
@@ -107,7 +106,7 @@ const FeedPageMobileContent = ({
       {IS_NATIVE_MOBILE ? null : (
         <FeedFilterDrawer
           isOpen={modalIsOpen}
-          didSelectFilter={selectFilter}
+          onSelectFilter={handleSelectFilter}
           onClose={() => setModalIsOpen(false)}
         />
       )}

@@ -10,10 +10,9 @@ type Style = StyleProp<ViewStyle | ImageStyle | TextStyle>
  * `style` should always be applied to the root of the component and is equivalent
  * to `styles.root`
  */
-export type WithStyles<
-  T extends Record<string, any>,
+export type StylesProps<
   Styles extends { root: Style } & Record<string, Style>
-> = T & {
+> = {
   style?: Styles['root']
   styles?: Styles
 }

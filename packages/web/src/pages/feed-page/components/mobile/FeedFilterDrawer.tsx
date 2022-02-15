@@ -8,7 +8,7 @@ import styles from './FeedFilterModal.module.css'
 interface FeedFilterDrawerProps {
   isOpen: boolean
   onClose: () => void
-  didSelectFilter: (filter: FeedFilter) => void
+  onSelectFilter: (filter: FeedFilter) => void
 }
 
 const messages = {
@@ -20,33 +20,33 @@ const messages = {
 
 const FeedFilterDrawer = ({
   isOpen,
-  didSelectFilter,
+  onSelectFilter,
   onClose
 }: FeedFilterDrawerProps) => {
-  const onClickFilter = useCallback(
+  const handleSelectFilter = useCallback(
     (filter: FeedFilter) => {
-      didSelectFilter(filter)
+      onSelectFilter(filter)
       onClose()
     },
-    [onClose, didSelectFilter]
+    [onClose, onSelectFilter]
   )
 
   const actions = useMemo(
     () => [
       {
         text: messages.filterAll,
-        onClick: () => onClickFilter(FeedFilter.ALL)
+        onClick: () => handleSelectFilter(FeedFilter.ALL)
       },
       {
         text: messages.filterOriginal,
-        onClick: () => onClickFilter(FeedFilter.ORIGINAL)
+        onClick: () => handleSelectFilter(FeedFilter.ORIGINAL)
       },
       {
         text: messages.filterReposts,
-        onClick: () => onClickFilter(FeedFilter.REPOST)
+        onClick: () => handleSelectFilter(FeedFilter.REPOST)
       }
     ],
-    [onClickFilter]
+    [handleSelectFilter]
   )
 
   return (
