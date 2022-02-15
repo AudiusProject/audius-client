@@ -84,6 +84,7 @@ export const CollectiblesTab = () => {
     <View style={styles.root}>
       <Tile styles={{ tile: styles.tile, content: styles.tileContent }}>
         <FlatList
+          listKey='profile-collectibles'
           ListHeaderComponent={
             <View style={styles.header}>
               <GradientText accessibilityRole='header' style={styles.title}>
