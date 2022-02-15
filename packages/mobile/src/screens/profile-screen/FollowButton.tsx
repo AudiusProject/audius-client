@@ -27,6 +27,7 @@ export const FollowButton = ({ profile }: FollowButtonsProps) => {
       variant={variant}
       icon={Icon}
       iconPosition='left'
+      size='small'
     />
   )
 }

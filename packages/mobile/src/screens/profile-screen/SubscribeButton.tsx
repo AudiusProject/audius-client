@@ -30,6 +30,7 @@ export const SubscribeButton = () => {
       noText
       icon={IconNotification}
       variant={isSubscribed ? 'primary' : 'common'}
+      size='small'
     />
   )
 }

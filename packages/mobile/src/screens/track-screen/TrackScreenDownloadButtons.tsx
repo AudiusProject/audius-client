@@ -77,6 +77,7 @@ const DownloadButton = ({
         button: isDisabled && { opacity: 0.5 }
       }}
       onPress={handlePress}
+      size='small'
     />
   )
 }

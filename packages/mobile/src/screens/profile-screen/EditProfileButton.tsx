@@ -12,6 +12,11 @@ export const EditProfileButton = () => {
   }, [navigation])
 
   return (
-    <Button title='Edit Profile' variant='secondary' onPress={handlePress} />
+    <Button
+      title='Edit Profile'
+      variant='secondary'
+      onPress={handlePress}
+      size='small'
+    />
   )
 }

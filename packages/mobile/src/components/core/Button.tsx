@@ -67,15 +67,14 @@ const useStyles = makeStyles(
     }
 
     const sizeStyles = {
-      medium: {
-        root: {
+      small: {
+        button: {
           height: spacing(8),
           paddingHorizontal: spacing(2)
         },
         text: {
           textTransform: 'uppercase',
-          fontSize: 11,
-          letterSpacing: 0.5
+          fontSize: 11
         },
         icon: {
           height: spacing(5),
@@ -88,18 +87,36 @@ const useStyles = makeStyles(
           marginLeft: spacing(1)
         }
       },
-      large: {
-        root: {
-          height: spacing(12),
-          paddingHorizontal: spacing(4)
+      medium: {
+        button: {
+          height: spacing(10),
+          paddingHorizontal: spacing(10)
         },
         text: {
-          fontSize: 18,
-          letterSpacing: 0.5
+          fontSize: 14
         },
         icon: {
           height: spacing(6),
           width: spacing(6)
+        },
+        iconLeft: {
+          marginRight: spacing(1)
+        },
+        iconRight: {
+          marginLeft: spacing(1)
+        }
+      },
+      large: {
+        button: {
+          height: spacing(12),
+          paddingHorizontal: spacing(12)
+        },
+        text: {
+          fontSize: 18
+        },
+        icon: {
+          height: spacing(7),
+          width: spacing(7)
         },
         iconLeft: {
           marginRight: spacing(2)
@@ -114,13 +131,15 @@ const useStyles = makeStyles(
       root: {
         justifyContent: 'center',
         alignItems: 'center',
+        alignSelf: 'center',
         borderRadius: 4
       },
       button: {
         ...flexRowCentered()
       },
       text: {
-        fontFamily: typography.fontByWeight.bold
+        fontFamily: typography.fontByWeight.bold,
+        letterSpacing: 0.5
       }
     }
 
