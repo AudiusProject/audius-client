@@ -28,7 +28,7 @@ export const SubscribeButton = () => {
       style={styles.root}
       title={isSubscribed ? messages.subscribed : messages.subscribe}
       noText
-      iconLeft={IconNotification}
+      icon={IconNotification}
       variant={isSubscribed ? 'primary' : 'common'}
     />
   )

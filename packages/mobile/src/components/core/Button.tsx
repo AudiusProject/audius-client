@@ -13,7 +13,7 @@ import { SvgProps } from 'react-native-svg'
 
 import { useColorAnimation } from 'app/hooks/usePressColorAnimation'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { makeStyles, StylesProp } from 'app/styles'
+import { flexRowCentered, makeStyles, StylesProp } from 'app/styles'
 import { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -28,7 +28,7 @@ const useStyles = makeStyles(
         text: {
           color: palette.white
         },
-        leftIcon: {
+        icon: {
           color: palette.white
         }
       },
@@ -41,7 +41,7 @@ const useStyles = makeStyles(
         text: {
           color: palette.primary
         },
-        leftIcon: {
+        icon: {
           color: palette.primary
         }
       },
@@ -54,7 +54,7 @@ const useStyles = makeStyles(
         text: {
           color: palette.neutral
         },
-        leftIcon: {
+        icon: {
           color: palette.neutral
         }
       }
@@ -74,16 +74,19 @@ const useStyles = makeStyles(
         alignItems: 'center'
       },
       button: {
-        flexDirection: 'row',
-        alignItems: 'center'
+        ...flexRowCentered()
       },
       text: {
         fontSize: 11,
         fontFamily: typography.fontByWeight.bold,
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        letterSpacing: 0.5
       },
-      leftIcon: {
+      iconLeft: {
         marginRight: spacing(1)
+      },
+      iconRight: {
+        marginLeft: spacing(1)
       }
     }
 
@@ -97,7 +100,8 @@ const useStyles = makeStyles(
 
 type ButtonProps = RNButtonProps &
   PressableProps & {
-    iconLeft?: ComponentType<SvgProps>
+    icon?: ComponentType<SvgProps>
+    iconPosition?: 'left' | 'right'
     variant: 'primary' | 'secondary' | 'common'
     noText?: boolean
     styles?: StylesProp<{
@@ -110,7 +114,8 @@ type ButtonProps = RNButtonProps &
 export const Button = (props: ButtonProps) => {
   const {
     title,
-    iconLeft: IconLeft,
+    icon: Icon,
+    iconPosition = 'right',
     variant,
     onPressIn,
     onPressOut,
@@ -157,6 +162,21 @@ export const Button = (props: ButtonProps) => {
     [onPressOut, handlePressOutScale, handlePressOutColor]
   )
 
+  const icon = Icon ? (
+    <Icon
+      style={[
+        iconPosition === 'left' ? styles.iconLeft : styles.iconRight,
+        styles.icon,
+        stylesProp?.icon,
+        noText && { marginLeft: 0, marginRight: 0 }
+      ]}
+      fill={styles.icon.color}
+      height={20}
+      width={20}
+      {...IconProps}
+    />
+  ) : null
+
   return (
     <Animated.View
       style={[
@@ -174,20 +194,9 @@ export const Button = (props: ButtonProps) => {
         onPressOut={handlePressOut}
         {...other}
       >
-        {IconLeft ? (
-          <IconLeft
-            style={[
-              styles.leftIcon,
-              stylesProp?.icon,
-              noText && { marginRight: 0 }
-            ]}
-            fill={styles.leftIcon.color}
-            height={20}
-            width={20}
-            {...IconProps}
-          />
-        ) : null}
+        {iconPosition !== 'left' ? null : icon}
         {noText ? null : <Text style={styles.text}>{title}</Text>}
+        {iconPosition !== 'right' ? null : icon}
       </Pressable>
     </Animated.View>
   )

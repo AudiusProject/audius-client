@@ -17,7 +17,7 @@ export const FollowButton = ({ profile }: FollowButtonsProps) => {
   const { does_current_user_follow } = profile
   const isFollowing = does_current_user_follow
 
-  const IconLeft = isFollowing ? IconFollowing : IconFollow
+  const Icon = isFollowing ? IconFollowing : IconFollow
 
   const variant = isFollowing ? 'primary' : 'secondary'
 
@@ -25,7 +25,8 @@ export const FollowButton = ({ profile }: FollowButtonsProps) => {
     <Button
       title={isFollowing ? messages.following : messages.follow}
       variant={variant}
-      iconLeft={IconLeft}
+      icon={Icon}
+      iconPosition='left'
     />
   )
 }
