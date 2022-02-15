@@ -1,3 +1,26 @@
+<<<<<<< HEAD:packages/mobile/src/components/lineup-tile/LineupTileActionButtons.tsx
+=======
+import { useCallback } from 'react'
+
+import {
+  FavoriteSource,
+  RepostSource,
+  ShareSource
+} from 'audius-client/src/common/models/Analytics'
+import { ID } from 'audius-client/src/common/models/Identifiers'
+import {
+  repostTrack,
+  saveTrack,
+  undoRepostTrack,
+  unsaveTrack
+} from 'audius-client/src/common/store/social/tracks/actions'
+import {
+  OverflowAction,
+  OverflowSource
+} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
+import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+>>>>>>> f100bcb2 (Connect actions bar social actions):packages/mobile/src/components/track-tile/TrackTileActionButtons.tsx
 import { ImageStyle, StyleSheet, View } from 'react-native'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
