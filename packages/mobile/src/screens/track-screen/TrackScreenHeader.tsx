@@ -31,10 +31,9 @@ import { useSelector } from 'react-redux'
 import IconPause from 'app/assets/images/iconPause.svg'
 import IconPlay from 'app/assets/images/iconPlay.svg'
 import { BaseStackParamList } from 'app/components/app-navigator/types'
-import Button from 'app/components/button'
 import CoSign from 'app/components/co-sign/CoSign'
 import { Size } from 'app/components/co-sign/types'
-import { DynamicImage, Tile } from 'app/components/core'
+import { Button, DynamicImage, Tile } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -146,11 +145,7 @@ const createStyles = (themeColors: ThemeColors) =>
     },
 
     playButton: {
-      width: '100%',
-      ...flexRowCentered(),
-      justifyContent: 'center',
-      height: 40,
-      padding: 0
+      width: '100%'
     },
 
     tags: {
@@ -458,14 +453,9 @@ export const TrackScreenHeader = ({
         <Button
           style={styles.playButton}
           title={isPlaying ? messages.pause : messages.play}
+          size='large'
           iconPosition='left'
-          renderIcon={fill =>
-            isPlaying ? (
-              <IconPause fill={fill as string} />
-            ) : (
-              <IconPlay fill={fill as string} />
-            )
-          }
+          icon={isPlaying ? IconPause : IconPlay}
           onPress={onPlay}
         />
         <TrackScreenActionButtons
