@@ -87,7 +87,7 @@ export const TrackTileMetadata = ({
 
   const handleTitlePress = useCallback(
     (e: GestureResponderEvent) => {
-      navigation.navigate({
+      navigation.push({
         native: { screen: 'track', params: { id } },
         web: { route: permalink }
       })
@@ -97,7 +97,7 @@ export const TrackTileMetadata = ({
 
   const handleArtistPress = useCallback(
     (e: GestureResponderEvent) => {
-      navigation.navigate({
+      navigation.push({
         native: { screen: 'profile', params: { handle: user.handle } },
         web: { route: `/${user.handle}` }
       })

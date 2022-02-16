@@ -302,7 +302,7 @@ export const TrackScreenHeader = ({
   }, [track_id, uid, dispatchWeb, isPlaying, playingUid, queueTrack])
 
   const handlePressArtistName = useCallback(() => {
-    navigation.navigate({
+    navigation.push({
       native: { screen: 'profile', params: { handle: user.handle } },
       web: { route: `/${user.handle}` }
     })
