@@ -13,6 +13,7 @@ import {
 } from 'audius-client/src/common/store/social/tracks/actions'
 import { Track } from 'common/models/Track'
 import { getUserId } from 'common/store/account/selectors'
+import { getMethod as getCastMethod } from 'common/store/cast/selectors'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import {
   OverflowAction,
@@ -75,6 +76,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const themeVariant = useThemeVariant()
   const isDarkMode = themeVariant === Theme.DARK
   const currentUserId = useSelectorWeb(getUserId)
+  const castMethod = useSelectorWeb(getCastMethod)
 
   const dispatchWeb = useDispatchWeb()
 
@@ -141,9 +143,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   }, [track, currentUserId, dispatchWeb])
 
   const renderCastButton = () => {
-    // TODO: Use selector web this
-    const isAirplay = true
-    if (isAirplay) {
+    if (castMethod === 'airplay') {
       return (
         <IconButton
           icon={IconAirplay}
