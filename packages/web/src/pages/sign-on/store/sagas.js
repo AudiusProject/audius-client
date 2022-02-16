@@ -149,7 +149,7 @@ function* fetchReferrer(action) {
       const currentUser = yield select(getAccountUser)
       if (
         currentUser &&
-        !currentUser?.events?.referrer &&
+        !currentUser.events?.referrer &&
         currentUser.user_id !== user.user_id
       ) {
         yield call(AudiusBackend.updateCreator, {
