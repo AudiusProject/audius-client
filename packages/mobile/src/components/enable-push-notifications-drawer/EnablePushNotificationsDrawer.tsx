@@ -113,10 +113,6 @@ const createStyles = (themeColors: ThemeColors) =>
 
     actionIcon: {
       marginRight: 16
-    },
-
-    button: {
-      width: '100%'
     }
   })
 
@@ -174,8 +170,8 @@ export const EnablePushNotificationsDrawer = () => {
         <Button
           title={messages.enable}
           onPress={enablePushNotifications}
-          style={styles.button}
           size='large'
+          fullWidth
         />
       </View>
     </Drawer>

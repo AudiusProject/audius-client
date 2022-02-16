@@ -144,10 +144,6 @@ const createStyles = (themeColors: ThemeColors) =>
       marginBottom: 12
     },
 
-    playButton: {
-      width: '100%'
-    },
-
     tags: {
       borderTopWidth: 1,
       borderTopColor: themeColors.neutralLight7,
@@ -451,12 +447,12 @@ export const TrackScreenHeader = ({
       </TouchableOpacity>
       <View style={styles.buttonSection}>
         <Button
-          style={styles.playButton}
           title={isPlaying ? messages.pause : messages.play}
           size='large'
           iconPosition='left'
           icon={isPlaying ? IconPause : IconPlay}
           onPress={onPlay}
+          fullWidth
         />
         <TrackScreenActionButtons
           hasReposted={has_current_user_reposted}

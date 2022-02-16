@@ -135,7 +135,8 @@ const useStyles = makeStyles(
         borderRadius: 4
       },
       button: {
-        ...flexRowCentered()
+        ...flexRowCentered(),
+        justifyContent: 'center'
       },
       text: {
         fontFamily: typography.fontByWeight.bold,
@@ -157,6 +158,7 @@ type ButtonProps = RNButtonProps &
     icon?: ComponentType<SvgProps>
     iconPosition?: 'left' | 'right'
     IconProps?: SvgProps
+    fullWidth?: boolean
     noText?: boolean
     size?: 'small' | 'medium' | 'large'
     styles?: StylesProp<{
@@ -173,6 +175,7 @@ export const Button = (props: ButtonProps) => {
     icon: Icon,
     iconPosition = 'right',
     IconProps,
+    fullWidth,
     noText,
     onPressIn,
     onPressOut,
@@ -240,12 +243,17 @@ export const Button = (props: ButtonProps) => {
       style={[
         styles.root,
         { transform: [{ scale }], backgroundColor: color },
+        fullWidth && { width: '100%' },
         style,
         stylesProp?.root
       ]}
     >
       <Pressable
-        style={[styles.button, stylesProp?.button]}
+        style={[
+          styles.button,
+          fullWidth && { width: '100%' },
+          stylesProp?.button
+        ]}
         accessibilityRole='button'
         accessibilityLabel={noText ? title : undefined}
         onPressIn={handlePressIn}
