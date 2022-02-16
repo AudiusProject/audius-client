@@ -2672,7 +2672,8 @@ class AudiusBackend {
     endpoints,
     AAOEndpoint,
     parallelization,
-    feePayerOverride
+    feePayerOverride,
+    isFinalAttempt
   }) {
     await waitForLibsInit()
     try {
@@ -2712,8 +2713,17 @@ class AudiusBackend {
               amount,
               error: res.error
             })
-          } else {
+          } else if (isFinalAttempt) {
             reporter.reportFailure({
+              userId: encodedUserId,
+              challengeId: challenges[0].challenge_id,
+              specifier: challenges[0].specifier,
+              amount,
+              error: res.error,
+              phase: res.phase
+            })
+          } else {
+            reporter.reportRetry({
               userId: encodedUserId,
               challengeId: challenges[0].challenge_id,
               specifier: challenges[0].specifier,

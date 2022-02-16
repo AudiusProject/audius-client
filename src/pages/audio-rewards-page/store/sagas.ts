@@ -232,7 +232,8 @@ function* claimChallengeRewardAsync(
         endpoints,
         AAOEndpoint,
         parallelization,
-        feePayerOverride
+        feePayerOverride,
+        isFinalAttempt: !retryOnFailure
       }
     )
     if (response.error) {
