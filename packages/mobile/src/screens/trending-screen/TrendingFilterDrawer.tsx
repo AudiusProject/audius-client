@@ -46,7 +46,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-export const TrendingGenreSelectionDrawer = () => {
+export const TrendingFilterDrawer = () => {
   const styles = useStyles()
   const [searchValue, setSearchValue] = useState('')
   const isOpen = useSelectorWeb(state => getModalVisibility(state, MODAL_NAME))

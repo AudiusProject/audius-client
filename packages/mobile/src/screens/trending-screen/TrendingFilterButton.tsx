@@ -9,7 +9,7 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { MODAL_NAME } from './TrendingGenreSelectionDrawer'
+import { MODAL_NAME } from './TrendingFilterDrawer'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   headerButton: {
