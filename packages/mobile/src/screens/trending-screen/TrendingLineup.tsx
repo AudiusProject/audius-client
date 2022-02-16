@@ -18,6 +18,7 @@ import {
 import { isEqual } from 'lodash'
 
 import { Lineup } from 'app/components/lineup'
+import { LineupProps } from 'app/components/lineup/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { make, track } from 'app/utils/analytics'
@@ -46,13 +47,14 @@ const actionsMap = {
   [TimeRange.ALL_TIME]: trendingAllTimeActions
 }
 
-type TrendingLineupProps = {
+type BaseLineupProps = Pick<LineupProps, 'header' | 'rankIconCount'>
+
+type TrendingLineupProps = BaseLineupProps & {
   timeRange: TimeRange
-  header?: any
 }
 
 export const TrendingLineup = (props: TrendingLineupProps) => {
-  const { timeRange, header } = props
+  const { timeRange, ...other } = props
   const trendingLineup = useSelectorWeb(selectorsMap[timeRange], isEqual)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const navigation = useNavigation()
@@ -96,7 +98,7 @@ export const TrendingLineup = (props: TrendingLineupProps) => {
 
   return (
     <Lineup
-      header={header}
+      isTrending
       lineup={trendingLineup}
       actions={trendingActions}
       refresh={handleRefresh}
@@ -104,6 +106,7 @@ export const TrendingLineup = (props: TrendingLineupProps) => {
       loadMore={handleLoadMore}
       playTrack={handlePlayTrack}
       pauseTrack={handlePauseTrack}
+      {...other}
     />
   )
 }

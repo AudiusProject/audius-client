@@ -20,6 +20,7 @@ const ThisWeekTab = () => {
     <TrendingLineup
       header={<RewardsBanner type='tracks' />}
       timeRange={TimeRange.WEEK}
+      rankIconCount={5}
     />
   )
 }
