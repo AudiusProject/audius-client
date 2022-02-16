@@ -17,6 +17,7 @@ import { FeedScreen } from 'app/screens/feed-screen'
 import ProfileScreen from 'app/screens/profile-screen'
 import { TrackScreen } from 'app/screens/track-screen'
 import TrendingScreen from 'app/screens/trending-screen'
+import { getRoutePath } from 'app/utils/navigation'
 
 import { TopBar } from './TopBar'
 import {
@@ -113,20 +114,8 @@ const BottomTabNavigator = ({
   nativeScreens,
   onBottomTabBarLayout
 }: BottomTabNavigatorProps) => {
-  const state = useNavigationState(state => state)
-
-  if (state) {
-    let currentState: any = state
-    const routePath: string[] = []
-
-    while (
-      currentState?.routeNames?.length > 0 &&
-      currentState?.routes?.length > 0
-    ) {
-      routePath.push(currentState.routeNames[currentState.index])
-      currentState = currentState.routes[currentState.index].state
-    }
-  }
+  const routePath = useNavigationState(getRoutePath)
+  console.log(routePath)
 
   // Set handlers for the NowPlayingDrawer and BottomTabBar
   // When the drawer is open, the bottom bar should hide (animated away).
