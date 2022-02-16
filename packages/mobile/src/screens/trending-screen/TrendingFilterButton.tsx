@@ -1,11 +1,10 @@
+import { Button } from 'app/components/core'
 import { makeStyles } from 'app/styles'
-
-import { Button } from '../profile-screen/Button'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   headerButton: {
     height: 24,
-    paddingHorizontal: spacing(3),
+    paddingHorizontal: spacing(1),
     minWidth: 88,
     borderRadius: 6,
     backgroundColor: palette.secondary
@@ -21,6 +20,7 @@ export const TrendingFilterButton = () => {
     <Button
       variant='primary'
       title='All Genres'
+      size='small'
       onPress={() => {}}
       styles={{ root: styles.headerButton, text: styles.headerButtonText }}
     />
