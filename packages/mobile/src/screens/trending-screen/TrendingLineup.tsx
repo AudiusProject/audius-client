@@ -62,7 +62,7 @@ export const TrendingLineup = (props: TrendingLineupProps) => {
   const trendingActions = actionsMap[timeRange]
 
   useEffect(() => {
-    // @ts-ignore
+    // @ts-ignore tabPress is not a valid event, and wasn't able to figure out a fix
     const tabPressListener = navigation.addListener('tabPress', () => {
       dispatchWeb(setTrendingTimeRange(timeRange))
     })
