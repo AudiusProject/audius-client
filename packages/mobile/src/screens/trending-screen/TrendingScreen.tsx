@@ -9,8 +9,8 @@ import IconMonth from 'app/assets/images/iconMonth.svg'
 import TopTabNavigator from 'app/components/app-navigator/TopTabNavigator'
 import { ScreenHeader } from 'app/components/screen-header'
 
-import { FilterGenreHeaderButton } from './FilterGenreHeaderButton'
 import { RewardsBanner } from './RewardsBanner'
+import { TrendingFilterButton } from './TrendingFilterButton'
 import { TrendingLineup } from './TrendingLineup'
 
 const screenHeight = Dimensions.get('window').height
@@ -59,7 +59,7 @@ export const TrendingScreen = () => {
   return (
     <View style={{ height: screenHeight }}>
       <ScreenHeader text='Trending'>
-        <FilterGenreHeaderButton />
+        <TrendingFilterButton />
       </ScreenHeader>
       <TopTabNavigator initialScreenName='tracks' screens={screens} />
     </View>

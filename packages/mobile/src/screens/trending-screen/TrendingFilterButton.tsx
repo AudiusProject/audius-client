@@ -15,7 +15,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     textTransform: 'none'
   }
 }))
-export const FilterGenreHeaderButton = () => {
+export const TrendingFilterButton = () => {
   const styles = useStyles()
   return (
     <Button
