@@ -16,12 +16,10 @@ import {
   getDiscoverTrendingWeekLineup
 } from 'audius-client/src/common/store/pages/trending/selectors'
 import { isEqual } from 'lodash'
-import { View } from 'react-native'
 
 import { Lineup } from 'app/components/lineup'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { makeStyles } from 'app/styles'
 import { make, track } from 'app/utils/analytics'
 
 const getTrendingWeekLineup = makeGetLineupMetadatas(
@@ -48,12 +46,6 @@ const actionsMap = {
   [TimeRange.ALL_TIME]: trendingAllTimeActions
 }
 
-const useStyles = makeStyles(({ spacing }) => ({
-  root: {
-    paddingTop: spacing(3)
-  }
-}))
-
 type TrendingLineupProps = {
   timeRange: TimeRange
   header?: any
@@ -61,7 +53,6 @@ type TrendingLineupProps = {
 
 export const TrendingLineup = (props: TrendingLineupProps) => {
   const { timeRange, header } = props
-  const styles = useStyles()
   const trendingLineup = useSelectorWeb(selectorsMap[timeRange], isEqual)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const navigation = useNavigation()
@@ -104,17 +95,15 @@ export const TrendingLineup = (props: TrendingLineupProps) => {
   )
 
   return (
-    <View style={styles.root}>
-      <Lineup
-        header={header}
-        lineup={trendingLineup}
-        actions={trendingActions}
-        refresh={handleRefresh}
-        refreshing={isRefreshing && trendingLineup.isMetadataLoading}
-        loadMore={handleLoadMore}
-        playTrack={handlePlayTrack}
-        pauseTrack={handlePauseTrack}
-      />
-    </View>
+    <Lineup
+      header={header}
+      lineup={trendingLineup}
+      actions={trendingActions}
+      refresh={handleRefresh}
+      refreshing={isRefreshing && trendingLineup.isMetadataLoading}
+      loadMore={handleLoadMore}
+      playTrack={handlePlayTrack}
+      pauseTrack={handlePauseTrack}
+    />
   )
 }

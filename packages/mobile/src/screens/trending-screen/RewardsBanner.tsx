@@ -22,6 +22,7 @@ const messages = {
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   root: {
+    marginTop: spacing(3),
     marginHorizontal: spacing(3)
   },
   tile: {
