@@ -14,6 +14,7 @@ import {
 } from 'common/store/pages/token-dashboard/slice'
 import {
   getAccountBalance,
+  getAccountTotalBalance,
   getLocalBalanceDidChange
 } from 'common/store/wallet/selectors'
 import {
@@ -145,6 +146,16 @@ function* getWalletBalanceAndWallets() {
 
 function* fetchBalanceAsync() {
   const account = yield select(getAccountUser)
+  const currentTotalBalanceFromStore = yield select(getAccountTotalBalance)
+  if (!currentTotalBalanceFromStore && account.total_balance) {
+    // If we haven't set total balance yet, pull it from the account itself
+    yield put(
+      setBalance({
+        totalBalance: account.total_balance,
+        balance: account.balance
+      })
+    )
+  }
   const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> = yield select(
     getLocalBalanceDidChange
   )
