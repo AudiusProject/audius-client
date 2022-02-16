@@ -100,7 +100,7 @@ const MAX_CLAIM_RETRIES = 5
 
 const expectedRequestArgs = {
   challenges: [{ challenge_id: 'connect-verified', specifier: '1' }],
-  encodedUserId: undefined,
+  userId: 1,
   handle: 'test_user',
   recipientEthAddress: 'test-wallet',
   oracleEthAddress: 'oracle eth address',
