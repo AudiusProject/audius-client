@@ -28,10 +28,6 @@ const messages = {
 }
 
 const NavAudio = () => {
-  // TODO: remove this feature flag ASAP as rewards launches because we could show $AUDIO far earlier
-  // but need to wait for remote config
-  const { isEnabled } = useFlag(FeatureFlags.SURFACE_AUDIO_ENABLED)
-
   const navigate = useNavigateToPage()
   const account = useSelector(getAccountUser)
   const totalBalance = useSelector(getAccountTotalBalance)
@@ -69,7 +65,7 @@ const NavAudio = () => {
     positiveTotalBalance
   ])
 
-  if (!isEnabled || !account) {
+  if (!account) {
     return null
   }
   if (!nonNullTotalBalance) {
