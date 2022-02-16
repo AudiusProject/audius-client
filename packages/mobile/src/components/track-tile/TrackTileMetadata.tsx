@@ -99,7 +99,7 @@ export const TrackTileMetadata = ({
     (e: GestureResponderEvent) => {
       navigation.navigate({
         native: { screen: 'profile', params: { handle: user.handle } },
-        web: { route: user.handle }
+        web: { route: `/${user.handle}` }
       })
     },
     [navigation, user]

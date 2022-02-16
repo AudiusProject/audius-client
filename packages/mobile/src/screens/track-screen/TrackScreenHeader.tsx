@@ -304,7 +304,7 @@ export const TrackScreenHeader = ({
   const handlePressArtistName = useCallback(() => {
     navigation.navigate({
       native: { screen: 'profile', params: { handle: user.handle } },
-      web: { route: user.handle }
+      web: { route: `/${user.handle}` }
     })
   }, [navigation, user])
 
