@@ -22,6 +22,9 @@ const createStyles = (themeColors: ThemeColors) =>
     titlesActive: {
       color: themeColors.primary
     },
+    titlesPressed: {
+      textDecorationLine: 'underline'
+    },
     titleText: {
       fontSize: 16
     },
@@ -75,6 +78,7 @@ export const TrackTileMetadata = ({
   const styles = useThemedStyles(createStyles)
   const trackTileStyles = useThemedStyles(createTrackTileStyles)
   const { primary } = useThemeColors()
+
   return (
     <View style={styles.metadata}>
       <TrackTileArt
@@ -87,31 +91,47 @@ export const TrackTileMetadata = ({
       />
       <View style={trackTileStyles.titles}>
         <Pressable style={trackTileStyles.title} onPress={goToTrackPage}>
-          <Text
-            style={[styles.titleText, isPlaying && styles.titlesActive]}
-            weight='bold'
-            numberOfLines={1}
-          >
-            {title}
-          </Text>
-          {isPlaying && (
-            <IconVolume fill={primary} style={styles.playingIndicator} />
+          {({ pressed }) => (
+            <>
+              <Text
+                style={[
+                  styles.titleText,
+                  isPlaying && styles.titlesActive,
+                  pressed && styles.titlesPressed
+                ]}
+                weight='bold'
+                numberOfLines={1}
+              >
+                {title}
+              </Text>
+              {isPlaying && (
+                <IconVolume fill={primary} style={styles.playingIndicator} />
+              )}
+            </>
           )}
         </Pressable>
         <Pressable style={trackTileStyles.artist} onPress={goToArtistPage}>
-          <Text
-            style={[styles.titleText, isPlaying && styles.titlesActive]}
-            weight='medium'
-            numberOfLines={1}
-          >
-            {artistName}
-          </Text>
-          <UserBadges
-            user={user}
-            badgeSize={12}
-            style={styles.badge}
-            hideName
-          />
+          {({ pressed }) => (
+            <>
+              <Text
+                style={[
+                  styles.titleText,
+                  isPlaying && styles.titlesActive,
+                  pressed && styles.titlesPressed
+                ]}
+                weight='medium'
+                numberOfLines={1}
+              >
+                {artistName}
+              </Text>
+              <UserBadges
+                user={user}
+                badgeSize={12}
+                style={styles.badge}
+                hideName
+              />
+            </>
+          )}
         </Pressable>
       </View>
       {coSign && (
