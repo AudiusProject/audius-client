@@ -46,6 +46,7 @@ import { setup as setupAnalytics } from 'app/utils/analytics'
 
 import ErrorBoundary from './ErrorBoundary'
 import { WebAppManager } from './WebAppManager'
+import { TrendingGenreSelectionDrawer } from './screens/trending-screen/TrendingGenreSelectionDrawer'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -83,6 +84,7 @@ const Drawers = () => {
       <ShareDrawer />
       <ForgotPasswordDrawer />
       <FeedFilterDrawer />
+      <TrendingGenreSelectionDrawer />
       {/* Disable the audio breakdown drawer until we get
       the feature flags to work for native mobile */}
       {/* <AudioBreakdownDrawer /> */}

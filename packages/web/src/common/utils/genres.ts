@@ -1,4 +1,5 @@
 export enum Genre {
+  ALL = 'All Genres',
   ELECTRONIC = 'Electronic',
   ROCK = 'Rock',
   METAL = 'Metal',
@@ -83,6 +84,7 @@ export const getCanonicalName = (genre: Genre | any) => {
 }
 
 export const GENRES = [
+  Genre.ALL,
   Genre.ELECTRONIC,
   Genre.ROCK,
   Genre.METAL,
