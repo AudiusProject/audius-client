@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { ParamListBase, useNavigationState } from '@react-navigation/native'
+import { ParamListBase } from '@react-navigation/native'
 import {
   CardStyleInterpolators,
   createStackNavigator
@@ -19,7 +19,6 @@ import { FeedScreen } from 'app/screens/feed-screen'
 import ProfileScreen from 'app/screens/profile-screen'
 import { TrackScreen } from 'app/screens/track-screen'
 import TrendingScreen from 'app/screens/trending-screen'
-import { getRoutePath } from 'app/utils/navigation'
 
 import { TopBar } from './TopBar'
 import {
@@ -127,9 +126,6 @@ const BottomTabNavigator = ({
   nativeScreens,
   onBottomTabBarLayout
 }: BottomTabNavigatorProps) => {
-  const routePath = useNavigationState(getRoutePath)
-  console.log(routePath)
-
   // Set handlers for the NowPlayingDrawer and BottomTabBar
   // When the drawer is open, the bottom bar should hide (animated away).
   // When the drawer is closed, the bottom bar should reappear (animated in).
