@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import {
   Modal,
@@ -70,6 +70,13 @@ const CreatePlaylistModal = ({
     setIsArtworkPopupOpen(false)
   }, [setIsArtworkPopupOpen])
 
+  const handleSelectTabOption = useCallback(
+    (key: string) => {
+      setCurrentTabName(key as TabName)
+    },
+    [setCurrentTabName]
+  )
+
   return (
     <Modal
       modalKey='createplaylist'
@@ -101,7 +108,7 @@ const CreatePlaylistModal = ({
             <SegmentedControl
               options={tabOptions}
               selected={currentTabName}
-              onSelectOption={key => setCurrentTabName(key as TabName)}
+              onSelectOption={handleSelectTabOption}
             />
           </div>
         )}
@@ -119,4 +126,4 @@ const CreatePlaylistModal = ({
   )
 }
 
-export default memo(CreatePlaylistModal)
+export default CreatePlaylistModal

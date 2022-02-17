@@ -3,18 +3,18 @@
   align-items: stretch;
 }
 
-.playlistForm > .form {
+.form {
   flex: 1 auto;
   margin-left: 24px;
   display: flex;
   flex-direction: column;
 }
 
-.playlistForm > .form > *:not(:last-child) {
+.form > *:not(:last-child) {
   margin-bottom: 20px;
 }
 
-.playlistForm > .form .description {
+.form .description {
   height: 100%;
 }
 

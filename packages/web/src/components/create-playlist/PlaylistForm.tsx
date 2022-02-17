@@ -117,7 +117,7 @@ const CreatePlaylistActions = ({ onSave }: { onSave: () => void }) => {
         text={messages.createPlaylistButtonText}
         type={ButtonType.PRIMARY}
         onClick={debounce(onSave, 500, { leading: true })}
-      ></Button>
+      />
     </div>
   )
 }
@@ -201,11 +201,13 @@ const PlaylistForm = ({
   }
 
   const onSave = () => {
-    if (!formFields.playlist_name || (!formFields.artwork.file && !coverArt)) {
+    const nameIsEmpty = !formFields.playlist_name
+    const artworkIsEmpty = !formFields.artwork.file && !coverArt
+    if (nameIsEmpty || artworkIsEmpty) {
       setErrors({
         ...errors,
-        artwork: !formFields.artwork.file && !coverArt,
-        playlistName: !formFields.playlist_name
+        artwork: artworkIsEmpty,
+        playlistName: nameIsEmpty
       })
     } else {
       onSaveParent(formFields)

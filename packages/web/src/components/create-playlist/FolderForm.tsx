@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react'
 
-import { Button, IconCheck } from '@audius/stems'
+import { Button, ButtonType, IconCheck } from '@audius/stems'
 import { isEmpty } from 'lodash'
 
 import Input from 'components/data-entry/Input'
@@ -50,8 +50,8 @@ const FolderForm = ({ onSubmit, initialFolderName = '' }: FolderFormProps) => {
         <div className={styles.folderFormButtonContainer}>
           <Button
             buttonType='submit'
+            type={hasSubmitted ? ButtonType.PRIMARY : ButtonType.DISABLED}
             disabled={hasSubmitted}
-            isDisabled={hasSubmitted}
             text={messages.createFolderButtonText}
             name='continue'
             rightIcon={<IconCheck />}
