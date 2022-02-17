@@ -29,6 +29,7 @@ import { ArtistRecommendationsDropdown } from 'components/artist-recommendations
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/follow-button/FollowButton'
 import SubscribeButton from 'components/subscribe-button/SubscribeButton'
+import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
@@ -40,7 +41,6 @@ import GrowingCoverPhoto from './GrowingCoverPhoto'
 import styles from './ProfileHeader.module.css'
 import UploadButton from './UploadButton'
 import UploadStub from './UploadStub'
-import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 
 const messages = {
   tracks: 'Tracks',

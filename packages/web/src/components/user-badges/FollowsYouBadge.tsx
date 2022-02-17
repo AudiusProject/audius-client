@@ -1,5 +1,7 @@
-import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import React from 'react'
+
+import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+
 import styles from './FollowsYouBadge.module.css'
 
 const messages = {
