@@ -202,7 +202,7 @@ function* claimChallengeRewardAsync(
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints =
     rewardsAttestationEndpoints && rewardsAttestationEndpoints !== ''
-      ? rewardsAttestationEndpoints?.split(',')
+      ? rewardsAttestationEndpoints.split(',')
       : null
   const hasConfig =
     oracleEthAddress &&
