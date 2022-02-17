@@ -59,6 +59,7 @@ const ArtistCover = props => {
             className={styles.artistHandle}
             onClick={props.onNameClick}
           >{`@${props.handle}`}</div>
+          {props.doesFollowCurrentUser && <div>Follows You</div>}
         </div>
       </div>
     </DynamicImage>
@@ -77,7 +78,7 @@ class ArtistCard extends Component {
       trackCount,
       playlistCount,
       followerCount,
-      followingCount
+      followingCount,
     } = this.props
 
     return isArtist

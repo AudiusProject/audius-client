@@ -349,7 +349,25 @@ const ProfileWrapping = props => {
                 onChange={props.onUpdateName}
                 userId={props.userId}
               />
-              <h2 className={styles.handle}>{props.handle}</h2>
+              <h2 className={styles.handle}>
+                {props.handle}
+                {props.doesFollowCurrentUser && (
+                  <span
+                    style={{
+                      color: 'white',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      padding: '3px 6px',
+                      border: '1px solid white',
+                      borderRadius: 3,
+                      fontSize: '60%',
+                      fontWeight: 'bold',
+                      marginLeft: 10
+                    }}
+                  >
+                    FOLLOWS YOU
+                  </span>
+                )}
+              </h2>
             </>
           )}
         </div>
