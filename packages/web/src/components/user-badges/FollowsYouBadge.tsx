@@ -3,7 +3,7 @@ import React from 'react'
 import styles from './FollowsYouBadge.module.css'
 
 const messages = {
-  followsYou: 'FOLLOWS YOU'
+  followsYou: 'Follows You'
 }
 
 export default function FollowsYouBadge() {
