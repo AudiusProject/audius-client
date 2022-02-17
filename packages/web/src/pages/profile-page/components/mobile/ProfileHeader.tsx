@@ -40,6 +40,7 @@ import GrowingCoverPhoto from './GrowingCoverPhoto'
 import styles from './ProfileHeader.module.css'
 import UploadButton from './UploadButton'
 import UploadStub from './UploadStub'
+import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 
 const messages = {
   tracks: 'Tracks',
@@ -101,6 +102,7 @@ type ProfileHeaderProps = {
   setFollowersUserId: (id: ID) => void
   followingCount: number
   setFollowingUserId: (id: ID) => void
+  doesFollowCurrentUser: boolean
   twitterHandle: string
   instagramHandle: string
   tikTokHandle: string
@@ -147,6 +149,7 @@ const ProfileHeader = ({
   trackCount,
   followerCount,
   followingCount,
+  doesFollowCurrentUser,
   twitterHandle,
   instagramHandle,
   tikTokHandle,
@@ -355,7 +358,10 @@ const ProfileHeader = ({
                   </span>
                 </h1>
               </div>
-              <h2 className={styles.artistHandle}>{handle}</h2>
+              <div className={styles.artistHandleWrapper}>
+                <h2 className={styles.artistHandle}>{handle}</h2>
+                {doesFollowCurrentUser && <FollowsYouBadge />}
+              </div>
             </div>
             <div className={styles.right}>
               {following && (

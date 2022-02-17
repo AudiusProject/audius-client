@@ -1,6 +1,5 @@
 .badge {
   display: inline-block;
-  margin-left: 10px;
   font-weight: var(--font-heavy);
   font-size: var(--font-2xs);
   background: rgba(255, 255, 255, 0.25);
@@ -9,4 +8,11 @@
   color: var(--static-white);
   border-radius: 4px;
   padding: 4px 8px;
+  line-height: 1;
+}
+
+.badge.mobile {
+  color: var(--neutral-light-4);
+  border-color: var(--neutral-light-4);
+  box-shadow: none;
 }

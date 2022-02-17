@@ -350,12 +350,10 @@ const ProfileWrapping = props => {
                 onChange={props.onUpdateName}
                 userId={props.userId}
               />
-              <h2 className={styles.handle}>
-                {props.handle}
-                {props.doesFollowCurrentUser && (
-                  <FollowsYouBadge />
-                )}
-              </h2>
+              <div className={styles.handleWrapper}>
+                <h2 className={styles.handle}>{props.handle}</h2>
+                {props.doesFollowCurrentUser && <FollowsYouBadge />}
+              </div>
             </>
           )}
         </div>

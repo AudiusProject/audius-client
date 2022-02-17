@@ -81,7 +81,7 @@ class ArtistCard extends Component {
       trackCount,
       playlistCount,
       followerCount,
-      followingCount,
+      followingCount
     } = this.props
 
     return isArtist
