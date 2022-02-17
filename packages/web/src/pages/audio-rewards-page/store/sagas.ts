@@ -200,7 +200,10 @@ function* claimChallengeRewardAsync(
   const feePayerOverride: string = yield select(getFeePayer)
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
-  const endpoints = rewardsAttestationEndpoints?.split(',') || null
+  const endpoints =
+    rewardsAttestationEndpoints && rewardsAttestationEndpoints !== ''
+      ? rewardsAttestationEndpoints?.split(',')
+      : null
   const hasConfig =
     oracleEthAddress &&
     AAOEndpoint &&
