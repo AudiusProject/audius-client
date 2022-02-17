@@ -3,10 +3,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
 
-import styles from './TabSlider.module.css'
-import { TabSliderProps } from './types'
+import styles from './SegmentedControl.module.css'
+import { SegmentedControlProps } from './types'
 
-export const TabSlider = (props: TabSliderProps) => {
+export const SegmentedControl = (props: SegmentedControlProps) => {
   const optionRefs = useRef<Array<React.RefObject<HTMLDivElement>>>(
     props.options.map(() => React.createRef())
   )

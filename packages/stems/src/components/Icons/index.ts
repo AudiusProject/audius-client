@@ -55,6 +55,7 @@ export { ReactComponent as IconFileWav } from '../../assets/icons/iconFileWav.sv
 export { ReactComponent as IconFileWma } from '../../assets/icons/iconFileWma.svg'
 export { ReactComponent as IconFilter } from '../../assets/icons/iconFilter.svg'
 export { ReactComponent as IconFollow } from '../../assets/icons/iconFollow.svg'
+export { ReactComponent as IconFolder } from '../../assets/icons/iconFolder.svg'
 export { ReactComponent as IconFollowing } from '../../assets/icons/iconFollowing.svg'
 export { ReactComponent as IconHeart } from '../../assets/icons/iconHeart.svg'
 export { ReactComponent as IconHidden } from '../../assets/icons/iconHidden.svg'

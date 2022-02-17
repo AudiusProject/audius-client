@@ -1,0 +1,58 @@
+.modalContentContainer {
+  padding: var(--unit-6);
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--neutral-light-8);
+  padding: var(--unit-6) 0;
+  margin: 0 var(--unit-6);
+}
+
+.dismissButton {
+  z-index: 1;
+  position: absolute;
+  cursor: pointer;
+  left: calc(var(--unit-6) - 8px);
+  top: calc(var(--unit-6) - 8px);
+}
+
+.dismissButton path {
+  fill: var(--neutral-light-4);
+}
+
+.titleContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 16px 0px;
+  white-space: nowrap;
+}
+
+.title {
+  margin: 0;
+  display: inline;
+  font-size: var(--font-l);
+  font-weight: var(--font-bold);
+  color: var(--neutral);
+}
+
+.subtitleContainer {
+  text-align: center;
+  line-height: 18px;
+}
+
+.subtitle {
+  margin: 0;
+  display: inline;
+  font-size: var(--font-s);
+  font-weight: var(--font-medium);
+  color: var(--neutral-light-4);
+}
+
+.icon {
+  display: inline;
+  margin-right: 10px;
+}

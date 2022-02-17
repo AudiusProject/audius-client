@@ -19,6 +19,7 @@ import { findAncestor } from 'utils/findAncestor'
 import { standard } from 'utils/transitions'
 
 import styles from './Modal.module.css'
+import { ModalContext } from './ModalContext'
 import { useModalScrollCount } from './hooks'
 import { ModalProps, Anchor } from './types'
 
@@ -91,6 +92,8 @@ const useModalRoot = (id: string, zIndex?: number) => {
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   {
+    'aria-describedby': ariaDescribedbyProp,
+    'aria-labelledby': ariaLabelledbyProp,
     modalKey,
     children,
     onClose,
@@ -114,9 +117,38 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   },
   ref
 ) {
+  useEffect(() => {
+    if (
+      subtitle ||
+      title ||
+      showTitleHeader ||
+      titleClassName ||
+      subtitleClassName ||
+      headerContainerClassName ||
+      showDismissButton
+    ) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          'Header and title-related props of `Modal` have been deprecated. Use the `ModalHeader` sub-component instead.'
+        )
+      }
+    }
+  }, [
+    headerContainerClassName,
+    showDismissButton,
+    showTitleHeader,
+    subtitle,
+    subtitleClassName,
+    title,
+    titleClassName
+  ])
   const id = useMemo(() => modalKey || uniqueId('modal-'), [modalKey])
-  const titleId = `${id}-title`
-  const subtitleId = `${id}-subtitle`
+  const titleId = `${id}-title` || ariaLabelledbyProp
+  const subtitleId = `${id}-subtitle` || ariaDescribedbyProp
+  const modalContextValue = useMemo(() => {
+    return { titleId: titleId, subtitleId: subtitleId }
+  }, [titleId, subtitleId])
+
   const onTouchMove = useCallback(
     (e: any) => {
       !allowScroll && e.preventDefault()
@@ -206,10 +238,12 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     paddingRight: `${horizontalPadding}px`
   }
 
+  /** Begin @deprecated section (favor using ModalContent sub-component)  */
   const bodyStyle = {
     paddingLeft: `${contentHorizontalPadding}px`,
     paddingRight: `${contentHorizontalPadding}px`
   }
+  /** End @deprecated section  */
 
   const bodyClassNames = cn(styles.body, {
     [styles.noScroll!]: !allowScroll,
@@ -260,6 +294,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
                       aria-describedby={subtitleId}
                     >
                       <>
+                        {/** Begin @deprecated section (moved to ModalHeader and ModalTitle sub-components)  */}
                         {showTitleHeader && (
                           <div className={headerContainerClassNames}>
                             {showDismissButton && (
@@ -284,7 +319,10 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
                             </div>
                           </div>
                         )}
-                        {children}
+                        {/** End @deprecated section  */}
+                        <ModalContext.Provider value={modalContextValue}>
+                          {children}
+                        </ModalContext.Provider>
                       </>
                     </animated.div>
                   </animated.div>

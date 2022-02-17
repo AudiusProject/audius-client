@@ -2,16 +2,18 @@ import React from 'react'
 
 import { Story } from '@storybook/react'
 
-import { TabSlider } from './TabSlider'
-import { TabSliderProps, Option } from './types'
+import { SegmentedControl } from './SegmentedControl'
+import { SegmentedControlProps, Option } from './types'
 
 export default {
-  component: TabSlider,
-  title: 'Components/TabSlider',
+  component: SegmentedControl,
+  title: 'Components/SegmentedControl',
   argTypes: {}
 }
 
-const Template: Story<TabSliderProps> = args => <TabSlider {...args} />
+const Template: Story<SegmentedControlProps> = args => (
+  <SegmentedControl {...args} />
+)
 
 const options: Option[] = [
   {
@@ -38,7 +40,7 @@ const handleOptionSelect = (key: string) => (selectedOption = key)
 
 // Primary
 export const Primary = Template.bind({})
-const primaryProps: TabSliderProps = {
+const primaryProps: SegmentedControlProps = {
   options,
   selected: selectedOption,
   onSelectOption: handleOptionSelect

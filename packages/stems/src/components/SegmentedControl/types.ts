@@ -3,7 +3,7 @@ export type Option = {
   text: string
 }
 
-export type TabSliderProps = {
+export type SegmentedControlProps = {
   // The options to display for the tab slider
   options: Array<Option>
 

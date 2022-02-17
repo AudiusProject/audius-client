@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import React, { HTMLAttributes, ReactNode } from 'react'
 
 export enum Anchor {
   CENTER = 'CENTER',
@@ -30,11 +30,16 @@ export type ModalProps = {
   isOpen: boolean
 
   /**
-   * Whether to render a header
-   * with a title and dismiss button
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
    */
   showTitleHeader?: boolean
+  /**
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
+   */
   title?: React.ReactNode
+  /**
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
+   */
   subtitle?: string
 
   /**
@@ -43,7 +48,7 @@ export type ModalProps = {
   dismissOnClickOutside?: boolean
 
   /**
-   * Whether to show a dismiss 'X' in the top left
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
    */
   showDismissButton?: boolean
 
@@ -68,8 +73,18 @@ export type ModalProps = {
    *  Set max-width on bodyClass to set the modal width
    */
   bodyClassName?: string
+
+  /**
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
+   */
   titleClassName?: string
+  /**
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
+   */
   subtitleClassName?: string
+  /**
+   * @deprecated in favor of composability - use ModalHeader sub-component instead.
+   */
   headerContainerClassName?: string
 
   anchor?: Anchor
@@ -81,7 +96,37 @@ export type ModalProps = {
   horizontalPadding?: number
 
   /**
-   * Horizontal padding between outside of modal and inner content
+   * @deprecated in favor of composability - use ModalContent sub-component instead
    */
   contentHorizontalPadding?: number
+
+  /**
+   * Optional aria description for the dialog.
+   * If not provided, it is auto-generated.
+   */
+  'aria-describedby'?: string
+
+  /**
+   * Optional aria label for the dialog.
+   * If not provided, it is auto-generated.
+   */
+  'aria-labelledby'?: string
+}
+
+export type ModalContentProps = HTMLAttributes<HTMLDivElement>
+
+export type ModalHeaderProps = HTMLAttributes<HTMLDivElement> & {
+  showDismissButton?: boolean
+  onClose?: () => void
+  children: React.ReactNode
+}
+
+export type ModalTitleProps = HTMLAttributes<HTMLDivElement> & {
+  subtitleClassName?: string
+  icon?: React.ReactNode
+  iconClassName?: string
+  title: React.ReactNode
+  subtitle?: React.ReactNode
+  titleId?: string
+  subtitleId?: string
 }

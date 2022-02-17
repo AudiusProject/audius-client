@@ -88,6 +88,7 @@
   align-items: center;
 }
 
+/** @deprecated */
 .headerContainer {
   display: flex;
   flex-direction: column;
@@ -95,6 +96,7 @@
   padding: 20px 0px;
 }
 
+/** @deprecated */
 .header {
   position: relative;
   display: flex;
@@ -107,6 +109,7 @@
   white-space: nowrap;
 }
 
+/** @deprecated */
 .subtitle {
   font-size: var(--font-s);
   font-weight: var(--font-medium);
@@ -115,6 +118,7 @@
   line-height: 18px;
 }
 
+/** @deprecated */
 .dismissButton {
   z-index: 1;
   position: absolute;
@@ -123,6 +127,7 @@
   top: 16px;
 }
 
+/** @deprecated */
 .dismissButton path {
   fill: var(--neutral-light-4);
 }

@@ -11,7 +11,18 @@ export {
   Type as ButtonType,
   Size as ButtonSize
 } from './components/Button'
-export { Modal, ModalProps, Anchor } from './components/Modal'
+export {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalProps,
+  ModalContentProps,
+  ModalHeaderProps,
+  ModalTitleProps,
+  Anchor
+} from './components/Modal'
+
 export {
   Popup,
   Position as PopupPosition,
@@ -24,7 +35,13 @@ export {
 } from './components/PopupMenu'
 export { ProgressBar, ProgressBarProps } from './components/ProgressBar'
 export { Scrubber } from './components/Scrubber'
-export { TabSlider, TabSliderProps, Option } from './components/TabSlider'
+export {
+  SegmentedControl,
+  SegmentedControl as TabSlider,
+  SegmentedControlProps,
+  SegmentedControlProps as TabSliderProps,
+  Option
+} from './components/SegmentedControl'
 export {
   TokenValueSlider,
   TokenValueSliderProps
