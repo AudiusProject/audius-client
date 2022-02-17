@@ -52,7 +52,10 @@ export const useNavigation = () => {
   return useMemo(
     () => ({
       navigate: performNavigation(nativeNavigation.navigate),
-      push: performNavigation(nativeNavigation.push)
+      push: performNavigation(nativeNavigation.push),
+      // Notifying the web layer of the pop action
+      // is handled in `createStackScreen`
+      goBack: nativeNavigation.goBack
     }),
     [nativeNavigation, performNavigation]
   )

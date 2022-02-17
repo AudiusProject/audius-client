@@ -6,10 +6,12 @@ import {
   CardStyleInterpolators,
   createStackNavigator
 } from '@react-navigation/stack'
+import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
 import { Animated, StyleSheet, View } from 'react-native'
 
 import BottomTabBar, { BottomTabBarProps } from 'app/components/bottom-tab-bar'
 import NowPlayingDrawer from 'app/components/now-playing-drawer/NowPlayingDrawer'
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { EditProfileScreen } from 'app/screens/edit-profile-screen/EditProfileScreen'
 import ExploreScreen from 'app/screens/explore-screen'
 import FavoritesScreen from 'app/screens/favorites-screen'
@@ -53,24 +55,35 @@ const createStackScreen = <StackParamList extends ParamListBase>(
   ) => React.ReactNode
 ) => {
   const Stack = createStackNavigator<StackParamList>()
-  return () => (
-    <Stack.Navigator
-      screenOptions={{
-        cardOverlayEnabled: true,
-        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        gestureEnabled: true,
-        gestureResponseDistance: 1000,
-        header: props => <TopBar {...props} />,
-        headerStyle: { height: 87 },
-        headerMode: 'float'
-      }}
-    >
-      {baseScreen(Stack)}
-      <Stack.Screen name='track' component={TrackScreen} />
-      <Stack.Screen name='profile' component={ProfileScreen} />
-      <Stack.Screen name='EditProfile' component={EditProfileScreen} />
-    </Stack.Navigator>
-  )
+  return () => {
+    const dispatchWeb = useDispatchWeb()
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          cardOverlayEnabled: true,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureEnabled: true,
+          gestureResponseDistance: 1000,
+          header: props => <TopBar {...props} />,
+          headerStyle: { height: 87 },
+          headerMode: 'float'
+        }}
+        screenListeners={({ navigation }) => ({
+          beforeRemove: e => {
+            // When a screen is removed, notify the web layer to pop navigation
+            dispatchWeb({
+              type: MessageType.POP_ROUTE
+            })
+          }
+        })}
+      >
+        {baseScreen(Stack)}
+        <Stack.Screen name='track' component={TrackScreen} />
+        <Stack.Screen name='profile' component={ProfileScreen} />
+        <Stack.Screen name='EditProfile' component={EditProfileScreen} />
+      </Stack.Navigator>
+    )
+  }
 }
 
 /**
