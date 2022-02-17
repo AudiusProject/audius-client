@@ -4,7 +4,7 @@ import { ChallengeRewardsDrawer } from 'app/components/challenge-rewards-drawer'
 import { CognitoDrawer } from 'app/components/cognito-drawer/CognitoDrawer'
 import { CollectibleDetailsDrawer } from 'app/components/collectible-details-drawer'
 import { ConnectWalletsDrawer } from 'app/components/connect-wallets-drawer'
-import { DeactivateAccountConfirmationDrawer } from 'app/components/deactivate-account-confirmation-drawer/DeactivateAccountConfirmationDrawer'
+import { DeactivateAccountConfirmationDrawer } from 'app/components/deactivate-account-confirmation-drawer'
 import { DownloadTrackProgressDrawer } from 'app/components/download-track-progress-drawer'
 import { EditCollectiblesDrawer } from 'app/components/edit-collectibles-drawer'
 import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifications-drawer'
@@ -16,6 +16,7 @@ import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
 import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-drawer'
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
+import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 export const Drawers = () => {
   return (
@@ -38,6 +39,7 @@ export const Drawers = () => {
       <ShareDrawer />
       <ForgotPasswordDrawer />
       <FeedFilterDrawer />
+      <TrendingFilterDrawer />
       {/* Disable the audio breakdown drawer until we get
       the feature flags to work for native mobile */}
       {/* <AudioBreakdownDrawer /> */}
