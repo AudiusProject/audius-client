@@ -33,6 +33,8 @@ const messages = {
   searchPlaceholder: 'Search Genres'
 }
 
+const trendingGenres = [Genre.ALL, ...GENRES]
+
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
     paddingHorizontal: spacing(3),
@@ -55,7 +57,7 @@ export const TrendingFilterDrawer = () => {
 
   const genres = useMemo(() => {
     const searchValueLower = searchValue.toLowerCase()
-    return GENRES.filter(genre =>
+    return trendingGenres.filter(genre =>
       genre.toLowerCase().includes(searchValueLower)
     )
   }, [searchValue])

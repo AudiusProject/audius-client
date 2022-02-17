@@ -84,7 +84,6 @@ export const getCanonicalName = (genre: Genre | any) => {
 }
 
 export const GENRES = [
-  Genre.ALL,
   Genre.ELECTRONIC,
   Genre.ROCK,
   Genre.METAL,
