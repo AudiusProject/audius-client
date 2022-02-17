@@ -349,7 +349,7 @@ const ProfileWrapping = props => {
                 onChange={props.onUpdateName}
                 userId={props.userId}
               />
-              <h2 className={styles.handle}>{props.handle}</h2>
+              <h2 className={styles.handle}>{props.handle} ______________ </h2>
             </>
           )}
         </div>
