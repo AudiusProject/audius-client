@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
 import { Button, ButtonType, IconCheck } from '@audius/stems'
-import { debounce } from 'lodash'
 
 import { Collection, CollectionMetadata } from 'common/models/Collection'
 import { SquareSizes } from 'common/models/ImageSizes'
@@ -68,12 +67,14 @@ const EditPlaylistActions = ({
   isAlbum,
   onDelete,
   onCancel,
-  onSave
+  onSave,
+  disabled = false
 }: {
   isAlbum: boolean
   onDelete?: () => void
   onCancel?: () => void
   onSave: () => void
+  disabled?: boolean
 }) => {
   return (
     <div className={styles.editPlaylistActionsContainer}>
@@ -86,6 +87,7 @@ const EditPlaylistActions = ({
           }
           type={ButtonType.SECONDARY}
           onClick={onDelete}
+          disabled={disabled}
           className={styles.deleteButton}
           textClassName={styles.deleteButtonText}
         />
@@ -94,6 +96,7 @@ const EditPlaylistActions = ({
         <Button
           text={messages.cancelButtonText}
           type={ButtonType.SECONDARY}
+          disabled={disabled}
           className={styles.cancelButton}
           textClassName={styles.cancelButtonText}
           onClick={onCancel}
@@ -101,22 +104,30 @@ const EditPlaylistActions = ({
         <Button
           className={styles.saveChangesButton}
           text={messages.editPlaylistButtonText}
+          disabled={disabled}
           type={ButtonType.SECONDARY}
-          onClick={debounce(onSave, 500, { leading: true })}
+          onClick={onSave}
         />
       </div>
     </div>
   )
 }
 
-const CreatePlaylistActions = ({ onSave }: { onSave: () => void }) => {
+const CreatePlaylistActions = ({
+  disabled = false,
+  onSave
+}: {
+  disabled?: boolean
+  onSave: () => void
+}) => {
   return (
     <div className={styles.createPlaylistActionsContainer}>
       <Button
         rightIcon={<IconCheck />}
         text={messages.createPlaylistButtonText}
         type={ButtonType.PRIMARY}
-        onClick={debounce(onSave, 500, { leading: true })}
+        disabled={disabled}
+        onClick={onSave}
       />
     </div>
   )
@@ -140,6 +151,7 @@ const PlaylistForm = ({
     playlistName: false,
     artwork: false
   })
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const coverArt = useCollectionCoverArt(
     formFields.playlist_id,
@@ -210,6 +222,7 @@ const PlaylistForm = ({
         playlistName: nameIsEmpty
       })
     } else {
+      setHasSubmitted(true)
       onSaveParent(formFields)
     }
   }
@@ -249,9 +262,10 @@ const PlaylistForm = ({
           onCancel={onCancel}
           onDelete={onDelete}
           onSave={onSave}
+          disabled={hasSubmitted}
         />
       ) : (
-        <CreatePlaylistActions onSave={onSave} />
+        <CreatePlaylistActions onSave={onSave} disabled={hasSubmitted} />
       )}
     </div>
   )
