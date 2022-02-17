@@ -77,32 +77,29 @@
 .primary {
   border: none;
   border-radius: 4px;
-  background: linear-gradient(135deg, #D63FE6 0%, #A30CB3 100%);
-  box-shadow: 0 2px 4px -2px rgba(204,15,224,0.4), 0 2px 4px -2px rgba(133,129,153,0.35);
+  background: var(--primary);
 }
 
 .primary .textLabel {
-  color: #FAFAFA;
+  color: var(--darkmode-static-white);
   font-size: var(--font-l);
   font-weight: var(--font-bold);
 }
 
-.primary .icon g path, .primary .icon use {
-  fill: #FAFAFA;
+.primary .icon g path,
+.primary .icon use {
+  fill: var(--darkmode-static-white);
 }
 
 .primary.includeHoverAnimations:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px -2px rgba(204,15,224,0.4), 0 2px 8px -2px rgba(144,139,166,0.35);
-  background: linear-gradient(135deg, #C93BD9 0%, #960CA6 100%);
+  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  background: var(--primary);
 }
 
 .primary.includeHoverAnimations:active {
   transform: perspective(1px) scale3d(0.99, 0.99, 0.99);
-  box-shadow: 0 2px 3px -2px rgba(204,15,224,0.4), 0 2px 3px -2px rgba(133,129,153,0.35);
-  background: linear-gradient(135deg, #BD37CC 0%, #8B0B99 100%);
+  background: var(--primary);
 }
-
 
 /* PrimaryAlt Button */
 
@@ -120,7 +117,8 @@
   letter-spacing: 0.5px;
 }
 
-.primaryAlt .icon path, .primaryAlt .icon use {
+.primaryAlt .icon path,
+.primaryAlt .icon use {
   fill: var(--darkmode-static-white);
 }
 
@@ -133,7 +131,6 @@
   transform: perspective(1px) scale3d(0.99, 0.99, 0.99);
   background: var(--primary-dark-1);
 }
-
 
 /* Secondary Button */
 
@@ -159,7 +156,8 @@
   letter-spacing: 0.3px;
 }
 
-.secondary .icon path, .secondary .icon use {
+.secondary .icon path,
+.secondary .icon use {
   fill: var(--primary);
 }
 
@@ -173,7 +171,8 @@
   color: var(--white);
 }
 
-.secondary.includeHoverAnimations:hover .icon path, .secondary.includeHoverAnimations:hover .icon use {
+.secondary.includeHoverAnimations:hover .icon path,
+.secondary.includeHoverAnimations:hover .icon use {
   fill: var(--white);
 }
 
@@ -182,7 +181,6 @@
   border: 1px solid var(--primary-dark-2);
   background: var(--primary-dark-2);
 }
-
 
 /* Common Button */
 
@@ -208,7 +206,8 @@
   letter-spacing: 0.3px;
 }
 
-.common .icon path, .common .icon use {
+.common .icon path,
+.common .icon use {
   fill: var(--neutral);
 }
 
@@ -219,10 +218,11 @@
 }
 
 .common.includeHoverAnimations:hover .textLabel {
-  color: var(--white)
+  color: var(--white);
 }
 
-.common.includeHoverAnimations:hover .icon path, .common.includeHoverAnimations:hover .icon use {
+.common.includeHoverAnimations:hover .icon path,
+.common.includeHoverAnimations:hover .icon use {
   fill: var(--white);
 }
 
@@ -240,7 +240,6 @@
   fill: var(--white);
 }
 
-
 /* Common Alt Button */
 
 .commonAlt {
@@ -256,7 +255,8 @@
   letter-spacing: 0.5px;
 }
 
-.commonAlt .icon path, .commonAlt .icon use {
+.commonAlt .icon path,
+.commonAlt .icon use {
   fill: var(--neutral);
 }
 
@@ -277,7 +277,7 @@
 .glass {
   border: 1px solid var(--white);
   border-radius: 4px;
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .glass .textLabel {
@@ -287,18 +287,19 @@
   font-weight: var(--font-bold);
 }
 
-.glass .icon path, .glass .icon use {
+.glass .icon path,
+.glass .icon use {
   fill: var(--white);
 }
 
 .glass.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04,1.04,1.04);
-  background-color: rgba(255,255,255,0.2);
+  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .glass.includeHoverAnimations:active {
-  transform: perspective(1px) scale3d(1,1,1);
-  background-color: rgba(255,255,255,0.05);
+  transform: perspective(1px) scale3d(1, 1, 1);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 /* Disabled Button */
@@ -315,8 +316,9 @@
   color: var(--white);
 }
 
-.disabled .icon path, .disabled .icon use {
-  fill: var(--white)
+.disabled .icon path,
+.disabled .icon use {
+  fill: var(--white);
 }
 
 .disabled {
@@ -335,7 +337,8 @@
   border: none;
   border-radius: 4px;
   background-color: var(--static-neutral-light-10);
-  box-shadow: 0 1px 0 0 var(--neutral-light-4), 0 4px 12px -4px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 0 0 var(--neutral-light-4),
+    0 4px 12px -4px rgba(0, 0, 0, 0.3);
 }
 
 .white .textLabel {
@@ -345,18 +348,21 @@
   font-weight: var(--font-demi-bold);
 }
 
-.white .icon path, .white .icon use {
+.white .icon path,
+.white .icon use {
   fill: var(--secondary);
 }
 
 .white.includeHoverAnimations:hover {
   transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
   background-color: var(--static-white);
-  box-shadow: 0 1px 0 0 var(--neutral-light-5), 0 5px 20px -3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 0 0 var(--neutral-light-5),
+    0 5px 20px -3px rgba(0, 0, 0, 0.3);
 }
 
 .white.includeHoverAnimations:active {
-  background-color: #EEEEEE;
-  box-shadow: 0 1px 0 0 var(--neutral-light-4), 0 4px 12px -4px rgba(0,0,0,0.3);
+  background-color: #eeeeee;
+  box-shadow: 0 1px 0 0 var(--neutral-light-4),
+    0 4px 12px -4px rgba(0, 0, 0, 0.3);
   transform: perspective(1px) scale3d(0.99, 0.99, 0.99);
 }
