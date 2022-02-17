@@ -56,7 +56,7 @@ const ArtistCover = props => {
               useSVGTiers
             />
           </div>
-          <div>
+          <div className={styles.artistHandleWrapper}>
             <div
               className={styles.artistHandle}
               onClick={props.onNameClick}

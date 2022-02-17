@@ -2,8 +2,6 @@
   display: inline-block;
   font-weight: var(--font-heavy);
   font-size: var(--font-2xs);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--static-white);
   color: var(--static-white);
   border-radius: 4px;
@@ -12,8 +10,12 @@
   text-transform: uppercase;
 }
 
+.badge:not(.mobile) {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
 .badge.mobile {
   color: var(--neutral-light-4);
   border-color: var(--neutral-light-4);
-  box-shadow: none;
 }

@@ -44,7 +44,7 @@
 
 .handleWrapper > .handle {
   display: inline-block;
-  margin-right: 10px;
+  margin-right: 8px;
   color: #fafafa;
   font-size: var(--font-m);
   font-weight: var(--font-demi-bold);
