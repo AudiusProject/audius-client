@@ -50,7 +50,7 @@ const FolderForm = ({ onSubmit, initialFolderName = '' }: FolderFormProps) => {
         <div className={styles.folderFormButtonContainer}>
           <Button
             buttonType='submit'
-            type={hasSubmitted ? ButtonType.PRIMARY : ButtonType.DISABLED}
+            type={hasSubmitted ? ButtonType.DISABLED : ButtonType.PRIMARY}
             disabled={hasSubmitted}
             text={messages.createFolderButtonText}
             name='continue'
