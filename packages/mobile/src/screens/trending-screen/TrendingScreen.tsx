@@ -1,63 +1,71 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Dimensions, Text, View } from 'react-native'
+import { useMemo } from 'react'
+
+import TimeRange from 'audius-client/src/common/models/TimeRange'
+import { getTrendingGenre } from 'audius-client/src/common/store/pages/trending/selectors'
+import { Dimensions, View } from 'react-native'
 
 import IconAllTime from 'app/assets/images/iconAllTime.svg'
 import IconDay from 'app/assets/images/iconDay.svg'
 import IconMonth from 'app/assets/images/iconMonth.svg'
 import TopTabNavigator from 'app/components/app-navigator/TopTabNavigator'
-import { TrendingStackParamList } from 'app/components/app-navigator/types'
+import { Header } from 'app/components/header'
+import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
-type Props = NativeStackScreenProps<TrendingStackParamList, 'trending-stack'>
+import { RewardsBanner } from './RewardsBanner'
+import { TrendingFilterButton } from './TrendingFilterButton'
+import { TrendingLineup } from './TrendingLineup'
 
 const screenHeight = Dimensions.get('window').height
 
 const ThisWeekTab = () => {
-  return <Text>This Week Tab</Text>
+  const trendingGenre = useSelectorWeb(getTrendingGenre)
+  return (
+    <TrendingLineup
+      header={trendingGenre ? null : <RewardsBanner type='tracks' />}
+      timeRange={TimeRange.WEEK}
+      rankIconCount={5}
+    />
+  )
 }
 const ThisMonthTab = () => {
-  return <Text>This Month Tab</Text>
-}
-const ThisYearTab = () => {
-  return <Text>This Year Tab</Text>
+  return <TrendingLineup timeRange={TimeRange.MONTH} />
 }
 
-const TrendingScreen = ({ navigation }: Props) => {
+const ThisYearTab = () => {
+  return <TrendingLineup timeRange={TimeRange.ALL_TIME} />
+}
+
+export const TrendingScreen = () => {
+  const screens = useMemo(
+    () => [
+      {
+        name: 'thisWeek',
+        label: 'This Week',
+        Icon: IconDay,
+        component: ThisWeekTab
+      },
+      {
+        name: 'thisMonth',
+        label: 'This Month',
+        Icon: IconMonth,
+        component: ThisMonthTab
+      },
+      {
+        name: 'thisYear',
+        label: 'This Year',
+        Icon: IconAllTime,
+        component: ThisYearTab
+      }
+    ],
+    []
+  )
+
   return (
-    <View
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: screenHeight
-      }}
-    >
-      <Text style={{ flex: 1 }}>Example trending screen</Text>
-      <View style={{ flex: 10 }}>
-        <TopTabNavigator
-          initialScreenName='tracks'
-          screens={[
-            {
-              name: 'thisWeek',
-              label: 'This Week',
-              Icon: IconDay,
-              component: ThisWeekTab
-            },
-            {
-              name: 'thisMonth',
-              label: 'This Month',
-              Icon: IconMonth,
-              component: ThisMonthTab
-            },
-            {
-              name: 'thisYear',
-              label: 'This Year',
-              Icon: IconAllTime,
-              component: ThisYearTab
-            }
-          ]}
-        />
-      </View>
+    <View style={{ height: screenHeight }}>
+      <Header text='Trending'>
+        <TrendingFilterButton />
+      </Header>
+      <TopTabNavigator initialScreenName='tracks' screens={screens} />
     </View>
   )
 }
-
-export default TrendingScreen
