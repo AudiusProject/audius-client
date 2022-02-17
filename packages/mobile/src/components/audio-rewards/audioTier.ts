@@ -5,7 +5,7 @@ export const WEI = new BN('1000000000000000000')
 
 export type AudioTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum'
 
-export const audioTierRequirements: { tier: AudioTier; minAudio: BN }[] = [
+const audioTierRequirements: { tier: AudioTier; minAudio: BN }[] = [
   {
     tier: 'platinum',
     minAudio: new BN('100000')
