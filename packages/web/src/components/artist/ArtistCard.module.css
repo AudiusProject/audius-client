@@ -92,6 +92,7 @@
 }
 
 .artistHandle {
+  display: inline-block;
   color: var(--static-white);
   font-size: 12px;
   font-weight: 600;

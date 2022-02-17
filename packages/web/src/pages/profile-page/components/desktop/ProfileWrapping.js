@@ -14,6 +14,7 @@ import More from 'components/more/More'
 import ProfilePicture from 'components/profile-picture/ProfilePicture'
 import Tag from 'components/track/Tag'
 import UploadChip from 'components/upload/UploadChip'
+import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import EditableName from 'pages/profile-page/components/EditableName'
 import SocialLink, { Type } from 'pages/profile-page/components/SocialLink'
@@ -352,20 +353,7 @@ const ProfileWrapping = props => {
               <h2 className={styles.handle}>
                 {props.handle}
                 {props.doesFollowCurrentUser && (
-                  <span
-                    style={{
-                      color: 'white',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      padding: '3px 6px',
-                      border: '1px solid white',
-                      borderRadius: 3,
-                      fontSize: '60%',
-                      fontWeight: 'bold',
-                      marginLeft: 10
-                    }}
-                  >
-                    FOLLOWS YOU
-                  </span>
+                  <FollowsYouBadge />
                 )}
               </h2>
             </>
