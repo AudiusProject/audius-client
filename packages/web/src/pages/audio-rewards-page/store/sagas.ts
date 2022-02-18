@@ -107,7 +107,7 @@ function* retryClaimChallengeReward(errorResolved: boolean) {
       setVisibility({ modal: CHALLENGE_REWARDS_MODAL_NAME, visible: true })
     )
     if (errorResolved) {
-      yield put(claimChallengeReward({ claim, retryOnFailure: false }))
+      yield put(claimChallengeReward({ claim, retryOnFailure: true }))
     } else {
       yield put(claimChallengeRewardFailed())
     }
