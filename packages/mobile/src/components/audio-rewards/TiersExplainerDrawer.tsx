@@ -1,5 +1,5 @@
 import { getProfileUser } from 'audius-client/src/common/store/pages/profile/selectors'
-import { Text, TextStyle, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
