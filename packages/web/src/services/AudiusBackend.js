@@ -2708,9 +2708,7 @@ class AudiusBackend {
       )
       if (res.errors) {
         console.error(
-          `Got errors in aggregate attestation flow: ${JSON.stringify(
-            res.errors
-          )}`
+          `Got errors in processChallenges: ${JSON.stringify(res.errors)}`
         )
         const hcaptchaOrCognito = res.errors.find(
           ({ error }) =>
