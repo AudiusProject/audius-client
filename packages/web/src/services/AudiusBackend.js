@@ -2683,72 +2683,8 @@ class AudiusBackend {
 
       const reporter = new ClientRewardsReporter(audiusLibs)
 
-      const userIdStr = `${userId}`
       const encodedUserId = encodeHashId(userId)
 
-      // If just a single challenge, use regular `submitAndEvaluate` route
-      if (challenges.length === 1) {
-        const res = await audiusLibs.Rewards.submitAndEvaluate({
-          challengeId: challenges[0].challenge_id,
-          specifier: challenges[0].specifier,
-          encodedUserId,
-          handle,
-          recipientEthAddress,
-          oracleEthAddress,
-          amount,
-          quorumSize,
-          endpoints,
-          AAOEndpoint,
-          feePayerOverride
-        })
-
-        // Log results -
-        // These calls are fire-and-forget (not awaited)
-        // TODO: Remove this logic when we consolidate all
-        // rewards attesting in the RewardsAttester path
-        if (res.error) {
-          if (
-            res.error === FailureReason.HCAPTCHA ||
-            res.error === FailureReason.COGNITO_FLOW
-          ) {
-            reporter.reportAAORejection({
-              userId: userIdStr,
-              challengeId: challenges[0].challenge_id,
-              specifier: challenges[0].specifier,
-              amount,
-              error: res.error
-            })
-          } else if (isFinalAttempt) {
-            reporter.reportFailure({
-              userId: userIdStr,
-              challengeId: challenges[0].challenge_id,
-              specifier: challenges[0].specifier,
-              amount,
-              error: res.error,
-              phase: res.phase
-            })
-          } else {
-            reporter.reportRetry({
-              userId: userIdStr,
-              challengeId: challenges[0].challenge_id,
-              specifier: challenges[0].specifier,
-              amount,
-              error: res.error,
-              phase: res.phase
-            })
-          }
-        } else {
-          reporter.reportSuccess({
-            userId: userIdStr,
-            challengeId: challenges[0].challenge_id,
-            specifier: challenges[0].specifier,
-            amount
-          })
-        }
-        return res
-      }
-
-      // If multiple challenges, use the RewardsAttester
       const attester = new AudiusLibs.RewardsAttester({
         libs: audiusLibs,
         parallelization,
