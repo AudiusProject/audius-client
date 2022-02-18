@@ -352,7 +352,7 @@ const ProfileWrapping = props => {
               />
               <div className={styles.handleWrapper}>
                 <h2 className={styles.handle}>{props.handle}</h2>
-                {props.doesFollowCurrentUser && <FollowsYouBadge />}
+                {props.doesFollowCurrentUser ? <FollowsYouBadge /> : null}
               </div>
             </>
           )}

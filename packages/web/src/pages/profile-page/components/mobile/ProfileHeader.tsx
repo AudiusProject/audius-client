@@ -360,7 +360,7 @@ const ProfileHeader = ({
               </div>
               <div className={styles.artistHandleWrapper}>
                 <h2 className={styles.artistHandle}>{handle}</h2>
-                {doesFollowCurrentUser && <FollowsYouBadge />}
+                {doesFollowCurrentUser ? <FollowsYouBadge /> : null}
               </div>
             </div>
             <div className={styles.right}>

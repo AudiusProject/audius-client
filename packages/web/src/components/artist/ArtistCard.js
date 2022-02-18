@@ -61,7 +61,7 @@ const ArtistCover = props => {
               className={styles.artistHandle}
               onClick={props.onNameClick}
             >{`@${props.handle}`}</div>
-            {props.doesFollowCurrentUser && <FollowsYouBadge />}
+            {props.doesFollowCurrentUser ? <FollowsYouBadge /> : null}
           </div>
         </div>
       </div>
