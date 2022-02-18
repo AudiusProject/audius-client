@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { replace as replaceRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -41,6 +41,11 @@ const SignOn = ({
   initialPage
 }: SignOnContentProps) => {
   const content = isMobile ? SignOnMobilePage : SignOnDesktopPage
+  const [isInitialRender, setIsInitialRender] = useState(true)
+
+  useEffect(() => {
+    setIsInitialRender(false)
+  }, [])
 
   useEffect(() => {
     // Check for referrer before redirecting if signed in to support retroactive referrals
@@ -49,10 +54,10 @@ const SignOn = ({
       fetchReferrer(referrerHandle)
     }
 
-    if (hasAccount) {
+    if (isInitialRender && hasAccount) {
       replaceRoute(TRENDING_PAGE)
     }
-  }, [hasAccount, location, fetchReferrer, replaceRoute])
+  }, [isInitialRender, hasAccount, location, fetchReferrer, replaceRoute])
 
   return !NATIVE_MOBILE ? (
     <SignOnProvider
