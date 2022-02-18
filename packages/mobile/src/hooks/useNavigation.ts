@@ -18,6 +18,7 @@ type AppParamList = BaseStackParamList & {
   EditProfile: undefined
   FollowersScreen: undefined
   FavoritedScreen: undefined
+  RepostsScreen: undefined
 }
 
 type UseNavigationConfig<
