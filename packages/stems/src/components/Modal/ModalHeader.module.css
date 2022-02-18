@@ -29,6 +29,7 @@
   align-items: center;
   margin: 0px 16px 0px;
   white-space: nowrap;
+  color: var(--neutral);
 }
 
 .title {
@@ -36,7 +37,6 @@
   display: inline;
   font-size: var(--font-l);
   font-weight: var(--font-bold);
-  color: var(--neutral);
 }
 
 .subtitleContainer {
