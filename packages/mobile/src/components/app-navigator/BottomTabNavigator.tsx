@@ -10,7 +10,7 @@ import NowPlayingDrawer from 'app/components/now-playing-drawer/NowPlayingDrawer
 import ExploreScreen from 'app/screens/explore-screen'
 import FavoritesScreen from 'app/screens/favorites-screen'
 import { FeedScreen } from 'app/screens/feed-screen'
-import ProfileScreen from 'app/screens/profile-screen'
+import { ProfileScreen } from 'app/screens/profile-screen'
 import { TrendingScreen } from 'app/screens/trending-screen'
 
 import { BaseStackNavigator } from './BaseStackNavigator'
