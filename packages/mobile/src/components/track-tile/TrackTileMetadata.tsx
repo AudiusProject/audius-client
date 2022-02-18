@@ -130,7 +130,7 @@ export const TrackTileMetadata = ({
               >
                 {title}
               </Text>
-              {isPlaying && (
+              {!isPlaying ? null : (
                 <IconVolume fill={primary} style={styles.playingIndicator} />
               )}
             </>

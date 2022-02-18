@@ -1,26 +1,19 @@
-import { useCallback, useRef, useState } from 'react'
+import React, { ComponentType, useCallback, useRef, useState } from 'react'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { ParamListBase } from '@react-navigation/native'
-import {
-  CardStyleInterpolators,
-  createStackNavigator
-} from '@react-navigation/stack'
-import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
+import { createStackNavigator } from '@react-navigation/stack'
 import { Animated, StyleSheet, View } from 'react-native'
 
 import BottomTabBar, { BottomTabBarProps } from 'app/components/bottom-tab-bar'
 import NowPlayingDrawer from 'app/components/now-playing-drawer/NowPlayingDrawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { EditProfileScreen } from 'app/screens/edit-profile-screen/EditProfileScreen'
 import ExploreScreen from 'app/screens/explore-screen'
 import FavoritesScreen from 'app/screens/favorites-screen'
 import { FeedScreen } from 'app/screens/feed-screen'
 import ProfileScreen from 'app/screens/profile-screen'
-import { TrackScreen } from 'app/screens/track-screen'
 import { TrendingScreen } from 'app/screens/trending-screen'
 
-import { TopBar } from './TopBar'
+import { BaseStackNavigator } from './BaseStackNavigator'
 import {
   BaseStackParamList,
   ExploreStackParamList,
@@ -46,7 +39,6 @@ const styles = StyleSheet.create({
  * This function is used to create a stack containing common screens like
  * track and profile
  * @param baseScreen The screen to use as the base of the stack
- * @returns Stack.Navigator
  */
 const createStackScreen = <StackParamList extends ParamListBase>(
   baseScreen: (
@@ -54,35 +46,7 @@ const createStackScreen = <StackParamList extends ParamListBase>(
   ) => React.ReactNode
 ) => {
   const Stack = createStackNavigator<StackParamList>()
-  return () => {
-    const dispatchWeb = useDispatchWeb()
-    return (
-      <Stack.Navigator
-        screenOptions={{
-          cardOverlayEnabled: true,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureEnabled: true,
-          gestureResponseDistance: 1000,
-          header: props => <TopBar {...props} />,
-          headerStyle: { height: 87 },
-          headerMode: 'float'
-        }}
-        screenListeners={({ navigation }) => ({
-          beforeRemove: e => {
-            // When a screen is removed, notify the web layer to pop navigation
-            dispatchWeb({
-              type: MessageType.POP_ROUTE
-            })
-          }
-        })}
-      >
-        {baseScreen(Stack)}
-        <Stack.Screen name='track' component={TrackScreen} />
-        <Stack.Screen name='profile' component={ProfileScreen} />
-        <Stack.Screen name='EditProfile' component={EditProfileScreen} />
-      </Stack.Navigator>
-    )
-  }
+  return () => <BaseStackNavigator Stack={Stack} baseScreen={baseScreen} />
 }
 
 /**
@@ -122,7 +86,7 @@ type BottomTabNavigatorProps = {
  * move drawers, modals, notifications in here. Need to wait until fully migrated to RN
  * because of the way the top level navigator is hidden to display the WebView
  */
-const BottomTabNavigator = ({
+export const BottomTabNavigator = ({
   nativeScreens,
   onBottomTabBarLayout
 }: BottomTabNavigatorProps) => {
@@ -143,7 +107,7 @@ const BottomTabNavigator = ({
     setBottomBarDisplay({ isShowing: true })
   }, [setBottomBarDisplay])
 
-  const screen = (name: string, Component: () => JSX.Element) => (
+  const screen = (name: string, Component: ComponentType<any>) => (
     <Tab.Screen
       name={name}
       component={nativeScreens.has(name) ? Component : EmptyScreen}
@@ -179,5 +143,3 @@ const BottomTabNavigator = ({
     </View>
   )
 }
-
-export default BottomTabNavigator
