@@ -98,7 +98,10 @@ function getOracleConfig() {
   return { oracleEthAddress, AAOEndpoint }
 }
 
-function* retryClaimChallengeReward(errorResolved: boolean) {
+function* retryClaimChallengeReward(
+  errorResolved: boolean,
+  retryOnFailure = true
+) {
   const claimStatus: ClaimStatus = yield select(getClaimStatus)
   const claim: Claim = yield select(getClaimToRetry)
   if (claimStatus === ClaimStatus.WAITING_FOR_RETRY) {
@@ -107,7 +110,7 @@ function* retryClaimChallengeReward(errorResolved: boolean) {
       setVisibility({ modal: CHALLENGE_REWARDS_MODAL_NAME, visible: true })
     )
     if (errorResolved) {
-      yield put(claimChallengeReward({ claim, retryOnFailure: true }))
+      yield put(claimChallengeReward({ claim, retryOnFailure }))
     } else {
       yield put(claimChallengeRewardFailed())
     }
@@ -322,7 +325,7 @@ function* watchSetCognitoFlowStatus() {
     const { status } = action.payload
     // Only attempt retry on closed, so that we don't error on open
     if (status === CognitoFlowStatus.CLOSED) {
-      yield call(retryClaimChallengeReward, true)
+      yield call(retryClaimChallengeReward, true, false)
     }
   })
 }
