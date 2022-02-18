@@ -19,7 +19,6 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
-import { GestureResponderHandler } from 'app/types/gesture'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 import { TrackTileRankIcon } from './TrackTileRankIcon'
