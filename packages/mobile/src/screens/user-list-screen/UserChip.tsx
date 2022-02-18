@@ -36,7 +36,7 @@ type UserChipProps = {
 
 export const UserChip = (props: UserChipProps) => {
   const { user, currentUserId } = props
-  const { handle, follower_count } = user
+  const { handle, name, follower_count } = user
   const styles = useStyles()
 
   const navigation = useNavigation()
@@ -53,7 +53,10 @@ export const UserChip = (props: UserChipProps) => {
       <Pressable style={styles.details} onPress={handlePress}>
         <ProfilePhoto profile={user} style={styles.photo} />
         <View>
-          <UserBadges user={user} badgeSize={10} nameStyle={styles.name} />
+          <Text style={styles.name} numberOfLines={1}>
+            {name}
+          </Text>
+          <UserBadges user={user} badgeSize={10} hideName />
           <Text style={styles.followers}>
             {follower_count} {messages.followers(follower_count)}
           </Text>
