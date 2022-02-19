@@ -121,6 +121,7 @@ function reducer(
   state: SearchPageState = initialState,
   action: SearchPageActions
 ) {
+  // @ts-ignore this technically will never hit with actions typed the way they are
   const tracks = tracksLineupReducer(state.tracks, action)
   if (tracks !== state.tracks) return { ...state, tracks }
 

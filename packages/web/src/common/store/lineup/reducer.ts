@@ -1,3 +1,5 @@
+import { Reducer } from 'redux'
+
 import { UID } from 'common/models/Identifiers'
 import { LineupState, LineupStateTrack, Order } from 'common/models/Lineup'
 import Status from 'common/models/Status'
@@ -246,10 +248,10 @@ export const asLineup = <
     state: LineupStateType | undefined,
     action: LineupActionType
   ) => LineupStateType
-) => <AdditionalActions extends { type: string }>(
+): Reducer<LineupStateType, LineupActionType | LineupActions<EntryT>> => (
   state: LineupStateType | undefined,
-  action: LineupActionType | LineupActions<EntryT> | AdditionalActions
-): LineupState<EntryT> => {
+  action: LineupActionType | LineupActions<EntryT>
+): LineupStateType => {
   const baseActionType = stripPrefix(prefix, action.type) as LineupActions<
     EntryT
   >['type']
