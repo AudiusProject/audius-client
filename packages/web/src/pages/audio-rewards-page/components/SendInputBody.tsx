@@ -152,7 +152,7 @@ const validateSendAmount = (
   )
   if (!sendWeiBN) return 'MALFORMED'
   if (minWeiBN && sendWeiBN.lt(minWeiBN)) return 'LESS_THAN_MIN'
-  if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
+  // if (sendWeiBN.gt(balanceWei)) return 'INSUFFICIENT_BALANCE'
   if (sendWeiBN.lt(MIN_TRANSFERRABLE_WEI)) return 'INSUFFICIENT_TRANSFER_AMOUNT'
 
   return null

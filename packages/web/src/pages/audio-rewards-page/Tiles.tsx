@@ -144,7 +144,7 @@ export const WalletTile = ({ className }: { className?: string }) => {
               [styles.balanceDisabled]: !hasBalance
             })}
             text={messages.sendLabel}
-            isDisabled={!hasBalance}
+            // isDisabled={!hasBalance}
             includeHoverAnimations={hasBalance}
             textClassName={styles.textClassName}
             onClick={onClickSend}
