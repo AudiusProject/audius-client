@@ -1,4 +1,4 @@
-import { AppState } from 'store/types'
+import { CommonState } from 'common/store'
 
-export const getLineup = (state: AppState) =>
-  state.application.pages.trendingUnderground.trending
+export const getLineup = (state: CommonState) =>
+  state.pages.trendingUnderground.trending

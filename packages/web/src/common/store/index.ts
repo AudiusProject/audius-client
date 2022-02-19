@@ -198,7 +198,7 @@ export type CommonState = {
     track: TrackPageState
     profile: ProfilePageState
     trending: TrendingPageState
-    trendingUnderGround: ReturnType<typeof trendingUnderground>
+    trendingUnderground: ReturnType<typeof trendingUnderground>
   }
 
   solana: ReturnType<typeof solanaReducer>
