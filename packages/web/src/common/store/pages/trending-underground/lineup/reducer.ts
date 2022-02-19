@@ -8,8 +8,14 @@ export const initialState = {
   prefix: PREFIX
 }
 
-const actionsMap: { [key in string]: any } = {
-  [RESET_SUCCEEDED](state: typeof initialState) {
+type ResetSucceeded = typeof RESET_SUCCEEDED
+
+type ResetSucceededAction = {
+  type: ResetSucceeded
+}
+
+const actionsMap = {
+  [RESET_SUCCEEDED](state: typeof initialState, action: ResetSucceededAction) {
     const newState = initialState
     return newState
   }
@@ -17,9 +23,9 @@ const actionsMap: { [key in string]: any } = {
 
 const trendingUndergroundReducer = (
   state = initialState,
-  action: { type: string }
+  action: ResetSucceededAction
 ) => {
-  const baseActionType = stripPrefix(PREFIX, action.type)
+  const baseActionType = stripPrefix(PREFIX, action.type) as ResetSucceeded
   const matchingReduceFunction = actionsMap[baseActionType]
   if (!matchingReduceFunction) return state
   return matchingReduceFunction(state, action)
