@@ -21,7 +21,7 @@ import {
   removeWallet as removeWalletAction,
   pressSend,
   setModalState,
-  setModalVisibility,
+  setModalVisibility as setSendAUDIOModalVisibility,
   inputSendData,
   confirmSend,
   setDiscordCode,
@@ -78,7 +78,7 @@ function* send() {
     }
   }
   yield all([
-    put(setModalVisibility({ isVisible: true })),
+    put(setSendAUDIOModalVisibility({ isVisible: true })),
     put(setModalState({ modalState: inputStage }))
   ])
 
@@ -100,10 +100,9 @@ function* send() {
   if (error) {
     if (error.payload.error === 'Missing social proof') {
       yield all([
-        put(setModalVisibility({ isVisible: false })),
-        put(setModalState({ modalState: inputStage }))
+        put(setSendAUDIOModalVisibility({ isVisible: false })),
+        put(setVisibility({ modal: 'SocialProof', visible: true }))
       ])
-      yield put(setVisibility({ modal: 'SocialProof', visible: true }))
     } else {
       const errorState: ModalState = {
         stage: 'SEND',

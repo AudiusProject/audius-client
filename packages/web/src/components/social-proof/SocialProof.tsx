@@ -24,8 +24,8 @@ import { make, TrackEvent, useRecord } from 'store/analytics/actions'
 import styles from './SocialProof.module.css'
 
 const messages = {
-  modalTitle: 'Verify your identity',
-  description: 'Please verify your identity to continue',
+  modalTitle: 'Verify Your Identity',
+  description: 'Please verify your identity before you can continue',
   failure: 'Sorry, unable to retrieve information',
   errorTwitter: 'Unable to verify your Twitter account',
   errorInstagram: 'Unable to verify your Instagram account'
@@ -45,8 +45,8 @@ const VerifyBody = ({
   handle,
   onClick,
   onTwitterLogin,
-  onFailure,
-  onInstagramLogin
+  onInstagramLogin,
+  onFailure
 }: VerifyBodyProps) => {
   const displayInstagram = useRemoteVar(
     BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP
@@ -130,8 +130,8 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
     [dispatch]
   )
 
-  const [error, setError] = useState('')
-  const [status, setStatus] = useState('')
+  const [error, setError] = useState<string | undefined>()
+  const [status, setStatus] = useState(Status.IDLE)
   const [isOpen, setIsOpen] = useModalState('SocialProof')
   const handle = useSelector(getUserHandle)
 
@@ -139,6 +139,7 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
   const record = useRecord()
   const onFailure = useCallback(
     (type: 'instagram' | 'twitter', error: Error) => {
+      // We should have an account handle by this point
       if (!handle) return
 
       setError(messages.failure)
@@ -154,8 +155,9 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
     [record, setError, setStatus, handle]
   )
 
-  const instagramLogin = useCallback(
+  const handleInstagramLogin = useCallback(
     (uuid: string, profile: InstagramProfile) => {
+      // We should have an account handle by this point
       if (!handle) return
 
       setStatus(Status.SUCCESS)
@@ -171,8 +173,9 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
     [record, handle, onInstagramLogin]
   )
 
-  const twitterLogin = useCallback(
+  const handleTwitterLogin = useCallback(
     (uuid: string, profile: TwitterProfile) => {
+      // We should have an account handle by this point
       if (!handle) return
 
       setStatus(Status.SUCCESS)
@@ -197,14 +200,14 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
   let body = null
   if (status === Status.LOADING || handle === null) {
     body = <LoadingBody />
-  } else if (status === '' || status === Status.ERROR) {
+  } else if (status === Status.IDLE || status === Status.ERROR) {
     body = (
       <VerifyBody
         handle={handle}
         onClick={onClick}
         onFailure={onFailure}
-        onInstagramLogin={instagramLogin}
-        onTwitterLogin={twitterLogin}
+        onInstagramLogin={handleInstagramLogin}
+        onTwitterLogin={handleTwitterLogin}
         error={error}
       />
     )
