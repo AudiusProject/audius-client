@@ -1,5 +1,5 @@
-import { ID, UID } from 'common/models/Identifiers'
-import { LineupState, LineupStateTrack } from 'common/models/Lineup'
+import { UID } from 'common/models/Identifiers'
+import { LineupState, LineupStateTrack, Order } from 'common/models/Lineup'
 import Status from 'common/models/Status'
 import {
   FETCH_LINEUP_METADATAS_REQUESTED,
@@ -13,13 +13,6 @@ import {
   SET_PAGE,
   stripPrefix
 } from 'common/store/lineup/actions'
-
-type Entry = {
-  uid: UID
-  id: ID
-}
-
-type Order = Record<UID, number>
 
 export const initialLineupState = {
   prefix: '',
