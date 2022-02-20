@@ -471,6 +471,11 @@ function* signIn(action) {
         })
       )
       yield put(signOnActions.showToast(messages.incompleteAccount))
+
+      const trackEvent = make(Name.SIGN_IN_WITH_INCOMPLETE_ACCOUNT, {
+        handle: signInResponse.handle
+      })
+      yield put(trackEvent)
     } else if (signInResponse.error && signInResponse.phase === 'FIND_USER') {
       // Go to sign up flow because the account is incomplete
       yield put(
