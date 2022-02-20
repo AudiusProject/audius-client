@@ -1,8 +1,5 @@
 /* global fetch */
 
-import { Level } from 'common/store/errors/level'
-import { reportToSentry } from 'common/store/errors/reportToSentry'
-
 type Location = {
   asn: string
   city: string
@@ -29,20 +26,11 @@ export const getLocation = async (): Promise<Location | null> => {
     const res = await fetch('https://ipapi.co/json/')
     return res.json()
   } catch (e) {
-    console.debug(
+    console.error(
       `Got error during getLocation call: ${e} | Error message is: ${
-        (e as any).message
+        (e as any)?.message ?? null
       }`
     )
-    await reportToSentry({
-      level: Level.Error,
-      error: new Error('IPAPIError'),
-      name: 'IPAPIError',
-      additionalInfo: {
-        error: e,
-        errorMessage: (e as any).message
-      }
-    })
     return null
   }
 }
