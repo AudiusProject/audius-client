@@ -637,7 +637,6 @@ const ProfilePage = ({
           profilePictureSizes={profilePictureSizes}
           updatedProfilePicture={updatedProfilePicture}
           hasProfilePicture={hasProfilePicture}
-          doesFollowCurrentUser={profile?.does_follow_current_user || false}
           followeeFollows={followeeFollows}
           followeeFollowsCount={followeeFollowsCount}
           followeeFollowsLoading={followeeFollowsLoading}

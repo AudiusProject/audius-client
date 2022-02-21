@@ -42,9 +42,7 @@
   width: 100%;
 }
 
-.handleWrapper > .handle {
-  display: inline-block;
-  margin-right: 8px;
+.nameWrapper > .handle {
   color: #fafafa;
   font-size: var(--font-m);
   font-weight: var(--font-demi-bold);
