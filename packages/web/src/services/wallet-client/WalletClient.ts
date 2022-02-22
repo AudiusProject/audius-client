@@ -142,6 +142,9 @@ class WalletClient {
         amount
       )
       if (error) {
+        if (error === 'Missing social proof') {
+          throw new Error(error)
+        }
         console.error(
           `Error sending sol wrapped audio amount ${amount.toString()} to ${address.toString()}` +
             `with error ${error.toString()} and errorCode: ${errorCode}`

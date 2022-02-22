@@ -21,8 +21,7 @@ import {
   removeWallet as removeWalletAction,
   pressSend,
   setModalState,
-  setModalVisibility,
-  inputSendData,
+  setModalVisibility as setSendAUDIOModalVisibility,
   confirmSend,
   setDiscordCode,
   setIsConnectingWallet,
@@ -36,6 +35,7 @@ import {
   ConfirmRemoveWalletAction,
   ModalState
 } from 'common/store/pages/token-dashboard/types'
+import { setVisibility } from 'common/store/ui/modals/slice'
 import {
   send as walletSend,
   claimFailed,
@@ -68,7 +68,7 @@ import { confirmTransaction } from 'store/confirmer/sagas'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
-function* send() {
+function* pressSendAsync() {
   // Set modal state to input
   const inputStage: ModalState = {
     stage: 'SEND',
@@ -77,14 +77,12 @@ function* send() {
     }
   }
   yield all([
-    put(setModalVisibility({ isVisible: true })),
+    put(setSendAUDIOModalVisibility({ isVisible: true })),
     put(setModalState({ modalState: inputStage }))
   ])
+}
 
-  // Await input + confirmation
-  yield take(inputSendData.type)
-  yield take(confirmSend.type)
-
+function* confirmSendAsync() {
   // Send the txn, update local balance
   const sendData: ReturnType<typeof getSendData> = yield select(getSendData)
   if (!sendData) return
@@ -97,14 +95,21 @@ function* send() {
   })
 
   if (error) {
-    const errorState: ModalState = {
-      stage: 'SEND',
-      flowState: {
-        stage: 'ERROR',
-        error: error.payload.error ?? ''
+    if (error.payload.error === 'Missing social proof') {
+      yield all([
+        put(setSendAUDIOModalVisibility({ isVisible: false })),
+        put(setVisibility({ modal: 'SocialProof', visible: true }))
+      ])
+    } else {
+      const errorState: ModalState = {
+        stage: 'SEND',
+        flowState: {
+          stage: 'ERROR',
+          error: error.payload.error ?? ''
+        }
       }
+      yield put(setModalState({ modalState: errorState }))
     }
-    yield put(setModalState({ modalState: errorState }))
     return
   }
 
@@ -784,7 +789,11 @@ function* preloadProviders() {
 }
 
 function* watchPressSend() {
-  yield takeLatest(pressSend.type, send)
+  yield takeLatest(pressSend.type, pressSendAsync)
+}
+
+function* watchConfirmSend() {
+  yield takeLatest(confirmSend.type, confirmSendAsync)
 }
 
 function* watchGetAssociatedWallets() {
@@ -806,6 +815,7 @@ function* watchRemoveWallet() {
 const sagas = () => {
   return [
     watchPressSend,
+    watchConfirmSend,
     watchForDiscordCode,
     watchGetAssociatedWallets,
     watchConnectNewWallet,

@@ -35,6 +35,7 @@ export enum Name {
   // Sign in
   SIGN_IN_OPEN = 'Sign In: Open',
   SIGN_IN_FINISH = 'Sign In: Finish',
+  SIGN_IN_WITH_INCOMPLETE_ACCOUNT = 'Sign In: Incomplete Account',
 
   // Settings
   SETTINGS_CHANGE_THEME = 'Settings: Change Theme',
@@ -209,7 +210,12 @@ export enum Name {
   REWARDS_CLAIM_SUCCESS = 'Rewards Claim: Success',
   REWARDS_CLAIM_RETRY = 'Rewards Claim: Retry',
   REWARDS_CLAIM_FAILURE = 'Rewards Claim: Failure',
-  REWARDS_CLAIM_BLOCKED = 'Rewards Claim: Blocked'
+  REWARDS_CLAIM_BLOCKED = 'Rewards Claim: Blocked',
+
+  // Social Proof
+  SOCIAL_PROOF_OPEN = 'Social Proof: Open',
+  SOCIAL_PROOF_SUCCESS = 'Social Proof: Success',
+  SOCIAL_PROOF_ERROR = 'Social Proof: Error'
 }
 
 type PageView = {
@@ -288,6 +294,11 @@ type SignInOpen = {
 type SignInFinish = {
   eventName: Name.SIGN_IN_FINISH
   status: 'success' | 'invalid credentials'
+}
+
+type SignInWithIncompleteAccount = {
+  eventName: Name.SIGN_IN_WITH_INCOMPLETE_ACCOUNT
+  handle: string
 }
 
 // Settings
@@ -1006,6 +1017,26 @@ type RewardsClaimBlocked = {
   error: string
 }
 
+type SocialProofOpen = {
+  eventName: Name.SOCIAL_PROOF_OPEN
+  kind: 'instagram' | 'twitter'
+  handle: string
+}
+
+type SocialProofSuccess = {
+  eventName: Name.SOCIAL_PROOF_SUCCESS
+  kind: 'instagram' | 'twitter'
+  handle: string
+  screenName: string
+}
+
+type SocialProofError = {
+  eventName: Name.SOCIAL_PROOF_ERROR
+  kind: 'instagram' | 'twitter'
+  handle: string
+  error: string
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1022,6 +1053,7 @@ export type AllTrackingEvents =
   | CreateAccountOpenFinish
   | SignInOpen
   | SignInFinish
+  | SignInWithIncompleteAccount
   | SettingsChangeTheme
   | SettingsStartTwitterOauth
   | SettingsCompleteTwitterOauth
@@ -1141,3 +1173,6 @@ export type AllTrackingEvents =
   | RewardsClaimRetry
   | RewardsClaimFailure
   | RewardsClaimBlocked
+  | SocialProofOpen
+  | SocialProofSuccess
+  | SocialProofError

@@ -67,11 +67,6 @@ export const LineupTile = ({
     track_id
   ])
 
-  const onPressReposts = (e: GestureResponderEvent) => {
-    // navigate to reposts page
-    // goToRoute(REPOSTING_USERS_ROUTE)
-  }
-
   useEffect(() => {
     if (isLoaded) {
       onLoad?.(index)
@@ -115,7 +110,6 @@ export const LineupTile = ({
           isTrending={isTrending}
           isUnlisted={isUnlisted}
           playCount={playCount}
-          onPressReposts={onPressReposts}
           repostCount={repost_count}
           saveCount={save_count}
           showRankIcon={showRankIcon}
