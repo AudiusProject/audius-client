@@ -202,7 +202,7 @@ export const Lineup = ({
       }
     } else {
       if (item.kind === Kind.TRACKS || item.track_id) {
-        // Render a track tile if the kind tracks or there's a track id present
+        // Render a track tile if the kind is tracks or there's a track id present
 
         if (item._marked_deleted) {
           return null
@@ -223,10 +223,8 @@ export const Lineup = ({
             />
           </View>
         )
-      } else {
-        return null
-        // TODO: Playlist tile
-      }
+      } else if (item.kind === Kind.COLLECTIONS || item.playlist_id) {
+        // Render a playlist tile if the kind is collections or there's a playlist id present
     }
     return null
   }

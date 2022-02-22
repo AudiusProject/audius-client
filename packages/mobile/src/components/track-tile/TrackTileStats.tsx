@@ -20,10 +20,12 @@ import { ThemeColors, useThemeColors } from 'app/utils/theme'
 import { TrackTileRankIcon } from './TrackTileRankIcon'
 import { createStyles as createTrackTileStyles } from './styles'
 
-const formatListenCount = (listenCount?: number) => {
-  if (!listenCount) return null
-  const suffix = listenCount === 1 ? 'Play' : 'Plays'
-  return `${formatCount(listenCount)} ${suffix}`
+const formatPlayCount = (playCount?: number) => {
+  if (!playCount) {
+    return null
+  }
+  const suffix = playCount === 1 ? 'Play' : 'Plays'
+  return `${formatCount(playCount)} ${suffix}`
 }
 
 const createStyles = (themeColors: ThemeColors) =>
@@ -63,12 +65,12 @@ const createStyles = (themeColors: ThemeColors) =>
 
 type Props = {
   trackId: ID
-  hidePlays: boolean
+  hidePlays?: boolean
   index: number
   isTrending?: boolean
   isUnlisted?: boolean
-  listenCount: number
   onPressReposts: GestureResponderHandler
+  playCount?: number
   repostCount: number
   saveCount: number
   showRankIcon?: boolean
@@ -80,8 +82,8 @@ export const TrackTileStats = ({
   index,
   isTrending,
   isUnlisted,
-  listenCount,
   onPressReposts,
+  playCount,
   repostCount,
   saveCount,
   showRankIcon
@@ -149,7 +151,7 @@ export const TrackTileStats = ({
       )}
       {!hidePlays && (
         <Text style={[trackTileStyles.statText, styles.listenCount]}>
-          {formatListenCount(listenCount)}
+          {formatPlayCount(playCount)}
         </Text>
       )}
     </View>
