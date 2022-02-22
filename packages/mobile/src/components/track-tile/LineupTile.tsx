@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { Collection } from 'audius-client/src/common/models/Collection'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { Animated, Easing, GestureResponderEvent } from 'react-native'
+import { Animated, Easing } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { LineupTileProps } from 'app/components/track-tile/types'
@@ -25,28 +25,28 @@ export const LineupTile = ({
   duration,
   hidePlays,
   hideShare,
+  id,
   index,
   isTrending,
   isUnlisted,
   onLoad,
+  onPress,
   onPressTitle,
   playCount,
   showArtistPick,
   showRankIcon,
-  togglePlay,
   title,
-  track,
+  item,
   uid,
   user
-}: LineupTileProps & { track: Track | Collection; user: User }) => {
+}: LineupTileProps & { item: Track | Collection; user: User }) => {
   const {
     _cover_art_sizes,
     has_current_user_reposted,
     has_current_user_saved,
     repost_count,
-    save_count,
-    track_id
-  } = track
+    save_count
+  } = item
   const { _artist_pick, name, user_id } = user
 
   const playingUid = useSelector(getPlayingUid)
@@ -61,12 +61,6 @@ export const LineupTile = ({
   const isLoaded = artworkLoaded
   const fadeIn = { opacity }
 
-  const handlePress = useCallback(() => togglePlay(uid, track_id), [
-    togglePlay,
-    uid,
-    track_id
-  ])
-
   useEffect(() => {
     if (isLoaded) {
       onLoad?.(index)
@@ -79,15 +73,15 @@ export const LineupTile = ({
   }, [onLoad, isLoaded, index, opacity])
 
   return (
-    <TrackTileRoot onPress={handlePress}>
-      {showArtistPick && _artist_pick === track_id && (
+    <TrackTileRoot onPress={onPress}>
+      {showArtistPick && _artist_pick === id && (
         <TrackBannerIcon type={TrackBannerIconType.STAR} />
       )}
       {isUnlisted && <TrackBannerIcon type={TrackBannerIconType.HIDDEN} />}
       <Animated.View style={fadeIn}>
         <TrackTileTopRight
           duration={duration}
-          isArtistPick={_artist_pick === track_id}
+          isArtistPick={_artist_pick === id}
           isUnlisted={isUnlisted}
           showArtistPick={showArtistPick}
         />
@@ -95,7 +89,7 @@ export const LineupTile = ({
           artistName={name}
           coSign={coSign}
           coverArtSizes={_cover_art_sizes}
-          id={track_id}
+          id={id}
           onPressTitle={onPressTitle}
           isPlaying={uid === playingUid && isPlaying}
           setArtworkLoaded={setArtworkLoaded}
@@ -104,8 +98,8 @@ export const LineupTile = ({
         />
         {coSign && <TrackTileCoSign coSign={coSign} />}
         <TrackTileStats
-          trackId={track_id}
           hidePlays={hidePlays}
+          id={id}
           index={index}
           isTrending={isTrending}
           isUnlisted={isUnlisted}
@@ -119,10 +113,10 @@ export const LineupTile = ({
       <TrackTileActionButtons
         hasReposted={has_current_user_reposted}
         hasSaved={has_current_user_saved}
+        id={id}
         isOwner={isOwner}
         isShareHidden={hideShare}
         isUnlisted={isUnlisted}
-        trackId={track_id}
       />
     </TrackTileRoot>
   )

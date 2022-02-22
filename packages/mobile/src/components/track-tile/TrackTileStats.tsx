@@ -68,8 +68,8 @@ const createStyles = (themeColors: ThemeColors) =>
   })
 
 type Props = {
-  trackId: ID
   hidePlays?: boolean
+  id: ID
   index: number
   isTrending?: boolean
   isUnlisted?: boolean
@@ -80,8 +80,8 @@ type Props = {
 }
 
 export const TrackTileStats = ({
-  trackId,
   hidePlays,
+  id,
   index,
   isTrending,
   isUnlisted,
@@ -99,20 +99,20 @@ export const TrackTileStats = ({
   const hasEngagement = Boolean(repostCount || saveCount)
 
   const handlePressFavorites = useCallback(() => {
-    dispatchWeb(setFavorite(trackId, FavoriteType.TRACK))
+    dispatchWeb(setFavorite(id, FavoriteType.TRACK))
     navigation.push({
       native: { screen: 'FavoritedScreen', params: undefined },
       web: { route: FAVORITING_USERS_ROUTE }
     })
-  }, [dispatchWeb, trackId, navigation])
+  }, [dispatchWeb, id, navigation])
 
   const handlePressReposts = useCallback(() => {
-    dispatchWeb(setRepost(trackId, RepostType.TRACK))
+    dispatchWeb(setRepost(id, RepostType.TRACK))
     navigation.push({
       native: { screen: 'RepostsScreen', params: undefined },
       web: { route: REPOSTING_USERS_ROUTE }
     })
-  }, [dispatchWeb, trackId, navigation])
+  }, [dispatchWeb, id, navigation])
 
   return (
     <View style={styles.stats}>

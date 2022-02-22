@@ -34,10 +34,10 @@ type Props = {
   disabled?: boolean
   hasReposted?: boolean
   hasSaved?: boolean
+  id?: ID
   isOwner?: boolean
   isShareHidden?: boolean
   isUnlisted?: boolean
-  trackId?: ID
 }
 
 const createStyles = (themeColors: ThemeColors) =>
@@ -69,10 +69,10 @@ export const TrackTileActionButtons = ({
   disabled,
   hasReposted,
   hasSaved,
+  id,
   isOwner,
   isShareHidden,
-  isUnlisted,
-  trackId
+  isUnlisted
 }: Props) => {
   const { neutralLight4 } = useThemeColors()
   const styles = useThemedStyles(createStyles)
@@ -80,7 +80,7 @@ export const TrackTileActionButtons = ({
   const dispatchWeb = useDispatchWeb()
 
   const onPressOverflow = useCallback(() => {
-    if (trackId === undefined) {
+    if (id === undefined) {
       return
     }
     const overflowActions = [
@@ -103,46 +103,46 @@ export const TrackTileActionButtons = ({
     dispatchWeb(
       openOverflowMenu({
         source: OverflowSource.TRACKS,
-        id: trackId,
+        id: id,
         overflowActions
       })
     )
-  }, [trackId, dispatchWeb, hasReposted, hasSaved, isOwner])
+  }, [id, dispatchWeb, hasReposted, hasSaved, isOwner])
 
   const onPressShare = useCallback(() => {
-    if (trackId === undefined) {
+    if (id === undefined) {
       return
     }
     dispatchWeb(
       requestOpenShareModal({
         type: 'track',
-        trackId,
+        trackId: id,
         source: ShareSource.TILE
       })
     )
-  }, [dispatchWeb, trackId])
+  }, [dispatchWeb, id])
 
   const onToggleSave = useCallback(() => {
-    if (trackId === undefined) {
+    if (id === undefined) {
       return
     }
     if (hasSaved) {
-      dispatchWeb(unsaveTrack(trackId, FavoriteSource.TILE))
+      dispatchWeb(unsaveTrack(id, FavoriteSource.TILE))
     } else {
-      dispatchWeb(saveTrack(trackId, FavoriteSource.TILE))
+      dispatchWeb(saveTrack(id, FavoriteSource.TILE))
     }
-  }, [trackId, dispatchWeb, hasSaved])
+  }, [id, dispatchWeb, hasSaved])
 
   const onToggleRepost = useCallback(() => {
-    if (trackId === undefined) {
+    if (id === undefined) {
       return
     }
     if (hasReposted) {
-      dispatchWeb(undoRepostTrack(trackId, RepostSource.TILE))
+      dispatchWeb(undoRepostTrack(id, RepostSource.TILE))
     } else {
-      dispatchWeb(repostTrack(trackId, RepostSource.TILE))
+      dispatchWeb(repostTrack(id, RepostSource.TILE))
     }
-  }, [trackId, dispatchWeb, hasReposted])
+  }, [id, dispatchWeb, hasReposted])
 
   const repostButton = (
     <RepostButton

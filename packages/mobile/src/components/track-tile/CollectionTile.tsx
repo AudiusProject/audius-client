@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
+import { PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { Collection } from 'audius-client/src/common/models/Collection'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -17,9 +18,9 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { LineupTile } from './LineupTile'
 import { LineupTileTrackList } from './LineupTileTrackList'
-import { LineupTileProps } from './types'
+import { LineupItemProps } from './types'
 
-export const CollectionTile = (props: LineupTileProps) => {
+export const CollectionTile = (props: LineupItemProps) => {
   const { uid } = props
 
   const collection = useSelectorWeb(
@@ -60,10 +61,11 @@ export const CollectionTile = (props: LineupTileProps) => {
 
 const CollectionTileComponent = ({
   collection,
+  togglePlay,
   tracks,
   user,
   ...props
-}: LineupTileProps & {
+}: LineupItemProps & {
   collection: Collection
   tracks: EnhancedCollectionTrack[]
   user: User
@@ -80,6 +82,15 @@ const CollectionTileComponent = ({
           collection.playlist_id
         )
   }, [collection, user])
+
+  const handlePress = useCallback(() => {
+    const trackUid = tracks[0] ? tracks[0].uid : null
+    const trackId = tracks[0] ? tracks[0].track_id : null
+    if (!trackUid || !trackId) {
+      return
+    }
+    togglePlay(trackUid, trackId, PlaybackSource.PLAYLIST_TILE_TRACK)
+  }, [togglePlay, tracks])
 
   const handlePressTitle = useCallback(() => {
     navigation.push({
@@ -100,10 +111,12 @@ const CollectionTileComponent = ({
     <LineupTile
       {...props}
       duration={duration}
-      title={playlist_name}
-      track={collection}
-      user={user}
+      id={playlist_id}
+      onPress={handlePress}
       onPressTitle={handlePressTitle}
+      title={playlist_name}
+      item={collection}
+      user={user}
     >
       <LineupTileTrackList tracks={tracks} onPress={handlePressTitle} />
     </LineupTile>

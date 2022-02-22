@@ -62,9 +62,9 @@ const TrackTileTopRightItem = ({ icon: Icon, label }: ItemProps) => {
 
 type Props = {
   /**
-   * The duration of the track
+   * The duration of the track or tracks
    */
-  duration: number
+  duration?: number
   /**
    * Whether or not the track is the artist pick
    */

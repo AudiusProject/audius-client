@@ -12,6 +12,8 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { make, track } from 'app/utils/analytics'
 
+import { CollectionTile } from '../track-tile/CollectionTile'
+
 import { Delineator } from './Delineator'
 import { delineateByTime } from './delineate'
 import {
@@ -159,7 +161,7 @@ export const Lineup = ({
   ])
 
   const togglePlay = useCallback(
-    (uid: UID, id: ID, source?: PlaybackSource) => {
+    (uid: UID, id: ID, source: PlaybackSource) => {
       if (uid !== playingUid || (uid === playingUid && !playing)) {
         actions.play(uid)
         track(
@@ -183,6 +185,18 @@ export const Lineup = ({
     [actions, playing, playingUid]
   )
 
+  const getItemComponent = (item: LineupItem) => {
+    if (item.kind === Kind.TRACKS || item.track_id) {
+      if (item._marked_deleted) {
+        return null
+      }
+      return TrackTile
+    } else if (item.kind === Kind.COLLECTIONS || item.playlist_id) {
+      return CollectionTile
+    }
+    return null
+  }
+
   const renderItem = ({
     index,
     item
@@ -199,16 +213,11 @@ export const Lineup = ({
         )
       }
     } else {
-      if (item.kind === Kind.TRACKS || item.track_id) {
-        // Render a track tile if the kind is tracks or there's a track id present
-
-        if (item._marked_deleted) {
-          return null
-        }
-
+      const Item = getItemComponent(item)
+      if (Item) {
         return (
           <View style={styles.item}>
-            <TrackTile
+            <Item
               {...item}
               index={index}
               isTrending={isTrending}
@@ -221,8 +230,7 @@ export const Lineup = ({
             />
           </View>
         )
-      } else if (item.kind === Kind.COLLECTIONS || item.playlist_id) {
-        // Render a playlist tile if the kind is collections or there's a playlist id present
+      }
     }
     return null
   }
