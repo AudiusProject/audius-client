@@ -59,7 +59,7 @@ export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
         </Text>
         <Text style={styles.handle}>@{profile.handle}</Text>
         {does_follow_current_user ? (
-          <Text style={styles.followsYou}>Follws You</Text>
+          <Text style={styles.followsYou}>Follows You</Text>
         ) : null}
       </View>
       {isOwner ? (
