@@ -61,7 +61,7 @@ export const AccountSettingsScreen = () => {
   const { name, handle } = accountUser
 
   return (
-    <Screen title={messages.title} variant='secondary'>
+    <Screen title={messages.title} topbarRight={null} variant='secondary'>
       <ScrollView>
         <View style={styles.header}>
           <ProfilePhoto profile={accountUser} style={styles.profilePhoto} />
