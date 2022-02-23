@@ -87,7 +87,14 @@ const TrackItem = (props: TrackItemProps) => {
               {' '}
               {props.track.title}{' '}
             </Text>
-            <Text style={[styles.text, styles.artist]} numberOfLines={1}>
+            <Text
+              style={[
+                styles.text,
+                styles.artist,
+                props.active && styles.active
+              ]}
+              numberOfLines={1}
+            >
               {' '}
               {`by ${props.track.user.name}`}{' '}
             </Text>
