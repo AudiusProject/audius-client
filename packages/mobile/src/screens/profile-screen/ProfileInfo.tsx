@@ -16,12 +16,25 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   },
   handle: {
     ...typography.h4,
+    color: palette.neutralLight4
+  },
+  followsYou: {
     color: palette.neutralLight4,
-    marginBottom: spacing(4)
+    borderRadius: 4,
+    overflow: 'hidden',
+    borderColor: palette.neutralLight4,
+    borderWidth: 1,
+    paddingVertical: 3,
+    width: spacing(20),
+    textAlign: 'center',
+    fontFamily: typography.fontByWeight.heavy,
+    fontSize: 10,
+    textTransform: 'uppercase'
   },
   info: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginBottom: spacing(4)
   },
   actionButtons: {
     flexDirection: 'row'
@@ -34,7 +47,7 @@ type ProfileInfoProps = {
 
 export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
   const styles = useStyles()
-  const { does_current_user_follow } = profile
+  const { does_current_user_follow, does_follow_current_user } = profile
   const accountUser = useSelectorWeb(getAccountUser)
   const isOwner = accountUser?.user_id === profile.user_id
 
@@ -45,6 +58,9 @@ export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           {profile.name}
         </Text>
         <Text style={styles.handle}>@{profile.handle}</Text>
+        {does_follow_current_user ? (
+          <Text style={styles.followsYou}>Follws You</Text>
+        ) : null}
       </View>
       {isOwner ? (
         <EditProfileButton />
