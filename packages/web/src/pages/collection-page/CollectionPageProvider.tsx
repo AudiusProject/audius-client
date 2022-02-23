@@ -34,6 +34,21 @@ import {
   makeGetTableMetadatas,
   makeGetLineupOrder
 } from 'common/store/lineup/selectors'
+import * as collectionActions from 'common/store/pages/collection/actions'
+import { tracksActions } from 'common/store/pages/collection/lineup/actions'
+import {
+  getCollection,
+  getCollectionStatus,
+  getCollectionTracksLineup,
+  getCollectionUid,
+  getUser,
+  getUserUid
+} from 'common/store/pages/collection/selectors'
+import {
+  TrackRecord,
+  CollectionTrack,
+  CollectionsPageType
+} from 'common/store/pages/collection/types'
 import * as socialCollectionsActions from 'common/store/social/collections/actions'
 import * as socialTracksActions from 'common/store/social/tracks/actions'
 import * as socialUsersActions from 'common/store/social/users/actions'
@@ -77,24 +92,8 @@ import {
 } from 'utils/route'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
 
-import * as collectionActions from '../../common/store/pages/collection/actions'
-import { tracksActions } from '../../common/store/pages/collection/lineup/actions'
-import {
-  TrackRecord,
-  CollectionTrack,
-  CollectionsPageType
-} from '../../common/store/pages/collection/types'
-
 import { CollectionPageProps as DesktopCollectionPageProps } from './components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from './components/mobile/CollectionPage'
-import {
-  getCollection,
-  getCollectionStatus,
-  getCollectionTracksLineup,
-  getCollectionUid,
-  getUser,
-  getUserUid
-} from './store/selectors'
 
 type OwnProps = {
   type: CollectionsPageType

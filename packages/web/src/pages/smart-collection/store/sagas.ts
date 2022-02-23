@@ -14,6 +14,10 @@ import { EXPLORE_PAGE } from 'utils/route'
 import { requiresAccount, waitForValue } from 'utils/sagaHelpers'
 
 import {
+  fetchSmartCollection,
+  fetchSmartCollectionSucceeded
+} from '../../../common/store/pages/smart-collection/slice'
+import {
   HEAVY_ROTATION,
   BEST_NEW_RELEASES,
   MOST_LOVED,
@@ -21,8 +25,6 @@ import {
   UNDER_THE_RADAR,
   REMIXABLES
 } from '../smartCollections'
-
-import { fetchSmartCollection, fetchSmartCollectionSucceeded } from './slice'
 
 const COLLECTIONS_LIMIT = 25
 

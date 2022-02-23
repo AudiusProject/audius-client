@@ -27,7 +27,6 @@ import saved from 'pages/saved-page/store/reducer'
 import search from 'pages/search-page/store/reducer'
 import settings from 'pages/settings-page/store/reducer'
 import signOn from 'pages/sign-on/store/reducer'
-import smartCollection from 'pages/smart-collection/store/slice'
 import trendingPlaylists from 'pages/trending-playlists/store/slice'
 import upload from 'pages/upload-page/store/reducer'
 import visualizer from 'pages/visualizer/store/slice'
@@ -117,7 +116,6 @@ const createRootReducer = (routeHistory: History) =>
         nowPlaying,
         remixes,
         settings,
-        smartCollection,
         trendingPlaylists,
         unfollowConfirmation
       })

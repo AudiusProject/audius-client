@@ -4,15 +4,15 @@ import { select, call } from 'redux-saga/effects'
 
 import Kind from 'common/models/Kind'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { removeNullable } from 'common/utils/typeUtils'
-import { Uid } from 'common/utils/uid'
 import {
   getCollection,
   getSmartCollectionVariant,
   getCollectionId,
   getCollectionTracksLineup
-} from 'pages/collection-page/store/selectors'
-import { getCollection as getSmartCollection } from 'pages/smart-collection/store/selectors'
+} from 'common/store/pages/collection/selectors'
+import { getCollection as getSmartCollection } from 'common/store/pages/smart-collection/selectors'
+import { removeNullable } from 'common/utils/typeUtils'
+import { Uid } from 'common/utils/uid'
 import { LineupSagas } from 'store/lineup/sagas'
 import { getPositions } from 'store/queue/selectors'
 import { waitForValue } from 'utils/sagaHelpers'

@@ -1,10 +1,10 @@
 import { matchPath } from 'react-router'
 
+import { getCollectionTracksLineup } from 'common/store/pages/collection/selectors'
 import { getDiscoverFeedLineup } from 'common/store/pages/feed/selectors'
 import { getProfileTracksLineup } from 'common/store/pages/profile/selectors'
 import { getLineup } from 'common/store/pages/track/selectors'
 import { getCurrentDiscoverTrendingLineup } from 'common/store/pages/trending/selectors'
-import { getCollectionTracksLineup } from 'pages/collection-page/store/selectors'
 import { getHistoryTracksLineup } from 'pages/history-page/store/selectors'
 import { getSavedTracksLineup } from 'pages/saved-page/store/selectors'
 import { getSearchTracksLineup } from 'pages/search-page/store/selectors'
