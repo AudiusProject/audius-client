@@ -13,7 +13,7 @@ import {
 import { makeStyles, StylesProps } from 'app/styles'
 
 // Note, offset is the inner padding of the container div
-const OFFSET = 3
+const offset = 3
 
 export type Option = {
   key: string
@@ -60,14 +60,13 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
     backgroundColor: palette.neutralLight7,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: OFFSET,
+    padding: offset,
     paddingRight: 0
   },
   tab: {
     elevation: 3,
-    paddingTop: 10,
+    paddingVertical: spacing(2),
     paddingHorizontal: spacing(4),
-    paddingBottom: spacing(2),
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center'
@@ -136,7 +135,7 @@ export const SegmentedControl = (props: SegmentedControlProps) => {
     const width = optionWidths.current[selectedOptionIdx]
     const left = optionWidths.current
       .slice(0, selectedOptionIdx)
-      .reduce((totalWidth, width) => totalWidth + width, OFFSET)
+      .reduce((totalWidth, width) => totalWidth + width, offset)
 
     springToValue(leftAnim, left)
     springToValue(widthAnim, width)
@@ -146,7 +145,7 @@ export const SegmentedControl = (props: SegmentedControlProps) => {
     const { width } = event.nativeEvent.layout
 
     if (i === 0) {
-      springToValue(leftAnim, OFFSET)
+      springToValue(leftAnim, offset)
       springToValue(widthAnim, width)
     }
     optionWidths.current[i] = width
