@@ -41,6 +41,10 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   }
 }))
 
+const messages = {
+  followsYou: 'Follows You'
+}
+
 type ProfileInfoProps = {
   profile: ProfileUser
 }
@@ -59,7 +63,7 @@ export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
         </Text>
         <Text style={styles.handle}>@{profile.handle}</Text>
         {does_follow_current_user ? (
-          <Text style={styles.followsYou}>Follows You</Text>
+          <Text style={styles.followsYou}>{messages.followsYou}</Text>
         ) : null}
       </View>
       {isOwner ? (
