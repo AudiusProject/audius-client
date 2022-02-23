@@ -51,7 +51,19 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   id: ID
 
   /** Function to call when tile is pressed */
-  onPress?: () => void
+  onPress?: GestureResponderHandler
+
+  /** Function to call when the overflow menu button is pressed */
+  onPressOverflow?: GestureResponderHandler
+
+  /** Function to call when repost is pressed */
+  onPressRepost?: GestureResponderHandler
+
+  /** Function to call when save is pressed */
+  onPressSave?: GestureResponderHandler
+
+  /** Function to call when share is pressed */
+  onPressShare?: GestureResponderHandler
 
   /** Function to call when the title is pressed */
   onPressTitle?: GestureResponderHandler

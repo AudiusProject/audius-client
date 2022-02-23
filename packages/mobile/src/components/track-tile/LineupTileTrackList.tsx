@@ -37,7 +37,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
   title: {
     color: palette.neutral,
-    maxWidth: 220
+    maxWidth: '60%'
+  },
+
+  artist: {
+    maxWidth: '35%'
   },
 
   active: {
@@ -83,7 +87,7 @@ const TrackItem = (props: TrackItemProps) => {
               {' '}
               {props.track.title}{' '}
             </Text>
-            <Text style={styles.text} numberOfLines={1}>
+            <Text style={[styles.text, styles.artist]} numberOfLines={1}>
               {' '}
               {`by ${props.track.user.name}`}{' '}
             </Text>

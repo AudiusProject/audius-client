@@ -1,23 +1,3 @@
-import { useCallback } from 'react'
-
-import {
-  FavoriteSource,
-  RepostSource,
-  ShareSource
-} from 'audius-client/src/common/models/Analytics'
-import { ID } from 'audius-client/src/common/models/Identifiers'
-import {
-  repostTrack,
-  saveTrack,
-  undoRepostTrack,
-  unsaveTrack
-} from 'audius-client/src/common/store/social/tracks/actions'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { ImageStyle, StyleSheet, View } from 'react-native'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -25,19 +5,22 @@ import IconShare from 'app/assets/images/iconShare.svg'
 import { IconButton } from 'app/components/core'
 import FavoriteButton from 'app/components/favorite-button'
 import RepostButton from 'app/components/repost-button'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
+import { GestureResponderHandler } from 'app/types/gesture'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 type Props = {
   disabled?: boolean
   hasReposted?: boolean
   hasSaved?: boolean
-  id?: ID
   isOwner?: boolean
   isShareHidden?: boolean
   isUnlisted?: boolean
+  onPressOverflow?: GestureResponderHandler
+  onPressRepost?: GestureResponderHandler
+  onPressSave?: GestureResponderHandler
+  onPressShare?: GestureResponderHandler
 }
 
 const createStyles = (themeColors: ThemeColors) =>
@@ -69,84 +52,20 @@ export const TrackTileActionButtons = ({
   disabled,
   hasReposted,
   hasSaved,
-  id,
   isOwner,
   isShareHidden,
-  isUnlisted
+  isUnlisted,
+  onPressOverflow,
+  onPressRepost,
+  onPressSave,
+  onPressShare
 }: Props) => {
   const { neutralLight4 } = useThemeColors()
   const styles = useThemedStyles(createStyles)
 
-  const dispatchWeb = useDispatchWeb()
-
-  const onPressOverflow = useCallback(() => {
-    if (id === undefined) {
-      return
-    }
-    const overflowActions = [
-      !isOwner
-        ? hasReposted
-          ? OverflowAction.UNREPOST
-          : OverflowAction.REPOST
-        : null,
-      !isOwner
-        ? hasSaved
-          ? OverflowAction.UNFAVORITE
-          : OverflowAction.FAVORITE
-        : null,
-      OverflowAction.SHARE,
-      OverflowAction.ADD_TO_PLAYLIST,
-      OverflowAction.VIEW_TRACK_PAGE,
-      OverflowAction.VIEW_ARTIST_PAGE
-    ].filter(Boolean) as OverflowAction[]
-
-    dispatchWeb(
-      openOverflowMenu({
-        source: OverflowSource.TRACKS,
-        id: id,
-        overflowActions
-      })
-    )
-  }, [id, dispatchWeb, hasReposted, hasSaved, isOwner])
-
-  const onPressShare = useCallback(() => {
-    if (id === undefined) {
-      return
-    }
-    dispatchWeb(
-      requestOpenShareModal({
-        type: 'track',
-        trackId: id,
-        source: ShareSource.TILE
-      })
-    )
-  }, [dispatchWeb, id])
-
-  const onToggleSave = useCallback(() => {
-    if (id === undefined) {
-      return
-    }
-    if (hasSaved) {
-      dispatchWeb(unsaveTrack(id, FavoriteSource.TILE))
-    } else {
-      dispatchWeb(saveTrack(id, FavoriteSource.TILE))
-    }
-  }, [id, dispatchWeb, hasSaved])
-
-  const onToggleRepost = useCallback(() => {
-    if (id === undefined) {
-      return
-    }
-    if (hasReposted) {
-      dispatchWeb(undoRepostTrack(id, RepostSource.TILE))
-    } else {
-      dispatchWeb(repostTrack(id, RepostSource.TILE))
-    }
-  }, [id, dispatchWeb, hasReposted])
-
   const repostButton = (
     <RepostButton
-      onPress={onToggleRepost ?? (() => {})}
+      onPress={onPressRepost}
       isActive={hasReposted}
       isDisabled={disabled || isOwner}
       style={[styles.button, styles.firstButton] as ImageStyle}
@@ -155,7 +74,7 @@ export const TrackTileActionButtons = ({
 
   const favoriteButton = (
     <FavoriteButton
-      onPress={onToggleSave ?? (() => {})}
+      onPress={onPressSave}
       isActive={hasSaved}
       isDisabled={disabled || isOwner}
       style={styles.button as ImageStyle}

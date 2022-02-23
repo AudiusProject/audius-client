@@ -4,6 +4,7 @@ import { SvgProps } from 'react-native-svg'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { makeStyles } from 'app/styles/makeStyles'
+import { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
 export type IconButtonProps = {
@@ -14,7 +15,7 @@ export type IconButtonProps = {
     }
   >
   isDisabled?: boolean
-  onPress?: () => void
+  onPress?: GestureResponderHandler
   styles?: {
     root?: StyleProp<ViewStyle>
     icon?: StyleProp<ViewStyle>
@@ -51,7 +52,7 @@ export const IconButton = ({
   return (
     <Animated.View style={[{ transform: [{ scale }] }, stylesProp?.root]}>
       <TouchableOpacity
-        onPress={onPress}
+        onPress={onPress ?? (() => {})}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={isDisabled}

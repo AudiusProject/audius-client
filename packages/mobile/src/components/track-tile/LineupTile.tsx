@@ -31,6 +31,10 @@ export const LineupTile = ({
   isUnlisted,
   onLoad,
   onPress,
+  onPressOverflow,
+  onPressRepost,
+  onPressSave,
+  onPressShare,
   onPressTitle,
   playCount,
   showArtistPick,
@@ -113,10 +117,13 @@ export const LineupTile = ({
       <TrackTileActionButtons
         hasReposted={has_current_user_reposted}
         hasSaved={has_current_user_saved}
-        id={id}
         isOwner={isOwner}
         isShareHidden={hideShare}
         isUnlisted={isUnlisted}
+        onPressOverflow={onPressOverflow}
+        onPressRepost={onPressRepost}
+        onPressSave={onPressSave}
+        onPressShare={onPressShare}
       />
     </TrackTileRoot>
   )
