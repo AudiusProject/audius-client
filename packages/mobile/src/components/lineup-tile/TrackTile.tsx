@@ -60,15 +60,17 @@ export const TrackTile = (props: LineupItemProps) => {
   return <TrackTileComponent {...props} track={track} user={user} />
 }
 
+type TrackTileProps = LineupItemProps & {
+  track: Track
+  user: User
+}
+
 const TrackTileComponent = ({
   togglePlay,
   track,
   user,
-  ...props
-}: LineupItemProps & {
-  track: Track
-  user: User
-}) => {
+  ...lineupTileProps
+}: TrackTileProps) => {
   const dispatchWeb = useDispatchWeb()
   const navigation = useNavigation()
   const currentUserId = useSelectorWeb(getUserId)
@@ -90,8 +92,8 @@ const TrackTileComponent = ({
   const isOwner = user_id === currentUserId
 
   const handlePress = useCallback(() => {
-    togglePlay(props.uid, track_id, PlaybackSource.TRACK_TILE)
-  }, [togglePlay, props.uid, track_id])
+    togglePlay(lineupTileProps.uid, track_id, PlaybackSource.TRACK_TILE)
+  }, [togglePlay, lineupTileProps.uid, track_id])
 
   const handlePressTitle = useCallback(() => {
     navigation.push({
@@ -176,7 +178,7 @@ const TrackTileComponent = ({
 
   return (
     <LineupTile
-      {...props}
+      {...lineupTileProps}
       duration={duration}
       hideShare={hideShare}
       hidePlays={hidePlays}

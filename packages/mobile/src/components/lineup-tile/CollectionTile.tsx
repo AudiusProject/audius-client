@@ -78,17 +78,19 @@ export const CollectionTile = (props: LineupItemProps) => {
   )
 }
 
+type CollectionTileProps = LineupItemProps & {
+  collection: Collection
+  tracks: EnhancedCollectionTrack[]
+  user: User
+}
+
 const CollectionTileComponent = ({
   collection,
   togglePlay,
   tracks,
   user,
-  ...props
-}: LineupItemProps & {
-  collection: Collection
-  tracks: EnhancedCollectionTrack[]
-  user: User
-}) => {
+  ...lineupTileProps
+}: CollectionTileProps) => {
   const dispatchWeb = useDispatchWeb()
   const navigation = useNavigation()
   const currentUserId = useSelectorWeb(getUserId)
@@ -210,7 +212,7 @@ const CollectionTileComponent = ({
 
   return (
     <LineupTile
-      {...props}
+      {...lineupTileProps}
       duration={duration}
       id={playlist_id}
       onPress={handlePress}

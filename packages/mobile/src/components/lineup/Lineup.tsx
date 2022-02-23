@@ -193,7 +193,7 @@ export const Lineup = ({
     [actions, dispatchWeb, playing, playingUid]
   )
 
-  const getItemComponent = (item: LineupItem) => {
+  const getLineupTileComponent = (item: LineupItem) => {
     if (item.kind === Kind.TRACKS || item.track_id) {
       if (item._marked_deleted) {
         return null
@@ -221,11 +221,11 @@ export const Lineup = ({
         )
       }
     } else {
-      const Item = getItemComponent(item)
-      if (Item) {
+      const LineupTile = getLineupTileComponent(item)
+      if (LineupTile) {
         return (
           <View style={styles.item}>
-            <Item
+            <LineupTile
               {...item}
               index={index}
               isTrending={isTrending}

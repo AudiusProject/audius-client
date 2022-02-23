@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 
-import { Collection } from 'audius-client/src/common/models/Collection'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { Animated, Easing } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -46,7 +43,7 @@ export const LineupTile = ({
   item,
   uid,
   user
-}: LineupTileProps & { item: Track | Collection; user: User }) => {
+}: LineupTileProps) => {
   const {
     _cover_art_sizes,
     has_current_user_reposted,
@@ -81,12 +78,12 @@ export const LineupTile = ({
 
   return (
     <LineupTileRoot onPress={onPress}>
-      {showArtistPick && _artist_pick === id && (
+      {showArtistPick && _artist_pick === id ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
-      )}
-      {isUnlisted && (
+      ) : null}
+      {isUnlisted ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.HIDDEN} />
-      )}
+      ) : null}
       <Animated.View style={fadeIn}>
         <LineupTileTopRight
           duration={duration}
@@ -105,7 +102,7 @@ export const LineupTile = ({
           title={title}
           user={user}
         />
-        {coSign && <LineupTileCoSign coSign={coSign} />}
+        {coSign ? <LineupTileCoSign coSign={coSign} /> : null}
         <LineupTileStats
           hidePlays={hidePlays}
           id={id}

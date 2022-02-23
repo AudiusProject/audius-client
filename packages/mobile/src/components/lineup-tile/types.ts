@@ -1,8 +1,10 @@
 import { ReactNode } from 'react'
 
 import { PlaybackSource } from 'audius-client/src/common/models/Analytics'
+import { Collection } from 'audius-client/src/common/models/Collection'
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import { Track } from 'audius-client/src/common/models/Track'
+import { User } from 'audius-client/src/common/models/User'
 
 import { GestureResponderHandler } from 'app/types/gesture'
 
@@ -50,6 +52,9 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   /** ID of the item */
   id: ID
 
+  /** The item (track or collection) */
+  item: Track | Collection
+
   /** Function to call when tile is pressed */
   onPress?: GestureResponderHandler
 
@@ -73,4 +78,7 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
 
   /** Title of the item */
   title: string
+
+  /** User associated with the item */
+  user: User
 }

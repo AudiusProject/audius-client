@@ -21,26 +21,27 @@ type LineupTileTrackListProps = {
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   item: {
     ...flexRowCentered(),
+    justifyContent: 'flex-start',
     ...typography.body,
     width: '100%',
     height: spacing(7),
-    overflow: 'hidden',
     paddingHorizontal: spacing(2)
   },
 
   text: {
     ...typography.body2,
     color: palette.neutralLight4,
-    lineHeight: spacing(7)
+    lineHeight: spacing(7),
+    paddingHorizontal: spacing(1)
   },
 
   title: {
     color: palette.neutral,
-    maxWidth: '60%'
+    flexShrink: 1
   },
 
   artist: {
-    maxWidth: '35%'
+    flexShrink: 1
   },
 
   active: {
@@ -65,37 +66,30 @@ type TrackItemProps = {
   track?: LineupTrack
 }
 
-const TrackItem = (props: TrackItemProps) => {
+const TrackItem = ({ track, active, index, showSkeleton }: TrackItemProps) => {
   const styles = useStyles()
   return (
     <>
       <View style={styles.divider} />
       <View style={styles.item}>
-        {props.showSkeleton ? (
+        {showSkeleton ? (
           <Skeleton width='100%' height='10' />
-        ) : !props.track ? null : (
+        ) : !track ? null : (
           <>
-            <Text style={[styles.text, props.active && styles.active]}>
-              {' '}
-              {props.index + 1}{' '}
+            <Text style={[styles.text, active && styles.active]}>
+              {index + 1}
             </Text>
             <Text
-              style={[styles.text, styles.title, props.active && styles.active]}
+              style={[styles.text, styles.title, active && styles.active]}
               numberOfLines={1}
             >
-              {' '}
-              {props.track.title}{' '}
+              {track.title}
             </Text>
             <Text
-              style={[
-                styles.text,
-                styles.artist,
-                props.active && styles.active
-              ]}
+              style={[styles.text, styles.artist, active && styles.active]}
               numberOfLines={1}
             >
-              {' '}
-              {`by ${props.track.user.name}`}{' '}
+              {`by ${track.user.name}`}
             </Text>
           </>
         )}
@@ -133,14 +127,14 @@ export const CollectionTileTrackList = ({
           track={track}
         />
       ))}
-      {trackCount && trackCount > 5 && (
+      {trackCount && trackCount > 5 ? (
         <>
           <View style={styles.divider} />
           <Text style={[styles.item, styles.more]}>
             {`+${trackCount - tracks.length} more tracks`}
           </Text>
         </>
-      )}
+      ) : null}
     </Pressable>
   )
 }
