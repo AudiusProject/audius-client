@@ -7,12 +7,14 @@ import { range } from 'lodash'
 import { Dimensions, SectionList, StyleSheet, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { TrackTile, TrackTileSkeleton } from 'app/components/track-tile'
+import {
+  CollectionTile,
+  TrackTile,
+  LineupTileSkeleton
+} from 'app/components/lineup-tile'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { make, track } from 'app/utils/analytics'
-
-import { CollectionTile } from '../track-tile/CollectionTile'
 
 import { Delineator } from './Delineator'
 import { delineateByTime } from './delineate'
@@ -208,7 +210,7 @@ export const Lineup = ({
       if (item._loading) {
         return (
           <View style={styles.item}>
-            <TrackTileSkeleton />
+            <LineupTileSkeleton />
           </View>
         )
       }

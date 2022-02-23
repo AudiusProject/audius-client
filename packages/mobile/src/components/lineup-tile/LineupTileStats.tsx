@@ -21,7 +21,7 @@ import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
-import { TrackTileRankIcon } from './TrackTileRankIcon'
+import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { createStyles as createTrackTileStyles } from './styles'
 
 const formatPlayCount = (playCount?: number) => {
@@ -79,7 +79,7 @@ type Props = {
   showRankIcon?: boolean
 }
 
-export const TrackTileStats = ({
+export const LineupTileStats = ({
   hidePlays,
   id,
   index,
@@ -117,7 +117,7 @@ export const TrackTileStats = ({
   return (
     <View style={styles.stats}>
       {isTrending && (
-        <TrackTileRankIcon showCrown={showRankIcon} index={index} />
+        <LineupTileRankIcon showCrown={showRankIcon} index={index} />
       )}
       {hasEngagement && !isUnlisted && (
         <View style={styles.leftStats}>

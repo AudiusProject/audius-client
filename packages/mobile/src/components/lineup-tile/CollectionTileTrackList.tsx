@@ -105,7 +105,7 @@ const TrackItem = (props: TrackItemProps) => {
   )
 }
 
-export const LineupTileTrackList = ({
+export const CollectionTileTrackList = ({
   isLoading,
   onPress,
   trackCount,

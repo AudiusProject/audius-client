@@ -25,7 +25,7 @@ import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/s
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { isEqual } from 'lodash'
 
-import { LineupItemProps } from 'app/components/track-tile/types'
+import { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'

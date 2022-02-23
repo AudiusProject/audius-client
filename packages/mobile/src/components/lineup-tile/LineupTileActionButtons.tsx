@@ -48,7 +48,7 @@ const createStyles = (themeColors: ThemeColors) =>
     }
   })
 
-export const TrackTileActionButtons = ({
+export const LineupTileActionButtons = ({
   disabled,
   hasReposted,
   hasSaved,

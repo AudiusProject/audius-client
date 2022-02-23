@@ -14,7 +14,7 @@ import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { GestureResponderHandler } from 'app/types/gesture'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
-import { TrackTileArt } from './TrackTileArt'
+import { LineupTileArt } from './LineupTileArt'
 import { createStyles as createTrackTileStyles } from './styles'
 
 const createStyles = (themeColors: ThemeColors) =>
@@ -65,7 +65,7 @@ type Props = {
   user: User
 }
 
-export const TrackTileMetadata = ({
+export const LineupTileMetadata = ({
   artistName,
   coSign,
   coverArtSizes,
@@ -90,7 +90,7 @@ export const TrackTileMetadata = ({
 
   return (
     <View style={styles.metadata}>
-      <TrackTileArt
+      <LineupTileArt
         id={id}
         isTrack={true}
         onLoad={() => setArtworkLoaded(true)}

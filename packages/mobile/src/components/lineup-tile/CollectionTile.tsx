@@ -35,8 +35,8 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
+import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
-import { LineupTileTrackList } from './LineupTileTrackList'
 import { LineupItemProps } from './types'
 
 export const CollectionTile = (props: LineupItemProps) => {
@@ -223,7 +223,7 @@ const CollectionTileComponent = ({
       item={collection}
       user={user}
     >
-      <LineupTileTrackList tracks={tracks} onPress={handlePressTitle} />
+      <CollectionTileTrackList tracks={tracks} onPress={handlePressTitle} />
     </LineupTile>
   )
 }

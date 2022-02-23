@@ -52,7 +52,7 @@ export const IconButton = ({
   return (
     <Animated.View style={[{ transform: [{ scale }] }, stylesProp?.root]}>
       <TouchableOpacity
-        onPress={onPress ?? (() => {})}
+        onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={isDisabled}

@@ -7,17 +7,20 @@ import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { Animated, Easing } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { LineupTileProps } from 'app/components/track-tile/types'
+import { LineupTileProps } from 'app/components/lineup-tile/types'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 
-import { TrackBannerIcon, TrackBannerIconType } from './TrackBannerIcon'
-import { TrackTileActionButtons } from './TrackTileActionButtons'
-import { TrackTileCoSign } from './TrackTileCoSign'
-import { TrackTileMetadata } from './TrackTileMetadata'
-import { TrackTileRoot } from './TrackTileRoot'
-import { TrackTileStats } from './TrackTileStats'
-import { TrackTileTopRight } from './TrackTileTopRight'
+import { LineupTileActionButtons } from './LineupTileActionButtons'
+import {
+  LineupTileBannerIcon,
+  LineupTileBannerIconType
+} from './LineupTileBannerIcon'
+import { LineupTileCoSign } from './LineupTileCoSign'
+import { LineupTileMetadata } from './LineupTileMetadata'
+import { LineupTileRoot } from './LineupTileRoot'
+import { LineupTileStats } from './LineupTileStats'
+import { LineupTileTopRight } from './LineupTileTopRight'
 
 export const LineupTile = ({
   children,
@@ -77,19 +80,21 @@ export const LineupTile = ({
   }, [onLoad, isLoaded, index, opacity])
 
   return (
-    <TrackTileRoot onPress={onPress}>
+    <LineupTileRoot onPress={onPress}>
       {showArtistPick && _artist_pick === id && (
-        <TrackBannerIcon type={TrackBannerIconType.STAR} />
+        <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       )}
-      {isUnlisted && <TrackBannerIcon type={TrackBannerIconType.HIDDEN} />}
+      {isUnlisted && (
+        <LineupTileBannerIcon type={LineupTileBannerIconType.HIDDEN} />
+      )}
       <Animated.View style={fadeIn}>
-        <TrackTileTopRight
+        <LineupTileTopRight
           duration={duration}
           isArtistPick={_artist_pick === id}
           isUnlisted={isUnlisted}
           showArtistPick={showArtistPick}
         />
-        <TrackTileMetadata
+        <LineupTileMetadata
           artistName={name}
           coSign={coSign}
           coverArtSizes={_cover_art_sizes}
@@ -100,8 +105,8 @@ export const LineupTile = ({
           title={title}
           user={user}
         />
-        {coSign && <TrackTileCoSign coSign={coSign} />}
-        <TrackTileStats
+        {coSign && <LineupTileCoSign coSign={coSign} />}
+        <LineupTileStats
           hidePlays={hidePlays}
           id={id}
           index={index}
@@ -114,7 +119,7 @@ export const LineupTile = ({
         />
       </Animated.View>
       {children}
-      <TrackTileActionButtons
+      <LineupTileActionButtons
         hasReposted={has_current_user_reposted}
         hasSaved={has_current_user_saved}
         isOwner={isOwner}
@@ -125,6 +130,6 @@ export const LineupTile = ({
         onPressSave={onPressSave}
         onPressShare={onPressShare}
       />
-    </TrackTileRoot>
+    </LineupTileRoot>
   )
 }
