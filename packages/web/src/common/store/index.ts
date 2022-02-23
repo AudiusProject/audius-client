@@ -17,6 +17,8 @@ import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
+import collection from 'common/store/pages/collection/reducer'
+import { CollectionsPageState } from 'common/store/pages/collection/types'
 import exploreCollectionsReducer from 'common/store/pages/explore/exploreCollections/slice'
 import explorePageReducer from 'common/store/pages/explore/slice'
 import feed from 'common/store/pages/feed/reducer'
@@ -103,6 +105,7 @@ export const reducers = {
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
+    collection,
     feed,
     explore: explorePageReducer,
     exploreCollections: exploreCollectionsReducer,
@@ -141,6 +144,8 @@ export const sagas = {
   // store/lineup/sagas.js
   // pages/feed/store/lineups/feed/sagas.js
   // pages/feed/store/sagas.js
+  // pages/collection/store/lineups/tracks/sagas.js
+  // pages/collection/store/sagas.js
   // pages/track/store/lineups/tracks/sagas.js
   // pages/track/store/sagas.js
   // store/ui/stemsUpload/sagas.ts
@@ -191,6 +196,7 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    collection: CollectionsPageState
     feed: FeedPageState
     explore: ReturnType<typeof explorePageReducer>
     exploreCollections: ReturnType<typeof exploreCollectionsReducer>

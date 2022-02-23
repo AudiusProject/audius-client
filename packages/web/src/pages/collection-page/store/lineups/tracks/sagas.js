@@ -17,7 +17,10 @@ import { LineupSagas } from 'store/lineup/sagas'
 import { getPositions } from 'store/queue/selectors'
 import { waitForValue } from 'utils/sagaHelpers'
 
-import { PREFIX, tracksActions } from './actions'
+import {
+  PREFIX,
+  tracksActions
+} from '../../../../../common/store/pages/collection/lineup/actions'
 
 function* getCollectionTracks() {
   const smartCollectionVariant = yield select(getSmartCollectionVariant)

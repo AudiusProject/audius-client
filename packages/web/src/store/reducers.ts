@@ -18,7 +18,6 @@ import searchBar from 'components/search-bar/store/reducer'
 import serviceSelection from 'components/service-selection/store/slice'
 import unfollowConfirmation from 'components/unfollow-confirmation-modal/store/reducers'
 import dashboard from 'pages/artist-dashboard-page/store/reducer'
-import collection from 'pages/collection-page/store/reducer'
 import deactivateAccount from 'pages/deactivate-account-page/store/slice'
 import deleted from 'pages/deleted-page/store/slice'
 import history from 'pages/history-page/store/reducer'
@@ -79,7 +78,6 @@ const createRootReducer = (routeHistory: History) =>
     saved,
     searchBar,
     search,
-    collection,
     notification,
     serviceSelection,
 

@@ -77,10 +77,16 @@ import {
 } from 'utils/route'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
 
+import * as collectionActions from '../../common/store/pages/collection/actions'
+import { tracksActions } from '../../common/store/pages/collection/lineup/actions'
+import {
+  TrackRecord,
+  CollectionTrack,
+  CollectionsPageType
+} from '../../common/store/pages/collection/types'
+
 import { CollectionPageProps as DesktopCollectionPageProps } from './components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from './components/mobile/CollectionPage'
-import * as collectionActions from './store/actions'
-import { tracksActions } from './store/lineups/tracks/actions'
 import {
   getCollection,
   getCollectionStatus,
@@ -89,11 +95,6 @@ import {
   getUser,
   getUserUid
 } from './store/selectors'
-import {
-  TrackRecord,
-  CollectionTrack,
-  CollectionsPageType
-} from './store/types'
 
 type OwnProps = {
   type: CollectionsPageType
