@@ -21,12 +21,11 @@ type LineupTileTrackListProps = {
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   item: {
     ...flexRowCentered(),
+    ...typography.body,
     width: '100%',
     height: spacing(7),
-    fontSize: typography.body,
     overflow: 'hidden',
-    paddingHorizontal: spacing(2),
-    fontWeight: typography.fontByWeight.medium
+    paddingHorizontal: spacing(2)
   },
 
   text: {
@@ -137,7 +136,7 @@ export const CollectionTileTrackList = ({
       {trackCount && trackCount > 5 && (
         <>
           <View style={styles.divider} />
-          <Text style={[styles.item as any, styles.more]}>
+          <Text style={[styles.item, styles.more]}>
             {`+${trackCount - tracks.length} more tracks`}
           </Text>
         </>
