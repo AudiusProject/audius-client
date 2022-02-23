@@ -48,13 +48,13 @@ export const Delineator = ({ text }: DelineatorProps) => {
   return (
     <View style={styles.root}>
       <View style={styles.line} />
-      {text ? (
+      {!text ? null : (
         <View style={styles.box}>
           <Text style={styles.text} weight='bold'>
             {text}
           </Text>
         </View>
-      ) : null}
+      )}
       <View style={styles.line} />
     </View>
   )
