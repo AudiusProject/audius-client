@@ -163,7 +163,7 @@ export const Lineup = ({
   const togglePlay = useCallback(
     (uid: UID, id: ID, source: PlaybackSource) => {
       if (uid !== playingUid || (uid === playingUid && !playing)) {
-        actions.play(uid)
+        dispatchWeb(actions.play(uid))
         track(
           make({
             eventName: Name.PLAYBACK_PLAY,
@@ -172,7 +172,7 @@ export const Lineup = ({
           })
         )
       } else if (uid === playingUid && playing) {
-        actions.pause()
+        dispatchWeb(actions.pause())
         track(
           make({
             eventName: Name.PLAYBACK_PAUSE,
@@ -182,7 +182,7 @@ export const Lineup = ({
         )
       }
     },
-    [actions, playing, playingUid]
+    [actions, dispatchWeb, playing, playingUid]
   )
 
   const getItemComponent = (item: LineupItem) => {
