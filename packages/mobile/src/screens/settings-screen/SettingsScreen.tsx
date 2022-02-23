@@ -20,11 +20,11 @@ const messages = {
   about: 'About'
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ spacing }) => ({
   logo: {
     width: '80%',
     height: 85,
-    marginVertical: 24,
+    marginVertical: spacing(6),
     alignSelf: 'center'
   }
 }))
