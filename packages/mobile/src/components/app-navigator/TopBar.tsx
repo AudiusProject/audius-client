@@ -11,15 +11,14 @@ import IconSearch from 'app/assets/images/iconSearch.svg'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { open as openNotificationPanel } from 'app/store/notifications/actions'
-import { open as openSearch } from 'app/store/search/actions'
-import { makeStyles, typography } from 'app/styles'
+import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { IconButton } from '../core/IconButton'
 
 import { TopBarArrowBack } from './TopBarArrowBack'
 
-const useStyles = makeStyles(({ palette, spacing }) => ({
+const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   root: {
     height: Platform.OS === 'ios' ? 86 : 55,
     borderBottomWidth: 1,
@@ -97,8 +96,11 @@ export const TopBar = memo(
     }, [navigation])
 
     const handlePressSearch = useCallback(() => {
-      dispatch(openSearch())
-    }, [dispatch])
+      navigation.navigate({
+        native: { screen: 'search', params: undefined },
+        web: { route: 'search' }
+      })
+    }, [navigation])
 
     return (
       <View style={styles.root}>

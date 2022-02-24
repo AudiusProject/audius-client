@@ -7,6 +7,7 @@ import Config from 'react-native-config'
 import { useSelector } from 'react-redux'
 
 import SignOnNavigator from 'app/components/signon/SignOnNavigator'
+import { SearchNavigator } from 'app/screens/search-screen/SearchNavigator'
 import {
   getDappLoaded,
   getIsSignedIn,
@@ -25,7 +26,15 @@ const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED
 // (sign on screens are implicitly included)
 const nativeScreens = new Set(
   IS_MAIN_NAVIGATION_ENABLED
-    ? ['trending', 'explore', 'feed', 'profile', 'favorites']
+    ? [
+        'trending',
+        'explore',
+        'feed',
+        'profile',
+        'favorites',
+        'search',
+        'search-results'
+      ]
     : []
 )
 
@@ -39,6 +48,12 @@ const styles = StyleSheet.create({
 })
 
 const Stack = createStackNavigator()
+
+const forFade = ({ current }) => ({
+  cardStyle: {
+    opacity: current.progress
+  }
+})
 
 /**
  * The top level navigator. Switches between sign on screens and main tab navigator
@@ -99,14 +114,25 @@ const AppNavigator = () => {
         }}
       >
         {isAuthed ? (
-          <Stack.Screen name='main' navigationKey='main'>
-            {() => (
-              <BottomTabNavigator
-                nativeScreens={nativeScreens}
-                onBottomTabBarLayout={handleBottomTabBarLayout}
-              />
-            )}
-          </Stack.Screen>
+          <>
+            <Stack.Screen
+              name='main'
+              navigationKey='main'
+              options={{ cardStyleInterpolator: forFade }}
+            >
+              {() => (
+                <BottomTabNavigator
+                  nativeScreens={nativeScreens}
+                  onBottomTabBarLayout={handleBottomTabBarLayout}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name='search'
+              component={SearchNavigator}
+              options={{ cardStyleInterpolator: forFade }}
+            />
+          </>
         ) : (
           <Stack.Screen name='sign-on' component={SignOnNavigator} />
         )}

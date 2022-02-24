@@ -19,6 +19,8 @@ type AppParamList = BaseStackParamList &
     trending: undefined
     explore: undefined
     favorites: undefined
+    search: undefined
+    'search-results': { query: string }
     EditProfile: undefined
     FollowersScreen: undefined
     FollowingScreen: undefined

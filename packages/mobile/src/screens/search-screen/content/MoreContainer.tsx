@@ -4,6 +4,7 @@ import { StyleSheet, Animated, Text, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import * as searchActions from 'app/store/search/actions'
 import { getSearchResultQuery } from 'app/store/search/selectors'
@@ -40,14 +41,24 @@ const MoreContainer = () => {
     backgroundColor: 'primary'
   })
   const moreTextStyles = useTheme(styles.moreText, { color: 'staticWhite' })
-  const dispatch = useDispatch()
-  const onClose = useCallback(() => dispatch(searchActions.close()), [dispatch])
-  const pushWebRoute = usePushRouteWeb(onClose)
+  // const dispatch = useDispatch()
+  // const onClose = useCallback(() => dispatch(searchActions.close()), [dispatch])
+  // const pushWebRoute = usePushRouteWeb()
 
   const searchResultQuery = useSelector(getSearchResultQuery)
+  const navigation = useNavigation()
   const onClickMore = useCallback(() => {
-    pushWebRoute(getSearchRoute(searchResultQuery), 'search')
-  }, [pushWebRoute, searchResultQuery])
+    const route = getSearchRoute(searchResultQuery)
+    navigation.navigate({
+      native: {
+        screen: 'search-results',
+        params: { query: searchResultQuery }
+      },
+      web: { route }
+    })
+
+    // pushWebRoute(getSearchRoute(searchResultQuery), 'search')
+  }, [navigation, searchResultQuery])
 
   const [shrinkAnim] = useState(new Animated.Value(1))
   const onPressIn = useCallback(() => {

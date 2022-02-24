@@ -25,23 +25,20 @@ import { useColor, useTheme } from 'app/utils/theme'
 
 import { usePushSearchRoute } from './utils'
 
-const IS_IOS = Platform.OS === 'ios'
-
 const styles = StyleSheet.create({
   topBar: {
     // height + border width should be 87
-    height: IS_IOS ? 86 : 55,
+    height: 30,
     borderBottomWidth: 1
   },
   container: {
-    position: 'absolute',
     bottom: 0,
     flex: 1,
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    height: 30,
+    height: 10,
     paddingLeft: 0,
     paddingRight: 16
   },
