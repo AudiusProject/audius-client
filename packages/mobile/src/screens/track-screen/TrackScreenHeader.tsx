@@ -322,15 +322,23 @@ export const TrackScreenHeader = ({
   const filteredTags = (tags || '').split(',').filter(Boolean)
 
   const trackLabels: {
-    value: ReactNode
-    label: string
     icon?: ReactNode
+    isHidden?: boolean
+    label: string
+    value: ReactNode
   }[] = [
-    { value: formatSeconds(duration), label: 'Duration' },
-    { value: getCanonicalName(genre), label: 'Genre' },
-    { value: formatDate(release_date || created_at), label: 'Released' },
+    { label: 'Duration', value: formatSeconds(duration) },
     {
-      value: mood,
+      isHidden: is_unlisted && !field_visibility?.genre,
+      label: 'Genre',
+      value: getCanonicalName(genre)
+    },
+    {
+      isHidden: is_unlisted,
+      label: 'Released',
+      value: formatDate(release_date || created_at)
+    },
+    {
       icon:
         mood && mood in moodMap ? (
           <Image
@@ -338,10 +346,12 @@ export const TrackScreenHeader = ({
             style={styles.moodEmoji as ImageStyle}
           />
         ) : null,
-      label: 'Mood'
+      isHidden: is_unlisted && !field_visibility?.mood,
+      label: 'Mood',
+      value: mood
     },
-    { value: credits_splits, label: 'Credit' }
-  ].filter(info => !!info.value)
+    { label: 'Credit', value: credits_splits }
+  ].filter(({ isHidden, value }) => !isHidden || !!value)
 
   const renderTags = () => {
     if (is_unlisted && !field_visibility?.tags) {
@@ -378,11 +388,6 @@ export const TrackScreenHeader = ({
 
   const renderTrackLabels = () => {
     return trackLabels.map(infoFact => {
-      if (infoFact.label === 'Genre' && is_unlisted && !field_visibility?.genre)
-        return null
-      if (infoFact.label === 'Released' && is_unlisted) return null
-      if (infoFact.label === 'Mood' && is_unlisted && !field_visibility?.mood)
-        return null
       return (
         <View key={infoFact.label} style={styles.infoFact}>
           <Text style={styles.infoLabel} weight='bold'>

@@ -152,20 +152,18 @@ const CollectionHeader = ({
   const collectionLabels = [
     {
       label: 'Tracks',
-      value: formatCount(numTracks),
-      shouldDisplay: numTracks > 0
+      value: formatCount(numTracks)
     },
     {
       label: 'Duration',
-      value: formatSecondsAsText(duration),
-      shouldDisplay: duration > 0
+      value: formatSecondsAsText(duration)
     },
     {
       label: 'Modified',
       value: formatDate(modified),
-      shouldDisplay: variant !== Variant.SMART
+      isHidden: variant === Variant.SMART
     }
-  ].filter(({ shouldDisplay }) => !!shouldDisplay)
+  ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const renderCollectionLabels = () => {
     return collectionLabels.map(infoFact => {
