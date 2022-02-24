@@ -92,6 +92,7 @@ const claimAsyncProvisions: StaticProvider[] = [
 ]
 
 const retryClaimProvisions: StaticProvider[] = [
+  [call.fn(delayP), null],
   [select(getClaimStatus), ClaimStatus.WAITING_FOR_RETRY],
   [select(getClaimToRetry), testClaim]
 ]
