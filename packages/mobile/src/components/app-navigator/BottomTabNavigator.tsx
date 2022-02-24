@@ -12,7 +12,11 @@ import { TrendingUndergroundScreen } from 'app/screens/explore-screen/tabs/ForYo
 import FavoritesScreen from 'app/screens/favorites-screen'
 import { FeedScreen } from 'app/screens/feed-screen'
 import { ProfileScreen } from 'app/screens/profile-screen'
-import { SettingsScreen } from 'app/screens/settings-screen'
+import {
+  AboutScreen,
+  AccountSettingsScreen,
+  SettingsScreen
+} from 'app/screens/settings-screen'
 import { TrendingScreen } from 'app/screens/trending-screen'
 
 import { BaseStackNavigator } from './BaseStackNavigator'
@@ -80,6 +84,11 @@ const ProfileStackScreen = createStackScreen<ProfileStackParamList>(Stack => (
   <>
     <Stack.Screen name='profile-stack' component={ProfileScreen} />
     <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+    <Stack.Screen name='AboutScreen' component={AboutScreen} />
+    <Stack.Screen
+      name='AccountSettingsScreen'
+      component={AccountSettingsScreen}
+    />
   </>
 ))
 
