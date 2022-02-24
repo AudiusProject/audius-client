@@ -31,14 +31,14 @@ export const AppearanceSettingsRow = () => {
 
   const tier = getUserAudioTier(accountUser)
 
-  const options = [
+  const appearanceOptions = [
     { key: Theme.AUTO, text: messages.auto },
     { key: Theme.DARK, text: messages.dark },
     { key: Theme.DEFAULT, text: messages.light }
   ]
 
   if (tier === 'gold' || tier === 'platinum') {
-    options.push({ key: Theme.MATRIX, text: messages.matrix })
+    appearanceOptions.push({ key: Theme.MATRIX, text: messages.matrix })
   }
 
   return (
@@ -50,7 +50,7 @@ export const AppearanceSettingsRow = () => {
       <SegmentedControl
         style={{ marginTop: 8 }}
         fullWidth
-        options={options}
+        options={appearanceOptions}
         defaultSelected={theme}
         onSelectOption={setTheme}
       />

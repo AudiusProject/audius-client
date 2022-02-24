@@ -8,7 +8,11 @@ import { getIsIOS } from 'utils/browser'
 import { actionChannelDispatcher } from 'utils/sagaHelpers'
 import { setTheme, PREFERS_DARK_MEDIA_QUERY } from 'utils/theme/theme'
 
-import { SET_THEME, ThemeActions, setTheme as setThemeAction } from './actions'
+import {
+  SET_THEME,
+  ThemeActions,
+  setTheme as setThemeAction
+} from '../../../../common/store/ui/theme/actions'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
