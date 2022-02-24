@@ -261,7 +261,7 @@ svg.logo path {
   font-size: var(--font-l);
   font-weight: var(--font-heavy);
   line-height: 22px;
-  padding-bottom: 8px;
+  padding-bottom: 2px;
   padding-left: 16px;
   color: var(--nav-column-group-header);
 
@@ -273,14 +273,14 @@ svg.logo path {
 .navColumn .links .link {
   font-size: var(--font-s);
   font-weight: var(--font-medium);
-  line-height: 8px;
   position: relative;
   display: table;
   min-width: 100px;
 
   /* negative margin so the link hover chip shows up. */
   margin-left: -16px;
-  padding: 6px 0 6px 40px;
+  /* left padding is visibly (32px + -16px margin =) 16px to match the left padding of .groupHeader */
+  padding: 6px 0 6px 32px;
   color: var(--nav-column-link);
   transition: color 0.07s ease-in-out;
 
@@ -295,10 +295,6 @@ svg.logo path {
 
 .navColumn .links .link:hover {
   cursor: pointer;
-}
-
-.navColumn .links button.link {
-  line-height: unset;
 }
 
 .navColumn .links a.link,
