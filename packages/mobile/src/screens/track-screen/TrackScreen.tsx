@@ -123,12 +123,14 @@ export const TrackScreen = () => {
     <View>
       <Lineup
         actions={tracksActions}
+        count={6}
         header={
           track && user ? (
             <TrackScreenMainContent track={track} user={user} lineup={lineup} />
           ) : null
         }
         lineup={lineup}
+        start={1}
       />
     </View>
   )
