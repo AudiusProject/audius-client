@@ -172,7 +172,7 @@ const TrackHeader = ({
       value: mood && mood in moodMap ? moodMap[mood] : mood
     },
     { label: 'Credit', value: credits }
-  ].filter(({ isHidden, value }) => !isHidden || !!value)
+  ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const record = useRecord()
   const onExternalLinkClick = useCallback(

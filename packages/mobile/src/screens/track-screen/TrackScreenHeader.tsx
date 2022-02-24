@@ -351,7 +351,7 @@ export const TrackScreenHeader = ({
       value: mood
     },
     { label: 'Credit', value: credits_splits }
-  ].filter(({ isHidden, value }) => !isHidden || !!value)
+  ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const renderTags = () => {
     if (is_unlisted && !field_visibility?.tags) {
