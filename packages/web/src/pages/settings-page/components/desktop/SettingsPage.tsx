@@ -36,7 +36,7 @@ import {
   Notifications,
   BrowserNotificationSetting,
   EmailFrequency
-} from '../../store/types'
+} from '../../../../common/store/pages/settings/types'
 
 import NotificationSettings from './NotificationSettings'
 import SettingsCard from './SettingsCard'
