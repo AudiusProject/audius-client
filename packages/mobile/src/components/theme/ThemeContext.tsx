@@ -45,8 +45,6 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
       })
 
       track(trackEvent)
-      if (theme === Theme.MATRIX) {
-      }
     },
     [dispatchWeb]
   )
