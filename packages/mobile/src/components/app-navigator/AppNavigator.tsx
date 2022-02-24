@@ -7,7 +7,8 @@ import Config from 'react-native-config'
 import { useSelector } from 'react-redux'
 
 import SignOnNavigator from 'app/components/signon/SignOnNavigator'
-import { SearchNavigator } from 'app/screens/search-screen/SearchNavigator'
+import { SearchResultsScreen } from 'app/screens/search-results-screen'
+import { SearchScreen } from 'app/screens/search-screen'
 import {
   getDappLoaded,
   getIsSignedIn,
@@ -17,9 +18,10 @@ import { getAccountAvailable } from 'app/store/signon/selectors'
 import { getNavigationStateAtRoute } from 'app/utils/navigation'
 
 import { BottomTabNavigator } from './BottomTabNavigator'
+import { TopBar } from './TopBar'
 
 // This enables the RN bottom bar and navigation
-const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED
+const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED === 'true'
 
 // As screens get migrated to RN, add them to this set.
 // This set should only include the screens accessible from the bottom bar
@@ -109,7 +111,6 @@ const AppNavigator = () => {
     <View style={[styles.appNavigator, { height: navigatorHeight }]}>
       <Stack.Navigator
         screenOptions={{
-          headerShown: false,
           gestureEnabled: false
         }}
       >
@@ -118,7 +119,7 @@ const AppNavigator = () => {
             <Stack.Screen
               name='main'
               navigationKey='main'
-              options={{ cardStyleInterpolator: forFade }}
+              options={{ cardStyleInterpolator: forFade, headerShown: false }}
             >
               {() => (
                 <BottomTabNavigator
@@ -127,11 +128,23 @@ const AppNavigator = () => {
                 />
               )}
             </Stack.Screen>
-            <Stack.Screen
-              name='search'
-              component={SearchNavigator}
-              options={{ cardStyleInterpolator: forFade }}
-            />
+            <Stack.Group
+              screenOptions={{
+                header: props => <TopBar {...props} />,
+                headerStyle: { height: 87 },
+                headerMode: 'float'
+              }}
+            >
+              <Stack.Screen
+                name='Search'
+                component={SearchScreen}
+                options={{ cardStyleInterpolator: forFade }}
+              />
+              <Stack.Screen
+                name='SearchResults'
+                component={SearchResultsScreen}
+              />
+            </Stack.Group>
           </>
         ) : (
           <Stack.Screen name='sign-on' component={SignOnNavigator} />

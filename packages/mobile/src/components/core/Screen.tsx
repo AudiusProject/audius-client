@@ -2,7 +2,7 @@ import { ReactElement, ReactNode, useEffect } from 'react'
 
 import { useNavigation } from '@react-navigation/native'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
-import { StyleProp, View, ViewStyle } from 'react-native'
+import { Animated, StyleProp, View, ViewStyle } from 'react-native'
 
 import { makeStyles } from 'app/styles'
 
@@ -20,7 +20,8 @@ type ScreenProps = {
   children: ReactNode
   topbarLeft?: Nullable<ReactElement>
   topbarRight?: Nullable<ReactElement>
-  title?: string
+  topbarRightStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>
+  title?: Nullable<string>
   style?: StyleProp<ViewStyle>
   variant?: 'primary' | 'secondary'
 }
@@ -30,6 +31,7 @@ export const Screen = (props: ScreenProps) => {
     topbarLeft,
     topbarRight,
     title,
+    topbarRightStyle,
     variant = 'primary'
   } = props
   const styles = useStyles({ variant })
@@ -39,9 +41,10 @@ export const Screen = (props: ScreenProps) => {
     navigation.setOptions({
       headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
       headerRight: topbarRight === undefined ? undefined : () => topbarRight,
+      headerRightContainerStyle: topbarRightStyle,
       title
     })
-  }, [navigation, topbarLeft, topbarRight, title])
+  }, [navigation, topbarLeft, topbarRight, topbarRightStyle, title])
 
   return <View style={styles.root}>{children}</View>
 }

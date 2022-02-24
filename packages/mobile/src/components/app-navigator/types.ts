@@ -29,8 +29,9 @@ export type ProfileStackParamList = BaseStackParamList & {
   AccountSettingsScreen: undefined
 }
 
-export type SearchStackParamList = BaseStackParamList & {
-  'search-stack': undefined
+export type SearchGroupParamList = BaseStackParamList & {
+  Search: undefined
+  SearchResults: { query: string }
 }
 
 export type MainParamList = {
@@ -39,7 +40,6 @@ export type MainParamList = {
   explore: NavigatorScreenParams<ExploreStackParamList>
   favorites: NavigatorScreenParams<FavoritesStackParamList>
   profile: NavigatorScreenParams<ProfileStackParamList>
-  search: NavigatorScreenParams<SearchStackParamList>
 }
 
 export type AppStackParamList = {

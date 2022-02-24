@@ -17,6 +17,10 @@ type LoadingSpinnerProps = {
    */
   color?: string
   /**
+   * Alias for color to be compatible with icons
+   */
+  fill?: string
+  /**
    * Style to apply to the spinner
    */
   style?: StyleProp<ViewStyle>
@@ -24,7 +28,7 @@ type LoadingSpinnerProps = {
 
 const LoadingSpinner = (props: LoadingSpinnerProps) => {
   const { neutralLight4 } = useThemeColors()
-  const color = props.color ?? neutralLight4
+  const color = props.color ?? props.fill ?? neutralLight4
   return (
     <LottieView
       style={[styles.spinner, props.style]}

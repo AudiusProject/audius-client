@@ -1,6 +1,6 @@
 import { Dimensions, View } from 'react-native'
 
-import Header from 'app/components/header/Header'
+import { Header } from 'app/components/header'
 
 import { SearchResultsTabManager } from './SearchResultsTabManager'
 

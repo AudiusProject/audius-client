@@ -1,12 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Platform
-} from 'react-native'
+import { StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'

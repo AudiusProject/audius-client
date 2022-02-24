@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react'
 
 import { StackHeaderProps } from '@react-navigation/stack'
 import { markAllAsViewed } from 'audius-client/src/components/notification/store/actions'
-import { Platform, View, Text } from 'react-native'
+import { Platform, View, Text, Animated } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
@@ -40,14 +40,12 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   headerLeft: {
     justifyContent: 'center',
     alignItems: 'flex-start',
-    height: spacing(6),
-    width: spacing(20)
+    height: spacing(8)
   },
   headerRight: {
     justifyContent: 'center',
     alignItems: 'flex-end',
-    height: spacing(6),
-    width: spacing(20)
+    height: spacing(8)
   },
   title: {
     fontSize: 18,
@@ -81,7 +79,12 @@ export const TopBar = memo(
     const dispatch = useDispatch()
     const dispatchWeb = useDispatchWeb()
 
-    const { headerLeft, headerRight, title } = options
+    const {
+      headerLeft,
+      headerRight,
+      title,
+      headerRightContainerStyle
+    } = options
 
     const handlePressNotification = useCallback(() => {
       dispatch(openNotificationPanel())
@@ -97,7 +100,7 @@ export const TopBar = memo(
 
     const handlePressSearch = useCallback(() => {
       navigation.navigate({
-        native: { screen: 'search', params: undefined },
+        native: { screen: 'Search', params: undefined },
         web: { route: 'search' }
       })
     }, [navigation])
@@ -119,7 +122,7 @@ export const TopBar = memo(
               />
             )}
           </View>
-          {title ? (
+          {title === null ? null : title ? (
             <Text style={styles.title} accessibilityRole='header'>
               {title}
             </Text>
@@ -131,7 +134,9 @@ export const TopBar = memo(
               onPress={handlePressHome}
             />
           )}
-          <View style={styles.headerRight}>
+          <Animated.View
+            style={[styles.headerRight, headerRightContainerStyle]}
+          >
             {headerRight !== undefined ? (
               headerRight({})
             ) : (
@@ -142,7 +147,7 @@ export const TopBar = memo(
                 onPress={handlePressSearch}
               />
             )}
-          </View>
+          </Animated.View>
         </View>
       </View>
     )

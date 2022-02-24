@@ -73,23 +73,6 @@ const linking: LinkingOptions<AppStackParamList> = {
                 }
               }
             }
-          },
-          search: {
-            screens: {
-              'search-stack': {
-                screens: {
-                  search: 'search',
-                  'search-results': {
-                    screens: {
-                      tracks: 'search/tracks',
-                      albums: 'search/albums',
-                      playlists: 'search/playlists',
-                      profiles: 'search/profiles'
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }

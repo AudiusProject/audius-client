@@ -37,6 +37,7 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
   (props, ref) => {
     const { style, Icon = IconSearch, ...other } = props
     const styles = useStyles()
+
     return (
       <View style={[styles.root, style]}>
         <TextInput
@@ -51,8 +52,8 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
         <Icon
           style={styles.icon}
           fill={styles.icon.fill}
-          height={16}
-          width={16}
+          height={styles.icon.height}
+          width={styles.icon.width}
         />
       </View>
     )
