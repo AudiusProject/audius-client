@@ -2,7 +2,7 @@ import { matchPath } from 'react-router'
 
 import { getPathname } from 'utils/route'
 
-import { SearchKind } from './store/types'
+import { SearchKind } from '../../common/store/pages/search-results/types'
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING === 'true'
 
