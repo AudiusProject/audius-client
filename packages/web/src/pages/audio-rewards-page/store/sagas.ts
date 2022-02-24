@@ -331,6 +331,8 @@ function* watchSetCognitoFlowStatus() {
     const { status } = action.payload
     // Only attempt retry on closed, so that we don't error on open
     if (status === CognitoFlowStatus.CLOSED) {
+      // wait a couple of seconds to give identity a chance to receive and store webhook data
+      yield delay(2000)
       yield call(retryClaimChallengeReward, {
         errorResolved: true,
         retryOnFailure: false
