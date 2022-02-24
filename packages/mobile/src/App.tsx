@@ -16,7 +16,7 @@ import NavigationContainer from 'app/components/navigation-container'
 import Notifications from 'app/components/notifications/Notifications'
 import OAuth from 'app/components/oauth/OAuth'
 import Search from 'app/components/search/Search'
-import { ThemeContextProvider } from 'app/components/theme/ThemeContext'
+import { ThemeProvider } from 'app/components/theme/ThemeContext'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
 import WebApp from 'app/components/web/WebApp'
 import { WebRefContextProvider } from 'app/components/web/WebRef'
@@ -73,7 +73,7 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <ThemeContextProvider>
+      <ThemeProvider>
         <ToastContextProvider>
           <ErrorBoundary>
             <NavigationContainer>
@@ -95,7 +95,7 @@ const App = () => {
             </NavigationContainer>
           </ErrorBoundary>
         </ToastContextProvider>
-      </ThemeContextProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   )
 }

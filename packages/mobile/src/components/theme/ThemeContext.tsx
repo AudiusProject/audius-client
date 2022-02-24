@@ -1,33 +1,39 @@
-import { createContext, memo, ReactNode, useState } from 'react'
+import { createContext, ReactNode, useState } from 'react'
 
 import { useDarkMode } from 'react-native-dark-mode'
 
 import { Theme } from 'app/utils/theme'
 
 type ThemeContextProps = {
+  theme: Theme
   setTheme: (theme: Theme) => void
-  getTheme: () => Theme
   isSystemDarkMode: boolean
 }
 
 export const ThemeContext = createContext<ThemeContextProps>({
+  theme: Theme.DEFAULT,
   setTheme: () => {},
-  getTheme: () => Theme.DEFAULT,
   isSystemDarkMode: false
 })
 
-export const ThemeContextProvider = memo((props: { children: ReactNode }) => {
+type ThemeProviderProps = {
+  children: ReactNode
+}
+
+export const ThemeProvider = (props: ThemeProviderProps) => {
+  const { children } = props
   const [theme, setTheme] = useState<Theme>(Theme.DEFAULT)
   const isSystemDarkMode = useDarkMode()
+
   return (
     <ThemeContext.Provider
       value={{
+        theme,
         setTheme,
-        getTheme: () => theme,
         isSystemDarkMode
       }}
     >
-      {props.children}
+      {children}
     </ThemeContext.Provider>
   )
-})
+}
