@@ -56,8 +56,7 @@ const messages = {
 type Props = {
   artistName: string
   coSign?: Remix | null
-  coverArtSizes: CoverArtSizes
-  id: ID
+  imageUrl: string
   isPlaying: boolean
   onPressTitle?: GestureResponderHandler
   setArtworkLoaded: (loaded: boolean) => void
@@ -68,8 +67,7 @@ type Props = {
 export const LineupTileMetadata = ({
   artistName,
   coSign,
-  coverArtSizes,
-  id,
+  imageUrl,
   isPlaying,
   onPressTitle,
   setArtworkLoaded,
@@ -91,10 +89,8 @@ export const LineupTileMetadata = ({
   return (
     <View style={styles.metadata}>
       <LineupTileArt
-        id={id}
-        isTrack={true}
+        imageUrl={imageUrl}
         onLoad={() => setArtworkLoaded(true)}
-        coverArtSizes={coverArtSizes}
         coSign={coSign}
         style={trackTileStyles.imageContainer}
       />

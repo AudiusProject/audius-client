@@ -1,7 +1,6 @@
 import { LineupState } from 'audius-client/src/common/models/Lineup'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import { tracksActions } from 'audius-client/src/common/store/pages/track/lineup/actions'
 import {
@@ -20,7 +19,7 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { ThemeColors } from 'app/utils/theme'
 
-import { TrackScreenHeader } from './TrackScreenHeader'
+import { TrackScreenDetailsTile } from './TrackScreenDetailsTile'
 import { TrackScreenRemixes } from './TrackScreenRemixes'
 
 const getMoreByArtistLineup = makeGetLineupMetadatas(getLineup)
@@ -66,8 +65,6 @@ const TrackScreenMainContent = ({
   const styles = useThemedStyles(createStyles)
   const pushRouteWeb = usePushRouteWeb()
 
-  const currentUserId = useSelectorWeb(getUserId)
-
   const remixParentTrackId = track.remix_of?.tracks?.[0]?.parent_track_id
   const remixTrackIds = track._remixes?.map(({ track_id }) => track_id) ?? null
   const showMoreByArtistTitle =
@@ -89,11 +86,10 @@ const TrackScreenMainContent = ({
   return (
     <View style={styles.root}>
       <View style={styles.headerContainer}>
-        <TrackScreenHeader
-          track={track}
+        <TrackScreenDetailsTile
+          item={track}
           user={user}
           uid={lineup?.entries?.[0]?.uid}
-          currentUserId={currentUserId}
         />
       </View>
 
