@@ -47,7 +47,6 @@ export const ExpandableBio = ({ profile }: ExpandableBioProps) => {
   const [fullBioHeight, setFullBioHeight] = useState(0)
   const hasSites = Boolean(website || donation)
   const [shouldShowMore, setShouldShowMore] = useState(hasSites)
-  console.log('should show more?...', hasSites, shouldShowMore)
   const [isExpanded, setIsExpanded] = useToggle(false)
 
   const handleBioLayout = useCallback(
