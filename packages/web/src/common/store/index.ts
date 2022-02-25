@@ -145,7 +145,8 @@ export const sagas = {
   remoteConfig: remoteConfigSagas,
   cast: castSagas
 
-  // TODO: pull in the following from audius-client
+  // TODO:
+  // pull in the following from web
   // once AudiusBackend and dependencies are migrated
   // common/store/pages/explore/exploreCollections/sagas.ts
   // common/store/pages/explore/sagas.ts
@@ -176,6 +177,10 @@ export const sagas = {
   // store/application/ui/theme/sagas.ts
   // pages/search-page/store/sagas.ts
   // pages/search-page/store/lineups/tracks/sagas.ts
+  //
+  // pull in the following from web
+  // once the player and dependencies are migrated
+  // store/queue/sagas.ts
 }
 
 export type CommonState = {
