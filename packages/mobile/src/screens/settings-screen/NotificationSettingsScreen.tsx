@@ -6,6 +6,8 @@ import { useDispatch } from 'react-redux'
 import { Screen } from 'app/components/core'
 import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
 
+import { Divider } from './Divider'
+import { EmailFrequencyControlRow } from './EmailFrequencyControlRow'
 import { NotificationRow } from './NotificationRow'
 
 const messages = {
@@ -15,8 +17,7 @@ const messages = {
   followers: 'New Followers',
   reposts: 'Reposts',
   favorites: 'Favorites',
-  remixes: 'Remixes of My Tracks',
-  emailFrequency: '‘What You Missed’ Email Frequency'
+  remixes: 'Remixes of My Tracks'
 }
 
 export const NotificationSettingsScreen = () => {
@@ -52,6 +53,8 @@ export const NotificationSettingsScreen = () => {
         label={messages.remixes}
         type={PushNotificationSetting.Remixes}
       />
+      <Divider />
+      <EmailFrequencyControlRow />
     </Screen>
   )
 }
