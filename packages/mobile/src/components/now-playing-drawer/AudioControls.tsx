@@ -78,25 +78,29 @@ export const AudioControls = () => {
   }, [isPlaying, dispatch])
 
   const onPressShuffle = useCallback(() => {
+    let enable: boolean
     if (shuffleEnabled) {
-      dispatchWeb(shuffle({ enable: false }))
+      enable = false
     } else {
-      dispatchWeb(shuffle({ enable: true }))
+      enable = true
     }
+    dispatchWeb(shuffle({ enable }))
   }, [dispatchWeb, shuffleEnabled])
 
   const onPressRepeat = useCallback(() => {
+    let mode: RepeatMode
     switch (repeatMode) {
       case RepeatMode.ALL:
-        dispatchWeb(repeat({ mode: RepeatMode.SINGLE }))
+        mode = RepeatMode.SINGLE
         break
       case RepeatMode.OFF:
-        dispatchWeb(repeat({ mode: RepeatMode.ALL }))
+        mode = RepeatMode.ALL
         break
       case RepeatMode.SINGLE:
-        dispatchWeb(repeat({ mode: RepeatMode.OFF }))
+        mode = RepeatMode.OFF
         break
     }
+    dispatchWeb(repeat({ mode }))
   }, [dispatchWeb, repeatMode])
 
   const renderRepeatButton = () => {

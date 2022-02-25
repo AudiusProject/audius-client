@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 
 import { UID } from 'common/models/Identifiers'
+import { CommonState } from 'common/store'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import {
@@ -8,8 +9,6 @@ import {
   getTrackId as getPlayerTrackId
 } from 'store/player/selectors'
 import { AppState } from 'store/types'
-
-import { CommonState } from '..'
 
 export const getOrder = (state: CommonState) => state.queue.order
 export const getLength = (state: CommonState) => state.queue.order.length

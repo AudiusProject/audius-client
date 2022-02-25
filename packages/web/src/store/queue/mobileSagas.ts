@@ -7,6 +7,15 @@ import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import {
+  getOrder,
+  getIndex,
+  getId as getQueueTrackId,
+  getShuffle,
+  getShuffleIndex,
+  getShuffleOrder,
+  getQueueAutoplay
+} from 'common/store/queue/selectors'
+import {
   persist,
   queueAutoplay,
   repeat,
@@ -22,16 +31,6 @@ import { MessageType, Message } from 'services/native-mobile-interface/types'
 import * as playerActions from 'store/player/slice'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { generateM3U8Variants } from 'utils/hlsUtil'
-
-import {
-  getOrder,
-  getIndex,
-  getId as getQueueTrackId,
-  getShuffle,
-  getShuffleIndex,
-  getShuffleOrder,
-  getQueueAutoplay
-} from '../../common/store/queue/selectors'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
 const DEFAULT_IMAGE_URL =
