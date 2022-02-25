@@ -83,7 +83,7 @@ const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
 const CHALLENGE_REWARDS_MODAL_NAME = 'ChallengeRewardsExplainer'
 const COGNITO_CHECK_MAX_RETRIES = 5
-const COGNITO_CHECK_DELAY_MS = 2000
+const COGNITO_CHECK_DELAY_MS = 3000
 
 function getOracleConfig() {
   let oracleEthAddress = remoteConfigInstance.getRemoteVar(
@@ -338,6 +338,10 @@ function* watchSetCognitoFlowStatus() {
     const { status } = action.payload
     // Only attempt retry on closed, so that we don't error on open
     if (status === CognitoFlowStatus.CLOSED) {
+      // poll identity for a recent cognito entry for this user
+      // before proceeding with another attempt at claiming
+      // otherwise may get failure reason that says cognito
+      // even though user completed the cognito flow
       let numRetries = 0
       const handle: string = yield select(getUserHandle)
       do {
@@ -354,7 +358,9 @@ function* watchSetCognitoFlowStatus() {
           }
         } catch (e) {
           console.error(
-            `Error checking whether cognito record exists for handle ${handle}`
+            `Error checking whether cognito record exists for handle ${handle}: ${
+              e && (e as any).message
+            }`
           )
         }
       } while (numRetries++ < COGNITO_CHECK_MAX_RETRIES)
