@@ -500,7 +500,7 @@ const ProfileHeader = ({
             </div>
           ) : null}
           <ArtistRecommendationsDropdown
-            isVisible={areArtistRecommendationsVisible}
+            isVisible
             renderHeader={() => (
               <p>Here are some accounts that vibe well with {name}</p>
             )}
