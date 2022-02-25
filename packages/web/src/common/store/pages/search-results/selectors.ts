@@ -1,18 +1,22 @@
 import { createSelector } from 'reselect'
 
+import { CommonState } from 'common/store'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { createShallowSelector } from 'common/utils/selectorHelpers'
 
 // Search Results selectors
-export const getBaseState = state => state.pages.searchResults
-export const getSearchTracksLineup = state => getBaseState(state).tracks
-export const getSearchResults = state => getBaseState(state)
-export const getSearchStatus = state => getBaseState(state).status
-export const getSearchResultsPageTracks = state =>
+export const getBaseState = (state: CommonState) => state.pages.searchResults
+export const getSearchTracksLineup = (state: CommonState) =>
+  getBaseState(state).tracks
+export const getSearchResults = (state: CommonState) => getBaseState(state)
+export const getSearchStatus = (state: CommonState) =>
+  getBaseState(state).status
+export const getSearchResultsPageTracks = (state: CommonState) =>
   getBaseState(state).trackIds || []
 
-const getSearchArtistsIds = state => getBaseState(state).artistIds || []
+const getSearchArtistsIds = (state: CommonState) =>
+  getBaseState(state).artistIds || []
 const getUnsortedSearchArtists = createShallowSelector(
   [getSearchArtistsIds, state => state],
   (artistIds, state) => getUsers(state, { ids: artistIds })
@@ -24,7 +28,7 @@ export const makeGetSearchArtists = () => {
   )
 }
 
-const getSearchAlbums = state =>
+const getSearchAlbums = (state: CommonState) =>
   getCollections(state, { ids: getBaseState(state).albumIds })
 export const makeGetSearchAlbums = () => {
   return createShallowSelector([getSearchAlbums, getUsers], (albums, users) =>
@@ -39,7 +43,7 @@ export const makeGetSearchAlbums = () => {
   )
 }
 
-const getSearchPlaylists = state =>
+const getSearchPlaylists = (state: CommonState) =>
   getCollections(state, { ids: getBaseState(state).playlistIds })
 export const makeGetSearchPlaylists = () => {
   return createShallowSelector(

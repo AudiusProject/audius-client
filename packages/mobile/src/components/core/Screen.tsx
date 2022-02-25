@@ -10,7 +10,11 @@ const useStyles = makeStyles(({ palette }, { variant }) => ({
   root: {
     height: '100%',
     backgroundColor:
-      variant === 'primary' ? palette.background : palette.backgroundSecondary,
+      variant === 'primary'
+        ? palette.background
+        : variant === 'secondary'
+        ? palette.backgroundSecondary
+        : palette.white,
     // TODO: figure out why screens need this. Likel related to the BottomTabNavigator
     paddingBottom: 80
   }
@@ -23,7 +27,7 @@ type ScreenProps = {
   topbarRightStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>
   title?: Nullable<string>
   style?: StyleProp<ViewStyle>
-  variant?: 'primary' | 'secondary'
+  variant?: 'primary' | 'secondary' | 'white'
   noPadding?: boolean
 }
 export const Screen = (props: ScreenProps) => {
