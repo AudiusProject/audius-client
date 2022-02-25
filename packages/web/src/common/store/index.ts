@@ -34,6 +34,7 @@ import TrackPageState from 'common/store/pages/track/types'
 import trendingUnderground from 'common/store/pages/trending-underground/slice'
 import trending from 'common/store/pages/trending/reducer'
 import { TrendingPageState } from 'common/store/pages/trending/types'
+import queue from 'common/store/queue/slice'
 import remoteConfigSagas from 'common/store/remote-config/sagas'
 import solanaReducer from 'common/store/solana/slice'
 import stemsUpload from 'common/store/stems-upload/slice'
@@ -81,6 +82,9 @@ export const reducers = {
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
   tracks: asCache(tracksReducer, Kind.TRACKS),
   users: asCache(usersReducer, Kind.USERS),
+
+  // Playback
+  queue,
 
   // Wallet
   wallet,
@@ -181,6 +185,9 @@ export type CommonState = {
   collections: Cache<Collection>
   tracks: TracksCacheState
   users: UsersCacheState
+
+  // Playback
+  queue: ReturnType<typeof queue>
 
   // Wallet
   wallet: ReturnType<typeof wallet>

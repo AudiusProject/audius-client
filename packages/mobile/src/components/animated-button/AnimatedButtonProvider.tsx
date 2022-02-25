@@ -186,9 +186,7 @@ const AnimatedButtonProvider = ({
     }
   }, [isDarkMode, setIconJSON, iconDarkJSON, iconLightJSON])
 
-  return iconJSON ? (
-    <AnimatedButton iconJSON={iconJSON} {...buttonProps} />
-  ) : null
+  return iconJSON && <AnimatedButton iconJSON={iconJSON} {...buttonProps} />
 }
 
 export default memo(AnimatedButtonProvider)
