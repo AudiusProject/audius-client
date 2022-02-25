@@ -2,9 +2,15 @@
   transition: opacity 1s ease-in-out;
 }
 
+.folderButton {
+  /** Add 12px to the width so that we can free up some space for the horizontal kebab (which only appears on hover). This won't cause
+  overflow because there is already a -16px margin on nav link buttons. */
+  width: calc(100% + 12px);
+}
+
 .folderButtonContentContainer {
   height: 100%;
-  line-height: unset;
+  line-height: normal;
   display: inline-flex;
   width: 100%;
   align-items: center;
@@ -28,9 +34,14 @@
   margin-right: 8px;
 }
 
-.iconCaret {
+.iconCaret,
+.iconKebabHorizontal {
   flex-shrink: 0;
   margin-left: 10px;
+}
+
+.iconKebabHorizontal.hidden {
+  visibility: hidden;
 }
 
 .iconFolder.iconFolderUpdated {
