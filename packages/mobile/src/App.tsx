@@ -76,10 +76,10 @@ const App = () => {
       <Provider store={store}>
         <ToastContextProvider>
           <ErrorBoundary>
-            <NavigationContainer>
-              <WebRefContextProvider>
-                <WebAppManager webApp={<WebApp webRef={webRef} />}>
-                  <ThemeProvider>
+            <WebRefContextProvider>
+              <WebAppManager webApp={<WebApp webRef={webRef} />}>
+                <ThemeProvider>
+                  <NavigationContainer>
                     <GoogleCast webRef={webRef} />
                     <AppNavigator />
                     <Search />
@@ -89,10 +89,10 @@ const App = () => {
                     <Audio webRef={webRef} />
                     <OAuth webRef={webRef} />
                     <Airplay webRef={webRef} />
-                  </ThemeProvider>
-                </WebAppManager>
-              </WebRefContextProvider>
-            </NavigationContainer>
+                  </NavigationContainer>
+                </ThemeProvider>
+              </WebAppManager>
+            </WebRefContextProvider>
           </ErrorBoundary>
         </ToastContextProvider>
       </Provider>
