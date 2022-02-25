@@ -67,8 +67,14 @@ export const ExpandableBio = ({ profile }: ExpandableBioProps) => {
     setIsExpanded(!isExpanded)
   }, [isExpanded, setIsExpanded])
 
+  /*
+   * hasSites isn't always correct on first render, this effect waits for
+   * a potential change
+   */
   useEffect(() => {
-    setShouldShowMore(hasSites)
+    if (hasSites) {
+      setShouldShowMore(true)
+    }
   }, [hasSites])
 
   if (!bio && !hasSites) return null
