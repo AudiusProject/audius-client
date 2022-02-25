@@ -1,18 +1,23 @@
 import { useCallback } from 'react'
 
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import Config from 'react-native-config'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import { Button } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
+import { close } from 'app/store/search/actions'
 import { getSearchResultQuery } from 'app/store/search/selectors'
 import { makeStyles } from 'app/styles'
 import { getSearchRoute } from 'app/utils/routes'
 
+const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED === 'true'
+
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    marginTop: spacing(4),
+    marginVertical: spacing(4),
     paddingHorizontal: spacing(2)
   }
 }))
@@ -25,18 +30,27 @@ export const SeeMoreResultsButton = () => {
   const styles = useStyles()
   const searchResultQuery = useSelector(getSearchResultQuery)
   const navigation = useNavigation()
+  const dispatch = useDispatch()
+
+  const handleClose = useCallback(() => dispatch(close()), [dispatch])
+
+  const pushWebRoute = usePushRouteWeb(handleClose)
 
   const handlePress = useCallback(() => {
     const route = getSearchRoute(searchResultQuery)
 
-    navigation.navigate({
-      native: {
-        screen: 'SearchResults',
-        params: { query: searchResultQuery }
-      },
-      web: { route }
-    })
-  }, [navigation, searchResultQuery])
+    if (IS_MAIN_NAVIGATION_ENABLED) {
+      navigation.navigate({
+        native: {
+          screen: 'SearchResults',
+          params: { query: searchResultQuery }
+        },
+        web: { route }
+      })
+    } else {
+      pushWebRoute(route, 'search')
+    }
+  }, [navigation, searchResultQuery, pushWebRoute])
 
   return (
     <View style={styles.root}>

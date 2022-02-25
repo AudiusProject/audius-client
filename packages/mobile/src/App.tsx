@@ -27,6 +27,7 @@ import { setup as setupAnalytics } from 'app/utils/analytics'
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { WebAppManager } from './WebAppManager'
+import SearchScreenLegacy from './screens/search-screen/SearchScreenLegacy'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -80,6 +81,7 @@ const App = () => {
                   <ThemeProvider>
                     <GoogleCast webRef={webRef} />
                     <AppNavigator />
+                    <SearchScreenLegacy />
                     <Notifications webRef={webRef} />
                     <Drawers />
                     <Modals />

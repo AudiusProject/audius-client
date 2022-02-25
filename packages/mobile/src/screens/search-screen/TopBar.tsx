@@ -1,6 +1,12 @@
 import { useEffect, useRef, useCallback } from 'react'
 
-import { StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Platform
+} from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
@@ -19,20 +25,23 @@ import { useColor, useTheme } from 'app/utils/theme'
 
 import { usePushSearchRoute } from './utils'
 
+const IS_IOS = Platform.OS === 'ios'
+
 const styles = StyleSheet.create({
   topBar: {
     // height + border width should be 87
-    height: 30,
+    height: IS_IOS ? 86 : 55,
     borderBottomWidth: 1
   },
   container: {
+    position: 'absolute',
     bottom: 0,
     flex: 1,
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    height: 10,
+    height: 30,
     paddingLeft: 0,
     paddingRight: 16
   },

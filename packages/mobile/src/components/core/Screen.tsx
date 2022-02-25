@@ -24,6 +24,7 @@ type ScreenProps = {
   title?: Nullable<string>
   style?: StyleProp<ViewStyle>
   variant?: 'primary' | 'secondary'
+  noPadding?: boolean
 }
 export const Screen = (props: ScreenProps) => {
   const {
@@ -32,7 +33,8 @@ export const Screen = (props: ScreenProps) => {
     topbarRight,
     title,
     topbarRightStyle,
-    variant = 'primary'
+    variant = 'primary',
+    noPadding
   } = props
   const styles = useStyles({ variant })
   const navigation = useNavigation()
@@ -46,5 +48,9 @@ export const Screen = (props: ScreenProps) => {
     })
   }, [navigation, topbarLeft, topbarRight, topbarRightStyle, title])
 
-  return <View style={styles.root}>{children}</View>
+  return (
+    <View style={[styles.root, noPadding && { paddingBottom: 0 }]}>
+      {children}
+    </View>
+  )
 }

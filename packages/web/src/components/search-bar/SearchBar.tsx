@@ -99,13 +99,6 @@ const SearchBar = ({
     if (key === 'Enter' && value.trimLeft() !== '') beginSearch()
   }
 
-  console.log('here')
-  console.log('here')
-  console.log('here')
-  console.log('here')
-  console.log('here')
-  console.log('here')
-
   return (
     <div
       className={cn(styles.searchBar, className, {
