@@ -19,7 +19,11 @@ import {
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
-import { getAccountUser, getUserId } from 'common/store/account/selectors'
+import {
+  getAccountUser,
+  getUserHandle,
+  getUserId
+} from 'common/store/account/selectors'
 import {
   getClaimStatus,
   getClaimToRetry,
@@ -60,6 +64,7 @@ import { show as showMusicConfetti } from 'components/music-confetti/store/slice
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getCognitoExists } from 'services/audius-backend/Cognito'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { AUDIO_PAGE } from 'utils/route'
@@ -331,12 +336,35 @@ function* watchSetCognitoFlowStatus() {
     const { status } = action.payload
     // Only attempt retry on closed, so that we don't error on open
     if (status === CognitoFlowStatus.CLOSED) {
-      // wait a couple of seconds to give identity a chance to receive and store webhook data
-      yield delay(2000)
-      yield call(retryClaimChallengeReward, {
-        errorResolved: true,
-        retryOnFailure: false
-      })
+      let numRetries = 0
+      const maxRetries = 5
+      const delayMilliseconds = 2000
+      const handle: string = yield select(getUserHandle)
+      do {
+        try {
+          const { exists } = yield call(getCognitoExists, handle)
+          if (exists) {
+            yield call(retryClaimChallengeReward, {
+              errorResolved: true,
+              retryOnFailure: false
+            })
+            break
+          } else {
+            yield delay(delayMilliseconds)
+          }
+        } catch (e) {
+          console.error(
+            `Error checking whether cognito record exists for handle ${handle}`
+          )
+        }
+      } while (numRetries++ < maxRetries)
+
+      if (numRetries === maxRetries) {
+        yield call(retryClaimChallengeReward, {
+          errorResolved: false,
+          retryOnFailure: false
+        })
+      }
     }
   })
 }

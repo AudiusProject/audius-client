@@ -11,6 +11,7 @@ type HttpMethod = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH'
 
 export type CognitoSignatureResponse = { signature: string }
 export type CognitoFlowResponse = { shareable_url: string }
+type CognitoFlowExistsResponse = { exists: boolean }
 
 async function _makeRequest<ResponseModel>({
   path,
@@ -37,6 +38,22 @@ async function _makeRequest<ResponseModel>({
     throw new Error(`Cognito Identity Request Failed: ${response.statusText}`)
   }
   const json: ResponseModel = await response.json()
+  return json
+}
+
+export async function getCognitoExists(
+  handle: string
+): Promise<CognitoFlowExistsResponse> {
+  const response = await fetch(
+    `${IDENTITY_SERVICE}/cognito_recent_exists/${handle}`,
+    {
+      method: 'GET'
+    }
+  )
+  if (response.status >= 400 && response.status < 600) {
+    throw new Error(`Cognito Exists Request Failed: ${response.statusText}`)
+  }
+  const json: CognitoFlowExistsResponse = await response.json()
   return json
 }
 
