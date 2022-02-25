@@ -82,6 +82,8 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HCAPTCHA_MODAL_NAME = 'HCaptcha'
 const COGNITO_MODAL_NAME = 'Cognito'
 const CHALLENGE_REWARDS_MODAL_NAME = 'ChallengeRewardsExplainer'
+const COGNITO_CHECK_MAX_RETRIES = 5
+const COGNITO_CHECK_DELAY_MS = 2000
 
 function getOracleConfig() {
   let oracleEthAddress = remoteConfigInstance.getRemoteVar(
@@ -337,8 +339,6 @@ function* watchSetCognitoFlowStatus() {
     // Only attempt retry on closed, so that we don't error on open
     if (status === CognitoFlowStatus.CLOSED) {
       let numRetries = 0
-      const maxRetries = 5
-      const delayMilliseconds = 2000
       const handle: string = yield select(getUserHandle)
       do {
         try {
@@ -350,16 +350,16 @@ function* watchSetCognitoFlowStatus() {
             })
             break
           } else {
-            yield delay(delayMilliseconds)
+            yield delay(COGNITO_CHECK_DELAY_MS)
           }
         } catch (e) {
           console.error(
             `Error checking whether cognito record exists for handle ${handle}`
           )
         }
-      } while (numRetries++ < maxRetries)
+      } while (numRetries++ < COGNITO_CHECK_MAX_RETRIES)
 
-      if (numRetries === maxRetries) {
+      if (numRetries === COGNITO_CHECK_MAX_RETRIES) {
         yield call(retryClaimChallengeReward, {
           errorResolved: false,
           retryOnFailure: false
