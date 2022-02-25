@@ -40,7 +40,7 @@ export const SearchBar = () => {
       autoFocus
       value={query}
       onChangeText={handleChangeText}
-      icon={isLoading ? LoadingSpinner : undefined}
+      Icon={isLoading ? LoadingSpinner : undefined}
     />
   )
 }

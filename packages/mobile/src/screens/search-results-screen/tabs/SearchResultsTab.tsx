@@ -5,8 +5,18 @@ import { getSearchStatus } from 'audius-client/src/common/store/pages/search-res
 
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { makeStyles } from 'app/styles'
 
 import { EmptyResults } from '../EmptyResults'
+
+const useStyles = makeStyles(({ spacing }) => ({
+  spinner: {
+    marginTop: spacing(6),
+    alignSelf: 'center',
+    height: spacing(10),
+    width: spacing(10)
+  }
+}))
 
 type SearchResultsTabProps = {
   children: ReactNode
@@ -15,9 +25,12 @@ type SearchResultsTabProps = {
 
 export const SearchResultsTab = (props: SearchResultsTabProps) => {
   const { children, noResults } = props
+  const styles = useStyles()
   const status = useSelectorWeb(getSearchStatus)
 
-  if (status === Status.LOADING) return <LoadingSpinner />
+  if (status === Status.LOADING) {
+    return <LoadingSpinner style={styles.spinner} />
+  }
 
   if (noResults) return <EmptyResults />
 
