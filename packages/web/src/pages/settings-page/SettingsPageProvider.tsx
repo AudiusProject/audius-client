@@ -279,7 +279,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     goBack: () => dispatch(goBack()),
     updateCastMethod: (castMethod: CastMethod) => {
-      console.log('update method')
       dispatch(updateMethod({ method: castMethod }))
     },
     recordThemeChange: (themeSettings: string) => {

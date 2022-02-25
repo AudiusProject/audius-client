@@ -31,7 +31,6 @@ const slice = createSlice({
       state,
       { payload: { method } }: PayloadAction<{ method: CastMethod }>
     ) => {
-      console.log({ method })
       state.method = method
     }
   }
