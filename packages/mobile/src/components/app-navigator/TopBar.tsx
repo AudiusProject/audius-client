@@ -105,6 +105,25 @@ export const TopBar = memo(
       })
     }, [navigation])
 
+    const renderTitle = () => {
+      if (title === null) return null
+      if (title) {
+        return (
+          <Text style={styles.title} accessibilityRole='header'>
+            {title}
+          </Text>
+        )
+      }
+      return (
+        <IconButton
+          icon={AudiusLogo}
+          fill={neutralLight4}
+          styles={{ icon: styles.audiusLogo }}
+          onPress={handlePressHome}
+        />
+      )
+    }
+
     return (
       <View style={styles.root}>
         <View style={styles.topBar}>
@@ -122,18 +141,7 @@ export const TopBar = memo(
               />
             )}
           </View>
-          {title === null ? null : title ? (
-            <Text style={styles.title} accessibilityRole='header'>
-              {title}
-            </Text>
-          ) : (
-            <IconButton
-              icon={AudiusLogo}
-              fill={neutralLight4}
-              styles={{ icon: styles.audiusLogo }}
-              onPress={handlePressHome}
-            />
-          )}
+          {renderTitle()}
           <Animated.View
             style={[styles.headerRight, headerRightContainerStyle]}
           >

@@ -44,5 +44,3 @@ export const SearchScreen = () => {
     </Screen>
   )
 }
-
-export default SearchScreen

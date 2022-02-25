@@ -13,11 +13,11 @@ const styles = StyleSheet.create({
 
 type LoadingSpinnerProps = {
   /**
-   * The color of the spinner
+   * @deprecated The color of the spinner
    */
   color?: string
   /**
-   * Alias for color to be compatible with icons
+   * Fill color of the spinner
    */
   fill?: string
   /**

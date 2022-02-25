@@ -29,7 +29,7 @@ export type ProfileStackParamList = BaseStackParamList & {
   AccountSettingsScreen: undefined
 }
 
-export type SearchGroupParamList = BaseStackParamList & {
+export type SearchParamList = BaseStackParamList & {
   Search: undefined
   SearchResults: { query: string }
 }
