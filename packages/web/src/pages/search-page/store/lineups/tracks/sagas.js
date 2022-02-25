@@ -2,9 +2,9 @@ import { select, all, call } from 'redux-saga/effects'
 
 import { getTracks } from 'common/store/cache/tracks/selectors'
 import {
-  getSearchResults,
-  getTagSearchResults
-} from 'common/store/pages/search-results/sagas'
+  PREFIX,
+  tracksActions
+} from 'common/store/pages/search-results/lineup/tracks/actions'
 import {
   getSearchTracksLineup,
   getSearchResultsPageTracks
@@ -16,15 +16,15 @@ import {
   isTagSearch,
   getSearchTag
 } from 'pages/search-page/helpers'
+import {
+  getSearchResults,
+  getTagSearchResults
+} from 'pages/search-page/store/sagas'
 import { LineupSagas } from 'store/lineup/sagas'
 import { isMobile } from 'utils/clientUtil'
 
-import { PREFIX, tracksActions } from './actions'
-
 function* getSearchPageResultsTracks({ offset, limit, payload }) {
-  console.log(`In getSearchPageResultsTracks`)
   const category = getCategory()
-  console.log({ category })
 
   if (category === SearchKind.TRACKS || isMobile()) {
     // If we are on the tracks sub-page of search or mobile, which we should paginate on

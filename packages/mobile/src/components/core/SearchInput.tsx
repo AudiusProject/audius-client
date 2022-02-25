@@ -50,7 +50,7 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
           {...other}
         />
         <Icon
-          style={styles.icon}
+          style={{ height: styles.icon.height, width: styles.icon.width }}
           fill={styles.icon.fill}
           height={styles.icon.height}
           width={styles.icon.width}

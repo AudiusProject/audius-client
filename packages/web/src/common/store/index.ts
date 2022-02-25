@@ -164,6 +164,8 @@ export const sagas = {
   // pages/trending-underground-page/store/lineups/tracks/sagas.ts
   // pages/trending-underground-page/store/sagas.ts
   // store/application/ui/theme/sagas.ts
+  // pages/search-page/store/sagas.ts
+  // pages/search-page/store/lineups/tracks/sagas.ts
 }
 
 export type CommonState = {

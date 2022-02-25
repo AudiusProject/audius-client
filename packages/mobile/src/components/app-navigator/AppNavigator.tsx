@@ -28,15 +28,7 @@ const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED === 'true'
 // (sign on screens are implicitly included)
 const nativeScreens = new Set(
   IS_MAIN_NAVIGATION_ENABLED
-    ? [
-        'trending',
-        'explore',
-        'feed',
-        'profile',
-        'favorites',
-        'search',
-        'search-results'
-      ]
+    ? ['trending', 'explore', 'feed', 'profile', 'favorites']
     : []
 )
 
@@ -119,7 +111,7 @@ const AppNavigator = () => {
             <Stack.Screen
               name='main'
               navigationKey='main'
-              options={{ cardStyleInterpolator: forFade, headerShown: false }}
+              options={{ headerShown: false }}
             >
               {() => (
                 <BottomTabNavigator
