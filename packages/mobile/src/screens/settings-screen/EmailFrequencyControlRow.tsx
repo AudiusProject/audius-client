@@ -30,7 +30,6 @@ const emailFrequencyOptions = [
 export const EmailFrequencyControlRow = () => {
   const dispatchWeb = useDispatchWeb()
   const emailFrequency = useSelectorWeb(getEmailFrequency)
-  console.log('emailfreq', emailFrequency)
 
   const handleSelectOption = useCallback(
     (option: EmailFrequency) => {
