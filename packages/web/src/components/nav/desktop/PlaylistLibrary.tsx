@@ -1,6 +1,11 @@
 import React, { useCallback, useState } from 'react'
 
-import { IconCaretRight, IconFolder, IconKebabHorizontal } from '@audius/stems'
+import {
+  IconCaretRight,
+  IconFolder,
+  IconKebabHorizontal,
+  IconFolderOutline
+} from '@audius/stems'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
@@ -20,6 +25,7 @@ import {
 import { addTrackToPlaylist } from 'common/store/cache/collections/actions'
 import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
+import IconButton from 'components/icon-button/IconButton'
 import { getPlaylistUpdates } from 'components/notification/store/selectors'
 import Tooltip from 'components/tooltip/Tooltip'
 import UpdateDot from 'components/update-dot/UpdateDot'
@@ -187,29 +193,33 @@ const PlaylistFolderNavItem = ({
         onClick={() => {}}
       >
         <div className={styles.folderButtonContentContainer}>
-          <IconFolder
-            width={12}
-            height={12}
-            className={cn(styles.iconFolder, {
-              [styles.iconFolderEmpty]: isEmpty(contents),
-              [styles.iconFolderUpdated]: hasUpdate
-            })}
-          />
+          {isEmpty(contents) ? (
+            <IconFolderOutline
+              width={12}
+              height={12}
+              className={styles.iconFolder}
+            />
+          ) : (
+            <IconFolder
+              width={12}
+              height={12}
+              className={cn(styles.iconFolder, {
+                [styles.iconFolderUpdated]: hasUpdate
+              })}
+            />
+          )}
           <div className={styles.folderNameContainer}>
             <span>{name}</span>
           </div>
           <IconCaretRight height={11} width={11} className={styles.iconCaret} />
-          <IconKebabHorizontal
-            role='button'
-            tabIndex={0}
-            onClick={() => {
-              onClickEdit(id)
-            }}
-            height={11}
-            width={11}
+          <IconButton
             className={cn(styles.iconKebabHorizontal, {
               [styles.hidden]: !isHovering || dragging
             })}
+            icon={<IconKebabHorizontal height={11} width={11} />}
+            onClick={() => {
+              onClickEdit(id)
+            }}
           />
         </div>
       </FolderNavLink>
