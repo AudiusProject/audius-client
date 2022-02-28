@@ -13,7 +13,7 @@ import { SettingsRow } from './SettingsRow'
 import { SettingsRowContent } from './SettingsRowContent'
 
 const messages = {
-  emailFrequency: '‘What You Missed’ Email Frequency',
+  emailFrequency: "'What You Missed' Email Frequency",
   live: 'Live',
   daily: 'Daily',
   weekly: 'Weekly',
