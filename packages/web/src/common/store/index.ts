@@ -16,6 +16,8 @@ import { TracksCacheState } from 'common/store/cache/tracks/types'
 import usersReducer from 'common/store/cache/users/reducer'
 import usersSagas from 'common/store/cache/users/sagas'
 import { UsersCacheState } from 'common/store/cache/users/types'
+import { sagas as castSagas } from 'common/store/cast/sagas'
+import cast from 'common/store/cast/slice'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
 import collection from 'common/store/pages/collection/reducer'
 import { CollectionsPageState } from 'common/store/pages/collection/types'
@@ -25,6 +27,11 @@ import feed from 'common/store/pages/feed/reducer'
 import { FeedPageState } from 'common/store/pages/feed/types'
 import profileReducer from 'common/store/pages/profile/reducer'
 import { ProfilePageState } from 'common/store/pages/profile/types'
+import savedPageReducer from 'common/store/pages/saved-page/reducer'
+import searchResults from 'common/store/pages/search-results/reducer'
+import { SearchPageState } from 'common/store/pages/search-results/types'
+import settings from 'common/store/pages/settings/reducer'
+import { SettingsPageState } from 'common/store/pages/settings/types'
 import smartCollection from 'common/store/pages/smart-collection/slice'
 import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
 import track from 'common/store/pages/track/reducer'
@@ -32,12 +39,16 @@ import TrackPageState from 'common/store/pages/track/types'
 import trendingUnderground from 'common/store/pages/trending-underground/slice'
 import trending from 'common/store/pages/trending/reducer'
 import { TrendingPageState } from 'common/store/pages/trending/types'
+import queue from 'common/store/queue/slice'
 import remoteConfigSagas from 'common/store/remote-config/sagas'
 import solanaReducer from 'common/store/solana/slice'
 import stemsUpload from 'common/store/stems-upload/slice'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from 'common/store/ui/add-to-playlist/reducer'
+import artistRecommendationsReducer, {
+  ArtistRecommendationsState
+} from 'common/store/ui/artist-recommendations/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
 } from 'common/store/ui/collectible-details/slice'
@@ -58,6 +69,8 @@ import shareModalReducer from 'common/store/ui/share-modal/slice'
 import { ShareModalState } from 'common/store/ui/share-modal/types'
 import shareSoundToTikTokModalReducer from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from 'common/store/ui/share-sound-to-tiktok-modal/types'
+import theme from 'common/store/ui/theme/reducer'
+import { ThemeState } from 'common/store/ui/theme/types'
 import toastReducer, { ToastState } from 'common/store/ui/toast/slice'
 import favoritesUserListReducer from 'common/store/user-list/favorites/reducers'
 import followersUserListReducer from 'common/store/user-list/followers/reducers'
@@ -65,12 +78,24 @@ import followingUserListReducer from 'common/store/user-list/following/reducers'
 import repostsUserListReducer from 'common/store/user-list/reposts/reducers'
 import wallet from 'common/store/wallet/slice'
 
-// In the future, these state slices will live in @audius/client-common.
+// In the future, these state slices will live in packages/common.
 // For now they live in the web client. As features get migrated to RN
 // relevant state slices should be added here. Eventually they will be pulled into
-// @audius/client-common and the mobile client will no longer be dependent on the web client
+// packages/common and the mobile client will no longer be dependent on the web client
 
-export const reducers = {
+export type CommonStoreContext = {
+  getLocalStorageItem: (key: string) => Promise<string | null>
+  setLocalStorageItem: (key: string, value: string) => Promise<void>
+}
+
+/**
+ * A function that creates common reducers. The function takes
+ * a CommonStoreContext as input such that platforms (native and web)
+ * may specify system-level APIs, e.g. local storage.
+ * @param ctx
+ * @returns an object of all reducers to be used with `combineReducers`
+ */
+export const reducers = (ctx: CommonStoreContext) => ({
   account: accountSlice.reducer,
 
   // Cache
@@ -78,13 +103,20 @@ export const reducers = {
   tracks: asCache(tracksReducer, Kind.TRACKS),
   users: asCache(usersReducer, Kind.USERS),
 
+  // Playback
+  queue,
+
   // Wallet
   wallet,
+
+  // Cast
+  cast,
 
   // UI
   ui: combineReducers({
     averageColor: averageColorReducer,
     addToPlaylist: addToPlaylistReducer,
+    artistRecommendations: artistRecommendationsReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
     deletePlaylistConfirmationModal: deletePlaylistConfirmationReducer,
@@ -100,7 +132,8 @@ export const reducers = {
       following: followingUserListReducer,
       reposts: repostsUserListReducer,
       favorites: favoritesUserListReducer
-    })
+    }),
+    theme
   }),
 
   // Pages
@@ -112,27 +145,39 @@ export const reducers = {
     exploreCollections: exploreCollectionsReducer,
     profile: profileReducer,
     smartCollection,
+    savedPage: savedPageReducer,
+    searchResults,
     tokenDashboard: tokenDashboardSlice.reducer,
     track,
     trending,
-    trendingUnderground
+    trendingUnderground,
+    settings
   }),
 
   // Solana
   solana: solanaReducer,
 
   stemsUpload
-}
+})
 
-export const sagas = {
+/**
+ * A function that creates common sagas. The function takes
+ * a CommonStoreContext as input such that platforms (native and web)
+ * may specify system-level APIs, e.g. local storage.
+ * @param ctx
+ * @returns an object of all sagas to be yielded
+ */
+export const sagas = (ctx: CommonStoreContext) => ({
   cache: cacheSagas,
   collectionsError: collectionsErrorSagas,
   collections: collectionsSagas,
   tracks: tracksSagas,
   users: usersSagas,
-  remoteConfig: remoteConfigSagas
+  remoteConfig: remoteConfigSagas,
+  cast: castSagas(ctx)
 
-  // TODO: pull in the following from audius-client
+  // TODO:
+  // pull in the following from web
   // once AudiusBackend and dependencies are migrated
   // common/store/pages/explore/exploreCollections/sagas.ts
   // common/store/pages/explore/sagas.ts
@@ -163,7 +208,14 @@ export const sagas = {
   // pages/trending-underground-page/store/lineups/tracks/sagas.ts
   // pages/trending-underground-page/store/sagas.ts
   // pages/smart-collection/store/sagas.ts
-}
+  // store/application/ui/theme/sagas.ts
+  // pages/search-page/store/sagas.ts
+  // pages/search-page/store/lineups/tracks/sagas.ts
+  //
+  // pull in the following from web
+  // once the player and dependencies are migrated
+  // store/queue/sagas.ts
+})
 
 export type CommonState = {
   account: ReturnType<typeof accountSlice.reducer>
@@ -173,12 +225,19 @@ export type CommonState = {
   tracks: TracksCacheState
   users: UsersCacheState
 
+  // Playback
+  queue: ReturnType<typeof queue>
+
   // Wallet
   wallet: ReturnType<typeof wallet>
+
+  // Cast
+  cast: ReturnType<typeof cast>
 
   ui: {
     averageColor: ReturnType<typeof averageColorReducer>
     addToPlaylist: AddToPlaylistState
+    artistRecommendations: ArtistRecommendationsState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
     deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
@@ -195,6 +254,7 @@ export type CommonState = {
       reposts: ReturnType<typeof repostsUserListReducer>
       favorites: ReturnType<typeof favoritesUserListReducer>
     }
+    theme: ThemeState
   }
 
   pages: {
@@ -207,6 +267,9 @@ export type CommonState = {
     tokenDashboard: ReturnType<typeof tokenDashboardSlice.reducer>
     track: TrackPageState
     profile: ProfilePageState
+    savedPage: ReturnType<typeof savedPageReducer>
+    searchResults: SearchPageState
+    settings: SettingsPageState
     trending: TrendingPageState
     trendingUnderground: ReturnType<typeof trendingUnderground>
   }

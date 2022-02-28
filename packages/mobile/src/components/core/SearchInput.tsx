@@ -1,6 +1,7 @@
-import { forwardRef } from 'react'
+import { ComponentType, forwardRef } from 'react'
 
 import { TextInput, TextInputProps, View } from 'react-native'
+import { SvgProps } from 'react-native-svg'
 
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { makeStyles } from 'app/styles'
@@ -28,12 +29,15 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   }
 }))
 
-type SearchInputProps = TextInputProps
+type SearchInputProps = TextInputProps & {
+  Icon?: ComponentType<SvgProps>
+}
 
 export const SearchInput = forwardRef<TextInput, SearchInputProps>(
   (props, ref) => {
-    const { style, ...other } = props
+    const { style, Icon = IconSearch, ...other } = props
     const styles = useStyles()
+
     return (
       <View style={[styles.root, style]}>
         <TextInput
@@ -45,11 +49,11 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
           returnKeyType='search'
           {...other}
         />
-        <IconSearch
-          style={styles.icon}
+        <Icon
+          style={{ height: styles.icon.height, width: styles.icon.width }}
           fill={styles.icon.fill}
-          height={16}
-          width={16}
+          height={styles.icon.height}
+          width={styles.icon.width}
         />
       </View>
     )

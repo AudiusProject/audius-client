@@ -4,6 +4,7 @@ import { CommonState } from 'common/store'
 import averageColor from 'common/store/average-color/slice'
 import { CollectionsPageState } from 'common/store/pages/collection/types'
 import { SmartCollectionState } from 'common/store/pages/smart-collection/slice'
+import QueueReducer from 'common/store/queue/slice'
 import RemoteConfigReducer from 'common/store/remote-config/slice'
 import StemsUploadReducer from 'common/store/stems-upload/slice'
 import { CreatePlaylistModalState } from 'common/store/ui/createPlaylistModal/types'
@@ -11,7 +12,6 @@ import { FavoritesPageState } from 'common/store/user-list/favorites/types'
 import { FollowersPageState } from 'common/store/user-list/followers/types'
 import { FollowingPageState } from 'common/store/user-list/following/types'
 import { RepostsPageState } from 'common/store/user-list/reposts/types'
-import ArtistRecommendationsReducer from 'components/artist-recommendations/store/slice'
 import { ChangePasswordState } from 'components/change-password/store/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
@@ -29,9 +29,6 @@ import DeletedPageReducer from 'pages/deleted-page/store/slice'
 import HistoryPageState from 'pages/history-page/store/types'
 import { NotificationUsersPageState } from 'pages/notification-users-page/store/types'
 import RemixesPageReducer from 'pages/remixes-page/store/slice'
-import SavesPageState from 'pages/saved-page/store/types'
-import { SearchPageState } from 'pages/search-page/store/types'
-import SettingsPageState from 'pages/settings-page/store/types'
 import SignOnPageState from 'pages/sign-on/store/types'
 import trendingPlaylistsReducer from 'pages/trending-playlists/store/slice'
 import { UploadPageState } from 'pages/upload-page/store/types'
@@ -40,7 +37,6 @@ import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
 import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
-import QueueReducer from 'store/queue/slice'
 
 import { CookieBannerState } from './application/ui/cookieBanner/types'
 import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
@@ -48,7 +44,6 @@ import EditTrackModalState from './application/ui/editTrackModal/types'
 import { MobileKeyboardState } from './application/ui/mobileKeyboard/types'
 import { ScrollLockState } from './application/ui/scrollLock/types'
 import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPickConfirmation/types'
-import { ThemeState } from './application/ui/theme/types'
 import { UserListModalState } from './application/ui/userListModal/types'
 import { BackendState } from './backend/types'
 import { ConfirmerState } from './confirmer/types'
@@ -76,7 +71,6 @@ export type AppState = CommonState & {
   application: {
     ui: {
       appCTAModal: ReturnType<typeof AppCTAModalReducer>
-      artistRecommendations: ReturnType<typeof ArtistRecommendationsReducer>
       averageColor: ReturnType<typeof averageColor>
       changePassword: ChangePasswordState
       cookieBanner: CookieBannerState
@@ -92,12 +86,10 @@ export type AppState = CommonState & {
       scrollLock: ScrollLockState
       setAsArtistPickConfirmation: SetAsArtistPickConfirmationState
       stemsUpload: ReturnType<typeof StemsUploadReducer>
-      theme: ThemeState
       userListModal: UserListModalState
       visualizer: ReturnType<typeof VisualizerReducer>
     }
     pages: {
-      settings: SettingsPageState
       reposts: RepostsPageState
       favorites: FavoritesPageState
       followers: FollowersPageState
@@ -117,9 +109,7 @@ export type AppState = CommonState & {
   dashboard: ArtistDashboardState
   signOn: SignOnPageState
   history: HistoryPageState
-  saved: SavesPageState
   searchBar: SearchBarState
-  search: SearchPageState
   collection: CollectionsPageState
   notification: NotificationState
 

@@ -17,6 +17,17 @@ import { ID } from 'common/models/Identifiers'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getUserId } from 'common/store/account/selectors'
 import { getDominantColorsByTrack } from 'common/store/average-color/slice'
+import { getMethod } from 'common/store/cast/selectors'
+import { makeGetCurrent } from 'common/store/queue/selectors'
+import {
+  next,
+  pause,
+  play,
+  previous,
+  repeat,
+  shuffle
+} from 'common/store/queue/slice'
+import { RepeatMode } from 'common/store/queue/types'
 import {
   saveTrack,
   unsaveTrack,
@@ -41,7 +52,6 @@ import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleBut
 import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import { getCastMethod } from 'pages/settings-page/store/selectors'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
 import { useRecord, make } from 'store/analytics/actions'
 import {
@@ -52,9 +62,6 @@ import {
 } from 'store/player/selectors'
 import { seek, reset } from 'store/player/slice'
 import { AudioState } from 'store/player/types'
-import { makeGetCurrent } from 'store/queue/selectors'
-import { next, pause, play, previous, repeat, shuffle } from 'store/queue/slice'
-import { RepeatMode } from 'store/queue/types'
 import { AppState } from 'store/types'
 import { pushUniqueRoute as pushRoute, profilePage } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
@@ -469,7 +476,7 @@ function makeMapStateToProps() {
       isPlaying: getPlaying(state),
       isBuffering: getBuffering(state),
       isCasting: getIsCasting(state),
-      castMethod: getCastMethod(state),
+      castMethod: getMethod(state),
       dominantColors: getDominantColorsByTrack(state, {
         track: currentQueueItem.track
       })

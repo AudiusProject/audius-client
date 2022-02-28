@@ -37,7 +37,12 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     marginBottom: spacing(4)
   },
   actionButtons: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    position: 'relative',
+    alignSelf: 'flex-start'
+  },
+  followButton: {
+    width: 110
   }
 }))
 
@@ -47,9 +52,11 @@ const messages = {
 
 type ProfileInfoProps = {
   profile: ProfileUser
+  onFollow: () => void
 }
 
-export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
+export const ProfileInfo = (props: ProfileInfoProps) => {
+  const { profile, onFollow } = props
   const styles = useStyles()
   const { does_current_user_follow, does_follow_current_user } = profile
   const accountUser = useSelectorWeb(getAccountUser)
@@ -66,14 +73,20 @@ export const ProfileInfo = ({ profile }: ProfileInfoProps) => {
           <Text style={styles.followsYou}>{messages.followsYou}</Text>
         ) : null}
       </View>
-      {isOwner ? (
-        <EditProfileButton />
-      ) : (
-        <View style={styles.actionButtons}>
-          {does_current_user_follow ? <SubscribeButton /> : null}
-          <FollowButton profile={profile} />
-        </View>
-      )}
+      <View style={styles.actionButtons}>
+        {isOwner ? (
+          <EditProfileButton style={styles.followButton} />
+        ) : (
+          <>
+            {does_current_user_follow ? <SubscribeButton /> : null}
+            <FollowButton
+              style={styles.followButton}
+              profile={profile}
+              onPress={onFollow}
+            />
+          </>
+        )}
+      </View>
     </View>
   )
 }

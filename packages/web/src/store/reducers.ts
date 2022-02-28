@@ -4,8 +4,8 @@ import { combineReducers } from 'redux'
 
 import { reducers as clientStoreReducers } from 'common/store'
 import profile from 'common/store/pages/profile/reducer'
+import queue from 'common/store/queue/slice'
 import remoteConfig from 'common/store/remote-config/slice'
-import artistRecommendations from 'components/artist-recommendations/store/slice'
 import changePassword from 'components/change-password/store/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
@@ -23,9 +23,6 @@ import deleted from 'pages/deleted-page/store/slice'
 import history from 'pages/history-page/store/reducer'
 import notificationUsers from 'pages/notification-users-page/store/reducers'
 import remixes from 'pages/remixes-page/store/slice'
-import saved from 'pages/saved-page/store/reducer'
-import search from 'pages/search-page/store/reducer'
-import settings from 'pages/settings-page/store/reducer'
 import signOn from 'pages/sign-on/store/reducer'
 import trendingPlaylists from 'pages/trending-playlists/store/slice'
 import upload from 'pages/upload-page/store/reducer'
@@ -37,7 +34,6 @@ import editTrackModal from 'store/application/ui/editTrackModal/reducer'
 import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
-import theme from 'store/application/ui/theme/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import audioManager from 'store/audio-manager/slice'
 import backend from 'store/backend/reducer'
@@ -45,13 +41,16 @@ import confirmer from 'store/confirmer/reducer'
 import dragndrop from 'store/dragndrop/reducer'
 import player from 'store/player/slice'
 import playlistLibrary from 'store/playlist-library/slice'
-import queue from 'store/queue/slice'
 import reachability from 'store/reachability/reducer'
+
+import { webStoreContext } from './storeContext'
+
+export const commonStoreReducers = clientStoreReducers(webStoreContext)
 
 const createRootReducer = (routeHistory: History) =>
   combineReducers({
-    // Client store
-    ...clientStoreReducers,
+    // Common store
+    ...commonStoreReducers,
 
     // Router
     router: connectRouter(routeHistory),
@@ -74,9 +73,7 @@ const createRootReducer = (routeHistory: History) =>
     dashboard,
     signOn,
     history,
-    saved,
     searchBar,
-    search,
     notification,
     serviceSelection,
 
@@ -93,7 +90,6 @@ const createRootReducer = (routeHistory: History) =>
     application: combineReducers({
       ui: combineReducers({
         appCTAModal,
-        artistRecommendations,
         changePassword,
         cookieBanner,
         deactivateAccount,
@@ -106,7 +102,6 @@ const createRootReducer = (routeHistory: History) =>
         remixSettingsModal,
         scrollLock,
         setAsArtistPickConfirmation,
-        theme,
         userListModal,
         visualizer
       }),
@@ -115,7 +110,6 @@ const createRootReducer = (routeHistory: History) =>
         notificationUsers,
         nowPlaying,
         remixes,
-        settings,
         trendingPlaylists,
         unfollowConfirmation
       })

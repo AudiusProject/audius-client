@@ -1,5 +1,8 @@
+import { useCallback } from 'react'
+
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
-import { View } from 'react-native'
+import { LayoutAnimation, View } from 'react-native'
+import { useToggle } from 'react-use'
 
 import IconSettings from 'app/assets/images/iconSettings.svg'
 import { TopBarIconButton } from 'app/components/app-navigator/TopBarIconButton'
@@ -9,6 +12,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles/makeStyles'
 
+import { ArtistRecommendations } from './ArtistRecommendations/ArtistRecommendations'
 import { CoverPhoto } from './CoverPhoto'
 import { ExpandableBio } from './ExpandableBio'
 import { ProfileInfo } from './ProfileInfo'
@@ -19,15 +23,19 @@ import { getProfile } from './selectors'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   header: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.neutralLight10,
     paddingTop: spacing(8),
-    paddingHorizontal: spacing(3)
+    paddingHorizontal: spacing(3),
+    paddingBottom: spacing(3)
   },
   profilePicture: {
     position: 'absolute',
     top: 37,
     left: 11,
     zIndex: 100
+  },
+  navigator: {
+    height: '100%'
   }
 }))
 
@@ -35,6 +43,7 @@ export const ProfileScreen = () => {
   const styles = useStyles()
   const { profile } = useSelectorWeb(getProfile)
   const accountUser = useSelectorWeb(getAccountUser)
+  const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
 
   const navigation = useNavigation()
 
@@ -44,6 +53,18 @@ export const ProfileScreen = () => {
       web: { route: '/settings' }
     })
   }
+
+  const handleFollow = useCallback(() => {
+    if (!profile?.does_current_user_follow) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+      setHasUserFollowed(true)
+    }
+  }, [setHasUserFollowed, profile])
+
+  const handleCloseArtistRecs = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    setHasUserFollowed(false)
+  }, [setHasUserFollowed])
 
   if (!profile) return null
 
@@ -59,12 +80,18 @@ export const ProfileScreen = () => {
         <CoverPhoto profile={profile} />
         <ProfilePhoto style={styles.profilePicture} profile={profile} />
         <View style={styles.header}>
-          <ProfileInfo profile={profile} />
+          <ProfileInfo profile={profile} onFollow={handleFollow} />
           <ProfileMetrics profile={profile} />
           <ProfileSocials profile={profile} />
           <ExpandableBio profile={profile} />
+          {!hasUserFollowed ? null : (
+            <ArtistRecommendations
+              profile={profile}
+              onClose={handleCloseArtistRecs}
+            />
+          )}
         </View>
-        <View style={{ flex: 4 }}>
+        <View style={styles.navigator}>
           <ProfileTabNavigator profile={profile} />
         </View>
       </VirtualizedScrollView>

@@ -27,9 +27,15 @@ export type ProfileStackParamList = BaseStackParamList & {
   SettingsScreen: undefined
   AboutScreen: undefined
   AccountSettingsScreen: undefined
+  NotificationSettingsScreen: undefined
 }
 
-export type BottomTabsParamList = {
+export type SearchParamList = BaseStackParamList & {
+  Search: undefined
+  SearchResults: { query: string }
+}
+
+export type MainParamList = {
   feed: NavigatorScreenParams<FeedStackParamList>
   trending: NavigatorScreenParams<TrendingStackParamList>
   explore: NavigatorScreenParams<ExploreStackParamList>
@@ -39,5 +45,5 @@ export type BottomTabsParamList = {
 
 export type AppStackParamList = {
   signOn: undefined
-  main: NavigatorScreenParams<BottomTabsParamList>
+  main: NavigatorScreenParams<MainParamList>
 }

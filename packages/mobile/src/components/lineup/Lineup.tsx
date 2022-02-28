@@ -6,6 +6,7 @@ import Kind from 'audius-client/src/common/models/Kind'
 import { range } from 'lodash'
 import { Dimensions, SectionList, StyleSheet, View } from 'react-native'
 import { useSelector } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import {
   CollectionTile,
@@ -115,7 +116,8 @@ export const Lineup = ({
   showLeadingElementArtistPick = true,
   start = 0,
   variant = LineupVariant.MAIN,
-  listKey
+  listKey,
+  selfLoad
 }: LineupProps) => {
   const dispatchWeb = useDispatchWeb()
 
@@ -130,9 +132,7 @@ export const Lineup = ({
   // Either the provided count or a default
   const countOrDefault = count !== undefined ? count : MAX_TILES_COUNT
 
-  // When the onEndReachedThreshould is hit, potentially load
-  // more items
-  const onEndReached = useCallback(() => {
+  const handleLoadMore = useCallback(() => {
     const { deleted, entries, hasMore, page } = lineup
 
     const lineupLength = entries.length
@@ -141,8 +141,6 @@ export const Lineup = ({
     const shouldLoadMore =
       // Lineup has more items to load
       hasMore &&
-      // `loadMore` function exists
-      loadMore &&
       // Number of loaded items does not exceed max count
       lineupLength < countOrDefault &&
       // Page item count doesn't exceed current offset
@@ -157,17 +155,27 @@ export const Lineup = ({
         Math.min(itemLoadCount, Math.max(countOrDefault, itemCounts.minimum)) -
         offset
 
-      loadMore(offset, limit, page === 0)
+      if (loadMore) {
+        loadMore(offset, limit, page === 0)
+      } else {
+        dispatchWeb(actions.fetchLineupMetadatas(offset, limit, page === 0))
+      }
     }
   }, [
-    actions,
-    countOrDefault,
-    dispatchWeb,
-    itemCounts,
     lineup,
+    actions,
+    itemCounts,
+    countOrDefault,
     loadMore,
+    dispatchWeb,
     pageItemCount
   ])
+
+  useEffectOnce(() => {
+    if (selfLoad) {
+      handleLoadMore()
+    }
+  })
 
   const togglePlay = useCallback(
     (uid: UID, id: ID, source: PlaybackSource) => {
@@ -319,7 +327,7 @@ export const Lineup = ({
     <SectionList
       ListHeaderComponent={header}
       ListFooterComponent={<View style={{ height: 160 }} />}
-      onEndReached={onEndReached}
+      onEndReached={handleLoadMore}
       onEndReachedThreshold={LOAD_MORE_THRESHOLD}
       // TODO: Either style the refreshing indicator or
       // roll our own

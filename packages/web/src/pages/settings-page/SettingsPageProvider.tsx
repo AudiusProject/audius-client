@@ -15,12 +15,25 @@ import {
   getUserHandle,
   getUserName
 } from 'common/store/account/selectors'
+import { getMethod as getCastMethod } from 'common/store/cast/selectors'
+import { CastMethod, updateMethod } from 'common/store/cast/slice'
+import * as settingPageActions from 'common/store/pages/settings/actions'
+import {
+  getBrowserNotificationSettings,
+  getPushNotificationSettings,
+  getEmailFrequency
+} from 'common/store/pages/settings/selectors'
+import {
+  BrowserNotificationSetting,
+  EmailFrequency,
+  PushNotificationSetting
+} from 'common/store/pages/settings/types'
 import { setVisibility } from 'common/store/ui/modals/slice'
+import { setTheme } from 'common/store/ui/theme/actions'
+import { getTheme } from 'common/store/ui/theme/selectors'
 import { show } from 'components/music-confetti/store/slice'
 import { makeGetTierAndVerifiedForUser } from 'components/user-badges/utils'
 import { make, TrackEvent } from 'store/analytics/actions'
-import { setTheme } from 'store/application/ui/theme/actions'
-import { getTheme } from 'store/application/ui/theme/selectors'
 import { AppState } from 'store/types'
 import {
   isPushManagerAvailable,
@@ -36,19 +49,6 @@ import {
   SettingsPageProps as MobileSettingsPageProps,
   SubPage
 } from './components/mobile/SettingsPage'
-import * as settingPageActions from './store/actions'
-import {
-  getBrowserNotificationSettings,
-  getPushNotificationSettings,
-  getEmailFrequency,
-  getCastMethod
-} from './store/selectors'
-import {
-  BrowserNotificationSetting,
-  EmailFrequency,
-  PushNotificationSetting,
-  Cast
-} from './store/types'
 
 const messages = {
   title: 'Settings',
@@ -278,8 +278,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(settingPageActions.updateEmailFrequency(frequency)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     goBack: () => dispatch(goBack()),
-    updateCastMethod: (castMethod: Cast) =>
-      dispatch(settingPageActions.updateCastMethod(castMethod)),
+    updateCastMethod: (castMethod: CastMethod) => {
+      dispatch(updateMethod({ method: castMethod }))
+    },
     recordThemeChange: (themeSettings: string) => {
       const theme =
         themeSettings === Theme.DEFAULT
