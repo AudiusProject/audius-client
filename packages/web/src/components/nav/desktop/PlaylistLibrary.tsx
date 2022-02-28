@@ -17,6 +17,7 @@ import { SmartCollection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import { PlaylistLibraryFolder } from 'common/models/PlaylistLibrary'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
+import { FeatureFlags } from 'common/services/remote-config'
 import { AccountCollection } from 'common/store/account/reducer'
 import {
   getAccountNavigationPlaylists,
@@ -30,7 +31,7 @@ import IconButton from 'components/icon-button/IconButton'
 import { getPlaylistUpdates } from 'components/notification/store/selectors'
 import Tooltip from 'components/tooltip/Tooltip'
 import UpdateDot from 'components/update-dot/UpdateDot'
-import { useArePlaylistUpdatesEnabled } from 'hooks/useRemoteConfig'
+import { useArePlaylistUpdatesEnabled, useFlag } from 'hooks/useRemoteConfig'
 import { SMART_COLLECTION_MAP } from 'pages/smart-collection/smartCollections'
 import { make, useRecord } from 'store/analytics/actions'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
@@ -300,38 +301,38 @@ const PlaylistNavItem = ({
         }}
         onMouseLeave={() => setIsHovering(false)}
       >
-        {hasUpdate ? (
-          <div className={navColumnStyles.updateDotContainer}>
-            <Tooltip
-              className={navColumnStyles.updateDotTooltip}
-              shouldWrapContent={true}
-              shouldDismissOnClick={false}
-              mount={null}
-              mouseEnterDelay={0.1}
-              text='Recently Updated'
-            >
-              <div>
-                <UpdateDot />
-              </div>
-            </Tooltip>
-            <span>{name}</span>
-            {!isOwner || !onClickEdit ? null : (
-              <IconButton
-                className={cn(styles.iconKebabHorizontal, {
-                  [styles.hidden]: !isHovering || dragging
-                })}
-                icon={<IconKebabHorizontal height={11} width={11} />}
-                onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onClickEdit(id)
-                }}
-              />
-            )}
-          </div>
-        ) : (
+        <div className={navColumnStyles.playlistLinkContentContainer}>
+          {!hasUpdate ? null : (
+            <div className={navColumnStyles.updateDotContainer}>
+              <Tooltip
+                className={navColumnStyles.updateDotTooltip}
+                shouldWrapContent={true}
+                shouldDismissOnClick={false}
+                mount={null}
+                mouseEnterDelay={0.1}
+                text='Recently Updated'
+              >
+                <div>
+                  <UpdateDot />
+                </div>
+              </Tooltip>
+            </div>
+          )}
           <span>{name}</span>
-        )}
+          {!isOwner || !onClickEdit ? null : (
+            <IconButton
+              className={cn(styles.iconKebabHorizontal, {
+                [styles.hidden]: !isHovering || dragging
+              })}
+              icon={<IconKebabHorizontal height={11} width={11} />}
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                onClickEdit(id)
+              }}
+            />
+          )}
+        </div>
       </PlaylistNavLink>
     </Droppable>
   )
@@ -353,6 +354,9 @@ const PlaylistLibrary = ({
   const {
     isEnabled: arePlaylistUpdatesEnabled
   } = useArePlaylistUpdatesEnabled()
+  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
+    FeatureFlags.PLAYLIST_FOLDERS
+  )
   const record = useRecord()
   const [, setIsEditFolderModalOpen] = useModalState('EditFolder')
 
@@ -439,7 +443,11 @@ const PlaylistLibrary = ({
         dragging={dragging}
         draggingKind={draggingKind}
         onClickPlaylist={onClick}
-        onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
+        onClickEdit={
+          isOwner && isPlaylistFoldersEnabled
+            ? handleClickEditPlaylist
+            : undefined
+        }
       />
     )
   }
