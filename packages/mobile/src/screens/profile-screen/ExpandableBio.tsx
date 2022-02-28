@@ -8,6 +8,7 @@ import {
   LayoutChangeEvent,
   LayoutAnimation
 } from 'react-native'
+import HyperLink from 'react-native-hyperlink'
 import { useToggle } from 'react-use'
 
 import { makeStyles } from 'app/styles/makeStyles'
@@ -83,13 +84,15 @@ export const ExpandableBio = ({ profile }: ExpandableBioProps) => {
     <View style={styles.root}>
       <View>
         {bio ? (
-          <Text
-            numberOfLines={fullBioHeight && !isExpanded ? 2 : 0}
-            style={styles.bio}
-            onLayout={handleBioLayout}
-          >
-            {bio}
-          </Text>
+          <HyperLink>
+            <Text
+              numberOfLines={fullBioHeight && !isExpanded ? 2 : 0}
+              style={styles.bio}
+              onLayout={handleBioLayout}
+            >
+              {bio}
+            </Text>
+          </HyperLink>
         ) : null}
         {hasSites && isExpanded ? <Sites profile={profile} /> : null}
       </View>
