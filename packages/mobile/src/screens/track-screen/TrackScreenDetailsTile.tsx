@@ -8,6 +8,7 @@ import {
   PlaybackSource
 } from 'audius-client/src/common/models/Analytics'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'
+import { UID } from 'audius-client/src/common/models/Identifiers'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -42,10 +43,7 @@ import { useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
-import {
-  DetailsTileDetail,
-  DetailsTileParentProps
-} from 'app/components/details-tile/types'
+import { DetailsTileDetail } from 'app/components/details-tile/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -62,9 +60,10 @@ const messages = {
   remix: 'remix'
 }
 
-type TrackScreenDetailsTileProps = DetailsTileParentProps & {
+type TrackScreenDetailsTileProps = {
   track: Track
   user: User
+  uid: UID
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -103,8 +102,7 @@ const useStyles = makeStyles(({ palette }) => ({
 export const TrackScreenDetailsTile = ({
   track,
   user,
-  uid,
-  ...detailsTileProps
+  uid
 }: TrackScreenDetailsTileProps) => {
   const styles = useStyles()
   const navigation = useNavigation()
@@ -337,7 +335,6 @@ export const TrackScreenDetailsTile = ({
 
   return (
     <DetailsTile
-      {...detailsTileProps}
       descriptionLinkPressSource='track page'
       coSign={_co_sign}
       description={description ?? undefined}

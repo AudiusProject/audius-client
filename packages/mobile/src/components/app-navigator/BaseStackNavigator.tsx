@@ -5,6 +5,7 @@ import {
 import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { EditProfileScreen } from 'app/screens/edit-profile-screen/EditProfileScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
 import { TrackScreen } from 'app/screens/track-screen'
@@ -55,6 +56,7 @@ export const BaseStackNavigator = ({
     >
       {baseScreen(Stack)}
       <Stack.Screen name='track' component={TrackScreen} />
+      <Stack.Screen name='collection' component={CollectionScreen} />
       <Stack.Screen name='profile' component={ProfileScreen} />
       <Stack.Screen name='EditProfile' component={EditProfileScreen} />
       <Stack.Group>

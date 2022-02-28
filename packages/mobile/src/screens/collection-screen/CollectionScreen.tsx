@@ -1,9 +1,12 @@
+import { useCallback } from 'react'
+
 import {
   FavoriteSource,
   RepostSource,
   ShareSource
 } from 'audius-client/src/common/models/Analytics'
 import { Collection } from 'audius-client/src/common/models/Collection'
+import { FavoriteType } from 'audius-client/src/common/models/Favorite'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
@@ -18,13 +21,21 @@ import {
   OverflowSource
 } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
+import { setFavorite } from 'audius-client/src/common/store/user-list/favorites/actions'
+import { setRepost } from 'audius-client/src/common/store/user-list/reposts/actions'
+import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
 import { formatDate } from 'audius-client/src/common/utils/timeUtil'
+import {
+  FAVORITING_USERS_ROUTE,
+  REPOSTING_USERS_ROUTE
+} from 'audius-client/src/utils/route'
 import { getCollection, getUser } from 'common/store/pages/collection/selectors'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { StyleSheet, View } from 'react-native'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { ThemeColors } from 'app/utils/theme'
@@ -74,6 +85,7 @@ const CollectionScreenComponent = ({
 }: CollectionScreenComponentProps) => {
   const styles = useThemedStyles(createStyles)
   const dispatchWeb = useDispatchWeb()
+  const navigation = useNavigation()
   const {
     _cover_art_sizes,
     description,
@@ -105,7 +117,7 @@ const CollectionScreenComponent = ({
     }
   ]
 
-  const handlePressOverflow = () => {
+  const handlePressOverflow = useCallback(() => {
     const overflowActions = [
       isOwner || is_private
         ? null
@@ -132,17 +144,17 @@ const CollectionScreenComponent = ({
         overflowActions
       })
     )
-  }
+  }, [])
 
-  const handlePressSave = () => {
+  const handlePressSave = useCallback(() => {
     if (has_current_user_saved) {
       dispatchWeb(unsaveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
     } else {
       dispatchWeb(saveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
     }
-  }
+  }, [])
 
-  const handlePressShare = () => {
+  const handlePressShare = useCallback(() => {
     dispatchWeb(
       requestOpenShareModal({
         type: 'collection',
@@ -150,9 +162,9 @@ const CollectionScreenComponent = ({
         source: ShareSource.PAGE
       })
     )
-  }
+  }, [])
 
-  const handlePressRepost = () => {
+  const handlePressRepost = useCallback(() => {
     if (has_current_user_reposted) {
       dispatchWeb(
         undoRepostCollection(playlist_id, RepostSource.COLLECTION_PAGE)
@@ -160,7 +172,24 @@ const CollectionScreenComponent = ({
     } else {
       dispatchWeb(repostCollection(playlist_id, RepostSource.COLLECTION_PAGE))
     }
-  }
+  }, [])
+
+  const handlePressFavorites = useCallback(() => {
+    dispatchWeb(setFavorite(playlist_id, FavoriteType.PLAYLIST))
+    navigation.push({
+      native: { screen: 'FavoritedScreen', params: undefined },
+      web: { route: FAVORITING_USERS_ROUTE }
+    })
+  }, [dispatchWeb, playlist_id, navigation])
+
+  const handlePressReposts = useCallback(() => {
+    dispatchWeb(setRepost(playlist_id, RepostType.COLLECTION))
+    navigation.push({
+      native: { screen: 'RepostsScreen', params: undefined },
+      web: { route: REPOSTING_USERS_ROUTE }
+    })
+  }, [dispatchWeb, playlist_id, navigation])
+
   return (
     <View style={styles.root}>
       <View style={styles.headerContainer}>
@@ -172,8 +201,10 @@ const CollectionScreenComponent = ({
           imageUrl={imageUrl}
           isAlbum={is_album}
           isPrivate={is_private}
+          onPressFavorites={handlePressFavorites}
           onPressOverflow={handlePressOverflow}
           onPressRepost={handlePressRepost}
+          onPressReposts={handlePressReposts}
           onPressSave={handlePressSave}
           onPressShare={handlePressShare}
           repostCount={repost_count}

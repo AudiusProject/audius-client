@@ -6,16 +6,13 @@ import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/sel
 import { getCollectionTracksLineup } from 'audius-client/src/common/store/pages/collection/selectors'
 import { formatSecondsAsText } from 'audius-client/src/common/utils/timeUtil'
 import { tracksActions } from 'audius-client/src/pages/remixes-page/store/lineups/tracks/actions'
-import {
-  getPlaying,
-  makeGetCurrent
-} from 'audius-client/src/store/player/selectors'
 import { useSelector } from 'react-redux'
 
 import { DetailsTile } from 'app/components/details-tile'
 import { DetailsTileDetail } from 'app/components/details-tile/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
 import { GestureResponderHandler } from 'app/types/gesture'
 import { make, track } from 'app/utils/analytics'
 import { formatCount } from 'app/utils/format'
@@ -40,8 +37,10 @@ type CollectionScreenDetailsTileProps = {
   imageUrl: string
   isAlbum?: boolean
   isPrivate?: boolean
+  onPressFavorites?: GestureResponderHandler
   onPressOverflow?: GestureResponderHandler
   onPressRepost?: GestureResponderHandler
+  onPressReposts?: GestureResponderHandler
   onPressSave?: GestureResponderHandler
   onPressShare?: GestureResponderHandler
   repostCount?: number
@@ -50,7 +49,6 @@ type CollectionScreenDetailsTileProps = {
   user?: User
 }
 
-const getCurrentQueueItem = makeGetCurrent()
 const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
 export const CollectionScreenDetailsTile = ({
@@ -66,8 +64,10 @@ export const CollectionScreenDetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
+  onPressFavorites,
   onPressOverflow,
   onPressRepost,
+  onPressReposts,
   onPressSave,
   onPressShare,
   repostCount,
@@ -97,11 +97,11 @@ export const CollectionScreenDetailsTile = ({
   ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const isPlaying = useSelector(getPlaying)
-  const currentQueueItem = useSelector(getCurrentQueueItem)
-  const playingId = currentQueueItem.track?.track_id
-  const isQueued = tracksLineup.entries.some(
-    entry => currentQueueItem.uid === entry.uid
-  )
+  const playingUid = useSelector(getPlayingUid)
+  const playingTrack = useSelector(getTrack)
+  const trackId = playingTrack?.trackId
+
+  const isQueued = tracksLineup.entries.some(entry => playingUid === entry.uid)
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -109,7 +109,7 @@ export const CollectionScreenDetailsTile = ({
       track(
         make({
           eventName: Name.PLAYBACK_PAUSE,
-          id: `${playingId}`,
+          id: String(trackId),
           source: PlaybackSource.PLAYLIST_PAGE
         })
       )
@@ -118,7 +118,7 @@ export const CollectionScreenDetailsTile = ({
       track(
         make({
           eventName: Name.PLAYBACK_PLAY,
-          id: `${playingId}`,
+          id: String(trackId),
           source: PlaybackSource.PLAYLIST_PAGE
         })
       )
@@ -132,7 +132,7 @@ export const CollectionScreenDetailsTile = ({
         })
       )
     }
-  }, [dispatchWeb, isPlaying, playingId, tracksLineup, isQueued])
+  }, [dispatchWeb, isPlaying, trackId, tracksLineup, isQueued])
 
   const headerText = useMemo(() => {
     if (isAlbum) {
@@ -161,9 +161,11 @@ export const CollectionScreenDetailsTile = ({
       hideRepostCount={hideRepostCount}
       hideShare={hideShare}
       imageUrl={imageUrl}
+      onPressFavorites={onPressFavorites}
       onPressOverflow={onPressOverflow}
       onPressPlay={handlePressPlay}
       onPressRepost={onPressRepost}
+      onPressReposts={onPressReposts}
       onPressSave={onPressSave}
       onPressShare={onPressShare}
       repostCount={repostCount}
