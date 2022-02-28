@@ -8,7 +8,6 @@ import {
   PlaybackSource
 } from 'audius-client/src/common/models/Analytics'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'
-import { ID } from 'audius-client/src/common/models/Identifiers'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -25,12 +24,18 @@ import {
   OverflowSource
 } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
+import { setFavorite } from 'audius-client/src/common/store/user-list/favorites/actions'
+import { setRepost } from 'audius-client/src/common/store/user-list/reposts/actions'
 import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
 import { getCanonicalName } from 'audius-client/src/common/utils/genres'
 import {
   formatSeconds,
   formatDate
 } from 'audius-client/src/common/utils/timeUtil'
+import {
+  FAVORITING_USERS_ROUTE,
+  REPOSTING_USERS_ROUTE
+} from 'audius-client/src/utils/route'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { Image, Pressable, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -42,6 +47,7 @@ import {
   DetailsTileParentProps
 } from 'app/components/details-tile/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
@@ -52,8 +58,8 @@ import { moodMap } from 'app/utils/moods'
 import { TrackScreenDownloadButtons } from './TrackScreenDownloadButtons'
 
 const messages = {
-  track: 'TRACK',
-  remix: 'REMIX'
+  track: 'track',
+  remix: 'remix'
 }
 
 type TrackScreenDetailsTileProps = DetailsTileParentProps & {
@@ -101,6 +107,8 @@ export const TrackScreenDetailsTile = ({
   ...detailsTileProps
 }: TrackScreenDetailsTileProps) => {
   const styles = useStyles()
+  const navigation = useNavigation()
+
   const currentUserId = useSelectorWeb(getUserId)
   const dispatchWeb = useDispatchWeb()
   const playingUid = useSelector(getPlayingUid)
@@ -112,6 +120,7 @@ export const TrackScreenDetailsTile = ({
     _cover_art_sizes,
     created_at,
     credits_splits,
+    description,
     duration,
     field_visibility,
     genre,
@@ -122,6 +131,8 @@ export const TrackScreenDetailsTile = ({
     owner_id,
     release_date,
     remix_of,
+    repost_count,
+    save_count,
     tags,
     title,
     track_id
@@ -195,6 +206,22 @@ export const TrackScreenDetailsTile = ({
       trackPlay()
     }
   }, [track_id, uid, dispatchWeb, isPlaying, playingUid, queueTrack])
+
+  const handlePressFavorites = useCallback(() => {
+    dispatchWeb(setFavorite(track_id, FavoriteType.TRACK))
+    navigation.push({
+      native: { screen: 'FavoritedScreen', params: undefined },
+      web: { route: FAVORITING_USERS_ROUTE }
+    })
+  }, [dispatchWeb, track_id, navigation])
+
+  const handlePressReposts = useCallback(() => {
+    dispatchWeb(setRepost(track_id, RepostType.TRACK))
+    navigation.push({
+      native: { screen: 'RepostsScreen', params: undefined },
+      web: { route: REPOSTING_USERS_ROUTE }
+    })
+  }, [dispatchWeb, track_id, navigation])
 
   const handlePressTag = useCallback((tag: string) => {
     // TODO: navigate to search screen
@@ -313,11 +340,11 @@ export const TrackScreenDetailsTile = ({
       {...detailsTileProps}
       descriptionLinkPressSource='track page'
       coSign={_co_sign}
+      description={description ?? undefined}
       details={details}
-      favoriteType={FavoriteType.TRACK}
-      id={track_id}
+      hasReposted={has_current_user_reposted}
+      hasSaved={has_current_user_saved}
       imageUrl={imageUrl}
-      item={track}
       user={user}
       renderBottomContent={renderBottomContent}
       renderHeader={is_unlisted ? renderHiddenHeader : undefined}
@@ -328,12 +355,15 @@ export const TrackScreenDetailsTile = ({
       hideFavoriteCount={is_unlisted}
       hideListenCount={is_unlisted && !field_visibility?.play_count}
       hideRepostCount={is_unlisted}
+      onPressFavorites={handlePressFavorites}
       onPressOverflow={handlePressOverflow}
       onPressPlay={handlePressPlay}
       onPressRepost={handlePressRepost}
+      onPressReposts={handlePressReposts}
       onPressSave={handlePressSave}
       onPressShare={handlePressShare}
-      repostType={RepostType.TRACK}
+      repostCount={repost_count}
+      saveCount={save_count}
       title={title}
     />
   )

@@ -33,8 +33,8 @@ import { DetailsTileStats } from './DetailsTileStats'
 import { DetailsTileProps } from './types'
 
 const messages = {
-  play: 'PLAY',
-  pause: 'PAUSE'
+  play: 'play',
+  pause: 'pause'
 }
 
 const createStyles = (themeColors: ThemeColors) =>
@@ -112,6 +112,10 @@ const createStyles = (themeColors: ThemeColors) =>
       marginBottom: 12
     },
 
+    playButtonText: {
+      textTransform: 'uppercase'
+    },
+
     infoSection: {
       borderTopWidth: 1,
       borderTopColor: themeColors.neutralLight7,
@@ -160,9 +164,11 @@ const createStyles = (themeColors: ThemeColors) =>
  */
 export const DetailsTile = ({
   coSign,
+  description,
   descriptionLinkPressSource,
   details,
-  favoriteType,
+  hasReposted,
+  hasSaved,
   hideFavorite,
   hideFavoriteCount,
   hideListenCount,
@@ -170,26 +176,21 @@ export const DetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
-  id,
   imageUrl,
+  onPressFavorites,
   onPressOverflow,
   onPressPlay,
   onPressRepost,
+  onPressReposts,
   onPressSave,
   onPressShare,
   playCount,
-  repostType,
+  repostCount,
+  saveCount,
   headerText,
   title,
   renderBottomContent,
   renderHeader,
-  item: {
-    description,
-    has_current_user_reposted,
-    has_current_user_saved,
-    repost_count,
-    save_count
-  },
   user
 }: DetailsTileProps) => {
   const styles = useThemedStyles(createStyles)
@@ -285,6 +286,7 @@ export const DetailsTile = ({
       </TouchableOpacity>
       <View style={styles.buttonSection}>
         <Button
+          styles={{ text: styles.playButtonText }}
           title={isPlaying ? messages.pause : messages.play}
           size='large'
           iconPosition='left'
@@ -293,8 +295,8 @@ export const DetailsTile = ({
           fullWidth
         />
         <DetailsTileActionButtons
-          hasReposted={has_current_user_reposted}
-          hasSaved={has_current_user_saved}
+          hasReposted={!!hasReposted}
+          hasSaved={!!hasSaved}
           hideFavorite={hideFavorite}
           hideOverflow={hideOverflow}
           hideRepost={hideRepost}
@@ -307,15 +309,14 @@ export const DetailsTile = ({
         />
       </View>
       <DetailsTileStats
-        favoriteCount={save_count}
-        favoriteType={favoriteType}
-        playCount={playCount}
-        repostCount={repost_count}
-        repostType={repostType}
+        favoriteCount={saveCount}
         hideFavoriteCount={hideFavoriteCount}
         hideListenCount={hideListenCount}
         hideRepostCount={hideRepostCount}
-        id={id}
+        onPressFavorites={onPressFavorites}
+        onPressReposts={onPressReposts}
+        playCount={playCount}
+        repostCount={repostCount}
       />
       <View style={styles.descriptionContainer}>
         {description ? (

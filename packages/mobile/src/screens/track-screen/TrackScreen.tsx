@@ -87,7 +87,7 @@ const TrackScreenMainContent = ({
     <View style={styles.root}>
       <View style={styles.headerContainer}>
         <TrackScreenDetailsTile
-          item={track}
+          track={track}
           user={user}
           uid={lineup?.entries?.[0]?.uid}
         />
@@ -115,15 +115,20 @@ export const TrackScreen = () => {
   const track = useSelectorWeb(getTrack)
   const user = useSelectorWeb(getUser)
 
+  if (!track || !user || !lineup) {
+    console.warn(
+      'Track, user, or lineup missing for TrackScreen, preventing render'
+    )
+    return null
+  }
+
   return (
     <View>
       <Lineup
         actions={tracksActions}
         count={6}
         header={
-          track && user ? (
-            <TrackScreenMainContent track={track} user={user} lineup={lineup} />
-          ) : null
+          <TrackScreenMainContent track={track} user={user} lineup={lineup} />
         }
         lineup={lineup}
         start={1}
