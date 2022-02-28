@@ -34,6 +34,7 @@ import { useArePlaylistUpdatesEnabled } from 'hooks/useRemoteConfig'
 import { SMART_COLLECTION_MAP } from 'pages/smart-collection/smartCollections'
 import { make, useRecord } from 'store/analytics/actions'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
+import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylistModal/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { reorderPlaylistLibrary } from 'store/playlist-library/helpers'
 import { update } from 'store/playlist-library/slice'
@@ -232,6 +233,110 @@ const PlaylistFolderNavItem = ({
   )
 }
 
+type PlaylistNavItemProps = {
+  playlist: AccountCollection
+  url: string
+  addTrack: (trackId: ID) => void
+  isOwner: boolean
+  onReorder: (
+    draggingId: ID | SmartCollectionVariant,
+    droppingId: ID | SmartCollectionVariant
+  ) => void
+  hasUpdate?: boolean
+  dragging: boolean
+  draggingKind: string
+  onClickPlaylist: (id: ID, hasUpdate: boolean) => void
+  onClickEdit?: (id: ID) => void
+}
+const PlaylistNavItem = ({
+  playlist,
+  hasUpdate = false,
+  url,
+  addTrack,
+  isOwner,
+  onReorder,
+  dragging,
+  draggingKind,
+  onClickPlaylist,
+  onClickEdit
+}: PlaylistNavItemProps) => {
+  const { id, name } = playlist
+  const [isHovering, setIsHovering] = useState(false)
+
+  return (
+    <Droppable
+      key={id}
+      className={navColumnStyles.droppable}
+      hoverClassName={navColumnStyles.droppableHover}
+      onDrop={addTrack}
+      acceptedKinds={['track']}
+      disabled={!isOwner}
+    >
+      <PlaylistNavLink
+        droppableKey={id}
+        playlistId={id}
+        name={name}
+        link={url}
+        to={url}
+        onReorder={onReorder}
+        isActive={() => url === getPathname()}
+        activeClassName='active'
+        className={cn(navColumnStyles.link, {
+          [navColumnStyles.playlistUpdate]: hasUpdate,
+          [navColumnStyles.droppableLink]:
+            isOwner &&
+            dragging &&
+            (draggingKind === 'track' || draggingKind === 'playlist'),
+          [navColumnStyles.disabledLink]:
+            dragging &&
+            ((draggingKind !== 'track' &&
+              draggingKind !== 'playlist' &&
+              draggingKind !== 'library-playlist') ||
+              !isOwner)
+        })}
+        onClick={() => onClickPlaylist(id, hasUpdate)}
+        onMouseEnter={() => {
+          setIsHovering(true)
+        }}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        {hasUpdate ? (
+          <div className={navColumnStyles.updateDotContainer}>
+            <Tooltip
+              className={navColumnStyles.updateDotTooltip}
+              shouldWrapContent={true}
+              shouldDismissOnClick={false}
+              mount={null}
+              mouseEnterDelay={0.1}
+              text='Recently Updated'
+            >
+              <div>
+                <UpdateDot />
+              </div>
+            </Tooltip>
+            <span>{name}</span>
+            {!isOwner || !onClickEdit ? null : (
+              <IconButton
+                className={cn(styles.iconKebabHorizontal, {
+                  [styles.hidden]: !isHovering || dragging
+                })}
+                icon={<IconKebabHorizontal height={11} width={11} />}
+                onClick={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onClickEdit(id)
+                }}
+              />
+            )}
+          </div>
+        ) : (
+          <span>{name}</span>
+        )}
+      </PlaylistNavLink>
+    </Droppable>
+  )
+}
+
 type PlaylistLibraryProps = {
   onClickNavLinkWithAccount: () => void
 }
@@ -259,6 +364,13 @@ const PlaylistLibrary = ({
     [dispatch, setIsEditFolderModalOpen]
   )
 
+  const handleClickEditPlaylist = useCallback(
+    playlistId => {
+      dispatch(openEditPlaylistModal(playlistId))
+    },
+    [dispatch]
+  )
+
   const onReorder = useCallback(
     (
       draggingId: ID | SmartCollectionVariant,
@@ -276,6 +388,7 @@ const PlaylistLibrary = ({
     const url = playlist.link
     return (
       <PlaylistNavLink
+        key={playlist.link}
         playlistId={name as SmartCollectionVariant}
         droppableKey={name as SmartCollectionVariant}
         name={name}
@@ -308,66 +421,26 @@ const PlaylistLibrary = ({
   )
 
   const renderPlaylist = (playlist: AccountCollection) => {
-    if (!account || !playlist) return
+    if (!account || !playlist) return null
     const { id, name } = playlist
     const url = playlistPage(playlist.user.handle, name, id)
     const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
     const hasUpdate = updates.includes(id)
     return (
-      <Droppable
+      <PlaylistNavItem
         key={id}
-        className={navColumnStyles.droppable}
-        hoverClassName={navColumnStyles.droppableHover}
-        onDrop={addTrack}
-        acceptedKinds={['track']}
-        disabled={!isOwner}
-      >
-        <PlaylistNavLink
-          droppableKey={id}
-          playlistId={id}
-          name={name}
-          link={url}
-          to={url}
-          onReorder={onReorder}
-          isActive={() => url === getPathname()}
-          activeClassName='active'
-          className={cn(navColumnStyles.link, {
-            [navColumnStyles.playlistUpdate]: hasUpdate,
-            [navColumnStyles.droppableLink]:
-              isOwner &&
-              dragging &&
-              (draggingKind === 'track' || draggingKind === 'playlist'),
-            [navColumnStyles.disabledLink]:
-              dragging &&
-              ((draggingKind !== 'track' &&
-                draggingKind !== 'playlist' &&
-                draggingKind !== 'library-playlist') ||
-                !isOwner)
-          })}
-          onClick={() => onClick(id, hasUpdate)}
-        >
-          {!!arePlaylistUpdatesEnabled && hasUpdate ? (
-            <div className={navColumnStyles.updateDotContainer}>
-              <Tooltip
-                className={navColumnStyles.updateDotTooltip}
-                shouldWrapContent={true}
-                shouldDismissOnClick={false}
-                mount={null}
-                mouseEnterDelay={0.1}
-                text='Recently Updated'
-              >
-                <div>
-                  <UpdateDot />
-                </div>
-              </Tooltip>
-              <span>{name}</span>
-            </div>
-          ) : (
-            <span>{name}</span>
-          )}
-        </PlaylistNavLink>
-      </Droppable>
+        playlist={playlist}
+        hasUpdate={Boolean(arePlaylistUpdatesEnabled) && hasUpdate}
+        url={url}
+        addTrack={addTrack}
+        isOwner={isOwner}
+        onReorder={onReorder}
+        dragging={dragging}
+        draggingKind={draggingKind}
+        onClickPlaylist={onClick}
+        onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
+      />
     )
   }
 
@@ -416,6 +489,7 @@ const PlaylistLibrary = ({
             case 'folder':
               return (
                 <PlaylistFolderNavItem
+                  key={content.id}
                   folder={content}
                   hasUpdate={false}
                   dragging={dragging}
