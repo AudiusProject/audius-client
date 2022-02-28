@@ -12,7 +12,7 @@ const messages = {
 
 const screenHeight = Dimensions.get('window').height
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ spacing }) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -20,7 +20,7 @@ const useStyles = makeStyles(() => ({
   },
   tiles: {},
   tileRoot: {
-    margin: 12
+    margin: spacing(3)
   },
   tile: {
     borderRadius: 6
