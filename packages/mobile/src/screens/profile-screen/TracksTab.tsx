@@ -1,15 +1,14 @@
 import { tracksActions } from 'audius-client/src/common/store/pages/profile/lineups/tracks/actions'
 import { getProfileTracksLineup } from 'audius-client/src/common/store/pages/profile/selectors'
-import { Text } from 'react-native'
 
-import { EmptyCard } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
+import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
 const messages = {
-  emptyTabText: "You haven't created any tracks yet"
+  emptyTabText: "haven't created any tracks yet"
 }
 
 export const TracksTab = () => {
@@ -20,9 +19,7 @@ export const TracksTab = () => {
 
   if (profile.track_count === 0) {
     return (
-      <EmptyCard>
-        <Text>{messages.emptyTabText}</Text>
-      </EmptyCard>
+      <EmptyProfileTile profile={profile} message={messages.emptyTabText} />
     )
   }
 

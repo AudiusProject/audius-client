@@ -2,14 +2,14 @@ import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/se
 import { feedActions } from 'audius-client/src/common/store/pages/profile/lineups/feed/actions'
 import { getProfileFeedLineup } from 'audius-client/src/common/store/pages/profile/selectors'
 
-import { EmptyCard, EmptyCardText } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
+import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
 const messages = {
-  emptyTabText: "You haven't reposted anything yet"
+  emptyTabText: "haven't reposted anything yet"
 }
 
 const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
@@ -22,9 +22,7 @@ export const RepostsTab = () => {
 
   if (profile.repost_count === 0) {
     return (
-      <EmptyCard>
-        <EmptyCardText>{messages.emptyTabText}</EmptyCardText>
-      </EmptyCard>
+      <EmptyProfileTile message={messages.emptyTabText} profile={profile} />
     )
   }
 
