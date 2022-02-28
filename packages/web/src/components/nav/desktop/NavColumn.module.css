@@ -401,10 +401,10 @@ svg.logo path {
 .updateDotContainer {
   display: flex;
   align-items: center;
-  position: absolute;
-  left: 30px;
+  /* margin left = -(6px width + 4px margin-right on update dot element) so that list items stay aligned */
+  margin-left: -10px;
 }
 
 .updateDotTooltip :global(.ant-tooltip-arrow) {
-  left: 33px;
+  left: 24px;
 }
