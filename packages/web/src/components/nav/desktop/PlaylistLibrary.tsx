@@ -217,7 +217,9 @@ const PlaylistFolderNavItem = ({
               [styles.hidden]: !isHovering || dragging
             })}
             icon={<IconKebabHorizontal height={11} width={11} />}
-            onClick={() => {
+            onClick={e => {
+              e.preventDefault()
+              e.stopPropagation()
               onClickEdit(id)
             }}
           />
