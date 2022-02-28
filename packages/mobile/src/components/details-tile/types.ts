@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ComponentType, ReactNode } from 'react'
 
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -24,6 +24,9 @@ export type DetailsTileProps = {
 
   /** Description of the item */
   description?: string
+
+  /** An icon to display instead of the image */
+  Icon?: ComponentType
 
   /** Has the current user reposted */
   hasReposted?: boolean
@@ -98,5 +101,5 @@ export type DetailsTileProps = {
   title: string
 
   /** User associated with the item */
-  user: User
+  user?: User
 }

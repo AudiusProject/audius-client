@@ -156,6 +156,10 @@ const createStyles = (themeColors: ThemeColors) =>
 
     link: {
       color: themeColors.primary
+    },
+
+    imageIcon: {
+      opacity: 0.3
     }
   })
 
@@ -176,6 +180,7 @@ export const DetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
+  Icon,
   imageUrl,
   onPressFavorites,
   onPressOverflow,
@@ -199,9 +204,12 @@ export const DetailsTile = ({
   const isPlaying = useSelector(getPlaying)
   const currentUserId = useSelectorWeb(getUserId)
 
-  const isOwner = user.user_id === currentUserId
+  const isOwner = user?.user_id === currentUserId
 
   const handlePressArtistName = useCallback(() => {
+    if (!user) {
+      return
+    }
     navigation.push({
       native: { screen: 'profile', params: { handle: user.handle } },
       web: { route: `/${user.handle}` }
@@ -257,7 +265,13 @@ export const DetailsTile = ({
     <DynamicImage
       source={{ uri: imageUrl }}
       styles={{ image: styles.coverArt as ImageStyle }}
-    />
+    >
+      {Icon && (
+        <View style={styles.imageIcon}>
+          <Icon />
+        </View>
+      )}
+    </DynamicImage>
   )
 
   return (
@@ -273,17 +287,19 @@ export const DetailsTile = ({
       <Text style={styles.title} weight='bold'>
         {title}
       </Text>
-      <TouchableOpacity onPress={handlePressArtistName}>
-        <View style={styles.artistContainer}>
-          <Text style={styles.artist}>{user.name}</Text>
-          <UserBadges
-            style={styles.badge}
-            badgeSize={16}
-            user={user}
-            hideName
-          />
-        </View>
-      </TouchableOpacity>
+      {user ? (
+        <TouchableOpacity onPress={handlePressArtistName}>
+          <View style={styles.artistContainer}>
+            <Text style={styles.artist}>{user.name}</Text>
+            <UserBadges
+              style={styles.badge}
+              badgeSize={16}
+              user={user}
+              hideName
+            />
+          </View>
+        </TouchableOpacity>
+      ) : null}
       <View style={styles.buttonSection}>
         <Button
           styles={{ text: styles.playButtonText }}

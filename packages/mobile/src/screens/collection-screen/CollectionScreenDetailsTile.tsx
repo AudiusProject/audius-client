@@ -1,22 +1,23 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { ID } from 'audius-client/src/common/models/Identifiers'
+import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { User } from 'audius-client/src/common/models/User'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import { getCollectionTracksLineup } from 'audius-client/src/common/store/pages/collection/selectors'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { formatSecondsAsText } from 'audius-client/src/common/utils/timeUtil'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
+import { tracksActions } from 'audius-client/src/pages/remixes-page/store/lineups/tracks/actions'
+import {
+  getPlaying,
+  makeGetCurrent
+} from 'audius-client/src/store/player/selectors'
+import { useSelector } from 'react-redux'
 
 import { DetailsTile } from 'app/components/details-tile'
 import { DetailsTileDetail } from 'app/components/details-tile/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { GestureResponderHandler } from 'app/types/gesture'
+import { make, track } from 'app/utils/analytics'
 import { formatCount } from 'app/utils/format'
 
 const messages = {
@@ -27,49 +28,56 @@ const messages = {
 }
 
 type CollectionScreenDetailsTileProps = {
-  extraDetails: DetailsTileDetail[]
-  onPressSave: GestureResponderHandler
-  onPressShare: GestureResponderHandler
-  onPressRepost: GestureResponderHandler
   description: string
-  isPrivate?: boolean
-  isAlbum?: boolean
+  extraDetails?: DetailsTileDetail[]
   hasReposted?: boolean
-  imageUrl: string
   hasSaved?: boolean
-  ownerId?: ID
-  saveCount?: number
+  hideFavoriteCount?: boolean
+  hideOverflow?: boolean
+  hideRepost?: boolean
+  hideRepostCount?: boolean
+  hideShare?: boolean
+  imageUrl: string
+  isAlbum?: boolean
+  isPrivate?: boolean
+  onPressOverflow?: GestureResponderHandler
+  onPressRepost?: GestureResponderHandler
+  onPressSave?: GestureResponderHandler
+  onPressShare?: GestureResponderHandler
   repostCount?: number
-  user: User
+  saveCount?: number
   title: string
+  user?: User
 }
 
+const getCurrentQueueItem = makeGetCurrent()
 const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
 export const CollectionScreenDetailsTile = ({
-  imageUrl,
-  extraDetails,
   description,
-  isPrivate,
+  extraDetails = [],
+  hasReposted,
+  hasSaved,
+  imageUrl,
   isAlbum,
+  isPrivate,
+  hideFavoriteCount,
+  hideOverflow,
+  hideRepost,
+  hideRepostCount,
+  hideShare,
+  onPressOverflow,
   onPressRepost,
   onPressSave,
   onPressShare,
-  hasReposted,
-  hasSaved,
-  saveCount,
-  ownerId,
   repostCount,
-  user,
+  saveCount,
   title,
-  ...detailsTileProps
+  user
 }: CollectionScreenDetailsTileProps) => {
-  const currentUserId = useSelectorWeb(getUserId)
   const dispatchWeb = useDispatchWeb()
   const tracksLineup = useSelectorWeb(getTracksLineup)
   const numTracks = tracksLineup.entries.length
-
-  const isOwner = currentUserId === ownerId
 
   const duration = tracksLineup.entries?.reduce(
     (duration, entry) => duration + entry.duration,
@@ -88,32 +96,43 @@ export const CollectionScreenDetailsTile = ({
     ...extraDetails
   ].filter(({ isHidden, value }) => !isHidden && !!value)
 
-  const handlePressOverflow = () => {
-    const overflowActions = [
-      isOwner || isPrivate
-        ? null
-        : hasReposted
-        ? OverflowAction.UNREPOST
-        : OverflowAction.REPOST,
-      isOwner || isPrivate
-        ? null
-        : hasSaved
-        ? OverflowAction.UNFAVORITE
-        : OverflowAction.FAVORITE,
-      !isAlbum && isOwner ? OverflowAction.EDIT_PLAYLIST : null,
-      isOwner && !isAlbum && isPrivate ? OverflowAction.PUBLISH_PLAYLIST : null,
-      isOwner && !isAlbum ? OverflowAction.DELETE_PLAYLIST : null,
-      OverflowAction.VIEW_ARTIST_PAGE
-    ].filter(Boolean) as OverflowAction[]
+  const isPlaying = useSelector(getPlaying)
+  const currentQueueItem = useSelector(getCurrentQueueItem)
+  const playingId = currentQueueItem.track?.track_id
+  const isQueued = tracksLineup.entries.some(
+    entry => currentQueueItem.uid === entry.uid
+  )
 
-    dispatchWeb(
-      openOverflowMenu({
-        source: OverflowSource.COLLECTIONS,
-        id: playlist_id,
-        overflowActions
-      })
-    )
-  }
+  const handlePressPlay = useCallback(() => {
+    if (isPlaying && isQueued) {
+      dispatchWeb(tracksActions.pause())
+      track(
+        make({
+          eventName: Name.PLAYBACK_PAUSE,
+          id: `${playingId}`,
+          source: PlaybackSource.PLAYLIST_PAGE
+        })
+      )
+    } else if (!isPlaying && isQueued) {
+      dispatchWeb(tracksActions.play())
+      track(
+        make({
+          eventName: Name.PLAYBACK_PLAY,
+          id: `${playingId}`,
+          source: PlaybackSource.PLAYLIST_PAGE
+        })
+      )
+    } else if (tracksLineup.entries.length > 0) {
+      dispatchWeb(tracksActions.play(tracksLineup.entries[0].uid))
+      track(
+        make({
+          eventName: Name.PLAYBACK_PLAY,
+          id: `${tracksLineup.entries[0].track_id}`,
+          source: PlaybackSource.PLAYLIST_PAGE
+        })
+      )
+    }
+  }, [dispatchWeb, isPlaying, playingId, tracksLineup, isQueued])
 
   const headerText = useMemo(() => {
     if (isAlbum) {
@@ -129,28 +148,28 @@ export const CollectionScreenDetailsTile = ({
 
   return (
     <DetailsTile
-      {...detailsTileProps}
       description={description ?? undefined}
       descriptionLinkPressSource='collection page'
       details={details}
-      imageUrl={imageUrl}
-      user={user}
-      hasSaved={hasSaved}
       hasReposted={hasReposted}
+      hasSaved={hasSaved}
       headerText={headerText}
-      //   hideRepost={isSmartCollection}
-      //   hideShare={isSmartCollection}
-      //   hideFavoriteCount={isSmartCollection}
-      //   hideRepostCount={isSmartCollection}
       hideListenCount={true}
-      onPressOverflow={handlePressOverflow}
+      hideFavoriteCount={hideFavoriteCount}
+      hideOverflow={hideOverflow}
+      hideRepost={hideRepost}
+      hideRepostCount={hideRepostCount}
+      hideShare={hideShare}
+      imageUrl={imageUrl}
+      onPressOverflow={onPressOverflow}
       onPressPlay={handlePressPlay}
       onPressRepost={onPressRepost}
       onPressSave={onPressSave}
       onPressShare={onPressShare}
-      saveCount={saveCount}
       repostCount={repostCount}
+      saveCount={saveCount}
       title={title}
+      user={user}
     />
   )
 }

@@ -1,8 +1,5 @@
-import { useCallback } from 'react'
-
 import {
   FavoriteSource,
-  Name,
   RepostSource,
   ShareSource
 } from 'audius-client/src/common/models/Analytics'
@@ -10,36 +7,26 @@ import { Collection } from 'audius-client/src/common/models/Collection'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import {
   repostCollection,
   saveCollection,
   undoRepostCollection,
   unsaveCollection
 } from 'audius-client/src/common/store/social/collections/actions'
+import {
+  OverflowAction,
+  OverflowSource
+} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
-import {
-  formatDate,
-  formatSecondsAsText
-} from 'audius-client/src/common/utils/timeUtil'
-import {
-  getCollection,
-  getCollectionStatus,
-  getCollectionTracksLineup,
-  getCollectionUid,
-  getUser,
-  getUserUid
-} from 'common/store/pages/collection/selectors'
+import { formatDate } from 'audius-client/src/common/utils/timeUtil'
+import { getCollection, getUser } from 'common/store/pages/collection/selectors'
+import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { StyleSheet, View } from 'react-native'
-import { useSelector } from 'react-redux'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
-import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { getPlaying } from 'app/store/audio/selectors'
-import { make, track } from 'app/utils/analytics'
-import { formatCount } from 'app/utils/format'
 import { ThemeColors } from 'app/utils/theme'
 
 import { CollectionScreenDetailsTile } from './CollectionScreenDetailsTile'
@@ -80,22 +67,25 @@ type CollectionScreenComponentProps = {
   collection: Collection
   user: User
 }
+
 const CollectionScreenComponent = ({
   collection,
   user
 }: CollectionScreenComponentProps) => {
   const styles = useThemedStyles(createStyles)
+  const dispatchWeb = useDispatchWeb()
   const {
     _cover_art_sizes,
-    is_private,
-    is_album,
-    has_current_user_saved,
+    description,
     has_current_user_reposted,
-    playlist_owner_id,
+    has_current_user_saved,
+    is_album,
+    is_private,
     playlist_id,
-    save_count,
-    repost_count,
     playlist_name,
+    playlist_owner_id,
+    repost_count,
+    save_count,
     updated_at
   } = collection
 
@@ -105,6 +95,9 @@ const CollectionScreenComponent = ({
     SquareSizes.SIZE_480_BY_480
   )
 
+  const currentUserId = useSelectorWeb(getUserId)
+  const isOwner = currentUserId === playlist_owner_id
+
   const extraDetails = [
     {
       label: 'Modified',
@@ -112,39 +105,34 @@ const CollectionScreenComponent = ({
     }
   ]
 
-  const isPlaying = useSelector(getPlaying)
-  const currentQueueItem = useSelector(getCurrentQueueItem)
+  const handlePressOverflow = () => {
+    const overflowActions = [
+      isOwner || is_private
+        ? null
+        : has_current_user_reposted
+        ? OverflowAction.UNREPOST
+        : OverflowAction.REPOST,
+      isOwner || is_private
+        ? null
+        : has_current_user_saved
+        ? OverflowAction.UNFAVORITE
+        : OverflowAction.FAVORITE,
+      !is_album && isOwner ? OverflowAction.EDIT_PLAYLIST : null,
+      isOwner && !is_album && is_private
+        ? OverflowAction.PUBLISH_PLAYLIST
+        : null,
+      isOwner && !is_album ? OverflowAction.DELETE_PLAYLIST : null,
+      OverflowAction.VIEW_ARTIST_PAGE
+    ].filter(Boolean) as OverflowAction[]
 
-  const handlePlay = useCallback(() => {
-    const trackPlay = () =>
-      track(
-        make({
-          eventName: Name.PLAYBACK_PLAY,
-          id: String(playingId),
-          source: PlaybackSource.TRACK_PAGE
-        })
-      )
-    if (isPlaying) {
-      dispatchWeb(tracksActions.pause())
-      record(
-        make({
-          eventName: Name.PLAYBACK_PAUSE,
-          id: String(track_id),
-          source: PlaybackSource.TRACK_PAGE
-        })
-      )
-    } else if (
-      playingUid !== uid &&
-      queueTrack &&
-      queueTrack?.trackId === track_id
-    ) {
-      dispatchWeb(tracksActions.play())
-      trackPlay()
-    } else {
-      dispatchWeb(tracksActions.play(uid))
-      trackPlay()
-    }
-  }, [playlist_id, uid, dispatchWeb, isPlaying, playingUid, queueTrack])
+    dispatchWeb(
+      openOverflowMenu({
+        source: OverflowSource.COLLECTIONS,
+        id: playlist_id,
+        overflowActions
+      })
+    )
+  }
 
   const handlePressSave = () => {
     if (has_current_user_saved) {
@@ -177,21 +165,21 @@ const CollectionScreenComponent = ({
     <View style={styles.root}>
       <View style={styles.headerContainer}>
         <CollectionScreenDetailsTile
-          onPressSave={handlePressSave}
-          onPressShare={handlePressShare}
-          onPressRepost={handlePressRepost}
-          onPressShare={handlePressShare}
+          description={description ?? ''}
           extraDetails={extraDetails}
-          imageUrl={imageUrl}
-          user={user}
-          isPrivate={is_private}
-          isAlbum={is_album}
           hasReposted={has_current_user_reposted}
           hasSaved={has_current_user_saved}
-          ownerId={playlist_owner_id}
-          saveCount={save_count}
+          imageUrl={imageUrl}
+          isAlbum={is_album}
+          isPrivate={is_private}
+          onPressOverflow={handlePressOverflow}
+          onPressRepost={handlePressRepost}
+          onPressSave={handlePressSave}
+          onPressShare={handlePressShare}
           repostCount={repost_count}
+          saveCount={save_count}
           title={playlist_name}
+          user={user}
         />
       </View>
     </View>
