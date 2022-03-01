@@ -99,7 +99,7 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
     appendSearchItem(user.name)
     const userRoute = getUserRoute(user)
     dispatch(closeSearch())
-    navigation.navigate({
+    navigation.push({
       native: { screen: 'profile', params: { handle: user.handle } },
       web: { route: userRoute, fromPage: 'search' }
     })
