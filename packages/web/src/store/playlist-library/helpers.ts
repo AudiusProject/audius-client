@@ -122,13 +122,13 @@ export const removeFromPlaylistLibrary = (
 
 export const constructPlaylistFolder = (
   name: string,
-  contents?: (PlaylistLibraryFolder | PlaylistLibraryIdentifier)[]
+  contents: (PlaylistLibraryFolder | PlaylistLibraryIdentifier)[] = []
 ): PlaylistLibraryFolder => {
   return {
     id: uuid(),
     type: 'folder',
     name,
-    contents: contents || []
+    contents: contents
   }
 }
 

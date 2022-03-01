@@ -46,12 +46,7 @@ type PlaylistNavLinkProps = NavLinkProps & {
   link?: string
 }
 
-type PlaylistFolderNavButtonProps = React.DetailedHTMLProps<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
-> & {
-  name: string
-  id: string
+type PlaylistFolderNavButtonProps = React.ComponentPropsWithoutRef<'button'> & {
   onReorder: () => void
 }
 
@@ -117,6 +112,7 @@ const FolderNavLink = ({
   const onDrop = useCallback(() => {
     setIsDragging(false)
   }, [setIsDragging])
+
   return (
     <Droppable
       key={id}
@@ -158,6 +154,11 @@ const PlaylistFolderNavItem = ({
   draggingKind: string
 }) => {
   const { id, name, contents } = folder
+  const isDroppableKind =
+    draggingKind === 'track' ||
+    draggingKind === 'playlist' ||
+    draggingKind === 'playlist-folder'
+
   return (
     <Droppable
       key={id}
@@ -171,17 +172,9 @@ const PlaylistFolderNavItem = ({
         name={name}
         onReorder={() => {}}
         className={cn(navColumnStyles.link, {
-          [navColumnStyles.droppableLink]:
-            dragging &&
-            (draggingKind === 'track' ||
-              draggingKind === 'playlist' ||
-              draggingKind === 'playlist-folder'),
+          [navColumnStyles.droppableLink]: dragging && isDroppableKind,
           [navColumnStyles.disabledLink]:
-            dragging &&
-            draggingKind !== 'track' &&
-            draggingKind !== 'playlist' &&
-            draggingKind !== 'library-playlist' &&
-            draggingKind !== 'playlist-folder'
+            dragging && !isDroppableKind && draggingKind !== 'library-playlist'
         })}
         onClick={() => {}}
       >
