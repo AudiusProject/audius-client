@@ -33,9 +33,9 @@ const linking: LinkingOptions<AppStackParamList> = {
             screens: {
               TrendingStack: {
                 screens: {
-                  thisWeek: 'trending/thisWeek',
-                  thisMonth: 'trending/thisMonth',
-                  thisYear: 'trending/thisYear'
+                  ThisWeek: 'trending/thisWeek',
+                  ThisMonth: 'trending/thisMonth',
+                  ThisYear: 'trending/thisYear'
                 }
               }
             }
@@ -67,12 +67,11 @@ const linking: LinkingOptions<AppStackParamList> = {
             screens: {
               ProfileStack: {
                 screens: {
-                  // tracks: '*',
-                  tracks: '*/tracks',
-                  albums: '*/albums',
-                  playlists: '*/playlists',
-                  reposts: '*/reposts',
-                  collectibles: '*/collectibles/*'
+                  Tracks: '*/tracks',
+                  Albums: '*/albums',
+                  Playlists: '*/playlists',
+                  Reposts: '*/reposts',
+                  Collectibles: '*/collectibles/*'
                 }
               }
             }

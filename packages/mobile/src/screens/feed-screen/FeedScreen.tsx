@@ -10,6 +10,7 @@ import {
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
 import { isEqual } from 'lodash'
 
+import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -51,7 +52,7 @@ export const FeedScreen = () => {
   }, [dispatchWeb])
 
   return (
-    <>
+    <Screen>
       <Header text={messages.header}>
         <FeedFilterButton
           onPress={handleFilterButtonPress}
@@ -67,6 +68,6 @@ export const FeedScreen = () => {
         refreshing={isRefreshing && feedLineup.isMetadataLoading}
         selfLoad
       />
-    </>
+    </Screen>
   )
 }
