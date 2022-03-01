@@ -4,6 +4,7 @@ import { getAccountUser } from 'audius-client/src/common/store/account/selectors
 import { LayoutAnimation, View } from 'react-native'
 import { useToggle } from 'react-use'
 
+import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
 import { TopBarIconButton } from 'app/components/app-navigator/TopBarIconButton'
 import { Screen, VirtualizedScrollView } from 'app/components/core'
@@ -11,6 +12,7 @@ import { ProfilePhoto } from 'app/components/user'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles/makeStyles'
+import { useThemeColors } from 'app/utils/theme'
 
 import { ArtistRecommendations } from './ArtistRecommendations/ArtistRecommendations'
 import { CoverPhoto } from './CoverPhoto'
@@ -19,6 +21,7 @@ import { ProfileInfo } from './ProfileInfo'
 import { ProfileMetrics } from './ProfileMetrics'
 import { ProfileSocials } from './ProfileSocials'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
+import { UploadTrackButton } from './UploadTrackButton'
 import { getProfile } from './selectors'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -36,6 +39,12 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   navigator: {
     height: '100%'
+  },
+  topBarIcons: {
+    flexDirection: 'row'
+  },
+  iconCrown: {
+    marginLeft: 4
   }
 }))
 
@@ -44,6 +53,7 @@ export const ProfileScreen = () => {
   const { profile } = useSelectorWeb(getProfile)
   const accountUser = useSelectorWeb(getAccountUser)
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
+  const { accentOrange } = useThemeColors()
 
   const navigation = useNavigation()
 
@@ -51,6 +61,13 @@ export const ProfileScreen = () => {
     navigation.push({
       native: { screen: 'SettingsScreen', params: undefined },
       web: { route: '/settings' }
+    })
+  }
+
+  const handleNavigateAudio = () => {
+    navigation.push({
+      native: { screen: 'AudioScreen', params: undefined },
+      web: { route: '/audio ' }
     })
   }
 
@@ -71,7 +88,16 @@ export const ProfileScreen = () => {
   const isOwner = accountUser?.user_id === profile.user_id
 
   const topbarLeft = isOwner ? (
-    <TopBarIconButton icon={IconSettings} onPress={handleNavigateSettings} />
+    <View style={styles.topBarIcons}>
+      <TopBarIconButton icon={IconSettings} onPress={handleNavigateSettings} />
+      <View style={styles.iconCrown}>
+        <TopBarIconButton
+          fill={accentOrange}
+          icon={IconCrown}
+          onPress={handleNavigateAudio}
+        />
+      </View>
+    </View>
   ) : undefined
 
   return (
@@ -90,6 +116,7 @@ export const ProfileScreen = () => {
               onClose={handleCloseArtistRecs}
             />
           )}
+          {!isOwner ? null : <UploadTrackButton />}
         </View>
         <View style={styles.navigator}>
           <ProfileTabNavigator profile={profile} />

@@ -8,6 +8,8 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { EditProfileScreen } from 'app/screens/edit-profile-screen/EditProfileScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
+import { SearchResultsScreen } from 'app/screens/search-results-screen'
+import { SearchScreen } from 'app/screens/search-screen'
 import { TrackScreen } from 'app/screens/track-screen'
 import {
   FavoritedScreen,
@@ -17,6 +19,12 @@ import {
 } from 'app/screens/user-list-screen'
 
 import { TopBar } from './TopBar'
+
+const forFade = ({ current }) => ({
+  cardStyle: {
+    opacity: current.progress
+  }
+})
 
 type BaseNavigatorProps = {
   baseScreen: (
@@ -47,18 +55,28 @@ export const BaseStackNavigator = ({
       }}
       screenListeners={({ navigation }) => ({
         beforeRemove: e => {
-          // When a screen is removed, notify the web layer to pop navigation
-          dispatchWeb({
-            type: MessageType.POP_ROUTE
-          })
+          // hack for now to prevent pop for some pages
+          if (!e.target?.includes('EditProfile')) {
+            // When a screen is removed, notify the web layer to pop navigation
+            dispatchWeb({
+              type: MessageType.POP_ROUTE
+            })
+          }
         }
       })}
     >
       {baseScreen(Stack)}
-      <Stack.Screen name='track' component={TrackScreen} />
-      <Stack.Screen name='collection' component={CollectionScreen} />
-      <Stack.Screen name='profile' component={ProfileScreen} />
-      <Stack.Screen name='EditProfile' component={EditProfileScreen} />
+      <Stack.Screen name='Track' component={TrackScreen} />
+      <Stack.Screen name='Collection' component={CollectionScreen} />
+      <Stack.Screen name='Profile' component={ProfileScreen} />
+      <Stack.Group>
+        <Stack.Screen
+          name='Search'
+          component={SearchScreen}
+          options={{ cardStyleInterpolator: forFade }}
+        />
+        <Stack.Screen name='SearchResults' component={SearchResultsScreen} />
+      </Stack.Group>
       <Stack.Group>
         <Stack.Screen name='FollowersScreen' component={FollowersScreen} />
         <Stack.Screen name='FollowingScreen' component={FollowingScreen} />

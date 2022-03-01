@@ -58,9 +58,6 @@ import deletePlaylistConfirmationReducer from 'common/store/ui/delete-playlist-c
 import { DeletePlaylistConfirmationModalState } from 'common/store/ui/delete-playlist-confirmation-modal/types'
 import mobileOverflowModalReducer from 'common/store/ui/mobile-overflow-menu/slice'
 import { MobileOverflowModalState } from 'common/store/ui/mobile-overflow-menu/types'
-import mobileUploadDrawerReducer, {
-  MobileUploadDrawerState
-} from 'common/store/ui/mobile-upload-drawer/slice'
 import modalsReducer, { ModalsState } from 'common/store/ui/modals/slice'
 import nowPlayingReducer, {
   NowPlayingState
@@ -121,7 +118,6 @@ export const reducers = (ctx: CommonStoreContext) => ({
     collectibleDetails: collectibleDetailsReducer,
     deletePlaylistConfirmationModal: deletePlaylistConfirmationReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
-    mobileUploadDrawer: mobileUploadDrawerReducer,
     modals: modalsReducer,
     nowPlaying: nowPlayingReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
@@ -242,7 +238,6 @@ export type CommonState = {
     collectibleDetails: CollectibleDetailsState
     deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
     mobileOverflowModal: MobileOverflowModalState
-    mobileUploadDrawer: MobileUploadDrawerState
     modals: ModalsState
     nowPlaying: NowPlayingState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState

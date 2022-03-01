@@ -2,35 +2,38 @@ import { NavigatorScreenParams } from '@react-navigation/native'
 import { ID } from 'audius-client/src/common/models/Identifiers'
 
 export type BaseStackParamList = {
-  track: { id: ID }
-  collection: { id: ID }
+  Track: { id: ID }
+  Profile: { handle: string }
+  Collection: { id: ID }
   profile: { handle: string }
   FavoritedScreen: undefined
   RepostsScreen: undefined
 }
 
 export type FeedStackParamList = BaseStackParamList & {
-  'feed-stack': undefined
+  FeedStack: undefined
 }
 
 export type TrendingStackParamList = BaseStackParamList & {
-  'trending-stack': undefined
+  TrendingStack: undefined
 }
 
 export type ExploreStackParamList = BaseStackParamList & {
-  'explore-stack': undefined
+  ExploreStack: undefined
 }
 
 export type FavoritesStackParamList = BaseStackParamList & {
-  'favorites-stack': undefined
+  FavoritesStack: undefined
 }
 
 export type ProfileStackParamList = BaseStackParamList & {
-  'profile-stack': undefined
+  ProfileStack: undefined
+  EditProfile: undefined
   SettingsScreen: undefined
   AboutScreen: undefined
   AccountSettingsScreen: undefined
   NotificationSettingsScreen: undefined
+  AudioScreen: undefined
 }
 
 export type SearchParamList = BaseStackParamList & {

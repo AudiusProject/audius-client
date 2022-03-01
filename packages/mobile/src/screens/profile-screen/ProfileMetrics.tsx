@@ -29,12 +29,14 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   value: {
     fontSize: 14,
     fontFamily: typography.fontByWeight.heavy,
+    lineHeight: 14,
     color: palette.neutral,
     marginRight: spacing(1)
   },
   label: {
     fontSize: 14,
     fontFamily: typography.fontByWeight.demiBold,
+    lineHeight: 14,
     color: palette.neutralLight4,
     textTransform: 'capitalize'
   }
@@ -53,17 +55,17 @@ export const ProfileMetrics = ({ profile }: ProfileMetricsProps) => {
 
   const handlePressFollowers = useCallback(() => {
     dispatchWeb(setFollowers(user_id))
-    navigation.navigate({
+    navigation.push({
       native: { screen: 'FollowersScreen', params: undefined },
-      web: { route: '/followers' }
+      web: { route: '/followers', fromPage: 'profile' }
     })
   }, [dispatchWeb, user_id, navigation])
 
   const handlePressFollowing = useCallback(() => {
     dispatchWeb(setFollowing(user_id))
-    navigation.navigate({
+    navigation.push({
       native: { screen: 'FollowingScreen', params: undefined },
-      web: { route: '/following' }
+      web: { route: '/following', fromPage: 'profile' }
     })
   }, [dispatchWeb, user_id, navigation])
 
