@@ -4,9 +4,8 @@ import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
 
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button } from 'app/components/core'
+import { MODAL_NAME } from 'app/components/mobile-upload-drawer'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-
-import { MODAL_NAME } from './UploadTrackDrawer'
 
 const messages = {
   uploadTrack: 'Upload Track'

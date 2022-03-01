@@ -17,7 +17,6 @@ import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
 import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-drawer'
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
-import { UploadTrackDrawer } from 'app/screens/profile-screen'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 export const Drawers = () => {
@@ -43,7 +42,6 @@ export const Drawers = () => {
       <FeedFilterDrawer />
       <TrendingFilterDrawer />
       <TiersExplainerDrawer />
-      <UploadTrackDrawer />
       {/* Disable the audio breakdown drawer until we get
       the feature flags to work for native mobile */}
       {/* <AudioBreakdownDrawer /> */}
