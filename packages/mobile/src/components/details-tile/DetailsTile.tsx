@@ -39,16 +39,11 @@ const messages = {
 
 const createStyles = (themeColors: ThemeColors) =>
   StyleSheet.create({
-    root: {
-      paddingTop: 16,
+    topContent: {
       paddingHorizontal: 24,
+      paddingTop: 16,
       width: '100%',
-      alignItems: 'center',
-      backgroundColor: themeColors.white,
-      borderWidth: 1,
-      borderColor: themeColors.neutralLight8,
-      borderRadius: 6,
-      overflow: 'hidden'
+      alignItems: 'center'
     },
 
     typeLabel: {
@@ -265,86 +260,91 @@ export const DetailsTile = ({
   )
 
   return (
-    <Tile styles={{ content: styles.root }}>
-      {renderHeader ? (
-        renderHeader()
-      ) : (
-        <Text style={styles.typeLabel} weight='demiBold'>
-          {headerText}
+    <Tile>
+      <View style={styles.topContent}>
+        {renderHeader ? (
+          renderHeader()
+        ) : (
+          <Text style={styles.typeLabel} weight='demiBold'>
+            {headerText}
+          </Text>
+        )}
+        <View style={styles.coverArtWrapper}>
+          {renderImage ? renderImage() : imageElement}
+        </View>
+        <Text style={styles.title} weight='bold'>
+          {title}
         </Text>
-      )}
-      <View style={styles.coverArtWrapper}>
-        {renderImage ? renderImage() : imageElement}
-      </View>
-      <Text style={styles.title} weight='bold'>
-        {title}
-      </Text>
-      {user ? (
-        <TouchableOpacity onPress={handlePressArtistName}>
-          <View style={styles.artistContainer}>
-            <Text style={styles.artist}>{user.name}</Text>
-            <UserBadges
-              style={styles.badge}
-              badgeSize={16}
-              user={user}
-              hideName
-            />
-          </View>
-        </TouchableOpacity>
-      ) : null}
-      <View style={styles.buttonSection}>
-        <Button
-          styles={{ text: styles.playButtonText }}
-          title={isPlaying ? messages.pause : messages.play}
-          size='large'
-          iconPosition='left'
-          icon={isPlaying ? IconPause : IconPlay}
-          onPress={onPressPlay}
-          fullWidth
-        />
-        <DetailsTileActionButtons
-          hasReposted={!!hasReposted}
-          hasSaved={!!hasSaved}
-          hideFavorite={hideFavorite}
-          hideOverflow={hideOverflow}
-          hideRepost={hideRepost}
-          hideShare={hideShare}
-          isOwner={isOwner}
-          onPressOverflow={onPressOverflow}
-          onPressRepost={onPressRepost}
-          onPressSave={onPressSave}
-          onPressShare={onPressShare}
-        />
-      </View>
-      <DetailsTileStats
-        favoriteCount={saveCount}
-        hideFavoriteCount={hideFavoriteCount}
-        hideListenCount={hideListenCount}
-        hideRepostCount={hideRepostCount}
-        onPressFavorites={onPressFavorites}
-        onPressReposts={onPressReposts}
-        playCount={playCount}
-        repostCount={repostCount}
-      />
-      <View style={styles.descriptionContainer}>
-        {description ? (
-          <HyperLink onPress={handleExternalLinkClick} linkStyle={styles.link}>
-            <Text style={styles.description} suppressHighlighting>
-              {squashNewLines(description)}
-            </Text>
-          </HyperLink>
+        {user ? (
+          <TouchableOpacity onPress={handlePressArtistName}>
+            <View style={styles.artistContainer}>
+              <Text style={styles.artist}>{user.name}</Text>
+              <UserBadges
+                style={styles.badge}
+                badgeSize={16}
+                user={user}
+                hideName
+              />
+            </View>
+          </TouchableOpacity>
         ) : null}
-      </View>
-      <View
-        style={[
-          styles.infoSection,
-          hideFavoriteCount &&
-            hideListenCount &&
-            hideRepostCount &&
-            styles.noStats
-        ]}
-      >
-        {renderDetailLabels()}
+        <View style={styles.buttonSection}>
+          <Button
+            styles={{ text: styles.playButtonText }}
+            title={isPlaying ? messages.pause : messages.play}
+            size='large'
+            iconPosition='left'
+            icon={isPlaying ? IconPause : IconPlay}
+            onPress={onPressPlay}
+            fullWidth
+          />
+          <DetailsTileActionButtons
+            hasReposted={!!hasReposted}
+            hasSaved={!!hasSaved}
+            hideFavorite={hideFavorite}
+            hideOverflow={hideOverflow}
+            hideRepost={hideRepost}
+            hideShare={hideShare}
+            isOwner={isOwner}
+            onPressOverflow={onPressOverflow}
+            onPressRepost={onPressRepost}
+            onPressSave={onPressSave}
+            onPressShare={onPressShare}
+          />
+        </View>
+        <DetailsTileStats
+          favoriteCount={saveCount}
+          hideFavoriteCount={hideFavoriteCount}
+          hideListenCount={hideListenCount}
+          hideRepostCount={hideRepostCount}
+          onPressFavorites={onPressFavorites}
+          onPressReposts={onPressReposts}
+          playCount={playCount}
+          repostCount={repostCount}
+        />
+        <View style={styles.descriptionContainer}>
+          {description ? (
+            <HyperLink
+              onPress={handleExternalLinkClick}
+              linkStyle={styles.link}
+            >
+              <Text style={styles.description} suppressHighlighting>
+                {squashNewLines(description)}
+              </Text>
+            </HyperLink>
+          ) : null}
+        </View>
+        <View
+          style={[
+            styles.infoSection,
+            hideFavoriteCount &&
+              hideListenCount &&
+              hideRepostCount &&
+              styles.noStats
+          ]}
+        >
+          {renderDetailLabels()}
+        </View>
       </View>
       {renderBottomContent?.()}
     </Tile>

@@ -33,7 +33,7 @@ export type SmartCollection = {
   has_current_user_saved?: boolean
   incentivized?: boolean // Whether we reward winners with Audio
   cardSensitivity?: number
-  screen?: string
+  screen?: 'TrendingUnderground' | 'UnderTheRadar'
 }
 
 export const HEAVY_ROTATION: SmartCollection = {

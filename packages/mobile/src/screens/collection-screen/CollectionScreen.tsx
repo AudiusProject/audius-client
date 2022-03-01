@@ -33,6 +33,7 @@ import { getCollection, getUser } from 'common/store/pages/collection/selectors'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
 import { View } from 'react-native'
 
+import { VirtualizedScrollView } from 'app/components/core'
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
@@ -46,8 +47,7 @@ const useStyles = makeStyles(({ spacing }) => ({
     padding: spacing(3)
   },
   headerContainer: {
-    // TODO: Figure out why screen isn't scrolling
-    marginBottom: spacing(4)
+    marginBottom: 240
   }
 }))
 
@@ -143,7 +143,15 @@ const CollectionScreenComponent = ({
         overflowActions
       })
     )
-  }, [])
+  }, [
+    dispatchWeb,
+    playlist_id,
+    isOwner,
+    is_album,
+    is_private,
+    has_current_user_reposted,
+    has_current_user_saved
+  ])
 
   const handlePressSave = useCallback(() => {
     if (has_current_user_saved) {
@@ -151,7 +159,7 @@ const CollectionScreenComponent = ({
     } else {
       dispatchWeb(saveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
     }
-  }, [])
+  }, [dispatchWeb, playlist_id, has_current_user_saved])
 
   const handlePressShare = useCallback(() => {
     dispatchWeb(
@@ -161,7 +169,7 @@ const CollectionScreenComponent = ({
         source: ShareSource.PAGE
       })
     )
-  }, [])
+  }, [dispatchWeb, playlist_id])
 
   const handlePressRepost = useCallback(() => {
     if (has_current_user_reposted) {
@@ -171,7 +179,7 @@ const CollectionScreenComponent = ({
     } else {
       dispatchWeb(repostCollection(playlist_id, RepostSource.COLLECTION_PAGE))
     }
-  }, [])
+  }, [dispatchWeb, playlist_id, has_current_user_reposted])
 
   const handlePressFavorites = useCallback(() => {
     dispatchWeb(setFavorite(playlist_id, FavoriteType.PLAYLIST))
@@ -190,7 +198,10 @@ const CollectionScreenComponent = ({
   }, [dispatchWeb, playlist_id, navigation])
 
   return (
-    <View style={styles.root}>
+    <VirtualizedScrollView
+      listKey={`playlist-${collection.playlist_id}`}
+      style={styles.root}
+    >
       <View style={styles.headerContainer}>
         <CollectionScreenDetailsTile
           description={description ?? ''}
@@ -212,6 +223,6 @@ const CollectionScreenComponent = ({
           user={user}
         />
       </View>
-    </View>
+    </VirtualizedScrollView>
   )
 }

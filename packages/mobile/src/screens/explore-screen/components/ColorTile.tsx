@@ -1,4 +1,4 @@
-import { ReactNode, useCallback } from 'react'
+import { ComponentType, ReactNode, useCallback } from 'react'
 
 import {
   Image,
@@ -11,6 +11,7 @@ import {
   ViewStyle
 } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
+import { SvgProps } from 'react-native-svg'
 
 import IconAudioRewardsPill from 'app/assets/images/iconAudioRewardsPill.svg'
 import Text from 'app/components/text'
@@ -29,7 +30,7 @@ type ColorTileProps = {
   gradientAngle?: number
   shadowColor?: string
   shadowOpacity?: number
-  icon?: React.FC
+  icon?: ComponentType<SvgProps>
   emoji?: ReactNode
   isIncentivized?: boolean
 }
