@@ -135,12 +135,14 @@ const createStyles = (themeColors: ThemeColors) =>
       ...flexRowCentered(),
       color: themeColors.neutralLight5,
       fontSize: 14,
+      lineHeight: 14,
       textTransform: 'uppercase',
       marginRight: 8
     },
 
     infoValue: {
       ...flexRowCentered(),
+      lineHeight: 14,
       color: themeColors.neutral,
       fontSize: 14
     },
