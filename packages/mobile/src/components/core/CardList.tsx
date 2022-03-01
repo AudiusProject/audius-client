@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { FlatList, FlatListProps, ListRenderItem, View } from 'react-native'
 
-import { EmptyTile } from '.'
+import { EmptyTile } from './EmptyTile'
 
 export type CardListProps<ItemT> = FlatListProps<ItemT> & {
   emptyListText?: string

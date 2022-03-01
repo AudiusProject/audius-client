@@ -27,7 +27,7 @@ export const AlbumsTab = () => {
   return (
     <CollectionList
       listKey='profile-albums'
-      collection={[]}
+      collection={userAlbums}
       emptyListText={emptyListText}
     />
   )
