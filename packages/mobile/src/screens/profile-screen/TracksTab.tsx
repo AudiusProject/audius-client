@@ -17,9 +17,10 @@ export const TracksTab = () => {
 
   const loadMore = useCallback(
     (offset: number, limit: number) => {
+      if (!profile) return
       dispatchWeb(
         tracksActions.fetchLineupMetadatas(offset, limit, false, {
-          userId: profile?.user_id
+          userId: profile.user_id
         })
       )
     },
