@@ -101,7 +101,6 @@ const Tab = createBottomTabNavigator()
 
 type BottomTabNavigatorProps = {
   onBottomTabBarLayout: BottomTabBarProps['onLayout']
-  nativeScreens: Set<string>
 }
 
 /**
@@ -112,7 +111,6 @@ type BottomTabNavigatorProps = {
  * because of the way the top level navigator is hidden to display the WebView
  */
 export const BottomTabNavigator = ({
-  nativeScreens,
   onBottomTabBarLayout
 }: BottomTabNavigatorProps) => {
   // Set handlers for the NowPlayingDrawer and BottomTabBar

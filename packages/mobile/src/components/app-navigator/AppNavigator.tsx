@@ -106,7 +106,6 @@ const AppNavigator = () => {
             >
               {() => (
                 <BottomTabNavigator
-                  nativeScreens={nativeScreens}
                   onBottomTabBarLayout={handleBottomTabBarLayout}
                 />
               )}
