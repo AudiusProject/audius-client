@@ -1,9 +1,8 @@
-import { ReactNode, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import Status from 'audius-client/src/common/models/Status'
-import { User } from 'audius-client/src/common/models/User'
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import { tracksActions } from 'audius-client/src/common/store/pages/collection/lineup/actions'
 import { getCollectionTracksLineup } from 'audius-client/src/common/store/pages/collection/selectors'
@@ -12,13 +11,15 @@ import { Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { DetailsTile } from 'app/components/details-tile'
-import { DetailsTileDetail } from 'app/components/details-tile/types'
+import {
+  DetailsTileDetail,
+  DetailsTileProps
+} from 'app/components/details-tile/types'
 import { TrackList } from 'app/components/track-list'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
-import { GestureResponderHandler } from 'app/types/gesture'
 import { make, track } from 'app/utils/analytics'
 import { formatCount } from 'app/utils/format'
 
@@ -45,57 +46,22 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 }))
 
 type CollectionScreenDetailsTileProps = {
-  description: string
-  extraDetails?: DetailsTileDetail[]
-  hasReposted?: boolean
-  hasSaved?: boolean
-  hideFavoriteCount?: boolean
-  hideOverflow?: boolean
-  hideRepost?: boolean
-  hideRepostCount?: boolean
-  hideShare?: boolean
-  imageUrl?: string
   isAlbum?: boolean
   isPrivate?: boolean
-  onPressFavorites?: GestureResponderHandler
-  onPressOverflow?: GestureResponderHandler
-  onPressRepost?: GestureResponderHandler
-  onPressReposts?: GestureResponderHandler
-  onPressSave?: GestureResponderHandler
-  onPressShare?: GestureResponderHandler
-  renderImage?: () => ReactNode
-  repostCount?: number
-  saveCount?: number
-  title: string
-  user?: User
-}
+  extraDetails?: DetailsTileDetail[]
+} & Omit<
+  DetailsTileProps,
+  'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
+>
 
 const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
 export const CollectionScreenDetailsTile = ({
   description,
   extraDetails = [],
-  hasReposted,
-  hasSaved,
-  imageUrl,
   isAlbum,
   isPrivate,
-  hideFavoriteCount,
-  hideOverflow,
-  hideRepost,
-  hideRepostCount,
-  hideShare,
-  onPressFavorites,
-  onPressOverflow,
-  onPressRepost,
-  onPressReposts,
-  onPressSave,
-  onPressShare,
-  renderImage,
-  repostCount,
-  saveCount,
-  title,
-  user
+  ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
@@ -213,32 +179,13 @@ export const CollectionScreenDetailsTile = ({
 
   return (
     <DetailsTile
-      description={description ?? undefined}
+      {...detailsTileProps}
       descriptionLinkPressSource='collection page'
       details={details}
-      hasReposted={hasReposted}
-      hasSaved={hasSaved}
       headerText={headerText}
       hideListenCount={true}
-      hideFavoriteCount={hideFavoriteCount}
-      hideOverflow={hideOverflow}
-      hideRepost={hideRepost}
-      hideRepostCount={hideRepostCount}
-      hideShare={hideShare}
-      imageUrl={imageUrl}
-      onPressFavorites={onPressFavorites}
-      onPressOverflow={onPressOverflow}
-      onPressPlay={handlePressPlay}
-      onPressRepost={onPressRepost}
-      onPressReposts={onPressReposts}
-      onPressSave={onPressSave}
-      onPressShare={onPressShare}
-      renderImage={renderImage}
       renderBottomContent={renderTrackList}
-      repostCount={repostCount}
-      saveCount={saveCount}
-      title={title}
-      user={user}
+      onPressPlay={handlePressPlay}
     />
   )
 }
