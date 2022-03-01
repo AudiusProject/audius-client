@@ -31,26 +31,25 @@ import {
 } from 'audius-client/src/utils/route'
 import { getCollection, getUser } from 'common/store/pages/collection/selectors'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ThemeColors } from 'app/utils/theme'
+import { makeStyles } from 'app/styles'
 
 import { CollectionScreenDetailsTile } from './CollectionScreenDetailsTile'
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    root: {
-      padding: 12
-    },
-    headerContainer: {
-      marginBottom: 24
-    }
-  })
+const useStyles = makeStyles(({ spacing }) => ({
+  root: {
+    padding: spacing(3)
+  },
+  headerContainer: {
+    // TODO: Figure out why screen isn't scrolling
+    marginBottom: spacing(4)
+  }
+}))
 
 /**
  * `CollectionScreen` displays the details of a collection
@@ -83,7 +82,7 @@ const CollectionScreenComponent = ({
   collection,
   user
 }: CollectionScreenComponentProps) => {
-  const styles = useThemedStyles(createStyles)
+  const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
   const navigation = useNavigation()
   const {

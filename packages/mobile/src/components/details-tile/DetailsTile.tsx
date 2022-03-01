@@ -156,10 +156,6 @@ const createStyles = (themeColors: ThemeColors) =>
 
     link: {
       color: themeColors.primary
-    },
-
-    imageIcon: {
-      opacity: 0.3
     }
   })
 
@@ -180,7 +176,6 @@ export const DetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
-  Icon,
   imageUrl,
   onPressFavorites,
   onPressOverflow,
@@ -190,12 +185,13 @@ export const DetailsTile = ({
   onPressSave,
   onPressShare,
   playCount,
+  renderBottomContent,
+  renderHeader,
+  renderImage,
   repostCount,
   saveCount,
   headerText,
   title,
-  renderBottomContent,
-  renderHeader,
   user
 }: DetailsTileProps) => {
   const styles = useThemedStyles(createStyles)
@@ -265,13 +261,7 @@ export const DetailsTile = ({
     <DynamicImage
       source={{ uri: imageUrl }}
       styles={{ image: styles.coverArt as ImageStyle }}
-    >
-      {Icon && (
-        <View style={styles.imageIcon}>
-          <Icon />
-        </View>
-      )}
-    </DynamicImage>
+    />
   )
 
   return (
@@ -283,7 +273,9 @@ export const DetailsTile = ({
           {headerText}
         </Text>
       )}
-      <View style={styles.coverArtWrapper}>{imageElement}</View>
+      <View style={styles.coverArtWrapper}>
+        {renderImage ? renderImage() : imageElement}
+      </View>
       <Text style={styles.title} weight='bold'>
         {title}
       </Text>

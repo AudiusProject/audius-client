@@ -25,9 +25,6 @@ export type DetailsTileProps = {
   /** Description of the item */
   description?: string
 
-  /** An icon to display instead of the image */
-  Icon?: ComponentType
-
   /** Has the current user reposted */
   hasReposted?: boolean
 
@@ -59,7 +56,7 @@ export type DetailsTileProps = {
   hideShare?: boolean
 
   /** Url of the image */
-  imageUrl: string
+  imageUrl?: string
 
   /** Function to call when the favorites count is pressed */
   onPressFavorites?: GestureResponderHandler
@@ -90,6 +87,9 @@ export type DetailsTileProps = {
 
   /** Render function for the header */
   renderHeader?: () => ReactNode
+
+  /** Render function for the image */
+  renderImage?: () => ReactNode
 
   /** Amount of reposts on this item */
   repostCount?: number

@@ -1,11 +1,11 @@
-import { useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useMemo } from 'react'
 
 import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { User } from 'audius-client/src/common/models/User'
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
+import { tracksActions } from 'audius-client/src/common/store/pages/collection/lineup/actions'
 import { getCollectionTracksLineup } from 'audius-client/src/common/store/pages/collection/selectors'
 import { formatSecondsAsText } from 'audius-client/src/common/utils/timeUtil'
-import { tracksActions } from 'audius-client/src/pages/remixes-page/store/lineups/tracks/actions'
 import { useSelector } from 'react-redux'
 
 import { DetailsTile } from 'app/components/details-tile'
@@ -34,7 +34,7 @@ type CollectionScreenDetailsTileProps = {
   hideRepost?: boolean
   hideRepostCount?: boolean
   hideShare?: boolean
-  imageUrl: string
+  imageUrl?: string
   isAlbum?: boolean
   isPrivate?: boolean
   onPressFavorites?: GestureResponderHandler
@@ -43,6 +43,7 @@ type CollectionScreenDetailsTileProps = {
   onPressReposts?: GestureResponderHandler
   onPressSave?: GestureResponderHandler
   onPressShare?: GestureResponderHandler
+  renderImage?: () => ReactNode
   repostCount?: number
   saveCount?: number
   title: string
@@ -70,6 +71,7 @@ export const CollectionScreenDetailsTile = ({
   onPressReposts,
   onPressSave,
   onPressShare,
+  renderImage,
   repostCount,
   saveCount,
   title,
@@ -168,6 +170,7 @@ export const CollectionScreenDetailsTile = ({
       onPressReposts={onPressReposts}
       onPressSave={onPressSave}
       onPressShare={onPressShare}
+      renderImage={renderImage}
       repostCount={repostCount}
       saveCount={saveCount}
       title={title}

@@ -23,7 +23,7 @@ type ColorTileProps = {
   style?: StyleProp<ViewStyle>
   title: string
   link: string
-  screen?: 'TrendingUnderground'
+  screen?: 'TrendingUnderground' | 'UnderTheRadar'
   description?: string
   gradientColors?: string[]
   gradientAngle?: number
