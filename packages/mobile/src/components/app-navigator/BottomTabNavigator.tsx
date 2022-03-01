@@ -1,4 +1,4 @@
-import React, { ComponentType, useCallback, useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { ParamListBase } from '@react-navigation/native'
@@ -31,10 +31,6 @@ import {
   TrendingStackParamList
 } from './types'
 
-const EmptyScreen = () => {
-  return <View />
-}
-
 const styles = StyleSheet.create({
   tabNavigator: {
     position: 'absolute',
@@ -62,16 +58,16 @@ const createStackScreen = <StackParamList extends ParamListBase>(
  * An example stack for the feed screen
  */
 const FeedStackScreen = createStackScreen<FeedStackParamList>(Stack => (
-  <Stack.Screen name='feed-stack' component={FeedScreen} />
+  <Stack.Screen name='FeedStack' component={FeedScreen} />
 ))
 
 const TrendingStackScreen = createStackScreen<TrendingStackParamList>(Stack => (
-  <Stack.Screen name='trending-stack' component={TrendingScreen} />
+  <Stack.Screen name='TrendingStack' component={TrendingScreen} />
 ))
 
 const ExploreStackScreen = createStackScreen<ExploreStackParamList>(Stack => (
   <>
-    <Stack.Screen name='explore-stack' component={ExploreScreen} />
+    <Stack.Screen name='ExploreStack' component={ExploreScreen} />
     <Stack.Screen
       name='TrendingUnderground'
       component={TrendingUndergroundScreen}
@@ -80,12 +76,12 @@ const ExploreStackScreen = createStackScreen<ExploreStackParamList>(Stack => (
 ))
 
 const FavoritesStackScreen = createStackScreen<FavoritesStackParamList>(
-  Stack => <Stack.Screen name='favorites-stack' component={FavoritesScreen} />
+  Stack => <Stack.Screen name='FavoritesStack' component={FavoritesScreen} />
 )
 
 const ProfileStackScreen = createStackScreen<ProfileStackParamList>(Stack => (
   <>
-    <Stack.Screen name='profile-stack' component={ProfileScreen} />
+    <Stack.Screen name='ProfileStack' component={ProfileScreen} />
     <Stack.Screen name='EditProfile' component={EditProfileScreen} />
     <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
     <Stack.Screen name='AboutScreen' component={AboutScreen} />
@@ -136,13 +132,6 @@ export const BottomTabNavigator = ({
     setBottomBarDisplay({ isShowing: true })
   }, [setBottomBarDisplay])
 
-  const screen = (name: string, Component: ComponentType<any>) => (
-    <Tab.Screen
-      name={name}
-      component={nativeScreens.has(name) ? Component : EmptyScreen}
-    />
-  )
-
   return (
     <View style={styles.tabNavigator}>
       <Tab.Navigator
@@ -163,11 +152,11 @@ export const BottomTabNavigator = ({
         )}
         screenOptions={{ headerShown: false, unmountOnBlur: true }}
       >
-        {screen('feed', FeedStackScreen)}
-        {screen('trending', TrendingStackScreen)}
-        {screen('explore', ExploreStackScreen)}
-        {screen('favorites', FavoritesStackScreen)}
-        {screen('profile', ProfileStackScreen)}
+        <Tab.Screen name='feed' component={FeedStackScreen} />
+        <Tab.Screen name='trending' component={TrendingStackScreen} />
+        <Tab.Screen name='explore' component={ExploreStackScreen} />
+        <Tab.Screen name='favorites' component={FavoritesStackScreen} />
+        <Tab.Screen name='profile' component={ProfileStackScreen} />
       </Tab.Navigator>
     </View>
   )

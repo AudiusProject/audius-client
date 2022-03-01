@@ -24,14 +24,14 @@ const linking: LinkingOptions<AppStackParamList> = {
         screens: {
           feed: {
             screens: {
-              'feed-stack': 'feed',
+              FeedStack: 'feed',
               track: '*/*',
               profile: '*'
             }
           },
           trending: {
             screens: {
-              'trending-stack': {
+              TrendingStack: {
                 screens: {
                   thisWeek: 'trending/thisWeek',
                   thisMonth: 'trending/thisMonth',
@@ -42,7 +42,7 @@ const linking: LinkingOptions<AppStackParamList> = {
           },
           explore: {
             screens: {
-              'explore-stack': {
+              ExploreStack: {
                 screens: {
                   forYou: 'explore/forYou',
                   moods: 'explore/moods',
@@ -54,7 +54,7 @@ const linking: LinkingOptions<AppStackParamList> = {
           },
           favorites: {
             screens: {
-              'favorites-stack': {
+              FavoritesStack: {
                 screens: {
                   tracks: 'favorites/tracks',
                   albums: 'favorites/albums',
@@ -65,7 +65,7 @@ const linking: LinkingOptions<AppStackParamList> = {
           },
           profile: {
             screens: {
-              'profile-stack': {
+              ProfileStack: {
                 screens: {
                   // tracks: '*',
                   tracks: '*/tracks',
