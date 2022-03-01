@@ -8,13 +8,16 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 const messages = {
   you: 'You',
   haveNot: "haven't",
-  hasNot: "hasn't"
+  hasNot: "hasn't",
+  tracks: 'created any tracks yet',
+  albums: 'created any albums yet',
+  playlists: 'created any playlists yet',
+  reposts: 'reposted anything yet'
 }
 
-export const useEmptyProfileText = (
-  profile: Nullable<User>,
-  baseMessage: string
-) => {
+type Tab = 'tracks' | 'albums' | 'playlists' | 'reposts'
+
+export const useEmptyProfileText = (profile: Nullable<User>, tab: Tab) => {
   const accountUser = useSelectorWeb(getAccountUser)
 
   if (!profile) return ''
@@ -22,17 +25,17 @@ export const useEmptyProfileText = (
   const isOwner = user_id === accountUser?.user_id
   const youAction = `${messages.you} ${messages.haveNot}`
   const nameAction = `${name} ${messages.hasNot}`
-  return `${isOwner ? youAction : nameAction} ${baseMessage}`
+  return `${isOwner ? youAction : nameAction} ${messages[tab]}`
 }
 
 type EmptyProfileTileProps = {
   profile: User
-  message: string
+  tab: Tab
 }
 
 export const EmptyProfileTile = (props: EmptyProfileTileProps) => {
-  const { message, profile } = props
-  const emptyText = useEmptyProfileText(profile, message)
+  const { tab, profile } = props
+  const emptyText = useEmptyProfileText(profile, tab)
 
   return <EmptyTile message={emptyText} />
 }

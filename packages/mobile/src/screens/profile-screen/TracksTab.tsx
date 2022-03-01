@@ -7,10 +7,6 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
-const messages = {
-  emptyTabText: 'created any tracks yet'
-}
-
 export const TracksTab = () => {
   const { profile } = useSelectorWeb(getProfile)
   const lineup = useSelectorWeb(getProfileTracksLineup)
@@ -18,9 +14,7 @@ export const TracksTab = () => {
   if (!profile) return null
 
   if (profile.track_count === 0) {
-    return (
-      <EmptyProfileTile profile={profile} message={messages.emptyTabText} />
-    )
+    return <EmptyProfileTile profile={profile} tab='tracks' />
   }
 
   return (

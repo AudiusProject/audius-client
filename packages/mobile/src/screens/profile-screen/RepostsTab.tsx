@@ -8,10 +8,6 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
-const messages = {
-  emptyTabText: 'reposted anything yet'
-}
-
 const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
 
 export const RepostsTab = () => {
@@ -21,9 +17,7 @@ export const RepostsTab = () => {
   if (!profile) return null
 
   if (profile.repost_count === 0) {
-    return (
-      <EmptyProfileTile message={messages.emptyTabText} profile={profile} />
-    )
+    return <EmptyProfileTile profile={profile} tab='reposts' />
   }
 
   return (

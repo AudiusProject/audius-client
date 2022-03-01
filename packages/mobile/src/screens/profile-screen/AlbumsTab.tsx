@@ -7,10 +7,6 @@ import { CollectionList } from '../../components/collection-list/CollectionList'
 import { useEmptyProfileText } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
-const messages = {
-  emptyTabText: 'created any albums yet'
-}
-
 export const AlbumsTab = () => {
   const { profile, albums } = useSelectorWeb(getProfile)
 
@@ -20,7 +16,7 @@ export const AlbumsTab = () => {
     }
   }, [profile, albums])
 
-  const emptyListText = useEmptyProfileText(profile, messages.emptyTabText)
+  const emptyListText = useEmptyProfileText(profile, 'albums')
 
   if (!userAlbums) return null
 
