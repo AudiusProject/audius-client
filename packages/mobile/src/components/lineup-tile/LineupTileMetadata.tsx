@@ -1,7 +1,5 @@
 import { useCallback } from 'react'
 
-import { ID } from 'audius-client/src/common/models/Identifiers'
-import { CoverArtSizes } from 'audius-client/src/common/models/ImageSizes'
 import { Remix } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
 import { Pressable, StyleSheet, View } from 'react-native'

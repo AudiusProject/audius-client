@@ -14,6 +14,7 @@ import LinearGradient from 'react-native-linear-gradient'
 import { SvgProps } from 'react-native-svg'
 
 import IconAudioRewardsPill from 'app/assets/images/iconAudioRewardsPill.svg'
+import { ExploreStackParamList } from 'app/components/app-navigator/types'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
@@ -133,7 +134,7 @@ export const ColorTile = ({
   isIncentivized
 }: ColorTileProps) => {
   const styles = useThemedStyles(createStyles)
-  const navigation = useNavigation()
+  const navigation = useNavigation<ExploreStackParamList>()
 
   const handlePress = useCallback(() => {
     if (screen) {

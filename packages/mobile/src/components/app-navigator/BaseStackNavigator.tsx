@@ -6,7 +6,6 @@ import { MessageType } from 'audius-client/src/services/native-mobile-interface/
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
-import { EditProfileScreen } from 'app/screens/edit-profile-screen/EditProfileScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
 import { SearchResultsScreen } from 'app/screens/search-results-screen'
 import { SearchScreen } from 'app/screens/search-screen'

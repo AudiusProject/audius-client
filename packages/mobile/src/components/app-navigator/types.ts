@@ -5,7 +5,6 @@ export type BaseStackParamList = {
   Track: { id: ID }
   Profile: { handle: string }
   Collection: { id: ID }
-  profile: { handle: string }
   FavoritedScreen: undefined
   RepostsScreen: undefined
 }
@@ -20,6 +19,8 @@ export type TrendingStackParamList = BaseStackParamList & {
 
 export type ExploreStackParamList = BaseStackParamList & {
   ExploreStack: undefined
+  TrendingUnderground: undefined
+  UnderTheRadar: undefined
 }
 
 export type FavoritesStackParamList = BaseStackParamList & {
@@ -34,6 +35,8 @@ export type ProfileStackParamList = BaseStackParamList & {
   AccountSettingsScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
+  FollowersScreen: undefined
+  FollowingScreen: undefined
 }
 
 export type SearchParamList = BaseStackParamList & {
