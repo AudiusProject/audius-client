@@ -64,8 +64,8 @@ export const BaseStackNavigator = ({
       })}
     >
       {baseScreen(Stack)}
-      <Stack.Screen name='track' component={TrackScreen} />
-      <Stack.Screen name='profile' component={ProfileScreen} />
+      <Stack.Screen name='Track' component={TrackScreen} />
+      <Stack.Screen name='Profile' component={ProfileScreen} />
       <Stack.Group>
         <Stack.Screen
           name='Search'

@@ -2,8 +2,8 @@ import { NavigatorScreenParams } from '@react-navigation/native'
 import { ID } from 'audius-client/src/common/models/Identifiers'
 
 export type BaseStackParamList = {
-  track: { id: ID }
-  profile: { handle: string }
+  Track: { id: ID }
+  Profile: { handle: string }
 }
 
 export type FeedStackParamList = BaseStackParamList & {

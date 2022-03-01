@@ -25,8 +25,8 @@ const linking: LinkingOptions<AppStackParamList> = {
           feed: {
             screens: {
               FeedStack: 'feed',
-              track: '*/*',
-              profile: '*'
+              Track: '*/*',
+              Profile: '*'
             }
           },
           trending: {

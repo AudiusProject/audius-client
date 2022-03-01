@@ -43,7 +43,7 @@ export const UserChip = (props: UserChipProps) => {
 
   const handlePress = useCallback(() => {
     navigation.push({
-      native: { screen: 'profile', params: { handle } },
+      native: { screen: 'Profile', params: { handle } },
       web: { route: handle }
     })
   }, [navigation, handle])
