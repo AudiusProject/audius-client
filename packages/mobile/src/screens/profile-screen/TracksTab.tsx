@@ -8,7 +8,7 @@ import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
 const messages = {
-  emptyTabText: "haven't created any tracks yet"
+  emptyTabText: 'created any tracks yet'
 }
 
 export const TracksTab = () => {

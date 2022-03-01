@@ -33,7 +33,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => {
     emptyCardTextEmoji: {
       height: 20,
       width: 20,
-      marginLeft: 4
+      marginLeft: spacing(1)
     },
     emptyCardText: cardText,
     secondaryCardText: {

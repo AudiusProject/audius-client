@@ -9,7 +9,7 @@ import { EmptyProfileTile } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
 const messages = {
-  emptyTabText: "haven't reposted anything yet"
+  emptyTabText: 'reposted anything yet'
 }
 
 const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)

@@ -8,7 +8,7 @@ import { useEmptyProfileText } from './EmptyProfileTile'
 import { getProfile } from './selectors'
 
 const messages = {
-  emptyTabText: "haven't created any albums yet"
+  emptyTabText: 'created any albums yet'
 }
 
 export const AlbumsTab = () => {
