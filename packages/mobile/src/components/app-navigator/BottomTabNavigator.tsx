@@ -161,7 +161,7 @@ export const BottomTabNavigator = ({
             />
           </>
         )}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ headerShown: false, unmountOnBlur: true }}
       >
         {screen('feed', FeedStackScreen)}
         {screen('trending', TrendingStackScreen)}
