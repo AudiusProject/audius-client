@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
 import Drawer from 'app/components/drawer'
-import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
+import { useDrawer } from 'app/hooks/useDrawer'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import {
   getPlaying,
@@ -87,7 +87,7 @@ const NowPlayingDrawer = ({
 }: NowPlayingDrawerProps) => {
   const insets = useSafeAreaInsets()
 
-  const { isOpen, onOpen, onClose } = useNativeDrawer('NowPlaying')
+  const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 

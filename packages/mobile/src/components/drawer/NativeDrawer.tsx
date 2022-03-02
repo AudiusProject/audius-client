@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { SetOptional } from 'type-fest'
 
-import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
+import { useDrawer } from 'app/hooks/useDrawer'
 import { Drawer as DrawerName } from 'app/store/drawers/slice'
 
 import Drawer, { DrawerProps } from './Drawer'
@@ -12,12 +12,13 @@ type NativeDrawerProps = SetOptional<DrawerProps, 'isOpen' | 'onClose'> & {
 }
 
 /*
- *
+ * Drawer that hooks into the native-drawer slice to automatically handle
+ * opening and closing.
  */
 export const NativeDrawer = (props: NativeDrawerProps) => {
   const { drawerName, onClose: onCloseProp, ...other } = props
 
-  const { isOpen, onClose, onClosed } = useNativeDrawer(drawerName)
+  const { isOpen, onClose, onClosed } = useDrawer(drawerName)
 
   const handleClose = useCallback(() => {
     onCloseProp?.()

@@ -18,7 +18,7 @@ import { Button, GradientText } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
+import { useDrawer } from 'app/hooks/useDrawer'
 import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -118,7 +118,7 @@ const createStyles = (themeColors: ThemeColors) =>
 
 export const EnablePushNotificationsDrawer = () => {
   const dispatchWeb = useDispatchWeb()
-  const { onClose } = useNativeDrawer('EnablePushNotifications')
+  const { onClose } = useDrawer('EnablePushNotifications')
   const styles = useThemedStyles(createStyles)
   const {
     background,

@@ -26,7 +26,7 @@ import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 import { DiscordDrawer } from './components/discord-drawer'
 import { useDrawerState } from './components/drawer'
-import { useNativeDrawer } from './hooks/useNativeDrawer'
+import { useDrawer } from './hooks/useDrawer'
 import { Drawer } from './store/drawers/slice'
 
 type CommonDrawerProps = {
@@ -54,7 +54,7 @@ type NativeDrawerProps = {
  * Conditionally renders the drawers hooked up to native store/drawers slice
  */
 const NativeDrawer = ({ drawer: Drawer, drawerName }: NativeDrawerProps) => {
-  const { visibleState } = useNativeDrawer(drawerName)
+  const { visibleState } = useDrawer(drawerName)
 
   if (visibleState === false) return null
 
