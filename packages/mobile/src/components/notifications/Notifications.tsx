@@ -309,8 +309,6 @@ export const Notifications = ({ webRef }: NotificationsProps) => {
     backgroundColor: 'background'
   })
 
-  console.log(drawerStatus)
-
   const panProps = canShowNotifications ? panResponder.panHandlers : {}
 
   return isSignedIn ? (
