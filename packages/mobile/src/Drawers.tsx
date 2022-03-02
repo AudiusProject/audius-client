@@ -1,3 +1,7 @@
+import { ComponentType } from 'react'
+
+import { Modals } from 'audius-client/src/common/store/ui/modals/slice'
+
 import { AddToPlaylistDrawer } from 'app/components/add-to-playlist-drawer'
 import { ApiRewardsDrawer } from 'app/components/api-rewards-drawer/ApiRewardsDrawer'
 import { TiersExplainerDrawer } from 'app/components/audio-rewards'
@@ -23,8 +27,14 @@ import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 import { DiscordDrawer } from './components/discord-drawer'
 import { useDrawerState } from './components/drawer'
 import { useNativeDrawer } from './hooks/useDrawer'
+import { Drawer } from './store/drawers/slice'
 
-const CommonDrawer = ({ modal: Modal, modalName }) => {
+type CommonDrawerProps = {
+  modal: ComponentType
+  modalName: Modals
+}
+
+const CommonDrawer = ({ modal: Modal, modalName }: CommonDrawerProps) => {
   const { modalState } = useDrawerState(modalName)
 
   if (modalState === false) return null
@@ -32,7 +42,12 @@ const CommonDrawer = ({ modal: Modal, modalName }) => {
   return <Modal />
 }
 
-const NativeDrawer = ({ drawer: Drawer, drawerName }) => {
+type NativeDrawerProps = {
+  drawer: ComponentType
+  drawerName: Drawer
+}
+
+const NativeDrawer = ({ drawer: Drawer, drawerName }: NativeDrawerProps) => {
   const { visibleState } = useNativeDrawer(drawerName)
 
   if (visibleState === false) return null
@@ -40,7 +55,7 @@ const NativeDrawer = ({ drawer: Drawer, drawerName }) => {
   return <Drawer />
 }
 
-const commonDrawersMap = {
+const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   TiersExplainer: TiersExplainerDrawer,
   TrendingRewardsExplainer: TrendingRewardsDrawer,
   ChallengeRewardsExplainer: ChallengeRewardsDrawer,
@@ -63,15 +78,21 @@ const commonDrawersMap = {
    */
 }
 
-const nativeDrawersMap = {
+const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer
 }
 
-const commonDrawers = Object.entries(commonDrawersMap)
+const commonDrawers = Object.entries(commonDrawersMap) as [
+  Modals,
+  ComponentType
+][]
 
-const nativeDrawers = Object.entries(nativeDrawersMap)
+const nativeDrawers = Object.entries(nativeDrawersMap) as [
+  Drawer,
+  ComponentType
+][]
 
 export const Drawers = () => {
   return (
