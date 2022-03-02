@@ -11,6 +11,7 @@ import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 import { NavLink, NavLinkProps } from 'react-router-dom'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { Name } from 'common/models/Analytics'
 import { SmartCollection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
@@ -32,7 +33,7 @@ import UpdateDot from 'components/update-dot/UpdateDot'
 import { useArePlaylistUpdatesEnabled } from 'hooks/useRemoteConfig'
 import { SMART_COLLECTION_MAP } from 'pages/smart-collection/smartCollections'
 import { make, useRecord } from 'store/analytics/actions'
-import { open as openEditFolderModal } from 'store/application/ui/editFolderModal/slice'
+import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { reorderPlaylistLibrary } from 'store/playlist-library/helpers'
 import { update } from 'store/playlist-library/slice'
@@ -248,12 +249,14 @@ const PlaylistLibrary = ({
     isEnabled: arePlaylistUpdatesEnabled
   } = useArePlaylistUpdatesEnabled()
   const record = useRecord()
+  const [, setIsEditFolderModalOpen] = useModalState('EditFolder')
 
   const handleClickEditFolder = useCallback(
     folderId => {
-      dispatch(openEditFolderModal(folderId))
+      dispatch(setEditFolderModalFolderId(folderId))
+      setIsEditFolderModalOpen(true)
     },
-    [dispatch]
+    [dispatch, setIsEditFolderModalOpen]
   )
 
   const onReorder = useCallback(

@@ -462,8 +462,8 @@ describe('addFolderToLibrary', () => {
       contents: [],
       type: 'folder'
     }
-    const ret = addFolderToLibrary(library, folder)
-    const expectedRet = {
+    const result = addFolderToLibrary(library, folder)
+    const expectedResult = {
       contents: [
         { type: 'playlist', playlist_id: 1 },
         { type: 'playlist', playlist_id: 2 },
@@ -477,7 +477,7 @@ describe('addFolderToLibrary', () => {
         }
       ]
     }
-    expect(ret).toEqual(expectedRet)
+    expect(result).toEqual(expectedResult)
   })
 
   it('works with a null library', () => {
@@ -488,8 +488,8 @@ describe('addFolderToLibrary', () => {
       contents: [],
       type: 'folder'
     }
-    const ret = addFolderToLibrary(library, folder)
-    const expectedRet = {
+    const result = addFolderToLibrary(library, folder)
+    const expectedResult = {
       contents: [
         {
           id: 'fake-uuid',
@@ -499,7 +499,7 @@ describe('addFolderToLibrary', () => {
         }
       ]
     }
-    expect(ret).toEqual(expectedRet)
+    expect(result).toEqual(expectedResult)
   })
 
   it('works with an empty library', () => {
@@ -512,8 +512,8 @@ describe('addFolderToLibrary', () => {
       contents: [],
       type: 'folder'
     }
-    const ret1 = addFolderToLibrary(emptyLibrary1, folder)
-    const expectedRet1 = {
+    const result1 = addFolderToLibrary(emptyLibrary1, folder)
+    const expectedResult1 = {
       contents: [
         {
           id: 'fake-uuid',
@@ -523,11 +523,11 @@ describe('addFolderToLibrary', () => {
         }
       ]
     }
-    expect(ret1).toEqual(expectedRet1)
+    expect(result1).toEqual(expectedResult1)
 
     const emptyLibrary2 = null
-    const ret2 = addFolderToLibrary(emptyLibrary2, folder)
-    const expectedRet2 = {
+    const result2 = addFolderToLibrary(emptyLibrary2, folder)
+    const expectedResult2 = {
       contents: [
         {
           id: 'fake-uuid',
@@ -537,7 +537,7 @@ describe('addFolderToLibrary', () => {
         }
       ]
     }
-    expect(ret2).toEqual(expectedRet2)
+    expect(result2).toEqual(expectedResult2)
   })
 })
 
@@ -553,8 +553,12 @@ describe('renamePlaylistFolderInLibrary', () => {
       ]
     }
 
-    const ret = renamePlaylistFolderInLibrary(library, 'fake-uuid', 'Foldera')
-    const expectedRet = {
+    const result = renamePlaylistFolderInLibrary(
+      library,
+      'fake-uuid',
+      'Foldera'
+    )
+    const expectedResult = {
       contents: [
         { type: 'playlist', playlist_id: 1 },
         { type: 'playlist', playlist_id: 2 },
@@ -568,7 +572,7 @@ describe('renamePlaylistFolderInLibrary', () => {
         { type: 'temp_playlist', playlist_id: 'asdf' }
       ]
     }
-    expect(ret).toEqual(expectedRet)
+    expect(result).toEqual(expectedResult)
   })
 
   it('is a no op if the given folder is not in the library', () => {
@@ -581,11 +585,11 @@ describe('renamePlaylistFolderInLibrary', () => {
         { type: 'temp_playlist', playlist_id: 'asdf' }
       ]
     }
-    const ret = renamePlaylistFolderInLibrary(
+    const result = renamePlaylistFolderInLibrary(
       library,
       'fake-uuid-not-in-library',
       'new name'
     )
-    expect(ret).toEqual({ ...library })
+    expect(result).toEqual({ ...library })
   })
 })

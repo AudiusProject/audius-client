@@ -9,14 +9,12 @@ import {
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { PlaylistLibraryFolder } from 'common/models/PlaylistLibrary'
 import { getPlaylistLibrary } from 'common/store/account/selectors'
 import FolderForm from 'components/create-playlist/FolderForm'
-import {
-  getFolderId,
-  getIsOpen
-} from 'store/application/ui/editFolderModal/selectors'
-import { close } from 'store/application/ui/editFolderModal/slice'
+import { getFolderId } from 'store/application/ui/editFolderModal/selectors'
+import { setFolderId } from 'store/application/ui/editFolderModal/slice'
 import { renamePlaylistFolderInLibrary } from 'store/playlist-library/helpers'
 import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import { useSelector } from 'utils/reducer'
@@ -29,9 +27,9 @@ const messages = {
 }
 
 const EditFolderModal = () => {
-  const isOpen = useSelector(getIsOpen)
   const folderId = useSelector(getFolderId)
   const playlistLibrary = useSelector(getPlaylistLibrary)
+  const [isOpen, setIsOpen] = useModalState('EditFolder')
   const folder =
     playlistLibrary == null || folderId == null
       ? null
@@ -42,22 +40,21 @@ const EditFolderModal = () => {
   const dispatch = useDispatch()
 
   const handleClose = useCallback(() => {
-    dispatch(close())
-  }, [dispatch])
+    dispatch(setFolderId(null))
+    setIsOpen(false)
+  }, [dispatch, setIsOpen])
 
   const handleSubmit = useCallback(
     (newName: string) => {
       if (playlistLibrary == null || folderId == null || folder == null) return
-      if (newName === folder.name) {
-        handleClose()
-        return
+      if (newName !== folder.name) {
+        const newLibrary = renamePlaylistFolderInLibrary(
+          playlistLibrary,
+          folderId,
+          newName
+        )
+        dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary }))
       }
-      const newLibrary = renamePlaylistFolderInLibrary(
-        playlistLibrary,
-        folderId,
-        newName
-      )
-      dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary }))
       handleClose()
     },
     [dispatch, folder, folderId, handleClose, playlistLibrary]
