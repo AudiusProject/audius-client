@@ -141,7 +141,7 @@ const createStyles = (themeColors: ThemeColors) =>
     },
 
     infoValue: {
-      ...flexRowCentered(),
+      flexShrink: 1,
       lineHeight: 14,
       color: themeColors.neutral,
       fontSize: 14

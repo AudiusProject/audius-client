@@ -56,6 +56,16 @@ type CollectionScreenDetailsTileProps = {
 
 const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
+const recordPlay = (id, play = true) => {
+  track(
+    make({
+      eventName: play ? Name.PLAYBACK_PLAY : Name.PLAYBACK_PAUSE,
+      id: String(id),
+      source: PlaybackSource.PLAYLIST_PAGE
+    })
+  )
+}
+
 export const CollectionScreenDetailsTile = ({
   description,
   extraDetails = [],
@@ -74,8 +84,8 @@ export const CollectionScreenDetailsTile = ({
     0
   )
 
-  const details =
-    numTracks > 0
+  const details = useMemo(() => {
+    return numTracks > 0
       ? [
           {
             label: 'Tracks',
@@ -88,6 +98,7 @@ export const CollectionScreenDetailsTile = ({
           ...extraDetails
         ].filter(({ isHidden, value }) => !isHidden && !!value)
       : []
+  }, [numTracks, duration, extraDetails])
 
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getPlayingUid)
@@ -95,16 +106,6 @@ export const CollectionScreenDetailsTile = ({
   const trackId = playingTrack?.trackId
 
   const isQueued = tracksLineup.entries.some(entry => playingUid === entry.uid)
-
-  const recordPlay = (id, play = true) => {
-    track(
-      make({
-        eventName: play ? Name.PLAYBACK_PLAY : Name.PLAYBACK_PAUSE,
-        id: String(id),
-        source: PlaybackSource.PLAYLIST_PAGE
-      })
-    )
-  }
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {

@@ -16,10 +16,10 @@ import { makeStyles } from 'app/styles'
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    padding: 12
+    padding: spacing(3)
   },
   headerContainer: {
-    marginBottom: 24
+    marginBottom: 240
   },
   imageIcon: {
     opacity: 0.3,

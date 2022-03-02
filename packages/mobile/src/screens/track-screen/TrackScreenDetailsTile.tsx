@@ -66,7 +66,7 @@ type TrackScreenDetailsTileProps = {
   uid: UID
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, spacing }) => ({
   tags: {
     borderTopWidth: 1,
     borderTopColor: palette.neutralLight7,
@@ -74,28 +74,32 @@ const useStyles = makeStyles(({ palette }) => ({
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    paddingVertical: 16
+    paddingVertical: spacing(4)
   },
 
   tag: {
-    margin: 4,
+    margin: spacing(1),
     borderRadius: 2,
     backgroundColor: palette.neutralLight4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingVertical: spacing(1),
+    paddingHorizontal: spacing(2),
     color: palette.white,
     textTransform: 'uppercase',
     overflow: 'hidden'
   },
 
   moodEmoji: {
-    marginLeft: 4,
+    marginLeft: spacing(1),
     width: 20,
     height: 20
   },
 
   hiddenDetailsTileWrapper: {
-    marginBottom: 12
+    marginBottom: spacing(3)
+  },
+
+  bottomContent: {
+    marginHorizontal: spacing(3)
   }
 }))
 
@@ -296,21 +300,17 @@ export const TrackScreenDetailsTile = ({
       return null
     }
 
-    return (
-      <>
-        {filteredTags.length > 0 ? (
-          <View style={styles.tags}>
-            {filteredTags.map(tag => (
-              <Pressable key={tag} onPress={() => handlePressTag(tag)}>
-                <Text style={styles.tag} variant='label'>
-                  {tag}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-      </>
-    )
+    return filteredTags.length > 0 ? (
+      <View style={styles.tags}>
+        {filteredTags.map(tag => (
+          <Pressable key={tag} onPress={() => handlePressTag(tag)}>
+            <Text style={styles.tag} variant='label'>
+              {tag}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    ) : null
   }
 
   const renderDownloadButtons = () => {
@@ -326,10 +326,10 @@ export const TrackScreenDetailsTile = ({
 
   const renderBottomContent = () => {
     return (
-      <>
+      <View style={styles.bottomContent}>
         {renderDownloadButtons()}
         {renderTags()}
-      </>
+      </View>
     )
   }
 
