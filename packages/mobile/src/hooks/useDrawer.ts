@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { useDispatch, useSelector } from 'react-redux'
 
 import { getVisibility } from 'app/store/drawers/selectors'
@@ -14,11 +16,32 @@ import { Drawer, setVisibility } from 'app/store/drawers/slice'
  */
 export const useDrawer = (
   drawer: Drawer
-): [boolean, (isVisible: boolean) => void] => {
+): [boolean, (isVisible: boolean) => void, boolean | 'closing'] => {
   const dispatch = useDispatch()
   const isOpen = useSelector(getVisibility(drawer))
-  const setIsOpen = (visible: boolean) =>
-    dispatch(setVisibility({ drawer, visible }))
+  const setIsOpen = (visible: boolean, closed?: boolean) => {
+    let visibleStatus = visible ? true : ('closing' as const)
+    if (closed) {
+      visibleStatus = false
+    }
+    dispatch(setVisibility({ drawer, visible: visibleStatus }))
+  }
 
-  return [isOpen, setIsOpen]
+  return [isOpen === true, setIsOpen, isOpen]
+}
+
+export const useNativeDrawer = (drawerName: Drawer) => {
+  const dispatch = useDispatch()
+  const visibleState = useSelector(getVisibility(drawerName))
+
+  const isOpen = visibleState === true
+  const onClose = useCallback(() => {
+    dispatch(setVisibility({ drawer: drawerName, visible: 'closing' }))
+  }, [dispatch, drawerName])
+
+  const onClosed = useCallback(() => {
+    dispatch(setVisibility({ drawer: drawerName, visible: false }))
+  }, [dispatch, drawerName])
+
+  return { isOpen, onClose, onClosed, visibleState }
 }

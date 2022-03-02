@@ -21,35 +21,76 @@ import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 import { DiscordDrawer } from './components/discord-drawer'
+import { useDrawerState } from './components/drawer'
+import { useNativeDrawer } from './hooks/useDrawer'
+
+const CommonDrawer = ({ modal: Modal, modalName }) => {
+  const { modalState } = useDrawerState(modalName)
+
+  if (modalState === false) return null
+
+  return <Modal />
+}
+
+const NativeDrawer = ({ drawer: Drawer, drawerName }) => {
+  const { visibleState } = useNativeDrawer(drawerName)
+
+  if (visibleState === false) return null
+
+  return <Drawer />
+}
+
+const commonDrawersMap = {
+  TiersExplainer: TiersExplainerDrawer,
+  TrendingRewardsExplainer: TrendingRewardsDrawer,
+  ChallengeRewardsExplainer: ChallengeRewardsDrawer,
+  APIRewardsExplainer: ApiRewardsDrawer,
+  TransferAudioMobileWarning: TransferAudioMobileDrawer,
+  MobileConnectWalletsDrawer: ConnectWalletsDrawer,
+  MobileEditCollectiblesDrawer: EditCollectiblesDrawer,
+  Share: ShareDrawer,
+  ShareSoundToTikTok: ShareToTikTokDrawer,
+  CollectibleDetails: CollectibleDetailsDrawer,
+  DeactivateAccountConfirmation: DeactivateAccountConfirmationDrawer,
+  Cognito: CognitoDrawer,
+  FeedFilter: FeedFilterDrawer,
+  TrendingGenreSelection: TrendingFilterDrawer,
+  MobileUpload: MobileUploadDrawer,
+  Overflow: OverflowMenuDrawer
+  /* Disable the audio breakdown drawer until we get
+   * the feature flags to work for native mobile
+   * AudioBreakdown: AudioBreakdownDrawer
+   */
+}
+
+const nativeDrawersMap = {
+  EnablePushNotifications: EnablePushNotificationsDrawer,
+  DownloadTrackProgress: DownloadTrackProgressDrawer,
+  ForgotPassword: ForgotPasswordDrawer
+}
+
+const commonDrawers = Object.entries(commonDrawersMap)
+
+const nativeDrawers = Object.entries(nativeDrawersMap)
 
 export const Drawers = () => {
   return (
     <>
-      <MobileUploadDrawer />
-      <EnablePushNotificationsDrawer />
-      <CollectibleDetailsDrawer />
-      <ConnectWalletsDrawer />
-      <EditCollectiblesDrawer />
-      <OverflowMenuDrawer />
-      <DeactivateAccountConfirmationDrawer />
-      <DownloadTrackProgressDrawer />
-      <TransferAudioMobileDrawer />
-      <TrendingRewardsDrawer />
-      <ApiRewardsDrawer />
+      {commonDrawers.map(([modalName, Modal]) => {
+        return (
+          <CommonDrawer modal={Modal} modalName={modalName} key={modalName} />
+        )
+      })}
+      {nativeDrawers.map(([drawerName, Drawer]) => (
+        <NativeDrawer
+          key={drawerName}
+          drawerName={drawerName}
+          drawer={Drawer}
+        />
+      ))}
       <AddToPlaylistDrawer />
-      <ShareToTikTokDrawer />
-      <ChallengeRewardsDrawer />
-      <CognitoDrawer />
-      <ShareDrawer />
-      <ForgotPasswordDrawer />
-      <FeedFilterDrawer />
-      <TrendingFilterDrawer />
-      <TiersExplainerDrawer />
       <SignOutConfirmationDrawer />
       <DiscordDrawer />
-      {/* Disable the audio breakdown drawer until we get
-      the feature flags to work for native mobile */}
-      {/* <AudioBreakdownDrawer /> */}
     </>
   )
 }
