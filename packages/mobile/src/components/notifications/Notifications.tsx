@@ -86,11 +86,6 @@ export const Notifications = ({ webRef }: NotificationsProps) => {
 
   useEffect(() => {
     setDrawerStatus(isOpen ? 'open' : 'closed')
-    if (isOpen) {
-      setDrawerStatus('open')
-    } else {
-      setDrawerStatus('closed')
-    }
   }, [isOpen])
 
   const handleOpen = useCallback(() => {
