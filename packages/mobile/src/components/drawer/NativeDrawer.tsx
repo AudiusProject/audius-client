@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { SetOptional } from 'type-fest'
 
-import { useNativeDrawer } from 'app/hooks/useDrawer'
+import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
 import { Drawer as DrawerName } from 'app/store/drawers/slice'
 
 import Drawer, { DrawerProps } from './Drawer'
@@ -11,6 +11,9 @@ type NativeDrawerProps = SetOptional<DrawerProps, 'isOpen' | 'onClose'> & {
   drawerName: DrawerName
 }
 
+/*
+ *
+ */
 export const NativeDrawer = (props: NativeDrawerProps) => {
   const { drawerName, onClose: onCloseProp, ...other } = props
 

@@ -18,7 +18,7 @@ import { Button, GradientText } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useNativeDrawer } from 'app/hooks/useDrawer'
+import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
 import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useThemeColors } from 'app/utils/theme'
 

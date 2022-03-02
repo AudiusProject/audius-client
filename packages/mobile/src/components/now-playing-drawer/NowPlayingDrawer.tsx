@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
 import Drawer from 'app/components/drawer'
-import { useDrawer } from 'app/hooks/useDrawer'
+import { useNativeDrawer } from 'app/hooks/useNativeDrawer'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import {
   getPlaying,
@@ -81,13 +81,13 @@ type NowPlayingDrawerProps = {
 }
 
 const NowPlayingDrawer = ({
-  onOpen,
-  onClose,
+  onOpen: onOpenProp,
+  onClose: onCloseProp,
   bottomBarTranslationAnim
 }: NowPlayingDrawerProps) => {
   const insets = useSafeAreaInsets()
 
-  const [isOpen, setIsOpen] = useDrawer('NowPlaying')
+  const { isOpen, onOpen, onClose } = useNativeDrawer('NowPlaying')
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
@@ -113,17 +113,17 @@ const NowPlayingDrawer = ({
 
   const onDrawerClose = useCallback(() => {
     springToValue(playBarOpacityAnim, 1, DrawerAnimationStyle.SPRINGY)
-    setIsOpen(false)
-    setIsPlayBarShowing(true)
     onClose()
-  }, [setIsOpen, setIsPlayBarShowing, onClose, playBarOpacityAnim])
+    setIsPlayBarShowing(true)
+    onCloseProp()
+  }, [setIsPlayBarShowing, onClose, onCloseProp, playBarOpacityAnim])
 
   const onDrawerOpen = useCallback(() => {
     springToValue(playBarOpacityAnim, 0, DrawerAnimationStyle.SPRINGY)
-    setIsOpen(true)
-    setIsPlayBarShowing(false)
     onOpen()
-  }, [setIsOpen, setIsPlayBarShowing, onOpen, playBarOpacityAnim])
+    setIsPlayBarShowing(false)
+    onOpenProp()
+  }, [setIsPlayBarShowing, onOpen, onOpenProp, playBarOpacityAnim])
 
   const drawerPercentOpen = useRef(0)
   const onDrawerPercentOpen = useCallback(

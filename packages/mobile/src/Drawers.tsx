@@ -26,7 +26,7 @@ import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 import { DiscordDrawer } from './components/discord-drawer'
 import { useDrawerState } from './components/drawer'
-import { useNativeDrawer } from './hooks/useDrawer'
+import { useNativeDrawer } from './hooks/useNativeDrawer'
 import { Drawer } from './store/drawers/slice'
 
 type CommonDrawerProps = {
@@ -34,6 +34,9 @@ type CommonDrawerProps = {
   modalName: Modals
 }
 
+/*
+ * Conditionally renders the drawers hooked up to audius-client/src/common/ui/modal slice
+ */
 const CommonDrawer = ({ modal: Modal, modalName }: CommonDrawerProps) => {
   const { modalState } = useDrawerState(modalName)
 
@@ -47,6 +50,9 @@ type NativeDrawerProps = {
   drawerName: Drawer
 }
 
+/*
+ * Conditionally renders the drawers hooked up to native store/drawers slice
+ */
 const NativeDrawer = ({ drawer: Drawer, drawerName }: NativeDrawerProps) => {
   const { visibleState } = useNativeDrawer(drawerName)
 
