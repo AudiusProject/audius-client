@@ -1,3 +1,5 @@
+import { ERROR_PAGE } from 'utils/route'
+
 import { Level } from './level'
 import { AdditionalInfo, ReportToSentryArgs } from './reportToSentry'
 
@@ -8,6 +10,7 @@ export type HandleErrorAction = {
   name?: string
   message: string
   shouldRedirect: boolean
+  redirectRoute?: string
   shouldReport: boolean
   shouldToast?: boolean
 
@@ -19,6 +22,7 @@ type HandleActions = HandleErrorAction
 
 type HandleErrorArgs = {
   shouldRedirect: boolean
+  redirectRoute?: string
   shouldReport?: boolean
   shouldToast?: boolean
   message: string
@@ -28,6 +32,7 @@ export const handleError = ({
   name,
   message,
   shouldRedirect,
+  redirectRoute = ERROR_PAGE,
   shouldReport = true,
   shouldToast,
   additionalInfo = {},
@@ -37,6 +42,7 @@ export const handleError = ({
   name,
   message,
   shouldRedirect,
+  redirectRoute,
   shouldReport,
   shouldToast,
   additionalInfo,
