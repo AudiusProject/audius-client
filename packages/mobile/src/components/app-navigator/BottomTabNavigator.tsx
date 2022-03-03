@@ -5,7 +5,7 @@ import { ParamListBase } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { Animated, StyleSheet, View } from 'react-native'
 
-import BottomTabBar from 'app/components/bottom-tab-bar'
+import { BottomTabBar } from 'app/components/bottom-tab-bar'
 import NowPlayingDrawer from 'app/components/now-playing-drawer/NowPlayingDrawer'
 import { AudioScreen } from 'app/screens/audio-screen'
 import { EditProfileScreen } from 'app/screens/edit-profile-screen'
