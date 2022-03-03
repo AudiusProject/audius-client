@@ -10,6 +10,8 @@ export type HandleErrorAction = {
   name?: string
   message: string
   shouldRedirect: boolean
+  // by default the handler redirects to the error page if
+  // shouldRedirect is true unless a redirectRoute is passed in
   redirectRoute?: string
   shouldReport: boolean
   shouldToast?: boolean
