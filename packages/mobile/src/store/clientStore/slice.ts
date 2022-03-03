@@ -9,7 +9,10 @@ const slice = createSlice({
   initialState,
   reducers: {
     receive: (state, action) => {
-      return action.payload
+      return {
+        ...state,
+        ...action.payload
+      }
     }
   }
 })

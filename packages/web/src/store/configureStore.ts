@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/browser'
 import { routerMiddleware, push as pushRoute } from 'connected-react-router'
-import { pick } from 'lodash'
+import { isEmpty, pick, pickBy } from 'lodash'
 import { createStore, applyMiddleware, Action, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
 import createSagaMiddleware from 'redux-saga'
@@ -121,23 +121,34 @@ const clientStoreKeys = Object.keys(commonStoreReducers)
 
 const syncClientStateToNativeMobile = (store: Store) => {
   if (NATIVE_MOBILE) {
-    let currentState: RootState
+    let previousState: RootState
 
     store.subscribe(() => {
       const state: RootState = store.getState()
-      const previousState = currentState
-      currentState = state
-      if (
-        !previousState ||
-        clientStoreKeys.some(
-          k =>
-            currentState[k as keyof RootState] !==
-            previousState[k as keyof RootState]
-        )
-      ) {
+
+      if (!previousState) {
         postMessage({
           type: MessageType.SYNC_CLIENT_STORE,
           state: pick(state, clientStoreKeys)
+        })
+
+        previousState = state
+        return
+      }
+
+      const stateToSync = pickBy(
+        state,
+        (value, key) =>
+          clientStoreKeys.includes(key) &&
+          value !== previousState[key as keyof RootState]
+      )
+
+      previousState = state
+
+      if (!isEmpty(stateToSync)) {
+        postMessage({
+          type: MessageType.SYNC_CLIENT_STORE,
+          state: stateToSync
         })
       }
     })
