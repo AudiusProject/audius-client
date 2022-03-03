@@ -337,6 +337,13 @@ function* signUp() {
           }
           if (rateLimited) {
             params.message = 'Please try again later'
+            yield put(
+              make(Name.CREATE_ACCOUNT_RATE_LIMIT, {
+                handle,
+                email,
+                location
+              })
+            )
           }
           yield put(signOnActions.signUpFailed(params))
           return
