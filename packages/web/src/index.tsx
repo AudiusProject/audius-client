@@ -1,7 +1,6 @@
 import React from 'react'
 
 import ReactDOM from 'react-dom'
-// @ts-ignore
 import { render } from 'react-nil'
 
 import './index.css'
