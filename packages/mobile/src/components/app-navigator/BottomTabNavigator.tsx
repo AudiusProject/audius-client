@@ -74,12 +74,9 @@ const ExploreStackScreen = createStackScreen<ExploreStackParamList>(Stack => (
       name='TrendingUnderground'
       component={TrendingUndergroundScreen}
     />
-    <Stack.Screen
-      name='UnderTheRadar'
-      component={() => (
-        <SmartCollectionScreen smartCollection={UNDER_THE_RADAR} />
-      )}
-    />
+    <Stack.Screen name='UnderTheRadar'>
+      {() => <SmartCollectionScreen smartCollection={UNDER_THE_RADAR} />}
+    </Stack.Screen>
   </>
 ))
 
