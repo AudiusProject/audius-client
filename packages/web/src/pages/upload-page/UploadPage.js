@@ -125,7 +125,9 @@ class Upload extends Component {
     // Disallow duplicate tracks:
     // Filter out any tracks that already exist in `state.tracks`
     // and any that exist multiple times in `selectedFiles`
-    const existing = new Set(this.state.tracks.map(({ file }) => `${file.name}-${file.lastModified}`))
+    const existing = new Set(
+      this.state.tracks.map(({ file }) => `${file.name}-${file.lastModified}`)
+    )
     selectedFiles = selectedFiles.filter(({ name, lastModified }) => {
       const id = `${name}-${lastModified}`
       if (existing.has(id)) return false
