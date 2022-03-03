@@ -93,7 +93,6 @@ export const BottomTabBar = ({
 
   // Selectors
   const handle = useSelectorWeb(getUserHandle)
-  // const location = useSelector(getLocation)
 
   // Actions
   const dispatchWeb = useDispatchWeb()
@@ -129,26 +128,6 @@ export const BottomTabBar = ({
       slideOut()
     }
   }, [display, slideIn, slideOut])
-
-  // const userProfilePage = handle ? profilePage(handle) : null
-  // const navRoutes = new Set([
-  //   FEED_PAGE,
-  //   TRENDING_PAGE,
-  //   EXPLORE_PAGE,
-  //   FAVORITES_PAGE,
-  //   userProfilePage
-  // ])
-
-  // const [lastNavRoute, setNavRoute] = useState(FEED_PAGE)
-  // const currentRoute = location && getPathname(location)
-
-  // if (lastNavRoute !== currentRoute) {
-  //   // If the current route isn't what we memoized, check if it's a nav route
-  //   // and update the current route if so
-  //   if (navRoutes.has(currentRoute)) {
-  //     setNavRoute(currentRoute)
-  //   }
-  // }
 
   const navigate = useCallback(
     (route: NavigationRoute, isFocused) => {
