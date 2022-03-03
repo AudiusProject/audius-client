@@ -15,7 +15,10 @@ import { getPlaylistLibrary } from 'common/store/account/selectors'
 import FolderForm from 'components/create-playlist/FolderForm'
 import { getFolderId } from 'store/application/ui/editFolderModal/selectors'
 import { setFolderId } from 'store/application/ui/editFolderModal/slice'
-import { renamePlaylistFolderInLibrary } from 'store/playlist-library/helpers'
+import {
+  removePlaylistFolderInLibrary,
+  renamePlaylistFolderInLibrary
+} from 'store/playlist-library/helpers'
 import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import { useSelector } from 'utils/reducer'
 import { zIndex } from 'utils/zIndex'
@@ -60,6 +63,14 @@ const EditFolderModal = () => {
     [dispatch, folder, folderId, handleClose, playlistLibrary]
   )
 
+  const handleDelete = useCallback(() => {
+    if (playlistLibrary == null || folderId == null || folder == null) return
+    const newLibrary = removePlaylistFolderInLibrary(playlistLibrary, folderId)
+    console.log(newLibrary)
+    dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary }))
+    handleClose()
+  }, [dispatch, folder, folderId, handleClose, playlistLibrary])
+
   return (
     <Modal
       modalKey='editfolder'
@@ -79,7 +90,7 @@ const EditFolderModal = () => {
           isEditMode
           onSubmit={handleSubmit}
           onCancel={handleClose}
-          onDelete={() => {}}
+          onDelete={handleDelete}
           initialFolderName={folder?.name}
         />
       </ModalContent>

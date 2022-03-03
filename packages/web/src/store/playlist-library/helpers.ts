@@ -165,6 +165,39 @@ export const renamePlaylistFolderInLibrary = (
 }
 
 /**
+ * Removes folder with given id from the library.
+ * Any playlists or temporary playlists in the deleted
+ * folder are moved out of the folder.
+ * Note that this assumes that folders cannot be nested within one another.
+ * If we enable nesting folders in the future, this function must be updated.
+ * @param library
+ * @param folderId
+ * @returns the updated playlist library
+ */
+export const removePlaylistFolderInLibrary = (
+  library: PlaylistLibrary,
+  folderId: string
+): PlaylistLibrary => {
+  if (!library.contents) return library
+  const folder = library.contents.find(item => {
+    return item.type === 'folder' && item.id === folderId
+    // Need to cast here because TS doesn't know that the result has to be a folder or undefined due to `item.type === 'folder'`
+  }) as PlaylistLibraryFolder | undefined
+  if (!folder) return library
+  const folderIndex = library.contents.findIndex(item => {
+    return item.type === 'folder' && item.id === folderId
+  })
+  const newContents = [...library.contents]
+  // Move contents of folder out
+  const removedFolderContents = folder.contents
+  newContents.splice(folderIndex, 1, ...removedFolderContents)
+  return {
+    ...library,
+    contents: newContents
+  }
+}
+
+/**
  * Adds new folder to a playlist library and returns the result.
  * Does not mutate.
  * @param library
@@ -196,6 +229,10 @@ export const removePlaylistLibraryDuplicates = (
   for (const item of library.contents) {
     switch (item.type) {
       case 'folder': {
+        if (ids.has(item.id)) {
+          break
+        }
+        ids.add(item.id)
         const folder = removePlaylistLibraryDuplicates(
           item,
           ids

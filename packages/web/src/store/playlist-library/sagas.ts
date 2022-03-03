@@ -98,11 +98,6 @@ function* watchUpdatePlaylistLibrary() {
       // Otherwise, just write the profile update
       yield fork(updateProfileAsync, { metadata: account })
     }
-
-    const event = make(Name.PLAYLIST_LIBRARY_REORDER, {
-      containsTemporaryPlaylists: containsTemps
-    })
-    yield put(event)
   })
 }
 
