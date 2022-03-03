@@ -116,30 +116,32 @@ const middlewares = applyMiddleware(
 )
 
 // As long as the mobile client is dependent on the web client, we need to sync
-// the client store from web -> mobile
-const clientStoreKeys = Object.keys(commonStoreReducers)
+// the common store from web -> mobile
+const commonStateKeys = Object.keys(commonStoreReducers)
 
-const syncClientStateToNativeMobile = (store: Store) => {
+const syncCommonStateToNativeMobile = (store: Store) => {
   if (NATIVE_MOBILE) {
     let previousState: RootState
 
     store.subscribe(() => {
       const state: RootState = store.getState()
 
+      // Sync entire commonState initially
       if (!previousState) {
         postMessage({
-          type: MessageType.SYNC_CLIENT_STORE,
-          state: pick(state, clientStoreKeys)
+          type: MessageType.SYNC_COMMON_STATE,
+          state: pick(state, commonStateKeys)
         })
 
         previousState = state
         return
       }
 
+      // Subsequently only sync the changed slices
       const stateToSync = pickBy(
         state,
         (value, key) =>
-          clientStoreKeys.includes(key) &&
+          commonStateKeys.includes(key) &&
           value !== previousState[key as keyof RootState]
       )
 
@@ -147,7 +149,7 @@ const syncClientStateToNativeMobile = (store: Store) => {
 
       if (!isEmpty(stateToSync)) {
         postMessage({
-          type: MessageType.SYNC_CLIENT_STORE,
+          type: MessageType.SYNC_COMMON_STATE,
           state: stateToSync
         })
       }
@@ -161,7 +163,7 @@ const configureStore = () => {
     createRootReducer(history),
     composeEnhancers(middlewares)
   )
-  syncClientStateToNativeMobile(store)
+  syncCommonStateToNativeMobile(store)
   sagaMiddleware.run(rootSaga)
   return store
 }
