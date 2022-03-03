@@ -1,6 +1,8 @@
 import React from 'react'
 
 import ReactDOM from 'react-dom'
+// @ts-ignore
+import { render } from 'react-nil'
 
 import './index.css'
 
@@ -9,4 +11,10 @@ import './index.css'
 // when running in dev mode.
 import Root from './root'
 
-ReactDOM.render(<Root />, document.getElementById('root'))
+const REACT_APP_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
+if (REACT_APP_NATIVE_MOBILE) {
+  render(<Root />)
+} else {
+  ReactDOM.render(<Root />, document.getElementById('root'))
+}
