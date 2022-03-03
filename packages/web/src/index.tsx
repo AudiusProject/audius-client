@@ -11,9 +11,10 @@ import './index.css'
 // when running in dev mode.
 import Root from './root'
 
-const REACT_APP_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const NATIVE_NAVIGATION_ENABLED =
+  process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
 
-if (REACT_APP_NATIVE_MOBILE) {
+if (NATIVE_NAVIGATION_ENABLED) {
   render(<Root />)
 } else {
   ReactDOM.render(<Root />, document.getElementById('root'))
