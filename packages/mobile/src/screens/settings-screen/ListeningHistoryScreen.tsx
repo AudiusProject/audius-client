@@ -1,10 +1,6 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
-import {
-  FavoriteSource,
-  Name,
-  PlaybackSource
-} from 'audius-client/src/common/models/Analytics'
+import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import { LineupState } from 'audius-client/src/common/models/Lineup'
 import Status from 'audius-client/src/common/models/Status'
@@ -13,19 +9,12 @@ import { User } from 'audius-client/src/common/models/User'
 import { CommonState } from 'audius-client/src/common/store'
 import { getTracks } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
-import { tracksActions } from 'audius-client/src/common/store/pages/saved-page/lineups/tracks/actions'
-import {
-  getSavedTracksLineup,
-  getSavedTracksStatus
-} from 'audius-client/src/common/store/pages/saved-page/selectors'
-import {
-  saveTrack,
-  unsaveTrack
-} from 'audius-client/src/common/store/social/tracks/actions'
+import { tracksActions } from 'audius-client/src/common/store/pages/history-page/lineups/tracks/actions'
+import { getHistoryTracksLineup } from 'audius-client/src/common/store/pages/history-page/selectors'
 import { View } from 'react-native'
 import { shallowEqual, useSelector } from 'react-redux'
 
-import { Tile, VirtualizedScrollView } from 'app/components/core'
+import { Screen, Tile, VirtualizedScrollView } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { TrackList } from 'app/components/track-list'
 import { ListTrackMetadata } from 'app/components/track-list/types'
@@ -35,12 +24,8 @@ import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 import { make, track } from 'app/utils/analytics'
 
-import { EmptyTab } from './EmptyTab'
-import { FilterInput } from './FilterInput'
-
 const messages = {
-  emptyTabText: "You haven't favorited any tracks yet.",
-  inputPlaceholder: 'Filter Tracks'
+  title: 'Listening History'
 }
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -61,16 +46,18 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
-export const TracksTab = ({ navigation }) => {
-  const dispatchWeb = useDispatchWeb()
+export const ListeningHistoryScreen = () => {
   const styles = useStyles()
-  const [filterValue, setFilterValue] = useState('')
+  const dispatchWeb = useDispatchWeb()
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getPlayingUid)
-  const savedTracksStatus = useSelectorWeb(getSavedTracksStatus)
-  const savedTracks: LineupState<Track> = useSelectorWeb(getSavedTracksLineup)
+  const historyTracks: LineupState<Track> = useSelectorWeb(
+    getHistoryTracksLineup
+  )
 
-  const trackIds = savedTracks.entries.map(e => e.id)
+  const status = historyTracks.status
+
+  const trackIds = historyTracks.entries.map(e => e.id)
   const tracks = useSelectorWeb(
     (state: CommonState) => getTracks(state, { ids: trackIds }),
     shallowEqual
@@ -84,7 +71,7 @@ export const TracksTab = ({ navigation }) => {
 
   const tracksWithUsers = Object.values(tracks).map(track => ({
     ...track,
-    uid: savedTracks.entries.find(t => t.id === track.track_id)?.uid,
+    uid: historyTracks.entries.find(t => t.id === track.track_id)?.uid,
     user: artists[track.owner_id]
   }))
 
@@ -93,14 +80,6 @@ export const TracksTab = ({ navigation }) => {
   }
 
   const queuedAndPlaying = isPlaying && isQueued
-
-  const matchesFilter = (track: any) => {
-    const matchValue = filterValue.toLowerCase()
-    return (
-      track.trackTitle.toLowerCase().indexOf(matchValue) > -1 ||
-      track.artistName.toLowerCase().indexOf(matchValue) > -1
-    )
-  }
 
   const trackList: ListTrackMetadata[] = tracksWithUsers
     .map(track => ({
@@ -113,20 +92,14 @@ export const TracksTab = ({ navigation }) => {
       artistHandle: track.user.handle,
       trackTitle: track.title,
       trackId: track.track_id,
+      has_current_user_reposted: track.has_current_user_reposted,
+      has_current_user_saved: track.has_current_user_saved,
+      coverArtSizes: track._cover_art_sizes,
       uid: track.uid,
       isDeleted: track.is_delete || !!track.user.is_deactivated,
       user: track.user
     }))
-    .filter(track => matchesFilter(track))
-
-  const onToggleSave = useCallback(
-    (isSaved: boolean, trackId: ID) => {
-      if (trackId === undefined) return
-      const action = isSaved ? unsaveTrack : saveTrack
-      dispatchWeb(action(trackId, FavoriteSource.FAVORITES_PAGE))
-    },
-    [dispatchWeb]
-  )
+    .reverse()
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
@@ -136,7 +109,7 @@ export const TracksTab = ({ navigation }) => {
           make({
             eventName: Name.PLAYBACK_PLAY,
             id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
+            source: PlaybackSource.HISTORY_PAGE
           })
         )
       } else if (uid === playingUid && isPlaying) {
@@ -145,7 +118,7 @@ export const TracksTab = ({ navigation }) => {
           make({
             eventName: Name.PLAYBACK_PAUSE,
             id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
+            source: PlaybackSource.HISTORY_PAGE
           })
         )
       }
@@ -154,7 +127,7 @@ export const TracksTab = ({ navigation }) => {
   )
 
   // TODO: Use the dot spinner
-  if (savedTracksStatus === Status.LOADING) {
+  if (status === Status.LOADING) {
     return (
       <View style={styles.spinnerContainer}>
         <LoadingSpinner />
@@ -163,34 +136,22 @@ export const TracksTab = ({ navigation }) => {
   }
 
   return (
-    <VirtualizedScrollView listKey='favorites-screen'>
-      {!trackList.length && !filterValue ? (
-        <EmptyTab message={messages.emptyTabText} />
-      ) : (
-        <>
-          <FilterInput
-            value={filterValue}
-            placeholder={messages.inputPlaceholder}
-            onChangeText={setFilterValue}
+    <Screen title={messages.title} topbarRight={null} variant='secondary'>
+      <VirtualizedScrollView listKey='listening-history-screen'>
+        <Tile
+          styles={{
+            root: styles.container,
+            tile: styles.trackListContainer
+          }}
+        >
+          <TrackList
+            tracks={trackList ?? []}
+            showDivider
+            togglePlay={togglePlay}
+            trackItemAction='overflow'
           />
-          {trackList.length ? (
-            <Tile
-              styles={{
-                root: styles.container,
-                tile: styles.trackListContainer
-              }}
-            >
-              <TrackList
-                tracks={trackList ?? []}
-                showDivider
-                onSave={onToggleSave}
-                togglePlay={togglePlay}
-                trackItemAction='save'
-              />
-            </Tile>
-          ) : null}
-        </>
-      )}
-    </VirtualizedScrollView>
+        </Tile>
+      </VirtualizedScrollView>
+    </Screen>
   )
 }

@@ -57,10 +57,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     display: 'flex',
     height: screenHeight
   },
-  container: {
-    // TODO: Need to fix this spacing issue on the bottom of pages to account for the bottom bar and now playlist drawer
-    marginBottom: 240
-  },
+  container: {},
   tiles: {
     height: '100%'
   },
