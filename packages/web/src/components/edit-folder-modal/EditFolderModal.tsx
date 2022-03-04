@@ -29,6 +29,10 @@ import styles from './EditFolderModal.module.css'
 const messages = {
   editFolderModalTitle: 'Edit Folder',
   confirmDeleteFolderModalTitle: 'Delete Folder',
+  confirmDeleteFolderModalHeader:
+    'Are you sure you want to delete this folder?',
+  confirmDeleteFolderModalDescription:
+    'Any playlists inside will be moved out before the folder is deleted.',
   folderEntity: 'Folder'
 }
 
@@ -54,9 +58,10 @@ const EditFolderModal = () => {
 
   const handleSubmit = useCallback(
     (newName: string) => {
-      const infoIsEmpty =
-        playlistLibrary == null || folderId == null || folder == null
-      if (!infoIsEmpty && newName !== folder.name) {
+      if (
+        !(playlistLibrary == null || folderId == null || folder == null) &&
+        newName !== folder.name
+      ) {
         const newLibrary = renamePlaylistFolderInLibrary(
           playlistLibrary,
           folderId,
@@ -74,9 +79,7 @@ const EditFolderModal = () => {
   }, [])
 
   const handleConfirmDelete = useCallback(() => {
-    const infoIsEmpty =
-      playlistLibrary == null || folderId == null || folder == null
-    if (!infoIsEmpty) {
+    if (!(playlistLibrary == null || folderId == null || folder == null)) {
       const newLibrary = removePlaylistFolderInLibrary(
         playlistLibrary,
         folderId
@@ -113,6 +116,8 @@ const EditFolderModal = () => {
         </ModalContent>
       </Modal>
       <DeleteConfirmationModal
+        customHeader={messages.confirmDeleteFolderModalHeader}
+        customDescription={messages.confirmDeleteFolderModalDescription}
         title={messages.confirmDeleteFolderModalTitle}
         entity={messages.folderEntity}
         visible={showDeleteConfirmation}
