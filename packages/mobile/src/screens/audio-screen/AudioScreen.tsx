@@ -57,7 +57,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     display: 'flex',
     height: screenHeight
   },
-  container: {},
   tiles: {
     height: '100%'
   },
@@ -349,7 +348,7 @@ export const AudioScreen = () => {
     <View style={styles.root}>
       <Header text={messages.title} />
       <ScrollView style={styles.tiles}>
-        <View style={styles.container}>
+        <View>
           {renderAudioTile()}
           {renderWalletTile()}
           {renderRewardsTile()}

@@ -210,21 +210,21 @@ export const TrackListItem = ({
             <UserBadges user={user} badgeSize={12} hideName />
           </Text>
         </View>
-        {handleSaveTrack && trackItemAction === 'save' && (
+        {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}
             styles={tileIconStyles}
             fill={isSaved ? themeColors.primary : themeColors.neutralLight4}
             onPress={handleSaveTrack}
           />
-        )}
-        {handleClickOverflow && trackItemAction === 'overflow' && (
+        ) : null}
+        {trackItemAction === 'overflow' ? (
           <IconButton
             icon={IconKebabHorizontal}
             styles={tileIconStyles}
             onPress={handleClickOverflow}
           />
-        )}
+        ) : null}
       </TouchableOpacity>
     </View>
   )
