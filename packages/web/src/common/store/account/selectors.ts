@@ -3,7 +3,6 @@ import { createSelector } from 'reselect'
 import { CommonState } from 'common/store'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { getUser, getUsers } from 'common/store/cache/users/selectors'
-import { createDeepEqualSelector } from 'common/utils/selectorHelpers'
 import { removeNullable } from 'common/utils/typeUtils'
 
 import { AccountCollection } from './reducer'
@@ -30,11 +29,9 @@ export const getAccountToCache = (state: CommonState) => ({
   hasFavoritedItem: state.account.hasFavoritedItem
 })
 
-export const getAccountUser = createDeepEqualSelector(
+export const getAccountUser = createSelector(
   [internalGetAccountUser],
-  user => {
-    return user
-  }
+  user => user
 )
 export const getUserHandle = createSelector([internalGetAccountUser], user =>
   user ? user.handle : null
