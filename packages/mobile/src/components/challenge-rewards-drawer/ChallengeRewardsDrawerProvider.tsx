@@ -17,6 +17,7 @@ import {
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
 import { Maybe } from 'audius-client/src/common/utils/typeUtils'
 import { AUDIO_PAGE } from 'audius-client/src/utils/route'
+import { isEqual } from 'lodash'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
