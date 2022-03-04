@@ -5,13 +5,11 @@ import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import { LineupState } from 'audius-client/src/common/models/Lineup'
 import Status from 'audius-client/src/common/models/Status'
 import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
 import { CommonState } from 'audius-client/src/common/store'
 import { getTracks } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { tracksActions } from 'audius-client/src/common/store/pages/history-page/lineups/tracks/actions'
 import { getHistoryTracksLineup } from 'audius-client/src/common/store/pages/history-page/selectors'
-import { View } from 'react-native'
 import { shallowEqual, useSelector } from 'react-redux'
 
 import { Screen, Tile, VirtualizedScrollView } from 'app/components/core'
@@ -39,10 +37,9 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     borderRadius: 6,
     overflow: 'hidden'
   },
-  spinnerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 48
+  loadingSpinner: {
+    alignSelf: 'center',
+    marginTop: spacing(4)
   }
 }))
 
@@ -61,13 +58,13 @@ export const ListeningHistoryScreen = () => {
   const tracks = useSelectorWeb(
     (state: CommonState) => getTracks(state, { ids: trackIds }),
     shallowEqual
-  ) as { [id: number]: Track }
+  )
 
   const creatorIds = Object.values(tracks).map(t => t.owner_id)
   const artists = useSelectorWeb(
     (state: CommonState) => getUsers(state, { ids: creatorIds }),
     shallowEqual
-  ) as { [id: number]: User }
+  )
 
   const tracksWithUsers = Object.values(tracks).map(track => ({
     ...track,
@@ -76,7 +73,7 @@ export const ListeningHistoryScreen = () => {
   }))
 
   const isQueued = () => {
-    return tracksWithUsers.some((track: any) => playingUid === track.uid)
+    return tracksWithUsers.some(track => playingUid === track.uid)
   }
 
   const queuedAndPlaying = isPlaying && isQueued
@@ -103,7 +100,8 @@ export const ListeningHistoryScreen = () => {
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
-      if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
+      const isTrackPlaying = uid === playingUid && isPlaying
+      if (!isTrackPlaying) {
         dispatchWeb(tracksActions.play(uid))
         track(
           make({
@@ -112,7 +110,7 @@ export const ListeningHistoryScreen = () => {
             source: PlaybackSource.HISTORY_PAGE
           })
         )
-      } else if (uid === playingUid && isPlaying) {
+      } else {
         dispatchWeb(tracksActions.pause())
         track(
           make({
@@ -126,32 +124,27 @@ export const ListeningHistoryScreen = () => {
     [dispatchWeb, isPlaying, playingUid]
   )
 
-  // TODO: Use the dot spinner
-  if (status === Status.LOADING) {
-    return (
-      <View style={styles.spinnerContainer}>
-        <LoadingSpinner />
-      </View>
-    )
-  }
-
   return (
     <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      <VirtualizedScrollView listKey='listening-history-screen'>
-        <Tile
-          styles={{
-            root: styles.container,
-            tile: styles.trackListContainer
-          }}
-        >
-          <TrackList
-            tracks={trackList ?? []}
-            showDivider
-            togglePlay={togglePlay}
-            trackItemAction='overflow'
-          />
-        </Tile>
-      </VirtualizedScrollView>
+      {status === Status.LOADING ? (
+        <LoadingSpinner style={styles.loadingSpinner} />
+      ) : (
+        <VirtualizedScrollView listKey='listening-history-screen'>
+          <Tile
+            styles={{
+              root: styles.container,
+              tile: styles.trackListContainer
+            }}
+          >
+            <TrackList
+              tracks={trackList ?? []}
+              showDivider
+              togglePlay={togglePlay}
+              trackItemAction='overflow'
+            />
+          </Tile>
+        </VirtualizedScrollView>
+      )}
     </Screen>
   )
 }
