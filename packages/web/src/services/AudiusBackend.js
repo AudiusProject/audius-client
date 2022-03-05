@@ -1,7 +1,14 @@
 /* globals web3, localStorage, fetch, Image */
-
 import * as DiscoveryAPI from '@audius/libs/src/services/discoveryProvider/requests'
 import * as IdentityAPI from '@audius/libs/src/services/identity/requests'
+import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
+import {
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+  Transaction,
+  TransactionInstruction
+} from '@solana/web3.js'
 import BN from 'bn.js'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -115,6 +122,7 @@ export const waitForWeb3 = async () => {
 let AudiusLibs = null
 export let Utils = null
 let SanityChecks = null
+let SolanaUtils = null
 
 let audiusLibs = null
 const unauthenticatedUuid = uuid()
@@ -407,6 +415,7 @@ class AudiusBackend {
     AudiusLibs = libs
     Utils = libsUtils
     SanityChecks = libsSanityChecks
+    SolanaUtils = libs.SolanaUtils
 
     // initialize libs
     let libsError = null
@@ -2449,6 +2458,7 @@ class AudiusBackend {
       const {
         feePayer
       } = await audiusLibs.solanaWeb3Manager.getRandomFeePayer()
+      audiusLibs.solanaWeb3Manager.feePayerKey = new PublicKey(feePayer)
       return { feePayer }
     } catch (err) {
       console.error(err.message)
@@ -2604,6 +2614,56 @@ class AudiusBackend {
    */
   static async sendWAudioTokens(address, amount) {
     await waitForLibsInit()
+
+    // Check when sending waudio if the user has a user bank acccount
+    let tokenAccountInfo = await audiusLibs.solanaWeb3Manager.getAssociatedTokenAccountInfo(
+      address
+    )
+    console.log({ tokenAccountInfo })
+    if (!tokenAccountInfo) {
+      console.info('Provided recipient solana address was not a token account')
+      // If not, check to see if it already has an associated token account.
+      const associatedTokenAccount = await audiusLibs.solanaWeb3Manager.findAssociatedTokenAddress(
+        address
+      )
+      tokenAccountInfo = await audiusLibs.solanaWeb3Manager.getAssociatedTokenAccountInfo(
+        associatedTokenAccount.toString()
+      )
+      console.log({ tokenAccountInfo })
+
+      // If it's not a valid token account, we need to make one first
+      if (!tokenAccountInfo) {
+        if (!window.phantom) {
+          console.log('no window phantom')
+          return
+          // todo error
+        }
+        console.log('make tx')
+        // window phantom
+        if (!window.solana.isConnected) {
+          await window.solana.connect()
+        }
+        console.log('after connect')
+
+        const phantomWallet = window.solana.publicKey.toString()
+        console.log({ phantomWallet })
+        const tx = await getCreateAssociatedTokenAccountTransaction({
+          feePayerKey: SolanaUtils.newPublicKeyNullable(phantomWallet),
+          solanaWalletKey: SolanaUtils.newPublicKeyNullable(address),
+          mintKey: audiusLibs.solanaWeb3Manager.mintKey,
+          solanaTokenProgramKey: audiusLibs.solanaWeb3Manager.solanaTokenKey,
+          connection: audiusLibs.solanaWeb3Manager.connection
+        })
+        console.log(tx)
+        const { signature } = await window.solana.signAndSendTransaction(tx)
+        console.log(signature)
+        await audiusLibs.solanaWeb3Manager.connection.confirmTransaction(
+          signature
+        )
+        console.log('did wait')
+      }
+    }
+    console.log('transfering')
     return audiusLibs.solanaWeb3Manager.transferWAudio(address, amount)
   }
 
@@ -2731,5 +2791,121 @@ class AudiusBackend {
     }
   }
 }
+
+/**
+ * Finds the associated token address given a solana wallet public key
+ * @param {PublicKey} solanaWalletKey Public Key for a given solana account (a wallet)
+ * @param {PublicKey} mintKey
+ * @param {PublicKey} solanaTokenProgramKey
+ * @returns {PublicKey} token account public key
+ */
+async function findAssociatedTokenAddress({
+  solanaWalletKey,
+  mintKey,
+  solanaTokenProgramKey
+}) {
+  const addresses = await PublicKey.findProgramAddress(
+    [
+      solanaWalletKey.toBuffer(),
+      solanaTokenProgramKey.toBuffer(),
+      mintKey.toBuffer()
+    ],
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  )
+  return addresses[0]
+}
+
+/**
+ * Creates an associated token account for a given solana account (a wallet)
+ * @param {PublicKey} feePayerKey
+ * @param {PublicKey} solanaWalletKey the wallet we wish to create a token account for
+ * @param {PublicKey} mintKey
+ * @param {PublicKey} solanaTokenProgramKey
+ * @param {Connection} connection
+ * @param {IdentityService} identityService
+ */
+async function getCreateAssociatedTokenAccountTransaction({
+  feePayerKey,
+  solanaWalletKey,
+  mintKey,
+  solanaTokenProgramKey,
+  connection
+}) {
+  const associatedTokenAddress = await findAssociatedTokenAddress({
+    solanaWalletKey,
+    mintKey,
+    solanaTokenProgramKey
+  })
+  console.log({
+    SYSVAR_RENT_PUBKEY,
+    solanaTokenProgramKey
+  })
+
+  console.log({
+    SystemProgram
+  })
+  const accounts = [
+    // 0. `[sw]` Funding account (must be a system account)
+    {
+      pubkey: feePayerKey,
+      isSigner: true,
+      isWritable: true
+    },
+    // 1. `[w]` Associated token account address to be created
+    {
+      pubkey: associatedTokenAddress,
+      isSigner: false,
+      isWritable: true
+    },
+    // 2. `[r]` Wallet address for the new associated token account
+    {
+      pubkey: solanaWalletKey,
+      isSigner: false,
+      isWritable: false
+    },
+    // 3. `[r]` The token mint for the new associated token account
+    {
+      pubkey: mintKey,
+      isSigner: false,
+      isWritable: false
+    },
+    // 4. `[r]` System program
+    {
+      pubkey: SystemProgram.programId,
+      isSigner: false,
+      isWritable: false
+    },
+    // 5. `[r]` SPL Token program
+    {
+      pubkey: solanaTokenProgramKey,
+      isSigner: false,
+      isWritable: false
+    },
+    // 6. `[r]` Rent sysvar
+    {
+      pubkey: SYSVAR_RENT_PUBKEY,
+      isSigner: false,
+      isWritable: false
+    }
+  ]
+
+  const { blockhash } = await connection.getRecentBlockhash('confirmed')
+  const instr = new TransactionInstruction({
+    keys: accounts.map(account => ({
+      pubkey: account.pubkey,
+      isSigner: account.isSigner,
+      isWritable: account.isWritable
+    })),
+    programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+    data: Buffer.from([])
+  })
+  const tx = new Transaction({ recentBlockhash: blockhash })
+  tx.feePayer = feePayerKey
+  tx.add(instr)
+  return tx
+}
+
+// ts-ignore
+window.getCreateAssociatedTokenAccountTransaction = getCreateAssociatedTokenAccountTransaction
 
 export default AudiusBackend
