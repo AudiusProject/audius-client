@@ -2619,7 +2619,6 @@ class AudiusBackend {
     let tokenAccountInfo = await audiusLibs.solanaWeb3Manager.getAssociatedTokenAccountInfo(
       address
     )
-    console.log({ tokenAccountInfo })
     if (!tokenAccountInfo) {
       console.info('Provided recipient solana address was not a token account')
       // If not, check to see if it already has an associated token account.
@@ -2629,24 +2628,23 @@ class AudiusBackend {
       tokenAccountInfo = await audiusLibs.solanaWeb3Manager.getAssociatedTokenAccountInfo(
         associatedTokenAccount.toString()
       )
-      console.log({ tokenAccountInfo })
 
       // If it's not a valid token account, we need to make one first
       if (!tokenAccountInfo) {
+        // We do not want to relay gas fees for this token account creation,
+        // so we ask the user to create one with phantom, showing an error
+        // if phantom is not found.
         if (!window.phantom) {
-          console.log('no window phantom')
-          return
-          // todo error
+          return {
+            error:
+              'Recipient has no $AUDIO token account. Please install Phantom-Wallet to create one.'
+          }
         }
-        console.log('make tx')
-        // window phantom
         if (!window.solana.isConnected) {
           await window.solana.connect()
         }
-        console.log('after connect')
 
         const phantomWallet = window.solana.publicKey.toString()
-        console.log({ phantomWallet })
         const tx = await getCreateAssociatedTokenAccountTransaction({
           feePayerKey: SolanaUtils.newPublicKeyNullable(phantomWallet),
           solanaWalletKey: SolanaUtils.newPublicKeyNullable(address),
@@ -2654,16 +2652,12 @@ class AudiusBackend {
           solanaTokenProgramKey: audiusLibs.solanaWeb3Manager.solanaTokenKey,
           connection: audiusLibs.solanaWeb3Manager.connection
         })
-        console.log(tx)
         const { signature } = await window.solana.signAndSendTransaction(tx)
-        console.log(signature)
         await audiusLibs.solanaWeb3Manager.connection.confirmTransaction(
           signature
         )
-        console.log('did wait')
       }
     }
-    console.log('transfering')
     return audiusLibs.solanaWeb3Manager.transferWAudio(address, amount)
   }
 
@@ -2904,8 +2898,5 @@ async function getCreateAssociatedTokenAccountTransaction({
   tx.add(instr)
   return tx
 }
-
-// ts-ignore
-window.getCreateAssociatedTokenAccountTransaction = getCreateAssociatedTokenAccountTransaction
 
 export default AudiusBackend
