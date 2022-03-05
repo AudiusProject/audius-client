@@ -10,6 +10,7 @@ import {
   LayoutChangeEvent,
   PanResponder,
   PanResponderGestureState,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -309,7 +310,7 @@ export const Drawer: DrawerComponent = ({
   isFullscreen,
   shouldBackgroundDim = true,
   isGestureSupported = true,
-  animationStyle = DrawerAnimationStyle.STIFF,
+  animationStyle = DrawerAnimationStyle.SPRINGY,
   initialOffsetPosition = 0,
   isOpenToInitialOffset,
   shouldHaveRoundedBordersAtInitialOffset = false,
@@ -442,18 +443,24 @@ export const Drawer: DrawerComponent = ({
 
             // If we are "closing" the drawer to an offset position
             if (initialOffsetPosition) {
-              // Set up border animations so that
-              // - In the offset position, they are either 0 or BORDER_RADIUS
-              // - While dragging open, they have BORDER_RADIUS
-              // - While fully open, they are 0
               const borderRadiusInitialOffset = shouldHaveRoundedBordersAtInitialOffset
-                ? BORDER_RADIUS
-                : BORDER_RADIUS * percentOpen * 5
-              const newBorderRadius = Math.min(
+                ? // Border radius has rounded corners at the initial offset
+                  BORDER_RADIUS
+                : // Border radius gains radius (quicklky) as the initial offset is
+                  // left and the drawer drags open
+                  BORDER_RADIUS * percentOpen * 5
+              // Cap the border radius at the maximum (BORDER_RADIUS)
+              let newBorderRadius = Math.min(
                 borderRadiusInitialOffset,
-                BORDER_RADIUS,
-                BORDER_RADIUS * 2 * (1 - percentOpen)
+                BORDER_RADIUS
               )
+              // On non-iOS platforms, bring the border radius back to 0 at the fully open state
+              if (Platform.OS !== 'ios') {
+                newBorderRadius = Math.min(
+                  newBorderRadius,
+                  BORDER_RADIUS * 2 * (1 - percentOpen)
+                )
+              }
               attachToDy(borderRadiusAnim, newBorderRadius)(e)
             }
           }

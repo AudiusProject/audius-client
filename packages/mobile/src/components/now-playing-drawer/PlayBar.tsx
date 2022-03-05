@@ -33,7 +33,7 @@ import AnimatedButtonProvider from '../animated-button/AnimatedButtonProvider'
 
 import { TrackingBar } from './TrackingBar'
 
-const SEEK_INTERVAL = 1000
+const SEEK_INTERVAL = 200
 
 const createStyles = (themeColors: ThemeColors) =>
   StyleSheet.create({
@@ -134,9 +134,9 @@ export const PlayBar = ({
 
   useEffect(() => {
     setInterval(() => {
-      const { currentTime, playableDuration } = global.progress
-      if (playableDuration !== undefined) {
-        setPercentComplete(currentTime / playableDuration)
+      const { currentTime, seekableDuration } = global.progress
+      if (seekableDuration !== undefined) {
+        setPercentComplete(currentTime / seekableDuration)
       } else {
         setPercentComplete(0)
       }
