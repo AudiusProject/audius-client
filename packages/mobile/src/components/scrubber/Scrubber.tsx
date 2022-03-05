@@ -54,7 +54,7 @@ type ScrubberProps = {
    */
   isPlaying: boolean
   /**
-   *
+   * The duration of the currently playing track
    */
   duration: number
   /**
