@@ -37,7 +37,6 @@ export const SearchScreen = () => {
       topbarRightStyle={{ flex: 1, width: '100%', paddingLeft: 16 }}
       variant='white'
       title={null}
-      noPadding
     >
       <Header text='Search' />
       {renderBody()}

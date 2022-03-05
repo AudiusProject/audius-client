@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react'
 
 import { StackHeaderProps } from '@react-navigation/stack'
 import { markAllAsViewed } from 'audius-client/src/components/notification/store/actions'
-import { Platform, View, Text, Animated } from 'react-native'
+import { View, Text, Animated } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
@@ -21,7 +21,7 @@ import { MainParamList, SearchParamList } from './types'
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   root: {
-    height: Platform.OS === 'ios' ? 86 : 55,
+    height: spacing(10),
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight9,
     backgroundColor: palette.white,
@@ -40,13 +40,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   headerLeft: {
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    height: spacing(8)
+    alignItems: 'flex-start'
   },
   headerRight: {
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    height: spacing(8)
+    alignItems: 'flex-end'
   },
   title: {
     fontSize: 18,

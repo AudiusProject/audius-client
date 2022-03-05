@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { createStackNavigator } from '@react-navigation/stack'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 import Config from 'react-native-config'
 import { useSelector } from 'react-redux'
 
@@ -17,15 +17,6 @@ import { BottomTabNavigator } from './BottomTabNavigator'
 
 // This enables the RN bottom bar and navigation
 const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED === 'true'
-
-const styles = StyleSheet.create({
-  appNavigator: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: '100%'
-  }
-})
 
 const Stack = createStackNavigator()
 
@@ -61,7 +52,7 @@ const AppNavigator = () => {
   }, [isAuthed])
 
   return (
-    <View style={[styles.appNavigator, { height: navigatorHeight }]}>
+    <View style={{ height: navigatorHeight }}>
       <Stack.Navigator
         screenOptions={{
           gestureEnabled: false,

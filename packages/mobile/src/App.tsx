@@ -1,9 +1,8 @@
 import { useRef, useEffect } from 'react'
 
 import * as Sentry from '@sentry/react-native'
-import { Platform } from 'react-native'
+import { Platform, SafeAreaView } from 'react-native'
 import Config from 'react-native-config'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
 import { Provider } from 'react-redux'
 
@@ -71,7 +70,7 @@ const App = () => {
   }, [])
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaView style={{ flex: 1 }}>
       <Provider store={store}>
         <ToastContextProvider>
           <ErrorBoundary>
@@ -95,7 +94,7 @@ const App = () => {
           </ErrorBoundary>
         </ToastContextProvider>
       </Provider>
-    </SafeAreaProvider>
+    </SafeAreaView>
   )
 }
 

@@ -44,7 +44,7 @@ export const SearchResultsScreen = () => {
   })
 
   return (
-    <Screen topbarRight={null} noPadding>
+    <Screen topbarRight={null}>
       <Header text={messages.header} />
       <TabNavigator initialScreenName='Profiles'>
         {profilesScreen}
