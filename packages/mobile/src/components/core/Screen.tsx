@@ -14,7 +14,9 @@ const useStyles = makeStyles(({ palette }, { variant }) => ({
         ? palette.background
         : variant === 'secondary'
         ? palette.backgroundSecondary
-        : palette.white
+        : palette.white,
+    // TODO: figure out why screens need this. Likel related to the BottomTabNavigator
+    paddingBottom: 80
   }
 }))
 
@@ -26,6 +28,7 @@ type ScreenProps = {
   title?: Nullable<string>
   style?: StyleProp<ViewStyle>
   variant?: 'primary' | 'secondary' | 'white'
+  noPadding?: boolean
 }
 export const Screen = (props: ScreenProps) => {
   const {
@@ -34,7 +37,8 @@ export const Screen = (props: ScreenProps) => {
     topbarRight,
     title,
     topbarRightStyle,
-    variant = 'primary'
+    variant = 'primary',
+    noPadding
   } = props
   const styles = useStyles({ variant })
   const navigation = useNavigation()
@@ -48,5 +52,9 @@ export const Screen = (props: ScreenProps) => {
     })
   }, [navigation, topbarLeft, topbarRight, topbarRightStyle, title])
 
-  return <View style={styles.root}>{children}</View>
+  return (
+    <View style={[styles.root, noPadding && { paddingBottom: 0 }]}>
+      {children}
+    </View>
+  )
 }

@@ -14,8 +14,7 @@ import {
   NativeSyntheticEvent,
   Linking,
   BackHandler,
-  StatusBar,
-  View
+  StatusBar
 } from 'react-native'
 import Config from 'react-native-config'
 import RNFS from 'react-native-fs'
@@ -48,7 +47,6 @@ import { ThemeContext } from '../theme/ThemeContext'
 import PullToRefresh from './PullToRefresh'
 import { WebRefContext } from './WebRef'
 
-const IS_MAIN_NAVIGATION_ENABLED = Config.NATIVE_NAVIGATION_ENABLED === 'true'
 const URL_OVERRIDE = Config.URL_OVERRIDE
 const STATIC_PORT = Config.STATIC_SERVER_PORT || 3100
 export const URL_SCHEME = 'audius://'
@@ -503,50 +501,48 @@ const WebApp = ({
   if (!uri) return null
   return (
     <>
-      <View style={{ height: IS_MAIN_NAVIGATION_ENABLED ? 0 : '100%' }}>
-        <PullToRefresh webRef={webRef} isAtScrollTop={atTop}>
-          <WebView
-            // WebView tries to manage the status bar,
-            // randomly setting to the wrong color at times.
-            // See: https://github.com/react-native-webview/react-native-webview/issues/735
-            autoManageStatusBarEnabled={false}
-            key={key}
-            ref={setWebRef}
-            source={{ uri }}
-            decelerationRate='normal' // Default iOS inertial scrolling
-            onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
-            javaScriptEnabled
-            allowFileAccess
-            originWhitelist={[
-              'https://*',
-              'http://*',
-              'file://*',
-              'sms://*',
-              'tel://*',
-              'mailto://*'
-            ]}
-            cacheEnabled={false}
-            onScroll={onScroll}
-            overScrollMode='never'
-            onMessage={onMessageHandler}
-            onError={error => console.error(JSON.stringify(error.nativeEvent))}
-            onLoad={() => {
-              console.log('WebView loaded: ', webRef)
-            }}
-            onLoadEnd={(syntheticEvent: any) => {
-              const { nativeEvent } = syntheticEvent
-              const { title, url: eventUrl } = nativeEvent
-              if (eventUrl === '' || title === '') reloadViewOnServerError()
-            }}
-            onContentProcessDidTerminate={() => {
-              // On iOS, when the webview is in the background for a long time
-              // it becomes blank. Reload when this happens
-              // See: https://github.com/react-native-webview/react-native-webview/issues/2199
-              webRef.current?.reload()
-            }}
-          />
-        </PullToRefresh>
-      </View>
+      <PullToRefresh webRef={webRef} isAtScrollTop={atTop}>
+        <WebView
+          // WebView tries to manage the status bar,
+          // randomly setting to the wrong color at times.
+          // See: https://github.com/react-native-webview/react-native-webview/issues/735
+          autoManageStatusBarEnabled={false}
+          key={key}
+          ref={setWebRef}
+          source={{ uri }}
+          decelerationRate='normal' // Default iOS inertial scrolling
+          onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+          javaScriptEnabled
+          allowFileAccess
+          originWhitelist={[
+            'https://*',
+            'http://*',
+            'file://*',
+            'sms://*',
+            'tel://*',
+            'mailto://*'
+          ]}
+          cacheEnabled={false}
+          onScroll={onScroll}
+          overScrollMode='never'
+          onMessage={onMessageHandler}
+          onError={error => console.error(JSON.stringify(error.nativeEvent))}
+          onLoad={() => {
+            console.log('WebView loaded: ', webRef)
+          }}
+          onLoadEnd={(syntheticEvent: any) => {
+            const { nativeEvent } = syntheticEvent
+            const { title, url: eventUrl } = nativeEvent
+            if (eventUrl === '' || title === '') reloadViewOnServerError()
+          }}
+          onContentProcessDidTerminate={() => {
+            // On iOS, when the webview is in the background for a long time
+            // it becomes blank. Reload when this happens
+            // See: https://github.com/react-native-webview/react-native-webview/issues/2199
+            webRef.current?.reload()
+          }}
+        />
+      </PullToRefresh>
       <SplashScreen dappLoaded={dappLoaded} key={`splash-${splashKey}`} />
       {hasLoaded && <NotificationReminder isSignedIn={!!isSignedIn} />}
     </>
