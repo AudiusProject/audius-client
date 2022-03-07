@@ -95,10 +95,9 @@ const AnimatedButton = ({
   const handleLongPress = useCallback(() => {
     if (onLongPress) {
       onLongPress()
-      return
+    } else {
+      handlePress()
     }
-
-    handlePress()
   }, [onLongPress, handlePress])
 
   // For multi state buttons, when `isActive` flips, trigger
