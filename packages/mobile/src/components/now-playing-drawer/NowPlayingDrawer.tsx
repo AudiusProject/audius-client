@@ -22,6 +22,7 @@ import {
   getPlaying,
   getTrack as getNativeTrack
 } from 'app/store/audio/selectors'
+import { attachToDy } from 'app/utils/animation'
 
 import { DrawerAnimationStyle, springToValue } from '../drawer/Drawer'
 
@@ -59,20 +60,6 @@ const styles = StyleSheet.create({
     marginRight: 60
   }
 })
-
-const attachToDy = (animation: Animated.Value, newValue: number) => (
-  e: GestureResponderEvent
-) => {
-  Animated.event(
-    [
-      null,
-      {
-        dy: animation
-      }
-    ],
-    { useNativeDriver: false }
-  )(e, { dy: newValue })
-}
 
 type NowPlayingDrawerProps = {
   onOpen: () => void
@@ -199,6 +186,14 @@ const NowPlayingDrawer = ({
     setMediaKey(mediaKey => mediaKey + 1)
   }, [setMediaKey])
 
+  const onPressScrubberIn = useCallback(() => {
+    setIsGestureEnabled(false)
+  }, [setIsGestureEnabled])
+
+  const onPressScrubberOut = useCallback(() => {
+    setIsGestureEnabled(true)
+  }, [setIsGestureEnabled])
+
   return (
     <Drawer
       // Appears below bottom bar whereas normally drawers appear above
@@ -239,8 +234,8 @@ const NowPlayingDrawer = ({
               <Scrubber
                 mediaKey={`${mediaKey}`}
                 isPlaying={isPlaying}
-                onPressIn={() => setIsGestureEnabled(false)}
-                onPressOut={() => setIsGestureEnabled(true)}
+                onPressIn={onPressScrubberIn}
+                onPressOut={onPressScrubberOut}
                 duration={track.duration}
               />
             </View>

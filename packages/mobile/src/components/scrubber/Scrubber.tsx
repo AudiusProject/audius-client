@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import moment from 'moment'
 import { StyleSheet, View } from 'react-native'
@@ -69,101 +69,102 @@ type ScrubberProps = {
 
 /**
  * Scrubber component to control track playback & seek.
- *
- * Memoize because the Scrubber is sensitive to parent rerenders
- * due to its gesture handler use.
- * useSelectorWeb (used to connect the now playing drawer) induces
- * rerenders that normally should be harmless.
  */
-export const Scrubber = memo(
-  ({ mediaKey, isPlaying, duration, onPressIn, onPressOut }: ScrubberProps) => {
-    const styles = useThemedStyles(createStyles)
-    const dispatch = useDispatch()
+export const Scrubber = ({
+  mediaKey,
+  isPlaying,
+  duration,
+  onPressIn,
+  onPressOut
+}: ScrubberProps) => {
+  const styles = useThemedStyles(createStyles)
+  const dispatch = useDispatch()
 
-    // The left-hand timestamp
-    const [timestampStart, setTimestampStart] = useState('')
-    // The right-hand timestamp
-    const [timestampEnd, setTimestampEnd] = useState('')
+  // The left-hand timestamp
+  const [timestampStart, setTimestampStart] = useState('')
+  // The right-hand timestamp
+  const [timestampEnd, setTimestampEnd] = useState('')
 
-    const [dragSeconds, setDragSeconds] = useState<string | null>(null)
+  const [dragSeconds, setDragSeconds] = useState<string | null>(null)
 
-    const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
 
-    const handlePressIn = useCallback(() => {
-      onPressIn()
-      setIsDragging(true)
-    }, [onPressIn, setIsDragging])
+  const handlePressIn = useCallback(() => {
+    onPressIn()
+    setIsDragging(true)
+  }, [onPressIn, setIsDragging])
 
-    const handlePressOut = useCallback(
-      percentComplete => {
-        if (global.progress) {
-          if (duration) {
-            setTimestampStart(formatSeconds(percentComplete * duration))
-            dispatch(seek({ type: SEEK, seconds: percentComplete * duration }))
-          }
+  const handlePressOut = useCallback(
+    percentComplete => {
+      if (global.progress) {
+        if (duration) {
+          setTimestampStart(formatSeconds(percentComplete * duration))
+          dispatch(seek({ type: SEEK, seconds: percentComplete * duration }))
         }
-        onPressOut()
-        setIsDragging(false)
-        setTimeout(() => {
-          setDragSeconds(null)
-        }, SCRUB_RELEASE_TIMEOUT_MS)
-      },
-      [onPressOut, setIsDragging, dispatch, duration]
-    )
-
-    // Register an interval to update the start / end timestamps (duration)
-    const seekInterval = useRef<NodeJS.Timeout | null>(null)
-
-    const onDrag = useCallback(
-      percentComplete => {
-        if (global.progress) {
-          if (duration) {
-            setDragSeconds(formatSeconds(percentComplete * duration))
-          }
-        }
-      },
-      [duration, setDragSeconds]
-    )
-
-    useEffect(() => {
-      setDragSeconds(formatSeconds(0))
+      }
+      onPressOut()
+      setIsDragging(false)
       setTimeout(() => {
         setDragSeconds(null)
       }, SCRUB_RELEASE_TIMEOUT_MS)
-    }, [mediaKey])
+    },
+    [onPressOut, setIsDragging, dispatch, duration]
+  )
 
-    useEffect(() => {
-      if (seekInterval.current) clearInterval(seekInterval.current)
-      if (!isDragging) {
-        seekInterval.current = setInterval(() => {
-          if (isPlaying && global.progress) {
-            const { currentTime, seekableDuration } = global.progress
-            if (seekableDuration !== undefined) {
-              setTimestampStart(formatSeconds(currentTime))
-              setTimestampEnd(formatSeconds(seekableDuration))
-            }
-          }
-        }, SEEK_INTERVAL)
+  // Register an interval to update the start / end timestamps (duration)
+  const seekInterval = useRef<NodeJS.Timeout | null>(null)
+
+  const onDrag = useCallback(
+    percentComplete => {
+      if (global.progress && duration) {
+        setDragSeconds(formatSeconds(percentComplete * duration))
       }
-    }, [mediaKey, isPlaying, seekInterval, isDragging])
+    },
+    [duration, setDragSeconds]
+  )
 
-    return (
-      <View style={styles.root}>
-        <Text style={styles.timestamp} weight='regular'>
-          {dragSeconds || timestampStart}
-        </Text>
-        <Slider
-          mediaKey={mediaKey}
-          isPlaying={isPlaying}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          onDrag={onDrag}
-          duration={duration}
-        />
-        <Text style={styles.timestamp} weight='regular'>
-          {timestampEnd}
-        </Text>
-      </View>
-    )
-  }
-)
+  useEffect(() => {
+    setDragSeconds(formatSeconds(0))
+    setTimeout(() => {
+      setDragSeconds(null)
+    }, SCRUB_RELEASE_TIMEOUT_MS)
+  }, [mediaKey])
+
+  useEffect(() => {
+    if (!isDragging) {
+      seekInterval.current = setInterval(() => {
+        if (isPlaying && global.progress) {
+          const { currentTime, seekableDuration } = global.progress
+          if (seekableDuration !== undefined) {
+            setTimestampStart(formatSeconds(currentTime))
+            setTimestampEnd(formatSeconds(seekableDuration))
+          }
+        }
+      }, SEEK_INTERVAL)
+    }
+    return () => {
+      if (seekInterval.current) {
+        clearInterval(seekInterval.current)
+      }
+    }
+  }, [mediaKey, isPlaying, seekInterval, isDragging])
+
+  return (
+    <View style={styles.root}>
+      <Text style={styles.timestamp} weight='regular'>
+        {dragSeconds || timestampStart}
+      </Text>
+      <Slider
+        mediaKey={mediaKey}
+        isPlaying={isPlaying}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onDrag={onDrag}
+        duration={duration}
+      />
+      <Text style={styles.timestamp} weight='regular'>
+        {timestampEnd}
+      </Text>
+    </View>
+  )
+}

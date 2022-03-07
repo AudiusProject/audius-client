@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { FavoriteSource } from 'audius-client/src/common/models/Analytics'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
@@ -132,8 +132,9 @@ export const PlayBar = ({
   const isDarkMode = themeVariant === Theme.DARK
   const [percentComplete, setPercentComplete] = useState(0)
 
+  const intervalRef = useRef<NodeJS.Timeout>()
   useEffect(() => {
-    setInterval(() => {
+    intervalRef.current = setInterval(() => {
       const { currentTime, seekableDuration } = global.progress
       if (seekableDuration !== undefined) {
         setPercentComplete(currentTime / seekableDuration)
@@ -141,7 +142,12 @@ export const PlayBar = ({
         setPercentComplete(0)
       }
     }, SEEK_INTERVAL)
-  }, [setPercentComplete])
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [setPercentComplete, intervalRef])
 
   const isPlaying = useSelector(getPlaying)
 

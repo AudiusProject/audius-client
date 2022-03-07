@@ -22,6 +22,7 @@ import { Edge, SafeAreaView } from 'react-native-safe-area-context'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
+import { attachToDy } from 'app/utils/animation'
 import { useColor } from 'app/utils/theme'
 
 const MAX_SHADOW_OPACITY = 0.15
@@ -237,20 +238,6 @@ export const springToValue = (
     friction,
     useNativeDriver: true
   }).start(finished)
-}
-
-const attachToDy = (animation: Animated.Value, newValue: number) => (
-  e: GestureResponderEvent
-) => {
-  Animated.event(
-    [
-      null,
-      {
-        dy: animation
-      }
-    ],
-    { useNativeDriver: false }
-  )(e, { dy: newValue })
 }
 
 const DrawerHeader = ({

@@ -11,6 +11,7 @@ import LinearGradient from 'react-native-linear-gradient'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
+import { attachToDx } from 'app/utils/animation'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 // How much the handle "grows" when pressing
@@ -65,20 +66,6 @@ const createStyles = (themeColors: ThemeColors) =>
       elevation: 3
     }
   })
-
-const attachToDx = (animation: Animated.Value, newValue: number) => (
-  e: GestureResponderEvent
-) => {
-  Animated.event(
-    [
-      null,
-      {
-        dx: animation
-      }
-    ],
-    { useNativeDriver: false }
-  )(e, { dx: newValue })
-}
 
 type SliderProps = {
   /**
@@ -156,7 +143,6 @@ export const Slider = memo(
     const currentAnimation = useRef<Animated.CompositeAnimation>()
     const play = useCallback(
       (timeRemaining: number) => {
-        console.log(' play remaining ', timeRemaining)
         currentAnimation.current = Animated.timing(translationAnim, {
           toValue: railWidth,
           duration: timeRemaining,
@@ -195,26 +181,29 @@ export const Slider = memo(
       ]
     )
 
+    const animateFromNowToEnd = useCallback(
+      percentComplete => {
+        if (isPlaying && duration !== undefined) {
+          play((1 - percentComplete) * duration * 1000)
+        }
+      },
+      [isPlaying, duration, play]
+    )
+
     const onReleaseRail = useCallback(
       (e: GestureResponderEvent) => {
         const newPosition = e.nativeEvent.pageX - railPageX
         const percentComplete = newPosition / railWidth
         onPressOut(percentComplete)
         handlePressHandleOut()
-        if (isPlaying) {
-          if (duration !== undefined) {
-            play((1 - percentComplete) * duration * 1000)
-          }
-        }
+        animateFromNowToEnd(percentComplete)
       },
       [
         onPressOut,
         handlePressHandleOut,
         railPageX,
         railWidth,
-        play,
-        isPlaying,
-        duration
+        animateFromNowToEnd
       ]
     )
 
@@ -228,13 +217,9 @@ export const Slider = memo(
       percentComplete => {
         onPressOut(percentComplete)
         handlePressHandleOut()
-        if (isPlaying) {
-          if (duration !== undefined) {
-            play((1 - percentComplete) * duration * 1000)
-          }
-        }
+        animateFromNowToEnd(percentComplete)
       },
-      [onPressOut, handlePressHandleOut, isPlaying, play, duration]
+      [onPressOut, handlePressHandleOut, animateFromNowToEnd]
     )
 
     const panResponder = PanResponder.create({
