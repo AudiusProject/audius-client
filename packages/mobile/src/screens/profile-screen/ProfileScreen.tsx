@@ -40,10 +40,15 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     height: '100%'
   },
   topBarIcons: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  iconCrownRoot: {
+    marginLeft: spacing(1)
   },
   iconCrown: {
-    marginLeft: 4
+    height: 22,
+    width: 22
   }
 }))
 
@@ -90,13 +95,12 @@ export const ProfileScreen = () => {
   const topbarLeft = isOwner ? (
     <View style={styles.topBarIcons}>
       <TopBarIconButton icon={IconSettings} onPress={handleNavigateSettings} />
-      <View style={styles.iconCrown}>
-        <TopBarIconButton
-          fill={accentOrange}
-          icon={IconCrown}
-          onPress={handleNavigateAudio}
-        />
-      </View>
+      <TopBarIconButton
+        styles={{ root: styles.iconCrownRoot, icon: styles.iconCrown }}
+        fill={accentOrange}
+        icon={IconCrown}
+        onPress={handleNavigateAudio}
+      />
     </View>
   ) : undefined
 
