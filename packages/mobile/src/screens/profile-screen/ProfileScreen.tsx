@@ -88,9 +88,7 @@ export const ProfileScreen = () => {
     setHasUserFollowed(false)
   }, [setHasUserFollowed])
 
-  if (!profile) return null
-
-  const isOwner = accountUser?.user_id === profile.user_id
+  const isOwner = accountUser?.user_id === profile?.user_id
 
   const topbarLeft = isOwner ? (
     <View style={styles.topBarIcons}>
@@ -106,26 +104,28 @@ export const ProfileScreen = () => {
 
   return (
     <Screen topbarLeft={topbarLeft}>
-      <VirtualizedScrollView listKey='profile-screen'>
-        <CoverPhoto profile={profile} />
-        <ProfilePhoto style={styles.profilePicture} profile={profile} />
-        <View style={styles.header}>
-          <ProfileInfo profile={profile} onFollow={handleFollow} />
-          <ProfileMetrics profile={profile} />
-          <ProfileSocials profile={profile} />
-          <ExpandableBio profile={profile} />
-          {!hasUserFollowed ? null : (
-            <ArtistRecommendations
-              profile={profile}
-              onClose={handleCloseArtistRecs}
-            />
-          )}
-          {!isOwner ? null : <UploadTrackButton />}
-        </View>
-        <View style={styles.navigator}>
-          <ProfileTabNavigator profile={profile} />
-        </View>
-      </VirtualizedScrollView>
+      {!profile ? null : (
+        <VirtualizedScrollView listKey='profile-screen'>
+          <CoverPhoto profile={profile} />
+          <ProfilePhoto style={styles.profilePicture} profile={profile} />
+          <View style={styles.header}>
+            <ProfileInfo profile={profile} onFollow={handleFollow} />
+            <ProfileMetrics profile={profile} />
+            <ProfileSocials profile={profile} />
+            <ExpandableBio profile={profile} />
+            {!hasUserFollowed ? null : (
+              <ArtistRecommendations
+                profile={profile}
+                onClose={handleCloseArtistRecs}
+              />
+            )}
+            {!isOwner ? null : <UploadTrackButton />}
+          </View>
+          <View style={styles.navigator}>
+            <ProfileTabNavigator profile={profile} />
+          </View>
+        </VirtualizedScrollView>
+      )}
     </Screen>
   )
 }

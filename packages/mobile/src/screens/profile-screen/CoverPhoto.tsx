@@ -35,7 +35,7 @@ export const CoverPhoto = ({ profile }: CoverPhotoProps) => {
     WidthSizes.SIZE_2000
   )
 
-  const source = coverPhoto.match(/imageCoverPhotoBlank/)
+  const source = coverPhoto?.match(/imageCoverPhotoBlank/)
     ? imageCoverPhotoBlank
     : { uri: coverPhoto }
 
