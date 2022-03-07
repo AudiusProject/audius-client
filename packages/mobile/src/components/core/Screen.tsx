@@ -6,6 +6,13 @@ import { Animated, StyleProp, View, ViewStyle } from 'react-native'
 
 import { makeStyles } from 'app/styles'
 
+const removeFalsy = (obj: Record<string, any>) =>
+  Object.entries(obj)
+    .filter(([, value]) => value !== undefined)
+    .reduce((newObj, [key, value]) => {
+      return { ...newObj, [key]: value }
+    }, {})
+
 const useStyles = makeStyles(({ palette }, { variant }) => ({
   root: {
     height: '100%',
@@ -23,6 +30,7 @@ const useStyles = makeStyles(({ palette }, { variant }) => ({
 type ScreenProps = {
   children: ReactNode
   topbarLeft?: Nullable<ReactElement>
+  topbarLeftStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>
   topbarRight?: Nullable<ReactElement>
   topbarRightStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>
   title?: Nullable<string>
@@ -30,13 +38,15 @@ type ScreenProps = {
   variant?: 'primary' | 'secondary' | 'white'
   noPadding?: boolean
 }
+
 export const Screen = (props: ScreenProps) => {
   const {
     children,
     topbarLeft,
     topbarRight,
-    title,
+    title = null,
     topbarRightStyle,
+    topbarLeftStyle,
     variant = 'primary',
     noPadding
   } = props
@@ -44,13 +54,28 @@ export const Screen = (props: ScreenProps) => {
   const navigation = useNavigation()
 
   useEffect(() => {
-    navigation.setOptions({
-      headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
-      headerRight: topbarRight === undefined ? undefined : () => topbarRight,
-      headerRightContainerStyle: topbarRightStyle,
-      title
-    })
-  }, [navigation, topbarLeft, topbarRight, topbarRightStyle, title])
+    navigation.setOptions(
+      removeFalsy({
+        headerLeftContainerStyle: topbarLeftStyle,
+        headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
+        headerRight:
+          topbarRight === undefined
+            ? undefined
+            : topbarRight === null
+            ? null
+            : () => topbarRight,
+        headerRightContainerStyle: topbarRightStyle,
+        title
+      })
+    )
+  }, [
+    navigation,
+    topbarLeftStyle,
+    topbarLeft,
+    topbarRight,
+    topbarRightStyle,
+    title
+  ])
 
   return (
     <View style={[styles.root, noPadding && { paddingBottom: 0 }]}>
