@@ -245,9 +245,7 @@ export const Button = (props: ButtonProps) => {
     [onPressOut, handlePressOutScale, handlePressOutColor]
   )
 
-  /*
-   * Ensures button take up a static height even when scaling
-   */
+  // Ensures button takes up a static height even when scaling
   const handleRootLayout = useCallback(
     (event: LayoutChangeEvent) => {
       rootHeightRef.current = event.nativeEvent.layout.height

@@ -51,7 +51,7 @@ export const CoverPhotoInput = () => {
     'cover_photo'
   )
 
-  const source = value.url.match(/imageCoverPhotoBlank/)
+  const source = value.url?.match(/imageCoverPhotoBlank/)
     ? imageCoverPhotoBlank
     : { uri: value.url }
 
