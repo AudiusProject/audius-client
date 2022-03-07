@@ -8,7 +8,7 @@ import {
 
 /**
  * A hook that listens for `scrollToTop` event on all parent navigators
- * When the nearest navigator is type `tab`, Listens to `tabPress` event
+ * When the nearest navigator is type `tab`, listens to `tabPress` event
  *
  * react-navigation exports `useScrollToTop` but it doesn't support nested navigators
  * see: https://github.com/react-navigation/react-navigation/issues/8586
@@ -51,12 +51,12 @@ export const useScrollToTop = (
  * Get array of all parent navigators
  */
 const getParentNavigators = (
-  navigation: NavigationProp<any>,
+  navigation?: NavigationProp<any>,
   parents: NavigationProp<any>[] = []
 ): NavigationProp<any>[] => {
-  const parent = navigation.getParent()
-  if (!parent) {
-    return [navigation, ...parents]
+  if (!navigation) {
+    return parents
   }
+  const parent = navigation.getParent()
   return getParentNavigators(parent, [navigation, ...parents])
 }
