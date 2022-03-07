@@ -2,16 +2,13 @@ import { ReactElement, ReactNode, useEffect } from 'react'
 
 import { useNavigation } from '@react-navigation/native'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { pickBy, negate, isUndefined } from 'lodash'
 import { Animated, StyleProp, View, ViewStyle } from 'react-native'
 
 import { makeStyles } from 'app/styles'
 
-const removeFalsy = (obj: Record<string, any>) =>
-  Object.entries(obj)
-    .filter(([, value]) => value !== undefined)
-    .reduce((newObj, [key, value]) => {
-      return { ...newObj, [key]: value }
-    }, {})
+const removeUndefined = (object: Record<string, unknown>) =>
+  pickBy(object, negate(isUndefined))
 
 const useStyles = makeStyles(({ palette }, { variant }) => ({
   root: {
@@ -55,7 +52,7 @@ export const Screen = (props: ScreenProps) => {
 
   useEffect(() => {
     navigation.setOptions(
-      removeFalsy({
+      removeUndefined({
         headerLeftContainerStyle: topbarLeftStyle,
         headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
         headerRight:

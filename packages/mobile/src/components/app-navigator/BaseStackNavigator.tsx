@@ -45,11 +45,6 @@ export const BaseStackNavigator = ({
       screenListeners={() => ({
         beforeRemove: e => {
           // hack for now to prevent pop for some pages
-          console.log(
-            e.target,
-            e.target?.includes('Search'),
-            !e.target?.includes('SearchResults')
-          )
           if (
             !e.target?.includes('EditProfile') &&
             !(
@@ -57,7 +52,6 @@ export const BaseStackNavigator = ({
               !e.target?.includes('SearchResults')
             )
           ) {
-            console.log('this should not happen')
             // When a screen is removed, notify the web layer to pop navigation
             dispatchWeb({
               type: MessageType.POP_ROUTE
