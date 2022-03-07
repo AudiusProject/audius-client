@@ -190,6 +190,10 @@ export const BottomTabBar = ({
 
       if (!isFocused && !event.defaultPrevented) {
         navigation.navigate(route.name)
+      } else if (isFocused) {
+        navigation.emit({
+          type: 'scrollToTop'
+        })
       }
     },
     [navigation, pushRouteWeb, handle, openSignOn, resetExploreTab, scrollToTop]

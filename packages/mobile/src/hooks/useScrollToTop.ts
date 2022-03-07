@@ -29,16 +29,19 @@ export const useScrollToTop = (
         })
       )
 
-      const removeTabListener =
-        navigation.getState().type === 'tab' && !disableTopTabScroll
-          ? navigation.addListener('tabPress' as any, () => {
-              scrollToTop()
-            })
-          : null
+      const removeTabListeners = (navigation.getState().type === 'tab' &&
+      !disableTopTabScroll
+        ? ['tabPress', 'tabLongPress']
+        : []
+      ).map(e =>
+        navigation.addListener(e as any, () => {
+          scrollToTop()
+        })
+      )
 
       return () => {
         removeListeners.forEach(r => r())
-        removeTabListener?.()
+        removeTabListeners.forEach(r => r())
       }
     }, [navigation, scrollToTop, disableTopTabScroll])
   )
