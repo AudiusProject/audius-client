@@ -148,13 +148,11 @@ export const renamePlaylistFolderInLibrary = (
   newName: string
 ): PlaylistLibrary => {
   if (!library.contents) return library
-  const folder = library.contents.find(item => {
-    return item.type === 'folder' && item.id === folderId
-  })
-  if (!folder) return library
   const folderIndex = library.contents.findIndex(item => {
     return item.type === 'folder' && item.id === folderId
   })
+  if (folderIndex < 0) return library
+  const folder = library.contents[folderIndex]
   const updatedFolder = { ...folder, name: newName }
   const newContents = [...library.contents]
   newContents.splice(folderIndex, 1, updatedFolder)
@@ -229,6 +227,7 @@ export const removePlaylistLibraryDuplicates = (
   for (const item of library.contents) {
     switch (item.type) {
       case 'folder': {
+        // If we've seen this folder already, don't include it in our final result.
         if (ids.has(item.id)) {
           break
         }
@@ -243,6 +242,7 @@ export const removePlaylistLibraryDuplicates = (
       case 'playlist':
       case 'explore_playlist':
       case 'temp_playlist':
+        // If we've seen this playlist already, don't include it in our final result.
         if (ids.has(`${item.playlist_id}`)) {
           break
         }

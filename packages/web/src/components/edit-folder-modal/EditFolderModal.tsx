@@ -96,7 +96,7 @@ const EditFolderModal = () => {
         modalKey='editfolder'
         isOpen={isOpen}
         onClose={handleClose}
-        zIndex={zIndex.CREATE_PLAYLIST_MODAL}
+        zIndex={zIndex.EDIT_PLAYLIST_MODAL}
         bodyClassName={styles.modalBody}
       >
         <ModalHeader onClose={handleClose}>
