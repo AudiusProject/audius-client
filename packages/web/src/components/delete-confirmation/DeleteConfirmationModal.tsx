@@ -2,12 +2,14 @@ import React, { memo } from 'react'
 
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 
+import { Nullable } from 'common/utils/typeUtils'
+
 import styles from './DeleteConfirmationModal.module.css'
 
 type DeleteConfirmationModalProps = {
   title: string
-  customHeader?: string
-  customDescription?: string
+  customHeader?: Nullable<string>
+  customDescription?: Nullable<string>
   visible: boolean
   entity: string
   onDelete: () => void
