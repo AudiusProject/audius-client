@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { LineupState } from 'audius-client/src/common/models/Lineup'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -12,9 +14,12 @@ import { trackRemixesPage } from 'audius-client/src/utils/route'
 import { isEqual } from 'lodash'
 import { StyleSheet, View } from 'react-native'
 
+import { Screen } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import Text from 'app/components/text'
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
+import { useRoute } from 'app/hooks/useRoute'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { ThemeColors } from 'app/utils/theme'
@@ -62,6 +67,7 @@ const TrackScreenMainContent = ({
   track,
   user
 }: TrackScreenMainContentProps) => {
+  console.log({ lineup, track, user })
   const styles = useThemedStyles(createStyles)
   const pushRouteWeb = usePushRouteWeb()
 
@@ -111,9 +117,27 @@ const TrackScreenMainContent = ({
  * `TrackScreen` displays a single track and a Lineup of more tracks by the artist
  */
 export const TrackScreen = () => {
+  const { params } = useRoute<'Track'>()
+  const dispatchWeb = useDispatchWeb()
+  const track = useSelectorWeb(state => getTrack(state, params))
+  const user = useSelectorWeb(state => getUser(state, { id: track?.owner_id }))
   const lineup = useSelectorWeb(getMoreByArtistLineup, isEqual)
-  const track = useSelectorWeb(getTrack)
-  const user = useSelectorWeb(getUser)
+
+  const ownerHandle = user?.handle
+  const permalink = track?.permalink
+
+  const loadMore = useCallback(
+    (offset: number, limit: number, overwrite: boolean) => {
+      console.log(offset, limit, overwrite)
+      dispatchWeb(
+        tracksActions.fetchLineupMetadatas(offset, limit, overwrite, {
+          ownerHandle,
+          permalink
+        })
+      )
+    },
+    [dispatchWeb, ownerHandle, permalink]
+  )
 
   if (!track || !user || !lineup) {
     console.warn(
@@ -123,16 +147,16 @@ export const TrackScreen = () => {
   }
 
   return (
-    <View>
+    <Screen noPadding>
       <Lineup
+        loadMore={loadMore}
         actions={tracksActions}
         count={6}
         header={
           <TrackScreenMainContent track={track} user={user} lineup={lineup} />
         }
         lineup={lineup}
-        start={1}
       />
-    </View>
+    </Screen>
   )
 }
