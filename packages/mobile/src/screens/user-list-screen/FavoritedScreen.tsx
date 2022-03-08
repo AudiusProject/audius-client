@@ -1,7 +1,8 @@
 import { getUserList } from 'audius-client/src/common/store/user-list/favorites/selectors'
 
+import { Screen } from 'app/components/core'
+
 import { UserList } from './UserList'
-import { UserListScreen } from './UserListScreen'
 
 const messages = {
   title: 'Favorites'
@@ -9,8 +10,8 @@ const messages = {
 
 export const FavoritedScreen = () => {
   return (
-    <UserListScreen title={messages.title}>
+    <Screen title={messages.title} variant='secondary'>
       <UserList userSelector={getUserList} tag='FAVORITES' />
-    </UserListScreen>
+    </Screen>
   )
 }

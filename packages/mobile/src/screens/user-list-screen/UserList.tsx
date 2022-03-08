@@ -1,21 +1,29 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { CommonState } from 'audius-client/src/common/store'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { loadMore } from 'audius-client/src/common/store/user-list/actions'
 import { UserListStoreState } from 'audius-client/src/common/store/user-list/types'
+import { isEqual } from 'lodash'
 import { FlatList } from 'react-native'
 import { Selector } from 'react-redux'
 
+import LoadingSpinner from 'app/components/loading-spinner'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { UserChip } from './UserChip'
 
-const useStyles = makeStyles(({ palette }) => ({
-  root: { backgroundColor: palette.white }
+const useStyles = makeStyles(({ palette, spacing }) => ({
+  root: { backgroundColor: palette.white },
+  spinner: {
+    marginTop: spacing(6),
+    alignSelf: 'center',
+    height: spacing(8),
+    width: spacing(8)
+  }
 }))
 
 type UserListProps = {
@@ -33,12 +41,16 @@ type UserListProps = {
 }
 
 export const UserList = (props: UserListProps) => {
-  const { tag, userSelector } = props
   const styles = useStyles()
+  const cachedUsers = useRef([])
+  const { tag, userSelector } = props
   const dispatchWeb = useDispatchWeb()
-  const { hasMore, userIds } = useSelectorWeb(userSelector)
+  const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
   const currentUserId = useSelectorWeb(getUserId)
-  const usersMap = useSelectorWeb(state => getUsers(state, { ids: userIds }))
+  const usersMap = useSelectorWeb(
+    state => getUsers(state, { ids: userIds }),
+    isEqual
+  )
   const users = useMemo(
     () =>
       userIds
@@ -47,16 +59,26 @@ export const UserList = (props: UserListProps) => {
     [usersMap, userIds]
   )
 
+  useEffect(() => {
+    if (users.length !== 0) {
+      cachedUsers.current = users
+    }
+  }, [users])
+
   const handleEndReached = useCallback(() => {
     if (hasMore) {
       dispatchWeb(loadMore(tag))
     }
   }, [hasMore, dispatchWeb, tag])
 
+  if (loading && cachedUsers.current.length === 0) {
+    return <LoadingSpinner style={styles.spinner} />
+  }
+
   return (
     <FlatList
       style={styles.root}
-      data={users}
+      data={loading ? cachedUsers.current : users}
       renderItem={({ item }) => (
         <UserChip user={item} currentUserId={currentUserId} />
       )}

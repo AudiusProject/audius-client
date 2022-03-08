@@ -1,7 +1,8 @@
 import { getUserList } from 'audius-client/src/common/store/user-list/reposts/selectors'
 
+import { Screen } from 'app/components/core'
+
 import { UserList } from './UserList'
-import { UserListScreen } from './UserListScreen'
 
 const messages = {
   title: 'Reposts'
@@ -9,8 +10,8 @@ const messages = {
 
 export const RepostsScreen = () => {
   return (
-    <UserListScreen title={messages.title}>
+    <Screen title={messages.title} variant='secondary'>
       <UserList userSelector={getUserList} tag='REPOSTS' />
-    </UserListScreen>
+    </Screen>
   )
 }
