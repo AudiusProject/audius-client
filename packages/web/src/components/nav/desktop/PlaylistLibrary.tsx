@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { Name } from 'common/models/Analytics'
-import { SmartCollection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import {
   PlaylistLibrary as PlaylistLibraryType,
@@ -14,7 +13,6 @@ import {
 } from 'common/models/PlaylistLibrary'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import { FeatureFlags } from 'common/services/remote-config'
-import { AccountCollection } from 'common/store/account/reducer'
 import {
   getAccountNavigationPlaylists,
   getAccountUser,
@@ -48,16 +46,14 @@ type PlaylistLibraryProps = {
 
 type LibraryContentsLevelProps = {
   contents: PlaylistLibraryType['contents']
-  playlists: { [id: number]: AccountCollection }
-  renderPlaylist: (playlist: AccountCollection) => void
-  renderExplorePlaylist: (playlist: SmartCollection) => void
+  renderPlaylist: (playlistId: number) => void
+  renderExplorePlaylist: (playlistId: SmartCollectionVariant) => void
   renderFolder: (folder: PlaylistLibraryFolder) => void
 }
 
 // Function component for rendering a single level of the playlist library. Playlist library consists of up to two content levels (root + inside a folder)
 const LibraryContentsLevel = ({
   contents,
-  playlists,
   renderPlaylist,
   renderExplorePlaylist,
   renderFolder
@@ -67,18 +63,14 @@ const LibraryContentsLevel = ({
       {contents.map(content => {
         switch (content.type) {
           case 'explore_playlist': {
-            const playlist = SMART_COLLECTION_MAP[content.playlist_id]
-            if (!playlist) return null
-            return renderExplorePlaylist(playlist)
+            return renderExplorePlaylist(content.playlist_id)
           }
           case 'playlist': {
-            const playlist = playlists[content.playlist_id]
-            return renderPlaylist(playlist)
+            return renderPlaylist(content.playlist_id)
           }
           case 'temp_playlist': {
             try {
-              const playlist = playlists[parseInt(content.playlist_id)]
-              return renderPlaylist(playlist)
+              return renderPlaylist(parseInt(content.playlist_id))
             } catch (e) {
               console.debug(e)
               break
@@ -143,7 +135,9 @@ const PlaylistLibrary = ({
     [dispatch, library, record]
   )
 
-  const renderExplorePlaylist = (playlist: SmartCollection) => {
+  const renderExplorePlaylist = (playlistId: SmartCollectionVariant) => {
+    const playlist = SMART_COLLECTION_MAP[playlistId]
+    if (!playlist) return null
     const name = playlist.playlist_name
     const url = playlist.link
     return (
@@ -179,7 +173,8 @@ const PlaylistLibrary = ({
     },
     [record, onClickNavLinkWithAccount]
   )
-  const renderPlaylist = (playlist: AccountCollection) => {
+  const renderPlaylist = (playlistId: number) => {
+    const playlist = playlists[playlistId]
     if (!account || !playlist) return null
     const { id, name } = playlist
     const url = playlistPage(playlist.user.handle, name, id)
@@ -220,7 +215,6 @@ const PlaylistLibrary = ({
         {isEmpty(folder.contents) ? null : (
           <div className={styles.folderContentsContainer}>
             <LibraryContentsLevel
-              playlists={playlists}
               contents={folder.contents}
               renderPlaylist={renderPlaylist}
               renderExplorePlaylist={renderExplorePlaylist}
@@ -234,20 +228,23 @@ const PlaylistLibrary = ({
 
   const playlistsNotInLibrary = useMemo(() => {
     const result = { ...playlists }
-    if (library && playlists) {
-      library.contents.forEach(content => {
-        if (content.type === 'temp_playlist') {
-          const playlist = playlists[parseInt(content.playlist_id)]
+    function helpComputePlaylistsNotInLibrary(
+      libraryContentsLevel: PlaylistLibraryType['contents']
+    ) {
+      libraryContentsLevel.forEach(content => {
+        if (content.type === 'temp_playlist' || content.type === 'playlist') {
+          const playlist = playlists[Number(content.playlist_id)]
           if (playlist) {
-            delete result[parseInt(content.playlist_id)]
+            delete result[Number(content.playlist_id)]
           }
-        } else if (content.type === 'playlist') {
-          const playlist = playlists[content.playlist_id]
-          if (playlist) {
-            delete result[content.playlist_id]
-          }
+        } else if (content.type === 'folder') {
+          helpComputePlaylistsNotInLibrary(content.contents)
         }
       })
+    }
+
+    if (library && playlists) {
+      helpComputePlaylistsNotInLibrary(library.contents)
     }
     return result
   }, [library, playlists])
@@ -266,7 +263,6 @@ const PlaylistLibrary = ({
       />
       {account && playlists && library ? (
         <LibraryContentsLevel
-          playlists={playlists}
           contents={library.contents || []}
           renderPlaylist={renderPlaylist}
           renderExplorePlaylist={renderExplorePlaylist}
@@ -274,7 +270,7 @@ const PlaylistLibrary = ({
         />
       ) : null}
       {Object.values(playlistsNotInLibrary).map(playlist => {
-        return renderPlaylist(playlist)
+        return renderPlaylist(playlist.id)
       })}
       {isEmpty(library?.contents) ? (
         <div className={cn(navColumnStyles.link, navColumnStyles.disabled)}>
