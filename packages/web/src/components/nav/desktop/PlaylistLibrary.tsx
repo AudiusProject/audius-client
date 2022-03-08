@@ -62,7 +62,6 @@ const LibraryContentsLevel = ({
   renderExplorePlaylist,
   renderFolder
 }: LibraryContentsLevelProps) => {
-  console.log(contents, 'contents')
   return (
     <>
       {contents.map(content => {
