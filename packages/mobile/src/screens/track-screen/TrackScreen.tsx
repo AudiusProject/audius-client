@@ -67,7 +67,6 @@ const TrackScreenMainContent = ({
   track,
   user
 }: TrackScreenMainContentProps) => {
-  console.log({ lineup, track, user })
   const styles = useThemedStyles(createStyles)
   const pushRouteWeb = usePushRouteWeb()
 
@@ -128,7 +127,6 @@ export const TrackScreen = () => {
 
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
-      console.log(offset, limit, overwrite)
       dispatchWeb(
         tracksActions.fetchLineupMetadatas(offset, limit, overwrite, {
           ownerHandle,

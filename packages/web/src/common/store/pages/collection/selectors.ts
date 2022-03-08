@@ -24,7 +24,7 @@ export const getCollection = (state: CommonState, params?: { id: ID }) => {
   }
 
   const config = params?.id
-    ? { id: params?.id }
+    ? { id: params.id }
     : { uid: getCollectionUid(state) }
 
   return getCachedCollection(state, config)
