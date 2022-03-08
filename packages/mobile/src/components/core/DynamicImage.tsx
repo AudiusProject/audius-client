@@ -113,7 +113,7 @@ const ImageWithPlaceholder = ({
 }
 
 /**
- * A dynamic image that transitions between changes to the `image` prop.
+ * A dynamic image that transitions between changes to the `source` prop.
  */
 export const DynamicImage = memo(function DynamicImage({
   source,
