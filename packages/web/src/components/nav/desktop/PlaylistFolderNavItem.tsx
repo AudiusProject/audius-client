@@ -112,6 +112,7 @@ export const PlaylistFolderNavItem = ({
         onClick={() => {}}
       >
         <div className={styles.libraryLinkContentContainer}>
+          {isEmpty(contents) ? (
             <IconFolderOutline
               width={12}
               height={12}
