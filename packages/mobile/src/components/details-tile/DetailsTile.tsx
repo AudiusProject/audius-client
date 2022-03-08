@@ -248,7 +248,7 @@ export const DetailsTile = ({
   }
 
   const imageElement = coSign ? (
-    <CoSign size={Size.LARGE} style={styles.coverArt}>
+    <CoSign size={Size.LARGE}>
       <DynamicImage
         source={{ uri: imageUrl }}
         styles={{ image: styles.coverArt as ImageStyle }}

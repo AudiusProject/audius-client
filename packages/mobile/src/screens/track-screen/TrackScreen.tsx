@@ -9,7 +9,7 @@ import {
   getUser
 } from 'audius-client/src/common/store/pages/track/selectors'
 import { trackRemixesPage } from 'audius-client/src/utils/route'
-import { isEqual } from 'lodash'
+import { isEqual, omit } from 'lodash'
 import { StyleSheet, View } from 'react-native'
 
 import { Screen } from 'app/components/core'
@@ -114,9 +114,23 @@ const TrackScreenMainContent = ({
  */
 export const TrackScreen = () => {
   const { params } = useRoute<'Track'>()
-  const track = useSelectorWeb(state => getTrack(state, params))
-  const user = useSelectorWeb(state => getUser(state, { id: track?.owner_id }))
-  const lineup = useSelectorWeb(getMoreByArtistLineup, isEqual)
+  const track = useSelectorWeb(
+    state => getTrack(state, params),
+    (a, b) => {
+      const omitUneeded = o => omit(o, ['_stems', '_remix_parents'])
+      return isEqual(omitUneeded(a), omitUneeded(b))
+    }
+  )
+
+  const user = useSelectorWeb(
+    state => getUser(state, { id: track?.owner_id }),
+    isEqual
+  )
+
+  const lineup = useSelectorWeb(
+    getMoreByArtistLineup,
+    (a, b) => (!a.entries && !b.entries) || isEqual(a.entries, b.entries)
+  )
 
   if (!track || !user || !lineup) {
     console.warn(
