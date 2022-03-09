@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 import { Name } from 'audius-client/src/common/models/Analytics'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'

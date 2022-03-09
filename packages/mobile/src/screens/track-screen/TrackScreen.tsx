@@ -1,3 +1,4 @@
+import { ID } from 'audius-client/src/common/models/Identifiers'
 import { LineupState } from 'audius-client/src/common/models/Lineup'
 import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
@@ -51,7 +52,7 @@ const createStyles = (themeColors: ThemeColors) =>
   })
 
 type TrackScreenMainContentProps = {
-  lineup: LineupState<Track>
+  lineup: LineupState<{ id: ID }>
   track: Track
   user: User
 }
