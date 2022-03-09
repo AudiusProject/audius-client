@@ -39,6 +39,7 @@ type TileOwnProps<
   TileComponentType extends ComponentType = ComponentType
 > = TilePressableProps & {
   children: ReactNode
+  scaleTo?: number
   style?: StyleProp<ViewStyle>
   styles?: StylesProp<{
     // styles for root element
@@ -71,6 +72,7 @@ export const Tile = <
     onPressOut,
     style,
     styles: stylesProp,
+    scaleTo,
     ...other
   } = props
 
@@ -78,7 +80,7 @@ export const Tile = <
     scale,
     handlePressIn: handlePressInScale,
     handlePressOut: handlePressOutScale
-  } = usePressScaleAnimation()
+  } = usePressScaleAnimation(scaleTo)
 
   const handlePressIn = useCallback(
     (event: GestureResponderEvent) => {
