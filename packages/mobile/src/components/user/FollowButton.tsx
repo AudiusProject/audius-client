@@ -44,7 +44,7 @@ export const FollowButton = (props: FollowButtonsProps) => {
         dispatchWeb(followUser(user_id, followSource))
       }
     },
-    [onPress, dispatchWeb, does_current_user_follow, user_id]
+    [onPress, dispatchWeb, does_current_user_follow, user_id, followSource]
   )
 
   return (

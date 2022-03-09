@@ -56,8 +56,8 @@ export const UserChip = (props: UserChipProps) => {
         <View>
           <Text style={styles.name} numberOfLines={1}>
             {name}
+            <UserBadges user={user} badgeSize={10} hideName />
           </Text>
-          <UserBadges user={user} badgeSize={10} hideName />
           <Text style={styles.followers}>
             {follower_count} {messages.followers(follower_count)}
           </Text>
