@@ -121,6 +121,7 @@ export const Lineup = ({
   variant = LineupVariant.MAIN,
   listKey,
   selfLoad,
+  includeLineupStatus,
   ...scrollViewProps
 }: LineupProps) => {
   const dispatchWeb = useDispatchWeb()
@@ -157,7 +158,7 @@ export const Lineup = ({
       lineupLength < countOrDefault &&
       // Page item count doesn't exceed current offset
       (page === 0 || pageItemCount <= offset) &&
-      status !== Status.LOADING
+      (includeLineupStatus ? status !== Status.LOADING : true)
 
     if (shouldLoadMore) {
       const itemLoadCount = itemCounts.initial + page * itemCounts.loadMore
@@ -181,7 +182,8 @@ export const Lineup = ({
     countOrDefault,
     loadMore,
     dispatchWeb,
-    pageItemCount
+    pageItemCount,
+    includeLineupStatus
   ])
 
   useEffectOnce(() => {

@@ -111,4 +111,10 @@ export type LineupProps = {
    * another VirtualizedList.
    */
   listKey?: string
+
+  /**
+   * When `true` don't load more while lineup status is `LOADING`.
+   * This helps prevent collisions with any in-flight loading from web-app
+   */
+  includeLineupStatus?: boolean
 } & Pick<ScrollViewProps, 'showsVerticalScrollIndicator'>

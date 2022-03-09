@@ -135,6 +135,7 @@ export const TrackScreen = () => {
         }
         lineup={lineup}
         start={1}
+        includeLineupStatus
       />
     </Screen>
   )
