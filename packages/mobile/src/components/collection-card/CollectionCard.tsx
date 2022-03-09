@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { UserCollection } from 'audius-client/src/common/models/Collection'
-import { EXPLORE_PAGE } from 'audius-client/src/utils/route'
 import { StyleProp, ViewStyle } from 'react-native'
 
 import { Card } from 'app/components/card'
@@ -34,7 +33,7 @@ export const CollectionCard = ({
     const collectionRoute = getCollectionRoute(collection)
     navigation.push({
       native: { screen: 'Collection', params: { id: collection.playlist_id } },
-      web: { route: collectionRoute, fromPage: fromPage || EXPLORE_PAGE }
+      web: { route: collectionRoute, fromPage }
     })
   }, [navigation, collection, fromPage])
 

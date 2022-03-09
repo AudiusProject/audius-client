@@ -1,6 +1,7 @@
 import { ParamListBase } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { makeGetExplore } from 'audius-client/src/common/store/pages/explore/selectors'
+import { EXPLORE_PAGE } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 
 import { ArtistCard } from 'app/components/artist-card'
@@ -42,7 +43,9 @@ export const ArtistsTab = ({ navigation }: Props) => {
       }
       contentContainerStyle={styles.contentContainer}
       data={profiles}
-      renderItem={({ item }) => <ArtistCard artist={item} />}
+      renderItem={({ item }) => (
+        <ArtistCard artist={item} fromPage={EXPLORE_PAGE} />
+      )}
     />
   )
 }

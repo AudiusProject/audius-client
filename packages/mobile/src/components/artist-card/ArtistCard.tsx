@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { User } from 'audius-client/src/common/models/User'
-import { EXPLORE_PAGE } from 'audius-client/src/utils/route'
 import { StyleProp, ViewStyle } from 'react-native'
 
 import { Card } from 'app/components/card'
@@ -28,7 +27,7 @@ export const ArtistCard = ({ artist, fromPage, style }: ArtistCardProps) => {
   const handlePress = useCallback(() => {
     navigation.push({
       native: { screen: 'Profile', params: { handle } },
-      web: { route: handle, fromPage: fromPage || EXPLORE_PAGE }
+      web: { route: handle, fromPage }
     })
   }, [navigation, handle, fromPage])
 
