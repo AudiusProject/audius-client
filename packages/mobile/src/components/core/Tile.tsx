@@ -1,6 +1,8 @@
-import { ComponentProps, ComponentType, ReactNode } from 'react'
+import { ComponentProps, ComponentType, ReactNode, useCallback } from 'react'
 
 import {
+  Animated,
+  GestureResponderEvent,
   Pressable,
   PressableProps,
   StyleProp,
@@ -9,6 +11,7 @@ import {
 } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
 
+import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles/makeStyles'
 
@@ -71,24 +74,52 @@ export const Tile = <
     ...other
   } = props
 
+  const {
+    scale,
+    handlePressIn: handlePressInScale,
+    handlePressOut: handlePressOutScale
+  } = usePressScaleAnimation()
+
+  const handlePressIn = useCallback(
+    (event: GestureResponderEvent) => {
+      onPressIn?.(event)
+      if (onPress) {
+        handlePressInScale()
+      }
+    },
+    [onPressIn, onPress, handlePressInScale]
+  )
+
+  const handlePressOut = useCallback(
+    (event: GestureResponderEvent) => {
+      onPressOut?.(event)
+      if (onPress) {
+        handlePressOutScale()
+      }
+    },
+    [onPressOut, onPress, handlePressOutScale]
+  )
+
   return (
-    <Shadow
-      offset={[0, 1]}
-      viewStyle={{ alignSelf: 'stretch' }}
-      distance={2}
-      startColor='rgba(133,129,153,0.11)'
-      containerViewStyle={[style, stylesProp?.root]}
-    >
-      <TileComponent style={[styles.tile, stylesProp?.tile]} {...other}>
-        <Pressable
-          style={[styles.content, stylesProp?.content]}
-          onPress={onPress}
-          onPressIn={onPressIn}
-          onPressOut={onPressOut}
-        >
-          {children}
-        </Pressable>
-      </TileComponent>
-    </Shadow>
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Shadow
+        offset={[0, 1]}
+        viewStyle={{ alignSelf: 'stretch' }}
+        distance={2}
+        startColor='rgba(133,129,153,0.11)'
+        containerViewStyle={[style, stylesProp?.root]}
+      >
+        <TileComponent style={[styles.tile, stylesProp?.tile]} {...other}>
+          <Pressable
+            style={[styles.content, stylesProp?.content]}
+            onPress={onPress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          >
+            {children}
+          </Pressable>
+        </TileComponent>
+      </Shadow>
+    </Animated.View>
   )
 }
