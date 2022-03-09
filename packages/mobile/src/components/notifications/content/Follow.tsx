@@ -1,6 +1,6 @@
+import { ConnectedFollowNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { Follow as FollowNotification } from 'app/store/notifications/types'
 import { formatCount } from 'app/utils/format'
 import { useTheme } from 'app/utils/theme'
 
@@ -15,11 +15,10 @@ const styles = StyleSheet.create({
 })
 
 type FollowProps = {
-  notification: FollowNotification
-  onGoToRoute: (route: string) => void
+  notification: ConnectedFollowNotification
 }
 
-const Follow = ({ notification, onGoToRoute }: FollowProps) => {
+const Follow = ({ notification }: FollowProps) => {
   const textWrapperStyle = useTheme(styles.textWrapper, {
     color: 'neutral'
   })
@@ -34,13 +33,9 @@ const Follow = ({ notification, onGoToRoute }: FollowProps) => {
 
   return (
     <View>
-      <UserImages
-        notification={notification}
-        users={notification.users}
-        onGoToRoute={onGoToRoute}
-      />
+      <UserImages notification={notification} users={notification.users} />
       <Text style={textWrapperStyle}>
-        <User user={firstUser} onGoToRoute={onGoToRoute} />
+        <User user={firstUser} />
         {`${otherUsers} Followed you`}
       </Text>
     </View>

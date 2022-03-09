@@ -2,6 +2,18 @@ import { useCallback, useEffect } from 'react'
 
 import * as Sentry from '@sentry/react-native'
 import {
+  getNotificationEntities,
+  getNotificationEntity,
+  getNotificationUser,
+  getNotificationUsers
+} from 'audius-client/src/common/store/notifications/selectors'
+import {
+  ConnectedNotification,
+  Notification,
+  NotificationType,
+  TierChange
+} from 'audius-client/src/common/store/notifications/types'
+import {
   StyleSheet,
   View,
   Text,
@@ -11,6 +23,7 @@ import {
 } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
 import { SvgProps } from 'react-native-svg'
+import { useDispatch } from 'react-redux'
 
 import IconBronzeBadge from 'app/assets/images/IconBronzeBadge.svg'
 import IconGoldBadge from 'app/assets/images/IconGoldBadge.svg'
@@ -25,16 +38,17 @@ import IconTrending from 'app/assets/images/iconTrending.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import { AudioTier } from 'app/components/audio-rewards'
-import {
-  Entity as EntityType,
-  Notification,
-  NotificationType,
-  TierChange
-} from 'app/store/notifications/types'
+import { useNavigation } from 'app/hooks/useNavigation'
+import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { close } from 'app/store/notifications/actions'
 import { useColor, useTheme } from 'app/utils/theme'
 
 import NotificationContent from './content/NotificationContent'
-import { getNotificationRoute } from './routeUtil'
+import { getNotificationRoute, getNotificationScreen } from './routeUtil'
+
+// The maximum number of users to fetch along with a notification,
+// which determines the number of profile pictures to show
+const USER_LENGTH_LIMIT = 8
 
 const IS_IOS = Platform.OS === 'ios'
 
@@ -135,31 +149,45 @@ type NotificationBlockProps = {
   onGoToRoute: (route: string) => void
 }
 
-const NotificationBlock = ({
-  notification,
-  onGoToRoute
-}: NotificationBlockProps) => {
+const NotificationBlock = ({ notification }: NotificationBlockProps) => {
   const Icon = typeIconMap[notification.type](notification)
   const title = typeTitleMap[notification.type](notification)
-  const notificationRoute = getNotificationRoute(notification)
+  const dispatch = useDispatch()
 
-  useEffect(() => {
-    const { id, entity, entityId, entityType, type } = notification as any
-    // Adding this to help debug https://sentry.io/share/issue/1ffbb982b2234e5981bd00b6e95ad926/
-    if (entityType === EntityType.Track && !entity) {
-      Sentry.captureException(
-        new Error(
-          `Notification Track entity does not exist. entityId: ${entityId} notificationType: ${type} notificationId: ${id}`
-        )
-      )
-    }
-  }, [notification])
+  const user = useSelectorWeb(state => getNotificationUser(state, notification))
+  const users = useSelectorWeb(state =>
+    getNotificationUsers(state, notification, USER_LENGTH_LIMIT)
+  )
+  const entity = useSelectorWeb(state =>
+    getNotificationEntity(state, notification)
+  )
+  const entities = useSelectorWeb(state =>
+    getNotificationEntities(state, notification)
+  )
+
+  const connectedNotification: ConnectedNotification = {
+    ...notification,
+    user,
+    users,
+    entity,
+    entities
+  }
+
+  const notificationScreen = getNotificationScreen(connectedNotification)
+  const notificationRoute = getNotificationRoute(connectedNotification)
+  const navigation = useNavigation()
 
   const onPress = useCallback(() => {
     if (notificationRoute) {
-      onGoToRoute(notificationRoute)
+      navigation.navigate({
+        native: notificationScreen,
+        web: {
+          route: notificationRoute
+        }
+      })
+      dispatch(close())
     }
-  }, [onGoToRoute, notificationRoute])
+  }, [notificationScreen, notificationRoute, navigation, dispatch])
 
   const itemStyles = useTheme(styles.item, {
     backgroundColor: 'white',
@@ -239,10 +267,7 @@ const NotificationBlock = ({
               </Text>
             </View>
             <View style={styles.body}>
-              <NotificationContent
-                notification={notification}
-                onGoToRoute={onGoToRoute}
-              />
+              <NotificationContent notification={connectedNotification} />
               <Text style={timestampStyles}>{notification.timeLabel}</Text>
             </View>
           </View>

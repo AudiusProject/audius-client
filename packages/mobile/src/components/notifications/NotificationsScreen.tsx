@@ -1,11 +1,4 @@
-import {
-  RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   StyleSheet,
@@ -15,19 +8,15 @@ import {
   View
 } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import useIsStackOpen from 'app/hooks/useIsStackOpen'
-import useLocation from 'app/hooks/useLocation'
-import { MessageType } from 'app/message'
 import { getIsSignedIn } from 'app/store/lifecycle/selectors'
 import * as notificationsActions from 'app/store/notifications/actions'
 import { getIsOpen } from 'app/store/notifications/selectors'
-import { getIsOpen as getIsSearchOpen } from 'app/store/search/selectors'
-import { MessagePostingWebView } from 'app/types/MessagePostingWebView'
-import { postMessage } from 'app/utils/postMessage'
 import { useTheme } from 'app/utils/theme'
 
-import List from './List'
+import { List } from './List'
 import TopBar from './TopBar'
 
 const INITIAL_OFFSET = 10
@@ -67,22 +56,19 @@ const styles = StyleSheet.create({
   }
 })
 
-type NotificationsProps = {
-  webRef: RefObject<MessagePostingWebView>
-}
-
 type DrawerStatus = 'open' | 'opening' | 'closed' | 'closing'
 
 /**
  * A component that renders a user's notifications in a
  * slide out panel.
  */
-export const Notifications = ({ webRef }: NotificationsProps) => {
+export const NotificationsScreen = () => {
   const isOpen = useSelector(getIsOpen)
   const isSignedIn = useSelector(getIsSignedIn)
   const dispatch = useDispatch()
   const isStackOpen = useIsStackOpen()
   const [drawerStatus, setDrawerStatus] = useState<DrawerStatus>('closed')
+  const previousDrawerStatus = usePrevious(drawerStatus)
 
   useEffect(() => {
     setDrawerStatus(isOpen ? 'open' : 'closed')
@@ -100,24 +86,6 @@ export const Notifications = ({ webRef }: NotificationsProps) => {
     dispatch(notificationsActions.close())
     dispatch(notificationsActions.markAsViewed())
   }, [dispatch])
-
-  const onLoadMore = useCallback(() => {
-    if (webRef.current) {
-      postMessage(webRef.current, {
-        type: MessageType.FETCH_NOTIFICATIONS,
-        isAction: true
-      })
-    }
-  }, [webRef])
-
-  const onRefresh = useCallback(() => {
-    if (webRef.current) {
-      postMessage(webRef.current, {
-        type: MessageType.REFRESH_NOTIFICATIONS,
-        isAction: true
-      })
-    }
-  }, [webRef])
 
   const { width } = Dimensions.get('window')
 
@@ -254,62 +222,29 @@ export const Notifications = ({ webRef }: NotificationsProps) => {
     }
   })
 
-  const onGoToRoute = useCallback(
-    (route: string) => {
-      if (webRef.current) {
-        postMessage(webRef.current, {
-          type: MessageType.PUSH_ROUTE,
-          route,
-          isAction: true,
-          fromPage: 'notifications'
-        })
-      }
-      slideOut()
-    },
-    [webRef, slideOut]
-  )
-
-  const [anchorRoute, setAnchorRoute] = useState<string | null>(null)
   const onClickTopBarClose = useCallback(() => {
-    if (webRef.current) {
-      postMessage(webRef.current, {
-        type: MessageType.PUSH_ROUTE,
-        route: anchorRoute || '/',
-        isAction: true,
-        fromPage: 'notifications'
-      })
-      setAnchorRoute(null)
-    }
     slideOut()
-  }, [webRef, slideOut, anchorRoute])
-
-  const { pathname, state } = useLocation() || {}
-  const isMainRoute =
-    pathname &&
-    (pathname === '/feed' ||
-      pathname === '/trending' ||
-      pathname === '/explore' ||
-      pathname === '/favorites' ||
-      pathname.startsWith('/search'))
-  const isFromNativeNotifications = state?.fromNativeNotifications ?? false
-  const isSearchOpen = useSelector(getIsSearchOpen)
-  const canShowNotifications =
-    (isMainRoute || isFromNativeNotifications) && isSignedIn && !isSearchOpen
+  }, [slideOut])
 
   useEffect(() => {
     if (drawerStatus === 'open') {
       slideIn()
-      if (!anchorRoute) {
-        setAnchorRoute(pathname)
-      }
     }
-  }, [drawerStatus, slideIn, anchorRoute, pathname, setAnchorRoute])
+  }, [drawerStatus, slideIn])
+
+  console.log({ drawerStatus })
+  // Drawer was requested to be closed from an external source
+  useEffect(() => {
+    if (previousDrawerStatus === 'open' && drawerStatus === 'closed') {
+      slideOut()
+    }
+  }, [drawerStatus, previousDrawerStatus, slideOut])
 
   const containerStyle = useTheme(styles.container, {
     backgroundColor: 'background'
   })
 
-  const panProps = canShowNotifications ? panResponder.panHandlers : {}
+  const panProps = panResponder.panHandlers
 
   return isSignedIn ? (
     <>
@@ -329,11 +264,7 @@ export const Notifications = ({ webRef }: NotificationsProps) => {
       >
         <View style={containerStyle}>
           <TopBar onClose={onClickTopBarClose} />
-          <List
-            onLoadMore={onLoadMore}
-            onRefresh={onRefresh}
-            onGoToRoute={onGoToRoute}
-          />
+          <List />
         </View>
       </Animated.View>
 

@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 
+import { ConnectedUserSubscriptionNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { UserSubscription as SubscriptionNotification } from 'app/store/notifications/types'
 import { useTheme } from 'app/utils/theme'
 
 import Entity from './Entity'
@@ -23,11 +23,10 @@ const styles = StyleSheet.create({
 })
 
 type SubscriptionProps = {
-  notification: SubscriptionNotification
-  onGoToRoute: (route: string) => void
+  notification: ConnectedUserSubscriptionNotification
 }
 
-const Subscription = ({ notification, onGoToRoute }: SubscriptionProps) => {
+const Subscription = ({ notification }: SubscriptionProps) => {
   const textWrapperStyle = useTheme(styles.textWrapper, {
     color: 'neutral'
   })
@@ -52,7 +51,6 @@ const Subscription = ({ notification, onGoToRoute }: SubscriptionProps) => {
         <Entity
           entity={notification.entities[0]}
           entityType={notification.entityType}
-          onGoToRoute={onGoToRoute}
         />
       </>
     )
@@ -60,13 +58,9 @@ const Subscription = ({ notification, onGoToRoute }: SubscriptionProps) => {
 
   return (
     <View style={styles.container}>
-      <UserImages
-        notification={notification}
-        users={[user]}
-        onGoToRoute={onGoToRoute}
-      />
+      <UserImages notification={notification} users={[user]} />
       <Text style={textWrapperStyle}>
-        <User user={user} onGoToRoute={onGoToRoute} />
+        <User user={user} />
         {body}
       </Text>
     </View>

@@ -5,17 +5,17 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { loadMore } from 'common/store/user-list/actions'
-import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
-import NavContext, { LeftPreset } from 'components/nav/store/context'
-import UserList from 'components/user-list/UserList'
 import {
   getId,
   getPageTitle,
   getUserList
-} from 'pages/notification-users-page/store/selectors'
+} from 'common/store/user-list/notifications/selectors'
+import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
+import NavContext, { LeftPreset } from 'components/nav/store/context'
+import UserList from 'components/user-list/UserList'
 import { AppState } from 'store/types'
 
-import { setNotificationId } from './store/actions'
+import { setNotificationId } from '../../common/store/user-list/notifications/actions'
 
 export const USER_LIST_TAG = 'NOTIFICATION'
 

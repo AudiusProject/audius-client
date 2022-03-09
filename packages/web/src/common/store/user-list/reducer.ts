@@ -27,6 +27,7 @@ export const UserListReducerFactory = {
 
     return createReducer<UserListStoreState, UserListActions>(initialState, {
       [actions.RESET](state, action) {
+        console.log('reset' + action.tag)
         return withTagCheck(state, action, (state, action) => {
           return { ...initialState }
         })
@@ -40,6 +41,7 @@ export const UserListReducerFactory = {
         })
       },
       [actions.SET_USER_IDS](state, action) {
+        console.log('set user ids' + action.userIds + action.tag)
         return withTagCheck(state, action, (state, action) => {
           return {
             ...state,

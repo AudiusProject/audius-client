@@ -1,17 +1,16 @@
 import { ChallengeRewardID } from 'common/models/AudioRewards'
+import { BadgeTier } from 'common/models/BadgeTier'
 import { Collection } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import { Track } from 'common/models/Track'
 import { User } from 'common/models/User'
-import { BadgeTier } from 'components/user-badges/utils'
-
 import {
   getNotificationEntities,
   getNotificationEntity,
   getNotificationUser,
   getNotificationUsers
-} from './selectors'
+} from 'common/store/notifications/selectors'
 
 export enum NotificationType {
   Announcement = 'Announcement',
@@ -204,9 +203,22 @@ export default interface NotificationState {
   playlistUpdates: number[]
 }
 
-export type ConnectedNotification = Notification & {
+type ConnectedNotificationExtras = {
   user: ReturnType<typeof getNotificationUser>
   users: ReturnType<typeof getNotificationUsers>
   entity: ReturnType<typeof getNotificationEntity>
   entities: ReturnType<typeof getNotificationEntities>
 }
+
+export type ConnectedNotification = Notification & ConnectedNotificationExtras
+export type ConnectedAnnouncementNotification = Announcement & ConnectedNotificationExtras
+export type ConnectedUserSubscriptionNotification = UserSubscription & ConnectedNotificationExtras
+export type ConnectedFollowNotification = Follow & ConnectedNotificationExtras
+export type ConnectedRepostNotification = Repost & ConnectedNotificationExtras
+export type ConnectedFavoriteNotification = Favorite & ConnectedNotificationExtras
+export type ConnectedMilestoneNotification = Milestone & ConnectedNotificationExtras
+export type ConnectedRemixCreateNotification = RemixCreate & ConnectedNotificationExtras
+export type ConnectedRemixCosignNotification = RemixCosign & ConnectedNotificationExtras
+export type ConnectedTrendingTrackNotification = TrendingTrack & ConnectedNotificationExtras
+export type ConnectedChallengeRewardNotification = ChallengeReward & ConnectedNotificationExtras
+export type ConnectedTierChangeNotification = TierChange & ConnectedNotificationExtras

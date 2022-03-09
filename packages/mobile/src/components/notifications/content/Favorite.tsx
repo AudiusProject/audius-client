@@ -1,6 +1,6 @@
+import { ConnectedFavoriteNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { Favorite as FavoriteNotification } from 'app/store/notifications/types'
 import { formatCount } from 'app/utils/format'
 import { useTheme } from 'app/utils/theme'
 
@@ -16,11 +16,10 @@ const styles = StyleSheet.create({
 })
 
 type FavoriteProps = {
-  notification: FavoriteNotification
-  onGoToRoute: (route: string) => void
+  notification: ConnectedFavoriteNotification
 }
 
-const Favorite = ({ notification, onGoToRoute }: FavoriteProps) => {
+const Favorite = ({ notification }: FavoriteProps) => {
   const textWrapperStyle = useTheme(styles.textWrapper, {
     color: 'neutral'
   })
@@ -38,19 +37,11 @@ const Favorite = ({ notification, onGoToRoute }: FavoriteProps) => {
 
   return (
     <View>
-      <UserImages
-        notification={notification}
-        users={notification.users}
-        onGoToRoute={onGoToRoute}
-      />
+      <UserImages notification={notification} users={notification.users} />
       <Text style={textWrapperStyle}>
-        <User user={firstUser} onGoToRoute={onGoToRoute} />
+        <User user={firstUser} />
         {`${otherUsers} favorited your ${entityType.toLowerCase()} `}
-        <Entity
-          entity={entity}
-          entityType={entityType}
-          onGoToRoute={onGoToRoute}
-        />
+        <Entity entity={entity} entityType={entityType} />
       </Text>
     </View>
   )

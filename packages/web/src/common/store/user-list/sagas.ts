@@ -27,6 +27,7 @@ const UserListSagaFactory = {
         const ownState: UserListStoreState = yield select(stateSelector)
         const { page, pageSize } = ownState
         const { userIds, hasMore } = yield call(fetchUsers, page, pageSize)
+        console.log('fetch' + JSON.stringify(userIds) + page + pageSize)
         yield all([
           put(userListActions.setUserIds(tag, userIds, hasMore)),
           put(userListActions.incrementPage(tag))

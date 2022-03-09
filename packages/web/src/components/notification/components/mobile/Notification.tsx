@@ -6,12 +6,12 @@ import cn from 'classnames'
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { Track } from 'common/models/Track'
-import IconButton from 'components/icon-button/IconButton'
 import {
   Entity,
   NotificationType,
   Achievement
-} from 'components/notification/store/types'
+} from 'common/store/notifications/types'
+import IconButton from 'components/icon-button/IconButton'
 import { make, useRecord } from 'store/analytics/actions'
 import { AUDIO_PAGE, profilePage } from 'utils/route'
 
