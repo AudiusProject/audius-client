@@ -3,11 +3,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { makeGetExplore } from 'audius-client/src/common/store/pages/explore/selectors'
 import { View } from 'react-native'
 
+import { ArtistCard } from 'app/components/artist-card'
 import { CardList } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { ArtistCard } from '../components/ArtistCard'
 import { TabInfo } from '../components/TabInfo'
 
 const messages = {
