@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Name } from 'audius-client/src/common/models/Analytics'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
@@ -250,13 +250,13 @@ export const DetailsTile = ({
   const imageElement = coSign ? (
     <CoSign size={Size.LARGE}>
       <DynamicImage
-        source={{ uri: imageUrl }}
+        source={imageUrl ? { uri: imageUrl } : undefined}
         styles={{ image: styles.coverArt as ImageStyle }}
       />
     </CoSign>
   ) : (
     <DynamicImage
-      source={{ uri: imageUrl }}
+      source={imageUrl ? { uri: imageUrl } : undefined}
       styles={{ image: styles.coverArt as ImageStyle }}
     />
   )
