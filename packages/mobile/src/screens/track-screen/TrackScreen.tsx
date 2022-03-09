@@ -117,6 +117,8 @@ export const TrackScreen = () => {
   const { params } = useRoute<'Track'>()
   const track = useSelectorWeb(
     state => getTrack(state, params),
+    // Omitting uneeded fields from the equality check because they are
+    // causing extra renders when added to the `track` object
     (a, b) => {
       const omitUneeded = o => omit(o, ['_stems', '_remix_parents'])
       return isEqual(omitUneeded(a), omitUneeded(b))
@@ -130,6 +132,8 @@ export const TrackScreen = () => {
 
   const lineup = useSelectorWeb(
     getMoreByArtistLineup,
+    // Checking for equality between the entries themselves, because
+    // lineup reset state changes cause extra renders
     (a, b) => (!a.entries && !b.entries) || isEqual(a.entries, b.entries)
   )
 
