@@ -50,8 +50,8 @@ type LibraryContentsLevelProps = {
   renderExplorePlaylist: (playlistId: SmartCollectionVariant) => void
   renderFolder: (folder: PlaylistLibraryFolder) => void
 }
-
-// Function component for rendering a single level of the playlist library. Playlist library consists of up to two content levels (root + inside a folder)
+/** Function component for rendering a single level of the playlist library.
+ * Playlist library consists of up to two content levels (root + inside a folder) */
 const LibraryContentsLevel = ({
   contents,
   renderPlaylist,
@@ -69,17 +69,13 @@ const LibraryContentsLevel = ({
             return renderPlaylist(content.playlist_id)
           }
           case 'temp_playlist': {
-            try {
-              return renderPlaylist(parseInt(content.playlist_id))
-            } catch (e) {
-              console.debug(e)
-              break
-            }
+            return renderPlaylist(parseInt(content.playlist_id))
           }
           case 'folder':
             return renderFolder(content)
+          default:
+            return null
         }
-        return null
       })}
     </>
   )
@@ -173,7 +169,7 @@ const PlaylistLibrary = ({
     },
     [record, onClickNavLinkWithAccount]
   )
-  const renderPlaylist = (playlistId: number) => {
+  const renderPlaylist = (playlistId: ID) => {
     const playlist = playlists[playlistId]
     if (!account || !playlist) return null
     const { id, name } = playlist
@@ -226,11 +222,14 @@ const PlaylistLibrary = ({
     )
   }
 
+  /** We want to ensure that all playlists attached to the user's account show up in the library UI, even
+  /* if the user's library itself does not contain some of the playlists (for example, if a write failed).
+  /* This computes those playlists that are attached to the user's account but are not in the user library. */
   const playlistsNotInLibrary = useMemo(() => {
     const result = { ...playlists }
-    function helpComputePlaylistsNotInLibrary(
+    const helpComputePlaylistsNotInLibrary = (
       libraryContentsLevel: PlaylistLibraryType['contents']
-    ) {
+    ) => {
       libraryContentsLevel.forEach(content => {
         if (content.type === 'temp_playlist' || content.type === 'playlist') {
           const playlist = playlists[Number(content.playlist_id)]
@@ -249,9 +248,9 @@ const PlaylistLibrary = ({
     return result
   }, [library, playlists])
 
-  // Iterate over playlist library and render out available explore/smart
-  // playlists and ordered playlists. Remaining playlists that are unordered
-  // are rendered aftewards by sort order.
+  /** Iterate over playlist library and render out available explore/smart
+  /* playlists and ordered playlists. Remaining playlists that are unordered
+  /* are rendered afterwards by sort order. */
   return (
     <>
       <Droppable
