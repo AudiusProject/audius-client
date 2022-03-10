@@ -1,5 +1,3 @@
-import { User } from 'audius-client/src/common/models/User'
-
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconCollectibles from 'app/assets/images/iconCollectibles.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
@@ -15,16 +13,15 @@ import { CollectiblesTab } from './CollectiblesTab'
 import { PlaylistsTab } from './PlaylistsTab'
 import { RepostsTab } from './RepostsTab'
 import { TracksTab } from './TracksTab'
+import { useSelectProfile } from './selectors'
 import { useShouldShowCollectiblesTab } from './utils'
 
-type ProfileTabNavigatiorProps = {
-  profile: User
-}
+export const ProfileTabNavigator = () => {
+  const { track_count } = useSelectProfile(['track_count'])
 
-export const ProfileTabNavigator = ({ profile }: ProfileTabNavigatiorProps) => {
-  const isArtist = profile.track_count > 0
+  const isArtist = track_count > 0
 
-  const showCollectiblesTab = useShouldShowCollectiblesTab(profile)
+  const showCollectiblesTab = useShouldShowCollectiblesTab()
 
   const trackScreen = tabScreen({
     name: 'Tracks',

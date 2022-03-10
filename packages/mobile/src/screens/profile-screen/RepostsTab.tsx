@@ -13,7 +13,7 @@ export const RepostsTab = () => {
   if (!profile) return null
 
   if (profile.repost_count === 0) {
-    return <EmptyProfileTile profile={profile} tab='reposts' />
+    return <EmptyProfileTile tab='reposts' />
   }
 
   return (
