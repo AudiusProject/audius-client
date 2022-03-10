@@ -52,6 +52,11 @@ const useStyles = makeStyles(() => ({
   iconWrapper: {
     width: 28,
     height: 49
+  },
+  underlay: {
+    width: '100%',
+    height: 49,
+    position: 'absolute'
   }
 }))
 
@@ -80,7 +85,7 @@ export const BottomTabBarButton = ({
       renderUnderlay={({ pressed }) =>
         pressed ? (
           <LinearGradient
-            style={{ width: '100%', height: 49, position: 'absolute' }}
+            style={styles.underlay}
             colors={[neutralLight8, neutralLight10]}
           />
         ) : null
