@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import Status from 'audius-client/src/common/models/Status'
+import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { fetchProfile } from 'audius-client/src/common/store/pages/profile/actions'
 import { getProfileStatus } from 'audius-client/src/common/store/pages/profile/selectors'
 import { LayoutAnimation, View } from 'react-native'
@@ -26,7 +27,7 @@ import { ProfilePicture } from './ProfilePicture'
 import { ProfileSocials } from './ProfileSocials'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { UploadTrackButton } from './UploadTrackButton'
-import { getIsOwner, useSelectProfileRoot } from './selectors'
+import { useSelectProfileRoot } from './selectors'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   header: {
@@ -59,15 +60,13 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 
 export const ProfileScreen = () => {
   const styles = useStyles()
-  const profile = useSelectProfileRoot(['does_current_user_follow'])
-  const isOwner = useSelectorWeb(getIsOwner)
+  const profile = useSelectProfileRoot(['user_id', 'does_current_user_follow'])
+  const accountId = useSelectorWeb(getUserId)
   const dispatchWeb = useDispatchWeb()
   const status = useSelectorWeb(getProfileStatus)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const { accentOrange } = useThemeColors()
-
-  console.log('rerender profile')
 
   const navigation = useNavigation<ProfileStackParamList>()
 
@@ -110,6 +109,8 @@ export const ProfileScreen = () => {
       setIsRefreshing(false)
     }
   }, [status])
+
+  const isOwner = profile?.user_id === accountId
 
   const topbarLeft = isOwner ? (
     <View style={styles.topBarIcons}>

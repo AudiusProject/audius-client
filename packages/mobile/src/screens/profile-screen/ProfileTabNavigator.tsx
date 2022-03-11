@@ -17,7 +17,9 @@ import { useSelectProfile } from './selectors'
 import { useShouldShowCollectiblesTab } from './utils'
 
 export const ProfileTabNavigator = () => {
-  const { track_count } = useSelectProfile(['track_count'])
+  const { user_id, track_count } = useSelectProfile(['user_id', 'track_count'])
+
+  const initialParams = { id: user_id }
 
   const isArtist = track_count > 0
 
@@ -26,36 +28,45 @@ export const ProfileTabNavigator = () => {
   const trackScreen = tabScreen({
     name: 'Tracks',
     Icon: IconNote,
-    component: TracksTab
+    component: TracksTab,
+    initialParams
   })
 
   const albumsScreen = tabScreen({
     name: 'Albums',
     Icon: IconAlbum,
-    component: AlbumsTab
+    component: AlbumsTab,
+    initialParams
   })
 
   const playlistsScreen = tabScreen({
     name: 'Playlists',
     Icon: IconPlaylists,
-    component: PlaylistsTab
+    component: PlaylistsTab,
+    initialParams
   })
 
   const repostsScreen = tabScreen({
     name: 'Reposts',
     Icon: IconRepost,
-    component: RepostsTab
+    component: RepostsTab,
+    initialParams
   })
 
   const collectiblesScreen = tabScreen({
     name: 'Collectibles',
     Icon: IconCollectibles,
-    component: CollectiblesTab
+    component: CollectiblesTab,
+    initialParams
   })
+
+  const screenOptions = {
+    lazy: true
+  }
 
   if (isArtist) {
     return (
-      <TabNavigator>
+      <TabNavigator screenOptions={screenOptions}>
         {trackScreen}
         {albumsScreen}
         {playlistsScreen}
@@ -66,7 +77,7 @@ export const ProfileTabNavigator = () => {
   }
 
   return (
-    <TabNavigator>
+    <TabNavigator screenOptions={screenOptions}>
       {repostsScreen}
       {playlistsScreen}
       {showCollectiblesTab ? collectiblesScreen : null}

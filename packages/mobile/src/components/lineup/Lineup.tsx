@@ -122,7 +122,8 @@ export const Lineup = ({
   listKey,
   selfLoad,
   includeLineupStatus,
-  ...scrollViewProps
+  limit = Infinity,
+  ...sectionListProps
 }: LineupProps) => {
   const dispatchWeb = useDispatchWeb()
   const ref = useRef<SectionList>(null)
@@ -158,6 +159,7 @@ export const Lineup = ({
       lineupLength < countOrDefault &&
       // Page item count doesn't exceed current offset
       (page === 0 || pageItemCount <= offset) &&
+      entries.length < limit &&
       (includeLineupStatus ? status !== Status.LOADING : true)
 
     if (shouldLoadMore) {
@@ -183,7 +185,8 @@ export const Lineup = ({
     loadMore,
     dispatchWeb,
     pageItemCount,
-    includeLineupStatus
+    includeLineupStatus,
+    limit
   ])
 
   useEffectOnce(() => {
@@ -277,10 +280,11 @@ export const Lineup = ({
 
     const getSkeletonCount = () => {
       const shouldCalculateSkeletons =
+        items.length < limit &&
         // Lineup has more items to load
         hasMore &&
-        // Data is loading
-        isMetadataLoading &&
+        // Data is loading or about to start
+        (items.length === 0 || isMetadataLoading) &&
         // There are fewer items than the max count
         items.length < countOrDefault
 
@@ -321,10 +325,14 @@ export const Lineup = ({
       ]
     }
 
+    const data = [...items, ...skeletonItems]
+
+    if (data.length === 0) return []
+
     return [
       {
         delineate: false,
-        data: [...items, ...skeletonItems]
+        data: data
       }
     ]
   }, [
@@ -336,12 +344,13 @@ export const Lineup = ({
     pageItemCount,
     leadingElementId,
     showLeadingElementArtistPick,
-    start
+    start,
+    limit
   ])
 
   return (
     <SectionList
-      {...scrollViewProps}
+      {...sectionListProps}
       ref={ref}
       ListHeaderComponent={header}
       ListFooterComponent={<View style={{ height: 160 }} />}

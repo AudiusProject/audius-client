@@ -3,10 +3,7 @@ import {
   getAccountUser,
   getUserId
 } from 'audius-client/src/common/store/account/selectors'
-import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import {
-  getProfileFeedLineup,
-  getProfileTracksLineup,
   getProfileUser,
   getProfileUserId,
   makeGetProfile
@@ -21,12 +18,13 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
  * Selects profile user and ensures rerenders occur only for changes specified in deps
  */
 export const useSelectProfileRoot = (deps: Array<keyof User>) => {
-  const accountUserHandle = useSelectorWeb(
-    state => getAccountUser(state)?.handle
-  )
-  const { params = { handle: accountUserHandle } } = useRoute<'Profile'>()
+  const { params } = useRoute<'Profile'>()
+  const { handle } = params
+  const isAccountUser = handle === 'accountUser'
+
   const profile = useSelectorWeb(
-    state => getProfileUser(state, params),
+    state =>
+      isAccountUser ? getAccountUser(state) : getProfileUser(state, params),
     (a, b) => deps.every(arg => isEqual(a?.[arg], b?.[arg]))
   )
   return profile
@@ -51,17 +49,3 @@ export const getIsOwner = createSelector(
   [getProfileUserId, getUserId],
   (profileUserId, accountUserId) => profileUserId === accountUserId
 )
-
-export const useProfileTracksLineup = () => {
-  return useSelectorWeb(getProfileTracksLineup, isEqual)
-}
-
-export const useProfileAlbums = () => useSelectorWeb(getProfile, isEqual)
-
-export const useProfilePlaylists = () => useSelectorWeb(getProfile, isEqual)
-
-const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
-
-export const useProfileFeedLineup = () => {
-  return useSelectorWeb(getUserFeedMetadatas, isEqual)
-}
