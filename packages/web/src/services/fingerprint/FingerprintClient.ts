@@ -25,7 +25,7 @@ class FingerprintClient {
       console.log(`Fingerprint loaded`)
       this.fingerprint = fp
     } catch (e) {
-      console.error(`Error initializaing fingerprint client: ${e}`)
+      console.error(`Error initializing fingerprint client: ${e}`)
     }
   }
 
