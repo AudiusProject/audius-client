@@ -1177,6 +1177,98 @@ describe('reorderPlaylistLibrary', () => {
       ]
     })
   })
+
+  it('can reorder an item before the target item', () => {
+    const library = {
+      contents: [
+        { type: 'playlist', playlist_id: 1 },
+        { type: 'playlist', playlist_id: 2 },
+        {
+          type: 'folder',
+          name: 'favorites',
+          id: 'my-uuid',
+          contents: [
+            { type: 'temp_playlist', playlist_id: '10' },
+            { type: 'explore_playlist', playlist_id: 'Heavy Rotation' },
+            { type: 'playlist', playlist_id: 12 }
+          ]
+        },
+        {
+          type: 'folder',
+          name: 'favorites 2',
+          id: 'my-uuid-2',
+          contents: [
+            { type: 'explore_playlist', playlist_id: 'Best New Releases' },
+            { type: 'playlist', playlist_id: 120 }
+          ]
+        },
+        { type: 'playlist', playlist_id: 3 },
+        { type: 'playlist', playlist_id: 4 }
+      ]
+    }
+    const ret = reorderPlaylistLibrary(
+      library,
+      'my-uuid',
+      1,
+      'playlist-folder',
+      true
+    )
+    expect(ret).toEqual({
+      contents: [
+        {
+          type: 'folder',
+          name: 'favorites',
+          id: 'my-uuid',
+          contents: [
+            { type: 'temp_playlist', playlist_id: '10' },
+            { type: 'explore_playlist', playlist_id: 'Heavy Rotation' },
+            { type: 'playlist', playlist_id: 12 }
+          ]
+        },
+        { type: 'playlist', playlist_id: 1 },
+        { type: 'playlist', playlist_id: 2 },
+        {
+          type: 'folder',
+          name: 'favorites 2',
+          id: 'my-uuid-2',
+          contents: [
+            { type: 'explore_playlist', playlist_id: 'Best New Releases' },
+            { type: 'playlist', playlist_id: 120 }
+          ]
+        },
+        { type: 'playlist', playlist_id: 3 },
+        { type: 'playlist', playlist_id: 4 }
+      ]
+    })
+    const ret2 = reorderPlaylistLibrary(ret, 1, '10', 'playlist', true)
+    expect(ret2).toEqual({
+      contents: [
+        {
+          type: 'folder',
+          name: 'favorites',
+          id: 'my-uuid',
+          contents: [
+            { type: 'playlist', playlist_id: 1 },
+            { type: 'temp_playlist', playlist_id: '10' },
+            { type: 'explore_playlist', playlist_id: 'Heavy Rotation' },
+            { type: 'playlist', playlist_id: 12 }
+          ]
+        },
+        { type: 'playlist', playlist_id: 2 },
+        {
+          type: 'folder',
+          name: 'favorites 2',
+          id: 'my-uuid-2',
+          contents: [
+            { type: 'explore_playlist', playlist_id: 'Best New Releases' },
+            { type: 'playlist', playlist_id: 120 }
+          ]
+        },
+        { type: 'playlist', playlist_id: 3 },
+        { type: 'playlist', playlist_id: 4 }
+      ]
+    })
+  })
 })
 
 describe('containsTempPlaylist', () => {
