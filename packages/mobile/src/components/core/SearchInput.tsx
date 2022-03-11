@@ -1,10 +1,12 @@
-import { ComponentType, forwardRef } from 'react'
+import { ComponentType, forwardRef, useCallback } from 'react'
 
-import { TextInput, TextInputProps, View } from 'react-native'
+import { Animated, TextInput, TextInputProps, View } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { SvgProps } from 'react-native-svg'
 
-import IconSearch from 'app/assets/images/iconSearch.svg'
+import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   root: {
@@ -14,7 +16,7 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     borderWidth: 1,
     paddingVertical: spacing(2),
     paddingLeft: spacing(3),
-    paddingRight: spacing(1),
+    paddingRight: spacing(2),
     borderColor: palette.neutralLight7,
     backgroundColor: palette.neutralLight10
   },
@@ -32,12 +34,29 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
 
 type SearchInputProps = TextInputProps & {
   Icon?: ComponentType<SvgProps>
+  onPressIcon?: () => void
 }
 
 export const SearchInput = forwardRef<TextInput, SearchInputProps>(
   (props, ref) => {
-    const { style, Icon = IconSearch, ...other } = props
+    const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.8)
+
+    const { style, Icon, onPressIcon, ...other } = props
     const styles = useStyles()
+
+    const renderIcon = () =>
+      Icon ? (
+        <Icon
+          style={{ height: styles.icon.height, width: styles.icon.width }}
+          fill={styles.icon.fill}
+          height={styles.icon.height}
+          width={styles.icon.width}
+        />
+      ) : null
+
+    const handlePressIcon = useCallback(() => {
+      onPressIcon?.()
+    }, [onPressIcon])
 
     return (
       <View style={[styles.root, style]}>
@@ -50,12 +69,25 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
           returnKeyType='search'
           {...other}
         />
-        <Icon
-          style={{ height: styles.icon.height, width: styles.icon.width }}
-          fill={styles.icon.fill}
-          height={styles.icon.height}
-          width={styles.icon.width}
-        />
+        {onPressIcon ? (
+          <Animated.View style={[{ transform: [{ scale }] }]}>
+            <TouchableWithoutFeedback
+              onPress={handlePressIcon}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              hitSlop={{
+                top: spacing(2),
+                bottom: spacing(2),
+                left: spacing(2),
+                right: spacing(2)
+              }}
+            >
+              {renderIcon()}
+            </TouchableWithoutFeedback>
+          </Animated.View>
+        ) : (
+          renderIcon()
+        )}
       </View>
     )
   }
