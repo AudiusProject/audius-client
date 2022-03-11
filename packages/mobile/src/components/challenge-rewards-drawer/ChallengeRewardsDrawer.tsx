@@ -2,6 +2,7 @@ import React from 'react'
 
 import { UserChallengeState } from 'audius-client/src/common/models/AudioRewards'
 import { ClaimStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
+import { fillString } from 'audius-client/src/common/utils/fillString'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
 import { StyleSheet, View, ImageSourcePropType } from 'react-native'
 
@@ -201,9 +202,11 @@ export const ChallengeRewardsDrawer = ({
   const statusText = hasCompleted
     ? messages.complete
     : isInProgress
-    ? `${formatNumberCommas(currentStep)}/${formatNumberCommas(
-        stepCount
-      )} ${progressLabel}`
+    ? fillString(
+        progressLabel,
+        formatNumberCommas(currentStep),
+        formatNumberCommas(stepCount)
+      )
     : messages.incomplete
 
   const claimedAmountText = `(${formatNumberCommas(claimedAmount)} ${
