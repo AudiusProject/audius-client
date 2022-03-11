@@ -40,8 +40,6 @@ export const AddToPlaylistDrawer = () => {
   const user = useSelectorWeb(getAccountWithOwnPlaylists)
   const [isDrawerGestureSupported, setIsDrawerGestureSupported] = useState(true)
 
-  console.log('rendering null')
-
   if (!user || !trackId || !trackTitle) {
     return null
   }
