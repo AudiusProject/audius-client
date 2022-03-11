@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
 import {
   StyleSheet,
   Animated,
@@ -10,6 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { usePrevious } from 'react-use'
 
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import useIsStackOpen from 'app/hooks/useIsStackOpen'
 import { getIsSignedIn } from 'app/store/lifecycle/selectors'
 import * as notificationsActions from 'app/store/notifications/actions'
@@ -66,6 +68,7 @@ export const NotificationsScreen = () => {
   const isOpen = useSelector(getIsOpen)
   const isSignedIn = useSelector(getIsSignedIn)
   const dispatch = useDispatch()
+  const dispatchWeb = useDispatchWeb()
   const isStackOpen = useIsStackOpen()
   const [drawerStatus, setDrawerStatus] = useState<DrawerStatus>('closed')
   const previousDrawerStatus = usePrevious(drawerStatus)
@@ -84,8 +87,8 @@ export const NotificationsScreen = () => {
 
   const handleClosed = useCallback(() => {
     dispatch(notificationsActions.close())
-    dispatch(notificationsActions.markAsViewed())
-  }, [dispatch])
+    dispatchWeb(markAllAsViewed())
+  }, [dispatch, dispatchWeb])
 
   const { width } = Dimensions.get('window')
 
@@ -232,7 +235,6 @@ export const NotificationsScreen = () => {
     }
   }, [drawerStatus, slideIn])
 
-  console.log({ drawerStatus })
   // Drawer was requested to be closed from an external source
   useEffect(() => {
     if (previousDrawerStatus === 'open' && drawerStatus === 'closed') {

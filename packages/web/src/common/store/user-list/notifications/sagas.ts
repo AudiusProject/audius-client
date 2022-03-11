@@ -8,8 +8,7 @@ import {
   getUserList
 } from 'common/store/user-list/notifications/selectors'
 import UserListSagaFactory from 'common/store/user-list/sagas'
-
-import { USER_LIST_TAG } from '../../../../pages/notification-users-page/NotificationUsersPage'
+import { USER_LIST_TAG } from 'pages/notification-users-page/NotificationUsersPage'
 
 import { getNotificationError } from './actions'
 import { watchRepostsError } from './errorSagas'
@@ -20,14 +19,12 @@ function* errorDispatcher(error: Error) {
 }
 
 function* fetchUsers(currentPage: number, pageSize: number) {
-  console.log('called fetch users' + currentPage + pageSize)
   const notificationId = yield select(getId)
   const notification = yield select(getNotificationById, notificationId)
   if (!notification) return { userIds: [], hasMore: false }
   const { userIds } = notification
   const offset = currentPage * pageSize
   const hasMore = userIds.length > offset + pageSize
-  console.log('has more' + hasMore + `${offset}` + `${pageSize}`)
   const paginatedUserIds = userIds.slice(offset, offset + pageSize)
 
   // Retrieve the users in case they're not yet cached

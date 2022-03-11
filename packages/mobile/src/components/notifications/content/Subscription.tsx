@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { ConnectedUserSubscriptionNotification } from 'audius-client/src/common/store/notifications/types'
+import { UserSubscription } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from 'app/utils/theme'
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
 })
 
 type SubscriptionProps = {
-  notification: ConnectedUserSubscriptionNotification
+  notification: UserSubscription
 }
 
 const Subscription = ({ notification }: SubscriptionProps) => {
@@ -32,7 +32,7 @@ const Subscription = ({ notification }: SubscriptionProps) => {
   })
 
   const user = notification.user
-  if (!user) return null
+  if (!user || !notification.entities) return null
 
   const isMultipleUploads = notification.entities.length > 1
   let body: ReactNode

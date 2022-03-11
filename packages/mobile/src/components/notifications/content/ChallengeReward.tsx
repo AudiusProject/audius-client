@@ -1,5 +1,5 @@
 import { ChallengeRewardID } from 'audius-client/src/common/models/AudioRewards'
-import { ConnectedChallengeRewardNotification } from 'audius-client/src/common/store/notifications/types'
+import { ChallengeReward as ChallengeRewardNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from 'app/utils/theme'
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
 })
 
 type ChallengeRewardProps = {
-  notification: ConnectedChallengeRewardNotification
+  notification: ChallengeRewardNotification
 }
 
 const challengeInfoMap: Record<

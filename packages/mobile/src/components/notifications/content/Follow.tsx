@@ -1,4 +1,4 @@
-import { ConnectedFollowNotification } from 'audius-client/src/common/store/notifications/types'
+import { Follow as FollowNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { formatCount } from 'app/utils/format'
@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 })
 
 type FollowProps = {
-  notification: ConnectedFollowNotification
+  notification: FollowNotification
 }
 
 const Follow = ({ notification }: FollowProps) => {
@@ -23,7 +23,7 @@ const Follow = ({ notification }: FollowProps) => {
     color: 'neutral'
   })
 
-  const firstUser = notification.users[0]
+  const firstUser = notification?.users?.[0]
   if (!firstUser) return null
   let otherUsers = ''
   if (notification.userIds.length > 1) {
@@ -33,7 +33,9 @@ const Follow = ({ notification }: FollowProps) => {
 
   return (
     <View>
-      <UserImages notification={notification} users={notification.users} />
+      {notification.users ? (
+        <UserImages notification={notification} users={notification.users} />
+      ) : null}
       <Text style={textWrapperStyle}>
         <User user={firstUser} />
         {`${otherUsers} Followed you`}

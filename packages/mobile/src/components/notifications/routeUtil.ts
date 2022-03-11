@@ -1,7 +1,7 @@
 import { Track } from 'audius-client/src/common/models/Track'
 import {
   Achievement,
-  ConnectedNotification,
+  Notification,
   Entity,
   NotificationType
 } from 'audius-client/src/common/store/notifications/types'
@@ -17,7 +17,7 @@ import {
 const AUDIUS_URL = Config.AUDIUS_URL
 
 export const getUserListRoute = (
-  notification: ConnectedNotification,
+  notification: Notification,
   fullUrl = false
 ) => {
   const route = `/notification/${notification.id}/users`
@@ -43,16 +43,19 @@ export const getEntityRoute = (
 export const getEntityScreen = (entity: any, entityType: Entity) => {
   switch (entityType) {
     case Entity.Track:
-      return { screen: 'Track', params: { id: entity.track_id } }
+      return { screen: 'Track' as const, params: { id: entity.track_id } }
     case Entity.User:
-      return { screen: 'Profile', params: { handle: entity.handle } }
+      return { screen: 'Profile' as const, params: { handle: entity.handle } }
     case Entity.Album:
     case Entity.Playlist:
-      return { screen: 'Collection', params: { id: entity.playlist_id } }
+      return {
+        screen: 'Collection' as const,
+        params: { id: entity.playlist_id }
+      }
   }
 }
 
-export const getNotificationRoute = (notification: ConnectedNotification) => {
+export const getNotificationRoute = (notification: Notification) => {
   switch (notification.type) {
     case NotificationType.Announcement:
       return null
@@ -62,10 +65,12 @@ export const getNotificationRoute = (notification: ConnectedNotification) => {
       if (isMultiUser) {
         return getUserListRoute(notification)
       }
-      const firstUser = notification.users[0]
+      const firstUser = notification?.users?.[0]
+      if (!firstUser) return null
       return getUserRoute(firstUser)
     }
     case NotificationType.UserSubscription:
+      if (!notification?.entities?.[0]) return null
       return getEntityRoute(notification.entities[0], notification.entityType)
     case NotificationType.Favorite:
       return getEntityRoute(notification.entity, notification.entityType)
@@ -97,7 +102,7 @@ export const getNotificationRoute = (notification: ConnectedNotification) => {
   }
 }
 
-export const getNotificationScreen = (notification: ConnectedNotification) => {
+export const getNotificationScreen = (notification: Notification) => {
   switch (notification.type) {
     case NotificationType.Announcement:
       return null
@@ -106,14 +111,23 @@ export const getNotificationScreen = (notification: ConnectedNotification) => {
       const isMultiUser = !!users && users.length > 1
       if (isMultiUser) {
         return {
-          screen: 'NotificationUsers',
-          params: { notificationType: notification.type, count: users.length }
+          screen: 'NotificationUsers' as const,
+          params: {
+            notificationType: notification.type,
+            count: users.length,
+            id: notification.id
+          }
         }
       }
-      const firstUser = notification.users[0]
-      return { screen: 'Profile', params: { handle: firstUser.handle } }
+      const firstUser = notification?.users?.[0]
+      if (!firstUser) return null
+      return {
+        screen: 'Profile' as const,
+        params: { handle: firstUser.handle }
+      }
     }
     case NotificationType.UserSubscription:
+      if (!notification?.entities?.[0]) return null
       return getEntityScreen(notification.entities[0], notification.entityType)
     case NotificationType.Favorite:
       return getEntityScreen(notification.entity, notification.entityType)
@@ -123,7 +137,7 @@ export const getNotificationScreen = (notification: ConnectedNotification) => {
       if (notification.achievement === Achievement.Followers) {
         if (!notification.user) return ''
         const { handle } = notification.user
-        return { screen: 'Profile', params: { handle } }
+        return { screen: 'Profile' as const, params: { handle } }
       }
       return getEntityScreen(notification.entity, notification.entityType)
     case NotificationType.RemixCosign: {
@@ -142,6 +156,6 @@ export const getNotificationScreen = (notification: ConnectedNotification) => {
       return getEntityScreen(notification.entity, notification.entityType)
     case NotificationType.ChallengeReward:
     case NotificationType.TierChange:
-      return { screen: 'AudioScreen', params: undefined }
+      return { screen: 'AudioScreen' as const, params: undefined }
   }
 }

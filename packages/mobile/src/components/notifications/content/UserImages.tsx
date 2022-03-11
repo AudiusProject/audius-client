@@ -2,11 +2,13 @@ import { useCallback } from 'react'
 
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { User } from 'audius-client/src/common/models/User'
-import { ConnectedNotification } from 'audius-client/src/common/store/notifications/types'
+import { Notification } from 'audius-client/src/common/store/notifications/types'
+import { setNotificationId } from 'audius-client/src/common/store/user-list/notifications/actions'
 import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
 import { close } from 'app/store/notifications/actions'
@@ -32,7 +34,7 @@ const styles = StyleSheet.create({
 })
 
 type UserImagesProps = {
-  notification: ConnectedNotification
+  notification: Notification
   users: User[]
 }
 
@@ -77,14 +79,20 @@ const UserImage = ({
 const UserImages = ({ notification, users }: UserImagesProps) => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const dispatchWeb = useDispatchWeb()
 
   const isMultiUser = users.length > 1
 
   const handlePress = useCallback(() => {
+    dispatchWeb(setNotificationId(notification.id))
     navigation.navigate({
       native: {
         screen: 'NotificationUsers',
-        params: { notificationType: notification.type, count: users.length }
+        params: {
+          notificationType: notification.type,
+          count: users.length,
+          id: notification.id
+        }
       },
       web: {
         route: getUserListRoute(notification),
@@ -92,7 +100,7 @@ const UserImages = ({ notification, users }: UserImagesProps) => {
       }
     })
     dispatch(close())
-  }, [navigation, notification, dispatch, users.length])
+  }, [navigation, notification, dispatch, dispatchWeb, users.length])
 
   const renderUsers = () => (
     <View style={styles.container}>

@@ -1,6 +1,5 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
-import * as Sentry from '@sentry/react-native'
 import {
   getNotificationEntities,
   getNotificationEntity,
@@ -8,11 +7,12 @@ import {
   getNotificationUsers
 } from 'audius-client/src/common/store/notifications/selectors'
 import {
-  ConnectedNotification,
   Notification,
   NotificationType,
   TierChange
 } from 'audius-client/src/common/store/notifications/types'
+import { setNotificationId } from 'audius-client/src/common/store/user-list/notifications/actions'
+import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import {
   StyleSheet,
   View,
@@ -38,6 +38,7 @@ import IconTrending from 'app/assets/images/iconTrending.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import { AudioTier } from 'app/components/audio-rewards'
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { close } from 'app/store/notifications/actions'
@@ -146,13 +147,13 @@ const styles = StyleSheet.create({
 
 type NotificationBlockProps = {
   notification: Notification
-  onGoToRoute: (route: string) => void
 }
 
 const NotificationBlock = ({ notification }: NotificationBlockProps) => {
   const Icon = typeIconMap[notification.type](notification)
   const title = typeTitleMap[notification.type](notification)
   const dispatch = useDispatch()
+  const dispatchWeb = useDispatchWeb()
 
   const user = useSelectorWeb(state => getNotificationUser(state, notification))
   const users = useSelectorWeb(state =>
@@ -165,29 +166,45 @@ const NotificationBlock = ({ notification }: NotificationBlockProps) => {
     getNotificationEntities(state, notification)
   )
 
-  const connectedNotification: ConnectedNotification = {
-    ...notification,
-    user,
-    users,
-    entity,
-    entities
-  }
+  // TODO: Type notifications & their selectors more strictly.
+  // The reason we ignore here is because user/users/entity/entities
+  // are specific to each type of notification, but they are handled by
+  // generic selectors.
+  // @ts-ignore
+  notification.user = user
+  // @ts-ignore
+  notification.users = users
+  // @ts-ignore
+  notification.entity = entity
+  // @ts-ignore
+  notification.entities = entities
 
-  const notificationScreen = getNotificationScreen(connectedNotification)
-  const notificationRoute = getNotificationRoute(connectedNotification)
+  const notificationScreen = getNotificationScreen(notification)
+  const notificationRoute = getNotificationRoute(notification)
   const navigation = useNavigation()
 
   const onPress = useCallback(() => {
-    if (notificationRoute) {
+    if (notificationRoute && notificationScreen) {
+      if (notificationScreen.screen === 'NotificationUsers') {
+        dispatchWeb(setNotificationId(notification.id))
+      }
       navigation.navigate({
         native: notificationScreen,
         web: {
-          route: notificationRoute
+          route: notificationRoute,
+          fromPage: NOTIFICATION_PAGE
         }
       })
       dispatch(close())
     }
-  }, [notificationScreen, notificationRoute, navigation, dispatch])
+  }, [
+    notification,
+    notificationScreen,
+    notificationRoute,
+    navigation,
+    dispatch,
+    dispatchWeb
+  ])
 
   const itemStyles = useTheme(styles.item, {
     backgroundColor: 'white',
@@ -267,7 +284,7 @@ const NotificationBlock = ({ notification }: NotificationBlockProps) => {
               </Text>
             </View>
             <View style={styles.body}>
-              <NotificationContent notification={connectedNotification} />
+              <NotificationContent notification={notification} />
               <Text style={timestampStyles}>{notification.timeLabel}</Text>
             </View>
           </View>

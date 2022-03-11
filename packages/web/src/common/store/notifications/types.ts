@@ -5,12 +5,6 @@ import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import { Track } from 'common/models/Track'
 import { User } from 'common/models/User'
-import {
-  getNotificationEntities,
-  getNotificationEntity,
-  getNotificationUser,
-  getNotificationUsers
-} from 'common/store/notifications/selectors'
 
 export enum NotificationType {
   Announcement = 'Announcement',
@@ -37,6 +31,7 @@ export type BaseNotification = {
   id: string
   isRead: boolean
   isHidden: boolean
+  isViewed: boolean
   timestamp: string
   timeLabel?: string
 }
@@ -90,6 +85,7 @@ export type Favorite = BaseNotification & {
   type: NotificationType.Favorite
   entityId: ID
   userIds: ID[]
+  users?: User[]
 } & (
     | {
         entityType: Entity.Playlist | Entity.Album
@@ -109,8 +105,7 @@ export enum Achievement {
   Followers = 'Followers'
 }
 
-export type Milestone = BaseNotification &
-  (
+export type Milestone = BaseNotification & { user: User } & (
     | {
         type: NotificationType.Milestone
         entityType: Entity
@@ -202,23 +197,3 @@ export default interface NotificationState {
   hasLoaded: boolean
   playlistUpdates: number[]
 }
-
-type ConnectedNotificationExtras = {
-  user: ReturnType<typeof getNotificationUser>
-  users: ReturnType<typeof getNotificationUsers>
-  entity: ReturnType<typeof getNotificationEntity>
-  entities: ReturnType<typeof getNotificationEntities>
-}
-
-export type ConnectedNotification = Notification & ConnectedNotificationExtras
-export type ConnectedAnnouncementNotification = Announcement & ConnectedNotificationExtras
-export type ConnectedUserSubscriptionNotification = UserSubscription & ConnectedNotificationExtras
-export type ConnectedFollowNotification = Follow & ConnectedNotificationExtras
-export type ConnectedRepostNotification = Repost & ConnectedNotificationExtras
-export type ConnectedFavoriteNotification = Favorite & ConnectedNotificationExtras
-export type ConnectedMilestoneNotification = Milestone & ConnectedNotificationExtras
-export type ConnectedRemixCreateNotification = RemixCreate & ConnectedNotificationExtras
-export type ConnectedRemixCosignNotification = RemixCosign & ConnectedNotificationExtras
-export type ConnectedTrendingTrackNotification = TrendingTrack & ConnectedNotificationExtras
-export type ConnectedChallengeRewardNotification = ChallengeReward & ConnectedNotificationExtras
-export type ConnectedTierChangeNotification = TierChange & ConnectedNotificationExtras

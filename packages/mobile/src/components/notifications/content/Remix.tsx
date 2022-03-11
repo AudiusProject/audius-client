@@ -1,7 +1,7 @@
 import { Track } from 'audius-client/src/common/models/Track'
 import {
-  ConnectedRemixCreateNotification,
-  Entity as EntityType
+  Entity as EntityType,
+  RemixCreate
 } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 })
 
 type RemixProps = {
-  notification: ConnectedRemixCreateNotification
+  notification: RemixCreate
 }
 
 const Remix = ({ notification }: RemixProps) => {

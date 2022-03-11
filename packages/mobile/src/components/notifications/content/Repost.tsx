@@ -1,4 +1,4 @@
-import { ConnectedRepostNotification } from 'audius-client/src/common/store/notifications/types'
+import { Repost as RepostNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { formatCount } from 'app/utils/format'
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 })
 
 type RepostProps = {
-  notification: ConnectedRepostNotification
+  notification: RepostNotification
 }
 
 const Repost = ({ notification }: RepostProps) => {
@@ -24,7 +24,7 @@ const Repost = ({ notification }: RepostProps) => {
     color: 'neutral'
   })
 
-  const firstUser = notification.users[0]
+  const firstUser = notification?.users?.[0]
   if (!firstUser) return null
 
   let otherUsers = ''
@@ -37,7 +37,9 @@ const Repost = ({ notification }: RepostProps) => {
 
   return (
     <View>
-      <UserImages notification={notification} users={notification.users} />
+      {notification.users ? (
+        <UserImages notification={notification} users={notification.users} />
+      ) : null}
       <Text style={textWrapperStyle}>
         <User user={firstUser} />
         {`${otherUsers} Reposted your ${entityType.toLowerCase()} `}

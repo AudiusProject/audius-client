@@ -4,13 +4,14 @@ import { Track } from 'audius-client/src/common/models/Track'
 import { User } from 'audius-client/src/common/models/User'
 import {
   Achievement,
-  ConnectedChallengeRewardNotification,
-  ConnectedRemixCosignNotification,
-  ConnectedRemixCreateNotification,
-  ConnectedTierChangeNotification,
-  ConnectedTrendingTrackNotification,
+  Notification,
   Entity,
-  NotificationType
+  NotificationType,
+  TrendingTrack,
+  RemixCreate,
+  RemixCosign,
+  ChallengeReward,
+  TierChange
 } from 'audius-client/src/common/store/notifications/types'
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
@@ -66,9 +67,7 @@ const getAchievementText = (notification: any) => {
   }
 }
 
-const getTrendingTrackText = (
-  notification: ConnectedTrendingTrackNotification
-) => {
+const getTrendingTrackText = (notification: TrendingTrack) => {
   const link = getEntityRoute(
     notification.entity,
     notification.entityType,
@@ -82,9 +81,7 @@ const getTrendingTrackText = (
   return { link, text }
 }
 
-const getRemixCreateText = async (
-  notification: ConnectedRemixCreateNotification
-) => {
+const getRemixCreateText = async (notification: RemixCreate) => {
   const track = notification.entities.find(
     (t: any) => t.track_id === notification.parentTrackId
   )
@@ -101,9 +98,7 @@ const getRemixCreateText = async (
   }
 }
 
-const getRemixCosignText = async (
-  notification: ConnectedRemixCosignNotification
-) => {
+const getRemixCosignText = async (notification: RemixCosign) => {
   const parentTrack = notification.entities.find(
     (t: Track) => t.owner_id === notification.parentTrackUserId
   )
@@ -125,9 +120,7 @@ const getRemixCosignText = async (
   }
 }
 
-export const getRewardsText = (
-  notification: ConnectedChallengeRewardNotification
-) => ({
+export const getRewardsText = (notification: ChallengeReward) => ({
   text: `I earned $AUDIO for completing challenges on @AudiusProject #AudioRewards`,
   link: null
 })
@@ -140,9 +133,7 @@ const tierInfoMap: Record<AudioTier, { label: string; icon: string }> = {
   platinum: { label: 'Platinum', icon: '🥇' }
 }
 
-export const getTierChangeText = (
-  notif: ConnectedTierChangeNotification & { user: User }
-) => {
+export const getTierChangeText = (notif: TierChange & { user: User }) => {
   const { label, icon } = tierInfoMap[notif.tier]
   return {
     link: getUserRoute(notif.user, true),

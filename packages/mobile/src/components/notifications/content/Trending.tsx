@@ -1,4 +1,4 @@
-import { ConnectedTrendingTrackNotification } from 'audius-client/src/common/store/notifications/types'
+import { TrendingTrack } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { useTheme } from 'app/utils/theme'
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 })
 
 type TrendingProps = {
-  notification: ConnectedTrendingTrackNotification
+  notification: TrendingTrack
 }
 
 const Trending = ({ notification }: TrendingProps) => {

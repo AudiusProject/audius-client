@@ -1,4 +1,4 @@
-import { ConnectedTierChangeNotification } from 'audius-client/src/common/store/notifications/types'
+import { TierChange as TierChangeNotification } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { AudioTier } from 'app/components/audio-rewards'
@@ -45,7 +45,7 @@ export const tierInfoMap: Record<
 }
 
 type TierChangeProps = {
-  notification: ConnectedTierChangeNotification
+  notification: TierChangeNotification
 }
 
 const TierChange = ({ notification }: TierChangeProps) => {

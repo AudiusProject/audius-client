@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import Status from 'audius-client/src/common/models/Status'
 import {
   fetchNotifications,
   refreshNotifications
@@ -16,7 +17,6 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import * as haptics from 'app/haptics'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { Status } from 'app/types/status'
 import { useColor } from 'app/utils/theme'
 
 import Empty from './Empty'

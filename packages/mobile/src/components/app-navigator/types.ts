@@ -10,7 +10,9 @@ export type BaseStackParamList = {
   Collection: { id: ID }
   Favorited: { id: ID; favoriteType: FavoriteType }
   Reposts: { id: ID; repostType: RepostType }
+  AudioScreen: undefined
   NotificationUsers: {
+    id: string // uuid
     notificationType: NotificationType
     count: number
   }
@@ -58,7 +60,6 @@ export type ProfileStackParamList = BaseStackParamList & {
   ListeningHistoryScreen: undefined
   AccountSettingsScreen: undefined
   NotificationSettingsScreen: undefined
-  AudioScreen: undefined
   Followers: { userId: ID }
   Following: { userId: ID }
 }

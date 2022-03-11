@@ -1,11 +1,11 @@
-import { ConnectedAnnouncementNotification } from 'audius-client/src/common/store/notifications/types'
+import { Announcement as AnnouncementNotification } from 'audius-client/src/common/store/notifications/types'
 import { View } from 'react-native'
 import Markdown from 'react-native-markdown-display'
 
 import { useTheme } from 'app/utils/theme'
 
 type AnnouncementProps = {
-  notification: ConnectedAnnouncementNotification
+  notification: AnnouncementNotification
 }
 
 const Announcement = ({ notification }: AnnouncementProps) => {

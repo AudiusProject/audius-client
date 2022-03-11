@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 import {
   Achievement,
-  ConnectedMilestoneNotification
+  Milestone as MilestoneNotification
 } from 'audius-client/src/common/store/notifications/types'
 import { StyleSheet, Text, View } from 'react-native'
 
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 })
 
 type MilestoneProps = {
-  notification: ConnectedMilestoneNotification
+  notification: MilestoneNotification
 }
 
 const Milestone = ({ notification }: MilestoneProps) => {

@@ -1,5 +1,5 @@
 import {
-  ConnectedNotification,
+  Notification,
   NotificationType
 } from 'audius-client/src/common/store/notifications/types'
 
@@ -16,7 +16,7 @@ import TierChange from './TierChange'
 import Trending from './Trending'
 
 type NotificationContentProps = {
-  notification: ConnectedNotification
+  notification: Notification
 }
 
 const NotificationContent = ({ notification }: NotificationContentProps) => {

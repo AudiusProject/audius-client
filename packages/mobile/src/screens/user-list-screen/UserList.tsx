@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native'
+import { User } from 'audius-client/src/common/models/User'
 import { CommonState } from 'audius-client/src/common/store'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
@@ -51,16 +52,16 @@ export const UserList = (props: UserListProps) => {
   const { tag, userSelector, setUserList } = props
   const isFocused = useIsFocused()
   const styles = useStyles()
-  const cachedUsers = useRef([])
+  const cachedUsers = useRef<User[]>([])
   const dispatchWeb = useDispatchWeb()
   const [isRefreshing, setIsRefreshing] = useState(true)
-  const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
+  const { hasMore, userIds, loading } = useSelectorWeb(userSelector)
   const currentUserId = useSelectorWeb(getUserId)
   const usersMap = useSelectorWeb(
     state => getUsers(state, { ids: userIds }),
     isEqual
   )
-  const users = useMemo(
+  const users: User[] = useMemo(
     () =>
       userIds
         .map(id => usersMap[id])

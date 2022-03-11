@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react'
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { createDrawerNavigator } from '@react-navigation/drawer'
 import { ParamListBase } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { Animated, StyleSheet, View } from 'react-native'
@@ -46,14 +45,11 @@ import {
 import { SmartCollectionScreen } from 'app/screens/smart-collection-screen/SmartCollectionScreen'
 import { TrendingScreen } from 'app/screens/trending-screen'
 
-import { NotificationsScreen } from '../notifications/NotificationsScreen'
-
 import { BaseStackNavigator } from './BaseStackNavigator'
 import {
   ExploreStackParamList,
   FavoritesStackParamList,
   FeedStackParamList,
-  NotificationsParamList,
   ProfileStackParamList,
   TrendingStackParamList
 } from './types'
@@ -165,12 +161,6 @@ const ProfileStackScreen = createStackScreen<ProfileStackParamList>(Stack => (
   </>
 ))
 
-const NotificationsStackScreen = createStackScreen<NotificationsParamList>(
-  Stack => (
-    <Stack.Screen name='NotificationsStack' component={NotificationsScreen} />
-  )
-)
-
 const Tab = createBottomTabNavigator()
 
 /**
@@ -216,20 +206,6 @@ export const BottomTabNavigator = () => {
         )}
         screenOptions={{ headerShown: false, unmountOnBlur: true }}
       >
-        {/* <Tab.Screen
-          name='Notifications'
-          component={() => {
-            return (
-              <Drawer.Navigator>
-                <Drawer.Screen
-                  name='Notifications'
-                  component={NotificationsScreen}
-                  // options={{ gestureDirection: 'horizontal-inverted' }}
-                />
-              </Drawer.Navigator>
-            )
-          }}
-        /> */}
         <Tab.Screen name='feed' component={FeedStackScreen} />
         <Tab.Screen name='trending' component={TrendingStackScreen} />
         <Tab.Screen name='explore' component={ExploreStackScreen} />
