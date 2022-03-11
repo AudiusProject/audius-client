@@ -3,7 +3,6 @@ import { useCallback, useRef, useState } from 'react'
 import { TextInput } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconClose from 'app/assets/images/iconRemove.svg'
 import { SearchInput } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -18,7 +17,7 @@ export const SearchBar = () => {
   const query = useSelector(getSearchQuery)
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
-  const [shouldDisplayClearQuery, setShoulDisplayClearQuery] = useState(false)
+  const [clearable, setClearable] = useState(false)
   const inputRef = useRef<TextInput>(null)
 
   const handleChangeText = useCallback(
@@ -31,27 +30,25 @@ export const SearchBar = () => {
         })
       }
       if (text !== '') {
-        setShoulDisplayClearQuery(true)
+        setClearable(true)
+      } else {
+        setClearable(false)
       }
     },
-    [dispatch, dispatchWeb, setShoulDisplayClearQuery]
+    [dispatch, dispatchWeb, setClearable]
   )
 
-  const onPressIcon = useCallback(() => {
+  const onClear = useCallback(() => {
     dispatch(updateQuery(''))
-    setShoulDisplayClearQuery(false)
+    setClearable(false)
     inputRef.current?.focus()
-  }, [dispatch, setShoulDisplayClearQuery])
+  }, [dispatch, setClearable])
 
   const searchResultQuery = useSelector(getSearchResultQuery)
   const isTagSearch = query.startsWith('#')
   const hasText = query !== ''
   const isLoading = !isTagSearch && hasText && searchResultQuery !== query
-  const icon = isLoading
-    ? LoadingSpinner
-    : shouldDisplayClearQuery
-    ? IconClose
-    : undefined
+  const icon = isLoading ? LoadingSpinner : undefined
 
   return (
     <SearchInput
@@ -60,7 +57,8 @@ export const SearchBar = () => {
       value={query}
       onChangeText={handleChangeText}
       Icon={icon}
-      onPressIcon={shouldDisplayClearQuery ? onPressIcon : undefined}
+      clearable={!isLoading && clearable}
+      onClear={onClear}
     />
   )
 }

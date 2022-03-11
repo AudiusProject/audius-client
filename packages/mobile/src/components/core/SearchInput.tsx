@@ -4,6 +4,7 @@ import { Animated, TextInput, TextInputProps, View } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { SvgProps } from 'react-native-svg'
 
+import IconClose from 'app/assets/images/iconRemove.svg'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -33,30 +34,30 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
 }))
 
 type SearchInputProps = TextInputProps & {
+  /**
+   * Default icon to show at the right side of the input
+   */
   Icon?: ComponentType<SvgProps>
-  onPressIcon?: () => void
+  /**
+   * Whether or not the search input should show a clear icon
+   */
+  clearable?: boolean
+  /**
+   * What happens when the user clicks the clear icon
+   */
+  onClear?: () => void
 }
 
 export const SearchInput = forwardRef<TextInput, SearchInputProps>(
   (props, ref) => {
     const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.8)
 
-    const { style, Icon, onPressIcon, ...other } = props
+    const { style, Icon, clearable, onClear, ...other } = props
     const styles = useStyles()
 
-    const renderIcon = () =>
-      Icon ? (
-        <Icon
-          style={{ height: styles.icon.height, width: styles.icon.width }}
-          fill={styles.icon.fill}
-          height={styles.icon.height}
-          width={styles.icon.width}
-        />
-      ) : null
-
     const handlePressIcon = useCallback(() => {
-      onPressIcon?.()
-    }, [onPressIcon])
+      onClear?.()
+    }, [onClear])
 
     return (
       <View style={[styles.root, style]}>
@@ -69,7 +70,7 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
           returnKeyType='search'
           {...other}
         />
-        {onPressIcon ? (
+        {clearable ? (
           <Animated.View style={[{ transform: [{ scale }] }]}>
             <TouchableWithoutFeedback
               onPress={handlePressIcon}
@@ -82,12 +83,22 @@ export const SearchInput = forwardRef<TextInput, SearchInputProps>(
                 right: spacing(2)
               }}
             >
-              {renderIcon()}
+              <IconClose
+                style={{ height: styles.icon.height, width: styles.icon.width }}
+                fill={styles.icon.fill}
+                height={styles.icon.height}
+                width={styles.icon.width}
+              />
             </TouchableWithoutFeedback>
           </Animated.View>
-        ) : (
-          renderIcon()
-        )}
+        ) : Icon ? (
+          <Icon
+            style={{ height: styles.icon.height, width: styles.icon.width }}
+            fill={styles.icon.fill}
+            height={styles.icon.height}
+            width={styles.icon.width}
+          />
+        ) : null}
       </View>
     )
   }
