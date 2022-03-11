@@ -140,14 +140,11 @@ type Props = OwnProps &
 const WebApp = ({
   onMessage,
   webRef,
-  state,
   trackInfo,
   trackIndex,
   isOnFirstPage,
   isSignedIn,
-  state: {
-    lifecycle: { dappLoaded }
-  }
+  dappLoaded
 }: Props) => {
   // Start the local static asset server
   const [url, setUrl] = useState<string>('')
@@ -561,7 +558,7 @@ const useSplashScreenKey = (dappLoaded: boolean) => {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  state,
+  dappLoaded: state.lifecycle.dappLoaded,
   trackInfo: getTrack(state),
   trackIndex: getIndex(state),
   isOnFirstPage: getIsOnFirstPage(state),

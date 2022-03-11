@@ -8,7 +8,9 @@ export const CLOSE = 'ADD_TO_PLAYLIST/CLOSE'
 
 export const requestOpen = createCustomAction(
   REQUEST_OPEN,
-  (trackId: ID, trackTitle: string) => ({ trackId, trackTitle })
+  (trackId: ID, trackTitle: string) => {
+    return { trackId, trackTitle }
+  }
 )
 export const open = createCustomAction(
   OPEN,
