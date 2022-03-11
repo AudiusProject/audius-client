@@ -246,7 +246,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressReward = (
     <div className={wm(styles.progressReward)}>
       <h3>Reward</h3>
-      <h2>{formatNumberCommas(challenge?.totalAmount || '')}</h2>
+      <h2>{formatNumberCommas(challenge?.totalAmount ?? '')}</h2>
       <h4>$AUDIO</h4>
     </div>
   )
