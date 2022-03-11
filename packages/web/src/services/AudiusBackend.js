@@ -2452,6 +2452,25 @@ class AudiusBackend {
     }
   }
 
+  static async recordIP() {
+    await waitForLibsInit()
+    const account = audiusLibs.Account.getCurrentUser()
+    if (!account) return { error: true }
+
+    try {
+      const { data, signature } = await AudiusBackend.signData()
+      return fetch(`${IDENTITY_SERVICE}/record_ip`, {
+        headers: {
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
+        }
+      }).then(res => res.json())
+    } catch (err) {
+      console.error(err.message)
+      return { error: true }
+    }
+  }
+
   static async getRandomFeePayer() {
     await waitForLibsInit()
     try {

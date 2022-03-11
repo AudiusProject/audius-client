@@ -69,6 +69,25 @@ import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
+const IP_STORAGE_KEY = 'user-ip-timestamp'
+
+function* recordIPIfNotRecent() {
+  const twentyFourHours = 24 * 60 * 60 * 1000
+  const now = Date.now()
+  const twentyFourHoursAgo = now - twentyFourHours
+  const storedIPStr = window.localStorage.getItem(IP_STORAGE_KEY)
+  const storedIP = storedIPStr && JSON.parse(storedIPStr)
+  if (!storedIP || storedIP.timestamp < twentyFourHoursAgo) {
+    const { userIP, error } = yield call(AudiusBackend.recordIP)
+    if (!error) {
+      window.localStorage.setItem(
+        IP_STORAGE_KEY,
+        JSON.stringify({ userIP, timestamp: now })
+      )
+    }
+  }
+}
+
 // Tasks to be run on account successfully fetched, e.g.
 // recording metrics, setting user data
 function* onFetchAccount(account) {
@@ -222,6 +241,8 @@ export function* fetchAccountAsync(action) {
   remoteConfigInstance.setUserId(account.user_id)
   // Fire-and-forget fp identify
   fingerprintClient.identify(account.user_id)
+
+  yield call(recordIPIfNotRecent)
 
   // Cache the account and fire the onFetch callback. We're done.
   yield call(cacheAccount, account)
