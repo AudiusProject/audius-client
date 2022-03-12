@@ -30,7 +30,8 @@ const styles = StyleSheet.create({
     height: 32,
     width: 32,
     borderRadius: 16,
-    marginRight: 4
+    marginRight: 4,
+    overflow: 'hidden'
   }
 })
 
@@ -71,7 +72,10 @@ const UserImage = ({
       activeOpacity={0.7}
       onPress={allowPress ? handlePress : undefined}
     >
-      <DynamicImage style={imageStyle} source={{ uri: profilePicture }} />
+      <DynamicImage
+        styles={{ root: imageStyle }}
+        source={{ uri: profilePicture }}
+      />
     </TouchableOpacity>
   )
 }
