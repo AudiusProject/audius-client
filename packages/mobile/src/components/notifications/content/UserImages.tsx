@@ -5,9 +5,10 @@ import { User } from 'audius-client/src/common/models/User'
 import { Notification } from 'audius-client/src/common/store/notifications/types'
 import { setNotificationId } from 'audius-client/src/common/store/user-list/notifications/actions'
 import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
+import { DynamicImage } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
@@ -69,9 +70,8 @@ const UserImage = ({
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={allowPress ? handlePress : undefined}
-      key={user.user_id}
     >
-      <Image style={imageStyle} source={{ uri: profilePicture }} />
+      <DynamicImage style={imageStyle} source={{ uri: profilePicture }} />
     </TouchableOpacity>
   )
 }

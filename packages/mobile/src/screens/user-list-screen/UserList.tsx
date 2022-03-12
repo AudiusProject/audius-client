@@ -55,7 +55,7 @@ export const UserList = (props: UserListProps) => {
   const cachedUsers = useRef<User[]>([])
   const dispatchWeb = useDispatchWeb()
   const [isRefreshing, setIsRefreshing] = useState(true)
-  const { hasMore, userIds, loading } = useSelectorWeb(userSelector)
+  const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
   const currentUserId = useSelectorWeb(getUserId)
   const usersMap = useSelectorWeb(
     state => getUsers(state, { ids: userIds }),
