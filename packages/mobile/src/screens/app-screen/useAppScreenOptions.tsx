@@ -19,8 +19,7 @@ import { open as openNotificationPanel } from 'app/store/notifications/actions'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-import { AppScreenParamList } from '../AppScreen'
-
+import { AppScreenParamList } from './AppScreen'
 import { AppTabScreenParamList } from './AppTabScreen'
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -52,7 +51,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   }
 }))
 
-export const useScreenOptions = () => {
+export const useAppScreenOptions = () => {
   const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()

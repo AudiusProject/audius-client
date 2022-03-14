@@ -8,7 +8,7 @@ import { AppTabScreen } from './AppTabScreen'
  * track and profile
  * @param baseScreen The screen to use as the base of the stack
  */
-export const createTabScreenStack = <StackParamList extends ParamListBase>(
+export const createAppTabScreenStack = <StackParamList extends ParamListBase>(
   baseScreen: (
     Stack: ReturnType<typeof createStackNavigator>
   ) => React.ReactNode

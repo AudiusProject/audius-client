@@ -22,7 +22,7 @@ import {
   NotificationUsersScreen
 } from 'app/screens/user-list-screen'
 
-import { useScreenOptions } from './useTabScreenOptions'
+import { useAppScreenOptions } from './useAppScreenOptions'
 
 export type AppTabScreenParamList = {
   Track: { id: ID }
@@ -61,7 +61,7 @@ type AppTabScreenProps = {
  */
 export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   const dispatchWeb = useDispatchWeb()
-  const screenOptions = useScreenOptions()
+  const screenOptions = useAppScreenOptions()
   return (
     <Stack.Navigator
       screenOptions={screenOptions}

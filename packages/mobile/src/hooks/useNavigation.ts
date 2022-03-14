@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppTabScreenParamList } from 'app/screens/app-screen/AppTabScreen/AppTabScreen'
+import { AppTabScreenParamList } from 'app/screens/app-screen/AppTabScreen'
 
 import { usePushRouteWeb } from './usePushRouteWeb'
 

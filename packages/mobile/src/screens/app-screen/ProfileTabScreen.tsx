@@ -9,7 +9,8 @@ import {
   SettingsScreen
 } from 'app/screens/settings-screen'
 
-import { AppTabScreenParamList, createTabScreenStack } from './AppTabScreen'
+import { AppTabScreenParamList } from './AppTabScreen'
+import { createAppTabScreenStack } from './createAppTabScreenStack'
 
 export type ProfileTabScreenParamList = AppTabScreenParamList & {
   ProfileStack: undefined
@@ -22,30 +23,30 @@ export type ProfileTabScreenParamList = AppTabScreenParamList & {
   AudioScreen: undefined
 }
 
-export const ProfileTabScreen = createTabScreenStack<ProfileTabScreenParamList>(
-  Stack => (
-    <>
-      <Stack.Screen
-        name='UserProfile'
-        component={ProfileScreen}
-        initialParams={{ handle: 'accountUser' }}
-      />
-      <Stack.Screen name='EditProfile' component={EditProfileScreen} />
-      <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
-      <Stack.Screen name='AboutScreen' component={AboutScreen} />
-      <Stack.Screen
-        name='ListeningHistoryScreen'
-        component={ListeningHistoryScreen}
-      />
-      <Stack.Screen
-        name='AccountSettingsScreen'
-        component={AccountSettingsScreen}
-      />
-      <Stack.Screen
-        name='NotificationSettingsScreen'
-        component={NotificationSettingsScreen}
-      />
-      <Stack.Screen name='AudioScreen' component={AudioScreen} />
-    </>
-  )
-)
+export const ProfileTabScreen = createAppTabScreenStack<
+  ProfileTabScreenParamList
+>(Stack => (
+  <>
+    <Stack.Screen
+      name='UserProfile'
+      component={ProfileScreen}
+      initialParams={{ handle: 'accountUser' }}
+    />
+    <Stack.Screen name='EditProfile' component={EditProfileScreen} />
+    <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+    <Stack.Screen name='AboutScreen' component={AboutScreen} />
+    <Stack.Screen
+      name='ListeningHistoryScreen'
+      component={ListeningHistoryScreen}
+    />
+    <Stack.Screen
+      name='AccountSettingsScreen'
+      component={AccountSettingsScreen}
+    />
+    <Stack.Screen
+      name='NotificationSettingsScreen'
+      component={NotificationSettingsScreen}
+    />
+    <Stack.Screen name='AudioScreen' component={AudioScreen} />
+  </>
+))
