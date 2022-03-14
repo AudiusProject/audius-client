@@ -42,7 +42,7 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { AppTabScreenParamList } from 'app/screens/app-screen'
-import { ProfileTabParamList } from 'app/screens/app-screen/ProfileTab'
+import { ProfileTabScreenParamList } from 'app/screens/app-screen/ProfileTabScreen'
 import { close } from 'app/store/notifications/actions'
 import { useColor, useTheme } from 'app/utils/theme'
 
@@ -184,7 +184,7 @@ const NotificationBlock = ({ notification }: NotificationBlockProps) => {
   const notificationScreen = getNotificationScreen(notification)
   const notificationRoute = getNotificationRoute(notification)
   const navigation = useNavigation<
-    AppTabScreenParamList & ProfileTabParamList
+    AppTabScreenParamList & ProfileTabScreenParamList
   >()
 
   const onPress = useCallback(() => {

@@ -11,7 +11,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { Theme } from 'app/utils/theme'
 
-import { ProfileTabParamList } from '../app-screen/ProfileTab'
+import { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { AccountSettingsRow } from './AccountSettingsRow'
 import { AppearanceSettingsRow } from './AppearanceSettingsRow'
@@ -39,7 +39,7 @@ const useStyles = makeStyles(({ spacing, palette, type }) => ({
 export const SettingsScreen = () => {
   const styles = useStyles()
 
-  const navigation = useNavigation<ProfileTabParamList>()
+  const navigation = useNavigation<ProfileTabScreenParamList>()
 
   const handlePressHistory = useCallback(() => {
     navigation.push({

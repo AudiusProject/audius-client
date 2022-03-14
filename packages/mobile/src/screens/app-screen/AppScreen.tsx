@@ -2,18 +2,24 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigatorScreenParams } from '@react-navigation/native'
 
 import { AppTabBar } from './AppTabBar'
-import { ExploreTab, ExploreTabParamList } from './ExploreTab'
-import { FavoritesTab, FavoritesTabParamList } from './FavoritesTab'
-import { FeedTab, FeedTabParamList } from './FeedTab'
-import { ProfileTabParamList, ProfileTab } from './ProfileTab'
-import { TrendingTab, TrendingTabParamList } from './TrendingTab'
+import { ExploreTabScreen, ExploreTabScreenParamList } from './ExploreTabScreen'
+import {
+  FavoritesTabScreen,
+  FavoritesTabScreenParamList
+} from './FavoritesTabScreen'
+import { FeedTabScreen, FeedTabScreenParamList } from './FeedTabScreen'
+import { ProfileTabScreenParamList, ProfileTabScreen } from './ProfileTabScreen'
+import {
+  TrendingTabScreen,
+  TrendingTabScreenParamList
+} from './TrendingTabScreen'
 
 export type AppScreenParamList = {
-  feed: NavigatorScreenParams<FeedTabParamList>
-  trending: NavigatorScreenParams<TrendingTabParamList>
-  explore: NavigatorScreenParams<ExploreTabParamList>
-  favorites: NavigatorScreenParams<FavoritesTabParamList>
-  profile: NavigatorScreenParams<ProfileTabParamList>
+  feed: NavigatorScreenParams<FeedTabScreenParamList>
+  trending: NavigatorScreenParams<TrendingTabScreenParamList>
+  explore: NavigatorScreenParams<ExploreTabScreenParamList>
+  favorites: NavigatorScreenParams<FavoritesTabScreenParamList>
+  profile: NavigatorScreenParams<ProfileTabScreenParamList>
 }
 
 const Tab = createBottomTabNavigator()
@@ -24,11 +30,11 @@ export const AppScreen = () => {
       tabBar={props => <AppTabBar {...props} />}
       screenOptions={{ headerShown: false, unmountOnBlur: true }}
     >
-      <Tab.Screen name='feed' component={FeedTab} />
-      <Tab.Screen name='trending' component={TrendingTab} />
-      <Tab.Screen name='explore' component={ExploreTab} />
-      <Tab.Screen name='favorites' component={FavoritesTab} />
-      <Tab.Screen name='profile' component={ProfileTab} />
+      <Tab.Screen name='feed' component={FeedTabScreen} />
+      <Tab.Screen name='trending' component={TrendingTabScreen} />
+      <Tab.Screen name='explore' component={ExploreTabScreen} />
+      <Tab.Screen name='favorites' component={FavoritesTabScreen} />
+      <Tab.Screen name='profile' component={ProfileTabScreen} />
     </Tab.Navigator>
   )
 }

@@ -8,7 +8,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { ProfileTabParamList } from '../app-screen/ProfileTab'
+import { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { SettingsRow } from './SettingsRow'
 
@@ -28,7 +28,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
 export const AccountSettingsRow = () => {
   const styles = useStyles()
   const accountUser = useSelectorWeb(getAccountUser)
-  const navigation = useNavigation<ProfileTabParamList>()
+  const navigation = useNavigation<ProfileTabScreenParamList>()
 
   const handlePress = useCallback(() => {
     navigation.push({

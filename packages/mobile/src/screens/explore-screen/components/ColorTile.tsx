@@ -17,7 +17,7 @@ import IconAudioRewardsPill from 'app/assets/images/iconAudioRewardsPill.svg'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ExploreTabParamList } from 'app/screens/app-screen/ExploreTab'
+import { ExploreTabScreenParamList } from 'app/screens/app-screen/ExploreTabScreen'
 import { font } from 'app/styles'
 import { ThemeColors } from 'app/utils/theme'
 
@@ -137,7 +137,7 @@ export const ColorTile = ({
   isIncentivized
 }: ColorTileProps) => {
   const styles = useThemedStyles(createStyles)
-  const navigation = useNavigation<ExploreTabParamList>()
+  const navigation = useNavigation<ExploreTabScreenParamList>()
 
   const handlePress = useCallback(() => {
     if (screen) {

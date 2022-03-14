@@ -17,7 +17,7 @@ import { TopBarIconButton } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles/makeStyles'
 import { useThemeColors } from 'app/utils/theme'
 
-import { ProfileTabParamList } from '../app-screen/ProfileTab'
+import { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { ArtistRecommendations } from './ArtistRecommendations/ArtistRecommendations'
 import { CoverPhoto } from './CoverPhoto'
@@ -69,7 +69,7 @@ export const ProfileScreen = () => {
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const { accentOrange } = useThemeColors()
 
-  const navigation = useNavigation<ProfileTabParamList>()
+  const navigation = useNavigation<ProfileTabScreenParamList>()
 
   const handleNavigateSettings = useCallback(() => {
     navigation.push({
