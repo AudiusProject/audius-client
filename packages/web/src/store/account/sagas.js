@@ -40,6 +40,7 @@ import {
   clearAudiusAccount,
   clearAudiusAccountUser
 } from 'services/LocalStorage'
+import { recordIP } from 'services/audius-backend/RecordIP'
 import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import fingerprintClient from 'services/fingerprint/FingerprintClient'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
@@ -78,7 +79,7 @@ function* recordIPIfNotRecent(handle) {
   const storedIPStr = window.localStorage.getItem(IP_STORAGE_KEY)
   const storedIP = storedIPStr && JSON.parse(storedIPStr)
   if (!storedIP || !storedIP[handle] || storedIP[handle].timestamp < minAge) {
-    const { userIP, error } = yield call(AudiusBackend.recordIP)
+    const { userIP, error } = yield call(recordIP)
     if (!error) {
       window.localStorage.setItem(
         IP_STORAGE_KEY,
