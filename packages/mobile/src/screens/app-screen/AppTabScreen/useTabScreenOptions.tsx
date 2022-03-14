@@ -5,31 +5,25 @@ import {
   StackNavigationOptions
 } from '@react-navigation/stack'
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
-import { Platform, Text } from 'react-native'
+import { Text } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
+import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconNotification from 'app/assets/images/iconNotification.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
+import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { open as openNotificationPanel } from 'app/store/notifications/actions'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-import { IconButton } from '../core'
+import { AppScreenParamList } from '../AppScreen'
 
-import { TopBarArrowBack } from './TopBarArrowBack'
-import { MainParamList, SearchParamList } from './types'
+import { AppTabScreenParamList } from './AppTabScreen'
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
-  root: {
-    height: Platform.OS === 'ios' ? 86 : 55,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.neutralLight9,
-    backgroundColor: palette.white,
-    zIndex: 15
-  },
   headerLeft: { paddingLeft: spacing(2), width: 40 },
   headerRight: { paddingRight: spacing(3) },
   title: {
@@ -41,6 +35,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   iconNotification: {
     height: 28,
     width: 28
+  },
+  iconArrowBack: {
+    height: 28,
+    width: 28,
+    transform: [{ rotate: '180deg' }]
   },
   audiusLogo: {
     height: 24,
@@ -58,7 +57,9 @@ export const useScreenOptions = () => {
   const { neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
-  const navigation = useNavigation<MainParamList & SearchParamList>()
+  const navigation = useNavigation<
+    AppScreenParamList & AppTabScreenParamList['Search']
+  >()
 
   const handlePressNotification = useCallback(() => {
     dispatch(openNotificationPanel())
@@ -88,7 +89,14 @@ export const useScreenOptions = () => {
       headerLeft: props => {
         const { canGoBack, ...other } = props
         if (canGoBack) {
-          return <TopBarArrowBack {...other} />
+          return (
+            <IconButton
+              icon={IconCaretRight}
+              fill={neutralLight4}
+              styles={{ icon: styles.iconArrowBack }}
+              {...other}
+            />
+          )
         }
         return (
           <IconButton
