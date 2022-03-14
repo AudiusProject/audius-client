@@ -71,18 +71,18 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const IP_STORAGE_KEY = 'user-ip-timestamp'
 
-function* recordIPIfNotRecent() {
-  const twentyFourHours = 24 * 60 * 60 * 1000
+function* recordIPIfNotRecent(handle) {
+  const timeBetweenRefresh = 24 * 60 * 60 * 1000
   const now = Date.now()
-  const twentyFourHoursAgo = now - twentyFourHours
+  const minAge = now - timeBetweenRefresh
   const storedIPStr = window.localStorage.getItem(IP_STORAGE_KEY)
   const storedIP = storedIPStr && JSON.parse(storedIPStr)
-  if (!storedIP || storedIP.timestamp < twentyFourHoursAgo) {
+  if (!storedIP || !storedIP[handle] || storedIP[handle].timestamp < minAge) {
     const { userIP, error } = yield call(AudiusBackend.recordIP)
     if (!error) {
       window.localStorage.setItem(
         IP_STORAGE_KEY,
-        JSON.stringify({ userIP, timestamp: now })
+        JSON.stringify({ ...storedIP, [handle]: { userIP, timestamp: now } })
       )
     }
   }
@@ -242,7 +242,7 @@ export function* fetchAccountAsync(action) {
   // Fire-and-forget fp identify
   fingerprintClient.identify(account.user_id)
 
-  yield call(recordIPIfNotRecent)
+  yield call(recordIPIfNotRecent, account.handle)
 
   // Cache the account and fire the onFetch callback. We're done.
   yield call(cacheAccount, account)
