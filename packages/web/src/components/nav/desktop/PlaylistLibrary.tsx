@@ -241,7 +241,9 @@ const PlaylistLibrary = ({
       <PlaylistFolderNavItem
         key={folder.id}
         folder={folder}
-        hasUpdate={false}
+        hasUpdate={folder.contents.some(c => {
+          c.type !== 'folder' && updates.includes(Number(c.playlist_id))
+        })}
         dragging={dragging}
         draggingKind={draggingKind}
         onClickEdit={handleClickEditFolder}
