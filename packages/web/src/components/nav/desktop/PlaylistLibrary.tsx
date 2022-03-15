@@ -97,6 +97,7 @@ const PlaylistLibrary = ({
   const playlists = useSelector(getAccountNavigationPlaylists)
   const library = useSelector(getPlaylistLibrary)
   const updates = useSelector(getPlaylistUpdates)
+  const updatesSet = new Set(updates)
   const { dragging, kind: draggingKind } = useSelector(getIsDragging)
   const dispatch = useDispatch()
   const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
@@ -211,7 +212,7 @@ const PlaylistLibrary = ({
     const url = playlistPage(playlist.user.handle, name, id)
     const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
-    const hasUpdate = updates.includes(id)
+    const hasUpdate = updatesSet.has(id)
     return (
       <PlaylistNavItem
         key={id}
@@ -238,9 +239,9 @@ const PlaylistLibrary = ({
       <PlaylistFolderNavItem
         key={folder.id}
         folder={folder}
-        hasUpdate={folder.contents.some(c => {
-          c.type !== 'folder' && updates.includes(Number(c.playlist_id))
-        })}
+        hasUpdate={folder.contents.some(
+          c => c.type !== 'folder' && updatesSet.has(Number(c.playlist_id))
+        )}
         dragging={dragging}
         draggingKind={draggingKind}
         onClickEdit={handleClickEditFolder}
