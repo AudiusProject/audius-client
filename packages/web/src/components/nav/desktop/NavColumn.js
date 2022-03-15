@@ -161,9 +161,10 @@ const NavColumn = ({
         constructPlaylistFolder(folderName)
       )
       updatePlaylistLibrary(newLibrary)
+      record(make(Name.FOLDER_SUBMIT_CREATE, {}))
       closeCreatePlaylistModal()
     },
-    [library, updatePlaylistLibrary, closeCreatePlaylistModal]
+    [library, updatePlaylistLibrary, closeCreatePlaylistModal, record]
   )
 
   const openCreatePlaylist = useCallback(() => {
