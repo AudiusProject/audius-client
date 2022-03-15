@@ -72,7 +72,7 @@ export const Artwork = ({ track }: ArtworkProps) => {
         startColor={shadowColor}
       >
         <View style={styles.image}>
-          <DynamicImage source={{ uri: image }} />
+          <DynamicImage uri={image} />
         </View>
       </Shadow>
     </View>

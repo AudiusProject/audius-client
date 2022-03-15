@@ -75,7 +75,7 @@ const CardImage = ({ id, type, imageSize }: CardImageProps) => {
     size: SquareSizes.SIZE_150_BY_150
   })
 
-  return <DynamicImage source={{ uri: image }} />
+  return <DynamicImage uri={image} />
 }
 
 export const Card = (props: CardProps) => {

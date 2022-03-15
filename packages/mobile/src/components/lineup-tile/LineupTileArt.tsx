@@ -27,7 +27,7 @@ export const LineupTileArt = ({
 
   const imageElement = (
     <DynamicImage
-      source={{ uri: imageUrl }}
+      uri={imageUrl}
       styles={{ image: styles.image as ImageStyle }}
     />
   )

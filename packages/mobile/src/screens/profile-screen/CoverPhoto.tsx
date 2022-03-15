@@ -1,7 +1,6 @@
 import { WidthSizes } from 'audius-client/src/common/models/ImageSizes'
 
 import BadgeArtist from 'app/assets/images/badgeArtist.svg'
-import imageCoverPhotoBlank from 'app/assets/images/imageCoverPhotoBlank.jpg'
 import { DynamicImage } from 'app/components/core'
 import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
 import { makeStyles } from 'app/styles/makeStyles'
@@ -36,15 +35,11 @@ export const CoverPhoto = () => {
     size: WidthSizes.SIZE_2000
   })
 
-  const source = coverPhoto?.match(/imageCoverPhotoBlank/)
-    ? imageCoverPhotoBlank
-    : { uri: coverPhoto }
-
   const isArtist = track_count > 0
 
   return (
     <DynamicImage
-      source={source}
+      uri={coverPhoto}
       styles={{ root: styles.imageRoot, image: styles.image }}
     >
       {isArtist ? <BadgeArtist style={styles.artistBadge} /> : null}

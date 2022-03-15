@@ -32,7 +32,10 @@ export const getUseImageSizeHook = <Sizes extends SquareSizes | WidthSizes>({
     }
   ) => {
     const dispatch = useDispatchWeb() as typeof useDispatch
+
+    // This resolves a statically imported image into a uri
     const defaultImage = Image.resolveAssetSource(defaultImageSource).uri
+
     return useImageSizeCommon({
       ...args,
       action,

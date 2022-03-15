@@ -145,10 +145,10 @@ const TrackScreenRemixComponent = ({
   const images = (
     <>
       <View style={styles.profilePicture}>
-        <DynamicImage source={{ uri: profilePictureImage }} />
+        <DynamicImage uri={profilePictureImage} />
       </View>
       <View style={styles.coverArt}>
-        <DynamicImage source={{ uri: coverArtImage }} />
+        <DynamicImage uri={coverArtImage} />
       </View>
     </>
   )

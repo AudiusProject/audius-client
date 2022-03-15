@@ -72,10 +72,7 @@ const UserImage = ({
       activeOpacity={0.7}
       onPress={allowPress ? handlePress : undefined}
     >
-      <DynamicImage
-        styles={{ root: imageStyle }}
-        source={{ uri: profilePicture }}
-      />
+      <DynamicImage styles={{ root: imageStyle }} uri={profilePicture} />
     </TouchableOpacity>
   )
 }

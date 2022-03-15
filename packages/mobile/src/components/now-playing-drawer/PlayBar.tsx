@@ -115,7 +115,7 @@ const PlayBarArtwork = ({ track }: { track: Track }) => {
     sizes: track._cover_art_sizes,
     size: SquareSizes.SIZE_150_BY_150
   })
-  return <DynamicImage source={{ uri: image }} />
+  return <DynamicImage uri={image} />
 }
 
 export const PlayBar = ({
