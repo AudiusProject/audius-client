@@ -100,7 +100,7 @@ export const PlaylistFolderNavItem = ({
   })
 
   return (
-    <React.Fragment key={id}>
+    <React.Fragment>
       {/* This is the droppable area for adding a playlist into a folder */}
       <Droppable
         className={navColumnStyles.droppable}
@@ -121,9 +121,7 @@ export const PlaylistFolderNavItem = ({
             [navColumnStyles.droppableLink]: dragging && isDroppableKind,
             [navColumnStyles.disabledLink]: dragging && !isDroppableKind
           })}
-          onClick={e => {
-            e.preventDefault()
-            e.stopPropagation()
+          onClick={() => {
             setIsExpanded(!isExpanded)
           }}
         >
