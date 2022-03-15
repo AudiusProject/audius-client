@@ -6,10 +6,7 @@ import IconFavoriteOffDark from 'app/assets/animations/iconFavoriteTrackTileOffD
 import IconFavoriteOffLight from 'app/assets/animations/iconFavoriteTrackTileOffLight.json'
 import IconFavoriteOnDark from 'app/assets/animations/iconFavoriteTrackTileOnDark.json'
 import IconFavoriteOnLight from 'app/assets/animations/iconFavoriteTrackTileOnLight.json'
-import {
-  AnimatedButton,
-  AnimatedButtonProps
-} from 'app/components/animated-button'
+import { AnimatedButton, AnimatedButtonProps } from 'app/components/core'
 
 const styles = StyleSheet.create({
   icon: {

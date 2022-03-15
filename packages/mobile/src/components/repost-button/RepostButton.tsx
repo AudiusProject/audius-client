@@ -6,10 +6,7 @@ import IconRepostOffDark from 'app/assets/animations/iconRepostTrackTileOffDark.
 import IconRepostOffLight from 'app/assets/animations/iconRepostTrackTileOffLight.json'
 import IconRepostOnDark from 'app/assets/animations/iconRepostTrackTileOnDark.json'
 import IconRepostOnLight from 'app/assets/animations/iconRepostTrackTileOnLight.json'
-import {
-  AnimatedButton,
-  AnimatedButtonProps
-} from 'app/components/animated-button/AnimatedButton'
+import { AnimatedButton, AnimatedButtonProps } from 'app/components/core'
 
 const styles = StyleSheet.create({
   icon: {

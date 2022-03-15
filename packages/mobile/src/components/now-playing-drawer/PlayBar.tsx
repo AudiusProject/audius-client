@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconPause from 'app/assets/animations/iconPause.json'
 import IconPlay from 'app/assets/animations/iconPlay.json'
-import { DynamicImage } from 'app/components/core'
+import { DynamicImage, AnimatedButton } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -28,8 +28,6 @@ import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
 import { ThemeColors } from 'app/utils/theme'
-
-import { AnimatedButton } from '../animated-button'
 
 import { TrackingBar } from './TrackingBar'
 
