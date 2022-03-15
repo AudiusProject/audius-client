@@ -444,7 +444,7 @@ export const replaceTempWithResolvedPlaylists = <
   T extends PlaylistLibrary | PlaylistLibraryFolder
 >(
   library: T,
-  tempPlaylistIdToResolvedPlaylist: { [key: string]: PlaylistLibraryIdentifier }
+  tempPlaylistIdToResolvedPlaylist: Record<string, PlaylistLibraryIdentifier>
 ): T => {
   if (isEmpty(library.contents)) return library
   const newContents = library.contents.map(c => {

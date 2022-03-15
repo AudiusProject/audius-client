@@ -122,10 +122,10 @@ function* watchUpdatePlaylistLibraryWithTempPlaylist() {
       tempPlaylists.map(playlist => call(resolveTempPlaylists, playlist))
     )
     const tempPlaylistIdToResolvedPlaylist = tempPlaylists.reduce(
-      (result, nextTempPlaylist, index) => {
-        result[nextTempPlaylist.playlist_id] = resolvedPlaylists[index]
-        return result
-      },
+      (result, nextTempPlaylist, index) => ({
+        ...result,
+        [nextTempPlaylist.playlist_id]: resolvedPlaylists[index]
+      }),
       {} as { [key: string]: PlaylistLibraryIdentifier }
     )
 
