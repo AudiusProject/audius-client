@@ -22,7 +22,7 @@ import { addTrackToPlaylist } from 'common/store/cache/collections/actions'
 import { getPlaylistUpdates } from 'common/store/notifications/selectors'
 import Droppable from 'components/dragndrop/Droppable'
 import { ToastContext } from 'components/toast/ToastContext'
-import { useArePlaylistUpdatesEnabled, useFlag } from 'hooks/useRemoteConfig'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { SMART_COLLECTION_MAP } from 'pages/smart-collection/smartCollections'
 import { make, useRecord } from 'store/analytics/actions'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
@@ -99,9 +99,6 @@ const PlaylistLibrary = ({
   const updates = useSelector(getPlaylistUpdates)
   const { dragging, kind: draggingKind } = useSelector(getIsDragging)
   const dispatch = useDispatch()
-  const {
-    isEnabled: arePlaylistUpdatesEnabled
-  } = useArePlaylistUpdatesEnabled()
   const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
     FeatureFlags.PLAYLIST_FOLDERS
   )
@@ -219,7 +216,7 @@ const PlaylistLibrary = ({
       <PlaylistNavItem
         key={id}
         playlist={playlist}
-        hasUpdate={Boolean(arePlaylistUpdatesEnabled) && hasUpdate}
+        hasUpdate={hasUpdate}
         url={url}
         addTrack={addTrack}
         isOwner={isOwner}
