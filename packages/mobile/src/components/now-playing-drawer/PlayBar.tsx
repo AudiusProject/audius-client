@@ -20,16 +20,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconPause from 'app/assets/animations/iconPause.json'
 import IconPlay from 'app/assets/animations/iconPlay.json'
 import { DynamicImage } from 'app/components/core'
-import FavoriteButton from 'app/components/favorite-button'
+import { FavoriteButton } from 'app/components/favorite-button'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
-import { Theme, ThemeColors, useThemeVariant } from 'app/utils/theme'
+import { ThemeColors } from 'app/utils/theme'
 
-import AnimatedButtonProvider from '../animated-button/AnimatedButtonProvider'
+import { AnimatedButton } from '../animated-button'
 
 import { TrackingBar } from './TrackingBar'
 
@@ -125,11 +125,9 @@ export const PlayBar = ({
   opacityAnim
 }: PlayBarProps) => {
   const styles = useThemedStyles(createStyles)
-  const themeVariant = useThemeVariant()
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
 
-  const isDarkMode = themeVariant === Theme.DARK
   const [percentComplete, setPercentComplete] = useState(0)
 
   const intervalRef = useRef<NodeJS.Timeout>()
@@ -161,8 +159,7 @@ export const PlayBar = ({
 
   const renderPlayButton = () => {
     return (
-      <AnimatedButtonProvider
-        isDarkMode={isDarkMode}
+      <AnimatedButton
         iconLightJSON={[IconPlay, IconPause]}
         iconDarkJSON={[IconPlay, IconPause]}
         onPress={onPressPlayButton}

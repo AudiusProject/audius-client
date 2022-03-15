@@ -20,7 +20,7 @@ import IconShuffleOnDark from 'app/assets/animations/iconShuffleOnDark.json'
 import IconShuffleOnLight from 'app/assets/animations/iconShuffleOnLight.json'
 import IconNext from 'app/assets/images/iconNext.svg'
 import IconPrev from 'app/assets/images/iconPrev.svg'
-import AnimatedButtonProvider from 'app/components/animated-button/AnimatedButtonProvider'
+import { AnimatedButton } from 'app/components/animated-button'
 import { IconButton } from 'app/components/core'
 import * as haptics from 'app/haptics'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -28,7 +28,7 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
-import { Theme, ThemeColors, useThemeVariant } from 'app/utils/theme'
+import { ThemeColors } from 'app/utils/theme'
 
 const createStyles = (themeColors: ThemeColors) =>
   StyleSheet.create({
@@ -68,8 +68,6 @@ export const AudioControls = ({ onNext, onPrevious }: AudioControlsProps) => {
   const dispatchWeb = useDispatchWeb()
 
   const styles = useThemedStyles(createStyles)
-  const themeVariant = useThemeVariant()
-  const isDarkMode = themeVariant === Theme.DARK
 
   const isPlaying = useSelector(getPlaying)
   const shuffleEnabled = useSelectorWeb(getShuffle)
@@ -122,8 +120,7 @@ export const AudioControls = ({ onNext, onPrevious }: AudioControlsProps) => {
 
   const renderRepeatButton = () => {
     return (
-      <AnimatedButtonProvider
-        isDarkMode={isDarkMode}
+      <AnimatedButton
         iconLightJSON={[
           IconRepeatAllLight,
           IconRepeatSingleLight,
@@ -151,8 +148,7 @@ export const AudioControls = ({ onNext, onPrevious }: AudioControlsProps) => {
   }
   const renderPlayButton = () => {
     return (
-      <AnimatedButtonProvider
-        isDarkMode={isDarkMode}
+      <AnimatedButton
         isActive={isPlaying}
         iconLightJSON={[IconPlay, IconPause]}
         iconDarkJSON={[IconPlay, IconPause]}
@@ -173,8 +169,7 @@ export const AudioControls = ({ onNext, onPrevious }: AudioControlsProps) => {
   }
   const renderShuffleButton = () => {
     return (
-      <AnimatedButtonProvider
-        isDarkMode={isDarkMode}
+      <AnimatedButton
         iconLightJSON={[IconShuffleOnLight, IconShuffleOffLight]}
         iconDarkJSON={[IconShuffleOnDark, IconShuffleOffDark]}
         onPress={onPressShuffle}
