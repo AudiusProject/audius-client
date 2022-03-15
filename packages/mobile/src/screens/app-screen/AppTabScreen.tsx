@@ -1,10 +1,17 @@
 import { createStackNavigator } from '@react-navigation/stack'
+import { FavoriteType } from 'audius-client/src/common/models/Favorite'
+import { ID } from 'audius-client/src/common/models/Identifiers'
+import { NotificationType } from 'audius-client/src/common/store/notifications/types'
+import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
 import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
-import { SearchResultsScreen } from 'app/screens/search-results-screen'
+import {
+  SearchResultsScreen,
+  TagSearchScreen
+} from 'app/screens/search-results-screen'
 import { SearchScreen } from 'app/screens/search-screen'
 import { TrackScreen } from 'app/screens/track-screen'
 import {
@@ -15,7 +22,25 @@ import {
   NotificationUsersScreen
 } from 'app/screens/user-list-screen'
 
-import { useScreenOptions } from './baseStackScreenOptions'
+import { useAppScreenOptions } from './useAppScreenOptions'
+
+export type AppTabScreenParamList = {
+  Track: { id: ID }
+  Profile: { handle: string }
+  Collection: { id: ID }
+  Favorited: { id: ID; favoriteType: FavoriteType }
+  Reposts: { id: ID; repostType: RepostType }
+  Followers: { userId: ID }
+  Following: { userId: ID }
+  Search: undefined
+  SearchResults: { query: string }
+  TagSearch: { query: string }
+  NotificationUsers: {
+    id: string // uuid
+    notificationType: NotificationType
+    count: number
+  }
+}
 
 const forFade = ({ current }) => ({
   cardStyle: {
@@ -23,7 +48,7 @@ const forFade = ({ current }) => ({
   }
 })
 
-type BaseNavigatorProps = {
+type AppTabScreenProps = {
   baseScreen: (
     Stack: ReturnType<typeof createStackNavigator>
   ) => React.ReactNode
@@ -31,19 +56,16 @@ type BaseNavigatorProps = {
 }
 
 /**
- * This is the base stack that includes common screens
+ * This is the base tab screen that includes common screens
  * like track and profile
  */
-export const BaseStackNavigator = ({
-  baseScreen,
-  Stack
-}: BaseNavigatorProps) => {
+export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   const dispatchWeb = useDispatchWeb()
-  const screenOptions = useScreenOptions()
+  const screenOptions = useAppScreenOptions()
   return (
     <Stack.Navigator
       screenOptions={screenOptions}
-      screenListeners={() => ({
+      screenListeners={{
         beforeRemove: e => {
           // hack for now to prevent pop for some pages
           if (
@@ -59,7 +81,7 @@ export const BaseStackNavigator = ({
             })
           }
         }
-      })}
+      }}
     >
       {baseScreen(Stack)}
       <Stack.Screen name='Track' component={TrackScreen} />
@@ -72,6 +94,7 @@ export const BaseStackNavigator = ({
           options={{ cardStyleInterpolator: forFade }}
         />
         <Stack.Screen name='SearchResults' component={SearchResultsScreen} />
+        <Stack.Screen name='TagSearch' component={TagSearchScreen} />
       </Stack.Group>
       <Stack.Group>
         <Stack.Screen name='Followers' component={FollowersScreen} />

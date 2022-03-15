@@ -52,6 +52,7 @@ import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 import { make, track as record } from 'app/utils/analytics'
 import { moodMap } from 'app/utils/moods'
+import { getTagSearchRoute } from 'app/utils/routes'
 
 import { TrackScreenDownloadButtons } from './TrackScreenDownloadButtons'
 
@@ -231,10 +232,19 @@ export const TrackScreenDetailsTile = ({
     })
   }, [dispatchWeb, track_id, navigation])
 
-  const handlePressTag = useCallback((tag: string) => {
-    // TODO: navigate to search screen
-    // goToSearchResultsPage(`#${tag}`)
-  }, [])
+  const handlePressTag = useCallback(
+    (tag: string) => {
+      const route = getTagSearchRoute(tag)
+      navigation.push({
+        native: {
+          screen: 'TagSearch',
+          params: { query: tag }
+        },
+        web: { route, fromPage: 'search' }
+      })
+    },
+    [navigation]
+  )
 
   const handlePressSave = () => {
     if (!isOwner) {
