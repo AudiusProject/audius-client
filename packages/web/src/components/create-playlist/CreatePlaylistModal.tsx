@@ -80,16 +80,26 @@ const CreatePlaylistModal = ({
   const handleSelectTabOption = useCallback(
     (key: string) => {
       setCurrentTabName(key as TabName)
-      record(make(Name.FOLDER_OPEN_CREATE, {}))
+      if (key === 'create-folder') {
+        record(make(Name.FOLDER_OPEN_CREATE, {}))
+      }
     },
     [setCurrentTabName, record]
   )
 
+  const handleSubmitFolder = useCallback(
+    (name: string) => {
+      record(make(Name.FOLDER_SUBMIT_CREATE, {}))
+      onCreateFolder(name)
+    },
+    [onCreateFolder, record]
+  )
+
   const handleClose = useCallback(() => {
-    onCancel()
     if (currentTabName === 'create-folder') {
       record(make(Name.FOLDER_CANCEL_CREATE, {}))
     }
+    onCancel()
   }, [currentTabName, onCancel, record])
 
   return (
@@ -134,7 +144,7 @@ const CreatePlaylistModal = ({
             onSave={onCreatePlaylist}
           />
         ) : (
-          <FolderForm onSubmit={onCreateFolder} />
+          <FolderForm onSubmit={handleSubmitFolder} />
         )}
       </ModalContent>
     </Modal>
