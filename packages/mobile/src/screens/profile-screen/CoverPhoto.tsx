@@ -30,11 +30,11 @@ export const CoverPhoto = () => {
     'track_count'
   ])
 
-  const coverPhoto = useUserCoverPhoto(
-    user_id,
-    _cover_photo_sizes,
-    WidthSizes.SIZE_2000
-  )
+  const coverPhoto = useUserCoverPhoto({
+    id: user_id,
+    sizes: _cover_photo_sizes,
+    size: WidthSizes.SIZE_2000
+  })
 
   const source = coverPhoto?.match(/imageCoverPhotoBlank/)
     ? imageCoverPhotoBlank

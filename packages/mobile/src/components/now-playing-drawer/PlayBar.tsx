@@ -110,11 +110,11 @@ type PlayBarProps = {
 }
 
 const PlayBarArtwork = ({ track }: { track: Track }) => {
-  const image = useTrackCoverArt(
-    track.track_id,
-    track._cover_art_sizes,
-    SquareSizes.SIZE_150_BY_150
-  )
+  const image = useTrackCoverArt({
+    id: track.track_id,
+    sizes: track._cover_art_sizes,
+    size: SquareSizes.SIZE_150_BY_150
+  })
   return <DynamicImage source={{ uri: image }} />
 }
 
