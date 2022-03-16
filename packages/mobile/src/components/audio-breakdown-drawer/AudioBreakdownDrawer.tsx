@@ -5,6 +5,7 @@ import { BNWei } from 'audius-client/src/common/models/Wallet'
 import { getAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
 import { AssociatedWallet } from 'audius-client/src/common/store/pages/token-dashboard/types'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
+import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import {
   formatWei,
   shortenEthAddress,
@@ -182,8 +183,17 @@ const messages = {
 export const AudioBreakdownDrawer = () => {
   const styles = useThemedStyles(createStyles)
 
-  const accountBalance = (useSelectorWeb(getAccountBalance, (a: BN, b: BN) =>
-    a.eq(b)
+  const accountBalance = (useSelectorWeb(
+    getAccountBalance,
+    (a: Nullable<BNWei>, b: Nullable<BNWei>) => {
+      if (a === null || b === null) {
+        if (a === null && b === null) {
+          return true
+        }
+        return false
+      }
+      return a.eq(b)
+    }
   ) ?? new BN('0')) as BNWei
 
   const associatedWallets = useSelectorWeb(getAssociatedWallets, isEqual)
