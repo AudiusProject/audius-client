@@ -46,6 +46,7 @@ const useStyles = makeStyles(({ palette }) => ({
 }))
 
 type FormImageInputProps = {
+  isProcessing?: boolean
   name: string
 } & StylesProps<{
   root?: ViewStyle
@@ -54,6 +55,7 @@ type FormImageInputProps = {
 }>
 
 export const FormImageInput = ({
+  isProcessing,
   name,
   styles: stylesProp,
   style
@@ -89,7 +91,7 @@ export const FormImageInput = ({
       >
         <View style={styles.backdrop} />
         <Animated.View style={[styles.centerIcon, { transform: [{ scale }] }]}>
-          {isLoading ? (
+          {isLoading || isProcessing ? (
             <LoadingSpinner />
           ) : (
             <IconUpload fill={styles.centerIcon.fill} height={32} width={32} />

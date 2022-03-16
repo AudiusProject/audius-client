@@ -1,7 +1,8 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { useNavigation } from '@react-navigation/native'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
+import RandomImage from 'audius-client/src/common/services/RandomImage'
 import {
   editPlaylist,
   orderPlaylist,
@@ -12,9 +13,10 @@ import {
   getMetadata,
   getTracks
 } from 'common/store/ui/createPlaylistModal/selectors'
-import { Formik, FormikProps } from 'formik'
-import { View } from 'react-native'
+import { Formik, FormikProps, useField } from 'formik'
+import { Pressable, Text, View } from 'react-native'
 
+import IconCamera from 'app/assets/images/iconCamera.svg'
 import {
   Screen,
   TextButton,
@@ -24,25 +26,36 @@ import {
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { makeStyles } from 'app/styles'
+import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { PlaylistValues } from './types'
 
 const messages = {
-  title: 'Edit Playlist',
+  cancel: 'Cancel',
   descriptionPlaceholder: 'Give your playlist a description',
+  getRandomArt: 'Get Random Artwork',
   save: 'Save',
-  cancel: 'Cancel'
+  title: 'Edit Playlist'
 }
 
-const useStyles = makeStyles(({ spacing }) => ({
+const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   form: {
     paddingTop: spacing(8)
   },
-  coverArtContainer: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: spacing(8)
+  },
+  getRandomArt: {
+    ...flexRowCentered(),
+    justifyContent: 'center',
+    marginTop: spacing(2)
+  },
+  getRandomArtText: {
+    ...typography.body,
+    color: palette.secondary,
+    marginLeft: spacing(2)
   }
 }))
 
@@ -50,6 +63,19 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
   const { handleSubmit, handleReset } = props
   const navigation = useNavigation()
   const styles = useStyles()
+  const [isProcessingImage, setIsProcessingImage] = useState(false)
+
+  const [, , { setValue: setCoverArtValue }] = useField('cover_art')
+
+  const handlePressGetRandomArtwork = useCallback(async () => {
+    setIsProcessingImage(true)
+    const value = await RandomImage.get()
+    if (value) {
+      const url = URL.createObjectURL(value)
+      setCoverArtValue({ file: value, url })
+      setIsProcessingImage(false)
+    }
+  }, [setCoverArtValue])
 
   return (
     <Screen
@@ -77,8 +103,19 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
       }
     >
       <View style={styles.form}>
-        <View style={styles.coverArtContainer}>
-          <FormImageInput name='cover_art' />
+        <View style={styles.header}>
+          <View>
+            <FormImageInput name='cover_art' isProcessing={isProcessingImage} />
+            <Pressable
+              onPress={handlePressGetRandomArtwork}
+              style={styles.getRandomArt}
+            >
+              <IconCamera height={18} width={18} />
+              <Text style={styles.getRandomArtText}>
+                {messages.getRandomArt}
+              </Text>
+            </Pressable>
+          </View>
         </View>
         <FormTextInput isFirstInput name='playlist_name' label='Name' />
         <FormTextInput
