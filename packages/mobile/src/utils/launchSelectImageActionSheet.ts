@@ -6,7 +6,7 @@ import {
   Asset
 } from 'react-native-image-picker'
 
-import { Image } from './types'
+import { Image } from 'app/types/image'
 
 const photoOptions: ImageLibraryOptions = {
   includeBase64: true,

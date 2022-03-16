@@ -15,16 +15,20 @@ import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import { Screen, TextButton, FormTextInput } from 'app/components/core'
+import {
+  Screen,
+  TextButton,
+  FormTextInput,
+  FormImageInput
+} from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
+import { makeStyles } from 'app/styles'
 
 import { getProfile } from '../profile-screen/selectors'
 
-import { CoverPhotoInput } from './CoverPhotoInput'
-import { ProfilePictureInput } from './ProfilePictureInput'
 import { ProfileValues, UpdatedProfile } from './types'
 
 const messages = {
@@ -32,9 +36,38 @@ const messages = {
   cancel: 'Cancel'
 }
 
+const useStyles = makeStyles(({ palette }) => ({
+  coverPhoto: {
+    height: 96,
+    width: '100%',
+    borderRadius: 0
+  },
+  profilePicture: {
+    position: 'absolute',
+    top: 37,
+    left: 11,
+    height: 100,
+    width: 100,
+    borderRadius: 100 / 2,
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: palette.white,
+    zIndex: 100,
+    overflow: 'hidden'
+  },
+  profilePictureImageContainer: {
+    height: 'auto',
+    width: 'auto'
+  },
+  profilePictureImage: {
+    width: 'auto'
+  }
+}))
+
 const EditProfileForm = (props: FormikProps<ProfileValues>) => {
   const { handleSubmit, handleReset } = props
   const navigation = useNavigation()
+  const styles = useStyles()
 
   return (
     <Screen
@@ -60,8 +93,18 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
         />
       }
     >
-      <CoverPhotoInput />
-      <ProfilePictureInput />
+      <FormImageInput
+        name='cover_photo'
+        styles={{ imageContainer: styles.coverPhoto }}
+      />
+      <FormImageInput
+        name='profile_picture'
+        styles={{
+          root: styles.profilePicture,
+          imageContainer: styles.profilePictureImageContainer,
+          image: styles.profilePictureImage
+        }}
+      />
       <View style={{ paddingTop: 64 }}>
         <FormTextInput isFirstInput name='name' label='Name' />
         <FormTextInput name='bio' label='Bio' multiline maxLength={256} />
