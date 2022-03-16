@@ -22,6 +22,7 @@ import {
   NotificationUsersScreen
 } from 'app/screens/user-list-screen'
 
+import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
@@ -31,6 +32,7 @@ export type AppTabScreenParamList = {
   TrackRemixes: { id: ID }
   Profile: { handle: string }
   Collection: { id: ID }
+  EditPlaylist: { id: ID }
   Favorited: { id: ID; favoriteType: FavoriteType }
   Reposts: { id: ID; repostType: RepostType }
   Followers: { userId: ID }
@@ -76,7 +78,8 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
             !(
               e.target?.includes('Search') &&
               !e.target?.includes('SearchResults')
-            )
+            ) &&
+            !e.target?.includes('EditPlaylist')
           ) {
             // When a screen is removed, notify the web layer to pop navigation
             dispatchWeb({
@@ -90,6 +93,7 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
       <Stack.Screen name='Track' component={TrackScreen} />
       <Stack.Screen name='TrackRemixes' component={TrackRemixesScreen} />
       <Stack.Screen name='Collection' component={CollectionScreen} />
+      <Stack.Screen name='EditPlaylist' component={EditPlaylistScreen} />
       <Stack.Screen name='Profile' component={ProfileScreen} />
       <Stack.Group>
         <Stack.Screen

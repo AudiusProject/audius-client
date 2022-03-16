@@ -6,8 +6,6 @@ import { SvgProps } from 'react-native-svg'
 
 import { makeStyles } from 'app/styles'
 
-import { ProfileValues } from './types'
-
 const useStyles = makeStyles(({ typography, palette, spacing }) => {
   const inputText = { ...typography.body, color: palette.secondary }
 
@@ -31,22 +29,22 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => {
       color: palette.neutral
     },
     input: { ...inputText, width: '100%', flexShrink: 1 },
-    handle: inputText
+    prefix: inputText
   }
 })
 
 type ProfileTextInputProps = TextInputProps & {
-  name: keyof ProfileValues
+  name: string
   label: string
   icon?: ComponentType<SvgProps>
-  isHandle?: boolean
+  prefix?: string
   onChange?: any
   isFirstInput?: boolean
 }
 
-export const ProfileTextInput = (props: ProfileTextInputProps) => {
+export const FormTextInput = (props: ProfileTextInputProps) => {
   const styles = useStyles()
-  const { name, label, icon: Icon, isHandle, isFirstInput, ...other } = props
+  const { name, label, icon: Icon, isFirstInput, prefix, ...other } = props
   const [{ value, onChange, onBlur }] = useField<string>(name)
 
   return (
@@ -63,7 +61,7 @@ export const ProfileTextInput = (props: ProfileTextInputProps) => {
       ) : (
         <Text style={styles.label}>{label}</Text>
       )}
-      {isHandle ? <Text style={styles.handle}>@</Text> : null}
+      {prefix ? <Text style={styles.prefix}>{prefix}</Text> : null}
       <TextInput
         style={styles.input}
         onBlur={onBlur(name)}

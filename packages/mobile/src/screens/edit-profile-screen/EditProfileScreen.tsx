@@ -15,7 +15,7 @@ import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import { Screen, TextButton } from 'app/components/core'
+import { Screen, TextButton, FormTextInput } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
@@ -25,7 +25,6 @@ import { getProfile } from '../profile-screen/selectors'
 
 import { CoverPhotoInput } from './CoverPhotoInput'
 import { ProfilePictureInput } from './ProfilePictureInput'
-import { ProfileTextInput } from './ProfileTextInput'
 import { ProfileValues, UpdatedProfile } from './types'
 
 const messages = {
@@ -64,29 +63,29 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
       <CoverPhotoInput />
       <ProfilePictureInput />
       <View style={{ paddingTop: 64 }}>
-        <ProfileTextInput isFirstInput name='name' label='Name' />
-        <ProfileTextInput name='bio' label='Bio' multiline maxLength={256} />
-        <ProfileTextInput name='location' label='Location' />
-        <ProfileTextInput
+        <FormTextInput isFirstInput name='name' label='Name' />
+        <FormTextInput name='bio' label='Bio' multiline maxLength={256} />
+        <FormTextInput name='location' label='Location' />
+        <FormTextInput
           name='twitter_handle'
           label='Twitter Handle'
-          isHandle
+          prefix='@'
           icon={IconTwitterBird}
         />
-        <ProfileTextInput
+        <FormTextInput
           name='instagram_handle'
           label='Instagram Handle'
-          isHandle
+          prefix='@'
           icon={IconInstagram}
         />
-        <ProfileTextInput
+        <FormTextInput
           name='tiktok_handle'
           label='TikTok Handle'
-          isHandle
+          prefix='@'
           icon={IconTikTokInverted}
         />
-        <ProfileTextInput name='website' label='Website' icon={IconLink} />
-        <ProfileTextInput name='donation' label='Donation' icon={IconDonate} />
+        <FormTextInput name='website' label='Website' icon={IconLink} />
+        <FormTextInput name='donation' label='Donation' icon={IconDonate} />
       </View>
     </Screen>
   )
