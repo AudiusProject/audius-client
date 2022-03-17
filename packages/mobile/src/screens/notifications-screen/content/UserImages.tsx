@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useContext } from 'react'
 
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import { User } from 'audius-client/src/common/models/User'
@@ -12,6 +12,7 @@ import { DynamicImage } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
+import { DrawerNavigationContext } from 'app/screens/root-screen'
 import { close } from 'app/store/notifications/actions'
 import { getUserRoute } from 'app/utils/routes'
 import { useTheme } from 'app/utils/theme'
@@ -48,7 +49,8 @@ const UserImage = ({
   allowPress?: boolean
 }) => {
   const dispatch = useDispatch()
-  const navigation = useNavigation()
+  const { drawerNavigation } = useContext(DrawerNavigationContext)
+  const navigation = useNavigation({ customNativeNavigation: drawerNavigation })
 
   const handlePress = useCallback(() => {
     navigation.navigate({

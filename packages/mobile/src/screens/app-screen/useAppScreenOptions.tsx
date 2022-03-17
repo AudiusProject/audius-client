@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 
 import {
   CardStyleInterpolators,
@@ -17,10 +17,11 @@ import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { open as openNotificationPanel } from 'app/store/notifications/actions'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
+
+import { DrawerNavigationContext } from '../root-screen'
 
 import { AppScreenParamList } from './AppScreen'
 import { AppTabScreenParamList } from './AppTabScreen'
@@ -70,17 +71,17 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 export const useAppScreenOptions = () => {
   const styles = useStyles()
   const { accentOrangeLight1, neutralLight4 } = useThemeColors()
-  const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
   const notificationCount = useSelectorWeb(getNotificationUnreadCount)
   const navigation = useNavigation<
     AppScreenParamList & AppTabScreenParamList['Search']
   >()
+  const { drawerNavigation } = useContext(DrawerNavigationContext)
 
   const handlePressNotification = useCallback(() => {
-    dispatch(openNotificationPanel())
+    drawerNavigation.openDrawer()
     dispatchWeb(markAllAsViewed())
-  }, [dispatch, dispatchWeb])
+  }, [dispatchWeb, drawerNavigation])
 
   const handlePressHome = useCallback(() => {
     navigation.navigate({

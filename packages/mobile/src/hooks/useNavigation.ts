@@ -24,10 +24,15 @@ type UseNavigationConfig<
 
 export const useNavigation = <
   ParamList extends ParamListBase = AppTabScreenParamList
->() => {
-  const nativeNavigation = useNavigationNative<
+>({
+  customNativeNavigation
+}: {
+  customNativeNavigation?: any
+} = {}) => {
+  const defaultNativeNavigation = useNavigationNative<
     NativeStackNavigationProp<ParamList>
   >()
+  const nativeNavigation = customNativeNavigation || defaultNativeNavigation
   const pushRouteWeb = usePushRouteWeb()
 
   const performNavigation = useCallback(
