@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
 
 import { ReactComponent as IconMultiselectAdd } from 'assets/img/iconMultiselectAdd.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import { CreatePlaylistSource } from 'common/models/Analytics'
 import { Collection } from 'common/models/Collection'
 import { SquareSizes } from 'common/models/ImageSizes'
@@ -21,7 +22,6 @@ import {
   getTrackId,
   getTrackTitle
 } from 'common/store/ui/add-to-playlist/selectors'
-import { getModalVisibility } from 'common/store/ui/modals/slice'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import SearchBar from 'components/search-bar/SearchBar'
 import { ToastContext } from 'components/toast/ToastContext'
@@ -46,9 +46,7 @@ const AddToPlaylistModal = () => {
   const dispatch = useDispatch()
   const { toast } = useContext(ToastContext)
 
-  const isOpen = useSelector((state: CommonState) =>
-    getModalVisibility(state, 'AddToPlaylist')
-  )
+  const [isOpen, setIsOpen] = useModalState('AddToPlaylist')
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
   const currentCollectionId = useSelector(getCollectionId)
@@ -82,7 +80,7 @@ const AddToPlaylistModal = () => {
         />
       )
     }
-    dispatch(close())
+    setIsOpen(false)
   }
 
   const handleCreatePlaylist = () => {
@@ -104,7 +102,7 @@ const AddToPlaylistModal = () => {
         />
       )
     }
-    dispatch(close())
+    setIsOpen(false)
   }
 
   return (
@@ -113,7 +111,7 @@ const AddToPlaylistModal = () => {
       showTitleHeader
       showDismissButton
       title={messages.title}
-      onClose={() => dispatch(close())}
+      onClose={() => setIsOpen(false)}
       allowScroll={false}
       bodyClassName={styles.modalBody}
       headerContainerClassName={styles.modalHeader}
