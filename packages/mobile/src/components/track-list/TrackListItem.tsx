@@ -1,8 +1,6 @@
 import { useCallback } from 'react'
 
 import { ID } from 'audius-client/src/common/models/Identifiers'
-import { CoverArtSizes } from 'audius-client/src/common/models/ImageSizes'
-import { User } from 'audius-client/src/common/models/User'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import {
   OverflowAction,
@@ -28,6 +26,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
+import { TrackMetadata } from './types'
 
 export type TrackItemAction = 'save' | 'overflow'
 
@@ -77,51 +76,46 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 })
 
 export type TrackListItemProps = {
-  index: number
-  isLoading: boolean
-  isSaved?: boolean
-  isReposted?: boolean
+  hideArt?: boolean
   isActive?: boolean
+  isDragging?: boolean
+  isLoading?: boolean
   isPlaying?: boolean
   isRemoveActive?: boolean
-  isDeleted: boolean
-  coverArtSizes?: CoverArtSizes
-  artistName: string
-  artistHandle: string
-  trackTitle: string
-  trackId: ID
-  user: User
-  uid?: string
   isReorderable?: boolean
-  isDragging?: boolean
-  onSave?: (isSaved: boolean, trackId: ID) => void
   onRemove?: (trackId: ID) => void
+  onSave?: (isSaved: boolean, trackId: ID) => void
   togglePlay?: (uid: string, trackId: ID) => void
+  track: TrackMetadata
   trackItemAction?: TrackItemAction
 }
 
 export const TrackListItem = ({
-  isLoading,
-  index,
-  isSaved = false,
-  isReposted = false,
-  isActive = false,
-  isPlaying = false,
+  hideArt,
+  isActive,
+  isDragging = false,
   isRemoveActive = false,
-  artistName,
-  trackTitle,
-  trackId,
-  user,
-  uid,
-  coverArtSizes,
-  isDeleted,
-  onSave,
-  onRemove,
-  togglePlay,
-  trackItemAction,
   isReorderable = false,
-  isDragging = false
+  isLoading = false,
+  isPlaying = false,
+  onRemove,
+  onSave,
+  togglePlay,
+  track,
+  trackItemAction
 }: TrackListItemProps) => {
+  const {
+    _cover_art_sizes,
+    has_current_user_reposted,
+    has_current_user_saved,
+    is_delete,
+    title,
+    track_id,
+    uid,
+    user: { name, is_deactivated, user_id }
+  } = track
+  const isDeleted = is_delete || !!is_deactivated
+
   const messages = getMessages({ isDeleted })
   const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
@@ -129,20 +123,22 @@ export const TrackListItem = ({
   const currentUserId = useSelectorWeb(getUserId)
 
   const onPressTrack = () => {
-    if (uid && !isDeleted && togglePlay) togglePlay(uid, trackId)
+    if (uid && !isDeleted && togglePlay) {
+      togglePlay(uid, track_id)
+    }
   }
 
   const handleOpenOverflowMenu = useCallback(() => {
-    const isOwner = currentUserId === user.user_id
+    const isOwner = currentUserId === user_id
 
     const overflowActions = [
       !isOwner
-        ? isReposted
+        ? has_current_user_reposted
           ? OverflowAction.UNREPOST
           : OverflowAction.REPOST
         : null,
       !isOwner
-        ? isSaved
+        ? has_current_user_saved
           ? OverflowAction.UNFAVORITE
           : OverflowAction.FAVORITE
         : null,
@@ -154,16 +150,25 @@ export const TrackListItem = ({
     dispatchWeb(
       openOverflowMenu({
         source: OverflowSource.TRACKS,
-        id: trackId,
+        id: track_id,
         overflowActions
       })
     )
-  }, [currentUserId, user.user_id, isReposted, isSaved, dispatchWeb, trackId])
+  }, [
+    currentUserId,
+    user_id,
+    has_current_user_reposted,
+    has_current_user_saved,
+    dispatchWeb,
+    track_id
+  ])
 
   const handleSaveTrack = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()
-    const isNotAvailable = isDeleted && !isSaved
-    if (!isNotAvailable && onSave) onSave(isSaved, trackId)
+    const isNotAvailable = isDeleted && !has_current_user_saved
+    if (!isNotAvailable && onSave) {
+      onSave(has_current_user_saved, track_id)
+    }
   }
 
   const handleClickOverflow = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
@@ -187,10 +192,10 @@ export const TrackListItem = ({
         style={styles.trackInnerContainer}
         onPress={onPressTrack}
       >
-        {coverArtSizes ? (
+        {!hideArt ? (
           <TrackArtwork
-            trackId={trackId}
-            coverArtSizes={coverArtSizes}
+            trackId={track_id}
+            coverArtSizes={_cover_art_sizes}
             isActive={isActive}
             isLoading={isLoading}
             isPlaying={isPlaying}
@@ -207,19 +212,23 @@ export const TrackListItem = ({
         ) : null}
         <View style={styles.nameArtistContainer}>
           <Text numberOfLines={1} style={styles.trackTitle}>
-            {trackTitle}
+            {title}
             {messages.deleted}
           </Text>
           <Text numberOfLines={1} style={styles.artistName}>
-            {artistName}
-            <UserBadges user={user} badgeSize={12} hideName />
+            {name}
+            <UserBadges user={track.user} badgeSize={12} hideName />
           </Text>
         </View>
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}
             styles={tileIconStyles}
-            fill={isSaved ? themeColors.primary : themeColors.neutralLight4}
+            fill={
+              has_current_user_saved
+                ? themeColors.primary
+                : themeColors.neutralLight4
+            }
             onPress={handleSaveTrack}
           />
         ) : null}

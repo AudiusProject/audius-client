@@ -1,22 +1,27 @@
-import { ID } from 'audius-client/src/common/models/Identifiers'
-import { FlatList, View } from 'react-native'
+import { ID, UID } from 'audius-client/src/common/models/Identifiers'
+import { FlatList, FlatListProps, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
+import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 
 import { TrackItemAction, TrackListItem } from './TrackListItem'
-import { ListTrackMetadata } from './types'
+import { TrackMetadata, TrackMetadataLineup } from './types'
 
 type TrackListProps = {
-  tracks: Array<ListTrackMetadata>
-  showTopDivider?: boolean
-  showDivider?: boolean
+  filterFn?: (track: TrackMetadata) => boolean
+  hideArt?: boolean
+  isReorderable?: boolean
   noDividerMargin?: boolean
-  onSave?: (isSaved: boolean, trackId: ID) => void
   onRemove?: (index: number) => void
+  onReorder?: (index1: number, index2: number) => void
+  onSave?: (isSaved: boolean, trackId: ID) => void
+  playingUid?: UID
+  showDivider?: boolean
+  showTopDivider?: boolean
   togglePlay?: (uid: string, trackId: ID) => void
   trackItemAction?: TrackItemAction
-  isReorderable?: boolean
-  onReorder?: (index1: number, index2: number) => void
+  tracks: TrackMetadataLineup
 }
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -36,6 +41,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 export const TrackList = ({
+  filterFn,
+  hideArt,
   noDividerMargin,
   onSave,
   showDivider,
@@ -45,21 +52,22 @@ export const TrackList = ({
   tracks
 }: TrackListProps) => {
   const styles = useStyles()
-  const activeIndex = tracks.findIndex(track => track.isActive)
 
-  const renderTrack = ({
+  const isPlaying = useSelector(getPlaying)
+  const playingUid = useSelector(getPlayingUid)
+
+  const renderTrack: FlatListProps<TrackMetadata>['renderItem'] = ({
     item: track,
     index
-  }: {
-    item: ListTrackMetadata
-    index: number
   }) => {
+    const isActive = track.uid === playingUid
+
     // The dividers above and belove the active track should be hidden
     const hideDivider =
-      activeIndex >= 0 && (activeIndex === index || activeIndex === index - 1)
+      isActive || tracks.entries[index - 1]?.uid === playingUid
 
     return (
-      <View key={track.uid}>
+      <View>
         {showDivider && (showTopDivider || index > 0) ? (
           <View
             style={[
@@ -70,9 +78,11 @@ export const TrackList = ({
           />
         ) : null}
         <TrackListItem
-          {...track}
-          key={track.trackId}
-          index={index}
+          hideArt={hideArt}
+          isActive={isActive}
+          isPlaying={isPlaying}
+          track={track}
+          key={track.track_id}
           onSave={onSave}
           togglePlay={togglePlay}
           trackItemAction={trackItemAction}
@@ -81,5 +91,10 @@ export const TrackList = ({
     )
   }
 
-  return <FlatList data={tracks} renderItem={renderTrack} />
+  return (
+    <FlatList
+      data={tracks.entries.filter(filterFn ?? (() => true))}
+      renderItem={renderTrack}
+    />
+  )
 }
