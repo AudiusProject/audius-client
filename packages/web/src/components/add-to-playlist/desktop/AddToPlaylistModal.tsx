@@ -10,14 +10,12 @@ import { useModalState } from 'common/hooks/useModalState'
 import { CreatePlaylistSource } from 'common/models/Analytics'
 import { Collection } from 'common/models/Collection'
 import { SquareSizes } from 'common/models/ImageSizes'
-import { CommonState } from 'common/store'
 import { getAccountWithOwnPlaylists } from 'common/store/account/selectors'
 import {
   addTrackToPlaylist,
   createPlaylist
 } from 'common/store/cache/collections/actions'
 import { getCollectionId } from 'common/store/pages/collection/selectors'
-import { close } from 'common/store/ui/add-to-playlist/actions'
 import {
   getTrackId,
   getTrackTitle
