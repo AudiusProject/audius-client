@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import RandomImage from 'audius-client/src/common/services/RandomImage'
+import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import {
   editPlaylist,
   orderPlaylist,
@@ -21,14 +22,20 @@ import {
   Screen,
   TextButton,
   FormTextInput,
-  FormImageInput
+  FormImageInput,
+  VirtualizedScrollView
 } from 'app/components/core'
+import { TrackList } from 'app/components/track-list'
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { PlaylistValues } from './types'
+
+// const getPlaylistTracks = makeGetTableMetadatas(
+//   (state: CommonState) => getMetadata(state)?.tracks
+// )
 
 const messages = {
   cancel: 'Cancel',
@@ -56,11 +63,14 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     ...typography.body,
     color: palette.secondary,
     marginLeft: spacing(2)
+  },
+  tracklist: {
+    marginBottom: spacing(50)
   }
 }))
 
 const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
-  const { handleSubmit, handleReset } = props
+  const { values, handleSubmit, handleReset } = props
   const navigation = useNavigation()
   const styles = useStyles()
   const [isProcessingImage, setIsProcessingImage] = useState(false)
@@ -102,7 +112,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
         />
       }
     >
-      <View style={styles.form}>
+      <VirtualizedScrollView style={styles.form}>
         <View style={styles.header}>
           <View>
             <FormImageInput name='cover_art' isProcessing={isProcessingImage} />
@@ -126,7 +136,19 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
           maxLength={256}
           styles={{ root: { minHeight: 100 }, label: { lineHeight: 28 } }}
         />
-      </View>
+        <View style={styles.tracklist}>
+          {values.tracks ? (
+            <>
+              {/** TODO: clean up types/interface here */}
+              <TrackList
+                tracks={{ entries: values.tracks } as any}
+                isReorderable
+                hideArt
+              />
+            </>
+          ) : null}
+        </View>
+      </VirtualizedScrollView>
     </Screen>
   )
 }
@@ -134,6 +156,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
 export const EditPlaylistScreen = () => {
   const playlist = useSelectorWeb(getMetadata)
   const dispatchWeb = useDispatchWeb()
+  const tracks = useSelectorWeb(getTracks)
 
   const coverArt = useCollectionCoverArt({
     id: playlist?.playlist_id,
@@ -170,7 +193,8 @@ export const EditPlaylistScreen = () => {
   const initialValues = {
     playlist_name,
     description,
-    cover_art: { url: coverArt }
+    cover_art: { url: coverArt },
+    tracks
   }
 
   return (

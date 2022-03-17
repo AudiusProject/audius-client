@@ -15,6 +15,7 @@ import {
   View
 } from 'react-native'
 
+import IconDrag from 'app/assets/images/iconDrag.svg'
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import { IconButton } from 'app/components/core'
@@ -68,6 +69,9 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   playButtonContainer: {
     marginRight: spacing(4)
+  },
+  dragIcon: {
+    marginRight: spacing(6)
   }
 }))
 
@@ -210,6 +214,7 @@ export const TrackListItem = ({
             />
           </View>
         ) : null}
+        {isReorderable && <IconDrag style={styles.dragIcon} />}
         <View style={styles.nameArtistContainer}>
           <Text numberOfLines={1} style={styles.trackTitle}>
             {title}

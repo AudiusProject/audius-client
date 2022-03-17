@@ -43,6 +43,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 export const TrackList = ({
   filterFn,
   hideArt,
+  isReorderable,
   noDividerMargin,
   onSave,
   showDivider,
@@ -60,7 +61,7 @@ export const TrackList = ({
     item: track,
     index
   }) => {
-    const isActive = track.uid === playingUid
+    const isActive = track.uid !== undefined && track.uid === playingUid
 
     // The dividers above and belove the active track should be hidden
     const hideDivider =
@@ -81,6 +82,7 @@ export const TrackList = ({
           hideArt={hideArt}
           isActive={isActive}
           isPlaying={isPlaying}
+          isReorderable={isReorderable}
           track={track}
           key={track.track_id}
           onSave={onSave}
