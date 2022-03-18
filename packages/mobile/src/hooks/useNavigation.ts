@@ -61,7 +61,9 @@ export const useNavigation = <
       push:
         'push' in nativeNavigation
           ? performNavigation(nativeNavigation.push)
-          : () => {},
+          : () => {
+              console.error('Push is not implemented for this navigator')
+            },
       // Notifying the web layer of the pop action
       // is handled in `createStackScreen`
       goBack: nativeNavigation.goBack
