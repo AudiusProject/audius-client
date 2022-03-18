@@ -3,7 +3,6 @@ import { useCallback, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
 import RandomImage from 'audius-client/src/common/services/RandomImage'
-import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import {
   editPlaylist,
   orderPlaylist,
@@ -14,7 +13,8 @@ import {
   getMetadata,
   getTracks
 } from 'common/store/ui/createPlaylistModal/selectors'
-import { Formik, FormikProps, useField } from 'formik'
+import { Formik, FormikProps } from 'formik'
+import { isEqual } from 'lodash'
 import { Pressable, Text, View } from 'react-native'
 
 import IconCamera from 'app/assets/images/iconCamera.svg'
@@ -70,22 +70,33 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 }))
 
 const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
-  const { values, handleSubmit, handleReset } = props
+  const { values, handleSubmit, handleReset, setFieldValue } = props
   const navigation = useNavigation()
   const styles = useStyles()
   const [isProcessingImage, setIsProcessingImage] = useState(false)
-
-  const [, , { setValue: setCoverArtValue }] = useField('cover_art')
 
   const handlePressGetRandomArtwork = useCallback(async () => {
     setIsProcessingImage(true)
     const value = await RandomImage.get()
     if (value) {
       const url = URL.createObjectURL(value)
-      setCoverArtValue({ file: value, url })
+      setFieldValue('artwork', { file: value, url })
       setIsProcessingImage(false)
     }
-  }, [setCoverArtValue])
+  }, [setFieldValue])
+
+  const handleReorder = useCallback(
+    ({ data, from, to }) => {
+      const reorder = [...values.track_ids]
+      const tmp = reorder[from]
+      reorder.splice(from, 1)
+      reorder.splice(to, 0, tmp)
+
+      setFieldValue('track_ids', reorder)
+      setFieldValue('tracks', data)
+    },
+    [setFieldValue, values.track_ids]
+  )
 
   return (
     <Screen
@@ -115,7 +126,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
       <VirtualizedScrollView style={styles.form}>
         <View style={styles.header}>
           <View>
-            <FormImageInput name='cover_art' isProcessing={isProcessingImage} />
+            <FormImageInput name='artwork' isProcessing={isProcessingImage} />
             <Pressable
               onPress={handlePressGetRandomArtwork}
               style={styles.getRandomArt}
@@ -141,9 +152,10 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
             <>
               {/** TODO: clean up types/interface here */}
               <TrackList
-                tracks={{ entries: values.tracks } as any}
-                isReorderable
                 hideArt
+                isReorderable
+                onReorder={handleReorder}
+                tracks={{ entries: values.tracks } as any}
               />
             </>
           ) : null}
@@ -166,22 +178,16 @@ export const EditPlaylistScreen = () => {
 
   const handleSubmit = useCallback(
     (values: PlaylistValues) => {
+      if (!isEqual(playlist?.playlist_contents.track_ids, values.track_ids)) {
+        dispatchWeb(
+          orderPlaylist(
+            playlist?.playlist_id,
+            values.track_ids.map(({ track, time }) => ({ id: track, time }))
+          )
+        )
+      }
       dispatchWeb(editPlaylist(playlist?.playlist_id, values))
       dispatchWeb(tracksActions.fetchLineupMetadatas())
-      //   if (!profile) return
-      //   const { cover_photo, profile_picture, ...restValues } = values
-      //   // @ts-ignore typing is hard here, will come back
-      //   const newProfile: UpdatedProfile = {
-      //     ...profile,
-      //     ...restValues
-      //   }
-      //   if (cover_photo.file) {
-      //     newProfile.updatedCoverPhoto = cover_photo
-      //   }
-      //   if (profile_picture.file) {
-      //     newProfile.updatedProfilePicture = cover_photo
-      //   }
-      //   dispatchWeb(updateProfile(newProfile as UserMetadata))
     },
     [dispatchWeb, playlist]
   )
@@ -193,8 +199,9 @@ export const EditPlaylistScreen = () => {
   const initialValues = {
     playlist_name,
     description,
-    cover_art: { url: coverArt },
-    tracks
+    artwork: { url: coverArt ?? '' },
+    tracks,
+    track_ids: playlist.playlist_contents.track_ids
   }
 
   return (

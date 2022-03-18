@@ -1,3 +1,4 @@
+import { ID } from 'audius-client/src/common/models/Identifiers'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { getTracks } from 'common/store/ui/createPlaylistModal/selectors'
 
@@ -14,8 +15,12 @@ export type Image = {
 export type PlaylistValues = {
   playlist_name: string
   description: Nullable<string>
-  cover_art: Image
+  artwork: Image
   tracks: ReturnType<typeof getTracks>
+  track_ids: {
+    time: number
+    track: ID
+  }[]
 }
 
 export type UpdatedPlaylist = Omit<PlaylistValues, 'cover_art'> & {

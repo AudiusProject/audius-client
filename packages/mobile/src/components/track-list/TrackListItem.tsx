@@ -10,6 +10,7 @@ import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/s
 import {
   NativeSyntheticEvent,
   NativeTouchEvent,
+  Pressable,
   Text,
   TouchableOpacity,
   View
@@ -80,6 +81,7 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 })
 
 export type TrackListItemProps = {
+  drag: () => void
   hideArt?: boolean
   isActive?: boolean
   isDragging?: boolean
@@ -95,6 +97,7 @@ export type TrackListItemProps = {
 }
 
 export const TrackListItem = ({
+  drag,
   hideArt,
   isActive,
   isDragging = false,
@@ -195,6 +198,7 @@ export const TrackListItem = ({
       <TouchableOpacity
         style={styles.trackInnerContainer}
         onPress={onPressTrack}
+        onLongPress={drag}
       >
         {!hideArt ? (
           <TrackArtwork

@@ -45,6 +45,8 @@ import { withNullGuard } from 'utils/withNullGuard'
 import styles from './EditPlaylistPage.module.css'
 import RemovePlaylistTrackDrawer from './RemovePlaylistTrackDrawer'
 
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
 const messages = {
   createPlaylist: 'Create Playlist',
   editPlaylist: 'Edit Playlist',
@@ -408,7 +410,10 @@ const EditPlaylistPage = g(
                 maxLength={256}
               />
             </Grouping>
-            {trackList && trackList.length > 0 && (
+            {/** Don't render tracklist on native mobile. Errors
+             * get thrown because of the null renderer
+             */}
+            {!IS_NATIVE_MOBILE && trackList && trackList.length > 0 && (
               <Grouping>
                 <TrackList
                   tracks={trackList}

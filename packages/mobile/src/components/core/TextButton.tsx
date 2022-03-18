@@ -31,6 +31,7 @@ type TextButtonProps = PressableProps &
     variant: 'primary' | 'secondary'
   }
 
+// TODO: Add highlight to this
 export const TextButton = (props: TextButtonProps) => {
   const { title, variant, ...other } = props
   const styles = useStyles({ variant })

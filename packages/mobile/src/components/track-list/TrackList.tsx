@@ -1,5 +1,10 @@
+import { RefObject, useState } from 'react'
+
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
-import { FlatList, FlatListProps, View } from 'react-native'
+import { View } from 'react-native'
+import DraggableFlatList, {
+  DraggableFlatListProps
+} from 'react-native-draggable-flatlist'
 import { useSelector } from 'react-redux'
 
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
@@ -14,7 +19,7 @@ type TrackListProps = {
   isReorderable?: boolean
   noDividerMargin?: boolean
   onRemove?: (index: number) => void
-  onReorder?: (index1: number, index2: number) => void
+  onReorder?: DraggableFlatListProps<TrackMetadata>['onDragEnd']
   onSave?: (isSaved: boolean, trackId: ID) => void
   playingUid?: UID
   showDivider?: boolean
@@ -45,6 +50,7 @@ export const TrackList = ({
   hideArt,
   isReorderable,
   noDividerMargin,
+  onReorder,
   onSave,
   showDivider,
   showTopDivider,
@@ -57,9 +63,13 @@ export const TrackList = ({
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getPlayingUid)
 
-  const renderTrack: FlatListProps<TrackMetadata>['renderItem'] = ({
+  const [scrollEnable, setScrollEnable] = useState(true)
+
+  const renderTrack: DraggableFlatListProps<TrackMetadata>['renderItem'] = ({
     item: track,
-    index
+    index = -1,
+    drag,
+    isActive: isDragActive
   }) => {
     const isActive = track.uid !== undefined && track.uid === playingUid
 
@@ -79,6 +89,7 @@ export const TrackList = ({
           />
         ) : null}
         <TrackListItem
+          drag={drag}
           hideArt={hideArt}
           isActive={isActive}
           isPlaying={isPlaying}
@@ -94,8 +105,15 @@ export const TrackList = ({
   }
 
   return (
-    <FlatList
+    <DraggableFlatList
+      activationDistance={scrollEnable ? 100 : 1}
       data={tracks.entries.filter(filterFn ?? (() => true))}
+      keyExtractor={track => String(track.track_id)}
+      onDragBegin={() => setScrollEnable(false)}
+      onDragEnd={p => {
+        onReorder?.(p)
+        setScrollEnable(true)
+      }}
       renderItem={renderTrack}
     />
   )
