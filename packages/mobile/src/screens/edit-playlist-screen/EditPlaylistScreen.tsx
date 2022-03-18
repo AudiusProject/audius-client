@@ -33,10 +33,6 @@ import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { PlaylistValues } from './types'
 
-// const getPlaylistTracks = makeGetTableMetadatas(
-//   (state: CommonState) => getMetadata(state)?.tracks
-// )
-
 const messages = {
   cancel: 'Cancel',
   descriptionPlaceholder: 'Give your playlist a description',
@@ -98,6 +94,36 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
     [setFieldValue, values.track_ids]
   )
 
+  /**
+   * Stores the track to be removed if confirmed
+   * Opens the drawer to confirm removal of the track
+   */
+  const handleRemove = useCallback(
+    (index: number) => {
+      if ((values.track_ids.length ?? 0) <= index) {
+        return
+      }
+      const { track: trackId, time } = values.track_ids[index]
+
+      const trackMetadata = values.tracks?.find(
+        ({ track_id }) => track_id === trackId
+      )
+
+      if (!trackMetadata) return
+
+      setFieldValue('removedTracks', [
+        ...values.removedTracks,
+        { trackId, timestamp: time }
+      ])
+
+      const tracks = [...(values.tracks ?? [])]
+      tracks.splice(index, 1)
+
+      setFieldValue('tracks', tracks)
+    },
+    [values.track_ids, values.tracks, values.removedTracks, setFieldValue]
+  )
+
   return (
     <Screen
       variant='secondary'
@@ -155,7 +181,9 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
                 hideArt
                 isReorderable
                 onReorder={handleReorder}
+                onRemove={handleRemove}
                 tracks={{ entries: values.tracks } as any}
+                trackItemAction='remove'
               />
             </>
           ) : null}
@@ -178,6 +206,11 @@ export const EditPlaylistScreen = () => {
 
   const handleSubmit = useCallback(
     (values: PlaylistValues) => {
+      values.removedTracks.forEach(({ trackId, timestamp }) => {
+        dispatchWeb(
+          removeTrackFromPlaylist(trackId, playlist?.playlist_id, timestamp)
+        )
+      })
       if (!isEqual(playlist?.playlist_contents.track_ids, values.track_ids)) {
         dispatchWeb(
           orderPlaylist(
@@ -200,6 +233,7 @@ export const EditPlaylistScreen = () => {
     playlist_name,
     description,
     artwork: { url: coverArt ?? '' },
+    removedTracks: [],
     tracks,
     track_ids: playlist.playlist_contents.track_ids
   }

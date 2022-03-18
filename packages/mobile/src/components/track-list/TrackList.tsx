@@ -1,4 +1,4 @@
-import { RefObject, useState } from 'react'
+import { useState } from 'react'
 
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import { View } from 'react-native'
@@ -50,6 +50,7 @@ export const TrackList = ({
   hideArt,
   isReorderable,
   noDividerMargin,
+  onRemove,
   onReorder,
   onSave,
   showDivider,
@@ -89,6 +90,7 @@ export const TrackList = ({
           />
         ) : null}
         <TrackListItem
+          index={index}
           drag={drag}
           hideArt={hideArt}
           isActive={isActive}
@@ -99,6 +101,7 @@ export const TrackList = ({
           onSave={onSave}
           togglePlay={togglePlay}
           trackItemAction={trackItemAction}
+          onRemove={onRemove}
         />
       </View>
     )
@@ -108,7 +111,7 @@ export const TrackList = ({
     <DraggableFlatList
       activationDistance={scrollEnable ? 100 : 1}
       data={tracks.entries.filter(filterFn ?? (() => true))}
-      keyExtractor={track => String(track.track_id)}
+      keyExtractor={(track, index) => `${track.track_id} ${index}`}
       onDragBegin={() => setScrollEnable(false)}
       onDragEnd={p => {
         onReorder?.(p)

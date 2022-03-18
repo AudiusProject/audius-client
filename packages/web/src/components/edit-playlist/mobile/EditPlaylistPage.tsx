@@ -457,8 +457,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(editPlaylist(id, metadata)),
     orderPlaylist: (playlistId: ID, idsAndTimes: any) =>
       dispatch(orderPlaylist(playlistId, idsAndTimes)),
-    removeTrack: (playlistId: ID, trackId: ID, timestamp: number) =>
-      dispatch(removeTrackFromPlaylist(playlistId, trackId, timestamp)),
+    removeTrack: (trackId: ID, playlistId: ID, timestamp: number) =>
+      dispatch(removeTrackFromPlaylist(trackId, playlistId, timestamp)),
     refreshLineup: () => dispatch(tracksActions.fetchLineupMetadatas()),
     goToRoute: (route: string) => dispatch(pushRoute(route))
   }

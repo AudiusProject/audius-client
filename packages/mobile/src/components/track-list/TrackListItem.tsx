@@ -10,7 +10,6 @@ import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/s
 import {
   NativeSyntheticEvent,
   NativeTouchEvent,
-  Pressable,
   Text,
   TouchableOpacity,
   View
@@ -19,6 +18,7 @@ import {
 import IconDrag from 'app/assets/images/iconDrag.svg'
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
+import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -30,7 +30,7 @@ import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
 import { TrackMetadata } from './types'
 
-export type TrackItemAction = 'save' | 'overflow'
+export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   trackContainer: {
@@ -68,6 +68,9 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   iconContainer: {
     marginLeft: spacing(2)
   },
+  icon: { height: 16, width: 16 },
+  removeIcon: { height: 20, width: 20 },
+
   playButtonContainer: {
     marginRight: spacing(4)
   },
@@ -83,13 +86,14 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 export type TrackListItemProps = {
   drag: () => void
   hideArt?: boolean
+  index: number
   isActive?: boolean
   isDragging?: boolean
   isLoading?: boolean
   isPlaying?: boolean
   isRemoveActive?: boolean
   isReorderable?: boolean
-  onRemove?: (trackId: ID) => void
+  onRemove?: (index: number) => void
   onSave?: (isSaved: boolean, trackId: ID) => void
   togglePlay?: (uid: string, trackId: ID) => void
   track: TrackMetadata
@@ -99,6 +103,7 @@ export type TrackListItemProps = {
 export const TrackListItem = ({
   drag,
   hideArt,
+  index,
   isActive,
   isDragging = false,
   isRemoveActive = false,
@@ -170,7 +175,7 @@ export const TrackListItem = ({
     track_id
   ])
 
-  const handleSaveTrack = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
+  const handlePressSave = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()
     const isNotAvailable = isDeleted && !has_current_user_saved
     if (!isNotAvailable && onSave) {
@@ -178,14 +183,13 @@ export const TrackListItem = ({
     }
   }
 
-  const handleClickOverflow = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
+  const handlePressOverflow = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()
     handleOpenOverflowMenu()
   }
 
-  const tileIconStyles = {
-    root: { marginLeft: 8 },
-    icon: { height: 16, width: 16 }
+  const handlePressRemove = () => {
+    onRemove?.(index)
   }
 
   return (
@@ -232,20 +236,36 @@ export const TrackListItem = ({
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}
-            styles={tileIconStyles}
+            styles={{
+              root: styles.iconContainer,
+              icon: styles.icon
+            }}
             fill={
               has_current_user_saved
                 ? themeColors.primary
                 : themeColors.neutralLight4
             }
-            onPress={handleSaveTrack}
+            onPress={handlePressSave}
           />
         ) : null}
         {trackItemAction === 'overflow' ? (
           <IconButton
             icon={IconKebabHorizontal}
-            styles={tileIconStyles}
-            onPress={handleClickOverflow}
+            styles={{
+              root: styles.iconContainer,
+              icon: styles.icon
+            }}
+            onPress={handlePressOverflow}
+          />
+        ) : null}
+        {trackItemAction === 'remove' ? (
+          <IconButton
+            icon={IconRemoveTrack}
+            styles={{
+              root: styles.iconContainer,
+              icon: styles.removeIcon
+            }}
+            onPress={handlePressRemove}
           />
         ) : null}
       </TouchableOpacity>

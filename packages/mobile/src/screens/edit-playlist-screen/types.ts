@@ -21,6 +21,7 @@ export type PlaylistValues = {
     time: number
     track: ID
   }[]
+  removedTracks: { trackId: ID; timestamp: number }[]
 }
 
 export type UpdatedPlaylist = Omit<PlaylistValues, 'cover_art'> & {
