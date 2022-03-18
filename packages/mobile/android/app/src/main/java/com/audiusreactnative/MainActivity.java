@@ -1,7 +1,10 @@
 package co.audius.app;
 
+import android.os.Bundle;
+import androidx.annotation.Nullable;
 import com.facebook.react.ReactActivity;
 import com.google.android.gms.cast.framework.CastContext;
+
 
 public class MainActivity extends ReactActivity {
 
