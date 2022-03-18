@@ -7,7 +7,6 @@ import {
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
 import { getNotificationUnreadCount } from 'audius-client/src/common/store/notifications/selectors'
 import { Text, View } from 'react-native'
-import { useDispatch } from 'react-redux'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
@@ -17,11 +16,10 @@ import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
-
-import { DrawerNavigationContext } from '../root-screen'
 
 import { AppScreenParamList } from './AppScreen'
 import { AppTabScreenParamList } from './AppTabScreen'
@@ -76,10 +74,10 @@ export const useAppScreenOptions = () => {
   const navigation = useNavigation<
     AppScreenParamList & AppTabScreenParamList['Search']
   >()
-  const { drawerNavigation } = useContext(DrawerNavigationContext)
+  const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
 
   const handlePressNotification = useCallback(() => {
-    drawerNavigation.openDrawer()
+    drawerNavigation?.openDrawer()
     dispatchWeb(markAllAsViewed())
   }, [dispatchWeb, drawerNavigation])
 

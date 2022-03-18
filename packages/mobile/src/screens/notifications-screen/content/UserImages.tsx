@@ -12,7 +12,8 @@ import { DynamicImage } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
-import { DrawerNavigationContext } from 'app/screens/root-screen'
+import { onlyAnimateOut } from 'app/screens/app-screen/transitionSpec'
+import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { close } from 'app/store/notifications/actions'
 import { getUserRoute } from 'app/utils/routes'
 import { useTheme } from 'app/utils/theme'
@@ -49,12 +50,15 @@ const UserImage = ({
   allowPress?: boolean
 }) => {
   const dispatch = useDispatch()
-  const { drawerNavigation } = useContext(DrawerNavigationContext)
+  const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
   const navigation = useNavigation({ customNativeNavigation: drawerNavigation })
 
   const handlePress = useCallback(() => {
     navigation.navigate({
-      native: { screen: 'Profile', params: { handle: user.handle } },
+      native: {
+        screen: 'Profile',
+        params: { handle: user.handle, transitionSpec: onlyAnimateOut }
+      },
       web: { route: getUserRoute(user), fromPage: NOTIFICATION_PAGE }
     })
     dispatch(close())

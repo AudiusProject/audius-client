@@ -88,7 +88,7 @@
     "react-native-permissions": "3.0.5",
     "react-native-push-notification": "7.4.0",
     "react-native-radial-gradient": "1.0.8",
-    "react-native-reanimated": "2.4.1",
+    "react-native-reanimated": "1.13.4",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "3.6.0",
     "react-native-shadow-2": "6.0.1",

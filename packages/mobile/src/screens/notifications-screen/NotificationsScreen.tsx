@@ -8,9 +8,8 @@ import { usePrevious } from 'react-use'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useTheme } from 'app/utils/theme'
 
-import { DrawerNavigationContext } from '../root-screen'
-
 import { List } from './List'
+import { NotificationsDrawerNavigationContext } from './NotificationsDrawerNavigationContext'
 import TopBar from './TopBar'
 
 const styles = StyleSheet.create({
@@ -28,7 +27,7 @@ const styles = StyleSheet.create({
  */
 export const NotificationsScreen = () => {
   const dispatchWeb = useDispatchWeb()
-  const { drawerNavigation } = useContext(DrawerNavigationContext)
+  const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
   const isDrawerOpen = useDrawerStatus() === 'open'
   const wasDrawerOpen = usePrevious(isDrawerOpen)
   useEffect(() => {
@@ -38,7 +37,7 @@ export const NotificationsScreen = () => {
   }, [isDrawerOpen, wasDrawerOpen, dispatchWeb])
 
   const onClickTopBarClose = useCallback(() => {
-    drawerNavigation.closeDrawer()
+    drawerNavigation?.closeDrawer()
   }, [drawerNavigation])
 
   const containerStyle = useTheme(styles.container, {

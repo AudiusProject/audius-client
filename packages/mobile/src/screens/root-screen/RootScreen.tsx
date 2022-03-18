@@ -1,9 +1,8 @@
-import { createContext, ReactNode } from 'react'
-
 import {
   createDrawerNavigator,
   DrawerContentComponentProps
 } from '@react-navigation/drawer'
+import { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useSelector } from 'react-redux'
@@ -17,6 +16,7 @@ import {
 } from 'app/store/lifecycle/selectors'
 import { getAccountAvailable } from 'app/store/signon/selectors'
 
+import { NotificationsDrawerNavigationContextProvider } from '../notifications-screen/NotificationsDrawerNavigationContext'
 import { NotificationsScreen } from '../notifications-screen/NotificationsScreen'
 
 export type RootScreenParamList = {
@@ -24,54 +24,47 @@ export type RootScreenParamList = {
   App: NavigatorScreenParams<AppScreenParamList>
 }
 
-type DrawerNavigationContextProps = {
-  drawerNavigation: any
-}
-
-export const DrawerNavigationContext = createContext<
-  DrawerNavigationContextProps
->({
-  drawerNavigation: null
-})
-
-const DrawerNavigationContextProvider = ({
-  drawerNavigation,
-  children
-}: {
-  drawerNavigation: any
-  children: ReactNode
-}) => {
-  return (
-    <DrawerNavigationContext.Provider
-      value={{
-        drawerNavigation
-      }}
-    >
-      {children}
-    </DrawerNavigationContext.Provider>
-  )
-}
-
 const Drawer = createDrawerNavigator()
 const Stack = createStackNavigator()
 
-const MainStack = ({ navigation }) => {
+/**
+ * The sign up & sign in stack when not authenticated
+ */
+const SignOnStack = () => {
   return (
-    <DrawerNavigationContextProvider drawerNavigation={navigation}>
+    <Stack.Navigator
+      screenOptions={{ gestureEnabled: false, headerShown: false }}
+    >
+      <Stack.Screen name='SignOnStack' component={SignOnScreen} />
+    </Stack.Navigator>
+  )
+}
+
+/**
+ * The main stack after signing up or signing in
+ */
+const MainStack = ({ navigation }: { navigation: DrawerNavigationHelpers }) => {
+  return (
+    <NotificationsDrawerNavigationContextProvider drawerNavigation={navigation}>
       <Stack.Navigator
         screenOptions={{ gestureEnabled: false, headerShown: false }}
       >
         <Stack.Screen name='MainStack' component={AppScreen} />
       </Stack.Navigator>
-    </DrawerNavigationContextProvider>
+    </NotificationsDrawerNavigationContextProvider>
   )
 }
 
-const DrawerContents = ({ navigation }: DrawerContentComponentProps) => {
+/**
+ * The contents of the notifications drawer, which swipes in
+ */
+const NotificationsDrawerContents = ({
+  navigation
+}: DrawerContentComponentProps) => {
   return (
-    <DrawerNavigationContextProvider drawerNavigation={navigation}>
+    <NotificationsDrawerNavigationContextProvider drawerNavigation={navigation}>
       <NotificationsScreen />
-    </DrawerNavigationContextProvider>
+    </NotificationsDrawerNavigationContextProvider>
   )
 }
 
@@ -93,6 +86,9 @@ export const RootScreen = () => {
 
   return isAuthed ? (
     <Drawer.Navigator
+      // legacy implementation uses reanimated-v1
+      useLegacyImplementation={true}
+      detachInactiveScreens={false}
       screenOptions={{
         drawerType: 'slide',
         headerShown: false,
@@ -100,15 +96,11 @@ export const RootScreen = () => {
           width: '100%'
         }
       }}
-      drawerContent={DrawerContents}
+      drawerContent={NotificationsDrawerContents}
     >
       <Drawer.Screen name='App' component={MainStack} />
     </Drawer.Navigator>
   ) : (
-    <Stack.Navigator
-      screenOptions={{ gestureEnabled: false, headerShown: false }}
-    >
-      <Stack.Screen name='SignOnStack' component={SignOnScreen} />
-    </Stack.Navigator>
+    <SignOnStack />
   )
 }
