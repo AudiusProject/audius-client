@@ -103,10 +103,6 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
     [setFieldValue, values.track_ids]
   )
 
-  /**
-   * Stores the track to be removed if confirmed
-   * Opens the drawer to confirm removal of the track
-   */
   const handleRemove = useCallback(
     (index: number) => {
       if ((values.track_ids.length ?? 0) <= index) {
