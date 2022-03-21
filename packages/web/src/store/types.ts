@@ -2,6 +2,7 @@ import { RouterState } from 'connected-react-router'
 
 import { CommonState } from 'common/store'
 import averageColor from 'common/store/average-color/slice'
+import { ChangePasswordState } from 'common/store/change-password/slice'
 import NotificationState from 'common/store/notifications/types'
 import { CollectionsPageState } from 'common/store/pages/collection/types'
 import HistoryPageState from 'common/store/pages/history-page/types'
@@ -16,7 +17,6 @@ import { FollowersPageState } from 'common/store/user-list/followers/types'
 import { FollowingPageState } from 'common/store/user-list/following/types'
 import { NotificationUsersPageState } from 'common/store/user-list/notifications/types'
 import { RepostsPageState } from 'common/store/user-list/reposts/types'
-import { ChangePasswordState } from 'components/change-password/store/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
 import MusicConfetti from 'components/music-confetti/store/slice'
@@ -33,7 +33,6 @@ import SignOnPageState from 'pages/sign-on/store/types'
 import { UploadPageState } from 'pages/upload-page/store/types'
 import VisualizerReducer from 'pages/visualizer/store/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
-import { AudioManagerState } from 'store/audio-manager/slice'
 import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 
@@ -63,9 +62,6 @@ export type AppState = CommonState & {
   // UI
   dragndrop: DragNDropState
   serviceSelection: ReturnType<typeof ServiceSelectionReducer>
-
-  // Wallet
-  audioManager: AudioManagerState
 
   // Global
   application: {

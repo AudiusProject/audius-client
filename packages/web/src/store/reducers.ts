@@ -7,7 +7,6 @@ import notification from 'common/store/notifications/reducer'
 import profile from 'common/store/pages/profile/reducer'
 import queue from 'common/store/queue/slice'
 import remoteConfig from 'common/store/remote-config/slice'
-import changePassword from 'components/change-password/store/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
 import musicConfetti from 'components/music-confetti/store/slice'
@@ -32,7 +31,6 @@ import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
-import audioManager from 'store/audio-manager/slice'
 import backend from 'store/backend/reducer'
 import confirmer from 'store/confirmer/reducer'
 import dragndrop from 'store/dragndrop/reducer'
@@ -80,13 +78,9 @@ const createRootReducer = (routeHistory: History) =>
     // Remote config/flags
     remoteConfig,
 
-    // Wallet
-    audioManager,
-
     application: combineReducers({
       ui: combineReducers({
         appCTAModal,
-        changePassword,
         cookieBanner,
         deactivateAccount,
         editFolderModal,
