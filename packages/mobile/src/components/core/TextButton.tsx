@@ -1,7 +1,6 @@
 import { merge } from 'lodash'
 import {
   ButtonProps,
-  Pressable,
   TouchableOpacity,
   TouchableOpacityProps,
   Text
