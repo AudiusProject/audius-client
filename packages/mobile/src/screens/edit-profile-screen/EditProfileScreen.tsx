@@ -165,7 +165,7 @@ export const EditProfileScreen = () => {
       }
 
       if (profile_picture.file) {
-        newProfile.updatedProfilePicture = cover_photo
+        newProfile.updatedProfilePicture = profile_picture
       }
       dispatchWeb(updateProfile(newProfile as UserMetadata))
     },

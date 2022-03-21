@@ -65,6 +65,14 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   }
 }))
 
+const blobToBase64 = (blob: Blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result)
+    reader.readAsDataURL(blob)
+  })
+}
+
 const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
   const { values, handleSubmit, handleReset, setFieldValue } = props
   const navigation = useNavigation()
@@ -73,10 +81,11 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
 
   const handlePressGetRandomArtwork = useCallback(async () => {
     setIsProcessingImage(true)
-    const value = await RandomImage.get()
-    if (value) {
-      const url = URL.createObjectURL(value)
-      setFieldValue('artwork', { file: value, url })
+    const blob = await RandomImage.get()
+    if (blob) {
+      const url = URL.createObjectURL(blob)
+      const file = await blobToBase64(blob)
+      setFieldValue('artwork', { url, file, type: 'base64' })
       setIsProcessingImage(false)
     }
   }, [setFieldValue])
