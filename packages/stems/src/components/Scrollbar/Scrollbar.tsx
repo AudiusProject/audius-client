@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import useMeasure from 'react-use-measure'
@@ -18,7 +19,7 @@ export const Scrollbar = ({
   className,
   ...props
 }: ScrollbarProps) => {
-  const [ref] = useMeasure()
+  const [ref] = useMeasure({ polyfill: ResizeObserver })
   return (
     <PerfectScrollbar {...props} className={cn(styles.scrollbar, className)}>
       <div ref={ref}>{children}</div>
