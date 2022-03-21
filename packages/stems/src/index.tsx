@@ -11,6 +11,7 @@ export {
   Type as ButtonType,
   Size as ButtonSize
 } from './components/Button'
+export { Scrollbar, ScrollbarProps } from './components/Scrollbar'
 export {
   Modal,
   ModalContent,

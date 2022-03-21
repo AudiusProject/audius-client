@@ -1,0 +1,11 @@
+@import '~react-perfect-scrollbar/dist/css/styles.css';
+
+.scrollbar {
+  height: 100%;
+  min-height: 0;
+}
+
+.scrollbar :global(.ps__thumb-y) {
+  opacity: 0.5;
+  background-color: var(--neutral);
+}

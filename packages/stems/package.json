@@ -111,5 +111,9 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "react-perfect-scrollbar": "1.5.8",
+    "react-use-measure": "2.1.1"
+  }
 }
