@@ -7,6 +7,7 @@ import DraggableFlatList, {
 } from 'react-native-draggable-flatlist'
 import { useSelector } from 'react-redux'
 
+import * as haptics from 'app/haptics'
 import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 
@@ -94,6 +95,7 @@ export const TrackList = ({
           drag={drag}
           hideArt={hideArt}
           isActive={isActive}
+          isDragging={isDragActive}
           isPlaying={isPlaying}
           isReorderable={isReorderable}
           track={track}
@@ -112,7 +114,14 @@ export const TrackList = ({
       activationDistance={scrollEnable ? 100 : 1}
       data={tracks.filter(filterFn ?? (() => true))}
       keyExtractor={(track, index) => `${track.track_id} ${index}`}
-      onDragBegin={() => setScrollEnable(false)}
+      onDragBegin={() => {
+        haptics.light()
+        setScrollEnable(false)
+      }}
+      renderPlaceholder={() => <View />}
+      onPlaceholderIndexChange={() => {
+        haptics.light()
+      }}
       onDragEnd={p => {
         onReorder?.(p)
         setScrollEnable(true)
