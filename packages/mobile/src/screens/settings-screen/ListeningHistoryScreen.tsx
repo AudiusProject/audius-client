@@ -81,7 +81,7 @@ export const ListeningHistoryScreen = () => {
             }}
           >
             <TrackList
-              tracks={historyTracks}
+              tracks={historyTracks.entries}
               showDivider
               togglePlay={togglePlay}
               trackItemAction='overflow'

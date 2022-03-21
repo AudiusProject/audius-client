@@ -1,5 +1,9 @@
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-export type TrackMetadataLineup = ReturnType<
-  ReturnType<typeof makeGetTableMetadatas>
+import { SetOptional } from 'type-fest'
+
+export type TrackMetadata = SetOptional<
+  ReturnType<ReturnType<typeof makeGetTableMetadatas>>['entries'][0],
+  'uid' | 'kind' | 'id' | 'followeeReposts'
 >
-export type TrackMetadata = TrackMetadataLineup['entries'][0]
+
+export type TracksMetadata = TrackMetadata[]

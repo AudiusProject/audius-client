@@ -185,13 +185,12 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
         <View style={styles.tracklist}>
           {values.tracks ? (
             <>
-              {/** TODO: clean up types/interface here */}
               <TrackList
                 hideArt
                 isReorderable
                 onReorder={handleReorder}
                 onRemove={handleRemove}
-                tracks={{ entries: values.tracks } as any}
+                tracks={values.tracks}
                 trackItemAction='remove'
               />
             </>

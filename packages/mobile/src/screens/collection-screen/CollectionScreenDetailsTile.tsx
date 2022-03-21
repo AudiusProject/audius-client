@@ -158,7 +158,7 @@ export const CollectionScreenDetailsTile = ({
           hideArt
           showDivider
           togglePlay={handlePressTrackListItemPlay}
-          tracks={tracksLineup}
+          tracks={tracksLineup.entries}
         />
       </>
     )

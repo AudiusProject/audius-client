@@ -133,7 +133,7 @@ export const TracksTab = () => {
                   showDivider
                   togglePlay={togglePlay}
                   trackItemAction='save'
-                  tracks={savedTracks}
+                  tracks={savedTracks.entries}
                   hideArt
                 />
               </Tile>

@@ -11,7 +11,7 @@ import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 
 import { TrackItemAction, TrackListItem } from './TrackListItem'
-import { TrackMetadata, TrackMetadataLineup } from './types'
+import { TrackMetadata, TracksMetadata } from './types'
 
 type TrackListProps = {
   filterFn?: (track: TrackMetadata) => boolean
@@ -26,7 +26,7 @@ type TrackListProps = {
   showTopDivider?: boolean
   togglePlay?: (uid: string, trackId: ID) => void
   trackItemAction?: TrackItemAction
-  tracks: TrackMetadataLineup
+  tracks: TracksMetadata
 }
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -110,7 +110,7 @@ export const TrackList = ({
   return (
     <DraggableFlatList
       activationDistance={scrollEnable ? 100 : 1}
-      data={tracks.entries.filter(filterFn ?? (() => true))}
+      data={tracks.filter(filterFn ?? (() => true))}
       keyExtractor={(track, index) => `${track.track_id} ${index}`}
       onDragBegin={() => setScrollEnable(false)}
       onDragEnd={p => {
