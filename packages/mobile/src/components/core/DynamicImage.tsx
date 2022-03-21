@@ -38,6 +38,7 @@ export type DynamicImageProps = {
   children?: ReactNode
   // callback when image finishes loading
   onLoad?: () => void
+  animatedValue?: Animated.Value
 }
 
 const styles = StyleSheet.create({
@@ -79,7 +80,8 @@ export const DynamicImage = memo(function DynamicImage({
   styles: stylesProp,
   immediate,
   children,
-  onLoad
+  onLoad,
+  animatedValue
 }: DynamicImageProps) {
   const [firstSize, setFirstSize] = useState(0)
   const [secondSize, setSecondSize] = useState(0)
@@ -144,7 +146,27 @@ export const DynamicImage = memo(function DynamicImage({
   }, [])
 
   return (
-    <View style={[stylesProp?.root, style]}>
+    <Animated.View
+      pointerEvents='none'
+      style={[
+        stylesProp?.root,
+        style,
+        animatedValue
+          ? {
+              transform: [
+                {
+                  scale: animatedValue?.interpolate({
+                    inputRange: [-200, 0],
+                    outputRange: [6, 1],
+                    extrapolateLeft: 'extend',
+                    extrapolateRight: 'clamp'
+                  })
+                }
+              ]
+            }
+          : {}
+      ]}
+    >
       <Animated.View
         style={[
           stylesProp?.imageContainer,
@@ -172,6 +194,6 @@ export const DynamicImage = memo(function DynamicImage({
         />
       </Animated.View>
       {children ? <View style={styles.children}>{children}</View> : null}
-    </View>
+    </Animated.View>
   )
 })

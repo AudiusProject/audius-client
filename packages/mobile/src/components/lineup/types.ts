@@ -117,6 +117,17 @@ export type LineupProps = {
    * This helps prevent collisions with any in-flight loading from web-app
    */
   includeLineupStatus?: boolean
+
+  /**
+   * Whether or not the lineup appears inside a collapsible scene.
+   * See `useCollapsibleScene` from 'react-native-collapsible-tab-view'
+   */
+  isCollapsible?: boolean
+
+  /**
+   * The scene name if the lineup appears in a collapsible scene.
+   */
+  collapsibleSceneName?: string
 } & Pick<
   SectionListProps<unknown>,
   'showsVerticalScrollIndicator' | 'ListEmptyComponent'

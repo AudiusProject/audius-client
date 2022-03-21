@@ -82,7 +82,7 @@ export const ExpandableBio = () => {
   if (!bio && !hasSites) return null
 
   return (
-    <View style={styles.root}>
+    <View pointerEvents='box-none' style={styles.root}>
       <View>
         {bio ? (
           <Hyperlink source='profile page'>

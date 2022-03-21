@@ -33,6 +33,8 @@ export const TracksTab = () => {
 
   return (
     <Lineup
+      isCollapsible
+      collapsibleSceneName='Tracks'
       leadingElementId={_artist_pick}
       listKey='profile-tracks'
       actions={tracksActions}
@@ -41,6 +43,7 @@ export const TracksTab = () => {
       loadMore={loadMore}
       disableTopTabScroll
       ListEmptyComponent={<EmptyProfileTile tab='tracks' />}
+      showsVerticalScrollIndicator={false}
     />
   )
 }

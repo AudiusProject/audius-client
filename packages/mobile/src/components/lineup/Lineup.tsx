@@ -9,6 +9,7 @@ import { Dimensions, SectionList, StyleSheet, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
+import { SectionListProvider } from 'app/components/core'
 import {
   CollectionTile,
   TrackTile,
@@ -123,7 +124,9 @@ export const Lineup = ({
   selfLoad,
   includeLineupStatus,
   limit = Infinity,
-  ...sectionListProps
+  isCollapsible,
+  collapsibleSceneName,
+  ...listProps
 }: LineupProps) => {
   const dispatchWeb = useDispatchWeb()
   const ref = useRef<SectionList>(null)
@@ -349,8 +352,10 @@ export const Lineup = ({
   ])
 
   return (
-    <SectionList
-      {...sectionListProps}
+    <SectionListProvider
+      isCollapsible={isCollapsible}
+      collapsibleSceneName={collapsibleSceneName}
+      {...listProps}
       ref={ref}
       ListHeaderComponent={header}
       ListFooterComponent={<View style={{ height: 160 }} />}

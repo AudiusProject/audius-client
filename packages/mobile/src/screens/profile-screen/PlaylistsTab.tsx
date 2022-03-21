@@ -12,11 +12,14 @@ export const PlaylistsTab = () => {
 
   return (
     <CollectionList
+      isCollapsible
+      collapsibleSceneName='Playlists'
       listKey='profile-playlists'
       collection={playlists}
       emptyListText={emptyListText}
       disableTopTabScroll
       fromPage='profile'
+      showsVerticalScrollIndicator={false}
     />
   )
 }

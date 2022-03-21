@@ -4,6 +4,7 @@ import { View, Pressable, Text, FlatList } from 'react-native'
 
 import IconShare from 'app/assets/images/iconShare.svg'
 import { Tile, GradientText } from 'app/components/core'
+import { FlatListProvider } from 'app/components/core/FlatListProvider'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
@@ -94,7 +95,9 @@ export const CollectiblesTab = () => {
   return (
     <View style={styles.root}>
       <Tile styles={{ tile: styles.tile, content: styles.tileContent }}>
-        <FlatList
+        <FlatListProvider
+          isCollapsible
+          collapsibleSceneName='Collectibles'
           ref={ref}
           listKey='profile-collectibles'
           ListHeaderComponent={

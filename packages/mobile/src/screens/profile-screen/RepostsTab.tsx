@@ -15,10 +15,10 @@ export const RepostsTab = () => {
   const lineup = useSelectorWeb(getUserFeedMetadatas, isEqual)
   const { repost_count } = useSelectProfile(['repost_count'])
 
-  console.log('rerender reposts', repost_count)
-
   return (
     <Lineup
+      isCollapsible
+      collapsibleSceneName='Reposts'
       listKey='profile-reposts'
       actions={feedActions}
       lineup={lineup}
@@ -26,6 +26,7 @@ export const RepostsTab = () => {
       limit={repost_count}
       disableTopTabScroll
       ListEmptyComponent={<EmptyProfileTile tab='reposts' />}
+      showsVerticalScrollIndicator={false}
     />
   )
 }
