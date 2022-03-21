@@ -135,7 +135,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
 
   return (
     <Screen
-      variant='secondary'
+      variant='white'
       title={messages.title}
       topbarLeft={
         <TextButton
