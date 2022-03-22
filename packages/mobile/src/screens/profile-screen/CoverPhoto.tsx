@@ -25,6 +25,22 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
+const interpolateBlurViewOpacity = (scrollY: Animated.Value) =>
+  scrollY.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [1, 0],
+    extrapolateLeft: 'extend',
+    extrapolateRight: 'clamp'
+  })
+
+const interpolateImagePosition = (scrollY: Animated.Value) =>
+  scrollY.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [-200, 0],
+    extrapolateLeft: 'extend',
+    extrapolateRight: 'clamp'
+  })
+
 export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
   const styles = useStyles()
   const { user_id, _cover_photo_sizes, track_count } = useSelectProfile([
@@ -51,14 +67,12 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
         <AnimatedBlurView
           blurType={'dark'}
           blurAmount={96}
-          style={{
-            ...StyleSheet.absoluteFillObject,
-            zIndex: 2,
-            opacity: scrollY?.interpolate({
-              inputRange: [-50, 0, 50, 100],
-              outputRange: [1, 0, 0, 1]
-            })
-          }}
+          style={[
+            { ...StyleSheet.absoluteFillObject, zIndex: 2 },
+            scrollY
+              ? { opacity: interpolateBlurViewOpacity(scrollY) }
+              : undefined
+          ]}
         />
       </DynamicImage>
       {isArtist ? (
@@ -69,16 +83,11 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
               ? {
                   transform: [
                     {
-                      translateY: scrollY.interpolate({
-                        inputRange: [-200, 0],
-                        outputRange: [-200, 0],
-                        extrapolateLeft: 'extend',
-                        extrapolateRight: 'clamp'
-                      })
+                      translateY: interpolateImagePosition(scrollY)
                     }
                   ]
                 }
-              : {}
+              : undefined
           ]}
         >
           <BadgeArtist />

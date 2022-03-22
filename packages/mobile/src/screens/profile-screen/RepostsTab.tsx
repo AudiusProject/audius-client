@@ -17,8 +17,6 @@ export const RepostsTab = () => {
 
   return (
     <Lineup
-      isCollapsible
-      collapsibleSceneName='Reposts'
       listKey='profile-reposts'
       actions={feedActions}
       lineup={lineup}

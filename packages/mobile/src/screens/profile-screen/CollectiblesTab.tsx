@@ -1,10 +1,10 @@
 import { useRef } from 'react'
 
-import { View, Pressable, Text, FlatList } from 'react-native'
+import { View, Pressable, Text, FlatList as RNFlatList } from 'react-native'
 
 import IconShare from 'app/assets/images/iconShare.svg'
 import { Tile, GradientText } from 'app/components/core'
-import { FlatListProvider } from 'app/components/core/FlatListProvider'
+import { FlatList } from 'app/components/core/FlatList'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
@@ -78,7 +78,7 @@ export const CollectiblesTab = () => {
   const { neutralLight4 } = useThemeColors()
   const { profile } = useSelectorWeb(getProfile)
 
-  const ref = useRef<FlatList>(null)
+  const ref = useRef<RNFlatList>(null)
   useScrollToTop(() => {
     ref.current?.scrollToOffset({
       offset: 0,
@@ -95,9 +95,7 @@ export const CollectiblesTab = () => {
   return (
     <View style={styles.root}>
       <Tile styles={{ tile: styles.tile, content: styles.tileContent }}>
-        <FlatListProvider
-          isCollapsible
-          collapsibleSceneName='Collectibles'
+        <FlatList
           ref={ref}
           listKey='profile-collectibles'
           ListHeaderComponent={

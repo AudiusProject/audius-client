@@ -12,8 +12,6 @@ export const AlbumsTab = () => {
 
   return (
     <CollectionList
-      isCollapsible
-      collapsibleSceneName='Albums'
       listKey='profile-albums'
       collection={albums}
       emptyListText={emptyListText}

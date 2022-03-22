@@ -1,4 +1,4 @@
-import { ComponentType, ReactNode } from 'react'
+import { ComponentType, createContext, ReactNode } from 'react'
 
 import { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs'
 import { Animated } from 'react-native'
@@ -15,6 +15,30 @@ const useStyles = makeStyles(({ palette }) => ({
   label: { fontSize: 12 },
   indicator: { backgroundColor: palette.primary, height: 3 }
 }))
+
+type CollapsibleTabNavigatorContextProps = {
+  sceneName?: string
+}
+
+export const CollapsibleTabNavigatorContext = createContext<
+  CollapsibleTabNavigatorContextProps
+>({
+  sceneName: undefined
+})
+
+export const CollapsibleTabNavigatorContextProvider = ({
+  sceneName,
+  children
+}: {
+  sceneName: string
+  children: ReactNode
+}) => {
+  return (
+    <CollapsibleTabNavigatorContext.Provider value={{ sceneName }}>
+      {children}
+    </CollapsibleTabNavigatorContext.Provider>
+  )
+}
 
 type CollapsibleTabNavigatorProps = {
   /**
@@ -79,12 +103,21 @@ type TabScreenConfig = ScreenConfig & {
 }
 
 export const collapsibleTabScreen = (config: TabScreenConfig) => {
-  const { key, name, label, Icon, component, initialParams } = config
+  const { key, name, label, Icon, component: Component, initialParams } = config
+
+  const renderComponent = () => {
+    return (
+      <CollapsibleTabNavigatorContextProvider sceneName={name}>
+        <Component />
+      </CollapsibleTabNavigatorContextProvider>
+    )
+  }
+
   return (
     <Tab.Screen
       key={key}
       name={name}
-      component={component}
+      component={renderComponent}
       options={{
         tabBarLabel: label ?? name,
         tabBarIcon: ({ color }) => <Icon fill={color} />

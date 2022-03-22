@@ -14,7 +14,8 @@ const messages = {
 
 const useStyles = makeStyles(({ palette }) => ({
   link: {
-    color: palette.primary
+    color: palette.primary,
+    backgroundColor: 'red'
   }
 }))
 
@@ -42,7 +43,15 @@ export const Hyperlink = (props: HyperlinkProps) => {
   )
 
   return (
-    <RNHyperlink onPress={handlePress} linkStyle={styles.link} {...other}>
+    <RNHyperlink
+      // injectViewProps={_ => ({
+      //   pointerEvents: 'auto'
+      // })}
+      // pointerEvents='box-none'
+      onPress={handlePress}
+      linkStyle={styles.link}
+      {...other}
+    >
       {children}
     </RNHyperlink>
   )

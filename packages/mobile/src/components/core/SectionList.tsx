@@ -1,16 +1,19 @@
-import { forwardRef } from 'react'
+import { forwardRef, useContext } from 'react'
 
-import { Animated, SectionList, SectionListProps } from 'react-native'
+import {
+  Animated,
+  SectionList as RNSectionList,
+  SectionListProps as RNSectionListProps
+} from 'react-native'
 import { useCollapsibleScene } from 'react-native-collapsible-tab-view'
 
-type SectionListProviderProps = {
-  isCollapsible?: boolean
-  collapsibleSceneName?: string
-} & SectionListProps<any>
+import { CollapsibleTabNavigatorContext } from '../top-tab-bar'
+
+type SectionListProps = RNSectionListProps<any>
 
 type CollapsibleSectionListProps = {
-  collapsibleSceneName: string
-} & SectionListProps<any>
+  sceneName: string
+} & RNSectionListProps<any>
 
 /**
  * Create a custom hook for the collapsible scene.
@@ -21,7 +24,7 @@ type CollapsibleSectionListProps = {
  */
 const useCollapsibleSectionListScene = (sceneName: string) => {
   const scrollPropsAndRef = useCollapsibleScene(sceneName)
-  const scrollableRef = (ref: SectionList) => {
+  const scrollableRef = (ref: RNSectionList) => {
     scrollPropsAndRef.ref(ref?.getScrollResponder())
   }
   return {
@@ -31,10 +34,11 @@ const useCollapsibleSectionListScene = (sceneName: string) => {
 }
 
 const CollapsibleSectionList = ({
-  collapsibleSceneName,
+  sceneName,
   ...other
 }: CollapsibleSectionListProps) => {
-  const scrollPropsAndRef = useCollapsibleSectionListScene(collapsibleSceneName)
+  const scrollPropsAndRef = useCollapsibleSectionListScene(sceneName)
+  console.log({ sceneName, scrollPropsAndRef })
   return <Animated.SectionList {...other} {...scrollPropsAndRef} />
 }
 
@@ -42,18 +46,12 @@ const CollapsibleSectionList = ({
  * Provides either a SectionList or an animated SectionList
  * depending on whether or not the list is found in a "collapsible" header tab
  */
-export const SectionListProvider = forwardRef<
-  SectionList,
-  SectionListProviderProps
->((props: SectionListProviderProps, ref) => {
-  const { isCollapsible, collapsibleSceneName, ...other } = props
-  if (isCollapsible && collapsibleSceneName) {
-    return (
-      <CollapsibleSectionList
-        collapsibleSceneName={collapsibleSceneName}
-        {...other}
-      />
-    )
+export const SectionList = forwardRef<RNSectionList, SectionListProps>(
+  (props: SectionListProps, ref) => {
+    const { sceneName } = useContext(CollapsibleTabNavigatorContext)
+    if (sceneName) {
+      return <CollapsibleSectionList sceneName={sceneName} {...props} />
+    }
+    return <RNSectionList ref={ref} {...props} />
   }
-  return <SectionList ref={ref} {...other} />
-})
+)

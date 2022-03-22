@@ -1,39 +1,26 @@
 import { useCallback, useRef } from 'react'
 
-import { FlatList, FlatListProps, ListRenderItem, View } from 'react-native'
+import {
+  FlatList as RNFlatList,
+  FlatListProps,
+  ListRenderItem,
+  View
+} from 'react-native'
 
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 
 import { EmptyTile } from './EmptyTile'
-import { FlatListProvider } from './FlatListProvider'
+import { FlatList } from './FlatList'
 
 export type CardListProps<ItemT> = FlatListProps<ItemT> & {
   emptyListText?: string
   disableTopTabScroll?: boolean
-
-  /**
-   * Whether or not the lineup appears inside a collapsible scene.
-   * See `useCollapsibleScene` from 'react-native-collapsible-tab-view'
-   */
-  isCollapsible?: boolean
-
-  /**
-   * The scene name if the lineup appears in a collapsible scene.
-   */
-  collapsibleSceneName?: string
 }
 
 export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
-  const {
-    renderItem,
-    emptyListText,
-    disableTopTabScroll,
-    isCollapsible,
-    collapsibleSceneName,
-    ...other
-  } = props
+  const { renderItem, emptyListText, disableTopTabScroll, ...other } = props
 
-  const ref = useRef<FlatList>(null)
+  const ref = useRef<RNFlatList>(null)
   useScrollToTop(() => {
     ref.current?.scrollToOffset({
       offset: 0,
@@ -58,9 +45,7 @@ export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
   )
 
   return (
-    <FlatListProvider
-      isCollapsible={isCollapsible}
-      collapsibleSceneName={collapsibleSceneName}
+    <FlatList
       ref={ref}
       renderItem={handleRenderItem}
       numColumns={2}
