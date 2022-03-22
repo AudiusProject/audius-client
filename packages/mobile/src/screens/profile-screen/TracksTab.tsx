@@ -36,7 +36,7 @@ export const TracksTab = ({ isProfileLoaded }: TrackTabProps) => {
   )
 
   /**
-   * If the profile isn't loaded yet, pass the lineup and empty entries
+   * If the profile isn't loaded yet, pass the lineup an empty entries
    * array so only skeletons are displayed
    */
   return (
