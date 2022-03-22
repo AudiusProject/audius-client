@@ -186,6 +186,7 @@ export const CollectionScreenDetailsTile = ({
       details={details}
       headerText={headerText}
       hideListenCount={true}
+      isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
       onPressPlay={handlePressPlay}
     />
