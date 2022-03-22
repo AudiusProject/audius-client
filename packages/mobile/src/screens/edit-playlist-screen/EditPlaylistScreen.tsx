@@ -22,8 +22,7 @@ import {
   Screen,
   TextButton,
   FormTextInput,
-  FormImageInput,
-  VirtualizedScrollView
+  FormImageInput
 } from 'app/components/core'
 import { TrackList } from 'app/components/track-list'
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
@@ -42,13 +41,13 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
-  form: {
-    paddingTop: spacing(8)
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: spacing(8)
+    paddingVertical: spacing(8)
+  },
+  footer: {
+    paddingBottom: spacing(50)
   },
   getRandomArt: {
     ...flexRowCentered(),
@@ -59,9 +58,6 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     ...typography.body,
     color: palette.secondary,
     marginLeft: spacing(2)
-  },
-  tracklist: {
-    marginBottom: spacing(50)
   }
 }))
 
@@ -129,6 +125,35 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
     [values.track_ids, values.tracks, values.removedTracks, setFieldValue]
   )
 
+  const header = (
+    <>
+      <View style={styles.header}>
+        <View>
+          <FormImageInput name='artwork' isProcessing={isProcessingImage} />
+          <Pressable
+            onPress={handlePressGetRandomArtwork}
+            style={styles.getRandomArt}
+          >
+            <IconCamera height={18} width={18} />
+            <Text style={styles.getRandomArtText}>{messages.getRandomArt}</Text>
+          </Pressable>
+        </View>
+      </View>
+      <FormTextInput isFirstInput name='playlist_name' label='Name' />
+      <FormTextInput
+        placeholder={messages.descriptionPlaceholder}
+        name='description'
+        label='Description'
+        multiline
+        maxLength={256}
+        styles={{
+          root: { minHeight: 100 },
+          label: { lineHeight: 28 }
+        }}
+      />
+    </>
+  )
+
   return (
     <Screen
       variant='white'
@@ -154,45 +179,22 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
         />
       }
     >
-      <VirtualizedScrollView style={styles.form}>
-        <View style={styles.header}>
-          <View>
-            <FormImageInput name='artwork' isProcessing={isProcessingImage} />
-            <Pressable
-              onPress={handlePressGetRandomArtwork}
-              style={styles.getRandomArt}
-            >
-              <IconCamera height={18} width={18} />
-              <Text style={styles.getRandomArtText}>
-                {messages.getRandomArt}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-        <FormTextInput isFirstInput name='playlist_name' label='Name' />
-        <FormTextInput
-          placeholder={messages.descriptionPlaceholder}
-          name='description'
-          label='Description'
-          multiline
-          maxLength={256}
-          styles={{ root: { minHeight: 100 }, label: { lineHeight: 28 } }}
-        />
-        <View style={styles.tracklist}>
-          {values.tracks ? (
-            <>
-              <TrackList
-                hideArt
-                isReorderable
-                onReorder={handleReorder}
-                onRemove={handleRemove}
-                tracks={values.tracks}
-                trackItemAction='remove'
-              />
-            </>
-          ) : null}
-        </View>
-      </VirtualizedScrollView>
+      {values.tracks ? (
+        <>
+          <TrackList
+            hideArt
+            isReorderable
+            onReorder={handleReorder}
+            onRemove={handleRemove}
+            tracks={values.tracks}
+            trackItemAction='remove'
+            ListHeaderComponent={() => header}
+            ListFooterComponent={() => <View style={styles.footer} />}
+          />
+        </>
+      ) : (
+        header
+      )}
     </Screen>
   )
 }

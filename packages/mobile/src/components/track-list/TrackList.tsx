@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { ReactElement } from 'react'
 
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
-import { View } from 'react-native'
+import { FlatList, FlatListProps, View } from 'react-native'
 import DraggableFlatList, {
   DraggableFlatListProps
 } from 'react-native-draggable-flatlist'
@@ -28,7 +28,7 @@ type TrackListProps = {
   togglePlay?: (uid: string, trackId: ID) => void
   trackItemAction?: TrackItemAction
   tracks: TracksMetadata
-}
+} & Partial<FlatListProps<TrackMetadata>>
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   divider: {
@@ -46,6 +46,12 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
+/**
+ * A FlatList of tracks
+ *
+ * If isReorderable === true, make sure the TrackList is not nested in a ScrollView,
+ * otherwise certain features like auto scroll while dragging will not work
+ */
 export const TrackList = ({
   filterFn,
   hideArt,
@@ -58,16 +64,17 @@ export const TrackList = ({
   showTopDivider,
   togglePlay,
   trackItemAction,
-  tracks
+  tracks,
+  ...otherProps
 }: TrackListProps) => {
   const styles = useStyles()
 
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getPlayingUid)
 
-  const [scrollEnable, setScrollEnable] = useState(true)
-
-  const renderTrack: DraggableFlatListProps<TrackMetadata>['renderItem'] = ({
+  const renderDraggableTrack: DraggableFlatListProps<
+    TrackMetadata
+  >['renderItem'] = ({
     item: track,
     index = -1,
     drag,
@@ -109,24 +116,38 @@ export const TrackList = ({
     )
   }
 
-  return (
+  const renderTrack: FlatListProps<TrackMetadata>['renderItem'] = ({
+    item,
+    index
+  }) =>
+    renderDraggableTrack({
+      item,
+      index,
+      drag: () => {},
+      isActive: false
+    }) as ReactElement
+
+  const filteredData = tracks.filter(filterFn ?? (() => true))
+
+  return isReorderable ? (
     <DraggableFlatList
-      activationDistance={scrollEnable ? 100 : 1}
-      data={tracks.filter(filterFn ?? (() => true))}
+      {...otherProps}
+      autoscrollThreshold={200}
+      data={filteredData}
       keyExtractor={(track, index) => `${track.track_id} ${index}`}
       onDragBegin={() => {
         haptics.light()
-        setScrollEnable(false)
       }}
-      renderPlaceholder={() => <View />}
       onPlaceholderIndexChange={() => {
         haptics.light()
       }}
       onDragEnd={p => {
         onReorder?.(p)
-        setScrollEnable(true)
       }}
-      renderItem={renderTrack}
+      renderItem={renderDraggableTrack}
+      renderPlaceholder={() => <View />}
     />
+  ) : (
+    <FlatList {...otherProps} data={filteredData} renderItem={renderTrack} />
   )
 }
