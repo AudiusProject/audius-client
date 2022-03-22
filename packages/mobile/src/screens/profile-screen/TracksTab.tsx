@@ -12,7 +12,6 @@ import { EmptyProfileTile } from './EmptyProfileTile'
 import { useSelectProfile } from './selectors'
 
 export const TracksTab = () => {
-  console.log('render tracks tab')
   const lineup = useSelectorWeb(getProfileTracksLineup, isEqual)
   const dispatchWeb = useDispatchWeb()
   const { user_id, track_count, _artist_pick } = useSelectProfile([

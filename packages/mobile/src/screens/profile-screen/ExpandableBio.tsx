@@ -89,12 +89,11 @@ export const ExpandableBio = () => {
         {bio ? (
           <Hyperlink source='profile page'>
             <Text
-              // pointerEvents='box-none'
               numberOfLines={fullBioHeight && !isExpanded ? 2 : 0}
               style={styles.bio}
               onLayout={handleBioLayout}
             >
-              {squashNewLines(bio + ' https://example.com')}
+              {squashNewLines(bio)}
             </Text>
           </Hyperlink>
         ) : null}

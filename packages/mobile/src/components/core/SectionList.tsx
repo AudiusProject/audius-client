@@ -38,7 +38,6 @@ const CollapsibleSectionList = ({
   ...other
 }: CollapsibleSectionListProps) => {
   const scrollPropsAndRef = useCollapsibleSectionListScene(sceneName)
-  console.log({ sceneName, scrollPropsAndRef })
   return <Animated.SectionList {...other} {...scrollPropsAndRef} />
 }
 

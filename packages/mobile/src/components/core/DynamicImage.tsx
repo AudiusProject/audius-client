@@ -71,6 +71,22 @@ const ImageWithPlaceholder = ({ uri, style }: ImageWithPlaceholderProps) => {
   return <ImageSkeleton styles={{ root: style as ViewStyle }} />
 }
 
+const interpolateImageScale = (animatedValue: Animated.Value) =>
+  animatedValue.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [4, 1],
+    extrapolateLeft: 'extend',
+    extrapolateRight: 'clamp'
+  })
+
+const interpolateImageTranslate = (animatedValue: Animated.Value) =>
+  animatedValue.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [-30, 0],
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp'
+  })
+
 /**
  * A dynamic image that transitions between changes to the `uri` prop.
  */
@@ -155,12 +171,10 @@ export const DynamicImage = memo(function DynamicImage({
           ? {
               transform: [
                 {
-                  scale: animatedValue?.interpolate({
-                    inputRange: [-200, 0],
-                    outputRange: [6, 1],
-                    extrapolateLeft: 'extend',
-                    extrapolateRight: 'clamp'
-                  })
+                  scale: interpolateImageScale(animatedValue)
+                },
+                {
+                  translateY: interpolateImageTranslate(animatedValue)
                 }
               ]
             }

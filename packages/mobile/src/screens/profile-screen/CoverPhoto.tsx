@@ -27,13 +27,13 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 const interpolateBlurViewOpacity = (scrollY: Animated.Value) =>
   scrollY.interpolate({
-    inputRange: [-200, 0],
-    outputRange: [1, 0],
+    inputRange: [-100, 0],
+    outputRange: [0.5, 0],
     extrapolateLeft: 'extend',
     extrapolateRight: 'clamp'
   })
 
-const interpolateImagePosition = (scrollY: Animated.Value) =>
+const interpolateBadgeImagePosition = (scrollY: Animated.Value) =>
   scrollY.interpolate({
     inputRange: [-200, 0],
     outputRange: [-200, 0],
@@ -66,7 +66,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
       >
         <AnimatedBlurView
           blurType={'dark'}
-          blurAmount={96}
+          blurAmount={100}
           style={[
             { ...StyleSheet.absoluteFillObject, zIndex: 2 },
             scrollY
@@ -83,7 +83,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
               ? {
                   transform: [
                     {
-                      translateY: interpolateImagePosition(scrollY)
+                      translateY: interpolateBadgeImagePosition(scrollY)
                     }
                   ]
                 }

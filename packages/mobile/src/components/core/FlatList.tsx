@@ -20,7 +20,6 @@ const CollapsibleFlatList = ({
   ...other
 }: CollapsibleFlatListProps) => {
   const scrollPropsAndRef = useCollapsibleScene(sceneName)
-  console.log({ scrollPropsAndRef, sceneName })
   return <Animated.FlatList {...other} {...scrollPropsAndRef} />
 }
 
