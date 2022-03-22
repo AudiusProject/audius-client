@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 
+import { RouteProp, useRoute } from '@react-navigation/core'
 import { tracksActions } from 'audius-client/src/common/store/pages/profile/lineups/tracks/actions'
-import { getProfileTracksLineup } from 'audius-client/src/common/store/pages/profile/selectors'
+import {
+  getProfileTracksLineup,
+  getProfileUserHandle
+} from 'audius-client/src/common/store/pages/profile/selectors'
 import { isEqual } from 'lodash'
 
 import { Lineup } from 'app/components/lineup'
@@ -9,15 +13,22 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
-import { useSelectProfile } from './selectors'
+import { getIsOwner, useSelectProfile } from './selectors'
 
-type TrackTabProps = {
-  isProfileLoaded: boolean
-}
-
-export const TracksTab = ({ isProfileLoaded }: TrackTabProps) => {
+export const TracksTab = () => {
+  const { params } = useRoute<
+    RouteProp<{ Tracks: { handle: string } }, 'Tracks'>
+  >()
   const lineup = useSelectorWeb(getProfileTracksLineup, isEqual)
   const dispatchWeb = useDispatchWeb()
+
+  const profileHandle = useSelectorWeb(getProfileUserHandle)
+  const isOwner = useSelectorWeb(getIsOwner)
+
+  const isProfileLoaded =
+    profileHandle === params?.handle ||
+    (params?.handle === 'accountUser' && isOwner)
+
   const { user_id, track_count, _artist_pick } = useSelectProfile([
     'user_id',
     'track_count',
