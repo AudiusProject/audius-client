@@ -1,4 +1,5 @@
 import { FollowSource } from 'audius-client/src/common/models/Analytics'
+import { getProfileUser } from 'audius-client/src/common/store/pages/profile/selectors'
 import { View, Text } from 'react-native'
 
 import { FollowButton } from 'app/components/user'
@@ -83,7 +84,22 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
     does_follow_current_user
   } = profile
 
+  const profileUser = useSelectorWeb(getProfileUser)
   const isOwner = useSelectorWeb(getIsOwner)
+
+  const profileButton = isOwner ? (
+    <EditProfileButton style={styles.followButton} />
+  ) : (
+    <>
+      {does_current_user_follow ? <SubscribeButton profile={profile} /> : null}
+      <FollowButton
+        style={styles.followButton}
+        profile={profile}
+        onPress={onFollow}
+        followSource={FollowSource.PROFILE_PAGE}
+      />
+    </>
+  )
 
   return (
     <View pointerEvents='box-none' style={styles.info}>
@@ -103,21 +119,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.actionButtons}>
-        {isOwner ? (
-          <EditProfileButton style={styles.followButton} />
-        ) : (
-          <>
-            {does_current_user_follow ? (
-              <SubscribeButton profile={profile} />
-            ) : null}
-            <FollowButton
-              style={styles.followButton}
-              profile={profile}
-              onPress={onFollow}
-              followSource={FollowSource.PROFILE_PAGE}
-            />
-          </>
-        )}
+        {profileUser ? profileButton : null}
       </View>
     </View>
   )
