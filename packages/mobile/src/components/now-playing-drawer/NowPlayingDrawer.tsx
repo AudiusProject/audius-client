@@ -9,7 +9,8 @@ import {
   GestureResponderEvent,
   PanResponderGestureState,
   StatusBar,
-  Dimensions
+  Dimensions,
+  Pressable
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
@@ -18,6 +19,7 @@ import { usePrevious } from 'react-use'
 import Drawer from 'app/components/drawer'
 import { Scrubber } from 'app/components/scrubber'
 import { useDrawer } from 'app/hooks/useDrawer'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import {
   getPlaying,
@@ -54,6 +56,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   trackInfoContainer: {
+    marginHorizontal: 24,
     marginBottom: 16
   },
   scrubberContainer: {
@@ -74,6 +77,7 @@ const NowPlayingDrawer = ({
   bottomBarTranslationAnim
 }: NowPlayingDrawerProps) => {
   const insets = useSafeAreaInsets()
+  const navigation = useNavigation()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
   const previousIsOpen = usePrevious(isOpen)
@@ -210,6 +214,28 @@ const NowPlayingDrawer = ({
     setIsGestureEnabled(true)
   }, [setIsGestureEnabled])
 
+  const handlePressArtist = useCallback(() => {
+    if (!user) {
+      return
+    }
+    navigation.push({
+      native: { screen: 'Profile', params: { handle: user.handle } },
+      web: { route: `/${user.handle}` }
+    })
+    handleDrawerCloseFromSwipe()
+  }, [handleDrawerCloseFromSwipe, navigation, user])
+
+  const handlePressTitle = useCallback(() => {
+    if (!track) {
+      return
+    }
+    navigation.push({
+      native: { screen: 'Track', params: { id: track.track_id } },
+      web: { route: track.permalink }
+    })
+    handleDrawerCloseFromSwipe()
+  }, [handleDrawerCloseFromSwipe, navigation, track])
+
   return (
     <Drawer
       // Appears below bottom bar whereas normally drawers appear above
@@ -240,11 +266,19 @@ const NowPlayingDrawer = ({
             <View style={styles.titleBarContainer}>
               <TitleBar onClose={handleDrawerCloseFromSwipe} />
             </View>
-            <View style={styles.artworkContainer}>
+            <Pressable
+              style={styles.artworkContainer}
+              onPress={handlePressTitle}
+            >
               <Artwork track={track} />
-            </View>
+            </Pressable>
             <View style={styles.trackInfoContainer}>
-              <TrackInfo track={track} user={user} />
+              <TrackInfo
+                onPressArtist={handlePressArtist}
+                onPressTitle={handlePressTitle}
+                track={track}
+                user={user}
+              />
             </View>
             <View style={styles.scrubberContainer}>
               <Scrubber
