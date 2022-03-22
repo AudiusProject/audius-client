@@ -15,7 +15,6 @@ import { TrackItemAction, TrackListItem } from './TrackListItem'
 import { TrackMetadata, TracksMetadata } from './types'
 
 type TrackListProps = {
-  filterFn?: (track: TrackMetadata) => boolean
   hideArt?: boolean
   isReorderable?: boolean
   noDividerMargin?: boolean
@@ -53,7 +52,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
  * otherwise certain features like auto scroll while dragging will not work
  */
 export const TrackList = ({
-  filterFn,
   hideArt,
   isReorderable,
   noDividerMargin,
@@ -127,13 +125,11 @@ export const TrackList = ({
       isActive: false
     }) as ReactElement
 
-  const filteredData = tracks.filter(filterFn ?? (() => true))
-
   return isReorderable ? (
     <DraggableFlatList
       {...otherProps}
       autoscrollThreshold={200}
-      data={filteredData}
+      data={tracks}
       keyExtractor={(track, index) => `${track.track_id} ${index}`}
       onDragBegin={() => {
         haptics.light()
@@ -148,6 +144,6 @@ export const TrackList = ({
       renderPlaceholder={() => <View />}
     />
   ) : (
-    <FlatList {...otherProps} data={filteredData} renderItem={renderTrack} />
+    <FlatList {...otherProps} data={tracks} renderItem={renderTrack} />
   )
 }

@@ -66,7 +66,7 @@ export const TracksTab = () => {
   const savedTracksStatus = useSelectorWeb(getSavedTracksStatus)
   const savedTracks = useSelectorWeb(getTracks, shallowEqual)
 
-  const filterFn = (track: TrackMetadata) => {
+  const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue.toLowerCase()
     return (
       track.title.toLowerCase().indexOf(matchValue) > -1 ||
@@ -128,12 +128,11 @@ export const TracksTab = () => {
                 }}
               >
                 <TrackList
-                  filterFn={filterFn}
                   onSave={onToggleSave}
                   showDivider
                   togglePlay={togglePlay}
                   trackItemAction='save'
-                  tracks={savedTracks.entries}
+                  tracks={savedTracks.entries.filter(filterTrack)}
                   hideArt
                 />
               </Tile>

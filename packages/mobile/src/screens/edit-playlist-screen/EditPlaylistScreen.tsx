@@ -58,6 +58,12 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     ...typography.body,
     color: palette.secondary,
     marginLeft: spacing(2)
+  },
+  description: {
+    minHeight: 100
+  },
+  descriptionLabel: {
+    lineHeight: 28
   }
 }))
 
@@ -147,8 +153,8 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
         multiline
         maxLength={256}
         styles={{
-          root: { minHeight: 100 },
-          label: { lineHeight: 28 }
+          root: styles.description,
+          label: styles.descriptionLabel
         }}
       />
     </>
@@ -180,18 +186,16 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
       }
     >
       {values.tracks ? (
-        <>
-          <TrackList
-            hideArt
-            isReorderable
-            onReorder={handleReorder}
-            onRemove={handleRemove}
-            tracks={values.tracks}
-            trackItemAction='remove'
-            ListHeaderComponent={() => header}
-            ListFooterComponent={() => <View style={styles.footer} />}
-          />
-        </>
+        <TrackList
+          hideArt
+          isReorderable
+          onReorder={handleReorder}
+          onRemove={handleRemove}
+          tracks={values.tracks}
+          trackItemAction='remove'
+          ListHeaderComponent={() => header}
+          ListFooterComponent={() => <View style={styles.footer} />}
+        />
       ) : (
         header
       )}
