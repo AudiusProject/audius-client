@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   scrubberContainer: {
-    marginLeft: 60,
-    marginRight: 60
+    marginLeft: 40,
+    marginRight: 40
   }
 })
 
