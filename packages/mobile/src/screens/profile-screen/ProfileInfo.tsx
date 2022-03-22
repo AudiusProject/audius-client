@@ -1,5 +1,4 @@
 import { FollowSource } from 'audius-client/src/common/models/Analytics'
-import { getProfileUser } from 'audius-client/src/common/store/pages/profile/selectors'
 import { View, Text } from 'react-native'
 
 import { FollowButton } from 'app/components/user'
@@ -8,7 +7,7 @@ import { makeStyles } from 'app/styles'
 
 import { EditProfileButton } from './EditProfileButton'
 import { SubscribeButton } from './SubscribeButton'
-import { getIsOwner, useSelectProfile } from './selectors'
+import { getIsOwner, useIsProfileLoaded, useSelectProfile } from './selectors'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   username: {
@@ -69,6 +68,8 @@ type ProfileInfoProps = {
 export const ProfileInfo = (props: ProfileInfoProps) => {
   const { onFollow } = props
   const styles = useStyles()
+  const isProfileLoaded = useIsProfileLoaded()
+
   const profile = useSelectProfile([
     'user_id',
     'name',
@@ -84,9 +85,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
     does_follow_current_user
   } = profile
 
-  const profileUser = useSelectorWeb(getProfileUser)
   const isOwner = useSelectorWeb(getIsOwner)
-
   const profileButton = isOwner ? (
     <EditProfileButton style={styles.followButton} />
   ) : (
@@ -119,7 +118,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
         </View>
       </View>
       <View style={styles.actionButtons}>
-        {profileUser ? profileButton : null}
+        {isProfileLoaded ? profileButton : null}
       </View>
     </View>
   )

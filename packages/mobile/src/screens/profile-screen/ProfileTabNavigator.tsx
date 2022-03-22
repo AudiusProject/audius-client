@@ -17,7 +17,7 @@ import { CollectiblesTab } from './CollectiblesTab'
 import { PlaylistsTab } from './PlaylistsTab'
 import { RepostsTab } from './RepostsTab'
 import { TracksTab } from './TracksTab'
-import { useSelectProfile } from './selectors'
+import { useIsProfileLoaded, useSelectProfile } from './selectors'
 import { useShouldShowCollectiblesTab } from './utils'
 
 type ProfileTabNavigatorProps = {
@@ -38,6 +38,7 @@ export const ProfileTabNavigator = ({
   animatedValue
 }: ProfileTabNavigatorProps) => {
   const { user_id, track_count } = useSelectProfile(['user_id', 'track_count'])
+  const isProfileLoaded = useIsProfileLoaded()
 
   const initialParams = { id: user_id }
 
@@ -48,7 +49,7 @@ export const ProfileTabNavigator = ({
   const trackScreen = collapsibleTabScreen({
     name: 'Tracks',
     Icon: IconNote,
-    component: TracksTab,
+    component: () => <TracksTab isProfileLoaded={isProfileLoaded} />,
     initialParams
   })
 
