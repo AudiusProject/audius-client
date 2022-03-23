@@ -46,8 +46,7 @@ const STATUS_BAR_FADE_CUTOFF = 0.6
 const styles = StyleSheet.create({
   container: {
     paddingTop: 0,
-    height: Dimensions.get('window').height - combinedBottomAreaHeight,
-    marginBottom: 84
+    height: Dimensions.get('window').height - combinedBottomAreaHeight
   },
   controlsContainer: {
     marginLeft: 24,
