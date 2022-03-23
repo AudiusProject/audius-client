@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 
-import { IconKebabHorizontal } from '@audius/stems'
+import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
@@ -13,7 +13,6 @@ import {
   Achievement
 } from 'common/store/notifications/types'
 import { setNotificationId } from 'common/store/user-list/notifications/actions'
-import IconButton from 'components/icon-button/IconButton'
 import { make, useRecord } from 'store/analytics/actions'
 import { AUDIO_PAGE, profilePage } from 'utils/route'
 

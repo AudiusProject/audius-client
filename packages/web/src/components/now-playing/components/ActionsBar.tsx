@@ -4,14 +4,14 @@ import {
   IconShare,
   IconKebabHorizontal,
   IconAirplay,
-  IconChromecast
+  IconChromecast,
+  IconButton
 } from '@audius/stems'
 import cn from 'classnames'
 
 import { CastMethod } from 'common/store/cast/slice'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
-import IconButton from 'components/icon-button/IconButton'
 import { AirplayMessage } from 'services/native-mobile-interface/cast'
 import { ShowGoogleCastPickerMessage } from 'services/native-mobile-interface/googleCast'
 

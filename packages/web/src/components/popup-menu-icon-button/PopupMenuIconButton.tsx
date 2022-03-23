@@ -1,9 +1,7 @@
 import React from 'react'
 
-import { PopupMenu, PopupMenuProps } from '@audius/stems'
+import { PopupMenu, PopupMenuProps, IconButton } from '@audius/stems'
 import cn from 'classnames'
-
-import IconButton from 'components/icon-button/IconButton'
 
 import styles from './PopupMenuIconButton.module.css'
 

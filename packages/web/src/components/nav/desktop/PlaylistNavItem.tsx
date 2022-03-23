@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
-import { IconKebabHorizontal } from '@audius/stems'
+import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import { NavLink, NavLinkProps } from 'react-router-dom'
 
@@ -9,7 +9,6 @@ import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import { AccountCollection } from 'common/store/account/reducer'
 import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
-import IconButton from 'components/icon-button/IconButton'
 import Tooltip from 'components/tooltip/Tooltip'
 import UpdateDot from 'components/update-dot/UpdateDot'
 import { getPathname } from 'utils/route'

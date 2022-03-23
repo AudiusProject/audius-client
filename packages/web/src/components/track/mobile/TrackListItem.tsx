@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 
-import { IconKebabHorizontal } from '@audius/stems'
+import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
 
@@ -12,7 +12,6 @@ import { ReactComponent as IconPause } from 'assets/img/pbIconPause.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
 import { ID } from 'common/models/Identifiers'
 import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
-import IconButton from 'components/icon-button/IconButton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'

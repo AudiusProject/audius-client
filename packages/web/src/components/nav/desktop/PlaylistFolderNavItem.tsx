@@ -4,7 +4,8 @@ import {
   IconCaretRight,
   IconFolder,
   IconFolderOutline,
-  IconKebabHorizontal
+  IconKebabHorizontal,
+  IconButton
 } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
@@ -17,7 +18,6 @@ import { PlaylistLibraryFolder } from 'common/models/PlaylistLibrary'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
-import IconButton from 'components/icon-button/IconButton'
 import { useRecord, make } from 'store/analytics/actions'
 
 import navColumnStyles from './NavColumn.module.css'

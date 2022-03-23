@@ -5,7 +5,8 @@ import {
   IconRemove,
   IconNotification,
   IconSettings,
-  IconCrown
+  IconCrown,
+  IconButton
 } from '@audius/stems'
 import cn from 'classnames'
 import { History } from 'history'
@@ -19,7 +20,6 @@ import {
   RouterContext,
   SlideDirection
 } from 'components/animated-switch/RouterContextProvider'
-import IconButton from 'components/icon-button/IconButton'
 import NavContext, {
   LeftPreset,
   CenterPreset,
