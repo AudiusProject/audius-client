@@ -4,7 +4,6 @@ import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   View,
-  StyleSheet,
   Animated,
   GestureResponderEvent,
   PanResponderGestureState,
@@ -26,6 +25,7 @@ import {
   getPlaying,
   getTrack as getNativeTrack
 } from 'app/store/audio/selectors'
+import { makeStyles } from 'app/styles'
 import { attachToDy } from 'app/utils/animation'
 
 import { DrawerAnimationStyle, springToValue } from '../drawer/Drawer'
@@ -43,30 +43,28 @@ const combinedBottomAreaHeight = BOTTOM_BAR_HEIGHT + NOW_PLAYING_BAR_HEIGHT
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ spacing }) => ({
   container: {
     paddingTop: 0,
     height: Dimensions.get('window').height - combinedBottomAreaHeight
   },
   controlsContainer: {
-    marginLeft: 24,
-    marginRight: 24
+    marginHorizontal: spacing(6)
   },
   titleBarContainer: {
-    marginBottom: 16
+    marginBottom: spacing(4)
   },
   artworkContainer: {
-    marginBottom: 20
+    marginBottom: spacing(5)
   },
   trackInfoContainer: {
-    marginHorizontal: 24,
-    marginBottom: 16
+    marginHorizontal: spacing(6),
+    marginBottom: spacing(4)
   },
   scrubberContainer: {
-    marginLeft: 40,
-    marginRight: 40
+    marginHorizontal: spacing(10)
   }
-})
+}))
 
 type NowPlayingDrawerProps = {
   onOpen: () => void
@@ -81,6 +79,7 @@ const NowPlayingDrawer = ({
   onPlayBarShowing,
   bottomBarTranslationAnim
 }: NowPlayingDrawerProps) => {
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const navigation = useNavigation()
 
