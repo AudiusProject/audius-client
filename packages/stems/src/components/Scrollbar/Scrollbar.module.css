@@ -7,5 +7,10 @@
 
 .scrollbar :global(.ps__thumb-y) {
   opacity: 0.5;
-  background-color: var(--neutral);
+  background-color: var(--neutral-dark-3);
+}
+
+.scrollbar :global(.ps__rail-y) {
+  margin-top: var(--unit);
+  margin-bottom: var(--unit);
 }
