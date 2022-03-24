@@ -1,13 +1,16 @@
-import { forwardRef, useContext } from 'react'
+import { forwardRef, MutableRefObject, useContext, useRef } from 'react'
 
 import {
   Animated,
   FlatList as RNFlatList,
-  FlatListProps as RNFlatListProps
+  FlatListProps as RNFlatListProps,
+  View
 } from 'react-native'
 import { useCollapsibleScene } from 'react-native-collapsible-tab-view'
 
 import { CollapsibleTabNavigatorContext } from '../top-tab-bar'
+
+import { PullToRefresh, useOverflowHandlers } from './PullToRefresh'
 
 type FlatListProps = RNFlatListProps<any>
 
@@ -20,8 +23,55 @@ const CollapsibleFlatList = ({
   ...other
 }: CollapsibleFlatListProps) => {
   const scrollPropsAndRef = useCollapsibleScene(sceneName)
-  return <Animated.FlatList {...other} {...scrollPropsAndRef} />
+  return (
+    <View>
+      <PullToRefresh />
+      <Animated.FlatList {...other} {...scrollPropsAndRef} />
+    </View>
+  )
 }
+
+const AnimatedFlatList = forwardRef<RNFlatList, FlatListProps>(
+  (
+    { refreshing, onRefresh, ...other },
+    ref: MutableRefObject<RNFlatList<any> | null>
+  ) => {
+    const scrollRef = useRef<Animated.FlatList>(null)
+
+    const {
+      isRefreshing,
+      isRefreshDisabled,
+      handleRefresh,
+      scrollAnim,
+      onScroll,
+      onScrollBeginDrag,
+      onScrollEndDrag
+    } = useOverflowHandlers({
+      isRefreshing: refreshing,
+      scrollResponder: ref?.current || scrollRef.current,
+      onRefresh
+    })
+
+    return (
+      <View>
+        <PullToRefresh
+          isRefreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          scrollAnim={scrollAnim}
+          isRefreshDisabled={isRefreshDisabled}
+        />
+        <Animated.FlatList
+          scrollToOverflowEnabled
+          ref={ref || scrollRef}
+          onScroll={onScroll}
+          onScrollBeginDrag={onScrollBeginDrag}
+          onScrollEndDrag={onScrollEndDrag}
+          {...other}
+        />
+      </View>
+    )
+  }
+)
 
 /**
  * Provides either a FlatList or an animated FlatList
@@ -33,6 +83,6 @@ export const FlatList = forwardRef<RNFlatList, FlatListProps>(
     if (sceneName) {
       return <CollapsibleFlatList sceneName={sceneName} {...props} />
     }
-    return <RNFlatList ref={ref} {...props} />
+    return <AnimatedFlatList ref={ref} {...props} />
   }
 )
