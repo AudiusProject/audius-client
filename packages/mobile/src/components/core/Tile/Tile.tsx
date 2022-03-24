@@ -127,10 +127,10 @@ export const Tile = <
       />
       <TileShadow
         offset={[0, 2]}
-        distance={5}
-        startColor='rgba(133, 129, 153, 0.25)'
+        distance={7}
+        startColor='rgba(133, 129, 153, 0.1)'
         borderRadius={borderRadius}
-        inset={2}
+        inset={4}
       />
       <TileComponent style={[styles.tile, stylesProp?.tile]} {...other}>
         <Pressable
