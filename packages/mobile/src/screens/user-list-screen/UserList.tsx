@@ -100,12 +100,14 @@ export const UserList = (props: UserListProps) => {
     }
   }, [hasMore, isFocused, dispatchWeb, tag])
 
-  const loadingSpinner = (
-    <LoadingSpinner style={[styles.spinner, isEmpty && styles.emptySpinner]} />
-  )
-
   const data =
     isRefreshing || loading || !isFocused ? cachedUsers.current : users
+
+  const loadingSpinner = (
+    <LoadingSpinner
+      style={[styles.spinner, data.length === 0 && styles.emptySpinner]}
+    />
+  )
 
   return (
     <FlatList
