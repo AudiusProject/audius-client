@@ -35,7 +35,8 @@ import {
   extractTempPlaylistsFromLibrary,
   removePlaylistLibraryDuplicates,
   replaceTempWithResolvedPlaylists
-} from './helpers'
+} from '../../common/store/playlist-library/helpers'
+
 import { update } from './slice'
 
 const TEMP_PLAYLIST_UPDATE_HELPER = 'TEMP_PLAYLIST_UPDATE_HELPER'
