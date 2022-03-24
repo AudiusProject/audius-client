@@ -77,7 +77,7 @@ export const AudioControls = ({ onNext, onPrevious }: AudioControlsProps) => {
     scale,
     handlePressIn: handlePressInScale,
     handlePressOut: handlePressOutScale
-  } = usePressScaleAnimation(0.97, false)
+  } = usePressScaleAnimation()
 
   const onPressPlayButton = useCallback(() => {
     haptics.light()
