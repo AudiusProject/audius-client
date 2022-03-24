@@ -116,6 +116,7 @@ export const UserList = (props: UserListProps) => {
       renderItem={({ item }) => (
         <UserChip user={item} currentUserId={currentUserId} />
       )}
+      keyExtractor={item => item.user_id.toString()}
       onEndReached={handleEndReached}
       ListFooterComponent={loading || isRefreshing ? loadingSpinner : null}
     />
