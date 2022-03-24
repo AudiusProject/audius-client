@@ -68,10 +68,10 @@ const CollapsibleSectionList = ({
 }
 
 const AnimatedSectionList = forwardRef<RNSectionList, SectionListProps>(
-  (
+  function AnimatedSectionList(
     { refreshing, onRefresh, ...other },
     ref: MutableRefObject<RNSectionList<any, DefaultSectionT> | null>
-  ) => {
+  ) {
     const scrollResponder = ref.current?.getScrollResponder()
     const {
       isRefreshing,
@@ -113,7 +113,7 @@ const AnimatedSectionList = forwardRef<RNSectionList, SectionListProps>(
  * depending on whether or not the list is found in a "collapsible" header tab
  */
 export const SectionList = forwardRef<RNSectionList, SectionListProps>(
-  (props: SectionListProps, ref) => {
+  function SectionList(props: SectionListProps, ref) {
     const { sceneName } = useContext(CollapsibleTabNavigatorContext)
 
     if (sceneName) {

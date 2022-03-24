@@ -60,11 +60,10 @@ export const useOverflowHandlers = ({
   const [isMomentumScroll, setIsMomentumScroll] = useState(false)
   const [isDebouncing, setIsDebouncing] = useState(false)
 
-  const timeoutRef = useRef<NodeJS.Timeout>()
   const handleRefresh = useCallback(() => {
     onRefresh?.()
     setIsDebouncing(true)
-    timeoutRef.current = setTimeout(() => {
+    setTimeout(() => {
       setIsDebouncing(false)
     }, DEBOUNCE_TIME_MS)
   }, [onRefresh])
@@ -199,10 +198,14 @@ export const PullToRefresh = ({
       setDidHitTop(false)
       // Reset animation after a timeout so there's enough time
       // to reset the scroll with the spinner animation showing.
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setShouldShowSpinner(false)
         animationRef.current?.reset()
       }, RESET_ICON_TIMEOUT_MS)
+
+      return () => {
+        clearTimeout(timeoutId)
+      }
     }
   }, [isRefreshing, hitTop])
 

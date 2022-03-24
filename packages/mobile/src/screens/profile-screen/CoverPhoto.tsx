@@ -56,7 +56,6 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
   })
 
   const isArtist = track_count > 0
-  console.log({ coverPhoto, _cover_photo_sizes })
 
   return (
     <>

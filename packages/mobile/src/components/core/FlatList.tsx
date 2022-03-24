@@ -32,10 +32,10 @@ const CollapsibleFlatList = ({
 }
 
 const AnimatedFlatList = forwardRef<RNFlatList, FlatListProps>(
-  (
+  function AnimatedFlatList(
     { refreshing, onRefresh, ...other },
     ref: MutableRefObject<RNFlatList<any> | null>
-  ) => {
+  ) {
     const scrollRef = useRef<Animated.FlatList>(null)
 
     const {
@@ -77,12 +77,13 @@ const AnimatedFlatList = forwardRef<RNFlatList, FlatListProps>(
  * Provides either a FlatList or an animated FlatList
  * depending on whether or not the list is found in a "collapsible" header tab
  */
-export const FlatList = forwardRef<RNFlatList, FlatListProps>(
-  (props: FlatListProps, ref) => {
-    const { sceneName } = useContext(CollapsibleTabNavigatorContext)
-    if (sceneName) {
-      return <CollapsibleFlatList sceneName={sceneName} {...props} />
-    }
-    return <AnimatedFlatList ref={ref} {...props} />
+export const FlatList = forwardRef<RNFlatList, FlatListProps>(function FlatList(
+  props: FlatListProps,
+  ref
+) {
+  const { sceneName } = useContext(CollapsibleTabNavigatorContext)
+  if (sceneName) {
+    return <CollapsibleFlatList sceneName={sceneName} {...props} />
   }
-)
+  return <AnimatedFlatList ref={ref} {...props} />
+})

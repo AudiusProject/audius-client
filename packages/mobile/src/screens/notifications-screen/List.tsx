@@ -56,7 +56,6 @@ export const List = () => {
   }, [dispatchWeb])
 
   useEffect(() => {
-    console.log({ status })
     if (status !== Status.LOADING) {
       setIsRefreshing(false)
     }
@@ -89,12 +88,12 @@ export const List = () => {
           <NotificationBlock notification={item} />
         </View>
       )}
-      ListFooterComponent={() =>
+      ListFooterComponent={
         status === Status.LOADING && !isRefreshing ? (
           <View style={styles.footer}>
             <LoadingSpinner color={spinnerColor} />
           </View>
-        ) : null
+        ) : undefined
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.8}
