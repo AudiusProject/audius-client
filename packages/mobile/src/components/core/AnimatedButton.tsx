@@ -7,7 +7,7 @@ import {
   ReactNode
 } from 'react'
 
-import LottieView from 'lottie-react-native'
+import LottieView, { AnimatedLottieViewProps } from 'lottie-react-native'
 import {
   Pressable,
   PressableProps,
@@ -21,7 +21,7 @@ import { usePrevious } from 'react-use'
 import { GestureResponderHandler } from 'app/types/gesture'
 import { Theme, useThemeVariant } from 'app/utils/theme'
 
-type IconJSON = any
+type IconJSON = AnimatedLottieViewProps['source']
 
 export type AnimatedButtonProps = {
   iconIndex?: number
