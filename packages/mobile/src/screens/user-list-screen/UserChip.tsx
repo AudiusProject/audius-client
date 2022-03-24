@@ -25,7 +25,7 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     padding: spacing(3)
   },
   details: { flexDirection: 'row', flex: 1 },
-  userInfo: { flex: 1, marginRight: 16 },
+  userInfo: { flex: 1, marginRight: spacing(4) },
   photo: { height: 42, width: 42, marginRight: spacing(2) },
   nameRoot: { flexDirection: 'row' },
   name: { ...typography.h3, color: palette.neutral },
