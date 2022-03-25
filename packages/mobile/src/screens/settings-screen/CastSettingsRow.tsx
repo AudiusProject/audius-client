@@ -29,7 +29,7 @@ export const CastSettingsRow = () => {
 
   const setCastMethod = useCallback(
     (method: CastMethod) => {
-      dispatchWeb(updateMethod({ method: method }))
+      dispatchWeb(updateMethod({ method: method, persist: true }))
     },
     [dispatchWeb]
   )

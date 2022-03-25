@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { Image, Platform } from 'react-native'
+import { Image, Platform, ScrollView } from 'react-native'
 
 import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
 import Bell from 'app/assets/images/emojis/bell.png'
@@ -30,6 +30,9 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
+  root: {
+    paddingBottom: spacing(6)
+  },
   logo: {
     width: '80%',
     height: 85,
@@ -67,24 +70,26 @@ export const SettingsScreen = () => {
 
   return (
     <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      <Image source={audiusLogoHorizontal} style={styles.logo} />
-      <AccountSettingsRow />
-      <SettingsRow onPress={handlePressHistory}>
-        <SettingsRowLabel
-          label={messages.listeningHistory}
-          iconSource={Headphone}
-        />
-      </SettingsRow>
-      <Divider />
-      <SettingsRow onPress={handlePressNotifications}>
-        <SettingsRowLabel label={messages.notifications} iconSource={Bell} />
-      </SettingsRow>
-      <AppearanceSettingsRow />
-      {IS_IOS ? <CastSettingsRow /> : null}
-      <Divider />
-      <SettingsRow onPress={handlePressAbout}>
-        <SettingsRowLabel label={messages.about} iconSource={SpeechBalloon} />
-      </SettingsRow>
+      <ScrollView contentContainerStyle={styles.root}>
+        <Image source={audiusLogoHorizontal} style={styles.logo} />
+        <AccountSettingsRow />
+        <SettingsRow onPress={handlePressHistory}>
+          <SettingsRowLabel
+            label={messages.listeningHistory}
+            iconSource={Headphone}
+          />
+        </SettingsRow>
+        <Divider />
+        <SettingsRow onPress={handlePressNotifications}>
+          <SettingsRowLabel label={messages.notifications} iconSource={Bell} />
+        </SettingsRow>
+        <AppearanceSettingsRow />
+        {IS_IOS ? <CastSettingsRow /> : null}
+        <Divider />
+        <SettingsRow onPress={handlePressAbout}>
+          <SettingsRowLabel label={messages.about} iconSource={SpeechBalloon} />
+        </SettingsRow>
+      </ScrollView>
     </Screen>
   )
 }
