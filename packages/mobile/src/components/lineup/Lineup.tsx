@@ -203,25 +203,27 @@ export const Lineup = ({
 
   const togglePlay = useCallback(
     (uid: UID, id: ID, source: PlaybackSource) => {
-      if (uid !== playingUid || (uid === playingUid && !playing)) {
-        dispatchWeb(actions.play(uid))
-        track(
-          make({
-            eventName: Name.PLAYBACK_PLAY,
-            id: `${id}`,
-            source: source || PlaybackSource.TRACK_TILE
-          })
-        )
-      } else if (uid === playingUid && playing) {
-        dispatchWeb(actions.pause())
-        track(
-          make({
-            eventName: Name.PLAYBACK_PAUSE,
-            id: `${id}`,
-            source: source || PlaybackSource.TRACK_TILE
-          })
-        )
-      }
+      setImmediate(() => {
+        if (uid !== playingUid || (uid === playingUid && !playing)) {
+          dispatchWeb(actions.play(uid))
+          track(
+            make({
+              eventName: Name.PLAYBACK_PLAY,
+              id: `${id}`,
+              source: source || PlaybackSource.TRACK_TILE
+            })
+          )
+        } else if (uid === playingUid && playing) {
+          dispatchWeb(actions.pause())
+          track(
+            make({
+              eventName: Name.PLAYBACK_PAUSE,
+              id: `${id}`,
+              source: source || PlaybackSource.TRACK_TILE
+            })
+          )
+        }
+      })
     },
     [actions, dispatchWeb, playing, playingUid]
   )
