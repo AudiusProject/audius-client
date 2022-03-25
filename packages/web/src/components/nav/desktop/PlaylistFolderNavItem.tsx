@@ -95,7 +95,9 @@ export const PlaylistFolderNavItem = ({
   const [isHovering, setIsHovering] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const record = useRecord()
-  const [ref, bounds] = useMeasure()
+  const [ref, bounds] = useMeasure({
+    polyfill: ResizeObserver
+  })
   const contentsStyle = useSpring({
     height: isExpanded ? bounds.height : 0,
     opacity: isExpanded ? 100 : 0,
