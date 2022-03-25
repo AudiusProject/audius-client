@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react'
 
 import { Scrollbar } from '@audius/stems'
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -117,7 +118,9 @@ const NavColumn = ({
   const record = useRecord()
   const { location } = useHistory()
   const { pathname } = location
-  const [navBodyContainerMeasureRef, navBodyContainerBoundaries] = useMeasure()
+  const [navBodyContainerMeasureRef, navBodyContainerBoundaries] = useMeasure({
+    polyfill: ResizeObserver
+  })
   const scrollbarRef = useRef(null)
   const [dragScrollingDirection, setDragScrollingDirection] = useState(
     undefined
