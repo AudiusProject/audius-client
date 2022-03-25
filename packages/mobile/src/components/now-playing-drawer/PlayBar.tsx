@@ -198,7 +198,8 @@ export const PlayBar = ({
             // Interpolate the animation such that the play bar fades out
             // at 25% up the screen.
             inputRange: [0, 0.75, 1],
-            outputRange: [0, 0, 1]
+            outputRange: [0, 0, 1],
+            extrapolate: 'extend'
           })
         }
       ]}

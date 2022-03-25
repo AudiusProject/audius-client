@@ -17,17 +17,19 @@ import {
   FAVORITES_PAGE,
   profilePage
 } from 'audius-client/src/utils/route'
-import { Animated } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { Animated, Dimensions } from 'react-native'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { NOW_PLAYING_BAR_HEIGHT } from 'app/components/now-playing-drawer'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { MessageType } from 'app/message/types'
 import { makeStyles } from 'app/styles'
 
+import { NOW_PLAYING_BAR_HEIGHT } from '../now-playing-drawer'
+
 import { BottomTabBarButton } from './BottomTabBarButton'
+import { BOTTOM_BAR_HEIGHT } from './constants'
 
 type NavigationRoute = RNBottomTabBarProps['state']['routes'][0]
 
@@ -48,25 +50,16 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-const springToValue = (
-  animation: Animated.Value,
-  value: number,
-  finished?: () => void
-) => {
-  Animated.spring(animation, {
-    toValue: value,
-    tension: 150,
-    friction: 25,
-    useNativeDriver: true
-  }).start(finished)
-}
+const interpolatePostion = (
+  translationAnim: Animated.Value,
+  bottomInset: number
+) =>
+  translationAnim.interpolate({
+    inputRange: [0, height],
+    outputRange: [bottomInset + BOTTOM_BAR_HEIGHT, 0]
+  })
 
 export type BottomTabBarProps = RNBottomTabBarProps & {
-  /**
-   * Display properties on the bottom bar to control whether
-   * the bottom bar is showing
-   */
-  display: { isShowing: boolean; isPlayBarShowing: boolean }
   /**
    * Translation animation to move the bottom bar as drawers
    * are opened behind it
@@ -83,8 +76,9 @@ export type BottomTabBarProps = RNBottomTabBarProps & {
   >
 }
 
+const { height } = Dimensions.get('window')
+
 export const BottomTabBar = ({
-  display,
   state,
   navigation,
   translationAnim
@@ -109,22 +103,6 @@ export const BottomTabBar = ({
       }),
     [dispatchWeb]
   )
-
-  const slideIn = useCallback(() => {
-    springToValue(translationAnim, 0)
-  }, [translationAnim])
-
-  const slideOut = useCallback(() => {
-    springToValue(translationAnim, 100)
-  }, [translationAnim])
-
-  useEffect(() => {
-    if (display.isShowing) {
-      slideIn()
-    } else {
-      slideOut()
-    }
-  }, [display, slideIn, slideOut])
 
   const navigate = useCallback(
     (route: NavigationRoute, isFocused) => {
@@ -198,11 +176,34 @@ export const BottomTabBar = ({
       type: 'scrollToTop'
     })
   }, [navigation])
+  const insets = useSafeAreaInsets()
+
+  const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
+
+  // Use the translation animation of the drawer to understand whether or not
+  // the play bar is showing. If it is, we want to add custom margin to the
+  // bottom bar such that scroll views adjust height accordingly.
+  useEffect(() => {
+    translationAnim.addListener(({ value }) => {
+      const nowPlayingDrawerOpenedToInitialOffset =
+        height - BOTTOM_BAR_HEIGHT - NOW_PLAYING_BAR_HEIGHT
+      if (value < nowPlayingDrawerOpenedToInitialOffset) {
+        setIsPlayBarShowing(true)
+      }
+    })
+  }, [translationAnim])
 
   const rootStyle = [
     styles.root,
-    display.isPlayBarShowing && { marginTop: NOW_PLAYING_BAR_HEIGHT + 8 },
-    { transform: [{ translateY: translationAnim }] }
+    isPlayBarShowing && { marginTop: NOW_PLAYING_BAR_HEIGHT + 12 },
+    {
+      backgroundColor: 'blue',
+      transform: [
+        {
+          translateY: interpolatePostion(translationAnim, insets.bottom)
+        }
+      ]
+    }
   ]
 
   return (

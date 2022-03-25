@@ -34,6 +34,8 @@ const BACKGROUND_OPACITY = 0.5
 // Controls the amount of friction in swiping when overflowing up or down
 const OVERFLOW_FRICTION = 4
 
+const { height } = Dimensions.get('window')
+
 const createStyles = (zIndex = 5, shouldAnimateShadow = true) => (
   themeColors: ThemeColors
 ) =>
@@ -212,14 +214,23 @@ export type DrawerProps = {
    * Optional styles to apply to the Drawer container
    */
   drawerStyle?: ViewStyle
+
+  translationAnim?: Animated.Value
 }
 
-export const springToValue = (
-  animation: Animated.Value,
-  value: number,
-  animationStyle: DrawerAnimationStyle,
+export const springToValue = ({
+  animation,
+  value,
+  animationStyle,
+  finished,
+  velocity
+}: {
+  animation: Animated.Value
+  value: number
+  animationStyle: DrawerAnimationStyle
   finished?: ({ finished }: { finished: boolean }) => void
-) => {
+  velocity?: number
+}) => {
   let tension: number
   let friction: number
   switch (animationStyle) {
@@ -236,7 +247,8 @@ export const springToValue = (
     toValue: value,
     tension,
     friction,
-    useNativeDriver: true
+    useNativeDriver: true,
+    velocity
   }).start(finished)
 }
 
@@ -305,11 +317,11 @@ export const Drawer: DrawerComponent = ({
   drawerStyle,
   shouldAnimateShadow,
   onPercentOpen,
-  onPanResponderMove
+  onPanResponderMove,
+  translationAnim: providedTranslationAnim
 }: DrawerProps) => {
   const styles = useThemedStyles(createStyles(zIndex, shouldAnimateShadow))
 
-  const { height } = Dimensions.get('window')
   const [drawerHeight, setDrawerHeight] = useState(height)
   // isBackgroundVisible will be true until the close animation finishes
   const [isBackgroundVisible, setIsBackgroundVisible] = useState(false)
@@ -321,20 +333,42 @@ export const Drawer: DrawerComponent = ({
   // Position of the fully opened drawer
   const openPosition = height - drawerHeight
 
-  const translationAnim = useRef(new Animated.Value(initialPosition)).current
+  const newTranslationAnim = useRef(new Animated.Value(initialPosition)).current
+  const translationAnim = providedTranslationAnim || newTranslationAnim
+
   const shadowAnim = useRef(new Animated.Value(0)).current
   const borderRadiusAnim = useRef(new Animated.Value(BORDER_RADIUS)).current
   const backgroundOpacityAnim = useRef(new Animated.Value(0)).current
 
   const slideIn = useCallback(
-    (position: number) => {
-      springToValue(translationAnim, position, animationStyle)
+    (position: number, velocity?: number) => {
+      springToValue({
+        animation: translationAnim,
+        value: position,
+        animationStyle,
+        velocity
+      })
       if (isFullscreen) {
-        springToValue(borderRadiusAnim, 0, animationStyle)
+        springToValue({
+          animation: borderRadiusAnim,
+          value: 0,
+          animationStyle,
+          velocity
+        })
       }
       if (shouldBackgroundDim) {
-        springToValue(shadowAnim, MAX_SHADOW_OPACITY, animationStyle)
-        springToValue(backgroundOpacityAnim, BACKGROUND_OPACITY, animationStyle)
+        springToValue({
+          animation: shadowAnim,
+          value: MAX_SHADOW_OPACITY,
+          animationStyle,
+          velocity
+        })
+        springToValue({
+          animation: backgroundOpacityAnim,
+          value: BACKGROUND_OPACITY,
+          animationStyle,
+          velocity
+        })
       }
     },
     [
@@ -349,24 +383,35 @@ export const Drawer: DrawerComponent = ({
   )
 
   const slideOut = useCallback(
-    (position: number) => {
-      springToValue(
-        translationAnim,
-        position,
+    (position: number, velocity?: number) => {
+      springToValue({
+        animation: translationAnim,
+        value: position,
         animationStyle,
-        ({ finished }) => {
+        finished: ({ finished }) => {
           if (finished) {
             setIsBackgroundVisible(false)
             onClosed?.()
           }
-        }
-      )
+        },
+        velocity
+      })
       if (isFullscreen) {
-        springToValue(borderRadiusAnim, BORDER_RADIUS, animationStyle)
+        springToValue({
+          animation: borderRadiusAnim,
+          value: BORDER_RADIUS,
+          animationStyle,
+          velocity
+        })
       }
       if (shouldBackgroundDim) {
-        springToValue(shadowAnim, 0, animationStyle)
-        springToValue(backgroundOpacityAnim, 0, animationStyle)
+        springToValue({ animation: shadowAnim, value: 0, animationStyle })
+        springToValue({
+          animation: backgroundOpacityAnim,
+          value: 0,
+          animationStyle,
+          velocity
+        })
       }
     },
     [
@@ -419,7 +464,9 @@ export const Drawer: DrawerComponent = ({
       if (isOpen || isOpenToInitialOffset) {
         if (gestureState.dy > 0) {
           // Dragging downwards
-          const percentOpen = (drawerHeight - gestureState.dy) / drawerHeight
+          const percentOpen =
+            (drawerHeight - (!isOpen ? drawerHeight : gestureState.dy)) /
+            drawerHeight
 
           if (isOpen) {
             const newTranslation = openPosition + gestureState.dy
@@ -469,7 +516,8 @@ export const Drawer: DrawerComponent = ({
           if (onPercentOpen) onPercentOpen(percentOpen)
         } else if (gestureState.dy < 0) {
           // Dragging upwards
-          const percentOpen = (-1 * gestureState.dy) / drawerHeight
+          const percentOpen =
+            (-1 * (isOpen ? -1 * drawerHeight : gestureState.dy)) / drawerHeight
 
           if (isOpen) {
             const newTranslation =
@@ -513,7 +561,7 @@ export const Drawer: DrawerComponent = ({
           gestureState.moveY > height - MOVE_CUTOFF_CLOSE * drawerHeight
         ) {
           if (isOpenToInitialOffset) {
-            slideOut(initialOffsetOpenPosition)
+            slideOut(initialOffsetOpenPosition, gestureState.vy)
             borderRadiusAnim.setValue(0)
             onClose()
           } else {
@@ -521,7 +569,7 @@ export const Drawer: DrawerComponent = ({
             onClose()
           }
         } else {
-          slideIn(openPosition)
+          slideIn(openPosition, gestureState.vy)
           // If an initial offset is defined, clear the border radius
           if (
             shouldHaveRoundedBordersAtInitialOffset &&

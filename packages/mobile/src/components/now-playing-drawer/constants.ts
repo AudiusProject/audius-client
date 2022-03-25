@@ -1,1 +1,1 @@
-export const NOW_PLAYING_BAR_HEIGHT = 35
+export const NOW_PLAYING_BAR_HEIGHT = 30
