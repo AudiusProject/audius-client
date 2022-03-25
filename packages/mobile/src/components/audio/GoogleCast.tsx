@@ -26,7 +26,7 @@ export const useChromecast = () => {
   const streamPosition = useStreamPosition(0.5)
 
   const loadCast = useCallback(
-    (startTime = 0) => {
+    (track, startTime = 0) => {
       if (client && track) {
         client.loadMedia({
           mediaInfo: {
@@ -47,7 +47,7 @@ export const useChromecast = () => {
         })
       }
     },
-    [client, track]
+    [client]
   )
 
   const playCast = useCallback(() => {
@@ -73,10 +73,9 @@ export const useChromecast = () => {
   // Load media when the cast connects
   useEffect(() => {
     if (castState === CastState.CONNECTED) {
-      const { currentTime } = global.progress
-      loadCast(currentTime)
+      loadCast(track)
     }
-  }, [loadCast, castState])
+  }, [loadCast, track, castState])
 
   // Play & pause the cast device
   useEffect(() => {
