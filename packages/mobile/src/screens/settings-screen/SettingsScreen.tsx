@@ -30,9 +30,6 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
-  root: {
-    paddingBottom: spacing(6)
-  },
   logo: {
     width: '80%',
     height: 85,
@@ -70,7 +67,7 @@ export const SettingsScreen = () => {
 
   return (
     <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      <ScrollView contentContainerStyle={styles.root}>
+      <ScrollView>
         <Image source={audiusLogoHorizontal} style={styles.logo} />
         <AccountSettingsRow />
         <SettingsRow onPress={handlePressHistory}>
