@@ -17,16 +17,16 @@ import {
   FAVORITES_PAGE,
   profilePage
 } from 'audius-client/src/utils/route'
-import { Animated, Dimensions } from 'react-native'
+import { Animated } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { FULL_DRAWER_HEIGHT } from 'app/components/drawer'
+import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { MessageType } from 'app/message/types'
 import { makeStyles } from 'app/styles'
-
-import { NOW_PLAYING_BAR_HEIGHT } from '../now-playing-drawer'
 
 import { BottomTabBarButton } from './BottomTabBarButton'
 import { BOTTOM_BAR_HEIGHT } from './constants'
@@ -55,7 +55,7 @@ const interpolatePostion = (
   bottomInset: number
 ) =>
   translationAnim.interpolate({
-    inputRange: [0, height],
+    inputRange: [0, FULL_DRAWER_HEIGHT],
     outputRange: [bottomInset + BOTTOM_BAR_HEIGHT, 0]
   })
 
@@ -75,8 +75,6 @@ export type BottomTabBarProps = RNBottomTabBarProps & {
     }
   >
 }
-
-const { height } = Dimensions.get('window')
 
 export const BottomTabBar = ({
   state,
@@ -178,7 +176,7 @@ export const BottomTabBar = ({
   }, [navigation])
   const insets = useSafeAreaInsets()
 
-  const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
+  const [shouldAddMarginTop, setShouldAddMarginTop] = useState(false)
 
   // Use the translation animation of the drawer to understand whether or not
   // the play bar is showing. If it is, we want to add custom margin to the
@@ -186,16 +184,18 @@ export const BottomTabBar = ({
   useEffect(() => {
     translationAnim.addListener(({ value }) => {
       const nowPlayingDrawerOpenedToInitialOffset =
-        height - BOTTOM_BAR_HEIGHT - NOW_PLAYING_BAR_HEIGHT
+        FULL_DRAWER_HEIGHT - BOTTOM_BAR_HEIGHT - PLAY_BAR_HEIGHT
       if (value < nowPlayingDrawerOpenedToInitialOffset) {
-        setIsPlayBarShowing(true)
+        setShouldAddMarginTop(true)
+      } else {
+        setShouldAddMarginTop(false)
       }
     })
   }, [translationAnim])
 
   const rootStyle = [
     styles.root,
-    isPlayBarShowing && { marginTop: NOW_PLAYING_BAR_HEIGHT + 12 },
+    shouldAddMarginTop && { marginTop: PLAY_BAR_HEIGHT + 12 },
     {
       backgroundColor: 'blue',
       transform: [
