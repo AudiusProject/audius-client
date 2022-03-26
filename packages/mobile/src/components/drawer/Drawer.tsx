@@ -480,6 +480,7 @@ export const Drawer: DrawerComponent = ({
       ) {
         if (gestureState.dy > 0) {
           // Dragging downwards
+          // Bound percentOpen to [0, 1]
           const percentOpen =
             (drawerHeight -
               (!isOpenIntent.current ? drawerHeight : gestureState.dy)) /
@@ -533,6 +534,7 @@ export const Drawer: DrawerComponent = ({
           if (onPercentOpen) onPercentOpen(percentOpen)
         } else if (gestureState.dy < 0) {
           // Dragging upwards
+          // Bound percentOpen to [0, 1]
           const percentOpen =
             (-1 *
               (isOpenIntent.current ? -1 * drawerHeight : gestureState.dy)) /
