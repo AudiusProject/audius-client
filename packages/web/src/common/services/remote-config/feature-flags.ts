@@ -7,7 +7,6 @@ export enum FeatureFlags {
   SHARE_SOUND_TO_TIKTOK = 'share_sound_to_tiktok',
   CHALLENGE_REWARDS_UI = 'challenge_rewards_ui',
   SOL_WALLET_AUDIO_ENABLED = 'sol_wallet_audio_enabled',
-  ARTIST_RECOMMENDATIONS_ENABLED = 'artist_recommendations_enabled',
   SURFACE_AUDIO_ENABLED = 'surface_audio_enabled',
   PREFER_HIGHER_PATCH_FOR_PRIMARY = 'prefer_higher_patch_for_primary',
   PREFER_HIGHER_PATCH_FOR_SECONDARIES = 'prefer_higher_patch_for_secondaries',
@@ -28,7 +27,6 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.SHARE_SOUND_TO_TIKTOK]: false,
   [FeatureFlags.CHALLENGE_REWARDS_UI]: false,
   [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: false,
-  [FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED]: false,
   [FeatureFlags.SURFACE_AUDIO_ENABLED]: false,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]: true,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]: true,
@@ -64,7 +62,6 @@ export const flagCohortType: {
   [FeatureFlags.SHARE_SOUND_TO_TIKTOK]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.CHALLENGE_REWARDS_UI]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.SOL_WALLET_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.ARTIST_RECOMMENDATIONS_ENABLED]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.SURFACE_AUDIO_ENABLED]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]:
     FeatureFlagCohortType.SESSION_ID,
