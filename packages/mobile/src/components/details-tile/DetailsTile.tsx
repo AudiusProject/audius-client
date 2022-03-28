@@ -128,7 +128,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
 
   infoValue: {
-    flexShrink: 1,
     lineHeight: 14,
     color: palette.neutral,
     fontSize: 14
