@@ -2,6 +2,11 @@ import React, { useRef, useState } from 'react'
 
 import throttle from 'lodash/throttle'
 
+const SCROLL_TIMEOUT_DURATION_MS = 20
+const SCROLL_STEP_PX = 5
+const DRAG_HANDLER_THROTTLE_DURATION_MS = 200
+const DISTANCE_FROM_EDGE_AUTOSCROLL_THRESHOLD_PX = 16
+
 export type DragAutoscrollerProps = {
   children: React.ReactNode
   containerBoundaries: {
@@ -30,10 +35,13 @@ export const DragAutoscroller = ({
   scrollingRef.current = scrolling
 
   const scroll = (direction: 'up' | 'down') => {
-    const difference = direction === 'up' ? -5 : 5
+    const difference = direction === 'up' ? -SCROLL_STEP_PX : SCROLL_STEP_PX
     updateScrollTopPosition(difference)
     if (scrollingRef.current != null) {
-      setTimeout(() => scroll(scrollingRef.current!), 20)
+      setTimeout(
+        () => scroll(scrollingRef.current!),
+        SCROLL_TIMEOUT_DURATION_MS
+      )
     }
   }
 
@@ -45,30 +53,34 @@ export const DragAutoscroller = ({
         clientX < containerBoundaries.right
       if (
         clientY &&
-        clientY <= containerBoundaries.top + 16 &&
+        clientY <=
+          containerBoundaries.top +
+            DISTANCE_FROM_EDGE_AUTOSCROLL_THRESHOLD_PX &&
         isInRightLeftBounds
       ) {
         if (scrollingRef.current !== 'up') {
           setScrolling('up')
           onChangeDragScrollingDirection('up')
-          setTimeout(() => scroll('up'), 20)
+          setTimeout(() => scroll('up'), SCROLL_TIMEOUT_DURATION_MS)
         }
       } else if (
         clientY &&
-        clientY >= containerBoundaries.bottom - 16 &&
+        clientY >=
+          containerBoundaries.bottom -
+            DISTANCE_FROM_EDGE_AUTOSCROLL_THRESHOLD_PX &&
         isInRightLeftBounds
       ) {
         if (scrollingRef.current !== 'down') {
           setScrolling('down')
           onChangeDragScrollingDirection('down')
-          setTimeout(() => scroll('down'), 20)
+          setTimeout(() => scroll('down'), SCROLL_TIMEOUT_DURATION_MS)
         }
       } else if (scrollingRef.current != null) {
         onChangeDragScrollingDirection(undefined)
         setScrolling(undefined)
       }
     },
-    200
+    DRAG_HANDLER_THROTTLE_DURATION_MS
   )
 
   const handleDrag: React.DragEventHandler<HTMLDivElement> = e => {
