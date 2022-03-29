@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react'
 
 import cn from 'classnames'
 
+import { IconButton } from 'components/IconButton/IconButton'
 import { IconRemove } from 'components/Icons'
 
 import { ModalContext } from './ModalContext'
@@ -18,15 +19,21 @@ export const ModalHeader = forwardRef<HTMLDivElement, ModalHeaderProps>(
   ) {
     return (
       <div
-        className={cn(styles.headerContainer, className)}
+        className={cn(
+          styles.headerContainer,
+          { [styles.noDismissButton]: !showDismissButton },
+          className
+        )}
         ref={ref}
         {...props}
       >
-        {/* TODO(AUD-1561): Make into an accessible button element.  */}
         {showDismissButton ? (
-          <div className={styles.dismissButton} onClick={onClose}>
-            <IconRemove />
-          </div>
+          <IconButton
+            aria-label='dismiss dialog'
+            className={styles.dismissButton}
+            icon={<IconRemove />}
+            onClick={onClose}
+          />
         ) : null}
         {children}
       </div>

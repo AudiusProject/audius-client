@@ -1,6 +1,8 @@
-import React, { forwardRef } from 'react'
+import React from 'react'
 
 import cn from 'classnames'
+
+import { Scrollbar } from 'components/Scrollbar'
 
 import styles from './ModalContent.module.css'
 import { ModalContentProps } from './types'
@@ -8,16 +10,17 @@ import { ModalContentProps } from './types'
 /**
  * Container for the body of content inside a Modal.
  */
-export const ModalContent = forwardRef<HTMLDivElement, ModalContentProps>(
-  function ModalContent({ className, children, ...props }, ref) {
-    return (
-      <div
-        className={cn(styles.modalContentContainer, className)}
-        {...props}
-        ref={ref}
-      >
-        {children}
-      </div>
-    )
-  }
-)
+export const ModalContent = ({
+  className,
+  children,
+  ...props
+}: ModalContentProps) => {
+  return (
+    <Scrollbar
+      className={cn(styles.modalContentContainer, className)}
+      {...props}
+    >
+      {children}
+    </Scrollbar>
+  )
+}

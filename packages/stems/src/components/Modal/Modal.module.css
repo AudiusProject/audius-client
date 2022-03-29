@@ -1,3 +1,5 @@
+@value lg-min from "../../assets/styles/breakpoints.css";
+
 :global(.bgModal) {
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
@@ -69,8 +71,18 @@
   overflow-x: hidden;
   max-height: 85vh;
   -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  max-width: calc(90vw - 50px);
 }
 
+@media (min-width: lg-min) {
+  .body {
+    max-width: 1080px;
+  }
+}
+
+/** @deprecated */
 .body.noScroll {
   overflow-y: hidden;
   overflow-x: hidden;

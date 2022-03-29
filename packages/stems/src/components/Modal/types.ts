@@ -1,5 +1,7 @@
 import React, { HTMLAttributes, ReactNode } from 'react'
 
+import { ScrollbarProps } from 'components/Scrollbar'
+
 export enum Anchor {
   CENTER = 'CENTER',
   TOP = 'TOP',
@@ -63,6 +65,7 @@ export type ModalProps = {
    */
   zIndex?: number
 
+  /** @deprecated */
   allowScroll?: boolean
 
   // Classnames
@@ -113,7 +116,7 @@ export type ModalProps = {
   'aria-labelledby'?: string
 }
 
-export type ModalContentProps = HTMLAttributes<HTMLDivElement>
+export type ModalContentProps = ScrollbarProps
 
 export type ModalHeaderProps = HTMLAttributes<HTMLDivElement> & {
   showDismissButton?: boolean
@@ -130,3 +133,5 @@ export type ModalTitleProps = HTMLAttributes<HTMLDivElement> & {
   titleId?: string
   subtitleId?: string
 }
+
+export type ModalFooterProps = HTMLAttributes<HTMLDivElement>

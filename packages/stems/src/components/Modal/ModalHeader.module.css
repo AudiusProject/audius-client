@@ -3,6 +3,7 @@
 }
 
 .headerContainer {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--neutral-light-8);
@@ -13,13 +14,6 @@
 .dismissButton {
   z-index: 1;
   position: absolute;
-  cursor: pointer;
-  left: calc(var(--unit-6) - 8px);
-  top: calc(var(--unit-6) - 8px);
-}
-
-.dismissButton path {
-  fill: var(--neutral-light-4);
 }
 
 .titleContainer {
@@ -27,15 +21,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0px 16px 0px;
-  white-space: nowrap;
+  margin-left: var(--unit-7);
+  margin-right: var(--unit-4);
   color: var(--neutral);
+}
+
+.titleContainer.noDismissButton {
+  margin-right: var(--unit-4);
 }
 
 .title {
   margin: 0;
   display: inline;
-  font-size: var(--font-l);
+  font-size: var(--font-xl);
   font-weight: var(--font-bold);
 }
 

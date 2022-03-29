@@ -92,7 +92,7 @@
 }
 
 .primary.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   background: var(--primary);
 }
 
@@ -123,7 +123,7 @@
 }
 
 .primaryAlt.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   background: var(--primary-light-1);
 }
 
@@ -162,7 +162,7 @@
 }
 
 .secondary.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   border: 1px solid var(--primary-dark-2);
   background: var(--primary);
 }
@@ -212,7 +212,7 @@
 }
 
 .common.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   border: 1px solid var(--primary-dark-2);
   background: var(--primary);
 }
@@ -261,7 +261,7 @@
 }
 
 .commonAlt:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   border: 1px solid var(--neutral-light-6);
   background: var(--neutral-light-10);
 }
@@ -293,7 +293,7 @@
 }
 
 .glass.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -354,7 +354,7 @@
 }
 
 .white.includeHoverAnimations:hover {
-  transform: perspective(1px) scale3d(1.04, 1.04, 1.04);
+  transform: var(--grow);
   background-color: var(--static-white);
   box-shadow: 0 1px 0 0 var(--neutral-light-5),
     0 5px 20px -3px rgba(0, 0, 0, 0.3);

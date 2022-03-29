@@ -118,22 +118,27 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   ref
 ) {
   useEffect(() => {
-    if (
-      subtitle ||
-      title ||
-      showTitleHeader ||
-      titleClassName ||
-      subtitleClassName ||
-      headerContainerClassName ||
-      showDismissButton
-    ) {
-      if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
+      if (
+        subtitle ||
+        title ||
+        showTitleHeader ||
+        titleClassName ||
+        subtitleClassName ||
+        headerContainerClassName ||
+        showDismissButton
+      ) {
         console.warn(
           'Header and title-related props of `Modal` have been deprecated. Use the `ModalHeader` sub-component instead.'
         )
       }
+
+      if (allowScroll !== undefined) {
+        console.warn('`allowScroll` prop of `Modal` has been deprecated.')
+      }
     }
   }, [
+    allowScroll,
     headerContainerClassName,
     showDismissButton,
     showTitleHeader,
