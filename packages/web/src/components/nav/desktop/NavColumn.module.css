@@ -35,11 +35,11 @@
 }
 
 .navContent.dragScrollingUp {
-  box-shadow: inset 0px 18px 16px -21px var(--neutral-dark-3);
+  box-shadow: inset 0px 8px 5px -5px var(--tile-shadow-3);
 }
 
 .navContent.dragScrollingDown {
-  box-shadow: inset 0px -18px 16px -21px var(--neutral-dark-3);
+  box-shadow: inset 0px -8px 5px -5px var(--tile-shadow-3);
 }
 
 .navContent.show {
