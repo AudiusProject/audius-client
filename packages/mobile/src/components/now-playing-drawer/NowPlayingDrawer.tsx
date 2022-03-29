@@ -47,20 +47,23 @@ const SKIP_DURATION_SEC = 15
 const useStyles = makeStyles(({ spacing }) => ({
   container: {
     paddingTop: 0,
-    minHeight: FULL_DRAWER_HEIGHT
+    minHeight: FULL_DRAWER_HEIGHT,
+    justifyContent: 'space-evenly'
   },
   controlsContainer: {
-    marginHorizontal: spacing(6)
+    marginHorizontal: spacing(6),
+    marginBottom: spacing(6)
   },
   titleBarContainer: {
     marginBottom: spacing(4)
   },
   artworkContainer: {
+    maxHeight: FULL_DRAWER_HEIGHT * 0.4,
     marginBottom: spacing(5)
   },
   trackInfoContainer: {
     marginHorizontal: spacing(6),
-    marginBottom: spacing(4)
+    marginBottom: spacing(3)
   },
   scrubberContainer: {
     marginHorizontal: spacing(6)
@@ -233,46 +236,50 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       <View style={styles.container}>
         {track && user && (
           <>
-            <PlayBar
-              track={track}
-              user={user}
-              onPress={onDrawerOpen}
-              translationAnim={translationAnim}
-            />
-            <Logo translationAnim={translationAnim} />
-            <View style={styles.titleBarContainer}>
-              <TitleBar onClose={handleDrawerCloseFromSwipe} />
-            </View>
-            <Pressable
-              style={styles.artworkContainer}
-              onPress={handlePressTitle}
-            >
-              <Artwork track={track} />
-            </Pressable>
-            <View style={styles.trackInfoContainer}>
-              <TrackInfo
-                onPressArtist={handlePressArtist}
-                onPressTitle={handlePressTitle}
+            <View style={{ position: 'absolute', width: '100%', top: 0 }}>
+              <PlayBar
                 track={track}
                 user={user}
+                onPress={onDrawerOpen}
+                translationAnim={translationAnim}
               />
             </View>
-            <View style={styles.scrubberContainer}>
-              <Scrubber
-                mediaKey={`${mediaKey}`}
-                isPlaying={isPlaying}
-                onPressIn={onPressScrubberIn}
-                onPressOut={onPressScrubberOut}
-                duration={track.duration}
-              />
-            </View>
-            <View style={styles.controlsContainer}>
-              <AudioControls
-                onNext={onNext}
-                onPrevious={onPrevious}
-                isPodcast={track.genre === Genre.PODCASTS}
-              />
-              <ActionsBar track={track} />
+            <Logo translationAnim={translationAnim} />
+            <View>
+              <View style={styles.titleBarContainer}>
+                <TitleBar onClose={handleDrawerCloseFromSwipe} />
+              </View>
+              <Pressable
+                onPress={handlePressTitle}
+                style={styles.artworkContainer}
+              >
+                <Artwork track={track} />
+              </Pressable>
+              <View style={styles.trackInfoContainer}>
+                <TrackInfo
+                  onPressArtist={handlePressArtist}
+                  onPressTitle={handlePressTitle}
+                  track={track}
+                  user={user}
+                />
+              </View>
+              <View style={styles.scrubberContainer}>
+                <Scrubber
+                  mediaKey={`${mediaKey}`}
+                  isPlaying={isPlaying}
+                  onPressIn={onPressScrubberIn}
+                  onPressOut={onPressScrubberOut}
+                  duration={track.duration}
+                />
+              </View>
+              <View style={styles.controlsContainer}>
+                <AudioControls
+                  onNext={onNext}
+                  onPrevious={onPrevious}
+                  isPodcast={track.genre === Genre.PODCASTS}
+                />
+                <ActionsBar track={track} />
+              </View>
             </View>
           </>
         )}
