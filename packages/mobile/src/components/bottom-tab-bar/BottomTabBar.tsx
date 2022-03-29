@@ -199,7 +199,7 @@ export const BottomTabBar = ({
 
   const rootStyle = [
     styles.root,
-    shouldAddMarginTop && { marginTop: PLAY_BAR_HEIGHT + 12 },
+    shouldAddMarginTop && { marginTop: PLAY_BAR_HEIGHT },
     {
       transform: [
         {
