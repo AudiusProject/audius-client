@@ -6,6 +6,7 @@ import {
   IconFolderOutline,
   IconKebabHorizontal
 } from '@audius/stems'
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
 import useMeasure from 'react-use-measure'
