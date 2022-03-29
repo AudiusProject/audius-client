@@ -6,9 +6,6 @@ import { useSelectorWeb } from './useSelectorWeb'
 const getTierAndVerifiedForUser = makeGetTierAndVerifiedForUser()
 
 /**
- * Wraps our reselect tier selector in useMemo and useSelector
- * to be safe for use in multiple components
- *
  * This was copied over from audius-client and useSelector was replaced
  * with useSelectorWeb.
  */
