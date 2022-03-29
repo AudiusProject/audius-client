@@ -44,6 +44,10 @@ export const All: Story<SVGAttributes<SVGElement>> = args => {
 }
 
 All.parameters = {
+  a11y: {
+    // Disable a11y since this Story is just to show all the available icons.
+    disable: true
+  },
   docs: {
     source: {
       code: `// Usage:\n// import { ICON_NAME_HERE } from '@audius/stems'\nimport { IconAlbum } from '@audius/stems'\n\n// Rendering the svg element:\n<IconAlbum />

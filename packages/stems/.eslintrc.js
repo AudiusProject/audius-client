@@ -9,7 +9,8 @@ module.exports = {
     'plugin:jest/recommended',
     'plugin:react/recommended',
     'prettier/react',
-    'prettier-standard/prettier-file'
+    'prettier-standard/prettier-file',
+    'plugin:storybook/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -53,7 +54,6 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-this-alias': 'off',
-
     'no-use-before-define': 'off',
     camelcase: 'off',
     'no-unused-vars': 'off',
@@ -63,20 +63,14 @@ module.exports = {
     'no-empty': 'off',
     'arrow-parens': 'off',
     'padded-blocks': 'off',
-
     'jest/expect-expect': 'off',
-
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-
     'react/display-name': 'off',
     'react/prop-types': 'off',
-
     'prettier/prettier': 'error',
-
     'space-before-function-paren': 'off',
     'generator-star-spacing': 'off',
-
     'import/order': [
       'error',
       {
