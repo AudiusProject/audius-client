@@ -55,8 +55,12 @@ const interpolatePostion = (
   bottomInset: number
 ) =>
   translationAnim.interpolate({
-    inputRange: [0, FULL_DRAWER_HEIGHT],
-    outputRange: [bottomInset + BOTTOM_BAR_HEIGHT, 0]
+    inputRange: [
+      0,
+      FULL_DRAWER_HEIGHT - bottomInset - BOTTOM_BAR_HEIGHT - PLAY_BAR_HEIGHT,
+      FULL_DRAWER_HEIGHT
+    ],
+    outputRange: [bottomInset + BOTTOM_BAR_HEIGHT, 0, 0]
   })
 
 export type BottomTabBarProps = RNBottomTabBarProps & {
@@ -197,7 +201,6 @@ export const BottomTabBar = ({
     styles.root,
     shouldAddMarginTop && { marginTop: PLAY_BAR_HEIGHT + 12 },
     {
-      backgroundColor: 'blue',
       transform: [
         {
           translateY: interpolatePostion(translationAnim, insets.bottom)

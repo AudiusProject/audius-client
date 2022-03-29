@@ -41,15 +41,13 @@ import { TitleBar } from './TitleBar'
 import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
 
-const combinedBottomAreaHeight = BOTTOM_BAR_HEIGHT + PLAY_BAR_HEIGHT
-
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15
 
 const useStyles = makeStyles(({ spacing }) => ({
   container: {
     paddingTop: 0,
-    height: FULL_DRAWER_HEIGHT - combinedBottomAreaHeight
+    minHeight: FULL_DRAWER_HEIGHT
   },
   controlsContainer: {
     marginHorizontal: spacing(6)
@@ -76,8 +74,9 @@ type NowPlayingDrawerProps = {
 const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
-  const styles = useStyles()
   const insets = useSafeAreaInsets()
+  const bottomBarHeight = BOTTOM_BAR_HEIGHT + insets.bottom
+  const styles = useStyles()
   const navigation = useNavigation()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
@@ -218,16 +217,18 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       isOpen={isOpen}
       onClose={handleDrawerCloseFromSwipe}
       onOpen={onDrawerOpen}
-      initialOffsetPosition={combinedBottomAreaHeight}
+      initialOffsetPosition={bottomBarHeight + PLAY_BAR_HEIGHT}
       shouldCloseToInitialOffset={isPlayBarShowing}
       animationStyle={DrawerAnimationStyle.SPRINGY}
       shouldBackgroundDim={false}
       shouldAnimateShadow={false}
-      drawerStyle={{ top: -1 * insets.top, overflow: 'visible' }}
+      drawerStyle={{ overflow: 'visible' }}
       onPercentOpen={onDrawerPercentOpen}
       onPanResponderMove={onPanResponderMove}
       isGestureSupported={isGestureEnabled}
       translationAnim={translationAnim}
+      // Disable safe area view edges because they are handled manually
+      disableSafeAreaView
     >
       <View style={styles.container}>
         {track && user && (
