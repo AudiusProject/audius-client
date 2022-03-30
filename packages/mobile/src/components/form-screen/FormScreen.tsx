@@ -15,10 +15,11 @@ type FormScreenProps = ScreenProps & {
   onSubmit: () => void
   onReset: () => void
   errors?: Record<string, unknown>
+  goBackOnSubmit?: boolean
 }
 
 export const FormScreen = (props: FormScreenProps) => {
-  const { onSubmit, onReset, errors, ...other } = props
+  const { onSubmit, onReset, errors, goBackOnSubmit, ...other } = props
 
   const navigation = useNavigation()
 
@@ -29,8 +30,10 @@ export const FormScreen = (props: FormScreenProps) => {
 
   const handleSave = useCallback(() => {
     onSubmit()
-    navigation.goBack()
-  }, [onSubmit, navigation])
+    if (goBackOnSubmit) {
+      navigation.goBack()
+    }
+  }, [onSubmit, goBackOnSubmit, navigation])
 
   const topbarLeft = (
     <TextButton

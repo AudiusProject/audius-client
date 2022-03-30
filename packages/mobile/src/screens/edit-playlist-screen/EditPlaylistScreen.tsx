@@ -86,7 +86,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
   )
 
   return (
-    <FormScreen onSubmit={handleSubmit} onReset={handleReset}>
+    <FormScreen onSubmit={handleSubmit} onReset={handleReset} goBackOnSubmit>
       {values.tracks ? (
         <TrackList
           hideArt
