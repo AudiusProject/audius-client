@@ -53,6 +53,11 @@ const useStyles = makeStyles(({ spacing }) => ({
     height: FULL_DRAWER_HEIGHT,
     justifyContent: 'space-evenly'
   },
+  playBarContainer: {
+    position: 'absolute',
+    width: '100%',
+    top: 0
+  },
   controlsContainer: {
     marginHorizontal: spacing(6),
     marginBottom: spacing(6)
@@ -260,7 +265,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       >
         {track && user && (
           <>
-            <View style={{ position: 'absolute', width: '100%', top: 0 }}>
+            <View style={styles.playBarContainer}>
               <PlayBar
                 track={track}
                 user={user}
