@@ -18,7 +18,7 @@ import {
 } from 'react-native'
 import { usePrevious } from 'react-use'
 
-import { light } from 'app/haptics'
+import { medium } from 'app/haptics'
 import { GestureResponderHandler } from 'app/types/gesture'
 import { Theme, useThemeVariant } from 'app/utils/theme'
 
@@ -108,7 +108,7 @@ export const AnimatedButton = ({
 
   const handlePress = useCallback(() => {
     if (haptics) {
-      light()
+      medium()
     }
 
     if (hasMultipleStates || !isActive) {
@@ -129,7 +129,7 @@ export const AnimatedButton = ({
   const handleLongPress = useCallback(() => {
     if (onLongPress) {
       if (haptics) {
-        light()
+        medium()
       }
       onLongPress()
     } else {
