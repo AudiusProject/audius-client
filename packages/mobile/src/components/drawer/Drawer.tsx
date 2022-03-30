@@ -659,10 +659,16 @@ export const Drawer: DrawerComponent = ({
   }
 
   const renderContent = () => {
-    const Component = disableSafeAreaView ? View : SafeAreaView
+    const ViewComponent = disableSafeAreaView ? View : SafeAreaView
+
+    const edgeProps = disableSafeAreaView
+      ? undefined
+      : {
+          edges: ['bottom', ...(isFullscreen ? ['top'] : [])] as Edge[]
+        }
 
     return (
-      <Component
+      <ViewComponent
         style={isFullscreen ? styles.fullScreenContent : styles.content}
         onLayout={(event: LayoutChangeEvent) => {
           if (!isFullscreen) {
@@ -670,11 +676,7 @@ export const Drawer: DrawerComponent = ({
             setDrawerHeight(height)
           }
         }}
-        {...(disableSafeAreaView
-          ? {}
-          : {
-              edges: ['bottom', ...((isFullscreen ? ['top'] : []) as Edge[])]
-            })}
+        {...edgeProps}
       >
         <DrawerHeader
           onClose={onClose}
@@ -683,7 +685,7 @@ export const Drawer: DrawerComponent = ({
           isFullscreen={isFullscreen}
         />
         {children}
-      </Component>
+      </ViewComponent>
     )
   }
 
