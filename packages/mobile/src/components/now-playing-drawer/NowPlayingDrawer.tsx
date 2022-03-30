@@ -274,41 +274,39 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
               />
             </View>
             <Logo translationAnim={translationAnim} />
-            <View style={{ flex: 1 }}>
-              <View style={styles.titleBarContainer}>
-                <TitleBar onClose={handleDrawerCloseFromSwipe} />
-              </View>
-              <Pressable
-                onPress={handlePressTitle}
-                style={styles.artworkContainer}
-              >
-                <Artwork track={track} />
-              </Pressable>
-              <View style={styles.trackInfoContainer}>
-                <TrackInfo
-                  onPressArtist={handlePressArtist}
-                  onPressTitle={handlePressTitle}
-                  track={track}
-                  user={user}
-                />
-              </View>
-              <View style={styles.scrubberContainer}>
-                <Scrubber
-                  mediaKey={`${mediaKey}`}
-                  isPlaying={isPlaying}
-                  onPressIn={onPressScrubberIn}
-                  onPressOut={onPressScrubberOut}
-                  duration={track.duration}
-                />
-              </View>
-              <View style={styles.controlsContainer}>
-                <AudioControls
-                  onNext={onNext}
-                  onPrevious={onPrevious}
-                  isPodcast={track.genre === Genre.PODCASTS}
-                />
-                <ActionsBar track={track} />
-              </View>
+            <View style={styles.titleBarContainer}>
+              <TitleBar onClose={handleDrawerCloseFromSwipe} />
+            </View>
+            <Pressable
+              onPress={handlePressTitle}
+              style={styles.artworkContainer}
+            >
+              <Artwork track={track} />
+            </Pressable>
+            <View style={styles.trackInfoContainer}>
+              <TrackInfo
+                onPressArtist={handlePressArtist}
+                onPressTitle={handlePressTitle}
+                track={track}
+                user={user}
+              />
+            </View>
+            <View style={styles.scrubberContainer}>
+              <Scrubber
+                mediaKey={`${mediaKey}`}
+                isPlaying={isPlaying}
+                onPressIn={onPressScrubberIn}
+                onPressOut={onPressScrubberOut}
+                duration={track.duration}
+              />
+            </View>
+            <View style={styles.controlsContainer}>
+              <AudioControls
+                onNext={onNext}
+                onPrevious={onPrevious}
+                isPodcast={track.genre === Genre.PODCASTS}
+              />
+              <ActionsBar track={track} />
             </View>
           </>
         )}
