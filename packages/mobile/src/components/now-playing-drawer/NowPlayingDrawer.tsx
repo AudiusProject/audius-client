@@ -114,6 +114,15 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   )
 
   useEffect(() => {
+    // The top inset can be 0 initially
+    // Need to get the actual value but preserve it when the
+    // status bar is hidden
+    if (staticTopInset.current === 0 && insets.top > 0) {
+      staticTopInset.current = insets.top
+    }
+  }, [staticTopInset, insets.top])
+
+  useEffect(() => {
     if (staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD) {
       if (isOpen) {
         StatusBar.setHidden(true, 'fade')
