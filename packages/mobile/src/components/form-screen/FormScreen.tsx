@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import { useNavigation } from '@react-navigation/native'
+import { isEmpty } from 'lodash'
 
 import { Screen, ScreenProps } from '../core/Screen'
 import { TextButton } from '../core/TextButton'
@@ -13,10 +14,11 @@ const messages = {
 type FormScreenProps = ScreenProps & {
   onSubmit: () => void
   onReset: () => void
+  errors?: Record<string, unknown>
 }
 
 export const FormScreen = (props: FormScreenProps) => {
-  const { onSubmit, onReset, ...other } = props
+  const { onSubmit, onReset, errors, ...other } = props
 
   const navigation = useNavigation()
 
@@ -39,7 +41,12 @@ export const FormScreen = (props: FormScreenProps) => {
   )
 
   const topbarRight = (
-    <TextButton title={messages.save} variant='primary' onPress={handleSave} />
+    <TextButton
+      title={messages.save}
+      variant='primary'
+      onPress={handleSave}
+      disabled={!isEmpty(errors)}
+    />
   )
 
   return (

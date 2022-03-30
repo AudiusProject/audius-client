@@ -4,12 +4,12 @@ import { CreatePlaylistSource } from 'audius-client/src/common/models/Analytics'
 import { createPlaylist } from 'audius-client/src/common/store/cache/collections/actions'
 import { Formik, FormikProps } from 'formik'
 
-import { FormTextInput } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
+import { PlaylistNameInput } from './PlaylistNameInput'
 
 const messages = {
   title: 'Create Playlist'
@@ -21,17 +21,18 @@ type PlaylistValues = {
   artwork: { url: string }
 }
 
-export const CreatePlaylistForm = (props: FormikProps<PlaylistValues>) => {
-  const { handleSubmit, handleReset } = props
+const CreatePlaylistForm = (props: FormikProps<PlaylistValues>) => {
+  const { handleSubmit, handleReset, errors } = props
 
   return (
     <FormScreen
       title={messages.title}
       onSubmit={handleSubmit}
       onReset={handleReset}
+      errors={errors}
     >
       <PlaylistImageInput />
-      <FormTextInput isFirstInput name='playlist_name' label='Name' />
+      <PlaylistNameInput />
       <PlaylistDescriptionInput />
     </FormScreen>
   )
@@ -41,6 +42,10 @@ const initialValues: PlaylistValues = {
   playlist_name: '',
   description: '',
   artwork: { url: '' }
+}
+
+const initialErrors = {
+  playlist_name: 'Required'
 }
 
 export const CreatePlaylistScreen = () => {
@@ -58,5 +63,12 @@ export const CreatePlaylistScreen = () => {
     [dispatchWeb]
   )
 
-  return <Formik initialValues={initialValues} onSubmit={handleSubmit} />
+  return (
+    <Formik
+      initialValues={initialValues}
+      initialErrors={initialErrors}
+      onSubmit={handleSubmit}
+      component={CreatePlaylistForm}
+    />
+  )
 }

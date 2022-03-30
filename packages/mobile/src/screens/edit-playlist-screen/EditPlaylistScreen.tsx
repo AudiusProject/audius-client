@@ -16,7 +16,6 @@ import { Formik, FormikProps } from 'formik'
 import { isEqual } from 'lodash'
 import { View } from 'react-native'
 
-import { FormTextInput } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
 import { TrackList } from 'app/components/track-list'
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
@@ -26,6 +25,7 @@ import { makeStyles } from 'app/styles'
 
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
+import { PlaylistNameInput } from './PlaylistNameInput'
 import { PlaylistValues } from './types'
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -80,7 +80,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
   const header = (
     <>
       <PlaylistImageInput />
-      <FormTextInput isFirstInput name='playlist_name' label='Name' />
+      <PlaylistNameInput />
       <PlaylistDescriptionInput />
     </>
   )

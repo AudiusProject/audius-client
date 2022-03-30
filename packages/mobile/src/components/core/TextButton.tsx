@@ -28,7 +28,8 @@ const useStyles = makeStyles(({ palette, spacing }, { variant }) => {
   const baseStyles = {
     root: { flexDirection: 'row' },
     iconLeft: { marginRight: spacing(2) },
-    iconRight: { marginLeft: spacing(2) }
+    iconRight: { marginLeft: spacing(2) },
+    disabled: { color: palette.neutralLight4 }
   }
 
   return merge(baseStyles, variantStyles[variant])
@@ -42,7 +43,15 @@ type TextButtonProps = TouchableOpacityProps &
   }
 
 export const TextButton = (props: TextButtonProps) => {
-  const { title, variant, icon: Icon, iconPosition, style, ...other } = props
+  const {
+    title,
+    variant,
+    icon: Icon,
+    iconPosition,
+    style,
+    disabled,
+    ...other
+  } = props
   const styles = useStyles({ variant })
 
   const icon = Icon ? (
@@ -55,9 +64,15 @@ export const TextButton = (props: TextButtonProps) => {
   ) : null
 
   return (
-    <TouchableOpacity style={[styles.root, style]} {...other}>
+    <TouchableOpacity
+      style={[styles.root, style]}
+      disabled={disabled}
+      {...other}
+    >
       {iconPosition === 'left' ? icon : null}
-      <Text color={variant}>{title}</Text>
+      <Text color={variant} style={disabled && styles.disabled}>
+        {title}
+      </Text>
       {iconPosition === 'right' ? icon : null}
     </TouchableOpacity>
   )
