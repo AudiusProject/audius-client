@@ -43,11 +43,14 @@ import { PLAY_BAR_HEIGHT } from './constants'
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15
+// If the top screen inset is greater than this,
+// the status bar will be hidden when the drawer is open
+const INSET_STATUS_BAR_HIDE_THRESHOLD = 20
 
 const useStyles = makeStyles(({ spacing }) => ({
   container: {
     paddingTop: 0,
-    minHeight: FULL_DRAWER_HEIGHT,
+    height: FULL_DRAWER_HEIGHT,
     justifyContent: 'space-evenly'
   },
   controlsContainer: {
@@ -58,7 +61,7 @@ const useStyles = makeStyles(({ spacing }) => ({
     marginBottom: spacing(4)
   },
   artworkContainer: {
-    maxHeight: FULL_DRAWER_HEIGHT * 0.4,
+    flexShrink: 1,
     marginBottom: spacing(5)
   },
   trackInfoContainer: {
@@ -78,6 +81,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
   const insets = useSafeAreaInsets()
+  const staticTopInset = useRef(insets.top)
   const bottomBarHeight = BOTTOM_BAR_HEIGHT + insets.bottom
   const styles = useStyles()
   const navigation = useNavigation()
@@ -92,14 +96,6 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       setIsPlayBarShowing(true)
     }
   }, [isPlaying, isPlayBarShowing])
-
-  useEffect(() => {
-    if (isOpen) {
-      StatusBar.setHidden(true, 'fade')
-    } else {
-      StatusBar.setHidden(false, 'fade')
-    }
-  }, [isOpen])
 
   const handleDrawerCloseFromSwipe = useCallback(() => {
     onClose()
@@ -117,19 +113,33 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
     [drawerPercentOpen]
   )
 
+  useEffect(() => {
+    if (staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD) {
+      if (isOpen) {
+        StatusBar.setHidden(true, 'fade')
+      } else {
+        StatusBar.setHidden(false, 'fade')
+      }
+    }
+  }, [isOpen])
+
   // Attach to the pan responder of the drawer so that we can animate away
-  // the bottom bar as the drawer is dragged open
+  // the status bar
   const onPanResponderMove = useCallback(
     (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-      if (gestureState.vy > 0) {
-        // Dragging downwards
-        if (drawerPercentOpen.current < STATUS_BAR_FADE_CUTOFF) {
-          StatusBar.setHidden(false, 'fade')
-        }
-      } else if (gestureState.vy < 0) {
-        // Dragging upwards
-        if (drawerPercentOpen.current > STATUS_BAR_FADE_CUTOFF) {
-          StatusBar.setHidden(true, 'fade')
+      // Do not hide the status bar for smaller insets
+      // This is to prevent layout shift which breaks the animation
+      if (staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD) {
+        if (gestureState.vy > 0) {
+          // Dragging downwards
+          if (drawerPercentOpen.current < STATUS_BAR_FADE_CUTOFF) {
+            StatusBar.setHidden(false, 'fade')
+          }
+        } else if (gestureState.vy < 0) {
+          // Dragging upwards
+          if (drawerPercentOpen.current > STATUS_BAR_FADE_CUTOFF) {
+            StatusBar.setHidden(true, 'fade')
+          }
         }
       }
     },
@@ -233,7 +243,12 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       // Disable safe area view edges because they are handled manually
       disableSafeAreaView
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: staticTopInset.current, paddingBottom: insets.bottom }
+        ]}
+      >
         {track && user && (
           <>
             <View style={{ position: 'absolute', width: '100%', top: 0 }}>
@@ -245,7 +260,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
               />
             </View>
             <Logo translationAnim={translationAnim} />
-            <View>
+            <View style={{ flex: 1 }}>
               <View style={styles.titleBarContainer}>
                 <TitleBar onClose={handleDrawerCloseFromSwipe} />
               </View>
