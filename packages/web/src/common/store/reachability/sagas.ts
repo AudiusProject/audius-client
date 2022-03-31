@@ -59,32 +59,31 @@ function* updateReachability(isReachable: boolean) {
       // not reachable => reachable
       console.warn('App transitioned to reachable state')
     }
-    yield put(setReachable())
+    yield* put(setReachable())
   } else {
     if (wasReachable) {
       // reachable => not reachable
       console.warn('App transitioned to unreachable state')
     }
-    yield put(setUnreachable())
+    yield* put(setUnreachable())
   }
 }
 
 function* reachabilityPollingDaemon() {
   if (NATIVE_MOBILE) {
     // Native mobile: use the system connectivity checks
-    yield takeEvery(MessageType.IS_NETWORK_CONNECTED, function* (
+    yield* takeEvery(MessageType.IS_NETWORK_CONNECTED, function* (
       action: Message
     ) {
       const { isConnected } = action
 
-      console.log('xxx reachability', isConnected)
-      yield call(updateReachability, isConnected)
+      yield* call(updateReachability, isConnected)
     })
   } else {
     // Web/Desktop: poll for connectivity
     if (!isMobile()) {
       // TODO: Remove this check when we have build out reachability UI for desktop.
-      yield put(setReachable())
+      yield* put(setReachable())
       return
     }
 
