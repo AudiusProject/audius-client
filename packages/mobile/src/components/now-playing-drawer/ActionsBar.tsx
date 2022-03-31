@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import {
   FavoriteSource,
@@ -25,23 +25,21 @@ import {
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { View, StyleSheet } from 'react-native'
 
-import IconFavoriteOffLight from 'app/assets/animations/iconFavoriteOffLight.json'
-import IconFavoriteOnLight from 'app/assets/animations/iconFavoriteOnLight.json'
-import IconRepostOffLight from 'app/assets/animations/iconRepostOffLight.json'
-import IconRepostOnLight from 'app/assets/animations/iconRepostOnLight.json'
 import IconAirplay from 'app/assets/images/iconAirplay.svg'
 import IconChromecast from 'app/assets/images/iconChromecast.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { useAirplay } from 'app/components/audio/Airplay'
-import { AnimatedButton, IconButton } from 'app/components/core'
+import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { colorize } from 'app/utils/colorizeLottie'
 import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 import { useChromecast } from '../audio/GoogleCast'
+
+import { FavoriteButton } from './FavoriteButton'
+import { RepostButton } from './RepostButton'
 
 const createStyles = (themeColors: ThemeColors) =>
   StyleSheet.create({
@@ -147,54 +145,6 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const { openAirplayDialog } = useAirplay()
   const { openChromecastDialog } = useChromecast()
 
-  const ColorizedRepostOnIcon = useMemo(
-    () =>
-      colorize(IconRepostOnLight, {
-        // iconRepost Outlines Comp 1.iconRepost Outlines.Group 1.Fill 1
-        'assets.0.layers.0.shapes.0.it.3.c.k.0.s': neutral,
-        // iconRepost Outlines Comp 1.iconRepost Outlines.Group 1.Fill 1
-        'assets.0.layers.0.shapes.0.it.3.c.k.1.s': primary
-      }),
-    [neutral, primary]
-  )
-
-  const ColorizedRepostOffIcon = useMemo(
-    () =>
-      colorize(IconRepostOffLight, {
-        // iconRepost Outlines Comp 2.iconRepost Outlines.Group 1.Fill 1
-        'assets.0.layers.0.shapes.0.it.3.c.k.0.s': primary,
-        // iconRepost Outlines Comp 2.iconRepost Outlines.Group 1.Fill 1
-        'assets.0.layers.0.shapes.0.it.3.c.k.1.s': neutral
-      }),
-    [neutral, primary]
-  )
-
-  const iconRepostJSON = [ColorizedRepostOnIcon, ColorizedRepostOffIcon]
-
-  const ColorizedFavoriteOnIcon = useMemo(
-    () =>
-      colorize(IconFavoriteOnLight, {
-        // icon_Favorites Outlines 2.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k.0.s': neutral,
-        // icon_Favorites Outlines 2.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k.1.s': primary
-      }),
-    [neutral, primary]
-  )
-
-  const ColorizedFavoriteOffIcon = useMemo(
-    () =>
-      colorize(IconFavoriteOffLight, {
-        // icon_Favorites Outlines 2.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k.0.s': primary,
-        // icon_Favorites Outlines 2.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k.1.s': neutral
-      }),
-    [neutral, primary]
-  )
-
-  const iconFavoriteJSON = [ColorizedFavoriteOnIcon, ColorizedFavoriteOffIcon]
-
   const renderCastButton = () => {
     if (castMethod === 'airplay') {
       return (
@@ -215,11 +165,10 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       />
     )
   }
+
   const renderRepostButton = () => {
     return (
-      <AnimatedButton
-        haptics
-        iconJSON={iconRepostJSON}
+      <RepostButton
         iconIndex={track.has_current_user_reposted ? 1 : 0}
         onPress={onToggleRepost}
         style={styles.button}
@@ -227,11 +176,10 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       />
     )
   }
+
   const renderFavoriteButton = () => {
     return (
-      <AnimatedButton
-        haptics
-        iconJSON={iconFavoriteJSON}
+      <FavoriteButton
         iconIndex={track.has_current_user_saved ? 1 : 0}
         onPress={onToggleFavorite}
         style={styles.button}
@@ -239,6 +187,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       />
     )
   }
+
   const renderShareButton = () => {
     return (
       <IconButton
@@ -248,6 +197,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       />
     )
   }
+
   const renderOptionsButton = () => {
     return (
       <IconButton
@@ -257,6 +207,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       />
     )
   }
+
   return (
     <View style={styles.container}>
       {renderCastButton()}

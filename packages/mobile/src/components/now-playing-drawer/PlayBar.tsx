@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { FavoriteSource } from 'audius-client/src/common/models/Analytics'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
@@ -17,9 +17,7 @@ import {
 } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconPause from 'app/assets/animations/iconPause.json'
-import IconPlay from 'app/assets/animations/iconPlay.json'
-import { DynamicImage, AnimatedButton } from 'app/components/core'
+import { DynamicImage } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -27,9 +25,9 @@ import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
-import { colorize } from 'app/utils/colorizeLottie'
-import { ThemeColors, useThemeColors } from 'app/utils/theme'
+import { ThemeColors } from 'app/utils/theme'
 
+import { PlayButton } from './PlayButton'
 import { TrackingBar } from './TrackingBar'
 import { NOW_PLAYING_HEIGHT } from './constants'
 
@@ -123,7 +121,6 @@ export const PlayBar = ({
   const styles = useThemedStyles(createStyles)
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
-  const { background, primary } = useThemeColors()
 
   const [percentComplete, setPercentComplete] = useState(0)
 
@@ -154,42 +151,9 @@ export const PlayBar = ({
     }
   }, [isPlaying, dispatch])
 
-  const ColorizedPlayIcon = useMemo(
-    () =>
-      colorize(IconPlay, {
-        // #playpause1.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k': background,
-        // #playpause2.Left.Fill 1
-        'layers.1.shapes.0.it.1.c.k': background,
-        // #playpause2.Right.Fill 1
-        'layers.1.shapes.1.it.1.c.k': background,
-        // #primaryBG.Group 2.Fill 1
-        'layers.2.shapes.0.it.1.c.k': primary
-      }),
-    [background, primary]
-  )
-
-  const ColorizedPauseIcon = useMemo(
-    () =>
-      colorize(IconPause, {
-        // #playpause1.Group 1.Fill 1
-        'layers.0.shapes.0.it.1.c.k': background,
-        // #playpause2.Left.Fill 1
-        'layers.1.shapes.0.it.1.c.k': background,
-        // #playpause2.Right.Fill 1
-        'layers.1.shapes.1.it.1.c.k': background,
-        // #primaryBG.Group 2.Fill 1
-        'layers.2.shapes.0.it.1.c.k': primary
-      }),
-    [background, primary]
-  )
-
-  const playButtonIconJSON = [ColorizedPlayIcon, ColorizedPauseIcon]
-
   const renderPlayButton = () => {
     return (
-      <AnimatedButton
-        iconJSON={playButtonIconJSON}
+      <PlayButton
         onPress={onPressPlayButton}
         iconIndex={isPlaying ? 1 : 0}
         style={styles.button}
