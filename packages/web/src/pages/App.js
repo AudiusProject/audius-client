@@ -37,6 +37,7 @@ import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackC
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
 import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
 import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaimedToast'
+import { RickRoll } from 'components/rick-roll/RickRoll'
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
 import TrendingGenreSelectionPage from 'components/trending-genre-selection/TrendingGenreSelectionPage'
@@ -922,6 +923,7 @@ class App extends Component {
             decrementScroll={decrementScroll}
           />
         )}
+        <RickRoll />
       </div>
     )
   }

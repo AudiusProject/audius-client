@@ -12,7 +12,8 @@ export enum FeatureFlags {
   REWARDS_NOTIFICATIONS_ENABLED = 'rewards_notifications_enabled',
   ENABLE_SPL_AUDIO = 'enable_spl_audio',
   PLAYLIST_FOLDERS = 'playlist_folders',
-  DISABLE_SIGN_UP_CONFIRMATION = 'disable_sign_up_confirmation'
+  DISABLE_SIGN_UP_CONFIRMATION = 'disable_sign_up_confirmation',
+  RICK_ROLL = 'rick_roll'
 }
 
 /**
@@ -31,7 +32,8 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED]: false,
   [FeatureFlags.ENABLE_SPL_AUDIO]: false,
   [FeatureFlags.PLAYLIST_FOLDERS]: false,
-  [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: false
+  [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: false,
+  [FeatureFlags.RICK_ROLL]: false
 }
 
 export enum FeatureFlagCohortType {
@@ -68,5 +70,6 @@ export const flagCohortType: {
     FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.ENABLE_SPL_AUDIO]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.PLAYLIST_FOLDERS]: FeatureFlagCohortType.USER_ID,
-  [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: FeatureFlagCohortType.SESSION_ID
+  [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: FeatureFlagCohortType.SESSION_ID,
+  [FeatureFlags.RICK_ROLL]: FeatureFlagCohortType.SESSION_ID
 }

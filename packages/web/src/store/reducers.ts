@@ -35,6 +35,7 @@ import dragndrop from 'store/dragndrop/reducer'
 import player from 'store/player/slice'
 import playlistLibrary from 'store/playlist-library/slice'
 import reachability from 'store/reachability/reducer'
+import rickRoll from 'store/rick-roll/slice'
 
 import { webStoreContext } from './storeContext'
 
@@ -97,7 +98,8 @@ const createRootReducer = (routeHistory: History) =>
         deleted,
         unfollowConfirmation
       })
-    })
+    }),
+    rickRoll
   })
 
 export default createRootReducer

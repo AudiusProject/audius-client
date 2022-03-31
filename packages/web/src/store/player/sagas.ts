@@ -11,7 +11,7 @@ import {
 
 import Kind from 'common/models/Kind'
 import { Track } from 'common/models/Track'
-import { StringKeys } from 'common/services/remote-config'
+import { FeatureFlags, StringKeys } from 'common/services/remote-config'
 import * as cacheActions from 'common/store/cache/actions'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
@@ -38,6 +38,10 @@ import {
   seek,
   error as errorAction
 } from 'store/player/slice'
+import {
+  play as playRickRoll,
+  stop as stopRickRoll
+} from 'store/rick-roll/slice'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { encodeHashId } from 'utils/route/hashIds'
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
@@ -129,6 +133,18 @@ export function* watchPlay() {
       )
     }
     // Play.
+
+    if (
+      remoteConfigInstance.getFeatureEnabled(FeatureFlags.RICK_ROLL) &&
+      !window.localStorage.getItem('rick-roll')
+    ) {
+      window.localStorage.setItem('rick-roll', 'true')
+      yield put(playRickRoll())
+      yield put(playSucceeded({ uid, trackId }))
+      return
+    }
+
+    yield put(stopRickRoll())
     audio.play()
     yield put(playSucceeded({ uid, trackId }))
   })
@@ -141,6 +157,10 @@ export function* watchPause() {
     const audio: NonNullable<AudioState> = yield call(waitForValue, getAudio)
     if (onlySetState) return
     audio.pause()
+
+    if (window.localStorage.getItem('rick-roll')) {
+      yield put(stopRickRoll())
+    }
   })
 }
 
