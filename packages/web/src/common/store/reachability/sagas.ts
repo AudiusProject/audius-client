@@ -1,4 +1,11 @@
-import { takeEvery, call, put, race, select, delay } from 'redux-saga/effects'
+import {
+  takeEvery,
+  call,
+  put,
+  race,
+  select,
+  delay
+} from 'typed-redux-saga/macro'
 
 import { MessageType, Message } from 'services/native-mobile-interface/types'
 import { isMobile } from 'utils/clientUtil'
@@ -16,7 +23,8 @@ const REACHABILITY_SHORT_TIMEOUT = 5 * 1000 // 5s
 const REACHABILITY_REQUEST_TIMEOUT = 15 * 1000 // 15s
 
 // Check that a response from REACHABILITY_URL is valid
-const isResponseValid = (response: Response) => response && response.ok
+const isResponseValid = (response: Response | undefined) =>
+  response && response.ok
 
 function* ping() {
   // If there's no reachability url available, consider ourselves reachable
@@ -26,7 +34,7 @@ function* ping() {
   }
 
   try {
-    const { response } = yield race({
+    const { response } = yield* race({
       response: call(fetch, REACHABILITY_URL, { method: 'GET' }),
       timeout: delay(REACHABILITY_REQUEST_TIMEOUT)
     })
@@ -45,7 +53,7 @@ function* ping() {
 
 /** Updates the reachability setting in the store and log-warns of any change. */
 function* updateReachability(isReachable: boolean) {
-  const wasReachable = yield select(getIsReachable)
+  const wasReachable = yield* select(getIsReachable)
   if (isReachable) {
     if (!wasReachable) {
       // not reachable => reachable
@@ -68,6 +76,8 @@ function* reachabilityPollingDaemon() {
       action: Message
     ) {
       const { isConnected } = action
+
+      console.log('xxx reachability', isConnected)
       yield call(updateReachability, isConnected)
     })
   } else {
@@ -80,12 +90,12 @@ function* reachabilityPollingDaemon() {
 
     let failures = 0
     while (true) {
-      const isReachable = yield call(ping)
+      const isReachable = yield* call(ping)
       if (!isReachable) failures += 1
       if (isReachable) failures = 0
-      yield call(updateReachability, failures < 2)
+      yield* call(updateReachability, failures < 2)
 
-      yield delay(
+      yield* delay(
         isReachable ? REACHABILITY_LONG_TIMEOUT : REACHABILITY_SHORT_TIMEOUT
       )
     }
