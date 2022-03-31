@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { getRepeat, getShuffle } from 'common/store/queue/selectors'
 import { shuffle, repeat } from 'common/store/queue/slice'
@@ -8,15 +8,10 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconPause from 'app/assets/animations/iconPause.json'
 import IconPlay from 'app/assets/animations/iconPlay.json'
-import IconRepeatAllDark from 'app/assets/animations/iconRepeatAllDark.json'
 import IconRepeatAllLight from 'app/assets/animations/iconRepeatAllLight.json'
-import IconRepeatOffDark from 'app/assets/animations/iconRepeatOffDark.json'
 import IconRepeatOffLight from 'app/assets/animations/iconRepeatOffLight.json'
-import IconRepeatSingleDark from 'app/assets/animations/iconRepeatSingleDark.json'
 import IconRepeatSingleLight from 'app/assets/animations/iconRepeatSingleLight.json'
-import IconShuffleOffDark from 'app/assets/animations/iconShuffleOffDark.json'
 import IconShuffleOffLight from 'app/assets/animations/iconShuffleOffLight.json'
-import IconShuffleOnDark from 'app/assets/animations/iconShuffleOnDark.json'
 import IconShuffleOnLight from 'app/assets/animations/iconShuffleOnLight.json'
 import IconNext from 'app/assets/images/iconNext.svg'
 import IconPodcastBack from 'app/assets/images/iconPodcastBack.svg'
@@ -30,7 +25,8 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
-import { ThemeColors } from 'app/utils/theme'
+import { colorize } from 'app/utils/colorizeLottie'
+import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 const createStyles = (themeColors: ThemeColors) =>
   StyleSheet.create({
@@ -75,6 +71,7 @@ export const AudioControls = ({
   const dispatchWeb = useDispatchWeb()
 
   const styles = useThemedStyles(createStyles)
+  const { background, neutral, primary } = useThemeColors()
 
   const isPlaying = useSelector(getPlaying)
   const shuffleEnabled = useSelectorWeb(getShuffle)
@@ -121,19 +118,197 @@ export const AudioControls = ({
     dispatchWeb(repeat({ mode }))
   }, [dispatchWeb, repeatMode])
 
+  const ColorizedRepeatAllIcon = useMemo(
+    () =>
+      colorize(IconRepeatAllLight, {
+        // repeat number Outlines.Group 1.Fill 1
+        'assets.0.layers.0.shapes.0.it.1.c.k': background,
+        // repeat number Outlines.Group 2.Fill 1
+        'assets.0.layers.0.shapes.1.it.1.c.k': primary,
+        // repeat number Outlines.Group 3.Fill 1
+        'assets.0.layers.0.shapes.2.it.1.c.k': background,
+        // repeat number Outlines.Group 4.Fill 1
+        'assets.0.layers.0.shapes.3.it.1.c.k': '#000000',
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.0.s': neutral,
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.0.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.1.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.1.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.2.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'assets.0.layers.1.shapes.0.it.1.c.k.2.e': neutral,
+        // repeat number Outlines.Group 1.Fill 1
+        'layers.1.shapes.0.it.1.c.k': background,
+        // repeat number Outlines.Group 2.Fill 1
+        'layers.1.shapes.1.it.1.c.k': primary,
+        // repeat number Outlines.Group 3.Fill 1
+        'layers.1.shapes.2.it.1.c.k': background,
+        // repeat number Outlines.Group 4.Fill 1
+        'layers.1.shapes.3.it.1.c.k': '#000000',
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.0.s': neutral,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.0.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.1.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.1.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.2.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k.2.e': neutral
+      }),
+    [background, neutral, primary]
+  )
+
+  const ColorizedRepeatSingleIcon = useMemo(
+    () =>
+      colorize(IconRepeatSingleLight, {
+        // repeat number Outlines.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // repeat number Outlines.Group 2.Fill 1
+        'layers.0.shapes.1.it.1.c.k': primary,
+        // repeat number Outlines.Group 3.Fill 1
+        'layers.0.shapes.2.it.1.c.k': background,
+        // repeat number Outlines.Group 4.Fill 1
+        'layers.0.shapes.3.it.1.c.k': '#000000',
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.0.s': neutral,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.0.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.1.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.1.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.2.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.2.e': neutral
+      }),
+    [background, neutral, primary]
+  )
+
+  const ColorizedRepeatOffIcon = useMemo(
+    () =>
+      colorize(IconRepeatOffLight, {
+        // repeat number Outlines.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // repeat number Outlines.Group 2.Fill 1
+        'layers.0.shapes.1.it.1.c.k': primary,
+        // repeat number Outlines.Group 3.Fill 1
+        'layers.0.shapes.2.it.1.c.k': background,
+        // repeat number Outlines.Group 4.Fill 1
+        'layers.0.shapes.3.it.1.c.k': '#000000',
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.0.s': neutral,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.0.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.1.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.1.e': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.2.s': primary,
+        // repeat Outlines.Group 2.Fill 1
+        'layers.1.shapes.0.it.1.c.k.2.e': neutral
+      }),
+    [background, neutral, primary]
+  )
+
+  const repeatIconJSON = [
+    ColorizedRepeatAllIcon,
+    ColorizedRepeatSingleIcon,
+    ColorizedRepeatOffIcon
+  ]
+
+  const ColorizedShuffleOnIcon = useMemo(
+    () =>
+      colorize(IconShuffleOnLight, {
+        // Arrow 2.Head.Fill 1
+        'layers.0.shapes.0.it.2.c.k.0.s': neutral,
+        // Arrow 2.Head.Fill 1
+        'layers.0.shapes.0.it.2.c.k.0.e': primary,
+        // Arrow 2.Tail.Stroke 1
+        'layers.0.shapes.1.it.1.c.k.0.s': neutral,
+        // Arrow 2.Tail.Stroke 1
+        'layers.0.shapes.1.it.1.c.k.0.e': primary,
+        // Arrow 1.Head.Fill 1
+        'layers.1.shapes.0.it.2.c.k.0.s': neutral,
+        // Arrow 1.Head.Fill 1
+        'layers.1.shapes.0.it.2.c.k.0.e': primary,
+        // Arrow 1.Tail.Stroke 1
+        'layers.1.shapes.1.it.1.c.k.0.s': neutral,
+        // Arrow 1.Tail.Stroke 1
+        'layers.1.shapes.1.it.1.c.k.0.e': primary
+      }),
+    [neutral, primary]
+  )
+
+  const ColorizedShuffleOffIcon = useMemo(
+    () =>
+      colorize(IconShuffleOffLight, {
+        // Arrow 2.Head.Fill 1
+        'layers.0.shapes.0.it.2.c.k.0.s': primary,
+        // Arrow 2.Head.Fill 1
+        'layers.0.shapes.0.it.2.c.k.0.e': neutral,
+        // Arrow 2.Tail.Stroke 1
+        'layers.0.shapes.1.it.1.c.k.0.s': primary,
+        // Arrow 2.Tail.Stroke 1
+        'layers.0.shapes.1.it.1.c.k.0.e': neutral,
+        // Arrow 1.Head.Fill 1
+        'layers.1.shapes.0.it.2.c.k.0.s': primary,
+        // Arrow 1.Head.Fill 1
+        'layers.1.shapes.0.it.2.c.k.0.e': neutral,
+        // Arrow 1.Tail.Stroke 1
+        'layers.1.shapes.1.it.1.c.k.0.s': primary,
+        // Arrow 1.Tail.Stroke 1
+        'layers.1.shapes.1.it.1.c.k.0.e': neutral
+      }),
+    [neutral, primary]
+  )
+
+  const shuffleIconJSON = [ColorizedShuffleOnIcon, ColorizedShuffleOffIcon]
+
+  const ColorizedPlayIcon = useMemo(
+    () =>
+      colorize(IconPlay, {
+        // #playpause1.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // #playpause2.Left.Fill 1
+        'layers.1.shapes.0.it.1.c.k': background,
+        // #playpause2.Right.Fill 1
+        'layers.1.shapes.1.it.1.c.k': background,
+        // #primaryBG.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k': primary
+      }),
+    [background, primary]
+  )
+
+  const ColorizedPauseIcon = useMemo(
+    () =>
+      colorize(IconPause, {
+        // #playpause1.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // #playpause2.Left.Fill 1
+        'layers.1.shapes.0.it.1.c.k': background,
+        // #playpause2.Right.Fill 1
+        'layers.1.shapes.1.it.1.c.k': background,
+        // #primaryBG.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k': primary
+      }),
+    [background, primary]
+  )
+
+  const playButtonIconJSON = [ColorizedPlayIcon, ColorizedPauseIcon]
+
   const renderRepeatButton = () => {
     return (
       <AnimatedButton
-        iconLightJSON={[
-          IconRepeatAllLight,
-          IconRepeatSingleLight,
-          IconRepeatOffLight
-        ]}
-        iconDarkJSON={[
-          IconRepeatAllDark,
-          IconRepeatSingleDark,
-          IconRepeatOffDark
-        ]}
+        iconJSON={repeatIconJSON}
         onPress={onPressRepeat}
         style={styles.button}
         wrapperStyle={styles.shuffleRepeatIcons}
@@ -154,8 +329,7 @@ export const AudioControls = ({
       <Animated.View style={{ transform: [{ scale }] }}>
         <AnimatedButton
           iconIndex={isPlaying ? 1 : 0}
-          iconLightJSON={[IconPlay, IconPause]}
-          iconDarkJSON={[IconPlay, IconPause]}
+          iconJSON={playButtonIconJSON}
           onPress={onPressPlayButton}
           onPressIn={handlePressInScale}
           onPressOut={handlePressOutScale}
@@ -177,8 +351,7 @@ export const AudioControls = ({
   const renderShuffleButton = () => {
     return (
       <AnimatedButton
-        iconLightJSON={[IconShuffleOnLight, IconShuffleOffLight]}
-        iconDarkJSON={[IconShuffleOnDark, IconShuffleOffDark]}
+        iconJSON={shuffleIconJSON}
         onPress={onPressShuffle}
         style={styles.button}
         wrapperStyle={styles.shuffleRepeatIcons}

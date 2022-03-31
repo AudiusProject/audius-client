@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FavoriteSource } from 'audius-client/src/common/models/Analytics'
 import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
@@ -27,7 +27,8 @@ import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { pause, play } from 'app/store/audio/actions'
 import { getPlaying } from 'app/store/audio/selectors'
-import { ThemeColors } from 'app/utils/theme'
+import { colorize } from 'app/utils/colorizeLottie'
+import { ThemeColors, useThemeColors } from 'app/utils/theme'
 
 import { TrackingBar } from './TrackingBar'
 import { NOW_PLAYING_HEIGHT } from './constants'
@@ -122,6 +123,7 @@ export const PlayBar = ({
   const styles = useThemedStyles(createStyles)
   const dispatch = useDispatch()
   const dispatchWeb = useDispatchWeb()
+  const { background, primary } = useThemeColors()
 
   const [percentComplete, setPercentComplete] = useState(0)
 
@@ -152,11 +154,42 @@ export const PlayBar = ({
     }
   }, [isPlaying, dispatch])
 
+  const ColorizedPlayIcon = useMemo(
+    () =>
+      colorize(IconPlay, {
+        // #playpause1.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // #playpause2.Left.Fill 1
+        'layers.1.shapes.0.it.1.c.k': background,
+        // #playpause2.Right.Fill 1
+        'layers.1.shapes.1.it.1.c.k': background,
+        // #primaryBG.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k': primary
+      }),
+    [background, primary]
+  )
+
+  const ColorizedPauseIcon = useMemo(
+    () =>
+      colorize(IconPause, {
+        // #playpause1.Group 1.Fill 1
+        'layers.0.shapes.0.it.1.c.k': background,
+        // #playpause2.Left.Fill 1
+        'layers.1.shapes.0.it.1.c.k': background,
+        // #playpause2.Right.Fill 1
+        'layers.1.shapes.1.it.1.c.k': background,
+        // #primaryBG.Group 2.Fill 1
+        'layers.2.shapes.0.it.1.c.k': primary
+      }),
+    [background, primary]
+  )
+
+  const playButtonIconJSON = [ColorizedPlayIcon, ColorizedPauseIcon]
+
   const renderPlayButton = () => {
     return (
       <AnimatedButton
-        iconLightJSON={[IconPlay, IconPause]}
-        iconDarkJSON={[IconPlay, IconPause]}
+        iconJSON={playButtonIconJSON}
         onPress={onPressPlayButton}
         iconIndex={isPlaying ? 1 : 0}
         style={styles.button}
