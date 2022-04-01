@@ -62,7 +62,7 @@ export const ReachabilityBar = () => {
   }, [isNotReachable, translationAnim])
 
   return (
-    <SafeAreaView style={[styles.root]} edges={['top']} pointerEvents='none'>
+    <SafeAreaView style={styles.root} edges={['top']} pointerEvents='none'>
       <View style={styles.container}>
         <Animated.Text
           style={[
