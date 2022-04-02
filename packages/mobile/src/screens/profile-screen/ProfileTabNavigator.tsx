@@ -37,10 +37,6 @@ type ProfileTabNavigatorProps = {
   onRefresh?: () => void
 }
 
-const collapsibleOptions = {
-  lazy: false
-}
-
 export const ProfileTabNavigator = ({
   renderHeader,
   animatedValue,
@@ -111,7 +107,6 @@ export const ProfileTabNavigator = ({
       <CollapsibleTabNavigator
         renderHeader={renderHeader}
         animatedValue={animatedValue}
-        collapsibleOptions={collapsibleOptions}
       >
         {trackScreen}
         {albumsScreen}
@@ -126,7 +121,6 @@ export const ProfileTabNavigator = ({
     <CollapsibleTabNavigator
       renderHeader={renderHeader}
       animatedValue={animatedValue}
-      collapsibleOptions={collapsibleOptions}
     >
       {repostsScreen}
       {playlistsScreen}
