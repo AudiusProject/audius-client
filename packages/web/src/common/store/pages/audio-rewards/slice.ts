@@ -97,12 +97,14 @@ const slice = createSlice({
       if (userChallenges === null) {
         state.userChallenges = {}
       } else {
-        state.userChallenges = userChallenges.reduce(
+        state.userChallenges = userChallenges.reduce<
+          Partial<Record<ChallengeRewardID, UserChallenge>>
+        >(
           (acc, challenge) => ({
             ...acc,
             [challenge.challenge_id]: challenge
           }),
-          {} as Partial<Record<ChallengeRewardID, UserChallenge>>
+          {}
         )
       }
       state.loading = false
