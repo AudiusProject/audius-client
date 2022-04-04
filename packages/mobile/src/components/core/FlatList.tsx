@@ -38,34 +38,34 @@ const AnimatedFlatList = forwardRef<RNFlatList, FlatListProps>(
   ) {
     const scrollRef = useRef<Animated.FlatList>(null)
 
-    const {
-      isRefreshing,
-      isRefreshDisabled,
-      handleRefresh,
-      scrollAnim,
-      onScroll,
-      onScrollBeginDrag,
-      onScrollEndDrag
-    } = useOverflowHandlers({
-      isRefreshing: refreshing,
-      scrollResponder: ref?.current || scrollRef.current,
-      onRefresh
-    })
+    // const {
+    //   isRefreshing,
+    //   isRefreshDisabled,
+    //   handleRefresh,
+    //   scrollAnim,
+    //   onScroll,
+    //   onScrollBeginDrag,
+    //   onScrollEndDrag
+    // } = useOverflowHandlers({
+    //   isRefreshing: refreshing,
+    //   scrollResponder: ref?.current || scrollRef.current,
+    //   onRefresh
+    // })
 
     return (
       <View>
-        <PullToRefresh
+        {/* <PullToRefresh
           isRefreshing={isRefreshing}
           onRefresh={handleRefresh}
           scrollAnim={scrollAnim}
           isRefreshDisabled={isRefreshDisabled}
-        />
+        /> */}
         <Animated.FlatList
           scrollToOverflowEnabled
           ref={ref || scrollRef}
-          onScroll={onScroll}
-          onScrollBeginDrag={onScrollBeginDrag}
-          onScrollEndDrag={onScrollEndDrag}
+          // onScroll={onScroll}
+          // onScrollBeginDrag={onScrollBeginDrag}
+          // onScrollEndDrag={onScrollEndDrag}
           {...other}
         />
       </View>

@@ -1,3 +1,4 @@
+import { MaterialTopTabBarProps } from '@react-navigation/material-top-tabs'
 import { Animated, Dimensions, TouchableOpacity, View } from 'react-native'
 
 import { makeStyles } from 'app/styles'
@@ -82,7 +83,12 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   }
 }))
 
-export const TopTabBar = ({ state, descriptors, navigation, position }) => {
+export const TopTabBar = ({
+  state,
+  descriptors,
+  navigation,
+  position
+}: MaterialTopTabBarProps) => {
   // Horizontal padding decreases as the number of tabs increases
   const horizontalPadding =
     Math.max(6 - state.routes.length, 0) * HORIZONTAL_PADDING
@@ -103,7 +109,7 @@ export const TopTabBar = ({ state, descriptors, navigation, position }) => {
 
     if (!isFocused(tabIndex) && !event.defaultPrevented) {
       // The `merge: true` option makes sure that the params inside the tab screen are preserved
-      navigation.navigate({ name: route.name, merge: true })
+      navigation.navigate({ name: route.name, merge: true, params: {} })
     }
   }
 
@@ -131,7 +137,7 @@ export const TopTabBar = ({ state, descriptors, navigation, position }) => {
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key]
           const label = options.tabBarLabel ?? options.title ?? route.name
-          const icon = options.tabBarIcon({ color: neutral })
+          const icon = options.tabBarIcon?.({ color: neutral, focused: false })
 
           const inputRange = state.routes.map((_, i) => i)
           const opacity = position.interpolate({
@@ -140,7 +146,7 @@ export const TopTabBar = ({ state, descriptors, navigation, position }) => {
           })
 
           return (
-            <View key={label} style={styles.tabContainer}>
+            <View key={route.name} style={styles.tabContainer}>
               <TouchableOpacity
                 accessibilityLabel={options.tabBarAccessibilityLabel}
                 accessibilityRole='button'

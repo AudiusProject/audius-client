@@ -1,14 +1,19 @@
-import { ComponentType, createContext, ReactNode } from 'react'
+import { ComponentType, createContext, ReactNode, useContext } from 'react'
 
-import { MaterialTopTabNavigationOptions } from '@react-navigation/material-top-tabs'
-import { Animated } from 'react-native'
-import { createMaterialCollapsibleTopTabNavigator } from 'react-native-collapsible-tab-view'
+import { Portal, PortalHost } from '@gorhom/portal'
+import { NavigationContext } from '@react-navigation/core'
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+  MaterialTopTabNavigationOptions
+} from '@react-navigation/material-top-tabs'
+import { Animated, Dimensions, FlatList, View } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
 import { TopTabBar } from 'app/components/top-tab-bar'
 import { makeStyles } from 'app/styles'
 
-const Tab = createMaterialCollapsibleTopTabNavigator()
+const Tab = createMaterialTopTabNavigator()
 
 const useStyles = makeStyles(({ palette }) => ({
   root: { backgroundColor: palette.white },
@@ -71,6 +76,17 @@ type CollapsibleTabNavigatorProps = {
   screenOptions?: MaterialTopTabNavigationOptions
 }
 
+const CollapsibleTabBar = (props: MaterialTopTabBarProps) => {
+  const navigation = useContext(NavigationContext)
+  return (
+    <Portal hostName='CollapsibleTabBarHost'>
+      <NavigationContext.Provider value={navigation}>
+        <TopTabBar {...props} />
+      </NavigationContext.Provider>
+    </Portal>
+  )
+}
+
 export const CollapsibleTabNavigator = ({
   renderHeader,
   animatedValue,
@@ -80,23 +96,34 @@ export const CollapsibleTabNavigator = ({
 }: CollapsibleTabNavigatorProps) => {
   const styles = useStyles()
   return (
-    <Tab.Navigator
-      collapsibleOptions={{
-        renderHeader,
-        disableSnap: true,
-        animatedValue
+    <FlatList
+      data={[0, 1, 2]}
+      renderItem={({ index }) => {
+        if (index === 0) {
+          return renderHeader() as any
+        }
+        if (index === 1) {
+          return <PortalHost name='CollapsibleTabBarHost' />
+        }
+        return (
+          <Tab.Navigator
+            initialRouteName={initialScreenName}
+            tabBar={CollapsibleTabBar}
+            screenOptions={{
+              tabBarStyle: styles.root,
+              tabBarLabelStyle: styles.label,
+              tabBarIndicatorStyle: styles.indicator,
+              lazy: true,
+              ...screenOptions
+            }}
+          >
+            {children}
+          </Tab.Navigator>
+        )
       }}
-      initialRouteName={initialScreenName}
-      tabBar={props => <TopTabBar {...props} />}
-      screenOptions={{
-        tabBarStyle: styles.root,
-        tabBarLabelStyle: styles.label,
-        tabBarIndicatorStyle: styles.indicator,
-        ...screenOptions
-      }}
-    >
-      {children}
-    </Tab.Navigator>
+      stickyHeaderIndices={[1]}
+      showsVerticalScrollIndicator={false}
+    />
   )
 }
 
@@ -127,6 +154,7 @@ export const collapsibleTabScreen = (config: TabScreenConfig) => {
     onRefresh,
     scrollY
   } = config
+  const { height } = Dimensions.get('screen')
 
   return (
     <Tab.Screen
@@ -139,14 +167,16 @@ export const collapsibleTabScreen = (config: TabScreenConfig) => {
       initialParams={initialParams}
     >
       {() => (
-        <CollapsibleTabNavigatorContextProvider
-          sceneName={name}
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          scrollY={scrollY}
-        >
+        // <CollapsibleTabNavigatorContextProvider
+        //   sceneName={name}
+        //   refreshing={refreshing}
+        //   onRefresh={onRefresh}
+        //   scrollY={scrollY}
+        // >
+        <View style={{ paddingBottom: height }}>
           <Component />
-        </CollapsibleTabNavigatorContextProvider>
+        </View>
+        // </CollapsibleTabNavigatorContextProvider>
       )}
     </Tab.Screen>
   )

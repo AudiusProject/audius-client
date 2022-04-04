@@ -53,7 +53,7 @@ export const TracksTab = () => {
   return (
     <Lineup
       leadingElementId={_artist_pick}
-      listKey='profile-tracks'
+      // listKey='profile-tracks'
       actions={tracksActions}
       lineup={isProfileLoaded ? lineup : { ...lineup, entries: [] }}
       limit={track_count}

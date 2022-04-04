@@ -17,34 +17,30 @@ export const useScrollToTop = (
   scrollToTop: () => void,
   disableTopTabScroll = false
 ) => {
-  const navigation = useNavigation()
-
-  useFocusEffect(
-    useCallback(() => {
-      const parents = getParentNavigators(navigation)
-
-      const removeListeners = parents.map(p =>
-        p.addListener('scrollToTop' as any, () => {
-          scrollToTop()
-        })
-      )
-
-      const removeTabListeners = (navigation.getState()?.type === 'tab' &&
-      !disableTopTabScroll
-        ? ['tabPress', 'tabLongPress']
-        : []
-      ).map(e =>
-        navigation.addListener(e as any, () => {
-          scrollToTop()
-        })
-      )
-
-      return () => {
-        removeListeners.forEach(r => r())
-        removeTabListeners.forEach(r => r())
-      }
-    }, [navigation, scrollToTop, disableTopTabScroll])
-  )
+  // const navigation = useNavigation()
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const parents = getParentNavigators(navigation)
+  //     const removeListeners = parents.map(p =>
+  //       p.addListener('scrollToTop' as any, () => {
+  //         scrollToTop()
+  //       })
+  //     )
+  //     const removeTabListeners = (navigation.getState()?.type === 'tab' &&
+  //     !disableTopTabScroll
+  //       ? ['tabPress', 'tabLongPress']
+  //       : []
+  //     ).map(e =>
+  //       navigation.addListener(e as any, () => {
+  //         scrollToTop()
+  //       })
+  //     )
+  //     return () => {
+  //       removeListeners.forEach(r => r())
+  //       removeTabListeners.forEach(r => r())
+  //     }
+  //   }, [navigation, scrollToTop, disableTopTabScroll])
+  // )
 }
 
 /**
