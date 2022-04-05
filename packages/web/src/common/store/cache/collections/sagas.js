@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import {
   all,
   call,
@@ -33,7 +34,10 @@ import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import watchTrackErrors from './errorSagas'
 import { reformat } from './utils'
-import { retrieveCollections } from './utils/retrieveCollections'
+import {
+  retrieveCollection,
+  retrieveCollections
+} from './utils/retrieveCollections'
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -448,20 +452,49 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
             `Could not confirm add playlist track for playlist id ${playlistId} and track id ${trackId}`
           )
         }
-
-        return (yield call(AudiusBackend.getPlaylists, userId, [
-          confirmedPlaylistId
-        ]))[0]
+        return confirmedPlaylistId
       },
-      function* (confirmedPlaylist) {
-        yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              metadata: confirmedPlaylist
-            }
-          ])
-        )
+      function* (confirmedPlaylistId) {
+        const confirmedPlaylist = (yield call(
+          retrieveCollection,
+          confirmedPlaylistId
+        ))[0]
+
+        const playlist = yield select(getCollection, { id: playlistId })
+
+        /** Since "add track" calls are parallelized, tracks may be added
+         * out of order. Here we check if tracks made it in the intended order;
+         * if not, we reorder them into the correct order.
+         */
+        if (
+          confirmedPlaylist.playlist_contents.track_ids.length ===
+            playlist.playlist_contents.track_ids.length &&
+          confirmedPlaylist.playlist_contents.track_ids.length > 0
+        ) {
+          const confirmedPlaylistTracks = confirmedPlaylist.playlist_contents.track_ids.map(
+            t => t.track
+          )
+          const cachedPlaylistTracks = playlist.playlist_contents.track_ids.map(
+            t => t.track
+          )
+          if (!isEqual(confirmedPlaylistTracks, cachedPlaylistTracks)) {
+            yield call(
+              confirmOrderPlaylist,
+              userId,
+              playlistId,
+              cachedPlaylistTracks
+            )
+          } else {
+            yield put(
+              cacheActions.update(Kind.COLLECTIONS, [
+                {
+                  id: confirmedPlaylist.playlist_id,
+                  metadata: confirmedPlaylist
+                }
+              ])
+            )
+          }
+        }
       },
       function* ({ error, timeout, message }) {
         // Fail Call
@@ -473,7 +506,13 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
           )
         )
       },
-      result => (result.playlist_id ? result.playlist_id : playlistId)
+      result => (result.playlist_id ? result.playlist_id : playlistId),
+      undefined,
+      {
+        operationId: 'ADD_TRACK',
+        parallelizable: true,
+        useOnlyLastSuccessCall: true
+      }
     )
   )
 }
@@ -614,12 +653,13 @@ function* confirmRemoveTrackFromPlaylist(
             `Could not confirm remove playlist track for playlist id ${playlistId} and track id ${trackId}`
           )
         }
-
-        return (yield call(AudiusBackend.getPlaylists, userId, [
-          confirmedPlaylistId
-        ]))[0]
+        return confirmedPlaylistId
       },
-      function* (confirmedPlaylist) {
+      function* (confirmedPlaylistId) {
+        const confirmedPlaylist = (yield call(
+          retrieveCollection,
+          confirmedPlaylistId
+        ))[0]
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
             {
@@ -639,7 +679,13 @@ function* confirmRemoveTrackFromPlaylist(
           )
         )
       },
-      result => (result.playlist_id ? result.playlist_id : playlistId)
+      result => (result.playlist_id ? result.playlist_id : playlistId),
+      undefined,
+      {
+        operationId: 'REMOVE_TRACK',
+        parallelizable: true,
+        useOnlyLastSuccessCall: true
+      }
     )
   )
 }
@@ -717,7 +763,9 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
             confirmedPlaylistId,
             trackIds
           )
-          if (response.error) throw response.error
+          if (response.error) {
+            throw response.error
+          }
 
           blockHash = response.blockHash
           blockNumber = response.blockNumber
@@ -730,11 +778,14 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
           )
         }
 
-        return (yield call(AudiusBackend.getPlaylists, userId, [
-          confirmedPlaylistId
-        ]))[0]
+        return confirmedPlaylistId
       },
-      function* (confirmedPlaylist) {
+      function* (confirmedPlaylistId) {
+        const confirmedPlaylist = (yield call(
+          retrieveCollection,
+          confirmedPlaylistId
+        ))[0]
+
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
             {
@@ -754,7 +805,9 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
           )
         )
       },
-      result => (result.playlist_id ? result.playlist_id : playlistId)
+      result => (result.playlist_id ? result.playlist_id : playlistId),
+      undefined,
+      { operationId: 'REORDER', squashable: true }
     )
   )
 }

@@ -11,6 +11,7 @@ type ConfirmerPreviewProps = {} & ReturnType<typeof mapStateToProps>
 
 const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
   const entities = Object.keys(confirmer.confirm)
+  console.log(confirmer.confirm, 'confirmer contents')
   const isEnabled = useDevModeHotkey(67 /* c */)
   if (!isEnabled) return null
 
@@ -25,19 +26,25 @@ const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
                 <div className={styles.entity} key={entity}>
                   <div className={styles.entityName}>{entity}</div>
                   <div className={styles.index}>
-                    In Progress Call: #{' '}
-                    {confirmer.confirm[(entity as unknown) as number].index}
+                    In Progress Call: # {confirmer.confirm[entity].index}
                   </div>
                   <div className={styles.calls}>
-                    {confirmer.confirm[(entity as unknown) as number].calls.map(
-                      (call, i) => {
-                        return (
-                          <div className={styles.call} key={i}>
-                            {i}. result: {call.result === null ? '-' : 'done'}
-                          </div>
-                        )
+                    {confirmer.confirm[entity].calls.map((call, i) => {
+                      let resultText: string
+                      if (call.cancelled) {
+                        resultText = 'cancelled'
+                      } else if (call.result === null) {
+                        resultText = '-'
+                      } else {
+                        resultText = 'done'
                       }
-                    )}
+
+                      return (
+                        <div className={styles.call} key={i}>
+                          {i}. result: {resultText}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )

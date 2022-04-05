@@ -29,7 +29,8 @@ describe('requestConfirmation', () => {
       .put(actions.addConfirmationCall('111', confirm))
       .put(actions.setConfirmationResult('111', 1))
       .put(actions.addCompletionCall('111', call(success, 1)))
-      .put(actions.clear('111'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(confirm).toBeCalled()
@@ -60,7 +61,7 @@ describe('requestConfirmation', () => {
           confirm2,
           success2,
           fail2,
-          result => result // pass previous result to this confirmation call
+          (result: number) => result // pass previous result to this confirmation call
         )
       )
       .put(actions.addConfirmationCall('111', confirm1))
@@ -69,7 +70,8 @@ describe('requestConfirmation', () => {
       .put(actions.addCompletionCall('111', call(success1, 1)))
       .put(actions.setConfirmationResult('111', 2))
       .put(actions.addCompletionCall('111', call(success2, 2)))
-      .put(actions.clear('111'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(confirm1).toBeCalled()
@@ -102,7 +104,7 @@ describe('requestConfirmation', () => {
           confirm2,
           success2,
           fail2,
-          result => result.id // pass the previous result id to this confirmation call
+          (result: { id: number }) => result.id // pass the previous result id to this confirmation call
         )
       )
       .put(actions.addConfirmationCall('111', confirm1))
@@ -111,7 +113,8 @@ describe('requestConfirmation', () => {
       .put(actions.addCompletionCall('111', call(success1, { id: 1 })))
       .put(actions.setConfirmationResult('111', { id: 2 }))
       .put(actions.addCompletionCall('111', call(success2, { id: 2 })))
-      .put(actions.clear('111'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(confirm1).toBeCalled()
@@ -151,7 +154,8 @@ describe('requestConfirmation', () => {
           call(fail, { error: true, message: 'Error Message', timeout: false })
         )
       )
-      .put(actions.clear('111'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(confirm).toBeCalled()
@@ -202,9 +206,10 @@ describe('requestConfirmation', () => {
       .put(actions.addCompletionCall('222', call(success21, 21)))
       .put(actions.setConfirmationResult('222', 22))
       .put(actions.addCompletionCall('222', call(success22, 22)))
-
-      .put(actions.clear('111'))
-      .put(actions.clear('222'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
+      .put(actions.clearComplete('222'))
+      .put(actions.clearConfirm('222'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(confirm11).toBeCalled()
@@ -220,7 +225,8 @@ describe('requestConfirmation', () => {
 })
 
 describe('requestConfirmation timeouts', () => {
-  const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
+  const timeout = (ms: number) =>
+    new Promise(resolve => setTimeout(resolve, ms))
 
   it('fails on timeout', async () => {
     const confirm1 = async () => {
@@ -252,7 +258,7 @@ describe('requestConfirmation timeouts', () => {
           confirm1,
           success1,
           fail1,
-          result => result, // pass previous result to this confirmation call,
+          (result: number) => result, // pass previous result to this confirmation call,
           100 // ms
         )
       )
@@ -262,7 +268,7 @@ describe('requestConfirmation timeouts', () => {
           confirm2,
           success2,
           fail2,
-          result => result, // pass previous result to this confirmation call
+          (result: number) => result, // pass previous result to this confirmation call
           100 // ms
         )
       )
@@ -277,7 +283,8 @@ describe('requestConfirmation timeouts', () => {
           call(fail2, { error: true, timeout: true })
         )
       )
-      .put(actions.clear('111'))
+      .put(actions.clearComplete('111'))
+      .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(success1).toBeCalledWith(1)
