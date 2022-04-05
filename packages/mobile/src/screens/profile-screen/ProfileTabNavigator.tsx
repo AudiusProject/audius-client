@@ -92,6 +92,8 @@ export const ProfileTabNavigator = ({
       <CollapsibleTabNavigator
         renderHeader={renderHeader}
         animatedValue={animatedValue}
+        onRefresh={onRefresh}
+        portalKey={String(user_id)}
       >
         {trackScreen}
         {albumsScreen}
@@ -107,6 +109,7 @@ export const ProfileTabNavigator = ({
       renderHeader={renderHeader}
       animatedValue={animatedValue}
       onRefresh={onRefresh}
+      portalKey={String(user_id)}
     >
       {repostsScreen}
       {playlistsScreen}

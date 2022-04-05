@@ -41,14 +41,18 @@ type CollapsibleTabNavigatorProps = {
   refreshing?: boolean
   onRefresh?: () => void
   scrollY?: Animated.Value
+  portalKey: string
 }
 
-const CollapsibleTabBar = (props: MaterialTopTabBarProps) => {
+const CollapsibleTabBar = ({
+  hostName,
+  ...other
+}: MaterialTopTabBarProps & { hostName: string }) => {
   const navigation = useContext(NavigationContext)
   return (
-    <Portal hostName='CollapsibleTabBarHost'>
+    <Portal hostName={hostName}>
       <NavigationContext.Provider value={navigation}>
-        <TopTabBar {...props} />
+        <TopTabBar {...other} />
       </NavigationContext.Provider>
     </Portal>
   )
@@ -59,10 +63,12 @@ export const CollapsibleTabNavigator = ({
   animatedValue,
   initialScreenName,
   children,
-  screenOptions
+  screenOptions,
+  portalKey
 }: CollapsibleTabNavigatorProps) => {
   const styles = useStyles()
   const { height } = Dimensions.get('screen')
+  const tabBarPortalHostName = `CollapsibleTabBarHost-${portalKey}`
   return (
     <FlatList
       data={[0, 1, 2]}
@@ -72,12 +78,14 @@ export const CollapsibleTabNavigator = ({
           return renderHeader() as any
         }
         if (index === 1) {
-          return <PortalHost name='CollapsibleTabBarHost' />
+          return <PortalHost name={tabBarPortalHostName} />
         }
         return (
           <Tab.Navigator
             initialRouteName={initialScreenName}
-            tabBar={CollapsibleTabBar}
+            tabBar={props => (
+              <CollapsibleTabBar hostName={tabBarPortalHostName} {...props} />
+            )}
             sceneContainerStyle={{ paddingBottom: height }}
             screenOptions={{
               tabBarStyle: styles.root,
