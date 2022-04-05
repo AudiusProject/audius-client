@@ -367,8 +367,6 @@ export const Lineup = ({
       ListFooterComponent={<View style={{ height: 16 }} />}
       onEndReached={handleLoadMore}
       onEndReachedThreshold={LOAD_MORE_THRESHOLD}
-      // TODO: Either style the refreshing indicator or
-      // roll our own
       onRefresh={refresh}
       refreshing={refreshing}
       sections={sections}

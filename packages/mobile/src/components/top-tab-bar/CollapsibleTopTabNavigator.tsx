@@ -1,4 +1,4 @@
-import { ComponentType, createContext, ReactNode, useContext } from 'react'
+import { ComponentType, ReactNode, useContext } from 'react'
 
 import { Portal, PortalHost } from '@gorhom/portal'
 import { NavigationContext } from '@react-navigation/core'
@@ -7,9 +7,10 @@ import {
   MaterialTopTabBarProps,
   MaterialTopTabNavigationOptions
 } from '@react-navigation/material-top-tabs'
-import { Animated, Dimensions, FlatList, View } from 'react-native'
+import { Animated, Dimensions } from 'react-native'
 import { SvgProps } from 'react-native-svg'
 
+import { FlatList } from 'app/components/core/FlatList'
 import { TopTabBar } from 'app/components/top-tab-bar'
 import { makeStyles } from 'app/styles'
 
@@ -20,44 +21,6 @@ const useStyles = makeStyles(({ palette }) => ({
   label: { fontSize: 12 },
   indicator: { backgroundColor: palette.primary, height: 3 }
 }))
-
-type CollapsibleTabNavigatorContextProps = {
-  sceneName?: string
-  refreshing?: boolean
-  onRefresh?: () => void
-  scrollY?: Animated.Value
-}
-
-export const CollapsibleTabNavigatorContext = createContext<
-  CollapsibleTabNavigatorContextProps
->({
-  sceneName: undefined,
-  refreshing: undefined,
-  onRefresh: undefined,
-  scrollY: undefined
-})
-
-export const CollapsibleTabNavigatorContextProvider = ({
-  sceneName,
-  refreshing,
-  onRefresh,
-  scrollY,
-  children
-}: {
-  sceneName: string
-  refreshing?: boolean
-  onRefresh?: () => void
-  scrollY?: Animated.Value
-  children: ReactNode
-}) => {
-  return (
-    <CollapsibleTabNavigatorContext.Provider
-      value={{ sceneName, refreshing, onRefresh, scrollY }}
-    >
-      {children}
-    </CollapsibleTabNavigatorContext.Provider>
-  )
-}
 
 type CollapsibleTabNavigatorProps = {
   /**
@@ -74,6 +37,10 @@ type CollapsibleTabNavigatorProps = {
   initialScreenName?: string
   children: ReactNode
   screenOptions?: MaterialTopTabNavigationOptions
+
+  refreshing?: boolean
+  onRefresh?: () => void
+  scrollY?: Animated.Value
 }
 
 const CollapsibleTabBar = (props: MaterialTopTabBarProps) => {
@@ -95,9 +62,11 @@ export const CollapsibleTabNavigator = ({
   screenOptions
 }: CollapsibleTabNavigatorProps) => {
   const styles = useStyles()
+  const { height } = Dimensions.get('screen')
   return (
     <FlatList
       data={[0, 1, 2]}
+      scrollAnim={animatedValue}
       renderItem={({ index }) => {
         if (index === 0) {
           return renderHeader() as any
@@ -109,6 +78,7 @@ export const CollapsibleTabNavigator = ({
           <Tab.Navigator
             initialRouteName={initialScreenName}
             tabBar={CollapsibleTabBar}
+            sceneContainerStyle={{ paddingBottom: height }}
             screenOptions={{
               tabBarStyle: styles.root,
               tabBarLabelStyle: styles.label,
@@ -122,7 +92,7 @@ export const CollapsibleTabNavigator = ({
         )
       }}
       stickyHeaderIndices={[1]}
-      showsVerticalScrollIndicator={false}
+      refreshIndicatorTopOffset={40}
     />
   )
 }
@@ -137,24 +107,10 @@ type ScreenConfig = {
 type TabScreenConfig = ScreenConfig & {
   key?: string
   initialParams?: Record<string, unknown>
-  refreshing?: boolean
-  onRefresh?: () => void
-  scrollY?: Animated.Value
 }
 
 export const collapsibleTabScreen = (config: TabScreenConfig) => {
-  const {
-    key,
-    name,
-    label,
-    Icon,
-    component: Component,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY
-  } = config
-  const { height } = Dimensions.get('screen')
+  const { key, name, label, Icon, component: Component, initialParams } = config
 
   return (
     <Tab.Screen
@@ -165,19 +121,7 @@ export const collapsibleTabScreen = (config: TabScreenConfig) => {
         tabBarIcon: ({ color }) => <Icon fill={color} />
       }}
       initialParams={initialParams}
-    >
-      {() => (
-        // <CollapsibleTabNavigatorContextProvider
-        //   sceneName={name}
-        //   refreshing={refreshing}
-        //   onRefresh={onRefresh}
-        //   scrollY={scrollY}
-        // >
-        <View style={{ paddingBottom: height }}>
-          <Component />
-        </View>
-        // </CollapsibleTabNavigatorContextProvider>
-      )}
-    </Tab.Screen>
+      component={Component}
+    />
   )
 }

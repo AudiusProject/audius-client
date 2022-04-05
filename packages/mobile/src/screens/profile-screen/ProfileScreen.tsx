@@ -130,11 +130,6 @@ export const ProfileScreen = () => {
 
   const renderHeader = () => {
     return (
-      // Box-none gets us scrolling on the non-touchable parts of the header
-      // See scroll on header documentation:
-      // https://github.com/PedroBern/react-native-collapsible-tab-view/tree/v2#scroll-on-header
-      // And also known drawbacks:
-      // https://github.com/PedroBern/react-native-collapsible-tab-view/pull/30
       <>
         <CoverPhoto scrollY={scrollY} />
         <ProfilePicture style={styles.profilePicture} />

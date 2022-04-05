@@ -49,13 +49,16 @@ const interpolateOpacity = (scrollAnim: Animated.Value) =>
 export const useOverflowHandlers = ({
   isRefreshing,
   scrollResponder,
-  onRefresh
+  onRefresh,
+  scrollAnim: providedScrollAnim
 }: {
   isRefreshing?: boolean | null
   scrollResponder?: FlatList<any> | Animated.FlatList<any> | ScrollView | null
   onRefresh?: (() => void) | null
+  scrollAnim?: Animated.Value
 }) => {
-  const scrollAnim = useRef(new Animated.Value(0)).current
+  const defaultScrollAnim = useRef(new Animated.Value(0)).current
+  const scrollAnim = providedScrollAnim ?? defaultScrollAnim
 
   const [isMomentumScroll, setIsMomentumScroll] = useState(false)
   const [isDebouncing, setIsDebouncing] = useState(false)

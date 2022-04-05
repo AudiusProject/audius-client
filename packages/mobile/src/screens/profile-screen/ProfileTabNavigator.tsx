@@ -56,50 +56,35 @@ export const ProfileTabNavigator = ({
     name: 'Tracks',
     Icon: IconNote,
     component: TracksTab,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY: animatedValue
+    initialParams
   })
 
   const albumsScreen = collapsibleTabScreen({
     name: 'Albums',
     Icon: IconAlbum,
     component: AlbumsTab,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY: animatedValue
+    initialParams
   })
 
   const playlistsScreen = collapsibleTabScreen({
     name: 'Playlists',
     Icon: IconPlaylists,
     component: PlaylistsTab,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY: animatedValue
+    initialParams
   })
 
   const repostsScreen = collapsibleTabScreen({
     name: 'Reposts',
     Icon: IconRepost,
     component: RepostsTab,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY: animatedValue
+    initialParams
   })
 
   const collectiblesScreen = collapsibleTabScreen({
     name: 'Collectibles',
     Icon: IconCollectibles,
     component: CollectiblesTab,
-    initialParams,
-    refreshing,
-    onRefresh,
-    scrollY: animatedValue
+    initialParams
   })
 
   if (isArtist) {
@@ -121,6 +106,7 @@ export const ProfileTabNavigator = ({
     <CollapsibleTabNavigator
       renderHeader={renderHeader}
       animatedValue={animatedValue}
+      onRefresh={onRefresh}
     >
       {repostsScreen}
       {playlistsScreen}
