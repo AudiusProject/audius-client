@@ -6,9 +6,12 @@ import * as actions from 'store/confirmer/actions'
 import reducer from 'store/confirmer/reducer'
 import * as sagas from 'store/confirmer/sagas'
 
+import { ConfirmationOptions } from './types'
+
 const initialState = {
   confirm: {},
-  complete: {}
+  complete: {},
+  operationSuccessCallIdx: {}
 }
 
 describe('requestConfirmation', () => {
@@ -27,9 +30,9 @@ describe('requestConfirmation', () => {
       )
       .dispatch(actions.requestConfirmation('111', confirm, success))
       .put(actions.addConfirmationCall('111', confirm))
-      .put(actions.setConfirmationResult('111', 1))
+      .put(actions.setConfirmationResult('111', 1, 0))
       .put(actions.addCompletionCall('111', call(success, 1)))
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 0))
       .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
@@ -66,11 +69,11 @@ describe('requestConfirmation', () => {
       )
       .put(actions.addConfirmationCall('111', confirm1))
       .put(actions.addConfirmationCall('111', confirm2))
-      .put(actions.setConfirmationResult('111', 1))
+      .put(actions.setConfirmationResult('111', 1, 0))
       .put(actions.addCompletionCall('111', call(success1, 1)))
-      .put(actions.setConfirmationResult('111', 2))
+      .put(actions.setConfirmationResult('111', 2, 1))
       .put(actions.addCompletionCall('111', call(success2, 2)))
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 1))
       .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
@@ -109,11 +112,11 @@ describe('requestConfirmation', () => {
       )
       .put(actions.addConfirmationCall('111', confirm1))
       .put(actions.addConfirmationCall('111', confirm2))
-      .put(actions.setConfirmationResult('111', { id: 1 }))
+      .put(actions.setConfirmationResult('111', { id: 1 }, 0))
       .put(actions.addCompletionCall('111', call(success1, { id: 1 })))
-      .put(actions.setConfirmationResult('111', { id: 2 }))
+      .put(actions.setConfirmationResult('111', { id: 2 }, 1))
       .put(actions.addCompletionCall('111', call(success2, { id: 2 })))
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 1))
       .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
@@ -142,11 +145,15 @@ describe('requestConfirmation', () => {
       .dispatch(actions.requestConfirmation('111', confirm, success, fail))
       .put(actions.addConfirmationCall('111', confirm))
       .put(
-        actions.setConfirmationResult('111', {
-          error: true,
-          message: 'Error Message',
-          timeout: false
-        })
+        actions.setConfirmationResult(
+          '111',
+          {
+            error: true,
+            message: 'Error Message',
+            timeout: false
+          },
+          0
+        )
       )
       .put(
         actions.addCompletionCall(
@@ -154,7 +161,7 @@ describe('requestConfirmation', () => {
           call(fail, { error: true, message: 'Error Message', timeout: false })
         )
       )
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 0))
       .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
@@ -189,26 +196,26 @@ describe('requestConfirmation', () => {
         }
       )
       .dispatch(actions.requestConfirmation('111', confirm11, success11))
+      .dispatch(actions.requestConfirmation('111', confirm12, success12))
       .dispatch(actions.requestConfirmation('222', confirm21, success21))
       .dispatch(actions.requestConfirmation('222', confirm22, success22))
-      .dispatch(actions.requestConfirmation('111', confirm12, success12))
       .put(actions.addConfirmationCall('111', confirm11))
       .put(actions.addConfirmationCall('111', confirm12))
       .put(actions.addConfirmationCall('222', confirm21))
       .put(actions.addConfirmationCall('222', confirm22))
 
-      .put(actions.setConfirmationResult('111', 11))
+      .put(actions.setConfirmationResult('111', 11, 0, true))
       .put(actions.addCompletionCall('111', call(success11, 11)))
-      .put(actions.setConfirmationResult('111', 12))
+      .put(actions.setConfirmationResult('111', 12, 1, true))
       .put(actions.addCompletionCall('111', call(success12, 12)))
 
-      .put(actions.setConfirmationResult('222', 21))
+      .put(actions.setConfirmationResult('222', 21, 0))
       .put(actions.addCompletionCall('222', call(success21, 21)))
-      .put(actions.setConfirmationResult('222', 22))
+      .put(actions.setConfirmationResult('222', 22, 1, true))
       .put(actions.addCompletionCall('222', call(success22, 22)))
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 1))
       .put(actions.clearConfirm('111'))
-      .put(actions.clearComplete('222'))
+      .put(actions.clearComplete('222', 1))
       .put(actions.clearConfirm('222'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
@@ -274,20 +281,262 @@ describe('requestConfirmation timeouts', () => {
       )
       .put(actions.addConfirmationCall('111', confirm1))
       .put(actions.addConfirmationCall('111', confirm2))
-      .put(actions.setConfirmationResult('111', 1))
+      .put(actions.setConfirmationResult('111', 1, 0))
       .put(actions.addCompletionCall('111', call(success1, 1)))
-      .put(actions.setConfirmationResult('111', { error: true, timeout: true }))
+      .put(
+        actions.setConfirmationResult('111', { error: true, timeout: true }, 1)
+      )
       .put(
         actions.addCompletionCall(
           '111',
           call(fail2, { error: true, timeout: true })
         )
       )
-      .put(actions.clearComplete('111'))
+      .put(actions.clearComplete('111', 1))
       .put(actions.clearConfirm('111'))
       .silentRun()
     expect(storeState.confirmer).toEqual(initialState)
     expect(success1).toBeCalledWith(1)
     expect(fail2).toBeCalled()
   })
+})
+
+it('handles parallelization', async () => {
+  const confirm11 = jest.fn().mockResolvedValue(11)
+  const success11 = jest.fn()
+
+  const confirm12 = jest.fn().mockResolvedValue(12)
+  const success12 = jest.fn()
+
+  const confirm13 = jest.fn().mockResolvedValue(13)
+  const success13 = jest.fn()
+
+  const confirm14 = jest.fn().mockResolvedValue(14)
+  const success14 = jest.fn()
+
+  const confirmationOptions = {
+    operationId: 'test',
+    parallelizable: true
+  } as ConfirmationOptions
+  const { storeState } = await expectSaga(sagas.watchRequestConfirmation)
+    .withReducer(
+      combineReducers({
+        confirmer: reducer
+      }),
+      {
+        confirmer: initialState
+      }
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm11,
+        success11,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm12,
+        success12,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm13,
+        success13,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm14,
+        success14,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .put(actions.addConfirmationCall('111', confirm11, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm13, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm14, confirmationOptions))
+    .put(actions.setConfirmationResult('111', 11, 0, false))
+    .put(actions.addCompletionCall('111', call(success11, 11)))
+    .put(actions.setConfirmationResult('111', 12, 1, false))
+    .put(actions.addCompletionCall('111', call(success12, 12)))
+    .put(actions.setConfirmationResult('111', 13, 2, false))
+    .put(actions.addCompletionCall('111', call(success13, 13)))
+    .put(actions.setConfirmationResult('111', 14, 3, false))
+    .put(actions.addCompletionCall('111', call(success14, 14)))
+    .put(actions.clearComplete('111', 3))
+    .put(actions.clearConfirm('111'))
+    .silentRun()
+  expect(storeState.confirmer).toEqual(initialState)
+  expect(confirm11).toBeCalled()
+  expect(success11).toBeCalledWith(11)
+  expect(confirm12).toBeCalled()
+  expect(success12).toBeCalledWith(12)
+  expect(confirm13).toBeCalled()
+  expect(success13).toBeCalledWith(13)
+  expect(confirm14).toBeCalled()
+  expect(success14).toBeCalledWith(14)
+})
+
+it('handles squashable calls', async () => {
+  const confirm11 = jest.fn().mockResolvedValue(11)
+  const success11 = jest.fn()
+
+  const confirm12 = jest.fn().mockResolvedValue(12)
+  const success12 = jest.fn()
+
+  const confirm13 = jest.fn().mockResolvedValue(13)
+  const success13 = jest.fn()
+
+  const confirm14 = jest.fn().mockResolvedValue(14)
+  const success14 = jest.fn()
+
+  const confirmationOptions = {
+    operationId: 'test',
+    squashable: true
+  } as ConfirmationOptions
+  const { storeState } = await expectSaga(sagas.watchRequestConfirmation)
+    .withReducer(
+      combineReducers({
+        confirmer: reducer
+      }),
+      {
+        confirmer: initialState
+      }
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm11,
+        success11,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm12,
+        success12,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm13,
+        success13,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm14,
+        success14,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .put(actions.addConfirmationCall('111', confirm11, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm12, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm13, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm14, confirmationOptions))
+    .put(actions.setConfirmationResult('111', 11, 0, true))
+    .put(actions.addCompletionCall('111', call(success11, 11)))
+    .put(actions.setConfirmationResult('111', 14, 3, true))
+    .put(actions.addCompletionCall('111', call(success14, 14)))
+    .put(actions.clearConfirm('111'))
+    .silentRun()
+  expect(storeState.confirmer).toEqual(initialState)
+  expect(confirm11).toBeCalled()
+  expect(success11).toBeCalledWith(11)
+  expect(confirm14).toBeCalled()
+  expect(success14).toBeCalledWith(14)
+})
+
+it('only calls the success call of the last function to resolve if `useOnlyLastSuccessCall` is passed', async () => {
+  const confirm11 = jest.fn().mockResolvedValue(11)
+  const success11 = jest.fn()
+
+  const confirm12 = jest.fn().mockResolvedValue(12)
+  const success12 = jest.fn()
+
+  const confirmationOptions = {
+    operationId: 'test',
+    useOnlyLastSuccessCall: true
+  } as ConfirmationOptions
+  const { storeState } = await expectSaga(sagas.watchRequestConfirmation)
+    .withReducer(
+      combineReducers({
+        confirmer: reducer
+      }),
+      {
+        confirmer: initialState
+      }
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm11,
+        success11,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .dispatch(
+      actions.requestConfirmation(
+        '111',
+        confirm12,
+        success12,
+        undefined,
+        undefined,
+        undefined,
+        confirmationOptions
+      )
+    )
+    .put(actions.addConfirmationCall('111', confirm11, confirmationOptions))
+    .put(actions.addConfirmationCall('111', confirm12, confirmationOptions))
+    .put(actions.setConfirmationResult('111', 11, 0, true))
+    .put(actions.setOperationSuccessCall('111', 'test', call(success11, 11)))
+    .put(actions.setConfirmationResult('111', 12, 1, true))
+    .put(actions.setOperationSuccessCall('111', 'test', call(success12, 12)))
+    .put(actions.clearComplete('111', 1))
+    .put(actions.clearConfirm('111'))
+    .silentRun()
+  expect(storeState.confirmer).toEqual(initialState)
+  expect(confirm11).toBeCalled()
+  expect(success11).not.toBeCalled()
+  expect(confirm12).toBeCalled()
+  expect(success12).toBeCalledWith(12)
 })

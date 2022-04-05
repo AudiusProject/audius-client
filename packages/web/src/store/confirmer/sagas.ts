@@ -131,7 +131,7 @@ function* requestConfirmationAsync(
         completionCall = failCall
       }
     } catch (err) {
-      console.debug(`Caught error in confirmer: ${err}`)
+      console.debug('Caught error in confirmer:', err)
       result = {
         error: true,
         message: err instanceof Error ? err.message : '',
