@@ -86,7 +86,7 @@ export const CollapsibleTabNavigator = ({
             tabBar={props => (
               <CollapsibleTabBar hostName={tabBarPortalHostName} {...props} />
             )}
-            sceneContainerStyle={{ paddingBottom: height }}
+            sceneContainerStyle={{ minHeight: height }}
             screenOptions={{
               tabBarStyle: styles.root,
               tabBarLabelStyle: styles.label,
@@ -101,6 +101,7 @@ export const CollapsibleTabNavigator = ({
       }}
       stickyHeaderIndices={[1]}
       refreshIndicatorTopOffset={40}
+      showsVerticalScrollIndicator={false}
     />
   )
 }

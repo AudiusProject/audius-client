@@ -46,14 +46,14 @@ export const INITIAL_LOAD_TRACKS_MULTIPLIER = 1.75
 export const INITIAL_PLAYLISTS_MULTIPLER = 1
 
 // A multiplier for the number of tiles to fill a page to be
-// loaded in on each call (after the intial call)
-const TRACKS_AHEAD_MULTIPLIER = 0.75
+// loaded in on each call (after the initial call)
+const TRACKS_AHEAD_MULTIPLIER = 1
 
 // Threshold for how far away from the bottom (of the list) the user has to be
 // before fetching more tracks as a percentage of the list height
 const LOAD_MORE_THRESHOLD = 0.5
 
-// The minimum inital multiplier for tracks to fetch on lineup load
+// The minimum initial multiplier for tracks to fetch on lineup load
 // use so that multiple lineups on the same page can switch w/out a reload
 const MINIMUM_INITIAL_LOAD_TRACKS_MULTIPLIER = 1
 
