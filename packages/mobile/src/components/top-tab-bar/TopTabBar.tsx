@@ -87,7 +87,8 @@ export const TopTabBar = ({
   state,
   descriptors,
   navigation,
-  position
+  position,
+  jumpTo
 }: MaterialTopTabBarProps) => {
   // Horizontal padding decreases as the number of tabs increases
   const horizontalPadding =
@@ -108,8 +109,10 @@ export const TopTabBar = ({
     })
 
     if (!isFocused(tabIndex) && !event.defaultPrevented) {
-      // The `merge: true` option makes sure that the params inside the tab screen are preserved
-      navigation.navigate({ name: route.name, merge: true, params: {} })
+      // Using `jumpTo` instead of `navigate` to match the default MaterialTopTabBar.
+      // This avoids an issue where occasionally tab presses would be immediately reverted,
+      // resulting in the tab not changing
+      jumpTo(route.key)
     }
   }
 
