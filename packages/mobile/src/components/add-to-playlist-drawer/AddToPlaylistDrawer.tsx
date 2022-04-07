@@ -22,7 +22,7 @@ import { ToastContext } from 'app/components/toast/ToastContext'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { shadow } from 'app/styles'
+import { makeStyles, shadow } from 'app/styles'
 
 const messages = {
   title: 'Add To Playlist',
@@ -30,7 +30,23 @@ const messages = {
   createdToast: 'Playlist Created!'
 }
 
+const useStyles = makeStyles(() => ({
+  buttonContainer: {
+    alignSelf: 'center',
+    borderRadius: 4,
+    marginBottom: 16,
+    ...shadow()
+  },
+  button: {
+    width: 256
+  },
+  cardList: {
+    paddingBottom: 240
+  }
+}))
+
 export const AddToPlaylistDrawer = () => {
+  const styles = useStyles()
   const { toast } = useContext(ToastContext)
   const dispatchWeb = useDispatchWeb()
   const pushRouteWeb = usePushRouteWeb()
@@ -78,24 +94,17 @@ export const AddToPlaylistDrawer = () => {
       title={messages.title}
     >
       <View>
-        <View
-          style={{
-            alignSelf: 'center',
-            borderRadius: 4,
-            marginBottom: 16,
-            ...shadow()
-          }}
-        >
+        <View style={styles.buttonContainer}>
           <Button
             title='Create New Playlist'
             onPress={addToNewPlaylist}
-            containerStyle={{ width: 256 }}
+            containerStyle={styles.button}
             type={ButtonType.COMMON}
           />
         </View>
         <CardList
           onScrollEndDrag={handleScrollEnd}
-          contentContainerStyle={{ paddingBottom: 240 }}
+          contentContainerStyle={styles.cardList}
           data={userPlaylists}
           renderItem={({ item }) => (
             <Card
