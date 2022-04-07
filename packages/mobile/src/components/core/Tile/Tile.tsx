@@ -3,7 +3,6 @@ import { ComponentProps, ComponentType, ReactNode, useCallback } from 'react'
 import {
   Animated,
   GestureResponderEvent,
-  Pressable,
   PressableProps,
   StyleProp,
   View,
@@ -13,6 +12,8 @@ import {
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { shadow, StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles/makeStyles'
+
+import { Pressable } from '../Pressable'
 
 const borderRadius = 8
 
