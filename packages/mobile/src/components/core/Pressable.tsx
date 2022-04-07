@@ -10,6 +10,8 @@ type PressableProps = RNPressableProps
 
 type TouchPosition = { pageX: number; pageY: number }
 
+const scrollThreshold = 2
+
 export const Pressable = (props: PressableProps) => {
   const { onPress, onPressIn, ...other } = props
 
@@ -33,12 +35,14 @@ export const Pressable = (props: PressableProps) => {
     (event: GestureResponderEvent) => {
       if (!activeTouchPositionRef.current) return
 
+      const { current } = activeTouchPositionRef
       const { pageX, pageY } = event.nativeEvent
 
-      const absX = Math.abs(activeTouchPositionRef.current.pageX - pageX)
-      const absY = Math.abs(activeTouchPositionRef.current.pageY - pageY)
+      const dx = Math.abs(current.pageX - pageX)
+      const dy = Math.abs(current.pageY - pageY)
 
-      const dragged = absX > 2 || absY > 2
+      const dragged = dx > scrollThreshold || dy > scrollThreshold
+
       if (!dragged) {
         onPress?.(event)
       }
