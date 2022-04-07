@@ -17,9 +17,10 @@ type SectionListProps = RNSectionListProps<any>
  */
 export const SectionList = forwardRef<RNSectionList, SectionListProps>(
   function SectionList(
-    { refreshing, onRefresh, ...other },
+    props,
     ref: MutableRefObject<RNSectionList<any, DefaultSectionT> | null>
   ) {
+    const { refreshing, onRefresh, ...other } = props
     const scrollResponder = ref.current?.getScrollResponder()
     const {
       isRefreshing,
@@ -37,12 +38,14 @@ export const SectionList = forwardRef<RNSectionList, SectionListProps>(
 
     return (
       <View>
-        <PullToRefresh
-          isRefreshing={isRefreshing}
-          onRefresh={handleRefresh}
-          scrollAnim={scrollAnim}
-          isRefreshDisabled={isRefreshDisabled}
-        />
+        {handleRefresh ? (
+          <PullToRefresh
+            isRefreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            scrollAnim={scrollAnim}
+            isRefreshDisabled={isRefreshDisabled}
+          />
+        ) : null}
         <Animated.SectionList
           scrollToOverflowEnabled
           ref={ref}

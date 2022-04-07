@@ -18,15 +18,16 @@ type FlatListProps = RNFlatListProps<any> & {
  * FlatList with custom PullToRefresh
  */
 export const FlatList = forwardRef<RNFlatList, FlatListProps>(function FlatList(
-  {
+  props,
+  ref: MutableRefObject<RNFlatList<any> | null>
+) {
+  const {
     refreshing,
     onRefresh,
     refreshIndicatorTopOffset,
     scrollAnim: providedScrollAnim,
     ...other
-  },
-  ref: MutableRefObject<RNFlatList<any> | null>
-) {
+  } = props
   const scrollRef = useRef<Animated.FlatList>(null)
 
   const {
@@ -46,13 +47,15 @@ export const FlatList = forwardRef<RNFlatList, FlatListProps>(function FlatList(
 
   return (
     <View>
-      <PullToRefresh
-        isRefreshing={isRefreshing}
-        onRefresh={handleRefresh}
-        scrollAnim={scrollAnim}
-        isRefreshDisabled={isRefreshDisabled}
-        topOffset={refreshIndicatorTopOffset}
-      />
+      {handleRefresh ? (
+        <PullToRefresh
+          isRefreshing={isRefreshing}
+          onRefresh={handleRefresh}
+          scrollAnim={scrollAnim}
+          isRefreshDisabled={isRefreshDisabled}
+          topOffset={refreshIndicatorTopOffset}
+        />
+      ) : null}
       <Animated.FlatList
         scrollToOverflowEnabled
         ref={ref || scrollRef}

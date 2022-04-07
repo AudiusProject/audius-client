@@ -17,6 +17,8 @@ const springConfig = {
   friction: 20
 }
 
+const barHeight = 40
+
 const useStyles = makeStyles(({ palette, typography }) => ({
   root: {
     zIndex: 2,
@@ -24,11 +26,11 @@ const useStyles = makeStyles(({ palette, typography }) => ({
     width: '100%'
   },
   container: {
-    // height of the app bar
-    marginTop: 40,
+    marginTop: barHeight,
     overflow: 'hidden'
   },
   text: {
+    height: barHeight,
     textAlign: 'center',
     paddingVertical: spacing(2.5),
     backgroundColor: palette.secondary,
