@@ -13,7 +13,6 @@ import {
 import { newCollectionMetadata } from 'audius-client/src/schemas'
 import { FEED_PAGE, playlistPage } from 'audius-client/src/utils/route'
 import { NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native'
-import { Shadow } from 'react-native-shadow-2'
 
 import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
@@ -23,6 +22,7 @@ import { ToastContext } from 'app/components/toast/ToastContext'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { shadow } from 'app/styles'
 
 const messages = {
   title: 'Add To Playlist',
@@ -78,12 +78,13 @@ export const AddToPlaylistDrawer = () => {
       title={messages.title}
     >
       <View>
-        <Shadow
-          offset={[0, 1]}
-          containerViewStyle={{ alignSelf: 'center', marginBottom: 16 }}
-          viewStyle={{ borderRadius: 4 }}
-          distance={3}
-          startColor='rgba(133,129,153,0.11)'
+        <View
+          style={{
+            alignSelf: 'center',
+            borderRadius: 4,
+            marginBottom: 16,
+            ...shadow()
+          }}
         >
           <Button
             title='Create New Playlist'
@@ -91,7 +92,7 @@ export const AddToPlaylistDrawer = () => {
             containerStyle={{ width: 256 }}
             type={ButtonType.COMMON}
           />
-        </Shadow>
+        </View>
         <CardList
           onScrollEndDrag={handleScrollEnd}
           contentContainerStyle={{ paddingBottom: 240 }}

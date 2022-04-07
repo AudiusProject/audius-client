@@ -11,11 +11,8 @@ import {
 } from 'react-native'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { StylesProp } from 'app/styles'
+import { shadow, StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles/makeStyles'
-import { useThemeColors } from 'app/utils/theme'
-
-import { TileShadow } from './TileShadow'
 
 const borderRadius = 8
 
@@ -26,7 +23,10 @@ const useStyles = makeStyles(({ palette }) => {
       borderColor: palette.neutralLight8,
       backgroundColor: palette.white,
       borderWidth: 1,
-      borderRadius
+      borderRadius,
+      // Not using react-native-shadow-2 because it causes performance issues when rendering
+      // multiple lineups (in tabs)
+      ...shadow()
     },
     content: {
       flex: 1
@@ -69,7 +69,6 @@ export const Tile = <
   props: TileProps<TileComponentType>
 ) => {
   const styles = useStyles()
-  const themeColors = useThemeColors()
 
   const {
     as: TileComponent = defaultElement,
@@ -113,29 +112,6 @@ export const Tile = <
     <Animated.View
       style={[style, stylesProp?.root, { transform: [{ scale }] }]}
     >
-      <TileShadow
-        offset={[0, 0]}
-        distance={1}
-        // Approximately 10% opacity on neutral
-        startColor={themeColors.neutral + '1a'}
-        borderRadius={borderRadius}
-        inset={0}
-      />
-      <TileShadow
-        offset={[0, 1]}
-        distance={0}
-        startColor={themeColors.shadow}
-        borderRadius={borderRadius}
-        inset={0}
-      />
-      <TileShadow
-        offset={[0, 2]}
-        distance={7}
-        // Approximately 10% opacity on neutral
-        startColor={themeColors.neutral + '1a'}
-        borderRadius={borderRadius}
-        inset={4}
-      />
       <TileComponent style={[styles.tile, stylesProp?.tile]} {...other}>
         <Pressable
           style={[styles.content, stylesProp?.content, { borderRadius: 4 }]}
