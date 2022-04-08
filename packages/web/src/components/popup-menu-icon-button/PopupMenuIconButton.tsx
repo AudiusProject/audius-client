@@ -22,6 +22,7 @@ export const PopupMenuIconButton = (props: PopupMenuIconButtonProps) => {
       {...popupMenuProps}
       renderTrigger={(ref, triggerPopup) => (
         <IconButton
+          aria-label='open'
           ref={ref}
           className={cn(styles.icon, style, iconClassName)}
           icon={icon}

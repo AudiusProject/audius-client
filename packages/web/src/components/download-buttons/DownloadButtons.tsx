@@ -81,7 +81,7 @@ const DownloadButton = ({
 
     return (
       <div className={styles.iconDownload}>
-        <IconButton icon={<IconDownload />} />
+        <IconButton aria-label='Download' icon={<IconDownload />} />
       </div>
     )
   }

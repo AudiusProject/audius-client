@@ -83,6 +83,7 @@ const StemRow = ({
       <div className={styles.deleteButton}>
         {allowDelete ? (
           <IconButton
+            aria-label='delete'
             className={styles.deleteButtonIcon}
             onClick={() => {
               if (!allowDelete) return

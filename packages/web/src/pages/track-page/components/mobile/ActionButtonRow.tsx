@@ -84,6 +84,7 @@ const ActionButtonRow = ({
   const renderShareButton = () => {
     return (
       <IconButton
+        aria-label='share'
         className={cn(styles.actionButton, {
           [styles.disabledButton]: !isPublished
         })}
@@ -110,6 +111,7 @@ const ActionButtonRow = ({
   const renderOverflowMenu = () => {
     return (
       <IconButton
+        aria-label='more actions'
         className={cn(styles.actionButton)}
         icon={<IconKebabHorizontal />}
         onClick={onClickOverflow}

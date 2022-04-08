@@ -105,6 +105,7 @@ const Announcement = ({
           <span className={styles.date}>{displayTime}</span>
           <div className={styles.iconContainer}>
             <IconButton
+              aria-label='menu'
               className={styles.menu}
               icon={<IconKebabHorizontal />}
               onClick={onOptionsClick}

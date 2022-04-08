@@ -30,6 +30,7 @@ export const ShareUserButton = ({ userId }: ShareUserButtonProps) => {
 
   return (
     <IconButton
+      aria-label='share'
       className={styles.button}
       icon={<IconShare />}
       onClick={handleClick}

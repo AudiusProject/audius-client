@@ -52,6 +52,7 @@ const ActionsBar = ({
     <div className={styles.actionsBar}>
       {NATIVE_MOBILE && (
         <IconButton
+          aria-label='cast'
           isActive={isCasting}
           className={cn(styles.icon, styles.iconCast)}
           activeClassName={styles.activeButton}
@@ -86,11 +87,13 @@ const ActionsBar = ({
         altVariant
       />
       <IconButton
+        aria-label='share'
         icon={<IconShare />}
         onClick={onShare}
         className={styles.icon}
       />
       <IconButton
+        aria-label='more actions'
         icon={<IconKebabHorizontal />}
         className={styles.icon}
         onClick={e => {

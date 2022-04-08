@@ -213,6 +213,7 @@ const NotificationItem = (props: NotificationItemProps) => {
           {header}
           <div className={styles.iconContainer}>
             <IconButton
+              aria-label='more actions'
               className={styles.menu}
               icon={<IconKebabHorizontal />}
               onClick={onOptionsClick}
@@ -231,6 +232,7 @@ const NotificationItem = (props: NotificationItemProps) => {
         {!header && (
           <div className={styles.iconContainer}>
             <IconButton
+              aria-label='more actions'
               className={styles.menu}
               icon={<IconKebabHorizontal />}
               onClick={onOptionsClick}

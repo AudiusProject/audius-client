@@ -215,6 +215,7 @@ const TrackListItem = ({
       {onClickOverflow && trackItemAction === TrackItemAction.Overflow && (
         <div className={styles.iconContainer}>
           <IconButton
+            aria-label='more actions'
             icon={<IconKebabHorizontal />}
             className={styles.kebabContainer}
             onClick={(e: any) => {
@@ -227,6 +228,7 @@ const TrackListItem = ({
       {onRemove && (
         <div className={styles.iconContainer}>
           <IconButton
+            aria-label='remove track'
             icon={<IconRemoveTrack />}
             className={cn(styles.removeTrackContainer, {
               [styles.isRemoveActive]: isRemoveActive

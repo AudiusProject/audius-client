@@ -179,6 +179,7 @@ export const PlaylistNavItem = ({
           </div>
           {!isOwner || !onClickEdit ? null : (
             <IconButton
+              aria-label='Edit playlist'
               className={cn(styles.iconKebabHorizontal, {
                 [styles.hidden]: !isHovering || dragging
               })}

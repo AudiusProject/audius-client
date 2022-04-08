@@ -165,6 +165,7 @@ export const PlaylistFolderNavItem = ({
               })}
             />
             <IconButton
+              aria-label='More playlist actions'
               className={cn(styles.iconKebabHorizontal, {
                 [styles.hidden]: !isHovering || dragging
               })}
