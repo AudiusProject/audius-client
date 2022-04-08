@@ -17,7 +17,7 @@ if (process.argv[2] && process.argv[2] === '--remote-host') {
   }
   if (HOST.trim() != HOST) {
     throw new Error(
-      `Invisible characters detected in $AUDIUS_REMOTE_DEV_HOST: '${AUDIUS_REMOTE_DEV_HOST}'`
+      `Invisible characters detected in $AUDIUS_REMOTE_DEV_HOST: '${HOST}'`
     )
   }
 }
