@@ -11,7 +11,6 @@ type ConfirmerPreviewProps = {} & ReturnType<typeof mapStateToProps>
 
 const ConfirmerPreview = ({ confirmer }: ConfirmerPreviewProps) => {
   const entities = Object.keys(confirmer.confirm)
-  console.log(confirmer.confirm, 'confirmer contents')
   const isEnabled = useDevModeHotkey(67 /* c */)
   if (!isEnabled) return null
 

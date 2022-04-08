@@ -76,7 +76,7 @@ function* requestConfirmationAsync(
   // Get the "queue" length
   const nextCallIndex: number = yield select(getConfirmLength, { uid: uid })
   yield put(
-    confirmerActions.addConfirmationCall(
+    confirmerActions._addConfirmationCall(
       uid,
       confirmationCall,
       confirmationOptions
@@ -97,7 +97,7 @@ function* requestConfirmationAsync(
     | undefined = yield select(getShouldCancelCurrentCall, { uid })
 
   if (shouldCancelCurrentCall) {
-    yield put(confirmerActions.cancelConfirmationCall(uid, nextCallIndex))
+    yield put(confirmerActions._cancelConfirmationCall(uid, nextCallIndex))
   } else {
     let previousCallResult: unknown
     if (parallelizable) {
@@ -112,7 +112,7 @@ function* requestConfirmationAsync(
       if (parallelizable) {
         // If this call is parallelizable, increment the current index of the confirm group
         // so that the next call can potentially be run without having to wait for this one.
-        yield put(confirmerActions.incrementConfirmGroupIndex(uid))
+        yield put(confirmerActions._incrementConfirmGroupIndex(uid))
       }
       const { confirmationResult, timeout } = yield race({
         confirmationResult: call(
@@ -142,7 +142,7 @@ function* requestConfirmationAsync(
     }
 
     yield put(
-      confirmerActions.setConfirmationResult(
+      confirmerActions._setConfirmationResult(
         uid,
         result,
         nextCallIndex,
@@ -153,7 +153,7 @@ function* requestConfirmationAsync(
       // Ensure that only the success callback of the last call with `operationId` to resolve
       // gets called at the end (when `isDone` below is true):
       yield put(
-        confirmerActions.setOperationSuccessCall(
+        confirmerActions._setOperationSuccessCall(
           uid,
           operationId,
           call(completionCall, result)
@@ -161,7 +161,7 @@ function* requestConfirmationAsync(
       )
     } else {
       yield put(
-        confirmerActions.addCompletionCall(uid, call(completionCall, result))
+        confirmerActions._addCompletionCall(uid, call(completionCall, result))
       )
     }
 
@@ -174,12 +174,12 @@ function* requestConfirmationAsync(
           yield commandChain[i]
         }
       }
-      yield put(confirmerActions.clearComplete(uid, commandChain.length - 1))
+      yield put(confirmerActions._clearComplete(uid, commandChain.length - 1))
 
       // Check again if all calls are done since more might have been added between completion calls.
       const isStillDone: boolean = yield select(getIsDone, { uid: uid })
       if (isStillDone) {
-        yield put(confirmerActions.clearConfirm(uid))
+        yield put(confirmerActions._clearConfirm(uid))
       }
     }
   }

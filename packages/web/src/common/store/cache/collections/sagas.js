@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual'
+import { isEqual } from 'lodash'
 import {
   all,
   call,
@@ -33,6 +33,7 @@ import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import watchTrackErrors from './errorSagas'
+import { PlaylistOperations } from './types'
 import { reformat } from './utils'
 import {
   retrieveCollection,
@@ -466,11 +467,14 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
          * out of order. Here we check if tracks made it in the intended order;
          * if not, we reorder them into the correct order.
          */
-        if (
+        const numberOfTracksMatch =
           confirmedPlaylist.playlist_contents.track_ids.length ===
-            playlist.playlist_contents.track_ids.length &&
+          playlist.playlist_contents.track_ids.length
+
+        const confirmedPlaylistHasTracks =
           confirmedPlaylist.playlist_contents.track_ids.length > 0
-        ) {
+
+        if (numberOfTracksMatch && confirmedPlaylistHasTracks) {
           const confirmedPlaylistTracks = confirmedPlaylist.playlist_contents.track_ids.map(
             t => t.track
           )
@@ -509,7 +513,7 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
       result => (result.playlist_id ? result.playlist_id : playlistId),
       undefined,
       {
-        operationId: 'ADD_TRACK',
+        operationId: PlaylistOperations.ADD_TRACK,
         parallelizable: true,
         useOnlyLastSuccessCall: true
       }
@@ -682,7 +686,7 @@ function* confirmRemoveTrackFromPlaylist(
       result => (result.playlist_id ? result.playlist_id : playlistId),
       undefined,
       {
-        operationId: 'REMOVE_TRACK',
+        operationId: PlaylistOperations.REMOVE_TRACK,
         parallelizable: true,
         useOnlyLastSuccessCall: true
       }
@@ -807,7 +811,7 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
       },
       result => (result.playlist_id ? result.playlist_id : playlistId),
       undefined,
-      { operationId: 'REORDER', squashable: true }
+      { operationId: PlaylistOperations.REORDER, squashable: true }
     )
   )
 }

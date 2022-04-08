@@ -31,10 +31,10 @@ const validateConfirmationOptions = ({
     operationId == null
   ) {
     throw new Error(
-      'Programming error - must pass `operationId` in confirmation options if `squashable` or `parallelizable` is also passed.'
+      'Programming error - must pass `operationId` in confirmation options if `squashable` or `parallelizable` or `useOnlyLastSuccessCall` is also passed.'
     )
   }
-  if (parallelizable === true && squashable) {
+  if (parallelizable === true && squashable === true) {
     throw new Error(
       'Programming error - only one of `parallelizable` or `squashable` can be true in confirmation options'
     )
@@ -98,8 +98,8 @@ export const requestConfirmation = createCustomAction(
 
 /* Private */
 
-/** Enqueues a confirmation call to make, e.g. "create playlist with a temp id, wait for playlist to appear in discprov." */
-export const addConfirmationCall = createCustomAction(
+/** Enqueues a confirmation call to make, e.g. "create playlist with a temp id, wait for playlist to appear in discovery node"." */
+export const _addConfirmationCall = createCustomAction(
   ADD_CONFIRMATION_CALL,
   (
     uid: string,
@@ -116,7 +116,7 @@ export const addConfirmationCall = createCustomAction(
 )
 
 /** Increment the index of a confirm group with given uid. */
-export const incrementConfirmGroupIndex = createCustomAction(
+export const _incrementConfirmGroupIndex = createCustomAction(
   INCREMENT_CONFIRM_GROUP_INDEX,
   (uid: string) => {
     return {
@@ -136,7 +136,7 @@ export const incrementConfirmGroupIndex = createCustomAction(
  * (which denotes the index of the upcoming/current call to be processed). This should be set to `false`
  * if the index was already incremented before calling `setConfirmationResult`, as in the case of a parallelizable call.
  *  */
-export const setConfirmationResult = createCustomAction(
+export const _setConfirmationResult = createCustomAction(
   SET_CONFIRMATION_RESULT,
   (
     uid: string,
@@ -155,7 +155,7 @@ export const setConfirmationResult = createCustomAction(
 )
 
 /** Enqueues a completion call to make, e.g. "cache the playlist" */
-export const addCompletionCall = createCustomAction(
+export const _addCompletionCall = createCustomAction(
   ADD_COMPLETION_CALL,
   (uid: string, completionCall: any) => {
     return { type: ADD_COMPLETION_CALL, uid, completionCall }
@@ -164,7 +164,7 @@ export const addCompletionCall = createCustomAction(
 
 /** Enqueues a success call for a given operation id and cancels the previously enqueued one.
  */
-export const setOperationSuccessCall = createCustomAction(
+export const _setOperationSuccessCall = createCustomAction(
   SET_OPERATION_SUCCESS_CALL,
   (uid: string, operationId: string, completionCall: any) => {
     return {
@@ -177,7 +177,7 @@ export const setOperationSuccessCall = createCustomAction(
 )
 
 /** Cancels a pending confirmation call */
-export const cancelConfirmationCall = createCustomAction(
+export const _cancelConfirmationCall = createCustomAction(
   CANCEL_CONFIRMATION_CALL,
   (uid: string, callIndex: number) => {
     return { type: CANCEL_CONFIRMATION_CALL, uid, callIndex }
@@ -185,7 +185,7 @@ export const cancelConfirmationCall = createCustomAction(
 )
 
 /** Clears completion calls for given `uid` up to (and including) `index`. If `index` is undefined, clears all completion calls. */
-export const clearComplete = createCustomAction(
+export const _clearComplete = createCustomAction(
   CLEAR_COMPLETE,
   (uid: string, index?: number) => {
     return { type: CLEAR_COMPLETE, uid, index }
@@ -193,6 +193,9 @@ export const clearComplete = createCustomAction(
 )
 
 /** Clears the queue for a given uid */
-export const clearConfirm = createCustomAction(CLEAR_CONFIRM, (uid: string) => {
-  return { type: CLEAR_CONFIRM, uid }
-})
+export const _clearConfirm = createCustomAction(
+  CLEAR_CONFIRM,
+  (uid: string) => {
+    return { type: CLEAR_CONFIRM, uid }
+  }
+)
