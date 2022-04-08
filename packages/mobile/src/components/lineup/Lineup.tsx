@@ -378,7 +378,10 @@ export const Lineup = ({
   const handleScroll = useCallback(
     ({ nativeEvent }) => {
       const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
-      if (layoutMeasurement.height + contentOffset.y >= contentSize.height) {
+      if (
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - LOAD_MORE_THRESHOLD * layoutMeasurement.height
+      ) {
         if (!isAtBottom) {
           setIsAtBottom(true)
         }
