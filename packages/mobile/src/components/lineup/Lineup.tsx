@@ -130,7 +130,7 @@ export const Lineup = ({
 }: LineupProps) => {
   const dispatchWeb = useDispatchWeb()
   const ref = useRef<RNSectionList>(null)
-  const [isAtBottom, setIsAtBottom] = useState(false)
+  const [isPastLoadThreshold, setIsPastLoadThreshold] = useState(false)
   useScrollToTop(() => {
     ref.current?.scrollToLocation({
       sectionIndex: 0,
@@ -191,13 +191,13 @@ export const Lineup = ({
     limit
   ])
 
-  // When scrolled to the very bottom of the lineup and the lineup is not loading,
+  // When scrolled past the end threshold of the lineup and the lineup is not loading,
   // trigger another load
   useEffect(() => {
-    if (isAtBottom && lineup.status !== Status.LOADING) {
+    if (isPastLoadThreshold && lineup.status !== Status.LOADING) {
       handleLoadMore()
     }
-  }, [isAtBottom, lineup.status, handleLoadMore])
+  }, [isPastLoadThreshold, lineup.status, handleLoadMore])
 
   useEffect(() => {
     if (selfLoad && lineup.entries.length === 0) {
@@ -382,16 +382,16 @@ export const Lineup = ({
         layoutMeasurement.height + contentOffset.y >=
         contentSize.height - LOAD_MORE_THRESHOLD * layoutMeasurement.height
       ) {
-        if (!isAtBottom) {
-          setIsAtBottom(true)
+        if (!isPastLoadThreshold) {
+          setIsPastLoadThreshold(true)
         }
       } else {
-        if (isAtBottom) {
-          setIsAtBottom(false)
+        if (isPastLoadThreshold) {
+          setIsPastLoadThreshold(false)
         }
       }
     },
-    [isAtBottom]
+    [isPastLoadThreshold]
   )
 
   return (
