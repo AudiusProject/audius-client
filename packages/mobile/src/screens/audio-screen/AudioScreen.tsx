@@ -36,7 +36,7 @@ import { ChallengeRewards } from './ChallengeRewards'
 import { Tier } from './Tier'
 import { TrendingRewards } from './TrendingRewards'
 
-const LEARN_MORE_LINK = 'https://blog.audius.co/posts/community-meet-audio'
+const LEARN_MORE_LINK = 'https://blog.audius.co/article/community-meet-audio'
 
 const messages = {
   title: '$AUDIO & Rewards',
