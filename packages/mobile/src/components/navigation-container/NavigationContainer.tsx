@@ -43,9 +43,13 @@ const NavigationContainer = ({ children }: Props) => {
                 feed: {
                   initialRouteName: 'Feed',
                   screens: {
-                    Feed: '/feed',
+                    Feed: 'feed',
                     Collection: '*/playlist/*',
-                    Track: '*/*',
+                    Track: 'track',
+                    // Unfortunately routes like username/playlists
+                    // don't load properly on web. So for now deep linking
+                    // to profile tabs (other than for your own account) isn't
+                    // implemented
                     Profile: ':handle'
                   }
                 },
@@ -83,7 +87,15 @@ const NavigationContainer = ({ children }: Props) => {
                 },
                 profile: {
                   screens: {
-                    UserProfile: 'profile'
+                    UserProfile: {
+                      screens: {
+                        Tracks: 'profile',
+                        Albums: 'profile/albums',
+                        Playlists: 'profile/playlists',
+                        Reposts: 'profile/reposts',
+                        Collectibles: 'profile/collectibles'
+                      }
+                    }
                   }
                 }
               }
@@ -101,8 +113,26 @@ const NavigationContainer = ({ children }: Props) => {
 
       pushRouteWeb(path, undefined, false)
 
-      // Check if the path is the current user and set path as `/profile`
-      if (path.replace('/', '') === account?.handle) {
+      if (path.match(`^/${account?.handle}(/|$)`)) {
+        // If the path is the current user and set path as `/profile`
+        path = path.replace(`/${account?.handle}`, '/profile')
+      } else {
+        // If the path has two parts
+        if (path.match(/^\/.+\/.+$/)) {
+          // If the path matches a profile tab
+          if (
+            path.match(/^\/.+\/(tracks|albums|playlists|reposts|collectibles)$/)
+          ) {
+            // Strip the profile tab because the urls don't load properly on web
+            path = path.match(/^\/(.+)\//)?.[1] ?? ''
+          } else {
+            // Otherwise it's a track
+            path = '/track'
+          }
+        }
+      }
+
+      if (path.match(/^\/profile\/tracks/)) {
         path = '/profile'
       }
 
