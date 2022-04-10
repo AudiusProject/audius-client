@@ -50,7 +50,16 @@ const NavigationContainer = ({ children }: Props) => {
                     // don't load properly on web. So for now deep linking
                     // to profile tabs (other than for your own account) isn't
                     // implemented
-                    Profile: ':handle'
+                    Profile: {
+                      path: ':handle',
+                      screens: {
+                        Tracks: 'tracks',
+                        Albums: 'albums',
+                        Playlists: 'playlists',
+                        Reposts: 'reposts',
+                        Collectibles: 'collectibles'
+                      }
+                    } as any // Nested navigator typing with own params is broken, see: https://github.com/react-navigation/react-navigation/issues/9897
                   }
                 },
                 trending: {
@@ -88,12 +97,13 @@ const NavigationContainer = ({ children }: Props) => {
                 profile: {
                   screens: {
                     UserProfile: {
+                      path: 'profile',
                       screens: {
-                        Tracks: 'profile',
-                        Albums: 'profile/albums',
-                        Playlists: 'profile/playlists',
-                        Reposts: 'profile/reposts',
-                        Collectibles: 'profile/collectibles'
+                        Tracks: 'tracks',
+                        Albums: 'albums',
+                        Playlists: 'playlists',
+                        Reposts: 'reposts',
+                        Collectibles: 'collectibles'
                       }
                     }
                   }
@@ -118,22 +128,16 @@ const NavigationContainer = ({ children }: Props) => {
         path = path.replace(`/${account?.handle}`, '/profile')
       } else {
         // If the path has two parts
-        if (path.match(/^\/.+\/.+$/)) {
-          // If the path matches a profile tab
+        if (path.match(/^\/[^/]+\/[^/]+$/)) {
+          // If the path doesn't match a profile tab, it's a track
           if (
-            path.match(/^\/.+\/(tracks|albums|playlists|reposts|collectibles)$/)
+            !path.match(
+              /^\/[^/]+\/(tracks|albums|playlists|reposts|collectibles)$/
+            )
           ) {
-            // Strip the profile tab because the urls don't load properly on web
-            path = path.match(/^\/(.+)\//)?.[1] ?? ''
-          } else {
-            // Otherwise it's a track
             path = '/track'
           }
         }
-      }
-
-      if (path.match(/^\/profile\/tracks/)) {
-        path = '/profile'
       }
 
       return getStateFromPath(path, options)
