@@ -72,6 +72,9 @@ const stackScreenOptions = ({ route }: { route: RouteProp<ParamListBase> }) => {
   // can do some better generics & inference.
   const options: NativeStackNavigationOptions = {}
   if (params) {
+    // TODO: The following behavior is not supported by native stack, so it is disabled.
+    // Notifications currently uses this in order to remove animations when going from the drawer
+    // to a nested stack screen.
     // if ('animationEnabled' in params) {
     //   options.animationEnabled = (params as StackNavigationOptions).animationEnabled
     // }
