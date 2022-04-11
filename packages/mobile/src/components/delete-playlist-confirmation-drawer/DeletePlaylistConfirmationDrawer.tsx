@@ -12,7 +12,6 @@ export const DeletePlaylistConfirmationDrawer = () => {
   const playlistId = useSelectorWeb(getPlaylistId)
   const dispatchWeb = useDispatchWeb()
   const navigation = useNavigation()
-  console.log({ playlistId })
 
   const handleDelete = useCallback(() => {
     if (playlistId) {
