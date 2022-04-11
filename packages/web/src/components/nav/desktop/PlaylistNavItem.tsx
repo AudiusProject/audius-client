@@ -184,7 +184,11 @@ export const PlaylistNavItem = ({
                 [styles.hidden]: !isHovering || dragging
               })}
               icon={<IconKebabHorizontal height={11} width={11} />}
-              onClick={e => {
+              onClick={(
+                e:
+                  | React.MouseEvent<HTMLButtonElement, MouseEvent>
+                  | React.MouseEvent<Element, MouseEvent>
+              ) => {
                 e.preventDefault()
                 e.stopPropagation()
                 onClickEdit(id)

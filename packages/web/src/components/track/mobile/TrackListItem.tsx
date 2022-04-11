@@ -155,7 +155,7 @@ const TrackListItem = ({
     if (onSave) onSave(isSaved, trackId)
   }
 
-  const onRemoveTrack = (e: React.MouseEvent) => {
+  const onRemoveTrack = (e: React.MouseEvent<Element, MouseEvent>) => {
     e.stopPropagation()
     if (onRemove) onRemove(index)
   }
@@ -218,7 +218,7 @@ const TrackListItem = ({
             aria-label='more actions'
             icon={<IconKebabHorizontal />}
             className={styles.kebabContainer}
-            onClick={(e: any) => {
+            onClick={(e: React.MouseEvent<Element, MouseEvent>) => {
               e.stopPropagation()
               onClickOverflow()
             }}

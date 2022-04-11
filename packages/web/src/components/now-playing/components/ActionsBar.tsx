@@ -57,7 +57,7 @@ const ActionsBar = ({
           className={cn(styles.icon, styles.iconCast)}
           activeClassName={styles.activeButton}
           icon={isAirplay ? <IconAirplay /> : <IconChromecast />}
-          onClick={e => {
+          onClick={(e: React.MouseEvent<Element, MouseEvent>) => {
             e.stopPropagation()
             const message = isAirplay
               ? new AirplayMessage()
@@ -96,7 +96,7 @@ const ActionsBar = ({
         aria-label='more actions'
         icon={<IconKebabHorizontal />}
         className={styles.icon}
-        onClick={e => {
+        onClick={(e: React.MouseEvent<Element, MouseEvent>) => {
           e.stopPropagation()
           onClickOverflow()
         }}

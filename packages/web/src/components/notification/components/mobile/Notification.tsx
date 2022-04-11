@@ -179,7 +179,7 @@ const NotificationItem = (props: NotificationItemProps) => {
   }
 
   const onOptionsClick = useCallback(
-    e => {
+    (e: React.MouseEvent<Element, MouseEvent>) => {
       e.stopPropagation()
       onClickOverflow(id)
       markNotificationAsRead()
