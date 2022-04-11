@@ -1,13 +1,7 @@
 import { ComponentProps, useCallback, useContext, useState } from 'react'
 
 import { Match } from 'autolinker/dist/es2015'
-import {
-  LayoutChangeEvent,
-  LayoutRectangle,
-  Linking,
-  Text,
-  View
-} from 'react-native'
+import { LayoutRectangle, Linking, Text, View } from 'react-native'
 import Autolink from 'react-native-autolink'
 
 import { ToastContext } from 'app/components/toast/ToastContext'
@@ -19,9 +13,22 @@ const messages = {
   error: 'Unable to open this URL'
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, typography }) => ({
+  root: {
+    overflow: 'hidden'
+  },
   link: {
     color: palette.primary
+  },
+  linkText: {
+    ...typography.body
+  },
+  linksContainer: {
+    position: 'absolute'
+  },
+  hiddenLink: {
+    marginBottom: -3,
+    opacity: 0
   }
 }))
 
@@ -58,50 +65,47 @@ export const Hyperlink = (props: HyperlinkProps) => {
   )
 
   const renderLink = useCallback(
-    (text, match, index) => (e: LayoutChangeEvent) => {
-      setLinks({
-        ...links,
-        [index]: {
-          text,
-          match,
-          layout: e.nativeEvent.layout
-        }
-      })
-    },
-    [links]
+    (text, match, index) => (
+      <View
+        onLayout={e => {
+          setLinks({
+            ...links,
+            [index]: {
+              text,
+              match,
+              layout: e.nativeEvent.layout
+            }
+          })
+        }}
+        style={styles.hiddenLink}
+      >
+        <Text style={styles.linkText}>{text}</Text>
+      </View>
+    ),
+    [links, styles]
   )
 
   return (
-    <>
+    <View style={styles.root}>
       <View
         pointerEvents={allowPointerEventsToPassThrough ? 'none' : undefined}
       >
         <Autolink
           onPress={handlePress}
           linkStyle={styles.link}
-          renderLink={
-            allowPointerEventsToPassThrough
-              ? (text, match, index) => (
-                  <View
-                    onLayout={renderLink(text, match, index)}
-                    style={{ marginBottom: -3 }}
-                  >
-                    <Text>{text}</Text>
-                  </View>
-                )
-              : undefined
-          }
+          renderLink={allowPointerEventsToPassThrough ? renderLink : undefined}
           email
           url
           {...other}
         />
       </View>
 
-      <View style={{ position: 'absolute' }}>
+      <View style={styles.linksContainer}>
         {Object.values(links).map(({ layout, text, match }) => (
           <Text
             key={`${layout.x} ${layout.y}`}
             style={{
+              ...styles.linkText,
               ...styles.link,
               position: 'absolute',
               top: layout.y,
@@ -113,6 +117,6 @@ export const Hyperlink = (props: HyperlinkProps) => {
           </Text>
         ))}
       </View>
-    </>
+    </View>
   )
 }
