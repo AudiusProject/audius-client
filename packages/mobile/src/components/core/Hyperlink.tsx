@@ -89,7 +89,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
       >
         <Autolink
           onPress={handlePress}
-          linkStyle={styles.link}
+          linkStyle={[styles.linkText, styles.link]}
           renderLink={allowPointerEventsToPassThrough ? renderLink : undefined}
           email
           url
@@ -101,13 +101,11 @@ export const Hyperlink = (props: HyperlinkProps) => {
         {Object.values(links).map(({ layout, text, match }) => (
           <Text
             key={`${layout.x} ${layout.y}`}
-            style={{
-              ...styles.linkText,
-              ...styles.link,
-              position: 'absolute',
-              top: layout.y,
-              left: layout.x
-            }}
+            style={[
+              styles.linkText,
+              styles.link,
+              { position: 'absolute', top: layout.y, left: layout.x }
+            ]}
             onPress={() => handlePress(match.getAnchorHref())}
           >
             {text}
