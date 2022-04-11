@@ -25,6 +25,9 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   root: {
     marginTop: spacing(3)
   },
+  bioContainer: {
+    overflow: 'hidden'
+  },
   bio: {
     ...typography.body,
     color: palette.neutralLight2
@@ -87,7 +90,11 @@ export const ExpandableBio = () => {
     <View pointerEvents='box-none' style={styles.root}>
       <View pointerEvents='box-none'>
         {bio ? (
-          <View onLayout={handleBioLayout} pointerEvents='box-none'>
+          <View
+            onLayout={handleBioLayout}
+            pointerEvents='box-none'
+            style={styles.bioContainer}
+          >
             <Hyperlink
               source='profile page'
               numberOfLines={fullBioHeight && !isExpanded ? 2 : 0}

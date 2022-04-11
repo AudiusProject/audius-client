@@ -14,9 +14,6 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ palette, typography }) => ({
-  root: {
-    overflow: 'hidden'
-  },
   link: {
     color: palette.primary
   },
@@ -86,7 +83,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
   )
 
   return (
-    <View style={styles.root}>
+    <>
       <View
         pointerEvents={allowPointerEventsToPassThrough ? 'none' : undefined}
       >
@@ -117,6 +114,6 @@ export const Hyperlink = (props: HyperlinkProps) => {
           </Text>
         ))}
       </View>
-    </View>
+    </>
   )
 }
