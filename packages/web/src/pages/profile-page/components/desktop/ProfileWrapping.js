@@ -12,6 +12,7 @@ import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
 import More from 'components/more/More'
 import ProfilePicture from 'components/profile-picture/ProfilePicture'
+import { TipAudioButton } from 'components/tipping/tip-audio/TipAudioButton'
 import Tag from 'components/track/Tag'
 import UploadChip from 'components/upload/UploadChip'
 import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
@@ -275,6 +276,7 @@ const ProfileWrapping = props => {
             />
           )}
         </div>
+        <TipAudioButton />
         {props.isArtist ? (
           <Tags goToRoute={props.goToRoute} tags={props.tags} />
         ) : null}

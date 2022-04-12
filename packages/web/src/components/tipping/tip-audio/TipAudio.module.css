@@ -1,0 +1,290 @@
+.tipIconTextContainer {
+  display: flex;
+  align-items: center;
+}
+
+.tipText {
+  margin-left: 8px;
+}
+
+.modalContentContainer {
+  margin: 24px 48px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+}
+
+.rowCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profileUser {
+  margin-bottom: 24px;
+}
+
+.amountToSend {
+  margin-bottom: 26px;
+}
+
+.amountAvailableContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+  color: var(--neutral-light-4);
+  font-weight: var(--font-heavy);
+}
+
+.amountAvailable {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-s);
+}
+
+.amountAvailable svg path {
+  fill: var(--neutral-light-4) !important;
+}
+
+.amountAvailableInfo {
+  margin-left: 6px;
+}
+
+.amountContainer {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+  margin-top: 12px;
+}
+
+.audioAmount {
+  margin-left: 4px;
+  font-size: var(--font-s);
+  font-weight: var(--font-heavy);
+  color: var(--neutral-light-4);
+  transition: color 0.07s ease-in-out;
+  cursor: pointer;
+}
+
+.buttonContainer .disabled:hover {
+  background: var(--neutral-light-7) !important;
+}
+
+.buttonText {
+  font-size: 18px !important;
+}
+
+.accountWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  transition: all ease-in-out 0.18s;
+
+  color: var(--neutral);
+}
+
+.wrapperPhoto {
+  position: relative;
+  /* cursor: pointer; */
+
+  overflow: hidden;
+  flex: 0 0 78px;
+  height: 78px;
+}
+
+.smallWrapperPhoto {
+  flex: 0 0 40px;
+  height: 40px;
+}
+
+.dynamicPhoto {
+  height: 78px;
+  border-radius: 40px;
+  border: 1px solid var(--white);
+  box-shadow: 0 0 1px 0 rgba(133, 129, 153, 0.5);
+
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--default-profile-picture-background);
+}
+
+.smallDynamicPhoto {
+  height: 40px;
+}
+
+.accountWrapper .photo {
+  position: relative;
+  /* cursor: pointer; */
+
+  overflow: hidden;
+  flex: 0 0 78px;
+  height: 78px;
+  border-radius: 30px;
+  border: 1px solid var(--white);
+  box-shadow: 0 0 1px 0 rgba(133, 129, 153, 0.5);
+
+  text-align: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--default-profile-picture-background);
+}
+
+.accountWrapper .userInfoWrapper {
+  margin-left: 8px;
+  text-align: left;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow: hidden;
+}
+
+.accountWrapper .userInfoWrapper .name {
+  font-size: var(--font-s);
+  line-height: 17px;
+  font-weight: var(--font-bold);
+  padding-bottom: 4px;
+  padding-right: 4px;
+  color: var(--neutral);
+  /* cursor: pointer; */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  margin-left: 4px;
+}
+
+/* .accountWrapper .userInfoWrapper .name:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-light-2);
+} */
+
+.accountWrapper .userInfoWrapper .handleContainer {
+  display: inline-flex;
+  overflow: hidden;
+  line-height: 14px;
+  /* cursor: pointer; */
+  padding-right: 4px;
+}
+
+.accountWrapper .userInfoWrapper .handle {
+  font-size: var(--font-s);
+  color: var(--neutral);
+  font-weight: var(--font-medium);
+  transition: all 0.07s ease-in-out;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* .accountWrapper .userInfoWrapper .handleContainer:hover .handle {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-light-2);
+} */
+
+.accountWrapper .userInfoWrapper .handleContainer svg {
+  transition: all 0.07s ease-in-out;
+}
+
+/* .accountWrapper .userInfoWrapper .handleContainer:hover g path {
+  fill: var(--primary);
+} */
+
+.areYouSure {
+  font-size: var(--font-l);
+  font-weight: var(--font-medium);
+  margin-bottom: 24px;
+}
+
+.goBackContainer {
+  margin-top: 24px;
+  color: var(--neutral-light-4);
+  cursor: pointer;
+}
+
+.goBack {
+  margin-left: 4px;
+  font-weight: var(--font-bold);
+}
+
+.disabled {
+  cursor: unset;
+}
+
+.loadingSpinner {
+  height: 24px;
+  width: 24px;
+}
+
+.loadingSpinner g path {
+  stroke: var(--static-white) !important;
+}
+
+.sendingContainer {
+  margin-bottom: 8px;
+  color: var(--neutral-light-4);
+  font-weight: var(--font-bold);
+}
+
+.sendingIcon {
+  margin-left: 4px;
+}
+
+.sendingIcon svg path {
+  fill: var(--neutral-light-4) !important;
+}
+
+.sendingAudio {
+  font-size: var(--font-3xl);
+  font-weight: var(--font-heavy);
+  color: var(--neutral-light-4);
+  margin-bottom: 28px;
+}
+
+.sendingAudioAmount {
+  margin-right: 4px;
+  color: var(--neutral);
+}
+
+.sentAudio {
+  font-size: var(--font-3xl);
+  font-weight: var(--font-heavy);
+  color: var(--neutral-light-4);
+  margin-bottom: 12px;
+}
+
+.sentAudioAmount {
+  margin-right: 4px;
+  color: var(--neutral);
+}
+
+.sentSuccessfully {
+  font-weight: var(--font-bold);
+  color: var(--neutral-light-4);
+  margin-bottom: 24px;
+}
+
+.shareButton, .shareButton:hover {
+  background: var(--static-twitter-blue) !important;
+}
+
+.support {
+  margin-bottom: 16px;
+  font-weight: var(--font-medium);
+}
