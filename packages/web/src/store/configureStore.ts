@@ -28,6 +28,7 @@ declare global {
 }
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const SYNC_DEBOUNCE_MS = 50
 
 type RootState = ReturnType<typeof store.getState>
 
@@ -135,7 +136,7 @@ const debouncedPostMessage = debounce(
       aggregateStateToSync = null
     }
   },
-  50,
+  SYNC_DEBOUNCE_MS,
   { leading: true }
 )
 
