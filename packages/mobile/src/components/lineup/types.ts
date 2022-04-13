@@ -1,3 +1,5 @@
+import { ReactElement } from 'react'
+
 import { ID, UID } from 'audius-client/src/common/models/Identifiers'
 import Kind from 'audius-client/src/common/models/Kind'
 import { Lineup as LineupData } from 'audius-client/src/common/models/Lineup'
@@ -49,6 +51,11 @@ export type LineupProps = {
    * The leadingElementId is displayed at the top of the lineup
    */
   leadingElementId?: ID
+
+  /**
+   * A custom delineator to show after the leading element
+   */
+  leadingElementDelineator?: ReactElement
 
   /** The number of tracks to fetch in each request */
   limit?: number
