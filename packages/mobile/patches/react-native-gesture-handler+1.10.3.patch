@@ -1,0 +1,26 @@
+diff --git a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.h b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.h
+index f952c15..9cd14f4 100644
+--- a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.h
++++ b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.h
+@@ -69,5 +69,7 @@ if (value != nil) recognizer.prop = [RCTConvert type:value]; \
+            forViewWithTag:(nonnull NSNumber *)reactTag
+             withExtraData:(RNGestureHandlerEventExtraData *)extraData;
+ 
+++ (NSHashTable<RNGestureHandler *> *)getGestureHandlers;
++
+ @end
+ 
+diff --git a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
+index 998c059..60d6e49 100644
+--- a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
++++ b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
+@@ -341,4 +341,9 @@ - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceive
+     return YES;
+ }
+ 
+++ (NSHashTable<RNGestureHandler *> *)getGestureHandlers
++{
++    return allGestureHandlers;
++}
++
+ @end

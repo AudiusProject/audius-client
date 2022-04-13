@@ -1,44 +1,143 @@
 diff --git a/node_modules/react-native-pager-view/ios/ReactNativePageView.m b/node_modules/react-native-pager-view/ios/ReactNativePageView.m
-index 78f266b..cc094a3 100644
+index 78f266b..7efe512 100644
 --- a/node_modules/react-native-pager-view/ios/ReactNativePageView.m
 +++ b/node_modules/react-native-pager-view/ios/ReactNativePageView.m
-@@ -83,6 +83,16 @@ - (void)didMoveToWindow {
+@@ -3,6 +3,7 @@
+ #import "React/RCTLog.h"
+ #import <React/RCTViewManager.h>
+ 
++#import "RNGestureHandler.h"
+ #import "UIViewController+CreateExtension.h"
+ #import "RCTOnPageScrollEvent.h"
+ #import "RCTOnPageScrollStateChanged.h"
+@@ -83,6 +84,41 @@ - (void)didMoveToWindow {
          [self embed];
          [self setupInitialController];
      }
-+    
++
++    // didMoveToWindow gets called when pushing and popping from a navigation
++    // stack that may contain a tab view. Make sure the navigation is enabled
++    // when the view changes, regardless of which tab we are on.
 +    if (self.reactViewController.navigationController != nil) {
 +        for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
-+             [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:recognizer];
++            recognizer.enabled = YES;
 +        }
 +    }
++    // If we aren't on the first tab when moving windows,
++    // disable gesture handler until tabs change
++    if (self.currentIndex == 0) {
++        // On the other tabs tab, we should disable the drawer's gestures.
++        NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++        NSEnumerator *enumerator = [handlers objectEnumerator];
++        RNGestureHandler* handler;
++        while ((handler = [enumerator nextObject])) {
++            handler.recognizer.enabled = YES;
++            [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:handler.recognizer];
++        }
++    } else {
++        // On the other tabs tab, we should disable the drawer's gestures.
++        NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++        NSEnumerator *enumerator = [handlers objectEnumerator];
++        RNGestureHandler* handler;
++        while ((handler = [enumerator nextObject])) {
++            handler.recognizer.enabled = NO;
++        }
 +
++    }
++
++    // Disable tab swipes when the stack navigator receives a "pop" gesture
 +    if (self.reactViewController.navigationController != nil && self.reactViewController.navigationController.interactivePopGestureRecognizer != nil) {
 +        [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:self.reactViewController.navigationController.interactivePopGestureRecognizer];
 +    }
  }
  
  - (void)embed {
-@@ -333,6 +343,23 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
-         [self.eventDispatcher sendEvent:[[RCTOnPageSelected alloc] initWithReactTag:self.reactTag position:@(currentIndex) coalescingKey:_coalescingKey++]];
-         [self.eventDispatcher sendEvent:[[RCTOnPageScrollEvent alloc] initWithReactTag:self.reactTag position:@(currentIndex) offset:@(0.0)]];
-         self.lastReportedIndex = currentIndex;
+@@ -191,6 +227,40 @@ - (void)setReactViewControllers:(NSInteger)index
+                 strongSelf.lastReportedIndex = strongSelf.currentIndex;
+             }
+         }
 +
 +        if (self.reactViewController.navigationController != nil) {
-+            if (currentIndex == 0) {
++            if (strongSelf.currentIndex == 0) {
 +                // On the first tab, we want to listen to the navigation's gestures, so
 +                // swipe back works.
 +                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
 +                    recognizer.enabled = YES;
 +                    [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:recognizer];
 +                }
++
++                // On the first tab, we want to listen to the drawer's gestures, so
++                // swiping it open works.
++                NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++                NSEnumerator *enumerator = [handlers objectEnumerator];
++                RNGestureHandler* handler;
++                while ((handler = [enumerator nextObject])) {
++                    handler.recognizer.enabled = YES;
++                    [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:handler.recognizer];
++                }
 +            } else {
 +                // On other tabs, we should disable the navigations's gestures
 +                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
 +                    recognizer.enabled = NO;
 +                }
-+            }
 +
++                // On the other tabs tab, we should disable the drawer's gestures.
++                NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++                NSEnumerator *enumerator = [handlers objectEnumerator];
++                RNGestureHandler* handler;
++                while ((handler = [enumerator nextObject])) {
++                    handler.recognizer.enabled = NO;
++                }
++            }
++        }
+     }];
+ }
+ 
+@@ -322,7 +392,6 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
+         didFinishAnimating:(BOOL)finished
+    previousViewControllers:(nonnull NSArray<UIViewController *> *)previousViewControllers
+        transitionCompleted:(BOOL)completed {
+-    
+     if (completed) {
+         UIViewController* currentVC = [self currentlyDisplayed];
+         NSUInteger currentIndex = [self.reactSubviews indexOfObject:currentVC.view];
+@@ -333,6 +402,40 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
+         [self.eventDispatcher sendEvent:[[RCTOnPageSelected alloc] initWithReactTag:self.reactTag position:@(currentIndex) coalescingKey:_coalescingKey++]];
+         [self.eventDispatcher sendEvent:[[RCTOnPageScrollEvent alloc] initWithReactTag:self.reactTag position:@(currentIndex) offset:@(0.0)]];
+         self.lastReportedIndex = currentIndex;
++
++        if (self.reactViewController.navigationController != nil) {
++            if (self.currentIndex == 0) {
++                // On the first tab, we want to listen to the navigation's gestures, so
++                // swipe back works.
++                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
++                    recognizer.enabled = YES;
++                    [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:recognizer];
++                }
++
++                // On the first tab, we want to listen to the drawer's gestures, so
++                // swiping it open works.
++                NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++                NSEnumerator *enumerator = [handlers objectEnumerator];
++                RNGestureHandler* handler;
++                while ((handler = [enumerator nextObject])) {
++                    handler.recognizer.enabled = YES;
++                    [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:handler.recognizer];
++                }
++            } else {
++                // On other tabs, we should disable the navigations's gestures
++                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
++                    recognizer.enabled = NO;
++                }
++
++                // On the other tabs tab, we should disable the drawer's gestures.
++                NSHashTable<RNGestureHandler *> *handlers = [RNGestureHandler getGestureHandlers];
++                NSEnumerator *enumerator = [handlers objectEnumerator];
++                RNGestureHandler* handler;
++                while ((handler = [enumerator nextObject])) {
++                    handler.recognizer.enabled = NO;
++                }
++            }
 +        }
      }
  }
