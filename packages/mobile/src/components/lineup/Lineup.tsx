@@ -91,6 +91,9 @@ const useItemCounts = (variant: LineupVariant) =>
   )
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1
+  },
   item: {
     padding: 12,
     paddingBottom: 0
@@ -401,31 +404,33 @@ export const Lineup = ({
   )
 
   return (
-    <SectionList
-      {...listProps}
-      ref={ref}
-      onScroll={handleScroll}
-      ListHeaderComponent={header}
-      ListFooterComponent={<View style={{ height: 16 }} />}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={LOAD_MORE_THRESHOLD}
-      onRefresh={refresh}
-      refreshing={refreshing}
-      sections={sections}
-      stickySectionHeadersEnabled={false}
-      keyExtractor={(item, index) => `${item.id}  ${index}`}
-      renderItem={renderItem}
-      renderSectionHeader={({ section }) => {
-        if (section.delineate) {
-          if (section.hasLeadingElement && leadingElementDelineator) {
-            return leadingElementDelineator
+    <View style={styles.root}>
+      <SectionList
+        {...listProps}
+        ref={ref}
+        onScroll={handleScroll}
+        ListHeaderComponent={header}
+        ListFooterComponent={<View style={{ height: 16 }} />}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={LOAD_MORE_THRESHOLD}
+        onRefresh={refresh}
+        refreshing={refreshing}
+        sections={sections}
+        stickySectionHeadersEnabled={false}
+        keyExtractor={(item, index) => `${item.id}  ${index}`}
+        renderItem={renderItem}
+        renderSectionHeader={({ section }) => {
+          if (section.delineate) {
+            if (section.hasLeadingElement && leadingElementDelineator) {
+              return leadingElementDelineator
+            }
+            return <Delineator text={section.title} />
           }
-          return <Delineator text={section.title} />
-        }
-        return null
-      }}
-      listKey={listKey}
-      scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
-    />
+          return null
+        }}
+        listKey={listKey}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      />
+    </View>
   )
 }
