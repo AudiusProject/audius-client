@@ -175,11 +175,11 @@ export const TrackScreen = () => {
     remixParentTrack.is_delete === false &&
     !remixParentTrack.user?.is_deactivated
 
-  const moreByArtistTitle = showMoreByArtistTitle && (
+  const moreByArtistTitle = showMoreByArtistTitle ? (
     <Text
       style={styles.lineupHeader}
     >{`${messages.moreBy} ${user?.name}`}</Text>
-  )
+  ) : null
 
   const originalTrackTitle = (
     <Text style={styles.lineupHeader}>{messages.originalTrack}</Text>
