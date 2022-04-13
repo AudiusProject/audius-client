@@ -43,6 +43,17 @@ export type LineupProps = {
    */
   disableTopTabScroll?: boolean
 
+  /**
+   * Optional payload to pass to the fetch action
+   */
+  fetchPayload?: any
+
+  /**
+   * A header to display at the top of the lineup,
+   * will scroll with the rest of the content
+   */
+  header?: SectionListProps<unknown>['ListHeaderComponent']
+
   /** Are we in a trending lineup? Allows tiles to specialize their rendering */
   isTrending?: boolean
 
@@ -69,12 +80,6 @@ export type LineupProps = {
    * Function called to load more entries
    */
   loadMore?: (offset: number, limit: number, overwrite: boolean) => void
-
-  /**
-   * A header to display at the top of the lineup,
-   * will scroll with the rest of the content
-   */
-  header?: SectionListProps<unknown>['ListHeaderComponent']
 
   /**
    * Function called on refresh

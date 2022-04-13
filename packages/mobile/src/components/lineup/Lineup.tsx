@@ -112,12 +112,13 @@ export const Lineup = ({
   count,
   delineate,
   disableTopTabScroll,
+  fetchPayload,
+  header,
   isTrending,
   leadingElementId,
   leadingElementDelineator,
   lineup,
   loadMore,
-  header,
   rankIconCount = 0,
   refresh,
   refreshing,
@@ -178,19 +179,22 @@ export const Lineup = ({
       if (loadMore) {
         loadMore(offset, limit, page === 0)
       } else {
-        dispatchWeb(actions.fetchLineupMetadatas(offset, limit, page === 0))
+        dispatchWeb(
+          actions.fetchLineupMetadatas(offset, limit, page === 0, fetchPayload)
+        )
       }
     }
   }, [
-    lineup,
     actions,
-    itemCounts,
     countOrDefault,
-    loadMore,
     dispatchWeb,
-    pageItemCount,
+    fetchPayload,
     includeLineupStatus,
-    limit
+    itemCounts,
+    limit,
+    lineup,
+    loadMore,
+    pageItemCount
   ])
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
