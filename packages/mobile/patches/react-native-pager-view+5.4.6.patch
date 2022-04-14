@@ -12,7 +12,7 @@ index f7f31a5..c6a0356 100644
  - (void)goTo:(NSInteger)index animated:(BOOL)animated;
  - (void)shouldScroll:(BOOL)scrollEnabled;
 diff --git a/node_modules/react-native-pager-view/ios/ReactNativePageView.m b/node_modules/react-native-pager-view/ios/ReactNativePageView.m
-index 78f266b..013e2e0 100644
+index 78f266b..b3a2585 100644
 --- a/node_modules/react-native-pager-view/ios/ReactNativePageView.m
 +++ b/node_modules/react-native-pager-view/ios/ReactNativePageView.m
 @@ -3,6 +3,7 @@
@@ -27,38 +27,36 @@ index 78f266b..013e2e0 100644
          _cachedControllers = [NSHashTable weakObjectsHashTable];
          _overdrag = NO;
          _layoutDirection = @"ltr";
-+        _previousNavigationStackCount = 0;
++        _previousNavigationStackCount = 1;
      }
      return self;
  }
-@@ -83,6 +85,63 @@ - (void)didMoveToWindow {
+@@ -83,6 +85,59 @@ - (void)didMoveToWindow {
          [self embed];
          [self setupInitialController];
      }
-+    NSLog(@"raymont did move to window");
 +    if (self.reactViewController.navigationController != nil) {
 +        NSUInteger count = [self.reactViewController.navigationController.viewControllers count];
-+        NSLog(@"raymont count %i, prev %i", count, _previousNavigationStackCount);
 +
 +        if (count >= _previousNavigationStackCount) {
-+            NSLog(@"raymont disable tabs");
 +            // We are pushing to the stack, always enable the stack navigator
 +            for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
 +                recognizer.enabled = YES;
-+                [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:recognizer];
 +            }
 +        } else {
 +            // We are popping from the stack, only enable stack if we're on the first tab
 +            if (self.currentIndex == 0) {
-+                NSLog(@"raymont disable tabs");
 +                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
 +                    recognizer.enabled = YES;
-+                    [self.scrollView.panGestureRecognizer requireGestureRecognizerToFail:recognizer];
 +                }
 +            } else {
-+                NSLog(@"raymont enable tabs");
 +                for (UIGestureRecognizer *recognizer in self.reactViewController.navigationController.view.gestureRecognizers) {
-+                    recognizer.enabled = NO;
++                    // Do not disable the gesture immediately as the window is popping.
++                    NSTimeInterval delayInSeconds = 0.1;
++                    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
++                        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
++                        recognizer.enabled = NO;
++                    });
 +                }
 +            }
 +        }
@@ -84,8 +82,6 @@ index 78f266b..013e2e0 100644
 +                handler.frozen = YES;
 +            }
 +        }
-+
-+        _previousNavigationStackCount = count;
 +    }
 +
 +    // Disable tab swipes when the stack navigator receives a "pop" gesture
@@ -95,7 +91,7 @@ index 78f266b..013e2e0 100644
  }
  
  - (void)embed {
-@@ -191,6 +250,42 @@ - (void)setReactViewControllers:(NSInteger)index
+@@ -191,6 +246,42 @@ - (void)setReactViewControllers:(NSInteger)index
                  strongSelf.lastReportedIndex = strongSelf.currentIndex;
              }
          }
@@ -138,7 +134,7 @@ index 78f266b..013e2e0 100644
      }];
  }
  
-@@ -322,7 +417,6 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
+@@ -322,7 +413,6 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
          didFinishAnimating:(BOOL)finished
     previousViewControllers:(nonnull NSArray<UIViewController *> *)previousViewControllers
         transitionCompleted:(BOOL)completed {
@@ -146,7 +142,7 @@ index 78f266b..013e2e0 100644
      if (completed) {
          UIViewController* currentVC = [self currentlyDisplayed];
          NSUInteger currentIndex = [self.reactSubviews indexOfObject:currentVC.view];
-@@ -333,6 +427,42 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
+@@ -333,6 +423,42 @@ - (void)pageViewController:(UIPageViewController *)pageViewController
          [self.eventDispatcher sendEvent:[[RCTOnPageSelected alloc] initWithReactTag:self.reactTag position:@(currentIndex) coalescingKey:_coalescingKey++]];
          [self.eventDispatcher sendEvent:[[RCTOnPageScrollEvent alloc] initWithReactTag:self.reactTag position:@(currentIndex) offset:@(0.0)]];
          self.lastReportedIndex = currentIndex;
