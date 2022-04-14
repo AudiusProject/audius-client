@@ -89,6 +89,8 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           if (isStackOpen) {
             const isFromNotifs =
               // @ts-ignore
+              e?.data?.state?.routes.length === 2 &&
+              // @ts-ignore
               e?.data?.state?.routes[1].params?.fromNotifications
 
             // If coming from notifs allow swipe to open notifs drawer
