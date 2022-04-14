@@ -1,14 +1,7 @@
 import { useEffect } from 'react'
 
-import {
-  ParamListBase,
-  RouteProp,
-  useNavigation
-} from '@react-navigation/native'
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationOptions
-} from '@react-navigation/native-stack'
+import { useNavigation } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'
 import { ID } from 'audius-client/src/common/models/Identifiers'
 import { NotificationType } from 'audius-client/src/common/store/notifications/types'
@@ -71,27 +64,6 @@ type AppTabScreenProps = {
   Stack: ReturnType<typeof createNativeStackNavigator>
 }
 
-const stackScreenOptions = ({ route }: { route: RouteProp<ParamListBase> }) => {
-  const params = route.params
-  // The manual typing is unfortunate here. There may be a better way, but
-  // the tricky bit is that StackNavigationOptions aren't known to the RouteProp.
-  // A better solution may be to wrap <Stack.Screen> in our own variant that
-  // can do some better generics & inference.
-  const options: NativeStackNavigationOptions = {}
-  if (params) {
-    // TODO: The following behavior is not supported by native stack, so it is disabled.
-    // Notifications currently uses this in order to remove animations when going from the drawer
-    // to a nested stack screen.
-    // if ('animationEnabled' in params) {
-    //   options.animationEnabled = (params as StackNavigationOptions).animationEnabled
-    // }
-    // if ('transitionSpec' in params) {
-    //   options.transitionSpec = (params as StackNavigationOptions).transitionSpec
-    // }
-  }
-  return options
-}
-
 /**
  * This is the base tab screen that includes common screens
  * like track and profile
@@ -115,7 +87,12 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           // @ts-ignore: this is cool, but doesn't exist according to types
           const isStackOpen = e?.data?.state?.routes.length > 1
           if (isStackOpen) {
-            drawerNavigation?.setOptions({ swipeEnabled: false })
+            const isFromNotifs =
+              // @ts-ignore
+              e?.data?.state?.routes[1].params?.fromNotifications
+
+            // If coming from notifs allow swipe to open notifs drawer
+            drawerNavigation?.setOptions({ swipeEnabled: !!isFromNotifs })
           } else {
             drawerNavigation?.setOptions({ swipeEnabled: true })
           }
@@ -143,73 +120,73 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
       <Stack.Screen
         name='Track'
         component={TrackScreen}
-        options={stackScreenOptions}
+        options={screenOptions}
       />
       <Stack.Screen
         name='TrackRemixes'
         component={TrackRemixesScreen}
-        options={stackScreenOptions}
+        options={screenOptions}
       />
       <Stack.Screen
         name='Collection'
         component={CollectionScreen}
-        options={stackScreenOptions}
+        options={screenOptions}
       />
       <Stack.Screen
         name='EditPlaylist'
         component={EditPlaylistScreen}
-        options={stackScreenOptions}
+        options={screenOptions}
       />
       <Stack.Screen
         name='Profile'
         component={ProfileScreen}
-        options={stackScreenOptions}
+        options={screenOptions}
       />
       <Stack.Group>
         <Stack.Screen
           name='Search'
           component={SearchScreen}
           options={props => ({
-            ...stackScreenOptions(props),
+            ...screenOptions(props),
             cardStyleInterpolator: forFade
           })}
         />
         <Stack.Screen
           name='SearchResults'
           component={SearchResultsScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
         <Stack.Screen
           name='TagSearch'
           component={TagSearchScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
       </Stack.Group>
       <Stack.Group>
         <Stack.Screen
           name='Followers'
           component={FollowersScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
         <Stack.Screen
           name='Following'
           component={FollowingScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
         <Stack.Screen
           name='Favorited'
           component={FavoritedScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
         <Stack.Screen
           name='Reposts'
           component={RepostsScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
         <Stack.Screen
           name='NotificationUsers'
           component={NotificationUsersScreen}
-          options={stackScreenOptions}
+          options={screenOptions}
         />
       </Stack.Group>
     </Stack.Navigator>
