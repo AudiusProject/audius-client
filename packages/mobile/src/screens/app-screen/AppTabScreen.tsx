@@ -1,6 +1,10 @@
 import { useEffect } from 'react'
 
-import { useNavigation } from '@react-navigation/native'
+import {
+  EventArg,
+  NavigationState,
+  useNavigation
+} from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'
 import { ID } from 'audius-client/src/common/models/Identifiers'
@@ -10,6 +14,7 @@ import { MessageType } from 'audius-client/src/services/native-mobile-interface/
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useDrawer } from 'app/hooks/useDrawer'
+import { ContextualParams } from 'app/hooks/useNavigation'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
 import {
@@ -83,15 +88,19 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
     <Stack.Navigator
       screenOptions={screenOptions}
       screenListeners={{
-        state: e => {
-          // @ts-ignore: this is cool, but doesn't exist according to types
+        state: (
+          e: EventArg<
+            'state',
+            false,
+            { state: NavigationState<AppTabScreenParamList> }
+          >
+        ) => {
           const isStackOpen = e?.data?.state?.routes.length > 1
           if (isStackOpen) {
             const isFromNotifs =
-              // @ts-ignore
               e?.data?.state?.routes.length === 2 &&
-              // @ts-ignore
-              e?.data?.state?.routes[1].params?.fromNotifications
+              (e?.data?.state?.routes[1].params as ContextualParams)
+                ?.fromNotifications
 
             // If coming from notifs allow swipe to open notifs drawer
             drawerNavigation?.setOptions({ swipeEnabled: !!isFromNotifs })
