@@ -49,11 +49,11 @@ function* getTracks({
     }
   }
 
-  let relatedTracksOffset: number
+  let moreByArtistTracksOffset: number
   if (heroTrackRemixParentTrackId) {
-    relatedTracksOffset = offset <= 1 ? 0 : offset - 2
+    moreByArtistTracksOffset = offset <= 1 ? 0 : offset - 2
   } else {
-    relatedTracksOffset = offset === 0 ? 0 : offset - 1
+    moreByArtistTracksOffset = offset === 0 ? 0 : offset - 1
   }
 
   const processed = yield* call(retrieveUserTracks, {
@@ -62,7 +62,7 @@ function* getTracks({
     sort: 'plays',
     limit: limit + 2,
     // The hero track is always our first track and the remix parent is always the second track (if any):
-    offset: relatedTracksOffset
+    offset: moreByArtistTracksOffset
   })
 
   return lineup
