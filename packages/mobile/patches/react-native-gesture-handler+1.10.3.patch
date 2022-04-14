@@ -3761,7 +3761,7 @@ index f952c15..2f4e9bd 100644
  @end
  
 diff --git a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
-index 998c059..b3195fc 100644
+index 998c059..b239ba7 100644
 --- a/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
 +++ b/node_modules/react-native-gesture-handler/ios/RNGestureHandler.m
 @@ -73,6 +73,7 @@ - (instancetype)initWithTag:(NSNumber *)tag
@@ -3772,13 +3772,12 @@ index 998c059..b3195fc 100644
  
          static dispatch_once_t onceToken;
          dispatch_once(&onceToken, ^{
-@@ -132,8 +133,11 @@ - (void)configure:(NSDictionary *)config
+@@ -132,8 +133,10 @@ - (void)configure:(NSDictionary *)config
  
  - (void)setEnabled:(BOOL)enabled
  {
 -    _enabled = enabled;
 -    self.recognizer.enabled = enabled;
-+    NSLog(@"raymont SET ENABLED");
 +    if (_frozen == NO) {
 +        _enabled = enabled;
 +        self.recognizer.enabled = enabled;
@@ -3786,7 +3785,7 @@ index 998c059..b3195fc 100644
  }
  
  - (void)bindToView:(UIView *)view
-@@ -341,4 +345,9 @@ - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceive
+@@ -341,4 +344,9 @@ - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceive
      return YES;
  }
  
