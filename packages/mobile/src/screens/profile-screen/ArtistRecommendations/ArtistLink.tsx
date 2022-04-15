@@ -1,34 +1,21 @@
-import { useCallback } from 'react'
-
 import { User } from 'audius-client/src/common/models/User'
 import { TouchableOpacity } from 'react-native'
 
 import { Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
-import { useNavigation } from 'app/hooks/useNavigation'
+import { GestureResponderHandler } from 'app/types/gesture'
 
 type ArtistLinkProps = {
   artist: User
+  onPress: GestureResponderHandler
 }
 
 export const ArtistLink = (props: ArtistLinkProps) => {
-  const navigation = useNavigation()
-
-  const { artist } = props
+  const { artist, onPress } = props
   const { name } = artist
 
-  const handleArtistPress = useCallback(() => {
-    navigation.push({
-      native: { screen: 'Profile', params: { handle: artist.handle } },
-      web: { route: `/${artist.handle}` }
-    })
-  }, [navigation, artist])
-
   return (
-    <TouchableOpacity
-      style={{ flexDirection: 'row' }}
-      onPress={handleArtistPress}
-    >
+    <TouchableOpacity style={{ flexDirection: 'row' }} onPress={onPress}>
       <Text color='secondary' variant='h3'>
         {name}
       </Text>
