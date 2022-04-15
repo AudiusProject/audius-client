@@ -7,6 +7,11 @@
   margin-left: 8px;
 }
 
+.modalBody {
+  width: 488px;
+  height: 452px;
+}
+
 .modalContentContainer {
   margin: 24px 48px;
   display: flex;
@@ -101,11 +106,6 @@
   height: 78px;
 }
 
-.smallWrapperPhoto {
-  flex: 0 0 40px;
-  height: 40px;
-}
-
 .dynamicPhoto {
   height: 78px;
   border-radius: 40px;
@@ -117,10 +117,6 @@
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--default-profile-picture-background);
-}
-
-.smallDynamicPhoto {
-  height: 40px;
 }
 
 .accountWrapper .photo {
@@ -288,4 +284,21 @@
 .support {
   margin-bottom: 16px;
   font-weight: var(--font-medium);
+}
+
+.input {
+  padding: 16px;
+  color: var(--neutral-light-4);
+  background-color: var(--neutral-light-10);
+  border: 1px solid var(--neutral-light-8);
+  font-size: var(--font-xl);
+  font-weight: var(--font-medium);
+}
+
+.rightLabel {
+  bottom: 17px;
+  right: 16px;
+  color: var(--neutral);
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
 }

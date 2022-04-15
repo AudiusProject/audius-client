@@ -1,5 +1,6 @@
-import React, { cloneElement, useCallback, useState } from 'react'
+import React, { cloneElement, useCallback, useMemo, useState } from 'react'
 
+import { Format, TokenValueInput } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,13 +10,14 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { useSelectTierInfo } from 'common/hooks/wallet'
 import { BadgeTier } from 'common/models/BadgeTier'
 import { SquareSizes } from 'common/models/ImageSizes'
-import { BNWei } from 'common/models/Wallet'
+import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { setSendStatus, setSendAmount } from 'common/store/tipping/slice'
-import { getAccountTotalBalance } from 'common/store/wallet/selectors'
-import { formatWei } from 'common/utils/wallet'
-import Input from 'components/data-entry/Input'
+import { getAccountBalance } from 'common/store/wallet/selectors'
+import { convertFloatToWei } from 'common/utils/formatUtil'
+import { Nullable } from 'common/utils/typeUtils'
+import { audioToWei, formatWei, stringWeiToBN } from 'common/utils/wallet'
 import UserBadges, { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
@@ -24,10 +26,24 @@ import styles from './TipAudio.module.css'
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
-  sendATip: 'Send a Tip',
+  sendATip: 'Send Tip',
   enterAnAmount: 'Enter an amount'
 }
-export const SendTipModal = () => {
+
+const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
+  if (!audio.length) return null
+  // First try converting from float, in case audio has decimal value
+  const floatWei = convertFloatToWei(audio) as Nullable<BNWei>
+  if (floatWei) return floatWei
+  // Safe to assume no decimals
+  try {
+    return audioToWei(audio)
+  } catch {
+    return null
+  }
+}
+
+export const SendTip = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
   const profileImage = useUserProfilePicture(
@@ -36,33 +52,44 @@ export const SendTipModal = () => {
     SquareSizes.SIZE_150_BY_150
   )
   const account = useSelector(getAccountUser)
-  // todo: should we only care about sol total balance?
-  // or will we automatically swap eth audio to sol audio
-  // if eth amount not enough for the tip transfer?
-  let totalBalance = useSelector(getAccountTotalBalance)
-  if (totalBalance === null && account?.total_balance) {
-    totalBalance = new BN(account?.total_balance) as BNWei
-  }
-  // const nonNullTotalBalance = totalBalance !== null
-  // const positiveTotalBalance =
-  //   nonNullTotalBalance && totalBalance!.gt(new BN(0))
+
+  // todo: should this use the user's tier including linked wallets
+  // or only the available balance for sending tip (no linked wallets)?
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier as BadgeTier]
-  const [tipAmount, setTipAmount] = useState(0)
 
-  const handleAmountChange = useCallback((e: string) => {
-    // const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log({ e })
-    const newAmount = parseInt(e)
-    // const newAmount = parseInt(e.target.value)
-    console.log({ newAmount })
-    setTipAmount(newAmount || 0)
-  }, [])
+  // todo: automatically swap eth audio to sol audio
+  // if eth amount not enough for the tip transfer?
+  const accountBalance = (useSelector(getAccountBalance) ??
+    new BN('0')) as BNWei
+
+  const [tipAmount, setTipAmount] = useState<StringAudio>('' as StringAudio)
+  const tipAmountBNWei: BNWei = useMemo(() => {
+    const zeroWei = stringWeiToBN('0' as StringWei)
+    return parseAudioInputToWei(tipAmount) ?? zeroWei
+  }, [tipAmount])
+
+  // const handleAmountChange = useCallback((e: string) => {
+  //   // const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  //   console.log({ e })
+  //   const newAmount = parseInt(e)
+  //   // const newAmount = parseInt(e.target.value)
+  //   console.log({ newAmount })
+  //   setTipAmount(newAmount || 0)
+  // }, [])
+  const handleTipAmountChange = useCallback(
+    (value: string) => {
+      setTipAmount(value as StringAudio)
+      // if (balanceError) setBalanceError(null)
+    },
+    // [balanceError, setBalanceError, setTipAmount]
+    [setTipAmount]
+  )
 
   const handleSendClick = useCallback(() => {
-    dispatch(setSendAmount({ amount: tipAmount }))
+    dispatch(setSendAmount({ amount: tipAmountBNWei }))
     dispatch(setSendStatus({ status: 'CONFIRM' }))
-  }, [dispatch, tipAmount])
+  }, [dispatch, tipAmountBNWei])
 
   return profile ? (
     <div className={styles.container}>
@@ -85,11 +112,8 @@ export const SendTipModal = () => {
         </div>
       </div>
       <div className={styles.amountToSend}>
-        <Input
+        {/* <Input
           placeholder={messages.enterAnAmount}
-          // type='number'
-          // name='amount'
-          // id='email-input'
           // variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
           // size='medium'
           value={tipAmount}
@@ -103,6 +127,19 @@ export const SendTipModal = () => {
           // error={showError}
           // onBlur={onBlur}
           // disabled={shouldDisableInputs}
+        /> */}
+        <TokenValueInput
+          className={styles.inputContainer}
+          // labelClassName={styles.label}
+          rightLabelClassName={styles.rightLabel}
+          inputClassName={styles.input}
+          // label={messages.enterAnAmount}
+          format={Format.INPUT}
+          placeholder={'Enter an amount'}
+          rightLabel={'$AUDIO'}
+          value={tipAmount}
+          isNumeric={true}
+          onChange={handleTipAmountChange}
         />
       </div>
       <div className={styles.amountAvailableContainer}>
@@ -124,7 +161,7 @@ export const SendTipModal = () => {
             <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
           )}
           <span className={styles.audioAmount}>
-            {formatWei(totalBalance!, true, 0)}
+            {formatWei(accountBalance, true, 0)}
           </span>
         </div>
       </div>

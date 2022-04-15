@@ -9,6 +9,7 @@ import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
 import { setSendStatus } from 'common/store/tipping/slice'
+import { formatWei } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
@@ -22,7 +23,7 @@ const messages = {
   goBack: 'Go Back'
 }
 
-export const ConfirmSendTipModal = () => {
+export const ConfirmSendTip = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
   const sendAmount = useSelector(getSendAmount)
@@ -59,7 +60,9 @@ export const ConfirmSendTipModal = () => {
         </span>
       </div>
       <div className={cn(styles.rowCenter, styles.sendingAudio)}>
-        <span className={styles.sendingAudioAmount}>{sendAmount}</span>
+        <span className={styles.sendingAudioAmount}>
+          {formatWei(sendAmount, true)}
+        </span>
         $AUDIO
       </div>
       <div className={styles.profileUser}>

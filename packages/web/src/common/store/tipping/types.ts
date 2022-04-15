@@ -1,6 +1,7 @@
 import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
+import { BNWei } from 'common/models/Wallet'
 
 export type TippingSendStatus =
   | 'SEND'
@@ -14,6 +15,6 @@ export type TippingState = {
   send: {
     status: TippingSendStatus | null
     user: User | null
-    amount: number
+    amount: BNWei
   }
 }

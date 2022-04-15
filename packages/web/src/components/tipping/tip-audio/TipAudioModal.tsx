@@ -10,13 +10,13 @@ import { resetSendStatus } from 'common/store/tipping/slice'
 import { TippingSendStatus } from 'common/store/tipping/types'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 
-import { ConfirmSendTipModal } from './ConfirmSendTipModal'
-import { SendTipModal } from './SendTipModal'
+import { ConfirmSendTip } from './ConfirmSendTip'
+import { SendTip } from './SendTip'
 import styles from './TipAudio.module.css'
-import { TipSentModal } from './TipSentModal'
+import { TipSent } from './TipSent'
 
 const messages = {
-  sendATip: 'Send A Tip',
+  sendATip: 'Send Tip',
   confirm: 'Confirm',
   tipSent: 'Tip Sent'
 }
@@ -52,12 +52,12 @@ const ModalContent = () => {
   const sendStatus = useSelector(getSendStatus)
   switch (sendStatus) {
     case 'SEND':
-      return <SendTipModal />
+      return <SendTip />
     case 'CONFIRM':
     case 'SENDING':
-      return <ConfirmSendTipModal />
+      return <ConfirmSendTip />
     case 'SUCCESS':
-      return <TipSentModal />
+      return <TipSent />
     default:
       return null
   }
@@ -76,6 +76,7 @@ export const TipAudioModal = () => {
     <ModalDrawer
       isOpen={sendStatus !== null}
       onClose={onClose}
+      bodyClassName={styles.modalBody}
       // bodyClassName={cn(styles.modalBody, {
       //   [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS',
       //   [styles.convertingEth]:

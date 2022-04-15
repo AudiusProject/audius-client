@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import BN from 'bn.js'
 
 import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
+import { BNWei } from 'common/models/Wallet'
 import { TippingSendStatus, TippingState } from 'common/store/tipping/types'
 
 const initialState: TippingState = {
@@ -11,7 +13,7 @@ const initialState: TippingState = {
   send: {
     status: null,
     user: null,
-    amount: 0
+    amount: new BN('0') as BNWei
   }
 }
 
@@ -54,7 +56,7 @@ const slice = createSlice({
     setSendUser: (state, action: PayloadAction<{ user: User | null }>) => {
       state.send.user = action.payload.user
     },
-    setSendAmount: (state, action: PayloadAction<{ amount: number }>) => {
+    setSendAmount: (state, action: PayloadAction<{ amount: BNWei }>) => {
       state.send.amount = action.payload.amount
     },
     resetSendStatus: state => {

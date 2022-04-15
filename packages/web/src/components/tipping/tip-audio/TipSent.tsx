@@ -19,7 +19,7 @@ const messages = {
   shareToTwitter: 'Share to Twitter'
 }
 
-export const TipSentModal = () => {
+export const TipSent = () => {
   const sendAmount = useSelector(getSendAmount)
   const profile = useSelector(getProfileUser)
   const profileImage = useUserProfilePicture(
@@ -55,6 +55,9 @@ export const TipSentModal = () => {
                 badgeSize={12}
                 className={styles.badge}
               />
+            </div>
+            <div className={styles.handleContainer}>
+              <span className={styles.handle}>{`@${profile.handle}`}</span>
             </div>
           </div>
         </div>
