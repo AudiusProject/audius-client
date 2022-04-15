@@ -17,7 +17,7 @@ export const TipAudioButton = () => {
 
   const handleClick = useCallback(() => {
     dispatch(setSendStatus({ status: 'SEND' }))
-  }, [])
+  }, [dispatch])
 
   return (
     <Button

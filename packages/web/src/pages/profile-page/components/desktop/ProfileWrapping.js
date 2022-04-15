@@ -4,7 +4,9 @@ import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
+import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
+import { getAccountUser } from 'common/store/account/selectors'
 import { formatCount, squashNewLines } from 'common/utils/formatUtil'
 import ArtistChip from 'components/artist/ArtistChip'
 import UserListModal from 'components/artist/UserListModal'
@@ -82,6 +84,7 @@ const Followers = props => {
 }
 
 const ProfileWrapping = props => {
+  const accountUser = useSelector(getAccountUser)
   const [showMutualConnectionsModal, setShowMutualConnectionsModal] = useState(
     false
   )
@@ -276,7 +279,9 @@ const ProfileWrapping = props => {
             />
           )}
         </div>
-        <TipAudioButton />
+        {accountUser && accountUser.user_id !== props.userId ? (
+          <TipAudioButton />
+        ) : null}
         {props.isArtist ? (
           <Tags goToRoute={props.goToRoute} tags={props.tags} />
         ) : null}

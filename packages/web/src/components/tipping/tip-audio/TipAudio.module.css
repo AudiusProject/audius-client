@@ -280,7 +280,8 @@
   margin-bottom: 24px;
 }
 
-.shareButton, .shareButton:hover {
+.shareButton,
+.shareButton:hover {
   background: var(--static-twitter-blue) !important;
 }
 

@@ -1,13 +1,16 @@
+import React, { useCallback } from 'react'
+
 import { Button, ButtonType, IconTwitterBird } from '@audius/stems'
+import cn from 'classnames'
+
 import { useSelector } from 'common/hooks/useSelector'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount } from 'common/store/tipping/selectors'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import React, { useCallback } from 'react'
+
 import styles from './TipAudio.module.css'
-import cn from 'classnames'
 
 const messages = {
   sending: 'SENDING',
@@ -40,7 +43,10 @@ export const TipSentModal = () => {
       </div>
       <div className={styles.profileUser}>
         <div className={styles.accountWrapper}>
-          <img className={cn(styles.dynamicPhoto, styles.smallDynamicPhoto)} src={profileImage} />
+          <img
+            className={cn(styles.dynamicPhoto, styles.smallDynamicPhoto)}
+            src={profileImage}
+          />
           <div className={styles.userInfoWrapper}>
             <div className={styles.name}>
               {profile.name}

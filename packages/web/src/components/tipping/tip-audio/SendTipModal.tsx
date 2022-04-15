@@ -1,6 +1,7 @@
 import React, { cloneElement, useCallback, useState } from 'react'
 
 import BN from 'bn.js'
+import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconQuestionMark } from 'assets/img/iconQuestionMark.svg'
@@ -11,17 +12,15 @@ import { SquareSizes } from 'common/models/ImageSizes'
 import { BNWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
+import { setSendStatus, setSendAmount } from 'common/store/tipping/slice'
+import { getAccountTotalBalance } from 'common/store/wallet/selectors'
+import { formatWei } from 'common/utils/wallet'
+import Input from 'components/data-entry/Input'
 import UserBadges, { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import styles from './TipAudio.module.css'
-
-import { getAccountTotalBalance } from 'common/store/wallet/selectors'
-import { formatWei } from 'common/utils/wallet'
-import Input from 'components/data-entry/Input'
-import { setSendStatus, setSendAmount } from 'common/store/tipping/slice'
-import cn from 'classnames'
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
@@ -63,7 +62,7 @@ export const SendTipModal = () => {
   const handleSendClick = useCallback(() => {
     dispatch(setSendAmount({ amount: tipAmount }))
     dispatch(setSendStatus({ status: 'CONFIRM' }))
-  }, [])
+  }, [dispatch, tipAmount])
 
   return profile ? (
     <div className={styles.container}>

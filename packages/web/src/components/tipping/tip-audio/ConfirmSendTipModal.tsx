@@ -1,17 +1,19 @@
+import React, { useCallback, useEffect, useState } from 'react'
+
 import { Button, ButtonType, IconCheck, IconArrow } from '@audius/stems'
+import cn from 'classnames'
+import { useDispatch, useSelector } from 'react-redux'
+
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
 import { setSendStatus } from 'common/store/tipping/slice'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import React, { useCallback, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+
 import styles from './TipAudio.module.css'
-import cn from 'classnames'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { useState } from 'react'
 
 const messages = {
   sending: 'SENDING',
@@ -40,19 +42,21 @@ export const ConfirmSendTipModal = () => {
     // todo: call send/transfer function
     dispatch(setSendStatus({ status: 'SENDING' }))
     // dispatch(setSendStatus({ status: 'SUCCESS' }))
-  }, [])
+  }, [dispatch])
 
   const handleGoBackClick = useCallback(() => {
     if (!isDisabled) {
       dispatch(setSendStatus({ status: 'SEND' }))
     }
-  }, [isDisabled])
+  }, [isDisabled, dispatch])
 
   return profile ? (
     <div className={styles.container}>
       <div className={cn(styles.rowCenter, styles.sendingContainer)}>
         {messages.sending}
-        <span className={styles.sendingIcon}><IconArrow /></span>
+        <span className={styles.sendingIcon}>
+          <IconArrow />
+        </span>
       </div>
       <div className={cn(styles.rowCenter, styles.sendingAudio)}>
         <span className={styles.sendingAudioAmount}>{sendAmount}</span>
@@ -84,12 +88,23 @@ export const ConfirmSendTipModal = () => {
           type={ButtonType.PRIMARY}
           text={messages.confirmTip}
           onClick={handleConfirmSendClick}
-          rightIcon={sendStatus === 'SENDING' ? <LoadingSpinner className={styles.loadingSpinner} /> : <IconCheck />}
+          rightIcon={
+            sendStatus === 'SENDING' ? (
+              <LoadingSpinner className={styles.loadingSpinner} />
+            ) : (
+              <IconCheck />
+            )
+          }
           disabled={isDisabled}
           className={cn({ [styles.disabled]: isDisabled })}
         />
       </div>
-      <div className={cn(styles.rowCenter, styles.goBackContainer, { [styles.disabled]: isDisabled })} onClick={handleGoBackClick}>
+      <div
+        className={cn(styles.rowCenter, styles.goBackContainer, {
+          [styles.disabled]: isDisabled
+        })}
+        onClick={handleGoBackClick}
+      >
         <IconCaretLeft />
         <span className={styles.goBack}>{messages.goBack}</span>
       </div>
