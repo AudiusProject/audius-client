@@ -61,17 +61,13 @@ export const makeStyles = <PropsT, T extends NamedStyles<T> = NamedStyles<any>>(
         : themeType
     const palette = useThemeColors()
 
-    const theme: Theme = useMemo(
-      () => ({ palette, typography, spacing, type }),
-      [palette, type]
-    )
-
     const memoizedProps = useMemoCompare<PropsT | undefined>(props, isEqual)
 
     const stylesheet = useMemo(() => {
+      const theme = { palette, typography, spacing, type }
       const namedStyles = styles(theme, memoizedProps)
       return StyleSheet.create(namedStyles)
-    }, [theme, memoizedProps])
+    }, [palette, type, memoizedProps])
 
     return stylesheet
   }
