@@ -40,7 +40,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     flexDirection: 'row'
   },
   dismissButton: {
-    marginRight: spacing(4)
+    marginRight: spacing(2)
   },
   dismissIcon: {
     height: 24,
@@ -138,11 +138,13 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
           fill={styles.dismissIcon.fill}
           onPress={onClose}
         />
-        <Text variant='body1'>
-          {messages.description} {name}
-        </Text>
+        <View pointerEvents='none'>
+          <Text variant='body1'>
+            {messages.description} {name}
+          </Text>
+        </View>
       </View>
-      <View style={styles.suggestedArtistsPhotos}>
+      <View style={styles.suggestedArtistsPhotos} pointerEvents='box-none'>
         {suggestedArtists.map(artist => (
           <TouchableOpacity
             onPress={handlePressArtist(artist)}
@@ -155,17 +157,21 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
           </TouchableOpacity>
         ))}
       </View>
-      <View style={styles.suggestedArtistsText}>
-        <Text variant='body1'>Featuring </Text>
+      <View style={styles.suggestedArtistsText} pointerEvents='box-none'>
+        <View pointerEvents='none'>
+          <Text variant='body1'>Featuring </Text>
+        </View>
         {suggestedArtistNames.map(artist => (
           <Fragment key={artist.user_id}>
             <ArtistLink artist={artist} onPress={handlePressArtist(artist)} />
             <Text variant='body1'>, </Text>
           </Fragment>
         ))}
-        <Text variant='body1'>{`and ${
-          suggestedArtists.length - suggestedArtistNames.length
-        } others`}</Text>
+        <View pointerEvents='none'>
+          <Text variant='body1'>{`and ${
+            suggestedArtists.length - suggestedArtistNames.length
+          } others`}</Text>
+        </View>
       </View>
       <Button
         variant='primary'
