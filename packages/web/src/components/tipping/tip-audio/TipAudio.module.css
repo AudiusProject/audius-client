@@ -9,11 +9,11 @@
 
 .modalBody {
   width: 488px;
-  height: 452px;
+  height: 492px;
 }
 
 .modalContentContainer {
-  margin: 24px 48px;
+  margin: 24px 0;
   display: flex;
   justify-content: center;
 }
@@ -29,18 +29,23 @@
 }
 
 .profileUser {
+  margin-top: 32px;
   margin-bottom: 24px;
 }
 
+.confirmProfileUser {
+  margin-top: 0;
+}
+
 .amountToSend {
-  margin-bottom: 26px;
+  margin: 0 24px 24px 24px;
 }
 
 .amountAvailableContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 26px;
+  margin: 0 24px 24px 24px;
   color: var(--neutral-light-4);
   font-weight: var(--font-heavy);
 }
@@ -73,6 +78,10 @@
   color: var(--neutral-light-4);
   transition: color 0.07s ease-in-out;
   cursor: pointer;
+}
+
+.buttonContainer {
+  margin-bottom: 24px;
 }
 
 .buttonContainer .disabled:hover {
@@ -203,8 +212,8 @@
 } */
 
 .areYouSure {
-  font-size: var(--font-l);
-  font-weight: var(--font-medium);
+  font-size: var(--font-m);
+  font-weight: var(--font-demi-bold);
   margin-bottom: 24px;
 }
 
@@ -233,13 +242,21 @@
 }
 
 .sendingContainer {
+  margin-top: 8px;
   margin-bottom: 8px;
   color: var(--neutral-light-4);
+  font-size: var(--font-s);
   font-weight: var(--font-bold);
+  letter-spacing: 0.1em;
 }
 
 .sendingIcon {
-  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.sendingIcon svg {
+  width: 14px;
+  height: 14px;
 }
 
 .sendingIcon svg path {
@@ -262,7 +279,7 @@
   font-size: var(--font-3xl);
   font-weight: var(--font-heavy);
   color: var(--neutral-light-4);
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .sentAudioAmount {
@@ -270,10 +287,26 @@
   color: var(--neutral);
 }
 
-.sentSuccessfully {
+.sentSuccessfullyContainer {
+  font-size: var(--font-s);
   font-weight: var(--font-bold);
   color: var(--neutral-light-4);
-  margin-bottom: 24px;
+  margin-top: 48px;
+  margin-bottom: 8px;
+  letter-spacing: 0.1em;
+}
+
+.sentSuccessfullyIcon {
+  margin-right: 4px;
+}
+
+.sentSuccessfullyIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.sentSuccessfullyIcon svg path {
+  fill: var(--neutral-light-4) !important;
 }
 
 .shareButton,
@@ -282,8 +315,9 @@
 }
 
 .support {
-  margin-bottom: 16px;
-  font-weight: var(--font-medium);
+  margin-bottom: 24px;
+  font-size: var(--font-m);
+  font-weight: var(--font-demi-bold);
 }
 
 .input {
@@ -301,4 +335,11 @@
   color: var(--neutral);
   font-size: var(--font-xl);
   font-weight: var(--font-bold);
+}
+
+.error {
+  font-size: var(--font-m);
+  font-weight: var(--font-demi-bold);
+  color: var(--accent-red);
+  margin-bottom: 24px;
 }

@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react'
 
-import { Button, ButtonType, IconTwitterBird } from '@audius/stems'
+import { Button, ButtonType, IconTwitterBird, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount } from 'common/store/tipping/selectors'
+import { formatWei } from 'common/utils/wallet'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
@@ -34,14 +35,19 @@ export const TipSent = () => {
 
   return profile ? (
     <div className={styles.container}>
-      <div className={cn(styles.rowCenter, styles.sentAudio)}>
-        <span className={styles.sentAudioAmount}>{sendAmount}</span>
-        $AUDIO
-      </div>
-      <div className={cn(styles.rowCenter, styles.sentSuccessfully)}>
+      <div className={cn(styles.rowCenter, styles.sentSuccessfullyContainer)}>
+        <span className={styles.sentSuccessfullyIcon}>
+          <IconCheck />
+        </span>
         {messages.sentSuccessfully}
       </div>
-      <div className={styles.profileUser}>
+      <div className={cn(styles.rowCenter, styles.sentAudio)}>
+        <span className={styles.sentAudioAmount}>
+          {formatWei(sendAmount, true)}
+        </span>
+        $AUDIO
+      </div>
+      <div className={cn(styles.profileUser, styles.confirmProfileUser)}>
         <div className={styles.accountWrapper}>
           <img
             className={cn(styles.dynamicPhoto, styles.smallDynamicPhoto)}

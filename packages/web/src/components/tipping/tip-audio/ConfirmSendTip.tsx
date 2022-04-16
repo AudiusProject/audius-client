@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { Button, ButtonType, IconCheck, IconArrow } from '@audius/stems'
+import { Button, ButtonType, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
+import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
@@ -20,7 +21,8 @@ const messages = {
   sending: 'SENDING',
   areYouSure: 'Are you sure? This cannot be reversed.',
   confirmTip: 'Confirm Tip',
-  goBack: 'Go Back'
+  goBack: 'Go Back',
+  somethingWrong: 'Something’s gone wrong. Wait a little while and try again.'
 }
 
 export const ConfirmSendTip = () => {
@@ -34,9 +36,13 @@ export const ConfirmSendTip = () => {
     SquareSizes.SIZE_150_BY_150
   )
   const [isDisabled, setIsDisabled] = useState(false)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     setIsDisabled(sendStatus !== 'CONFIRM' && sendStatus !== 'ERROR')
+    if (sendStatus === 'ERROR') {
+      setHasError(true)
+    }
   }, [sendStatus])
 
   const handleConfirmSendClick = useCallback(() => {
@@ -54,10 +60,10 @@ export const ConfirmSendTip = () => {
   return profile ? (
     <div className={styles.container}>
       <div className={cn(styles.rowCenter, styles.sendingContainer)}>
-        {messages.sending}
         <span className={styles.sendingIcon}>
-          <IconArrow />
+          <IconSend />
         </span>
+        {messages.sending}
       </div>
       <div className={cn(styles.rowCenter, styles.sendingAudio)}>
         <span className={styles.sendingAudioAmount}>
@@ -83,9 +89,15 @@ export const ConfirmSendTip = () => {
           </div>
         </div>
       </div>
-      <div className={cn(styles.rowCenter, styles.areYouSure)}>
-        {messages.areYouSure}
-      </div>
+      {hasError ? (
+        <div className={cn(styles.rowCenter, styles.error)}>
+          {messages.somethingWrong}
+        </div>
+      ) : (
+        <div className={cn(styles.rowCenter, styles.areYouSure)}>
+          {messages.areYouSure}
+        </div>
+      )}
       <div className={cn(styles.rowCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}

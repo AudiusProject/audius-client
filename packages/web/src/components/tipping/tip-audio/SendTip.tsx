@@ -27,7 +27,8 @@ import styles from './TipAudio.module.css'
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
   sendATip: 'Send Tip',
-  enterAnAmount: 'Enter an amount'
+  enterAnAmount: 'Enter an amount',
+  insufficientBalance: 'Insufficient Balance'
 }
 
 const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
@@ -64,20 +65,20 @@ export const SendTip = () => {
     new BN('0')) as BNWei
 
   const [tipAmount, setTipAmount] = useState<StringAudio>('' as StringAudio)
+  const [isDisabled, setIsDisabled] = useState(true)
+  const [hasError, setHasError] = useState(false)
+
   const tipAmountBNWei: BNWei = useMemo(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
-    return parseAudioInputToWei(tipAmount) ?? zeroWei
-  }, [tipAmount])
+    const newAmountWei = parseAudioInputToWei(tipAmount) ?? zeroWei
+    const insufficientBalance = newAmountWei.gt(accountBalance)
+    setIsDisabled(insufficientBalance || newAmountWei.lte(zeroWei))
+    setHasError(insufficientBalance)
+    return newAmountWei
+  }, [tipAmount, accountBalance])
 
-  // const handleAmountChange = useCallback((e: string) => {
-  //   // const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-  //   console.log({ e })
-  //   const newAmount = parseInt(e)
-  //   // const newAmount = parseInt(e.target.value)
-  //   console.log({ newAmount })
-  //   setTipAmount(newAmount || 0)
-  // }, [])
   const handleTipAmountChange = useCallback(
+    // todo: what about decimals?
     (value: string) => {
       setTipAmount(value as StringAudio)
       // if (balanceError) setBalanceError(null)
@@ -170,9 +171,15 @@ export const SendTip = () => {
           text={messages.sendATip}
           onClick={handleSendClick}
           textClassName={styles.buttonText}
-          className={styles.buttonText}
+          className={cn(styles.buttonText, { [styles.disabled]: isDisabled })}
+          disabled={isDisabled}
         />
       </div>
+      {hasError && (
+        <div className={cn(styles.rowCenter, styles.error)}>
+          {messages.insufficientBalance}
+        </div>
+      )}
     </div>
   ) : null
 }
