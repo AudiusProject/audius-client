@@ -5,7 +5,7 @@ import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ReactComponent as IconQuestionMark } from 'assets/img/iconQuestionMark.svg'
+import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { useSelectTierInfo } from 'common/hooks/wallet'
 import { BadgeTier } from 'common/models/BadgeTier'
@@ -18,6 +18,7 @@ import { getAccountBalance } from 'common/store/wallet/selectors'
 import { convertFloatToWei } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
 import { audioToWei, formatWei, stringWeiToBN } from 'common/utils/wallet'
+import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges, { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
@@ -28,7 +29,8 @@ const messages = {
   availableToSend: 'AVAILABLE TO SEND',
   sendATip: 'Send Tip',
   enterAnAmount: 'Enter an amount',
-  insufficientBalance: 'Insufficient Balance'
+  insufficientBalance: 'Insufficient Balance',
+  tooltip: '$AUDIO held in linked wallets cannot be used for tipping'
 }
 
 const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
@@ -148,11 +150,15 @@ export const SendTip = () => {
       <div className={styles.amountAvailableContainer}>
         <div className={styles.amountAvailable}>
           {messages.availableToSend}
-          <IconQuestionMark
-            className={styles.amountAvailableInfo}
-            width={18}
-            height={18}
-          />
+          <Tooltip text={messages.tooltip} mount='parent'>
+            <span>
+              <IconQuestionCircle
+                className={styles.amountAvailableInfo}
+                width={18}
+                height={18}
+              />
+            </span>
+          </Tooltip>
         </div>
         <div className={styles.amountContainer}>
           {audioBadge ? (
