@@ -46,7 +46,6 @@ export const ConfirmSendTip = () => {
   }, [sendStatus])
 
   const handleConfirmSendClick = useCallback(() => {
-    // todo: call send/transfer function
     dispatch(confirmSendTip())
   }, [dispatch])
 

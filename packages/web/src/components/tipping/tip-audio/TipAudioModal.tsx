@@ -55,6 +55,7 @@ const ModalContent = () => {
       return <SendTip />
     case 'CONFIRM':
     case 'SENDING':
+    case 'ERROR':
       return <ConfirmSendTip />
     case 'SUCCESS':
       return <TipSent />

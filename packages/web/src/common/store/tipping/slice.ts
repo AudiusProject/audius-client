@@ -63,7 +63,7 @@ const slice = createSlice({
       state.send.amount = action.payload.amount
     },
     confirmSendTip: state => {
-      if (state.send.status !== 'CONFIRM') {
+      if (state.send.status !== 'CONFIRM' && state.send.status !== 'ERROR') {
         return
       }
       state.send.status = 'SENDING'
