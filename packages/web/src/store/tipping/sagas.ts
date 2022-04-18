@@ -3,6 +3,7 @@ import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
 import { BNWei } from 'common/models/Wallet'
+import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { transferEthAudioToSolWAudio } from 'common/store/pages/token-dashboard/slice'
 import { getSendTipData } from 'common/store/tipping/selectors'
@@ -14,14 +15,18 @@ import {
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
 import { weiToString } from 'common/utils/wallet'
-// import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
 
-// todo: use feature flag
-// const { getFeatureEnabled } = remoteConfigInstance
+const { getFeatureEnabled } = remoteConfigInstance
 
 function* sendTipAsync() {
+  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+  if (!isTippingEnabled) {
+    return
+  }
+
   const account = yield* select(getAccountUser)
   const sendTipData = yield* select(getSendTipData)
   const { user, amount: weiBNAmount } = sendTipData

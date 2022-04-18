@@ -6,6 +6,7 @@ import Linkify from 'linkifyjs/react'
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
+import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { formatCount, squashNewLines } from 'common/utils/formatUtil'
 import ArtistChip from 'components/artist/ArtistChip'
@@ -22,10 +23,13 @@ import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import EditableName from 'pages/profile-page/components/EditableName'
 import SocialLink, { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { make, useRecord } from 'store/analytics/actions'
 import { profilePage, searchResultsPage, UPLOAD_PAGE } from 'utils/route'
 
 import styles from './ProfilePage.module.css'
+
+const { getFeatureEnabled } = remoteConfigInstance
 
 const Tags = props => {
   const { tags, goToRoute } = props
@@ -84,6 +88,7 @@ const Followers = props => {
 }
 
 const ProfileWrapping = props => {
+  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   const accountUser = useSelector(getAccountUser)
   const [showMutualConnectionsModal, setShowMutualConnectionsModal] = useState(
     false
@@ -279,7 +284,9 @@ const ProfileWrapping = props => {
             />
           )}
         </div>
-        {accountUser && accountUser.user_id !== props.userId ? (
+        {isTippingEnabled &&
+        accountUser &&
+        accountUser.user_id !== props.userId ? (
           <TipAudioButton />
         ) : null}
         {props.isArtist ? (
