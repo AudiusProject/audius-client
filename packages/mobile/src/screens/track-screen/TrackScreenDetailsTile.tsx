@@ -76,7 +76,7 @@ const recordPlay = (id, play = true) => {
     make({
       eventName: play ? Name.PLAYBACK_PLAY : Name.PLAYBACK_PAUSE,
       id: String(id),
-      source: PlaybackSource.PLAYLIST_PAGE
+      source: PlaybackSource.TRACK_PAGE
     })
   )
 }
