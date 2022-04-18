@@ -1,4 +1,4 @@
-import React, { cloneElement, useCallback, useMemo, useState } from 'react'
+import React, { cloneElement, useCallback, useEffect, useState } from 'react'
 
 import { Format, TokenValueInput } from '@audius/stems'
 import BN from 'bn.js'
@@ -65,25 +65,27 @@ export const SendTip = () => {
     new BN('0')) as BNWei
 
   const [tipAmount, setTipAmount] = useState<StringAudio>('' as StringAudio)
+  const [tipAmountBNWei, setTipAmountBNWei] = useState<BNWei>(
+    new BN('0') as BNWei
+  )
   const [isDisabled, setIsDisabled] = useState(true)
   const [hasError, setHasError] = useState(false)
 
-  const tipAmountBNWei: BNWei = useMemo(() => {
+  useEffect(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
     const newAmountWei = parseAudioInputToWei(tipAmount) ?? zeroWei
+    setTipAmountBNWei(newAmountWei)
+
     const insufficientBalance = newAmountWei.gt(accountBalance)
     setIsDisabled(insufficientBalance || newAmountWei.lte(zeroWei))
     setHasError(insufficientBalance)
-    return newAmountWei
   }, [tipAmount, accountBalance])
 
   const handleTipAmountChange = useCallback(
     // todo: what about decimals?
     (value: string) => {
       setTipAmount(value as StringAudio)
-      // if (balanceError) setBalanceError(null)
     },
-    // [balanceError, setBalanceError, setTipAmount]
     [setTipAmount]
   )
 
