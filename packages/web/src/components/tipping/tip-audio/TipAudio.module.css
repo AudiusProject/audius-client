@@ -108,7 +108,6 @@
 
 .wrapperPhoto {
   position: relative;
-  /* cursor: pointer; */
 
   overflow: hidden;
   flex: 0 0 78px;
@@ -130,7 +129,6 @@
 
 .accountWrapper .photo {
   position: relative;
-  /* cursor: pointer; */
 
   overflow: hidden;
   flex: 0 0 78px;
@@ -161,7 +159,6 @@
   padding-bottom: 4px;
   padding-right: 4px;
   color: var(--neutral);
-  /* cursor: pointer; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -173,17 +170,10 @@
   margin-left: 4px;
 }
 
-/* .accountWrapper .userInfoWrapper .name:hover {
-  color: var(--primary);
-  text-decoration: underline;
-  text-decoration-color: var(--primary-light-2);
-} */
-
 .accountWrapper .userInfoWrapper .handleContainer {
   display: inline-flex;
   overflow: hidden;
   line-height: 14px;
-  /* cursor: pointer; */
   padding-right: 4px;
 }
 
@@ -197,19 +187,9 @@
   text-overflow: ellipsis;
 }
 
-/* .accountWrapper .userInfoWrapper .handleContainer:hover .handle {
-  color: var(--primary);
-  text-decoration: underline;
-  text-decoration-color: var(--primary-light-2);
-} */
-
 .accountWrapper .userInfoWrapper .handleContainer svg {
   transition: all 0.07s ease-in-out;
 }
-
-/* .accountWrapper .userInfoWrapper .handleContainer:hover g path {
-  fill: var(--primary);
-} */
 
 .areYouSure {
   font-size: var(--font-m);

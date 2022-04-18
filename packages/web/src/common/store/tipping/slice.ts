@@ -5,7 +5,7 @@ import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
-import { TippingSendStatus, TippingState } from 'common/store/tipping/types'
+import { TippingState } from 'common/store/tipping/types'
 
 const initialState: TippingState = {
   supporters: {},
@@ -13,7 +13,8 @@ const initialState: TippingState = {
   send: {
     status: null,
     user: null,
-    amount: new BN('0') as BNWei
+    amount: new BN('0') as BNWei,
+    error: null
   }
 }
 
@@ -47,17 +48,32 @@ const slice = createSlice({
       const { userId, supportingForUser } = action.payload
       state.supporting[userId] = supportingForUser
     },
-    setSendStatus: (
-      state,
-      action: PayloadAction<{ status: TippingSendStatus }>
-    ) => {
-      state.send.status = action.payload.status
-    },
-    setSendUser: (state, action: PayloadAction<{ user: User | null }>) => {
+    tipAudio: (state, action: PayloadAction<{ user: User | null }>) => {
+      if (!action.payload.user) {
+        return
+      }
+      state.send.status = 'SEND'
       state.send.user = action.payload.user
     },
-    setSendAmount: (state, action: PayloadAction<{ amount: BNWei }>) => {
+    sendTip: (state, action: PayloadAction<{ amount: BNWei }>) => {
+      if (state.send.status !== 'SEND') {
+        return
+      }
+      state.send.status = 'CONFIRM'
       state.send.amount = action.payload.amount
+    },
+    confirmSendTip: state => {
+      if (state.send.status !== 'CONFIRM') {
+        return
+      }
+      state.send.status = 'SENDING'
+    },
+    sendTipSucceeded: state => {
+      state.send.status = 'SUCCESS'
+    },
+    sendTipFailed: (state, action: PayloadAction<{ error: string }>) => {
+      state.send.status = 'ERROR'
+      state.send.error = action.payload.error
     },
     resetSendStatus: state => {
       state.send.status = null
@@ -65,6 +81,13 @@ const slice = createSlice({
   }
 })
 
-export const { setSendStatus, setSendAmount, resetSendStatus } = slice.actions
+export const {
+  tipAudio,
+  sendTip,
+  confirmSendTip,
+  sendTipSucceeded,
+  sendTipFailed,
+  resetSendStatus
+} = slice.actions
 
 export default slice.reducer

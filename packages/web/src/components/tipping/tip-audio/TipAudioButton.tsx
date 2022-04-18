@@ -4,7 +4,9 @@ import { Button, ButtonType } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
-import { setSendStatus } from 'common/store/tipping/slice'
+import { useSelector } from 'common/hooks/useSelector'
+import { getProfileUser } from 'common/store/pages/profile/selectors'
+import { tipAudio } from 'common/store/tipping/slice'
 
 import styles from './TipAudio.module.css'
 
@@ -14,10 +16,11 @@ const messages = {
 
 export const TipAudioButton = () => {
   const dispatch = useDispatch()
+  const profile = useSelector(getProfileUser)
 
   const handleClick = useCallback(() => {
-    dispatch(setSendStatus({ status: 'SEND' }))
-  }, [dispatch])
+    dispatch(tipAudio({ user: profile }))
+  }, [dispatch, profile])
 
   return (
     <Button

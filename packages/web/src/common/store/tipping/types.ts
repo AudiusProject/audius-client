@@ -16,5 +16,6 @@ export type TippingState = {
     status: TippingSendStatus | null
     user: User | null
     amount: BNWei
+    error: string | null
   }
 }

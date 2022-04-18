@@ -13,7 +13,7 @@ import { SquareSizes } from 'common/models/ImageSizes'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { setSendStatus, setSendAmount } from 'common/store/tipping/slice'
+import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { convertFloatToWei } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
@@ -84,7 +84,6 @@ export const SendTip = () => {
   }, [tipAmount, accountBalance])
 
   const handleTipAmountChange = useCallback(
-    // todo: what about decimals?
     (value: string) => {
       setTipAmount(value as StringAudio)
     },
@@ -92,8 +91,7 @@ export const SendTip = () => {
   )
 
   const handleSendClick = useCallback(() => {
-    dispatch(setSendAmount({ amount: tipAmountBNWei }))
-    dispatch(setSendStatus({ status: 'CONFIRM' }))
+    dispatch(sendTip({ amount: tipAmountBNWei }))
   }, [dispatch, tipAmountBNWei])
 
   return profile ? (

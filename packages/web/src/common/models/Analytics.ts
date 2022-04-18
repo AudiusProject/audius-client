@@ -234,6 +234,11 @@ export enum Name {
   REWARDS_CLAIM_START_COGNITO_FLOW = 'Rewards Claim: Start Cognito Flow',
   REWARDS_CLAIM_FINISH_COGNITO_FLOW = 'Rewards Claim: Finish Cognito Flow',
 
+  // Tipping
+  TIP_AUDIO_REQUEST = 'TIP_AUDIO_REQUEST',
+  TIP_AUDIO_SUCCESS = 'TIP_AUDIO_SUCCESS',
+  TIP_AUDIO_FAILURE = 'TIP_AUDIO_FAILURE',
+
   // Social Proof
   SOCIAL_PROOF_OPEN = 'Social Proof: Open',
   SOCIAL_PROOF_SUCCESS = 'Social Proof: Success',
