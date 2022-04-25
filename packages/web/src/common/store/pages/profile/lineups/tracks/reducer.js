@@ -5,7 +5,7 @@ import { PREFIX } from 'common/store/pages/profile/lineups/tracks/actions'
 const initialState = {
   ...initialLineupState,
   prefix: PREFIX,
-  containsDeleted: true
+  containsDeleted: false
 }
 
 const actionsMap = {
