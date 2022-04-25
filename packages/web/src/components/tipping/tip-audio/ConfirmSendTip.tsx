@@ -57,16 +57,14 @@ export const ConfirmSendTip = () => {
 
   return profile ? (
     <div className={styles.container}>
-      <div className={cn(styles.rowCenter, styles.sendingContainer)}>
+      <div className={cn(styles.flexCenter, styles.sendingContainer)}>
         <span className={styles.sendingIcon}>
           <IconSend />
         </span>
         {messages.sending}
       </div>
-      <div className={cn(styles.rowCenter, styles.sendingAudio)}>
-        <span className={styles.sendingAudioAmount}>
-          {formatWei(sendAmount, true)}
-        </span>
+      <div className={cn(styles.flexCenter, styles.sendingAudio)}>
+        <span className={styles.sendAmount}>{formatWei(sendAmount, true)}</span>
         $AUDIO
       </div>
       <div className={styles.profileUser}>
@@ -88,15 +86,15 @@ export const ConfirmSendTip = () => {
         </div>
       </div>
       {hasError ? (
-        <div className={cn(styles.rowCenter, styles.error)}>
+        <div className={cn(styles.flexCenter, styles.error)}>
           {messages.somethingWrong}
         </div>
       ) : (
-        <div className={cn(styles.rowCenter, styles.areYouSure)}>
+        <div className={cn(styles.flexCenter, styles.areYouSure)}>
           {messages.areYouSure}
         </div>
       )}
-      <div className={cn(styles.rowCenter, styles.buttonContainer)}>
+      <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}
           text={messages.confirmTip}
@@ -113,7 +111,7 @@ export const ConfirmSendTip = () => {
         />
       </div>
       <div
-        className={cn(styles.rowCenter, styles.goBackContainer, {
+        className={cn(styles.flexCenter, styles.goBackContainer, {
           [styles.disabled]: isDisabled
         })}
         onClick={handleGoBackClick}

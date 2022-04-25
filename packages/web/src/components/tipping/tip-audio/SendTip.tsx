@@ -146,7 +146,7 @@ export const SendTip = () => {
         />
       </div>
       <div className={styles.amountAvailableContainer}>
-        <div className={styles.amountAvailable}>
+        <div className={styles.amountAvailableText}>
           {messages.availableToSend}
           <Tooltip text={messages.tooltip} mount='parent'>
             <span>
@@ -167,12 +167,12 @@ export const SendTip = () => {
           ) : (
             <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
           )}
-          <span className={styles.audioAmount}>
+          <span className={styles.amountAvailable}>
             {formatWei(accountBalance, true, 0)}
           </span>
         </div>
       </div>
-      <div className={cn(styles.rowCenter, styles.buttonContainer)}>
+      <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <ButtonWithArrow
           text={messages.sendATip}
           onClick={handleSendClick}
@@ -182,7 +182,7 @@ export const SendTip = () => {
         />
       </div>
       {hasError && (
-        <div className={cn(styles.rowCenter, styles.error)}>
+        <div className={cn(styles.flexCenter, styles.error)}>
           {messages.insufficientBalance}
         </div>
       )}

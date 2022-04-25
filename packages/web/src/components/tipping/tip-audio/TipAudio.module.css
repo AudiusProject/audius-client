@@ -22,7 +22,7 @@
   width: 100%;
 }
 
-.rowCenter {
+.flexCenter {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -50,13 +50,13 @@
   font-weight: var(--font-heavy);
 }
 
-.amountAvailable {
+.amountAvailableText {
   display: flex;
   align-items: center;
   font-size: var(--font-s);
 }
 
-.amountAvailable svg path {
+.amountAvailableText svg path {
   fill: var(--neutral-light-4) !important;
 }
 
@@ -71,7 +71,7 @@
   margin-top: 12px;
 }
 
-.audioAmount {
+.amountAvailable {
   margin-left: 4px;
   font-size: var(--font-s);
   font-weight: var(--font-heavy);
@@ -85,25 +85,22 @@
 }
 
 .buttonContainer .disabled:hover {
-  background: var(--neutral-light-7) !important;
+  background: var(--neutral-light-7);
 }
 
 .buttonText {
-  font-size: 18px !important;
+  font-size: var(--font-l) !important;
 }
 
 .accountWrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 4px;
-
-  display: flex;
-  flex-direction: row;
   align-items: center;
+  flex-direction: row;
   flex-shrink: 0;
-  transition: all ease-in-out 0.18s;
-
+  margin-bottom: 4px;
   color: var(--neutral);
+  transition: all ease-in-out 0.18s;
 }
 
 .wrapperPhoto {
@@ -250,7 +247,7 @@
   margin-bottom: 28px;
 }
 
-.sendingAudioAmount {
+.sendAmount {
   margin-right: 4px;
   color: var(--neutral);
 }
@@ -260,11 +257,6 @@
   font-weight: var(--font-heavy);
   color: var(--neutral-light-4);
   margin-bottom: 24px;
-}
-
-.sentAudioAmount {
-  margin-right: 4px;
-  color: var(--neutral);
 }
 
 .sentSuccessfullyContainer {

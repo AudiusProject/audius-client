@@ -35,16 +35,14 @@ export const TipSent = () => {
 
   return profile ? (
     <div className={styles.container}>
-      <div className={cn(styles.rowCenter, styles.sentSuccessfullyContainer)}>
+      <div className={cn(styles.flexCenter, styles.sentSuccessfullyContainer)}>
         <span className={styles.sentSuccessfullyIcon}>
           <IconCheck />
         </span>
         {messages.sentSuccessfully}
       </div>
-      <div className={cn(styles.rowCenter, styles.sentAudio)}>
-        <span className={styles.sentAudioAmount}>
-          {formatWei(sendAmount, true)}
-        </span>
+      <div className={cn(styles.flexCenter, styles.sentAudio)}>
+        <span className={styles.sendAmount}>{formatWei(sendAmount, true)}</span>
         $AUDIO
       </div>
       <div className={cn(styles.profileUser, styles.confirmProfileUser)}>
@@ -68,10 +66,10 @@ export const TipSent = () => {
           </div>
         </div>
       </div>
-      <div className={cn(styles.rowCenter, styles.support)}>
+      <div className={cn(styles.flexCenter, styles.support)}>
         {messages.supportOnTwitter}
       </div>
-      <div className={styles.rowCenter}>
+      <div className={styles.flexCenter}>
         <Button
           className={styles.shareButton}
           type={ButtonType.PRIMARY}
