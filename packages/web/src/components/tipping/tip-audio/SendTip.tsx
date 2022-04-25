@@ -7,17 +7,21 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
-import { useSelectTierInfo } from 'common/hooks/wallet'
 import { BadgeTier } from 'common/models/BadgeTier'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
-import { getAccountUser } from 'common/store/account/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
+import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
 import { convertFloatToWei } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
-import { audioToWei, formatWei, stringWeiToBN } from 'common/utils/wallet'
+import {
+  audioToWei,
+  formatWei,
+  stringWeiToBN,
+  weiToString
+} from 'common/utils/wallet'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges, { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
@@ -54,15 +58,7 @@ export const SendTip = () => {
     profile?._profile_picture_sizes ?? null,
     SquareSizes.SIZE_150_BY_150
   )
-  const account = useSelector(getAccountUser)
 
-  // todo: should this use the user's tier including linked wallets
-  // or only the available balance for sending tip (no linked wallets)?
-  const { tier } = useSelectTierInfo(account?.user_id ?? 0)
-  const audioBadge = audioTierMapPng[tier as BadgeTier]
-
-  // todo: automatically swap eth audio to sol audio
-  // if eth amount not enough for the tip transfer?
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
 
@@ -70,6 +66,10 @@ export const SendTip = () => {
   const [tipAmountBNWei, setTipAmountBNWei] = useState<BNWei>(
     new BN('0') as BNWei
   )
+
+  const { tier } = getTierAndNumberForBalance(weiToString(accountBalance))
+  const audioBadge = audioTierMapPng[tier as BadgeTier]
+
   const [isDisabled, setIsDisabled] = useState(true)
   const [hasError, setHasError] = useState(false)
 
