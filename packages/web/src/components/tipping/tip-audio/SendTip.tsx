@@ -81,7 +81,10 @@ export const SendTip = () => {
   const [isDisabled, setIsDisabled] = useState(true)
   const [hasError, setHasError] = useState(false)
 
-  const [amountToTipToBecomeTopSupporter, setAmountToTipToBecomeTopSupporter] = useState<BNWei | null>(null)
+  const [
+    amountToTipToBecomeTopSupporter,
+    setAmountToTipToBecomeTopSupporter
+  ] = useState<BNWei | null>(null)
   const [supporting, setSupporting] = useState<Supporting | null>(null)
   const [topSupporter, setTopSupporter] = useState<Supporter | null>(null)
 
@@ -119,7 +122,15 @@ export const SendTip = () => {
     setHasError(hasInsufficientBalance)
   }, [tipAmount, accountBalance])
 
-  useEffect(() => {
+  const handleTipAmountChange = useCallback(
+    (value: string) => {
+      setTipAmount(value as StringAudio)
+      setAmountToTipToBecomeTopSupporter(null)
+    },
+    [setTipAmount, setAmountToTipToBecomeTopSupporter]
+  )
+
+  const onBlur = useCallback(() => {
     if (hasError || !account || !topSupporter) return
 
     const isAlreadyTopSupporter =
@@ -142,14 +153,6 @@ export const SendTip = () => {
       setAmountToTipToBecomeTopSupporter(newAmountToTipToBecomeTopSupporter)
     }
   }, [hasError, account, topSupporter, supporting, accountBalance])
-
-  const handleTipAmountChange = useCallback(
-    (value: string) => {
-      setTipAmount(value as StringAudio)
-      setAmountToTipToBecomeTopSupporter(null)
-    },
-    [setTipAmount, setAmountToTipToBecomeTopSupporter]
-  )
 
   const handleSendClick = useCallback(() => {
     dispatch(sendTip({ amount: tipAmountBNWei }))
@@ -180,7 +183,7 @@ export const SendTip = () => {
           <IconTrophy className={styles.becomeTopSupporterTrophy} />
           <span>
             {messages.becomeTopSupporterPrefix}
-            {amountToTipToBecomeTopSupporter}
+            {formatWei(amountToTipToBecomeTopSupporter, true, 0)}
             {messages.becomeTopSupporterSuffix}
           </span>
         </div>
@@ -213,7 +216,9 @@ export const SendTip = () => {
           rightLabel={'$AUDIO'}
           value={tipAmount}
           isNumeric={true}
+          isWhole={true}
           onChange={handleTipAmountChange}
+          onBlur={onBlur}
         />
       </div>
       <div className={styles.amountAvailableContainer}>
