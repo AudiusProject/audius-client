@@ -75,8 +75,11 @@ const slice = createSlice({
       state.send.status = 'ERROR'
       state.send.error = action.payload.error
     },
-    resetSendStatus: state => {
+    resetSend: state => {
       state.send.status = null
+      state.send.user = null
+      state.send.amount = new BN('0') as BNWei
+      state.send.error = null
     }
   }
 })
@@ -87,7 +90,7 @@ export const {
   confirmSendTip,
   sendTipSucceeded,
   sendTipFailed,
-  resetSendStatus
+  resetSend
 } = slice.actions
 
 export default slice.reducer

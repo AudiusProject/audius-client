@@ -4,12 +4,15 @@ import { Button, ButtonType, IconTwitterBird, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 
 import { useSelector } from 'common/hooks/useSelector'
+import { Name } from 'common/models/Analytics'
 import { SquareSizes } from 'common/models/ImageSizes'
-import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { getSendAmount } from 'common/store/tipping/selectors'
-import { formatWei } from 'common/utils/wallet'
+import { getAccountUser } from 'common/store/account/selectors'
+import { getSendTipData } from 'common/store/tipping/selectors'
+import { formatWei, weiToAudioString } from 'common/utils/wallet'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { useRecord, make } from 'store/analytics/actions'
+import { openTwitterLink } from 'utils/tweet'
 
 import styles from './TipAudio.module.css'
 
@@ -17,23 +20,38 @@ const messages = {
   sending: 'SENDING',
   sentSuccessfully: 'SENT SUCCESSFULLY',
   supportOnTwitter: 'Share your support on Twitter!',
-  shareToTwitter: 'Share to Twitter'
+  shareToTwitter: 'Share to Twitter',
+  twitterCopy: 'TBD'
 }
 
 export const TipSent = () => {
-  const sendAmount = useSelector(getSendAmount)
-  const profile = useSelector(getProfileUser)
+  const record = useRecord()
+  const account = useSelector(getAccountUser)
+  const sendTipData = useSelector(getSendTipData)
+  const { user: recipient, amount: sendAmount } = sendTipData
   const profileImage = useUserProfilePicture(
-    profile?.user_id ?? null,
-    profile?._profile_picture_sizes ?? null,
+    recipient?.user_id ?? null,
+    recipient?._profile_picture_sizes ?? null,
     SquareSizes.SIZE_150_BY_150
   )
 
   const handleShareClick = useCallback(() => {
-    // todo: share to twitter
-  }, [])
+    // todo: update url and copy
+    openTwitterLink(null, messages.twitterCopy)
+    if (account && recipient) {
+      record(
+        make(Name.TIP_AUDIO_TWITTER_SHARE, {
+          senderWallet: account.spl_wallet,
+          recipientWallet: recipient.spl_wallet,
+          senderHandle: account.handle,
+          recipientHandle: recipient.handle,
+          amount: weiToAudioString(sendAmount)
+        })
+      )
+    }
+  }, [account, recipient, record, sendAmount])
 
-  return profile ? (
+  return recipient ? (
     <div className={styles.container}>
       <div className={cn(styles.flexCenter, styles.sentSuccessfullyContainer)}>
         <span className={styles.sentSuccessfullyIcon}>
@@ -53,15 +71,15 @@ export const TipSent = () => {
           />
           <div className={styles.userInfoWrapper}>
             <div className={styles.name}>
-              {profile.name}
+              {recipient.name}
               <UserBadges
-                userId={profile?.user_id}
+                userId={recipient?.user_id}
                 badgeSize={12}
                 className={styles.badge}
               />
             </div>
             <div className={styles.handleContainer}>
-              <span className={styles.handle}>{`@${profile.handle}`}</span>
+              <span className={styles.handle}>{`@${recipient.handle}`}</span>
             </div>
           </div>
         </div>

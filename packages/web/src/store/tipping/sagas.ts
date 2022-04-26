@@ -14,7 +14,7 @@ import {
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
-import { weiToString } from 'common/utils/wallet'
+import { weiToAudioString, weiToString } from 'common/utils/wallet'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
@@ -28,6 +28,10 @@ function* sendTipAsync() {
   }
 
   const account = yield* select(getAccountUser)
+  if (!account) {
+    return
+  }
+
   const sendTipData = yield* select(getSendTipData)
   const { user, amount: weiBNAmount } = sendTipData
   if (!user) {
@@ -49,8 +53,11 @@ function* sendTipAsync() {
   try {
     yield put(
       make(Name.TIP_AUDIO_REQUEST, {
-        from: account?.wallet,
-        recipient: recipientWallet
+        senderWallet: account.spl_wallet,
+        recipientWallet,
+        senderHandle: account.handle,
+        recipientHandle: user.handle,
+        amount: weiToAudioString(weiBNAmount)
       })
     )
     // If transferring spl wrapped audio and there are insufficent funds with only the
@@ -82,8 +89,11 @@ function* sendTipAsync() {
     yield put(sendTipSucceeded())
     yield put(
       make(Name.TIP_AUDIO_SUCCESS, {
-        from: account?.wallet,
-        recipient: recipientWallet
+        senderWallet: account.spl_wallet,
+        recipientWallet,
+        senderHandle: account.handle,
+        recipientHandle: user.handle,
+        amount: weiToAudioString(weiBNAmount)
       })
     )
   } catch (e) {
@@ -91,8 +101,11 @@ function* sendTipAsync() {
     yield put(sendTipFailed({ error }))
     yield put(
       make(Name.TIP_AUDIO_FAILURE, {
-        from: account?.wallet,
-        recipient: recipientWallet,
+        senderWallet: account.spl_wallet,
+        recipientWallet,
+        senderHandle: account.handle,
+        recipientHandle: user.handle,
+        amount: weiToAudioString(weiBNAmount),
         error
       })
     )

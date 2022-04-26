@@ -6,7 +6,7 @@ import { ReactComponent as IconGoldBadge } from 'assets/img/IconGoldBadge.svg'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { getSendStatus } from 'common/store/tipping/selectors'
-import { resetSendStatus } from 'common/store/tipping/slice'
+import { resetSend } from 'common/store/tipping/slice'
 import { TippingSendStatus } from 'common/store/tipping/types'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 
@@ -70,7 +70,7 @@ export const TipAudioModal = () => {
   const sendStatus = useSelector(getSendStatus)
 
   const onClose = useCallback(() => {
-    dispatch(resetSendStatus())
+    dispatch(resetSend())
   }, [dispatch])
 
   return (
