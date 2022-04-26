@@ -36,7 +36,9 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
   format = Format.INPUT,
   placeholder,
   onChange,
+  onBlur,
   isNumeric,
+  isWhole,
   rightLabel
 }: TokenValueInputProps) => {
   const [inputValue, setInputValue] = useState(value)
@@ -45,6 +47,9 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
       let value = e.target.value
       if (isNumeric) {
         value = value.replace(/[^0-9.]+/g, '')
+      }
+      if (isWhole) {
+        value = value.replace(/[^0-9]+/g, '')
       }
       setInputValue(value)
       if (onChange) onChange(value)
@@ -93,6 +98,7 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
           value={displayValue}
           type={type}
           onChange={onInputChange}
+          onBlur={onBlur}
           placeholder={placeholder}
         />
       ) : (

@@ -15,5 +15,7 @@ export type TokenValueInputProps = {
   rightLabel?: string
   value?: string
   isNumeric?: boolean
+  isWhole?: boolean
   onChange?: (text: string) => void
+  onBlur?: () => void
 }
