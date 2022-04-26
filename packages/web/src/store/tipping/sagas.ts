@@ -96,6 +96,8 @@ function* sendTipAsync() {
         amount: weiToAudioString(weiBNAmount)
       })
     )
+
+    // todo: refresh the supporting list for account user
   } catch (e) {
     const error = (e as Error).message
     yield put(sendTipFailed({ error }))

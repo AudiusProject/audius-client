@@ -1,6 +1,6 @@
 import React, { cloneElement, useCallback, useEffect, useState } from 'react'
 
-import { Format, TokenValueInput } from '@audius/stems'
+import { Format, IconTrophy, TokenValueInput } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,8 +9,11 @@ import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCir
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { BadgeTier } from 'common/models/BadgeTier'
 import { SquareSizes } from 'common/models/ImageSizes'
+import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
+import { getAccountUser } from 'common/store/account/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
+import { getSupporters, getSupporting } from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
@@ -34,7 +37,9 @@ const messages = {
   sendATip: 'Send Tip',
   enterAnAmount: 'Enter an amount',
   insufficientBalance: 'Insufficient Balance',
-  tooltip: '$AUDIO held in linked wallets cannot be used for tipping'
+  tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
+  becomeTopSupporterPrefix: 'Tip ',
+  becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter'
 }
 
 const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
@@ -52,6 +57,9 @@ const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
 
 export const SendTip = () => {
   const dispatch = useDispatch()
+  const account = useSelector(getAccountUser)
+  const supportersMap = useSelector(getSupporters)
+  const supportingMap = useSelector(getSupporting)
   const profile = useSelector(getProfileUser)
   const profileImage = useUserProfilePicture(
     profile?.user_id ?? null,
@@ -73,21 +81,74 @@ export const SendTip = () => {
   const [isDisabled, setIsDisabled] = useState(true)
   const [hasError, setHasError] = useState(false)
 
+  const [amountToTipToBecomeTopSupporter, setAmountToTipToBecomeTopSupporter] = useState<BNWei | null>(null)
+  const [supporting, setSupporting] = useState<Supporting | null>(null)
+  const [topSupporter, setTopSupporter] = useState<Supporter | null>(null)
+
+  useEffect(() => {
+    if (!account || !profile) return
+
+    const newSupporting =
+      supportingMap[account.user_id]?.find(
+        sup => sup.supporting.user_id === profile.user_id
+      ) ?? null
+    if (newSupporting) {
+      setSupporting(newSupporting)
+    }
+  }, [profile, supportingMap])
+
+  useEffect(() => {
+    if (!profile) return
+
+    // todo: make sure these are already pre-sorted by highest support amount
+    const newTopSupporter = supportersMap[profile.user_id]?.length
+      ? supportersMap[profile.user_id][0]
+      : null
+    if (newTopSupporter) {
+      setTopSupporter(newTopSupporter)
+    }
+  }, [profile, supportersMap])
+
   useEffect(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
     const newAmountWei = parseAudioInputToWei(tipAmount) ?? zeroWei
     setTipAmountBNWei(newAmountWei)
 
-    const insufficientBalance = newAmountWei.gt(accountBalance)
-    setIsDisabled(insufficientBalance || newAmountWei.lte(zeroWei))
-    setHasError(insufficientBalance)
+    const hasInsufficientBalance = newAmountWei.gt(accountBalance)
+    setIsDisabled(hasInsufficientBalance || newAmountWei.lte(zeroWei))
+    setHasError(hasInsufficientBalance)
   }, [tipAmount, accountBalance])
+
+  useEffect(() => {
+    if (hasError || !account || !topSupporter) return
+
+    const isAlreadyTopSupporter =
+      account.user_id === topSupporter.supporter.user_id
+    if (isAlreadyTopSupporter) return
+
+    const topSupporterAmountWei = stringWeiToBN(
+      topSupporter.amount.toString() as StringWei
+    )
+    let newAmountToTipToBecomeTopSupporter = topSupporterAmountWei
+    if (supporting) {
+      const supportingAmountWei = stringWeiToBN(
+        supporting.amount.toString() as StringWei
+      )
+      newAmountToTipToBecomeTopSupporter = topSupporterAmountWei.sub(
+        supportingAmountWei
+      ) as BNWei
+    }
+    if (accountBalance.gte(newAmountToTipToBecomeTopSupporter)) {
+      setAmountToTipToBecomeTopSupporter(newAmountToTipToBecomeTopSupporter)
+    }
+  }, [hasError, account, topSupporter, supporting, accountBalance])
 
   const handleTipAmountChange = useCallback(
     (value: string) => {
       setTipAmount(value as StringAudio)
+      setAmountToTipToBecomeTopSupporter(null)
     },
-    [setTipAmount]
+    [setTipAmount, setAmountToTipToBecomeTopSupporter]
   )
 
   const handleSendClick = useCallback(() => {
@@ -114,6 +175,16 @@ export const SendTip = () => {
           </div>
         </div>
       </div>
+      {amountToTipToBecomeTopSupporter && (
+        <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
+          <IconTrophy className={styles.becomeTopSupporterTrophy} />
+          <span>
+            {messages.becomeTopSupporterPrefix}
+            {amountToTipToBecomeTopSupporter}
+            {messages.becomeTopSupporterSuffix}
+          </span>
+        </div>
+      )}
       <div className={styles.amountToSend}>
         {/* <Input
           placeholder={messages.enterAnAmount}

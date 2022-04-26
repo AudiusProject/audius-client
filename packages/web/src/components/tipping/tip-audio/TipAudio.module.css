@@ -37,6 +37,30 @@
   margin-top: 0;
 }
 
+.becomeTopSupporter {
+  margin-bottom: 24px;
+  padding: 8px 0;
+  font-size: var(--font-m);
+  font-weight: var(--font-demi-bold);
+  color: var(--white);
+  background: linear-gradient(
+    315deg,
+    var(--page-header-gradient-color-1) 0%,
+    var(--page-header-gradient-color-2) 100%
+  );
+  border-radius: 4px;
+}
+
+.becomeTopSupporterTrophy {
+  height: 16px;
+  width: 16px;
+  margin-right: 6px;
+}
+
+.becomeTopSupporterTrophy g path {
+  fill: var(--white);
+}
+
 .amountToSend {
   margin: 0 24px 24px 24px;
 }
