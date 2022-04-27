@@ -64,7 +64,6 @@ const ModalContent = () => {
   }
 }
 
-// todo: only use for non-native mobile
 export const TipAudioModal = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
@@ -78,14 +77,6 @@ export const TipAudioModal = () => {
       isOpen={sendStatus !== null}
       onClose={onClose}
       bodyClassName={styles.modalBody}
-      // bodyClassName={cn(styles.modalBody, {
-      //   [styles.wallets]: modalState?.stage === 'CONNECT_WALLETS',
-      //   [styles.convertingEth]:
-      //     modalState &&
-      //     'flowState' in modalState &&
-      //     modalState.flowState?.stage ===
-      //     'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
-      // })}
       showTitleHeader
       title={sendStatus ? titlesMap[sendStatus] : ''}
       showDismissButton={sendStatus !== 'SENDING'}

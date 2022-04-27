@@ -189,28 +189,10 @@ export const SendTip = () => {
         </div>
       )}
       <div className={styles.amountToSend}>
-        {/* <Input
-          placeholder={messages.enterAnAmount}
-          // variant={isMobile ? 'normal' : 'elevatedPlaceholder'}
-          // size='medium'
-          value={tipAmount}
-          onChange={handleAmountChange}
-          // onKeyDown={onKeyDown}
-          // className={cn(styles.signInInput, {
-          //   [styles.placeholder]: email.value === '',
-          //   [styles.inputError]: showError,
-          //   [styles.validInput]: validInput
-          // })}
-          // error={showError}
-          // onBlur={onBlur}
-          // disabled={shouldDisableInputs}
-        /> */}
         <TokenValueInput
           className={styles.inputContainer}
-          // labelClassName={styles.label}
           rightLabelClassName={styles.rightLabel}
           inputClassName={styles.input}
-          // label={messages.enterAnAmount}
           format={Format.INPUT}
           placeholder={'Enter an amount'}
           rightLabel={'$AUDIO'}
