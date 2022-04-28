@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 
 import { useDispatch } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import { ReactComponent as IconGoldBadge } from 'assets/img/IconGoldBadge.svg'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
@@ -8,6 +9,7 @@ import { useSelector } from 'common/hooks/useSelector'
 import { getSendStatus } from 'common/store/tipping/selectors'
 import { resetSend } from 'common/store/tipping/slice'
 import { TippingSendStatus } from 'common/store/tipping/types'
+import { ModalTransitionContainer } from 'components/modal-transition-container/ModalTransitionContainer'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 
 import { ConfirmSendTip } from './ConfirmSendTip'
@@ -64,9 +66,18 @@ const ModalContent = () => {
   }
 }
 
+const statusOrder = {
+  SEND: 0,
+  CONFIRM: 1,
+  SENDING: 1,
+  ERROR: 1,
+  SUCCESS: 2
+}
+
 export const TipAudioModal = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
+  const previousSendStatus = usePrevious(sendStatus)
 
   const onClose = useCallback(() => {
     dispatch(resetSend())
@@ -85,7 +96,43 @@ export const TipAudioModal = () => {
       useGradientTitle={false}
     >
       <div className={styles.modalContentContainer}>
-        <ModalContent />
+        {sendStatus && (
+          <ModalTransitionContainer
+            item={sendStatus}
+            fromStyles={{
+              opacity: 1,
+              transform:
+                !previousSendStatus ||
+                statusOrder[previousSendStatus] <= statusOrder[sendStatus]
+                  ? sendStatus === 'SEND'
+                    ? 'translate3d(0%,0,0)'
+                    : 'translate3d(488px,0,0)'
+                  : sendStatus === 'SEND'
+                  ? 'translate3d(-488px,0,0)'
+                  : 'translate3d(0%,0,0)'
+            }}
+            enterStyles={{
+              opacity: 1,
+              transform: 'translate3d(0%,0,0)'
+            }}
+            leaveStyles={{
+              opacity: 0,
+              transform:
+                !previousSendStatus ||
+                statusOrder[previousSendStatus] <= statusOrder[sendStatus]
+                  ? 'translate3d(-488px,0,0)'
+                  : 'translate3d(488px,0,0)'
+            }}
+            config={
+              !previousSendStatus || sendStatus === 'SEND'
+                ? { duration: 75 }
+                : { duration: 220 }
+            }
+            additionalStyles={{ width: '100%' }}
+          >
+            <ModalContent />
+          </ModalTransitionContainer>
+        )}
       </div>
     </ModalDrawer>
   )
