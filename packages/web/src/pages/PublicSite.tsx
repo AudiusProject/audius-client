@@ -13,6 +13,8 @@ import {
   AUDIUS_PRESS_LINK
 } from 'utils/route'
 
+import { OAuthLoginPage } from './oauth-login-page/OAuthLoginPage'
+
 const BASENAME = process.env.PUBLIC_URL
 
 const PrivacyPolicyPage = React.lazy(() =>
@@ -150,6 +152,7 @@ const PublicSite = ({
             path={'/auth-redirect'}
             render={() => <LoadingSpinnerFullPage />}
           />
+          <Route exact path={'/oauth/auth'} component={OAuthLoginPage} />
         </Router>
       </React.Suspense>
     </>
