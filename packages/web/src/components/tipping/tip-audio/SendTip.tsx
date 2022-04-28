@@ -17,11 +17,9 @@ import { getSupporters, getSupporting } from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
-import { convertFloatToWei } from 'common/utils/formatUtil'
-import { Nullable } from 'common/utils/typeUtils'
 import {
-  audioToWei,
   formatWei,
+  parseAudioInputToWei,
   stringWeiToBN,
   weiToString
 } from 'common/utils/wallet'
@@ -40,19 +38,6 @@ const messages = {
   tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
   becomeTopSupporterPrefix: 'Tip ',
   becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter'
-}
-
-const parseAudioInputToWei = (audio: StringAudio): Nullable<BNWei> => {
-  if (!audio.length) return null
-  // First try converting from float, in case audio has decimal value
-  const floatWei = convertFloatToWei(audio) as Nullable<BNWei>
-  if (floatWei) return floatWei
-  // Safe to assume no decimals
-  try {
-    return audioToWei(audio)
-  } catch {
-    return null
-  }
 }
 
 export const SendTip = () => {
@@ -98,7 +83,7 @@ export const SendTip = () => {
     if (newSupporting) {
       setSupporting(newSupporting)
     }
-  }, [profile, supportingMap])
+  }, [account, profile, supportingMap])
 
   useEffect(() => {
     if (!profile) return
