@@ -194,6 +194,7 @@ export const AnimatedButton = ({
           {renderUnderlay?.(pressableState)}
           <View style={wrapperStyle}>
             <LottieView
+              key={hasMultipleStates ? iconIndex : undefined}
               ref={animation => (animationRef.current = animation)}
               onAnimationFinish={handleAnimationFinish}
               progress={progress}
