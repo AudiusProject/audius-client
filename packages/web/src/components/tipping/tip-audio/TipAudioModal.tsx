@@ -42,6 +42,12 @@ const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
+  ERROR: (
+    <div className={styles.tipIconTextContainer}>
+      <IconGoldBadge width={24} height={24} />
+      <span className={styles.tipText}>{messages.confirm}</span>
+    </div>
+  ),
   SUCCESS: (
     <div className={styles.tipIconTextContainer}>
       <IconVerifiedGreen width={24} height={24} />
@@ -83,6 +89,10 @@ export const TipAudioModal = () => {
     dispatch(resetSend())
   }, [dispatch])
 
+  if (sendStatus && previousSendStatus) {
+    console.log(statusOrder[previousSendStatus], statusOrder[sendStatus])
+  }
+
   return (
     <ModalDrawer
       isOpen={sendStatus !== null}
@@ -101,12 +111,22 @@ export const TipAudioModal = () => {
             item={sendStatus}
             fromStyles={{
               opacity: 1,
+              /**
+               * if we are in the first modal screen, then
+               * enter from natural position within modal
+               *
+               * if we are moving forward in the modal flow, then
+               * enter from outside the modal to the right
+               *
+               * if we are moving backward in the modal flow, then
+               * enter from outside the modal to the left
+               */
               transform:
                 !previousSendStatus ||
                 statusOrder[previousSendStatus] <= statusOrder[sendStatus]
-                  ? sendStatus === 'SEND'
-                    ? 'translate3d(0%,0,0)'
-                    : 'translate3d(488px,0,0)'
+                  ? sendStatus === 'CONFIRM' || sendStatus === 'SUCCESS'
+                    ? 'translate3d(488px,0,0)'
+                    : 'translate3d(0%,0,0)'
                   : sendStatus === 'SEND'
                   ? 'translate3d(-488px,0,0)'
                   : 'translate3d(0%,0,0)'
@@ -117,15 +137,27 @@ export const TipAudioModal = () => {
             }}
             leaveStyles={{
               opacity: 0,
+              /**
+               * if we are in the first modal screen, or
+               * if we are moving forward in the modal flow, then
+               * leave outside the modal to the left
+               *
+               * if we are moving backward in the modal flow, then
+               * leave outside the modal to the right
+               */
               transform:
                 !previousSendStatus ||
-                statusOrder[previousSendStatus] <= statusOrder[sendStatus]
+                statusOrder[previousSendStatus] < statusOrder[sendStatus]
                   ? 'translate3d(-488px,0,0)'
-                  : 'translate3d(488px,0,0)'
+                  : statusOrder[previousSendStatus] > statusOrder[sendStatus]
+                  ? 'translate3d(488px,0,0)'
+                  : 'translate3d(0%,0,0)'
             }}
             config={
               !previousSendStatus || sendStatus === 'SEND'
                 ? { duration: 75 }
+                : statusOrder[previousSendStatus] === statusOrder[sendStatus]
+                ? { duration: 0 }
                 : { duration: 220 }
             }
             additionalStyles={{ width: '100%' }}
