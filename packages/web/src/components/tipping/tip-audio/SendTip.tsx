@@ -115,6 +115,9 @@ export const SendTip = () => {
     [setTipAmount, setAmountToTipToBecomeTopSupporter]
   )
 
+  // todo: also handle other scenarios (and get correct copy from design)
+  // - If you can attain top supporter by completing rewards and tipping the result
+  // - If you're the first supporter
   const onBlur = useCallback(() => {
     if (hasError || !account || !topSupporter) return
 
