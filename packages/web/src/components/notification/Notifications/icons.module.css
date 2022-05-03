@@ -27,3 +27,20 @@
 .iconFavorite g path {
   fill: var(--secondary);
 }
+
+.iconMilestone {
+  composes: icon;
+  height: 24px;
+}
+
+.iconMilestone g path {
+  fill: var(--secondary);
+}
+
+.iconRewards {
+  margin-right: var(--unit-2);
+}
+
+.iconRewards i {
+  margin-bottom: 0 !important;
+}

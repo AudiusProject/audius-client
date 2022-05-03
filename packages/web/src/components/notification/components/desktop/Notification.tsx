@@ -15,8 +15,11 @@ import { Nullable } from 'common/utils/typeUtils'
 import ErrorWrapper from 'components/error-wrapper/ErrorWrapper'
 import { OwnProps as NotificationMenuProps } from 'components/menu/NotificationMenu'
 import { FollowNotification } from 'components/notification/Notifications'
+import { ChallengeRewardNotification } from 'components/notification/Notifications/ChallengeRewardNotification'
 import { FavoriteNotification } from 'components/notification/Notifications/FavoriteNotification'
+import { MilestoneNotification } from 'components/notification/Notifications/MilestoneNotification'
 import { RepostNotification } from 'components/notification/Notifications/RepostNotification'
+import { UserSubscriptionNotification } from 'components/notification/Notifications/UserSubscriptionNotification'
 import { AppState } from 'store/types'
 
 import Announcement from './Announcement'
@@ -71,6 +74,18 @@ const NotificationItem = (props: NotificationItemProps) => {
     users: props.users,
     entity: props.entity,
     entities: props.entities
+  }
+
+  if (notification.type === NotificationType.ChallengeReward) {
+    return <ChallengeRewardNotification notification={notification} />
+  }
+
+  if (notification.type === NotificationType.UserSubscription) {
+    return <UserSubscriptionNotification notification={notification} />
+  }
+
+  if (notification.type === NotificationType.Milestone) {
+    return <MilestoneNotification notification={notification} />
   }
 
   if (notification.type === NotificationType.Favorite) {
