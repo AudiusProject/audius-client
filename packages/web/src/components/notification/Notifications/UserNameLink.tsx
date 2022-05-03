@@ -32,6 +32,8 @@ export const UserNameLink = ({ notification, user }: UserNameLinkProps) => {
   const { type } = notification
   const { handle, user_id, name, is_deactivated } = user
 
+  const profileLink = profilePage(handle)
+
   const handleClick: MouseEventHandler = useCallback(
     event => {
       event.stopPropagation()
@@ -41,11 +43,11 @@ export const UserNameLink = ({ notification, user }: UserNameLinkProps) => {
       record(
         make(Name.NOTIFICATIONS_CLICK_TILE, {
           kind: type,
-          link_to: profilePage(handle)
+          link_to: profileLink
         })
       )
     },
-    [dispatch, handle, record, type]
+    [dispatch, handle, record, type, profileLink]
   )
 
   if (is_deactivated) {
@@ -58,7 +60,7 @@ export const UserNameLink = ({ notification, user }: UserNameLinkProps) => {
 
   let userNameElement = (
     <span className={styles.root}>
-      <a onClick={handleClick} href={`/${handle}`} className={styles.link}>
+      <a onClick={handleClick} href={profileLink} className={styles.link}>
         {name}
       </a>
       <UserBadges

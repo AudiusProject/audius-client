@@ -10,7 +10,7 @@ import { getPlaying } from 'app/store/audio/selectors'
 import { colorize } from 'app/utils/colorizeLottie'
 import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
-type PlayButtonProps = Omit<AnimatedButtonProps, 'iconJSON'>
+type PlayButtonProps = Omit<AnimatedButtonProps, 'iconJSON' | 'iconIndex'>
 
 export const PlayButton = ({ isActive, ...props }: PlayButtonProps) => {
   const isPlaying = useSelector(getPlaying)
@@ -59,6 +59,7 @@ export const PlayButton = ({ isActive, ...props }: PlayButtonProps) => {
   return (
     <AnimatedButton
       {...props}
+      resizeMode='cover'
       haptics
       iconJSON={iconJSON}
       onPress={handlePress}

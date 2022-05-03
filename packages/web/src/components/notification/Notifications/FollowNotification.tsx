@@ -9,7 +9,7 @@ import { NotificationHeader } from './NotificationHeader'
 import { NotificationTile } from './NotificationTile'
 import { TwitterShareButton } from './TwitterShareButton'
 import { UserNameLink } from './UserNameLink'
-import { UserProfileList } from './UserProfileList'
+import { UserProfilePictureList } from './UserProfilePictureList'
 import { IconFollow } from './icons'
 
 const messages = {
@@ -31,7 +31,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   return (
     <NotificationTile notification={notification}>
       <NotificationHeader icon={<IconFollow />}>
-        <UserProfileList users={users} />
+        <UserProfilePictureList users={users} />
       </NotificationHeader>
       <NotificationBody>
         <UserNameLink user={firstUser} notification={notification} />

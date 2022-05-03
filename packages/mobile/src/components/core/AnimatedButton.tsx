@@ -33,6 +33,7 @@ export type AnimatedButtonProps = {
   onLongPress?: GestureResponderHandler
   onPress?: GestureResponderHandler
   renderUnderlay?: (state: PressableStateCallbackType) => ReactNode
+  resizeMode?: AnimatedLottieViewProps['resizeMode']
   style?: PressableProps['style']
   wrapperStyle?: StyleProp<ViewStyle>
   haptics?: Haptics
@@ -48,6 +49,7 @@ export const AnimatedButton = ({
   onLongPress,
   onPress,
   renderUnderlay,
+  resizeMode,
   style,
   wrapperStyle,
   haptics,
@@ -191,12 +193,15 @@ export const AnimatedButton = ({
         <>
           {renderUnderlay?.(pressableState)}
           <View style={wrapperStyle}>
+            {/* The key is needed for animations to work on android  */}
             <LottieView
+              key={hasMultipleStates ? iconIndex : undefined}
               ref={animation => (animationRef.current = animation)}
               onAnimationFinish={handleAnimationFinish}
               progress={progress}
               loop={false}
               source={source}
+              resizeMode={resizeMode}
             />
           </View>
         </>

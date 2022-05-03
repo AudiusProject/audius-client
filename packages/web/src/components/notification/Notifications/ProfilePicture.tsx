@@ -11,6 +11,8 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './ProfilePicture.module.css'
 
+const imageLoadDelay = 250
+
 type ProfilePictureProps = {
   user: User
   className?: string
@@ -36,7 +38,7 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     if (!loadImage) {
       const t = setTimeout(() => {
         setLoadImage(true)
-      }, 500)
+      }, imageLoadDelay)
       return () => clearTimeout(t)
     }
   }, [loadImage])
