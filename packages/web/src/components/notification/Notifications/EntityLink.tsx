@@ -10,9 +10,9 @@ import { User } from 'common/models/User'
 import { toggleNotificationPanel } from 'common/store/notifications/actions'
 import { Entity } from 'common/store/notifications/types'
 import { useRecord, make } from 'store/analytics/actions'
-import { getEntityLink } from 'utils/route'
 
 import styles from './EntityLink.module.css'
+import { getEntityLink } from './utils'
 
 type EntityType = (Collection | Track) & { user: User }
 
