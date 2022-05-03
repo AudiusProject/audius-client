@@ -48,7 +48,7 @@ const slice = createSlice({
       const { userId, supportingForUser } = action.payload
       state.supporting[userId] = supportingForUser
     },
-    tipAudio: (state, action: PayloadAction<{ user: User | null }>) => {
+    beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {
         return
       }
@@ -85,7 +85,7 @@ const slice = createSlice({
 })
 
 export const {
-  tipAudio,
+  beginTip,
   sendTip,
   confirmSendTip,
   sendTipSucceeded,

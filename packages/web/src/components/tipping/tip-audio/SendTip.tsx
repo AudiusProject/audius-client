@@ -17,6 +17,7 @@ import { getSupporters, getSupporting } from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
+import { Nullable } from 'common/utils/typeUtils'
 import {
   formatWei,
   parseAudioInputToWei,
@@ -69,10 +70,15 @@ export const SendTip = () => {
   const [
     amountToTipToBecomeTopSupporter,
     setAmountToTipToBecomeTopSupporter
-  ] = useState<BNWei | null>(null)
-  const [supporting, setSupporting] = useState<Supporting | null>(null)
-  const [topSupporter, setTopSupporter] = useState<Supporter | null>(null)
+  ] = useState<Nullable<BNWei>>(null)
+  const [supporting, setSupporting] = useState<Nullable<Supporting>>(null)
+  const [topSupporter, setTopSupporter] = useState<Nullable<Supporter>>(null)
 
+  /**
+   * Get supporting info if current user is already supporting profile
+   * so that the already supported amount can be used to determine
+   * how much is left to tip to become top supporter
+   */
   useEffect(() => {
     if (!account || !profile) return
 
@@ -85,6 +91,10 @@ export const SendTip = () => {
     }
   }, [account, profile, supportingMap])
 
+  /**
+   * Get user who is top supporter to later check whether it is
+   * not the same as the current user
+   */
   useEffect(() => {
     if (!profile) return
 
@@ -115,6 +125,10 @@ export const SendTip = () => {
     [setTipAmount, setAmountToTipToBecomeTopSupporter]
   )
 
+  /**
+   * On blur of tip amount input, check whether or not to display
+   * prompt to become top or first supporter
+   */
   // todo: also handle other scenarios (and get correct copy from design)
   // - If you can attain top supporter by completing rewards and tipping the result
   // - If you're the first supporter

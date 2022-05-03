@@ -9,7 +9,7 @@ import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
-import { confirmSendTip, tipAudio } from 'common/store/tipping/slice'
+import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import { formatWei } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -51,7 +51,7 @@ export const ConfirmSendTip = () => {
 
   const handleGoBackClick = useCallback(() => {
     if (!isDisabled) {
-      dispatch(tipAudio({ user: profile }))
+      dispatch(beginTip({ user: profile }))
     }
   }, [isDisabled, dispatch, profile])
 

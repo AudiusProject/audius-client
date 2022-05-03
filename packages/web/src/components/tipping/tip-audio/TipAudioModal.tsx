@@ -9,7 +9,7 @@ import { useSelector } from 'common/hooks/useSelector'
 import { getSendStatus } from 'common/store/tipping/selectors'
 import { resetSend } from 'common/store/tipping/slice'
 import { TippingSendStatus } from 'common/store/tipping/types'
-import { ModalTransitionContainer } from 'components/modal-transition-container/ModalTransitionContainer'
+import { TransitionContainer } from 'components/transition-container/TransitionContainer'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 
 import { ConfirmSendTip } from './ConfirmSendTip'
@@ -89,10 +89,6 @@ export const TipAudioModal = () => {
     dispatch(resetSend())
   }, [dispatch])
 
-  if (sendStatus && previousSendStatus) {
-    console.log(statusOrder[previousSendStatus], statusOrder[sendStatus])
-  }
-
   return (
     <ModalDrawer
       isOpen={sendStatus !== null}
@@ -107,7 +103,7 @@ export const TipAudioModal = () => {
     >
       <div className={styles.modalContentContainer}>
         {sendStatus && (
-          <ModalTransitionContainer
+          <TransitionContainer
             item={sendStatus}
             fromStyles={{
               opacity: 1,
@@ -155,15 +151,15 @@ export const TipAudioModal = () => {
             }}
             config={
               !previousSendStatus || sendStatus === 'SEND'
-                ? { duration: 75 }
+                ? { duration: 150 }
                 : statusOrder[previousSendStatus] === statusOrder[sendStatus]
                 ? { duration: 0 }
-                : { duration: 220 }
+                : { duration: 300 }
             }
             additionalStyles={{ width: '100%' }}
           >
             <ModalContent />
-          </ModalTransitionContainer>
+          </TransitionContainer>
         )}
       </div>
     </ModalDrawer>

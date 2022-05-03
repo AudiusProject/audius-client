@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { tipAudio } from 'common/store/tipping/slice'
+import { beginTip } from 'common/store/tipping/slice'
 
 import styles from './TipAudio.module.css'
 
@@ -19,7 +19,7 @@ export const TipAudioButton = () => {
   const profile = useSelector(getProfileUser)
 
   const handleClick = useCallback(() => {
-    dispatch(tipAudio({ user: profile }))
+    dispatch(beginTip({ user: profile }))
   }, [dispatch, profile])
 
   return (

@@ -12,7 +12,7 @@ type TransitionContainerProps<T> = {
   additionalStyles?: object
 }
 
-export function ModalTransitionContainer<T>({
+export function TransitionContainer<T>({
   children,
   item,
   fromStyles,
