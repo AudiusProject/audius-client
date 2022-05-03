@@ -9,7 +9,7 @@ import { NotificationFooter } from './NotificationFooter'
 import { NotificationHeader } from './NotificationHeader'
 import { NotificationTile } from './NotificationTile'
 import { UserNameLink } from './UserNameLink'
-import { UserProfileList } from './UserProfileList'
+import { UserProfilePictureList } from './UserProfilePictureList'
 
 const messages = {
   others: (userCount: number) =>
@@ -30,7 +30,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   return (
     <NotificationTile notification={notification}>
       <NotificationHeader icon={<IconUser />}>
-        <UserProfileList users={users} />
+        <UserProfilePictureList users={users} />
       </NotificationHeader>
       <NotificationBody>
         <UserNameLink user={firstUser} notification={notification} />
