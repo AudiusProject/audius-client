@@ -82,14 +82,14 @@
 }
 
 .primary .textLabel {
-  color: var(--darkmode-static-white);
+  color: var(--primary-secondary-text);
   font-size: var(--font-l);
   font-weight: var(--font-bold);
 }
 
 .primary .icon g path,
 .primary .icon use {
-  fill: var(--darkmode-static-white);
+  fill: var(--primary-secondary-text);
 }
 
 .primary.includeHoverAnimations:hover {
@@ -112,7 +112,7 @@
 }
 
 .primaryAlt .textLabel {
-  color: var(--darkmode-static-white);
+  color: var(--primary-secondary-text);
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
@@ -120,7 +120,7 @@
 
 .primaryAlt .icon path,
 .primaryAlt .icon use {
-  fill: var(--darkmode-static-white);
+  fill: var(--primary-secondary-text);
 }
 
 .primaryAlt.includeHoverAnimations:hover {
@@ -169,12 +169,12 @@
 }
 
 .secondary.includeHoverAnimations:hover .textLabel {
-  color: var(--darkmode-static-white);
+  color: var(--primary-secondary-text);
 }
 
 .secondary.includeHoverAnimations:hover .icon path,
 .secondary.includeHoverAnimations:hover .icon use {
-  fill: var(--darkmode-static-white);
+  fill: var(--primary-secondary-text);
 }
 
 .secondary.includeHoverAnimations:active {
@@ -219,12 +219,12 @@
 }
 
 .common.includeHoverAnimations:hover .textLabel {
-  color: var(--darkmode-static-white);
+  color: var(--primary-secondary-text);
 }
 
 .common.includeHoverAnimations:hover .icon path,
 .common.includeHoverAnimations:hover .icon use {
-  fill: var(--darkmode-static-white);
+  fill: var(--primary-secondary-text);
 }
 
 .common.includeHoverAnimations:active {
@@ -234,11 +234,11 @@
 }
 
 .common.includeHoverAnimations:active .textLabel {
-  color: var(--darkmode-static-white);
+  color: var(--primary-secondary-text);
 }
 
 .common.includeHoverAnimations:active .icon path {
-  fill: var(--darkmode-static-white);
+  fill: var(--primary-secondary-text);
 }
 
 /* Common Alt Button */

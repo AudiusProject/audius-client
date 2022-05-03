@@ -32,12 +32,12 @@
 
 .item:hover {
   cursor: pointer;
-  color: var(--white);
+  color: var(--primary-secondary-text);
   background: var(--secondary);
 }
 
 .item:hover svg {
-  background: var(--white);
+  background: var(--primary-secondary-text);
 }
 
 .item:hover path {
