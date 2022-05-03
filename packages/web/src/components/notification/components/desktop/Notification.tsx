@@ -14,6 +14,9 @@ import { NotificationType } from 'common/store/notifications/types'
 import { Nullable } from 'common/utils/typeUtils'
 import ErrorWrapper from 'components/error-wrapper/ErrorWrapper'
 import { OwnProps as NotificationMenuProps } from 'components/menu/NotificationMenu'
+import { FollowNotification } from 'components/notification/Notifications'
+import { FavoriteNotification } from 'components/notification/Notifications/FavoriteNotification'
+import { RepostNotification } from 'components/notification/Notifications/RepostNotification'
 import { AppState } from 'store/types'
 
 import Announcement from './Announcement'
@@ -68,6 +71,18 @@ const NotificationItem = (props: NotificationItemProps) => {
     users: props.users,
     entity: props.entity,
     entities: props.entities
+  }
+
+  if (notification.type === NotificationType.Favorite) {
+    return <FavoriteNotification notification={notification} />
+  }
+
+  if (notification.type === NotificationType.Follow) {
+    return <FollowNotification notification={notification} />
+  }
+
+  if (notification.type === NotificationType.Repost) {
+    return <RepostNotification notification={notification} />
   }
 
   return (

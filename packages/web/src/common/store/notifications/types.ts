@@ -85,7 +85,7 @@ export type Favorite = BaseNotification & {
   type: NotificationType.Favorite
   entityId: ID
   userIds: ID[]
-  users?: User[]
+  users: User[]
 } & (
     | {
         entityType: Entity.Playlist | Entity.Album

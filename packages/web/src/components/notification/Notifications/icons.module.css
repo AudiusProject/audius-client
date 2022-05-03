@@ -19,3 +19,11 @@
 .iconRepost g path {
   fill: var(--secondary);
 }
+
+.iconFavorite {
+  composes: icon;
+}
+
+.iconFavorite g path {
+  fill: var(--secondary);
+}
