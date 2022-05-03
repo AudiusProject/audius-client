@@ -43,6 +43,7 @@
 
 .button .icon path {
   fill: var(--neutral);
+  transition: all var(--quick);
 }
 
 .button .icon.left {
@@ -168,12 +169,12 @@
 }
 
 .secondary.includeHoverAnimations:hover .textLabel {
-  color: var(--white);
+  color: var(--darkmode-static-white);
 }
 
 .secondary.includeHoverAnimations:hover .icon path,
 .secondary.includeHoverAnimations:hover .icon use {
-  fill: var(--white);
+  fill: var(--darkmode-static-white);
 }
 
 .secondary.includeHoverAnimations:active {
@@ -218,12 +219,12 @@
 }
 
 .common.includeHoverAnimations:hover .textLabel {
-  color: var(--white);
+  color: var(--darkmode-static-white);
 }
 
 .common.includeHoverAnimations:hover .icon path,
 .common.includeHoverAnimations:hover .icon use {
-  fill: var(--white);
+  fill: var(--darkmode-static-white);
 }
 
 .common.includeHoverAnimations:active {
@@ -233,11 +234,11 @@
 }
 
 .common.includeHoverAnimations:active .textLabel {
-  color: var(--white);
+  color: var(--darkmode-static-white);
 }
 
 .common.includeHoverAnimations:active .icon path {
-  fill: var(--white);
+  fill: var(--darkmode-static-white);
 }
 
 /* Common Alt Button */
