@@ -1,5 +1,5 @@
-.root {
-  margin-right: 4px;
+.rootLeftMargin {
+  margin-left: var(--unit-1);
 }
 
 .deactivated {

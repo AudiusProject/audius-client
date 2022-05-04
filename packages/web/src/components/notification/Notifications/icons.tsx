@@ -1,7 +1,10 @@
 import React, { ReactNode } from 'react'
 
 import { ReactComponent as IconHeart } from 'assets/img/iconHeart.svg'
+import { ReactComponent as IconRemixBase } from 'assets/img/iconRemix.svg'
 import { ReactComponent as IconRepostBase } from 'assets/img/iconRepost.svg'
+import { ReactComponent as IconStars } from 'assets/img/iconStars.svg'
+import { ReactComponent as IconTrendingBase } from 'assets/img/iconTrending.svg'
 import { ReactComponent as IconTrophy } from 'assets/img/iconTrophy.svg'
 import { ReactComponent as IconUser } from 'assets/img/iconUser.svg'
 
@@ -24,9 +27,21 @@ export const IconMilestone = () => {
 }
 
 export const IconRelease = () => {
-  return <IconTrophy className={styles.iconMilestone} />
+  return <IconStars className={styles.iconRelease} />
 }
 
-export const IconRewards = ({ children }: { children: ReactNode }) => (
-  <span className={styles.iconRewards}>{children}</span>
-)
+export const IconRewards = ({ children }: { children: ReactNode }) => {
+  return <span className={styles.iconRewards}>{children}</span>
+}
+
+export const IconTrending = () => {
+  return <IconTrendingBase className={styles.iconTrending} />
+}
+
+export const IconTier = ({ children }: { children: ReactNode }) => {
+  return <span className={styles.iconTier}>{children}</span>
+}
+
+export const IconRemix = () => {
+  return <IconRemixBase className={styles.iconRemix} />
+}

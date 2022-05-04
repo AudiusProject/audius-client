@@ -26,3 +26,10 @@ export const getEntityLink = (entity: EntityType, fullRoute = false) => {
 
 export const formatOthersCount = (userCount: number) =>
   ` and ${formatCount(userCount)} other${userCount > 1 ? 's' : ''}`
+
+export const getRankSuffix = (rank: number) => {
+  if (rank === 1) return 'st'
+  if (rank === 2) return 'nd'
+  if (rank === 3) return 'rd'
+  return 'th'
+}
