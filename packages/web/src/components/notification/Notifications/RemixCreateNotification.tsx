@@ -40,7 +40,7 @@ export const RemixCreateNotification = (
       <NotificationBody>
         <EntityLink entity={entity} entityType={entityType} />
         <span>{messages.by}</span>
-        <UserNameLink user={user} notification={notification} leftMargin />
+        <UserNameLink user={user} notification={notification} addMargin />
       </NotificationBody>
       <TwitterShareButton />
       <NotificationFooter timeLabel={timeLabel} isRead={isRead} />

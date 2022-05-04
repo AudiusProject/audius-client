@@ -1,5 +1,5 @@
-.rootLeftMargin {
-  margin-left: var(--unit-1);
+.addMargin {
+  margin-inline-start: var(--unit-1);
 }
 
 .deactivated {

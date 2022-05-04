@@ -23,11 +23,11 @@ const messages = {
 type UserNameLinkProps = {
   notification: Notification
   user: User
-  leftMargin?: boolean
+  addMargin?: boolean
 }
 
 export const UserNameLink = (props: UserNameLinkProps) => {
-  const { notification, user, leftMargin } = props
+  const { notification, user, addMargin } = props
   const dispatch = useDispatch()
 
   const record = useRecord()
@@ -61,7 +61,7 @@ export const UserNameLink = (props: UserNameLinkProps) => {
   }
 
   let userNameElement = (
-    <span className={leftMargin ? styles.rootLeftMargin : undefined}>
+    <span className={addMargin ? styles.addMargin : undefined}>
       <a onClick={handleClick} href={profileLink} className={styles.link}>
         {name}
       </a>
