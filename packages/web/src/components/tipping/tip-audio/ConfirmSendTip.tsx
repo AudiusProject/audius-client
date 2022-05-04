@@ -107,7 +107,7 @@ export const ConfirmSendTip = () => {
             )
           }
           disabled={isDisabled}
-          className={cn({ [styles.disabled]: isDisabled })}
+          className={cn(styles.button, { [styles.disabled]: isDisabled })}
         />
       </div>
       <div

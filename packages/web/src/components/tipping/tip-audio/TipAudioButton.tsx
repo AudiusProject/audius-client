@@ -24,6 +24,7 @@ export const TipAudioButton = () => {
 
   return (
     <Button
+      className={styles.button}
       type={ButtonType.PRIMARY}
       text={
         <div className={styles.tipIconTextContainer}>
