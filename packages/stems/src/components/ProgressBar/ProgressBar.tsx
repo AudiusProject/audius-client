@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -26,20 +26,26 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 }: ProgressBarProps) => {
   const [sliderWidth, setSliderWidth] = useState(0)
 
-  useEffect(() => {
+  const percentage = useMemo(() => {
     const minBN = getBN(min)
     const maxBN = getBN(max)
     const valBN = getBN(value)
 
-    const percentage = clampBN(valBN.sub(minBN), new BN(0), maxBN)
+    return clampBN(valBN.sub(minBN), new BN(0), maxBN)
       .mul(new BN(100))
       .div(maxBN.sub(minBN))
+  }, [max, min, value])
 
+  useEffect(() => {
     setSliderWidth(percentage.toNumber())
-  }, [value, max, min])
+  }, [percentage])
 
   return (
-    <div className={cn(styles.container, { [className!]: !!className })}>
+    <div
+      className={cn(styles.container, { [className!]: !!className })}
+      role='progressbar'
+      aria-valuenow={percentage.toNumber()}
+    >
       <div
         className={cn(styles.slider, { [sliderClassName!]: !!sliderClassName })}
       >
