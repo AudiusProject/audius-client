@@ -1,14 +1,14 @@
 import { User } from './User'
 
 export type Supporter = {
-  supporter: User
+  sender: User
   amount: number
   rank: number
   updated_at: string
 }
 
 export type Supporting = {
-  supporting: User
+  receiver: User
   amount: number
   rank: number
   updated_at: string

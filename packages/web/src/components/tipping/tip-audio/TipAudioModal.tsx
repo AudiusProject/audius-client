@@ -104,6 +104,7 @@ export const TipAudioModal = () => {
       <div className={styles.modalContentContainer}>
         {sendStatus && (
           <TransitionContainer
+            renderFunc={() => <ModalContent />}
             item={sendStatus}
             fromStyles={{
               opacity: 1,
@@ -157,9 +158,7 @@ export const TipAudioModal = () => {
                 : { duration: 300 }
             }
             additionalStyles={{ width: '100%' }}
-          >
-            <ModalContent />
-          </TransitionContainer>
+          />
         )}
       </div>
     </ModalDrawer>

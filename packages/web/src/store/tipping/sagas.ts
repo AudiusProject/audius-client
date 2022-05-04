@@ -19,9 +19,10 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
 
-const { getFeatureEnabled } = remoteConfigInstance
+const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
 function* sendTipAsync() {
+  yield call(waitForRemoteConfig)
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   if (!isTippingEnabled) {
     return

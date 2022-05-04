@@ -102,6 +102,16 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* truncates the content at a maximum of 4 lines */
+/* works on modern browsers */
+.truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* number of lines to show */
+          line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
 .info .description > a {
   color: var(--primary);
 }
@@ -109,8 +119,48 @@
 .info .socials {
   padding-bottom: 8px;
 }
+.info .socialsTruncated {
+  display: flex;
+  align-items: center;
+  flex-flow: wrap;
+  height: 24px;
+  /* opacity: 0; */
+}
+/* .info .socialsTruncated.show {
+  transition: opacity ease-in-out 5s;
+  opacity: 1;
+} */
 
-.info .joined,
+.tags {
+  margin-right: 10px;
+}
+.tagsTitleContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.tagsContent {
+  padding: 8px;
+  background: var(--white);
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px var(--tile-shadow-3), 0px 1px 0px var(--tile-shadow-2), 0px 0px 1px var(--tile-shadow-1);
+}
+.topTagsIcon {
+  width: 20px;
+  height: 20px;
+}
+.tagsTitleText {
+  margin-left: 6px;
+  font-weight: var(--font-bold);
+  font-size: var(--font-s);
+}
+.tagsLine {
+  margin-left: 12px;
+  background: var(--neutral-light-7);
+  width: 106px;
+  height: 1px;
+}
+
 .info .tags {
   padding-bottom: 24px;
 }
@@ -120,10 +170,9 @@
   flex-wrap: wrap;
 }
 .info .tags > .tagsContent > .tag {
-  margin: 0 8px 8px 0;
+  margin: 4px 8px 4px 0;
 }
 
-.info .tags,
 .info .followers {
   user-select: none;
   padding-top: 24px;
@@ -214,4 +263,27 @@
 
 .badge {
   margin-bottom: 16px !important;
+}
+
+.truncateContainer {
+  display: flex;
+  align-items: center;
+  font-weight: var(--font-bold);
+  font-size: var(--font-s);
+  color: var(--neutral-light-4);
+  margin-top: 16px;
+}
+.truncateContainer:hover {
+  cursor: pointer;
+}
+.truncateContainer svg {
+  margin-left: 8px;
+}
+
+.socialsTruncated div {
+  margin-right: 16px;
+}
+
+.tipAudioButton {
+  margin-top: 32px;
 }

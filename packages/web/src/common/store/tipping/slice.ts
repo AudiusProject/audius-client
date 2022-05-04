@@ -28,7 +28,7 @@ const slice = createSlice({
     ) => {
       state.supporters = action.payload.supporters
     },
-    setSupportersforUser: (
+    setSupportersForUser: (
       state,
       action: PayloadAction<{ userId: ID; supportersForUser: Supporter[] }>
     ) => {
@@ -41,7 +41,7 @@ const slice = createSlice({
     ) => {
       state.supporting = action.payload.supporting
     },
-    setSupportingforUser: (
+    setSupportingForUser: (
       state,
       action: PayloadAction<{ userId: ID; supportingForUser: Supporting[] }>
     ) => {
@@ -85,6 +85,8 @@ const slice = createSlice({
 })
 
 export const {
+  setSupportingForUser,
+  setSupportersForUser,
   beginTip,
   sendTip,
   confirmSendTip,

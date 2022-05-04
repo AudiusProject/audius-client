@@ -84,7 +84,7 @@ export const SendTip = () => {
 
     const newSupporting =
       supportingMap[account.user_id]?.find(
-        sup => sup.supporting.user_id === profile.user_id
+        sup => sup.receiver.user_id === profile.user_id
       ) ?? null
     if (newSupporting) {
       setSupporting(newSupporting)
@@ -136,7 +136,7 @@ export const SendTip = () => {
     if (hasError || !account || !topSupporter) return
 
     const isAlreadyTopSupporter =
-      account.user_id === topSupporter.supporter.user_id
+      account.user_id === topSupporter.sender.user_id
     if (isAlreadyTopSupporter) return
 
     const topSupporterAmountWei = stringWeiToBN(
