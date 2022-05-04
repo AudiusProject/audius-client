@@ -55,8 +55,8 @@ export const ConfirmSendTip = () => {
     }
   }, [isDisabled, dispatch, profile])
 
-  return profile ? (
-    <div className={styles.container}>
+  const renderSendingAudio = () => (
+    <>
       <div className={cn(styles.flexCenter, styles.sendingContainer)}>
         <span className={styles.sendingIcon}>
           <IconSend />
@@ -67,6 +67,11 @@ export const ConfirmSendTip = () => {
         <span className={styles.sendAmount}>{formatWei(sendAmount, true)}</span>
         $AUDIO
       </div>
+    </>
+  )
+
+  const renderProfilePicture = () =>
+    profile ? (
       <div className={styles.profileUser}>
         <div className={styles.accountWrapper}>
           <img className={styles.dynamicPhoto} src={profileImage} />
@@ -85,6 +90,12 @@ export const ConfirmSendTip = () => {
           </div>
         </div>
       </div>
+    ) : null
+
+  return profile ? (
+    <div className={styles.container}>
+      {renderSendingAudio()}
+      {renderProfilePicture()}
       {hasError ? (
         <div className={cn(styles.flexCenter, styles.error)}>
           {messages.somethingWrong}

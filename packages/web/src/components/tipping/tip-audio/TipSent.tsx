@@ -51,8 +51,8 @@ export const TipSent = () => {
     }
   }, [account, recipient, record, sendAmount])
 
-  return recipient ? (
-    <div className={styles.container}>
+  const renderSentAudio = () => (
+    <>
       <div className={cn(styles.flexCenter, styles.sentSuccessfullyContainer)}>
         <span className={styles.sentSuccessfullyIcon}>
           <IconCheck />
@@ -63,6 +63,12 @@ export const TipSent = () => {
         <span className={styles.sendAmount}>{formatWei(sendAmount, true)}</span>
         $AUDIO
       </div>
+    </>
+  )
+
+  return recipient ? (
+    <div className={styles.container}>
+      {renderSentAudio()}
       <div className={cn(styles.profileUser, styles.confirmProfileUser)}>
         <div className={styles.accountWrapper}>
           <img

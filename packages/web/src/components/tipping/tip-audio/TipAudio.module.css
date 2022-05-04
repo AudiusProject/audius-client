@@ -91,8 +91,6 @@
 .amountContainer {
   display: flex;
   align-items: center;
-  margin-right: 12px;
-  margin-top: 12px;
 }
 
 .amountAvailable {

@@ -160,8 +160,8 @@ export const SendTip = () => {
     dispatch(sendTip({ amount: tipAmountBNWei }))
   }, [dispatch, tipAmountBNWei])
 
-  return profile ? (
-    <div className={styles.container}>
+  const renderProfilePicture = () =>
+    profile ? (
       <div className={styles.profileUser}>
         <div className={styles.accountWrapper}>
           <img className={styles.dynamicPhoto} src={profileImage} />
@@ -180,16 +180,54 @@ export const SendTip = () => {
           </div>
         </div>
       </div>
-      {amountToTipToBecomeTopSupporter && (
-        <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
-          <IconTrophy className={styles.becomeTopSupporterTrophy} />
+    ) : null
+
+  const renderBecomeTopSupporter = () =>
+    amountToTipToBecomeTopSupporter ? (
+      <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
+        <IconTrophy className={styles.becomeTopSupporterTrophy} />
+        <span>
+          {messages.becomeTopSupporterPrefix}
+          {formatWei(amountToTipToBecomeTopSupporter, true, 0)}
+          {messages.becomeTopSupporterSuffix}
+        </span>
+      </div>
+    ) : null
+
+  const renderAvailableAmount = () => (
+    <div className={styles.amountAvailableContainer}>
+      <div className={styles.amountAvailableText}>
+        {messages.availableToSend}
+        <Tooltip text={messages.tooltip} mount='parent'>
           <span>
-            {messages.becomeTopSupporterPrefix}
-            {formatWei(amountToTipToBecomeTopSupporter, true, 0)}
-            {messages.becomeTopSupporterSuffix}
+            <IconQuestionCircle
+              className={styles.amountAvailableInfo}
+              width={18}
+              height={18}
+            />
           </span>
-        </div>
-      )}
+        </Tooltip>
+      </div>
+      <div className={styles.amountContainer}>
+        {audioBadge ? (
+          cloneElement(audioBadge, {
+            height: 16,
+            width: 16
+          })
+        ) : (
+          <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
+        )}
+        <span className={styles.amountAvailable}>
+          {formatWei(accountBalance, true, 0)}
+        </span>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className={styles.container}>
+      {renderProfilePicture()}
+      {renderBecomeTopSupporter()}
       <div className={styles.amountToSend}>
         <TokenValueInput
           className={styles.inputContainer}
@@ -205,33 +243,7 @@ export const SendTip = () => {
           onBlur={onBlur}
         />
       </div>
-      <div className={styles.amountAvailableContainer}>
-        <div className={styles.amountAvailableText}>
-          {messages.availableToSend}
-          <Tooltip text={messages.tooltip} mount='parent'>
-            <span>
-              <IconQuestionCircle
-                className={styles.amountAvailableInfo}
-                width={18}
-                height={18}
-              />
-            </span>
-          </Tooltip>
-        </div>
-        <div className={styles.amountContainer}>
-          {audioBadge ? (
-            cloneElement(audioBadge, {
-              height: 16,
-              width: 16
-            })
-          ) : (
-            <img alt='no tier' src={IconNoTierBadge} width='16' height='16' />
-          )}
-          <span className={styles.amountAvailable}>
-            {formatWei(accountBalance, true, 0)}
-          </span>
-        </div>
-      </div>
+      {renderAvailableAmount()}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <ButtonWithArrow
           text={messages.sendATip}
@@ -247,5 +259,5 @@ export const SendTip = () => {
         </div>
       )}
     </div>
-  ) : null
+  )
 }
