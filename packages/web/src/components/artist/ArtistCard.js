@@ -1,20 +1,37 @@
 import React, { Component } from 'react'
 
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
+import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { WidthSizes, SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/follow-button/FollowButton'
+import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
 import Stats from 'components/stats/Stats'
 import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import {
+  setUsers,
+  setVisibility
+} from 'store/application/ui/userListModal/slice'
+import {
+  UserListEntityType,
+  UserListType
+} from 'store/application/ui/userListModal/types'
 
 import styles from './ArtistCard.module.css'
 
 const gradient = `linear-gradient(180deg, rgba(0, 0, 0, 0.001) 0%, rgba(0, 0, 0, 0.005) 67.71%, rgba(0, 0, 0, 0.15) 79.17%, rgba(0, 0, 0, 0.25) 100%)`
+
+const messages = {
+  supporting: 'Supporting'
+}
+
+const MAX_TOP_SUPPORTING = 7
 
 const ArtistCover = props => {
   const coverPhoto = useUserCoverPhoto(
@@ -113,12 +130,18 @@ class ArtistCard extends Component {
         ]
   }
 
+  handleSupportingClick = () => {
+    this.props.setUsers(this.props.userId)
+    this.props.openModal()
+  }
+
   render() {
     const {
       description,
       following,
       onFollow,
       onUnfollow,
+      supportingList,
       ...artistProps
     } = this.props
 
@@ -129,8 +152,27 @@ class ArtistCard extends Component {
           <div className={styles.artistStatsContainer}>
             <Stats clickable={false} stats={this.getStats()} size='medium' />
           </div>
-          <div className={styles.descriptionContainer}>
+          <div className={styles.contentContainer}>
             <div>
+              {supportingList.length > 0 && (
+                <div
+                  className={styles.supportingContainer}
+                  onClick={this.handleSupportingClick}
+                >
+                  <div className={styles.supportingTitleContainer}>
+                    <IconTip className={styles.supportingIcon} />
+                    <span className={styles.supportingTitle}>
+                      {messages.supporting}
+                    </span>
+                  </div>
+                  <div className={styles.line} />
+                  <UserProfilePictureList
+                    limit={MAX_TOP_SUPPORTING}
+                    users={supportingList.map(s => s.receiver)}
+                    disableProfileClick
+                  />
+                </div>
+              )}
               <div className={styles.description}>{description}</div>
               <FollowButton
                 className={styles.followButton}
@@ -158,6 +200,7 @@ ArtistCard.propTypes = {
   profilePictureSizes: PropTypes.object,
   coverPhotoSizes: PropTypes.object,
   isArtist: PropTypes.bool,
+  supportingList: PropTypes.array,
 
   onNameClick: PropTypes.func,
   following: PropTypes.bool,
@@ -177,7 +220,20 @@ ArtistCard.defaultProps = {
   onNameClick: () => {},
   following: false,
   onFollow: () => {},
-  onUnfollow: () => {}
+  onUnfollow: () => {},
+  supportingList: []
 }
 
-export default ArtistCard
+const mapDispatchToProps = dispatch => ({
+  setUsers: id =>
+    dispatch(
+      setUsers({
+        userListType: UserListType.SUPPORTING,
+        entityType: UserListEntityType.USER,
+        id
+      })
+    ),
+  openModal: () => dispatch(setVisibility(true))
+})
+
+export default connect(null, mapDispatchToProps)(ArtistCard)

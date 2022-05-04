@@ -18,10 +18,11 @@ type ProfilePictureProps = {
   user: User
   className?: string
   disablePopover?: boolean
+  disableClick?: boolean
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { user, className, disablePopover } = props
+  const { user, className, disablePopover, disableClick } = props
   const { user_id, _profile_picture_sizes, handle } = user
   const [loadImage, setLoadImage] = useState(false)
   const dispatch = useDispatch()
@@ -45,8 +46,10 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
   }, [loadImage])
 
   const handleClick = useCallback(() => {
-    dispatch(push(`/${handle}`))
-  }, [dispatch, handle])
+    if (!disableClick) {
+      dispatch(push(`/${handle}`))
+    }
+  }, [disableClick, dispatch, handle])
 
   const profilePictureElement = (
     <DynamicImage

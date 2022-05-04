@@ -110,7 +110,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 4; /* number of lines to show */
-          line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 .info .description > a {

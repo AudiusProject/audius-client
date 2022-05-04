@@ -18,12 +18,14 @@ type UserProfileListProps = {
   users: Array<User>
   limit?: number
   totalOverride?: number
+  disableProfileClick?: boolean
 }
 
 export const UserProfilePictureList = ({
   users,
   limit = USER_LENGTH_LIMIT,
-  totalOverride
+  totalOverride,
+  disableProfileClick = false
 }: UserProfileListProps) => {
   const showUserListModal = totalOverride
     ? totalOverride > limit
@@ -42,6 +44,7 @@ export const UserProfilePictureList = ({
             key={user.user_id}
             className={styles.profilePicture}
             user={user}
+            disableClick={disableProfileClick}
           />
         ))}
       {showUserListModal ? (
