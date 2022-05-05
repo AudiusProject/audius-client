@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 
 import { IconArrow } from '@audius/stems'
 
-import { ReactComponent as IconTokenBadgeMono } from 'assets/img/iconTokenBadgeMono.svg'
+import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSupporting } from 'common/store/tipping/selectors'
@@ -30,7 +30,7 @@ export const SupportingList = () => {
   return supportingList.length ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
-        <IconTokenBadgeMono className={styles.tokenBadgeIcon} />
+        <IconTip className={styles.tipIcon} />
         <span className={styles.titleText}>{messages.supporting}</span>
         <span className={styles.line} />
       </div>

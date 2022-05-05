@@ -6,7 +6,9 @@
   display: flex;
   align-items: center;
 }
-
+.titleContainer .tipIcon path {
+  fill: var(--neutral) !important;
+}
 .titleText {
   margin-left: 6px;
   font-weight: var(--font-bold);
@@ -19,7 +21,6 @@
   width: 100%;
   height: 1px;
 }
-
 .topSupportersLine {
   width: 62px;
 }
@@ -36,26 +37,22 @@
   font-size: var(--font-s);
   color: var(--neutral-light-4);
 }
-
 .seeMore:hover {
   cursor: pointer;
 }
 
-.tokenBadgeIcon {
+.tipIcon {
   width: 32px;
   height: 18px;
 }
-
 .trophyIcon {
   width: 18px;
   height: 18px;
 }
-
 .arrowIcon {
   width: 20px;
   height: 20px;
 }
-
 .arrowIcon path {
   fill: var(--neutral-light-4);
 }
@@ -64,13 +61,11 @@
   height: 122px;
   box-shadow: 0px 2px 5px var(--tile-shadow-3), 0px 1px 0px var(--tile-shadow-2), 0px 0px 1px var(--tile-shadow-1);
 }
-
 .tileContainer:hover, .topSupportersContainer:hover {
   box-shadow: 1px 5px 1px var(--tile-shadow-1-alt), 0 1px 0 0 var(--tile-shadow-2), 0 2px 10px -2px var(--tile-shadow-3);
   transform: scale3d(1.005, 1.005, 1.005);
   cursor: pointer;
 }
-
 .tileContainer:active, .topSupportersContainer:active {
   box-shadow: 0 0 1px 0 var(--tile-shadow-1), 0 2px 3px -2px var(--tile-shadow-3);
 }
@@ -91,20 +86,17 @@
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-
-.tileHeader .trophyIcon, .tileHeader .tokenBadgeIcon {
+.tileHeader .trophyIcon,
+.tileHeader .tipIcon {
   margin-right: 8px;
 }
-
 .tileHeader .trophyIcon path {
   fill: var(--secondary);
 }
-
-.tileHeader .tokenBadgeIcon {
+.tileHeader .tipIcon {
   width: 14px;
 }
-
-.tileHeader .tokenBadgeIcon path {
+.tileHeader .tipIcon path {
   fill: var(--neutral-light-4) !important;
 }
 

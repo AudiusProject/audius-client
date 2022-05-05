@@ -5,7 +5,7 @@ import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { ReactComponent as IconTokenBadgeMono } from 'assets/img/iconTokenBadgeMono.svg'
+import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { SquareSizes, WidthSizes } from 'common/models/ImageSizes'
 import { Supporting } from 'common/models/Tipping'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -68,7 +68,7 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
         </div>
       ) : (
         <div className={styles.tileHeader}>
-          <IconTokenBadgeMono className={styles.tokenBadgeIcon} />
+          <IconTip className={styles.tipIcon} />
           <span>{messages.supporter}</span>
         </div>
       )}
