@@ -14,6 +14,7 @@ import { NotificationType } from 'common/store/notifications/types'
 import { Nullable } from 'common/utils/typeUtils'
 import ErrorWrapper from 'components/error-wrapper/ErrorWrapper'
 import { OwnProps as NotificationMenuProps } from 'components/menu/NotificationMenu'
+import { TipSentNotification } from 'components/notification/Notifications/TipSentNotification'
 import { AppState } from 'store/types'
 
 import Announcement from './Announcement'
@@ -67,8 +68,39 @@ const NotificationItem = (props: NotificationItemProps) => {
     user: props.user,
     users: props.users,
     entity: props.entity,
-    entities: props.entities
+    entities: props.entities,
+    value: 999,
+    reaction: 'fire'
   }
+
+  if (notification.type === NotificationType.RemixCosign) {
+    return <TipSentNotification notification={notification} />
+  }
+
+  // if (notification.type === NotificationType.Favorite) {
+  //   return (
+  //     <TipSentNotification
+  //       notification={{
+  //         ...notification,
+  //         user: { handle: 'test', name: 'dylan' },
+  //         value: 100
+  //       }}
+  //     />
+  //   )
+  // }
+
+  // if (notification.type === NotificationType.Follow) {
+  //   return (
+  //     <TipReactionNotification
+  //       notification={{
+  //         ...notification,
+  //         user: { handle: 'test', name: 'dylan' },
+  //         value: 100,
+  //         reaction: 'fire'
+  //       }}
+  //     />
+  //   )
+  // }
 
   return (
     <ErrorWrapper
