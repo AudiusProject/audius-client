@@ -7,12 +7,16 @@ import { getUserList as favoritesSelector } from 'common/store/user-list/favorit
 import { getUserList as followersSelector } from 'common/store/user-list/followers/selectors'
 import { getUserList as followingSelector } from 'common/store/user-list/following/selectors'
 import { getUserList as repostsSelector } from 'common/store/user-list/reposts/selectors'
+import { getUserList as supportingSelector } from 'common/store/user-list/supporting/selectors'
+import { getUserList as topSupportersSelector } from 'common/store/user-list/top-supporters/selectors'
 import { UserListStoreState } from 'common/store/user-list/types'
 import UserList from 'components/user-list/UserList'
 import { USER_LIST_TAG as FAVORITES_TAG } from 'pages/favorites-page/sagas'
 import { USER_LIST_TAG as FOLLOWER_TAG } from 'pages/followers-page/sagas'
 import { USER_LIST_TAG as FOLLOWING_TAG } from 'pages/following-page/sagas'
 import { USER_LIST_TAG as REPOST_TAG } from 'pages/reposts-page/sagas'
+import { USER_LIST_TAG as SUPPORTING_TAG } from 'pages/supporting-page/sagas'
+import { USER_LIST_TAG as SUPPORTER_TAG } from 'pages/top-supporters-page/sagas'
 import { UserListType } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'
 
@@ -30,7 +34,9 @@ const messages = {
   reposts: 'REPOSTS',
   favorites: 'FAVORITES',
   followers: 'FOLLOWERS',
-  following: 'FOLLOWING'
+  following: 'FOLLOWING',
+  topSupporters: 'TOP SUPPORTERS',
+  supporting: 'SUPPORTING'
 }
 
 const getScrollParent = () => {
@@ -66,6 +72,16 @@ const UserListModal = ({
       tag = FOLLOWING_TAG
       selector = followingSelector
       title = messages.following
+      break
+    case UserListType.SUPPORTER:
+      tag = SUPPORTER_TAG
+      selector = topSupportersSelector
+      title = messages.topSupporters
+      break
+    case UserListType.SUPPORTING:
+      tag = SUPPORTING_TAG
+      selector = supportingSelector
+      title = messages.supporting
       break
     // Should not happen but typescript doesn't seem to be
     // smart enough to pass props to components below

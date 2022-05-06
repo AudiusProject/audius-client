@@ -1,23 +1,149 @@
 import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
-import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+// import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+
+const supportingForUser = [
+  {
+    receiver: {
+      name: 'One Two',
+      handle: 'onetwo',
+      user_id: 38698,
+      _profile_picture_sizes: {
+        '150x150':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/150x150.jpg',
+        '480x480':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/480x480.jpg',
+        '1000x1000':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/1000x1000.jpg'
+      },
+      _cover_photo_sizes: {
+        '640x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/640x.jpg',
+        '2000x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
+      }
+      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
+      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
+    },
+    amount: 25,
+    rank: 1,
+    updated_at: 'yesterday'
+  },
+  {
+    receiver: {
+      name: 'Three Four',
+      handle: 'three_four',
+      user_id: 1,
+      _profile_picture_sizes: {
+        '150x150':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/150x150.jpg',
+        '480x480':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/480x480.jpg',
+        '1000x1000':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/1000x1000.jpg'
+      },
+      _cover_photo_sizes: {
+        '640x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/640x.jpg',
+        '2000x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
+      },
+      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
+      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg',
+      is_verified: true
+    },
+    amount: 10,
+    rank: 10,
+    updated_at: 'today'
+  },
+  {
+    receiver: {
+      name: 'Five Six',
+      handle: 'five6',
+      user_id: 6,
+      _profile_picture_sizes: {
+        '150x150':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/150x150.jpg',
+        '480x480':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/480x480.jpg',
+        '1000x1000':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/1000x1000.jpg'
+      },
+      _cover_photo_sizes: {
+        '640x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/640x.jpg',
+        '2000x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
+      }
+      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
+      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
+    },
+    amount: 5,
+    rank: 3,
+    updated_at: 'today'
+  },
+  {
+    receiver: {
+      name: 'Seven Eight',
+      handle: 'seveneight',
+      user_id: 2,
+      _profile_picture_sizes: {
+        '150x150':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/150x150.jpg',
+        '480x480':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/480x480.jpg',
+        '1000x1000':
+          'https://creatornode5.staging.audius.co/ipfs/QmTCgXVmezUW3pTRgiWvYLBe2TA6FwFZn8Y56Unq1mmLDC/1000x1000.jpg'
+      },
+      _cover_photo_sizes: {
+        '640x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/640x.jpg',
+        '2000x':
+          'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
+      }
+      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
+      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
+    },
+    amount: 1,
+    rank: 4,
+    updated_at: 'last week'
+  }
+]
+const supportersForUser = supportingForUser.map(s => {
+  const ss = {
+    ...s,
+    sender: { ...s.receiver },
+    receiver: undefined
+  }
+  // @ts-ignore
+  // delete ss.receiver
+  return ss
+})
 
 const LIMIT = 25
 
 // @ts-ignore
-const libs = () => window.audiusLibs
+// const libs = () => window.audiusLibs
 
-export type GetSupportingResponse = Supporting[]
-export type GetSupportersResponse = Supporter[]
-
-export const fetchSupporting = async (userId: ID, limit = LIMIT) => {
+type SupportRequest = {
+  userId: ID
+  limit?: number
+  offset?: number
+}
+export const fetchSupporting = async ({
+  userId,
+  limit = LIMIT,
+  offset = 0
+}: SupportRequest): Promise<Supporting[]> => {
   try {
-    await waitForLibsInit()
-    const response: GetSupportingResponse = await libs().discoveryProvider.getSupporting(
-      userId,
-      limit
-    )
-    return response
+    return supportingForUser as Supporting[]
+    // await waitForLibsInit()
+    // const response: Supporting[] = await libs().discoveryProvider.getSupporting({
+    //   userId,
+    //   limit,
+    //   offset
+    // })
+    // return response
   } catch (e) {
     console.error(
       `Could not fetch supporting for user id ${userId}: ${
@@ -28,14 +154,20 @@ export const fetchSupporting = async (userId: ID, limit = LIMIT) => {
   }
 }
 
-export const fetchSupporters = async (userId: ID, limit = LIMIT) => {
+export const fetchSupporters = async ({
+  userId,
+  limit = LIMIT,
+  offset = 0
+}: SupportRequest): Promise<Supporter[]> => {
   try {
-    await waitForLibsInit()
-    const response: GetSupportersResponse = await libs().discoveryProvider.getSupporters(
-      userId,
-      limit
-    )
-    return response
+    return supportersForUser as any[]
+    // await waitForLibsInit()
+    // const response: Supporter[] = await libs().discoveryProvider.getSupporters({
+    //   userId,
+    //   limit,
+    //   offset
+    // })
+    // return response
   } catch (e) {
     console.error(
       `Could not fetch supporters for user id ${userId}: ${

@@ -338,10 +338,12 @@
   margin-bottom: 24px;
 }
 
+.button {
+  width: 100%;
+}
 .button:hover {
   background: var(--primary-light-1) !important;
 }
-
 .button:active {
   background: var(--primary-dark-1) !important;
   transform: perspective(1px) scale3d(0.99, 0.99, 0.99);

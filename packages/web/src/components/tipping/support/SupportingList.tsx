@@ -1,11 +1,20 @@
 import React, { useCallback } from 'react'
 
 import { IconArrow } from '@audius/stems'
+import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSupporting } from 'common/store/tipping/selectors'
+import {
+  setUsers,
+  setVisibility
+} from 'store/application/ui/userListModal/slice'
+import {
+  UserListEntityType,
+  UserListType
+} from 'store/application/ui/userListModal/types'
 
 import styles from './Support.module.css'
 import { SupportingTile } from './SupportingTile'
@@ -19,13 +28,23 @@ const messages = {
 }
 
 export const SupportingList = () => {
+  const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
   const supportingMap = useSelector(getSupporting)
   const supportingList = profile ? supportingMap[profile.user_id] ?? [] : []
 
   const handleClick = useCallback(() => {
-    // todo: open user list modal for supporting paginated
-  }, [])
+    if (profile) {
+      dispatch(
+        setUsers({
+          userListType: UserListType.SUPPORTING,
+          entityType: UserListEntityType.USER,
+          id: profile.user_id
+        })
+      )
+      dispatch(setVisibility(true))
+    }
+  }, [profile, dispatch])
 
   return supportingList.length ? (
     <div className={styles.container}>

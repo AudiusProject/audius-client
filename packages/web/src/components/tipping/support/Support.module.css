@@ -1,5 +1,5 @@
 .container {
-  margin: 32px 10px 32px 0;
+  margin: 32px 0;
 }
 
 .titleContainer {
@@ -22,7 +22,7 @@
   height: 1px;
 }
 .topSupportersLine {
-  width: 62px;
+  width: 68px;
 }
 
 .tile {
