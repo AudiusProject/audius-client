@@ -39,8 +39,13 @@ const UserList = (props: UserListProps) => {
         threshold={SCROLL_THRESHOLD}
         getScrollParent={props.getScrollParent}
       >
-        {props.users.map(user => (
-          <div key={user.user_id} className={styles.user}>
+        {props.users.map((user, index) => (
+          <div
+            key={user.user_id}
+            className={cn(styles.user, {
+              [styles.notLastUser]: index !== props.users.length - 1
+            })}
+          >
             <ArtistChip
               name={user.name}
               userId={user.user_id}
@@ -56,11 +61,10 @@ const UserList = (props: UserListProps) => {
             {user.user_id !== props.userId ? (
               <FollowButton
                 size='small'
-                showIcon={false}
-                className={styles.followButton}
                 following={user.does_current_user_follow}
                 onFollow={() => props.onFollow(user.user_id)}
                 onUnfollow={() => props.onUnfollow(user.user_id)}
+                showIcon
               />
             ) : null}
           </div>

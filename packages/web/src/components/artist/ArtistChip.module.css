@@ -4,18 +4,21 @@
   align-items: center;
   overflow: hidden;
 }
+.artistChip > div {
+  display: flex;
+}
 
 .profilePictureWrapper {
-  height: 42px;
-  width: 42px;
-  flex: 0 0 42px;
+  height: 72px;
+  width: 72px;
+  flex: 0 0 72px;
 }
 
 .profilePicture {
   box-sizing: border-box;
-  height: 42px;
-  width: 42px;
-  flex: 0 0 42px;
+  height: 72px;
+  width: 72px;
+  flex: 0 0 72px;
   border: 1px solid var(--neutral-light-8);
   border-radius: 50%;
 
@@ -23,6 +26,9 @@
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--default-profile-picture-background);
+}
+.profilePicture:hover {
+  cursor: pointer;
 }
 
 .text {
@@ -35,32 +41,51 @@
   font-size: var(--font-xs);
   overflow: hidden;
 }
-
-.text > .name {
-  font-weight: var(--font-bold);
-  margin-bottom: 4px;
+.text > .identity {
+  margin-bottom: 8px;
   display: flex;
   cursor: pointer;
   line-height: normal;
 }
-
-.text > .name :global(.artistPopover) {
+.text > .identity :global(.artistPopover) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.text > .name :global(.artistPopover) span {
+.text > .identity :global(.artistPopover) span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.text > .name > .verified {
+.text > .identity > .verified {
   margin-left: 5px;
   flex: 0 0 15px;
 }
-
 .text > .followers {
+  display: flex;
+  align-items: center;
   font-weight: var(--font-medium);
+  color: var(--neutral-light-4) !important;
+}
+.text > .followers > .userIcon {
+  margin-right: 4px;
+  width: 16px;
+  height: 16px;
+}
+.text > .followers > .numFollowers {
+  margin-right: 4px;
+  font-weight: var(--font-bold);
+}
+.text > .identity .name {
+  font-weight: var(--font-demi-bold);
+  font-size: var(--font-m);
+  margin-bottom: 4px;
+}
+.text > .identity .handle {
+  font-weight: var(--font-medium);
+  font-size: var(--font-s);
+}
+.text > .identity .noPopover {
+  display: flex;
+  flex-direction: column;
 }

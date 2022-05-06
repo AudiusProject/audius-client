@@ -3,6 +3,7 @@ import React from 'react'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
+import { ReactComponent as IconUser } from 'assets/img/iconUser.svg'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { formatCount } from 'common/utils/formatUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
@@ -25,32 +26,44 @@ const ArtistChip = props => {
         [props.className]: !!props.className
       })}
     >
-      <DynamicImage
-        wrapperClassName={styles.profilePictureWrapper}
-        className={styles.profilePicture}
-        image={profilePicture}
-      />
-      <div className={styles.text}>
-        <div
-          className={cn(styles.name, 'name')}
-          onClick={props.onClickArtistName}
-        >
-          {props.showPopover ? (
-            <ArtistPopover handle={props.handle}>{props.name}</ArtistPopover>
-          ) : (
-            props.name
-          )}
-          <UserBadges
-            userId={props.userId}
-            className={styles.verified}
-            badgeSize={10}
-          />
+      <ArtistPopover handle={props.handle}>
+        <DynamicImage
+          wrapperClassName={styles.profilePictureWrapper}
+          className={styles.profilePicture}
+          image={profilePicture}
+        />
+        <div className={styles.text}>
+          <div
+            className={cn(styles.identity, 'name')}
+            onClick={props.onClickArtistName}
+          >
+            {props.showPopover ? (
+              <div className={styles.noPopover}>
+                <div className={styles.name}>{props.name}</div>
+                <div className={styles.handle}>@{props.handle}</div>
+              </div>
+            ) : (
+              <div className={styles.noPopover}>
+                <div className={styles.name}>{props.name}</div>
+                <div className={styles.handle}>@{props.handle}</div>
+              </div>
+            )}
+            <UserBadges
+              userId={props.userId}
+              className={styles.verified}
+              badgeSize={10}
+              inline
+            />
+          </div>
+          <div className={cn(styles.followers, 'followers')}>
+            <IconUser className={styles.userIcon} />
+            <span className={styles.numFollowers}>
+              {formatCount(props.followers)}
+            </span>
+            {props.followers === 1 ? ' Follower' : ' Followers'}
+          </div>
         </div>
-        <div className={cn(styles.followers, 'followers')}>
-          {formatCount(props.followers)}{' '}
-          {props.followers === 1 ? 'Follower' : 'Followers'}
-        </div>
-      </div>
+      </ArtistPopover>
     </div>
   )
 }
