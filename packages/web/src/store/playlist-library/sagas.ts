@@ -27,6 +27,7 @@ import * as cacheActions from 'common/store/cache/actions'
 import {
   containsTempPlaylist,
   extractTempPlaylistsFromLibrary,
+  getPlaylistsNotInLibrary,
   removePlaylistLibraryDuplicates,
   replaceTempWithResolvedPlaylists
 } from 'common/store/playlist-library/helpers'
@@ -71,8 +72,10 @@ function* watchUpdatePlaylistLibrary() {
   yield takeEvery(update.type, function* updatePlaylistLibrary(
     action: ReturnType<typeof update>
   ) {
+    console.log('update playlist lib')
     const { playlistLibrary } = action.payload
     yield call(waitForBackendSetup)
+    console.log('new playlist library', playlistLibrary)
 
     const account: User = yield select(getAccountUser)
     account.playlist_library = removePlaylistLibraryDuplicates(playlistLibrary)
@@ -110,6 +113,7 @@ function* watchUpdatePlaylistLibraryWithTempPlaylist() {
   yield takeLatest(TEMP_PLAYLIST_UPDATE_HELPER, function* makeUpdate(
     action: ReturnType<typeof update>
   ) {
+    console.log('watch update playlist lib')
     const { playlistLibrary: rawPlaylistLibrary } = action.payload
     const playlistLibrary = removePlaylistLibraryDuplicates(rawPlaylistLibrary)
     const account: User = yield select(getAccountUser)
@@ -149,17 +153,7 @@ export function* addPlaylistsNotInLibrary() {
   const playlists: { [id: number]: AccountCollection } = yield select(
     getAccountNavigationPlaylists
   )
-  const notInLibrary = { ...playlists }
-  library.contents.forEach(
-    (identifier: PlaylistLibraryIdentifier | PlaylistLibraryFolder) => {
-      if (identifier.type === 'playlist') {
-        const playlist = playlists[identifier.playlist_id]
-        if (playlist) {
-          delete notInLibrary[identifier.playlist_id]
-        }
-      }
-    }
-  )
+  const notInLibrary = getPlaylistsNotInLibrary(library, playlists)
   if (Object.keys(notInLibrary).length > 0) {
     const newEntries = Object.values(notInLibrary).map(
       playlist =>
