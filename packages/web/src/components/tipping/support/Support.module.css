@@ -39,6 +39,10 @@
 }
 .seeMore:hover {
   cursor: pointer;
+  transform: scale3d(1.01, 1.01, 1.01);
+}
+.seeMore:active {
+  transform: scale3d(0.99, 0.99, 0.99);
 }
 
 .tipIcon {
@@ -163,11 +167,11 @@
   color: var(--neutral-light-4);
 }
 
-.viewAll:hover {
+.topSupportersContainer:hover .viewAll {
   cursor: pointer;
   color: var(--secondary);
 }
 
-.viewAll:hover path {
+.topSupportersContainer:hover .viewAll path {
   fill: var(--secondary);
 }

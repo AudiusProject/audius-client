@@ -57,24 +57,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.text > .identity > .verified {
+.text > .identity .badge {
   margin-left: 5px;
   flex: 0 0 15px;
-}
-.text > .followers {
-  display: flex;
-  align-items: center;
-  font-weight: var(--font-medium);
-  color: var(--neutral-light-4) !important;
-}
-.text > .followers > .userIcon {
-  margin-right: 4px;
-  width: 16px;
-  height: 16px;
-}
-.text > .followers > .numFollowers {
-  margin-right: 4px;
-  font-weight: var(--font-bold);
 }
 .text > .identity .name {
   font-weight: var(--font-demi-bold);
@@ -85,7 +70,29 @@
   font-weight: var(--font-medium);
   font-size: var(--font-s);
 }
-.text > .identity .noPopover {
+
+.followersContainer {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+}
+.followersContainer .followers {
+  display: flex;
+  align-items: center;
+  font-weight: var(--font-medium);
+  color: var(--neutral-light-4) !important;
+}
+.followersContainer .userIcon {
+  margin-right: 4px;
+  width: 16px;
+  height: 16px;
+}
+.followersContainer .numFollowers {
+  margin-right: 4px;
+  font-weight: var(--font-bold);
+}
+.followersContainer .followsYou {
+  margin-left: 16px;
+  box-shadow: none;
+  border: 1px solid var(--neutral-light-4);
+  color: var(--neutral-light-4);
 }

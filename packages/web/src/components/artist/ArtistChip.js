@@ -8,6 +8,7 @@ import { SquareSizes } from 'common/models/ImageSizes'
 import { formatCount } from 'common/utils/formatUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
@@ -26,35 +27,55 @@ const ArtistChip = props => {
         [props.className]: !!props.className
       })}
     >
-      <ArtistPopover handle={props.handle}>
+      {props.showPopover ? (
+        <ArtistPopover handle={props.handle}>
+          <DynamicImage
+            wrapperClassName={styles.profilePictureWrapper}
+            className={styles.profilePicture}
+            image={profilePicture}
+          />
+        </ArtistPopover>
+      ) : (
         <DynamicImage
           wrapperClassName={styles.profilePictureWrapper}
           className={styles.profilePicture}
           image={profilePicture}
         />
-        <div className={styles.text}>
-          <div
-            className={cn(styles.identity, 'name')}
-            onClick={props.onClickArtistName}
-          >
-            {props.showPopover ? (
-              <div className={styles.noPopover}>
-                <div className={styles.name}>{props.name}</div>
-                <div className={styles.handle}>@{props.handle}</div>
+      )}
+      <div className={styles.text}>
+        <div
+          className={cn(styles.identity, 'name')}
+          onClick={props.onClickArtistName}
+        >
+          {props.showPopover ? (
+            <ArtistPopover handle={props.handle}>
+              <div className={styles.name}>
+                <span>{props.name}</span>
+                <UserBadges
+                  userId={props.userId}
+                  className={cn(styles.badge)}
+                  badgeSize={10}
+                  inline
+                />
               </div>
-            ) : (
-              <div className={styles.noPopover}>
-                <div className={styles.name}>{props.name}</div>
-                <div className={styles.handle}>@{props.handle}</div>
+              <div className={styles.handle}>@{props.handle}</div>
+            </ArtistPopover>
+          ) : (
+            <div>
+              <div className={styles.name}>
+                <span>{props.name}</span>
+                <UserBadges
+                  userId={props.userId}
+                  className={styles.badge}
+                  badgeSize={10}
+                  inline
+                />
               </div>
-            )}
-            <UserBadges
-              userId={props.userId}
-              className={styles.verified}
-              badgeSize={10}
-              inline
-            />
-          </div>
+              <div className={styles.handle}>@{props.handle}</div>
+            </div>
+          )}
+        </div>
+        <div className={styles.followersContainer}>
           <div className={cn(styles.followers, 'followers')}>
             <IconUser className={styles.userIcon} />
             <span className={styles.numFollowers}>
@@ -62,8 +83,11 @@ const ArtistChip = props => {
             </span>
             {props.followers === 1 ? ' Follower' : ' Followers'}
           </div>
+          {props.doesFollowCurrentUser ? (
+            <FollowsYouBadge className={styles.followsYou} />
+          ) : null}
         </div>
-      </ArtistPopover>
+      </div>
     </div>
   )
 }
@@ -76,7 +100,8 @@ ArtistChip.propTypes = {
   handle: PropTypes.string,
   followers: PropTypes.number,
   onClickArtistName: PropTypes.func,
-  showPopover: PropTypes.bool
+  showPopover: PropTypes.bool,
+  doesFollowCurrentUser: PropTypes.bool
 }
 
 ArtistChip.defaultProps = {

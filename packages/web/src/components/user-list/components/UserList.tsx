@@ -57,6 +57,7 @@ const UserList = (props: UserListProps) => {
                 props.onClickArtistName(user.handle)
               }}
               showPopover={!props.isMobile}
+              doesFollowCurrentUser={user.does_follow_current_user}
             />
             {user.user_id !== props.userId ? (
               <FollowButton
