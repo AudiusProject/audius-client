@@ -38,7 +38,7 @@ export const TipSentNotification = (props: TipSentNotificationProps) => {
         <ProfilePicture className={styles.profilePicture} user={user} />
         <span>
           {messages.sent} <AudioText value={value} /> {messages.to}{' '}
-          <UserNameLink user={user} notification={notification} addMargin />
+          <UserNameLink user={user} notification={notification} />
         </span>
       </NotificationBody>
       <TwitterShareButton />
