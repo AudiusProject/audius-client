@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Collectible } from 'common/models/Collectible'
+import { ID } from 'common/models/Identifiers'
 
 export type CollectibleDetailsState = {
   collectible: Collectible | null
+  ownerId: ID | null | undefined
 }
 
 const initialState: CollectibleDetailsState = {
-  collectible: null
+  collectible: null,
+  ownerId: null
 }
 
 const slice = createSlice({
@@ -16,9 +19,11 @@ const slice = createSlice({
   reducers: {
     setCollectible: (
       state,
-      action: PayloadAction<{ collectible: Collectible | null }>
+      action: PayloadAction<{ collectible: Collectible | null; ownerId?: ID }>
     ) => {
-      state.collectible = action.payload.collectible
+      const { payload } = action
+      state.collectible = payload.collectible
+      state.ownerId = payload.ownerId
     }
   }
 })
