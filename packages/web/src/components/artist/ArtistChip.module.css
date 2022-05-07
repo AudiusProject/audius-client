@@ -70,29 +70,69 @@
   font-weight: var(--font-medium);
   font-size: var(--font-s);
 }
+.text .icon {
+  margin-right: 4px;
+  width: 16px;
+  height: 16px;
+}
+.text .icon path {
+  fill: var(--neutral-light-4);
+}
 
-.followersContainer {
+.followersContainer,
+.tipContainer {
   display: flex;
   align-items: center;
 }
-.followersContainer .followers {
+.followersContainer .followers,
+.tipContainer .amount {
   display: flex;
   align-items: center;
   font-weight: var(--font-medium);
   color: var(--neutral-light-4) !important;
 }
-.followersContainer .userIcon {
-  margin-right: 4px;
-  width: 16px;
-  height: 16px;
+.followersContainer .followers {
+  width: 120px !important;
+  margin-right: 24px;
 }
-.followersContainer .numFollowers {
+.followersContainer .value,
+.tipContainer .value {
   margin-right: 4px;
   font-weight: var(--font-bold);
 }
 .followersContainer .followsYou {
-  margin-left: 16px;
   box-shadow: none;
   border: 1px solid var(--neutral-light-4);
   color: var(--neutral-light-4);
+}
+
+.tipContainer .rank {
+  margin-right: 24px;
+}
+.tipContainer .topSupporter,
+.tipContainer .supporter {
+  display: flex;
+  align-items: center;
+  width: 120px;
+  font-size: var(--font-s);
+  font-weight: var(--font-medium);
+}
+.tipContainer .topSupporter {
+  color: var(--secondary);
+}
+.tipContainer .rankNumber {
+  font-weight: var(--font-bold);
+  margin-right: 4px;
+}
+.tipContainer .topSupporter .icon path {
+  fill: var(--secondary);
+}
+.tipContainer .supporter {
+  color: var(--neutral-light-4);
+}
+.tipContainer .amount {
+  font-size: var(--font-s);
+}
+.tipContainer {
+  margin-top: 8px;
 }

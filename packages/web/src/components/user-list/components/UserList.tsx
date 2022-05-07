@@ -20,6 +20,7 @@ type UserListProps = {
   userId: ID | null
   users: User[]
   isMobile: boolean
+  tag: string
   loadMore: () => void
   onClickArtistName: (handle: string) => void
   onFollow: (userId: ID) => void
@@ -58,6 +59,7 @@ const UserList = (props: UserListProps) => {
               }}
               showPopover={!props.isMobile}
               doesFollowCurrentUser={user.does_follow_current_user}
+              tag={props.tag}
             />
             {user.user_id !== props.userId ? (
               <FollowButton
