@@ -24,26 +24,26 @@ const slice = createSlice({
   reducers: {
     setSupporters: (
       state,
-      action: PayloadAction<{ supporters: Record<ID, Supporter[]> }>
+      action: PayloadAction<{ supporters: Record<ID, Record<ID, Supporter>> }>
     ) => {
       state.supporters = action.payload.supporters
     },
     setSupportersForUser: (
       state,
-      action: PayloadAction<{ userId: ID; supportersForUser: Supporter[] }>
+      action: PayloadAction<{ userId: ID; supportersForUser: Record<ID, Supporter> }>
     ) => {
       const { userId, supportersForUser } = action.payload
       state.supporters[userId] = supportersForUser
     },
     setSupporting: (
       state,
-      action: PayloadAction<{ supporting: Record<ID, Supporting[]> }>
+      action: PayloadAction<{ supporting: Record<ID, Record<ID, Supporting>> }>
     ) => {
       state.supporting = action.payload.supporting
     },
     setSupportingForUser: (
       state,
-      action: PayloadAction<{ userId: ID; supportingForUser: Supporting[] }>
+      action: PayloadAction<{ userId: ID; supportingForUser: Record<ID, Supporting> }>
     ) => {
       const { userId, supportingForUser } = action.payload
       state.supporting[userId] = supportingForUser

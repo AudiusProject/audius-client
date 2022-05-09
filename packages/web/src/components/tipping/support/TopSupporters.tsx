@@ -30,7 +30,14 @@ export const TopSupporters = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
   const supportersMap = useSelector(getSupporters)
-  const supportersList = profile ? supportersMap[profile.user_id] ?? [] : []
+  const supportersForProfile = profile ? supportersMap[profile.user_id] ?? {} : {}
+  const rankedSupportersList = Object.keys(supportersForProfile)
+    .sort((k1, k2) => {
+      const id1 = parseInt(k1)
+      const id2 = parseInt(k2)
+      return supportersForProfile[id1].rank - supportersForProfile[id2].rank
+    })
+    .map(k => supportersForProfile[parseInt(k)])
 
   const handleClick = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {
@@ -55,7 +62,7 @@ export const TopSupporters = () => {
     [profile, dispatch]
   )
 
-  return supportersList.length ? (
+  return rankedSupportersList.length ? (
     <div className={styles.container} onClick={handleClick}>
       <div className={styles.titleContainer}>
         <IconTrophy className={styles.trophyIcon} />
@@ -64,7 +71,7 @@ export const TopSupporters = () => {
       </div>
       <div className={styles.topSupportersContainer}>
         <UserProfilePictureList
-          users={supportersList.map(s => s.sender)}
+          users={rankedSupportersList.map(s => s.sender)}
           limit={MAX_TOP_SUPPORTERS}
         />
         <div className={styles.viewAll}>

@@ -11,8 +11,24 @@ export type TippingSendStatus =
   | 'SUCCESS'
   | 'ERROR'
 export type TippingState = {
-  supporters: Record<ID, Supporter[]>
-  supporting: Record<ID, Supporting[]>
+  /**
+   * Example:
+   * {
+   *   1: {
+   *     2: <supporter object for user 2>
+   *     3: <supporter object for user 3>
+   *   },
+   *   4: {
+   *     2: <supporter object for user 2>
+   *     3: <supporter object for user 3>
+   *   }
+   * }
+   * 
+   * The above means that users 2 and 3 are supporters of users 1 and 4.
+   * The same structure applies to supporting.
+   */
+  supporters: Record<ID, Record<ID, Supporter>>
+  supporting: Record<ID, Record<ID, Supporting>>
   send: {
     status: Nullable<TippingSendStatus>
     user: Nullable<User>

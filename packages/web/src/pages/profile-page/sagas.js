@@ -158,8 +158,16 @@ function* fetchSupportersAndSupporting(userId) {
   //   return
   // }
 
-  const supportingForUser = yield fetchSupporting({ userId })
-  const supportersForUser = yield fetchSupporters({ userId })
+  const supportingForUserList = yield fetchSupporting({ userId })
+  const supportingForUser = {}
+  supportingForUserList.forEach(supporting => {
+    supportingForUser[supporting.receiver.user_id] = { ...supporting }
+  })
+  const supportersForUserList = yield fetchSupporters({ userId })
+  const supportersForUser = {}
+  supportersForUserList.forEach(supporter => {
+    supportersForUser[supporter.sender.user_id] = { ...supporter }
+  })
   yield put(setSupportingForUser({ userId, supportingForUser }))
   yield put(setSupportersForUser({ userId, supportersForUser }))
 }

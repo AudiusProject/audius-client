@@ -82,12 +82,10 @@ export const SendTip = () => {
   useEffect(() => {
     if (!account || !profile) return
 
-    const newSupporting =
-      supportingMap[account.user_id]?.find(
-        sup => sup.receiver.user_id === profile.user_id
-      ) ?? null
-    if (newSupporting) {
-      setSupporting(newSupporting)
+    const supportingForAccount = supportingMap[account.user_id] ?? {}
+    const accountSupportingProfile = supportingForAccount[profile.user_id] ?? null
+    if (accountSupportingProfile) {
+      setSupporting(accountSupportingProfile)
     }
   }, [account, profile, supportingMap])
 
@@ -98,9 +96,16 @@ export const SendTip = () => {
   useEffect(() => {
     if (!profile) return
 
-    // todo: make sure these are already pre-sorted by highest support amount
-    const newTopSupporter = supportersMap[profile.user_id]?.length
-      ? supportersMap[profile.user_id][0]
+    const supportersForProfile = supportersMap[profile.user_id] ?? {}
+    const rankedSupportersList = Object.keys(supportersForProfile)
+      .sort((k1, k2) => {
+        const id1 = parseInt(k1)
+        const id2 = parseInt(k2)
+        return supportersForProfile[id1].rank - supportersForProfile[id2].rank
+      })
+      .map(k => supportersForProfile[parseInt(k)])
+    const newTopSupporter = rankedSupportersList.length
+      ? rankedSupportersList[0]
       : null
     if (newTopSupporter) {
       setTopSupporter(newTopSupporter)
