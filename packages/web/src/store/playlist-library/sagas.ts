@@ -72,10 +72,8 @@ function* watchUpdatePlaylistLibrary() {
   yield takeEvery(update.type, function* updatePlaylistLibrary(
     action: ReturnType<typeof update>
   ) {
-    console.log('update playlist lib')
     const { playlistLibrary } = action.payload
     yield call(waitForBackendSetup)
-    console.log('new playlist library', playlistLibrary)
 
     const account: User = yield select(getAccountUser)
     account.playlist_library = removePlaylistLibraryDuplicates(playlistLibrary)
@@ -113,7 +111,6 @@ function* watchUpdatePlaylistLibraryWithTempPlaylist() {
   yield takeLatest(TEMP_PLAYLIST_UPDATE_HELPER, function* makeUpdate(
     action: ReturnType<typeof update>
   ) {
-    console.log('watch update playlist lib')
     const { playlistLibrary: rawPlaylistLibrary } = action.payload
     const playlistLibrary = removePlaylistLibraryDuplicates(rawPlaylistLibrary)
     const account: User = yield select(getAccountUser)
