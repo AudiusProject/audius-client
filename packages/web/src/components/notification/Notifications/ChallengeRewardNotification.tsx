@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { ChallengeReward } from 'common/store/notifications/types'
 import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
+import { openTwitterLink } from 'utils/tweet'
 
 import { NotificationBody } from './NotificationBody'
 import { NotificationFooter } from './NotificationFooter'
@@ -30,13 +31,18 @@ export const ChallengeRewardNotification = (
     challengeId
   ]
 
+  const handleShare = useCallback(() => {
+    const text = `I earned $AUDIO for completing challenges on @AudiusProject #AudioRewards`
+    openTwitterLink(null, text)
+  }, [])
+
   return (
     <NotificationTile notification={notification}>
       <NotificationHeader icon={<IconRewards>{icon}</IconRewards>}>
         <NotificationTitle>{title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>{messages.body(rewardAmount)}</NotificationBody>
-      <TwitterShareButton />
+      <TwitterShareButton onClick={handleShare} />
       <NotificationFooter timeLabel={timeLabel} isRead={isRead} />
     </NotificationTile>
   )
