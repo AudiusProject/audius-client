@@ -5,14 +5,29 @@
 
 .modalHeader {
   margin: 0px 16px;
+  border-bottom-color: var(--neutral-light-7);
 }
 
 .modalTitle {
-  color: var(--neutral-light-4);
-  font-size: var(--font-l);
-  font-weight: var(--font-heavy);
-  text-transform: uppercase;
+  color: var(--neutral);
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
   letter-spacing: 0.5px;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+}
+
+.icon path {
+  fill: var(--neutral);
 }
 
 .scrollable {
