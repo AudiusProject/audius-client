@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 
-import { IconTrending, IconFollowing, IconArrow } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 import { animated } from 'react-spring'
@@ -13,15 +12,12 @@ import { Name } from 'common/models/Analytics'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { squashNewLines } from 'common/utils/formatUtil'
-import UserListModal from 'components/artist/UserListModal'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
-import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
 import ProfilePicture from 'components/profile-picture/ProfilePicture'
 import { SupportingList } from 'components/tipping/support/SupportingList'
 import { TopSupporters } from 'components/tipping/support/TopSupporters'
 import { TipAudioButton } from 'components/tipping/tip-audio/TipAudioButton'
-import Tag from 'components/track/Tag'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
 import UploadChip from 'components/upload/UploadChip'
 import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
@@ -29,10 +25,12 @@ import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import EditableName from 'pages/profile-page/components/EditableName'
 import SocialLink, { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
+import { ProfileTags } from 'pages/profile-page/components/desktop/ProfileTags'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { make, useRecord } from 'store/analytics/actions'
-import { profilePage, searchResultsPage, UPLOAD_PAGE } from 'utils/route'
+import { UPLOAD_PAGE } from 'utils/route'
 
+import { ProfileMutuals } from './ProfileMutuals'
 import styles from './ProfilePage.module.css'
 
 const { getFeatureEnabled } = remoteConfigInstance
@@ -47,69 +45,10 @@ const messages = {
 
 const DESCRIPTION_LINE_HEIGHT = 16
 const NUM_DESCRIPTION_LINES_TRUNCATED = 4
-const MAX_MUTUALS = 5
-
-const Tags = props => {
-  const { tags, goToRoute } = props
-  const record = useRecord()
-  const onClickTag = useCallback(
-    tag => {
-      goToRoute(searchResultsPage(`#${tag}`))
-      record(make(Name.TAG_CLICKING, { tag, source: 'profile page' }))
-    },
-    [goToRoute, record]
-  )
-
-  return tags && tags.length > 0 ? (
-    <div className={styles.tags}>
-      <div className={styles.tagsTitleContainer}>
-        <IconTrending className={styles.topTagsIcon} />
-        <span className={styles.tagsTitleText}>{messages.topTags}</span>
-        <span className={styles.tagsLine} />
-      </div>
-      <div className={styles.tagsContent}>
-        {tags.map(tag => (
-          <Tag
-            onClick={() => onClickTag(tag)}
-            key={tag}
-            className={styles.tag}
-            textLabel={tag}
-          />
-        ))}
-      </div>
-    </div>
-  ) : null
-}
-
-const Mutuals = ({ followers, setShowMutualConnectionsModal }) => {
-  const handleMutualsClick = useCallback(() => {
-    setShowMutualConnectionsModal(true)
-  }, [setShowMutualConnectionsModal])
-
-  return (
-    <div>
-      <div className={styles.mutualsTitleContainer}>
-        <IconFollowing className={styles.followingIcon} />
-        <span className={styles.titleText}>{messages.mutuals}</span>
-        <span className={cn(styles.line, styles.mutualsLine)} />
-      </div>
-      <div className={styles.mutualsContainer} onClick={handleMutualsClick}>
-        <UserProfilePictureList users={followers} limit={MAX_MUTUALS} />
-        <div className={styles.viewAll}>
-          <span>{messages.viewAll}</span>
-          <IconArrow className={styles.arrowIcon} />
-        </div>
-      </div>
-    </div>
-  )
-}
 
 const ProfileWrapping = props => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   const accountUser = useSelector(getAccountUser)
-  const [showMutualConnectionsModal, setShowMutualConnectionsModal] = useState(
-    false
-  )
   const record = useRecord()
   const {
     handle,
@@ -413,30 +352,19 @@ const ProfileWrapping = props => {
         <SupportingList />
         <TopSupporters />
         {props.isArtist ? (
-          <Tags goToRoute={props.goToRoute} tags={props.tags} />
+          <ProfileTags goToRoute={props.goToRoute} tags={props.tags} />
         ) : null}
+        {props.followeeFollows.length > 0 && !props.isOwner && (
+          <ProfileMutuals
+            users={props.followeeFollows}
+            usersLoading={props.followeeFollowsLoading}
+            usersCount={props.followeeFollowsCount}
+            loadMoreUsers={props.loadMoreFolloweeFollows}
+            goToRoute={props.goToRoute}
+          />
+        )}
         {props.isOwner && !props.isArtist && (
           <UploadChip type='track' variant='nav' onClick={onClickUploadChip} />
-        )}
-        {props.followeeFollows.length > 0 && !props.isOwner && (
-          <>
-            <Mutuals
-              followers={props.followeeFollows}
-              setShowMutualConnectionsModal={setShowMutualConnectionsModal}
-            />
-            <UserListModal
-              title={messages.mutuals}
-              visible={showMutualConnectionsModal}
-              onClose={() => setShowMutualConnectionsModal(false)}
-              users={props.followeeFollows}
-              loading={props.followeeFollowsLoading}
-              hasMore={
-                props.followeeFollows.length < props.followeeFollowsCount
-              }
-              loadMore={props.loadMoreFolloweeFollows}
-              onClickArtistName={handle => props.goToRoute(profilePage(handle))}
-            />
-          </>
         )}
       </div>
     )
