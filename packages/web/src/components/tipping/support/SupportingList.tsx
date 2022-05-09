@@ -55,7 +55,7 @@ export const SupportingList = () => {
     }
   }, [profile, dispatch])
 
-  return rankedSupportingList.length ? (
+  return profile && rankedSupportingList.length ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTip className={styles.tipIcon} />
@@ -69,11 +69,13 @@ export const SupportingList = () => {
             <SupportingTile supporting={supporting} />
           </div>
         ))}
-      {rankedSupportingList.length > MAX_SUPPORTING_TILES && (
+      {/* todo: remove 0 coalescing */}
+      {(profile.supporting_count ?? 0) > MAX_SUPPORTING_TILES && (
         <div className={styles.seeMore} onClick={handleClick}>
           <span>
             {messages.seeMorePrefix}+
-            {`${rankedSupportingList.length - MAX_SUPPORTING_TILES}`}
+            {/* todo: remove non-null assertion */}
+            {`${profile.supporting_count! - MAX_SUPPORTING_TILES}`}
             {messages.seeMoreSuffix}
           </span>
           <IconArrow className={styles.arrowIcon} />

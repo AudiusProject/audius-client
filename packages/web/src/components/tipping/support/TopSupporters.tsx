@@ -64,7 +64,7 @@ export const TopSupporters = () => {
     [profile, dispatch]
   )
 
-  return rankedSupportersList.length ? (
+  return profile && rankedSupportersList.length ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTrophy className={styles.trophyIcon} />
@@ -75,7 +75,7 @@ export const TopSupporters = () => {
         <UserProfilePictureList
           users={rankedSupportersList.map(s => s.sender)}
           limit={MAX_TOP_SUPPORTERS}
-          totalOverride={profile?.supporter_count}
+          totalOverride={profile.supporter_count}
         />
         <div className={styles.viewAll}>
           <span>{messages.viewAll}</span>
