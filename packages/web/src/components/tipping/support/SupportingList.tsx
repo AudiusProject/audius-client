@@ -73,8 +73,7 @@ export const SupportingList = () => {
       {(profile.supporting_count ?? 0) > MAX_SUPPORTING_TILES && (
         <div className={styles.seeMore} onClick={handleClick}>
           <span>
-            {messages.seeMorePrefix}+
-            {/* todo: remove non-null assertion */}
+            {messages.seeMorePrefix}+{/* todo: remove non-null assertion */}
             {`${profile.supporting_count! - MAX_SUPPORTING_TILES}`}
             {messages.seeMoreSuffix}
           </span>

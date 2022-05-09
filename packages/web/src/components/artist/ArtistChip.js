@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { IconTrophy, IconTrending } from '@audius/stems'
 import cn from 'classnames'
@@ -6,7 +6,10 @@ import PropTypes from 'prop-types'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { ReactComponent as IconUser } from 'assets/img/iconUser.svg'
+import { useSelector } from 'common/hooks/useSelector'
 import { SquareSizes } from 'common/models/ImageSizes'
+import { getProfileUser } from 'common/store/pages/profile/selectors'
+import { getSupporting, getSupporters } from 'common/store/tipping/selectors'
 import { formatCount } from 'common/utils/formatUtil'
 import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -36,10 +39,26 @@ const ArtistChip = props => {
     props.profilePictureSizes,
     SquareSizes.SIZE_150_BY_150
   )
+  const profile = useSelector(getProfileUser)
+  const supportingMap = useSelector(getSupporting)
+  const supportersMap = useSelector(getSupporters)
+  const [tipAmount, setTipAmount] = useState(null)
+  const [rank, setRank] = useState(null)
 
-  // todo: use real values here
-  const [tipAmount] = useState(10)
-  const rank = 2
+  useEffect(() => {
+    if (profile) {
+      if (props.tag === SUPPORTING_USER_LIST_TAG) {
+        const profileSupporting = supportingMap[profile.user_id] ?? {}
+        const supporting = profileSupporting[props.userId] ?? {}
+        setTipAmount(supporting.amount ?? null)
+      } else if (props.tag === TOP_SUPPORTERS_USER_LIST_TAG) {
+        const profileSupporters = supportersMap[profile.user_id] ?? {}
+        const supporter = profileSupporters[props.userId] ?? {}
+        setRank(supporter.rank ?? null)
+        setTipAmount(supporter.amount ?? null)
+      }
+    }
+  }, [profile, supportingMap, supportersMap, props.tag, props.userId])
 
   return (
     <div
