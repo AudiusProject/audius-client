@@ -30,7 +30,9 @@ export const TopSupporters = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
   const supportersMap = useSelector(getSupporters)
-  const supportersForProfile = profile ? supportersMap[profile.user_id] ?? {} : {}
+  const supportersForProfile = profile
+    ? supportersMap[profile.user_id] ?? {}
+    : {}
   const rankedSupportersList = Object.keys(supportersForProfile)
     .sort((k1, k2) => {
       const id1 = parseInt(k1)
@@ -63,16 +65,17 @@ export const TopSupporters = () => {
   )
 
   return rankedSupportersList.length ? (
-    <div className={styles.container} onClick={handleClick}>
+    <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTrophy className={styles.trophyIcon} />
         <span className={styles.titleText}>{messages.topSupporters}</span>
         <span className={cn(styles.line, styles.topSupportersLine)} />
       </div>
-      <div className={styles.topSupportersContainer}>
+      <div className={styles.topSupportersContainer} onClick={handleClick}>
         <UserProfilePictureList
           users={rankedSupportersList.map(s => s.sender)}
           limit={MAX_TOP_SUPPORTERS}
+          totalOverride={profile?.supporter_count}
         />
         <div className={styles.viewAll}>
           <span>{messages.viewAll}</span>

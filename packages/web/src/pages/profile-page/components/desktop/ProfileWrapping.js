@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 
-import { IconTrending } from '@audius/stems'
+import { IconTrending, IconFollowing, IconArrow } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 import { animated } from 'react-spring'
@@ -12,12 +12,11 @@ import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
-import { formatCount, squashNewLines } from 'common/utils/formatUtil'
-import ArtistChip from 'components/artist/ArtistChip'
+import { squashNewLines } from 'common/utils/formatUtil'
 import UserListModal from 'components/artist/UserListModal'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
-import More from 'components/more/More'
+import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
 import ProfilePicture from 'components/profile-picture/ProfilePicture'
 import { SupportingList } from 'components/tipping/support/SupportingList'
 import { TopSupporters } from 'components/tipping/support/TopSupporters'
@@ -41,11 +40,14 @@ const { getFeatureEnabled } = remoteConfigInstance
 const messages = {
   seeMore: 'See More',
   seeLess: 'See Less',
+  mutuals: 'Mutuals',
+  viewAll: 'View All',
   topTags: 'Top Tags'
 }
 
 const DESCRIPTION_LINE_HEIGHT = 16
 const NUM_DESCRIPTION_LINES_TRUNCATED = 4
+const MAX_MUTUALS = 5
 
 const Tags = props => {
   const { tags, goToRoute } = props
@@ -79,29 +81,24 @@ const Tags = props => {
   ) : null
 }
 
-const Followers = props => {
+const Mutuals = ({ followers, setShowMutualConnectionsModal }) => {
+  const handleMutualsClick = useCallback(() => {
+    setShowMutualConnectionsModal(true)
+  }, [setShowMutualConnectionsModal])
+
   return (
-    <div className={styles.followers}>
-      <div className={styles.infoHeader}>
-        {formatCount(props.followerCount)}
-        {props.followerCount === 1
-          ? ' FOLLOWER YOU KNOW'
-          : ' FOLLOWERS YOU KNOW'}
+    <div>
+      <div className={styles.mutualsTitleContainer}>
+        <IconFollowing className={styles.followingIcon} />
+        <span className={styles.titleText}>{messages.mutuals}</span>
+        <span className={cn(styles.line, styles.mutualsLine)} />
       </div>
-      <div className={styles.followersContent}>
-        {props.followers
-          .slice(0, Math.min(3, props.followers.length))
-          .map(follower => (
-            <ArtistChip
-              key={follower.handle}
-              userId={follower.user_id}
-              profilePictureSizes={follower._profile_picture_sizes}
-              handle={follower.handle}
-              name={follower.name}
-              followers={follower.follower_count}
-              onClickArtistName={() => props.onClickArtistName(follower.handle)}
-            />
-          ))}
+      <div className={styles.mutualsContainer} onClick={handleMutualsClick}>
+        <UserProfilePictureList users={followers} limit={MAX_MUTUALS} />
+        <div className={styles.viewAll}>
+          <span>{messages.viewAll}</span>
+          <IconArrow className={styles.arrowIcon} />
+        </div>
       </div>
     </div>
   )
@@ -423,19 +420,12 @@ const ProfileWrapping = props => {
         )}
         {props.followeeFollows.length > 0 && !props.isOwner && (
           <>
-            <Followers
+            <Mutuals
               followers={props.followeeFollows}
-              followerCount={props.followeeFollowsCount}
-              onClickArtistName={handle => props.goToRoute(profilePage(handle))}
-            />
-            <More
-              text='View All'
-              onClick={() => setShowMutualConnectionsModal(true)}
+              setShowMutualConnectionsModal={setShowMutualConnectionsModal}
             />
             <UserListModal
-              title={`${formatCount(
-                props.followeeFollowsCount
-              )} MUTUAL CONNECTIONS`}
+              title={messages.mutuals}
               visible={showMutualConnectionsModal}
               onClose={() => setShowMutualConnectionsModal(false)}
               users={props.followeeFollows}

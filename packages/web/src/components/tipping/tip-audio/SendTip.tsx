@@ -83,7 +83,8 @@ export const SendTip = () => {
     if (!account || !profile) return
 
     const supportingForAccount = supportingMap[account.user_id] ?? {}
-    const accountSupportingProfile = supportingForAccount[profile.user_id] ?? null
+    const accountSupportingProfile =
+      supportingForAccount[profile.user_id] ?? null
     if (accountSupportingProfile) {
       setSupporting(accountSupportingProfile)
     }

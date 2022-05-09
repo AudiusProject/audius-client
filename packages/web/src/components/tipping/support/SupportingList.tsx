@@ -31,7 +31,9 @@ export const SupportingList = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
   const supportingMap = useSelector(getSupporting)
-  const supportingForProfile = profile ? supportingMap[profile.user_id] ?? {} : {}
+  const supportingForProfile = profile
+    ? supportingMap[profile.user_id] ?? {}
+    : {}
   const rankedSupportingList = Object.keys(supportingForProfile)
     .sort((k1, k2) => {
       const id1 = parseInt(k1)

@@ -34,7 +34,7 @@ const provider = createUserListProvider<User>({
       limit: limit,
       offset: offset
     })
-    return supporters.map(s => s.sender)
+    return supporters.sort((s1, s2) => s1.rank - s2.rank).map(s => s.sender)
   },
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>

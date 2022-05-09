@@ -23,7 +23,7 @@ export type TippingState = {
    *     3: <supporter object for user 3>
    *   }
    * }
-   * 
+   *
    * The above means that users 2 and 3 are supporters of users 1 and 4.
    * The same structure applies to supporting.
    */

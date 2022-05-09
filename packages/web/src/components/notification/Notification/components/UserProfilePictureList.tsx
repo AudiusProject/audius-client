@@ -17,14 +17,20 @@ const messages = {
 type UserProfileListProps = {
   users: Array<User>
   limit?: number
+  totalOverride?: number
 }
 
 export const UserProfilePictureList = ({
   users,
-  limit = USER_LENGTH_LIMIT
+  limit = USER_LENGTH_LIMIT,
+  totalOverride
 }: UserProfileListProps) => {
-  const showUserListModal = users.length > limit
-  const remainingUsersCount = users.length - limit
+  const showUserListModal = totalOverride
+    ? totalOverride > limit
+    : users.length > limit
+  const remainingUsersCount = totalOverride
+    ? totalOverride - limit
+    : users.length - limit
 
   return (
     <div className={styles.root}>

@@ -30,7 +30,10 @@ const slice = createSlice({
     },
     setSupportersForUser: (
       state,
-      action: PayloadAction<{ userId: ID; supportersForUser: Record<ID, Supporter> }>
+      action: PayloadAction<{
+        userId: ID
+        supportersForUser: Record<ID, Supporter>
+      }>
     ) => {
       const { userId, supportersForUser } = action.payload
       state.supporters[userId] = supportersForUser
@@ -43,7 +46,10 @@ const slice = createSlice({
     },
     setSupportingForUser: (
       state,
-      action: PayloadAction<{ userId: ID; supportingForUser: Record<ID, Supporting> }>
+      action: PayloadAction<{
+        userId: ID
+        supportingForUser: Record<ID, Supporting>
+      }>
     ) => {
       const { userId, supportingForUser } = action.payload
       state.supporting[userId] = supportingForUser
