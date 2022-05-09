@@ -5,7 +5,7 @@ import { ID } from 'common/models/Identifiers'
 
 export type CollectibleDetailsState = {
   collectible: Collectible | null
-  ownerId: ID | null | undefined
+  ownerId?: ID | null
 }
 
 const initialState: CollectibleDetailsState = {
@@ -17,13 +17,8 @@ const slice = createSlice({
   name: 'collectible-details',
   initialState,
   reducers: {
-    setCollectible: (
-      state,
-      action: PayloadAction<{ collectible: Collectible | null; ownerId?: ID }>
-    ) => {
-      const { payload } = action
-      state.collectible = payload.collectible
-      state.ownerId = payload.ownerId
+    setCollectible: (state, action: PayloadAction<CollectibleDetailsState>) => {
+      state = action.payload
     }
   }
 })
