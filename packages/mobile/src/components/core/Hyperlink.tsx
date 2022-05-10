@@ -21,6 +21,9 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ palette, typography }) => ({
+  root: {
+    marginBottom: 3
+  },
   link: {
     color: palette.primary
   },
@@ -31,8 +34,10 @@ const useStyles = makeStyles(({ palette, typography }) => ({
     position: 'absolute'
   },
   hiddenLink: {
-    marginBottom: -3,
     opacity: 0
+  },
+  hiddenLinkText: {
+    marginTop: -3
   }
 }))
 
@@ -121,7 +126,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
         }}
         style={styles.hiddenLink}
       >
-        <Text style={styles.linkText}>{text}</Text>
+        <Text style={[styles.linkText, styles.hiddenLinkText]}>{text}</Text>
       </View>
     ),
     [links, styles]
@@ -139,7 +144,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
           renderLink={allowPointerEventsToPassThrough ? renderLink : undefined}
           email
           url
-          style={[style, stylesProp?.root]}
+          style={[styles.root, style, stylesProp?.root]}
           {...other}
         />
       </View>
