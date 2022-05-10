@@ -56,7 +56,7 @@ const singleLinkTypes = [
 type SocialLinkProps = {
   type: Type
   link: string
-  onClick: () => void
+  onClick: (event?: any) => void
   iconOnly?: boolean
 }
 

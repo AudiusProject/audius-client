@@ -11,8 +11,6 @@ import { profilePage } from 'utils/route'
 import styles from './ProfileMutuals.module.css'
 
 const messages = {
-  seeMore: 'See More',
-  seeLess: 'See Less',
   mutuals: 'Mutuals',
   viewAll: 'View All',
   topTags: 'Top Tags'
