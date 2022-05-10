@@ -27,6 +27,8 @@ export type TippingState = {
    *
    * The above means that users 2 and 3 are supporters of users 1 and 4.
    * The same structure applies to supporting.
+   * Structured it this way to make it easy to check whether a user
+   * is supported by / supports another user.
    */
   supporters: Record<ID, Record<ID, Supporter>>
   supporting: Record<ID, Record<ID, Supporting>>

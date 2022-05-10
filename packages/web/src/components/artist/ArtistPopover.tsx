@@ -125,13 +125,13 @@ const ArtistPopover = ({
         handle={creator.handle}
         profilePictureSizes={creator._profile_picture_sizes}
         coverPhotoSizes={creator._cover_photo_sizes}
-        isVerified={creator.is_verified}
         isArtist={creator.is_creator || creator.track_count > 0}
-        supportingList={rankedSupportingList}
         onNameClick={onNameClick}
         following={following}
         onFollow={onClickFollow}
         onUnfollow={onClickUnfollow}
+        supportingList={rankedSupportingList}
+        onSupportingClick={onMouseLeave}
       />
     ) : null
 

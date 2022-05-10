@@ -11,14 +11,13 @@ import { Supporting } from 'common/models/Tipping'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
 
 import styles from './Support.module.css'
 
 const messages = {
   supporter: 'SUPPORTER'
 }
-
-const TOP_RANK_THRESHOLD = 5
 
 type SupportingCardProps = {
   supporting: Supporting
@@ -27,7 +26,7 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
   const dispatch = useDispatch()
   const { receiver, rank } = supporting
   const handle = receiver.handle
-  const isTopFive = rank >= 1 && rank <= TOP_RANK_THRESHOLD
+  const isTopRank = rank >= 1 && rank <= TIPPING_TOP_RANK_THRESHOLD
   const profileImage = useUserProfilePicture(
     receiver.user_id,
     receiver._profile_picture_sizes,
@@ -59,7 +58,7 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
           </div>
         </div>
       </div>
-      {isTopFive ? (
+      {isTopRank ? (
         <div className={cn(styles.tileHeader, styles.topFive)}>
           <IconTrophy className={styles.trophyIcon} />
           <span>

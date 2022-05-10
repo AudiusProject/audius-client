@@ -48,11 +48,10 @@ const UserList = (props: UserListProps) => {
             })}
           >
             <ArtistChip
-              name={user.name}
               userId={user.user_id}
-              profilePictureSizes={user._profile_picture_sizes}
+              name={user.name}
               handle={user.handle}
-              className={styles.artistChipContainer}
+              profilePictureSizes={user._profile_picture_sizes}
               followers={user.follower_count}
               onClickArtistName={() => {
                 props.onClickArtistName(user.handle)
@@ -60,6 +59,7 @@ const UserList = (props: UserListProps) => {
               showPopover={!props.isMobile}
               doesFollowCurrentUser={user.does_follow_current_user}
               tag={props.tag}
+              className={styles.artistChipContainer}
             />
             {user.user_id !== props.userId ? (
               <FollowButton

@@ -22,8 +22,6 @@ const supportingForUser = [
         '2000x':
           'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
       }
-      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
-      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
     },
     amount: 5,
     rank: 1,
@@ -48,8 +46,6 @@ const supportingForUser = [
         '2000x':
           'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
       },
-      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
-      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg',
       is_verified: true
     },
     amount: 4,
@@ -75,8 +71,6 @@ const supportingForUser = [
         '2000x':
           'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
       }
-      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
-      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
     },
     amount: 2,
     rank: 3,
@@ -101,8 +95,6 @@ const supportingForUser = [
         '2000x':
           'https://creatornode5.staging.audius.co/ipfs/QmUtYDKbUmhnRnNLpRStsZ7biSaAuFviGkiLHkUftHiysw/2000x.jpg'
       }
-      // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
-      // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
     },
     amount: 1,
     rank: 4,
@@ -115,8 +107,6 @@ const supportersForUser = supportingForUser.map(s => {
     sender: { ...s.receiver },
     receiver: undefined
   }
-  // @ts-ignore
-  // delete ss.receiver
   return ss
 })
 
