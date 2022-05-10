@@ -1,4 +1,11 @@
-import { ComponentProps, useCallback, useContext, useState } from 'react'
+import {
+  ComponentProps,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import { Match } from 'autolinker/dist/es2015'
 import { LayoutRectangle, Linking, Text, View } from 'react-native'
@@ -32,7 +39,6 @@ const useStyles = makeStyles(({ palette, typography }) => ({
 type PositionedLink = {
   text: string
   match: Match
-  layout: LayoutRectangle
 }
 
 export type HyperlinkProps = ComponentProps<typeof Autolink> & {
@@ -42,11 +48,46 @@ export type HyperlinkProps = ComponentProps<typeof Autolink> & {
 }
 
 export const Hyperlink = (props: HyperlinkProps) => {
-  const { allowPointerEventsToPassThrough, source, ...other } = props
+  const {
+    allowPointerEventsToPassThrough,
+    source,
+    styles: stylesProp,
+    style,
+    ...other
+  } = props
   const styles = useStyles()
   const { toast } = useContext(ToastContext)
 
+  const linkContainerRef = useRef<View>(null)
+  const linkRefs = useRef<Record<number, Text>>({})
   const [links, setLinks] = useState<Record<number, PositionedLink>>({})
+  const [linkLayouts, setLinkLayouts] = useState<
+    Record<number, LayoutRectangle>
+  >({})
+  const [linkContainerLayout, setLinkContainerLayout] = useState<
+    LayoutRectangle
+  >()
+
+  /**
+   * Need to use `measureInWindow` instead of `onLayout` or `measure` because
+   * android doesn't return the correct layout for nested text elements
+   * */
+  useEffect(() => {
+    Object.entries(linkRefs.current).forEach(([index, ref]) => {
+      ref.measureInWindow((x, y, width, height) => {
+        setLinkLayouts(linkLayouts => ({
+          ...linkLayouts,
+          [index]: { x, y, width, height }
+        }))
+      })
+    })
+
+    if (linkContainerRef.current) {
+      linkContainerRef.current.measureInWindow((x, y, width, height) =>
+        setLinkContainerLayout({ x, y, width, height })
+      )
+    }
+  }, [linkRefs, linkContainerRef])
 
   const handlePress = useCallback(
     async (url: string) => {
@@ -69,10 +110,14 @@ export const Hyperlink = (props: HyperlinkProps) => {
             ...links,
             [index]: {
               text,
-              match,
-              layout: e.nativeEvent.layout
+              match
             }
           })
+        }}
+        ref={el => {
+          if (linkRefs.current && el) {
+            linkRefs.current[index] = el
+          }
         }}
         style={styles.hiddenLink}
       >
@@ -86,6 +131,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
     <>
       <View
         pointerEvents={allowPointerEventsToPassThrough ? 'none' : undefined}
+        ref={linkContainerRef}
       >
         <Autolink
           onPress={handlePress}
@@ -93,24 +139,33 @@ export const Hyperlink = (props: HyperlinkProps) => {
           renderLink={allowPointerEventsToPassThrough ? renderLink : undefined}
           email
           url
+          style={[style, stylesProp?.root]}
           {...other}
         />
       </View>
 
       <View style={styles.linksContainer}>
-        {Object.values(links).map(({ layout, text, match }) => (
-          <Text
-            key={`${layout.x} ${layout.y}`}
-            style={[
-              styles.linkText,
-              styles.link,
-              { position: 'absolute', top: layout.y, left: layout.x }
-            ]}
-            onPress={() => handlePress(match.getAnchorHref())}
-          >
-            {text}
-          </Text>
-        ))}
+        {Object.entries(links).map(([index, { text, match }]) => {
+          const linkLayout = linkLayouts[index]
+
+          return linkLayout && linkContainerLayout ? (
+            <Text
+              key={`${linkLayout.x} ${linkLayout.y} ${index}`}
+              style={[
+                styles.linkText,
+                styles.link,
+                {
+                  position: 'absolute',
+                  top: linkLayout.y - linkContainerLayout.y,
+                  left: linkLayout.x - linkContainerLayout.x
+                }
+              ]}
+              onPress={() => handlePress(match.getAnchorHref())}
+            >
+              {text}
+            </Text>
+          ) : null
+        })}
       </View>
     </>
   )
