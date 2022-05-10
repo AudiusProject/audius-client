@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { BadgeTier } from 'common/models/BadgeTier'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
@@ -26,11 +25,11 @@ import {
   weiToString
 } from 'common/utils/wallet'
 import Tooltip from 'components/tooltip/Tooltip'
-import UserBadges, { audioTierMapPng } from 'components/user-badges/UserBadges'
-import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import styles from './TipAudio.module.css'
+import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
@@ -48,11 +47,6 @@ export const SendTip = () => {
   const supportersMap = useSelector(getSupporters)
   const supportingMap = useSelector(getSupporting)
   const profile = useSelector(getProfileUser)
-  const profileImage = useUserProfilePicture(
-    profile?.user_id ?? null,
-    profile?._profile_picture_sizes ?? null,
-    SquareSizes.SIZE_150_BY_150
-  )
 
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
@@ -170,28 +164,6 @@ export const SendTip = () => {
     dispatch(sendTip({ amount: tipAmountBNWei }))
   }, [dispatch, tipAmountBNWei])
 
-  const renderProfilePicture = () =>
-    profile ? (
-      <div className={styles.profileUser}>
-        <div className={styles.accountWrapper}>
-          <img className={styles.dynamicPhoto} src={profileImage} />
-          <div className={styles.userInfoWrapper}>
-            <div className={styles.name}>
-              {profile.name}
-              <UserBadges
-                userId={profile?.user_id}
-                badgeSize={12}
-                className={styles.badge}
-              />
-            </div>
-            <div className={styles.handleContainer}>
-              <span className={styles.handle}>{`@${profile.handle}`}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    ) : null
-
   const renderBecomeTopSupporter = () =>
     amountToTipToBecomeTopSupporter ? (
       <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
@@ -236,7 +208,7 @@ export const SendTip = () => {
 
   return (
     <div className={styles.container}>
-      {renderProfilePicture()}
+      <TipProfilePicture user={profile} />
       {renderBecomeTopSupporter()}
       <div className={styles.amountToSend}>
         <TokenValueInput

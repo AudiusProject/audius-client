@@ -6,16 +6,14 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
 import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import { formatWei } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import UserBadges from 'components/user-badges/UserBadges'
-import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './TipAudio.module.css'
+import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
@@ -33,11 +31,6 @@ export const ConfirmSendTip = () => {
   const sendStatus = useSelector(getSendStatus)
   const sendAmount = useSelector(getSendAmount)
   const profile = useSelector(getProfileUser)
-  const profileImage = useUserProfilePicture(
-    profile?.user_id ?? null,
-    profile?._profile_picture_sizes ?? null,
-    SquareSizes.SIZE_150_BY_150
-  )
   const [isDisabled, setIsDisabled] = useState(false)
 
   useEffect(() => {
@@ -68,28 +61,6 @@ export const ConfirmSendTip = () => {
       </div>
     </>
   )
-
-  const renderProfilePicture = () =>
-    profile ? (
-      <div className={styles.profileUser}>
-        <div className={styles.accountWrapper}>
-          <img className={styles.dynamicPhoto} src={profileImage} />
-          <div className={styles.userInfoWrapper}>
-            <div className={styles.name}>
-              {profile.name}
-              <UserBadges
-                userId={profile?.user_id}
-                badgeSize={12}
-                className={styles.badge}
-              />
-            </div>
-            <div className={styles.handleContainer}>
-              <span className={styles.handle}>{`@${profile.handle}`}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    ) : null
 
   const renderConfirmInfo = () =>
     sendStatus === 'CONFIRM' ? (
@@ -122,7 +93,7 @@ export const ConfirmSendTip = () => {
   return profile ? (
     <div className={styles.container}>
       {renderSendingAudio()}
-      {renderProfilePicture()}
+      <TipProfilePicture user={profile} />
       {renderConfirmInfo()}
       {renderConvertingInfo()}
       {renderError()}
