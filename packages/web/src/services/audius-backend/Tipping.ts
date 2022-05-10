@@ -25,7 +25,7 @@ const supportingForUser = [
       // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
       // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
     },
-    amount: 25,
+    amount: 5,
     rank: 1,
     updated_at: 'yesterday'
   },
@@ -52,7 +52,7 @@ const supportingForUser = [
       // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg',
       is_verified: true
     },
-    amount: 10,
+    amount: 4,
     rank: 10,
     updated_at: 'today'
   },
@@ -78,7 +78,7 @@ const supportingForUser = [
       // profile_picture: 'https://usermetadata.staging.audius.co/ipfs/QmUZR8LoYVEqs4m4LFcCFdgYuuHzZSFXfKrH8QFBqzctoR/150x150.jpg',
       // cover_photo: 'https://usermetadata.staging.audius.co/ipfs/QmYqkWLpqDCDGFeRwxDhSBm6CkUxhum71otsKVjbxL2oit/640x.jpg'
     },
-    amount: 5,
+    amount: 2,
     rank: 3,
     updated_at: 'today'
   },

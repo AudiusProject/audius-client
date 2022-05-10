@@ -8,6 +8,7 @@ export type TippingSendStatus =
   | 'SEND'
   | 'CONFIRM'
   | 'SENDING'
+  | 'CONVERTING'
   | 'SUCCESS'
   | 'ERROR'
 export type TippingState = {

@@ -74,6 +74,12 @@ const slice = createSlice({
       }
       state.send.status = 'SENDING'
     },
+    convert: state => {
+      if (state.send.status !== 'SENDING') {
+        return
+      }
+      state.send.status = 'CONVERTING'
+    },
     sendTipSucceeded: state => {
       state.send.status = 'SUCCESS'
     },
@@ -96,6 +102,7 @@ export const {
   beginTip,
   sendTip,
   confirmSendTip,
+  convert,
   sendTipSucceeded,
   sendTipFailed,
   resetSend

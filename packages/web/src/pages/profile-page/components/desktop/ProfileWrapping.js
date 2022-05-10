@@ -218,7 +218,7 @@ const ProfileWrapping = props => {
   )
 
   const renderTipAudioButton = (_, style) => (
-    <animated.div className={styles.tipAudioButton} style={style}>
+    <animated.div className={styles.tipAudioButtonContainer} style={style}>
       <TipAudioButton />
     </animated.div>
   )

@@ -5,10 +5,10 @@ import { Name } from 'common/models/Analytics'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
-import { transferEthAudioToSolWAudio } from 'common/store/pages/token-dashboard/slice'
 import { getSendTipData } from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
+  convert,
   sendTipFailed,
   sendTipSucceeded
 } from 'common/store/tipping/slice'
@@ -64,7 +64,7 @@ function* sendTipAsync() {
     // If transferring spl wrapped audio and there are insufficent funds with only the
     // user bank balance, transfer all eth AUDIO to spl wrapped audio
     if (weiBNAmount.gt(waudioWeiAmount)) {
-      yield put(transferEthAudioToSolWAudio())
+      yield put(convert())
       yield call(walletClient.transferTokensFromEthToSol)
     }
 

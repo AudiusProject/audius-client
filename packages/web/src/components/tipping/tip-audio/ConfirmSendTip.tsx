@@ -22,7 +22,10 @@ const messages = {
   areYouSure: 'Are you sure? This cannot be reversed.',
   confirmTip: 'Confirm Tip',
   goBack: 'Go Back',
-  somethingWrong: 'Something’s gone wrong. Wait a little while and try again.'
+  somethingWrong: 'Something’s gone wrong. Wait a little while and try again.',
+  maintenance: 'We’re performing some necessary one-time maintenence.',
+  fewMinutes: 'This may take a few minutes.',
+  holdOn: 'Don’t close this window or refresh the page.'
 }
 
 export const ConfirmSendTip = () => {
@@ -36,13 +39,9 @@ export const ConfirmSendTip = () => {
     SquareSizes.SIZE_150_BY_150
   )
   const [isDisabled, setIsDisabled] = useState(false)
-  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     setIsDisabled(sendStatus !== 'CONFIRM' && sendStatus !== 'ERROR')
-    if (sendStatus === 'ERROR') {
-      setHasError(true)
-    }
   }, [sendStatus])
 
   const handleConfirmSendClick = useCallback(() => {
@@ -92,26 +91,48 @@ export const ConfirmSendTip = () => {
       </div>
     ) : null
 
+  const renderConfirmInfo = () =>
+    sendStatus === 'CONFIRM' ? (
+      <div className={cn(styles.flexCenter, styles.info)}>
+        {messages.areYouSure}
+      </div>
+    ) : null
+
+  const renderConvertingInfo = () =>
+    sendStatus === 'CONVERTING' ? (
+      <div>
+        <div className={cn(styles.flexCenter, styles.info)}>
+          {messages.maintenance}
+        </div>
+        <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
+          {messages.fewMinutes}
+          <br />
+          {messages.holdOn}
+        </div>
+      </div>
+    ) : null
+
+  const renderError = () =>
+    sendStatus === 'ERROR' ? (
+      <div className={cn(styles.flexCenter, styles.error)}>
+        {messages.somethingWrong}
+      </div>
+    ) : null
+
   return profile ? (
     <div className={styles.container}>
       {renderSendingAudio()}
       {renderProfilePicture()}
-      {hasError ? (
-        <div className={cn(styles.flexCenter, styles.error)}>
-          {messages.somethingWrong}
-        </div>
-      ) : (
-        <div className={cn(styles.flexCenter, styles.areYouSure)}>
-          {messages.areYouSure}
-        </div>
-      )}
+      {renderConfirmInfo()}
+      {renderConvertingInfo()}
+      {renderError()}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}
           text={messages.confirmTip}
           onClick={handleConfirmSendClick}
           rightIcon={
-            sendStatus === 'SENDING' ? (
+            sendStatus === 'SENDING' || sendStatus === 'CONVERTING' ? (
               <LoadingSpinner className={styles.loadingSpinner} />
             ) : (
               <IconCheck />
@@ -121,15 +142,17 @@ export const ConfirmSendTip = () => {
           className={cn(styles.button, { [styles.disabled]: isDisabled })}
         />
       </div>
-      <div
-        className={cn(styles.flexCenter, styles.goBackContainer, {
-          [styles.disabled]: isDisabled
-        })}
-        onClick={handleGoBackClick}
-      >
-        <IconCaretLeft />
-        <span className={styles.goBack}>{messages.goBack}</span>
-      </div>
+      {sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING' && (
+        <div
+          className={cn(styles.flexCenter, styles.goBackContainer, {
+            [styles.disabled]: isDisabled
+          })}
+          onClick={handleGoBackClick}
+        >
+          <IconCaretLeft />
+          <span className={styles.goBack}>{messages.goBack}</span>
+        </div>
+      )}
     </div>
   ) : null
 }
