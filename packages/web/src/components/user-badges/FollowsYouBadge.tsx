@@ -8,11 +8,7 @@ const messages = {
   followsYou: 'Follows You'
 }
 
-const FollowsYouBadge = ({ className = '' }: { className?: string }) => {
+export default function FollowsYouBadge() {
   const wm = useWithMobileStyle(styles.mobile)
-  return (
-    <div className={wm(styles.badge, className)}>{messages.followsYou}</div>
-  )
+  return <div className={wm(styles.badge)}>{messages.followsYou}</div>
 }
-
-export default FollowsYouBadge

@@ -6,13 +6,7 @@ import { UserListStoreState } from './types'
 type UserListActions = ActionType<typeof actions>
 
 export const UserListReducerFactory = {
-  createReducer: ({
-    tag,
-    pageSize = 15
-  }: {
-    tag: string
-    pageSize?: number
-  }) => {
+  createReducer: (tag: string, pageSize = 15) => {
     const initialState: UserListStoreState = {
       page: 0,
       pageSize,

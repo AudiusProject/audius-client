@@ -1,31 +1,11 @@
-.profilePageWrapper {
-  position: relative;
-  padding-bottom: 36px;
-  min-width: 788px;
-}
-
-.headerWrapper {
-  position: relative;
-  width: 100%;
-}
-
-/* Style for static profile wrapper content */
-
-.mask {
-  padding: 0 16px;
-}
-
 .profileWrapping {
   position: absolute;
-  /* Put the profilewrapping over the tab accent */
-  z-index: 10;
-  width: 100%;
-  max-width: 992px;
+  z-index: 3;
+  width: 960px;
   margin: 0 auto;
   left: 0;
   right: 0;
   top: 264px;
-  padding: 0 16px;
 }
 
 .header {
@@ -42,9 +22,7 @@
   width: 100%;
 }
 
-.handleWrapper > .handle {
-  display: inline-block;
-  margin-right: 8px;
+.nameWrapper > .handle {
   color: #fafafa;
   font-size: var(--font-m);
   font-weight: var(--font-demi-bold);
@@ -74,7 +52,7 @@
 
 .info > .about {
   margin-left: 17px;
-  padding-right: 16px;
+  padding-right: 8px;
   padding-bottom: 80px;
 }
 
@@ -167,51 +145,4 @@
 .info .locationInput > input {
   font-size: var(--font-xs);
   padding-left: 9px;
-}
-
-/* Style for content section */
-
-.inset {
-  display: flex;
-  flex-direction: column;
-}
-
-.content {
-  max-width: 753px;
-  padding-left: 229px;
-  padding-top: 16px;
-  box-sizing: content-box;
-}
-
-@media screen and (min-width: 1218px) {
-  .content {
-    margin: 0 auto;
-    width: 100%;
-  }
-}
-
-.tiles,
-.cards {
-  width: 100%;
-  margin-top: 4px;
-  min-height: 500px;
-  padding: 0px 16px;
-}
-
-.cardLineup {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-}
-
-.cardLineup > * {
-  margin: 6px;
-}
-
-.tabBody {
-  margin: -6px;
-}
-
-.badge {
-  margin-bottom: 16px !important;
 }

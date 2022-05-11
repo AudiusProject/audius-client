@@ -1,0 +1,20 @@
+.collectiblesTable td {
+  vertical-align: middle;
+}
+
+.activeRow td {
+  background-color: var(--neutral-light-9) !important;
+  color: var(--primary) !important;
+}
+
+.collectibleName:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--primary-light-2);
+}
+
+.playButtonFormatting {
+  position: absolute;
+  left: 16px;
+  top: 7px;
+}

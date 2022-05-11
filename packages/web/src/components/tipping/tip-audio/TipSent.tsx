@@ -5,22 +5,23 @@ import cn from 'classnames'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
+import { SquareSizes } from 'common/models/ImageSizes'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getSendTipData } from 'common/store/tipping/selectors'
 import { formatWei, weiToAudioString } from 'common/utils/wallet'
+import UserBadges from 'components/user-badges/UserBadges'
+import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { useRecord, make } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
   sentSuccessfully: 'SENT SUCCESSFULLY',
   supportOnTwitter: 'Share your support on Twitter!',
   shareToTwitter: 'Share to Twitter',
-  twitterCopyPrefix: 'I just tipped ',
-  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip'
+  twitterCopy: 'TBD'
 }
 
 export const TipSent = () => {
@@ -28,21 +29,16 @@ export const TipSent = () => {
   const account = useSelector(getAccountUser)
   const sendTipData = useSelector(getSendTipData)
   const { user: recipient, amount: sendAmount } = sendTipData
+  const profileImage = useUserProfilePicture(
+    recipient?.user_id ?? null,
+    recipient?._profile_picture_sizes ?? null,
+    SquareSizes.SIZE_150_BY_150
+  )
 
   const handleShareClick = useCallback(() => {
+    // todo: update url and copy
+    openTwitterLink(null, messages.twitterCopy)
     if (account && recipient) {
-      let recipientAndAmount = `${recipient.name} ${formatWei(
-        sendAmount,
-        true
-      )}`
-      if (recipient.twitter_handle) {
-        recipientAndAmount = `@${recipient.twitter_handle} ${formatWei(
-          sendAmount,
-          true
-        )}`
-      }
-      const message = `${messages.twitterCopyPrefix}${recipientAndAmount}${messages.twitterCopySuffix}`
-      openTwitterLink(null, message)
       record(
         make(Name.TIP_AUDIO_TWITTER_SHARE, {
           senderWallet: account.spl_wallet,
@@ -73,11 +69,27 @@ export const TipSent = () => {
   return recipient ? (
     <div className={styles.container}>
       {renderSentAudio()}
-      <TipProfilePicture
-        user={recipient}
-        className={styles.confirmProfileUser}
-        imgClassName={styles.smallDynamicPhoto}
-      />
+      <div className={cn(styles.profileUser, styles.confirmProfileUser)}>
+        <div className={styles.accountWrapper}>
+          <img
+            className={cn(styles.dynamicPhoto, styles.smallDynamicPhoto)}
+            src={profileImage}
+          />
+          <div className={styles.userInfoWrapper}>
+            <div className={styles.name}>
+              {recipient.name}
+              <UserBadges
+                userId={recipient?.user_id}
+                badgeSize={12}
+                className={styles.badge}
+              />
+            </div>
+            <div className={styles.handleContainer}>
+              <span className={styles.handle}>{`@${recipient.handle}`}</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={cn(styles.flexCenter, styles.support)}>
         {messages.supportOnTwitter}
       </div>

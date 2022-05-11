@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react'
+import React, { ReactNode } from 'react'
 
 import { animated, Transition } from 'react-spring/renderprops'
 
 type TransitionContainerProps<T> = {
-  render: (item: any, style: object) => ReactElement
+  children: ReactNode
   item: T
   fromStyles: object
   enterStyles: object
@@ -13,7 +13,7 @@ type TransitionContainerProps<T> = {
 }
 
 export function TransitionContainer<T>({
-  render,
+  children,
   item,
   fromStyles,
   enterStyles,
@@ -30,9 +30,9 @@ export function TransitionContainer<T>({
       leave={leaveStyles}
       config={config}
     >
-      {item => style => (
-        <animated.div style={{ ...style, ...additionalStyles }}>
-          {render(item, style)}
+      {item => props => (
+        <animated.div style={{ ...props, ...additionalStyles }}>
+          {children}
         </animated.div>
       )}
     </Transition>

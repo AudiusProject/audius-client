@@ -1,7 +1,6 @@
 .followButton {
   display: flex;
   justify-content: center;
-  flex: 0 0 132px;
   padding: 0 16px;
 }
 
@@ -15,7 +14,7 @@
 }
 
 .followButton.small {
-  width: 132px;
+  width: 82px;
 }
 
 .followButton.small .followButtonText {

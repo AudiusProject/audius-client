@@ -220,6 +220,7 @@ export const assetToCollectible = async (
     videoUrl,
     threeDUrl,
     gifUrl,
+    animationUrl: animation_url,
     isOwned: true,
     dateCreated: null,
     dateLastTransferred: null,

@@ -4,6 +4,7 @@ import { matchPath } from 'react-router'
 
 import { ID } from 'common/models/Identifiers'
 import { encodeUrlName } from 'common/utils/formatUtil'
+import { getHash } from 'components/collectibles/helpers'
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING === 'true'
 
@@ -38,6 +39,8 @@ export const EXPLORE_MOOD_PLAYLISTS_PAGE = '/explore/:mood'
 export const TRENDING_PLAYLISTS_PAGE = '/explore/playlists'
 export const TRENDING_UNDERGROUND_PAGE = '/explore/underground'
 export const EXPLORE_REMIXABLES_PAGE = '/explore/remixables'
+
+export const AUDIO_NFT_PLAYLIST_PAGE = '/:handle/audio-nft-playlist'
 
 export const SAVED_PAGE = '/favorites'
 export const FAVORITES_PAGE = '/favorites'
@@ -86,8 +89,6 @@ export const REPOSTING_USERS_ROUTE = '/reposting_users'
 export const FAVORITING_USERS_ROUTE = '/favoriting_users'
 export const FOLLOWING_USERS_ROUTE = '/following'
 export const FOLLOWERS_USERS_ROUTE = '/followers'
-export const SUPPORTING_USERS_ROUTE = '/supporting'
-export const TOP_SUPPORTERS_USERS_ROUTE = '/top-supporters'
 export const ACCOUNT_SETTINGS_PAGE = '/settings/account'
 export const ACCOUNT_VERIFICATION_SETTINGS_PAGE =
   '/settings/account/verification'
@@ -164,8 +165,6 @@ export const orderedRoutes = [
   FAVORITING_USERS_ROUTE,
   FOLLOWING_USERS_ROUTE,
   FOLLOWERS_USERS_ROUTE,
-  SUPPORTING_USERS_ROUTE,
-  TOP_SUPPORTERS_USERS_ROUTE,
   PROFILE_PAGE,
   PROFILE_PAGE_COLLECTIBLES,
   PROFILE_PAGE_COLLECTIBLE_DETAILS
@@ -196,8 +195,6 @@ export const staticRoutes = new Set([
   FAVORITING_USERS_ROUTE,
   FOLLOWING_USERS_ROUTE,
   FOLLOWERS_USERS_ROUTE,
-  SUPPORTING_USERS_ROUTE,
-  TOP_SUPPORTERS_USERS_ROUTE,
   ACCOUNT_SETTINGS_PAGE,
   NOTIFICATION_SETTINGS_PAGE,
   ABOUT_SETTINGS_PAGE,
@@ -243,6 +240,26 @@ export const playlistPage = (
 }
 export const fullPlaylistPage = (handle: string, title: string, id: ID) => {
   return `${BASE_URL}${playlistPage(handle, title, id)}`
+}
+
+export const audioNftPlaylistPage = (handle: string) => {
+  return `/${encodeUrlName(handle)}/audio-nft-playlist`
+}
+export const fullAudioNftPlaylistPage = (handle: string) => {
+  return `${BASE_URL}${audioNftPlaylistPage(handle)}`
+}
+
+export const collectibleDetailsPage = (
+  handle: string,
+  collectibleId: string
+) => {
+  return `/${encodeUrlName(handle)}/collectibles/${getHash(collectibleId)}`
+}
+export const fullCollectibleDetailsPage = (
+  handle: string,
+  collectibleId: string
+) => {
+  return `${BASE_URL}${collectibleDetailsPage(handle, collectibleId)}`
 }
 
 export const profilePage = (handle: string) => {

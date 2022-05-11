@@ -6,7 +6,6 @@ import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { useSelector } from 'common/hooks/useSelector'
 import { FollowSource } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { WidthSizes, SquareSizes } from 'common/models/ImageSizes'
@@ -14,8 +13,6 @@ import { getUserId } from 'common/store/account/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import { setNotificationSubscription } from 'common/store/pages/profile/actions'
 import * as socialActions from 'common/store/social/users/actions'
-import { getSupporting } from 'common/store/tipping/selectors'
-import { stringWeiToBN } from 'common/utils/wallet'
 import { MountPlacement } from 'components/types'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
@@ -82,25 +79,6 @@ const ArtistPopover = ({
     true
   )
 
-  const supportingMap = useSelector(getSupporting)
-  const supportingForCreator = creator?.user_id
-    ? supportingMap[creator.user_id] ?? {}
-    : {}
-  const rankedSupportingList = Object.keys(supportingForCreator)
-    .sort((k1, k2) => {
-      const amount1BN = stringWeiToBN(
-        supportingForCreator[(k1 as unknown) as ID].amount
-      )
-      const amount2BN = stringWeiToBN(
-        supportingForCreator[(k2 as unknown) as ID].amount
-      )
-      return amount1BN.gte(amount2BN) ? -1 : 1
-    })
-    .map(k => supportingForCreator[(k as unknown) as ID])
-
-  // todo: hide hover tile on click
-  const onSupportingClick = () => {}
-
   const onMouseEnter = useCallback(() => {
     getCoverPhoto()
     getProfilePicture()
@@ -133,14 +111,12 @@ const ArtistPopover = ({
         handle={creator.handle}
         profilePictureSizes={creator._profile_picture_sizes}
         coverPhotoSizes={creator._cover_photo_sizes}
+        isVerified={creator.is_verified}
         isArtist={creator.is_creator || creator.track_count > 0}
         onNameClick={onNameClick}
         following={following}
         onFollow={onClickFollow}
         onUnfollow={onClickUnfollow}
-        supportingList={rankedSupportingList}
-        supportingCount={creator.supporting_count}
-        onSupportingClick={onSupportingClick}
       />
     ) : null
 

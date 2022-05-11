@@ -20,8 +20,7 @@ import { TipSent } from './TipSent'
 const messages = {
   sendATip: 'Send Tip',
   confirm: 'Confirm',
-  tipSent: 'Tip Sent',
-  holdOn: '⚠️ Hold On a Moment'
+  tipSent: 'Tip Sent'
 }
 
 const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
@@ -41,11 +40,6 @@ const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
     <div className={styles.tipIconTextContainer}>
       <IconGoldBadge width={24} height={24} />
       <span className={styles.tipText}>{messages.confirm}</span>
-    </div>
-  ),
-  CONVERTING: (
-    <div className={styles.tipIconTextContainer}>
-      <span className={styles.tipText}>{messages.holdOn}</span>
     </div>
   ),
   ERROR: (
@@ -69,7 +63,6 @@ const ModalContent = () => {
       return <SendTip />
     case 'CONFIRM':
     case 'SENDING':
-    case 'CONVERTING':
     case 'ERROR':
       return <ConfirmSendTip />
     case 'SUCCESS':
@@ -83,7 +76,6 @@ const statusOrder = {
   SEND: 0,
   CONFIRM: 1,
   SENDING: 1,
-  CONVERTING: 1,
   ERROR: 1,
   SUCCESS: 2
 }
@@ -104,19 +96,14 @@ export const TipAudioModal = () => {
       bodyClassName={styles.modalBody}
       showTitleHeader
       title={sendStatus ? titlesMap[sendStatus] : ''}
-      showDismissButton={
-        sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
-      }
-      dismissOnClickOutside={
-        sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
-      }
+      showDismissButton={sendStatus !== 'SENDING'}
+      dismissOnClickOutside={sendStatus !== 'SENDING'}
       contentHorizontalPadding={24}
       useGradientTitle={false}
     >
       <div className={styles.modalContentContainer}>
         {sendStatus && (
           <TransitionContainer
-            render={() => <ModalContent />}
             item={sendStatus}
             fromStyles={{
               opacity: 1,
@@ -125,10 +112,10 @@ export const TipAudioModal = () => {
                * enter from natural position within modal
                *
                * if we are moving forward in the modal flow, then
-               * enter from outside the modal swiping right to left
+               * enter from outside the modal to the right
                *
                * if we are moving backward in the modal flow, then
-               * enter from outside the modal swiping left to right
+               * enter from outside the modal to the left
                */
               transform:
                 !previousSendStatus ||
@@ -170,7 +157,9 @@ export const TipAudioModal = () => {
                 : { duration: 300 }
             }
             additionalStyles={{ width: '100%' }}
-          />
+          >
+            <ModalContent />
+          </TransitionContainer>
         )}
       </div>
     </ModalDrawer>

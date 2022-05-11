@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
 import { formatCount } from 'common/utils/formatUtil'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -14,46 +15,25 @@ const messages = {
 }
 
 type UserProfileListProps = {
-  /**
-   * Here we have both users and totalUserCount because we need the total number
-   * of users which is different that the number users whose profile pictures
-   * will show up.
-   * Sometimes the total number of users is not available,
-   * e.g. for followers and supporters, we have follower_count and supporter_count.
-   * When this is the case, we use this totalUserCount prop to inform how many total users there are.
-   */
-  users: Array<User>
-  totalUserCount: number
-  limit?: number
-  disableProfileClick?: boolean
-  disablePopover?: boolean
-  stopPropagation?: boolean
+  users: User[]
+  userIds: ID[]
 }
 
-export const UserProfilePictureList = ({
-  users,
-  totalUserCount,
-  limit = USER_LENGTH_LIMIT,
-  disableProfileClick = false,
-  disablePopover = false,
-  stopPropagation = false
-}: UserProfileListProps) => {
-  const showUserListModal = totalUserCount > limit
-  const remainingUsersCount = totalUserCount - limit
+export const UserProfilePictureList = (props: UserProfileListProps) => {
+  const { users, userIds } = props
+  const showUserListModal = userIds.length > USER_LENGTH_LIMIT
+  const remainingUsersCount = userIds.length - USER_LENGTH_LIMIT
 
   return (
     <div className={styles.root}>
       {users
         .filter(u => !u.is_deactivated)
-        .slice(0, limit)
+        .slice(0, USER_LENGTH_LIMIT)
         .map(user => (
           <ProfilePicture
             key={user.user_id}
             className={styles.profilePicture}
             user={user}
-            disableClick={disableProfileClick}
-            disablePopover={disablePopover}
-            stopPropagation={stopPropagation}
           />
         ))}
       {showUserListModal ? (

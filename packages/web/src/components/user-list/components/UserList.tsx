@@ -20,7 +20,6 @@ type UserListProps = {
   userId: ID | null
   users: User[]
   isMobile: boolean
-  tag: string
   loadMore: () => void
   onClickArtistName: (handle: string) => void
   onFollow: (userId: ID) => void
@@ -40,34 +39,28 @@ const UserList = (props: UserListProps) => {
         threshold={SCROLL_THRESHOLD}
         getScrollParent={props.getScrollParent}
       >
-        {props.users.map((user, index) => (
-          <div
-            key={user.user_id}
-            className={cn(styles.user, {
-              [styles.notLastUser]: index !== props.users.length - 1
-            })}
-          >
+        {props.users.map(user => (
+          <div key={user.user_id} className={styles.user}>
             <ArtistChip
-              userId={user.user_id}
               name={user.name}
-              handle={user.handle}
+              userId={user.user_id}
               profilePictureSizes={user._profile_picture_sizes}
+              handle={user.handle}
+              className={styles.artistChipContainer}
               followers={user.follower_count}
               onClickArtistName={() => {
                 props.onClickArtistName(user.handle)
               }}
               showPopover={!props.isMobile}
-              doesFollowCurrentUser={user.does_follow_current_user}
-              tag={props.tag}
-              className={styles.artistChipContainer}
             />
             {user.user_id !== props.userId ? (
               <FollowButton
                 size='small'
+                showIcon={false}
+                className={styles.followButton}
                 following={user.does_current_user_follow}
                 onFollow={() => props.onFollow(user.user_id)}
                 onUnfollow={() => props.onUnfollow(user.user_id)}
-                showIcon
               />
             ) : null}
           </div>

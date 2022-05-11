@@ -81,7 +81,6 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
       loadMore={props.loadMore}
       isMobile={props.isMobile}
       getScrollParent={props.getScrollParent}
-      tag={props.tag}
     />
   )
 }

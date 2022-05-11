@@ -70,7 +70,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
       disableClosePanel={isMultiUser}
     >
       <NotificationHeader icon={<IconFavorite />}>
-        <UserProfilePictureList users={users} totalUserCount={userIds.length} />
+        <UserProfilePictureList users={users} userIds={userIds} />
       </NotificationHeader>
       <NotificationBody>
         <UserNameLink user={firstUser} notification={notification} />

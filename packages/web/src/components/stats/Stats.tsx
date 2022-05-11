@@ -16,8 +16,8 @@ import {
 
 import styles from './Stats.module.css'
 
-export type StatProps = {
-  key: 'follower' | 'following' | 'playlist' | 'track'
+type StatProps = {
+  key: 'follower' | 'following'
   number: number
   title: string
   onClick?: () => void
@@ -41,6 +41,7 @@ const Stat = ({ number, onClick, title }: StatProps) => {
 
 type StatsProps = {
   userId: ID
+  currentUserId: ID
   stats: StatProps[]
   clickable: boolean
   size: 'medium' | 'large'

@@ -24,47 +24,30 @@ const slice = createSlice({
   reducers: {
     setSupporters: (
       state,
-      action: PayloadAction<{
-        supporters: Record<string, Record<ID, Supporter>>
-      }>
+      action: PayloadAction<{ supporters: Record<ID, Supporter[]> }>
     ) => {
       state.supporters = action.payload.supporters
     },
-    setSupportersForUser: (
+    setSupportersforUser: (
       state,
-      action: PayloadAction<{
-        id: ID
-        supportersForUser: Record<ID, Supporter>
-      }>
+      action: PayloadAction<{ userId: ID; supportersForUser: Supporter[] }>
     ) => {
-      const { id, supportersForUser } = action.payload
-      state.supporters[id] = supportersForUser
+      const { userId, supportersForUser } = action.payload
+      state.supporters[userId] = supportersForUser
     },
     setSupporting: (
       state,
-      action: PayloadAction<{
-        supporting: Record<ID, Record<ID, Supporting>>
-      }>
+      action: PayloadAction<{ supporting: Record<ID, Supporting[]> }>
     ) => {
       state.supporting = action.payload.supporting
     },
-    setSupportingForUser: (
+    setSupportingforUser: (
       state,
-      action: PayloadAction<{
-        id: ID
-        supportingForUser: Record<ID, Supporting>
-      }>
+      action: PayloadAction<{ userId: ID; supportingForUser: Supporting[] }>
     ) => {
-      const { id, supportingForUser } = action.payload
-      state.supporting[id] = supportingForUser
+      const { userId, supportingForUser } = action.payload
+      state.supporting[userId] = supportingForUser
     },
-    refreshSupport: (
-      state,
-      action: PayloadAction<{
-        senderUserId: ID
-        receiverUserId: ID
-      }>
-    ) => {},
     beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {
         return
@@ -85,12 +68,6 @@ const slice = createSlice({
       }
       state.send.status = 'SENDING'
     },
-    convert: state => {
-      if (state.send.status !== 'SENDING') {
-        return
-      }
-      state.send.status = 'CONVERTING'
-    },
     sendTipSucceeded: state => {
       state.send.status = 'SUCCESS'
     },
@@ -108,13 +85,9 @@ const slice = createSlice({
 })
 
 export const {
-  setSupportingForUser,
-  setSupportersForUser,
-  refreshSupport,
   beginTip,
   sendTip,
   confirmSendTip,
-  convert,
   sendTipSucceeded,
   sendTipFailed,
   resetSend
