@@ -115,7 +115,7 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
       const { entity } = notification
       dispatch(push(getEntityLink(entity)))
     }
-  }, [notification, user.handle, dispatch])
+  }, [notification, user, dispatch])
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>

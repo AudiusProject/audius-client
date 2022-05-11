@@ -89,7 +89,7 @@ export const RemixCosignNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
-        <UserNameLink user={user} notification={notification} />
+        <UserNameLink user={user} notification={notification} />{' '}
         {messages.cosign}
         <EntityLink entity={entity} entityType={entityType} />
       </NotificationBody>
