@@ -28,12 +28,11 @@ import { TopSupporterNotification } from './TopSupporterNotification'
 import { TopSupportingNotification } from './TopSupportingNotification'
 import { TrendingTrackNotification } from './TrendingTrackNotification'
 import { UserSubscriptionNotification } from './UserSubscriptionNotification'
+import { USER_LENGTH_LIMIT } from './utils'
 
 type NotificationProps = {
   notification: Notifications
 }
-
-const USER_LENGTH_LIMIT = 9
 
 export const Notification = (props: NotificationProps) => {
   const { notification: notificationProp } = props
@@ -53,6 +52,8 @@ export const Notification = (props: NotificationProps) => {
     getNotificationEntities(state, notificationProp)
   )
 
+  // Based on how notification types are defined, we need to cast like this.
+  // In the future we should select user/users/entity/entities in each notif.
   const notification = ({
     ...notificationProp,
     user,
@@ -105,7 +106,7 @@ export const Notification = (props: NotificationProps) => {
       return <UserSubscriptionNotification notification={notification} />
     }
     default: {
-      return <p>blah</p>
+      return null
     }
   }
 }

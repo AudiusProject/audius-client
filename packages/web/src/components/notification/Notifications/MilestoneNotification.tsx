@@ -86,7 +86,7 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
       const { entity, entityType, achievement, value, user } = notification
       const entityWithUser = { ...entity, user }
       const achievementText =
-        achievement === Achievement.Listens ? 'Plays' : achievement
+        achievement === Achievement.Listens ? 'plays' : achievement
 
       return (
         <span>

@@ -12,5 +12,9 @@ type NotificationBodyProps = {
 export const NotificationBody = (props: NotificationBodyProps) => {
   const { className, children } = props
 
-  return <span className={cn(styles.root, className)}>{children}</span>
+  return (
+    <div>
+      <span className={cn(styles.root, className)}>{children}</span>
+    </div>
+  )
 }
