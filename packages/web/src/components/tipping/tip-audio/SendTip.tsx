@@ -16,7 +16,6 @@ import { getSupporters, getSupporting } from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
-import { parseWeiNumber } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
 import {
   formatWei,
@@ -140,17 +139,10 @@ export const SendTip = () => {
       account.user_id === topSupporter.sender.user_id
     if (isAlreadyTopSupporter) return
 
-    // todo: double check how backend returns amounts (wei or audio or ...)
-    // const topSupporterAmountWei = stringWeiToBN(
-    //   topSupporter.amount.toString() as StringWei
-    // )
-    const topSupporterAmountWei = parseWeiNumber(topSupporter.amount)! as BNWei
+    const topSupporterAmountWei = stringWeiToBN(topSupporter.amount)
     let newAmountToTipToBecomeTopSupporter = topSupporterAmountWei
     if (supporting) {
-      // const supportingAmountWei = stringWeiToBN(
-      //   supporting.amount.toString() as StringWei
-      // )
-      const supportingAmountWei = parseWeiNumber(supporting.amount)! as BNWei
+      const supportingAmountWei = stringWeiToBN(supporting.amount)
       newAmountToTipToBecomeTopSupporter = topSupporterAmountWei.sub(
         supportingAmountWei
       ) as BNWei

@@ -38,8 +38,7 @@ const provider = createUserListProvider<User>({
   },
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>
-    // todo: remove the non-null assertion !
-    combinedUserIDs.length < user.supporter_count!,
+    combinedUserIDs.length < user.supporter_count,
   includeCurrentUser: u => false
 })
 

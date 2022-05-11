@@ -2,19 +2,28 @@ import BN from 'bn.js'
 import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
+import { ID } from 'common/models/Identifiers'
+import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
+import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import { getSendTipData } from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
   convert,
   sendTipFailed,
-  sendTipSucceeded
+  sendTipSucceeded,
+  setSupportersForUser,
+  setSupportingForUser
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
 import { weiToAudioString, weiToString } from 'common/utils/wallet'
+import {
+  fetchSupporters,
+  fetchSupporting
+} from 'services/audius-backend/Tipping'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
@@ -28,18 +37,18 @@ function* sendTipAsync() {
     return
   }
 
-  const account = yield* select(getAccountUser)
-  if (!account) {
+  const sender = yield* select(getAccountUser)
+  if (!sender) {
     return
   }
 
   const sendTipData = yield* select(getSendTipData)
-  const { user, amount: weiBNAmount } = sendTipData
-  if (!user) {
+  const { user: recipient, amount: weiBNAmount } = sendTipData
+  if (!recipient) {
     return
   }
 
-  const recipientWallet = user.spl_wallet
+  const recipientWallet = recipient.spl_wallet
   const weiBNBalance: BNWei = yield select(getAccountBalance) ??
     (new BN('0') as BNWei)
   const waudioWeiAmount = yield* call(walletClient.getCurrentWAudioBalance)
@@ -54,10 +63,10 @@ function* sendTipAsync() {
   try {
     yield put(
       make(Name.TIP_AUDIO_REQUEST, {
-        senderWallet: account.spl_wallet,
+        senderWallet: sender.spl_wallet,
         recipientWallet,
-        senderHandle: account.handle,
-        recipientHandle: user.handle,
+        senderHandle: sender.handle,
+        recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount)
       })
     )
@@ -90,24 +99,60 @@ function* sendTipAsync() {
     yield put(sendTipSucceeded())
     yield put(
       make(Name.TIP_AUDIO_SUCCESS, {
-        senderWallet: account.spl_wallet,
+        senderWallet: sender.spl_wallet,
         recipientWallet,
-        senderHandle: account.handle,
-        recipientHandle: user.handle,
+        senderHandle: sender.handle,
+        recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount)
       })
     )
 
-    // todo: refresh the supporting list for account user
+    /**
+     * Refresh the supporting list for sender
+     * and the supporters list for the receiver
+     */
+    const supportingForSender = yield* call(fetchSupporting, {
+      userId: sender.user_id
+    })
+    const supportersForReceiver = yield* call(fetchSupporters, {
+      userId: recipient.user_id
+    })
+    yield processAndCacheUsers(
+      [
+        ...supportingForSender.map(supporting => supporting.receiver),
+        ...supportersForReceiver.map(supporter => supporter.sender)
+      ].filter(user => user.user_id !== sender.user_id)
+    )
+
+    const supportingForSenderMap: Record<ID, Supporting> = {}
+    supportingForSender.forEach(supporting => {
+      supportingForSenderMap[supporting.receiver.user_id] = { ...supporting }
+    })
+    const supportersForRecipientMap: Record<ID, Supporter> = {}
+    supportersForReceiver.forEach(supporter => {
+      supportersForRecipientMap[supporter.sender.user_id] = { ...supporter }
+    })
+    yield put(
+      setSupportingForUser({
+        userId: sender.user_id,
+        supportingForUser: supportingForSenderMap
+      })
+    )
+    yield put(
+      setSupportersForUser({
+        userId: recipient.user_id,
+        supportersForUser: supportersForRecipientMap
+      })
+    )
   } catch (e) {
     const error = (e as Error).message
     yield put(sendTipFailed({ error }))
     yield put(
       make(Name.TIP_AUDIO_FAILURE, {
-        senderWallet: account.spl_wallet,
+        senderWallet: sender.spl_wallet,
         recipientWallet,
-        senderHandle: account.handle,
-        recipientHandle: user.handle,
+        senderHandle: sender.handle,
+        recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
         error
       })
