@@ -3,6 +3,13 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  cursor: pointer;
+}
+.user:hover {
+  background: var(--neutral-light-10);
+}
+.user:active {
+  background: var(--neutral-light-9);
 }
 .user.notLastUser {
   border-bottom: 1px solid var(--neutral-light-7);
