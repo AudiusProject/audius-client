@@ -31,6 +31,12 @@ export enum Entity {
   User = 'User'
 }
 
+export type TrackEntity = Track & { user: User }
+
+export type CollectionEntity = Collection & { user: User }
+
+export type EntityType = TrackEntity | CollectionEntity
+
 export type BaseNotification = {
   id: string
   isRead: boolean
@@ -55,11 +61,11 @@ export type UserSubscription = BaseNotification & {
 } & (
     | {
         entityType: Entity.Track
-        entities: Array<Track & { user: User }>
+        entities: Array<TrackEntity>
       }
     | {
         entityType: Entity.Playlist | Entity.Album
-        entities: Array<Collection & { user: User }>
+        entities: Array<CollectionEntity>
       }
   )
 
@@ -77,11 +83,11 @@ export type Repost = BaseNotification & {
 } & (
     | {
         entityType: Entity.Playlist | Entity.Album
-        entity: Collection & { user: User }
+        entity: CollectionEntity
       }
     | {
         entityType: Entity.Track
-        entity: Track & { user: User }
+        entity: TrackEntity
       }
   )
 
@@ -93,11 +99,11 @@ export type Favorite = BaseNotification & {
 } & (
     | {
         entityType: Entity.Playlist | Entity.Album
-        entity: Collection & { user: User }
+        entity: CollectionEntity
       }
     | {
         entityType: Entity.Track
-        entity: Track & { user: User }
+        entity: TrackEntity
       }
   )
 
@@ -114,15 +120,15 @@ export type Milestone = BaseNotification & { user: User } & (
         type: NotificationType.Milestone
         entityType: Entity
         entityId: ID
-        entity: Track | Collection
+        entity: EntityType
         achievement: Exclude<Achievement, Achievement.Followers>
-        value?: number
+        value: number
       }
     | {
         type: NotificationType.Milestone
         entityId: ID
         achievement: Achievement.Followers
-        value?: number
+        value: number
       }
   )
 
@@ -134,7 +140,7 @@ export type RemixCreate = BaseNotification & {
   entityType: Entity.Track
   entityIds: ID[]
   user: User
-  entities: Array<Track & { user: User }>
+  entities: Array<TrackEntity>
 }
 
 export type RemixCosign = BaseNotification & {
@@ -145,7 +151,7 @@ export type RemixCosign = BaseNotification & {
   entityType: Entity.Track
   entityIds: ID[]
   user: User
-  entities: Array<Track & { user: User }>
+  entities: Array<TrackEntity>
 }
 
 export type TrendingTrack = BaseNotification & {
@@ -155,7 +161,7 @@ export type TrendingTrack = BaseNotification & {
   time: 'week' | 'month' | 'year'
   entityType: Entity.Track
   entityId: ID
-  entity: Track & { user: User }
+  entity: TrackEntity
 }
 
 export type ChallengeReward = BaseNotification & {
@@ -166,6 +172,7 @@ export type ChallengeReward = BaseNotification & {
 export type TierChange = BaseNotification & {
   type: NotificationType.TierChange
   tier: BadgeTier
+  user: User
 }
 
 export type TipSent = BaseNotification & {

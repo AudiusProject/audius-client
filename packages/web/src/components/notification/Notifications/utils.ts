@@ -1,4 +1,6 @@
+import { EntityType } from 'common/store/notifications/types'
 import { formatCount } from 'common/utils/formatUtil'
+import AudiusBackend from 'services/AudiusBackend'
 import {
   albumPage,
   fullAlbumPage,
@@ -6,8 +8,6 @@ import {
   fullTrackPage,
   playlistPage
 } from 'utils/route'
-
-import { EntityType } from './types'
 
 export const getEntityLink = (entity: EntityType, fullRoute = false) => {
   if ('track_id' in entity) {
@@ -32,4 +32,11 @@ export const getRankSuffix = (rank: number) => {
   if (rank === 2) return 'nd'
   if (rank === 3) return 'rd'
   return 'th'
+}
+
+export const getTwitterHandleByUserHandle = async (userHandle: string) => {
+  const { twitterHandle } = await AudiusBackend.getCreatorSocialHandle(
+    userHandle
+  )
+  return twitterHandle || ''
 }
