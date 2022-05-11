@@ -8,8 +8,8 @@ import { getUserId } from 'common/store/account/selectors'
 import { Follow } from 'common/store/notifications/types'
 import { formatCount } from 'common/utils/formatUtil'
 import {
-  setUsers,
-  setVisibility
+  setUsers as setUserListUsers,
+  setVisibility as openUserListModal
 } from 'store/application/ui/userListModal/slice'
 import {
   UserListEntityType,
@@ -47,13 +47,13 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   const handleClick = useCallback(() => {
     if (isMultiUser) {
       dispatch(
-        setUsers({
+        setUserListUsers({
           userListType: UserListType.FOLLOWER,
           entityType: UserListEntityType.USER,
           id: accountId
         })
       )
-      dispatch(setVisibility(true))
+      dispatch(openUserListModal(true))
     } else {
       dispatch(push(profilePage(firstUser.handle)))
     }
