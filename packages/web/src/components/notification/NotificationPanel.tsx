@@ -27,6 +27,7 @@ import {
 } from 'common/store/notifications/selectors'
 import { Notification as Notifications } from 'common/store/notifications/types'
 import { Nullable } from 'common/utils/typeUtils'
+import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
 import styles from './NotificationPanel.module.css'
@@ -70,6 +71,7 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
   const status = useSelector(getNotificationStatus)
   const isNotificationModalOpen = useSelector(getNotificationModalIsOpen)
   const modalNotification = useSelector(getModalNotification)
+  const isUserListOpen = useSelector(getIsUserListOpen)
 
   const panelRef = useRef<Nullable<HTMLDivElement>>(null)
   const scrollRef = useRef<Nullable<HTMLDivElement>>(null)
@@ -94,28 +96,29 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
     dispatch(toggleNotificationPanel())
   }, [dispatch])
 
+  const handleCheckClickInside = useCallback(
+    (target: EventTarget) => {
+      if (isUserListOpen) return true
+      if (target instanceof Element) {
+        return anchorRef?.current.contains(target)
+      }
+      return false
+    },
+    [isUserListOpen, anchorRef]
+  )
+
   useEffect(() => {
     if (openNotifications) {
       handleToggleNotificationPanel()
     }
   }, [openNotifications, handleToggleNotificationPanel])
 
-  console.log(
-    !hasMore || status === Status.LOADING || status === Status.ERROR,
-    { hasMore, status }
-  )
-
   return (
     <Popup
       anchorRef={anchorRef}
       className={styles.popup}
       isVisible={panelIsOpen}
-      checkIfClickInside={(target: EventTarget) => {
-        if (target instanceof Element) {
-          return [anchorRef?.current].some(r => r?.contains(target))
-        }
-        return false
-      }}
+      checkIfClickInside={handleCheckClickInside}
       onClose={handleToggleNotificationPanel}
       position={PopupPosition.BOTTOM_RIGHT}
       wrapperClassName={styles.popupWrapper}
