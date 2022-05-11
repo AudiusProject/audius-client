@@ -62,41 +62,43 @@ export const ConfirmSendTip = () => {
     </>
   )
 
-  const renderConfirmInfo = () =>
-    sendStatus === 'CONFIRM' ? (
+  const renderConfirmInfo = () => (
+    <div className={cn(styles.flexCenter, styles.info)}>
+      {messages.areYouSure}
+    </div>
+  )
+
+  const renderEmpty = () => (
+    <div className={cn(styles.flexCenter, styles.info, styles.empty)} />
+  )
+
+  const renderConvertingInfo = () => (
+    <div>
       <div className={cn(styles.flexCenter, styles.info)}>
-        {messages.areYouSure}
+        {messages.maintenance}
       </div>
-    ) : null
+      <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
+        {messages.fewMinutes}
+        <br />
+        {messages.holdOn}
+      </div>
+    </div>
+  )
 
-  const renderConvertingInfo = () =>
-    sendStatus === 'CONVERTING' ? (
-      <div>
-        <div className={cn(styles.flexCenter, styles.info)}>
-          {messages.maintenance}
-        </div>
-        <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
-          {messages.fewMinutes}
-          <br />
-          {messages.holdOn}
-        </div>
-      </div>
-    ) : null
-
-  const renderError = () =>
-    sendStatus === 'ERROR' ? (
-      <div className={cn(styles.flexCenter, styles.error)}>
-        {messages.somethingWrong}
-      </div>
-    ) : null
+  const renderError = () => (
+    <div className={cn(styles.flexCenter, styles.error)}>
+      {messages.somethingWrong}
+    </div>
+  )
 
   return profile ? (
     <div className={styles.container}>
       {renderSendingAudio()}
       <TipProfilePicture user={profile} />
-      {renderConfirmInfo()}
-      {renderConvertingInfo()}
-      {renderError()}
+      {sendStatus === 'SENDING' && renderEmpty()}
+      {sendStatus === 'CONFIRM' && renderConfirmInfo()}
+      {sendStatus === 'CONVERTING' && renderConvertingInfo()}
+      {sendStatus === 'ERROR' && renderError()}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}

@@ -220,6 +220,10 @@
   margin-bottom: 24px;
 }
 
+.empty {
+  height: 16px;
+}
+
 .goBackContainer {
   margin-top: 24px;
   color: var(--neutral-light-4);
