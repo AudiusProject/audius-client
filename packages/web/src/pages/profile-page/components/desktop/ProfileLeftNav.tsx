@@ -246,8 +246,8 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
         {isTippingEnabled && accountUser && accountUser.user_id !== userId ? (
           <OpacityTransition renderFunc={renderTipAudioButton} />
         ) : null}
-        <SupportingList />
-        <TopSupporters />
+        {isTippingEnabled && <SupportingList />}
+        {isTippingEnabled && <TopSupporters />}
         {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
         {followeeFollows.length > 0 && !isOwner && (
           <ProfileMutuals

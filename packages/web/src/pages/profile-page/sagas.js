@@ -11,7 +11,7 @@ import {
 
 import { DefaultSizes } from 'common/models/ImageSizes'
 import Kind from 'common/models/Kind'
-import { DoubleKeys, FeatureFlags } from 'common/services/remote-config'
+import { DoubleKeys } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import {
@@ -56,11 +56,7 @@ import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
-const {
-  getRemoteVar,
-  getFeatureEnabled,
-  waitForRemoteConfig
-} = remoteConfigInstance
+const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -151,13 +147,6 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
-  yield call(waitForRemoteConfig)
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
-  console.log({ isTippingEnabled })
-  // if (!isTippingEnabled) {
-  //   return
-  // }
-
   const supportingForUserList = yield fetchSupporting({ userId })
   const supportersForUserList = yield fetchSupporters({ userId })
   yield call(cacheUsers, [
