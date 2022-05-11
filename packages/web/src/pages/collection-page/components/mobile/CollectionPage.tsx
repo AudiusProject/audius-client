@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from 'react'
 
 import { Collection, SmartCollection, Variant } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'
+import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
 import { User } from 'common/models/User'
 import {
@@ -11,6 +12,7 @@ import {
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import CollectionHeader from 'components/collection/mobile/CollectionHeader'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import NavContext, {
   LeftPreset,
@@ -27,10 +29,14 @@ const messages = {
   emptyPlaylist: 'This playlist is empty.'
 }
 
-const EmptyTrackList = () => {
+const EmptyTrackList = ({
+  customEmptyText
+}: {
+  customEmptyText?: string | null
+}) => {
   return (
     <div className={styles.emptyListContainer}>
-      <div>{messages.emptyPlaylist}</div>
+      <div>{customEmptyText || messages.emptyPlaylist}</div>
     </div>
   )
 }
@@ -126,10 +132,12 @@ const CollectionPage = ({
     metadata && metadata?.variant !== Variant.SMART
       ? metadata._cover_art_sizes
       : null
-  const duration = tracks.entries?.reduce(
-    (duration, entry) => duration + entry.duration,
-    0
-  )
+  const duration =
+    tracks.entries?.reduce(
+      (duration: number, entry: CollectionTrack) =>
+        duration + entry.duration || 0,
+      0
+    ) ?? 0
 
   const playlistOwnerName = user?.name ?? ''
   const playlistOwnerHandle = user?.handle ?? ''
@@ -137,7 +145,7 @@ const CollectionPage = ({
   const isOwner = userId === playlistOwnerId
 
   const isSaved =
-    metadata?.has_current_user_saved || playlistId in userPlaylists
+    metadata?.has_current_user_saved || playlistId in (userPlaylists ?? {})
   const isPublishing =
     metadata && metadata?.variant !== Variant.SMART
       ? metadata._is_publishing
@@ -146,8 +154,14 @@ const CollectionPage = ({
   const variant = metadata?.variant ?? null
   const gradient =
     metadata && metadata.variant === Variant.SMART ? metadata.gradient : ''
+  const imageOverride =
+    metadata && metadata.variant === Variant.SMART ? metadata.imageOverride : ''
   const icon =
     metadata && metadata.variant === Variant.SMART ? metadata.icon : null
+  const typeTitle =
+    metadata?.variant === Variant.SMART ? metadata?.typeTitle ?? type : type
+  const customEmptyText =
+    metadata?.variant === Variant.SMART ? metadata?.customEmptyText : null
 
   const {
     isEmpty,
@@ -161,8 +175,18 @@ const CollectionPage = ({
     isReposted
   } = computeCollectionMetadataProps(metadata)
 
-  const togglePlay = (uid: string, trackId: ID) =>
-    onClickRow({ uid, track_id: trackId })
+  const togglePlay = (uid: string, trackId: ID) => {
+    if (playlistId === SmartCollectionVariant.AUDIO_NFT_PLAYLIST) {
+      const { collectible } = tracks.entries.find(track => track.uid === uid)
+      onClickRow({
+        ...collectible,
+        uid: collectible.id,
+        track_id: collectible.id
+      })
+    } else {
+      onClickRow({ uid, track_id: trackId })
+    }
+  }
   const onSave = (isSaved: boolean, trackId: number) => {
     if (!isOwner) {
       onClickSave({ has_current_user_saved: isSaved, track_id: trackId })
@@ -177,12 +201,12 @@ const CollectionPage = ({
     isReposted: entry.has_current_user_reposted,
     isActive: playingUid === entry.uid,
     isPlaying: queuedAndPlaying && playingUid === entry.uid,
-    artistName: entry.user.name,
-    artistHandle: entry.user.handle,
+    artistName: entry?.user?.name,
+    artistHandle: entry?.user?.handle,
     trackTitle: entry.title,
     trackId: entry.track_id,
     uid: entry.uid,
-    isDeleted: entry.is_delete || !!entry.user.is_deactivated
+    isDeleted: entry.is_delete || !!entry?.user?.is_deactivated
   }))
 
   return (
@@ -200,9 +224,13 @@ const CollectionPage = ({
             <CollectionHeader
               collectionId={playlistId}
               userId={user?.user_id ?? 0}
-              loading={collectionLoading}
+              loading={
+                typeTitle === 'Audio NFT Playlist'
+                  ? tracksLoading
+                  : collectionLoading
+              }
               tracksLoading={tracksLoading}
-              type={type}
+              type={typeTitle}
               title={playlistName}
               artistName={playlistOwnerName}
               artistHandle={playlistOwnerHandle}
@@ -232,6 +260,7 @@ const CollectionPage = ({
               // Smart collection
               variant={variant}
               gradient={gradient}
+              imageOverride={imageOverride}
               icon={icon}
             />
           </div>
@@ -240,7 +269,7 @@ const CollectionPage = ({
               isEmpty ? (
                 <>
                   <div className={styles.divider}></div>
-                  <EmptyTrackList />
+                  <EmptyTrackList customEmptyText={customEmptyText} />
                 </>
               ) : (
                 <TrackList
@@ -253,6 +282,9 @@ const CollectionPage = ({
                   togglePlay={togglePlay}
                 />
               )
+            ) : null}
+            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+              <LoadingSpinner className={styles.spinner} />
             ) : null}
           </div>
         </div>
