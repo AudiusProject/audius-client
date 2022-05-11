@@ -1,4 +1,4 @@
-import { ComponentType, ReactNode, useContext } from 'react'
+import { ComponentType, ReactNode } from 'react'
 
 import {
   createMaterialTopTabNavigator,
@@ -7,7 +7,6 @@ import {
 import { SvgProps } from 'react-native-svg'
 
 import { TopTabBar } from 'app/components/top-tab-bar'
-import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { makeStyles } from 'app/styles'
 
 const Tab = createMaterialTopTabNavigator()
@@ -31,8 +30,6 @@ export const TabNavigator = ({
 }: TabNavigatorProps) => {
   const styles = useStyles()
 
-  const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
-
   return (
     <Tab.Navigator
       initialRouteName={initialScreenName}
@@ -42,12 +39,6 @@ export const TabNavigator = ({
         tabBarLabelStyle: styles.label,
         tabBarIndicatorStyle: styles.indicator,
         ...screenOptions
-      }}
-      screenListeners={{
-        state: (e: any) => {
-          const { index } = e?.data?.state
-          drawerNavigation?.setOptions({ swipeEnabled: index === 0 })
-        }
       }}
     >
       {children}

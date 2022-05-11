@@ -104,10 +104,9 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           } else {
             // If on the first tab (or the first stack screen isn't a tab navigator),
             // enable the drawer
-            const isOnFirstTab = !e?.data?.state.routes[0].state?.index
-            if (isOnFirstTab) {
-              drawerNavigation?.setOptions({ swipeEnabled: true })
-            }
+            drawerNavigation?.setOptions({
+              swipeEnabled: !e?.data?.state.routes[0].state?.index
+            })
           }
         },
         beforeRemove: e => {
