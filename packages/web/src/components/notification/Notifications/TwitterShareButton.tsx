@@ -12,8 +12,6 @@ type TwitterShareButtonProps = {
   onClick?: MouseEventHandler
 }
 
-// TODO: mark notificationAsRead() // potentially move this to tile?
-
 export const TwitterShareButton = (props: TwitterShareButtonProps) => {
   const { onClick } = props
 
