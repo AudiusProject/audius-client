@@ -159,11 +159,16 @@ function* fetchSupportersAndSupporting(userId) {
   // }
 
   const supportingForUserList = yield fetchSupporting({ userId })
+  const supportersForUserList = yield fetchSupporters({ userId })
+  yield call(cacheUsers, [
+    ...supportingForUserList.map(supporting => supporting.receiver),
+    ...supportersForUserList.map(supporter => supporter.sender)
+  ])
+
   const supportingForUser = {}
   supportingForUserList.forEach(supporting => {
     supportingForUser[supporting.receiver.user_id] = { ...supporting }
   })
-  const supportersForUserList = yield fetchSupporters({ userId })
   const supportersForUser = {}
   supportersForUserList.forEach(supporter => {
     supportersForUser[supporter.sender.user_id] = { ...supporter }
