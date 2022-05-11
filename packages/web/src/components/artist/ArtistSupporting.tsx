@@ -31,6 +31,7 @@ export const ArtistSupporting = ({
         limit={MAX_TOP_SUPPORTING}
         users={supportingList.map(s => s.receiver)}
         disableProfileClick
+        disablePopover
       />
     </div>
   ) : null
