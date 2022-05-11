@@ -19,17 +19,11 @@ const messages = {
   title: 'Trending on Audius!',
   your: 'Your track',
   is: 'is',
-  trending: 'on Trending right now!'
-}
-
-const getTwitterShareInfo = (notification: TrendingTrack) => {
-  const link = getEntityLink(notification.entity, true)
-  const text = `My track ${notification.entity.title} is trending ${
-    notification.rank
-  }${getRankSuffix(
-    notification.rank
-  )} on @AudiusProject! #AudiusTrending #Audius`
-  return { link, text }
+  trending: 'on Trending right now!',
+  twitterShareText: (entityTitle: string, rank: number) =>
+    `My track ${entityTitle} is trending ${rank}${getRankSuffix(
+      rank
+    )} on @AudiusProject! #AudiusTrending #Audius`
 }
 
 type TrendingTrackNotificationProps = {
@@ -45,7 +39,9 @@ export const TrendingTrackNotification = (
   const record = useRecord()
 
   const handleShare = useCallback(() => {
-    const { link, text } = getTwitterShareInfo(notification)
+    const { entity, rank } = notification
+    const link = getEntityLink(entity, true)
+    const text = messages.twitterShareText(entity.title, rank)
     openTwitterLink(link, text)
     record(
       make(Name.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE, {

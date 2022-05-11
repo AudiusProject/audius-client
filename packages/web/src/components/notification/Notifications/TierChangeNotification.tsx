@@ -22,7 +22,9 @@ const messages = {
   audio: '$AUDIO!',
   audioLabel: 'audio tokens',
   accessInfo:
-    'You now have access to exclusive features & a shiny new badge by your name.'
+    'You now have access to exclusive features & a shiny new badge by your name.',
+  twitterShareText: (label: string, icon: string) =>
+    `I've reached ${label} Tier on @AudiusProject! Check out the shiny new badge next to my name ${icon}`
 }
 
 const tierInfoMap = {
@@ -49,7 +51,7 @@ export const TierChangeNotification = (props: TierChangeNotificationProps) => {
   const handleShare = useCallback(() => {
     const link = fullProfilePage(user.handle)
     const { label, icon } = tierInfoMap[tier]
-    const text = `I've reached ${label} Tier on @AudiusProject! Check out the shiny new badge next to my name ${icon}`
+    const text = messages.twitterShareText(label, icon)
     openTwitterLink(link, text)
   }, [tier, user])
 

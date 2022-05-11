@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 
 import { Name } from 'common/models/Analytics'
+import { Track } from 'common/models/Track'
 import { RemixCosign } from 'common/store/notifications/types'
 import { make, useRecord } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
@@ -21,7 +22,9 @@ import { getTwitterHandleByUserHandle, getEntityLink } from './utils'
 
 const messages = {
   title: 'Remix Co-sign',
-  cosign: 'Co-signed your Remix of'
+  cosign: 'Co-signed your Remix of',
+  shareTwitterText: (track: Track, handle: string) =>
+    `My remix of ${track.title} was Co-Signed by ${handle} on @AudiusProject #Audius`
 }
 
 const getTwitterShareInfo = async (notification: RemixCosign) => {
@@ -31,18 +34,16 @@ const getTwitterShareInfo = async (notification: RemixCosign) => {
 
   if (!parentTrack || !childtrack) return { text: '', link: '' }
 
+  const link = getEntityLink(childtrack, true)
+
   let twitterHandle = await getTwitterHandleByUserHandle(
     notification.user.handle
   )
   if (!twitterHandle) twitterHandle = notification.user.name
   else twitterHandle = `@${twitterHandle}`
+  const text = messages.shareTwitterText(parentTrack, twitterHandle)
 
-  const link = getEntityLink(childtrack, true)
-
-  return {
-    text: `My remix of ${parentTrack.title} was Co-Signed by ${twitterHandle} on @AudiusProject #Audius`,
-    link
-  }
+  return { link, text }
 }
 
 type RemixCosignNotificationProps = {

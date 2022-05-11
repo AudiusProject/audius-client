@@ -14,7 +14,9 @@ import { IconRewards } from './icons'
 
 const messages = {
   body: (amount: number) =>
-    `You've earned ${amount} $AUDIO for completing this challenge!`
+    `You've earned ${amount} $AUDIO for completing this challenge!`,
+  twitterShareText:
+    'I earned $AUDIO for completing challenges on @AudiusProject #AudioRewards'
 }
 
 type ChallengeRewardNotificationProps = {
@@ -32,8 +34,7 @@ export const ChallengeRewardNotification = (
   ]
 
   const handleShare = useCallback(() => {
-    const text = `I earned $AUDIO for completing challenges on @AudiusProject #AudioRewards`
-    openTwitterLink(null, text)
+    openTwitterLink(null, messages.twitterShareText)
   }, [])
 
   return (

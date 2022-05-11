@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 
 import { Name } from 'common/models/Analytics'
+import { Track } from 'common/models/Track'
 import { RemixCreate } from 'common/store/notifications/types'
 import { make, useRecord } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
@@ -19,7 +20,9 @@ import { getTwitterHandleByUserHandle, getEntityLink } from './utils'
 
 const messages = {
   title: 'New remix of your track',
-  by: 'by'
+  by: 'by',
+  shareTwitterText: (track: Track, handle: string) =>
+    `New remix of ${track.title} by ${handle} on @AudiusProject #Audius`
 }
 
 const getTwitterShareInfo = async (notification: RemixCreate) => {
@@ -32,11 +35,9 @@ const getTwitterShareInfo = async (notification: RemixCreate) => {
   let twitterHandle = await getTwitterHandleByUserHandle(user.handle)
   if (!twitterHandle) twitterHandle = user.name
   else twitterHandle = `@${twitterHandle}`
+  const text = messages.shareTwitterText(track, twitterHandle)
 
-  return {
-    text: `New remix of ${track.title} by ${twitterHandle} on @AudiusProject #Audius`,
-    link
-  }
+  return { link, text }
 }
 
 type RemixCreateNotificationProps = {

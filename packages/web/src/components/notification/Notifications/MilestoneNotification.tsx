@@ -21,19 +21,20 @@ const messages = {
   title: 'Milestone Reached!',
   follows: 'You have reached over',
   your: 'Your',
-  reached: 'has reached over'
-}
-
-export const formatAchievementText = (
-  type: string,
-  name: string,
-  value: number,
-  achievement: string
-) => {
-  const achievementText =
-    achievement === Achievement.Listens ? 'Plays' : achievement
-  return `My ${type} ${name} has more than ${value} ${achievementText} on @AudiusProject #Audius
+  reached: 'has reached over',
+  followerAchievementText: (followersCount: number) =>
+    `I just hit over ${followersCount} followers on @AudiusProject #Audius!`,
+  achievementText: (
+    type: string,
+    name: string,
+    value: number,
+    achievement: string
+  ) => {
+    const achievementText =
+      achievement === Achievement.Listens ? 'plays' : achievement
+    return `My ${type} ${name} has more than ${value} ${achievementText} on @AudiusProject #Audius
 Check it out!`
+  }
 }
 
 const getAchievementText = async (notification: Milestone) => {
@@ -41,7 +42,7 @@ const getAchievementText = async (notification: Milestone) => {
   switch (achievement) {
     case Achievement.Followers: {
       const link = fullProfilePage(user.handle)
-      const text = `I just hit over ${value} followers on @AudiusProject #Audius!`
+      const text = messages.followerAchievementText(value)
       return { text, link }
     }
     case Achievement.Favorites:
@@ -50,7 +51,7 @@ const getAchievementText = async (notification: Milestone) => {
       // @ts-ignore new version of typescript will catch this
       const { entity, entityType } = notification
       const link = getEntityLink(entity, true)
-      const text = formatAchievementText(
+      const text = messages.achievementText(
         entityType,
         'title' in entity ? entity.title : entity.playlist_name,
         value,
