@@ -66,7 +66,7 @@ export const UserSubscriptionNotification = (
             <UserNameLink user={user} notification={notification} />{' '}
             {messages.posted} {singleEntity ? 'a' : entitiesCount}{' '}
             {messages.new} {entityType.toLowerCase()}
-            {singleEntity ? '' : 's'}
+            {singleEntity ? '' : 's'}{' '}
             {singleEntity ? (
               <EntityLink entity={entities[0]} entityType={entityType} />
             ) : null}

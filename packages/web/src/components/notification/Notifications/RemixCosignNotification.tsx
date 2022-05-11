@@ -90,8 +90,7 @@ export const RemixCosignNotification = (
       </NotificationHeader>
       <NotificationBody>
         <UserNameLink user={user} notification={notification} />{' '}
-        {messages.cosign}
-        <EntityLink entity={entity} entityType={entityType} />
+        {messages.cosign} <EntityLink entity={entity} entityType={entityType} />
       </NotificationBody>
       <div>
         <TrackContent notification={notification} goToEntityPage={() => {}} />

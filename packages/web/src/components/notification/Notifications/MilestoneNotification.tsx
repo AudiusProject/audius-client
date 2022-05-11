@@ -90,7 +90,7 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
 
       return (
         <span>
-          {messages.your} {entityType}
+          {messages.your} {entityType}{' '}
           <EntityLink entity={entityWithUser} entityType={entityType} />{' '}
           {messages.reached} {formatCount(value)} {achievementText}
         </span>
