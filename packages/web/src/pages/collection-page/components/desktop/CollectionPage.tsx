@@ -10,6 +10,7 @@ import {
   CollectionsPageType
 } from 'common/store/pages/collection/types'
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import TracksTable from 'components/tracks-table/TracksTable'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
@@ -57,6 +58,7 @@ export type CollectionPageProps = {
     status: string
     entries: CollectionTrack[]
   }
+  columns?: any
   userId: ID | null
   userPlaylists: any
   isQueued: () => boolean
@@ -99,6 +101,7 @@ const CollectionPage = ({
   playing,
   type,
   collection: { status, metadata, user },
+  columns,
   tracks,
   userId,
   userPlaylists,
@@ -141,7 +144,8 @@ const CollectionPage = ({
       : null
   const duration =
     tracks.entries?.reduce(
-      (duration: number, entry: CollectionTrack) => duration + entry.duration,
+      (duration: number, entry: CollectionTrack) =>
+        duration + entry.duration || 0,
       0
     ) ?? 0
 
@@ -151,12 +155,16 @@ const CollectionPage = ({
   const isOwner = userId === playlistOwnerId
   const isFollowing = user?.does_current_user_follow ?? false
   const isSaved =
-    metadata?.has_current_user_saved || playlistId in userPlaylists
+    metadata?.has_current_user_saved || playlistId in (userPlaylists ?? {})
 
   const variant = metadata?.variant ?? null
   const gradient =
     (metadata?.variant === Variant.SMART && metadata.gradient) ?? ''
   const icon = (metadata?.variant === Variant.SMART && metadata.icon) ?? null
+  const imageOverride =
+    (metadata?.variant === Variant.SMART && metadata.imageOverride) ?? ''
+  const typeTitle =
+    metadata?.variant === Variant.SMART ? metadata?.typeTitle ?? type : type
 
   const {
     trackCount,
@@ -178,7 +186,7 @@ const CollectionPage = ({
       userId={playlistOwnerId}
       loading={collectionLoading}
       tracksLoading={tracksLoading}
-      type={type}
+      type={typeTitle}
       title={playlistName}
       artistName={playlistOwnerName}
       artistHandle={playlistOwnerHandle}
@@ -215,6 +223,7 @@ const CollectionPage = ({
       variant={variant}
       gradient={gradient}
       icon={icon}
+      imageOverride={imageOverride}
     />
   )
 
@@ -232,11 +241,14 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} />
         ) : (
           <div className={styles.tableWrapper}>
-            {collectionLoading ? null : (
+            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+              <LoadingSpinner className={styles.spinner} />
+            ) : (
               <TracksTable
                 key={playlistName}
                 loading={tracksLoading}
                 loadingRowsCount={trackCount}
+                columns={columns}
                 userId={userId}
                 playing={playing}
                 playingIndex={playingIndex}

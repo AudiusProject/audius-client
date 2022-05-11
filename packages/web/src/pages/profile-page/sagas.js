@@ -1,13 +1,5 @@
 import { merge } from 'lodash'
-import {
-  call,
-  delay,
-  fork,
-  put,
-  select,
-  takeEvery,
-  takeLatest
-} from 'redux-saga/effects'
+import { call, delay, fork, put, select, takeEvery } from 'redux-saga/effects'
 
 import { DefaultSizes } from 'common/models/ImageSizes'
 import Kind from 'common/models/Kind'
@@ -51,7 +43,7 @@ import { waitForValue } from 'utils/sagaHelpers'
 const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
 function* watchFetchProfile() {
-  yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
+  yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
 }
 
 function* fetchProfileCustomizedCollectibles(user) {
@@ -167,7 +159,13 @@ function* fetchProfileAsync(action) {
       }
       return
     }
-    yield put(profileActions.fetchProfileSucceeded(user.handle, user.user_id))
+    yield put(
+      profileActions.fetchProfileSucceeded(
+        user.handle,
+        user.user_id,
+        action.fetchOnly
+      )
+    )
 
     // Fetch user socials and collections after fetching the user itself
     yield fork(fetchUserSocials, action.handle)

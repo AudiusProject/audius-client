@@ -55,3 +55,9 @@
 :global(.ant-table-tbody > tr:last-child td) {
   border-bottom: none;
 }
+
+.spinner {
+  width: 52px;
+  height: 52px;
+  margin: 16px auto;
+}
