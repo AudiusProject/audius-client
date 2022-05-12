@@ -42,7 +42,7 @@ export const Notification = (props: NotificationProps) => {
   )
 
   const users = useSelector((state: CommonState) =>
-    getNotificationUsers(state, notificationProp, USER_LENGTH_LIMIT)
+    getNotificationUsers(state, notificationProp, USER_LENGTH_LIMIT + 3)
   )
 
   const entity = useSelector((state: CommonState) =>
