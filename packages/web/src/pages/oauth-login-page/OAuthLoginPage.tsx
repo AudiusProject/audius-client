@@ -84,7 +84,18 @@ export const OAuthLoginPage = () => {
       return
     }
     const timestamp = Math.round(new Date().getTime() / 1000)
-    const response = { email, state, iat: timestamp }
+    const response = {
+      userId: account?.user_id,
+      email,
+      name: account?.name,
+      handle: account?.handle,
+      verified: account?.is_verified,
+      // TODO(nkang): Get profile pic URL
+      // imageURL: account?._profile_picture_sizes,
+      state,
+      sub: account?.user_id,
+      iat: timestamp
+    }
     const header = base64url.encode(
       JSON.stringify({ typ: 'JWT', alg: 'keccak256' })
     )
@@ -118,6 +129,7 @@ export const OAuthLoginPage = () => {
       signInResponse.user.name
     ) {
       // Success - perform Oauth authorization
+      await authAndRedirect()
     } else if (
       (!signInResponse.error &&
         signInResponse.user &&
@@ -132,6 +144,9 @@ export const OAuthLoginPage = () => {
 
   const authAndRedirect = async () => {
     const jwt = await formOAuthResponse()
+    if (jwt == null) {
+      return
+    }
     const statePart = state != null ? `state=${state}&` : ''
     const fragment = `#${statePart}token=${jwt}`
     if (isRedirectValidRef.current === true) {

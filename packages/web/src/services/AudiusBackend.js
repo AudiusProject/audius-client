@@ -1014,6 +1014,7 @@ class AudiusBackend {
   }
 
   static async getUserEmail() {
+    await waitForLibsInit()
     const { email } = await audiusLibs.Account.getUserEmail()
     return email
   }
