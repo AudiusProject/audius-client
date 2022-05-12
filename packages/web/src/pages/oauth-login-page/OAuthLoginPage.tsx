@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import React, { FormEvent, useMemo, useState } from 'react'
 
 import { Button } from '@audius/stems'
 import base64url from 'base64url'
@@ -14,17 +14,14 @@ import styles from '../styles/OAuthLoginPage.module.css'
 
 export const OAuthLoginPage = () => {
   const { search, hash } = useLocation()
-  const isRedirectValidRef = useRef<undefined | boolean>(undefined)
   const { scope, state, redirect_uri } = queryString.parse(search)
   const parsedRedirectUri = useMemo(() => {
     if (redirect_uri && typeof redirect_uri === 'string') {
-      let res: URL
       try {
-        res = new URL(redirect_uri)
+        return new URL(redirect_uri)
       } catch {
         return null
       }
-      return res
     }
     return null
   }, [redirect_uri])
@@ -37,25 +34,22 @@ export const OAuthLoginPage = () => {
   const [password, setPassword] = useState('')
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const isRedirectValid = useMemo(() => {
     if (redirect_uri) {
       if (parsedRedirectUri == null) {
         // This means the redirect uri is not a string (and is thus invalid) or the URI format was invalid
-        isRedirectValidRef.current = false
-        return
+        return false
       }
       const { hash, username, password, pathname, hostname } = parsedRedirectUri
       if (hash || username || password) {
-        isRedirectValidRef.current = false
-        return
+        return false
       }
       if (
         pathname.includes('/..') ||
         pathname.includes('\\..') ||
         pathname.includes('../')
       ) {
-        isRedirectValidRef.current = false
-        return
+        return false
       }
 
       // From https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address:
@@ -67,12 +61,11 @@ export const OAuthLoginPage = () => {
         hostname !== '[::1]' &&
         !localhostIPv4Regex.test(hostname)
       ) {
-        isRedirectValidRef.current = false
-        return
+        return false
       }
       // TODO(nkang): Potentially check URI against malware list like https://urlhaus-api.abuse.ch/#urlinfo
     }
-    isRedirectValidRef.current = true
+    return true
   }, [parsedRedirectUri, redirect_uri])
 
   const formOAuthResponse = async () => {
@@ -149,7 +142,7 @@ export const OAuthLoginPage = () => {
     }
     const statePart = state != null ? `state=${state}&` : ''
     const fragment = `#${statePart}token=${jwt}`
-    if (isRedirectValidRef.current === true) {
+    if (isRedirectValid === true) {
       if (redirect_uri) {
         window.location.href = `${redirect_uri}${fragment}`
       } else {
@@ -164,7 +157,7 @@ export const OAuthLoginPage = () => {
     )
   }
 
-  if (isRedirectValidRef.current === false) {
+  if (isRedirectValid === false) {
     return (
       <div className={styles.container}>
         Something went wrong - this is an invalid link.
