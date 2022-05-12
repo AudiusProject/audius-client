@@ -13,6 +13,7 @@ import {
 } from 'common/store/user-list/top-supporters/selectors'
 import { createUserListProvider } from 'components/user-list/utils'
 import { fetchSupporters } from 'services/audius-backend/Tipping'
+import { encodeHashId } from 'utils/route/hashIds'
 
 export const USER_LIST_TAG = 'TOP SUPPORTERS'
 
@@ -29,8 +30,11 @@ const provider = createUserListProvider<User>({
     entityId: ID
     currentUserId: ID | null
   }) => {
+    const encodedUserId = encodeHashId(entityId)
+    if (!encodedUserId) return []
+
     const supporters = await fetchSupporters({
-      userId: entityId,
+      encodedUserId,
       limit: limit,
       offset: offset
     })

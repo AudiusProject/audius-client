@@ -216,7 +216,9 @@ export const SendTip = () => {
     <div className={styles.container}>
       <TipProfilePicture user={profile} />
       {!hasError && isFirstSupporter && renderBecomeFirstSupporter()}
-      {!hasError && amountToTipToBecomeTopSupporter && renderBecomeTopSupporter()}
+      {!hasError &&
+        amountToTipToBecomeTopSupporter &&
+        renderBecomeTopSupporter()}
       <div className={styles.amountToSend}>
         <TokenValueInput
           className={styles.inputContainer}

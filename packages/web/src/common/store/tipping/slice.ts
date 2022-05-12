@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 
-import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
@@ -24,35 +23,39 @@ const slice = createSlice({
   reducers: {
     setSupporters: (
       state,
-      action: PayloadAction<{ supporters: Record<ID, Record<ID, Supporter>> }>
+      action: PayloadAction<{
+        supporters: Record<string, Record<string, Supporter>>
+      }>
     ) => {
       state.supporters = action.payload.supporters
     },
     setSupportersForUser: (
       state,
       action: PayloadAction<{
-        userId: ID
-        supportersForUser: Record<ID, Supporter>
+        id: string
+        supportersForUser: Record<string, Supporter>
       }>
     ) => {
-      const { userId, supportersForUser } = action.payload
-      state.supporters[userId] = supportersForUser
+      const { id, supportersForUser } = action.payload
+      state.supporters[id] = supportersForUser
     },
     setSupporting: (
       state,
-      action: PayloadAction<{ supporting: Record<ID, Record<ID, Supporting>> }>
+      action: PayloadAction<{
+        supporting: Record<string, Record<string, Supporting>>
+      }>
     ) => {
       state.supporting = action.payload.supporting
     },
     setSupportingForUser: (
       state,
       action: PayloadAction<{
-        userId: ID
-        supportingForUser: Record<ID, Supporting>
+        id: string
+        supportingForUser: Record<string, Supporting>
       }>
     ) => {
-      const { userId, supportingForUser } = action.payload
-      state.supporting[userId] = supportingForUser
+      const { id, supportingForUser } = action.payload
+      state.supporting[id] = supportingForUser
     },
     beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {

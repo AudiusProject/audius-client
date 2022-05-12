@@ -1,4 +1,3 @@
-import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
@@ -30,8 +29,8 @@ export type TippingState = {
    * Structured it this way to make it easy to check whether a user
    * is supported by / supports another user.
    */
-  supporters: Record<ID, Record<ID, Supporter>>
-  supporting: Record<ID, Record<ID, Supporting>>
+  supporters: Record<string, Record<string, Supporter>>
+  supporting: Record<string, Record<string, Supporting>>
   send: {
     status: Nullable<TippingSendStatus>
     user: Nullable<User>

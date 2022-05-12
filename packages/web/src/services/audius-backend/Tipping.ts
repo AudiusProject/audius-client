@@ -1,7 +1,6 @@
-import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
+import * as adapter from 'services/audius-api-client/ResponseAdapter'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const LIMIT = 25
 
@@ -9,26 +8,34 @@ const LIMIT = 25
 const libs = () => window.audiusLibs
 
 type SupportRequest = {
-  userId: ID
+  encodedUserId: string
   limit?: number
   offset?: number
 }
 export const fetchSupporting = async ({
-  userId,
+  encodedUserId,
   limit = LIMIT,
   offset = 0
 }: SupportRequest): Promise<Supporting[]> => {
   try {
-    const encodedUserId = encodeHashId(userId)
     await waitForLibsInit()
-    const response: Supporting[] = await libs().discoveryProvider._makeRequest({
+    const response = await libs().discoveryProvider._makeRequest({
       endpoint: `/v1/users/${encodedUserId}/supporting`,
       params: { limit, offset }
     })
-    return response
+    return response.map((item: any) => {
+      return {
+        ...item,
+        receiver: {
+          ...adapter.makeUser(item.receiver),
+          _profile_picture_sizes: item.receiver.profile_picture,
+          _cover_photo_sizes: item.receiver.cover_photo
+        }
+      }
+    }) as Supporting[]
   } catch (e) {
     console.error(
-      `Could not fetch supporting for user id ${userId}: ${
+      `Could not fetch supporting for encoded user id ${encodedUserId}: ${
         (e as Error).message
       }`
     )
@@ -37,21 +44,29 @@ export const fetchSupporting = async ({
 }
 
 export const fetchSupporters = async ({
-  userId,
+  encodedUserId,
   limit = LIMIT,
   offset = 0
 }: SupportRequest): Promise<Supporter[]> => {
   try {
-    const encodedUserId = encodeHashId(userId)
     await waitForLibsInit()
     const response: Supporter[] = await libs().discoveryProvider._makeRequest({
-      endpoint: `/v1/users/${encodedUserId}/supporter`,
+      endpoint: `/v1/users/${encodedUserId}/supporters`,
       params: { limit, offset }
     })
-    return response
+    return response.map((item: any) => {
+      return {
+        ...item,
+        sender: {
+          ...adapter.makeUser(item.sender),
+          _profile_picture_sizes: item.sender.profile_picture,
+          _cover_photo_sizes: item.sender.cover_photo
+        }
+      }
+    }) as Supporter[]
   } catch (e) {
     console.error(
-      `Could not fetch supporters for user id ${userId}: ${
+      `Could not fetch supporters for encoded user id ${encodedUserId}: ${
         (e as Error).message
       }`
     )

@@ -11,8 +11,10 @@ import {
   getUserList,
   getUserIds
 } from 'common/store/user-list/supporting/selectors'
+import { stringWeiToBN } from 'common/utils/wallet'
 import { createUserListProvider } from 'components/user-list/utils'
 import { fetchSupporting } from 'services/audius-backend/Tipping'
+import { encodeHashId } from 'utils/route/hashIds'
 
 export const USER_LIST_TAG = 'SUPPORTING'
 
@@ -29,13 +31,20 @@ const provider = createUserListProvider<User>({
     entityId: ID
     currentUserId: ID | null
   }) => {
+    const encodedUserId = encodeHashId(entityId)
+    if (!encodedUserId) return []
+
     const supporting = await fetchSupporting({
-      userId: entityId,
+      encodedUserId,
       limit: limit,
       offset: offset
     })
     return supporting
-      .sort((s1, s2) => s2.amount - s1.amount)
+      .sort((s1, s2) => {
+        const amount1BN = stringWeiToBN(s1.amount)
+        const amount2BN = stringWeiToBN(s2.amount)
+        return amount1BN.gte(amount2BN) ? -1 : 1
+      })
       .map(s => s.receiver)
   },
   selectCurrentUserIDsInList: getUserIds,

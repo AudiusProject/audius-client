@@ -54,6 +54,7 @@ import { confirmTransaction } from 'store/confirmer/sagas'
 import { isMobile } from 'utils/clientUtil'
 import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { encodeHashId } from 'utils/route/hashIds'
 import { waitForValue } from 'utils/sagaHelpers'
 
 const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
@@ -147,23 +148,39 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
-  const supportingForUserList = yield fetchSupporting({ userId })
-  const supportersForUserList = yield fetchSupporters({ userId })
+  const encodedUserId = encodeHashId(userId)
+
+  const supportingForUserList = yield fetchSupporting({ encodedUserId })
+  const supportersForUserList = yield fetchSupporters({ encodedUserId })
   yield call(cacheUsers, [
     ...supportingForUserList.map(supporting => supporting.receiver),
     ...supportersForUserList.map(supporter => supporter.sender)
   ])
 
-  const supportingForUser = {}
+  console.log({ supportingForUserList, supportersForUserList })
+
+  const supportingForUserMap = {}
   supportingForUserList.forEach(supporting => {
-    supportingForUser[supporting.receiver.user_id] = { ...supporting }
+    const encodedReceiverUserId = encodeHashId(supporting.receiver.user_id)
+    supportingForUserMap[encodedReceiverUserId] = { ...supporting }
   })
-  const supportersForUser = {}
+  const supportersForUserMap = {}
   supportersForUserList.forEach(supporter => {
-    supportersForUser[supporter.sender.user_id] = { ...supporter }
+    const encodedSenderUserId = encodeHashId(supporter.sender.user_id)
+    supportersForUserMap[encodedSenderUserId] = { ...supporter }
   })
-  yield put(setSupportingForUser({ userId, supportingForUser }))
-  yield put(setSupportersForUser({ userId, supportersForUser }))
+  yield put(
+    setSupportingForUser({
+      id: encodedUserId,
+      supportingForUser: supportingForUserMap
+    })
+  )
+  yield put(
+    setSupportersForUser({
+      id: encodedUserId,
+      supportersForUser: supportersForUserMap
+    })
+  )
 }
 
 function* fetchProfileAsync(action) {

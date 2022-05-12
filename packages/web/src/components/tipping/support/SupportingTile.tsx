@@ -6,6 +6,8 @@ import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
+import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
+import profilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
 import { SquareSizes, WidthSizes } from 'common/models/ImageSizes'
 import { Supporting } from 'common/models/Tipping'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -27,16 +29,18 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
   const { receiver, rank } = supporting
   const handle = receiver.handle
   const isTopRank = rank >= 1 && rank <= TIPPING_TOP_RANK_THRESHOLD
-  const profileImage = useUserProfilePicture(
-    receiver.user_id,
-    receiver._profile_picture_sizes,
-    SquareSizes.SIZE_150_BY_150
-  )
-  const coverPhoto = useUserCoverPhoto(
-    receiver.user_id,
-    receiver._cover_photo_sizes,
-    WidthSizes.SIZE_640
-  )
+  const profileImage =
+    useUserProfilePicture(
+      receiver.user_id,
+      receiver._profile_picture_sizes,
+      SquareSizes.SIZE_150_BY_150
+    ) || profilePicEmpty
+  const coverPhoto =
+    useUserCoverPhoto(
+      receiver.user_id,
+      receiver._cover_photo_sizes,
+      WidthSizes.SIZE_640
+    ) || imageCoverPhotoBlank
 
   const handleClick = useCallback(() => {
     dispatch(pushRoute(`/${handle}`))

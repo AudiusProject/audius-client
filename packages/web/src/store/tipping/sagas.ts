@@ -2,7 +2,6 @@ import BN from 'bn.js'
 import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
@@ -27,6 +26,7 @@ import {
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
+import { encodeHashId } from 'utils/route/hashIds'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
@@ -111,11 +111,13 @@ function* sendTipAsync() {
      * Refresh the supporting list for sender
      * and the supporters list for the receiver
      */
+    const encodedSenderUserId = encodeHashId(sender.user_id)!
     const supportingForSender = yield* call(fetchSupporting, {
-      userId: sender.user_id
+      encodedUserId: encodedSenderUserId
     })
+    const encodedRecipientUserId = encodeHashId(recipient.user_id)!
     const supportersForReceiver = yield* call(fetchSupporters, {
-      userId: recipient.user_id
+      encodedUserId: encodedRecipientUserId
     })
     yield processAndCacheUsers(
       [
@@ -124,23 +126,25 @@ function* sendTipAsync() {
       ].filter(user => user.user_id !== sender.user_id)
     )
 
-    const supportingForSenderMap: Record<ID, Supporting> = {}
+    const supportingForSenderMap: Record<string, Supporting> = {}
     supportingForSender.forEach(supporting => {
-      supportingForSenderMap[supporting.receiver.user_id] = { ...supporting }
+      const encodedReceiverUserId = encodeHashId(supporting.receiver.user_id)
+      supportingForSenderMap[encodedReceiverUserId!] = { ...supporting }
     })
-    const supportersForRecipientMap: Record<ID, Supporter> = {}
+    const supportersForRecipientMap: Record<string, Supporter> = {}
     supportersForReceiver.forEach(supporter => {
-      supportersForRecipientMap[supporter.sender.user_id] = { ...supporter }
+      const encodedSenderUserId = encodeHashId(supporter.sender.user_id)
+      supportersForRecipientMap[encodedSenderUserId!] = { ...supporter }
     })
     yield put(
       setSupportingForUser({
-        userId: sender.user_id,
+        id: encodedSenderUserId,
         supportingForUser: supportingForSenderMap
       })
     )
     yield put(
       setSupportersForUser({
-        userId: recipient.user_id,
+        id: encodedRecipientUserId,
         supportersForUser: supportersForRecipientMap
       })
     )

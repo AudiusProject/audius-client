@@ -16,6 +16,7 @@ import { setNotificationSubscription } from 'common/store/pages/profile/actions'
 import * as socialActions from 'common/store/social/users/actions'
 import { MountPlacement } from 'components/types'
 import { getSupporting } from 'common/store/tipping/selectors'
+import { stringWeiToBN } from 'common/utils/wallet'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
@@ -89,7 +90,9 @@ const ArtistPopover = ({
     .sort((k1, k2) => {
       const id1 = parseInt(k1)
       const id2 = parseInt(k2)
-      return supportingForCreator[id2].amount - supportingForCreator[id1].amount
+      const amount1BN = stringWeiToBN(supportingForCreator[id1].amount)
+      const amount2BN = stringWeiToBN(supportingForCreator[id2].amount)
+      return amount1BN.gte(amount2BN) ? -1 : 1
     })
     .map(k => supportingForCreator[parseInt(k)])
 
