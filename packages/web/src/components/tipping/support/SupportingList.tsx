@@ -69,12 +69,11 @@ export const SupportingList = () => {
             <SupportingTile supporting={supporting} />
           </div>
         ))}
-      {/* todo: remove 0 coalescing */}
-      {(profile.supporting_count ?? 0) > MAX_SUPPORTING_TILES && (
+      {profile.supporting_count > MAX_SUPPORTING_TILES && (
         <div className={styles.seeMore} onClick={handleClick}>
           <span>
-            {messages.seeMorePrefix}+{/* todo: remove non-null assertion */}
-            {`${profile.supporting_count! - MAX_SUPPORTING_TILES}`}
+            {messages.seeMorePrefix}+
+            {`${profile.supporting_count - MAX_SUPPORTING_TILES}`}
             {messages.seeMoreSuffix}
           </span>
           <IconArrow className={styles.arrowIcon} />

@@ -19,7 +19,8 @@ const messages = {
   sentSuccessfully: 'SENT SUCCESSFULLY',
   supportOnTwitter: 'Share your support on Twitter!',
   shareToTwitter: 'Share to Twitter',
-  twitterCopy: 'TBD'
+  twitterCopyPrefix: 'I just tipped ',
+  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip'
 }
 
 export const TipSent = () => {
@@ -29,9 +30,19 @@ export const TipSent = () => {
   const { user: recipient, amount: sendAmount } = sendTipData
 
   const handleShareClick = useCallback(() => {
-    // todo: update url and copy
-    openTwitterLink(null, messages.twitterCopy)
     if (account && recipient) {
+      let recipientAndAmount = `${recipient.name} ${formatWei(
+        sendAmount,
+        true
+      )}`
+      if (recipient.twitter_handle) {
+        recipientAndAmount = `@${recipient.twitter_handle} ${formatWei(
+          sendAmount,
+          true
+        )}`
+      }
+      const message = `${messages.twitterCopyPrefix}${recipientAndAmount}${messages.twitterCopySuffix}`
+      openTwitterLink(null, message)
       record(
         make(Name.TIP_AUDIO_TWITTER_SHARE, {
           senderWallet: account.spl_wallet,
