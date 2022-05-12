@@ -16,6 +16,7 @@ import { getSupporters, getSupporting } from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
+import { parseWeiNumber } from 'common/utils/formatUtil'
 import { Nullable } from 'common/utils/typeUtils'
 import {
   formatWei,
@@ -37,7 +38,8 @@ const messages = {
   insufficientBalance: 'Insufficient Balance',
   tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
   becomeTopSupporterPrefix: 'Tip ',
-  becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter'
+  becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter',
+  becomeFirstSupporter: 'Tip To Become Their First Supporter'
 }
 
 export const SendTip = () => {
@@ -67,6 +69,7 @@ export const SendTip = () => {
   ] = useState<Nullable<BNWei>>(null)
   const [supporting, setSupporting] = useState<Nullable<Supporting>>(null)
   const [topSupporter, setTopSupporter] = useState<Nullable<Supporter>>(null)
+  const [isFirstSupporter, setIsFirstSupporter] = useState(false)
 
   /**
    * Get supporting info if current user is already supporting profile
@@ -99,11 +102,13 @@ export const SendTip = () => {
         return supportersForProfile[id1].rank - supportersForProfile[id2].rank
       })
       .map(k => supportersForProfile[parseInt(k)])
-    const newTopSupporter = rankedSupportersList.length
+    const theTopSupporter = rankedSupportersList.length
       ? rankedSupportersList[0]
       : null
-    if (newTopSupporter) {
-      setTopSupporter(newTopSupporter)
+    if (theTopSupporter) {
+      setTopSupporter(theTopSupporter)
+    } else {
+      setIsFirstSupporter(true)
     }
   }, [profile, supportersMap])
 
@@ -129,9 +134,8 @@ export const SendTip = () => {
    * On blur of tip amount input, check whether or not to display
    * prompt to become top or first supporter
    */
-  // todo: also handle other scenarios (and get correct copy from design)
-  // - If you can attain top supporter by completing rewards and tipping the result
-  // - If you're the first supporter
+  // todo: also handle scenario (and get correct copy from design) for
+  // if you can attain top supporter by completing rewards and tipping the result
   const onBlur = useCallback(() => {
     if (hasError || !account || !topSupporter) return
 
@@ -147,7 +151,10 @@ export const SendTip = () => {
         supportingAmountWei
       ) as BNWei
     }
-    if (accountBalance.gte(newAmountToTipToBecomeTopSupporter)) {
+    if (
+      accountBalance.gte(newAmountToTipToBecomeTopSupporter) &&
+      newAmountToTipToBecomeTopSupporter.gte(parseWeiNumber('1') as BNWei)
+    ) {
       setAmountToTipToBecomeTopSupporter(newAmountToTipToBecomeTopSupporter)
     }
   }, [hasError, account, topSupporter, supporting, accountBalance])
@@ -155,6 +162,13 @@ export const SendTip = () => {
   const handleSendClick = useCallback(() => {
     dispatch(sendTip({ amount: tipAmountBNWei }))
   }, [dispatch, tipAmountBNWei])
+
+  const renderBecomeFirstSupporter = () => (
+    <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
+      <IconTrophy className={styles.becomeTopSupporterTrophy} />
+      <span>{messages.becomeFirstSupporter}</span>
+    </div>
+  )
 
   const renderBecomeTopSupporter = () =>
     amountToTipToBecomeTopSupporter ? (
@@ -201,7 +215,8 @@ export const SendTip = () => {
   return (
     <div className={styles.container}>
       <TipProfilePicture user={profile} />
-      {renderBecomeTopSupporter()}
+      {!hasError && isFirstSupporter && renderBecomeFirstSupporter()}
+      {!hasError && amountToTipToBecomeTopSupporter && renderBecomeTopSupporter()}
       <div className={styles.amountToSend}>
         <TokenValueInput
           className={styles.inputContainer}
