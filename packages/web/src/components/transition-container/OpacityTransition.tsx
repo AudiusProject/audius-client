@@ -5,18 +5,18 @@ import { TransitionContainer } from './TransitionContainer'
 const DEFAULT_DURATION = 500
 
 type OpacityTransitionProps = {
-  renderFunc: (item: any, style: object) => ReactElement
+  render: (item: any, style: object) => ReactElement
   item?: any
   duration?: number
 }
 export const OpacityTransition = ({
-  renderFunc,
+  render,
   item = null,
   duration = DEFAULT_DURATION
 }: OpacityTransitionProps) => {
   return (
     <TransitionContainer
-      renderFunc={renderFunc}
+      render={render}
       item={item}
       fromStyles={{ opacity: 0 }}
       enterStyles={{ opacity: 1 }}

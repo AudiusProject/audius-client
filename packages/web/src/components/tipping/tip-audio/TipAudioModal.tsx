@@ -116,7 +116,7 @@ export const TipAudioModal = () => {
       <div className={styles.modalContentContainer}>
         {sendStatus && (
           <TransitionContainer
-            renderFunc={() => <ModalContent />}
+            render={() => <ModalContent />}
             item={sendStatus}
             fromStyles={{
               opacity: 1,

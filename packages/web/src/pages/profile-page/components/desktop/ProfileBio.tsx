@@ -201,10 +201,7 @@ export const ProfileBio = ({
       </Linkify>
       {isCollapsed ? (
         <div>
-          <OpacityTransition
-            renderFunc={renderCollapsedContent}
-            duration={300}
-          />
+          <OpacityTransition render={renderCollapsedContent} duration={300} />
           <div
             className={styles.truncateContainer}
             onClick={handleToggleCollapse}
@@ -215,10 +212,7 @@ export const ProfileBio = ({
         </div>
       ) : (
         <div>
-          <OpacityTransition
-            renderFunc={renderExpandedContent}
-            duration={300}
-          />
+          <OpacityTransition render={renderExpandedContent} duration={300} />
           {isCollapsible ? (
             <div
               className={styles.truncateContainer}

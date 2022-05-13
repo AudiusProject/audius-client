@@ -244,7 +244,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           tikTokHandle={tikTokHandle}
         />
         {isTippingEnabled && accountUser && accountUser.user_id !== userId ? (
-          <OpacityTransition renderFunc={renderTipAudioButton} />
+          <OpacityTransition render={renderTipAudioButton} />
         ) : null}
         {isTippingEnabled && <SupportingList />}
         {isTippingEnabled && <TopSupporters />}

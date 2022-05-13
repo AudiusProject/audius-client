@@ -10,15 +10,16 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './TipAudio.module.css'
 
+type TipProfilePictureProps = {
+  user: Nullable<User>
+  className?: string
+  imgClassName?: string
+}
 export const TipProfilePicture = ({
   user,
   className = '',
   imgClassName = ''
-}: {
-  user: Nullable<User>
-  className?: string
-  imgClassName?: string
-}) => {
+}: TipProfilePictureProps) => {
   const image = useUserProfilePicture(
     user?.user_id ?? null,
     user?._profile_picture_sizes ?? null,
