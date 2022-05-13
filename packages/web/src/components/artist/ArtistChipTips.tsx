@@ -14,6 +14,7 @@ import { formatWei, stringWeiToBN } from 'common/utils/wallet'
 import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
 import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
+import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './ArtistChip.module.css'
 
@@ -33,26 +34,35 @@ type ArtistChipTipsProps = {
 }
 
 export const ArtistChipTips = ({ userId, tag }: ArtistChipTipsProps) => {
+  const encodedUserId = encodeHashId(userId)
   const profile = useSelector(getProfileUser)
+  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
   const supportingMap = useSelector(getSupporting)
   const supportersMap = useSelector(getSupporters)
   const [amount, setAmount] = useState<Nullable<StringWei>>(null)
   const [rank, setRank] = useState<Nullable<number>>(null)
 
   useEffect(() => {
-    if (profile) {
+    if (encodedUserId && encodedProfileUserId) {
       if (tag === SUPPORTING_USER_LIST_TAG) {
-        const profileSupporting = supportingMap[profile.user_id] ?? {}
-        const supporting = profileSupporting[userId] ?? {}
+        const profileSupporting = supportingMap[encodedProfileUserId] ?? {}
+        const supporting = profileSupporting[encodedUserId] ?? {}
         setAmount(supporting.amount ?? null)
       } else if (tag === TOP_SUPPORTERS_USER_LIST_TAG) {
-        const profileSupporters = supportersMap[profile.user_id] ?? {}
-        const supporter = profileSupporters[userId] ?? {}
+        const profileSupporters = supportersMap[encodedProfileUserId] ?? {}
+        const supporter = profileSupporters[encodedUserId] ?? {}
         setRank(supporter.rank ?? null)
         setAmount(supporter.amount ?? null)
       }
     }
-  }, [profile, supportingMap, supportersMap, tag, userId])
+  }, [
+    encodedUserId,
+    encodedProfileUserId,
+    supportingMap,
+    supportersMap,
+    tag,
+    userId
+  ])
 
   return TIP_SUPPORT_TAGS.has(tag) ? (
     <div className={styles.tipContainer}>

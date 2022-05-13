@@ -102,9 +102,8 @@ export const SendTip = () => {
         return supportersForProfile[id1].rank - supportersForProfile[id2].rank
       })
       .map(k => supportersForProfile[parseInt(k)])
-    const theTopSupporter = rankedSupportersList.length
-      ? rankedSupportersList[0]
-      : null
+    const theTopSupporter =
+      rankedSupportersList.length > 0 ? rankedSupportersList[0] : null
     if (theTopSupporter) {
       setTopSupporter(theTopSupporter)
     } else {

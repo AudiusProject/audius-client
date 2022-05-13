@@ -21,7 +21,7 @@
 }
 
 .contentContainer {
-  margin: 16px 0 32px;
+  margin-top: 16px;
   padding: 16px 8px 8px;
   background: var(--white);
   border-radius: 4px;
