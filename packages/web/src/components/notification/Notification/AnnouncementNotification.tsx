@@ -9,12 +9,12 @@ import { Announcement } from 'common/store/notifications/types'
 import { make, useRecord } from 'store/analytics/actions'
 
 import styles from './AnnouncementNotification.module.css'
-import { NotificationBody } from './NotificationBody'
-import { NotificationFooter } from './NotificationFooter'
-import { NotificationHeader } from './NotificationHeader'
-import { NotificationTile } from './NotificationTile'
-import { NotificationTitle } from './NotificationTitle'
-import { IconAnnouncement } from './icons'
+import { NotificationBody } from './components/NotificationBody'
+import { NotificationFooter } from './components/NotificationFooter'
+import { NotificationHeader } from './components/NotificationHeader'
+import { NotificationTile } from './components/NotificationTile'
+import { NotificationTitle } from './components/NotificationTitle'
+import { IconAnnouncement } from './components/icons'
 
 const messages = {
   readMore: 'Read More'

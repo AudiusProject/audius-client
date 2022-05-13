@@ -17,13 +17,13 @@ import {
 } from 'store/application/ui/userListModal/types'
 import { profilePage } from 'utils/route'
 
-import { NotificationBody } from './NotificationBody'
-import { NotificationFooter } from './NotificationFooter'
-import { NotificationHeader } from './NotificationHeader'
-import { NotificationTile } from './NotificationTile'
-import { UserNameLink } from './UserNameLink'
-import { UserProfilePictureList } from './UserProfilePictureList'
-import { IconFollow } from './icons'
+import { NotificationBody } from './components/NotificationBody'
+import { NotificationFooter } from './components/NotificationFooter'
+import { NotificationHeader } from './components/NotificationHeader'
+import { NotificationTile } from './components/NotificationTile'
+import { UserNameLink } from './components/UserNameLink'
+import { UserProfilePictureList } from './components/UserProfilePictureList'
+import { IconFollow } from './components/icons'
 
 const messages = {
   others: (userCount: number) =>

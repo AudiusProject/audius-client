@@ -30,10 +30,10 @@ import { Nullable } from 'common/utils/typeUtils'
 import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
-import EmptyNotifications from './EmptyNotifications'
+import { EmptyNotifications } from './EmptyNotifications'
+import { Notification } from './Notification'
 import { NotificationModal } from './NotificationModal'
 import styles from './NotificationPanel.module.css'
-import { Notification } from './Notifications'
 
 const getNotifications = makeGetAllNotifications()
 

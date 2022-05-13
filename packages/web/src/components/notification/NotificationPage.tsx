@@ -17,9 +17,9 @@ import MobilePageContainer from 'components/mobile-page-container/MobilePageCont
 import NavContext, { LeftPreset } from 'components/nav/store/context'
 import NetworkConnectivityMonitor from 'components/network-connectivity/NetworkConnectivityMonitor'
 
-import EmptyNotifications from './EmptyNotifications'
+import { EmptyNotifications } from './EmptyNotifications'
+import { Notification } from './Notification'
 import styles from './NotificationPage.module.css'
-import { Notification } from './Notifications'
 
 const getNotifications = makeGetAllNotifications()
 

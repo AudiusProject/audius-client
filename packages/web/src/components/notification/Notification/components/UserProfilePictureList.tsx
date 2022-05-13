@@ -5,9 +5,10 @@ import { User } from 'common/models/User'
 import { formatCount } from 'common/utils/formatUtil'
 import Tooltip from 'components/tooltip/Tooltip'
 
+import { USER_LENGTH_LIMIT } from '../utils'
+
 import { ProfilePicture } from './ProfilePicture'
 import styles from './UserProfilePictureList.module.css'
-import { USER_LENGTH_LIMIT } from './utils'
 
 const messages = {
   viewAllTooltip: 'View All'

@@ -2,33 +2,32 @@ import React, { MouseEventHandler, useCallback } from 'react'
 
 import { useDispatch } from 'react-redux'
 
-import { Repost } from 'common/store/notifications/types'
+import { Favorite } from 'common/store/notifications/types'
 import {
   setUsers as setUserListUsers,
   setVisibility as openUserListModal
 } from 'store/application/ui/userListModal/slice'
 import { UserListType } from 'store/application/ui/userListModal/types'
 
-import { EntityLink, useGoToEntity } from './EntityLink'
-import { NotificationBody } from './NotificationBody'
-import { NotificationFooter } from './NotificationFooter'
-import { NotificationHeader } from './NotificationHeader'
-import { NotificationTile } from './NotificationTile'
-import { UserNameLink } from './UserNameLink'
-import { UserProfilePictureList } from './UserProfilePictureList'
-import { IconRepost } from './icons'
+import { EntityLink, useGoToEntity } from './components/EntityLink'
+import { NotificationBody } from './components/NotificationBody'
+import { NotificationFooter } from './components/NotificationFooter'
+import { NotificationHeader } from './components/NotificationHeader'
+import { NotificationTile } from './components/NotificationTile'
+import { UserNameLink } from './components/UserNameLink'
+import { UserProfilePictureList } from './components/UserProfilePictureList'
+import { IconFavorite } from './components/icons'
 import { entityToUserListEntity, formatOthersCount } from './utils'
 
 const messages = {
   others: formatOthersCount,
-  reposted: 'reposted your'
+  reposted: ' reposted your '
 }
 
-type RepostNotificationProps = {
-  notification: Repost
+type FavoriteNotificationProps = {
+  notification: Favorite
 }
-
-export const RepostNotification = (props: RepostNotificationProps) => {
+export const FavoriteNotification = (props: FavoriteNotificationProps) => {
   const { notification } = props
   const {
     users,
@@ -51,7 +50,7 @@ export const RepostNotification = (props: RepostNotificationProps) => {
       if (isMultiUser) {
         dispatch(
           setUserListUsers({
-            userListType: UserListType.REPOST,
+            userListType: UserListType.FAVORITE,
             entityType: entityToUserListEntity[entityType],
             id: entityId
           })
@@ -68,15 +67,16 @@ export const RepostNotification = (props: RepostNotificationProps) => {
     <NotificationTile
       notification={notification}
       onClick={handleClick}
-      disableClosePanel={otherUsersCount > 0}
+      disableClosePanel={isMultiUser}
     >
-      <NotificationHeader icon={<IconRepost />}>
+      <NotificationHeader icon={<IconFavorite />}>
         <UserProfilePictureList users={users} userIds={userIds} />
       </NotificationHeader>
       <NotificationBody>
         <UserNameLink user={firstUser} notification={notification} />
-        {otherUsersCount > 0 ? messages.others(otherUsersCount) : null}{' '}
-        {messages.reposted} {entityType.toLowerCase()}{' '}
+        {otherUsersCount > 0 ? messages.others(otherUsersCount) : null}
+        {messages.reposted}
+        {entityType.toLowerCase()}{' '}
         <EntityLink entity={entity} entityType={entityType} />
       </NotificationBody>
       <NotificationFooter timeLabel={timeLabel} isRead={isRead} />

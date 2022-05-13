@@ -2,17 +2,17 @@ import React from 'react'
 
 import { TipSent } from 'common/store/notifications/types'
 
-import { AudioText } from './AudioText'
-import { NotificationBody } from './NotificationBody'
-import { NotificationFooter } from './NotificationFooter'
-import { NotificationHeader } from './NotificationHeader'
-import { NotificationTile } from './NotificationTile'
-import { NotificationTitle } from './NotificationTitle'
-import { ProfilePicture } from './ProfilePicture'
 import styles from './TipSentNotification.module.css'
-import { TwitterShareButton } from './TwitterShareButton'
-import { UserNameLink } from './UserNameLink'
-import { IconTip } from './icons'
+import { AudioText } from './components/AudioText'
+import { NotificationBody } from './components/NotificationBody'
+import { NotificationFooter } from './components/NotificationFooter'
+import { NotificationHeader } from './components/NotificationHeader'
+import { NotificationTile } from './components/NotificationTile'
+import { NotificationTitle } from './components/NotificationTitle'
+import { ProfilePicture } from './components/ProfilePicture'
+import { TwitterShareButton } from './components/TwitterShareButton'
+import { UserNameLink } from './components/UserNameLink'
+import { IconTip } from './components/icons'
 
 const messages = {
   title: 'Your Tip Was Sent!',

@@ -6,8 +6,8 @@ import SimpleBar from 'simplebar-react'
 
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { Announcement } from 'common/store/notifications/types'
-import { IconAnnouncement } from 'components/notification/Notifications/icons'
 
+import { IconAnnouncement } from './Notification/components/icons'
 import styles from './NotificationModal.module.css'
 
 type NotificationModalProps = {
