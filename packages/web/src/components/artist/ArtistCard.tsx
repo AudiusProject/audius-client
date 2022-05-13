@@ -6,8 +6,10 @@ import { Dispatch } from 'redux'
 import { ID } from 'common/models/Identifiers'
 import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
 import { Supporting } from 'common/models/Tipping'
+import { FeatureFlags } from 'common/services/remote-config'
 import FollowButton from 'components/follow-button/FollowButton'
 import Stats, { StatProps } from 'components/stats/Stats'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import {
   setUsers,
   setVisibility
@@ -20,6 +22,8 @@ import {
 import styles from './ArtistCard.module.css'
 import { ArtistCover } from './ArtistCover'
 import { ArtistSupporting } from './ArtistSupporting'
+
+const { getFeatureEnabled } = remoteConfigInstance
 
 type ArtistCardProps = {
   description: string
@@ -66,6 +70,8 @@ const ArtistCard = ({
   setUsers,
   openModal
 }: ArtistCardProps) => {
+  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+
   const handleClick = (e: any) => {
     // NOTE: Prevents parent div's onClick
     e.stopPropagation()
@@ -130,10 +136,12 @@ const ArtistCard = ({
         </div>
         <div className={styles.contentContainer}>
           <div>
-            <ArtistSupporting
-              supportingList={supportingList}
-              handleClick={handleSupportingClick}
-            />
+            {isTippingEnabled && (
+              <ArtistSupporting
+                supportingList={supportingList}
+                handleClick={handleSupportingClick}
+              />
+            )}
             <div className={styles.description}>{description}</div>
             <FollowButton
               className={styles.followButton}
