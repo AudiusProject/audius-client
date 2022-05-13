@@ -39,7 +39,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   const { notification } = props
   const { users, userIds, timeLabel, isRead } = notification
   const [firstUser] = users
-  const otherUsersCount = userIds.length
+  const otherUsersCount = userIds.length - 1
   const isMultiUser = userIds.length > 1
   const dispatch = useDispatch()
   const accountId = useSelector(getUserId) as ID
