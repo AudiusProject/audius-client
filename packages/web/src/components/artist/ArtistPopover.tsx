@@ -96,6 +96,7 @@ const ArtistPopover = ({
     })
     .map(k => supportingForCreator[k])
 
+  // todo: hide hover tile on click
   const onSupportingClick = () => {}
 
   const onMouseEnter = useCallback(() => {
