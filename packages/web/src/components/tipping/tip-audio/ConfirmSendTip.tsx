@@ -26,6 +26,29 @@ const messages = {
   holdOn: 'Don’t close this window or refresh the page.'
 }
 
+const EmptyContainer = () => (
+  <div className={cn(styles.flexCenter, styles.info, styles.empty)} />
+)
+
+const ConfirmInfo = () => (
+  <div className={cn(styles.flexCenter, styles.info)}>
+    {messages.areYouSure}
+  </div>
+)
+
+const ConvertingInfo = () => (
+  <div>
+    <div className={cn(styles.flexCenter, styles.info)}>
+      {messages.maintenance}
+    </div>
+    <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
+      {messages.fewMinutes}
+      <br />
+      {messages.holdOn}
+    </div>
+  </div>
+)
+
 export const ConfirmSendTip = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
@@ -62,29 +85,6 @@ export const ConfirmSendTip = () => {
     </>
   )
 
-  const renderConfirmInfo = () => (
-    <div className={cn(styles.flexCenter, styles.info)}>
-      {messages.areYouSure}
-    </div>
-  )
-
-  const renderEmpty = () => (
-    <div className={cn(styles.flexCenter, styles.info, styles.empty)} />
-  )
-
-  const renderConvertingInfo = () => (
-    <div>
-      <div className={cn(styles.flexCenter, styles.info)}>
-        {messages.maintenance}
-      </div>
-      <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
-        {messages.fewMinutes}
-        <br />
-        {messages.holdOn}
-      </div>
-    </div>
-  )
-
   const renderError = () => (
     <div className={cn(styles.flexCenter, styles.error)}>
       {messages.somethingWrong}
@@ -95,9 +95,9 @@ export const ConfirmSendTip = () => {
     <div className={styles.container}>
       {renderSendingAudio()}
       <TipProfilePicture user={profile} />
-      {sendStatus === 'SENDING' && renderEmpty()}
-      {sendStatus === 'CONFIRM' && renderConfirmInfo()}
-      {sendStatus === 'CONVERTING' && renderConvertingInfo()}
+      {sendStatus === 'SENDING' && <EmptyContainer />}
+      {sendStatus === 'CONFIRM' && <ConfirmInfo />}
+      {sendStatus === 'CONVERTING' && <ConvertingInfo />}
       {sendStatus === 'ERROR' && renderError()}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
