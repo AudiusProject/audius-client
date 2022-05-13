@@ -64,7 +64,7 @@ export const TopSupporters = () => {
     [profile, dispatch]
   )
 
-  return profile && rankedSupportersList.length ? (
+  return profile && rankedSupportersList.length > 0 ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTrophy className={styles.trophyIcon} />

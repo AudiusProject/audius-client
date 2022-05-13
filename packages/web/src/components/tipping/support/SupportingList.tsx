@@ -58,7 +58,7 @@ export const SupportingList = () => {
     }
   }, [profile, dispatch])
 
-  return profile && rankedSupportingList.length ? (
+  return profile && rankedSupportingList.length > 0 ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTip className={styles.tipIcon} />
