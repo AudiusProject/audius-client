@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 
 import cn from 'classnames'
 import { animated } from 'react-spring'
@@ -18,6 +18,7 @@ import { TipAudioButton } from 'components/tipping/tip-audio/TipAudioButton'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
 import UploadChip from 'components/upload/UploadChip'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
+import { useCollapse } from 'hooks/useCollapse'
 import { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
 import { ProfileTags } from 'pages/profile-page/components/desktop/ProfileTags'
@@ -39,9 +40,6 @@ const messages = {
   website: 'Website',
   donate: 'Donate'
 }
-
-const DESCRIPTION_LINE_HEIGHT = 16
-const NUM_DESCRIPTION_LINES_TRUNCATED = 4
 
 type ProfileLeftNavProps = {
   userId: ID
@@ -114,27 +112,9 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
   const accountUser = useSelector(getAccountUser)
   const record = useRecord()
   const bioRef = useRef<Nullable<HTMLDivElement>>(null)
-  const [isCollapsible, setIsCollapsible] = useState(false)
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
-  useEffect(() => {
-    if (bioRef?.current && !isCollapsed && !isCollapsible) {
-      const height = parseInt(
-        document.defaultView
-          ?.getComputedStyle(bioRef.current, null)
-          ?.getPropertyValue('height')
-          ?.slice(0, -2) ?? '0'
-      )
-      const shouldCollapse =
-        height / DESCRIPTION_LINE_HEIGHT > NUM_DESCRIPTION_LINES_TRUNCATED
-      if (shouldCollapse) {
-        setIsCollapsed(true)
-        setIsCollapsible(true)
-      }
-    }
-  }, [isCollapsed, isCollapsible])
-
-  const handleToggleCollapse = () => setIsCollapsed(!isCollapsed)
+  const { isCollapsible, isCollapsed, handleToggleCollapse } = useCollapse({
+    ref: bioRef
+  })
 
   const onClickUploadChip = useCallback(() => {
     goToRoute(UPLOAD_PAGE)
