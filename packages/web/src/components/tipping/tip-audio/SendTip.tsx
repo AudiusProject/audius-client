@@ -27,6 +27,7 @@ import {
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
+import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './TipAudio.module.css'
 import { TipProfilePicture } from './TipProfilePicture'
@@ -45,9 +46,11 @@ const messages = {
 export const SendTip = () => {
   const dispatch = useDispatch()
   const account = useSelector(getAccountUser)
+  const encodedAccountUserId = encodeHashId(account?.user_id ?? null)
   const supportersMap = useSelector(getSupporters)
   const supportingMap = useSelector(getSupporting)
   const profile = useSelector(getProfileUser)
+  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
 
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
@@ -77,39 +80,38 @@ export const SendTip = () => {
    * how much is left to tip to become top supporter
    */
   useEffect(() => {
-    if (!account || !profile) return
+    if (!encodedAccountUserId || !encodedProfileUserId) return
 
-    const supportingForAccount = supportingMap[account.user_id] ?? {}
+    const supportingForAccount = supportingMap[encodedAccountUserId] ?? {}
     const accountSupportingProfile =
-      supportingForAccount[profile.user_id] ?? null
+      supportingForAccount[encodedProfileUserId] ?? null
     if (accountSupportingProfile) {
       setSupporting(accountSupportingProfile)
     }
-  }, [account, profile, supportingMap])
+  }, [encodedAccountUserId, encodedProfileUserId, supportingMap])
 
   /**
    * Get user who is top supporter to later check whether it is
    * not the same as the current user
    */
   useEffect(() => {
-    if (!profile) return
+    if (!encodedProfileUserId) return
 
-    const supportersForProfile = supportersMap[profile.user_id] ?? {}
+    const supportersForProfile = supportersMap[encodedProfileUserId] ?? {}
     const rankedSupportersList = Object.keys(supportersForProfile)
       .sort((k1, k2) => {
-        const id1 = parseInt(k1)
-        const id2 = parseInt(k2)
-        return supportersForProfile[id1].rank - supportersForProfile[id2].rank
+        return supportersForProfile[k1].rank - supportersForProfile[k2].rank
       })
-      .map(k => supportersForProfile[parseInt(k)])
+      .map(k => supportersForProfile[k])
     const theTopSupporter =
       rankedSupportersList.length > 0 ? rankedSupportersList[0] : null
+
     if (theTopSupporter) {
       setTopSupporter(theTopSupporter)
     } else {
       setIsFirstSupporter(true)
     }
-  }, [profile, supportersMap])
+  }, [encodedProfileUserId, supportersMap])
 
   useEffect(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
