@@ -118,20 +118,21 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   useEffect(() => {
-    if (bioRef?.current && !isCollapsed) {
+    if (bioRef?.current && !isCollapsed && !isCollapsible) {
       const height = parseInt(
         document.defaultView
           ?.getComputedStyle(bioRef.current, null)
           ?.getPropertyValue('height')
           ?.slice(0, -2) ?? '0'
       )
-      const toCollapse =
+      const shouldCollapse =
         height / DESCRIPTION_LINE_HEIGHT > NUM_DESCRIPTION_LINES_TRUNCATED
-      setIsCollapsed(toCollapse)
-      setIsCollapsible(toCollapse)
+      if (shouldCollapse) {
+        setIsCollapsed(true)
+        setIsCollapsible(true)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bioRef.current])
+  }, [isCollapsed, isCollapsible])
 
   const handleToggleCollapse = () => setIsCollapsed(!isCollapsed)
 
