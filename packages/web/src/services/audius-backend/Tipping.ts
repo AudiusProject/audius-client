@@ -20,7 +20,7 @@ export const fetchSupporting = async ({
   try {
     await waitForLibsInit()
     const response = await libs().discoveryProvider._makeRequest({
-      endpoint: `/v1/users/${encodedUserId}/supporting`,
+      endpoint: `/v1/full/users/${encodedUserId}/supporting`,
       params: { limit, offset }
     })
     return response.map((item: any) => {
@@ -51,7 +51,7 @@ export const fetchSupporters = async ({
   try {
     await waitForLibsInit()
     const response: Supporter[] = await libs().discoveryProvider._makeRequest({
-      endpoint: `/v1/users/${encodedUserId}/supporters`,
+      endpoint: `/v1/full/users/${encodedUserId}/supporters`,
       params: { limit, offset }
     })
     return response.map((item: any) => {
