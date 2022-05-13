@@ -21,6 +21,7 @@ import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
+import { encodeHashId } from 'utils/route/hashIds'
 
 import ArtistCard from './ArtistCard'
 import styles from './ArtistPopover.module.css'
@@ -83,18 +84,19 @@ const ArtistPopover = ({
   )
 
   const supportingMap = useSelector(getSupporting)
-  const supportingForCreator = creator?.user_id
-    ? supportingMap[creator.user_id] ?? {}
+  const encodedCreatorUserId = encodeHashId(creator?.user_id ?? null)
+  const supportingForCreator = encodedCreatorUserId
+    ? supportingMap[encodedCreatorUserId] ?? {}
     : {}
   const rankedSupportingList = Object.keys(supportingForCreator)
     .sort((k1, k2) => {
-      const id1 = parseInt(k1)
-      const id2 = parseInt(k2)
-      const amount1BN = stringWeiToBN(supportingForCreator[id1].amount)
-      const amount2BN = stringWeiToBN(supportingForCreator[id2].amount)
+      const amount1BN = stringWeiToBN(supportingForCreator[k1].amount)
+      const amount2BN = stringWeiToBN(supportingForCreator[k2!].amount)
       return amount1BN.gte(amount2BN) ? -1 : 1
     })
-    .map(k => supportingForCreator[parseInt(k)])
+    .map(k => supportingForCreator[k])
+
+  const onSupportingClick = () => {}
 
   const onMouseEnter = useCallback(() => {
     getCoverPhoto()
@@ -134,7 +136,7 @@ const ArtistPopover = ({
         onFollow={onClickFollow}
         onUnfollow={onClickUnfollow}
         supportingList={rankedSupportingList}
-        onSupportingClick={onMouseLeave}
+        onSupportingClick={onSupportingClick}
       />
     ) : null
 
