@@ -31,7 +31,7 @@ const Mutuals = ({
   }, [setShowMutualConnectionsModal])
 
   return (
-    <div>
+    <div className={styles.mutualsContainer}>
       <div className={styles.titleContainer}>
         <IconFollowing className={styles.followingIcon} />
         <span className={styles.titleText}>{messages.mutuals}</span>

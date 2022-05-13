@@ -16,6 +16,7 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
+import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './Support.module.css'
 
@@ -29,17 +30,16 @@ const messages = {
 export const TopSupporters = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
+  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
   const supportersMap = useSelector(getSupporters)
-  const supportersForProfile = profile
-    ? supportersMap[profile.user_id] ?? {}
+  const supportersForProfile = encodedProfileUserId
+    ? supportersMap[encodedProfileUserId] ?? {}
     : {}
   const rankedSupportersList = Object.keys(supportersForProfile)
     .sort((k1, k2) => {
-      const id1 = parseInt(k1)
-      const id2 = parseInt(k2)
-      return supportersForProfile[id1].rank - supportersForProfile[id2].rank
+      return supportersForProfile[k1].rank - supportersForProfile[k2].rank
     })
-    .map(k => supportersForProfile[parseInt(k)])
+    .map(k => supportersForProfile[k])
 
   const handleClick = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {

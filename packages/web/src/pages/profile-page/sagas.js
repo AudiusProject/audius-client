@@ -157,8 +157,6 @@ function* fetchSupportersAndSupporting(userId) {
     ...supportersForUserList.map(supporter => supporter.sender)
   ])
 
-  console.log({ supportingForUserList, supportersForUserList })
-
   const supportingForUserMap = {}
   supportingForUserList.forEach(supporting => {
     const encodedReceiverUserId = encodeHashId(supporting.receiver.user_id)

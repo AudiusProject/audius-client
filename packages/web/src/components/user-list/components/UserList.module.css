@@ -28,7 +28,6 @@
   line-height: normal;
   margin-bottom: 8px;
 }
-
 .artistChipContainer :global(.followers) {
   text-align: left;
   width: 104px;
@@ -45,23 +44,19 @@
   transition: opacity 0.3s ease-in-out;
   display: none;
 }
-
 .loadingAnimation.show {
   opacity: 1;
   display: block;
 }
-
 .loadingAnimation > div {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .loadingAnimation svg {
   max-height: 24px;
   max-width: 24px;
 }
-
 .loadingAnimation g path {
   stroke: var(--neutral-light-3) !important;
 }

@@ -108,8 +108,13 @@ export const UserListModal = forwardRef<HTMLDivElement, UserListModalProps>(
           >
             {users
               .filter(user => !user.is_deactivated)
-              .map(user => (
-                <div key={user.user_id} className={styles.user}>
+              .map((user, index) => (
+                <div
+                  key={user.user_id}
+                  className={cn(styles.user, {
+                    [styles.notLastUser]: index !== users.length - 1
+                  })}
+                >
                   <ArtistChip
                     userId={user.user_id}
                     name={user.name}
@@ -124,11 +129,11 @@ export const UserListModal = forwardRef<HTMLDivElement, UserListModalProps>(
                   {user.user_id !== userId ? (
                     <FollowButton
                       size='small'
-                      showIcon={false}
                       className={styles.followButton}
                       following={user.does_current_user_follow}
                       onFollow={() => onFollow(user.user_id)}
                       onUnfollow={() => onUnfollow(user.user_id)}
+                      showIcon
                     />
                   ) : null}
                 </div>

@@ -1,3 +1,6 @@
+.mutualsContainer {
+  margin-top: 32px;
+}
 .titleContainer {
   display: flex;
   align-items: center;
