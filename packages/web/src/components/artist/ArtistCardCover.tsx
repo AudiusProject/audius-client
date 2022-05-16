@@ -1,4 +1,7 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+
+import { push } from 'connected-react-router'
+import { useDispatch } from 'react-redux'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
 import { SquareSizes, WidthSizes } from 'common/models/ImageSizes'
@@ -8,6 +11,7 @@ import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { profilePage } from 'utils/route'
 
 import styles from './ArtistCardCover.module.css'
 
@@ -16,11 +20,10 @@ const gradient = `linear-gradient(180deg, rgba(0, 0, 0, 0.001) 0%, rgba(0, 0, 0,
 type ArtistCoverProps = {
   artist: User
   isArtist: boolean
-  onNameClick: () => void
 }
 
 export const ArtistCardCover = (props: ArtistCoverProps) => {
-  const { isArtist, onNameClick, artist } = props
+  const { isArtist, artist } = props
 
   const {
     user_id,
@@ -30,6 +33,7 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
     _profile_picture_sizes,
     does_follow_current_user
   } = artist
+  const dispatch = useDispatch()
 
   const coverPhoto = useUserCoverPhoto(
     user_id,
@@ -43,6 +47,10 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
   )
 
   const darkenedCoverPhoto = `${gradient}, url(${coverPhoto})`
+
+  const handleClickUser = useCallback(() => {
+    dispatch(push(profilePage(handle)))
+  }, [dispatch, handle])
 
   return (
     <DynamicImage
@@ -60,7 +68,7 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
         />
         <div className={styles.headerTextContainer}>
           <div className={styles.nameContainer}>
-            <div className={styles.artistName} onClick={onNameClick}>
+            <div className={styles.artistName} onClick={handleClickUser}>
               {name}
             </div>
             <UserBadges
@@ -73,7 +81,7 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
           <div className={styles.artistHandleWrapper}>
             <div
               className={styles.artistHandle}
-              onClick={onNameClick}
+              onClick={handleClickUser}
             >{`@${handle}`}</div>
             {does_follow_current_user ? <FollowsYouBadge /> : null}
           </div>

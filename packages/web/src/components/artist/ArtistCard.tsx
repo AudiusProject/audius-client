@@ -1,6 +1,11 @@
 import React, { MouseEventHandler, useCallback, useMemo } from 'react'
 
+import { useDispatch } from 'react-redux'
+
+import { FollowSource } from 'common/models/Analytics'
 import { User } from 'common/models/User'
+import { setNotificationSubscription } from 'common/store/pages/profile/actions'
+import { followUser, unfollowUser } from 'common/store/social/users/actions'
 import FollowButton from 'components/follow-button/FollowButton'
 import Stats, { StatProps } from 'components/stats/Stats'
 
@@ -9,17 +14,10 @@ import { ArtistCardCover } from './ArtistCardCover'
 
 type ArtistCardProps = {
   artist: User
-  onNameClick: () => void
-  onFollow: () => void
-  onUnfollow: () => void
 }
 
-export const ArtistCard = ({
-  artist,
-  onNameClick,
-  onFollow,
-  onUnfollow
-}: ArtistCardProps) => {
+export const ArtistCard = (props: ArtistCardProps) => {
+  const { artist } = props
   const {
     user_id,
     bio,
@@ -31,6 +29,7 @@ export const ArtistCard = ({
     does_current_user_follow
   } = artist
 
+  const dispatch = useDispatch()
   const isArtist = is_creator || track_count > 0
 
   const handleClick: MouseEventHandler = useCallback(event => {
@@ -68,14 +67,19 @@ export const ArtistCard = ({
     ]
   }, [isArtist, track_count, follower_count, followee_count, playlist_count])
 
+  const handleFollow = useCallback(() => {
+    dispatch(followUser(user_id, FollowSource.HOVER_TILE))
+  }, [dispatch, user_id])
+
+  const handleUnfollow = useCallback(() => {
+    dispatch(unfollowUser(user_id, FollowSource.HOVER_TILE))
+    dispatch(setNotificationSubscription(user_id, false, true))
+  }, [dispatch, user_id])
+
   return (
     <div className={styles.popoverContainer} onClick={handleClick}>
       <div className={styles.artistCardContainer}>
-        <ArtistCardCover
-          artist={artist}
-          isArtist={isArtist}
-          onNameClick={onNameClick}
-        />
+        <ArtistCardCover artist={artist} isArtist={isArtist} />
         <div className={styles.artistStatsContainer}>
           <Stats
             userId={user_id}
@@ -90,8 +94,8 @@ export const ArtistCard = ({
             <FollowButton
               className={styles.followButton}
               following={does_current_user_follow}
-              onFollow={onFollow}
-              onUnfollow={onUnfollow}
+              onFollow={handleFollow}
+              onUnfollow={handleUnfollow}
             />
           </div>
         </div>
