@@ -125,10 +125,10 @@ export const TipAudioModal = () => {
                * enter from natural position within modal
                *
                * if we are moving forward in the modal flow, then
-               * enter from outside the modal swiping left
+               * enter from outside the modal swiping right to left
                *
                * if we are moving backward in the modal flow, then
-               * enter from outside the modal swiping right
+               * enter from outside the modal swiping left to right
                */
               transform:
                 !previousSendStatus ||

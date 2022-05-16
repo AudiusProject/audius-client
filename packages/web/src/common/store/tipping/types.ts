@@ -10,27 +10,34 @@ export type TippingSendStatus =
   | 'CONVERTING'
   | 'SUCCESS'
   | 'ERROR'
+
+/**
+ * Example for supporters map (and similarly supporting map):
+ * {
+ *   one: {
+ *     two: <supporter object for user two>
+ *     three: <supporter object for user three>
+ *   },
+ *   four: {
+ *     two: <supporter object for user two>
+ *     three: <supporter object for user three>
+ *   }
+ * }
+ *
+ * The above means that users 'two' and 'three' are supporters of users 'one' and 'four'.
+ * The same structure applies to supporting.
+ * Structured it this way to make it easy to check whether a user
+ * is supported by / supports another user.
+ */
+type SupporterMapForUser = Record<string, Supporter>
+type SupporterMap = Record<string, SupporterMapForUser>
+
+type SupportingMapForUser = Record<string, Supporting>
+type SupportingMap = Record<string, SupportingMapForUser>
+
 export type TippingState = {
-  /**
-   * Example:
-   * {
-   *   1: {
-   *     2: <supporter object for user 2>
-   *     3: <supporter object for user 3>
-   *   },
-   *   4: {
-   *     2: <supporter object for user 2>
-   *     3: <supporter object for user 3>
-   *   }
-   * }
-   *
-   * The above means that users 2 and 3 are supporters of users 1 and 4.
-   * The same structure applies to supporting.
-   * Structured it this way to make it easy to check whether a user
-   * is supported by / supports another user.
-   */
-  supporters: Record<string, Record<string, Supporter>>
-  supporting: Record<string, Record<string, Supporting>>
+  supporters: SupporterMap
+  supporting: SupportingMap
   send: {
     status: Nullable<TippingSendStatus>
     user: Nullable<User>

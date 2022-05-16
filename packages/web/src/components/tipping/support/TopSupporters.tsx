@@ -1,4 +1,4 @@
-import React, { MouseEvent, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { IconTrophy, IconArrow } from '@audius/stems'
 import cn from 'classnames'
@@ -41,28 +41,18 @@ export const TopSupporters = () => {
     })
     .map(k => supportersForProfile[k])
 
-  const handleClick = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
-      if (profile) {
-        const target = event.target as HTMLDivElement
-        const className = (target?.className ?? '').toString()
-        const isProfilePicture = className.includes(
-          'ProfilePicture_profilePicture'
-        )
-        if (!isProfilePicture) {
-          dispatch(
-            setUsers({
-              userListType: UserListType.SUPPORTER,
-              entityType: UserListEntityType.USER,
-              id: profile.user_id
-            })
-          )
-          dispatch(setVisibility(true))
-        }
-      }
-    },
-    [profile, dispatch]
-  )
+  const handleClick = useCallback(() => {
+    if (profile) {
+      dispatch(
+        setUsers({
+          userListType: UserListType.SUPPORTER,
+          entityType: UserListEntityType.USER,
+          id: profile.user_id
+        })
+      )
+      dispatch(setVisibility(true))
+    }
+  }, [profile, dispatch])
 
   return profile && rankedSupportersList.length > 0 ? (
     <div className={styles.container}>
@@ -76,6 +66,7 @@ export const TopSupporters = () => {
           users={rankedSupportersList.map(s => s.sender)}
           limit={MAX_TOP_SUPPORTERS}
           totalOverride={profile.supporter_count}
+          stopPropagation
         />
         <div className={styles.viewAll}>
           <span>{messages.viewAll}</span>

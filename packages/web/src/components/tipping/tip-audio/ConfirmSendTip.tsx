@@ -115,7 +115,7 @@ export const ConfirmSendTip = () => {
           className={cn(styles.button, { [styles.disabled]: isDisabled })}
         />
       </div>
-      {sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING' && (
+      {sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING' ? (
         <div
           className={cn(styles.flexCenter, styles.goBackContainer, {
             [styles.disabled]: isDisabled
@@ -125,7 +125,7 @@ export const ConfirmSendTip = () => {
           <IconCaretLeft />
           <span className={styles.goBack}>{messages.goBack}</span>
         </div>
-      )}
+      ) : null}
     </div>
   ) : null
 }
