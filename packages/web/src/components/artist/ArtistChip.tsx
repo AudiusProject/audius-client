@@ -8,10 +8,17 @@ import ArtistPopover from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
+import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 
 import styles from './ArtistChip.module.css'
 import { ArtistChipFollowers } from './ArtistChipFollowers'
 import { ArtistChipTips } from './ArtistChipTips'
+
+const TIP_SUPPORT_TAGS = new Set([
+  SUPPORTING_USER_LIST_TAG,
+  TOP_SUPPORTERS_USER_LIST_TAG
+])
 
 type ArtistChipProps = {
   userId: number
@@ -109,7 +116,9 @@ const ArtistChip = ({
           followerCount={followers}
           doesFollowCurrentUser={doesFollowCurrentUser}
         />
-        {tag && <ArtistChipTips userId={userId} tag={tag} />}
+        {tag && TIP_SUPPORT_TAGS.has(tag) ? (
+          <ArtistChipTips userId={userId} tag={tag} />
+        ) : null}
       </div>
     </div>
   )

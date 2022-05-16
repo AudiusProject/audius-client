@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
+import { ID } from 'common/models/Identifiers'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSupporting } from 'common/store/tipping/selectors'
 import { stringWeiToBN } from 'common/utils/wallet'
@@ -16,7 +17,6 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
-import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './Support.module.css'
 import { SupportingTile } from './SupportingTile'
@@ -32,18 +32,21 @@ const messages = {
 export const SupportingList = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
-  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
   const supportingMap = useSelector(getSupporting)
-  const supportingForProfile = encodedProfileUserId
-    ? supportingMap[encodedProfileUserId] ?? {}
+  const supportingForProfile = profile?.user_id
+    ? supportingMap[profile.user_id] ?? {}
     : {}
   const rankedSupportingList = Object.keys(supportingForProfile)
     .sort((k1, k2) => {
-      const amount1BN = stringWeiToBN(supportingForProfile[k1].amount)
-      const amount2BN = stringWeiToBN(supportingForProfile[k2!].amount)
+      const amount1BN = stringWeiToBN(
+        supportingForProfile[(k1 as unknown) as ID].amount
+      )
+      const amount2BN = stringWeiToBN(
+        supportingForProfile[(k2 as unknown) as ID].amount
+      )
       return amount1BN.gte(amount2BN) ? -1 : 1
     })
-    .map(k => supportingForProfile[k])
+    .map(k => supportingForProfile[(k as unknown) as ID])
 
   const handleClick = useCallback(() => {
     if (profile) {

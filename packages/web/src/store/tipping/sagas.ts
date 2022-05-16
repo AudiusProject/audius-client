@@ -6,11 +6,12 @@ import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
-import { processAndCacheUsers } from 'common/store/cache/users/utils'
+import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getSendTipData } from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
   convert,
+  refreshSupport,
   sendTipFailed,
   sendTipSucceeded,
   setSupportersForUser,
@@ -26,7 +27,7 @@ import {
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
-import { encodeHashId } from 'utils/route/hashIds'
+import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
@@ -111,41 +112,10 @@ function* sendTipAsync() {
      * Refresh the supporting list for sender
      * and the supporters list for the receiver
      */
-    const encodedSenderUserId = encodeHashId(sender.user_id)!
-    const supportingForSender = yield* call(fetchSupporting, {
-      encodedUserId: encodedSenderUserId
-    })
-    const encodedRecipientUserId = encodeHashId(recipient.user_id)!
-    const supportersForReceiver = yield* call(fetchSupporters, {
-      encodedUserId: encodedRecipientUserId
-    })
-    yield processAndCacheUsers(
-      [
-        ...supportingForSender.map(supporting => supporting.receiver),
-        ...supportersForReceiver.map(supporter => supporter.sender)
-      ].filter(user => user.user_id !== sender.user_id)
-    )
-
-    const supportingForSenderMap: Record<string, Supporting> = {}
-    supportingForSender.forEach(supporting => {
-      const encodedReceiverUserId = encodeHashId(supporting.receiver.user_id)
-      supportingForSenderMap[encodedReceiverUserId!] = { ...supporting }
-    })
-    const supportersForRecipientMap: Record<string, Supporter> = {}
-    supportersForReceiver.forEach(supporter => {
-      const encodedSenderUserId = encodeHashId(supporter.sender.user_id)
-      supportersForRecipientMap[encodedSenderUserId!] = { ...supporter }
-    })
     yield put(
-      setSupportingForUser({
-        id: encodedSenderUserId,
-        supportingForUser: supportingForSenderMap
-      })
-    )
-    yield put(
-      setSupportersForUser({
-        id: encodedRecipientUserId,
-        supportersForUser: supportersForRecipientMap
+      refreshSupport({
+        senderUserId: sender.user_id,
+        receiverUserId: recipient.user_id
       })
     )
   } catch (e) {
@@ -164,12 +134,90 @@ function* sendTipAsync() {
   }
 }
 
+function* refreshSupportAsync({
+  payload: { senderUserId, receiverUserId }
+}: {
+  payload: {
+    senderUserId: number
+    receiverUserId: number
+  }
+}) {
+  const encodedSenderUserId = encodeHashId(senderUserId)
+  const encodedReceiverUserId = encodeHashId(receiverUserId)
+  console.log({
+    senderUserId,
+    receiverUserId,
+    encodedSenderUserId,
+    encodedReceiverUserId
+  })
+  if (encodedSenderUserId && encodedReceiverUserId) {
+    const supportingForSenderList = yield* call(fetchSupporting, {
+      encodedUserId: encodedSenderUserId
+    })
+    const supportersForReceiverList = yield* call(fetchSupporters, {
+      encodedUserId: encodedReceiverUserId
+    })
+    const userIds = [
+      ...supportingForSenderList.map(supporting =>
+        decodeHashId(supporting.receiver.id)
+      ),
+      ...supportersForReceiverList.map(supporter =>
+        decodeHashId(supporter.sender.id)
+      )
+    ]
+
+    // todo: probs just cache users returned from tipping support api
+    // todo: also, should maybe poll here?
+    yield call(fetchUsers, userIds, new Set(), true)
+
+    const supportingForSenderMap: Record<string, Supporting> = {}
+    supportingForSenderList.forEach(supporting => {
+      const supportingUserId = decodeHashId(supporting.receiver.id)
+      if (supportingUserId) {
+        supportingForSenderMap[supportingUserId] = {
+          receiver_id: supportingUserId,
+          rank: supporting.rank,
+          amount: supporting.amount
+        }
+      }
+    })
+    const supportersForReceiverMap: Record<string, Supporter> = {}
+    supportersForReceiverList.forEach(supporter => {
+      const supporterUserId = decodeHashId(supporter.sender.id)
+      if (supporterUserId) {
+        supportersForReceiverMap[supporterUserId] = {
+          sender_id: supporterUserId,
+          rank: supporter.rank,
+          amount: supporter.amount
+        }
+      }
+    })
+
+    yield put(
+      setSupportingForUser({
+        id: senderUserId,
+        supportingForUser: supportingForSenderMap
+      })
+    )
+    yield put(
+      setSupportersForUser({
+        id: receiverUserId,
+        supportersForUser: supportersForReceiverMap
+      })
+    )
+  }
+}
+
+function* watchRefreshSupport() {
+  yield takeEvery(refreshSupport.type, refreshSupportAsync)
+}
+
 function* watchConfirmSendTip() {
   yield takeEvery(confirmSendTip.type, sendTipAsync)
 }
 
 const sagas = () => {
-  return [watchConfirmSendTip]
+  return [watchRefreshSupport, watchConfirmSendTip]
 }
 
 export default sagas

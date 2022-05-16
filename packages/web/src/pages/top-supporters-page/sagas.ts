@@ -12,6 +12,7 @@ import {
   getUserIds
 } from 'common/store/user-list/top-supporters/selectors'
 import { createUserListProvider } from 'components/user-list/utils'
+import * as adapter from 'services/audius-api-client/ResponseAdapter'
 import { fetchSupporters } from 'services/audius-backend/Tipping'
 import { encodeHashId } from 'utils/route/hashIds'
 
@@ -38,7 +39,10 @@ const provider = createUserListProvider<User>({
       limit: limit,
       offset: offset
     })
-    return supporters.sort((s1, s2) => s1.rank - s2.rank).map(s => s.sender)
+    return supporters
+      .sort((s1, s2) => s1.rank - s2.rank)
+      .map(s => adapter.makeUser(s.sender))
+      .filter(Boolean)
   },
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>

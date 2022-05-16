@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 
+import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
@@ -24,7 +25,7 @@ const slice = createSlice({
     setSupporters: (
       state,
       action: PayloadAction<{
-        supporters: Record<string, Record<string, Supporter>>
+        supporters: Record<string, Record<ID, Supporter>>
       }>
     ) => {
       state.supporters = action.payload.supporters
@@ -32,8 +33,8 @@ const slice = createSlice({
     setSupportersForUser: (
       state,
       action: PayloadAction<{
-        id: string
-        supportersForUser: Record<string, Supporter>
+        id: ID
+        supportersForUser: Record<ID, Supporter>
       }>
     ) => {
       const { id, supportersForUser } = action.payload
@@ -42,7 +43,7 @@ const slice = createSlice({
     setSupporting: (
       state,
       action: PayloadAction<{
-        supporting: Record<string, Record<string, Supporting>>
+        supporting: Record<ID, Record<ID, Supporting>>
       }>
     ) => {
       state.supporting = action.payload.supporting
@@ -50,13 +51,20 @@ const slice = createSlice({
     setSupportingForUser: (
       state,
       action: PayloadAction<{
-        id: string
-        supportingForUser: Record<string, Supporting>
+        id: ID
+        supportingForUser: Record<ID, Supporting>
       }>
     ) => {
       const { id, supportingForUser } = action.payload
       state.supporting[id] = supportingForUser
     },
+    refreshSupport: (
+      state,
+      action: PayloadAction<{
+        senderUserId: ID
+        receiverUserId: ID
+      }>
+    ) => {},
     beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {
         return
@@ -102,6 +110,7 @@ const slice = createSlice({
 export const {
   setSupportingForUser,
   setSupportersForUser,
+  refreshSupport,
   beginTip,
   sendTip,
   confirmSendTip,

@@ -13,6 +13,7 @@ import {
 } from 'common/store/user-list/supporting/selectors'
 import { stringWeiToBN } from 'common/utils/wallet'
 import { createUserListProvider } from 'components/user-list/utils'
+import * as adapter from 'services/audius-api-client/ResponseAdapter'
 import { fetchSupporting } from 'services/audius-backend/Tipping'
 import { encodeHashId } from 'utils/route/hashIds'
 
@@ -45,7 +46,8 @@ const provider = createUserListProvider<User>({
         const amount2BN = stringWeiToBN(s2.amount)
         return amount1BN.gte(amount2BN) ? -1 : 1
       })
-      .map(s => s.receiver)
+      .map(s => adapter.makeUser(s.receiver))
+      .filter(Boolean)
   },
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>

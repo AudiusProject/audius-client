@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { BadgeTier } from 'common/models/BadgeTier'
+import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
@@ -27,7 +28,6 @@ import {
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
-import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './TipAudio.module.css'
 import { TipProfilePicture } from './TipProfilePicture'
@@ -46,11 +46,9 @@ const messages = {
 export const SendTip = () => {
   const dispatch = useDispatch()
   const account = useSelector(getAccountUser)
-  const encodedAccountUserId = encodeHashId(account?.user_id ?? null)
   const supportersMap = useSelector(getSupporters)
   const supportingMap = useSelector(getSupporting)
   const profile = useSelector(getProfileUser)
-  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
 
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
@@ -80,29 +78,32 @@ export const SendTip = () => {
    * how much is left to tip to become top supporter
    */
   useEffect(() => {
-    if (!encodedAccountUserId || !encodedProfileUserId) return
+    if (!account || !profile) return
 
-    const supportingForAccount = supportingMap[encodedAccountUserId] ?? {}
+    const supportingForAccount = supportingMap[account.user_id] ?? {}
     const accountSupportingProfile =
-      supportingForAccount[encodedProfileUserId] ?? null
+      supportingForAccount[profile.user_id] ?? null
     if (accountSupportingProfile) {
       setSupporting(accountSupportingProfile)
     }
-  }, [encodedAccountUserId, encodedProfileUserId, supportingMap])
+  }, [account, profile, supportingMap])
 
   /**
    * Get user who is top supporter to later check whether it is
    * not the same as the current user
    */
   useEffect(() => {
-    if (!encodedProfileUserId) return
+    if (!profile) return
 
-    const supportersForProfile = supportersMap[encodedProfileUserId] ?? {}
+    const supportersForProfile = supportersMap[profile.user_id] ?? {}
     const rankedSupportersList = Object.keys(supportersForProfile)
       .sort((k1, k2) => {
-        return supportersForProfile[k1].rank - supportersForProfile[k2].rank
+        return (
+          supportersForProfile[(k1 as unknown) as ID].rank -
+          supportersForProfile[(k2 as unknown) as ID].rank
+        )
       })
-      .map(k => supportersForProfile[k])
+      .map(k => supportersForProfile[(k as unknown) as ID])
     const theTopSupporter =
       rankedSupportersList.length > 0 ? rankedSupportersList[0] : null
 
@@ -111,7 +112,7 @@ export const SendTip = () => {
     } else {
       setIsFirstSupporter(true)
     }
-  }, [encodedProfileUserId, supportersMap])
+  }, [profile, supportersMap])
 
   useEffect(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
@@ -140,8 +141,7 @@ export const SendTip = () => {
   const onBlur = useCallback(() => {
     if (hasError || !account || !topSupporter) return
 
-    const isAlreadyTopSupporter =
-      account.user_id === topSupporter.sender.user_id
+    const isAlreadyTopSupporter = account.user_id === topSupporter.sender_id
     if (isAlreadyTopSupporter) return
 
     const topSupporterAmountWei = stringWeiToBN(topSupporter.amount)

@@ -31,20 +31,13 @@ import {
 } from 'common/store/pages/profile/selectors'
 import { FollowType } from 'common/store/pages/profile/types'
 import { getIsReachable } from 'common/store/reachability/selectors'
-import {
-  setSupportingForUser,
-  setSupportersForUser
-} from 'common/store/tipping/slice'
+import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { makeUid, makeKindId } from 'common/utils/uid'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import {
-  fetchSupporting,
-  fetchSupporters
-} from 'services/audius-backend/Tipping'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import SolanaClient from 'services/solana-client/SolanaClient'
@@ -54,7 +47,6 @@ import { confirmTransaction } from 'store/confirmer/sagas'
 import { isMobile } from 'utils/clientUtil'
 import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { encodeHashId } from 'utils/route/hashIds'
 import { waitForValue } from 'utils/sagaHelpers'
 
 const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
@@ -148,35 +140,10 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
-  const encodedUserId = encodeHashId(userId)
-
-  const supportingForUserList = yield fetchSupporting({ encodedUserId })
-  const supportersForUserList = yield fetchSupporters({ encodedUserId })
-  yield call(cacheUsers, [
-    ...supportingForUserList.map(supporting => supporting.receiver),
-    ...supportersForUserList.map(supporter => supporter.sender)
-  ])
-
-  const supportingForUserMap = {}
-  supportingForUserList.forEach(supporting => {
-    const encodedReceiverUserId = encodeHashId(supporting.receiver.user_id)
-    supportingForUserMap[encodedReceiverUserId] = { ...supporting }
-  })
-  const supportersForUserMap = {}
-  supportersForUserList.forEach(supporter => {
-    const encodedSenderUserId = encodeHashId(supporter.sender.user_id)
-    supportersForUserMap[encodedSenderUserId] = { ...supporter }
-  })
   yield put(
-    setSupportingForUser({
-      id: encodedUserId,
-      supportingForUser: supportingForUserMap
-    })
-  )
-  yield put(
-    setSupportersForUser({
-      id: encodedUserId,
-      supportersForUser: supportersForUserMap
+    refreshSupport({
+      senderUserId: userId,
+      receiverUserId: userId
     })
   )
 }
@@ -215,7 +182,10 @@ function* fetchProfileAsync(action) {
     // Fetch user socials and collections after fetching the user itself
     yield fork(fetchUserSocials, action.handle)
     yield fork(fetchUserCollections, user.user_id)
+
+    // todo: comment until ready to release tipping
     yield fork(fetchSupportersAndSupporting, user.user_id)
+
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
     yield fork(fetchSolanaCollectibles, user)

@@ -14,7 +14,6 @@ import { formatWei, stringWeiToBN } from 'common/utils/wallet'
 import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
 import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
-import { encodeHashId } from 'utils/route/hashIds'
 
 import styles from './ArtistChip.module.css'
 
@@ -23,48 +22,34 @@ const messages = {
   supporter: 'Supporter'
 }
 
-const TIP_SUPPORT_TAGS = new Set([
-  SUPPORTING_USER_LIST_TAG,
-  TOP_SUPPORTERS_USER_LIST_TAG
-])
-
 type ArtistChipTipsProps = {
   userId: ID
   tag: string
 }
 
 export const ArtistChipTips = ({ userId, tag }: ArtistChipTipsProps) => {
-  const encodedUserId = encodeHashId(userId)
   const profile = useSelector(getProfileUser)
-  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
   const supportingMap = useSelector(getSupporting)
   const supportersMap = useSelector(getSupporters)
   const [amount, setAmount] = useState<Nullable<StringWei>>(null)
   const [rank, setRank] = useState<Nullable<number>>(null)
 
   useEffect(() => {
-    if (encodedUserId && encodedProfileUserId) {
+    if (userId && profile) {
       if (tag === SUPPORTING_USER_LIST_TAG) {
-        const profileSupporting = supportingMap[encodedProfileUserId] ?? {}
-        const supporting = profileSupporting[encodedUserId] ?? {}
+        const profileSupporting = supportingMap[profile.user_id] ?? {}
+        const supporting = profileSupporting[userId] ?? {}
         setAmount(supporting.amount ?? null)
       } else if (tag === TOP_SUPPORTERS_USER_LIST_TAG) {
-        const profileSupporters = supportersMap[encodedProfileUserId] ?? {}
-        const supporter = profileSupporters[encodedUserId] ?? {}
+        const profileSupporters = supportersMap[profile.user_id] ?? {}
+        const supporter = profileSupporters[userId] ?? {}
         setRank(supporter.rank ?? null)
         setAmount(supporter.amount ?? null)
       }
     }
-  }, [
-    encodedUserId,
-    encodedProfileUserId,
-    supportingMap,
-    supportersMap,
-    tag,
-    userId
-  ])
+  }, [userId, profile, supportingMap, supportersMap, tag])
 
-  return TIP_SUPPORT_TAGS.has(tag) ? (
+  return (
     <div className={styles.tipContainer}>
       {TOP_SUPPORTERS_USER_LIST_TAG === tag ? (
         <div className={styles.rank}>
@@ -92,5 +77,5 @@ export const ArtistChipTips = ({ userId, tag }: ArtistChipTipsProps) => {
         </div>
       )}
     </div>
-  ) : null
+  )
 }

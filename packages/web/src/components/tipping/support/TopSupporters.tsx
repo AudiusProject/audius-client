@@ -2,9 +2,11 @@ import React, { useCallback } from 'react'
 
 import { IconTrophy, IconArrow } from '@audius/stems'
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useSelector } from 'common/hooks/useSelector'
+import { ID } from 'common/models/Identifiers'
+import { User } from 'common/models/User'
+import { getUsers } from 'common/store/cache/users/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSupporters } from 'common/store/tipping/selectors'
 import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
@@ -16,7 +18,7 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
-import { encodeHashId } from 'utils/route/hashIds'
+import { AppState } from 'store/types'
 
 import styles from './Support.module.css'
 
@@ -30,16 +32,23 @@ const messages = {
 export const TopSupporters = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
-  const encodedProfileUserId = encodeHashId(profile?.user_id ?? null)
   const supportersMap = useSelector(getSupporters)
-  const supportersForProfile = encodedProfileUserId
-    ? supportersMap[encodedProfileUserId] ?? {}
+  const supportersForProfile = profile?.user_id
+    ? supportersMap[profile.user_id] ?? {}
     : {}
-  const rankedSupportersList = Object.keys(supportersForProfile)
-    .sort((k1, k2) => {
-      return supportersForProfile[k1].rank - supportersForProfile[k2].rank
+  const rankedSupporters = useSelector<AppState, User[]>(state => {
+    const usersMap = getUsers(state, {
+      ids: Object.keys(supportersForProfile).map(k => parseInt(k))
     })
-    .map(k => supportersForProfile[k])
+    return Object.keys(supportersForProfile)
+      .sort((k1, k2) => {
+        return (
+          supportersForProfile[(k1 as unknown) as ID].rank -
+          supportersForProfile[(k2 as unknown) as ID].rank
+        )
+      })
+      .map(k => usersMap[(k as unknown) as ID])
+  })
 
   const handleClick = useCallback(() => {
     if (profile) {
@@ -54,7 +63,7 @@ export const TopSupporters = () => {
     }
   }, [profile, dispatch])
 
-  return profile && rankedSupportersList.length > 0 ? (
+  return profile && rankedSupporters.length > 0 ? (
     <div className={styles.container}>
       <div className={styles.titleContainer}>
         <IconTrophy className={styles.trophyIcon} />
@@ -63,7 +72,7 @@ export const TopSupporters = () => {
       </div>
       <div className={styles.topSupportersContainer} onClick={handleClick}>
         <UserProfilePictureList
-          users={rankedSupportersList.map(s => s.sender)}
+          users={rankedSupporters}
           totalUserCount={profile.supporter_count}
           limit={MAX_TOP_SUPPORTERS}
           stopPropagation

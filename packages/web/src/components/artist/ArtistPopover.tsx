@@ -21,7 +21,6 @@ import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
-import { encodeHashId } from 'utils/route/hashIds'
 
 import ArtistCard from './ArtistCard'
 import styles from './ArtistPopover.module.css'
@@ -84,17 +83,20 @@ const ArtistPopover = ({
   )
 
   const supportingMap = useSelector(getSupporting)
-  const encodedCreatorUserId = encodeHashId(creator?.user_id ?? null)
-  const supportingForCreator = encodedCreatorUserId
-    ? supportingMap[encodedCreatorUserId] ?? {}
+  const supportingForCreator = creator?.user_id
+    ? supportingMap[creator.user_id] ?? {}
     : {}
   const rankedSupportingList = Object.keys(supportingForCreator)
     .sort((k1, k2) => {
-      const amount1BN = stringWeiToBN(supportingForCreator[k1].amount)
-      const amount2BN = stringWeiToBN(supportingForCreator[k2!].amount)
+      const amount1BN = stringWeiToBN(
+        supportingForCreator[(k1 as unknown) as ID].amount
+      )
+      const amount2BN = stringWeiToBN(
+        supportingForCreator[(k2 as unknown) as ID].amount
+      )
       return amount1BN.gte(amount2BN) ? -1 : 1
     })
-    .map(k => supportingForCreator[k])
+    .map(k => supportingForCreator[(k as unknown) as ID])
 
   // todo: hide hover tile on click
   const onSupportingClick = () => {}
