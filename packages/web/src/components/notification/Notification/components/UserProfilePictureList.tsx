@@ -1,6 +1,5 @@
 import React from 'react'
 
-import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
 import { formatCount } from 'common/utils/formatUtil'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -15,9 +14,17 @@ const messages = {
 }
 
 type UserProfileListProps = {
+  /**
+   * Here we have both users and totalUserCount because we need the total number
+   * of users which is different that the number users whose profile pictures
+   * will show up.
+   * Sometimes the total number of users is not available,
+   * e.g. for followers and supporters, we have follower_count and supporter_count.
+   * When this is the case, we use this totalUserCount prop to inform how many total users there are.
+   */
   users: Array<User>
+  totalUserCount: number
   limit?: number
-  totalOverride?: number
   disableProfileClick?: boolean
   disablePopover?: boolean
   stopPropagation?: boolean
@@ -25,18 +32,14 @@ type UserProfileListProps = {
 
 export const UserProfilePictureList = ({
   users,
+  totalUserCount,
   limit = USER_LENGTH_LIMIT,
-  totalOverride,
   disableProfileClick = false,
   disablePopover = false,
   stopPropagation = false
 }: UserProfileListProps) => {
-  const showUserListModal = totalOverride
-    ? totalOverride > limit
-    : users.length > limit
-  const remainingUsersCount = totalOverride
-    ? totalOverride - limit
-    : users.length - limit
+  const showUserListModal = totalUserCount > limit
+  const remainingUsersCount = totalUserCount - limit
 
   return (
     <div className={styles.root}>

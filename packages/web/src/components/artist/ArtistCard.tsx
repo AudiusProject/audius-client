@@ -43,6 +43,7 @@ type ArtistCardProps = {
   onFollow: () => void
   onUnfollow: () => void
   supportingList: Supporting[]
+  supportingCount: number
   onSupportingClick: () => void
   setUsers: (id: ID) => void
   openModal: () => void
@@ -66,6 +67,7 @@ const ArtistCard = ({
   onFollow,
   onUnfollow,
   supportingList,
+  supportingCount,
   onSupportingClick,
   setUsers,
   openModal
@@ -139,6 +141,7 @@ const ArtistCard = ({
             {isTippingEnabled && (
               <ArtistSupporting
                 supportingList={supportingList}
+                supportingCount={supportingCount}
                 handleClick={handleSupportingClick}
               />
             )}

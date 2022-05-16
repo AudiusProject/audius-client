@@ -64,8 +64,8 @@ export const TopSupporters = () => {
       <div className={styles.topSupportersContainer} onClick={handleClick}>
         <UserProfilePictureList
           users={rankedSupportersList.map(s => s.sender)}
+          totalUserCount={profile.supporter_count}
           limit={MAX_TOP_SUPPORTERS}
-          totalOverride={profile.supporter_count}
           stopPropagation
         />
         <div className={styles.viewAll}>

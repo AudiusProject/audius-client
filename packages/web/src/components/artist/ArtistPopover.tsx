@@ -137,6 +137,7 @@ const ArtistPopover = ({
         onFollow={onClickFollow}
         onUnfollow={onClickUnfollow}
         supportingList={rankedSupportingList}
+        supportingCount={creator.supporting_count}
         onSupportingClick={onSupportingClick}
       />
     ) : null

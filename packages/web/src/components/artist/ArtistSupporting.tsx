@@ -14,6 +14,7 @@ const MAX_TOP_SUPPORTING = 7
 
 type ArtistSupportingProps = {
   supportingList: Supporting[]
+  supportingCount: number
   handleClick: () => void
 }
 export const ArtistSupporting = ({
@@ -30,6 +31,7 @@ export const ArtistSupporting = ({
       <UserProfilePictureList
         limit={MAX_TOP_SUPPORTING}
         users={supportingList.map(s => s.receiver)}
+        totalUserCount={supportingList.length}
         disableProfileClick
         disablePopover
       />

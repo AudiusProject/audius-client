@@ -38,7 +38,11 @@ const Mutuals = ({
         <span className={cn(styles.line, styles.line)} />
       </div>
       <div className={styles.contentContainer} onClick={handleMutualsClick}>
-        <UserProfilePictureList users={followers} limit={MAX_MUTUALS} />
+        <UserProfilePictureList
+          users={followers}
+          totalUserCount={followers.length}
+          limit={MAX_MUTUALS}
+        />
         <div className={styles.viewAll}>
           <span>{messages.viewAll}</span>
           <IconArrow className={styles.arrowIcon} />
