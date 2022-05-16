@@ -34,6 +34,8 @@ export const getModalNotificationIds = (state: CommonState) =>
   getBaseState(state).allIds
 export const getNotificationUnreadCount = (state: CommonState) =>
   getBaseState(state).totalUnread
+export const getNotificationUnviewedCount = (state: CommonState) =>
+  getBaseState(state).totalUnviewed
 export const getNotificationStatus = (state: CommonState) =>
   getBaseState(state).status
 export const getNotificationHasMore = (state: CommonState) =>

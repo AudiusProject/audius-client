@@ -30,7 +30,6 @@ import {
   getNotificationPanelIsOpen,
   getNotificationStatus,
   makeGetAllNotifications,
-  getAllNotifications,
   getPlaylistUpdates
 } from 'common/store/notifications/selectors'
 import {
@@ -333,7 +332,7 @@ export function* fetchNotificationUsers(
   }
 }
 
-export function* markNotificationsRead(action: notificationActions.MarkAsRead) {
+export function* markNotificationRead(action: notificationActions.MarkAsRead) {
   const notification = yield select(getNotificationById, action.notificationId)
   try {
     yield call(
@@ -411,7 +410,7 @@ function* watchFetchNotificationUsers() {
 }
 
 function* watchMarkNotificationsRead() {
-  yield takeEvery(notificationActions.MARK_AS_READ, markNotificationsRead)
+  yield takeEvery(notificationActions.MARK_AS_READ, markNotificationRead)
 }
 
 function* watchMarkAllNotificationsRead() {
@@ -654,20 +653,9 @@ function* watchTogglePanel() {
   yield takeEvery(notificationActions.TOGGLE_NOTIFICATION_PANEL, function* () {
     const isOpen = yield select(getNotificationPanelIsOpen)
     if (isOpen) {
-      yield put(notificationActions.markAllAsViewed())
+      yield put(notificationActions.markAsViewed())
     } else {
-      // On close modal,
-      const notificationMap = yield select(getAllNotifications)
-      const notifications: Notification[] = Object.values(notificationMap)
-      for (const notification of notifications) {
-        if (
-          notification.type === NotificationType.Announcement &&
-          !notification.longDescription &&
-          !notification.isRead
-        ) {
-          yield put(notificationActions.markAsRead(notification.id))
-        }
-      }
+      yield put(notificationActions.markAllAsViewed())
     }
   })
 }

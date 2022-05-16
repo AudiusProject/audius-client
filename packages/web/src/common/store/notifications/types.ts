@@ -239,6 +239,7 @@ export default interface NotificationState {
   modalNotificationId: string | undefined
   panelIsOpen: boolean
   modalIsOpen: boolean
+  totalUnviewed: number
   totalUnread: number
   status?: Status
   hasMore: boolean

@@ -24,6 +24,7 @@ export const FETCH_NOTIFICATIONS_USERS_FAILED =
 export const SET_NOTIFICATION_USERS = 'NOTIFICATION/SET_NOTIFICATION_USERS'
 
 export const MARK_AS_READ = 'NOTIFICATION/MARK_AS_READ'
+export const MARK_AS_VIEWED = 'NOTIFICATION/MARK_AS_VIEWED'
 export const MARK_ALL_AS_READ = 'NOTIFICATION/MARK_ALL_AS_READ'
 export const MARK_ALL_AS_VIEWED = 'NOTIFICATION/MARK_ALL_AS_VIEWED'
 
@@ -62,7 +63,8 @@ export const fetchNotificationSucceeded = (
   type: FETCH_NOTIFICATIONS_SUCCEEDED,
   notifications,
   hasMore,
-  totalUnread
+  totalUnread,
+  totalUnviewed: totalUnread
 })
 
 export const refreshNotifications = () => ({
@@ -77,7 +79,8 @@ export const setNotifications = (
   type: SET_NOTIFICATIONS,
   notifications,
   hasMore,
-  totalUnread
+  totalUnread,
+  totalUnviewed: totalUnread
 })
 
 export const setNotificationUsers = (userIds: ID[] = [], limit = 0) => {
@@ -110,6 +113,10 @@ export const fetchNotificationUsersSucceeded = (limit: number) => ({
 export const markAsRead = (notificationId: string) => ({
   type: MARK_AS_READ,
   notificationId
+})
+
+export const markAsViewed = () => ({
+  type: MARK_AS_READ
 })
 
 export const hideNotification = (notificationId: string) => ({
@@ -172,6 +179,7 @@ export type FetchNotificationUsersSucceeded = ReturnType<
   typeof fetchNotificationUsersSucceeded
 >
 export type MarkAsRead = ReturnType<typeof markAsRead>
+export type MarkAsViewed = ReturnType<typeof markAsViewed>
 export type HideNotification = ReturnType<typeof hideNotification>
 export type MarkAllAsRead = ReturnType<typeof markAllAsRead>
 export type MarkAllAsViewed = ReturnType<typeof markAllAsViewed>
@@ -196,7 +204,7 @@ export type NotificationAction =
   | FetchNotificationUsersRequested
   | FetchNotificationUsersFailed
   | FetchNotificationUsersSucceeded
-  | MarkAsRead
+  | MarkAsViewed
   | HideNotification
   | MarkAllAsRead
   | MarkAllAsViewed

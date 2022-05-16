@@ -10,6 +10,7 @@ const initialState: NotificationState = {
   hasLoaded: false,
   panelIsOpen: false,
   totalUnread: 0,
+  totalUnviewed: 0,
   modalNotificationId: undefined,
   modalIsOpen: false,
   lastTimeStamp: undefined,
@@ -53,6 +54,7 @@ const actionsMap: any = {
       ),
       allIds: state.allIds.concat(notificationIds),
       totalUnread: action.totalUnread || state.totalUnread,
+      totalUnviewed: action.totalUnviewed || state.totalUnviewed,
       status: Status.SUCCESS,
       hasMore: action.hasMore,
       hasLoaded: true
@@ -74,6 +76,7 @@ const actionsMap: any = {
       ),
       allIds: notificationIds,
       totalUnread: action.totalUnread,
+      totalUnviewed: action.totalUnviewed,
       status: Status.SUCCESS,
       hasMore: action.hasMore,
       hasLoaded: true
@@ -136,6 +139,12 @@ const actionsMap: any = {
       totalUnread: state.totalUnread - 1
     }
   },
+  [actions.MARK_AS_VIEWED](state: NotificationState) {
+    return {
+      ...state,
+      totalUnviewed: 0
+    }
+  },
   [actions.MARK_ALL_AS_READ](state: NotificationState) {
     return {
       ...state,
@@ -178,7 +187,20 @@ const actionsMap: any = {
     }
   },
   [actions.MARK_ALL_AS_VIEWED](state: NotificationState) {
-    return { ...state, totalUnread: 0 }
+    const notificationIds = Object.keys(state.notifications)
+    const viewedNotifications: Record<string, Notification> = {}
+
+    notificationIds.forEach(id => {
+      const notification = state.notifications[id]
+      const viewedNotification = { ...notification, isViewed: true }
+      viewedNotifications[id] = viewedNotification
+    })
+
+    return {
+      ...state,
+      notifications: viewedNotifications,
+      totalUnviewed: 0
+    }
   },
   [actions.TOGGLE_NOTIFICATION_PANEL](state: NotificationState) {
     return { ...state, panelIsOpen: !state.panelIsOpen }

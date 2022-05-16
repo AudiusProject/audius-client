@@ -28,7 +28,7 @@ type NotificationTileProps = {
 
 export const NotificationTile = (props: NotificationTileProps) => {
   const { notification, onClick, children, disabled, disableClosePanel } = props
-  const { id, isRead } = notification
+  const { id, isViewed } = notification
   const dispatch = useDispatch()
 
   const handleClick: MouseEventHandler = useCallback(
@@ -45,7 +45,7 @@ export const NotificationTile = (props: NotificationTileProps) => {
   return (
     <div
       className={cn(styles.root, {
-        [styles.read]: isRead,
+        [styles.read]: isViewed,
         [styles.active]: !disabled
       })}
       tabIndex={0}
