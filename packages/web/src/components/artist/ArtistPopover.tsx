@@ -22,7 +22,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 
-import ArtistCard from './ArtistCard'
+import { ArtistCard } from './ArtistCard'
 import styles from './ArtistPopover.module.css'
 
 enum Placement {
@@ -118,24 +118,11 @@ const ArtistPopover = ({
     goToRoute(profilePage(handle))
   }, [handle, goToRoute])
 
-  const following = creator ? creator.does_current_user_follow : false
   const content =
     creator && userId !== creator.user_id ? (
       <ArtistCard
-        description={creator.bio}
-        trackCount={creator.track_count}
-        playlistCount={creator.playlist_count}
-        followerCount={creator.follower_count}
-        followingCount={creator.followee_count}
-        doesFollowCurrentUser={!!creator.does_follow_current_user}
-        userId={creator.user_id}
-        name={creator.name}
-        handle={creator.handle}
-        profilePictureSizes={creator._profile_picture_sizes}
-        coverPhotoSizes={creator._cover_photo_sizes}
-        isArtist={creator.is_creator || creator.track_count > 0}
+        artist={creator}
         onNameClick={onNameClick}
-        following={following}
         onFollow={onClickFollow}
         onUnfollow={onClickUnfollow}
         supportingList={rankedSupportingList}
