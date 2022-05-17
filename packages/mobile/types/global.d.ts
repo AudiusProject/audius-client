@@ -8,3 +8,5 @@ declare module '*.svg' {
   const src: string
   export default src
 }
+
+declare module 'antd/lib/popover'
