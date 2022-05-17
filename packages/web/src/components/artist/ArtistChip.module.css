@@ -92,8 +92,8 @@
   color: var(--neutral-light-4) !important;
 }
 .followersContainer .followers {
-  width: 120px !important;
-  margin-right: 24px;
+  width: 136px !important;
+  margin-right: 8px;
 }
 .followersContainer .value,
 .tipContainer .value {
@@ -107,13 +107,13 @@
 }
 
 .tipContainer .rank {
-  margin-right: 24px;
+  margin-right: 4px;
 }
 .tipContainer .topSupporter,
 .tipContainer .supporter {
   display: flex;
   align-items: center;
-  width: 120px;
+  width: 136px;
   font-size: var(--font-s);
   font-weight: var(--font-medium);
 }
