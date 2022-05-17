@@ -25,6 +25,10 @@ web-init:
         paths:
           - ./packages/web/node_modules
 
+    - run:
+        name: typecheck
+        command: cd packages/web && npm run typecheck
+
     # Lint
     - run:
         name: lint
