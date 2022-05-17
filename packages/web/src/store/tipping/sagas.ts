@@ -55,10 +55,8 @@ function* sendTipAsync() {
   const waudioWeiAmount = yield* call(walletClient.getCurrentWAudioBalance)
 
   if (weiBNAmount.gt(weiBNBalance)) {
-    const error = 'Not enough $AUDIO'
-    console.error(`Send tip failed: ${error}`)
-    yield put(sendTipFailed({ error }))
-    return
+    const errorMessage = 'Not enough $AUDIO'
+    throw new Error(errorMessage)
   }
 
   try {
@@ -78,16 +76,9 @@ function* sendTipAsync() {
       yield call(walletClient.transferTokensFromEthToSol)
     }
 
-    try {
-      yield call(() =>
-        walletClient.sendWAudioTokens(recipientWallet, weiBNAmount)
-      )
-    } catch (e) {
-      const error = (e as Error).message
-      console.error(`Send tip failed: ${error}`)
-      yield put(sendTipFailed({ error }))
-      return
-    }
+    yield call(() =>
+      walletClient.sendWAudioTokens(recipientWallet, weiBNAmount)
+    )
 
     // Only decrease store balance if we haven't already changed
     const newBalance: ReturnType<typeof getAccountBalance> = yield select(
@@ -120,6 +111,7 @@ function* sendTipAsync() {
     )
   } catch (e) {
     const error = (e as Error).message
+    console.error(`Send tip failed: ${error}`)
     yield put(sendTipFailed({ error }))
     yield put(
       make(Name.TIP_AUDIO_FAILURE, {
