@@ -5,7 +5,7 @@ import cn from 'classnames'
 
 import { User } from 'common/models/User'
 import UserListModal from 'components/artist/UserListModal'
-import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
+import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
 import { profilePage } from 'utils/route'
 
 import styles from './ProfileMutuals.module.css'

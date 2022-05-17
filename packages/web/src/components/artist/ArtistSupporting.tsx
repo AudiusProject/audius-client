@@ -6,7 +6,7 @@ import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { Supporting } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { getUsers } from 'common/store/cache/users/selectors'
-import { UserProfilePictureList } from 'components/notification/Notifications/UserProfilePictureList'
+import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
 import { AppState } from 'store/types'
 
 import styles from './ArtistCard.module.css'
