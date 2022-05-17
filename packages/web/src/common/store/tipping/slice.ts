@@ -7,11 +7,6 @@ import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
 import { TippingState } from 'common/store/tipping/types'
 
-type Thing = PayloadAction<{
-  senderUserId: ID
-  receiverUserId: ID
-}>
-
 const initialState: TippingState = {
   supporters: {},
   supporting: {},
