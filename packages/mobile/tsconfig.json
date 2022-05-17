@@ -27,7 +27,7 @@
     "strictNullChecks": true,
     // Update these when no longer dependent on audius-client
     "strict": false,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",
