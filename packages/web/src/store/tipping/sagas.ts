@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
+import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
@@ -11,6 +12,7 @@ import { getSendTipData } from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
   convert,
+  fetchSupportingForUser,
   refreshSupport,
   RefreshSupportPayloadAction,
   sendTipFailed,
@@ -29,6 +31,7 @@ import {
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
+import { MAX_ARTIST_HOVER_TOP_SUPPORTING } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
@@ -168,7 +171,7 @@ function* refreshSupportAsync({
     ]
 
     // todo: probs just cache users returned from tipping support api
-    // todo: also, should maybe poll here?
+    // todo: also, should maybe poll here if right after successful tipping?
     yield* call(fetchUsers, userIds, new Set(), true)
 
     const supportingForSenderMap: Record<string, Supporting> = {}
@@ -209,6 +212,50 @@ function* refreshSupportAsync({
   }
 }
 
+function* fetchSupportingForUserAsync({
+  payload: { userId }
+}: {
+  payload: { userId: ID }
+  type: string
+}) {
+  const encodedUserId = encodeHashId(userId)
+  if (encodedUserId) {
+    const supportingList = yield* call(fetchSupporting, {
+      encodedUserId,
+      limit: MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
+    })
+    const userIds = supportingList.map(supporting =>
+      decodeHashId(supporting.receiver.id)
+    )
+
+    // todo: probs just cache users returned from tipping support api
+    yield* call(fetchUsers, userIds, new Set(), true)
+
+    const map: Record<string, Supporting> = {}
+    supportingList.forEach(supporting => {
+      const supportingUserId = decodeHashId(supporting.receiver.id)
+      if (supportingUserId) {
+        map[supportingUserId] = {
+          receiver_id: supportingUserId,
+          rank: supporting.rank,
+          amount: supporting.amount
+        }
+      }
+    })
+
+    yield put(
+      setSupportingForUser({
+        id: userId,
+        supportingForUser: map
+      })
+    )
+  }
+}
+
+function* watchFetchSupportingForUser() {
+  yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
+}
+
 function* watchRefreshSupport() {
   yield* takeEvery(refreshSupport.type, refreshSupportAsync)
 }
@@ -218,7 +265,7 @@ function* watchConfirmSendTip() {
 }
 
 const sagas = () => {
-  return [watchRefreshSupport, watchConfirmSendTip]
+  return [watchFetchSupportingForUser, watchRefreshSupport, watchConfirmSendTip]
 }
 
 export default sagas

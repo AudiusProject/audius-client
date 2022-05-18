@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 import { useDispatch } from 'react-redux'
 
@@ -8,6 +8,7 @@ import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getSupporting } from 'common/store/tipping/selectors'
+import { fetchSupportingForUser } from 'common/store/tipping/slice'
 import { stringWeiToBN } from 'common/utils/wallet'
 import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
 import {
@@ -18,14 +19,13 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
+import { MAX_ARTIST_HOVER_TOP_SUPPORTING } from 'utils/constants'
 
 import styles from './ArtistSupporting.module.css'
 
 const messages = {
   supporting: 'Supporting'
 }
-
-const MAX_TOP_SUPPORTING = 7
 
 type ArtistSupportingProps = {
   artist: User
@@ -55,7 +55,18 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
     return rankedSupportingList
       .sort((s1, s2) => s1.rank - s2.rank)
       .map(s => usersMap[s.receiver_id])
+      .filter(Boolean)
   })
+
+  /**
+   * It's possible that we don't have the data for which artists
+   * this artist is supporting. Thus, we fetch in this case.
+   */
+  useEffect(() => {
+    if (supportingForArtistIds.length === 0) {
+      dispatch(fetchSupportingForUser({ userId: user_id }))
+    }
+  }, [dispatch, supportingForArtistIds, user_id])
 
   const handleClick = useCallback(() => {
     dispatch(
@@ -76,7 +87,7 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
       </div>
       <div className={styles.line} />
       <UserProfilePictureList
-        limit={MAX_TOP_SUPPORTING}
+        limit={MAX_ARTIST_HOVER_TOP_SUPPORTING}
         users={rankedSupporting}
         totalUserCount={supporting_count}
         disableProfileClick

@@ -37,7 +37,7 @@ export const TopSupporters = () => {
     : {}
   const rankedSupporters = useSelector<AppState, User[]>(state => {
     const usersMap = getUsers(state, {
-      ids: Object.keys(supportersForProfile).map(k => parseInt(k))
+      ids: Object.keys(supportersForProfile).map(k => (k as unknown) as ID)
     })
     return Object.keys(supportersForProfile)
       .sort((k1, k2) => {
@@ -47,6 +47,7 @@ export const TopSupporters = () => {
         )
       })
       .map(k => usersMap[(k as unknown) as ID])
+      .filter(Boolean)
   })
 
   const handleClick = useCallback(() => {

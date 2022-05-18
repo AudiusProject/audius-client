@@ -46,6 +46,7 @@ import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { isMobile } from 'utils/clientUtil'
 import {
+  MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
@@ -158,8 +159,12 @@ function* fetchSupportersAndSupporting(userId) {
     refreshSupport({
       senderUserId: userId,
       receiverUserId: userId,
-      supportingLimit: MAX_PROFILE_SUPPORTING_TILES,
-      supportersLimit: MAX_PROFILE_TOP_SUPPORTERS
+      supportingLimit:
+        Math.max(
+          MAX_PROFILE_SUPPORTING_TILES,
+          MAX_ARTIST_HOVER_TOP_SUPPORTING
+        ) + 1,
+      supportersLimit: MAX_PROFILE_TOP_SUPPORTERS + 1
     })
   )
 }
