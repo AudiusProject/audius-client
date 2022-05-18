@@ -89,11 +89,3 @@
 .iconTip g path {
   fill: var(--secondary);
 }
-
-.iconAnnouncement {
-  composes: icon;
-}
-
-.iconAnnouncement g path {
-  fill: var(--secondary);
-}

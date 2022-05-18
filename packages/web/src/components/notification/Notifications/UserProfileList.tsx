@@ -5,18 +5,19 @@ import { formatCount } from 'common/utils/formatUtil'
 import Tooltip from 'components/tooltip/Tooltip'
 
 import { ProfilePicture } from './ProfilePicture'
-import styles from './UserProfilePictureList.module.css'
-import { USER_LENGTH_LIMIT } from './utils'
+import styles from './UserProfileList.module.css'
 
 const messages = {
   viewAllTooltip: 'View All'
 }
 
+const USER_LENGTH_LIMIT = 8
+
 type UserProfileListProps = {
   users: Array<User>
 }
 
-export const UserProfilePictureList = ({ users }: UserProfileListProps) => {
+export const UserProfileList = ({ users }: UserProfileListProps) => {
   const showUserListModal = users.length > USER_LENGTH_LIMIT
   const remainingUsersCount = users.length - USER_LENGTH_LIMIT
 
@@ -24,7 +25,7 @@ export const UserProfilePictureList = ({ users }: UserProfileListProps) => {
     <div className={styles.root}>
       {users
         .filter(u => !u.is_deactivated)
-        .slice(0, USER_LENGTH_LIMIT)
+        .slice(0, showUserListModal ? USER_LENGTH_LIMIT : USER_LENGTH_LIMIT)
         .map(user => (
           <ProfilePicture
             key={user.user_id}

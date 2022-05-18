@@ -14,7 +14,6 @@ import {
   NotificationType
 } from 'common/store/notifications/types'
 
-import { AnnouncementNotification } from './AnnouncementNotification'
 import { ChallengeRewardNotification } from './ChallengeRewardNotification'
 import { FavoriteNotification } from './FavoriteNotification'
 import { FollowNotification } from './FollowNotification'
@@ -65,9 +64,6 @@ export const Notification = (props: NotificationProps) => {
   } as unknown) as Notifications
 
   switch (notification.type) {
-    case NotificationType.Announcement: {
-      return <AnnouncementNotification notification={notification} />
-    }
     case NotificationType.ChallengeReward: {
       return <ChallengeRewardNotification notification={notification} />
     }

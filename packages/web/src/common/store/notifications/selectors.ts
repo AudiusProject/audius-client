@@ -11,13 +11,7 @@ import {
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { getUser, getUsers } from 'common/store/cache/users/selectors'
 
-import {
-  Entity,
-  Notification,
-  NotificationType,
-  Achievement,
-  Announcement
-} from './types'
+import { Entity, Notification, NotificationType, Achievement } from './types'
 
 const getBaseState = (state: CommonState) => state.pages.notifications
 
@@ -57,9 +51,9 @@ export const getNotificationById = (
 
 export const getModalNotification = (state: CommonState) =>
   getBaseState(state).modalNotificationId
-    ? (getBaseState(state).notifications[
+    ? getBaseState(state).notifications[
         getBaseState(state).modalNotificationId!
-      ] as Announcement) || null
+      ] || null
     : null
 
 export const getPlaylistUpdates = (state: CommonState) =>

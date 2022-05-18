@@ -1,7 +1,6 @@
-import { Entity, EntityType } from 'common/store/notifications/types'
+import { EntityType } from 'common/store/notifications/types'
 import { formatCount } from 'common/utils/formatUtil'
 import AudiusBackend from 'services/AudiusBackend'
-import { UserListEntityType } from 'store/application/ui/userListModal/types'
 import {
   albumPage,
   fullAlbumPage,
@@ -42,11 +41,4 @@ export const getTwitterHandleByUserHandle = async (userHandle: string) => {
   return twitterHandle || ''
 }
 
-export const USER_LENGTH_LIMIT = 8
-
-export const entityToUserListEntity = {
-  [Entity.Track]: UserListEntityType.TRACK,
-  [Entity.User]: UserListEntityType.USER,
-  [Entity.Album]: UserListEntityType.COLLECTION,
-  [Entity.Playlist]: UserListEntityType.COLLECTION
-}
+export const USER_LENGTH_LIMIT = 9
