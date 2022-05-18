@@ -48,8 +48,9 @@ import { isMobile } from 'utils/clientUtil'
 import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
+import { FeatureFlags } from 'common/services/remote-config'
 
-const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
+const { getRemoteVar, getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -140,6 +141,12 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
+  yield call(waitForRemoteConfig)
+  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+  if (!isTippingEnabled) {
+    return
+  }
+
   yield put(
     refreshSupport({
       senderUserId: userId,
@@ -183,7 +190,6 @@ function* fetchProfileAsync(action) {
     yield fork(fetchUserSocials, action.handle)
     yield fork(fetchUserCollections, user.user_id)
 
-    // todo: comment until ready to release tipping
     yield fork(fetchSupportersAndSupporting, user.user_id)
 
     yield fork(fetchProfileCustomizedCollectibles, user)
