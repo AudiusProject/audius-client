@@ -11,7 +11,7 @@ import {
 
 import { DefaultSizes } from 'common/models/ImageSizes'
 import Kind from 'common/models/Kind'
-import { DoubleKeys } from 'common/services/remote-config'
+import { DoubleKeys, FeatureFlags } from 'common/services/remote-config'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import {
@@ -48,9 +48,12 @@ import { isMobile } from 'utils/clientUtil'
 import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
-import { FeatureFlags } from 'common/services/remote-config'
 
-const { getRemoteVar, getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
+const {
+  getRemoteVar,
+  getFeatureEnabled,
+  waitForRemoteConfig
+} = remoteConfigInstance
 
 function* watchFetchProfile() {
   yield takeLatest(profileActions.FETCH_PROFILE, fetchProfileAsync)
