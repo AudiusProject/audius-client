@@ -85,7 +85,8 @@ export const RemixCreateNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
-        <EntityLink entity={entity} entityType={entityType} /> {messages.by}{' '}
+        <EntityLink entity={entity} entityType={entityType} />
+        <span>{messages.by}</span>
         <UserNameLink user={user} notification={notification} />
       </NotificationBody>
       <TwitterShareButton onClick={handleShare} />

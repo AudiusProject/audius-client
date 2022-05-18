@@ -1,6 +1,6 @@
 .root {
   font-size: var(--font-medium);
-  font-weight: var(--font-medium);
+  font-weight: var(--font-demi-bold);
   line-height: 21px;
 }
 
@@ -12,10 +12,15 @@
 .link {
   font-size: inherit;
   font-weight: inherit;
+
   color: var(--secondary);
 }
 
 .link:hover {
   color: var(--secondary);
   text-decoration: underline !important;
+}
+
+.badges {
+  margin-left: var(--unit-1);
 }

@@ -48,5 +48,5 @@ export const IconRemix = () => {
 }
 
 export const IconTip = () => {
-  return <IconTipBase className={styles.iconTip} />
+  return <IconTipBase className={styles.iconRemix} />
 }

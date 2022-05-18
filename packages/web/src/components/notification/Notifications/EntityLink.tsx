@@ -7,6 +7,7 @@ import { Name } from 'common/models/Analytics'
 import { Collection } from 'common/models/Collection'
 import { Track } from 'common/models/Track'
 import { User } from 'common/models/User'
+import { toggleNotificationPanel } from 'common/store/notifications/actions'
 import { Entity } from 'common/store/notifications/types'
 import { useRecord, make } from 'store/analytics/actions'
 
@@ -29,6 +30,7 @@ export const useGoToEntity = (entity: EntityType, entityType: Entity) => {
       event.stopPropagation()
       event.preventDefault()
       const link = getEntityLink(entity)
+      dispatch(toggleNotificationPanel())
       dispatch(push(link))
       record(
         make(Name.NOTIFICATIONS_CLICK_TILE, {

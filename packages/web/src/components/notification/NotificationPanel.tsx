@@ -1,57 +1,51 @@
-import React, { useRef, useCallback, useEffect } from 'react'
+import React, { useRef, useCallback } from 'react'
 
 import { Popup, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
 import Lottie from 'react-lottie'
-import { useDispatch, useSelector } from 'react-redux'
-import { useSearchParam } from 'react-use'
 import SimpleBar from 'simplebar-react'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
-import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
+import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
-import {
-  fetchNotifications,
-  setNotificationModal,
-  toggleNotificationPanel
-} from 'common/store/notifications/actions'
-import {
-  getModalNotification,
-  getNotificationHasLoaded,
-  getNotificationHasMore,
-  getNotificationModalIsOpen,
-  getNotificationPanelIsOpen,
-  getNotificationStatus,
-  makeGetAllNotifications
-} from 'common/store/notifications/selectors'
-import { Notification as Notifications } from 'common/store/notifications/types'
+import { Notification } from 'common/store/notifications/types'
 import { Nullable } from 'common/utils/typeUtils'
-import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
 import styles from './NotificationPanel.module.css'
-import { Notification } from './Notifications'
+import NotificationProvider from './NotificationProvider'
 import EmptyNotifications from './components/EmptyNotifications'
+import NotificationItem from './components/desktop/Notification'
 import NotificationModal from './components/desktop/NotificationModal'
-
-const getNotifications = makeGetAllNotifications()
-
-const simpleBarId = 'notificationsPanelScroll'
-
-const getScrollParent = () => {
-  const simpleBarElement = window.document.getElementById(simpleBarId)
-  return simpleBarElement || null
-}
 
 const messages = {
   title: 'Notifications',
+  markAllRead: 'Mark All Read',
   empty: 'There’s Nothing Here Yet!',
   readMore: 'Read More'
 }
 
 type OwnProps = {
   anchorRef: React.MutableRefObject<HTMLElement>
+  hasLoaded: boolean
+  toggleNotificationPanel: () => void
+  isElectron: boolean
+  status: Status
+  hasMore: boolean
+  notifications: Notification[]
+  modalIsOpen: boolean
+  panelIsOpen: boolean
+  modalNotification: Notification | null
+
+  setNotificationUsers: (userIds: ID[], limit: number) => void
+  goToRoute: (route: string) => void
+  hideNotification: (notificationId: string) => void
+  markAsRead: (notificationId: string) => void
+  markAllAsRead: () => void
+  unsubscribeUser: (userId: ID) => void
+  fetchNotifications: (limit?: number) => void
+  setNotificationModal: (open: boolean, notificationId?: string) => void
 }
 
 type NotificationPanelProps = OwnProps
@@ -63,63 +57,64 @@ const SCROLL_THRESHOLD = 1000
 /** The notification panel displays the list of notifications w/ a
  * summary of each notification and a link to open the full
  * notification in a modal  */
-export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
-  const panelIsOpen = useSelector(getNotificationPanelIsOpen)
-  const notifications = useSelector(getNotifications)
-  const hasLoaded = useSelector(getNotificationHasLoaded)
-  const hasMore = useSelector(getNotificationHasMore)
-  const status = useSelector(getNotificationStatus)
-  const isNotificationModalOpen = useSelector(getNotificationModalIsOpen)
-  const modalNotification = useSelector(getModalNotification)
-  const isUserListOpen = useSelector(getIsUserListOpen)
-
+const NotificationPanel = ({
+  anchorRef,
+  hasLoaded,
+  modalIsOpen,
+  panelIsOpen,
+  modalNotification,
+  notifications,
+  goToRoute,
+  markAsRead,
+  markAllAsRead,
+  toggleNotificationPanel,
+  setNotificationModal,
+  isElectron,
+  hasMore,
+  status,
+  unsubscribeUser,
+  fetchNotifications,
+  setNotificationUsers,
+  hideNotification
+}: NotificationPanelProps) => {
   const panelRef = useRef<Nullable<HTMLDivElement>>(null)
   const scrollRef = useRef<Nullable<HTMLDivElement>>(null)
-
-  const dispatch = useDispatch()
-  const openNotifications = useSearchParam('openNotifications')
+  const overflowMenuRef = useRef<Nullable<HTMLDivElement>>(null)
+  const userListModalRef = useRef<Nullable<HTMLDivElement>>(null)
+  const simpleBarId = 'notificationsPanelScroll'
+  const getScrollParent = () => {
+    const simpleBarElement = window.document.getElementById(simpleBarId)
+    return simpleBarElement || null
+  }
 
   const setSimpleBarRef = useCallback(el => {
     el.recalculate()
   }, [])
-
-  const handleCloseNotificationModal = useCallback(() => {
-    dispatch(setNotificationModal(false))
-  }, [dispatch])
+  const onCloseNotificationModal = useCallback(() => {
+    setNotificationModal(false)
+  }, [setNotificationModal])
 
   const loadMore = useCallback(() => {
     if (!hasMore || status === Status.LOADING || status === Status.ERROR) return
-    dispatch(fetchNotifications())
-  }, [hasMore, status, dispatch])
-
-  const handleToggleNotificationPanel = useCallback(() => {
-    dispatch(toggleNotificationPanel())
-  }, [dispatch])
-
-  const handleCheckClickInside = useCallback(
-    (target: EventTarget) => {
-      if (isUserListOpen) return true
-      if (target instanceof Element) {
-        return anchorRef?.current.contains(target)
-      }
-      return false
-    },
-    [isUserListOpen, anchorRef]
-  )
-
-  useEffect(() => {
-    if (openNotifications) {
-      handleToggleNotificationPanel()
-    }
-  }, [openNotifications, handleToggleNotificationPanel])
+    fetchNotifications()
+  }, [hasMore, status, fetchNotifications])
 
   return (
     <Popup
       anchorRef={anchorRef}
       className={styles.popup}
       isVisible={panelIsOpen}
-      checkIfClickInside={handleCheckClickInside}
-      onClose={handleToggleNotificationPanel}
+      checkIfClickInside={(target: EventTarget) => {
+        if (target instanceof Element) {
+          return [
+            anchorRef?.current,
+            overflowMenuRef?.current,
+            userListModalRef?.current
+          ].some(r => r?.contains(target))
+        }
+        return false
+      }}
+      onClose={toggleNotificationPanel}
       position={PopupPosition.BOTTOM_RIGHT}
       wrapperClassName={styles.popupWrapper}
       zIndex={zIndex.NAVIGATOR_POPUP}
@@ -127,10 +122,12 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
       <>
         <div className={styles.panelContainer} ref={panelRef}>
           <div className={styles.header}>
-            <IconNotification className={styles.iconNotification} />
-            <h3 className={styles.title}>{messages.title}</h3>
+            <div className={styles.title}> {messages.title} </div>
+            <div className={styles.markAllRead} onClick={markAllAsRead}>
+              {messages.markAllRead}
+            </div>
           </div>
-          {!hasLoaded ? (
+          {!hasLoaded && (
             <div className={cn(styles.notLoaded, styles.spinnerContainer)}>
               <Lottie
                 options={{
@@ -140,8 +137,8 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
                 }}
               />
             </div>
-          ) : null}
-          {hasLoaded && notifications.length > 0 ? (
+          )}
+          {hasLoaded && notifications.length > 0 && (
             <SimpleBar
               className={styles.scrollContent}
               ref={setSimpleBarRef}
@@ -159,15 +156,26 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
                 <div className={styles.content}>
                   {notifications
                     .filter(({ isHidden }: any) => !isHidden)
-                    .map((notification: Notifications) => {
+                    .map((notification: Notification, key: number) => {
                       return (
-                        <Notification
-                          key={notification.id}
+                        <NotificationItem
+                          key={key}
+                          goToRoute={goToRoute}
+                          setNotificationUsers={setNotificationUsers}
+                          toggleNotificationPanel={toggleNotificationPanel}
                           notification={notification}
+                          overflowMenuRef={overflowMenuRef}
+                          userListModalRef={userListModalRef}
+                          panelRef={panelRef}
+                          scrollRef={scrollRef}
+                          setNotificationModal={setNotificationModal}
+                          markAsRead={markAsRead}
+                          unsubscribeUser={unsubscribeUser}
+                          hideNotification={hideNotification}
                         />
                       )
                     })}
-                  {status === Status.LOADING ? (
+                  {status === Status.LOADING && (
                     <div className={styles.spinnerContainer} key={'loading'}>
                       <Lottie
                         options={{
@@ -177,21 +185,27 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
                         }}
                       />
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </InfiniteScroll>
             </SimpleBar>
-          ) : null}
-          {hasLoaded && notifications.length === 0 ? (
-            <EmptyNotifications />
-          ) : null}
+          )}
+          {hasLoaded && notifications.length === 0 && <EmptyNotifications />}
         </div>
         <NotificationModal
-          isOpen={isNotificationModalOpen}
+          isOpen={modalIsOpen}
           notification={modalNotification}
-          onClose={handleCloseNotificationModal}
+          onClose={onCloseNotificationModal}
         />
       </>
     </Popup>
   )
 }
+
+const NotificationPanelWrapped = (props: any) => {
+  return (
+    <NotificationProvider {...props}>{NotificationPanel}</NotificationProvider>
+  )
+}
+
+export default NotificationPanelWrapped

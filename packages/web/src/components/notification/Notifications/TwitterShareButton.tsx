@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useCallback } from 'react'
+import React, { MouseEventHandler } from 'react'
 
 import { ReactComponent as IconTwitterBird } from 'assets/img/iconTwitterBird.svg'
 
@@ -15,16 +15,8 @@ type TwitterShareButtonProps = {
 export const TwitterShareButton = (props: TwitterShareButtonProps) => {
   const { onClick } = props
 
-  const handleClick: MouseEventHandler = useCallback(
-    event => {
-      event.stopPropagation()
-      onClick?.(event)
-    },
-    [onClick]
-  )
-
   return (
-    <button className={styles.root} onClick={handleClick}>
+    <button className={styles.root} onClick={onClick}>
       <IconTwitterBird className={styles.icon} />
       {messages.share}
     </button>

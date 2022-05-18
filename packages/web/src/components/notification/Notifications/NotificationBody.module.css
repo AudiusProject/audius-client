@@ -1,4 +1,6 @@
 .root {
+  display: flex;
+  align-items: center;
   color: var(--neutral);
   font-size: var(--font-l);
   font-weight: var(--font-medium);

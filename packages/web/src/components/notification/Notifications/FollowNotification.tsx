@@ -60,11 +60,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   }, [isMultiUser, dispatch, accountId, firstUser.handle])
 
   return (
-    <NotificationTile
-      notification={notification}
-      onClick={handleClick}
-      disableClosePanel={isMultiUser}
-    >
+    <NotificationTile notification={notification} onClick={handleClick}>
       <NotificationHeader icon={<IconFollow />}>
         <UserProfilePictureList users={users} />
       </NotificationHeader>
