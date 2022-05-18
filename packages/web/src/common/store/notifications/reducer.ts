@@ -9,7 +9,6 @@ const initialState: NotificationState = {
   // Boolean the if the first call for notifications has returned
   hasLoaded: false,
   panelIsOpen: false,
-  totalUnread: 0,
   totalUnviewed: 0,
   modalNotificationId: undefined,
   modalIsOpen: false,
@@ -53,7 +52,6 @@ const actionsMap: any = {
         { ...state.notifications }
       ),
       allIds: state.allIds.concat(notificationIds),
-      totalUnread: action.totalUnread || state.totalUnread,
       totalUnviewed: action.totalUnviewed || state.totalUnviewed,
       status: Status.SUCCESS,
       hasMore: action.hasMore,
@@ -75,7 +73,6 @@ const actionsMap: any = {
         {}
       ),
       allIds: notificationIds,
-      totalUnread: action.totalUnread,
       totalUnviewed: action.totalUnviewed,
       status: Status.SUCCESS,
       hasMore: action.hasMore,
@@ -126,39 +123,10 @@ const actionsMap: any = {
       }
     }
   },
-  [actions.MARK_AS_READ](state: NotificationState, action: actions.MarkAsRead) {
-    return {
-      ...state,
-      notifications: {
-        ...state.notifications,
-        [action.notificationId]: {
-          ...state.notifications[action.notificationId],
-          isRead: true
-        }
-      },
-      totalUnread: state.totalUnread - 1
-    }
-  },
   [actions.MARK_AS_VIEWED](state: NotificationState) {
     return {
       ...state,
       totalUnviewed: 0
-    }
-  },
-  [actions.MARK_ALL_AS_READ](state: NotificationState) {
-    return {
-      ...state,
-      notifications: Object.keys(state.notifications).reduce(
-        (notifications: { [id: string]: Notification }, id: string) => {
-          notifications[id] = {
-            ...state.notifications[id],
-            isRead: true
-          }
-          return notifications
-        },
-        {}
-      ),
-      totalUnread: 0
     }
   },
   [actions.HIDE_NOTIFICATION](

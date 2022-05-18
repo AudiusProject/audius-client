@@ -40,7 +40,6 @@ export type EntityType = TrackEntity | CollectionEntity
 
 export type BaseNotification = {
   id: string
-  isRead: boolean
   isHidden: boolean
   isViewed: boolean
   timestamp: string
@@ -240,7 +239,6 @@ export default interface NotificationState {
   panelIsOpen: boolean
   modalIsOpen: boolean
   totalUnviewed: number
-  totalUnread: number
   status?: Status
   hasMore: boolean
   hasLoaded: boolean

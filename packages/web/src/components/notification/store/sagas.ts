@@ -51,6 +51,23 @@ import { waitForValue } from 'utils/sagaHelpers'
 import { watchNotificationError } from './errorSagas'
 import mobileSagas from './mobileSagas'
 
+type ResponseNotification = Notification & {
+  id: string
+  entityIds: number[]
+  userIds: number[]
+}
+
+type NotificationsResponse =
+  | {
+      notifications: ResponseNotification[]
+      totalUnread: number
+      playlistUpdates: number[]
+    }
+  | {
+      error: { message: string }
+      isRequestError: true
+    }
+
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 // The initial user count to load in for each notification
@@ -114,12 +131,15 @@ export function* fetchNotifications(
     const withRewards = remoteConfigInstance.getFeatureEnabled(
       FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED
     )
-    const notificationsResponse = yield call(AudiusBackend.getNotifications, {
-      limit,
-      timeOffset,
-      withRewards
-    })
-    if (notificationsResponse.error) {
+    const notificationsResponse: NotificationsResponse = yield call(
+      AudiusBackend.getNotifications,
+      {
+        limit,
+        timeOffset,
+        withRewards
+      }
+    )
+    if ('error' in notificationsResponse) {
       yield put(
         notificationActions.fetchNotificationsFailed(
           notificationsResponse.error.message
@@ -129,12 +149,8 @@ export function* fetchNotifications(
     }
     const {
       notifications: notificationItems,
-      totalUnread,
+      totalUnread: totalUnviewed,
       playlistUpdates
-    }: {
-      notifications: Notification[]
-      totalUnread: number
-      playlistUpdates: number[]
     } = notificationsResponse
 
     const notifications = yield parseAndProcessNotifications(notificationItems)
@@ -145,7 +161,7 @@ export function* fetchNotifications(
     yield put(
       notificationActions.fetchNotificationSucceeded(
         notifications,
-        totalUnread,
+        totalUnviewed,
         hasMore
       )
     )
@@ -332,23 +348,6 @@ export function* fetchNotificationUsers(
   }
 }
 
-export function* markNotificationRead(action: notificationActions.MarkAsRead) {
-  const notification = yield select(getNotificationById, action.notificationId)
-  try {
-    yield call(
-      AudiusBackend.markNotificationAsRead,
-      action.notificationId,
-      notification.type
-    )
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-export function* markAllNotificationsRead() {
-  yield call(AudiusBackend.markAllNotificationAsRead)
-}
-
 export function* hideNotification(
   action: notificationActions.HideNotification
 ) {
@@ -395,7 +394,7 @@ function* watchRefreshNotifications() {
     yield put(
       notificationActions.fetchNotificationSucceeded(
         [], // notifications
-        0, // totalUnread
+        0, // totalUnviewed
         false // hasMore
       )
     )
@@ -406,17 +405,6 @@ function* watchFetchNotificationUsers() {
   yield takeEvery(
     notificationActions.FETCH_NOTIFICATIONS_USERS,
     fetchNotificationUsers
-  )
-}
-
-function* watchMarkNotificationsRead() {
-  yield takeEvery(notificationActions.MARK_AS_READ, markNotificationRead)
-}
-
-function* watchMarkAllNotificationsRead() {
-  yield takeEvery(
-    notificationActions.MARK_ALL_AS_READ,
-    markAllNotificationsRead
   )
 }
 
@@ -444,12 +432,6 @@ function* watchUpdatePlaylistLastViewedAt() {
     notificationActions.UPDATE_PLAYLIST_VIEW,
     updatePlaylistLastViewedAt
   )
-}
-
-type ResponseNotification = Notification & {
-  id: string
-  entityIds: number[]
-  userIds: number[]
 }
 
 // Notifications have changed if some of the incoming ones have
@@ -502,14 +484,17 @@ export function* getNotifications(isFirstFetch: boolean) {
         FeatureFlags.REWARDS_NOTIFICATIONS_ENABLED
       )
 
-      const notificationsResponse = yield call(AudiusBackend.getNotifications, {
+      const notificationsResponse:
+        | NotificationsResponse
+        | undefined = yield call(AudiusBackend.getNotifications, {
         limit,
         timeOffset,
         withRewards
       })
       if (
         !notificationsResponse ||
-        (notificationsResponse.error && notificationsResponse.isRequestError)
+        ('error' in notificationsResponse &&
+          'isRequestError' in notificationsResponse)
       ) {
         const isReachable: ReturnType<typeof getIsReachable> = yield select(
           getIsReachable
@@ -528,12 +513,8 @@ export function* getNotifications(isFirstFetch: boolean) {
       }
       const {
         notifications: notificationItems,
-        totalUnread,
+        totalUnread: totalUnviewed,
         playlistUpdates
-      }: {
-        notifications: ResponseNotification[]
-        totalUnread: number
-        playlistUpdates: number[]
       } = notificationsResponse
 
       yield fork(recordPlaylistUpdatesAnalytics, playlistUpdates)
@@ -553,7 +534,7 @@ export function* getNotifications(isFirstFetch: boolean) {
           yield put(
             notificationActions.setNotifications(
               notifications,
-              totalUnread,
+              totalUnviewed,
               hasMore
             )
           )
@@ -563,7 +544,7 @@ export function* getNotifications(isFirstFetch: boolean) {
         yield put(
           notificationActions.fetchNotificationSucceeded(
             [], // notifications
-            0, // totalUnread
+            0, // totalUnviewed
             false // hasMore
           )
         )
@@ -665,9 +646,7 @@ export default function sagas() {
     watchFetchNotifications,
     watchRefreshNotifications,
     watchFetchNotificationUsers,
-    watchMarkNotificationsRead,
     watchMarkAllNotificationsViewed,
-    watchMarkAllNotificationsRead,
     watchHideNotification,
     watchSubscribeUserSettings,
     watchUnsubscribeUserSettings,
