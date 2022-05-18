@@ -36,7 +36,6 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
     users,
     userIds,
     entity,
-    entityId,
     entityType,
     timeLabel,
     isViewed
@@ -67,7 +66,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
         handleGoToEntity(event)
       }
     },
-    [isMultiUser, dispatch, entityType, entityId, handleGoToEntity]
+    [isMultiUser, dispatch, entityType, id, handleGoToEntity]
   )
 
   return (
