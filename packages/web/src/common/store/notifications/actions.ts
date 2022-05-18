@@ -26,7 +26,6 @@ export const SET_NOTIFICATION_USERS = 'NOTIFICATION/SET_NOTIFICATION_USERS'
 export const MARK_AS_VIEWED = 'NOTIFICATION/MARK_AS_VIEWED'
 export const MARK_ALL_AS_VIEWED = 'NOTIFICATION/MARK_ALL_AS_VIEWED'
 
-export const HIDE_NOTIFICATION = 'NOTIFICATION/HIDE_NOTIFICATION'
 export const TOGGLE_NOTIFICATION_PANEL =
   'NOTIFICATION/TOGGLE_NOTIFICATION_PANEL'
 export const SET_NOTIFICATION_MODAL = 'NOTIFICATION/SET_NOTIFICATION_MODAL'
@@ -110,11 +109,6 @@ export const markAsViewed = () => ({
   type: MARK_AS_VIEWED
 })
 
-export const hideNotification = (notificationId: string) => ({
-  type: HIDE_NOTIFICATION,
-  notificationId
-})
-
 export const markAllAsViewed = () => ({ type: MARK_ALL_AS_VIEWED })
 
 export const setNotificationModal = (
@@ -169,7 +163,6 @@ export type FetchNotificationUsersSucceeded = ReturnType<
   typeof fetchNotificationUsersSucceeded
 >
 export type MarkAsViewed = ReturnType<typeof markAsViewed>
-export type HideNotification = ReturnType<typeof hideNotification>
 export type MarkAllAsViewed = ReturnType<typeof markAllAsViewed>
 export type SetNotificationModal = ReturnType<typeof setNotificationModal>
 export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
@@ -193,7 +186,6 @@ export type NotificationAction =
   | FetchNotificationUsersFailed
   | FetchNotificationUsersSucceeded
   | MarkAsViewed
-  | HideNotification
   | MarkAllAsViewed
   | SetNotificationModal
   | ToggleNotificationPanel

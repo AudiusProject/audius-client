@@ -25,7 +25,6 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as notificationActions from 'common/store/notifications/actions'
 import {
   getLastNotification,
-  getNotificationById,
   getNotificationUserList,
   getNotificationPanelIsOpen,
   getNotificationStatus,
@@ -348,17 +347,6 @@ export function* fetchNotificationUsers(
   }
 }
 
-export function* hideNotification(
-  action: notificationActions.HideNotification
-) {
-  const notification = yield select(getNotificationById, action.notificationId)
-  yield call(
-    AudiusBackend.markNotificationAsHidden,
-    action.notificationId,
-    notification.type
-  )
-}
-
 export function* subscribeUserSettings(
   action: notificationActions.SubscribeUser
 ) {
@@ -413,10 +401,6 @@ function* watchMarkAllNotificationsViewed() {
     notificationActions.MARK_ALL_AS_VIEWED,
     markAllNotificationsViewed
   )
-}
-
-function* watchHideNotification() {
-  yield takeEvery(notificationActions.HIDE_NOTIFICATION, hideNotification)
 }
 
 function* watchSubscribeUserSettings() {
@@ -647,7 +631,6 @@ export default function sagas() {
     watchRefreshNotifications,
     watchFetchNotificationUsers,
     watchMarkAllNotificationsViewed,
-    watchHideNotification,
     watchSubscribeUserSettings,
     watchUnsubscribeUserSettings,
     notificationPollingDaemon,

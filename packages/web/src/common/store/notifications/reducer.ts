@@ -129,21 +129,6 @@ const actionsMap: any = {
       totalUnviewed: 0
     }
   },
-  [actions.HIDE_NOTIFICATION](
-    state: NotificationState,
-    action: actions.HideNotification
-  ) {
-    return {
-      ...state,
-      notifications: {
-        ...state.notifications,
-        [action.notificationId]: {
-          ...state.notifications[action.notificationId],
-          isHidden: true
-        }
-      }
-    }
-  },
   [actions.SET_NOTIFICATION_MODAL](
     state: NotificationState,
     action: actions.SetNotificationModal

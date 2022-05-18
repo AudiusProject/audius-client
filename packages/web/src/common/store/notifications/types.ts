@@ -40,7 +40,6 @@ export type EntityType = TrackEntity | CollectionEntity
 
 export type BaseNotification = {
   id: string
-  isHidden: boolean
   isViewed: boolean
   timestamp: string
   timeLabel?: string
