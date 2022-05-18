@@ -13,6 +13,7 @@ import {
   toggleNotificationPanel
 } from 'common/store/notifications/actions'
 import { Notification } from 'common/store/notifications/types'
+import ErrorWrapper from 'components/error-wrapper/ErrorWrapper'
 
 import styles from './NotificationTile.module.css'
 
@@ -43,16 +44,18 @@ export const NotificationTile = (props: NotificationTileProps) => {
   )
 
   return (
-    <div
-      className={cn(styles.root, {
-        [styles.read]: isRead,
-        [styles.active]: !disabled
-      })}
-      tabIndex={0}
-      role='button'
-      onClick={handleClick}
-    >
-      {children}
-    </div>
+    <ErrorWrapper errorMessage={`Could not render notification ${id}`}>
+      <div
+        className={cn(styles.root, {
+          [styles.read]: isRead,
+          [styles.active]: !disabled
+        })}
+        tabIndex={0}
+        role='button'
+        onClick={handleClick}
+      >
+        {children}
+      </div>
+    </ErrorWrapper>
   )
 }
