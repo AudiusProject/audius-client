@@ -23,7 +23,8 @@ export const FETCH_NOTIFICATIONS_USERS_FAILED =
   'NOTIFICATION/FETCH_NOTIFICATIONS_USERS_FAILED'
 export const SET_NOTIFICATION_USERS = 'NOTIFICATION/SET_NOTIFICATION_USERS'
 
-export const MARK_AS_VIEWED = 'NOTIFICATION/MARK_AS_VIEWED'
+export const SET_TOTAL_UNVIEWED_TO_ZERO =
+  'NOTIFICATION/SET_TOTAL_UNVIEWED_TO_ZERO'
 export const MARK_ALL_AS_VIEWED = 'NOTIFICATION/MARK_ALL_AS_VIEWED'
 
 export const TOGGLE_NOTIFICATION_PANEL =
@@ -105,8 +106,8 @@ export const fetchNotificationUsersSucceeded = (limit: number) => ({
   limit
 })
 
-export const markAsViewed = () => ({
-  type: MARK_AS_VIEWED
+export const setTotalUnviewedToZero = () => ({
+  type: SET_TOTAL_UNVIEWED_TO_ZERO
 })
 
 export const markAllAsViewed = () => ({ type: MARK_ALL_AS_VIEWED })
@@ -162,7 +163,7 @@ export type FetchNotificationUsersFailed = ReturnType<
 export type FetchNotificationUsersSucceeded = ReturnType<
   typeof fetchNotificationUsersSucceeded
 >
-export type MarkAsViewed = ReturnType<typeof markAsViewed>
+export type SetTotalUnviewedToZero = ReturnType<typeof setTotalUnviewedToZero>
 export type MarkAllAsViewed = ReturnType<typeof markAllAsViewed>
 export type SetNotificationModal = ReturnType<typeof setNotificationModal>
 export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
@@ -185,7 +186,7 @@ export type NotificationAction =
   | FetchNotificationUsersRequested
   | FetchNotificationUsersFailed
   | FetchNotificationUsersSucceeded
-  | MarkAsViewed
+  | SetTotalUnviewedToZero
   | MarkAllAsViewed
   | SetNotificationModal
   | ToggleNotificationPanel

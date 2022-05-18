@@ -618,7 +618,7 @@ function* watchTogglePanel() {
   yield takeEvery(notificationActions.TOGGLE_NOTIFICATION_PANEL, function* () {
     const isOpen = yield select(getNotificationPanelIsOpen)
     if (isOpen) {
-      yield put(notificationActions.markAsViewed())
+      yield put(notificationActions.setTotalUnviewedToZero())
     } else {
       yield put(notificationActions.markAllAsViewed())
     }

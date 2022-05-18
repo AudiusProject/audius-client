@@ -123,7 +123,7 @@ const actionsMap: any = {
       }
     }
   },
-  [actions.MARK_AS_VIEWED](state: NotificationState) {
+  [actions.SET_TOTAL_UNVIEWED_TO_ZERO](state: NotificationState) {
     return {
       ...state,
       totalUnviewed: 0
