@@ -12,6 +12,7 @@ import {
   confirmSendTip,
   convert,
   refreshSupport,
+  RefreshSupportPayloadAction,
   sendTipFailed,
   sendTipSucceeded,
   setSupportersForUser,
@@ -22,7 +23,8 @@ import { decreaseBalance } from 'common/store/wallet/slice'
 import { weiToAudioString, weiToString } from 'common/utils/wallet'
 import {
   fetchSupporters,
-  fetchSupporting
+  fetchSupporting,
+  SupportRequest
 } from 'services/audius-backend/Tipping'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
@@ -127,24 +129,35 @@ function* sendTipAsync() {
 }
 
 function* refreshSupportAsync({
-  payload: { senderUserId, receiverUserId }
+  payload: { senderUserId, receiverUserId, supportingLimit, supportersLimit }
 }: {
-  payload: {
-    senderUserId: number
-    receiverUserId: number
-  }
+  payload: RefreshSupportPayloadAction
   type: string
 }) {
   const encodedSenderUserId = encodeHashId(senderUserId)
   const encodedReceiverUserId = encodeHashId(receiverUserId)
 
   if (encodedSenderUserId && encodedReceiverUserId) {
-    const supportingForSenderList = yield* call(fetchSupporting, {
+    const supportingParams: SupportRequest = {
       encodedUserId: encodedSenderUserId
-    })
-    const supportersForReceiverList = yield* call(fetchSupporters, {
+    }
+    if (supportingLimit) {
+      supportingParams.limit = supportingLimit
+    }
+    const supportersParams: SupportRequest = {
       encodedUserId: encodedReceiverUserId
-    })
+    }
+    if (supportersLimit) {
+      supportersParams.limit = supportersLimit
+    }
+    const supportingForSenderList = yield* call(
+      fetchSupporting,
+      supportingParams
+    )
+    const supportersForReceiverList = yield* call(
+      fetchSupporters,
+      supportersParams
+    )
     const userIds = [
       ...supportingForSenderList.map(supporting =>
         decodeHashId(supporting.receiver.id)

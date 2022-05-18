@@ -19,10 +19,9 @@ import {
   UserListType
 } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'
+import { MAX_PROFILE_TOP_SUPPORTERS } from 'utils/constants'
 
 import styles from './Support.module.css'
-
-const MAX_TOP_SUPPORTERS = 5
 
 const messages = {
   topSupporters: 'Top Supporters',
@@ -74,7 +73,7 @@ export const TopSupporters = () => {
         <UserProfilePictureList
           users={rankedSupporters}
           totalUserCount={profile.supporter_count}
-          limit={MAX_TOP_SUPPORTERS}
+          limit={MAX_PROFILE_TOP_SUPPORTERS}
           stopPropagation
         />
         <div className={styles.viewAll}>

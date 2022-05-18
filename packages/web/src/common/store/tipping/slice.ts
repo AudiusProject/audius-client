@@ -7,6 +7,13 @@ import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
 import { TippingState } from 'common/store/tipping/types'
 
+export type RefreshSupportPayloadAction = {
+  senderUserId: ID
+  receiverUserId: ID
+  supportingLimit?: number
+  supportersLimit?: number
+}
+
 const initialState: TippingState = {
   supporters: {},
   supporting: {},
@@ -50,10 +57,7 @@ const slice = createSlice({
     },
     refreshSupport: (
       state,
-      action: PayloadAction<{
-        senderUserId: ID
-        receiverUserId: ID
-      }>
+      action: PayloadAction<RefreshSupportPayloadAction>
     ) => {},
     beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {
