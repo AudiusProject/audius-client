@@ -23,7 +23,11 @@ import { PauseContextProvider } from './pausedpopover/PauseProvider'
 import PausePopover from './pausedpopover/PausePopover'
 
 import styles from './App.module.css'
-import { initTrackSessionStart, recordOpen, recordError } from '../analytics/analytics'
+import {
+  initTrackSessionStart,
+  recordOpen,
+  recordError
+} from '../analytics/analytics'
 import transitions from './AppTransitions.module.css'
 import { CSSTransition } from 'react-transition-group'
 import { getDominantColor } from '../util/image/dominantColor'
@@ -37,12 +41,14 @@ import {
   COLLECTIBLES_ROUTE,
   COLLECTIBLE_ID_ROUTE,
   COLLECTIBLES_DISCORD_ROUTE,
-  COLLECTIBLE_ID_DISCORD_ROUTE
+  COLLECTIBLE_ID_DISCORD_ROUTE,
+  AUDIO_NFT_PLAYLIST_ROUTE,
+  AUDIO_NFT_PLAYLIST_DISCORD_ROUTE
 } from '../routes'
 
-if ((module).hot) {
-    // tslint:disable-next-line:no-var-requires
-    require('preact/debug')
+if (module.hot) {
+  // tslint:disable-next-line:no-var-requires
+  require('preact/debug')
 }
 
 // How long to wait for GA before we show the loading screen
@@ -55,10 +61,10 @@ const RequestType = Object.seal({
 })
 
 const pathComponentRequestTypeMap = {
-  "playlist": RequestType.COLLECTION,
-  "album": RequestType.COLLECTION,
-  "track": RequestType.TRACK,
-  "collectibles": RequestType.COLLECTIBLES,
+  playlist: RequestType.COLLECTION,
+  album: RequestType.COLLECTION,
+  track: RequestType.TRACK,
+  collectibles: RequestType.COLLECTIBLES
 }
 
 export const PlayerFlavor = Object.seal({
@@ -69,12 +75,7 @@ export const PlayerFlavor = Object.seal({
 
 // Attemps to parse a the window's url.
 // Returns null if the URL scheme is invalid.
-const getRequestDataFromURL = ({
-  path,
-  type,
-  flavor,
-  matches
-}) => {
+const getRequestDataFromURL = ({ path, type, flavor, matches }) => {
   // Get request type
   const requestType = pathComponentRequestTypeMap[type]
   if (!requestType) return null
@@ -96,7 +97,7 @@ const getRequestDataFromURL = ({
       const { id, ownerId, isTwitter } = matches
 
       // Validate the search params not null
-      if ([id, ownerId].some(e => e === null)) {
+      if ([id, ownerId].some((e) => e === null)) {
         return null
       }
       // Parse them as ints
@@ -123,6 +124,8 @@ const getRequestDataFromURL = ({
         isTwitter
       }
     }
+    case AUDIO_NFT_PLAYLIST_ROUTE:
+    case AUDIO_NFT_PLAYLIST_DISCORD_ROUTE:
     case COLLECTIBLES_ROUTE:
     case COLLECTIBLES_DISCORD_ROUTE: {
       const { handle, isTwitter } = matches
@@ -228,16 +231,27 @@ const App = (props) => {
         } else {
           setDid404(false)
           setCollectionsResponse(collection)
-          recordOpen(collection.id, collection.name, collection.ownerHandle, collection.collectionURLPath)
+          recordOpen(
+            collection.id,
+            collection.name,
+            collection.ownerHandle,
+            collection.collectionURLPath
+          )
 
           // Set dominant color
           const color = await getDominantColor(collection.coverArt)
-          setDominantColor({ primary: color, secondary: shadeColor(color, -20) })
+          setDominantColor({
+            primary: color,
+            secondary: shadeColor(color, -20)
+          })
         }
       } else if (requestType === RequestType.COLLECTIBLES) {
         let collectibleData
         if (request.collectibleId) {
-          collectibleData = await getCollectible(request.handle, request.collectibleId)
+          collectibleData = await getCollectible(
+            request.handle,
+            request.collectibleId
+          )
         } else {
           collectibleData = await getCollectibles(request.handle)
         }
@@ -248,7 +262,12 @@ const App = (props) => {
         } else {
           setDid404(false)
           setCollectiblesResponse(collectibleData)
-          recordOpen(request.collectibleId, collectibleData.name, request.handle, request.url)
+          recordOpen(
+            request.collectibleId,
+            collectibleData.name,
+            request.handle,
+            request.url
+          )
           setDominantColor({ primary: '#fff' })
         }
       }
@@ -295,8 +314,14 @@ const App = (props) => {
     setIsRetrying(false)
   }
 
-  const isCompact = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.COMPACT
-  const isTiny = requestState && requestState.playerFlavor && requestState.playerFlavor === PlayerFlavor.TINY
+  const isCompact =
+    requestState &&
+    requestState.playerFlavor &&
+    requestState.playerFlavor === PlayerFlavor.COMPACT
+  const isTiny =
+    requestState &&
+    requestState.playerFlavor &&
+    requestState.playerFlavor === PlayerFlavor.TINY
   const mobileWebTwitter = isMobileWebTwitter(requestState?.isTwitter)
 
   // The idea is to show nothing (null) until either we
@@ -304,12 +329,7 @@ const App = (props) => {
   // and display the loading screen.
   const renderPlayerContainer = () => {
     if (didError) {
-      return (
-        <Error
-          onRetry={retryRequestMetadata}
-          isRetrying={isRetrying}
-        />
-      )
+      return <Error onRetry={retryRequestMetadata} isRetrying={isRetrying} />
     }
 
     // Tiny variant renders its own deleted content
@@ -332,38 +352,42 @@ const App = (props) => {
       return (
         <CSSTransition
           classNames={{
-            appear: mobileWebTwitter ? transitions.appearMobileWebTwitter : transitions.appear,
-            appearActive: mobileWebTwitter ? transitions.appearActiveMobileWebTwitter : transitions.appearActive
+            appear: mobileWebTwitter
+              ? transitions.appearMobileWebTwitter
+              : transitions.appear,
+            appearActive: mobileWebTwitter
+              ? transitions.appearActiveMobileWebTwitter
+              : transitions.appearActive
           }}
           appear
           in
           timeout={1000}
         >
-        {tracksResponse && (
-          <TrackPlayerContainer
-            track={tracksResponse}
-            flavor={requestState.playerFlavor}
-            isTwitter={requestState.isTwitter}
-            backgroundColor={dominantColor.primary}
-          />
-        )}
-        {collectionsResponse && (
-          <CollectionPlayerContainer
-            collection={collectionsResponse}
-            flavor={requestState.playerFlavor}
-            isTwitter={requestState.isTwitter}
-            backgroundColor={dominantColor.primary}
-            rowBackgroundColor={dominantColor.secondary}
-          />
-        )}
-        {collectiblesResponse && (
-          <CollectiblesPlayerContainer
-            collectiblesInfo={collectiblesResponse}
-            flavor={requestState.playerFlavor}
-            isTwitter={requestState.isTwitter}
-            backgroundColor={dominantColor.primary}
-          />
-        )}
+          {tracksResponse && (
+            <TrackPlayerContainer
+              track={tracksResponse}
+              flavor={requestState.playerFlavor}
+              isTwitter={requestState.isTwitter}
+              backgroundColor={dominantColor.primary}
+            />
+          )}
+          {collectionsResponse && (
+            <CollectionPlayerContainer
+              collection={collectionsResponse}
+              flavor={requestState.playerFlavor}
+              isTwitter={requestState.isTwitter}
+              backgroundColor={dominantColor.primary}
+              rowBackgroundColor={dominantColor.secondary}
+            />
+          )}
+          {collectiblesResponse && (
+            <CollectiblesPlayerContainer
+              collectiblesInfo={collectiblesResponse}
+              flavor={requestState.playerFlavor}
+              isTwitter={requestState.isTwitter}
+              backgroundColor={dominantColor.primary}
+            />
+          )}
         </CSSTransition>
       )
     }
@@ -372,21 +396,29 @@ const App = (props) => {
   }
 
   const renderPausePopover = () => {
-    if (!requestState || (!tracksResponse && !collectionsResponse && !collectiblesResponse)) {
+    if (
+      !requestState ||
+      (!tracksResponse && !collectionsResponse && !collectiblesResponse)
+    ) {
       return null
     }
 
-    let artworkURL = tracksResponse?.coverArt || collectionsResponse?.coverArt || null
-    let artworkClickURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
-    let listenOnAudiusURL = tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
+    let artworkURL =
+      tracksResponse?.coverArt || collectionsResponse?.coverArt || null
+    let artworkClickURL =
+      tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
+    let listenOnAudiusURL =
+      tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
     let flavor = requestState.playerFlavor
-    return (<PausePopover
-             artworkURL={artworkURL}
-             artworkClickURL={artworkClickURL}
-             listenOnAudiusURL={listenOnAudiusURL}
-             flavor={flavor}
-             isMobileWebTwitter={mobileWebTwitter}
-            />)
+    return (
+      <PausePopover
+        artworkURL={artworkURL}
+        artworkClickURL={artworkClickURL}
+        listenOnAudiusURL={listenOnAudiusURL}
+        flavor={flavor}
+        isMobileWebTwitter={mobileWebTwitter}
+      />
+    )
   }
 
   useEffect(() => {
@@ -398,11 +430,15 @@ const App = (props) => {
   return (
     <div
       id='app'
-      className={
-        cn(styles.app,
-           { [styles.compactApp]: isCompact },
-           { [styles.twitter]: requestState && requestState.isTwitter && !mobileWebTwitter}
-          )}>
+      className={cn(
+        styles.app,
+        { [styles.compactApp]: isCompact },
+        {
+          [styles.twitter]:
+            requestState && requestState.isTwitter && !mobileWebTwitter
+        }
+      )}
+    >
       <ToastContextProvider>
         <PauseContextProvider>
           <CardContextProvider>

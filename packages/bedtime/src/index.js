@@ -1,5 +1,5 @@
-import Router from 'preact-router';
-import App from './components/app';
+import Router from 'preact-router'
+import App from './components/app'
 import {
   HASH_ID_ROUTE,
   ID_ROUTE,
@@ -7,12 +7,16 @@ import {
   COLLECTIBLE_ID_ROUTE,
   COLLECTIBLES_DISCORD_ROUTE,
   COLLECTIBLE_ID_DISCORD_ROUTE,
-} from './routes';
+  AUDIO_NFT_PLAYLIST_DISCORD_ROUTE,
+  AUDIO_NFT_PLAYLIST_ROUTE
+} from './routes'
 
-import './index.css';
+import './index.css'
 
 const Index = () => (
   <Router>
+    <App path={AUDIO_NFT_PLAYLIST_ROUTE} type={'collectibles'} />
+    <App path={AUDIO_NFT_PLAYLIST_DISCORD_ROUTE} type={'collectibles'} />
     <App path={COLLECTIBLES_ROUTE} type={'collectibles'} />
     <App path={COLLECTIBLE_ID_ROUTE} type={'collectibles'} />
     <App path={COLLECTIBLES_DISCORD_ROUTE} type={'collectibles'} />
@@ -25,4 +29,4 @@ const Index = () => (
   </Router>
 )
 
-export default Index;
+export default Index
