@@ -46,6 +46,18 @@ const chainLabelMap: Record<Chain, string> = {
   [Chain.Sol]: 'Solana'
 }
 
+const hasAudio = (video: HTMLMediaElement) => {
+  if (typeof video.webkitAudioDecodedByteCount !== 'undefined') {
+    // non-zero if video has audio track
+    if (video.webkitAudioDecodedByteCount > 0) return true
+    else return false
+  } else if (typeof video.mozHasAudio !== 'undefined') {
+    // true if video has audio track
+    if (video.mozHasAudio) return true
+    else return false
+  } else return false
+}
+
 const getCurrent = makeGetCurrent()
 
 export const CollectiblesPlaylistPageProvider = ({
@@ -72,7 +84,7 @@ export const CollectiblesPlaylistPageProvider = ({
   const collectibleIds = Object.keys(user?.collectibles ?? {})
   const order = user?.collectibles?.order ?? []
 
-  const [audioCollectibles, setAudioCollectibles] = useState([])
+  const [audioCollectibles, setAudioCollectibles] = useState<Collectible[]>([])
   const [fetchResolved, setFetchResolved] = useState(false)
   const hasFetchedCollectibles = useRef(false)
   useEffect(() => {
@@ -90,29 +102,65 @@ export const CollectiblesPlaylistPageProvider = ({
             .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
             // Filter to audio nfts
             .filter(c =>
-              ['mp3', 'wav', 'oga'].some(
+              ['mp3', 'wav', 'oga', 'mp4'].some(
                 ext => c.hasAudio || c.animationUrl?.endsWith(ext)
               )
             )
             // Calculate duration
             .map(async collectible => {
-              const a = new Audio()
-              // Only fetch the metadata
-              a.preload = 'metadata'
-              a.src = collectible.animationUrl
-              const duration = await new Promise(resolve => {
-                a.onloadedmetadata = () => {
-                  a.pause()
-                  resolve(a.duration)
+              if (!collectible.animationUrl) return collectible
+
+              if (
+                ['mp3', 'wav', 'oga'].some(ext =>
+                  collectible.animationUrl?.endsWith(ext)
+                )
+              ) {
+                const a = new Audio()
+                // Only fetch the metadata
+                a.preload = 'metadata'
+                a.src = collectible.animationUrl
+                const duration: number = await new Promise(resolve => {
+                  a.onloadedmetadata = () => {
+                    resolve(a.duration)
+                  }
+                })
+                collectible.duration = duration
+              }
+
+              if (
+                ['mp4'].some(ext => collectible.animationUrl?.endsWith(ext)) &&
+                // Check for window.document because video will not be available
+                // otherwise.
+                window &&
+                window.document
+              ) {
+                const v = document.createElement('video')
+                // Only fetch the metadata
+                v.src = collectible.animationUrl
+                v.muted = true
+                v.preload = 'metadata'
+                const duration: number = await new Promise(resolve => {
+                  v.onloadedmetadata = () => {
+                    resolve(v.duration)
+                  }
+                })
+                v.play()
+                await new Promise(resolve => setTimeout(resolve, 200))
+                const videoHasAudio = hasAudio(v)
+                if (!videoHasAudio) {
+                  return null
                 }
-              })
-              collectible.duration = duration
+                collectible.duration = duration
+              }
               return collectible
             })
         )
-        if (mappedAudioCollectibles.length) {
+        const filteredAudioCollectibles = mappedAudioCollectibles.filter(
+          removeNullable
+        )
+        if (filteredAudioCollectibles.length) {
           hasFetchedCollectibles.current = true
-          setAudioCollectibles(mappedAudioCollectibles)
+          setAudioCollectibles(filteredAudioCollectibles)
         }
         if (!fetchResolved && user?.collectibleList) {
           setFetchResolved(true)
@@ -128,6 +176,7 @@ export const CollectiblesPlaylistPageProvider = ({
     hasFetchedCollectibles,
     fetchResolved
   ])
+
   const title = `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
 
   useEffect(() => {
