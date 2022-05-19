@@ -228,8 +228,11 @@ export const assetToCollectible = async (
           videoUrl = metadataUrl
         } else {
           mediaType = CollectibleMediaType.IMAGE
-          frameUrl = metadataUrl
-          imageUrl = metadataUrl
+          imageUrl = imageUrls.find(url => !!url)!
+          if (imageUrl.startsWith(ipfsProtocolPrefix)) {
+            imageUrl = getIpfsMetadataUrl(imageUrl)
+          }
+          frameUrl = imageUrl
           if (isAudio) {
             hasAudio = true
             animationUrlOverride = metadataUrl
