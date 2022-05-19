@@ -91,7 +91,9 @@ export const CollectiblesPlaylistPageProvider = ({
             .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
             // Filter to audio nfts
             .filter(c =>
-              ['mp3', 'wav', 'oga'].some(ext => c.animationUrl?.endsWith(ext))
+              ['mp3', 'wav', 'oga'].some(
+                ext => c.hasAudio || c.animationUrl?.endsWith(ext)
+              )
             )
             // Calculate duration
             .map(async collectible => {

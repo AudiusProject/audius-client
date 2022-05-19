@@ -93,6 +93,22 @@ export const isAssetValid = (asset: OpenSeaAssetExtended) => {
   )
 }
 
+const ipfsProtocolPrefix = 'ipfs://'
+const getIpfsProtocolUrl = (asset: OpenSeaAssetExtended) => {
+  return [
+    asset.animation_url,
+    asset.animation_original_url,
+    asset.image_url,
+    asset.image_original_url,
+    asset.image_preview_url,
+    asset.image_thumbnail_url
+  ].find(url => url?.startsWith(ipfsProtocolPrefix))
+}
+const getIpfsMetadataUrl = (ipfsProtocolUrl: string) => {
+  return `https://ipfs.io/ipfs/${ipfsProtocolUrl.substring(
+    ipfsProtocolPrefix.length
+  )}`
+}
 /**
  * Returns a collectible given an asset object from the OpenSea API
  *
@@ -127,13 +143,25 @@ export const assetToCollectible = async (
   let threeDUrl = null
   let gifUrl = null
 
-  const { animation_url, animation_original_url } = asset
+  let hasAudio = false
+  let animationUrlOverride = null
+
+  const {
+    animation_url,
+    animation_original_url,
+    image_url,
+    image_original_url,
+    image_preview_url,
+    image_thumbnail_url
+  } = asset
   const imageUrls = [
-    asset.image_url,
-    asset.image_original_url,
-    asset.image_preview_url,
-    asset.image_thumbnail_url
+    image_url,
+    image_original_url,
+    image_preview_url,
+    image_thumbnail_url
   ]
+
+  const ipfsProtocolUrl = getIpfsProtocolUrl(asset)
 
   try {
     if (isAssetGif(asset)) {
@@ -183,6 +211,40 @@ export const assetToCollectible = async (
       videoUrl = [animation_url, animation_original_url, ...imageUrls].find(
         url => url && SUPPORTED_VIDEO_EXTENSIONS.some(ext => url.endsWith(ext))
       )!
+    } else if (ipfsProtocolUrl) {
+      try {
+        const metadataUrl = getIpfsMetadataUrl(ipfsProtocolUrl)
+        const res = await fetch(metadataUrl, { method: 'HEAD' })
+        const isGif = res.headers.get('Content-Type')?.includes('gif')
+        const isVideo = res.headers.get('Content-Type')?.includes('video')
+        const isAudio = res.headers.get('Content-Type')?.includes('audio')
+        if (isGif) {
+          mediaType = CollectibleMediaType.GIF
+          frameUrl = null
+          gifUrl = metadataUrl
+        } else if (isVideo) {
+          mediaType = CollectibleMediaType.VIDEO
+          frameUrl = null
+          videoUrl = metadataUrl
+        } else {
+          mediaType = CollectibleMediaType.IMAGE
+          frameUrl = metadataUrl
+          imageUrl = metadataUrl
+          if (isAudio) {
+            hasAudio = true
+            animationUrlOverride = metadataUrl
+          }
+        }
+      } catch (e) {
+        console.error(
+          `Could not fetch url metadata at ${ipfsProtocolUrl} for asset contract address ${
+            asset.asset_contract?.address ?? '(n/a)'
+          } and asset token id ${asset.token_id}`
+        )
+        mediaType = CollectibleMediaType.IMAGE
+        frameUrl = imageUrls.find(url => !!url)!
+        imageUrl = frameUrl
+      }
     } else {
       mediaType = CollectibleMediaType.IMAGE
       frameUrl = imageUrls.find(url => !!url)!
@@ -220,7 +282,8 @@ export const assetToCollectible = async (
     videoUrl,
     threeDUrl,
     gifUrl,
-    animationUrl: animation_url,
+    animationUrl: animationUrlOverride || animation_url,
+    hasAudio,
     isOwned: true,
     dateCreated: null,
     dateLastTransferred: null,

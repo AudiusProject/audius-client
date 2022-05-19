@@ -132,7 +132,9 @@ const PlaylistLibrary = ({
   const audioCollectibles = useMemo(
     () =>
       accountCollectibles?.filter(c =>
-        ['mp3', 'wav', 'oga'].some(ext => c.animationUrl?.endsWith(ext))
+        ['mp3', 'wav', 'oga'].some(
+          ext => c.hasAudio || c.animationUrl?.endsWith(ext)
+        )
       ),
     [accountCollectibles]
   )

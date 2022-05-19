@@ -25,6 +25,7 @@ export type Collectible = {
   videoUrl: Nullable<string>
   threeDUrl: Nullable<string>
   animationUrl: Nullable<string>
+  hasAudio: boolean
   isOwned: boolean
   dateCreated: Nullable<string>
   dateLastTransferred: Nullable<string>
