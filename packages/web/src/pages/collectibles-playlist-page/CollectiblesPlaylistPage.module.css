@@ -18,3 +18,12 @@
   left: 16px;
   top: 7px;
 }
+
+:global(.colCollectiblesPlayButton) {
+  width: 16px !important;
+}
+
+:global(.colChain) {
+  padding-right: 30px !important;
+  width: 100px !important;
+}
