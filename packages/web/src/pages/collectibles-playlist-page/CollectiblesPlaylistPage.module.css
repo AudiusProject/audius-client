@@ -20,7 +20,7 @@
 }
 
 :global(.colCollectiblesPlayButton) {
-  width: 16px !important;
+  width: 48px !important;
 }
 
 :global(.colChain) {
