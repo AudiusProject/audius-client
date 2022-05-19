@@ -33,4 +33,5 @@ export type Collectible = {
   assetContractAddress: Nullable<string>
   chain: Chain
   wallet: string
+  duration?: number
 }

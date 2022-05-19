@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 
 import cn from 'classnames'
 import { push } from 'connected-react-router'
@@ -22,6 +22,7 @@ import { add, clear, pause, play } from 'common/store/queue/slice'
 import { Source } from 'common/store/queue/types'
 import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+import { formatSeconds } from 'common/utils/timeUtil'
 import { getHash } from 'components/collectibles/helpers'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
@@ -71,21 +72,57 @@ export const CollectiblesPlaylistPageProvider = ({
   )
   const collectibleIds = Object.keys(user?.collectibles ?? {})
   const order = user?.collectibles?.order ?? []
-  const audioCollectibles = useMemo(
-    () =>
-      [...(user?.collectibleList ?? []), ...(user?.solanaCollectibleList ?? [])]
+
+  const [audioCollectibles, setAudioCollectibles] = useState([])
+  const hasFetchedCollectibles = useRef(false)
+  useEffect(() => {
+    const asyncFn = async () => {
+      if (collectibleIds && !hasFetchedCollectibles.current) {
         // Filter out hidden collectibles
-        ?.filter(c =>
-          collectibleIds.length ? collectibleIds.includes(c.id) : true
+        const mappedAudioCollectibles = await Promise.all(
+          [
+            ...(user?.collectibleList ?? []),
+            ...(user?.solanaCollectibleList ?? [])
+          ]
+            .filter(c =>
+              collectibleIds.length ? collectibleIds.includes(c.id) : true
+            )
+            // Sort by user collectibles order
+            .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+            // Filter to audio nfts
+            .filter(c =>
+              ['mp3', 'wav', 'oga'].some(ext => c.animationUrl?.endsWith(ext))
+            )
+            // Calculate duration
+            .map(async collectible => {
+              const a = new Audio()
+              // Only fetch the metadata
+              a.preload = 'metadata'
+              a.src = collectible.animationUrl
+              const duration = await new Promise(resolve => {
+                a.onloadedmetadata = () => {
+                  a.pause()
+                  resolve(a.duration)
+                }
+              })
+              collectible.duration = duration
+              return collectible
+            })
         )
-        // Sort by user collectibles order
-        .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
-        // Filter to audio nfts
-        .filter(c =>
-          ['mp3', 'wav', 'oga'].some(ext => c.animationUrl?.endsWith(ext))
-        ),
-    [collectibleIds, order, user]
-  )
+        if (mappedAudioCollectibles.length) {
+          hasFetchedCollectibles.current = true
+          setAudioCollectibles(mappedAudioCollectibles)
+        }
+      }
+    }
+    asyncFn()
+  }, [
+    order,
+    collectibleIds,
+    user,
+    setAudioCollectibles,
+    hasFetchedCollectibles
+  ])
   const title = `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
 
   useEffect(() => {
@@ -217,7 +254,7 @@ export const CollectiblesPlaylistPageProvider = ({
     {
       title: '',
       key: 'playButton',
-      className: 'colPlayButton',
+      className: 'colCollectiblesPlayButton',
       render: (val: string, record: Collectible, index: number) => (
         <TablePlayButton
           paused={!playing}
@@ -252,6 +289,15 @@ export const CollectiblesPlaylistPageProvider = ({
       className: 'colTestColumn',
       render: (val: string, record: Collectible) => (
         <div>{chainLabelMap[record.chain]}</div>
+      )
+    },
+    {
+      title: 'Time',
+      dataIndex: 'time',
+      key: 'time',
+      className: 'colTime',
+      render: (val: string, record: Collectible) => (
+        <div>{formatSeconds(record.duration)}</div>
       )
     }
   ]
