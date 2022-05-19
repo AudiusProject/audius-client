@@ -4,7 +4,18 @@ import { matchPath } from 'react-router'
 
 import { ID } from 'common/models/Identifiers'
 import { encodeUrlName } from 'common/utils/formatUtil'
-import { getHash } from 'components/collectibles/helpers'
+
+/**
+ * Generate a short base36 hash for a given string.
+ * Used to generate short hashes for for queries and urls.
+ */
+export const getHash = (str: string) =>
+  Math.abs(
+    str.split('').reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0)
+      return a & a
+    }, 0)
+  ).toString(36)
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING === 'true'
 

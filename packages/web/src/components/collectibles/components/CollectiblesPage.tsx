@@ -51,11 +51,10 @@ import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
 import {
   BASE_GA_URL,
   PROFILE_PAGE_COLLECTIBLE_DETAILS,
-  doesMatchRoute
+  doesMatchRoute,
+  getHash
 } from 'utils/route'
 import zIndex from 'utils/zIndex'
-
-import { getHash } from '../helpers'
 
 import styles from './CollectiblesPage.module.css'
 
