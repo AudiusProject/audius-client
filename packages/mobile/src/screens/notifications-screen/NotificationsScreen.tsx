@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 
 import { useDrawerStatus } from '@react-navigation/drawer'
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
@@ -17,7 +17,11 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export const NotificationsScreen = () => {
+/**
+ * Memoized to prevent rerender during bottom-bar navigation.
+ * It's rerendering because navigation context changes.
+ */
+export const NotificationsScreen = memo(() => {
   const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
   const isDrawerOpen = useDrawerStatus() === 'open'
@@ -35,4 +39,4 @@ export const NotificationsScreen = () => {
       <NotificationList />
     </View>
   )
-}
+})
