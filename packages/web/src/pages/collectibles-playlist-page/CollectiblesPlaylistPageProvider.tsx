@@ -231,6 +231,7 @@ export const CollectiblesPlaylistPageProvider = ({
       dataIndex: 'name',
       key: 'name',
       className: 'colTrackName',
+      width: '80%',
       render: (val: string, record: Collectible) => (
         <div
           className={cn(styles.collectibleName, {
@@ -249,7 +250,7 @@ export const CollectiblesPlaylistPageProvider = ({
       title: 'Chain',
       dataIndex: 'chain',
       key: 'chain',
-      className: 'colTestColumn',
+      className: 'colChain',
       render: (val: string, record: Collectible) => (
         <div>{chainLabelMap[record.chain]}</div>
       )
