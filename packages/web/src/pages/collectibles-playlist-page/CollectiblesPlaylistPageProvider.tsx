@@ -74,11 +74,11 @@ export const CollectiblesPlaylistPageProvider = ({
   const order = user?.collectibles?.order ?? []
 
   const [audioCollectibles, setAudioCollectibles] = useState([])
+  const [fetchResolved, setFetchResolved] = useState(false)
   const hasFetchedCollectibles = useRef(false)
   useEffect(() => {
     const asyncFn = async () => {
       if (collectibleIds && !hasFetchedCollectibles.current) {
-        // Filter out hidden collectibles
         const mappedAudioCollectibles = await Promise.all(
           [
             ...(user?.collectibleList ?? []),
@@ -113,6 +113,9 @@ export const CollectiblesPlaylistPageProvider = ({
           hasFetchedCollectibles.current = true
           setAudioCollectibles(mappedAudioCollectibles)
         }
+        if (!fetchResolved && user?.collectibleList) {
+          setFetchResolved(true)
+        }
       }
     }
     asyncFn()
@@ -121,7 +124,8 @@ export const CollectiblesPlaylistPageProvider = ({
     collectibleIds,
     user,
     setAudioCollectibles,
-    hasFetchedCollectibles
+    hasFetchedCollectibles,
+    fetchResolved
   ])
   const title = `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
 
@@ -133,7 +137,7 @@ export const CollectiblesPlaylistPageProvider = ({
     }
   }, [dispatch, routeMatch])
 
-  const tracksLoading = !audioCollectibles.length
+  const tracksLoading = !fetchResolved
 
   const isPlayingACollectible = useMemo(
     () =>
@@ -268,7 +272,7 @@ export const CollectiblesPlaylistPageProvider = ({
       dataIndex: 'name',
       key: 'name',
       className: 'colTrackName',
-      width: '80%',
+      width: '70%',
       render: (val: string, record: Collectible) => (
         <div
           className={cn(styles.collectibleName, {
