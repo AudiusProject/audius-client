@@ -352,7 +352,7 @@ export const CollectiblesPlaylistPageProvider = ({
       key: 'time',
       className: 'colTime',
       render: (val: string, record: Collectible) => (
-        <div>{formatSeconds(record.duration)}</div>
+        <div>{formatSeconds(record.duration || 0)}</div>
       )
     }
   ]
