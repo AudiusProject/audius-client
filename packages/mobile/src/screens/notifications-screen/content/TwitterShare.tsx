@@ -99,7 +99,7 @@ const getRemixCreateText = async (notification: RemixCreate) => {
 
 const getRemixCosignText = async (notification: RemixCosign) => {
   const parentTrack = notification.entities.find(
-    t => t.owner_id === notification.parentTrackUserId
+    t => t?.owner_id === notification.parentTrackUserId
   )
   const childtrack = notification.entities.find(
     t => t?.track_id === notification.childTrackId
