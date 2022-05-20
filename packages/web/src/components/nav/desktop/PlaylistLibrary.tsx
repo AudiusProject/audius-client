@@ -21,7 +21,6 @@ import {
 } from 'common/store/account/selectors'
 import { addTrackToPlaylist } from 'common/store/cache/collections/actions'
 import { getPlaylistUpdates } from 'common/store/notifications/selectors'
-import { fetchProfile } from 'common/store/pages/profile/actions'
 import {
   addPlaylistToFolder,
   containsTempPlaylist,
@@ -120,19 +119,11 @@ const PlaylistLibrary = ({
   const record = useRecord()
   const [, setIsEditFolderModalOpen] = useModalState('EditFolder')
 
-  useEffect(() => {
-    if (account) {
-      dispatch(
-        fetchProfile(account.handle, account.user_id, false, false, false, true)
-      )
-    }
-  }, [])
-
   const accountCollectibles = useSelector(getAccountCollectibles)
   const audioCollectibles = useMemo(
     () =>
       accountCollectibles?.filter(c =>
-        ['mp3', 'wav', 'oga'].some(
+        ['mp3', 'wav', 'oga', 'mp4'].some(
           ext => c.hasAudio || c.animationUrl?.endsWith(ext)
         )
       ),
