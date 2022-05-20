@@ -153,8 +153,11 @@ export const CollectiblesPlaylistPageProvider = ({
               }
             })
             v.play()
-            await new Promise(resolve => setTimeout(resolve, 200))
+            await sleep(200)
             const videoHasAudio = hasAudio(v)
+            // Stop the buffering of the video
+            v.src = ''
+            v.load()
             if (!videoHasAudio) {
               return null
             }
