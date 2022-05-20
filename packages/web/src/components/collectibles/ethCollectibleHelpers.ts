@@ -7,6 +7,22 @@ import {
 } from 'services/opensea-client/types'
 import { gifPreview } from 'utils/imageProcessingUtil'
 
+const fetchWithTimeout = async (
+  resource: RequestInfo,
+  options: { timeout?: number } & RequestInit = {}
+) => {
+  const { timeout = 4000 } = options
+
+  const controller = new AbortController()
+  const id = setTimeout(() => controller.abort(), timeout)
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal
+  })
+  clearTimeout(id)
+  return response
+}
+
 /**
  * extensions based on OpenSea metadata standards
  * https://docs.opensea.io/docs/metadata-standards
@@ -181,7 +197,7 @@ export const assetToCollectible = async (
       // just because the don't end with the NON_IMAGE_EXTENSIONS above does not mean they are images
       // they may be gifs
       // example: https://lh3.googleusercontent.com/rOopRU-wH9mqMurfvJ2INLIGBKTtF8BN_XC7KZxTh8PPHt5STSNJ-i8EQit8ZTwE3Mi8LK4on_4YazdC3Cl-HdaxbnKJ23P8kocvJHQ
-      const res = await fetch(frameUrl, { method: 'HEAD' })
+      const res = await fetchWithTimeout(frameUrl, { method: 'HEAD' })
       const hasGifFrame = res.headers.get('Content-Type')?.includes('gif')
       if (hasGifFrame) {
         gifUrl = frameUrl
@@ -200,7 +216,7 @@ export const assetToCollectible = async (
        * if it is, unset frame url so that component will use a video url frame instead
        */
       if (frameUrl) {
-        const res = await fetch(frameUrl, { method: 'HEAD' })
+        const res = await fetchWithTimeout(frameUrl, { method: 'HEAD' })
         const isVideo = res.headers.get('Content-Type')?.includes('video')
         const isGif = res.headers.get('Content-Type')?.includes('gif')
         if (isVideo || isGif) {
@@ -214,7 +230,7 @@ export const assetToCollectible = async (
     } else if (ipfsProtocolUrl) {
       try {
         const metadataUrl = getIpfsMetadataUrl(ipfsProtocolUrl)
-        const res = await fetch(metadataUrl, { method: 'HEAD' })
+        const res = await fetchWithTimeout(metadataUrl, { method: 'HEAD' })
         const isGif = res.headers.get('Content-Type')?.includes('gif')
         const isVideo = res.headers.get('Content-Type')?.includes('video')
         const isAudio = res.headers.get('Content-Type')?.includes('audio')
@@ -251,7 +267,7 @@ export const assetToCollectible = async (
     } else {
       mediaType = CollectibleMediaType.IMAGE
       frameUrl = imageUrls.find(url => !!url)!
-      const res = await fetch(frameUrl, { method: 'HEAD' })
+      const res = await fetchWithTimeout(frameUrl, { method: 'HEAD' })
       const isGif = res.headers.get('Content-Type')?.includes('gif')
       const isVideo = res.headers.get('Content-Type')?.includes('video')
       if (isGif) {
