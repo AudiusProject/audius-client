@@ -9,8 +9,10 @@ import { User } from 'common/models/User'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getSupporting } from 'common/store/tipping/selectors'
 import { fetchSupportingForUser } from 'common/store/tipping/slice'
+import { loadMore, reset } from 'common/store/user-list/actions'
 import { stringWeiToBN } from 'common/utils/wallet'
 import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
+import { USER_LIST_TAG as SUPPORTING_TAG } from 'pages/supporting-page/sagas'
 import {
   setUsers,
   setVisibility
@@ -66,9 +68,10 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
     if (supportingForArtistIds.length === 0) {
       dispatch(fetchSupportingForUser({ userId: user_id }))
     }
-  }, [dispatch, supportingForArtistIds, user_id])
+  }, [dispatch, supportingForArtistIds.length, user_id])
 
   const handleClick = useCallback(() => {
+    dispatch(reset(SUPPORTING_TAG))
     dispatch(
       setUsers({
         userListType: UserListType.SUPPORTING,
@@ -76,6 +79,7 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
         id: user_id
       })
     )
+    dispatch(loadMore(SUPPORTING_TAG))
     dispatch(setVisibility(true))
   }, [dispatch, user_id])
 
