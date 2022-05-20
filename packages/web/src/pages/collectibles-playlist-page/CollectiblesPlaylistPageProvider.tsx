@@ -125,10 +125,8 @@ export const CollectiblesPlaylistPageProvider = ({
                   }
                 })
                 collectible.duration = duration
-              }
-
-              if (
-                ['mp4'].some(ext => collectible.animationUrl?.endsWith(ext)) &&
+              } else if (
+                collectible.animationUrl?.endsWith('mp4') &&
                 // Check for window.document because video will not be available
                 // otherwise.
                 window &&
