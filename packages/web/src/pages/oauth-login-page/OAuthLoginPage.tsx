@@ -42,9 +42,6 @@ const messages = {
   miscError: 'An error has occurred. Please try again.',
   accountIncompleteError:
     'It looks like your account was never fully completed! Please complete your sign-up first.',
-  redirectLocationNoticePt1: 'After submitting, you will be redirected to ',
-  redirectLocationNoticePt2:
-    '. If this location does not look familiar, please do not continue.',
   redirectURIInvalidError:
     'Whoops, this is an invalid link (redirect URI missing or invalid).',
   missingAppNameError: 'Whoops, this is an invalid link (app name missing).',
@@ -72,16 +69,6 @@ const CTAButton = ({
   )
 }
 
-const RedirectNotice = ({ hostname }: { hostname: string | null }) => {
-  return (
-    <div className={styles.redirectNoticeContainer}>
-      {messages.redirectLocationNoticePt1}
-      <span className={styles.bold}>{hostname}</span>
-      {messages.redirectLocationNoticePt2}
-    </div>
-  )
-}
-
 export const OAuthLoginPage = () => {
   const { search } = useLocation()
   const { scope, state, redirect_uri, app_name } = queryString.parse(search)
@@ -97,8 +84,6 @@ export const OAuthLoginPage = () => {
     }
     return null
   }, [redirect_uri])
-  const redirectUriHost =
-    parsedRedirectUri == null ? null : parsedRedirectUri.host
   const account = useSelector(getAccountUser)
   const isLoggedIn = Boolean(account)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -404,7 +389,6 @@ export const OAuthLoginPage = () => {
               text={messages.authorizeButton}
               onClick={handleAlreadySignedInAuthorizeSubmit}
             />
-            <RedirectNotice hostname={redirectUriHost} />
           </div>
         ) : (
           <div className={styles.signInFormContainer}>
@@ -447,7 +431,6 @@ export const OAuthLoginPage = () => {
                 text={messages.signInButton}
                 buttonType='submit'
               />
-              <RedirectNotice hostname={redirectUriHost} />
             </form>
             <div className={styles.signUpButtonContainer}>
               <a
