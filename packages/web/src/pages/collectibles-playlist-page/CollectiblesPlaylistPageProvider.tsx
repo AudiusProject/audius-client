@@ -95,8 +95,11 @@ export const CollectiblesPlaylistPageProvider = ({
   const [audioCollectibles, setAudioCollectibles] = useState<Collectible[]>([])
   const [fetchResolved, setFetchResolved] = useState(false)
   const hasFetchedCollectibles = useRef(false)
+  const [hasFetchedAllCollectibles, setHasFetchedAllCollectibles] = useState(
+    false
+  )
   useEffect(() => {
-    const asyncFn = (cs: Collectible[]) => {
+    const asyncFn = async (cs: Collectible[]) => {
       const sortedCollectibles = cs
         .filter(c =>
           collectibleIds.length ? collectibleIds.includes(c.id) : true
@@ -104,15 +107,16 @@ export const CollectiblesPlaylistPageProvider = ({
         // Sort by user collectibles order
         .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
 
-      sortedCollectibles
-        .filter(
-          c =>
-            c.hasAudio ||
-            ['mp3', 'wav', 'oga', 'mp4'].some(ext =>
-              c.animationUrl?.endsWith(ext)
-            )
-        )
-        .forEach(async collectible => {
+      const filteredCollectibles = sortedCollectibles.filter(
+        c =>
+          c.hasAudio ||
+          ['mp3', 'wav', 'oga', 'mp4'].some(ext =>
+            c.animationUrl?.endsWith(ext)
+          )
+      )
+
+      await Promise.all(
+        filteredCollectibles.map(async collectible => {
           if (collectible.animationUrl?.endsWith('mp4')) {
             const v = document.createElement('video')
             // Only fetch the metadata
@@ -151,11 +155,14 @@ export const CollectiblesPlaylistPageProvider = ({
               ...currentCollectibles,
               collectible
             ])
+            if (!fetchResolved) {
+              setFetchResolved(true)
+            }
           }
+          return collectible
         })
-      if (!fetchResolved) {
-        setFetchResolved(true)
-      }
+      )
+      setHasFetchedAllCollectibles(true)
     }
 
     const cs = [
@@ -172,7 +179,8 @@ export const CollectiblesPlaylistPageProvider = ({
     user,
     setAudioCollectibles,
     hasFetchedCollectibles,
-    fetchResolved
+    fetchResolved,
+    setHasFetchedAllCollectibles
   ])
 
   const title = `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
@@ -185,7 +193,7 @@ export const CollectiblesPlaylistPageProvider = ({
     }
   }, [dispatch, routeMatch])
 
-  const tracksLoading = !fetchResolved
+  const tracksLoading = !hasFetchedAllCollectibles
 
   const isPlayingACollectible = useMemo(
     () =>
@@ -397,7 +405,7 @@ export const CollectiblesPlaylistPageProvider = ({
       user
     },
     tracks: {
-      status: tracksLoading ? Status.LOADING : Status.SUCCESS,
+      status: !fetchResolved ? Status.LOADING : Status.SUCCESS,
       entries
     },
     columns,

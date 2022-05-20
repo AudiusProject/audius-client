@@ -224,7 +224,11 @@ const CollectionPage = ({
             <CollectionHeader
               collectionId={playlistId}
               userId={user?.user_id ?? 0}
-              loading={collectionLoading}
+              loading={
+                typeTitle === 'Audio NFT Playlist'
+                  ? tracksLoading
+                  : collectionLoading
+              }
               tracksLoading={tracksLoading}
               type={typeTitle}
               title={playlistName}
@@ -261,9 +265,6 @@ const CollectionPage = ({
             />
           </div>
           <div className={styles.collectionTracksContainer}>
-            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
-              <LoadingSpinner className={styles.spinner} />
-            ) : null}
             {!tracksLoading ? (
               isEmpty ? (
                 <>
@@ -281,6 +282,9 @@ const CollectionPage = ({
                   togglePlay={togglePlay}
                 />
               )
+            ) : null}
+            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+              <LoadingSpinner className={styles.spinner} />
             ) : null}
           </div>
         </div>

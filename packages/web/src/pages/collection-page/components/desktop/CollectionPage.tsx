@@ -186,7 +186,9 @@ const CollectionPage = ({
     <CollectionHeader
       collectionId={playlistId}
       userId={playlistOwnerId}
-      loading={collectionLoading}
+      loading={
+        typeTitle === 'Audio NFT Playlist' ? tracksLoading : collectionLoading
+      }
       tracksLoading={tracksLoading}
       type={typeTitle}
       title={playlistName}
@@ -243,37 +245,36 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
+            <TracksTable
+              key={playlistName}
+              loading={tracksLoading}
+              loadingRowsCount={trackCount}
+              columns={columns}
+              userId={userId}
+              playing={playing}
+              playingIndex={playingIndex}
+              dataSource={dataSource}
+              allowReordering={
+                userId !== null &&
+                userId === playlistOwnerId &&
+                allowReordering &&
+                !isAlbum
+              }
+              onClickRow={onClickRow}
+              onClickFavorite={onClickSave}
+              onClickTrackName={onClickTrackName}
+              onClickArtistName={onClickArtistName}
+              onClickRepost={onClickRepostTrack}
+              onSortTracks={onSortTracks}
+              onReorderTracks={onReorderTracks}
+              onClickRemove={isOwner ? onClickRemove : null}
+              removeText={`${messages.remove} ${
+                isAlbum ? messages.type.album : messages.type.playlist
+              }`}
+            />
             {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
               <LoadingSpinner className={styles.spinner} />
-            ) : (
-              <TracksTable
-                key={playlistName}
-                loading={tracksLoading}
-                loadingRowsCount={trackCount}
-                columns={columns}
-                userId={userId}
-                playing={playing}
-                playingIndex={playingIndex}
-                dataSource={dataSource}
-                allowReordering={
-                  userId !== null &&
-                  userId === playlistOwnerId &&
-                  allowReordering &&
-                  !isAlbum
-                }
-                onClickRow={onClickRow}
-                onClickFavorite={onClickSave}
-                onClickTrackName={onClickTrackName}
-                onClickArtistName={onClickArtistName}
-                onClickRepost={onClickRepostTrack}
-                onSortTracks={onSortTracks}
-                onReorderTracks={onReorderTracks}
-                onClickRemove={isOwner ? onClickRemove : null}
-                removeText={`${messages.remove} ${
-                  isAlbum ? messages.type.album : messages.type.playlist
-                }`}
-              />
-            )}
+            ) : null}
           </div>
         )}
       </div>
