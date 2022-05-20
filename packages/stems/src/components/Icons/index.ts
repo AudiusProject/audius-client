@@ -126,3 +126,4 @@ export { ReactComponent as IconCampFire } from '../../assets/icons/iconCampFire.
 export { ReactComponent as IconCrown } from '../../assets/icons/iconCrown.svg'
 export { ReactComponent as LogoSol } from '../../assets/icons/logoSol.svg'
 export { ReactComponent as LogoEth } from '../../assets/icons/logoEth.svg'
+export { ReactComponent as IconAtSign } from '../../assets/icons/iconAtSign.svg'
