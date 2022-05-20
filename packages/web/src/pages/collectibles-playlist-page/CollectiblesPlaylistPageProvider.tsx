@@ -101,7 +101,7 @@ export const CollectiblesPlaylistPageProvider = ({
   const [fetchResolved, setFetchResolved] = useState(false)
   const hasFetchedCollectibles = useRef(false)
   useEffect(() => {
-    const asyncFn = async (cs: Collectible[]) => {
+    const asyncFn = (cs: Collectible[]) => {
       const sortedCollectibles = cs
         .filter(c =>
           collectibleIds.length ? collectibleIds.includes(c.id) : true
@@ -109,16 +109,39 @@ export const CollectiblesPlaylistPageProvider = ({
         // Sort by user collectibles order
         .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
 
-      const mappedAudioCollectibles = await raceAll(
-        sortedCollectibles
-          // Filter to audio nfts
-          .filter(c =>
-            ['mp3', 'wav', 'oga'].some(
-              ext => c.hasAudio || c.animationUrl?.endsWith(ext)
+      sortedCollectibles
+        .filter(
+          c =>
+            c.hasAudio ||
+            ['mp3', 'wav', 'oga', 'mp4'].some(ext =>
+              c.animationUrl?.endsWith(ext)
             )
-          )
-          // Calculate duration
-          .map(async collectible => {
+        )
+        .forEach(async collectible => {
+          if (collectible.animationUrl?.endsWith('mp4')) {
+            const v = document.createElement('video')
+            // Only fetch the metadata
+            v.src = collectible.animationUrl
+            v.muted = true
+            v.preload = 'metadata'
+            console.count('Initiated')
+            const duration: number = await new Promise(resolve => {
+              v.onloadedmetadata = () => {
+                console.count('Resolved')
+                resolve(v.duration)
+              }
+            })
+            v.play()
+            await sleep(200)
+            // const videoHasAudio = hasAudio(v)
+            // Stop the buffering of the video
+            v.src = ''
+            v.load()
+            // if (!videoHasAudio) {
+            //   return null
+            // }
+            collectible.duration = duration
+          } else {
             const a = new Audio()
             // Only fetch the metadata
             a.preload = 'metadata'
@@ -129,51 +152,56 @@ export const CollectiblesPlaylistPageProvider = ({
               }
             })
             collectible.duration = duration
-            return collectible
-          }),
-        5000 // 5s cap on promises for audio nfts
-      )
+          }
+          if (collectible) {
+            setAudioCollectibles(currentCollectibles => [
+              ...currentCollectibles,
+              collectible
+            ])
+          }
+        })
 
-      const mappedVideoCollectibles = await raceAll(
-        sortedCollectibles
-          // Filter to audio nfts
-          .filter(c =>
-            ['mp4'].some(ext => c.hasAudio || c.animationUrl?.endsWith(ext))
-          )
-          // Calculate duration
-          .map(async collectible => {
-            const v = document.createElement('video')
-            // Only fetch the metadata
-            v.src = collectible.animationUrl
-            v.muted = true
-            v.preload = 'metadata'
-            const duration: number = await new Promise(resolve => {
-              v.onloadedmetadata = () => {
-                resolve(v.duration)
-              }
-            })
-            v.play()
-            await sleep(200)
-            const videoHasAudio = hasAudio(v)
-            // Stop the buffering of the video
-            v.src = ''
-            v.load()
-            if (!videoHasAudio) {
-              return null
-            }
-            collectible.duration = duration
-            return collectible
-          }),
-        10000 // 10s cap on promises for video nfts
-      )
+      // const mappedAudioCollectibles = await Promise.all(
+      //   sortedCollectibles
+      //     // Filter to audio nfts
+      //     .filter(c =>
+      //       ['mp3', 'wav', 'oga'].some(
+      //         ext => c.hasAudio || c.animationUrl?.endsWith(ext)
+      //       )
+      //     )
+      //     // Calculate duration
+      //     .map(async collectible => {
+      //       const a = new Audio()
+      //       // Only fetch the metadata
+      //       a.preload = 'metadata'
+      //       a.src = collectible.animationUrl
+      //       const duration: number = await new Promise(resolve => {
+      //         a.onloadedmetadata = () => {
+      //           resolve(a.duration)
+      //         }
+      //       })
+      //       collectible.duration = duration
+      //       return collectible
+      //     })
+      // )
 
-      const filteredAudioCollectibles = [
-        ...mappedAudioCollectibles,
-        ...mappedVideoCollectibles
-      ].filter(removeNullable)
-      if (filteredAudioCollectibles.length) {
-        setAudioCollectibles(filteredAudioCollectibles)
-      }
+      // const mappedVideoCollectibles = await Promise.all(
+      //   sortedCollectibles
+      //     // Filter to audio nfts
+      //     .filter(c =>
+      //       ['mp4'].some(ext => c.hasAudio || c.animationUrl?.endsWith(ext))
+      //     )
+      //     // Calculate duration
+      //     .map(async collectible => {})
+      // )
+
+      // const filteredAudioCollectibles = [
+      //   ...mappedAudioCollectibles,
+      //   ...mappedVideoCollectibles
+      // ].filter(removeNullable)
+      // if (filteredAudioCollectibles.length) {
+      //   setAudioCollectibles(filteredAudioCollectibles)
+      // }
       if (!fetchResolved) {
         setFetchResolved(true)
       }
