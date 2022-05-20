@@ -8,11 +8,11 @@ import { Name } from 'common/models/Analytics'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getSendTipData } from 'common/store/tipping/selectors'
 import { formatWei, weiToAudioString } from 'common/utils/wallet'
+import { ProfileInfo } from 'components/profile-info/ProfileInfo'
 import { useRecord, make } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
@@ -73,7 +73,7 @@ export const TipSent = () => {
   return recipient ? (
     <div className={styles.container}>
       {renderSentAudio()}
-      <TipProfilePicture
+      <ProfileInfo
         user={recipient}
         className={styles.confirmProfileUser}
         imgClassName={styles.smallDynamicPhoto}

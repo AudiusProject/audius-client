@@ -8,9 +8,9 @@ import { Nullable } from 'common/utils/typeUtils'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
-import styles from './TipAudio.module.css'
+import styles from './ProfileInfo.module.css'
 
-type TipProfilePictureProps = {
+type ProfileInfoProps = {
   user: Nullable<User>
   className?: string
   imgClassName?: string
@@ -19,7 +19,7 @@ type TipProfilePictureProps = {
   displayNameClassName?: string
   handleClassName?: string
 }
-export const TipProfilePicture = ({
+export const ProfileInfo = ({
   user,
   className = '',
   imgClassName = '',
@@ -27,7 +27,7 @@ export const TipProfilePicture = ({
   badgeSize = 12,
   displayNameClassName,
   handleClassName
-}: TipProfilePictureProps) => {
+}: ProfileInfoProps) => {
   const image = useUserProfilePicture(
     user?.user_id ?? null,
     user?._profile_picture_sizes ?? null,

@@ -25,12 +25,12 @@ import {
   stringWeiToBN,
   weiToString
 } from 'common/utils/wallet'
+import { ProfileInfo } from 'components/profile-info/ProfileInfo'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
@@ -215,7 +215,7 @@ export const SendTip = () => {
 
   return (
     <div className={styles.container}>
-      <TipProfilePicture user={profile} />
+      <ProfileInfo user={profile} />
       {!hasError && isFirstSupporter ? renderBecomeFirstSupporter() : null}
       {!hasError && amountToTipToBecomeTopSupporter
         ? renderBecomeTopSupporter()

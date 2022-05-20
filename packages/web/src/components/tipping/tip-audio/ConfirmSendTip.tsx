@@ -11,9 +11,9 @@ import { getSendAmount, getSendStatus } from 'common/store/tipping/selectors'
 import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import { formatWei } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { ProfileInfo } from 'components/profile-info/ProfileInfo'
 
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
@@ -94,7 +94,7 @@ export const ConfirmSendTip = () => {
   return profile ? (
     <div className={styles.container}>
       {renderSendingAudio()}
-      <TipProfilePicture user={profile} />
+      <ProfileInfo user={profile} />
       {sendStatus === 'SENDING' && <EmptyContainer />}
       {sendStatus === 'CONFIRM' && <ConfirmInfo />}
       {sendStatus === 'CONVERTING' && <ConvertingInfo />}
