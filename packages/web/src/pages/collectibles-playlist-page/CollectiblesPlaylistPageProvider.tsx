@@ -66,6 +66,13 @@ const hasAudio = (video: HTMLMediaElement) => {
 
 const getCurrent = makeGetCurrent()
 
+const sleep = (time: number) =>
+  new Promise(resolve => setTimeout(resolve, time))
+
+const raceAll = (promises: Promise<any>[], time: number) => {
+  return Promise.all(promises.map(p => Promise.race([p, sleep(time)])))
+}
+
 export const CollectiblesPlaylistPageProvider = ({
   children: Children
 }: CollectiblesPlaylistPageProviderProps) => {
@@ -95,74 +102,76 @@ export const CollectiblesPlaylistPageProvider = ({
   const hasFetchedCollectibles = useRef(false)
   useEffect(() => {
     const asyncFn = async (cs: Collectible[]) => {
-      const mappedAudioCollectibles = await Promise.all(
-        cs
-          .filter(c =>
-            collectibleIds.length ? collectibleIds.includes(c.id) : true
-          )
-          // Sort by user collectibles order
-          .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+      const sortedCollectibles = cs
+        .filter(c =>
+          collectibleIds.length ? collectibleIds.includes(c.id) : true
+        )
+        // Sort by user collectibles order
+        .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+
+      const mappedAudioCollectibles = await raceAll(
+        sortedCollectibles
           // Filter to audio nfts
           .filter(c =>
-            ['mp3', 'wav', 'oga', 'mp4'].some(
+            ['mp3', 'wav', 'oga'].some(
               ext => c.hasAudio || c.animationUrl?.endsWith(ext)
             )
           )
           // Calculate duration
           .map(async collectible => {
-            if (
-              collectible.animationUrl &&
-              ['mp3', 'wav', 'oga'].some(
-                ext =>
-                  collectible.hasAudio ||
-                  collectible.animationUrl?.endsWith(ext)
-              )
-            ) {
-              const a = new Audio()
-              // Only fetch the metadata
-              a.preload = 'metadata'
-              a.src = collectible.animationUrl
-              const duration: number = await new Promise(resolve => {
-                a.onloadedmetadata = () => {
-                  resolve(a.duration)
-                }
-              })
-              collectible.duration = duration
-            } else if (
-              collectible.animationUrl?.endsWith('mp4') &&
-              // Check for window.document because video will not be available
-              // otherwise.
-              window &&
-              window.document
-            ) {
-              const v = document.createElement('video')
-              // Only fetch the metadata
-              v.src = collectible.animationUrl
-              v.muted = true
-              v.preload = 'metadata'
-              const duration: number = await new Promise(resolve => {
-                v.onloadedmetadata = () => {
-                  resolve(v.duration)
-                }
-              })
-              v.play()
-              await new Promise(resolve => setTimeout(resolve, 200))
-              const videoHasAudio = hasAudio(v)
-              if (!videoHasAudio) {
-                return null
+            const a = new Audio()
+            // Only fetch the metadata
+            a.preload = 'metadata'
+            a.src = collectible.animationUrl
+            const duration: number = await new Promise(resolve => {
+              a.onloadedmetadata = () => {
+                resolve(a.duration)
               }
-              collectible.duration = duration
-            }
+            })
+            collectible.duration = duration
             return collectible
-          })
+          }),
+        5000 // 5s cap on promises for audio nfts
       )
-      const filteredAudioCollectibles = mappedAudioCollectibles.filter(
-        removeNullable
+
+      const mappedVideoCollectibles = await raceAll(
+        sortedCollectibles
+          // Filter to audio nfts
+          .filter(c =>
+            ['mp4'].some(ext => c.hasAudio || c.animationUrl?.endsWith(ext))
+          )
+          // Calculate duration
+          .map(async collectible => {
+            const v = document.createElement('video')
+            // Only fetch the metadata
+            v.src = collectible.animationUrl
+            v.muted = true
+            v.preload = 'metadata'
+            const duration: number = await new Promise(resolve => {
+              v.onloadedmetadata = () => {
+                resolve(v.duration)
+              }
+            })
+            v.play()
+            await new Promise(resolve => setTimeout(resolve, 200))
+            const videoHasAudio = hasAudio(v)
+            if (!videoHasAudio) {
+              return null
+            }
+            collectible.duration = duration
+            return collectible
+          }),
+        10000 // 10s cap on promises for video nfts
       )
+
+      const filteredAudioCollectibles = [
+        ...mappedAudioCollectibles,
+        ...mappedVideoCollectibles
+      ].filter(removeNullable)
       if (filteredAudioCollectibles.length) {
         setAudioCollectibles(filteredAudioCollectibles)
       }
-      if (!fetchResolved && user?.collectibleList) {
+      if (!fetchResolved) {
         setFetchResolved(true)
       }
     }
@@ -171,7 +180,7 @@ export const CollectiblesPlaylistPageProvider = ({
       ...(user?.collectibleList ?? []),
       ...(user?.solanaCollectibleList ?? [])
     ]
-    if (collectibleIds && cs.length && !hasFetchedCollectibles.current) {
+    if (user?.collectibleList && !hasFetchedCollectibles.current) {
       asyncFn(cs)
       hasFetchedCollectibles.current = true
     }
