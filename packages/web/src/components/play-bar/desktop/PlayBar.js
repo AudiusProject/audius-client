@@ -337,7 +337,7 @@ class PlayBar extends Component {
       artistUserId = user.user_id
       isVerified = user.is_verified
       profilePictureSizes = user._profile_picture_sizes
-      isOwner = this.props.accountUser.user_id === user.user_id
+      isOwner = this.props.accountUser?.user_id === user.user_id
       duration = audio.getDuration()
 
       reposted = false
