@@ -71,6 +71,15 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
   }, [dispatch, supportingForArtistIds.length, user_id])
 
   const handleClick = useCallback(() => {
+    /**
+     * It's possible that we are already in the supporting
+     * user list modal, and that we are hovering oover one
+     * of the users.
+     * Clicking on the supporting section is supposed to
+     * load a new user list modal that shows the users who
+     * are being supported by the user represented by the
+     * artist card.
+     */
     dispatch(reset(SUPPORTING_TAG))
     dispatch(
       setUsers({
