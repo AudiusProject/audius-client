@@ -12,6 +12,7 @@ import {
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import CollectionHeader from 'components/collection/mobile/CollectionHeader'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import NavContext, {
   LeftPreset,
@@ -28,10 +29,14 @@ const messages = {
   emptyPlaylist: 'This playlist is empty.'
 }
 
-const EmptyTrackList = () => {
+const EmptyTrackList = ({
+  customEmptyText
+}: {
+  customEmptyText?: string | null
+}) => {
   return (
     <div className={styles.emptyListContainer}>
-      <div>{messages.emptyPlaylist}</div>
+      <div>{customEmptyText || messages.emptyPlaylist}</div>
     </div>
   )
 }
@@ -155,6 +160,8 @@ const CollectionPage = ({
     metadata && metadata.variant === Variant.SMART ? metadata.icon : null
   const typeTitle =
     metadata?.variant === Variant.SMART ? metadata?.typeTitle ?? type : type
+  const customEmptyText =
+    metadata?.variant === Variant.SMART ? metadata?.customEmptyText : null
 
   const {
     isEmpty,
@@ -254,11 +261,14 @@ const CollectionPage = ({
             />
           </div>
           <div className={styles.collectionTracksContainer}>
+            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+              <LoadingSpinner className={styles.spinner} />
+            ) : null}
             {!tracksLoading ? (
               isEmpty ? (
                 <>
                   <div className={styles.divider}></div>
-                  <EmptyTrackList />
+                  <EmptyTrackList customEmptyText={customEmptyText} />
                 </>
               ) : (
                 <TrackList

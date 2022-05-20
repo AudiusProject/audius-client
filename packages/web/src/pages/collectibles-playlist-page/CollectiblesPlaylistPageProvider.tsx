@@ -378,7 +378,10 @@ export const CollectiblesPlaylistPageProvider = ({
       audioCollectibles?.[0]?.imageUrl ??
       audioCollectibles?.[0]?.frameUrl ??
       audioCollectibles?.[0]?.gifUrl,
-    typeTitle: 'Audio NFT Playlist'
+    typeTitle: 'Audio NFT Playlist',
+    customEmptyText: user
+      ? `There are no playable audio NFTs in any wallets connected to ${user.name}`
+      : ''
   }
 
   const childProps = {

@@ -30,7 +30,7 @@ const messages = {
   remove: 'Remove from this'
 }
 
-const EmptyPage = (props: { text?: string; isOwner: boolean }) => {
+const EmptyPage = (props: { text?: string | null; isOwner: boolean }) => {
   const text =
     props.text ||
     (props.isOwner ? messages.emptyPage.owner : messages.emptyPage.visitor)
@@ -165,6 +165,8 @@ const CollectionPage = ({
     (metadata?.variant === Variant.SMART && metadata.imageOverride) ?? ''
   const typeTitle =
     metadata?.variant === Variant.SMART ? metadata?.typeTitle ?? type : type
+  const customEmptyText =
+    metadata?.variant === Variant.SMART ? metadata?.customEmptyText : null
 
   const {
     trackCount,
@@ -238,7 +240,7 @@ const CollectionPage = ({
       <div className={styles.bodyWrapper}>
         <div className={styles.topSectionWrapper}>{topSection}</div>
         {!collectionLoading && isEmpty ? (
-          <EmptyPage isOwner={isOwner} />
+          <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
             {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
