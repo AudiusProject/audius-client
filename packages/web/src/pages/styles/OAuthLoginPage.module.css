@@ -190,5 +190,6 @@
 }
 
 .redirectNoticeContainer {
+  line-height: 120%;
   margin-top: var(--unit-4);
 }
