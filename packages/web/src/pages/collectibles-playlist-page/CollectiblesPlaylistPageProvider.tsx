@@ -23,7 +23,6 @@ import { Source } from 'common/store/queue/types'
 import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { formatSeconds } from 'common/utils/timeUtil'
-import { removeNullable } from 'common/utils/typeUtils'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
 import { getPlaying, makeGetCurrent } from 'store/player/selectors'
@@ -68,10 +67,6 @@ const getCurrent = makeGetCurrent()
 
 const sleep = (time: number) =>
   new Promise(resolve => setTimeout(resolve, time))
-
-const raceAll = (promises: Promise<any>[], time: number) => {
-  return Promise.all(promises.map(p => Promise.race([p, sleep(time)])))
-}
 
 export const CollectiblesPlaylistPageProvider = ({
   children: Children
@@ -124,22 +119,20 @@ export const CollectiblesPlaylistPageProvider = ({
             v.src = collectible.animationUrl
             v.muted = true
             v.preload = 'metadata'
-            console.count('Initiated')
             const duration: number = await new Promise(resolve => {
               v.onloadedmetadata = () => {
-                console.count('Resolved')
                 resolve(v.duration)
               }
             })
             v.play()
             await sleep(200)
-            // const videoHasAudio = hasAudio(v)
+            const videoHasAudio = hasAudio(v)
             // Stop the buffering of the video
             v.src = ''
             v.load()
-            // if (!videoHasAudio) {
-            //   return null
-            // }
+            if (!videoHasAudio) {
+              return null
+            }
             collectible.duration = duration
           } else {
             const a = new Audio()
@@ -160,48 +153,6 @@ export const CollectiblesPlaylistPageProvider = ({
             ])
           }
         })
-
-      // const mappedAudioCollectibles = await Promise.all(
-      //   sortedCollectibles
-      //     // Filter to audio nfts
-      //     .filter(c =>
-      //       ['mp3', 'wav', 'oga'].some(
-      //         ext => c.hasAudio || c.animationUrl?.endsWith(ext)
-      //       )
-      //     )
-      //     // Calculate duration
-      //     .map(async collectible => {
-      //       const a = new Audio()
-      //       // Only fetch the metadata
-      //       a.preload = 'metadata'
-      //       a.src = collectible.animationUrl
-      //       const duration: number = await new Promise(resolve => {
-      //         a.onloadedmetadata = () => {
-      //           resolve(a.duration)
-      //         }
-      //       })
-      //       collectible.duration = duration
-      //       return collectible
-      //     })
-      // )
-
-      // const mappedVideoCollectibles = await Promise.all(
-      //   sortedCollectibles
-      //     // Filter to audio nfts
-      //     .filter(c =>
-      //       ['mp4'].some(ext => c.hasAudio || c.animationUrl?.endsWith(ext))
-      //     )
-      //     // Calculate duration
-      //     .map(async collectible => {})
-      // )
-
-      // const filteredAudioCollectibles = [
-      //   ...mappedAudioCollectibles,
-      //   ...mappedVideoCollectibles
-      // ].filter(removeNullable)
-      // if (filteredAudioCollectibles.length) {
-      //   setAudioCollectibles(filteredAudioCollectibles)
-      // }
       if (!fetchResolved) {
         setFetchResolved(true)
       }
