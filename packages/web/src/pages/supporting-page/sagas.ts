@@ -24,7 +24,12 @@ import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
 export const USER_LIST_TAG = 'SUPPORTING'
 
-const provider = createUserListProvider<User>({
+type SupportingProcessExtraType = {
+  userId: ID
+  supportingList: SupportingResponse[]
+}
+
+const provider = createUserListProvider<User, SupportingProcessExtraType>({
   getExistingEntity: getUser,
   extractUserIDSubsetFromEntity: () => [],
   fetchAllUsersForEntity: async ({
@@ -63,7 +68,7 @@ const provider = createUserListProvider<User>({
    * Tipping sagas for user list modals are special in that they require
    * tipping data on top of the otherwise independent user data.
    * We need to store the supporting data for the user
-   * in the store. So we use this functional, which is optional
+   * in the store. So we use this function, which is optional
    * in the interface, to update the store.
    */
   processExtra: function* ({ userId, supportingList }) {

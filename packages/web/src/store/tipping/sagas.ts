@@ -219,37 +219,39 @@ function* fetchSupportingForUserAsync({
   type: string
 }) {
   const encodedUserId = encodeHashId(userId)
-  if (encodedUserId) {
-    const supportingList = yield* call(fetchSupporting, {
-      encodedUserId,
-      limit: MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
-    })
-    const userIds = supportingList.map(supporting =>
-      decodeHashId(supporting.receiver.id)
-    )
-
-    // todo: probs just cache users returned from tipping support api
-    yield* call(fetchUsers, userIds, new Set(), true)
-
-    const map: Record<string, Supporting> = {}
-    supportingList.forEach(supporting => {
-      const supportingUserId = decodeHashId(supporting.receiver.id)
-      if (supportingUserId) {
-        map[supportingUserId] = {
-          receiver_id: supportingUserId,
-          rank: supporting.rank,
-          amount: supporting.amount
-        }
-      }
-    })
-
-    yield put(
-      setSupportingForUser({
-        id: userId,
-        supportingForUser: map
-      })
-    )
+  if (!encodedUserId) {
+    return
   }
+
+  const supportingList = yield* call(fetchSupporting, {
+    encodedUserId,
+    limit: MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
+  })
+  const userIds = supportingList.map(supporting =>
+    decodeHashId(supporting.receiver.id)
+  )
+
+  // todo: probs just cache users returned from tipping support api
+  yield* call(fetchUsers, userIds, new Set(), true)
+
+  const map: Record<string, Supporting> = {}
+  supportingList.forEach(supporting => {
+    const supportingUserId = decodeHashId(supporting.receiver.id)
+    if (supportingUserId) {
+      map[supportingUserId] = {
+        receiver_id: supportingUserId,
+        rank: supporting.rank,
+        amount: supporting.amount
+      }
+    }
+  })
+
+  yield put(
+    setSupportingForUser({
+      id: userId,
+      supportingForUser: map
+    })
+  )
 }
 
 function* watchFetchSupportingForUser() {

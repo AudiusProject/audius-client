@@ -38,6 +38,8 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
   const dispatch = useDispatch()
 
   const supportingMap = useSelector(getSupporting)
+  const hasNotPreviouslyFetchedSupportingForArtist =
+    supportingMap[user_id] === undefined
   const supportingForArtist = supportingMap[user_id] ?? {}
   const supportingForArtistIds = (Object.keys(
     supportingForArtist
@@ -65,10 +67,10 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
    * this artist is supporting. Thus, we fetch in this case.
    */
   useEffect(() => {
-    if (supportingForArtistIds.length === 0) {
+    if (hasNotPreviouslyFetchedSupportingForArtist) {
       dispatch(fetchSupportingForUser({ userId: user_id }))
     }
-  }, [dispatch, supportingForArtistIds.length, user_id])
+  }, [dispatch, hasNotPreviouslyFetchedSupportingForArtist, user_id])
 
   const handleClick = useCallback(() => {
     /**

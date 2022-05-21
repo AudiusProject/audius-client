@@ -6,7 +6,7 @@ import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import { AppState } from 'store/types'
 
-export type UserListProviderArgs<T> = {
+export type UserListProviderArgs<T, U = void> = {
   // Gets the track or playlist we're referencing.
   getExistingEntity: (state: AppState, props: { id: ID }) => T | null
 
@@ -22,7 +22,7 @@ export type UserListProviderArgs<T> = {
     offset: number
     entityId: ID
     currentUserId: ID | null
-  }) => Promise<{ users: UserMetadata[]; extra?: any }>
+  }) => Promise<{ users: UserMetadata[]; extra?: U }>
 
   includeCurrentUser: (entity: T) => boolean
 
@@ -33,7 +33,7 @@ export type UserListProviderArgs<T> = {
   // are there still more users we page to?
   canFetchMoreUsers: (entity: T, combinedUserIDs: ID[]) => boolean
 
-  processExtra?: (extra: any) => Generator<any, any, any>
+  processExtra?: (extra: U) => Generator<any, any, any>
 }
 
 // Helper function to provide users from multiple sources. Super useful
@@ -44,7 +44,7 @@ export type UserListProviderArgs<T> = {
 //
 // This is not included in the UserList fetching logic itself because UserList
 // should support usecases that don't require this type of combining logic.
-export function createUserListProvider<T>({
+export function createUserListProvider<T, U = void>({
   getExistingEntity,
   extractUserIDSubsetFromEntity,
   fetchAllUsersForEntity,
@@ -52,7 +52,7 @@ export function createUserListProvider<T>({
   selectCurrentUserIDsInList,
   canFetchMoreUsers,
   processExtra
-}: UserListProviderArgs<T>) {
+}: UserListProviderArgs<T, U>) {
   return function* userListProvider({
     id,
     currentPage,

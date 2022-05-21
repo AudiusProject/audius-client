@@ -37,7 +37,7 @@ export const TopSupporters = () => {
     : {}
   const rankedSupporters = useSelector<AppState, User[]>(state => {
     const usersMap = getUsers(state, {
-      ids: Object.keys(supportersForProfile).map(k => (k as unknown) as ID)
+      ids: (Object.keys(supportersForProfile) as unknown) as ID[]
     })
     return Object.keys(supportersForProfile)
       .sort((k1, k2) => {
