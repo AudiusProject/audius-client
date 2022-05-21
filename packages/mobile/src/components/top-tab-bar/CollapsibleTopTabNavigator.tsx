@@ -79,7 +79,6 @@ export const CollapsibleTabNavigator = ({
         animatedValue
       }}
       initialRouteName={initialScreenName}
-      // @ts-ignore
       tabBar={props => <TopTabBar {...props} />}
       screenOptions={{
         ...screenOptions
