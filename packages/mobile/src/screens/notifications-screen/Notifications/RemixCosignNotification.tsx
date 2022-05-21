@@ -4,11 +4,9 @@ import {
   getNotificationEntities,
   getNotificationUser
 } from 'audius-client/src/common/store/notifications/selectors'
-import {
-  RemixCreate,
-  TrackEntity
-} from 'audius-client/src/common/store/notifications/types'
+import { RemixCosign } from 'audius-client/src/common/store/notifications/types'
 import { isEqual } from 'lodash'
+import { View } from 'react-native'
 
 import IconRemix from 'app/assets/images/iconRemix.svg'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -20,58 +18,65 @@ import {
   NotificationTile,
   NotificationTitle,
   EntityLink,
-  UserNameLink
+  UserNameLink,
+  ProfilePicture
 } from '../Notification'
 import { useDrawerNavigation } from '../useDrawerNavigation'
 
 const messages = {
-  title: 'New Remix of Your Track',
-  by: 'by'
+  title: 'Remix Co-sign',
+  cosign: 'Co-signed your Remix of'
 }
 
-type RemixCreateNotificationProps = {
-  notification: RemixCreate
+type RemixCosignNotificationProps = {
+  notification: RemixCosign
 }
 
-export const RemixCreateNotification = (
-  props: RemixCreateNotificationProps
+export const RemixCosignNotification = (
+  props: RemixCosignNotificationProps
 ) => {
   const { notification } = props
   const navigation = useDrawerNavigation()
+  const { childTrackId } = notification
   const user = useSelectorWeb(state => getNotificationUser(state, notification))
   const tracks = useSelectorWeb(
     state => getNotificationEntities(state, notification),
     isEqual
   )
 
-  const track = tracks.find(
-    track => track.track_id === notification.childTrackId
-  ) as TrackEntity
+  const childTrack = tracks.find(({ track_id }) => track_id === childTrackId)
+  const parentTrack = tracks.find(({ track_id }) => track_id === childTrackId)
 
   const handlePress = useCallback(() => {
-    if (track) {
+    if (childTrack) {
       navigation.navigate({
         native: {
           screen: 'Track',
-          params: { id: track.track_id, fromNotifications: true }
+          params: { id: childTrack.track_id, fromNotifications: true }
         },
         web: {
-          route: getTrackRoute(track)
+          route: getTrackRoute(childTrack)
         }
       })
     }
-  }, [track, navigation])
+  }, [childTrack, navigation])
 
-  if (!user || !track) return null
+  if (!user || !childTrack || !parentTrack) return null
 
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconRemix}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
-      <NotificationText>
-        <EntityLink entity={track} /> {messages.by} <UserNameLink user={user} />
-      </NotificationText>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <ProfilePicture profile={user} />
+        <View style={{ flex: 1 }}>
+          <NotificationText>
+            <UserNameLink user={user} /> {messages.cosign}{' '}
+            <EntityLink entity={childTrack} />
+          </NotificationText>
+        </View>
+      </View>
     </NotificationTile>
   )
 }

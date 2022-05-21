@@ -20,7 +20,7 @@ import { IconRemix } from './components/icons'
 import { getTwitterHandleByUserHandle, getEntityLink } from './utils'
 
 const messages = {
-  title: 'New remix of your track',
+  title: 'New Remix of Your Track',
   by: 'by',
   shareTwitterText: (track: TrackEntity, handle: string) =>
     `New remix of ${track.title} by ${handle} on @AudiusProject #Audius`
