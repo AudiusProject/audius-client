@@ -1,6 +1,7 @@
 import React, { Component, Suspense } from 'react'
 
 import cn from 'classnames'
+import { NotificationPage } from 'components/notification/Notification'
 import { connect } from 'react-redux'
 import { matchPath } from 'react-router'
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
@@ -32,7 +33,6 @@ import { BACKGROUND_ELEMENT_ID as HEADER_BACKGROUND_GUTTER_ID } from 'components
 import { HeaderContextConsumer } from 'components/header/mobile/HeaderContextProvider'
 import Konami from 'components/konami/Konami'
 import Navigator from 'components/nav/Navigator'
-import { NotificationPage } from 'components/notification'
 import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackConfirmation'
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
 import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
@@ -145,9 +145,10 @@ import {
   CHECK_PAGE,
   getPathname,
   TRENDING_PLAYLISTS_PAGE_LEGACY,
-  DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
-  TOP_SUPPORTERS_USERS_ROUTE
+  TOP_SUPPORTERS_USERS_ROUTE,
+  AUDIO_NFT_PLAYLIST_PAGE,
+  DEACTIVATE_PAGE
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -157,6 +158,7 @@ import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
 import styles from './App.module.css'
+import { CollectiblesPlaylistPage } from './collectibles-playlist-page'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import FollowersPage from './followers-page/FollowersPage'
@@ -599,6 +601,11 @@ class App extends Component {
                 )}
               />
               <Route exact path={EXPLORE_PAGE} render={() => <ExplorePage />} />
+              <Route
+                exact
+                path={AUDIO_NFT_PLAYLIST_PAGE}
+                render={() => <CollectiblesPlaylistPage />}
+              />
               <Route
                 exact
                 path={EXPLORE_HEAVY_ROTATION_PAGE}

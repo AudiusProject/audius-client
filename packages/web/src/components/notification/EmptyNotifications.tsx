@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 
 import { ReactComponent as IconAnnouncement } from 'assets/img/iconAnnouncement.svg'
 
@@ -8,7 +8,7 @@ const messages = {
   empty: 'There’s Nothing Here Yet!'
 }
 
-export const EmptyNotifications = () => {
+const EmptyNotifications = () => {
   return (
     <div className={styles.emptyContainer}>
       <IconAnnouncement className={styles.icon} />
@@ -16,3 +16,5 @@ export const EmptyNotifications = () => {
     </div>
   )
 }
+
+export default memo(EmptyNotifications)
