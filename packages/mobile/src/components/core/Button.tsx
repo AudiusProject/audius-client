@@ -317,8 +317,6 @@ export const Button = (props: ButtonProps) => {
 
   const PressableComponent = url ? Link : Pressable
 
-  console.log(styles.root)
-
   return (
     <View
       style={rootHeightRef.current ? { height: rootHeightRef.current } : null}
