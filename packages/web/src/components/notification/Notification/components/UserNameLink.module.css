@@ -1,0 +1,29 @@
+.root {
+  font-size: var(--font-medium);
+  font-weight: var(--font-medium);
+  line-height: 21px;
+}
+
+.deactivated {
+  color: var(--neutral-light-1);
+  font-size: var(--font-s);
+}
+
+.link {
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--secondary);
+}
+
+.badges {
+  margin-left: var(--unit-1);
+}
+
+.badgesNoContent {
+  margin-left: 0;
+}
+
+.link:hover {
+  color: var(--secondary);
+  text-decoration: underline !important;
+}

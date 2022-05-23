@@ -1,0 +1,10 @@
+.link {
+  color: var(--secondary);
+  font-weight: var(--font-medium);
+  line-height: 21px;
+}
+
+.link:hover {
+  color: var(--secondary);
+  text-decoration: underline !important;
+}
