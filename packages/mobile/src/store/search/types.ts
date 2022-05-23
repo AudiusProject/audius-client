@@ -28,7 +28,7 @@ export type SearchUser = UserMultihash &
     blocknumber: number
     wallet: string
     created_at: string
-    current_user_followee_follow_count: boolean
+    current_user_followee_follow_count: number
     does_current_user_follow: boolean
     handle_lc: string
     is_creator: true
