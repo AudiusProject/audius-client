@@ -55,16 +55,11 @@ const chainLabelMap: Record<Chain, string> = {
 }
 
 const hasAudio = (video: HTMLMediaElement) => {
-  if (
-    typeof video.webkitAudioDecodedByteCount ||
-    video.mozHasAudio ||
-    // @ts-ignore TODO: @ray is this needed?
-    video.audioTracks !== 'undefined'
-  ) {
+  if (typeof video.webkitAudioDecodedByteCount || video.mozHasAudio) {
     if (
       video.webkitAudioDecodedByteCount > 0 ||
       video.mozHasAudio ||
-      (video.audioTracks && video.audioTracks.length)
+      video.audioTracks?.length
     ) {
       return true
     }
