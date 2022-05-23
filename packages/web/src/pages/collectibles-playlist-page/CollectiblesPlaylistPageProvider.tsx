@@ -9,6 +9,7 @@ import { useModalState } from 'common/hooks/useModalState'
 import { ShareSource } from 'common/models/Analytics'
 import { Chain } from 'common/models/Chain'
 import { Collectible } from 'common/models/Collectible'
+import { Collection, SmartCollection } from 'common/models/Collection'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
 import { User } from 'common/models/User'
@@ -35,6 +36,13 @@ import { CollectionPageProps as MobileCollectionPageProps } from '../collection-
 
 import styles from './CollectiblesPlaylistPage.module.css'
 
+declare global {
+  interface HTMLMediaElement {
+    webkitAudioDecodedByteCount: number
+    mozHasAudio: boolean
+  }
+}
+
 type CollectiblesPlaylistPageProviderProps = {
   children:
     | React.ComponentType<MobileCollectionPageProps>
@@ -50,6 +58,7 @@ const hasAudio = (video: HTMLMediaElement) => {
   if (
     typeof video.webkitAudioDecodedByteCount ||
     video.mozHasAudio ||
+    // @ts-ignore TODO: @ray is this needed?
     video.audioTracks !== 'undefined'
   ) {
     if (
@@ -117,38 +126,41 @@ export const CollectiblesPlaylistPageProvider = ({
 
       await Promise.all(
         filteredCollectibles.map(async collectible => {
-          if (collectible.animationUrl?.endsWith('mp4')) {
-            const v = document.createElement('video')
-            // Only fetch the metadata
-            v.src = collectible.animationUrl
-            v.muted = true
-            v.preload = 'metadata'
-            const duration: number = await new Promise(resolve => {
-              v.onloadedmetadata = () => {
-                resolve(v.duration)
+          if (collectible.animationUrl) {
+            if (collectible.animationUrl?.endsWith('mp4')) {
+              const v = document.createElement('video')
+              // Only fetch the metadata
+              v.src = collectible.animationUrl
+              v.muted = true
+              v.preload = 'metadata'
+              const duration: number = await new Promise(resolve => {
+                v.onloadedmetadata = () => {
+                  resolve(v.duration)
+                }
+              })
+              v.play()
+              await sleep(200)
+              const videoHasAudio = hasAudio(v)
+              // Stop the buffering of the video
+              v.src = ''
+              v.load()
+              if (!videoHasAudio) {
+                return null
               }
-            })
-            v.play()
-            await sleep(200)
-            const videoHasAudio = hasAudio(v)
-            // Stop the buffering of the video
-            v.src = ''
-            v.load()
-            if (!videoHasAudio) {
-              return null
+              collectible.duration = duration
+            } else {
+              const a = new Audio()
+              // Only fetch the metadata
+              a.preload = 'metadata'
+              a.src = collectible.animationUrl
+
+              const duration: number = await new Promise(resolve => {
+                a.onloadedmetadata = () => {
+                  resolve(a.duration)
+                }
+              })
+              collectible.duration = duration
             }
-            collectible.duration = duration
-          } else {
-            const a = new Audio()
-            // Only fetch the metadata
-            a.preload = 'metadata'
-            a.src = collectible.animationUrl
-            const duration: number = await new Promise(resolve => {
-              a.onloadedmetadata = () => {
-                resolve(a.duration)
-              }
-            })
-            collectible.duration = duration
           }
           if (collectible) {
             setAudioCollectibles(currentCollectibles => [
@@ -275,8 +287,8 @@ export const CollectiblesPlaylistPageProvider = ({
       return trackMetadatas.map((metadata, i) => ({
         ...metadata,
         ...metadata.collectible,
-        key: `${metadata.collectible.name}_${metadata.uid}_${i}`,
-        name: metadata.collectible.name,
+        key: `${metadata.collectible?.name}_${metadata.uid}_${i}`,
+        name: metadata.collectible?.name as string,
         artist: '',
         handle: '',
         date: metadata.dateAdded || metadata.created_at,
@@ -375,18 +387,19 @@ export const CollectiblesPlaylistPageProvider = ({
     }
   }
 
-  const metadata = {
+  const metadata: SmartCollection | Collection = {
     ...AUDIO_NFT_PLAYLIST,
     playlist_name: title,
     description: AUDIO_NFT_PLAYLIST.makeDescription?.(user?.name) ?? '',
     playlist_contents: {
-      track_ids: entries.map(entry => ({ track: entry.id }))
+      track_ids: entries.map(entry => ({
+        track: entry.id
+      }))
     },
-    imageOverride:
-      audioCollectibles?.[0]?.imageUrl ??
+    imageOverride: (audioCollectibles?.[0]?.imageUrl ??
       audioCollectibles?.[0]?.frameUrl ??
-      audioCollectibles?.[0]?.gifUrl,
-    typeTitle: 'Audio NFT Playlist',
+      audioCollectibles?.[0]?.gifUrl) as string | undefined,
+    typeTitle: 'Audio NFT Playlist' as const,
     customEmptyText: user
       ? `There are no playable audio NFTs in any wallets connected to ${user.name}`
       : ''
@@ -398,7 +411,7 @@ export const CollectiblesPlaylistPageProvider = ({
     canonicalUrl: '',
     playlistId: SmartCollectionVariant.AUDIO_NFT_PLAYLIST,
     playing,
-    type: 'playlist',
+    type: 'playlist' as const,
     collection: {
       status: tracksLoading ? Status.LOADING : Status.SUCCESS,
       metadata,
@@ -406,7 +419,7 @@ export const CollectiblesPlaylistPageProvider = ({
     },
     tracks: {
       status: !fetchResolved ? Status.LOADING : Status.SUCCESS,
-      entries
+      entries: (entries as unknown) as CollectionTrack[]
     },
     columns,
     getPlayingUid: getPlayingUid,
@@ -420,5 +433,6 @@ export const CollectiblesPlaylistPageProvider = ({
     onHeroTrackClickArtistName
   }
 
+  // @ts-ignore TODO: remove provider pattern
   return <Children {...childProps} />
 }

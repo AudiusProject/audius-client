@@ -59,21 +59,21 @@ export type CollectionPageProps = {
     entries: CollectionTrack[]
   }
   columns?: any
-  userId: ID | null
-  userPlaylists: any
+  userId?: ID | null
+  userPlaylists?: any
   isQueued: () => boolean
   onHeroTrackClickArtistName: () => void
   onPlay: (record: TrackRecord) => void
   onHeroTrackShare: (record: TrackRecord) => void
-  onHeroTrackSave: (record: TrackRecord) => void
-  onClickRow: (record: TrackRecord) => void
-  onClickSave: (record: TrackRecord) => void
+  onHeroTrackSave?: (record: TrackRecord) => void
+  onClickRow: (record: TrackRecord, index: number) => void
+  onClickSave?: (record: TrackRecord) => void
   allowReordering: boolean
   getFilteredData: (trackMetadata: CollectionTrack[]) => [TrackRecord[], number]
   onFilterChange: (evt: React.ChangeEvent<HTMLInputElement>) => void
   onHeroTrackEdit: () => void
   onPublish: () => void
-  onHeroTrackRepost: any
+  onHeroTrackRepost?: any
   onClickTrackName: (record: TrackRecord) => void
   onClickArtistName: (record: TrackRecord) => void
   onClickRepostTrack: (record: TrackRecord) => void
@@ -87,8 +87,8 @@ export type CollectionPageProps = {
   ) => void
   onFollow: () => void
   onUnfollow: () => void
-  onClickReposts: () => void
-  onClickFavorites: () => void
+  onClickReposts?: () => void
+  onClickFavorites?: () => void
   onClickDescriptionExternalLink: (e: any) => void
 }
 

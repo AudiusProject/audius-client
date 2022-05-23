@@ -199,8 +199,8 @@ const NowPlaying = g(
       displayInfo = track
     } else {
       displayInfo = {
-        title: collectible?.name,
-        track_id: collectible?.id,
+        title: collectible?.name as string,
+        track_id: collectible?.id as string,
         owner_id: user?.user_id,
         _cover_art_sizes: {
           [SquareSizes.SIZE_480_BY_480]:
@@ -264,19 +264,19 @@ const NowPlaying = g(
     }
 
     const toggleFavorite = useCallback(() => {
-      if (track && track_id) {
+      if (track && track_id && typeof track_id !== 'string') {
         has_current_user_saved ? unsave(track_id) : save(track_id)
       }
     }, [track, track_id, has_current_user_saved, unsave, save])
 
     const toggleRepost = useCallback(() => {
-      if (track && track_id) {
+      if (track && track_id && typeof track_id !== 'string') {
         has_current_user_reposted ? undoRepost(track_id) : repost(track_id)
       }
     }, [track, track_id, has_current_user_reposted, undoRepost, repost])
 
     const onShare = useCallback(() => {
-      if (track) share(track_id)
+      if (track && track_id && typeof track_id !== 'string') share(track_id)
     }, [share, track, track_id])
 
     const goToTrackPage = () => {
@@ -312,11 +312,13 @@ const NowPlaying = g(
         collectible && OverflowAction.VIEW_COLLECTIBLE_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
       ].filter(Boolean) as OverflowAction[]
+
       const overflowCallbacks = {
         [OverflowAction.VIEW_TRACK_PAGE]: onClose,
         [OverflowAction.VIEW_COLLECTIBLE_PAGE]: onClose,
         [OverflowAction.VIEW_ARTIST_PAGE]: onClose
       }
+
       clickOverflow(track_id, overflowActions, overflowCallbacks)
     }, [
       currentUserId,
@@ -565,7 +567,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     undoRepost: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.NOW_PLAYING)),
     clickOverflow: (
-      trackId: ID,
+      trackId: ID | string,
       overflowActions: OverflowAction[],
       callbacks: OverflowActionCallbacks
     ) =>

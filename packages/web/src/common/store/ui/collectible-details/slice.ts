@@ -5,9 +5,9 @@ import { ID } from 'common/models/Identifiers'
 
 export type CollectibleDetailsState = {
   collectible: Collectible | null
-  ownerId?: ID | null
-  ownerHandle?: string | null
-  embedCollectibleHash?: string | null
+  ownerId: ID | null
+  ownerHandle: string | null
+  embedCollectibleHash: string | null
   isUserOnTheirProfile: boolean
   // Optional Callbacks
   updateProfilePicture?: (
@@ -27,11 +27,13 @@ const initialState: CollectibleDetailsState = {
   isUserOnTheirProfile: false
 }
 
+type SetCollectibleAction = Partial<CollectibleDetailsState>
+
 const slice = createSlice({
   name: 'collectible-details',
   initialState,
   reducers: {
-    setCollectible: (state, action: PayloadAction<CollectibleDetailsState>) => {
+    setCollectible: (state, action: PayloadAction<SetCollectibleAction>) => {
       const {
         collectible,
         ownerId,

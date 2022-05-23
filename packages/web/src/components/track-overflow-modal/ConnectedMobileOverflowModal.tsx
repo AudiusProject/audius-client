@@ -241,6 +241,7 @@ const getAdditionalInfo = ({
   id: ID | string | null
   source: OverflowSource
 }): {
+  id?: string
   handle?: string
   artistName?: string
   title?: string

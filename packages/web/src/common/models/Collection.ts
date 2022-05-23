@@ -15,7 +15,7 @@ export enum Variant {
 }
 
 type PlaylistContents = {
-  track_ids: Array<{ time: number; track: ID }>
+  track_ids: Array<{ time: number; track: ID } | { track: string }>
 }
 
 export type CollectionMetadata = {

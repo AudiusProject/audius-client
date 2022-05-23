@@ -166,7 +166,7 @@ const CollectibleDetailsModal = ({
   onClose
 }: {
   isMobile: boolean
-  handle?: string
+  handle: string | null
   onSave?: () => void
   updateProfilePicture?: (
     selectedFiles: any,

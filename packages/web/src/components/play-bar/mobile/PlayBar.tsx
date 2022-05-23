@@ -85,18 +85,19 @@ const PlayBar = ({
 
   if (!audio || ((!uid || !track) && !collectible) || !user) return null
 
-  let title, track_id, has_current_user_saved, _co_sign
-  if (track) {
-    title = track.title
-    track_id = track.track_id
-    has_current_user_saved = track.has_current_user_saved
-    _co_sign = track._co_sign
-  } else if (collectible) {
-    title = collectible.name
-    track_id = collectible.id
-    has_current_user_saved = false
-    _co_sign = null
+  const getDisplayInfo = () => {
+    if (track && !collectible) {
+      return track
+    }
+    return {
+      title: collectible?.name,
+      track_id: collectible?.id,
+      has_current_user_saved: false,
+      _co_sign: null
+    }
   }
+
+  const { title, track_id, has_current_user_saved, _co_sign } = getDisplayInfo()
 
   const { name } = user
 
@@ -130,7 +131,7 @@ const PlayBar = ({
   }
 
   const toggleFavorite = () => {
-    if (track && track_id) {
+    if (track && track_id && typeof track_id === 'number') {
       has_current_user_saved ? unsave(track_id) : save(track_id)
     }
   }

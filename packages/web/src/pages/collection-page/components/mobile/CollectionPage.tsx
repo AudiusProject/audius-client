@@ -45,7 +45,7 @@ export type CollectionPageProps = {
   title: string
   description: string
   canonicalUrl: string
-  playlistId: ID
+  playlistId: ID | SmartCollectionVariant
   playing: boolean
   getPlayingUid: () => string | null
   type: CollectionsPageType
@@ -58,23 +58,23 @@ export type CollectionPageProps = {
     status: string
     entries: CollectionTrack[]
   }
-  userId: ID | null
-  userPlaylists: any
+  userId?: ID | null
+  userPlaylists?: any
   isQueued: () => boolean
   onHeroTrackClickArtistName: () => void
   onPlay: (record: any) => void
   onHeroTrackShare: () => void
-  onHeroTrackSave: () => void
-  onHeroTrackRepost: () => void
+  onHeroTrackSave?: () => void
+  onHeroTrackRepost?: () => void
   onClickRow: (record: any) => void
-  onClickSave: (record: any) => void
-  onClickMobileOverflow: (
+  onClickSave?: (record: any) => void
+  onClickMobileOverflow?: (
     collectionId: ID,
     overflowActions: OverflowAction[]
   ) => void
-  onClickFavorites: () => void
-  onClickReposts: () => void
-  refresh: () => void
+  onClickFavorites?: () => void
+  onClickReposts?: () => void
+  refresh?: () => void
 }
 
 const CollectionPage = ({
@@ -177,19 +177,24 @@ const CollectionPage = ({
 
   const togglePlay = (uid: string, trackId: ID) => {
     if (playlistId === SmartCollectionVariant.AUDIO_NFT_PLAYLIST) {
-      const { collectible } = tracks.entries.find(track => track.uid === uid)
-      onClickRow({
-        ...collectible,
-        uid: collectible.id,
-        track_id: collectible.id
-      })
+      const track = tracks.entries.find(track => track.uid === uid)
+
+      if (track?.collectible) {
+        const { collectible } = track
+
+        onClickRow({
+          ...collectible,
+          uid: collectible.id,
+          track_id: collectible.id
+        })
+      }
     } else {
       onClickRow({ uid, track_id: trackId })
     }
   }
   const onSave = (isSaved: boolean, trackId: number) => {
     if (!isOwner) {
-      onClickSave({ has_current_user_saved: isSaved, track_id: trackId })
+      onClickSave?.({ has_current_user_saved: isSaved, track_id: trackId })
     }
   }
 
