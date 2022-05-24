@@ -1,10 +1,9 @@
-.wrapper {
-  justify-content: center;
+body {
   background: var(--static-white);
 }
 
-.logoContainer {
-  background: var(--static-white);
+.wrapper {
+  justify-content: center;
 }
 
 .centeredContent {
@@ -85,7 +84,9 @@
   color: var(--neutral-light-2);
 }
 
-.userInfoContainer {
+.userInfoContainer,
+.signInFormContainer {
+  padding-bottom: var(--unit-8);
   margin-top: var(--unit-8);
 }
 
@@ -115,7 +116,18 @@
 
 .linkButton {
   cursor: pointer;
-  border: 0;
+  border: 1px solid transparent;
+  padding: 0;
+  display: inline;
+  height: auto;
+  vertical-align: baseline;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline-style: none;
+  outline-width: 0px;
+  /* Add padding bottom because Safari has issue where it clips off the bottom of the text otherwise */
+  padding-bottom: 2px;
   background: none;
   color: var(--secondary);
   font-size: var(--font-s);
@@ -123,8 +135,9 @@
   line-height: 100%;
 }
 
-.linkButton:hover {
-  color: var(--secondary-dark-1);
+.linkButton:hover,
+.linkButton:active {
+  color: var(--secondary-dark-2);
 }
 
 .ctaButton {
@@ -140,14 +153,11 @@
   margin-right: var(--unit-2);
   display: inline-block;
   height: var(--font-m);
+  width: var(--font-m);
 }
 
 .permissionTextExtraLight {
   color: var(--neutral-light-4);
-}
-
-.signInFormContainer {
-  margin-top: var(--unit-8);
 }
 
 .passwordInput {

@@ -265,13 +265,11 @@ export const OAuthLoginPage = () => {
       <div className={styles.wrapper}>
         <div className={styles.container}>
           <div className={styles.centeredContent}>
-            <div className={styles.logoContainer}>
-              <img
-                src={HorizontalLogo}
-                className={styles.logo}
-                alt='Audius Logo'
-              />
-            </div>
+            <img
+              src={HorizontalLogo}
+              className={styles.logo}
+              alt='Audius Logo'
+            />
           </div>
           <div className={cn(styles.centeredContent, styles.titleContainer)}>
             <span className={styles.errorText}>{queryParamsError}</span>
@@ -353,7 +351,7 @@ export const OAuthLoginPage = () => {
                     [styles.permissionTextExtraLight]: !userEmail
                   })}
                 >
-                  {userEmail || (
+                  {!userEmail || (
                     <>
                       <LoadingSpinner className={styles.loadingSpinner} /> Email
                       loading...
