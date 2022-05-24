@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import { FollowSource } from 'audius-client/src/common/models/Analytics'
 import { User } from 'audius-client/src/common/models/User'
+import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { Pressable, View, Animated } from 'react-native'
 
 import IconUser from 'app/assets/images/iconUser.svg'
@@ -14,6 +15,7 @@ import {
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useColorAnimation } from 'app/hooks/usePressColorAnimation'
+import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
@@ -66,15 +68,21 @@ type UserListItemProps = {
 
 export const UserListItem = (props: UserListItemProps) => {
   const { user } = props
-  const { handle, name, follower_count, does_follow_current_user } = user
+  const {
+    user_id,
+    handle,
+    name,
+    follower_count,
+    does_follow_current_user
+  } = user
+  const currentUserId = useSelectorWeb(getUserId)
   const styles = useStyles()
+  const navigation = useNavigation()
   const { white, neutralLight10 } = useThemeColors()
   const { color, handlePressIn, handlePressOut } = useColorAnimation(
     white,
     neutralLight10
   )
-
-  const navigation = useNavigation()
 
   const handlePress = useCallback(() => {
     navigation.push({
@@ -116,12 +124,14 @@ export const UserListItem = (props: UserListItemProps) => {
             </View>
           </View>
         </View>
-        <FollowButton
-          profile={user}
-          followSource={FollowSource.USER_LIST}
-          fullWidth
-          corners='pill'
-        />
+        {currentUserId !== user_id ? (
+          <FollowButton
+            profile={user}
+            followSource={FollowSource.USER_LIST}
+            fullWidth
+            corners='pill'
+          />
+        ) : null}
       </Pressable>
     </Animated.View>
   )
