@@ -1,19 +1,16 @@
-.tooltip {
-  --tooltip-background-color: var(--secondary-transparent);
-  z-index: 10000;
-}
-
-.nonWrappingTooltip:global(.ant-tooltip) {
+.nonWrappingTooltip {
   max-width: none;
 }
 
-.tooltip :global(.ant-tooltip-inner) {
+.tooltip {
+  z-index: 10000;
   color: var(--static-white);
   font-family: var(--font-family);
   font-size: var(--font-xs);
   font-weight: var(--font-medium);
   user-select: none;
   text-transform: none;
+  border-radius: 4px;
 }
 
 .tooltip :global(.ant-tooltip-inner) {

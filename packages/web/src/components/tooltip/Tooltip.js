@@ -4,10 +4,15 @@ import AntTooltip from 'antd/lib/tooltip'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
+import { getCurrentThemeColors } from 'utils/theme/theme'
+
 import styles from './Tooltip.module.css'
+
+const themeColors = getCurrentThemeColors()
 
 export const Tooltip = props => {
   const [hideTooltip, setHideTooltip] = useState(false)
+
   useEffect(() => {
     if (hideTooltip) {
       const hideTooltipTimeout = setTimeout(() => {
@@ -20,6 +25,7 @@ export const Tooltip = props => {
   const {
     mount,
     text,
+    color,
     placement,
     children,
     disabled,
@@ -51,6 +57,7 @@ export const Tooltip = props => {
       {...visibleProps}
       placement={placement}
       title={text}
+      color={color}
       getPopupContainer={popupContainer}
       overlayClassName={cn(styles.tooltip, className, {
         [styles.nonWrappingTooltip]: !shouldWrapContent
@@ -68,6 +75,9 @@ Tooltip.propTypes = {
   // Background color can be changed by overriding
   // `--tooltip-background-color` CSS variable
   className: PropTypes.string,
+  // Color from theme
+  // Use getThemeColors to pass in a theme color
+  color: PropTypes.string,
   // Text to appear in tooltip
   text: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   // Whether the tooltip gets mounted.
@@ -98,6 +108,7 @@ Tooltip.propTypes = {
 }
 
 Tooltip.defaultProps = {
+  color: themeColors['--secondary-transparent'],
   text: '',
   disabled: false,
   mount: 'page',
