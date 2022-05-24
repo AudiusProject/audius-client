@@ -25,13 +25,11 @@ export const Tip = (props: TipProps) => {
   return (
     <View style={styles.root}>
       <IconTip fill={neutralLight4} height={14} width={14} />
-      <Text color='neutralLight4'>
+      <Text color='neutralLight4' weight='bold'>
         {' '}
-        <Text color='inherit' weight='bold'>
-          {amount}
-        </Text>{' '}
-        <Audio color='inherit' />
+        {amount}{' '}
       </Text>
+      <Audio color='neutralLight4' />
     </View>
   )
 }
