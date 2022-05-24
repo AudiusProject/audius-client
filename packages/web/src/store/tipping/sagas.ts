@@ -13,6 +13,7 @@ import {
   confirmSendTip,
   convert,
   fetchRecentTips,
+  fetchSupportersForUser,
   fetchSupportingForUser,
   refreshSupport,
   RefreshSupportPayloadAction,
@@ -176,8 +177,7 @@ function* refreshSupportAsync({
       )
     ]
 
-    // todo: probs just cache users returned from tipping support api
-    // todo: also, should maybe poll here if right after successful tipping?
+    // todo: should maybe poll here if right after successful tipping?
     yield call(fetchUsers, userIds, new Set(), true)
 
     const supportingForSenderMap: Record<string, Supporting> = {}
@@ -229,6 +229,9 @@ function* fetchSupportingForUserAsync({
     return
   }
 
+  // todo: neeed to also get whether logged in user is supporting this user
+  // so that we can have correct 'become top supporter' logic
+  // as-is, cannot rely on response becauseof pagination
   const supportingList = yield* call(fetchSupporting, {
     encodedUserId,
     limit: MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
@@ -237,7 +240,6 @@ function* fetchSupportingForUserAsync({
     decodeHashId(supporting.receiver.id)
   )
 
-  // todo: probs just cache users returned from tipping support api
   yield call(fetchUsers, userIds, new Set(), true)
 
   const map: Record<string, Supporting> = {}
@@ -256,6 +258,49 @@ function* fetchSupportingForUserAsync({
     setSupportingForUser({
       id: userId,
       supportingForUser: map
+    })
+  )
+}
+
+function* fetchSupportersForUserAsync({
+  payload: { userId }
+}: {
+  payload: { userId: ID }
+  type: string
+}) {
+  const encodedUserId = encodeHashId(userId)
+  if (!encodedUserId) {
+    return
+  }
+
+  // todo: neeed to also get whether this user is supported by logged in user
+  // so that we can have correct 'become top supporter' logic
+  // as-is, cannot rely on response because of pagination
+  const supporters = yield* call(fetchSupporters, {
+    encodedUserId
+  })
+  const userIds = supporters.map(supporter =>
+    decodeHashId(supporter.sender.id)
+  )
+
+  yield call(fetchUsers, userIds, new Set(), true)
+
+  const map: Record<string, Supporter> = {}
+  supporters.forEach(supporter => {
+    const supporterUserId = decodeHashId(supporter.sender.id)
+    if (supporterUserId) {
+      map[supporterUserId] = {
+        sender_id: supporterUserId,
+        rank: supporter.rank,
+        amount: supporter.amount
+      }
+    }
+  })
+
+  yield put(
+    setSupportersForUser({
+      id: userId,
+      supportersForUser: map
     })
   )
 }
@@ -316,7 +361,8 @@ function* fetchRecentTipsAsync() {
         [recentTip.sender_id, recentTip.receiver_id, ...recentTip.followee_supporter_ids]
       )
     ]
-    yield call(fetchUsers, userIds)
+    yield call(fetchUsers, userIds, new Set(), true)
+    yield put(refreshSupport({ senderUserId: account.user_id, receiverUserId: recentTip.receiver_id }))
     yield put(setRecentTip({ recentTip }))
   }
   yield put(setRecentTips({ recentTips }))
@@ -324,6 +370,10 @@ function* fetchRecentTipsAsync() {
 
 function* watchFetchSupportingForUser() {
   yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
+}
+
+function* watchFetchSupportersForUser() {
+  yield* takeEvery(fetchSupportersForUser.type, fetchSupportersForUserAsync)
 }
 
 function* watchRefreshSupport() {
@@ -339,7 +389,7 @@ function* watchFetchRecentTips() {
 }
 
 const sagas = () => {
-  return [watchFetchSupportingForUser, watchRefreshSupport, watchConfirmSendTip, watchFetchRecentTips]
+  return [watchFetchSupportingForUser, watchFetchSupportersForUser, watchRefreshSupport, watchConfirmSendTip, watchFetchRecentTips]
 }
 
 export default sagas

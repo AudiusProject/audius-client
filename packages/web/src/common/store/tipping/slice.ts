@@ -25,7 +25,8 @@ const initialState: TippingState = {
     error: null
   },
   recentTips: [],
-  recentTip: null
+  recentTip: null,
+  showRecentTip: true
 }
 
 const slice = createSlice({
@@ -63,6 +64,10 @@ const slice = createSlice({
       action: PayloadAction<RefreshSupportPayloadAction>
     ) => {},
     fetchSupportingForUser: (
+      state,
+      action: PayloadAction<{ userId: ID }>
+    ) => {},
+    fetchSupportersForUser: (
       state,
       action: PayloadAction<{ userId: ID }>
     ) => {},
@@ -117,6 +122,9 @@ const slice = createSlice({
       action: PayloadAction<{ recentTip: UserTip }>
     ) => {
       state.recentTip = action.payload.recentTip
+    },
+    hideRecentTip: state => {
+      state.showRecentTip = false
     }
   }
 })
@@ -126,6 +134,7 @@ export const {
   setSupportersForUser,
   refreshSupport,
   fetchSupportingForUser,
+  fetchSupportersForUser,
   beginTip,
   sendTip,
   confirmSendTip,
@@ -135,7 +144,8 @@ export const {
   resetSend,
   fetchRecentTips,
   setRecentTips,
-  setRecentTip
+  setRecentTip,
+  hideRecentTip
 } = slice.actions
 
 export default slice.reducer

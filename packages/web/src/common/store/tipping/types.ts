@@ -47,4 +47,5 @@ export type TippingState = {
   },
   recentTips: UserTip[]
   recentTip: Nullable<UserTip>
+  showRecentTip: boolean
 }
