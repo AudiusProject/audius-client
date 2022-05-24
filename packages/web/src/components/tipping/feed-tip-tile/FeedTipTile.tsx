@@ -16,6 +16,10 @@ import { AppState } from 'store/types'
 import { Button } from '@audius/stems'
 import { dismissRecentTip } from 'store/tipping/utils'
 import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
+import { FeatureFlags } from 'common/services/remote-config'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+
+const { getFeatureEnabled } = remoteConfigInstance
 
 const messages = {
   wasTippedBy: 'Was Tipped By',
@@ -108,6 +112,8 @@ const DismissTipButton = () => {
 }
 
 export const FeedTipTile = () => {
+  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+
   const dispatch = useDispatch()
   const recentTip = useSelector(getRecentTip)
   const tipperIds = recentTip
@@ -121,7 +127,7 @@ export const FeedTipTile = () => {
     dispatch(fetchRecentTips())
   }, [dispatch])
 
-  return recentTip && Object.keys(usersMap).length === tipperIds.length ? (
+  return isTippingEnabled && recentTip && Object.keys(usersMap).length === tipperIds.length ? (
     <div className={styles.container}>
       <div className={styles.usersContainer}>
         <ProfilePicture
