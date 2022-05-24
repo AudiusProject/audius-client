@@ -35,6 +35,8 @@ import { CollectionPageProps as MobileCollectionPageProps } from '../collection-
 
 import styles from './CollectiblesPlaylistPage.module.css'
 
+const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+
 type CollectiblesPlaylistPageProviderProps = {
   children:
     | React.ComponentType<MobileCollectionPageProps>
@@ -65,9 +67,6 @@ const hasAudio = (video: HTMLMediaElement) => {
 
 const getCurrent = makeGetCurrent()
 
-const sleep = (time: number) =>
-  new Promise(resolve => setTimeout(resolve, time))
-
 export const CollectiblesPlaylistPageProvider = ({
   children: Children
 }: CollectiblesPlaylistPageProviderProps) => {
@@ -89,74 +88,100 @@ export const CollectiblesPlaylistPageProvider = ({
   const user = useSelector<AppState, User | null>(state =>
     getUser(state, { handle: routeMatch?.params.handle ?? null })
   )
-  const collectibleIds = Object.keys(user?.collectibles ?? {})
-  const order = user?.collectibles?.order ?? []
 
   const [audioCollectibles, setAudioCollectibles] = useState<Collectible[]>([])
-  const [fetchResolved, setFetchResolved] = useState(false)
+  const firstLoadedCollectible = useRef<Collectible>()
   const hasFetchedCollectibles = useRef(false)
   const [hasFetchedAllCollectibles, setHasFetchedAllCollectibles] = useState(
     false
   )
   useEffect(() => {
     const asyncFn = async (cs: Collectible[]) => {
-      const sortedCollectibles = cs
-        .filter(c =>
-          collectibleIds.length ? collectibleIds.includes(c.id) : true
-        )
-        // Sort by user collectibles order
-        .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+      const collectibleIds = Object.keys(user?.collectibles ?? {})
+      const order = user?.collectibles?.order
 
-      const filteredCollectibles = sortedCollectibles.filter(
-        c =>
-          c.hasAudio ||
-          ['mp3', 'wav', 'oga', 'mp4'].some(ext =>
-            c.animationUrl?.endsWith(ext)
-          )
-      )
+      /**
+       * Filter by the user's order if it exists.
+       * This is to hide the hidden items
+       */
+      const isInUserOrder = (c: Collectible) => {
+        if (order?.length) {
+          return order.includes(c.id)
+        } else if (collectibleIds.length) {
+          return collectibleIds.includes(c.id)
+        }
+        return true
+      }
+
+      const potentiallyHasAudio = (c: Collectible) =>
+        c.hasAudio ||
+        ['mp3', 'wav', 'oga', 'mp4'].some(ext => c.animationUrl?.endsWith(ext))
+
+      const filteredAndSortedCollectibles = cs
+        .filter(c => isInUserOrder(c) && potentiallyHasAudio(c))
+        // Sort by user collectibles order
+        .sort((a, b) => (order ? order.indexOf(a.id) - order.indexOf(b.id) : 0))
 
       await Promise.all(
-        filteredCollectibles.map(async collectible => {
+        filteredAndSortedCollectibles.map(async (collectible, index) => {
           if (collectible.animationUrl?.endsWith('mp4')) {
             const v = document.createElement('video')
-            // Only fetch the metadata
-            v.src = collectible.animationUrl
             v.muted = true
-            v.preload = 'metadata'
-            const duration: number = await new Promise(resolve => {
+            const duration: Promise<number> = new Promise(resolve => {
+              setTimeout(() => resolve(0), 60000)
               v.onloadedmetadata = () => {
                 resolve(v.duration)
               }
             })
-            v.play()
-            await sleep(200)
-            const videoHasAudio = hasAudio(v)
+
+            v.preload = 'metadata'
+            v.src = collectible.animationUrl
+            collectible.duration = await duration
+            v.play().catch(e => console.log('video error', e))
+
+            const videoHasAudio = await new Promise(resolve => {
+              const timeout = 5000
+              const interval = 200
+              const checkForAudio = (timer = 0) => {
+                if (hasAudio(v)) {
+                  resolve(true)
+                } else {
+                  if (timer < timeout) {
+                    setTimeout(() => checkForAudio(timer + interval), interval)
+                  } else {
+                    resolve(false)
+                  }
+                }
+              }
+              checkForAudio()
+            })
+
             // Stop the buffering of the video
             v.src = ''
             v.load()
             if (!videoHasAudio) {
               return null
             }
-            collectible.duration = duration
           } else {
             const a = new Audio()
-            // Only fetch the metadata
-            a.preload = 'metadata'
-            a.src = collectible.animationUrl
-            const duration: number = await new Promise(resolve => {
+            const duration: Promise<number> = new Promise(resolve => {
+              setTimeout(() => resolve(0), 60000)
               a.onloadedmetadata = () => {
                 resolve(a.duration)
               }
             })
-            collectible.duration = duration
+            a.preload = 'metadata'
+            a.src = collectible.animationUrl ?? ''
+            collectible.duration = await duration
           }
           if (collectible) {
-            setAudioCollectibles(currentCollectibles => [
-              ...currentCollectibles,
-              collectible
-            ])
-            if (!fetchResolved) {
-              setFetchResolved(true)
+            setAudioCollectibles(currentCollectibles => {
+              const newCollectibles = [...currentCollectibles]
+              newCollectibles[index] = collectible
+              return newCollectibles
+            })
+            if (!firstLoadedCollectible.current) {
+              firstLoadedCollectible.current = collectible
             }
           }
           return collectible
@@ -165,25 +190,30 @@ export const CollectiblesPlaylistPageProvider = ({
       setHasFetchedAllCollectibles(true)
     }
 
-    const cs = [
-      ...(user?.collectibleList ?? []),
-      ...(user?.solanaCollectibleList ?? [])
-    ]
-    if (user?.collectibleList && !hasFetchedCollectibles.current) {
+    if (
+      !IS_NATIVE_MOBILE &&
+      user?.collectibleList &&
+      (user?.collectibles || user?.collectiblesOrderUnset) &&
+      !hasFetchedCollectibles.current
+    ) {
+      const cs = [
+        ...(user?.collectibleList ?? []),
+        ...(user?.solanaCollectibleList ?? [])
+      ]
       asyncFn(cs)
       hasFetchedCollectibles.current = true
     }
   }, [
-    order,
-    collectibleIds,
     user,
     setAudioCollectibles,
     hasFetchedCollectibles,
-    fetchResolved,
+    firstLoadedCollectible,
     setHasFetchedAllCollectibles
   ])
 
-  const title = `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
+  const title = user
+    ? `${user?.name} ${SmartCollectionVariant.AUDIO_NFT_PLAYLIST}`
+    : SmartCollectionVariant.AUDIO_NFT_PLAYLIST
 
   useEffect(() => {
     if (routeMatch?.params.handle) {
@@ -198,20 +228,27 @@ export const CollectiblesPlaylistPageProvider = ({
   const isPlayingACollectible = useMemo(
     () =>
       audioCollectibles.some(
-        collectible => collectible.id === currentPlayerItem?.collectible?.id
+        collectible =>
+          collectible && collectible.id === currentPlayerItem?.collectible?.id
       ),
     [audioCollectibles, currentPlayerItem]
   )
 
-  const entries = audioCollectibles.map(collectible => ({
-    track_id: collectible.id,
-    id: collectible.id,
-    uid: collectible.id,
-    artistId: user?.user_id,
-    collectible,
-    title: collectible.name,
-    source: Source.COLLECTIBLE_PLAYLIST_TRACKS
-  }))
+  const firstCollectible = useMemo(() => audioCollectibles.find(c => c), [
+    audioCollectibles
+  ])
+
+  const entries = audioCollectibles
+    .filter(c => c)
+    .map(collectible => ({
+      track_id: collectible.id,
+      id: collectible.id,
+      uid: collectible.id,
+      artistId: user?.user_id,
+      collectible,
+      title: collectible.name,
+      source: Source.COLLECTIBLE_PLAYLIST_TRACKS
+    }))
 
   const onClickRow = (collectible: Collectible, index: number) => {
     if (playing && collectible.id === currentPlayerItem?.collectible?.id) {
@@ -258,7 +295,7 @@ export const CollectiblesPlaylistPageProvider = ({
           index: 0
         })
       )
-      dispatch(play({ collectible: audioCollectibles[0] }))
+      dispatch(play({ collectible: firstCollectible }))
     }
   }
 
@@ -358,7 +395,7 @@ export const CollectiblesPlaylistPageProvider = ({
       key: 'time',
       className: 'colTime',
       render: (val: string, record: Collectible) => (
-        <div>{formatSeconds(record.duration || 0)}</div>
+        <div>{record.duration ? formatSeconds(record.duration) : '--'}</div>
       )
     }
   ]
@@ -383,9 +420,9 @@ export const CollectiblesPlaylistPageProvider = ({
       track_ids: entries.map(entry => ({ track: entry.id }))
     },
     imageOverride:
-      audioCollectibles?.[0]?.imageUrl ??
-      audioCollectibles?.[0]?.frameUrl ??
-      audioCollectibles?.[0]?.gifUrl,
+      firstLoadedCollectible.current?.imageUrl ??
+      firstLoadedCollectible.current?.frameUrl ??
+      firstLoadedCollectible.current?.gifUrl,
     typeTitle: 'Audio NFT Playlist',
     customEmptyText: user
       ? `There are no playable audio NFTs in any wallets connected to ${user.name}`
@@ -405,7 +442,7 @@ export const CollectiblesPlaylistPageProvider = ({
       user
     },
     tracks: {
-      status: !fetchResolved ? Status.LOADING : Status.SUCCESS,
+      status: !firstLoadedCollectible.current ? Status.LOADING : Status.SUCCESS,
       entries
     },
     columns,
