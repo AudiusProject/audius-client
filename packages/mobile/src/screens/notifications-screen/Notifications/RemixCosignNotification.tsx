@@ -37,7 +37,7 @@ export const RemixCosignNotification = (
 ) => {
   const { notification } = props
   const navigation = useDrawerNavigation()
-  const { childTrackId } = notification
+  const { childTrackId, parentTrackUserId } = notification
   const user = useSelectorWeb(state => getNotificationUser(state, notification))
   const tracks = useSelectorWeb(
     state => getNotificationEntities(state, notification),
@@ -45,7 +45,9 @@ export const RemixCosignNotification = (
   )
 
   const childTrack = tracks.find(({ track_id }) => track_id === childTrackId)
-  const parentTrack = tracks.find(({ track_id }) => track_id === childTrackId)
+  const parentTrack = tracks.find(
+    ({ owner_id }) => owner_id === parentTrackUserId
+  )
 
   const handlePress = useCallback(() => {
     if (childTrack) {
@@ -73,7 +75,7 @@ export const RemixCosignNotification = (
         <View style={{ flex: 1 }}>
           <NotificationText>
             <UserNameLink user={user} /> {messages.cosign}{' '}
-            <EntityLink entity={childTrack} />
+            <EntityLink entity={parentTrack} />
           </NotificationText>
         </View>
       </View>

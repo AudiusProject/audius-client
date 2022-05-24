@@ -8,10 +8,9 @@ import {
   RemixCreate,
   TrackEntity
 } from 'audius-client/src/common/store/notifications/types'
-import { isEqual } from 'lodash'
 
 import IconRemix from 'app/assets/images/iconRemix.svg'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
 import { getTrackRoute } from 'app/utils/routes'
 
 import {
@@ -37,6 +36,7 @@ export const RemixCreateNotification = (
   props: RemixCreateNotificationProps
 ) => {
   const { notification } = props
+  const { childTrackId, parentTrackId } = notification
   const navigation = useDrawerNavigation()
   const user = useSelectorWeb(state => getNotificationUser(state, notification))
   const tracks = useSelectorWeb(
@@ -44,33 +44,42 @@ export const RemixCreateNotification = (
     isEqual
   )
 
-  const track = tracks.find(
-    track => track.track_id === notification.childTrackId
-  ) as TrackEntity
+  const childTrack = tracks?.find(
+    (track): track is TrackEntity =>
+      'track_id' in track && track.track_id === childTrackId
+  )
+
+  const parentTrack = tracks?.find(
+    (track): track is TrackEntity =>
+      'track_id' in track && track.track_id === parentTrackId
+  )
 
   const handlePress = useCallback(() => {
-    if (track) {
+    if (childTrack) {
       navigation.navigate({
         native: {
           screen: 'Track',
-          params: { id: track.track_id, fromNotifications: true }
+          params: { id: childTrack.track_id, fromNotifications: true }
         },
         web: {
-          route: getTrackRoute(track)
+          route: getTrackRoute(childTrack)
         }
       })
     }
-  }, [track, navigation])
+  }, [childTrack, navigation])
 
-  if (!user || !track) return null
+  if (!user || !childTrack || !parentTrack) return null
 
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconRemix}>
-        <NotificationTitle>{messages.title}</NotificationTitle>
+        <NotificationTitle>
+          {messages.title} <EntityLink entity={parentTrack} />
+        </NotificationTitle>
       </NotificationHeader>
       <NotificationText>
-        <EntityLink entity={track} /> {messages.by} <UserNameLink user={user} />
+        <EntityLink entity={childTrack} /> {messages.by}{' '}
+        <UserNameLink user={user} />
       </NotificationText>
     </NotificationTile>
   )

@@ -16,6 +16,10 @@ import { getUserRoute } from 'app/utils/routes'
 import { getUserListRoute } from '../routeUtil'
 import { useDrawerNavigation } from '../useDrawerNavigation'
 
+/**
+ * onPress handler for social notifications that opens user-lists when notification
+ * has multiple users, and opens user profile when just one.
+ */
 export const useSocialActionHandler = (
   notification: Follow | Repost | Favorite,
   users: User[]
