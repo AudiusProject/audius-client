@@ -39,6 +39,7 @@ import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
 import { MAX_ARTIST_HOVER_TOP_SUPPORTING } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
+
 import { getMinSlotForRecentTips, checkRecentTip } from './utils'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
@@ -279,9 +280,7 @@ function* fetchSupportersForUserAsync({
   const supporters = yield* call(fetchSupporters, {
     encodedUserId
   })
-  const userIds = supporters.map(supporter =>
-    decodeHashId(supporter.sender.id)
-  )
+  const userIds = supporters.map(supporter => decodeHashId(supporter.sender.id))
 
   yield call(fetchUsers, userIds, new Set(), true)
 
@@ -319,7 +318,7 @@ function* fetchRecentTipsAsync() {
   const params: UserTipRequest = {
     userId: encodedUserId,
     currentUserFollows: 'receiver',
-    uniqueBy: 'receiver',
+    uniqueBy: 'receiver'
   }
   const minSlot = getMinSlotForRecentTips()
   if (minSlot) {
@@ -357,12 +356,19 @@ function* fetchRecentTipsAsync() {
   const recentTip = checkRecentTip({ userId: account.user_id, recentTips })
   if (recentTip) {
     const userIds = [
-      ...new Set(
-        [recentTip.sender_id, recentTip.receiver_id, ...recentTip.followee_supporter_ids]
-      )
+      ...new Set([
+        recentTip.sender_id,
+        recentTip.receiver_id,
+        ...recentTip.followee_supporter_ids
+      ])
     ]
     yield call(fetchUsers, userIds, new Set(), true)
-    yield put(refreshSupport({ senderUserId: account.user_id, receiverUserId: recentTip.receiver_id }))
+    yield put(
+      refreshSupport({
+        senderUserId: account.user_id,
+        receiverUserId: recentTip.receiver_id
+      })
+    )
     yield put(setRecentTip({ recentTip }))
   }
   yield put(setRecentTips({ recentTips }))
@@ -389,7 +395,13 @@ function* watchFetchRecentTips() {
 }
 
 const sagas = () => {
-  return [watchFetchSupportingForUser, watchFetchSupportersForUser, watchRefreshSupport, watchConfirmSendTip, watchFetchRecentTips]
+  return [
+    watchFetchSupportingForUser,
+    watchFetchSupportersForUser,
+    watchRefreshSupport,
+    watchConfirmSendTip,
+    watchFetchRecentTips
+  ]
 }
 
 export default sagas

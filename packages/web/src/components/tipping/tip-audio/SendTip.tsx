@@ -12,7 +12,11 @@ import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
-import { getSendUser, getSupporters, getSupporting } from 'common/store/tipping/selectors'
+import {
+  getSendUser,
+  getSupporters,
+  getSupporting
+} from 'common/store/tipping/selectors'
 import { sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'

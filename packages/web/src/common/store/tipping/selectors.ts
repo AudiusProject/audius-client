@@ -16,4 +16,5 @@ export const getSendTipData = (state: CommonState) => state.tipping.send
 
 export const getRecentTips = (state: CommonState) => state.tipping.recentTips
 export const getRecentTip = (state: CommonState) => state.tipping.recentTip
-export const getShowRecentTip = (state: CommonState) => state.tipping.showRecentTip
+export const getShowRecentTip = (state: CommonState) =>
+  state.tipping.showRecentTip

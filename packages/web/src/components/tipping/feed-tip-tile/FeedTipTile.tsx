@@ -1,23 +1,27 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
+import { Button } from '@audius/stems'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
+import { FeatureFlags } from 'common/services/remote-config'
+import { getUsers } from 'common/store/cache/users/selectors'
+import { getRecentTip } from 'common/store/tipping/selectors'
+import {
+  beginTip,
+  fetchRecentTips,
+  hideRecentTip
+} from 'common/store/tipping/slice'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import UserBadges from 'components/user-badges/UserBadges'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { dismissRecentTip } from 'store/tipping/utils'
+import { AppState } from 'store/types'
 import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
 
 import styles from './FeedTipTile.module.css'
-import { useDispatch, useSelector } from 'react-redux'
-import { useEffect } from 'react'
-import { beginTip, fetchRecentTips, hideRecentTip } from 'common/store/tipping/slice'
-import { getRecentTip } from 'common/store/tipping/selectors'
-import { getUsers } from 'common/store/cache/users/selectors'
-import { AppState } from 'store/types'
-import { Button } from '@audius/stems'
-import { dismissRecentTip } from 'store/tipping/utils'
-import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
-import { FeatureFlags } from 'common/services/remote-config'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 const { getFeatureEnabled } = remoteConfigInstance
 
@@ -49,7 +53,7 @@ const Tippers = ({ tippers }: TippersProps) => (
           inline
         />
         {index < tippers.length - 1 &&
-          index < NUM_FEED_TIPPERS_DISPLAYED - 1 ? (
+        index < NUM_FEED_TIPPERS_DISPLAYED - 1 ? (
           <div className={styles.tipperSeparator}>,</div>
         ) : null}
       </div>
@@ -67,10 +71,10 @@ type SendTipToButtonProps = {
 }
 const SendTipToButton = ({ user }: SendTipToButtonProps) => {
   const dispatch = useDispatch()
- 
+
   const handleClick = useCallback(() => {
     dispatch(beginTip({ user }))
-  }, [])
+  }, [dispatch, user])
 
   return (
     <div>
@@ -102,7 +106,7 @@ const DismissTipButton = () => {
   const handleClick = useCallback(() => {
     dismissRecentTip()
     dispatch(hideRecentTip())
-  }, [])
+  }, [dispatch])
 
   return (
     <div className={styles.dismissButton} onClick={handleClick}>
@@ -117,7 +121,11 @@ export const FeedTipTile = () => {
   const dispatch = useDispatch()
   const recentTip = useSelector(getRecentTip)
   const tipperIds = recentTip
-    ? [recentTip.sender_id, recentTip.receiver_id, ...recentTip.followee_supporter_ids]
+    ? [
+        recentTip.sender_id,
+        recentTip.receiver_id,
+        ...recentTip.followee_supporter_ids
+      ]
     : []
   const usersMap = useSelector<AppState, { [id: number]: User }>(state =>
     getUsers(state, { ids: recentTip ? tipperIds : [] })
@@ -127,7 +135,9 @@ export const FeedTipTile = () => {
     dispatch(fetchRecentTips())
   }, [dispatch])
 
-  return isTippingEnabled && recentTip && Object.keys(usersMap).length === tipperIds.length ? (
+  return isTippingEnabled &&
+    recentTip &&
+    Object.keys(usersMap).length === tipperIds.length ? (
     <div className={styles.container}>
       <div className={styles.usersContainer}>
         <ProfilePicture

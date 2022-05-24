@@ -1,7 +1,7 @@
-import { ID } from "common/models/Identifiers"
-import { UserTip } from "common/models/Tipping"
-import { Nullable } from "common/utils/typeUtils"
-import { FEED_TIP_DISMISSAL_TIME_LIMIT } from "utils/constants"
+import { ID } from 'common/models/Identifiers'
+import { UserTip } from 'common/models/Tipping'
+import { Nullable } from 'common/utils/typeUtils'
+import { FEED_TIP_DISMISSAL_TIME_LIMIT } from 'utils/constants'
 
 const RECENT_TIPS_KEY = 'recent-tips'
 
@@ -85,7 +85,9 @@ export const checkRecentTip = ({
    * Also update local storage if some tip is returned.
    */
   if (storage.dismissed) {
-    const ownTip = sortedTips.find(tip => tip.sender_id === userId && tip.slot > storage.minSlot)
+    const ownTip = sortedTips.find(
+      tip => tip.sender_id === userId && tip.slot > storage.minSlot
+    )
     if (ownTip) {
       const newStorage = {
         minSlot: ownTip.slot,
@@ -107,8 +109,14 @@ export const checkRecentTip = ({
       return oldestValidTip
     }
 
-    if (storage.lastDismissalTimestamp && Date.now() - storage.lastDismissalTimestamp > FEED_TIP_DISMISSAL_TIME_LIMIT) {
-      const oldestValidTip = sortedTips.find(tip => tip.slot === storage.minSlot)
+    if (
+      storage.lastDismissalTimestamp &&
+      Date.now() - storage.lastDismissalTimestamp >
+        FEED_TIP_DISMISSAL_TIME_LIMIT
+    ) {
+      const oldestValidTip = sortedTips.find(
+        tip => tip.slot === storage.minSlot
+      )
       if (oldestValidTip) {
         const newStorage = {
           minSlot: oldestValidTip.slot,
@@ -133,7 +141,9 @@ export const checkRecentTip = ({
    *
    * Also update local storage if some tip is returned.
    */
-  const ownTip = sortedTips.find(tip => tip.sender_id === userId && tip.slot >= storage.minSlot)
+  const ownTip = sortedTips.find(
+    tip => tip.sender_id === userId && tip.slot >= storage.minSlot
+  )
   if (ownTip) {
     const newStorage = {
       minSlot: ownTip.slot,

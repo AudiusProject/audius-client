@@ -6,7 +6,6 @@ import { Supporter, Supporting, UserTip } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei } from 'common/models/Wallet'
 import { TippingState } from 'common/store/tipping/types'
-import { Nullable } from 'common/utils/typeUtils'
 
 export type RefreshSupportPayloadAction = {
   senderUserId: ID
@@ -117,10 +116,7 @@ const slice = createSlice({
     ) => {
       state.recentTips = action.payload.recentTips
     },
-    setRecentTip: (
-      state,
-      action: PayloadAction<{ recentTip: UserTip }>
-    ) => {
+    setRecentTip: (state, action: PayloadAction<{ recentTip: UserTip }>) => {
       state.recentTip = action.payload.recentTip
     },
     hideRecentTip: state => {

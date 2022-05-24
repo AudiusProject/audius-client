@@ -44,7 +44,7 @@ export type TippingState = {
     user: Nullable<User>
     amount: BNWei
     error: Nullable<string>
-  },
+  }
   recentTips: UserTip[]
   recentTip: Nullable<UserTip>
   showRecentTip: boolean

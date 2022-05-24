@@ -1,6 +1,4 @@
-import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting, UserTip } from 'common/models/Tipping'
-import { StringWei } from 'common/models/Wallet'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 
 export const TIPPING_SUPPORT_DEFAULT_LIMIT = 25
@@ -123,9 +121,7 @@ export const fetchRecentUserTips = async ({
         minSlot,
         maxSlot,
         txSignatures
-      }}. Error: ${
-        (e as Error).message
-      }`
+      }}. Error: ${(e as Error).message}`
     )
     return []
   }
