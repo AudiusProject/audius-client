@@ -126,9 +126,8 @@ export const SendTip = () => {
   const handleTipAmountChange = useCallback(
     (value: string) => {
       setTipAmount(value as StringAudio)
-      setAmountToTipToBecomeTopSupporter(null)
     },
-    [setTipAmount, setAmountToTipToBecomeTopSupporter]
+    [setTipAmount]
   )
 
   /**

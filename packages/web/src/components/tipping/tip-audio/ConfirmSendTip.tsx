@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
-import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getSendAmount, getSendStatus, getSendUser } from 'common/store/tipping/selectors'
 import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import { formatWei } from 'common/utils/wallet'

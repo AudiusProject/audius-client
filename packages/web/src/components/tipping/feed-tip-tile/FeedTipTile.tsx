@@ -1,8 +1,7 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
-import { getAccountUser } from 'common/store/account/selectors'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import UserBadges from 'components/user-badges/UserBadges'
 import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
@@ -14,8 +13,7 @@ import { beginTip, fetchRecentTips, hideRecentTip } from 'common/store/tipping/s
 import { getRecentTip } from 'common/store/tipping/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { AppState } from 'store/types'
-import { Button, ButtonType } from '@audius/stems'
-import cn from 'classnames'
+import { Button } from '@audius/stems'
 import { dismissRecentTip } from 'store/tipping/utils'
 import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
 
@@ -74,7 +72,7 @@ const SendTipToButton = ({ user }: SendTipToButtonProps) => {
     <div>
       <Button
         className={styles.sendTipButton}
-        // todo: update button type or see if button design
+        // todo: move to stems or see if button design
         // already exists elsewhere
         text={
           <div className={styles.sendTipButtonText}>
