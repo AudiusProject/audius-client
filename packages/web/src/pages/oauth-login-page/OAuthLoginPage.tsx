@@ -12,7 +12,7 @@ import base64url from 'base64url'
 import cn from 'classnames'
 import * as queryString from 'query-string'
 import { useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
 import { User } from 'common/models/User'
@@ -71,6 +71,7 @@ const CTAButton = ({
 
 export const OAuthLoginPage = () => {
   const { search } = useLocation()
+  const history = useHistory()
   const { scope, state, redirect_uri, app_name } = queryString.parse(search)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -94,7 +95,7 @@ export const OAuthLoginPage = () => {
         email = await AudiusBackend.getUserEmail()
       } catch {
         setUserEmail(null)
-        window.location.href = ERROR_PAGE
+        history.push(ERROR_PAGE)
         return
       }
       setUserEmail(email)
@@ -104,7 +105,7 @@ export const OAuthLoginPage = () => {
     } else {
       setUserEmail(null)
     }
-  }, [isLoggedIn])
+  }, [history, isLoggedIn])
 
   const [emailInput, setEmailInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
@@ -169,6 +170,7 @@ export const OAuthLoginPage = () => {
       try {
         email = await AudiusBackend.getUserEmail()
       } catch {
+        history.push(ERROR_PAGE)
         return
       }
     } else {
