@@ -22,3 +22,6 @@ export const getRecipientSPLWallet = (state: CommonState) => {
   }
   return null
 }
+
+export const getRecentTips = (state: CommonState) => state.tipping.recentTips
+export const getRecentTip = (state: CommonState) => state.tipping.recentTip
