@@ -2,10 +2,7 @@ import { useCallback } from 'react'
 
 import { FollowSource } from 'audius-client/src/common/models/Analytics'
 import { User } from 'audius-client/src/common/models/User'
-<<<<<<< HEAD
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
-=======
->>>>>>> 7ee63639 (Add press handler and animation)
 import { Pressable, View, Animated } from 'react-native'
 
 import IconUser from 'app/assets/images/iconUser.svg'
@@ -18,10 +15,7 @@ import {
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useColorAnimation } from 'app/hooks/usePressColorAnimation'
-<<<<<<< HEAD
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-=======
->>>>>>> 7ee63639 (Add press handler and animation)
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
@@ -83,13 +77,12 @@ export const UserListItem = (props: UserListItemProps) => {
   } = user
   const currentUserId = useSelectorWeb(getUserId)
   const styles = useStyles()
+  const navigation = useNavigation()
   const { white, neutralLight10 } = useThemeColors()
   const { color, handlePressIn, handlePressOut } = useColorAnimation(
     white,
     neutralLight10
   )
-
-  const navigation = useNavigation()
 
   const handlePress = useCallback(() => {
     navigation.push({
