@@ -351,7 +351,7 @@ export const OAuthLoginPage = () => {
                     [styles.permissionTextExtraLight]: !userEmail
                   })}
                 >
-                  {!userEmail || (
+                  {userEmail || (
                     <>
                       <LoadingSpinner className={styles.loadingSpinner} /> Email
                       loading...
