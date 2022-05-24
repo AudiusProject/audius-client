@@ -93,38 +93,32 @@ export const fetchRecentUserTips = async ({
   maxSlot,
   txSignatures
 }: UserTipRequest): Promise<UserTipResponse[]> => {
+  await waitForLibsInit()
+  const queryParams = {
+    user_id: userId,
+    limit,
+    offset,
+    receiver_min_followers: receiverMinFollowers,
+    receiver_is_verififed: receiverIsVerified,
+    current_user_follows: currentUserFollows,
+    unique_by: uniqueBy,
+    min_slot: minSlot,
+    max_slot: maxSlot,
+    tx_signatures: txSignatures
+  }
   try {
-    await waitForLibsInit()
     const response = await libs().discoveryProvider._makeRequest({
       endpoint: `/v1/full/tips`,
-      queryParams: {
-        user_id: userId,
-        limit,
-        offset,
-        receiver_min_followers: receiverMinFollowers,
-        receiver_is_verififed: receiverIsVerified,
-        current_user_follows: currentUserFollows,
-        unique_by: uniqueBy,
-        min_slot: minSlot,
-        max_slot: maxSlot,
-        tx_signatures: txSignatures
-      }
+      queryParams
     })
     return response
   } catch (e) {
     console.error(
-      `Could not fetch recent tips for ${{
-        userId,
-        limit,
-        offset,
-        receiverMinFollowers,
-        receiverIsVerified,
-        currentUserFollows,
-        uniqueBy,
-        minSlot,
-        maxSlot,
-        txSignatures
-      }}. Error: ${(e as Error).message}`
+      `Could not fetch recent tips for ${JSON.stringify(
+        queryParams,
+        null,
+        2
+      )}. Error: ${(e as Error).message}`
     )
     return []
   }

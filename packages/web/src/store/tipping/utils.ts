@@ -34,7 +34,7 @@ export const getDismissedSlotForRecentTips = () => {
   return storage ? storage.dismissed : null
 }
 
-export const checkRecentTip = ({
+export const checkTipToDisplay = ({
   userId,
   recentTips
 }: {

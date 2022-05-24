@@ -24,8 +24,8 @@ const initialState: TippingState = {
     error: null
   },
   recentTips: [],
-  recentTip: null,
-  showRecentTip: true
+  tipToDisplay: null,
+  showTip: true
 }
 
 const slice = createSlice({
@@ -116,11 +116,11 @@ const slice = createSlice({
     ) => {
       state.recentTips = action.payload.recentTips
     },
-    setRecentTip: (state, action: PayloadAction<{ recentTip: UserTip }>) => {
-      state.recentTip = action.payload.recentTip
+    setRecentTip: (state, action: PayloadAction<{ tipToDisplay: UserTip }>) => {
+      state.tipToDisplay = action.payload.tipToDisplay
     },
-    hideRecentTip: state => {
-      state.showRecentTip = false
+    hideTip: state => {
+      state.showTip = false
     }
   }
 })
@@ -141,7 +141,7 @@ export const {
   fetchRecentTips,
   setRecentTips,
   setRecentTip,
-  hideRecentTip
+  hideTip
 } = slice.actions
 
 export default slice.reducer

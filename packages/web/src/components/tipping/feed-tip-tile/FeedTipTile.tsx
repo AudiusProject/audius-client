@@ -8,12 +8,8 @@ import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
-import { getRecentTip } from 'common/store/tipping/selectors'
-import {
-  beginTip,
-  fetchRecentTips,
-  hideRecentTip
-} from 'common/store/tipping/slice'
+import { getTipToDisplay } from 'common/store/tipping/selectors'
+import { beginTip, fetchRecentTips, hideTip } from 'common/store/tipping/slice'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import UserBadges from 'components/user-badges/UserBadges'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
@@ -41,6 +37,7 @@ const WasTippedBy = () => (
 type TippersProps = {
   tippers: User[]
 }
+
 const Tippers = ({ tippers }: TippersProps) => (
   <div className={styles.tippers}>
     {tippers.slice(0, NUM_FEED_TIPPERS_DISPLAYED).map((tipper, index) => (
@@ -69,6 +66,7 @@ const Tippers = ({ tippers }: TippersProps) => (
 type SendTipToButtonProps = {
   user: User
 }
+
 const SendTipToButton = ({ user }: SendTipToButtonProps) => {
   const dispatch = useDispatch()
 
@@ -105,7 +103,7 @@ const DismissTipButton = () => {
 
   const handleClick = useCallback(() => {
     dismissRecentTip()
-    dispatch(hideRecentTip())
+    dispatch(hideTip())
   }, [dispatch])
 
   return (
@@ -119,16 +117,16 @@ export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
   const dispatch = useDispatch()
-  const recentTip = useSelector(getRecentTip)
-  const tipperIds = recentTip
+  const tipToDisplay = useSelector(getTipToDisplay)
+  const tipperIds = tipToDisplay
     ? [
-        recentTip.sender_id,
-        recentTip.receiver_id,
-        ...recentTip.followee_supporter_ids
+        tipToDisplay.sender_id,
+        tipToDisplay.receiver_id,
+        ...tipToDisplay.followee_supporter_ids
       ]
     : []
   const usersMap = useSelector<AppState, { [id: number]: User }>(state =>
-    getUsers(state, { ids: recentTip ? tipperIds : [] })
+    getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
   )
 
   useEffect(() => {
@@ -136,21 +134,21 @@ export const FeedTipTile = () => {
   }, [dispatch])
 
   return isTippingEnabled &&
-    recentTip &&
+    tipToDisplay &&
     Object.keys(usersMap).length === tipperIds.length ? (
     <div className={styles.container}>
       <div className={styles.usersContainer}>
         <ProfilePicture
-          key={recentTip.receiver_id}
+          key={tipToDisplay.receiver_id}
           className={styles.profilePicture}
-          user={usersMap[recentTip.receiver_id]}
+          user={usersMap[tipToDisplay.receiver_id]}
           disableClick
           disablePopover
         />
         <div className={styles.name}>
-          <span>{usersMap[recentTip.receiver_id].name}</span>
+          <span>{usersMap[tipToDisplay.receiver_id].name}</span>
           <UserBadges
-            userId={recentTip.receiver_id}
+            userId={tipToDisplay.receiver_id}
             className={styles.badge}
             badgeSize={10}
             inline
@@ -158,13 +156,16 @@ export const FeedTipTile = () => {
         </div>
         <WasTippedBy />
         <Tippers
-          tippers={[recentTip.sender_id, ...recentTip.followee_supporter_ids]
+          tippers={[
+            tipToDisplay.sender_id,
+            ...tipToDisplay.followee_supporter_ids
+          ]
             .map(id => usersMap[id])
             .filter((user): user is User => !!user)}
         />
       </div>
       <div className={styles.buttons}>
-        <SendTipToButton user={usersMap[recentTip.receiver_id]} />
+        <SendTipToButton user={usersMap[tipToDisplay.receiver_id]} />
         <DismissTipButton />
       </div>
     </div>

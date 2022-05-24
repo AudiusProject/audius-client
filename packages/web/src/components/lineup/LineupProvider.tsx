@@ -14,7 +14,7 @@ import Kind from 'common/models/Kind'
 import { Lineup } from 'common/models/Lineup'
 import Status from 'common/models/Status'
 import { LineupActions } from 'common/store/lineup/actions'
-import { getShowRecentTip } from 'common/store/tipping/selectors'
+import { getShowTip } from 'common/store/tipping/selectors'
 import { FeedTipTile } from 'components/tipping/feed-tip-tile/FeedTipTile'
 import {
   TrackTileProps,
@@ -478,7 +478,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
       numPlaylistSkeletonRows,
       isTrending = false,
       isFeed = false,
-      showRecentTip,
+      showTip,
       rankIconCount = 0
     } = this.props
     const status = lineup.status
@@ -773,7 +773,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
               threshold={loadMoreThreshold}
               element='ol'
             >
-              {isFeed && showRecentTip ? <FeedTipTile /> : null}
+              {isFeed && showTip ? <FeedTipTile /> : null}
               {tiles.map((tile, index) => (
                 <li key={index}>{tile}</li>
               ))}
@@ -789,7 +789,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
 function mapStateToProps(state: AppState) {
   return {
     isMobile: isMobile(),
-    showRecentTip: getShowRecentTip(state)
+    showTip: getShowTip(state)
   }
 }
 

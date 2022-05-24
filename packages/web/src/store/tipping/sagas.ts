@@ -40,7 +40,7 @@ import { make } from 'store/analytics/actions'
 import { MAX_ARTIST_HOVER_TOP_SUPPORTING } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
-import { getMinSlotForRecentTips, checkRecentTip } from './utils'
+import { getMinSlotForRecentTips, checkTipToDisplay } from './utils'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
@@ -353,23 +353,26 @@ function* fetchRecentTipsAsync() {
     })
     .filter((userTip): userTip is UserTip => !!userTip)
 
-  const recentTip = checkRecentTip({ userId: account.user_id, recentTips })
-  if (recentTip) {
+  const tipToDisplay = checkTipToDisplay({
+    userId: account.user_id,
+    recentTips
+  })
+  if (tipToDisplay) {
     const userIds = [
       ...new Set([
-        recentTip.sender_id,
-        recentTip.receiver_id,
-        ...recentTip.followee_supporter_ids
+        tipToDisplay.sender_id,
+        tipToDisplay.receiver_id,
+        ...tipToDisplay.followee_supporter_ids
       ])
     ]
     yield call(fetchUsers, userIds, new Set(), true)
     yield put(
       refreshSupport({
         senderUserId: account.user_id,
-        receiverUserId: recentTip.receiver_id
+        receiverUserId: tipToDisplay.receiver_id
       })
     )
-    yield put(setRecentTip({ recentTip }))
+    yield put(setRecentTip({ tipToDisplay }))
   }
   yield put(setRecentTips({ recentTips }))
 }

@@ -46,6 +46,6 @@ export type TippingState = {
     error: Nullable<string>
   }
   recentTips: UserTip[]
-  recentTip: Nullable<UserTip>
-  showRecentTip: boolean
+  tipToDisplay: Nullable<UserTip>
+  showTip: boolean
 }
