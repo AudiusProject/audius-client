@@ -6,6 +6,7 @@ import 'assets/styles/fonts.css'
 import 'assets/styles/sizes.css'
 import 'assets/styles/animations.css'
 import 'react-perfect-scrollbar/dist/css/styles.css'
+import 'assets/styles/transforms.css'
 
 // Default to docs view
 addParameters({

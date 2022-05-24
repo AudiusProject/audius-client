@@ -2,6 +2,7 @@ import './assets/styles/sizes.css'
 import './assets/styles/fonts.css'
 import './assets/styles/colors.css'
 import './assets/styles/animations.css'
+import './assets/styles/transforms.css'
 
 export * from './components/Icons'
 
