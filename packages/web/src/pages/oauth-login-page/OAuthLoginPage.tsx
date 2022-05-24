@@ -46,7 +46,8 @@ const messages = {
     'Whoops, this is an invalid link (redirect URI missing or invalid).',
   missingAppNameError: 'Whoops, this is an invalid link (app name missing).',
   scopeError: `Whoops, this is an invalid link (scope missing or invalid - only the 
-    "read" scope is available).`
+    "read" scope is available).`,
+  missingFieldError: 'Whoops, you must enter both your email and password.'
 }
 
 const CTAButton = ({
@@ -222,6 +223,10 @@ export const OAuthLoginPage = () => {
   const handleSignInFormSubmit = async (e: FormEvent) => {
     e.preventDefault()
     clearErrors()
+    if (!emailInput || !passwordInput) {
+      setGeneralSubmitError(messages.missingFieldError)
+      return
+    }
     setIsSubmitting(true)
     let signInResponse: any
     try {
@@ -401,6 +406,7 @@ export const OAuthLoginPage = () => {
                 type='email'
                 name='email'
                 id='email-input'
+                required
                 autoComplete='username'
                 value={emailInput}
                 onChange={setEmailInput}
@@ -411,6 +417,7 @@ export const OAuthLoginPage = () => {
                 size='medium'
                 name='password'
                 id='password-input'
+                required
                 autoComplete='current-password'
                 value={passwordInput}
                 type='password'
