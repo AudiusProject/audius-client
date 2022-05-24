@@ -69,7 +69,6 @@
 }
 
 .sendTipButton {
-  /* max-width: 340px; */
   height: unset !important;
   margin-left: 8px;
   padding: 10px 0;

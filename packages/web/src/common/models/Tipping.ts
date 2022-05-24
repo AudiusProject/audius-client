@@ -15,8 +15,6 @@ export type Supporting = {
 
 export type UserTip = {
   amount: StringWei
-  // todo: I think we should revisit our UserMetadata, User, APIUser models
-  // seems a bit off now and kind of confusing
   sender_id: ID
   receiver_id: ID
   followee_supporter_ids: ID[]

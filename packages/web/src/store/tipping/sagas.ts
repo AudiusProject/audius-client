@@ -230,9 +230,9 @@ function* fetchSupportingForUserAsync({
     return
   }
 
-  // todo: neeed to also get whether logged in user is supporting this user
+  // todo: need to also get whether logged in user is supporting this user
   // so that we can have correct 'become top supporter' logic
-  // as-is, cannot rely on response becauseof pagination
+  // as-is, cannot rely on response because of pagination
   const supportingList = yield* call(fetchSupporting, {
     encodedUserId,
     limit: MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
@@ -274,7 +274,7 @@ function* fetchSupportersForUserAsync({
     return
   }
 
-  // todo: neeed to also get whether this user is supported by logged in user
+  // todo: need to also get whether this user is supported by logged in user
   // so that we can have correct 'become top supporter' logic
   // as-is, cannot rely on response because of pagination
   const supporters = yield* call(fetchSupporters, {
