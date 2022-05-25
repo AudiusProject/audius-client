@@ -1,7 +1,7 @@
 mobile-init:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:14.19
   steps:
     - checkout
     - run:
@@ -47,7 +47,7 @@ mobile-init:
 mobile-build-production-web-app:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:14.19
   resource_class: xlarge
   steps:
     - mobile-build-web-app:
@@ -56,7 +56,7 @@ mobile-build-production-web-app:
 mobile-build-staging-web-app:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:14.19
   resource_class: xlarge
   steps:
     - mobile-build-web-app:
