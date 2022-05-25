@@ -6,9 +6,6 @@ export const TIPPING_SUPPORT_DEFAULT_LIMIT = 25
 // @ts-ignore
 const libs = () => window.audiusLibs
 
-// todo: I think we should revisit our UserMetadata, User, APIUser models
-// seems a bit off now and kind of confusing, reason why I have any types below
-
 export type SupportingResponse = Omit<Supporter, 'receiver_id'> & {
   receiver: any
 }
