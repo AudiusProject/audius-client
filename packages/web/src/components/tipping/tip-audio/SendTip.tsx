@@ -111,6 +111,7 @@ export const SendTip = () => {
       rankedSupportersList.length > 0 ? rankedSupportersList[0] : null
 
     if (theTopSupporter) {
+      setIsFirstSupporter(false)
       setTopSupporter(theTopSupporter)
     } else {
       setIsFirstSupporter(true)

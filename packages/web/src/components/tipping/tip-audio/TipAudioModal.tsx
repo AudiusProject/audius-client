@@ -3,8 +3,8 @@ import React, { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
 
-import { ReactComponent as IconGoldBadge } from 'assets/img/IconGoldBadge.svg'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
+import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import { useSelector } from 'common/hooks/useSelector'
 import { getSendStatus } from 'common/store/tipping/selectors'
 import { resetSend } from 'common/store/tipping/slice'
@@ -27,19 +27,37 @@ const messages = {
 const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
   SEND: (
     <div className={styles.tipIconTextContainer}>
-      <IconGoldBadge width={24} height={24} />
+      <img
+        draggable={false}
+        alt=''
+        src={IconGoldBadge as string}
+        width={24}
+        height={24}
+      />
       <span className={styles.tipText}>{messages.sendATip}</span>
     </div>
   ),
   CONFIRM: (
     <div className={styles.tipIconTextContainer}>
-      <IconGoldBadge width={24} height={24} />
+      <img
+        draggable={false}
+        alt=''
+        src={IconGoldBadge as string}
+        width={24}
+        height={24}
+      />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
   SENDING: (
     <div className={styles.tipIconTextContainer}>
-      <IconGoldBadge width={24} height={24} />
+      <img
+        draggable={false}
+        alt=''
+        src={IconGoldBadge as string}
+        width={24}
+        height={24}
+      />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
@@ -50,7 +68,13 @@ const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
   ),
   ERROR: (
     <div className={styles.tipIconTextContainer}>
-      <IconGoldBadge width={24} height={24} />
+      <img
+        draggable={false}
+        alt=''
+        src={IconGoldBadge as string}
+        width={24}
+        height={24}
+      />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
