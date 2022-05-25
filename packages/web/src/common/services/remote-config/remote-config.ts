@@ -23,6 +23,8 @@ import {
 import { Nullable } from 'common/utils/typeUtils'
 import { uuid } from 'common/utils/uid'
 
+export const USER_ID_AVAILABLE_EVENT = 'USER_ID_AVAILABLE_EVENT'
+
 // Constants
 // All optimizely feature keys are lowercase_snake
 const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
@@ -224,24 +226,20 @@ export const remoteConfig = <
    * user id is available before its promise resolution, meaning
    * that it will sometimes return false for a feature flag
    * that is enabled and supposed to return true.
-   *
-   * 6 attempts at 500ms intervals assumes that a user id will come
-   * back within about 3 seconds. If no user id comes back, then
-   * reject the promise.
    */
   const waitForUserRemoteConfig = async () => {
-    await new Promise<void>((resolve, reject) => {
-      let numRetries = 6
-      const interval = setInterval(() => {
-        if (state.userId) {
+    if (state.userId) {
+      await new Promise<void>(resolve => onClientReady(resolve))
+      return
+    }
+    await new Promise<void>(resolve => {
+      if (state.userId) {
+        onClientReady(resolve)
+      } else {
+        window.addEventListener(USER_ID_AVAILABLE_EVENT, () =>
           onClientReady(resolve)
-          clearInterval(interval)
-        }
-        if (--numRetries === 0) {
-          clearInterval(interval)
-          reject(new Error('Remote config user id is not available.'))
-        }
-      }, 500)
+        )
+      }
     })
   }
 

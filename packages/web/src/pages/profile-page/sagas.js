@@ -142,13 +142,7 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
-  try {
-    yield call(waitForUserRemoteConfig)
-  } catch (e) {
-    console.error(`Error waiting for user remote config: ${e.message}`)
-    return
-  }
-
+  yield call(waitForUserRemoteConfig)
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   if (!isTippingEnabled) {
     return
