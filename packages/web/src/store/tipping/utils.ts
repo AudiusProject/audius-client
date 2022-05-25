@@ -72,77 +72,8 @@ export const checkTipToDisplay = ({
     return oldestValidTip
   }
 
-  /**
-   * If recent tip is previously dismissed, then
-   * first try to find user's own tip that is
-   * more recent than dismissed tip.
-   * If not found, then try to find tip more recent
-   * than dismissed tip.
-   * If not found, then try to find tip as recent as that
-   * which was dismissed if the last dismissal is too old.
-   * Otherwise, there is nothing to return.
-   *
-   * Also update local storage if some tip is returned.
-   */
-  if (storage.dismissed) {
-    const ownTip = sortedTips.find(
-      tip => tip.sender_id === userId && tip.slot > storage.minSlot
-    )
-    if (ownTip) {
-      const newStorage = {
-        minSlot: ownTip.slot,
-        dismissed: false,
-        lastDismissalTimestamp: null
-      }
-      window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-      return ownTip
-    }
-
-    const oldestValidTip = sortedTips.find(tip => tip.slot > storage.minSlot)
-    if (oldestValidTip) {
-      const newStorage = {
-        minSlot: oldestValidTip.slot,
-        dismissed: false,
-        lastDismissalTimestamp: null
-      }
-      window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-      return oldestValidTip
-    }
-
-    if (
-      storage.lastDismissalTimestamp &&
-      Date.now() - storage.lastDismissalTimestamp >
-        FEED_TIP_DISMISSAL_TIME_LIMIT
-    ) {
-      const oldestValidTip = sortedTips.find(
-        tip => tip.slot === storage.minSlot
-      )
-      if (oldestValidTip) {
-        const newStorage = {
-          minSlot: oldestValidTip.slot,
-          dismissed: false,
-          lastDismissalTimestamp: null
-        }
-        window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-        return oldestValidTip
-      }
-    }
-
-    return null
-  }
-
-  /**
-   * If recent tip is not dismissed, then
-   * try to find user's own tip as recent or more recent
-   * than previously displayed tip.
-   * If not found, then try to find tip more recent
-   * than previously displayed tip.
-   * Otherwise, there is nothing to return.
-   *
-   * Also update local storage if some tip is returned.
-   */
-  const ownTip = sortedTips.find(
-    tip => tip.sender_id === userId && tip.slot >= storage.minSlot
+  let ownTip = sortedTips.find(
+    tip => tip.sender_id === userId && tip.slot > storage.minSlot
   )
   if (ownTip) {
     const newStorage = {
@@ -154,7 +85,7 @@ export const checkTipToDisplay = ({
     return ownTip
   }
 
-  const oldestValidTip = sortedTips.find(tip => tip.slot >= storage.minSlot)
+  let oldestValidTip = sortedTips.find(tip => tip.slot > storage.minSlot)
   if (oldestValidTip) {
     const newStorage = {
       minSlot: oldestValidTip.slot,
@@ -165,6 +96,76 @@ export const checkTipToDisplay = ({
     return oldestValidTip
   }
 
+  if (storage.dismissed) {
+    if (
+      storage.lastDismissalTimestamp &&
+      Date.now() - storage.lastDismissalTimestamp >
+        FEED_TIP_DISMISSAL_TIME_LIMIT
+    ) {
+      ownTip = sortedTips.find(
+        tip => tip.sender_id === userId && tip.slot === storage.minSlot
+      )
+      if (ownTip) {
+        const newStorage = {
+          minSlot: ownTip.slot,
+          dismissed: false,
+          lastDismissalTimestamp: null
+        }
+        window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+        return ownTip
+      }
+
+      oldestValidTip = sortedTips.find(tip => tip.slot === storage.minSlot)
+      if (oldestValidTip) {
+        const newStorage = {
+          minSlot: oldestValidTip.slot,
+          dismissed: false,
+          lastDismissalTimestamp: null
+        }
+        window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+        return oldestValidTip
+      }
+
+      /**
+       * Should never reach here because that would mean that
+       * there was previously a tip at some slot, and somehow later
+       * there were no tips at an equal or more recent slot
+       */
+      return null
+    }
+
+    return null
+  }
+
+  ownTip = sortedTips.find(
+    tip => tip.sender_id === userId && tip.slot === storage.minSlot
+  )
+  if (ownTip) {
+    const newStorage = {
+      minSlot: ownTip.slot,
+      dismissed: false,
+      lastDismissalTimestamp: null
+    }
+    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+    return ownTip
+  }
+
+  oldestValidTip = sortedTips.find(tip => tip.slot === storage.minSlot)
+  if (oldestValidTip) {
+    const newStorage = {
+      minSlot: oldestValidTip.slot,
+      dismissed: false,
+      lastDismissalTimestamp: null
+    }
+    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+    return oldestValidTip
+  }
+
+  /**
+   * Should never reach here because that would mean that
+   * there was previously a tip at some slot, and somehow later
+   * there were no tips at an equal or more recent slot
+   */
   return null
 }
 
