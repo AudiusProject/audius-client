@@ -11,6 +11,7 @@ import AppContext from 'pages/AppContext'
 import { AppErrorBoundary } from 'pages/AppErrorBoundary'
 import { MainContentContext } from 'pages/MainContentContext'
 import { OAuthLoginPage } from 'pages/oauth-login-page/OAuthLoginPage'
+import { OauthTesty } from 'pages/oauth-login-page/OauthTesty'
 import { SomethingWrong } from 'pages/something-wrong/SomethingWrong'
 import history from 'utils/history'
 
@@ -48,6 +49,7 @@ const AudiusApp = ({
                     path={'/oauth/auth'}
                     component={OAuthLoginPage}
                   />
+                  <Route exact path={'/testy'} component={OauthTesty} />
                   <Route path='/'>
                     <AppErrorBoundary>
                       <App
