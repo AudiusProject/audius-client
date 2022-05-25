@@ -218,6 +218,33 @@ export const remoteConfig = <
     await new Promise<void>(resolve => onClientReady(() => resolve()))
   }
 
+  /**
+   * Need this function for feature flags that depend on user id.
+   * This is because the waitForRemoteConfig does not ensure that
+   * user id is available before its promise resolution, meaning
+   * that it will sometimes return false for a feature flag
+   * that is enabled and supposed to return true.
+   *
+   * 6 attempts at 500ms intervals assumes that a user id will come
+   * back within about 3 seconds. If no user id comes back, then
+   * reject the promise.
+   */
+  const waitForUserRemoteConfig = async () => {
+    await new Promise<void>((resolve, reject) => {
+      let numRetries = 6
+      const interval = setInterval(() => {
+        if (state.userId) {
+          onClientReady(resolve)
+          clearInterval(interval)
+        }
+        if (--numRetries === 0) {
+          clearInterval(interval)
+          reject(new Error('Remote config user id is not available.'))
+        }
+      }, 500)
+    })
+  }
+
   // Type predicates
   function isIntKey(key: AllRemoteConfigKeys): key is IntKeys {
     return !!Object.values(IntKeys).find(x => x === key)
@@ -248,7 +275,8 @@ export const remoteConfig = <
     init,
     onClientReady,
     setUserId,
-    waitForRemoteConfig
+    waitForRemoteConfig,
+    waitForUserRemoteConfig
   }
 }
 
