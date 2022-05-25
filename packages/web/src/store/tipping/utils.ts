@@ -34,6 +34,17 @@ export const getDismissedSlotForRecentTips = () => {
   return storage ? storage.dismissed : null
 }
 
+const resetStorage = (minSlot: number) => {
+  window.localStorage.setItem(
+    RECENT_TIPS_KEY,
+    JSON.stringify({
+      minSlot,
+      dismissed: false,
+      lastDismissalTimestamp: null
+    })
+  )
+}
+
 export const checkTipToDisplay = ({
   userId,
   recentTips
@@ -72,100 +83,47 @@ export const checkTipToDisplay = ({
     return oldestValidTip
   }
 
-  let ownTip = sortedTips.find(
-    tip => tip.sender_id === userId && tip.slot > storage.minSlot
-  )
+  let validTips = sortedTips.filter(tip => tip.slot > storage.minSlot)
+  let ownTip = validTips.find(tip => tip.sender_id === userId)
   if (ownTip) {
-    const newStorage = {
-      minSlot: ownTip.slot,
-      dismissed: false,
-      lastDismissalTimestamp: null
-    }
-    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+    resetStorage(ownTip.slot)
     return ownTip
   }
 
-  let oldestValidTip = sortedTips.find(tip => tip.slot > storage.minSlot)
+  let oldestValidTip = validTips.length > 0 ? validTips[0] : null
   if (oldestValidTip) {
-    const newStorage = {
-      minSlot: oldestValidTip.slot,
-      dismissed: false,
-      lastDismissalTimestamp: null
-    }
-    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
+    resetStorage(oldestValidTip.slot)
     return oldestValidTip
   }
 
-  if (storage.dismissed) {
-    if (
+  if (
+    (storage.dismissed &&
       storage.lastDismissalTimestamp &&
       Date.now() - storage.lastDismissalTimestamp >
-        FEED_TIP_DISMISSAL_TIME_LIMIT
-    ) {
-      ownTip = sortedTips.find(
-        tip => tip.sender_id === userId && tip.slot === storage.minSlot
-      )
-      if (ownTip) {
-        const newStorage = {
-          minSlot: ownTip.slot,
-          dismissed: false,
-          lastDismissalTimestamp: null
-        }
-        window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-        return ownTip
-      }
-
-      oldestValidTip = sortedTips.find(tip => tip.slot === storage.minSlot)
-      if (oldestValidTip) {
-        const newStorage = {
-          minSlot: oldestValidTip.slot,
-          dismissed: false,
-          lastDismissalTimestamp: null
-        }
-        window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-        return oldestValidTip
-      }
-
-      /**
-       * Should never reach here because that would mean that
-       * there was previously a tip at some slot, and somehow later
-       * there were no tips at an equal or more recent slot
-       */
-      return null
+        FEED_TIP_DISMISSAL_TIME_LIMIT) ||
+    !storage.dismissed
+  ) {
+    validTips = sortedTips.filter(tip => tip.slot === storage.minSlot)
+    ownTip = validTips.find(tip => tip.sender_id === userId)
+    if (ownTip) {
+      resetStorage(ownTip.slot)
+      return ownTip
     }
 
+    oldestValidTip = validTips.length > 0 ? validTips[0] : null
+    if (oldestValidTip) {
+      resetStorage(oldestValidTip.slot)
+      return oldestValidTip
+    }
+
+    /**
+     * Should never reach here because that would mean that
+     * there was previously a tip at some slot, and somehow later
+     * there were no tips at an equal or more recent slot
+     */
     return null
   }
 
-  ownTip = sortedTips.find(
-    tip => tip.sender_id === userId && tip.slot === storage.minSlot
-  )
-  if (ownTip) {
-    const newStorage = {
-      minSlot: ownTip.slot,
-      dismissed: false,
-      lastDismissalTimestamp: null
-    }
-    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-    return ownTip
-  }
-
-  oldestValidTip = sortedTips.find(tip => tip.slot === storage.minSlot)
-  if (oldestValidTip) {
-    const newStorage = {
-      minSlot: oldestValidTip.slot,
-      dismissed: false,
-      lastDismissalTimestamp: null
-    }
-    window.localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(newStorage))
-    return oldestValidTip
-  }
-
-  /**
-   * Should never reach here because that would mean that
-   * there was previously a tip at some slot, and somehow later
-   * there were no tips at an equal or more recent slot
-   */
   return null
 }
 
