@@ -118,12 +118,13 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           // hack for now to prevent pop for some pages
           if (
             !e.target?.includes('EditProfile') &&
+            !e.target?.includes('EditPlaylist') &&
+            !e.target?.includes('CreatePlaylist') &&
             !(
               e.target?.includes('Search') &&
               !e.target?.includes('SearchResults')
             ) &&
-            !e.target?.includes('EditPlaylist') &&
-            !e.target?.includes('CreatePlaylist')
+            !e.target?.includes('TipArtist')
           ) {
             // When a screen is removed, notify the web layer to pop navigation
             dispatchWeb({
