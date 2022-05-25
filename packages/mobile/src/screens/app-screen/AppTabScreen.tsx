@@ -30,6 +30,7 @@ import { SearchPlaylist, SearchTrack } from 'app/store/search/types'
 
 import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
 import { NotificationsDrawerNavigationContext } from '../notifications-screen/NotificationsDrawerNavigationContext'
+import { TipArtistModal } from '../tip-artist-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
@@ -54,6 +55,7 @@ export type AppTabScreenParamList = {
     notificationType: NotificationType
     count: number
   }
+  TipArtist: undefined
 }
 
 const forFade = ({ current }) => ({
@@ -204,6 +206,14 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           options={screenOptions}
         />
       </Stack.Group>
+      <Stack.Screen
+        name='TipArtist'
+        component={TipArtistModal}
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal'
+        }}
+      />
     </Stack.Navigator>
   )
 }
