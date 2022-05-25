@@ -58,7 +58,7 @@ export const checkTipToDisplay = ({
 
   /**
    * The list only comprises of recent tips.
-   * Sort them tips by least recent to parse through oldest tips first.
+   * Sort the tips by least recent to parse through oldest tips first.
    */
   const sortedTips = recentTips.sort((tip1, tip2) => tip1.slot - tip2.slot)
 
