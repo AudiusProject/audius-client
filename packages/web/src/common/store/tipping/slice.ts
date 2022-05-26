@@ -116,7 +116,10 @@ const slice = createSlice({
     ) => {
       state.recentTips = action.payload.recentTips
     },
-    setRecentTip: (state, action: PayloadAction<{ tipToDisplay: UserTip }>) => {
+    setTipToDisplay: (
+      state,
+      action: PayloadAction<{ tipToDisplay: UserTip }>
+    ) => {
       state.tipToDisplay = action.payload.tipToDisplay
     },
     hideTip: state => {
@@ -140,7 +143,7 @@ export const {
   resetSend,
   fetchRecentTips,
   setRecentTips,
-  setRecentTip,
+  setTipToDisplay,
   hideTip
 } = slice.actions
 

@@ -3,14 +3,15 @@ import React, { useCallback, useEffect } from 'react'
 import { Button } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
+import { ReactComponent as IconClose } from 'assets/img/iconClose.svg'
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
-import { getTipToDisplay } from 'common/store/tipping/selectors'
+import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
 import { beginTip, fetchRecentTips, hideTip } from 'common/store/tipping/slice'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
+import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { dismissRecentTip } from 'store/tipping/utils'
@@ -26,6 +27,17 @@ const messages = {
   andOthers: (num: number) => `& ${num} ${num > 1 ? 'others' : 'other'}`,
   sendTipToPrefix: 'SEND TIP TO '
 }
+
+const SkeletonTile = () => (
+  <div className={styles.container}>
+    <div className={styles.skeletonContainer}>
+      <Skeleton className={styles.skeleton} width='10%' />
+      <Skeleton className={styles.skeleton} width='20%' />
+      <Skeleton className={styles.skeleton} width='60%' />
+    </div>
+    <Skeleton className={styles.skeleton} width='30%' />
+  </div>
+)
 
 const WasTippedBy = () => (
   <div className={styles.wasTippedByContainer}>
@@ -46,7 +58,7 @@ const Tippers = ({ tippers }: TippersProps) => (
         <UserBadges
           userId={tipper.user_id}
           className={styles.badge}
-          badgeSize={10}
+          badgeSize={12}
           inline
         />
         {index < tippers.length - 1 &&
@@ -87,7 +99,7 @@ const SendTipToButton = ({ user }: SendTipToButtonProps) => {
             <UserBadges
               userId={user.user_id}
               className={styles.badge}
-              badgeSize={10}
+              badgeSize={12}
               inline
             />
           </div>
@@ -117,6 +129,7 @@ export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
   const dispatch = useDispatch()
+  const showTip = useSelector(getShowTip)
   const tipToDisplay = useSelector(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -133,9 +146,13 @@ export const FeedTipTile = () => {
     dispatch(fetchRecentTips())
   }, [dispatch])
 
-  return isTippingEnabled &&
-    tipToDisplay &&
-    Object.keys(usersMap).length === tipperIds.length ? (
+  if (!isTippingEnabled || !showTip) {
+    return null
+  }
+
+  return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
+    <SkeletonTile />
+  ) : (
     <div className={styles.container}>
       <div className={styles.usersContainer}>
         <ProfilePicture
@@ -150,7 +167,7 @@ export const FeedTipTile = () => {
           <UserBadges
             userId={tipToDisplay.receiver_id}
             className={styles.badge}
-            badgeSize={10}
+            badgeSize={12}
             inline
           />
         </div>
@@ -169,5 +186,5 @@ export const FeedTipTile = () => {
         <DismissTipButton />
       </div>
     </div>
-  ) : null
+  )
 }
