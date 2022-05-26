@@ -181,12 +181,12 @@
 /* Dropdown */
 .select {
   padding: 8px 0;
+  border-radius: 6px;
 }
 .select :global(.rc-virtual-list-holder-inner) {
   padding: 0 8px;
 }
 .select :global(.ant-select-dropdown) {
-  border-radius: 4px;
   background-color: var(--white);
   box-shadow: 0 0 2px 0 rgba(133, 129, 153, 0.3),
     0 2px 5px -2px rgba(133, 129, 153, 0.3);
@@ -211,11 +211,19 @@
   color: var(--neutral);
   transition: all ease-in-out 0.04s;
 }
-.select :global(.ant-select-item-option-active) {
+
+/* .select :global(.ant-select-item-option-active) {
   background: var(--neutral-light-8);
+} */
+
+.select
+  :global(.ant-select-item-option-selected:not(.ant-select-item-option-active)) {
+  background-color: unset;
 }
-.select :global(.ant-select-item:hover),
-.select :global(.ant-select-item-option-selected) {
+
+.select :global(.ant-select-item-option-active),
+.select
+  :global(.ant-select-item-option-selected.ant-select-item-option-active) {
   background: var(--secondary);
   color: var(--white);
 }
