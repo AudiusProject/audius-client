@@ -109,7 +109,9 @@ export const ConfirmSendTip = () => {
           text={
             sendStatus === 'ERROR'
               ? messages.confirmAndTryAgain
-              : messages.confirmTip
+              : sendStatus === 'CONFIRM'
+              ? messages.confirmTip
+              : ''
           }
           onClick={handleConfirmSendClick}
           rightIcon={

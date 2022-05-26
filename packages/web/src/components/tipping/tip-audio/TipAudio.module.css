@@ -247,6 +247,7 @@
 
 .disabled {
   cursor: unset;
+  width: 186px;
 }
 
 .loadingSpinner {
