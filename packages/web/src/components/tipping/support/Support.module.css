@@ -128,13 +128,10 @@
   border-top-left-radius: 8px;
 }
 
-.profilePictureContainer {
+.profilePicture {
   position: relative;
   top: -74px;
   left: 8px;
-}
-
-.profilePicture {
   margin-bottom: 4px;
   height: 40px;
   border-radius: 40px;
@@ -146,6 +143,17 @@
 }
 
 .name {
+  position: relative;
+  top: -78px;
+  padding-left: 8px;
+  height: 29px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.02) 30%,
+    rgba(0, 0, 0, 0.1) 60%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  background-blend-mode: multiply;
   color: var(--white);
   font-weight: var(--font-bold);
   font-size: var(--font-s);
