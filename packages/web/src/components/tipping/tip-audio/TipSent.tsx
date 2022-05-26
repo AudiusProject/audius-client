@@ -7,7 +7,7 @@ import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getSendTipData } from 'common/store/tipping/selectors'
-import { formatWei } from 'common/utils/wallet'
+import { formatNumberCommas } from 'common/utils/formatUtil'
 import { useRecord, make } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
@@ -30,10 +30,11 @@ export const TipSent = () => {
   const { user: recipient, amount: sendAmount } = sendTipData
 
   const handleShareClick = useCallback(() => {
+    const formattedSendAmount = formatNumberCommas(sendAmount)
     if (account && recipient) {
-      let recipientAndAmount = `${recipient.name} ${formatWei}`
+      let recipientAndAmount = `${recipient.name} ${formattedSendAmount}`
       if (recipient.twitter_handle) {
-        recipientAndAmount = `@${recipient.twitter_handle} ${sendAmount}`
+        recipientAndAmount = `@${recipient.twitter_handle} ${formattedSendAmount}`
       }
       const message = `${messages.twitterCopyPrefix}${recipientAndAmount}${messages.twitterCopySuffix}`
       openTwitterLink(null, message)
