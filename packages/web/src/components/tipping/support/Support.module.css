@@ -129,10 +129,12 @@
   border-top-left-radius: 8px;
 }
 
-.profilePicture {
+.profilePictureContainer {
   position: relative;
   top: -74px;
-  left: 8px;
+}
+.profilePicture {
+  margin-left: 8px;
   margin-bottom: 4px;
   height: 40px;
   border-radius: 40px;
@@ -144,10 +146,8 @@
 }
 
 .name {
-  position: relative;
-  top: -78px;
   padding-left: 8px;
-  height: 29px;
+  height: 25px;
   background: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0.02) 30%,
