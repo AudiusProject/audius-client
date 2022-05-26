@@ -39,7 +39,7 @@ export const SendTipScreen = () => {
 
   const hasInsufficientBalance =
     accountBalance &&
-    parseAudioInputToWei(tipAmount as StringAudio)?.gte(accountBalance)
+    parseAudioInputToWei(tipAmount as StringAudio)?.gt(accountBalance)
 
   const handleBack = useCallback(() => {
     navigation.goBack()
