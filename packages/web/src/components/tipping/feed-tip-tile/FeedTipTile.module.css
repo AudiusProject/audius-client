@@ -78,14 +78,21 @@
 .tippers {
   display: flex;
   margin-left: 4px;
+  color: var(--neutral);
+}
+.tippers:hover {
+  cursor: pointer;
+  color: var(--primary);
 }
 .tipperName {
   display: flex;
   font-weight: var(--font-medium);
-  color: var(--neutral);
 }
 .tipperSeparator {
   margin: 0 4px;
+}
+.andOthers {
+  font-weight: var(--font-medium);
 }
 
 .buttons {

@@ -16,6 +16,14 @@ import { ProfilePicture } from 'components/notification/Notification/components/
 import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import {
+  setUsers,
+  setVisibility
+} from 'store/application/ui/userListModal/slice'
+import {
+  UserListEntityType,
+  UserListType
+} from 'store/application/ui/userListModal/types'
 import { dismissRecentTip } from 'store/tipping/utils'
 import { AppState } from 'store/types'
 import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
@@ -53,32 +61,47 @@ type TippersProps = {
   receiver: User
 }
 
-const Tippers = ({ tippers, receiver }: TippersProps) => (
-  <div className={styles.tippers}>
-    {tippers.slice(0, NUM_FEED_TIPPERS_DISPLAYED).map((tipper, index) => (
-      <div key={`tipper-${tipper.user_id}`} className={styles.tipperName}>
-        <span>{tipper.name}</span>
-        <UserBadges
-          userId={tipper.user_id}
-          className={styles.badge}
-          badgeSize={12}
-          inline
-        />
-        {index < tippers.length - 1 &&
-        index < NUM_FEED_TIPPERS_DISPLAYED - 1 ? (
-          <div className={styles.tipperSeparator}>,</div>
-        ) : null}
-      </div>
-    ))}
-    {receiver.supporter_count > NUM_FEED_TIPPERS_DISPLAYED ? (
-      <div>
-        {messages.andOthers(
-          receiver.supporter_count - NUM_FEED_TIPPERS_DISPLAYED
-        )}
-      </div>
-    ) : null}
-  </div>
-)
+const Tippers = ({ tippers, receiver }: TippersProps) => {
+  const dispatch = useDispatch()
+
+  const handleClick = useCallback(() => {
+    dispatch(
+      setUsers({
+        userListType: UserListType.SUPPORTER,
+        entityType: UserListEntityType.USER,
+        id: receiver.user_id
+      })
+    )
+    dispatch(setVisibility(true))
+  }, [dispatch, receiver])
+
+  return (
+    <div className={styles.tippers} onClick={handleClick}>
+      {tippers.slice(0, NUM_FEED_TIPPERS_DISPLAYED).map((tipper, index) => (
+        <div key={`tipper-${tipper.user_id}`} className={styles.tipperName}>
+          <span>{tipper.name}</span>
+          <UserBadges
+            userId={tipper.user_id}
+            className={styles.badge}
+            badgeSize={12}
+            inline
+          />
+          {index < tippers.length - 1 &&
+          index < NUM_FEED_TIPPERS_DISPLAYED - 1 ? (
+            <div className={styles.tipperSeparator}>,</div>
+          ) : null}
+        </div>
+      ))}
+      {receiver.supporter_count > NUM_FEED_TIPPERS_DISPLAYED ? (
+        <div className={styles.andOthers}>
+          {messages.andOthers(
+            receiver.supporter_count - NUM_FEED_TIPPERS_DISPLAYED
+          )}
+        </div>
+      ) : null}
+    </div>
+  )
+}
 
 type SendTipToButtonProps = {
   user: User
