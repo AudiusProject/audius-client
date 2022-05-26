@@ -4,11 +4,16 @@ import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
 import { Supporter, Supporting, UserTip } from 'common/models/Tipping'
-import { BNWei } from 'common/models/Wallet'
+import { User } from 'common/models/User'
+import { BNWei, StringWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { getSendTipData } from 'common/store/tipping/selectors'
+import {
+  getSendTipData,
+  // getSupporters,
+  getSupporting
+} from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
   convert,
@@ -29,6 +34,7 @@ import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
 import {
   parseAudioInputToWei,
+  stringWeiToBN,
   weiToAudioString,
   weiToString
 } from 'common/utils/wallet'
@@ -51,6 +57,102 @@ import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 import { getMinSlotForRecentTips, checkTipToDisplay } from './utils'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
+
+/**
+ * Optimistically update the supporting list for sender
+ * and the supporters list for the receiver
+ */
+function* optimisticallyUpdateSupport({
+  amountBN,
+  sender,
+  receiver
+}: {
+  amountBN: BNWei
+  sender: User
+  receiver: User
+}) {
+  /**
+   * todo: remove receiver from sender's supporting from store first
+   */
+
+  const supportingMap = yield* select(getSupporting)
+  const supportingForSender = supportingMap[sender.user_id] ?? {}
+  const previousSupportAmount =
+    supportingForSender[receiver.user_id]?.amount ?? ('0' as StringWei)
+  const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(amountBN)
+  const supportingSortedDesc = Object.values(
+    supportingForSender
+  ).sort((s1, s2) =>
+    stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
+  )
+  const supporting = supportingSortedDesc.find(supporting =>
+    newSupportAmountBN.gte(stringWeiToBN(supporting.amount))
+  )
+  const supportingRank = supporting
+    ? supporting.rank
+    : supportingSortedDesc.length + 1
+
+  const newSupportingForSender: {
+    [id: number]: {
+      receiver_id: ID
+      amount: StringWei
+      rank: number
+    }
+  } = {}
+  if (supporting) {
+    /**
+     * Update existing ranks and store them
+     */
+    ;((Object.keys(supportingForSender) as unknown) as ID[]).forEach(id => {
+      if (
+        stringWeiToBN(supportingForSender[id].amount).lt(newSupportAmountBN)
+      ) {
+        newSupportingForSender[id] = {
+          ...supportingForSender[id],
+          rank: supportingForSender[id].rank + 1
+        }
+      } else {
+        newSupportingForSender[id] = { ...supportingForSender[id] }
+      }
+    })
+    yield put(
+      setSupportingForUser({
+        id: sender.user_id,
+        supportingForUser: newSupportingForSender
+      })
+    )
+  }
+  /**
+   * Store the updated rank for sender
+   */
+  yield put(
+    setSupportingForUser({
+      id: sender.user_id,
+      supportingForUser: {
+        [receiver.user_id]: {
+          receiver_id: receiver.user_id,
+          amount: weiToString(newSupportAmountBN as BNWei),
+          rank: supportingRank
+        }
+      }
+    })
+  )
+
+  /**
+   * todo: do the same for receiver supporters
+   */
+
+  // yield put(setSupportersForUser({
+  //   id: receiver.user_id,
+  //   supportersForUser: {
+  //     [sender.user_id]: {
+  //       sender_id: sender.user_id,
+  //       amount: amount,
+  //       rank: supporterRank
+  //     }
+  //   }
+  // }))
+}
 
 function* sendTipAsync() {
   yield call(waitForRemoteConfig)
@@ -121,18 +223,11 @@ function* sendTipAsync() {
       })
     )
 
-    /**
-     * Refresh the supporting list for sender
-     * and the supporters list for the receiver
-     */
-    yield put(
-      refreshSupport({
-        senderUserId: sender.user_id,
-        receiverUserId: recipient.user_id,
-        supportingLimit: sender.supporting_count,
-        supportersLimit: MAX_PROFILE_TOP_SUPPORTERS + 1
-      })
-    )
+    yield call(optimisticallyUpdateSupport, {
+      amountBN: weiBNAmount,
+      sender,
+      receiver: recipient
+    })
   } catch (e) {
     const error = (e as Error).message
     console.error(`Send tip failed: ${error}`)
@@ -198,7 +293,6 @@ function* refreshSupportAsync({
       )
     ]
 
-    // todo: should maybe poll here if right after successful tipping?
     yield call(fetchUsers, userIds, new Set(), true)
 
     const supportingForSenderMap: Record<string, Supporting> = {}
