@@ -247,6 +247,8 @@
 
 .disabled {
   cursor: unset;
+}
+.confirmButton.disabled {
   width: 186px;
 }
 

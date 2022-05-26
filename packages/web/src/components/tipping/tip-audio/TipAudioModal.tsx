@@ -27,8 +27,8 @@ const messages = {
 const GoldBadgeIconImage = () => (
   <img
     draggable={false}
-    alt=''
-    src={IconGoldBadge as string}
+    alt='Gold badge'
+    src={IconGoldBadge}
     width={24}
     height={24}
   />

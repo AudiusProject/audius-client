@@ -122,7 +122,9 @@ export const ConfirmSendTip = () => {
             )
           }
           disabled={isDisabled}
-          className={cn(styles.button, { [styles.disabled]: isDisabled })}
+          className={cn(styles.button, styles.confirmButton, {
+            [styles.disabled]: isDisabled
+          })}
         />
       </div>
       {sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING' ? (
