@@ -50,9 +50,10 @@ const WasTippedBy = () => (
 
 type TippersProps = {
   tippers: User[]
+  receiver: User
 }
 
-const Tippers = ({ tippers }: TippersProps) => (
+const Tippers = ({ tippers, receiver }: TippersProps) => (
   <div className={styles.tippers}>
     {tippers.slice(0, NUM_FEED_TIPPERS_DISPLAYED).map((tipper, index) => (
       <div key={`tipper-${tipper.user_id}`} className={styles.tipperName}>
@@ -69,9 +70,11 @@ const Tippers = ({ tippers }: TippersProps) => (
         ) : null}
       </div>
     ))}
-    {tippers.length > NUM_FEED_TIPPERS_DISPLAYED ? (
-      <div className={styles.andOthers}>
-        {messages.andOthers(tippers.length - NUM_FEED_TIPPERS_DISPLAYED)}
+    {receiver.supporter_count > NUM_FEED_TIPPERS_DISPLAYED ? (
+      <div>
+        {messages.andOthers(
+          receiver.supporter_count - NUM_FEED_TIPPERS_DISPLAYED
+        )}
       </div>
     ) : null}
   </div>
@@ -190,6 +193,7 @@ export const FeedTipTile = () => {
           ]
             .map(id => usersMap[id])
             .filter((user): user is User => !!user)}
+          receiver={usersMap[tipToDisplay.receiver_id]}
         />
       </div>
       <div className={styles.buttons}>
