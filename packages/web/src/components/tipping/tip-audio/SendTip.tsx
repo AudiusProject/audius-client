@@ -56,10 +56,7 @@ export const SendTip = () => {
   const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
 
-  const [tipAmount, setTipAmount] = useState<StringAudio>('' as StringAudio)
-  const [tipAmountBNWei, setTipAmountBNWei] = useState<BNWei>(
-    new BN('0') as BNWei
-  )
+  const [tipAmount, setTipAmount] = useState('')
 
   const { tier } = getTierAndNumberForBalance(weiToString(accountBalance))
   const audioBadge = audioTierMapPng[tier as BadgeTier]
@@ -120,7 +117,6 @@ export const SendTip = () => {
   useEffect(() => {
     const zeroWei = stringWeiToBN('0' as StringWei)
     const newAmountWei = parseAudioInputToWei(tipAmount) ?? zeroWei
-    setTipAmountBNWei(newAmountWei)
 
     const hasInsufficientBalance = newAmountWei.gt(accountBalance)
     setIsDisabled(hasInsufficientBalance || newAmountWei.lte(zeroWei))
@@ -165,8 +161,8 @@ export const SendTip = () => {
   }, [hasError, account, topSupporter, supporting, accountBalance])
 
   const handleSendClick = useCallback(() => {
-    dispatch(sendTip({ amount: tipAmountBNWei }))
-  }, [dispatch, tipAmountBNWei])
+    dispatch(sendTip({ amount: tipAmount }))
+  }, [dispatch, tipAmount])
 
   const renderBecomeFirstSupporter = () => (
     <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>

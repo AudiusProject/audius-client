@@ -7,7 +7,7 @@ import { useSelector } from 'common/hooks/useSelector'
 import { Name } from 'common/models/Analytics'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getSendTipData } from 'common/store/tipping/selectors'
-import { formatWei, weiToAudioString } from 'common/utils/wallet'
+import { formatWei } from 'common/utils/wallet'
 import { useRecord, make } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
@@ -31,15 +31,9 @@ export const TipSent = () => {
 
   const handleShareClick = useCallback(() => {
     if (account && recipient) {
-      let recipientAndAmount = `${recipient.name} ${formatWei(
-        sendAmount,
-        true
-      )}`
+      let recipientAndAmount = `${recipient.name} ${formatWei}`
       if (recipient.twitter_handle) {
-        recipientAndAmount = `@${recipient.twitter_handle} ${formatWei(
-          sendAmount,
-          true
-        )}`
+        recipientAndAmount = `@${recipient.twitter_handle} ${sendAmount}`
       }
       const message = `${messages.twitterCopyPrefix}${recipientAndAmount}${messages.twitterCopySuffix}`
       openTwitterLink(null, message)
@@ -49,7 +43,7 @@ export const TipSent = () => {
           recipientWallet: recipient.spl_wallet,
           senderHandle: account.handle,
           recipientHandle: recipient.handle,
-          amount: weiToAudioString(sendAmount)
+          amount: sendAmount
         })
       )
     }
@@ -64,7 +58,7 @@ export const TipSent = () => {
         {messages.sentSuccessfully}
       </div>
       <div className={cn(styles.flexCenter, styles.sentAudio)}>
-        <span className={styles.sendAmount}>{formatWei(sendAmount, true)}</span>
+        <span className={styles.sendAmount}>{sendAmount}</span>
         $AUDIO
       </div>
     </>
