@@ -38,11 +38,20 @@
   align-items: center;
   font-size: var(--font-s);
 }
-
+.profilePicture {
+  cursor: pointer;
+}
 .name {
   margin-left: 8px;
   font-weight: var(--font-bold);
   color: var(--neutral);
+}
+.name > span:hover {
+  cursor: pointer;
+  color: var(--primary);
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--primary-light-2);
+  text-decoration-color: var(--primary-light-2);
 }
 .badge {
   margin-left: 4px;

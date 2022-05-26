@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 
 import { Button } from '@audius/stems'
+import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconClose } from 'assets/img/iconClose.svg'
@@ -10,6 +11,7 @@ import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
 import { beginTip, fetchRecentTips, hideTip } from 'common/store/tipping/slice'
+import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -146,6 +148,12 @@ export const FeedTipTile = () => {
     dispatch(fetchRecentTips())
   }, [dispatch])
 
+  const handleClick = useCallback(() => {
+    if (tipToDisplay) {
+      dispatch(pushRoute(`/${usersMap[tipToDisplay.receiver_id].handle}`))
+    }
+  }, [dispatch, usersMap, tipToDisplay])
+
   if (!isTippingEnabled || !showTip) {
     return null
   }
@@ -159,18 +167,21 @@ export const FeedTipTile = () => {
           key={tipToDisplay.receiver_id}
           className={styles.profilePicture}
           user={usersMap[tipToDisplay.receiver_id]}
-          disableClick
-          disablePopover
         />
-        <div className={styles.name}>
-          <span>{usersMap[tipToDisplay.receiver_id].name}</span>
-          <UserBadges
-            userId={tipToDisplay.receiver_id}
-            className={styles.badge}
-            badgeSize={12}
-            inline
-          />
-        </div>
+        <ArtistPopover
+          handle={usersMap[tipToDisplay.receiver_id].handle}
+          component='div'
+        >
+          <div className={styles.name} onClick={handleClick}>
+            <span>{usersMap[tipToDisplay.receiver_id].name}</span>
+            <UserBadges
+              userId={tipToDisplay.receiver_id}
+              className={styles.badge}
+              badgeSize={12}
+              inline
+            />
+          </div>
+        </ArtistPopover>
         <WasTippedBy />
         <Tippers
           tippers={[
