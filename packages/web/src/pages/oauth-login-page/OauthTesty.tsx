@@ -9,9 +9,8 @@ export const OauthTesty = () => {
       await waitForLibsInit()
       console.log(window.audiusLibs)
       const oauth = window.audiusLibs.oauth
-      oauth.init('Demodius')
-      window.audiusLibs.oauth.renderButton(
-        document.getElementById('testy'),
+      oauth.init(
+        'Demodius',
         (res: {
           userId: number
           email: string
@@ -22,13 +21,13 @@ export const OauthTesty = () => {
           sub: number
           iat: string
         }) => setHandle(res.handle),
-        (err: unknown) => console.log('error', err),
-        {
-          size: 'large',
-          corners: 'pill',
-          customText: 'Login with Audius'
-        }
+        (err: unknown) => console.log('error', err)
       )
+      window.audiusLibs.oauth.renderButton(document.getElementById('testy'), {
+        size: 'large',
+        corners: 'pill',
+        customText: 'Login with Audius'
+      })
     }
     renderButton()
   }, [])
