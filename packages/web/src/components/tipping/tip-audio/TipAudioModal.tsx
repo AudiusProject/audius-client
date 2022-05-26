@@ -24,40 +24,32 @@ const messages = {
   holdOn: '⚠️ Hold On a Moment'
 }
 
+const GoldBadgeIconImage = () => (
+  <img
+    draggable={false}
+    alt=''
+    src={IconGoldBadge as string}
+    width={24}
+    height={24}
+  />
+)
+
 const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
   SEND: (
     <div className={styles.tipIconTextContainer}>
-      <img
-        draggable={false}
-        alt=''
-        src={IconGoldBadge as string}
-        width={24}
-        height={24}
-      />
+      <GoldBadgeIconImage />
       <span className={styles.tipText}>{messages.sendATip}</span>
     </div>
   ),
   CONFIRM: (
     <div className={styles.tipIconTextContainer}>
-      <img
-        draggable={false}
-        alt=''
-        src={IconGoldBadge as string}
-        width={24}
-        height={24}
-      />
+      <GoldBadgeIconImage />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
   SENDING: (
     <div className={styles.tipIconTextContainer}>
-      <img
-        draggable={false}
-        alt=''
-        src={IconGoldBadge as string}
-        width={24}
-        height={24}
-      />
+      <GoldBadgeIconImage />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
@@ -68,13 +60,7 @@ const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
   ),
   ERROR: (
     <div className={styles.tipIconTextContainer}>
-      <img
-        draggable={false}
-        alt=''
-        src={IconGoldBadge as string}
-        width={24}
-        height={24}
-      />
+      <GoldBadgeIconImage />
       <span className={styles.tipText}>{messages.confirm}</span>
     </div>
   ),
