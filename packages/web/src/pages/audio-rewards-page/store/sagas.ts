@@ -280,10 +280,10 @@ function* claimChallengeRewardAsync(
             yield put(claimChallengeRewardAlreadyClaimed())
             break
           case FailureReason.BLOCKED:
-          case FailureReason.AAO_ATTESTATION_UNKNOWN_RESPONSE:
             throw new Error('User is blocked from claiming')
           // For these 'attestation aggregation errors',
           // we've already retried in libs so unlikely to succeed here.
+          case FailureReason.AAO_ATTESTATION_UNKNOWN_RESPONSE:
           case FailureReason.MISSING_CHALLENGES:
           case FailureReason.CHALLENGE_INCOMPLETE:
             yield put(claimChallengeRewardFailed())
