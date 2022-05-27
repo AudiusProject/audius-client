@@ -24,25 +24,47 @@ type ArtistIdentifierProps = {
   userId: ID
   name: string
   handle: string
+  showPopover: boolean
 } & ComponentPropsWithoutRef<'div'>
 const ArtistIdentifier = ({
   userId,
   name,
   handle,
+  showPopover,
   ...other
 }: ArtistIdentifierProps) => {
   return (
-    <div {...other}>
-      <div className={styles.name}>
-        <span>{name}</span>
-        <UserBadges
-          userId={userId}
-          className={cn(styles.badge)}
-          badgeSize={10}
-          inline
-        />
-      </div>
-      <div className={styles.handle}>@{handle}</div>
+    <div>
+      {showPopover ? (
+        <ArtistPopover handle={handle}>
+          <div className={styles.name}>
+            <span>{name}</span>
+            <UserBadges
+              userId={userId}
+              className={cn(styles.badge)}
+              badgeSize={10}
+              inline
+            />
+          </div>
+        </ArtistPopover>
+      ) : (
+        <div className={styles.name}>
+          <span>{name}</span>
+          <UserBadges
+            userId={userId}
+            className={cn(styles.badge)}
+            badgeSize={10}
+            inline
+          />
+        </div>
+      )}
+      {showPopover ? (
+        <ArtistPopover handle={handle}>
+          <div className={styles.handle}>@{handle}</div>
+        </ArtistPopover>
+      ) : (
+        <div className={styles.handle}>@{handle}</div>
+      )}
     </div>
   )
 }
@@ -103,13 +125,12 @@ const ArtistChip = ({
           className={cn(styles.identity, 'name')}
           onClick={onClickArtistName}
         >
-          {showPopover ? (
-            <ArtistPopover handle={handle}>
-              <ArtistIdentifier userId={userId} name={name} handle={handle} />
-            </ArtistPopover>
-          ) : (
-            <ArtistIdentifier userId={userId} name={name} handle={handle} />
-          )}
+          <ArtistIdentifier
+            userId={userId}
+            name={name}
+            handle={handle}
+            showPopover
+          />
         </div>
         <ArtistChipFollowers
           followerCount={followers}
