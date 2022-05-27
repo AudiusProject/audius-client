@@ -147,8 +147,8 @@
   cursor: pointer;
 }
 .dismissIcon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 .dismissIcon path {
   fill: var(--neutral-light-4);
