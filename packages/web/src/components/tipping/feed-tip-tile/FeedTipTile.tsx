@@ -95,7 +95,8 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
       {receiver.supporter_count > NUM_FEED_TIPPERS_DISPLAYED ? (
         <div className={styles.andOthers}>
           {messages.andOthers(
-            receiver.supporter_count - NUM_FEED_TIPPERS_DISPLAYED
+            receiver.supporter_count -
+              Math.min(tippers.length, NUM_FEED_TIPPERS_DISPLAYED)
           )}
         </div>
       ) : null}
