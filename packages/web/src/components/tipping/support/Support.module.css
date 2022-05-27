@@ -148,6 +148,9 @@
   width: 39px;
   height: 39px;
 }
+.profilePictureWrapper:hover {
+  transform: none;
+}
 
 .name {
   padding-left: 8px;
