@@ -113,7 +113,7 @@
 .tipContainer .supporter {
   display: flex;
   align-items: center;
-  width: 136px;
+  width: 128px;
   font-size: var(--font-s);
   font-weight: var(--font-medium);
 }
