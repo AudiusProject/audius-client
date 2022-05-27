@@ -37,6 +37,10 @@
 .contentContainer:hover .viewAll path {
   fill: var(--secondary);
 }
+.profilePictureWrapper {
+  width: 39px;
+  height: 39px;
+}
 .followingIcon {
   width: 32px;
 }

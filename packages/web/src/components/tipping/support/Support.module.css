@@ -144,6 +144,10 @@
   background-repeat: no-repeat;
   background-color: var(--default-profile-picture-background);
 }
+.profilePictureWrapper {
+  width: 39px;
+  height: 39px;
+}
 
 .name {
   padding-left: 8px;
