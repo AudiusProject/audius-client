@@ -25,7 +25,8 @@ const initialState: TippingState = {
   },
   recentTips: [],
   tipToDisplay: null,
-  showTip: true
+  showTip: true,
+  mainUser: null
 }
 
 const slice = createSlice({
@@ -124,6 +125,9 @@ const slice = createSlice({
     },
     hideTip: state => {
       state.showTip = false
+    },
+    setMainUser: (state, action: PayloadAction<{ user: User }>) => {
+      state.mainUser = action.payload.user
     }
   }
 })
@@ -144,7 +148,8 @@ export const {
   fetchRecentTips,
   setRecentTips,
   setTipToDisplay,
-  hideTip
+  hideTip,
+  setMainUser
 } = slice.actions
 
 export default slice.reducer

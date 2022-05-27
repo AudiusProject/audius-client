@@ -3,7 +3,8 @@ import React, { ComponentPropsWithoutRef } from 'react'
 import cn from 'classnames'
 
 import { ID } from 'common/models/Identifiers'
-import { ProfilePictureSizes, SquareSizes } from 'common/models/ImageSizes'
+import { SquareSizes } from 'common/models/ImageSizes'
+import { User } from 'common/models/User'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -30,8 +31,7 @@ const ArtistIdentifier = ({
   userId,
   name,
   handle,
-  showPopover,
-  ...other
+  showPopover
 }: ArtistIdentifierProps) => {
   return showPopover ? (
     <div>
@@ -67,29 +67,28 @@ const ArtistIdentifier = ({
 }
 
 type ArtistChipProps = {
-  userId: number
-  name: string
-  handle: string
-  profilePictureSizes: ProfilePictureSizes
-  followers: number
+  user: User
   onClickArtistName: () => void
   showPopover?: boolean
-  doesFollowCurrentUser?: boolean
   tag?: string
   className?: string
 }
 const ArtistChip = ({
-  userId,
-  name,
-  handle,
-  profilePictureSizes,
-  followers,
+  user,
   onClickArtistName,
   showPopover = true,
-  doesFollowCurrentUser = false,
   tag,
   className = ''
 }: ArtistChipProps) => {
+  const {
+    user_id: userId,
+    name,
+    handle,
+    _profile_picture_sizes: profilePictureSizes,
+    follower_count: followers,
+    does_follow_current_user: doesFollowCurrentUser
+  } = user
+
   const profilePicture = useUserProfilePicture(
     userId,
     profilePictureSizes,
@@ -131,10 +130,10 @@ const ArtistChip = ({
         </div>
         <ArtistChipFollowers
           followerCount={followers}
-          doesFollowCurrentUser={doesFollowCurrentUser}
+          doesFollowCurrentUser={!!doesFollowCurrentUser}
         />
         {tag && TIP_SUPPORT_TAGS.has(tag) ? (
-          <ArtistChipTips userId={userId} tag={tag} />
+          <ArtistChipTips artistId={user.user_id} tag={tag} />
         ) : null}
       </div>
     </div>
