@@ -33,21 +33,9 @@ const ArtistIdentifier = ({
   showPopover,
   ...other
 }: ArtistIdentifierProps) => {
-  return (
+  return showPopover ? (
     <div>
-      {showPopover ? (
-        <ArtistPopover handle={handle}>
-          <div className={styles.name}>
-            <span>{name}</span>
-            <UserBadges
-              userId={userId}
-              className={cn(styles.badge)}
-              badgeSize={10}
-              inline
-            />
-          </div>
-        </ArtistPopover>
-      ) : (
+      <ArtistPopover handle={handle}>
         <div className={styles.name}>
           <span>{name}</span>
           <UserBadges
@@ -57,14 +45,23 @@ const ArtistIdentifier = ({
             inline
           />
         </div>
-      )}
-      {showPopover ? (
-        <ArtistPopover handle={handle}>
-          <div className={styles.handle}>@{handle}</div>
-        </ArtistPopover>
-      ) : (
+      </ArtistPopover>
+      <ArtistPopover handle={handle}>
         <div className={styles.handle}>@{handle}</div>
-      )}
+      </ArtistPopover>
+    </div>
+  ) : (
+    <div>
+      <div className={styles.name}>
+        <span>{name}</span>
+        <UserBadges
+          userId={userId}
+          className={cn(styles.badge)}
+          badgeSize={10}
+          inline
+        />
+      </div>
+      <div className={styles.handle}>@{handle}</div>
     </div>
   )
 }
