@@ -5,7 +5,7 @@ import { Animated, LayoutAnimation, View } from 'react-native'
 import { useToggle } from 'react-use'
 
 import IconCaretDown from 'app/assets/images/iconCaretDown.svg'
-import { TextButton } from 'app/components/core'
+import { Divider, TextButton } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
@@ -46,7 +46,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   seeLessIcon: {
     transform: [{ rotate: '180deg' }]
-  }
+  },
+  divider: { marginHorizontal: -12, marginBottom: 8 }
 }))
 
 type ProfileHeaderV2Props = {
@@ -100,6 +101,7 @@ export const ProfileHeaderV2 = (props: ProfileHeaderV2Props) => {
             icon: isExpanded && styles.seeLessIcon
           }}
         />
+        <Divider style={styles.divider} />
         {!hasUserFollowed ? null : (
           <ArtistRecommendations onClose={handleCloseArtistRecs} />
         )}
