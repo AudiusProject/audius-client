@@ -17,12 +17,14 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
-  root: { marginRight: spacing(3), flex: 3 },
+  root: { marginRight: spacing(3) },
   tile: { height: 50 },
   content: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    flex: 0,
+    paddingHorizontal: spacing(6)
   },
   viewContent: {
     flexDirection: 'row',

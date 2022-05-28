@@ -8,7 +8,7 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing }) => ({
-  root: { flex: 4 },
+  root: { flexGrow: 1 },
   tile: { height: 50 },
   content: {
     flexDirection: 'row',
