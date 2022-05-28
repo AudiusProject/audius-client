@@ -24,6 +24,10 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  viewContent: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   badge: {
     marginRight: spacing(2)
   },
@@ -69,7 +73,7 @@ export const ProfileTierTile = (props: ProfileTierTileProps) => {
         },
         onPress: handlePress
       }
-    : { style: { ...styles.root, ...styles.content } }
+    : { style: { ...styles.root, ...styles.viewContent } }
 
   return (
     <Root {...rootProps}>

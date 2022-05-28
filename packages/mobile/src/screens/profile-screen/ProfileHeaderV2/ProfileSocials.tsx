@@ -20,7 +20,8 @@ const useStyles = makeStyles(({ spacing }, { socialsCount }) => ({
   root: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingHorizontal: spacing(3)
   },
   socials: {
     flexDirection: 'row',
