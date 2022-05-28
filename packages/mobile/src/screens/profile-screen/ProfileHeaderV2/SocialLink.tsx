@@ -19,7 +19,7 @@ import { useThemeColors } from 'app/utils/theme'
 import { useSelectProfile } from '../selectors'
 import { squashNewLines } from '../utils'
 
-const useStyles = makeStyles(({ palette, spacing }) => ({
+const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   icon: {
     height: 28,
     width: 28,
@@ -31,8 +31,12 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   withText: { flexDirection: 'row', alignItems: 'center' },
   text: { marginLeft: spacing(2), marginBottom: 0 },
-  hyperlink: {
+  hyperlinkText: {
+    fontSize: typography.fontSize.medium,
     color: palette.neutral
+  },
+  hyperlinkLink: {
+    fontSize: typography.fontSize.medium
   }
 }))
 
@@ -67,7 +71,10 @@ export const SocialLink = (props: SocialLinkProps) => {
           <Hyperlink
             source='profile page'
             text={squashNewLines(text)}
-            style={[styles.text, styles.hyperlink]}
+            styles={{
+              root: [styles.text, styles.hyperlinkText],
+              link: styles.hyperlinkLink
+            }}
           />
         ) : (
           <Text numberOfLines={1} style={styles.text}>
