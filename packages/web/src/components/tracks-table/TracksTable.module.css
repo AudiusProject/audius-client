@@ -273,7 +273,7 @@ tr.deleted td {
 
 tr.deleted td,
 tr.deleted:hover td {
-  background-color: var(--neutral-light-9);
+  background-color: var(--neutral-light-9) !important;
 }
 
 :global(.ant-table-tbody) > tr.deleted:hover > td {
