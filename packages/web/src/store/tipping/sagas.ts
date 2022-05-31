@@ -75,7 +75,7 @@ function* optimisticallyUpdateSupporting({
    * 1. Get supporting map for sender.
    */
   const supportingMap = yield* select(getSupporting)
-  const supportingForSender = supportingMap[sender.user_id] ?? {}
+  let supportingForSender = supportingMap[sender.user_id] ?? {}
 
   /**
    * 2. Get and update the new amount the sender
@@ -86,10 +86,13 @@ function* optimisticallyUpdateSupporting({
   const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
     amountBN
   ) as BNWei
-  supportingForSender[receiver.user_id] = {
-    ...supportingForSender[receiver.user_id],
-    receiver_id: receiver.user_id,
-    amount: weiToString(newSupportAmountBN)
+  supportingForSender = {
+    ...supportingForSender,
+    [receiver.user_id]: {
+      ...supportingForSender[receiver.user_id],
+      receiver_id: receiver.user_id,
+      amount: weiToString(newSupportAmountBN)
+    }
   }
 
   /**
@@ -165,7 +168,7 @@ function* optimisticallyUpdateSupporters({
    * 1. Get supporters map for receiver.
    */
   const supportersMap = yield* select(getSupporters)
-  const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
+  let supportersForReceiver = supportersMap[receiver.user_id] ?? {}
 
   /**
    * 2. Get and update the new amount the receiver
@@ -176,10 +179,13 @@ function* optimisticallyUpdateSupporters({
   const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
     amountBN
   ) as BNWei
-  supportersForReceiver[sender.user_id] = {
-    ...supportersForReceiver[sender.user_id],
-    sender_id: sender.user_id,
-    amount: weiToString(newSupportAmountBN)
+  supportersForReceiver = {
+    ...supportersForReceiver,
+    [sender.user_id]: {
+      ...supportersForReceiver[sender.user_id],
+      sender_id: sender.user_id,
+      amount: weiToString(newSupportAmountBN)
+    }
   }
 
   /**
@@ -307,17 +313,6 @@ function* sendTipAsync() {
         amount: weiToAudioString(weiBNAmount)
       })
     )
-
-    yield call(optimisticallyUpdateSupporting, {
-      amountBN: weiBNAmount,
-      sender,
-      receiver: recipient
-    })
-    yield call(optimisticallyUpdateSupporters, {
-      amountBN: weiBNAmount,
-      sender,
-      receiver: recipient
-    })
   } catch (e) {
     const error = (e as Error).message
     console.error(`Send tip failed: ${error}`)
@@ -331,6 +326,23 @@ function* sendTipAsync() {
         amount: weiToAudioString(weiBNAmount),
         error
       })
+    )
+  }
+
+  try {
+    yield call(optimisticallyUpdateSupporting, {
+      amountBN: weiBNAmount,
+      sender,
+      receiver: recipient
+    })
+    yield call(optimisticallyUpdateSupporters, {
+      amountBN: weiBNAmount,
+      sender,
+      receiver: recipient
+    })
+  } catch (e) {
+    console.error(
+      `Could not optimistically update support: ${(e as Error).message}`
     )
   }
 }
