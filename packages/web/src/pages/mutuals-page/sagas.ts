@@ -28,7 +28,6 @@ const fetchAllUsersForEntity = async ({
   entityId: userId
 }: FetchMutualsConfig) => {
   const mutuals = await AudiusBackend.getFolloweeFollows(userId, limit, offset)
-  console.log('dem mutuals?', mutuals)
   return { users: mutuals }
 }
 
@@ -38,8 +37,7 @@ const provider = createUserListProvider<User>({
   fetchAllUsersForEntity,
   selectCurrentUserIDsInList: getUserIds,
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>
-    combinedUserIDs.length < user.followee_count,
-
+    combinedUserIDs.length < user.current_user_followee_follow_count,
   includeCurrentUser: _ => false
 })
 
@@ -52,7 +50,6 @@ function* errorDispatcher(error: Error) {
 
 function* getMutuals(currentPage: number, pageSize: number) {
   const id = yield* select(getId)
-  console.log('dat id?', id)
   if (!id) return { userIds: [], hasMore: false }
   return yield* provider({ id, currentPage, pageSize })
 }
