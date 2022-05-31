@@ -58,7 +58,7 @@ export const ProfileScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
-  const { isEnabled: isTippingEnabled, isLoaded } = useFeatureFlag(
+  const { isEnabled: isTippingEnabled } = useFeatureFlag(
     FeatureFlags.TIPPING_ENABLED
   )
 
@@ -127,13 +127,12 @@ export const ProfileScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current
 
   const renderHeader = useCallback(() => {
-    if (!isLoaded) return null
     return isTippingEnabled ? (
       <ProfileHeaderV2 scrollY={scrollY} />
     ) : (
       <ProfileHeader scrollY={scrollY} />
     )
-  }, [isLoaded, isTippingEnabled, scrollY])
+  }, [isTippingEnabled, scrollY])
 
   return (
     <Screen topbarLeft={topbarLeft} topbarRight={topbarRight}>
