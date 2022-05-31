@@ -11,7 +11,7 @@ import { getAccountUser } from 'common/store/account/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import {
   getSendTipData,
-  // getSupporters,
+  getSupporters,
   getSupporting
 } from 'common/store/tipping/selectors'
 import {
@@ -32,6 +32,7 @@ import {
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
+import { Nullable } from 'common/utils/typeUtils'
 import {
   parseAudioInputToWei,
   stringWeiToBN,
@@ -59,10 +60,9 @@ import { getMinSlotForRecentTips, checkTipToDisplay } from './utils'
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
 /**
- * Optimistically update the supporting list for sender
- * and the supporters list for the receiver
+ * Optimistically update supporting list for a user.
  */
-function* optimisticallyUpdateSupport({
+function* optimisticallyUpdateSupporting({
   amountBN,
   sender,
   receiver
@@ -72,86 +72,171 @@ function* optimisticallyUpdateSupport({
   receiver: User
 }) {
   /**
-   * todo: remove receiver from sender's supporting from store first
+   * 1. Get supporting map for sender.
    */
-
   const supportingMap = yield* select(getSupporting)
   const supportingForSender = supportingMap[sender.user_id] ?? {}
+
+  /**
+   * 2. Get and update the new amount the sender
+   * is supporting to the receiver.
+   */
   const previousSupportAmount =
     supportingForSender[receiver.user_id]?.amount ?? ('0' as StringWei)
-  const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(amountBN)
+  const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
+    amountBN
+  ) as BNWei
+  supportingForSender[receiver.user_id] = {
+    ...supportingForSender[receiver.user_id],
+    receiver_id: receiver.user_id,
+    amount: weiToString(newSupportAmountBN)
+  }
+
+  /**
+   * 3. Sort the supporting values for the sender by amount descending.
+   */
   const supportingSortedDesc = Object.values(
     supportingForSender
   ).sort((s1, s2) =>
     stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
   )
-  const supporting = supportingSortedDesc.find(supporting =>
-    newSupportAmountBN.gte(stringWeiToBN(supporting.amount))
-  )
-  const supportingRank = supporting
-    ? supporting.rank
-    : supportingSortedDesc.length + 1
 
-  const newSupportingForSender: {
-    [id: number]: {
-      receiver_id: ID
-      amount: StringWei
-      rank: number
-    }
-  } = {}
-  if (supporting) {
-    /**
-     * Update existing ranks and store them
-     */
-    ;((Object.keys(supportingForSender) as unknown) as ID[]).forEach(id => {
-      if (
-        stringWeiToBN(supportingForSender[id].amount).lt(newSupportAmountBN)
-      ) {
-        newSupportingForSender[id] = {
-          ...supportingForSender[id],
-          rank: supportingForSender[id].rank + 1
+  /**
+   * 4. Update the ranks of all the supporting values
+   * and store in new map.
+   */
+  let rank = 1
+  let previousAmountBN: Nullable<BNWei> = null
+  const map: Record<ID, Supporting> = {}
+  for (let i = 0; i < supportingSortedDesc.length; i++) {
+    if (!previousAmountBN) {
+      // Store the first (and potentially only one) in the new map
+      map[supportingSortedDesc[i].receiver_id] = {
+        ...supportingSortedDesc[i],
+        rank
+      }
+      previousAmountBN = stringWeiToBN(supportingSortedDesc[i].amount)
+    } else {
+      const currentAmountBN = stringWeiToBN(supportingSortedDesc[i].amount)
+      if ((previousAmountBN as BNWei).gt(currentAmountBN)) {
+        // If previous amount is greater than current, then
+        // increment the rank for the current value.
+        map[supportingSortedDesc[i].receiver_id] = {
+          ...supportingSortedDesc[i],
+          rank: ++rank
         }
       } else {
-        newSupportingForSender[id] = { ...supportingForSender[id] }
+        // Otherwise, the amounts are equal (because we already
+        // previously sorted). Thus, keep the same rank.
+        map[supportingSortedDesc[i].receiver_id] = {
+          ...supportingSortedDesc[i],
+          rank
+        }
       }
-    })
-    yield put(
-      setSupportingForUser({
-        id: sender.user_id,
-        supportingForUser: newSupportingForSender
-      })
-    )
+      // Update the previous amount.
+      previousAmountBN = currentAmountBN
+    }
   }
+
   /**
-   * Store the updated rank for sender
+   * 5. Store the new map in the tipping store.
    */
   yield put(
     setSupportingForUser({
       id: sender.user_id,
-      supportingForUser: {
-        [receiver.user_id]: {
-          receiver_id: receiver.user_id,
-          amount: weiToString(newSupportAmountBN as BNWei),
-          rank: supportingRank
-        }
-      }
+      supportingForUser: map
     })
+  )
+}
+
+/**
+ * Optimistically update supporters list for a user.
+ */
+function* optimisticallyUpdateSupporters({
+  amountBN,
+  sender,
+  receiver
+}: {
+  amountBN: BNWei
+  sender: User
+  receiver: User
+}) {
+  /**
+   * 1. Get supporters map for receiver.
+   */
+  const supportersMap = yield* select(getSupporters)
+  const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
+
+  /**
+   * 2. Get and update the new amount the receiver
+   * is supported by the sender.
+   */
+  const previousSupportAmount =
+    supportersForReceiver[sender.user_id]?.amount ?? ('0' as StringWei)
+  const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
+    amountBN
+  ) as BNWei
+  supportersForReceiver[sender.user_id] = {
+    ...supportersForReceiver[sender.user_id],
+    sender_id: sender.user_id,
+    amount: weiToString(newSupportAmountBN)
+  }
+
+  /**
+   * 3. Sort the supporters values for the receiver by amount descending.
+   */
+  const supportersSortedDesc = Object.values(
+    supportersForReceiver
+  ).sort((s1, s2) =>
+    stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
   )
 
   /**
-   * todo: do the same for receiver supporters
+   * 4. Update the ranks of all the supporters values
+   * and store in new map.
    */
+  let rank = 1
+  let previousAmountBN: Nullable<BNWei> = null
+  const map: Record<ID, Supporter> = {}
+  for (let i = 0; i < supportersSortedDesc.length; i++) {
+    if (!previousAmountBN) {
+      // Store the first (and potentially only one) in the new map
+      map[supportersSortedDesc[i].sender_id] = {
+        ...supportersSortedDesc[i],
+        rank
+      }
+      previousAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
+    } else {
+      const currentAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
+      if ((previousAmountBN as BNWei).gt(currentAmountBN)) {
+        // If previous amount is greater than current, then
+        // increment the rank for the current value.
+        map[supportersSortedDesc[i].sender_id] = {
+          ...supportersSortedDesc[i],
+          rank: ++rank
+        }
+      } else {
+        // Otherwise, the amounts are equal (because we already
+        // previously sorted). Thus, keep the same rank.
+        map[supportersSortedDesc[i].sender_id] = {
+          ...supportersSortedDesc[i],
+          rank
+        }
+      }
+      // Update the previous amount.
+      previousAmountBN = currentAmountBN
+    }
+  }
 
-  // yield put(setSupportersForUser({
-  //   id: receiver.user_id,
-  //   supportersForUser: {
-  //     [sender.user_id]: {
-  //       sender_id: sender.user_id,
-  //       amount: amount,
-  //       rank: supporterRank
-  //     }
-  //   }
-  // }))
+  /**
+   * 5. Store the new map in the tipping store.
+   */
+  yield put(
+    setSupportersForUser({
+      id: receiver.user_id,
+      supportersForUser: map
+    })
+  )
 }
 
 function* sendTipAsync() {
@@ -223,7 +308,12 @@ function* sendTipAsync() {
       })
     )
 
-    yield call(optimisticallyUpdateSupport, {
+    yield call(optimisticallyUpdateSupporting, {
+      amountBN: weiBNAmount,
+      sender,
+      receiver: recipient
+    })
+    yield call(optimisticallyUpdateSupporters, {
       amountBN: weiBNAmount,
       sender,
       receiver: recipient
