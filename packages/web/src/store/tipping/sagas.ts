@@ -27,11 +27,12 @@ import {
   setRecentTips,
   setSupportersForUser,
   setSupportingForUser,
-  hideTip
+  hideTip,
+  setSupportingOverridesForUser,
+  setSupportersOverridesForUser
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
-import { Nullable } from 'common/utils/typeUtils'
 import {
   parseAudioInputToWei,
   stringWeiToBN,
@@ -54,14 +55,11 @@ import {
 } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
-import { getMinSlotForRecentTips, checkTipToDisplay } from './utils'
+import { getMinSlotForRecentTips, checkTipToDisplay } from './storageUtils'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
-/**
- * Optimistically update supporting list for a user.
- */
-function* optimisticallyUpdateSupporting({
+function* overrideSupportingForUser({
   amountBN,
   sender,
   receiver
@@ -71,13 +69,13 @@ function* optimisticallyUpdateSupporting({
   receiver: User
 }) {
   /**
-   * 1. Get supporting map for sender.
+   * Get supporting map for sender.
    */
   const supportingMap = yield* select(getSupporting)
-  let supportingForSender = supportingMap[sender.user_id] ?? {}
+  const supportingForSender = supportingMap[sender.user_id] ?? {}
 
   /**
-   * 2. Get and update the new amount the sender
+   * Get and update the new amount the sender
    * is supporting to the receiver.
    */
   const previousSupportAmount =
@@ -85,76 +83,25 @@ function* optimisticallyUpdateSupporting({
   const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
     amountBN
   ) as BNWei
-  supportingForSender = {
-    ...supportingForSender,
-    [receiver.user_id]: {
-      ...supportingForSender[receiver.user_id],
-      receiver_id: receiver.user_id,
-      amount: weiToString(newSupportAmountBN)
-    }
-  }
 
   /**
-   * 3. Sort the supporting values for the sender by amount descending.
-   */
-  const supportingSortedDesc = Object.values(
-    supportingForSender
-  ).sort((s1, s2) =>
-    stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
-  )
-
-  /**
-   * 4. Update the ranks of all the supporting values
-   * and store in new map.
-   */
-  let rank = 1
-  let previousAmountBN: Nullable<BNWei> = null
-  const map: Record<ID, Supporting> = {}
-  for (let i = 0; i < supportingSortedDesc.length; i++) {
-    if (!previousAmountBN) {
-      // Store the first (and potentially only one) in the new map
-      map[supportingSortedDesc[i].receiver_id] = {
-        ...supportingSortedDesc[i],
-        rank
-      }
-      previousAmountBN = stringWeiToBN(supportingSortedDesc[i].amount)
-    } else {
-      const currentAmountBN = stringWeiToBN(supportingSortedDesc[i].amount)
-      if ((previousAmountBN as BNWei).gt(currentAmountBN)) {
-        // If previous amount is greater than current, then
-        // increment the rank for the current value.
-        map[supportingSortedDesc[i].receiver_id] = {
-          ...supportingSortedDesc[i],
-          rank: ++rank
-        }
-      } else {
-        // Otherwise, the amounts are equal (because we already
-        // previously sorted). Thus, keep the same rank.
-        map[supportingSortedDesc[i].receiver_id] = {
-          ...supportingSortedDesc[i],
-          rank
-        }
-      }
-      // Update the previous amount.
-      previousAmountBN = currentAmountBN
-    }
-  }
-
-  /**
-   * 5. Store the new map in the tipping store.
+   * Store the optimistic value.
    */
   yield put(
-    setSupportingForUser({
+    setSupportingOverridesForUser({
       id: sender.user_id,
-      supportingForUser: map
+      supportingOverridesForUser: {
+        [receiver.user_id]: {
+          receiver_id: receiver.user_id,
+          amount: weiToString(newSupportAmountBN),
+          rank: -1
+        }
+      }
     })
   )
 }
 
-/**
- * Optimistically update supporters list for a user.
- */
-function* optimisticallyUpdateSupporters({
+function* overrideSupportersForUser({
   amountBN,
   sender,
   receiver
@@ -164,82 +111,34 @@ function* optimisticallyUpdateSupporters({
   receiver: User
 }) {
   /**
-   * 1. Get supporters map for receiver.
+   * Get supporting map for sender.
    */
   const supportersMap = yield* select(getSupporters)
-  let supportersForReceiver = supportersMap[receiver.user_id] ?? {}
+  const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
 
   /**
-   * 2. Get and update the new amount the receiver
-   * is supported by the sender.
+   * Get and update the new amount the sender
+   * is supporting to the receiver.
    */
   const previousSupportAmount =
     supportersForReceiver[sender.user_id]?.amount ?? ('0' as StringWei)
   const newSupportAmountBN = stringWeiToBN(previousSupportAmount).add(
     amountBN
   ) as BNWei
-  supportersForReceiver = {
-    ...supportersForReceiver,
-    [sender.user_id]: {
-      ...supportersForReceiver[sender.user_id],
-      sender_id: sender.user_id,
-      amount: weiToString(newSupportAmountBN)
-    }
-  }
 
   /**
-   * 3. Sort the supporters values for the receiver by amount descending.
-   */
-  const supportersSortedDesc = Object.values(
-    supportersForReceiver
-  ).sort((s1, s2) =>
-    stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
-  )
-
-  /**
-   * 4. Update the ranks of all the supporters values
-   * and store in new map.
-   */
-  let rank = 1
-  let previousAmountBN: Nullable<BNWei> = null
-  const map: Record<ID, Supporter> = {}
-  for (let i = 0; i < supportersSortedDesc.length; i++) {
-    if (!previousAmountBN) {
-      // Store the first (and potentially only one) in the new map
-      map[supportersSortedDesc[i].sender_id] = {
-        ...supportersSortedDesc[i],
-        rank
-      }
-      previousAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
-    } else {
-      const currentAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
-      if ((previousAmountBN as BNWei).gt(currentAmountBN)) {
-        // If previous amount is greater than current, then
-        // increment the rank for the current value.
-        map[supportersSortedDesc[i].sender_id] = {
-          ...supportersSortedDesc[i],
-          rank: ++rank
-        }
-      } else {
-        // Otherwise, the amounts are equal (because we already
-        // previously sorted). Thus, keep the same rank.
-        map[supportersSortedDesc[i].sender_id] = {
-          ...supportersSortedDesc[i],
-          rank
-        }
-      }
-      // Update the previous amount.
-      previousAmountBN = currentAmountBN
-    }
-  }
-
-  /**
-   * 5. Store the new map in the tipping store.
+   * Store the optimistic value.
    */
   yield put(
-    setSupportersForUser({
+    setSupportersOverridesForUser({
       id: receiver.user_id,
-      supportersForUser: map
+      supportersOverridesForUser: {
+        [sender.user_id]: {
+          sender_id: sender.user_id,
+          amount: weiToString(newSupportAmountBN),
+          rank: -1
+        }
+      }
     })
   )
 }
@@ -312,6 +211,27 @@ function* sendTipAsync() {
         amount: weiToAudioString(weiBNAmount)
       })
     )
+
+    /**
+     * Store optimistically updated supporting value for sender
+     * and supporter value for receiver.
+     */
+    try {
+      yield call(overrideSupportingForUser, {
+        amountBN: weiBNAmount,
+        sender,
+        receiver: recipient
+      })
+      yield call(overrideSupportersForUser, {
+        amountBN: weiBNAmount,
+        sender,
+        receiver: recipient
+      })
+    } catch (e) {
+      console.error(
+        `Could not optimistically update support: ${(e as Error).message}`
+      )
+    }
   } catch (e) {
     const error = (e as Error).message
     console.error(`Send tip failed: ${error}`)
@@ -325,23 +245,6 @@ function* sendTipAsync() {
         amount: weiToAudioString(weiBNAmount),
         error
       })
-    )
-  }
-
-  try {
-    yield call(optimisticallyUpdateSupporting, {
-      amountBN: weiBNAmount,
-      sender,
-      receiver: recipient
-    })
-    yield call(optimisticallyUpdateSupporters, {
-      amountBN: weiBNAmount,
-      sender,
-      receiver: recipient
-    })
-  } catch (e) {
-    console.error(
-      `Could not optimistically update support: ${(e as Error).message}`
     )
   }
 }
