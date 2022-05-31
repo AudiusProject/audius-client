@@ -28,6 +28,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
+// adds https to urls that don't include http protocol
 const prependProtocol = (url?: string) =>
   !url?.match(/^https?:\/\//i) ? `https://${url}` : url
 

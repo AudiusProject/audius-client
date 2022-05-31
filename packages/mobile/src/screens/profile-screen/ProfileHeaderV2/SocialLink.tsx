@@ -53,10 +53,12 @@ export const SocialLink = (props: SocialLinkProps) => {
   const styles = useStyles()
   const { neutral } = useThemeColors()
 
+  // undefined equates to "LOADING" from backend
   if (text === undefined) {
     return <Skeleton style={styles.skeleton} />
   }
 
+  // null means the user does not have this social link
   if (text === null) {
     return null
   }

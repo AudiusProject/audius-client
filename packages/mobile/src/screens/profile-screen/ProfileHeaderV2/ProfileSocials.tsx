@@ -48,7 +48,7 @@ export const ProfileSocials = () => {
   ])
 
   const socialsCount = [twitter_handle, instagram_handle, tiktok_handle].filter(
-    handle => handle
+    Boolean
   ).length
 
   const stylesOptions = useMemo(() => ({ socialsCount }), [socialsCount])
@@ -75,7 +75,7 @@ export const ProfileSocials = () => {
         ]}
       >
         {socialLinks.map(([handle, Link], index) => {
-          const link = <Link showText={socialsCount === 1} />
+          const link = <Link key={index} showText={socialsCount === 1} />
           if (handle === null) return null
           if (socialsCount === 1) return link
           if (index === socialsCount - 1) return link
