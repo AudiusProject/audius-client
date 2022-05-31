@@ -10,9 +10,9 @@ import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import {
-  getSendTipData,
-  getSupporters,
-  getSupporting
+  getOptimisticSupporters,
+  getOptimisticSupporting,
+  getSendTipData
 } from 'common/store/tipping/selectors'
 import {
   confirmSendTip,
@@ -71,7 +71,7 @@ function* overrideSupportingForUser({
   /**
    * Get supporting map for sender.
    */
-  const supportingMap = yield* select(getSupporting)
+  const supportingMap = yield* select(getOptimisticSupporting)
   const supportingForSender = supportingMap[sender.user_id] ?? {}
 
   /**
@@ -113,7 +113,7 @@ function* overrideSupportersForUser({
   /**
    * Get supporting map for sender.
    */
-  const supportersMap = yield* select(getSupporters)
+  const supportersMap = yield* select(getOptimisticSupporters)
   const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
 
   /**
