@@ -65,10 +65,6 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ userId: ID }>
     ) => {},
-    fetchSupportersForUser: (
-      state,
-      action: PayloadAction<{ userId: ID }>
-    ) => {},
     beginTip: (state, action: PayloadAction<{ user: User | null }>) => {
       if (!action.payload.user) {
         return
@@ -135,7 +131,6 @@ export const {
   setSupportersForUser,
   refreshSupport,
   fetchSupportingForUser,
-  fetchSupportersForUser,
   beginTip,
   sendTip,
   confirmSendTip,

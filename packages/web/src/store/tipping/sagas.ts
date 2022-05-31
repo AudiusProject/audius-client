@@ -18,7 +18,6 @@ import {
   confirmSendTip,
   convert,
   fetchRecentTips,
-  fetchSupportersForUser,
   fetchSupportingForUser,
   refreshSupport,
   RefreshSupportPayloadAction,
@@ -489,47 +488,6 @@ function* fetchSupportingForUserAsync({
   )
 }
 
-function* fetchSupportersForUserAsync({
-  payload: { userId }
-}: {
-  payload: { userId: ID }
-  type: string
-}) {
-  const encodedUserId = encodeHashId(userId)
-  if (!encodedUserId) {
-    return
-  }
-
-  // todo: need to also get whether this user is supported by logged in user
-  // so that we can have correct 'become top supporter' logic
-  // as-is, cannot rely on response because of pagination
-  const supporters = yield* call(fetchSupporters, {
-    encodedUserId
-  })
-  const userIds = supporters.map(supporter => decodeHashId(supporter.sender.id))
-
-  yield call(fetchUsers, userIds, new Set(), true)
-
-  const map: Record<string, Supporter> = {}
-  supporters.forEach(supporter => {
-    const supporterUserId = decodeHashId(supporter.sender.id)
-    if (supporterUserId) {
-      map[supporterUserId] = {
-        sender_id: supporterUserId,
-        rank: supporter.rank,
-        amount: supporter.amount
-      }
-    }
-  })
-
-  yield put(
-    setSupportersForUser({
-      id: userId,
-      supportersForUser: map
-    })
-  )
-}
-
 function* fetchRecentTipsAsync() {
   const account = yield* select(getAccountUser)
   if (!account) {
@@ -621,10 +579,6 @@ function* watchFetchSupportingForUser() {
   yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
 }
 
-function* watchFetchSupportersForUser() {
-  yield* takeEvery(fetchSupportersForUser.type, fetchSupportersForUserAsync)
-}
-
 function* watchRefreshSupport() {
   yield* takeEvery(refreshSupport.type, refreshSupportAsync)
 }
@@ -640,7 +594,6 @@ function* watchFetchRecentTips() {
 const sagas = () => {
   return [
     watchFetchSupportingForUser,
-    watchFetchSupportersForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips
