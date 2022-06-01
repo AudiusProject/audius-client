@@ -7,9 +7,10 @@ const useStyles = makeStyles(({ spacing }) => ({
   root: {
     marginTop: spacing(3),
     paddingBottom: spacing(1),
-    height: 64,
+    height: 96,
     width: 220,
-    marginRight: spacing(2)
+    marginRight: spacing(2),
+    borderRadius: 8
   }
 }))
 

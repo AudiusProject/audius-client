@@ -13,6 +13,11 @@ import { useSelectProfile } from '../selectors'
 
 import { TopSupporterTile } from './TopSupporterTile'
 import { TopSupporterTileSkeleton } from './TopSupporterTileSkeleton'
+import { ViewAllTopSupportersTile } from './ViewAllTopSupportersTile'
+
+export const MAX_PROFILE_TOP_SUPPORTERS = 2
+
+type ViewAllData = { viewAll: true; supporters: User[] }
 
 type SkeletonData = { loading: true }
 const skeletonData: SkeletonData[] = [{ loading: true }, { loading: true }]
@@ -54,9 +59,22 @@ export const TopSupportersList = () => {
     [topSupporterIds, topSupporterUsers]
   )
 
-  const topSupportersData = useMemo(() => {
+  const topSupportersListData = useMemo(() => {
     if (topSupporters.length === 0) {
       return skeletonData
+    }
+    if (topSupporters.length > MAX_PROFILE_TOP_SUPPORTERS) {
+      const viewAllData: ViewAllData = {
+        viewAll: true,
+        supporters: topSupporters.slice(
+          MAX_PROFILE_TOP_SUPPORTERS,
+          topSupporters.length
+        )
+      }
+      return [
+        ...topSupporters.slice(0, MAX_PROFILE_TOP_SUPPORTERS),
+        viewAllData
+      ]
     }
     return topSupporters
   }, [topSupporters])
@@ -75,20 +93,22 @@ export const TopSupportersList = () => {
   }
 
   return (
-    <FlatList<SkeletonData | User>
+    <FlatList<User | SkeletonData | ViewAllData>
       horizontal
-      data={topSupportersData}
-      renderItem={({ item, index }) =>
-        'loading' in item ? (
-          <TopSupporterTileSkeleton />
-        ) : (
+      showsHorizontalScrollIndicator={false}
+      data={topSupportersListData}
+      renderItem={({ item, index }) => {
+        if ('loading' in item) return <TopSupporterTileSkeleton />
+        if ('viewAll' in item)
+          return <ViewAllTopSupportersTile supporters={item.supporters} />
+        return (
           <TopSupporterTile
             key={item.user_id}
             rank={index + 1}
             supporter={item}
           />
         )
-      }
+      }}
     />
   )
 }

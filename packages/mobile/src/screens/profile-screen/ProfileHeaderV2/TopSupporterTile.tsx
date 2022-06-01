@@ -1,5 +1,8 @@
+import { useCallback } from 'react'
+
 import { WidthSizes } from 'audius-client/src/common/models/ImageSizes'
 import { User } from 'audius-client/src/common/models/User'
+import { profilePage } from 'audius-client/src/utils/route'
 import { ImageBackground, StyleProp, View, ViewStyle } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
@@ -8,6 +11,7 @@ import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { Text, Tile } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -60,16 +64,24 @@ type TopSupporterTileProps = {
 
 export const TopSupporterTile = (props: TopSupporterTileProps) => {
   const { supporter, rank, style } = props
-  const { user_id, name, _cover_photo_sizes } = supporter
+  const { user_id, handle, name, _cover_photo_sizes } = supporter
   const styles = useStyles()
   const { secondary, neutralLight4 } = useThemeColors()
   const isTopSupporter = rank === 1
+  const navigation = useNavigation()
 
   const coverPhoto = useUserCoverPhoto({
     id: user_id,
     sizes: _cover_photo_sizes,
     size: WidthSizes.SIZE_640
   })
+
+  const handlePress = useCallback(() => {
+    navigation.push({
+      native: { screen: 'Profile', params: { handle } },
+      web: { route: profilePage(handle) }
+    })
+  }, [navigation, handle])
 
   const iconProps = {
     height: spacing(3),
@@ -84,7 +96,7 @@ export const TopSupporterTile = (props: TopSupporterTileProps) => {
   )
 
   return (
-    <Tile style={[styles.root, style]}>
+    <Tile style={[styles.root, style]} onPress={handlePress}>
       <ImageBackground
         style={styles.supporterInfo}
         source={{ uri: coverPhoto }}
