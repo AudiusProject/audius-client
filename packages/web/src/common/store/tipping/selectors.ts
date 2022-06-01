@@ -1,14 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 
 import { ID } from 'common/models/Identifiers'
+import { BNWei } from 'common/models/Wallet'
 import { CommonState } from 'common/store'
+import { Nullable } from 'common/utils/typeUtils'
 import { stringWeiToBN } from 'common/utils/wallet'
-import {
-  optimisticallyUpdateSupporters,
-  optimisticallyUpdateSupporting
-} from 'store/tipping/supportUtils'
 
-import { SupportersMap, SupportingMap } from './types'
+import { SupportersMap, SupportersMapForUser, SupportingMap } from './types'
 
 export const getSupporters = (state: CommonState) => state.tipping.supporters
 export const getSupportersForUser = (state: CommonState, userId: ID) =>
@@ -41,137 +39,149 @@ export const getTipToDisplay = (state: CommonState) =>
 export const getShowTip = (state: CommonState) => state.tipping.showTip
 export const getMainUser = (state: CommonState) => state.tipping.mainUser
 
-const getOptimisticSupportingBase = (state: CommonState) => {
-  const { supporting, supportingOverrides } = state.tipping
-
+const mergeMaps = ({
+  map,
+  mapOverrides
+}: {
+  map: SupportingMap | SupportersMap
+  mapOverrides: SupportingMap | SupportersMap
+}) => {
   /**
-   * Copy the supporting map into the eventually-merged map.
+   * Copy the support map into the eventually-merged map.
    */
-  let mergedMap: SupportingMap = {}
-  Object.assign(mergedMap, supporting)
+  const mergedMap: any = {}
+  Object.assign(mergedMap, map)
 
   /**
    * Merge the default and override maps.
    */
-  const userIds = (Object.keys(supportingOverrides) as unknown) as ID[]
+  const userIds = (Object.keys(mapOverrides) as unknown) as ID[]
   for (const userId of userIds) {
-    // If the supporting map for a given user id exists in the overrides
+    // If the support map for a given user id exists in the overrides
     // but not in the default, copy the override map into the merged map.
-    const shouldOverrideMap = !supporting[userId]
+    const shouldOverrideMap = !map[userId]
     if (shouldOverrideMap) {
-      mergedMap = {
-        ...mergedMap,
-        [userId]: supportingOverrides[userId]
-      }
+      mergedMap[userId] = mapOverrides[userId]
     } else {
-      // If the supporting value for a given user id and receiver id exists
+      // If the support value for a given user id and sender/receiver id exists
       // in the overrides but not in the default,
       // OR
       // if the existing value in the default map has a smaller amount
       // than that in the override, the update default value with the
       // override value
-      const receiverIds = (Object.keys(
-        supportingOverrides[userId]
-      ) as unknown) as ID[]
-      for (const receiverId of receiverIds) {
-        const shouldOverrideReceiver =
-          !supporting[userId][receiverId] ||
-          stringWeiToBN(supporting[userId][receiverId].amount).lt(
-            stringWeiToBN(supportingOverrides[userId][receiverId].amount)
+      const supportIds = (Object.keys(mapOverrides[userId]) as unknown) as ID[]
+      for (const supportId of supportIds) {
+        const shouldOverrideValue =
+          !map[userId][supportId] ||
+          stringWeiToBN(map[userId][supportId].amount).lt(
+            stringWeiToBN(mapOverrides[userId][supportId].amount)
           )
-        if (shouldOverrideReceiver) {
-          mergedMap = {
-            ...mergedMap,
-            [userId]: {
-              ...mergedMap[userId],
-              [receiverId]: supportingOverrides[userId][receiverId]
-            }
-          }
+        if (shouldOverrideValue) {
+          mergedMap[userId][supportId] = mapOverrides[userId][supportId]
         }
       }
     }
   }
 
-  /**
-   * Re-rank everything based on newly merged map.
-   */
-  let result: SupportingMap = {}
-  const mergedUserIds = (Object.keys(mergedMap) as unknown) as ID[]
-  for (const userId of mergedUserIds) {
-    result = {
-      ...result,
-      [userId]: optimisticallyUpdateSupporting(mergedMap[userId])
-    }
-  }
+  return mergedMap
+}
 
-  return result
+const getOptimisticSupportingBase = (state: CommonState) => {
+  const { supporting, supportingOverrides } = state.tipping
+
+  /**
+   * Merge supporting maps
+   */
+  const mergedMap = mergeMaps({
+    map: supporting,
+    mapOverrides: supportingOverrides
+  })
+
+  /**
+   * Note that for supporting, rank is not super relevant
+   * as we do not display supporting ranks; we only display
+   * supporters ranks (so far).
+   * So, for supporting we sort by amounts descending but we
+   * don't optimistically update ranks (and we can't anyway, since
+   * the correct rank would need to take other supporters of a given
+   * user into consideration, which we don't have access to).
+   * So we simply return the merged map
+   */
+  return mergedMap
 }
 export const getOptimisticSupporting = createSelector(
   getOptimisticSupportingBase,
   result => result
 )
 
+export const rerankSupportersMapForUser = (
+  supportersForUser: SupportersMapForUser
+) => {
+  /**
+   * Sort the supporters values for the user by amount descending.
+   */
+  const supportersSortedDesc = Object.values(supportersForUser).sort((s1, s2) =>
+    stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
+  )
+
+  /**
+   * Update the ranks of all the supporters values
+   * and store in new map.
+   */
+  let rank = 1
+  let previousAmountBN: Nullable<BNWei> = null
+  const map: SupportersMapForUser = {}
+  for (let i = 0; i < supportersSortedDesc.length; i++) {
+    if (!previousAmountBN) {
+      // Store the first (and potentially only one) in the new map
+      map[supportersSortedDesc[i].sender_id] = {
+        ...supportersSortedDesc[i],
+        rank
+      }
+      previousAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
+    } else {
+      const currentAmountBN = stringWeiToBN(supportersSortedDesc[i].amount)
+      if ((previousAmountBN as BNWei).gt(currentAmountBN)) {
+        // If previous amount is greater than current, then
+        // increment the rank for the current value.
+        map[supportersSortedDesc[i].sender_id] = {
+          ...supportersSortedDesc[i],
+          rank: ++rank
+        }
+      } else {
+        // Otherwise, the amounts are equal (because we already
+        // previously sorted). Thus, keep the same rank.
+        map[supportersSortedDesc[i].sender_id] = {
+          ...supportersSortedDesc[i],
+          rank
+        }
+      }
+      // Update the previous amount.
+      previousAmountBN = currentAmountBN
+    }
+  }
+
+  return map
+}
+
 const getOptimisticSupportersBase = (state: CommonState) => {
   const { supporters, supportersOverrides } = state.tipping
 
   /**
-   * Copy the supporters map into the eventually-merged map.
+   * Merge supporter maps
    */
-  let mergedMap: SupportersMap = {}
-  Object.assign(mergedMap, supporters)
-
-  /**
-   * Merge the default and override maps.
-   */
-  const userIds = (Object.keys(supportersOverrides) as unknown) as ID[]
-  for (const userId of userIds) {
-    // If the supporters map for a given user id exists in the overrides
-    // but not in the default, copy the override map into the merged map.
-    const shouldOverrideMap = !supporters[userId]
-    if (shouldOverrideMap) {
-      mergedMap = {
-        ...mergedMap,
-        [userId]: supportersOverrides[userId]
-      }
-    } else {
-      // If the supporters value for a given user id and sender id exists
-      // in the overrides but not in the default,
-      // OR
-      // if the existing value in the default map has a smaller amount
-      // than that in the override, the update default value with the
-      // override value
-      const senderIds = (Object.keys(
-        supportersOverrides[userId]
-      ) as unknown) as ID[]
-      for (const senderId of senderIds) {
-        const shouldOverrideSender =
-          !supporters[userId][senderId] ||
-          stringWeiToBN(supporters[userId][senderId].amount).lt(
-            stringWeiToBN(supportersOverrides[userId][senderId].amount)
-          )
-        if (shouldOverrideSender) {
-          mergedMap = {
-            ...mergedMap,
-            [userId]: {
-              ...mergedMap[userId],
-              [senderId]: supportersOverrides[userId][senderId]
-            }
-          }
-        }
-      }
-    }
-  }
+  const mergedMap = mergeMaps({
+    map: supporters,
+    mapOverrides: supportersOverrides
+  })
 
   /**
    * Re-rank everything based on newly merged map.
    */
-  let result: SupportersMap = {}
+  const result: SupportersMap = {}
   const mergedUserIds = (Object.keys(mergedMap) as unknown) as ID[]
   for (const userId of mergedUserIds) {
-    result = {
-      ...result,
-      [userId]: optimisticallyUpdateSupporters(mergedMap[userId])
-    }
+    result[userId] = rerankSupportersMapForUser(mergedMap[userId])
   }
 
   return result
