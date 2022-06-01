@@ -15,7 +15,7 @@ import { TopSupporterTile } from './TopSupporterTile'
 import { TopSupporterTileSkeleton } from './TopSupporterTileSkeleton'
 import { ViewAllTopSupportersTile } from './ViewAllTopSupportersTile'
 
-export const MAX_PROFILE_TOP_SUPPORTERS = 2
+export const MAX_PROFILE_TOP_SUPPORTERS = 5
 
 type ViewAllData = { viewAll: true; supporters: User[] }
 
