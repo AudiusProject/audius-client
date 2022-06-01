@@ -44,7 +44,7 @@ const useStyles = makeStyles(({ palette, spacing }, { variant }) => {
   return merge(baseStyles, variantStyles[variant])
 })
 
-type TextButtonProps = TouchableOpacityProps &
+export type TextButtonProps = TouchableOpacityProps &
   ButtonProps & {
     variant: 'primary' | 'secondary' | 'neutralLight4'
     icon?: ComponentType<SvgProps>

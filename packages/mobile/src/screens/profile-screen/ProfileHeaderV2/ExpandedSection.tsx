@@ -13,7 +13,7 @@ import { TopSupportersList } from './TopSupportersList'
 export const ExpandedSection = () => {
   const { supporter_count } = useSelectProfile(['supporter_count'])
   return (
-    <View>
+    <View pointerEvents='box-none'>
       <Bio />
       <SocialsAndSites />
       <View style={{ flexDirection: 'row', marginVertical: spacing(2) }}>
