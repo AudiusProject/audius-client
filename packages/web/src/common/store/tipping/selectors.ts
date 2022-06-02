@@ -91,36 +91,17 @@ const mergeMaps = <
       }
     }
   }
-
   return mergedMap
 }
 
-const getOptimisticSupportingBase = (state: CommonState) => {
-  const { supporting, supportingOverrides } = state.tipping
-
-  /**
-   * Merge supporting maps
-   */
-  const mergedMap = mergeMaps<SupportingMap>({
-    map: supporting,
-    mapOverrides: supportingOverrides
-  })
-
-  /**
-   * Note that for supporting, rank is not super relevant
-   * as we do not display supporting ranks; we only display
-   * supporters ranks (so far).
-   * So, for supporting we sort by amounts descending but we
-   * don't optimistically update ranks (and we can't anyway, since
-   * the correct rank would need to take other supporters of a given
-   * user into consideration, which we don't have access to).
-   * So we simply return the merged map
-   */
-  return mergedMap
-}
 export const getOptimisticSupporting = createSelector(
-  getOptimisticSupportingBase,
-  result => result
+  getSupporting,
+  getSupportingOverrides,
+  (supporting, supportingOverrides) =>
+    mergeMaps<SupportingMap>({
+      map: supporting,
+      mapOverrides: supportingOverrides
+    })
 )
 
 export const rerankSupportersMapForUser = (
@@ -175,29 +156,27 @@ export const rerankSupportersMapForUser = (
   return map
 }
 
-const getOptimisticSupportersBase = (state: CommonState) => {
-  const { supporters, supportersOverrides } = state.tipping
-
-  /**
-   * Merge supporter maps
-   */
-  const mergedMap = mergeMaps<SupportersMap>({
-    map: supporters,
-    mapOverrides: supportersOverrides
-  })
-
-  /**
-   * Re-rank everything based on newly merged map.
-   */
-  const result: SupportersMap = {}
-  const mergedUserIds = (Object.keys(mergedMap) as unknown) as ID[]
-  for (const userId of mergedUserIds) {
-    result[userId] = rerankSupportersMapForUser(mergedMap[userId])
-  }
-
-  return result
-}
 export const getOptimisticSupporters = createSelector(
-  getOptimisticSupportersBase,
-  result => result
+  getSupporters,
+  getSupportersOverrides,
+  (supporters, supportersOverrides) => {
+    /**
+     * Merge supporter maps
+     */
+    const mergedMap = mergeMaps<SupportersMap>({
+      map: supporters,
+      mapOverrides: supportersOverrides
+    })
+
+    /**
+     * Re-rank everything based on newly merged map.
+     */
+    const result: SupportersMap = {}
+    const mergedUserIds = (Object.keys(mergedMap) as unknown) as ID[]
+    for (const userId of mergedUserIds) {
+      result[userId] = rerankSupportersMapForUser(mergedMap[userId])
+    }
+
+    return result
+  }
 )
