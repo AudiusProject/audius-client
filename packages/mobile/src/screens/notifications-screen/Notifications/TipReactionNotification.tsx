@@ -11,7 +11,7 @@ import {
   NotificationTile,
   NotificationTitle,
   UserNameLink,
-  Tip,
+  TipText,
   NotificationText,
   ProfilePicture
 } from '../Notification'
@@ -70,7 +70,7 @@ export const TipReactionNotification = (
           <UserNameLink user={user} />
           <NotificationText>
             {messages.react}
-            <Tip value={value} />
+            <TipText value={value} />
           </NotificationText>
         </View>
       </View>

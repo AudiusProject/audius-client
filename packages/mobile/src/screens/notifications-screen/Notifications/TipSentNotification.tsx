@@ -12,7 +12,7 @@ import {
   NotificationTitle,
   ProfilePicture
 } from '../Notification'
-import { Tip } from '../Notification/Tip'
+import { TipText } from '../Notification/TipText'
 import { UserNameLink } from '../Notification/UserNameLink'
 
 const messages = {
@@ -40,7 +40,7 @@ export const TipSentNotification = (props: TipSentNotificationProps) => {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <ProfilePicture profile={user} />
         <NotificationText>
-          {messages.sent} <Tip value={value} /> {messages.to}{' '}
+          {messages.sent} <TipText value={value} /> {messages.to}{' '}
           <UserNameLink user={user} />
         </NotificationText>
       </View>

@@ -4,11 +4,11 @@ import { AudioText } from 'app/components/core'
 
 import { NotificationText } from './NotificationText'
 
-type TipProps = {
+type TipTextProps = {
   value: number
 }
 
-export const Tip = (props: TipProps) => {
+export const TipText = (props: TipTextProps) => {
   const { value } = props
   return (
     <NotificationText weight='bold'>
