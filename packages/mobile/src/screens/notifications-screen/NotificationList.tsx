@@ -57,6 +57,7 @@ export const NotificationList = () => {
   const status = useSelectorWeb(getNotificationStatus)
   const hasMore = useSelectorWeb(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const { gesturesDisabled } = useContext(NotificationsDrawerNavigationContext)
   const { isEnabled: isTippingEnabled } = useFeatureFlag(
     FeatureFlags.TIPPING_ENABLED
   )
@@ -88,7 +89,7 @@ export const NotificationList = () => {
       refreshing={isRefreshing}
       onRefresh={handleRefresh}
       data={notifications}
-      keyExtractor={(item: Notification) => `${item.id}`}
+      keyExtractor={(item: Notification, index) => `${item.id} ${index}`}
       renderItem={({ item }) => (
         <View style={styles.itemContainer}>
           {isTippingEnabled ? (
@@ -110,6 +111,7 @@ export const NotificationList = () => {
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.8}
       initialNumToRender={10}
+      scrollEnabled={!gesturesDisabled}
     />
   )
 }
