@@ -23,7 +23,7 @@ export type ProfilePictureProps = Partial<DynamicImageProps> & {
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { styles: stylesProp, profile, ...other } = props
+  const { styles: stylesProp, profilePhotoStyles, profile, ...other } = props
   const styles = useStyles()
 
   const profilePicture = useUserProfilePicture({
@@ -38,7 +38,10 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
       styles={{
         ...stylesProp,
         ...{
-          root: styles.profilePhoto
+          root: {
+            ...styles.profilePhoto,
+            ...profilePhotoStyles
+          }
         }
       }}
       {...other}
