@@ -9,6 +9,8 @@ import { stringWeiToBN } from 'common/utils/wallet'
 import { SupportersMap, SupportersMapForUser, SupportingMap } from './types'
 
 export const getSupporters = (state: CommonState) => state.tipping.supporters
+export const getSupportersOverrides = (state: CommonState) =>
+  state.tipping.supportersOverrides
 export const getSupportersForUser = (state: CommonState, userId: ID) =>
   getSupporters(state)[userId]
 
@@ -19,6 +21,8 @@ export const getSupporterForUser = (
 ) => getSupporters(state)?.[userId]?.[supporterId]
 
 export const getSupporting = (state: CommonState) => state.tipping.supporting
+export const getSupportingOverrides = (state: CommonState) =>
+  state.tipping.supportingOverrides
 export const getSupportingForUser = (state: CommonState, userId: ID) =>
   getSupporting(state)[userId]
 
@@ -49,7 +53,7 @@ const mergeMaps = ({
   /**
    * Copy the support map into the eventually-merged map.
    */
-  const mergedMap: any = {}
+  let mergedMap: any = {}
   Object.assign(mergedMap, map)
 
   /**
@@ -61,7 +65,10 @@ const mergeMaps = ({
     // but not in the default, copy the override map into the merged map.
     const shouldOverrideMap = !map[userId]
     if (shouldOverrideMap) {
-      mergedMap[userId] = mapOverrides[userId]
+      mergedMap = {
+        ...mergedMap,
+        [userId]: mapOverrides[userId]
+      }
     } else {
       // If the support value for a given user id and sender/receiver id exists
       // in the overrides but not in the default,
@@ -77,7 +84,13 @@ const mergeMaps = ({
             stringWeiToBN(mapOverrides[userId][supportId].amount)
           )
         if (shouldOverrideValue) {
-          mergedMap[userId][supportId] = mapOverrides[userId][supportId]
+          mergedMap = {
+            ...mergedMap,
+            [userId]: {
+              ...mergedMap[userId],
+              [supportId]: mapOverrides[userId][supportId]
+            }
+          }
         }
       }
     }
