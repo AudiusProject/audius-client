@@ -10,7 +10,8 @@ import {
 import {
   beginTip,
   fetchRecentTips,
-  hideTip
+  hideTip,
+  setMainUser
 } from 'audius-client/src/common/store/tipping/slice'
 import { dismissRecentTip } from 'audius-client/src/store/tipping/utils'
 import { profilePage } from 'audius-client/src/utils/route'
@@ -353,6 +354,19 @@ export const FeedTipTile = () => {
   const { isEnabled: isTippingEnabled } = useFeatureFlag(
     FeatureFlags.TIPPING_ENABLED
   )
+  const [hasSetMainUser, setHasSetMainUser] = useState(false)
+
+  useEffect(() => {
+    if (
+      isTippingEnabled &&
+      !hasSetMainUser &&
+      tipToDisplay &&
+      usersMap[tipToDisplay.receiver_id]
+    ) {
+      dispatchWeb(setMainUser({ user: usersMap[tipToDisplay.receiver_id] }))
+      setHasSetMainUser(true)
+    }
+  }, [isTippingEnabled, hasSetMainUser, tipToDisplay, usersMap, dispatchWeb])
 
   useEffect(() => {
     dispatchWeb(fetchRecentTips())

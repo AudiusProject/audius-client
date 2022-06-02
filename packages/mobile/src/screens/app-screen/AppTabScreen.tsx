@@ -128,7 +128,8 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
               !e.target?.includes('SearchResults')
             ) &&
             !e.target?.includes('TipArtist') &&
-            !e.target?.includes('TopSupporters')
+            !e.target?.includes('TopSupporters') &&
+            !e.target?.includes('SupportingUsers')
           ) {
             // When a screen is removed, notify the web layer to pop navigation
             dispatchWeb({
