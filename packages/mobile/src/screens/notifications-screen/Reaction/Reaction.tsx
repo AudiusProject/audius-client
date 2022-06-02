@@ -1,21 +1,17 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 
 import LottieView, { AnimatedLottieViewProps } from 'lottie-react-native'
-import {
-  Pressable,
-  PressableProps,
-  StyleProp,
-  View,
-  ViewStyle
-} from 'react-native'
+import { Animated, StyleProp, View, ViewProps, ViewStyle } from 'react-native'
+import { usePrevious } from 'react-use'
 
+import { light, medium } from 'app/haptics'
 import { spacing } from 'app/styles/spacing'
 
 import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
 
 export type ReactionStatus = 'interacting' | 'idle' | 'selected' | 'unselected'
 
-export type ReactionProps = PressableProps & {
+export type ReactionProps = ViewProps & {
   source: AnimatedLottieViewProps['source']
   style?: StyleProp<ViewStyle>
   status?: ReactionStatus
@@ -34,20 +30,10 @@ export const Reaction = (props: ReactionProps) => {
   const animationRef = useRef<LottieView | null>(null)
   const ref = useRef<View | null>(null)
   const { state } = useContext(NotificationsDrawerNavigationContext)
+  const scale = useRef(new Animated.Value(1)).current
+  const previousStatus = usePrevious(status)
 
   const isOpen = state?.history.length === 2
-
-  const size =
-    status === 'interacting'
-      ? { height: 72, width: 72 }
-      : { height: 72, width: 72 }
-
-  const backgroundColor =
-    status === 'unselected'
-      ? 'gray'
-      : status === 'interacting'
-      ? 'blue'
-      : undefined
 
   useEffect(() => {
     setStatus(statusProp)
@@ -74,21 +60,68 @@ export const Reaction = (props: ReactionProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onMeasure changes too much
   }, [ref, isOpen])
 
+  useEffect(() => {
+    if (previousStatus !== 'interacting' && status === 'interacting') {
+      Animated.timing(scale, {
+        toValue: 1.3,
+        duration: 100,
+        useNativeDriver: true
+      }).start()
+      light()
+    } else if (previousStatus !== 'selected' && status === 'selected') {
+      if (status === 'selected') {
+        Animated.sequence([
+          Animated.timing(scale, {
+            toValue: 0.9,
+            duration: 100,
+            useNativeDriver: true
+          }),
+          Animated.timing(scale, {
+            toValue: 1.3,
+            duration: 100,
+            useNativeDriver: true
+          })
+        ]).start()
+        medium()
+      } else {
+        Animated.timing(scale, {
+          toValue: 1,
+          duration: 70,
+          useNativeDriver: true
+        }).start()
+      }
+    } else if (previousStatus !== status && status !== 'selected') {
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 70,
+        useNativeDriver: true
+      }).start()
+    }
+  })
+
   return (
-    <View ref={ref}>
-      <Pressable
-        style={[{ ...size, marginRight: spacing(2), backgroundColor }, style]}
-        {...other}
-      >
-        <LottieView
-          ref={animation => {
-            animationRef.current = animation
-          }}
-          autoPlay
-          loop
-          source={source}
-        />
-      </Pressable>
-    </View>
+    <Animated.View
+      ref={ref}
+      style={[
+        {
+          height: 84,
+          width: 84,
+          padding: spacing(3),
+          transform: [{ scale }],
+          opacity: status === 'unselected' ? 0.3 : 1
+        },
+        style
+      ]}
+      {...other}
+    >
+      <LottieView
+        ref={animation => {
+          animationRef.current = animation
+        }}
+        autoPlay
+        loop
+        source={source}
+      />
+    </Animated.View>
   )
 }

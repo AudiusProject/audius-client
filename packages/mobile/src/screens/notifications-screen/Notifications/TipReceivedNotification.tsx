@@ -1,7 +1,11 @@
+import { useState } from 'react'
+
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { TipReceived } from 'audius-client/src/common/store/notifications/types'
-import { View } from 'react-native'
+import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { Image, View } from 'react-native'
 
+import Checkmark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Text } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -15,7 +19,7 @@ import {
   TipText,
   UserNameLink
 } from '../Notification'
-import { ReactionList } from '../Reaction'
+import { ReactionList, ReactionTypes } from '../Reaction'
 
 const messages = {
   title: 'You Received a Tip!',
@@ -35,6 +39,9 @@ export const TipReceivedNotification = (
   const { notification } = props
   const { userId, value } = notification
   const user = useSelectorWeb(state => getUser(state, { id: userId }))
+  const [selectedReaction, setSelectedReaction] = useState<
+    Nullable<ReactionTypes>
+  >(null)
 
   if (!user) return null
 
@@ -44,17 +51,37 @@ export const TipReceivedNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}
+        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
       >
         <ProfilePicture profile={user} />
         <NotificationText>
           <UserNameLink user={user} /> {messages.sent} <TipText value={value} />
         </NotificationText>
       </View>
-      <Text fontSize='large' weight='demiBold' color='neutralLight4'>
-        {messages.sayThanks}
-      </Text>
-      <ReactionList />
+      {selectedReaction ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={Checkmark}
+            style={{
+              height: 18,
+              width: 18,
+              marginRight: 4,
+              marginBottom: 4
+            }}
+          />
+          <Text fontSize='large' weight='demiBold' color='neutralLight4'>
+            {messages.reactionSent}
+          </Text>
+        </View>
+      ) : (
+        <Text fontSize='large' weight='demiBold' color='neutralLight4'>
+          {messages.sayThanks}
+        </Text>
+      )}
+      <ReactionList
+        selectedReaction={selectedReaction}
+        onChange={setSelectedReaction}
+      />
     </NotificationTile>
   )
 }

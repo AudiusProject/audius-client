@@ -1,31 +1,33 @@
 import { useCallback, useContext, useRef, useState } from 'react'
 
+import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { View, PanResponderGestureState, PanResponder } from 'react-native'
 
 import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
 
 import { reactions, ReactionTypes } from './reactions'
 
-type PositionEntries = [ReactionTypes, number][]
+type PositionEntries = [ReactionTypes, { x: number; width: number }][]
 
 const reactionTypes: ReactionTypes[] = ['heart', 'fire', 'party', 'explode']
-const width = 72
 
-export const ReactionList = () => {
-  const [
-    selectedReaction,
-    setSelectedReaction
-  ] = useState<ReactionTypes | null>(null)
+type ReactionListProps = {
+  selectedReaction: Nullable<ReactionTypes>
+  onChange: (reaction: Nullable<ReactionTypes>) => void
+}
+
+export const ReactionList = (props: ReactionListProps) => {
+  const { selectedReaction, onChange } = props
   const interactingRef = useRef<ReactionTypes | null>(null)
   const { setGesturesDisabled } = useContext(
     NotificationsDrawerNavigationContext
   )
   const [interacting, setInteracting] = useState<ReactionTypes | null>(null)
   const positions = useRef({
-    fire: 0,
-    heart: 0,
-    party: 0,
-    explode: 0
+    fire: { x: 0, width: 0 },
+    heart: { x: 0, width: 0 },
+    party: { x: 0, width: 0 },
+    explode: { x: 0, width: 0 }
   })
 
   const handleGesture = useCallback(
@@ -36,7 +38,7 @@ export const ReactionList = () => {
         positions.current
       ) as PositionEntries
 
-      const currentReaction = positionEntires.find(([, x]) => {
+      const currentReaction = positionEntires.find(([, { x, width }]) => {
         const currentPosition = moveX || x0
         return currentPosition > x && currentPosition <= x + width
       })
@@ -62,7 +64,7 @@ export const ReactionList = () => {
       },
       onPanResponderMove: handleGesture,
       onPanResponderRelease: () => {
-        setSelectedReaction(interactingRef.current)
+        onChange(interactingRef.current)
         interactingRef.current = null
         setInteracting(null)
         setGesturesDisabled?.(false)
@@ -73,33 +75,39 @@ export const ReactionList = () => {
   )
 
   return (
-    <View
-      style={{ flexDirection: 'row', alignItems: 'center' }}
-      {...panResponder.current.panHandlers}
-    >
-      {reactionTypes.map(reactionType => {
-        const Reaction = reactions[reactionType]
-        const status =
-          interacting === reactionType
-            ? 'interacting'
-            : selectedReaction
-            ? selectedReaction === reactionType
+    <View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          alignSelf: 'center'
+        }}
+        {...panResponder.current.panHandlers}
+      >
+        {reactionTypes.map(reactionType => {
+          const Reaction = reactions[reactionType]
+          const status =
+            selectedReaction === reactionType
               ? 'selected'
-              : 'unselected'
-            : 'idle'
-        return (
-          <Reaction
-            key={reactionType}
-            status={status}
-            onMeasure={({ x, width }: { x: number; width: number }) => {
-              positions.current = {
-                ...positions.current,
-                [reactionType]: x
-              }
-            }}
-          />
-        )
-      })}
+              : interacting === reactionType
+              ? 'interacting'
+              : selectedReaction
+              ? 'unselected'
+              : 'idle'
+          return (
+            <Reaction
+              key={reactionType}
+              status={status}
+              onMeasure={({ x, width }: { x: number; width: number }) => {
+                positions.current = {
+                  ...positions.current,
+                  [reactionType]: { x, width }
+                }
+              }}
+            />
+          )
+        })}
+      </View>
     </View>
   )
 }
