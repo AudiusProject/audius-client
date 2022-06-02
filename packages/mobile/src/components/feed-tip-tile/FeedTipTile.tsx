@@ -111,6 +111,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontFamily: typography.fontByWeight.medium,
     color: palette.neutral
   },
+  andOthers: {
+    marginLeft: spacing(1)
+  },
   sendTipButton: {
     marginTop: spacing(4)
   },
@@ -251,6 +254,14 @@ const WasTippedBy = ({ tippers, receiver }: WasTippedByProps) => {
             ) : null}
           </View>
         ))}
+        {receiver.supporter_count > NUM_FEED_TIPPERS_DISPLAYED ? (
+          <Text style={[styles.tipperText, styles.andOthers]}>
+            {messages.andOthers(
+              receiver.supporter_count -
+                Math.min(tippers.length, NUM_FEED_TIPPERS_DISPLAYED)
+            )}
+          </Text>
+        ) : null}
       </TouchableOpacity>
     </View>
   )
