@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 
 import { ID } from 'common/models/Identifiers'
-import { Supporter } from 'common/models/Tipping'
+import { Supporter, Supporting } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { CommonState } from 'common/store'
 import { Nullable } from 'common/utils/typeUtils'
