@@ -83,7 +83,7 @@ const mergeMaps = <MapType extends Record<ID, Record<ID, any>>>({
         if (shouldOverrideValue) {
           mergedMap[userId] = {
             ...mergedMap[userId],
-            [supportId]: { ...mapOverrides[userId][supportId] }
+            [supportId]: mapOverrides[userId][supportId]
           }
         }
       }
