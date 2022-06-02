@@ -15,7 +15,7 @@ import { SupportingTile } from './SupportingTile'
 import { SupportingTileSkeleton } from './SupportingTileSkeleton'
 import { ViewAllSupportingTile } from './ViewAllSupportingTile'
 
-export const MAX_PROFILE_SUPPORTING = 3
+export const MAX_PROFILE_SUPPORTING_TILES = 3
 
 type ViewAllData = { viewAll: true; supporting: Supporting[] }
 
@@ -61,15 +61,18 @@ export const SupportingList = () => {
     if (supportingSorted.length === 0) {
       return skeletonData
     }
-    if (supportingSorted.length > MAX_PROFILE_SUPPORTING) {
+    if (supportingSorted.length > MAX_PROFILE_SUPPORTING_TILES) {
       const viewAllData: ViewAllData = {
         viewAll: true,
         supporting: supportingSorted.slice(
-          MAX_PROFILE_SUPPORTING,
+          MAX_PROFILE_SUPPORTING_TILES,
           supportingSorted.length
         )
       }
-      return [...supportingSorted.slice(0, MAX_PROFILE_SUPPORTING), viewAllData]
+      return [
+        ...supportingSorted.slice(0, MAX_PROFILE_SUPPORTING_TILES),
+        viewAllData
+      ]
     }
     return supportingSorted
   }, [supportingSorted])
@@ -91,7 +94,7 @@ export const SupportingList = () => {
       horizontal
       showsHorizontalScrollIndicator={false}
       data={supportingListData}
-      renderItem={({ item, index }) => {
+      renderItem={({ item }) => {
         if ('loading' in item) return <SupportingTileSkeleton />
         if ('viewAll' in item) return <ViewAllSupportingTile />
         return <SupportingTile key={item.receiver_id} supporting={item} />

@@ -15,6 +15,8 @@ import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from '../selectors'
 
+const MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS = 5
+
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
     marginTop: spacing(3),
@@ -76,7 +78,7 @@ export const ViewAllSupportingTile = () => {
       onPress={handlePress}
     >
       <ProfilePictureList
-        users={rankedSupporting}
+        users={rankedSupporting.slice(0, MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS)}
         style={styles.profilePictureList}
         navigationType='push'
         interactive={false}
