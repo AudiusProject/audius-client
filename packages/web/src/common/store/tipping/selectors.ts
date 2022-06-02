@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 
 import { ID } from 'common/models/Identifiers'
+import { Supporter } from 'common/models/Tipping'
 import { BNWei } from 'common/models/Wallet'
 import { CommonState } from 'common/store'
 import { Nullable } from 'common/utils/typeUtils'
@@ -43,18 +44,17 @@ export const getTipToDisplay = (state: CommonState) =>
 export const getShowTip = (state: CommonState) => state.tipping.showTip
 export const getMainUser = (state: CommonState) => state.tipping.mainUser
 
-const mergeMaps = ({
+const mergeMaps = <MapType extends Record<ID, Record<ID, any>>>({
   map,
   mapOverrides
 }: {
-  map: SupportingMap | SupportersMap
-  mapOverrides: SupportingMap | SupportersMap
-}) => {
+  map: MapType
+  mapOverrides: MapType
+}): MapType => {
   /**
    * Copy the support map into the eventually-merged map.
    */
-  let mergedMap: any = {}
-  Object.assign(mergedMap, map)
+  const mergedMap = { ...map }
 
   /**
    * Merge the default and override maps.
@@ -65,10 +65,7 @@ const mergeMaps = ({
     // but not in the default, copy the override map into the merged map.
     const shouldOverrideMap = !map[userId]
     if (shouldOverrideMap) {
-      mergedMap = {
-        ...mergedMap,
-        [userId]: mapOverrides[userId]
-      }
+      mergedMap[userId] = mapOverrides[userId]
     } else {
       // If the support value for a given user id and sender/receiver id exists
       // in the overrides but not in the default,
@@ -84,12 +81,9 @@ const mergeMaps = ({
             stringWeiToBN(mapOverrides[userId][supportId].amount)
           )
         if (shouldOverrideValue) {
-          mergedMap = {
-            ...mergedMap,
-            [userId]: {
-              ...mergedMap[userId],
-              [supportId]: mapOverrides[userId][supportId]
-            }
+          mergedMap[userId] = {
+            ...mergedMap[userId],
+            [supportId]: { ...mapOverrides[userId][supportId] }
           }
         }
       }
@@ -105,7 +99,7 @@ const getOptimisticSupportingBase = (state: CommonState) => {
   /**
    * Merge supporting maps
    */
-  const mergedMap = mergeMaps({
+  const mergedMap = mergeMaps<SupportingMap>({
     map: supporting,
     mapOverrides: supportingOverrides
   })
@@ -133,7 +127,9 @@ export const rerankSupportersMapForUser = (
   /**
    * Sort the supporters values for the user by amount descending.
    */
-  const supportersSortedDesc = Object.values(supportersForUser).sort((s1, s2) =>
+  const supportersSortedDesc = Object.values<Supporter>(
+    supportersForUser
+  ).sort((s1, s2) =>
     stringWeiToBN(s1.amount).gt(stringWeiToBN(s2.amount)) ? -1 : 1
   )
 
@@ -183,7 +179,7 @@ const getOptimisticSupportersBase = (state: CommonState) => {
   /**
    * Merge supporter maps
    */
-  const mergedMap = mergeMaps({
+  const mergedMap = mergeMaps<SupportersMap>({
     map: supporters,
     mapOverrides: supportersOverrides
   })
