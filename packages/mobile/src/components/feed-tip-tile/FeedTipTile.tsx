@@ -12,14 +12,6 @@ import {
   fetchRecentTips,
   hideTip
 } from 'audius-client/src/common/store/tipping/slice'
-import {
-  setUsers,
-  setVisibility
-} from 'audius-client/src/store/application/ui/userListModal/slice'
-import {
-  UserListEntityType,
-  UserListType
-} from 'audius-client/src/store/application/ui/userListModal/types'
 import { dismissRecentTip } from 'audius-client/src/store/tipping/utils'
 import { profilePage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
@@ -234,18 +226,13 @@ type WasTippedByProps = {
 const WasTippedBy = ({ tippers, receiver }: WasTippedByProps) => {
   const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
-  const dispatchWeb = useDispatchWeb()
+  const navigation = useNavigation()
 
   const handlePressTippers = useCallback(() => {
-    dispatchWeb(
-      setUsers({
-        userListType: UserListType.SUPPORTER,
-        entityType: UserListEntityType.USER,
-        id: receiver.user_id
-      })
-    )
-    dispatchWeb(setVisibility(true))
-  }, [dispatchWeb, receiver])
+    navigation.push({
+      native: { screen: 'TopSupporters', params: { userId: receiver.user_id } }
+    })
+  }, [navigation, receiver])
 
   return (
     <View style={styles.wasTippedByContainer}>
