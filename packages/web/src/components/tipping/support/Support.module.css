@@ -86,7 +86,12 @@
 }
 
 .tileBackground {
+  display: flex;
+  align-items: flex-end;
   height: 90px;
+  background-position: center;
+  background-size: cover;
+  border-radius: 8px 8px 0 0;
 }
 
 .tileHeader {
@@ -129,10 +134,6 @@
   border-top-left-radius: 8px;
 }
 
-.profilePictureContainer {
-  position: relative;
-  top: -74px;
-}
 .profilePicture {
   margin-left: 8px;
   margin-bottom: 4px;

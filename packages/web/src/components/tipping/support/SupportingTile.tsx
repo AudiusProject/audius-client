@@ -56,9 +56,11 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
 
   return receiver ? (
     <div className={styles.tileContainer} onClick={handleClick}>
-      <div className={styles.tileBackground}>
-        <img className={styles.coverPhoto} src={coverPhoto} />
-        <div className={styles.profilePictureContainer}>
+      <div
+        className={styles.tileBackground}
+        style={{ backgroundImage: `url(${coverPhoto})` }}
+      >
+        <div>
           <img className={styles.profilePicture} src={profileImage} />
           <div className={styles.name}>
             {receiver.name}
