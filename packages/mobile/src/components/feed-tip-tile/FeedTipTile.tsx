@@ -13,7 +13,7 @@ import {
   hideTip,
   setMainUser
 } from 'audius-client/src/common/store/tipping/slice'
-import { dismissRecentTip } from 'audius-client/src/store/tipping/utils'
+import { dismissRecentTip } from 'audius-client/src/store/tipping/storageUtils'
 import { profilePage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
