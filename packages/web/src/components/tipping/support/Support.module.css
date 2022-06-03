@@ -134,6 +134,9 @@
   border-top-left-radius: 8px;
 }
 
+.profilePictureContainer {
+  width: 100%;
+}
 .profilePicture {
   margin-left: 8px;
   margin-bottom: 4px;
