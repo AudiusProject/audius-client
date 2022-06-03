@@ -5,6 +5,7 @@ import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   getShowTip,
+  getStorageStr,
   getTipToDisplay
 } from 'audius-client/src/common/store/tipping/selectors'
 import {
@@ -13,7 +14,6 @@ import {
   hideTip,
   setMainUser
 } from 'audius-client/src/common/store/tipping/slice'
-import { dismissRecentTip } from 'audius-client/src/store/tipping/storageUtils'
 import { profilePage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -27,6 +27,12 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import {
+  dismissRecentTip,
+  getMinSlotForRecentTips,
+  getRecentTipsStorageStr,
+  updateTipsStorage
+} from 'app/store/tipping/storageUtils'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -346,6 +352,7 @@ export const FeedTipTile = () => {
   const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
   const showTip = useSelectorWeb(getShowTip)
+  const storageStr = useSelectorWeb(getStorageStr)
   const tipToDisplay = useSelectorWeb(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -375,8 +382,19 @@ export const FeedTipTile = () => {
   }, [isTippingEnabled, hasSetMainUser, tipToDisplay, usersMap, dispatchWeb])
 
   useEffect(() => {
-    dispatchWeb(fetchRecentTips())
+    const fetchRecentTipsAsync = async () => {
+      const minSlot = await getMinSlotForRecentTips()
+      const storageStr = await getRecentTipsStorageStr()
+      dispatchWeb(fetchRecentTips({ minSlot, storageStr }))
+    }
+    fetchRecentTipsAsync()
   }, [dispatchWeb])
+
+  useEffect(() => {
+    if (storageStr) {
+      updateTipsStorage(storageStr)
+    }
+  }, [storageStr])
 
   const handlePressClose = useCallback(() => {
     dismissRecentTip()

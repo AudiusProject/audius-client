@@ -8,6 +8,7 @@ import {
   SupportingMapForUser,
   TippingState
 } from 'common/store/tipping/types'
+import { Nullable } from 'common/utils/typeUtils'
 
 export type RefreshSupportPayloadAction = {
   senderUserId: ID
@@ -28,6 +29,7 @@ const initialState: TippingState = {
     error: null
   },
   recentTips: [],
+  storageStr: null,
   tipToDisplay: null,
   showTip: true,
   mainUser: null
@@ -136,12 +138,24 @@ const slice = createSlice({
       state.send.amount = '0'
       state.send.error = null
     },
-    fetchRecentTips: _ => {},
+    fetchRecentTips: (
+      state,
+      action: PayloadAction<{
+        storageStr: Nullable<string>
+        minSlot: Nullable<number>
+      }>
+    ) => {},
     setRecentTips: (
       state,
       action: PayloadAction<{ recentTips: UserTip[] }>
     ) => {
       state.recentTips = action.payload.recentTips
+    },
+    updateTipsStorageStr: (
+      state,
+      action: PayloadAction<{ newStorageStr: string }>
+    ) => {
+      state.storageStr = action.payload.newStorageStr
     },
     setTipToDisplay: (
       state,
@@ -174,6 +188,7 @@ export const {
   resetSend,
   fetchRecentTips,
   setRecentTips,
+  updateTipsStorageStr,
   setTipToDisplay,
   hideTip,
   setMainUser

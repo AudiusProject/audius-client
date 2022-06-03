@@ -9,7 +9,11 @@ import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
-import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
+import {
+  getShowTip,
+  getStorageStr,
+  getTipToDisplay
+} from 'common/store/tipping/selectors'
 import {
   beginTip,
   fetchRecentTips,
@@ -29,7 +33,12 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
-import { dismissRecentTip } from 'store/tipping/storageUtils'
+import {
+  dismissRecentTip,
+  getMinSlotForRecentTips,
+  getRecentTipsStorageStr,
+  updateTipsStorage
+} from 'store/tipping/storageUtils'
 import { AppState } from 'store/types'
 import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
 
@@ -164,6 +173,7 @@ export const FeedTipTile = () => {
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
+  const storageStr = useSelector(getStorageStr)
   const tipToDisplay = useSelector(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -190,8 +200,16 @@ export const FeedTipTile = () => {
   }, [isTippingEnabled, hasSetMainUser, tipToDisplay, usersMap, dispatch])
 
   useEffect(() => {
-    dispatch(fetchRecentTips())
+    const minSlot = getMinSlotForRecentTips()
+    const storageStr = getRecentTipsStorageStr()
+    fetchRecentTips({ minSlot, storageStr })
   }, [dispatch])
+
+  useEffect(() => {
+    if (storageStr) {
+      updateTipsStorage(storageStr)
+    }
+  }, [storageStr])
 
   const handleClick = useCallback(() => {
     if (tipToDisplay) {

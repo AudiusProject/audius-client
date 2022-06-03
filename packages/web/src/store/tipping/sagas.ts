@@ -29,10 +29,12 @@ import {
   setSupportingForUser,
   hideTip,
   setSupportingOverridesForUser,
-  setSupportersOverridesForUser
+  setSupportersOverridesForUser,
+  updateTipsStorageStr
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
+import { Nullable } from 'common/utils/typeUtils'
 import {
   parseAudioInputToWei,
   stringWeiToBN,
@@ -50,12 +52,11 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
 import {
+  FEED_TIP_DISMISSAL_TIME_LIMIT,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
-
-import { getMinSlotForRecentTips, checkTipToDisplay } from './storageUtils'
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
@@ -391,7 +392,124 @@ function* fetchSupportingForUserAsync({
   )
 }
 
-function* fetchRecentTipsAsync() {
+export const checkTipToDisplay = async ({
+  storageStr,
+  userId,
+  recentTips
+}: {
+  storageStr: Nullable<string>
+  userId: ID
+  recentTips: UserTip[]
+}) => {
+  if (recentTips.length === 0) {
+    return null
+  }
+
+  /**
+   * The list only comprises of recent tips.
+   * Sort the tips by least recent to parse through oldest tips first.
+   */
+  const sortedTips = recentTips.sort((tip1, tip2) => tip1.slot - tip2.slot)
+  const storage = storageStr ? JSON.parse(storageStr) : null
+
+  /**
+   * Return oldest of the recent tips if nothing in local storage.
+   * Also set local storage values.
+   */
+  if (!storage) {
+    const oldestValidTip = sortedTips[0]
+    return {
+      tip: oldestValidTip,
+      newStorageStr: JSON.stringify({
+        minSlot: oldestValidTip.slot,
+        dismissed: false,
+        lastDismissalTimestamp: null
+      })
+    }
+  }
+
+  /**
+   * Look for oldest of the recent tips that was performed by
+   * the currently logged in user.
+   * If not found, then look for oldest of the recent tips in general.
+   */
+  let validTips = sortedTips.filter(tip => tip.slot > storage.minSlot)
+  let ownTip = validTips.find(tip => tip.sender_id === userId)
+  if (ownTip) {
+    return {
+      tip: ownTip,
+      newStorageStr: JSON.stringify({
+        minSlot: ownTip.slot,
+        dismissed: false,
+        lastDismissalTimestamp: null
+      })
+    }
+  }
+
+  let oldestValidTip = validTips.length > 0 ? validTips[0] : null
+  if (oldestValidTip) {
+    return {
+      tip: oldestValidTip,
+      newStorageStr: JSON.stringify({
+        minSlot: oldestValidTip.slot,
+        dismissed: false,
+        lastDismissalTimestamp: null
+      })
+    }
+  }
+
+  /**
+   * If user tip dismissal is too old, or if user never did not
+   * dismiss the tip, and given that we have not found a recent
+   * tip, look for a tip as recent as that which the user last saw
+   * and prefer displaying a tip that was performed by user.
+   */
+  if (
+    (storage.dismissed &&
+      storage.lastDismissalTimestamp &&
+      Date.now() - storage.lastDismissalTimestamp >
+        FEED_TIP_DISMISSAL_TIME_LIMIT) ||
+    !storage.dismissed
+  ) {
+    validTips = sortedTips.filter(tip => tip.slot === storage.minSlot)
+    ownTip = validTips.find(tip => tip.sender_id === userId)
+    if (ownTip) {
+      return {
+        tip: ownTip,
+        newStorageStr: JSON.stringify({
+          minSlot: ownTip.slot,
+          dismissed: false,
+          lastDismissalTimestamp: null
+        })
+      }
+    }
+
+    oldestValidTip = validTips.length > 0 ? validTips[0] : null
+    if (oldestValidTip) {
+      return {
+        tip: oldestValidTip,
+        newStorageStr: JSON.stringify({
+          minSlot: oldestValidTip.slot,
+          dismissed: false,
+          lastDismissalTimestamp: null
+        })
+      }
+    }
+
+    /**
+     * Should never reach here because that would mean that
+     * there was previously a tip at some slot, and somehow later
+     * there were no tips at an equal or more recent slot
+     */
+    return null
+  }
+
+  return null
+}
+
+function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
+  const { storageStr, minSlot } = action.payload
+
   const account = yield* select(getAccountUser)
   if (!account) {
     return
@@ -407,7 +525,6 @@ function* fetchRecentTipsAsync() {
     currentUserFollows: 'receiver',
     uniqueBy: 'receiver'
   }
-  const minSlot = getMinSlotForRecentTips()
   if (minSlot) {
     params.minSlot = minSlot
   }
@@ -440,10 +557,15 @@ function* fetchRecentTipsAsync() {
     })
     .filter((userTip): userTip is UserTip => !!userTip)
 
-  const tipToDisplay = checkTipToDisplay({
+  const result = yield* call(checkTipToDisplay, {
+    storageStr,
     userId: account.user_id,
     recentTips
   })
+  const { tip: tipToDisplay, newStorageStr } = result ?? {}
+  if (newStorageStr) {
+    yield put(updateTipsStorageStr({ newStorageStr }))
+  }
   if (tipToDisplay) {
     const userIds = [
       ...new Set([

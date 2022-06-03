@@ -48,7 +48,8 @@ export type TippingState = {
     error: Nullable<string>
   }
   recentTips: UserTip[]
+  storageStr: Nullable<string> // what is cached in the web or mobile local storage
   tipToDisplay: Nullable<UserTip>
   showTip: boolean
-  mainUser: Nullable<User>
+  mainUser: Nullable<User> // user whose supporters / supporting is displayed in the list modals
 }
