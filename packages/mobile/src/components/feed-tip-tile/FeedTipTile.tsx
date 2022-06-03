@@ -30,6 +30,8 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
+import { LineupTileSkeleton } from '../lineup-tile'
+
 import { NUM_FEED_TIPPERS_DISPLAYED } from './constants'
 
 const messages = {
@@ -146,6 +148,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   textUnderline: {
     textDecorationLine: 'underline'
+  },
+  skeleton: {
+    padding: 12,
+    paddingBottom: 0
   }
 }))
 
@@ -381,7 +387,11 @@ export const FeedTipTile = () => {
     return null
   }
 
-  return tipToDisplay ? (
+  return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
+    <View style={styles.skeleton}>
+      <LineupTileSkeleton />
+    </View>
+  ) : (
     <Tile
       styles={{
         tile: styles.tile
@@ -402,5 +412,5 @@ export const FeedTipTile = () => {
       />
       <SendTipButton receiver={usersMap[tipToDisplay.receiver_id]} />
     </Tile>
-  ) : null
+  )
 }
