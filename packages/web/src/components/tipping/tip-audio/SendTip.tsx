@@ -90,15 +90,17 @@ export const SendTip = () => {
     if (accountSupportingReceiver) {
       setSupportingAmount(accountSupportingReceiver.amount)
     } else {
-      AudiusAPIClient.getUserSupporter({
-        currentUserId: account.user_id,
-        userId: receiver.user_id,
-        supporterUserId: account.user_id
-      }).then(supporterResponse => {
+      const fn = async () => {
+        const supporterResponse = await AudiusAPIClient.getUserSupporter({
+          currentUserId: account.user_id,
+          userId: receiver.user_id,
+          supporterUserId: account.user_id
+        })
         if (supporterResponse) {
           setSupportingAmount(supporterResponse.amount)
         }
-      })
+      }
+      fn()
     }
   }, [account, receiver, supportingMap, supportingAmount])
 
