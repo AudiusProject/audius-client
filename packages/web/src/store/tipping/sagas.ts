@@ -501,6 +501,13 @@ export const checkTipToDisplay = async ({
      * there was previously a tip at some slot, and somehow later
      * there were no tips at an equal or more recent slot
      */
+    console.error(
+      `Error checking for tip to display (should not have reached here): ${{
+        storageStr,
+        userId,
+        recentTips
+      }}`
+    )
     return null
   }
 
