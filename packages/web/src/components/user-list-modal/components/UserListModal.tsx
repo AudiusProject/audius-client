@@ -1,8 +1,12 @@
 import React, { ReactElement, useRef } from 'react'
 
-import { Modal, IconTrophy, IconUser, IconFollowing, Scrollbar } from '@audius/stems'
-import { Modal, IconTrophy, IconUser, IconFollowing } from '@audius/stems'
-import SimpleBar from 'simplebar-react-legacy'
+import {
+  Modal,
+  IconTrophy,
+  IconUser,
+  IconFollowing,
+  Scrollbar
+} from '@audius/stems'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
