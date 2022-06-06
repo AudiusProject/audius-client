@@ -360,7 +360,7 @@ export const Lineup = ({
     )
 
     const prependFeedTipTileIfNeeded = (
-      data: Array<LineupItem | LoadingLineupItem>
+      data: Array<LineupItem | LoadingLineupItem | FeedTipLineupItem>
     ) => {
       if (isFeed && showTip) {
         const newData = [{ _feedTip: true } as FeedTipLineupItem]
@@ -370,7 +370,7 @@ export const Lineup = ({
     }
 
     if (delineate) {
-      const result: any = [
+      const result: Section[] = [
         ...delineateByTime(items),
         {
           delineate: false,
@@ -384,7 +384,7 @@ export const Lineup = ({
     if (leadingElementId && showLeadingElementArtistPick) {
       const [artistPick, ...restEntries] = [...items, ...skeletonItems]
 
-      const result: any = [
+      const result: Section[] = [
         { delineate: false, data: [artistPick] },
         { delineate: true, data: restEntries, hasLeadingElement: true }
       ]
@@ -395,7 +395,12 @@ export const Lineup = ({
     const data = [...items, ...skeletonItems]
 
     if (data.length === 0) {
-      return prependFeedTipTileIfNeeded([])
+      return [
+        {
+          delineate: false,
+          data: prependFeedTipTileIfNeeded([])
+        }
+      ]
     }
 
     return [
