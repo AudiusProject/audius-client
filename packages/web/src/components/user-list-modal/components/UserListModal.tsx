@@ -1,12 +1,16 @@
 import React, { ReactElement, useRef } from 'react'
 
-import { Modal, IconTrophy, IconUser, Scrollbar } from '@audius/stems'
+import { Modal, IconTrophy, IconUser, IconFollowing, Scrollbar } from '@audius/stems'
+import { Modal, IconTrophy, IconUser, IconFollowing } from '@audius/stems'
+import SimpleBar from 'simplebar-react-legacy'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { getUserList as favoritesSelector } from 'common/store/user-list/favorites/selectors'
 import { getUserList as followersSelector } from 'common/store/user-list/followers/selectors'
 import { getUserList as followingSelector } from 'common/store/user-list/following/selectors'
+import { getUserList as mutualsSelector } from 'common/store/user-list/mutuals/selectors'
+import { USER_LIST_TAG as MUTUALS_TAG } from 'common/store/user-list/mutuals/types'
 import {
   getPageTitle,
   getUserList as notificationSelector
@@ -40,7 +44,8 @@ const messages = {
   followers: 'Followers',
   following: 'Following',
   topSupporters: 'Top Supporters',
-  supporting: 'Supporting'
+  supporting: 'Supporting',
+  mutuals: 'Mutuals'
 }
 
 const UserListModal = ({
@@ -111,6 +116,16 @@ const UserListModal = ({
       title = (
         <div className={styles.titleContainer}>
           <IconTip className={styles.icon} />
+          <span>{messages.supporting}</span>
+        </div>
+      )
+      break
+    case UserListType.MUTUAL_FOLLOWER:
+      tag = MUTUALS_TAG
+      selector = mutualsSelector
+      title = (
+        <div className={styles.titleContainer}>
+          <IconFollowing className={styles.icon} />
           <span>{messages.supporting}</span>
         </div>
       )
