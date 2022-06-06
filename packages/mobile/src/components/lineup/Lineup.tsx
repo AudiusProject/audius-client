@@ -363,8 +363,8 @@ export const Lineup = ({
       data: Array<LineupItem | LoadingLineupItem | FeedTipLineupItem>
     ) => {
       if (isFeed && showTip) {
-        const newData = [{ _feedTip: true } as FeedTipLineupItem]
-        return [...newData, ...data]
+        const newData = { _feedTip: true } as FeedTipLineupItem
+        return [newData, ...data]
       }
       return data
     }
