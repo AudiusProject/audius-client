@@ -10,11 +10,6 @@ export const updateTipsStorage = (storage: RecentTipsStorage) => {
   window.localStorage?.setItem(RECENT_TIPS_KEY, JSON.stringify(storage))
 }
 
-export const getMinSlotForRecentTips = () => {
-  const result = getRecentTipsStorage()
-  return result ? result.minSlot : null
-}
-
 export const dismissRecentTip = () => {
   const storage = getRecentTipsStorage()
   if (!storage) {

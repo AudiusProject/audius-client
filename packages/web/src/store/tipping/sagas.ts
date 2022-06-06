@@ -34,8 +34,7 @@ import {
   setSupportingForUser,
   hideTip,
   setSupportingOverridesForUser,
-  setSupportersOverridesForUser,
-  updateStorageCache
+  setSupportersOverridesForUser
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
@@ -53,15 +52,21 @@ import {
   SupportRequest,
   UserTipRequest
 } from 'services/audius-backend/Tipping'
+import { UpdateTipsStorageMessage } from 'services/native-mobile-interface/tipping'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
+import mobileSagas from 'store/tipping/mobileSagas'
 import {
   FEED_TIP_DISMISSAL_TIME_LIMIT,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
 import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
+
+import { updateTipsStorage } from './storageUtils'
+
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const { getFeatureEnabled, waitForRemoteConfig } = remoteConfigInstance
 
@@ -524,7 +529,8 @@ export const checkTipToDisplay = ({
 }
 
 function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
-  const { storage, minSlot } = action.payload
+  const { storage } = action.payload
+  const minSlot = storage?.minSlot ?? null
 
   const account = yield* select(getAccountUser)
   if (!account) {
@@ -580,7 +586,12 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   })
   const { tip: tipToDisplay, newStorage } = result ?? {}
   if (newStorage) {
-    yield put(updateStorageCache({ newStorage }))
+    if (NATIVE_MOBILE) {
+      const message = new UpdateTipsStorageMessage(newStorage)
+      message.send()
+    } else {
+      updateTipsStorage(newStorage)
+    }
   }
   if (tipToDisplay) {
     const userIds = [
@@ -633,12 +644,13 @@ function* watchFetchRecentTips() {
 }
 
 const sagas = () => {
-  return [
+  const sagas = [
     watchFetchSupportingForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips
   ]
+  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
 
 export default sagas

@@ -9,11 +9,7 @@ import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { User } from 'common/models/User'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
-import {
-  getShowTip,
-  getStorageCache,
-  getTipToDisplay
-} from 'common/store/tipping/selectors'
+import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
 import { beginTip, fetchRecentTips, hideTip } from 'common/store/tipping/slice'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
@@ -30,9 +26,7 @@ import {
 } from 'store/application/ui/userListModal/types'
 import {
   dismissRecentTip,
-  getMinSlotForRecentTips,
-  getRecentTipsStorage,
-  updateTipsStorage
+  getRecentTipsStorage
 } from 'store/tipping/storageUtils'
 import { AppState } from 'store/types'
 import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
@@ -168,7 +162,6 @@ export const FeedTipTile = () => {
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
-  const storage = useSelector(getStorageCache)
   const tipToDisplay = useSelector(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -182,16 +175,9 @@ export const FeedTipTile = () => {
   )
 
   useEffect(() => {
-    const minSlot = getMinSlotForRecentTips()
     const storage = getRecentTipsStorage()
-    dispatch(fetchRecentTips({ minSlot, storage }))
+    dispatch(fetchRecentTips({ storage }))
   }, [dispatch])
-
-  useEffect(() => {
-    if (storage) {
-      updateTipsStorage(storage)
-    }
-  }, [storage])
 
   const handleClick = useCallback(() => {
     if (tipToDisplay) {

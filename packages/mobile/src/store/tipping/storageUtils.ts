@@ -11,11 +11,6 @@ export const updateTipsStorage = async (storage: RecentTipsStorage) => {
   await AsyncStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(storage))
 }
 
-export const getMinSlotForRecentTips = async () => {
-  const storage = await getRecentTipsStorage()
-  return storage ? storage.minSlot : null
-}
-
 export const dismissRecentTip = async () => {
   const storage = await getRecentTipsStorage()
   if (!storage) {

@@ -141,7 +141,6 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         storage: Nullable<RecentTipsStorage>
-        minSlot: Nullable<number>
       }>
     ) => {},
     setRecentTips: (
@@ -149,12 +148,6 @@ const slice = createSlice({
       action: PayloadAction<{ recentTips: UserTip[] }>
     ) => {
       state.recentTips = action.payload.recentTips
-    },
-    updateStorageCache: (
-      state,
-      action: PayloadAction<{ newStorage: RecentTipsStorage }>
-    ) => {
-      state.storage = action.payload.newStorage
     },
     setTipToDisplay: (
       state,
@@ -184,7 +177,6 @@ export const {
   resetSend,
   fetchRecentTips,
   setRecentTips,
-  updateStorageCache,
   setTipToDisplay,
   hideTip
 } = slice.actions
