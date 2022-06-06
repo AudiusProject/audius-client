@@ -29,11 +29,11 @@ const useStyles = makeStyles(({ spacing, typography }) => ({
   }
 }))
 
-type TopSupporterInfoProps = {
+type SupporterInfoProps = {
   user: User
 }
 
-export const SupporterInfo = (props: TopSupporterInfoProps) => {
+export const SupporterInfo = (props: SupporterInfoProps) => {
   const styles = useStyles()
   const { secondary, neutralLight4 } = useThemeColors()
   const supportersMap = useSelectorWeb(getSupporters)

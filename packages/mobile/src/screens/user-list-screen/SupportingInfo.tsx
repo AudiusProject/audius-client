@@ -6,11 +6,11 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { Tip } from './Tip'
 
-type SupporterInfoProps = {
+type SupportingInfoProps = {
   user: User
 }
 
-export const SupportingInfo = (props: SupporterInfoProps) => {
+export const SupportingInfo = (props: SupportingInfoProps) => {
   const supportingMap = useSelectorWeb(getSupporting)
   const supportingId = useSelectorWeb(getSupportingId)
   const supportingForUser = supportingId
