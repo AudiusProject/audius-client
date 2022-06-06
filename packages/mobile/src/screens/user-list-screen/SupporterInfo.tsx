@@ -1,8 +1,6 @@
 import { User } from 'audius-client/src/common/models/User'
-import {
-  getMainUser,
-  getSupporters
-} from 'audius-client/src/common/store/tipping/selectors'
+import { getSupporters } from 'audius-client/src/common/store/tipping/selectors'
+import { getId as getSupportersId } from 'common/store/user-list/top-supporters/selectors'
 import { View } from 'react-native'
 
 import IconTrending from 'app/assets/images/iconTrending.svg'
@@ -39,9 +37,9 @@ export const SupporterInfo = (props: TopSupporterInfoProps) => {
   const styles = useStyles()
   const { secondary, neutralLight4 } = useThemeColors()
   const supportersMap = useSelectorWeb(getSupporters)
-  const mainUser = useSelectorWeb(getMainUser)
-  const supportersForUser = mainUser
-    ? supportersMap[mainUser.user_id] ?? null
+  const supportersId = useSelectorWeb(getSupportersId)
+  const supportersForUser = supportersId
+    ? supportersMap[supportersId] ?? null
     : null
   const supporter = supportersForUser?.[props.user.user_id] ?? null
 

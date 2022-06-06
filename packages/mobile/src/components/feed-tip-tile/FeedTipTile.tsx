@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { User } from 'audius-client/src/common/models/User'
 import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
@@ -10,8 +10,7 @@ import {
 } from 'audius-client/src/common/store/tipping/selectors'
 import {
   fetchRecentTips,
-  hideTip,
-  setMainUser
+  hideTip
 } from 'audius-client/src/common/store/tipping/slice'
 import { View } from 'react-native'
 
@@ -73,19 +72,6 @@ export const FeedTipTile = () => {
   const { isEnabled: isTippingEnabled } = useFeatureFlag(
     FeatureFlags.TIPPING_ENABLED
   )
-  const [hasSetMainUser, setHasSetMainUser] = useState(false)
-
-  useEffect(() => {
-    if (
-      isTippingEnabled &&
-      !hasSetMainUser &&
-      tipToDisplay &&
-      usersMap[tipToDisplay.receiver_id]
-    ) {
-      dispatchWeb(setMainUser({ user: usersMap[tipToDisplay.receiver_id] }))
-      setHasSetMainUser(true)
-    }
-  }, [isTippingEnabled, hasSetMainUser, tipToDisplay, usersMap, dispatchWeb])
 
   useEffect(() => {
     const fetchRecentTipsAsync = async () => {

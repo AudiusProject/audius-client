@@ -37,7 +37,6 @@ export const getStorageCache = (state: CommonState) => state.tipping.storage
 export const getTipToDisplay = (state: CommonState) =>
   state.tipping.tipToDisplay
 export const getShowTip = (state: CommonState) => state.tipping.showTip
-export const getMainUser = (state: CommonState) => state.tipping.mainUser
 
 const mergeMaps = <
   MapType extends Record<ID, Record<ID, Supporter | Supporting>>

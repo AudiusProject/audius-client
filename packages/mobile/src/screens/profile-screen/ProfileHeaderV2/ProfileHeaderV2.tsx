@@ -1,14 +1,10 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { setMainUser } from 'audius-client/src/common/store/tipping/slice'
 import { Animated, LayoutAnimation, View } from 'react-native'
 import { useToggle } from 'react-use'
 
 import { Divider } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
@@ -53,16 +49,6 @@ export const ProfileHeaderV2 = (props: ProfileHeaderV2Props) => {
   const isOwner = profile?.user_id === accountId
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const [isExpanded, setIsExpanded] = useToggle(false)
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
-  const dispatchWeb = useDispatchWeb()
-
-  useEffect(() => {
-    if (isTippingEnabled && profile) {
-      dispatchWeb(setMainUser({ user: profile }))
-    }
-  }, [isTippingEnabled, dispatchWeb, profile])
 
   const handleFollow = useCallback(() => {
     if (!profile?.does_current_user_follow) {
