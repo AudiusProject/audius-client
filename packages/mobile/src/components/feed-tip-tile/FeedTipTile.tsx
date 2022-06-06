@@ -5,7 +5,7 @@ import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   getShowTip,
-  getStorageStr,
+  getStorageCache,
   getTipToDisplay
 } from 'audius-client/src/common/store/tipping/selectors'
 import {
@@ -23,7 +23,7 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import {
   dismissRecentTip,
   getMinSlotForRecentTips,
-  getRecentTipsStorageStr,
+  getRecentTipsStorage,
   updateTipsStorage
 } from 'app/store/tipping/storageUtils'
 import { makeStyles } from 'app/styles'
@@ -58,7 +58,7 @@ export const FeedTipTile = () => {
   const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
   const showTip = useSelectorWeb(getShowTip)
-  const storageStr = useSelectorWeb(getStorageStr)
+  const storage = useSelectorWeb(getStorageCache)
   const tipToDisplay = useSelectorWeb(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -90,17 +90,17 @@ export const FeedTipTile = () => {
   useEffect(() => {
     const fetchRecentTipsAsync = async () => {
       const minSlot = await getMinSlotForRecentTips()
-      const storageStr = await getRecentTipsStorageStr()
-      dispatchWeb(fetchRecentTips({ minSlot, storageStr }))
+      const storage = await getRecentTipsStorage()
+      dispatchWeb(fetchRecentTips({ minSlot, storage }))
     }
     fetchRecentTipsAsync()
   }, [dispatchWeb])
 
   useEffect(() => {
-    if (storageStr) {
-      updateTipsStorage(storageStr)
+    if (storage) {
+      updateTipsStorage(storage)
     }
-  }, [storageStr])
+  }, [storage])
 
   const handlePressClose = useCallback(() => {
     dismissRecentTip()

@@ -3,7 +3,12 @@ import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import { Supporter, Supporting, UserTip } from 'common/models/Tipping'
+import {
+  RecentTipsStorage,
+  Supporter,
+  Supporting,
+  UserTip
+} from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import { BNWei, StringWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
@@ -30,7 +35,7 @@ import {
   hideTip,
   setSupportingOverridesForUser,
   setSupportersOverridesForUser,
-  updateTipsStorageStr
+  updateStorageCache
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
@@ -392,15 +397,20 @@ function* fetchSupportingForUserAsync({
   )
 }
 
-export const checkTipToDisplay = async ({
-  storageStr,
+type CheckTipToDisplayResponse = {
+  tip: UserTip
+  newStorage: RecentTipsStorage
+}
+
+export const checkTipToDisplay = ({
+  storage,
   userId,
   recentTips
 }: {
-  storageStr: Nullable<string>
+  storage: Nullable<RecentTipsStorage>
   userId: ID
   recentTips: UserTip[]
-}) => {
+}): Nullable<CheckTipToDisplayResponse> => {
   if (recentTips.length === 0) {
     return null
   }
@@ -410,7 +420,6 @@ export const checkTipToDisplay = async ({
    * Sort the tips by least recent to parse through oldest tips first.
    */
   const sortedTips = recentTips.sort((tip1, tip2) => tip1.slot - tip2.slot)
-  const storage = storageStr ? JSON.parse(storageStr) : null
 
   /**
    * Return oldest of the recent tips if nothing in local storage.
@@ -420,11 +429,11 @@ export const checkTipToDisplay = async ({
     const oldestValidTip = sortedTips[0]
     return {
       tip: oldestValidTip,
-      newStorageStr: JSON.stringify({
+      newStorage: {
         minSlot: oldestValidTip.slot,
         dismissed: false,
         lastDismissalTimestamp: null
-      })
+      }
     }
   }
 
@@ -438,11 +447,11 @@ export const checkTipToDisplay = async ({
   if (ownTip) {
     return {
       tip: ownTip,
-      newStorageStr: JSON.stringify({
+      newStorage: {
         minSlot: ownTip.slot,
         dismissed: false,
         lastDismissalTimestamp: null
-      })
+      }
     }
   }
 
@@ -450,11 +459,11 @@ export const checkTipToDisplay = async ({
   if (oldestValidTip) {
     return {
       tip: oldestValidTip,
-      newStorageStr: JSON.stringify({
+      newStorage: {
         minSlot: oldestValidTip.slot,
         dismissed: false,
         lastDismissalTimestamp: null
-      })
+      }
     }
   }
 
@@ -476,11 +485,11 @@ export const checkTipToDisplay = async ({
     if (ownTip) {
       return {
         tip: ownTip,
-        newStorageStr: JSON.stringify({
+        newStorage: {
           minSlot: ownTip.slot,
           dismissed: false,
           lastDismissalTimestamp: null
-        })
+        }
       }
     }
 
@@ -488,11 +497,11 @@ export const checkTipToDisplay = async ({
     if (oldestValidTip) {
       return {
         tip: oldestValidTip,
-        newStorageStr: JSON.stringify({
+        newStorage: {
           minSlot: oldestValidTip.slot,
           dismissed: false,
           lastDismissalTimestamp: null
-        })
+        }
       }
     }
 
@@ -503,7 +512,7 @@ export const checkTipToDisplay = async ({
      */
     console.error(
       `Error checking for tip to display (should not have reached here): ${{
-        storageStr,
+        storage,
         userId,
         recentTips
       }}`
@@ -515,7 +524,7 @@ export const checkTipToDisplay = async ({
 }
 
 function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
-  const { storageStr, minSlot } = action.payload
+  const { storage, minSlot } = action.payload
 
   const account = yield* select(getAccountUser)
   if (!account) {
@@ -565,13 +574,13 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
     .filter((userTip): userTip is UserTip => !!userTip)
 
   const result = yield* call(checkTipToDisplay, {
-    storageStr,
+    storage,
     userId: account.user_id,
     recentTips
   })
-  const { tip: tipToDisplay, newStorageStr } = result ?? {}
-  if (newStorageStr) {
-    yield put(updateTipsStorageStr({ newStorageStr }))
+  const { tip: tipToDisplay, newStorage } = result ?? {}
+  if (newStorage) {
+    yield put(updateStorageCache({ newStorage }))
   }
   if (tipToDisplay) {
     const userIds = [

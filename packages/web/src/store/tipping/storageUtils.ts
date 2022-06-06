@@ -1,17 +1,13 @@
 import { RecentTipsStorage } from 'common/models/Tipping'
 import { RECENT_TIPS_KEY } from 'utils/constants'
 
-export const getRecentTipsStorageStr = () => {
-  return window.localStorage?.getItem(RECENT_TIPS_KEY) ?? null
-}
-
-const getRecentTipsStorage = () => {
-  const value = getRecentTipsStorageStr()
+export const getRecentTipsStorage = () => {
+  const value = window.localStorage?.getItem(RECENT_TIPS_KEY) ?? null
   return value ? (JSON.parse(value) as RecentTipsStorage) : null
 }
 
-export const updateTipsStorage = (storageStr: string) => {
-  window.localStorage?.setItem(RECENT_TIPS_KEY, storageStr)
+export const updateTipsStorage = (storage: RecentTipsStorage) => {
+  window.localStorage?.setItem(RECENT_TIPS_KEY, JSON.stringify(storage))
 }
 
 export const getMinSlotForRecentTips = () => {
@@ -25,11 +21,9 @@ export const dismissRecentTip = () => {
     return
   }
 
-  updateTipsStorage(
-    JSON.stringify({
-      minSlot: storage.minSlot,
-      dismissed: true,
-      lastDismissalTimestamp: Date.now()
-    })
-  )
+  updateTipsStorage({
+    minSlot: storage.minSlot,
+    dismissed: true,
+    lastDismissalTimestamp: Date.now()
+  })
 }

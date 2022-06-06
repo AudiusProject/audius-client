@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { ID } from 'common/models/Identifiers'
-import { UserTip } from 'common/models/Tipping'
+import { RecentTipsStorage, UserTip } from 'common/models/Tipping'
 import { User } from 'common/models/User'
 import {
   SupportersMapForUser,
@@ -29,7 +29,7 @@ const initialState: TippingState = {
     error: null
   },
   recentTips: [],
-  storageStr: null,
+  storage: null,
   tipToDisplay: null,
   showTip: true,
   mainUser: null
@@ -141,7 +141,7 @@ const slice = createSlice({
     fetchRecentTips: (
       state,
       action: PayloadAction<{
-        storageStr: Nullable<string>
+        storage: Nullable<RecentTipsStorage>
         minSlot: Nullable<number>
       }>
     ) => {},
@@ -151,11 +151,11 @@ const slice = createSlice({
     ) => {
       state.recentTips = action.payload.recentTips
     },
-    updateTipsStorageStr: (
+    updateStorageCache: (
       state,
-      action: PayloadAction<{ newStorageStr: string }>
+      action: PayloadAction<{ newStorage: RecentTipsStorage }>
     ) => {
-      state.storageStr = action.payload.newStorageStr
+      state.storage = action.payload.newStorage
     },
     setTipToDisplay: (
       state,
@@ -188,7 +188,7 @@ export const {
   resetSend,
   fetchRecentTips,
   setRecentTips,
-  updateTipsStorageStr,
+  updateStorageCache,
   setTipToDisplay,
   hideTip,
   setMainUser

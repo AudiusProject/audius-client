@@ -11,7 +11,7 @@ import { FeatureFlags } from 'common/services/remote-config'
 import { getUsers } from 'common/store/cache/users/selectors'
 import {
   getShowTip,
-  getStorageStr,
+  getStorageCache,
   getTipToDisplay
 } from 'common/store/tipping/selectors'
 import {
@@ -36,7 +36,7 @@ import {
 import {
   dismissRecentTip,
   getMinSlotForRecentTips,
-  getRecentTipsStorageStr,
+  getRecentTipsStorage,
   updateTipsStorage
 } from 'store/tipping/storageUtils'
 import { AppState } from 'store/types'
@@ -173,7 +173,7 @@ export const FeedTipTile = () => {
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
-  const storageStr = useSelector(getStorageStr)
+  const storage = useSelector(getStorageCache)
   const tipToDisplay = useSelector(getTipToDisplay)
   const tipperIds = tipToDisplay
     ? [
@@ -201,15 +201,15 @@ export const FeedTipTile = () => {
 
   useEffect(() => {
     const minSlot = getMinSlotForRecentTips()
-    const storageStr = getRecentTipsStorageStr()
-    fetchRecentTips({ minSlot, storageStr })
+    const storage = getRecentTipsStorage()
+    fetchRecentTips({ minSlot, storage })
   }, [dispatch])
 
   useEffect(() => {
-    if (storageStr) {
-      updateTipsStorage(storageStr)
+    if (storage) {
+      updateTipsStorage(storage)
     }
-  }, [storageStr])
+  }, [storage])
 
   const handleClick = useCallback(() => {
     if (tipToDisplay) {

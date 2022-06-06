@@ -33,7 +33,7 @@ export const getSendUser = (state: CommonState) => state.tipping.send.user
 export const getSendTipData = (state: CommonState) => state.tipping.send
 
 export const getRecentTips = (state: CommonState) => state.tipping.recentTips
-export const getStorageStr = (state: CommonState) => state.tipping.storageStr
+export const getStorageCache = (state: CommonState) => state.tipping.storage
 export const getTipToDisplay = (state: CommonState) =>
   state.tipping.tipToDisplay
 export const getShowTip = (state: CommonState) => state.tipping.showTip
