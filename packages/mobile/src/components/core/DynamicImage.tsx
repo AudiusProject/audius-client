@@ -32,10 +32,6 @@ export type DynamicImageProps = Omit<ImageProps, 'source'> & {
     imageContainer: ViewStyle
     image: ImageStyle
   }>
-  profilePhotoStyles?: {
-    width?: number | string | undefined
-    height?: number | string | undefined
-  }
   style?: StyleProp<ViewStyle>
   // Whether or not to immediately animate
   immediate?: boolean
