@@ -11,7 +11,7 @@ import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+const useStyles = makeStyles(({ spacing, typography }) => ({
   receiver: {
     display: 'flex',
     flexDirection: 'row',

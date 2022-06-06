@@ -28,7 +28,7 @@ import { ReceiverDetails } from './ReceiverDetails'
 import { SendTipButton } from './SendTipButton'
 import { SenderDetails } from './SenderDetails'
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   tile: {
     justifyContent: 'center',
     alignItems: 'center',
