@@ -31,9 +31,10 @@ const messages = {
 
 type ArtistSupportingProps = {
   artist: User
+  onClick: () => void
 }
 export const ArtistSupporting = (props: ArtistSupportingProps) => {
-  const { artist } = props
+  const { artist, onClick } = props
   const { user_id, supporting_count } = artist
   const dispatch = useDispatch()
 
@@ -73,9 +74,12 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
   }, [dispatch, hasNotPreviouslyFetchedSupportingForArtist, user_id])
 
   const handleClick = useCallback(() => {
+    // This needs to come first so that if the modal is already visible,
+    // it gets dismissed BEFORE we set it to be visible
+    onClick()
     /**
      * It's possible that we are already in the supporting
-     * user list modal, and that we are hovering oover one
+     * user list modal, and that we are hovering over one
      * of the users.
      * Clicking on the supporting section is supposed to
      * load a new user list modal that shows the users who
@@ -92,7 +96,7 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
     )
     dispatch(loadMore(SUPPORTING_TAG))
     dispatch(setVisibility(true))
-  }, [dispatch, user_id])
+  }, [dispatch, user_id, onClick])
 
   return rankedSupportingList.length > 0 ? (
     <div className={styles.supportingContainer} onClick={handleClick}>

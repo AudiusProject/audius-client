@@ -18,10 +18,11 @@ const { getFeatureEnabled } = remoteConfigInstance
 
 type ArtistCardProps = {
   artist: User
+  onNavigateAway: () => void
 }
 
 export const ArtistCard = (props: ArtistCardProps) => {
-  const { artist } = props
+  const { artist, onNavigateAway } = props
   const {
     user_id,
     bio,
@@ -39,6 +40,7 @@ export const ArtistCard = (props: ArtistCardProps) => {
 
   const handleClick: MouseEventHandler = useCallback(event => {
     event.stopPropagation()
+    event.nativeEvent.stopImmediatePropagation()
   }, [])
 
   const stats = useMemo((): StatProps[] => {
@@ -95,7 +97,9 @@ export const ArtistCard = (props: ArtistCardProps) => {
         </div>
         <div className={styles.contentContainer}>
           <div>
-            {isTippingEnabled ? <ArtistSupporting artist={artist} /> : null}
+            {isTippingEnabled ? (
+              <ArtistSupporting artist={artist} onClick={onNavigateAway} />
+            ) : null}
             <div className={styles.description}>{bio}</div>
             <FollowButton
               className={styles.followButton}
