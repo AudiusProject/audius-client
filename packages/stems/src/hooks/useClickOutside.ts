@@ -33,8 +33,8 @@ export const useClickOutside = (
       onClick()
     }
 
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
   }, [onClick, ignoreClick])
 
   return ref

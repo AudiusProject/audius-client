@@ -207,9 +207,18 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
     // dismiss "this" modal. We let the useClickOutside in "that" modal to
     // dismiss it.
     (e: EventTarget) => {
+      // Only close if we're open.
+      // Closing when we're not open can cause a race condition when opened
+      // via a click since this handler exists prior to visibility,
+      // causing the modal to open and close immediately
+      if (!isOpen) {
+        return true
+      }
       if (e instanceof Element) {
         const modalElement = findAncestor(e, `.${wrapperClass}`)
-        if (!modalElement) return false
+        if (!modalElement) {
+          return false
+        }
         const isModalWrapper = modalElement.classList.contains(wrapperClass)
         const isThisModalWrapper = modalElement.classList.contains(
           `${wrapperClass}-${id}`
