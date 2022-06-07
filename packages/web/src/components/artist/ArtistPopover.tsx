@@ -104,7 +104,7 @@ export const ArtistPopover = ({
       <Popover
         mouseEnterDelay={mouseEnterDelay}
         content={content}
-        overlayClassName={cn(styles.overlayStyle)}
+        overlayClassName={styles.overlayStyle}
         placement={placement}
         getPopupContainer={popupContainer}
         defaultVisible={false}

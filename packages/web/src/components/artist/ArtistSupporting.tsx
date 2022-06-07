@@ -31,10 +31,10 @@ const messages = {
 
 type ArtistSupportingProps = {
   artist: User
-  onClick: () => void
+  onNavigateAway?: () => void
 }
 export const ArtistSupporting = (props: ArtistSupportingProps) => {
-  const { artist, onClick } = props
+  const { artist, onNavigateAway } = props
   const { user_id, supporting_count } = artist
   const dispatch = useDispatch()
 
@@ -74,9 +74,6 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
   }, [dispatch, hasNotPreviouslyFetchedSupportingForArtist, user_id])
 
   const handleClick = useCallback(() => {
-    // This needs to come first so that if the modal is already visible,
-    // it gets dismissed BEFORE we set it to be visible
-    onClick()
     /**
      * It's possible that we are already in the supporting
      * user list modal, and that we are hovering over one
@@ -95,8 +92,17 @@ export const ArtistSupporting = (props: ArtistSupportingProps) => {
       })
     )
     dispatch(loadMore(SUPPORTING_TAG))
-    dispatch(setVisibility(true))
-  }, [dispatch, user_id, onClick])
+    // Wait until event bubbling finishes so that any modals are already dismissed
+    // Without this, the user list won't be visible if the popover is from an existing user list
+    setTimeout(() => {
+      dispatch(setVisibility(true))
+    }, 0)
+
+    // Used to dismiss popovers etc
+    if (onNavigateAway) {
+      onNavigateAway()
+    }
+  }, [dispatch, user_id, onNavigateAway])
 
   return rankedSupportingList.length > 0 ? (
     <div className={styles.supportingContainer} onClick={handleClick}>

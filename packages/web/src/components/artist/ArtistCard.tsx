@@ -40,7 +40,6 @@ export const ArtistCard = (props: ArtistCardProps) => {
 
   const handleClick: MouseEventHandler = useCallback(event => {
     event.stopPropagation()
-    event.nativeEvent.stopImmediatePropagation()
   }, [])
 
   const stats = useMemo((): StatProps[] => {
@@ -86,7 +85,11 @@ export const ArtistCard = (props: ArtistCardProps) => {
   return (
     <div className={styles.popoverContainer} onClick={handleClick}>
       <div className={styles.artistCardContainer}>
-        <ArtistCardCover artist={artist} isArtist={isArtist} />
+        <ArtistCardCover
+          artist={artist}
+          isArtist={isArtist}
+          onNavigateAway={onNavigateAway}
+        />
         <div className={styles.artistStatsContainer}>
           <Stats
             userId={user_id}
@@ -98,7 +101,10 @@ export const ArtistCard = (props: ArtistCardProps) => {
         <div className={styles.contentContainer}>
           <div>
             {isTippingEnabled ? (
-              <ArtistSupporting artist={artist} onClick={onNavigateAway} />
+              <ArtistSupporting
+                artist={artist}
+                onNavigateAway={onNavigateAway}
+              />
             ) : null}
             <div className={styles.description}>{bio}</div>
             <FollowButton
