@@ -59,7 +59,9 @@ const messages = {
   originInvalidError:
     'Whoops, this is an invalid link (redirect URI is set to `postMessage` but origin is missing).',
   noWindowError:
-    'Whoops, something went wrong. Please close this window and try again.'
+    'Whoops, something went wrong. Please close this window and try again.',
+  responseModeError:
+    'Whoops, this is an invalid link (response mode invalid - if set, must be "fragment" or "query").'
 }
 
 const CTAButton = ({
@@ -98,8 +100,10 @@ export const OAuthLoginPage = () => {
     state,
     redirect_uri,
     app_name,
+    response_mode,
     origin: originParam
   } = queryString.parse(search)
+
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const parsedRedirectUri = useMemo(() => {
@@ -227,6 +231,12 @@ export const OAuthLoginPage = () => {
     queryParamsError = messages.missingAppNameError
   } else if (scope !== 'read') {
     queryParamsError = messages.scopeError
+  } else if (
+    response_mode &&
+    response_mode !== 'query' &&
+    response_mode !== 'fragment'
+  ) {
+    queryParamsError = messages.responseModeError
   }
 
   useEffect(() => {
@@ -236,7 +246,8 @@ export const OAuthLoginPage = () => {
           redirectUriParam:
             parsedRedirectUri === 'postmessage' ? 'postmessage' : redirect_uri!,
           originParam: originParam,
-          appNameParam: app_name!
+          appNameParam: app_name!,
+          responseMode: response_mode
         })
       )
     }
@@ -246,7 +257,8 @@ export const OAuthLoginPage = () => {
     parsedRedirectUri,
     queryParamsError,
     record,
-    redirect_uri
+    redirect_uri,
+    response_mode
   ])
 
   const formOAuthResponse = async (account: User) => {
@@ -314,8 +326,9 @@ export const OAuthLoginPage = () => {
       } else {
         record(make(Name.AUDIUS_OAUTH_COMPLETE, {}))
         const statePart = state != null ? `state=${state}&` : ''
-        const fragment = `#${statePart}token=${jwt}`
-        window.location.href = `${redirect_uri}${fragment}`
+        const prefix = response_mode && response_mode === 'query' ? '?' : '#'
+        const addition = `${prefix}${statePart}token=${jwt}`
+        window.location.href = `${redirect_uri}${addition}`
       }
     }
   }
