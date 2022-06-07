@@ -8,6 +8,7 @@ import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
+import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { ProfilePictureList } from 'app/screens/notifications-screen/Notification'
@@ -26,7 +27,7 @@ const MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS = 6
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
     backgroundColor: palette.white,
-    padding: spacing(2),
+    padding: spacing(4),
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -44,6 +45,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexDirection: 'row',
     alignItems: 'center'
   },
+  icon: {
+    marginRight: spacing(2)
+  },
   viewTopSupportersText: {
     marginRight: spacing(4),
     color: palette.neutral,
@@ -60,7 +64,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 export const TopSupporters = () => {
   const styles = useStyles()
-  const { secondary } = useThemeColors()
+  const { secondary, neutral } = useThemeColors()
   const navigation = useNavigation()
   const { user_id } = useSelectProfile(['user_id'])
   const supportersForProfile: SupportersMapForUser =
@@ -95,6 +99,7 @@ export const TopSupporters = () => {
         imageStyles={styles.profilePicture}
       />
       <View style={styles.alignRowCenter}>
+        <IconTrophy style={styles.icon} fill={neutral} />
         <Text style={styles.viewTopSupportersText}>
           {messages.topSupporters}
         </Text>
