@@ -6,10 +6,10 @@ export const TIPPING_SUPPORT_DEFAULT_LIMIT = 25
 // @ts-ignore
 const libs = () => window.audiusLibs
 
-export type SupportingResponse = Omit<Supporter, 'receiver_id'> & {
+export type SupportingResponse = Omit<Supporting, 'receiver_id'> & {
   receiver: any
 }
-export type SupporterResponse = Omit<Supporting, 'sender_id'> & { sender: any }
+export type SupporterResponse = Omit<Supporter, 'sender_id'> & { sender: any }
 export type SupportRequest = {
   encodedUserId: string
   limit?: number
