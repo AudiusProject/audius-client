@@ -31,12 +31,13 @@ function* watchFetchUserSupporter() {
   }) {
     const { currentUserId, userId, supporterUserId } = action
     try {
-      const response = yield* call(() =>
-        AudiusAPIClient.getUserSupporter({
+      const response = yield* call(
+        [AudiusAPIClient, AudiusAPIClient.getUserSupporter],
+        {
           currentUserId,
           userId,
           supporterUserId
-        })
+        }
       )
       if (response) {
         const supportingMap = yield* select(getSupporting)
