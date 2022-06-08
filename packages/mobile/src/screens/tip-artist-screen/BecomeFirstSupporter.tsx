@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
+import LinearGradient from 'react-native-linear-gradient'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { makeStyles } from 'app/styles'
@@ -17,7 +18,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'center',
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(3),
-    backgroundColor: palette.secondary,
     borderRadius: 4
   },
   text: {
@@ -30,12 +30,19 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 export const BecomeFirstSupporter = () => {
   const styles = useStyles()
-  const { white } = useThemeColors()
+  const {
+    white,
+    pageHeaderGradientColor1,
+    pageHeaderGradientColor2
+  } = useThemeColors()
 
   return (
-    <View style={styles.root}>
+    <LinearGradient
+      style={styles.root}
+      colors={[pageHeaderGradientColor2, pageHeaderGradientColor1]}
+    >
       <IconTrophy fill={white} width={16} height={16} />
       <Text style={styles.text}>{messages.becomeFirstSupporter}</Text>
-    </View>
+    </LinearGradient>
   )
 }

@@ -1,6 +1,7 @@
 import { BNWei } from 'audius-client/src/common/models/Wallet'
 import { formatWei } from 'audius-client/src/common/utils/wallet'
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
+import LinearGradient from 'react-native-linear-gradient'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { makeStyles } from 'app/styles'
@@ -20,7 +21,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'center',
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(3),
-    backgroundColor: palette.secondary,
     borderRadius: 4
   },
   text: {
@@ -39,16 +39,23 @@ export const BecomeTopSupporter = ({
   amountToTipToBecomeTopSupporter
 }: BecomeTopSupporterProps) => {
   const styles = useStyles()
-  const { white } = useThemeColors()
+  const {
+    white,
+    pageHeaderGradientColor1,
+    pageHeaderGradientColor2
+  } = useThemeColors()
 
   return (
-    <View style={[styles.root]}>
+    <LinearGradient
+      style={styles.root}
+      colors={[pageHeaderGradientColor2, pageHeaderGradientColor1]}
+    >
       <IconTrophy fill={white} width={16} height={16} />
       <Text style={styles.text}>
         {messages.becomeTopSupporterPrefix}
         {formatWei(amountToTipToBecomeTopSupporter, true, 0)}
         {messages.becomeTopSupporterSuffix}
       </Text>
-    </View>
+    </LinearGradient>
   )
 }
