@@ -23,7 +23,7 @@ export const TipArtistModal = () => {
     return () => {
       dispatchWeb(resetSend())
     }
-  })
+  }, [dispatchWeb])
 
   return (
     <Stack.Navigator screenOptions={screenOptions}>
