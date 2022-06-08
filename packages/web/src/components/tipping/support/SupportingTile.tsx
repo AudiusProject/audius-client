@@ -58,19 +58,24 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
     <div className={styles.tileContainer} onClick={handleClick}>
       <div
         className={styles.tileBackground}
-        style={{ backgroundImage: `url(${coverPhoto})` }}
+        style={{
+          backgroundImage: `url(${coverPhoto}), linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.0001) 50.54%,
+          rgba(0, 0, 0, 0.05) 57.88%,
+          rgba(0, 0, 0, 0.2) 100%
+        )`
+        }}
       >
-        <div className={styles.tileBackgroundGradient}>
-          <div className={styles.profilePictureContainer}>
-            <img className={styles.profilePicture} src={profileImage} />
-            <div className={styles.nameAndBadge}>
-              <span className={styles.name}>{receiver.name}</span>
-              <UserBadges
-                className={styles.badge}
-                userId={receiver.user_id}
-                badgeSize={12}
-              />
-            </div>
+        <div className={styles.profilePictureContainer}>
+          <img className={styles.profilePicture} src={profileImage} />
+          <div className={styles.nameAndBadge}>
+            <span className={styles.name}>{receiver.name}</span>
+            <UserBadges
+              className={styles.badge}
+              userId={receiver.user_id}
+              badgeSize={12}
+            />
           </div>
         </div>
       </div>
