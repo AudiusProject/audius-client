@@ -42,3 +42,12 @@
 .subscribeButton {
   margin-right: 6px;
 }
+
+.followButton {
+  text-transform: uppercase;
+}
+
+.followButton svg {
+  height: 24px;
+  width: 24px;
+}
