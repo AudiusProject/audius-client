@@ -118,14 +118,14 @@ export const SendTipScreen = () => {
     if (!receiver) return
 
     const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
-    const rankedSupportersList = Object.keys(supportersForReceiver)
-      .sort((k1, k2) => {
-        return (
-          supportersForReceiver[(k1 as unknown) as ID].rank -
-          supportersForReceiver[(k2 as unknown) as ID].rank
-        )
-      })
-      .map(k => supportersForReceiver[(k as unknown) as ID])
+    const rankedSupportersList = ((Object.keys(
+      supportersForReceiver
+    ) as unknown) as ID[])
+      .sort(
+        (k1, k2) =>
+          supportersForReceiver[k1].rank - supportersForReceiver[k2].rank
+      )
+      .map(k => supportersForReceiver[k])
     const theTopSupporter =
       rankedSupportersList.length > 0 ? rankedSupportersList[0] : null
 
