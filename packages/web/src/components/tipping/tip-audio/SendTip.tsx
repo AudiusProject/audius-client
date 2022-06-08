@@ -17,7 +17,7 @@ import {
   getOptimisticSupporting,
   getSendUser
 } from 'common/store/tipping/selectors'
-import { sendTip } from 'common/store/tipping/slice'
+import { fetchUserSupporter, sendTip } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
 import { parseWeiNumber } from 'common/utils/formatUtil'
@@ -31,7 +31,6 @@ import {
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
 
 import styles from './TipAudio.module.css'
 import { TipProfilePicture } from './TipProfilePicture'
@@ -90,19 +89,15 @@ export const SendTip = () => {
     if (accountSupportingReceiver) {
       setSupportingAmount(accountSupportingReceiver.amount)
     } else {
-      const fn = async () => {
-        const supporterResponse = await AudiusAPIClient.getUserSupporter({
+      dispatch(
+        fetchUserSupporter({
           currentUserId: account.user_id,
           userId: receiver.user_id,
           supporterUserId: account.user_id
         })
-        if (supporterResponse) {
-          setSupportingAmount(supporterResponse.amount)
-        }
-      }
-      fn()
+      )
     }
-  }, [account, receiver, supportingMap, supportingAmount])
+  }, [account, receiver, supportingMap, supportingAmount, dispatch])
 
   /**
    * Get user who is top supporter to later check whether it is

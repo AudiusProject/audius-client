@@ -13,7 +13,10 @@ import {
   getOptimisticSupporting,
   getSendUser
 } from 'audius-client/src/common/store/tipping/selectors'
-import { sendTip } from 'audius-client/src/common/store/tipping/slice'
+import {
+  sendTip,
+  fetchUserSupporter
+} from 'audius-client/src/common/store/tipping/slice'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
 import { parseWeiNumber } from 'audius-client/src/common/utils/formatUtil'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
@@ -29,7 +32,6 @@ import { Button } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { MessageType } from 'app/message/types'
 import { makeStyles } from 'app/styles'
 
 import { TopBarIconButton } from '../app-screen'
@@ -101,12 +103,13 @@ export const SendTipScreen = () => {
     if (accountSupportingReceiver) {
       setSupportingAmount(accountSupportingReceiver.amount)
     } else {
-      dispatchWeb({
-        type: MessageType.FETCH_USER_SUPPORTER,
-        currentUserId: account.user_id,
-        userId: receiver.user_id,
-        supporterUserId: account.user_id
-      })
+      dispatchWeb(
+        fetchUserSupporter({
+          currentUserId: account.user_id,
+          userId: receiver.user_id,
+          supporterUserId: account.user_id
+        })
+      )
     }
   }, [account, receiver, supportingAmount, supportingMap, dispatchWeb])
 
