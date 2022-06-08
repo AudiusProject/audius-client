@@ -60,15 +60,17 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
         className={styles.tileBackground}
         style={{ backgroundImage: `url(${coverPhoto})` }}
       >
-        <div className={styles.profilePictureContainer}>
-          <img className={styles.profilePicture} src={profileImage} />
-          <div className={styles.nameAndBadge}>
-            <span className={styles.name}>{receiver.name}</span>
-            <UserBadges
-              className={styles.badge}
-              userId={receiver.user_id}
-              badgeSize={12}
-            />
+        <div className={styles.tileBackgroundGradient}>
+          <div className={styles.profilePictureContainer}>
+            <img className={styles.profilePicture} src={profileImage} />
+            <div className={styles.nameAndBadge}>
+              <span className={styles.name}>{receiver.name}</span>
+              <UserBadges
+                className={styles.badge}
+                userId={receiver.user_id}
+                badgeSize={12}
+              />
+            </div>
           </div>
         </div>
       </div>
