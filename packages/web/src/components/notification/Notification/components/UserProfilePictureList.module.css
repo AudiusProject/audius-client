@@ -21,6 +21,10 @@
   margin-right: calc(var(--unit-2) * -1);
 }
 
+.profilePicture > div {
+  border-color: var(--neutral-light-10);
+}
+
 .profilePictureExtraRoot {
   position: relative;
 }
