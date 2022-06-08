@@ -33,7 +33,7 @@ export const useCollapse = ({
         setIsCollapsible(true)
       }
     }
-  }, [ref, numLines, lineHeight, isCollapsed, isCollapsible])
+  }, [ref.current, numLines, lineHeight, isCollapsed, isCollapsible])
 
   const handleToggleCollapse = () => setIsCollapsed(!isCollapsed)
 

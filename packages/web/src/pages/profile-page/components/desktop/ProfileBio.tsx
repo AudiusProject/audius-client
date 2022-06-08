@@ -192,13 +192,12 @@ export const ProfileBio = ({
   } as unknown) as Options
 
   return (
-    <div>
+    <div ref={forwardRef}>
       <Linkify options={linkifyOptions}>
         <div
           className={cn(styles.description, {
             [styles.truncated]: isCollapsed
           })}
-          ref={forwardRef}
         >
           {squashNewLines(bio)}
         </div>
