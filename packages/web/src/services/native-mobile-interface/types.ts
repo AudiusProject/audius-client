@@ -133,7 +133,8 @@ export enum MessageType {
 
   // Tipping
   FETCH_RECENT_TIPS = 'fetch-recent-tips',
-  UPDATE_TIPS_STORAGE = 'update-tips-storage'
+  UPDATE_TIPS_STORAGE = 'update-tips-storage',
+  FETCH_USER_SUPPORTER = 'fetch-user-supporter'
 }
 
 export interface Message {

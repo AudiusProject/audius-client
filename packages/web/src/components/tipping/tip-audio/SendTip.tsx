@@ -63,7 +63,7 @@ export const SendTip = () => {
   const audioBadge = audioTierMapPng[tier as BadgeTier]
 
   const [isDisabled, setIsDisabled] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false)
 
   const [
     amountToTipToBecomeTopSupporter,
@@ -84,9 +84,9 @@ export const SendTip = () => {
     if (!account || !receiver) return
     if (supportingAmount) return
 
-    const supportingForAccount = supportingMap[account.user_id] ?? {}
+    const supportingForAccount = supportingMap[account.user_id] ?? null
     const accountSupportingReceiver =
-      supportingForAccount[receiver.user_id] ?? null
+      supportingForAccount?.[receiver.user_id] ?? null
     if (accountSupportingReceiver) {
       setSupportingAmount(accountSupportingReceiver.amount)
     } else {
@@ -135,9 +135,8 @@ export const SendTip = () => {
     const zeroWei = stringWeiToBN('0' as StringWei)
     const newAmountWei = parseAudioInputToWei(tipAmount) ?? zeroWei
 
-    const hasInsufficientBalance = newAmountWei.gt(accountBalance)
-    setIsDisabled(hasInsufficientBalance || newAmountWei.lte(zeroWei))
-    setHasError(hasInsufficientBalance)
+    setHasInsufficientBalance(newAmountWei.gt(accountBalance))
+    setIsDisabled(newAmountWei.gt(accountBalance) || newAmountWei.lte(zeroWei))
   }, [tipAmount, accountBalance])
 
   const handleTipAmountChange = useCallback(
@@ -151,7 +150,7 @@ export const SendTip = () => {
    * Check whether or not to display prompt to become top or first supporter
    */
   useEffect(() => {
-    if (hasError || !account || !topSupporter) return
+    if (hasInsufficientBalance || !account || !topSupporter) return
 
     const isAlreadyTopSupporter = account.user_id === topSupporter.sender_id
     if (isAlreadyTopSupporter) return
@@ -173,7 +172,13 @@ export const SendTip = () => {
     ) {
       setAmountToTipToBecomeTopSupporter(newAmountToTipToBecomeTopSupporter)
     }
-  }, [hasError, account, topSupporter, supportingAmount, accountBalance])
+  }, [
+    hasInsufficientBalance,
+    account,
+    topSupporter,
+    supportingAmount,
+    accountBalance
+  ])
 
   const handleSendClick = useCallback(() => {
     dispatch(sendTip({ amount: tipAmount }))
@@ -231,8 +236,10 @@ export const SendTip = () => {
   return (
     <div className={styles.container}>
       <TipProfilePicture user={receiver} />
-      {!hasError && isFirstSupporter ? renderBecomeFirstSupporter() : null}
-      {!hasError && amountToTipToBecomeTopSupporter
+      {!hasInsufficientBalance && isFirstSupporter
+        ? renderBecomeFirstSupporter()
+        : null}
+      {!hasInsufficientBalance && amountToTipToBecomeTopSupporter
         ? renderBecomeTopSupporter()
         : null}
       <div className={styles.amountToSend}>
@@ -259,7 +266,7 @@ export const SendTip = () => {
           disabled={isDisabled}
         />
       </div>
-      {hasError && (
+      {hasInsufficientBalance && (
         <div className={cn(styles.flexCenter, styles.error)}>
           {messages.insufficientBalance}
         </div>
