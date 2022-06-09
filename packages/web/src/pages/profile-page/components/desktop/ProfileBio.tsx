@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { MutableRefObject, useCallback } from 'react'
 
 import cn from 'classnames'
 import { Options } from 'linkifyjs'
@@ -9,6 +9,7 @@ import { ReactComponent as IconCaretDownLine } from 'assets/img/iconCaretDownLin
 import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.svg'
 import { Name } from 'common/models/Analytics'
 import { squashNewLines } from 'common/utils/formatUtil'
+import { Nullable } from 'common/utils/typeUtils'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
 import { make, useRecord } from 'store/analytics/actions'
 
@@ -22,6 +23,10 @@ const messages = {
 }
 
 type ProfileBioProps = {
+  forwardRef: MutableRefObject<Nullable<HTMLDivElement>>
+  isCollapsible: boolean
+  isCollapsed: boolean
+  handleToggleCollapse: () => void
   handle: string
   bio: string
   location: string
@@ -34,6 +39,10 @@ type ProfileBioProps = {
 }
 
 export const ProfileBio = ({
+  forwardRef,
+  isCollapsible,
+  isCollapsed,
+  handleToggleCollapse,
   handle,
   bio,
   location,
@@ -45,12 +54,6 @@ export const ProfileBio = ({
   tikTokHandle
 }: ProfileBioProps) => {
   const hasSocial = twitterHandle || instagramHandle || tikTokHandle
-  const isCollapsible = !!bio || !!website || !!donation || !!hasSocial
-
-  const [isCollapsed, setCollapsed] = useState(isCollapsible)
-  const handleToggleCollapse = useCallback(() => {
-    setCollapsed(!isCollapsed)
-  }, [setCollapsed, isCollapsed])
 
   const record = useRecord()
 
@@ -195,6 +198,7 @@ export const ProfileBio = ({
           className={cn(styles.description, {
             [styles.truncated]: isCollapsed
           })}
+          ref={forwardRef}
         >
           {squashNewLines(bio)}
         </div>
