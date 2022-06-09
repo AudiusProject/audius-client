@@ -13,7 +13,7 @@ import {
 } from 'audius-client/src/common/store/tipping/slice'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
-import { useGetSupport } from 'audius-client/src/hooks/useGetSupport'
+import { useGetFirstOrTopSupporter } from 'audius-client/src/hooks/useGetFirstOrTopSupporter'
 import BN from 'bn.js'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -67,7 +67,7 @@ export const SendTipScreen = () => {
     isFirstSupporter,
     tipAmountWei,
     hasInsufficientBalance
-  } = useGetSupport({
+  } = useGetFirstOrTopSupporter({
     tipAmount,
     accountBalance,
     account,

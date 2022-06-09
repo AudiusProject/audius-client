@@ -25,7 +25,7 @@ type UseGetSupportProps = {
   supportersMap: SupportersMap
 }
 
-export const useGetSupport = ({
+export const useGetFirstOrTopSupporter = ({
   tipAmount,
   accountBalance,
   account,

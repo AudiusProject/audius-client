@@ -21,7 +21,7 @@ import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
 import { formatWei, stringWeiToBN, weiToString } from 'common/utils/wallet'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
-import { useGetSupport } from 'hooks/useGetSupport'
+import { useGetFirstOrTopSupporter } from 'hooks/useGetFirstOrTopSupporter'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import styles from './TipAudio.module.css'
@@ -61,7 +61,7 @@ export const SendTip = () => {
     isFirstSupporter,
     tipAmountWei,
     hasInsufficientBalance
-  } = useGetSupport({
+  } = useGetFirstOrTopSupporter({
     tipAmount,
     accountBalance,
     account,
