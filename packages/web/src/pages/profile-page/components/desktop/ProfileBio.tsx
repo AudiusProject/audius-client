@@ -174,6 +174,14 @@ export const ProfileBio = ({
             iconOnly
           />
         )}
+        {website && (
+          <SocialLink
+            type={Type.WEBSITE}
+            link={website}
+            onClick={onClickWebsite}
+            iconOnly
+          />
+        )}
       </animated.div>
     ) : (
       <></>
