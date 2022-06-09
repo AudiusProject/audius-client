@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import cn from 'classnames'
 import { Options } from 'linkifyjs'
@@ -9,8 +9,8 @@ import { ReactComponent as IconCaretDownLine } from 'assets/img/iconCaretDownLin
 import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.svg'
 import { Name } from 'common/models/Analytics'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { Nullable } from 'common/utils/typeUtils'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
+import { useSize } from 'hooks/useSize'
 import { make, useRecord } from 'store/analytics/actions'
 
 import SocialLink, { Type } from '../SocialLink'
@@ -23,10 +23,6 @@ const messages = {
 }
 
 type ProfileBioProps = {
-  forwardRef: MutableRefObject<Nullable<HTMLDivElement>>
-  isCollapsible: boolean
-  isCollapsed: boolean
-  handleToggleCollapse: () => void
   handle: string
   bio: string
   location: string
@@ -38,11 +34,10 @@ type ProfileBioProps = {
   tikTokHandle: string
 }
 
+// Line height is 16px, 4 lines
+const MAX_BIO_SIZE = 16 * 4
+
 export const ProfileBio = ({
-  forwardRef,
-  isCollapsible,
-  isCollapsed,
-  handleToggleCollapse,
   handle,
   bio,
   location,
@@ -53,7 +48,46 @@ export const ProfileBio = ({
   instagramHandle,
   tikTokHandle
 }: ProfileBioProps) => {
+  const bioRef = useRef<HTMLDivElement>(null)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsible, setIsCollapsible] = useState(false)
+  const bioSize = useSize({ ref: bioRef })
+
+  const linkCount = [
+    website,
+    donation,
+    twitterHandle,
+    instagramHandle,
+    tikTokHandle
+  ].filter(Boolean).length
   const hasSocial = twitterHandle || instagramHandle || tikTokHandle
+
+  /**
+   * Collapse the component by default if:
+   * - The bio is more than four lines OR
+   * - There's more than one link
+   */
+  useEffect(() => {
+    if (
+      !isCollapsed &&
+      !isCollapsible &&
+      (bioSize > MAX_BIO_SIZE || linkCount > 1)
+    ) {
+      setIsCollapsed(true)
+      setIsCollapsible(true)
+    }
+  }, [
+    linkCount,
+    bioSize,
+    isCollapsed,
+    isCollapsible,
+    setIsCollapsed,
+    setIsCollapsible
+  ])
+
+  const handleToggleCollapse = useCallback(() => {
+    setIsCollapsed(!isCollapsed)
+  }, [isCollapsed, setIsCollapsed])
 
   const record = useRecord()
 
@@ -198,7 +232,7 @@ export const ProfileBio = ({
           className={cn(styles.description, {
             [styles.truncated]: isCollapsed
           })}
-          ref={forwardRef}
+          ref={bioRef}
         >
           {squashNewLines(bio)}
         </div>
