@@ -73,8 +73,7 @@ export const UserProfilePictureList = ({
               disablePopover
               className={cn(
                 styles.profilePictureExtra,
-                profilePictureClassname,
-                { [styles.disabled]: disableProfileClick }
+                profilePictureClassname
               )}
               user={users[limit]}
             />
