@@ -4,6 +4,7 @@ import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { NavLink, useHistory, withRouter } from 'react-router-dom'
 import useMeasure from 'react-use-measure'
@@ -556,6 +557,16 @@ const mapDispatchToProps = dispatch => ({
   showVisualizer: () => dispatch(openVisualizer())
 })
 
-export default withRouter(
+const ConnectedNavColumn = withRouter(
   connect(makeMapStateToProps, mapDispatchToProps)(NavColumn)
 )
+
+ConnectedNavColumn.propTypes = {
+  isElectron: PropTypes.bool
+}
+
+ConnectedNavColumn.defaultProps = {
+  isElectron: false
+}
+
+export default ConnectedNavColumn

@@ -154,6 +154,15 @@ const combineLists = (
 
 const notDeleted = e => !e.is_delete
 
+/**
+ *
+ * @param {number} cid
+ * @param {string[]} creatorNodeGateways
+ * @param {boolean} cache
+ * @param {boolean} asUrl
+ * @param {Nullable<number>} trackId
+ * @returns {Promise<string>}
+ */
 export const fetchCID = async (
   cid,
   creatorNodeGateways = [],
