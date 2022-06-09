@@ -299,8 +299,6 @@ type GetTrendingPlaylistsArgs = {
   time: 'week' | 'month' | 'year'
 }
 
-type TrendingPlaylistsResponse = APIPlaylist[]
-
 type GetAssociatedWalletsArgs = {
   userID: number
 }

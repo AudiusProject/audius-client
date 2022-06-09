@@ -60,12 +60,6 @@ import mobileSagas from './mobileSagas'
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const QUEUE_SUBSCRIBER_NAME = 'QUEUE'
 
-type Queue = {
-  id: ID
-  uid: string
-  source: string
-}
-
 export function* getToQueue(prefix: string, entry: { kind: Kind; uid: UID }) {
   if (entry.kind === Kind.COLLECTIONS) {
     const collection = yield* select(getCollection, { uid: entry.uid })

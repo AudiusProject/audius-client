@@ -1,4 +1,4 @@
-/* globals web3, localStorage, fetch, Image */
+/* globals web3 */
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
