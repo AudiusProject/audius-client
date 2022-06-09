@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { setTopSupporters } from 'audius-client/src/common/store/user-list/top-supporters/actions'
 import {
   getUserList,
   getId as getSupportersId
 } from 'audius-client/src/common/store/user-list/top-supporters/selectors'
-import { TextStyle, View, ViewStyle } from 'react-native'
+import { View } from 'react-native'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { Screen, Text } from 'app/components/core'
@@ -39,15 +38,13 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-const headerTitle = ({
-  source,
-  supportersUser,
-  styles
-}: {
-  source: 'profile' | 'feed'
-  supportersUser: User | null
-  styles: { [K in keyof ReturnType<typeof useStyles>]: ViewStyle | TextStyle }
-}) => {
+const HeaderTitle = ({ source }: { source: 'profile' | 'feed' }) => {
+  const styles = useStyles()
+  const supportersId = useSelectorWeb(getSupportersId)
+  const supportersUser = useSelectorWeb(state =>
+    getUser(state, { id: supportersId })
+  )
+
   const title =
     source === 'feed' && supportersUser ? (
       <View style={styles.titleNameContainer}>
@@ -72,22 +69,14 @@ const headerTitle = ({
 export const TopSupportersScreen = () => {
   const { params } = useRoute<'TopSupporters'>()
   const { userId, source } = params
-  const styles = useStyles()
   const dispatchWeb = useDispatchWeb()
-  const supportersId = useSelectorWeb(getSupportersId)
-  const supportersUser = useSelectorWeb(state =>
-    getUser(state, { id: supportersId })
-  )
 
   const handleSetSupporters = useCallback(() => {
     dispatchWeb(setTopSupporters(userId))
   }, [dispatchWeb, userId])
 
   return (
-    <Screen
-      headerTitle={() => headerTitle({ source, supportersUser, styles })}
-      variant='white'
-    >
+    <Screen headerTitle={() => <HeaderTitle source={source} />} variant='white'>
       <UserList
         userSelector={getUserList}
         tag='TOP SUPPORTERS'
