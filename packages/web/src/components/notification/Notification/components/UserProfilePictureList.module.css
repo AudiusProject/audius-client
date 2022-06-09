@@ -8,7 +8,7 @@
 }
 
 .profilePictureBase:not(.disabled):hover {
-  transform: scale3d(0.95, 0.95, 0.95);
+  transform: scale3d(1.05, 1.05, 1.05);
 }
 
 .userHeader {

@@ -63,7 +63,7 @@ export const UserProfilePictureList = ({
           />
         ))}
       {showUserListModal ? (
-        <Tooltip text={messages.viewAllTooltip}>
+        <Tooltip text={messages.viewAllTooltip} disabled={disableProfileClick}>
           <div
             className={cn(styles.profilePictureExtraRoot, {
               [styles.disabled]: disableProfileClick
