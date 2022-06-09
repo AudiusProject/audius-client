@@ -115,7 +115,7 @@ const SendTipToButton = ({ user }: SendTipToButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {
-    dispatch(beginTip({ user }))
+    dispatch(beginTip({ user, source: 'feed' }))
   }, [dispatch, user])
 
   return (

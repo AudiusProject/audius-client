@@ -1131,6 +1131,8 @@ type TipAudioRequest = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
+  source: 'profile' | 'feed'
+  device: 'web' | 'native'
 }
 
 type TipAudioSuccess = {
@@ -1140,6 +1142,8 @@ type TipAudioSuccess = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
+  source: 'profile' | 'feed'
+  device: 'web' | 'native'
 }
 
 type TipAudioFailure = {
@@ -1150,6 +1154,8 @@ type TipAudioFailure = {
   senderHandle: string
   recipientHandle: string
   error: string
+  source: 'profile' | 'feed'
+  device: 'web' | 'native'
 }
 
 type TipAudioTwitterShare = {
@@ -1159,6 +1165,8 @@ type TipAudioTwitterShare = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
+  source: 'profile' | 'feed'
+  device: 'web' | 'native'
 }
 
 type SocialProofOpen = {
