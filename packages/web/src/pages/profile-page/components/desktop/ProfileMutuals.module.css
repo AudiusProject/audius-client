@@ -46,9 +46,6 @@
 .contentContainer:hover .viewAll path {
   fill: var(--secondary);
 }
-.profilePictureWrapper:hover {
-  transform: none;
-}
 .followingIcon {
   width: 32px;
 }

@@ -53,7 +53,9 @@ export const UserProfilePictureList = ({
         .map(user => (
           <ProfilePicture
             key={user.user_id}
-            className={cn(styles.profilePicture, profilePictureClassname)}
+            className={cn(styles.profilePicture, profilePictureClassname, {
+              [styles.disabled]: disableProfileClick
+            })}
             user={user}
             disableClick={disableProfileClick}
             disablePopover={disablePopover}
@@ -62,12 +64,17 @@ export const UserProfilePictureList = ({
         ))}
       {showUserListModal ? (
         <Tooltip text={messages.viewAllTooltip}>
-          <div className={styles.profilePictureExtraRoot}>
+          <div
+            className={cn(styles.profilePictureExtraRoot, {
+              [styles.disabled]: disableProfileClick
+            })}
+          >
             <ProfilePicture
               disablePopover
               className={cn(
                 styles.profilePictureExtra,
-                profilePictureClassname
+                profilePictureClassname,
+                { [styles.disabled]: disableProfileClick }
               )}
               user={users[limit]}
             />
