@@ -43,13 +43,14 @@ export const UserProfilePictureList = ({
   profilePictureClassname
 }: UserProfileListProps) => {
   const showUserListModal = totalUserCount > limit
-  const remainingUsersCount = totalUserCount - limit
+  const remainingUsersCount = totalUserCount - limit + 1
+  const sliceLimit = showUserListModal ? limit - 1 : limit
 
   return (
     <div className={styles.root}>
       {users
         .filter(u => !u.is_deactivated)
-        .slice(0, limit)
+        .slice(0, sliceLimit)
         .map(user => (
           <ProfilePicture
             key={user.user_id}
@@ -75,7 +76,7 @@ export const UserProfilePictureList = ({
                 styles.profilePictureExtra,
                 profilePictureClassname
               )}
-              user={users[limit]}
+              user={users[limit - 1]}
             />
             <span className={styles.profilePictureCount}>
               {`+${formatCount(remainingUsersCount)}`}
