@@ -64,19 +64,15 @@ export const ProfileMutuals = () => {
   }
 
   return (
-    <div className={styles.mutualsContainer}>
-      <div className={styles.titleContainer}>
-        <IconFollowing className={styles.followingIcon} />
-        <span className={styles.titleText}>{messages.mutuals}</span>
-        <span className={styles.line} />
-      </div>
-      <ProfilePictureListTile
-        onClick={handleClick}
-        users={mutuals}
-        totalUserCount={profile.current_user_followee_follow_count}
-        limit={MAX_MUTUALS}
-        disableProfileClick
-      />
-    </div>
+    <ProfilePictureListTile
+      onClick={handleClick}
+      title={messages.mutuals}
+      titleIcon={<IconFollowing className={styles.followingIcon} />}
+      className={styles.mutualsContainer}
+      users={mutuals}
+      totalUserCount={profile.current_user_followee_follow_count}
+      limit={MAX_MUTUALS}
+      disableProfileClick
+    />
   )
 }

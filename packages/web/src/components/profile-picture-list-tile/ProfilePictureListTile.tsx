@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import { IconArrow } from '@audius/stems'
 
@@ -14,12 +14,35 @@ const messages = {
   viewAll: 'View All'
 }
 
-type ProfilePictureListTileProps = UserProfileListProps & {
-  onClick: () => void
+type ProfilePictureListTitleProps = {
+  title?: string
+  titleIcon?: ReactNode
 }
 
+export const ProfilePictureListTitle = ({
+  title,
+  titleIcon
+}: ProfilePictureListTitleProps) => (
+  <div className={styles.titleContainer}>
+    <div className={styles.titleAndIcon}>
+      {titleIcon}
+      {title ? <span className={styles.title}>{title}</span> : null}
+    </div>
+    <span className={styles.line} />
+  </div>
+)
+
+type ProfilePictureListTileProps = UserProfileListProps & {
+  onClick: () => void
+  title?: string
+  titleIcon?: ReactNode
+  className?: string
+}
 export const ProfilePictureListTile = ({
   onClick,
+  title,
+  titleIcon,
+  className,
   users,
   totalUserCount,
   limit = USER_LENGTH_LIMIT,
@@ -29,19 +52,24 @@ export const ProfilePictureListTile = ({
   profilePictureClassname
 }: ProfilePictureListTileProps) => {
   return (
-    <div className={styles.container} onClick={onClick}>
-      <UserProfilePictureList
-        users={users}
-        totalUserCount={totalUserCount}
-        limit={limit}
-        disableProfileClick={disableProfileClick}
-        disablePopover={disablePopover}
-        stopPropagation={stopPropagation}
-        profilePictureClassname={profilePictureClassname}
-      />
-      <div className={styles.viewAll}>
-        <span>{messages.viewAll}</span>
-        <IconArrow className={styles.arrowIcon} />
+    <div className={className}>
+      {title || titleIcon ? (
+        <ProfilePictureListTitle title={title} titleIcon={titleIcon} />
+      ) : null}
+      <div className={styles.tileContainer} onClick={onClick}>
+        <UserProfilePictureList
+          users={users}
+          totalUserCount={totalUserCount}
+          limit={limit}
+          disableProfileClick={disableProfileClick}
+          disablePopover={disablePopover}
+          stopPropagation={stopPropagation}
+          profilePictureClassname={profilePictureClassname}
+        />
+        <div className={styles.viewAll}>
+          <span>{messages.viewAll}</span>
+          <IconArrow className={styles.arrowIcon} />
+        </div>
       </div>
     </div>
   )

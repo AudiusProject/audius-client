@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 
 import { IconTrophy } from '@audius/stems'
-import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ID } from 'common/models/Identifiers'
@@ -62,20 +61,20 @@ export const TopSupporters = () => {
     }
   }, [profile, dispatch])
 
-  return profile && rankedSupporters.length > 0 ? (
-    <div className={styles.container}>
-      <div className={styles.titleContainer}>
-        <IconTrophy className={styles.trophyIcon} />
-        <span className={styles.titleText}>{messages.topSupporters}</span>
-        <span className={cn(styles.line, styles.topSupportersLine)} />
-      </div>
-      <ProfilePictureListTile
-        onClick={handleClick}
-        users={rankedSupporters}
-        totalUserCount={profile.supporter_count}
-        limit={MAX_PROFILE_TOP_SUPPORTERS}
-        stopPropagation
-      />
-    </div>
-  ) : null
+  if (!profile || rankedSupporters.length === 0) {
+    return null
+  }
+
+  return (
+    <ProfilePictureListTile
+      onClick={handleClick}
+      title={messages.topSupporters}
+      titleIcon={<IconTrophy className={styles.trophyIcon} />}
+      className={styles.container}
+      users={rankedSupporters}
+      totalUserCount={profile.supporter_count}
+      limit={MAX_PROFILE_TOP_SUPPORTERS}
+      stopPropagation
+    />
+  )
 }
