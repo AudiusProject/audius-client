@@ -27,6 +27,7 @@ type UserListProps = {
   onFollow: (userId: ID) => void
   onUnfollow: (userId: ID) => void
   getScrollParent?: () => HTMLElement | null
+  onNavigateAway?: () => void
 }
 
 const UserList = (props: UserListProps) => {
@@ -57,6 +58,7 @@ const UserList = (props: UserListProps) => {
               tag={props.tag}
               className={styles.artistChipContainer}
               popoverMount={MountPlacement.BODY}
+              onNavigateAway={props.onNavigateAway}
             />
             {user.user_id !== props.userId ? (
               <FollowButton

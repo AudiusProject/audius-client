@@ -40,6 +40,7 @@ export const ArtistCard = (props: ArtistCardProps) => {
 
   const handleClick: MouseEventHandler = useCallback(event => {
     event.stopPropagation()
+    event.nativeEvent.stopImmediatePropagation()
   }, [])
 
   const stats = useMemo((): StatProps[] => {
@@ -112,6 +113,7 @@ export const ArtistCard = (props: ArtistCardProps) => {
               following={does_current_user_follow}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
+              stopPropagation
             />
           </div>
         </div>
