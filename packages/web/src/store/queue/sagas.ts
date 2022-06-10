@@ -204,7 +204,7 @@ export function* watchPlay() {
         yield* put(playerActions.stop({}))
         yield* put(
           playerActions.play({
-            uid: uid,
+            uid,
             trackId: playActionTrack.track_id,
             onEnd: next
           })
