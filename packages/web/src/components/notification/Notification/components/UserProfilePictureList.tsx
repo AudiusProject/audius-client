@@ -15,7 +15,7 @@ const messages = {
   viewAllTooltip: 'View All'
 }
 
-type UserProfileListProps = {
+export type UserProfileListProps = {
   /**
    * Here we have both users and totalUserCount because we need the total number
    * of users which is different that the number users whose profile pictures

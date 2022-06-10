@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 
-import { IconTrophy, IconArrow } from '@audius/stems'
+import { IconTrophy } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -9,7 +9,7 @@ import { User } from 'common/models/User'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getOptimisticSupporters } from 'common/store/tipping/selectors'
-import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
+import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import {
   setUsers,
   setVisibility
@@ -24,8 +24,7 @@ import { MAX_PROFILE_TOP_SUPPORTERS } from 'utils/constants'
 import styles from './Support.module.css'
 
 const messages = {
-  topSupporters: 'Top Supporters',
-  viewAll: 'View All'
+  topSupporters: 'Top Supporters'
 }
 
 export const TopSupporters = () => {
@@ -70,19 +69,13 @@ export const TopSupporters = () => {
         <span className={styles.titleText}>{messages.topSupporters}</span>
         <span className={cn(styles.line, styles.topSupportersLine)} />
       </div>
-      <div className={styles.topSupportersContainer} onClick={handleClick}>
-        <UserProfilePictureList
-          users={rankedSupporters}
-          totalUserCount={profile.supporter_count}
-          limit={MAX_PROFILE_TOP_SUPPORTERS}
-          stopPropagation
-          profilePictureClassname={styles.profilePictureWrapper}
-        />
-        <div className={styles.viewAll}>
-          <span>{messages.viewAll}</span>
-          <IconArrow className={styles.arrowIcon} />
-        </div>
-      </div>
+      <ProfilePictureListTile
+        onClick={handleClick}
+        users={rankedSupporters}
+        totalUserCount={profile.supporter_count}
+        limit={MAX_PROFILE_TOP_SUPPORTERS}
+        stopPropagation
+      />
     </div>
   ) : null
 }

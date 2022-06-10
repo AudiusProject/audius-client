@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 
-import { IconFollowing, IconArrow } from '@audius/stems'
+import { IconFollowing } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 import { createSelector } from 'reselect'
 
@@ -12,7 +12,7 @@ import {
   getProfileUserId
 } from 'common/store/pages/profile/selectors'
 import { removeNullable } from 'common/utils/typeUtils'
-import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
+import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import {
   setUsers,
   setVisibility
@@ -25,8 +25,7 @@ import {
 import styles from './ProfileMutuals.module.css'
 
 const messages = {
-  mutuals: 'Mutuals',
-  viewAll: 'View All'
+  mutuals: 'Mutuals'
 }
 
 const MAX_MUTUALS = 5
@@ -71,18 +70,13 @@ export const ProfileMutuals = () => {
         <span className={styles.titleText}>{messages.mutuals}</span>
         <span className={styles.line} />
       </div>
-      <div className={styles.contentContainer} onClick={handleClick}>
-        <UserProfilePictureList
-          users={mutuals}
-          totalUserCount={profile.current_user_followee_follow_count}
-          limit={MAX_MUTUALS}
-          disableProfileClick
-        />
-        <div className={styles.viewAll}>
-          <span>{messages.viewAll}</span>
-          <IconArrow className={styles.arrowIcon} />
-        </div>
-      </div>
+      <ProfilePictureListTile
+        onClick={handleClick}
+        users={mutuals}
+        totalUserCount={profile.current_user_followee_follow_count}
+        limit={MAX_MUTUALS}
+        disableProfileClick
+      />
     </div>
   )
 }
