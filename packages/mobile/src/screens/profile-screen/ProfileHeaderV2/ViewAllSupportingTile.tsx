@@ -5,6 +5,7 @@ import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { getSupportingForUser } from 'audius-client/src/common/store/tipping/selectors'
 import { SupportingMapForUser } from 'audius-client/src/common/store/tipping/types'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
+import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import { Tile, TextButton } from 'app/components/core'
@@ -81,8 +82,8 @@ export const ViewAllSupportingTile = () => {
       onPress={handlePress}
     >
       <ProfilePictureList
-        users={rankedSupporting}
-        totalUserCount={supporting_count}
+        users={rankedSupporting.slice(MAX_PROFILE_SUPPORTING_TILES)}
+        totalUserCount={supporting_count - MAX_PROFILE_SUPPORTING_TILES}
         limit={MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS}
         style={styles.profilePictureList}
         navigationType='push'
