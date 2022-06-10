@@ -187,7 +187,7 @@ export function* watchPlay() {
       }
 
       // Make sure that we should actually play
-      const repeatMode: ReturnType<typeof getRepeat> = yield* select(getRepeat)
+      const repeatMode = yield* select(getRepeat)
       const noTrackPlaying = !playerTrackId
       const trackIsDifferent = playerTrackId !== playActionTrack.track_id
       const trackIsSameButDifferentUid =
@@ -319,7 +319,7 @@ export function* watchNext() {
         track
       })
 
-      if (track && uid && id && source) {
+      if (track) {
         yield* put(play({ uid, trackId: id, source }))
 
         const event = make(Name.PLAYBACK_PLAY, {
@@ -393,7 +393,7 @@ export function* watchPrevious() {
       yield* put(previous({}))
     } else {
       const index = yield* select(getIndex)
-      if (index >= 0 && uid && id && source) {
+      if (index >= 0) {
         yield* put(play({ uid, trackId: id, source }))
         const event = make(Name.PLAYBACK_PLAY, {
           id: `${id}`,
