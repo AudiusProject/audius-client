@@ -119,6 +119,23 @@ export const subscribeSafariPushBrowser = async (): Promise<SafariPermissionData
   return null
 }
 
+export const unsubscribePushManagerBrowser = async () => {
+  try {
+    if (!isServiceWorkerRegistered()) {
+      const isRegistered = await registerServiceWorker()
+      if (!isRegistered) return null
+    }
+    const subscription = swRegistration.pushManager.getSubscription()
+    if (subscription) {
+      await subscription.unsubscribe()
+    }
+    return subscription
+  } catch (error) {
+    console.log('Error unsubscribing', error)
+    return null
+  }
+}
+
 export const getPushManagerBrowserSubscription = async () => {
   try {
     if (!isServiceWorkerRegistered()) {
