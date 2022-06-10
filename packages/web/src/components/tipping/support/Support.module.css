@@ -6,9 +6,6 @@
   display: flex;
   align-items: center;
 }
-.titleContainer .tipIcon path {
-  fill: var(--neutral) !important;
-}
 .titleText {
   margin-left: 6px;
   font-weight: var(--font-bold);
@@ -46,8 +43,11 @@
 }
 
 .tipIcon {
-  width: 32px;
+  width: 18px;
   height: 18px;
+}
+.tipIcon path {
+  fill: var(--neutral);
 }
 .trophyIcon {
   width: 18px;
@@ -104,6 +104,7 @@
   border-bottom-left-radius: 8px;
 }
 .tileHeader .trophyIcon,
+.tileHeader .tipIcon,
 .tileHeader .tokenBadgeIcon {
   margin-right: 8px;
 }
@@ -114,7 +115,7 @@
   width: 14px;
 }
 .tileHeader .tipIcon path {
-  fill: var(--neutral-light-4) !important;
+  fill: var(--neutral-light-4);
 }
 
 .badge {
