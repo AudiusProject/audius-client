@@ -89,7 +89,7 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
       {showUserListDrawer ? (
         <View style={styles.imageExtraRoot}>
           <ProfilePicture
-            profile={users[limit]}
+            profile={users[limit - 1]}
             style={{ ...styles.image, ...imageStyles }}
             navigationType={navigationType}
             interactive={interactive}
