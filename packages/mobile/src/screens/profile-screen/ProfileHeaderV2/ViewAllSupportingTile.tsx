@@ -43,7 +43,10 @@ export const ViewAllSupportingTile = () => {
   const styles = useStyles()
   const navigation = useNavigation()
 
-  const { user_id } = useSelectProfile(['user_id'])
+  const { user_id, supporting_count } = useSelectProfile([
+    'user_id',
+    'supporting_count'
+  ])
   const supportingForProfile: SupportingMapForUser =
     useSelectorWeb(state => getSupportingForUser(state, user_id)) || {}
   const rankedSupportingIds = Object.keys(supportingForProfile)
@@ -78,7 +81,9 @@ export const ViewAllSupportingTile = () => {
       onPress={handlePress}
     >
       <ProfilePictureList
-        users={rankedSupporting.slice(0, MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS)}
+        users={rankedSupporting}
+        totalUserCount={supporting_count}
+        limit={MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS}
         style={styles.profilePictureList}
         navigationType='push'
         interactive={false}
