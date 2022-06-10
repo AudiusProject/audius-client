@@ -7,30 +7,13 @@ import {
   UserProfilePictureList
 } from 'components/notification/Notification/components/UserProfilePictureList'
 import { USER_LENGTH_LIMIT } from 'components/notification/Notification/utils'
+import { ProfileNavTitle } from 'components/profile-nav-title/ProfileNavTitle'
 
 import styles from './ProfilePictureListTile.module.css'
 
 const messages = {
   viewAll: 'View All'
 }
-
-type ProfilePictureListTitleProps = {
-  title?: string
-  titleIcon?: ReactNode
-}
-
-export const ProfilePictureListTitle = ({
-  title,
-  titleIcon
-}: ProfilePictureListTitleProps) => (
-  <div className={styles.titleContainer}>
-    <div className={styles.titleAndIcon}>
-      {titleIcon}
-      {title ? <span className={styles.title}>{title}</span> : null}
-    </div>
-    <span className={styles.line} />
-  </div>
-)
 
 type ProfilePictureListTileProps = UserProfileListProps & {
   onClick: () => void
@@ -54,7 +37,7 @@ export const ProfilePictureListTile = ({
   return (
     <div className={className}>
       {title || titleIcon ? (
-        <ProfilePictureListTitle title={title} titleIcon={titleIcon} />
+        <ProfileNavTitle title={title} titleIcon={titleIcon} />
       ) : null}
       <div className={styles.tileContainer} onClick={onClick}>
         <UserProfilePictureList
