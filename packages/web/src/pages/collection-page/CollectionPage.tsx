@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { connect } from 'react-redux'
 
 import { SmartCollection } from 'common/models/Collection'

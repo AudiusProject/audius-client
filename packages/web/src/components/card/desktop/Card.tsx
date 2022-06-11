@@ -1,4 +1,5 @@
-import React, { MouseEvent, useState, useEffect, useCallback } from 'react'
+import { MouseEvent, useState, useEffect, useCallback } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 

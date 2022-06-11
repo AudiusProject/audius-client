@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useCallback } from 'react'
+import { useContext, useEffect, useCallback } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 

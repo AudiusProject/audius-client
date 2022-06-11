@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 import { animated, useSpring } from 'react-spring'

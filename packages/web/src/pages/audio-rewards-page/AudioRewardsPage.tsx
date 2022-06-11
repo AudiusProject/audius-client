@@ -1,4 +1,5 @@
-import React, { useContext, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
+import * as React from 'react'
 
 import { useDispatch } from 'react-redux'
 

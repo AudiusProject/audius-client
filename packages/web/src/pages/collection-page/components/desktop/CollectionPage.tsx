@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import { Collection, SmartCollection, Variant } from 'common/models/Collection'
 import { ID } from 'common/models/Identifiers'

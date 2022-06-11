@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react'
+import { PureComponent } from 'react'
+import * as React from 'react'
 
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'

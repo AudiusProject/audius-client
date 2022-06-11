@@ -1,10 +1,5 @@
-import React, {
-  useCallback,
-  useState,
-  useContext,
-  useEffect,
-  useRef
-} from 'react'
+import { useCallback, useState, useContext, useEffect, useRef } from 'react'
+import * as React from 'react'
 
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'

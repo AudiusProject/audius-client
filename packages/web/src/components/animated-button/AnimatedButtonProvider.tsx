@@ -1,4 +1,5 @@
-import React, { memo, useState, useEffect, useRef, useCallback } from 'react'
+import { memo, useState, useEffect, useRef, useCallback } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 import Lottie from 'react-lottie'

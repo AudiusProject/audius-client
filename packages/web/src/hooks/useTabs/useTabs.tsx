@@ -1,4 +1,4 @@
-import React, {
+import {
   useState,
   useEffect,
   useRef,
@@ -8,6 +8,7 @@ import React, {
   memo,
   useMemo
 } from 'react'
+import * as React from 'react'
 
 import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 import cn from 'classnames'

@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
+import * as React from 'react'
 
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'

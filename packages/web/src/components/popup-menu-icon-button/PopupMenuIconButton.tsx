@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import { PopupMenu, PopupMenuProps, IconButton } from '@audius/stems'
 import cn from 'classnames'

@@ -1,4 +1,4 @@
-import React, {
+import {
   useContext,
   useEffect,
   ReactNode,
@@ -6,6 +6,7 @@ import React, {
   useState,
   useCallback
 } from 'react'
+import * as React from 'react'
 
 import { Switch, useHistory } from 'react-router-dom'
 import { useTransition, animated } from 'react-spring'

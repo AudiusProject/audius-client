@@ -1,4 +1,5 @@
-import React, { cloneElement, ReactElement } from 'react'
+import { cloneElement, ReactElement } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 

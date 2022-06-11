@@ -1,4 +1,5 @@
-import React, { memo, useMemo } from 'react'
+import { memo, useMemo } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 import { useSelector } from 'react-redux'

@@ -1,4 +1,4 @@
-import React, {
+import {
   useCallback,
   useContext,
   useEffect,
@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState
 } from 'react'
+import * as React from 'react'
 
 import {
   Button,

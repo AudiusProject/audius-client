@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import { BNWei } from 'common/models/Wallet'
 import { formatWei } from 'common/utils/wallet'

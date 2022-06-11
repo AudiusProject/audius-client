@@ -1,4 +1,5 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
+import * as React from 'react'
 
 import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'

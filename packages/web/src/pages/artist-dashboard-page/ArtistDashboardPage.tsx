@@ -1,4 +1,5 @@
-import React, { Suspense, Component, useMemo } from 'react'
+import { Suspense, Component, useMemo } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'

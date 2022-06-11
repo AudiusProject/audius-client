@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react'
+import { PureComponent } from 'react'
+import * as React from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'

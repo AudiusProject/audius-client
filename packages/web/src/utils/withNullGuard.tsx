@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 /**
  * `withNullGuard` wraps a component that takes a 'wide' set of props (W) with nullable
