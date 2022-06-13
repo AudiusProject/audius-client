@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { User } from 'audius-client/src/common/models/User'
 import { formatCount } from 'audius-client/src/common/utils/formatUtil'
 import { StyleProp, View, ViewStyle, Text } from 'react-native'
@@ -65,9 +67,13 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
     interactive,
     imageStyles
   } = props
-  const styles = useStyles({
-    imageDimensions: imageStyles || defaultImageDimensions
-  })
+  const stylesConfig = useMemo(
+    () => ({
+      imageDimensions: imageStyles || defaultImageDimensions
+    }),
+    [imageStyles]
+  )
+  const styles = useStyles(stylesConfig)
   const showUserListDrawer = totalUserCount > limit
   const remainingUsersCount = totalUserCount - limit + 1
   const sliceLimit = showUserListDrawer ? limit - 1 : limit
