@@ -212,10 +212,6 @@
   transition: all ease-in-out 0.04s;
 }
 
-/* .select :global(.ant-select-item-option-active) {
-  background: var(--neutral-light-8);
-} */
-
 .select
   :global(.ant-select-item-option-selected:not(.ant-select-item-option-active)) {
   background-color: unset;
