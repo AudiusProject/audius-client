@@ -29,7 +29,6 @@ import {
   getId as getSupportersId
 } from 'common/store/user-list/top-supporters/selectors'
 import { UserListStoreState } from 'common/store/user-list/types'
-import UserBadges from 'components/user-badges/UserBadges'
 import UserList from 'components/user-list/UserList'
 import { USER_LIST_TAG as FAVORITES_TAG } from 'pages/favorites-page/sagas'
 import { USER_LIST_TAG as FOLLOWER_TAG } from 'pages/followers-page/sagas'
@@ -124,12 +123,6 @@ const UserListModal = ({
           {!profile && supportersUser && supportersId ? (
             <div className={styles.titleNameContainer}>
               <div className={styles.titleName}>{supportersUser.name}</div>
-              <UserBadges
-                userId={supportersId}
-                className={styles.badge}
-                badgeSize={10}
-                inline
-              />
               <span>&apos;s&nbsp;</span>
             </div>
           ) : null}
