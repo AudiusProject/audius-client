@@ -10,7 +10,6 @@ import { View } from 'react-native'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { Screen, Text } from 'app/components/core'
-import UserBadges from 'app/components/user-badges'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useRoute } from 'app/hooks/useRoute'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -32,9 +31,6 @@ const useStyles = makeStyles(({ spacing }) => ({
   },
   titleName: {
     maxWidth: 120
-  },
-  badge: {
-    marginTop: -spacing(1)
   }
 }))
 
@@ -51,12 +47,6 @@ const HeaderTitle = ({ source }: { source: 'profile' | 'feed' }) => {
         <Text variant='h3' style={styles.titleName} numberOfLines={1}>
           {supportersUser.name}
         </Text>
-        <UserBadges
-          style={styles.badge}
-          user={supportersUser}
-          badgeSize={12}
-          hideName
-        />
         <Text variant='h3'>&apos;s&nbsp;{messages.title}</Text>
       </View>
     ) : (
