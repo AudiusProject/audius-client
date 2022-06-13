@@ -12,6 +12,7 @@ import {
   getProfileUserId
 } from 'common/store/pages/profile/selectors'
 import { removeNullable } from 'common/utils/typeUtils'
+import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import {
   setUsers,
@@ -64,15 +65,18 @@ export const ProfileMutuals = () => {
   }
 
   return (
-    <ProfilePictureListTile
-      onClick={handleClick}
-      title={messages.mutuals}
-      titleIcon={<IconFollowing className={styles.followingIcon} />}
-      className={styles.mutualsContainer}
-      users={mutuals}
-      totalUserCount={profile.current_user_followee_follow_count}
-      limit={MAX_MUTUALS}
-      disableProfileClick
-    />
+    <div className={styles.mutualsContainer}>
+      <ProfilePageNavSectionTitle
+        title={messages.mutuals}
+        titleIcon={<IconFollowing className={styles.followingIcon} />}
+      />
+      <ProfilePictureListTile
+        onClick={handleClick}
+        users={mutuals}
+        totalUserCount={profile.current_user_followee_follow_count}
+        limit={MAX_MUTUALS}
+        disableProfileClick
+      />
+    </div>
   )
 }

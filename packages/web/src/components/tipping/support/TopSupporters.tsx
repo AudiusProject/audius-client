@@ -8,6 +8,7 @@ import { User } from 'common/models/User'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getProfileUser } from 'common/store/pages/profile/selectors'
 import { getOptimisticSupporters } from 'common/store/tipping/selectors'
+import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import {
   setUsers,
@@ -66,15 +67,18 @@ export const TopSupporters = () => {
   }
 
   return (
-    <ProfilePictureListTile
-      onClick={handleClick}
-      title={messages.topSupporters}
-      titleIcon={<IconTrophy className={styles.trophyIcon} />}
-      className={styles.container}
-      users={rankedSupporters}
-      totalUserCount={profile.supporter_count}
-      limit={MAX_PROFILE_TOP_SUPPORTERS}
-      stopPropagation
-    />
+    <div className={styles.container}>
+      <ProfilePageNavSectionTitle
+        title={messages.topSupporters}
+        titleIcon={<IconTrophy className={styles.trophyIcon} />}
+      />
+      <ProfilePictureListTile
+        onClick={handleClick}
+        users={rankedSupporters}
+        totalUserCount={profile.supporter_count}
+        limit={MAX_PROFILE_TOP_SUPPORTERS}
+        stopPropagation
+      />
+    </div>
   )
 }

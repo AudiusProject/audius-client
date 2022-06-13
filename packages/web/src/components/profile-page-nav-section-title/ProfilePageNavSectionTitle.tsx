@@ -1,13 +1,16 @@
 import React, { ReactNode } from 'react'
 
-import styles from './ProfileNavTitle.module.css'
+import styles from './ProfilePageNavSectionTitle.module.css'
 
 type ProfileNavTitleProps = {
   title?: string
   titleIcon?: ReactNode
 }
 
-export const ProfileNavTitle = ({ title, titleIcon }: ProfileNavTitleProps) => (
+export const ProfilePageNavSectionTitle = ({
+  title,
+  titleIcon
+}: ProfileNavTitleProps) => (
   <div className={styles.titleContainer}>
     <div className={styles.titleAndIcon}>
       {titleIcon}
