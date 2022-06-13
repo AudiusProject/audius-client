@@ -4,9 +4,9 @@ import {
   ReactNode,
   useRef,
   useState,
-  useCallback
+  useCallback,
+  CSSProperties
 } from 'react'
-import * as React from 'react'
 
 import { Switch, useHistory } from 'react-router-dom'
 import { useTransition, animated } from 'react-spring'
@@ -169,7 +169,7 @@ const AnimatedSwitch = ({
     getAnimation()
   )
 
-  const extraStyles: React.CSSProperties = {}
+  const extraStyles: CSSProperties = {}
   if (disabled) {
     extraStyles.transform = 'none'
   }

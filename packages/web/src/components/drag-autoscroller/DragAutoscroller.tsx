@@ -1,5 +1,4 @@
-import { useRef, useState } from 'react'
-import * as React from 'react'
+import { DragEventHandler, ReactNode, useRef, useState } from 'react'
 
 import throttle from 'lodash/throttle'
 
@@ -9,7 +8,7 @@ const DRAG_HANDLER_THROTTLE_DURATION_MS = 200
 const DISTANCE_FROM_EDGE_AUTOSCROLL_THRESHOLD_PX = 16
 
 export type DragAutoscrollerProps = {
-  children: React.ReactNode
+  children: ReactNode
   containerBoundaries: {
     top: number
     bottom: number
@@ -84,13 +83,13 @@ export const DragAutoscroller = ({
     DRAG_HANDLER_THROTTLE_DURATION_MS
   )
 
-  const handleDrag: React.DragEventHandler<HTMLDivElement> = e => {
+  const handleDrag: DragEventHandler<HTMLDivElement> = e => {
     const clientX = e.clientX
     const clientY = e.clientY
     throttledHandleDragHelper(clientX, clientY)
   }
 
-  const handleDragEnd: React.DragEventHandler<HTMLDivElement> = () => {
+  const handleDragEnd: DragEventHandler<HTMLDivElement> = () => {
     setScrolling(undefined)
     onChangeDragScrollingDirection(undefined)
   }

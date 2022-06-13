@@ -1,11 +1,11 @@
-import * as React from 'react'
+import { ReactNode } from 'react'
 
 import cn from 'classnames'
 
 import styles from './Header.module.css'
 
 interface HeaderProps {
-  title?: React.ReactNode
+  title?: ReactNode
   children?: JSX.Element
   className?: string
 }

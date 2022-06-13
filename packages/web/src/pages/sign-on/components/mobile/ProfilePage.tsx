@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
-import * as React from 'react'
+import { useState, useCallback, useEffect, KeyboardEvent } from 'react'
 
 import cn from 'classnames'
 
@@ -175,7 +174,7 @@ const ProfilePage = (props: ProfilePageProps) => {
   }
 
   const onHandleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.keyCode === 13 /** enter */) {
         onContinue()
       }

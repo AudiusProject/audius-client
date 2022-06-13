@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import * as React from 'react'
+import { useState, MouseEvent } from 'react'
 
 import { uuid } from 'common/utils/uid'
 
@@ -32,7 +31,7 @@ const animationMap = {
 }
 
 type AnimatedIconButtonProps = {
-  onClick?: (e: React.MouseEvent) => void
+  onClick?: (e: MouseEvent) => void
   isDisabled?: boolean
   isActive?: boolean
   className?: string
@@ -65,7 +64,7 @@ const AnimatedIconButton = ({
       isDisabled={isDisabled}
       darkMode={darkMode}
       isMatrix={isMatrix}
-      onClick={onClick || ((e: React.MouseEvent) => {})}
+      onClick={onClick || ((e: MouseEvent) => {})}
       iconLightJSON={() => require(`assets/animations/${light}.json`)}
       iconDarkJSON={() => require(`assets/animations/${dark}.json`)}
       activeClassName={activeClassName}

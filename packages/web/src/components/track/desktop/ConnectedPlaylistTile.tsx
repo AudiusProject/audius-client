@@ -4,9 +4,9 @@ import {
   useMemo,
   useState,
   useEffect,
-  useCallback
+  useCallback,
+  ReactChildren
 } from 'react'
-import * as React from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -372,7 +372,7 @@ const ConnectedPlaylistTile = memo(
     const disableActions = false
 
     const TileTrackContainer = useCallback(
-      ({ children }: { children: React.ReactChildren }) => (
+      ({ children }: { children: ReactChildren }) => (
         <Draggable
           key={id}
           isDisabled={disableActions}

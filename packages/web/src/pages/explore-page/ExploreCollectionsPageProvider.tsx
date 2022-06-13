@@ -1,5 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
-import * as React from 'react'
+import { useEffect, useState, useCallback, ComponentType } from 'react'
 
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -47,8 +46,8 @@ type OwnProps = {
   isMobile: boolean
   variant: ExploreCollectionsVariant
   children:
-    | React.ComponentType<MobileCollectionsPageProps>
-    | React.ComponentType<DesktopCollectionsPageProps>
+    | ComponentType<MobileCollectionsPageProps>
+    | ComponentType<DesktopCollectionsPageProps>
 }
 
 type ExploreCollectionsPageProviderProps = OwnProps &

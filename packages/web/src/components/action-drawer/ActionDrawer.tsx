@@ -1,5 +1,4 @@
 import { MouseEventHandler, ReactNode } from 'react'
-import * as React from 'react'
 
 import cn from 'classnames'
 
@@ -23,7 +22,7 @@ type ActionSheetModalProps = {
   isOpen: boolean
   onClose: () => void
   title?: string
-  renderTitle?: () => React.ReactNode
+  renderTitle?: () => ReactNode
   classes?: { actionItem?: string }
 }
 

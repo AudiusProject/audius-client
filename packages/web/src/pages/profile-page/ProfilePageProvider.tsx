@@ -1,5 +1,4 @@
-import { PureComponent } from 'react'
-import * as React from 'react'
+import { ComponentType, PureComponent, RefObject } from 'react'
 
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -75,10 +74,10 @@ const INITIAL_UPDATE_FIELDS = {
 }
 
 type OwnProps = {
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: RefObject<HTMLDivElement>
   children:
-    | React.ComponentType<MobileProfilePageProps>
-    | React.ComponentType<DesktopProfilePageProps>
+    | ComponentType<MobileProfilePageProps>
+    | ComponentType<DesktopProfilePageProps>
 }
 
 type ProfilePageProps = OwnProps &

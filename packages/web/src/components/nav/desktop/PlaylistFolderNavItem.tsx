@@ -1,5 +1,9 @@
-import { useCallback, useState } from 'react'
-import * as React from 'react'
+import {
+  ComponentPropsWithoutRef,
+  ReactNode,
+  useCallback,
+  useState
+} from 'react'
 
 import {
   IconCaretRight,
@@ -24,7 +28,7 @@ import { useRecord, make } from 'store/analytics/actions'
 import navColumnStyles from './NavColumn.module.css'
 import styles from './PlaylistLibrary.module.css'
 
-type PlaylistFolderNavButtonProps = React.ComponentPropsWithoutRef<'button'>
+type PlaylistFolderNavButtonProps = ComponentPropsWithoutRef<'button'>
 
 const FolderNavLink = ({
   id,
@@ -78,7 +82,7 @@ type PlaylistFolderNavItemProps = {
     draggingKind: 'playlist-folder' | 'library-playlist',
     draggingId: ID | string | SmartCollectionVariant
   ) => void
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export const PlaylistFolderNavItem = ({
@@ -116,7 +120,7 @@ export const PlaylistFolderNavItem = ({
   }
 
   return (
-    <React.Fragment>
+    <>
       {/* This is the droppable area for adding a playlist into a folder */}
       <Droppable
         className={navColumnStyles.droppable}
@@ -171,11 +175,7 @@ export const PlaylistFolderNavItem = ({
                 [styles.hidden]: !isHovering || dragging
               })}
               icon={<IconKebabHorizontal height={11} width={11} />}
-              onClick={(
-                e:
-                  | React.MouseEvent<HTMLButtonElement, MouseEvent>
-                  | React.MouseEvent<Element, MouseEvent>
-              ) => {
+              onClick={e => {
                 e.preventDefault()
                 e.stopPropagation()
                 onClickEdit(id)
@@ -199,6 +199,6 @@ export const PlaylistFolderNavItem = ({
         }}
         acceptedKinds={['playlist-folder', 'library-playlist']}
       />
-    </React.Fragment>
+    </>
   )
 }

@@ -18,6 +18,7 @@ type OwnProps = {
 const isMobileClient = isMobile()
 
 type CollectionPageProps = ReturnType<typeof mapStateToProps> & OwnProps
+
 const CollectionPage = ({ type, smartCollection }: CollectionPageProps) => {
   const content = isMobileClient ? MobileCollectionPage : DesktopCollectionPage
 

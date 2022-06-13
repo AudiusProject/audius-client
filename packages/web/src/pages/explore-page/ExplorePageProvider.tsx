@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import * as React from 'react'
+import { ComponentType, useEffect } from 'react'
 
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -22,8 +21,8 @@ const messages = {
 
 type OwnProps = {
   children:
-    | React.ComponentType<MobileExplorePageProps>
-    | React.ComponentType<DesktopExplorePageProps>
+    | ComponentType<MobileExplorePageProps>
+    | ComponentType<DesktopExplorePageProps>
 }
 
 type ExplorePageProps = OwnProps &

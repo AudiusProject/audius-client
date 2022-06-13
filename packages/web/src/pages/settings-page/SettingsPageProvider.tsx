@@ -1,5 +1,4 @@
-import { PureComponent } from 'react'
-import * as React from 'react'
+import { ComponentType, PureComponent } from 'react'
 
 import { push as pushRoute, goBack } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -58,8 +57,8 @@ const messages = {
 
 type OwnProps = {
   children:
-    | React.ComponentType<MobileSettingsPageProps>
-    | React.ComponentType<DesktopSettingsPageProps>
+    | ComponentType<MobileSettingsPageProps>
+    | ComponentType<DesktopSettingsPageProps>
   subPage?: SubPage
 }
 

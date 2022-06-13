@@ -1,5 +1,11 @@
-import { useCallback, useState, useContext, useEffect, useRef } from 'react'
-import * as React from 'react'
+import {
+  useCallback,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  KeyboardEvent
+} from 'react'
 
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
@@ -103,7 +109,7 @@ const SignUpEmail = ({
   }, [emailValue, setAttempted, onEmailSubmitted, onEmailChange])
 
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: KeyboardEvent) => {
       if (e.keyCode === 13 /** enter */) {
         onSubmitEmail()
       }

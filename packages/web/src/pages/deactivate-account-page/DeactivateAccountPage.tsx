@@ -1,5 +1,4 @@
-import { useCallback, useEffect } from 'react'
-import * as React from 'react'
+import { ReactNode, useCallback, useEffect } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
@@ -38,7 +37,7 @@ export const messages = {
 }
 
 export type DeactivateAccountPageProps = {
-  children: React.ReactNode
+  children: ReactNode
   isConfirmationVisible: boolean
   isLoading: boolean
   openConfirmation: () => void

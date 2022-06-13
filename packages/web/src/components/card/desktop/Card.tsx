@@ -1,5 +1,4 @@
-import { MouseEvent, useState, useEffect, useCallback } from 'react'
-import * as React from 'react'
+import { MouseEvent, useState, useEffect, useCallback, ReactNode } from 'react'
 
 import cn from 'classnames'
 
@@ -50,8 +49,8 @@ type CardProps = {
   id: ID
   userId: ID
   imageSize: ProfilePictureSizes | CoverArtSizes | null
-  primaryText: string | React.ReactNode
-  secondaryText: string | React.ReactNode
+  primaryText: ReactNode
+  secondaryText: ReactNode
   cardCoverImageSizes?: CoverArtSizes
   playlistName?: string
   isUser: boolean

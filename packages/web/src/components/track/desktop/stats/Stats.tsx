@@ -1,5 +1,4 @@
-import { memo, useMemo } from 'react'
-import * as React from 'react'
+import { memo, useMemo, MouseEvent } from 'react'
 
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
@@ -50,7 +49,7 @@ const Stats = memo(
     flavor,
     hideImage
   }: StatsProps) => {
-    const onClickWrapper = (e: React.MouseEvent) => {
+    const onClickWrapper = (e: MouseEvent) => {
       if (!onClick || !count) return
       e.stopPropagation()
       onClick()

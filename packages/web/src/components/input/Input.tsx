@@ -1,5 +1,10 @@
-import { useCallback, useRef } from 'react'
-import * as React from 'react'
+import {
+  ReactNode,
+  useCallback,
+  useRef,
+  KeyboardEvent,
+  ChangeEvent
+} from 'react'
 
 import cn from 'classnames'
 
@@ -15,12 +20,12 @@ type InputProps = {
   name?: string
   placeholder?: string
   value?: string
-  prefix?: React.ReactNode
+  prefix?: ReactNode
   variant?: InputVariant
   size?: InputSize
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
-  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void
+  onKeyPress?: (e: KeyboardEvent<HTMLInputElement>) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
 export const Input = ({

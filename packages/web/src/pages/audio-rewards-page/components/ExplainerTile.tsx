@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import * as React from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import cn from 'classnames'
 
@@ -25,9 +24,10 @@ export const LEARN_MORE_URL = 'http://blog.audius.co/posts/community-meet-audio'
 
 type TileProps = {
   className?: string
+  children: ReactNode
 }
 
-export const Tile: React.FC<TileProps> = ({ className, children }) => {
+export const Tile = ({ className, children }: TileProps) => {
   return (
     <div className={cn([styles.tileContainer, className])}> {children}</div>
   )

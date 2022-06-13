@@ -1,5 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react'
-import * as React from 'react'
+import { useCallback, useContext, useEffect, MouseEvent } from 'react'
 
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
@@ -74,7 +73,7 @@ const Wallet = ({
   const isMobile = useIsMobile()
   const dispatch = useDispatch()
   const onRequestRemoveWallet = useCallback(
-    (e: React.MouseEvent) => {
+    (e: MouseEvent) => {
       e.stopPropagation()
       dispatch(requestRemoveWallet({ wallet: address, chain }))
     },

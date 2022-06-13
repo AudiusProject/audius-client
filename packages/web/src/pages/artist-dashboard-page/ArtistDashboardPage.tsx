@@ -1,5 +1,4 @@
-import { Suspense, Component, useMemo } from 'react'
-import * as React from 'react'
+import { Suspense, Component, useMemo, ReactNode } from 'react'
 
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -319,7 +318,7 @@ export class ArtistDashboardPage extends Component<
 
     const { selectedTrack } = this.state
 
-    const statTiles: React.ReactNode[] = []
+    const statTiles: ReactNode[] = []
     each(stats, (stat, title) =>
       statTiles.push(<StatTile key={title} title={title} value={stat} />)
     )

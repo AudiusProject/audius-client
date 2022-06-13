@@ -1,5 +1,4 @@
-import { useContext, useEffect, useCallback } from 'react'
-import * as React from 'react'
+import { useContext, useEffect, useCallback, FC } from 'react'
 
 import cn from 'classnames'
 
@@ -103,13 +102,11 @@ type OwnProps = {
 export type SettingsPageProps = OwnProps
 
 const SubPages = {
-  [SubPage.ACCOUNT]: AccountSettingsPage as React.FC<SettingsPageProps>,
-  [SubPage.ABOUT]: AboutSettingsPage as React.FC<SettingsPageProps>,
-  [SubPage.NOTIFICATIONS]: NotificationsSettingsPage as React.FC<
-    SettingsPageProps
-  >,
-  [SubPage.VERIFICATION]: VerificationPage as React.FC<SettingsPageProps>,
-  [SubPage.CHANGE_PASSWORD]: ChangePasswordPage as React.FC<SettingsPageProps>
+  [SubPage.ACCOUNT]: AccountSettingsPage as FC<SettingsPageProps>,
+  [SubPage.ABOUT]: AboutSettingsPage as FC<SettingsPageProps>,
+  [SubPage.NOTIFICATIONS]: NotificationsSettingsPage as FC<SettingsPageProps>,
+  [SubPage.VERIFICATION]: VerificationPage as FC<SettingsPageProps>,
+  [SubPage.CHANGE_PASSWORD]: ChangePasswordPage as FC<SettingsPageProps>
 }
 
 const SettingsPage = (props: SettingsPageProps) => {

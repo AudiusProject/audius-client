@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import * as React from 'react'
 
 import cn from 'classnames'
 
@@ -110,10 +109,12 @@ export const VisibleCollectibleRow = props => {
   )
 }
 
-export const HiddenCollectibleRow: React.FC<{
+type HiddenCollectibleRowProps = {
   collectible: Collectible
   onShowClick: () => void
-}> = props => {
+}
+
+export const HiddenCollectibleRow = (props: HiddenCollectibleRowProps) => {
   const { collectible, onShowClick } = props
   const {
     name,

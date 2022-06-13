@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import * as React from 'react'
+import { useState, useEffect, MouseEvent } from 'react'
 
 import cn from 'classnames'
 import { range } from 'lodash'
@@ -59,7 +58,7 @@ const TrackItem = (props: TrackItemProps) => {
 type TrackListProps = {
   activeTrackUid: UID | null
   tracks: LineupTrack[]
-  goToCollectionPage: (e: React.MouseEvent<HTMLElement>) => void
+  goToCollectionPage: (e: MouseEvent<HTMLElement>) => void
   isLoading?: boolean
   numLoadingSkeletonRows?: number
   trackCount?: number
@@ -110,15 +109,15 @@ type ExtraProps = {
   isLoading: boolean
   isPlaying: boolean
   isActive: boolean
-  goToCollectionPage: (e: React.MouseEvent<HTMLElement>) => void
-  goToArtistPage: (e: React.MouseEvent<HTMLElement>) => void
+  goToCollectionPage: (e: MouseEvent<HTMLElement>) => void
+  goToArtistPage: (e: MouseEvent<HTMLElement>) => void
   toggleSave: () => void
   toggleRepost: () => void
   onClickOverflow: () => void
   onShare: () => void
   togglePlay: () => void
-  makeGoToRepostsPage: (id: ID) => (e: React.MouseEvent<HTMLElement>) => void
-  makeGoToFavoritesPage: (id: ID) => (e: React.MouseEvent<HTMLElement>) => void
+  makeGoToRepostsPage: (id: ID) => (e: MouseEvent<HTMLElement>) => void
+  makeGoToFavoritesPage: (id: ID) => (e: MouseEvent<HTMLElement>) => void
   isOwner: boolean
   darkMode: boolean
   isMatrix: boolean
