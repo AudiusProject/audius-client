@@ -29,7 +29,7 @@ const messages = {
   mutuals: 'Mutuals'
 }
 
-const MAX_MUTUALS = 5
+const MAX_MUTUALS = 4
 
 const selectMutuals = createSelector(
   [getFolloweeFollows, getUsers],
