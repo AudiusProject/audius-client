@@ -43,7 +43,18 @@ export const UserProfilePictureList = ({
   profilePictureClassname
 }: UserProfileListProps) => {
   const showUserListModal = totalUserCount > limit
+  /**
+   * We add a +1 because the remaining users count includes
+   * the tile that has the +N itself.
+   */
   const remainingUsersCount = totalUserCount - limit + 1
+  /**
+   * If the total user count is greater than the limit, then
+   * we slice at limit -1 to exclude the tile with the +N, since
+   * that tile will be handled separately.
+   * Otherwise, we slice at the limit, which would include all
+   * users.
+   */
   const sliceLimit = showUserListModal ? limit - 1 : limit
 
   return (
