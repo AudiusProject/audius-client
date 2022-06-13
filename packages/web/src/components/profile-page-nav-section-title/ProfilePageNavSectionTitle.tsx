@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react'
 
 import styles from './ProfilePageNavSectionTitle.module.css'
 
-type ProfileNavTitleProps = {
+type ProfilePageNavSectionTitleProps = {
   title?: string
   titleIcon?: ReactNode
 }
@@ -10,7 +10,7 @@ type ProfileNavTitleProps = {
 export const ProfilePageNavSectionTitle = ({
   title,
   titleIcon
-}: ProfileNavTitleProps) => (
+}: ProfilePageNavSectionTitleProps) => (
   <div className={styles.titleContainer}>
     <div className={styles.titleAndIcon}>
       {titleIcon}
