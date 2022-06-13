@@ -29,10 +29,6 @@ const messages = {
   holdOn: 'Don’t close this window or refresh the page.'
 }
 
-const EmptyContainer = () => (
-  <div className={cn(styles.flexCenter, styles.info, styles.empty)} />
-)
-
 const ConfirmInfo = () => (
   <div className={cn(styles.flexCenter, styles.info)}>
     {messages.areYouSure}
@@ -40,15 +36,11 @@ const ConfirmInfo = () => (
 )
 
 const ConvertingInfo = () => (
-  <div>
-    <div className={cn(styles.flexCenter, styles.info)}>
-      {messages.maintenance}
-    </div>
-    <div className={cn(styles.flexCenter, styles.textCenter, styles.info)}>
-      {messages.fewMinutes}
-      <br />
-      {messages.holdOn}
-    </div>
+  <div className={cn(styles.info)}>
+    <p>{messages.maintenance}</p>
+    <br />
+    <p>{messages.fewMinutes}</p>
+    <p>{messages.holdOn}</p>
   </div>
 )
 
@@ -58,12 +50,16 @@ export const ConfirmSendTip = () => {
   const sendAmount = useSelector(getSendAmount)
   const receiver = useSelector(getSendUser)
   const [isDisabled, setIsDisabled] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+  const [isConverting, setIsConverting] = useState(false)
 
   useEffect(() => {
-    setIsDisabled(sendStatus !== 'CONFIRM' && sendStatus !== 'ERROR')
-  }, [sendStatus])
+    setIsDisabled(isSending)
+  }, [isSending])
 
   const handleConfirmSendClick = useCallback(() => {
+    setHasError(false)
     dispatch(confirmSendTip())
   }, [dispatch])
 
@@ -73,19 +69,32 @@ export const ConfirmSendTip = () => {
     }
   }, [isDisabled, dispatch, receiver])
 
+  // Make the states stick so that the transitions look nice
+  useEffect(() => {
+    if (sendStatus === 'ERROR') {
+      setHasError(true)
+      setIsSending(false)
+      setIsConverting(false)
+    } else if (sendStatus === 'SENDING') {
+      setIsSending(true)
+    } else if (sendStatus === 'CONVERTING') {
+      setIsConverting(true)
+    }
+  }, [sendStatus, setHasError])
+
   const renderSendingAudio = () => (
-    <>
-      <div className={cn(styles.flexCenter, styles.sendingContainer)}>
+    <div className={styles.modalContentHeader}>
+      <div className={cn(styles.flexCenter, styles.modalContentHeaderTitle)}>
         <span className={styles.sendingIcon}>
           <IconSend />
         </span>
         {messages.sending}
       </div>
-      <div className={cn(styles.flexCenter, styles.sendingAudio)}>
+      <div className={cn(styles.flexCenter, styles.modalContentHeaderSubtitle)}>
         <span className={styles.sendAmount}>{sendAmount}</span>
         $AUDIO
       </div>
-    </>
+    </div>
   )
 
   const renderError = () => (
@@ -98,23 +107,22 @@ export const ConfirmSendTip = () => {
     <div className={styles.container}>
       {renderSendingAudio()}
       <TipProfilePicture user={receiver} />
-      {sendStatus === 'SENDING' && <EmptyContainer />}
-      {sendStatus === 'CONFIRM' && <ConfirmInfo />}
-      {sendStatus === 'CONVERTING' && <ConvertingInfo />}
-      {sendStatus === 'ERROR' && renderError()}
+      {isConverting ? <ConvertingInfo /> : null}
+      {hasError ? renderError() : null}
+      {!isSending ? <ConfirmInfo /> : null}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}
           text={
-            sendStatus === 'ERROR'
+            hasError
               ? messages.confirmAndTryAgain
-              : sendStatus === 'CONFIRM'
+              : !isSending
               ? messages.confirmTip
               : ''
           }
           onClick={handleConfirmSendClick}
           rightIcon={
-            sendStatus === 'SENDING' || sendStatus === 'CONVERTING' ? (
+            isSending || isConverting ? (
               <LoadingSpinner className={styles.loadingSpinner} />
             ) : (
               <IconCheck />
@@ -126,7 +134,7 @@ export const ConfirmSendTip = () => {
           })}
         />
       </div>
-      {sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING' ? (
+      {!isSending && !isConverting ? (
         <div
           className={cn(styles.flexCenter, styles.goBackContainer, {
             [styles.disabled]: isDisabled
