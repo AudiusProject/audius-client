@@ -12,9 +12,9 @@ import {
   NotificationHeader,
   NotificationTitle,
   NotificationText,
-  ProfilePicture
+  ProfilePicture,
+  UserNameLink
 } from '../Notification'
-import { UserNameLink } from '../Notification/UserNameLink'
 
 const messages = {
   title: 'Top Supporter',
