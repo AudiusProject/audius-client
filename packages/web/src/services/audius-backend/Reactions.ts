@@ -1,6 +1,5 @@
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 
-// @ts-ignore
 const libs = () => window.audiusLibs
 
 export const submitReaction = async ({
