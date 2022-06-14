@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Button, ButtonType, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
+import { Transition, animated } from 'react-spring/renderprops'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
@@ -35,13 +36,25 @@ const ConfirmInfo = () => (
   </div>
 )
 
-const ConvertingInfo = () => (
-  <div className={cn(styles.info)}>
-    <p>{messages.maintenance}</p>
-    <br />
-    <p>{messages.fewMinutes}</p>
-    <p>{messages.holdOn}</p>
-  </div>
+const ConvertingInfo = ({ isVisible }: { isVisible: boolean }) => (
+  <Transition
+    items={isVisible}
+    from={{ opacity: 0 }}
+    enter={{ opacity: 1 }}
+    leave={{}}
+    unique
+  >
+    {item => style =>
+      item ? (
+        <animated.div style={style} className={styles.info}>
+          <p>{messages.maintenance}</p>
+          <p>{JSON.stringify(item)}</p>
+          <br />
+          <p>{messages.fewMinutes}</p>
+          <p>{messages.holdOn}</p>
+        </animated.div>
+      ) : null}
+  </Transition>
 )
 
 export const ConfirmSendTip = () => {
@@ -107,7 +120,7 @@ export const ConfirmSendTip = () => {
     <div className={styles.container}>
       {renderSendingAudio()}
       <TipProfilePicture user={receiver} />
-      {isConverting ? <ConvertingInfo /> : null}
+      <ConvertingInfo isVisible={isConverting} />
       {hasError ? renderError() : null}
       {!isSending ? <ConfirmInfo /> : null}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
