@@ -6,6 +6,7 @@ import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { CommonState } from 'audius-client/src/common/store'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
+import { getOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/tipping/selectors'
 import {
   loadMore,
   reset,
@@ -64,17 +65,20 @@ export const UserList = (props: UserListProps) => {
   const dispatchWeb = useDispatchWeb()
   const [isRefreshing, setIsRefreshing] = useState(true)
   const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
+  const optimisticUserIds = useSelectorWeb(state =>
+    getOptimisticUserIdsIfNeeded(state, { userIds, tag })
+  )
   const currentUserId = useSelectorWeb(getUserId)
   const usersMap = useSelectorWeb(
-    state => getUsers(state, { ids: userIds }),
+    state => getUsers(state, { ids: optimisticUserIds }),
     isEqual
   )
   const users: User[] = useMemo(
     () =>
-      userIds
+      optimisticUserIds
         .map(id => usersMap[id])
         .filter(user => user && !user.is_deactivated),
-    [usersMap, userIds]
+    [usersMap, optimisticUserIds]
   )
 
   const { isEnabled: isTippingEnabled } = useFeatureFlag(
