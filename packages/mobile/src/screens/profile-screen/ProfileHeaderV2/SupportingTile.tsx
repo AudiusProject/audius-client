@@ -122,12 +122,7 @@ export const SupportingTile = (props: SupportingTileProps) => {
           style={styles.supporterInfoRoot}
         >
           <ProfilePicture style={styles.profilePicture} profile={user} />
-          <Text
-            style={styles.nameText}
-            variant='h3'
-            noGutter
-            numberOfLines={1}
-          >
+          <Text style={styles.nameText} variant='h3' noGutter numberOfLines={1}>
             {name}
           </Text>
           <UserBadges user={user} hideName />
