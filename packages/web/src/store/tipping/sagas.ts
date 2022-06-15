@@ -404,7 +404,7 @@ function* fetchSupportingForUserAsync({
     decodeHashId(supporting.receiver.id)
   )
 
-  yield call(fetchUsers, userIds, new Set(), true)
+  yield call(fetchUsers, userIds)
 
   const map: Record<string, Supporting> = {}
   supportingList.forEach(supporting => {
