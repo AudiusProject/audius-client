@@ -332,7 +332,7 @@ function* refreshSupportAsync({
       )
     ]
 
-    yield call(fetchUsers, userIds, new Set(), true)
+    yield call(fetchUsers, userIds)
 
     const supportingForSenderMap: Record<string, Supporting> = {}
     supportingForSenderList.forEach(supporting => {
@@ -625,7 +625,7 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
         ...tipToDisplay.followee_supporter_ids
       ])
     ]
-    yield call(fetchUsers, userIds, new Set(), true)
+    yield call(fetchUsers, userIds)
 
     /**
      * We need to get supporting data for logged in user and
