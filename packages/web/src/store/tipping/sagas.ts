@@ -159,8 +159,8 @@ function* overrideSupportersForUser({
   const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
 
   /**
-   * If sender was not previously supporting receiver, then
-   * optimistically increment the sender's supporting_count
+   * If receiver was not previously supported by sender, then
+   * optimistically increment the receiver's supporter_count
    */
   const wasNotPreviouslySupported = !supportersForReceiver[sender.user_id]
     ?.amount
