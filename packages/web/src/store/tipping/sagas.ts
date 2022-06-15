@@ -11,6 +11,7 @@ import {
 
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
+import Kind from 'common/models/Kind'
 import {
   RecentTipsStorage,
   Supporter,
@@ -21,6 +22,7 @@ import { User } from 'common/models/User'
 import { BNWei, StringWei } from 'common/models/Wallet'
 import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
+import { update } from 'common/store/cache/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import {
   getOptimisticSupporters,
@@ -98,6 +100,23 @@ function* overrideSupportingForUser({
   const supportingForSender = supportingMap[sender.user_id] ?? {}
 
   /**
+   * If sender was not previously supporting receiver, then
+   * optimistically increment the sender's supporting_count
+   */
+  const wasNotPreviouslySupporting = !supportingForSender[receiver.user_id]
+    ?.amount
+  if (wasNotPreviouslySupporting) {
+    yield put(
+      update(Kind.USERS, [
+        {
+          id: sender.user_id,
+          metadata: { supporting_count: sender.supporting_count + 1 }
+        }
+      ])
+    )
+  }
+
+  /**
    * Get and update the new amount the sender
    * is supporting to the receiver.
    */
@@ -138,6 +157,23 @@ function* overrideSupportersForUser({
    */
   const supportersMap = yield* select(getOptimisticSupporters)
   const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
+
+  /**
+   * If sender was not previously supporting receiver, then
+   * optimistically increment the sender's supporting_count
+   */
+  const wasNotPreviouslySupported = !supportersForReceiver[sender.user_id]
+    ?.amount
+  if (wasNotPreviouslySupported) {
+    yield put(
+      update(Kind.USERS, [
+        {
+          id: receiver.user_id,
+          metadata: { supporter_count: receiver.supporter_count + 1 }
+        }
+      ])
+    )
+  }
 
   /**
    * Get and update the new amount the sender
