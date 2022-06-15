@@ -26,7 +26,7 @@ const messages = {
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    marginTop: spacing(3),
+    marginTop: spacing(2),
     paddingBottom: spacing(1),
     width: 220,
     marginRight: spacing(2)
