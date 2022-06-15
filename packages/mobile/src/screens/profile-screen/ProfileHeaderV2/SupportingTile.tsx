@@ -56,6 +56,9 @@ const useStyles = makeStyles(({ spacing }) => ({
   },
   rankText: {
     textTransform: 'uppercase'
+  },
+  name: {
+    maxWidth: spacing(32)
   }
 }))
 
@@ -117,7 +120,13 @@ export const SupportingTile = (props: SupportingTileProps) => {
           style={styles.supporterInfoRoot}
         >
           <ProfilePicture style={styles.profilePicture} profile={user} />
-          <Text variant='h3' noGutter color='white' numberOfLines={1}>
+          <Text
+            style={styles.name}
+            variant='h3'
+            noGutter
+            color='white'
+            numberOfLines={1}
+          >
             {name}
           </Text>
           <UserBadges user={user} hideName />
