@@ -40,6 +40,9 @@ const useStyles = makeStyles(({ spacing }) => ({
   footer: {
     height: spacing(8),
     marginBottom: spacing(4)
+  },
+  list: {
+    height: '100%'
   }
 }))
 
@@ -142,6 +145,7 @@ export const UserList = (props: UserListProps) => {
 
   return (
     <FlatList
+      style={styles.list}
       data={data}
       renderItem={({ item }) =>
         isTippingEnabled ? (
