@@ -11,7 +11,7 @@ import { getUserId } from 'common/store/account/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { setNotificationSubscription } from 'common/store/pages/profile/actions'
 import * as socialActions from 'common/store/social/users/actions'
-import { getOptimisticUserIdsIfNeeded } from 'common/store/tipping/selectors'
+import { makeGetOptimisticUserIdsIfNeeded } from 'common/store/tipping/selectors'
 import { loadMore, reset } from 'common/store/user-list/actions'
 import { UserListStoreState } from 'common/store/user-list/types'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
@@ -90,10 +90,11 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
 function mapStateToProps(state: AppState, ownProps: ConnectedUserListOwnProps) {
   const { hasMore, loading, userIds } = ownProps.stateSelector(state)
   const userId = getUserId(state)
-  const optimisticUserIds = getOptimisticUserIdsIfNeeded(state, {
+  const getOptimisticUserIds = makeGetOptimisticUserIdsIfNeeded({
     userIds,
     tag: ownProps.tag
   })
+  const optimisticUserIds = getOptimisticUserIds(state)
   const usersMap: { [id: number]: User } = getUsers(state, {
     ids: optimisticUserIds
   })

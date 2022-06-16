@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useFocusEffect, useIsFocused } from '@react-navigation/native'
+import { ID } from 'audius-client/src/common/models/Identifiers'
 import { User } from 'audius-client/src/common/models/User'
 import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { CommonState } from 'audius-client/src/common/store'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
-import { getOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/tipping/selectors'
+import { makeGetOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/tipping/selectors'
 import {
   loadMore,
   reset,
@@ -65,9 +66,11 @@ export const UserList = (props: UserListProps) => {
   const dispatchWeb = useDispatchWeb()
   const [isRefreshing, setIsRefreshing] = useState(true)
   const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
-  const optimisticUserIds = useSelectorWeb(state =>
-    getOptimisticUserIdsIfNeeded(state, { userIds, tag })
-  )
+  const getOptimisticUserIds = makeGetOptimisticUserIdsIfNeeded({
+    userIds,
+    tag
+  })
+  const optimisticUserIds: ID[] = useSelectorWeb(getOptimisticUserIds)
   const currentUserId = useSelectorWeb(getUserId)
   const usersMap = useSelectorWeb(
     state => getUsers(state, { ids: optimisticUserIds }),
