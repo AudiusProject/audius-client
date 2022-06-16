@@ -7,12 +7,12 @@ import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { CommonState } from 'audius-client/src/common/store'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
-import { makeGetOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/tipping/selectors'
 import {
   loadMore,
   reset,
   setLoading
 } from 'audius-client/src/common/store/user-list/actions'
+import { makeGetOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/user-list/selectors'
 import { UserListStoreState } from 'audius-client/src/common/store/user-list/types'
 import { View } from 'react-native'
 import { Selector } from 'react-redux'
