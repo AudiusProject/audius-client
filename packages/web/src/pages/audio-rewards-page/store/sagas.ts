@@ -415,6 +415,8 @@ function* fetchUserChallengesAsync() {
   }
 }
 
+const challengesWithNewDispursementsThisSesssion = new Set<string>([])
+
 function* checkForNewDisbursements(
   action: ReturnType<typeof fetchUserChallengesSucceeded>
 ) {
@@ -439,9 +441,11 @@ function* checkForNewDisbursements(
       challenge.is_disbursed &&
       prevChallenge &&
       !prevChallenge.is_disbursed && // it wasn't already claimed
-      (!challengeOverrides || !challengeOverrides.is_disbursed) // we didn't claim this session
+      (!challengeOverrides || !challengeOverrides.is_disbursed) && // we didn't claim this session
+      !challengesWithNewDispursementsThisSesssion.has(challenge.challenge_id) // and we didn't notify the user about this yet
     ) {
       newDisbursement = true
+      challengesWithNewDispursementsThisSesssion.add(challenge.challenge_id)
     }
   }
   if (newDisbursement) {
