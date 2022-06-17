@@ -1,66 +1,3 @@
-.container {
-  margin-top: 32px;
-}
-
-.titleContainer {
-  display: flex;
-  align-items: center;
-}
-.titleText {
-  margin-left: 6px;
-  font-weight: var(--font-bold);
-  font-size: var(--font-s);
-}
-
-.line {
-  margin-left: 12px;
-  background: var(--neutral-light-7);
-  width: 100%;
-  height: 1px;
-}
-.topSupportersLine {
-  width: 68px;
-}
-
-.tile {
-  margin-top: 16px;
-}
-
-.seeMore {
-  display: flex;
-  align-items: center;
-  margin-top: 16px;
-  font-weight: var(--font-bold);
-  font-size: var(--font-s);
-  color: var(--neutral-light-4);
-}
-.seeMore:hover {
-  cursor: pointer;
-  transform: scale3d(1.01, 1.01, 1.01);
-}
-.seeMore:active {
-  transform: scale3d(0.99, 0.99, 0.99);
-}
-
-.tipIcon {
-  width: 18px;
-  height: 18px;
-}
-.tipIcon path {
-  fill: var(--neutral);
-}
-.trophyIcon {
-  width: 18px;
-  height: 18px;
-}
-.arrowIcon {
-  width: 20px;
-  height: 20px;
-}
-.arrowIcon path {
-  fill: var(--neutral-light-4);
-}
-
 .tileContainer {
   height: 122px;
   border-radius: 8px;
@@ -95,7 +32,7 @@
   flex: 0;
   align-self: flex-end;
   background: var(--white);
-  color: var(--neutral-light-4);
+  color: var(--secondary);
   font-weight: var(--font-bold);
   font-size: var(--font-m);
   padding: 1px 4px;
@@ -107,10 +44,6 @@
 
   display: flex;
   align-items: center;
-}
-.rankNumberSymbol {
-  font-size: var(--font-s);
-  margin-right: 2px;
 }
 .tileHeader .trophyIcon,
 .tileHeader .tipIcon,
@@ -127,15 +60,14 @@
   fill: var(--neutral-light-4);
 }
 
-.topFive {
-  color: var(--secondary);
+.trophyIcon {
+  width: 18px;
+  height: 18px;
 }
 
-.coverPhoto {
-  width: 100%;
-  height: 100%;
-  border-top-right-radius: 8px;
-  border-top-left-radius: 8px;
+.rankNumberSymbol {
+  font-size: var(--font-s);
+  margin-right: 2px;
 }
 
 .profilePictureContainer {
@@ -144,6 +76,7 @@
   margin: 12px;
   gap: 4px;
 }
+
 .profilePicture {
   height: 32px;
   border-radius: 32px;
@@ -162,18 +95,4 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.name {
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.viewAll {
-  display: flex;
-  align-items: center;
-  margin-top: 12px;
-  font-weight: var(--font-bold);
-  font-size: var(--font-s);
-  color: var(--neutral-light-4);
 }

@@ -18,7 +18,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
 
-import styles from './Support.module.css'
+import styles from './SupportingTile.module.css'
 
 type SupportingCardProps = {
   supporting: Supporting
