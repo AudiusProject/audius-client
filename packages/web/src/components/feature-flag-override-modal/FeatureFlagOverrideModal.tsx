@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   Modal,
@@ -15,6 +15,7 @@ import {
 import { useModalState } from 'common/hooks/useModalState'
 import { FeatureFlags } from 'common/services/remote-config'
 import { useDevModeHotkey } from 'hooks/useHotkey'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import zIndex from 'utils/zIndex'
 
 import styles from './FeatureFlagOverrideModal.module.css'
@@ -39,13 +40,27 @@ export const FeatureFlagOverrideModal = () => {
   const hotkeyToggle = useDevModeHotkey(70 /* f */)
   const [hotkeyLoaded, setHotkeyLoaded] = useState(false)
   const [isOpen, setIsOpen] = useModalState('FeatureFlagOverride')
-
+  const defaultSettings = useRef<Record<string, boolean>>({})
   const [overrideSettings, setOverrideSettings] = useState(
-    flags.reduce<Record<string, OverrideSetting>>((acc, flag) => {
-      acc[flag] = getOverrideSetting(flag)
-      return acc
-    }, {})
+    flags.reduce<Record<string, OverrideSetting>>(
+      (acc, flag) => ({ ...acc, [flag]: getOverrideSetting(flag) }),
+      {}
+    )
   )
+
+  useEffect(() => {
+    const updateDefaultSettings = () => {
+      defaultSettings.current = flags.reduce<Record<string, boolean>>(
+        (acc, flag) => ({
+          ...acc,
+          [flag]: remoteConfigInstance.getFeatureEnabled(flag) ?? false
+        }),
+        {}
+      )
+    }
+
+    remoteConfigInstance.waitForUserRemoteConfig().then(updateDefaultSettings)
+  }, [])
 
   const openModal = () => setIsOpen(true)
   const closeModal = () => setIsOpen(false)
@@ -75,7 +90,12 @@ export const FeatureFlagOverrideModal = () => {
               <span>{flag}: </span>
               <SegmentedControl
                 options={[
-                  { key: 'default', text: 'Default' },
+                  {
+                    key: 'default',
+                    text: `Default (${
+                      defaultSettings.current[flag] ? 'Enabled' : 'Disabled'
+                    })`
+                  },
                   { key: 'enabled', text: 'Enabled' },
                   { key: 'disabled', text: 'Disabled' }
                 ]}
