@@ -71,7 +71,14 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
 
   useEffect(() => {
     return () => {
-      reset()
+      // Immediately resetting the user list state causes
+      // the modal contents to clear while the modal header
+      // remains visible for a bit longer, until the modal
+      // visibility is set to false, which hides the modal.
+      // This is a bit startling, therefore, we wait a bit
+      // before resetting the state, allowing the modal to
+      // hide first.
+      setTimeout(reset, 100)
     }
   }, [reset])
 
