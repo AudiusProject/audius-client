@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -59,10 +59,15 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
 
   const { loadMore, reset } = props
 
+  const [hasLoaded, setHasLoaded] = useState(false)
+
   useEffect(() => {
     // Load initially
-    loadMore()
-  }, [loadMore])
+    if (!hasLoaded) {
+      loadMore()
+      setHasLoaded(true)
+    }
+  }, [hasLoaded, loadMore])
 
   useEffect(() => {
     return () => {
