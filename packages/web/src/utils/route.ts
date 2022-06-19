@@ -116,6 +116,8 @@ export const AUDIUS_TWITTER_LINK = 'https://twitter.com/AudiusProject'
 export const AUDIUS_INSTAMGRAM_LINK = 'https://www.instagram.com/audiusmusic'
 export const AUDIUS_DISCORD_LINK = 'https://discord.gg/audius'
 export const AUDIUS_PRESS_LINK = 'https://brand.audius.co'
+export const AUDIUS_MERCH_LINK = 'https://merch.audius.co/'
+export const AUDIUS_REMIX_CONTESTS_LINK = 'https://remix.audius.co/'
 
 // Org Links
 export const AUDIUS_ORG = 'https://audius.org'

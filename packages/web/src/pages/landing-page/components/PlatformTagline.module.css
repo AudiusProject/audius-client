@@ -29,9 +29,9 @@
 }
 
 .tagline {
+  font-weight: 400;
   max-width: 470px;
-  color: #480b79;
-  font-family: Gilroy !important;
+  color: #858199;
   font-size: 36px;
   line-height: 48px;
   text-align: center;
@@ -63,11 +63,9 @@
   z-index: 5;
   max-width: 470px;
   color: #480b79;
-  font-family: Gilroy !important;
   text-align: center;
-
-  color: #480b79;
-  font-family: Gilroy;
+  font-weight: 400;
+  color: #858199;
   font-size: 27px;
   line-height: 36px;
   padding: 0px 12px;

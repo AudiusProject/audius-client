@@ -9,7 +9,7 @@
 .content {
   flex-shrink: 0;
   width: 100%;
-  max-width: 1140px;
+  max-width: 1240px;
   display: inline-flex;
   flex-direction: column;
 }
@@ -33,12 +33,11 @@
   transition: all 0.15s ease-in-out;
   border: none;
   border-radius: 6px;
-  background-color: var(--static-secondary);
+  background-color: var(--static-primary);
   box-shadow: 0 10px 30px -2px rgba(89, 11, 151, 0.3);
   padding: 12px 24px;
 
   color: var(--static-white);
-  font-family: Gilroy !important;
   font-size: var(--font-m);
   font-weight: var(--font-bold);
   letter-spacing: 0.2px;
@@ -50,14 +49,14 @@
 
 .startListeningButton:hover {
   transform: scale3d(1.03, 1.03, 1.03);
-  background-color: #8615df;
-  box-shadow: 0 20px 30px -2px rgba(89, 11, 151, 0.3);
+  background-color: #dc19f0;
+  box-shadow: 0 10px 20px -1px rgba(25, 0, 96, 0.5);
 }
 
 .startListeningButton:active {
   transform: scale3d(0.99, 0.99, 0.99);
-  background-color: #6a08b7;
-  box-shadow: 0 1px 2px -2px rgba(89, 11, 151, 0.3);
+  background-color: #ba02ce;
+  box-shadow: 0 0 2px -1px rgba(25, 0, 96, 0.5);
 }
 
 .divider {
@@ -92,7 +91,6 @@
 
 .siteLink {
   color: var(--static-neutral) !important;
-  font-family: Gilroy !important;
   font-size: var(--font-s);
   line-height: 24px;
   text-decoration-color: var(--static-neutral) !important;
@@ -115,7 +113,6 @@
   flex-direction: column;
 
   color: var(--static-neutral);
-  font-family: Gilroy !important;
   font-size: var(--font-s);
   line-height: 20px;
   text-align: center;
@@ -174,7 +171,6 @@
 
 .bottomLink {
   color: var(--static-neutral-light-4) !important;
-  font-family: Gilroy !important;
   font-size: var(--font-s);
   text-decoration-color: var(--static-neutral-light-4) !important;
 }

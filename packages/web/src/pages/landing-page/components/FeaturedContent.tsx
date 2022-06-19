@@ -2,13 +2,13 @@ import { useState } from 'react'
 
 import { useSpring, animated } from 'react-spring'
 
-import lau from 'assets/img/publicSite/3lau@2x.jpg'
-import bnLLiveSets from 'assets/img/publicSite/BnLLiveSets@2x.jpg'
+import audiusExclusivesPlaylistImg from 'assets/img/publicSite/AudiusExclusivesPlaylistArt.png'
+import audiusWeeklyPlaylistImg from 'assets/img/publicSite/AudiusWeeklyPlaylistArt.png'
+import hotAndNewPlaylistImg from 'assets/img/publicSite/HotAndNewPlaylistArt.jpeg'
 import { ReactComponent as IconLines } from 'assets/img/publicSite/Lines.svg'
+import moombahtonPlaylistImg from 'assets/img/publicSite/MoombahtonPlaylistArt.png'
 import { ReactComponent as IconArrow } from 'assets/img/publicSite/iconArrow.svg'
-import isItLove from 'assets/img/publicSite/isItLove@2x.jpg'
 import { ReactComponent as IconListenOnAudius } from 'assets/img/publicSite/listen-on-audius.svg'
-import staffordBrosPlaylist from 'assets/img/publicSite/staffordBrosPlaylist@2x.jpg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
@@ -17,45 +17,39 @@ import styles from './FeaturedContent.module.css'
 
 const messages = {
   title: 'Featured Content',
-  subTitle: 'Check out some of our favorite new releases on Audius'
+  subTitle: 'Check out the playlists we are listening to right now'
 }
 
 type TrackProp = {
   title: string
   artist: string
   imageUrl: string
-  color: string
   onClick: () => void
 }
 
-const tracks = [
+const FALLBACK_PLAYLISTS = [
   {
-    title: '#SomethingBIG Podcast',
-    artist: 'Stafford Brothers',
-    imageUrl: staffordBrosPlaylist,
-    color: 'rgba(0,0,0,0.4)',
-    link:
-      '/staffordbros/playlist/somethingbig-stafford-brothers-–-artist-spotlight-182'
+    title: 'Audius Exclusives',
+    artist: 'Audius',
+    imageUrl: audiusExclusivesPlaylistImg,
+    link: '/audius/playlist/official-audius-exclusives-1428'
   },
   {
-    title: 'Miss Me More',
-    artist: '3LAU',
-    imageUrl: lau,
-    color: 'rgb(216, 121, 123, 0.4)',
-    link: '/3lau/miss-me-more-1150'
+    title: 'MOOMBAHTON COMES TO AUDIUS',
+    artist: 'Moombahton',
+    imageUrl: moombahtonPlaylistImg,
+    link: '/moombahton/playlist/moombahton-comes-to-audius-9601'
   },
   {
-    title: 'B&L Live Sets',
-    artist: 'Brownies & Lemonade',
-    imageUrl: bnLLiveSets,
-    color: 'rgba(0,0,0,0.4)',
-    link: '/teambandl/playlist/bl-live-sets-183'
+    title: 'Hot & New On Audius 🔥',
+    artist: 'Audius',
+    imageUrl: hotAndNewPlaylistImg,
+    link: '/audius/playlist/hot-new-on-audius-%F0%9F%94%A5-4281'
   },
   {
-    title: 'Is It Love',
-    artist: '3LAU',
-    imageUrl: isItLove,
-    color: 'rgba(152, 218, 176, 0.4)',
+    title: 'Audius Weekly',
+    artist: 'Audius',
+    imageUrl: audiusWeeklyPlaylistImg,
     link: '/3lau/is-it-love-feat.-yeah-boy-1151'
   }
 ]
@@ -88,16 +82,18 @@ const Track = (props: TrackProp) => {
           className={styles.track}
           style={{
             backgroundImage: `url(${props.imageUrl})`,
-            boxShadow: `0 10px 50px -2px ${props.color}`
+            boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
           }}
         >
           <div className={styles.trackContent}>
-            <div className={styles.trackTitle}>{props.title}</div>
             <div className={styles.trackArtist}>{`By ${props.artist}`}</div>
             <IconListenOnAudius className={styles.listenOnAudius} />
           </div>
         </div>
       </animated.div>
+      <div className={styles.trackTitleContainer}>
+        <span className={styles.trackTitle}>{props.title}</span>
+      </div>
     </div>
   )
 }
@@ -124,7 +120,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
         <h3 className={styles.title}>{messages.title}</h3>
         <h4 className={styles.subTitle}>{messages.subTitle}</h4>
         <div className={styles.tracksContainer}>
-          {tracks.map(track => (
+          {FALLBACK_PLAYLISTS.map(track => (
             <div
               key={track.title}
               className={styles.trackContainer}
@@ -134,7 +130,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                 className={styles.trackImage}
                 style={{
                   backgroundImage: `url(${track.imageUrl})`,
-                  boxShadow: `0 10px 50px -2px ${track.color}`
+                  boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
                 }}
               ></div>
               <div className={styles.trackTitle}>
@@ -155,7 +151,6 @@ const FeaturedContent = (props: FeaturedContentProps) => {
         <div className={styles.animateTitleContainer}>
           <animated.div
             style={{
-              opacity: textStyles.opacity,
               transform: textStyles.x.interpolate(
                 x => `translate3d(0,${x}px,0)`
               )
@@ -168,7 +163,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
           </animated.div>
         </div>
         <div className={styles.tracksContainer}>
-          {tracks.map(track => (
+          {FALLBACK_PLAYLISTS.map(track => (
             <Track
               key={track.title}
               {...track}
