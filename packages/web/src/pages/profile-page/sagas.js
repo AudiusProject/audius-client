@@ -9,9 +9,9 @@ import * as cacheActions from 'common/store/cache/actions'
 import {
   fetchUsers,
   fetchUserByHandle,
-  fetchUserCollections
+  fetchUserCollections,
+  fetchUserSocials
 } from 'common/store/cache/users/sagas'
-import { fetchUserSocials } from 'common/store/cache/users/selectors'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import * as profileActions from 'common/store/pages/profile/actions'
 import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
