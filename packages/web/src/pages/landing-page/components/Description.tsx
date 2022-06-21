@@ -100,12 +100,6 @@ const Description = (props: DescriptionProps) => {
   if (props.isMobile) {
     return (
       <div className={styles.mobileContainer}>
-        <img
-          src={dotsLogo1x}
-          srcSet={`${dotsLogo1x} 1x, ${dotsLogo2x} 2x`}
-          className={styles.dotsLogo}
-          alt='Background moving dot pattern'
-        />
         <div className={styles.textSection}>
           <img
             src={productShot}

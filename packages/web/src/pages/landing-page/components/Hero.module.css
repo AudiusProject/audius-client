@@ -57,10 +57,14 @@
 }
 
 .foreground {
-  /* width: 138%;
-  min-width: 1800px; */
   height: auto;
   min-height: 1100px;
+}
+
+@media (max-width: 1387px) {
+  .container .textContent .subtitle {
+    max-width: 500px;
+  }
 }
 
 .bgContainer {
@@ -237,7 +241,7 @@
 
 /* Mobile */
 .mobileContainer {
-  height: 600px;
+  height: 850px;
   min-height: calc(104vh + 100px);
   position: relative;
   overflow: hidden;
@@ -295,6 +299,7 @@
   font-weight: 700;
   line-height: 28px;
   text-align: center;
+  margin-bottom: 48px;
   text-shadow: 0px 100px 80px rgba(0, 0, 0, 0.07),
     0px 42px 33px rgba(0, 0, 0, 0.05), 0px 22px 18px rgba(0, 0, 0, 0.04),
     0px 12.5px 10px rgba(0, 0, 0, 0.035), 0px 7px 5px rgba(0, 0, 0, 0.03),

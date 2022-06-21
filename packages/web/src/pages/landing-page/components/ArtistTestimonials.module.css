@@ -78,7 +78,6 @@
   width: 100%;
   margin: -34px 0 0 -60px;
   width: calc(100% + 60px);
-  /* margin-top: 40px; */
 }
 
 /*  Artist Component */
@@ -136,31 +135,31 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 120px;
 }
 
 .mobileContainer .title {
   z-index: 1;
-  color: #480b79;
-  font-size: 32px;
-  font-weight: bold;
-  line-height: 56px;
+  font-size: 40px;
+  line-height: 48px;
   text-align: center;
 }
 
 .mobileContainer .subTitle {
   z-index: 1;
   max-width: 300px;
-  color: #c2c0cc;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
-  line-height: 23px;
+  line-height: 30px;
   text-align: center;
 }
 
 .mobileContainer .artistsContainer {
+  margin: unset;
   max-width: 400px;
   z-index: 1;
   display: inline-flex;
+  margin-top: 64px;
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
@@ -168,18 +167,50 @@
 
 .mobileContainer .artistCard {
   margin: 0px 12px 16px;
-  max-width: 118px;
+}
+
+.mobileContainer .overflowArtistCard {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.mobileContainer .overflowArtistCard:not(:first-child) {
+  margin-left: -53px;
+}
+
+.mobileContainer .overflowArtistsContainer {
+  max-width: 400px;
+  justify-content: center;
+}
+
+.mobileContainer .overflowArtistsText {
+  color: #7e1bcc;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  margin-top: 6px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.mobileContainer .overflowArtistImage {
+  display: inline;
+  height: 120px;
+  width: 120px;
+  border-radius: 50%;
+  border: solid 4px #ffffff;
 }
 
 .mobileContainer .artistImage {
-  height: 118px;
-  width: 118px;
+  display: block;
+  height: 150px;
+  width: 150px;
   border-radius: 50%;
   margin-bottom: 8px;
 }
 
 .mobileContainer .artistName {
-  color: #480b79;
+  color: #7e1bcc;
   font-size: 16px;
   font-weight: 500;
   line-height: 19px;

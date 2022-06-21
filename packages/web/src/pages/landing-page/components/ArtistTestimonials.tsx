@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-
 import { Parallax } from 'react-scroll-parallax'
 import { useSpring, animated } from 'react-spring'
 
@@ -27,8 +25,6 @@ const messages = {
 type AristProps = {
   imageUrl: string
   name: string
-  setSelectedIndex: () => void
-  containerRef: any
 }
 
 const Artist = (props: AristProps) => {
@@ -39,9 +35,8 @@ const Artist = (props: AristProps) => {
   return (
     <div
       className={styles.cardMoveContainer}
-      ref={props.containerRef}
+      // @ts-ignore
       onMouseMove={onMove}
-      onMouseEnter={props.setSelectedIndex}
       onMouseLeave={onLeave}
     >
       <div ref={cardRef} className={styles.artistContainer}>
@@ -71,6 +66,18 @@ const MobileArtist = (props: MobileArtistProps) => {
         alt='Audius Artist'
       />
       <div className={styles.artistName}>{props.name}</div>
+    </div>
+  )
+}
+
+const MobileOverflowArtist = (props: MobileArtistProps) => {
+  return (
+    <div className={styles.overflowArtistCard}>
+      <img
+        src={props.imageUrl}
+        className={styles.overflowArtistImage}
+        alt='Audius Artist'
+      />
     </div>
   )
 }
@@ -122,26 +129,7 @@ type ArtistTestimonialsProps = {
   isMobile: boolean
 }
 
-// Update the selected artist every TRANSITION_ARTIST_INTERVAL msec
-// const TRANSITION_ARTIST_INTERVAL = 5 * 1000
-
 const ArtistTestimonials = (props: ArtistTestimonialsProps) => {
-  const offset = useRef(0)
-  const artistCards = useRef<Array<HTMLElement | null>>(
-    Array.from({ length: artists.length }, () => null)
-  )
-
-  const setAristsRef = (index: number) => (node: HTMLDivElement) => {
-    if (node !== null) {
-      artistCards.current[index] = node
-      if (index === 0) {
-        const { width } = (node as HTMLElement).getBoundingClientRect()
-        const offsetX = (node as HTMLElement).offsetLeft
-        offset.current = offsetX + width / 2
-      }
-    }
-  }
-
   // Animate in the title and subtitle text
   const [hasViewed, refInView] = useHasViewed()
   // @ts-ignore
@@ -152,21 +140,21 @@ const ArtistTestimonials = (props: ArtistTestimonialsProps) => {
   })
 
   if (props.isMobile) {
-    // The mobile quote should be the deadmau5 quote
-
     return (
       <div className={styles.mobileContainer}>
-        <div
-          className={styles.dotsBackground}
-          style={{ backgroundImage: `url(${dots2x})` }}
-        ></div>
         <h3 className={styles.title}>{messages.title}</h3>
         <h3 className={styles.subTitle}>{messages.subtitle}</h3>
         <div className={styles.artistsContainer}>
-          {artists.reverse().map(artist => (
+          {artists.slice(0, -4).map((artist, i) => (
             <MobileArtist key={artist.name} {...artist} />
           ))}
         </div>
+        <div className={styles.overflowArtistsContainer}>
+          {artists.slice(-4).map(artist => (
+            <MobileOverflowArtist key={artist.name} {...artist} />
+          ))}
+        </div>
+        <div className={styles.overflowArtistsText}>&amp; so many more</div>
       </div>
     )
   }
@@ -192,14 +180,7 @@ const ArtistTestimonials = (props: ArtistTestimonialsProps) => {
           </div>
           <div className={styles.artistsContainer}>
             {artists.map((artist, idx) => (
-              <Artist
-                key={artist.name}
-                {...artist}
-                containerRef={setAristsRef(idx)}
-                setSelectedIndex={() => {
-                  // setSelectedIndex(idx)
-                }}
-              />
+              <Artist key={artist.name} {...artist} />
             ))}
           </div>
         </div>

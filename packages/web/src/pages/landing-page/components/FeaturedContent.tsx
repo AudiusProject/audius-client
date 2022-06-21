@@ -7,7 +7,6 @@ import audiusWeeklyPlaylistImg from 'assets/img/publicSite/AudiusWeeklyPlaylistA
 import hotAndNewPlaylistImg from 'assets/img/publicSite/HotAndNewPlaylistArt.jpeg'
 import { ReactComponent as IconLines } from 'assets/img/publicSite/Lines.svg'
 import moombahtonPlaylistImg from 'assets/img/publicSite/MoombahtonPlaylistArt.png'
-import { ReactComponent as IconArrow } from 'assets/img/publicSite/iconArrow.svg'
 import { ReactComponent as IconListenOnAudius } from 'assets/img/publicSite/listen-on-audius.svg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
@@ -116,7 +115,6 @@ const FeaturedContent = (props: FeaturedContentProps) => {
   if (props.isMobile) {
     return (
       <div className={styles.mobileContainer}>
-        <IconLines className={styles.lines} />
         <h3 className={styles.title}>{messages.title}</h3>
         <h4 className={styles.subTitle}>{messages.subTitle}</h4>
         <div className={styles.tracksContainer}>
@@ -133,11 +131,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                   boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
                 }}
               ></div>
-              <div className={styles.trackTitle}>
-                {track.title}
-                <IconArrow className={styles.mobileIconArrow} />
-              </div>
-              <div className={styles.trackArtist}>{track.artist}</div>
+              <div className={styles.trackTitle}>{track.title}</div>
             </div>
           ))}
         </div>

@@ -118,9 +118,11 @@ export const AUDIUS_DISCORD_LINK = 'https://discord.gg/audius'
 export const AUDIUS_PRESS_LINK = 'https://brand.audius.co'
 export const AUDIUS_MERCH_LINK = 'https://merch.audius.co/'
 export const AUDIUS_REMIX_CONTESTS_LINK = 'https://remix.audius.co/'
+export const AUDIUS_BLOG_LINK = 'https://blog.audius.co/'
 
 // Org Links
 export const AUDIUS_ORG = 'https://audius.org'
+export const AUDIUS_DOCS_LINK = 'https://docs.audius.org'
 export const AUDIUS_TEAM_LINK = 'https://audius.org/team'
 export const AUDIUS_DEV_STAKER_LINK = 'https://audius.org/protocol'
 

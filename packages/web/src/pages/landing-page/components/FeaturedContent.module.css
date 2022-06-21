@@ -5,7 +5,7 @@
   display: flex;
   flex-shrink: 0;
   justify-content: center;
-  padding: 100px 0px;
+  padding: 100px 0px 0px 0px;
   overflow: hidden;
 }
 
@@ -159,7 +159,7 @@
   right: -10%;
   width: 120%;
   height: auto;
-  top: 50%;
+  top: 19%;
   z-index: 0;
 }
 
@@ -170,25 +170,21 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  padding: 116px 26px 56px;
+  padding: 58px 24px 12px;
   position: relative;
   height: auto;
   overflow: hidden;
 }
 
 .mobileContainer .title {
-  color: #480b79;
-  font-size: 32px;
-  font-weight: bold;
-  line-height: 56px;
+  font-size: 40px;
+  line-height: 48px;
   text-align: center;
 }
 .mobileContainer .subTitle {
-  max-width: 300px;
-  color: #c2c0cc;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
-  line-height: 23px;
+  line-height: 24px;
   text-align: center;
 }
 
@@ -199,11 +195,11 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-around;
-  margin-top: 38px;
+  margin-top: 24px;
 }
 
 .mobileContainer .trackContainer {
-  max-width: 152px;
+  max-width: 165px;
   height: auto;
   display: inline-flex;
   flex-direction: column;
@@ -224,13 +220,15 @@
 
 .mobileContainer .trackTitle {
   position: relative;
-  color: #858199;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
   text-align: center;
   margin: 0px auto 2px;
-  padding-left: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 .mobileContainer .mobileIconArrow {

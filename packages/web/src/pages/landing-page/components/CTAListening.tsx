@@ -18,7 +18,6 @@ const messages = {
   cta: 'Start Uploading Today'
 }
 
-const title = `${messages.title1} ${messages.title2}`
 const title1Items = messages.title1.split(' ')
 const title2Items = messages.title2.split(' ')
 
@@ -88,7 +87,17 @@ const CTAListening = (props: CTAListeningProps) => {
           </Parallax>
         </div>
         <div className={styles.textContent}>
-          <div className={styles.title}>{title}</div>
+          <div className={styles.appImgContainer}>
+            <img
+              src={appImg}
+              className={styles.appImg}
+              alt='Audius mobile app'
+            />
+          </div>
+          <div className={styles.title}>
+            <div className={styles.title1}>{messages.title1}</div>
+            <div className={styles.title2}>{messages.title2}</div>
+          </div>
           <button
             onClick={handleClickRoute(
               AUDIUS_LISTENING_LINK,

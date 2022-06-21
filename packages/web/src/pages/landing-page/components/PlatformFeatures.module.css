@@ -89,7 +89,7 @@
   width: 100%;
   max-width: 48px;
   height: auto;
-  margin-right: 37px;
+  margin-right: 36px;
 }
 
 .featureText {
@@ -136,7 +136,7 @@
   background: linear-gradient(129.23deg, #f3f2f5 0%, #fbfbfc 100%);
   -webkit-clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
   clip-path: polygon(0 3%, 100% 0, 100% 97%, 0 100%);
-  padding: 65px 35px;
+  padding: 65px 35px 88px;
 }
 
 .isMobile .header {
@@ -144,23 +144,24 @@
 }
 
 .isMobile .title {
-  color: #480b79;
-  font-size: 32px;
-  font-weight: bold;
-  line-height: 56px;
+  font-size: 40px;
+  line-height: 48px;
   text-align: center;
 }
 
 .isMobile .subTitle {
-  color: #c2c0cc;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
-  line-height: 23px;
+  line-height: 30px;
   text-align: center;
 }
 
+.isMobile .animateTitleContainer {
+  margin-bottom: 0;
+}
+
 .isMobile .body {
-  margin-top: 32px;
+  margin-top: 48px;
   flex-direction: column;
 }
 
@@ -172,29 +173,28 @@
 }
 
 .isMobile .features {
-  margin-top: 31px;
+  margin-top: 10px;
 }
 
 .isMobile .feature {
   display: inline-flex;
   justify-content: center;
   align-content: center;
-  flex-direction: column;
-  background-color: rgba(0, 0, 0, 0);
-  box-shadow: none;
-  margin: 0px 0px 32px;
-  padding: 0px;
+  border-radius: 12px;
+  box-shadow: 0px 16px 20px rgba(232, 228, 234, 0.5);
+  background: #ffffff;
+  margin: 0px 0px 10px;
+  padding: 24px 16px;
 }
 
 .isMobile .featureIcon {
-  margin: 0px;
+  margin-left: 12px;
 }
 
 .isMobile .featureText {
   width: 100%;
   display: inline-flex;
   flex-direction: column;
-  align-items: center;
 }
 
 .isMobile .featureTitle {
@@ -204,8 +204,7 @@
 }
 
 .isMobile .featureDescription {
-  color: #858199;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 24px;
-  text-align: center;
+  font-weight: 500;
 }
