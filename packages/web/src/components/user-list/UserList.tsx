@@ -62,25 +62,26 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
   const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
-    // Load initially
     if (!hasLoaded) {
+      /**
+       * Reset on initial load in case the list modal for the
+       * given tag was already open before for another user.
+       * If we do no reset on initial load (or on exiting the modal),
+       * then the list modal will be confused and may not refresh
+       * for the current user, or it may refresh but not have the
+       * correct total count which messes up the logic for loading
+       * more users as we scroll down the modal.
+       * The reason why we reset on initial load rather than on
+       * exiting the modal is because it's possible that one modal
+       * opens another (e.g. clicking artist hover tile supporting section),
+       * and resetting on modal exit in that case may reset the data for the
+       * incoming modal after it loads and end up showing an empty modal.
+       */
+      reset()
       loadMore()
       setHasLoaded(true)
     }
-  }, [hasLoaded, loadMore])
-
-  useEffect(() => {
-    return () => {
-      // Immediately resetting the user list state causes
-      // the modal contents to clear while the modal header
-      // remains visible for a bit longer, until the modal
-      // visibility is set to false, which hides the modal.
-      // This is a bit startling, therefore, we wait a bit
-      // before resetting the state, allowing the modal to
-      // hide first.
-      setTimeout(reset, 100)
-    }
-  }, [reset])
+  }, [reset, hasLoaded, loadMore])
 
   return (
     <UserList
