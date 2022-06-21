@@ -31,7 +31,7 @@
 .tileHeader {
   flex: 0;
   align-self: flex-end;
-  background: var(--white);
+  background: var(--static-white);
   color: var(--secondary);
   font-weight: var(--font-bold);
   font-size: var(--font-m);
@@ -40,7 +40,7 @@
   width: fit-content;
   height: 20px;
   border-radius: 16px;
-  border: 1px solid var(--neutral-light-8);
+  border: 1px solid var(--static-neutral-light-8);
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
 
   display: flex;
@@ -81,7 +81,7 @@
 .profilePicture {
   height: 32px;
   border-radius: 32px;
-  border: 1px solid var(--white);
+  border: 1px solid var(--static-white);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -89,7 +89,7 @@
 }
 
 .name {
-  color: var(--white);
+  color: var(--static-white);
   font-weight: var(--font-bold);
   font-size: var(--font-s);
   line-height: 120%; /* identical to box height, or 17px */
