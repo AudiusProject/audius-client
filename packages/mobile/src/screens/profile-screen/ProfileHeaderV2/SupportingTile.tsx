@@ -32,7 +32,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     overflow: 'hidden'
   },
   gradient: {
-    flexDirection: 'column',
     width: 220,
     height: 88,
     justifyContent: 'space-between',
