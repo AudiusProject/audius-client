@@ -27,7 +27,6 @@ const useStyles = makeStyles(({ spacing }) => ({
     paddingHorizontal: spacing(5),
     paddingVertical: spacing(2),
     alignItems: 'center',
-    flexDirection: 'column',
     justifyContent: 'center',
     height: 88
   },
