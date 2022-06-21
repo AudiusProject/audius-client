@@ -22,6 +22,7 @@ export const getEntityLink = (entity: EntityType, fullRoute = false) => {
     )
   }
   const getRoute = fullRoute ? fullPlaylistPage : playlistPage
+  console.log(`entity ${JSON.stringify(entity)}`)
   return getRoute(entity.user.handle, entity.playlist_name, entity.playlist_id)
 }
 

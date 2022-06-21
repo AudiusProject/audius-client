@@ -88,6 +88,8 @@ export const getNotificationUser = (
     return getAccountUser(state)
   } else if ('userId' in notification) {
     return getUser(state, { id: notification.userId })
+    // } else if ('playlistOwnerId' in notification) {
+    //   return getUser(state, { id: notification.playlistOwnerId })
   } else if (
     'entityId' in notification &&
     'entityType' in notification &&
@@ -158,6 +160,12 @@ export const getNotificationEntities = (
       })
       .filter((entity): entity is EntityType => !!entity)
     return entities
+  } else if (notification.type === NotificationType.AddTrackToPlaylist) {
+    const track = getTrack(state, { id: notification.trackId })
+    const playlist = getCollection(state, { id: notification.playlistId })
+    const playlistOwner = getUser(state, { id: notification.playlistOwnerId })
+    return { track, playlist: { ...playlist, user: playlistOwner } }
   }
+
   return null
 }

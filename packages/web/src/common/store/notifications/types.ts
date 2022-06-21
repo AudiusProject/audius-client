@@ -23,7 +23,8 @@ export enum NotificationType {
   TipReceive = 'TipReceive',
   TipSend = 'TipSend',
   SupporterRankUp = 'SupporterRankUp',
-  SupportingRankUp = 'SupportingRankUp'
+  SupportingRankUp = 'SupportingRankUp',
+  AddTrackToPlaylist = 'AddTrackToPlaylist'
 }
 
 export enum Entity {
@@ -226,6 +227,14 @@ export type SupportingRankUp = BaseNotification & {
   user: User
 }
 
+export type AddTrackToPlaylist = BaseNotification & {
+  type: NotificationType.AddTrackToPlaylist
+  trackId: ID
+  playlistId: ID
+  playlistOwnerId: ID
+  entities: any
+}
+
 export type Notification =
   | Announcement
   | UserSubscription
@@ -243,6 +252,7 @@ export type Notification =
   | TipSend
   | SupporterRankUp
   | SupportingRankUp
+  | AddTrackToPlaylist
 
 export default interface NotificationState {
   notifications: {
