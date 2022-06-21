@@ -53,6 +53,13 @@
   margin-bottom: 16px;
 }
 
+@media (max-width: 1060px) {
+  .coloredTitle {
+    font-size: 48px;
+    line-height: 60px;
+  }
+}
+
 .coloredTitleWord {
   background: linear-gradient(to right, #30cfd0 0%, #330867 100%);
   background: linear-gradient(315deg, #5b23e1 0%, #a22feb 100%);
@@ -181,6 +188,7 @@
   font-weight: 800;
   font-size: 35px;
   line-height: 43px;
+  max-width: 500px;
   text-align: center;
   text-transform: uppercase;
 
