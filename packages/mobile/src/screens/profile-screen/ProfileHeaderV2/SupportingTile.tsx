@@ -23,7 +23,9 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     marginTop: spacing(2),
     paddingBottom: spacing(1),
-    marginRight: spacing(2)
+    marginHorizontal: spacing(1),
+    borderRadius: 8,
+    overflow: 'hidden'
   },
   backgroundImage: {
     borderRadius: 8,
