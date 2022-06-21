@@ -57,9 +57,9 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     paddingVertical: spacing(0.5),
     paddingHorizontal: spacing(1.125),
     borderWidth: 1,
-    borderColor: palette.neutralLight8,
+    borderColor: palette.staticNeutralLight8,
     borderRadius: spacing(4),
-    backgroundColor: palette.white
+    backgroundColor: palette.staticWhite
   },
   rankNumberSymbol: {
     marginStart: spacing(1),
