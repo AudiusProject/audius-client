@@ -28,7 +28,7 @@ type AristProps = {
 }
 
 const Artist = (props: AristProps) => {
-  const [cardRef, onMove, onLeave, transform] = useCardWeight({
+  const [cardRef, onMove, onLeave] = useCardWeight({
     sensitivity: 5
   })
 
@@ -40,13 +40,7 @@ const Artist = (props: AristProps) => {
       onMouseLeave={onLeave}
     >
       <div ref={cardRef} className={styles.artistContainer}>
-        <animated.img
-          src={props.imageUrl}
-          className={styles.artistImage}
-          style={{
-            transform
-          }}
-        />
+        <animated.img src={props.imageUrl} className={styles.artistImage} />
         <div className={styles.artistName}>{props.name}</div>
       </div>
     </div>
