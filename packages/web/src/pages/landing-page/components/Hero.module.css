@@ -58,7 +58,12 @@
 
 .foreground {
   height: auto;
-  min-height: 1100px;
+  min-height: 1300px;
+}
+
+.foregroundImg {
+  height: auto;
+  max-height: 1100px;
 }
 
 @media (max-width: 1387px) {
@@ -87,7 +92,7 @@
   z-index: 10;
   margin: 0px auto;
   width: 100%;
-  max-width: 1440px;
+  max-width: 1240px;
 }
 
 .buttonContentParallax {
@@ -95,7 +100,7 @@
   z-index: 30;
   width: 100%;
   display: flex;
-  max-width: 1440px;
+  max-width: 1240px;
 }
 
 .content {
@@ -142,7 +147,7 @@
   z-index: 25;
   width: 100%;
   display: flex;
-  max-width: 1440px;
+  max-width: 1240px;
 }
 
 .appLinksContent {

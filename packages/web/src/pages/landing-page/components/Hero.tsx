@@ -115,14 +115,12 @@ export const Hero = (props: HeroProps) => {
         <div className={styles.parallaxBg}> </div>
         <Parallax
           className={cn(styles.background, styles.fgContainer)}
-          y={[30, -1]}
-          x={[67, 67]}
+          y={[51, -10]}
+          x={[64, 64]}
         >
           <img
-            srcSet={`${HeroForeground} 1500w, ${HeroForeground} 3000w`}
-            sizes={`50vw, 100vw`}
             src={HeroForeground}
-            className={styles.foreground}
+            className={styles.foregroundImg}
             style={{ transform: 'rotate(8.5deg)' }}
             onLoad={onImgSet}
             alt='Foreground Audius Mobile App'
