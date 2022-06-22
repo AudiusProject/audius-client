@@ -1,9 +1,7 @@
 import { useCallback, useEffect } from 'react'
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import {
-  getSendTipData
-} from 'audius-client/src/common/store/tipping/selectors'
+import { getSendTipData } from 'audius-client/src/common/store/tipping/selectors'
 import {
   beginTip,
   confirmSendTip
