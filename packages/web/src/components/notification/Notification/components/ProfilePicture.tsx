@@ -6,13 +6,13 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { SquareSizes } from 'common/models/ImageSizes'
 import { User } from 'common/models/User'
+import { toggleNotificationPanel } from 'common/store/notifications/actions'
+import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './ProfilePicture.module.css'
-import { toggleNotificationPanel } from 'common/store/notifications/actions'
-import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 
 const imageLoadDelay = 250
 

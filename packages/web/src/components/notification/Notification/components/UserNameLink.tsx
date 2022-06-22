@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Name } from 'common/models/Analytics'
 import { User } from 'common/models/User'
 import { toggleNotificationPanel } from 'common/store/notifications/actions'
+import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 import { Notification } from 'common/store/notifications/types'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -15,7 +16,6 @@ import { isMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './UserNameLink.module.css'
-import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 
 const messages = {
   deactivated: 'Deactivated'
