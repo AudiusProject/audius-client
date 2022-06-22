@@ -26,6 +26,12 @@ const messages = {
   holdOn: 'Don’t close this window or refresh the page.'
 }
 
+const ErrorMessage = () => (
+  <div className={cn(styles.flexCenter, styles.error)}>
+    {messages.somethingWrong}
+  </div>
+)
+
 const ConfirmInfo = () => (
   <div className={cn(styles.flexCenter, styles.info)}>
     {messages.areYouSure}
@@ -44,7 +50,6 @@ const ConvertingInfo = ({ isVisible }: { isVisible: boolean }) => (
       item ? (
         <animated.div style={style} className={styles.info}>
           <p>{messages.maintenance}</p>
-          <p>{JSON.stringify(item)}</p>
           <br />
           <p>{messages.fewMinutes}</p>
           <p>{messages.holdOn}</p>
@@ -109,19 +114,13 @@ export const ConfirmSendTip = () => {
     </div>
   )
 
-  const renderError = () => (
-    <div className={cn(styles.flexCenter, styles.error)}>
-      {messages.somethingWrong}
-    </div>
-  )
-
   return receiver ? (
     <div className={styles.container}>
       {renderSendingAudio()}
       <TipProfilePicture user={receiver} />
       <ConvertingInfo isVisible={isConverting} />
-      {hasError ? renderError() : null}
-      {!isSending ? <ConfirmInfo /> : null}
+      {hasError ? <ErrorMessage /> : null}
+      {!hasError && !isSending && !isConverting ? <ConfirmInfo /> : null}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
         <Button
           type={ButtonType.PRIMARY}
