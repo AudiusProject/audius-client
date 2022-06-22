@@ -13,7 +13,9 @@ import {
   AUDIUS_LISTENING_LINK,
   AUDIUS_HOT_AND_NEW,
   AUDIUS_EXPLORE_LINK,
-  AUDIUS_ORG
+  AUDIUS_ORG,
+  AUDIUS_BLOG_LINK,
+  DOWNLOAD_START_LINK
 } from 'utils/route'
 
 import styles from './NavBanner.module.css'
@@ -24,6 +26,8 @@ const messages = {
   trending: 'Trending',
   hotAndNew: 'Hot & New',
   token: 'Token',
+  blog: 'Blog',
+  download: 'Download',
   startListening: 'Start Listening'
 }
 
@@ -61,6 +65,16 @@ const NavBanner = (props: NavBannerProps) => {
   )
   const onClickToken = handleClickRoute(AUDIUS_ORG, props.setRenderPublicSite)
 
+  const onClickBlog = handleClickRoute(
+    AUDIUS_BLOG_LINK,
+    props.setRenderPublicSite
+  )
+
+  const onClickDownload = handleClickRoute(
+    DOWNLOAD_START_LINK,
+    props.setRenderPublicSite
+  )
+
   useEffect(() => {
     setScrolling()
     window.addEventListener('scroll', setScrolling)
@@ -86,6 +100,10 @@ const NavBanner = (props: NavBannerProps) => {
             alt='Audius Logo'
           />
         </div>
+        <IconTrending
+          className={styles.trendingIcon}
+          onClick={onClickTrending}
+        />
       </div>
     )
   }
@@ -133,8 +151,14 @@ const NavBanner = (props: NavBannerProps) => {
           />
         </div>
         <div className={styles.linkContainer}>
-          <div onClick={onClickToken} className={styles.token}>
+          <div onClick={onClickBlog} className={styles.rightLink}>
+            {messages.blog}
+          </div>
+          <div onClick={onClickToken} className={styles.rightLink}>
             {messages.token}
+          </div>
+          <div onClick={onClickDownload} className={styles.rightLink}>
+            {messages.download}
           </div>
           <div onClick={onClickTrending} className={styles.startListening}>
             {messages.startListening}
