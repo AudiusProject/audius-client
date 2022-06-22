@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react'
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { getSendStatus } from 'audius-client/src/common/store/tipping/selectors'
-import { confirmSendTip } from 'audius-client/src/common/store/tipping/slice'
+import { getSendStatus, getSendUser } from 'audius-client/src/common/store/tipping/selectors'
+import { beginTip, confirmSendTip } from 'audius-client/src/common/store/tipping/slice'
 
 import IconCaretLeft from 'app/assets/images/iconCaretLeft.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
@@ -48,6 +48,7 @@ export const ConfirmSendTipScreen = ({
 }: ConfirmSendTipScreenProps) => {
   const styles = useStyles()
   const sendStatus = useSelectorWeb(getSendStatus)
+  const receiver = useSelectorWeb(getSendUser)
   const navigation = useNavigation<TipArtistNavigationParamList>()
   const dispatchWeb = useDispatchWeb()
 
@@ -56,8 +57,9 @@ export const ConfirmSendTipScreen = ({
   }, [dispatchWeb])
 
   const handleGoBack = useCallback(() => {
+    dispatchWeb(beginTip({ user: receiver, source: 'profile' }))
     navigation.goBack()
-  }, [navigation])
+  }, [dispatchWeb, navigation])
 
   const inProgress = sendStatus === 'SENDING' || sendStatus === 'CONVERTING'
 
