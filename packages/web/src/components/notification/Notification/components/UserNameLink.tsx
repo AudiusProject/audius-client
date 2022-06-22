@@ -2,7 +2,7 @@ import { MouseEventHandler, useCallback } from 'react'
 
 import cn from 'classnames'
 import { push } from 'connected-react-router'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Name } from 'common/models/Analytics'
 import { User } from 'common/models/User'
@@ -15,6 +15,7 @@ import { isMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './UserNameLink.module.css'
+import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 
 const messages = {
   deactivated: 'Deactivated'
@@ -52,6 +53,13 @@ export const UserNameLink = (props: UserNameLinkProps) => {
     [dispatch, handle, record, type, profileLink]
   )
 
+  const isNotificationPanelOpen = useSelector(getNotificationPanelIsOpen)
+  const handleNavigateAway = useCallback(() => {
+    if (isNotificationPanelOpen) {
+      dispatch(toggleNotificationPanel())
+    }
+  }, [dispatch, isNotificationPanelOpen])
+
   const rootClassName = cn(styles.root, className)
 
   if (is_deactivated) {
@@ -79,7 +87,11 @@ export const UserNameLink = (props: UserNameLinkProps) => {
 
   if (!isMobile()) {
     userNameElement = (
-      <ArtistPopover handle={handle} component='span'>
+      <ArtistPopover
+        handle={handle}
+        component='span'
+        onNavigateAway={handleNavigateAway}
+      >
         {userNameElement}
       </ArtistPopover>
     )

@@ -2,7 +2,7 @@ import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
 import cn from 'classnames'
 import { push } from 'connected-react-router'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { SquareSizes } from 'common/models/ImageSizes'
 import { User } from 'common/models/User'
@@ -11,6 +11,8 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './ProfilePicture.module.css'
+import { toggleNotificationPanel } from 'common/store/notifications/actions'
+import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 
 const imageLoadDelay = 250
 
@@ -63,6 +65,13 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     },
     [stopPropagation, disableClick, dispatch, handle]
   )
+
+  const isNotificationPanelOpen = useSelector(getNotificationPanelIsOpen)
+  const handleNavigateAway = useCallback(() => {
+    if (isNotificationPanelOpen) {
+      dispatch(toggleNotificationPanel())
+    }
+  }, [dispatch, isNotificationPanelOpen])
 
   const profilePictureElement = (
     <DynamicImage
