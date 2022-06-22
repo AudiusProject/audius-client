@@ -13,7 +13,7 @@ import { AUDIUS_LISTENING_LINK } from 'utils/route'
 import styles from './CTAListening.module.css'
 
 const messages = {
-  title1: '256kbps Streaming For Free',
+  title1: '320kbps Streaming For Free',
   title2: 'The way your music should be heard.',
   cta: 'Start Uploading Today'
 }
