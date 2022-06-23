@@ -35,7 +35,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     zIndex: 100
   },
   divider: { marginHorizontal: -12, marginBottom: spacing(2) },
-  bottomDivider: { marginHorizontal: -12 }
+  bottomDivider: { marginTop: spacing(2), marginHorizontal: -12 }
 }))
 
 type ProfileHeaderV2Props = {
@@ -82,10 +82,7 @@ export const ProfileHeaderV2 = (props: ProfileHeaderV2Props) => {
         />
         <Divider style={styles.divider} />
         {!hasUserFollowed ? null : (
-          <>
-            <ArtistRecommendations onClose={handleCloseArtistRecs} />
-            <Divider style={styles.divider} />
-          </>
+          <ArtistRecommendations onClose={handleCloseArtistRecs} />
         )}
         {isOwner ? <UploadTrackButton /> : <TipArtistButton />}
         <TopSupporters />

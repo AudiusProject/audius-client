@@ -27,6 +27,7 @@ const MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS = 6
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
     padding: spacing(4),
+    paddingBottom: spacing(2),
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

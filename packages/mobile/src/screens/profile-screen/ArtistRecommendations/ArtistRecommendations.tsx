@@ -34,8 +34,13 @@ const messages = {
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    paddingVertical: spacing(2),
-    marginBottom: spacing(2)
+    paddingTop: spacing(2),
+    paddingBottom: spacing(4),
+    paddingHorizontal: spacing(3),
+    marginHorizontal: spacing(-3),
+    marginBottom: spacing(2),
+    borderBottomColor: palette.neutralLight8,
+    borderBottomWidth: 1
   },
   header: {
     flexDirection: 'row'
