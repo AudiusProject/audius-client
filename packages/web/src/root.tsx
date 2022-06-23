@@ -21,11 +21,13 @@ const validPublicSitePathnames = [
   'press',
   'legal/terms-of-use',
   'legal/privacy-policy',
+  'download',
   'auth-redirect'
 ]
 
 const publicSiteSubPathnames = [
   'press',
+  'download',
   'legal/terms-of-use',
   'legal/privacy-policy',
   'auth-redirect'

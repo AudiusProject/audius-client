@@ -33,6 +33,14 @@ export const PRIVACY_POLICY = '/legal/privacy-policy'
 export const COOKIE_POLICY = `${BASE_URL}${PRIVACY_POLICY}`
 export const TERMS_OF_SERVICE = '/legal/terms-of-use'
 export const DOWNLOAD_START_LINK = '/download?start_download=true'
+export const DOWNLOAD_LINK = '/download'
+
+// App Routes
+export const ANDROID_PLAY_STORE_LINK =
+  'https://play.google.com/store/apps/details?id=co.audius.app'
+export const IOS_WEBSITE_STORE_LINK =
+  'https://apps.apple.com/us/app/audius-music/id1491270519'
+export const IOS_APP_STORE_LINK = 'itms-apps://us/app/audius-music/id1491270519'
 
 // Static routes.
 export const FEED_PAGE = '/feed'

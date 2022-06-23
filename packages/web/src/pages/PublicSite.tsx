@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
 import NavScreen from 'components/public-site/NavOverlay'
 import LandingPage from 'pages/landing-page/LandingPage'
+import DownloadPage from 'pages/download-page/DownloadPage'
 import {
   TRENDING_PAGE,
   SIGN_UP_PAGE,
@@ -129,6 +130,17 @@ const PublicSite = ({
               window.location.href = AUDIUS_PRESS_LINK
               return null
             }}
+          />
+          <Route
+            exact
+            path={'/download'}
+            render={() => (
+              <DownloadPage
+                isMobile={isMobileOrNarrow}
+                openNavScreen={openNavScreen}
+                setRenderPublicSite={setRenderPublicSite}
+              />
+            )}
           />
           <Route
             exact

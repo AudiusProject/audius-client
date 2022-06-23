@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import {
   IconCampFire,
   IconDiscord,
@@ -9,11 +11,11 @@ import {
   IconTrending,
   IconTwitterBird
 } from '@audius/stems'
+import cn from 'classnames'
+import ReactDOM from 'react-dom'
+
 import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.png'
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
-import cn from 'classnames'
-import { useEffect, useState } from 'react'
-import ReactDOM from 'react-dom'
 import {
   AUDIUS_BLOG_LINK,
   AUDIUS_DISCORD_LINK,
@@ -32,8 +34,9 @@ import {
   PRIVACY_POLICY,
   TERMS_OF_SERVICE
 } from 'utils/route'
-import { handleClickRoute } from './handleClickRoute'
+
 import styles from './NavOverlay.module.css'
+import { handleClickRoute } from './handleClickRoute'
 
 const messages = {
   startListening: 'Start Listening'

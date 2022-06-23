@@ -12,6 +12,7 @@ import GlyphPattern1x from 'assets/img/publicSite/glyph-pattern@1x.png'
 import GlyphPattern2x from 'assets/img/publicSite/glyph-pattern@2x.png'
 import { ReactComponent as GooglePlayBadge } from 'assets/img/publicSite/google-play-badge.svg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
+import { getIOSAppLink } from 'utils/appLinks'
 import { APP_REDIRECT, AUDIUS_SIGN_UP_LINK } from 'utils/route'
 
 import styles from './Hero.module.css'
@@ -28,6 +29,8 @@ type HeroProps = {
   onImageLoad: () => void
   setRenderPublicSite: (shouldRender: boolean) => void
 } & { parallaxController: any }
+
+const iOSDownloadLink = getIOSAppLink()
 
 export const Hero = (props: HeroProps) => {
   const { parallaxController, onImageLoad, isMobile } = props
@@ -74,11 +77,7 @@ export const Hero = (props: HeroProps) => {
             </span>
           </button>
           <div className={styles.appLinksContent}>
-            <a
-              href='https://apps.apple.com/us/app/audius-music/id1491270519'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
+            <a href={iOSDownloadLink} target='_blank' rel='noopener noreferrer'>
               <AppStoreBadge
                 aria-label='Download on the App Store'
                 width={120}
