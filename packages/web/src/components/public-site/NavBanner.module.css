@@ -104,13 +104,13 @@
   transform: scale3d(1, 1, 1);
 }
 
-.token:hover {
+.rightLink:hover {
   text-decoration: underline;
   opacity: 0.8;
   transform: scale3d(1.03, 1.03, 1.03);
 }
 
-.token:active {
+.rightLink:active {
   opacity: 0.8;
   transform: scale3d(0.99, 0.99, 0.99);
 }
