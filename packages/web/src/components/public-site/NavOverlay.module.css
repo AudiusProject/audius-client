@@ -21,7 +21,7 @@
   width: calc(100vw + 30px);
   margin: -10px;
   filter: blur(5px);
-  background-size: 1000px;
+  background-size: cover;
   background-position: 50% 5%;
 }
 
