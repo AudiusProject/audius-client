@@ -37,10 +37,8 @@ export const handleClickRoute = (
   // Http(s) routes and landing page routes should trigger a full window reload
   // They are external domains, or in the case of landing pages, we want
   // to load in from 0-state (otherwise it will get picked up by the app router)
-  console.log(route)
   if (route.startsWith('http') || LANDING_PAGE_ROUTES.has(route)) {
     pushWindowRoute(route)
-    console.log('here')
   } else {
     setRenderPublicSite(false)
     window.history.pushState('', '/', route)

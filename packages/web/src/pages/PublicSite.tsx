@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
 import NavScreen from 'components/public-site/NavOverlay'
-import DownloadPage from 'pages/download-page/DownloadPage'
 import LandingPage from 'pages/landing-page/LandingPage'
 import {
   TRENDING_PAGE,
@@ -19,6 +18,7 @@ const BASENAME = process.env.PUBLIC_URL
 const PrivacyPolicyPage = lazy(() =>
   import('pages/privacy-policy-page/PrivacyPolicyPage')
 )
+const DownloadPage = lazy(() => import('pages/download-page/DownloadPage'))
 const TermsOfUsePage = lazy(() =>
   import('pages/terms-of-use-page/TermsOfUsePage')
 )
