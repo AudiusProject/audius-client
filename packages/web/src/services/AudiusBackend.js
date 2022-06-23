@@ -1,6 +1,15 @@
 /* globals web3 */
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
+
+//      libs => {
+//        return {
+//          libs: libs.default,
+//          libsUtils: libs.Utils,
+//          libsSanityChecks: libs.SanityChecks
+//        }
+//      }
+//    )
 import {
   PublicKey,
   SystemProgram,
@@ -39,6 +48,7 @@ import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { Timer } from 'utils/performance'
 import { encodeHashId } from 'utils/route/hashIds'
 
+import Libs from './audius-backend/AudiusLibsLazyLoader'
 import {
   waitForLibsInit,
   withEagerOption,
