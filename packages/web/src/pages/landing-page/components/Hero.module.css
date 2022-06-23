@@ -58,12 +58,11 @@
 
 .foreground {
   height: auto;
-  min-height: 1300px;
+  min-height: calc(134vh + 100px);
 }
 
 .foregroundImg {
-  height: auto;
-  max-height: 1100px;
+  height: 100vh;
 }
 
 @media (max-width: 1387px) {
@@ -82,7 +81,7 @@
   left: 0;
   right: 0;
   top: 0;
-  height: auto;
+  height: 100%;
   position: absolute;
   overflow: hidden;
 }
