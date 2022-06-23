@@ -259,6 +259,9 @@
 .confirmButton.disabled {
   width: 186px;
 }
+.errorConfirmButton.disabled {
+  width: 260px;
+}
 
 .loadingSpinner {
   height: 24px;
