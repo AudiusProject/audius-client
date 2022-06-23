@@ -32,9 +32,10 @@ const messages = {
   followingAll: 'Following All'
 }
 
-const useStyles = makeStyles(({ spacing, palette }) => ({
+const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    padding: spacing(2)
+    paddingVertical: spacing(2),
+    marginBottom: spacing(2)
   },
   header: {
     flexDirection: 'row'
@@ -62,7 +63,10 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    paddingVertical: spacing(2)
+    marginBottom: spacing(2)
+  },
+  followButtonText: {
+    fontSize: typography.fontSize.medium
   }
 }))
 
@@ -185,8 +189,10 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
         icon={isFollowingAllArtists ? IconFollowing : IconFollow}
         iconPosition='left'
         fullWidth
-        size='small'
         onPress={handlePressFollow}
+        styles={{
+          text: styles.followButtonText
+        }}
       />
     </View>
   )

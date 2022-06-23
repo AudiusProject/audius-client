@@ -82,7 +82,10 @@ export const ProfileHeaderV2 = (props: ProfileHeaderV2Props) => {
         />
         <Divider style={styles.divider} />
         {!hasUserFollowed ? null : (
-          <ArtistRecommendations onClose={handleCloseArtistRecs} />
+          <>
+            <ArtistRecommendations onClose={handleCloseArtistRecs} />
+            <Divider style={styles.divider} />
+          </>
         )}
         {isOwner ? <UploadTrackButton /> : <TipArtistButton />}
         <TopSupporters />
