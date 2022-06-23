@@ -13,12 +13,14 @@ import {
 import { make, useRecord } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
+import styles from './TipSentNotification.module.css'
 import { EntityLink } from './components/EntityLink'
 import { NotificationBody } from './components/NotificationBody'
 import { NotificationFooter } from './components/NotificationFooter'
 import { NotificationHeader } from './components/NotificationHeader'
 import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
+import { ProfilePicture } from './components/ProfilePicture'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { UserNameLink } from './components/UserNameLink'
 import { IconAddTrackToPlaylist } from './components/icons'
@@ -83,12 +85,25 @@ export const AddTrackToPlaylistNotification = (
           {/* <EntityLink entity={parentTrack} entityType={entityType} /> */}
         </NotificationTitle>
       </NotificationHeader>
-      <NotificationBody>
+      {/* <NotificationBody>
         <UserNameLink user={playlistOwner} notification={notification} />
         {' added your track '}
         <EntityLink entity={track} entityType={Entity.Track} />
         {' to their playlist '}
         <EntityLink entity={playlist} entityType={Entity.Playlist} />
+      </NotificationBody> */}
+      <NotificationBody className={styles.body}>
+        <ProfilePicture
+          className={styles.profilePicture}
+          user={playlistOwner}
+        />
+        <span>
+          <UserNameLink user={playlistOwner} notification={notification} />
+          {' added your track '}
+          <EntityLink entity={track} entityType={Entity.Track} />
+          {' to their playlist '}
+          <EntityLink entity={playlist} entityType={Entity.Playlist} />
+        </span>
       </NotificationBody>
       <TwitterShareButton onClick={handleShare} />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />

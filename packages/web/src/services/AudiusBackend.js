@@ -1933,6 +1933,7 @@ class AudiusBackend {
         playlistOwnerId: 38872,
         trackId: 20998
       })
+      console.log('asdf isaac AddTrackToPlaylist')
       return notifications
     } catch (e) {
       console.error(e)

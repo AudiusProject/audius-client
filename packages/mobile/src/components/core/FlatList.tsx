@@ -24,6 +24,7 @@ type CollapsibleFlatListProps = {
 } & RNFlatListProps<any>
 
 const CollapsibleFlatList = (props: CollapsibleFlatListProps) => {
+  // console.log(`CollapsibleFlatList props ${JSON.stringify(props)}`)
   const { sceneName, ...other } = props
   const { refreshing, onRefresh } = other
   const scrollPropsAndRef = useCollapsibleScene(sceneName)

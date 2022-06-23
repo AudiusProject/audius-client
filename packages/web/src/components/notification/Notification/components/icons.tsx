@@ -1,12 +1,12 @@
 import { ReactNode } from 'react'
 
+import { ReactComponent as IconPlaylist } from 'assets/img/iconAddTrackToPlaylist.svg'
 import { ReactComponent as IconAudius } from 'assets/img/iconAudius.svg'
 import { ReactComponent as IconHeart } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRemixBase } from 'assets/img/iconRemix.svg'
 import { ReactComponent as IconRepostBase } from 'assets/img/iconRepost.svg'
 import { ReactComponent as IconStars } from 'assets/img/iconStars.svg'
 import { ReactComponent as IconTipBase } from 'assets/img/iconTip.svg'
-import { ReactComponent as IconPlaylist } from 'assets/img/iconAddTrackToPlaylist.svg'
 import { ReactComponent as IconTrendingBase } from 'assets/img/iconTrending.svg'
 import { ReactComponent as IconTrophy } from 'assets/img/iconTrophy.svg'
 import { ReactComponent as IconUser } from 'assets/img/iconUser.svg'
@@ -58,5 +58,5 @@ export const IconAnnouncement = () => {
 }
 
 export const IconAddTrackToPlaylist = () => {
-  return <IconPlaylist className={styles.iconTrackAddedToPlaylist} />
+  return <IconPlaylist className={styles.iconAddTrackToPlaylist} />
 }

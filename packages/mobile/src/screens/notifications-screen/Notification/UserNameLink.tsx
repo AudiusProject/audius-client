@@ -30,7 +30,7 @@ export const UserNameLink = (props: UserNameLinkProps) => {
     })
     dispatch(close())
   }, [user, navigation, dispatch])
-
+  console.log(`name ${JSON.stringify(user.name)}`)
   return (
     <Text
       fontSize='large'

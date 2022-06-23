@@ -63,7 +63,7 @@ const actionsMap: any = {
     action: actions.SetNotifications
   ) {
     const notificationIds = action.notifications.map(({ id }) => id)
-    console.log(`reduce SET_NOTIFICATIONS`)
+    console.log(`asdf reduce SET_NOTIFICATIONS`)
     return {
       ...state,
       notifications: action.notifications.reduce(
