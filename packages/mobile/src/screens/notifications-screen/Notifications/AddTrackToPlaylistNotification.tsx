@@ -1,14 +1,7 @@
 import { useCallback } from 'react'
 
-import {
-  getNotificationEntities,
-  getNotificationEntity,
-  getNotificationUser
-} from 'audius-client/src/common/store/notifications/selectors'
-import {
-  AddTrackToPlaylist,
-  Entity
-} from 'audius-client/src/common/store/notifications/types'
+import { getNotificationEntities } from 'audius-client/src/common/store/notifications/selectors'
+import { AddTrackToPlaylist } from 'audius-client/src/common/store/notifications/types'
 import { isEqual } from 'lodash'
 import { View } from 'react-native'
 
@@ -38,8 +31,6 @@ export const AddTrackToPlaylistNotification = (
   props: AddTrackToPlaylistNotificationProps
 ) => {
   console.log(`AddTrackToPlaylistNotificationProps ${JSON.stringify(props)}`)
-  // LOG  AddTrackToPlaylistNotificationProps {"notification":{"id":"6c3ec116-224c-436b-8bee-95ec840341c3","isHidden":false,"isRead":false,"isViewed":true,"timestamp":"2022-06-10T18:19:32.000Z","type":"AddTrackToPlaylist","playlistId":1400,"playlistOwnerId":38872,"trackId":20998,"timeLabel":"1 Week ago"}}
-
   const { notification } = props
   const entities = useSelectorWeb(
     state => getNotificationEntities(state, notification),

@@ -20,7 +20,7 @@ import {
   TopSupportingNotification,
   TipReactionNotification,
   TipSentNotification,
-  TipReceivedNotification
+  TipReceivedNotification,
   AddTrackToPlaylistNotification
 } from './Notifications'
 

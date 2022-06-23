@@ -115,7 +115,8 @@ const typeTitleMap: Record<NotificationType, (notification: any) => string> = {
   [NotificationType.TipReceive]: () => '',
   [NotificationType.TipSend]: () => '',
   [NotificationType.SupporterRankUp]: () => '',
-  [NotificationType.SupportingRankUp]: () => ''
+  [NotificationType.SupportingRankUp]: () => '',
+  [NotificationType.AddTrackToPlaylist]: () => 'TRACK ADDED TO PLAYLIST'
 }
 
 const useStyles = makeStyles(({ spacing, palette }, { isViewed }) => ({

@@ -87,7 +87,7 @@ export const NotificationList = () => {
   if (status === Status.SUCCESS && notifications.length === 0) {
     return <EmptyNotifications />
   }
-  // console.log(`asdf notifications ${JSON.stringify(notifications)}`)
+
   return (
     <FlatList
       contentContainerStyle={styles.container}

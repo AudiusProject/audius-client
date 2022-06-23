@@ -1922,18 +1922,6 @@ class AudiusBackend {
         }
         return res.json()
       })
-      notifications.notifications.unshift({
-        id: '6c3ec116-224c-436b-8bee-95ec840341c3',
-        isHidden: false,
-        isRead: false,
-        isViewed: true,
-        timestamp: '2022-06-10T18:19:32.000Z',
-        type: 'AddTrackToPlaylist',
-        playlistId: 1400,
-        playlistOwnerId: 38872,
-        trackId: 20998
-      })
-      console.log('asdf isaac AddTrackToPlaylist')
       return notifications
     } catch (e) {
       console.error(e)

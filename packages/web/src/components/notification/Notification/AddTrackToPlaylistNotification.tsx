@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
@@ -50,12 +50,12 @@ const getTwitterShareInfo = async (notification: AddTrackToPlaylist) => {
   return { link, text }
 }
 
-type AddTrackToPlaylistNotification = {
+type AddTrackToPlaylistNotificationProps = {
   notification: AddTrackToPlaylist
 }
 
 export const AddTrackToPlaylistNotification = (
-  props: AddTrackToPlaylistNotification
+  props: AddTrackToPlaylistNotificationProps
 ) => {
   const { notification } = props
   const { entities, timeLabel, isViewed } = notification
