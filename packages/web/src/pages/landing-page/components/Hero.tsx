@@ -13,7 +13,11 @@ import GlyphPattern2x from 'assets/img/publicSite/glyph-pattern@2x.png'
 import { ReactComponent as GooglePlayBadge } from 'assets/img/publicSite/google-play-badge.svg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import { getIOSAppLink } from 'utils/appLinks'
-import { APP_REDIRECT, AUDIUS_SIGN_UP_LINK } from 'utils/route'
+import {
+  APP_REDIRECT,
+  AUDIUS_SIGN_UP_LINK,
+  DOWNLOAD_START_LINK
+} from 'utils/route'
 
 import styles from './Hero.module.css'
 
@@ -160,7 +164,7 @@ export const Hero = (props: HeroProps) => {
             </button>
             <button
               onClick={handleClickRoute(
-                APP_REDIRECT,
+                DOWNLOAD_START_LINK,
                 props.setRenderPublicSite
               )}
               className={styles.downloadButton}
