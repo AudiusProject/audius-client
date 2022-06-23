@@ -1,40 +1,39 @@
-import { useState, useEffect } from 'react'
-
 import {
-  IconRemove,
-  IconInstagram,
-  IconTwitterBird,
-  IconDiscord,
-  IconExplore,
-  IconTrending,
   IconCampFire,
+  IconDiscord,
   IconDownload,
-  IconFollow
+  IconExplore,
+  IconFollow,
+  IconInstagram,
+  IconRemove,
+  IconTrending,
+  IconTwitterBird
 } from '@audius/stems'
-import cn from 'classnames'
-import ReactDOM from 'react-dom'
-
 import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.png'
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
+import cn from 'classnames'
+import { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom'
 import {
-  AUDIUS_TWITTER_LINK,
-  AUDIUS_INSTAMGRAM_LINK,
-  AUDIUS_DISCORD_LINK,
-  AUDIUS_TEAM_LINK,
-  AUDIUS_LISTENING_LINK,
-  AUDIUS_PRESS_LINK,
-  PRIVACY_POLICY,
-  TERMS_OF_SERVICE,
-  AUDIUS_HOT_AND_NEW,
-  AUDIUS_EXPLORE_LINK,
-  AUDIUS_DOCS_LINK,
   AUDIUS_BLOG_LINK,
+  AUDIUS_DISCORD_LINK,
+  AUDIUS_DOCS_LINK,
+  AUDIUS_EXPLORE_LINK,
+  AUDIUS_HOT_AND_NEW,
+  AUDIUS_INSTAMGRAM_LINK,
+  AUDIUS_LISTENING_LINK,
+  AUDIUS_ORG,
+  AUDIUS_PRESS_LINK,
   AUDIUS_REMIX_CONTESTS_LINK,
-  AUDIUS_ORG
+  AUDIUS_SIGN_UP_LINK,
+  AUDIUS_TEAM_LINK,
+  AUDIUS_TWITTER_LINK,
+  DOWNLOAD_START_LINK,
+  PRIVACY_POLICY,
+  TERMS_OF_SERVICE
 } from 'utils/route'
-
-import styles from './NavOverlay.module.css'
 import { handleClickRoute } from './handleClickRoute'
+import styles from './NavOverlay.module.css'
 
 const messages = {
   startListening: 'Start Listening'
@@ -59,7 +58,7 @@ const dappLinks = [
   {
     text: 'Sign Up',
     icon: <IconFollow className={styles.dappLinkIcon} />,
-    link: AUDIUS_EXPLORE_LINK
+    link: AUDIUS_SIGN_UP_LINK
   },
   {
     text: 'Trending',
@@ -74,12 +73,12 @@ const dappLinks = [
   {
     text: 'Hot & New',
     icon: <IconCampFire className={styles.dappLinkIcon} />,
-    link: AUDIUS_EXPLORE_LINK
+    link: AUDIUS_HOT_AND_NEW
   },
   {
     text: 'Download App',
     icon: <IconDownload className={styles.dappLinkIcon} />,
-    link: AUDIUS_HOT_AND_NEW
+    link: DOWNLOAD_START_LINK
   }
 ]
 

@@ -84,8 +84,10 @@
   transform: scale3d(1, 1, 1);
 }
 
-.dappLinksContainer {
-  margin-top: 56px;
+@media screen and (min-height: 705px) {
+  .dappLinksContainer {
+    margin-top: 56px;
+  }
 }
 
 .dappLinks {
