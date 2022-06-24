@@ -10,8 +10,7 @@ import {
   Entity,
   TrackEntity
 } from 'common/store/notifications/types'
-import { make, useRecord } from 'store/analytics/actions'
-import { openTwitterLink } from 'utils/tweet'
+import { make } from 'store/analytics/actions'
 
 import styles from './TipSentNotification.module.css'
 import { EntityLink } from './components/EntityLink'
@@ -24,30 +23,16 @@ import { ProfilePicture } from './components/ProfilePicture'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { UserNameLink } from './components/UserNameLink'
 import { IconAddTrackToPlaylist } from './components/icons'
-import { getTwitterHandleByUserHandle, getEntityLink } from './utils'
+import { getEntityLink } from './utils'
 
 const messages = {
   title: 'Track Added to Playlist',
   shareTwitterText: (
+    handle: string,
     track: TrackEntity,
-    playlist: CollectionEntity,
-    handle: string
+    playlist: CollectionEntity
   ) =>
-    `Listen to my track ${track.title} on ${playlist.playlist_name} by ${handle} on @AudiusProject #Audius`
-}
-
-const getTwitterShareInfo = async (notification: AddTrackToPlaylist) => {
-  const { track, playlist } = notification.entities
-  const playlistOwner = playlist.user
-
-  const link = getEntityLink(track, true)
-
-  let twitterHandle = await getTwitterHandleByUserHandle(playlistOwner.handle)
-  if (!twitterHandle) twitterHandle = playlistOwner.name
-  else twitterHandle = `@${twitterHandle}`
-  const text = messages.shareTwitterText(track, playlist, twitterHandle)
-
-  return { link, text }
+    `My track ${track.title} was added to the playlist ${playlist.playlist_name} by ${handle} on @audiusproject! #Audius`
 }
 
 type AddTrackToPlaylistNotificationProps = {
@@ -63,15 +48,25 @@ export const AddTrackToPlaylistNotification = (
   const playlistOwner = playlist.user
 
   const dispatch = useDispatch()
-  const record = useRecord()
 
-  const handleShare = useCallback(async () => {
-    const shareInfo = await getTwitterShareInfo(notification)
-    if (!shareInfo) return
-    const { link, text } = shareInfo
-    openTwitterLink(link, text)
-    record(make(Name.NOTIFICATIONS_CLICK_REMIX_CREATE_TWITTER_SHARE, { text }))
-  }, [notification, record])
+  const handleTwitterShare = useCallback(
+    (twitterHandle: string) => {
+      if (track && playlist && twitterHandle) {
+        const shareText = messages.shareTwitterText(
+          twitterHandle,
+          track,
+          playlist
+        )
+        const analytics = make(
+          Name.NOTIFICATIONS_CLICK_TIP_REACTION_TWITTER_SHARE,
+          { text: shareText }
+        )
+        return { shareText, analytics }
+      }
+      return null
+    },
+    [track, playlist]
+  )
 
   const handleClick = useCallback(() => {
     dispatch(push(getEntityLink(playlist)))
@@ -80,18 +75,8 @@ export const AddTrackToPlaylistNotification = (
   return (
     <NotificationTile notification={notification} onClick={handleClick}>
       <NotificationHeader icon={<IconAddTrackToPlaylist />}>
-        <NotificationTitle>
-          {messages.title}
-          {/* <EntityLink entity={parentTrack} entityType={entityType} /> */}
-        </NotificationTitle>
+        <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
-      {/* <NotificationBody>
-        <UserNameLink user={playlistOwner} notification={notification} />
-        {' added your track '}
-        <EntityLink entity={track} entityType={Entity.Track} />
-        {' to their playlist '}
-        <EntityLink entity={playlist} entityType={Entity.Playlist} />
-      </NotificationBody> */}
       <NotificationBody className={styles.body}>
         <ProfilePicture
           className={styles.profilePicture}
@@ -105,7 +90,12 @@ export const AddTrackToPlaylistNotification = (
           <EntityLink entity={playlist} entityType={Entity.Playlist} />
         </span>
       </NotificationBody>
-      <TwitterShareButton onClick={handleShare} />
+      <TwitterShareButton
+        type='dynamic'
+        handle={playlistOwner.handle}
+        shareData={handleTwitterShare}
+        url={getEntityLink(playlist, true)}
+      />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />
     </NotificationTile>
   )
