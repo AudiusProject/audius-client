@@ -68,7 +68,6 @@ export const ConfirmSendTip = () => {
   } = useSelector(getSendTipData)
   const [isDisabled, setIsDisabled] = useState(false)
   const [hasError, setHasError] = useState(false)
-  const [hasPreviouslyErrored, setHasPreviouslyErrored] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
 
@@ -91,7 +90,6 @@ export const ConfirmSendTip = () => {
   useEffect(() => {
     if (sendStatus === 'ERROR') {
       setHasError(true)
-      setHasPreviouslyErrored(true)
       setIsSending(false)
       setIsConverting(false)
     } else if (sendStatus === 'SENDING') {
@@ -103,13 +101,7 @@ export const ConfirmSendTip = () => {
       setIsSending(false)
       setHasError(false)
     }
-  }, [
-    sendStatus,
-    setHasError,
-    setHasPreviouslyErrored,
-    setIsSending,
-    setIsConverting
-  ])
+  }, [sendStatus, setHasError, setIsSending, setIsConverting])
 
   const renderSendingAudio = () => (
     <div className={styles.modalContentHeader}>
@@ -163,7 +155,6 @@ export const ConfirmSendTip = () => {
           }
           disabled={isDisabled}
           className={cn(styles.button, styles.confirmButton, {
-            [styles.errorConfirmButton]: hasPreviouslyErrored,
             [styles.disabled]: isDisabled
           })}
         />

@@ -256,12 +256,6 @@
 .disabled {
   cursor: unset;
 }
-.confirmButton.disabled {
-  width: 186px;
-}
-.errorConfirmButton.disabled {
-  width: 260px;
-}
 
 .loadingSpinner {
   height: 24px;
@@ -350,6 +344,9 @@
   color: var(--accent-red);
 }
 
+.confirmButton {
+  width: 252px;
+}
 .button:hover {
   background: var(--primary-light-1) !important;
 }
