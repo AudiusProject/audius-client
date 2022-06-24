@@ -5,6 +5,7 @@ import path from 'path'
 // @ts-ignore
 >>>>>>> e5eb20b5 (Upgrade CRA and webpack to v5)
 import { addBeforeLoader, loaderByName, when } from '@craco/craco'
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
 import { Configuration, RuleSetRule, webpack, ProvidePlugin } from 'webpack'
 
 export default {
@@ -135,12 +136,7 @@ export default {
 
       return {
         ...webpackConfig,
-        plugins: [
-          ...(webpackConfig.plugins ?? []),
-          new ProvidePlugin({
-            Buffer: ['buffer', 'Buffer']
-          })
-        ],
+        plugins: [...(webpackConfig.plugins ?? []), new NodePolyfillPlugin()],
         experiments: {
           ...webpackConfig.experiments,
           asyncWebAssembly: true,
@@ -152,27 +148,27 @@ export default {
         },
         resolve: {
           ...webpackConfig.resolve,
-          extensions: [...(webpackConfig.resolve?.extensions ?? []), '.wasm'],
-          fallback: {
-            ...webpackConfig.resolve?.fallback,
-            util: require.resolve('util'),
-            crypto: require.resolve('crypto-browserify'),
-            stream: require.resolve('stream-browserify'),
-            assert: require.resolve('assert'),
-            http: require.resolve('stream-http'),
-            https: require.resolve('https-browserify'),
-            os: require.resolve('os-browserify'),
-            url: require.resolve('url'),
-            path: require.resolve('path-browserify'),
-            fs: false,
-            buffer: require.resolve('buffer/'),
-            zlib: require.resolve('browserify-zlib'),
-            net: require.resolve('net-browserify'),
-            tls: require.resolve('tls-browserify'),
-            constants: require.resolve('constants-browserify'),
-            child_process: false,
-            express: false
-          }
+          extensions: [...(webpackConfig.resolve?.extensions ?? []), '.wasm']
+          // fallback: {
+          //   ...webpackConfig.resolve?.fallback,
+          //   util: require.resolve('util'),
+          //   crypto: require.resolve('crypto-browserify'),
+          //   stream: require.resolve('stream-browserify'),
+          //   assert: require.resolve('assert'),
+          //   http: require.resolve('stream-http'),
+          //   https: require.resolve('https-browserify'),
+          //   os: require.resolve('os-browserify'),
+          //   url: require.resolve('url'),
+          //   path: require.resolve('path-browserify'),
+          //   fs: false,
+          //   buffer: require.resolve('buffer/'),
+          //   zlib: require.resolve('browserify-zlib'),
+          //   net: require.resolve('net-browserify'),
+          //   tls: require.resolve('tls-browserify'),
+          //   constants: require.resolve('constants-browserify'),
+          //   child_process: false,
+          //   express: false
+          // }
         }
       }
     }
