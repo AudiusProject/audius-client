@@ -56,8 +56,7 @@ const getNotifications = makeGetAllNotifications()
 
 /**
  * Hook to handle tracking visibility for notification items, by index.
- * Returns a function to check visibility for index, a callback for the FlastList
- *
+ * Returns a function to check the visibility for an index, and a callback for the Flatlist.
  */
 const useVisibility = () => {
   const [viewableMap, setViewableMap] = useState<{ [index: number]: boolean }>(
