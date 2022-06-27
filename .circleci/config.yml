@@ -70,3 +70,14 @@ workflows:
                 at: ../workspace
           requires:
             - generate-config
+
+  generate-release:
+    # triggers:
+    #   - schedule:
+    #       cron: "0 17 1-7 * 5"
+    #       filters:
+    #         branches:
+    #           only:
+    #             - main
+    jobs:
+      - generate-release
