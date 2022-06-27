@@ -46,6 +46,7 @@
 }
 
 .appTitle {
+  text-align: center;
   font-size: 55px;
   line-height: 68px;
 }
@@ -95,16 +96,6 @@
   align-items: center;
 }
 
-.isMobile .desktopDownloadsContainer,
-.isMobile .mobileDownloadsContainer {
-  flex: unset;
-  width: 100%;
-  margin-left: 32px;
-  margin-right: 32px;
-  padding-left: 0;
-  padding-right: 0;
-}
-
 .desktopDownloadsContainer {
   padding-right: 85px;
   border-right: solid 1px #dad9e0;
@@ -117,6 +108,25 @@
 
 .mobileDownloadsContainer {
   padding-left: 85px;
+}
+
+@media (max-width: 1180px) {
+  .mobileDownloadsContainer {
+    padding-left: 20px;
+  }
+  .desktopDownloadsContainer {
+    padding-right: 20px;
+  }
+}
+
+.isMobile .desktopDownloadsContainer,
+.isMobile .mobileDownloadsContainer {
+  flex: unset;
+  width: 100%;
+  margin-left: 32px;
+  margin-right: 32px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .isMobile .mobileDownloadsContainer {
