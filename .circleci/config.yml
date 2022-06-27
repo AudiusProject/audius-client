@@ -50,6 +50,9 @@ jobs:
 
 workflows:
   setup:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - generate-config
 
@@ -88,12 +91,9 @@ workflows:
             - generate-config
 
   generate-release:
-    # triggers:
-    #   - schedule:
-    #       cron: "0 17 1-7 * 5"
-    #       filters:
-    #         branches:
-    #           only:
-    #             - main
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["generate-release", << pipeline.schedule.name >>]
     jobs:
       - generate-release
