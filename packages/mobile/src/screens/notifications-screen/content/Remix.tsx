@@ -39,10 +39,10 @@ const Remix = ({ notification }: RemixProps) => {
   const user = notification.user
   if (!user) return null
 
-  const entity = notification.entities.find(
+  const entity = notification.tracks.find(
     (track: Track) => track.track_id === notification.childTrackId
   )
-  const original = notification.entities.find(
+  const original = notification.tracks.find(
     (track: Track) => track.track_id === notification.parentTrackId
   )
 

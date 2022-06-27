@@ -4,9 +4,12 @@ import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { Name } from 'common/models/Analytics'
+import { User } from 'common/models/User'
+import { getNotificationUser } from 'common/store/notifications/selectors'
 import { Achievement, Milestone } from 'common/store/notifications/types'
 import { formatCount } from 'common/utils/formatUtil'
 import { make } from 'store/analytics/actions'
+import { useSelector } from 'utils/reducer'
 import { fullProfilePage, profilePage } from 'utils/route'
 
 import { EntityLink } from './components/EntityLink'
@@ -39,8 +42,8 @@ Check it out!`
   }
 }
 
-const getAchievementText = (notification: Milestone) => {
-  const { achievement, user, value } = notification
+const getAchievementText = (notification: Milestone, user: User) => {
+  const { achievement, value } = notification
   switch (achievement) {
     case Achievement.Followers: {
       const link = fullProfilePage(user.handle)
@@ -72,7 +75,8 @@ type MilestoneNotificationProps = {
 
 export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const { notification } = props
-  const { timeLabel, isViewed, user } = notification
+  const { timeLabel, isViewed } = notification
+  const user = useSelector(state => getNotificationUser(state, notification))
   const dispatch = useDispatch()
 
   const renderBody = () => {
@@ -80,7 +84,8 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
       const { achievement, value } = notification
       return `${messages.follows} ${formatCount(value)} ${achievement}`
     } else {
-      const { entity, entityType, achievement, value, user } = notification
+      if (!user) return null
+      const { entity, entityType, achievement, value } = notification
       const entityWithUser = { ...entity, user }
       const achievementText =
         achievement === Achievement.Listens ? 'plays' : achievement
@@ -95,16 +100,20 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
     }
   }
 
-  const { link, text } = getAchievementText(notification)
-
   const handleClick = useCallback(() => {
     if (notification.achievement === Achievement.Followers) {
-      dispatch(push(profilePage(user.handle)))
+      if (user) {
+        dispatch(push(profilePage(user.handle)))
+      }
     } else {
       const { entity } = notification
       dispatch(push(getEntityLink(entity)))
     }
   }, [notification, user, dispatch])
+
+  if (!user) return null
+
+  const { link, text } = getAchievementText(notification, user)
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>

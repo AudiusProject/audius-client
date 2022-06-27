@@ -17,7 +17,9 @@ import {
   NotificationType,
   Achievement,
   Announcement,
-  EntityType
+  EntityType,
+  RemixCosign,
+  TrackEntity
 } from './types'
 
 const getBaseState = (state: CommonState) => state.pages.notifications

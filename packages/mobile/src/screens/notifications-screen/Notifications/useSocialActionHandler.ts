@@ -7,6 +7,7 @@ import {
   Repost
 } from 'audius-client/src/common/store/notifications/types'
 import { setNotificationId } from 'audius-client/src/common/store/user-list/notifications/actions'
+import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -21,10 +22,10 @@ import { useDrawerNavigation } from '../useDrawerNavigation'
  */
 export const useSocialActionHandler = (
   notification: Follow | Repost | Favorite,
-  users: User[]
+  users: Nullable<User[]>
 ) => {
   const { id, type, userIds } = notification
-  const [firstUser] = users
+  const firstUser = users?.[0]
   const isMultiUser = userIds.length > 1
   const dispatchWeb = useDispatchWeb()
   const navigation = useDrawerNavigation()
@@ -47,7 +48,7 @@ export const useSocialActionHandler = (
           fromPage: NOTIFICATION_PAGE
         }
       })
-    } else {
+    } else if (firstUser) {
       navigation.navigate({
         native: {
           screen: 'Profile',

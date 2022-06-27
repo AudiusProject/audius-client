@@ -1,12 +1,18 @@
+import { useCallback } from 'react'
+
 import {
   getNotificationEntities,
   getNotificationUser
 } from 'audius-client/src/common/store/notifications/selectors'
-import { UserSubscription } from 'audius-client/src/common/store/notifications/types'
+import {
+  Entity,
+  UserSubscription
+} from 'audius-client/src/common/store/notifications/types'
 import { isEqual } from 'lodash'
 import { View } from 'react-native'
 
 import IconStars from 'app/assets/images/iconStars.svg'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import {
@@ -34,6 +40,7 @@ export const UserSubscriptionNotification = (
 ) => {
   const { notification } = props
   const { entityType } = notification
+  const navigation = useNavigation()
   const user = useSelectorWeb((state) =>
     getNotificationUser(state, notification)
   )
@@ -41,6 +48,25 @@ export const UserSubscriptionNotification = (
     (state) => getNotificationEntities(state, notification),
     isEqual
   )
+
+  const handleClick = useCallback(() => {
+    if (entityType === Entity.Track && !isSingleUpload) {
+      if (user) {
+        dispatch(push(profilePage(user.handle)))
+      }
+    } else {
+      if (entities) {
+        const entityLink = getEntityLink(entities[0])
+        dispatch(push(entityLink))
+        record(
+          make(Name.NOTIFICATIONS_CLICK_TILE, {
+            kind: type,
+            link_to: entityLink
+          })
+        )
+      }
+    }
+  }, [entityType, isSingleUpload, user, entities, dispatch, record, type])
 
   if (!user || !entities) return null
 
