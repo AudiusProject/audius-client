@@ -124,7 +124,6 @@ export const Hero = (props: HeroProps) => {
           <img
             src={HeroForeground}
             className={styles.foregroundImg}
-            style={{ transform: 'rotate(8.5deg)' }}
             onLoad={onImgSet}
             alt='Foreground Audius Mobile App'
           />

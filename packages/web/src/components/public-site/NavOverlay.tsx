@@ -14,7 +14,7 @@ import {
 import cn from 'classnames'
 import ReactDOM from 'react-dom'
 
-import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.png'
+import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.jpg'
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
 import {
   AUDIUS_BLOG_LINK,
