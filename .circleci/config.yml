@@ -32,6 +32,22 @@ jobs:
           paths:
             - .circleci/continue_config.yml
 
+  # Bump version, publish packages, and create release branch
+  generate-release:
+    working_directory: ~/audius-client
+    docker:
+      - image: circleci/node:14.18
+    steps:
+      - checkout
+      - run:
+          command: |
+            npm run init
+            npx lerna publish --no-private
+            VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+            echo "$VERSION"
+            git checkout -b release-v${VERSION}
+            git push
+
 workflows:
   setup:
     jobs:
