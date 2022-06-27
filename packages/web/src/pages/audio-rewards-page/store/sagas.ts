@@ -10,11 +10,7 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
-import {
-  ChallengeRewardID,
-  FailureReason,
-  UserChallenge
-} from 'common/models/AudioRewards'
+import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
 import { StringAudio } from 'common/models/Wallet'
 import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
@@ -27,8 +23,8 @@ import {
   getClaimStatus,
   getClaimToRetry,
   getUserChallenge,
-  getUserChallenges,
-  getUserChallengesOverrides
+  getUserChallengesOverrides,
+  getUserChallengeSpecifierMap
 } from 'common/store/pages/audio-rewards/selectors'
 import {
   resetAndCancelClaimReward,
@@ -425,14 +421,13 @@ function* checkForNewDisbursements(
   if (!userChallenges) {
     return
   }
-  const prevChallenges = yield* select(getUserChallenges)
-  const challengesOverrides: Partial<Record<
-    ChallengeRewardID,
-    UserChallenge
-  >> = yield select(getUserChallengesOverrides)
+  const prevChallenges = yield* select(getUserChallengeSpecifierMap)
+  const challengesOverrides = yield* select(getUserChallengesOverrides)
   let newDisbursement = false
+
   for (const challenge of userChallenges) {
-    const prevChallenge = prevChallenges[challenge.challenge_id]
+    const prevChallenge =
+      prevChallenges[challenge.challenge_id]?.[challenge.specifier]
     const challengeOverrides = challengesOverrides[challenge.challenge_id]
 
     // Check for new disbursements
