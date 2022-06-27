@@ -40,10 +40,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Bump and publish
           command: |
             git checkout -b sk-autogen-test
             npm run init
-            npx run lerna version --yes
+            npx lerna version --yes
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
             git checkout -b release-v${VERSION}
