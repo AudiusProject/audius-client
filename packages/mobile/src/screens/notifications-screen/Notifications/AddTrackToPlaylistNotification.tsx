@@ -21,7 +21,9 @@ import { getEntityRoute, getEntityScreen } from '../Notification/utils'
 import { useDrawerNavigation } from '../useDrawerNavigation'
 
 const messages = {
-  title: 'Track Added to Playlist'
+  title: 'Track Added to Playlist',
+  addedTrack: ' added your track ',
+  toPlaylist: ' to their playlist '
 }
 type AddTrackToPlaylistNotificationProps = {
   notification: AddTrackToPlaylist
@@ -30,7 +32,6 @@ type AddTrackToPlaylistNotificationProps = {
 export const AddTrackToPlaylistNotification = (
   props: AddTrackToPlaylistNotificationProps
 ) => {
-  console.log(`AddTrackToPlaylistNotificationProps ${JSON.stringify(props)}`)
   const { notification } = props
   const entities = useSelectorWeb(
     state => getNotificationEntities(state, notification),
@@ -39,12 +40,9 @@ export const AddTrackToPlaylistNotification = (
   const { track, playlist } = entities
   const playlistOwner = playlist.user
 
-  console.log(`entities`)
-  console.log(`entities ${JSON.stringify(entities)}`)
   const navigation = useDrawerNavigation()
 
   const handlePress = useCallback(() => {
-    console.log(`handlePress`)
     if (playlist) {
       navigation.navigate({
         native: getEntityScreen(playlist),
@@ -63,9 +61,9 @@ export const AddTrackToPlaylistNotification = (
         <View style={{ flex: 1 }}>
           <NotificationText>
             <UserNameLink user={playlistOwner} />
-            {' added your track '}
+            {messages.addedTrack}
             <EntityLink entity={track} />
-            {' to their playlist '}
+            {messages.toPlaylist}
             <EntityLink entity={playlist} />
           </NotificationText>
         </View>

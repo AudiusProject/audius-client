@@ -2,31 +2,29 @@ import {
   AddTrackToPlaylist as AddTrackToPlaylistNotification,
   Entity as EntityType
 } from 'audius-client/src/common/store/notifications/types'
-import { StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
+import { makeStyles } from 'app/styles'
 import { useTheme } from 'app/utils/theme'
 
 import Entity from './Entity'
 import TwitterShare from './TwitterShare'
 import User from './User'
 
-const styles = StyleSheet.create({
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
+const useStyles = makeStyles(({ typography, spacing }) => ({
   text: {
-    fontFamily: 'AvenirNextLTPro-Bold',
-    fontSize: 16,
-    marginBottom: 8
+    fontFamily: typography.fontByWeight.bold,
+    fontSize: typography.fontSize.medium,
+    marginBottom: spacing(2)
   }
-})
+}))
 
 type AddTrackToPlaylistProps = {
   notification: AddTrackToPlaylistNotification
 }
 
 const AddTrackToPlaylist = ({ notification }: AddTrackToPlaylistProps) => {
+  const styles = useStyles()
   const { entities } = notification
   const { track, playlist } = entities
   const playlistOwner = playlist.user
@@ -36,7 +34,7 @@ const AddTrackToPlaylist = ({ notification }: AddTrackToPlaylistProps) => {
   })
 
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.text}>
       <Text style={textStyle}>
         <User user={playlistOwner} />
         {' added your track '}
