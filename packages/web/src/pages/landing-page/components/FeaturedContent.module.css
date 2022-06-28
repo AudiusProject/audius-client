@@ -203,7 +203,7 @@
   display: inline-flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: space-around;
+  justify-content: space-evenly;
   margin-top: 24px;
 }
 
@@ -220,8 +220,8 @@
 }
 
 .mobileContainer .trackImage {
-  height: 152px;
-  width: 152px;
+  height: 164px;
+  width: 164px;
   border-radius: 8px;
   margin-bottom: 8px;
   background-size: cover;
