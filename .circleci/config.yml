@@ -43,7 +43,8 @@ jobs:
           name: Bump and publish
           command: |
             git checkout -b sk-autogen-test
-            npm run init
+            git push -u origin sk-autogen-test
+            npm i
             npx lerna version --yes
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
