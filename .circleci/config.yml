@@ -42,6 +42,8 @@ jobs:
       - run:
           name: Bump and publish
           command: |
+            git config --global user.email "audius-infra@audius.co"
+            git config --global user.name "audius-infra"
             git checkout -b sk-autogen-test
             git push -u origin sk-autogen-test
             npm i
