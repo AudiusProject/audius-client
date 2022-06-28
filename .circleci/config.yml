@@ -47,7 +47,7 @@ jobs:
             git checkout -b sk-autogen-test
             git push -u origin sk-autogen-test
             PREV_VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
-            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v${PREV_VERSION}..HEAD)
+            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v1.1.10..HEAD)
             npm i
             npx lerna version patch --yes -m "%s \n\n {CHANGELOG}"
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
