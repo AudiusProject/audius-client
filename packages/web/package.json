@@ -6,9 +6,10 @@
   "version": "1.1.12",
   "private": true,
   "dependencies": {
-    "@audius/sdk": "0.0.12",
-    "@audius/stems": "1.1.12",
-    "@craco/craco": "7.0.0-alpha.3",
+    "@audius/sdk": "0.0.4",
+    "@audius/stems": "1.1.10",
+    "@coinbase/cbpay-js": "^1.0.1",
+    "@craco/craco": "6.4.3",
     "@fingerprintjs/fingerprintjs-pro": "3.5.6",
     "@hcaptcha/react-hcaptcha": "0.3.6",
     "@juggle/resize-observer": "^3.3.1",
