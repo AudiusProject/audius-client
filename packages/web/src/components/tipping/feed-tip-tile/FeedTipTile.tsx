@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import { ReactComponent as IconClose } from 'assets/img/iconClose.svg'
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
@@ -177,14 +178,41 @@ const DismissTipButton = () => {
   )
 }
 
-const MIN_TILE_WIDTH = 610
+const MIN_USERS_TO_BUTTONS_MARGIN = 8
 
 export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
-  const ref = useRef<HTMLDivElement>(null)
-  const size = useSize({ ref, useBorderBox: true, useInlineSize: true })
-  const useShortButtonFormat = size <= MIN_TILE_WIDTH
+  const containerRef = useRef<HTMLDivElement>(null)
+  const containerSize = useSize({
+    ref: containerRef,
+    useBorderBox: true,
+    useInlineSize: true
+  })
+  const previousContainerSize = usePrevious(containerSize)
+  const buttonsRef = useRef<HTMLDivElement>(null)
+  const [useShortButtonFormat, setUseShortButtonFormat] = useState(false)
+
+  useEffect(() => {
+    if (containerRef?.current && buttonsRef?.current) {
+      const containerRect = containerRef.current.getBoundingClientRect()
+      const buttonsRect = buttonsRef.current.getBoundingClientRect()
+      if (
+        previousContainerSize &&
+        previousContainerSize > containerSize &&
+        containerRect.right - buttonsRect.right < MIN_USERS_TO_BUTTONS_MARGIN
+      ) {
+        setUseShortButtonFormat(true)
+      }
+      if (
+        previousContainerSize &&
+        previousContainerSize < containerSize &&
+        containerRect.right - buttonsRect.right >= MIN_USERS_TO_BUTTONS_MARGIN
+      ) {
+        setUseShortButtonFormat(false)
+      }
+    }
+  }, [containerRef, buttonsRef, containerSize, previousContainerSize])
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
@@ -218,7 +246,7 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container} ref={ref}>
+    <div className={styles.container} ref={containerRef}>
       <div className={styles.usersContainer}>
         <ProfilePicture
           key={tipToDisplay.receiver_id}
@@ -250,7 +278,7 @@ export const FeedTipTile = () => {
           receiver={usersMap[tipToDisplay.receiver_id]}
         />
       </div>
-      <div className={styles.buttons}>
+      <div className={styles.buttons} ref={buttonsRef}>
         <SendTipToButton
           user={usersMap[tipToDisplay.receiver_id]}
           type={useShortButtonFormat ? 'short' : 'default'}
