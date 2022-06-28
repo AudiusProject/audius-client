@@ -45,7 +45,7 @@ jobs:
             git checkout -b sk-autogen-test
             git push -u origin sk-autogen-test
             npm i
-            npx lerna version --yes
+            npx lerna version patch --yes
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
             git checkout -b release-v${VERSION}
