@@ -1,6 +1,8 @@
 .container {
   flex-shrink: 0;
   margin: 44px 0px 100px;
+  padding-left: 100px;
+  padding-right: 100px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -74,6 +76,7 @@
 .artistsContainer {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   width: 100%;
   margin: -34px 0 0 -60px;

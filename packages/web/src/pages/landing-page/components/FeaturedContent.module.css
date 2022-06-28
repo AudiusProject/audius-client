@@ -5,7 +5,7 @@
   display: flex;
   flex-shrink: 0;
   justify-content: center;
-  padding: 100px 0px 0px 0px;
+  padding: 100px 100px 0px 100px;
   overflow: hidden;
 }
 
@@ -20,7 +20,7 @@
 
 .animateTitleContainer {
   overflow: hidden;
-  margin-bottom: 36px;
+  margin-bottom: 16px;
 }
 
 .header {
@@ -54,7 +54,15 @@
   flex: 1;
   display: inline-flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   transition: all 0.3s ease-in-out;
+}
+
+@media (max-width: 1380px) {
+  .tracksContainer {
+    max-width: 700px;
+    margin: 0 auto;
+  }
 }
 
 .trackMoveContainer {
@@ -63,6 +71,7 @@
 }
 
 .trackContainer {
+  margin-top: 24px;
   user-select: none;
   cursor: pointer;
   height: 292px;
@@ -206,7 +215,8 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  margin-top: 0;
 }
 
 .mobileContainer .trackImage {

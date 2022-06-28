@@ -15,7 +15,7 @@
   align-items: center;
   z-index: 5;
   box-shadow: 0px 10px 50px -2px rgba(53, 5, 152, 0.25);
-  padding: 100px 0px;
+  padding: 100px;
   background: linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.25) 0%,
@@ -121,6 +121,7 @@
   width: 100%;
   margin-top: -10%;
   height: auto;
+  min-height: calc(100% + 500px);
   object-fit: cover;
 }
 
@@ -133,6 +134,7 @@
 .mobileContainer {
   position: relative;
   overflow: hidden;
+  width: 100%;
 }
 
 .mobileBgImage {
@@ -153,6 +155,7 @@
 }
 
 .mobileContainer .textContent {
+  max-width: unset;
   padding: 24px 24px 48px 24px;
   background: linear-gradient(
       180deg,
@@ -160,6 +163,18 @@
       rgba(0, 0, 0, 0.1) 100%
     ),
     linear-gradient(0deg, rgba(175, 0, 255, 0.5), rgba(175, 0, 255, 0.5));
+}
+
+@media (min-width: 510px) {
+  .mobileContainer .textContent,
+  .mobileContainer .titlesContainer {
+    text-align: center;
+  }
+}
+
+.mobileContainer .titlesContainer {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .mobileContainer .title {

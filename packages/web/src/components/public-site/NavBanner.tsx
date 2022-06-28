@@ -9,6 +9,7 @@ import {
 import cn from 'classnames'
 
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
+import { useMatchesBreakpoint } from 'common/hooks/useMatchesBreakpoint'
 import {
   AUDIUS_LISTENING_LINK,
   AUDIUS_HOT_AND_NEW,
@@ -21,6 +22,10 @@ import {
 import styles from './NavBanner.module.css'
 import { handleClickRoute } from './handleClickRoute'
 
+const DESKTOP_NAV_BANNER_MIN_WIDTH = 1170
+const MOBILE_WIDTH_MEDIA_QUERY = window.matchMedia(
+  `(max-width: ${DESKTOP_NAV_BANNER_MIN_WIDTH}px)`
+)
 const messages = {
   explore: 'Explore',
   trending: 'Trending',
@@ -40,6 +45,10 @@ type NavBannerProps = {
 }
 
 const NavBanner = (props: NavBannerProps) => {
+  const isNarrow = useMatchesBreakpoint({
+    mediaQuery: MOBILE_WIDTH_MEDIA_QUERY,
+    initialValue: props.isMobile
+  })
   const [isScrolling, setIsScrolling] = useState(false)
   const setScrolling = useCallback(() => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -81,7 +90,7 @@ const NavBanner = (props: NavBannerProps) => {
     return () => window.removeEventListener('scroll', setScrolling)
   }, [setScrolling])
 
-  if (props.isMobile) {
+  if (props.isMobile || isNarrow) {
     return (
       <div
         className={cn(styles.mobileContainer, {

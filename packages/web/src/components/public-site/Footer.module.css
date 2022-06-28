@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 49px 0px 39px;
+  padding: 49px 50px 39px;
 }
 
 .content {
@@ -124,7 +124,8 @@
   align-items: center;
   flex-direction: column;
   align-self: baseline;
-
+  margin-left: 16px;
+  margin-right: 16px;
   color: var(--static-neutral);
   font-size: var(--font-s);
   line-height: 20px;
@@ -238,6 +239,8 @@
 .isMobile .rightsContainer {
   width: 100%;
   order: 3;
+  margin-left: initial;
+  margin-right: initial;
 }
 
 .isMobile .socialLinks {

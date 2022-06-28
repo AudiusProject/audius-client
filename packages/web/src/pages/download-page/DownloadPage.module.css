@@ -177,15 +177,18 @@
 }
 
 .downloadLink:hover {
-  border-bottom: solid 2px #858199;
   color: #858199;
-  opacity: 0.8;
   transform: scale3d(1.03, 1.03, 1.03);
 }
 
 .downloadLink:active {
-  opacity: 0.8;
+  color: #858199;
   transform: scale3d(0.99, 0.99, 0.99);
+}
+
+.downloadLink:hover .platformName,
+.downloadLink:active .platformName {
+  color: var(--static-secondary);
 }
 
 .isMobile .downloadLink {
