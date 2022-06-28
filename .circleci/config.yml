@@ -46,12 +46,14 @@ jobs:
             git config --global user.name "audius-infra"
             git checkout -b sk-autogen-test
             git push -u origin sk-autogen-test
+            PREV_VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v{PREV_VERSION}..HEAD)
             npm i
-            npx lerna version patch --yes
+            npx lerna version patch --yes -m "%s \n\n {CHANGELOG}"
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
             git checkout -b release-v${VERSION}
-            git push
+            git push -u origin release-v${VERSION}
 
 # npx lerna publish
 
