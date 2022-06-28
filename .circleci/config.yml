@@ -49,7 +49,9 @@ jobs:
             PREV_VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short 1.1.10..HEAD)
             npm i
-            npx lerna version patch --yes -m "%s \n\n {CHANGELOG}"
+            npx lerna version patch --yes -m '%s
+
+            ${CHANGELOG}`
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
             git checkout -b release-v${VERSION}
