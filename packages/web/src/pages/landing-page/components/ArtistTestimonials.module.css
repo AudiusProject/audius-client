@@ -85,22 +85,19 @@
 .artistContainer {
   display: inline-flex;
   flex-direction: column;
-  height: 200px;
-  width: 200px;
-  transition: all 0.25s ease-in-out;
-  transform: scale3d(1, 1, 1);
-  cursor: pointer;
   margin: 34px 0 0 60px;
 }
 
-.artistContainer:hover {
-  transform: scale3d(1.1, 1.1, 1.1);
+.artistImageWrapper {
+  border-radius: 50%;
+  height: 200px;
+  width: 200px;
+  overflow: hidden;
 }
 
 .artistImage {
   height: 100%;
   width: 100%;
-  border-radius: 50%;
 }
 
 .artistName {
@@ -172,6 +169,10 @@
 .mobileContainer .overflowArtistCard {
   display: inline-block;
   overflow: hidden;
+  height: 125px;
+  width: 125px;
+  border-radius: 50%;
+  border: solid 4px #ffffff;
 }
 
 .mobileContainer .overflowArtistCard:not(:first-child) {
@@ -193,19 +194,9 @@
   text-align: center;
 }
 
-.mobileContainer .overflowArtistImage {
-  display: inline;
-  height: 120px;
-  width: 120px;
-  border-radius: 50%;
-  border: solid 4px #ffffff;
-}
-
-.mobileContainer .artistImage {
-  display: block;
-  height: 150px;
+.mobileContainer .artistImageWrapper {
   width: 150px;
-  border-radius: 50%;
+  height: 150px;
   margin-bottom: 8px;
 }
 

@@ -12,7 +12,6 @@ import artistSkrillex from 'assets/img/publicSite/ImgArtistSkrillex.jpg'
 import artistSteveAoki from 'assets/img/publicSite/ImgArtistSteveAoki.jpg'
 import artistChainsmokers from 'assets/img/publicSite/ImgArtistTheChainsmokers.jpg'
 import dots2x from 'assets/img/publicSite/dots@2x.jpg'
-import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
 
 import styles from './ArtistTestimonials.module.css'
@@ -28,19 +27,12 @@ type AristProps = {
 }
 
 const Artist = (props: AristProps) => {
-  const [cardRef, onMove, onLeave] = useCardWeight({
-    sensitivity: 5
-  })
-
   return (
-    <div
-      className={styles.cardMoveContainer}
-      // @ts-ignore
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-    >
-      <div ref={cardRef} className={styles.artistContainer}>
-        <animated.img src={props.imageUrl} className={styles.artistImage} />
+    <div className={styles.cardMoveContainer}>
+      <div className={styles.artistContainer}>
+        <div className={styles.artistImageWrapper}>
+          <animated.img src={props.imageUrl} className={styles.artistImage} />
+        </div>
         <div className={styles.artistName}>{props.name}</div>
       </div>
     </div>
@@ -54,11 +46,13 @@ type MobileArtistProps = {
 const MobileArtist = (props: MobileArtistProps) => {
   return (
     <div className={styles.artistCard}>
-      <img
-        src={props.imageUrl}
-        className={styles.artistImage}
-        alt='Audius Artist'
-      />
+      <div className={styles.artistImageWrapper}>
+        <img
+          src={props.imageUrl}
+          className={styles.artistImage}
+          alt='Audius Artist'
+        />
+      </div>
       <div className={styles.artistName}>{props.name}</div>
     </div>
   )
@@ -69,7 +63,7 @@ const MobileOverflowArtist = (props: MobileArtistProps) => {
     <div className={styles.overflowArtistCard}>
       <img
         src={props.imageUrl}
-        className={styles.overflowArtistImage}
+        className={styles.artistImage}
         alt='Audius Artist'
       />
     </div>
@@ -173,7 +167,7 @@ const ArtistTestimonials = (props: ArtistTestimonialsProps) => {
             </animated.div>
           </div>
           <div className={styles.artistsContainer}>
-            {artists.map((artist, idx) => (
+            {artists.map(artist => (
               <Artist key={artist.name} {...artist} />
             ))}
           </div>
