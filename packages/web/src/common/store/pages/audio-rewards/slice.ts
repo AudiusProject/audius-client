@@ -138,6 +138,8 @@ const slice = createSlice({
         state.userChallenges[challengeId] || {}
       )[0]
 
+      if (!userChallenge) return
+
       // Keep track of individual challenges for rolled up aggregates
       if (userChallenge.challenge_type === 'aggregate') {
         state.disbursedChallenges[challengeId] = ([] as string[]).concat(
