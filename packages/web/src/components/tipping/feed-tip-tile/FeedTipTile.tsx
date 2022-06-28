@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { Button } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -17,6 +17,7 @@ import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useSize } from 'hooks/useSize'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { useRecord, make } from 'store/analytics/actions'
 import {
@@ -39,7 +40,8 @@ import styles from './FeedTipTile.module.css'
 const messages = {
   wasTippedBy: 'Was Tipped By',
   andOthers: (num: number) => `& ${num} ${num > 1 ? 'others' : 'other'}`,
-  sendTipToPrefix: 'SEND TIP TO '
+  sendTipToPrefix: 'SEND TIP TO ',
+  sendTip: 'SEND TIP'
 }
 
 const SkeletonTile = () => (
@@ -110,9 +112,10 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
 
 type SendTipToButtonProps = {
   user: User
+  type?: 'default' | 'short'
 }
 
-const SendTipToButton = ({ user }: SendTipToButtonProps) => {
+const SendTipToButton = ({ user, type = 'default' }: SendTipToButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {
@@ -126,16 +129,20 @@ const SendTipToButton = ({ user }: SendTipToButtonProps) => {
         // todo: move to stems or see if button design
         // already exists elsewhere
         text={
-          <div className={styles.sendTipButtonText}>
-            {messages.sendTipToPrefix}
-            <span className={styles.sendTipName}>{user.name}</span>
-            <UserBadges
-              userId={user.user_id}
-              className={styles.badge}
-              badgeSize={12}
-              inline
-            />
-          </div>
+          type === 'short' ? (
+            <div className={styles.sendTipButtonText}>{messages.sendTip}</div>
+          ) : (
+            <div className={styles.sendTipButtonText}>
+              {messages.sendTipToPrefix}
+              <span className={styles.sendTipName}>{user.name}</span>
+              <UserBadges
+                userId={user.user_id}
+                className={styles.badge}
+                badgeSize={12}
+                inline
+              />
+            </div>
+          )
         }
         onClick={handleClick}
       />
@@ -170,8 +177,14 @@ const DismissTipButton = () => {
   )
 }
 
+const MIN_TILE_WIDTH = 610
+
 export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+
+  const ref = useRef<HTMLDivElement>(null)
+  const size = useSize({ ref, useBorderBox: true, useInlineSize: true })
+  const useShortButtonFormat = size <= MIN_TILE_WIDTH
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
@@ -205,7 +218,7 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container}>
+    <div className={styles.container} ref={ref}>
       <div className={styles.usersContainer}>
         <ProfilePicture
           key={tipToDisplay.receiver_id}
@@ -238,7 +251,10 @@ export const FeedTipTile = () => {
         />
       </div>
       <div className={styles.buttons}>
-        <SendTipToButton user={usersMap[tipToDisplay.receiver_id]} />
+        <SendTipToButton
+          user={usersMap[tipToDisplay.receiver_id]}
+          type={useShortButtonFormat ? 'short' : 'default'}
+        />
         <DismissTipButton />
       </div>
     </div>
