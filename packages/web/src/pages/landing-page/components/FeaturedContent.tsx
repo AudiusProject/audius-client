@@ -10,9 +10,11 @@ import { ReactComponent as IconLines } from 'assets/img/publicSite/Lines.svg'
 import moombahtonPlaylistImg from 'assets/img/publicSite/MoombahtonPlaylistArt.png'
 import { ReactComponent as IconListenOnAudius } from 'assets/img/publicSite/listen-on-audius.svg'
 import { UserCollectionMetadata } from 'common/models/Collection'
+import { fetchExploreContent } from 'common/store/pages/explore/sagas'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
+import AudiusBackend from 'services/AudiusBackend'
 import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { playlistPage } from 'utils/route'
@@ -149,13 +151,13 @@ const FeaturedContent = (props: FeaturedContentProps) => {
     trendingPlaylistsResponse,
     fetchTrendingPlaylists
   ] = useAsyncFn(async () => {
-    const response = await AudiusAPIClient.getTrendingPlaylists({
-      currentUserId: null,
-      time: 'week',
-      limit: 4,
-      offset: 0
-    })
-    return response
+    const featuredContent = await fetchExploreContent()
+    const ids = featuredContent.featuredPlaylists
+    const playlists = (AudiusBackend.getPlaylists(
+      null,
+      ids
+    ) as any) as UserCollectionMetadata[]
+    return playlists
   }, [])
 
   useEffect(() => {
