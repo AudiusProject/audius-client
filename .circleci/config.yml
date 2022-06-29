@@ -6,7 +6,7 @@ parameters:
     type: string
     default: /(^main)|(^release.*)$/
 
-# setup: true
+setup: true
 
 orbs:
   continuation: circleci/continuation@0.2.0
@@ -61,51 +61,51 @@ jobs:
 # npx lerna publish
 
 workflows:
-  # setup:
-  #   when:
-  #     not:
-  #       equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-  #   jobs:
-  #     - generate-config
+  setup:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+    jobs:
+      - generate-config
 
-  #     # Trigger relevant workflows for the files that have changed
-  #     - path-filtering/filter:
-  #         base-revision: main
-  #         config-path: ../workspace/.circleci/continue_config.yml
-  #         mapping: |
-  #           packages/web/.* run-web-workflow true
-  #           packages/mobile/.* run-mobile-workflow true
-  #           .circleci/.* run-web-workflow true
-  #           .circleci/.* run-mobile-workflow true
-  #         name: trigger-relevant-workflows
-  #         filters:
-  #           branches:
-  #             ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
-  #         requires:
-  #           - generate-config
-  #         workspace_path: ../workspace
+      # Trigger relevant workflows for the files that have changed
+      - path-filtering/filter:
+          base-revision: main
+          config-path: ../workspace/.circleci/continue_config.yml
+          mapping: |
+            packages/web/.* run-web-workflow true
+            packages/mobile/.* run-mobile-workflow true
+            .circleci/.* run-web-workflow true
+            .circleci/.* run-mobile-workflow true
+          name: trigger-relevant-workflows
+          filters:
+            branches:
+              ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
+          requires:
+            - generate-config
+          workspace_path: ../workspace
 
-  #     # Trigger all workflows for branches that match regex
-  #     - continuation/continue:
-  #         configuration_path: ../workspace/.circleci/continue_config.yml
-  #         name: trigger-all-workflows
-  #         filters:
-  #           branches:
-  #             only: << pipeline.parameters.run-all-workflows-branch-regex >>
-  #         parameters: '{
-  #           "run-web-workflow": true,
-  #           "run-mobile-workflow": true
-  #           }'
-  #         pre-steps:
-  #           - attach_workspace:
-  #               at: ../workspace
-  #         requires:
-  #           - generate-config
+      # Trigger all workflows for branches that match regex
+      - continuation/continue:
+          configuration_path: ../workspace/.circleci/continue_config.yml
+          name: trigger-all-workflows
+          filters:
+            branches:
+              only: << pipeline.parameters.run-all-workflows-branch-regex >>
+          parameters: '{
+            "run-web-workflow": true,
+            "run-mobile-workflow": true
+            }'
+          pre-steps:
+            - attach_workspace:
+                at: ../workspace
+          requires:
+            - generate-config
 
   generate-release:
-    # when:
-    #   and:
-    #     - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-    #     - equal: ["generate-release", << pipeline.schedule.name >>]
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["generate-release", << pipeline.schedule.name >>]
     jobs:
       - generate-release
