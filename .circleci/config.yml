@@ -58,6 +58,22 @@ jobs:
             git checkout -b release-v${VERSION}
             git push -u origin release-v${VERSION}
 
+  # Publish github release for the current tag
+  publish-github-release:
+    working_directory: ~/audius-client
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=$(grep -m1 version ./packages/web/package.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+            CHANGELOG=$(git log --format=%B -n 1)
+            ghr -t ${GHI_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -b ${CHANGELOG} -delete v${VERSION} .
+
 workflows:
   setup:
     when:
@@ -107,3 +123,4 @@ workflows:
         - equal: ["generate-release", << pipeline.schedule.name >>]
     jobs:
       - generate-release
+      - publish-github-release
