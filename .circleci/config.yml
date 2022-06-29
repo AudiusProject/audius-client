@@ -51,7 +51,7 @@ jobs:
             npm i
             npx lerna version patch --yes -m '%s
 
-            ${CHANGELOG}`
+            ${CHANGELOG'
             VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
             echo "$VERSION"
             git checkout -b release-v${VERSION}
