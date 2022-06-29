@@ -45,6 +45,11 @@
   text-align: center;
 }
 
+.isMobile .titleContainer {
+  margin-right: 24px;
+  margin-left: 24px;
+}
+
 .appTitle {
   text-align: center;
   font-size: 55px;
@@ -78,7 +83,7 @@
   flex-wrap: wrap-reverse;
 }
 
-.desktopIcon {
+.platformHeaderIconContainer {
   margin-top: 24px;
   width: 140px;
   height: 140px;
@@ -86,6 +91,19 @@
   padding: 25px;
   border-radius: 50%;
   margin-bottom: 20px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.isMobile .platformHeaderIconContainer {
+  width: 80px;
+  height: 80px;
+  padding: 16px;
+}
+
+.isMobile .mobileIcon {
+  height: 44px;
 }
 
 .desktopDownloadsContainer,
@@ -189,6 +207,11 @@
 .downloadLink:hover .platformName,
 .downloadLink:active .platformName {
   color: var(--static-secondary);
+}
+
+.isMobile .downloadLink:hover .platformName,
+.isMobile .downloadLink:active .platformName {
+  color: #fff;
 }
 
 .isMobile .downloadLink {

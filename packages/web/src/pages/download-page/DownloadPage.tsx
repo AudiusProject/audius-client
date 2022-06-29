@@ -154,7 +154,9 @@ const DownloadPage = (props: DownloadPageProps) => {
             </div>
             <div className={styles.linksContainer}>
               <div className={styles.desktopDownloadsContainer}>
-                <IconDownloadDesktop className={styles.desktopIcon} />
+                <div className={styles.platformHeaderIconContainer}>
+                  <IconDownloadDesktop />
+                </div>
                 <h4 className={styles.appTitle}>{messages.getDesktopApp}</h4>
                 <span className={styles.appSubtitle}>
                   {messages.getDesktopAppSubtitle}
@@ -166,7 +168,9 @@ const DownloadPage = (props: DownloadPageProps) => {
                 </div>
               </div>
               <div className={styles.mobileDownloadsContainer}>
-                <IconDownloadMobile className={styles.desktopIcon} />
+                <div className={styles.platformHeaderIconContainer}>
+                  <IconDownloadMobile className={cn(styles.mobileIcon)} />
+                </div>
                 <h4 className={styles.appTitle}>{messages.getMobileApp}</h4>
                 <span className={styles.appSubtitle}>
                   {messages.getMobileAppSubtitle}
