@@ -1,0 +1,12 @@
+:global(#cbpay-embedded-onramp) {
+  z-index: 10000;
+}
+
+.payButton {
+  display: block;
+  text-align: center;
+}
+
+.payButton img {
+  max-width: 100%;
+}

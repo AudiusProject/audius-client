@@ -218,6 +218,7 @@
     "@types/resize-observer-browser": "^0.1.7",
     "@types/webpack": "4.41.32",
     "@types/webpack-bundle-analyzer": "4.4.1",
+    "@types/webpack-env": "^1.17.0",
     "@typescript-eslint/eslint-plugin": "5.3.0",
     "@typescript-eslint/parser": "5.3.0",
     "abort-controller": "3.0.0",
