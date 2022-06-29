@@ -1,0 +1,17 @@
+.root {
+  padding: 24px;
+}
+.root > * {
+  margin: 12px 0;
+}
+
+.heading {
+  text-align: center;
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
+}
+
+.paragraph {
+  line-height: 120%;
+  margin: 16px;
+}
