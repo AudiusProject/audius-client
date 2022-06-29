@@ -6,7 +6,8 @@ import { Parallax, withController } from 'react-scroll-parallax'
 
 import HeroForeground from 'assets/img/publicSite/AudiusApp@2x.png'
 import HeroBackgroundMobile from 'assets/img/publicSite/Hero-BG@1x.jpg'
-import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.png'
+import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.jpg'
+import HeroBackgroundXL from 'assets/img/publicSite/Hero-BG@3x.jpg'
 import { ReactComponent as AppStoreBadge } from 'assets/img/publicSite/app-store-badge.svg'
 import GlyphPattern1x from 'assets/img/publicSite/glyph-pattern@1x.png'
 import GlyphPattern2x from 'assets/img/publicSite/glyph-pattern@2x.png'
@@ -132,8 +133,8 @@ export const Hero = (props: HeroProps) => {
           {/*
           // @ts-ignore */}
           <img
-            srcSet={`${HeroBackgroundMobile} 1500w, ${HeroBackground} 3000w`}
-            sizes={'(max-width: 1500px) 1500w, 3000w'}
+            srcSet={`${HeroBackground} 3840w, ${HeroBackgroundXL} 5500w`}
+            sizes={'(max-width: 3815px) 3840w, 5500w'}
             src={HeroBackground}
             onLoad={onImgSet}
             className={styles.foreground}
