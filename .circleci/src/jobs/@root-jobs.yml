@@ -1,0 +1,12 @@
+root-publish-npm-packages:
+  working_directory: ~/audius-client
+  docker:
+    - image: circleci/node:14.18
+    steps:
+      - checkout
+      - run: 
+          name: npm Auth
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > .npmrc
+      - run:
+          name: Publish packages
+          command: npx lerna publish from-git --yes
