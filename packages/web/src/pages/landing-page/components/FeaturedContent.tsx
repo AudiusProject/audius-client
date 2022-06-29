@@ -135,7 +135,7 @@ const getImageUrl = (
   const cNode = gateways[0]
   if (cover_art_sizes) {
     return `${cNode}${cover_art_sizes}/${
-      size === 'small' ? '150x150' : '480x480'
+      size === 'small' ? '150x150' : '1000x1000'
     }.jpg`
   } else if (cover_art_sizes) {
     return `${cNode}${cover_art}`
