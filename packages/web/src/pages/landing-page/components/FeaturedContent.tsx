@@ -15,7 +15,6 @@ import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
 import AudiusBackend from 'services/AudiusBackend'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { playlistPage } from 'utils/route'
 
