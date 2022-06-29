@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useSpring, animated } from 'react-spring'
+import { useAsyncFn } from 'react-use'
 
 import audiusExclusivesPlaylistImg from 'assets/img/publicSite/AudiusExclusivesPlaylistArt.png'
 import audiusWeeklyPlaylistImg from 'assets/img/publicSite/AudiusWeeklyPlaylistArt.png'
@@ -8,9 +9,13 @@ import hotAndNewPlaylistImg from 'assets/img/publicSite/HotAndNewPlaylistArt.jpe
 import { ReactComponent as IconLines } from 'assets/img/publicSite/Lines.svg'
 import moombahtonPlaylistImg from 'assets/img/publicSite/MoombahtonPlaylistArt.png'
 import { ReactComponent as IconListenOnAudius } from 'assets/img/publicSite/listen-on-audius.svg'
+import { UserCollectionMetadata } from 'common/models/Collection'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
+import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
+import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { playlistPage } from 'utils/route'
 
 import styles from './FeaturedContent.module.css'
 
@@ -19,10 +24,10 @@ const messages = {
   subTitle: 'Check out the playlists we are listening to right now'
 }
 
-type TrackProp = {
+type PlaylistTileProps = {
   title: string
   artist: string
-  imageUrl: string
+  imageUrl: string | null
   onClick: () => void
 }
 
@@ -53,7 +58,7 @@ const FALLBACK_PLAYLISTS = [
   }
 ]
 
-const Track = (props: TrackProp) => {
+const DesktopPlaylistTile = (props: PlaylistTileProps) => {
   const [cardRef, onMove, onLeave, transform] = useCardWeight({
     sensitivity: 1.8
   })
@@ -97,12 +102,65 @@ const Track = (props: TrackProp) => {
   )
 }
 
+const MobilePlaylistTile = (props: PlaylistTileProps) => (
+  <div
+    key={props.title}
+    className={styles.trackContainer}
+    onClick={props.onClick}
+  >
+    <div
+      className={styles.trackImage}
+      style={{
+        backgroundImage: `url(${
+          props.imageUrl || audiusExclusivesPlaylistImg
+        })`,
+        boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
+      }}
+    ></div>
+    <div className={styles.trackTitle}>{props.title}</div>
+  </div>
+)
+
 type FeaturedContentProps = {
   isMobile: boolean
   setRenderPublicSite: (shouldRender: boolean) => void
 }
 
+const getImageUrl = (
+  size: 'small' | 'large',
+  { cover_art, cover_art_sizes }: UserCollectionMetadata,
+  creatorNodeEndpoint: string | null
+) => {
+  const gateways = getCreatorNodeIPFSGateways(creatorNodeEndpoint)
+  const cNode = gateways[0]
+  if (cover_art_sizes) {
+    return `${cNode}${cover_art_sizes}/${
+      size === 'small' ? '150x150' : '480x480'
+    }.jpg`
+  } else if (cover_art_sizes) {
+    return `${cNode}${cover_art}`
+  } else {
+    return null
+  }
+}
+
 const FeaturedContent = (props: FeaturedContentProps) => {
+  const [
+    trendingPlaylistsResponse,
+    fetchTrendingPlaylists
+  ] = useAsyncFn(async () => {
+    const response = await AudiusAPIClient.getTrendingPlaylists({
+      currentUserId: null,
+      time: 'week',
+      limit: 4,
+      offset: 0
+    })
+    return response
+  }, [])
+
+  useEffect(() => {
+    fetchTrendingPlaylists()
+  }, [fetchTrendingPlaylists])
   // Animate in the title and subtitle text
   const [hasViewed, refInView] = useHasViewed(0.8)
 
@@ -118,22 +176,37 @@ const FeaturedContent = (props: FeaturedContentProps) => {
         <h3 className={styles.title}>{messages.title}</h3>
         <h4 className={styles.subTitle}>{messages.subTitle}</h4>
         <div className={styles.tracksContainer}>
-          {FALLBACK_PLAYLISTS.map(track => (
-            <div
-              key={track.title}
-              className={styles.trackContainer}
-              onClick={handleClickRoute(track.link, props.setRenderPublicSite)}
-            >
-              <div
-                className={styles.trackImage}
-                style={{
-                  backgroundImage: `url(${track.imageUrl})`,
-                  boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
-                }}
-              ></div>
-              <div className={styles.trackTitle}>{track.title}</div>
-            </div>
-          ))}
+          {trendingPlaylistsResponse.value == null ||
+          trendingPlaylistsResponse.value.length < 4
+            ? FALLBACK_PLAYLISTS.map(p => (
+                <MobilePlaylistTile
+                  key={p.link}
+                  {...p}
+                  onClick={handleClickRoute(p.link, props.setRenderPublicSite)}
+                />
+              ))
+            : trendingPlaylistsResponse.value
+                .slice(0, 4)
+                .map(p => (
+                  <MobilePlaylistTile
+                    key={p.playlist_id}
+                    title={p.playlist_name}
+                    artist={p.user.name}
+                    imageUrl={getImageUrl(
+                      'small',
+                      p,
+                      p.user.creator_node_endpoint
+                    )}
+                    onClick={handleClickRoute(
+                      playlistPage(
+                        p.user.handle,
+                        p.playlist_name,
+                        p.playlist_id
+                      ),
+                      props.setRenderPublicSite
+                    )}
+                  />
+                ))}
         </div>
       </div>
     )
@@ -157,13 +230,37 @@ const FeaturedContent = (props: FeaturedContentProps) => {
           </animated.div>
         </div>
         <div className={styles.tracksContainer}>
-          {FALLBACK_PLAYLISTS.map(track => (
-            <Track
-              key={track.title}
-              {...track}
-              onClick={handleClickRoute(track.link, props.setRenderPublicSite)}
-            />
-          ))}
+          {trendingPlaylistsResponse.value == null ||
+          trendingPlaylistsResponse.value.length < 4
+            ? FALLBACK_PLAYLISTS.map(p => (
+                <DesktopPlaylistTile
+                  key={p.title}
+                  {...p}
+                  onClick={handleClickRoute(p.link, props.setRenderPublicSite)}
+                />
+              ))
+            : trendingPlaylistsResponse.value
+                .slice(0, 4)
+                .map(p => (
+                  <DesktopPlaylistTile
+                    key={p.playlist_id}
+                    title={p.playlist_name}
+                    artist={p.user.name}
+                    imageUrl={getImageUrl(
+                      'large',
+                      p,
+                      p.user.creator_node_endpoint
+                    )}
+                    onClick={handleClickRoute(
+                      playlistPage(
+                        p.user.handle,
+                        p.playlist_name,
+                        p.playlist_id
+                      ),
+                      props.setRenderPublicSite
+                    )}
+                  />
+                ))}
         </div>
       </div>
       <IconLines className={styles.lines} />
