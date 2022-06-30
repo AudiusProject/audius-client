@@ -62,6 +62,7 @@ export const WalletInputPage = ({
         value={publicKey}
       />
       <Input
+        type={'password'}
         variant={'elevatedPlaceholder'}
         placeholder={'Secret key'}
         onChange={handleSecretKeyChange}
