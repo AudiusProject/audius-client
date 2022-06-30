@@ -1,0 +1,20 @@
+.container > * {
+  margin: 24px;
+}
+
+.input {
+  padding: 16px;
+  color: var(--neutral-light-4);
+  background-color: var(--neutral-light-10);
+  border: 1px solid var(--neutral-light-8);
+  font-size: var(--font-xl);
+  font-weight: var(--font-medium);
+}
+
+.rightLabel {
+  top: 50%;
+  margin-top: -0.5em;
+  color: var(--neutral);
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
+}
