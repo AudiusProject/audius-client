@@ -1,8 +1,13 @@
 when: << pipeline.parameters.run-stems-workflow >>
 jobs:
-  - stems-build-storybook
-
+  - stems-build-storybook:
+      filters:
+        branches:
+          only: /^nkang--deploy-storybook-new$/
   - stems-deploy-storybook:
       context: Audius Stems
       requires:
         - stems-build-storybook
+      filters:
+        branches:
+          only: /^nkang--deploy-storybook-new$/
