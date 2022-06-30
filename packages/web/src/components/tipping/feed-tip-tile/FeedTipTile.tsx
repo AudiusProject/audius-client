@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { Button } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -13,11 +13,11 @@ import { getAccountUser } from 'common/store/account/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
 import { beginTip, fetchRecentTips, hideTip } from 'common/store/tipping/slice'
-import { Nullable } from 'common/utils/typeUtils'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
+import { usePosition } from 'hooks/usePosition'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { useRecord, make } from 'store/analytics/actions'
 import {
@@ -188,19 +188,8 @@ const MIN_USERS_TO_BUTTONS_MARGIN = 8
 export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
-  const [containerPosition, setContainerPosition] = useState<Nullable<DOMRect>>(
-    null
-  )
-  const containerCallbackRef = useCallback((node: HTMLDivElement) => {
-    setContainerPosition(node.getBoundingClientRect())
-  }, [])
-
-  const [buttonsPosition, setButtonsPosition] = useState<Nullable<DOMRect>>(
-    null
-  )
-  const buttonsCallbackRef = useCallback((node: HTMLDivElement) => {
-    setButtonsPosition(node.getBoundingClientRect())
-  }, [])
+  const { position: containerPosition, ref: containerRef } = usePosition()
+  const { position: buttonsPosition, ref: buttonsRef } = usePosition()
 
   const useShortButtonFormat = useMemo(() => {
     if (!containerPosition || !buttonsPosition) {
@@ -244,7 +233,7 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container} ref={containerCallbackRef}>
+    <div className={styles.container} ref={containerRef}>
       <div className={styles.usersContainer}>
         <ProfilePicture
           key={tipToDisplay.receiver_id}
@@ -276,7 +265,7 @@ export const FeedTipTile = () => {
           receiver={usersMap[tipToDisplay.receiver_id]}
         />
       </div>
-      <div className={styles.buttons} ref={buttonsCallbackRef}>
+      <div className={styles.buttons} ref={buttonsRef}>
         <SendTipToButton
           user={usersMap[tipToDisplay.receiver_id]}
           hideName={useShortButtonFormat}
