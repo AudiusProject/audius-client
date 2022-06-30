@@ -1,4 +1,4 @@
-version: 2.1
+version: 2.2
 
 orbs:
   ruby: circleci/ruby@1.2.0
@@ -12,6 +12,9 @@ parameters:
   run-mobile-workflow:
     type: boolean
     default: false
+  run-stems-workflow:
+    type: boolean
+    default: false
 
 workflows:
-  version: 2.1
+  version: 2.2
