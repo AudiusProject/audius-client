@@ -1,4 +1,4 @@
-version: 2.2
+version: 2.1
 
 parameters:
   # Run all workflows for branches that match this regex

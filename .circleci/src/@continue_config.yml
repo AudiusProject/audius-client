@@ -1,4 +1,4 @@
-version: 2.2
+version: 2.1
 
 orbs:
   ruby: circleci/ruby@1.2.0
@@ -17,4 +17,4 @@ parameters:
     default: false
 
 workflows:
-  version: 2.2
+  version: 2.1
