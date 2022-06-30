@@ -18,11 +18,11 @@ stems-build-storybook:
           cd packages/stems
           npm ci
 
-    - run: 
+    - run:
         name: build storybook
         command: |
-        cd packages/stems
-        npm run build-storybook
+          cd packages/stems
+          npm run build-storybook
 
     - save_cache:
         key: dependency-cache-{{ checksum "packages/stems/package-lock.json" }}
@@ -33,7 +33,7 @@ stems-build-storybook:
     - persist_to_workspace:
         root: ./
         paths:
-        - packages/stems/storybook-static
+          - packages/stems/storybook-static
 
 stems-deploy-storybook:
   working_directory: ~/stems
