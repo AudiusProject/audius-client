@@ -44,8 +44,8 @@ jobs:
           command: |
             git config --global user.email "audius-infra@audius.co"
             git config --global user.name "audius-infra"
-            PREV_VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
-            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short ${PREV_VERSION}..HEAD)
+            PREV_VERSION=$(jq -r .version ./lerna.json)
+            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v${PREV_VERSION}..HEAD)
             MESSAGE="%s
 
             ${CHANGELOG}"
@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Create release branch
           command: |
-            VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+            VERSION=$(jq -r .version ./lerna.json)
             git checkout -b release-v${VERSION}
             git push -u origin release-v${VERSION}
 

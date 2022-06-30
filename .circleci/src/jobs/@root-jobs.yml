@@ -10,7 +10,9 @@ root-publish-npm-packages:
         command: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > .npmrc
     - run:
         name: Publish packages
-        command: npx lerna publish from-git --yes
+        command: |
+          npm i
+          npx lerna publish from-git --yes
 
 # Publish github release for the current tag
 root-publish-github-release:
@@ -24,6 +26,6 @@ root-publish-github-release:
     - run:
         name: "Publish Release on GitHub"
         command: |
-          VERSION=$(grep -m1 version ./lerna.json | awk -F: '{ print $2 }' | sed 's/[", ]//g')
+          VERSION=$(jq -r .version ./lerna.json)
           CHANGELOG=$(git log --format=%B -n 1)
           ghr -t ${GHI_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -b "${CHANGELOG}" v${VERSION} ./
