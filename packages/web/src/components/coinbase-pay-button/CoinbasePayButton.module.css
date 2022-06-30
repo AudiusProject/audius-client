@@ -10,3 +10,8 @@
 .payButton img {
   max-width: 100%;
 }
+
+.payButton.disabled {
+  filter: saturate(0);
+  cursor: not-allowed;
+}

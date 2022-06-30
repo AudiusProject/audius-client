@@ -83,7 +83,7 @@ export const CoinbasePayButton = ({
             {
               address: wallet.publicKey.toString(),
               blockchains: ['solana'],
-              assets: ['USDC']
+              assets: ['SOL']
             }
           ],
           amount: {
@@ -115,9 +115,14 @@ export const CoinbasePayButton = ({
     cbInstance?.open()
   }, [cbInstance])
 
-  return isReady ? (
-    <a className={cn(className, styles.payButton)} onClick={openCbPay}>
+  return (
+    <a
+      className={cn(className, styles.payButton, {
+        [styles.disabled]: !isReady
+      })}
+      onClick={openCbPay}
+    >
       <img src={buttonImages[size][variant][resolution]} />
     </a>
-  ) : null
+  )
 }
