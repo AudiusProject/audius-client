@@ -177,6 +177,12 @@ const DismissTipButton = () => {
   )
 }
 
+/**
+ * When the screen is small, the margin between the send tip and dismiss
+ * buttons container and the right-hand side of the tile becomes smaller.
+ * When this is smaller than the margin we want to allow, we use the short
+ * version of the button which does not include the name.
+ */
 const MIN_USERS_TO_BUTTONS_MARGIN = 8
 
 export const FeedTipTile = () => {
