@@ -6,11 +6,11 @@ jobs:
         - stems-init
       filters:
         branches:
-          only: /^nkang--lint-stems$/
+          only: /^main$/
   - stems-deploy-storybook:
       context: Audius Client
       requires:
         - stems-build-storybook
       filters:
         branches:
-          only: /^nkang--lint-stems$/
+          only: /^main$/
