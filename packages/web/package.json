@@ -122,8 +122,13 @@
     "configure-local-env": "node ./scripts/configureLocalEnv.js",
     "configure-local-env-cloud": "node ./scripts/configureLocalEnv.js --remote-host",
     "publish-scripts": "./scripts/publishScripts.sh",
+<<<<<<< HEAD
     "start": "craco --max-old-space-size=8076 start",
     "start:dev": "npm run write-sha && npm run configure-local-env && npm run publish-scripts && env-cmd --no-override ./.env/.env.dev.local npm start",
+=======
+    "start": "craco --max-old-space-size=8000 start",
+    "start:dev": "npm run write-sha && npm run configure-local-env && npm run publish-scripts && env-cmd ./.env/.env.dev.local npm start",
+>>>>>>> 2a51cfd3 (Fix mobile build)
     "start:dev:mobile": "env-cmd ./.env/.env.mobile.prod npm run start:dev",
     "start:dev:cloud": "npm run write-sha && npm run configure-local-env-cloud && npm run publish-scripts && env-cmd  --no-override ./.env/.env.dev.local npm start",
     "start:dev:mobile:cloud": "env-cmd ./.env/.env.mobile.stage npm run start:dev:cloud",
