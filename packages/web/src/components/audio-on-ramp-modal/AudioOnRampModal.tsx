@@ -21,7 +21,7 @@ export const AudioOnRampModal = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [wallet, setWallet] = useState<Keypair>()
-  const [amount, setAmount] = useState(0.05)
+  const [amount, setAmount] = useState(0)
   const [inputToken, setInputToken] = useState()
   const [outputToken, setOutputToken] = useState()
   const [exchangeResult, setExchangeResult] = useState()
