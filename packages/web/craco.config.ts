@@ -9,55 +9,9 @@ import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
 import { Configuration, RuleSetRule, webpack, ProvidePlugin } from 'webpack'
 
 export default {
-  // babel: {
-  //   plugins: [
-  //     'lodash',
-  //     ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
-  //   ]
-  // },
-  // webpack: {
-  //   plugins: when(process.env.BUNDLE_ANALYZE === 'true', () => [
-  //     new BundleAnalyzerPlugin()
-  //   ]),
-  //   configure: (webpackConfig: Configuration) => {
-  //     if (isNative && webpackConfig?.resolve?.alias) {
-  //       webpackConfig.resolve.alias = {
-  //         ...webpackConfig.resolve.alias,
-  //         react: 'react16'
-  //       }
-  //     }
-
-  //     const wasmExtensionRegExp = /\.wasm$/
-  //     webpackConfig.resolve?.extensions?.push('.wasm')
-
-  //     webpackConfig.module?.rules?.forEach(rule => {
-  //       const rulee = rule as RuleSetRule
-  //       rulee.oneOf?.forEach(oneOf => {
-  //         if (
-  //           typeof oneOf.loader === 'string' &&
-  //           oneOf.loader.indexOf('file-loader') >= 0
-  //         ) {
-  //           if (Array.isArray(oneOf.exclude)) {
-  //             oneOf.exclude.push(wasmExtensionRegExp)
-  //           }
-  //         }
-  //       })
-  //     })
-
-  //     const wasmLoader = {
-  //       test: /\.wasm$/,
-  //       include: /node_modules\/(bridge|token-bridge)/,
-  //       loaders: ['wasm-loader']
-  //     }
-
-  //     addBeforeLoader(webpackConfig, loaderByName('file-loader'), wasmLoader)
-
-  //     return webpackConfig
-  //   }
-  // }  ,
-  // Disabling for now while we upgrade eslint and improve our config
   webpack: {
     configure: (webpackConfig: Configuration) => {
+<<<<<<< HEAD
 <<<<<<< HEAD
       // react-nil, our mobile-web renderer, requires react16
       if (isNative && webpackConfig?.resolve?.alias) {
@@ -134,9 +88,17 @@ export default {
 
       console.log('existing experiments??', webpackConfig.experiments)
 
+=======
+>>>>>>> 9cdfd584 (Replace rewired with craco)
       return {
         ...webpackConfig,
-        plugins: [...(webpackConfig.plugins ?? []), new NodePolyfillPlugin()],
+        plugins: [
+          ...(webpackConfig.plugins ?? []),
+          new ProvidePlugin({
+            process: 'process/browser',
+            Buffer: ['buffer', 'Buffer']
+          })
+        ],
         experiments: {
           ...webpackConfig.experiments,
           asyncWebAssembly: true,
@@ -148,28 +110,33 @@ export default {
         },
         resolve: {
           ...webpackConfig.resolve,
-          extensions: [...(webpackConfig.resolve?.extensions ?? []), '.wasm']
-          // fallback: {
-          //   ...webpackConfig.resolve?.fallback,
-          //   util: require.resolve('util'),
-          //   crypto: require.resolve('crypto-browserify'),
-          //   stream: require.resolve('stream-browserify'),
-          //   assert: require.resolve('assert'),
-          //   http: require.resolve('stream-http'),
-          //   https: require.resolve('https-browserify'),
-          //   os: require.resolve('os-browserify'),
-          //   url: require.resolve('url'),
-          //   path: require.resolve('path-browserify'),
-          //   fs: false,
-          //   buffer: require.resolve('buffer/'),
-          //   zlib: require.resolve('browserify-zlib'),
-          //   net: require.resolve('net-browserify'),
-          //   tls: require.resolve('tls-browserify'),
-          //   constants: require.resolve('constants-browserify'),
-          //   child_process: false,
-          //   express: false
-          // }
-        }
+          fallback: {
+            ...webpackConfig.resolve?.fallback,
+            crypto: require.resolve('crypto-browserify'),
+            stream: require.resolve('stream-browserify'),
+            assert: require.resolve('assert'),
+            http: require.resolve('stream-http'),
+            https: require.resolve('https-browserify'),
+            os: require.resolve('os-browserify'),
+            url: require.resolve('url'),
+            path: require.resolve('path-browserify'),
+            constants: require.resolve('constants-browserify'),
+            fs: false,
+            zlib: require.resolve('browserify-zlib'),
+            net: false,
+            child_process: false
+          }
+        },
+        ignoreWarnings: [
+          function ignoreSourcemapsloaderWarnings(warning: any) {
+            return (
+              warning.module &&
+              warning.module.resource.includes('node_modules') &&
+              warning.details &&
+              warning.details.includes('source-map-loader')
+            )
+          }
+        ]
       }
     }
   },
@@ -177,6 +144,6 @@ export default {
     enable: false
   },
   typescript: {
-    enableTypeChecking: false
+    enableTypeChecking: true
   }
 }
