@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useJupiter } from '@jup-ag/react-hook'
 import { PublicKey } from '@solana/web3.js'
 
@@ -11,12 +13,14 @@ export const JupiterQuote = ({
   allowedSlippage = 0.5,
   amount,
   inputMint,
-  outputToken
+  outputToken,
+  onOutputAmount
 }: {
   allowedSlippage?: number
   amount: number
   inputMint: PublicKey
   outputToken: TokenListing
+  onOutputAmount: (amount: number) => void
 }) => {
   const slippageAdjustmentPercent = 1 + allowedSlippage / 100.0
 
@@ -30,9 +34,15 @@ export const JupiterQuote = ({
   const bestRoute = jupiter.routes?.[0]
 
   const outputAmount = bestRoute
-    ? (bestRoute.outAmount * slippageAdjustmentPercent) /
+    ? Math.ceil(bestRoute.outAmount * slippageAdjustmentPercent) /
       10 ** outputToken.decimals
     : 0
+
+  useEffect(() => {
+    if (outputAmount) {
+      onOutputAmount(outputAmount)
+    }
+  }, [outputAmount, onOutputAmount])
 
   return (
     <div>
