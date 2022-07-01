@@ -9,8 +9,10 @@ import { useDevModeHotkey } from 'hooks/useHotkey'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 
 import styles from './AudioOnRampModal.module.css'
+import { ExchangeConfirmationPage } from './ExchangeConfirmationPage'
 import { InputAmountPage } from './InputAmountPage'
 import { ModalContentPages } from './ModalContentPages'
+import { SuccessPage } from './SuccessPage'
 import { WalletInputPage } from './WalletInputPage'
 
 const cluster = 'mainnet-beta'
@@ -19,6 +21,10 @@ export const AudioOnRampModal = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
   const [wallet, setWallet] = useState<Keypair>()
+  const [amount, setAmount] = useState(0.05)
+  const [inputToken, setInputToken] = useState()
+  const [outputToken, setOutputToken] = useState()
+  const [exchangeResult, setExchangeResult] = useState()
   const hotkeyToggle = useDevModeHotkey(80 /* p */)
 
   const account = useSelector(getAccountUser)
@@ -30,6 +36,9 @@ export const AudioOnRampModal = () => {
   const goToNextPage = useCallback(() => {
     setCurrentPage(currentPage + 1)
   }, [currentPage, setCurrentPage])
+  const goToPrevPage = useCallback(() => {
+    setCurrentPage(currentPage - 1)
+  }, [currentPage, setCurrentPage])
 
   const handleWalletSubmit = useCallback(
     (keypair: Keypair) => {
@@ -39,9 +48,23 @@ export const AudioOnRampModal = () => {
     [setWallet, goToNextPage]
   )
 
-  const handleCoinbasePaySuccess = useCallback(() => {
-    goToNextPage()
-  }, [goToNextPage])
+  const handleInputCompleted = useCallback(
+    ({ amount, inputToken, outputToken }) => {
+      setAmount(amount)
+      setInputToken(inputToken)
+      setOutputToken(outputToken)
+      goToNextPage()
+    },
+    [setAmount, setInputToken, setOutputToken, goToNextPage]
+  )
+
+  const handleExchangeCompleted = useCallback(
+    result => {
+      setExchangeResult(result)
+      goToNextPage()
+    },
+    [setExchangeResult, goToNextPage]
+  )
 
   const handleClose = useCallback(() => {
     if (isOpen) {
@@ -51,6 +74,7 @@ export const AudioOnRampModal = () => {
 
   useEffect(() => {
     if (hotkeyToggle) {
+      setCurrentPage(0)
       setIsOpen(true)
     }
   }, [hotkeyToggle, setIsOpen])
@@ -75,7 +99,20 @@ export const AudioOnRampModal = () => {
             <WalletInputPage onSubmit={handleWalletSubmit} />
             <InputAmountPage
               wallet={wallet}
-              onCoinbasePaySuccess={handleCoinbasePaySuccess}
+              onComplete={handleInputCompleted}
+            />
+            <ExchangeConfirmationPage
+              wallet={wallet}
+              amount={amount}
+              inputToken={inputToken}
+              outputToken={outputToken}
+              onGoBack={goToPrevPage}
+              onExchangeCompleted={handleExchangeCompleted}
+            />
+            <SuccessPage
+              swapResult={exchangeResult}
+              inputToken={inputToken}
+              outputToken={outputToken}
             />
           </ModalContentPages>
         </JupiterProvider>
