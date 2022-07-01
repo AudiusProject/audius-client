@@ -28,22 +28,45 @@ const stringAudioToSplAmount = (amount: StringAudio) => {
 
 export const InputAmountPage = ({
   wallet,
-  onCoinbasePaySuccess
+  onComplete
 }: {
   wallet?: Keypair
-  onCoinbasePaySuccess?: () => void
+  onComplete?: (onCompleteArgs: {
+    amount: number
+    inputToken: TokenListing
+    outputToken: TokenListing
+  }) => void
 }) => {
   const [tokenList, setTokenList] = useState<TokenListing[]>([])
   const [inputAmount, setInputAmount] = useState<StringAudio>()
   const selectedTokenSymbol = 'SOL'
   // const [selectedTokenSymbol, setSelectedTokenSymbol] = useState('SOL')
   const [intermediateToken, setIntermediateToken] = useState<TokenListing>()
+  const [outputAmount, setOutputAmount] = useState<number>()
 
   const handleInputChange = useCallback(
     (value: string) => {
       setInputAmount(value as StringAudio)
     },
     [setInputAmount]
+  )
+
+  const handleCoinbaseSuccess = useCallback(() => {
+    const audioToken = tokenList.find(t => t.symbol === 'AUDIO')
+    if (intermediateToken && audioToken) {
+      onComplete?.({
+        amount: outputAmount || 0,
+        inputToken: intermediateToken,
+        outputToken: audioToken
+      })
+    }
+  }, [onComplete, intermediateToken, tokenList, outputAmount])
+
+  const handleOutputAmount = useCallback(
+    amount => {
+      setOutputAmount(amount)
+    },
+    [setOutputAmount]
   )
 
   useEffect(() => {
@@ -75,10 +98,11 @@ export const InputAmountPage = ({
       />
       {intermediateToken && wallet ? (
         <JupiterQuote
-          wallet={wallet}
           amount={inputAmount ? stringAudioToSplAmount(inputAmount) : 0}
           inputMint={audioPublicKey}
           outputToken={intermediateToken}
+          onOutputAmount={handleOutputAmount}
+          allowedSlippage={1}
         />
       ) : null}
       <CoinbasePayButton
@@ -86,9 +110,9 @@ export const InputAmountPage = ({
         size={CoinbasePayButtonSize.COMPACT}
         resolution={CoinbasePayButtonImageResolution.DEFAULT}
         wallet={wallet}
-        onSuccess={onCoinbasePaySuccess}
+        onSuccess={handleCoinbaseSuccess}
       />
-      <button onClick={onCoinbasePaySuccess}>Skip</button>
+      <button onClick={handleCoinbaseSuccess}>Skip</button>
     </div>
   )
 }
