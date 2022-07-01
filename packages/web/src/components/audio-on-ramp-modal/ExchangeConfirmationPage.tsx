@@ -133,9 +133,10 @@ export const ExchangeConfirmationPage = ({
         </div>
       </div>
       <Button
+        className={styles.confirmButton}
         type={ButtonType.PRIMARY_ALT}
-        disabled={jupiter.loading}
-        isDisabled={jupiter.loading}
+        disabled={jupiter.loading || isExchanging}
+        isDisabled={jupiter.loading || isExchanging}
         onClick={handleExchange}
         leftIcon={
           isExchanging ? (
@@ -146,11 +147,15 @@ export const ExchangeConfirmationPage = ({
         }
         text={isExchanging ? '' : 'Confirm'}
       />
-      {isError ? <div>Something went wrong. Please try again.</div> : null}
+      {isError ? (
+        <div className={styles.error}>
+          Something went wrong. Please try again.
+        </div>
+      ) : null}
       {!isExchanging ? (
-        <div className={styles.goBackContainer} onClick={onGoBack}>
+        <div className={styles.goBack} onClick={onGoBack}>
           <IconCaretLeft />
-          <span className={styles.goBack}>{'Go Back'}</span>
+          <span>{'Go Back'}</span>
         </div>
       ) : null}
     </div>
