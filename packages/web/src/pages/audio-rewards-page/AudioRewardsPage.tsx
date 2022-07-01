@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 
 import { FeatureFlags } from 'common/services/remote-config'
 import { preloadWalletProviders } from 'common/store/pages/token-dashboard/slice'
+import { AudioOnRampModal } from 'components/audio-on-ramp-modal/AudioOnRampModal'
 import { CoinbasePayButton } from 'components/coinbase-pay-button/CoinbasePayButton'
 import Header from 'components/header/desktop/Header'
 import { useMobileHeader } from 'components/header/mobile/hooks'
@@ -40,7 +41,7 @@ export const RewardsContent = () => {
   useRequiresAccount(TRENDING_PAGE)
   return (
     <>
-      <CoinbasePayButton />
+      <AudioOnRampModal />
       <WalletModal />
       <div className={wm(styles.cryptoContentContainer)}>
         <BalanceTile className={wm(styles.balanceTile)} />
