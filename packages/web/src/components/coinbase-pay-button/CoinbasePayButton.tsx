@@ -63,6 +63,7 @@ export const CoinbasePayButton = ({
   size = CoinbasePayButtonSize.NORMAL,
   resolution = CoinbasePayButtonImageResolution.DEFAULT,
   wallet,
+  amount,
   onSuccess,
   onExit
 }: {
@@ -71,7 +72,7 @@ export const CoinbasePayButton = ({
   size?: CoinbasePayButtonSize
   resolution?: CoinbasePayButtonImageResolution
   wallet?: Keypair
-  amount?: PaymentCurrencyAmount
+  amount?: number
   onSuccess?: () => void
   onExit?: () => void
 }) => {
@@ -90,10 +91,7 @@ export const CoinbasePayButton = ({
               assets: ['SOL']
             }
           ],
-          amount: {
-            value: 1,
-            currencySymbol: 'SOL'
-          }
+          presetCryptoAmount: amount
         },
         onReady: () => {
           // Update loading/ready states.
@@ -109,7 +107,7 @@ export const CoinbasePayButton = ({
       })
       setCbInstance(instance)
     }
-  }, [setCbInstance, wallet, onExit, onSuccess])
+  }, [wallet, amount, setCbInstance, onExit, onSuccess])
 
   const openCbPay = useCallback(() => {
     cbInstance?.open()

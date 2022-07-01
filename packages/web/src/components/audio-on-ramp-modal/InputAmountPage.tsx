@@ -110,6 +110,7 @@ export const InputAmountPage = ({
         size={CoinbasePayButtonSize.COMPACT}
         resolution={CoinbasePayButtonImageResolution.DEFAULT}
         wallet={wallet}
+        amount={outputAmount}
         onSuccess={handleCoinbaseSuccess}
       />
       <button onClick={handleCoinbaseSuccess}>Skip</button>
