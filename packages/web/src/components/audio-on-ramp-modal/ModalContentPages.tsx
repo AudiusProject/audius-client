@@ -1,4 +1,4 @@
-import { Children, ReactChild } from 'react'
+import { Children, ReactChild, useState } from 'react'
 
 import { animated, Transition } from 'react-spring/renderprops'
 
@@ -8,7 +8,7 @@ const defaultTransitions = {
   initial: { opacity: 1, transform: 'translate3d(0%, 0, 0)' },
   enter: { opacity: 1, transform: 'translate3d(0%, 0 ,0)' }
 }
-const useSwipeTransitions = (direction: 'back' | 'forward') =>
+const getSwipeTransitions = (direction: 'back' | 'forward') =>
   direction === 'forward'
     ? {
         ...defaultTransitions,
@@ -32,7 +32,16 @@ export const ModalContentPages = ({
   currentPage: number
   children: ReactChild | ReactChild[]
 }) => {
-  const transitions = useSwipeTransitions('forward')
+  const [lastPage, setLastPage] = useState(0)
+  const [transitions, setTransitions] = useState<
+    ReturnType<typeof getSwipeTransitions>
+  >(getSwipeTransitions('forward'))
+  if (lastPage !== currentPage) {
+    setTransitions(
+      getSwipeTransitions(currentPage > lastPage ? 'forward' : 'back')
+    )
+    setLastPage(currentPage)
+  }
   return (
     <div className={styles.transitionContainer}>
       <Transition
