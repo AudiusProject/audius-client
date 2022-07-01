@@ -28,8 +28,8 @@ export const ExchangeConfirmationPage = ({
 }: {
   wallet?: Keypair
   amount: number
-  inputToken: TokenListing
-  outputToken: TokenListing
+  inputToken?: TokenListing
+  outputToken?: TokenListing
   allowedSlippage?: number
   onGoBack: () => void
   onExchangeCompleted: (result: SwapResultSuccess) => void
@@ -38,17 +38,18 @@ export const ExchangeConfirmationPage = ({
   const [isError, setIsError] = useState(false)
 
   const jupiter = useJupiter({
-    amount: amount * 10 ** inputToken.decimals,
-    inputMint: new PublicKey(inputToken.address),
-    outputMint: new PublicKey(outputToken.address),
+    amount: inputToken ? amount * 10 ** inputToken.decimals : 0,
+    inputMint: inputToken ? new PublicKey(inputToken.address) : undefined,
+    outputMint: outputToken ? new PublicKey(outputToken.address) : undefined,
     slippage: allowedSlippage,
     debounceTime: 250
   })
 
   const bestRoute = jupiter.routes?.[0]
-  const outputAmount = bestRoute
-    ? bestRoute.outAmount / 10.0 ** outputToken.decimals
-    : 0
+  const outputAmount =
+    bestRoute && outputToken
+      ? bestRoute.outAmount / 10.0 ** outputToken.decimals
+      : 0
 
   const handleExchange = useCallback(() => {
     if (bestRoute && wallet) {
@@ -93,6 +94,11 @@ export const ExchangeConfirmationPage = ({
       fn()
     }
   }, [jupiter, bestRoute, wallet, setIsExchanging, onExchangeCompleted])
+
+  if (!inputToken || !outputToken) {
+    return null
+  }
+
   return (
     <div className={styles.root}>
       <h2 className={styles.heading}>Confirm Transfer</h2>

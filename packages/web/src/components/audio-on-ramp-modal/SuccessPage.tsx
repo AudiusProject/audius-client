@@ -15,13 +15,18 @@ export const SuccessPage = ({
   outputToken
 }: {
   swapResult?: SwapResultSuccess
-  inputToken: TokenListing
-  outputToken: TokenListing
+  inputToken?: TokenListing
+  outputToken?: TokenListing
 }) => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(showConfetti())
   }, [dispatch])
+
+  if (!swapResult || !inputToken || !outputToken) {
+    return null
+  }
+
   return (
     <div className={styles.root}>
       <h2 className={styles.heading}>Congratulations!</h2>
