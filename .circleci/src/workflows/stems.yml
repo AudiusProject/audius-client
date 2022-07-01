@@ -5,7 +5,7 @@ jobs:
         branches:
           only: /^nkang--deploy-storybook-new-new$/
   - stems-deploy-storybook:
-      context: Audius Stems
+      context: Audius Client
       requires:
         - stems-build-storybook
       filters:
