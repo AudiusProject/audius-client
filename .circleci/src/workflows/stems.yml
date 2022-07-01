@@ -3,11 +3,11 @@ jobs:
   - stems-build-storybook:
       filters:
         branches:
-          only: /^nkang--deploy-storybook-new-new$/
+          only: /^main$/
   - stems-deploy-storybook:
       context: Audius Client
       requires:
         - stems-build-storybook
       filters:
         branches:
-          only: /^nkang--deploy-storybook-new-new$/
+          only: /^main$/

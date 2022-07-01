@@ -4,7 +4,7 @@ parameters:
   # Run all workflows for branches that match this regex
   run-all-workflows-branch-regex:
     type: string
-    default: /(^main)|(^release.*)|(^nkang--deploy-storybook-new-new)$/
+    default: /(^main)|(^release.*)$/
 
 setup: true
 
