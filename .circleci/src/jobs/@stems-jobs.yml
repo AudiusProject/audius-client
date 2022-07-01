@@ -45,7 +45,9 @@ stems-deploy-storybook:
         at: ./
     - run:
         name: install wrangler
-        command: "cd packages/stems && npm install @cloudflare/wrangler"
+        command: |
+          cd packages/stems
+          npm install @cloudflare/wrangler
     - run:
         name: Set up workers site
         command: |
