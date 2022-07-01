@@ -24,6 +24,12 @@ web-init:
         paths:
           - ./packages/web/node_modules
 
+    - save_cache:
+        key: dependency-cache-{{ checksum "packages/stems/package-lock.json" }}
+        paths:
+          - ./packages/stems/node_modules
+          - ./packages/stems/dist
+
     # Lint
     - run:
         name: lint
