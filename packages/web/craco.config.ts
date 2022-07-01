@@ -23,6 +23,13 @@ export default {
       const wasmExtensionRegExp = /\.wasm$/
       webpackConfig.resolve?.extensions?.push('.wasm')
 
+      // Needed for Jupiter
+      webpackConfig.module?.rules.push({
+        type: 'javascript/auto',
+        test: /\.mjs$/,
+        include: /node_modules/
+      })
+
       webpackConfig.module?.rules.forEach(rule => {
         rule.oneOf?.forEach(oneOf => {
           if (
