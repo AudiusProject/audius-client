@@ -24,12 +24,6 @@ web-init:
         paths:
           - ./packages/web/node_modules
 
-    - save_cache:
-        key: dependency-cache-{{ checksum "packages/stems/package-lock.json" }}
-        paths:
-          - ./packages/stems/node_modules
-          - ./packages/stems/dist
-
     # Lint
     - run:
         name: lint
@@ -49,6 +43,8 @@ web-init:
         root: ./
         paths:
           - packages/web/node_modules
+          - packages/stems/node_modules
+          - packages/stems/dist
 
 web-build-demo:
   working_directory: ~/audius-client
