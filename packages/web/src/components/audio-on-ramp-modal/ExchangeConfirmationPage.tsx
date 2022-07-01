@@ -85,7 +85,7 @@ export const ExchangeConfirmationPage = ({
         if ('txid' in result) {
           onExchangeCompleted(result)
         } else {
-          console.error('Error exchanging tokens:', result.error)
+          console.error('Error exchanging tokens:', { error: result.error })
           setIsExchanging(false)
           setIsError(true)
         }
@@ -149,7 +149,7 @@ export const ExchangeConfirmationPage = ({
       />
       {isError ? (
         <div className={styles.error}>
-          Something went wrong. Please try again.
+          Something went wrong. Please try again later.
         </div>
       ) : null}
       {!isExchanging ? (
