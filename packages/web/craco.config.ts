@@ -18,7 +18,7 @@ export default {
       new BundleAnalyzerPlugin()
     ]),
     configure: (webpackConfig: Configuration) => {
-      // react-nil, our mobile-web renderer requires react16
+      // react-nil, our mobile-web renderer, requires react16
       if (isNative && webpackConfig?.resolve?.alias) {
         webpackConfig.resolve.alias.react = 'react16'
       }
