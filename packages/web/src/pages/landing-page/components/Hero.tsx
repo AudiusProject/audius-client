@@ -6,13 +6,19 @@ import { Parallax, withController } from 'react-scroll-parallax'
 
 import HeroForeground from 'assets/img/publicSite/AudiusApp@2x.png'
 import HeroBackgroundMobile from 'assets/img/publicSite/Hero-BG@1x.jpg'
-import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.png'
+import HeroBackground from 'assets/img/publicSite/Hero-BG@2x.jpg'
+import HeroBackgroundXL from 'assets/img/publicSite/Hero-BG@3x.jpg'
 import { ReactComponent as AppStoreBadge } from 'assets/img/publicSite/app-store-badge.svg'
 import GlyphPattern1x from 'assets/img/publicSite/glyph-pattern@1x.png'
 import GlyphPattern2x from 'assets/img/publicSite/glyph-pattern@2x.png'
 import { ReactComponent as GooglePlayBadge } from 'assets/img/publicSite/google-play-badge.svg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
-import { APP_REDIRECT, AUDIUS_SIGN_UP_LINK } from 'utils/route'
+import { getIOSAppLink } from 'utils/appLinks'
+import {
+  APP_REDIRECT,
+  AUDIUS_SIGN_UP_LINK,
+  DOWNLOAD_START_LINK
+} from 'utils/route'
 
 import styles from './Hero.module.css'
 
@@ -28,6 +34,8 @@ type HeroProps = {
   onImageLoad: () => void
   setRenderPublicSite: (shouldRender: boolean) => void
 } & { parallaxController: any }
+
+const iOSDownloadLink = getIOSAppLink()
 
 export const Hero = (props: HeroProps) => {
   const { parallaxController, onImageLoad, isMobile } = props
@@ -74,11 +82,7 @@ export const Hero = (props: HeroProps) => {
             </span>
           </button>
           <div className={styles.appLinksContent}>
-            <a
-              href='https://apps.apple.com/us/app/audius-music/id1491270519'
-              target='_blank'
-              rel='noopener noreferrer'
-            >
+            <a href={iOSDownloadLink} target='_blank' rel='noopener noreferrer'>
               <AppStoreBadge
                 aria-label='Download on the App Store'
                 width={120}
@@ -121,7 +125,6 @@ export const Hero = (props: HeroProps) => {
           <img
             src={HeroForeground}
             className={styles.foregroundImg}
-            style={{ transform: 'rotate(8.5deg)' }}
             onLoad={onImgSet}
             alt='Foreground Audius Mobile App'
           />
@@ -130,8 +133,8 @@ export const Hero = (props: HeroProps) => {
           {/*
           // @ts-ignore */}
           <img
-            srcSet={`${HeroBackgroundMobile} 1500w, ${HeroBackground} 3000w`}
-            sizes={'(max-width: 1500px) 1500w, 3000w'}
+            srcSet={`${HeroBackground} 3840w, ${HeroBackgroundXL} 5500w`}
+            sizes={'(max-width: 3815px) 3840w, 5500w'}
             src={HeroBackground}
             onLoad={onImgSet}
             className={styles.foreground}
@@ -161,7 +164,7 @@ export const Hero = (props: HeroProps) => {
             </button>
             <button
               onClick={handleClickRoute(
-                APP_REDIRECT,
+                DOWNLOAD_START_LINK,
                 props.setRenderPublicSite
               )}
               className={styles.downloadButton}

@@ -7,10 +7,13 @@ import { useChain, useTrail, animated } from 'react-spring'
 
 import appImg from 'assets/img/publicSite/AudiusAppAlt@2x.png'
 import hqAudio from 'assets/img/publicSite/HQ-Audio@1x.jpg'
+import { useMatchesBreakpoint } from 'common/hooks/useMatchesBreakpoint'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import { AUDIUS_LISTENING_LINK } from 'utils/route'
 
 import styles from './CTAListening.module.css'
+
+const MOBILE_WIDTH_MEDIA_QUERY = window.matchMedia('(max-width: 1150px)')
 
 const messages = {
   title1: '320kbps Streaming For Free',
@@ -27,6 +30,10 @@ type CTAListeningProps = {
 }
 
 const CTAListening = (props: CTAListeningProps) => {
+  const isNarrow = useMatchesBreakpoint({
+    initialValue: props.isMobile,
+    mediaQuery: MOBILE_WIDTH_MEDIA_QUERY
+  })
   const [hasViewed, setHasViewed] = useState(false)
 
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -69,7 +76,7 @@ const CTAListening = (props: CTAListeningProps) => {
     return () => window.removeEventListener('scroll', refInView)
   }, [refInView])
 
-  if (props.isMobile) {
+  if (props.isMobile || isNarrow) {
     return (
       <div className={styles.mobileContainer}>
         <div className={styles.bgContainer}>
@@ -94,9 +101,11 @@ const CTAListening = (props: CTAListeningProps) => {
               alt='Audius mobile app'
             />
           </div>
-          <div className={styles.title}>
-            <div className={styles.title1}>{messages.title1}</div>
-            <div className={styles.title2}>{messages.title2}</div>
+          <div className={styles.titlesContainer}>
+            <div className={styles.title}>
+              <div className={styles.title1}>{messages.title1}</div>
+              <div className={styles.title2}>{messages.title2}</div>
+            </div>
           </div>
           <button
             onClick={handleClickRoute(

@@ -7,9 +7,15 @@ import crowdImg from 'assets/img/publicSite/ImgCrowd.jpg'
 import { ReactComponent as IconAudio } from 'assets/img/publicSite/iconAudio.svg'
 import { ReactComponent as IconFree } from 'assets/img/publicSite/iconFree.svg'
 import { ReactComponent as IconRemix } from 'assets/img/publicSite/iconRemix.svg'
+import { useMatchesBreakpoint } from 'common/hooks/useMatchesBreakpoint'
 import useHasViewed from 'hooks/useHasViewed'
 
 import styles from './PlatformFeatures.module.css'
+
+const DESKTOP_NAV_BANNER_MIN_WIDTH = 1170
+const MOBILE_WIDTH_MEDIA_QUERY = window.matchMedia(
+  `(max-width: ${DESKTOP_NAV_BANNER_MIN_WIDTH}px)`
+)
 
 const messages = {
   title: 'Audius Listens to Artists',
@@ -21,9 +27,10 @@ type FeatureProps = {
   title: string
   description: string | ReactNode
   icon: ReactNode
+  iconPosition: 'above' | 'side'
 }
 
-const features: Array<FeatureProps> = [
+const features: Array<Omit<FeatureProps, 'iconPosition'>> = [
   {
     title: 'HQ AUDIO',
     description:
@@ -59,8 +66,9 @@ const features: Array<FeatureProps> = [
 const Feature = (props: FeatureProps) => {
   return (
     <div className={styles.feature}>
-      {props.icon}
+      {props.iconPosition === 'side' ? props.icon : null}
       <div className={styles.featureText}>
+        {props.iconPosition === 'above' ? props.icon : null}
         <div className={styles.featureTitle}>{props.title}</div>
         <div className={styles.featureDescription}>{props.description}</div>
       </div>
@@ -73,6 +81,11 @@ type PlatformFeaturesProps = {
 }
 
 const PlatformFeatures = (props: PlatformFeaturesProps) => {
+  const isNarrow = useMatchesBreakpoint({
+    mediaQuery: MOBILE_WIDTH_MEDIA_QUERY,
+    initialValue: props.isMobile
+  })
+
   // Animate in the title and subtitle text
   const [hasViewed, refInView] = useHasViewed(0.8)
 
@@ -112,7 +125,11 @@ const PlatformFeatures = (props: PlatformFeaturesProps) => {
           />
           <div className={styles.features}>
             {features.map(feature => (
-              <Feature key={feature.title} {...feature} />
+              <Feature
+                iconPosition={!props.isMobile && isNarrow ? 'above' : 'side'}
+                key={feature.title}
+                {...feature}
+              />
             ))}
           </div>
         </div>

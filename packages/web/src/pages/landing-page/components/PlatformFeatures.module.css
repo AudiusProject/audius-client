@@ -6,7 +6,7 @@
   background: linear-gradient(129.23deg, #f3f2f5 4.22%, #fbfbfc 95.97%);
   -webkit-clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%);
   clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%);
-  padding: 120px 0px 114px;
+  padding: 120px 100px 114px;
 }
 
 .content {
@@ -54,15 +54,17 @@
 .body {
   display: inline-flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
 }
 
 .crowdImg {
+  min-height: 100%;
+  object-fit: cover;
   user-select: none;
   flex: 1.3;
   height: 410px;
   width: 100%;
-  max-width: 664px;
+  max-width: 53%;
   border-radius: 8px;
   box-shadow: 0 10px 50px -2px rgba(53, 5, 152, 0.4);
 }
@@ -83,6 +85,10 @@
   box-shadow: 0 16px 20px 0 rgba(232, 228, 234, 0.5);
   display: inline-flex;
   align-items: center;
+}
+
+.feature:not(:first-child) {
+  margin-top: 16px;
 }
 
 .featureIcon {
@@ -165,11 +171,11 @@
   flex-direction: column;
 }
 
-.isMobile .guitarImage {
-  height: auto;
-  width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 10px 50px -2px rgba(53, 5, 152, 0.4);
+.isMobile .crowdImg {
+  flex: initial;
+  height: 240px;
+  min-height: initial;
+  max-width: initial;
 }
 
 .isMobile .features {

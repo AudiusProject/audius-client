@@ -4,7 +4,7 @@
   display: inline-flex;
   justify-content: center;
   z-index: 5;
-  padding-bottom: 100px;
+  padding: 0px 100px 100px;
 }
 
 .content {

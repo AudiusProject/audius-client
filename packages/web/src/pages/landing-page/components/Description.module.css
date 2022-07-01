@@ -10,6 +10,7 @@
 
 .content {
   max-width: 1110px;
+  margin: 0px 100px;
   position: relative;
 }
 
@@ -53,9 +54,16 @@
   margin-bottom: 16px;
 }
 
-@media (max-width: 1060px) {
+@media (max-width: 1240px) {
   .coloredTitle {
     font-size: 48px;
+    line-height: 60px;
+  }
+}
+
+@media (max-width: 994px) {
+  .coloredTitle {
+    font-size: 34px;
     line-height: 60px;
   }
 }

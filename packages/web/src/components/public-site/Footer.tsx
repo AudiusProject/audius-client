@@ -21,8 +21,8 @@ import {
   AUDIUS_EXPLORE_LINK,
   AUDIUS_BLOG_LINK,
   AUDIUS_REMIX_CONTESTS_LINK,
-  APP_REDIRECT,
-  AUDIUS_DOCS_LINK
+  AUDIUS_DOCS_LINK,
+  DOWNLOAD_LINK
 } from 'utils/route'
 
 import styles from './Footer.module.css'
@@ -79,7 +79,7 @@ const siteLinkRows = [
     },
     {
       text: 'Download App',
-      link: APP_REDIRECT
+      link: DOWNLOAD_LINK
     }
   ]
 ]
