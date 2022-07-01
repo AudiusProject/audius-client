@@ -39,7 +39,7 @@ export const JupiterQuote = ({
     : 0
 
   useEffect(() => {
-    if (outputAmount) {
+    if (outputAmount !== undefined) {
       onOutputAmount(outputAmount)
     }
   }, [outputAmount, onOutputAmount])

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 
-import { Format, TokenValueInput } from '@audius/stems'
+import { Button, ButtonType, Format, TokenValueInput } from '@audius/stems'
 import { TOKEN_LIST_URL } from '@jup-ag/react-hook'
 import { Keypair, PublicKey } from '@solana/web3.js'
 
@@ -113,7 +113,16 @@ export const InputAmountPage = ({
         amount={outputAmount}
         onSuccess={handleCoinbaseSuccess}
       />
-      <button onClick={handleCoinbaseSuccess}>Skip</button>
+      <div className={styles.or}>OR</div>
+      <div className={styles.payWithBalance}>
+        <Button
+          text={`Use existing $${selectedTokenSymbol} balance`}
+          type={ButtonType.PRIMARY_ALT}
+          isDisabled={!outputAmount || outputAmount === 0}
+          disabled={!outputAmount || outputAmount === 0}
+          onClick={handleCoinbaseSuccess}
+        />
+      </div>
     </div>
   )
 }

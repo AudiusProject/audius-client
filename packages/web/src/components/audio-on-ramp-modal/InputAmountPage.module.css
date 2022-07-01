@@ -18,3 +18,12 @@
   font-size: var(--font-xl);
   font-weight: var(--font-bold);
 }
+
+.payWithBalance {
+  text-align: center;
+}
+
+.or {
+  text-align: center;
+  margin: 8px;
+}

@@ -116,7 +116,7 @@ export const CoinbasePayButton = ({
   return (
     <a
       className={cn(className, styles.payButton, {
-        [styles.disabled]: !isReady
+        [styles.disabled]: !isReady || !amount
       })}
       onClick={openCbPay}
     >
