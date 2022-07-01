@@ -62,7 +62,9 @@ export const CoinbasePayButton = ({
   variant = CoinbasePayButtonVariant.GENERIC,
   size = CoinbasePayButtonSize.NORMAL,
   resolution = CoinbasePayButtonImageResolution.DEFAULT,
-  wallet
+  wallet,
+  onSuccess,
+  onExit
 }: {
   className?: string
   variant?: CoinbasePayButtonVariant
@@ -70,6 +72,8 @@ export const CoinbasePayButton = ({
   resolution?: CoinbasePayButtonImageResolution
   wallet?: Keypair
   amount?: PaymentCurrencyAmount
+  onSuccess?: () => void
+  onExit?: () => void
 }) => {
   const [isReady, setIsReady] = useState(false)
   const [cbInstance, setCbInstance] = useState<any>()
@@ -95,12 +99,8 @@ export const CoinbasePayButton = ({
           // Update loading/ready states.
           setIsReady(true)
         },
-        onSuccess: () => {
-          // handle navigation when user successfully completes the flow
-        },
-        onExit: () => {
-          // handle navigation from dismiss / exit events due to errors
-        },
+        onSuccess,
+        onExit,
         onEvent: (event: any) => {
           // event stream
         },
@@ -109,7 +109,7 @@ export const CoinbasePayButton = ({
       })
       setCbInstance(instance)
     }
-  }, [setCbInstance, wallet])
+  }, [setCbInstance, wallet, onExit, onSuccess])
 
   const openCbPay = useCallback(() => {
     cbInstance?.open()
