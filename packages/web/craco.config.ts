@@ -1,3 +1,5 @@
+import path from 'path'
+
 import { Configuration, ProvidePlugin } from 'webpack'
 
 const isNative = process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
@@ -42,8 +44,12 @@ export default {
             child_process: false
           },
           alias: {
-            ...webpackConfig.resolve?.alias,
-            ...(isNative ? { react: 'react16' } : undefined)
+            ...webpackConfig.resolve?.alias
+            // react: isNative
+            //   ? path.resolve('./node_modules/react16')
+            //   : path.resolve('./node_modules/react'),
+            // react: path.resolve('./node_modules/react')
+            // 'react-dom': path.resolve('./node_modules/react-dom')
           }
         },
         ignoreWarnings: [
