@@ -198,6 +198,7 @@ web-deploy-staging-s3:
         name: Deploy to S3
         command: |
           aws s3 sync --exclude "packages/web/sitemaps/*" packages/web/build-staging s3://staging.audius.co --delete --cache-control max-age=0
+          aws s3 cp << parameters.build-name >>.tar.gz s3://staging.audius.co/<< parameters.build-name >>.tar.gz --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
 
 web-deploy-staging-cloudflare:
   working_directory: ~/audius-client
@@ -268,6 +269,7 @@ web-deploy-production-s3:
           aws s3 sync --exclude "*.map" --exclude robots.txt --exclude "packages/web/sitemaps/*" packages/web/build-production s3://audius.co --delete --cache-control max-age=604800
           aws s3 cp s3://audius.co/index.html s3://audius.co/index.html --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html --metadata-directive REPLACE --acl public-read
           aws s3 cp packages/web/robots.txt s3://audius.co --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
+          aws s3 cp << parameters.build-name >>.tar.gz s3://audius.co/<< parameters.build-name >>.tar.gz --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
     - run:
         name: Invalidate cache
         # Note: cache invalidation is charged per path, so this only counts as 1/1000 monthly quota.
