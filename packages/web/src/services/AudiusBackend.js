@@ -1365,13 +1365,24 @@ class AudiusBackend {
     if (isAlbum) isPrivate = false
 
     try {
-      const response = await audiusLibs.Playlist.createPlaylist(
-        userId,
+      const trackIdsTest = [1]
+      // Test call to new audius data function
+      const response = await audiusLibs.AudiusData.createPlaylist({
         playlistName,
-        isPrivate,
+        trackIds: trackIdsTest,
+        coverArt,
+        description,
         isAlbum,
-        trackIds
-      )
+        isPrivate
+      })
+
+      // const response = await audiusLibs.Playlist.createPlaylist(
+      //   userId,
+      //   playlistName,
+      //   isPrivate,
+      //   isAlbum,
+      //   trackIds
+      // )
       let { blockHash, blockNumber, playlistId, error } = response
 
       if (error) return { playlistId, error }
@@ -1380,22 +1391,32 @@ class AudiusBackend {
 
       // If this playlist is being created from an existing cover art, use it.
       if (metadata.cover_art_sizes) {
-        updatePromises.push(
-          audiusLibs.contracts.PlaylistFactoryClient.updatePlaylistCoverPhoto(
-            playlistId,
-            Utils.formatOptionalMultihash(metadata.cover_art_sizes)
-          )
-        )
+        // updatePromises.push(
+        //   audiusLibs.contracts.PlaylistFactoryClient.updatePlaylistCoverPhoto(
+        //     playlistId,
+        //     Utils.formatOptionalMultihash(metadata.cover_art_sizes)
+        //   )
+        // )
       } else if (coverArt) {
-        updatePromises.push(
-          audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverArt)
-        )
+        // updatePromises.push(
+        //   audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverArt)
+        // )
       }
       if (description) {
-        updatePromises.push(
-          audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
-        )
+        // updatePromises.push(
+        //   audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
+        // )
       }
+
+      // Test call to new function
+      //   async createPlaylist2 (playlistName, trackIds, coverPhoto, description, uploadCoverPhoto = true) {
+      // await audiusLibs.Playlist.createPlaylist2(
+      //   playlistName,
+      //   trackIds,
+      //   coverArt,
+      //   description,
+      //   isAlbum
+      // )
 
       /**
        * find the latest transaction i.e. latest block number among the return transaction receipts
