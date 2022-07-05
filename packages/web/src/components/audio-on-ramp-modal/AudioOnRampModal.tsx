@@ -29,7 +29,7 @@ export const AudioOnRampModal = () => {
 
   const account = useSelector(getAccountUser)
   // Using a different RPC node for now since the one in libs won't list the Tokens
-  const connection = new Connection('https://solana-api.projectserum.com', {
+  const connection = new Connection('https://ssc-dao.genesysgo.net', {
     disableRetryOnRateLimit: true
   })
 
