@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import { Button } from '@audius/stems'
+import { Button, useMediaQueryListener } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -17,7 +17,6 @@ import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import Skeleton from 'components/skeleton/Skeleton'
 import UserBadges from 'components/user-badges/UserBadges'
-import { usePosition } from 'hooks/usePosition'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { useRecord, make } from 'store/analytics/actions'
 import {
@@ -178,28 +177,17 @@ const DismissTipButton = () => {
 }
 
 /**
- * When the screen is small, the margin between the send tip and dismiss
- * buttons container and the right-hand side of the tile becomes smaller.
- * When this is smaller than the margin we want to allow, we use the short
+ * When the screen is smaller than this width, we use the short
  * version of the button which does not include the name.
  */
-const MIN_USERS_TO_BUTTONS_MARGIN = 8
+const MAX_WIDTH_FOR_SHORT_TIP_BUTTON = 884
 
 export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
-  const { position: containerPosition, ref: containerRef } = usePosition()
-  const { position: buttonsPosition, ref: buttonsRef } = usePosition()
-
-  const useShortButtonFormat = useMemo(() => {
-    if (!containerPosition || !buttonsPosition) {
-      return false
-    }
-    return (
-      containerPosition.right - buttonsPosition.right <
-      MIN_USERS_TO_BUTTONS_MARGIN
-    )
-  }, [containerPosition, buttonsPosition])
+  const { isMatch: useShortButtonFormat } = useMediaQueryListener(
+    `(max-width: ${MAX_WIDTH_FOR_SHORT_TIP_BUTTON}px)`
+  )
 
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
@@ -233,7 +221,7 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container} ref={containerRef}>
+    <div className={styles.container}>
       <div className={styles.usersContainer}>
         <ProfilePicture
           key={tipToDisplay.receiver_id}
@@ -265,7 +253,7 @@ export const FeedTipTile = () => {
           receiver={usersMap[tipToDisplay.receiver_id]}
         />
       </div>
-      <div className={styles.buttons} ref={buttonsRef}>
+      <div className={styles.buttons}>
         <SendTipToButton
           user={usersMap[tipToDisplay.receiver_id]}
           hideName={useShortButtonFormat}
