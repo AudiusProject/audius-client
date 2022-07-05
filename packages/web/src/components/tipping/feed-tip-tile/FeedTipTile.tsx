@@ -32,10 +32,7 @@ import {
   getRecentTipsStorage
 } from 'store/tipping/storageUtils'
 import { AppState } from 'store/types'
-import {
-  MAX_WIDTH_FOR_SHORT_TIP_BUTTON,
-  NUM_FEED_TIPPERS_DISPLAYED
-} from 'utils/constants'
+import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
 
 import styles from './FeedTipTile.module.css'
 
@@ -178,6 +175,12 @@ const DismissTipButton = () => {
     </div>
   )
 }
+
+/**
+ * When the screen is smaller than this width, we use the short
+ * version of the button which does not include the name.
+ */
+const MAX_WIDTH_FOR_SHORT_TIP_BUTTON = 884
 
 export const FeedTipTile = () => {
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)

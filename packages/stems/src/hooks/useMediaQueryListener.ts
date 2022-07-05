@@ -3,7 +3,6 @@ import { useEffect, useState, useCallback } from 'react'
 export const useMediaQueryListener = (mediaQuery: string) => {
   // Stores whether there is a match
   const [isMatch, setIsMatch] = useState(false)
-  console.log('here in med que lis', isMatch)
 
   // Updates whether there is a match or not
   // when the media query status changes
