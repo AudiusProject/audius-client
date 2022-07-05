@@ -15,3 +15,9 @@ export const MAX_ARTIST_HOVER_TOP_SUPPORTING = 7
 export const NUM_FEED_TIPPERS_DISPLAYED = 2
 export const RECENT_TIPS_KEY = 'recent-tips'
 export const FEED_TIP_DISMISSAL_TIME_LIMIT = 30 * 24 * 60 * 60 * 1000 // 30 days
+
+/**
+ * When the screen is smaller than this width, we use the short
+ * version of the button which does not include the name.
+ */
+export const MAX_WIDTH_FOR_SHORT_TIP_BUTTON = 884
