@@ -30,7 +30,7 @@ stems-init:
           cd packages/stems
           npm run lint
 
-    # Persist the build directory to a workspace
+    # Persist node modules directory to workspace
     - persist_to_workspace:
         root: ./
         paths:
