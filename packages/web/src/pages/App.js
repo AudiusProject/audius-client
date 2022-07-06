@@ -70,6 +70,7 @@ import TrendingPage from 'pages/trending-page/TrendingPage'
 import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage'
 import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergroundPage'
 import UploadType from 'pages/upload-page/components/uploadType'
+import Visualizer from 'pages/visualizer/Visualizer'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { initializeSentry } from 'services/sentry'
 import { make } from 'store/analytics/actions'
@@ -968,6 +969,7 @@ class App extends Component {
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
         {!isMobileClient && <DiscoveryNodeSelection />}
+        {!isMobileClient && <Visualizer />}
         {!isMobileClient && <PinnedTrackConfirmation />}
         {!isMobileClient && <DevModeMananger />}
 

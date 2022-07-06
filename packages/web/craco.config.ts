@@ -19,6 +19,12 @@ export default {
             {
               test: /\.wasm$/,
               type: 'webassembly/async'
+            },
+            {
+              test: /\.(glsl|vs|fs|vert|frag)$/,
+              exclude: /node_modules/,
+              use: ['raw-loader', 'glslify-loader'],
+              type: 'javascript/auto'
             }
           ]
         },
