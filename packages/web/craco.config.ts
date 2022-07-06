@@ -1,10 +1,29 @@
-import { Configuration, ProvidePlugin } from 'webpack'
+import path from 'path'
+import { Configuration, ProvidePlugin, ResolvePluginInstance } from 'webpack'
 
 const isNative = process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
+
+type ModuleScopePlugin = ResolvePluginInstance & {
+  allowedPaths: string[]
+}
+
+// This ensures we can use the resolve.alias for react/react-dom
+function addReactToModuleScopePlugin(plugin: ModuleScopePlugin) {
+  const reactLibs = ['react', 'react-dom']
+  const reactPaths = reactLibs.map(reactLib =>
+    path.resolve(__dirname, 'node_modules', reactLib)
+  )
+  plugin.allowedPaths = [...plugin.allowedPaths, ...reactPaths]
+}
 
 export default {
   webpack: {
     configure: (config: Configuration) => {
+      if (config.resolve?.plugins) {
+        const [moduleScopePlugin] = config.resolve?.plugins
+        addReactToModuleScopePlugin(moduleScopePlugin as ModuleScopePlugin)
+      }
+
       return {
         ...config,
         module: {
@@ -59,7 +78,12 @@ export default {
           },
           alias: {
             ...config.resolve?.alias,
-            ...(isNative ? { react: 'react16' } : {})
+            ...(isNative
+              ? { react: 'react16' }
+              : {
+                  react: path.resolve('./node_modules/react'),
+                  'react-dom': path.resolve('./node_modules/react-dom')
+                })
           }
         },
         ignoreWarnings: [
