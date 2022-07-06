@@ -55,6 +55,7 @@ export const USER_NODE = process.env.REACT_APP_USER_NODE
 export const LEGACY_USER_NODE = process.env.REACT_APP_LEGACY_USER_NODE
 
 const REGISTRY_ADDRESS = process.env.REACT_APP_REGISTRY_ADDRESS
+const DATA_CONTRACT_ADDRESS = process.env.REACT_APP_DATA_CONTRACT_ADDRESS
 const WEB3_PROVIDER_URLS = (
   process.env.REACT_APP_WEB3_PROVIDER_URL || ''
 ).split(',')
@@ -547,7 +548,8 @@ class AudiusBackend {
           web3Config: await AudiusLibs.configExternalWeb3(
             REGISTRY_ADDRESS,
             web3.currentProvider,
-            WEB3_NETWORK_ID
+            WEB3_NETWORK_ID,
+            DATA_CONTRACT_ADDRESS
           )
         }
       } catch (e) {
@@ -555,7 +557,9 @@ class AudiusBackend {
           error: true,
           web3Config: AudiusLibs.configInternalWeb3(
             REGISTRY_ADDRESS,
-            WEB3_PROVIDER_URLS
+            WEB3_PROVIDER_URLS,
+            null,
+            DATA_CONTRACT_ADDRESS
           )
         }
       }
@@ -564,7 +568,9 @@ class AudiusBackend {
       error: false,
       web3Config: AudiusLibs.configInternalWeb3(
         REGISTRY_ADDRESS,
-        WEB3_PROVIDER_URLS
+        WEB3_PROVIDER_URLS,
+        null,
+        DATA_CONTRACT_ADDRESS
       )
     }
   }
@@ -1551,9 +1557,12 @@ class AudiusBackend {
     }
   }
 
-  static async deletePlaylist(playlistId) {
+  static async deletePlaylist(playlistId, userId) {
     try {
-      const { txReceipt } = await audiusLibs.Playlist.deletePlaylist(playlistId)
+      const txReceipt = await audiusLibs.AudiusData.deletePlaylist({
+        playlistId,
+        userId
+      })
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber

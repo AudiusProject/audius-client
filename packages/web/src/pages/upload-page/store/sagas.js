@@ -710,7 +710,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
             console.debug('Deleting playlist')
             // If we got a playlist ID back, that means we
             // created the playlist but adding tracks to it failed. So we must delete the playlist
-            yield call(AudiusBackend.deletePlaylist, playlistId)
+            yield call(AudiusBackend.deletePlaylist, playlistId, userId)
             console.debug('Playlist deleted successfully')
           } else {
             // I think this is what we want
