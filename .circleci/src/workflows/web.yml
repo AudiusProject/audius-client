@@ -39,7 +39,7 @@ jobs:
         - web-build-staging
       filters:
         branches:
-          only: /^main|^rj-move-cp-to-push$/
+          only: /^main$/
 
   - web-deploy-staging-cloudflare:
       context: Audius Client
