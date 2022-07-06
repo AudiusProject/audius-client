@@ -77,5 +77,8 @@ export default {
   },
   eslint: {
     enable: false
+  },
+  typescript: {
+    enableTypeChecking: false
   }
 }
