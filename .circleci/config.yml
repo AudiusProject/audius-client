@@ -32,8 +32,37 @@ jobs:
           paths:
             - .circleci/continue_config.yml
 
+  # Bump version and create release branch
+  generate-release:
+    working_directory: ~/audius-client
+    docker:
+      - image: circleci/node:14.18
+    steps:
+      - checkout
+      - run:
+          name: Bump version
+          command: |
+            git config --global user.email "audius-infra@audius.co"
+            git config --global user.name "audius-infra"
+            PREV_VERSION=$(jq -r .version ./lerna.json)
+            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v${PREV_VERSION}..HEAD)
+            MESSAGE="%s
+
+            ${CHANGELOG}"
+            npm i
+            npx lerna version patch --yes -m "${MESSAGE}"
+      - run:
+          name: Create release branch
+          command: |
+            VERSION=$(jq -r .version ./lerna.json)
+            git checkout -b release-v${VERSION}
+            git push -u origin release-v${VERSION}
+
 workflows:
   setup:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - generate-config
 
@@ -44,8 +73,10 @@ workflows:
           mapping: |
             packages/web/.* run-web-workflow true
             packages/mobile/.* run-mobile-workflow true
+            packages/stems/.* run-stems-workflow true
             .circleci/.* run-web-workflow true
             .circleci/.* run-mobile-workflow true
+            .circleci/.* run-stems-workflow true
           name: trigger-relevant-workflows
           filters:
             branches:
@@ -63,10 +94,19 @@ workflows:
               only: << pipeline.parameters.run-all-workflows-branch-regex >>
           parameters: '{
             "run-web-workflow": true,
-            "run-mobile-workflow": true
+            "run-mobile-workflow": true,
+            "run-stems-workflow": true
             }'
           pre-steps:
             - attach_workspace:
                 at: ../workspace
           requires:
             - generate-config
+
+  generate-release:
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["generate-release", << pipeline.schedule.name >>]
+    jobs:
+      - generate-release

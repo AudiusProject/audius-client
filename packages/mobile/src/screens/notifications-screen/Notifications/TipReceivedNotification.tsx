@@ -8,6 +8,7 @@ import {
   ReactionTypes,
   writeReactionValue
 } from 'audius-client/src/common/store/ui/reactions/slice'
+import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { Image, View } from 'react-native'
 
@@ -36,7 +37,11 @@ const messages = {
   sent: 'sent you a tip of',
   audio: '$AUDIO',
   sayThanks: 'Say Thanks With a Reaction',
-  reactionSent: 'Reaction Sent!'
+  reactionSent: 'Reaction Sent!',
+  twitterShare: (senderHandle: string, amount: number) =>
+    `Thanks ${senderHandle} for the ${formatNumberCommas(
+      amount
+    )} $AUDIO tip on @AudiusProject! #Audius #AUDIOTip`
 }
 
 const useSetReaction = (tipTxSignature: string) => {
@@ -53,12 +58,13 @@ const useSetReaction = (tipTxSignature: string) => {
 
 type TipReceivedNotificationProps = {
   notification: TipReceive
+  isVisible: boolean
 }
 
 export const TipReceivedNotification = (
   props: TipReceivedNotificationProps
 ) => {
-  const { notification } = props
+  const { notification, isVisible } = props
   const { amount, tipTxSignature } = notification
   const uiAmount = useUIAudio(amount)
 
@@ -74,8 +80,8 @@ export const TipReceivedNotification = (
   const setReactionValue = useSetReaction(tipTxSignature)
 
   const handleTwitterShare = useCallback(
-    (senderHandle: string | undefined) => {
-      const shareText = `Thanks ${senderHandle} for the ${uiAmount} $AUDIO tip on @AudiusProject! #Audius #AUDIOTip`
+    (senderHandle: string) => {
+      const shareText = messages.twitterShare(senderHandle, uiAmount)
       return {
         shareText,
         analytics: make({
@@ -126,6 +132,7 @@ export const TipReceivedNotification = (
       <ReactionList
         selectedReaction={reactionValue || null}
         onChange={setReactionValue}
+        isVisible={isVisible}
       />
       <NotificationTwitterButton
         type='dynamic'
