@@ -65,11 +65,9 @@
     "prop-types": "15.7.2",
     "query-string": "6.13.5",
     "raw-loader": "0.5.1",
-    "react": "17.0.2",
     "react-beautiful-dnd": "10.0.4",
     "react-chartjs-2": "2.9.0",
     "react-dates": "18.5.0",
-    "react-dom": "17.0.2",
     "react-dropzone": "6.2.4",
     "react-error-boundary": "3.1.4",
     "react-helmet": "5.2.1",
@@ -110,6 +108,7 @@
   },
   "main": "src/electron.js",
   "scripts": {
+    "postinstall": "rm -rf ./node_modules/react",
     "configure-local-env": "node ./scripts/configureLocalEnv.js",
     "configure-local-env-cloud": "node ./scripts/configureLocalEnv.js --remote-host",
     "publish-scripts": "./scripts/publishScripts.sh",
@@ -277,7 +276,9 @@
   },
   "peerDependencies": {
     "@solana/spl-token": "0.1.6",
-    "@solana/web3.js": "1.24.1"
+    "@solana/web3.js": "1.24.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "jest": {
     "coverageReporters": [

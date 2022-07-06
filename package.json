@@ -6,7 +6,9 @@
     "install-hooks": "mookme init --only-hook --skip-types-selection"
   },
   "devDependencies": {
-    "lerna": "5.0.0"
+    "lerna": "5.0.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   },
   "dependencies": {
     "@escape.tech/mookme": "1.2.0"
