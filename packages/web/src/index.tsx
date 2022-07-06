@@ -7,7 +7,6 @@ import './index.css'
 // Unsure why importing this component first would change that, but it appears to
 // when running in dev mode.
 import Root from './root'
-// import { Root } from './root2'
 
 const NATIVE_NAVIGATION_ENABLED =
   process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'

@@ -1,50 +1,58 @@
-import path from 'path'
-
 import { Configuration, ProvidePlugin } from 'webpack'
 
 const isNative = process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
 
 export default {
   webpack: {
-    configure: (webpackConfig: Configuration) => {
+    configure: (config: Configuration) => {
       return {
-        ...webpackConfig,
+        ...config,
+        module: {
+          ...config.module,
+          rules: [
+            ...(config.module?.rules ?? []),
+            {
+              test: /\.js$/,
+              enforce: 'pre',
+              use: ['source-map-loader']
+            },
+            {
+              test: /\.wasm$/,
+              type: 'webassembly/async'
+            }
+          ]
+        },
         plugins: [
-          ...(webpackConfig.plugins ?? []),
+          ...(config.plugins ?? []),
           new ProvidePlugin({
             process: 'process/browser',
             Buffer: ['buffer', 'Buffer']
           })
         ],
         experiments: {
-          ...webpackConfig.experiments,
-          asyncWebAssembly: true,
-          layers: true,
-          lazyCompilation: true,
-          outputModule: true,
-          syncWebAssembly: true,
-          topLevelAwait: true
+          ...config.experiments,
+          asyncWebAssembly: true
         },
         resolve: {
-          ...webpackConfig.resolve,
+          ...config.resolve,
           fallback: {
-            ...webpackConfig.resolve?.fallback,
-            crypto: require.resolve('crypto-browserify'),
-            stream: require.resolve('stream-browserify'),
+            ...config.resolve?.fallback,
             assert: require.resolve('assert'),
+            constants: require.resolve('constants-browserify'),
+            child_process: false,
+            crypto: require.resolve('crypto-browserify'),
+            fs: false,
             http: require.resolve('stream-http'),
             https: require.resolve('https-browserify'),
-            os: require.resolve('os-browserify'),
-            url: require.resolve('url'),
-            path: require.resolve('path-browserify'),
-            constants: require.resolve('constants-browserify'),
-            fs: false,
-            zlib: require.resolve('browserify-zlib'),
             net: false,
-            child_process: false
+            os: require.resolve('os-browserify'),
+            path: require.resolve('path-browserify'),
+            stream: require.resolve('stream-browserify'),
+            url: require.resolve('url'),
+            zlib: require.resolve('browserify-zlib')
           },
           alias: {
-            ...webpackConfig.resolve?.alias,
+            ...config.resolve?.alias,
             ...(isNative ? { react: 'react16' } : {})
           }
         },
@@ -63,8 +71,5 @@ export default {
   },
   eslint: {
     enable: false
-  },
-  typescript: {
-    enableTypeChecking: true
   }
 }

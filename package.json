@@ -2,7 +2,8 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "postinstall": "lerna bootstrap && npm run install-hooks",
+    "postinstall": "lerna bootstrap && npm run install-hooks && npm run link-stems-react",
+    "link-stems-react": "cd packages/stems && npm link ../web/node_modules/react && cd ../../",
     "install-hooks": "mookme init --only-hook --skip-types-selection"
   },
   "devDependencies": {
