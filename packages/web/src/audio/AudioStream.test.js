@@ -172,8 +172,8 @@ describe('stop', () => {
     audioStream.stop()
 
     expect(pause).toBeCalled()
-    setTimeout(() => {
+    setImmediate(() => {
       expect(audioStream.audio.currentTime).toEqual(0)
-    }, 0)
+    })
   })
 })

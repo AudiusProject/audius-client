@@ -1,3 +1,4 @@
+global.setImmediate = jest.useRealTimers
 // eslint-disable-next-line
 import '__mocks__/AudiusBackend'
 // eslint-disable-next-line
