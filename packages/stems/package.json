@@ -13,7 +13,6 @@
     "npm": ">=5"
   },
   "scripts": {
-    "postinstall": "npm run build",
     "test": "cross-env CI=1 react-scripts-ts test --env=jsdom",
     "test:watch": "react-scripts-ts test --env=jsdom",
     "build": "rollup -c",
@@ -92,9 +91,9 @@
     "postcss-custom-properties": "^9.0.2",
     "prettier": "^2.0.5",
     "prettier-config-standard": "^1.0.1",
-    "react": "^17.0.2",
+    "react": "17.0.2",
     "react-docgen-typescript-loader": "^3.7.0",
-    "react-dom": "^17.0.2",
+    "react-dom": "17.0.2",
     "react-scripts-ts": "4.0.3",
     "react-spring": "8.0.27",
     "rollup": "^1.20.3",
