@@ -15,7 +15,6 @@ mobile-build-web-app:
         root: ./
         paths:
           - packages/web
-          - packages/mobile/node_modules
 
 # Build the ios app
 mobile-build-ios:
