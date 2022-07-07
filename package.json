@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "link": "lerna link",
-    "postinstall": "lerna bootstrap && lerna run build --scope=@audius/stems && npm run install-hooks",
+    "postinstall": "lerna bootstrap --no-ci && lerna run build --scope=@audius/stems && npm run install-hooks",
     "install-hooks": "mookme init --only-hook --skip-types-selection"
   },
   "devDependencies": {
