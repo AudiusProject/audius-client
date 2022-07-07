@@ -101,6 +101,7 @@ workflows:
               ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
           requires:
             - generate-config
+            - init
           workspace_path: ../workspace
 
       # Trigger all workflows for branches that match regex
@@ -120,6 +121,7 @@ workflows:
                 at: ../workspace
           requires:
             - generate-config
+            - init
 
   generate-release:
     when:
