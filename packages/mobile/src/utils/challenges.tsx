@@ -20,7 +20,6 @@ import NerdFace from 'app/assets/images/emojis/nerd-face.png'
 import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
-import IconTip from 'app/assets/images/iconTip.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
 
 // TODO: These should be programmatic based on amount, but historically have not been
