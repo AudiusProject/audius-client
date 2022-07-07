@@ -27,6 +27,11 @@ mobile-init:
             - dependency-cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
 
     - run:
+        name: Lerna bootstrap
+        command: |
+          npm run bootstrap
+
+    - run:
         name: typecheck
         command: cd packages/mobile && npm run typecheck
     - run:
