@@ -34,9 +34,11 @@ mobile-init:
     - run:
         name: typecheck
         command: cd packages/mobile && npm run typecheck
+
     - run:
         name: lint
         command: cd packages/mobile && npm run lint
+
     - persist_to_workspace:
         root: ./
         paths:

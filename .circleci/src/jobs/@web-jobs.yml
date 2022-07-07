@@ -33,6 +33,13 @@ web-init:
           cd packages/web
           npm test
 
+    - persist_to_workspace:
+        root: ./
+        paths:
+          - packages/web/node_modules
+          - packages/stems/node_modules
+          - packages/stems/dist
+
 web-build-demo:
   working_directory: ~/audius-client
   docker:
