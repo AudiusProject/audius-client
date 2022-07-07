@@ -66,6 +66,8 @@ jobs:
       - save_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
           paths:
+            - ~/.npm
+            - ~/.cache
             - ./node_modules
             - ./packages/*/node_modules
             - ./packages/stems/dist
