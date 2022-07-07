@@ -4,6 +4,8 @@ web-init:
     - image: circleci/node:14.18
   steps:
     - checkout
+    - attach_workspace:
+        at: ./
 
     # Download and cache dependencies
     # - restore_cache:
@@ -39,12 +41,12 @@ web-init:
           npm test
 
     # Persist the build directory to a workspace
-    - persist_to_workspace:
-        root: ./
-        paths:
-          - packages/web/node_modules
-          - packages/stems/node_modules
-          - packages/stems/dist
+    # - persist_to_workspace:
+    #     root: ./
+    #     paths:
+    #       - packages/web/node_modules
+    #       - packages/stems/node_modules
+    #       - packages/stems/dist
 
 web-build-demo:
   working_directory: ~/audius-client
