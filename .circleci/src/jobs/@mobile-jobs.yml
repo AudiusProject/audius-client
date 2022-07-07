@@ -44,6 +44,8 @@ mobile-init:
         paths:
           - packages/web/node_modules
           - packages/mobile/node_modules
+          - packages/stems/node_modules
+          - packages/stems/dist
           - packages/mobile/.env.stage
           - packages/mobile/.env.prod
 
