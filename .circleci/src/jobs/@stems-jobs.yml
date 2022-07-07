@@ -13,9 +13,9 @@ stems-init:
           - dependency-cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
 
     - run:
-        name: Lerna bootstrap
+        name: Link packages
         command: |
-          npm run bootstrap
+          npm run link
 
     # Lint
     - run:

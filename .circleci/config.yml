@@ -68,7 +68,7 @@ jobs:
           paths:
             - ./node_modules
             - ./packages/*/node_modules
-            - ./packages/*/dist
+            - ./packages/stems/dist
 
   # Bump version and create release branch
   generate-release:

@@ -2,8 +2,8 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "postinstall": "npm run bootstrap && lerna run build --scope=@audius/stems && npm run install-hooks",
+    "link": "lerna link",
+    "postinstall": "lerna bootstrap && lerna run build --scope=@audius/stems && npm run install-hooks",
     "install-hooks": "mookme init --only-hook --skip-types-selection"
   },
   "devDependencies": {
