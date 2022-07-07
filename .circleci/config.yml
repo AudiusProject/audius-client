@@ -9,7 +9,7 @@ commands:
     steps:
       - run:
           name: Combine package-lock.json files to single file
-          command: npx lerna la -a | awk -F packages '{printf "\"packages%s/package-lock.json\" ", $2}' | xargs cat > << parameters.filename >>
+          command: ls -d -- packages/*/*-lock.json | awk -F packages '{printf "\"packages%s\" ", $2}' | xargs cat > << parameters.filename >>
 
 parameters:
   # Run all workflows for branches that match this regex
