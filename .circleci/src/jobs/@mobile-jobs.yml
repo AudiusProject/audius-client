@@ -19,18 +19,18 @@ mobile-init:
           echo "FCM_SENDER_ID=$FCM_SENDER_ID" >> .env.prod
           echo "AMPLITUDE_WRITE_KEY=$AMPLITUDE_WRITE_KEY_PROD" >> .env.prod
 
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - dependency-cache-{{ checksum "packages/mobile/package-lock.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - dependency-cache-
-    - run: npm ci
+    # # Download and cache dependencies
+    # - restore_cache:
+    #     keys:
+    #       - dependency-cache-{{ checksum "packages/mobile/package-lock.json" }}
+    #       # fallback to using the latest cache if no exact match is found
+    #       - dependency-cache-
+    # - run: npm ci
 
-    - save_cache:
-        key: dependency-cache-{{ checksum "packages/mobile/package-lock.json" }}
-        paths:
-          - ./packages/mobile/node_modules
+    # - save_cache:
+    #     key: dependency-cache-{{ checksum "packages/mobile/package-lock.json" }}
+    #     paths:
+    #       - ./packages/mobile/node_modules
     - run:
         name: typecheck
         command: cd packages/mobile && npm run typecheck

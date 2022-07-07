@@ -32,6 +32,23 @@ jobs:
           paths:
             - .circleci/continue_config.yml
 
+  init:
+    working_directory: ~/audius-client
+    docker:
+      - image: circleci/node:14.18
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            npm ci
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - node_modules
+            - packages/*/node_modules
+            - packages/*/dist
+
   # Bump version and create release branch
   generate-release:
     working_directory: ~/audius-client
@@ -65,6 +82,7 @@ workflows:
         equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - generate-config
+      - init
 
       # Trigger relevant workflows for the files that have changed
       - path-filtering/filter:
