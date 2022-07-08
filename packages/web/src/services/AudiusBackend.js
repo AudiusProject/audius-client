@@ -1430,35 +1430,15 @@ class AudiusBackend {
     const description = metadata.description
 
     try {
-      let blockHash, blockNumber
-      const promises = []
-      if (playlistName) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
-        )
-      }
-      if (coverPhoto) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverPhoto)
-        )
-      }
-      if (description) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
-        )
-      }
-
-      /**
-       * find the latest transaction i.e. latest block number among the return transaction receipts
-       * and return that block number along with its corresponding block hash
-       */
-      if (promises.length > 0) {
-        const latestReceipt = AudiusBackend.getLatestTxReceipt(
-          await Promise.all(promises)
-        )
-        blockHash = latestReceipt.blockHash
-        blockNumber = latestReceipt.blockNumber
-      }
+      const {
+        blockHash,
+        blockNumber
+      } = await audiusLibs.AudiusData.updatePlaylist({
+        playlistId,
+        playlistName,
+        coverPhoto,
+        description
+      })
 
       return { blockHash, blockNumber }
     } catch (error) {
