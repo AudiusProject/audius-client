@@ -427,7 +427,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
       const contents = await Clipboard.getString()
       if (contents) {
         const parsed = querystring.parseUrl(contents)
-        const handle = parsed.query?.ref
+        const handle = parsed.query?.ref as string
         if (handle) {
           dispatchWeb(signOnActionsWeb.fetchReferrer(handle))
         }
