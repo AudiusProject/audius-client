@@ -43,14 +43,12 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
 ])
 
 /** Pulls rewards from remoteconfig */
-const useRewardIds = (
-  hideConfig: Partial<Record<ChallengeRewardID, boolean>>
-) => {
+const useActiveRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   if (rewardsString === null) return []
-  const rewards = rewardsString.split(',') as ChallengeRewardID[]
-  const filteredRewards: ChallengeRewardID[] = rewards.filter(
-    reward => validRewardIds.has(reward) && !hideConfig[reward]
+  const activeRewards = rewardsString.split(',') as ChallengeRewardID[]
+  const filteredRewards = activeRewards.filter(reward =>
+    validRewardIds.has(reward)
   )
   return filteredRewards
 }
@@ -72,12 +70,12 @@ const NavAudio = () => {
   const audioBadge = audioTierMapPng[tier as BadgeTier]
 
   const optimisticUserChallenges = useSelector(getOptimisticUserChallenges)
-  const rewardIds = useRewardIds({})
-  const filteredUserChallenges = Object.values(
+  const activeRewardIds = useActiveRewardIds()
+  const activeUserChallenges = Object.values(
     optimisticUserChallenges
-  ).filter(challenge => rewardIds.includes(challenge.challenge_id))
-  const hasClaimableTokens = filteredUserChallenges.some(
-    challenge => challenge && challenge.claimableAmount > 0
+  ).filter(challenge => activeRewardIds.includes(challenge?.challenge_id))
+  const hasClaimableTokens = activeUserChallenges.some(
+    challenge => challenge.claimableAmount > 0
   )
 
   const [bubbleType, setBubbleType] = useState<BubbleType>('none')
