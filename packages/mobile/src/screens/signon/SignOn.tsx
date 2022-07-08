@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions.js'
+import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions'
 import querystring from 'query-string'
 import {
   Animated,
