@@ -12,7 +12,6 @@ type AppModalProps = {
 export const AppModal = (props: AppModalProps) => {
   const { name, modal: Modal } = props
   const { modalState } = useModalState(name)
-  console.log('modalstate', modalState)
 
   if (modalState === false) return null
 
