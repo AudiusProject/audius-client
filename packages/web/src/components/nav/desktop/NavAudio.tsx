@@ -46,11 +46,9 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
 const useActiveRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   if (rewardsString === null) return []
-  const activeRewards = rewardsString.split(',') as ChallengeRewardID[]
-  const filteredRewards = activeRewards.filter(reward =>
-    validRewardIds.has(reward)
-  )
-  return filteredRewards
+  const rewards = rewardsString.split(',') as ChallengeRewardID[]
+  const activeRewards = rewards.filter(reward => validRewardIds.has(reward))
+  return activeRewards
 }
 
 const NavAudio = () => {
@@ -73,7 +71,7 @@ const NavAudio = () => {
   const activeRewardIds = useActiveRewardIds()
   const activeUserChallenges = Object.values(
     optimisticUserChallenges
-  ).filter(challenge => activeRewardIds.includes(challenge?.challenge_id))
+  ).filter(challenge => activeRewardIds.includes(challenge.challenge_id))
   const hasClaimableTokens = activeUserChallenges.some(
     challenge => challenge.claimableAmount > 0
   )
