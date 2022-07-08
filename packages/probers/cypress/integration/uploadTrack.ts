@@ -10,7 +10,7 @@ describe("Upload Track", () => {
     cy.visit(`trending?login=${base64Entropy}`);
     cy.findByText(user.name, { timeout: 20000 }).should("exist");
 
-    cy.visit("upload");
+    cy.findByRole("button", { name: /upload track/i }).click();
 
     cy.findByRole("heading", { name: /upload tracks/i, level: 1 }).should(
       "exist"
@@ -24,6 +24,16 @@ describe("Upload Track", () => {
 
     cy.findByRole("combobox", { name: /pick a genre/i }).click();
     cy.findByRole("option", { name: /rock/i }).click();
+
+    // Add track artwork
+    cy.findByRole("button", { name: /change artwork/i }).click();
+
+    cy.findByTestId("upload-dropzone").attachFile("track-artwork.jpeg", {
+      subjectType: "drag-n-drop",
+    });
+
+    cy.findByRole("button", { name: /close popup/ });
+
     cy.findByRole("button", { name: /continue/i }).click();
 
     cy.findByRole("progressbar").should("have.attr", "aria-valuenow", "0");
