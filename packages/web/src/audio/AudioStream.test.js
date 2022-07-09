@@ -36,7 +36,7 @@ beforeAll(() => {
     createObjectURL: jest.fn()
   }
   // Set timeouts to resolve instantly.
-  global.setTimeout = jest.fn().mockImplementation(cb => {
+  global.setTimeout = jest.fn().mockImplementation((cb) => {
     cb()
   })
 })

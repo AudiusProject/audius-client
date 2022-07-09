@@ -28,7 +28,7 @@ class DatePicker extends Component {
     }
   }
 
-  isValidDate = date => {
+  isValidDate = (date) => {
     if (!date) return false
     if (!date.isValid()) return false
     if (!isInclusivelyBeforeDay(date, moment())) return false
@@ -36,7 +36,7 @@ class DatePicker extends Component {
     return true
   }
 
-  onDateChange = date => {
+  onDateChange = (date) => {
     let invalid = false
     if (!this.isValidDate(date)) {
       invalid = true
@@ -59,7 +59,7 @@ class DatePicker extends Component {
             id={id}
             placeholder={moment().format('MM/DD/YYYY')}
             // Restrict date picker to days before today.
-            isOutsideRange={day => !isInclusivelyBeforeDay(day, moment())}
+            isOutsideRange={(day) => !isInclusivelyBeforeDay(day, moment())}
             date={this.state.date}
             onDateChange={this.onDateChange}
             focused={this.state.focused}
@@ -86,7 +86,7 @@ DatePicker.defaultProps = {
   id: 'default-unique-id',
   label: 'Date',
   defaultDate: '',
-  onDateChange: date => {}
+  onDateChange: (date) => {}
 }
 
 export default DatePicker

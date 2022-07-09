@@ -67,11 +67,8 @@ function* requestConfirmationAsync(
     timeoutMillis,
     confirmationOptions
   } = action
-  const {
-    parallelizable,
-    useOnlyLastSuccessCall,
-    operationId
-  } = confirmationOptions
+  const { parallelizable, useOnlyLastSuccessCall, operationId } =
+    confirmationOptions
 
   // Get the "queue" length
   const nextCallIndex: number = yield select(getConfirmLength, { uid: uid })
@@ -92,9 +89,10 @@ function* requestConfirmationAsync(
     index: nextCallIndex
   })
   let result, completionCall, success
-  const shouldCancelCurrentCall:
-    | boolean
-    | undefined = yield select(getShouldCancelCurrentCall, { uid })
+  const shouldCancelCurrentCall: boolean | undefined = yield select(
+    getShouldCancelCurrentCall,
+    { uid }
+  )
 
   if (shouldCancelCurrentCall) {
     yield put(confirmerActions._cancelConfirmationCall(uid, nextCallIndex))

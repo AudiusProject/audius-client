@@ -26,8 +26,8 @@ import {
   getPathname
 } from 'utils/route'
 
-export const getLineupSelectorForRoute = state => {
-  const matchPage = path => {
+export const getLineupSelectorForRoute = (state) => {
+  const matchPage = (path) => {
     const match = matchPath(getPathname(), {
       path: path,
       exact: true

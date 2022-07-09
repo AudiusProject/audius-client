@@ -11,7 +11,7 @@ const initialTracks = {
     1: { metadata: { owner_id: 1, track_segments: {} } }
   },
   uids: {
-    '123': 1
+    123: 1
   }
 }
 
@@ -21,7 +21,7 @@ const initialUsers = {
   }
 }
 
-const makeInitialPlayer = playing => ({
+const makeInitialPlayer = (playing) => ({
   audio: {
     load: jest.fn(),
     play: jest.fn(),

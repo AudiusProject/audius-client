@@ -42,7 +42,7 @@ const provider = createUserListProvider<User>({
   canFetchMoreUsers: (user: User, combinedUserIDs: ID[]) =>
     combinedUserIDs.length < user.followee_count,
 
-  includeCurrentUser: _ => false
+  includeCurrentUser: (_) => false
 })
 
 function* errorDispatcher(error: Error) {
