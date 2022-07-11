@@ -168,13 +168,13 @@ class Explore {
     limit = 20
   ): Promise<Collection[]> {
     try {
-      const playlists = await libs().discoveryProvider.getTrendingPlaylists(
+      const playlists = await libs().discoveryProvider.getTopFullPlaylists({
         type,
         limit,
-        undefined,
-        followeesOnly ? 'followees' : undefined,
-        true
-      )
+        mood: undefined,
+        filter: followeesOnly ? 'followees' : undefined,
+        withUsers: true
+      })
       const adapted = playlists.map(adapter.makePlaylist)
       return adapted
     } catch (e) {
@@ -189,13 +189,13 @@ class Explore {
   ): Promise<UserCollectionMetadata[]> {
     try {
       const requests = moods.map((mood) => {
-        return libs().discoveryProvider.getTrendingPlaylists(
-          'playlist',
+        return libs().discoveryProvider.getTopFullPlaylists({
+          type: 'playlist',
           limit,
           mood,
-          undefined,
-          true
-        )
+          filter: undefined,
+          withUsers: true
+        })
       })
       const playlistsByMood: CollectionWithScore[] = await Promise.all(requests)
       let allPlaylists: CollectionWithScore[] = []
