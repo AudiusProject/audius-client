@@ -2,7 +2,7 @@
   "name": "eslint-config-audius",
   "version": "0.0.0",
   "description": "Custom eslint config for Audius.",
-  "author": "Dylan Jeffers <dylan@audius.co>",
+  "author": "Audius",
   "homepage": "https://github.com/AudiusProject/audius-client#readme",
   "license": "ISC",
   "main": "src/index.js",

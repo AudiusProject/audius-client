@@ -141,6 +141,7 @@
     "@types/react-test-renderer": "16.9.0",
     "babel-jest": "24.9.0",
     "eslint-config-audius": "0.0.0",
+    "eslint": "7.26.0",
     "jest": "24.9.0",
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.67.0",

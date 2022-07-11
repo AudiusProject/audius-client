@@ -6,7 +6,6 @@
   "version": "1.1.12",
   "private": true,
   "dependencies": {
-    "eslint-config-audius": "0.0.0",
     "@audius/sdk": "0.0.4",
     "@audius/stems": "1.1.12",
     "@craco/craco": "7.0.0-alpha.3",
@@ -232,6 +231,8 @@
     "electron-builder": "22.10.5",
     "electron-notarize": "0.1.1",
     "env-cmd": "8.0.2",
+    "eslint": "7.26.0",
+    "eslint-config-audius": "0.0.0",
     "fetch-mock": "9.9.1",
     "fs": "0.0.1-security",
     "fs-extra": "8.1.0",
