@@ -1710,7 +1710,7 @@ class AudiusBackend {
 
   static async signOut() {
     await waitForLibsInit()
-    return audiusLibs.Account.logout()
+    await audiusLibs.Account.logout()
   }
 
   /**
