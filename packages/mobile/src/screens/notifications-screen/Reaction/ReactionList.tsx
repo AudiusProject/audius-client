@@ -7,9 +7,19 @@ import {
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { View, PanResponderGestureState, PanResponder } from 'react-native'
 
+import { makeStyles } from 'app/styles'
+
 import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
 
 import { reactionMap } from './reactions'
+
+const useStyles = makeStyles(() => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center'
+  }
+}))
 
 type PositionEntries = [ReactionTypes, { x: number; width: number }][]
 
@@ -19,21 +29,24 @@ type ReactionListProps = {
   isVisible: boolean
 }
 
+const initialPositions = {
+  fire: { x: 0, width: 0 },
+  heart: { x: 0, width: 0 },
+  party: { x: 0, width: 0 },
+  explode: { x: 0, width: 0 }
+}
+
+type Positions = { [k in ReactionTypes]: { x: number; width: number } }
+
 export const ReactionList = (props: ReactionListProps) => {
+  const styles = useStyles()
   const { selectedReaction, onChange, isVisible } = props
   const interactingRef = useRef<ReactionTypes | null>(null)
   const { setGesturesDisabled } = useContext(
     NotificationsDrawerNavigationContext
   )
   const [interacting, setInteracting] = useState<ReactionTypes | null>(null)
-  const positions = useRef<{
-    [k in ReactionTypes]: { x: number; width: number }
-  }>({
-    fire: { x: 0, width: 0 },
-    heart: { x: 0, width: 0 },
-    party: { x: 0, width: 0 },
-    explode: { x: 0, width: 0 }
-  })
+  const positions = useRef<Positions>(initialPositions)
 
   const handleGesture = useCallback(
     (_, gestureState: PanResponderGestureState) => {
@@ -60,27 +73,34 @@ export const ReactionList = (props: ReactionListProps) => {
     []
   )
 
+  const handlePanResponderRelease = useCallback(() => {
+    onChange(interactingRef.current)
+    interactingRef.current = null
+    setInteracting(null)
+    setGesturesDisabled?.(false)
+  }, [onChange])
+
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
       onPanResponderGrant: (e, gestureState) => {
         setGesturesDisabled?.(true)
         handleGesture(e, gestureState)
       },
-      onPanResponderMove: handleGesture,
-      onPanResponderRelease: () => {
-        onChange(interactingRef.current)
-        interactingRef.current = null
-        setInteracting(null)
-        setGesturesDisabled?.(false)
+      onPanResponderMove: (...args) => {
+        handleGesture(...args)
       },
+      onPanResponderRelease: handlePanResponderRelease,
+      onPanResponderTerminate: handlePanResponderRelease,
+      onMoveShouldSetPanResponder: () => true,
       onStartShouldSetPanResponderCapture: () => true,
-      onMoveShouldSetPanResponderCapture: () => true
+      onMoveShouldSetPanResponderCapture: () => true,
+      onStartShouldSetPanResponder: () => true
     })
   )
 
   return (
     <View>
+<<<<<<< HEAD
       <View
         style={{
           flexDirection: 'row',
@@ -89,7 +109,12 @@ export const ReactionList = (props: ReactionListProps) => {
         }}
         {...panResponder.current.panHandlers}>
         {reactionOrder.map((reactionType) => {
+=======
+      <View style={styles.root} {...panResponder.current.panHandlers}>
+        {reactionOrder.map(reactionType => {
+>>>>>>> 06221ed6 ([PAY-399] Fix reaction notification selection bug)
           const Reaction = reactionMap[reactionType]
+
           const status =
             selectedReaction === reactionType
               ? 'selected'
@@ -98,6 +123,7 @@ export const ReactionList = (props: ReactionListProps) => {
               : selectedReaction
               ? 'unselected'
               : 'idle'
+
           return (
             <Reaction
               key={reactionType}
