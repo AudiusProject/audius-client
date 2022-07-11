@@ -4,26 +4,20 @@ web-init:
     - image: circleci/node:14.18
   steps:
     - checkout
+    - attach_workspace:
+        at: ./
 
-    # Download and cache dependencies
+    - create_concatenated_package_lock:
+          filename: combined-package-lock.txt
+
     - restore_cache:
-        keys:
-          - dependency-cache-{{ checksum "packages/web/package-lock.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - dependency-cache-
+          keys:
+            - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
 
-    - run: rm -rf /home/circleci/audius-client/packages/web/node_modules/websocket/.git
-
-    - run: echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > .npmrc
-
-    - run: |
-        cd packages/web
-        npm ci --ignore-scripts
-
-    - save_cache:
-        key: dependency-cache-{{ checksum "packages/web/package-lock.json" }}
-        paths:
-          - ./packages/web/node_modules
+    - run:
+        name: Link packages
+        command: |
+          npm run link
 
     # Lint
     - run:
@@ -32,18 +26,12 @@ web-init:
           cd packages/web
           npm run lint
 
-    # Run tests
-    - run:
-        name: test
-        command: |
-          cd packages/web
-          npm test
-
-    # Persist the build directory to a workspace
     - persist_to_workspace:
         root: ./
         paths:
           - packages/web/node_modules
+          - packages/stems/node_modules
+          - packages/stems/dist
 
 web-build-demo:
   working_directory: ~/audius-client
@@ -116,16 +104,16 @@ web-test-staging:
     # Download and cache dependencies
     - restore_cache:
         keys:
-          - probers-dependency-cache-{{ checksum "probers/package-lock.json" }}
+          - probers-cache-{{ checksum "probers/package-lock.json" }}
           # fallback to using the latest cache if no exact match is found
-          - probers-dependency-cache-
+          - probers-cache-
     - run:
         name: install probers dependencies
         command: |
           cd probers
           npm ci
     - save_cache:
-        key: probers-dependency-cache-{{ checksum "probers/package-lock.json" }}
+        key: probers-cache-{{ checksum "probers/package-lock.json" }}
         paths:
           - ./probers/node_modules
     - attach_workspace:
@@ -194,9 +182,14 @@ web-deploy-staging-s3:
     - attach_workspace:
         at: ./
     - run:
+        name: Create TAR
+        command: |
+          tar -zcvf packages/web/build-staging.tar.gz packages/web/build-staging
+    - run:
         name: Deploy to S3
         command: |
           aws s3 sync --exclude "packages/web/sitemaps/*" packages/web/build-staging s3://staging.audius.co --delete --cache-control max-age=0
+          aws s3 cp packages/web/build-staging.tar.gz s3://staging.audius.co/build-staging.tar.gz --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
 
 web-deploy-staging-cloudflare:
   working_directory: ~/audius-client
@@ -261,12 +254,17 @@ web-deploy-production-s3:
     - attach_workspace:
         at: ./
     - run:
+        name: Create TAR
+        command: |
+          tar -zcvf packages/web/build-production.tar.gz packages/web/build-production
+    - run:
         name: Deploy to S3
         # Deploy, but exclude sourcemaps
         command: |
           aws s3 sync --exclude "*.map" --exclude robots.txt --exclude "packages/web/sitemaps/*" packages/web/build-production s3://audius.co --delete --cache-control max-age=604800
           aws s3 cp s3://audius.co/index.html s3://audius.co/index.html --cache-control max-age=0,no-cache,no-store,must-revalidate --content-type text/html --metadata-directive REPLACE --acl public-read
           aws s3 cp packages/web/robots.txt s3://audius.co --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
+          aws s3 cp packages/web/build-production.tar.gz s3://audius.co/build-production.tar.gz --cache-control max-age=0 --content-type 'application/json' --metadata-directive REPLACE
     - run:
         name: Invalidate cache
         # Note: cache invalidation is charged per path, so this only counts as 1/1000 monthly quota.

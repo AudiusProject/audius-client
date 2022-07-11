@@ -4,7 +4,9 @@ import {
 } from 'audius-client/src/common/models/AudioRewards'
 import {
   ACCOUNT_VERIFICATION_SETTINGS_PAGE,
-  TRENDING_PAGE
+  TRENDING_PAGE,
+  EXPLORE_HEAVY_ROTATION_PAGE,
+  FAVORITES_PAGE
 } from 'audius-client/src/utils/route'
 import { ImageSourcePropType } from 'react-native'
 
@@ -13,8 +15,10 @@ import Headphone from 'app/assets/images/emojis/headphone.png'
 import IncomingEnvelope from 'app/assets/images/emojis/incoming-envelope.png'
 import LoveLetter from 'app/assets/images/emojis/love-letter.png'
 import MobilePhoneWithArrow from 'app/assets/images/emojis/mobile-phone-with-arrow.png'
+import MoneyMouthFace from 'app/assets/images/emojis/money-mouth-face.png'
 import MultipleMusicalNotes from 'app/assets/images/emojis/multiple-musical-notes.png'
 import NerdFace from 'app/assets/images/emojis/nerd-face.png'
+import Sparkles from 'app/assets/images/emojis/sparkles.png'
 import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
@@ -85,12 +89,31 @@ export const challenges = {
   trackUploadDescription: 'Upload 3 tracks to your profile',
   trackUploadShortDescription: 'Upload 3 tracks to your profile',
   trackUploadProgressLabel: '%0/%1 Uploaded',
-  trackUploadButton: 'Upload Tracks'
+  trackUploadButton: 'Upload Tracks',
+
+  // Send First Tip
+  sendFirstTipTitle: 'Send Your First Tip',
+  sendFirstTipDescription:
+    'Show some love to your favorite artist and send them a tip',
+  sendFirstTipShortDescription:
+    'Show some love to your favorite artist and send them a tip',
+  sendFirstTipProgressLabel: 'Not Earned',
+  sendFirstTipButton: 'Find Someone To Tip',
+
+  firstPlaylistTitle: 'Create Your First Playlist',
+  firstPlaylistDescription: 'Create your first playlist & add a track to it',
+  firstPlaylistShortDescription:
+    'Create your first playlist & add a track to it',
+  firstPlaylistProgressLabel: 'Not Earned',
+  firstPlaylistButton: 'Create Your First Playlist'
 }
 
 export type ChallengesParamList = {
   trending: undefined
   AccountVerificationScreen: undefined
+  explore: undefined
+  favorites: undefined
+  params: { screen: string }
 }
 
 export type ChallengeConfig = {
@@ -205,6 +228,34 @@ export const challengesConfig: Record<ChallengeRewardID, ChallengeConfig> = {
       label: challenges.trackUploadButton,
       renderIcon: color => <IconUpload fill={color} />,
       iconPosition: 'right'
+    }
+  },
+  'send-first-tip': {
+    icon: MoneyMouthFace,
+    title: challenges.sendFirstTipTitle,
+    description: challenges.sendFirstTipDescription,
+    shortDescription: challenges.sendFirstTipShortDescription,
+    progressLabel: challenges.sendFirstTipProgressLabel,
+    buttonInfo: {
+      label: challenges.sendFirstTipButton,
+      navigation: {
+        native: { screen: 'explore', params: { screen: 'HeavyRotation' } },
+        web: { route: EXPLORE_HEAVY_ROTATION_PAGE }
+      }
+    }
+  },
+  'first-playlist': {
+    icon: Sparkles,
+    title: challenges.firstPlaylistTitle,
+    description: challenges.firstPlaylistDescription,
+    shortDescription: challenges.firstPlaylistShortDescription,
+    progressLabel: challenges.firstPlaylistProgressLabel,
+    buttonInfo: {
+      label: challenges.firstPlaylistButton,
+      navigation: {
+        native: { screen: 'favorites' },
+        web: { route: FAVORITES_PAGE }
+      }
     }
   }
 }

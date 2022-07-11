@@ -1,6 +1,6 @@
 {
   "name": "@audius/stems",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "The Audius React component library",
   "author": "",
   "license": "",
@@ -117,6 +117,7 @@
   "dependencies": {
     "@juggle/resize-observer": "3.3.1",
     "react-perfect-scrollbar": "1.5.8",
+    "react-use": "15.3.8",
     "react-use-measure": "2.1.1"
   }
 }

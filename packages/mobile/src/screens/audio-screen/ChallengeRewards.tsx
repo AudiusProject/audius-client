@@ -33,7 +33,9 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
   'connect-verified',
   'listen-streak',
   'profile-completion',
-  'referred'
+  'referred',
+  'send-first-tip',
+  'first-playlist'
 ])
 
 /** Pulls rewards from remoteconfig */

@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 
 import { IconArrow, IconCheck, IconUpload } from '@audius/stems'
 
+import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import {
   amounts,
   ChallengeRewardID,
@@ -14,7 +15,9 @@ import {
   profilePage,
   SETTINGS_PAGE,
   TRENDING_PAGE,
-  UPLOAD_PAGE
+  UPLOAD_PAGE,
+  EXPLORE_HEAVY_ROTATION_PAGE,
+  FAVORITES_PAGE
 } from 'utils/route'
 
 type LinkButtonType =
@@ -22,12 +25,24 @@ type LinkButtonType =
   | 'profile'
   | 'verifyAccount'
   | 'trendingTracks'
+  | 'sendFirstTip'
+  | 'firstPlaylist'
 type LinkButtonInfo = {
   label: string
   leftIcon: ReactNode | null
   rightIcon: ReactNode | null
   link: (handle: string | null) => string | null
 }
+
+const GoldBadgeIconImage = () => (
+  <img
+    draggable={false}
+    alt='Gold badge'
+    src={IconGoldBadge}
+    width={24}
+    height={24}
+  />
+)
 
 const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
   trackUpload: {
@@ -53,6 +68,18 @@ const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
     leftIcon: null,
     rightIcon: <IconArrow />,
     link: () => TRENDING_PAGE
+  },
+  sendFirstTip: {
+    label: 'Find Someone To Tip',
+    leftIcon: null,
+    rightIcon: <GoldBadgeIconImage />,
+    link: () => EXPLORE_HEAVY_ROTATION_PAGE
+  },
+  firstPlaylist: {
+    label: 'Create Your First Playlist',
+    leftIcon: null,
+    rightIcon: <IconArrow />,
+    link: () => FAVORITES_PAGE
   }
 }
 
@@ -210,6 +237,37 @@ export const challengeRewardsConfig: Record<
       incomplete: linkButtonMap.trackUpload,
       inProgress: linkButtonMap.trackUpload,
       complete: linkButtonMap.trackUpload
+    }
+  },
+  'send-first-tip': {
+    id: 'send-first-tip' as ChallengeRewardID,
+    title: 'Send Your First Tip',
+    icon: <i className='emoji large money-mouth-face' />,
+    description: challenge => `Earn ${challenge?.amount} $AUDIO`,
+    fullDescription: () =>
+      'Show some love to your favorite artist and send them a tip',
+    progressLabel: 'Not Earned',
+    amount: amounts['send-first-tip'],
+    panelButtonText: 'Find Someone To Tip',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.sendFirstTip,
+      inProgress: linkButtonMap.sendFirstTip,
+      complete: linkButtonMap.sendFirstTip
+    }
+  },
+  'first-playlist': {
+    id: 'first-playlist' as ChallengeRewardID,
+    title: 'Create Your First Playlist',
+    icon: <i className='emoji large sparkles' />,
+    description: challenge => `Earn ${challenge?.amount} $AUDIO`,
+    fullDescription: () => 'Create your first playlist & add a track to it',
+    progressLabel: 'Not Earned',
+    amount: amounts['first-playlist'],
+    panelButtonText: 'Create Your First Playlist',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.firstPlaylist,
+      inProgress: linkButtonMap.firstPlaylist,
+      complete: linkButtonMap.firstPlaylist
     }
   }
 }

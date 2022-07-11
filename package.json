@@ -2,9 +2,9 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "init": "npm run install-deps && npm run install-hooks",
-    "install-deps": "npm i && npx lerna exec -- npm i",
-    "install-hooks": "npx @escape.tech/mookme init --only-hook --skip-types-selection"
+    "link": "lerna link",
+    "postinstall": "lerna bootstrap --no-ci && lerna run build --scope=@audius/stems && npm run install-hooks",
+    "install-hooks": "mookme init --only-hook --skip-types-selection"
   },
   "devDependencies": {
     "lerna": "5.0.0"

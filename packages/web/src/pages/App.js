@@ -149,7 +149,8 @@ import {
   AUDIO_NFT_PLAYLIST_PAGE,
   DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
-  TOP_SUPPORTERS_USERS_ROUTE
+  TOP_SUPPORTERS_USERS_ROUTE,
+  publicSiteRoutes
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -178,7 +179,7 @@ const UploadPage = lazyWithPreload(
   () => import('pages/upload-page/UploadPage'),
   0
 )
-const Modals = lazyWithPreload(() => import('./Modals'), 0)
+const Modals = lazyWithPreload(() => import('./modals/Modals'), 0)
 const ConnectedMusicConfetti = lazyWithPreload(
   () => import('components/music-confetti/ConnectedMusicConfetti'),
   0
@@ -201,6 +202,7 @@ class App extends Component {
     showWeb3ErrorBanner: null,
 
     showUpdateAppBanner: false,
+    showWebUpdateBanner: false,
     showRequiresUpdate: false,
     isUpdating: false,
 
@@ -253,6 +255,12 @@ class App extends Component {
 
       this.ipc.on('updateError', (event, arg) => {
         console.error('updateError', event, arg)
+      })
+
+      // This is for patch updates so that only the web assets are updated
+      this.ipc.on('webUpdateAvailable', (event, arg) => {
+        console.info('webUpdateAvailable', event, arg)
+        this.setState({ showWebUpdate: true })
       })
 
       // There is an update available, the user should update if it's
@@ -414,8 +422,18 @@ class App extends Component {
     this.ipc.send('update')
   }
 
+  acceptWebUpdate = () => {
+    if (this.state.showWebUpdateBanner) this.dismissUpdateWebAppBanner()
+    this.setState({ isUpdating: true })
+    this.ipc.send('web-update')
+  }
+
   dismissUpdateAppBanner = () => {
     this.setState({ showUpdateAppBanner: false })
+  }
+
+  dismissUpdateWebAppBanner = () => {
+    this.setState({ showWebUpdateBanner: false })
   }
 
   showDownloadAppModal = () => {
@@ -440,6 +458,7 @@ class App extends Component {
     const {
       showCTABanner,
       showUpdateAppBanner,
+      showWebUpdate,
       showWeb3ErrorBanner,
       isUpdating,
       showRequiresUpdate,
@@ -494,6 +513,12 @@ class App extends Component {
             onClose={this.dismissWeb3ErrorBanner}
           />
         ) : null}
+        {showWebUpdate ? (
+          <UpdateAppBanner
+            onAccept={this.acceptWebUpdate}
+            onClose={this.dismissUpdateWebAppBanner}
+          />
+        ) : null}
         {this.props.showCookieBanner ? <CookieBanner /> : null}
         <Notice shouldPadTop={showBanner} />
         <Navigator
@@ -515,6 +540,17 @@ class App extends Component {
 
           <Suspense fallback={null}>
             <SwitchComponent isInitialPage={initialPage} handle={userHandle}>
+              {publicSiteRoutes.map(route => (
+                // Redirect all public site routes to the corresponding pathname.
+                // This is necessary first because otherwise pathnames like
+                // legal/privacy-policy will match the track route.
+                <Redirect
+                  key={route}
+                  from={route}
+                  to={{ pathname: getPathname() }}
+                />
+              ))}
+
               <Route
                 exact
                 path={SIGN_IN_PAGE}

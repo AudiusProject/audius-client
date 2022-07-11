@@ -27,7 +27,7 @@ import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
 import TabSlider from 'components/data-entry/TabSlider'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
-import SelectedServices from 'components/service-selection/SelectedServices'
+import { SelectedServices } from 'components/service-selection'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement } from 'components/types'
 import AudiusBackend from 'services/AudiusBackend'
@@ -36,12 +36,13 @@ import { isMobile, isElectron, getOS } from 'utils/clientUtil'
 import { COPYRIGHT_TEXT } from 'utils/copyright'
 import { signOut } from 'utils/signOut'
 
-import { version } from '../../../../../package.json'
+import packageInfo from '../../../../../package.json'
 
 import NotificationSettings from './NotificationSettings'
 import SettingsCard from './SettingsCard'
 import styles from './SettingsPage.module.css'
 import VerificationModal from './VerificationModal'
+const { version } = packageInfo
 
 const SIGN_OUT_MODAL_TEXT = `
   Are you sure you want to sign out?
