@@ -1,6 +1,10 @@
 import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
-import { InstagramProfile, TwitterProfile } from 'common/store/account/reducer'
+import {
+  AccountImage,
+  InstagramProfile,
+  TwitterProfile
+} from 'common/store/account/reducer'
 
 import { FollowArtistsCategory, Pages } from './types'
 
@@ -258,8 +262,8 @@ export function fetchFollowArtistsFailed(error: string) {
 export function setTwitterProfile(
   twitterId: string,
   profile: TwitterProfile,
-  profileImage?: { url: string; file: any },
-  coverPhoto?: { url: string; file: any }
+  profileImage?: AccountImage,
+  coverPhoto?: AccountImage
 ) {
   return {
     type: SET_TWITTER_PROFILE,
@@ -277,7 +281,7 @@ export function setTwitterProfileError(error: string) {
 export function setInstagramProfile(
   instagramId: string,
   profile: InstagramProfile,
-  profileImage?: { url: string; file: any }
+  profileImage?: AccountImage
 ) {
   return {
     type: SET_INSTAGRAM_PROFILE,
