@@ -100,7 +100,7 @@ jobs:
           command: |
             VERSION=$(jq -r .version ./lerna.json)
             git checkout -b sk-circleci-ssh-release-v${VERSION}
-            git push -u origin sk-circle-ci-ssh-release-v${VERSION}
+            git push -u origin sk-circleci-ssh-release-v${VERSION}
 
 workflows:
   # setup:
