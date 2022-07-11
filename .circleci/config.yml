@@ -6,7 +6,7 @@ parameters:
     type: string
     default: /(^main)|(^release.*)$/
 
-setup: true
+# setup: true
 
 orbs:
   continuation: circleci/continuation@0.2.0
@@ -47,6 +47,8 @@ jobs:
           command: |
             git config --global user.email "audius-infra@audius.co"
             git config --global user.name "audius-infra"
+            git checkout -b sk-circleci-ssh-test
+            git push -u origin sk-circleci-ssh-test
             PREV_VERSION=$(jq -r .version ./lerna.json)
             CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v${PREV_VERSION}..HEAD)
             MESSAGE="%s
@@ -58,55 +60,55 @@ jobs:
           name: Create release branch
           command: |
             VERSION=$(jq -r .version ./lerna.json)
-            git checkout -b release-v${VERSION}
-            git push -u origin release-v${VERSION}
+            git checkout -b sk-circleci-ssh-release-v${VERSION}
+            git push -u origin sk-circle-ci-ssh-release-v${VERSION}
 
 workflows:
-  setup:
-    when:
-      not:
-        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-    jobs:
-      - generate-config
+  # setup:
+  #   when:
+  #     not:
+  #       equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+  #   jobs:
+  #     - generate-config
 
-      # Trigger relevant workflows for the files that have changed
-      - path-filtering/filter:
-          base-revision: main
-          config-path: ../workspace/.circleci/continue_config.yml
-          mapping: |
-            packages/web/.* run-web-workflow true
-            packages/mobile/.* run-mobile-workflow true
-            .circleci/.* run-web-workflow true
-            .circleci/.* run-mobile-workflow true
-          name: trigger-relevant-workflows
-          filters:
-            branches:
-              ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
-          requires:
-            - generate-config
-          workspace_path: ../workspace
+  #     # Trigger relevant workflows for the files that have changed
+  #     - path-filtering/filter:
+  #         base-revision: main
+  #         config-path: ../workspace/.circleci/continue_config.yml
+  #         mapping: |
+  #           packages/web/.* run-web-workflow true
+  #           packages/mobile/.* run-mobile-workflow true
+  #           .circleci/.* run-web-workflow true
+  #           .circleci/.* run-mobile-workflow true
+  #         name: trigger-relevant-workflows
+  #         filters:
+  #           branches:
+  #             ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
+  #         requires:
+  #           - generate-config
+  #         workspace_path: ../workspace
 
-      # Trigger all workflows for branches that match regex
-      - continuation/continue:
-          configuration_path: ../workspace/.circleci/continue_config.yml
-          name: trigger-all-workflows
-          filters:
-            branches:
-              only: << pipeline.parameters.run-all-workflows-branch-regex >>
-          parameters: '{
-            "run-web-workflow": true,
-            "run-mobile-workflow": true
-            }'
-          pre-steps:
-            - attach_workspace:
-                at: ../workspace
-          requires:
-            - generate-config
+  #     # Trigger all workflows for branches that match regex
+  #     - continuation/continue:
+  #         configuration_path: ../workspace/.circleci/continue_config.yml
+  #         name: trigger-all-workflows
+  #         filters:
+  #           branches:
+  #             only: << pipeline.parameters.run-all-workflows-branch-regex >>
+  #         parameters: '{
+  #           "run-web-workflow": true,
+  #           "run-mobile-workflow": true
+  #           }'
+  #         pre-steps:
+  #           - attach_workspace:
+  #               at: ../workspace
+  #         requires:
+  #           - generate-config
 
   generate-release:
-    when:
-      and:
-        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-        - equal: ["generate-release", << pipeline.schedule.name >>]
+    # when:
+    #   and:
+    #     - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+    #     - equal: ["generate-release", << pipeline.schedule.name >>]
     jobs:
       - generate-release
