@@ -93,7 +93,7 @@ jobs:
             MESSAGE="%s
 
             ${CHANGELOG}"
-            npm i
+            npm i --ignore-scripts
             npx lerna version patch --exact --yes -m "${MESSAGE}"
       - run:
           name: Create release branch
