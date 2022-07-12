@@ -158,14 +158,10 @@ function* fetchReferrer(action) {
         !currentUser.events?.referrer &&
         currentUser.user_id !== user.user_id
       ) {
-        yield call(
-          AudiusBackend.updateCreator,
-          {
-            ...currentUser,
-            events: { referrer: user.user_id }
-          },
-          0
-        )
+        yield call(AudiusBackend.updateCreator, {
+          ...currentUser,
+          events: { referrer: user.user_id }
+        })
       }
     } catch (e) {
       console.error(e)
@@ -465,14 +461,10 @@ function* signIn(action) {
 
       // Apply retroactive referral
       if (!signInResponse.user?.events?.referrer && signOn.referrer) {
-        yield fork(
-          AudiusBackend.updateCreator,
-          {
-            ...signInResponse.user,
-            events: { referrer: signOn.referrer }
-          },
-          0
-        )
+        yield fork(AudiusBackend.updateCreator, {
+          ...signInResponse.user,
+          events: { referrer: signOn.referrer }
+        })
       }
 
       yield put(pushRoute(route || FEED_PAGE))

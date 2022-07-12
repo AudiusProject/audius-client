@@ -36,13 +36,7 @@ export const COLLECTION_POLL_PLAYLIST_TIMEOUT_ERROR =
   'UPLOAD/ERROR/COLLECTION_POLL_PLAYLIST_TIMEOUT'
 
 export const uploadTracks = (tracks, metadata, uploadType, stems) => {
-  return {
-    type: UPLOAD_TRACKS,
-    tracks,
-    metadata,
-    uploadType,
-    stems
-  }
+  return { type: UPLOAD_TRACKS, tracks, metadata, uploadType, stems }
 }
 
 export const uploadSingleTrackFailed = index => {

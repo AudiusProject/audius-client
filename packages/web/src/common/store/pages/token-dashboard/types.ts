@@ -77,6 +77,7 @@ export type AssociatedWalletsState = {
 
 export type TokenDashboardState = {
   modalState: Nullable<ModalState>
+  modalVisible: boolean
   discordCode: Nullable<string>
   associatedWallets: AssociatedWalletsState
 }
