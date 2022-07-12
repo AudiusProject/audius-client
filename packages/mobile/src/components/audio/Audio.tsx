@@ -422,7 +422,7 @@ const Audio = ({
             onNext()
           }}
           progressUpdateInterval={100}
-          onLoad={payload => {
+          onLoad={(payload) => {
             setDuration(payload.duration)
           }}
           onProgress={onProgress}

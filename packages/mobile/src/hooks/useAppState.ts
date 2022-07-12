@@ -25,7 +25,7 @@ export const useAppState = (
     AppState.currentState
   )
   const handleAppStateChange = useCallback(
-    nextAppState => {
+    (nextAppState) => {
       if (
         appState.match(NotActive) &&
         nextAppState === 'active' &&
