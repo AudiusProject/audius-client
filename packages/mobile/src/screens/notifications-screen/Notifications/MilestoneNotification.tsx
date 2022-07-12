@@ -10,14 +10,14 @@ import {
   EntityType,
   Milestone
 } from 'audius-client/src/common/store/notifications/types'
+import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import {
   fullProfilePage,
   NOTIFICATION_PAGE
 } from 'audius-client/src/utils/route'
-import { isEqual } from 'lodash'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
 import { EventNames } from 'app/types/analytics'
 import { make } from 'app/utils/analytics'
 import { formatCount } from 'app/utils/format'
@@ -56,28 +56,34 @@ Check it out!`
 
 const getTwitterShareData = (
   notification: Milestone,
-  entity: EntityType,
-  user: User
+  entity?: Nullable<EntityType>,
+  user?: Nullable<User>
 ) => {
   const { achievement, value } = notification
   switch (achievement) {
     case Achievement.Followers: {
-      const link = fullProfilePage(user.handle)
-      const text = messages.followerAchievementText(value)
-      return { text, link }
+      if (user) {
+        const link = fullProfilePage(user.handle)
+        const text = messages.followerAchievementText(value)
+        return { text, link }
+      }
+      return { text: '', link: '' }
     }
     case Achievement.Favorites:
     case Achievement.Listens:
     case Achievement.Reposts: {
-      const { entityType } = notification
-      const link = getEntityRoute(entity, true)
-      const text = messages.achievementText(
-        entityType,
-        'title' in entity ? entity.title : entity.playlist_name,
-        value,
-        achievement
-      )
-      return { text, link }
+      if (entity) {
+        const { entityType } = notification
+        const link = getEntityRoute(entity, true)
+        const text = messages.achievementText(
+          entityType,
+          'title' in entity ? entity.title : entity.playlist_name,
+          value,
+          achievement
+        )
+        return { text, link }
+      }
+      return { text: '', link: '' }
     }
     default: {
       return { text: '', link: '' }
@@ -91,6 +97,7 @@ type MilestoneNotificationProps = {
 
 export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const { notification } = props
+  const { achievement } = notification
   const entity = useSelectorWeb(
     (state) => getNotificationEntity(state, notification),
     isEqual
@@ -102,7 +109,7 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const navigation = useDrawerNavigation()
 
   const handlePress = useCallback(() => {
-    if (notification.achievement === Achievement.Followers) {
+    if (achievement === Achievement.Followers) {
       if (user) {
         navigation.navigate({
           native: {
@@ -123,11 +130,12 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   }, [notification, user, navigation, entity])
 
   const renderBody = () => {
-    if (notification.achievement === Achievement.Followers) {
-      const { achievement, value } = notification
+    const { achievement, value } = notification
+    if (achievement === Achievement.Followers) {
+      const { value } = notification
       return `${messages.follows} ${formatCount(value)} ${achievement}`
-    } else {
-      const { entityType, achievement, value } = notification
+    } else if (entity) {
+      const { entityType } = notification
       const achievementText =
         achievement === Achievement.Listens ? 'plays' : achievement
 
@@ -138,27 +146,32 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
         </>
       )
     }
+    return null
   }
-
-  if (!user || !entity) return null
 
   const { link, text } = getTwitterShareData(notification, entity, user)
 
-  return (
-    <NotificationTile notification={notification} onPress={handlePress}>
-      <NotificationHeader icon={IconTrophy}>
-        <NotificationTitle>{messages.title}</NotificationTitle>
-      </NotificationHeader>
-      <NotificationText>{renderBody()}</NotificationText>
-      <NotificationTwitterButton
-        type='static'
-        url={link}
-        shareText={text}
-        analytics={make({
-          eventName: EventNames.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE,
-          milestone: text
-        })}
-      />
-    </NotificationTile>
-  )
+  if (achievement === Achievement.Followers && !user) {
+    return null
+  } else if (achievement !== Achievement.Followers && !entity) {
+    return null
+  } else {
+    return (
+      <NotificationTile notification={notification} onPress={handlePress}>
+        <NotificationHeader icon={IconTrophy}>
+          <NotificationTitle>{messages.title}</NotificationTitle>
+        </NotificationHeader>
+        <NotificationText>{renderBody()}</NotificationText>
+        <NotificationTwitterButton
+          type='static'
+          url={link}
+          shareText={text}
+          analytics={make({
+            eventName: EventNames.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE,
+            milestone: text
+          })}
+        />
+      </NotificationTile>
+    )
+  }
 }
