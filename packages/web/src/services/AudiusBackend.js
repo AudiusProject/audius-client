@@ -397,7 +397,7 @@ class AudiusBackend {
         skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
       }
       const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
-      await sanityChecks.run(null)
+      await sanityChecks.run()
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
     }
@@ -1005,10 +1005,7 @@ class AudiusBackend {
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
   static async upgradeToCreator(newCreatorNodeEndpoint) {
-    return audiusLibs.User.upgradeToCreator(
-      USER_NODE,
-      newCreatorNodeEndpoint
-    )
+    return audiusLibs.User.upgradeToCreator(USER_NODE, newCreatorNodeEndpoint)
   }
 
   // Uploads a single track
@@ -1229,10 +1226,7 @@ class AudiusBackend {
         blockHash,
         blockNumber,
         userId
-      } = await audiusLibs.User.updateCreator(
-        newMetadata.user_id,
-        newMetadata
-      )
+      } = await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata)
       return { blockHash, blockNumber, userId }
     } catch (err) {
       console.error(err.message)
