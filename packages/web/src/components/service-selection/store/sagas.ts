@@ -1,11 +1,9 @@
 import { all, fork, call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import Kind from 'common/models/Kind'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import AudiusBackend from 'services/AudiusBackend'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { waitForValue } from 'utils/sagaHelpers'
 
@@ -135,14 +133,10 @@ function* watchSetSelected() {
     yield* call(AudiusBackend.setCreatorNodeEndpoint, primary)
     if (user.is_creator) {
       user.creator_node_endpoint = newEndpoint
-      const writeQuorumEnabled = getFeatureEnabled(
-        FeatureFlags.WRITE_QUORUM_ENABLED
-      )
       const success = yield* call(
         AudiusBackend.updateCreator,
         user,
-        user.user_id,
-        writeQuorumEnabled
+        user.user_id
       )
       if (!success) {
         yield* put(

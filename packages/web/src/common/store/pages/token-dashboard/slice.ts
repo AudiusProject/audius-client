@@ -217,9 +217,7 @@ const slice = createSlice({
     },
     confirmRemoveWallet: (
       state,
-      {
-        payload: { wallet, chain, writeQuorumEnabled }
-      }: ConfirmRemoveWalletAction
+      { payload: { wallet, chain } }: ConfirmRemoveWalletAction
     ) => {
       state.associatedWallets.removeWallet.status = 'Confirming'
       state.modalState = {

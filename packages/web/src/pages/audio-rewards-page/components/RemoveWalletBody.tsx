@@ -4,13 +4,11 @@ import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
-import { FeatureFlags } from 'common/services/remote-config/feature-flags'
 import { getRemoveWallet } from 'common/store/pages/token-dashboard/selectors'
 import {
   confirmRemoveWallet,
   pressConnectWallets
 } from 'common/store/pages/token-dashboard/slice'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useSelector } from 'utils/reducer'
 
 import styles from './RemoveWalletBody.module.css'
@@ -26,14 +24,10 @@ type RemoveWalletBodyProps = {
 }
 
 const RemoveWalletBody = ({ className }: RemoveWalletBodyProps) => {
-  const { isEnabled: writeQuorumEnabled } = useFlag(
-    FeatureFlags.WRITE_QUORUM_ENABLED
-  )
   const dispatch = useDispatch()
   const { wallet, chain } = useSelector(getRemoveWallet)
   const onRemove = useCallback(() => {
-    if (wallet && chain)
-      dispatch(confirmRemoveWallet({ wallet, chain, writeQuorumEnabled }))
+    if (wallet && chain) dispatch(confirmRemoveWallet({ wallet, chain }))
   }, [dispatch, wallet, chain])
   const onIgnore = useCallback(() => dispatch(pressConnectWallets()), [
     dispatch

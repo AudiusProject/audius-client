@@ -421,16 +421,8 @@ function* confirmUpdateProfile(userId, metadata) {
       makeKindId(Kind.USERS, userId),
       function* () {
         let response
-        const writeQuorumEnabled = getFeatureEnabled(
-          FeatureFlags.WRITE_QUORUM_ENABLED
-        )
         if (metadata.creator_node_endpoint) {
-          response = yield call(
-            AudiusBackend.updateCreator,
-            metadata,
-            userId,
-            writeQuorumEnabled
-          )
+          response = yield call(AudiusBackend.updateCreator, metadata, userId)
         } else {
           response = yield call(AudiusBackend.updateUser, metadata, userId)
         }

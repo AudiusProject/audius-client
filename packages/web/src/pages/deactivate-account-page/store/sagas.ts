@@ -2,11 +2,9 @@ import { call, delay, put, select, takeEvery } from 'redux-saga/effects'
 
 import { Name } from 'common/models/Analytics'
 import { ID } from 'common/models/Identifiers'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { Nullable } from 'common/utils/typeUtils'
 import AudiusBackend from 'services/AudiusBackend'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { requestConfirmation } from 'store/confirmer/actions'
@@ -35,14 +33,10 @@ function* handleDeactivateAccount() {
         DEACTIVATE_CONFIRMATION_UID,
         function* () {
           yield put(make(Name.DEACTIVATE_ACCOUNT_REQUEST, {}))
-          const writeQuorumEnabled = getFeatureEnabled(
-            FeatureFlags.WRITE_QUORUM_ENABLED
-          )
           const { blockHash, blockNumber } = yield call(
             AudiusBackend.updateCreator,
             { ...userMetadata, is_deactivated: true },
-            accountUserId /* note: as of writing, unused parameter */,
-            writeQuorumEnabled
+            accountUserId /* note: as of writing, unused parameter */
           )
           const confirmed: boolean = yield call(
             confirmTransaction,
