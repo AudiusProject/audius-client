@@ -6,7 +6,7 @@ import { Chain } from 'common/models/Chain'
 import { ID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import { BNWei, WalletAddress } from 'common/models/Wallet'
-import { BooleanKeys } from 'common/services/remote-config'
+import { BooleanKeys, FeatureFlags } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getUserId, getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
@@ -56,6 +56,7 @@ import AudiusBackend from 'services/AudiusBackend'
 import apiClient, {
   AssociatedWalletsResponse
 } from 'services/audius-api-client/AudiusAPIClient'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import {
@@ -324,6 +325,9 @@ function* connectSPLWallet(
   disconnect: () => Promise<void>
 ) {
   try {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     const accountUserId: Nullable<ID> = yield select(getUserId)
 
     const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> = yield select(
@@ -435,7 +439,8 @@ function* connectSPLWallet(
           const { blockHash, blockNumber } = yield call(
             AudiusBackend.updateCreator,
             updatedMetadata,
-            accountUserId
+            accountUserId,
+            writeQuorumEnabled
           )
 
           const confirmed: boolean = yield call(
@@ -507,6 +512,9 @@ function* connectSPLWallet(
 
 function* connectEthWallet(web3Instance: any) {
   try {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     const accounts: string[] = yield web3Instance.eth.getAccounts()
     const accountUserId: Nullable<ID> = yield select(getUserId)
     const connectingWallet = accounts[0]
@@ -603,7 +611,8 @@ function* connectEthWallet(web3Instance: any) {
           const { blockHash, blockNumber } = yield call(
             AudiusBackend.updateCreator,
             updatedMetadata,
-            accountUserId
+            accountUserId,
+            writeQuorumEnabled
           )
 
           const confirmed: boolean = yield call(
@@ -675,6 +684,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
   try {
     const removeWallet = action.payload.wallet
     const removeChain = action.payload.chain
+    const writeQuorumEnabled = action.payload.writeQuorumEnabled
     const accountUserId: Nullable<ID> = yield select(getUserId)
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
@@ -727,7 +737,8 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
           const { blockHash, blockNumber } = yield call(
             AudiusBackend.updateCreator,
             updatedMetadata,
-            accountUserId
+            accountUserId,
+            writeQuorumEnabled
           )
 
           const confirmed: boolean = yield call(

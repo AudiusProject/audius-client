@@ -106,7 +106,7 @@ const getNumWorkers = trackFiles => {
 
 // Worker to handle individual track upload requests.
 // Crucially, the worker will block on receiving more requests
-// until it's current request has finished processing.
+// until its current request has finished processing.
 //
 // Workers can either be send a request that looks like:
 // {
@@ -143,7 +143,12 @@ const getNumWorkers = trackFiles => {
 //    error: true
 //  }
 //
-function* uploadWorker(requestChan, respChan, progressChan) {
+function* uploadWorker(
+  requestChan,
+  respChan,
+  progressChan,
+  writeQuorumEnabled = null
+) {
   // Use this channel to know when confirmer has finished,
   // so we can unblock this worker to accept more requests.
   const uploadDoneChan = yield call(channel)
@@ -183,7 +188,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
     artwork,
     index,
     id,
-    updateProgress
+    updateProgress,
+    writeQuorumEnabled = null
   ) => {
     return function* () {
       console.debug(
@@ -194,7 +200,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         track.file,
         artwork,
         metadata,
-        updateProgress ? makeOnProgress(index) : (loaded, total) => {}
+        updateProgress ? makeOnProgress(index) : (loaded, total) => {},
+        writeQuorumEnabled
       )
 
       // b/c we can't pass extra info (phase) into the confirmer fail call, we need to clean up here.
@@ -226,7 +233,13 @@ function* uploadWorker(requestChan, respChan, progressChan) {
   }
 
   // If it is a collection, we should just upload to creator node.
-  const makeConfirmerCallForCollection = (track, metadata, artwork, index) => {
+  const makeConfirmerCallForCollection = (
+    track,
+    metadata,
+    artwork,
+    index,
+    writeQuorumEnabled
+  ) => {
     return function* () {
       console.debug(`Beginning collection upload for track: ${metadata.title}`)
       return yield call(
@@ -234,7 +247,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         track.file,
         artwork,
         metadata,
-        makeOnProgress(index)
+        makeOnProgress(index),
+        writeQuorumEnabled
       )
     }
   }
@@ -336,7 +350,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
           artwork,
           index,
           id,
-          updateProgress
+          updateProgress,
+          writeQuorumEnabled
         ),
         (isCollection
           ? makeConfirmerSuccessForCollection
@@ -360,7 +375,8 @@ export function* handleUploads({
   tracks,
   isCollection,
   isStem = false,
-  isAlbum = false
+  isAlbum = false,
+  writeQuorumEnabled = null
 }) {
   const numWorkers = getNumWorkers(tracks.map(t => t.track.file))
 
@@ -394,7 +410,13 @@ export function* handleUploads({
   console.debug(`Spinning up ${numWorkers} workers`)
   const workerTasks = yield all(
     range(numWorkers).map(_ =>
-      fork(uploadWorker, requestChan, respChan, progressChan)
+      fork(
+        uploadWorker,
+        requestChan,
+        respChan,
+        progressChan,
+        writeQuorumEnabled
+      )
     )
   )
 
@@ -658,7 +680,13 @@ export function* handleUploads({
   return returnVal
 }
 
-function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
+function* uploadCollection(
+  tracks,
+  userId,
+  collectionMetadata,
+  isAlbum,
+  writeQuorumEnabled
+) {
   // First upload album art
   const coverArtResp = yield call(
     AudiusBackend.uploadImage,
@@ -677,7 +705,8 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
   const { trackIds, error } = yield call(handleUploads, {
     tracks: tracksWithMetadata,
     isCollection: true,
-    isAlbum
+    isAlbum,
+    writeQuorumEnabled
   })
 
   // If we errored, return early
@@ -811,7 +840,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
   )
 }
 
-function* uploadSingleTrack(track) {
+function* uploadSingleTrack(track, writeQuorumEnabled) {
   // Need an object to hold phase error info that
   // can get captured by confirmer closure
   // while remaining mutable.
@@ -857,7 +886,8 @@ function* uploadSingleTrack(track) {
                     : ProgressStatus.PROCESSING
               })
             )
-          }
+          },
+          writeQuorumEnabled
         )
 
         if (error) {
@@ -996,7 +1026,7 @@ export function* uploadStems({ parentTrackIds, stems }) {
   }
 }
 
-function* uploadMultipleTracks(tracks) {
+function* uploadMultipleTracks(tracks, writeQuorumEnabled) {
   const tracksWithMetadata = tracks.map(track => ({
     track,
     metadata: track.metadata
@@ -1004,7 +1034,8 @@ function* uploadMultipleTracks(tracks) {
 
   const { trackIds } = yield call(handleUploads, {
     tracks: tracksWithMetadata,
-    isCollection: false
+    isCollection: false,
+    writeQuorumEnabled
   })
   const stems = yield select(getStems)
   if (stems.length) {
@@ -1154,13 +1185,14 @@ function* uploadTracksAsync(action) {
       action.tracks,
       user.user_id,
       action.metadata,
-      isAlbum
+      isAlbum,
+      action.writeQuorumEnabled
     )
   } else {
     if (action.tracks.length === 1) {
-      yield call(uploadSingleTrack, action.tracks[0])
+      yield call(uploadSingleTrack, action.tracks[0], action.writeQuorumEnabled)
     } else {
-      yield call(uploadMultipleTracks, action.tracks)
+      yield call(uploadMultipleTracks, action.tracks, action.writeQuorumEnabled)
     }
   }
 }

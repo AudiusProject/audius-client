@@ -396,7 +396,10 @@ class AudiusBackend {
         skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
       }
       const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
-      await sanityChecks.run()
+      const writeQuorumEnabled = getFeatureEnabled(
+        FeatureFlags.WRITE_QUORUM_ENABLED
+      )
+      await sanityChecks.run(null, writeQuorumEnabled)
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
     }
@@ -1001,17 +1004,31 @@ class AudiusBackend {
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
   static async upgradeToCreator(newCreatorNodeEndpoint) {
-    return audiusLibs.User.upgradeToCreator(USER_NODE, newCreatorNodeEndpoint)
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
+    return audiusLibs.User.upgradeToCreator(
+      USER_NODE,
+      newCreatorNodeEndpoint,
+      writeQuorumEnabled
+    )
   }
 
   // Uploads a single track
   // Returns { trackId, error, phase }
-  static async uploadTrack(trackFile, coverArtFile, metadata, onProgress) {
+  static async uploadTrack(
+    trackFile,
+    coverArtFile,
+    metadata,
+    onProgress,
+    writeQuorumEnabled
+  ) {
     return await audiusLibs.Track.uploadTrack(
       trackFile,
       coverArtFile,
       metadata,
-      onProgress
+      onProgress,
+      writeQuorumEnabled
     )
   }
 
@@ -1021,13 +1038,15 @@ class AudiusBackend {
     trackFile,
     coverArtFile,
     metadata,
-    onProgress
+    onProgress,
+    writeQuorumEnabled
   ) {
     return audiusLibs.Track.uploadTrackContentToCreatorNode(
       trackFile,
       coverArtFile,
       metadata,
-      onProgress
+      onProgress,
+      writeQuorumEnabled
     )
   }
 
@@ -1047,7 +1066,10 @@ class AudiusBackend {
   }
 
   static async uploadImage(file) {
-    return audiusLibs.File.uploadImage(file)
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
+    return audiusLibs.File.uploadImage(file, writeQuorumEnabled)
   }
 
   static async updateTrack(trackId, metadata) {
@@ -1164,7 +1186,7 @@ class AudiusBackend {
     return null
   }
 
-  static async updateCreator(metadata, id) {
+  static async updateCreator(metadata, id, writeQuorumEnabled) {
     let newMetadata = { ...metadata }
     const associatedWallets = await AudiusBackend.fetchUserAssociatedWallets(
       metadata
@@ -1222,7 +1244,11 @@ class AudiusBackend {
         blockHash,
         blockNumber,
         userId
-      } = await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata)
+      } = await audiusLibs.User.updateCreator(
+        newMetadata.user_id,
+        newMetadata,
+        writeQuorumEnabled
+      )
       return { blockHash, blockNumber, userId }
     } catch (err) {
       console.error(err.message)

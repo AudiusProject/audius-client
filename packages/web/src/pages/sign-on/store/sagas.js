@@ -158,10 +158,18 @@ function* fetchReferrer(action) {
         !currentUser.events?.referrer &&
         currentUser.user_id !== user.user_id
       ) {
-        yield call(AudiusBackend.updateCreator, {
-          ...currentUser,
-          events: { referrer: user.user_id }
-        })
+        const writeQuorumEnabled = getFeatureEnabled(
+          FeatureFlags.WRITE_QUORUM_ENABLED
+        )
+        yield call(
+          AudiusBackend.updateCreator,
+          {
+            ...currentUser,
+            events: { referrer: user.user_id }
+          },
+          0,
+          writeQuorumEnabled
+        )
       }
     } catch (e) {
       console.error(e)
@@ -460,11 +468,19 @@ function* signIn(action) {
       }
 
       // Apply retroactive referral
+      const writeQuorumEnabled = getFeatureEnabled(
+        FeatureFlags.WRITE_QUORUM_ENABLED
+      )
       if (!signInResponse.user?.events?.referrer && signOn.referrer) {
-        yield fork(AudiusBackend.updateCreator, {
-          ...signInResponse.user,
-          events: { referrer: signOn.referrer }
-        })
+        yield fork(
+          AudiusBackend.updateCreator,
+          {
+            ...signInResponse.user,
+            events: { referrer: signOn.referrer }
+          },
+          0,
+          writeQuorumEnabled
+        )
       }
 
       yield put(pushRoute(route || FEED_PAGE))

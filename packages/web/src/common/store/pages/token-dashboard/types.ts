@@ -55,6 +55,7 @@ export type AssociatedWallets = AssociatedWallet[]
 export type ConfirmRemoveWalletAction = PayloadAction<{
   wallet: WalletAddress
   chain: Chain
+  writeQuorumEnabled: boolean | null
 }>
 
 export type AssociatedWalletsState = {

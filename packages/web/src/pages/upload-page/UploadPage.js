@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom'
 import { Spring } from 'react-spring/renderprops'
 
 import { Name } from 'common/models/Analytics'
+import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { pause as pauseQueue } from 'common/store/queue/slice'
 import { openWithDelay } from 'components/first-upload-modal/store/slice'
@@ -14,6 +15,7 @@ import Page from 'components/page/Page'
 import { dropdownRows as stemRows } from 'components/source-files-modal/SourceFilesModal'
 import { processFiles } from 'pages/upload-page/store/utils/processFiles'
 import * as schemas from 'schemas'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
 import { playlistPage, albumPage, profilePage } from 'utils/route'
 
@@ -250,11 +252,15 @@ class Upload extends Component {
   }
 
   publish = () => {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     this.props.uploadTracks(
       this.state.tracks,
       this.state.metadata,
       this.state.uploadType,
-      this.state.stems
+      this.state.stems,
+      writeQuorumEnabled
     )
     this.changePage(Pages.FINISH)
   }
@@ -478,8 +484,16 @@ const mapDispatchToProps = dispatch => ({
   onCloseMultiTrackNotification: () =>
     dispatch(toggleMultiTrackNotification(false)),
   resetUpload: () => dispatch(reset()),
-  uploadTracks: (tracks, metadata, uploadType, stems) =>
-    dispatch(uploadTracks(tracks, metadata, uploadType, stems)),
+  uploadTracks: (
+    tracks,
+    metadata,
+    uploadType,
+    stems,
+    writeQuorumEnabled = null
+  ) =>
+    dispatch(
+      uploadTracks(tracks, metadata, uploadType, stems, writeQuorumEnabled)
+    ),
   openFirstUploadModal: delay => dispatch(openWithDelay({ delay }))
 })
 
