@@ -26,7 +26,6 @@ import {
   BooleanKeys,
   FeatureFlags
 } from 'common/services/remote-config'
-import { flagDefaults } from 'common/services/remote-config/feature-flags'
 import CIDCache from 'common/store/cache/CIDCache'
 import { uuid } from 'common/utils/uid'
 import * as schemas from 'schemas'
