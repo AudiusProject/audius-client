@@ -1020,12 +1020,7 @@ class AudiusBackend {
 
   // Uploads a single track
   // Returns { trackId, error, phase }
-  static async uploadTrack(
-    trackFile,
-    coverArtFile,
-    metadata,
-    onProgress
-  ) {
+  static async uploadTrack(trackFile, coverArtFile, metadata, onProgress) {
     return await audiusLibs.Track.uploadTrack(
       trackFile,
       coverArtFile,
@@ -1041,7 +1036,7 @@ class AudiusBackend {
     trackFile,
     coverArtFile,
     metadata,
-    onProgress,
+    onProgress
   ) {
     return audiusLibs.Track.uploadTrackContentToCreatorNode(
       trackFile,
