@@ -285,14 +285,6 @@ const fetchImageCID = async (cid, creatorNodeGateways = [], cache = true) => {
 class AudiusBackend {
   static currentDiscoveryProvider = null
   static didSelectDiscoveryProviderListeners = []
-  static writeQuorumEnabled = flagDefaults[FeatureFlags.WRITE_QUORUM_ENABLED]
-
-  // eslint-disable-next-line
-  static {
-    this.writeQuorumEnabled = getFeatureEnabled(
-      FeatureFlags.WRITE_QUORUM_ENABLED
-    )
-  }
 
   static addDiscoveryProviderSelectionListener(listener) {
     AudiusBackend.didSelectDiscoveryProviderListeners.push(listener)
@@ -406,7 +398,10 @@ class AudiusBackend {
         skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
       }
       const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
-      await sanityChecks.run(null, this.writeQuorumEnabled)
+      const writeQuorumEnabled = getFeatureEnabled(
+        FeatureFlags.WRITE_QUORUM_ENABLED
+      )
+      await sanityChecks.run(null, writeQuorumEnabled)
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
     }
@@ -1011,22 +1006,28 @@ class AudiusBackend {
    * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
    */
   static async upgradeToCreator(newCreatorNodeEndpoint) {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     return audiusLibs.User.upgradeToCreator(
       USER_NODE,
       newCreatorNodeEndpoint,
-      this.writeQuorumEnabled
+      writeQuorumEnabled
     )
   }
 
   // Uploads a single track
   // Returns { trackId, error, phase }
   static async uploadTrack(trackFile, coverArtFile, metadata, onProgress) {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     return await audiusLibs.Track.uploadTrack(
       trackFile,
       coverArtFile,
       metadata,
       onProgress,
-      this.writeQuorumEnabled
+      writeQuorumEnabled
     )
   }
 
@@ -1038,12 +1039,15 @@ class AudiusBackend {
     metadata,
     onProgress
   ) {
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
     return audiusLibs.Track.uploadTrackContentToCreatorNode(
       trackFile,
       coverArtFile,
       metadata,
       onProgress,
-      this.writeQuorumEnabled
+      writeQuorumEnabled
     )
   }
 
@@ -1063,7 +1067,10 @@ class AudiusBackend {
   }
 
   static async uploadImage(file) {
-    return audiusLibs.File.uploadImage(file, this.writeQuorumEnabled)
+    const writeQuorumEnabled = getFeatureEnabled(
+      FeatureFlags.WRITE_QUORUM_ENABLED
+    )
+    return audiusLibs.File.uploadImage(file, writeQuorumEnabled)
   }
 
   static async updateTrack(trackId, metadata) {
@@ -1234,6 +1241,9 @@ class AudiusBackend {
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
 
+      const writeQuorumEnabled = getFeatureEnabled(
+        FeatureFlags.WRITE_QUORUM_ENABLED
+      )
       const {
         blockHash,
         blockNumber,
@@ -1241,7 +1251,7 @@ class AudiusBackend {
       } = await audiusLibs.User.updateCreator(
         newMetadata.user_id,
         newMetadata,
-        this.writeQuorumEnabled
+        writeQuorumEnabled
       )
       return { blockHash, blockNumber, userId }
     } catch (err) {
