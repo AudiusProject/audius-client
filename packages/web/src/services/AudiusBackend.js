@@ -55,7 +55,7 @@ export const USER_NODE = process.env.REACT_APP_USER_NODE
 export const LEGACY_USER_NODE = process.env.REACT_APP_LEGACY_USER_NODE
 
 const REGISTRY_ADDRESS = process.env.REACT_APP_REGISTRY_ADDRESS
-const DATA_CONTRACT_ADDRESS = process.env.REACT_APP_DATA_CONTRACT_ADDRESS
+const ENTITY_MANAGER_ADDRESS = process.env.REACT_APP_DATA_CONTRACT_ADDRESS
 const WEB3_PROVIDER_URLS = (
   process.env.REACT_APP_WEB3_PROVIDER_URL || ''
 ).split(',')
@@ -549,7 +549,7 @@ class AudiusBackend {
             REGISTRY_ADDRESS,
             web3.currentProvider,
             WEB3_NETWORK_ID,
-            DATA_CONTRACT_ADDRESS
+            ENTITY_MANAGER_ADDRESS
           )
         }
       } catch (e) {
@@ -559,7 +559,7 @@ class AudiusBackend {
             REGISTRY_ADDRESS,
             WEB3_PROVIDER_URLS,
             null,
-            DATA_CONTRACT_ADDRESS
+            ENTITY_MANAGER_ADDRESS
           )
         }
       }
@@ -570,7 +570,7 @@ class AudiusBackend {
         REGISTRY_ADDRESS,
         WEB3_PROVIDER_URLS,
         null,
-        DATA_CONTRACT_ADDRESS
+        ENTITY_MANAGER_ADDRESS
       )
     }
   }
@@ -1373,7 +1373,7 @@ class AudiusBackend {
     try {
       const trackIdsTest = [1]
       // Test call to new audius data function
-      const response = await audiusLibs.AudiusData.createPlaylist({
+      const response = await audiusLibs.EntityManager.createPlaylist({
         playlistName,
         trackIds: trackIdsTest,
         coverArt,
