@@ -168,9 +168,6 @@
     "update-ipfs-build:stage": "node ./scripts/updateIpfsBuild.js stage",
     "update-ipfs-build:prod": "node ./scripts/updateIpfsBuild.js prod"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "standard": {
     "parser": "babel-eslint",
     "env": [
