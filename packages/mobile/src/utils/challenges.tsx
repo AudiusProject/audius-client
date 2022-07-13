@@ -4,7 +4,9 @@ import {
 } from 'audius-client/src/common/models/AudioRewards'
 import {
   ACCOUNT_VERIFICATION_SETTINGS_PAGE,
-  TRENDING_PAGE
+  TRENDING_PAGE,
+  EXPLORE_HEAVY_ROTATION_PAGE,
+  FAVORITES_PAGE
 } from 'audius-client/src/utils/route'
 import { ImageSourcePropType } from 'react-native'
 
@@ -13,12 +15,13 @@ import Headphone from 'app/assets/images/emojis/headphone.png'
 import IncomingEnvelope from 'app/assets/images/emojis/incoming-envelope.png'
 import LoveLetter from 'app/assets/images/emojis/love-letter.png'
 import MobilePhoneWithArrow from 'app/assets/images/emojis/mobile-phone-with-arrow.png'
+import MoneyMouthFace from 'app/assets/images/emojis/money-mouth-face.png'
 import MultipleMusicalNotes from 'app/assets/images/emojis/multiple-musical-notes.png'
 import NerdFace from 'app/assets/images/emojis/nerd-face.png'
+import Sparkles from 'app/assets/images/emojis/sparkles.png'
 import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
-import IconTip from 'app/assets/images/iconTip.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
 
 // TODO: These should be programmatic based on amount, but historically have not been
@@ -86,12 +89,31 @@ export const challenges = {
   trackUploadDescription: 'Upload 3 tracks to your profile',
   trackUploadShortDescription: 'Upload 3 tracks to your profile',
   trackUploadProgressLabel: '%0/%1 Uploaded',
-  trackUploadButton: 'Upload Tracks'
+  trackUploadButton: 'Upload Tracks',
+
+  // Send First Tip
+  sendFirstTipTitle: 'Send Your First Tip',
+  sendFirstTipDescription:
+    'Show some love to your favorite artist and send them a tip',
+  sendFirstTipShortDescription:
+    'Show some love to your favorite artist and send them a tip',
+  sendFirstTipProgressLabel: 'Not Earned',
+  sendFirstTipButton: 'Find Someone To Tip',
+
+  firstPlaylistTitle: 'Create Your First Playlist',
+  firstPlaylistDescription: 'Create your first playlist & add a track to it',
+  firstPlaylistShortDescription:
+    'Create your first playlist & add a track to it',
+  firstPlaylistProgressLabel: 'Not Earned',
+  firstPlaylistButton: 'Create Your First Playlist'
 }
 
 export type ChallengesParamList = {
   trending: undefined
   AccountVerificationScreen: undefined
+  explore: undefined
+  favorites: undefined
+  params: { screen: string }
 }
 
 export type ChallengeConfig = {
@@ -129,7 +151,7 @@ export const challengesConfig: Record<ChallengeRewardID, ChallengeConfig> = {
         native: { screen: 'AccountVerificationScreen' },
         web: { route: ACCOUNT_VERIFICATION_SETTINGS_PAGE }
       },
-      renderIcon: color => <IconCheck fill={color} />,
+      renderIcon: (color) => <IconCheck fill={color} />,
       iconPosition: 'right'
     }
   },
@@ -145,7 +167,7 @@ export const challengesConfig: Record<ChallengeRewardID, ChallengeConfig> = {
         native: { screen: 'trending' },
         web: { route: TRENDING_PAGE }
       },
-      renderIcon: color => <IconArrow fill={color} />,
+      renderIcon: (color) => <IconArrow fill={color} />,
       iconPosition: 'right'
     }
   },
@@ -204,77 +226,91 @@ export const challengesConfig: Record<ChallengeRewardID, ChallengeConfig> = {
     progressLabel: challenges.trackUploadProgressLabel,
     buttonInfo: {
       label: challenges.trackUploadButton,
-      renderIcon: color => <IconUpload fill={color} />,
+      renderIcon: (color) => <IconUpload fill={color} />,
       iconPosition: 'right'
     }
   },
   'send-first-tip': {
-    icon: MultipleMusicalNotes,
-    title: 'Send Your First Tip',
-    description: 'Show some love to your favorite artist and send them a tip',
-    shortDescription: 'Earn 2 $AUDIO',
-    progressLabel: 'Not Earned',
+    icon: MoneyMouthFace,
+    title: challenges.sendFirstTipTitle,
+    description: challenges.sendFirstTipDescription,
+    shortDescription: challenges.sendFirstTipShortDescription,
+    progressLabel: challenges.sendFirstTipProgressLabel,
     buttonInfo: {
-      label: 'Find Someone to Tip',
-      renderIcon: color => <IconTip fill={color} />,
-      iconPosition: 'right'
+      label: challenges.sendFirstTipButton,
+      navigation: {
+        native: { screen: 'explore', params: { screen: 'HeavyRotation' } },
+        web: { route: EXPLORE_HEAVY_ROTATION_PAGE }
+      }
+    }
+  },
+  'first-playlist': {
+    icon: Sparkles,
+    title: challenges.firstPlaylistTitle,
+    description: challenges.firstPlaylistDescription,
+    shortDescription: challenges.firstPlaylistShortDescription,
+    progressLabel: challenges.firstPlaylistProgressLabel,
+    buttonInfo: {
+      label: challenges.firstPlaylistButton,
+      navigation: {
+        native: { screen: 'favorites' },
+        web: { route: FAVORITES_PAGE }
+      }
     }
   }
 }
 
-export const trendingRewardsConfig: Record<
-  TrendingRewardID,
-  ChallengeConfig
-> = {
-  'trending-playlist': {
-    title: 'Top 5 Trending Playlists',
-    icon: ChartIncreasing,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonInfo: {
-      label: 'See More',
-      renderIcon: color => <IconCheck fill={color} />,
-      iconPosition: 'right'
-    }
-  },
-  'trending-track': {
-    title: 'Top 5 Trending Tracks',
-    icon: ChartIncreasing,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonInfo: {
-      label: 'See More',
-      renderIcon: color => <IconCheck fill={color} />,
-      iconPosition: 'right'
-    }
-  },
-  'top-api': {
-    title: 'Top 10 API Apps',
-    icon: NerdFace,
-    description: 'The top 10 Audius API apps each month win',
-    buttonInfo: {
-      label: 'More Info',
-      renderIcon: color => <IconCheck fill={color} />,
-      iconPosition: 'right'
-    }
-  },
-  'verified-upload': {
-    title: 'First Upload With Your Verified Account',
-    icon: ChartIncreasing,
-    description:
-      'Verified on Twitter/Instagram? Upload your first track, post it on social media, & tag us',
-    buttonInfo: {
-      label: 'See More',
-      renderIcon: color => <IconCheck fill={color} />,
-      iconPosition: 'right'
-    }
-  },
-  'trending-underground': {
-    title: 'Top 5 Underground Trending',
-    icon: ChartIncreasing,
-    description: 'Winners are selected every Friday at Noon PT!',
-    buttonInfo: {
-      label: 'See More',
-      renderIcon: color => <IconCheck fill={color} />,
-      iconPosition: 'right'
+export const trendingRewardsConfig: Record<TrendingRewardID, ChallengeConfig> =
+  {
+    'trending-playlist': {
+      title: 'Top 5 Trending Playlists',
+      icon: ChartIncreasing,
+      description: 'Winners are selected every Friday at Noon PT!',
+      buttonInfo: {
+        label: 'See More',
+        renderIcon: (color) => <IconCheck fill={color} />,
+        iconPosition: 'right'
+      }
+    },
+    'trending-track': {
+      title: 'Top 5 Trending Tracks',
+      icon: ChartIncreasing,
+      description: 'Winners are selected every Friday at Noon PT!',
+      buttonInfo: {
+        label: 'See More',
+        renderIcon: (color) => <IconCheck fill={color} />,
+        iconPosition: 'right'
+      }
+    },
+    'top-api': {
+      title: 'Top 10 API Apps',
+      icon: NerdFace,
+      description: 'The top 10 Audius API apps each month win',
+      buttonInfo: {
+        label: 'More Info',
+        renderIcon: (color) => <IconCheck fill={color} />,
+        iconPosition: 'right'
+      }
+    },
+    'verified-upload': {
+      title: 'First Upload With Your Verified Account',
+      icon: ChartIncreasing,
+      description:
+        'Verified on Twitter/Instagram? Upload your first track, post it on social media, & tag us',
+      buttonInfo: {
+        label: 'See More',
+        renderIcon: (color) => <IconCheck fill={color} />,
+        iconPosition: 'right'
+      }
+    },
+    'trending-underground': {
+      title: 'Top 5 Underground Trending',
+      icon: ChartIncreasing,
+      description: 'Winners are selected every Friday at Noon PT!',
+      buttonInfo: {
+        label: 'See More',
+        renderIcon: (color) => <IconCheck fill={color} />,
+        iconPosition: 'right'
+      }
     }
   }
-}

@@ -8,7 +8,11 @@ import { Dispatch } from 'redux'
 
 import { ID } from 'common/models/Identifiers'
 import { User } from 'common/models/User'
-import { InstagramProfile } from 'common/store/account/reducer'
+import {
+  AccountImage,
+  InstagramProfile,
+  TwitterProfile
+} from 'common/store/account/reducer'
 import * as settingPageActions from 'common/store/pages/settings/actions'
 import { PushNotificationSetting } from 'common/store/pages/settings/types'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
@@ -52,15 +56,15 @@ export type SignOnProps = {
   onSetProfileImage: (img: any) => void
   setTwitterProfile: (
     uuid: string,
-    profile: any,
-    profileImg?: { url: string; file: any },
-    coverBannerImg?: { url: string; file: any },
+    profile: TwitterProfile,
+    profileImg?: AccountImage,
+    coverBannerImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   setInstagramProfile: (
     uuid: string,
     profile: InstagramProfile,
-    profileImg?: { url: string; file: any },
+    profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   recordInstagramStart: () => void
@@ -164,8 +168,7 @@ const SignOnPage = ({
           position: 'absolute',
           top: 0,
           left: 0
-        }}
-      >
+        }}>
         <InitialPage
           hasAccount={hasAccount}
           isLoading={status === 'loading'}
@@ -192,8 +195,7 @@ const SignOnPage = ({
           position: 'absolute',
           top: 0,
           left: 0
-        }}
-      >
+        }}>
         <Header />
         <PasswordPage
           email={email}
@@ -215,8 +217,7 @@ const SignOnPage = ({
           position: 'absolute',
           top: 0,
           left: 0
-        }}
-      >
+        }}>
         <Header />
         <ProfilePage
           name={name}
@@ -245,8 +246,7 @@ const SignOnPage = ({
           position: 'absolute',
           top: 0,
           left: 0
-        }}
-      >
+        }}>
         <Header />
         <NotificationPermissionsPage
           onAllowNotifications={onAllowNotifications}
@@ -261,8 +261,7 @@ const SignOnPage = ({
         <animated.div
           style={style}
           className={styles.followPageWrapper}
-          key='follow'
-        >
+          key='follow'>
           <Header />
           <FollowPage
             users={suggestedFollowEntries}
@@ -299,16 +298,14 @@ const SignOnPage = ({
       backgroundClassName={styles.background}
       containerClassName={cn(styles.container, {
         [styles.followPage]: transitionPage === Pages.FOLLOW
-      })}
-    >
+      })}>
       <form
         className={styles.form}
         method='post'
-        onSubmit={e => {
+        onSubmit={(e) => {
           e.preventDefault()
         }}
-        autoComplete='off'
-      >
+        autoComplete='off'>
         <div>
           <Transition
             items={transitionPage as any}
@@ -337,8 +334,7 @@ const SignOnPage = ({
               page !== Pages.SIGNIN && page !== Pages.EMAIL
                 ? { duration: 75 }
                 : { duration: 400 }
-            }
-          >
+            }>
             {(item: any) => (pages as any)[item]}
           </Transition>
         </div>

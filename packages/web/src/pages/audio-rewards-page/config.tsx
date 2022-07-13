@@ -16,7 +16,8 @@ import {
   SETTINGS_PAGE,
   TRENDING_PAGE,
   UPLOAD_PAGE,
-  EXPLORE_HEAVY_ROTATION_PAGE
+  EXPLORE_HEAVY_ROTATION_PAGE,
+  FAVORITES_PAGE
 } from 'utils/route'
 
 type LinkButtonType =
@@ -25,6 +26,7 @@ type LinkButtonType =
   | 'verifyAccount'
   | 'trendingTracks'
   | 'sendFirstTip'
+  | 'firstPlaylist'
 type LinkButtonInfo = {
   label: string
   leftIcon: ReactNode | null
@@ -72,6 +74,12 @@ const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
     leftIcon: null,
     rightIcon: <GoldBadgeIconImage />,
     link: () => EXPLORE_HEAVY_ROTATION_PAGE
+  },
+  firstPlaylist: {
+    label: 'Create Your First Playlist',
+    leftIcon: null,
+    rightIcon: <IconArrow />,
+    link: () => FAVORITES_PAGE
   }
 }
 
@@ -101,9 +109,9 @@ export const challengeRewardsConfig: Record<
     id: 'referrals' as ChallengeRewardID,
     title: 'Invite your Friends',
     icon: <i className='emoji large incoming-envelope' />,
-    description: challenge =>
+    description: (challenge) =>
       `Earn ${challenge?.amount} $AUDIO, for you and your friend`,
-    fullDescription: challenge =>
+    fullDescription: (challenge) =>
       `Invite your Friends! You’ll earn ${challenge?.amount} $AUDIO for each friend who joins with your link (and they’ll get an $AUDIO too)`,
     progressLabel: '%0/%1 Invites Accepted',
     remainingLabel: '%0/%1 Invites Remain',
@@ -119,9 +127,9 @@ export const challengeRewardsConfig: Record<
     id: 'ref-v' as ChallengeRewardID,
     title: 'Invite your Fans',
     icon: <i className='emoji large incoming-envelope' />,
-    description: challenge =>
+    description: (challenge) =>
       `Earn up to ${formatNumberCommas(challenge?.totalAmount ?? '')} $AUDIO`,
-    fullDescription: challenge =>
+    fullDescription: (challenge) =>
       `Invite your fans! You’ll earn ${challenge?.amount} $AUDIO for each fan who joins with your link (and they’ll get an $AUDIO too)`,
     progressLabel: '%0/%1 Invites Accepted',
     remainingLabel: '%0/%1 Invites Remain',
@@ -153,7 +161,7 @@ export const challengeRewardsConfig: Record<
     id: 'connect-verified' as ChallengeRewardID,
     title: 'Link Verified Accounts',
     icon: <i className='emoji large white-heavy-check-mark' />,
-    description: challenge =>
+    description: (challenge) =>
       `Link your verified social media accounts to earn ${challenge?.amount} $AUDIO`,
     fullDescription: () =>
       'Get verified on Audius by linking your verified Twitter or Instagram account!',
@@ -170,7 +178,7 @@ export const challengeRewardsConfig: Record<
     id: 'listen-streak' as ChallengeRewardID,
     title: 'Listening Streak: 7 Days',
     icon: <i className='emoji large headphone' />,
-    description: challenge =>
+    description: (challenge) =>
       `Listen to one track a day for seven days to earn ${challenge?.amount} $AUDIO`,
     fullDescription: () =>
       'Sign in and listen to at least one track every day for 7 days',
@@ -187,7 +195,7 @@ export const challengeRewardsConfig: Record<
     id: 'mobile-install' as ChallengeRewardID,
     title: 'Get the Audius Mobile App',
     icon: <i className='emoji large mobile-phone-with-arrow' />,
-    description: challenge => `Earn ${challenge?.amount} $AUDIO`,
+    description: (challenge) => `Earn ${challenge?.amount} $AUDIO`,
     fullDescription: () =>
       'Install the Audius app for iPhone and Android and Sign in to your account!',
     progressLabel: 'Not Installed',
@@ -203,7 +211,7 @@ export const challengeRewardsConfig: Record<
     id: 'profile-completion' as ChallengeRewardID,
     title: 'Complete Your Profile',
     icon: <i className='emoji large white-heavy-check-mark' />,
-    description: challenge =>
+    description: (challenge) =>
       `Complete your Audius profile to earn ${challenge?.amount} $AUDIO`,
     fullDescription: () =>
       'Fill out the missing details on your Audius profile and start interacting with tracks and artists!',
@@ -220,7 +228,7 @@ export const challengeRewardsConfig: Record<
     id: 'track-upload' as ChallengeRewardID,
     title: 'Upload 3 Tracks',
     icon: <i className='emoji large multiple-musical-notes' />,
-    description: challenge => `Earn ${challenge?.amount} $AUDIO`,
+    description: (challenge) => `Earn ${challenge?.amount} $AUDIO`,
     fullDescription: () => 'Upload 3 tracks to your profile',
     progressLabel: '%0/%1 Uploaded',
     amount: amounts['track-upload'],
@@ -235,7 +243,7 @@ export const challengeRewardsConfig: Record<
     id: 'send-first-tip' as ChallengeRewardID,
     title: 'Send Your First Tip',
     icon: <i className='emoji large money-mouth-face' />,
-    description: challenge => `Earn ${challenge?.amount} $AUDIO`,
+    description: (challenge) => `Earn ${challenge?.amount} $AUDIO`,
     fullDescription: () =>
       'Show some love to your favorite artist and send them a tip',
     progressLabel: 'Not Earned',
@@ -245,6 +253,21 @@ export const challengeRewardsConfig: Record<
       incomplete: linkButtonMap.sendFirstTip,
       inProgress: linkButtonMap.sendFirstTip,
       complete: linkButtonMap.sendFirstTip
+    }
+  },
+  'first-playlist': {
+    id: 'first-playlist' as ChallengeRewardID,
+    title: 'Create Your First Playlist',
+    icon: <i className='emoji large sparkles' />,
+    description: (challenge) => `Earn ${challenge?.amount} $AUDIO`,
+    fullDescription: () => 'Create your first playlist & add a track to it',
+    progressLabel: 'Not Earned',
+    amount: amounts['first-playlist'],
+    panelButtonText: 'Create Your First Playlist',
+    modalButtonInfo: {
+      incomplete: linkButtonMap.firstPlaylist,
+      inProgress: linkButtonMap.firstPlaylist,
+      complete: linkButtonMap.firstPlaylist
     }
   }
 }

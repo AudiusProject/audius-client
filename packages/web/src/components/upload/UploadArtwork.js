@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 
 import cn from 'classnames'
 import PropTypes from 'prop-types'
-import Lottie from 'react-lottie'
 
-import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import placeholderArt from 'assets/img/imageBlank2x.png'
 import ImageSelectionButton from 'components/image-selection/ImageSelectionButton'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 
 import styles from './UploadArtwork.module.css'
@@ -15,7 +14,7 @@ const messages = {
   imageName: 'Artwork'
 }
 
-const UploadArtwork = props => {
+const UploadArtwork = (props) => {
   const [processing, setProcessing] = useState(false)
   const [showTip, setShowTip] = useState(false)
 
@@ -39,27 +38,15 @@ const UploadArtwork = props => {
     <div
       className={cn(styles.uploadArtwork, {
         [styles.error]: props.error
-      })}
-    >
+      })}>
       <div
         className={styles.artworkWrapper}
         style={{
           backgroundImage: `url(${
             props.artworkUrl || (processing ? '' : placeholderArt)
           })`
-        }}
-      >
-        <div
-          className={cn(styles.overlay, { [styles.processing]: processing })}
-        >
-          <Lottie
-            options={{
-              loop: true,
-              autoplay: true,
-              animationData: loadingSpinner
-            }}
-          />
-        </div>
+        }}>
+        {processing ? <LoadingSpinner className={styles.overlay} /> : null}
       </div>
       <div className={styles.button}>
         <ImageSelectionButton

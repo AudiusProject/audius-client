@@ -5,9 +5,17 @@ import { Animated, StyleProp, View, ViewProps, ViewStyle } from 'react-native'
 import { usePrevious } from 'react-use'
 
 import { light, medium } from 'app/haptics'
-import { spacing } from 'app/styles/spacing'
+import { makeStyles } from 'app/styles'
 
 import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
+
+const useStyles = makeStyles(({ spacing }) => ({
+  root: {
+    height: 84,
+    width: 84,
+    padding: spacing(3)
+  }
+}))
 
 export type ReactionStatus = 'interacting' | 'idle' | 'selected' | 'unselected'
 
@@ -30,6 +38,7 @@ export const Reaction = (props: ReactionProps) => {
     isVisible,
     ...other
   } = props
+  const styles = useStyles()
   const [status, setStatus] = useState(statusProp)
   const animationRef = useRef<LottieView | null>(null)
   const ref = useRef<View | null>(null)
@@ -74,27 +83,19 @@ export const Reaction = (props: ReactionProps) => {
       }).start()
       light()
     } else if (previousStatus !== 'selected' && status === 'selected') {
-      if (status === 'selected') {
-        Animated.sequence([
-          Animated.timing(scale, {
-            toValue: 0.9,
-            duration: 100,
-            useNativeDriver: true
-          }),
-          Animated.timing(scale, {
-            toValue: 1.3,
-            duration: 100,
-            useNativeDriver: true
-          })
-        ]).start()
-        medium()
-      } else {
+      Animated.sequence([
         Animated.timing(scale, {
-          toValue: 1,
-          duration: 70,
+          toValue: 0.9,
+          duration: 100,
           useNativeDriver: true
-        }).start()
-      }
+        }),
+        Animated.timing(scale, {
+          toValue: 1.3,
+          duration: 100,
+          useNativeDriver: true
+        })
+      ]).start()
+      medium()
     } else if (previousStatus !== status && status !== 'selected') {
       Animated.timing(scale, {
         toValue: 1,
@@ -104,23 +105,18 @@ export const Reaction = (props: ReactionProps) => {
     }
   })
 
+  const animatedStyles = {
+    transform: [{ scale }],
+    opacity: status === 'unselected' ? 0.3 : 1
+  }
+
   return (
     <Animated.View
       ref={ref}
-      style={[
-        {
-          height: 84,
-          width: 84,
-          padding: spacing(3),
-          transform: [{ scale }],
-          opacity: status === 'unselected' ? 0.3 : 1
-        },
-        style
-      ]}
-      {...other}
-    >
+      style={[styles.root, animatedStyles, style]}
+      {...other}>
       <LottieView
-        ref={animation => {
+        ref={(animation) => {
           animationRef.current = animation
         }}
         autoPlay={isVisible && autoPlay}

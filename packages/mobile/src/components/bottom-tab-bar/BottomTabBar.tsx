@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { BottomTabBarProps as RNBottomTabBarProps } from '@react-navigation/bottom-tabs'
+// eslint-disable-next-line import/no-unresolved
 import { BottomTabNavigationEventMap } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
 import { NavigationHelpers, ParamListBase } from '@react-navigation/native'
 import { getUserHandle } from 'audius-client/src/common/store/account/selectors'
@@ -196,8 +197,7 @@ export const BottomTabBar = ({
       <SafeAreaView
         style={styles.bottomBar}
         edges={['bottom']}
-        pointerEvents='auto'
-      >
+        pointerEvents='auto'>
         {state.routes.map((route, index) => {
           const isFocused = !isNavigating && state.index === index
           const key = `${route.name}-button`

@@ -33,7 +33,9 @@ const validRewardIds: Set<ChallengeRewardID> = new Set([
   'connect-verified',
   'listen-streak',
   'profile-completion',
-  'referred'
+  'referred',
+  'send-first-tip',
+  'first-playlist'
 ])
 
 /** Pulls rewards from remoteconfig */
@@ -44,7 +46,7 @@ const useRewardIds = (
   if (rewardsString === null) return []
   const rewards = rewardsString.split(',') as ChallengeRewardID[]
   const filteredRewards: ChallengeRewardID[] = rewards.filter(
-    reward => validRewardIds.has(reward) && !hideConfig[reward]
+    (reward) => validRewardIds.has(reward) && !hideConfig[reward]
   )
   return filteredRewards
 }
@@ -88,9 +90,9 @@ export const ChallengeRewards = () => {
 
   const rewardsPanels = rewardIds
     // Filter out challenges that DN didn't return
-    .map(id => userChallenges[id]?.challenge_id)
+    .map((id) => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
-    .map(id => {
+    .map((id) => {
       const props = challengesConfig[id]
       return (
         <Panel

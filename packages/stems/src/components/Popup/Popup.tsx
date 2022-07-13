@@ -12,6 +12,7 @@ import cn from 'classnames'
 import ReactDOM from 'react-dom'
 import { useTransition, animated } from 'react-spring'
 
+import { IconButton } from 'components/IconButton'
 import { IconRemove } from 'components/Icons'
 import { useClickOutside } from 'hooks/useClickOutside'
 import { getScrollParent } from 'utils/scrollParent'
@@ -19,6 +20,10 @@ import { standard } from 'utils/transitions'
 
 import styles from './Popup.module.css'
 import { PopupProps, Position, popupDefaultProps } from './types'
+
+const messages = {
+  close: 'close popup'
+}
 
 /**
  * Number of pixels between the edge of the container and the popup
@@ -136,7 +141,8 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
   const [computedPosition, setComputedPosition] = useState(position)
 
   const getRects = useCallback(
-    () => [anchorRef, wrapperRef].map(r => r?.current?.getBoundingClientRect()),
+    () =>
+      [anchorRef, wrapperRef].map((r) => r?.current?.getBoundingClientRect()),
     [anchorRef, wrapperRef]
   )
 
@@ -277,8 +283,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
         <div
           ref={wrapperRef}
           className={cn(styles.wrapper, wrapperClassName)}
-          style={wrapperStyle}
-        >
+          style={wrapperStyle}>
           {transitions.map(({ item, key, props }) =>
             item ? (
               <animated.div
@@ -288,13 +293,13 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
                 style={{
                   ...props,
                   transformOrigin: getTransformOrigin(computedPosition)
-                }}
-              >
+                }}>
                 {showHeader && (
                   <div className={styles.header}>
-                    <IconRemove
-                      className={styles.iconRemove}
+                    <IconButton
+                      aria-label={messages.close}
                       onClick={handleClose}
+                      icon={<IconRemove className={styles.iconRemove} />}
                     />
                     <div className={styles.title}>{title}</div>
                   </div>

@@ -25,6 +25,8 @@ import {
 } from '../Notification'
 import { reactionMap } from '../Reaction'
 
+import { useGoToProfile } from './useGoToProfile'
+
 const messages = {
   reacted: 'reacted',
   react: 'reacted to your tip of ',
@@ -72,9 +74,11 @@ export const TipReactionNotification = (
   const styles = useStyles()
 
   const user = useSelectorWeb(
-    state => getNotificationUser(state, notification),
+    (state) => getNotificationUser(state, notification),
     isEqual
   )
+
+  const handlePress = useGoToProfile(user)
 
   const handleTwitterShare = useCallback((handle: string) => {
     const shareText = messages.twitterShare(handle)
@@ -94,7 +98,7 @@ export const TipReactionNotification = (
   const Reaction = reactionMap[reactionType]
 
   return (
-    <NotificationTile notification={notification}>
+    <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconTip}>
         <NotificationTitle>
           <UserNameLink user={user} /> {messages.reacted}

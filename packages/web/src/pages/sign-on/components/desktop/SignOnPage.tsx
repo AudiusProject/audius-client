@@ -13,7 +13,11 @@ import CTAImage from 'assets/img/signUpCTA.png'
 import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import { User } from 'common/models/User'
-import { InstagramProfile } from 'common/store/account/reducer'
+import {
+  AccountImage,
+  InstagramProfile,
+  TwitterProfile
+} from 'common/store/account/reducer'
 import { getAccountStatus } from 'common/store/account/selectors'
 import BackgroundWaves from 'components/background-animations/BackgroundWaves'
 import Page from 'components/page/Page'
@@ -72,15 +76,15 @@ export type SignOnProps = {
   onSetProfileImage: (img: any) => void
   setTwitterProfile: (
     uuid: string,
-    profile: any,
-    profileImg?: { url: string; file: any },
-    coverBannerImg?: { url: string; file: any },
+    profile: TwitterProfile,
+    profileImg?: AccountImage,
+    coverBannerImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   setInstagramProfile: (
     uuid: string,
     profile: InstagramProfile,
-    profileImg?: { url: string; file: any },
+    profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   validateHandle: (
@@ -208,8 +212,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}
-      >
+        }}>
         <SignInPage
           hasMetaMask={!!showMetaMaskOption}
           loading={status === 'loading'}
@@ -230,8 +233,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}
-      >
+        }}>
         <EmailPage
           hasMetaMask={!!showMetaMaskOption}
           email={email}
@@ -248,8 +250,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}
-      >
+        }}>
         <PasswordPage
           email={email}
           onPasswordChange={onPasswordChange}
@@ -263,8 +264,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}
-      >
+        }}>
         <ProfilePage
           name={name}
           handle={handle}
@@ -289,8 +289,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}
-      >
+        }}>
         <FollowPage
           users={suggestedFollowEntries}
           followedArtists={selectedUserIds}
@@ -309,8 +308,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}
-      >
+        }}>
         <LoadingPage />
       </animated.div>
     ),
@@ -320,8 +318,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}
-      >
+        }}>
         <StartPlatformPage
           onUploadTrack={onUploadTrack}
           onStartListening={onStartListening}
@@ -334,8 +331,7 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}
-      >
+        }}>
         <AppCTA onNextPage={onNextPage} />
       </animated.div>
     )
@@ -399,8 +395,7 @@ const SignOnProvider = ({
       canonicalUrl={`${BASE_URL}${SIGN_UP_PAGE}`}
       containerClassName={styles.pageContainer}
       contentClassName={styles.pageContent}
-      fadeDuration={400}
-    >
+      fadeDuration={400}>
       <BackgroundWaves key={'bg-waves'} className={cn(styles.bgWaves)} />
       {isPageBeforeFollow ? (
         <IconRemove className={styles.closeIcon} onClick={closeModal} />
@@ -417,15 +412,13 @@ const SignOnProvider = ({
         animateImageIn={
           page !== Pages.SIGNIN && page !== Pages.EMAIL && hasOpened
         }
-        hideImageTransition={page === Pages.LOADING || page === Pages.START}
-      >
+        hideImageTransition={page === Pages.LOADING || page === Pages.START}>
         <form
           method='post'
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault()
           }}
-          autoComplete='off'
-        >
+          autoComplete='off'>
           <Transition
             items={page}
             unique
@@ -456,9 +449,8 @@ const SignOnProvider = ({
                 : isPageBeforeFollow
                 ? {}
                 : { duration: 220 }
-            }
-          >
-            {item => pages[item]}
+            }>
+            {(item) => pages[item]}
           </Transition>
         </form>
       </SignOnModal>

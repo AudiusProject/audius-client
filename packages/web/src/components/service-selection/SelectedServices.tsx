@@ -1,53 +1,69 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import cn from 'classnames'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconInfo } from 'assets/img/iconInfo.svg'
 import Tooltip from 'components/tooltip/Tooltip'
+import { useSelector } from 'utils/reducer'
 
 import styles from './SelectedServices.module.css'
 import { getSelectedServices } from './store/selectors'
 import { openModal, fetchServices } from './store/slice'
 import { trimServiceName } from './utils'
 
-const ServiceName = props => {
-  const trimmedName = trimServiceName(props.name)
+type ServiceNameProps = {
+  name: string
+  last: boolean
+  maxLength: number
+}
+
+const ServiceName = (props: ServiceNameProps) => {
+  const { name, last, maxLength } = props
+  const trimmedName = trimServiceName(name, maxLength)
 
   return (
     <span className={styles.serviceName}>
-      <Tooltip text={props.name} mouseEnterDelay={0.1} mouseLeaveDelay={0.1}>
+      <Tooltip text={name} mouseEnterDelay={0.1} mouseLeaveDelay={0.1}>
         {trimmedName}
-        {!props.last && ', '}
+        {!last && ', '}
       </Tooltip>
     </span>
   )
 }
 
-const SelectedServices = props => {
-  const [fetchedServices, setFetchedServices] = useState(false)
+type SelectedServicesProps = {
+  variant?: 'normal' | 'lighter'
+  requiresAtLeastOne?: boolean
+}
 
-  const { services, fetchServices } = props
+export const SelectedServices = (props: SelectedServicesProps) => {
+  const { requiresAtLeastOne, variant = 'normal' } = props
+  const services = useSelector(getSelectedServices)
+  const [fetchedServices, setFetchedServices] = useState(false)
+  const dispatch = useDispatch()
+
+  const show = requiresAtLeastOne ? services.length > 1 : services.length > 0
+
+  const handleModalOpen = useCallback(() => {
+    if (show) {
+      dispatch(openModal())
+    }
+  }, [show, dispatch])
 
   useEffect(() => {
     if (!fetchedServices && (!services || services.length === 0)) {
       setFetchedServices(true)
-      fetchServices()
+      dispatch(fetchServices())
     }
-  }, [services, fetchServices, fetchedServices])
-
-  const show = props.requiresAtLeastOne
-    ? services.length > 1
-    : services.length > 0
+  }, [services, dispatch, fetchedServices])
 
   return (
     <div
       className={cn(styles.selectedServices, {
         [styles.show]: show,
-        [styles.lighter]: props.variant === 'lighter'
-      })}
-    >
+        [styles.lighter]: variant === 'lighter'
+      })}>
       <div className={styles.services}>
         {`Selected Servers: `}
         {services.map((service, i) => (
@@ -59,40 +75,15 @@ const SelectedServices = props => {
           />
         ))}
       </div>
-      <div
-        className={styles.selection}
-        onClick={show ? props.openModal : () => {}}
-      >
+      <div className={styles.selection} onClick={handleModalOpen}>
         Change Servers (Advanced)
       </div>
       <Tooltip
         text={`Configure which servers host your content. This is an advanced feature. Make sure you know what you're doing!`}
         mouseEnterDelay={0.1}
-        mouseLeaveDelay={0.1}
-      >
+        mouseLeaveDelay={0.1}>
         <IconInfo className={styles.iconInfo} />
       </Tooltip>
     </div>
   )
 }
-
-SelectedServices.propTypes = {
-  services: PropTypes.arrayOf(PropTypes.string),
-  variant: PropTypes.oneOf(['normal', 'lighter']),
-  requiresAtLeastOne: PropTypes.bool
-}
-
-SelectedServices.defaultProps = {
-  variant: 'normal'
-}
-
-const mapStateToProps = state => ({
-  services: getSelectedServices(state)
-})
-
-const mapDispatchToProps = dispatch => ({
-  openModal: () => dispatch(openModal()),
-  fetchServices: () => dispatch(fetchServices())
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(SelectedServices)
