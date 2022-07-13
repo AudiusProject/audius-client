@@ -50,13 +50,13 @@ export const ModalContentPages = ({
         from={transitions.from}
         enter={transitions.enter}
         leave={transitions.leave}
-        unique={true}
-      >
-        {item => style => (
-          <animated.div style={{ ...style }}>
-            {Children.toArray(children)[item]}
-          </animated.div>
-        )}
+        unique={true}>
+        {(item) => (style) =>
+          (
+            <animated.div style={{ ...style }}>
+              {Children.toArray(children)[item]}
+            </animated.div>
+          )}
       </Transition>
     </div>
   )

@@ -52,7 +52,7 @@ export const InputAmountPage = ({
   )
 
   const handleCoinbaseSuccess = useCallback(() => {
-    const audioToken = tokenList.find(t => t.symbol === 'AUDIO')
+    const audioToken = tokenList.find((t) => t.symbol === 'AUDIO')
     if (intermediateToken && audioToken) {
       onComplete?.({
         amount: outputAmount || 0,
@@ -63,7 +63,7 @@ export const InputAmountPage = ({
   }, [onComplete, intermediateToken, tokenList, outputAmount])
 
   const handleOutputAmount = useCallback(
-    amount => {
+    (amount) => {
       setOutputAmount(amount)
     },
     [setOutputAmount]
@@ -79,7 +79,7 @@ export const InputAmountPage = ({
   }, [setTokenList])
 
   useEffect(() => {
-    const token = tokenList.find(t => t.symbol === selectedTokenSymbol)
+    const token = tokenList.find((t) => t.symbol === selectedTokenSymbol)
     setIntermediateToken(token)
   }, [tokenList, selectedTokenSymbol])
 

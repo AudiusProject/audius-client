@@ -59,7 +59,7 @@ export const AudioOnRampModal = () => {
   )
 
   const handleExchangeCompleted = useCallback(
-    result => {
+    (result) => {
       setExchangeResult(result)
       goToNextPage()
     },
@@ -87,14 +87,12 @@ export const AudioOnRampModal = () => {
       showTitleHeader
       title={'Buy $AUDIO'}
       useGradientTitle={false}
-      showDismissButton
-    >
+      showDismissButton>
       {account && connection ? (
         <JupiterProvider
           connection={connection}
           cluster={cluster}
-          userPublicKey={wallet?.publicKey}
-        >
+          userPublicKey={wallet?.publicKey}>
           <ModalContentPages currentPage={currentPage}>
             <WalletInputPage onSubmit={handleWalletSubmit} />
             <InputAmountPage

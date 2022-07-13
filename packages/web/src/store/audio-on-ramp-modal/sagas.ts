@@ -22,7 +22,7 @@ function initOnRampChannel({
   return eventChannel<{
     state: CoinbasePayStatus
     openCallback?: () => void
-  }>(emit => {
+  }>((emit) => {
     const cbInstance = initOnRamp({
       appId: '2cbd65dc-1710-4ae3-ab28-8947b08c22fb',
       widgetParameters: {
@@ -30,7 +30,7 @@ function initOnRampChannel({
           {
             address: destinationWallet,
             blockchains: ['solana'], // Only supporting Solana for now
-            assets: assets
+            assets
           }
         ],
         presetCryptoAmount: amount

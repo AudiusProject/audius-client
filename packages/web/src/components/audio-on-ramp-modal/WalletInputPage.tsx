@@ -19,14 +19,14 @@ export const WalletInputPage = ({
   const [secretKey, setSecretKey] = useState()
 
   const handlePublicKeyChange = useCallback(
-    value => {
+    (value) => {
       setPublicKey(value)
     },
     [setPublicKey]
   )
 
   const handleSecretKeyChange = useCallback(
-    value => {
+    (value) => {
       setSecretKey(value)
     },
     [setSecretKey]
