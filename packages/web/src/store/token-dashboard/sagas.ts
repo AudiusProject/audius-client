@@ -62,7 +62,8 @@ import {
   loadWalletLink,
   loadBitski,
   loadWalletConnect,
-  createSession
+  createSession,
+  PhantomProvider
 } from 'services/web3-modal'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -302,25 +303,17 @@ function* connectWallet() {
   }
 }
 
-function* connectPhantomWallet(solana: any) {
+function* connectPhantomWallet(solana: PhantomProvider) {
   const connectingWallet: string = solana.publicKey.toString()
   const disconnect = async () => {
     await solana.disconnect()
   }
-  yield connectSPLWallet(connectingWallet, solana.signMessage, disconnect)
+  yield connectSPLWallet(connectingWallet, solana, disconnect)
 }
-
-type SolanaSignMessage = (
-  encodedMessage: Uint8Array,
-  encoding: string
-) => Promise<{
-  publicKey: any
-  signature: any
-}>
 
 function* connectSPLWallet(
   connectingWallet: string,
-  solanaSignMessage: SolanaSignMessage,
+  solana: PhantomProvider,
   disconnect: () => Promise<void>
 ) {
   try {
@@ -377,7 +370,7 @@ function* connectSPLWallet(
     const signedResponse: {
       publicKey: any
       signature: any
-    } = yield solanaSignMessage(encodedMessage, 'utf8')
+    } = yield solana.signMessage(encodedMessage, 'utf8')
 
     const publicKey = signedResponse.publicKey.toString()
     const signature = signedResponse.signature.toString('hex')
