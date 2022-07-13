@@ -242,7 +242,7 @@ export const OAuthLoginPage = () => {
         make(Name.AUDIUS_OAUTH_START, {
           redirectUriParam:
             parsedRedirectUri === 'postmessage' ? 'postmessage' : redirect_uri!,
-          originParam: originParam,
+          originParam,
           appNameParam: app_name!,
           responseMode: response_mode
         })

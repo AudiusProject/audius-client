@@ -296,7 +296,7 @@ function* signUp() {
     profilePicture: (signOn.profileImage && signOn.profileImage.file) || null,
     coverPhoto: (signOn.coverPhoto && signOn.coverPhoto.file) || null,
     isVerified: signOn.verified,
-    location: location
+    location
   }
   const name = signOn.name.value
   const email = signOn.email.value

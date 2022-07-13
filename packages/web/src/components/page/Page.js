@@ -71,7 +71,7 @@ const HeaderContainer = ({ header, containerRef }) => {
         }}>
         {cloneElement(header, {
           isChromeOrSafari,
-          scrollBarWidth: scrollBarWidth,
+          scrollBarWidth,
           headerContainerRef,
           topLeftElement: <SearchBar />
         })}

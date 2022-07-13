@@ -97,7 +97,7 @@ class Input extends Component {
       type,
       name,
       autoComplete,
-      disabled: disabled,
+      disabled,
       value,
       ref: inputRef
     }

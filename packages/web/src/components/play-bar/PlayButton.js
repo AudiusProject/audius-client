@@ -62,7 +62,7 @@ class PlayButton extends Component {
         }
       }
 
-      this.setState({ icon: icon, isPaused: isPaused, playState: playState })
+      this.setState({ icon, isPaused, playState })
     }
   }
 
@@ -96,9 +96,9 @@ class PlayButton extends Component {
     }
 
     this.setState({
-      icon: icon,
-      isPaused: isPaused,
-      playState: playState
+      icon,
+      isPaused,
+      playState
     })
   }
 
@@ -134,7 +134,7 @@ class PlayButton extends Component {
       isPaused = this.state.isPaused
     }
     const animationOptions = {
-      loop: loop,
+      loop,
       autoplay: false,
       animationData: data
     }

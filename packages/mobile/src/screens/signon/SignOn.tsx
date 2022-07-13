@@ -662,7 +662,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
     dispatch(signonActions.setEmailStatus('editing'))
     dispatchWeb({
       type: MessageType.SIGN_UP_VALIDATE_AND_CHECK_EMAIL,
-      email: email,
+      email,
       isAction: true
     })
   }

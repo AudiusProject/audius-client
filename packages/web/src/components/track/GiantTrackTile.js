@@ -393,7 +393,7 @@ class GiantTrackTile extends PureComponent {
         handle: artistHandle,
         isFavorited: isSaved,
         mount: 'page',
-        isOwner: isOwner,
+        isOwner,
         includeFavorite: false,
         includeTrackPage: false,
         isArtistPick,

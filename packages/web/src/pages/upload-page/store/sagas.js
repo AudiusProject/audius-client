@@ -206,7 +206,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
           error: true,
           timeout: false,
           message: error,
-          phase: phase
+          phase
         })
 
         // Just to prevent success call from running
@@ -303,7 +303,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
       console.error(`Upload failed for id: ${originalId}`)
       // If we failed, signal to the parent saga
       yield put(respChan, {
-        originalId: originalId,
+        originalId,
         error: true,
         timeout,
         message

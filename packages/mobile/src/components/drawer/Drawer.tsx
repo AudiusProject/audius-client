@@ -47,7 +47,7 @@ const createStyles =
         left: 0,
         width: '100%',
         elevation: zIndex,
-        zIndex: zIndex,
+        zIndex,
         shadowOpacity: shouldAnimateShadow ? 0 : MAX_SHADOW_OPACITY,
         shadowRadius: 15,
         borderTopRightRadius: BORDER_RADIUS,

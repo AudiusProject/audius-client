@@ -29,9 +29,9 @@ const reducer = createReducer<ConfirmerState, ConfirmerActions>(initialState, {
     const newCall = {
       call: action.confirmationCall,
       result: null,
-      squashable: squashable,
-      operationId: operationId,
-      parallelizable: parallelizable
+      squashable,
+      operationId,
+      parallelizable
     }
     const newConfirm = { ...state.confirm }
     if (action.uid in state.confirm) {

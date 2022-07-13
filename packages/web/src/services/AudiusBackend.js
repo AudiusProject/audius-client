@@ -2696,7 +2696,7 @@ class AudiusBackend {
         quorumSize,
         aaoEndpoint: AAOEndpoint,
         aaoAddress: oracleEthAddress,
-        endpoints: endpoints,
+        endpoints,
         feePayerOverride,
         reporter
       })

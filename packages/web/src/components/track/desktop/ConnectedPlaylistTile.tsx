@@ -250,7 +250,7 @@ const ConnectedPlaylistTile = memo(
 
     const renderOverflowMenu = () => {
       const menu: Omit<CollectionkMenuProps, 'children'> = {
-        handle: handle,
+        handle,
         isFavorited,
         isReposted,
         type: isAlbum ? 'album' : 'playlist', // playlist or album

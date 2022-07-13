@@ -297,7 +297,7 @@ class App extends Component {
         if (!url) {
           const popup = windowOpen(window.location)
           const win = {
-            popup: popup,
+            popup,
             closed: popup.closed,
             close: () => {
               popup.close()

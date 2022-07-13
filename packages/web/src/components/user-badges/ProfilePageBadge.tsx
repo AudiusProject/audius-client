@@ -58,7 +58,7 @@ export const BadgeTierText = ({
   return (
     <span
       className={cn(styles.tierText, className)}
-      style={{ ...tierGradientMap[tier], fontSize: fontSize }}>
+      style={{ ...tierGradientMap[tier], fontSize }}>
       {tier}
     </span>
   )

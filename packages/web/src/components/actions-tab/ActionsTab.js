@@ -185,12 +185,12 @@ export class ActionsTab extends PureComponent {
 
     const overflowMenu = {
       menu: {
-        handle: handle,
+        handle,
         isFavorited: currentUserSaved,
         isReposted: currentUserReposted,
         mount: 'page',
         isOwner: handle === userHandle,
-        isArtistPick: isArtistPick
+        isArtistPick
       }
     }
     if (variant === 'track') {

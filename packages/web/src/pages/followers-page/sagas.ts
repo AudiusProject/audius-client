@@ -33,8 +33,8 @@ const provider = createUserListProvider<User>({
     const users = await apiClient.getFollowers({
       currentUserId,
       profileUserId: entityId,
-      limit: limit,
-      offset: offset
+      limit,
+      offset
     })
     return { users }
   },

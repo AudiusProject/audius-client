@@ -114,7 +114,7 @@ class PlayBar extends Component {
     if (playCounter !== this.state.playCounter) {
       this.setState({
         mediaKey: this.state.mediaKey + 1,
-        playCounter: playCounter,
+        playCounter,
         trackPosition: 0,
         listenRecorded: false
       })

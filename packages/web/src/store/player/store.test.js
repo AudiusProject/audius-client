@@ -29,7 +29,7 @@ const makeInitialPlayer = (playing) => ({
     stop: jest.fn(),
     seek: jest.fn()
   },
-  playing: playing
+  playing
 })
 
 describe('watchPlay', () => {

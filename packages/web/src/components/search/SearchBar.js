@@ -86,7 +86,7 @@ class SearchBar extends Component {
   }
 
   onSearch = (value, action) => {
-    this.setState({ value: value, valueFromParent: false })
+    this.setState({ value, valueFromParent: false })
 
     // Set the search state but don't actually call search
     this.props.onSearch(value, false)

@@ -211,7 +211,7 @@ class FinishPage extends Component {
         return {
           ...track.metadata,
           user: account,
-          duration: duration
+          duration
         }
       })
       const loaded = uploadProgress.reduce((avg, v) => avg + v.loaded, 0)

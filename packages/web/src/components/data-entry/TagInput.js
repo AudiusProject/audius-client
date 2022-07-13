@@ -82,7 +82,7 @@ class TagInput extends Component {
       this.setState({
         tags: newSet,
         typingMode: newSet.size !== this.props.maxTags,
-        flashExistingTag: flashExistingTag
+        flashExistingTag
       })
       this.props.onChangeTags(newSet)
       this.newTagInputRef.current.value = ''

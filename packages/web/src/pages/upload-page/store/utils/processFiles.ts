@@ -127,11 +127,11 @@ export const processFiles = (
     // @ts-ignore
     audio.src = file.preview
     return {
-      file: file,
+      file,
       preview: audio,
       metadata: schemas.newTrackMetadata({
-        title: title,
-        artwork: artwork
+        title,
+        artwork
       })
     }
   })

@@ -547,8 +547,8 @@ class FormTile extends Component {
       this.state.derivativeWorks
     )
     this.setState({
-      allowAttribution: allowAttribution,
-      license: license
+      allowAttribution,
+      license
     })
     this.props.onChangeField('license', license.licenseType)
   }
@@ -562,8 +562,8 @@ class FormTile extends Component {
       this.state.derivativeWorks
     )
     this.setState({
-      commercialUse: commercialUse,
-      license: license
+      commercialUse,
+      license
     })
     this.props.onChangeField('license', license.licenseType)
   }
@@ -578,8 +578,8 @@ class FormTile extends Component {
       derivativeWorks
     )
     this.setState({
-      derivativeWorks: derivativeWorks,
-      license: license
+      derivativeWorks,
+      license
     })
     this.props.onChangeField('license', license.licenseType)
   }
@@ -612,7 +612,7 @@ class FormTile extends Component {
     }
     this.setState({
       advancedShow: !this.state.advancedShow,
-      advancedAnimationTimeout: advancedAnimationTimeout
+      advancedAnimationTimeout
     })
   }
 

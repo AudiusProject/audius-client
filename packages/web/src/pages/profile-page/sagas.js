@@ -286,7 +286,7 @@ function* fetchMostUsedTags(userId, trackCount) {
   const trackResponse = yield call(AudiusBackend.getArtistTracks, {
     offset: 0,
     limit: trackCount + LARGE_TRACKCOUNT_TAGS,
-    userId: userId,
+    userId,
     filterDeleted: true
   })
   const tracks = trackResponse.filter((metadata) => !metadata.is_delete)
@@ -405,7 +405,7 @@ export function* updateProfileAsync(action) {
     cacheActions.update(Kind.USERS, [
       {
         id: creator.user_id,
-        metadata: metadata
+        metadata
       }
     ])
   )

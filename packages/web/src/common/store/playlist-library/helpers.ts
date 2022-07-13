@@ -145,7 +145,7 @@ export const constructPlaylistFolder = (
     id: uuid(),
     type: 'folder',
     name,
-    contents: contents
+    contents
   }
 }
 

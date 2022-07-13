@@ -445,7 +445,7 @@ const ProfileManual = ({ navigation, route }: ProfileManualProps) => {
   const validateHandle = (handle: string) => {
     dispatchWeb({
       type: MessageType.SIGN_UP_VALIDATE_HANDLE,
-      handle: handle,
+      handle,
       verified,
       onValidate: null,
       isAction: true

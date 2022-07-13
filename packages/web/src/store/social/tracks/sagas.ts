@@ -367,7 +367,7 @@ export function* saveTrackAsync(
     const handle = yield* select(getUserHandle)
     const coSignIndicatorEvent = make(Name.REMIX_COSIGN_INDICATOR, {
       id: action.trackId,
-      handle: handle,
+      handle,
       original_track_id: parentTrack?.track_id,
       original_track_title: parentTrack?.title,
       action: 'favorited'
@@ -377,7 +377,7 @@ export function* saveTrackAsync(
     if (!hasAlreadyCoSigned) {
       const coSignEvent = make(Name.REMIX_COSIGN, {
         id: action.trackId,
-        handle: handle,
+        handle,
         original_track_id: parentTrack?.track_id,
         original_track_title: parentTrack?.title,
         action: 'favorited'

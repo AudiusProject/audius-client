@@ -716,7 +716,7 @@ function* orderPlaylistAsync(action) {
       ...playlist.playlist_contents,
       track_ids: action.trackIdsAndTimes.map(({ id, time }) => {
         trackIds.push(id)
-        return { track: id, time: time }
+        return { track: id, time }
       })
     }
   }

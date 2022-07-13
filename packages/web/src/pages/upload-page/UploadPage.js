@@ -112,7 +112,7 @@ class Upload extends Component {
 
   changePage = (page) => {
     this.setState({
-      page: page
+      page
     })
   }
 
@@ -154,7 +154,7 @@ class Upload extends Component {
 
     this.setState({
       tracks: [...this.state.tracks, ...tracks],
-      uploadType: uploadType
+      uploadType
     })
   }
 
@@ -274,7 +274,7 @@ class Upload extends Component {
   }
 
   setUploadType = (uploadType) => {
-    this.setState({ uploadType: uploadType })
+    this.setState({ uploadType })
   }
 
   onChangeOrder = (source, destination) => {

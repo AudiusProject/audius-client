@@ -1,3 +1,4 @@
+/* eslint-disable no-import-assign */
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 

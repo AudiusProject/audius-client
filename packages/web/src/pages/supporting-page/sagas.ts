@@ -47,8 +47,8 @@ const provider = createUserListProvider<User, SupportingProcessExtraType>({
 
     const supporting = await fetchSupporting({
       encodedUserId,
-      limit: limit,
-      offset: offset
+      limit,
+      offset
     })
     const users = supporting
       .sort((s1, s2) => {

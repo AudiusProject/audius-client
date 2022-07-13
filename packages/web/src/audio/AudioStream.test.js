@@ -129,7 +129,7 @@ describe('play', () => {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
-      play: play
+      play
     }))
     const audioStream = new AudioStream()
     audioStream.load([{ duration: 6 }], () => {})
@@ -148,7 +148,7 @@ describe('pause', () => {
       }),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
-      pause: pause
+      pause
     }))
     const audioStream = new AudioStream()
     audioStream.load([{ duration: 6 }], () => {})
@@ -165,7 +165,7 @@ describe('stop', () => {
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
-      pause: pause
+      pause
     }))
     const audioStream = new AudioStream()
     audioStream.load([{ duration: 6 }], () => {})

@@ -165,7 +165,7 @@ const ConnectedTrackTile = memo(
     const renderOverflowMenu = () => {
       const menu: Omit<TrackMenuProps, 'children'> = {
         extraMenuItems: [],
-        handle: handle,
+        handle,
         includeAddToPlaylist: true,
         includeArtistPick: handle === userHandle && !isUnlisted,
         includeEdit: handle === userHandle,
@@ -174,12 +174,12 @@ const ConnectedTrackTile = memo(
         includeRepost: false,
         includeShare: false,
         includeTrackPage: true,
-        isArtistPick: isArtistPick,
+        isArtistPick,
         isDeleted: is_delete || isOwnerDeactivated,
         isFavorited,
         isOwner,
         isReposted,
-        trackId: trackId,
+        trackId,
         trackTitle: title,
         trackPermalink: permalink,
         type: 'track'

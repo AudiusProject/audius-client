@@ -42,7 +42,7 @@ class DatePicker extends Component {
       invalid = true
     }
     this.props.onDateChange(date ? date.toString() : null, invalid)
-    this.setState({ date: date, invalid: invalid })
+    this.setState({ date, invalid })
   }
 
   render() {

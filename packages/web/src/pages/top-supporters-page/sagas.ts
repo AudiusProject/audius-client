@@ -47,8 +47,8 @@ const provider = createUserListProvider<User, SupportersProcessExtraType>({
 
     const supporters = await fetchSupporters({
       encodedUserId,
-      limit: limit,
-      offset: offset
+      limit,
+      offset
     })
     const users = supporters
       .sort((s1, s2) => s1.rank - s2.rank)

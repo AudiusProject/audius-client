@@ -280,7 +280,7 @@ export const CollectiblesPlaylistPageProvider = ({
   const onClickTrackName = (collectible: Collectible) => {
     dispatch(
       setCollectible({
-        collectible: collectible,
+        collectible,
         ownerHandle: user?.handle,
         embedCollectibleHash: getHash(collectible.id),
         isUserOnTheirProfile: false
@@ -459,9 +459,9 @@ export const CollectiblesPlaylistPageProvider = ({
       entries
     },
     columns,
-    getPlayingUid: getPlayingUid,
-    getFilteredData: getFilteredData,
-    isQueued: isQueued,
+    getPlayingUid,
+    getFilteredData,
+    isQueued,
 
     onPlay: handlePlayAllClick,
     onHeroTrackShare,

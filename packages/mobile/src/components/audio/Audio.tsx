@@ -115,7 +115,7 @@ const Audio = ({
     postMessage(webRef.current, {
       type: MessageType.SYNC_QUEUE,
       info: track,
-      index: index,
+      index,
       isAction: true
     })
   }, [webRef, track, index])

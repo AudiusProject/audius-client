@@ -219,7 +219,7 @@ const Checkbox = ({
   const animatedStyles = [
     styles.iconCheck,
     {
-      opacity: opacity,
+      opacity,
       transform: [
         {
           scale: opacity.interpolate({

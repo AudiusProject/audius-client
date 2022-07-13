@@ -50,7 +50,7 @@ export const ToastContextProvider = (props: { children: JSX.Element }) => {
 
   const handleToast = useCallback(
     (content: string | JSX.Element, timeout: number = DEFAULT_TIMEOUT) => {
-      dispatch(toast({ content: content, timeout }))
+      dispatch(toast({ content, timeout }))
     },
     [dispatch]
   )

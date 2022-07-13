@@ -123,7 +123,7 @@ const SocialLink = ({
         <Linkify
           // https://github.com/Soapbox/linkifyjs/issues/292
           // @ts-ignore
-          options={{ attributes: { onClick: onClick } }}>
+          options={{ attributes: { onClick } }}>
           {text}
         </Linkify>
       )

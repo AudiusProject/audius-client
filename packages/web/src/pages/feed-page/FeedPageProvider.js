@@ -68,8 +68,8 @@ class FeedPageProvider extends PureComponent {
       playingUid,
       playingSource: source,
       playingTrackId: track ? track.track_id : null,
-      playing: playing,
-      buffering: buffering,
+      playing,
+      buffering,
       scrollParent: this.props.containerRef,
       selfLoad: true
     }

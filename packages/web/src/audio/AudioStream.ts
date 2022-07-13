@@ -70,7 +70,7 @@ class fLoader extends Hls.DefaultConfig.loader {
 
 const HlsConfig = {
   maxBufferLength: MAX_BUFFER_LENGTH,
-  fLoader: fLoader
+  fLoader
 }
 
 class AudioStream {

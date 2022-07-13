@@ -36,7 +36,7 @@ function* fetchDashboardAsync(action) {
   const now = moment()
 
   yield call(fetchDashboardListenDataAsync, {
-    trackIds: trackIds,
+    trackIds,
     start: now.clone().subtract(1, 'years').toISOString(),
     end: now.toISOString(),
     period: 'month'

@@ -121,7 +121,7 @@ FollowButton.defaultProps = {
   following: false,
   showIcon: true,
   size: 'medium',
-  messages: messages,
+  messages,
   isDisabled: false,
   stopPropagation: false
 }

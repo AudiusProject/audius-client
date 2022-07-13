@@ -22,7 +22,7 @@ class Dropdown extends Component {
   }
 
   onClick = (index, callback) => {
-    this.setState({ index: index, focused: false })
+    this.setState({ index, focused: false })
     if (callback) callback()
     this.props.onSelect(this.props.menu.items[index].text)
     this.props.onSelectIndex(index)

@@ -53,6 +53,7 @@ export const getProfileCollections = createDeepEqualSelector(
           const { is_delete, _marked_deleted, _moved } = collection
           return !(is_delete || _marked_deleted) || _moved
         }
+        return false
       })
       .map(
         (collection) => ({ ...collection, user: { handle } } as UserCollection)
