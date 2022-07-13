@@ -11,6 +11,7 @@ import Client from 'common/models/Client'
 import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Status from 'common/models/Status'
 import Theme from 'common/models/Theme'
+import { StringKeys } from 'common/services/remote-config'
 import {
   getHasAccount,
   getAccountStatus,
@@ -72,6 +73,7 @@ import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergro
 import UploadType from 'pages/upload-page/components/uploadType'
 import Visualizer from 'pages/visualizer/Visualizer'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'
 import { make } from 'store/analytics/actions'
 import { setVisibility as setAppModalCTAVisibility } from 'store/application/ui/app-cta-modal/slice'
@@ -149,7 +151,8 @@ import {
   AUDIO_NFT_PLAYLIST_PAGE,
   DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
-  TOP_SUPPORTERS_USERS_ROUTE
+  TOP_SUPPORTERS_USERS_ROUTE,
+  publicSiteRoutes
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -178,7 +181,7 @@ const UploadPage = lazyWithPreload(
   () => import('pages/upload-page/UploadPage'),
   0
 )
-const Modals = lazyWithPreload(() => import('./Modals'), 0)
+const Modals = lazyWithPreload(() => import('./modals/Modals'), 0)
 const ConnectedMusicConfetti = lazyWithPreload(
   () => import('components/music-confetti/ConnectedMusicConfetti'),
   0
@@ -187,7 +190,7 @@ const ConnectedMusicConfetti = lazyWithPreload(
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export const MAIN_CONTENT_ID = 'mainContent'
 
-const includeSearch = search => {
+const includeSearch = (search) => {
   return search.includes('oauth_token') || search.includes('code')
 }
 
@@ -201,7 +204,9 @@ class App extends Component {
     showWeb3ErrorBanner: null,
 
     showUpdateAppBanner: false,
+    showWebUpdateBanner: false,
     showRequiresUpdate: false,
+    showRequiresWebUpdate: false,
     isUpdating: false,
 
     initialPage: true,
@@ -255,12 +260,31 @@ class App extends Component {
         console.error('updateError', event, arg)
       })
 
+      // This is for patch updates so that only the web assets are updated
+      this.ipc.on('webUpdateAvailable', async (event, arg) => {
+        console.info('webUpdateAvailable', event, arg)
+        const { currentVersion } = arg
+        await remoteConfigInstance.waitForRemoteConfig()
+        const minAppVersion = remoteConfigInstance.getRemoteVar(
+          StringKeys.MIN_APP_VERSION
+        )
+
+        if (semver.lt(currentVersion, minAppVersion)) {
+          this.setState({ showRequiresWebUpdate: true })
+        } else {
+          this.setState({ showWebUpdate: true })
+        }
+      })
+
       // There is an update available, the user should update if it's
       // more than a minor version.
       this.ipc.on('updateAvailable', (event, arg) => {
         console.info('updateAvailable', event, arg)
         const { version, currentVersion } = arg
-        if (semver.minor(currentVersion) < semver.minor(version)) {
+        if (
+          semver.major(currentVersion) < semver.major(version) ||
+          semver.minor(currentVersion) < semver.minor(version)
+        ) {
           this.setState({ showRequiresUpdate: true })
         }
       })
@@ -273,7 +297,7 @@ class App extends Component {
         if (!url) {
           const popup = windowOpen(window.location)
           const win = {
-            popup: popup,
+            popup,
             closed: popup.closed,
             close: () => {
               popup.close()
@@ -295,7 +319,7 @@ class App extends Component {
                 hostname: a.hostname
               }
             },
-            set: locationHref => {
+            set: (locationHref) => {
               popup.location = locationHref
               this.locationHref = locationHref
             }
@@ -313,7 +337,7 @@ class App extends Component {
     if (
       !this.props.hasAccount &&
       this.props.accountStatus !== Status.LOADING &&
-      authenticatedRoutes.some(route => {
+      authenticatedRoutes.some((route) => {
         const match = matchPath(getPathname(this.props.location), {
           path: route,
           exact: true
@@ -391,7 +415,7 @@ class App extends Component {
     }
   }
 
-  pushWithToken = route => {
+  pushWithToken = (route) => {
     const search = this.props.location.search
     // Twitter and instagram search params
     if (includeSearch(search)) {
@@ -414,8 +438,26 @@ class App extends Component {
     this.ipc.send('update')
   }
 
+  acceptWebUpdate = () => {
+    if (this.state.showWebUpdateBanner) {
+      this.dismissUpdateWebAppBanner()
+    } else if (this.state.showRequiresWebUpdate) {
+      this.dismissRequiresWebUpdate()
+    }
+    this.setState({ isUpdating: true })
+    this.ipc.send('web-update')
+  }
+
   dismissUpdateAppBanner = () => {
     this.setState({ showUpdateAppBanner: false })
+  }
+
+  dismissUpdateWebAppBanner = () => {
+    this.setState({ showWebUpdateBanner: false })
+  }
+
+  dismissRequiresWebUpdate = () => {
+    this.setState({ showRequiresWebUpdate: false })
   }
 
   showDownloadAppModal = () => {
@@ -440,9 +482,11 @@ class App extends Component {
     const {
       showCTABanner,
       showUpdateAppBanner,
+      showWebUpdate,
       showWeb3ErrorBanner,
       isUpdating,
       showRequiresUpdate,
+      showRequiresWebUpdate,
       initialPage
     } = this.state
     const client = getClient()
@@ -454,6 +498,15 @@ class App extends Component {
           theme={theme}
           isUpdating={isUpdating}
           onUpdate={this.acceptUpdateApp}
+        />
+      )
+
+    if (showRequiresWebUpdate)
+      return (
+        <RequiresUpdate
+          theme={theme}
+          isUpdating={isUpdating}
+          onUpdate={this.acceptWebUpdate}
         />
       )
 
@@ -494,6 +547,12 @@ class App extends Component {
             onClose={this.dismissWeb3ErrorBanner}
           />
         ) : null}
+        {showWebUpdate ? (
+          <UpdateAppBanner
+            onAccept={this.acceptWebUpdate}
+            onClose={this.dismissUpdateWebAppBanner}
+          />
+        ) : null}
         {this.props.showCookieBanner ? <CookieBanner /> : null}
         <Notice shouldPadTop={showBanner} />
         <Navigator
@@ -508,13 +567,23 @@ class App extends Component {
           className={cn(styles.mainContentWrapper, {
             [styles.bannerMargin]: showBanner,
             [styles.mainContentWrapperMobile]: isMobileClient
-          })}
-        >
+          })}>
           {isMobileClient && <TopLevelPage />}
           {isMobileClient && <HeaderContextConsumer />}
 
           <Suspense fallback={null}>
             <SwitchComponent isInitialPage={initialPage} handle={userHandle}>
+              {publicSiteRoutes.map((route) => (
+                // Redirect all public site routes to the corresponding pathname.
+                // This is necessary first because otherwise pathnames like
+                // legal/privacy-policy will match the track route.
+                <Redirect
+                  key={route}
+                  from={route}
+                  to={{ pathname: getPathname() }}
+                />
+              ))}
+
               <Route
                 exact
                 path={SIGN_IN_PAGE}
@@ -682,7 +751,7 @@ class App extends Component {
 
               <Route
                 path={SEARCH_CATEGORY_PAGE}
-                render={props => (
+                render={(props) => (
                   <SearchPage
                     {...props}
                     scrollToTop={this.scrollToTop}
@@ -692,7 +761,7 @@ class App extends Component {
               />
               <Route
                 path={SEARCH_PAGE}
-                render={props => (
+                render={(props) => (
                   <SearchPage
                     {...props}
                     scrollToTop={this.scrollToTop}
@@ -795,7 +864,7 @@ class App extends Component {
               <Route
                 exact
                 path={USER_ID_PAGE}
-                render={props => (
+                render={(props) => (
                   <ProfilePage
                     {...props}
                     containerRef={this.props.mainContentRef.current}
@@ -820,7 +889,7 @@ class App extends Component {
                   PROFILE_PAGE_COLLECTIBLE_DETAILS,
                   PROFILE_PAGE_COLLECTIBLES
                 ]}
-                render={props => (
+                render={(props) => (
                   <ProfilePage
                     {...props}
                     containerRef={this.props.mainContentRef.current}
@@ -833,7 +902,7 @@ class App extends Component {
               <Route
                 exact
                 path={TRACK_REMIXES_PAGE}
-                render={props => (
+                render={(props) => (
                   <RemixesPage
                     {...props}
                     containerRef={this.props.mainContentRef.current}
@@ -886,7 +955,7 @@ class App extends Component {
               <Route
                 exact
                 path={PROFILE_PAGE}
-                render={props => (
+                render={(props) => (
                   <ProfilePage
                     {...props}
                     containerRef={this.props.mainContentRef.current}
@@ -952,7 +1021,7 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   hasAccount: getHasAccount(state),
   userId: getUserId(state),
   userHandle: getUserHandle(state),
@@ -964,9 +1033,9 @@ const mapStateToProps = state => ({
   firstLoadConnectivityFailure: getConnectivityFailure(state)
 })
 
-const mapDispatchToProps = dispatch => ({
-  setTheme: theme => dispatch(setTheme(theme)),
-  updateRouteOnSignUpCompletion: route =>
+const mapDispatchToProps = (dispatch) => ({
+  setTheme: (theme) => dispatch(setTheme(theme)),
+  updateRouteOnSignUpCompletion: (route) =>
     dispatch(updateRouteOnSignUpCompletion(route)),
   openSignOn: (signIn = true, page = null, fields = {}) =>
     dispatch(openSignOn(signIn, page, fields)),

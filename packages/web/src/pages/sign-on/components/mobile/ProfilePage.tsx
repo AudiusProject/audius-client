@@ -2,7 +2,11 @@ import { useState, useCallback, useEffect, KeyboardEvent } from 'react'
 
 import cn from 'classnames'
 
-import { InstagramProfile } from 'common/store/account/reducer'
+import {
+  AccountImage,
+  InstagramProfile,
+  TwitterProfile
+} from 'common/store/account/reducer'
 import { MAIN_CONTENT_ID } from 'pages/App'
 import ProfileForm from 'pages/sign-on/components/ProfileForm'
 import TwitterOverlay from 'pages/sign-on/components/mobile/TwitterOverlay'
@@ -18,7 +22,7 @@ const messages = {
 }
 
 type ProfilePageProps = {
-  profileImage?: { file: any; url: string }
+  profileImage?: AccountImage
   twitterId: any
   isVerified: boolean
   name: { value: any; status: any; error: any }
@@ -26,20 +30,20 @@ type ProfilePageProps = {
   onNextPage: () => void
   setTwitterProfile: (
     uuid: string,
-    profile: any,
-    profileImg?: { url: string; file: any },
-    coverBannerImg?: { url: string; file: any },
+    profile: TwitterProfile,
+    profileImg?: AccountImage,
+    coverBannerImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   setInstagramProfile: (
     uuid: string,
     profile: InstagramProfile,
-    profileImg?: { url: string; file: any },
+    profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
   onHandleChange: (handle: string) => void
   onNameChange: (name: string) => void
-  setProfileImage: (img: { url: string; file: any }) => void
+  setProfileImage: (img: AccountImage) => void
   recordTwitterStart: () => void
   recordInstagramStart: () => void
   validateHandle: (
@@ -57,9 +61,10 @@ const ProfilePage = (props: ProfilePageProps) => {
   const [isInitial, setIsInitial] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const setLoading = useCallback(() => setIsLoading(true), [setIsLoading])
-  const setFinishedLoading = useCallback(() => setIsLoading(false), [
-    setIsLoading
-  ])
+  const setFinishedLoading = useCallback(
+    () => setIsLoading(false),
+    [setIsLoading]
+  )
 
   /**
    * The margin top causes a secondary scroll for mobile web causing the container to be larger than 100vh
@@ -93,7 +98,7 @@ const ProfilePage = (props: ProfilePageProps) => {
   } = props
 
   const onToggleTwitterOverlay = useCallback(() => {
-    setShowTwitterOverlay(show => !show)
+    setShowTwitterOverlay((show) => !show)
     setIsInitial(false)
   }, [])
 
@@ -111,12 +116,8 @@ const ProfilePage = (props: ProfilePageProps) => {
   const onTwitterLogin = async (twitterProfileRes: Body) => {
     const { uuid, profile: twitterProfile } = await twitterProfileRes.json()
     try {
-      const {
-        profile,
-        profileImage,
-        profileBanner,
-        requiresUserReview
-      } = await formatTwitterProfile(twitterProfile)
+      const { profile, profileImage, profileBanner, requiresUserReview } =
+        await formatTwitterProfile(twitterProfile)
 
       validateHandle(
         profile.screen_name,
@@ -147,11 +148,8 @@ const ProfilePage = (props: ProfilePageProps) => {
     instagramProfile: InstagramProfile
   ) => {
     try {
-      const {
-        profile,
-        profileImage,
-        requiresUserReview
-      } = await formatInstagramProfile(instagramProfile)
+      const { profile, profileImage, requiresUserReview } =
+        await formatInstagramProfile(instagramProfile)
       validateHandle(
         profile.username,
         profile.is_verified,
@@ -193,8 +191,7 @@ const ProfilePage = (props: ProfilePageProps) => {
       <div
         className={cn(styles.profileContentContainer, {
           [styles.authOverlay]: showTwitterOverlay
-        })}
-      >
+        })}>
         <TwitterOverlay
           header={messages.header}
           isMobile

@@ -4,18 +4,21 @@ import {
   createDrawerNavigator,
   DrawerContentComponentProps
 } from '@react-navigation/drawer'
+// eslint-disable-next-line import/no-unresolved
 import { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
 import { NavigatorScreenParams, useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Dimensions } from 'react-native'
 import { useSelector } from 'react-redux'
 
+import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import { AppScreen, AppScreenParamList } from 'app/screens/app-screen'
 import {
   NotificationsScreen,
   NotificationsDrawerNavigationContextProvider
 } from 'app/screens/notifications-screen'
 import { SignOnScreen } from 'app/screens/signon'
+import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateRequiredScreen'
 import {
   getDappLoaded,
   getIsSignedIn,
@@ -41,9 +44,20 @@ const Stack = createNativeStackNavigator()
 const SignOnStack = () => {
   return (
     <Stack.Navigator
-      screenOptions={{ gestureEnabled: false, headerShown: false }}
-    >
+      screenOptions={{ gestureEnabled: false, headerShown: false }}>
       <Stack.Screen name='SignOnStack' component={SignOnScreen} />
+    </Stack.Navigator>
+  )
+}
+
+/**
+ * Update stack when the app is behind the minimum app version
+ */
+const UpdateStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{ gestureEnabled: false, headerShown: false }}>
+      <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
     </Stack.Navigator>
   )
 }
@@ -61,11 +75,9 @@ const MainStack = (props: MainStackProps) => {
   return (
     <NotificationsDrawerNavigationContextProvider
       drawerNavigation={drawerNavigation}
-      drawerHelpers={drawerHelpers}
-    >
+      drawerHelpers={drawerHelpers}>
       <Stack.Navigator
-        screenOptions={{ gestureEnabled: false, headerShown: false }}
-      >
+        screenOptions={{ gestureEnabled: false, headerShown: false }}>
         <Stack.Screen name='MainStack' component={AppScreen} />
       </Stack.Navigator>
     </NotificationsDrawerNavigationContextProvider>
@@ -96,8 +108,7 @@ const NotificationsDrawerContents = (
       drawerNavigation={drawerNavigation}
       gesturesDisabled={disableGestures}
       setGesturesDisabled={setDisableGestures}
-      state={state}
-    >
+      state={state}>
       <NotificationsScreen />
     </NotificationsDrawerNavigationContextProvider>
   )
@@ -113,6 +124,9 @@ export const RootScreen = () => {
   const onSignUp = useSelector(getOnSignUp)
   const isAccountAvailable = useSelector(getAccountAvailable)
   const [disableGestures, setDisableGestures] = useState(false)
+  const { updateRequired } = useUpdateRequired()
+
+  if (updateRequired) return <UpdateStack />
 
   // This check is overly complicated and should probably just check `signedIn`.
   // However, this allows the feed screen to load initially so that when the
@@ -139,14 +153,13 @@ export const RootScreen = () => {
           enabled: !disableGestures
         }
       }}
-      drawerContent={props => (
+      drawerContent={(props) => (
         <NotificationsDrawerContents
           disableGestures={disableGestures}
           setDisableGestures={setDisableGestures}
           {...props}
         />
-      )}
-    >
+      )}>
       <Drawer.Screen name='App' component={MainStack} />
     </Drawer.Navigator>
   ) : (

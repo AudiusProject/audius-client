@@ -44,7 +44,7 @@ export const remoteConfigStringDefaults: {
   [StringKeys.TRENDING_REWARD_IDS]:
     'trending-track,trending-playlist,trending-underground,top-api',
   [StringKeys.CHALLENGE_REWARD_IDS]:
-    'track-upload,invite-friends,mobile-app,connect-verified,listen-streak,profile-completion',
+    'track-upload,invite-friends,mobile-app,connect-verified,listen-streak,profile-completion,send-first-tip,first-playlist',
   [StringKeys.REWARDS_TWEET_ID_TRACKS]: '1374856377651187713',
   [StringKeys.REWARDS_TWEET_ID_PLAYLISTS]: '1374856377651187713',
   [StringKeys.REWARDS_TWEET_ID_UNDERGROUND]: '1374856377651187713',
@@ -57,7 +57,8 @@ export const remoteConfigStringDefaults: {
   [StringKeys.UNDERGROUND_TRENDING_EXPERIMENT]: null,
   [StringKeys.ORACLE_ETH_ADDRESS]: null,
   [StringKeys.ORACLE_ENDPOINT]: null,
-  [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: null
+  [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: null,
+  [StringKeys.MIN_APP_VERSION]: '1.0.0'
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null

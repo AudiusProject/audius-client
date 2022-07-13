@@ -1,5 +1,16 @@
 version: 2.1
 
+commands:
+  create_concatenated_package_lock:
+    description: "Concatenate all package-lock.json files recognized by lerna.js into single file. File is used as checksum source for part of caching key."
+    parameters:
+      filename:
+        type: string
+    steps:
+      - run:
+          name: Combine package-lock.json files to single file
+          command: ls -d -- packages/*/*-lock.json | awk -F packages '{printf "\"packages%s\" ", $2}' | xargs cat > << parameters.filename >>
+
 parameters:
   # Run all workflows for branches that match this regex
   run-all-workflows-branch-regex:
@@ -32,10 +43,71 @@ jobs:
           paths:
             - .circleci/continue_config.yml
 
+  init:
+    working_directory: ~/audius-client
+    docker:
+      - image: circleci/node:14.18
+    steps:
+      - checkout
+
+      - create_concatenated_package_lock:
+          filename: combined-package-lock.txt
+
+      - restore_cache:
+          keys:
+            - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm i
+
+      - save_cache:
+          key: cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+          paths:
+            - ./node_modules
+            - ./packages/web/node_modules
+            - ./packages/mobile/node_modules
+            - ./packages/stems/node_modules
+            - ./packages/stems/dist
+
+  # Bump version and create release branch
+  generate-release:
+    working_directory: ~/audius-client
+    docker:
+      - image: circleci/node:14.18
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "a4:99:2e:fa:80:31:dc:23:25:7b:a5:70:3f:08:5f:fa"
+      - run:
+          name: Bump version
+          command: |
+            git config --global user.email "audius-infra@audius.co"
+            git config --global user.name "audius-infra"
+            PREV_VERSION=$(jq -r .version ./lerna.json)
+            CHANGELOG=$(git log --pretty=format:"[%h] %s %an" --date=short v${PREV_VERSION}..HEAD)
+            MESSAGE="%s
+
+            ${CHANGELOG}"
+            npm i --ignore-scripts
+            npx lerna version patch --exact --yes -m "${MESSAGE}"
+      - run:
+          name: Create release branch
+          command: |
+            VERSION=$(jq -r .version ./lerna.json)
+            git checkout -b release-v${VERSION}
+            git push -u origin release-v${VERSION}
+
 workflows:
   setup:
+    when:
+      not:
+        equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - generate-config
+      - init
 
       # Trigger relevant workflows for the files that have changed
       - path-filtering/filter:
@@ -44,14 +116,17 @@ workflows:
           mapping: |
             packages/web/.* run-web-workflow true
             packages/mobile/.* run-mobile-workflow true
+            packages/stems/.* run-stems-workflow true
             .circleci/.* run-web-workflow true
             .circleci/.* run-mobile-workflow true
+            .circleci/.* run-stems-workflow true
           name: trigger-relevant-workflows
           filters:
             branches:
               ignore: << pipeline.parameters.run-all-workflows-branch-regex >>
           requires:
             - generate-config
+            - init
           workspace_path: ../workspace
 
       # Trigger all workflows for branches that match regex
@@ -63,10 +138,20 @@ workflows:
               only: << pipeline.parameters.run-all-workflows-branch-regex >>
           parameters: '{
             "run-web-workflow": true,
-            "run-mobile-workflow": true
+            "run-mobile-workflow": true,
+            "run-stems-workflow": true
             }'
           pre-steps:
             - attach_workspace:
                 at: ../workspace
           requires:
             - generate-config
+            - init
+
+  generate-release:
+    when:
+      and:
+        - equal: [scheduled_pipeline, << pipeline.trigger_source >>]
+        - equal: ["generate-release", << pipeline.schedule.name >>]
+    jobs:
+      - generate-release

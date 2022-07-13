@@ -26,11 +26,10 @@ import { ReactionProps, reactionMap } from './components/Reaction'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { UserNameLink } from './components/UserNameLink'
 import { IconTip } from './components/icons'
+import { useGoToProfile } from './useGoToProfile'
 
-const reactionList: [
-  ReactionTypes,
-  ComponentType<ReactionProps>
-][] = reactionOrder.map(r => [r, reactionMap[r]])
+const reactionList: [ReactionTypes, ComponentType<ReactionProps>][] =
+  reactionOrder.map((r) => [r, reactionMap[r]])
 
 const messages = {
   title: 'You Received a Tip!',
@@ -70,6 +69,8 @@ export const TipReceivedNotification = (
 
   const uiAmount = useUIAudio(amount)
 
+  const handleClick = useGoToProfile(user)
+
   const handleShare = useCallback(
     (senderHandle: string) => {
       const shareText = messages.twitterShare(senderHandle, uiAmount)
@@ -91,7 +92,7 @@ export const TipReceivedNotification = (
       notification={notification}
       disabled={isTileDisabled}
       disableClosePanel
-    >
+      onClick={handleClick}>
       <NotificationHeader icon={<IconTip />}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
@@ -116,8 +117,7 @@ export const TipReceivedNotification = (
         <div
           className={styles.reactionList}
           onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
+          onMouseLeave={handleMouseLeave}>
           {reactionList.map(([reactionType, Reaction]) => (
             <Reaction
               key={reactionType}

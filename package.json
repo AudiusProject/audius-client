@@ -2,14 +2,35 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "init": "npm run install-deps && npm run install-hooks",
-    "install-deps": "npm i && npx lerna exec -- npm i",
-    "install-hooks": "npx @escape.tech/mookme init --only-hook --skip-types-selection"
+    "link": "lerna link",
+    "postinstall": "lerna bootstrap --no-ci && lerna run build --scope=@audius/stems && npm run install-hooks",
+    "install-hooks": "mookme init --only-hook --skip-types-selection",
+    "lint": "lerna run lint"
   },
   "devDependencies": {
-    "lerna": "5.0.0"
+    "@typescript-eslint/eslint-plugin": "5.30.6",
+    "@typescript-eslint/parser": "5.30.6",
+    "eslint": "8.19.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-config-prettier-standard": "4.0.1",
+    "eslint-config-standard": "17.0.0",
+    "eslint-import-resolver-alias": "1.1.2",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jest": "26.5.3",
+    "eslint-plugin-n": "^15.2.4",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-promise": "6.0.0",
+    "eslint-plugin-react": "7.30.1",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-standard": "4.1.0",
+    "lerna": "5.1.8",
+    "prettier": "2.7.1",
+    "prettier-config-standard": "5.0.0",
+    "standard": "16.0.3",
+    "typescript": "4.7.4"
   },
   "dependencies": {
-    "@escape.tech/mookme": "1.2.0"
+    "@escape.tech/mookme": "2.1.1"
   }
 }

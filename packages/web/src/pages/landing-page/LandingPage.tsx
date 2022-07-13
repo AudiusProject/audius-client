@@ -46,7 +46,7 @@ const LandingPage = (props: LandingPageProps) => {
   // Show Cookie Banner if in the EU
   const [showCookieBanner, setShowCookieBanner] = useState(false)
   useEffect(() => {
-    shouldShowCookieBanner().then(show => {
+    shouldShowCookieBanner().then((show) => {
       setShowCookieBanner(show)
     })
   }, [])
@@ -91,8 +91,7 @@ const LandingPage = (props: LandingPageProps) => {
       <div
         id='landingPage'
         className={styles.container}
-        style={{ opacity: hasImageLoaded ? 1 : 0 }}
-      >
+        style={{ opacity: hasImageLoaded ? 1 : 0 }}>
         {showCookieBanner && (
           <CookieBanner
             isMobile={props.isMobile}
@@ -131,11 +130,11 @@ const LandingPage = (props: LandingPageProps) => {
         <Description isMobile={props.isMobile} />
         <ArtistTestimonials isMobile={props.isMobile} />
         <PlatformFeatures isMobile={props.isMobile} />
-        <FeaturedContent
+        <CTAListening
           isMobile={props.isMobile}
           setRenderPublicSite={props.setRenderPublicSite}
         />
-        <CTAListening
+        <FeaturedContent
           isMobile={props.isMobile}
           setRenderPublicSite={props.setRenderPublicSite}
         />

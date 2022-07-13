@@ -32,6 +32,8 @@ import {
 } from '../Notification'
 import { ReactionList } from '../Reaction'
 
+import { useGoToProfile } from './useGoToProfile'
+
 const messages = {
   title: 'You Received a Tip!',
   sent: 'sent you a tip of',
@@ -69,7 +71,7 @@ export const TipReceivedNotification = (
   const uiAmount = useUIAudio(amount)
 
   const user = useSelectorWeb(
-    state => getNotificationUser(state, notification),
+    (state) => getNotificationUser(state, notification),
     isEqual
   )
 
@@ -78,6 +80,8 @@ export const TipReceivedNotification = (
   )
 
   const setReactionValue = useSetReaction(tipTxSignature)
+
+  const handlePress = useGoToProfile(user)
 
   const handleTwitterShare = useCallback(
     (senderHandle: string) => {
@@ -96,13 +100,16 @@ export const TipReceivedNotification = (
   if (!user) return null
 
   return (
-    <NotificationTile notification={notification}>
+    <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconTip}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}
-      >
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: 12
+        }}>
         <ProfilePicture profile={user} />
         <NotificationText>
           <UserNameLink user={user} /> {messages.sent}{' '}

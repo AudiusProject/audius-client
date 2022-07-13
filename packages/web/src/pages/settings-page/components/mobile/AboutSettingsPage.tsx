@@ -13,11 +13,13 @@ import Page from 'components/page/Page'
 import { GetVersion } from 'services/native-mobile-interface/version'
 import { COPYRIGHT_TEXT } from 'utils/copyright'
 
-import { version } from '../../../../../package.json'
+import packageInfo from '../../../../../package.json'
 
 import styles from './AboutSettingsPage.module.css'
 import { SettingsPageProps } from './SettingsPage'
 import settingsPageStyles from './SettingsPage.module.css'
+
+const { version } = packageInfo
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -73,8 +75,7 @@ const AboutSettingsPage = (props: SettingsPageProps) => {
     <Page
       title='About'
       contentClassName={settingsPageStyles.pageContent}
-      containerClassName={settingsPageStyles.page}
-    >
+      containerClassName={settingsPageStyles.page}>
       <div className={settingsPageStyles.bodyContainer}>
         <div className={styles.header}>
           <img src={appIcon} alt='Audius' />

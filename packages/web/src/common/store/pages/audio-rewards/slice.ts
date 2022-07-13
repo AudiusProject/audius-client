@@ -55,7 +55,9 @@ type RewardsUIState = {
   loading: boolean
   trendingRewardsModalType: TrendingRewardsModalType
   challengeRewardsModalType: ChallengeRewardsModalType
-  userChallenges: Partial<Record<ChallengeRewardID, UserChallenge>>
+  userChallenges: Partial<
+    Record<ChallengeRewardID, Record<Specifier, UserChallenge>>
+  >
   undisbursedChallenges: UndisbursedUserChallenge[]
   userChallengesOverrides: Partial<
     Record<ChallengeRewardID, Partial<UserChallenge>>
@@ -88,7 +90,7 @@ const slice = createSlice({
   name: 'rewards-page',
   initialState,
   reducers: {
-    fetchUserChallenges: state => {},
+    fetchUserChallenges: (state) => {},
     fetchUserChallengesSucceeded: (
       state,
       action: PayloadAction<UserChallengesPayload>
@@ -98,18 +100,21 @@ const slice = createSlice({
         state.userChallenges = {}
       } else {
         state.userChallenges = userChallenges.reduce<
-          Partial<Record<ChallengeRewardID, UserChallenge>>
+          Partial<Record<ChallengeRewardID, Record<Specifier, UserChallenge>>>
         >(
           (acc, challenge) => ({
             ...acc,
-            [challenge.challenge_id]: challenge
+            [challenge.challenge_id]: {
+              ...(acc[challenge.challenge_id] || {}),
+              [challenge.specifier]: challenge
+            }
           }),
           {}
         )
       }
       state.loading = false
     },
-    fetchUserChallengesFailed: state => {
+    fetchUserChallengesFailed: (state) => {
       state.loading = false
     },
     setUndisbursedChallenges: (
@@ -128,9 +133,15 @@ const slice = createSlice({
       }>
     ) => {
       const { challengeId, specifiers } = action.payload
-      const userChallenge = state.userChallenges[challengeId]
+
+      const userChallenge = Object.values(
+        state.userChallenges[challengeId] || {}
+      )[0]
+
+      if (!userChallenge) return
+
       // Keep track of individual challenges for rolled up aggregates
-      if (userChallenge?.challenge_type === 'aggregate') {
+      if (userChallenge.challenge_type === 'aggregate') {
         state.disbursedChallenges[challengeId] = ([] as string[]).concat(
           state.disbursedChallenges[challengeId] ?? [],
           specifiers
@@ -149,7 +160,7 @@ const slice = createSlice({
         }
       }
     },
-    updateOptimisticListenStreak: state => {},
+    updateOptimisticListenStreak: (state) => {},
     setUserChallengeCurrentStepCount: (
       state,
       action: PayloadAction<{
@@ -199,14 +210,14 @@ const slice = createSlice({
       const { status } = action.payload
       state.hCaptchaStatus = status
     },
-    resetHCaptchaStatus: state => {
+    resetHCaptchaStatus: (state) => {
       state.hCaptchaStatus = HCaptchaStatus.NONE
     },
     updateHCaptchaScore: (
       state,
       action: PayloadAction<{ token: string }>
     ) => {},
-    resetAndCancelClaimReward: state => {
+    resetAndCancelClaimReward: (state) => {
       state.claimStatus = ClaimStatus.NONE
     },
     claimChallengeReward: (
@@ -223,13 +234,13 @@ const slice = createSlice({
       state.claimStatus = ClaimStatus.WAITING_FOR_RETRY
       state.claimToRetry = action.payload
     },
-    claimChallengeRewardFailed: state => {
+    claimChallengeRewardFailed: (state) => {
       state.claimStatus = ClaimStatus.ERROR
     },
-    claimChallengeRewardAlreadyClaimed: state => {
+    claimChallengeRewardAlreadyClaimed: (state) => {
       state.claimStatus = ClaimStatus.ALREADY_CLAIMED
     },
-    claimChallengeRewardSucceeded: state => {
+    claimChallengeRewardSucceeded: (state) => {
       state.claimStatus = ClaimStatus.SUCCESS
     },
     setCognitoFlowStatus: (
@@ -239,20 +250,20 @@ const slice = createSlice({
       const { status } = action.payload
       state.cognitoFlowStatus = status
     },
-    fetchCognitoFlowUrl: state => {
+    fetchCognitoFlowUrl: (state) => {
       state.cognitoFlowUrlStatus = Status.LOADING
     },
     fetchCognitoFlowUrlSucceeded: (state, action: PayloadAction<string>) => {
       state.cognitoFlowUrlStatus = Status.SUCCESS
       state.cognitoFlowUrl = action.payload
     },
-    fetchCognitoFlowUrlFailed: state => {
+    fetchCognitoFlowUrlFailed: (state) => {
       state.cognitoFlowUrlStatus = Status.ERROR
     },
-    showRewardClaimedToast: state => {
+    showRewardClaimedToast: (state) => {
       state.showRewardClaimedToast = true
     },
-    resetRewardClaimedToast: state => {
+    resetRewardClaimedToast: (state) => {
       state.showRewardClaimedToast = false
     }
   }

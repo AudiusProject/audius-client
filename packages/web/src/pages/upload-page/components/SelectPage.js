@@ -4,7 +4,7 @@ import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import SelectedServices from 'components/service-selection/SelectedServices'
+import { SelectedServices } from 'components/service-selection'
 import Dropzone from 'components/upload/Dropzone'
 import InvalidFileType from 'components/upload/InvalidFileType'
 
@@ -66,8 +66,7 @@ class SelectPage extends Component {
           <div
             className={cn(styles.uploaded, {
               [styles.hide]: tracks.length === 0
-            })}
-          >
+            })}>
             {tracks.length > 0 ? (
               <div>
                 <TracksPreview

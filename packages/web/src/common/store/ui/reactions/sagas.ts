@@ -19,7 +19,7 @@ function* fetchReactionValuesAsync({
   // Fetch reactions
   // TODO: [PAY-305] This endpoint should be fixed to properly allow multiple reaction fetches
   const reactions = yield* all(
-    payload.entityIds.map(id =>
+    payload.entityIds.map((id) =>
       call([apiClient, apiClient.getReaction], {
         reactedToIds: [id]
       })
@@ -31,7 +31,7 @@ function* fetchReactionValuesAsync({
   const toUpdate = reactions
     .filter(removeNullable)
     .map(({ reactedTo, reactionValue }) => ({
-      reaction: getReactionFromRawValue(reactionValue) || 'heart', // this shouldn't happen, default to heart
+      reaction: getReactionFromRawValue(reactionValue), // this may be null if reaction state is 0 (unsent)
       entityId: reactedTo
     }))
 

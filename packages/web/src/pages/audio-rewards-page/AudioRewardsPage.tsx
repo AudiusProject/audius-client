@@ -68,8 +68,7 @@ export const DesktopPage = ({ children }: { children: ReactNode }) => {
       title={messages.title}
       description={messages.description}
       contentClassName={styles.pageContainer}
-      header={header}
-    >
+      header={header}>
       {children}
     </Page>
   )
@@ -92,8 +91,7 @@ export const MobilePage = ({ children }: { children: ReactNode }) => {
       description={messages.description}
       canonicalUrl={`${BASE_URL}${AUDIO_PAGE}`}
       hasDefaultHeader
-      containerClassName={styles.rewardsMobilePageContainer}
-    >
+      containerClassName={styles.rewardsMobilePageContainer}>
       {children}
     </MobilePageContainer>
   )

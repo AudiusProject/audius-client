@@ -3,12 +3,12 @@ import { useState } from 'react'
 import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
 
-import cypherImage2x from 'assets/img/publicSite/cypher@2x.jpg'
-import podcastImage2x from 'assets/img/publicSite/podcast@2x.jpg'
+import imgMerch from 'assets/img/publicSite/ImgMerch.jpg'
+import imgRemix from 'assets/img/publicSite/ImgRemix.jpg'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
-import { AUDIUS_PODCAST_LINK, AUDIUS_CYPHER_LINK } from 'utils/route'
+import { AUDIUS_MERCH_LINK, AUDIUS_REMIX_CONTESTS_LINK } from 'utils/route'
 
 import styles from './JoinTheCommunity.module.css'
 
@@ -20,26 +20,25 @@ const messages = {
 
 const cards = [
   {
-    title: 'Audius Podcast',
+    title: 'Remix Contests',
     description:
-      'Artist interviews from the up-and-coming all the way to the established OGs. We talk about their craft and discuss the issues affecting all of us in the artist community.',
-    image: podcastImage2x,
+      'Take part in the hottest new remix competitions on Audius and dive in to explore the best our community has to offer.',
+    image: imgRemix,
     backgroundGradient:
-      'radial-gradient(circle at top left, rgba(27,71,204,0) 0%, rgba(27,158,204,0.75) 100%)',
+      'radial-gradient(97.53% 194.75% at 3.62% 8.88%, #00F0FF 0%, #EB00FF 67.71%, #8F00FF 100%)',
     containerClass: styles.podcastContainer,
-    cta: 'LISTEN NOW',
-    link: AUDIUS_PODCAST_LINK
+    cta: 'Explore Remixes',
+    link: AUDIUS_REMIX_CONTESTS_LINK
   },
   {
-    title: 'Cypher Contests',
-    description:
-      'Join our bi-weekly production challenges! Use guest-curated sample packs, creative constraints, and compete for cash prizes decided by community vote.',
-    image: cypherImage2x,
+    title: 'Merch Store',
+    description: 'Represent the revolution in music.',
+    image: imgMerch,
     backgroundGradient:
-      'radial-gradient(circle at top left, rgba(227,0,239,0) 0%, rgba(234,0,187,0.5) 100%)',
+      'radial-gradient(97.53% 194.75% at 3.62% 8.88%, #8F00FF 0%, #00F0FF 100%)',
     containerClass: styles.cypherContainer,
-    cta: 'JOIN THE DISCORD',
-    link: AUDIUS_CYPHER_LINK
+    cta: 'Browse the Store',
+    link: AUDIUS_MERCH_LINK
   }
 ]
 
@@ -70,8 +69,7 @@ const Card = (props: CardProps) => {
         setMouseDown(false)
       }}
       onMouseUp={() => setMouseDown(false)}
-      onMouseDown={() => setMouseDown(true)}
-    >
+      onMouseDown={() => setMouseDown(true)}>
       <animated.div
         className={cn(styles.cardContainer, props.containerClass)}
         style={{
@@ -79,8 +77,7 @@ const Card = (props: CardProps) => {
           transform: mouseDown ? '' : transform,
           backgroundBlendMode: 'multiply',
           background: `url(${props.image}) center/cover, ${props.backgroundGradient}`
-        }}
-      >
+        }}>
         <div className={cn(styles.cardContent)}>
           <div className={styles.cardTitle}>{props.title}</div>
           <div className={styles.cardDescription}>{props.description}</div>
@@ -119,8 +116,7 @@ const JoinTheCommmunity = (props: JoinTheCommmunityProps) => {
             style={{
               backgroundBlendMode: 'multiply',
               background: `url(${card.image}) center/cover, ${card.backgroundGradient}`
-            }}
-          >
+            }}>
             <div className={cn(styles.mobileCardBG)}>
               <div className={styles.cardTitle}>{card.title}</div>
               <div className={styles.cardDescription}>{card.description}</div>
@@ -140,10 +136,9 @@ const JoinTheCommmunity = (props: JoinTheCommmunityProps) => {
             style={{
               opacity: textStyles.opacity,
               transform: textStyles.x.interpolate(
-                x => `translate3d(0,${x}px,0)`
+                (x) => `translate3d(0,${x}px,0)`
               )
-            }}
-          >
+            }}>
             <div className={styles.header}>
               <div className={styles.title}>{messages.title}</div>
               <div className={styles.subTitle}>{messages.subTitle}</div>
@@ -151,7 +146,7 @@ const JoinTheCommmunity = (props: JoinTheCommmunityProps) => {
           </animated.div>
         </div>
         <div className={styles.cardsContainer}>
-          {cards.map(card => (
+          {cards.map((card) => (
             <Card
               key={card.title}
               {...card}

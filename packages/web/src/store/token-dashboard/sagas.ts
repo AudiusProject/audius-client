@@ -62,7 +62,8 @@ import {
   loadWalletLink,
   loadBitski,
   loadWalletConnect,
-  createSession
+  createSession,
+  PhantomProvider
 } from 'services/web3-modal'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -140,7 +141,7 @@ function* fetchEthWalletInfo(wallets: string[]) {
   )
 
   const collectibleCounts = wallets.map(
-    wallet => collectiblesMap[wallet]?.length ?? 0
+    (wallet) => collectiblesMap[wallet]?.length ?? 0
   )
 
   return wallets.map((_, idx) => ({
@@ -161,7 +162,7 @@ function* fetchSplWalletInfo(wallets: string[]) {
   )
 
   const collectibleCounts = wallets.map(
-    wallet => collectiblesMap[wallet]?.length ?? 0
+    (wallet) => collectiblesMap[wallet]?.length ?? 0
   )
 
   return wallets.map((_, idx) => ({
@@ -173,11 +174,10 @@ function* fetchSplWalletInfo(wallets: string[]) {
 function* fetchAccountAssociatedWallets() {
   const accountUserId: Nullable<ID> = yield select(getUserId)
   if (!accountUserId) return
-  const associatedWallets: AssociatedWalletsResponse = yield apiClient.getAssociatedWallets(
-    {
+  const associatedWallets: AssociatedWalletsResponse =
+    yield apiClient.getAssociatedWallets({
       userID: accountUserId
-    }
-  )
+    })
   const ethWalletBalances: {
     address: string
     balance: BNWei
@@ -302,41 +302,31 @@ function* connectWallet() {
   }
 }
 
-function* connectPhantomWallet(solana: any) {
+function* connectPhantomWallet(solana: PhantomProvider) {
   const connectingWallet: string = solana.publicKey.toString()
   const disconnect = async () => {
     await solana.disconnect()
   }
-  yield connectSPLWallet(connectingWallet, solana.signMessage, disconnect)
+  yield connectSPLWallet(connectingWallet, solana, disconnect)
 }
-
-type SolanaSignMessage = (
-  encodedMessage: Uint8Array,
-  encoding: string
-) => Promise<{
-  publicKey: any
-  signature: any
-}>
 
 function* connectSPLWallet(
   connectingWallet: string,
-  solanaSignMessage: SolanaSignMessage,
+  solana: PhantomProvider,
   disconnect: () => Promise<void>
 ) {
   try {
     const accountUserId: Nullable<ID> = yield select(getUserId)
 
-    const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> = yield select(
-      getAssociatedWallets
-    )
+    const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> =
+      yield select(getAssociatedWallets)
 
-    const associatedUserId: Nullable<ID> = yield apiClient.getAssociatedWalletUserId(
-      { address: connectingWallet }
-    )
+    const associatedUserId: Nullable<ID> =
+      yield apiClient.getAssociatedWalletUserId({ address: connectingWallet })
 
     if (
       (currentAssociatedWallets?.connectedSolWallets ?? []).some(
-        wallet => wallet.address === connectingWallet
+        (wallet) => wallet.address === connectingWallet
       ) ||
       associatedUserId !== null
     ) {
@@ -377,7 +367,7 @@ function* connectSPLWallet(
     const signedResponse: {
       publicKey: any
       signature: any
-    } = yield solanaSignMessage(encodedMessage, 'utf8')
+    } = yield solana.signMessage(encodedMessage, 'utf8')
 
     const publicKey = signedResponse.publicKey.toString()
     const signature = signedResponse.signature.toString('hex')
@@ -413,9 +403,8 @@ function* connectSPLWallet(
         )
         return
       }
-      const updatedUserMetadata: ReturnType<typeof getAccountUser> = yield select(
-        getAccountUser
-      )
+      const updatedUserMetadata: ReturnType<typeof getAccountUser> =
+        yield select(getAccountUser)
       updatedMetadata = newUserMetadata({ ...updatedUserMetadata })
     }
 
@@ -511,17 +500,15 @@ function* connectEthWallet(web3Instance: any) {
     const accountUserId: Nullable<ID> = yield select(getUserId)
     const connectingWallet = accounts[0]
 
-    const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> = yield select(
-      getAssociatedWallets
-    )
+    const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> =
+      yield select(getAssociatedWallets)
 
-    const associatedUserId: Nullable<ID> = yield apiClient.getAssociatedWalletUserId(
-      { address: connectingWallet }
-    )
+    const associatedUserId: Nullable<ID> =
+      yield apiClient.getAssociatedWalletUserId({ address: connectingWallet })
 
     if (
       (currentAssociatedWallets?.connectedEthWallets ?? []).some(
-        wallet => wallet.address === connectingWallet
+        (wallet) => wallet.address === connectingWallet
       ) ||
       associatedUserId !== null
     ) {
@@ -581,9 +568,8 @@ function* connectEthWallet(web3Instance: any) {
         )
         return
       }
-      const updatedUserMetadata: ReturnType<typeof getAccountUser> = yield select(
-        getAccountUser
-      )
+      const updatedUserMetadata: ReturnType<typeof getAccountUser> =
+        yield select(getAccountUser)
       updatedMetadata = newUserMetadata({ ...updatedUserMetadata })
     }
 
