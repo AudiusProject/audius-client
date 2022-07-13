@@ -127,7 +127,7 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
         })
       }
     }
-  }, [notification, user, navigation, entity])
+  }, [achievement, user, navigation, entity])
 
   const renderBody = () => {
     const { achievement, value } = notification
