@@ -1,4 +1,4 @@
-import { ID } from 'audius-client/src/common/models/Identifiers'
+import { ID } from '@audius/common'
 import { View } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'

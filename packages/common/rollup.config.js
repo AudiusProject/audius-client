@@ -1,5 +1,4 @@
 import rollupTypescript from 'rollup-plugin-typescript2'
-import typescript from 'typescript'
 
 import pkg from './package.json'
 
@@ -13,13 +12,7 @@ export default {
       sourcemap: true
     }
   ],
-  plugins: [
-    rollupTypescript({
-      rollupCommonJSResolveHack: true,
-      clean: true,
-      typescript
-    })
-  ],
+  plugins: [rollupTypescript()],
   external: [
     '@reduxjs/toolkit/query/react',
     'qs',
