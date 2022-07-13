@@ -149,29 +149,31 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
     return null
   }
 
+  const isMissingRequiredUser = achievement === Achievement.Followers && !user
+  const isMissingRequiredEntity =
+    achievement !== Achievement.Followers && !entity
+
+  if (isMissingRequiredUser || isMissingRequiredEntity) {
+    return null
+  }
+
   const { link, text } = getTwitterShareData(notification, entity, user)
 
-  if (achievement === Achievement.Followers && !user) {
-    return null
-  } else if (achievement !== Achievement.Followers && !entity) {
-    return null
-  } else {
-    return (
-      <NotificationTile notification={notification} onPress={handlePress}>
-        <NotificationHeader icon={IconTrophy}>
-          <NotificationTitle>{messages.title}</NotificationTitle>
-        </NotificationHeader>
-        <NotificationText>{renderBody()}</NotificationText>
-        <NotificationTwitterButton
-          type='static'
-          url={link}
-          shareText={text}
-          analytics={make({
-            eventName: EventNames.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE,
-            milestone: text
-          })}
-        />
-      </NotificationTile>
-    )
-  }
+  return (
+    <NotificationTile notification={notification} onPress={handlePress}>
+      <NotificationHeader icon={IconTrophy}>
+        <NotificationTitle>{messages.title}</NotificationTitle>
+      </NotificationHeader>
+      <NotificationText>{renderBody()}</NotificationText>
+      <NotificationTwitterButton
+        type='static'
+        url={link}
+        shareText={text}
+        analytics={make({
+          eventName: EventNames.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE,
+          milestone: text
+        })}
+      />
+    </NotificationTile>
+  )
 }
