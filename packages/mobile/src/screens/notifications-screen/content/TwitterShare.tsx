@@ -83,7 +83,7 @@ const getTrendingTrackText = (notification: TrendingTrack) => {
 
 const getRemixCreateText = async (notification: RemixCreate) => {
   const track = notification.entities.find(
-    t => t?.track_id === notification.parentTrackId
+    (t) => t?.track_id === notification.parentTrackId
   )
   if (!track) return
   const link = getEntityRoute(track, Entity.Track, true)
@@ -100,10 +100,10 @@ const getRemixCreateText = async (notification: RemixCreate) => {
 
 const getRemixCosignText = async (notification: RemixCosign) => {
   const parentTrack = notification.entities.find(
-    t => t?.owner_id === notification.parentTrackUserId
+    (t) => t?.owner_id === notification.parentTrackUserId
   )
   const childtrack = notification.entities.find(
-    t => t?.track_id === notification.childTrackId
+    (t) => t?.track_id === notification.childTrackId
   )
 
   if (!parentTrack || !childtrack) return { text: '', link: '' }
@@ -145,10 +145,12 @@ export const getAddTrackToPlaylistText = (notif: AddTrackToPlaylist) => {
   const { track, playlist } = notif.entities
   const playlistOwner = playlist.user
 
-  return {
-    link: getEntityRoute(playlist, Entity.Playlist, true),
-    text: `Listen to my track ${track.title} on ${playlist.playlist_name} by ${playlistOwner.handle} on @AudiusProject #Audius`
-  }
+  const entityLink = getEntityRoute(playlist, Entity.Playlist, true)
+  const shareText = playlistOwner
+    ? `Listen to my track ${track.title} on ${playlist.playlist_name} by ${playlistOwner.handle} on @AudiusProject #Audius`
+    : ''
+
+  return { link: entityLink, text: shareText }
 }
 
 export const getNotificationTwitterText = async (notification: any) => {
@@ -216,7 +218,7 @@ const TwitterShare = ({ notification }: TwitterShareProps) => {
     const twitterText = await getNotificationTwitterText(notification)
     if (!twitterText) return
     const url = getTwitterLink(twitterText.link, twitterText.text)
-    Linking.canOpenURL(url).then(supported => {
+    Linking.canOpenURL(url).then((supported) => {
       if (supported) {
         Linking.openURL(url)
       } else {
