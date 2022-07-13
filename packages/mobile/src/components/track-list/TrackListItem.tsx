@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import {
   OverflowAction,

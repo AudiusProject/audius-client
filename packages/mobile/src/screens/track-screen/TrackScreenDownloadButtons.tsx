@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { CID, ID } from '@audius/common'
+import type { CID, ID } from '@audius/common'
 import {
   ButtonState,
   ButtonType as DownloadButtonType,

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { FollowSource } from 'audius-client/src/common/models/Analytics'
 import { User } from 'audius-client/src/common/models/User'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'

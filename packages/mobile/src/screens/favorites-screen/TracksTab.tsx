@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { ID, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import {
   FavoriteSource,
   Name,

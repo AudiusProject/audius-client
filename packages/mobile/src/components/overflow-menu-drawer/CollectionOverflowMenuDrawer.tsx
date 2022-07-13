@@ -1,4 +1,4 @@
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import {
   FavoriteSource,
   RepostSource,

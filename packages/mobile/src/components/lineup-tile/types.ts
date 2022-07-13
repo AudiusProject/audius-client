@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { ID, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import { PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import { Collection } from 'audius-client/src/common/models/Collection'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'

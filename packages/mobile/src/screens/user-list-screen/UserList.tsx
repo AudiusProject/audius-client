@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { useFocusEffect, useIsFocused } from '@react-navigation/native'
 import { User } from 'audius-client/src/common/models/User'
 import { FeatureFlags } from 'audius-client/src/common/services/remote-config'

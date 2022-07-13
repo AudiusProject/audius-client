@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { UID } from '@audius/common'
+import type { UID } from '@audius/common'
 import {
   FavoriteSource,
   RepostSource,

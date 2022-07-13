@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'
 import { setFavorite } from 'audius-client/src/common/store/user-list/favorites/actions'
 import { setRepost } from 'audius-client/src/common/store/user-list/reposts/actions'

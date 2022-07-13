@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { Supporting } from 'audius-client/src/common/models/Tipping'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
 import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { ID, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import Kind from 'audius-client/src/common/models/Kind'
 import Status from 'audius-client/src/common/models/Status'

@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 
-import { ID, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import { FlatList, FlatListProps, View } from 'react-native'
 import DraggableFlatList, {
   DraggableFlatListProps

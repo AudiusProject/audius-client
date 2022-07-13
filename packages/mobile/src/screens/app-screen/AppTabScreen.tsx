@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react'
 
-import { ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import { EventArg, NavigationState } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { FavoriteType } from 'audius-client/src/common/models/Favorite'

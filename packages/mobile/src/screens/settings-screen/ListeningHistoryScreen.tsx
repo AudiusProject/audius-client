@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { ID, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import { Name, PlaybackSource } from 'audius-client/src/common/models/Analytics'
 import Status from 'audius-client/src/common/models/Status'
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
