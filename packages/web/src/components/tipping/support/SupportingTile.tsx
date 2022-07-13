@@ -66,7 +66,9 @@ export const SupportingTile = ({ supporting }: SupportingCardProps) => {
           <span className={styles.rankNumberSymbol}>#</span>
           <span>{rank}</span>
         </div>
-      ) : null}
+      ) : (
+        <div></div>
+      )}
       <div className={styles.profilePictureContainer}>
         <img className={styles.profilePicture} src={profileImage} />
         <span className={styles.name}>{receiver.name}</span>
