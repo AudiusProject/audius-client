@@ -38,13 +38,23 @@ const initialPositions = {
 
 type Positions = { [k in ReactionTypes]: { x: number; width: number } }
 
+/*
+ * List of reactions that allows a user to select a reaction by pressing,
+ * or pressHolding + dragging.
+ *
+ * Implements gesture handler to track user drag position and presses, providing
+ * each reaction one of the following statuses: idle/interacting/selected/unselected
+ */
 export const ReactionList = (props: ReactionListProps) => {
   const styles = useStyles()
   const { selectedReaction, onChange, isVisible } = props
-  const interactingRef = useRef<ReactionTypes | null>(null)
+  // The current reaction the user is interacting with.
+  // Note this needs to be a ref since the guesture handler is also a ref
+  const interactingReactionRef = useRef<ReactionTypes | null>(null)
   const { setGesturesDisabled } = useContext(
     NotificationsDrawerNavigationContext
   )
+  // Whether or not the user is currently interacting with the reactions
   const [interacting, setInteracting] = useState<ReactionTypes | null>(null)
   const positions = useRef<Positions>(initialPositions)
 
@@ -56,6 +66,8 @@ export const ReactionList = (props: ReactionListProps) => {
         positions.current
       ) as PositionEntries
 
+      // based on the current x0 and moveX, determine which reaction the
+      // user is interacting with.
       const currentReaction = positionEntries.find(([, { x, width }]) => {
         const currentPosition = moveX || x0
         return currentPosition > x && currentPosition <= x + width
@@ -63,10 +75,10 @@ export const ReactionList = (props: ReactionListProps) => {
 
       if (currentReaction) {
         const [reactionType] = currentReaction
-        interactingRef.current = reactionType
+        interactingReactionRef.current = reactionType
         setInteracting(reactionType as ReactionTypes)
       } else {
-        interactingRef.current = null
+        interactingReactionRef.current = null
         setInteracting(null)
       }
     },
@@ -74,11 +86,11 @@ export const ReactionList = (props: ReactionListProps) => {
   )
 
   const handlePanResponderRelease = useCallback(() => {
-    onChange(interactingRef.current)
-    interactingRef.current = null
+    onChange(interactingReactionRef.current)
+    interactingReactionRef.current = null
     setInteracting(null)
     setGesturesDisabled?.(false)
-  }, [onChange])
+  }, [onChange, setGesturesDisabled])
 
   const panResponder = useRef(
     PanResponder.create({
@@ -86,9 +98,7 @@ export const ReactionList = (props: ReactionListProps) => {
         setGesturesDisabled?.(true)
         handleGesture(e, gestureState)
       },
-      onPanResponderMove: (...args) => {
-        handleGesture(...args)
-      },
+      onPanResponderMove: handleGesture,
       onPanResponderRelease: handlePanResponderRelease,
       onPanResponderTerminate: handlePanResponderRelease,
       onMoveShouldSetPanResponder: () => true,
@@ -100,19 +110,8 @@ export const ReactionList = (props: ReactionListProps) => {
 
   return (
     <View>
-<<<<<<< HEAD
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          alignSelf: 'center'
-        }}
-        {...panResponder.current.panHandlers}>
-        {reactionOrder.map((reactionType) => {
-=======
       <View style={styles.root} {...panResponder.current.panHandlers}>
-        {reactionOrder.map(reactionType => {
->>>>>>> 06221ed6 ([PAY-399] Fix reaction notification selection bug)
+        {reactionOrder.map((reactionType) => {
           const Reaction = reactionMap[reactionType]
 
           const status =
