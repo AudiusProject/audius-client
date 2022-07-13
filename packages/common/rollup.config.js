@@ -12,11 +12,5 @@ export default {
       sourcemap: true
     }
   ],
-  plugins: [rollupTypescript()],
-  external: [
-    '@reduxjs/toolkit/query/react',
-    'qs',
-    '@reduxjs/toolkit',
-    'react-redux'
-  ]
+  plugins: [rollupTypescript()]
 }
