@@ -63,6 +63,7 @@ import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
+import audioOnRampSagas from 'store/audio-on-ramp-modal/sagas'
 import backendSagas, { setupBackend } from 'store/backend/sagas'
 import confirmerSagas from 'store/confirmer/sagas'
 import oauthSagas from 'store/oauth/sagas'
@@ -141,6 +142,7 @@ export default function* rootSaga() {
     // Application
     addToPlaylistSagas(),
     artistRecommendationsSagas(),
+    audioOnRampSagas(),
     changePasswordSagas(),
     deactivateAccountSagas(),
     deletedSagas(),
