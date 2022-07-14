@@ -36,28 +36,33 @@ describe("Upload Track", () => {
 
     cy.findByRole("button", { name: /continue/i }).click();
 
-    cy.findByRole("progressbar").should("have.attr", "aria-valuenow", "0");
 
-    cy.waitUntil(() => {
-      return cy.findByRole("progressbar").then((progressbar) => {
-        return Number(progressbar.attr("aria-valuenow")) > 0;
-      });
-    });
-
-    cy.waitUntil(() => {
-      return cy.findByRole("progressbar").then((progressbar) => {
-        return Number(progressbar.attr("aria-valuenow")) > 50;
-      });
-    });
-
-    cy.waitUntil(
+    cy.findByRole("main").within(
       () => {
-        return cy.findByRole("progressbar").then((progressbar) => {
-          return Number(progressbar.attr("aria-valuenow")) === 100;
-        });
-      },
-      { timeout: 10000 }
-    );
+        cy.findByRole("progressbar").should("have.attr", "aria-valuenow", "0")
+        
+        cy.waitUntil(() => {
+          return cy.findByRole("progressbar").then((progressbar) => {
+            return Number(progressbar.attr("aria-valuenow")) > 0;
+          });
+        })
+
+        cy.waitUntil(() => {
+          return cy.findByRole("progressbar").then((progressbar) => {
+            return Number(progressbar.attr("aria-valuenow")) > 50;
+          });
+        })
+
+        cy.waitUntil(
+          () => {
+            return cy.findByRole("progressbar").then((progressbar) => {
+              return Number(progressbar.attr("aria-valuenow")) === 100;
+            });
+          },
+          { timeout: 10000 }
+        )
+      }
+    )
 
     cy.findByText(/processing.../i).should("exist");
 
