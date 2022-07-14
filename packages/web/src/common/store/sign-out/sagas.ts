@@ -14,7 +14,7 @@ function* watchSignOut() {
     if (NATIVE_MOBILE) {
       disablePushNotifications()
       yield put(make(Name.SETTINGS_LOG_OUT, {}))
-      call(signOut)
+      yield call(signOut)
     } else {
       yield put(make(Name.SETTINGS_LOG_OUT, { callback: signOut }))
     }
