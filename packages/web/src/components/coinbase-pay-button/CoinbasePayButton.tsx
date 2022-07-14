@@ -23,15 +23,31 @@ export enum CoinbasePayButtonImageResolution {
   X3 = '3x'
 }
 
-const importAll = (r: __WebpackModuleApi.RequireContext) => {
-  const map: Record<
-    CoinbasePayButtonSize,
-    Partial<Record<CoinbasePayButtonVariant, any>>
-  > = {
+type ButtonImageMap = Record<
+  CoinbasePayButtonSize,
+  Partial<
+    Record<
+      CoinbasePayButtonVariant,
+      Partial<
+        Record<
+          CoinbasePayButtonImageResolution,
+          () => Promise<string | undefined>
+        >
+      >
+    >
+  >
+>
+/**
+ * Creates a map of size, variant and image resolution to an async function that will load the relevant image
+ */
+const createButtonImageMap = (
+  requireContext: __WebpackModuleApi.RequireContext
+) => {
+  const map: ButtonImageMap = {
     [CoinbasePayButtonSize.COMPACT]: {},
     [CoinbasePayButtonSize.NORMAL]: {}
   }
-  r.keys().forEach((filename: string, index) => {
+  requireContext.keys().forEach((filename: string) => {
     const match = filename.match(
       /button-cbPay-(compact|normal)-(.*?)(?:@(2x|3x))?\..*/
     )
@@ -41,17 +57,23 @@ const importAll = (r: __WebpackModuleApi.RequireContext) => {
       const resolution =
         (match[3] as CoinbasePayButtonImageResolution) ||
         CoinbasePayButtonImageResolution.DEFAULT
-      const module = r(filename)
       map[size][variant] = {
         ...map[size][variant],
-        [resolution]: typeof module === 'string' ? module : module.default
+        [resolution]: async () => {
+          const module = await requireContext(filename)
+          return typeof module === 'string' ? module : module.default
+        }
       }
     }
   })
   return map
 }
-const buttonImages = importAll(
-  require.context('assets/img/coinbase-pay', true, /\.(png)$/)
+
+/**
+ * Lazy load the Coinbase Pay images since there's a lot of them and we don't want to increase bundle size
+ */
+const buttonImageMap = createButtonImageMap(
+  require.context('assets/img/coinbase-pay', true, /\.(png)$/, 'lazy')
 )
 
 export const allowedCoinbasePayTokens = ['SOL']
@@ -76,6 +98,7 @@ export const CoinbasePayButton = ({
   onExit?: () => void
 }) => {
   const [isReady, setIsReady] = useState(false)
+  const [imageSrc, setImageSrc] = useState<string>()
   const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
 
   useEffect(() => {
@@ -112,16 +135,25 @@ export const CoinbasePayButton = ({
     return () => cbInstance.current?.destroy()
   }, [destinationWalletAddress, amount, cbInstance, onExit, onSuccess])
 
+  // Lazy load the image
+  useEffect(() => {
+    const fn = async () => {
+      const img = await buttonImageMap[size][variant]?.[resolution]?.()
+      setImageSrc(img)
+    }
+    fn()
+  }, [size, variant, resolution, setImageSrc])
+
   const openCbPay = useCallback(() => {
     cbInstance.current?.open()
   }, [cbInstance])
 
-  return (
+  return imageSrc !== undefined ? (
     <button
       className={cn(className, styles.payButton)}
       onClick={openCbPay}
       disabled={!isReady}>
-      <img src={buttonImages[size][variant][resolution]} />
+      <img src={imageSrc} />
     </button>
-  )
+  ) : null
 }
