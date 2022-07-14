@@ -25,7 +25,6 @@ import AudiusBackend from 'services/AudiusBackend'
 import { make, useRecord } from 'store/analytics/actions'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
-import { encodeHashId } from 'utils/route/hashIds'
 import { signOut } from 'utils/signOut'
 
 import styles from '../styles/OAuthLoginPage.module.css'
@@ -293,15 +292,14 @@ export const OAuthLoginPage = () => {
       }
     }
     const timestamp = Math.round(new Date().getTime() / 1000)
-    const userId = encodeHashId(account?.user_id)
     const response = {
-      userId,
+      userId: account?.user_id,
       email,
       name: account?.name,
       handle: account?.handle,
       verified: account?.is_verified,
       profilePicture,
-      sub: userId,
+      sub: account?.user_id,
       iat: timestamp
     }
     const header = base64url.encode(
