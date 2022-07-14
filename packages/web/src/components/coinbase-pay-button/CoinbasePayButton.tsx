@@ -41,9 +41,10 @@ const importAll = (r: __WebpackModuleApi.RequireContext) => {
       const resolution =
         (match[3] as CoinbasePayButtonImageResolution) ||
         CoinbasePayButtonImageResolution.DEFAULT
+      const module = r(filename)
       map[size][variant] = {
         ...map[size][variant],
-        [resolution]: r(filename).default
+        [resolution]: typeof module === 'string' ? module : module.default
       }
     }
   })
