@@ -81,7 +81,7 @@ export const SupportingList = () => {
       <SupportingTile
         style={styles.singleSupporterTile}
         supporting={supportingSorted[0]}
-        onPressScaleTo={0.985}
+        scaleTo={0.985}
       />
     )
   }
