@@ -32,8 +32,7 @@
   "devDependencies": {
     "eslint": "8.19.0",
     "eslint-config-audius": "0.0.0",
-    "rollup": "^2.76.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-typescript2": "^0.32.1"
+    "rollup": "2.76.0",
+    "rollup-plugin-typescript2": "0.32.1"
   }
 }
