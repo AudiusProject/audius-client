@@ -139,11 +139,12 @@ class Explore {
   static async getMostLovedTracks(userId: ID, limit = 25) {
     try {
       const encodedUserId = encodeHashId(userId)
-      const tracks: APITrack[] = await libs().discoveryProvider.getMostLovedTracks(
-        encodedUserId,
-        limit,
-        true
-      )
+      const tracks: APITrack[] =
+        await libs().discoveryProvider.getMostLovedTracks(
+          encodedUserId,
+          limit,
+          true
+        )
       return tracks.map(adapter.makeTrack).filter(removeNullable)
     } catch (e) {
       console.error(e)
