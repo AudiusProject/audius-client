@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { initOnRamp } from '@coinbase/cbpay-js'
-import { Keypair } from '@solana/web3.js'
 import cn from 'classnames'
 
 import styles from './CoinbasePayButton.module.css'
@@ -36,7 +35,6 @@ const importAll = (r: __WebpackModuleApi.RequireContext) => {
     const match = filename.match(
       /button-cbPay-(compact|normal)-(.*?)(?:@(2x|3x))?\..*/
     )
-    console.log({ match, filename })
     if (match) {
       const size = match[1] as CoinbasePayButtonSize
       const variant = match[2] as CoinbasePayButtonVariant
@@ -62,62 +60,67 @@ export const CoinbasePayButton = ({
   variant = CoinbasePayButtonVariant.GENERIC,
   size = CoinbasePayButtonSize.NORMAL,
   resolution = CoinbasePayButtonImageResolution.DEFAULT,
-  wallet
+  destinationWalletAddress,
+  amount,
+  onSuccess,
+  onExit
 }: {
   className?: string
   variant?: CoinbasePayButtonVariant
   size?: CoinbasePayButtonSize
   resolution?: CoinbasePayButtonImageResolution
-  wallet?: Keypair
-  amount?: PaymentCurrencyAmount
+  destinationWalletAddress?: string
+  amount?: number
+  onSuccess?: () => void
+  onExit?: () => void
 }) => {
   const [isReady, setIsReady] = useState(false)
-  const [cbInstance, setCbInstance] = useState<any>()
+  const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
 
   useEffect(() => {
-    if (wallet) {
-      const instance = initOnRamp({
+    if (destinationWalletAddress && amount) {
+      cbInstance.current = initOnRamp({
         appId: '2cbd65dc-1710-4ae3-ab28-8947b08c22fb',
         widgetParameters: {
           destinationWallets: [
             {
-              address: wallet.publicKey.toString(),
+              address: destinationWalletAddress,
               blockchains: ['solana'],
-              assets: ['USDC']
+              assets: ['SOL']
             }
           ],
-          amount: {
-            value: 1,
-            currencySymbol: 'SOL'
-          }
+          presetCryptoAmount: amount
         },
         onReady: () => {
           // Update loading/ready states.
           setIsReady(true)
         },
-        onSuccess: () => {
-          // handle navigation when user successfully completes the flow
-        },
-        onExit: () => {
-          // handle navigation from dismiss / exit events due to errors
-        },
+        onSuccess,
+        onExit,
         onEvent: (event: any) => {
           // event stream
         },
         experienceLoggedIn: 'popup',
-        experienceLoggedOut: 'popup'
+        experienceLoggedOut: 'popup',
+        closeOnExit: true,
+        closeOnSuccess: true
       })
-      setCbInstance(instance)
+    } else {
+      setIsReady(false)
     }
-  }, [setCbInstance, wallet])
+    return () => cbInstance.current?.destroy()
+  }, [destinationWalletAddress, amount, cbInstance, onExit, onSuccess])
 
   const openCbPay = useCallback(() => {
-    cbInstance?.open()
+    cbInstance.current?.open()
   }, [cbInstance])
 
-  return isReady ? (
-    <a className={cn(className, styles.payButton)} onClick={openCbPay}>
+  return (
+    <button
+      className={cn(className, styles.payButton)}
+      onClick={openCbPay}
+      disabled={!isReady}>
       <img src={buttonImages[size][variant][resolution]} />
-    </a>
-  ) : null
+    </button>
+  )
 }
