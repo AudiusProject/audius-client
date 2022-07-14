@@ -17,7 +17,7 @@
 .input {
   padding: 14px 16px;
   background: rgba(0, 0, 0, 0.05);
-  border: 1px solid #3f415b;
+  border: 1px solid var(--neutral-light-8);
   border-radius: 6px;
   color: var(--neutral);
   mix-blend-mode: normal;
@@ -40,7 +40,7 @@
   position: absolute;
   bottom: 15px;
   right: 10px;
-  color: #777c96;
+  color: var(--neutral-light-4);
 }
 
 textarea {
