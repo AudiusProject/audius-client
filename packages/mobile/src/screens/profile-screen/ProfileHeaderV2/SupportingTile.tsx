@@ -79,10 +79,11 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 type SupportingTileProps = {
   supporting: Supporting
   style?: StyleProp<ViewStyle>
+  onPressScaleTo?: number
 }
 
 export const SupportingTile = (props: SupportingTileProps) => {
-  const { supporting, style } = props
+  const { supporting, style, onPressScaleTo } = props
   const styles = useStyles()
   const navigation = useNavigation()
   const { secondary } = useThemeColors()
@@ -115,7 +116,7 @@ export const SupportingTile = (props: SupportingTileProps) => {
   }
 
   return user ? (
-    <Tile style={[styles.root, style]} onPress={handlePress}>
+    <Tile style={[styles.root, style]} onPress={handlePress} scaleTo={onPressScaleTo}>
       <ImageBackground
         style={styles.backgroundImage}
         source={{
