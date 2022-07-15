@@ -1,6 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { initOnRamp } from '@coinbase/cbpay-js'
 import cn from 'classnames'
 import { useAsync } from 'react-use'
 
@@ -28,26 +25,19 @@ export const allowedCoinbasePayTokens = ['SOL']
 
 export const CoinbasePayButton = ({
   className,
+  isDisabled,
+  onClick,
   variant = CoinbasePayButtonVariant.GENERIC,
   size = CoinbasePayButtonSize.NORMAL,
-  resolution = CoinbasePayButtonImageResolution.DEFAULT,
-  destinationWalletAddress,
-  amount,
-  onSuccess,
-  onExit
+  resolution = CoinbasePayButtonImageResolution.DEFAULT
 }: {
   className?: string
   variant?: CoinbasePayButtonVariant
   size?: CoinbasePayButtonSize
   resolution?: CoinbasePayButtonImageResolution
-  destinationWalletAddress?: string
-  amount?: number
-  onSuccess?: () => void
-  onExit?: () => void
+  isDisabled?: boolean
+  onClick: () => void
 }) => {
-  const [isReady, setIsReady] = useState(false)
-  const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
-
   // Lazy load the image to keep bundle size small
   const imageSrc = useAsync(async () => {
     try {
@@ -66,49 +56,11 @@ export const CoinbasePayButton = ({
     }
   }, [size, variant, resolution])
 
-  const openCbPay = useCallback(() => {
-    cbInstance.current?.open()
-  }, [cbInstance])
-
-  useEffect(() => {
-    if (destinationWalletAddress && amount) {
-      cbInstance.current = initOnRamp({
-        appId: '2cbd65dc-1710-4ae3-ab28-8947b08c22fb',
-        widgetParameters: {
-          destinationWallets: [
-            {
-              address: destinationWalletAddress,
-              blockchains: ['solana'],
-              assets: ['SOL']
-            }
-          ],
-          presetCryptoAmount: amount
-        },
-        onReady: () => {
-          // Update loading/ready states.
-          setIsReady(true)
-        },
-        onSuccess,
-        onExit,
-        onEvent: (event: any) => {
-          // event stream
-        },
-        experienceLoggedIn: 'popup',
-        experienceLoggedOut: 'popup',
-        closeOnExit: true,
-        closeOnSuccess: true
-      })
-    } else {
-      setIsReady(false)
-    }
-    return () => cbInstance.current?.destroy()
-  }, [destinationWalletAddress, amount, cbInstance, onExit, onSuccess])
-
   return imageSrc.loading ? null : (
     <button
       className={cn(className, styles.payButton)}
-      onClick={openCbPay}
-      disabled={!isReady}>
+      onClick={onClick}
+      disabled={isDisabled}>
       <img
         className={cn({
           [styles.compact]: size === CoinbasePayButtonSize.COMPACT
