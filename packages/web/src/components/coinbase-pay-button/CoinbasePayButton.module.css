@@ -21,6 +21,10 @@
 
 .payButton img {
   max-width: 100%;
+  max-height: 56px;
+}
+.payButton img.compact {
+  max-height: 40px;
 }
 
 .payButton:disabled {
