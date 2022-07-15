@@ -18,63 +18,10 @@ export enum CoinbasePayButtonSize {
   COMPACT = 'compact'
 }
 export enum CoinbasePayButtonImageResolution {
-  DEFAULT = '1x',
-  X2 = '2x',
-  X3 = '3x'
+  DEFAULT = '',
+  X2 = '@2x',
+  X3 = '@3x'
 }
-
-type ButtonImageMap = Record<
-  CoinbasePayButtonSize,
-  Partial<
-    Record<
-      CoinbasePayButtonVariant,
-      Partial<
-        Record<
-          CoinbasePayButtonImageResolution,
-          () => Promise<string | undefined>
-        >
-      >
-    >
-  >
->
-/**
- * Creates a map of size, variant and image resolution to an async function that will load the relevant image
- */
-const createButtonImageMap = (
-  requireContext: __WebpackModuleApi.RequireContext
-) => {
-  const map: ButtonImageMap = {
-    [CoinbasePayButtonSize.COMPACT]: {},
-    [CoinbasePayButtonSize.NORMAL]: {}
-  }
-  requireContext.keys().forEach((filename: string) => {
-    const match = filename.match(
-      /button-cbPay-(compact|normal)-(.*?)(?:@(2x|3x))?\..*/
-    )
-    if (match) {
-      const size = match[1] as CoinbasePayButtonSize
-      const variant = match[2] as CoinbasePayButtonVariant
-      const resolution =
-        (match[3] as CoinbasePayButtonImageResolution) ||
-        CoinbasePayButtonImageResolution.DEFAULT
-      map[size][variant] = {
-        ...map[size][variant],
-        [resolution]: async () => {
-          const module = await requireContext(filename)
-          return typeof module === 'string' ? module : module.default
-        }
-      }
-    }
-  })
-  return map
-}
-
-/**
- * Lazy load the Coinbase Pay images since there's a lot of them and we don't want to increase bundle size
- */
-const buttonImageMap = createButtonImageMap(
-  require.context('assets/img/coinbase-pay', true, /\.(png)$/, 'lazy')
-)
 
 export const allowedCoinbasePayTokens = ['SOL']
 
@@ -138,8 +85,19 @@ export const CoinbasePayButton = ({
   // Lazy load the image
   useEffect(() => {
     const fn = async () => {
-      const img = await buttonImageMap[size][variant]?.[resolution]?.()
-      setImageSrc(img)
+      try {
+        const module = await import(
+          `assets/img/coinbase-pay/${size}/button-cbPay-${size}-${variant}${resolution}.png`
+        )
+        const image = typeof module === 'string' ? module : module?.default
+        setImageSrc(image)
+      } catch (e) {
+        console.error(`Error: Couldn't load Coinbase Button Image`, {
+          size,
+          variant,
+          resolution
+        })
+      }
     }
     fn()
   }, [size, variant, resolution, setImageSrc])
