@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { initOnRamp } from '@coinbase/cbpay-js'
 import cn from 'classnames'
+import { useAsync } from 'react-use'
 
 import styles from './CoinbasePayButton.module.css'
 
@@ -45,8 +46,29 @@ export const CoinbasePayButton = ({
   onExit?: () => void
 }) => {
   const [isReady, setIsReady] = useState(false)
-  const [imageSrc, setImageSrc] = useState<string>()
   const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
+
+  // Lazy load the image to keep bundle size small
+  const imageSrc = useAsync(async () => {
+    try {
+      const module = await import(
+        `assets/img/coinbase-pay/${size}/button-cbPay-${size}-${variant}${resolution}.png`
+      )
+      const image: string =
+        typeof module === 'string' ? module : module?.default
+      return image
+    } catch (e) {
+      console.error(`Error: Couldn't load Coinbase Button Image`, {
+        size,
+        variant,
+        resolution
+      })
+    }
+  }, [size, variant, resolution])
+
+  const openCbPay = useCallback(() => {
+    cbInstance.current?.open()
+  }, [cbInstance])
 
   useEffect(() => {
     if (destinationWalletAddress && amount) {
@@ -82,31 +104,7 @@ export const CoinbasePayButton = ({
     return () => cbInstance.current?.destroy()
   }, [destinationWalletAddress, amount, cbInstance, onExit, onSuccess])
 
-  // Lazy load the image
-  useEffect(() => {
-    const fn = async () => {
-      try {
-        const module = await import(
-          `assets/img/coinbase-pay/${size}/button-cbPay-${size}-${variant}${resolution}.png`
-        )
-        const image = typeof module === 'string' ? module : module?.default
-        setImageSrc(image)
-      } catch (e) {
-        console.error(`Error: Couldn't load Coinbase Button Image`, {
-          size,
-          variant,
-          resolution
-        })
-      }
-    }
-    fn()
-  }, [size, variant, resolution, setImageSrc])
-
-  const openCbPay = useCallback(() => {
-    cbInstance.current?.open()
-  }, [cbInstance])
-
-  return imageSrc !== undefined ? (
+  return imageSrc.loading ? null : (
     <button
       className={cn(className, styles.payButton)}
       onClick={openCbPay}
@@ -115,8 +113,8 @@ export const CoinbasePayButton = ({
         className={cn({
           [styles.compact]: size === CoinbasePayButtonSize.COMPACT
         })}
-        src={imageSrc}
+        src={imageSrc.value}
       />
     </button>
-  ) : null
+  )
 }
