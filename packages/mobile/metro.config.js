@@ -3,6 +3,33 @@ const path = require('path')
 const { getDefaultConfig } = require('metro-config')
 
 const clientPath = path.resolve(__dirname, '../web')
+const emptyPolyfill = path.resolve(__dirname, 'src/mocks/empty.ts')
+
+const resolveModule = (module) =>
+  path.resolve(__dirname, 'node_modules', module)
+
+const getClientAliases = () => {
+  const clientAbsolutePaths = [
+    'assets',
+    'audio',
+    'common',
+    'pages',
+    'models',
+    'schemas',
+    'services',
+    'store',
+    'utils',
+    'workers'
+  ]
+
+  return clientAbsolutePaths.reduce(
+    (clientPaths, currentPath) => ({
+      [currentPath]: path.resolve(clientPath, 'src', currentPath),
+      ...clientPaths
+    }),
+    {}
+  )
+}
 
 module.exports = (async () => {
   const {
@@ -20,44 +47,35 @@ module.exports = (async () => {
     },
     watchFolders: [clientPath],
     resolver: {
-      assetExts: assetExts.filter(ext => ext !== 'svg'),
+      assetExts: assetExts.filter((ext) => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg', 'cjs'],
-      nodeModulesPaths: [path.resolve(clientPath, 'node_modules')],
+      // disableHierarchicalLookup: true,
+      // blockList: /node_modules\/react$/,
+      nodeModulesPaths: [
+        path.resolve(clientPath, 'node_modules'),
+        path.resolve(__dirname, 'node_modules')
+      ],
       extraNodeModules: {
         // Alias for 'src' to allow for absolute paths
         app: path.resolve(__dirname, 'src'),
 
-        // This is used to resolve the absolute paths found in audius-client.
-        // Eventually all shared state logic will live in @audius/client-common
-        // and this can be removed
-        ...[
-          'assets',
-          'audio',
-          'common',
-          'pages',
-          'models',
-          'schemas',
-          'services',
-          'store',
-          'utils',
-          'workers'
-        ].reduce(
-          (result, current) => ({
-            ...result,
-            [current]: path.resolve(clientPath, 'src', current)
-          }),
-          {}
-        ),
+        // Aliases for 'audius-client' to allow for absolute paths
+        ...getClientAliases(),
 
-        // Some modules import native node modules without necessarily using them.
-        // This mocks them out so the app can build
+        // Various polyfills to enable @audius/sdk to run in react-native
+        child_process: emptyPolyfill,
+        constants: resolveModule('constants-browserify'),
+        crypto: resolveModule('expo-crypto'),
+        fs: resolveModule('react-native-fs'),
+        http: emptyPolyfill,
+        https: emptyPolyfill,
+        'node-localstorage': emptyPolyfill,
+        os: resolveModule('os-browserify'),
+        path: resolveModule('path-browserify'),
         'react-native': path.resolve(__dirname, 'node_modules/react-native'),
-        crypto: path.resolve(__dirname, 'node_modules/expo-crypto'),
-        fs: path.resolve(__dirname, 'node_modules/react-native-fs'),
-        child_process: path.resolve(__dirname, 'src/mocks/empty.ts'),
-        http: path.resolve(__dirname, 'src/mocks/empty.ts'),
-        https: path.resolve(__dirname, 'src/mocks/empty.ts'),
-        stream: path.resolve(__dirname, 'src/mocks/empty.t')
+        stream: emptyPolyfill,
+        tls: resolveModule('tls-browserify'),
+        zlib: resolveModule('browserify-zlib')
       }
     },
     maxWorkers: 2
