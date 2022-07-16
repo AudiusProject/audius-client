@@ -12,14 +12,16 @@ import { initOnRamp } from '@coinbase/cbpay-js'
 export const allowedCoinbasePayTokens = ['SOL']
 
 export const CoinbasePayContext = createContext<{
-  openCoinbasePayModal: (newProps: {
+  isReady: boolean
+  open: (newProps: {
     presetCryptoAmount?: number
     presetFiatAmount?: number
     setOnSuccess?: () => void
     setOnExit?: () => void
   }) => void
 }>({
-  openCoinbasePayModal: (_) => {}
+  isReady: false,
+  open: (_) => {}
 })
 
 export const CoinbasePayButtonProvider = ({
@@ -37,7 +39,7 @@ export const CoinbasePayButtonProvider = ({
   const [onSuccess, setOnSuccess] = useState<() => void>(() => {})
   const [onExit, setOnExit] = useState<() => void>(() => {})
 
-  const openCoinbasePayModal = useCallback(
+  const open = useCallback(
     (newProps: {
       presetCryptoAmount?: number
       presetFiatAmount?: number
@@ -117,7 +119,8 @@ export const CoinbasePayButtonProvider = ({
   return (
     <CoinbasePayContext.Provider
       value={{
-        openCoinbasePayModal
+        isReady,
+        open
       }}>
       {children}
     </CoinbasePayContext.Provider>
