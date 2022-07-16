@@ -1,37 +1,73 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import { initOnRamp } from '@coinbase/cbpay-js'
 
 export const allowedCoinbasePayTokens = ['SOL']
 
+export const CoinbasePayContext = createContext<{
+  openCoinbasePayModal: (newProps: {
+    presetCryptoAmount?: number
+    presetFiatAmount?: number
+    setOnSuccess?: () => void
+    setOnExit?: () => void
+  }) => void
+}>({
+  openCoinbasePayModal: (_) => {}
+})
+
 export const CoinbasePayButtonProvider = ({
   destinationWalletAddress,
-  amount,
-  onSuccess,
-  onExit,
   children
 }: {
   destinationWalletAddress?: string
-  amount?: number
-  onSuccess?: () => void
-  onExit?: () => void
-  children: ({
-    isReady,
-    openCoinbasePayModal
-  }: {
-    isReady: boolean
-    openCoinbasePayModal: () => void
-  }) => React.ReactNode
+  children: ReactNode
 }) => {
   const [isReady, setIsReady] = useState(false)
+  const [shouldOpen, setShouldOpen] = useState(false)
   const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
+  const [presetCryptoAmount, setPresetCryptoAmount] = useState<number>()
+  const [presetFiatAmount, setPresetFiatAmount] = useState<number>()
+  const [onSuccess, setOnSuccess] = useState<() => void>(() => {})
+  const [onExit, setOnExit] = useState<() => void>(() => {})
 
-  const openCoinbasePayModal = useCallback(() => {
-    cbInstance.current?.open()
-  }, [cbInstance])
+  const openCoinbasePayModal = useCallback(
+    (newProps: {
+      presetCryptoAmount?: number
+      presetFiatAmount?: number
+      onSuccess?: () => void
+      onExit?: () => void
+    }) => {
+      // Always override these, to clear out previous state
+      setPresetCryptoAmount(newProps.presetCryptoAmount)
+      setPresetFiatAmount(newProps.presetFiatAmount)
+      if (newProps.onSuccess) {
+        setOnSuccess(newProps.onSuccess)
+      }
+      if (newProps.onExit) {
+        setOnExit(newProps.onExit)
+      }
+      // Open when the amount changes are applied
+      setShouldOpen(true)
+    },
+    [
+      setShouldOpen,
+      setPresetCryptoAmount,
+      setPresetFiatAmount,
+      setOnSuccess,
+      setOnExit
+    ]
+  )
 
   useEffect(() => {
-    if (destinationWalletAddress && amount) {
+    setIsReady(false)
+    if (destinationWalletAddress) {
       cbInstance.current = initOnRamp({
         appId: '2cbd65dc-1710-4ae3-ab28-8947b08c22fb',
         widgetParameters: {
@@ -42,7 +78,8 @@ export const CoinbasePayButtonProvider = ({
               assets: ['SOL']
             }
           ],
-          presetCryptoAmount: amount
+          presetCryptoAmount,
+          presetFiatAmount
         },
         onReady: () => {
           // Update loading/ready states.
@@ -53,16 +90,36 @@ export const CoinbasePayButtonProvider = ({
         onEvent: (event: any) => {
           // event stream
         },
-        experienceLoggedIn: 'popup',
+        experienceLoggedIn: 'embedded',
         experienceLoggedOut: 'popup',
         closeOnExit: true,
         closeOnSuccess: true
       })
-    } else {
-      setIsReady(false)
     }
     return () => cbInstance.current?.destroy()
-  }, [destinationWalletAddress, amount, cbInstance, onExit, onSuccess])
+  }, [
+    destinationWalletAddress,
+    presetCryptoAmount,
+    presetFiatAmount,
+    cbInstance,
+    onExit,
+    onSuccess
+  ])
 
-  return <>{children({ isReady, openCoinbasePayModal })}</>
+  useEffect(() => {
+    // Wait for re-init to finish
+    if (shouldOpen && isReady) {
+      cbInstance.current?.open()
+      setShouldOpen(false)
+    }
+  }, [shouldOpen, isReady, cbInstance])
+
+  return (
+    <CoinbasePayContext.Provider
+      value={{
+        openCoinbasePayModal
+      }}>
+      {children}
+    </CoinbasePayContext.Provider>
+  )
 }
