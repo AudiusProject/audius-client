@@ -6,14 +6,18 @@ export type MessageSender = {
   postMessage: (message: string) => void
 }
 
-const SPAMMY_MESSAGES = new Set<string>([MessageType.GET_POSITION])
+const IGNORE_MESSAGES = new Set([
+  MessageType.GET_POSITION,
+  MessageType.SUBMIT_SIGNIN,
+  MessageType.SUBMIT_SIGNUP
+])
 
 // Stringifies the message, logs it, and sends it
 export const postMessage = (sender: Maybe<MessageSender>, message: Message) => {
   const stringified = JSON.stringify(message)
 
-  // Log it if it isn't spammy
-  if (!SPAMMY_MESSAGES.has(message.type)) {
+  // Log it if it isn't spammy / meant to be ignored
+  if (!IGNORE_MESSAGES.has(message.type)) {
     console.debug(`Sending message to web client: ${stringified}`)
   }
 
