@@ -6,10 +6,17 @@ export type MessageSender = {
   postMessage: (message: string) => void
 }
 
-const IGNORE_MESSAGES = new Set([
+const IGNORE_MESSAGES = new Set<string>([
   MessageType.GET_POSITION,
   MessageType.SUBMIT_SIGNIN,
-  MessageType.SUBMIT_SIGNUP
+  MessageType.SUBMIT_SIGNUP,
+  MessageType.SIGN_UP_VALIDATE_AND_CHECK_EMAIL,
+  MessageType.SIGN_UP_VALIDATE_EMAIL_SUCCESS,
+  MessageType.SIGN_UP_VALIDATE_EMAIL_FAILURE,
+  MessageType.SIGN_UP_VALIDATE_HANDLE,
+  MessageType.SIGN_UP_VALIDATE_HANDLE_SUCCESS,
+  MessageType.SIGN_UP_VALIDATE_HANDLE_FAILURE,
+  MessageType.SIGN_UP_SUCCESS
 ])
 
 // Stringifies the message, logs it, and sends it
