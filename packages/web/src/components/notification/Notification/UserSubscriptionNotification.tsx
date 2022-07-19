@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
+import { Name } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { Name } from 'common/models/Analytics'
 import { Entity, UserSubscription } from 'common/store/notifications/types'
 import { make, useRecord } from 'store/analytics/actions'
 import { profilePage } from 'utils/route'

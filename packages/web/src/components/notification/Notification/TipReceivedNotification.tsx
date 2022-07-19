@@ -1,9 +1,9 @@
 import { ComponentType, useCallback, useState } from 'react'
 
+import { Name, Nullable } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useUIAudio } from 'common/hooks/useUIAudio'
-import { Name } from 'common/models/Analytics'
 import { TipReceive } from 'common/store/notifications/types'
 import {
   makeGetReactionForSignature,
@@ -11,7 +11,6 @@ import {
   ReactionTypes,
   writeReactionValue
 } from 'common/store/ui/reactions/slice'
-import { Nullable } from 'common/utils/typeUtils'
 import { make } from 'store/analytics/actions'
 
 import styles from './TipReceivedNotification.module.css'
