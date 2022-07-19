@@ -100,14 +100,10 @@ export const SendTipScreen = () => {
     navigation.navigate({ native: { screen: 'ConfirmTip' } })
   }, [dispatchWeb, tipAmount, navigation])
 
-  const appState = useAppState()
-
   useFocusEffect(
     useCallback(() => {
-      if (appState === 'active') {
-        dispatchWeb(getBalance())
-      }
-    }, [dispatchWeb, appState])
+      dispatchWeb(getBalance())
+    }, [dispatchWeb])
   )
 
   return (

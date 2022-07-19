@@ -176,14 +176,11 @@ export const AudioScreen = () => {
     dispatchWeb(setVisibility({ modal: 'AudioBreakdown', visible: true }))
   }, [dispatchWeb])
 
-  const appState = useAppState()
-
   useFocusEffect(
     useCallback(() => {
-      if (appState === 'active') {
-        dispatchWeb(getBalance())
-      }
-    }, [dispatchWeb, appState])
+      console.log('calling getBalance')
+      dispatchWeb(getBalance())
+    }, [dispatchWeb])
   )
 
   const renderAudioTile = () => {
