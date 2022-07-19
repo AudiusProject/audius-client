@@ -1,5 +1,7 @@
 import { useCallback } from 'react'
 
+import { useAppState } from '@react-native-community/hooks'
+import { useFocusEffect } from '@react-navigation/native'
 import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getHasAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
 import {
@@ -8,6 +10,7 @@ import {
 } from 'audius-client/src/common/store/pages/token-dashboard/slice'
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
 import { getAccountTotalBalance } from 'audius-client/src/common/store/wallet/selectors'
+import { getBalance } from 'audius-client/src/common/store/wallet/slice'
 import { getTierAndNumberForBalance } from 'audius-client/src/common/store/wallet/utils'
 import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { formatWei } from 'audius-client/src/common/utils/wallet'
@@ -172,6 +175,16 @@ export const AudioScreen = () => {
   const onPressWalletInfo = useCallback(() => {
     dispatchWeb(setVisibility({ modal: 'AudioBreakdown', visible: true }))
   }, [dispatchWeb])
+
+  const appState = useAppState()
+
+  useFocusEffect(
+    useCallback(() => {
+      if (appState === 'active') {
+        dispatchWeb(getBalance())
+      }
+    }, [dispatchWeb, appState])
+  )
 
   const renderAudioTile = () => {
     return (

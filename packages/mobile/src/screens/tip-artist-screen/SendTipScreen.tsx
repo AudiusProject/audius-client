@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { useAppState } from '@react-native-community/hooks'
+import { useFocusEffect } from '@react-navigation/native'
 import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import {
@@ -12,6 +14,7 @@ import {
   fetchUserSupporter
 } from 'audius-client/src/common/store/tipping/slice'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
+import { getBalance } from 'audius-client/src/common/store/wallet/slice'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
 import { useGetFirstOrTopSupporter } from 'audius-client/src/hooks/useGetFirstOrTopSupporter'
 import BN from 'bn.js'
@@ -96,6 +99,16 @@ export const SendTipScreen = () => {
     dispatchWeb(sendTip({ amount: tipAmount }))
     navigation.navigate({ native: { screen: 'ConfirmTip' } })
   }, [dispatchWeb, tipAmount, navigation])
+
+  const appState = useAppState()
+
+  useFocusEffect(
+    useCallback(() => {
+      if (appState === 'active') {
+        dispatchWeb(getBalance())
+      }
+    }, [dispatchWeb, appState])
+  )
 
   return (
     <TipScreen
