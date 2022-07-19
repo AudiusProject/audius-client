@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { useAppState } from '@react-native-community/hooks'
 import { useFocusEffect } from '@react-navigation/native'
 import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'

@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 
-import { useAppState } from '@react-native-community/hooks'
 import { useFocusEffect } from '@react-navigation/native'
 import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getHasAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
@@ -178,7 +177,6 @@ export const AudioScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('calling getBalance')
       dispatchWeb(getBalance())
     }, [dispatchWeb])
   )
