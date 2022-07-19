@@ -1,6 +1,6 @@
 import { useCallback, useContext } from 'react'
 
-import { User as UserType } from 'audius-client/src/common/models/User'
+import { User as UserType } from '@audius/common'
 import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { useDispatch } from 'react-redux'
 

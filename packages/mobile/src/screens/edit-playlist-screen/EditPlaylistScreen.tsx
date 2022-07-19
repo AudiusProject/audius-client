@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
-import { Collection } from 'common/models/Collection'
-import { SquareSizes } from 'common/models/ImageSizes'
+import { Collection, SquareSizes } from '@audius/common'
 import {
   editPlaylist,
   orderPlaylist,

@@ -1,7 +1,4 @@
-import {
-  ChallengeRewardID,
-  TrendingRewardID
-} from 'audius-client/src/common/models/AudioRewards'
+import { ChallengeRewardID, TrendingRewardID } from '@audius/common'
 import {
   ACCOUNT_VERIFICATION_SETTINGS_PAGE,
   TRENDING_PAGE,

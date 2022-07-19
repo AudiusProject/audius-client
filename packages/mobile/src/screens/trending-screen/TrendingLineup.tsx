@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { Name, TimeRange } from '@audius/common'
 import { useNavigation } from '@react-navigation/native'
-import { Name } from 'audius-client/src/common/models/Analytics'
-import TimeRange from 'audius-client/src/common/models/TimeRange'
 import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import { setTrendingTimeRange } from 'audius-client/src/common/store/pages/trending/actions'
 import {

@@ -1,4 +1,4 @@
-import { UserCollection } from 'audius-client/src/common/models/Collection'
+import { UserCollection } from '@audius/common'
 import { ShareModalContent } from 'audius-client/src/common/store/ui/share-modal/types'
 
 import {

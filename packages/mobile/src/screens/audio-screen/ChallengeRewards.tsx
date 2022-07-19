@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { ChallengeRewardID } from 'audius-client/src/common/models/AudioRewards'
+import { ChallengeRewardID, removeNullable } from '@audius/common'
 import { StringKeys } from 'audius-client/src/common/services/remote-config'
 import { getOptimisticUserChallenges } from 'audius-client/src/common/store/challenges/selectors/optimistic-challenges'
 import {
@@ -13,7 +13,6 @@ import {
   setChallengeRewardsModalType
 } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import { removeNullable } from 'audius-client/src/common/utils/typeUtils'
 import { View } from 'react-native'
 
 import LoadingSpinner from 'app/components/loading-spinner'

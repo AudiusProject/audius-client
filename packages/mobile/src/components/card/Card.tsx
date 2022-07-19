@@ -2,9 +2,9 @@ import type { ID } from '@audius/common'
 import {
   CoverArtSizes,
   ProfilePictureSizes,
-  SquareSizes
-} from 'audius-client/src/common/models/ImageSizes'
-import { User } from 'audius-client/src/common/models/User'
+  SquareSizes,
+  User
+} from '@audius/common'
 import { StyleProp, Text, View, ViewStyle } from 'react-native'
 
 import { DynamicImage, Tile } from 'app/components/core'

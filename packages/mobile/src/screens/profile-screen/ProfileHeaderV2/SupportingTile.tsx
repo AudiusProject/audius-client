@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
-import { WidthSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Supporting } from 'audius-client/src/common/models/Tipping'
+import { WidthSizes, Supporting } from '@audius/common'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'audius-client/src/utils/constants'
 import { profilePage } from 'audius-client/src/utils/route'

@@ -1,4 +1,4 @@
-import { LineupTrack } from 'audius-client/src/common/models/Track'
+import { LineupTrack } from '@audius/common'
 import { range } from 'lodash'
 import { Pressable, Text, View } from 'react-native'
 import { useSelector } from 'react-redux'

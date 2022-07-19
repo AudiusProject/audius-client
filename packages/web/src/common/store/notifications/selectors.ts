@@ -1,7 +1,6 @@
+import { Collection, Track } from '@audius/common'
 import { createSelector } from 'reselect'
 
-import { Collection } from 'common/models/Collection'
-import { Track } from 'common/models/Track'
 import { CommonState } from 'common/store'
 import { getAccountUser } from 'common/store/account/selectors'
 import {

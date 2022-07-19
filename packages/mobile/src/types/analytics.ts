@@ -1,7 +1,7 @@
 import {
   Name as CommonEventNames,
   AllTrackingEvents as CommonTrackingEvents
-} from 'audius-client/src/common/models/Analytics'
+} from '@audius/common'
 
 import { Message } from 'app/message'
 
@@ -47,4 +47,4 @@ export {
   FavoriteSource,
   FollowSource,
   CreatePlaylistSource
-} from 'audius-client/src/common/models/Analytics'
+} from '@audius/common'

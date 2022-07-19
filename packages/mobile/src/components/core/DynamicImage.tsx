@@ -7,8 +7,8 @@ import {
   useState
 } from 'react'
 
+import { Maybe } from '@audius/common'
 import useInstanceVar from 'audius-client/src/common/hooks/useInstanceVar'
-import { Maybe } from 'audius-client/src/common/utils/typeUtils'
 import {
   Animated,
   Image,

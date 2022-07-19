@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { FavoriteSource } from 'audius-client/src/common/models/Analytics'
+import { FavoriteSource } from '@audius/common'
 import { getPlaylistLibrary } from 'audius-client/src/common/store/account/selectors'
 import { getCollection } from 'audius-client/src/common/store/pages/smart-collection/selectors'
 import { findInPlaylistLibrary } from 'audius-client/src/common/store/playlist-library/helpers'

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
+import { Nullable } from '@audius/common'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { useTwitterButtonStatus } from 'common/hooks/useTwitterButtonStatus'
 import { fetchUserSocials } from 'common/store/cache/users/actions'
 

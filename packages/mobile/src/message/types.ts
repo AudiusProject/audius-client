@@ -1,4 +1,4 @@
-import Theme from 'audius-client/src/common/models/Theme'
+import { Theme } from '@audius/common'
 import { Dispatch } from 'redux'
 
 import { AnalyticsMessage } from '../types/analytics'

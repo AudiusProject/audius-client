@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { BNWei, StringWei } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import {
   getOptimisticSupporters,

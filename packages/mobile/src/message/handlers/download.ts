@@ -1,4 +1,4 @@
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { Nullable } from '@audius/common'
 import { Platform, Share } from 'react-native'
 import RNFetchBlob, {
   FetchBlobResponse,

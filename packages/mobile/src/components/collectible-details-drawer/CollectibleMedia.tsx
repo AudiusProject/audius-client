@@ -1,9 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import {
-  Collectible,
-  CollectibleMediaType
-} from 'audius-client/src/common/models/Collectible'
+import { Collectible, CollectibleMediaType } from '@audius/common'
 import {
   ImageStyle,
   StyleSheet,

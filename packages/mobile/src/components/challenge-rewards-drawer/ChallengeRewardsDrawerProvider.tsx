@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect } from 'react'
 
+import { Maybe } from '@audius/common'
 import {
   IntKeys,
   StringKeys
@@ -15,7 +16,6 @@ import {
   resetAndCancelClaimReward
 } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import { Maybe } from 'audius-client/src/common/utils/typeUtils'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'

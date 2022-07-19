@@ -1,4 +1,4 @@
-import { OptimisticUserChallenge } from 'audius-client/src/common/models/AudioRewards'
+import { OptimisticUserChallenge } from '@audius/common'
 import { fillString } from 'audius-client/src/common/utils/fillString'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
 import { View, Image } from 'react-native'

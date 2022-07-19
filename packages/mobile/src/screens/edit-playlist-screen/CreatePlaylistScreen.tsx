@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { CreatePlaylistSource } from 'audius-client/src/common/models/Analytics'
+import { CreatePlaylistSource } from '@audius/common'
 import { getUserHandle } from 'audius-client/src/common/store/account/selectors'
 import { createPlaylist } from 'audius-client/src/common/store/cache/collections/actions'
 import { playlistPage } from 'audius-client/src/utils/route'

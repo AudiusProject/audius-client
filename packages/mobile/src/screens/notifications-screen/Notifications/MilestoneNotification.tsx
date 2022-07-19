@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
+import { User, Nullable } from '@audius/common'
 import {
   getNotificationEntity,
   getNotificationUser
@@ -10,7 +10,6 @@ import {
   EntityType,
   Milestone
 } from 'audius-client/src/common/store/notifications/types'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import {
   fullProfilePage,
   NOTIFICATION_PAGE

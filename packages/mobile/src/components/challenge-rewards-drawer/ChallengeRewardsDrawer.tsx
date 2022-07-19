@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { UserChallengeState } from 'audius-client/src/common/models/AudioRewards'
+import { UserChallengeState } from '@audius/common'
 import { ClaimStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import { fillString } from 'audius-client/src/common/utils/fillString'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'

@@ -1,5 +1,5 @@
 import type { ID } from '@audius/common'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { Nullable } from '@audius/common'
 import { getTracks } from 'common/store/ui/createPlaylistModal/selectors'
 
 export type Image = {

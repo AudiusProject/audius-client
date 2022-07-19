@@ -1,5 +1,5 @@
 import type { CID } from '@audius/common'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { Nullable } from '@audius/common'
 
 export type CollectionImage = {
   cover_art: Nullable<CID>

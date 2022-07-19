@@ -1,11 +1,13 @@
 import { ReactNode } from 'react'
 
 import type { ID, UID } from '@audius/common'
-import { PlaybackSource } from 'audius-client/src/common/models/Analytics'
-import { Collection } from 'audius-client/src/common/models/Collection'
-import { FavoriteType } from 'audius-client/src/common/models/Favorite'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import {
+  PlaybackSource,
+  Collection,
+  FavoriteType,
+  Track,
+  User
+} from '@audius/common'
 import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
 
 import { GestureResponderHandler } from 'app/types/gesture'

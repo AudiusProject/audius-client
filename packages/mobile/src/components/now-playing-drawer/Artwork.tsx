@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Track } from 'audius-client/src/common/models/Track'
+import { SquareSizes, Track } from '@audius/common'
 import { getDominantColorsByTrack } from 'audius-client/src/common/store/average-color/slice'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'

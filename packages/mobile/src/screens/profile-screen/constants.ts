@@ -1,3 +1,3 @@
-import { BadgeTier } from 'audius-client/src/common/models/BadgeTier'
+import { BadgeTier } from '@audius/common'
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'

@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 
 import type { CID, ID } from '@audius/common'
+import { Name, User } from '@audius/common'
 import {
   ButtonState,
   ButtonType as DownloadButtonType,
   useDownloadTrackButtons
 } from 'audius-client/src/common/hooks/useDownloadTrackButtons'
-import { Name } from 'audius-client/src/common/models/Analytics'
-import { User } from 'audius-client/src/common/models/User'
 import { downloadTrack } from 'audius-client/src/common/store/social/tracks/actions'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'

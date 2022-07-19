@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
-import { Chain } from 'audius-client/src/common/models/Chain'
-import { BNWei } from 'audius-client/src/common/models/Wallet'
+import { Chain, BNWei } from '@audius/common'
 import { getAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
 import { AssociatedWallet } from 'audius-client/src/common/store/pages/token-dashboard/types'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'

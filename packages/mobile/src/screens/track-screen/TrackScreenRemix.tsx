@@ -1,9 +1,7 @@
 import { useCallback } from 'react'
 
 import type { ID } from '@audius/common'
-import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import { SquareSizes, Track, User } from '@audius/common'
 import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'audius-client/src/common/store/cache/users/selectors'
 import { profilePage } from 'audius-client/src/utils/route'

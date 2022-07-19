@@ -3,12 +3,12 @@ import { useCallback, useMemo } from 'react'
 import {
   FavoriteSource,
   RepostSource,
-  ShareSource
-} from 'audius-client/src/common/models/Analytics'
-import { Collection } from 'audius-client/src/common/models/Collection'
-import { FavoriteType } from 'audius-client/src/common/models/Favorite'
-import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
-import { User } from 'audius-client/src/common/models/User'
+  ShareSource,
+  Collection,
+  FavoriteType,
+  SquareSizes,
+  User
+} from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import {
   repostCollection,

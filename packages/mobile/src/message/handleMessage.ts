@@ -1,4 +1,4 @@
-import Theme from 'audius-client/src/common/models/Theme'
+import { Theme } from '@audius/common'
 import { Platform } from 'react-native'
 import { Dispatch } from 'redux'
 

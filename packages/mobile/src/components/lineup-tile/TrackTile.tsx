@@ -4,12 +4,12 @@ import {
   PlaybackSource,
   FavoriteSource,
   RepostSource,
-  ShareSource
-} from 'audius-client/src/common/models/Analytics'
-import { FavoriteType } from 'audius-client/src/common/models/Favorite'
-import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+  ShareSource,
+  FavoriteType,
+  SquareSizes,
+  Track,
+  User
+} from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'audius-client/src/common/store/cache/users/selectors'

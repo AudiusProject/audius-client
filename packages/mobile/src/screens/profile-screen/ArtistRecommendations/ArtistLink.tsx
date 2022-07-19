@@ -1,4 +1,4 @@
-import { User } from 'audius-client/src/common/models/User'
+import { User } from '@audius/common'
 import { TouchableOpacity } from 'react-native'
 
 import { Text } from 'app/components/core'

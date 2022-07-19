@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { Nullable } from '@audius/common'
 import { useUIAudio } from 'audius-client/src/common/hooks/useUIAudio'
 import { getNotificationUser } from 'audius-client/src/common/store/notifications/selectors'
 import { TipReceive } from 'audius-client/src/common/store/notifications/types'
@@ -9,7 +10,6 @@ import {
   writeReactionValue
 } from 'audius-client/src/common/store/ui/reactions/slice'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { Image, View } from 'react-native'
 
 import Checkmark from 'app/assets/images/emojis/white-heavy-check-mark.png'

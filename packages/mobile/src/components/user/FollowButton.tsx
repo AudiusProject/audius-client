@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
-import { FollowSource } from 'audius-client/src/common/models/Analytics'
-import { User } from 'audius-client/src/common/models/User'
+import { FollowSource, User } from '@audius/common'
 import {
   followUser,
   unfollowUser

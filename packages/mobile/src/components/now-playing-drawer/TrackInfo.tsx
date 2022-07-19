@@ -1,5 +1,4 @@
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import { Track, User } from '@audius/common'
 import { Pressable, View } from 'react-native'
 
 import { Text } from 'app/components/core'

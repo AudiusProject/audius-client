@@ -1,4 +1,4 @@
-import { UserCollection } from 'audius-client/src/common/models/Collection'
+import { UserCollection } from '@audius/common'
 
 import { CollectionCard } from 'app/components/collection-card'
 import { CardList, CardListProps } from 'app/components/core'

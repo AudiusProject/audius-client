@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { UserCollection } from 'audius-client/src/common/models/Collection'
+import { UserCollection } from '@audius/common'
 import { StyleProp, ViewStyle } from 'react-native'
 
 import { Card } from 'app/components/card'

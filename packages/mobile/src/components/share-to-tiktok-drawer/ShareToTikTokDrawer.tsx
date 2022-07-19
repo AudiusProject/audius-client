@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { Nullable } from '@audius/common'
 import {
   getStatus,
   getTrack
@@ -10,7 +11,6 @@ import {
   share
 } from 'audius-client/src/common/store/ui/share-sound-to-tiktok-modal/slice'
 import { Status } from 'audius-client/src/common/store/ui/share-sound-to-tiktok-modal/types'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { StyleSheet, View } from 'react-native'
 
 import IconTikTok from 'app/assets/images/iconTikTok.svg'

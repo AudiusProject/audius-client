@@ -1,6 +1,6 @@
 import { ComponentType } from 'react'
 
-import { SmartCollectionVariant } from 'audius-client/src/common/models/SmartCollectionVariant'
+import { SmartCollectionVariant } from '@audius/common'
 import { SvgProps } from 'react-native-svg'
 import {
   EXPLORE_HEAVY_ROTATION_PAGE,

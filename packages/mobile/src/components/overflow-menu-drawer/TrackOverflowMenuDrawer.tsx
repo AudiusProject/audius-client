@@ -4,7 +4,7 @@ import {
   FollowSource,
   RepostSource,
   ShareSource
-} from 'audius-client/src/common/models/Analytics'
+} from '@audius/common'
 import { CommonState } from 'audius-client/src/common/store'
 import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'

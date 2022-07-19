@@ -1,4 +1,4 @@
-import { TrendingRewardID } from 'audius-client/src/common/models/AudioRewards'
+import { TrendingRewardID } from '@audius/common'
 import { StringKeys } from 'audius-client/src/common/services/remote-config'
 import {
   setTrendingRewardsModalType,

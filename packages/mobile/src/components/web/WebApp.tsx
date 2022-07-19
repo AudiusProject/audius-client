@@ -7,8 +7,8 @@ import {
   useContext
 } from 'react'
 
+import { Theme } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import Theme from 'audius-client/src/common/models/Theme'
 import {
   Platform,
   NativeSyntheticEvent,

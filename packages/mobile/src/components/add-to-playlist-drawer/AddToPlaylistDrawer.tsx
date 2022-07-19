@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react'
 
-import { CreatePlaylistSource } from 'audius-client/src/common/models/Analytics'
+import { CreatePlaylistSource } from '@audius/common'
 import { getAccountWithOwnPlaylists } from 'audius-client/src/common/store/account/selectors'
 import {
   addTrackToPlaylist,

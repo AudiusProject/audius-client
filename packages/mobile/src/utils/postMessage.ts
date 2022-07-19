@@ -1,4 +1,4 @@
-import { Maybe } from 'audius-client/src/common/utils/typeUtils'
+import { Maybe } from '@audius/common'
 
 import { MessageType, Message } from '../message'
 

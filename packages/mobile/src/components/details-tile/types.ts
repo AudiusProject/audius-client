@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
 
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import { Track, User } from '@audius/common'
 import { TextStyle } from 'react-native'
 
 import { SearchUser } from 'app/store/search/types'

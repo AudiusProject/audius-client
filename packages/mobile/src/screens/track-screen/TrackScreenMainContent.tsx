@@ -1,10 +1,7 @@
 import { ReactNode } from 'react'
 
 import type { ID } from '@audius/common'
-import { LineupState } from 'audius-client/src/common/models/Lineup'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { LineupState, Track, User, Nullable } from '@audius/common'
 import { trackRemixesPage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 
