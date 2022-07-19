@@ -90,6 +90,7 @@ export const SenderDetails = ({ senders, receiver }: SenderDetailsProps) => {
       <PressableText style={styles.tippers} onPress={handlePressTippers}>
         {({ pressed }) => {
           const textStyle = [styles.tipperText, pressed && styles.pressedText]
+
           return (
             <>
               {senders
