@@ -1,5 +1,4 @@
 import { ID } from 'models/Identifiers'
-
 import { Nullable } from 'utils/typeUtils'
 
 import { StringWei } from './Wallet'

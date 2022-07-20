@@ -1,4 +1,5 @@
 import type BN from 'bn.js'
+
 import { Brand } from 'utils/typeUtils'
 
 export type StringWei = Brand<string, 'stringWEI'>
