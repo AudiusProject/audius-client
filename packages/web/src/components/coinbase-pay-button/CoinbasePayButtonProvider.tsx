@@ -47,7 +47,7 @@ export const CoinbasePayButtonProvider = ({
       onSuccess,
       onExit
     }: ResetParams) => {
-      const address = destinationWalletAddress ?? destinationWallet
+      const address = destinationWallet ?? destinationWalletAddress
       if (address) {
         setIsReady(false)
         cbInstance.current?.destroy()
