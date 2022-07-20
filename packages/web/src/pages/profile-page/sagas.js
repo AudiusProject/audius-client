@@ -1,4 +1,11 @@
-import { DefaultSizes, Kind, DoubleKeys, FeatureFlags } from '@audius/common'
+import {
+  DefaultSizes,
+  Kind,
+  DoubleKeys,
+  FeatureFlags,
+  makeUid,
+  makeKindId
+} from '@audius/common'
 import { merge } from 'lodash'
 import { call, delay, fork, put, select, takeEvery } from 'redux-saga/effects'
 
@@ -24,7 +31,6 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { makeUid, makeKindId } from 'common/utils/uid'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'

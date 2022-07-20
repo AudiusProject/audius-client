@@ -1,4 +1,4 @@
-import { Kind, StringKeys } from '@audius/common'
+import { Kind, StringKeys, makeUid } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import moment from 'moment'
 import { call, fork, put, select, takeEvery } from 'redux-saga/effects'
@@ -17,7 +17,6 @@ import {
   getUser
 } from 'common/store/pages/track/selectors'
 import { getIsReachable } from 'common/store/reachability/selectors'
-import { makeUid } from 'common/utils/uid'
 import tracksSagas from 'pages/track-page/store/lineups/tracks/sagas'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
