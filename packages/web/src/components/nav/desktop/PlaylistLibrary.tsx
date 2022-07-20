@@ -13,7 +13,7 @@ import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { FeatureFlags } from 'common/services/remote-config'
+import { FeatureFlags } from '@audius/common'
 import {
   getAccountCollectibles,
   getAccountNavigationPlaylists,

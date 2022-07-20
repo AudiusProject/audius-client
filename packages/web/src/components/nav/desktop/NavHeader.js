@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 
 import { ReactComponent as AudiusLogoHorizontal } from 'assets/img/audiusLogoHorizontal.svg'
 import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
-import { StringKeys } from 'common/services/remote-config'
+import { StringKeys } from '@audius/common'
 import { formatCount } from 'common/utils/formatUtil'
 import NavButton from 'components/nav/desktop/NavButton'
 import NavPopupMenu from 'components/nav/desktop/NavPopupMenu'
