@@ -166,7 +166,7 @@
     "update-ipfs-build:dev": "node ./scripts/updateIpfsBuild.js dev",
     "update-ipfs-build:stage": "node ./scripts/updateIpfsBuild.js stage",
     "update-ipfs-build:prod": "node ./scripts/updateIpfsBuild.js prod",
-    "install-dmg-license": "npx lerna add dmg-license --scope=audius-client --no-bootstrap"
+    "install-dmg-license": "npx lerna add dmg-license --scope=audius-client"
 
   },
   "standard": {
