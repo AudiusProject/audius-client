@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
 import { FeatureFlags } from '@audius/common'
+
 import { useFlag } from 'hooks/useRemoteConfig'
 
 type FeatureFlagProps = {

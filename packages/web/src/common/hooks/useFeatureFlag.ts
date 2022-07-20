@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 
-import { useSelector } from 'react-redux'
-
 import {
   FeatureFlags,
   FeatureFlagCohortType,
   RemoteConfigInstance,
   flagCohortType
 } from '@audius/common'
+import { useSelector } from 'react-redux'
+
 import { getAccountUser } from 'common/store/account/selectors'
 import { isRemoteConfigLoaded } from 'common/store/remote-config/selectors'
 import { StateWithRemoteConfig } from 'common/store/remote-config/slice'

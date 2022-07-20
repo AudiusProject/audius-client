@@ -1,6 +1,15 @@
 /* globals web3 */
-import { Name, FailureReason, FeedFilter, DefaultSizes } from '@audius/common'
-import { IntKeys, StringKeys, BooleanKeys, FeatureFlags } from '@audius/common'
+import {
+  Name,
+  FailureReason,
+  FeedFilter,
+  DefaultSizes,
+  IntKeys,
+  StringKeys,
+  BooleanKeys,
+  FeatureFlags,
+  uuid
+} from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
@@ -19,7 +28,6 @@ import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
 import CIDCache from 'common/store/cache/CIDCache'
-import { uuid } from 'common/utils/uid'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
