@@ -11,7 +11,7 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Lineup, { LineupWithoutTile } from 'components/lineup/Lineup'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { StatBanner } from 'components/stat-banner/StatBanner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -97,14 +97,14 @@ const DeletedPage = g(
         ? messages.albumDeleted
         : messages.playlistDeleted
       : deletedByArtist
-      ? messages.trackDeletedByArtist
-      : messages.trackDeleted
+        ? messages.trackDeletedByArtist
+        : messages.trackDeleted
 
     const renderTile = () => {
       return (
         <div className={styles.tile}>
           {playable.type === PlayableType.PLAYLIST ||
-          playable.type === PlayableType.ALBUM ? (
+            playable.type === PlayableType.ALBUM ? (
             <CollectionArt
               collectionId={playable.metadata.playlist_id}
               coverArtSizes={playable.metadata._cover_art_sizes}
@@ -120,7 +120,7 @@ const DeletedPage = g(
             <div className={styles.title}>
               <h1>
                 {playable.type === PlayableType.PLAYLIST ||
-                playable.type === PlayableType.ALBUM
+                  playable.type === PlayableType.ALBUM
                   ? playable.metadata.playlist_name
                   : playable.metadata.title}
               </h1>

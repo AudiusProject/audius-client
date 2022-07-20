@@ -21,18 +21,18 @@
   width: 330px;
 }
 
-.statBanner > .buttons {
+.statBanner>.buttons {
   z-index: 3;
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
 
-.statBanner > .buttons > *:first-child {
+.statBanner>.buttons>*:first-child {
   margin: 0 6px;
 }
 
-.statBanner > .buttons > .buttonTwo {
+.statBanner>.buttons>.buttonTwo {
   max-width: 144px;
   display: flex;
   padding: 0 16px;
@@ -40,6 +40,10 @@
 }
 
 .subscribeButton {
+  margin-right: 6px;
+}
+
+.dmButton {
   margin-right: 6px;
 }
 

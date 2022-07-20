@@ -173,6 +173,8 @@ import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
 
+import { Chatbox } from 'components/dms/Chatbox'
+
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
 const SignOn = lazy(() => import('pages/sign-on/SignOn'))
@@ -982,6 +984,7 @@ class App extends Component {
             </SwitchComponent>
           </Suspense>
         </div>
+        <Chatbox />
         <PlayBarProvider />
 
         <Suspense fallback={null}>

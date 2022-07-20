@@ -26,7 +26,7 @@ import Mask from 'components/mask/Mask'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
 import ConnectedProfileCompletionHeroCard from 'components/profile-progress/ConnectedProfileCompletionHeroCard'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { StatBanner } from 'components/stat-banner/StatBanner'
 import UploadChip from 'components/upload/UploadChip'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
@@ -81,7 +81,7 @@ export type ProfilePageProps = {
   dropdownDisabled: boolean
   following: boolean
   isSubscribed: boolean
-  mode: string
+  mode: 'visitor' | 'owner' | 'editing'
   stats: Array<{ number: number; title: string; key: string }>
 
   profile: ProfileUser | null
@@ -367,7 +367,7 @@ const ProfilePage = ({
         {renderProfileCompletionCard()}
         {status !== Status.LOADING ? (
           artistTracks.status !== Status.LOADING &&
-          artistTracks.entries.length === 0 ? (
+            artistTracks.entries.length === 0 ? (
             <EmptyTab
               isOwner={isOwner}
               name={profile.name}
@@ -416,7 +416,7 @@ const ProfilePage = ({
         {status !== Status.LOADING ? (
           (userFeed.status !== Status.LOADING &&
             userFeed.entries.length === 0) ||
-          profile.repost_count === 0 ? (
+            profile.repost_count === 0 ? (
             <EmptyTab
               isOwner={isOwner}
               name={profile.name}
@@ -528,7 +528,7 @@ const ProfilePage = ({
         {renderProfileCompletionCard()}
         {(userFeed.status !== Status.LOADING &&
           userFeed.entries.length === 0) ||
-        profile.repost_count === 0 ? (
+          profile.repost_count === 0 ? (
           <EmptyTab
             isOwner={isOwner}
             name={profile.name}

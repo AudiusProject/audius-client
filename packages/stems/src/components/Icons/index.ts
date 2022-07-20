@@ -26,6 +26,7 @@ export { ReactComponent as IconCreateAccount } from '../../assets/icons/iconCrea
 export { ReactComponent as IconCreatePlaylist } from '../../assets/icons/iconCreatePlaylist.svg'
 export { ReactComponent as IconDashboard } from '../../assets/icons/iconDashboard.svg'
 export { ReactComponent as IconDay } from '../../assets/icons/iconDay.svg'
+export { ReactComponent as IconDM } from '../../assets/icons/iconDM.svg'
 export { ReactComponent as IconDiscord } from '../../assets/icons/iconDiscord.svg'
 export { ReactComponent as IconDonate } from '../../assets/icons/iconDonate.svg'
 export { ReactComponent as IconDownload } from '../../assets/icons/iconDownload.svg'
