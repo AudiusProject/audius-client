@@ -6,7 +6,7 @@
   "author": "Audius",
   "homepage": "https://github.com/AudiusProject/audius-client#readme",
   "license": "",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
     "src"
@@ -26,7 +26,6 @@
   "dependencies": {
     "bn.js": "4.12.0",
     "react": "17.0.2"
-
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",
