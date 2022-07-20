@@ -1,6 +1,5 @@
+import { remoteConfig } from '@audius/common'
 import optimizely from '@optimizely/optimizely-sdk'
-
-import { remoteConfig } from 'common/services/remote-config/remote-config'
 
 export const FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY = 'featureFlagSessionId'
 

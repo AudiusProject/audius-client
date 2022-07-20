@@ -4,7 +4,8 @@ import * as Sentry from '@sentry/browser'
 import cn from 'classnames'
 import 'url-search-params-polyfill'
 
-import { StringKeys } from 'common/services/remote-config'
+import { StringKeys } from '@audius/common'
+
 import { InstagramProfile } from 'common/store/account/reducer'
 import { RequestInstagramAuthMessage } from 'services/native-mobile-interface/oauth'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

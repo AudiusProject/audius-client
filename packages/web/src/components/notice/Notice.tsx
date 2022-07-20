@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { IconRemove } from '@audius/stems'
 import cn from 'classnames'
 
-import { StringKeys } from 'common/services/remote-config'
+import { StringKeys } from '@audius/common'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 
 import styles from './Notice.module.css'

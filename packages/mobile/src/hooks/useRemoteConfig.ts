@@ -14,7 +14,7 @@ import type {
 import {
   FeatureFlagCohortType,
   flagCohortType
-} from 'audius-client/src/common/services/remote-config'
+} from '@audius/common'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import { isRemoteConfigLoaded } from 'audius-client/src/common/store/remote-config/selectors'
 import { useSelector } from 'react-redux'

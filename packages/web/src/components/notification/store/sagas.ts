@@ -13,8 +13,8 @@ import {
   takeLatest
 } from 'typed-redux-saga/macro'
 
-import { FeatureFlags, IntKeys } from 'common/services/remote-config'
-import { remoteConfigIntDefaults } from 'common/services/remote-config/defaults'
+import { FeatureFlags, IntKeys } from '@audius/common'
+import { remoteConfigIntDefaults } from '@audius/common'
 import { getUserId, getHasAccount } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'

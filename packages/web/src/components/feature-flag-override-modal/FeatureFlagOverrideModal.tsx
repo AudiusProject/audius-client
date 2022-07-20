@@ -13,7 +13,7 @@ import {
   OverrideSetting
 } from 'common/hooks/useFeatureFlag'
 import { useModalState } from 'common/hooks/useModalState'
-import { FeatureFlags } from 'common/services/remote-config'
+import { FeatureFlags } from '@audius/common'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useDevModeHotkey } from 'hooks/useHotkey'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

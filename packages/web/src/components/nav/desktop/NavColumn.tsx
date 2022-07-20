@@ -23,7 +23,7 @@ import useMeasure from 'react-use-measure'
 import { Dispatch } from 'redux'
 
 import imageProfilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
-import { FeatureFlags } from 'common/services/remote-config'
+import { FeatureFlags } from '@audius/common'
 import {
   getAccountStatus,
   getAccountUser,
