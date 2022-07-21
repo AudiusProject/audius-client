@@ -22,10 +22,10 @@ export default function ChatList(props: Props) {
           ? message.sentTimestamp.valueOf()
           : '' +
           message.timestamp.valueOf() +
-          message.nick +
+          message.handle +
           message.payloadAsUtf8
       }
-      authorName={message.nick}
+      authorName={message.handle}
       date={formatDisplayDate(message)}>
       <MessageText>{message.payloadAsUtf8}</MessageText>
     </LiveMessage>

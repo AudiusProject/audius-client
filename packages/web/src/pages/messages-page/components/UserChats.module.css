@@ -1,0 +1,40 @@
+.converstationsContainer {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: calc(100% - 88px);
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.converstaion {
+    height: 80px;
+    padding: 16px;
+    display: inline-flex;
+    cursor: pointer;
+    transition: all 0.18s ease-in-out;
+}
+
+.converstaion:hover, .converstaion:active {
+    background-color: var(--neutral-light-10);
+}
+
+  
+.converstaion .userImage {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 1px 3px -2px rgba(133, 129, 153, 0.3);
+    background-color: var(--default-profile-picture-background);
+    margin-right: 12px;
+    overflow: hidden;
+}
+
+.converstaion .info {
+    display: inline-flex;
+}
+
+.converstaion .info .name {
+    margin-right: 8px;
+}

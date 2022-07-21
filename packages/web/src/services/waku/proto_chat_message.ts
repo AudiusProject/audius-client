@@ -6,12 +6,12 @@ export const protobufPackage = "";
 
 export interface ChatMessage {
   timestamp: number;
-  nick: string;
+  handle: string;
   payload: Uint8Array;
 }
 
 function createBaseChatMessage(): ChatMessage {
-  return { timestamp: 0, nick: "", payload: new Uint8Array() };
+  return { timestamp: 0, handle: "", payload: new Uint8Array() };
 }
 
 export const ChatMessage = {
@@ -22,8 +22,8 @@ export const ChatMessage = {
     if (message.timestamp !== 0) {
       writer.uint32(8).uint64(message.timestamp);
     }
-    if (message.nick !== "") {
-      writer.uint32(18).string(message.nick);
+    if (message.handle !== "") {
+      writer.uint32(18).string(message.handle);
     }
     if (message.payload.length !== 0) {
       writer.uint32(26).bytes(message.payload);
@@ -42,7 +42,7 @@ export const ChatMessage = {
           message.timestamp = longToNumber(reader.uint64() as Long);
           break;
         case 2:
-          message.nick = reader.string();
+          message.handle = reader.string();
           break;
         case 3:
           message.payload = reader.bytes();
@@ -61,9 +61,9 @@ export const ChatMessage = {
       object.timestamp !== undefined && object.timestamp !== null
         ? Number(object.timestamp)
         : 0;
-    message.nick =
-      object.nick !== undefined && object.nick !== null
-        ? String(object.nick)
+    message.handle =
+      object.handle !== undefined && object.handle !== null
+        ? String(object.handle)
         : "";
     message.payload =
       object.payload !== undefined && object.payload !== null
@@ -76,7 +76,7 @@ export const ChatMessage = {
     const obj: any = {};
     message.timestamp !== undefined &&
       (obj.timestamp = Math.round(message.timestamp));
-    message.nick !== undefined && (obj.nick = message.nick);
+    message.handle !== undefined && (obj.handle = message.handle);
     message.payload !== undefined &&
       (obj.payload = base64FromBytes(
         message.payload !== undefined ? message.payload : new Uint8Array()
@@ -89,7 +89,7 @@ export const ChatMessage = {
   ): ChatMessage {
     const message = createBaseChatMessage();
     message.timestamp = object.timestamp ?? 0;
-    message.nick = object.nick ?? "";
+    message.handle = object.handle ?? "";
     message.payload = object.payload ?? new Uint8Array();
     return message;
   },

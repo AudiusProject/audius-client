@@ -17,7 +17,7 @@ export class ChatMessage {
    */
   static fromUtf8String(
     timestamp: Date,
-    nick: string,
+    handle: string,
     text: string
   ): ChatMessage {
     const timestampNumber = Math.floor(timestamp.valueOf() / 1000)
@@ -25,7 +25,7 @@ export class ChatMessage {
 
     return new ChatMessage({
       timestamp: timestampNumber,
-      nick,
+      handle,
       payload
     })
   }
@@ -51,8 +51,8 @@ export class ChatMessage {
     return new Date(this.proto.timestamp * 1000)
   }
 
-  get nick(): string {
-    return this.proto.nick
+  get handle(): string {
+    return this.proto.handle
   }
 
   get payloadAsUtf8(): string {

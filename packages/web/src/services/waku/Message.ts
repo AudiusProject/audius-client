@@ -25,13 +25,13 @@ export class Message {
     }
   }
 
-  static fromUtf8String(nick: string, text: string): Message {
+  static fromUtf8String(handle: string, text: string): Message {
     const now = new Date()
-    return new Message(ChatMessage.fromUtf8String(now, nick, text), now)
+    return new Message(ChatMessage.fromUtf8String(now, handle, text), now)
   }
 
-  get nick() {
-    return this.chatMessage.nick
+  get handle() {
+    return this.chatMessage.handle
   }
 
   get timestamp() {

@@ -1,6 +1,7 @@
 import { PageDirection, Waku, WakuMessage } from 'js-waku'
 
 import { Message } from './Message'
+import { checkIsInviteMessage } from './utils'
 
 export const retrieveStoreMessages = async (
   waku: Waku,
@@ -12,7 +13,7 @@ export const retrieveStoreMessages = async (
     wakuMessages
       .map((wakuMsg) => Message.fromWakuMessage(wakuMsg))
       .forEach((message) => {
-        if (message) {
+        if (message && !checkIsInviteMessage(message)) {
           messages.push(message)
         }
       })

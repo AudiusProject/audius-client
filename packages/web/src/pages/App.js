@@ -52,6 +52,7 @@ import ExplorePage from 'pages/explore-page/ExplorePage'
 import FavoritesPage from 'pages/favorites-page/FavoritesPage'
 import FeedPage from 'pages/feed-page/FeedPage'
 import HistoryPage from 'pages/history-page/HistoryPage'
+import MessagesPage from 'pages/messages-page/MessagesPage'
 import NotFoundPage from 'pages/not-found-page/NotFoundPage'
 import NotificationUsersPage from 'pages/notification-users-page/NotificationUsersPage'
 import ProfilePage from 'pages/profile-page/ProfilePage'
@@ -71,7 +72,6 @@ import TrendingPage from 'pages/trending-page/TrendingPage'
 import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage'
 import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergroundPage'
 import UploadType from 'pages/upload-page/components/uploadType'
-import Visualizer from 'pages/visualizer/Visualizer'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'
@@ -103,6 +103,7 @@ import {
   EXPLORE_MOOD_PLAYLISTS_PAGE,
   SAVED_PAGE,
   HISTORY_PAGE,
+  MESSAGES_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
   UPLOAD_PAGE,
@@ -173,7 +174,7 @@ import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
 
-import { Chatbox } from 'components/dms/Chatbox'
+// import { Chatbox } from 'components/dms/Chatbox'
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -815,6 +816,12 @@ class App extends Component {
                 isMobile={isMobileClient}
                 component={SettingsPage}
               />
+              <Route
+                exact
+                path={MESSAGES_PAGE}
+                isMobile={isMobileClient}
+                component={MessagesPage}
+              />
               <Route exact path={CHECK_PAGE} component={CheckPage} />
               <MobileRoute
                 exact
@@ -984,7 +991,6 @@ class App extends Component {
             </SwitchComponent>
           </Suspense>
         </div>
-        <Chatbox />
         <PlayBarProvider />
 
         <Suspense fallback={null}>
@@ -1006,7 +1012,6 @@ class App extends Component {
         {!isMobileClient && <Konami />}
         {!isMobileClient && <ConfirmerPreview />}
         {!isMobileClient && <DiscoveryNodeSelection />}
-        {!isMobileClient && <Visualizer />}
         {!isMobileClient && <PinnedTrackConfirmation />}
         {!isMobileClient && <DevModeMananger />}
 

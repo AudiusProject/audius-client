@@ -10,19 +10,21 @@ import { initWaku } from 'services/waku/waku'
 import { WakuContext } from 'services/waku/wakuContext'
 
 import styles from './Chatbox.module.css'
+
 import { Room } from './Room'
+import classNames from 'classnames'
 
 const audiusMessages = {
   title: 'Messages'
 }
 
-const ChatContentTopic = '/stereosteve'
+const ChatContentTopic = '/toy-chat/2/huilong/proto'
 
 const reduceMessages = (state: Message[], newMessages: Message[]) => {
   return state.concat(newMessages)
 }
 
-export const Chatbox = () => {
+export const Chatbox = (props: { className?: string }) => {
   const [waku, setWaku] = useState<Waku | undefined>(undefined)
   const [historicalMessagesRetrieved, setHistoricalMessagesRetrieved] =
     useState(false)
@@ -63,10 +65,11 @@ export const Chatbox = () => {
     if (historicalMessagesRetrieved) return
 
     const retrieveMessages = async () => {
-      await waku.waitForRemotePeer()
-      console.log(`Waku |Retrieving archived messages`)
-
       try {
+        console.log(`Waku | attempting to Retrieving archived messages`)
+        await waku.waitForRemotePeer(undefined, 2000)
+        console.log(`Waku |Retrieving archived messages`)
+
         retrieveStoreMessages(waku, ChatContentTopic, dispatchMessages).then(
           (length) => {
             console.log(`Waku |Messages retrieved:`, length)
@@ -74,7 +77,10 @@ export const Chatbox = () => {
           }
         )
       } catch (e) {
-        console.log(`Error encountered when retrieving archived messages`, e)
+        console.log(
+          `Waku | Error encountered when retrieving archived messages`,
+          e
+        )
       }
     }
 
@@ -84,7 +90,7 @@ export const Chatbox = () => {
   const handle = useSelector(getUserHandle)
 
   return (
-    <div className={styles.chatbox}>
+    <div className={classNames(props.className, styles.chatbox)}>
       <div className={styles.title}>{audiusMessages.title}</div>
       <WakuContext.Provider value={{ waku }}>
         <Room

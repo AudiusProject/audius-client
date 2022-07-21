@@ -84,6 +84,8 @@ export const APP_REDIRECT = '/app-redirect'
 export const CHECK_PAGE = '/check'
 export const DEACTIVATE_PAGE = '/deactivate'
 
+export const MESSAGES_PAGE = '/messages'
+
 // Param routes.
 export const NOTIFICATION_USERS_PAGE = '/notification/:notificationId/users'
 export const ANNOUNCEMENT_PAGE = '/notification/:notificationId'
@@ -206,7 +208,8 @@ export const orderedRoutes = [
   TOP_SUPPORTERS_USERS_ROUTE,
   PROFILE_PAGE,
   PROFILE_PAGE_COLLECTIBLES,
-  PROFILE_PAGE_COLLECTIBLE_DETAILS
+  PROFILE_PAGE_COLLECTIBLE_DETAILS,
+  MESSAGES_PAGE
 ]
 
 export const staticRoutes = new Set([
@@ -239,7 +242,8 @@ export const staticRoutes = new Set([
   ACCOUNT_SETTINGS_PAGE,
   NOTIFICATION_SETTINGS_PAGE,
   ABOUT_SETTINGS_PAGE,
-  TRENDING_GENRES
+  TRENDING_GENRES,
+  MESSAGES_PAGE
 ])
 
 /** Given a pathname, finds a matching route */

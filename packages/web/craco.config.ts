@@ -38,19 +38,13 @@ export default {
             {
               test: /\.wasm$/,
               type: 'webassembly/async'
-            },
-            {
-              test: /\.(glsl|vs|fs|vert|frag)$/,
-              exclude: /node_modules/,
-              use: ['raw-loader', 'glslify-loader'],
-              type: 'javascript/auto'
             }
           ]
         },
         plugins: [
           ...(config.plugins ?? []),
           new ProvidePlugin({
-            process: 'process/browser',
+            process: 'process/browser.js',
             Buffer: ['buffer', 'Buffer']
           })
         ],
@@ -72,6 +66,7 @@ export default {
             net: false,
             os: require.resolve('os-browserify'),
             path: require.resolve('path-browserify'),
+            process: require.resolve('process/browser'),
             stream: require.resolve('stream-browserify'),
             url: require.resolve('url'),
             zlib: require.resolve('browserify-zlib')
