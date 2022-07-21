@@ -1,3 +1,4 @@
+import { ID } from '@audius/common'
 import moment from 'moment'
 import { eventChannel } from 'redux-saga'
 import {
@@ -13,7 +14,6 @@ import {
 } from 'typed-redux-saga/macro'
 
 import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import { Track } from 'common/models/Track'
 import { FeatureFlags, IntKeys } from 'common/services/remote-config'
@@ -337,13 +337,18 @@ export function* parseAndProcessNotifications(
 /**
  * Run side effects for new notifications
  */
+const AUDIO_TRANSFER_NOTIFICATION_TYPES = new Set([
+  NotificationType.ChallengeReward,
+  NotificationType.TipSend,
+  NotificationType.TipReceive
+])
 export function* handleNewNotifications(
   notifications: Notification[]
 ): Generator<any, void, any> {
-  const hasRewardsNotification = notifications.some(
-    (notification) => notification.type === NotificationType.ChallengeReward
+  const hasAudioTransferNotification = notifications.some((notification) =>
+    AUDIO_TRANSFER_NOTIFICATION_TYPES.has(notification.type)
   )
-  if (hasRewardsNotification) {
+  if (hasAudioTransferNotification) {
     yield* put(getBalance)
   }
 }

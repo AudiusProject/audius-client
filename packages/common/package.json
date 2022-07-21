@@ -1,0 +1,32 @@
+{
+  "name": "@audius/common",
+  "version": "1.1.13",
+  "description": "Common utilities and store for web and mobile.",
+  "private": "true",
+  "author": "Audius",
+  "homepage": "https://github.com/AudiusProject/audius-client#readme",
+  "license": "",
+  "main": "src/index.ts",
+  "module": "dist/index.es.js",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AudiusProject/audius-client.git"
+  },
+  "scripts": {
+    "lint": "eslint --cache src",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "rollup -c"
+  },
+  "bugs": {
+    "url": "https://github.com/AudiusProject/audius-client/issues"
+  },
+  "devDependencies": {
+    "eslint": "8.19.0",
+    "eslint-config-audius": "1.1.13",
+    "rollup": "2.76.0",
+    "rollup-plugin-typescript2": "0.32.1"
+  }
+}

@@ -78,6 +78,7 @@
 
 .tippers {
   display: flex;
+  align-items: center;
   margin-left: 4px;
   color: var(--neutral);
 }
@@ -89,6 +90,9 @@
   display: flex;
   align-items: center;
   font-weight: var(--font-medium);
+}
+.tipperName > span {
+  white-space: nowrap;
 }
 .tipperSeparator {
   margin: 0 4px;
@@ -143,15 +147,24 @@
 }
 
 .dismissButton {
-  margin-left: 8px;
+  margin-left: var(--unit-2);
+  transform: scale3d(1, 1, 1);
+  transition: all 0.07s ease-in-out !important;
 }
+
 .dismissButton:hover {
-  cursor: pointer;
+  transform: scale3d(1.1, 1.1, 1.1);
 }
+
+.dismissButton:active {
+  transform: scale3d(0.95, 0.95, 0.95);
+}
+
 .dismissIcon {
-  width: 18px;
-  height: 18px;
+  width: var(--unit-8);
+  height: var(--unit-8);
 }
+
 .dismissIcon path {
   fill: var(--neutral-light-4);
 }

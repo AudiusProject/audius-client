@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { ID } from 'audius-client/src/common/models/Identifiers'
+import type { ID } from '@audius/common'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { getOptimisticSupportersForUser } from 'audius-client/src/common/store/tipping/selectors'
 import { SupportersMapForUser } from 'audius-client/src/common/store/tipping/types'
@@ -72,6 +72,7 @@ export const TopSupporters = () => {
   const supportersForProfile: SupportersMapForUser =
     useSelectorWeb((state) => getOptimisticSupportersForUser(state, user_id)) ||
     {}
+
   const rankedSupporterIds = Object.keys(supportersForProfile)
     .sort((k1, k2) => {
       return (
@@ -81,6 +82,7 @@ export const TopSupporters = () => {
     })
     .map((k) => supportersForProfile[k as unknown as ID])
     .map((s) => s.sender_id)
+
   const rankedSupporters = useSelectorWeb((state) => {
     const usersMap = getUsers(state, { ids: rankedSupporterIds })
     return rankedSupporterIds.map((id) => usersMap[id]).filter(Boolean)

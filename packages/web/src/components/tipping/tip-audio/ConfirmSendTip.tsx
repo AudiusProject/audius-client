@@ -11,8 +11,9 @@ import { getSendTipData } from 'common/store/tipping/selectors'
 import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
+import { ProfileInfo } from '../../profile-info/ProfileInfo'
+
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
@@ -21,7 +22,7 @@ const messages = {
   confirmAndTryAgain: 'Confirm & Try Again',
   goBack: 'Go Back',
   somethingWrong: 'Something’s gone wrong. Wait a little while and try again.',
-  maintenance: 'We’re performing some necessary one-time maintenence.',
+  maintenance: 'We’re performing some necessary one-time maintenance.',
   fewMinutes: 'This may take a few minutes.',
   holdOn: 'Don’t close this window or refresh the page.'
 }
@@ -120,7 +121,7 @@ export const ConfirmSendTip = () => {
   return receiver ? (
     <div className={styles.container}>
       {renderSendingAudio()}
-      <TipProfilePicture user={receiver} />
+      <ProfileInfo user={receiver} />
       {/*
       Even though the isVisible prop is being passed in, we
       only render the converting message if is converting.

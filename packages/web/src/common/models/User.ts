@@ -1,6 +1,7 @@
+import { CID, ID } from '@audius/common'
+
 import { Collectible, CollectiblesMetadata } from 'common/models/Collectible'
 import Color from 'common/models/Color'
-import { CID, ID } from 'common/models/Identifiers'
 import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
 import { PlaylistLibrary } from 'common/models/PlaylistLibrary'
 import {
@@ -26,7 +27,6 @@ export type UserMetadata = {
   handle: string
   handle_lc: string
   is_deactivated: boolean
-  is_creator: boolean
   is_verified: boolean
   location: Nullable<string>
   name: string

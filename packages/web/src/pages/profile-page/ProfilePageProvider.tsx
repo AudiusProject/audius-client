@@ -1,5 +1,6 @@
 import { ComponentType, PureComponent, RefObject } from 'react'
 
+import { ID, UID } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
 import moment from 'moment'
@@ -9,7 +10,6 @@ import { Dispatch } from 'redux'
 
 import { Name, FollowSource, ShareSource } from 'common/models/Analytics'
 import { BadgeTier } from 'common/models/BadgeTier'
-import { ID, UID } from 'common/models/Identifiers'
 import Kind from 'common/models/Kind'
 import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
@@ -173,7 +173,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       profile.profile &&
       artistTracks.status === Status.SUCCESS
     ) {
-      if (profile.profile.is_creator || profile.profile.track_count > 0) {
+      if (profile.profile.track_count > 0) {
         this.setState({
           activeTab: Tabs.TRACKS
         })
@@ -186,7 +186,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       !activeTab &&
       profile &&
       profile.profile &&
-      !profile.profile.is_creator
+      !(profile.profile.track_count > 0)
     ) {
       this.setState({
         activeTab: Tabs.REPOSTS

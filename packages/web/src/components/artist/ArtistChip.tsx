@@ -1,8 +1,8 @@
 import { ComponentPropsWithoutRef } from 'react'
 
+import { ID } from '@audius/common'
 import cn from 'classnames'
 
-import { ID } from 'common/models/Identifiers'
 import { SquareSizes } from 'common/models/ImageSizes'
 import { User } from 'common/models/User'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -126,6 +126,7 @@ const ArtistChip = ({
           onNavigateAway={onNavigateAway}>
           <DynamicImage
             wrapperClassName={styles.profilePictureWrapper}
+            skeletonClassName={styles.profilePictureSkeleton}
             className={styles.profilePicture}
             image={profilePicture}
           />
@@ -133,6 +134,7 @@ const ArtistChip = ({
       ) : (
         <DynamicImage
           wrapperClassName={styles.profilePictureWrapper}
+          skeletonClassName={styles.profilePictureSkeleton}
           className={styles.profilePicture}
           image={profilePicture}
         />

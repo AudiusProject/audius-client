@@ -1,5 +1,6 @@
 import { Suspense, Component, useMemo, ReactNode } from 'react'
 
+import { ID } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
@@ -8,7 +9,6 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { ID } from 'common/models/Identifiers'
 import Status from 'common/models/Status'
 import Theme from 'common/models/Theme'
 import { Track } from 'common/models/Track'
@@ -251,7 +251,8 @@ export class ArtistDashboardPage extends Component<
   }
 
   componentDidUpdate() {
-    if (!this.props.account?.is_creator) {
+    const trackCount = this.props.account?.track_count || 0
+    if (!(trackCount > 0)) {
       this.props.goToRoute(TRENDING_PAGE)
     }
   }
@@ -306,7 +307,8 @@ export class ArtistDashboardPage extends Component<
   renderCreatorContent() {
     const { account, listenData, tracks, unlistedTracks, stats, isMatrix } =
       this.props
-    if (!account || !account.is_creator) return null
+    const trackCount = this.props.account?.track_count || 0
+    if (!account || !(trackCount > 0)) return null
 
     const { selectedTrack } = this.state
 

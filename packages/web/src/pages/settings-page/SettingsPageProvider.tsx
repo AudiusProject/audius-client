@@ -9,7 +9,7 @@ import Theme from 'common/models/Theme'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountVerified,
-  getAccountIsCreator,
+  getAccountHasTracks,
   getAccountProfilePictureSizes,
   getUserId,
   getUserHandle,
@@ -49,6 +49,8 @@ import {
   SettingsPageProps as MobileSettingsPageProps,
   SubPage
 } from './components/mobile/SettingsPage'
+
+const isStaging = process.env.REACT_APP_ENVIRONMENT === 'staging'
 
 const messages = {
   title: 'Settings',
@@ -139,7 +141,7 @@ class SettingsPage extends PureComponent<
     const {
       subPage,
       isVerified,
-      isCreator,
+      hasTracks,
       userId,
       handle,
       name,
@@ -165,13 +167,13 @@ class SettingsPage extends PureComponent<
       tier
     } = this.props
 
-    const showMatrix = tier === 'gold' || tier === 'platinum'
+    const showMatrix = tier === 'gold' || tier === 'platinum' || isStaging
 
     const childProps = {
       title: messages.title,
       description: messages.description,
       isVerified,
-      isCreator,
+      hasTracks,
       userId,
       handle,
       name,
@@ -217,7 +219,7 @@ function makeMapStateToProps() {
       handle: getUserHandle(state),
       name: getUserName(state),
       isVerified: getAccountVerified(state),
-      isCreator: getAccountIsCreator(state),
+      hasTracks: getAccountHasTracks(state),
       userId,
       profilePictureSizes: getAccountProfilePictureSizes(state),
       theme: getTheme(state),
