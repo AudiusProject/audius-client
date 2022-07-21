@@ -21,10 +21,12 @@ type ResetParams = {
 
 export const CoinbasePayContext = createContext<{
   isReady: boolean
+  isOpen: boolean
   open: () => void
   resetParams: (newProps: ResetParams) => void
 }>({
   isReady: false,
+  isOpen: false,
   open: () => {},
   resetParams: (_) => {}
 })
@@ -37,6 +39,7 @@ export const CoinbasePayButtonProvider = ({
   children: ReactNode
 }) => {
   const [isReady, setIsReady] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const cbInstance = useRef<ReturnType<typeof initOnRamp>>()
 
   const resetParams = useCallback(
@@ -67,8 +70,14 @@ export const CoinbasePayButtonProvider = ({
             // Update loading/ready states.
             setIsReady(true)
           },
-          onSuccess,
-          onExit,
+          onSuccess: () => {
+            onSuccess?.()
+            setIsOpen(false)
+          },
+          onExit: () => {
+            onExit?.()
+            setIsOpen(false)
+          },
           onEvent: (event: any) => {
             // event stream
             console.log(event)
@@ -80,12 +89,15 @@ export const CoinbasePayButtonProvider = ({
         })
       }
     },
-    [cbInstance, destinationWalletAddress]
+    [cbInstance, destinationWalletAddress, setIsOpen]
   )
 
   const open = useCallback(() => {
-    cbInstance.current?.open()
-  }, [cbInstance])
+    if (cbInstance.current) {
+      cbInstance.current.open()
+      setIsOpen(true)
+    }
+  }, [cbInstance, setIsOpen])
 
   useEffect(() => {
     resetParams({})
@@ -95,6 +107,7 @@ export const CoinbasePayButtonProvider = ({
     <CoinbasePayContext.Provider
       value={{
         isReady,
+        isOpen,
         open,
         resetParams
       }}>
