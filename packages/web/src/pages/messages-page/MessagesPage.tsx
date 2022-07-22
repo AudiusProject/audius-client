@@ -42,6 +42,7 @@ const reduceMessages = (
 export const MessagesContent = (props: {
   messages: Message[]
   handles: string[]
+  addUserHandle: (handle: string) => void
   resetMessages: () => void
 }) => {
   const currentUser = useSelector(getAccountUser)
@@ -53,6 +54,7 @@ export const MessagesContent = (props: {
           className={styles.userChats}
           handles={props.handles}
           resetMessages={props.resetMessages}
+          addUserHandle={props.addUserHandle}
         />
         <Chat
           className={styles.chat}
@@ -151,14 +153,29 @@ export const MessagesPage = () => {
 
   // TODO: make mobile page and ternary on page
   const Page = DesktopPage
+
+  const [userHandles, setUserHandles] = useState(new Set())
+  const addUserHandle = (handle: string) => {
+    console.log(`Add user ${handle}`)
+    setUserHandles(new Set([...userHandles, handle]))
+  }
   console.log({ messages })
-  // const handles = [...new Set(messages.map((msg) => msg.chatMessage.handle))]
-  const handles = ['joe']
-  console.log({ handles })
+  const handles = [
+    ...new Set([
+      ...userHandles,
+      ...messages.map((msg) => msg.chatMessage.handle)
+    ])
+  ]
+  console.log({ handles, userHandles })
   return (
     <Page>
       <WakuContext.Provider value={{ waku, activeHandle, setActiveHandle }}>
-        <MessagesContent handles={handles} messages={messages} resetMessages={resetMessages} />
+        <MessagesContent
+          handles={handles}
+          messages={messages}
+          resetMessages={resetMessages}
+          addUserHandle={addUserHandle}
+        />
       </WakuContext.Provider>
     </Page>
   )
