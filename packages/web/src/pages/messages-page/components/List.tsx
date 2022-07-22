@@ -22,7 +22,7 @@ export default function ChatList(props: Props) {
           ? message.sentTimestamp.valueOf()
           : '' +
           message.timestamp.valueOf() +
-          message.handle +
+          message.from + // should be from
           message.payloadAsUtf8
       }
       authorName={message.handle}

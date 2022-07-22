@@ -32,6 +32,7 @@ const reduceMessages = (
   if (action === 'add') {
     return state.concat(newMessages)
   } else if (action === 'clear') {
+    console.log(`clear messages`)
     return []
   }
 }
@@ -88,6 +89,7 @@ export const MessagesPage = () => {
     useState(false)
   const [messages, dispatchMessages] = useReducer(reduceMessages, [])
   const resetMessages = useCallback(() => {
+    console.log(`asdf resetMessages ${historicalMessagesRetrieved}`)
     dispatchMessages([], 'clear')
     setHistoricalMessagesRetrieved(false)
   }, [dispatchMessages, setHistoricalMessagesRetrieved])
@@ -108,6 +110,7 @@ export const MessagesPage = () => {
 
     const handleRelayMessage = (wakuMsg: WakuMessage) => {
       console.log('Waku |Message received: ', wakuMsg)
+
       const msg = Message.fromWakuMessage(wakuMsg)
       if (msg && !checkIsInviteMessage(msg)) {
         dispatchMessages([msg])
@@ -122,14 +125,15 @@ export const MessagesPage = () => {
   }, [waku, historicalMessagesRetrieved])
 
   useEffect(() => {
+    console.log(`asdf trigger retrieve message ${historicalMessagesRetrieved}`)
     if (!waku) return
     if (historicalMessagesRetrieved) return
 
     const retrieveMessages = async () => {
       try {
-        console.log(`Waku | attempting to Retrieving archived messages`)
+        console.log(`asdf Waku | attempting to Retrieving archived messages`)
         await waku.waitForRemotePeer(undefined, 2000)
-        console.log(`Waku |Retrieving archived messages`)
+        console.log(`asdf Waku |Retrieving archived messages`)
 
         retrieveStoreMessages(waku, ChatContentTopic, dispatchMessages).then(
           (length) => {
@@ -142,6 +146,7 @@ export const MessagesPage = () => {
           `Waku | Error encountered when retrieving archived messages`,
           e
         )
+        setHistoricalMessagesRetrieved(true)
       }
     }
 
@@ -164,6 +169,7 @@ export const MessagesPage = () => {
     ])
   ]
   console.log({ handles, userHandles })
+  console.log(`asdf render ${ messages }`)
   return (
     <Page>
       <WakuContext.Provider value={{ waku, activeHandle, setActiveHandle }}>

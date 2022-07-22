@@ -91,6 +91,9 @@ async function handleMessage(
   topic: string,
   messageSender: (msg: WakuMessage) => Promise<void>
 ) {
+  console.log({
+    handle, topic, message, messageSender
+  })
   await sendMessage({
     handle,
     chatContentTopic: topic,

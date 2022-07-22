@@ -130,6 +130,7 @@ export const initUserConnection = async ({
   for (const existingHandle in newSharedKeys) {
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
+  console.log(`asdf currentSharedKey ${currentSharedKey}`)
 
   waku.addDecryptionKey(currentSharedKey)
 

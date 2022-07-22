@@ -1,4 +1,4 @@
-import { WakuMessage, utils, generateSymmetricKey, getPublicKey } from 'js-waku'
+import { WakuMessage, utils, generateSymmetricKey, getPublicKey, waku } from 'js-waku'
 
 import { Message } from 'services/waku/Message'
 import { ChatMessage } from 'services/waku/chat_message'
@@ -49,6 +49,7 @@ export const initUserConnection = async ({
   for (const existingHandle in newSharedKeys) {
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
+  console.log(`asdf currentSharedKey ${currentSharedKey}`)
 
   waku.addDecryptionKey(currentSharedKey)
   const timestamp = new Date()
@@ -121,7 +122,7 @@ export const checkIsInviteMessage = (message: Message) => {
     } else if (currentUserHandle === user2) {
       to = user1
     } else {
-      return false
+      return true
     }
 
     let existingSharedKeys: any = localStorage.getItem(SHARED_KEY_STORAGE)

@@ -74,6 +74,7 @@ export const Converstation = (props: {
   resetMessages: () => void
 }) => {
   const { waku, setActiveHandle, activeHandle } = useWaku()
+  const currentUser = useSelector(getAccountUser)
   const onClick = () => {
     initUserConnection({
       waku,

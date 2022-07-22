@@ -29,6 +29,10 @@ export class Message {
     const now = new Date()
     return new Message(ChatMessage.fromUtf8String(now, handle, text), now)
   }
+  
+  get from() {
+    return window.audiusLibs.getAccountUser().handle
+  }
 
   get handle() {
     return this.chatMessage.handle
