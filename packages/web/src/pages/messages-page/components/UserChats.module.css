@@ -19,6 +19,10 @@
     background-color: var(--neutral-light-10);
 }
 
+.converstaion.isActive {
+    background-color: var(--neutral-light-10);
+}
+
   
 .converstaion .userImage {
     width: 48px;
@@ -37,4 +41,12 @@
 
 .converstaion .info .name {
     margin-right: 8px;
+}
+
+.inputWrapper {
+    padding: 16px;
+}
+
+.userSearch {
+    border-radius: 16px;
 }

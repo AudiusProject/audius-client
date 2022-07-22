@@ -1,4 +1,4 @@
-import { WakuMessage, utils, generateSymmetricKey } from 'js-waku'
+import { WakuMessage, utils, generateSymmetricKey, getPublicKey } from 'js-waku'
 
 import { Message } from 'services/waku/Message'
 import { ChatMessage } from 'services/waku/chat_message'
@@ -25,8 +25,8 @@ export const initUserConnection = async ({
     storedSharedKeys !== null ? JSON.parse(storedSharedKeys) : {}
 
   // const pubkey = utils.hexToBytes(publicKey.substring(2))
-  const pubkey =
-    '0482a93ae2b9e7b4e55273b4d50d935d750a3dd6fb798689bdcce6b0cbbf6d8638b207590183529e99f2aa7bde8eaff9d0c422e25b9398033e3d2ae9aef221e4d0'
+  const privateKey = window.audiusLibs.hedgehog.wallet._privKey
+  const pubkey = getPublicKey(privateKey)
   const currentSharedKey =
     handle in sharedKeys
       ? sharedKeys[handle]

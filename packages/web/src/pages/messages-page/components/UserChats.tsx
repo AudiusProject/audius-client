@@ -1,10 +1,18 @@
-import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState
+} from 'react'
 
-import { setUser } from '@sentry/browser'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import { getAccountUser } from 'common/store/account/selectors'
+import Input from 'components/data-entry/Input'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { initUserConnection } from 'services/waku/utils'
@@ -17,8 +25,40 @@ export const messages = {
   description: 'Decentralized chat, end to end encrypted!'
 }
 
-export const UserSearch = (props: any) => {
-  return <div className={props.className}>{'user Search'}</div>
+export const UserSearch = (props: {
+  className?: string
+  addUserHandle: (handle: string) => void
+}) => {
+  const [userHandle, setUserHandle] = useState('')
+
+  const handleKeyPress = ({ key }: KeyboardEvent<HTMLDivElement>) => {
+    console.log({ key })
+    if (key === 'Enter' && userHandle.trimLeft() !== '') {
+      props.addUserHandle(userHandle)
+      setUserHandle('')
+    }
+  }
+
+  const onChange = (input: string) => {
+    setUserHandle(input)
+  }
+
+  return (
+    <div className={cn(props.className, styles.inputWrapper)}>
+      <Input
+        placeholder={'user handle'}
+        size='medium'
+        type='email'
+        name='email'
+        autoComplete='username'
+        value={userHandle}
+        variant={'normal'}
+        onChange={onChange}
+        onKeyDown={handleKeyPress}
+        className={styles.userSearch}
+      />
+    </div>
+  )
 }
 
 export const Converstation = (props: {
@@ -33,13 +73,8 @@ export const Converstation = (props: {
   topic: string
   resetMessages: () => void
 }) => {
-  const { waku, setActiveHandle } = useWaku()
-  const currentUser = useSelector(getAccountUser)
-
+  const { waku, setActiveHandle, activeHandle } = useWaku()
   const onClick = () => {
-    console.log('clicking here')
-    console.log({ props })
-    console.log({ waku })
     initUserConnection({
       waku,
       from: currentUser!.handle,
@@ -55,7 +90,11 @@ export const Converstation = (props: {
   }
 
   return (
-    <div className={cn(props.className, styles.converstaion)} onClick={onClick}>
+    <div
+      className={cn(props.className, styles.converstaion, {
+        [styles.isActive]: activeHandle === props.user.handle
+      })}
+      onClick={onClick}>
       <DynamicImage
         image={props.user.profilePicture}
         wrapperClassName={styles.userImage}
@@ -147,10 +186,11 @@ export const UserChats = (props: {
   className?: string
   handles: string[]
   topic: string
+  addUserHandle: (handle: string) => void
 }) => {
   return (
     <div className={props.className}>
-      <UserSearch />
+      <UserSearch addUserHandle={props.addUserHandle} />
       <UserConversations
         handles={props.handles}
         topic={props.topic}
