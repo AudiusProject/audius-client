@@ -42,3 +42,11 @@
 .converstaion .info .name {
     margin-right: 8px;
 }
+
+.inputWrapper {
+    padding: 16px;
+}
+
+.userSearch {
+    border-radius: 16px;
+}

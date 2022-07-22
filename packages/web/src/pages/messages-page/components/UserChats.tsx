@@ -31,7 +31,6 @@ export const UserSearch = (props: {
   const handleKeyPress = ({ key }: KeyboardEvent<HTMLDivElement>) => {
     console.log({ key })
     if (key === 'Enter' && userHandle.trimLeft() !== '') {
-      console.log('hit')
       props.addUserHandle(userHandle)
       setUserHandle('')
     }
@@ -42,7 +41,7 @@ export const UserSearch = (props: {
   }
 
   return (
-    <div className={props.className}>
+    <div className={cn(props.className, styles.inputWrapper)}>
       <Input
         placeholder={'user handle'}
         size='medium'
@@ -73,9 +72,6 @@ export const Converstation = (props: {
 }) => {
   const { waku, setActiveHandle, activeHandle } = useWaku()
   const onClick = () => {
-    console.log('clicking here')
-    console.log({ props })
-    console.log({ waku })
     initUserConnection({
       waku,
       handle: props.user.handle,
