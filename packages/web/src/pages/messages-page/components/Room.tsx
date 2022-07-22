@@ -128,6 +128,7 @@ export const initUserConnection = async ({
     localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
   }
   for (const existingHandle in newSharedKeys) {
+    
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
   console.log(`asdf currentSharedKey ${currentSharedKey}`)

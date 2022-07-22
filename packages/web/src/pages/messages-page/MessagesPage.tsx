@@ -26,15 +26,18 @@ export const messages = {
 
 const reduceMessages = (
   state: Message[],
-  newMessages: Message[],
-  action: 'clear' | 'add' = 'add'
-) => {
-  if (action === 'add') {
-    return state.concat(newMessages)
-  } else if (action === 'clear') {
-    console.log(`clear messages`)
-    return []
+  action: {
+    msg: Message[],
+    type: 'clear' | 'add'
   }
+) => {
+  console.log(action)
+  if (action.type === 'add') {
+    console.log('add')
+    return state.concat(action.msg)
+  }
+  console.log('reset')
+    return []
 }
 
 export const MessagesContent = (props: {
@@ -90,7 +93,7 @@ export const MessagesPage = () => {
   const [messages, dispatchMessages] = useReducer(reduceMessages, [])
   const resetMessages = useCallback(() => {
     console.log(`asdf resetMessages ${historicalMessagesRetrieved}`)
-    dispatchMessages([], 'clear')
+    dispatchMessages({msg: [], type: 'clear'})
     setHistoricalMessagesRetrieved(false)
   }, [dispatchMessages, setHistoricalMessagesRetrieved])
   useEffect(() => {
@@ -113,7 +116,7 @@ export const MessagesPage = () => {
 
       const msg = Message.fromWakuMessage(wakuMsg)
       if (msg && !checkIsInviteMessage(msg)) {
-        dispatchMessages([msg])
+        dispatchMessages({ msg: [msg], type: 'add' })
       }
     }
 
@@ -135,7 +138,9 @@ export const MessagesPage = () => {
         await waku.waitForRemotePeer(undefined, 2000)
         console.log(`asdf Waku |Retrieving archived messages`)
 
-        retrieveStoreMessages(waku, ChatContentTopic, dispatchMessages).then(
+        retrieveStoreMessages(waku, ChatContentTopic, (msg) => {
+          dispatchMessages({msg, type: 'add'})
+        }).then(
           (length) => {
             console.log(`Waku |Messages retrieved:`, length)
             setHistoricalMessagesRetrieved(true)

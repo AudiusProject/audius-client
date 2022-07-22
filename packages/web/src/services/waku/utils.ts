@@ -47,6 +47,7 @@ export const initUserConnection = async ({
     localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
   }
   for (const existingHandle in newSharedKeys) {
+    console.log('removing key ', newSharedKeys[existingHandle])
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
   console.log(`asdf currentSharedKey ${currentSharedKey}`)
@@ -80,7 +81,7 @@ export const sendMessage = async ({
   messageSender
 }: SendMessageParams) => {
   const timestamp = new Date()
-  const chatMessage = ChatMessage.fromUtf8String(timestamp, handle, message)
+  const chatMessage = ChatMessage.fromUtf8String(timestamp, window.audiusLibs.Account.getCurrentUser().handle, message)
   const storedSharedKeys = localStorage.getItem(SHARED_KEY_STORAGE)
   if (!storedSharedKeys) {
     console.log('local storage net set')
