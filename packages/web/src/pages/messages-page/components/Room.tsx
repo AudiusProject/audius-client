@@ -121,15 +121,17 @@ export const initUserConnection = async ({
   localStorage.setItem('to', handle)
   const newSharedKeys: any =
     currentSharedKeys !== null ? JSON.parse(currentSharedKeys) : {}
-  newSharedKeys[handle] = currentSharedKey
+  if (!(handle in newSharedKeys)) {
+    newSharedKeys[handle] = currentSharedKey
+
+    console.log(`newSharedKeys ${JSON.stringify(newSharedKeys)}`)
+    localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
+  }
   for (const existingHandle in newSharedKeys) {
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
 
   waku.addDecryptionKey(currentSharedKey)
-
-  console.log(`newSharedKeys ${JSON.stringify(newSharedKeys)}`)
-  localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
 
   const timestamp = new Date()
   const chatMessage = ChatMessage.fromUtf8String(
@@ -140,7 +142,7 @@ export const initUserConnection = async ({
   const wakuMsg = await WakuMessage.fromBytes(
     chatMessage.encode(),
     chatContentTopic,
-    { timestamp, encPublicKey: pubkey } // wallet
+    { timestamp } // wallet
   )
   return messageSender(wakuMsg)
 }

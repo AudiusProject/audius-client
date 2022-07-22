@@ -1,24 +1,21 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
 
-import Header from 'components/header/desktop/Header'
-import Page from 'components/page/Page'
-
 import { Waku, WakuMessage } from 'js-waku'
 import { ReactNodeLike } from 'prop-types'
 import { useSelector } from 'react-redux'
 
 import { getAccountUser } from 'common/store/account/selectors'
-
+import Header from 'components/header/desktop/Header'
+import Page from 'components/page/Page'
 import { Message } from 'services/waku/Message'
 import { retrieveStoreMessages } from 'services/waku/retrieveStoreMessages'
+import { checkIsInviteMessage } from 'services/waku/utils'
 import { initWaku } from 'services/waku/waku'
 import { WakuContext } from 'services/waku/wakuContext'
 
+import styles from './MessagesPage.module.css'
 import Chat from './components/Chat'
 import UserChats from './components/UserChats'
-
-import styles from './MessagesPage.module.css'
-import { checkIsInviteMessage } from 'services/waku/utils'
 
 const ChatContentTopic = '/toy-chat/2/huilong/proto'
 
@@ -153,12 +150,16 @@ export const MessagesPage = () => {
   const Page = DesktopPage
   console.log({ messages })
   // const handles = [...new Set(messages.map((msg) => msg.chatMessage.handle))]
-  const handles = ['joe']
+  const handles = ['isaactest', 'isaacsolo']
   console.log({ handles })
   return (
     <Page>
       <WakuContext.Provider value={{ waku, activeHandle, setActiveHandle }}>
-        <MessagesContent handles={handles} messages={messages} resetMessages={resetMessages} />
+        <MessagesContent
+          handles={handles}
+          messages={messages}
+          resetMessages={resetMessages}
+        />
       </WakuContext.Provider>
     </Page>
   )

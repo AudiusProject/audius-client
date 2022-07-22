@@ -1,12 +1,16 @@
 import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
-import cn from 'classnames'
 
+import { setUser } from '@sentry/browser'
+import cn from 'classnames'
+import { useSelector } from 'react-redux'
+
+import { getAccountUser } from 'common/store/account/selectors'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
-import styles from './UserChats.module.css'
-import { setUser } from '@sentry/browser'
 import { initUserConnection } from 'services/waku/utils'
 import { useWaku } from 'services/waku/wakuContext'
+
+import styles from './UserChats.module.css'
 
 export const messages = {
   title: 'Messages',
@@ -30,12 +34,15 @@ export const Converstation = (props: {
   resetMessages: () => void
 }) => {
   const { waku, setActiveHandle } = useWaku()
+  const currentUser = useSelector(getAccountUser)
+
   const onClick = () => {
     console.log('clicking here')
     console.log({ props })
     console.log({ waku })
     initUserConnection({
       waku,
+      from: currentUser!.handle,
       handle: props.user.handle,
       publicKey: props.user.wallet,
       chatContentTopic: props.topic,

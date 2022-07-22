@@ -1,12 +1,13 @@
 import { WakuMessage, utils, generateSymmetricKey } from 'js-waku'
 
-import { ChatMessage } from 'services/waku/chat_message'
 import { Message } from 'services/waku/Message'
+import { ChatMessage } from 'services/waku/chat_message'
 
 export const SHARED_KEY_STORAGE = 'sharedKeys'
 
 export const initUserConnection = async ({
   waku,
+  from,
   handle,
   publicKey,
   chatContentTopic,
@@ -14,6 +15,7 @@ export const initUserConnection = async ({
 }: {
   waku: any
   handle: string
+  from: string
   publicKey: string
   chatContentTopic: string
   messageSender: (msg: WakuMessage) => Promise<void>
@@ -23,7 +25,8 @@ export const initUserConnection = async ({
     storedSharedKeys !== null ? JSON.parse(storedSharedKeys) : {}
 
   // const pubkey = utils.hexToBytes(publicKey.substring(2))
-  const pubkey = '0482a93ae2b9e7b4e55273b4d50d935d750a3dd6fb798689bdcce6b0cbbf6d8638b207590183529e99f2aa7bde8eaff9d0c422e25b9398033e3d2ae9aef221e4d0'
+  const pubkey =
+    '0482a93ae2b9e7b4e55273b4d50d935d750a3dd6fb798689bdcce6b0cbbf6d8638b207590183529e99f2aa7bde8eaff9d0c422e25b9398033e3d2ae9aef221e4d0'
   const currentSharedKey =
     handle in sharedKeys
       ? sharedKeys[handle]
@@ -37,26 +40,27 @@ export const initUserConnection = async ({
   localStorage.setItem('to', handle)
   const newSharedKeys: any =
     currentSharedKeys !== null ? JSON.parse(currentSharedKeys) : {}
-  newSharedKeys[handle] = currentSharedKey
+  if (!(handle in newSharedKeys)) {
+    newSharedKeys[handle] = currentSharedKey
+
+    console.log(`newSharedKeys ${JSON.stringify(newSharedKeys)}`)
+    localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
+  }
   for (const existingHandle in newSharedKeys) {
     waku.deleteDecryptionKey(newSharedKeys[existingHandle])
   }
 
   waku.addDecryptionKey(currentSharedKey)
-
-  console.log(`newSharedKeys ${JSON.stringify(newSharedKeys)}`)
-  localStorage.setItem('sharedKeys', JSON.stringify(newSharedKeys))
-
   const timestamp = new Date()
   const chatMessage = ChatMessage.fromUtf8String(
     timestamp,
     handle,
-    'invite:' + currentSharedKey
+    'invite:' + handle + ':' + from + ':' + currentSharedKey
   )
   const wakuMsg = await WakuMessage.fromBytes(
     chatMessage.encode(),
     chatContentTopic,
-    { timestamp, encPublicKey: pubkey } // wallet
+    { timestamp } // wallet
   )
   return messageSender(wakuMsg)
 }
@@ -103,20 +107,31 @@ export const sendMessage = async ({
 }
 
 export const checkIsInviteMessage = (message: Message) => {
-  console.log('parse Message')
+  console.log(`parse Message: ${JSON.stringify(message)}`)
   if (message && message.payloadAsUtf8.includes('invite:')) {
-    const sharedKey = message.payloadAsUtf8.split('invite:')[1]
+    const splitPayload = message.payloadAsUtf8.split(':')
+    const user1 = splitPayload[1]
+    const user2 = splitPayload[2]
+    let to
+    const sharedKey = splitPayload[3]
+    const currentUserHandle = window.audiusLibs.Account.getCurrentUser().handle
     const handle = message.handle
+    if (currentUserHandle === user1) {
+      to = user2
+    } else if (currentUserHandle === user2) {
+      to = user1
+    } else {
+      return false
+    }
 
     let existingSharedKeys: any = localStorage.getItem(SHARED_KEY_STORAGE)
     existingSharedKeys = existingSharedKeys
       ? JSON.parse(existingSharedKeys)
       : {}
     if (!(handle in existingSharedKeys)) {
-      existingSharedKeys[handle] = sharedKey
+      existingSharedKeys[to] = sharedKey
+      localStorage.setItem('sharedKeys', JSON.stringify(existingSharedKeys))
     }
-
-    localStorage.setItem('sharedKeys', JSON.stringify(existingSharedKeys))
     return true
   }
   return false
