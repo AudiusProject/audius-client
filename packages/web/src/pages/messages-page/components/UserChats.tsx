@@ -71,7 +71,7 @@ export const Converstation = (props: {
   topic: string
   resetMessages: () => void
 }) => {
-  const { waku, setActiveHandle } = useWaku()
+  const { waku, setActiveHandle, activeHandle } = useWaku()
   const onClick = () => {
     console.log('clicking here')
     console.log({ props })
@@ -90,7 +90,11 @@ export const Converstation = (props: {
   }
 
   return (
-    <div className={cn(props.className, styles.converstaion)} onClick={onClick}>
+    <div
+      className={cn(props.className, styles.converstaion, {
+        [styles.isActive]: activeHandle === props.user.handle
+      })}
+      onClick={onClick}>
       <DynamicImage
         image={props.user.profilePicture}
         wrapperClassName={styles.userImage}
