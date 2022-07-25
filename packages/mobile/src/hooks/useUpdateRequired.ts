@@ -8,5 +8,5 @@ export const useUpdateRequired = () => {
   const { appVersion } = VersionNumber
   const minAppVersion = useRemoteVar(StringKeys.MIN_APP_VERSION)
 
-  return { updateRequired: semver.lt(appVersion, minAppVersion) }
+  return { updateRequired: semver.lt(appVersion, minAppVersion ?? '0.0.0') }
 }

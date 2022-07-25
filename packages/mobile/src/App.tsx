@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 
+// import { sdk } from '@audius/sdk'
 import { libs } from '@audius/sdk/dist/legacy'
 import { PortalProvider } from '@gorhom/portal'
 import * as Sentry from '@sentry/react-native'
@@ -27,6 +28,9 @@ import { setup as setupAnalytics } from 'app/utils/analytics'
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { WebAppManager } from './WebAppManager'
+
+console.log(global.process)
+// console.log(sdk)
 console.log(libs)
 
 Sentry.init({

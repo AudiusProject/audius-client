@@ -52,8 +52,8 @@ module.exports = (async () => {
       // disableHierarchicalLookup: true,
       // blockList: /node_modules\/react$/,
       nodeModulesPaths: [
-        //   path.resolve(clientPath, 'node_modules'),
         path.resolve(__dirname, 'node_modules')
+        // path.resolve(clientPath, 'node_modules')
       ],
       extraNodeModules: {
         ...require('node-libs-react-native'),
