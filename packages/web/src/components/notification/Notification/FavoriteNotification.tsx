@@ -23,7 +23,7 @@ import { IconFavorite } from './components/icons'
 import { entityToUserListEntity } from './utils'
 
 const messages = {
-  reposted: ' favorited your '
+  favorited: ' favorited your '
 }
 
 type FavoriteNotificationProps = {
@@ -76,7 +76,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
         {otherUsersCount > 0 ? (
           <OthersLink othersCount={otherUsersCount} onClick={handleClick} />
         ) : null}
-        {messages.reposted}
+        {messages.favorited}
         {entityType.toLowerCase()}{' '}
         <EntityLink entity={entity} entityType={entityType} />
       </NotificationBody>
