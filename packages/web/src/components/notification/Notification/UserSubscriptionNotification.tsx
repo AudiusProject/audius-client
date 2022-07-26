@@ -40,8 +40,8 @@ export const UserSubscriptionNotification = (
 ) => {
   const { notification } = props
   const { entityType, entityIds, timeLabel, isViewed, type } = notification
-  const user = useSelector(state => getNotificationUser(state, notification))
-  const entities = useSelector(state =>
+  const user = useSelector((state) => getNotificationUser(state, notification))
+  const entities = useSelector((state) =>
     getNotificationEntities(state, notification)
   )
   const uploadCount = entityIds.length

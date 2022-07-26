@@ -42,7 +42,7 @@ export const TrendingTrackNotification = (
   const { entityType, rank, timeLabel, isViewed } = notification
   const rankSuffix = getRankSuffix(rank)
   const dispatch = useDispatch()
-  const track = useSelector(state =>
+  const track = useSelector((state) =>
     getNotificationEntity(state, notification)
   ) as Nullable<TrackEntity>
 

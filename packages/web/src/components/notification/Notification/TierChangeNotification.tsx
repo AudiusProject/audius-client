@@ -42,7 +42,7 @@ export const TierChangeNotification = (props: TierChangeNotificationProps) => {
   const { notification } = props
 
   const { tier, timeLabel, isViewed } = notification
-  const user = useSelector(state => getNotificationUser(state, notification))
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
   const tierInfo = badgeTiers.find(
     (info) => info.tier === tier

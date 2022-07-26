@@ -37,7 +37,7 @@ export const TopSupportingNotification = (
   const { notification } = props
   const { rank, timeLabel, isViewed } = notification
 
-  const user = useSelector(state => getNotificationUser(state, notification))
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
   const handleClick = useGoToProfile(user)
 

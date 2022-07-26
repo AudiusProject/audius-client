@@ -66,7 +66,7 @@ export const TipReceivedNotification = (
   const { notification } = props
   const { amount, timeLabel, isViewed, tipTxSignature } = notification
 
-  const user = useSelector(state => getNotificationUser(state, notification))
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
   const reactionValue = useSelector(makeGetReactionForSignature(tipTxSignature))
   const setReaction = useSetReaction(tipTxSignature)

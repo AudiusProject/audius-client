@@ -39,7 +39,7 @@ type FollowNotificationProps = {
 export const FollowNotification = (props: FollowNotificationProps) => {
   const { notification } = props
   const { id, userIds, timeLabel, isViewed } = notification
-  const users = useSelector(state =>
+  const users = useSelector((state) =>
     getNotificationUsers(state, notification, USER_LENGTH_LIMIT)
   )
   const firstUser = users?.[0]

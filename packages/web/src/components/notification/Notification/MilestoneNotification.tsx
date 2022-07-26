@@ -76,7 +76,7 @@ type MilestoneNotificationProps = {
 export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const { notification } = props
   const { timeLabel, isViewed } = notification
-  const user = useSelector(state => getNotificationUser(state, notification))
+  const user = useSelector((state) => getNotificationUser(state, notification))
   const dispatch = useDispatch()
 
   const renderBody = () => {

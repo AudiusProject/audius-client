@@ -10,6 +10,7 @@ import {
 } from 'common/store/cache/collections/selectors'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { getUser, getUsers } from 'common/store/cache/users/selectors'
+import { Nullable } from 'common/utils/typeUtils'
 
 import {
   Entity,
@@ -18,7 +19,8 @@ import {
   Achievement,
   Announcement,
   EntityType,
-  RemixCosign,
+  AddTrackToPlaylist,
+  CollectionEntity,
   TrackEntity
 } from './types'
 
@@ -137,10 +139,28 @@ export const getNotificationEntity = (
   return null
 }
 
-export const getNotificationEntities = (
+type EntityTypes<T extends AddTrackToPlaylist | Notification> =
+  T extends AddTrackToPlaylist
+    ? { track: TrackEntity; playlist: CollectionEntity }
+    : Nullable<EntityType[]>
+
+export const getNotificationEntities = <
+  T extends AddTrackToPlaylist | Notification
+>(
   state: CommonState,
-  notification: Notification
-) => {
+  notification: T
+): EntityTypes<T> => {
+  if (notification.type === NotificationType.AddTrackToPlaylist) {
+    const track = getTrack(state, { id: notification.trackId })
+    const currentUser = getAccountUser(state)
+    const playlist = getCollection(state, { id: notification.playlistId })
+    const playlistOwner = getUser(state, { id: notification.playlistOwnerId })
+    return {
+      track: { ...track, user: currentUser },
+      playlist: { ...playlist, user: playlistOwner }
+    } as EntityTypes<T>
+  }
+
   if ('entityIds' in notification && 'entityType' in notification) {
     const getEntities =
       notification.entityType === Entity.Track ? getTracks : getCollections
@@ -159,12 +179,7 @@ export const getNotificationEntities = (
         return null
       })
       .filter((entity): entity is EntityType => !!entity)
-    return entities
-  } else if (notification.type === NotificationType.AddTrackToPlaylist) {
-    const track = getTrack(state, { id: notification.trackId })
-    const playlist = getCollection(state, { id: notification.playlistId })
-    const playlistOwner = getUser(state, { id: notification.playlistOwnerId })
-    return { track, playlist: { ...playlist, user: playlistOwner } }
+    return entities as EntityTypes<T>
   }
-  return null
+  return null as EntityTypes<T>
 }
