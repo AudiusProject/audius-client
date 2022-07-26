@@ -204,10 +204,6 @@ export type AddTrackToPlaylist = BaseNotification & {
   trackId: ID
   playlistId: ID
   playlistOwnerId: ID
-  entities: {
-    playlist: CollectionEntity
-    track: TrackEntity
-  }
 }
 
 export type Notification =

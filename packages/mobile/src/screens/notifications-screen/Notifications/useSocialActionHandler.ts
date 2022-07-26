@@ -13,7 +13,6 @@ import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { getUserRoute } from 'app/utils/routes'
 
-import { getUserListRoute } from '../routeUtil'
 import { useDrawerNavigation } from '../useDrawerNavigation'
 
 /**
@@ -44,7 +43,7 @@ export const useSocialActionHandler = (
           }
         },
         web: {
-          route: getUserListRoute(notification),
+          route: `/notification/${id}/users`,
           fromPage: NOTIFICATION_PAGE
         }
       })
@@ -57,14 +56,5 @@ export const useSocialActionHandler = (
         web: { route: getUserRoute(firstUser), fromPage: NOTIFICATION_PAGE }
       })
     }
-  }, [
-    isMultiUser,
-    id,
-    type,
-    userIds,
-    notification,
-    dispatchWeb,
-    navigation,
-    firstUser
-  ])
+  }, [isMultiUser, id, type, userIds, dispatchWeb, navigation, firstUser])
 }
