@@ -63,11 +63,9 @@ export type UserSubscription = BaseNotification & {
 } & (
     | {
         entityType: Entity.Track
-        entities: Array<TrackEntity>
       }
     | {
         entityType: Entity.Playlist | Entity.Album
-        entities: Array<CollectionEntity>
       }
   )
 
@@ -104,7 +102,6 @@ export type Milestone = BaseNotification &
         type: NotificationType.Milestone
         entityType: Entity
         entityId: ID
-        entity: EntityType
         achievement: Exclude<Achievement, Achievement.Followers>
         value: number
       }
