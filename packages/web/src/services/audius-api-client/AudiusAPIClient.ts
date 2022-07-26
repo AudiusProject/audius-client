@@ -1404,14 +1404,16 @@ class AudiusAPIClient {
     }
 
     // Listen for libs on chain selection
-    AudiusBackend.addDiscoveryProviderSelectionListener((endpoint: string) => {
-      console.debug(`APIClient: Setting to libs discprov: ${endpoint}`)
-      this.initializationState = {
-        state: 'initialized',
-        endpoint,
-        type: 'libs'
+    AudiusBackend.addDiscoveryProviderSelectionListener(
+      (endpoint: string | null) => {
+        console.debug(`APIClient: Setting to libs discprov: ${endpoint}`)
+        this.initializationState = {
+          state: 'initialized',
+          endpoint,
+          type: 'libs'
+        }
       }
-    })
+    )
 
     console.debug('APIClient: Initialized')
   }
