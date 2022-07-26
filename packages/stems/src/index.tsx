@@ -13,6 +13,11 @@ export {
   Size as ButtonSize
 } from './components/Button'
 export { IconButton, IconButtonProps } from './components/IconButton'
+export {
+  PillButton,
+  PillButtonProps,
+  Type as PillButtonType
+} from './components/PillButton'
 export { Scrollbar, ScrollbarProps } from './components/Scrollbar'
 export {
   Modal,
