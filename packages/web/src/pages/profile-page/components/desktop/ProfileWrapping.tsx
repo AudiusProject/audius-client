@@ -36,6 +36,7 @@ type ProfileWrappingProps = {
   donation: string
   created: string
   tags: string[]
+  onClickProfilePicture: () => void
   onUpdateName: (name: string) => void
   onUpdateProfilePicture: (
     selectedFiles: any,
@@ -77,6 +78,7 @@ const ProfileWrapping = (props: ProfileWrappingProps) => {
     donation,
     created,
     tags,
+    onClickProfilePicture,
     onUpdateName,
     onUpdateProfilePicture,
     onUpdateBio,
@@ -92,18 +94,22 @@ const ProfileWrapping = (props: ProfileWrappingProps) => {
   return (
     <div className={styles.profileWrapping}>
       <div className={styles.header}>
-        <ProfilePicture
-          userId={userId}
-          updatedProfilePicture={
-            updatedProfilePicture ? updatedProfilePicture.url : ''
-          }
-          error={updatedProfilePicture ? updatedProfilePicture.error : false}
-          profilePictureSizes={isDeactivated ? null : profilePictureSizes}
-          loading={loading}
-          editMode={editMode}
-          hasProfilePicture={hasProfilePicture}
-          onDrop={onUpdateProfilePicture}
-        />
+        <div
+          style={{ cursor: hasProfilePicture ? 'pointer' : 'default' }}
+          onClick={onClickProfilePicture}>
+          <ProfilePicture
+            userId={userId}
+            updatedProfilePicture={
+              updatedProfilePicture ? updatedProfilePicture.url : ''
+            }
+            error={updatedProfilePicture ? updatedProfilePicture.error : false}
+            profilePictureSizes={isDeactivated ? null : profilePictureSizes}
+            loading={loading}
+            editMode={editMode}
+            hasProfilePicture={hasProfilePicture}
+            onDrop={onUpdateProfilePicture}
+          />
+        </div>
         <div className={styles.nameWrapper}>
           <BadgeArtist
             className={cn(styles.badgeArtist, {

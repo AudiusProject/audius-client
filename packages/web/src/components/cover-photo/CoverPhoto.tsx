@@ -27,6 +27,7 @@ type CoverPhotoProps = {
   error?: boolean
   edit?: boolean
   darken?: boolean
+  onClick?: () => void
   onDrop?: (
     file: FileWithPreview[],
     source: 'original' | 'unsplash' | 'url'
@@ -41,6 +42,7 @@ const CoverPhoto = ({
   error,
   edit = false,
   darken = false,
+  onClick,
   onDrop
 }: CoverPhotoProps) => {
   const [processing, setProcessing] = useState(false)
@@ -48,6 +50,10 @@ const CoverPhoto = ({
     ? 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.75) 100%)'
     : 'linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.05) 70%, rgba(0, 0, 0, 0.2) 100%)'
 
+  const hasCoverPhoto = Boolean(
+    coverPhotoSizes?.[WidthSizes.SIZE_2000] ||
+      coverPhotoSizes?.[WidthSizes.SIZE_640]
+  )
   const image = useUserCoverPhoto(userId, coverPhotoSizes, WidthSizes.SIZE_2000)
   let backgroundImage = ''
   let backgroundStyle = {}
@@ -90,7 +96,10 @@ const CoverPhoto = ({
   )
 
   return (
-    <div className={cn(styles.coverPhoto, className)}>
+    <div
+      className={cn(styles.coverPhoto, className)}
+      style={{ cursor: hasCoverPhoto ? 'pointer' : 'default' }}
+      onClick={onClick}>
       <DynamicImage
         image={backgroundImage}
         isUrl={false}

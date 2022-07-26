@@ -1,6 +1,7 @@
-import { useCallback, memo } from 'react'
+import { useCallback, memo, useState, useMemo } from 'react'
 
 import { ID, UID } from '@audius/common'
+import cn from 'classnames'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconCollectibles } from 'assets/img/iconCollectibles.svg'
@@ -10,7 +11,12 @@ import { ReactComponent as IconReposts } from 'assets/img/iconRepost.svg'
 import { useSelectTierInfo } from 'common/hooks/wallet'
 import { Name } from 'common/models/Analytics'
 import { Collection } from 'common/models/Collection'
-import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
+import {
+  CoverPhotoSizes,
+  ProfilePictureSizes,
+  SquareSizes,
+  WidthSizes
+} from 'common/models/ImageSizes'
 import { LineupState } from 'common/models/Lineup'
 import Status from 'common/models/Status'
 import { feedActions } from 'common/store/pages/profile/lineups/feed/actions'
@@ -216,6 +222,10 @@ const ProfilePage = ({
   setNotificationSubscription,
   didChangeTabsFrom
 }: ProfilePageProps) => {
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [lightboxImg, setLightboxImg] = useState<'coverImg' | 'profileImg'>(
+    'profileImg'
+  )
   const renderProfileCompletionCard = () => {
     return isOwner ? <ConnectedProfileCompletionHeroCard /> : null
   }
@@ -611,6 +621,39 @@ const ProfilePage = ({
     elements
   })
 
+  const hasCoverPhoto = useMemo(() => {
+    return Boolean(
+      coverPhotoSizes?.[WidthSizes.SIZE_2000] ||
+        coverPhotoSizes?.[WidthSizes.SIZE_640]
+    )
+  }, [coverPhotoSizes])
+
+  const lightBoxImgUrl = useMemo(() => {
+    if (lightboxImg === 'coverImg')
+      return (
+        coverPhotoSizes?.[WidthSizes.SIZE_2000] ??
+        coverPhotoSizes?.[WidthSizes.SIZE_640] ??
+        ''
+      )
+    return (
+      profilePictureSizes?.[SquareSizes.SIZE_480_BY_480] ??
+      profilePictureSizes?.[SquareSizes.SIZE_150_BY_150] ??
+      ''
+    )
+  }, [coverPhotoSizes, profilePictureSizes, lightboxImg])
+
+  const handleClickCoverPhoto = useCallback(() => {
+    if (editMode || !hasCoverPhoto) return
+    setLightboxImg('coverImg')
+    setIsLightboxOpen(true)
+  }, [editMode, hasCoverPhoto])
+
+  const handleClickProfilePicture = useCallback(() => {
+    if (editMode || !hasProfilePicture) return
+    setLightboxImg('profileImg')
+    setIsLightboxOpen(true)
+  }, [editMode, hasProfilePicture])
+
   return (
     <Page
       title={name && handle ? `${name} (${handle})` : ''}
@@ -645,6 +688,7 @@ const ProfilePage = ({
           donation={donation}
           created={created}
           tags={mostUsedTags || []}
+          onClickProfilePicture={handleClickProfilePicture}
           onUpdateName={updateName}
           onUpdateProfilePicture={updateProfilePicture}
           onUpdateBio={updateBio}
@@ -667,6 +711,7 @@ const ProfilePage = ({
           onDrop={updateCoverPhoto}
           edit={editMode}
           darken={editMode}
+          onClick={handleClickCoverPhoto}
         />
         <Mask show={editMode} zIndex={2}>
           <StatBanner
@@ -713,6 +758,16 @@ const ProfilePage = ({
           </div>
         </Mask>
       </div>
+
+      {isLightboxOpen ? (
+        <div
+          className={styles.lightbox}
+          onClick={() => setIsLightboxOpen(false)}>
+          <div className={cn(styles.lightboxImgContainer, styles[lightboxImg])}>
+            <img className={styles.lightboxImg} src={lightBoxImgUrl} />
+          </div>
+        </div>
+      ) : null}
     </Page>
   )
 }

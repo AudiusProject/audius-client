@@ -274,3 +274,37 @@
 .tipAudioButtonContainer {
   margin-top: 32px;
 }
+
+.lightbox {
+  z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.lightboxImgContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 60vh;
+  width: 80vw;
+}
+.lightboxImgContainer.profileImg {
+  max-height: 30rem;
+  max-width: 30rem;
+}
+.lightboxImgContainer.profileImg .lightboxImg {
+  border-radius: 50%;
+}
+
+.lightboxImg {
+  position: relative;
+  object-fit: contain;
+  height: 100%;
+  width: 100%;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));
+}
