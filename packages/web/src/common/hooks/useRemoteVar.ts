@@ -8,13 +8,10 @@ import {
   StringKeys,
   RemoteConfigInstance
 } from '@audius/common'
-import { useSelector } from 'react-redux'
 
-import { isRemoteConfigLoaded } from 'common/store/remote-config/selectors'
-import { StateWithRemoteConfig } from 'common/store/remote-config/slice'
-
-export const createUseRemoteVarHook = <State extends StateWithRemoteConfig>(
-  remoteConfigInstance: RemoteConfigInstance
+export const createUseRemoteVarHook = (
+  remoteConfigInstance: RemoteConfigInstance,
+  configLoadedProvider: () => boolean
 ) => {
   function useRemoteVar(key: IntKeys): number
   function useRemoteVar(key: DoubleKeys): number
@@ -23,9 +20,7 @@ export const createUseRemoteVarHook = <State extends StateWithRemoteConfig>(
   function useRemoteVar(
     key: AllRemoteConfigKeys
   ): boolean | string | number | null {
-    const configLoaded = useSelector((state: State) =>
-      isRemoteConfigLoaded<State>(state)
-    )
+    const configLoaded = configLoadedProvider()
 
     const remoteVar = useMemo(
       () => remoteConfigInstance.getRemoteVar(key),

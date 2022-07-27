@@ -1,20 +1,45 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import {
-  FeatureFlags,
-  FeatureFlagCohortType,
-  RemoteConfigInstance,
-  flagCohortType
-} from '@audius/common'
-import { useSelector } from 'react-redux'
-
-import { getAccountUser } from 'common/store/account/selectors'
-import { isRemoteConfigLoaded } from 'common/store/remote-config/selectors'
-import { StateWithRemoteConfig } from 'common/store/remote-config/slice'
+import { FeatureFlags, RemoteConfigInstance } from '@audius/common'
 
 export const FEATURE_FLAG_OVERRIDE_KEY = 'FeatureFlagOverride'
 
 export type OverrideSetting = 'enabled' | 'disabled' | null
+
+/**
+ * Helper for when to recompute flag state, used by both FeatureFlags
+ * and RemoteConfig. Recomputes when:
+ * - User logs in (account is seen in store)
+ * - Config loads
+ * - User ID is set on Optimizely (seen by event emission)
+ **/
+const useRecomputeBool = (
+  useAccountProvider: () => boolean,
+  configLoaded: boolean,
+  remoteConfigInstance: RemoteConfigInstance
+) => {
+  const [shouldRecompute, setShouldRecompute] = useState(false)
+
+  const hasAccount = useAccountProvider()
+
+  // Flip recompute bool whenever account or config state changes
+  useEffect(() => {
+    setShouldRecompute((recompute) => !recompute)
+  }, [hasAccount, configLoaded])
+
+  // Register callback for remote config account set,
+  // which flips recompute bool
+  const onUserStateChange = useCallback(() => {
+    setShouldRecompute((recompute) => !recompute)
+  }, [])
+
+  useEffect(() => {
+    remoteConfigInstance.listenForUserId(onUserStateChange)
+    return () => remoteConfigInstance.unlistenForUserId(onUserStateChange)
+  }, [onUserStateChange, remoteConfigInstance])
+
+  return shouldRecompute
+}
 
 /**
  * Hooks into updates for a given feature flag.
@@ -22,23 +47,29 @@ export type OverrideSetting = 'enabled' | 'disabled' | null
  * @param flag
  */
 export const createUseFeatureFlagHook =
-  <State extends StateWithRemoteConfig>({
+  ({
     remoteConfigInstance,
     getLocalStorageItem,
-    setLocalStorageItem
+    setLocalStorageItem,
+    useAccountProvider,
+    useConfigLoadedProvider
   }: {
     remoteConfigInstance: RemoteConfigInstance
     getLocalStorageItem?: (key: string) => string | null
     setLocalStorageItem?: (key: string, value: string | null) => void
+    useAccountProvider: () => boolean
+    useConfigLoadedProvider: () => boolean
   }) =>
   (flag: FeatureFlags) => {
     const overrideKey = `${FEATURE_FLAG_OVERRIDE_KEY}:${flag}`
-    const configLoaded = useSelector((state: State) =>
-      isRemoteConfigLoaded<State>(state)
+    const configLoaded = useConfigLoadedProvider()
+
+    const shouldRecompute = useRecomputeBool(
+      useAccountProvider,
+      configLoaded,
+      remoteConfigInstance
     )
-    const userIdFlag = flagCohortType[flag] === FeatureFlagCohortType.USER_ID
-    const hasAccount = useSelector(getAccountUser)
-    const shouldRecompute = userIdFlag ? hasAccount : true
+
     const setOverride = (value: OverrideSetting) => {
       setLocalStorageItem?.(overrideKey, value)
     }
