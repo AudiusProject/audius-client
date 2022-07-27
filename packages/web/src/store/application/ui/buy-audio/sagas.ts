@@ -47,6 +47,7 @@ const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 const BALANCE_CHANGE_TIMEOUT_MS = 120_000 // 2 minutes
 const BALANCE_CHANGE_POLL_INTERVAL_MS = 5_000 // 5 second
 const SWAP_MIN_SOL = 0.05 // Minimum SOL balance needed to execute a Jupiter Swap
+const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 let _jup: Jupiter
 
@@ -157,13 +158,20 @@ function* sendTransaction(
     {
       instructions: transaction.instructions,
       feePayerOverride: feePayer.publicKey.toString(),
-      skipPreflight: true
+      skipPreflight: true,
+      errorMapping: {
+        fromErrorCode: (errorCode) => {
+          if (errorCode === ERROR_CODE_SLIPPAGE) {
+            return 'Slippage threshold exceeded'
+          } else if (errorCode === ERROR_CODE_INSUFFICIENT_FUNDS) {
+            return 'Insufficient funds'
+          }
+          return `Error Code: ${errorCode}`
+        }
+      }
     }
   )
   if (result.error) {
-    if (result.errorCode === ERROR_CODE_SLIPPAGE) {
-      throw new Error(`${name} transaction failed: Slippage threshold exceeded`)
-    }
     throw new Error(`${name} transaction failed: ${result.error}`)
   }
   console.debug(`Exchange: ${name} transaction... success txid: ${result.res}`)
@@ -198,21 +206,25 @@ function* doSwap({
       transactionHandler
     )
   }
-  yield* call(
-    sendTransaction,
-    'Swap',
-    swapTransaction,
-    account,
-    transactionHandler
-  )
-  if (cleanupTransaction) {
+  // Wrap this in try/finally to ensure cleanup transaction runs, if applicable
+  try {
     yield* call(
       sendTransaction,
-      'Cleanup',
-      cleanupTransaction,
+      'Swap',
+      swapTransaction,
       account,
       transactionHandler
     )
+  } finally {
+    if (cleanupTransaction) {
+      yield* call(
+        sendTransaction,
+        'Cleanup',
+        cleanupTransaction,
+        account,
+        transactionHandler
+      )
+    }
   }
 }
 
