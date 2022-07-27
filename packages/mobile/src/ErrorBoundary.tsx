@@ -1,6 +1,6 @@
 import { PureComponent, useContext, useEffect } from 'react'
 
-import { Nullable } from '@audius/common'
+import type { Nullable } from '@audius/common'
 import * as Sentry from '@sentry/react-native'
 
 import { ToastContext } from './components/toast/ToastContext'

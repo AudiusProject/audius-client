@@ -1,12 +1,11 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import type { ID } from '@audius/common'
-import { LineupState, Track, User, Nullable } from '@audius/common'
+import type { ID, LineupState, Track, User, Nullable } from '@audius/common'
 import { trackRemixesPage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 
 import { useNavigation } from 'app/hooks/useNavigation'
-import { SearchTrack, SearchUser } from 'app/store/search/types'
+import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenDetailsTile } from './TrackScreenDetailsTile'

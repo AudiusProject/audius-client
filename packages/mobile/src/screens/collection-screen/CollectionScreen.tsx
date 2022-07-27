@@ -1,13 +1,12 @@
 import { useCallback, useMemo } from 'react'
 
+import type { Collection, User } from '@audius/common'
 import {
   FavoriteSource,
   RepostSource,
   ShareSource,
-  Collection,
   FavoriteType,
-  SquareSizes,
-  User
+  SquareSizes
 } from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import {
@@ -38,7 +37,7 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { SearchPlaylist, SearchUser } from 'app/store/search/types'
+import type { SearchPlaylist, SearchUser } from 'app/store/search/types'
 import { makeStyles } from 'app/styles'
 
 import { CollectionScreenDetailsTile } from './CollectionScreenDetailsTile'

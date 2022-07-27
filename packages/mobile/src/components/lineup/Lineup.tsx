@@ -4,12 +4,8 @@ import type { ID, UID } from '@audius/common'
 import { Name, PlaybackSource, Kind, Status } from '@audius/common'
 import { getShowTip } from 'audius-client/src/common/store/tipping/selectors'
 import { range } from 'lodash'
-import {
-  Dimensions,
-  SectionList as RNSectionList,
-  StyleSheet,
-  View
-} from 'react-native'
+import type { SectionList as RNSectionList } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 
 import { SectionList } from 'app/components/core'
 import {
@@ -26,13 +22,13 @@ import { FeedTipTile } from '../feed-tip-tile/FeedTipTile'
 
 import { Delineator } from './Delineator'
 import { delineateByTime } from './delineate'
-import {
+import type {
   FeedTipLineupItem,
   LineupItem,
   LineupProps,
-  LineupVariant,
   LoadingLineupItem
 } from './types'
+import { LineupVariant } from './types'
 
 // The max number of tiles to load
 const MAX_TILES_COUNT = 1000

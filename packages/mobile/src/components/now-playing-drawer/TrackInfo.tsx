@@ -1,10 +1,10 @@
-import { Track, User } from '@audius/common'
+import type { Track, User } from '@audius/common'
 import { Pressable, View } from 'react-native'
 
 import { Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
 import { makeStyles } from 'app/styles'
-import { GestureResponderHandler } from 'app/types/gesture'
+import type { GestureResponderHandler } from 'app/types/gesture'
 
 const useStyles = makeStyles(({ typography, spacing }) => ({
   root: {

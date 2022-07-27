@@ -1,4 +1,4 @@
-import { BNWei } from '@audius/common'
+import type { BNWei } from '@audius/common'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
 import { formatWei } from 'audius-client/src/common/utils/wallet'
 import BN from 'bn.js'

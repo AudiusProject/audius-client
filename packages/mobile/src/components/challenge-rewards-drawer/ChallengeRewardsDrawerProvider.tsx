@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect } from 'react'
 
-import { Maybe } from '@audius/common'
+import type { Maybe } from '@audius/common'
 import {
   IntKeys,
   StringKeys
@@ -21,7 +21,8 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { challengesConfig, ChallengesParamList } from 'app/utils/challenges'
+import type { ChallengesParamList } from 'app/utils/challenges'
+import { challengesConfig } from 'app/utils/challenges'
 
 import Button, { ButtonType } from '../button'
 import { useDrawerState } from '../drawer/AppDrawer'

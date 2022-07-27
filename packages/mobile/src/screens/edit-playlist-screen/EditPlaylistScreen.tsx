@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
-import { Collection, SquareSizes } from '@audius/common'
+import type { Collection } from '@audius/common'
+import { SquareSizes } from '@audius/common'
 import {
   editPlaylist,
   orderPlaylist,
@@ -11,7 +12,8 @@ import {
   getMetadata,
   getTracks
 } from 'common/store/ui/createPlaylistModal/selectors'
-import { Formik, FormikProps } from 'formik'
+import type { FormikProps } from 'formik'
+import { Formik } from 'formik'
 import { isEqual } from 'lodash'
 import { View } from 'react-native'
 
@@ -25,7 +27,7 @@ import { makeStyles } from 'app/styles'
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
 import { PlaylistNameInput } from './PlaylistNameInput'
-import { PlaylistValues } from './types'
+import type { PlaylistValues } from './types'
 
 const useStyles = makeStyles(({ spacing }) => ({
   footer: {

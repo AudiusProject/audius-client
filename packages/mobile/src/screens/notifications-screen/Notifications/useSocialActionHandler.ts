@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { User } from '@audius/common'
-import {
+import type { User } from '@audius/common'
+import type {
   Favorite,
   Follow,
   Repost

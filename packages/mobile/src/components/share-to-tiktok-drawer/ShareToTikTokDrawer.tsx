@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Nullable } from '@audius/common'
+import type { Nullable } from '@audius/common'
 import {
   getStatus,
   getTrack
@@ -21,7 +21,8 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
+import type { ThemeColors } from 'app/hooks/useThemedStyles'
+import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { useTikTokAuth } from 'app/hooks/useTikTokAuth'
 
 enum FileRequirementError {

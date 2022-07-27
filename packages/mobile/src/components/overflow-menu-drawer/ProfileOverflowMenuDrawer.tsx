@@ -1,6 +1,6 @@
 import type { ID } from '@audius/common'
 import { FollowSource, ShareSource } from '@audius/common'
-import { CommonState } from 'audius-client/src/common/store'
+import type { CommonState } from 'audius-client/src/common/store'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   followUser,
@@ -8,10 +8,8 @@ import {
   shareUser
 } from 'audius-client/src/common/store/social/users/actions'
 import { getMobileOverflowModal } from 'audius-client/src/common/store/ui/mobile-overflow-menu/selectors'
-import {
-  OverflowAction,
-  OverflowActionCallbacks
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import type { OverflowActionCallbacks } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import { OverflowAction } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'

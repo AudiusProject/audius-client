@@ -16,7 +16,7 @@ import {
 } from 'audius-client/src/common/store/pages/trending/selectors'
 
 import { Lineup } from 'app/components/lineup'
-import { LineupProps } from 'app/components/lineup/types'
+import type { LineupProps } from 'app/components/lineup/types'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { make, track } from 'app/utils/analytics'

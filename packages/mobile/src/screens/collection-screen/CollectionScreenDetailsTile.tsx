@@ -10,7 +10,7 @@ import { Text, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { DetailsTile } from 'app/components/details-tile'
-import {
+import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'

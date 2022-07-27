@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 
-import { User } from '@audius/common'
+import type { User } from '@audius/common'
 import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'

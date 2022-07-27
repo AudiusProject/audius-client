@@ -1,6 +1,6 @@
-import { Nullable } from '@audius/common'
+import type { Nullable } from '@audius/common'
 
-import { Image } from 'app/types/image'
+import type { Image } from 'app/types/image'
 
 export type ProfileValues = {
   name: string

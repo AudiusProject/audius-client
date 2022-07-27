@@ -1,4 +1,4 @@
-import { User } from '@audius/common'
+import type { User } from '@audius/common'
 import {
   getAccountUser,
   getUserId

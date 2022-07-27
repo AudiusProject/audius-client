@@ -5,7 +5,7 @@ import {
   RepostSource,
   ShareSource
 } from '@audius/common'
-import { CommonState } from 'audius-client/src/common/store'
+import type { CommonState } from 'audius-client/src/common/store'
 import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 // Importing directly from audius-client for now, this will be removed
@@ -23,10 +23,8 @@ import {
 } from 'audius-client/src/common/store/social/users/actions'
 import { requestOpen as openAddToPlaylistModal } from 'audius-client/src/common/store/ui/add-to-playlist/actions'
 import { getMobileOverflowModal } from 'audius-client/src/common/store/ui/mobile-overflow-menu/selectors'
-import {
-  OverflowAction,
-  OverflowActionCallbacks
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import type { OverflowActionCallbacks } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import { OverflowAction } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { profilePage } from 'audius-client/src/utils/route'
 
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'

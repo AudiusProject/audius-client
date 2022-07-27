@@ -1,4 +1,4 @@
-import { RecentTipsStorage } from '@audius/common'
+import type { RecentTipsStorage } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { RECENT_TIPS_KEY } from 'utils/constants'
 

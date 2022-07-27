@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useCallback } from 'react'
+import type { ReactNode } from 'react'
+import { createContext, useCallback } from 'react'
 
 import { Name } from '@audius/common'
 import { setTheme } from 'audius-client/src/common/store/ui/theme/actions'

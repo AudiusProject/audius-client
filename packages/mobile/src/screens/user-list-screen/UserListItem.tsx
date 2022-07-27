@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
-import { FollowSource, User } from '@audius/common'
+import type { User } from '@audius/common'
+import { FollowSource } from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { Pressable, View, Animated } from 'react-native'
 

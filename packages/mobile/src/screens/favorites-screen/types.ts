@@ -1,4 +1,4 @@
-import { Collection } from '@audius/common'
+import type { Collection } from '@audius/common'
 
 export type ExtendedCollection = Collection & {
   ownerHandle: string

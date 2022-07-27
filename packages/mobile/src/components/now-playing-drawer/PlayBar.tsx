@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
-import { FavoriteSource, SquareSizes, Track, User } from '@audius/common'
+import type { Track, User } from '@audius/common'
+import { FavoriteSource, SquareSizes } from '@audius/common'
 import {
   saveTrack,
   unsaveTrack

@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 
-import { Nullable } from '@audius/common'
+import type { Nullable } from '@audius/common'
 import { useUIAudio } from 'audius-client/src/common/hooks/useUIAudio'
 import { getNotificationUser } from 'audius-client/src/common/store/notifications/selectors'
-import { TipReceive } from 'audius-client/src/common/store/notifications/types'
+import type { TipReceive } from 'audius-client/src/common/store/notifications/types'
+import type { ReactionTypes } from 'audius-client/src/common/store/ui/reactions/slice'
 import {
   makeGetReactionForSignature,
-  ReactionTypes,
   writeReactionValue
 } from 'audius-client/src/common/store/ui/reactions/slice'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'

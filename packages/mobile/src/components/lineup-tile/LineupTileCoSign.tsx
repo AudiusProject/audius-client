@@ -1,4 +1,4 @@
-import { Remix } from '@audius/common'
+import type { Remix } from '@audius/common'
 import { StyleSheet, View } from 'react-native'
 
 import Text from 'app/components/text'

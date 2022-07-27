@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { Remix, User } from '@audius/common'
+import type { Remix, User } from '@audius/common'
 import { StyleSheet, View } from 'react-native'
 
 import IconVolume from 'app/assets/images/iconVolume.svg'
@@ -9,8 +9,9 @@ import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { GestureResponderHandler } from 'app/types/gesture'
-import { ThemeColors, useThemeColors } from 'app/utils/theme'
+import type { GestureResponderHandler } from 'app/types/gesture'
+import type { ThemeColors } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 import { LineupTileArt } from './LineupTileArt'
 import { createStyles as createTrackTileStyles } from './styles'

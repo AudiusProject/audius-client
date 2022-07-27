@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 
-import { ChallengeRewardID, removeNullable } from '@audius/common'
+import type { ChallengeRewardID } from '@audius/common'
+import { removeNullable } from '@audius/common'
 import { StringKeys } from 'audius-client/src/common/services/remote-config'
 import { getOptimisticUserChallenges } from 'audius-client/src/common/store/challenges/selectors/optimistic-challenges'
 import {
   getUserChallenges,
   getUserChallengesLoading
 } from 'audius-client/src/common/store/pages/audio-rewards/selectors'
+import type { ChallengeRewardsModalType } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import {
-  ChallengeRewardsModalType,
   fetchUserChallenges,
   setChallengeRewardsModalType
 } from 'audius-client/src/common/store/pages/audio-rewards/slice'

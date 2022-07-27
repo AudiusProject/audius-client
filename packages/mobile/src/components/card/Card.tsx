@@ -1,11 +1,12 @@
-import type { ID } from '@audius/common'
-import {
+import type {
+  ID,
   CoverArtSizes,
   ProfilePictureSizes,
-  SquareSizes,
   User
 } from '@audius/common'
-import { StyleProp, Text, View, ViewStyle } from 'react-native'
+import { SquareSizes } from '@audius/common'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { DynamicImage, Tile } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'

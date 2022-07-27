@@ -10,8 +10,9 @@ import {
   getNotificationStatus,
   makeGetAllNotifications
 } from 'audius-client/src/common/store/notifications/selectors'
-import { Notification } from 'audius-client/src/common/store/notifications/types'
-import { View, ViewToken } from 'react-native'
+import type { Notification } from 'audius-client/src/common/store/notifications/types'
+import type { ViewToken } from 'react-native'
+import { View } from 'react-native'
 
 import { FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'

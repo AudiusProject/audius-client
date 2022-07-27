@@ -1,16 +1,17 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import type { ID, UID } from '@audius/common'
-import {
+import type {
+  ID,
+  UID,
   PlaybackSource,
   Collection,
   FavoriteType,
   Track,
   User
 } from '@audius/common'
-import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
+import type { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
 
-import { GestureResponderHandler } from 'app/types/gesture'
+import type { GestureResponderHandler } from 'app/types/gesture'
 
 export type LineupItemProps = {
   /** Index of tile in lineup */

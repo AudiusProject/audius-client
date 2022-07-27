@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { BNWei, StringWei, Nullable } from '@audius/common'
+import type { BNWei, StringWei, Nullable } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { getHasAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
 import {

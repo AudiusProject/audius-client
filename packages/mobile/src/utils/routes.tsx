@@ -1,4 +1,4 @@
-import { UserCollection, User } from '@audius/common'
+import type { UserCollection, User } from '@audius/common'
 import Config from 'react-native-config'
 
 type UserHandle = Pick<User, 'handle'>
