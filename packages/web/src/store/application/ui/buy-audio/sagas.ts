@@ -95,6 +95,9 @@ function* doQuote({
 }: ReturnType<typeof quote>['payload']) {
   const inputToken = TOKEN_LISTING_MAP[inputTokenSymbol]
   const outputToken = TOKEN_LISTING_MAP[outputTokenSymbol]
+  if (padForSlippage && slippage >= 100) {
+    throw new Error('Slippage too high to pad')
+  }
   const slippageFactor = padForSlippage ? 100.0 / (100.0 - slippage) : 1
   const amount = JSBI.BigInt(
     Math.ceil(inputAmount * slippageFactor * 10 ** inputToken.decimals)
