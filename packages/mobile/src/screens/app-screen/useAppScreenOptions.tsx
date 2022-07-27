@@ -6,6 +6,7 @@ import type {
   NativeStackNavigationProp
 } from '@react-navigation/native-stack'
 import { CardStyleInterpolators } from '@react-navigation/stack'
+import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
 import { getNotificationUnviewedCount } from 'audius-client/src/common/store/notifications/selectors'
 import { Text, View } from 'react-native'
@@ -16,8 +17,13 @@ import IconNotification from 'app/assets/images/iconNotification.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+<<<<<<< HEAD
 import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
+=======
+import { ContextualParams, useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+>>>>>>> d8b69761d (Early Access Mode)
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { makeStyles } from 'app/styles'
@@ -66,8 +72,22 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   iconSearch: {
     height: 18,
     width: 18
+  },
+  earlyAccess: {
+    fontSize: 10,
+    position: 'absolute',
+    fontFamily: typography.fontByWeight.bold,
+    color: palette.primary,
+    letterSpacing: 0.5,
+    left: 30,
+    top: 18,
+    width: 72
   }
 }))
+
+const messages = {
+  earlyAccess: 'Early Access'
+}
 
 export const useAppScreenOptions = (
   overrides?: Partial<NativeStackNavigationOptions>
@@ -98,6 +118,8 @@ export const useAppScreenOptions = (
       native: { screen: 'Search' }
     })
   }, [navigation])
+
+  const { isEnabled: isEarlyAccess } = useFeatureFlag(FeatureFlags.EARLY_ACCESS)
 
   const screenOptions: (options: {
     navigation: NativeStackNavigationProp<AppScreenParamList>
@@ -178,12 +200,17 @@ export const useAppScreenOptions = (
             )
           }
           return (
-            <IconButton
-              icon={AudiusLogo}
-              fill={neutralLight4}
-              styles={{ icon: styles.audiusLogo }}
-              onPress={handlePressHome}
-            />
+            <View>
+              <IconButton
+                icon={AudiusLogo}
+                fill={neutralLight4}
+                styles={{ icon: styles.audiusLogo }}
+                onPress={handlePressHome}
+              />
+              {isEarlyAccess ? (
+                <Text style={styles.earlyAccess}>{messages.earlyAccess}</Text>
+              ) : null}
+            </View>
           )
         },
         headerRightContainerStyle: styles.headerRight,
@@ -211,7 +238,8 @@ export const useAppScreenOptions = (
       neutralLight4,
       accentOrangeLight1,
       notificationCount,
-      overrides
+      overrides,
+      isEarlyAccess
     ]
   )
 

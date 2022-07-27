@@ -15,6 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { useTransition, animated } from 'react-spring'
 
 import { ReactComponent as AudiusLogo } from 'assets/img/audiusLogoHorizontal.svg'
+import { FeatureFlags } from 'common/services/remote-config'
 import { formatCount } from 'common/utils/formatUtil'
 import {
   RouterContext,
@@ -26,6 +27,7 @@ import NavContext, {
   RightPreset
 } from 'components/nav/store/context'
 import SearchBar from 'components/search-bar/SearchBar'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { OpenNotificationsMessage } from 'services/native-mobile-interface/notifications'
 import { getIsIOS } from 'utils/browser'
 import { onNativeBack } from 'utils/nativeRoute'
@@ -52,7 +54,8 @@ interface NavBarProps {
 
 const messages = {
   signUp: 'Sign Up',
-  searchPlaceholder: 'Search Audius'
+  searchPlaceholder: 'Search Audius',
+  earlyAccess: 'Early Access'
 }
 
 const NavBar = ({
@@ -217,6 +220,8 @@ const NavBar = ({
 
   const matrix = isMatrix()
 
+  const { isEnabled: isEarlyAccess } = useFlag(FeatureFlags.EARLY_ACCESS)
+
   return (
     <div className={styles.container}>
       <div
@@ -236,6 +241,11 @@ const NavBar = ({
               item && (
                 <animated.div style={props} key={key}>
                   <AudiusLogo />
+                  {isEarlyAccess ? (
+                    <div className={styles.earlyAccess}>
+                      {messages.earlyAccess}
+                    </div>
+                  ) : null}
                 </animated.div>
               )
           )}
