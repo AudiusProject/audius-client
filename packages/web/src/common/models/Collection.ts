@@ -57,7 +57,7 @@ export type ComputedCollectionProperties = {
   _cover_art_sizes: CoverArtSizes
   _moved?: UID
   _temp?: boolean
-  artwork?: { file: File }
+  artwork?: { file?: File; url?: string }
 }
 
 export type Collection = CollectionMetadata & ComputedCollectionProperties

@@ -231,19 +231,20 @@ function* claimChallengeRewardAsync(
       challenge_id: challengeId,
       specifier
     }))
+
     const response: { error?: string } = yield* call(
       AudiusBackend.submitAndEvaluateAttestations,
       {
         challenges,
         userId: currentUser.user_id,
         handle: currentUser.handle,
-        recipientEthAddress: currentUser.wallet,
+        recipientEthAddress: currentUser.wallet as string,
         oracleEthAddress,
         amount,
         quorumSize,
-        endpoints,
+        endpoints: endpoints as string[],
         AAOEndpoint,
-        parallelization,
+        parallelization: parallelization as number,
         feePayerOverride,
         isFinalAttempt: !retryOnFailure
       }

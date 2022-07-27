@@ -17,8 +17,16 @@ import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
 import { Name } from 'common/models/Analytics'
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
-import { Collection, PlaylistTrackId } from 'common/models/Collection'
+import {
+  ChallengeRewardID,
+  FailureReason,
+  UserChallenge
+} from 'common/models/AudioRewards'
+import {
+  Collection,
+  CollectionMetadata,
+  PlaylistTrackId
+} from 'common/models/Collection'
 import FeedFilter from 'common/models/FeedFilter'
 import {
   CoverArtSizes,
@@ -27,7 +35,8 @@ import {
   ProfilePictureSizes
 } from 'common/models/ImageSizes'
 import { Track, TrackMetadata } from 'common/models/Track'
-import { User } from 'common/models/User'
+import { User, UserMetadata } from 'common/models/User'
+import { BNWei } from 'common/models/Wallet'
 import {
   IntKeys,
   StringKeys,
@@ -39,6 +48,7 @@ import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
+import { Nullable } from 'common/utils/typeUtils'
 import { uuid } from 'common/utils/uid'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
@@ -63,7 +73,6 @@ declare global {
   interface Window {
     web3Loaded: boolean
     phantom: any
-    solana: any
   }
 }
 
@@ -207,7 +216,7 @@ export const fetchCID = async (
   creatorNodeGateways = [],
   cache = true,
   asUrl = true,
-  trackId = null
+  trackId: Nullable<ID> = null
 ) => {
   await waitForLibsInit()
   try {
@@ -340,10 +349,10 @@ const getBlockList = (remoteVarKey: StringKeys) => {
   }
 }
 
-type DiscoveryProviderListener = (endpoint: string | null) => void
+type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 class AudiusBackend {
-  static currentDiscoveryProvider: string | null = null
+  static currentDiscoveryProvider: Nullable<string> = null
   static didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
 
   static addDiscoveryProviderSelectionListener(
@@ -367,7 +376,7 @@ class AudiusBackend {
     }
   }
 
-  static getTrackImages(track: Track) {
+  static getTrackImages(track: TrackMetadata) {
     const coverArtSizes: CoverArtSizes = {}
     if (!track.cover_art_sizes && !track.cover_art) {
       coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt
@@ -384,7 +393,7 @@ class AudiusBackend {
     }
   }
 
-  static getCollectionImages(collection: Collection) {
+  static getCollectionImages(collection: CollectionMetadata) {
     const coverArtSizes: CoverArtSizes = {}
 
     if (
@@ -407,7 +416,7 @@ class AudiusBackend {
     }
   }
 
-  static getUserImages(user: User) {
+  static getUserImages(user: UserMetadata) {
     const profilePictureSizes: ProfilePictureSizes = {}
     const coverPhotoSizes: CoverPhotoSizes = {}
 
@@ -778,8 +787,8 @@ class AudiusBackend {
     offset: number
     limit: number
     idsArray: ID[]
-    withUsers: boolean
-    filterDeletes: boolean
+    withUsers?: boolean
+    filterDeletes?: boolean
   }) {
     try {
       const tracks = await withEagerOption(
@@ -848,8 +857,8 @@ class AudiusBackend {
     DiscoveryAPIParams<typeof DiscoveryAPI.getTracks>,
     'sort' | 'filterDeleted'
   > & {
-    sort: boolean | null
-    filterDeleted: boolean | null
+    sort: Nullable<boolean>
+    filterDeleted: Nullable<boolean>
   }) {
     try {
       const tracks = await withEagerOption(
@@ -1414,7 +1423,7 @@ class AudiusBackend {
     return followers
   }
 
-  static async getPlaylists(userId: ID, playlistIds: ID[]) {
+  static async getPlaylists(userId: Nullable<ID>, playlistIds: ID[]) {
     try {
       const playlists = await withEagerOption(
         {
@@ -1784,7 +1793,7 @@ class AudiusBackend {
    * Sets the artist pick for a user
    * @param {number?} trackId if null, unsets the artist pick
    */
-  static async setArtistPick(trackId = null) {
+  static async setArtistPick(trackId: Nullable<ID> = null) {
     await waitForLibsInit()
     try {
       const { data, signature } = await AudiusBackend.signData()
@@ -1841,8 +1850,8 @@ class AudiusBackend {
       coverPhoto: File
     }
     hasWallet: boolean
-    referrer: ID | null
-    feePayerOverride: string | null
+    referrer: Nullable<ID>
+    feePayerOverride: Nullable<string>
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
@@ -2126,7 +2135,7 @@ class AudiusBackend {
   }
 
   static async updateNotificationSettings(
-    settings: Record<BrowserNotificationSetting, boolean>
+    settings: Partial<Record<BrowserNotificationSetting, boolean>>
   ) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -2148,7 +2157,7 @@ class AudiusBackend {
   }
 
   static async updatePushNotificationSettings(
-    settings: Record<PushNotificationSetting, boolean>
+    settings: Partial<Record<PushNotificationSetting, boolean>>
   ) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -2176,7 +2185,7 @@ class AudiusBackend {
     return { data, signature }
   }
 
-  static async signDiscoveryNodeRequest(input: any) {
+  static async signDiscoveryNodeRequest(input?: any) {
     await waitForLibsInit()
     let data
     if (input) {
@@ -2704,7 +2713,7 @@ class AudiusBackend {
   /**
    * Make a request to send
    */
-  static async sendTokens(address: string, amount: number) {
+  static async sendTokens(address: string, amount: BNWei) {
     await waitForLibsInit()
     const receipt = await audiusLibs.Account.permitAndSendTokens(
       address,
@@ -2716,7 +2725,7 @@ class AudiusBackend {
   /**
    * Make a request to send solana wrapped audio
    */
-  static async sendWAudioTokens(address: string, amount: number) {
+  static async sendWAudioTokens(address: string, amount: BNWei) {
     await waitForLibsInit()
 
     // Check when sending waudio if the user has a user bank acccount
@@ -2747,7 +2756,7 @@ class AudiusBackend {
           await window.solana.connect()
         }
 
-        const phantomWallet = window.solana.publicKey.toString()
+        const phantomWallet = window.solana.publicKey?.toString()
         const tx = await getCreateAssociatedTokenAccountTransaction({
           feePayerKey: SolanaUtils.newPublicKeyNullable(phantomWallet),
           solanaWalletKey: SolanaUtils.newPublicKeyNullable(address),
@@ -2833,7 +2842,7 @@ class AudiusBackend {
     feePayerOverride,
     isFinalAttempt
   }: {
-    challenges: UserChallenge[]
+    challenges: { challenge_id: ChallengeRewardID; specifier: string }[]
     userId: ID
     handle: string
     recipientEthAddress: string
@@ -2843,7 +2852,7 @@ class AudiusBackend {
     endpoints: string[]
     AAOEndpoint: string
     parallelization: number
-    feePayerOverride: string | null
+    feePayerOverride: Nullable<string>
     isFinalAttempt: boolean
   }) {
     await waitForLibsInit()

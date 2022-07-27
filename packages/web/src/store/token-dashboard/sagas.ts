@@ -318,7 +318,7 @@ function* connectSPLWallet(
   disconnect: () => Promise<void>
 ) {
   try {
-    const accountUserId: Nullable<ID> = yield select(getUserId)
+    const accountUserId: ID = yield select(getUserId)
 
     const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> =
       yield select(getAssociatedWallets)
@@ -499,7 +499,7 @@ function* connectSPLWallet(
 function* connectEthWallet(web3Instance: any) {
   try {
     const accounts: string[] = yield web3Instance.eth.getAccounts()
-    const accountUserId: Nullable<ID> = yield select(getUserId)
+    const accountUserId: ID = yield select(getUserId)
     const connectingWallet = accounts[0]
 
     const currentAssociatedWallets: ReturnType<typeof getAssociatedWallets> =
@@ -663,7 +663,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
   try {
     const removeWallet = action.payload.wallet
     const removeChain = action.payload.chain
-    const accountUserId: Nullable<ID> = yield select(getUserId)
+    const accountUserId: ID = yield select(getUserId)
     const userMetadata: ReturnType<typeof getAccountUser> = yield select(
       getAccountUser
     )
