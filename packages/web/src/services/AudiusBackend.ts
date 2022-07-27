@@ -167,6 +167,7 @@ export const waitForWeb3 = async () => {
   }
 }
 
+// TODO: type these once libs types are improved
 let AudiusLibs: any = null
 export let Utils: any = null
 let SanityChecks: any = null
@@ -983,8 +984,8 @@ class AudiusBackend {
       )
 
       const combinedUsers = await Promise.all(
-        combineLists<User>(followedUsers, users, 'user_id' as any).map(
-          async (user) => AudiusBackend.getUserImages(user)
+        combineLists<User>(followedUsers, users, 'user_id').map(async (user) =>
+          AudiusBackend.getUserImages(user)
         )
       )
 
