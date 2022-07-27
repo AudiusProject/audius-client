@@ -362,7 +362,6 @@ function* doExchangeAfterBalanceChange({
       exchange({
         inputTokenSymbol,
         outputTokenSymbol,
-        padForSlippage: false,
         slippage,
         inputAmount: newBalance / LAMPORTS_PER_SOL - SWAP_MIN_SOL
       })
@@ -386,12 +385,12 @@ function* watchQuote() {
 function* watchExchange() {
   yield* takeEvery(exchange, function* ({ payload }) {
     try {
-      const outputAmount = yield* call(doExchange, payload)
-      const amount = weiToString(convertWAudioToWei(outputAmount))
-      yield* put(exchangeSucceeded(payload))
+      const outputAmountWAudioBN = yield* call(doExchange, payload)
+      const outputAmount = weiToString(convertWAudioToWei(outputAmountWAudioBN))
+      yield* put(exchangeSucceeded({ ...payload, outputAmount }))
       yield* put(
         increaseBalance({
-          amount
+          amount: outputAmount
         })
       )
     } catch (e) {

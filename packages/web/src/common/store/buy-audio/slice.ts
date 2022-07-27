@@ -21,13 +21,23 @@ export enum ExchangeStatus {
   FAILED = 'FAILED'
 }
 
-type JupiterSwapActionPayload = {
+type ExchangePayload = {
   inputTokenSymbol: JupiterTokenSymbol
   outputTokenSymbol: JupiterTokenSymbol
   inputAmount: number
-  forceFetch?: boolean
   slippage?: number
+}
+
+type ExchangeSucceededPayload = {
+  inputTokenSymbol: JupiterTokenSymbol
+  outputTokenSymbol: JupiterTokenSymbol
+  /** BNWei string */
+  outputAmount: string
+}
+
+type QuotePayload = ExchangePayload & {
   padForSlippage?: boolean
+  forceFetch?: boolean
 }
 
 type BuyAudioState = {
@@ -79,7 +89,7 @@ const slice = createSlice({
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<JupiterSwapActionPayload>
+      }: PayloadAction<ExchangePayload>
     ) => {
       state = initSwapStateIfNecessary(
         state,
@@ -93,7 +103,7 @@ const slice = createSlice({
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<JupiterSwapActionPayload>
+      }: PayloadAction<ExchangePayload>
     ) => {
       state = initSwapStateIfNecessary(
         state,
@@ -107,7 +117,7 @@ const slice = createSlice({
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<JupiterSwapActionPayload>
+      }: PayloadAction<ExchangeSucceededPayload>
     ) => {
       state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
         ExchangeStatus.SUCCEEDED
@@ -116,7 +126,7 @@ const slice = createSlice({
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<JupiterSwapActionPayload>
+      }: PayloadAction<ExchangePayload>
     ) => {
       state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
         ExchangeStatus.FAILED
@@ -125,7 +135,7 @@ const slice = createSlice({
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<JupiterSwapActionPayload>
+      }: PayloadAction<QuotePayload>
     ) => {
       state = initSwapStateIfNecessary(
         state,
