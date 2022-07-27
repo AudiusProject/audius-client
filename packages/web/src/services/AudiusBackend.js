@@ -2730,6 +2730,13 @@ class AudiusBackend {
       return { error: true }
     }
   }
+
+  static async getRootSolanaAccount() {
+    await waitForLibsInit()
+    return audiusLibs.solanaWeb3Manager.solanaWeb3.Keypair.fromSeed(
+      audiusLibs.Account.hedgehog.wallet.getPrivateKey()
+    )
+  }
 }
 
 /**

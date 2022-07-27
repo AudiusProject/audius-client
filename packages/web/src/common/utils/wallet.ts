@@ -1,4 +1,5 @@
 import BN from 'bn.js'
+import JSBI from 'jsbi'
 
 import { BNAudio, BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import {
@@ -103,4 +104,13 @@ export const shortenSPLAddress = (addr: string) => {
 
 export const shortenEthAddress = (addr: string) => {
   return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
+}
+
+export const convertJSBIToUiString = (amount: JSBI, decimals: number) => {
+  const divisor = JSBI.BigInt(10 ** decimals)
+  const quotient = JSBI.divide(amount, divisor)
+  const remainder = JSBI.remainder(amount, divisor)
+  return JSBI.GT(remainder, 0)
+    ? `${quotient.toString()}.${remainder.toString().padStart(decimals, '0')}`
+    : quotient.toString()
 }
