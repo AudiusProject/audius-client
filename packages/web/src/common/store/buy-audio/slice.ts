@@ -40,41 +40,52 @@ type QuotePayload = ExchangePayload & {
   forceFetch?: boolean
 }
 
+type QuoteSucceededPayload = {
+  inputTokenSymbol: JupiterTokenSymbol
+  outputTokenSymbol: JupiterTokenSymbol
+  inputUiAmount: string
+  outputUiAmount: string
+}
+
+type QuoteFailedPayload = {
+  inputTokenSymbol: JupiterTokenSymbol
+  outputTokenSymbol: JupiterTokenSymbol
+}
+
+type QuoteStatusInfo = {
+  inputUiAmount?: string
+  outputUiAmount?: string
+  status: QuoteStatus
+}
+
 type BuyAudioState = {
   flow: Flow
-  swaps: Record<
+  quoteStatuses: Record<
     JupiterTokenSymbol,
-    Record<
-      JupiterTokenSymbol,
-      {
-        inputUiAmount?: string
-        outputUiAmount?: string
-        quoteStatus: QuoteStatus
-        exchangeStatus: ExchangeStatus
-      }
-    >
+    Record<JupiterTokenSymbol, QuoteStatusInfo>
   >
+  exchangeStatus: {
+    status: ExchangeStatus
+    outputAmount?: string
+  }
 }
 
 const initialState: BuyAudioState = {
   flow: Flow.COINBASE_PAY,
-  swaps: {}
+  quoteStatuses: {},
+  exchangeStatus: { status: ExchangeStatus.IDLE }
 }
 
-const initSwapStateIfNecessary = (
+const initQuoteStatusIfNecessary = (
   state: BuyAudioState,
   inputTokenSymbol: JupiterTokenSymbol,
   outputTokenSymbol: JupiterTokenSymbol
 ) => {
-  if (
-    !state.swaps[inputTokenSymbol] ||
-    !state.swaps[inputTokenSymbol][outputTokenSymbol]
-  ) {
-    state.swaps[inputTokenSymbol] = {
-      ...state.swaps[inputTokenSymbol],
+  if (!state.quoteStatuses[inputTokenSymbol]?.[outputTokenSymbol]) {
+    state.quoteStatuses[inputTokenSymbol] = {
+      ...state.quoteStatuses[inputTokenSymbol],
       [outputTokenSymbol]: {
-        quoteStatus: QuoteStatus.IDLE,
-        exchangeStatus: ExchangeStatus.IDLE
+        status: QuoteStatus.IDLE
       }
     }
   }
@@ -85,51 +96,21 @@ const slice = createSlice({
   name: 'ui/buy-audio',
   initialState,
   reducers: {
-    exchangeAfterBalanceChange: (
-      state,
-      {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<ExchangePayload>
-    ) => {
-      state = initSwapStateIfNecessary(
-        state,
-        inputTokenSymbol,
-        outputTokenSymbol
-      )
-      state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
-        ExchangeStatus.WAITING
+    exchangeAfterBalanceChange: (state, _: PayloadAction<ExchangePayload>) => {
+      state.exchangeStatus.status = ExchangeStatus.WAITING
     },
-    exchange: (
-      state,
-      {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<ExchangePayload>
-    ) => {
-      state = initSwapStateIfNecessary(
-        state,
-        inputTokenSymbol,
-        outputTokenSymbol
-      )
-      state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
-        ExchangeStatus.EXCHANGING
+    exchange: (state, _: PayloadAction<ExchangePayload>) => {
+      state.exchangeStatus.status = ExchangeStatus.EXCHANGING
     },
     exchangeSucceeded: (
       state,
-      {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<ExchangeSucceededPayload>
+      action: PayloadAction<ExchangeSucceededPayload>
     ) => {
-      state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
-        ExchangeStatus.SUCCEEDED
+      state.exchangeStatus.status = ExchangeStatus.SUCCEEDED
+      state.exchangeStatus.outputAmount = action.payload.outputAmount
     },
-    exchangeFailed: (
-      state,
-      {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<ExchangePayload>
-    ) => {
-      state.swaps[inputTokenSymbol][outputTokenSymbol].exchangeStatus =
-        ExchangeStatus.FAILED
+    exchangeFailed: (state) => {
+      state.exchangeStatus.status = ExchangeStatus.FAILED
     },
     quote: (
       state,
@@ -137,12 +118,12 @@ const slice = createSlice({
         payload: { inputTokenSymbol, outputTokenSymbol }
       }: PayloadAction<QuotePayload>
     ) => {
-      state = initSwapStateIfNecessary(
+      state = initQuoteStatusIfNecessary(
         state,
         inputTokenSymbol,
         outputTokenSymbol
       )
-      state.swaps[inputTokenSymbol][outputTokenSymbol].quoteStatus =
+      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
         QuoteStatus.QUOTING
     },
     quoteSucceeded: (
@@ -154,30 +135,22 @@ const slice = createSlice({
           inputUiAmount,
           outputUiAmount
         }
-      }: PayloadAction<{
-        inputTokenSymbol: JupiterTokenSymbol
-        outputTokenSymbol: JupiterTokenSymbol
-        inputUiAmount: string
-        outputUiAmount: string
-      }>
+      }: PayloadAction<QuoteSucceededPayload>
     ) => {
-      state.swaps[inputTokenSymbol][outputTokenSymbol].inputUiAmount =
+      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].inputUiAmount =
         inputUiAmount
-      state.swaps[inputTokenSymbol][outputTokenSymbol].outputUiAmount =
+      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].outputUiAmount =
         outputUiAmount
-      state.swaps[inputTokenSymbol][outputTokenSymbol].quoteStatus =
+      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
         QuoteStatus.SUCCEEDED
     },
     quoteFailed: (
       state,
       {
         payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<{
-        inputTokenSymbol: JupiterTokenSymbol
-        outputTokenSymbol: JupiterTokenSymbol
-      }>
+      }: PayloadAction<QuoteFailedPayload>
     ) => {
-      state.swaps[inputTokenSymbol][outputTokenSymbol].quoteStatus =
+      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
         QuoteStatus.FAILED
     }
   }

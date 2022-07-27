@@ -395,7 +395,7 @@ function* watchExchange() {
       )
     } catch (e) {
       console.error('Exchange: Failed with error:', e)
-      yield* put(exchangeFailed(payload))
+      yield* put(exchangeFailed())
     }
   })
 }
