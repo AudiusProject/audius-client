@@ -1,7 +1,7 @@
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
-import { AccountInfo, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
+  Cluster,
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
@@ -33,8 +33,14 @@ import {
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import { convertJSBIToUiString, weiToString } from 'common/utils/wallet'
-import AudiusBackend from 'services/AudiusBackend'
-import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+import {
+  createTransferToUserBankTransaction,
+  getRootSolanaAccount,
+  getSolanaConnection
+} from 'services/audius-backend/BuyAudio'
+
+const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
+const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 
 const BALANCE_CHANGE_TIMEOUT_MS = 120_000 // 2 minutes
 const BALANCE_CHANGE_POLL_INTERVAL_MS = 5_000 // 5 second
@@ -43,12 +49,6 @@ const SPL_DECIMALS = 8 // 8 decimals on SPL AUDIO
 const SWAP_MIN_SOL = 0.05 // Minimum SOL balance needed to execute a Jupiter Swap
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 let _jup: Jupiter
-
-const rpcList = [
-  'https://solana-api.projectserum.com',
-  'https://ssc-dao.genesysgo.net',
-  'https://mercuria-fronten-1cd8.mainnet.rpcpool.com'
-] // taken from jup.ag main site
 
 function convertWAudioToWei(amount: BN) {
   const decimals = WEI_DECIMALS - SPL_DECIMALS
@@ -61,30 +61,28 @@ function convertWAudioToWei(amount: BN) {
  */
 function* initJupiterIfNecessary() {
   if (!_jup) {
-    let retries = 0
-    // Try all three RPC nodes if some fail to init for whatever reason
-    while (retries < rpcList.length) {
-      try {
-        _jup = yield* call(Jupiter.load, {
-          connection: new Connection(rpcList[retries], {
-            disableRetryOnRateLimit: true
-          }),
-          cluster: 'mainnet-beta',
-          restrictIntermediateTokens: true,
-          wrapUnwrapSOL: true,
-          routeCacheDuration: 5_000 // 5 seconds
-        })
-        if (_jup) {
-          break
-        }
-      } catch (e) {
-        console.warn('Jupiter failed to initialize with', rpcList[retries], e)
-        retries++
-      }
+    if (!SOLANA_CLUSTER_ENDPOINT) {
+      throw new Error('Solana Cluster Endpoint is not configured')
     }
-  }
-  if (!_jup) {
-    throw new Error('Jupiter failed to initialize')
+    const connection = new Connection(SOLANA_CLUSTER_ENDPOINT, 'confirmed')
+    const cluster = (SOLANA_CLUSTER ?? 'mainnet-beta') as Cluster
+    try {
+      _jup = yield* call(Jupiter.load, {
+        connection,
+        cluster,
+        restrictIntermediateTokens: true,
+        wrapUnwrapSOL: true,
+        routeCacheDuration: 5_000 // 5 seconds
+      })
+      console.debug('Using', connection.rpcEndpoint, 'for onRamp RPC')
+    } catch (e) {
+      console.error(
+        'Jupiter failed to initialize with RPC',
+        connection.rpcEndpoint,
+        e
+      )
+      throw e
+    }
   }
   return _jup
 }
@@ -175,55 +173,6 @@ function* sendTransaction(
 }
 
 /**
- * Creates a transaction to transfer all AUDIO from the root associated token account to the user's userbank
- * @returns the transaction and the amount being transferred
- */
-function* getTransferTransaction({
-  mintAddress,
-  fromAccount
-}: {
-  mintAddress: string
-  fromAccount: Keypair
-}) {
-  const account = yield* select(getAccountUser)
-  if (!account || !account.userBank) {
-    throw new Error('User does not have a user bank')
-  }
-  const mintPublicKey = new PublicKey(mintAddress)
-  yield* call(waitForLibsInit)
-  const associatedTokenAccount = (yield* call(
-    [
-      window.audiusLibs.solanaWeb3Manager,
-      window.audiusLibs.solanaWeb3Manager.findAssociatedTokenAddress
-    ],
-    fromAccount.publicKey.toString()
-  )) as PublicKey
-  const tokenAccountInfo = (yield* call(
-    [
-      window.audiusLibs.solanaWeb3Manager,
-      window.audiusLibs.solanaWeb3Manager.getAssociatedTokenAccountInfo
-    ],
-    associatedTokenAccount.toString()
-  )) as AccountInfo
-  if (!tokenAccountInfo) {
-    throw new Error('No $AUDIO account in root wallet')
-  }
-  const instruction = Token.createTransferCheckedInstruction(
-    TOKEN_PROGRAM_ID,
-    associatedTokenAccount,
-    mintPublicKey,
-    new PublicKey(account.userBank),
-    fromAccount.publicKey,
-    [],
-    tokenAccountInfo.amount,
-    8
-  )
-  const tx = new Transaction()
-  tx.add(instruction)
-  return { tx, amount: tokenAccountInfo.amount }
-}
-
-/**
  * Executes a Jupiter Swap given the RouteInfo, account, and the transactionHandler
  */
 function* doSwap({
@@ -283,9 +232,8 @@ function* doExchange({
   outputTokenSymbol,
   slippage
 }: ReturnType<typeof exchange>['payload']) {
-  yield* call(waitForLibsInit)
-  const connection: Connection = window.audiusLibs.solanaWeb3Manager.connection
-  const rootAccount: Keypair = yield* call(AudiusBackend.getRootSolanaAccount)
+  const connection: Connection = yield* call(getSolanaConnection)
+  const rootAccount: Keypair = yield* call(getRootSolanaAccount)
 
   // Only supports SOL => AUDIO for now
   if (inputTokenSymbol !== 'SOL' || outputTokenSymbol !== 'AUDIO') {
@@ -315,11 +263,17 @@ function* doExchange({
     account: rootAccount,
     transactionHandler
   })
-  const { tx: transferTransaction, amount: transferAmount } =
-    yield* getTransferTransaction({
-      mintAddress: window.audiusLibs.solanaWeb3Config.mintAddress,
+  const account = yield* select(getAccountUser)
+  if (!account?.userBank) {
+    throw new Error('User does not have a user bank')
+  }
+  const { tx: transferTransaction, amount: transferAmount } = yield* call(
+    createTransferToUserBankTransaction,
+    {
+      userBank: account.userBank,
       fromAccount: rootAccount
-    })
+    }
+  )
   yield* call(
     sendTransaction,
     'Transfer',
@@ -371,10 +325,8 @@ function* doExchangeAfterBalanceChange({
   payload: { inputTokenSymbol, outputTokenSymbol, inputAmount, slippage }
 }: ReturnType<typeof exchangeAfterBalanceChange>) {
   try {
-    yield* call(waitForLibsInit)
-    const connection: Connection =
-      window.audiusLibs.solanaWeb3Manager.connection
-    const rootAccount: Keypair = yield* call(AudiusBackend.getRootSolanaAccount)
+    const connection: Connection = yield* call(getSolanaConnection)
+    const rootAccount: Keypair = yield* call(getRootSolanaAccount)
     const walletKey = rootAccount.publicKey
     const result = yield* race({
       balanceChange: call(pollBalance, {
@@ -414,7 +366,7 @@ function* doExchangeAfterBalanceChange({
         outputTokenSymbol,
         padForSlippage: false,
         slippage,
-        inputAmount: newBalance - SWAP_MIN_SOL
+        inputAmount: newBalance / LAMPORTS_PER_SOL - SWAP_MIN_SOL
       })
     )
   } catch (e) {
