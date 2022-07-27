@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
+import { Name, User } from '@audius/common'
 import {
   Button,
   ButtonProps,
@@ -15,8 +16,6 @@ import { useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
 import { getAccountUser } from 'common/store/account/selectors'
 import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -25,6 +24,7 @@ import AudiusBackend from 'services/AudiusBackend'
 import { make, useRecord } from 'store/analytics/actions'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
+import { encodeHashId } from 'utils/route/hashIds'
 import { signOut } from 'utils/signOut'
 
 import styles from '../styles/OAuthLoginPage.module.css'
@@ -292,14 +292,15 @@ export const OAuthLoginPage = () => {
       }
     }
     const timestamp = Math.round(new Date().getTime() / 1000)
+    const userId = encodeHashId(account?.user_id)
     const response = {
-      userId: account?.user_id,
+      userId,
       email,
       name: account?.name,
       handle: account?.handle,
       verified: account?.is_verified,
       profilePicture,
-      sub: account?.user_id,
+      sub: userId,
       iat: timestamp
     }
     const header = base64url.encode(

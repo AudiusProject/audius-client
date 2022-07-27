@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
-import {
+import type { User, Nullable } from '@audius/common'
+import type {
   Favorite,
   Follow,
   Repost
@@ -12,7 +12,6 @@ import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { getUserRoute } from 'app/utils/routes'
 
-import { getUserListRoute } from '../routeUtil'
 import { useDrawerNavigation } from '../useDrawerNavigation'
 
 /**
@@ -21,10 +20,10 @@ import { useDrawerNavigation } from '../useDrawerNavigation'
  */
 export const useSocialActionHandler = (
   notification: Follow | Repost | Favorite,
-  users: User[]
+  users: Nullable<User[]>
 ) => {
   const { id, type, userIds } = notification
-  const [firstUser] = users
+  const firstUser = users?.[0]
   const isMultiUser = userIds.length > 1
   const dispatchWeb = useDispatchWeb()
   const navigation = useDrawerNavigation()
@@ -43,11 +42,11 @@ export const useSocialActionHandler = (
           }
         },
         web: {
-          route: getUserListRoute(notification),
+          route: `/notification/${id}/users`,
           fromPage: NOTIFICATION_PAGE
         }
       })
-    } else {
+    } else if (firstUser) {
       navigation.navigate({
         native: {
           screen: 'Profile',
@@ -56,14 +55,5 @@ export const useSocialActionHandler = (
         web: { route: getUserRoute(firstUser), fromPage: NOTIFICATION_PAGE }
       })
     }
-  }, [
-    isMultiUser,
-    id,
-    type,
-    userIds,
-    notification,
-    dispatchWeb,
-    navigation,
-    firstUser
-  ])
+  }, [isMultiUser, id, type, userIds, dispatchWeb, navigation, firstUser])
 }

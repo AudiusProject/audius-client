@@ -1,9 +1,10 @@
 import { ComponentType, useCallback, useState } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux'
+import { Name, Nullable } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
 import { useUIAudio } from 'common/hooks/useUIAudio'
-import { Name } from 'common/models/Analytics'
+import { getNotificationUser } from 'common/store/notifications/selectors'
 import { TipReceive } from 'common/store/notifications/types'
 import {
   makeGetReactionForSignature,
@@ -11,8 +12,8 @@ import {
   ReactionTypes,
   writeReactionValue
 } from 'common/store/ui/reactions/slice'
-import { Nullable } from 'common/utils/typeUtils'
 import { make } from 'store/analytics/actions'
+import { useSelector } from 'utils/reducer'
 
 import styles from './TipReceivedNotification.module.css'
 import { AudioText } from './components/AudioText'
@@ -62,7 +63,9 @@ export const TipReceivedNotification = (
 ) => {
   const [isTileDisabled, setIsTileDisabled] = useState(false)
   const { notification } = props
-  const { user, amount, timeLabel, isViewed, tipTxSignature } = notification
+  const { amount, timeLabel, isViewed, tipTxSignature } = notification
+
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
   const reactionValue = useSelector(makeGetReactionForSignature(tipTxSignature))
   const setReaction = useSetReaction(tipTxSignature)
@@ -86,6 +89,8 @@ export const TipReceivedNotification = (
 
   const handleMouseEnter = useCallback(() => setIsTileDisabled(true), [])
   const handleMouseLeave = useCallback(() => setIsTileDisabled(false), [])
+
+  if (!user) return null
 
   return (
     <NotificationTile

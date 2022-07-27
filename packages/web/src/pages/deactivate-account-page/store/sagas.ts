@@ -1,8 +1,6 @@
-import { ID } from '@audius/common'
+import { ID, Name, User } from '@audius/common'
 import { call, delay, put, select, takeEvery } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import AudiusBackend from 'services/AudiusBackend'
 import { make } from 'store/analytics/actions'

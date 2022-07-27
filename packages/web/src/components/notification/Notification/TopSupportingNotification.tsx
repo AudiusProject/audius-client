@@ -1,9 +1,12 @@
 import { useCallback } from 'react'
 
+import { Name } from '@audius/common'
+
 import { ReactComponent as IconTrending } from 'assets/img/iconTrending.svg'
-import { Name } from 'common/models/Analytics'
+import { getNotificationUser } from 'common/store/notifications/selectors'
 import { SupportingRankUp } from 'common/store/notifications/types'
 import { make } from 'store/analytics/actions'
+import { useSelector } from 'utils/reducer'
 
 import styles from './TopSupportingNotification.module.css'
 import { NotificationBody } from './components/NotificationBody'
@@ -33,7 +36,9 @@ export const TopSupportingNotification = (
   props: TopSupportingNotificationProps
 ) => {
   const { notification } = props
-  const { user, rank, timeLabel, isViewed } = notification
+  const { rank, timeLabel, isViewed } = notification
+
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
   const handleClick = useGoToProfile(user)
 
@@ -51,6 +56,8 @@ export const TopSupportingNotification = (
     },
     [rank]
   )
+
+  if (!user) return null
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>

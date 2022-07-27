@@ -1,10 +1,13 @@
 import { useCallback } from 'react'
 
+import { Name } from '@audius/common'
+
 import { useUIAudio } from 'common/hooks/useUIAudio'
-import { Name } from 'common/models/Analytics'
+import { getNotificationUser } from 'common/store/notifications/selectors'
 import { Reaction } from 'common/store/notifications/types'
 import { getReactionFromRawValue } from 'common/store/ui/reactions/slice'
 import { make } from 'store/analytics/actions'
+import { useSelector } from 'utils/reducer'
 
 import styles from './TipReactionNotification.module.css'
 import { AudioText } from './components/AudioText'
@@ -36,7 +39,6 @@ export const TipReactionNotification = (
 ) => {
   const { notification } = props
   const {
-    user,
     reactionValue,
     timeLabel,
     isViewed,
@@ -45,6 +47,7 @@ export const TipReactionNotification = (
 
   const uiAmount = useUIAudio(amount)
 
+  const user = useSelector((state) => getNotificationUser(state, notification))
   const handleClick = useGoToProfile(user)
 
   const handleShare = useCallback((twitterHandle: string) => {
@@ -55,6 +58,8 @@ export const TipReactionNotification = (
     )
     return { shareText, analytics }
   }, [])
+
+  if (!user) return null
 
   const userLinkElement = (
     <UserNameLink

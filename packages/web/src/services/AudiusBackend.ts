@@ -1,4 +1,24 @@
-import { CID, ID } from '@audius/common'
+import {
+  BNWei,
+  ChallengeRewardID,
+  CID,
+  Collection,
+  CollectionMetadata,
+  CoverArtSizes,
+  CoverPhotoSizes,
+  DefaultSizes,
+  FailureReason,
+  FeedFilter,
+  ID,
+  Name,
+  Nullable,
+  PlaylistTrackId,
+  ProfilePictureSizes,
+  Track,
+  TrackMetadata,
+  User,
+  UserMetadata
+} from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
@@ -16,27 +36,6 @@ import utc from 'dayjs/plugin/utc'
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
-import { Name } from 'common/models/Analytics'
-import {
-  ChallengeRewardID,
-  FailureReason,
-  UserChallenge
-} from 'common/models/AudioRewards'
-import {
-  Collection,
-  CollectionMetadata,
-  PlaylistTrackId
-} from 'common/models/Collection'
-import FeedFilter from 'common/models/FeedFilter'
-import {
-  CoverArtSizes,
-  CoverPhotoSizes,
-  DefaultSizes,
-  ProfilePictureSizes
-} from 'common/models/ImageSizes'
-import { Track, TrackMetadata } from 'common/models/Track'
-import { User, UserMetadata } from 'common/models/User'
-import { BNWei } from 'common/models/Wallet'
 import {
   IntKeys,
   StringKeys,
@@ -48,7 +47,6 @@ import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
-import { Nullable } from 'common/utils/typeUtils'
 import { uuid } from 'common/utils/uid'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
