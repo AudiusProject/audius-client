@@ -57,7 +57,7 @@ function convertWAudioToWei(amount: BN) {
 
 /**
  * Initializes Jupiter singleton if necessary and returns
- * @returns {Jupiter} a Jupiter instance
+ * @returns a Jupiter instance
  */
 function* initJupiterIfNecessary() {
   if (!_jup) {

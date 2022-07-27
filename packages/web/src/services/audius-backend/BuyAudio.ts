@@ -17,14 +17,6 @@ export const getSolanaConnection = async () => {
   return libs().solanaWeb3Manager.connection
 }
 
-export const sendTransactionLocal = async () => {
-  await waitForLibsInit()
-  const rootAccount = libs().solanaWeb3Manager.solanaWeb3.Keypair.fromSeed(
-    libs().Account.hedgehog.wallet.getPrivateKey()
-  )
-  const connection = libs().solanaWeb3Manager.connection
-}
-
 export const createTransferToUserBankTransaction = async ({
   userBank,
   fromAccount
