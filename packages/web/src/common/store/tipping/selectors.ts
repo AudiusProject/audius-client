@@ -22,7 +22,7 @@ export const getSendTipData = (state: CommonState) => state.tipping.send
 export const getRecentTips = (state: CommonState) => state.tipping.recentTips
 export const getTipToDisplay = (state: CommonState) =>
   state.tipping.tipToDisplay
-export const getShowTip = (state: CommonState) => state.tipping.showTip
+export const getShowTip = (state: CommonState) => state.tipping?.showTip
 
 const mergeMaps = <
   MapType extends Record<ID, Record<ID, Supporter | Supporting>>
