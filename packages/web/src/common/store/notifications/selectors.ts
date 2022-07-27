@@ -1,4 +1,4 @@
-import { Collection, Track } from '@audius/common'
+import { Collection, Track, Nullable } from '@audius/common'
 import { createSelector } from 'reselect'
 
 import { CommonState } from 'common/store'
@@ -9,7 +9,6 @@ import {
 } from 'common/store/cache/collections/selectors'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { getUser, getUsers } from 'common/store/cache/users/selectors'
-import { Nullable } from 'common/utils/typeUtils'
 
 import {
   Entity,
