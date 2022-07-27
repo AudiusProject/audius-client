@@ -8,7 +8,6 @@ import {
   PublicKey,
   Transaction
 } from '@solana/web3.js'
-import BN from 'bn.js'
 import JSBI from 'jsbi'
 import {
   call,
@@ -19,7 +18,6 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
-import { BNWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import { TOKEN_LISTING_MAP } from 'common/store/buy-audio/constants'
 import {
@@ -32,7 +30,11 @@ import {
   quoteSucceeded
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
-import { convertJSBIToUiString, weiToString } from 'common/utils/wallet'
+import {
+  convertJSBIToUiString,
+  convertWAudioToWei,
+  weiToString
+} from 'common/utils/wallet'
 import {
   createTransferToUserBankTransaction,
   getRootSolanaAccount,
@@ -44,16 +46,9 @@ const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 
 const BALANCE_CHANGE_TIMEOUT_MS = 120_000 // 2 minutes
 const BALANCE_CHANGE_POLL_INTERVAL_MS = 5_000 // 5 second
-const WEI_DECIMALS = 18 // 18 decimals on ETH AUDIO
-const SPL_DECIMALS = 8 // 8 decimals on SPL AUDIO
 const SWAP_MIN_SOL = 0.05 // Minimum SOL balance needed to execute a Jupiter Swap
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 let _jup: Jupiter
-
-function convertWAudioToWei(amount: BN) {
-  const decimals = WEI_DECIMALS - SPL_DECIMALS
-  return amount.mul(new BN('1'.padEnd(decimals + 1, '0'))) as BNWei
-}
 
 /**
  * Initializes Jupiter singleton if necessary and returns
