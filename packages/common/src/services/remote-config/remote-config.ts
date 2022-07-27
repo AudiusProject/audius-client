@@ -1,4 +1,5 @@
 import optimizely from '@optimizely/optimizely-sdk'
+
 import { ID } from 'models/Identifiers'
 import {
   remoteConfigIntDefaults,
@@ -125,8 +126,8 @@ export const remoteConfig = <
    * Access a remotely configured value.
    * @param key
    */
-  function getRemoteVar(key: BooleanKeys): boolean | null
   function getRemoteVar(key: StringKeys): string | null
+  function getRemoteVar(key: BooleanKeys): boolean | null
   function getRemoteVar(key: IntKeys): number | null
   function getRemoteVar(key: DoubleKeys): number | null
   function getRemoteVar(
