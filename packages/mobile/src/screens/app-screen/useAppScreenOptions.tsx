@@ -17,13 +17,9 @@ import IconNotification from 'app/assets/images/iconNotification.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { IconButton } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-<<<<<<< HEAD
 import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
-=======
-import { ContextualParams, useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
->>>>>>> d8b69761d (Early Access Mode)
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { makeStyles } from 'app/styles'
