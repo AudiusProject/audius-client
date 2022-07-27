@@ -1,4 +1,4 @@
-import { Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
+import { AccountInfo, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
@@ -30,7 +30,7 @@ export const createTransferToUserBankTransaction = async ({
     await libs().solanaWeb3Manager.findAssociatedTokenAddress(
       fromAccount.publicKey.toString()
     )
-  const tokenAccountInfo =
+  const tokenAccountInfo: AccountInfo =
     await libs().solanaWeb3Manager.getAssociatedTokenAccountInfo(
       associatedTokenAccount.toString()
     )
