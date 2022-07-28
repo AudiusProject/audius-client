@@ -12,10 +12,10 @@ export const remoteConfigInstance = remoteConfig({
     })
   },
   getFeatureFlagSessionId: async () => {
-    const item = await AsyncStorage.getItem(
+    const sessionId = await AsyncStorage.getItem(
       FEATURE_FLAG_ASYNC_STORAGE_SESSION_KEY
     )
-    return item ? parseInt(item) : null
+    return sessionId ? parseInt(sessionId) : null
   },
   setFeatureFlagSessionId: async (id) =>
     AsyncStorage.setItem(FEATURE_FLAG_ASYNC_STORAGE_SESSION_KEY, id.toString()),

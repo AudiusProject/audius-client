@@ -12,10 +12,11 @@ export const useFlag = createUseFeatureFlagHook({
     if (value === null) return window.localStorage.removeItem(key)
     window.localStorage.setItem(key, value)
   },
-  useAccountProvider: () => !!useSelector(getAccountUser),
-  useConfigLoadedProvider: () => !!useSelector(isRemoteConfigLoaded)
+  useHasAccount: () => !!useSelector(getAccountUser),
+  useHasConfigLoaded: () => !!useSelector(isRemoteConfigLoaded)
 })
-export const useRemoteVar = createUseRemoteVarHook(
+export const useRemoteVar = createUseRemoteVarHook({
   remoteConfigInstance,
-  () => !!useSelector(isRemoteConfigLoaded)
-)
+  useHasAccount: () => !!useSelector(getAccountUser),
+  useHasConfigLoaded: () => !!useSelector(isRemoteConfigLoaded)
+})

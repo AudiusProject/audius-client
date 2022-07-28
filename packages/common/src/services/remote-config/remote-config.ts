@@ -120,15 +120,15 @@ export const remoteConfig = <
   /**
    * API for listening to setUser events
    */
-  function listenForUserId(fn: () => void | Promise<void>) {
-    emitter.addListener('setUserId', fn)
+  function listenForUserId(cb: () => void | Promise<void>) {
+    emitter.addListener('setUserId', cb)
   }
 
   /**
    * API to unlisten to setUser events
    */
-  function unlistenForUserId(fn: () => void | Promise<void>) {
-    emitter.removeListener('setUserId', fn)
+  function unlistenForUserId(cb: () => void | Promise<void>) {
+    emitter.removeListener('setUserId', cb)
   }
 
   /**

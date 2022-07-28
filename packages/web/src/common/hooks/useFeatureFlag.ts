@@ -8,29 +8,30 @@ export type OverrideSetting = 'enabled' | 'disabled' | null
 
 /**
  * Helper for when to recompute flag state, used by both FeatureFlags
- * and RemoteConfig. Recomputes when:
+ * and RemoteConfig. Returns a boolean that toggles whenever it should recompute (i.e. for use in `useEffect`)
+ * Recomputes when:
  * - User logs in (account is seen in store)
  * - Config loads
  * - User ID is set on Optimizely (seen by event emission)
  **/
-const useRecomputeBool = (
-  useAccountProvider: () => boolean,
+export const useRecomputeToggle = (
+  useHasAccount: () => boolean,
   configLoaded: boolean,
   remoteConfigInstance: RemoteConfigInstance
 ) => {
-  const [shouldRecompute, setShouldRecompute] = useState(false)
+  const [recomputeToggle, setRecomputeToggle] = useState(false)
 
-  const hasAccount = useAccountProvider()
+  const hasAccount = useHasAccount()
 
   // Flip recompute bool whenever account or config state changes
   useEffect(() => {
-    setShouldRecompute((recompute) => !recompute)
+    setRecomputeToggle((recompute) => !recompute)
   }, [hasAccount, configLoaded])
 
   // Register callback for remote config account set,
   // which flips recompute bool
   const onUserStateChange = useCallback(() => {
-    setShouldRecompute((recompute) => !recompute)
+    setRecomputeToggle((recompute) => !recompute)
   }, [])
 
   useEffect(() => {
@@ -38,7 +39,7 @@ const useRecomputeBool = (
     return () => remoteConfigInstance.unlistenForUserId(onUserStateChange)
   }, [onUserStateChange, remoteConfigInstance])
 
-  return shouldRecompute
+  return recomputeToggle
 }
 
 /**
@@ -51,21 +52,21 @@ export const createUseFeatureFlagHook =
     remoteConfigInstance,
     getLocalStorageItem,
     setLocalStorageItem,
-    useAccountProvider,
-    useConfigLoadedProvider
+    useHasAccount,
+    useHasConfigLoaded
   }: {
     remoteConfigInstance: RemoteConfigInstance
     getLocalStorageItem?: (key: string) => string | null
     setLocalStorageItem?: (key: string, value: string | null) => void
-    useAccountProvider: () => boolean
-    useConfigLoadedProvider: () => boolean
+    useHasAccount: () => boolean
+    useHasConfigLoaded: () => boolean
   }) =>
   (flag: FeatureFlags) => {
     const overrideKey = `${FEATURE_FLAG_OVERRIDE_KEY}:${flag}`
-    const configLoaded = useConfigLoadedProvider()
+    const configLoaded = useHasConfigLoaded()
 
-    const shouldRecompute = useRecomputeBool(
-      useAccountProvider,
+    const shouldRecompute = useRecomputeToggle(
+      useHasAccount,
       configLoaded,
       remoteConfigInstance
     )
@@ -83,7 +84,7 @@ export const createUseFeatureFlagHook =
       },
       // We want configLoaded and shouldRecompute to trigger refreshes of the memo
       // eslint-disable-next-line
-      [flag, configLoaded, shouldRecompute]
+    [flag, shouldRecompute]
     )
     return { isLoaded: configLoaded, isEnabled, setOverride }
   }

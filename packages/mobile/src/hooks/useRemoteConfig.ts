@@ -11,11 +11,12 @@ import { remoteConfigInstance } from 'app/services/remote-config/remote-config-i
 
 export const useFeatureFlag = createUseFeatureFlagHook({
   remoteConfigInstance,
-  useAccountProvider: () => !!useSelectorWeb(getAccountUser),
-  useConfigLoadedProvider: () => !!useSelector(isRemoteConfigLoaded)
+  useHasAccount: () => !!useSelectorWeb(getAccountUser),
+  useHasConfigLoaded: () => !!useSelector(isRemoteConfigLoaded)
 })
 
-export const useRemoteVar = createUseRemoteVarHook(
+export const useRemoteVar = createUseRemoteVarHook({
   remoteConfigInstance,
-  () => !!useSelector(isRemoteConfigLoaded)
-)
+  useHasAccount: () => !!useSelectorWeb(getAccountUser),
+  useHasConfigLoaded: () => !!useSelector(isRemoteConfigLoaded)
+})

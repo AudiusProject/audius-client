@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { useRecomputeToggle } from 'common/hooks/useFeatureFlag'
 import {
   AllRemoteConfigKeys,
   BooleanKeys,
@@ -9,10 +10,15 @@ import {
   RemoteConfigInstance
 } from '@audius/common'
 
-export const createUseRemoteVarHook = (
-  remoteConfigInstance: RemoteConfigInstance,
-  configLoadedProvider: () => boolean
-) => {
+export const createUseRemoteVarHook = ({
+  remoteConfigInstance,
+  useHasAccount,
+  useHasConfigLoaded
+}: {
+  remoteConfigInstance: RemoteConfigInstance
+  useHasAccount: () => boolean
+  useHasConfigLoaded: () => boolean
+}) => {
   function useRemoteVar(key: IntKeys): number
   function useRemoteVar(key: DoubleKeys): number
   function useRemoteVar(key: StringKeys): string
@@ -20,12 +26,17 @@ export const createUseRemoteVarHook = (
   function useRemoteVar(
     key: AllRemoteConfigKeys
   ): boolean | string | number | null {
-    const configLoaded = configLoadedProvider()
+    const configLoaded = useHasConfigLoaded()
+    const shouldRecompute = useRecomputeToggle(
+      useHasAccount,
+      configLoaded,
+      remoteConfigInstance
+    )
 
     const remoteVar = useMemo(
       () => remoteConfigInstance.getRemoteVar(key),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [key, configLoaded, remoteConfigInstance]
+      [key, shouldRecompute, remoteConfigInstance]
     )
     return remoteVar
   }
