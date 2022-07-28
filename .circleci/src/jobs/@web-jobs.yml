@@ -16,7 +16,7 @@ web-init:
 
     - restore_cache:
           keys:
-            - cache-{{ checksum "packages/stems/dist/index.js" }}-{{ checksum "packages/common/dist/index.es.js" }}
+            - cache-{{ .Revision }}
 
     - run:
         name: Link packages
