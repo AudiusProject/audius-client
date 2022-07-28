@@ -72,10 +72,10 @@ jobs:
             - ./packages/common/node_modules
 
       - save_cache:
-          key: cache-{{ checksum "packages/stems/dist/index.js" }}-{{ checksum "packages/common/dist/index.js" }}
+          key: cache-{{ checksum "packages/stems/dist/index.js" }}-{{ checksum "packages/common/dist/index.es.js" }}
           paths:
-            - packages/stems/dist
-            - packages/common/dist
+            - ./packages/stems/dist
+            - ./packages/common/dist
 
   # Bump version and create release branch
   generate-release:
