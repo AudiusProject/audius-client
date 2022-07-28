@@ -69,9 +69,13 @@ jobs:
             - ./packages/web/node_modules
             - ./packages/mobile/node_modules
             - ./packages/stems/node_modules
-            - ./packages/stems/dist
             - ./packages/common/node_modules
-            - ./packages/common/dist
+
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - packages/stems/dist
+            - packages/common/dist
 
   # Bump version and create release branch
   generate-release:
