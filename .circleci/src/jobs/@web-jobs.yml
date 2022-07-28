@@ -13,6 +13,9 @@ web-init:
     - restore_cache:
           keys:
             - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+
+    - restore_cache:
+          keys:
             - cache-{{ checksum "packages/stems/dist/index.js" }}-{{ checksum "packages/common/dist/index.es.js" }}
 
     - run:
