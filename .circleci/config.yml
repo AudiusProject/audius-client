@@ -71,8 +71,8 @@ jobs:
             - ./packages/stems/node_modules
             - ./packages/common/node_modules
 
-      - persist_to_workspace:
-          root: ./
+      - save_cache:
+          key: cache-{{ checksum "packages/stems/dist/index.js" }}-{{ checksum "packages/common/dist/index.js" }}
           paths:
             - packages/stems/dist
             - packages/common/dist
