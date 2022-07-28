@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react'
 
+import { Nullable } from '@audius/common'
 import { Modal, ModalHeader, ModalTitle } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 import { animated, Transition } from 'react-spring/renderprops'
@@ -45,7 +46,7 @@ const titleMessagesMap: { [key in TippingSendStatus]?: string } = {
   SUCCESS: messages.tipSent
 }
 
-const titleIconsMap = {
+const titleIconsMap: { [key in TippingSendStatus]?: Nullable<JSX.Element> } = {
   SEND: <GoldBadgeIconImage />,
   CONFIRM: <GoldBadgeIconImage />,
   SENDING: <GoldBadgeIconImage />,
