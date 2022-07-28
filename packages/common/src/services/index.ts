@@ -1,2 +1,2 @@
-export * from './remote-config'
-export * from './RandomImage'
+export * from 'services/remote-config'
+export * from 'services/RandomImage'
