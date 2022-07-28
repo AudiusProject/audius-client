@@ -242,6 +242,10 @@ function* doExchange({
   outputTokenSymbol,
   slippage
 }: ReturnType<typeof exchange>['payload']) {
+  const account = yield* select(getAccountUser)
+  if (!account?.userBank) {
+    throw new Error('User does not have a user bank')
+  }
   const connection: Connection = yield* call(getSolanaConnection)
   const rootAccount: Keypair = yield* call(getRootSolanaAccount)
 
@@ -273,10 +277,6 @@ function* doExchange({
     account: rootAccount,
     transactionHandler
   })
-  const account = yield* select(getAccountUser)
-  if (!account?.userBank) {
-    throw new Error('User does not have a user bank')
-  }
   const { tx: transferTransaction, amount: transferAmount } = yield* call(
     createTransferToUserBankTransaction,
     {
