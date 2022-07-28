@@ -109,12 +109,12 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
   )
 }
 
-type SendTipToButtonProps = {
+type SendTipButtonProps = {
   user: User
   hideName?: boolean
 }
 
-const SendTipButton = ({ user, hideName = false }: SendTipToButtonProps) => {
+const SendTipButton = ({ user, hideName = false }: SendTipButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {

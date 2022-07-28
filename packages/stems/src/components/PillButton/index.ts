@@ -1,2 +1,2 @@
 export { PillButton } from './PillButton'
-export { PillButtonProps, Type } from './types'
+export { PillButtonProps, Variant } from './types'

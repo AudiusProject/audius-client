@@ -16,7 +16,7 @@ export { IconButton, IconButtonProps } from './components/IconButton'
 export {
   PillButton,
   PillButtonProps,
-  Type as PillButtonType
+  Variant as PillButtonVariant
 } from './components/PillButton'
 export { Scrollbar, ScrollbarProps } from './components/Scrollbar'
 export {
