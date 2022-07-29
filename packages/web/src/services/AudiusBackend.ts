@@ -17,7 +17,8 @@ import {
   Track,
   TrackMetadata,
   User,
-  UserMetadata
+  UserMetadata,
+  uuid
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -36,18 +37,11 @@ import utc from 'dayjs/plugin/utc'
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
-import {
-  IntKeys,
-  StringKeys,
-  BooleanKeys,
-  FeatureFlags
-} from 'common/services/remote-config'
 import CIDCache from 'common/store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
-import { uuid } from 'common/utils/uid'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
