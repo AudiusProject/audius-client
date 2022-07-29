@@ -22,6 +22,7 @@ import {
   TrackMetadata,
   User,
   UserMetadata,
+  UserTrack,
   uuid
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
@@ -892,7 +893,7 @@ class AudiusBackend {
       [FeedFilter.REPOST]: 'repost'
     }
 
-    let feedItems = []
+    let feedItems: Array<Collection | UserTrack> = []
     try {
       feedItems = await withEagerOption(
         {
@@ -912,9 +913,9 @@ class AudiusBackend {
     } catch (err) {
       console.error(err)
     }
-    return feedItems.map((item: Collection | Track) => {
-      if ((item as Collection).playlist_id) {
-        return AudiusBackend.getCollectionImages(item as Collection)
+    return feedItems.map((item) => {
+      if ('playlist_id' in item) {
+        return AudiusBackend.getCollectionImages(item)
       }
       return item
     })
