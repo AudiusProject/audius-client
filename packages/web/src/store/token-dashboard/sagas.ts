@@ -175,12 +175,14 @@ function* fetchSplWalletInfo(wallets: string[]) {
 }
 
 function* fetchAccountAssociatedWallets() {
+  console.log('fetching associated wallets')
   const accountUserId: Nullable<ID> = yield select(getUserId)
   if (!accountUserId) return
   const associatedWallets: AssociatedWalletsResponse =
     yield apiClient.getAssociatedWallets({
       userID: accountUserId
     })
+  console.log('got associated wallets', associatedWallets)
   const ethWalletBalances: {
     address: string
     balance: BNWei
@@ -192,7 +194,7 @@ function* fetchAccountAssociatedWallets() {
     balance: BNWei
     collectibleCount: number
   }[] = yield fetchSplWalletInfo(associatedWallets.sol_wallets ?? [])
-
+  console.log('putting spl balance as', splWalletBalances)
   yield put(
     setAssociatedWallets({
       associatedWallets: ethWalletBalances,
@@ -663,6 +665,7 @@ function* connectEthWallet(web3Instance: any) {
 }
 
 function* removeWallet(action: ConfirmRemoveWalletAction) {
+  console.log('removing wallet')
   try {
     const removeWallet = action.payload.wallet
     const removeChain = action.payload.chain

@@ -1165,12 +1165,16 @@ class AudiusBackend {
     const associatedWallets = await AudiusBackend.fetchUserAssociatedWallets(
       metadata
     )
+    console.log('newMetadata (updateCreator)', { ...newMetadata })
+    console.log('fetched associated wallets (updateCreator)', {
+      ...associatedWallets
+    })
     newMetadata.associated_wallets =
       newMetadata.associated_wallets || associatedWallets?.associated_wallets
     newMetadata.associated_sol_wallets =
       newMetadata.associated_sol_wallets ||
       associatedWallets?.associated_sol_wallets
-
+    console.log('newMetadata - after the ||', { ...newMetadata })
     try {
       if (newMetadata.updatedProfilePicture) {
         const resp = await audiusLibs.File.uploadImage(
@@ -1213,7 +1217,7 @@ class AudiusBackend {
       }
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
-
+      console.log('newMetadata after schemas (final form)', newMetadata)
       const { blockHash, blockNumber, userId } =
         await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata)
       return { blockHash, blockNumber, userId }
@@ -1225,6 +1229,7 @@ class AudiusBackend {
 
   static async updateUser(metadata, id) {
     let newMetadata = { ...metadata }
+    console.log('new metadta - update user', { ...newMetadata })
     try {
       if (newMetadata.updatedProfilePicture) {
         const resp = await audiusLibs.File.uploadImage(

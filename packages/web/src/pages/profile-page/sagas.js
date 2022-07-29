@@ -422,8 +422,10 @@ function* confirmUpdateProfile(userId, metadata) {
       function* () {
         let response
         if (metadata.creator_node_endpoint) {
+          console.log('update creator')
           response = yield call(AudiusBackend.updateCreator, metadata, userId)
         } else {
+          console.log('update user')
           response = yield call(AudiusBackend.updateUser, metadata, userId)
         }
         const { blockHash, blockNumber } = response
