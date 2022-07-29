@@ -1,4 +1,4 @@
-import { ID, Collection, FeedFilter, Track, UserTrack } from '@audius/common'
+import { ID, Collection, FeedFilter, UserTrack } from '@audius/common'
 
 import AudiusBackend, {
   IDENTITY_SERVICE,
