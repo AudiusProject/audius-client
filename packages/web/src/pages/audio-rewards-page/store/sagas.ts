@@ -211,7 +211,7 @@ function* claimChallengeRewardAsync(
   const currentUser = yield* select(getAccountUser)
   const feePayerOverride = yield* select(getFeePayer)
 
-  if (!currentUser) return
+  if (!currentUser || !currentUser.wallet) return
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints =
@@ -224,7 +224,9 @@ function* claimChallengeRewardAsync(
     quorumSize &&
     quorumSize > 0 &&
     maxClaimRetries &&
-    !isNaN(maxClaimRetries)
+    !isNaN(maxClaimRetries) &&
+    endpoints &&
+    parallelization !== null
 
   if (!hasConfig) {
     console.error('Error claiming rewards: Config is missing')
@@ -242,13 +244,13 @@ function* claimChallengeRewardAsync(
         challenges,
         userId: currentUser.user_id,
         handle: currentUser.handle,
-        recipientEthAddress: currentUser.wallet as string,
+        recipientEthAddress: currentUser.wallet,
         oracleEthAddress,
         amount,
         quorumSize,
-        endpoints: endpoints as string[],
+        endpoints,
         AAOEndpoint,
-        parallelization: parallelization as number,
+        parallelization,
         feePayerOverride,
         isFinalAttempt: !retryOnFailure
       }

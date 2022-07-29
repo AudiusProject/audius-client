@@ -1151,7 +1151,7 @@ class AudiusBackend {
   static async getCreators(ids: ID[]) {
     try {
       if (ids.length === 0) return []
-      const creators = await withEagerOption(
+      const creators: User[] = await withEagerOption(
         {
           normal: (libs) => libs.User.getUsers,
           eager: DiscoveryAPI.getUsers
