@@ -136,41 +136,39 @@ function* doQuote({
 
 /**
  * Wrapper for TransactionHandler.handleTransaction that does some logging and error checking
- * @param name transaction name, used for logs
- * @param transaction the transaction object
- * @param feePayer the keypair of the feepayer
- * @param transactionHandler the transaction handler
  * @returns the result of the transaction handler handleTransaction call
  */
-function* sendTransaction(
-  name: string,
-  transaction: Transaction,
-  feePayer: Keypair,
+async function sendTransaction({
+  name,
+  transaction,
+  feePayer,
+  transactionHandler
+}: {
+  name: string
+  transaction: Transaction
+  feePayer: Keypair
   transactionHandler: TransactionHandler
-) {
+}) {
   console.debug(`Exchange: starting ${name} transaction...`)
   console.debug(
     `Exchange: ${name} transaction stringified:`,
     JSON.stringify(transaction)
   )
-  const result = yield* call(
-    [transactionHandler, transactionHandler.handleTransaction],
-    {
-      instructions: transaction.instructions,
-      feePayerOverride: feePayer.publicKey.toString(),
-      skipPreflight: true,
-      errorMapping: {
-        fromErrorCode: (errorCode) => {
-          if (errorCode === ERROR_CODE_SLIPPAGE) {
-            return 'Slippage threshold exceeded'
-          } else if (errorCode === ERROR_CODE_INSUFFICIENT_FUNDS) {
-            return 'Insufficient funds'
-          }
-          return `Error Code: ${errorCode}`
+  const result = await transactionHandler.handleTransaction({
+    instructions: transaction.instructions,
+    feePayerOverride: feePayer.publicKey.toString(),
+    skipPreflight: true,
+    errorMapping: {
+      fromErrorCode: (errorCode) => {
+        if (errorCode === ERROR_CODE_SLIPPAGE) {
+          return 'Slippage threshold exceeded'
+        } else if (errorCode === ERROR_CODE_INSUFFICIENT_FUNDS) {
+          return 'Insufficient funds'
         }
+        return `Error Code: ${errorCode}`
       }
     }
-  )
+  })
   if (result.error) {
     throw new Error(`${name} transaction failed: ${result.error}`)
   }
@@ -198,32 +196,29 @@ function* doSwap({
     userPublicKey: account.publicKey
   })
   if (setupTransaction) {
-    yield* call(
-      sendTransaction,
-      'Setup',
-      setupTransaction,
-      account,
+    yield* call(sendTransaction, {
+      name: 'Setup',
+      transaction: setupTransaction,
+      feePayer: account,
       transactionHandler
-    )
+    })
   }
   // Wrap this in try/finally to ensure cleanup transaction runs, if applicable
   try {
-    yield* call(
-      sendTransaction,
-      'Swap',
-      swapTransaction,
-      account,
+    yield* call(sendTransaction, {
+      name: 'Swap',
+      transaction: swapTransaction,
+      feePayer: account,
       transactionHandler
-    )
+    })
   } finally {
     if (cleanupTransaction) {
-      yield* call(
-        sendTransaction,
-        'Cleanup',
-        cleanupTransaction,
-        account,
+      yield* call(sendTransaction, {
+        name: 'Cleanup',
+        transaction: cleanupTransaction,
+        feePayer: account,
         transactionHandler
-      )
+      })
     }
   }
 }
@@ -284,13 +279,12 @@ function* doExchange({
       fromAccount: rootAccount
     }
   )
-  yield* call(
-    sendTransaction,
-    'Transfer',
-    transferTransaction,
-    rootAccount,
+  yield* call(sendTransaction, {
+    name: 'Transfer',
+    transaction: transferTransaction,
+    feePayer: rootAccount,
     transactionHandler
-  )
+  })
   return transferAmount
 }
 
