@@ -23,7 +23,8 @@ import {
   User,
   UserMetadata,
   UserTrack,
-  uuid
+  uuid,
+  Maybe
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -61,8 +62,7 @@ import { encodeHashId } from 'utils/route/hashIds'
 
 import {
   waitForLibsInit,
-  withEagerOption,
-  LIBS_INITTED_EVENT
+  withEagerOption
 } from './audius-backend/eagerLoadUtils'
 import { monitoringCallbacks } from './serviceMonitoring'
 
@@ -280,6 +280,13 @@ type AudiusBackendParams = Partial<{
   audiusOrigin: string
 }> & {
   waitForWeb3: () => Promise<void>
+  onLibsInit: (libs: any) => void
+  getWeb3Config: (
+    libs: any,
+    registryAddress: Maybe<string>,
+    web3ProviderUrls: Maybe<string[]>,
+    web3NetworkId: Maybe<string>
+  ) => Promise<any>
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -320,7 +327,9 @@ export const audiusBackend = ({
   recaptchaSiteKey,
   nativeMobile,
   audiusOrigin,
-  waitForWeb3
+  waitForWeb3,
+  onLibsInit,
+  getWeb3Config
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
@@ -510,7 +519,12 @@ export const audiusBackend = ({
 
     // initialize libs
     let libsError = null
-    const { web3Config } = await getWeb3Config()
+    const { web3Config } = await getWeb3Config(
+      libs,
+      registryAddress,
+      web3ProviderUrls,
+      web3NetworkId
+    )
     const { ethWeb3Config } = getEthWeb3Config()
     const { solanaWeb3Config } = getSolanaWeb3Config()
     const { solanaAudiusDataConfig } = getSolanaAudiusDataConfig()
@@ -575,9 +589,7 @@ export const audiusBackend = ({
         )
       })
       await audiusLibs.init()
-      window.audiusLibs = audiusLibs
-      const event = new CustomEvent(LIBS_INITTED_EVENT)
-      window.dispatchEvent(event)
+      onLibsInit(audiusLibs)
 
       sanityChecks(audiusLibs)
     } catch (err) {
@@ -599,41 +611,6 @@ export const audiusBackend = ({
         ethOwnerWallet,
         claimDistributionContractAddress,
         wormholeAddress
-      )
-    }
-  }
-
-  async function getWeb3Config() {
-    const useMetaMaskSerialized = localStorage.getItem('useMetaMask')
-    const useMetaMask = useMetaMaskSerialized
-      ? JSON.parse(useMetaMaskSerialized)
-      : false
-
-    if (useMetaMask && window.web3) {
-      try {
-        return {
-          error: false,
-          web3Config: await AudiusLibs.configExternalWeb3(
-            registryAddress,
-            window.web3.currentProvider,
-            web3NetworkId
-          )
-        }
-      } catch (e) {
-        return {
-          error: true,
-          web3Config: AudiusLibs.configInternalWeb3(
-            registryAddress,
-            web3ProviderUrls
-          )
-        }
-      }
-    }
-    return {
-      error: false,
-      web3Config: AudiusLibs.configInternalWeb3(
-        registryAddress,
-        web3ProviderUrls
       )
     }
   }

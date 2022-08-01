@@ -1,4 +1,5 @@
 import { audiusBackend } from 'services/AudiusBackend'
+import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
 
 export const audiusBackendInstance = audiusBackend({
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
@@ -54,6 +55,44 @@ export const audiusBackendInstance = audiusBackend({
         }
         window.addEventListener('WEB3_LOADED', onLoad)
       })
+    }
+  },
+  onLibsInit: (libs: any) => {
+    window.audiusLibs = libs
+    const event = new CustomEvent(LIBS_INITTED_EVENT)
+    window.dispatchEvent(event)
+  },
+  getWeb3Config: async (
+    libs,
+    registryAddress,
+    web3ProviderUrls,
+    web3NetworkId
+  ) => {
+    const useMetaMaskSerialized = localStorage.getItem('useMetaMask')
+    const useMetaMask = useMetaMaskSerialized
+      ? JSON.parse(useMetaMaskSerialized)
+      : false
+
+    if (useMetaMask && window.web3) {
+      try {
+        return {
+          error: false,
+          web3Config: await libs.configExternalWeb3(
+            registryAddress,
+            window.web3.currentProvider,
+            web3NetworkId
+          )
+        }
+      } catch (e) {
+        return {
+          error: true,
+          web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
+        }
+      }
+    }
+    return {
+      error: false,
+      web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
     }
   }
 })
