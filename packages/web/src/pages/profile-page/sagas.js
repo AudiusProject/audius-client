@@ -230,7 +230,7 @@ function* fetchProfileAsync(action) {
 
     // Get current user notification & subscription status
     const isSubscribed = yield call(
-      AudiusBackend.getUserSubscribed,
+      audiusBackendInstance.getUserSubscribed,
       user.user_id
     )
     yield put(
@@ -286,7 +286,7 @@ const MOST_USED_TAGS_COUNT = 5
 // so the number of user tracks plus a large track number are fetched
 const LARGE_TRACKCOUNT_TAGS = 100
 function* fetchMostUsedTags(userId, trackCount) {
-  const trackResponse = yield call(AudiusBackend.getArtistTracks, {
+  const trackResponse = yield call(audiusBackendInstance.getArtistTracks, {
     offset: 0,
     limit: trackCount + LARGE_TRACKCOUNT_TAGS,
     userId,
@@ -312,7 +312,7 @@ function* fetchFolloweeFollows(action) {
   const profileUserId = yield select(getProfileUserId)
   if (!profileUserId) return
   const followeeFollows = yield call(
-    AudiusBackend.getFolloweeFollows,
+    audiusBackendInstance.getFolloweeFollows,
     profileUserId,
     action.limit,
     action.offset
@@ -422,9 +422,17 @@ function* confirmUpdateProfile(userId, metadata) {
       function* () {
         let response
         if (metadata.creator_node_endpoint) {
-          response = yield call(AudiusBackend.updateCreator, metadata, userId)
+          response = yield call(
+            audiusBackendInstance.updateCreator,
+            metadata,
+            userId
+          )
         } else {
-          response = yield call(AudiusBackend.updateUser, metadata, userId)
+          response = yield call(
+            audiusBackendInstance.updateUser,
+            metadata,
+            userId
+          )
         }
         const { blockHash, blockNumber } = response
 
@@ -511,7 +519,7 @@ function* watchSetNotificationSubscription() {
       if (action.update) {
         try {
           yield call(
-            AudiusBackend.updateUserSubscription,
+            audiusBackendInstance.updateUserSubscription,
             action.userId,
             action.isSubscribed
           )

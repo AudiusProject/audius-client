@@ -1,4 +1,4 @@
-import { USER_NODE, LEGACY_USER_NODE } from 'services/audius-backend/endpoints'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 export const getCreatorNodeIPFSGateways = (endpoint) => {
   if (endpoint) {
@@ -7,9 +7,9 @@ export const getCreatorNodeIPFSGateways = (endpoint) => {
       .filter(Boolean)
       .map((endpoint) => `${endpoint}/ipfs/`)
   }
-  const gateways = [`${USER_NODE}/ipfs/`]
-  if (LEGACY_USER_NODE) {
-    gateways.push(`${LEGACY_USER_NODE}/ipfs/`)
+  const gateways = [`${audiusBackendInstance.userNodeUrl}/ipfs/`]
+  if (audiusBackendInstance.legacyUserNodeUrl) {
+    gateways.push(`${audiusBackendInstance.legacyUserNodeUrl}/ipfs/`)
   }
   return gateways
 }

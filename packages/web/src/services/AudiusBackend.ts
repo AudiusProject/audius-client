@@ -2932,20 +2932,21 @@ export const audiusBackend = ({
   }
 
   return {
+    identityServiceUrl,
+    userNodeUrl,
+    legacyUserNodeUrl,
     currentDiscoveryProvider,
     didSelectDiscoveryProviderListeners,
+
     addDiscoveryProviderSelectionListener,
     fetchImageCID,
     getImageUrl,
     getTrackImages,
     getCollectionImages,
     getUserImages,
-    // discoveryProviderSelectionCallback,
     creatorNodeSelectionCallback,
     sanityChecks,
     setup,
-    // getEthWeb3Config,
-    // getWeb3Config
     setCreatorNodeEndpoint,
     isCreatorNodeSyncing,
     listCreatorNodes,

@@ -1,8 +1,8 @@
 import { ID, Collection, FeedFilter, UserTrack } from '@audius/common'
 
-import AudiusBackend, { AuthHeaders } from 'services/AudiusBackend'
+import { AuthHeaders } from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 type CollectionWithScore = Collection & { score: number }
 
@@ -25,13 +25,16 @@ class Explore {
   /** TRACKS ENDPOINTS */
   static async getTopUserListens(): Promise<TopUserListen[]> {
     try {
-      const { data, signature } = await AudiusBackend.signData()
-      return fetch(`${IDENTITY_SERVICE}/users/listens/top`, {
-        headers: {
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
+      const { data, signature } = await audiusBackendInstance.signData()
+      return fetch(
+        `${audiusBackendInstance.identityServiceUrl}/users/listens/top`,
+        {
+          headers: {
+            [AuthHeaders.Message]: data,
+            [AuthHeaders.Signature]: signature
+          }
         }
-      })
+      )
         .then((res) => res.json())
         .then((res) => res.listens)
     } catch (e) {
@@ -42,14 +45,17 @@ class Explore {
 
   static async getUserListens(trackIds: ID[]): Promise<UserListens> {
     try {
-      const { data, signature } = await AudiusBackend.signData()
+      const { data, signature } = await audiusBackendInstance.signData()
       const idQuery = trackIds.map((id) => `&trackIdList=${id}`).join('')
-      return fetch(`${IDENTITY_SERVICE}/users/listens?${idQuery}`, {
-        headers: {
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
+      return fetch(
+        `${audiusBackendInstance.identityServiceUrl}/users/listens?${idQuery}`,
+        {
+          headers: {
+            [AuthHeaders.Message]: data,
+            [AuthHeaders.Signature]: signature
+          }
         }
-      })
+      )
         .then((res) => res.json())
         .then((res) => res.listenMap)
     } catch (e) {
@@ -78,7 +84,7 @@ class Explore {
 
   static async getFeedNotListenedTo(limit = 25) {
     try {
-      const lineupItems = await AudiusBackend.getSocialFeed({
+      const lineupItems = await audiusBackendInstance.getSocialFeed({
         filter: FeedFilter.ORIGINAL,
         offset: 0,
         limit: 100,

@@ -14,7 +14,7 @@ import { fetchExploreContent } from 'common/store/pages/explore/sagas'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
-import AudiusBackend from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { playlistPage } from 'utils/route'
 
@@ -150,7 +150,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
     useAsyncFn(async () => {
       const featuredContent = await fetchExploreContent()
       const ids = featuredContent.featuredPlaylists
-      const playlists = AudiusBackend.getPlaylists(
+      const playlists = audiusBackendInstance.getPlaylists(
         null,
         ids
       ) as any as UserCollectionMetadata[]

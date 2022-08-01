@@ -223,7 +223,7 @@ function* confirmEditTrack(
         }
 
         const { blockHash, blockNumber } = yield call(
-          AudiusBackend.updateTrack,
+          audiusBackendInstance.updateTrack,
           trackId,
           { ...formFields }
         )
@@ -305,9 +305,12 @@ function* deleteTrackAsync(action) {
   const handle = yield select(getUserHandle)
 
   // Before deleting, check if the track is set as the artist pick & delete if so
-  const socials = yield call(AudiusBackend.getCreatorSocialHandle, handle)
+  const socials = yield call(
+    audiusBackendInstance.getCreatorSocialHandle,
+    handle
+  )
   if (socials.pinnedTrackId === action.trackId) {
-    yield call(AudiusBackend.setArtistPick)
+    yield call(audiusBackendInstance.setArtistPick)
     yield put(
       cacheActions.update(Kind.USERS, [
         {
@@ -334,7 +337,7 @@ function* confirmDeleteTrack(trackId) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield call(
-          AudiusBackend.deleteTrack,
+          audiusBackendInstance.deleteTrack,
           trackId
         )
 
@@ -413,7 +416,7 @@ function* watchFetchCoverArt() {
       const multihash = track.cover_art_sizes || track.cover_art
       const coverArtSize = multihash === track.cover_art_sizes ? size : null
       const url = yield call(
-        AudiusBackend.getImageUrl,
+        audiusBackendInstance.getImageUrl,
         multihash,
         coverArtSize,
         gateways
@@ -430,7 +433,7 @@ function* watchFetchCoverArt() {
       let smallImageUrl = url
       if (coverArtSize !== SquareSizes.SIZE_150_BY_150) {
         smallImageUrl = yield call(
-          AudiusBackend.getImageUrl,
+          audiusBackendInstance.getImageUrl,
           multihash,
           SquareSizes.SIZE_150_BY_150,
           gateways
