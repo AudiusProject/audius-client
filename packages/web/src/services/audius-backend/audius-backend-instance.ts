@@ -43,5 +43,17 @@ export const audiusBackendInstance = audiusBackend({
   },
   recaptchaSiteKey: process.env.REACT_APP_RECAPTCHA_SITE_KEY,
   nativeMobile: process.env.REACT_APP_NATIVE_MOBILE === 'true',
-  audiusOrigin: `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`
+  audiusOrigin: `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`,
+
+  waitForWeb3: async () => {
+    if (!window.web3Loaded) {
+      await new Promise<void>((resolve) => {
+        const onLoad = () => {
+          window.removeEventListener('WEB3_LOADED', onLoad)
+          resolve()
+        }
+        window.addEventListener('WEB3_LOADED', onLoad)
+      })
+    }
+  }
 })

@@ -100,19 +100,6 @@ type DiscoveryAPIParams<Endpoint extends DiscoveryEndpoint> = SnakeKeysToCamel<
   ReturnType<Endpoint>['queryParams']
 >
 
-// TODO: allow this to be configured
-export const waitForWeb3 = async () => {
-  if (!window.web3Loaded) {
-    await new Promise<void>((resolve) => {
-      const onLoad = () => {
-        window.removeEventListener('WEB3_LOADED', onLoad)
-        resolve()
-      }
-      window.addEventListener('WEB3_LOADED', onLoad)
-    })
-  }
-}
-
 // TODO: type these once libs types are improved
 let AudiusLibs: any = null
 export let Utils: any = null
@@ -292,6 +279,7 @@ type AudiusBackendParams = Partial<{
   nativeMobile: boolean
   audiusOrigin: string
 }> & {
+  waitForWeb3: () => Promise<void>
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -331,7 +319,8 @@ export const audiusBackend = ({
   },
   recaptchaSiteKey,
   nativeMobile,
-  audiusOrigin
+  audiusOrigin,
+  waitForWeb3
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
@@ -3054,7 +3043,8 @@ export const audiusBackend = ({
     getLatestTxReceipt,
     transferAudioToWAudio,
     getAddressWAudioBalance,
-    submitAndEvaluateAttestations
+    submitAndEvaluateAttestations,
+    waitForWeb3
   }
 }
 
