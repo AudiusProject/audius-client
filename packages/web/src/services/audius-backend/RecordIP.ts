@@ -1,8 +1,6 @@
-import AudiusBackend, {
-  AuthHeaders,
-  IDENTITY_SERVICE
-} from 'services/AudiusBackend'
+import AudiusBackend, { AuthHeaders } from 'services/AudiusBackend'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 
 // @ts-ignore
 const libs = () => window.audiusLibs

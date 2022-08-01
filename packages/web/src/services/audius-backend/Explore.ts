@@ -1,10 +1,8 @@
 import { ID, Collection, FeedFilter, UserTrack } from '@audius/common'
 
-import AudiusBackend, {
-  IDENTITY_SERVICE,
-  AuthHeaders
-} from 'services/AudiusBackend'
+import AudiusBackend, { AuthHeaders } from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 
 type CollectionWithScore = Collection & { score: number }
 

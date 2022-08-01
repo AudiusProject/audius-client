@@ -9,7 +9,7 @@ import {
   UseTikTokAuthArguments,
   createUseTikTokAuthHook
 } from 'common/hooks/useTikTokAuth'
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 import { useRecord, make } from 'store/analytics/actions'
 
 /**

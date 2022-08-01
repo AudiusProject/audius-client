@@ -1,4 +1,4 @@
-import { USER_NODE, LEGACY_USER_NODE } from 'services/AudiusBackend'
+import { USER_NODE, LEGACY_USER_NODE } from 'services/audius-backend/endpoints'
 
 export const getCreatorNodeIPFSGateways = (endpoint) => {
   if (endpoint) {

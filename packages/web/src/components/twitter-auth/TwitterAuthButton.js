@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 
 import TwitterButton from '../twitter-button/TwitterButton'
 

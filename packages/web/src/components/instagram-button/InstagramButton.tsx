@@ -2,7 +2,7 @@ import { Button, ButtonType, ButtonSize } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconInstagram } from 'assets/img/iconInstagram.svg'
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 
 import InstagramAuth from '../instagram-auth/InstagramAuth'
 

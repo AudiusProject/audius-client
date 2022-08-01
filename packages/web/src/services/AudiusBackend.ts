@@ -64,6 +64,7 @@ import {
   withEagerOption,
   LIBS_INITTED_EVENT
 } from './audius-backend/eagerLoadUtils'
+import { IDENTITY_SERVICE, USER_NODE } from './audius-backend/endpoints'
 import { monitoringCallbacks } from './serviceMonitoring'
 
 declare global {
@@ -77,10 +78,6 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
-
-export const IDENTITY_SERVICE = process.env.REACT_APP_IDENTITY_SERVICE
-export const USER_NODE = process.env.REACT_APP_USER_NODE
-export const LEGACY_USER_NODE = process.env.REACT_APP_LEGACY_USER_NODE
 
 const REGISTRY_ADDRESS = process.env.REACT_APP_REGISTRY_ADDRESS
 const WEB3_PROVIDER_URLS = (

@@ -1,4 +1,4 @@
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { IDENTITY_SERVICE } from 'services/audius-backend/endpoints'
 import { isElectron } from 'utils/clientUtil'
 
 export enum Permission {
