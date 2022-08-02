@@ -99,6 +99,7 @@ const AdvancedWalletActions = () => {
           onClick={onClickSend}
           leftIcon={<IconSend className={styles.iconStyle} />}
           type={ButtonType.GLASS}
+          minWidth={200}
         />
         <Button
           className={cn(styles.advancedButton, styles.receiveBtn)}
@@ -107,6 +108,7 @@ const AdvancedWalletActions = () => {
           onClick={onClickReceive}
           leftIcon={<IconReceive className={styles.iconStyle} />}
           type={ButtonType.GLASS}
+          minWidth={200}
         />
         <Button
           className={cn(styles.advancedButton, styles.connectWalletsBtn)}
@@ -120,6 +122,7 @@ const AdvancedWalletActions = () => {
           onClick={onClickConnectWallets}
           type={ButtonType.GLASS}
           leftIcon={<IconSettings className={styles.iconStyle} />}
+          minWidth={200}
         />
         {mobile && !IS_NATIVE_MOBILE && (
           <MobileConnectWalletsDrawer onClose={onCloseConnectWalletsDrawer} />
