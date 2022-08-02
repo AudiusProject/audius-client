@@ -1364,70 +1364,18 @@ class AudiusBackend {
     if (isAlbum) isPrivate = false
 
     try {
-      const trackIdsTest = [1]
       // Test call to new audius data function
       const response = await audiusLibs.EntityManager.createPlaylist({
         playlistName,
-        trackIds: trackIdsTest,
+        trackIds,
         coverArt,
         description,
         isAlbum,
         isPrivate
       })
-
-      // const response = await audiusLibs.Playlist.createPlaylist(
-      //   userId,
-      //   playlistName,
-      //   isPrivate,
-      //   isAlbum,
-      //   trackIds
-      // )
-      let { blockHash, blockNumber, playlistId, error } = response
+      const { blockHash, blockNumber, playlistId, error } = response
 
       if (error) return { playlistId, error }
-
-      const updatePromises = []
-
-      // If this playlist is being created from an existing cover art, use it.
-      if (metadata.cover_art_sizes) {
-        // updatePromises.push(
-        //   audiusLibs.contracts.PlaylistFactoryClient.updatePlaylistCoverPhoto(
-        //     playlistId,
-        //     Utils.formatOptionalMultihash(metadata.cover_art_sizes)
-        //   )
-        // )
-      } else if (coverArt) {
-        // updatePromises.push(
-        //   audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverArt)
-        // )
-      }
-      if (description) {
-        // updatePromises.push(
-        //   audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
-        // )
-      }
-
-      // Test call to new function
-      //   async createPlaylist2 (playlistName, trackIds, coverPhoto, description, uploadCoverPhoto = true) {
-      // await audiusLibs.Playlist.createPlaylist2(
-      //   playlistName,
-      //   trackIds,
-      //   coverArt,
-      //   description,
-      //   isAlbum
-      // )
-
-      /**
-       * find the latest transaction i.e. latest block number among the return transaction receipts
-       * and return that block number along with its corresponding block hash
-       */
-      if (updatePromises.length > 0) {
-        const latestReceipt = AudiusBackend.getLatestTxReceipt(
-          await Promise.all(updatePromises)
-        )
-        blockHash = latestReceipt.blockHash
-        blockNumber = latestReceipt.blockNumber
-      }
 
       return { blockHash, blockNumber, playlistId }
     } catch (err) {
@@ -1439,40 +1387,19 @@ class AudiusBackend {
   }
 
   static async updatePlaylist(playlistId, metadata) {
+    console.log(`asdf AudiusBackend updatePlaylist`)
     const playlistName = metadata.playlist_name
     const coverPhoto = metadata.artwork.file
     const description = metadata.description
 
     try {
-      let blockHash, blockNumber
-      const promises = []
-      if (playlistName) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
-        )
-      }
-      if (coverPhoto) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverPhoto)
-        )
-      }
-      if (description) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
-        )
-      }
-
-      /**
-       * find the latest transaction i.e. latest block number among the return transaction receipts
-       * and return that block number along with its corresponding block hash
-       */
-      if (promises.length > 0) {
-        const latestReceipt = AudiusBackend.getLatestTxReceipt(
-          await Promise.all(promises)
-        )
-        blockHash = latestReceipt.blockHash
-        blockNumber = latestReceipt.blockNumber
-      }
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist({
+          playlistId,
+          playlistName,
+          coverPhoto,
+          description
+        })
 
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1499,7 +1426,10 @@ class AudiusBackend {
   static async publishPlaylist(playlistId) {
     try {
       const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.updatePlaylistPrivacy(playlistId, false)
+        await audiusLibs.EntityManager.updatePlaylist({
+          playlistId,
+          isPrivate: false
+        })
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(error.message)
@@ -1509,8 +1439,14 @@ class AudiusBackend {
 
   static async addPlaylistTrack(playlistId, trackId) {
     try {
+      const playlist = call(AudiusBackend.getPlaylists, null, [playlistId])[0]
+      console.log('asdf addPlaylistTrack', playlist)
+
       const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.addPlaylistTrack(playlistId, trackId)
+        await audiusLibs.EntityManager.updatePlaylist({
+          playlistId,
+          trackIds: [trackId]
+        })
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(error.message)
@@ -1562,8 +1498,12 @@ class AudiusBackend {
   }
 
   static async deletePlaylist(playlistId) {
+    console.log('asdf audiusbackend', playlistId)
     try {
-      const { txReceipt } = await audiusLibs.Playlist.deletePlaylist(playlistId)
+      const { txReceipt } = await audiusLibs.EntityManager.deletePlaylist({
+        playlistId
+      })
+      console.log('asdf txReceipt', txReceipt)
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber

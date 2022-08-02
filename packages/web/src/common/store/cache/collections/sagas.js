@@ -1072,6 +1072,10 @@ function* confirmDeletePlaylist(userId, playlistId) {
             accountActions.removeAccountPlaylist({ collectionId: playlistId })
           )
         ])
+        console.log(
+          'asdf sagas deletePlaylist confirmedPlaylistId',
+          confirmedPlaylistId
+        )
 
         const { blockHash, blockNumber, error } = yield call(
           AudiusBackend.deletePlaylist,
