@@ -1,8 +1,6 @@
 import { getProfileUserId } from 'audius-client/src/common/store/pages/profile/selectors'
-import {
-  BadgeTierInfo,
-  badgeTiers
-} from 'audius-client/src/common/store/wallet/utils'
+import type { BadgeTierInfo } from 'audius-client/src/common/store/wallet/utils'
+import { badgeTiers } from 'audius-client/src/common/store/wallet/utils'
 import { Text, View } from 'react-native'
 
 import { useSelectTierInfo } from 'app/hooks/useSelectTierInfo'
@@ -88,7 +86,8 @@ export const TiersExplainerDrawer = () => {
           </TierText>
           <Text
             accessibilityLabel={`${minAudioText} or more audio tokens`}
-            style={styles.minAudio}>
+            style={styles.minAudio}
+          >
             {minAudio.toString()}+ $AUDIO
           </Text>
         </View>

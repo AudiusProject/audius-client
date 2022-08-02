@@ -4,7 +4,8 @@ import { Animated, StyleSheet, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ThemeColors, useThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 import { NOW_PLAYING_HEIGHT } from './constants'
 
@@ -69,14 +70,16 @@ export const TrackingBar = ({ translationAnim }: TrackingBarProps) => {
             outputRange: [0, 0, 2]
           })
         }
-      ]}>
+      ]}
+    >
       <View
         style={[
           styles.tracker,
           {
             width: `${percentComplete * 100}%`
           }
-        ]}>
+        ]}
+      >
         <LinearGradient
           useAngle
           angle={135}

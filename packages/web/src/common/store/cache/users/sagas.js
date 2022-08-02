@@ -1,9 +1,7 @@
+import { DefaultSizes, Kind, Status } from '@audius/common'
 import { mergeWith } from 'lodash'
-import { call, put, select, take, takeEvery, race } from 'redux-saga/effects'
+import { call, put, race, select, take, takeEvery } from 'redux-saga/effects'
 
-import { DefaultSizes } from 'common/models/ImageSizes'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
@@ -74,8 +72,7 @@ export function* upgradeToCreator() {
       {
         id: user.user_id,
         metadata: {
-          creator_node_endpoint: newEndpoint,
-          is_creator: true
+          creator_node_endpoint: newEndpoint
         }
       }
     ])

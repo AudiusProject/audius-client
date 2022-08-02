@@ -1,11 +1,9 @@
 import { useContext, useEffect, useCallback } from 'react'
 
+import { FeedFilter, Name, Status } from '@audius/common'
 import cn from 'classnames'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
-import FeedFilter from 'common/models/FeedFilter'
-import Status from 'common/models/Status'
 import { feedActions } from 'common/store/pages/feed/lineup/actions'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
@@ -102,7 +100,8 @@ const FeedPageMobileContent = ({
       title={feedTitle}
       description={feedDescription}
       canonicalUrl={`${BASE_URL}${FEED_PAGE}`}
-      hasDefaultHeader>
+      hasDefaultHeader
+    >
       {IS_NATIVE_MOBILE ? null : (
         <FeedFilterDrawer
           isOpen={modalIsOpen}
@@ -113,7 +112,8 @@ const FeedPageMobileContent = ({
       <div
         className={cn(styles.lineupContainer, {
           [styles.playing]: !!lineupProps.playingUid
-        })}>
+        })}
+      >
         <PullToRefresh fetchContent={asyncRefresh}>
           <Lineup {...lineupProps} />
         </PullToRefresh>

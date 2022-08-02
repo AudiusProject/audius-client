@@ -1,5 +1,4 @@
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
+import { ID, Status } from '@audius/common'
 
 export enum Tabs {
   FOR_YOU = 'FOR YOU',

@@ -1,7 +1,7 @@
+import { ID } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
-import { ID } from 'common/models/Identifiers'
 import { formatCount } from 'common/utils/formatUtil'
 import {
   setUsers,
@@ -29,7 +29,8 @@ const Stat = ({ number, onClick, title }: StatProps) => {
   return (
     <div
       className={cn(styles.stat, style)}
-      onClick={!zero ? onClick : () => {}}>
+      onClick={!zero ? onClick : () => {}}
+    >
       <div className={styles.number}>{formatCount(number)}</div>
       <div className={styles.title}>{title}</div>
     </div>

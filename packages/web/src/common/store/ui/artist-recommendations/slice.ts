@@ -1,7 +1,5 @@
+import { ID, Status } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
 
 export type ArtistRecommendationsState = Record<
   ID,

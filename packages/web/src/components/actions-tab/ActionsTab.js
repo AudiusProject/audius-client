@@ -1,5 +1,6 @@
 import { PureComponent } from 'react'
 
+import { ShareSource, RepostSource } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
@@ -7,7 +8,6 @@ import { connect } from 'react-redux'
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import { ReactComponent as IconRepost } from 'assets/img/iconRepost.svg'
 import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
-import { ShareSource, RepostSource } from 'common/models/Analytics'
 import { getUserHandle } from 'common/store/account/selectors'
 import {
   repostCollection,
@@ -74,18 +74,21 @@ const ExpandedActionsTab = (props) => {
       <Tooltip
         text={currentUserReposted ? 'Unrepost' : 'Repost'}
         disabled={isHidden || isDisabled || isOwner}
-        placement={direction === 'horizontal' ? 'bottom' : 'right'}>
+        placement={direction === 'horizontal' ? 'bottom' : 'right'}
+      >
         <div
           className={cn(styles.actionButton, {
             [styles.disabled]: isOwner
           })}
-          onClick={isDisabled || isOwner ? () => {} : onToggleRepost}>
+          onClick={isDisabled || isOwner ? () => {} : onToggleRepost}
+        >
           <Toast
             text={'Reposted!'}
             disabled={currentUserReposted || isHidden || isDisabled || isOwner}
             delay={REPOST_TOAST_TIMEOUT_MILLIS}
             containerClassName={styles.actionIconContainer}
-            placement={direction === 'horizontal' ? 'bottom' : 'right'}>
+            placement={direction === 'horizontal' ? 'bottom' : 'right'}
+          >
             <IconRepost
               className={cn(styles.iconRepost, {
                 [styles.reposted]: currentUserReposted
@@ -97,10 +100,12 @@ const ExpandedActionsTab = (props) => {
       <Tooltip
         text='Share'
         disabled={isHidden || isDisabled}
-        placement={direction === 'horizontal' ? 'bottom' : 'right'}>
+        placement={direction === 'horizontal' ? 'bottom' : 'right'}
+      >
         <div
           className={styles.actionButton}
-          onClick={isDisabled ? () => {} : onShare}>
+          onClick={isDisabled ? () => {} : onShare}
+        >
           <div className={styles.actionIconContainer}>
             <IconShare className={styles.iconShare} />
           </div>
@@ -116,7 +121,8 @@ const ExpandedActionsTab = (props) => {
             {(ref, triggerPopup) => (
               <div
                 className={styles.iconKebabHorizontalWrapper}
-                onClick={triggerPopup}>
+                onClick={triggerPopup}
+              >
                 <IconKebabHorizontal
                   className={styles.iconKebabHorizontal}
                   ref={ref}
@@ -217,7 +223,8 @@ export class ActionsTab extends PureComponent {
           [styles.disabled]: isDisabled,
           [styles.standalone]: standalone,
           [containerStyles]: !!containerStyles
-        })}>
+        })}
+      >
         {minimized ? (
           <MinimizedActionsTab {...this.props} overflowMenu={overflowMenu} />
         ) : (

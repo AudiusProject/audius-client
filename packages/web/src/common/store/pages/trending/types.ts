@@ -1,6 +1,4 @@
-import { ID } from 'common/models/Identifiers'
-import { LineupState } from 'common/models/Lineup'
-import TimeRange from 'common/models/TimeRange'
+import { ID, LineupState, TimeRange } from '@audius/common'
 
 export type TrendingPageState = {
   trendingWeek: LineupState<{ id: ID }>

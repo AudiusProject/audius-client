@@ -1,12 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 
-import { Button, ButtonType, IconArrow } from '@audius/stems'
+import { ID, User } from '@audius/common'
+import { Button, ButtonType, IconArrow, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
-import SimpleBar from 'simplebar-react-legacy'
 
 import { ReactComponent as IconWand } from 'assets/img/iconWand.svg'
-import { ID } from 'common/models/Identifiers'
-import { User } from 'common/models/User'
 import UserCard from 'components/card/UserCard'
 import SelectablePills from 'components/selectable-pill/SelectablePills'
 
@@ -102,13 +100,11 @@ export const FollowPage = (props: FollowPageProps) => {
       <div className={styles.pillSection}>
         <SelectablePills {...seletablePillProps} />
       </div>
-      {/* Typescript complains about no valid constructor, possibly
-        due to the two simplebar packages we maintain.
-      // @ts-ignore */}
-      <SimpleBar className={styles.cardSection}>
+      <Scrollbar className={styles.cardSection}>
         <div
           className={styles.cardsHeader}
-          style={{ maxWidth: isFourWide ? FOUR_TILE_WIDTH : FIVE_TILE_WIDTH }}>
+          style={{ maxWidth: isFourWide ? FOUR_TILE_WIDTH : FIVE_TILE_WIDTH }}
+        >
           <div className={styles.pickForMe} onClick={onAutoSelect}>
             <IconWand className={styles.iconWand} />
             {messages.pickForMe}
@@ -119,7 +115,8 @@ export const FollowPage = (props: FollowPageProps) => {
             [styles.hide]: isTransitioning,
             [styles.show]: !isTransitioning
           })}
-          aria-label='profile selection'>
+          aria-label='profile selection'
+        >
           {users.map((user) => (
             <li key={user.user_id}>
               <UserCard
@@ -135,7 +132,7 @@ export const FollowPage = (props: FollowPageProps) => {
             </li>
           ))}
         </ul>
-      </SimpleBar>
+      </Scrollbar>
       <Button
         text='Continue'
         name='continue'

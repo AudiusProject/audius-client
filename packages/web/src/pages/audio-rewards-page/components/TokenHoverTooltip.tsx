@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
-import { BNWei } from 'common/models/Wallet'
+import { BNWei } from '@audius/common'
+
 import { formatWei } from 'common/utils/wallet'
 import Tooltip from 'components/tooltip/Tooltip'
 
@@ -21,7 +22,8 @@ const TokenHoverTooltip = ({
       disabled={balance.isZero()}
       placement='top'
       mouseEnterDelay={0.2}
-      mount={parentMount ? 'parent' : undefined}>
+      mount={parentMount ? 'parent' : undefined}
+    >
       {children}
     </Tooltip>
   )

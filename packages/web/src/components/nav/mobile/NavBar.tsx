@@ -1,5 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from 'react'
 
+import { Status } from '@audius/common'
 import {
   IconCaretRight,
   IconRemove,
@@ -14,7 +15,6 @@ import { useHistory } from 'react-router-dom'
 import { useTransition, animated } from 'react-spring'
 
 import { ReactComponent as AudiusLogo } from 'assets/img/audiusLogoHorizontal.svg'
-import Status from 'common/models/Status'
 import { formatCount } from 'common/utils/formatUtil'
 import {
   RouterContext,
@@ -222,13 +222,15 @@ const NavBar = ({
       <div
         className={cn(styles.leftElement, {
           [styles.isLoading]: isLoading
-        })}>
+        })}
+      >
         {left}
       </div>
       {centerElement === CenterPreset.LOGO && (
         <div
           className={cn(styles.logo, { [styles.matrixLogo]: matrix })}
-          onClick={logoClicked}>
+          onClick={logoClicked}
+        >
           {logoTransitions.map(
             ({ item, props, key }) =>
               item && (
@@ -246,7 +248,8 @@ const NavBar = ({
       <div
         className={cn(styles.rightElement, {
           [styles.isLoading]: isLoading
-        })}>
+        })}
+      >
         {rightElement === RightPreset.SEARCH ? (
           <SearchBar
             open={isSearching}

@@ -1,11 +1,9 @@
 import { memo, useEffect } from 'react'
 
+import { ID, Color, ProfilePictureSizes, SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import { animated, useSpring } from 'react-spring'
 
-import Color from 'common/models/Color'
-import { ID } from 'common/models/Identifiers'
-import { ProfilePictureSizes, SquareSizes } from 'common/models/ImageSizes'
 import Draggable from 'components/dragndrop/Draggable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -95,25 +93,29 @@ const PlayingTrackInfo = ({
           isOwner={isOwner}
           kind='track'
           id={trackId}
-          link={fullTrackPage(trackPermalink)}>
+          link={fullTrackPage(trackPermalink)}
+        >
           <animated.div style={trackSpringProps}>
             <div
               className={cn(styles.trackTitle, {
                 [styles.textShadow]: hasShadow
               })}
-              onClick={onClickTrackTitle}>
+              onClick={onClickTrackTitle}
+            >
               {trackTitle}
             </div>
           </animated.div>
         </Draggable>
         <animated.div
           className={styles.artistNameWrapper}
-          style={artistSpringProps}>
+          style={artistSpringProps}
+        >
           <div
             className={cn(styles.artistName, {
               [styles.textShadow]: hasShadow
             })}
-            onClick={onClickArtistName}>
+            onClick={onClickArtistName}
+          >
             {artistName}
           </div>
           <UserBadges

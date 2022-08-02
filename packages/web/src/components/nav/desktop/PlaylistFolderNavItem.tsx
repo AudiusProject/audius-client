@@ -6,6 +6,12 @@ import {
 } from 'react'
 
 import {
+  ID,
+  Name,
+  PlaylistLibraryFolder,
+  SmartCollectionVariant
+} from '@audius/common'
+import {
   IconCaretRight,
   IconFolder,
   IconFolderOutline,
@@ -17,10 +23,6 @@ import cn from 'classnames'
 import { useSpring, animated } from 'react-spring'
 import useMeasure from 'react-use-measure'
 
-import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { PlaylistLibraryFolder } from 'common/models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
 import { useRecord, make } from 'store/analytics/actions'
@@ -51,13 +53,15 @@ const FolderNavLink = ({
       text={name}
       kind='playlist-folder'
       onDrag={onDrag}
-      onDrop={onDrop}>
+      onDrop={onDrop}
+    >
       <button
         {...buttonProps}
         draggable={false}
         className={cn(className, styles.navLink, {
           [styles.dragging]: isDragging
-        })}>
+        })}
+      >
         {children}
       </button>
     </Draggable>
@@ -126,7 +130,8 @@ export const PlaylistFolderNavItem = ({
         onDrop={(playlistId, kind) => {
           onDropInFolder(folder, kind, playlistId)
         }}
-        acceptedKinds={['library-playlist', 'playlist']}>
+        acceptedKinds={['library-playlist', 'playlist']}
+      >
         <FolderNavLink
           onMouseEnter={() => {
             setIsHovering(true)
@@ -138,7 +143,8 @@ export const PlaylistFolderNavItem = ({
             [navColumnStyles.droppableLink]: dragging && isDroppableKind,
             [navColumnStyles.disabledLink]: dragging && !isDroppableKind
           })}
-          onClick={handleClickFolder}>
+          onClick={handleClickFolder}
+        >
           <div className={styles.libraryLinkContentContainer}>
             {children == null ? (
               <IconFolderOutline

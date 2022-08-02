@@ -1,11 +1,10 @@
 import { memo } from 'react'
 
+import { ID, SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { ID } from 'common/models/Identifiers'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { getUser } from 'common/store/cache/users/selectors'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
@@ -31,6 +30,7 @@ const ProfileImage = memo(({ userId, user }: ProfileImageProps) => {
     <DynamicImage
       wrapperClassName={cn(styles.wrapper)}
       className={styles.image}
+      skeletonClassName={styles.imageSkeleton}
       image={image}
     />
   )

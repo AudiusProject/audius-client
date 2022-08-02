@@ -1,14 +1,15 @@
+import {
+  PlayableType,
+  ID,
+  ShareSource,
+  FavoriteSource,
+  RepostSource
+} from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import {
-  ShareSource,
-  FavoriteSource,
-  RepostSource
-} from 'common/models/Analytics'
-import { PlayableType, ID } from 'common/models/Identifiers'
 import { getUser } from 'common/store/cache/users/selectors'
 import * as socialActions from 'common/store/social/collections/actions'
 import * as embedModalActions from 'components/embed-modal/store/actions'
@@ -28,7 +29,6 @@ export type OwnProps = {
   includeRepost: boolean
   includeShare: boolean
   includeVisitPage: boolean
-  isArtist: boolean
   isFavorited: boolean
   isOwner: boolean
   isPublic: boolean
@@ -168,7 +168,7 @@ function mapStateToProps(state: AppState, props: OwnProps) {
     handle: props.handle ? props.handle.toLowerCase() : null
   })
   return {
-    isArtist: user ? user.is_creator : false
+    isArtist: user ? user.track_count > 0 : false
   }
 }
 

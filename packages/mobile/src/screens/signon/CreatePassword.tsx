@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import commonPasswordList from 'fxa-common-password-list'
 import {
   Animated,
@@ -34,7 +34,7 @@ import { track, make } from 'app/utils/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
 import SignupHeader from './SignupHeader'
-import { SignOnStackParamList } from './types'
+import type { SignOnStackParamList } from './types'
 
 const defaultBorderColor = '#F2F2F4'
 const purpleBorderColor = '#7E1BCC'
@@ -249,7 +249,8 @@ const Checkbox = ({
         </Animated.View>
         <View style={styles.unchecked} />
         <Text
-          style={[styles.uncheckedDescription, { color: errorBorderColor }]}>
+          style={[styles.uncheckedDescription, { color: errorBorderColor }]}
+        >
           {messages.checks[i]}
         </Text>
       </View>
@@ -461,15 +462,18 @@ const CreatePassword = ({ navigation, route }: CreatePasswordProps) => {
     <SafeAreaView style={{ backgroundColor: 'white' }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ overflow: 'hidden' }}>
+        style={{ overflow: 'hidden' }}
+      >
         <ScrollView
           style={{ height: '100%' }}
-          keyboardShouldPersistTaps='always'>
+          keyboardShouldPersistTaps='always'
+        >
           <View>
             <SignupHeader />
             <TouchableWithoutFeedback
               onPress={Keyboard.dismiss}
-              accessible={false}>
+              accessible={false}
+            >
               <View style={styles.container}>
                 <View style={styles.containerForm}>
                   <FormTitle />
@@ -561,13 +565,15 @@ const CreatePassword = ({ navigation, route }: CreatePasswordProps) => {
                     </Text>
                     <Text
                       style={{ ...styles.termsText, ...styles.clickable }}
-                      onPress={onTermsOfUse}>
+                      onPress={onTermsOfUse}
+                    >
                       &nbsp;{messages.terms}
                     </Text>
                     <Text style={styles.termsText}>&nbsp;{messages.and}</Text>
                     <Text
                       style={{ ...styles.termsText, ...styles.clickable }}
-                      onPress={onPrivacyPolicy}>
+                      onPress={onPrivacyPolicy}
+                    >
                       &nbsp;{messages.privacy}
                     </Text>
                   </Text>

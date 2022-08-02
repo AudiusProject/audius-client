@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 
+import {
+  ID,
+  FavoriteSource,
+  Name,
+  PlaybackSource,
+  SquareSizes
+} from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { FavoriteSource, Name, PlaybackSource } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import { pause, play } from 'common/store/queue/slice'
 import {
@@ -156,7 +160,8 @@ const PlayBar = ({
                 hasFavorited={_co_sign.has_remix_author_saved}
                 hasReposted={_co_sign.has_remix_author_reposted}
                 coSignName={_co_sign.user.name}
-                userId={_co_sign.user.user_id}>
+                userId={_co_sign.user.user_id}
+              >
                 <div
                   className={styles.image}
                   style={{

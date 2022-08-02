@@ -1,9 +1,7 @@
 import { useCallback } from 'react'
 
-import { FavoriteSource } from 'audius-client/src/common/models/Analytics'
-import { SquareSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import type { Track, User } from '@audius/common'
+import { FavoriteSource, SquareSizes } from '@audius/common'
 import {
   saveTrack,
   unsaveTrack
@@ -144,14 +142,16 @@ export const PlayBar = ({
             extrapolate: 'extend'
           })
         }
-      ]}>
+      ]}
+    >
       <TrackingBar translationAnim={translationAnim} />
       <View style={styles.container}>
         {renderFavoriteButton()}
         <TouchableOpacity
           activeOpacity={1}
           style={styles.trackInfo}
-          onPress={onPress}>
+          onPress={onPress}
+        >
           <View style={styles.artwork}>
             {track && <PlayBarArtwork track={track} />}
           </View>
@@ -162,7 +162,8 @@ export const PlayBar = ({
             <Text
               weight='bold'
               style={styles.separator}
-              accessibilityElementsHidden>
+              accessibilityElementsHidden
+            >
               {track ? '•' : ''}
             </Text>
             <Text numberOfLines={1} weight='medium' style={styles.artist}>

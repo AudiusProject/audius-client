@@ -1,6 +1,6 @@
+import { Scrollbar } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
-import SimpleBar from 'simplebar-react'
 
 import TabSlider from 'components/data-entry/TabSlider'
 import TrackPreview from 'components/upload/TrackPreview'
@@ -38,11 +38,12 @@ const TracksPreview = (props) => {
           {uploadDescriptions[props.uploadType]}
         </div>
       </div>
-      <SimpleBar
+      <Scrollbar
         className={cn(styles.tracks, {
           [styles.shortScroll]:
             props.uploadType !== UploadType.INDIVIDUAL_TRACKS
-        })}>
+        })}
+      >
         {props.tracks.map((track, i) => (
           <TrackPreview
             key={track.metadata.title + i}
@@ -55,7 +56,7 @@ const TracksPreview = (props) => {
             onStopPreview={() => props.stopPreview()}
           />
         ))}
-      </SimpleBar>
+      </Scrollbar>
     </div>
   )
 }

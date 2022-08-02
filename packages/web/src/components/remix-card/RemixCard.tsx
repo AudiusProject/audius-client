@@ -1,5 +1,5 @@
-import { ID } from 'common/models/Identifiers'
-import { Remix } from 'common/models/Track'
+import { ID, Remix } from '@audius/common'
+
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import CoSign from 'components/co-sign/CoSign'
 import { Size } from 'components/co-sign/types'
@@ -52,7 +52,8 @@ const RemixCard = ({
             coSignName={coSign.user.name}
             hasFavorited={coSign.has_remix_author_saved}
             hasReposted={coSign.has_remix_author_reposted}
-            userId={coSign.user?.user_id ?? 0}>
+            userId={coSign.user?.user_id ?? 0}
+          >
             {images}
           </CoSign>
         ) : (

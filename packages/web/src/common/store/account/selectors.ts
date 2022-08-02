@@ -1,9 +1,9 @@
+import { removeNullable } from '@audius/common'
 import { createSelector } from 'reselect'
 
 import { CommonState } from 'common/store'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { getUser, getUsers } from 'common/store/cache/users/selectors'
-import { removeNullable } from 'common/utils/typeUtils'
 
 import { AccountCollection } from './reducer'
 
@@ -43,9 +43,9 @@ export const getAccountVerified = createSelector(
   [internalGetAccountUser],
   (user) => (user ? user.is_verified : false)
 )
-export const getAccountIsCreator = createSelector(
+export const getAccountHasTracks = createSelector(
   [internalGetAccountUser],
-  (user) => (user ? user.is_creator : false)
+  (user) => (user ? user.track_count > 0 : false)
 )
 export const getAccountCollectibles = createSelector(
   [internalGetAccountUser],

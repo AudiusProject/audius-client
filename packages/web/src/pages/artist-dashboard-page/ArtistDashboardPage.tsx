@@ -1,5 +1,6 @@
 import { Suspense, Component, useMemo, ReactNode } from 'react'
 
+import { ID, Status, Theme, Track, User } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
@@ -8,11 +9,6 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
-import Theme from 'common/models/Theme'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import { getTheme } from 'common/store/ui/theme/selectors'
 import { formatCount } from 'common/utils/formatUtil'
 import Header from 'components/header/desktop/Header'
@@ -183,7 +179,8 @@ const TracksTableContainer = ({
     () => [
       <div
         key='listed'
-        className={cn(styles.sectionContainer, styles.tabBodyWrapper)}>
+        className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
+      >
         <TracksTable
           dataSource={listedDataSource}
           limit={5}
@@ -197,7 +194,8 @@ const TracksTableContainer = ({
       </div>,
       <div
         key='unlisted'
-        className={cn(styles.sectionContainer, styles.tabBodyWrapper)}>
+        className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
+      >
         <TracksTable
           dataSource={unlistedDataSource}
           limit={5}
@@ -251,7 +249,8 @@ export class ArtistDashboardPage extends Component<
   }
 
   componentDidUpdate() {
-    if (!this.props.account?.is_creator) {
+    const trackCount = this.props.account?.track_count || 0
+    if (!(trackCount > 0)) {
       this.props.goToRoute(TRENDING_PAGE)
     }
   }
@@ -306,7 +305,8 @@ export class ArtistDashboardPage extends Component<
   renderCreatorContent() {
     const { account, listenData, tracks, unlistedTracks, stats, isMatrix } =
       this.props
-    if (!account || !account.is_creator) return null
+    const trackCount = this.props.account?.track_count || 0
+    if (!account || !(trackCount > 0)) return null
 
     const { selectedTrack } = this.state
 
@@ -382,7 +382,8 @@ export class ArtistDashboardPage extends Component<
         title='Dashboard'
         description='View important stats like plays, reposts, and more.'
         contentClassName={styles.pageContainer}
-        header={header}>
+        header={header}
+      >
         {!account || status === Status.LOADING ? (
           <LoadingSpinner className={styles.spinner} />
         ) : (

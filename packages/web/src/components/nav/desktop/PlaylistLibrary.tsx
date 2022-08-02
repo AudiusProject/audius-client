@@ -1,18 +1,19 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 
+import {
+  ID,
+  FavoriteSource,
+  Name,
+  PlaylistLibrary as PlaylistLibraryType,
+  PlaylistLibraryFolder,
+  SmartCollectionVariant,
+  FeatureFlags
+} from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { FavoriteSource, Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import {
-  PlaylistLibrary as PlaylistLibraryType,
-  PlaylistLibraryFolder
-} from 'common/models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import { FeatureFlags } from 'common/services/remote-config'
 import {
   getAccountCollectibles,
   getAccountNavigationPlaylists,
@@ -261,7 +262,8 @@ const PlaylistLibrary = ({
         className={cn(navColumnStyles.link, {
           [navColumnStyles.disabledLink]:
             !account || (dragging && draggingKind !== 'library-playlist')
-        })}>
+        })}
+      >
         {name}
       </PlaylistNavLink>
     )
@@ -323,7 +325,8 @@ const PlaylistLibrary = ({
         onDropBelowFolder={(folderId, draggingKind, draggingId) =>
           onReorder(draggingId, folderId, draggingKind)
         }
-        onDropInFolder={handleDropInFolder}>
+        onDropInFolder={handleDropInFolder}
+      >
         {isEmpty(folder.contents) ? null : (
           <div className={styles.folderContentsContainer}>
             {/* This is the droppable area for reordering something in the first slot of the playlist folder. */}

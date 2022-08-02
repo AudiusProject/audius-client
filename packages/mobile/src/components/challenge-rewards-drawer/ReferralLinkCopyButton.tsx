@@ -8,7 +8,8 @@ import IconCopy from 'app/assets/images/iconCopy.svg'
 import Text from 'app/components/text'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ThemeColors, useThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 import { ToastContext } from '../toast/ToastContext'
 
@@ -62,19 +63,22 @@ export const ReferralLinkCopyButton = ({
   const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation()
   return (
     <Animated.View
-      style={[styles.copyPromptContainer, { transform: [{ scale }] }]}>
+      style={[styles.copyPromptContainer, { transform: [{ scale }] }]}
+    >
       <TouchableHighlight
         style={styles.borderRadius}
         onPress={onCopyClicked}
         onPressIn={handlePressIn}
-        onPressOut={handlePressOut}>
+        onPressOut={handlePressOut}
+      >
         <LinearGradient
           style={[styles.borderRadius]}
           angleCenter={{ x: 0.5, y: 0.5 }}
           angle={350}
           useAngle={true}
           colors={[pageHeaderGradientColor1, pageHeaderGradientColor2]}
-          locations={[0.0204, 1]}>
+          locations={[0.0204, 1]}
+        >
           <View style={styles.copyTextContainer}>
             <IconCopy style={styles.iconCopy} width={24} height={24} />
             <Text weight={'bold'} style={styles.copyText}>

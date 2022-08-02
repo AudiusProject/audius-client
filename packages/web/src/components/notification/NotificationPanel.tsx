@@ -1,5 +1,6 @@
 import { useRef, useCallback, useEffect, MutableRefObject } from 'react'
 
+import { Status, Nullable } from '@audius/common'
 import { Popup, PopupPosition, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
@@ -9,7 +10,6 @@ import { useSearchParam } from 'react-use'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
-import Status from 'common/models/Status'
 import {
   fetchNotifications,
   setNotificationModal,
@@ -25,7 +25,6 @@ import {
   makeGetAllNotifications
 } from 'common/store/notifications/selectors'
 import { Notification as Notifications } from 'common/store/notifications/types'
-import { Nullable } from 'common/utils/typeUtils'
 import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
@@ -115,7 +114,8 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
         onClose={handleToggleNotificationPanel}
         position={PopupPosition.BOTTOM_RIGHT}
         wrapperClassName={styles.popupWrapper}
-        zIndex={zIndex.NAVIGATOR_POPUP}>
+        zIndex={zIndex.NAVIGATOR_POPUP}
+      >
         <div className={styles.panelContainer} ref={panelRef}>
           <div className={styles.header}>
             <IconNotification className={styles.iconNotification} />
@@ -141,7 +141,8 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
                 useWindow={false}
                 initialLoad={false}
                 threshold={SCROLL_THRESHOLD}
-                getScrollParent={getScrollParent}>
+                getScrollParent={getScrollParent}
+              >
                 <div className={styles.content}>
                   {notifications
                     .filter(({ isHidden }: any) => !isHidden)

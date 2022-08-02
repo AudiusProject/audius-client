@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { FollowSource } from 'audius-client/src/common/models/Analytics'
-import { User } from 'audius-client/src/common/models/User'
+import type { User } from '@audius/common'
+import { FollowSource } from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { Pressable, View, Animated } from 'react-native'
 
@@ -98,7 +98,8 @@ export const UserListItem = (props: UserListItemProps) => {
         style={styles.root}
         onPress={handlePress}
         onPressIn={handlePressIn}
-        onPressOut={handlePressOut}>
+        onPressOut={handlePressOut}
+      >
         <View style={styles.infoRoot}>
           <ProfilePicture profile={user} style={styles.photo} />
           <View style={styles.userInfo}>

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import { ID, SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -7,8 +8,6 @@ import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import placeholderArt from 'assets/img/imageBlank2x.png'
-import { ID } from 'common/models/Identifiers'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { getUserId } from 'common/store/account/selectors'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getUserFromCollection } from 'common/store/cache/users/selectors'
@@ -144,10 +143,12 @@ const CollectionArtCard = g(
         <PerspectiveCard
           onClick={goToCollection}
           isDisabled={isPerspectiveDisabled}
-          className={styles.perspectiveCard}>
+          className={styles.perspectiveCard}
+        >
           <DynamicImage
             wrapperClassName={styles.coverArt}
-            image={isLoading ? '' : image}>
+            image={isLoading ? '' : image}
+          >
             <Menu menu={menu} onClose={() => setIsPerspectiveDisabled(false)}>
               {(ref, triggerPopup) => (
                 <div
@@ -156,7 +157,8 @@ const CollectionArtCard = g(
                     setIsPerspectiveDisabled(true)
                     triggerPopup()
                   }}
-                  className={styles.iconKebabHorizontalWrapper}>
+                  className={styles.iconKebabHorizontalWrapper}
+                >
                   <IconKebabHorizontal
                     className={styles.iconKebabHorizontal}
                     ref={ref}

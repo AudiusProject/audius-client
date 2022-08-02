@@ -1,14 +1,17 @@
-import { FavoriteType } from 'common/models/Favorite'
-import { CID } from 'common/models/Identifiers'
 import {
+  CID,
+  FavoriteType,
   CoverArtSizes,
   CoverPhotoSizes,
-  ProfilePictureSizes
-} from 'common/models/ImageSizes'
-import { StemCategory } from 'common/models/Stems'
-import { Download, FieldVisibility, TrackSegment } from 'common/models/Track'
-import { SolanaWalletAddress, WalletAddress } from 'common/models/Wallet'
-import { Nullable } from 'common/utils/typeUtils'
+  ProfilePictureSizes,
+  StemCategory,
+  Download,
+  FieldVisibility,
+  TrackSegment,
+  SolanaWalletAddress,
+  WalletAddress,
+  Nullable
+} from '@audius/common'
 
 export type OpaqueID = string
 
@@ -36,7 +39,6 @@ export type APIUser = {
   current_user_followee_follow_count: number
   does_current_user_follow: boolean
   handle_lc: string
-  is_creator: boolean
   updated_at: string
   cover_photo_sizes: Nullable<CID>
   cover_photo_legacy: Nullable<CID>

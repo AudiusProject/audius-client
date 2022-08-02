@@ -1,8 +1,8 @@
-import { ID } from 'common/models/Identifiers'
+import { ID, removeNullable } from '@audius/common'
+
 import { CommonState } from 'common/store'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { createDeepEqualSelector } from 'common/utils/selectorHelpers'
-import { removeNullable } from 'common/utils/typeUtils'
 
 const getRelatedArtistIds = (state: CommonState, props: { id: ID }) =>
   state.ui.artistRecommendations[props.id]?.relatedArtistIds

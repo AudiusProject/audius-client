@@ -1,12 +1,7 @@
 import { useCallback, useState } from 'react'
 
-import {
-  FavoriteSource,
-  Name,
-  PlaybackSource
-} from 'audius-client/src/common/models/Analytics'
-import { ID, UID } from 'audius-client/src/common/models/Identifiers'
-import Status from 'audius-client/src/common/models/Status'
+import type { ID, UID } from '@audius/common'
+import { Status, FavoriteSource, Name, PlaybackSource } from '@audius/common'
 import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
 import { tracksActions } from 'audius-client/src/common/store/pages/saved-page/lineups/tracks/actions'
 import {
@@ -21,7 +16,7 @@ import { shallowEqual, useSelector } from 'react-redux'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { TrackList } from 'app/components/track-list'
-import { TrackMetadata } from 'app/components/track-list/types'
+import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -112,7 +107,8 @@ export const TracksTab = () => {
     <WithLoader
       loading={
         savedTracksStatus === Status.LOADING && savedTracks.entries.length === 0
-      }>
+      }
+    >
       <VirtualizedScrollView listKey='favorites-screen'>
         {!savedTracks.entries.length && !filterValue ? (
           <EmptyTab message={messages.emptyTabText} />
@@ -128,7 +124,8 @@ export const TracksTab = () => {
                 styles={{
                   root: styles.container,
                   tile: styles.trackListContainer
-                }}>
+                }}
+              >
                 <TrackList
                   onSave={onToggleSave}
                   showDivider

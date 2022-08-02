@@ -1,16 +1,11 @@
-import {
-  Animated,
-  StyleProp,
-  TouchableOpacity,
-  View,
-  ViewStyle
-} from 'react-native'
-import { SvgProps } from 'react-native-svg'
+import type { Insets, StyleProp, ViewStyle } from 'react-native'
+import { Animated, TouchableOpacity, View } from 'react-native'
+import type { SvgProps } from 'react-native-svg'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { StylesProps } from 'app/styles'
+import type { StylesProps } from 'app/styles'
 import { makeStyles } from 'app/styles/makeStyles'
-import { GestureResponderHandler } from 'app/types/gesture'
+import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
 export type IconButtonProps = {
@@ -22,6 +17,7 @@ export type IconButtonProps = {
   >
   isDisabled?: boolean
   onPress?: GestureResponderHandler
+  hitSlop?: Insets
 } & StylesProps<{ root?: StyleProp<ViewStyle>; icon?: StyleProp<ViewStyle> }>
 
 const useStyles = makeStyles(() => ({
@@ -30,6 +26,8 @@ const useStyles = makeStyles(() => ({
     width: 18
   }
 }))
+
+const defaultHitSlop = { top: 12, right: 12, bottom: 12, left: 12 }
 
 /**
  * A button with touchable feedback that is only an
@@ -44,7 +42,8 @@ export const IconButton = ({
   isDisabled,
   onPress,
   style,
-  styles: stylesProp
+  styles: stylesProp,
+  hitSlop
 }: IconButtonProps) => {
   const styles = useStyles()
   const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.9)
@@ -54,20 +53,23 @@ export const IconButton = ({
 
   return (
     <Animated.View
-      style={[{ transform: [{ scale }] }, stylesProp?.root, style]}>
+      style={[{ transform: [{ scale }] }, stylesProp?.root, style]}
+    >
       <TouchableOpacity
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={isDisabled}
         activeOpacity={0.95}
-        hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}>
+        hitSlop={{ ...defaultHitSlop, ...hitSlop }}
+      >
         <View
           style={[
             styles.icon,
             isDisabled && { opacity: 0.5 },
             stylesProp?.icon
-          ]}>
+          ]}
+        >
           <Icon fill={fill} height='100%' width='100%' />
         </View>
       </TouchableOpacity>

@@ -1,11 +1,10 @@
 import { MouseEventHandler, useCallback } from 'react'
 
+import { Name, User } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
 import { toggleNotificationPanel } from 'common/store/notifications/actions'
 import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 import { Notification } from 'common/store/notifications/types'
@@ -90,7 +89,8 @@ export const UserNameLink = (props: UserNameLinkProps) => {
       <ArtistPopover
         handle={handle}
         component='span'
-        onNavigateAway={handleNavigateAway}>
+        onNavigateAway={handleNavigateAway}
+      >
         {userNameElement}
       </ArtistPopover>
     )

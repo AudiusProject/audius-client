@@ -1,9 +1,6 @@
+import { ID, CID, LineupState, Track, User } from '@audius/common'
 import cn from 'classnames'
 
-import { ID, CID } from 'common/models/Identifiers'
-import { LineupState } from 'common/models/Lineup'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import { tracksActions } from 'common/store/pages/track/lineup/actions'
 import { QueueItem } from 'common/store/queue/types'
 import CoverPhoto from 'components/cover-photo/CoverPhoto'
@@ -202,9 +199,8 @@ const TrackPage = ({
     (defaults.remixParentTrackId && entries.length > 2) ||
     (!defaults.remixParentTrackId && entries.length > 1) ? (
       <div
-        className={
-          styles.lineupHeader
-        }>{`${messages.moreBy} ${user?.name}`}</div>
+        className={styles.lineupHeader}
+      >{`${messages.moreBy} ${user?.name}`}</div>
     ) : null
 
   return (
@@ -213,7 +209,8 @@ const TrackPage = ({
       description={description}
       canonicalUrl={canonicalUrl}
       variant='flush'
-      scrollableSearch>
+      scrollableSearch
+    >
       <div className={styles.headerWrapper}>
         <CoverPhoto
           loading={loading}

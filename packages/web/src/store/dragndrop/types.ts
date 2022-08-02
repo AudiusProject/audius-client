@@ -1,5 +1,4 @@
-import { ID } from 'common/models/Identifiers'
-import Kind from 'common/models/Kind'
+import { Kind, ID } from '@audius/common'
 
 export interface DragNDropState {
   dragging: boolean

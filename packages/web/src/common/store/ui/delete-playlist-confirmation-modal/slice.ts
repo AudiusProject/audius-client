@@ -1,7 +1,5 @@
+import { ID, Nullable } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import { ID } from 'common/models/Identifiers'
-import { Nullable } from 'common/utils/typeUtils'
 
 type DeletePlaylistConfirmationState = {
   playlistId: Nullable<ID>

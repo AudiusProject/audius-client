@@ -26,7 +26,8 @@ const formatValue = (value: string | undefined) => {
 }
 
 const inputPaddingRight = 16
-export const TokenValueInput: React.FC<TokenValueInputProps> = ({
+
+export const TokenValueInput = ({
   className,
   labelClassName,
   inputClassName,
@@ -85,7 +86,8 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
         <div
           className={cn(styles.label, {
             [labelClassName!]: !!labelClassName
-          })}>
+          })}
+        >
           {label}
         </div>
       )}
@@ -117,7 +119,8 @@ export const TokenValueInput: React.FC<TokenValueInputProps> = ({
           className={cn(styles.rightLabel, {
             [rightLabelClassName as string]: !!rightLabelClassName
           })}
-          ref={setLabelRef}>
+          ref={setLabelRef}
+        >
           {rightLabel}
         </div>
       )}

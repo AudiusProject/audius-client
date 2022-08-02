@@ -1,8 +1,11 @@
+import {
+  SolanaWalletAddress,
+  WalletAddress,
+  FeatureFlags
+} from '@audius/common'
 import { Button, ButtonType, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 
-import { SolanaWalletAddress, WalletAddress } from 'common/models/Wallet'
-import { FeatureFlags } from 'common/services/remote-config'
 import { useLocalStorage } from 'hooks/useLocalStorage'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 
@@ -108,7 +111,8 @@ const ReceiveBody = ({ wallet, solWallet }: ReceiveBodyProps) => {
     <ModalBodyWrapper
       className={cn(styles.container, {
         [styles.solContainer]: useSolSPLAudio
-      })}>
+      })}
+    >
       {useSolSPLAudio ? renderReceiveSol() : renderReceiveEth()}
     </ModalBodyWrapper>
   )

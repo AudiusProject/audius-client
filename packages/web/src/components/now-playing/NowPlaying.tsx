@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import {
+  ID,
+  FavoriteSource,
+  RepostSource,
+  PlaybackSource,
+  Name,
+  ShareSource,
+  SquareSizes
+} from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
-import {
-  FavoriteSource,
-  RepostSource,
-  PlaybackSource,
-  Name,
-  ShareSource
-} from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { getUserId } from 'common/store/account/selectors'
 import { getDominantColorsByTrack } from 'common/store/average-color/slice'
 import { getIsCasting, getMethod } from 'common/store/cast/selectors'
@@ -380,7 +380,8 @@ const NowPlaying = g(
       <div
         className={cn(styles.nowPlaying, {
           [styles.native]: NATIVE_MOBILE
-        })}>
+        })}
+      >
         <div className={styles.header}>
           <div className={styles.caretContainer} onClick={onClose}>
             <IconCaret className={styles.iconCaret} />
@@ -395,11 +396,13 @@ const NowPlaying = g(
             hasReposted={_co_sign.has_remix_author_reposted}
             coSignName={_co_sign.user.name}
             forwardRef={artworkRef}
-            userId={_co_sign.user.user_id}>
+            userId={_co_sign.user.user_id}
+          >
             <div
               className={styles.image}
               onClick={goToTrackPage}
-              style={artworkAverageColor}>
+              style={artworkAverageColor}
+            >
               <DynamicImage image={image} />
             </div>
           </CoSign>
@@ -408,7 +411,8 @@ const NowPlaying = g(
             className={cn(styles.artwork, styles.image)}
             onClick={goToTrackPage}
             ref={artworkRef}
-            style={artworkAverageColor}>
+            style={artworkAverageColor}
+          >
             <DynamicImage image={image} />
           </div>
         )}

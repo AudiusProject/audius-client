@@ -1,9 +1,7 @@
+import { ID, UID, Collectible, Nullable } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Collectible } from 'common/models/Collectible'
-import { ID, UID } from 'common/models/Identifiers'
 import { RepeatMode, Queueable } from 'common/store/queue/types'
-import { Nullable } from 'common/utils/typeUtils'
 
 type State = {
   order: Queueable[]

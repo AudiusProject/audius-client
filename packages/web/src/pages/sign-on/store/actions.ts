@@ -1,5 +1,5 @@
-import { ID } from 'common/models/Identifiers'
-import { User } from 'common/models/User'
+import { ID, User } from '@audius/common'
+
 import {
   AccountImage,
   InstagramProfile,

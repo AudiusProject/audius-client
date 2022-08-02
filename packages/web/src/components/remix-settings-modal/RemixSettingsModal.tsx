@@ -1,12 +1,9 @@
 import { useCallback, useState, useEffect, useRef } from 'react'
 
+import { ID, SquareSizes, Track, User } from '@audius/common'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 import { debounce } from 'lodash'
 
-import { ID } from 'common/models/Identifiers'
-import { SquareSizes } from 'common/models/ImageSizes'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import Input from 'components/data-entry/Input'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -132,7 +129,8 @@ const RemixSettingsModal = ({
       bodyClassName={styles.modalContainer}
       headerContainerClassName={styles.modalHeader}
       titleClassName={styles.modalTitle}
-      subtitleClassName={styles.modalSubtitle}>
+      subtitleClassName={styles.modalSubtitle}
+    >
       <div className={styles.content}>
         <div className={styles.info}>{messages.remixOf}</div>
         <Input

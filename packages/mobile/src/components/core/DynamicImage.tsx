@@ -1,28 +1,19 @@
-import {
-  memo,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import type { ReactNode } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
+import type { Maybe } from '@audius/common'
 import useInstanceVar from 'audius-client/src/common/hooks/useInstanceVar'
-import { Maybe } from 'audius-client/src/common/utils/typeUtils'
-import {
-  Animated,
-  Image,
+import type {
   ImageProps,
   ImageStyle,
   LayoutChangeEvent,
   StyleProp,
-  StyleSheet,
-  View,
   ViewStyle
 } from 'react-native'
+import { Animated, Image, StyleSheet, View } from 'react-native'
 
-import { ImageSkeleton } from 'app/components/image-skeleton'
-import { StylesProp } from 'app/styles'
+import Skeleton from 'app/components/skeleton'
+import type { StylesProp } from 'app/styles'
 
 export type DynamicImageProps = Omit<ImageProps, 'source'> & {
   // Image uri
@@ -73,7 +64,7 @@ const ImageWithPlaceholder = ({
     return <Image source={{ uri }} style={style} {...other} />
   }
 
-  return <ImageSkeleton styles={{ root: style as ViewStyle }} />
+  return <Skeleton style={style} />
 }
 
 const interpolateImageScale = (animatedValue: Animated.Value) =>
@@ -185,14 +176,16 @@ export const DynamicImage = memo(function DynamicImage({
               ]
             }
           : {}
-      ]}>
+      ]}
+    >
       <Animated.View
         style={[
           stylesProp?.imageContainer,
           styles.imageContainer,
           { opacity: firstOpacity }
         ]}
-        onLayout={handleSetFirstSize}>
+        onLayout={handleSetFirstSize}
+      >
         <ImageWithPlaceholder
           uri={firstImage}
           style={[{ width: firstSize, height: firstSize }, stylesProp?.image]}
@@ -205,7 +198,8 @@ export const DynamicImage = memo(function DynamicImage({
           styles.imageContainer,
           { opacity: secondOpacity, zIndex: isFirstImageActive ? -1 : 0 }
         ]}
-        onLayout={handleSetSecondSize}>
+        onLayout={handleSetSecondSize}
+      >
         <ImageWithPlaceholder
           uri={secondImage}
           style={[{ width: secondSize, height: secondSize }, stylesProp?.image]}

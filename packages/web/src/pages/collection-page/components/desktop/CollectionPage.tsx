@@ -1,9 +1,14 @@
 import { ChangeEvent } from 'react'
 
-import { Collection, SmartCollection, Variant } from 'common/models/Collection'
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
-import { User } from 'common/models/User'
+import {
+  ID,
+  Collection,
+  SmartCollection,
+  Variant,
+  Status,
+  User
+} from '@audius/common'
+
 import {
   CollectionTrack,
   TrackRecord,
@@ -237,7 +242,8 @@ const CollectionPage = ({
       description={pageDescription}
       canonicalUrl={canonicalUrl}
       containerClassName={styles.pageContainer}
-      scrollableSearch>
+      scrollableSearch
+    >
       <div className={styles.bodyWrapper}>
         <div className={styles.topSectionWrapper}>{topSection}</div>
         {!collectionLoading && isEmpty ? (

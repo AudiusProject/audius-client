@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import { View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
@@ -105,9 +105,8 @@ export const Tier = ({
             {title}
           </GradientText>
           <Text
-            style={
-              styles.minAmount
-            }>{`${minAmount}+ ${messages.minAmount}`}</Text>
+            style={styles.minAmount}
+          >{`${minAmount}+ ${messages.minAmount}`}</Text>
           <View style={styles.separator} />
           {image}
         </View>
@@ -132,7 +131,8 @@ export const Tier = ({
         viewStyle={{ width: '100%' }}
         getChildRadius={true}
         distance={10}
-        startColor='rgba(162,47,235,0.2)'>
+        startColor='rgba(162,47,235,0.2)'
+      >
         {renderTierBody()}
       </Shadow>
     </View>

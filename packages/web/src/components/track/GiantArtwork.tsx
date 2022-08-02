@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react'
 
-import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
-import { Remix } from 'common/models/Track'
+import { CoverArtSizes, SquareSizes, Remix } from '@audius/common'
+
 import CoSign from 'components/co-sign/CoSign'
 import { Size } from 'components/co-sign/types'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -38,7 +38,8 @@ const GiantArtwork = ({
       hasReposted={coSign.has_remix_author_reposted}
       coSignName={coSign.user.name}
       className={styles.giantArtwork}
-      userId={coSign.user?.user_id}>
+      userId={coSign.user?.user_id}
+    >
       <DynamicImage wrapperClassName={styles.imageWrapper} image={image} />
     </CoSign>
   ) : (

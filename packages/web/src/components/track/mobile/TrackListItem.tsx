@@ -1,5 +1,6 @@
 import { memo, MouseEvent } from 'react'
 
+import { ID, CoverArtSizes, SquareSizes } from '@audius/common'
 import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
@@ -10,8 +11,6 @@ import { ReactComponent as IconHeart } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRemoveTrack } from 'assets/img/iconRemoveTrack.svg'
 import { ReactComponent as IconPause } from 'assets/img/pbIconPause.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
-import { ID } from 'common/models/Identifiers'
-import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -80,7 +79,8 @@ const Artwork = ({
                 backgroundImage: `url(${image})`
               }
             : {}
-        }>
+        }
+      >
         {isActive ? (
           <ArtworkIcon isLoading={isLoading} isPlaying={isPlaying} />
         ) : null}
@@ -167,7 +167,8 @@ const TrackListItem = ({
         [styles.isReorderable]: isReorderable,
         [styles.isDragging]: isDragging
       })}
-      onClick={onClickTrack}>
+      onClick={onClickTrack}
+    >
       {coverArtSizes ? (
         <div>
           <Artwork

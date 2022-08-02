@@ -1,14 +1,11 @@
+import { ID, RecentTipsStorage, UserTip, User, Nullable } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { ID } from 'common/models/Identifiers'
-import { RecentTipsStorage, UserTip } from 'common/models/Tipping'
-import { User } from 'common/models/User'
 import {
   SupportersMapForUser,
   SupportingMapForUser,
   TippingState
 } from 'common/store/tipping/types'
-import { Nullable } from 'common/utils/typeUtils'
 
 export type RefreshSupportPayloadAction = {
   senderUserId: ID

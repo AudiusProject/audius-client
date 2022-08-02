@@ -1,8 +1,8 @@
+import { BNWei } from '@audius/common'
 import { IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { BNWei } from 'common/models/Wallet'
 import { getAssociatedWallets } from 'common/store/pages/token-dashboard/selectors'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -83,7 +83,8 @@ const AudioBreakdownBody = () => {
             text={messages.linkedWalletsTooltip}
             className={styles.tooltip}
             mouseEnterDelay={0.1}
-            mount='body'>
+            mount='body'
+          >
             <IconInfo className={wm(styles.iconInfo)} />
           </Tooltip>
         </div>
@@ -102,7 +103,8 @@ const AudioBreakdownModal = () => {
       isFullscreen={true}
       showTitleHeader
       showDismissButton
-      useGradientTitle={false}>
+      useGradientTitle={false}
+    >
       <AudioBreakdownBody />
     </ModalDrawer>
   )

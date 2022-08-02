@@ -1,7 +1,5 @@
+import { ID, Collectible } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import { Collectible } from 'common/models/Collectible'
-import { ID } from 'common/models/Identifiers'
 
 export type CollectibleDetailsState = {
   collectible: Collectible | null

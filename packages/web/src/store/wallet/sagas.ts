@@ -1,10 +1,7 @@
+import { Name, Chain, BNWei, FeatureFlags } from '@audius/common'
 import BN from 'bn.js'
 import { all, call, put, take, takeEvery, select } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import { Chain } from 'common/models/Chain'
-import { BNWei } from 'common/models/Wallet'
-import { FeatureFlags } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
@@ -13,6 +10,7 @@ import {
 } from 'common/store/pages/token-dashboard/slice'
 import {
   getAccountBalance,
+  getFreezeUntilTime,
   getLocalBalanceDidChange
 } from 'common/store/wallet/selectors'
 import {
@@ -33,6 +31,11 @@ import { getErrorMessage } from 'utils/error'
 // TODO: handle errors
 const errors = {
   rateLimitError: 'Please wait before trying again'
+}
+
+function* getIsBalanceFrozen() {
+  const freezeUntil = yield* select(getFreezeUntilTime)
+  return freezeUntil && Date.now() < freezeUntil
 }
 
 /**
@@ -145,6 +148,11 @@ function* getWalletBalanceAndWallets() {
 function* fetchBalanceAsync() {
   const account = yield* select(getAccountUser)
   if (!account) return
+
+  // Opt out of balance refreshes if the balance
+  // is frozen due to a recent optimistic update
+  const isBalanceFrozen = yield* call(getIsBalanceFrozen)
+  if (isBalanceFrozen) return
 
   const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> =
     yield* select(getLocalBalanceDidChange)

@@ -1,5 +1,14 @@
 import { ComponentType, createRef, PureComponent } from 'react'
 
+import {
+  Kind,
+  ID,
+  UID,
+  Name,
+  PlaybackSource,
+  Lineup,
+  Status
+} from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import InfiniteScroll from 'react-infinite-scroller'
@@ -7,11 +16,6 @@ import { connect } from 'react-redux'
 import { Transition } from 'react-spring/renderprops'
 import { Dispatch } from 'redux'
 
-import { Name, PlaybackSource } from 'common/models/Analytics'
-import { ID, UID } from 'common/models/Identifiers'
-import Kind from 'common/models/Kind'
-import { Lineup } from 'common/models/Lineup'
-import Status from 'common/models/Status'
 import { LineupActions } from 'common/store/lineup/actions'
 import { getShowTip } from 'common/store/tipping/selectors'
 import { FeedTipTile } from 'components/tipping/feed-tip-tile/FeedTipTile'
@@ -614,7 +618,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
                   marginBottom: 12,
                   height: '100%',
                   maxHeight: 174
-                }}>
+                }}
+              >
                 <div className={styles.featuredContent}>
                   <SkeletonTileElement
                     {...{ ...skeletonTileProps, ...leadingElementTileProps }}
@@ -692,7 +697,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
           [lineupContainerStyles!]: !!lineupContainerStyles
         })}
         style={{ position: 'relative' }}
-        key='lineup'>
+        key='lineup'
+      >
         <Transition
           items={featuredTrackUid}
           from={{ opacity: 0, marginBottom: 0, maxHeight: 0 }}
@@ -710,7 +716,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
           }}
           leave={{ opacity: 0, marginBottom: 0, maxHeight: 0 }}
           config={{ duration: 175 }}
-          immediate={isMobile || !animateLeadingElement}>
+          immediate={isMobile || !animateLeadingElement}
+        >
           {(featuredId: ID | null) =>
             featuredId
               ? (props) => (
@@ -723,14 +730,16 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
                       height: '100%',
                       maxHeight: props.maxHeight,
                       marginBottom: props.marginBottom
-                    }}>
+                    }}
+                  >
                     <div
                       className={styles.featuredContent}
                       style={{
                         height: '100%',
                         opacity: props.opacity,
                         maxHeight: props.maxHeight
-                      }}>
+                      }}
+                    >
                       {allTracks[featuredId]}
                     </div>
                   </div>
@@ -746,7 +755,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
           }}
           className={cn({
             [laggingContainerClassName!]: !!laggingContainerClassName
-          })}>
+          })}
+        >
           {tiles.length === 0 && status === Status.SUCCESS ? (
             this.props.emptyElement
           ) : (
@@ -761,7 +771,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
               initialLoad={false}
               getScrollParent={() => scrollParent}
               threshold={loadMoreThreshold}
-              element='ol'>
+              element='ol'
+            >
               {isFeed && showTip ? <FeedTipTile /> : null}
               {tiles.map((tile, index) => (
                 <li key={index}>{tile}</li>

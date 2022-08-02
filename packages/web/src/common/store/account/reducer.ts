@@ -1,8 +1,6 @@
+import { ID, Status } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { keyBy } from 'lodash'
-
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
 
 const initialState = {
   collections: {} as { [id: number]: AccountCollection },

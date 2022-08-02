@@ -1,5 +1,6 @@
 import { cloneElement, useCallback, useEffect, useState } from 'react'
 
+import { BadgeTier, BNWei, StringAudio, StringWei } from '@audius/common'
 import { Format, IconTrophy, TokenValueInput } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -7,8 +8,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
-import { BadgeTier } from 'common/models/BadgeTier'
-import { BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   getOptimisticSupporters,
@@ -24,8 +23,9 @@ import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useGetFirstOrTopSupporter } from 'hooks/useGetFirstOrTopSupporter'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
+import { ProfileInfo } from '../../profile-info/ProfileInfo'
+
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
@@ -149,7 +149,7 @@ export const SendTip = () => {
 
   return receiver ? (
     <div className={styles.container}>
-      <TipProfilePicture user={receiver} />
+      <ProfileInfo user={receiver} />
       {!hasInsufficientBalance && isFirstSupporter
         ? renderBecomeFirstSupporter()
         : null}

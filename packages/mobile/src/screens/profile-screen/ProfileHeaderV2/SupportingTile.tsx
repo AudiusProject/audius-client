@@ -1,11 +1,12 @@
 import { useCallback } from 'react'
 
-import { WidthSizes } from 'audius-client/src/common/models/ImageSizes'
-import { Supporting } from 'audius-client/src/common/models/Tipping'
+import type { Supporting } from '@audius/common'
+import { WidthSizes } from '@audius/common'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'audius-client/src/utils/constants'
 import { profilePage } from 'audius-client/src/utils/route'
-import { ImageBackground, StyleProp, View, ViewStyle } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { ImageBackground, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
@@ -79,10 +80,11 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 type SupportingTileProps = {
   supporting: Supporting
   style?: StyleProp<ViewStyle>
+  scaleTo?: number
 }
 
 export const SupportingTile = (props: SupportingTileProps) => {
-  const { supporting, style } = props
+  const { supporting, style, scaleTo } = props
   const styles = useStyles()
   const navigation = useNavigation()
   const { secondary } = useThemeColors()
@@ -115,18 +117,20 @@ export const SupportingTile = (props: SupportingTileProps) => {
   }
 
   return user ? (
-    <Tile style={[styles.root, style]} onPress={handlePress}>
+    <Tile style={[styles.root, style]} onPress={handlePress} scaleTo={scaleTo}>
       <ImageBackground
         style={styles.backgroundImage}
         source={{
           uri: isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto
-        }}>
+        }}
+      >
         <LinearGradient
           colors={['#0000001A', '#0000004D']}
           useAngle
           angle={180}
           angleCenter={{ x: 0.5, y: 0.5 }}
-          style={styles.gradient}>
+          style={styles.gradient}
+        >
           {isTopRank ? (
             <View style={styles.rank}>
               <IconTrophy fill={secondary} {...iconProps} />
@@ -134,14 +138,16 @@ export const SupportingTile = (props: SupportingTileProps) => {
                 style={styles.rankNumberSymbol}
                 variant='label'
                 color='secondary'
-                fontSize='small'>
+                fontSize='small'
+              >
                 #
               </Text>
               <Text
                 style={styles.rankText}
                 variant='label'
                 color='secondary'
-                fontSize='large'>
+                fontSize='large'
+              >
                 {supporting.rank}
               </Text>
             </View>
@@ -152,7 +158,8 @@ export const SupportingTile = (props: SupportingTileProps) => {
               style={styles.nameText}
               variant='h3'
               noGutter
-              numberOfLines={1}>
+              numberOfLines={1}
+            >
               {name}
             </Text>
             <UserBadges user={user} hideName />

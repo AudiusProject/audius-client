@@ -2,12 +2,11 @@ import {
   getNotificationEntity,
   getNotificationUsers
 } from 'audius-client/src/common/store/notifications/selectors'
-import { Favorite } from 'common/store/notifications/types'
+import type { Favorite } from 'common/store/notifications/types'
 import { formatCount } from 'common/utils/formatUtil'
-import { isEqual } from 'lodash'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import {
   NotificationHeader,
@@ -38,7 +37,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
     (state) => getNotificationUsers(state, notification, USER_LENGTH_LIMIT),
     isEqual
   )
-  const [firstUser] = users
+  const firstUser = users?.[0]
   const otherUsersCount = userIds.length - 1
 
   const entity = useSelectorWeb(
@@ -47,6 +46,8 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
   )
 
   const handlePress = useSocialActionHandler(notification, users)
+
+  if (!users || !firstUser || !entity) return null
 
   return (
     <NotificationTile notification={notification} onPress={handlePress}>

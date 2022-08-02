@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
 
-import { CreatePlaylistSource } from 'audius-client/src/common/models/Analytics'
+import { CreatePlaylistSource } from '@audius/common'
 import { getUserHandle } from 'audius-client/src/common/store/account/selectors'
 import { createPlaylist } from 'audius-client/src/common/store/cache/collections/actions'
 import { playlistPage } from 'audius-client/src/utils/route'
-import { Formik, FormikProps } from 'formik'
+import type { FormikProps } from 'formik'
+import { Formik } from 'formik'
 
 import { FormScreen } from 'app/components/form-screen'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -35,7 +36,8 @@ const CreatePlaylistForm = (props: FormikProps<PlaylistValues>) => {
       title={messages.title}
       onSubmit={handleSubmit}
       onReset={handleReset}
-      errors={errors}>
+      errors={errors}
+    >
       <PlaylistImageInput />
       <PlaylistNameInput />
       <PlaylistDescriptionInput />

@@ -1,8 +1,7 @@
 import { memo } from 'react'
 
+import { Nullable } from '@audius/common'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
-
-import { Nullable } from 'common/utils/typeUtils'
 
 import styles from './DeleteConfirmationModal.module.css'
 
@@ -35,7 +34,8 @@ const DeleteConfirmationModal = (props: DeleteConfirmationModalProps) => {
       titleClassName={styles.modalTitle}
       headerContainerClassName={styles.modalHeader}
       showDismissButton
-      showTitleHeader>
+      showTitleHeader
+    >
       <div className={styles.container}>
         <div className={styles.text}>
           <div className={styles.header}>{header}</div>

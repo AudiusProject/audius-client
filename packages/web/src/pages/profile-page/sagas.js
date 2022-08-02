@@ -1,9 +1,14 @@
+import {
+  DefaultSizes,
+  Kind,
+  DoubleKeys,
+  FeatureFlags,
+  makeUid,
+  makeKindId
+} from '@audius/common'
 import { merge } from 'lodash'
 import { call, delay, fork, put, select, takeEvery } from 'redux-saga/effects'
 
-import { DefaultSizes } from 'common/models/ImageSizes'
-import Kind from 'common/models/Kind'
-import { DoubleKeys, FeatureFlags } from 'common/services/remote-config'
 import { getUserId, getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import {
@@ -26,7 +31,6 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { makeUid, makeKindId } from 'common/utils/uid'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import { setAudiusAccountUser } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
@@ -46,8 +50,7 @@ import {
 import { dataURLtoFile } from 'utils/fileUtils'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
-const { getRemoteVar, waitForRemoteConfig, waitForUserRemoteConfig } =
-  remoteConfigInstance
+const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -146,7 +149,7 @@ export function* fetchSolanaCollectibles(user) {
 }
 
 function* fetchSupportersAndSupporting(userId) {
-  yield call(waitForUserRemoteConfig)
+  yield call(waitForRemoteConfig)
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   if (!isTippingEnabled) {
     return
@@ -236,7 +239,7 @@ function* fetchProfileAsync(action) {
 
     const isMobileClient = isMobile()
     if (!isMobileClient) {
-      if (user.is_creator && user.track_count > 0) {
+      if (user.track_count > 0) {
         yield fork(fetchMostUsedTags, user.user_id, user.track_count)
       }
     }

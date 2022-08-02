@@ -1,9 +1,7 @@
 import { useEffect, useContext } from 'react'
 
-import { CID, ID } from 'common/models/Identifiers'
-import { LineupState } from 'common/models/Lineup'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
+import { CID, ID, LineupState, Track, User } from '@audius/common'
+
 import { tracksActions } from 'common/store/pages/track/lineup/actions'
 import { QueueItem } from 'common/store/queue/types'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
@@ -164,9 +162,8 @@ const TrackPage = ({
     (defaults.remixParentTrackId && entries.length > 2) ||
     (!defaults.remixParentTrackId && entries.length > 1) ? (
       <div
-        className={
-          styles.lineupHeader
-        }>{`${messages.moreBy} ${user?.name}`}</div>
+        className={styles.lineupHeader}
+      >{`${messages.moreBy} ${user?.name}`}</div>
     ) : null
 
   return (
@@ -174,7 +171,8 @@ const TrackPage = ({
       <MobilePageContainer
         title={title}
         description={description}
-        canonicalUrl={canonicalUrl}>
+        canonicalUrl={canonicalUrl}
+      >
         <div className={styles.trackContent}>
           <TrackPageHeader
             isLoading={loading}

@@ -1,19 +1,20 @@
-import { ComponentType } from 'react'
+import type { ComponentType } from 'react'
 
 import { merge } from 'lodash'
-import {
+import type {
   ButtonProps,
   TextStyle,
-  TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle
 } from 'react-native'
-import { SvgProps } from 'react-native-svg'
+import { TouchableOpacity } from 'react-native'
+import type { SvgProps } from 'react-native-svg'
 
 import { Text } from 'app/components/core'
-import { makeStyles, StylesProp } from 'app/styles'
+import type { StylesProp } from 'app/styles'
+import { makeStyles } from 'app/styles'
 
-import { TextProps } from './Text'
+import type { TextProps } from './Text'
 
 const useStyles = makeStyles(({ palette, spacing }, { variant }) => {
   const variantStyles = {
@@ -91,12 +92,14 @@ export const TextButton = (props: TextButtonProps) => {
     <TouchableOpacity
       style={[styles.root, stylesProp?.root, style]}
       disabled={disabled}
-      {...other}>
+      {...other}
+    >
       {iconPosition === 'left' ? icon : null}
       <Text
         color={variant}
         style={[stylesProp?.text, showDisabledColor && styles.disabled]}
-        {...TextProps}>
+        {...TextProps}
+      >
         {title}
       </Text>
       {iconPosition === 'right' ? icon : null}

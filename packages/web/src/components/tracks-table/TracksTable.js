@@ -15,6 +15,7 @@ import { formatCount } from 'common/utils/formatUtil'
 import { formatSeconds } from 'common/utils/timeUtil'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
+import Skeleton from 'components/skeleton/Skeleton'
 import Tooltip from 'components/tooltip/Tooltip'
 import TableDragHandle from 'components/tracks-table/TableDragHandle'
 import TableFavoriteButton from 'components/tracks-table/TableFavoriteButton'
@@ -69,7 +70,8 @@ const trackNameCell = (val, record, props) => {
       onClick={(e) => {
         e.stopPropagation()
         if (!deleted) props.onClickTrackName(record)
-      }}>
+      }}
+    >
       <div className={cn(styles.textCell, { [styles.trackName]: !deleted })}>
         {val}
         {deleted ? ` [Deleted By Artist]` : ''}
@@ -89,7 +91,8 @@ const artistNameCell = (val, record, props) => {
         onClick={(e) => {
           e.stopPropagation()
           props.onClickArtistName(record)
-        }}>
+        }}
+      >
         <div className={cn(styles.textCell, styles.artistName)}>{val}</div>
         <UserBadges
           userId={record.owner_id}
@@ -167,9 +170,7 @@ const ShowLimitTab = (props) => {
   )
 }
 
-const Loading = (props) => {
-  return <div className={styles.skeleton} />
-}
+const Loading = (props) => <Skeleton height={18} />
 
 const DraggableRow = (props) => {
   const {
@@ -209,7 +210,8 @@ const DraggableRow = (props) => {
         link={link}
         isOwner={record.isOwner}
         isDisabled={record.is_unlisted}
-        {...otherProps}>
+        {...otherProps}
+      >
         {children}
       </Draggable>
     )
@@ -571,7 +573,8 @@ class TracksTable extends Component {
         className={cn(styles.tracksTableContainer, {
           [styles.loading]: loading
         })}
-        ref={this.onSetTableRef}>
+        ref={this.onSetTableRef}
+      >
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Table
             showSorterTooltip={false}

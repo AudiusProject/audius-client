@@ -1,12 +1,10 @@
 import { useCallback } from 'react'
 
+import { ID, Name, FeatureFlags } from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
 
 import { useSelector } from 'common/hooks/useSelector'
-import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'

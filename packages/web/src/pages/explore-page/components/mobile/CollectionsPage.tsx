@@ -1,8 +1,7 @@
 import { useContext, useEffect } from 'react'
 
-import { UserCollection } from 'common/models/Collection'
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
+import { ID, UserCollection, Status } from '@audius/common'
+
 import Card from 'components/card/mobile/Card'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
@@ -94,7 +93,8 @@ const ExplorePage = ({
       description={description}
       canonicalUrl={`${BASE_URL}${EXPLORE_PAGE}`}
       containerClassName={styles.pageContainer}
-      hasDefaultHeader>
+      hasDefaultHeader
+    >
       {status === Status.LOADING ? (
         <LoadingSpinner className={styles.spinner} />
       ) : (

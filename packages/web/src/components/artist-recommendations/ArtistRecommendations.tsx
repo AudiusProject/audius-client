@@ -7,15 +7,19 @@ import {
   useMemo
 } from 'react'
 
+import {
+  ID,
+  FollowSource,
+  Name,
+  ProfilePictureSizes,
+  SquareSizes,
+  User
+} from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
-import { FollowSource, Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { ProfilePictureSizes, SquareSizes } from 'common/models/ImageSizes'
-import { User } from 'common/models/User'
 import { CommonState } from 'common/store'
 import * as socialActions from 'common/store/social/users/actions'
 import { makeGetRelatedArtists } from 'common/store/ui/artist-recommendations/selectors'
@@ -187,7 +191,8 @@ export const ArtistRecommendations = forwardRef(
               styles.profilePictureList,
               styles.contentItem,
               itemClassName
-            )}>
+            )}
+          >
             {suggestedArtists.map((a) => (
               <div key={a.user_id} className={styles.profilePictureWrapper}>
                 <ArtistProfilePictureWrapper
@@ -233,12 +238,14 @@ export const ArtistRecommendations = forwardRef(
     return (
       <div className={cn(styles.content, className)} ref={ref}>
         <div
-          className={cn(styles.headerBar, styles.contentItem, itemClassName)}>
+          className={cn(styles.headerBar, styles.contentItem, itemClassName)}
+        >
           <div
             role='button'
             title='Dismiss'
             className={styles.closeButton}
-            onClick={onClose}>
+            onClick={onClose}
+          >
             <IconClose className={cn(styles.icon, styles.remove)} />
           </div>
           {renderHeader()}

@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import LottieView from 'lottie-react-native'
-import {
-  Animated,
+import type {
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView
 } from 'react-native'
+import { Animated } from 'react-native'
 import { usePrevious } from 'react-use'
 
 import IconRefreshPull from 'app/assets/animations/iconRefreshPull.json'
@@ -258,7 +258,8 @@ export const PullToRefresh = ({
           ],
           opacity: didHitTop ? 1 : interpolateOpacity(scrollAnim)
         }
-      ]}>
+      ]}
+    >
       <LottieView
         ref={(animation) => (animationRef.current = animation)}
         loop={shouldShowSpinner}

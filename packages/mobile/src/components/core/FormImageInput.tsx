@@ -1,14 +1,16 @@
 import { useCallback, useState } from 'react'
 
 import { useField } from 'formik'
-import { Animated, ImageStyle, Pressable, View, ViewStyle } from 'react-native'
+import type { ImageStyle, ViewStyle } from 'react-native'
+import { Animated, Pressable, View } from 'react-native'
 
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { DynamicImage } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { makeStyles, StylesProps } from 'app/styles'
-import { Image } from 'app/types/image'
+import type { StylesProps } from 'app/styles'
+import { makeStyles } from 'app/styles'
+import type { Image } from 'app/types/image'
 import { launchSelectImageActionSheet } from 'app/utils/launchSelectImageActionSheet'
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -83,7 +85,8 @@ export const FormImageInput = ({
       style={[style, stylesProp?.root]}
       onPress={handlePress}
       onPressIn={handlePressIn}
-      onPressOut={handlePressOut}>
+      onPressOut={handlePressOut}
+    >
       <DynamicImage
         uri={isDefaultImage ? `https://audius.co/${url}` : url}
         styles={{
@@ -91,7 +94,8 @@ export const FormImageInput = ({
           image: [styles.image, stylesProp?.image]
         }}
         onLoad={() => setIsLoading(false)}
-        resizeMode={isDefaultImage ? 'repeat' : undefined}>
+        resizeMode={isDefaultImage ? 'repeat' : undefined}
+      >
         <View style={styles.backdrop} />
         <Animated.View style={[styles.centerIcon, { transform: [{ scale }] }]}>
           {isLoading || isProcessing ? (

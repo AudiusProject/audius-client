@@ -1,7 +1,4 @@
-import FeedFilter from 'common/models/FeedFilter'
-import { ID, UID } from 'common/models/Identifiers'
-import { Lineup } from 'common/models/Lineup'
-import { User } from 'common/models/User'
+import { ID, UID, FeedFilter, Lineup, User } from '@audius/common'
 
 export interface FeedPageContentProps {
   feedTitle: string

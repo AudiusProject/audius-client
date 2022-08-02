@@ -1,8 +1,7 @@
 import { memo, ReactChildren, useCallback } from 'react'
 
-import { IconArrow } from '@audius/stems'
+import { IconArrow, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
-import SimpleBar from 'simplebar-react'
 
 import {
   TrackTileSize,
@@ -52,12 +51,13 @@ const PlaylistTile = memo(
   }: PlaylistTileProps) => {
     const renderTracks = useCallback(
       () => (
-        <SimpleBar
+        <Scrollbar
           className={cn(styles.playlistTracks, {
             [tracksContainerClassName!]: !!tracksContainerClassName
-          })}>
+          })}
+        >
           {trackList}
-        </SimpleBar>
+        </Scrollbar>
       ),
       [tracksContainerClassName, trackList]
     )
@@ -82,7 +82,8 @@ const PlaylistTile = memo(
           [styles.small]: size === TrackTileSize.SMALL,
           [styles.large]: size === TrackTileSize.LARGE,
           [styles.disabled]: !!isDisabled
-        })}>
+        })}
+      >
         <TileTrackContainer>
           <TrackTile
             size={size}

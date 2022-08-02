@@ -1,13 +1,13 @@
-import { ID } from 'common/models/Identifiers'
 import {
+  ID,
   RecentTipsStorage,
   Supporter,
   Supporting,
-  UserTip
-} from 'common/models/Tipping'
-import { User } from 'common/models/User'
-import { StringAudio } from 'common/models/Wallet'
-import { Nullable } from 'common/utils/typeUtils'
+  UserTip,
+  User,
+  StringAudio,
+  Nullable
+} from '@audius/common'
 
 export type TippingSendStatus =
   | 'SEND'

@@ -1,25 +1,23 @@
-import { ComponentType, useCallback, useMemo, useRef, useState } from 'react'
+import type { ComponentType, ReactNode } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { merge } from 'lodash'
-import {
-  Pressable,
-  Text,
+import type {
   ButtonProps as RNButtonProps,
-  Animated,
   PressableProps,
   ViewStyle,
   TextStyle,
-  View,
   LayoutChangeEvent,
-  GestureResponderEvent,
-  StyleSheet
+  GestureResponderEvent
 } from 'react-native'
-import { SvgProps } from 'react-native-svg'
+import { Pressable, Text, Animated, View, StyleSheet } from 'react-native'
+import type { SvgProps } from 'react-native-svg'
 
 import { light, medium } from 'app/haptics'
 import { useColorAnimation } from 'app/hooks/usePressColorAnimation'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { flexRowCentered, makeStyles, StylesProp } from 'app/styles'
+import type { StylesProp } from 'app/styles'
+import { flexRowCentered, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { Link } from './Link'
@@ -80,13 +78,25 @@ const useStyles = makeStyles(
         icon: {
           color: palette.neutral
         }
+      },
+      destructive: {
+        root: {
+          backgroundColor: palette.accentRed
+        },
+        text: {
+          color: palette.staticWhite
+        },
+        icon: {
+          color: palette.staticWhite
+        }
       }
     }
 
     const variantPressingStyles = {
       secondary: variantStyles.primary,
       common: variantStyles.primary,
-      commonAlt: variantStyles.commonAlt
+      commonAlt: variantStyles.commonAlt,
+      destructive: variantStyles.destructive
     }
 
     const sizeStyles = {
@@ -138,14 +148,14 @@ const useStyles = makeStyles(
           fontSize: 18
         },
         icon: {
-          height: spacing(7),
-          width: spacing(7)
+          height: spacing(8),
+          width: spacing(8)
         },
         iconLeft: {
-          marginRight: spacing(2)
+          marginRight: spacing(1)
         },
         iconRight: {
-          marginLeft: spacing(2)
+          marginLeft: spacing(1)
         }
       }
     }
@@ -189,7 +199,7 @@ const useStyles = makeStyles(
   }
 )
 
-export type ButtonProps = RNButtonProps &
+export type ButtonProps = Omit<RNButtonProps, 'title'> &
   PressableProps & {
     icon?: ComponentType<SvgProps>
     iconPosition?: 'left' | 'right'
@@ -204,10 +214,11 @@ export type ButtonProps = RNButtonProps &
       icon: ViewStyle
       text: TextStyle
     }>
-    variant?: 'primary' | 'secondary' | 'common' | 'commonAlt'
+    variant?: 'primary' | 'secondary' | 'common' | 'commonAlt' | 'destructive'
     haptics?: boolean | 'light' | 'medium'
     url?: string
     corners?: 'rounded' | 'pill'
+    title: ReactNode
   }
 
 export const Button = (props: ButtonProps) => {
@@ -245,13 +256,15 @@ export const Button = (props: ButtonProps) => {
     handlePressOut: handlePressOutScale
   } = usePressScaleAnimation(0.97, false)
 
-  const { primaryDark1, neutralLight10, neutralLight7 } = useThemeColors()
+  const { primaryDark1, neutralLight10, neutralLight7, accentRedDark1 } =
+    useThemeColors()
 
   const pressColor = {
     primary: primaryDark1,
     secondary: primaryDark1,
     common: primaryDark1,
-    commonAlt: neutralLight10
+    commonAlt: neutralLight10,
+    destructive: accentRedDark1
   }
 
   const {
@@ -323,7 +336,8 @@ export const Button = (props: ButtonProps) => {
   return (
     <View
       style={rootHeightRef.current ? { height: rootHeightRef.current } : null}
-      onLayout={handleRootLayout}>
+      onLayout={handleRootLayout}
+    >
       <Animated.View
         style={[
           styles.root,
@@ -332,7 +346,8 @@ export const Button = (props: ButtonProps) => {
           style,
           stylesProp?.root,
           disabled && { backgroundColor: neutralLight7 }
-        ]}>
+        ]}
+      >
         <PressableComponent
           url={url as string}
           style={[
@@ -341,12 +356,16 @@ export const Button = (props: ButtonProps) => {
             stylesProp?.button
           ]}
           accessibilityRole='button'
-          accessibilityLabel={accessibilityLabel ?? noText ? title : undefined}
+          accessibilityLabel={
+            accessibilityLabel ??
+            (noText && typeof title === 'string' ? title : undefined)
+          }
           onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           disabled={disabled}
-          {...other}>
+          {...other}
+        >
           {iconPosition !== 'left' ? null : icon}
           {noText ? null : typeof title === 'string' ? (
             <Text style={[styles.text, stylesProp?.text]}>{title}</Text>

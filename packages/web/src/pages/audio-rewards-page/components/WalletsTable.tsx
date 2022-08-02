@@ -1,14 +1,12 @@
 import { useCallback, useContext, useEffect, MouseEvent } from 'react'
 
+import { Chain, BNWei, FeatureFlags } from '@audius/common'
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
-import { Chain } from 'common/models/Chain'
-import { BNWei } from 'common/models/Wallet'
-import { FeatureFlags } from 'common/services/remote-config'
 import {
   getAssociatedWallets,
   getRemoveWallet
@@ -99,7 +97,8 @@ const Wallet = ({
             [styles.removingWallet]: isConfirmRemoving,
             [styles.disabled]: isCopyDisabled
           })}
-          placement={ComponentPlacement.TOP}>
+          placement={ComponentPlacement.TOP}
+        >
           <>
             <div className={styles.chainIconContainer}>
               {chain === Chain.Eth ? (
@@ -201,14 +200,16 @@ const WalletsTable = ({
         [className!]: !!className,
         [styles.noActions]: !hasActions,
         [styles.hideCollectibles]: hideCollectibles
-      })}>
+      })}
+    >
       <div className={styles.walletsHeader}>
         <h6 className={cn(styles.walletsHeaderItem, styles.headerWallet)}>
           {messages.linkedWallets}
         </h6>
         {!hideCollectibles && !isMobile && (
           <h6
-            className={cn(styles.walletsHeaderItem, styles.headerCollectibles)}>
+            className={cn(styles.walletsHeaderItem, styles.headerCollectibles)}
+          >
             {messages.collectibles}
           </h6>
         )}

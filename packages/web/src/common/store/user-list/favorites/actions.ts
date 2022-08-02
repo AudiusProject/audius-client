@@ -1,7 +1,5 @@
+import { ID, FavoriteType } from '@audius/common'
 import { createCustomAction } from 'typesafe-actions'
-
-import { FavoriteType } from 'common/models/Favorite'
-import { ID } from 'common/models/Identifiers'
 
 export const SET_FAVORITE = 'FAVORITING_USERS_PAGE/SET_FAVORITE'
 export const GET_TRACK_FAVORITE_ERROR =

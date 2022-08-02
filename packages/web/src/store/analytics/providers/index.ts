@@ -1,5 +1,5 @@
-import { BooleanKeys } from 'common/services/remote-config'
-import { Nullable } from 'common/utils/typeUtils'
+import { Nullable, BooleanKeys } from '@audius/common'
+
 import {
   SetAnalyticsUser,
   TrackAnalyticsEvent

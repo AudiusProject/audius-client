@@ -1,8 +1,7 @@
 import { useCallback, MouseEvent } from 'react'
 
-import { UserCollection } from 'common/models/Collection'
-import { ID } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
+import { ID, UserCollection, Status } from '@audius/common'
+
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Card from 'components/card/desktop/Card'
 import Header from 'components/header/desktop/Header'
@@ -66,7 +65,8 @@ const CollectionsPage = ({
       <ArtistPopover handle={playlist.user.handle}>
         <span
           className={styles.userName}
-          onClick={(e: MouseEvent) => goToProfilePage(e, playlist.user.handle)}>
+          onClick={(e: MouseEvent) => goToProfilePage(e, playlist.user.handle)}
+        >
           {playlist.user.name}
         </span>
       </ArtistPopover>
@@ -137,7 +137,8 @@ const CollectionsPage = ({
       description={description}
       canonicalUrl={`${BASE_URL}${EXPLORE_PAGE}`}
       contentClassName={styles.page}
-      header={header}>
+      header={header}
+    >
       {status === Status.LOADING ? (
         <LoadingSpinner className={styles.spinner} />
       ) : (

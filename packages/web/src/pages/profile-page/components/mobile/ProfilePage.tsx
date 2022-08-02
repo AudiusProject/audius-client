@@ -1,5 +1,15 @@
 import { useEffect, useContext, ReactNode } from 'react'
 
+import {
+  ID,
+  UID,
+  Collection,
+  CoverPhotoSizes,
+  ProfilePictureSizes,
+  LineupState,
+  Status,
+  User
+} from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
@@ -8,12 +18,6 @@ import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import { ReactComponent as IconPlaylists } from 'assets/img/iconPlaylists.svg'
 import { ReactComponent as IconReposts } from 'assets/img/iconRepost.svg'
 import { useSelectTierInfo } from 'common/hooks/wallet'
-import { Collection } from 'common/models/Collection'
-import { ID, UID } from 'common/models/Identifiers'
-import { CoverPhotoSizes, ProfilePictureSizes } from 'common/models/ImageSizes'
-import { LineupState } from 'common/models/Lineup'
-import Status from 'common/models/Status'
-import { User } from 'common/models/User'
 import { feedActions } from 'common/store/pages/profile/lineups/feed/actions'
 import { tracksActions } from 'common/store/pages/profile/lineups/tracks/actions'
 import { Tabs, ProfileUser } from 'common/store/pages/profile/types'
@@ -607,17 +611,20 @@ const ProfilePage = g(
       <>
         <NetworkConnectivityMonitor
           pageDidLoad={status !== Status.LOADING}
-          onDidRegainConnectivity={asyncRefresh}>
+          onDidRegainConnectivity={asyncRefresh}
+        >
           <MobilePageContainer
             title={name && handle ? `${name} (${handle})` : ''}
             description={bio}
             canonicalUrl={fullProfilePage(handle)}
-            containerClassName={styles.container}>
+            containerClassName={styles.container}
+          >
             <PullToRefresh
               fetchContent={asyncRefresh}
               shouldPad={false}
               overImage
-              isDisabled={isEditing || isUserConfirming}>
+              isDisabled={isEditing || isUserConfirming}
+            >
               <ProfileHeader
                 isDeactivated={profile?.is_deactivated}
                 name={name}

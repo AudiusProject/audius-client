@@ -1,6 +1,6 @@
 import { Fragment, useCallback } from 'react'
 
-import { FollowSource } from 'audius-client/src/common/models/Analytics'
+import { FollowSource } from '@audius/common'
 import {
   followUser,
   unfollowUser
@@ -161,7 +161,8 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
         {suggestedArtists.map((artist) => (
           <TouchableOpacity
             onPress={handlePressArtist(artist)}
-            key={artist.user_id}>
+            key={artist.user_id}
+          >
             <ProfilePicture
               profile={artist}
               style={styles.suggestedArtistPhoto}

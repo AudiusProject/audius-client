@@ -1,7 +1,7 @@
 import { useCallback, useContext } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import { shareCollection } from 'audius-client/src/common/store/social/collections/actions'
 import { shareTrack } from 'audius-client/src/common/store/social/tracks/actions'
@@ -20,12 +20,8 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import {
-  Theme,
-  ThemeColors,
-  useThemeColors,
-  useThemeVariant
-} from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
+import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import ActionDrawer from '../action-drawer'
 import { ToastContext } from '../toast/ToastContext'

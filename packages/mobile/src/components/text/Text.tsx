@@ -1,6 +1,7 @@
 import { Animated, Text as RNText } from 'react-native'
 
-import { fontByWeight, font } from 'app/styles'
+import type { fontByWeight } from 'app/styles'
+import { font } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 type Props = {
@@ -39,7 +40,8 @@ export const AnimatedText = ({
   return (
     <Animated.Text
       style={[{ color: neutral, ...font(weight) }, style]}
-      {...props}>
+      {...props}
+    >
       {children}
     </Animated.Text>
   )

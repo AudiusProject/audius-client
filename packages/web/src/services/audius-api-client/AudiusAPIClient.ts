@@ -1,9 +1,14 @@
-import { ID } from 'common/models/Identifiers'
-import TimeRange from 'common/models/TimeRange'
-import { StemTrackMetadata } from 'common/models/Track'
-import { IntKeys, StringKeys } from 'common/services/remote-config'
+import {
+  ID,
+  TimeRange,
+  StemTrackMetadata,
+  Nullable,
+  removeNullable,
+  IntKeys,
+  StringKeys
+} from '@audius/common'
+
 import { SearchKind } from 'common/store/pages/search-results/types'
-import { Nullable, removeNullable } from 'common/utils/typeUtils'
 import AudiusBackend, { AuthHeaders } from 'services/AudiusBackend'
 import { SupporterResponse } from 'services/audius-backend/Tipping'
 import {
@@ -1403,14 +1408,20 @@ class AudiusAPIClient {
     }
 
     // Listen for libs on chain selection
-    AudiusBackend.addDiscoveryProviderSelectionListener((endpoint: string) => {
-      console.debug(`APIClient: Setting to libs discprov: ${endpoint}`)
-      this.initializationState = {
-        state: 'initialized',
-        endpoint,
-        type: 'libs'
+    AudiusBackend.addDiscoveryProviderSelectionListener(
+      (endpoint: string | null) => {
+        if (endpoint) {
+          console.debug(`APIClient: Setting to libs discprov: ${endpoint}`)
+          this.initializationState = {
+            state: 'initialized',
+            endpoint,
+            type: 'libs'
+          }
+        } else {
+          console.warn('APIClient: No libs discprov endpoint')
+        }
       }
-    })
+    )
 
     console.debug('APIClient: Initialized')
   }

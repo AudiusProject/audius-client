@@ -1,10 +1,11 @@
 import React from 'react'
 
-import { UserChallengeState } from 'audius-client/src/common/models/AudioRewards'
+import type { UserChallengeState } from '@audius/common'
 import { ClaimStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import { fillString } from 'audius-client/src/common/utils/fillString'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
-import { StyleSheet, View, ImageSourcePropType } from 'react-native'
+import type { ImageSourcePropType } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
@@ -16,7 +17,7 @@ import { ProgressBar } from 'app/components/progress-bar'
 import Text from 'app/components/text'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
-import { ThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
 
 const messages = {
   task: 'Task',
@@ -223,7 +224,8 @@ export const ChallengeRewardsDrawer = ({
       isFullscreen
       isGestureSupported={false}
       title={title}
-      titleIcon={titleIcon}>
+      titleIcon={titleIcon}
+    >
       <View style={styles.content}>
         <View style={styles.task}>
           {isVerifiedChallenge ? (
@@ -268,14 +270,16 @@ export const ChallengeRewardsDrawer = ({
             style={[
               styles.statusCell,
               hasCompleted ? styles.statusCellComplete : {}
-            ]}>
+            ]}
+          >
             <Text
               style={[
                 styles.subheader,
                 hasCompleted ? styles.statusTextComplete : {},
                 isInProgress ? styles.statusTextInProgress : {}
               ]}
-              weight='heavy'>
+              weight='heavy'
+            >
               {statusText}
             </Text>
           </View>
@@ -287,7 +291,8 @@ export const ChallengeRewardsDrawer = ({
                 <Text
                   key='claimableAmount'
                   style={styles.claimableAmount}
-                  weight='heavy'>
+                  weight='heavy'
+                >
                   {claimableAmountText}
                 </Text>,
                 <Button

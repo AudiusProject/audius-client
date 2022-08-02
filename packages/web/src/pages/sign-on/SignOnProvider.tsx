@@ -1,5 +1,6 @@
 import { Component, ComponentType } from 'react'
 
+import { ID, Name, User } from '@audius/common'
 import {
   push as pushRoute,
   replace as replaceRoute,
@@ -11,9 +12,6 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { Name } from 'common/models/Analytics'
-import { ID } from 'common/models/Identifiers'
-import { User } from 'common/models/User'
 import {
   InstagramProfile,
   AccountImage,

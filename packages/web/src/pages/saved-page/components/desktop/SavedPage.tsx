@@ -1,11 +1,8 @@
+import { ID, UID, Lineup, Status, User } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
-import { ID, UID } from 'common/models/Identifiers'
-import { Lineup } from 'common/models/Lineup'
-import Status from 'common/models/Status'
-import { User } from 'common/models/User'
 import {
   Tabs as ProfileTabs,
   TrackRecord,
@@ -111,7 +108,8 @@ const SavedPage = ({
       style={{
         opacity: playButtonActive ? 1 : 0,
         pointerEvents: playButtonActive ? 'auto' : 'none'
-      }}>
+      }}
+    >
       <Button
         className={styles.playAllButton}
         iconClassName={styles.playAllButtonIcon}
@@ -132,7 +130,8 @@ const SavedPage = ({
       style={{
         opacity: filterActive ? 1 : 0,
         pointerEvents: filterActive ? 'auto' : 'none'
-      }}>
+      }}
+    >
       <FilterInput
         placeholder={messages.filterPlaceholder}
         onChange={onFilterChange}
@@ -258,7 +257,8 @@ const SavedPage = ({
       title={title}
       description={description}
       contentClassName={styles.savedPageWrapper}
-      header={header}>
+      header={header}
+    >
       <div className={styles.bodyWrapper}>{body}</div>
     </Page>
   )

@@ -1,21 +1,24 @@
 import { Component, ComponentType } from 'react'
 
-import { push as pushRoute, replace } from 'connected-react-router'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
-
 import {
+  ID,
+  CID,
+  PlayableType,
   FollowSource,
   FavoriteSource,
   RepostSource,
   ShareSource,
   Name,
-  PlaybackSource
-} from 'common/models/Analytics'
-import { FavoriteType } from 'common/models/Favorite'
-import { ID, CID, PlayableType } from 'common/models/Identifiers'
-import Status from 'common/models/Status'
-import { Track } from 'common/models/Track'
+  PlaybackSource,
+  FavoriteType,
+  Status,
+  Track,
+  Uid
+} from '@audius/common'
+import { push as pushRoute, replace } from 'connected-react-router'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
+
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheTrackActions from 'common/store/cache/tracks/actions'
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
@@ -45,7 +48,6 @@ import { setRepost } from 'common/store/user-list/reposts/actions'
 import { RepostType } from 'common/store/user-list/reposts/types'
 import { getCanonicalName } from 'common/utils/genres'
 import { formatSeconds, formatDate } from 'common/utils/timeUtil'
-import { Uid } from 'common/utils/uid'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
 import DeletedPage from 'pages/deleted-page/DeletedPage'
 import { TrackEvent, make } from 'store/analytics/actions'

@@ -1,5 +1,6 @@
 import { memo, useCallback } from 'react'
 
+import { ID } from '@audius/common'
 import { IconDownload, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,7 +11,6 @@ import {
   ButtonType,
   useDownloadTrackButtons
 } from 'common/hooks/useDownloadTrackButtons'
-import { ID } from 'common/models/Identifiers'
 import { toast } from 'common/store/ui/toast/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -105,7 +105,8 @@ const DownloadButton = ({
         className={cn(styles.downloadButtonContainer, {
           [styles.disabled]: isDisabled
         })}
-        onClick={handleOnClick}>
+        onClick={handleOnClick}
+      >
         <div className={styles.icon}>{renderIcon()}</div>
         {/* h2 here for SEO purposes */}
         <h2 className={styles.label}>{messages.addDownloadPrefix(label)}</h2>
@@ -172,7 +173,8 @@ const DownloadButtons = ({
     <div
       className={cn({
         [className!]: !!className
-      })}>
+      })}
+    >
       {buttons.map((props) => (
         <DownloadButton {...props} key={props.label} />
       ))}

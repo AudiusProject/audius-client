@@ -1,17 +1,18 @@
 import { useContext } from 'react'
 
+import {
+  ID,
+  PlayableType,
+  FavoriteSource,
+  RepostSource,
+  ShareSource,
+  CreatePlaylistSource
+} from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import {
-  FavoriteSource,
-  RepostSource,
-  ShareSource,
-  CreatePlaylistSource
-} from 'common/models/Analytics'
-import { ID, PlayableType } from 'common/models/Identifiers'
 import { getAccountOwnedPlaylists } from 'common/store/account/selectors'
 import {
   createPlaylist,

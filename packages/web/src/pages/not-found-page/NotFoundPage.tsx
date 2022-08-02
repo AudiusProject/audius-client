@@ -1,5 +1,6 @@
 import { useEffect, useContext } from 'react'
 
+import { Name } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -10,7 +11,6 @@ import { Dispatch } from 'redux'
 
 import notFoundAnimation from 'assets/animations/404.json'
 import tiledBackground from 'assets/img/notFoundTiledBackround.png'
-import { Name } from 'common/models/Analytics'
 import { getTheme } from 'common/store/ui/theme/selectors'
 import NavContext, {
   CenterPreset,
@@ -64,7 +64,8 @@ const NotFoundPage = ({ isMobile, goToHomePage, theme }: NotFoundPageProps) => {
       description={messages.description}
       containerClassName={cn({ [styles.isMobile]: isMobile })}
       contentClassName={styles.notFoundPageWrapper}
-      scrollableSearch={!isMobile}>
+      scrollableSearch={!isMobile}
+    >
       <div
         className={cn(styles.bodyWrapper, {
           [styles.bodyWrapperMobile]: isMobile
@@ -73,7 +74,8 @@ const NotFoundPage = ({ isMobile, goToHomePage, theme }: NotFoundPageProps) => {
           backgroundImage: `url(${tiledBackground})`,
           backgroundBlendMode:
             shouldShowDark(theme) || isMatrix() ? 'color-burn' : 'none'
-        }}>
+        }}
+      >
         <div className={styles.contentWrapper}>
           <div className={styles.mainContent}>
             <div className={styles.animation}>

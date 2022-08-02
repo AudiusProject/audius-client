@@ -1,11 +1,9 @@
 import { memo, useRef, MouseEvent } from 'react'
 
+import { Color, CoverArtSizes, SquareSizes, Nullable } from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconVisualizer } from 'assets/img/iconVisualizer.svg'
-import Color from 'common/models/Color'
-import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
-import { Nullable } from 'common/utils/typeUtils'
 import Draggable from 'components/dragndrop/Draggable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -89,25 +87,31 @@ const CurrentlyPlaying = ({
       kind='track'
       id={trackId}
       isOwner={isOwner}
-      link={draggableLink}>
+      link={draggableLink}
+    >
       <div
         className={cn(styles.artworkWrapper, {
           [styles.playing]: !!trackId
         })}
         style={wrapperStyle}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         <DynamicImage
+          useSkeleton={false}
           image={artworkLink ?? image}
           immediate={newTrack}
           className={styles.artwork}
-          imageStyle={artworkStyle}>
+          imageStyle={artworkStyle}
+        >
           <div
             className={cn(styles.bottomRightContainer, {
               [styles.hide]: !trackId
-            })}>
+            })}
+          >
             <div
               onClick={(e) => onShowVisualizer(e)}
-              className={styles.visualizerIconContainer}>
+              className={styles.visualizerIconContainer}
+            >
               <IconVisualizer className={styles.visualizerIcon} />
             </div>
           </div>

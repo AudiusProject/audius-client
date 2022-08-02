@@ -1,13 +1,12 @@
 import { ReactNode, useCallback, useEffect } from 'react'
 
+import { Name, Status } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
-import Status from 'common/models/Status'
 import LoadingSpinnerFullPage from 'components/loading-spinner-full-page/LoadingSpinnerFullPage'
 import { make, useRecord } from 'store/analytics/actions'
 import { isMobile } from 'utils/clientUtil'
@@ -160,7 +159,8 @@ export const DeactivateAccountPage = () => {
       closeConfirmation={closeConfirmation}
       onDrawerSelection={onDrawerSelection}
       onConfirm={onConfirm}
-      isLoading={isDeactivating}>
+      isLoading={isDeactivating}
+    >
       <DeactivateAcccountPageContents
         isError={deactivateAccountStatus === Status.ERROR}
         isLoading={isDeactivating}

@@ -1,11 +1,10 @@
 import { useCallback } from 'react'
 
+import { ID, BadgeTier } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useSelectTierInfo } from 'common/hooks/wallet'
-import { BadgeTier } from 'common/models/BadgeTier'
-import { ID } from 'common/models/Identifiers'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 
@@ -58,7 +57,8 @@ export const BadgeTierText = ({
   return (
     <span
       className={cn(styles.tierText, className)}
-      style={{ ...tierGradientMap[tier], fontSize }}>
+      style={{ ...tierGradientMap[tier], fontSize }}
+    >
       {tier}
     </span>
   )
@@ -91,14 +91,14 @@ const ProfilePageBadge = ({
         { [styles.isCompact]: isCompact },
         className
       )}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {badge}
       {!isCompact && <div className={styles.divider} />}
       <div className={styles.text}>
         <span
-          className={
-            styles.tierNumber
-          }>{`${messages.tier} ${tierNumber}`}</span>
+          className={styles.tierNumber}
+        >{`${messages.tier} ${tierNumber}`}</span>
         <BadgeTierText
           tier={tier}
           fontSize={22}

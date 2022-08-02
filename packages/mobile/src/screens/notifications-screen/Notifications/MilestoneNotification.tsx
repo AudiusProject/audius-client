@@ -1,16 +1,15 @@
 import { useCallback } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
+import type { User, Nullable } from '@audius/common'
 import {
   getNotificationEntity,
   getNotificationUser
 } from 'audius-client/src/common/store/notifications/selectors'
-import {
-  Achievement,
+import type {
   EntityType,
   Milestone
 } from 'audius-client/src/common/store/notifications/types'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
+import { Achievement } from 'audius-client/src/common/store/notifications/types'
 import {
   fullProfilePage,
   NOTIFICATION_PAGE
@@ -132,7 +131,6 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const renderBody = () => {
     const { achievement, value } = notification
     if (achievement === Achievement.Followers) {
-      const { value } = notification
       return `${messages.follows} ${formatCount(value)} ${achievement}`
     } else if (entity) {
       const { entityType } = notification

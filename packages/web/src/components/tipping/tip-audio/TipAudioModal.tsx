@@ -1,5 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
+import { Nullable } from '@audius/common'
+import { Modal, ModalHeader, ModalTitle } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 import { animated, Transition } from 'react-spring/renderprops'
 import { usePrevious } from 'react-use'
@@ -10,7 +12,7 @@ import { useSelector } from 'common/hooks/useSelector'
 import { getSendStatus } from 'common/store/tipping/selectors'
 import { resetSend } from 'common/store/tipping/slice'
 import { TippingSendStatus } from 'common/store/tipping/types'
-import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
+import { getBalance } from 'common/store/wallet/slice'
 
 import { ConfirmSendTip } from './ConfirmSendTip'
 import { SendTip } from './SendTip'
@@ -35,45 +37,25 @@ const GoldBadgeIconImage = () => (
   />
 )
 
-const titlesMap: { [key in TippingSendStatus]?: JSX.Element | string } = {
-  SEND: (
-    <div className={styles.tipIconTextContainer}>
-      <GoldBadgeIconImage />
-      <span className={styles.tipText}>{messages.sendATip}</span>
-    </div>
-  ),
-  CONFIRM: (
-    <div className={styles.tipIconTextContainer}>
-      <GoldBadgeIconImage />
-      <span className={styles.tipText}>{messages.confirm}</span>
-    </div>
-  ),
-  SENDING: (
-    <div className={styles.tipIconTextContainer}>
-      <GoldBadgeIconImage />
-      <span className={styles.tipText}>{messages.sending}</span>
-    </div>
-  ),
-  CONVERTING: (
-    <div className={styles.tipIconTextContainer}>
-      <span className={styles.tipText}>{messages.holdOn}</span>
-    </div>
-  ),
-  ERROR: (
-    <div className={styles.tipIconTextContainer}>
-      <GoldBadgeIconImage />
-      <span className={styles.tipText}>{messages.confirm}</span>
-    </div>
-  ),
-  SUCCESS: (
-    <div className={styles.tipIconTextContainer}>
-      <IconVerifiedGreen width={24} height={24} />
-      <span className={styles.tipText}>{messages.tipSent}</span>
-    </div>
-  )
+const titleMessagesMap: { [key in TippingSendStatus]?: string } = {
+  SEND: messages.sendATip,
+  CONFIRM: messages.confirm,
+  SENDING: messages.sending,
+  CONVERTING: messages.holdOn,
+  ERROR: messages.confirm,
+  SUCCESS: messages.tipSent
 }
 
-const ModalContent = (pageNumber: number) => {
+const titleIconsMap: { [key in TippingSendStatus]?: Nullable<JSX.Element> } = {
+  SEND: <GoldBadgeIconImage />,
+  CONFIRM: <GoldBadgeIconImage />,
+  SENDING: <GoldBadgeIconImage />,
+  CONVERTING: null,
+  ERROR: <GoldBadgeIconImage />,
+  SUCCESS: <IconVerifiedGreen width={24} height={24} />
+}
+
+const renderModalContent = (pageNumber: number) => {
   switch (pageNumber) {
     case 0:
       return <SendTip />
@@ -99,6 +81,23 @@ const defaultTransitions = {
   initial: { opacity: 1, transform: 'translate3d(0%, 0, 0)' },
   enter: { opacity: 1, transform: 'translate3d(0%, 0 ,0)' }
 }
+
+const nextScreenTransition = {
+  ...defaultTransitions,
+  // Next screen enters from right
+  from: { opacity: 0, transform: 'translate3d(100%, 0, 0)' },
+  // Current screen leaves on left
+  leave: { opacity: 0, transform: 'translate3d(-100%, 0, 0)' }
+}
+
+const previousScreenTransition = {
+  ...defaultTransitions,
+  // Previous screen enters from left
+  from: { opacity: 0, transform: 'translate3d(-100%, 0, 0)' },
+  // Current screen leaves on right
+  leave: { opacity: 0, transform: 'translate3d(100%, 0, 0)' }
+}
+
 export const TipAudioModal = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
@@ -108,39 +107,42 @@ export const TipAudioModal = () => {
     dispatch(resetSend())
   }, [dispatch])
 
+  useEffect(() => {
+    if (sendStatus !== null) {
+      dispatch(getBalance())
+    }
+  }, [dispatch, sendStatus])
+
   const transitions =
     !previousSendStatus ||
     !sendStatus ||
     statusOrder[sendStatus] >= statusOrder[previousSendStatus]
-      ? {
-          ...defaultTransitions,
-          // Next screen enters from right
-          from: { opacity: 0, transform: 'translate3d(100%, 0, 0)' },
-          // Current screen leaves on left
-          leave: { opacity: 0, transform: 'translate3d(-100%, 0, 0)' }
-        }
-      : {
-          ...defaultTransitions,
-          // Previous screen enters from left
-          from: { opacity: 0, transform: 'translate3d(-100%, 0, 0)' },
-          // Current screen leaves on right
-          leave: { opacity: 0, transform: 'translate3d(100%, 0, 0)' }
-        }
+      ? nextScreenTransition
+      : previousScreenTransition
+
   return (
-    <ModalDrawer
+    <Modal
       isOpen={sendStatus !== null}
       onClose={onClose}
       bodyClassName={styles.modalBody}
-      showTitleHeader
-      title={sendStatus ? titlesMap[sendStatus] : ''}
-      showDismissButton={
-        sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
-      }
       dismissOnClickOutside={
         sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
       }
-      contentHorizontalPadding={24}
-      useGradientTitle={false}>
+    >
+      <ModalHeader
+        className={styles.modalHeader}
+        onClose={onClose}
+        dismissButtonClassName={styles.dismissButton}
+        showDismissButton={
+          sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
+        }
+      >
+        <ModalTitle
+          title={sendStatus ? titleMessagesMap[sendStatus] : ''}
+          icon={sendStatus ? titleIconsMap[sendStatus] : null}
+          iconClassName={styles.modalTitleIcon}
+        />
+      </ModalHeader>
       <div className={styles.modalContentContainer}>
         <Transition
           items={sendStatus !== null ? statusOrder[sendStatus] : 0}
@@ -148,15 +150,16 @@ export const TipAudioModal = () => {
           from={transitions.from}
           enter={transitions.enter}
           leave={transitions.leave}
-          unique={true}>
+          unique={true}
+        >
           {(item) => (style) =>
             (
               <animated.div style={{ ...style }}>
-                {ModalContent(item)}
+                {renderModalContent(item)}
               </animated.div>
             )}
         </Transition>
       </div>
-    </ModalDrawer>
+    </Modal>
   )
 }

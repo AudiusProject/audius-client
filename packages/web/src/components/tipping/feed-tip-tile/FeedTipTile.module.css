@@ -78,6 +78,7 @@
 
 .tippers {
   display: flex;
+  align-items: center;
   margin-left: 4px;
   color: var(--neutral);
 }
@@ -89,6 +90,9 @@
   display: flex;
   align-items: center;
   font-weight: var(--font-medium);
+}
+.tipperName > span {
+  white-space: nowrap;
 }
 .tipperSeparator {
   margin: 0 4px;
@@ -105,35 +109,13 @@
 }
 
 .sendTipButton {
-  height: unset !important;
   margin-left: 8px;
-  padding: 10px 0;
-  border-radius: 100px;
-  border: 1px solid var(--neutral-light-4);
-  background: var(--white);
+}
+.sendTipButtonTextContainer {
+  display: flex;
 }
 .sendTipButtonText {
-  display: flex;
-  align-items: center;
-  font-weight: var(--font-bold);
-  font-size: var(--font-xs);
-  color: var(--neutral-light-4);
-  text-transform: uppercase;
-}
-.sendTipButton:hover {
-  transform: scale3d(1.01, 1.01, 1.01) !important;
-  border: unset;
-}
-.sendTipButton:active {
-  transform: scale3d(0.99, 0.99, 0.99) !important;
-}
-.sendTipButton:hover .sendTipButtonText,
-.sendTipButton:active .sendTipButtonText {
-  color: var(--white);
-}
-.sendTipButton:active,
-.sendTipButton:active .sendTipButtonText {
-  background: var(--primary-dark-2) !important;
+  color: var(--neutral-light-4) !important;
 }
 .sendTipName {
   margin-left: 2.5px;
@@ -143,15 +125,24 @@
 }
 
 .dismissButton {
-  margin-left: 8px;
+  margin-left: var(--unit-2);
+  transform: scale3d(1, 1, 1);
+  transition: all 0.07s ease-in-out !important;
 }
+
 .dismissButton:hover {
-  cursor: pointer;
+  transform: scale3d(1.1, 1.1, 1.1);
 }
+
+.dismissButton:active {
+  transform: scale3d(0.95, 0.95, 0.95);
+}
+
 .dismissIcon {
-  width: 18px;
-  height: 18px;
+  width: var(--unit-8);
+  height: var(--unit-8);
 }
+
 .dismissIcon path {
   fill: var(--neutral-light-4);
 }

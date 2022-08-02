@@ -1,4 +1,11 @@
 import {
+  FailureReason,
+  UserChallenge,
+  StringAudio,
+  IntKeys,
+  StringKeys
+} from '@audius/common'
+import {
   call,
   fork,
   put,
@@ -10,9 +17,6 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
-import { StringAudio } from 'common/models/Wallet'
-import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import {
   getAccountUser,
@@ -207,20 +211,21 @@ function* claimChallengeRewardAsync(
   const currentUser = yield* select(getAccountUser)
   const feePayerOverride = yield* select(getFeePayer)
 
-  if (!currentUser) return
+  if (!currentUser || !currentUser.wallet) return
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints =
     rewardsAttestationEndpoints && rewardsAttestationEndpoints !== ''
       ? rewardsAttestationEndpoints.split(',')
-      : null
+      : []
   const hasConfig =
     oracleEthAddress &&
     AAOEndpoint &&
     quorumSize &&
     quorumSize > 0 &&
     maxClaimRetries &&
-    !isNaN(maxClaimRetries)
+    !isNaN(maxClaimRetries) &&
+    parallelization !== null
 
   if (!hasConfig) {
     console.error('Error claiming rewards: Config is missing')
@@ -231,6 +236,7 @@ function* claimChallengeRewardAsync(
       challenge_id: challengeId,
       specifier
     }))
+
     const response: { error?: string } = yield* call(
       AudiusBackend.submitAndEvaluateAttestations,
       {

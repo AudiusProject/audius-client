@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 
-import { Supporting } from 'audius-client/src/common/models/Tipping'
+import type { ID, Supporting } from '@audius/common'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
 import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'
-import { ID } from 'common/models/Identifiers'
 import { getOptimisticSupportingForUser } from 'common/store/tipping/selectors'
 import { FlatList } from 'react-native'
 
@@ -81,6 +80,7 @@ export const SupportingList = () => {
       <SupportingTile
         style={styles.singleSupporterTile}
         supporting={supportingSorted[0]}
+        scaleTo={0.985}
       />
     )
   }

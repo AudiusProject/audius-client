@@ -1,14 +1,12 @@
 import { useCallback, useEffect } from 'react'
 
-import { Button, useMediaQueryListener } from '@audius/stems'
+import { Name, User, FeatureFlags } from '@audius/common'
+import { IconButton, PillButton, useMediaQueryListener } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ReactComponent as IconClose } from 'assets/img/iconClose.svg'
+import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { getShowTip, getTipToDisplay } from 'common/store/tipping/selectors'
@@ -40,7 +38,8 @@ const messages = {
   wasTippedBy: 'Was Tipped By',
   andOthers: (num: number) => `& ${num} ${num > 1 ? 'others' : 'other'}`,
   sendTipToPrefix: 'SEND TIP TO ',
-  sendTip: 'SEND TIP'
+  sendTip: 'SEND TIP',
+  dismissButton: 'Dismiss tip tile'
 }
 
 const SkeletonTile = () => (
@@ -109,43 +108,41 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
   )
 }
 
-type SendTipToButtonProps = {
+type SendTipButtonProps = {
   user: User
   hideName?: boolean
 }
 
-const SendTipToButton = ({ user, hideName = false }: SendTipToButtonProps) => {
+const SendTipButton = ({ user, hideName = false }: SendTipButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {
     dispatch(beginTip({ user, source: 'feed' }))
   }, [dispatch, user])
 
+  const renderSendTipButtonTitle = () =>
+    hideName ? (
+      messages.sendTip
+    ) : (
+      <div className={styles.sendTipButtonTextContainer}>
+        {messages.sendTipToPrefix}
+        <span className={styles.sendTipName}>{user.name}</span>
+        <UserBadges
+          userId={user.user_id}
+          className={styles.badge}
+          badgeSize={12}
+          inline
+        />
+      </div>
+    )
+
   return (
-    <div>
-      <Button
-        className={styles.sendTipButton}
-        // todo: move to stems or see if button design
-        // already exists elsewhere
-        text={
-          hideName ? (
-            <div className={styles.sendTipButtonText}>{messages.sendTip}</div>
-          ) : (
-            <div className={styles.sendTipButtonText}>
-              {messages.sendTipToPrefix}
-              <span className={styles.sendTipName}>{user.name}</span>
-              <UserBadges
-                userId={user.user_id}
-                className={styles.badge}
-                badgeSize={12}
-                inline
-              />
-            </div>
-          )
-        }
-        onClick={handleClick}
-      />
-    </div>
+    <PillButton
+      className={styles.sendTipButton}
+      textClassName={styles.sendTipButtonText}
+      text={renderSendTipButtonTitle()}
+      onClick={handleClick}
+    />
   )
 }
 
@@ -170,9 +167,12 @@ const DismissTipButton = () => {
   }, [dispatch, account, tipToDisplay, record])
 
   return (
-    <div className={styles.dismissButton} onClick={handleClick}>
-      <IconClose className={styles.dismissIcon} />
-    </div>
+    <IconButton
+      aria-label={messages.dismissButton}
+      className={styles.dismissButton}
+      onClick={handleClick}
+      icon={<IconRemove className={styles.dismissIcon} />}
+    />
   )
 }
 
@@ -230,7 +230,8 @@ export const FeedTipTile = () => {
         />
         <ArtistPopover
           handle={usersMap[tipToDisplay.receiver_id].handle}
-          component='div'>
+          component='div'
+        >
           <div className={styles.name} onClick={handleClick}>
             <span>{usersMap[tipToDisplay.receiver_id].name}</span>
             <UserBadges
@@ -253,7 +254,7 @@ export const FeedTipTile = () => {
         />
       </div>
       <div className={styles.buttons}>
-        <SendTipToButton
+        <SendTipButton
           user={usersMap[tipToDisplay.receiver_id]}
           hideName={useShortButtonFormat}
         />

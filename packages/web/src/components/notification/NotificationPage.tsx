@@ -1,11 +1,11 @@
 import { useEffect, useCallback, useContext } from 'react'
 
+import { Status } from '@audius/common'
 import InfiniteScroll from 'react-infinite-scroller'
 import Lottie from 'react-lottie'
 import { useDispatch, useSelector } from 'react-redux'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
-import Status from 'common/models/Status'
 import { fetchNotifications } from 'common/store/notifications/actions'
 import {
   getNotificationHasMore,
@@ -62,7 +62,8 @@ export const NotificationPage = () => {
         title={messages.documentTitle}
         description={messages.description}
         backgroundClassName={styles.background}
-        fullHeight>
+        fullHeight
+      >
         <div className={styles.notificationContainer}>
           {notifications.length > 0 ? (
             <InfiniteScroll
@@ -71,7 +72,8 @@ export const NotificationPage = () => {
               hasMore={true}
               useWindow={true}
               initialLoad={false}
-              threshold={SCROLL_THRESHOLD}>
+              threshold={SCROLL_THRESHOLD}
+            >
               <div className={styles.content}>
                 {notifications
                   .filter(({ isHidden }: any) => !isHidden)

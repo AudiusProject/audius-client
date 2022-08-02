@@ -7,6 +7,7 @@ import {
   useState
 } from 'react'
 
+import { Chain, Collectible, CollectibleMediaType } from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -26,8 +27,6 @@ import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
 import { useModalState } from 'common/hooks/useModalState'
 import { useSelectTierInfo } from 'common/hooks/wallet'
-import { Chain } from 'common/models/Chain'
-import { Collectible, CollectibleMediaType } from 'common/models/Collectible'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   getCollectibleDetails,
@@ -151,7 +150,8 @@ const CollectibleMedia = (props: CollectibleMediaProps) => {
   ) : (
     <div
       className={cn(styles.detailsMediaWrapper, { [styles.svg]: isSvg })}
-      ref={handleImage}>
+      ref={handleImage}
+    >
       <img src={imageUrl!} alt='Collectible' />
     </div>
   )
@@ -241,7 +241,8 @@ const CollectibleDetailsModal = ({
         headerContainerClassName={styles.modalHeader}
         titleClassName={styles.modalTitle}
         allowScroll
-        zIndex={zIndex.COLLECTIBLE_DETAILS_MODAL}>
+        zIndex={zIndex.COLLECTIBLE_DETAILS_MODAL}
+      >
         <div className={styles.nftModal}>
           <CollectibleMedia
             collectible={collectible}
@@ -303,7 +304,8 @@ const CollectibleDetailsModal = ({
                 className={styles.link}
                 href={collectible.externalLink}
                 target='_blank'
-                rel='noopener noreferrer'>
+                rel='noopener noreferrer'
+              >
                 <IconLink className={styles.linkIcon} />
                 {new URL(collectible.externalLink).hostname}
               </a>
@@ -314,7 +316,8 @@ const CollectibleDetailsModal = ({
                 className={styles.link}
                 href={collectible.permaLink}
                 target='_blank'
-                rel='noopener noreferrer'>
+                rel='noopener noreferrer'
+              >
                 <IconLink className={styles.linkIcon} />
                 {collectibleMessages.linkToCollectible}
               </a>
@@ -327,7 +330,8 @@ const CollectibleDetailsModal = ({
                 mount={MountPlacement.PARENT}
                 placement={ComponentPlacement.TOP}
                 requireAccount={false}
-                tooltipClassName={styles.shareTooltip}>
+                tooltipClassName={styles.shareTooltip}
+              >
                 <Button
                   className={styles.detailsButton}
                   textClassName={styles.detailsButtonText}
@@ -385,7 +389,8 @@ const CollectibleDetailsModal = ({
             <IconImage />
             <span>Set as Profile Pic</span>
           </>
-        }>
+        }
+      >
         <div className={styles.confirmModalContainer}>
           <p className={styles.confirmModalText}>
             Are you sure you want to change your profile picture?
@@ -411,7 +416,8 @@ const CollectibleDetailsModal = ({
       <Drawer
         isOpen={isModalOpen && isMobile && !NATIVE_MOBILE}
         onClose={handleClose}
-        isFullscreen>
+        isFullscreen
+      >
         <div className={styles.nftDrawer}>
           <CollectibleMedia
             collectible={collectible}
@@ -469,7 +475,8 @@ const CollectibleDetailsModal = ({
                 className={styles.link}
                 href={collectible.externalLink}
                 target='_blank'
-                rel='noopener noreferrer'>
+                rel='noopener noreferrer'
+              >
                 <IconLink className={styles.linkIcon} />
                 {new URL(collectible.externalLink).hostname}
               </a>
@@ -479,7 +486,8 @@ const CollectibleDetailsModal = ({
                 className={styles.link}
                 href={collectible.permaLink}
                 target='_blank'
-                rel='noopener noreferrer'>
+                rel='noopener noreferrer'
+              >
                 <IconLink className={styles.linkIcon} />
                 {collectibleMessages.linkToCollectible}
               </a>

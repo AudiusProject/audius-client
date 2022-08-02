@@ -1,10 +1,10 @@
 import { useCallback, ReactNode, useState } from 'react'
 
+import { WidthSizes, SquareSizes } from '@audius/common'
 import Popover from 'antd/lib/popover'
 import cn from 'classnames'
 
 import { useSelector } from 'common/hooks/useSelector'
-import { WidthSizes, SquareSizes } from 'common/models/ImageSizes'
 import { CommonState } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
@@ -102,7 +102,8 @@ export const ArtistPopover = ({
   return (
     <Component
       className={cn(styles.popoverContainer, 'artistPopover')}
-      onMouseEnter={onMouseEnter}>
+      onMouseEnter={onMouseEnter}
+    >
       <Popover
         mouseEnterDelay={mouseEnterDelay}
         content={content}
@@ -113,7 +114,8 @@ export const ArtistPopover = ({
         visible={isPopupVisible}
         onVisibleChange={(visible) => {
           setIsPopupVisible(visible)
-        }}>
+        }}
+      >
         {children}
       </Popover>
     </Component>

@@ -1,10 +1,10 @@
 import { memo } from 'react'
 
+import { ID } from '@audius/common'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { ID } from 'common/models/Identifiers'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   setArtistPick,
@@ -77,7 +77,8 @@ const PinTrackConfirmation = (props: PinTrackConfirmationProps) => {
       headerContainerClassName={styles.modalHeader}
       titleClassName={styles.modalTitle}
       isOpen={props.pinTrack.isVisible}
-      onClose={props.onCancel}>
+      onClose={props.onCancel}
+    >
       <div className={styles.container}>
         <div className={styles.description}>{messages.description}</div>
         <div className={styles.buttons}>
