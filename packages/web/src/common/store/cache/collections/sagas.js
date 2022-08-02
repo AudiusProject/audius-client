@@ -27,7 +27,6 @@ import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { dataURLtoFile } from 'utils/fileUtils'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import watchTrackErrors from './errorSagas'
 import { PlaylistOperations } from './types'
@@ -1191,7 +1190,9 @@ function* watchFetchCoverArt() {
         )
           return
 
-        const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+          user.creator_node_endpoint
+        )
         const multihash = collection.cover_art_sizes || collection.cover_art
         const coverArtSize =
           multihash === collection.cover_art_sizes ? size : null

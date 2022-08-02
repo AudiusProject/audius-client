@@ -25,7 +25,6 @@ import {
 } from 'services/LocalStorage'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
@@ -254,7 +253,9 @@ function* watchFetchProfilePicture() {
         const user = yield select(getUser, { id: userId })
         if (!user || (!user.profile_picture_sizes && !user.profile_picture))
           return
-        const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+          user.creator_node_endpoint
+        )
         if (user.profile_picture_sizes) {
           const url = yield call(
             audiusBackendInstance.getImageUrl,
@@ -324,7 +325,9 @@ function* watchFetchCoverPhoto() {
         return
       }
 
-      const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+      const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+        user.creator_node_endpoint
+      )
       if (user.cover_photo_sizes) {
         const url = yield call(
           audiusBackendInstance.getImageUrl,

@@ -58,7 +58,6 @@ import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
 import { getErrorMessage } from 'utils/error'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import {
   waitForLibsInit,
@@ -145,7 +144,7 @@ type TransactionReceipt = { blockHash: string; blockNumber: number }
  */
 export const fetchCID = async (
   cid: CID,
-  creatorNodeGateways = [],
+  creatorNodeGateways = [] as string[],
   cache = true,
   asUrl = true,
   trackId: Nullable<ID> = null
@@ -302,6 +301,20 @@ export const audiusBackend = ({
     if (currentDiscoveryProvider !== null) {
       listener(currentDiscoveryProvider)
     }
+  }
+
+  function getCreatorNodeIPFSGateways(endpoint: Nullable<string>) {
+    if (endpoint) {
+      return endpoint
+        .split(',')
+        .filter(Boolean)
+        .map((endpoint) => `${endpoint}/ipfs/`)
+    }
+    const gateways = [`${userNodeUrl}/ipfs/`]
+    if (legacyUserNodeUrl) {
+      gateways.push(`${legacyUserNodeUrl}/ipfs/`)
+    }
+    return gateways
   }
 
   async function preloadImage(url: string) {
@@ -2911,6 +2924,7 @@ export const audiusBackend = ({
     currentDiscoveryProvider,
     didSelectDiscoveryProviderListeners,
 
+    getCreatorNodeIPFSGateways,
     addDiscoveryProviderSelectionListener,
     fetchImageCID,
     getImageUrl,

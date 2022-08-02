@@ -23,7 +23,6 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { ProfileInfo } from 'components/profile-info/ProfileInfo'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make, useRecord } from 'store/analytics/actions'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
 import { signOut } from 'utils/signOut'
 
@@ -271,7 +270,9 @@ export const OAuthLoginPage = () => {
       email = userEmail
     }
 
-    const gateways = getCreatorNodeIPFSGateways(account.creator_node_endpoint)
+    const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+      account.creator_node_endpoint
+    )
     const cNode = gateways[0]
     let profilePicture:
       | { '150x150': string; '480x480': string; '1000x1000': string }

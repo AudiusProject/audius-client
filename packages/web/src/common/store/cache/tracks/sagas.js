@@ -37,7 +37,6 @@ import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { dominantColor } from 'utils/imageProcessingUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
@@ -60,7 +59,9 @@ function* fetchRepostInfo(entries) {
 
 function* fetchSegment(metadata) {
   const user = yield call(waitForValue, getUser, { id: metadata.owner_id })
-  const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+    user.creator_node_endpoint
+  )
   if (!metadata.track_segments[0]) return
   const cid = metadata.track_segments[0].multihash
   return yield call(fetchCID, cid, gateways, /* cache */ false)
@@ -413,7 +414,9 @@ function* watchFetchCoverArt() {
       const user = yield call(waitForValue, getUser, { id: track.owner_id })
       if (!track || !user || (!track.cover_art_sizes && !track.cover_art))
         return
-      const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+      const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+        user.creator_node_endpoint
+      )
       const multihash = track.cover_art_sizes || track.cover_art
       const coverArtSize = multihash === track.cover_art_sizes ? size : null
       const url = yield call(

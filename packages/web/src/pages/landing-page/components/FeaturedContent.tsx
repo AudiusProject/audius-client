@@ -15,7 +15,6 @@ import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { playlistPage } from 'utils/route'
 
 import styles from './FeaturedContent.module.css'
@@ -132,7 +131,8 @@ const getImageUrl = (
   { cover_art, cover_art_sizes }: UserCollectionMetadata,
   creatorNodeEndpoint: string | null
 ) => {
-  const gateways = getCreatorNodeIPFSGateways(creatorNodeEndpoint)
+  const gateways =
+    audiusBackendInstance.getCreatorNodeIPFSGateways(creatorNodeEndpoint)
   const cNode = gateways[0]
   if (cover_art_sizes) {
     return `${cNode}${cover_art_sizes}/${
