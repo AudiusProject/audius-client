@@ -48,6 +48,7 @@ import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
+import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Recording, Timer } from 'common/utils/performance'
 import * as schemas from 'schemas'
@@ -57,7 +58,6 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
-import { getErrorMessage } from 'utils/error'
 
 import {
   waitForLibsInit,

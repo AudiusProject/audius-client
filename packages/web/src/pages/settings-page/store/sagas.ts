@@ -4,6 +4,7 @@ import { select, call, put, takeEvery } from 'typed-redux-saga'
 import * as actions from 'common/store/pages/settings/actions'
 import { getBrowserNotificationSettings } from 'common/store/pages/settings/selectors'
 import { BrowserNotificationSetting } from 'common/store/pages/settings/types'
+import { getErrorMessage } from 'common/utils/error'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
@@ -17,7 +18,6 @@ import {
   getSafariPushBrowser
 } from 'utils/browserNotifications'
 import { isElectron } from 'utils/clientUtil'
-import { getErrorMessage } from 'utils/error'
 
 import errorSagas from './errorSagas'
 import mobileSagas from './mobileSagas'

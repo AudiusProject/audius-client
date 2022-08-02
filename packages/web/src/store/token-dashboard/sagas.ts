@@ -52,6 +52,7 @@ import {
   getBalance,
   sendFailed
 } from 'common/store/wallet/slice'
+import { getErrorMessage } from 'common/utils/error'
 import { weiToString } from 'common/utils/wallet'
 import { fetchServices } from 'components/service-selection/store/slice'
 import {
@@ -72,7 +73,6 @@ import {
 } from 'services/web3-modal'
 import { requestConfirmation } from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import { getErrorMessage } from 'utils/error'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 

@@ -43,6 +43,7 @@ import {
 import { getIsReachable } from 'common/store/reachability/selectors'
 import { fetchReactionValues } from 'common/store/ui/reactions/slice'
 import { getBalance } from 'common/store/wallet/slice'
+import { getErrorMessage } from 'common/utils/error'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
@@ -50,7 +51,6 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { isElectron } from 'utils/clientUtil'
-import { getErrorMessage } from 'utils/error'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
