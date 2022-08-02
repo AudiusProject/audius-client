@@ -2,26 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import Status from 'common/models/Status'
 
-export enum Flow {
-  COINBASE_PAY = 'COINBASE_PAY'
-}
-
-export enum QuoteStatus {
-  IDLE = 'IDLE',
-  QUOTING = 'QUOTING',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED'
-}
-
-export enum ExchangeStatus {
-  IDLE = 'IDLE',
-  WAITING = 'WAITING',
-  EXCHANGING = 'EXCHANGING',
-  SUCCEEDED = 'SUCCEEDED',
-  FAILED = 'FAILED'
-}
-
-export enum Stage {
+export enum BuyAudioStage {
   START = 'START',
   PURCHASING = 'PURCHASING',
   CONFIRMING_PURCHASE = 'CONFIRMING_PURCHASE',
@@ -46,8 +27,7 @@ type CalculateAudioPurchaseInfoPayload = { audioAmount: number }
 type CalculateAudioPurchaseInfoSucceededPayload = PurchaseInfo
 
 type BuyAudioState = {
-  flow: Flow
-  stage: Stage
+  stage: BuyAudioStage
   purchaseInfoStatus: Status
   purchaseInfo?: PurchaseInfo
   feesCache: {
@@ -57,8 +37,7 @@ type BuyAudioState = {
 }
 
 const initialState: BuyAudioState = {
-  flow: Flow.COINBASE_PAY,
-  stage: Stage.START,
+  stage: BuyAudioStage.START,
   feesCache: {
     associatedTokenAccountCache: {},
     transactionFees: 0
@@ -103,28 +82,28 @@ const slice = createSlice({
       state.feesCache = initialState.feesCache
     },
     restart: (state) => {
-      state.stage = Stage.START
+      state.stage = BuyAudioStage.START
     },
     onRampOpened: (state, _action: PayloadAction<PurchaseInfo>) => {
-      state.stage = Stage.PURCHASING
+      state.stage = BuyAudioStage.PURCHASING
     },
     onRampCanceled: (state) => {
-      state.stage = Stage.START
+      state.stage = BuyAudioStage.START
     },
     onRampSucceeded: (state) => {
-      state.stage = Stage.CONFIRMING_PURCHASE
+      state.stage = BuyAudioStage.CONFIRMING_PURCHASE
     },
     swapStarted: (state) => {
-      state.stage = Stage.SWAPPING
+      state.stage = BuyAudioStage.SWAPPING
     },
     swapCompleted: (state) => {
-      state.stage = Stage.CONFIRMING_SWAP
+      state.stage = BuyAudioStage.CONFIRMING_SWAP
     },
     transferStarted: (state) => {
-      state.stage = Stage.TRANSFERRING
+      state.stage = BuyAudioStage.TRANSFERRING
     },
     transferCompleted: (state) => {
-      state.stage = Stage.FINISH
+      state.stage = BuyAudioStage.FINISH
     }
   }
 })
