@@ -312,7 +312,7 @@ export const makePlaylist = (
         if (decoded) {
           return {
             track: decoded,
-            time: ts.timestamp
+            time: ts.metadata_timestamp
           }
         }
         return null
