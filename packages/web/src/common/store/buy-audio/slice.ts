@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { JupiterTokenSymbol } from 'common/store/buy-audio/constants'
+import Status from 'common/models/Status'
 
 export enum Flow {
   COINBASE_PAY = 'COINBASE_PAY'
@@ -21,149 +21,128 @@ export enum ExchangeStatus {
   FAILED = 'FAILED'
 }
 
-type ExchangePayload = {
-  inputTokenSymbol: JupiterTokenSymbol
-  outputTokenSymbol: JupiterTokenSymbol
-  inputAmount: number
-  slippage?: number
+export enum Stage {
+  START = 'START',
+  PURCHASING = 'PURCHASING',
+  CONFIRMING_PURCHASE = 'CONFIRMING_PURCHASE',
+  SWAPPING = 'SWAPPING',
+  CONFIRMING_SWAP = 'CONFIRMING_SWAP',
+  TRANSFERRING = 'TRANSFERRING',
+  FINISH = 'FINISH'
 }
 
-type ExchangeSucceededPayload = {
-  inputTokenSymbol: JupiterTokenSymbol
-  outputTokenSymbol: JupiterTokenSymbol
-  /** BNWei string */
-  outputAmount: string
+type AmountObject = {
+  amount: number
+  uiAmount: number
+  uiAmountString: string
 }
 
-type QuotePayload = ExchangePayload & {
-  padForSlippage?: boolean
-  forceFetch?: boolean
+type PurchaseInfo = {
+  estimatedSOL: AmountObject
+  estimatedUSD: AmountObject
+  desiredAudioAmount: AmountObject
 }
-
-type QuoteSucceededPayload = {
-  inputTokenSymbol: JupiterTokenSymbol
-  outputTokenSymbol: JupiterTokenSymbol
-  inputUiAmount: string
-  outputUiAmount: string
-}
-
-type QuoteFailedPayload = {
-  inputTokenSymbol: JupiterTokenSymbol
-  outputTokenSymbol: JupiterTokenSymbol
-}
-
-type QuoteStatusInfo = {
-  inputUiAmount?: string
-  outputUiAmount?: string
-  status: QuoteStatus
-}
+type CalculateAudioPurchaseInfoPayload = { audioAmount: number }
+type CalculateAudioPurchaseInfoSucceededPayload = PurchaseInfo
 
 type BuyAudioState = {
   flow: Flow
-  quoteStatuses: Record<
-    JupiterTokenSymbol,
-    Record<JupiterTokenSymbol, QuoteStatusInfo>
-  >
-  exchangeStatus: {
-    status: ExchangeStatus
-    outputAmount?: string
+  stage: Stage
+  purchaseInfoStatus: Status
+  purchaseInfo?: PurchaseInfo
+  feesCache: {
+    associatedTokenAccountCache: Record<string, boolean>
+    transactionFees: number
   }
 }
 
 const initialState: BuyAudioState = {
   flow: Flow.COINBASE_PAY,
-  quoteStatuses: {},
-  exchangeStatus: { status: ExchangeStatus.IDLE }
-}
-
-const initQuoteStatusIfNecessary = (
-  state: BuyAudioState,
-  inputTokenSymbol: JupiterTokenSymbol,
-  outputTokenSymbol: JupiterTokenSymbol
-) => {
-  if (!state.quoteStatuses[inputTokenSymbol]?.[outputTokenSymbol]) {
-    state.quoteStatuses[inputTokenSymbol] = {
-      ...state.quoteStatuses[inputTokenSymbol],
-      [outputTokenSymbol]: {
-        status: QuoteStatus.IDLE
-      }
-    }
-  }
-  return state
+  stage: Stage.START,
+  feesCache: {
+    associatedTokenAccountCache: {},
+    transactionFees: 0
+  },
+  purchaseInfoStatus: Status.IDLE
 }
 
 const slice = createSlice({
   name: 'ui/buy-audio',
   initialState,
   reducers: {
-    exchangeAfterBalanceChange: (state, _: PayloadAction<ExchangePayload>) => {
-      state.exchangeStatus.status = ExchangeStatus.WAITING
-    },
-    exchange: (state, _: PayloadAction<ExchangePayload>) => {
-      state.exchangeStatus.status = ExchangeStatus.EXCHANGING
-    },
-    exchangeSucceeded: (
+    calculateAudioPurchaseInfo: (
       state,
-      action: PayloadAction<ExchangeSucceededPayload>
+      action: PayloadAction<CalculateAudioPurchaseInfoPayload>
     ) => {
-      state.exchangeStatus.status = ExchangeStatus.SUCCEEDED
-      state.exchangeStatus.outputAmount = action.payload.outputAmount
+      state.purchaseInfoStatus = Status.LOADING
     },
-    exchangeFailed: (state) => {
-      state.exchangeStatus.status = ExchangeStatus.FAILED
+    calculateAudioPurchaseInfoSucceeded: (
+      state,
+      action: PayloadAction<CalculateAudioPurchaseInfoSucceededPayload>
+    ) => {
+      state.purchaseInfo = action.payload
+      state.purchaseInfoStatus = Status.SUCCESS
     },
-    quote: (
+    cacheAssociatedTokenAccount: (
       state,
       {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<QuotePayload>
+        payload: { account, exists }
+      }: PayloadAction<{ account: string; exists: boolean }>
     ) => {
-      state = initQuoteStatusIfNecessary(
-        state,
-        inputTokenSymbol,
-        outputTokenSymbol
-      )
-      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
-        QuoteStatus.QUOTING
+      state.feesCache.associatedTokenAccountCache[account] = exists
     },
-    quoteSucceeded: (
+    cacheTransactionFees: (
       state,
       {
-        payload: {
-          inputTokenSymbol,
-          outputTokenSymbol,
-          inputUiAmount,
-          outputUiAmount
-        }
-      }: PayloadAction<QuoteSucceededPayload>
+        payload: { transactionFees }
+      }: PayloadAction<{ transactionFees: number }>
     ) => {
-      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].inputUiAmount =
-        inputUiAmount
-      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].outputUiAmount =
-        outputUiAmount
-      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
-        QuoteStatus.SUCCEEDED
+      state.feesCache.transactionFees = transactionFees
     },
-    quoteFailed: (
-      state,
-      {
-        payload: { inputTokenSymbol, outputTokenSymbol }
-      }: PayloadAction<QuoteFailedPayload>
-    ) => {
-      state.quoteStatuses[inputTokenSymbol][outputTokenSymbol].status =
-        QuoteStatus.FAILED
+    clearFeesCache: (state) => {
+      state.feesCache = initialState.feesCache
+    },
+    restart: (state) => {
+      state.stage = Stage.START
+    },
+    onRampOpened: (state, _action: PayloadAction<PurchaseInfo>) => {
+      state.stage = Stage.PURCHASING
+    },
+    onRampCanceled: (state) => {
+      state.stage = Stage.START
+    },
+    onRampSucceeded: (state) => {
+      state.stage = Stage.CONFIRMING_PURCHASE
+    },
+    swapStarted: (state) => {
+      state.stage = Stage.SWAPPING
+    },
+    swapCompleted: (state) => {
+      state.stage = Stage.CONFIRMING_SWAP
+    },
+    transferStarted: (state) => {
+      state.stage = Stage.TRANSFERRING
+    },
+    transferCompleted: (state) => {
+      state.stage = Stage.FINISH
     }
   }
 })
 
 export const {
-  exchangeAfterBalanceChange,
-  exchange,
-  exchangeSucceeded,
-  exchangeFailed,
-  quote,
-  quoteSucceeded,
-  quoteFailed
+  calculateAudioPurchaseInfo,
+  calculateAudioPurchaseInfoSucceeded,
+  cacheAssociatedTokenAccount,
+  cacheTransactionFees,
+  clearFeesCache,
+  restart,
+  onRampOpened,
+  onRampSucceeded,
+  onRampCanceled,
+  swapStarted,
+  swapCompleted,
+  transferStarted,
+  transferCompleted
 } = slice.actions
 
 export default slice.reducer

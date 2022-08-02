@@ -1,9 +1,8 @@
 import { AppState } from 'store/types'
 
-export const getBuyAudioFlow = (state: AppState) => state.ui.buyAudio.flow
+export const getBuyAudioFlowStage = (state: AppState) => state.ui.buyAudio.stage
 
-export const getQuoteStatuses = (state: AppState) =>
-  state.ui.buyAudio.quoteStatuses
+export const getAudioPurchaseInfo = (state: AppState) =>
+  state.ui.buyAudio.purchaseInfo
 
-export const getExchangeStatus = (state: AppState) =>
-  state.ui.buyAudio.exchangeStatus
+export const getFeesCache = (state: AppState) => state.ui.buyAudio.feesCache

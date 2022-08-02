@@ -1,5 +1,6 @@
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
+import { u64 } from '@solana/spl-token'
 import {
   Cluster,
   Connection,
@@ -9,46 +10,67 @@ import {
   Transaction
 } from '@solana/web3.js'
 import JSBI from 'jsbi'
+import { takeLatest } from 'redux-saga/effects'
 import {
   call,
   select,
   put,
   takeEvery,
+  take,
   race,
-  delay
+  fork
 } from 'typed-redux-saga/macro'
 
-import { getAccountUser } from 'common/store/account/selectors'
-import { TOKEN_LISTING_MAP } from 'common/store/buy-audio/constants'
 import {
-  exchange,
-  exchangeAfterBalanceChange,
-  exchangeFailed,
-  exchangeSucceeded,
-  quote,
-  quoteFailed,
-  quoteSucceeded
+  JupiterTokenSymbol,
+  TOKEN_LISTING_MAP
+} from 'common/store/buy-audio/constants'
+import {
+  getBuyAudioFlowStage,
+  getFeesCache
+} from 'common/store/buy-audio/selectors'
+import {
+  calculateAudioPurchaseInfo,
+  calculateAudioPurchaseInfoSucceeded,
+  cacheAssociatedTokenAccount,
+  cacheTransactionFees,
+  onRampOpened,
+  onRampSucceeded,
+  onRampCanceled,
+  swapCompleted,
+  swapStarted,
+  transferStarted,
+  transferCompleted,
+  clearFeesCache
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import {
-  convertJSBIToUiString,
+  convertJSBIToAmountObject,
   convertWAudioToWei,
   weiToString
 } from 'common/utils/wallet'
 import {
   createTransferToUserBankTransaction,
+  getAssociatedTokenAccountInfo,
+  getAssociatedTokenRentExemptionMinimum,
+  getAudioAccount,
+  getAudioAccountInfo,
   getRootSolanaAccount,
-  getSolanaConnection
+  getSolanaConnection,
+  pollForAudioBalanceChange,
+  pollForSolBalanceChange
 } from 'services/audius-backend/BuyAudio'
+import {
+  createUserBankIfNeeded,
+  getUserBank
+} from 'services/audius-backend/waudio'
 
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 
-const BALANCE_CHANGE_TIMEOUT_MS = 120_000 // 2 minutes
-const BALANCE_CHANGE_POLL_INTERVAL_MS = 5_000 // 5 second
-const SWAP_MIN_SOL = 0.05 // Minimum SOL balance needed to execute a Jupiter Swap
 const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
+const SLIPPAGE = 3 // The slippage amount to allow for exchanges
 let _jup: Jupiter
 
 /**
@@ -82,27 +104,27 @@ function* initJupiterIfNecessary() {
   }
   return _jup
 }
+
 /**
  * Gets a quote from Jupiter for an exchange from inputTokenSymbol => outputTokenSymbol
  * @returns the best quote including the RouteInfo
  */
-function* doQuote({
+function* getQuote({
   inputTokenSymbol,
   outputTokenSymbol,
   inputAmount,
   forceFetch,
-  slippage = 3,
-  padForSlippage = false
-}: ReturnType<typeof quote>['payload']) {
+  slippage
+}: {
+  inputTokenSymbol: JupiterTokenSymbol
+  outputTokenSymbol: JupiterTokenSymbol
+  inputAmount: number
+  forceFetch?: boolean
+  slippage: number
+}) {
   const inputToken = TOKEN_LISTING_MAP[inputTokenSymbol]
   const outputToken = TOKEN_LISTING_MAP[outputTokenSymbol]
-  if (padForSlippage && slippage >= 100) {
-    throw new Error('Slippage too high to pad')
-  }
-  const slippageFactor = padForSlippage ? 100.0 / (100.0 - slippage) : 1
-  const amount = JSBI.BigInt(
-    Math.ceil(inputAmount * slippageFactor * 10 ** inputToken.decimals)
-  )
+  const amount = JSBI.BigInt(Math.ceil(inputAmount * 10 ** inputToken.decimals))
   if (!inputToken || !outputToken) {
     throw new Error(
       `Tokens not found: ${inputTokenSymbol} => ${outputTokenSymbol}`
@@ -118,12 +140,13 @@ function* doQuote({
     forceFetch
   })
   const bestRoute = routes.routesInfos[0]
+
   const resultQuote = {
-    inputUiAmount: convertJSBIToUiString(
+    inputAmount: convertJSBIToAmountObject(
       bestRoute.inAmount,
       inputToken.decimals
     ),
-    outputUiAmount: convertJSBIToUiString(
+    outputAmount: convertJSBIToAmountObject(
       bestRoute.outAmount,
       outputToken.decimals
     ),
@@ -136,7 +159,6 @@ function* doQuote({
 
 /**
  * Wrapper for TransactionHandler.handleTransaction that does some logging and error checking
- * @returns the result of the transaction handler handleTransaction call
  */
 async function sendTransaction({
   name,
@@ -150,10 +172,6 @@ async function sendTransaction({
   transactionHandler: TransactionHandler
 }) {
   console.debug(`Exchange: starting ${name} transaction...`)
-  console.debug(
-    `Exchange: ${name} transaction stringified:`,
-    JSON.stringify(transaction)
-  )
   const result = await transactionHandler.handleTransaction({
     instructions: transaction.instructions,
     feePayerOverride: feePayer.publicKey.toString(),
@@ -170,6 +188,10 @@ async function sendTransaction({
     }
   })
   if (result.error) {
+    console.debug(
+      `Exchange: ${name} transaction stringified:`,
+      JSON.stringify(transaction)
+    )
     throw new Error(`${name} transaction failed: ${result.error}`)
   }
   console.debug(`Exchange: ${name} transaction... success txid: ${result.res}`)
@@ -179,7 +201,7 @@ async function sendTransaction({
 /**
  * Executes a Jupiter Swap given the RouteInfo, account, and the transactionHandler
  */
-function* doSwap({
+function* executeSwap({
   route,
   account,
   transactionHandler
@@ -224,192 +246,402 @@ function* doSwap({
 }
 
 /**
- * Swaps the input token (eg. SOL) to the output token (AUDIO) and, if necessary,
- * transfers resulting AUDIO into the user's userbank from their root Solana account
- *
- * Currently only supports SOL => AUDIO
- *
- * @returns the amount of AUDIO transferred to the userbank
+ * Exchanges all but the minimum balance required for a swap from a wallet once a balance change is seen
  */
-function* doExchange({
-  inputAmount,
-  inputTokenSymbol,
-  outputTokenSymbol,
-  slippage
-}: ReturnType<typeof exchange>['payload']) {
-  const account = yield* select(getAccountUser)
-  if (!account?.userBank) {
-    throw new Error('User does not have a user bank')
-  }
-  const connection: Connection = yield* call(getSolanaConnection)
-  const rootAccount: Keypair = yield* call(getRootSolanaAccount)
-
-  // Only supports SOL => AUDIO for now
-  if (inputTokenSymbol !== 'SOL' || outputTokenSymbol !== 'AUDIO') {
-    throw new Error(
-      `Exchange not supported for ${inputTokenSymbol} => ${outputTokenSymbol}`
-    )
-  }
-
-  // Get a fresh quote - reduces chances of failing due to slippage,
-  // but increases chance of different price than originally quoted (outputted $AUDIO can vary more).
-  // It's also required since we can't put RouteInfo in redux (it isn't a plain object), so the saga return value is used.
-  const exchangeQuote = yield* call(doQuote, {
-    inputAmount,
-    inputTokenSymbol,
-    outputTokenSymbol,
-    forceFetch: true,
-    slippage
-  })
-  const transactionHandler = new TransactionHandler({
-    connection,
-    useRelay: false,
-    feePayerKeypairs: [rootAccount],
-    skipPreflight: true
-  })
-  yield* call(doSwap, {
-    route: exchangeQuote.route!,
-    account: rootAccount,
-    transactionHandler
-  })
-  const { tx: transferTransaction, amount: transferAmount } = yield* call(
-    createTransferToUserBankTransaction,
-    {
-      userBank: account.userBank,
-      fromAccount: rootAccount
-    }
-  )
-  yield* call(sendTransaction, {
-    name: 'Transfer',
-    transaction: transferTransaction,
-    feePayer: rootAccount,
-    transactionHandler
-  })
-  return transferAmount
-}
-
-/**
- * Polls the given wallet until a balance change is seen
- * @returns the old balance, the new balance, and how many retries it took
- */
-function* pollBalance({
-  connection,
-  walletKey
-}: {
-  connection: Connection
-  walletKey: PublicKey
-}) {
-  const startingBalance = yield* call(
-    [connection, connection.getBalance],
-    walletKey
-  )
-  let balance = startingBalance
-  let retries = 0
-  while (balance === startingBalance) {
-    yield* delay(BALANCE_CHANGE_POLL_INTERVAL_MS)
-    console.debug(
-      `Exchange: polling balance #${retries++}: ${
-        balance / LAMPORTS_PER_SOL
-      } SOL === ${startingBalance / LAMPORTS_PER_SOL} SOL`
-    )
-    balance = yield* call([connection, connection.getBalance], walletKey)
-  }
-  return {
-    oldBalance: startingBalance,
-    newBalance: balance,
-    retryCount: retries
-  }
-}
-
-/**
- * Exchanges all but the minimum balance required for a swap from a wallet once a balance change is seen.
- * Warns if the balance isn't sufficient to swap the requested input amount
- */
-function* doExchangeAfterBalanceChange({
-  payload: { inputTokenSymbol, outputTokenSymbol, inputAmount, slippage }
-}: ReturnType<typeof exchangeAfterBalanceChange>) {
+function* startBuyAudioFlow({
+  payload: { desiredAudioAmount, estimatedSOL }
+}: ReturnType<typeof onRampOpened>) {
   try {
-    const connection: Connection = yield* call(getSolanaConnection)
+    // Setup
     const rootAccount: Keypair = yield* call(getRootSolanaAccount)
-    const walletKey = rootAccount.publicKey
-    const result = yield* race({
-      balanceChange: call(pollBalance, {
-        connection,
-        walletKey
-      }),
-      timeout: delay(BALANCE_CHANGE_TIMEOUT_MS)
+    const connection = yield* call(getSolanaConnection)
+    const transactionHandler = new TransactionHandler({
+      connection,
+      useRelay: false,
+      feePayerKeypairs: [rootAccount],
+      skipPreflight: true
     })
-    if (result.timeout || !result.balanceChange) {
-      throw new Error(
-        `Wallet balance polling timed out after ${
-          BALANCE_CHANGE_TIMEOUT_MS / 1000.0
-        }s, `
-      )
-    }
-    const { oldBalance, newBalance, retryCount } = result.balanceChange
-    console.debug(
-      `ExchangeAfterBalanceUpdate: balance changed after ${retryCount} attempts: ${
-        oldBalance / LAMPORTS_PER_SOL
-      } SOL => ${newBalance / LAMPORTS_PER_SOL}, change of ${
-        (newBalance - oldBalance) / LAMPORTS_PER_SOL
-      } SOL`
+
+    // Ensure userbank is created
+    yield* fork(function* () {
+      yield* call(createUserBankIfNeeded)
+    })
+
+    // Cache current SOL balance
+    const initialBalance = yield* call(
+      [connection, connection.getBalance],
+      rootAccount.publicKey,
+      'finalized'
     )
-    if (
-      inputTokenSymbol === 'SOL' &&
-      newBalance / LAMPORTS_PER_SOL < inputAmount + SWAP_MIN_SOL
-    ) {
+
+    // Wait for on ramp finish
+    const result = yield* race({
+      success: take(onRampSucceeded),
+      canceled: take(onRampCanceled)
+    })
+
+    // If the user didn't complete the on ramp flow, return early
+    if (result.canceled) {
+      return
+    }
+
+    // Wait for the SOL funds to come through
+    const newBalance = yield* call(pollForSolBalanceChange, {
+      rootAccount: rootAccount.publicKey,
+      initialBalance
+    })
+
+    // Check that we got the requested SOL
+    if (newBalance - initialBalance !== estimatedSOL.amount) {
       console.warn(
-        `ExchangeAfterBalanceUpdate: balance still insufficient for transaction. Expected: ${
-          inputAmount + SWAP_MIN_SOL
-        } SOL, Actual: ${newBalance / LAMPORTS_PER_SOL} SOL`
+        `Warning: Purchase SOL amount differs from expected. Actual: ${
+          (newBalance - initialBalance) / LAMPORTS_PER_SOL
+        } SOL. Expected: ${estimatedSOL.uiAmountString} SOL.`
       )
     }
+
+    // Get dummy quote and calculate fees
+    let quote = yield* call(getQuote, {
+      inputTokenSymbol: 'SOL',
+      outputTokenSymbol: 'AUDIO',
+      inputAmount: newBalance / LAMPORTS_PER_SOL,
+      slippage: SLIPPAGE
+    })
+    const { associatedAccountCreationFees, transactionFees } = yield* call(
+      getSwapFees,
+      { route: quote.route }
+    )
+    const minSol = associatedAccountCreationFees + transactionFees
+    const inputAmount = (newBalance - minSol) / LAMPORTS_PER_SOL
+    console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
+
+    // Get new quote adjusted for fees
+    quote = yield* call(getQuote, {
+      inputTokenSymbol: 'SOL',
+      outputTokenSymbol: 'AUDIO',
+      inputAmount,
+      slippage: SLIPPAGE
+    })
+
+    // Check that we get the desired AUDIO from the quote
+    const audioAdjusted = convertJSBIToAmountObject(
+      JSBI.BigInt(
+        Math.floor(
+          (JSBI.toNumber(quote.route.outAmount) * (100 - SLIPPAGE)) / 100.0
+        )
+      ),
+      TOKEN_LISTING_MAP.AUDIO.decimals
+    )
+    if (audioAdjusted.amount < desiredAudioAmount.amount) {
+      console.warn(
+        `Warning: Purchase AUDIO amount may be lower than expected. Actual min: ${audioAdjusted.uiAmountString} AUDIO. Expected min: ${desiredAudioAmount.uiAmountString} AUDIO`
+      )
+    }
+
+    // Cache the AUDIO balance before swapping
+    const tokenAccount = yield* call(getAudioAccount, {
+      rootAccount: rootAccount.publicKey
+    })
+    const beforeSwapAudioAccountInfo = yield* call(getAudioAccountInfo, {
+      tokenAccount
+    })
+    const beforeSwapAudioBalance =
+      // eslint-disable-next-line new-cap
+      beforeSwapAudioAccountInfo?.amount ?? new u64(0)
+
+    // Swap the SOL for AUDIO
+    yield* put(swapStarted())
+    yield* call(executeSwap, {
+      route: quote.route,
+      account: rootAccount,
+      transactionHandler
+    })
+    yield* put(swapCompleted())
+
+    // Reset associated token account cache now that the swap created the accounts
+    // (can't simply set all the accounts in the route to "exists" because wSOL gets closed)
+    yield* put(clearFeesCache())
+
+    // Wait for AUDIO funds to come through
+    const transferAmount = yield* call(pollForAudioBalanceChange, {
+      tokenAccount,
+      initialBalance: beforeSwapAudioBalance
+    })
+
+    // Transfer AUDIO to userbank
+    const userBank = yield* call(getUserBank)
+    yield* put(transferStarted())
+    const transferTransaction = yield* call(
+      createTransferToUserBankTransaction,
+      {
+        userBank,
+        fromAccount: rootAccount.publicKey,
+        amount: transferAmount
+      }
+    )
+    yield* call(sendTransaction, {
+      name: 'Transfer',
+      transaction: transferTransaction,
+      feePayer: rootAccount,
+      transactionHandler
+    })
+    yield* put(transferCompleted())
+
+    // Update wallet balance optimistically
+    const outputAmount = weiToString(convertWAudioToWei(transferAmount))
     yield* put(
-      exchange({
-        inputTokenSymbol,
-        outputTokenSymbol,
-        slippage,
-        inputAmount: newBalance / LAMPORTS_PER_SOL - SWAP_MIN_SOL
+      increaseBalance({
+        amount: outputAmount
       })
     )
   } catch (e) {
-    console.error('ExchangeAfterBalanceUpdate: Failed with error:', e)
+    const stage = yield* select(getBuyAudioFlowStage)
+    console.error('BuyAudioFlow failed at stage', stage, 'with error:', e)
   }
 }
 
-function* watchQuote() {
-  yield* takeEvery(quote, function* ({ payload }) {
-    try {
-      const quote = yield* call(doQuote, payload)
-      yield* put(quoteSucceeded(quote))
-    } catch (e) {
-      console.error('Quote: Failed with error:', e)
-      yield* put(quoteFailed(payload))
-    }
-  })
-}
-function* watchExchange() {
-  yield* takeEvery(exchange, function* ({ payload }) {
-    try {
-      const outputAmountWAudioBN = yield* call(doExchange, payload)
-      const outputAmount = weiToString(convertWAudioToWei(outputAmountWAudioBN))
-      yield* put(exchangeSucceeded({ ...payload, outputAmount }))
+/**
+ * Checks if the associated accounts necessary for a quoted `route` exist on `rootAccount`,
+ * and for those that don't, estimates the needed lamports to pay for rent exemption as they are created.
+ * Uses the redux store to cache the result.
+ * @returns the total amount of lamports necessary for all ATA creation rent fees in a swap and transfer
+ */
+function* getAssociatedAccountCreationFees({
+  route,
+  rootAccount,
+  feesCache
+}: {
+  route: RouteInfo
+  rootAccount: PublicKey
+  feesCache: ReturnType<typeof getFeesCache>
+}) {
+  const mintKeysSet = new Set<PublicKey>()
+  for (const marketInfo of route.marketInfos) {
+    mintKeysSet.add(marketInfo.inputMint)
+    mintKeysSet.add(marketInfo.outputMint)
+  }
+  const minRentForATA = yield* call(getAssociatedTokenRentExemptionMinimum)
+  let accountCreationFees = 0
+  for (const mintKey of mintKeysSet.values()) {
+    const exists = feesCache?.associatedTokenAccountCache[mintKey.toString()]
+    if (exists === false) {
+      accountCreationFees += minRentForATA
+    } else if (exists === undefined) {
+      const accountInfo = yield* call(getAssociatedTokenAccountInfo, {
+        rootAccount,
+        mintKey
+      })
       yield* put(
-        increaseBalance({
-          amount: outputAmount
+        cacheAssociatedTokenAccount({
+          account: mintKey.toString(),
+          exists: accountInfo !== null
         })
       )
-    } catch (e) {
-      console.error('Exchange: Failed with error:', e)
-      yield* put(exchangeFailed())
+      if (accountInfo === null) {
+        accountCreationFees += minRentForATA
+      }
     }
-  })
+  }
+  return accountCreationFees
 }
 
-function* watchExchangeAfterBalanceChange() {
-  yield* takeEvery(exchangeAfterBalanceChange, doExchangeAfterBalanceChange)
+/**
+ * Creates the transactions necessary for a swap and transfer to calculate transaction fees
+ * @returns the total amount of lamports necessary for all transaction fees in a swap and transfer
+ */
+function* getTransactionFees({
+  route,
+  rootAccount,
+  feesCache
+}: {
+  route: RouteInfo
+  rootAccount: PublicKey
+  feesCache: ReturnType<typeof getFeesCache>
+}) {
+  let transactionFees = feesCache?.transactionFees ?? 0
+  if (!transactionFees) {
+    const jup = yield* call(initJupiterIfNecessary)
+    const {
+      transactions: { setupTransaction, swapTransaction, cleanupTransaction }
+    } = yield* call([jup, jup.exchange], {
+      routeInfo: route,
+      userPublicKey: rootAccount
+    })
+    const userBank = yield* call(getUserBank)
+    const transferTransaction = yield* call(
+      createTransferToUserBankTransaction,
+      {
+        userBank,
+        fromAccount: rootAccount,
+        // eslint-disable-next-line new-cap
+        amount: new u64(JSBI.toNumber(route.outAmount))
+      }
+    )
+    const connection = yield* call(getSolanaConnection)
+    const latestBlockhashResult = yield* call(
+      [connection, connection.getLatestBlockhash],
+      'finalized'
+    )
+    const names = ['Setup', 'Swap', 'Cleanup', 'Transfer']
+    let i = 0
+    for (const transaction of [
+      setupTransaction,
+      swapTransaction,
+      cleanupTransaction,
+      transferTransaction
+    ]) {
+      if (transaction) {
+        if (!transaction.recentBlockhash) {
+          transaction.recentBlockhash = latestBlockhashResult.blockhash
+        }
+        if (!transaction.feePayer) {
+          transaction.feePayer = rootAccount
+        }
+        const message = transaction.compileMessage()
+        const fees = yield* call(
+          [connection, connection.getFeeForMessage],
+          message
+        )
+        console.debug(
+          `Fee for "${names[i]}" transaction: ${fees.value} Lamports`
+        )
+        transactionFees += fees.value
+      }
+      i++
+    }
+    yield* put(cacheTransactionFees({ transactionFees }))
+  }
+  return transactionFees
+}
+
+/**
+ * Calculates all the fees required for executing a swap and transfer by doing a "dry-run"
+ * @returns the transaction fees and ATA creation fees (in lamports)
+ */
+function* getSwapFees({ route }: { route: RouteInfo }) {
+  const feesCache = yield* select(getFeesCache)
+  const rootAccount = yield* call(getRootSolanaAccount)
+  const associatedAccountCreationFees = yield* call(
+    getAssociatedAccountCreationFees,
+    { rootAccount: rootAccount.publicKey, route, feesCache }
+  )
+
+  const transactionFees = yield* call(getTransactionFees, {
+    rootAccount: rootAccount.publicKey,
+    route,
+    feesCache
+  })
+  console.debug(
+    `Estimated transaction fees: ${
+      transactionFees / LAMPORTS_PER_SOL
+    } SOL. Estimated associated account creation fees: ${
+      associatedAccountCreationFees / LAMPORTS_PER_SOL
+    } SOL. Total estimated fees: ${
+      (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+    }`
+  )
+  return { transactionFees, associatedAccountCreationFees }
+}
+
+function* doCalculateAudioPurchaseInfo({
+  payload: { audioAmount }
+}: ReturnType<typeof calculateAudioPurchaseInfo>) {
+  try {
+    // Ensure userbank is created
+    yield* fork(function* () {
+      yield* call(createUserBankIfNeeded)
+    })
+
+    // Setup
+    const connection = yield* call(getSolanaConnection)
+    const rootAccount = yield* call(getRootSolanaAccount)
+
+    const slippage = SLIPPAGE
+
+    // Get AUDIO => SOL quote
+    const reverseQuote = yield* call(getQuote, {
+      inputTokenSymbol: 'AUDIO',
+      outputTokenSymbol: 'SOL',
+      inputAmount: audioAmount,
+      slippage
+    })
+    const slippageFactor = 100.0 / (100.0 - slippage)
+
+    // Adjust quote for potential slippage
+    const inSol = Math.ceil(reverseQuote.outputAmount.amount * slippageFactor)
+
+    // Get SOL => AUDIO quote to calculate fees
+    const quote = yield* call(getQuote, {
+      inputTokenSymbol: 'SOL',
+      outputTokenSymbol: 'AUDIO',
+      inputAmount: inSol,
+      slippage
+    })
+    const { associatedAccountCreationFees, transactionFees } = yield* call(
+      getSwapFees,
+      { route: quote.route }
+    )
+
+    // Get existing solana balance
+    const existingBalance = yield* call(
+      [connection, connection.getBalance],
+      rootAccount.publicKey,
+      'finalized'
+    )
+
+    const estimatedLamports =
+      inSol + associatedAccountCreationFees + transactionFees - existingBalance
+
+    // Get SOL => USDC quote to estimate $USD cost
+    const quoteUSD = yield* call(getQuote, {
+      inputTokenSymbol: 'SOL',
+      outputTokenSymbol: 'USDC',
+      inputAmount: estimatedLamports / LAMPORTS_PER_SOL,
+      slippage: 0
+    })
+
+    console.debug(
+      `Quoted: ${reverseQuote.outputAmount.uiAmountString} SOL
+Adjustment For Slippage (${slippage}%): ${
+        (inSol - reverseQuote.outputAmount.amount) / LAMPORTS_PER_SOL
+      } SOL
+Fees: ${
+        (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+      } SOL
+Existing Balance: ${existingBalance / LAMPORTS_PER_SOL} SOL
+Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
+        quoteUSD.outputAmount.uiAmountString
+      } USDC)`
+    )
+
+    yield* put(
+      calculateAudioPurchaseInfoSucceeded({
+        estimatedSOL: convertJSBIToAmountObject(
+          JSBI.BigInt(estimatedLamports),
+          TOKEN_LISTING_MAP.SOL.decimals
+        ),
+        estimatedUSD: quoteUSD.outputAmount,
+        desiredAudioAmount: convertJSBIToAmountObject(
+          JSBI.BigInt(
+            Math.ceil(audioAmount * 10 ** TOKEN_LISTING_MAP.AUDIO.decimals)
+          ),
+          TOKEN_LISTING_MAP.AUDIO.decimals
+        )
+      })
+    )
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+function* watchCalculateAudioPurchaseInfo() {
+  yield takeLatest(calculateAudioPurchaseInfo, doCalculateAudioPurchaseInfo)
+}
+
+function* watchOnRampStarted() {
+  yield* takeEvery(onRampOpened, startBuyAudioFlow)
 }
 
 export default function sagas() {
-  return [watchQuote, watchExchange, watchExchangeAfterBalanceChange]
+  return [watchOnRampStarted, watchCalculateAudioPurchaseInfo]
 }

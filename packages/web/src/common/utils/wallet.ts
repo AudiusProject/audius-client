@@ -109,13 +109,18 @@ export const shortenEthAddress = (addr: string) => {
   return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
 }
 
-export const convertJSBIToUiString = (amount: JSBI, decimals: number) => {
+export const convertJSBIToAmountObject = (amount: JSBI, decimals: number) => {
   const divisor = JSBI.BigInt(10 ** decimals)
   const quotient = JSBI.divide(amount, divisor)
   const remainder = JSBI.remainder(amount, divisor)
-  return JSBI.GT(remainder, 0)
+  const uiAmountString = JSBI.GT(remainder, 0)
     ? `${quotient.toString()}.${remainder.toString().padStart(decimals, '0')}`
     : quotient.toString()
+  return {
+    amount: JSBI.toNumber(amount),
+    uiAmount: JSBI.toNumber(amount) / 10 ** decimals,
+    uiAmountString
+  }
 }
 
 export const convertWAudioToWei = (amount: BN) => {
