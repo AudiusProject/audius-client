@@ -48,6 +48,7 @@ import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
+import { Recording, Timer } from 'common/utils/performance'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
@@ -57,7 +58,6 @@ import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
 import { getErrorMessage } from 'utils/error'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { Timer } from 'utils/performance'
 import { encodeHashId } from 'utils/route/hashIds'
 
 import {
@@ -180,49 +180,6 @@ export const fetchCID = async (
 let preloadImageTimer: Timer
 const avoidGC: HTMLImageElement[] = []
 
-const preloadImage = async (url: string) => {
-  if (!preloadImageTimer) {
-    const batchSize =
-      getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_PERFORMANCE_BATCH_SIZE) ??
-      undefined
-
-    preloadImageTimer = new Timer({
-      name: 'image_preload',
-      batch: true,
-      batchSize
-    })
-  }
-
-  return new Promise<string | false>((resolve) => {
-    const start = preloadImageTimer.start()
-
-    const timeoutMs =
-      getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_TIMEOUT_MS) ?? undefined
-    const timeout = setTimeout(() => {
-      preloadImageTimer.end(start)
-      resolve(false)
-    }, timeoutMs)
-
-    // Avoid garbage collection by keeping a few images in an in-mem array
-    const image = new Image()
-    avoidGC.push(image)
-    if (avoidGC.length > IMAGE_CACHE_MAX_SIZE) avoidGC.shift()
-
-    image.onload = () => {
-      preloadImageTimer.end(start)
-      clearTimeout(timeout)
-      resolve(url)
-    }
-
-    image.onerror = () => {
-      preloadImageTimer.end(start)
-      clearTimeout(timeout)
-      resolve(false)
-    }
-    image.src = url
-  })
-}
-
 /**
  * Gets a blockList set from remote config
  */
@@ -288,6 +245,7 @@ type AudiusBackendParams = Partial<{
     web3NetworkId: Maybe<string>
   ) => Promise<any>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
+  recordPerformance: (recording: Recording) => void
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -331,7 +289,8 @@ export const audiusBackend = ({
   waitForWeb3,
   onLibsInit,
   getWeb3Config,
-  setLocalStorageItem
+  setLocalStorageItem,
+  recordPerformance
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
@@ -343,6 +302,52 @@ export const audiusBackend = ({
     if (currentDiscoveryProvider !== null) {
       listener(currentDiscoveryProvider)
     }
+  }
+
+  async function preloadImage(url: string) {
+    if (!preloadImageTimer) {
+      const batchSize =
+        getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_PERFORMANCE_BATCH_SIZE) ??
+        undefined
+
+      preloadImageTimer = new Timer(
+        {
+          name: 'image_preload',
+          batch: true,
+          batchSize
+        },
+        recordPerformance
+      )
+    }
+
+    return new Promise<string | false>((resolve) => {
+      const start = preloadImageTimer.start()
+
+      const timeoutMs =
+        getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_TIMEOUT_MS) ?? undefined
+      const timeout = setTimeout(() => {
+        preloadImageTimer.end(start)
+        resolve(false)
+      }, timeoutMs)
+
+      // Avoid garbage collection by keeping a few images in an in-mem array
+      const image = new Image()
+      avoidGC.push(image)
+      if (avoidGC.length > IMAGE_CACHE_MAX_SIZE) avoidGC.shift()
+
+      image.onload = () => {
+        preloadImageTimer.end(start)
+        clearTimeout(timeout)
+        resolve(url)
+      }
+
+      image.onerror = () => {
+        preloadImageTimer.end(start)
+        clearTimeout(timeout)
+        resolve(false)
+      }
+      image.src = url
+    })
   }
 
   async function fetchImageCID(

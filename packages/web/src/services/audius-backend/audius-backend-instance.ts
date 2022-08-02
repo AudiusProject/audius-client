@@ -1,5 +1,9 @@
 import { audiusBackend } from 'services/AudiusBackend'
 import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
+import { Name } from '@audius/common'
+
+import { track } from 'store/analytics/providers'
+import { Recording } from 'utils/performance'
 
 export const audiusBackendInstance = audiusBackend({
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
@@ -96,5 +100,12 @@ export const audiusBackendInstance = audiusBackend({
     }
   },
   setLocalStorageItem: async (key, value) =>
-    window.localStorage.setItem(key, value)
+    window.localStorage.setItem(key, value),
+  recordPerformance: ({ name, duration }: Recording) => {
+    console.info(`Recorded event ${name} with duration ${duration}`)
+    track(Name.PERFORMANCE, {
+      metric: name,
+      value: duration
+    })
+  }
 })
