@@ -50,13 +50,12 @@ import {
 } from 'common/store/pages/settings/types'
 import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
-import { Recording, Timer } from 'common/utils/performance'
+import { Timer } from 'common/utils/performance'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
-import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
 
 import {
@@ -244,7 +243,11 @@ type AudiusBackendParams = Partial<{
     web3NetworkId: Maybe<string>
   ) => Promise<any>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
-  recordPerformance: (recording: Recording) => void
+  recordAnalytics: (
+    event: string,
+    properties?: Record<string, any>,
+    callback?: () => void
+  ) => void
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -289,7 +292,7 @@ export const audiusBackend = ({
   onLibsInit,
   getWeb3Config,
   setLocalStorageItem,
-  recordPerformance
+  recordAnalytics
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
@@ -329,7 +332,13 @@ export const audiusBackend = ({
           batch: true,
           batchSize
         },
-        recordPerformance
+        ({ name, duration }) => {
+          console.info(`Recorded event ${name} with duration ${duration}`)
+          recordAnalytics(Name.PERFORMANCE, {
+            metric: name,
+            value: duration
+          })
+        }
       )
     }
 
@@ -484,7 +493,7 @@ export const audiusBackend = ({
     endpoint: string,
     decisionTree: { stage: string }[]
   ) {
-    track(Name.DISCOVERY_PROVIDER_SELECTION, {
+    recordAnalytics(Name.DISCOVERY_PROVIDER_SELECTION, {
       endpoint,
       reason: decisionTree.map((reason) => reason.stage).join(' -> ')
     })
@@ -498,13 +507,13 @@ export const audiusBackend = ({
     secondaries: string[],
     reason: string
   ) {
-    track(Name.CREATOR_NODE_SELECTION, {
+    recordAnalytics(Name.CREATOR_NODE_SELECTION, {
       endpoint: primary,
       selectedAs: 'primary',
       reason
     })
     secondaries.forEach((secondary) => {
-      track(Name.CREATOR_NODE_SELECTION, {
+      recordAnalytics(Name.CREATOR_NODE_SELECTION, {
         endpoint: secondary,
         selectedAs: 'secondary',
         reason
