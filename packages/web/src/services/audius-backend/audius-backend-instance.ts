@@ -94,5 +94,7 @@ export const audiusBackendInstance = audiusBackend({
       error: false,
       web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
     }
-  }
+  },
+  setLocalStorageItem: async (key, value) =>
+    window.localStorage.setItem(key, value)
 })

@@ -287,6 +287,7 @@ type AudiusBackendParams = Partial<{
     web3ProviderUrls: Maybe<string[]>,
     web3NetworkId: Maybe<string>
   ) => Promise<any>
+  setLocalStorageItem: (key: string, value: string) => Promise<void>
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -329,7 +330,8 @@ export const audiusBackend = ({
   audiusOrigin,
   waitForWeb3,
   onLibsInit,
-  getWeb3Config
+  getWeb3Config,
+  setLocalStorageItem
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
@@ -1856,7 +1858,7 @@ export const audiusBackend = ({
     }
     if (nativeMobile) {
       metadata.events.is_mobile_user = true
-      window.localStorage.setItem(IS_MOBILE_USER_KEY, 'true')
+      setLocalStorageItem(IS_MOBILE_USER_KEY, 'true')
     }
 
     // Returns { userId, error, phase }
