@@ -15,6 +15,7 @@ import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import * as queueActions from 'common/store/queue/slice'
 import { recordListen } from 'common/store/social/tracks/actions'
+import { encodeHashId } from 'common/utils/hashIds'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import {
@@ -39,7 +40,6 @@ import {
   error as errorAction
 } from 'store/player/slice'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { encodeHashId } from 'utils/route/hashIds'
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'

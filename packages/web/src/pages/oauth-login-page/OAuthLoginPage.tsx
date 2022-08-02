@@ -17,6 +17,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
 import { getAccountUser } from 'common/store/account/selectors'
+import { encodeHashId } from 'common/utils/hashIds'
 import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { ProfileInfo } from 'components/profile-info/ProfileInfo'
@@ -24,7 +25,6 @@ import { audiusBackendInstance } from 'services/audius-backend/audius-backend-in
 import { make, useRecord } from 'store/analytics/actions'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
-import { encodeHashId } from 'utils/route/hashIds'
 import { signOut } from 'utils/signOut'
 
 import styles from '../styles/OAuthLoginPage.module.css'

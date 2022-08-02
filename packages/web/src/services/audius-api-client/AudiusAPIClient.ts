@@ -9,6 +9,7 @@ import {
 } from '@audius/common'
 
 import { SearchKind } from 'common/store/pages/search-results/types'
+import { decodeHashId, encodeHashId } from 'common/utils/hashIds'
 import { AuthHeaders } from 'services/AudiusBackend'
 import { SupporterResponse } from 'services/audius-backend/Tipping'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
@@ -17,7 +18,6 @@ import {
   waitForLibsInit
 } from 'services/audius-backend/eagerLoadUtils'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
 import * as adapter from './ResponseAdapter'
 import { processSearchResults } from './helper'

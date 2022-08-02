@@ -48,6 +48,7 @@ import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
+import { encodeHashId } from 'common/utils/hashIds'
 import { Recording, Timer } from 'common/utils/performance'
 import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
@@ -58,7 +59,6 @@ import { track } from 'store/analytics/providers/amplitude'
 import { isElectron } from 'utils/clientUtil'
 import { getErrorMessage } from 'utils/error'
 import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { encodeHashId } from 'utils/route/hashIds'
 
 import {
   waitForLibsInit,
