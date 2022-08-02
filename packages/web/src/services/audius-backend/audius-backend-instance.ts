@@ -101,11 +101,5 @@ export const audiusBackendInstance = audiusBackend({
   },
   setLocalStorageItem: async (key, value) =>
     window.localStorage.setItem(key, value),
-  recordPerformance: ({ name, duration }: Recording) => {
-    console.info(`Recorded event ${name} with duration ${duration}`)
-    track(Name.PERFORMANCE, {
-      metric: name,
-      value: duration
-    })
-  }
+  recordAnalytics: track
 })

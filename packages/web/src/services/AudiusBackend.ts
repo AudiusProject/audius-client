@@ -43,6 +43,7 @@ import utc from 'dayjs/plugin/utc'
 import placeholderCoverArt from 'assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
+import * as schemas from 'common/schemas'
 import CIDCache from 'common/store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
@@ -51,7 +52,6 @@ import {
 import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Timer } from 'common/utils/performance'
-import * as schemas from 'schemas'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

@@ -16,6 +16,7 @@ import {
 } from 'typed-redux-saga/macro'
 import { WalletLinkProvider } from 'walletlink'
 
+import { newUserMetadata } from 'common/schemas'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getUserId, getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
@@ -59,7 +60,6 @@ import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
 } from 'pages/profile-page/sagas'
-import { newUserMetadata } from 'schemas'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

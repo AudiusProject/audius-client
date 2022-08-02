@@ -1,6 +1,5 @@
+import { Collection, ID, Track } from '@audius/common'
 import { pick } from 'lodash'
-
-import { createRemixOfMetadata } from 'pages/upload-page/store/utils/remixes'
 
 const trackMetadataSchema = {
   owner_id: null,
@@ -42,7 +41,7 @@ const trackMetadataSchema = {
   download: null
 }
 
-export const newTrackMetadata = (fields, validate = false) => {
+export const newTrackMetadata = (fields: Track, validate = false) => {
   const validFields = validate
     ? pick(fields, Object.keys(trackMetadataSchema).concat(['track_id']))
     : fields
@@ -80,7 +79,7 @@ const collectionMetadataSchema = {
   description: null
 }
 
-export const newCollectionMetadata = (fields, validate = false) => {
+export const newCollectionMetadata = (fields: Collection, validate = false) => {
   const validFields = validate
     ? pick(
         fields,
@@ -121,5 +120,19 @@ export const newUserMetadata = (fields, validate = false) => {
   return {
     ...userMetadataSchema,
     ...validFields
+  }
+}
+
+export const createRemixOfMetadata = ({
+  parentTrackId
+}: {
+  parentTrackId: ID
+}) => {
+  return {
+    tracks: [
+      {
+        parent_track_id: parentTrackId
+      }
+    ]
   }
 }
