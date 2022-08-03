@@ -53,7 +53,6 @@ import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Timer } from 'common/utils/performance'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { isElectron } from 'utils/clientUtil'
@@ -248,6 +247,7 @@ type AudiusBackendParams = Partial<{
     properties?: Record<string, any>,
     callback?: () => void
   ) => void
+  getFeatureEnabled: (flag: FeatureFlags) => any
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -292,7 +292,8 @@ export const audiusBackend = ({
   onLibsInit,
   getWeb3Config,
   setLocalStorageItem,
-  recordAnalytics
+  recordAnalytics,
+  getFeatureEnabled
 }: AudiusBackendParams) => {
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
