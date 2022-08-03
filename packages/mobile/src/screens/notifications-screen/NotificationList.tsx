@@ -1,7 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import Status from 'audius-client/src/common/models/Status'
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
+import { Status } from '@audius/common'
 import {
   fetchNotifications,
   refreshNotifications
@@ -11,19 +10,17 @@ import {
   getNotificationStatus,
   makeGetAllNotifications
 } from 'audius-client/src/common/store/notifications/selectors'
-import { Notification } from 'audius-client/src/common/store/notifications/types'
-import { View, ViewToken } from 'react-native'
+import type { Notification } from 'audius-client/src/common/store/notifications/types'
+import type { ViewToken } from 'react-native'
+import { View } from 'react-native'
 
 import { FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { EmptyNotifications } from './EmptyNotifications'
-import { NotificationBlock } from './NotificationBlock'
-import { NotificationErrorBoundary } from './NotificationErrorBoundary'
 import { NotificationListItem } from './NotificationListItem'
 import { NotificationsDrawerNavigationContext } from './NotificationsDrawerNavigationContext'
 
@@ -109,9 +106,6 @@ export const NotificationList = () => {
   const status = useSelectorWeb(getNotificationStatus)
   const hasMore = useSelectorWeb(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
 
   const { gesturesDisabled } = useContext(NotificationsDrawerNavigationContext)
 
@@ -146,20 +140,12 @@ export const NotificationList = () => {
       onRefresh={handleRefresh}
       data={notifications}
       keyExtractor={(item: Notification, index) => `${item.id} ${index}`}
-      renderItem={({ item, index }) =>
-        isTippingEnabled ? (
-          <NotificationListItem
-            notification={item}
-            isVisible={isVisible(index)}
-          />
-        ) : (
-          <NotificationErrorBoundary>
-            <View style={styles.itemContainer}>
-              <NotificationBlock notification={item} />
-            </View>
-          </NotificationErrorBoundary>
-        )
-      }
+      renderItem={({ item, index }) => (
+        <NotificationListItem
+          notification={item}
+          isVisible={isVisible(index)}
+        />
+      )}
       ListFooterComponent={
         status === Status.LOADING && !isRefreshing ? (
           <View style={styles.footer}>

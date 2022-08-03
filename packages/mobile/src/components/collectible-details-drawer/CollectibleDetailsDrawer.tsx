@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import { Chain } from 'audius-client/src/common/models/Chain'
+import { Chain } from '@audius/common'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   getCollectible,
@@ -126,7 +126,8 @@ export const CollectibleDetailsDrawer = () => {
                   styles.badge,
                   collectible.isOwned ? styles.owned : styles.created
                 ]}
-                weight='bold'>
+                weight='bold'
+              >
                 {collectible.isOwned ? messages.owned : messages.created}
               </Text>
               <View style={styles.chainIcon}>

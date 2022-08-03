@@ -1,6 +1,6 @@
+import { BNWei } from '@audius/common'
 import cn from 'classnames'
 
-import { BNWei } from 'common/models/Wallet'
 import { formatWei } from 'common/utils/wallet'
 
 import styles from './DisplayAudio.module.css'
@@ -29,7 +29,8 @@ const DisplayAudio = ({
         <span
           className={cn(styles.amount, {
             [tokenClassName!]: !!tokenClassName
-          })}>
+          })}
+        >
           {formatWei(amount, true)}
         </span>
       </TokenHoverTooltip>

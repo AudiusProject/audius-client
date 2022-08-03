@@ -10,8 +10,8 @@ import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ProfileTabScreenParamList } from 'app/screens/app-screen/ProfileTabScreen'
-import { ThemeColors } from 'app/utils/theme'
+import type { ProfileTabScreenParamList } from 'app/screens/app-screen/ProfileTabScreen'
+import type { ThemeColors } from 'app/utils/theme'
 
 import Button, { ButtonType } from '../button'
 
@@ -101,7 +101,8 @@ export const ProfileCompletionChecks = ({
               style={[
                 styles.checkText,
                 config[key] ? styles.checkTextDone : {}
-              ]}>
+              ]}
+            >
               {key}
             </Text>
           </View>

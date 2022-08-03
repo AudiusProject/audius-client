@@ -1,4 +1,13 @@
-import { ID } from '@audius/common'
+import {
+  ID,
+  Kind,
+  PlaylistIdentifier,
+  PlaylistLibrary,
+  PlaylistLibraryFolder,
+  PlaylistLibraryIdentifier,
+  User,
+  makeKindId
+} from '@audius/common'
 import {
   all,
   call,
@@ -9,14 +18,6 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
-import {
-  PlaylistIdentifier,
-  PlaylistLibrary,
-  PlaylistLibraryFolder,
-  PlaylistLibraryIdentifier
-} from 'common/models/PlaylistLibrary'
-import { User } from 'common/models/User'
 import { AccountCollection } from 'common/store/account/reducer'
 import {
   getAccountNavigationPlaylists,
@@ -31,7 +32,6 @@ import {
   removePlaylistLibraryDuplicates,
   replaceTempWithResolvedPlaylists
 } from 'common/store/playlist-library/helpers'
-import { makeKindId } from 'common/utils/uid'
 import { updateProfileAsync } from 'pages/profile-page/sagas'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import { getResult } from 'store/confirmer/selectors'

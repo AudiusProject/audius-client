@@ -1,11 +1,10 @@
-import { Track } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import type { Track, User } from '@audius/common'
 import { Pressable, View } from 'react-native'
 
 import { Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
 import { makeStyles } from 'app/styles'
-import { GestureResponderHandler } from 'app/types/gesture'
+import type { GestureResponderHandler } from 'app/types/gesture'
 
 const useStyles = makeStyles(({ typography, spacing }) => ({
   root: {
@@ -54,7 +53,8 @@ export const TrackInfo = ({
                 numberOfLines={1}
                 style={styles.artist}
                 variant='h1'
-                color='secondary'>
+                color='secondary'
+              >
                 {user.name}
               </Text>
               <UserBadges user={user} badgeSize={12} hideName />

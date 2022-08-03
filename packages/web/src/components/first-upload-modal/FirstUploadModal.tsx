@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from 'react'
 
+import { Name, SquareSizes } from '@audius/common'
 import { Modal } from '@audius/stems'
 import { connect, useDispatch } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { Name } from 'common/models/Analytics'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { getAccountUser } from 'common/store/account/selectors'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import ConnectedMusicConfetti from 'components/music-confetti/ConnectedMusicConfetti'
@@ -83,7 +82,8 @@ const FirstUploadModal = g(({ account, isOpen, close }) => {
         showTitleHeader
         showDismissButton
         dismissOnClickOutside={false}
-        title={<Title />}>
+        title={<Title />}
+      >
         <div className={styles.content}>
           <div className={styles.artist}>
             <DynamicImage

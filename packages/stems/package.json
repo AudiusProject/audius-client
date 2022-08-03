@@ -1,6 +1,6 @@
 {
   "name": "@audius/stems",
-  "version": "1.1.12",
+  "version": "1.2.2",
   "description": "The Audius React component library",
   "author": "",
   "license": "",
@@ -29,7 +29,7 @@
     "parser": "babel-eslint"
   },
   "peerDependencies": {
-    "bn.js": ">= 4.0.0",
+    "bn.js": "4.11.6",
     "classnames": "2.2.6",
     "lodash": "4.17.20",
     "moment": "2.24.0",
@@ -49,7 +49,7 @@
     "@storybook/react": "^6.4.19",
     "@svgr/rollup": "^4.3.2",
     "@svgr/webpack": "^5.5.0",
-    "@types/bn.js": "^4.11.6",
+    "@types/bn.js": "4.11.6",
     "@types/classnames": "^2.2.9",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.161",
@@ -65,7 +65,7 @@
     "cross-env": "^5.2.1",
     "css-loader": "^3.2.0",
     "eslint": "8.19.0",
-    "eslint-config-audius": "0.0.0",
+    "eslint-config-audius": "1.2.2",
     "eslint-plugin-storybook": "^0.6.1",
     "gh-pages": "^2.1.1",
     "jest": "^24.9.0",

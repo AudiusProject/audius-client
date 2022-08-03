@@ -1,6 +1,6 @@
-import { takeLatest, put } from 'redux-saga/effects'
+import { Name } from '@audius/common'
+import { takeLatest, put, call } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
 import { disablePushNotifications } from 'pages/settings-page/store/mobileSagas'
 import { make } from 'store/analytics/actions'
 import { signOut } from 'utils/signOut'
@@ -14,7 +14,7 @@ function* watchSignOut() {
     if (NATIVE_MOBILE) {
       disablePushNotifications()
       yield put(make(Name.SETTINGS_LOG_OUT, {}))
-      signOut()
+      yield call(signOut)
     } else {
       yield put(make(Name.SETTINGS_LOG_OUT, { callback: signOut }))
     }

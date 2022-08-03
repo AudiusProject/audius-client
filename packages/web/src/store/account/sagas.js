@@ -1,8 +1,6 @@
+import { Kind, Status, USER_ID_AVAILABLE_EVENT } from '@audius/common'
 import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
-import { USER_ID_AVAILABLE_EVENT } from 'common/services/remote-config/remote-config'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getUserId,
@@ -23,7 +21,6 @@ import {
 } from 'common/store/pages/settings/actions'
 import { getFeePayer } from 'common/store/solana/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
-import * as uploadActions from 'pages/upload-page/store/actions'
 import AudiusBackend from 'services/AudiusBackend'
 import {
   getAudiusAccount,
@@ -430,22 +427,6 @@ function* fetchSavedPlaylistsAsync() {
   })
 }
 
-function* setAccountCreator(action) {
-  yield call(waitForBackendSetup)
-  const account = yield select(getAccountUser)
-  if (!account.is_creator) {
-    yield put(
-      cacheActions.update(Kind.USERS, [
-        { id: account.user_id, metadata: { is_creator: true } }
-      ])
-    )
-  }
-}
-
-function* watchUploadAccountCreator() {
-  yield takeEvery(uploadActions.UPLOAD_TRACKS_SUCCEEDED, setAccountCreator)
-}
-
 function* watchFetchAccount() {
   yield takeEvery(accountActions.fetchAccount.type, fetchAccountAsync)
 }
@@ -509,7 +490,6 @@ export default function sagas() {
     watchFetchSavedAlbums,
     watchFetchSavedPlaylists,
     watchShowPushNotificationConfirmation,
-    watchUploadAccountCreator,
     watchAddAccountPlaylist,
     getBrowserPushNotifcations,
     subscribeBrowserPushNotification,

@@ -1,10 +1,8 @@
 import { MouseEventHandler, useCallback, useMemo } from 'react'
 
+import { FollowSource, User, FeatureFlags } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { FollowSource } from 'common/models/Analytics'
-import { User } from 'common/models/User'
-import { FeatureFlags } from 'common/services/remote-config'
 import { setNotificationSubscription } from 'common/store/pages/profile/actions'
 import { followUser, unfollowUser } from 'common/store/social/users/actions'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -25,7 +23,6 @@ export const ArtistCard = (props: ArtistCardProps) => {
   const {
     user_id,
     bio,
-    is_creator,
     track_count,
     playlist_count,
     follower_count,
@@ -34,7 +31,7 @@ export const ArtistCard = (props: ArtistCardProps) => {
   } = artist
 
   const dispatch = useDispatch()
-  const isArtist = is_creator || track_count > 0
+  const isArtist = track_count > 0
   const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
   const handleClick: MouseEventHandler = useCallback((event) => {

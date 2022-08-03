@@ -1,4 +1,5 @@
-import { ComponentType, Fragment, useMemo } from 'react'
+import type { ComponentType } from 'react'
+import { Fragment, useMemo } from 'react'
 
 import { View } from 'react-native'
 
@@ -9,9 +10,9 @@ import { makeStyles } from 'app/styles/makeStyles'
 import { useSelectProfile } from '../selectors'
 
 import { ProfileTierTile } from './ProfileTierTile'
+import type { SocialLinkProps } from './SocialLink'
 import {
   InstagramSocialLink,
-  SocialLinkProps,
   TikTokSocialLink,
   TwitterSocialLink
 } from './SocialLink'
@@ -68,7 +69,8 @@ export const ProfileSocials = () => {
         style={[
           styles.socials,
           tier !== 'none' && { justifyContent: 'center' }
-        ]}>
+        ]}
+      >
         {socialLinks.map(([handle, Link], index) => {
           const link = <Link key={index} showText={socialsCount === 1} />
           if (handle === null || handle === '') return null

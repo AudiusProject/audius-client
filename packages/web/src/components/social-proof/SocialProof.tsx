@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { Name, Status, BooleanKeys } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
-import Status from 'common/models/Status'
-import { BooleanKeys } from 'common/services/remote-config'
 import {
   TwitterProfile,
   InstagramProfile,
@@ -224,7 +222,8 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
       onClose={() => setIsOpen(false)}
       title={messages.modalTitle}
       showTitleHeader
-      useGradientTitle={false}>
+      useGradientTitle={false}
+    >
       {body}
     </ModalDrawer>
   )

@@ -1,17 +1,13 @@
 import { useCallback, useState } from 'react'
 
-import { StyleProp, View, ViewStyle } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { View } from 'react-native'
 
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconTikTok from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import {
-  Text,
-  LinkProps,
-  Link,
-  IconButtonProps,
-  Hyperlink
-} from 'app/components/core'
+import type { LinkProps, IconButtonProps } from 'app/components/core'
+import { Text, Link, Hyperlink } from 'app/components/core'
 import Skeleton from 'app/components/skeleton'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
@@ -106,7 +102,8 @@ export const SocialLink = (props: SocialLinkProps) => {
         style={[styles.withText, style]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        {...other}>
+        {...other}
+      >
         {iconButtonElement}
         {hyperlink ? (
           <Hyperlink
@@ -124,7 +121,8 @@ export const SocialLink = (props: SocialLinkProps) => {
         ) : (
           <Text
             numberOfLines={1}
-            style={[styles.text, isActive && styles.active]}>
+            style={[styles.text, isActive && styles.active]}
+          >
             {text}
           </Text>
         )}
@@ -136,7 +134,8 @@ export const SocialLink = (props: SocialLinkProps) => {
       url={url}
       style={style}
       onPressIn={handlePressIn}
-      onPressOut={handlePressOut}>
+      onPressOut={handlePressOut}
+    >
       {iconButtonElement}
     </Link>
   )

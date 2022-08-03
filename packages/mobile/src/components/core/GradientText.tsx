@@ -1,8 +1,7 @@
 import MaskedView from '@react-native-masked-view/masked-view'
-import { TextProps } from 'react-native'
-import LinearGradient, {
-  LinearGradientProps
-} from 'react-native-linear-gradient'
+import type { TextProps } from 'react-native'
+import type { LinearGradientProps } from 'react-native-linear-gradient'
+import LinearGradient from 'react-native-linear-gradient'
 
 import Text from 'app/components/text'
 import { useThemeColors } from 'app/utils/theme'
@@ -29,16 +28,19 @@ export const GradientText = (props: GradientTextProps) => {
         <Text style={style} weight='heavy' {...other}>
           {children}
         </Text>
-      }>
+      }
+    >
       <LinearGradient
         colors={colors}
         start={{ x: 1, y: 1 }}
-        end={{ x: 0, y: 0 }}>
+        end={{ x: 0, y: 0 }}
+      >
         <Text
           style={[style, { opacity: 0 }]}
           weight='heavy'
           {...other}
-          accessibilityElementsHidden>
+          accessibilityElementsHidden
+        >
           {children}
         </Text>
       </LinearGradient>

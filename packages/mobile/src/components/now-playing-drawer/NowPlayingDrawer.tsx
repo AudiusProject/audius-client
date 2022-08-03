@@ -4,14 +4,12 @@ import { getTrack } from 'audius-client/src/common/store/cache/tracks/selectors'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { next, previous } from 'audius-client/src/common/store/queue/slice'
 import { Genre } from 'audius-client/src/common/utils/genres'
-import {
-  View,
+import type {
   Animated,
   GestureResponderEvent,
-  PanResponderGestureState,
-  StatusBar,
-  Pressable
+  PanResponderGestureState
 } from 'react-native'
+import { View, StatusBar, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -259,12 +257,14 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       isGestureSupported={isGestureEnabled}
       translationAnim={translationAnim}
       // Disable safe area view edges because they are handled manually
-      disableSafeAreaView>
+      disableSafeAreaView
+    >
       <View
         style={[
           styles.container,
           { paddingTop: staticTopInset.current, paddingBottom: insets.bottom }
-        ]}>
+        ]}
+      >
         {track && user && (
           <>
             <View style={styles.playBarContainer}>
@@ -281,7 +281,8 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
             </View>
             <Pressable
               onPress={handlePressTitle}
-              style={styles.artworkContainer}>
+              style={styles.artworkContainer}
+            >
               <Artwork track={track} />
             </Pressable>
             <View style={styles.trackInfoContainer}>

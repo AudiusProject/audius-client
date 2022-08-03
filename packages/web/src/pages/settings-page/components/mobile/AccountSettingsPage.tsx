@@ -1,12 +1,11 @@
 import { useState, useContext, useCallback } from 'react'
 
+import { Name, SquareSizes } from '@audius/common'
 import { Modal, Button, ButtonType, IconMail, IconSignOut } from '@audius/stems'
 import cn from 'classnames'
 import { debounce } from 'lodash'
 
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
-import { Name } from 'common/models/Analytics'
-import { SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import GroupableList from 'components/groupable-list/GroupableList'
 import Grouping from 'components/groupable-list/Grouping'
@@ -91,7 +90,8 @@ const AccountSettingsPage = ({
     <MobilePageContainer
       title={title}
       description={description}
-      containerClassName={settingsPageStyles.pageBackground}>
+      containerClassName={settingsPageStyles.pageBackground}
+    >
       <div className={settingsPageStyles.bodyContainer}>
         <div className={styles.account}>
           <DynamicImage
@@ -108,7 +108,8 @@ const AccountSettingsPage = ({
             <Row
               prefix={<i className='emoji small key' />}
               title='Recovery Email'
-              body={messages.recovery}>
+              body={messages.recovery}
+            >
               <Button
                 onClick={onClickRecover}
                 className={styles.resetButton}
@@ -122,7 +123,8 @@ const AccountSettingsPage = ({
             <Row
               prefix={<i className='emoji small white-heavy-check-mark' />}
               title='Get Verified'
-              body={messages.verified}>
+              body={messages.verified}
+            >
               {isVerified ? (
                 <Button
                   text={messages.isVerified}
@@ -148,7 +150,8 @@ const AccountSettingsPage = ({
             <Row
               prefix={<i className='emoji small lock' />}
               title={messages.changePassword}
-              body={messages.changePasswordPrompt}>
+              body={messages.changePasswordPrompt}
+            >
               <Button
                 text={messages.changePasswordButton}
                 onClick={goToChangePasswordSettingsPage}
@@ -162,7 +165,8 @@ const AccountSettingsPage = ({
             <Row
               prefix={<i className='emoji small octagonal-sign' />}
               title='Sign Out'
-              body={messages.signOut}>
+              body={messages.signOut}
+            >
               <Button
                 className={styles.signOutButton}
                 type={ButtonType.COMMON_ALT}
@@ -180,7 +184,8 @@ const AccountSettingsPage = ({
           isOpen={showModalSignOut}
           allowScroll={false}
           bodyClassName={styles.modal}
-          onClose={() => setShowModalSignOut(false)}>
+          onClose={() => setShowModalSignOut(false)}
+        >
           <SignOutPage onClickBack={() => setShowModalSignOut(false)} />
         </Modal>
       </div>

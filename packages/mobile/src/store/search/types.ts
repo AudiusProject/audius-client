@@ -1,10 +1,8 @@
-import { Repost } from 'audius-client/src/common/models/Repost'
-import { TrackSegment } from 'audius-client/src/common/models/Track'
-import { User } from 'audius-client/src/common/models/User'
+import type { Repost, TrackSegment, User } from '@audius/common'
 
-import { CollectionImage } from 'app/models/Collection'
-import { TrackImage } from 'app/models/Track'
-import { UserImage, UserMultihash } from 'app/models/User'
+import type { CollectionImage } from 'app/models/Collection'
+import type { TrackImage } from 'app/models/Track'
+import type { UserImage, UserMultihash } from 'app/models/User'
 
 type BaseUser = Pick<
   User,
@@ -31,7 +29,6 @@ export type SearchUser = UserMultihash &
     current_user_followee_follow_count: number
     does_current_user_follow: boolean
     handle_lc: string
-    is_creator: true
     updated_at: string
     has_collectibles: boolean
     user_id: number
@@ -92,6 +89,7 @@ export type SearchTrack = TrackImage & {
 
 export type SearchPlaylist = CollectionImage & {
   _cover_art_sizes: null
+  _is_publishing?: boolean
   description: string | null
   is_album: boolean
   playlist_name: string

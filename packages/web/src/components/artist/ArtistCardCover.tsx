@@ -1,11 +1,10 @@
 import { useCallback } from 'react'
 
+import { SquareSizes, WidthSizes, User } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
-import { SquareSizes, WidthSizes } from 'common/models/ImageSizes'
-import { User } from 'common/models/User'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowsYouBadge from 'components/user-badges/FollowsYouBadge'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -60,11 +59,13 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
     <DynamicImage
       wrapperClassName={styles.artistCoverPhoto}
       image={darkenedCoverPhoto}
-      immediate>
+      immediate
+    >
       <div className={styles.coverPhotoContentContainer}>
         {isArtist ? <BadgeArtist className={styles.badgeArtist} /> : null}
         <DynamicImage
           wrapperClassName={styles.profilePictureWrapper}
+          skeletonClassName={styles.profilePictureSkeleton}
           className={styles.profilePicture}
           image={profilePicture}
           immediate
@@ -84,7 +85,8 @@ export const ArtistCardCover = (props: ArtistCoverProps) => {
           <div className={styles.artistHandleWrapper}>
             <div
               className={styles.artistHandle}
-              onClick={handleClickUser}>{`@${handle}`}</div>
+              onClick={handleClickUser}
+            >{`@${handle}`}</div>
             {does_follow_current_user ? <FollowsYouBadge /> : null}
           </div>
         </div>

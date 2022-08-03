@@ -1,3 +1,10 @@
+import {
+  FavoriteSource,
+  Name,
+  FeatureFlags,
+  IntKeys,
+  StringKeys
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import {
   all,
@@ -12,12 +19,6 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { FavoriteSource, Name } from 'common/models/Analytics'
-import {
-  FeatureFlags,
-  IntKeys,
-  StringKeys
-} from 'common/services/remote-config'
 import * as accountActions from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
@@ -322,7 +323,9 @@ function* signUp() {
           })
 
         if (error) {
-          const rateLimited = errorStatus === 429
+          // We are including 0 status code here to indicate rate limit,
+          // which appears to be happening for some devices.
+          const rateLimited = errorStatus === 429 || errorStatus === 0
           const params = {
             error,
             phase,

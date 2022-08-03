@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
+import type { BNWei, StringWei } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
 import {
   getOptimisticSupporters,
@@ -12,6 +13,7 @@ import {
   fetchUserSupporter
 } from 'audius-client/src/common/store/tipping/slice'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
+import { getBalance } from 'audius-client/src/common/store/wallet/slice'
 import { stringWeiToBN } from 'audius-client/src/common/utils/wallet'
 import { useGetFirstOrTopSupporter } from 'audius-client/src/hooks/useGetFirstOrTopSupporter'
 import BN from 'bn.js'
@@ -33,7 +35,7 @@ import { ErrorText } from './ErrorText'
 import { ReceiverDetails } from './ReceiverDetails'
 import { TipInput } from './TipInput'
 import { TipScreen } from './TipScreen'
-import { TipArtistNavigationParamList } from './navigation'
+import type { TipArtistNavigationParamList } from './navigation'
 
 const messages = {
   sendTip: 'Send Tip',
@@ -97,10 +99,17 @@ export const SendTipScreen = () => {
     navigation.navigate({ native: { screen: 'ConfirmTip' } })
   }, [dispatchWeb, tipAmount, navigation])
 
+  useFocusEffect(
+    useCallback(() => {
+      dispatchWeb(getBalance())
+    }, [dispatchWeb])
+  )
+
   return (
     <TipScreen
       title={messages.sendTip}
-      topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}>
+      topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}
+    >
       <ReceiverDetails />
       {!hasInsufficientBalance && isFirstSupporter ? (
         <BecomeFirstSupporter />

@@ -1,14 +1,19 @@
 import { useCallback } from 'react'
 
-import { CID, ID } from '@audius/common'
+import {
+  CID,
+  ID,
+  Name,
+  SquareSizes,
+  CoverArtSizes,
+  FieldVisibility,
+  Remix
+} from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 
 import placeholderArt from 'assets/img/imageBlank2x.png'
-import { Name } from 'common/models/Analytics'
-import { SquareSizes, CoverArtSizes } from 'common/models/ImageSizes'
-import { FieldVisibility, Remix } from 'common/models/Track'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { getCanonicalName } from 'common/utils/genres'
@@ -219,7 +224,8 @@ const TrackHeader = ({
               <h2
                 key={tag}
                 onClick={() => onClickTag(tag)}
-                className={styles.tag}>
+                className={styles.tag}
+              >
                 {tag}
               </h2>
             ))}
@@ -267,7 +273,8 @@ const TrackHeader = ({
       hasReposted={coSign.has_remix_author_reposted}
       coSignName={coSign.user.name}
       className={styles.coverArt}
-      userId={coSign.user.user_id}>
+      userId={coSign.user.user_id}
+    >
       <DynamicImage image={image} wrapperClassName={styles.imageWrapper} />
     </CoSign>
   ) : (
@@ -346,7 +353,8 @@ const TrackHeader = ({
       <div
         className={cn(styles.infoSection, {
           [styles.noStats]: isUnlisted && !fieldVisibility.play_count
-        })}>
+        })}
+      >
         {renderTrackLabels()}
       </div>
       {renderDownloadButtons()}

@@ -1,5 +1,6 @@
 import { PureComponent, useState, useEffect } from 'react'
 
+import { Variant, SquareSizes, SmartCollectionVariant } from '@audius/common'
 import {
   Button,
   ButtonType,
@@ -17,9 +18,6 @@ import Linkify from 'linkifyjs/react'
 import PropTypes from 'prop-types'
 
 import { ReactComponent as IconFilter } from 'assets/img/iconFilter.svg'
-import { Variant } from 'common/models/Collection'
-import { SquareSizes } from 'common/models/ImageSizes'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { formatSecondsAsText, formatDate } from 'common/utils/timeUtil'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -117,10 +115,12 @@ const ViewerHasTracksButtons = (props) => {
         text={messages.reposted}
         disabled={props.isReposted}
         delay={REPOST_TIMEOUT}
-        fillParent={false}>
+        fillParent={false}
+      >
         <Tooltip
           disabled={props.isOwner || props.reposts === 0}
-          text={props.isReposted ? messages.unrepost : messages.repost}>
+          text={props.isReposted ? messages.unrepost : messages.repost}
+        >
           <div className={styles.buttonSpacing}>
             <Button
               type={props.isReposted ? ButtonType.SECONDARY : ButtonType.COMMON}
@@ -136,7 +136,8 @@ const ViewerHasTracksButtons = (props) => {
       </Toast>
       <Tooltip
         disabled={props.isOwner || props.saves === 0}
-        text={props.isSaved ? messages.unfavorite : messages.favorite}>
+        text={props.isSaved ? messages.unfavorite : messages.favorite}
+      >
         <div className={styles.buttonSpacing}>
           <Button
             type={props.isSaved ? ButtonType.SECONDARY : ButtonType.COMMON}
@@ -239,7 +240,8 @@ const SmartCollectionButtons = (props) => {
       {props.onSave ? (
         <Tooltip
           disabled={props.isOwner || props.saves === 0}
-          text={props.isSaved ? messages.unfavorite : messages.favorite}>
+          text={props.isSaved ? messages.unfavorite : messages.favorite}
+        >
           <div className={styles.buttonSpacing}>
             <Button
               className={cn(styles.buttonSpacing, styles.buttonFormatting)}
@@ -334,7 +336,8 @@ const OwnerPublishedButtons = (props) => {
         fillParent={false}
         placement='top'
         firesOnClick={false}
-        open={showShareableToast}>
+        open={showShareableToast}
+      >
         <Button
           className={cn(styles.buttonSpacing, styles.buttonFormatting)}
           textClassName={styles.buttonTextFormatting}
@@ -454,7 +457,8 @@ const Artwork = ({
     <div className={styles.coverArtWrapper}>
       <DynamicImage
         className={styles.coverArt}
-        image={gradient || imageOverride || image}>
+        image={gradient || imageOverride || image}
+      >
         {Icon && (
           <Icon className={styles.imageIcon} style={{ background: gradient }} />
         )}
@@ -618,7 +622,8 @@ class CollectionHeader extends PureComponent {
               <Linkify
                 options={{
                   attributes: { onClick: onClickDescriptionExternalLink }
-                }}>
+                }}
+              >
                 {squashNewLines(description)}
               </Linkify>
             </div>
@@ -629,7 +634,8 @@ class CollectionHeader extends PureComponent {
               className={cn(styles.buttonSection, {
                 [styles.show]: !tracksLoading,
                 [styles.hide]: tracksLoading
-              })}>
+              })}
+            >
               {!tracksLoading && (
                 <Buttons
                   variant={variant}

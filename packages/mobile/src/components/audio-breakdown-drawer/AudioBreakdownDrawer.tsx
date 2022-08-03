@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
-import { Chain } from 'audius-client/src/common/models/Chain'
-import { BNWei } from 'audius-client/src/common/models/Wallet'
+import type { BNWei } from '@audius/common'
+import { Chain } from '@audius/common'
 import { getAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
-import { AssociatedWallet } from 'audius-client/src/common/store/pages/token-dashboard/types'
+import type { AssociatedWallet } from 'audius-client/src/common/store/pages/token-dashboard/types'
 import { getAccountBalance } from 'audius-client/src/common/store/wallet/selectors'
 import {
   formatWei,
@@ -27,7 +27,8 @@ import { AppDrawer } from 'app/components/drawer'
 import Text from 'app/components/text'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
+import type { ThemeColors } from 'app/hooks/useThemedStyles'
+import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import share from 'app/utils/share'
 
 const AUDIO_BREAKDOWN_MODAL_NAME = 'AudioBreakdown'
@@ -204,7 +205,8 @@ export const AudioBreakdownDrawer = () => {
     <AppDrawer
       modalName={AUDIO_BREAKDOWN_MODAL_NAME}
       title={messages.modalTitle}
-      isFullscreen>
+      isFullscreen
+    >
       <View style={styles.drawer}>
         <GradientText style={styles.amount}>
           {formatWei(totalBalance, true)}
@@ -310,7 +312,8 @@ const Wallet = ({ chain, address, balance }: WalletProps) => {
         <TouchableWithoutFeedback
           onPress={handleCopy}
           onPressIn={handlePressIn}
-          onPressOut={handlePressOut}>
+          onPressOut={handlePressOut}
+        >
           <View style={styles.linkedWallet}>
             <View style={styles.chainIconContainer}>
               {chain === Chain.Eth ? (

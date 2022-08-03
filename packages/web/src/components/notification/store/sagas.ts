@@ -1,4 +1,12 @@
-import { ID } from '@audius/common'
+import {
+  ID,
+  Name,
+  Status,
+  Track,
+  FeatureFlags,
+  IntKeys,
+  remoteConfigIntDefaults
+} from '@audius/common'
 import moment from 'moment'
 import { eventChannel } from 'redux-saga'
 import {
@@ -13,11 +21,6 @@ import {
   takeLatest
 } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import Status from 'common/models/Status'
-import { Track } from 'common/models/Track'
-import { FeatureFlags, IntKeys } from 'common/services/remote-config'
-import { remoteConfigIntDefaults } from 'common/services/remote-config/defaults'
 import { getUserId, getHasAccount } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
@@ -130,7 +133,8 @@ export function* fetchNotifications(
     const timeOffset = lastNotification
       ? lastNotification.timestamp
       : moment().toISOString()
-    const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+    const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED) ?? false
+
     const notificationsResponse: NotificationsResponse = yield* call(
       AudiusBackend.getNotifications,
       {
@@ -337,14 +341,17 @@ export function* parseAndProcessNotifications(
 /**
  * Run side effects for new notifications
  */
-export function* handleNewNotifications(
-  notifications: Notification[]
-): Generator<any, void, any> {
-  const hasRewardsNotification = notifications.some(
-    (notification) => notification.type === NotificationType.ChallengeReward
+const AUDIO_TRANSFER_NOTIFICATION_TYPES = new Set([
+  NotificationType.ChallengeReward,
+  NotificationType.TipSend,
+  NotificationType.TipReceive
+])
+export function* handleNewNotifications(notifications: Notification[]) {
+  const hasAudioTransferNotification = notifications.some((notification) =>
+    AUDIO_TRANSFER_NOTIFICATION_TYPES.has(notification.type)
   )
-  if (hasRewardsNotification) {
-    yield* put(getBalance)
+  if (hasAudioTransferNotification) {
+    yield* put(getBalance())
   }
 }
 
@@ -494,7 +501,7 @@ export function* getNotifications(isFirstFetch: boolean) {
       )
       if (!hasAccount) return
       const timeOffset = moment().toISOString()
-      const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+      const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED) ?? false
 
       const notificationsResponse: NotificationsResponse | undefined =
         yield* call(AudiusBackend.getNotifications, {

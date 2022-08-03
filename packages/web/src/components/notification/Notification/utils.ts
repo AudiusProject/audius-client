@@ -1,5 +1,4 @@
 import { Entity, EntityType } from 'common/store/notifications/types'
-import { formatCount } from 'common/utils/formatUtil'
 import AudiusBackend from 'services/AudiusBackend'
 import { UserListEntityType } from 'store/application/ui/userListModal/types'
 import {
@@ -11,6 +10,7 @@ import {
 } from 'utils/route'
 
 export const getEntityLink = (entity: EntityType, fullRoute = false) => {
+  if (!entity.user) return ''
   if ('track_id' in entity) {
     return fullRoute ? fullTrackPage(entity.permalink) : entity.permalink
   } else if (entity.user && entity.playlist_id && entity.is_album) {
@@ -31,9 +31,6 @@ export const getEntityLink = (entity: EntityType, fullRoute = false) => {
   }
   return ''
 }
-
-export const formatOthersCount = (userCount: number) =>
-  ` and ${formatCount(userCount)} other${userCount > 1 ? 's' : ''}`
 
 export const getRankSuffix = (rank: number) => {
   if (rank === 1) return 'st'

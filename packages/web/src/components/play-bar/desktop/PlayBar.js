@@ -1,15 +1,15 @@
 import { Component } from 'react'
 
-import { Scrubber } from '@audius/stems'
-import { push as pushRoute } from 'connected-react-router'
-import { connect } from 'react-redux'
-
 import {
   RepostSource,
   FavoriteSource,
   Name,
   PlaybackSource
-} from 'common/models/Analytics'
+} from '@audius/common'
+import { Scrubber } from '@audius/stems'
+import { push as pushRoute } from 'connected-react-router'
+import { connect } from 'react-redux'
+
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { getLineupHasTracks } from 'common/store/lineup/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
@@ -441,7 +441,8 @@ class PlayBar extends Component {
                 text={repostText}
                 disabled={isFavoriteAndRepostDisabled}
                 mount='parent'
-                placement='top'>
+                placement='top'
+              >
                 <span>
                   <RepostButton
                     aria-label={repostText}
@@ -460,7 +461,8 @@ class PlayBar extends Component {
                 text={favoriteText}
                 disabled={isFavoriteAndRepostDisabled}
                 placement='top'
-                mount='parent'>
+                mount='parent'
+              >
                 <span>
                   <FavoriteButton
                     isDisabled={isFavoriteAndRepostDisabled}

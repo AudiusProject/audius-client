@@ -1,10 +1,14 @@
-import { ID, PlayableType } from '@audius/common'
+import {
+  ID,
+  PlayableType,
+  CoverArtSizes,
+  SquareSizes,
+  Playable,
+  User,
+  NestedNonNullable
+} from '@audius/common'
 import { Button, ButtonType, IconUser } from '@audius/stems'
 
-import { CoverArtSizes, SquareSizes } from 'common/models/ImageSizes'
-import { Playable } from 'common/models/Playable'
-import { User } from 'common/models/User'
-import { NestedNonNullable } from 'common/utils/typeUtils'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Lineup, { LineupWithoutTile } from 'components/lineup/Lineup'
@@ -160,7 +164,8 @@ const DeletedPage = g(
       <MobilePageContainer
         title={title}
         description={description}
-        canonicalUrl={canonicalUrl}>
+        canonicalUrl={canonicalUrl}
+      >
         <div className={styles.contentWrapper}>
           {renderTile()}
           {renderLineup()}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import {
   Animated,
   StyleSheet,
@@ -15,13 +15,12 @@ import {
   Alert,
   ScrollView
 } from 'react-native'
-import {
+import type {
   Asset,
   Callback,
-  ImageLibraryOptions,
-  launchCamera,
-  launchImageLibrary
+  ImageLibraryOptions
 } from 'react-native-image-picker'
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -42,7 +41,7 @@ import { useColor, useThemeColors } from 'app/utils/theme'
 import PhotoButton from './PhotoButton'
 import ProfileImage from './ProfileImage'
 import SignupHeader from './SignupHeader'
-import { SignOnStackParamList } from './types'
+import type { SignOnStackParamList } from './types'
 
 const defaultBorderColor = '#F2F2F4'
 
@@ -488,16 +487,19 @@ const ProfileManual = ({ navigation, route }: ProfileManualProps) => {
     <SafeAreaView style={{ backgroundColor: 'white' }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ overflow: 'hidden' }}>
+        style={{ overflow: 'hidden' }}
+      >
         <ScrollView
           style={{ height: '100%' }}
-          keyboardShouldPersistTaps='always'>
+          keyboardShouldPersistTaps='always'
+        >
           <View>
             <SignupHeader />
             <TouchableWithoutFeedback
               onPress={Keyboard.dismiss}
               accessible={false}
-              style={styles.container}>
+              style={styles.container}
+            >
               <View style={styles.containerForm}>
                 <FormTitle />
                 <View style={styles.profilePicContainer}>
@@ -544,7 +546,8 @@ const ProfileManual = ({ navigation, route }: ProfileManualProps) => {
                   style={[
                     styles.handleInputContainer,
                     { borderColor: handleBorderColor }
-                  ]}>
+                  ]}
+                >
                   <Text style={styles.atLabel}>@</Text>
                   <TextInput
                     style={styles.handleInput}

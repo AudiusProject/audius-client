@@ -1,5 +1,6 @@
 import { cloneElement, useCallback, useEffect, useState } from 'react'
 
+import { ChallengeRewardID, BadgeTier, BNWei, StringKeys } from '@audius/common'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { animated, Transition } from 'react-spring/renderprops'
@@ -7,10 +8,6 @@ import { animated, Transition } from 'react-spring/renderprops'
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { useSelectTierInfo } from 'common/hooks/wallet'
-import { ChallengeRewardID } from 'common/models/AudioRewards'
-import { BadgeTier } from 'common/models/BadgeTier'
-import { BNWei } from 'common/models/Wallet'
-import { StringKeys } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { getOptimisticUserChallenges } from 'common/store/challenges/selectors/optimistic-challenges'
 import { getAccountTotalBalance } from 'common/store/wallet/selectors'
@@ -112,7 +109,8 @@ const NavAudio = () => {
         { [styles.hasBalance]: positiveTotalBalance },
         { [styles.show]: true }
       )}
-      onClick={goToAudioPage}>
+      onClick={goToAudioPage}
+    >
       <div className={styles.amountContainer}>
         {positiveTotalBalance && audioBadge ? (
           cloneElement(audioBadge, {
@@ -132,14 +130,16 @@ const NavAudio = () => {
           from={{ opacity: 0 }}
           enter={{ opacity: 1 }}
           leave={{ opacity: 0 }}
-          config={{ duration: 100 }}>
+          config={{ duration: 100 }}
+        >
           {(item) => (props) =>
             item !== 'none' && (
               <animated.span
                 style={props}
                 className={cn(styles.actionBubble, {
                   [styles.claimRewards]: item === 'claim'
-                })}>
+                })}
+              >
                 <span>
                   {item === 'claim'
                     ? messages.claimRewards

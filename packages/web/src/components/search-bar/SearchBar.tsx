@@ -1,11 +1,11 @@
 import { ChangeEvent, KeyboardEvent } from 'react'
 
+import { Status } from '@audius/common'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ReactComponent as IconSearch } from 'assets/img/iconSearch.svg'
-import Status from 'common/models/Status'
 import Tooltip from 'components/tooltip/Tooltip'
 import { OpenSearchMessage } from 'services/native-mobile-interface/search'
 
@@ -103,7 +103,8 @@ const SearchBar = ({
     <div
       className={cn(styles.searchBar, className, {
         [styles.open]: open
-      })}>
+      })}
+    >
       {showHeader && <div className={styles.header}>{headerText || ''}</div>}
       <input
         autoFocus={open && shouldAutoFocus}
@@ -119,7 +120,8 @@ const SearchBar = ({
         className={cn(styles.searchWrapper, iconClassname, {
           [styles.native]: !!NATIVE_MOBILE
         })}
-        onMouseDown={onClick}>
+        onMouseDown={onClick}
+      >
         <DetailIcon
           tooltipText={tooltipText}
           isLoading={status === Status.LOADING && open}

@@ -1,27 +1,32 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import {
-  Animated,
+import type {
   GestureResponderEvent,
-  Image,
   ImageSourcePropType,
   ImageStyle,
   LayoutChangeEvent,
-  PanResponder,
   PanResponderGestureState,
+  ViewStyle
+} from 'react-native'
+import {
+  Animated,
+  Image,
+  PanResponder,
   Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
-  ViewStyle
+  View
 } from 'react-native'
-import { Edge, SafeAreaView } from 'react-native-safe-area-context'
+import type { Edge } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { useAndroidNavigationBarHeight } from 'app/hooks/useAndroidNavigationBarHeight'
-import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
+import type { ThemeColors } from 'app/hooks/useThemedStyles'
+import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { attachToDy } from 'app/utils/animation'
 import { useColor } from 'app/utils/theme'
 
@@ -279,7 +284,8 @@ const DrawerHeader = ({
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={onClose}
-          style={styles.dismissContainer}>
+          style={styles.dismissContainer}
+        >
           <IconRemove width={30} height={30} fill={closeColor} />
         </TouchableOpacity>
       )}
@@ -646,7 +652,8 @@ export const Drawer: DrawerComponent = ({
         <TouchableWithoutFeedback
           onPress={() => {
             onClose()
-          }}>
+          }}
+        >
           {renderBackgroundView()}
         </TouchableWithoutFeedback>
       )
@@ -678,7 +685,8 @@ export const Drawer: DrawerComponent = ({
             setDrawerHeight(height + androidNavigationBarHeight)
           }
         }}
-        {...edgeProps}>
+        {...edgeProps}
+      >
         <DrawerHeader
           onClose={onClose}
           title={title}
@@ -711,7 +719,8 @@ export const Drawer: DrawerComponent = ({
             borderTopRightRadius: interpolatedBorderRadius,
             borderTopLeftRadius: interpolatedBorderRadius
           }
-        ]}>
+        ]}
+      >
         {renderContent()}
         <View style={styles.skirt} />
       </Animated.View>

@@ -1,5 +1,5 @@
-import { Playable } from 'common/models/Playable'
-import { User } from 'common/models/User'
+import { Playable, User } from '@audius/common'
+
 import { useIsMobile } from 'utils/clientUtil'
 
 import DeletedPageProvider from './DeletedPageProvider'
@@ -36,7 +36,8 @@ const DeletedPage = ({
       canonicalUrl={canonicalUrl}
       playable={playable}
       user={user}
-      deletedByArtist={deletedByArtist}>
+      deletedByArtist={deletedByArtist}
+    >
       {content}
     </DeletedPageProvider>
   )

@@ -11,8 +11,9 @@ import { getSendTipData } from 'common/store/tipping/selectors'
 import { confirmSendTip, beginTip } from 'common/store/tipping/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
+import { ProfileInfo } from '../../profile-info/ProfileInfo'
+
 import styles from './TipAudio.module.css'
-import { TipProfilePicture } from './TipProfilePicture'
 
 const messages = {
   sending: 'SENDING',
@@ -21,7 +22,7 @@ const messages = {
   confirmAndTryAgain: 'Confirm & Try Again',
   goBack: 'Go Back',
   somethingWrong: 'Something’s gone wrong. Wait a little while and try again.',
-  maintenance: 'We’re performing some necessary one-time maintenence.',
+  maintenance: 'We’re performing some necessary one-time maintenance.',
   fewMinutes: 'This may take a few minutes.',
   holdOn: 'Don’t close this window or refresh the page.'
 }
@@ -44,7 +45,8 @@ const ConvertingInfo = ({ isVisible }: { isVisible: boolean }) => (
     from={{ opacity: 0 }}
     enter={{ opacity: 1 }}
     leave={{}}
-    unique>
+    unique
+  >
     {(item) => (style) =>
       item ? (
         <animated.div style={style} className={styles.info}>
@@ -120,7 +122,7 @@ export const ConfirmSendTip = () => {
   return receiver ? (
     <div className={styles.container}>
       {renderSendingAudio()}
-      <TipProfilePicture user={receiver} />
+      <ProfileInfo user={receiver} />
       {/*
       Even though the isVisible prop is being passed in, we
       only render the converting message if is converting.
@@ -161,7 +163,8 @@ export const ConfirmSendTip = () => {
       {!isSending && !isConverting ? (
         <div
           className={cn(styles.flexCenter, styles.goBackContainer)}
-          onClick={handleGoBackClick}>
+          onClick={handleGoBackClick}
+        >
           <IconCaretLeft />
           <span className={styles.goBack}>{messages.goBack}</span>
         </div>

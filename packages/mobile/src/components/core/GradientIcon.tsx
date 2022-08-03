@@ -1,8 +1,8 @@
-import { ComponentType } from 'react'
+import type { ComponentType } from 'react'
 
 import MaskedView from '@react-native-masked-view/masked-view'
 import LinearGradient from 'react-native-linear-gradient'
-import { SvgProps } from 'react-native-svg'
+import type { SvgProps } from 'react-native-svg'
 
 import { useThemeColors } from 'app/utils/theme'
 
@@ -20,7 +20,8 @@ export const GradientIcon = (props: GradientIconProps) => {
       <LinearGradient
         colors={[pageHeaderGradientColor1, pageHeaderGradientColor2]}
         start={{ x: 1, y: 1 }}
-        end={{ x: 0, y: 0 }}>
+        end={{ x: 0, y: 0 }}
+      >
         <Icon {...other} fill='transparent' />
       </LinearGradient>
     </MaskedView>

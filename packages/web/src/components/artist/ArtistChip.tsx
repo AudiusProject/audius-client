@@ -1,10 +1,8 @@
 import { ComponentPropsWithoutRef } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 
-import { SquareSizes } from 'common/models/ImageSizes'
-import { User } from 'common/models/User'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { MountPlacement } from 'components/types'
@@ -44,7 +42,8 @@ const ArtistIdentifier = ({
         handle={handle}
         mouseEnterDelay={0.3}
         mount={popoverMount}
-        onNavigateAway={onNavigateAway}>
+        onNavigateAway={onNavigateAway}
+      >
         <div className={styles.name}>
           <span>{name}</span>
           <UserBadges
@@ -59,7 +58,8 @@ const ArtistIdentifier = ({
         handle={handle}
         mouseEnterDelay={0.3}
         mount={popoverMount}
-        onNavigateAway={onNavigateAway}>
+        onNavigateAway={onNavigateAway}
+      >
         <div className={styles.handle}>@{handle}</div>
       </ArtistPopover>
     </div>
@@ -117,15 +117,18 @@ const ArtistChip = ({
       className={cn(styles.artistChip, {
         [className]: !!className
       })}
-      onClick={onClickArtistName}>
+      onClick={onClickArtistName}
+    >
       {showPopover ? (
         <ArtistPopover
           handle={handle}
           mouseEnterDelay={0.3}
           mount={popoverMount}
-          onNavigateAway={onNavigateAway}>
+          onNavigateAway={onNavigateAway}
+        >
           <DynamicImage
             wrapperClassName={styles.profilePictureWrapper}
+            skeletonClassName={styles.profilePictureSkeleton}
             className={styles.profilePicture}
             image={profilePicture}
           />
@@ -133,6 +136,7 @@ const ArtistChip = ({
       ) : (
         <DynamicImage
           wrapperClassName={styles.profilePictureWrapper}
+          skeletonClassName={styles.profilePictureSkeleton}
           className={styles.profilePicture}
           image={profilePicture}
         />

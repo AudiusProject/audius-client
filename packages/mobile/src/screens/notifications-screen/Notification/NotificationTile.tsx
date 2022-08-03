@@ -1,6 +1,6 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import { Notification } from 'audius-client/src/common/store/notifications/types'
+import type { Notification } from 'audius-client/src/common/store/notifications/types'
 import { View } from 'react-native'
 
 import { Tile, Text } from 'app/components/core'
@@ -56,7 +56,8 @@ export const NotificationTile = (props: NotificationTileProps) => {
   return (
     <Tile
       onPress={onPress}
-      styles={{ root: styles.root, content: styles.content }}>
+      styles={{ root: styles.root, content: styles.content }}
+    >
       {children}
       <View style={styles.footer}>
         <Text style={styles.timestamp}>{timeLabel}</Text>

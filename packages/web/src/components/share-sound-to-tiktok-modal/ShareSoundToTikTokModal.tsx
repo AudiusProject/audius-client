@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
+import { Nullable } from '@audius/common'
 import {
   Button,
   Modal,
@@ -21,7 +22,6 @@ import {
   share
 } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { Status } from 'common/store/ui/share-sound-to-tiktok-modal/types'
-import { Nullable } from 'common/utils/typeUtils'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
@@ -185,7 +185,8 @@ const ShareSoundToTikTokModal = () => {
           <IconTikTok />
           <div>{messages.title}</div>
         </div>
-      }>
+      }
+    >
       <div className={styles.modalContent}>
         {renderMessage()}
         {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}

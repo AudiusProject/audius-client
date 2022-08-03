@@ -1,15 +1,14 @@
 import { ComponentType, PureComponent } from 'react'
 
+import { Name, Theme } from '@audius/common'
 import { push as pushRoute, goBack } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { Name } from 'common/models/Analytics'
-import Theme from 'common/models/Theme'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountVerified,
-  getAccountIsCreator,
+  getAccountHasTracks,
   getAccountProfilePictureSizes,
   getUserId,
   getUserHandle,
@@ -141,7 +140,7 @@ class SettingsPage extends PureComponent<
     const {
       subPage,
       isVerified,
-      isCreator,
+      hasTracks,
       userId,
       handle,
       name,
@@ -173,7 +172,7 @@ class SettingsPage extends PureComponent<
       title: messages.title,
       description: messages.description,
       isVerified,
-      isCreator,
+      hasTracks,
       userId,
       handle,
       name,
@@ -219,7 +218,7 @@ function makeMapStateToProps() {
       handle: getUserHandle(state),
       name: getUserName(state),
       isVerified: getAccountVerified(state),
-      isCreator: getAccountIsCreator(state),
+      hasTracks: getAccountHasTracks(state),
       userId,
       profilePictureSizes: getAccountProfilePictureSizes(state),
       theme: getTheme(state),

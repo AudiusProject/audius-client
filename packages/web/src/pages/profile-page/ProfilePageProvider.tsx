@@ -1,6 +1,16 @@
 import { ComponentType, PureComponent, RefObject } from 'react'
 
-import { ID, UID } from '@audius/common'
+import {
+  ID,
+  UID,
+  Name,
+  FollowSource,
+  ShareSource,
+  BadgeTier,
+  Kind,
+  Status,
+  makeKindId
+} from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
 import moment from 'moment'
@@ -8,10 +18,6 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { Name, FollowSource, ShareSource } from 'common/models/Analytics'
-import { BadgeTier } from 'common/models/BadgeTier'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import { getAccountUser } from 'common/store/account/selectors'
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import * as profileActions from 'common/store/pages/profile/actions'
@@ -43,7 +49,6 @@ import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-moda
 import { setFollowers } from 'common/store/user-list/followers/actions'
 import { setFollowing } from 'common/store/user-list/following/actions'
 import { formatCount } from 'common/utils/formatUtil'
-import { makeKindId } from 'common/utils/uid'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
 import { newUserMetadata } from 'schemas'
 import { make, TrackEvent } from 'store/analytics/actions'
@@ -173,7 +178,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       profile.profile &&
       artistTracks.status === Status.SUCCESS
     ) {
-      if (profile.profile.is_creator || profile.profile.track_count > 0) {
+      if (profile.profile.track_count > 0) {
         this.setState({
           activeTab: Tabs.TRACKS
         })
@@ -186,7 +191,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       !activeTab &&
       profile &&
       profile.profile &&
-      !profile.profile.is_creator
+      !(profile.profile.track_count > 0)
     ) {
       this.setState({
         activeTab: Tabs.REPOSTS

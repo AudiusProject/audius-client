@@ -1,6 +1,6 @@
+import { Kind, getIdFromKindId, getKindFromKindId } from '@audius/common'
 import { select, call } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
 import { getUserId } from 'common/store/account/selectors'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { getTracks } from 'common/store/cache/tracks/selectors'
@@ -13,7 +13,6 @@ import {
   getProfileFeedLineup,
   getProfileUserHandle
 } from 'common/store/pages/profile/selectors'
-import { getIdFromKindId, getKindFromKindId } from 'common/utils/uid'
 import { getConfirmCalls } from 'store/confirmer/selectors'
 import { LineupSagas } from 'store/lineup/sagas'
 

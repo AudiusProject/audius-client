@@ -1,13 +1,14 @@
-import { ID } from '@audius/common'
-
-import { ChallengeRewardID } from 'common/models/AudioRewards'
-import { BadgeTier } from 'common/models/BadgeTier'
-import { Collection } from 'common/models/Collection'
-import Status from 'common/models/Status'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
-import { StringWei } from 'common/models/Wallet'
-import { Nullable } from 'common/utils/typeUtils'
+import {
+  ID,
+  ChallengeRewardID,
+  BadgeTier,
+  Collection,
+  Status,
+  Track,
+  User,
+  StringWei,
+  Nullable
+} from '@audius/common'
 
 export enum NotificationType {
   Announcement = 'Announcement',
@@ -60,55 +61,33 @@ export type UserSubscription = BaseNotification & {
   type: NotificationType.UserSubscription
   userId: ID
   entityIds: ID[]
-  user: User
 } & (
     | {
         entityType: Entity.Track
-        entities: Array<TrackEntity>
       }
     | {
         entityType: Entity.Playlist | Entity.Album
-        entities: Array<CollectionEntity>
       }
   )
 
 export type Follow = BaseNotification & {
   type: NotificationType.Follow
   userIds: ID[]
-  users: User[]
 }
 
 export type Repost = BaseNotification & {
   type: NotificationType.Repost
   entityId: ID
   userIds: ID[]
-  users: User[]
-} & (
-    | {
-        entityType: Entity.Playlist | Entity.Album
-        entity: CollectionEntity
-      }
-    | {
-        entityType: Entity.Track
-        entity: TrackEntity
-      }
-  )
+  entityType: Entity.Playlist | Entity.Album | Entity.Track
+}
 
 export type Favorite = BaseNotification & {
   type: NotificationType.Favorite
   entityId: ID
   userIds: ID[]
-  users: User[]
-} & (
-    | {
-        entityType: Entity.Playlist | Entity.Album
-        entity: CollectionEntity
-      }
-    | {
-        entityType: Entity.Track
-        entity: TrackEntity
-      }
-  )
+  entityType: Entity.Playlist | Entity.Album | Entity.Track
+}
 
 export enum Achievement {
   Listens = 'Listens',
@@ -118,12 +97,12 @@ export enum Achievement {
   Followers = 'Followers'
 }
 
-export type Milestone = BaseNotification & { user: User } & (
+export type Milestone = BaseNotification &
+  (
     | {
         type: NotificationType.Milestone
         entityType: Entity
         entityId: ID
-        entity: EntityType
         achievement: Exclude<Achievement, Achievement.Followers>
         value: number
       }
@@ -142,8 +121,6 @@ export type RemixCreate = BaseNotification & {
   childTrackId: ID
   entityType: Entity.Track
   entityIds: ID[]
-  user: User
-  entities: Array<TrackEntity>
 }
 
 export type RemixCosign = BaseNotification & {
@@ -153,8 +130,6 @@ export type RemixCosign = BaseNotification & {
   childTrackId: ID
   entityType: Entity.Track
   entityIds: ID[]
-  user: User
-  entities: Array<TrackEntity>
 }
 
 export type TrendingTrack = BaseNotification & {
@@ -164,7 +139,6 @@ export type TrendingTrack = BaseNotification & {
   time: 'week' | 'month' | 'year'
   entityType: Entity.Track
   entityId: ID
-  entity: TrackEntity
 }
 
 export type ChallengeReward = BaseNotification & {
@@ -176,7 +150,6 @@ export type TierChange = BaseNotification & {
   type: NotificationType.TierChange
   userId: ID
   tier: BadgeTier
-  user: User
 }
 
 // TODO: when we support multiple reaction types, reactedToEntity type
@@ -192,7 +165,6 @@ export type Reaction = BaseNotification & {
     amount: StringWei
     tip_sender_id: ID
   }
-  user: User
 }
 
 export type TipReceive = BaseNotification & {
@@ -202,7 +174,6 @@ export type TipReceive = BaseNotification & {
   entityId: ID
   entityType: Entity.User
   tipTxSignature: string
-  user: User
 }
 
 export type TipSend = BaseNotification & {
@@ -210,7 +181,6 @@ export type TipSend = BaseNotification & {
   amount: StringWei
   entityId: ID
   entityType: Entity.User
-  user: User
 }
 
 export type SupporterRankUp = BaseNotification & {
@@ -218,7 +188,6 @@ export type SupporterRankUp = BaseNotification & {
   rank: number
   entityId: ID
   entityType: Entity.User
-  user: User
 }
 
 export type SupportingRankUp = BaseNotification & {
@@ -226,7 +195,6 @@ export type SupportingRankUp = BaseNotification & {
   rank: number
   entityId: ID
   entityType: Entity.User
-  user: User
 }
 
 export type AddTrackToPlaylist = BaseNotification & {
@@ -234,10 +202,6 @@ export type AddTrackToPlaylist = BaseNotification & {
   trackId: ID
   playlistId: ID
   playlistOwnerId: ID
-  entities: {
-    playlist: CollectionEntity
-    track: TrackEntity
-  }
 }
 
 export type Notification =

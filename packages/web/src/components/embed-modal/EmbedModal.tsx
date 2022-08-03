@@ -1,13 +1,11 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 
-import { PlayableType, ID } from '@audius/common'
+import { PlayableType, ID, Name, Track } from '@audius/common'
 import { Modal, Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { Name } from 'common/models/Analytics'
-import { Track } from 'common/models/Track'
 import TabSlider from 'components/data-entry/TabSlider'
 import { useRecord, make } from 'store/analytics/actions'
 import { AppState } from 'store/types'
@@ -153,20 +151,23 @@ const EmbedModal = ({ isOpen, kind, id, metadata, close }: EmbedModalProps) => {
       title={kind ? messages.title[kind] : ''}
       contentHorizontalPadding={32}
       bodyClassName={styles.modalBodyStyle}
-      titleClassName={styles.modalTitleStyle}>
+      titleClassName={styles.modalTitleStyle}
+    >
       <div className={styles.embed}>
         <div className={styles.frame}>
           <div
             className={cn(styles.switcher, {
               [styles.show]: size === Size.STANDARD
-            })}>
+            })}
+          >
             {delayedOpen && <EmbedFrame frameString={standardFrameString} />}
           </div>
           {kind === PlayableType.TRACK && (
             <div
               className={cn(styles.switcher, {
                 [styles.show]: size === Size.COMPACT
-              })}>
+              })}
+            >
               {delayedOpen && <EmbedFrame frameString={compactFrameString} />}
             </div>
           )}
@@ -174,7 +175,8 @@ const EmbedModal = ({ isOpen, kind, id, metadata, close }: EmbedModalProps) => {
             <div
               className={cn(styles.switcher, {
                 [styles.show]: size === Size.TINY
-              })}>
+              })}
+            >
               {delayedOpen && (
                 <EmbedFrame width={265} frameString={tinyFrameString} />
               )}

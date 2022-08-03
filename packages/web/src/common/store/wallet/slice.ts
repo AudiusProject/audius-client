@@ -1,22 +1,25 @@
+import { Chain, Nullable, StringWei } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
-
-import { Chain } from 'common/models/Chain'
-import { Nullable } from 'common/utils/typeUtils'
-
-import { StringWei } from '../../models/Wallet'
 
 type WalletState = {
   balance: Nullable<StringWei>
   totalBalance: Nullable<StringWei>
   localBalanceDidChange: boolean
+  freezeBalanceUntil: Nullable<number>
 }
 
 const initialState: WalletState = {
   balance: null,
   totalBalance: null,
-  localBalanceDidChange: false
+  localBalanceDidChange: false,
+  freezeBalanceUntil: null
 }
+
+// After optimistically updating the balance, it can be useful
+// to briefly freeze the value so fetching an outdated
+// value from chain doesn't overwrite the state.
+const BALANCE_FREEZE_DURATION_SEC = 15
 
 const slice = createSlice({
   name: 'wallet',
@@ -47,6 +50,7 @@ const slice = createSlice({
           .toString() as StringWei
       }
       state.localBalanceDidChange = true
+      state.freezeBalanceUntil = Date.now() + BALANCE_FREEZE_DURATION_SEC * 1000
     },
     decreaseBalance: (
       state,
@@ -63,6 +67,7 @@ const slice = createSlice({
           .toString() as StringWei
       }
       state.localBalanceDidChange = true
+      state.freezeBalanceUntil = Date.now() + BALANCE_FREEZE_DURATION_SEC * 1000
     },
     // Saga Actions
     getBalance: () => {},

@@ -1,6 +1,18 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import {
+  Chain,
+  BNAudio,
+  BNWei,
+  SolanaWalletAddress,
+  StringAudio,
+  StringWei,
+  WalletAddress,
+  Nullable,
+  FeatureFlags,
+  IntKeys
+} from '@audius/common'
+import {
   Button,
   TokenValueInput,
   Format,
@@ -9,17 +21,6 @@ import {
 } from '@audius/stems'
 
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
-import { Chain } from 'common/models/Chain'
-import {
-  BNAudio,
-  BNWei,
-  SolanaWalletAddress,
-  StringAudio,
-  StringWei,
-  WalletAddress
-} from 'common/models/Wallet'
-import { FeatureFlags, IntKeys } from 'common/services/remote-config'
-import { Nullable } from 'common/utils/typeUtils'
 import {
   parseAudioInputToWei,
   stringAudioToBN,

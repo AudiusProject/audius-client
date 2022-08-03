@@ -1,5 +1,5 @@
-import { Name } from 'common/models/Analytics'
-import FeedFilter from 'common/models/FeedFilter'
+import { Name, FeedFilter } from '@audius/common'
+
 import { feedActions } from 'common/store/pages/feed/lineup/actions'
 import Header from 'components/header/desktop/Header'
 import EndOfLineup from 'components/lineup/EndOfLineup'
@@ -92,7 +92,8 @@ const FeedPageContent = ({
         title={feedTitle}
         description={feedDescription}
         size='large'
-        header={header}>
+        header={header}
+      >
         <Lineup
           emptyElement={
             <EmptyFeed

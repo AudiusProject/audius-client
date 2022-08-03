@@ -1,13 +1,11 @@
 import { memo, useMemo, MouseEvent } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, Favorite, Repost } from '@audius/common'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconFavorite } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRepost } from 'assets/img/iconRepost.svg'
-import { Favorite } from 'common/models/Favorite'
-import { Repost } from 'common/models/Repost'
 import { CommonState } from 'common/store'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { formatCount } from 'common/utils/formatUtil'
@@ -85,7 +83,8 @@ const Stats = memo(
             [styles.show]: !showSkeleton,
             [styles.showNonEmpty]: !showSkeleton && count
           })}
-          onClick={onClickWrapper}>
+          onClick={onClickWrapper}
+        >
           {size === 'large' && flavor === Flavor.REPOST && !hideImage ? (
             <div className={styles.repostProfileImages}>{items}</div>
           ) : null}

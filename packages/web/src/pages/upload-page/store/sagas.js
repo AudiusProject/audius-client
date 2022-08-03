@@ -1,3 +1,4 @@
+import { Kind, Name, Status, makeUid } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
 import { channel, buffers } from 'redux-saga'
@@ -13,9 +14,6 @@ import {
   race
 } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountUser,
@@ -28,7 +26,6 @@ import * as tracksActions from 'common/store/cache/tracks/actions'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { formatUrlName } from 'common/utils/formatUtil'
-import { makeUid } from 'common/utils/uid'
 import {
   getSelectedServices,
   getStatus
@@ -1099,24 +1096,12 @@ function* uploadTracksAsync(action) {
     newEndpoint = selectedServices.join(',')
   }
 
-  // Try to upgrade to creator, early return if failure
-  try {
-    console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
-    yield call(AudiusBackend.upgradeToCreator, newEndpoint)
-  } catch (err) {
-    console.error(`Upgrade to creator failed with error: ${err}`)
-    yield put(uploadActions.uploadTrackFailed())
-    yield put(uploadActions.upgradeToCreatorError(err))
-    return
-  }
-
   yield put(
     cacheActions.update(Kind.USERS, [
       {
         id: user.user_id,
         metadata: {
-          creator_node_endpoint: newEndpoint,
-          is_creator: true
+          creator_node_endpoint: newEndpoint
         }
       }
     ])

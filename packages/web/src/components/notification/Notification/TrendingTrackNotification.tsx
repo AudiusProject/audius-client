@@ -1,11 +1,13 @@
 import { useCallback } from 'react'
 
+import { Name, Nullable } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { Name } from 'common/models/Analytics'
-import { TrendingTrack } from 'common/store/notifications/types'
+import { getNotificationEntity } from 'common/store/notifications/selectors'
+import { TrackEntity, TrendingTrack } from 'common/store/notifications/types'
 import { make } from 'store/analytics/actions'
+import { useSelector } from 'utils/reducer'
 
 import { EntityLink } from './components/EntityLink'
 import { NotificationBody } from './components/NotificationBody'
@@ -36,15 +38,22 @@ export const TrendingTrackNotification = (
   props: TrendingTrackNotificationProps
 ) => {
   const { notification } = props
-  const { entity, entityType, rank, timeLabel, isViewed } = notification
+  const { entityType, rank, timeLabel, isViewed } = notification
   const rankSuffix = getRankSuffix(rank)
   const dispatch = useDispatch()
-
-  const shareText = messages.twitterShareText(entity.title, rank)
+  const track = useSelector((state) =>
+    getNotificationEntity(state, notification)
+  ) as Nullable<TrackEntity>
 
   const handleClick = useCallback(() => {
-    dispatch(push(getEntityLink(entity)))
-  }, [dispatch, entity])
+    if (track) {
+      dispatch(push(getEntityLink(track)))
+    }
+  }, [dispatch, track])
+
+  if (!track) return null
+
+  const shareText = messages.twitterShareText(track.title, rank)
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>
@@ -52,13 +61,13 @@ export const TrendingTrackNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
-        {messages.your} <EntityLink entity={entity} entityType={entityType} />{' '}
+        {messages.your} <EntityLink entity={track} entityType={entityType} />{' '}
         {messages.is} {rank}
         {rankSuffix} {messages.trending}
       </NotificationBody>
       <TwitterShareButton
         type='static'
-        url={getEntityLink(entity, true)}
+        url={getEntityLink(track, true)}
         shareText={shareText}
         analytics={make(Name.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE, {
           milestone: shareText

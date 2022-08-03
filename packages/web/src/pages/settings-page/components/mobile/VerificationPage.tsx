@@ -1,6 +1,13 @@
 import { useCallback, useState } from 'react'
 
-import { ID } from '@audius/common'
+import {
+  ID,
+  Name,
+  ProfilePictureSizes,
+  SquareSizes,
+  Status,
+  BooleanKeys
+} from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -10,10 +17,6 @@ import {
 } from '@audius/stems'
 import cn from 'classnames'
 
-import { Name } from 'common/models/Analytics'
-import { ProfilePictureSizes, SquareSizes } from 'common/models/ImageSizes'
-import Status from 'common/models/Status'
-import { BooleanKeys } from 'common/services/remote-config'
 import { InstagramProfile, TwitterProfile } from 'common/store/account/reducer'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -271,9 +274,11 @@ const VerificationPage = ({
     <Page
       title={messages.title}
       contentClassName={settingsPageStyles.pageContent}
-      containerClassName={settingsPageStyles.page}>
+      containerClassName={settingsPageStyles.page}
+    >
       <div
-        className={cn(settingsPageStyles.bodyContainer, styles.bodyContainer)}>
+        className={cn(settingsPageStyles.bodyContainer, styles.bodyContainer)}
+      >
         {body}
       </div>
     </Page>

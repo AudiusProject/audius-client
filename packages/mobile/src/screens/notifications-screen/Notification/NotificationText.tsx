@@ -1,4 +1,5 @@
-import { Text, TextProps } from 'app/components/core'
+import type { TextProps } from 'app/components/core'
+import { Text } from 'app/components/core'
 
 type NotificationTextProps = TextProps
 
@@ -15,7 +16,8 @@ export const NotificationText = (props: NotificationTextProps) => {
         },
         style
       ]}
-      {...other}>
+      {...other}
+    >
       {children}
     </Text>
   )

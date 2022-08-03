@@ -3,6 +3,7 @@ const path = require('path')
 const { getDefaultConfig } = require('metro-config')
 
 const clientPath = path.resolve(__dirname, '../web')
+const commonPath = path.resolve(__dirname, '../common')
 const emptyPolyfill = path.resolve(__dirname, 'src/mocks/empty.ts')
 
 const resolveModule = (module) =>
@@ -45,7 +46,7 @@ module.exports = (async () => {
       }),
       babelTransformerPath: require.resolve('react-native-svg-transformer')
     },
-    watchFolders: [clientPath],
+    watchFolders: [clientPath, commonPath],
     resolver: {
       assetExts: assetExts.filter((ext) => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg', 'cjs'],
@@ -54,7 +55,6 @@ module.exports = (async () => {
         ...require('node-libs-react-native'),
         // Alias for 'src' to allow for absolute paths
         app: path.resolve(__dirname, 'src'),
-
         // Aliases for 'audius-client' to allow for absolute paths
         ...getClientAliases(),
 

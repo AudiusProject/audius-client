@@ -1,19 +1,15 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAppState } from '@react-native-community/hooks'
-import {
-  StyleSheet,
-  View,
-  GestureResponderEvent,
-  Animated,
-  PanResponder
-} from 'react-native'
+import type { GestureResponderEvent } from 'react-native'
+import { StyleSheet, View, Animated, PanResponder } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { attachToDx } from 'app/utils/animation'
-import { ThemeColors, useThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 // How much the handle "grows" when pressing
 const HANDLE_GROW_SCALE = 1.1
@@ -314,7 +310,8 @@ export const Slider = memo(
           style={styles.rail}
           onTouchStart={onPressRail}
           onTouchEnd={onReleaseRail}
-          hitSlop={{ top: 8, bottom: 8 }}>
+          hitSlop={{ top: 8, bottom: 8 }}
+        >
           <Animated.View
             style={[
               styles.tracker,
@@ -328,7 +325,8 @@ export const Slider = memo(
                   }
                 ]
               }
-            ]}>
+            ]}
+          >
             {/* While dragging, show the gradient tracker */}
             <Animated.View
               style={[
@@ -342,7 +340,8 @@ export const Slider = memo(
                     outputRange: [0, 1]
                   })
                 }
-              ]}>
+              ]}
+            >
               <LinearGradient
                 useAngle
                 angle={135}
@@ -357,7 +356,8 @@ export const Slider = memo(
           style={[
             styles.handleContainer,
             { transform: [{ translateX: translationAnim }] }
-          ]}>
+          ]}
+        >
           <Animated.View
             onTouchStart={onPressHandle}
             onTouchEnd={handlePressHandleOut}

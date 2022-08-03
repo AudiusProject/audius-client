@@ -1,17 +1,18 @@
 import { memo, useState, useCallback, useEffect } from 'react'
 
-import { UID, ID } from '@audius/common'
+import {
+  UID,
+  ID,
+  ShareSource,
+  RepostSource,
+  FavoriteSource
+} from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-import {
-  ShareSource,
-  RepostSource,
-  FavoriteSource
-} from 'common/models/Analytics'
 import { getUserHandle } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
@@ -194,7 +195,8 @@ const ConnectedTrackTile = memo(
                   [styles.small]: size === TrackTileSize.SMALL,
                   [styles.large]: size === TrackTileSize.LARGE
                 })}
-                onClick={triggerPopup}>
+                onClick={triggerPopup}
+              >
                 <IconKebabHorizontal
                   className={cn(styles.iconKebabHorizontal)}
                   ref={ref}
@@ -230,7 +232,8 @@ const ConnectedTrackTile = memo(
               className={cn(styles.name, {
                 [styles.artistNameLink]: onClickArtistName
               })}
-              onClick={onClickArtistName}>
+              onClick={onClickArtistName}
+            >
               {name}
             </span>
           </ArtistPopover>
@@ -311,7 +314,8 @@ const ConnectedTrackTile = memo(
         id={trackId}
         isOwner={isOwner}
         isDisabled={disableActions || showSkeleton}
-        link={fullTrackPage(permalink)}>
+        link={fullTrackPage(permalink)}
+      >
         <TrackTile
           size={size}
           order={order}

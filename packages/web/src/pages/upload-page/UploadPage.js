@@ -1,11 +1,11 @@
 import { Component } from 'react'
 
+import { Name } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { Spring } from 'react-spring/renderprops'
 
-import { Name } from 'common/models/Analytics'
 import { getAccountUser } from 'common/store/account/selectors'
 import { pause as pauseQueue } from 'common/store/queue/slice'
 import { openWithDelay } from 'components/first-upload-modal/store/slice'
@@ -45,7 +45,8 @@ const UploadPage = (props) => {
       key={page}
       from={{ opacity: 0.2 }}
       to={{ opacity: 1 }}
-      config={{ duration: 200 }}>
+      config={{ duration: 200 }}
+    >
       {(animProps) => (
         <div className={styles.upload} style={animProps}>
           <div className={styles.pageContent}>{children}</div>
@@ -454,7 +455,8 @@ class Upload extends Component {
         title='Upload'
         description='Upload and publish audio content to the Audius platform'
         contentClassName={styles.upload}
-        header={header}>
+        header={header}
+      >
         <UploadPage page={page}>{currentPage}</UploadPage>
       </Page>
     )

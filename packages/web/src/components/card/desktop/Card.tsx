@@ -1,15 +1,15 @@
 import { MouseEvent, useState, useEffect, useCallback, ReactNode } from 'react'
 
-import { ID } from '@audius/common'
+import {
+  ID,
+  ProfilePictureSizes,
+  SquareSizes,
+  CoverArtSizes
+} from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import placeholderArt from 'assets/img/imageBlank2x.png'
-import {
-  ProfilePictureSizes,
-  SquareSizes,
-  CoverArtSizes
-} from 'common/models/ImageSizes'
 import { pluralize } from 'common/utils/formatUtil'
 import ActionsTab from 'components/actions-tab/ActionsTab'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -170,7 +170,8 @@ const Card = ({
     bottomActions = (
       <div
         className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}>
+        onClick={onBottomActionsClick}
+      >
         <ActionsTab
           handle={handle}
           standalone
@@ -190,7 +191,8 @@ const Card = ({
     bottomActions = (
       <div
         className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}>
+        onClick={onBottomActionsClick}
+      >
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
             <div className={styles.iconContainer} onClick={triggerPopup}>
@@ -210,11 +212,13 @@ const Card = ({
   return (
     <div
       className={cn(className, styles.cardContainer, sizeStyles.cardContainer)}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <div
         className={cn(styles.coverArt, sizeStyles.coverArt, {
           [styles.userCardImage]: isUser
-        })}>
+        })}
+      >
         {isUser ? (
           <UserImage
             isLoading={isLoading}

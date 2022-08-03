@@ -1,4 +1,12 @@
 import {
+  Name,
+  DefaultSizes,
+  SquareSizes,
+  Kind,
+  Status,
+  makeKindId
+} from '@audius/common'
+import {
   all,
   call,
   fork,
@@ -8,10 +16,6 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import { DefaultSizes, SquareSizes } from 'common/models/ImageSizes'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import {
   getAccountUser,
   getUserId,
@@ -24,7 +28,6 @@ import { getTrack } from 'common/store/cache/tracks/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { squashNewLines, formatUrlName } from 'common/utils/formatUtil'
-import { makeKindId } from 'common/utils/uid'
 import * as signOnActions from 'pages/sign-on/store/actions'
 import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'

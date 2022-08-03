@@ -1,5 +1,14 @@
 import { MouseEvent, useCallback, useRef, useState } from 'react'
 
+import {
+  CreatePlaylistSource,
+  FavoriteSource,
+  Name,
+  SquareSizes,
+  PlaylistLibrary as PlaylistLibraryType,
+  Status,
+  FeatureFlags
+} from '@audius/common'
 import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
@@ -15,15 +24,6 @@ import useMeasure from 'react-use-measure'
 import { Dispatch } from 'redux'
 
 import imageProfilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
-import {
-  CreatePlaylistSource,
-  FavoriteSource,
-  Name
-} from 'common/models/Analytics'
-import { SquareSizes } from 'common/models/ImageSizes'
-import { PlaylistLibrary as PlaylistLibraryType } from 'common/models/PlaylistLibrary'
-import Status from 'common/models/Status'
-import { FeatureFlags } from 'common/services/remote-config'
 import {
   getAccountStatus,
   getAccountUser,
@@ -318,22 +318,26 @@ const NavColumn = ({
           [styles.show]: navLoaded,
           [styles.dragScrollingUp]: dragScrollingDirection === 'up',
           [styles.dragScrollingDown]: dragScrollingDirection === 'down'
-        })}>
+        })}
+      >
         <Scrollbar
           containerRef={(el) => {
             scrollbarRef.current = el
           }}
-          className={styles.scrollable}>
+          className={styles.scrollable}
+        >
           <DragAutoscroller
             containerBoundaries={navBodyContainerBoundaries}
             updateScrollTopPosition={updateScrollTopPosition}
-            onChangeDragScrollingDirection={handleChangeDragScrollingDirection}>
+            onChangeDragScrollingDirection={handleChangeDragScrollingDirection}
+          >
             {account ? (
               <div className={styles.userHeader}>
                 <div className={styles.accountWrapper}>
                   <DynamicImage
                     wrapperClassName={styles.wrapperPhoto}
                     className={styles.dynamicPhoto}
+                    skeletonClassName={styles.wrapperPhotoSkeleton}
                     onClick={goToProfile}
                     image={profileImage}
                   />
@@ -349,7 +353,8 @@ const NavColumn = ({
                     <div className={styles.handleContainer}>
                       <span
                         className={styles.handle}
-                        onClick={goToProfile}>{`@${handle}`}</span>
+                        onClick={goToProfile}
+                      >{`@${handle}`}</span>
                     </div>
                   </div>
                 </div>
@@ -382,7 +387,8 @@ const NavColumn = ({
                   className={cn(styles.link, {
                     [styles.disabledLink]: !account || dragging
                   })}
-                  onClick={onClickNavLinkWithAccount}>
+                  onClick={onClickNavLinkWithAccount}
+                >
                   Feed
                 </NavLink>
                 <NavLink
@@ -390,7 +396,8 @@ const NavColumn = ({
                   activeClassName='active'
                   className={cn(styles.link, {
                     [styles.disabledLink]: dragging
-                  })}>
+                  })}
+                >
                   Trending
                 </NavLink>
                 <NavLink
@@ -399,7 +406,8 @@ const NavColumn = ({
                   activeClassName='active'
                   className={cn(styles.link, {
                     [styles.disabledLink]: dragging
-                  })}>
+                  })}
+                >
                   Explore
                 </NavLink>
               </div>
@@ -410,7 +418,8 @@ const NavColumn = ({
                   hoverClassName={styles.droppableHover}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
-                  onDrop={kind === 'album' ? saveCollection : saveTrack}>
+                  onDrop={kind === 'album' ? saveCollection : saveTrack}
+                >
                   <NavLink
                     to={SAVED_PAGE}
                     activeClassName='active'
@@ -424,7 +433,8 @@ const NavColumn = ({
                         !draggingIsOwner &&
                         (kind === 'track' || kind === 'album')
                     })}
-                    onClick={onClickNavLinkWithAccount}>
+                    onClick={onClickNavLinkWithAccount}
+                  >
                     Favorites
                   </NavLink>
                 </Droppable>
@@ -434,7 +444,8 @@ const NavColumn = ({
                   className={cn(styles.link, {
                     [styles.disabledLink]: !account || dragging
                   })}
-                  onClick={onClickNavLinkWithAccount}>
+                  onClick={onClickNavLinkWithAccount}
+                >
                   History
                 </NavLink>
               </div>
@@ -443,11 +454,13 @@ const NavColumn = ({
                   className={styles.droppableGroup}
                   hoverClassName={styles.droppableGroupHover}
                   onDrop={saveCollection}
-                  acceptedKinds={['playlist']}>
+                  acceptedKinds={['playlist']}
+                >
                   <div
                     className={cn(styles.groupHeader, {
                       [styles.droppableLink]: dragging && kind === 'playlist'
-                    })}>
+                    })}
+                  >
                     Playlists
                     <div className={styles.newPlaylist}>
                       <Tooltip
@@ -456,7 +469,8 @@ const NavColumn = ({
                             ? messages.newPlaylistOrFolderTooltip
                             : messages.newPlaylistTooltip
                         }
-                        mount='parent'>
+                        mount='parent'
+                      >
                         <span>
                           <Pill
                             text='New'

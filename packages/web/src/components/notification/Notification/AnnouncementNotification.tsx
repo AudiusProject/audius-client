@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
+import { Name } from '@audius/common'
 import ReactMarkdown from 'react-markdown'
 import { useDispatch } from 'react-redux'
 
-import { Name } from 'common/models/Analytics'
 import { setNotificationModal } from 'common/store/notifications/actions'
 import { Announcement } from 'common/store/notifications/types'
 import { make, useRecord } from 'store/analytics/actions'
@@ -48,7 +48,8 @@ export const AnnouncementNotification = (
     <NotificationTile
       notification={notification}
       onClick={handleClick}
-      disableClosePanel>
+      disableClosePanel
+    >
       <NotificationHeader icon={<IconAnnouncement />}>
         <NotificationTitle>
           <ReactMarkdown source={title} escapeHtml={false} />
@@ -59,7 +60,8 @@ export const AnnouncementNotification = (
         {longDescription ? (
           <button
             className={styles.readMore}
-            onClick={handleOpenNotificationModal}>
+            onClick={handleOpenNotificationModal}
+          >
             {messages.readMore}
           </button>
         ) : null}

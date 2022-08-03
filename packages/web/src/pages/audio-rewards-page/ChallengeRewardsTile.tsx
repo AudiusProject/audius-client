@@ -1,15 +1,16 @@
 import { ReactNode, useEffect, useState } from 'react'
 
+import {
+  ChallengeRewardID,
+  OptimisticUserChallenge,
+  removeNullable,
+  StringKeys
+} from '@audius/common'
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
-import {
-  ChallengeRewardID,
-  OptimisticUserChallenge
-} from 'common/models/AudioRewards'
-import { StringKeys } from 'common/services/remote-config'
 import { getOptimisticUserChallenges } from 'common/store/challenges/selectors/optimistic-challenges'
 import {
   getUserChallenges,
@@ -22,7 +23,6 @@ import {
 } from 'common/store/pages/audio-rewards/slice'
 import { fillString } from 'common/utils/fillString'
 import { formatNumberCommas } from 'common/utils/formatUtil'
-import { removeNullable } from 'common/utils/typeUtils'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -110,7 +110,8 @@ const RewardPanel = ({
         <p
           className={cn(styles.rewardProgressLabel, {
             [styles.complete]: shouldShowCompleted
-          })}>
+          })}
+        >
           {progressLabelFilled}
         </p>
         {shouldShowProgressBar && (

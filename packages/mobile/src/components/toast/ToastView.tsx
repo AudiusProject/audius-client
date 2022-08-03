@@ -1,10 +1,11 @@
-import { ReactNode, useCallback, useEffect, useRef } from 'react'
+import type { ReactNode } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { StyleSheet, Animated, View } from 'react-native'
 
 import Text from 'app/components/text'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
 
 const DISTANCE_DOWN = 60
 
@@ -115,7 +116,8 @@ const ToastView = ({ content, timeout, type = 'info' }: ToastViewProps) => {
               }
             ]
           }
-        ]}>
+        ]}
+      >
         <Text style={styles.content} weight={'demiBold'}>
           {content}
         </Text>

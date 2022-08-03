@@ -1,5 +1,6 @@
 import { createRef, Component } from 'react'
 
+import { Kind, Status } from '@audius/common'
 import AutoComplete from 'antd/lib/auto-complete'
 import Input from 'antd/lib/input'
 import cn from 'classnames'
@@ -11,8 +12,6 @@ import { Transition } from 'react-spring/renderprops'
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ReactComponent as IconArrow } from 'assets/img/iconArrowGrey.svg'
 import { ReactComponent as IconSearch } from 'assets/img/iconSearch.svg'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import SearchBarResult from 'components/search/SearchBarResult'
 import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
 
@@ -31,13 +30,15 @@ const TagSearchPopup = ({ tag, style, onClick, disabled, focused }) => (
   <div
     style={style}
     className={styles.tagSearchPopup}
-    onClick={() => !disabled && onClick()}>
+    onClick={() => !disabled && onClick()}
+  >
     <div
       className={cn(
         { [styles.enabled]: !disabled },
         { [styles.focused]: focused }
       )}
-      tabIndex={-1}>
+      tabIndex={-1}
+    >
       {messages[disabled ? 'searchTagsDisabled' : 'searchTagsTitle'](tag)}
       {!disabled && <IconArrow className={styles.tagArrow} />}
     </div>
@@ -351,13 +352,15 @@ class SearchBar extends Component {
       <div
         className={styles.searchBar}
         id='search-bar-autocomplete'
-        ref={this.searchBarRef}>
+        ref={this.searchBarRef}
+      >
         {/* show search spinner if not a tag search and there is some value present */}
         {!isTagSearch && this.state.value && (
           <div
             className={cn(styles.loadingAnimation, {
               [styles.show]: status === Status.LOADING
-            })}>
+            })}
+          >
             <Lottie
               options={{
                 loop: true,
@@ -382,7 +385,8 @@ class SearchBar extends Component {
           open={showAutocomplete}
           value={this.state.value}
           // Mount the dropdown inside the searchbar div (otherwise it just gets dumped at root).
-          getPopupContainer={(trigger) => trigger.parentNode}>
+          getPopupContainer={(trigger) => trigger.parentNode}
+        >
           <Input
             placeholder='Search'
             name='search'
@@ -402,7 +406,8 @@ class SearchBar extends Component {
           config={{
             tension: 310,
             friction: 26
-          }}>
+          }}
+        >
           {(item) =>
             item &&
             ((props) => (
