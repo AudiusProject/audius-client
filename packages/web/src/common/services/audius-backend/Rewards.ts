@@ -122,7 +122,7 @@ export class ClientRewardsReporter {
   }) {
     ;(async () => {
       try {
-        await track(Name.REWARDS_CLAIM_FAILURE, {
+        await this.recordAnalytics(Name.REWARDS_CLAIM_FAILURE, {
           userId,
           challengeId,
           amount,
@@ -189,7 +189,7 @@ export class ClientRewardsReporter {
       const event = map[reason]
 
       try {
-        await track(event, {
+        await this.recordAnalytics(event, {
           userId,
           challengeId,
           amount,

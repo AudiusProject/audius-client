@@ -1,4 +1,3 @@
-import { Collection, ID, Track } from '@audius/common'
 import { pick } from 'lodash'
 
 const trackMetadataSchema = {
@@ -41,7 +40,7 @@ const trackMetadataSchema = {
   download: null
 }
 
-export const newTrackMetadata = (fields: Track, validate = false) => {
+export const newTrackMetadata = (fields, validate = false) => {
   const validFields = validate
     ? pick(fields, Object.keys(trackMetadataSchema).concat(['track_id']))
     : fields
@@ -79,7 +78,7 @@ const collectionMetadataSchema = {
   description: null
 }
 
-export const newCollectionMetadata = (fields: Collection, validate = false) => {
+export const newCollectionMetadata = (fields, validate = false) => {
   const validFields = validate
     ? pick(
         fields,
@@ -123,11 +122,7 @@ export const newUserMetadata = (fields, validate = false) => {
   }
 }
 
-export const createRemixOfMetadata = ({
-  parentTrackId
-}: {
-  parentTrackId: ID
-}) => {
+export const createRemixOfMetadata = ({ parentTrackId }) => {
   return {
     tracks: [
       {
