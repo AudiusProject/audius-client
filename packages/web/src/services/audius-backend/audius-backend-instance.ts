@@ -1,10 +1,10 @@
 import { audiusBackend } from 'services/AudiusBackend'
 import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
-import { FeatureFlags, Name } from '@audius/common'
 
 import { track } from 'store/analytics/providers'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { isElectron } from 'utils/clientUtil'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 export const audiusBackendInstance = audiusBackend({
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
@@ -104,5 +104,6 @@ export const audiusBackendInstance = audiusBackend({
     window.localStorage.setItem(key, value),
   recordAnalytics: track,
   getFeatureEnabled,
-  isElectron: isElectron()
+  isElectron: isElectron(),
+  remoteConfigInstance
 })

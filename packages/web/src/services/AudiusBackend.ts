@@ -24,7 +24,8 @@ import {
   UserMetadata,
   UserTrack,
   uuid,
-  Maybe
+  Maybe,
+  RemoteConfigInstance
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -53,8 +54,6 @@ import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Timer } from 'common/utils/performance'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 
 import {
   waitForLibsInit,
@@ -71,8 +70,6 @@ declare global {
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
-
-const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
 const SEARCH_MAX_SAVED_RESULTS = 10
 const SEARCH_MAX_TOTAL_RESULTS = 50
@@ -176,21 +173,6 @@ export const fetchCID = async (
 let preloadImageTimer: Timer
 const avoidGC: HTMLImageElement[] = []
 
-/**
- * Gets a blockList set from remote config
- */
-const getBlockList = (remoteVarKey: StringKeys) => {
-  const list = getRemoteVar(remoteVarKey)
-  if (list) {
-    try {
-      return new Set(list.split(','))
-    } catch (e) {
-      console.error(e)
-      return null
-    }
-  }
-}
-
 type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
@@ -248,6 +230,7 @@ type AudiusBackendParams = Partial<{
     callback?: () => void
   ) => void
   getFeatureEnabled: (flag: FeatureFlags) => any
+  remoteConfigInstance: RemoteConfigInstance
   solanaConfig: AudiusBackendSolanaConfig
   wormholeConfig: AudiusBackendWormholeConfig
 }
@@ -294,10 +277,28 @@ export const audiusBackend = ({
   getWeb3Config,
   setLocalStorageItem,
   recordAnalytics,
-  getFeatureEnabled
+  getFeatureEnabled,
+  remoteConfigInstance
 }: AudiusBackendParams) => {
+  const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
+
   const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
+
+  /**
+   * Gets a blockList set from remote config
+   */
+  const getBlockList = (remoteVarKey: StringKeys) => {
+    const list = getRemoteVar(remoteVarKey)
+    if (list) {
+      try {
+        return new Set(list.split(','))
+      } catch (e) {
+        console.error(e)
+        return null
+      }
+    }
+  }
 
   function addDiscoveryProviderSelectionListener(
     listener: DiscoveryProviderListener
@@ -1887,7 +1888,7 @@ export const audiusBackend = ({
     }
     if (nativeMobile) {
       metadata.events.is_mobile_user = true
-      setLocalStorageItem(IS_MOBILE_USER_KEY, 'true')
+      setLocalStorageItem('is-mobile-user', 'true')
     }
 
     // Returns { userId, error, phase }
@@ -1899,7 +1900,7 @@ export const audiusBackend = ({
       formFields.coverPhoto,
       hasWallet,
       _getHostUrl(),
-      track,
+      recordAnalytics,
       {
         Request: Name.CREATE_USER_BANK_REQUEST,
         Success: Name.CREATE_USER_BANK_SUCCESS,
