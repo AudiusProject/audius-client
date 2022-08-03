@@ -176,111 +176,110 @@ const avoidGC: HTMLImageElement[] = []
 type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
-  solanaClusterEndpoint: string
-  waudioMintAddress: string
-  solanaTokenAddress: string
+  anchorAdminAccount: string
+  anchorProgramId: string
   claimableTokenPda: string
-  solanaFeePayerAddress: string
   claimableTokenProgramAddress: string
-  wormholeAddress: string
   rewardsManagerProgramId: string
   rewardsManagerProgramPda: string
   rewardsManagerTokenPda: string
-  anchorProgramId: string
-  anchorAdminAccount: string
+  solanaClusterEndpoint: string
+  solanaFeePayerAddress: string
+  solanaTokenAddress: string
+  waudioMintAddress: string
+  wormholeAddress: string
 }>
 
 type AudiusBackendWormholeConfig = Partial<{
-  wormholeRpcHosts: string
   ethBridgeAddress: string
-  solBridgeAddress: string
   ethTokenBridgeAddress: string
+  solBridgeAddress: string
   solTokenBridgeAddress: string
+  wormholeRpcHosts: string
 }>
 
-type AudiusBackendParams = Partial<{
-  identityServiceUrl: string
-  userNodeUrl: string
-  legacyUserNodeUrl: string
-  registryAddress: string
-  web3ProviderUrls: string[]
-  web3NetworkId: string
-  ethRegistryAddress: string
-  ethTokenAddress: string
-  ethOwnerWallet: string
-  ethProviderUrls: string[]
-  claimDistributionContractAddress: string
-  recaptchaSiteKey: string
-  nativeMobile: boolean
-  audiusOrigin: string
-  isElectron: boolean
-  isMobile: boolean
-}> & {
-  waitForWeb3: () => Promise<void>
-  onLibsInit: (libs: any) => void
+type AudiusBackendParams = {
+  audiusOrigin: Maybe<string>
+  claimDistributionContractAddress: Maybe<string>
+  ethOwnerWallet: Maybe<string>
+  ethProviderUrls: Maybe<string[]>
+  ethRegistryAddress: Maybe<string>
+  ethTokenAddress: Maybe<string>
+  getFeatureEnabled: (flag: FeatureFlags) => any
   getWeb3Config: (
     libs: any,
     registryAddress: Maybe<string>,
     web3ProviderUrls: Maybe<string[]>,
     web3NetworkId: Maybe<string>
   ) => Promise<any>
-  setLocalStorageItem: (key: string, value: string) => Promise<void>
+  identityServiceUrl: Maybe<string>
+  isElectron: Maybe<boolean>
+  isMobile: Maybe<boolean>
+  legacyUserNodeUrl: Maybe<string>
+  nativeMobile: Maybe<boolean>
+  onLibsInit: (libs: any) => void
+  recaptchaSiteKey: Maybe<string>
   recordAnalytics: (
     event: string,
     properties?: Record<string, any>,
     callback?: () => void
   ) => void
-  getFeatureEnabled: (flag: FeatureFlags) => any
+  registryAddress: Maybe<string>
   remoteConfigInstance: RemoteConfigInstance
+  setLocalStorageItem: (key: string, value: string) => Promise<void>
   solanaConfig: AudiusBackendSolanaConfig
+  userNodeUrl: Maybe<string>
+  waitForWeb3: () => Promise<void>
+  web3NetworkId: Maybe<string>
+  web3ProviderUrls: Maybe<string[]>
   wormholeConfig: AudiusBackendWormholeConfig
 }
 
 export const audiusBackend = ({
-  identityServiceUrl,
-  userNodeUrl,
-  legacyUserNodeUrl,
-  registryAddress,
-  web3ProviderUrls,
-  web3NetworkId,
-  ethRegistryAddress,
-  ethTokenAddress,
+  audiusOrigin,
+  claimDistributionContractAddress,
   ethOwnerWallet,
   ethProviderUrls,
-  claimDistributionContractAddress,
+  ethRegistryAddress,
+  ethTokenAddress,
+  getFeatureEnabled,
+  getWeb3Config,
+  identityServiceUrl,
   isElectron,
   isMobile,
+  legacyUserNodeUrl,
+  nativeMobile,
+  onLibsInit,
+  recaptchaSiteKey,
+  recordAnalytics,
+  registryAddress,
+  remoteConfigInstance,
+  setLocalStorageItem,
   solanaConfig: {
-    solanaClusterEndpoint,
-    waudioMintAddress,
-    solanaTokenAddress,
+    anchorAdminAccount,
+    anchorProgramId,
     claimableTokenPda,
-    solanaFeePayerAddress,
     claimableTokenProgramAddress,
-    wormholeAddress,
     rewardsManagerProgramId,
     rewardsManagerProgramPda,
     rewardsManagerTokenPda,
-    anchorProgramId,
-    anchorAdminAccount
+    solanaClusterEndpoint,
+    solanaFeePayerAddress,
+    solanaTokenAddress,
+    waudioMintAddress,
+    wormholeAddress
   },
-  wormholeConfig: {
-    wormholeRpcHosts,
-    ethBridgeAddress,
-    solBridgeAddress,
-    ethTokenBridgeAddress,
-    solTokenBridgeAddress
-  },
-  recaptchaSiteKey,
-  nativeMobile,
-  audiusOrigin,
+  userNodeUrl,
   waitForWeb3,
-  onLibsInit,
-  getWeb3Config,
-  setLocalStorageItem,
-  recordAnalytics,
-  getFeatureEnabled,
-  remoteConfigInstance
+  web3NetworkId,
+  web3ProviderUrls,
+  wormholeConfig: {
+    ethBridgeAddress,
+    ethTokenBridgeAddress,
+    solBridgeAddress,
+    solTokenBridgeAddress,
+    wormholeRpcHosts
+  }
 }: AudiusBackendParams) => {
   const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
@@ -2937,130 +2936,129 @@ export const audiusBackend = ({
   }
 
   return {
-    identityServiceUrl,
-    userNodeUrl,
-    legacyUserNodeUrl,
-    currentDiscoveryProvider,
-    didSelectDiscoveryProviderListeners,
-
-    getCreatorNodeIPFSGateways,
     addDiscoveryProviderSelectionListener,
-    fetchImageCID,
-    getImageUrl,
-    getTrackImages,
-    getCollectionImages,
-    getUserImages,
-    creatorNodeSelectionCallback,
-    sanityChecks,
-    setup,
-    setCreatorNodeEndpoint,
-    isCreatorNodeSyncing,
-    listCreatorNodes,
+    addPlaylistTrack,
+    associateAudiusUserForAuth,
+    associateInstagramAccount,
+    associateTwitterAccount,
     autoSelectCreatorNodes,
-    getSelectableCreatorNodes,
-    getAccount,
-    getAllTracks,
-    getTracksIncludingUnlisted,
-    getArtistTracks,
-    getSocialFeed,
-    getUserFeed,
-    searchTags,
-    getTrackListens,
-    recordTrackListen,
-    repostTrack,
-    undoRepostTrack,
-    repostCollection,
-    undoRepostCollection,
-    upgradeToCreator,
-    uploadTrack,
-    uploadTrackToCreatorNode,
-    getUserEmail,
-    registerUploadedTracks,
-    uploadImage,
-    updateTrack,
-    getCreators,
-    getCreatorSocialHandle,
+    changePassword,
+    clearNotificationBadges,
+    confirmCredentials,
+    createPlaylist,
+    creatorNodeSelectionCallback,
+    currentDiscoveryProvider,
+    dangerouslySetPlaylistOrder,
+    deleteAlbum,
+    deletePlaylist,
+    deletePlaylistTrack,
+    deleteTrack,
+    deregisterDeviceToken,
+    didSelectDiscoveryProviderListeners,
+    disableBrowserNotifications,
+    emailInUse,
+    fetchImageCID,
     fetchUserAssociatedEthWallets,
     fetchUserAssociatedSolWallets,
     fetchUserAssociatedWallets,
-    updateCreator,
-    updateUser,
-    updateIsVerified,
     followUser,
-    unfollowUser,
+    getAccount,
+    getAddressTotalStakedBalance,
+    getAddressWAudioBalance,
+    getAllTracks,
+    getArtistTracks,
+    getBalance,
+    getBrowserPushNotificationSettings,
+    getBrowserPushSubscription,
+    getClaimDistributionAmount,
+    getCollectionImages,
+    getCreatorNodeIPFSGateways,
+    getCreators,
+    getCreatorSocialHandle,
+    getEmailNotificationSettings,
     getFolloweeFollows,
+    getHasClaimed,
+    getImageUrl,
+    getLatestTxReceipt,
+    getNotifications,
     getPlaylists,
-    createPlaylist,
-    updatePlaylist,
+    getPushNotificationSettings,
+    getRandomFeePayer,
+    getSafariBrowserPushEnabled,
+    getSavedAlbums,
+    getSavedPlaylists,
+    getSavedTracks,
+    getSelectableCreatorNodes,
+    getSignature,
+    getSocialFeed,
+    getTrackImages,
+    getTrackListens,
+    getTracksIncludingUnlisted,
+    getUserEmail,
+    getUserFeed,
+    getUserImages,
+    getUserSubscribed,
+    getUserSubscriptions,
+    getWAudioBalance,
+    handleInUse,
+    identityServiceUrl,
+    isCreatorNodeSyncing,
+    legacyUserNodeUrl,
+    listCreatorNodes,
+    makeDistributionClaim,
+    markAllNotificationAsViewed,
     orderPlaylist,
     publishPlaylist,
-    addPlaylistTrack,
-    deletePlaylistTrack,
-    validateTracksInPlaylist,
-    dangerouslySetPlaylistOrder,
-    deletePlaylist,
-    deleteAlbum,
-    getSavedPlaylists,
-    getSavedAlbums,
-    getSavedTracks,
-    saveTrack,
-    deleteTrack,
+    recordTrackListen,
+    registerDeviceToken,
+    registerUploadedTracks,
+    repostCollection,
+    repostTrack,
+    resetPassword,
+    sanityChecks,
     saveCollection,
-    unsaveTrack,
-    unsaveCollection,
+    saveTrack,
+    searchTags,
+    sendRecoveryEmail,
+    sendTokens,
+    sendWAudioTokens,
+    sendWelcomeEmail,
     setArtistPick,
+    setCreatorNodeEndpoint,
+    setup,
+    signData,
+    signDiscoveryNodeRequest,
     signIn,
     signOut,
     signUp,
-    resetPassword,
-    changePassword,
-    confirmCredentials,
-    sendRecoveryEmail,
-    associateAudiusUserForAuth,
-    emailInUse,
-    handleInUse,
-    twitterHandle,
-    associateTwitterAccount,
-    associateInstagramAccount,
-    getNotifications,
-    markAllNotificationAsViewed,
-    clearNotificationBadges,
-    getEmailNotificationSettings,
-    updateEmailNotificationSettings,
-    updateNotificationSettings,
-    updatePushNotificationSettings,
-    signData,
-    signDiscoveryNodeRequest,
-    getBrowserPushNotificationSettings,
-    getBrowserPushSubscription,
-    getSafariBrowserPushEnabled,
-    updateBrowserNotifications,
-    disableBrowserNotifications,
-    getPushNotificationSettings,
-    registerDeviceToken,
-    deregisterDeviceToken,
-    getUserSubscribed,
-    getUserSubscriptions,
-    updateUserSubscription,
-    updateUserLocationTimezone,
-    sendWelcomeEmail,
-    updateUserEvent,
-    updatePlaylistLastViewedAt,
-    updateHCaptchaScore,
-    getRandomFeePayer,
-    getClaimDistributionAmount,
-    makeDistributionClaim,
-    getHasClaimed,
-    getBalance,
-    getWAudioBalance,
-    getAddressTotalStakedBalance,
-    sendTokens,
-    sendWAudioTokens,
-    getSignature,
-    getLatestTxReceipt,
-    transferAudioToWAudio,
-    getAddressWAudioBalance,
     submitAndEvaluateAttestations,
+    transferAudioToWAudio,
+    twitterHandle,
+    undoRepostCollection,
+    undoRepostTrack,
+    unfollowUser,
+    unsaveCollection,
+    unsaveTrack,
+    updateBrowserNotifications,
+    updateCreator,
+    updateEmailNotificationSettings,
+    updateHCaptchaScore,
+    updateIsVerified,
+    updateNotificationSettings,
+    updatePlaylist,
+    updatePlaylistLastViewedAt,
+    updatePushNotificationSettings,
+    updateTrack,
+    updateUser,
+    updateUserEvent,
+    updateUserLocationTimezone,
+    updateUserSubscription,
+    upgradeToCreator,
+    uploadImage,
+    uploadTrack,
+    uploadTrackToCreatorNode,
+    userNodeUrl,
+    validateTracksInPlaylist,
     waitForWeb3
   }
 }
