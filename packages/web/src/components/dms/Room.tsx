@@ -55,14 +55,14 @@ export const Room = (props: Props) => {
         sendMessage={
           waku
             ? async (messageToSend) => {
-              return handleMessage(
-                messageToSend,
-                props.nick,
-                props.topic,
-                () => { },
-                waku.relay.send.bind(waku.relay)
-              )
-            }
+                return handleMessage(
+                  messageToSend,
+                  props.nick,
+                  props.topic,
+                  () => {},
+                  waku.relay.send.bind(waku.relay)
+                )
+              }
             : undefined
         }
       />
@@ -85,6 +85,7 @@ async function handleMessage(
     const wakuMsg = await WakuMessage.fromBytes(chatMessage.encode(), topic, {
       timestamp
     })
+    console.log({ wakuMsg })
     return messageSender(wakuMsg)
   }
 }

@@ -16,7 +16,7 @@ const audiusMessages = {
   title: 'Messages'
 }
 
-const ChatContentTopic = '/stereosteve'
+const ChatContentTopic = '/toy-chat/2/huilong/proto'
 
 const reduceMessages = (state: Message[], newMessages: Message[]) => {
   return state.concat(newMessages)
@@ -63,10 +63,11 @@ export const Chatbox = () => {
     if (historicalMessagesRetrieved) return
 
     const retrieveMessages = async () => {
-      await waku.waitForRemotePeer()
-      console.log(`Waku |Retrieving archived messages`)
-
       try {
+        console.log('Waku | attempting to get old msg')
+        await waku.waitForRemotePeer()
+        console.log(`Waku |Retrieving archived messages`)
+
         retrieveStoreMessages(waku, ChatContentTopic, dispatchMessages).then(
           (length) => {
             console.log(`Waku |Messages retrieved:`, length)
@@ -74,7 +75,10 @@ export const Chatbox = () => {
           }
         )
       } catch (e) {
-        console.log(`Error encountered when retrieving archived messages`, e)
+        console.log(
+          `Waku | Error encountered when retrieving archived messages`,
+          e
+        )
       }
     }
 
