@@ -10,18 +10,163 @@ commands:
       - run:
           name: Combine package-lock.json files to single file
           command: ls -d -- packages/*/*-lock.json | awk -F packages '{printf "\"packages%s\" ", $2}' | xargs cat > << parameters.filename >>
+  slack-basic:
+    parameters:
+      event:
+        description: when this notification will fire. options are fail, pass, always.
+        type: string
+        default: always
+      branch_pattern:
+        description: branch_pattern arg for slack/notify
+        type: string
+        default: .+
+      channel:
+        description: Slack channel to send message to
+        type: string
+        default: $SLACK_DEFAULT_CHANNEL
+      text:
+        description: Markdown formatted Slack message
+        type: string
+        default: "Job started. :crossed_fingers:"
+      slack_mentions_user:
+        description: Used for CircleCI @mentions
+        type: string
+        default: ""
+    steps:
+      - slack/notify:
+          channel: << parameters.channel >>
+          branch_pattern: << parameters.branch_pattern >>
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "<< parameters.text >>",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job*: ${CIRCLE_JOB}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Project*: $CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch*: $CIRCLE_BRANCH"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author*: $CIRCLE_USERNAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Mentions*: << parameters.slack_mentions_user >>"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+          event: << parameters.event >>
+  slack-fail:
+    parameters:
+      event:
+        description: when this notification will fire. options are fail, pass, always.
+        type: string
+        default: fail
+      branch_pattern:
+        description: branch_pattern arg for slack/notify
+        type: string
+        default: .+
+      channel:
+        description: Slack channel to send message to
+        type: string
+        default: $SLACK_DEFAULT_CHANNEL
+      text:
+        description: Markdown formatted Slack message
+        type: string
+        default: "Job Failed. :red_circle:"
+      slack_mentions_user:
+        description: Used for CircleCI @mentions
+        type: string
+        default: ""
+    steps:
+      - slack-basic:
+          event: << parameters.event >>
+          branch_pattern: << parameters.branch_pattern >>
+          channel: << parameters.channel >>
+          text: << parameters.text >>
+          slack_mentions_user: << parameters.slack_mentions_user >>
+  slack-success:
+    parameters:
+      event:
+        description: when this notification will fire. options are fail, pass, always.
+        type: string
+        default: pass
+      branch_pattern:
+        description: branch_pattern arg for slack/notify
+        type: string
+        default: .+
+      channel:
+        description: Slack channel to send message to
+        type: string
+        default: $SLACK_DEFAULT_CHANNEL
+      text:
+        description: Markdown formatted Slack message
+        type: string
+        default: "Deployment Successful! :tada:"
+      slack_mentions_user:
+        description: Used for CircleCI @mentions
+        type: string
+        default: ""
+    steps:
+      - slack-basic:
+          event: << parameters.event >>
+          branch_pattern: << parameters.branch_pattern >>
+          channel: << parameters.channel >>
+          text: << parameters.text >>
+          slack_mentions_user: << parameters.slack_mentions_user >>
 
 parameters:
   # Run all workflows for branches that match this regex
   run-all-workflows-branch-regex:
     type: string
     default: /(^main)|(^release.*)$/
+  slack_mentions_user:
+    type: string
+    default: ""
 
 setup: true
 
 orbs:
   continuation: circleci/continuation@0.2.0
   path-filtering: circleci/path-filtering@0.1.1
+  slack: circleci/slack@4.9.3
 
 jobs:
   # Generate the CircleCI continue_config.yml from .circleci/src
@@ -87,6 +232,10 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "a4:99:2e:fa:80:31:dc:23:25:7b:a5:70:3f:08:5f:fa"
+      - slack-basic:
+          event: always
+          branch_pattern: master
+          slack_mentions_user: << pipeline.parameters.slack_mentions_user >>
       - run:
           name: Bump version
           command: |
@@ -105,6 +254,12 @@ jobs:
             VERSION=$(jq -r .version ./lerna.json)
             git checkout -b release-v${VERSION}
             git push -u origin release-v${VERSION}
+      - slack-fail:
+          branch_pattern: master
+          slack_mentions_user: << pipeline.parameters.slack_mentions_user >>
+      - slack-success:
+          branch_pattern: master
+          slack_mentions_user: << pipeline.parameters.slack_mentions_user >>
 
 workflows:
   setup:
