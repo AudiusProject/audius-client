@@ -3,7 +3,7 @@ import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
 
 import { track } from 'store/analytics/providers'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { isElectron } from 'utils/clientUtil'
+import { isElectron, isMobile } from 'utils/clientUtil'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 export const audiusBackendInstance = audiusBackend({
@@ -105,5 +105,6 @@ export const audiusBackendInstance = audiusBackend({
   recordAnalytics: track,
   getFeatureEnabled,
   isElectron: isElectron(),
+  isMobile: isMobile(),
   remoteConfigInstance
 })

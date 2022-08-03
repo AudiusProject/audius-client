@@ -41,10 +41,11 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-import placeholderCoverArt from 'assets/img/imageBlank2x.png'
-import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
-import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
+import placeholderCoverArt from 'common/assets/img/imageBlank2x.png'
+import imageCoverPhotoBlank from 'common/assets/img/imageCoverPhotoBlank.jpg'
+import placeholderProfilePicture from 'common/assets/img/imageProfilePicEmpty2X.png'
 import * as schemas from 'common/schemas'
+import { ClientRewardsReporter } from 'common/services/audius-backend/Rewards'
 import CIDCache from 'common/store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
@@ -53,7 +54,6 @@ import {
 import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Timer } from 'common/utils/performance'
-import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 
 import {
   waitForLibsInit,
@@ -214,6 +214,7 @@ type AudiusBackendParams = Partial<{
   nativeMobile: boolean
   audiusOrigin: string
   isElectron: boolean
+  isMobile: boolean
 }> & {
   waitForWeb3: () => Promise<void>
   onLibsInit: (libs: any) => void
@@ -248,6 +249,7 @@ export const audiusBackend = ({
   ethProviderUrls,
   claimDistributionContractAddress,
   isElectron,
+  isMobile,
   solanaConfig: {
     solanaClusterEndpoint,
     waudioMintAddress,
@@ -2879,7 +2881,12 @@ export const audiusBackend = ({
     try {
       if (!challenges.length) return
 
-      const reporter = new ClientRewardsReporter(audiusLibs)
+      const source = isMobile ? 'mobile' : isElectron ? 'electron' : 'web'
+      const reporter = new ClientRewardsReporter({
+        libs: audiusLibs,
+        recordAnalytics,
+        source
+      })
 
       const encodedUserId = encodeHashId(userId)
 
