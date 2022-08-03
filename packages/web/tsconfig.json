@@ -19,5 +19,5 @@
     "downlevelIteration": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/common/services/audius-backend/Rewards.ts"]
+  "include": ["src"]
 }
