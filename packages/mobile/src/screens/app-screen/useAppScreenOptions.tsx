@@ -1,12 +1,12 @@
 import { useCallback, useContext } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import type { ParamListBase, RouteProp } from '@react-navigation/core'
 import type {
   NativeStackNavigationOptions,
   NativeStackNavigationProp
 } from '@react-navigation/native-stack'
 import { CardStyleInterpolators } from '@react-navigation/stack'
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
 import { getNotificationUnviewedCount } from 'audius-client/src/common/store/notifications/selectors'
 import { Text, View } from 'react-native'

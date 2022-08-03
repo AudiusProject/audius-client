@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
 
-import { ID, Nullable } from '@audius/common'
 import optimizely from '@optimizely/optimizely-sdk'
 
+import { ID } from 'models'
 import {
   remoteConfigIntDefaults,
   remoteConfigStringDefaults,
@@ -20,6 +20,7 @@ import {
   BooleanKeys,
   AllRemoteConfigKeys
 } from 'services/remote-config/types'
+import { Nullable } from 'utils'
 
 export const USER_ID_AVAILABLE_EVENT = 'USER_ID_AVAILABLE_EVENT'
 
@@ -34,7 +35,7 @@ type State = {
   initializationCallbacks: (() => void)[]
 }
 
-type RemoteConfigOptions<Client> = {
+export type RemoteConfigOptions<Client> = {
   createOptimizelyClient: () => Promise<Client>
   getFeatureFlagSessionId: () => Promise<Nullable<number>>
   setFeatureFlagSessionId: (id: number) => Promise<void>

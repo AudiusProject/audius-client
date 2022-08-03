@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { FeatureFlags, RemoteConfigInstance } from '@audius/common'
+import { FeatureFlags, RemoteConfigInstance } from '../services'
 
 export const FEATURE_FLAG_OVERRIDE_KEY = 'FeatureFlagOverride'
 

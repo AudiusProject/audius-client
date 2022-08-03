@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 
-import { useRecomputeToggle } from 'common/hooks/useFeatureFlag'
 import {
   AllRemoteConfigKeys,
   BooleanKeys,
@@ -8,7 +7,9 @@ import {
   DoubleKeys,
   StringKeys,
   RemoteConfigInstance
-} from '@audius/common'
+} from '../services'
+
+import { useRecomputeToggle } from './useFeatureFlag'
 
 export const createUseRemoteVarHook = ({
   remoteConfigInstance,

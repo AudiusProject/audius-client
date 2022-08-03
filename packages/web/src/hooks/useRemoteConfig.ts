@@ -1,5 +1,8 @@
-import { createUseFeatureFlagHook } from 'common/hooks/useFeatureFlag'
-import { createUseRemoteVarHook } from 'common/hooks/useRemoteVar'
+import {
+  createUseFeatureFlagHook,
+  createUseRemoteVarHook
+} from '@audius/common'
+
 import { getAccountUser } from 'common/store/account/selectors'
 import { isRemoteConfigLoaded } from 'common/store/remote-config/selectors'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

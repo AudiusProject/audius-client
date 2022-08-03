@@ -27,7 +27,7 @@ export const remoteConfigInstance = remoteConfig({
     )
     return item ? parseInt(item) : null
   },
-  setFeatureFlagSessionId: async (id) =>
+  setFeatureFlagSessionId: async (id: number) =>
     window.localStorage?.setItem(
       FEATURE_FLAG_LOCAL_STORAGE_SESSION_KEY,
       id.toString()
