@@ -55,7 +55,6 @@ import { Timer } from 'common/utils/performance'
 import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
-import { isElectron } from 'utils/clientUtil'
 
 import {
   waitForLibsInit,
@@ -232,6 +231,7 @@ type AudiusBackendParams = Partial<{
   recaptchaSiteKey: string
   nativeMobile: boolean
   audiusOrigin: string
+  isElectron: boolean
 }> & {
   waitForWeb3: () => Promise<void>
   onLibsInit: (libs: any) => void
@@ -264,6 +264,7 @@ export const audiusBackend = ({
   ethOwnerWallet,
   ethProviderUrls,
   claimDistributionContractAddress,
+  isElectron,
   solanaConfig: {
     solanaClusterEndpoint,
     waudioMintAddress,
@@ -609,7 +610,7 @@ export const audiusBackend = ({
         // Electron cannot use captcha until it serves its assets from
         // a "domain" (e.g. localhost) rather than the file system itself.
         // i.e. there is no way to instruct captcha that the domain is "file://"
-        captchaConfig: isElectron() ? undefined : { siteKey: recaptchaSiteKey },
+        captchaConfig: isElectron ? undefined : { siteKey: recaptchaSiteKey },
         isServer: false,
         preferHigherPatchForPrimary: getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY
