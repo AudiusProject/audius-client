@@ -316,3 +316,5 @@ workflows:
         - equal: ["generate-release", << pipeline.schedule.name >>]
     jobs:
       - generate-release
+          context:
+            - slack-secrets
