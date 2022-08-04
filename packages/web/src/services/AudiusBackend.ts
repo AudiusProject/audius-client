@@ -230,7 +230,7 @@ type AudiusBackendWormholeConfig = Partial<{
 
 type AudiusBackendParams = {
   claimDistributionContractAddress: Maybe<string>
-  disableImagePreload: Maybe<boolean>
+  disableImagePreload?: boolean
   ethOwnerWallet: Maybe<string>
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
