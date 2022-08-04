@@ -61,10 +61,40 @@ import {
 } from './audius-backend/eagerLoadUtils'
 import { monitoringCallbacks } from './serviceMonitoring'
 
+type DisplayEncoding = 'utf8' | 'hex'
+type PhantomEvent = 'disconnect' | 'connect' | 'accountChanged'
+type PhantomRequestMethod =
+  | 'connect'
+  | 'disconnect'
+  | 'signTransaction'
+  | 'signAllTransactions'
+  | 'signMessage'
+
+interface ConnectOpts {
+  onlyIfTrusted: boolean
+}
+export interface PhantomProvider {
+  publicKey: PublicKey | null
+  isConnected: boolean | null
+  isPhantom: boolean
+  signTransaction: (transaction: Transaction) => Promise<Transaction>
+  signAndSendTransaction: (transaction: Transaction) => Promise<Transaction>
+  signAllTransactions: (transactions: Transaction[]) => Promise<Transaction[]>
+  signMessage: (
+    message: Uint8Array | string,
+    display?: DisplayEncoding
+  ) => Promise<any>
+  connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>
+  disconnect: () => Promise<void>
+  on: (event: PhantomEvent, handler: (args: any) => void) => void
+  request: (method: PhantomRequestMethod, params: any) => Promise<unknown>
+}
 declare global {
   interface Window {
     web3Loaded: boolean
     phantom: any
+    solana: PhantomProvider
+    web3: any
   }
 }
 
@@ -435,7 +465,7 @@ export const audiusBackend = ({
   function getTrackImages(track: TrackMetadata) {
     const coverArtSizes: CoverArtSizes = {}
     if (!track.cover_art_sizes && !track.cover_art) {
-      coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt
+      coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt as string
     }
 
     return {
@@ -463,7 +493,7 @@ export const audiusBackend = ({
     }
 
     if (!collection.cover_art_sizes && !collection.cover_art) {
-      coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt
+      coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt as string
     }
 
     return {
@@ -479,11 +509,12 @@ export const audiusBackend = ({
     // Images are fetched on demand async w/ the `useUserProfilePicture`/`useUserCoverPhoto` and
     // transitioned in w/ the dynamicImageComponent
     if (!user.profile_picture_sizes && !user.profile_picture) {
-      profilePictureSizes[DefaultSizes.OVERRIDE] = placeholderProfilePicture
+      profilePictureSizes[DefaultSizes.OVERRIDE] =
+        placeholderProfilePicture as string
     }
 
     if (!user.cover_photo_sizes && !user.cover_photo) {
-      coverPhotoSizes[DefaultSizes.OVERRIDE] = imageCoverPhotoBlank
+      coverPhotoSizes[DefaultSizes.OVERRIDE] = imageCoverPhotoBlank as string
     }
 
     return {
@@ -552,7 +583,7 @@ export const audiusBackend = ({
     SolanaUtils = libs.SolanaUtils
 
     // initialize libs
-    let libsError = null
+    let libsError: Nullable<string> = null
     const { web3Config } = await getWeb3Config(
       libs,
       registryAddress,
@@ -1484,7 +1515,7 @@ export const audiusBackend = ({
 
       if (error) return { playlistId, error }
 
-      const updatePromises = []
+      const updatePromises: Promise<any>[] = []
 
       // If this playlist is being created from an existing cover art, use it.
       if (metadata.cover_art_sizes) {
@@ -1533,7 +1564,7 @@ export const audiusBackend = ({
 
     try {
       let blockHash, blockNumber
-      const promises = []
+      const promises: Promise<any>[] = []
       if (playlistName) {
         promises.push(
           audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
