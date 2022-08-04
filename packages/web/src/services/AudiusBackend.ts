@@ -230,11 +230,11 @@ type AudiusBackendWormholeConfig = Partial<{
 
 type AudiusBackendParams = {
   claimDistributionContractAddress: Maybe<string>
+  disableImagePreload: Maybe<boolean>
   ethOwnerWallet: Maybe<string>
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
-
   getFeatureEnabled: (flag: FeatureFlags) => any
   getHostUrl: () => Nullable<string>
   getWeb3Config: (
@@ -268,6 +268,7 @@ type AudiusBackendParams = {
 
 export const audiusBackend = ({
   claimDistributionContractAddress,
+  disableImagePreload,
   ethOwnerWallet,
   ethProviderUrls,
   ethRegistryAddress,
@@ -418,9 +419,14 @@ export const audiusBackend = ({
 
     creatorNodeGateways.push(`${userNodeUrl}/ipfs`)
     const primary = creatorNodeGateways[0]
+    const firstImageUrl = `${primary}${cid}`
+
+    if (disableImagePreload) {
+      return firstImageUrl
+    }
+
     if (primary) {
       // Attempt to fetch/load the image using the first creator node gateway
-      const firstImageUrl = `${primary}${cid}`
       const preloadedImageUrl = await preloadImage(firstImageUrl)
 
       // If the image is loaded, add to cache and return
