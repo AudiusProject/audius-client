@@ -1,10 +1,9 @@
 import { audiusBackend } from 'services/AudiusBackend'
 import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
-
-import { track } from 'store/analytics/providers'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { isElectron, isMobile } from 'utils/clientUtil'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { track } from 'store/analytics/providers'
+import { isElectron, isMobile } from 'utils/clientUtil'
 
 /**
  * audiusBackend initialized for a web environment
