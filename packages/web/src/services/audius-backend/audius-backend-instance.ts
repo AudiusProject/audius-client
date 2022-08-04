@@ -10,7 +10,6 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
  * audiusBackend initialized for a web environment
  */
 export const audiusBackendInstance = audiusBackend({
-  audiusOrigin: `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`,
   claimDistributionContractAddress:
     process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
   ethOwnerWallet: process.env.REACT_APP_ETH_OWNER_WALLET,
@@ -18,6 +17,12 @@ export const audiusBackendInstance = audiusBackend({
   ethRegistryAddress: process.env.REACT_APP_ETH_REGISTRY_ADDRESS,
   ethTokenAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS,
   getFeatureEnabled,
+  getHostUrl: () => {
+    const nativeMobile = process.env.REACT_APP_NATIVE_MOBILE === 'true'
+    return nativeMobile && process.env.REACT_APP_ENVIRONMENT === 'production'
+      ? `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`
+      : window.location.origin
+  },
   getWeb3Config: async (
     libs,
     registryAddress,

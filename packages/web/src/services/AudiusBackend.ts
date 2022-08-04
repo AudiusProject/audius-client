@@ -199,13 +199,14 @@ type AudiusBackendWormholeConfig = Partial<{
 }>
 
 type AudiusBackendParams = {
-  audiusOrigin: Maybe<string>
   claimDistributionContractAddress: Maybe<string>
   ethOwnerWallet: Maybe<string>
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
+
   getFeatureEnabled: (flag: FeatureFlags) => any
+  getHostUrl: () => Nullable<string>
   getWeb3Config: (
     libs: any,
     registryAddress: Maybe<string>,
@@ -236,13 +237,13 @@ type AudiusBackendParams = {
 }
 
 export const audiusBackend = ({
-  audiusOrigin,
   claimDistributionContractAddress,
   ethOwnerWallet,
   ethProviderUrls,
   ethRegistryAddress,
   ethTokenAddress,
   getFeatureEnabled,
+  getHostUrl,
   getWeb3Config,
   identityServiceUrl,
   isElectron,
@@ -1900,7 +1901,7 @@ export const audiusBackend = ({
       formFields.profilePicture,
       formFields.coverPhoto,
       hasWallet,
-      _getHostUrl(),
+      getHostUrl(),
       recordAnalytics,
       {
         Request: Name.CREATE_USER_BANK_REQUEST,
@@ -1932,14 +1933,8 @@ export const audiusBackend = ({
 
   async function sendRecoveryEmail() {
     await waitForLibsInit()
-    const host = _getHostUrl()
+    const host = getHostUrl()
     return audiusLibs.Account.generateRecoveryLink({ host })
-  }
-
-  async function _getHostUrl() {
-    return nativeMobile && process.env.REACT_APP_ENVIRONMENT === 'production'
-      ? audiusOrigin
-      : window.location.origin
   }
 
   async function associateAudiusUserForAuth(email: string, handle: string) {
