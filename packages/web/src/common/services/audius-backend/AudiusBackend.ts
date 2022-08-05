@@ -28,6 +28,7 @@ import {
   RemoteConfigInstance
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
+import { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
   PublicKey,
@@ -55,7 +56,7 @@ import { getErrorMessage } from 'common/utils/error'
 import { encodeHashId } from 'common/utils/hashIds'
 import { Timer } from 'common/utils/performance'
 
-import { monitoringCallbacks } from './serviceMonitoring'
+import { MonitoringCallbacks } from './types'
 
 type DisplayEncoding = 'utf8' | 'hex'
 type PhantomEvent = 'disconnect' | 'connect' | 'accountChanged'
@@ -210,16 +211,20 @@ type AudiusBackendParams = {
   ethTokenAddress: Maybe<string>
   getFeatureEnabled: (flag: FeatureFlags) => any
   getHostUrl: () => Nullable<string>
+  getLibs: () => Promise<any>
   getWeb3Config: (
     libs: any,
     registryAddress: Maybe<string>,
     web3ProviderUrls: Maybe<string[]>,
     web3NetworkId: Maybe<string>
   ) => Promise<any>
+  fetchCID: FetchCID
   identityServiceUrl: Maybe<string>
   isElectron: Maybe<boolean>
   isMobile: Maybe<boolean>
   legacyUserNodeUrl: Maybe<string>
+  localStorage?: LocalStorage
+  monitoringCallbacks: MonitoringCallbacks
   nativeMobile: Maybe<boolean>
   onLibsInit: (libs: any) => void
   recaptchaSiteKey: Maybe<string>
@@ -233,14 +238,12 @@ type AudiusBackendParams = {
   setLocalStorageItem: (key: string, value: string) => Promise<void>
   solanaConfig: AudiusBackendSolanaConfig
   userNodeUrl: Maybe<string>
+  waitForLibsInit: WaitForLibsInit
   waitForWeb3: () => Promise<void>
   web3NetworkId: Maybe<string>
   web3ProviderUrls: Maybe<string[]>
-  wormholeConfig: AudiusBackendWormholeConfig
-  getLibs: () => Promise<any>
   withEagerOption: WithEagerOption
-  waitForLibsInit: WaitForLibsInit
-  fetchCID: FetchCID
+  wormholeConfig: AudiusBackendWormholeConfig
 }
 
 export const audiusBackend = ({
@@ -252,11 +255,15 @@ export const audiusBackend = ({
   ethTokenAddress,
   getFeatureEnabled,
   getHostUrl,
+  getLibs,
   getWeb3Config,
+  fetchCID,
   identityServiceUrl,
   isElectron,
   isMobile,
   legacyUserNodeUrl,
+  localStorage,
+  monitoringCallbacks,
   nativeMobile,
   onLibsInit,
   recaptchaSiteKey,
@@ -279,20 +286,18 @@ export const audiusBackend = ({
     wormholeAddress
   },
   userNodeUrl,
+  waitForLibsInit,
   waitForWeb3,
   web3NetworkId,
   web3ProviderUrls,
+  withEagerOption,
   wormholeConfig: {
     ethBridgeAddress,
     ethTokenBridgeAddress,
     solBridgeAddress,
     solTokenBridgeAddress,
     wormholeRpcHosts
-  },
-  getLibs,
-  withEagerOption,
-  waitForLibsInit,
-  fetchCID
+  }
 }: AudiusBackendParams) => {
   const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
@@ -560,11 +565,12 @@ export const audiusBackend = ({
     // Wait for web3 to load if necessary
     await waitForWeb3()
     // Wait for optimizely to load if necessary
-    await waitForRemoteConfig()
+    //  await waitForRemoteConfig()
 
     const libsModule = await getLibs()
+    console.log('libs module', libsModule)
 
-    AudiusLibs = libsModule.libs
+    AudiusLibs = libsModule.AudiusLibs
     Utils = libsModule.Utils
     SanityChecks = libsModule.SanityChecks
     SolanaUtils = libsModule.SolanaUtils
@@ -591,6 +597,7 @@ export const audiusBackend = ({
 
     try {
       audiusLibs = new AudiusLibs({
+        localStorage,
         web3Config,
         ethWeb3Config,
         solanaWeb3Config,
@@ -649,7 +656,9 @@ export const audiusBackend = ({
       libsError = getErrorMessage(err)
     }
 
-    return { libsError }
+    return audiusLibs
+
+    // return { libsError }
   }
 
   function getEthWeb3Config() {
