@@ -565,10 +565,9 @@ export const audiusBackend = ({
     // Wait for web3 to load if necessary
     await waitForWeb3()
     // Wait for optimizely to load if necessary
-    //  await waitForRemoteConfig()
+    await waitForRemoteConfig()
 
     const libsModule = await getLibs()
-    console.log('libs module', libsModule)
 
     AudiusLibs = libsModule.AudiusLibs
     Utils = libsModule.Utils
@@ -656,9 +655,7 @@ export const audiusBackend = ({
       libsError = getErrorMessage(err)
     }
 
-    return audiusLibs
-
-    // return { libsError }
+    return { libsError }
   }
 
   function getEthWeb3Config() {
