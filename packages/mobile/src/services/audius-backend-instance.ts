@@ -7,6 +7,7 @@ import Config from 'react-native-config'
 import { track } from 'app/utils/analytics'
 
 import { monitoringCallbacks } from './monitoringCallbacks'
+import { getFeatureEnabled } from './remote-config'
 import { remoteConfigInstance } from './remote-config/remote-config-instance'
 
 let audiusLibs: AudiusLibs
@@ -21,7 +22,7 @@ export const audiusBackendInstance = audiusBackend({
   ethRegistryAddress: Config.ETH_REGISTRY_ADDRESS,
   ethTokenAddress: Config.ETH_TOKEN_ADDRESS,
   fetchCID: async () => ({}),
-  getFeatureEnabled: () => false,
+  getFeatureEnabled,
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
   },
@@ -76,7 +77,6 @@ export const audiusBackendInstance = audiusBackend({
   waitForLibsInit: async () => {},
   withEagerOption: ({ normal }, ...args) => {
     if (audiusLibs) {
-      console.log('eager option working?', audiusLibs)
       return normal(audiusLibs)(...args)
     }
   }
