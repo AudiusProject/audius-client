@@ -28,7 +28,7 @@ import {
   RemoteConfigInstance
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
-import { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
+import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
   PublicKey,
