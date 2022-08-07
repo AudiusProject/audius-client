@@ -47,7 +47,7 @@ import imageCoverPhotoBlank from 'common/assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from 'common/assets/img/imageProfilePicEmpty2X.png'
 import * as schemas from 'common/schemas'
 import { ClientRewardsReporter } from 'common/services/audius-backend/Rewards'
-import CIDCache from 'common/store/cache/CIDCache'
+import { CIDCache } from 'common/store/cache'
 import {
   BrowserNotificationSetting,
   PushNotificationSetting
