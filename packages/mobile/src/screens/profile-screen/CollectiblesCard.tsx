@@ -48,7 +48,7 @@ const useStyles = makeStyles(
     chain: {
       position: 'absolute',
       bottom: spacing(3),
-      right: spacing(3),
+      left: spacing(3),
       height: spacing(6),
       width: spacing(6),
       borderRadius: 30,
