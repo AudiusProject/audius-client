@@ -12,6 +12,12 @@ import { isElectron, isMobile } from 'utils/clientUtil'
 
 import { fetchCID } from './fetchCID'
 
+declare global {
+  interface Window {
+    audiusLibs: any
+  }
+}
+
 /**
  * audiusBackend initialized for a web environment
  */
