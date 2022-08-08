@@ -2,13 +2,13 @@ import { Kind } from '@audius/common'
 import { keyBy } from 'lodash'
 import { call, select } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import {
   PREFIX,
   tracksActions
 } from 'common/store/pages/history-page/lineups/tracks/actions'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { LineupSagas } from 'store/lineup/sagas'
 
 function* getHistoryTracks() {

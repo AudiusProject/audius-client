@@ -19,6 +19,7 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import * as accountActions from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
@@ -31,7 +32,6 @@ import { getFeePayer } from 'common/store/solana/selectors'
 import { ELECTRONIC_SUBGENRES, Genre } from 'common/utils/genres'
 import { getIGUserUrl } from 'components/instagram-auth/InstagramAuth'
 import { getCityAndRegion } from 'services/Location'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

@@ -8,6 +8,7 @@ import {
 } from '@audius/common'
 import { call, put, select } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getTracks } from 'common/store/cache/tracks/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { setLastFetchedTrendingGenre } from 'common/store/pages/trending/actions'
@@ -17,7 +18,6 @@ import {
   getTrendingGenre
 } from 'common/store/pages/trending/selectors'
 import { Genre } from 'common/utils/genres'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { AppState } from 'store/types'
 

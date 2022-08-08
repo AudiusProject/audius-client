@@ -8,13 +8,13 @@ import {
 } from '@audius/common'
 import { call, put, select, spawn } from 'typed-redux-saga/macro'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { CommonState } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { retrieve } from 'common/store/cache/sagas'
 import { getEntryTimestamp } from 'common/store/cache/selectors'
 import * as trackActions from 'common/store/cache/tracks/actions'
 import { getTracks as getTracksSelector } from 'common/store/cache/tracks/selectors'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import { setTracksIsBlocked } from './blocklist'

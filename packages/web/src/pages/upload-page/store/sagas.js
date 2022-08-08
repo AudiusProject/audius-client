@@ -14,6 +14,7 @@ import {
   race
 } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountUser,
@@ -34,7 +35,6 @@ import { fetchServicesFailed } from 'components/service-selection/store/slice'
 import UploadType from 'pages/upload-page/components/uploadType'
 import { getStems } from 'pages/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'

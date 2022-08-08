@@ -3210,3 +3210,5 @@ async function getCreateAssociatedTokenAccountTransaction({
   tx.add(instr)
   return tx
 }
+
+export type AudiusBackend = ReturnType<typeof audiusBackend>

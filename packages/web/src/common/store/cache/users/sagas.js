@@ -2,6 +2,7 @@ import { DefaultSizes, Kind, Status } from '@audius/common'
 import { mergeWith } from 'lodash'
 import { call, put, race, select, take, takeEvery } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
@@ -23,7 +24,6 @@ import {
   getAudiusAccountUser,
   setAudiusAccountUser
 } from 'services/LocalStorage'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForValue } from 'utils/sagaHelpers'
 

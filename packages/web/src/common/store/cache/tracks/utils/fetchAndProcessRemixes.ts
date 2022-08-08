@@ -1,9 +1,9 @@
 import { ID, Kind, UserTrackMetadata, removeNullable } from '@audius/common'
 import { select, call, put } from 'typed-redux-saga/macro'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { getTrack } from '../selectors'

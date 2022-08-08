@@ -23,6 +23,7 @@ import {
   cancel
 } from 'typed-redux-saga/macro'
 
+import AudiusAPIClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getAccountUser } from 'common/store/account/selectors'
 import { update } from 'common/store/cache/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -60,7 +61,6 @@ import {
   weiToAudioString,
   weiToString
 } from 'common/utils/wallet'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
 import {
   fetchRecentUserTips,
   fetchSupporters,

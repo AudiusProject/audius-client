@@ -1,6 +1,7 @@
 import { Track, UserTrackMetadata, StringKeys } from '@audius/common'
 import { call, select } from 'redux-saga/effects'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import {
@@ -8,7 +9,6 @@ import {
   trendingUndergroundLineupActions
 } from 'common/store/pages/trending-underground/lineup/actions'
 import { getLineup } from 'common/store/pages/trending-underground/lineup/selectors'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { LineupSagas } from 'store/lineup/sagas'
 

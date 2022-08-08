@@ -17,6 +17,7 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
+import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import {
   getAccountUser,
@@ -60,7 +61,6 @@ import { getBalance, increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
 import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 import { getCognitoExists } from 'services/audius-backend/Cognito'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
