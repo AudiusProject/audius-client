@@ -166,6 +166,7 @@ class CollectionPage extends Component<
   }
 
   componentDidUpdate(prevProps: CollectionPageProps) {
+    console.log('COMPONENT DID UPDATE', prevProps, { ...this.props })
     const {
       collection: metadata,
       userUid,
@@ -293,6 +294,17 @@ class CollectionPage extends Component<
     }
 
     // check that the collection content hasn't changed
+    console.log(prevMetadata, 'prevMetadata')
+    console.log(metadata, 'metadata')
+    console.log(
+      'playlist contents equal',
+      metadata &&
+        prevMetadata &&
+        !this.playListContentsEqual(
+          metadata.playlist_contents.track_ids,
+          prevMetadata.playlist_contents.track_ids
+        )
+    )
     if (
       metadata &&
       prevMetadata &&
@@ -712,7 +724,8 @@ class CollectionPage extends Component<
       userPlaylists,
       smartCollection
     } = this.props
-
+    console.log('collectionpageprovider props', this.props)
+    console.log(tracks, 'tracks')
     const { playlistId, allowReordering } = this.state
 
     const title = metadata?.playlist_name ?? ''
@@ -767,6 +780,8 @@ class CollectionPage extends Component<
       onUnfollow: this.onUnfollow,
       refresh: this.refreshCollection
     }
+
+    console.log('collectionpageprovider childprops', childProps)
 
     if ((metadata?.is_delete || metadata?._marked_deleted) && user) {
       return (

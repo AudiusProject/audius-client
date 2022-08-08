@@ -221,9 +221,14 @@ const DraggableRow = (props) => {
 
 const ReorderableRow = (props) => {
   const { 'data-row-key': dataRowKey, index } = props
-
+  console.log('reorder row props', props)
+  if (index == null) return null
   return (
-    <RbdDraggable key={dataRowKey} draggableId={index.toString()} index={index}>
+    <RbdDraggable
+      key={dataRowKey}
+      draggableId={index != null ? index.toString() : 'placeholder'}
+      index={index || 34}
+    >
       {(provided, snapshot) => {
         return (
           <DraggableRow
@@ -540,6 +545,7 @@ class TracksTable extends Component {
   }
 
   render() {
+    console.log('tracks table props', this.props)
     const {
       onClickRow,
       limit,

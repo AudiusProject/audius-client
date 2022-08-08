@@ -388,19 +388,28 @@ function* addTrackToPlaylistAsync(action) {
     true
   )
   const playlist = collections[action.playlistId]
+  console.log('playlist before update', { ...playlist })
 
   const trackUid = makeUid(
     Kind.TRACKS,
     action.trackId,
     `collection:${action.playlistId}`
   )
-  playlist.playlist_contents = {
-    track_ids: playlist.playlist_contents.track_ids.concat({
-      track: action.trackId,
-      time: Math.round(Date.now() / 1000),
-      uid: trackUid
-    })
+
+  // const track = yield select((state) => getTrack(state, { id: action.trackId }))
+  const newPlaylist = {
+    ...playlist,
+    playlist_contents: {
+      track_ids: playlist.playlist_contents.track_ids.concat({
+        track: action.trackId,
+        time: Math.round(Date.now() / 1000),
+        uid: trackUid
+      })
+    }
   }
+  // playlist.tracks = [...(playlist.tracks || []), track]
+
+  console.log('playlist after adding new data', { ...playlist })
   const count = countTrackIds(playlist.playlist_contents, action.trackId)
 
   const event = make(Name.PLAYLIST_ADD, {
@@ -418,12 +427,7 @@ function* addTrackToPlaylistAsync(action) {
   )
   yield put(
     cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents
-        }
-      }
+      { ...newPlaylist, id: playlist.playlist_id }
     ])
   )
   yield put(

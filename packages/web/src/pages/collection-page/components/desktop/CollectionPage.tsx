@@ -235,7 +235,9 @@ const CollectionPage = ({
       imageOverride={imageOverride}
     />
   )
+  console.log('tracks entries', tracks.entries)
 
+  console.log('datasource', dataSource)
   return (
     <Page
       title={title}
