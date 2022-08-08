@@ -119,7 +119,8 @@
     "rn-fetch-blob": "0.12.0",
     "semver": "7.3.7",
     "tls-browserify": "0.2.2",
-    "type-fest": "2.16.0"
+    "type-fest": "2.16.0",
+    "typed-redux-saga": "1.3.1"
   },
   "optionalDependencies": {
     "ios-deploy": "1.11.4"
