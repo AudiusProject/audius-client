@@ -1,6 +1,5 @@
 import { select, call, takeLatest, put } from 'redux-saga/effects'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'common/store/account/selectors'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
@@ -10,6 +9,7 @@ import * as searchPageActions from 'common/store/pages/search-results/actions'
 import { tracksActions as tracksLineupActions } from 'common/store/pages/search-results/lineup/tracks/actions'
 import { trimToAlphaNumeric } from 'common/utils/formatUtil'
 import tracksSagas from 'pages/search-page/store/lineups/tracks/sagas'
+import { apiClient } from 'services/audius-api-client'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForBackendSetup } from 'store/backend/sagas'
 

@@ -10,7 +10,6 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import * as accountActions from 'common/store/account/reducer'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
@@ -21,6 +20,7 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { squashNewLines } from 'common/utils/formatUtil'
 import * as signOnActions from 'pages/sign-on/store/actions'
+import { apiClient } from 'services/audius-api-client'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'

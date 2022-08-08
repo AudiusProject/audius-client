@@ -1,6 +1,5 @@
 import { call, put, select } from 'typed-redux-saga'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId } from 'common/store/account/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import {
@@ -9,6 +8,7 @@ import {
 } from 'common/store/pages/remixes/lineup/actions'
 import { getTrackId, getLineup } from 'common/store/pages/remixes/selectors'
 import { setCount } from 'common/store/pages/remixes/slice'
+import { apiClient } from 'services/audius-api-client'
 import { LineupSagas } from 'store/lineup/sagas'
 import { AppState } from 'store/types'
 

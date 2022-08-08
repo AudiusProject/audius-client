@@ -9,7 +9,6 @@ import {
 import { merge } from 'lodash'
 import { call, delay, fork, put, select, takeEvery } from 'redux-saga/effects'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getUserId, getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import {
@@ -33,6 +32,7 @@ import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
 import { setAudiusAccountUser } from 'services/LocalStorage'
+import { apiClient } from 'services/audius-api-client'
 import { fetchCID } from 'services/audius-backend'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'

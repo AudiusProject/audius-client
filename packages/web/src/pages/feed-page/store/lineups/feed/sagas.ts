@@ -10,9 +10,7 @@ import {
 } from '@audius/common'
 import { select, all } from 'redux-saga/effects'
 
-import apiClient, {
-  GetSocialFeedArgs
-} from 'common/services/audius-api-client/AudiusAPIClient'
+import { GetSocialFeedArgs } from 'common/services/audius-api-client'
 import { CommonState } from 'common/store'
 import { getAccountUser } from 'common/store/account/selectors'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
@@ -24,6 +22,7 @@ import {
   getFollowIds,
   getStartedSignOnProcess
 } from 'pages/sign-on/store/selectors'
+import { apiClient } from 'services/audius-api-client'
 import { LineupSagas } from 'store/lineup/sagas'
 
 type FeedItem = LineupTrack | Collection

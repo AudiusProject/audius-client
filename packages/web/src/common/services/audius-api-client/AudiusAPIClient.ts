@@ -428,7 +428,7 @@ type AudiusAPIClientConfig = {
   remoteConfigInstance: RemoteConfigInstance
 }
 
-class AudiusAPIClient {
+export class AudiusAPIClient {
   initializationState: InitializationState = {
     state: 'uninitialized'
   }

@@ -9,13 +9,13 @@ import {
 } from '@audius/common'
 import { call, select } from 'redux-saga/effects'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { CommonState } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { retrieve } from 'common/store/cache/sagas'
 import { getEntryTimestamp } from 'common/store/cache/selectors'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
+import { apiClient } from 'services/audius-api-client'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import { addTracksFromCollections } from './addTracksFromCollections'

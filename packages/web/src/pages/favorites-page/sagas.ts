@@ -1,7 +1,6 @@
 import { ID, Collection, FavoriteType, Track } from '@audius/common'
 import { select, put } from 'typed-redux-saga/macro'
 
-import apiClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import {
@@ -18,6 +17,7 @@ import {
 import { USER_LIST_TAG } from 'common/store/user-list/favorites/types'
 import UserListSagaFactory from 'common/store/user-list/sagas'
 import { createUserListProvider } from 'components/user-list/utils'
+import { apiClient } from 'services/audius-api-client'
 
 const getPlaylistFavorites = createUserListProvider<Collection>({
   getExistingEntity: getCollection,

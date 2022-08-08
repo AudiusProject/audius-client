@@ -23,7 +23,6 @@ import {
   cancel
 } from 'typed-redux-saga/macro'
 
-import AudiusAPIClient from 'common/services/audius-api-client/AudiusAPIClient'
 import { getAccountUser } from 'common/store/account/selectors'
 import { update } from 'common/store/cache/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -61,6 +60,7 @@ import {
   weiToAudioString,
   weiToString
 } from 'common/utils/wallet'
+import { apiClient } from 'services/audius-api-client'
 import {
   fetchRecentUserTips,
   fetchSupporters,
@@ -694,14 +694,11 @@ function* fetchUserSupporterAsync(
 ) {
   const { currentUserId, userId, supporterUserId } = action.payload
   try {
-    const response = yield* call(
-      [AudiusAPIClient, AudiusAPIClient.getUserSupporter],
-      {
-        currentUserId,
-        userId,
-        supporterUserId
-      }
-    )
+    const response = yield* call([apiClient, apiClient.getUserSupporter], {
+      currentUserId,
+      userId,
+      supporterUserId
+    })
     if (response) {
       const supportingMap = yield* select(getSupporting)
       yield put(
