@@ -17,7 +17,6 @@ import { getHash } from 'utils/route'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
 
-import { collectibleMessages } from './CollectiblesPage'
 import styles from './CollectiblesPage.module.css'
 
 type CollectibleDetailsProps = {
