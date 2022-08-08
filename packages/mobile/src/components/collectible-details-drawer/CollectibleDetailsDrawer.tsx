@@ -57,18 +57,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginBottom: spacing(5),
     fontSize: 12
   },
-  badge: {
-    color: palette.white,
-    textAlign: 'center',
-    paddingVertical: spacing(1),
-    paddingHorizontal: spacing(2),
-    borderRadius: 14,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: palette.white
-  },
-  created: { backgroundColor: palette.primary },
-  owned: { backgroundColor: palette.secondary },
   chainIcon: {
     borderWidth: 1,
     borderColor: palette.neutralLight7,
@@ -121,15 +109,6 @@ export const CollectibleDetailsDrawer = () => {
               {collectible.name}
             </Text>
             <View style={styles.detailsStamp}>
-              <Text
-                style={[
-                  styles.badge,
-                  collectible.isOwned ? styles.owned : styles.created
-                ]}
-                weight='bold'
-              >
-                {collectible.isOwned ? messages.owned : messages.created}
-              </Text>
               <View style={styles.chainIcon}>
                 <ChainLogo height={20} width={20} />
               </View>
