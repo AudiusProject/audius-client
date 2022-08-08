@@ -3,6 +3,7 @@ import { combineReducers } from 'redux'
 
 import accountSlice from 'common/store/account/reducer'
 import averageColorReducer from 'common/store/average-color/slice'
+import backend from 'common/store/backend/reducer'
 import collectionsReducer from 'common/store/cache/collections/reducer'
 import { asCache } from 'common/store/cache/reducer'
 import tracksReducer from 'common/store/cache/tracks/reducer'
@@ -92,6 +93,7 @@ export const reducers = () => ({
   account: accountSlice.reducer,
 
   // Config
+  backend,
   reachability,
 
   // Cache
