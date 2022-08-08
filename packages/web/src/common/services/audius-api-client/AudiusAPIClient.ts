@@ -36,6 +36,7 @@ import {
   OpaqueID
 } from './types'
 
+// TODO: declare this at the root and use actual audiusLibs type
 declare global {
   interface Window {
     audiusLibs: any

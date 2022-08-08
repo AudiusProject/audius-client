@@ -1,5 +1,4 @@
 import type { CommonState } from 'audius-client/src/common/store'
-// import { reducers as commonReducers } from 'audius-client/src/common/store/reducers'
 import type { RemoteConfigState } from 'audius-client/src/common/store/remote-config/slice'
 import remoteConfig from 'audius-client/src/common/store/remote-config/slice'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
@@ -58,7 +57,6 @@ const createRootReducer = () =>
     search,
     signon,
     web
-    // ...commonReducers()
   })
 
 const sagaMiddleware = createSagaMiddleware()
