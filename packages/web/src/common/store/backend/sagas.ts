@@ -15,9 +15,10 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import fingerprintClient from 'services/fingerprint/FingerprintClient'
 import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecycle'
 
+import { getContext } from '../effects'
+
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
-import { getContext } from '../effects'
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const REACHABILITY_TIMEOUT_MS = 8 * 1000
