@@ -72,9 +72,6 @@ export const FeedTipTile = () => {
   const usersMap = useSelectorWeb((state) =>
     getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
   )
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
 
   useEffect(() => {
     const fetchRecentTipsAsync = async () => {
@@ -102,7 +99,7 @@ export const FeedTipTile = () => {
     }
   }, [dispatchWeb, account, tipToDisplay])
 
-  if (!isTippingEnabled || !showTip) {
+  if (!showTip) {
     return null
   }
 

@@ -206,10 +206,6 @@ function* overrideSupportersForUser({
 
 function* sendTipAsync() {
   yield call(waitForRemoteConfig)
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
-  if (!isTippingEnabled) {
-    return
-  }
 
   const sender = yield* select(getAccountUser)
   if (!sender) {

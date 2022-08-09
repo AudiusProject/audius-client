@@ -152,10 +152,6 @@ export function* fetchSolanaCollectibles(user) {
 
 function* fetchSupportersAndSupporting(userId) {
   yield call(waitForRemoteConfig)
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
-  if (!isTippingEnabled) {
-    return
-  }
 
   /**
    * If the profile is that of the logged in user, then
