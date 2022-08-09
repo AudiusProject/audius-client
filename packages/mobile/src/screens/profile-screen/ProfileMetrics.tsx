@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import backend from 'audius-client/src/common/store/backend/reducer'
 import { setFollowers } from 'audius-client/src/common/store/user-list/followers/actions'
 import { setFollowing } from 'audius-client/src/common/store/user-list/following/actions'
 import { Pressable, Text, View } from 'react-native'
@@ -12,8 +13,9 @@ import { formatCount } from 'app/utils/format'
 import { useSelectProfile } from './selectors'
 
 const messages = {
-  tracks: 'tracks',
-  followers: 'followers',
+  tracks: (count: number) => (count === 1 ? 'track' : 'tracks'),
+  playlists: (count: number) => (count === 1 ? 'playlist' : 'playlists'),
+  followers: (count: number) => (count === 1 ? 'follower' : 'followers'),
   following: 'following'
 }
 
@@ -46,13 +48,19 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
 
 export const ProfileMetrics = () => {
   const styles = useStyles()
-  const { user_id, track_count, follower_count, followee_count } =
-    useSelectProfile([
-      'user_id',
-      'track_count',
-      'follower_count',
-      'followee_count'
-    ])
+  const {
+    user_id,
+    track_count,
+    playlist_count,
+    follower_count,
+    followee_count
+  } = useSelectProfile([
+    'user_id',
+    'track_count',
+    'playlist_count',
+    'follower_count',
+    'followee_count'
+  ])
 
   const navigation = useNavigation()
   const dispatchWeb = useDispatchWeb()
@@ -75,13 +83,20 @@ export const ProfileMetrics = () => {
 
   return (
     <View pointerEvents='box-none' style={styles.root}>
-      <View style={styles.metric}>
-        <Text style={styles.value}>{formatCount(track_count)}</Text>
-        <Text style={styles.label}>{messages.tracks}</Text>
-      </View>
+      {track_count === 0 ? (
+        <View style={styles.metric}>
+          <Text style={styles.value}>{formatCount(playlist_count)}</Text>
+          <Text style={styles.label}>{messages.playlists(playlist_count)}</Text>
+        </View>
+      ) : (
+        <View style={styles.metric}>
+          <Text style={styles.value}>{formatCount(track_count)}</Text>
+          <Text style={styles.label}>{messages.tracks(track_count)}</Text>
+        </View>
+      )}
       <Pressable style={styles.metric} onPress={handlePressFollowers}>
         <Text style={styles.value}>{formatCount(follower_count)}</Text>
-        <Text style={styles.label}>{messages.followers}</Text>
+        <Text style={styles.label}>{messages.followers(track_count)}</Text>
       </Pressable>
       <Pressable style={styles.metric} onPress={handlePressFollowing}>
         <Text style={styles.value}>{formatCount(followee_count)}</Text>
