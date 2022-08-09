@@ -2,11 +2,13 @@ import { ChangeEvent, memo } from 'react'
 
 import { ID } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import moment from 'moment'
 
 import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import { TestTracksTable } from 'components/test-tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import TracksTable from 'components/tracks-table/TracksTable'
 
@@ -28,7 +30,7 @@ export type HistoryPageProps = {
   onClickArtistName: (record: any) => void
   onClickRepost: (record: any) => void
   onSortTracks: (sorters: any) => void
-  goToRoute: (route: string) => void
+  svgoToRoute: (route: string) => void
   onPlay: () => void
   onFilterChange: (e: ChangeEvent<HTMLInputElement>) => void
   filterText: string
@@ -97,6 +99,15 @@ const HistoryPage = ({
     />
   )
 
+  // const largeData = [
+  //   ...dataSource,
+  //   ...dataSource,
+  //   ...dataSource,
+  //   ...dataSource,
+  //   ...dataSource,
+  //   ...dataSource
+  // ]
+
   return (
     <Page
       title={title}
@@ -115,17 +126,37 @@ const HistoryPage = ({
             onClick={() => goToRoute('/trending')}
           />
         ) : (
-          <div className={styles.tableWrapper}>
-            <TracksTable
-              userId={userId}
-              loading={tableLoading}
-              loadingRowsCount={entries.length}
-              playing={queuedAndPlaying}
-              playingIndex={playingIndex}
-              dataSource={dataSource}
-              {...trackTableActions}
-            />
-          </div>
+          <TestTracksTable
+            // data={largeData}
+            key='history'
+            data={dataSource}
+            userId={userId}
+            loading={tableLoading}
+            playing={queuedAndPlaying}
+            playingIndex={playingIndex}
+            maxRowNum={10}
+            isVirtualized
+            defaultSorter={(trackA, trackB) => {
+              if (moment(trackB.dateListened).isAfter(trackA.dateListened))
+                return 1
+              if (moment(trackA.dateListened).isAfter(trackB.dateListened))
+                return -1
+              return 0
+            }}
+            {...trackTableActions}
+          />
+          // <div className={styles.tableWrapper}>
+          //   <TracksTable
+          //     userId={userId}
+          //     key='history'
+          //     loading={tableLoading}
+          //     loadingRowsCount={entries.length}
+          //     playing={queuedAndPlaying}
+          //     playingIndex={playingIndex}
+          //     dataSource={dataSource}
+          //     {...trackTableActions}
+          //   />
+          // </div>
         )}
       </div>
     </Page>

@@ -15,6 +15,7 @@ import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
 import CardLineup from 'components/lineup/CardLineup'
 import Page from 'components/page/Page'
+import { TestTracksTable } from 'components/test-tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import TracksTable from 'components/tracks-table/TracksTable'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
@@ -207,25 +208,42 @@ const SavedPage = ({
           onClick={() => goToRoute('/trending')}
         />
       ) : (
-        <div className={styles.tableWrapper}>
-          <TracksTable
-            key='favorites'
-            userId={account ? account.user_id : 0}
-            loading={tracksLoading}
-            loadingRowsCount={account ? account.track_save_count : 0}
-            playing={queuedAndPlaying}
-            playingIndex={playingIndex}
-            dataSource={dataSource}
-            onClickRow={onClickRow}
-            onClickFavorite={onClickSave}
-            onClickTrackName={onClickTrackName}
-            onClickArtistName={onClickArtistName}
-            onClickRepost={onClickRepost}
-            onClickRemove={onClickRemove}
-            onSortTracks={onSortTracks}
-            onReorderTracks={onReorderTracks}
-          />
-        </div>
+        <TestTracksTable
+          key='favorites'
+          userId={account ? account.user_id : 0}
+          loading={tracksLoading}
+          // loadingRowsCount={account ? account.track_save_count : 0}
+          playing={queuedAndPlaying}
+          playingIndex={playingIndex}
+          data={dataSource}
+          onClickRow={onClickRow}
+          onClickFavorite={onClickSave}
+          onClickTrackName={onClickTrackName}
+          onClickArtistName={onClickArtistName}
+          onClickRepost={onClickRepost}
+          // onClickRemove={onClickRemove}
+          onSortTracks={onSortTracks}
+          // onReorderTracks={onReorderTracks}
+        />
+        // <div className={styles.tableWrapper}>
+        //   <TracksTable
+        //     key='favorites'
+        //     userId={account ? account.user_id : 0}
+        //     loading={tracksLoading}
+        //     loadingRowsCount={account ? account.track_save_count : 0}
+        //     playing={queuedAndPlaying}
+        //     playingIndex={playingIndex}
+        //     dataSource={dataSource}
+        //     onClickRow={onClickRow}
+        //     onClickFavorite={onClickSave}
+        //     onClickTrackName={onClickTrackName}
+        //     onClickArtistName={onClickArtistName}
+        //     onClickRepost={onClickRepost}
+        //     onClickRemove={onClickRemove}
+        //     onSortTracks={onSortTracks}
+        //     onReorderTracks={onReorderTracks}
+        //   />
+        // </div>
       ),
       <div key='albums'>
         {account && account.albums.length > 0 ? (

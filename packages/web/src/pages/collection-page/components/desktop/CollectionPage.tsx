@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useMemo } from 'react'
 
 import {
   ID,
@@ -17,6 +17,7 @@ import {
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import { TestTracksTable } from 'components/test-tracks-table'
 import TracksTable from 'components/tracks-table/TracksTable'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
@@ -236,6 +237,21 @@ const CollectionPage = ({
     />
   )
 
+  const tracksTableColumns = useMemo(
+    () => [
+      'playButton',
+      'trackName',
+      'artistName',
+      'date',
+      'length',
+      'plays',
+      'overflowActions'
+    ],
+    []
+  )
+
+  // console.log({ dataSource })
+
   return (
     <Page
       title={title}
@@ -250,7 +266,35 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
-            <TracksTable
+            <TestTracksTable
+              columns={tracksTableColumns}
+              wrapperClassName={styles.tracksTableWrapper}
+              key={playlistName}
+              loading={tracksLoading}
+              // loadingRowsCount={trackCount}
+              userId={userId}
+              playing={playing}
+              playingIndex={playingIndex}
+              data={dataSource}
+              // allowReordering={
+              //   userId !== null &&
+              //   userId === playlistOwnerId &&
+              //   allowReordering &&
+              //   !isAlbum
+              // }
+              onClickRow={onClickRow}
+              onClickFavorite={onClickSave}
+              onClickTrackName={onClickTrackName}
+              onClickArtistName={onClickArtistName}
+              onClickRepost={onClickRepostTrack}
+              onSortTracks={onSortTracks}
+              // onReorderTracks={onReorderTracks}
+              // onClickRemove={isOwner ? onClickRemove : null}
+              // removeText={`${messages.remove} ${
+              //   isAlbum ? messages.type.album : messages.type.playlist
+              // }`}
+            />
+            {/* <TracksTable
               key={playlistName}
               loading={tracksLoading}
               loadingRowsCount={trackCount}
@@ -276,7 +320,7 @@ const CollectionPage = ({
               removeText={`${messages.remove} ${
                 isAlbum ? messages.type.album : messages.type.playlist
               }`}
-            />
+            /> */}
             {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
               <LoadingSpinner className={styles.spinner} />
             ) : null}
