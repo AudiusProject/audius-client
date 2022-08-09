@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 
-import backend from 'audius-client/src/common/store/backend/reducer'
 import { setFollowers } from 'audius-client/src/common/store/user-list/followers/actions'
 import { setFollowing } from 'audius-client/src/common/store/user-list/following/actions'
 import { Pressable, Text, View } from 'react-native'
