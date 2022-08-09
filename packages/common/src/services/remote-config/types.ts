@@ -147,11 +147,6 @@ export enum BooleanKeys {
   DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP = 'DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP',
 
   /**
-   * Boolean to skip the rollover nodes sanity check.
-   */
-  SKIP_ROLLOVER_NODES_SANITY_CHECK = 'SKIP_ROLLOVER_NODES_SANITY_CHECK',
-
-  /**
    * Boolean to use amplitude as the metrics tracking.
    */
   USE_AMPLITUDE = 'USE_AMPLITUDE'

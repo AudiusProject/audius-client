@@ -551,10 +551,7 @@ export const audiusBackend = ({
 
   async function sanityChecks(audiusLibs: any) {
     try {
-      const sanityCheckOptions = {
-        skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
-      }
-      const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
+      const sanityChecks = new SanityChecks(audiusLibs)
       await sanityChecks.run()
     } catch (e) {
       console.error(`Sanity checks failed: ${e}`)
