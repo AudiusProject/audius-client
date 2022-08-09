@@ -57,6 +57,7 @@ import {
   shouldRequestBrowserPermission
 } from 'utils/browserNotifications'
 import { isMobile, isElectron } from 'utils/clientUtil'
+import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
@@ -124,9 +125,7 @@ function* onFetchAccount(account) {
   // TODO: this should be removed after sufficient time has passed or users have gotten
   // reconnected.
   if (account.user_id in disconnectedWallets) {
-    const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-      account.creator_node_endpoint
-    )
+    const gateways = getCreatorNodeIPFSGateways(account.creator_node_endpoint)
     const cid = account.metadata_multihash ?? null
     if (cid) {
       const contentNodeMetadata = yield call(
