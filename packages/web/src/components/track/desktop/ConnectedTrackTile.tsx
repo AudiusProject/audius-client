@@ -1,4 +1,11 @@
-import { memo, useState, useCallback, useEffect } from 'react'
+import {
+  memo,
+  useState,
+  useCallback,
+  useEffect,
+  MouseEvent,
+  useRef
+} from 'react'
 
 import {
   UID,
@@ -130,6 +137,8 @@ const ConnectedTrackTile = memo(
     const isOwner = handle === userHandle
     const isArtistPick = showArtistPick && _artist_pick === trackId
 
+    const menuRef = useRef<HTMLDivElement>(null)
+
     const onClickStatRepost = () => {
       setRepostUsers(trackId)
       setModalVisibility()
@@ -189,7 +198,7 @@ const ConnectedTrackTile = memo(
       return (
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuContainer}>
+            <div className={styles.menuContainer} ref={menuRef}>
               <div
                 className={cn(styles.menuKebabContainer, {
                   [styles.small]: size === TrackTileSize.SMALL,
@@ -292,9 +301,19 @@ const ConnectedTrackTile = memo(
       shareTrack(trackId)
     }, [shareTrack, trackId])
 
-    const onTogglePlay = useCallback(() => {
-      togglePlay(uid, trackId)
-    }, [togglePlay, uid, trackId])
+    const onTogglePlay = useCallback(
+      (e?: MouseEvent /* click event within TrackTile */) => {
+        // Skip toggle play if click event happened within track menu container
+        const element =
+          e?.target instanceof Element ? (e.target as Element) : null
+        const shouldSkipTogglePlay = menuRef.current?.contains(element)
+        if (shouldSkipTogglePlay) {
+          return
+        }
+        togglePlay(uid, trackId)
+      },
+      [togglePlay, uid, trackId]
+    )
 
     if (is_delete || user?.is_deactivated) return null
 
