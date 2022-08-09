@@ -1,6 +1,5 @@
 import {
   BNWei,
-  BooleanKeys,
   ChallengeRewardID,
   CID,
   Collection,
