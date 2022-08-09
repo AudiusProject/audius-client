@@ -1,3 +1,4 @@
+import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
 import { BADGE_LOCAL_STORAGE_KEY } from 'pages/audio-rewards-page/Tiers'
 import {
   clearAudiusAccount,
@@ -6,7 +7,6 @@ import {
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { SignedOut } from 'services/native-mobile-interface/lifecycle'
 import { ReloadMessage } from 'services/native-mobile-interface/linking'
-import { IS_MOBILE_USER_KEY } from 'store/account/mobileSagas'
 import { removeHasRequestedBrowserPermission } from 'utils/browserNotifications'
 
 import { clearTheme } from './theme/theme'
