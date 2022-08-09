@@ -1,7 +1,7 @@
 import Web3Modal, { IProviderOptions } from 'web3modal'
 
-import phantomIconPurpleSvg from 'assets/img/phantom-icon-purple.svg'
-import walletLinkSvg from 'assets/img/wallet-link.svg'
+import { ReactComponent as phantomIconPurpleSvg } from 'assets/img/phantom-icon-purple.svg'
+import { ReactComponent as walletLinkSvg } from 'assets/img/wallet-link.svg'
 import { getErrorMessage } from 'common/utils/error'
 
 const CHAIN_ID = process.env.REACT_APP_ETH_NETWORK_ID
@@ -73,7 +73,7 @@ export const createSession = async (config: Config): Promise<any> => {
     if (config.isWalletLinkEnabled) {
       providerOptions['custom-walletlink'] = {
         display: {
-          logo: walletLinkSvg,
+          logo: walletLinkSvg as unknown as string,
           name: 'WalletLink',
           description: 'Scan with WalletLink to connect'
         },
@@ -97,7 +97,7 @@ export const createSession = async (config: Config): Promise<any> => {
     if (config.isPhantomEnabled && window?.solana?.isPhantom) {
       providerOptions['custom-phantom'] = {
         display: {
-          logo: phantomIconPurpleSvg,
+          logo: phantomIconPurpleSvg as unknown as string,
           name: 'Phantom',
           description: 'Connect Solana account'
         },
