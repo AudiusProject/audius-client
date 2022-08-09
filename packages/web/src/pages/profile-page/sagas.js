@@ -2,7 +2,6 @@ import {
   DefaultSizes,
   Kind,
   DoubleKeys,
-  FeatureFlags,
   makeUid,
   makeKindId
 } from '@audius/common'
@@ -37,7 +36,6 @@ import { apiClient } from 'services/audius-api-client'
 import { fetchCID } from 'services/audius-backend'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import SolanaClient from 'services/solana-client/SolanaClient'
 import * as confirmerActions from 'store/confirmer/actions'
