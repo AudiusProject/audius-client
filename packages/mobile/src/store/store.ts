@@ -47,6 +47,7 @@ export type AppState = {
 
 const createRootReducer = () =>
   combineReducers({
+    ...commonReducers(),
     audio,
     common,
     drawers,
@@ -58,8 +59,7 @@ const createRootReducer = () =>
     remoteConfig,
     search,
     signon,
-    web,
-    ...commonReducers()
+    web
   })
 
 const sagaMiddleware = createSagaMiddleware({ context: storeContext })
