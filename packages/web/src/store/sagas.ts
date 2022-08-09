@@ -135,7 +135,7 @@ export default function* rootSaga() {
     walletSagas(),
 
     // Cast
-    castSagas(storeContext),
+    castSagas(),
 
     // Application
     addToPlaylistSagas(),
