@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from 'react'
+import { memo, MouseEvent, useRef } from 'react'
 
 import { UID, ID } from '@audius/common'
 import cn from 'classnames'
@@ -48,6 +48,8 @@ const TrackListItem = ({
   isLoading,
   forceSkeleton = false
 }: TrackListItemProps) => {
+  const menuRef = useRef<HTMLDivElement>(null)
+
   if (forceSkeleton) {
     return (
       <div
@@ -79,12 +81,14 @@ const TrackListItem = ({
   }
 
   const onMoreClick = (triggerPopup: () => void) => (e: MouseEvent) => {
-    e.stopPropagation()
     triggerPopup()
   }
 
-  const onPlayTrack = () => {
-    if (!deleted && togglePlay) togglePlay(track.uid, track.track_id)
+  const onPlayTrack = (e?: MouseEvent) => {
+    const element = e?.target instanceof Element ? (e.target as Element) : null
+    const shouldSkipTogglePlay = menuRef.current?.contains(element)
+    if (!deleted && togglePlay && !shouldSkipTogglePlay)
+      togglePlay(track.uid, track.track_id)
   }
 
   const hideShow = cn({
@@ -165,7 +169,7 @@ const TrackListItem = ({
         {!disableActions && !deleted ? (
           <Menu menu={menu}>
             {(ref, triggerPopup) => (
-              <div className={cn(styles.menuContainer)}>
+              <div className={cn(styles.menuContainer)} ref={menuRef}>
                 <IconKebabHorizontal
                   className={styles.iconKebabHorizontal}
                   ref={ref}

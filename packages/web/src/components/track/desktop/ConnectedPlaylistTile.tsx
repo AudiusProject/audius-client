@@ -5,7 +5,8 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactChildren
+  ReactChildren,
+  useRef
 } from 'react'
 
 import {
@@ -152,59 +153,71 @@ const ConnectedPlaylistTile = memo(
     } = getUserWithFallback(user)
     const isOwner = handle === userHandle
 
+    const menuRef = useRef<HTMLDivElement>(null)
+
     const isActive = useMemo(() => {
       return tracks.some((track: any) => track.uid === playingUid)
     }, [tracks, playingUid])
 
-    const onTogglePlay = useCallback(() => {
-      if (isUploading) return
-      if (!isActive || !isPlaying) {
-        if (isActive) {
-          playTrack(playingUid!)
+    const onTogglePlay = useCallback(
+      (e?: MouseEvent /* click event within TrackTile */) => {
+        // Skip playing / pausing track if click event happened within track menu container
+        const element =
+          e?.target instanceof Element ? (e.target as Element) : null
+        const shouldSkipTogglePlay = menuRef.current?.contains(element)
+        if (shouldSkipTogglePlay) {
+          return
+        }
+        if (isUploading) return
+        if (!isActive || !isPlaying) {
+          if (isActive) {
+            playTrack(playingUid!)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${playingTrackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          } else {
+            const trackUid = tracks[0] ? tracks[0].uid : null
+            const trackId = tracks[0] ? tracks[0].track_id : null
+            if (!trackUid || !trackId) return
+            playTrack(trackUid)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${trackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          }
+        } else {
+          pauseTrack()
           if (record) {
             record(
-              make(Name.PLAYBACK_PLAY, {
+              make(Name.PLAYBACK_PAUSE, {
                 id: `${playingTrackId}`,
                 source: PlaybackSource.PLAYLIST_TILE_TRACK
               })
             )
           }
-        } else {
-          const trackUid = tracks[0] ? tracks[0].uid : null
-          const trackId = tracks[0] ? tracks[0].track_id : null
-          if (!trackUid || !trackId) return
-          playTrack(trackUid)
-          if (record) {
-            record(
-              make(Name.PLAYBACK_PLAY, {
-                id: `${trackId}`,
-                source: PlaybackSource.PLAYLIST_TILE_TRACK
-              })
-            )
-          }
         }
-      } else {
-        pauseTrack()
-        if (record) {
-          record(
-            make(Name.PLAYBACK_PAUSE, {
-              id: `${playingTrackId}`,
-              source: PlaybackSource.PLAYLIST_TILE_TRACK
-            })
-          )
-        }
-      }
-    }, [
-      isPlaying,
-      tracks,
-      playTrack,
-      pauseTrack,
-      isActive,
-      playingUid,
-      playingTrackId,
-      isUploading,
-      record
-    ])
+      },
+      [
+        isPlaying,
+        tracks,
+        playTrack,
+        pauseTrack,
+        isActive,
+        playingUid,
+        playingTrackId,
+        isUploading,
+        record
+      ]
+    )
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
@@ -269,7 +282,7 @@ const ConnectedPlaylistTile = memo(
       return (
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuContainer}>
+            <div className={styles.menuContainer} ref={menuRef}>
               <div className={styles.menuKebabContainer} onClick={triggerPopup}>
                 <IconKebabHorizontal
                   className={cn(styles.iconKebabHorizontal)}
