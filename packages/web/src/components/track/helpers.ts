@@ -1,4 +1,10 @@
-import { Collection, FieldVisibility, Track, User } from '@audius/common'
+import {
+  Nullable,
+  Collection,
+  FieldVisibility,
+  Track,
+  User
+} from '@audius/common'
 
 const defaultFieldVisibility: FieldVisibility = {
   genre: true,
@@ -78,4 +84,13 @@ export const getUserWithFallback = (user: User | null) => {
       user_id: -1
     }
   )
+}
+
+export const isDescendantElementOf = (
+  descendant: any,
+  ancestor: Nullable<HTMLElement>
+) => {
+  const descendantElement =
+    descendant instanceof Element ? (descendant as Element) : null
+  return ancestor?.contains(descendantElement)
 }

@@ -67,7 +67,11 @@ import {
 } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
-import { getCollectionWithFallback, getUserWithFallback } from '../helpers'
+import {
+  getCollectionWithFallback,
+  getUserWithFallback,
+  isDescendantElementOf
+} from '../helpers'
 
 import styles from './ConnectedPlaylistTile.module.css'
 import PlaylistTile from './PlaylistTile'
@@ -162,12 +166,16 @@ const ConnectedPlaylistTile = memo(
     const onTogglePlay = useCallback(
       (e?: MouseEvent /* click event within TrackTile */) => {
         // Skip playing / pausing track if click event happened within track menu container
-        const element =
-          e?.target instanceof Element ? (e.target as Element) : null
-        const shouldSkipTogglePlay = menuRef.current?.contains(element)
-        if (shouldSkipTogglePlay) {
-          return
-        }
+        // because clicking on it should not affect corresponding playlist track.
+        // We have to do this instead of stopping the event propagation
+        // because we need it to bubble up to the document to allow
+        // the document click listener to close other track/playlist tile menus
+        // that are already open.
+        const shouldSkipTogglePlay = isDescendantElementOf(
+          e?.target,
+          menuRef.current
+        )
+        if (shouldSkipTogglePlay) return
         if (isUploading) return
         if (!isActive || !isPlaying) {
           if (isActive) {

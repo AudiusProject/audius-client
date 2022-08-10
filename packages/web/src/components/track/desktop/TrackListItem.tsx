@@ -13,6 +13,7 @@ import Skeleton from 'components/skeleton/Skeleton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { profilePage } from 'utils/route'
 
+import { isDescendantElementOf } from '../helpers'
 import { TrackTileSize } from '../types'
 
 import styles from './TrackListItem.module.css'
@@ -85,8 +86,16 @@ const TrackListItem = ({
   }
 
   const onPlayTrack = (e?: MouseEvent) => {
-    const element = e?.target instanceof Element ? (e.target as Element) : null
-    const shouldSkipTogglePlay = menuRef.current?.contains(element)
+    // Skip toggle play if click event happened within track menu container
+    // because clicking on it should not affect corresponding track.
+    // We have to do this instead of stopping the event propagation
+    // because we need it to bubble up to the document to allow
+    // the document click listener to close other track/playlist tile menus
+    // that are already open.
+    const shouldSkipTogglePlay = isDescendantElementOf(
+      e?.target,
+      menuRef.current
+    )
     if (!deleted && togglePlay && !shouldSkipTogglePlay)
       togglePlay(track.uid, track.track_id)
   }
