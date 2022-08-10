@@ -4,7 +4,7 @@ import { useIsFocused } from '@react-navigation/native'
 
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
-import { Text, Screen } from 'app/components/core'
+import { Screen, Tag } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { TabNavigator, tabScreen } from 'app/components/top-tab-bar'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -20,15 +20,13 @@ const messages = {
   header: 'Tag Search'
 }
 
-const useStyles = makeStyles(({ spacing, typography }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   headerRoot: {
     justifyContent: undefined,
     alignItems: 'center'
   },
-  tagText: {
-    marginLeft: spacing(4),
-    fontSize: typography.fontSize.xl,
-    lineHeight: 52
+  tag: {
+    marginLeft: spacing(4)
   }
 }))
 
@@ -66,7 +64,7 @@ export const TagSearchScreen = () => {
   return (
     <Screen topbarRight={null}>
       <Header text={messages.header} styles={{ root: styles.headerRoot }}>
-        <Text style={styles.tagText}>{`"${query}"`}</Text>
+        <Tag style={styles.tag}>{query.replace(/^#/, '')}</Tag>
       </Header>
       <SearchFocusContext.Provider value={focusContext}>
         <TabNavigator initialScreenName='Tracks'>
