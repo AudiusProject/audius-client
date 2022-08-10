@@ -16,6 +16,7 @@ export const Tooltip = ({
   color = themeColors['--secondary-transparent'],
   disabled = false,
   mount = 'parent',
+  getPopupContainer,
   mouseEnterDelay = 0.5,
   mouseLeaveDelay = 0,
   placement = 'top',
@@ -86,7 +87,7 @@ export const Tooltip = ({
       title={text}
       color={color}
       // @ts-ignore
-      getPopupContainer={popupContainer}
+      getPopupContainer={getPopupContainer || popupContainer}
       overlayClassName={cn(styles.tooltip, className, {
         [styles.nonWrappingTooltip]: !shouldWrapContent
       })}
