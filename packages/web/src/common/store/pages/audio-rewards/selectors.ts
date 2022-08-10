@@ -54,7 +54,7 @@ export const getClaimStatus = (state: CommonState) =>
   state.pages.audioRewards.claimState.status
 
 export const getClaimToRetry = (state: CommonState) =>
-  state.pages.audioRewards.claimState.status
+  state.pages.audioRewards.claimToRetry
 
 export const getHCaptchaStatus = (state: CommonState) =>
   state.pages.audioRewards.hCaptchaStatus
