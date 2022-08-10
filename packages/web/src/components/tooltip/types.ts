@@ -17,6 +17,7 @@ export type TooltipProps = {
   mouseEnterDelay?: number
   mouseLeaveDelay?: number
   placement?: TooltipPlacement
+  // Should the tooltip go away when clicking on the underlying element?
   shouldDismissOnClick?: boolean
   // Whether there is a fixed max width, causing content to wrap onto the next line.
   shouldWrapContent?: boolean
