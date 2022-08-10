@@ -107,7 +107,7 @@ const TrackTile = memo(
         <Tooltip
           text={'Share'}
           disabled={isDisabled || hideShare}
-          placement={'bottom'}
+          placement='top'
           mount='page'
         >
           <div
@@ -257,7 +257,7 @@ const TrackTile = memo(
                 <Tooltip
                   text={repostLabel}
                   disabled={isDisabled || isOwner}
-                  placement={'bottom'}
+                  placement='top'
                   mount='page'
                 >
                   <div
@@ -280,7 +280,7 @@ const TrackTile = memo(
                 <Tooltip
                   text={isFavorited ? 'Unfavorite' : 'Favorite'}
                   disabled={isDisabled || isOwner}
-                  placement={'bottom'}
+                  placement='top'
                   mount='page'
                 >
                   <div
