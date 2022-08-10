@@ -4,12 +4,13 @@ import { useIsFocused } from '@react-navigation/native'
 
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
-import { Screen } from 'app/components/core'
+import { Text, Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { TabNavigator, tabScreen } from 'app/components/top-tab-bar'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useRoute } from 'app/hooks/useRoute'
 import { MessageType } from 'app/message'
+import { makeStyles } from 'app/styles'
 
 import { SearchFocusContext } from './SearchFocusContext'
 import { ProfilesTab } from './tabs/ProfilesTab'
@@ -19,11 +20,24 @@ const messages = {
   header: 'Tag Search'
 }
 
+const useStyles = makeStyles(({ spacing, typography }) => ({
+  headerRoot: {
+    justifyContent: undefined,
+    alignItems: 'center'
+  },
+  tagText: {
+    marginLeft: spacing(4),
+    fontSize: typography.fontSize.xl,
+    lineHeight: 52
+  }
+}))
+
 /**
  * Displays tag search results. Uses the same state as normal full search,
  * but only displays matching tracks & profiles.
  */
 export const TagSearchScreen = () => {
+  const styles = useStyles()
   const isFocused = useIsFocused()
   const focusContext = useMemo(() => ({ isFocused }), [isFocused])
   const dispatchWeb = useDispatchWeb()
@@ -51,7 +65,9 @@ export const TagSearchScreen = () => {
 
   return (
     <Screen topbarRight={null}>
-      <Header text={messages.header} />
+      <Header text={messages.header} styles={{ root: styles.headerRoot }}>
+        <Text style={styles.tagText}>{`"${query}"`}</Text>
+      </Header>
       <SearchFocusContext.Provider value={focusContext}>
         <TabNavigator initialScreenName='Tracks'>
           {tracksScreen}
