@@ -108,6 +108,7 @@ const TrackTile = memo(
           text={'Share'}
           disabled={isDisabled || hideShare}
           placement={'bottom'}
+          mount='page'
         >
           <div
             className={cn(styles.iconButtonContainer, {
@@ -257,6 +258,7 @@ const TrackTile = memo(
                   text={repostLabel}
                   disabled={isDisabled || isOwner}
                   placement={'bottom'}
+                  mount='page'
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
@@ -279,6 +281,7 @@ const TrackTile = memo(
                   text={isFavorited ? 'Unfavorite' : 'Favorite'}
                   disabled={isDisabled || isOwner}
                   placement={'bottom'}
+                  mount='page'
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
