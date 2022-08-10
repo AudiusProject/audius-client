@@ -604,7 +604,7 @@ class AudiusBackend {
           error: false,
           web3Config: await AudiusLibs.configExternalWeb3(
             REGISTRY_ADDRESS,
-            web3.currentProvider,
+            window.web3.currentProvider,
             WEB3_NETWORK_ID,
             ENTITY_MANAGER_ADDRESS
           )
@@ -1460,9 +1460,11 @@ class AudiusBackend {
     const description = metadata.description
     // Creating an album is automatically public.
     if (isAlbum) isPrivate = false
-
+    console.log('asdf AudiusBackend createPlaylist')
     try {
       // Test call to new audius data function
+      // if (getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED)) {
+      console.log('asdf AudiusBackend create playlist feature enabled')
       const response = await audiusLibs.EntityManager.createPlaylist({
         playlistName,
         trackIds,
@@ -1471,6 +1473,7 @@ class AudiusBackend {
         isAlbum,
         isPrivate
       })
+
       const { blockHash, blockNumber, playlistId, error } = response
       if (error) return { playlistId, error }
 
@@ -1490,7 +1493,7 @@ class AudiusBackend {
 
     try {
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
+        await audiusLibs.EntityManager.editPlaylist({
           playlistId,
           playlistName,
           coverPhoto,
@@ -1506,14 +1509,14 @@ class AudiusBackend {
 
   static async orderPlaylist(
     playlistId: ID,
-    playlistContents: PlaylistContents,
+    trackIds: PlaylistTrackId[],
     retries: number
   ) {
     try {
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
+        await audiusLibs.EntityManager.orderPlaylist({
           playlistId,
-          playlistContents
+          trackIds
         })
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1524,8 +1527,9 @@ class AudiusBackend {
 
   static async publishPlaylist(playlistId: ID) {
     try {
+      console.log('asdf publishPlaylist')
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
+        await audiusLibs.EntityManager.editPlaylist({
           playlistId,
           isPrivate: false
         })
@@ -1536,15 +1540,13 @@ class AudiusBackend {
     }
   }
 
-  static async addPlaylistTrack(
-    playlistId: ID,
-    playlistContents: PlaylistContents
-  ) {
+  static async addPlaylistTrack(playlistId: ID, trackId: ID) {
     try {
+      console.log('asdf addPlaylistTrack', trackId)
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
+        await audiusLibs.EntityManager.addPlaylistTrack({
           playlistId,
-          playlistContents
+          trackId
         })
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1555,14 +1557,16 @@ class AudiusBackend {
 
   static async deletePlaylistTrack(
     playlistId: ID,
-    playlistContents: PlaylistContents,
+    trackId: ID,
+    timestamp: string,
     retries: number
   ) {
     try {
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
+        await audiusLibs.EntityManager.deletePlaylistTrack({
           playlistId,
-          playlistContents
+          trackId,
+          timestamp
         })
       return { blockHash, blockNumber }
     } catch (error) {

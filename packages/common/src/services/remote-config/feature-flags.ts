@@ -12,7 +12,8 @@ export enum FeatureFlags {
   PLAYLIST_FOLDERS = 'playlist_folders',
   DISABLE_SIGN_UP_CONFIRMATION = 'disable_sign_up_confirmation',
   TIPPING_ENABLED = 'tipping_enabled',
-  WRITE_QUORUM_ENABLED = 'write_quorum_enabled'
+  WRITE_QUORUM_ENABLED = 'write_quorum_enabled',
+  PLAYLIST_ENTITY_MANAGER_ENABLED = 'playlist_entity_manager_enabled'
 }
 
 /**
@@ -31,7 +32,8 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.PLAYLIST_FOLDERS]: false,
   [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: false,
   [FeatureFlags.TIPPING_ENABLED]: false,
-  [FeatureFlags.WRITE_QUORUM_ENABLED]: false
+  [FeatureFlags.WRITE_QUORUM_ENABLED]: false,
+  [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: true
 }
 
 export enum FeatureFlagCohortType {
@@ -64,5 +66,7 @@ export const flagCohortType: {
   [FeatureFlags.PLAYLIST_FOLDERS]: FeatureFlagCohortType.USER_ID,
   [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: FeatureFlagCohortType.SESSION_ID,
   [FeatureFlags.TIPPING_ENABLED]: FeatureFlagCohortType.SESSION_ID,
-  [FeatureFlags.WRITE_QUORUM_ENABLED]: FeatureFlagCohortType.SESSION_ID
+  [FeatureFlags.WRITE_QUORUM_ENABLED]: FeatureFlagCohortType.SESSION_ID,
+  [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]:
+    FeatureFlagCohortType.SESSION_ID
 }
