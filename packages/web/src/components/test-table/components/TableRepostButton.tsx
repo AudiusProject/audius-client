@@ -9,14 +9,14 @@ const REPOST_TIMEOUT = 1000
 
 type TableRepostButtonProps = {
   className?: string
+  onClick?: (e: any) => void
   reposted?: boolean
-  onClick?: (e: MouseEvent) => void
 }
 
 export const TableRepostButton = ({
-  reposted,
+  className,
   onClick,
-  className
+  reposted
 }: TableRepostButtonProps) => {
   return (
     <div

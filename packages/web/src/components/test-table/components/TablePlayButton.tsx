@@ -7,18 +7,18 @@ import styles from './TablePlayButton.module.css'
 
 type TablePlayButtonProps = {
   className?: string
+  hideDefault?: boolean
+  onClick?: (e: any) => void
   paused?: boolean
   playing?: boolean
-  onClick?: (e: MouseEvent) => void
-  hideDefault?: boolean
 }
 
 export const TablePlayButton = ({
-  paused,
-  playing = false,
-  onClick,
+  className,
   hideDefault = true,
-  className
+  onClick,
+  paused,
+  playing = false
 }: TablePlayButtonProps) => {
   return (
     <div onClick={onClick} className={cn(styles.tablePlayButton, className)}>

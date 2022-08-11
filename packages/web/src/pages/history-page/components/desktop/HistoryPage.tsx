@@ -1,6 +1,6 @@
-import { ChangeEvent, memo, useCallback } from 'react'
+import { ChangeEvent, memo, useMemo } from 'react'
 
-import { ID } from '@audius/common'
+import { FeatureFlags, ID } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 
 import FilterInput from 'components/filter-input/FilterInput'
@@ -10,6 +10,8 @@ import Page from 'components/page/Page'
 import { dateSorter } from 'components/test-table'
 import { TestTracksTable } from 'components/test-tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
+import TracksTable from 'components/tracks-table/TracksTable'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './HistoryPage.module.css'
 
@@ -56,6 +58,7 @@ const HistoryPage = ({
   onFilterChange,
   filterText
 }: HistoryPageProps) => {
+  const { isEnabled: isNewTablesEnabled } = useFlag(FeatureFlags.NEW_TABLES)
   const tableLoading = !dataSource.every((track: any) => track.play_count > -1)
 
   const playAllButton = !loading ? (
@@ -98,10 +101,7 @@ const HistoryPage = ({
     />
   )
 
-  const defaultSorter = useCallback(
-    (trackA, trackB) => dateSorter(trackA, trackB, 'dateListened'),
-    []
-  )
+  const defaultSorter = useMemo(() => dateSorter('dateListened'), [])
 
   return (
     <Page
@@ -120,7 +120,7 @@ const HistoryPage = ({
             buttonLabel='Start Listening'
             onClick={() => goToRoute('/trending')}
           />
-        ) : (
+        ) : isNewTablesEnabled ? (
           <TestTracksTable
             key='history'
             data={dataSource}
@@ -133,6 +133,18 @@ const HistoryPage = ({
             defaultSorter={defaultSorter}
             {...trackTableActions}
           />
+        ) : (
+          <div className={styles.tableWrapper}>
+            <TracksTable
+              userId={userId}
+              loading={tableLoading}
+              loadingRowsCount={entries.length}
+              playing={queuedAndPlaying}
+              playingIndex={playingIndex}
+              dataSource={dataSource}
+              {...trackTableActions}
+            />
+          </div>
         )}
       </div>
     </Page>

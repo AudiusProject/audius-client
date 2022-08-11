@@ -15,23 +15,23 @@ const chainLabelMap: Record<Chain, string> = {
 }
 
 export type CollectiblesPlaylistTableColumn =
-  | 'playButton'
-  | 'collectibleName'
   | 'chain'
+  | 'collectibleName'
   | 'length'
+  | 'playButton'
 
 type TestCollectiblesPlaylistTableProps = {
-  wrapperClassName?: string
-  tableClassName?: string
   columns?: CollectiblesPlaylistTableColumn[]
   data: any[]
-  loading?: boolean
-  playing?: boolean
-  playingIndex?: number
   isVirtualized?: boolean
+  loading?: boolean
   maxRowNum?: number
   onClickRow?: (collectible: any, index: number) => void
   onClickTrackName?: (collectible: any) => void
+  playing?: boolean
+  playingIndex?: number
+  tableClassName?: string
+  wrapperClassName?: string
 }
 
 const defaultColumns: CollectiblesPlaylistTableColumn[] = [
@@ -42,17 +42,17 @@ const defaultColumns: CollectiblesPlaylistTableColumn[] = [
 ]
 
 export const TestCollectiblesPlaylistTable = ({
-  wrapperClassName,
-  tableClassName,
   columns = defaultColumns,
   data,
-  loading = false,
-  playing = false,
-  playingIndex = -1,
   isVirtualized = false,
+  loading = false,
   maxRowNum = 20,
   onClickRow,
-  onClickTrackName: onClickCollectibleName
+  onClickTrackName: onClickCollectibleName,
+  playing = false,
+  playingIndex = -1,
+  tableClassName,
+  wrapperClassName
 }: TestCollectiblesPlaylistTableProps) => {
   // Cell Render Functions
   const renderPlayButtonCell = useCallback(

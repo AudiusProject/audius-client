@@ -6,7 +6,8 @@ import {
   SmartCollection,
   Variant,
   Status,
-  User
+  User,
+  FeatureFlags
 } from '@audius/common'
 
 import {
@@ -22,6 +23,8 @@ import {
 } from 'components/test-collectibles-playlist-table/TestCollectiblesPlaylistTable'
 import { TestTracksTable } from 'components/test-tracks-table'
 import { TracksTableColumn } from 'components/test-tracks-table/TestTracksTable'
+import TracksTable from 'components/tracks-table/TracksTable'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
 import styles from './CollectionPage.module.css'
@@ -67,6 +70,7 @@ export type CollectionPageProps = {
     status: string
     entries: CollectionTrack[]
   }
+  columns?: any
   userId?: ID | null
   userPlaylists?: any
   isQueued: () => boolean
@@ -109,6 +113,7 @@ const CollectionPage = ({
   playing,
   type,
   collection: { status, metadata, user },
+  columns,
   tracks,
   userId,
   userPlaylists,
@@ -136,6 +141,7 @@ const CollectionPage = ({
   onClickFavorites,
   onClickDescriptionExternalLink
 }: CollectionPageProps) => {
+  const { isEnabled: isNewTablesEnabled } = useFlag(FeatureFlags.NEW_TABLES)
   // TODO: Consider dynamic lineups, esp. for caching improvement.
   const [dataSource, playingIndex] =
     tracks.status === Status.SUCCESS
@@ -178,6 +184,7 @@ const CollectionPage = ({
   const isNftPlaylist = typeTitle === 'Audio NFT Playlist'
 
   const {
+    trackCount,
     isEmpty,
     lastModified,
     playlistName,
@@ -273,35 +280,65 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
-            <TableComponent
-              // @ts-ignore
-              columns={tracksTableColumns}
-              maxRowNum={8}
-              wrapperClassName={styles.tracksTableWrapper}
-              key={playlistName}
-              loading={isNftPlaylist ? tracksLoading : collectionLoading}
-              userId={userId}
-              playing={playing}
-              playingIndex={playingIndex}
-              data={dataSource}
-              onClickRow={onClickRow}
-              onClickFavorite={onClickSave}
-              onClickTrackName={onClickTrackName}
-              onClickArtistName={onClickArtistName}
-              onClickRepost={onClickRepostTrack}
-              onSortTracks={onSortTracks}
-              // allowReordering={
-              //   userId !== null &&
-              //   userId === playlistOwnerId &&
-              //   allowReordering &&
-              //   !isAlbum
-              // }
-              // onReorderTracks={onReorderTracks}
-              // onClickRemove={isOwner ? onClickRemove : null}
-              // removeText={`${messages.remove} ${
-              //   isAlbum ? messages.type.album : messages.type.playlist
-              // }`}
-            />
+            {isNewTablesEnabled ? (
+              <TableComponent
+                // @ts-ignore
+                columns={tracksTableColumns}
+                maxRowNum={8}
+                wrapperClassName={styles.tracksTableWrapper}
+                key={playlistName}
+                loading={isNftPlaylist ? tracksLoading : collectionLoading}
+                userId={userId}
+                playing={playing}
+                playingIndex={playingIndex}
+                data={dataSource}
+                onClickRow={onClickRow}
+                onClickFavorite={onClickSave}
+                onClickTrackName={onClickTrackName}
+                onClickArtistName={onClickArtistName}
+                onClickRepost={onClickRepostTrack}
+                onSortTracks={onSortTracks}
+                // allowReordering={
+                //   userId !== null &&
+                //   userId === playlistOwnerId &&
+                //   allowReordering &&
+                //   !isAlbum
+                // }
+                // onReorderTracks={onReorderTracks}
+                // onClickRemove={isOwner ? onClickRemove : null}
+                // removeText={`${messages.remove} ${
+                //   isAlbum ? messages.type.album : messages.type.playlist
+                // }`}
+              />
+            ) : (
+              <TracksTable
+                key={playlistName}
+                loading={tracksLoading}
+                loadingRowsCount={trackCount}
+                columns={columns}
+                userId={userId}
+                playing={playing}
+                playingIndex={playingIndex}
+                dataSource={dataSource}
+                allowReordering={
+                  userId !== null &&
+                  userId === playlistOwnerId &&
+                  allowReordering &&
+                  !isAlbum
+                }
+                onClickRow={onClickRow}
+                onClickFavorite={onClickSave}
+                onClickTrackName={onClickTrackName}
+                onClickArtistName={onClickArtistName}
+                onClickRepost={onClickRepostTrack}
+                onSortTracks={onSortTracks}
+                onReorderTracks={onReorderTracks}
+                onClickRemove={isOwner ? onClickRemove : null}
+                removeText={`${messages.remove} ${
+                  isAlbum ? messages.type.album : messages.type.playlist
+                }`}
+              />
+            )}
           </div>
         )}
       </div>

@@ -18,42 +18,50 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import styles from './TestTable.module.css'
 
 // Column Sort Functions
-export const numericSorter = (trackA: any, trackB: any, accessor: string) => {
-  return trackA[accessor] - trackB[accessor]
+export const numericSorter = (accessor: string) => (rowA: any, rowB: any) => {
+  return rowA[accessor] - rowB[accessor]
 }
 
-export const alphaSorter = (trackA: any, trackB: any, accessor: string) => {
-  if (trackA[accessor].toLowerCase() < trackB[accessor].toLowerCase()) return -1
-  if (trackA[accessor].toLowerCase() > trackB[accessor].toLowerCase()) return 1
+export const alphaSorter = (accessor: string) => (rowA: any, rowB: any) => {
+  if (
+    rowA[accessor].trim().toLowerCase() < rowB[accessor].trim().toLowerCase()
+  ) {
+    return -1
+  }
+  if (
+    rowA[accessor].trim().toLowerCase() > rowB[accessor].trim().toLowerCase()
+  ) {
+    return 1
+  }
   return 0
 }
 
-export const dateSorter = (trackA: any, trackB: any, accessor: string) => {
-  if (moment(trackB[accessor]).isAfter(trackA[accessor])) return 1
-  if (moment(trackA[accessor]).isAfter(trackB[accessor])) return -1
+export const dateSorter = (accessor: string) => (rowA: any, rowB: any) => {
+  if (moment(rowB[accessor]).isAfter(rowA[accessor])) return 1
+  if (moment(rowA[accessor]).isAfter(rowB[accessor])) return -1
   return 0
 }
 
 type TestTableProps = {
+  activeIndex: number
+  animateTransitions?: boolean
   columns: any[]
   data: any[]
-  loading?: boolean
-  animateTransitions?: boolean
-  activeIndex: number
-  wrapperClassName?: string
-  tableClassName?: string
-  getRowClassName?: (rowIndex: number) => string
   defaultSorter?: (a: any, b: any) => number
+  getRowClassName?: (rowIndex: number) => string
+  isPaginated?: boolean
+  isReorderable?: boolean
+  isVirtualized?: boolean
+  loading?: boolean
+  maxRowNum?: number
   onClickRow?: (rowInfo: any, index: number) => void
+  onReorder?: () => void
   onSort?: (sortProps: {
     column: { sorter: (a: any, b: any) => number }
     order: string
   }) => void
-  onReorder?: () => void
-  isPaginated?: boolean
-  isReorderable?: boolean
-  isVirtualized?: boolean
-  maxRowNum?: number
+  tableClassName?: string
+  wrapperClassName?: string
 }
 
 /* TODO:
@@ -65,22 +73,22 @@ type TestTableProps = {
 */
 
 export const TestTable = ({
+  activeIndex,
+  animateTransitions = true,
   columns,
   data,
-  loading = false,
-  animateTransitions = true,
-  activeIndex,
-  wrapperClassName,
-  tableClassName,
-  getRowClassName,
   defaultSorter,
-  onClickRow,
-  onSort,
-  onReorder,
+  getRowClassName,
   isPaginated = false,
   isReorderable = false,
   isVirtualized = false,
-  maxRowNum = 20
+  loading = false,
+  maxRowNum = 20,
+  onClickRow,
+  onReorder,
+  onSort,
+  tableClassName,
+  wrapperClassName
 }: TestTableProps) => {
   const defaultColumn = useMemo(
     () => ({
@@ -169,7 +177,7 @@ export const TestTable = ({
               ) : null}
             </div>
             {/* Resizing Container */}
-            {!column.disableResizing && (
+            {!column.disableResizing ? (
               <div
                 onClick={(e) => {
                   e.preventDefault()
@@ -180,7 +188,7 @@ export const TestTable = ({
                   [styles.isResizing]: column.isResizing
                 })}
               />
-            )}
+            ) : null}
           </th>
         ))}
       </tr>
@@ -241,7 +249,7 @@ export const TestTable = ({
     })
   }, [rows, prepareRow, getRowClassName, activeIndex, renderCell, onClickRow])
 
-  const renderVistualizedRows = useCallback(() => {
+  const renderVirtualizedRows = useCallback(() => {
     return (
       <AutoSizer disableHeight>
         {({ width }) => (
@@ -279,7 +287,7 @@ export const TestTable = ({
             style={{ maxHeight: (maxRowNum + 0.5) * 44 }}
             {...getTableBodyProps()}
           >
-            {isVirtualized ? renderVistualizedRows() : renderRows()}
+            {isVirtualized ? renderVirtualizedRows() : renderRows()}
           </tbody>
         )}
       </table>

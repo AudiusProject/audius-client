@@ -1,4 +1,4 @@
-import { ID, UID, Lineup, Status, User } from '@audius/common'
+import { ID, UID, Lineup, Status, User, FeatureFlags } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
@@ -17,7 +17,9 @@ import CardLineup from 'components/lineup/CardLineup'
 import Page from 'components/page/Page'
 import { TestTracksTable } from 'components/test-tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
+import TracksTable from 'components/tracks-table/TracksTable'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
+import { useFlag } from 'hooks/useRemoteConfig'
 import useTabs from 'hooks/useTabs/useTabs'
 import { albumPage } from 'utils/route'
 
@@ -92,6 +94,7 @@ const SavedPage = ({
   onSortTracks,
   onReorderTracks
 }: SavedPageProps) => {
+  const { isEnabled: isNewTablesEnabled } = useFlag(FeatureFlags.NEW_TABLES)
   const [dataSource, playingIndex] =
     status === Status.SUCCESS ? getFilteredData(entries) : [[], -1]
   const { isLoading: isLoadingAlbums, setDidLoad: setDidLoadAlbums } =
@@ -206,7 +209,7 @@ const SavedPage = ({
           buttonLabel='Go to Trending'
           onClick={() => goToRoute('/trending')}
         />
-      ) : (
+      ) : isNewTablesEnabled ? (
         <TestTracksTable
           key='favorites'
           userId={account ? account.user_id : 0}
@@ -224,6 +227,26 @@ const SavedPage = ({
           // onReorderTracks={onReorderTracks}
           // onClickRemove={onClickRemove}
         />
+      ) : (
+        <div className={styles.tableWrapper}>
+          <TracksTable
+            key='favorites'
+            userId={account ? account.user_id : 0}
+            loading={tracksLoading}
+            loadingRowsCount={account ? account.track_save_count : 0}
+            playing={queuedAndPlaying}
+            playingIndex={playingIndex}
+            dataSource={dataSource}
+            onClickRow={onClickRow}
+            onClickFavorite={onClickSave}
+            onClickTrackName={onClickTrackName}
+            onClickArtistName={onClickArtistName}
+            onClickRepost={onClickRepost}
+            onClickRemove={onClickRemove}
+            onSortTracks={onSortTracks}
+            onReorderTracks={onReorderTracks}
+          />
+        </div>
       ),
       <div key='albums'>
         {account && account.albums.length > 0 ? (

@@ -28,40 +28,40 @@ import styles from './TestTracksTable.module.css'
 */
 
 export type TracksTableColumn =
-  | 'playButton'
-  | 'trackName'
   | 'artistName'
   | 'date'
-  | 'releaseDate'
-  | 'listenDate'
   | 'length'
-  | 'plays'
-  | 'reposts'
+  | 'listenDate'
   | 'overflowActions'
+  | 'playButton'
+  | 'plays'
+  | 'releaseDate'
+  | 'reposts'
+  | 'trackName'
 
 type TestTracksTableProps = {
-  wrapperClassName?: string
-  tableClassName?: string
   columns?: TracksTableColumn[]
   data: any[]
-  userId?: number | null
+  defaultSorter?: (a: any, b: any) => number
+  isVirtualized?: boolean
   loading?: boolean
   // TODO: Need to add the rows and skeletons when the loadingRowCount is passed
   // loadingRowCount?: number
-  playing?: boolean
-  playingIndex?: number
-  isVirtualized?: boolean
   maxRowNum?: number
-  defaultSorter?: (a: any, b: any) => number
-  onClickRow?: (track: any, index: number) => void
+  onClickArtistName?: (track: any) => void
   onClickFavorite?: (track: any) => void
   onClickRepost?: (track: any) => void
+  onClickRow?: (track: any, index: number) => void
   onClickTrackName?: (track: any) => void
-  onClickArtistName?: (track: any) => void
   onSortTracks?: (sortProps: {
     column: { sorter: (a: any, b: any) => number }
     order: string
   }) => void
+  playing?: boolean
+  playingIndex?: number
+  tableClassName?: string
+  userId?: number | null
+  wrapperClassName?: string
   // TODO: Need to add onReorderTracks
 }
 
@@ -78,24 +78,24 @@ const defaultColumns: TracksTableColumn[] = [
 ]
 
 export const TestTracksTable = ({
-  wrapperClassName,
-  tableClassName,
   columns = defaultColumns,
   data,
+  defaultSorter,
+  isVirtualized = false,
   loading = false,
   // loadingRowCount = 0,
-  playingIndex = -1,
-  playing = false,
-  isVirtualized = false,
   maxRowNum = 20,
-  defaultSorter,
-  onClickRow,
   onClickArtistName,
   onClickFavorite,
   onClickRepost,
+  onClickRow,
   onClickTrackName,
   onSortTracks,
-  userId
+  playing = false,
+  playingIndex = -1,
+  tableClassName,
+  userId,
+  wrapperClassName
 }: TestTracksTableProps) => {
   // Cell Render Functions
   const renderPlayButtonCell = useCallback(
@@ -226,7 +226,7 @@ export const TestTracksTable = ({
               className={cn(styles.tableActionButton, {
                 [styles.active]: track.has_current_user_saved
               })}
-              onClick={(e) => {
+              onClick={(e: any) => {
                 e.stopPropagation()
                 onClickFavorite?.(track)
               }}
@@ -252,7 +252,7 @@ export const TestTracksTable = ({
               className={cn(styles.tableActionButton, {
                 [styles.active]: track.has_current_user_reposted
               })}
-              onClick={(e) => {
+              onClick={(e: any) => {
                 e.stopPropagation()
                 onClickRepost?.(track)
               }}
@@ -272,7 +272,7 @@ export const TestTracksTable = ({
       return (
         <OverflowMenuButton
           className={styles.tableActionButton}
-          onClick={(e) => {
+          onClick={(e: any) => {
             e.stopPropagation()
           }}
           isDeleted={deleted}
@@ -323,9 +323,7 @@ export const TestTracksTable = ({
         Cell: renderArtistNameCell,
         maxWidth: 300,
         width: 120,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          alphaSorter(rowA, rowB, 'artist'),
-        sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'artist'),
+        sorter: alphaSorter('artist'),
         align: 'left'
       },
       date: {
@@ -334,9 +332,7 @@ export const TestTracksTable = ({
         accessor: 'date',
         Cell: renderDateCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          dateSorter(rowA, rowB, 'date'),
-        sorter: (rowA: any, rowB: any) => dateSorter(rowA, rowB, 'date'),
+        sorter: dateSorter('date'),
         align: 'right'
       },
       listenDate: {
@@ -345,10 +341,7 @@ export const TestTracksTable = ({
         accessor: 'dateListened',
         Cell: renderListenDateCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          dateSorter(rowA, rowB, 'dateListened'),
-        sorter: (rowA: any, rowB: any) =>
-          dateSorter(rowA, rowB, 'dateListened'),
+        sorter: dateSorter('dateListened'),
         align: 'right'
       },
       releaseDate: {
@@ -357,9 +350,7 @@ export const TestTracksTable = ({
         accessor: 'created_at',
         Cell: renderReleaseDateCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          dateSorter(rowA, rowB, 'created_at'),
-        sorter: (rowA: any, rowB: any) => dateSorter(rowA, rowB, 'created_at'),
+        sorter: dateSorter('created_at'),
         align: 'right'
       },
       reposts: {
@@ -368,10 +359,7 @@ export const TestTracksTable = ({
         accessor: 'repost_count',
         Cell: renderRepostsCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          numericSorter(rowA, rowB, 'repost_count'),
-        sorter: (rowA: any, rowB: any) =>
-          numericSorter(rowA, rowB, 'repost_count'),
+        sorter: numericSorter('repost_count'),
         align: 'right'
       },
       plays: {
@@ -380,9 +368,7 @@ export const TestTracksTable = ({
         accessor: 'plays',
         Cell: renderPlaysCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          numericSorter(rowA, rowB, 'plays'),
-        sorter: (rowA: any, rowB: any) => numericSorter(rowA, rowB, 'plays'),
+        sorter: numericSorter('plays'),
         align: 'right'
       },
       playButton: {
@@ -408,9 +394,7 @@ export const TestTracksTable = ({
         accessor: 'time',
         Cell: renderLengthCell,
         maxWidth: 160,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          numericSorter(rowA, rowB, 'time'),
-        sorter: (rowA: any, rowB: any) => numericSorter(rowA, rowB, 'time'),
+        sorter: numericSorter('time'),
         align: 'right'
       },
       trackName: {
@@ -420,9 +404,7 @@ export const TestTracksTable = ({
         Cell: renderTrackNameCell,
         maxWidth: 300,
         width: 120,
-        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-          alphaSorter(rowA, rowB, 'title'),
-        sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'title'),
+        sorter: alphaSorter('title'),
         align: 'left'
       }
     }),

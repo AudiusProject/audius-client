@@ -8,7 +8,7 @@ import styles from './TableFavoriteButton.module.css'
 type TableFavoriteButtonProps = {
   className?: string
   favorited?: boolean
-  onClick?: (e: MouseEvent) => void
+  onClick?: (e: any) => void
 }
 
 export const TableFavoriteButton = ({
