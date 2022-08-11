@@ -1281,11 +1281,13 @@ type BuyAudioSuccess = {
   provider: string
   requestedAudio: number
   actualAudio: number
+  surplusAudio: number
 }
 
 type BuyAudioFailure = {
   eventName: Name.BUY_AUDIO_FAILURE
   provider: string
+  requestedAudio: number
   stage: string
   error: string
 }

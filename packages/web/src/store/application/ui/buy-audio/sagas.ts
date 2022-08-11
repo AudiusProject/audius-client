@@ -48,7 +48,7 @@ import { increaseBalance } from 'common/store/wallet/slice'
 import {
   convertJSBIToAmountObject,
   convertWAudioToWei,
-  weiToAudioString,
+  formatWei,
   weiToString
 } from 'common/utils/wallet'
 import {
@@ -653,7 +653,15 @@ function* startBuyAudioFlow({
       make(Name.BUY_AUDIO_SUCCESS, {
         provider: 'coinbase',
         requestedAudio: desiredAudioAmount.uiAmount,
-        actualAudio: weiToAudioString(outputAmount)
+        actualAudio: parseFloat(formatWei(outputAmount).replaceAll(',', '')),
+        surplusAudio: parseFloat(
+          formatWei(
+            convertWAudioToWei(
+              // eslint-disable-next-line new-cap
+              transferAmount.sub(new u64(desiredAudioAmount.amount))
+            )
+          ).replaceAll(',', '')
+        )
       })
     )
   } catch (e) {
@@ -663,6 +671,7 @@ function* startBuyAudioFlow({
       make(Name.BUY_AUDIO_FAILURE, {
         provider: 'coinbase',
         stage,
+        requestedAudio: desiredAudioAmount.uiAmount,
         error: (e as Error).message
       })
     )
