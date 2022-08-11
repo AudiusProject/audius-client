@@ -1,4 +1,15 @@
-const aaoErrorEmojis = ['😓', '😭', '😥', '😮', '🤬', '😷', '😿', '😤', '🤨']
+const aaoErrorEmojis = [
+  '😓',
+  '😭',
+  '😥',
+  '😮',
+  '🤬',
+  '😷',
+  '😿',
+  '😤',
+  '🙁',
+  '🤨'
+]
 
 /**
  * Currently we have 7 error codes, please see this link:
