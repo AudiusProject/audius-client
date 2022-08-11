@@ -1,4 +1,4 @@
-import accountSagas from 'common/store/account/sagas'
+import accountSagas from 'common/store/account/sagas2'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import remoteConfig from 'common/store/remote-config/sagas'
 import { all, fork } from 'typed-redux-saga'

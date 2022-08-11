@@ -72,7 +72,7 @@ function* recordIPIfNotRecent(handle) {
   const storedIPStr = window.localStorage.getItem(IP_STORAGE_KEY)
   const storedIP = storedIPStr && JSON.parse(storedIPStr)
   if (!storedIP || !storedIP[handle] || storedIP[handle].timestamp < minAge) {
-    const { userIP, error } = yield call(recordIP)
+    const { userIP, error } = yield call(recordIP, audiusBackendInstance)
     if (!error) {
       window.localStorage.setItem(
         IP_STORAGE_KEY,

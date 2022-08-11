@@ -454,7 +454,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getTrackImages(track: TrackMetadata) {
+  function getTrackImages(track: TrackMetadata): TrackMetadata {
     const coverArtSizes: CoverArtSizes = {}
     if (!track.cover_art_sizes && !track.cover_art) {
       coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt as string
@@ -494,7 +494,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getUserImages(user: UserMetadata) {
+  function getUserImages(user: UserMetadata): UserMetadata {
     const profilePictureSizes: ProfilePictureSizes = {}
     const coverPhotoSizes: CoverPhotoSizes = {}
 
