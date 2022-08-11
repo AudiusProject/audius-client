@@ -46,20 +46,17 @@ import {
 } from 'store/application/ui/userListModal/types'
 import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
+import { isDescendantElementOf } from 'utils/domUtils'
 import { fullTrackPage, profilePage } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
-import {
-  getTrackWithFallback,
-  getUserWithFallback
-} from '../helpers'
+import { getTrackWithFallback, getUserWithFallback } from '../helpers'
 import { TrackTileSize } from '../types'
 
 import styles from './ConnectedTrackTile.module.css'
 import TrackTile from './TrackTile'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
-import { isDescendantElementOf } from 'utils/domUtils'
 
 type OwnProps = {
   uid: UID

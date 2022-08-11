@@ -57,6 +57,7 @@ import {
 } from 'store/application/ui/userListModal/types'
 import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import { AppState } from 'store/types'
+import { isDescendantElementOf } from 'utils/domUtils'
 import {
   albumPage,
   fullAlbumPage,
@@ -67,17 +68,13 @@ import {
 } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
-import {
-  getCollectionWithFallback,
-  getUserWithFallback
-} from '../helpers'
+import { getCollectionWithFallback, getUserWithFallback } from '../helpers'
 
 import styles from './ConnectedPlaylistTile.module.css'
 import PlaylistTile from './PlaylistTile'
 import TrackListItem from './TrackListItem'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
-import { isDescendantElementOf } from 'utils/domUtils'
 
 type OwnProps = {
   uid: UID

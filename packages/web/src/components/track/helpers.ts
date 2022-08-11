@@ -1,10 +1,4 @@
-import {
-  Nullable,
-  Collection,
-  FieldVisibility,
-  Track,
-  User
-} from '@audius/common'
+import { Collection, FieldVisibility, Track, User } from '@audius/common'
 
 const defaultFieldVisibility: FieldVisibility = {
   genre: true,

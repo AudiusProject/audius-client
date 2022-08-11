@@ -11,12 +11,12 @@ import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import Skeleton from 'components/skeleton/Skeleton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
+import { isDescendantElementOf } from 'utils/domUtils'
 import { profilePage } from 'utils/route'
 
 import { TrackTileSize } from '../types'
 
 import styles from './TrackListItem.module.css'
-import { isDescendantElementOf } from 'utils/domUtils'
 
 const makeStrings = ({ deleted }: { deleted: boolean }) => ({
   deleted: deleted ? ` [Deleted By Artist]` : '',
