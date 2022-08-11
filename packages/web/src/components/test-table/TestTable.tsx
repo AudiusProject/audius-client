@@ -6,7 +6,8 @@ import {
   useTable,
   useSortBy,
   useResizeColumns,
-  useFlexLayout
+  useFlexLayout,
+  Cell
 } from 'react-table'
 import { AutoSizer, List } from 'react-virtualized'
 
@@ -85,7 +86,7 @@ export const TestTable = ({
     () => ({
       // Default resizing column props
       minWidth: 64,
-      width: 100,
+      width: 64,
       maxWidth: 200
     }),
     []
@@ -186,6 +187,22 @@ export const TestTable = ({
     ))
   }, [headerGroups])
 
+  const renderCell = useCallback(
+    (cell: Cell) => (
+      <td
+        className={cn(styles.tableCell, {
+          [styles.leftAlign]: cell.column.align === 'left',
+          [styles.rightAlign]: cell.column.align === 'right'
+        })}
+        {...cell.getCellProps()}
+        key={`${cell.row.id}_${cell.getCellProps().key}`}
+      >
+        {cell.render('Cell')}
+      </td>
+    ),
+    []
+  )
+
   const renderRow = useCallback(
     ({ index, key, style }) => {
       const row = rows[index]
@@ -199,24 +216,11 @@ export const TestTable = ({
           key={key}
           onClick={() => onClickRow?.(row, row.index)}
         >
-          {row.cells.map((cell) => {
-            return (
-              <td
-                className={cn(styles.tableCell, {
-                  [styles.leftAlign]: cell.column.align === 'left',
-                  [styles.rightAlign]: cell.column.align === 'right'
-                })}
-                {...cell.getCellProps()}
-                key={`${row.id}_${cell.getCellProps().key}`}
-              >
-                {cell.render('Cell')}
-              </td>
-            )
-          })}
+          {row.cells.map(renderCell)}
         </tr>
       )
     },
-    [activeIndex, onClickRow, prepareRow, getRowClassName, rows]
+    [rows, prepareRow, getRowClassName, activeIndex, renderCell, onClickRow]
   )
 
   const renderRows = useCallback(() => {
@@ -231,24 +235,11 @@ export const TestTable = ({
           key={row.id}
           onClick={() => onClickRow?.(row, row.index)}
         >
-          {row.cells.map((cell) => {
-            return (
-              <td
-                className={cn(styles.tableCell, {
-                  [styles.leftAlign]: cell.column.align === 'left',
-                  [styles.rightAlign]: cell.column.align === 'right'
-                })}
-                {...cell.getCellProps()}
-                key={`${row.id}_${cell.getCellProps().key}`}
-              >
-                {cell.render('Cell')}
-              </td>
-            )
-          })}
+          {row.cells.map(renderCell)}
         </tr>
       )
     })
-  }, [activeIndex, onClickRow, prepareRow, getRowClassName, rows])
+  }, [rows, prepareRow, getRowClassName, activeIndex, renderCell, onClickRow])
 
   const renderVistualizedRows = useCallback(() => {
     return (

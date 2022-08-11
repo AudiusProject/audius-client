@@ -15,7 +15,6 @@ import {
   CollectionsPageType
 } from 'common/store/pages/collection/types'
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import {
   CollectiblesPlaylistTableColumn,
@@ -23,7 +22,6 @@ import {
 } from 'components/test-collectibles-playlist-table/TestCollectiblesPlaylistTable'
 import { TestTracksTable } from 'components/test-tracks-table'
 import { TracksTableColumn } from 'components/test-tracks-table/TestTracksTable'
-// import TracksTable from 'components/tracks-table/TracksTable'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
 import styles from './CollectionPage.module.css'
@@ -69,7 +67,6 @@ export type CollectionPageProps = {
     status: string
     entries: CollectionTrack[]
   }
-  columns?: any
   userId?: ID | null
   userPlaylists?: any
   isQueued: () => boolean
@@ -112,7 +109,6 @@ const CollectionPage = ({
   playing,
   type,
   collection: { status, metadata, user },
-  columns,
   tracks,
   userId,
   userPlaylists,
@@ -182,7 +178,6 @@ const CollectionPage = ({
   const isNftPlaylist = typeTitle === 'Audio NFT Playlist'
 
   const {
-    // trackCount,
     isEmpty,
     lastModified,
     playlistName,
@@ -284,60 +279,29 @@ const CollectionPage = ({
               maxRowNum={8}
               wrapperClassName={styles.tracksTableWrapper}
               key={playlistName}
-              loading={tracksLoading}
-              // loadingRowsCount={trackCount}
+              loading={isNftPlaylist ? tracksLoading : collectionLoading}
               userId={userId}
               playing={playing}
               playingIndex={playingIndex}
               data={dataSource}
+              onClickRow={onClickRow}
+              onClickFavorite={onClickSave}
+              onClickTrackName={onClickTrackName}
+              onClickArtistName={onClickArtistName}
+              onClickRepost={onClickRepostTrack}
+              onSortTracks={onSortTracks}
               // allowReordering={
               //   userId !== null &&
               //   userId === playlistOwnerId &&
               //   allowReordering &&
               //   !isAlbum
               // }
-              onClickRow={onClickRow}
-              onClickFavorite={onClickSave}
-              onClickTrackName={onClickTrackName}
-              onClickArtistName={onClickArtistName}
-              onClickRepost={onClickRepostTrack}
-              onSortTracks={onSortTracks}
               // onReorderTracks={onReorderTracks}
               // onClickRemove={isOwner ? onClickRemove : null}
               // removeText={`${messages.remove} ${
               //   isAlbum ? messages.type.album : messages.type.playlist
               // }`}
             />
-            {/* <TracksTable
-              key={playlistName}
-              loading={tracksLoading}
-              loadingRowsCount={trackCount}
-              columns={columns}
-              userId={userId}
-              playing={playing}
-              playingIndex={playingIndex}
-              dataSource={dataSource}
-              allowReordering={
-                userId !== null &&
-                userId === playlistOwnerId &&
-                allowReordering &&
-                !isAlbum
-              }
-              onClickRow={onClickRow}
-              onClickFavorite={onClickSave}
-              onClickTrackName={onClickTrackName}
-              onClickArtistName={onClickArtistName}
-              onClickRepost={onClickRepostTrack}
-              onSortTracks={onSortTracks}
-              onReorderTracks={onReorderTracks}
-              onClickRemove={isOwner ? onClickRemove : null}
-              removeText={`${messages.remove} ${
-                isAlbum ? messages.type.album : messages.type.playlist
-              }`}
-            /> */}
-            {collectionLoading && isNftPlaylist ? (
-              <LoadingSpinner className={styles.spinner} />
-            ) : null}
           </div>
         )}
       </div>

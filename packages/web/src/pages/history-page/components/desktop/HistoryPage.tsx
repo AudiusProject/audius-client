@@ -1,16 +1,15 @@
-import { ChangeEvent, memo } from 'react'
+import { ChangeEvent, memo, useCallback } from 'react'
 
 import { ID } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
-import moment from 'moment'
 
 import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import { dateSorter } from 'components/test-table'
 import { TestTracksTable } from 'components/test-tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
-import TracksTable from 'components/tracks-table/TracksTable'
 
 import styles from './HistoryPage.module.css'
 
@@ -30,7 +29,7 @@ export type HistoryPageProps = {
   onClickArtistName: (record: any) => void
   onClickRepost: (record: any) => void
   onSortTracks: (sorters: any) => void
-  svgoToRoute: (route: string) => void
+  goToRoute: (route: string) => void
   onPlay: () => void
   onFilterChange: (e: ChangeEvent<HTMLInputElement>) => void
   filterText: string
@@ -99,14 +98,10 @@ const HistoryPage = ({
     />
   )
 
-  // const largeData = [
-  //   ...dataSource,
-  //   ...dataSource,
-  //   ...dataSource,
-  //   ...dataSource,
-  //   ...dataSource,
-  //   ...dataSource
-  // ]
+  const defaultSorter = useCallback(
+    (trackA, trackB) => dateSorter(trackA, trackB, 'dateListened'),
+    []
+  )
 
   return (
     <Page
@@ -127,7 +122,6 @@ const HistoryPage = ({
           />
         ) : (
           <TestTracksTable
-            // data={largeData}
             key='history'
             data={dataSource}
             userId={userId}
@@ -136,27 +130,9 @@ const HistoryPage = ({
             playingIndex={playingIndex}
             maxRowNum={10}
             isVirtualized
-            defaultSorter={(trackA, trackB) => {
-              if (moment(trackB.dateListened).isAfter(trackA.dateListened))
-                return 1
-              if (moment(trackA.dateListened).isAfter(trackB.dateListened))
-                return -1
-              return 0
-            }}
+            defaultSorter={defaultSorter}
             {...trackTableActions}
           />
-          // <div className={styles.tableWrapper}>
-          //   <TracksTable
-          //     userId={userId}
-          //     key='history'
-          //     loading={tableLoading}
-          //     loadingRowsCount={entries.length}
-          //     playing={queuedAndPlaying}
-          //     playingIndex={playingIndex}
-          //     dataSource={dataSource}
-          //     {...trackTableActions}
-          //   />
-          // </div>
         )}
       </div>
     </Page>

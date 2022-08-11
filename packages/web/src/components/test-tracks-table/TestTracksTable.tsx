@@ -46,6 +46,8 @@ type TestTracksTableProps = {
   data: any[]
   userId?: number | null
   loading?: boolean
+  // TODO: Need to add the rows and skeletons when the loadingRowCount is passed
+  // loadingRowCount?: number
   playing?: boolean
   playingIndex?: number
   isVirtualized?: boolean
@@ -81,6 +83,7 @@ export const TestTracksTable = ({
   columns = defaultColumns,
   data,
   loading = false,
+  // loadingRowCount = 0,
   playingIndex = -1,
   playing = false,
   isVirtualized = false,
@@ -319,7 +322,7 @@ export const TestTracksTable = ({
         accessor: 'artist',
         Cell: renderArtistNameCell,
         maxWidth: 300,
-        width: 160,
+        width: 120,
         sortType: ({ original: rowA }: any, { original: rowB }: any) =>
           alphaSorter(rowA, rowB, 'artist'),
         sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'artist'),
@@ -416,7 +419,7 @@ export const TestTracksTable = ({
         accessor: 'title',
         Cell: renderTrackNameCell,
         maxWidth: 300,
-        width: 180,
+        width: 120,
         sortType: ({ original: rowA }: any, { original: rowB }: any) =>
           alphaSorter(rowA, rowB, 'title'),
         sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'title'),

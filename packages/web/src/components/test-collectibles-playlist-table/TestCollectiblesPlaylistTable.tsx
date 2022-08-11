@@ -54,8 +54,6 @@ export const TestCollectiblesPlaylistTable = ({
   onClickRow,
   onClickTrackName: onClickCollectibleName
 }: TestCollectiblesPlaylistTableProps) => {
-  console.log(chainLabelMap[Chain.Eth])
-
   // Cell Render Functions
   const renderPlayButtonCell = useCallback(
     (cellInfo) => {
@@ -124,7 +122,7 @@ export const TestCollectiblesPlaylistTable = ({
       },
       collectibleName: {
         id: 'collectibleName',
-        Header: 'Collectible Name',
+        Header: 'Track Name',
         accessor: 'title',
         Cell: renderCollectibleNameCell,
         maxWidth: 600,

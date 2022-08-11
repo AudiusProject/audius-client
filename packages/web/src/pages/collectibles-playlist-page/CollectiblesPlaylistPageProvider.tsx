@@ -17,7 +17,6 @@ import {
   Status,
   User
 } from '@audius/common'
-import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { matchPath } from 'react-router-dom'
@@ -33,8 +32,6 @@ import { add, clear, pause, play } from 'common/store/queue/slice'
 import { Source } from 'common/store/queue/types'
 import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
-import { formatSeconds } from 'common/utils/timeUtil'
-import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
 import { getPlaying, makeGetCurrent } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
@@ -43,8 +40,6 @@ import { getHash, AUDIO_NFT_PLAYLIST_PAGE, profilePage } from 'utils/route'
 
 import { CollectionPageProps as DesktopCollectionPageProps } from '../collection-page/components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from '../collection-page/components/mobile/CollectionPage'
-
-import styles from './CollectiblesPlaylistPage.module.css'
 
 declare global {
   interface HTMLMediaElement {
@@ -58,11 +53,6 @@ type CollectiblesPlaylistPageProviderProps = {
   children:
     | ComponentType<MobileCollectionPageProps>
     | ComponentType<DesktopCollectionPageProps>
-}
-
-const chainLabelMap: Record<Chain, string> = {
-  [Chain.Eth]: 'Ethereum',
-  [Chain.Sol]: 'Solana'
 }
 
 const hasAudio = (video: HTMLMediaElement) => {
@@ -363,59 +353,6 @@ export const CollectiblesPlaylistPageProvider = ({
     )
   }, [entries, currentPlayerItem])
 
-  const columns = [
-    {
-      title: '',
-      key: 'playButton',
-      className: 'colCollectiblesPlayButton',
-      render: (val: string, record: Collectible, index: number) => (
-        <TablePlayButton
-          paused={!playing}
-          playing={record.id === currentPlayerItem?.collectible?.id}
-          className={styles.playButtonFormatting}
-        />
-      )
-    },
-    {
-      title: 'Track Name',
-      dataIndex: 'name',
-      key: 'name',
-      className: 'colTrackName',
-      width: '70%',
-      render: (val: string, record: Collectible) => (
-        <div
-          className={cn(styles.collectibleName, {
-            [styles.active]: record.id === currentPlayerItem?.collectible?.id
-          })}
-          onClick={(e) => {
-            e.stopPropagation()
-            onClickTrackName(record)
-          }}
-        >
-          {val}
-        </div>
-      )
-    },
-    {
-      title: 'Chain',
-      dataIndex: 'chain',
-      key: 'chain',
-      className: 'colChain',
-      render: (val: string, record: Collectible) => (
-        <div>{chainLabelMap[record.chain]}</div>
-      )
-    },
-    {
-      title: 'Time',
-      dataIndex: 'time',
-      key: 'time',
-      className: 'colTime',
-      render: (val: string, record: Collectible) => (
-        <div>{record.duration ? formatSeconds(record.duration) : '--'}</div>
-      )
-    }
-  ]
-
   const onHeroTrackShare = () => {
     if (user) {
       dispatch(
@@ -462,7 +399,6 @@ export const CollectiblesPlaylistPageProvider = ({
       status: !firstLoadedCollectible.current ? Status.LOADING : Status.SUCCESS,
       entries
     },
-    columns,
     getPlayingUid,
     getFilteredData,
     isQueued,

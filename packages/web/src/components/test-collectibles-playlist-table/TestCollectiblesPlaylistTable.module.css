@@ -26,7 +26,6 @@
   opacity: 1;
 }
 
-.tableRow:hover .tablePlayButton,
-.tableRow:hover .trackActionsContainer .tableActionButton {
+.tableRow:hover .tablePlayButton {
   opacity: 1;
 }
