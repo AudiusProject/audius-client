@@ -689,22 +689,8 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         console.debug('Creating playlist')
         // Uploaded collections are always public
         const isPrivate = false
-
-        // if (trackIds) {
-        //   const web3 = audiusLibs.web3Manager.getWeb3()
-        //   const currentBlockNumber = yield call(web3.eth.getBlockNumber)
-        //   const currentBlock = yield call(web3.eth.getBlock, currentBlockNumber)
-
-        //   playlist.playlist_contents = {
-        //     track_ids: playlist.playlist_contents.track_ids.concat({
-        //       track: action.trackId,
-        //       time: currentBlock.timestamp
-        //     })
-        //   }
-        // }
-
         const { blockHash, blockNumber, playlistId, error } = yield call(
-          AudiusBackend.createPlaylist,
+          AudiusBackend.createPlaylist, // TODO pass playlistID
           userId,
           collectionMetadata,
           isAlbum,

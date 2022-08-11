@@ -1449,6 +1449,7 @@ class AudiusBackend {
   }
 
   static async createPlaylist(
+    playlistId: ID,
     userId: ID,
     metadata: Collection,
     isAlbum = false,
@@ -1460,12 +1461,13 @@ class AudiusBackend {
     const description = metadata.description
     // Creating an album is automatically public.
     if (isAlbum) isPrivate = false
-    console.log('asdf AudiusBackend createPlaylist')
+
     try {
-      // Test call to new audius data function
-      // if (getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED)) {
-      console.log('asdf AudiusBackend create playlist feature enabled')
+      const isEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
       const response = await audiusLibs.EntityManager.createPlaylist({
+        playlistId,
         playlistName,
         trackIds,
         coverArt,
@@ -1473,11 +1475,10 @@ class AudiusBackend {
         isAlbum,
         isPrivate
       })
+      const { blockHash, blockNumber, responsePlaylistId, error } = response
+      if (error) return { responsePlaylistId, error }
 
-      const { blockHash, blockNumber, playlistId, error } = response
-      if (error) return { playlistId, error }
-
-      return { blockHash, blockNumber, playlistId }
+      return { blockHash, blockNumber, responsePlaylistId }
     } catch (err) {
       // This code path should never execute
       console.debug('Reached client createPlaylist catch block')
@@ -1527,7 +1528,6 @@ class AudiusBackend {
 
   static async publishPlaylist(playlistId: ID) {
     try {
-      console.log('asdf publishPlaylist')
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.editPlaylist({
           playlistId,
@@ -1542,7 +1542,6 @@ class AudiusBackend {
 
   static async addPlaylistTrack(playlistId: ID, trackId: ID) {
     try {
-      console.log('asdf addPlaylistTrack', trackId)
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.addPlaylistTrack({
           playlistId,

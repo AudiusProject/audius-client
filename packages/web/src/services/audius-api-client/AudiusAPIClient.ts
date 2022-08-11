@@ -1069,7 +1069,7 @@ class AudiusAPIClient {
       )
 
     if (!response) return []
-    console.log('asdf response data', response)
+
     const adapted = response.data
       .map(adapter.makePlaylist)
       .filter(removeNullable)

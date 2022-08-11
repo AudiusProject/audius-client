@@ -33,7 +33,7 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: false,
   [FeatureFlags.TIPPING_ENABLED]: false,
   [FeatureFlags.WRITE_QUORUM_ENABLED]: false,
-  [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: true
+  [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: false
 }
 
 export enum FeatureFlagCohortType {
