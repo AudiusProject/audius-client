@@ -212,6 +212,7 @@ const SavedPage = ({
           key='favorites'
           userId={account ? account.user_id : 0}
           loading={tracksLoading}
+          maxRowNum={10}
           // loadingRowsCount={account ? account.track_save_count : 0}
           playing={queuedAndPlaying}
           playingIndex={playingIndex}

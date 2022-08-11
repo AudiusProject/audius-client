@@ -2,29 +2,32 @@ import { useCallback, useMemo } from 'react'
 
 import cn from 'classnames'
 import moment from 'moment'
+import { ColumnInstance } from 'react-table'
 
 import { formatCount } from 'common/utils/formatUtil'
 import { formatSeconds } from 'common/utils/timeUtil'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
-import { TestTable } from 'components/test-table'
+import {
+  TestTable,
+  OverflowMenuButton,
+  TableFavoriteButton,
+  TablePlayButton,
+  TableRepostButton,
+  alphaSorter,
+  dateSorter,
+  numericSorter
+} from 'components/test-table'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 
-import { OverflowMenuButton } from './OverflowMenuButton'
-import { TableFavoriteButton } from './TableFavoriteButton'
-import { TablePlayButton } from './TablePlayButton'
-import { TableRepostButton } from './TableRepostButton'
 import styles from './TestTracksTable.module.css'
 
 /* TODO:
   - Will need to be updated to remove the client side sorting and add state (probably in the table component) to sort which column is being sorted on and in which direction
   - Need to add the scroll logic to handle the paginated calls to the backend
-  - Fix error where resized columns reset when the state changes
-  - release_date is inconsistently set for release date column, created_at seems more consistent.
-    - Make sure this is fine
 */
 
-type TracksTableColumn =
+export type TracksTableColumn =
   | 'playButton'
   | 'trackName'
   | 'artistName'
@@ -41,7 +44,7 @@ type TestTracksTableProps = {
   tableClassName?: string
   columns?: TracksTableColumn[]
   data: any[]
-  userId: number
+  userId?: number | null
   loading?: boolean
   playing?: boolean
   playingIndex?: number
@@ -57,24 +60,7 @@ type TestTracksTableProps = {
     column: { sorter: (a: any, b: any) => number }
     order: string
   }) => void
-  // TODO: Need to do all of the drag and drop logic and add onReorderTracks
-}
-
-// Column Sort Functions
-const numericSorter = (trackA: any, trackB: any, accessor: string) => {
-  return trackA[accessor] - trackB[accessor]
-}
-
-const alphaSorter = (trackA: any, trackB: any, accessor: string) => {
-  if (trackA[accessor].toLowerCase() < trackB[accessor].toLowerCase()) return -1
-  if (trackA[accessor].toLowerCase() > trackB[accessor].toLowerCase()) return 1
-  return 0
-}
-
-const dateSorter = (trackA: any, trackB: any, accessor: string) => {
-  if (moment(trackB[accessor]).isAfter(trackA[accessor])) return 1
-  if (moment(trackA[accessor]).isAfter(trackB[accessor])) return -1
-  return 0
+  // TODO: Need to add onReorderTracks
 }
 
 const defaultColumns: TracksTableColumn[] = [
@@ -108,17 +94,6 @@ export const TestTracksTable = ({
   onSortTracks,
   userId
 }: TestTracksTableProps) => {
-  console.log({ data })
-  const handleClickRow = useCallback(
-    (rowInfo, index: number) => {
-      const track = rowInfo.original
-      const deleted = track.is_delete || track.user?.is_deactivated
-      if (deleted) return
-      onClickRow?.(track, index)
-    },
-    [onClickRow]
-  )
-
   // Cell Render Functions
   const renderPlayButtonCell = useCallback(
     (cellInfo) => {
@@ -332,179 +307,150 @@ export const TestTracksTable = ({
     [renderFavoriteButtonCell, renderOverflowMenuCell, renderRepostButtonCell]
   )
 
-  const tableColumns = useMemo(
-    () => [
-      ...(columns.includes('playButton')
-        ? [
-            {
-              id: 'playButton',
-              Cell: renderPlayButtonCell,
-              minWidth: 48,
-              maxWidth: 48,
-              disableResizing: true,
-              sortable: false
-            }
-          ]
-        : []),
-      ...(columns.includes('trackName')
-        ? [
-            {
-              id: 'trackName',
-              Header: 'Track Name',
-              accessor: 'title',
-              Cell: renderTrackNameCell,
-              maxWidth: 300,
-              width: 180,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                alphaSorter(rowA, rowB, 'title'),
-              sorter: (rowA: any, rowB: any) =>
-                alphaSorter(rowA, rowB, 'title'),
-              align: 'left'
-            }
-          ]
-        : []),
-      ...(columns.includes('artistName')
-        ? [
-            {
-              id: 'artistName',
-              Header: 'Artist',
-              accessor: 'artist',
-              Cell: renderArtistNameCell,
-              maxWidth: 300,
-              width: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                alphaSorter(rowA, rowB, 'artist'),
-              sorter: (rowA: any, rowB: any) =>
-                alphaSorter(rowA, rowB, 'artist'),
-              align: 'left'
-            }
-          ]
-        : []),
-      ...(columns.includes('date')
-        ? [
-            {
-              id: 'date',
-              Header: 'Date',
-              accessor: 'date',
-              Cell: renderDateCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                dateSorter(rowA, rowB, 'date'),
-              sorter: (rowA: any, rowB: any) => dateSorter(rowA, rowB, 'date'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('releaseDate')
-        ? [
-            {
-              id: 'dateReleased',
-              Header: 'Released',
-              accessor: 'created_at',
-              Cell: renderReleaseDateCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                dateSorter(rowA, rowB, 'created_at'),
-              sorter: (rowA: any, rowB: any) =>
-                dateSorter(rowA, rowB, 'created_at'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('listenDate')
-        ? [
-            {
-              id: 'dateListened',
-              Header: 'Played',
-              accessor: 'dateListened',
-              Cell: renderListenDateCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                dateSorter(rowA, rowB, 'dateListened'),
-              sorter: (rowA: any, rowB: any) =>
-                dateSorter(rowA, rowB, 'dateListened'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('length')
-        ? [
-            {
-              id: 'time',
-              Header: 'Length',
-              accessor: 'time',
-              Cell: renderLengthCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                numericSorter(rowA, rowB, 'time'),
-              sorter: (rowA: any, rowB: any) =>
-                numericSorter(rowA, rowB, 'time'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('plays')
-        ? [
-            {
-              id: 'plays',
-              Header: 'Plays',
-              accessor: 'plays',
-              Cell: renderPlaysCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                numericSorter(rowA, rowB, 'plays'),
-              sorter: (rowA: any, rowB: any) =>
-                numericSorter(rowA, rowB, 'plays'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('reposts')
-        ? [
-            {
-              id: 'reposts',
-              Header: 'Reposts',
-              accessor: 'repost_count',
-              Cell: renderRepostsCell,
-              maxWidth: 160,
-              sortType: ({ original: rowA }: any, { original: rowB }: any) =>
-                numericSorter(rowA, rowB, 'repost_count'),
-              sorter: (rowA: any, rowB: any) =>
-                numericSorter(rowA, rowB, 'repost_count'),
-              align: 'right'
-            }
-          ]
-        : []),
-      ...(columns.includes('overflowActions')
-        ? [
-            {
-              id: 'trackActions',
-              Cell: renderTrackActions,
-              minWidth: 144,
-              maxWidth: 144,
-              width: 144,
-              disableResizing: true,
-              sortable: false
-            }
-          ]
-        : [])
-    ],
+  // Columns
+  const tableColumnMap: Record<
+    TracksTableColumn,
+    Partial<ColumnInstance>
+  > = useMemo(
+    () => ({
+      artistName: {
+        id: 'artistName',
+        Header: 'Artist',
+        accessor: 'artist',
+        Cell: renderArtistNameCell,
+        maxWidth: 300,
+        width: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          alphaSorter(rowA, rowB, 'artist'),
+        sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'artist'),
+        align: 'left'
+      },
+      date: {
+        id: 'date',
+        Header: 'Date',
+        accessor: 'date',
+        Cell: renderDateCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          dateSorter(rowA, rowB, 'date'),
+        sorter: (rowA: any, rowB: any) => dateSorter(rowA, rowB, 'date'),
+        align: 'right'
+      },
+      listenDate: {
+        id: 'dateListened',
+        Header: 'Played',
+        accessor: 'dateListened',
+        Cell: renderListenDateCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          dateSorter(rowA, rowB, 'dateListened'),
+        sorter: (rowA: any, rowB: any) =>
+          dateSorter(rowA, rowB, 'dateListened'),
+        align: 'right'
+      },
+      releaseDate: {
+        id: 'dateReleased',
+        Header: 'Released',
+        accessor: 'created_at',
+        Cell: renderReleaseDateCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          dateSorter(rowA, rowB, 'created_at'),
+        sorter: (rowA: any, rowB: any) => dateSorter(rowA, rowB, 'created_at'),
+        align: 'right'
+      },
+      reposts: {
+        id: 'reposts',
+        Header: 'Reposts',
+        accessor: 'repost_count',
+        Cell: renderRepostsCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          numericSorter(rowA, rowB, 'repost_count'),
+        sorter: (rowA: any, rowB: any) =>
+          numericSorter(rowA, rowB, 'repost_count'),
+        align: 'right'
+      },
+      plays: {
+        id: 'plays',
+        Header: 'Plays',
+        accessor: 'plays',
+        Cell: renderPlaysCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          numericSorter(rowA, rowB, 'plays'),
+        sorter: (rowA: any, rowB: any) => numericSorter(rowA, rowB, 'plays'),
+        align: 'right'
+      },
+      playButton: {
+        id: 'playButton',
+        Cell: renderPlayButtonCell,
+        minWidth: 48,
+        maxWidth: 48,
+        disableResizing: true,
+        disableSortBy: true
+      },
+      overflowActions: {
+        id: 'trackActions',
+        Cell: renderTrackActions,
+        minWidth: 144,
+        maxWidth: 144,
+        width: 144,
+        disableResizing: true,
+        disableSortBy: true
+      },
+      length: {
+        id: 'time',
+        Header: 'Length',
+        accessor: 'time',
+        Cell: renderLengthCell,
+        maxWidth: 160,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          numericSorter(rowA, rowB, 'time'),
+        sorter: (rowA: any, rowB: any) => numericSorter(rowA, rowB, 'time'),
+        align: 'right'
+      },
+      trackName: {
+        id: 'trackName',
+        Header: 'Track Name',
+        accessor: 'title',
+        Cell: renderTrackNameCell,
+        maxWidth: 300,
+        width: 180,
+        sortType: ({ original: rowA }: any, { original: rowB }: any) =>
+          alphaSorter(rowA, rowB, 'title'),
+        sorter: (rowA: any, rowB: any) => alphaSorter(rowA, rowB, 'title'),
+        align: 'left'
+      }
+    }),
     [
-      columns,
-      renderPlayButtonCell,
-      renderTrackNameCell,
       renderArtistNameCell,
       renderDateCell,
-      renderReleaseDateCell,
-      renderListenDateCell,
       renderLengthCell,
+      renderListenDateCell,
+      renderPlayButtonCell,
       renderPlaysCell,
+      renderReleaseDateCell,
       renderRepostsCell,
-      renderTrackActions
+      renderTrackActions,
+      renderTrackNameCell
     ]
   )
 
-  // console.log({ columns, tableColumns })
+  const tableColumns = useMemo(
+    () => columns.map((id) => tableColumnMap[id]),
+    [columns, tableColumnMap]
+  )
+
+  const handleClickRow = useCallback(
+    (rowInfo, index: number) => {
+      const track = rowInfo.original
+      const deleted = track.is_delete || track.user?.is_deactivated
+      if (deleted) return
+      onClickRow?.(track, index)
+    },
+    [onClickRow]
+  )
 
   const getRowClassName = useCallback(
     (rowIndex) => {

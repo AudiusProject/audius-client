@@ -3,8 +3,6 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
-  /* TODO: Need to add the hover display styles and logic */
-  /* opacity: 0; */
 }
 .tableRepostButton.reposted {
   opacity: 1;
@@ -15,9 +13,6 @@
   position: relative;
   transition: all 0.07s ease-in-out !important;
 }
-/* :global(.ant-table-tbody > tr:hover:not(.ant-table-expanded-row)) .icon {
-  opacity: 1;
-} */
 
 .icon g path {
   fill: var(--neutral-light-5);

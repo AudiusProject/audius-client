@@ -3,16 +3,10 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
-  /* TODO: Need to add the hover display styles and logic */
-  /* opacity: 0; */
 }
 .tableFavoriteButton.favorited {
   opacity: 1;
 }
-/* :global(.ant-table-tbody > tr:hover:not(.ant-table-expanded-row))
-  .tableFavoriteButton {
-  opacity: 1;
-} */
 
 .icon {
   width: 16px;

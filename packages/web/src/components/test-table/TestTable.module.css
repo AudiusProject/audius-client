@@ -43,9 +43,12 @@
   position: relative;
   background-color: var(--white);
   padding-left: 12px;
-  padding-right: 20px;
+  padding-right: 12px;
   line-height: 41px;
   user-select: none;
+}
+.tableHeader.hasSorter {
+  padding-right: 20px;
 }
 .titleHeader + .titleHeader::before {
   content: '';
@@ -80,7 +83,7 @@
 
 .tableBody {
   display: block;
-  /* overflow: auto; */
+  overflow: auto;
 }
 
 .tableRow {

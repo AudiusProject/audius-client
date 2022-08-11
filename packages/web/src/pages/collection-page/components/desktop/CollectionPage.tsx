@@ -17,8 +17,13 @@ import {
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import {
+  CollectiblesPlaylistTableColumn,
+  TestCollectiblesPlaylistTable
+} from 'components/test-collectibles-playlist-table/TestCollectiblesPlaylistTable'
 import { TestTracksTable } from 'components/test-tracks-table'
-import TracksTable from 'components/tracks-table/TracksTable'
+import { TracksTableColumn } from 'components/test-tracks-table/TestTracksTable'
+// import TracksTable from 'components/tracks-table/TracksTable'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
 import styles from './CollectionPage.module.css'
@@ -174,8 +179,10 @@ const CollectionPage = ({
   const customEmptyText =
     metadata?.variant === Variant.SMART ? metadata?.customEmptyText : null
 
+  const isNftPlaylist = typeTitle === 'Audio NFT Playlist'
+
   const {
-    trackCount,
+    // trackCount,
     isEmpty,
     lastModified,
     playlistName,
@@ -192,9 +199,7 @@ const CollectionPage = ({
     <CollectionHeader
       collectionId={playlistId}
       userId={playlistOwnerId}
-      loading={
-        typeTitle === 'Audio NFT Playlist' ? tracksLoading : collectionLoading
-      }
+      loading={isNftPlaylist ? tracksLoading : collectionLoading}
       tracksLoading={tracksLoading}
       type={typeTitle}
       title={playlistName}
@@ -237,20 +242,27 @@ const CollectionPage = ({
     />
   )
 
-  const tracksTableColumns = useMemo(
-    () => [
-      'playButton',
-      'trackName',
-      'artistName',
-      'date',
-      'length',
-      'plays',
-      'overflowActions'
-    ],
-    []
-  )
+  const TableComponent = useMemo(() => {
+    return isNftPlaylist ? TestCollectiblesPlaylistTable : TestTracksTable
+  }, [isNftPlaylist])
 
-  // console.log({ dataSource })
+  const tracksTableColumns = useMemo<
+    (TracksTableColumn | CollectiblesPlaylistTableColumn)[]
+  >(
+    () =>
+      isNftPlaylist
+        ? ['playButton', 'collectibleName', 'chain', 'length']
+        : [
+            'playButton',
+            'trackName',
+            'artistName',
+            'date',
+            'length',
+            'plays',
+            'overflowActions'
+          ],
+    [isNftPlaylist]
+  )
 
   return (
     <Page
@@ -266,8 +278,10 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
-            <TestTracksTable
+            <TableComponent
+              // @ts-ignore
               columns={tracksTableColumns}
+              maxRowNum={8}
               wrapperClassName={styles.tracksTableWrapper}
               key={playlistName}
               loading={tracksLoading}
@@ -321,7 +335,7 @@ const CollectionPage = ({
                 isAlbum ? messages.type.album : messages.type.playlist
               }`}
             /> */}
-            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+            {collectionLoading && isNftPlaylist ? (
               <LoadingSpinner className={styles.spinner} />
             ) : null}
           </div>

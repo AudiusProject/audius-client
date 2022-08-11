@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 
 import cn from 'classnames'
+import moment from 'moment'
 import {
   useTable,
   useSortBy,
@@ -14,6 +15,23 @@ import { ReactComponent as IconCaretUp } from 'assets/img/iconCaretUpLine.svg'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './TestTable.module.css'
+
+// Column Sort Functions
+export const numericSorter = (trackA: any, trackB: any, accessor: string) => {
+  return trackA[accessor] - trackB[accessor]
+}
+
+export const alphaSorter = (trackA: any, trackB: any, accessor: string) => {
+  if (trackA[accessor].toLowerCase() < trackB[accessor].toLowerCase()) return -1
+  if (trackA[accessor].toLowerCase() > trackB[accessor].toLowerCase()) return 1
+  return 0
+}
+
+export const dateSorter = (trackA: any, trackB: any, accessor: string) => {
+  if (moment(trackB[accessor]).isAfter(trackA[accessor])) return 1
+  if (moment(trackA[accessor]).isAfter(trackB[accessor])) return -1
+  return 0
+}
 
 type TestTableProps = {
   columns: any[]
@@ -65,7 +83,6 @@ export const TestTable = ({
 }: TestTableProps) => {
   const defaultColumn = useMemo(
     () => ({
-      sortable: true,
       // Default resizing column props
       minWidth: 64,
       width: 100,
@@ -80,7 +97,6 @@ export const TestTable = ({
     headerGroups,
     rows,
     prepareRow,
-    // hiddenColumns array is also available here
     state: { sortBy }
   } = useTable(
     {
@@ -88,13 +104,7 @@ export const TestTable = ({
       data,
       defaultColumn,
       autoResetSortBy: false,
-      autoResetExpanded: false,
-      // autoResetPage: false,
-      // autoResetExpanded: false,
-      // autoResetGroupBy: false,
-      // autoResetSelectedRows: false,
-      // autoResetFilters: false,
-      autoResetRowState: false,
+      autoResetResize: false,
       manualSortBy: true
     },
     useSortBy,
@@ -136,6 +146,7 @@ export const TestTable = ({
           <th
             className={cn(styles.tableHeader, {
               [styles.titleHeader]: Boolean(column.accessor),
+              [styles.hasSorter]: column.disableSortBy !== true,
               [styles.leftAlign]: column.align === 'left',
               [styles.rightAlign]: column.align === 'right'
             })}
@@ -145,7 +156,7 @@ export const TestTable = ({
             {/* Sorting Container */}
             <div {...column.getSortByToggleProps()}>
               <div className={styles.textCell}>{column.render('Header')}</div>
-              {column.sortable !== false ? (
+              {!column.disableSortBy ? (
                 <div className={styles.sortCaretContainer}>
                   {!column.isSorted || !column.isSortedDesc ? (
                     <IconCaretUp className={styles.sortCaret} />
@@ -252,9 +263,7 @@ export const TestTable = ({
             rowCount={rows.length}
             rowHeight={44}
             rowRenderer={renderRow}
-            // onScroll={() => {
-            //   console.log('scroll')
-            // }
+            // onScroll={() => { console.log('scroll') }}
           />
         )}
       </AutoSizer>
