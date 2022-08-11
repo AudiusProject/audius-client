@@ -35,6 +35,7 @@ export function* confirmTransaction(blockHash: string, blockNumber: number) {
       blockHash,
       blockNumber
     )
+    console.log('asdf confirmedBlock', { block_found, block_passed })
 
     return block_found
       ? BlockConfirmation.CONFIRMED

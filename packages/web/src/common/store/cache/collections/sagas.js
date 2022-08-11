@@ -1,4 +1,11 @@
-import { Name, DefaultSizes, Kind, makeKindId, makeUid } from '@audius/common'
+import {
+  FeatureFlags,
+  Name,
+  DefaultSizes,
+  Kind,
+  makeKindId,
+  makeUid
+} from '@audius/common'
 import { isEqual } from 'lodash'
 import {
   all,
@@ -22,6 +29,7 @@ import { squashNewLines } from 'common/utils/formatUtil'
 import * as signOnActions from 'pages/sign-on/store/actions'
 import AudiusBackend from 'services/AudiusBackend'
 import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
 import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
@@ -63,13 +71,17 @@ function* createPlaylistAsync(action) {
 
   yield call(waitForBackendSetup)
   const userId = yield select(getUserId)
-  // Minimum playlist ID, intentionally higher than legacy playlist ID range
-  const MIN_PLAYLIST_ID = 400000
-  // Maximum playlist ID, reflects postgres max integer value
-  const MAX_PLAYLIST_ID = 2147483647
+  // // Minimum playlist ID, intentionally higher than legacy playlist ID range
+  // const MIN_PLAYLIST_ID = 400000
+  // // Maximum playlist ID, reflects postgres max integer value
+  // const MAX_PLAYLIST_ID = 2147483647
 
-  const playlistId = Math.floor(
-    Math.random() * (MAX_PLAYLIST_ID - MIN_PLAYLIST_ID) + MIN_PLAYLIST_ID
+  // const playlistId = Math.floor(
+  //   Math.random() * (MAX_PLAYLIST_ID - MIN_PLAYLIST_ID) + MIN_PLAYLIST_ID
+  // )
+  const uid = action.playlistId
+  const playlistEntityManagerIsEnabled = getFeatureEnabled(
+    FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
   )
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -92,12 +104,12 @@ function* createPlaylistAsync(action) {
 
   yield call(
     confirmCreatePlaylist,
-    playlistId,
+    uid,
     userId,
     action.formFields,
     action.source
   )
-  playlist.playlist_id = playlistId
+  playlist.playlist_id = uid
   playlist.playlist_owner_id = userId
   playlist.is_private = true
   playlist.playlist_contents = { track_ids: [] }
@@ -107,9 +119,9 @@ function* createPlaylistAsync(action) {
       [DefaultSizes.OVERRIDE]: playlist.artwork.url
     }
   }
-  playlist._temp = true
+  playlist._temp = !playlistEntityManagerIsEnabled
 
-  const subscribedUid = yield makeUid(Kind.COLLECTIONS, playlistId, 'account')
+  const subscribedUid = yield makeUid(Kind.COLLECTIONS, uid, 'account')
   yield put(
     cacheActions.add(
       Kind.COLLECTIONS,
@@ -136,8 +148,8 @@ function* createPlaylistAsync(action) {
   yield put(collectionActions.createPlaylistSucceeded())
 
   const collectionIds = (user._collectionIds || [])
-    .filter((c) => c.uid !== playlistId)
-    .concat(playlistId)
+    .filter((c) => c.uid !== uid)
+    .concat(uid)
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -148,23 +160,23 @@ function* createPlaylistAsync(action) {
   )
 }
 
-function* confirmCreatePlaylist(playlistId, userId, formFields, source) {
+function* confirmCreatePlaylist(uid, userId, formFields, source) {
   yield put(
     confirmerActions.requestConfirmation(
-      makeKindId(Kind.COLLECTIONS, playlistId),
+      makeKindId(Kind.COLLECTIONS, uid),
       function* () {
-        const { blockHash, blockNumber, responsePlaylistId, error } =
-          yield call(
-            AudiusBackend.createPlaylist,
-            playlistId,
-            userId,
-            formFields
-          )
+        const { blockHash, blockNumber, playlistId, error } = yield call(
+          AudiusBackend.createPlaylist,
+          uid,
+          userId,
+          formFields
+        )
 
         if (error || !responsePlaylistId)
           throw new Error('Unable to create playlist')
 
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
+        console.log('confirmed createPlaylist block', blockNumber)
         if (!confirmed) {
           throw new Error(
             `Could not confirm playlist creation for playlist id ${responsePlaylistId}`
@@ -411,10 +423,14 @@ function* addTrackToPlaylistAsync(action) {
     action.trackId,
     `collection:${action.playlistId}`
   )
+  const web3 = yield audiusLibs.web3Manager.getWeb3()
+  const currentBlockNumber = yield web3.eth.getBlockNumber()
+  const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
+
   playlist.playlist_contents = {
     track_ids: playlist.playlist_contents.track_ids.concat({
       track: action.trackId,
-      time: Math.round(Date.now() / 1000),
+      time: currentBlock.timestamp,
       uid: trackUid
     })
   }
@@ -449,10 +465,12 @@ function* addTrackToPlaylistAsync(action) {
 }
 
 function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
+  console.log('asdf confirmAddTrackToPlaylist', playlistId)
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
+        console.log('asdf adding track', trackId)
         const { blockHash, blockNumber, error } = yield call(
           AudiusBackend.addPlaylistTrack,
           confirmedPlaylistId,
@@ -461,6 +479,8 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
         if (error) throw error
 
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
+        console.log('asdf confirmed transaction block', blockNumber)
+
         if (!confirmed) {
           throw new Error(
             `Could not confirm add playlist track for playlist id ${playlistId} and track id ${trackId}`
@@ -516,18 +536,12 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
         yield put(
           collectionActions.addTrackToPlaylistFailed(
             message,
-            { userId, playlistId, playlistContents, count },
+            { userId, playlistId, trackId, count },
             { error, timeout }
           )
         )
       },
-      (result) => (result.playlist_id ? result.playlist_id : playlistId),
-      undefined,
-      {
-        operationId: PlaylistOperations.ADD_TRACK,
-        parallelizable: false,
-        useOnlyLastSuccessCall: true
-      }
+      (result) => (result.playlist_id ? result.playlist_id : playlistId)
     )
   )
 }
