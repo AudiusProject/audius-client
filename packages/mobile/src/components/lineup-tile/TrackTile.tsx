@@ -94,7 +94,7 @@ const TrackTileComponent = ({
   } = track
 
   const currentScreen = navigation.getState().history?.[0]
-  // @ts-expect-error
+  // @ts-expect-error -- history returning unknown[]
   const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
 
   const { user_id } = user
