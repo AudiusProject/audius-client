@@ -18,38 +18,13 @@ export enum ClaimStatus {
   ERROR = 'error'
 }
 
-type ClaimNone = {
-  status: ClaimStatus.NONE
-}
-
-type ClaimClaiming = {
-  status: ClaimStatus.CLAIMING
-}
-
-type ClaimWaitingForRetry = {
-  status: ClaimStatus.WAITING_FOR_RETRY
-}
-
-type ClaimAlreadyClaimed = {
-  status: ClaimStatus.ALREADY_CLAIMED
-}
-
-type ClaimSuccess = {
-  status: ClaimStatus.SUCCESS
-}
-
-type ClaimError = {
-  status: ClaimStatus.ERROR
-  aaoErrorCode: number | undefined
-}
-
 export type ClaimState =
-  | ClaimNone
-  | ClaimClaiming
-  | ClaimWaitingForRetry
-  | ClaimAlreadyClaimed
-  | ClaimSuccess
-  | ClaimError
+  | { status: ClaimStatus.NONE }
+  | { status: ClaimStatus.CLAIMING }
+  | { status: ClaimStatus.WAITING_FOR_RETRY }
+  | { status: ClaimStatus.ALREADY_CLAIMED }
+  | { status: ClaimStatus.SUCCESS }
+  | { status: ClaimStatus.ERROR; aaoErrorCode: number | undefined }
 
 export type Claim = {
   challengeId: ChallengeRewardID

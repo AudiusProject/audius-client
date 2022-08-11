@@ -7,7 +7,8 @@ const aaoErrorEmojis = ['😓', '😭', '😥', '😮', '🤬', '😷', '😿', 
  * Error code mappings:
  * Negative numbers are unexpected but valid, return last emoji.
  * Positive numbers are expected, return emoji at index of error code.
- * Positive numbers larger than number of error codes are invalid, ignore.
+ * Positive numbers larger than number of error codes are technically invalid,
+ * but ignore them and return last emoji to prevent errors.
  **/
 export const getAAOErrorEmojis = (errorCode: number): string => {
   return aaoErrorEmojis[errorCode] ?? aaoErrorEmojis[aaoErrorEmojis.length - 1]
