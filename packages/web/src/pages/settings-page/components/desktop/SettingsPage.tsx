@@ -133,7 +133,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   }
 
   onSignOut = () => {
-    this.props.recordSignOut(signOut)
+    this.props.recordSignOut(() => signOut(audiusBackendInstance))
   }
 
   showEmailToast = async () => {

@@ -1,6 +1,7 @@
 import { Name } from '@audius/common'
 import { call, put, takeEvery } from 'redux-saga/effects'
 
+import { getContext } from 'common/store'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   confirmCredentials,
@@ -16,6 +17,7 @@ import { make, TrackEvent } from 'store/analytics/actions'
 function* handleConfirmCredentials(
   action: ReturnType<typeof confirmCredentials>
 ) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield call(waitForBackendSetup)
   try {
     const confirmed: boolean = yield call(
@@ -33,6 +35,7 @@ function* handleConfirmCredentials(
 }
 
 function* handleChangePassword(action: ReturnType<typeof changePassword>) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield call(waitForBackendSetup)
   try {
     yield call(

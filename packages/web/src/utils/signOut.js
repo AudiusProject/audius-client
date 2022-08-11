@@ -1,10 +1,10 @@
+import { AudiusBackend } from 'common/services/audius-backend'
 import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
 import { BADGE_LOCAL_STORAGE_KEY } from 'pages/audio-rewards-page/Tiers'
 import {
   clearAudiusAccount,
   clearAudiusAccountUser
 } from 'services/LocalStorage'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { SignedOut } from 'services/native-mobile-interface/lifecycle'
 import { ReloadMessage } from 'services/native-mobile-interface/linking'
 import { removeHasRequestedBrowserPermission } from 'utils/browserNotifications'
@@ -25,7 +25,7 @@ const removeLocalStorageItems = () => {
   items.map((k) => localStorage.removeItem(k))
 }
 
-export const signOut = async () => {
+export const signOut = async (audiusBackendInstance: AudiusBackend) => {
   removeLocalStorageItems()
   clearAudiusAccount()
   clearAudiusAccountUser()

@@ -1,6 +1,8 @@
 import { TrackMetadata } from '@audius/common'
+import { all } from 'typed-redux-saga'
 
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { AudiusBackend } from 'common/services/audius-backend'
+import { getContext } from 'common/store/effects'
 
 declare global {
   interface Window {
@@ -29,7 +31,10 @@ const waitForBItems = async () => {
   }
 }
 
-const setBlocked = async <T extends TrackMetadata>(track: T) => {
+const setBlocked = async <T extends TrackMetadata>(
+  track: T,
+  audiusBackendInstance: AudiusBackend
+) => {
   // Initialize the set if not present
   if (!blockList) {
     await waitForBItems()
@@ -50,8 +55,11 @@ const setBlocked = async <T extends TrackMetadata>(track: T) => {
   return track
 }
 
-export const setTracksIsBlocked = async <T extends TrackMetadata>(
-  tracks: T[]
-): Promise<T[]> => {
-  return await Promise.all(tracks.map(setBlocked))
+export async function setTracksIsBlocked<T extends TrackMetadata>(
+  tracks: T[],
+  audiusBackendInstance: AudiusBackend
+) {
+  return await Promise.all(
+    tracks.map((track) => setBlocked(track, audiusBackendInstance))
+  )
 }
