@@ -13,10 +13,10 @@ import Skeleton from 'components/skeleton/Skeleton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { profilePage } from 'utils/route'
 
-import { isDescendantElementOf } from '../helpers'
 import { TrackTileSize } from '../types'
 
 import styles from './TrackListItem.module.css'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 const makeStrings = ({ deleted }: { deleted: boolean }) => ({
   deleted: deleted ? ` [Deleted By Artist]` : '',

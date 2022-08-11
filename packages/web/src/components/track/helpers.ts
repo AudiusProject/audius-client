@@ -85,12 +85,3 @@ export const getUserWithFallback = (user: User | null) => {
     }
   )
 }
-
-export const isDescendantElementOf = (
-  descendant: any,
-  ancestor: Nullable<HTMLElement>
-) => {
-  const descendantElement =
-    descendant instanceof Element ? (descendant as Element) : null
-  return ancestor?.contains(descendantElement)
-}

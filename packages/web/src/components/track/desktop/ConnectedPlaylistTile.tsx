@@ -69,8 +69,7 @@ import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import {
   getCollectionWithFallback,
-  getUserWithFallback,
-  isDescendantElementOf
+  getUserWithFallback
 } from '../helpers'
 
 import styles from './ConnectedPlaylistTile.module.css'
@@ -78,6 +77,7 @@ import PlaylistTile from './PlaylistTile'
 import TrackListItem from './TrackListItem'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 type OwnProps = {
   uid: UID
