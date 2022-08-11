@@ -6,14 +6,14 @@ import PropTypes from 'prop-types'
 import { Spring } from 'react-spring/renderprops'
 import TwitterLogin from 'react-twitter-auth'
 
-import profilePicEmpty from 'assets/img/imageProfilePicEmpty2X.png'
+import profilePicEmpty from 'common/assets/img/imageProfilePicEmpty2X.png'
 import Input from 'components/data-entry/Input'
 import InstagramAuth from 'components/instagram-auth/InstagramAuth'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import ProfilePicture from 'components/profile-picture/ProfilePicture'
 import StatusMessage from 'components/status-message/StatusMessage'
 import { useDelayedEffect } from 'hooks/useDelayedEffect'
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
 import {
@@ -69,7 +69,8 @@ const ProfileForm = (props) => {
         [styles.isMobile]: props.isMobile,
         [styles.blur]: props.showTwitterOverlay,
         [styles.moveFormUp]: suggestTwitterLogin || suggestInstagramLogin
-      })}>
+      })}
+    >
       {props.isMobile ? (
         <div className={styles.header}>{props.header}</div>
       ) : null}
@@ -90,7 +91,8 @@ const ProfileForm = (props) => {
         className={cn(styles.inputContainer, {
           [styles.hide]: props.showTwitterOverlay,
           [styles.errorInput]: handle.error
-        })}>
+        })}
+      >
         <Input
           placeholder='Display Name'
           name='name'
@@ -136,7 +138,8 @@ const ProfileForm = (props) => {
           <span
             className={cn(styles.atHandle, {
               [styles.atHandleFocus]: focus || props.handle.value
-            })}>
+            })}
+          >
             {'@'}
           </span>
         </div>
@@ -145,7 +148,8 @@ const ProfileForm = (props) => {
             from={{ opacity: 0 }}
             to={{ opacity: 1 }}
             leave={{ opacity: 0 }}
-            config={{ duration: 200 }}>
+            config={{ duration: 200 }}
+          >
             {(animProps) => (
               <StatusMessage
                 status='error'
@@ -161,15 +165,17 @@ const ProfileForm = (props) => {
             from={{ opacity: 0 }}
             to={{ opacity: 1 }}
             leave={{ opacity: 0 }}
-            config={{ duration: 200 }}>
+            config={{ duration: 200 }}
+          >
             {(animProps) => (
               <div style={animProps} className={styles.suggestTwitter}>
                 <TwitterLogin
                   onFailure={(...args) => console.log(args)}
                   onSuccess={props.onTwitterLogin}
                   className={styles.hideTwitterButton}
-                  requestTokenUrl={`${IDENTITY_SERVICE}/twitter`}
-                  loginUrl={`${IDENTITY_SERVICE}/twitter/callback`}>
+                  requestTokenUrl={`${audiusBackendInstance.identityServiceUrl}/twitter`}
+                  loginUrl={`${audiusBackendInstance.identityServiceUrl}/twitter/callback`}
+                >
                   {messages.completeWithTwitter}
                 </TwitterLogin>
               </div>
@@ -181,15 +187,17 @@ const ProfileForm = (props) => {
             from={{ opacity: 0 }}
             to={{ opacity: 1 }}
             leave={{ opacity: 0 }}
-            config={{ duration: 200 }}>
+            config={{ duration: 200 }}
+          >
             {(animProps) => (
               <div style={animProps} className={styles.suggestTwitter}>
                 <InstagramAuth
                   onFailure={(...args) => console.log(args)}
                   onSuccess={props.onInstagramLogin}
                   className={styles.hideTwitterButton}
-                  setProfileUrl={`${IDENTITY_SERVICE}/instagram/profile`}
-                  getUserUrl={`${IDENTITY_SERVICE}/instagram`}>
+                  setProfileUrl={`${audiusBackendInstance.identityServiceUrl}/instagram/profile`}
+                  getUserUrl={`${audiusBackendInstance.identityServiceUrl}/instagram`}
+                >
                   {messages.completeWithInstagram}
                 </InstagramAuth>
               </div>

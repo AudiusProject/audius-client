@@ -1,9 +1,13 @@
-import { ID } from '@audius/common'
+import {
+  ID,
+  TimeRange,
+  Track,
+  UserTrackMetadata,
+  Nullable,
+  StringKeys
+} from '@audius/common'
 import { call, put, select } from 'redux-saga/effects'
 
-import TimeRange from 'common/models/TimeRange'
-import { Track, UserTrackMetadata } from 'common/models/Track'
-import { StringKeys } from 'common/services/remote-config'
 import { getTracks } from 'common/store/cache/tracks/selectors'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { setLastFetchedTrendingGenre } from 'common/store/pages/trending/actions'
@@ -13,8 +17,7 @@ import {
   getTrendingGenre
 } from 'common/store/pages/trending/selectors'
 import { Genre } from 'common/utils/genres'
-import { Nullable } from 'common/utils/typeUtils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { AppState } from 'store/types'
 

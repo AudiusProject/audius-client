@@ -5,7 +5,7 @@ import Tooltip from 'antd/lib/tooltip'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import { Utils } from 'services/AudiusBackend'
+import { Utils } from 'common/services/audius-backend'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 
 import styles from './MetaMaskModal.module.css'
@@ -80,7 +80,8 @@ class MetaMaskModal extends Component {
     return (
       <div
         className={cn(styles.container, { [styles.hidden]: !open })}
-        onClick={this.onContainerClick}>
+        onClick={this.onContainerClick}
+      >
         <div className={styles.modal} onClick={this.onModalClick}>
           <div className={styles.header}>
             <div className={styles.title}>
@@ -113,7 +114,8 @@ class MetaMaskModal extends Component {
                   {messages.metaMaskConfigure}
                 </span>
               }
-              getPopupContainer={(trigger) => trigger.parentNode}>
+              getPopupContainer={(trigger) => trigger.parentNode}
+            >
               <div>
                 <Button
                   type={configured ? ButtonType.COMMON : ButtonType.DISABLED}

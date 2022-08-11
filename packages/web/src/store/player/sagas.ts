@@ -1,3 +1,4 @@
+import { Kind, StringKeys } from '@audius/common'
 import { eventChannel, END } from 'redux-saga'
 import {
   select,
@@ -9,14 +10,14 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
-import Kind from 'common/models/Kind'
-import { StringKeys } from 'common/services/remote-config'
 import * as cacheActions from 'common/store/cache/actions'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
 import * as queueActions from 'common/store/queue/slice'
 import { recordListen } from 'common/store/social/tracks/actions'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { encodeHashId } from 'common/utils/hashIds'
+import { apiClient } from 'services/audius-api-client'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import {
   getAudio,
@@ -39,8 +40,6 @@ import {
   seek,
   error as errorAction
 } from 'store/player/slice'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
-import { encodeHashId } from 'utils/route/hashIds'
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
@@ -96,7 +95,9 @@ export function* watchPlay() {
       })
 
       const gateways = owner
-        ? getCreatorNodeIPFSGateways(owner.creator_node_endpoint)
+        ? audiusBackendInstance.getCreatorNodeIPFSGateways(
+            owner.creator_node_endpoint
+          )
         : []
       const encodedTrackId = encodeHashId(trackId)
       const forceStreamMp3 =

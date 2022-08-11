@@ -1,22 +1,22 @@
-import { ID } from '@audius/common'
-import { call, select } from 'redux-saga/effects'
-
 import {
+  ID,
   Collection,
   CollectionMetadata,
-  UserCollectionMetadata
-} from 'common/models/Collection'
-import Kind from 'common/models/Kind'
-import { Track } from 'common/models/Track'
+  UserCollectionMetadata,
+  Kind,
+  Track,
+  makeUid
+} from '@audius/common'
+import { call, select } from 'redux-saga/effects'
+
 import { CommonState } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { getCollections } from 'common/store/cache/collections/selectors'
 import { retrieve } from 'common/store/cache/sagas'
 import { getEntryTimestamp } from 'common/store/cache/selectors'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { makeUid } from 'common/utils/uid'
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { addUsersFromCollections } from './addUsersFromCollections'
@@ -146,7 +146,7 @@ export function* retrieveCollections(
         metadatas = yield call(retrieveCollection, ids[0])
       } else {
         // TODO: Remove this branch when we have batched endpoints in new V1 api.
-        metadatas = yield call(AudiusBackend.getPlaylists, userId, ids)
+        metadatas = yield call(audiusBackendInstance.getPlaylists, userId, ids)
       }
 
       // Process any local deletions on the client

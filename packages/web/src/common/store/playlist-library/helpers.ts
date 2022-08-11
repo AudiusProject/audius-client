@@ -1,13 +1,12 @@
-import { ID } from '@audius/common'
-import isEmpty from 'lodash/isEmpty'
-
 import {
+  ID,
   PlaylistLibrary,
   PlaylistLibraryIdentifier,
-  PlaylistLibraryFolder
-} from 'common/models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import { uuid } from 'common/utils/uid'
+  PlaylistLibraryFolder,
+  SmartCollectionVariant,
+  uuid
+} from '@audius/common'
+import isEmpty from 'lodash/isEmpty'
 
 import { AccountCollection } from '../account/reducer'
 

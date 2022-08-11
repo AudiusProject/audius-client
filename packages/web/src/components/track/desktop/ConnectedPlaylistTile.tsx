@@ -5,10 +5,20 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactChildren
+  ReactChildren,
+  useRef
 } from 'react'
 
-import { UID, ID } from '@audius/common'
+import {
+  UID,
+  ID,
+  ShareSource,
+  RepostSource,
+  FavoriteSource,
+  PlaybackSource,
+  Name,
+  Track
+} from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -16,14 +26,6 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-import {
-  ShareSource,
-  RepostSource,
-  FavoriteSource,
-  PlaybackSource,
-  Name
-} from 'common/models/Analytics'
-import { Track } from 'common/models/Track'
 import { getUserHandle } from 'common/store/account/selectors'
 import {
   getCollection,
@@ -55,6 +57,7 @@ import {
 } from 'store/application/ui/userListModal/types'
 import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import { AppState } from 'store/types'
+import { isDescendantElementOf } from 'utils/domUtils'
 import {
   albumPage,
   fullAlbumPage,
@@ -151,59 +154,75 @@ const ConnectedPlaylistTile = memo(
     } = getUserWithFallback(user)
     const isOwner = handle === userHandle
 
+    const menuRef = useRef<HTMLDivElement>(null)
+
     const isActive = useMemo(() => {
       return tracks.some((track: any) => track.uid === playingUid)
     }, [tracks, playingUid])
 
-    const onTogglePlay = useCallback(() => {
-      if (isUploading) return
-      if (!isActive || !isPlaying) {
-        if (isActive) {
-          playTrack(playingUid!)
+    const onTogglePlay = useCallback(
+      (e?: MouseEvent /* click event within TrackTile */) => {
+        // Skip playing / pausing track if click event happened within track menu container
+        // because clicking on it should not affect corresponding playlist track.
+        // We have to do this instead of stopping the event propagation
+        // because we need it to bubble up to the document to allow
+        // the document click listener to close other track/playlist tile menus
+        // that are already open.
+        const shouldSkipTogglePlay = isDescendantElementOf(
+          e?.target,
+          menuRef.current
+        )
+        if (shouldSkipTogglePlay) return
+        if (isUploading) return
+        if (!isActive || !isPlaying) {
+          if (isActive) {
+            playTrack(playingUid!)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${playingTrackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          } else {
+            const trackUid = tracks[0] ? tracks[0].uid : null
+            const trackId = tracks[0] ? tracks[0].track_id : null
+            if (!trackUid || !trackId) return
+            playTrack(trackUid)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${trackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          }
+        } else {
+          pauseTrack()
           if (record) {
             record(
-              make(Name.PLAYBACK_PLAY, {
+              make(Name.PLAYBACK_PAUSE, {
                 id: `${playingTrackId}`,
                 source: PlaybackSource.PLAYLIST_TILE_TRACK
               })
             )
           }
-        } else {
-          const trackUid = tracks[0] ? tracks[0].uid : null
-          const trackId = tracks[0] ? tracks[0].track_id : null
-          if (!trackUid || !trackId) return
-          playTrack(trackUid)
-          if (record) {
-            record(
-              make(Name.PLAYBACK_PLAY, {
-                id: `${trackId}`,
-                source: PlaybackSource.PLAYLIST_TILE_TRACK
-              })
-            )
-          }
         }
-      } else {
-        pauseTrack()
-        if (record) {
-          record(
-            make(Name.PLAYBACK_PAUSE, {
-              id: `${playingTrackId}`,
-              source: PlaybackSource.PLAYLIST_TILE_TRACK
-            })
-          )
-        }
-      }
-    }, [
-      isPlaying,
-      tracks,
-      playTrack,
-      pauseTrack,
-      isActive,
-      playingUid,
-      playingTrackId,
-      isUploading,
-      record
-    ])
+      },
+      [
+        isPlaying,
+        tracks,
+        playTrack,
+        pauseTrack,
+        isActive,
+        playingUid,
+        playingTrackId,
+        isUploading,
+        record
+      ]
+    )
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
@@ -268,7 +287,7 @@ const ConnectedPlaylistTile = memo(
       return (
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuContainer}>
+            <div className={styles.menuContainer} ref={menuRef}>
               <div className={styles.menuKebabContainer} onClick={triggerPopup}>
                 <IconKebabHorizontal
                   className={cn(styles.iconKebabHorizontal)}
@@ -297,7 +316,8 @@ const ConnectedPlaylistTile = memo(
               className={cn(styles.name, {
                 [styles.artistNameLink]: onClickArtistName
               })}
-              onClick={onClickArtistName}>
+              onClick={onClickArtistName}
+            >
               {name}
             </span>
           </ArtistPopover>
@@ -381,7 +401,8 @@ const ConnectedPlaylistTile = memo(
             isAlbum
               ? fullAlbumPage(handle, title, id)
               : fullPlaylistPage(handle, title, id)
-          }>
+          }
+        >
           {children as any}
         </Draggable>
       ),
@@ -418,7 +439,8 @@ const ConnectedPlaylistTile = memo(
           kind='track'
           id={track.track_id}
           isOwner={track.user.handle === userHandle}
-          link={fullTrackPage(track.permalink)}>
+          link={fullTrackPage(track.permalink)}
+        >
           <TrackListItem
             index={i}
             key={`${track.title}+${i}`}

@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { Status, ShareSource } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
-import { ShareSource } from 'audius-client/src/common/models/Analytics'
-import Status from 'audius-client/src/common/models/Status'
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { fetchProfile } from 'audius-client/src/common/store/pages/profile/actions'
 import { getProfileStatus } from 'audius-client/src/common/store/pages/profile/selectors'
@@ -17,16 +15,14 @@ import { IconButton, Screen } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { TopBarIconButton } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles/makeStyles'
 import { useThemeColors } from 'app/utils/theme'
 
-import { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
+import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { ProfileHeader } from './ProfileHeader'
-import { ProfileHeaderV2 } from './ProfileHeaderV2'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { useSelectProfileRoot } from './selectors'
 
@@ -58,9 +54,6 @@ export const ProfileScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
 
   const handlePressSettings = useCallback(() => {
     navigation.push({
@@ -131,13 +124,10 @@ export const ProfileScreen = () => {
 
   const scrollY = useRef(new Animated.Value(0)).current
 
-  const renderHeader = useCallback(() => {
-    return isTippingEnabled ? (
-      <ProfileHeaderV2 scrollY={scrollY} />
-    ) : (
-      <ProfileHeader scrollY={scrollY} />
-    )
-  }, [isTippingEnabled, scrollY])
+  const renderHeader = useCallback(
+    () => <ProfileHeader scrollY={scrollY} />,
+    [scrollY]
+  )
 
   return (
     <Screen topbarLeft={topbarLeft} topbarRight={topbarRight}>

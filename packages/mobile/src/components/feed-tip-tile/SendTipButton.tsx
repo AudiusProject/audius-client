@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
+import type { User } from '@audius/common'
 import { beginTip } from 'audius-client/src/common/store/tipping/slice'
 import { View } from 'react-native'
 
@@ -69,12 +69,14 @@ export const SendTipButton = ({ receiver }: SendTipButtonProps) => {
         title={
           <View style={styles.sendTipButtonTitleContainer}>
             <Text
-              style={[styles.sendTipButtonTitle, isActive && styles.textWhite]}>
+              style={[styles.sendTipButtonTitle, isActive && styles.textWhite]}
+            >
               {messages.sendTipToPrefix}
             </Text>
             <Text
               style={[styles.buttonReceiverName, isActive && styles.textWhite]}
-              numberOfLines={1}>
+              numberOfLines={1}
+            >
               {receiver.name}
             </Text>
             <UserBadges user={receiver} badgeSize={12} hideName />

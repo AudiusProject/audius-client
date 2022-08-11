@@ -2,13 +2,14 @@
 import 'whatwg-fetch'
 import 'url-search-params-polyfill'
 
+import { Name } from '@audius/common'
+
 import {
   Credentials,
   UseTikTokAuthArguments,
   createUseTikTokAuthHook
 } from 'common/hooks/useTikTokAuth'
-import { Name } from 'common/models/Analytics'
-import { IDENTITY_SERVICE } from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { useRecord, make } from 'store/analytics/actions'
 
 /**
@@ -97,7 +98,7 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
     csrfState: string
   ) => {
     const response = await window.fetch(
-      `${IDENTITY_SERVICE}/tiktok/access_token`,
+      `${audiusBackendInstance.identityServiceUrl}/tiktok/access_token`,
       {
         credentials: 'include',
         method: 'POST',
@@ -132,7 +133,7 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
   return createUseTikTokAuthHook({
     authenticate: () => {
       return new Promise<Credentials>((resolve, reject) => {
-        const authenticationUrl = `${IDENTITY_SERVICE}/tiktok`
+        const authenticationUrl = `${audiusBackendInstance.identityServiceUrl}/tiktok`
         const popup = openPopup()
 
         if (popup) {

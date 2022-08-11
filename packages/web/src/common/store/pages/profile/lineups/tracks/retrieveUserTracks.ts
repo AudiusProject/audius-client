@@ -1,8 +1,7 @@
-import { ID } from '@audius/common'
+import { ID, Track } from '@audius/common'
 
-import { Track } from 'common/models/Track'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 
 type RetrieveUserTracksArgs = {
   handle: string

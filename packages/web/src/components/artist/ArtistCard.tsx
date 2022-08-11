@@ -1,15 +1,12 @@
 import { MouseEventHandler, useCallback, useMemo } from 'react'
 
+import { FollowSource, User } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { FollowSource } from 'common/models/Analytics'
-import { User } from 'common/models/User'
-import { FeatureFlags } from 'common/services/remote-config'
 import { setNotificationSubscription } from 'common/store/pages/profile/actions'
 import { followUser, unfollowUser } from 'common/store/social/users/actions'
 import FollowButton from 'components/follow-button/FollowButton'
 import Stats, { StatProps } from 'components/stats/Stats'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 
 import styles from './ArtistCard.module.css'
 import { ArtistCardCover } from './ArtistCardCover'
@@ -34,7 +31,6 @@ export const ArtistCard = (props: ArtistCardProps) => {
 
   const dispatch = useDispatch()
   const isArtist = track_count > 0
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
 
   const handleClick: MouseEventHandler = useCallback((event) => {
     event.stopPropagation()
@@ -98,12 +94,7 @@ export const ArtistCard = (props: ArtistCardProps) => {
         </div>
         <div className={styles.contentContainer}>
           <div>
-            {isTippingEnabled ? (
-              <ArtistSupporting
-                artist={artist}
-                onNavigateAway={onNavigateAway}
-              />
-            ) : null}
+            <ArtistSupporting artist={artist} onNavigateAway={onNavigateAway} />
             <div className={styles.description}>{bio}</div>
             <FollowButton
               className={styles.followButton}

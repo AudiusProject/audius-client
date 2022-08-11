@@ -29,15 +29,12 @@ import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
-import backend from 'store/backend/reducer'
 import confirmer from 'store/confirmer/reducer'
 import dragndrop from 'store/dragndrop/reducer'
 import player from 'store/player/slice'
 import playlistLibrary from 'store/playlist-library/slice'
 
-import { webStoreContext } from './storeContext'
-
-export const commonStoreReducers = clientStoreReducers(webStoreContext)
+export const commonStoreReducers = clientStoreReducers()
 
 const createRootReducer = (routeHistory: History) =>
   combineReducers({
@@ -48,7 +45,6 @@ const createRootReducer = (routeHistory: History) =>
     router: connectRouter(routeHistory),
 
     // Config
-    backend,
     confirmer,
 
     // Account

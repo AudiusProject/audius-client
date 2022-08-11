@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { StyleProp, ViewStyle } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 
 type PressableTextProps = {
@@ -19,7 +19,8 @@ export const PressableText = (props: PressableTextProps) => {
     <TouchableWithoutFeedback
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      {...other}>
+      {...other}
+    >
       {children({ pressed })}
     </TouchableWithoutFeedback>
   )

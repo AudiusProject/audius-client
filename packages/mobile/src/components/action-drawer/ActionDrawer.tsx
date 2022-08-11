@@ -1,22 +1,13 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import { Modals } from 'audius-client/src/common/store/ui/modals/slice'
-import {
-  StyleSheet,
-  TextStyle,
-  TouchableHighlight,
-  View,
-  ViewStyle
-} from 'react-native'
+import type { Modals } from 'audius-client/src/common/store/ui/modals/slice'
+import type { TextStyle, ViewStyle } from 'react-native'
+import { StyleSheet, TouchableHighlight, View } from 'react-native'
 
 import Text from 'app/components/text'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import {
-  Theme,
-  ThemeColors,
-  useThemeColors,
-  useThemeVariant
-} from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
+import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import { AppDrawer, useDrawerState } from '../drawer/AppDrawer'
 
@@ -108,7 +99,8 @@ const ActionDrawer = ({
             onPress={() => {
               didSelectRow(index)
             }}
-            underlayColor={neutralLight9}>
+            underlayColor={neutralLight9}
+          >
             <View style={[styles.row, stylesProp.row]}>
               {icon ? <View style={styles.actionIcon}>{icon}</View> : null}
               <Text
@@ -118,7 +110,8 @@ const ActionDrawer = ({
                   isDarkMode ? { color: staticWhite } : {},
                   style
                 ]}
-                weight='demiBold'>
+                weight='demiBold'
+              >
                 {text}
               </Text>
             </View>

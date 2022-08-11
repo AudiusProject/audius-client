@@ -1,10 +1,15 @@
+import {
+  SmartCollection,
+  SmartCollectionVariant,
+  Status,
+  Track,
+  UserTrack,
+  UserTrackMetadata
+} from '@audius/common'
 import { takeEvery, put, call, select } from 'typed-redux-saga/macro'
 
-import { SmartCollection } from 'common/models/Collection'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import Status from 'common/models/Status'
-import { Track, UserTrack } from 'common/models/Track'
 import { getAccountStatus, getUserId } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers as retrieveUsers } from 'common/store/cache/users/sagas'
 import { setSmartCollection } from 'common/store/pages/collection/actions'
@@ -13,7 +18,6 @@ import {
   fetchSmartCollectionSucceeded
 } from 'common/store/pages/smart-collection/slice'
 import Explore from 'services/audius-backend/Explore'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { getLuckyTracks } from 'store/recommendation/sagas'
 import { EXPLORE_PAGE } from 'utils/route'
 import { requiresAccount, waitForValue } from 'utils/sagaHelpers'
@@ -55,7 +59,15 @@ function* fetchHeavyRotation() {
 }
 
 function* fetchBestNewReleases() {
-  const tracks = yield* call(Explore.getTopFolloweeTracksFromWindow, 'month')
+  const currentUserId = yield* select(getUserId)
+  if (currentUserId == null) {
+    return
+  }
+  const tracks = yield* call(
+    Explore.getTopFolloweeTracksFromWindow,
+    currentUserId,
+    'month'
+  )
 
   const trackIds = tracks
     .filter((track) => !track.user.is_deactivated)
@@ -96,11 +108,14 @@ function* fetchUnderTheRadar() {
 }
 
 function* fetchMostLoved() {
-  const tracks = yield* call(Explore.getTopFolloweeSaves)
-
+  const currentUserId = yield* select(getUserId)
+  if (currentUserId == null) {
+    return
+  }
+  const tracks = yield* call(Explore.getMostLovedTracks, currentUserId)
   const trackIds = tracks
     .filter((track) => !track.user.is_deactivated)
-    .map((track: Track) => ({
+    .map((track: UserTrackMetadata) => ({
       time: track.created_at,
       track: track.track_id
     }))

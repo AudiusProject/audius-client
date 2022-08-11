@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { Name, User, FeatureFlags } from '@audius/common'
 import { Button, ButtonType, IconTikTok, IconTwitterBird } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
@@ -7,15 +8,12 @@ import { useDispatch } from 'react-redux'
 import backgroundPlaceholder from 'assets/img/1-Concert-3-1.jpg'
 import { ReactComponent as IconShare } from 'assets/img/iconShare.svg'
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
-import { FeatureFlags } from 'common/services/remote-config'
 import { open as openTikTokModal } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import Toast from 'components/toast/Toast'
 import { MountPlacement, ComponentPlacement } from 'components/types'
 import { useFlag } from 'hooks/useRemoteConfig'
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { useRecord, make } from 'store/analytics/actions'
 import { copyLinkToClipboard } from 'utils/clipboardUtil'
 import {
@@ -59,7 +57,7 @@ const getContinuePage = (uploadType: UploadType) => {
 }
 
 const getTwitterHandleByUserHandle = async (userHandle: string) => {
-  const { twitterHandle } = await AudiusBackend.getCreatorSocialHandle(
+  const { twitterHandle } = await audiusBackendInstance.getCreatorSocialHandle(
     userHandle
   )
   return twitterHandle || ''
@@ -196,7 +194,8 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
       className={cn(styles.container, { [styles.fullHeight]: !isHidden })}
       style={{
         backgroundImage: `linear-gradient(315deg, rgba(91, 35, 225, 0.8) 0%, rgba(162, 47, 237, 0.8) 100%), url(${backgroundPlaceholder})`
-      }}>
+      }}
+    >
       <div className={styles.title}>{messages.title(type)}</div>
       <div className={styles.description}>{messages.description}</div>
       <div className={styles.buttonContainer}>
@@ -230,7 +229,8 @@ const ShareBanner = ({ isHidden, type, upload, user }: ShareBannerProps) => {
           placement={ComponentPlacement.TOP}
           overlayClassName={styles.toast}
           delay={TOAST_DELAY}
-          text={messages.copiedToClipboard}>
+          text={messages.copiedToClipboard}
+        >
           <div className={styles.copyLinkContainer}>
             <IconShare className={styles.shareIcon} />
             <div className={styles.copyText}>{messages.copy(continuePage)}</div>

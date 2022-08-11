@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, StringWei, Nullable } from '@audius/common'
 import { IconTrophy, IconTrending } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
-import { StringWei } from 'common/models/Wallet'
 import {
   getOptimisticSupporters,
   getOptimisticSupporting
 } from 'common/store/tipping/selectors'
 import { getId as getSupportingId } from 'common/store/user-list/supporting/selectors'
+import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'common/store/user-list/supporting/types'
 import { getId as getSupportersId } from 'common/store/user-list/top-supporters/selectors'
-import { Nullable } from 'common/utils/typeUtils'
+import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'common/store/user-list/top-supporters/types'
 import { formatWei, stringWeiToBN } from 'common/utils/wallet'
-import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
-import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
 
 import styles from './ArtistChip.module.css'

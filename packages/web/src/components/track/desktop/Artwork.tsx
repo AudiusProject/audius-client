@@ -1,13 +1,12 @@
 import { memo } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, SquareSizes, CoverArtSizes } from '@audius/common'
 import { PbIconPlay as IconPlay, PbIconPause as IconPause } from '@audius/stems'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { useLoadImageWithTimeout } from 'common/hooks/useImageSize'
-import { SquareSizes, CoverArtSizes } from 'common/models/ImageSizes'
 import CoSign from 'components/co-sign/CoSign'
 import { Size } from 'components/co-sign/types'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -68,7 +67,8 @@ const ArtworkIcon = ({
     <div
       className={cn(styles.artworkIcon, {
         [artworkIconClassName!]: !!artworkIconClassName
-      })}>
+      })}
+    >
       {artworkIcon}
     </div>
   )
@@ -102,7 +102,8 @@ const Artwork = memo(
           [styles.large]: size === 'large'
         })}
         className={styles.artwork}
-        image={showSkeleton ? '' : image}>
+        image={showSkeleton ? '' : image}
+      >
         {showArtworkIcon && (
           <ArtworkIcon
             playStatus={playStatus}
@@ -121,7 +122,8 @@ const Artwork = memo(
         className={cn(styles.artworkInset, {
           [styles.small]: size === 'small',
           [styles.large]: size === 'large'
-        })}>
+        })}
+      >
         {imageElement}
       </CoSign>
     ) : (

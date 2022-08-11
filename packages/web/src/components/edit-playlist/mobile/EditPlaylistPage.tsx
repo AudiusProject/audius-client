@@ -1,16 +1,20 @@
 import { useEffect, useState, useCallback, useContext } from 'react'
 
-import { ID } from '@audius/common'
+import {
+  ID,
+  CreatePlaylistSource,
+  Collection,
+  SquareSizes,
+  Nullable,
+  RandomImage
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCamera } from 'assets/img/iconCamera.svg'
-import placeholderCoverArt from 'assets/img/imageBlank2x.png'
-import { CreatePlaylistSource } from 'common/models/Analytics'
-import { Collection } from 'common/models/Collection'
-import { SquareSizes } from 'common/models/ImageSizes'
-import RandomImage from 'common/services/RandomImage'
+import placeholderCoverArt from 'common/assets/img/imageBlank2x.png'
+import * as schemas from 'common/schemas'
 import { getAccountUser } from 'common/store/account/selectors'
 import {
   createPlaylist,
@@ -24,7 +28,6 @@ import {
   getMetadata,
   getTracks
 } from 'common/store/ui/createPlaylistModal/selectors'
-import { Nullable } from 'common/utils/typeUtils'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import EditableRow, { Format } from 'components/groupable-list/EditableRow'
 import GroupableList from 'components/groupable-list/GroupableList'
@@ -36,7 +39,6 @@ import TrackList from 'components/track/mobile/TrackList'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import UploadStub from 'pages/profile-page/components/mobile/UploadStub'
-import * as schemas from 'schemas'
 import { AppState } from 'store/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { playlistPage } from 'utils/route'
@@ -376,7 +378,8 @@ const EditPlaylistPage = g(
                 : existingImage || formFields.artwork.url || placeholderCoverArt
             }
             className={styles.image}
-            wrapperClassName={styles.imageWrapper}>
+            wrapperClassName={styles.imageWrapper}
+          >
             {
               <UploadStub
                 onChange={onDropArtwork}

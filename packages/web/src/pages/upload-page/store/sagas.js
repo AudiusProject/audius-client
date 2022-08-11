@@ -1,3 +1,4 @@
+import { Kind, Name, Status, makeUid } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
 import { channel, buffers } from 'redux-saga'
@@ -13,22 +14,19 @@ import {
   race
 } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getAccountUser,
   getUserHandle,
   getUserId
 } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { reformat } from 'common/store/cache/collections/utils'
 import * as tracksActions from 'common/store/cache/tracks/actions'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { formatUrlName } from 'common/utils/formatUtil'
-import { makeUid } from 'common/utils/uid'
 import {
   getSelectedServices,
   getStatus
@@ -37,10 +35,9 @@ import { fetchServicesFailed } from 'components/service-selection/store/slice'
 import UploadType from 'pages/upload-page/components/uploadType'
 import { getStems } from 'pages/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { ERROR_PAGE } from 'utils/route'
@@ -190,7 +187,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         `Beginning non-collection upload for track: ${metadata.title}`
       )
       const { blockHash, blockNumber, trackId, error, phase } = yield call(
-        AudiusBackend.uploadTrack,
+        audiusBackendInstance.uploadTrack,
         track.file,
         artwork,
         metadata,
@@ -230,7 +227,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
     return function* () {
       console.debug(`Beginning collection upload for track: ${metadata.title}`)
       return yield call(
-        AudiusBackend.uploadTrackToCreatorNode,
+        audiusBackendInstance.uploadTrackToCreatorNode,
         track.file,
         artwork,
         metadata,
@@ -562,7 +559,7 @@ export function* handleUploads({
           i + MAX_CONCURRENT_REGISTRATIONS
         )
         const { trackIds: roundTrackIds, error: roundHadError } =
-          yield AudiusBackend.registerUploadedTracks(concurrentMetadata)
+          yield audiusBackendInstance.registerUploadedTracks(concurrentMetadata)
 
         trackIds = trackIds.concat(roundTrackIds)
         console.debug(
@@ -589,7 +586,9 @@ export function* handleUploads({
           yield put(uploadActions.associateTracksError(error))
           console.debug(`Deleting orphaned tracks: ${JSON.stringify(trackIds)}`)
           try {
-            yield all(trackIds.map((id) => AudiusBackend.deleteTrack(id)))
+            yield all(
+              trackIds.map((id) => audiusBackendInstance.deleteTrack(id))
+            )
             console.debug('Successfully deleted orphaned tracks')
           } catch {
             console.debug('Something went wrong deleting orphaned tracks')
@@ -659,7 +658,7 @@ export function* handleUploads({
 function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
   // First upload album art
   const coverArtResp = yield call(
-    AudiusBackend.uploadImage,
+    audiusBackendInstance.uploadImage,
     collectionMetadata.artwork.file
   )
   collectionMetadata.cover_art_sizes = coverArtResp.dirCID
@@ -693,7 +692,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         // Uploaded collections are always public
         const isPrivate = false
         const { blockHash, blockNumber, playlistId, error } = yield call(
-          AudiusBackend.createPlaylist,
+          audiusBackendInstance.createPlaylist,
           userId,
           collectionMetadata,
           isAlbum,
@@ -708,7 +707,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
             console.debug('Deleting playlist')
             // If we got a playlist ID back, that means we
             // created the playlist but adding tracks to it failed. So we must delete the playlist
-            yield call(AudiusBackend.deletePlaylist, playlistId)
+            yield call(audiusBackendInstance.deletePlaylist, playlistId)
             console.debug('Playlist deleted successfully')
           } else {
             // I think this is what we want
@@ -724,7 +723,9 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
             `Could not confirm playlist creation for playlist id ${playlistId}`
           )
         }
-        return (yield call(AudiusBackend.getPlaylists, userId, [playlistId]))[0]
+        return (yield call(audiusBackendInstance.getPlaylists, userId, [
+          playlistId
+        ]))[0]
       },
       function* (confirmedPlaylist) {
         yield put(
@@ -798,7 +799,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
           )}`
         )
         try {
-          yield all(trackIds.map((id) => AudiusBackend.deleteTrack(id)))
+          yield all(trackIds.map((id) => audiusBackendInstance.deleteTrack(id)))
           console.debug('Deleted tracks.')
         } catch (err) {
           console.debug(`Could not delete all tracks: ${err}`)
@@ -840,7 +841,7 @@ function* uploadSingleTrack(track) {
       `${track.metadata.title}`,
       function* () {
         const { blockHash, blockNumber, trackId, error, phase } = yield call(
-          AudiusBackend.uploadTrack,
+          audiusBackendInstance.uploadTrack,
           track.file,
           track.metadata.artwork.file,
           track.metadata,

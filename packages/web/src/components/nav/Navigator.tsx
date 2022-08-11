@@ -1,7 +1,7 @@
+import { Client } from '@audius/common'
 import cn from 'classnames'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 
-import Client from 'common/models/Client'
 import { getClient } from 'utils/clientUtil'
 
 import styles from './Navigator.module.css'
@@ -23,7 +23,8 @@ const Navigator = ({ className }: NavigatorProps) => {
     <div
       className={cn(styles.navWrapper, className, {
         [styles.navColumnWrapper]: !isMobile
-      })}>
+      })}
+    >
       {isMobile ? (
         <ConnectedNavBar />
       ) : (

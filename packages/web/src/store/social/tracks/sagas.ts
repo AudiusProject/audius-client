@@ -1,12 +1,9 @@
-import { ID } from '@audius/common'
+import { Kind, ID, Name, Track, User, makeKindId } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import Kind from 'common/models/Kind'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import * as accountActions from 'common/store/account/reducer'
 import { getUserId, getUserHandle } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { adjustUserField } from 'common/store/cache/users/sagas'
@@ -14,12 +11,10 @@ import { getUser } from 'common/store/cache/users/selectors'
 import { updateOptimisticListenStreak } from 'common/store/pages/audio-rewards/slice'
 import * as socialActions from 'common/store/social/tracks/actions'
 import { formatShareText } from 'common/utils/formatUtil'
-import { makeKindId } from 'common/utils/uid'
 import * as signOnActions from 'pages/sign-on/store/actions'
-import AudiusBackend from 'services/AudiusBackend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { waitForValue } from 'utils/sagaHelpers'
@@ -149,7 +144,7 @@ export function* confirmRepostTrack(trackId: ID, user: User) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.repostTrack,
+          audiusBackendInstance.repostTrack,
           trackId
         )
         const confirmed = yield* call(
@@ -260,7 +255,7 @@ export function* confirmUndoRepostTrack(trackId: ID, user: User) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.undoRepostTrack,
+          audiusBackendInstance.undoRepostTrack,
           trackId
         )
         const confirmed = yield* call(
@@ -393,7 +388,7 @@ export function* confirmSaveTrack(trackId: ID) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.saveTrack,
+          audiusBackendInstance.saveTrack,
           trackId
         )
         const confirmed = yield* call(
@@ -492,7 +487,7 @@ export function* confirmUnsaveTrack(trackId: ID) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.unsaveTrack,
+          audiusBackendInstance.unsaveTrack,
           trackId
         )
         const confirmed = yield* call(
@@ -534,7 +529,7 @@ export function* watchSetArtistPick() {
           }
         ])
       )
-      yield* call(AudiusBackend.setArtistPick, action.trackId)
+      yield* call(audiusBackendInstance.setArtistPick, action.trackId)
 
       const event = make(Name.ARTIST_PICK_SELECT_TRACK, { id: action.trackId })
       yield* put(event)
@@ -553,7 +548,7 @@ export function* watchUnsetArtistPick() {
         }
       ])
     )
-    yield* call(AudiusBackend.setArtistPick)
+    yield* call(audiusBackendInstance.setArtistPick)
 
     const event = make(Name.ARTIST_PICK_SELECT_TRACK, { id: 'none' })
     yield* put(event)
@@ -574,7 +569,7 @@ export function* watchRecordListen() {
       if (!userId || !track) return
 
       if (userId !== track.owner_id || track.play_count < 10) {
-        yield* call(AudiusBackend.recordTrackListen, action.trackId)
+        yield* call(audiusBackendInstance.recordTrackListen, action.trackId)
       }
 
       // Record track listen analytics event

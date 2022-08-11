@@ -1,7 +1,13 @@
+import {
+  BNAudio,
+  BNWei,
+  StringAudio,
+  StringWei,
+  Nullable
+} from '@audius/common'
 import BN from 'bn.js'
 import JSBI from 'jsbi'
 
-import { BNAudio, BNWei, StringAudio, StringWei } from 'common/models/Wallet'
 import {
   WEI,
   trimRightZeros,
@@ -10,8 +16,6 @@ import {
   parseWeiNumber,
   convertFloatToWei
 } from 'common/utils/formatUtil'
-
-import { Nullable } from './typeUtils'
 
 const WEI_DECIMALS = 18 // 18 decimals on ETH AUDIO
 const SPL_DECIMALS = 8 // 8 decimals on SPL AUDIO

@@ -1,17 +1,11 @@
-import {
-  Animated,
-  Insets,
-  StyleProp,
-  TouchableOpacity,
-  View,
-  ViewStyle
-} from 'react-native'
-import { SvgProps } from 'react-native-svg'
+import type { Insets, StyleProp, ViewStyle } from 'react-native'
+import { Animated, TouchableOpacity, View } from 'react-native'
+import type { SvgProps } from 'react-native-svg'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { StylesProps } from 'app/styles'
+import type { StylesProps } from 'app/styles'
 import { makeStyles } from 'app/styles/makeStyles'
-import { GestureResponderHandler } from 'app/types/gesture'
+import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
 export type IconButtonProps = {
@@ -59,20 +53,23 @@ export const IconButton = ({
 
   return (
     <Animated.View
-      style={[{ transform: [{ scale }] }, stylesProp?.root, style]}>
+      style={[{ transform: [{ scale }] }, stylesProp?.root, style]}
+    >
       <TouchableOpacity
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={isDisabled}
         activeOpacity={0.95}
-        hitSlop={{ ...defaultHitSlop, ...hitSlop }}>
+        hitSlop={{ ...defaultHitSlop, ...hitSlop }}
+      >
         <View
           style={[
             styles.icon,
             isDisabled && { opacity: 0.5 },
             stylesProp?.icon
-          ]}>
+          ]}
+        >
           <Icon fill={fill} height='100%' width='100%' />
         </View>
       </TouchableOpacity>

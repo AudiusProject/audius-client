@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import placeholderArt from 'assets/img/imageBlank2x.png'
-import { SquareSizes } from 'common/models/ImageSizes'
+import placeholderArt from 'common/assets/img/imageBlank2x.png'
 import { getUser } from 'common/store/cache/users/selectors'
 import { formatCount } from 'common/utils/formatUtil'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -85,7 +84,8 @@ const UserArtCard = g(
       <div className={cn(styles.card, className)}>
         <PerspectiveCard
           onClick={goToProfile}
-          className={styles.perspectiveCard}>
+          className={styles.perspectiveCard}
+        >
           <DynamicImage
             wrapperClassName={styles.profilePicture}
             image={isLoading ? '' : image}

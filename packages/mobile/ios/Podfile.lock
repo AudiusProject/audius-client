@@ -417,6 +417,8 @@ PODS:
     - React-Core
   - react-native-pager-view (5.4.6):
     - React-Core
+  - react-native-randombytes (3.6.1):
+    - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
   - react-native-static-server (0.5.0):
@@ -600,6 +602,7 @@ DEPENDENCIES:
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
+  - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-static-server (from `../node_modules/react-native-static-server`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
@@ -731,6 +734,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
+  react-native-randombytes:
+    :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-static-server:
@@ -863,6 +868,7 @@ SPEC CHECKSUMS:
   react-native-music-control: 0eef94942456152af21316afd53923e1dd6360b0
   react-native-netinfo: 52cf0ee8342548a485e28f4b09e56b477567244d
   react-native-pager-view: a9ba7d4218dcff32c0cdb41237c62fb487f013dd
+  react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-static-server: 201b2a945a35096be3ae7f43e367c65bcbd61343
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
@@ -902,6 +908,6 @@ SPEC CHECKSUMS:
   Yoga: 32a18c0e845e185f4a2a66ec76e1fd1f958f22fa
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d8c099f42aade66945faa2f5c8f22ebb2ad67e74
+PODFILE CHECKSUM: 4a8e9292316e270c1c8d6af883057534cae9e4b2
 
 COCOAPODS: 1.11.3

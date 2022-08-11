@@ -1,5 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from 'react'
 
+import { Status, FeatureFlags } from '@audius/common'
 import {
   IconCaretRight,
   IconRemove,
@@ -14,7 +15,6 @@ import { useHistory } from 'react-router-dom'
 import { useTransition, animated } from 'react-spring'
 
 import { ReactComponent as AudiusLogo } from 'assets/img/audiusLogoHorizontal.svg'
-import Status from 'common/models/Status'
 import { formatCount } from 'common/utils/formatUtil'
 import {
   RouterContext,
@@ -26,6 +26,7 @@ import NavContext, {
   RightPreset
 } from 'components/nav/store/context'
 import SearchBar from 'components/search-bar/SearchBar'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { OpenNotificationsMessage } from 'services/native-mobile-interface/notifications'
 import { getIsIOS } from 'utils/browser'
 import { onNativeBack } from 'utils/nativeRoute'
@@ -52,7 +53,8 @@ interface NavBarProps {
 
 const messages = {
   signUp: 'Sign Up',
-  searchPlaceholder: 'Search Audius'
+  searchPlaceholder: 'Search Audius',
+  earlyAccess: 'Early Access'
 }
 
 const NavBar = ({
@@ -217,23 +219,32 @@ const NavBar = ({
 
   const matrix = isMatrix()
 
+  const { isEnabled: isEarlyAccess } = useFlag(FeatureFlags.EARLY_ACCESS)
+
   return (
     <div className={styles.container}>
       <div
         className={cn(styles.leftElement, {
           [styles.isLoading]: isLoading
-        })}>
+        })}
+      >
         {left}
       </div>
       {centerElement === CenterPreset.LOGO && (
         <div
           className={cn(styles.logo, { [styles.matrixLogo]: matrix })}
-          onClick={logoClicked}>
+          onClick={logoClicked}
+        >
           {logoTransitions.map(
             ({ item, props, key }) =>
               item && (
                 <animated.div style={props} key={key}>
                   <AudiusLogo />
+                  {isEarlyAccess ? (
+                    <div className={styles.earlyAccess}>
+                      {messages.earlyAccess}
+                    </div>
+                  ) : null}
                 </animated.div>
               )
           )}
@@ -246,7 +257,8 @@ const NavBar = ({
       <div
         className={cn(styles.rightElement, {
           [styles.isLoading]: isLoading
-        })}>
+        })}
+      >
         {rightElement === RightPreset.SEARCH ? (
           <SearchBar
             open={isSearching}

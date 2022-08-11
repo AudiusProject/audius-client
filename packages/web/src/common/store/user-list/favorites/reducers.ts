@@ -1,13 +1,11 @@
+import { FavoriteType } from '@audius/common'
 import { combineReducers } from 'redux'
 import { createReducer, ActionType } from 'typesafe-actions'
 
-import { FavoriteType } from 'common/models/Favorite'
 import { UserListReducerFactory } from 'common/store/user-list/reducer'
 
-import { USER_LIST_TAG } from '../../../../pages/favorites-page/sagas'
-
 import * as actions from './actions'
-import { FavoritesOwnState } from './types'
+import { FavoritesOwnState, USER_LIST_TAG } from './types'
 
 type FavoriteActions = ActionType<typeof actions>
 

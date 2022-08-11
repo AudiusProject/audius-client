@@ -1,13 +1,10 @@
-import { ID } from '@audius/common'
+import { ID, UserTrack, Nullable } from '@audius/common'
 import { call } from 'typed-redux-saga'
 
-import { UserTrack } from 'common/models/Track'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import { Nullable } from 'common/utils/typeUtils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-
-import AudiusBackend from '../../services/AudiusBackend'
-import Explore from '../../services/audius-backend/Explore'
+import { apiClient } from 'services/audius-api-client'
+import Explore from 'services/audius-backend/Explore'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 export function* getRecommendedTracks(
   genre: string,
@@ -28,7 +25,8 @@ export function* getLuckyTracks(limit: number) {
   const ids = Array.from({ length: limit }, () =>
     Math.floor(Math.random() * latestTrackID)
   )
-  const tracks: UserTrack[] = yield* call(AudiusBackend.getAllTracks, {
+
+  const tracks: UserTrack[] = yield* call(audiusBackendInstance.getAllTracks, {
     offset: 0,
     limit,
     idsArray: ids,

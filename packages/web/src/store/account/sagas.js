@@ -1,8 +1,6 @@
+import { Kind, Status, USER_ID_AVAILABLE_EVENT } from '@audius/common'
 import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
-import { USER_ID_AVAILABLE_EVENT } from 'common/services/remote-config/remote-config'
 import * as accountActions from 'common/store/account/reducer'
 import {
   getUserId,
@@ -13,6 +11,7 @@ import {
   getAccountOwnedPlaylistIds,
   getAccountToCache
 } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchProfile } from 'common/store/pages/profile/actions'
@@ -23,7 +22,7 @@ import {
 } from 'common/store/pages/settings/actions'
 import { getFeePayer } from 'common/store/solana/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
-import AudiusBackend from 'services/AudiusBackend'
+import { updateProfileAsync } from 'pages/profile-page/sagas'
 import {
   getAudiusAccount,
   getAudiusAccountUser,
@@ -33,14 +32,15 @@ import {
   clearAudiusAccount,
   clearAudiusAccountUser
 } from 'services/LocalStorage'
+import { fetchCID } from 'services/audius-backend'
 import { recordIP } from 'services/audius-backend/RecordIP'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
-import fingerprintClient from 'services/fingerprint/FingerprintClient'
+import { fingerprintClient } from 'services/fingerprint'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { setSentryUser } from 'services/sentry'
 import { identify } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
 import {
   Permission,
@@ -58,6 +58,7 @@ import {
 import { isMobile, isElectron } from 'utils/clientUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
+import disconnectedWallets from './disconnected_wallet_fix.json'
 import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
@@ -99,7 +100,7 @@ function* onFetchAccount(account) {
     yield put(accountActions.showPushNotificationConfirmation())
   }
 
-  yield fork(AudiusBackend.updateUserLocationTimezone)
+  yield fork(audiusBackendInstance.updateUserLocationTimezone)
   if (NATIVE_MOBILE) {
     yield fork(setHasSignedInOnMobile, account)
     new SignedIn(account).send()
@@ -117,6 +118,48 @@ function* onFetchAccount(account) {
 
   const feePayerOverride = yield select(getFeePayer)
   yield call(createUserBankIfNeeded, feePayerOverride)
+
+  // Repair users from flare-101 that were impacted and lost connected wallets
+  // TODO: this should be removed after sufficient time has passed or users have gotten
+  // reconnected.
+  if (account.user_id in disconnectedWallets) {
+    const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+      account.creator_node_endpoint
+    )
+    const cid = account.metadata_multihash ?? null
+    if (cid) {
+      const contentNodeMetadata = yield call(
+        fetchCID,
+        cid,
+        gateways,
+        /* cache */ false,
+        /* asUrl */ false
+      )
+      const newMetadata = {
+        ...account
+      }
+      let requiresUpdate = false
+      if (
+        contentNodeMetadata.associated_wallets === null &&
+        disconnectedWallets[account.user_id].associated_wallets !== null
+      ) {
+        requiresUpdate = true
+        newMetadata.associated_wallets =
+          disconnectedWallets[account.user_id].associated_wallets
+      }
+      if (
+        contentNodeMetadata.associated_sol_wallets === null &&
+        disconnectedWallets[account.user_id].associated_sol_wallets !== null
+      ) {
+        requiresUpdate = true
+        newMetadata.associated_sol_wallets =
+          disconnectedWallets[account.user_id].associated_sol_wallets
+      }
+      if (requiresUpdate) {
+        yield fork(updateProfileAsync, { metadata: newMetadata })
+      }
+    }
+  }
 }
 
 export function* fetchAccountAsync(action) {
@@ -147,7 +190,7 @@ export function* fetchAccountAsync(action) {
     }
   }
 
-  const account = yield call(AudiusBackend.getAccount, fromSource)
+  const account = yield call(audiusBackendInstance.getAccount, fromSource)
   if (!account || account.is_deactivated) {
     yield put(
       accountActions.fetchAccountFailed({
@@ -168,7 +211,9 @@ export function* fetchAccountAsync(action) {
       isPushManagerAvailable
     ) {
       const subscription = yield call(getPushManagerBrowserSubscription)
-      yield call(AudiusBackend.disableBrowserNotifications, { subscription })
+      yield call(audiusBackendInstance.disableBrowserNotifications, {
+        subscription
+      })
     } else if (
       browserPushSubscriptionStatus === Permission.GRANTED &&
       isSafariPushAvailable
@@ -176,7 +221,7 @@ export function* fetchAccountAsync(action) {
       const safariSubscription = yield call(getSafariPushBrowser)
       if (safariSubscription.permission === Permission.GRANTED) {
         yield call(
-          AudiusBackend.deregisterDeviceToken,
+          audiusBackendInstance.deregisterDeviceToken,
           safariSubscription.deviceToken
         )
       }
@@ -250,7 +295,7 @@ export function* showPushNotificationConfirmation() {
     if (isPushManagerAvailable) {
       const subscription = yield call(getPushManagerBrowserSubscription)
       const enabled = yield call(
-        AudiusBackend.getBrowserPushSubscription,
+        audiusBackendInstance.getBrowserPushSubscription,
         subscription.endpoint
       )
       if (!enabled) {
@@ -260,7 +305,7 @@ export function* showPushNotificationConfirmation() {
       try {
         const safariPushBrowser = yield call(getSafariPushBrowser)
         const enabled = yield call(
-          AudiusBackend.getBrowserPushSubscription,
+          audiusBackendInstance.getBrowserPushSubscription,
           safariPushBrowser.deviceToken
         )
         if (!enabled) {
@@ -292,7 +337,7 @@ export function* subscribeBrowserPushNotifcations() {
     if (pushManagerSubscription) {
       yield put(setBrowserNotificationPermission(Permission.GRANTED))
       yield put(setBrowserNotificationEnabled(true, false))
-      yield call(AudiusBackend.updateBrowserNotifications, {
+      yield call(audiusBackendInstance.updateBrowserNotifications, {
         subscription: pushManagerSubscription
       })
       yield put(setBrowserNotificationSettingsOn())
@@ -305,7 +350,9 @@ export function* subscribeBrowserPushNotifcations() {
       if (enabled) {
         yield put(setBrowserNotificationPermission(Permission.GRANTED))
         yield put(setBrowserNotificationEnabled(true, false))
-        yield call(AudiusBackend.updateBrowserNotifications, { subscription })
+        yield call(audiusBackendInstance.updateBrowserNotifications, {
+          subscription
+        })
       } else {
         yield put(setBrowserNotificationPermission(Permission.DENIED))
       }
@@ -317,7 +364,7 @@ export function* subscribeBrowserPushNotifcations() {
     const safariSubscription = yield call(getSafariPushBrowser)
     if (safariSubscription.permission === Permission.GRANTED) {
       yield call(
-        AudiusBackend.registerDeviceToken,
+        audiusBackendInstance.registerDeviceToken,
         safariSubscription.deviceToken,
         'safari'
       )
@@ -331,7 +378,7 @@ export function* unsubscribeBrowserPushNotifcations() {
   if (isPushManagerAvailable) {
     const pushManagerSubscription = yield call(unsubscribePushManagerBrowser)
     if (pushManagerSubscription) {
-      yield call(AudiusBackend.disableBrowserNotifications, {
+      yield call(audiusBackendInstance.disableBrowserNotifications, {
         subscription: pushManagerSubscription
       })
     }
@@ -339,7 +386,9 @@ export function* unsubscribeBrowserPushNotifcations() {
     const safariSubscription = yield call(getSafariPushBrowser)
     if (safariSubscription.premission === Permission.GRANTED) {
       yield call(
-        AudiusBackend.deregisterDeviceToken(safariSubscription.deviceToken)
+        audiusBackendInstance.deregisterDeviceToken(
+          safariSubscription.deviceToken
+        )
       )
     }
   }
@@ -350,7 +399,12 @@ function* associateTwitterAccount(action) {
   try {
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
-    yield call(AudiusBackend.associateTwitterAccount, uuid, userId, handle)
+    yield call(
+      audiusBackendInstance.associateTwitterAccount,
+      uuid,
+      userId,
+      handle
+    )
 
     const account = yield select(getAccountUser)
     const { verified } = profile
@@ -371,7 +425,12 @@ function* associateInstagramAccount(action) {
   try {
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
-    yield call(AudiusBackend.associateInstagramAccount, uuid, userId, handle)
+    yield call(
+      audiusBackendInstance.associateInstagramAccount,
+      uuid,
+      userId,
+      handle
+    )
 
     const account = yield select(getAccountUser)
     const { is_verified: verified } = profile

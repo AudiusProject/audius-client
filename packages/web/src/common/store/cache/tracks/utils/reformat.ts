@@ -1,16 +1,15 @@
+import { CoverArtSizes, Track, TrackMetadata } from '@audius/common'
 import { omit } from 'lodash'
 
-import { CoverArtSizes } from 'common/models/ImageSizes'
-import { Track, TrackMetadata } from 'common/models/Track'
-import AudiusBackend from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 /**
  * Adds _cover_art_sizes to a track object if it does not have one set
  */
-const addTrackImages = <T extends TrackMetadata>(
-  track: T
-): T & { duration: number; _cover_art_sizes: CoverArtSizes } => {
-  return AudiusBackend.getTrackImages(track)
+const addTrackImages = (
+  track: TrackMetadata
+): TrackMetadata & { duration: number; _cover_art_sizes: CoverArtSizes } => {
+  return audiusBackendInstance.getTrackImages(track)
 }
 
 /**

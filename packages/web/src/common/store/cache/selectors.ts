@@ -1,20 +1,21 @@
-import { ID, UID } from '@audius/common'
+import {
+  Kind,
+  ID,
+  UID,
+  Cache,
+  Collection,
+  Track,
+  User,
+  Uid
+} from '@audius/common'
 
-import Cache from 'common/models/Cache'
-import { Collection } from 'common/models/Collection'
-import Kind from 'common/models/Kind'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import { CommonState } from 'common/store'
-import { Uid } from 'common/utils/uid'
 
 import { TracksCacheState } from './tracks/types'
 import { UsersCacheState } from './users/types'
 
 /**
  * Selects from the cache and strips away cache-only fields.
- * @param {CommonState} state
- * @param {object} props { kind, id?, uid? }
  */
 export function getEntry(
   state: CommonState,
@@ -70,8 +71,6 @@ export function getEntry(
 
 /**
  * Selects the timestamps from the cache.
- * @param {CommonState} state
- * @param {object} props { kind, ids }
  */
 export const getEntryTimestamp = (
   state: CommonState,
@@ -86,9 +85,6 @@ export const getEntryTimestamp = (
 
 /**
  * Gets all cache entries and strips away cache-only fields.
- * @param {CommonState} state
- * @param {object} props { kind }
- * @returns {object}
  */
 export function getAllEntries(
   state: CommonState,

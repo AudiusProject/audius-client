@@ -1,4 +1,12 @@
-import { ID } from '@audius/common'
+import {
+  ID,
+  Name,
+  Status,
+  Track,
+  FeatureFlags,
+  IntKeys,
+  remoteConfigIntDefaults
+} from '@audius/common'
 import moment from 'moment'
 import { eventChannel } from 'redux-saga'
 import {
@@ -13,12 +21,8 @@ import {
   takeLatest
 } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import Status from 'common/models/Status'
-import { Track } from 'common/models/Track'
-import { FeatureFlags, IntKeys } from 'common/services/remote-config'
-import { remoteConfigIntDefaults } from 'common/services/remote-config/defaults'
 import { getUserId, getHasAccount } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -40,14 +44,13 @@ import {
 import { getIsReachable } from 'common/store/reachability/selectors'
 import { fetchReactionValues } from 'common/store/ui/reactions/slice'
 import { getBalance } from 'common/store/wallet/slice'
-import AudiusBackend from 'services/AudiusBackend'
+import { getErrorMessage } from 'common/utils/error'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { isElectron } from 'utils/clientUtil'
-import { getErrorMessage } from 'utils/error'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
@@ -130,9 +133,10 @@ export function* fetchNotifications(
     const timeOffset = lastNotification
       ? lastNotification.timestamp
       : moment().toISOString()
-    const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+    const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED) ?? false
+
     const notificationsResponse: NotificationsResponse = yield* call(
-      AudiusBackend.getNotifications,
+      audiusBackendInstance.getNotifications,
       {
         limit,
         timeOffset,
@@ -378,19 +382,26 @@ export function* fetchNotificationUsers(
 export function* subscribeUserSettings(
   action: notificationActions.SubscribeUser
 ) {
-  yield* call(AudiusBackend.updateUserSubscription, action.userId, true)
+  yield* call(audiusBackendInstance.updateUserSubscription, action.userId, true)
 }
 
 export function* unsubscribeUserSettings(
   action: notificationActions.UnsubscribeUser
 ) {
-  yield* call(AudiusBackend.updateUserSubscription, action.userId, false)
+  yield* call(
+    audiusBackendInstance.updateUserSubscription,
+    action.userId,
+    false
+  )
 }
 
 export function* updatePlaylistLastViewedAt(
   action: notificationActions.UpdatePlaylistLastViewedAt
 ) {
-  yield* call(AudiusBackend.updatePlaylistLastViewedAt, action.playlistId)
+  yield* call(
+    audiusBackendInstance.updatePlaylistLastViewedAt,
+    action.playlistId
+  )
 }
 
 // Action Watchers
@@ -497,10 +508,10 @@ export function* getNotifications(isFirstFetch: boolean) {
       )
       if (!hasAccount) return
       const timeOffset = moment().toISOString()
-      const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
+      const withTips = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED) ?? false
 
       const notificationsResponse: NotificationsResponse | undefined =
-        yield* call(AudiusBackend.getNotifications, {
+        yield* call(audiusBackendInstance.getNotifications, {
           limit,
           timeOffset,
           withTips
@@ -579,7 +590,7 @@ export function* getNotifications(isFirstFetch: boolean) {
 function* notificationPollingDaemon() {
   yield* call(waitForBackendSetup)
   yield* call(waitForValue, getHasAccount, {})
-  yield* call(AudiusBackend.getEmailNotificationSettings)
+  yield* call(audiusBackendInstance.getEmailNotificationSettings)
 
   // Set up daemon that will watch for browser into focus and refetch notifications
   // as soon as it goes into focus
@@ -636,7 +647,7 @@ function* notificationPollingDaemon() {
 
 export function* markAllNotificationsViewed() {
   yield* call(waitForBackendSetup)
-  yield* call(AudiusBackend.markAllNotificationAsViewed)
+  yield* call(audiusBackendInstance.markAllNotificationAsViewed)
   if (NATIVE_MOBILE) {
     const message = new ResetNotificationsBadgeCount()
     message.send()

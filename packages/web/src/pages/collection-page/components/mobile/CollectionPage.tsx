@@ -1,11 +1,15 @@
 import { memo, useEffect, useContext } from 'react'
 
-import { ID } from '@audius/common'
+import {
+  ID,
+  Collection,
+  SmartCollection,
+  Variant,
+  SmartCollectionVariant,
+  Status,
+  User
+} from '@audius/common'
 
-import { Collection, SmartCollection, Variant } from 'common/models/Collection'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import Status from 'common/models/Status'
-import { User } from 'common/models/User'
 import {
   CollectionsPageType,
   CollectionTrack
@@ -218,11 +222,13 @@ const CollectionPage = ({
   return (
     <NetworkConnectivityMonitor
       pageDidLoad={tracksLoading}
-      onDidRegainConnectivity={refresh}>
+      onDidRegainConnectivity={refresh}
+    >
       <MobilePageContainer
         title={title}
         description={pageDescription}
-        canonicalUrl={canonicalUrl}>
+        canonicalUrl={canonicalUrl}
+      >
         <div className={styles.collectionContent}>
           <div>
             <CollectionHeader

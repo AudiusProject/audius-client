@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { UserCollectionMetadata } from '@audius/common'
 import { useSpring, animated } from 'react-spring'
 import { useAsyncFn } from 'react-use'
 
@@ -9,13 +10,11 @@ import hotAndNewPlaylistImg from 'assets/img/publicSite/HotAndNewPlaylistArt.jpe
 import { ReactComponent as IconLines } from 'assets/img/publicSite/Lines.svg'
 import moombahtonPlaylistImg from 'assets/img/publicSite/MoombahtonPlaylistArt.png'
 import { ReactComponent as IconListenOnAudius } from 'assets/img/publicSite/listen-on-audius.svg'
-import { UserCollectionMetadata } from 'common/models/Collection'
 import { fetchExploreContent } from 'common/store/pages/explore/sagas'
 import { handleClickRoute } from 'components/public-site/handleClickRoute'
 import useCardWeight from 'hooks/useCardWeight'
 import useHasViewed from 'hooks/useHasViewed'
-import AudiusBackend from 'services/AudiusBackend'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { playlistPage } from 'utils/route'
 
 import styles from './FeaturedContent.module.css'
@@ -76,17 +75,20 @@ const DesktopPlaylistTile = (props: PlaylistTileProps) => {
         setMouseDown(false)
       }}
       onMouseUp={() => setMouseDown(false)}
-      onMouseDown={() => setMouseDown(true)}>
+      onMouseDown={() => setMouseDown(true)}
+    >
       <animated.div
         className={styles.trackContainer}
         // @ts-ignore
-        style={{ transform: mouseDown ? '' : transform }}>
+        style={{ transform: mouseDown ? '' : transform }}
+      >
         <div
           className={styles.track}
           style={{
             backgroundImage: `url(${props.imageUrl})`,
             boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
-          }}>
+          }}
+        >
           <div className={styles.trackContent}>
             <div className={styles.trackArtist}>{`By ${props.artist}`}</div>
             <IconListenOnAudius className={styles.listenOnAudius} />
@@ -104,7 +106,8 @@ const MobilePlaylistTile = (props: PlaylistTileProps) => (
   <div
     key={props.title}
     className={styles.trackContainer}
-    onClick={props.onClick}>
+    onClick={props.onClick}
+  >
     <div
       className={styles.trackImage}
       style={{
@@ -112,7 +115,8 @@ const MobilePlaylistTile = (props: PlaylistTileProps) => (
           props.imageUrl || audiusExclusivesPlaylistImg
         })`,
         boxShadow: `0px 10px 50px -2px rgba(56, 14, 13, 0.4)`
-      }}></div>
+      }}
+    ></div>
     <div className={styles.trackTitle}>{props.title}</div>
   </div>
 )
@@ -127,7 +131,8 @@ const getImageUrl = (
   { cover_art, cover_art_sizes }: UserCollectionMetadata,
   creatorNodeEndpoint: string | null
 ) => {
-  const gateways = getCreatorNodeIPFSGateways(creatorNodeEndpoint)
+  const gateways =
+    audiusBackendInstance.getCreatorNodeIPFSGateways(creatorNodeEndpoint)
   const cNode = gateways[0]
   if (cover_art_sizes) {
     return `${cNode}${cover_art_sizes}/${
@@ -145,7 +150,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
     useAsyncFn(async () => {
       const featuredContent = await fetchExploreContent()
       const ids = featuredContent.featuredPlaylists
-      const playlists = AudiusBackend.getPlaylists(
+      const playlists = audiusBackendInstance.getPlaylists(
         null,
         ids
       ) as any as UserCollectionMetadata[]
@@ -215,7 +220,8 @@ const FeaturedContent = (props: FeaturedContentProps) => {
               transform: textStyles.x.interpolate(
                 (x) => `translate3d(0,${x}px,0)`
               )
-            }}>
+            }}
+          >
             <div className={styles.header}>
               <h3 className={styles.title}>{messages.title}</h3>
               <h4 className={styles.subTitle}>{messages.subTitle}</h4>

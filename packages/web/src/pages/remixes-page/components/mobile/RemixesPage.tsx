@@ -1,10 +1,9 @@
 import { useEffect, useContext } from 'react'
 
+import { Track, User } from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconRemixes } from 'assets/img/iconRemix.svg'
-import { Track } from 'common/models/Track'
-import { User } from 'common/models/User'
 import { pluralize } from 'common/utils/formatUtil'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
@@ -79,7 +78,8 @@ const RemixesPage = g(
         title={title}
         description={messages.getDescription(originalTrack.title, user.name)}
         canonicalUrl={fullTrackRemixesPage(originalTrack.permalink)}
-        containerClassName={styles.container}>
+        containerClassName={styles.container}
+      >
         <div className={styles.tracksContainer}>
           <div className={styles.subHeader}>
             {`${count || ''} ${pluralize(

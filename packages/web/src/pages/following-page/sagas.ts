@@ -1,7 +1,6 @@
-import { ID } from '@audius/common'
+import { ID, User } from '@audius/common'
 import { put, select } from 'typed-redux-saga/macro'
 
-import { User } from 'common/models/User'
 import { getUser } from 'common/store/cache/users/selectors'
 import { getFollowingError } from 'common/store/user-list/following/actions'
 import { watchFollowingError } from 'common/store/user-list/following/errorSagas'
@@ -10,11 +9,10 @@ import {
   getUserList,
   getUserIds
 } from 'common/store/user-list/following/selectors'
+import { USER_LIST_TAG } from 'common/store/user-list/following/types'
 import UserListSagaFactory from 'common/store/user-list/sagas'
 import { createUserListProvider } from 'components/user-list/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-
-export const USER_LIST_TAG = 'FOLLOWING'
+import { apiClient } from 'services/audius-api-client'
 
 const provider = createUserListProvider<User>({
   getExistingEntity: getUser,

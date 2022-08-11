@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { User } from 'audius-client/src/common/models/User'
+import type { User } from '@audius/common'
 import { profilePage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -71,7 +71,8 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
               style={[
                 styles.receiverNameContainer,
                 pressed && styles.textUnderline
-              ]}>
+              ]}
+            >
               <Text variant='h3' style={styles.receiverName}>
                 {receiver.name}
               </Text>
@@ -83,7 +84,8 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
           {({ pressed }) => (
             <Text
               variant='h4'
-              style={[styles.receiverHandle, pressed && styles.textUnderline]}>
+              style={[styles.receiverHandle, pressed && styles.textUnderline]}
+            >
               @{receiver.handle}
             </Text>
           )}

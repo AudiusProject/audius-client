@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
+import type { BNWei, StringWei, Nullable } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { BNWei, StringWei } from 'audius-client/src/common/models/Wallet'
 import { getHasAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
 import {
   setModalState,
@@ -11,7 +11,6 @@ import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
 import { getAccountTotalBalance } from 'audius-client/src/common/store/wallet/selectors'
 import { getBalance } from 'audius-client/src/common/store/wallet/slice'
 import { getTierAndNumberForBalance } from 'audius-client/src/common/store/wallet/utils'
-import { Nullable } from 'audius-client/src/common/utils/typeUtils'
 import { formatWei } from 'audius-client/src/common/utils/wallet'
 import BN from 'bn.js'
 import { Image, Linking, View } from 'react-native'
@@ -192,7 +191,8 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <Text style={styles.audioAmount}>
           {formatWei((totalBalance || new BN(0)) as BNWei, true, 0)}{' '}
         </Text>
@@ -203,7 +203,8 @@ export const AudioScreen = () => {
               <TouchableOpacity
                 hitSlop={{ left: 4, top: 4, bottom: 4, right: 4 }}
                 onPress={onPressWalletInfo}
-                activeOpacity={0.7}>
+                activeOpacity={0.7}
+              >
                 <IconInfo
                   height={16}
                   width={16}
@@ -244,7 +245,8 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <Button
           title={messages.send}
           styles={{
@@ -293,7 +295,8 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <GradientText style={styles.tileHeader}>
           {messages.rewards}
         </GradientText>
@@ -311,7 +314,8 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <GradientText style={styles.tileHeader}>
           {messages.trending}
         </GradientText>
@@ -333,7 +337,8 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <GradientText style={styles.tileHeader}>
           {messages.vipTiers}
         </GradientText>
@@ -406,13 +411,15 @@ export const AudioScreen = () => {
           root: styles.tileRoot,
           tile: styles.tile,
           content: styles.tileContent
-        }}>
+        }}
+      >
         <Image style={styles.token} source={TokenStill} />
         <GradientText style={styles.tileHeader}>{messages.what}</GradientText>
         <Text style={styles.tileSubheader}>{messages.whatBody1}</Text>
         <TouchableOpacity
           onPress={() => Linking.openURL(LEARN_MORE_LINK)}
-          activeOpacity={0.7}>
+          activeOpacity={0.7}
+        >
           <Text style={styles.tileLink}>{messages.learnMore}</Text>
         </TouchableOpacity>
         <Text style={styles.tileSubheader}>{messages.whatBody2}</Text>

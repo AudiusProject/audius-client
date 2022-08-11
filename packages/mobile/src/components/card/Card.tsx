@@ -1,11 +1,12 @@
-import type { ID } from '@audius/common'
-import {
+import type {
+  ID,
   CoverArtSizes,
   ProfilePictureSizes,
-  SquareSizes
-} from 'audius-client/src/common/models/ImageSizes'
-import { User } from 'audius-client/src/common/models/User'
-import { StyleProp, Text, View, ViewStyle } from 'react-native'
+  User
+} from '@audius/common'
+import { SquareSizes } from '@audius/common'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { DynamicImage, Tile } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
@@ -95,7 +96,8 @@ export const Card = (props: CardProps) => {
   return (
     <Tile
       onPress={onPress}
-      styles={{ root: style, content: styles.cardContent }}>
+      styles={{ root: style, content: styles.cardContent }}
+    >
       <View style={styles.imgContainer}>
         <View style={[styles.cardImg, type === 'user' && styles.userImg]}>
           <CardImage imageSize={imageSize} type={type} id={id} />

@@ -1,18 +1,12 @@
 import { merge } from 'lodash'
-import {
-  TouchableHighlight,
-  ViewStyle,
-  StyleSheet,
-  TextStyle,
-  View,
-  Animated,
-  StyleProp
-} from 'react-native'
-import { Color } from 'react-native-svg'
+import type { ViewStyle, TextStyle, StyleProp } from 'react-native'
+import { TouchableHighlight, StyleSheet, View, Animated } from 'react-native'
+import type { Color } from 'react-native-svg'
 
 import Text from 'app/components/text'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { ThemeColors, useThemedStyles } from 'app/hooks/useThemedStyles'
+import type { ThemeColors } from 'app/hooks/useThemedStyles'
+import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -174,14 +168,16 @@ const Button = ({
         { transform: [{ scale }] },
         containerStyle,
         disabled && !ignoreDisabledStyle ? styles.disabled : {}
-      ]}>
+      ]}
+    >
       <TouchableHighlight
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled}
         underlayColor={underlay}
-        style={[styles.button, style]}>
+        style={[styles.button, style]}
+      >
         <View style={styles.buttonContent}>
           {(icon || renderIcon) && iconPosition === 'left' ? (
             <View style={[styles.iconLeft, iconStyle]}>

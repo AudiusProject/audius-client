@@ -1,10 +1,13 @@
-import { ComponentProps, useCallback, useEffect, useRef, useState } from 'react'
+import type { ComponentProps } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Match } from 'autolinker/dist/es2015'
-import { LayoutRectangle, Text, TextStyle, View } from 'react-native'
+import type { Match } from 'autolinker/dist/es2015'
+import type { LayoutRectangle, TextStyle } from 'react-native'
+import { Text, View } from 'react-native'
 import Autolink from 'react-native-autolink'
 
-import { makeStyles, StylesProp } from 'app/styles'
+import type { StylesProp } from 'app/styles'
+import { makeStyles } from 'app/styles'
 
 import { useOnOpenLink } from './Link'
 
@@ -100,7 +103,8 @@ export const Hyperlink = (props: HyperlinkProps) => {
             linkRefs.current[index] = el
           }
         }}
-        style={styles.hiddenLink}>
+        style={styles.hiddenLink}
+      >
         <Text style={[styles.linkText, styles.hiddenLinkText]}>{text}</Text>
       </View>
     ),
@@ -111,7 +115,8 @@ export const Hyperlink = (props: HyperlinkProps) => {
     <>
       <View
         pointerEvents={allowPointerEventsToPassThrough ? 'none' : undefined}
-        ref={linkContainerRef}>
+        ref={linkContainerRef}
+      >
         <Autolink
           onPress={handlePress}
           linkStyle={[styles.linkText, styles.link, stylesProp?.link]}
@@ -139,7 +144,8 @@ export const Hyperlink = (props: HyperlinkProps) => {
                   left: linkLayout.x - linkContainerLayout.x
                 }
               ]}
-              onPress={() => handlePress(match.getAnchorHref())}>
+              onPress={() => handlePress(match.getAnchorHref())}
+            >
               {text}
             </Text>
           ) : null

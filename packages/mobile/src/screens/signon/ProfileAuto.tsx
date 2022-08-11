@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import {
   Animated,
   StyleSheet,
@@ -33,7 +33,7 @@ import { track, make } from 'app/utils/analytics'
 import { useColor } from 'app/utils/theme'
 
 import SignupHeader from './SignupHeader'
-import { SignOnStackParamList } from './types'
+import type { SignOnStackParamList } from './types'
 
 const styles = StyleSheet.create({
   container: {
@@ -215,7 +215,8 @@ const BulletPoint = ({ i }: { i: number }) => {
       style={[
         styles.formButtonTitleContainer,
         { marginBottom: i === messages.oauthChecks.length ? 4 : 8 }
-      ]}>
+      ]}
+    >
       <GradientSave style={styles.icon} />
       <Text style={styles.bulletpointText}>{messages.oauthChecks[i]}</Text>
       {i === 4 && (
@@ -484,7 +485,8 @@ const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
                 style={[
                   styles.instruction,
                   { paddingLeft: 0, paddingRight: 0, paddingTop: 0 }
-                ]}>
+                ]}
+              >
                 {messages.description}
               </Text>
             ) : null}
@@ -530,7 +532,8 @@ const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
             <TouchableOpacity
               style={styles.gotoManualBtn}
               activeOpacity={0.6}
-              onPress={() => goTo('ProfileManual')}>
+              onPress={() => goTo('ProfileManual')}
+            >
               <Text style={styles.gotoManualBtnTitle}>{messages.manually}</Text>
             </TouchableOpacity>
           </View>

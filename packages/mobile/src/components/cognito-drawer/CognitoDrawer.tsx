@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import Status from 'audius-client/src/common/models/Status'
+import { Status } from '@audius/common'
 import {
   getCognitoFlowUrl,
   getCognitoFlowUrlStatus
@@ -19,7 +19,7 @@ import Text from 'app/components/text'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { ThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
 
 const MODAL_NAME = 'Cognito'
 
@@ -85,7 +85,8 @@ export const CognitoDrawer = () => {
       modalName={MODAL_NAME}
       isFullscreen
       isGestureSupported={false}
-      onClose={handleClose}>
+      onClose={handleClose}
+    >
       {uriStatus === Status.SUCCESS && uri ? (
         <WebView key={key} source={{ uri }} javaScriptEnabled />
       ) : uriStatus === Status.LOADING ? (

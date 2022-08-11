@@ -2,8 +2,8 @@ import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
 
-import AudiusBackend from 'services/AudiusBackend'
-import { waitForBackendSetup } from 'store/backend/sagas'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { noopReducer } from 'store/testHelper'
 
 import * as sagas from './sagas'
@@ -97,7 +97,7 @@ describe('fetchServices', () => {
       .provide([
         [matchers.call.fn(waitForBackendSetup), true],
         [
-          matchers.call.fn(AudiusBackend.getSelectableCreatorNodes),
+          matchers.call.fn(audiusBackendInstance.getSelectableCreatorNodes),
           {
             'http://test_endpoint1': service1,
             'http://test_endpoint2': service2

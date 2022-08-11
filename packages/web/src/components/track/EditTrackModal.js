@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 
+import { SquareSizes } from '@audius/common'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 import { mapValues } from 'lodash'
 import PropTypes from 'prop-types'
 
-import { SquareSizes } from 'common/models/ImageSizes'
+import * as schemas from 'common/schemas'
 import FormTile from 'components/data-entry/FormTile'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import * as schemas from 'schemas'
 import zIndex from 'utils/zIndex'
 
 import styles from './EditTrackModal.module.css'
@@ -104,7 +104,8 @@ const EditTrackModal = ({
       headerContainerClassName={styles.modalHeader}
       showDismissButton
       showTitleHeader
-      dismissOnClickOutside={!isArtworkPopupOpen}>
+      dismissOnClickOutside={!isArtworkPopupOpen}
+    >
       <div className={styles.editTrack}>
         <FormTile
           // Key the form tile by id so each id gets a different instance

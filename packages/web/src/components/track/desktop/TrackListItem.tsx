@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from 'react'
+import { memo, MouseEvent, useRef } from 'react'
 
 import { UID, ID } from '@audius/common'
 import cn from 'classnames'
@@ -11,6 +11,7 @@ import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import Skeleton from 'components/skeleton/Skeleton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
+import { isDescendantElementOf } from 'utils/domUtils'
 import { profilePage } from 'utils/route'
 
 import { TrackTileSize } from '../types'
@@ -48,13 +49,16 @@ const TrackListItem = ({
   isLoading,
   forceSkeleton = false
 }: TrackListItemProps) => {
+  const menuRef = useRef<HTMLDivElement>(null)
+
   if (forceSkeleton) {
     return (
       <div
         className={cn(styles.playlistTrack, {
           [styles.large]: size === TrackTileSize.LARGE,
           [styles.small]: size === TrackTileSize.SMALL
-        })}>
+        })}
+      >
         <Skeleton className={styles.skeleton} width='96%' height='80%' />
       </div>
     )
@@ -78,12 +82,22 @@ const TrackListItem = ({
   }
 
   const onMoreClick = (triggerPopup: () => void) => (e: MouseEvent) => {
-    e.stopPropagation()
     triggerPopup()
   }
 
-  const onPlayTrack = () => {
-    if (!deleted && togglePlay) togglePlay(track.uid, track.track_id)
+  const onPlayTrack = (e?: MouseEvent) => {
+    // Skip toggle play if click event happened within track menu container
+    // because clicking on it should not affect corresponding track.
+    // We have to do this instead of stopping the event propagation
+    // because we need it to bubble up to the document to allow
+    // the document click listener to close other track/playlist tile menus
+    // that are already open.
+    const shouldSkipTogglePlay = isDescendantElementOf(
+      e?.target,
+      menuRef.current
+    )
+    if (!deleted && togglePlay && !shouldSkipTogglePlay)
+      togglePlay(track.uid, track.track_id)
   }
 
   const hideShow = cn({
@@ -122,7 +136,8 @@ const TrackListItem = ({
         [styles.disabled]: disableActions || deleted,
         [styles.noBorder]: isLoading
       })}
-      onClick={onPlayTrack}>
+      onClick={onPlayTrack}
+    >
       {isLoading && (
         <Skeleton className={styles.skeleton} width='96%' height='80%' />
       )}
@@ -163,7 +178,7 @@ const TrackListItem = ({
         {!disableActions && !deleted ? (
           <Menu menu={menu}>
             {(ref, triggerPopup) => (
-              <div className={cn(styles.menuContainer)}>
+              <div className={cn(styles.menuContainer)} ref={menuRef}>
                 <IconKebabHorizontal
                   className={styles.iconKebabHorizontal}
                   ref={ref}

@@ -1,4 +1,12 @@
 import {
+  Name,
+  DefaultSizes,
+  SquareSizes,
+  Kind,
+  Status,
+  makeKindId
+} from '@audius/common'
+import {
   all,
   call,
   fork,
@@ -8,32 +16,27 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import { DefaultSizes, SquareSizes } from 'common/models/ImageSizes'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
 import {
   getAccountUser,
   getUserId,
   getUserHandle
 } from 'common/store/account/selectors'
 import { setDominantColors } from 'common/store/average-color/slice'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import * as trackActions from 'common/store/cache/tracks/actions'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { squashNewLines, formatUrlName } from 'common/utils/formatUtil'
-import { makeKindId } from 'common/utils/uid'
 import * as signOnActions from 'pages/sign-on/store/actions'
-import AudiusBackend, { fetchCID } from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
+import { fetchCID } from 'services/audius-backend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { dominantColor } from 'utils/imageProcessingUtil'
 import { waitForValue } from 'utils/sagaHelpers'
 
@@ -56,7 +59,9 @@ function* fetchRepostInfo(entries) {
 
 function* fetchSegment(metadata) {
   const user = yield call(waitForValue, getUser, { id: metadata.owner_id })
-  const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+    user.creator_node_endpoint
+  )
   if (!metadata.track_segments[0]) return
   const cid = metadata.track_segments[0].multihash
   return yield call(fetchCID, cid, gateways, /* cache */ false)
@@ -220,7 +225,7 @@ function* confirmEditTrack(
         }
 
         const { blockHash, blockNumber } = yield call(
-          AudiusBackend.updateTrack,
+          audiusBackendInstance.updateTrack,
           trackId,
           { ...formFields }
         )
@@ -302,9 +307,12 @@ function* deleteTrackAsync(action) {
   const handle = yield select(getUserHandle)
 
   // Before deleting, check if the track is set as the artist pick & delete if so
-  const socials = yield call(AudiusBackend.getCreatorSocialHandle, handle)
+  const socials = yield call(
+    audiusBackendInstance.getCreatorSocialHandle,
+    handle
+  )
   if (socials.pinnedTrackId === action.trackId) {
-    yield call(AudiusBackend.setArtistPick)
+    yield call(audiusBackendInstance.setArtistPick)
     yield put(
       cacheActions.update(Kind.USERS, [
         {
@@ -331,7 +339,7 @@ function* confirmDeleteTrack(trackId) {
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         const { blockHash, blockNumber } = yield call(
-          AudiusBackend.deleteTrack,
+          audiusBackendInstance.deleteTrack,
           trackId
         )
 
@@ -406,11 +414,13 @@ function* watchFetchCoverArt() {
       const user = yield call(waitForValue, getUser, { id: track.owner_id })
       if (!track || !user || (!track.cover_art_sizes && !track.cover_art))
         return
-      const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+      const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+        user.creator_node_endpoint
+      )
       const multihash = track.cover_art_sizes || track.cover_art
       const coverArtSize = multihash === track.cover_art_sizes ? size : null
       const url = yield call(
-        AudiusBackend.getImageUrl,
+        audiusBackendInstance.getImageUrl,
         multihash,
         coverArtSize,
         gateways
@@ -427,7 +437,7 @@ function* watchFetchCoverArt() {
       let smallImageUrl = url
       if (coverArtSize !== SquareSizes.SIZE_150_BY_150) {
         smallImageUrl = yield call(
-          AudiusBackend.getImageUrl,
+          audiusBackendInstance.getImageUrl,
           multihash,
           SquareSizes.SIZE_150_BY_150,
           gateways

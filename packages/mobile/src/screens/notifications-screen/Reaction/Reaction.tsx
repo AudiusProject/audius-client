@@ -1,7 +1,9 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 
-import LottieView, { AnimatedLottieViewProps } from 'lottie-react-native'
-import { Animated, StyleProp, View, ViewProps, ViewStyle } from 'react-native'
+import type { AnimatedLottieViewProps } from 'lottie-react-native'
+import LottieView from 'lottie-react-native'
+import type { StyleProp, View, ViewProps, ViewStyle } from 'react-native'
+import { Animated } from 'react-native'
 import { usePrevious } from 'react-use'
 
 import { light, medium } from 'app/haptics'
@@ -114,7 +116,8 @@ export const Reaction = (props: ReactionProps) => {
     <Animated.View
       ref={ref}
       style={[styles.root, animatedStyles, style]}
-      {...other}>
+      {...other}
+    >
       <LottieView
         ref={(animation) => {
           animationRef.current = animation

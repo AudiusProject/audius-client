@@ -7,13 +7,8 @@ import {
   OverflowSource
 } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
 import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
-import {
-  NativeSyntheticEvent,
-  NativeTouchEvent,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native'
+import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 
 import IconDrag from 'app/assets/images/iconDrag.svg'
 import IconHeart from 'app/assets/images/iconHeart.svg'
@@ -28,7 +23,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
-import { TrackMetadata } from './types'
+import type { TrackMetadata } from './types'
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
@@ -94,10 +89,8 @@ export type TrackListItemProps = {
   hideArt?: boolean
   index: number
   isActive?: boolean
-  isDragging?: boolean
   isLoading?: boolean
   isPlaying?: boolean
-  isRemoveActive?: boolean
   isReorderable?: boolean
   onRemove?: (index: number) => void
   onSave?: (isSaved: boolean, trackId: ID) => void
@@ -111,8 +104,6 @@ export const TrackListItem = ({
   hideArt,
   index,
   isActive,
-  isDragging = false,
-  isRemoveActive = false,
   isReorderable = false,
   isLoading = false,
   isPlaying = false,
@@ -211,12 +202,14 @@ export const TrackListItem = ({
         styles.trackContainer,
         isActive && styles.trackContainerActive,
         isDeleted && styles.trackContainerDisabled
-      ]}>
+      ]}
+    >
       <TouchableOpacity
         style={styles.trackInnerContainer}
         onPress={onPressTrack}
         onLongPress={drag}
-        disabled={isDeleted}>
+        disabled={isDeleted}
+      >
         {!hideArt ? (
           <TrackArtwork
             trackId={track_id}
@@ -239,7 +232,8 @@ export const TrackListItem = ({
         <View style={styles.nameArtistContainer}>
           <View
             style={styles.trackTitle}
-            onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}>
+            onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
+          >
             <Text
               numberOfLines={1}
               style={[
@@ -247,12 +241,14 @@ export const TrackListItem = ({
                 {
                   maxWidth: titleWidth ? titleWidth - deletedTextWidth : '100%'
                 }
-              ]}>
+              ]}
+            >
               {title}
             </Text>
             <Text
               numberOfLines={1}
-              style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}>
+              style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}
+            >
               {messages.deleted}
             </Text>
           </View>

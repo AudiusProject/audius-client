@@ -1,6 +1,16 @@
 import { ComponentType, PureComponent, RefObject } from 'react'
 
-import { ID, UID } from '@audius/common'
+import {
+  ID,
+  UID,
+  Name,
+  FollowSource,
+  ShareSource,
+  BadgeTier,
+  Kind,
+  Status,
+  makeKindId
+} from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
 import moment from 'moment'
@@ -8,10 +18,7 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { Name, FollowSource, ShareSource } from 'common/models/Analytics'
-import { BadgeTier } from 'common/models/BadgeTier'
-import Kind from 'common/models/Kind'
-import Status from 'common/models/Status'
+import { newUserMetadata } from 'common/schemas'
 import { getAccountUser } from 'common/store/account/selectors'
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import * as profileActions from 'common/store/pages/profile/actions'
@@ -42,16 +49,14 @@ import {
 import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { setFollowers } from 'common/store/user-list/followers/actions'
 import { setFollowing } from 'common/store/user-list/following/actions'
+import { getErrorMessage } from 'common/utils/error'
 import { formatCount } from 'common/utils/formatUtil'
-import { makeKindId } from 'common/utils/uid'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
-import { newUserMetadata } from 'schemas'
 import { make, TrackEvent } from 'store/analytics/actions'
 import { getIsDone } from 'store/confirmer/selectors'
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
-import { getErrorMessage } from 'utils/error'
 import { verifiedHandleWhitelist } from 'utils/handleWhitelist'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { getPathname, NOT_FOUND_PAGE, profilePage } from 'utils/route'

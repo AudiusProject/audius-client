@@ -1,10 +1,10 @@
+import { BooleanKeys } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { Transition } from 'react-spring/renderprops'
 
 import { ReactComponent as IconGradientSave } from 'assets/img/gradientSave.svg'
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
-import { BooleanKeys } from 'common/services/remote-config'
 import InstagramButton from 'components/instagram-button/InstagramButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import TwitterAuthButton from 'components/twitter-auth/TwitterAuthButton'
@@ -53,7 +53,8 @@ const TwitterOverlay = (props) => {
       from={{ opacity: props.initial ? 1 : 0 }}
       enter={{ opacity: 1 }}
       leave={{ opacity: 0 }}
-      config={{ duration: 100 }}>
+      config={{ duration: 100 }}
+    >
       {(show) =>
         show &&
         ((transitionProps) => (
@@ -66,11 +67,13 @@ const TwitterOverlay = (props) => {
               left: 0,
               width: '100%',
               height: '100%'
-            }}>
+            }}
+          >
             <div
               className={cn(styles.twitterOverlayContainer, {
                 [styles.isMobile]: props.isMobile
-              })}>
+              })}
+            >
               <div className={styles.header}>{props.header}</div>
               {props.isLoading || !props.showTwitterOverlay ? (
                 <div className={styles.loadingContainer}>
@@ -118,7 +121,8 @@ const TwitterOverlay = (props) => {
                   <div className={cn(styles.divider, styles.lowerDivider)} />
                   <div
                     className={styles.manualText}
-                    onClick={props.onToggleTwitterOverlay}>
+                    onClick={props.onToggleTwitterOverlay}
+                  >
                     {messages.manual}
                   </div>
                 </>

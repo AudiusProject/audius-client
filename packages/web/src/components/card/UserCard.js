@@ -1,7 +1,7 @@
+import { SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import { SquareSizes } from 'common/models/ImageSizes'
 import { formatCount } from 'common/utils/formatUtil'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -32,7 +32,8 @@ const UserCard = ({
         [styles.mobile]: isMobile,
         [styles.selected]: selected
       })}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <div className={styles.tileCoverArtContainer}>
         <DynamicImage
           wrapperClassName={styles.coverArtWrapper}

@@ -1,17 +1,19 @@
 import { lazy, createRef, Component, Suspense } from 'react'
 
+import {
+  Client,
+  Name,
+  SmartCollectionVariant,
+  Status,
+  Theme,
+  StringKeys
+} from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { matchPath } from 'react-router'
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import semver from 'semver'
 
-import { Name } from 'common/models/Analytics'
-import Client from 'common/models/Client'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import Status from 'common/models/Status'
-import Theme from 'common/models/Theme'
-import { StringKeys } from 'common/services/remote-config'
 import {
   getHasAccount,
   getAccountStatus,
@@ -19,6 +21,7 @@ import {
   getConnectivityFailure,
   getUserHandle
 } from 'common/store/account/selectors'
+import { getWeb3Error } from 'common/store/backend/selectors'
 import { ExploreCollectionsVariant } from 'common/store/pages/explore/types'
 import { setTheme } from 'common/store/ui/theme/actions'
 import { getTheme } from 'common/store/ui/theme/selectors'
@@ -82,7 +85,6 @@ import {
   incrementScrollCount as incrementScrollCountAction,
   decrementScrollCount as decrementScrollCountAction
 } from 'store/application/ui/scrollLock/actions'
-import { getWeb3Error } from 'store/backend/selectors'
 import { isMobile, getClient } from 'utils/clientUtil'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import 'utils/redirect'
@@ -568,7 +570,8 @@ class App extends Component {
           className={cn(styles.mainContentWrapper, {
             [styles.bannerMargin]: showBanner,
             [styles.mainContentWrapperMobile]: isMobileClient
-          })}>
+          })}
+        >
           {isMobileClient && <TopLevelPage />}
           {isMobileClient && <HeaderContextConsumer />}
 

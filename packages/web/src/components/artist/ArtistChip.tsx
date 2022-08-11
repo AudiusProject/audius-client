@@ -1,17 +1,15 @@
 import { ComponentPropsWithoutRef } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 
-import { SquareSizes } from 'common/models/ImageSizes'
-import { User } from 'common/models/User'
+import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'common/store/user-list/supporting/types'
+import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'common/store/user-list/top-supporters/types'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { MountPlacement } from 'components/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
-import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 
 import styles from './ArtistChip.module.css'
 import { ArtistChipFollowers } from './ArtistChipFollowers'
@@ -44,7 +42,8 @@ const ArtistIdentifier = ({
         handle={handle}
         mouseEnterDelay={0.3}
         mount={popoverMount}
-        onNavigateAway={onNavigateAway}>
+        onNavigateAway={onNavigateAway}
+      >
         <div className={styles.name}>
           <span>{name}</span>
           <UserBadges
@@ -59,7 +58,8 @@ const ArtistIdentifier = ({
         handle={handle}
         mouseEnterDelay={0.3}
         mount={popoverMount}
-        onNavigateAway={onNavigateAway}>
+        onNavigateAway={onNavigateAway}
+      >
         <div className={styles.handle}>@{handle}</div>
       </ArtistPopover>
     </div>
@@ -117,13 +117,15 @@ const ArtistChip = ({
       className={cn(styles.artistChip, {
         [className]: !!className
       })}
-      onClick={onClickArtistName}>
+      onClick={onClickArtistName}
+    >
       {showPopover ? (
         <ArtistPopover
           handle={handle}
           mouseEnterDelay={0.3}
           mount={popoverMount}
-          onNavigateAway={onNavigateAway}>
+          onNavigateAway={onNavigateAway}
+        >
           <DynamicImage
             wrapperClassName={styles.profilePictureWrapper}
             skeletonClassName={styles.profilePictureSkeleton}

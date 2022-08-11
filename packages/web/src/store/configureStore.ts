@@ -1,3 +1,4 @@
+import { Nullable } from '@audius/common'
 import * as Sentry from '@sentry/browser'
 import { routerMiddleware, push as pushRoute } from 'connected-react-router'
 import { debounce, isEmpty, pick, pickBy } from 'lodash'
@@ -9,7 +10,6 @@ import createSentryMiddleware from 'redux-sentry-middleware'
 import { CommonState } from 'common/store'
 import { Level } from 'common/store/errors/level'
 import { reportToSentry } from 'common/store/errors/reportToSentry'
-import { Nullable } from 'common/utils/typeUtils'
 import { postMessage } from 'services/native-mobile-interface/helpers'
 import { MessageType } from 'services/native-mobile-interface/types'
 import { track as amplitudeTrack } from 'store/analytics/providers/amplitude'
@@ -19,6 +19,7 @@ import history from 'utils/history'
 import logger from 'utils/logger'
 import { ERROR_PAGE } from 'utils/route'
 
+import { storeContext } from './storeContext'
 import { AppState } from './types'
 
 declare global {
@@ -114,7 +115,10 @@ const sentryMiddleware = createSentryMiddleware(Sentry, {
   stateTransformer: statePruner
 })
 
-const sagaMiddleware = createSagaMiddleware({ onError: onSagaError })
+const sagaMiddleware = createSagaMiddleware({
+  onError: onSagaError,
+  context: storeContext
+})
 
 const middlewares = applyMiddleware(
   routerMiddleware(history),

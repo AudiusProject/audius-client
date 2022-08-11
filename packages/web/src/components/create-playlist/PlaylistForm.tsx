@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 
-import { Collection, CollectionMetadata } from 'common/models/Collection'
-import { SquareSizes } from 'common/models/ImageSizes'
-import { DeepNullable, Nullable } from 'common/utils/typeUtils'
+import {
+  Collection,
+  CollectionMetadata,
+  SquareSizes,
+  DeepNullable,
+  Nullable
+} from '@audius/common'
+
+import * as schemas from 'common/schemas'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
-import * as schemas from 'schemas'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
 import { CreateActions, EditActions } from './FormActions'

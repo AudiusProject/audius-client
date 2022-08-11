@@ -1,17 +1,19 @@
 import { useContext } from 'react'
 
-import { ID, PlayableType } from '@audius/common'
+import {
+  ID,
+  PlayableType,
+  FavoriteSource,
+  RepostSource,
+  ShareSource,
+  CreatePlaylistSource
+} from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import {
-  FavoriteSource,
-  RepostSource,
-  ShareSource,
-  CreatePlaylistSource
-} from 'common/models/Analytics'
+import { newCollectionMetadata } from 'common/schemas'
 import { getAccountOwnedPlaylists } from 'common/store/account/selectors'
 import {
   createPlaylist,
@@ -28,7 +30,6 @@ import {
 import { requestOpen as openAddToPlaylist } from 'common/store/ui/add-to-playlist/actions'
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
-import { newCollectionMetadata } from 'schemas'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
 import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtistPickConfirmation/actions'
 import { AppState } from 'store/types'

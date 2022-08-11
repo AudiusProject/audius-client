@@ -1,14 +1,13 @@
 import { useState, useEffect, memo } from 'react'
 
+import { Kind } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import placeholderArt from 'assets/img/imageBlank2x.png'
-import Kind from 'common/models/Kind'
+import placeholderArt from 'common/assets/img/imageBlank2x.png'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
-import AudiusBackend from 'services/AudiusBackend'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import searchBarStyles from './SearchBar.module.css'
 import styles from './SearchBarResult.module.css'
@@ -21,8 +20,10 @@ const Image = memo((props) => {
     let isCanceled = false
     const getImage = async () => {
       try {
-        const gateways = getCreatorNodeIPFSGateways(props.creatorNodeEndpoint)
-        const url = await AudiusBackend.getImageUrl(
+        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+          props.creatorNodeEndpoint
+        )
+        const url = await audiusBackendInstance.getImageUrl(
           imageMultihash,
           size,
           gateways
@@ -39,6 +40,7 @@ const Image = memo((props) => {
   }, [defaultImage, imageMultihash, props.creatorNodeEndpoint, size])
   return (
     <DynamicImage
+      skeletonClassName={cn({ [styles.userImageContainerSkeleton]: isUser })}
       wrapperClassName={cn(styles.imageContainer)}
       className={cn({
         [styles.image]: image,
@@ -81,7 +83,8 @@ const SearchBarResult = memo((props) => {
       />
       <div className={styles.textContainer}>
         <span
-          className={cn(styles.primaryContainer, searchBarStyles.resultText)}>
+          className={cn(styles.primaryContainer, searchBarStyles.resultText)}
+        >
           <div className={styles.primaryText}>{primary}</div>
           {isUser && (
             <UserBadges
@@ -98,7 +101,8 @@ const SearchBarResult = memo((props) => {
             className={cn(
               styles.secondaryContainer,
               searchBarStyles.resultText
-            )}>
+            )}
+          >
             {secondary}
             {!isUser && (
               <UserBadges

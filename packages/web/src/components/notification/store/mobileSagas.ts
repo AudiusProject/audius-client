@@ -1,11 +1,11 @@
 import { call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
 import { getHasAccount } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as notificationActions from 'common/store/notifications/actions'
-import AudiusBackend from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { MessageType } from 'services/native-mobile-interface/types'
-import { waitForBackendSetup } from 'store/backend/sagas'
 
 // Clear the notification badges if the user is signed in
 function* resetNotificationBadgeCount() {
@@ -14,7 +14,7 @@ function* resetNotificationBadgeCount() {
     if (hasAccount) {
       const message = new ResetNotificationsBadgeCount()
       message.send()
-      yield* call(AudiusBackend.clearNotificationBadges)
+      yield* call(audiusBackendInstance.clearNotificationBadges)
     }
   } catch (error) {
     console.error(error)

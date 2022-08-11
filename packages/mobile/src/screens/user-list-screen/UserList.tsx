@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import type { ID } from '@audius/common'
+import type { ID, User } from '@audius/common'
 import { useFocusEffect, useIsFocused } from '@react-navigation/native'
-import { User } from 'audius-client/src/common/models/User'
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
-import { CommonState } from 'audius-client/src/common/store'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
+import type { CommonState } from 'audius-client/src/common/store'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import {
   loadMore,
@@ -13,18 +10,16 @@ import {
   setLoading
 } from 'audius-client/src/common/store/user-list/actions'
 import { makeGetOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/user-list/selectors'
-import { UserListStoreState } from 'audius-client/src/common/store/user-list/types'
+import type { UserListStoreState } from 'audius-client/src/common/store/user-list/types'
 import { View } from 'react-native'
-import { Selector } from 'react-redux'
+import type { Selector } from 'react-redux'
 
 import { Divider, FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { UserChip } from './UserChip'
 import { UserListItem } from './UserListItem'
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -74,7 +69,6 @@ export const UserList = (props: UserListProps) => {
     tag
   })
   const optimisticUserIds: ID[] = useSelectorWeb(getOptimisticUserIds)
-  const currentUserId = useSelectorWeb(getUserId)
   const usersMap = useSelectorWeb(
     (state) => getUsers(state, { ids: optimisticUserIds }),
     isEqual
@@ -85,10 +79,6 @@ export const UserList = (props: UserListProps) => {
         .map((id) => usersMap[id])
         .filter((user) => user && !user.is_deactivated),
     [usersMap, optimisticUserIds]
-  )
-
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
   )
 
   useFocusEffect(
@@ -147,15 +137,9 @@ export const UserList = (props: UserListProps) => {
     <FlatList
       style={styles.list}
       data={data}
-      renderItem={({ item }) =>
-        isTippingEnabled ? (
-          <UserListItem user={item} tag={tag} />
-        ) : (
-          <UserChip user={item} currentUserId={currentUserId} />
-        )
-      }
+      renderItem={({ item }) => <UserListItem user={item} tag={tag} />}
       keyExtractor={(item) => item.user_id.toString()}
-      ItemSeparatorComponent={isTippingEnabled ? Divider : undefined}
+      ItemSeparatorComponent={Divider}
       onEndReached={handleEndReached}
       ListFooterComponent={loading || isRefreshing ? loadingSpinner : footer}
     />

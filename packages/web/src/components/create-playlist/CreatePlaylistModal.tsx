@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { Name, FeatureFlags } from '@audius/common'
 import {
   Modal,
   SegmentedControl,
@@ -10,8 +11,6 @@ import {
   IconPlaylists
 } from '@audius/stems'
 
-import { Name } from 'common/models/Analytics'
-import { FeatureFlags } from 'common/services/remote-config'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { make, useRecord } from 'store/analytics/actions'
 import zIndex from 'utils/zIndex'
@@ -109,7 +108,8 @@ const CreatePlaylistModal = ({
       bodyClassName={styles.modalBody}
       isOpen={visible}
       onClose={handleClose}
-      zIndex={zIndex.CREATE_PLAYLIST_MODAL}>
+      zIndex={zIndex.CREATE_PLAYLIST_MODAL}
+    >
       <ModalHeader onClose={handleClose}>
         <ModalTitle
           icon={

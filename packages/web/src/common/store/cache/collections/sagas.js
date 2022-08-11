@@ -1,3 +1,4 @@
+import { Name, DefaultSizes, Kind, makeKindId, makeUid } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
   all,
@@ -9,11 +10,9 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { Name } from 'common/models/Analytics'
-import { DefaultSizes } from 'common/models/ImageSizes'
-import Kind from 'common/models/Kind'
 import * as accountActions from 'common/store/account/reducer'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import * as collectionActions from 'common/store/cache/collections/actions'
 import { getCollection } from 'common/store/cache/collections/selectors'
@@ -21,16 +20,13 @@ import { getTrack } from 'common/store/cache/tracks/selectors'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { getUser } from 'common/store/cache/users/selectors'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { makeKindId, makeUid } from 'common/utils/uid'
 import * as signOnActions from 'pages/sign-on/store/actions'
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { dataURLtoFile } from 'utils/fileUtils'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 
 import watchTrackErrors from './errorSagas'
 import { PlaylistOperations } from './types'
@@ -150,7 +146,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
       makeKindId(Kind.COLLECTIONS, uid),
       function* () {
         const { blockHash, blockNumber, playlistId, error } = yield call(
-          AudiusBackend.createPlaylist,
+          audiusBackendInstance.createPlaylist,
           userId,
           formFields
         )
@@ -165,7 +161,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         }
 
         const confirmedPlaylist = (yield call(
-          AudiusBackend.getPlaylists,
+          audiusBackendInstance.getPlaylists,
           userId,
           [playlistId]
         ))[0]
@@ -321,7 +317,7 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.updatePlaylist,
+          audiusBackendInstance.updatePlaylist,
           confirmedPlaylistId,
           {
             ...formFields
@@ -337,7 +333,7 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
           )
         }
 
-        return (yield call(AudiusBackend.getPlaylists, userId, [
+        return (yield call(audiusBackendInstance.getPlaylists, userId, [
           confirmedPlaylistId
         ]))[0]
       },
@@ -441,7 +437,7 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.addPlaylistTrack,
+          audiusBackendInstance.addPlaylistTrack,
           confirmedPlaylistId,
           trackId
         )
@@ -583,7 +579,7 @@ function* fixInvalidTracksInPlaylist(playlistId, userId, invalidTrackIds) {
     .map(({ track }) => track)
     .filter((id) => !removedTrackIds.has(id))
   const { error } = yield call(
-    AudiusBackend.dangerouslySetPlaylistOrder,
+    audiusBackendInstance.dangerouslySetPlaylistOrder,
     playlistId,
     trackIds
   )
@@ -611,7 +607,7 @@ function* confirmRemoveTrackFromPlaylist(
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the delete playlist track once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to delete track from playlist
         let { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.deletePlaylistTrack,
+          audiusBackendInstance.deletePlaylistTrack,
           confirmedPlaylistId,
           trackId,
           timestamp,
@@ -623,7 +619,7 @@ function* confirmRemoveTrackFromPlaylist(
             isValid,
             invalidTrackIds
           } = yield call(
-            AudiusBackend.validateTracksInPlaylist,
+            audiusBackendInstance.validateTracksInPlaylist,
             confirmedPlaylistId
           )
           if (tracksInPlaylistError) throw tracksInPlaylistError
@@ -639,7 +635,7 @@ function* confirmRemoveTrackFromPlaylist(
             if (isTrackRemoved) return updatedPlaylist
           }
           const response = yield call(
-            AudiusBackend.deletePlaylistTrack,
+            audiusBackendInstance.deletePlaylistTrack,
             confirmedPlaylistId,
             trackId,
             timestamp
@@ -740,14 +736,14 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the order playlist tracks once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to order playlist
         let { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.orderPlaylist,
+          audiusBackendInstance.orderPlaylist,
           confirmedPlaylistId,
           trackIds,
           0
         )
         if (error) {
           const { error, isValid, invalidTrackIds } = yield call(
-            AudiusBackend.validateTracksInPlaylist,
+            audiusBackendInstance.validateTracksInPlaylist,
             confirmedPlaylistId
           )
           if (error) throw error
@@ -762,7 +758,7 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
             trackIds = trackIds.filter((id) => !invalidIds.has(id))
           }
           const response = yield call(
-            AudiusBackend.orderPlaylist,
+            audiusBackendInstance.orderPlaylist,
             confirmedPlaylistId,
             trackIds
           )
@@ -852,7 +848,7 @@ function* confirmPublishPlaylist(userId, playlistId) {
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.publishPlaylist,
+          audiusBackendInstance.publishPlaylist,
           confirmedPlaylistId
         )
         if (error) throw error
@@ -863,7 +859,7 @@ function* confirmPublishPlaylist(userId, playlistId) {
             `Could not confirm publish playlist for playlist id ${playlistId}`
           )
         }
-        return (yield call(AudiusBackend.getPlaylists, userId, [
+        return (yield call(audiusBackendInstance.getPlaylists, userId, [
           confirmedPlaylistId
         ]))[0]
       },
@@ -991,7 +987,7 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
         ])
 
         const { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.deleteAlbum,
+          audiusBackendInstance.deleteAlbum,
           playlistId,
           trackIds
         )
@@ -1074,7 +1070,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
         ])
 
         const { blockHash, blockNumber, error } = yield call(
-          AudiusBackend.deletePlaylist,
+          audiusBackendInstance.deletePlaylist,
           confirmedPlaylistId
         )
         if (error) throw error
@@ -1194,12 +1190,14 @@ function* watchFetchCoverArt() {
         )
           return
 
-        const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
+        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+          user.creator_node_endpoint
+        )
         const multihash = collection.cover_art_sizes || collection.cover_art
         const coverArtSize =
           multihash === collection.cover_art_sizes ? size : null
         const url = yield call(
-          AudiusBackend.getImageUrl,
+          audiusBackendInstance.getImageUrl,
           multihash,
           coverArtSize,
           gateways

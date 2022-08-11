@@ -1,7 +1,7 @@
-import { ID } from '@audius/common'
+import { ID, User, UserMetadata } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
-import { User, UserMetadata } from 'common/models/User'
+import * as adapter from 'common/services/audius-api-client/ResponseAdapter'
 import { getUser } from 'common/store/cache/users/selectors'
 import { setSupportingForUser } from 'common/store/tipping/slice'
 import { SupportingMapForUser } from 'common/store/tipping/types'
@@ -13,16 +13,14 @@ import {
   getUserList,
   getUserIds
 } from 'common/store/user-list/supporting/selectors'
+import { USER_LIST_TAG } from 'common/store/user-list/supporting/types'
+import { decodeHashId, encodeHashId } from 'common/utils/hashIds'
 import { stringWeiToBN } from 'common/utils/wallet'
 import { createUserListProvider } from 'components/user-list/utils'
-import * as adapter from 'services/audius-api-client/ResponseAdapter'
 import {
   fetchSupporting,
   SupportingResponse
 } from 'services/audius-backend/Tipping'
-import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
-
-export const USER_LIST_TAG = 'SUPPORTING'
 
 type SupportingProcessExtraType = {
   userId: ID

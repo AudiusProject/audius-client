@@ -1,10 +1,9 @@
-import { ID } from '@audius/common'
+import { ID, User } from '@audius/common'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
 import Lottie from 'react-lottie'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
-import { User } from 'common/models/User'
 import ArtistChip from 'components/artist/ArtistChip'
 import FollowButton from 'components/follow-button/FollowButton'
 import { MountPlacement } from 'components/types'
@@ -38,13 +37,15 @@ const UserList = (props: UserListProps) => {
         useWindow={!props.getScrollParent}
         initialLoad={false}
         threshold={SCROLL_THRESHOLD}
-        getScrollParent={props.getScrollParent}>
+        getScrollParent={props.getScrollParent}
+      >
         {props.users.map((user, index) => (
           <div
             key={user.user_id}
             className={cn(styles.user, {
               [styles.notLastUser]: index !== props.users.length - 1
-            })}>
+            })}
+          >
             <ArtistChip
               user={user}
               onClickArtistName={() => {
@@ -75,7 +76,8 @@ const UserList = (props: UserListProps) => {
         <div
           className={cn(styles.loadingAnimation, {
             [styles.show]: props.loading
-          })}>
+          })}
+        >
           <Lottie
             options={{
               loop: true,

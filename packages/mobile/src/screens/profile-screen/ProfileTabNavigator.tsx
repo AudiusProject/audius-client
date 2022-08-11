@@ -1,6 +1,6 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
-import { Animated } from 'react-native'
+import type { Animated } from 'react-native'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconCollectibles from 'app/assets/images/iconCollectibles.svg'
@@ -106,7 +106,8 @@ export const ProfileTabNavigator = ({
     return (
       <CollapsibleTabNavigator
         renderHeader={renderHeader}
-        animatedValue={animatedValue}>
+        animatedValue={animatedValue}
+      >
         {trackScreen}
         {albumsScreen}
         {playlistsScreen}
@@ -119,7 +120,8 @@ export const ProfileTabNavigator = ({
   return (
     <CollapsibleTabNavigator
       renderHeader={renderHeader}
-      animatedValue={animatedValue}>
+      animatedValue={animatedValue}
+    >
       {repostsScreen}
       {playlistsScreen}
       {showCollectiblesTab ? collectiblesScreen : null}

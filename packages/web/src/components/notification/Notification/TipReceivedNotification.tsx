@@ -1,9 +1,9 @@
 import { ComponentType, useCallback, useState } from 'react'
 
+import { Name, Nullable } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { useUIAudio } from 'common/hooks/useUIAudio'
-import { Name } from 'common/models/Analytics'
 import { getNotificationUser } from 'common/store/notifications/selectors'
 import { TipReceive } from 'common/store/notifications/types'
 import {
@@ -12,7 +12,6 @@ import {
   ReactionTypes,
   writeReactionValue
 } from 'common/store/ui/reactions/slice'
-import { Nullable } from 'common/utils/typeUtils'
 import { make } from 'store/analytics/actions'
 import { useSelector } from 'utils/reducer'
 
@@ -98,7 +97,8 @@ export const TipReceivedNotification = (
       notification={notification}
       disabled={isTileDisabled}
       disableClosePanel
-      onClick={handleClick}>
+      onClick={handleClick}
+    >
       <NotificationHeader icon={<IconTip />}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
@@ -123,7 +123,8 @@ export const TipReceivedNotification = (
         <div
           className={styles.reactionList}
           onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}>
+          onMouseLeave={handleMouseLeave}
+        >
           {reactionList.map(([reactionType, Reaction]) => (
             <Reaction
               key={reactionType}

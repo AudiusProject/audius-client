@@ -1,13 +1,11 @@
 import { memo, useCallback } from 'react'
 
+import { Name, Variant, SquareSizes } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 import PropTypes from 'prop-types'
 
-import { Name } from 'common/models/Analytics'
-import { Variant } from 'common/models/Collection'
-import { SquareSizes } from 'common/models/ImageSizes'
 import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import { formatCount, squashNewLines } from 'common/utils/formatUtil'
 import { formatSecondsAsText, formatDate } from 'common/utils/timeUtil'
@@ -209,7 +207,8 @@ const CollectionHeader = ({
         <>
           <DynamicImage
             wrapperClassName={styles.coverArt}
-            image={gradient || imageOverride || image}>
+            image={gradient || imageOverride || image}
+          >
             {Icon && (
               <Icon
                 className={styles.imageIcon}
@@ -264,12 +263,14 @@ const CollectionHeader = ({
           <div
             className={cn(styles.infoSection, {
               [styles.noStats]: !isPublished || variant === Variant.SMART
-            })}>
+            })}
+          >
             {renderCollectionLabels()}
           </div>
           {description ? (
             <Linkify
-              options={{ attributes: { onClick: onDescriptionExternalLink } }}>
+              options={{ attributes: { onClick: onDescriptionExternalLink } }}
+            >
               <div className={styles.description}>
                 {squashNewLines(description)}
               </div>

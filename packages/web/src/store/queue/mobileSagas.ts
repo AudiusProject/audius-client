@@ -1,4 +1,4 @@
-import { ID, UID } from '@audius/common'
+import { ID, UID, removeNullable } from '@audius/common'
 import { all, put, select, takeEvery, call } from 'typed-redux-saga/macro'
 
 import { getUserId } from 'common/store/account/selectors'
@@ -20,7 +20,7 @@ import {
   shuffle,
   updateIndex
 } from 'common/store/queue/slice'
-import { removeNullable } from 'common/utils/typeUtils'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import {
   PersistQueueMessage,
   RepeatModeMessage,
@@ -28,7 +28,6 @@ import {
 } from 'services/native-mobile-interface/queue'
 import { MessageType, Message } from 'services/native-mobile-interface/types'
 import * as playerActions from 'store/player/slice'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { generateM3U8Variants } from 'utils/hlsUtil'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
@@ -51,7 +50,9 @@ function* getTrackInfo(id: ID, uid: UID) {
   if (!owner) return null
 
   const gateways = owner
-    ? getCreatorNodeIPFSGateways(owner.creator_node_endpoint)
+    ? audiusBackendInstance.getCreatorNodeIPFSGateways(
+        owner.creator_node_endpoint
+      )
     : []
 
   const imageHash = track.cover_art_sizes

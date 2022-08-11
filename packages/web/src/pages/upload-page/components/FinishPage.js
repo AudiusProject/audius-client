@@ -1,12 +1,12 @@
 import { Component } from 'react'
 
+import { DefaultSizes } from '@audius/common'
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
 import { ReactComponent as IconArrow } from 'assets/img/iconArrow.svg'
-import placeholderArt from 'assets/img/imageBlank2x.png'
-import { DefaultSizes } from 'common/models/ImageSizes'
+import placeholderArt from 'common/assets/img/imageBlank2x.png'
 import Toast from 'components/toast/Toast'
 import {
   TrackArtwork,
@@ -101,7 +101,8 @@ class FinishPage extends Component {
       <div
         className={cn(styles.uploadText, {
           [styles.uploadComplete]: uploadText === 'Complete!'
-        })}>
+        })}
+      >
         {uploadText}
       </div>
     </div>
@@ -307,7 +308,8 @@ class FinishPage extends Component {
         firesOnClick={false}
         text={messages.error}
         open={this.state.showToast}
-        placement={ComponentPlacement.BOTTOM}>
+        placement={ComponentPlacement.BOTTOM}
+      >
         <div className={styles.finish}>
           {!isFirstUpload && (
             <ShareBanner
@@ -326,7 +328,8 @@ class FinishPage extends Component {
               onClick={inProgress ? undefined : onContinue}
               className={cn(styles.continueButton, {
                 [styles.isHidden]: inProgress
-              })}>
+              })}
+            >
               <div>{continueText}</div>
               <IconArrow className={styles.iconArrow} />
             </button>

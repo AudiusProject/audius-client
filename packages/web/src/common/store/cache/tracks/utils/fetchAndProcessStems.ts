@@ -1,11 +1,8 @@
-import { ID } from '@audius/common'
+import { ID, Kind, StemCategory, Stem, StemTrackMetadata } from '@audius/common'
 import { call, put } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
-import { StemCategory } from 'common/models/Stems'
-import { Stem, StemTrackMetadata } from 'common/models/Track'
 import * as cacheActions from 'common/store/cache/actions'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { getTrack } from '../selectors'

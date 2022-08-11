@@ -1,6 +1,6 @@
+import { Name } from '@audius/common'
 import { takeEvery, put, call, select } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import {
@@ -19,12 +19,12 @@ import {
   upload
 } from 'common/store/ui/share-sound-to-tiktok-modal/slice'
 import { Status } from 'common/store/ui/share-sound-to-tiktok-modal/types'
+import { getErrorMessage } from 'common/utils/error'
+import { encodeHashId } from 'common/utils/hashIds'
 import { show as showConfetti } from 'components/music-confetti/store/slice'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 import { make } from 'store/analytics/actions'
 import { AppState } from 'store/types'
-import { getErrorMessage } from 'utils/error'
-import { encodeHashId } from 'utils/route/hashIds'
 
 const TIKTOK_SHARE_SOUND_ENDPOINT =
   'https://open-api.tiktok.com/share/sound/upload/'

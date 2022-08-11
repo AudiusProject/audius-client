@@ -1,4 +1,11 @@
 import {
+  FailureReason,
+  UserChallenge,
+  StringAudio,
+  IntKeys,
+  StringKeys
+} from '@audius/common'
+import {
   call,
   fork,
   put,
@@ -10,15 +17,13 @@ import {
   delay
 } from 'typed-redux-saga/macro'
 
-import { FailureReason, UserChallenge } from 'common/models/AudioRewards'
-import { StringAudio } from 'common/models/Wallet'
-import { IntKeys, StringKeys } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import {
   getAccountUser,
   getUserHandle,
   getUserId
 } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   getClaimStatus,
   getClaimToRetry,
@@ -56,11 +61,10 @@ import { getBalance, increaseBalance } from 'common/store/wallet/slice'
 import { stringAudioToStringWei } from 'common/utils/wallet'
 import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
-import AudiusBackend from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 import { getCognitoExists } from 'services/audius-backend/Cognito'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { AUDIO_PAGE } from 'utils/route'
 import { waitForValue } from 'utils/sagaHelpers'
 import {
@@ -207,32 +211,35 @@ function* claimChallengeRewardAsync(
   const currentUser = yield* select(getAccountUser)
   const feePayerOverride = yield* select(getFeePayer)
 
-  if (!currentUser) return
+  if (!currentUser || !currentUser.wallet) return
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints =
     rewardsAttestationEndpoints && rewardsAttestationEndpoints !== ''
       ? rewardsAttestationEndpoints.split(',')
-      : null
+      : []
   const hasConfig =
     oracleEthAddress &&
     AAOEndpoint &&
     quorumSize &&
     quorumSize > 0 &&
     maxClaimRetries &&
-    !isNaN(maxClaimRetries)
+    !isNaN(maxClaimRetries) &&
+    parallelization !== null
 
   if (!hasConfig) {
     console.error('Error claiming rewards: Config is missing')
     return
   }
+  let aaoErrorCode
   try {
     const challenges = specifiers.map((specifier) => ({
       challenge_id: challengeId,
       specifier
     }))
-    const response: { error?: string } = yield* call(
-      AudiusBackend.submitAndEvaluateAttestations,
+
+    const response: { error?: string; aaoErrorCode?: number } = yield* call(
+      audiusBackendInstance.submitAndEvaluateAttestations,
       {
         challenges,
         userId: currentUser.user_id,
@@ -277,6 +284,7 @@ function* claimChallengeRewardAsync(
             yield put(claimChallengeRewardAlreadyClaimed())
             break
           case FailureReason.BLOCKED:
+            aaoErrorCode = response.aaoErrorCode
             throw new Error('User is blocked from claiming')
           // For these 'attestation aggregation errors',
           // we've already retried in libs so unlikely to succeed here.
@@ -290,7 +298,12 @@ function* claimChallengeRewardAsync(
             // If this was an aggregate challenges with multiple specifiers,
             // then libs handles the retries and we shouldn't retry here.
             if (specifiers.length > 1) {
-              yield put(claimChallengeRewardFailed())
+              aaoErrorCode = response.aaoErrorCode
+              if (aaoErrorCode !== undefined) {
+                yield put(claimChallengeRewardFailed({ aaoErrorCode }))
+              } else {
+                yield put(claimChallengeRewardFailed())
+              }
               break
             }
             yield delay(getBackoff(retryCount))
@@ -303,7 +316,12 @@ function* claimChallengeRewardAsync(
             )
         }
       } else {
-        yield put(claimChallengeRewardFailed())
+        aaoErrorCode = response.aaoErrorCode
+        if (aaoErrorCode !== undefined) {
+          yield put(claimChallengeRewardFailed({ aaoErrorCode }))
+        } else {
+          yield put(claimChallengeRewardFailed())
+        }
       }
     } else {
       yield put(
@@ -316,7 +334,11 @@ function* claimChallengeRewardAsync(
     }
   } catch (e) {
     console.error('Error claiming rewards:', e)
-    yield put(claimChallengeRewardFailed())
+    if (aaoErrorCode !== undefined) {
+      yield put(claimChallengeRewardFailed({ aaoErrorCode }))
+    } else {
+      yield put(claimChallengeRewardFailed())
+    }
   }
 }
 
@@ -537,7 +559,10 @@ function* watchUpdateHCaptchaScore() {
     updateHCaptchaScore.type,
     function* (action: ReturnType<typeof updateHCaptchaScore>): any {
       const { token } = action.payload
-      const result = yield* call(AudiusBackend.updateHCaptchaScore, token)
+      const result = yield* call(
+        audiusBackendInstance.updateHCaptchaScore,
+        token
+      )
       if (result.error) {
         yield put(setHCaptchaStatus({ status: HCaptchaStatus.ERROR }))
       } else {

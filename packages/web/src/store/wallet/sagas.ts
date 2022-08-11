@@ -1,12 +1,10 @@
+import { Name, Chain, BNWei, FeatureFlags } from '@audius/common'
 import BN from 'bn.js'
 import { all, call, put, take, takeEvery, select } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import { Chain } from 'common/models/Chain'
-import { BNWei } from 'common/models/Wallet'
-import { FeatureFlags } from 'common/services/remote-config'
 import { fetchAccountSucceeded } from 'common/store/account/reducer'
 import { getAccountUser } from 'common/store/account/selectors'
+import { SETUP_BACKEND_SUCCEEDED } from 'common/store/backend/actions'
 import {
   fetchAssociatedWallets,
   transferEthAudioToSolWAudio
@@ -24,12 +22,11 @@ import {
   sendFailed,
   decreaseBalance
 } from 'common/store/wallet/slice'
+import { getErrorMessage } from 'common/utils/error'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
-import { SETUP_BACKEND_SUCCEEDED } from 'store/backend/actions'
-import { getErrorMessage } from 'utils/error'
 
 // TODO: handle errors
 const errors = {

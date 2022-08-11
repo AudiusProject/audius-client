@@ -1,9 +1,9 @@
+import { TrackSegment } from '@audius/common'
 import Hls from 'hls.js'
 
-import { TrackSegment } from 'common/models/Track'
-import { fetchCID } from 'services/AudiusBackend'
+import { decodeHashId } from 'common/utils/hashIds'
+import { fetchCID } from 'services/audius-backend'
 import { generateM3U8, generateM3U8Variants } from 'utils/hlsUtil'
-import { decodeHashId } from 'utils/route/hashIds'
 
 declare global {
   interface Window {
@@ -56,7 +56,7 @@ class fLoader extends Hls.DefaultConfig.loader {
           this.getFallbacks(),
           /* cache */ false,
           /* asUrl */ true,
-          decodeHashId(this.getTrackId())
+          decodeHashId(this.getTrackId()) ?? undefined
         ).then((resolved) => {
           const updatedContext = { ...context, url: resolved }
           load(updatedContext, config, callbacks)

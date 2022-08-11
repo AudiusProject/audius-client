@@ -1,4 +1,4 @@
-import { User } from 'audius-client/src/common/models/User'
+import type { User } from '@audius/common'
 import { getOptimisticSupporters } from 'audius-client/src/common/store/tipping/selectors'
 import { getId as getSupportersId } from 'audius-client/src/common/store/user-list/top-supporters/selectors'
 import { View } from 'react-native'
@@ -61,13 +61,15 @@ export const SupporterInfo = (props: SupporterInfoProps) => {
         <Text
           style={styles.rankText}
           color={isTopRank ? 'secondary' : 'neutralLight4'}
-          weight='bold'>
+          weight='bold'
+        >
           #{rank}
         </Text>
         {isTopRank ? (
           <Text
             style={styles.rankText}
-            color={isTopRank ? 'secondary' : 'neutralLight4'}>
+            color={isTopRank ? 'secondary' : 'neutralLight4'}
+          >
             Supporter
           </Text>
         ) : null}

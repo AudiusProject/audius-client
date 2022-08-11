@@ -1,13 +1,18 @@
-import { ID } from '@audius/common'
+import {
+  Kind,
+  ID,
+  Name,
+  PlaylistLibrary,
+  SmartCollectionVariant,
+  User,
+  makeUid,
+  makeKindId
+} from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import Kind from 'common/models/Kind'
-import { PlaylistLibrary } from 'common/models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'common/models/SmartCollectionVariant'
-import { User } from 'common/models/User'
 import * as accountActions from 'common/store/account/reducer'
 import { getPlaylistLibrary, getUserId } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import {
   getCollections,
@@ -19,11 +24,9 @@ import * as notificationActions from 'common/store/notifications/actions'
 import { removeFromPlaylistLibrary } from 'common/store/playlist-library/helpers'
 import * as socialActions from 'common/store/social/collections/actions'
 import { formatShareText } from 'common/utils/formatUtil'
-import { makeUid, makeKindId } from 'common/utils/uid'
 import * as signOnActions from 'pages/sign-on/store/actions'
-import AudiusBackend from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
@@ -101,7 +104,7 @@ export function* confirmRepostCollection(
       makeKindId(Kind.COLLECTIONS, collectionId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.repostCollection,
+          audiusBackendInstance.repostCollection,
           collectionId
         )
         const confirmed = yield* call(
@@ -203,7 +206,7 @@ export function* confirmUndoRepostCollection(
       makeKindId(Kind.COLLECTIONS, collectionId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.undoRepostCollection,
+          audiusBackendInstance.undoRepostCollection,
           collectionId
         )
         const confirmed = yield* call(
@@ -369,7 +372,7 @@ export function* confirmSaveCollection(ownerId: ID, collectionId: ID) {
       makeKindId(Kind.COLLECTIONS, collectionId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.saveCollection,
+          audiusBackendInstance.saveCollection,
           collectionId
         )
         const confirmed = yield* call(
@@ -482,7 +485,7 @@ export function* confirmUnsaveCollection(ownerId: ID, collectionId: ID) {
       makeKindId(Kind.COLLECTIONS, collectionId),
       function* () {
         const { blockHash, blockNumber } = yield* call(
-          AudiusBackend.unsaveCollection,
+          audiusBackendInstance.unsaveCollection,
           collectionId
         )
         const confirmed = yield* call(

@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
+import { Name, User } from '@audius/common'
 import {
   Button,
   ButtonProps,
@@ -15,15 +16,13 @@ import { useSelector } from 'react-redux'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import HorizontalLogo from 'assets/img/publicSite/Horizontal-Logo-Full-Color@2x.png'
-import { Name } from 'common/models/Analytics'
-import { User } from 'common/models/User'
 import { getAccountUser } from 'common/store/account/selectors'
+import { encodeHashId } from 'common/utils/hashIds'
 import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { ProfileInfo } from 'components/profile-info/ProfileInfo'
-import AudiusBackend from 'services/AudiusBackend'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make, useRecord } from 'store/analytics/actions'
-import { getCreatorNodeIPFSGateways } from 'utils/gatewayUtil'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
 import { signOut } from 'utils/signOut'
 
@@ -121,7 +120,7 @@ export const OAuthLoginPage = () => {
     const getAndSetEmail = async () => {
       let email: string
       try {
-        email = await AudiusBackend.getUserEmail()
+        email = await audiusBackendInstance.getUserEmail()
       } catch {
         setUserEmail(null)
         history.push(ERROR_PAGE)
@@ -262,7 +261,7 @@ export const OAuthLoginPage = () => {
     let email: string
     if (!userEmail) {
       try {
-        email = await AudiusBackend.getUserEmail()
+        email = await audiusBackendInstance.getUserEmail()
       } catch {
         history.push(ERROR_PAGE)
         return
@@ -271,7 +270,9 @@ export const OAuthLoginPage = () => {
       email = userEmail
     }
 
-    const gateways = getCreatorNodeIPFSGateways(account.creator_node_endpoint)
+    const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+      account.creator_node_endpoint
+    )
     const cNode = gateways[0]
     let profilePicture:
       | { '150x150': string; '480x480': string; '1000x1000': string }
@@ -292,14 +293,15 @@ export const OAuthLoginPage = () => {
       }
     }
     const timestamp = Math.round(new Date().getTime() / 1000)
+    const userId = encodeHashId(account?.user_id)
     const response = {
-      userId: account?.user_id,
+      userId,
       email,
       name: account?.name,
       handle: account?.handle,
       verified: account?.is_verified,
       profilePicture,
-      sub: account?.user_id,
+      sub: userId,
       iat: timestamp
     }
     const header = base64url.encode(
@@ -310,7 +312,7 @@ export const OAuthLoginPage = () => {
     const message = `${header}.${payload}`
     let signedData: { data: string; signature: string }
     try {
-      signedData = await AudiusBackend.signDiscoveryNodeRequest(message)
+      signedData = await audiusBackendInstance.signDiscoveryNodeRequest(message)
     } catch {
       return
     }
@@ -366,7 +368,10 @@ export const OAuthLoginPage = () => {
     setIsSubmitting(true)
     let signInResponse: any
     try {
-      signInResponse = await AudiusBackend.signIn(emailInput, passwordInput)
+      signInResponse = await audiusBackendInstance.signIn(
+        emailInput,
+        passwordInput
+      )
     } catch (err) {
       setIsSubmitting(false)
       setAndLogGeneralSubmitError(false, messages.miscError)
@@ -463,7 +468,8 @@ export const OAuthLoginPage = () => {
             className={cn(
               styles.permissionContainer,
               styles.nonFirstPermissionContainer
-            )}>
+            )}
+          >
             <div>
               <IconValidationCheck width={16} height={16} />
             </div>
@@ -478,7 +484,8 @@ export const OAuthLoginPage = () => {
               className={cn(
                 styles.permissionContainer,
                 styles.nonFirstPermissionContainer
-              )}>
+              )}
+            >
               <div>
                 <IconAtSign
                   width={16}
@@ -491,7 +498,8 @@ export const OAuthLoginPage = () => {
                   className={cn(styles.permissionText, {
                     [styles.permissionTextLight]: Boolean(userEmail),
                     [styles.permissionTextExtraLight]: !userEmail
-                  })}>
+                  })}
+                >
                   {userEmail == null ? (
                     <>
                       <LoadingSpinner className={styles.loadingSpinner} /> Email
@@ -580,7 +588,8 @@ export const OAuthLoginPage = () => {
                 className={styles.linkButton}
                 href={SIGN_UP_PAGE}
                 target='_blank'
-                rel='noopener noreferrer'>
+                rel='noopener noreferrer'
+              >
                 {messages.signUp}
               </a>
             </div>

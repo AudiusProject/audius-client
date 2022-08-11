@@ -1,10 +1,10 @@
+import { Kind } from '@audius/common'
 import { all, fork, call, put, select, takeEvery } from 'typed-redux-saga/macro'
 
-import Kind from 'common/models/Kind'
 import { getAccountUser } from 'common/store/account/selectors'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
-import AudiusBackend from 'services/AudiusBackend'
-import { waitForBackendSetup } from 'store/backend/sagas'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import { watchServiceSelectionErrors } from './errorSagas'
@@ -31,20 +31,22 @@ export function* watchFetchServices() {
         services: { [name: string]: Service }
 
       if (currentUser.creator_node_endpoint) {
-        services = yield* call(AudiusBackend.getSelectableCreatorNodes)
+        services = yield* call(audiusBackendInstance.getSelectableCreatorNodes)
         const userEndpoints = currentUser.creator_node_endpoint.split(',')
         primary = userEndpoints[0]
         secondaries = userEndpoints.slice(1)
         // Filter out a secondary that is unhealthy.
         secondaries = secondaries.filter(Boolean).filter((s) => services[s])
       } else {
-        const autoselect = yield* call(AudiusBackend.autoSelectCreatorNodes)
+        const autoselect = yield* call(
+          audiusBackendInstance.autoSelectCreatorNodes
+        )
         primary = autoselect.primary
         secondaries = autoselect.secondaries
         services = autoselect.services
 
         yield* call(
-          AudiusBackend.creatorNodeSelectionCallback,
+          audiusBackendInstance.creatorNodeSelectionCallback,
           primary,
           secondaries,
           'autoselect'
@@ -74,7 +76,9 @@ export function* watchFetchServices() {
 const checkIsSyncing = async (service: string) => {
   return new Promise<void>((resolve) => {
     const interval = setInterval(async () => {
-      const isSyncing = await AudiusBackend.isCreatorNodeSyncing(service)
+      const isSyncing = await audiusBackendInstance.isCreatorNodeSyncing(
+        service
+      )
       if (!isSyncing) {
         clearInterval(interval)
         resolve()
@@ -102,7 +106,7 @@ function* watchSetSelected() {
       const currentSecondaries = yield* select(getSecondaries)
       const { primary, secondaries } = action.payload
       yield* call(
-        AudiusBackend.creatorNodeSelectionCallback,
+        audiusBackendInstance.creatorNodeSelectionCallback,
         primary,
         secondaries,
         'manual'
@@ -130,10 +134,10 @@ function* watchSetSelected() {
         })
       )
 
-      yield* call(AudiusBackend.setCreatorNodeEndpoint, primary)
+      yield* call(audiusBackendInstance.setCreatorNodeEndpoint, primary)
       user.creator_node_endpoint = newEndpoint
       const success = yield* call(
-        AudiusBackend.updateCreator,
+        audiusBackendInstance.updateCreator,
         user,
         user.user_id
       )

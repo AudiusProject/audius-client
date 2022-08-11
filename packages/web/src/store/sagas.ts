@@ -1,5 +1,6 @@
 import { all, fork } from 'redux-saga/effects'
 
+import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
@@ -55,7 +56,6 @@ import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
 import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
 import uploadSagas from 'pages/upload-page/store/sagas'
 import { initInterface } from 'services/native-mobile-interface/helpers'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import accountSagas from 'store/account/sagas'
 import analyticsSagas from 'store/analytics/sagas'
 import buyAudioSagas from 'store/application/ui/buy-audio/sagas'
@@ -64,7 +64,6 @@ import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
-import backendSagas, { setupBackend } from 'store/backend/sagas'
 import confirmerSagas from 'store/confirmer/sagas'
 import oauthSagas from 'store/oauth/sagas'
 import playerSagas from 'store/player/sagas'
@@ -76,8 +75,6 @@ import solanaSagas from 'store/solana/sagas'
 import tippingSagas from 'store/tipping/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
 import walletSagas from 'store/wallet/sagas'
-
-import { webStoreContext } from './storeContext'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -137,7 +134,7 @@ export default function* rootSaga() {
     walletSagas(),
 
     // Cast
-    castSagas(webStoreContext),
+    castSagas(),
 
     // Application
     addToPlaylistSagas(),
@@ -171,7 +168,7 @@ export default function* rootSaga() {
     oauthSagas(),
 
     // Remote config
-    remoteConfigSagas(remoteConfigInstance),
+    remoteConfigSagas(),
 
     // Solana
     solanaSagas(),

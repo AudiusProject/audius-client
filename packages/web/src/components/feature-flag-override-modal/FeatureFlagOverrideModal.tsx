@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
+  FeatureFlags,
+  FEATURE_FLAG_OVERRIDE_KEY,
+  OverrideSetting
+} from '@audius/common'
+import {
   Modal,
   ModalContent,
   ModalHeader,
@@ -8,12 +13,7 @@ import {
   SegmentedControl
 } from '@audius/stems'
 
-import {
-  FEATURE_FLAG_OVERRIDE_KEY,
-  OverrideSetting
-} from 'common/hooks/useFeatureFlag'
 import { useModalState } from 'common/hooks/useModalState'
-import { FeatureFlags } from 'common/services/remote-config'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useDevModeHotkey } from 'hooks/useHotkey'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
@@ -87,7 +87,8 @@ export const FeatureFlagOverrideModal = () => {
       title={messages.title}
       onClose={closeModal}
       isOpen={isOpen}
-      zIndex={zIndex.FEATURE_FLAG_OVERRIDE_MODAL}>
+      zIndex={zIndex.FEATURE_FLAG_OVERRIDE_MODAL}
+    >
       <ModalHeader onClose={closeModal}>
         <ModalTitle title={messages.title} />
       </ModalHeader>

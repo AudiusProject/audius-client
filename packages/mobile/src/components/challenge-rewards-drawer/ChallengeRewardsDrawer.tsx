@@ -1,10 +1,12 @@
 import React from 'react'
 
-import { UserChallengeState } from 'audius-client/src/common/models/AudioRewards'
+import type { UserChallengeState } from '@audius/common'
 import { ClaimStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
+import { getAAOErrorEmojis } from 'audius-client/src/common/utils/aaoErrorCodes'
 import { fillString } from 'audius-client/src/common/utils/fillString'
 import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
-import { StyleSheet, View, ImageSourcePropType } from 'react-native'
+import type { ImageSourcePropType } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
@@ -16,7 +18,7 @@ import { ProgressBar } from 'app/components/progress-bar'
 import Text from 'app/components/text'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
-import { ThemeColors } from 'app/utils/theme'
+import type { ThemeColors } from 'app/utils/theme'
 
 const messages = {
   task: 'Task',
@@ -29,6 +31,8 @@ const messages = {
   claim: 'Claim Your Reward',
   claimErrorMessage:
     'Something has gone wrong, not all your rewards were claimed. Please try again.',
+  claimErrorMessageAAO:
+    'Your account is unable to claim rewards at this time. Please try again later or contact @support@audius.co. ',
   claimableLabel: '$AUDIO available to claim',
   claimedLabel: '$AUDIO claimed so far'
 }
@@ -164,6 +168,8 @@ type ChallengeRewardsDrawerProps = {
   claimedAmount: number
   /** The status of the rewards being claimed */
   claimStatus: ClaimStatus
+  /** Error code from AAO in the case of AAO rejection */
+  aaoErrorCode?: number
   /** Callback that runs on the claim rewards button being clicked */
   onClaim?: () => void
   /** Whether the challenge is for verified users only */
@@ -185,6 +191,7 @@ export const ChallengeRewardsDrawer = ({
   claimableAmount,
   claimedAmount,
   claimStatus,
+  aaoErrorCode,
   onClaim,
   isVerifiedChallenge,
   showProgressBar,
@@ -216,6 +223,21 @@ export const ChallengeRewardsDrawer = ({
     messages.claimableLabel
   }`
 
+  const getErrorMessage = () => {
+    if (aaoErrorCode === undefined) {
+      return (
+        <Text style={styles.claimRewardsError} weight='bold'>
+          {messages.claimErrorMessage}
+        </Text>
+      )
+    }
+    return (
+      <Text style={styles.claimRewardsError} weight='bold'>
+        {messages.claimErrorMessageAAO}
+        {getAAOErrorEmojis(aaoErrorCode)}
+      </Text>
+    )
+  }
   return (
     <AppDrawer
       modalName='ChallengeRewardsExplainer'
@@ -223,7 +245,8 @@ export const ChallengeRewardsDrawer = ({
       isFullscreen
       isGestureSupported={false}
       title={title}
-      titleIcon={titleIcon}>
+      titleIcon={titleIcon}
+    >
       <View style={styles.content}>
         <View style={styles.task}>
           {isVerifiedChallenge ? (
@@ -268,14 +291,16 @@ export const ChallengeRewardsDrawer = ({
             style={[
               styles.statusCell,
               hasCompleted ? styles.statusCellComplete : {}
-            ]}>
+            ]}
+          >
             <Text
               style={[
                 styles.subheader,
                 hasCompleted ? styles.statusTextComplete : {},
                 isInProgress ? styles.statusTextInProgress : {}
               ]}
-              weight='heavy'>
+              weight='heavy'
+            >
               {statusText}
             </Text>
           </View>
@@ -287,7 +312,8 @@ export const ChallengeRewardsDrawer = ({
                 <Text
                   key='claimableAmount'
                   style={styles.claimableAmount}
-                  weight='heavy'>
+                  weight='heavy'
+                >
                   {claimableAmountText}
                 </Text>,
                 <Button
@@ -316,11 +342,7 @@ export const ChallengeRewardsDrawer = ({
               {claimedAmountText}
             </Text>
           ) : null}
-          {claimError ? (
-            <Text style={styles.claimRewardsError} weight='bold'>
-              {messages.claimErrorMessage}
-            </Text>
-          ) : null}
+          {claimError ? getErrorMessage() : null}
         </View>
       </View>
     </AppDrawer>

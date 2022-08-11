@@ -1,11 +1,11 @@
 import { memo, useState, useEffect } from 'react'
 
+import { SquareSizes } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import Lottie from 'react-lottie'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
-import { SquareSizes } from 'common/models/ImageSizes'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import ImageSelectionButton from 'components/image-selection/ImageSelectionButton'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
@@ -64,17 +64,20 @@ const ProfilePicture = ({
         [styles.hasChanged]: hasChanged,
         [styles.modalOpen]: modalOpen,
         [styles.isMobile]: isMobile
-      })}>
+      })}
+    >
       <div className={styles.profilePictureBackground}>
         <DynamicImage
           image={updatedProfilePicture || image}
           skeletonClassName={styles.profilePictureSkeleton}
-          wrapperClassName={styles.profilePicture}>
+          wrapperClassName={styles.profilePicture}
+        >
           {editMode && (
             <div
               className={cn(styles.overlay, {
                 [styles.processing]: processing
-              })}>
+              })}
+            >
               <Lottie
                 options={{
                   loop: true,

@@ -1,8 +1,8 @@
 import { ReactNode, useContext, useEffect } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { FeatureFlags } from 'common/services/remote-config'
 import { preloadWalletProviders } from 'common/store/pages/token-dashboard/slice'
 import { getBalance } from 'common/store/wallet/slice'
 import Header from 'components/header/desktop/Header'
@@ -66,7 +66,8 @@ export const DesktopPage = ({ children }: { children: ReactNode }) => {
       title={messages.title}
       description={messages.description}
       contentClassName={styles.pageContainer}
-      header={header}>
+      header={header}
+    >
       {children}
     </Page>
   )
@@ -89,7 +90,8 @@ export const MobilePage = ({ children }: { children: ReactNode }) => {
       description={messages.description}
       canonicalUrl={`${BASE_URL}${AUDIO_PAGE}`}
       hasDefaultHeader
-      containerClassName={styles.rewardsMobilePageContainer}>
+      containerClassName={styles.rewardsMobilePageContainer}
+    >
       {children}
     </MobilePageContainer>
   )

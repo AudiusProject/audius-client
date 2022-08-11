@@ -1,21 +1,24 @@
 import { useCallback, useRef } from 'react'
 
+import { Theme, StringKeys, FeatureFlags } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
 import { ReactComponent as AudiusLogoHorizontal } from 'assets/img/audiusLogoHorizontal.svg'
 import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
-import Theme from 'common/models/Theme'
-import { StringKeys } from 'common/services/remote-config'
 import { formatCount } from 'common/utils/formatUtil'
 import NavButton from 'components/nav/desktop/NavButton'
 import NavPopupMenu from 'components/nav/desktop/NavPopupMenu'
 import { NotificationPanel } from 'components/notification'
-import { useRemoteVar } from 'hooks/useRemoteConfig'
+import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
 import { HOME_PAGE, BASE_URL, stripBaseUrl } from 'utils/route'
 import { getTheme } from 'utils/theme/theme'
 
 import styles from './NavHeader.module.css'
+
+const messages = {
+  earlyAccess: 'Early Access'
+}
 
 const NavHeader = ({
   account,
@@ -45,6 +48,8 @@ const NavHeader = ({
     }
   }, [logoVariantClickTarget, goToRoute])
 
+  const { isEnabled: isEarlyAccess } = useFlag(FeatureFlags.EARLY_ACCESS)
+
   return (
     <div className={styles.header}>
       <div className={styles.logoWrapper} onClick={onClickLogo}>
@@ -56,6 +61,9 @@ const NavHeader = ({
           />
         )}
       </div>
+      {isEarlyAccess ? (
+        <div className={styles.earlyAccess}>{messages.earlyAccess}</div>
+      ) : null}
       {account ? (
         <div className={styles.headerIconContainer}>
           <NavPopupMenu />
@@ -65,7 +73,8 @@ const NavHeader = ({
             className={cn(styles.headerIconWrapper, styles.iconNotification, {
               [styles.active]: notificationCount > 0,
               [styles.notificationsOpen]: notificationPanelIsOpen
-            })}>
+            })}
+          >
             <IconNotification />
           </div>
           {notificationCount > 0 && !notificationPanelIsOpen ? (

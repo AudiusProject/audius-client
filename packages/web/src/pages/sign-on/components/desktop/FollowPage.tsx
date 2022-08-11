@@ -1,11 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, User } from '@audius/common'
 import { Button, ButtonType, IconArrow, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconWand } from 'assets/img/iconWand.svg'
-import { User } from 'common/models/User'
 import UserCard from 'components/card/UserCard'
 import SelectablePills from 'components/selectable-pill/SelectablePills'
 
@@ -104,7 +103,8 @@ export const FollowPage = (props: FollowPageProps) => {
       <Scrollbar className={styles.cardSection}>
         <div
           className={styles.cardsHeader}
-          style={{ maxWidth: isFourWide ? FOUR_TILE_WIDTH : FIVE_TILE_WIDTH }}>
+          style={{ maxWidth: isFourWide ? FOUR_TILE_WIDTH : FIVE_TILE_WIDTH }}
+        >
           <div className={styles.pickForMe} onClick={onAutoSelect}>
             <IconWand className={styles.iconWand} />
             {messages.pickForMe}
@@ -115,7 +115,8 @@ export const FollowPage = (props: FollowPageProps) => {
             [styles.hide]: isTransitioning,
             [styles.show]: !isTransitioning
           })}
-          aria-label='profile selection'>
+          aria-label='profile selection'
+        >
           {users.map((user) => (
             <li key={user.user_id}>
               <UserCard

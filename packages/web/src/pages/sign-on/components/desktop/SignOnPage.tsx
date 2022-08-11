@@ -1,6 +1,6 @@
 import { Suspense, useEffect } from 'react'
 
-import { ID } from '@audius/common'
+import { ID, Status, User } from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
 import { Transition } from 'react-spring/renderprops'
@@ -11,8 +11,6 @@ import imageSignUp3 from 'assets/img/4-Conductor-4-3.jpg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import imagePhone from 'assets/img/imagePhone.png'
 import CTAImage from 'assets/img/signUpCTA.png'
-import Status from 'common/models/Status'
-import { User } from 'common/models/User'
 import {
   AccountImage,
   InstagramProfile,
@@ -212,7 +210,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}>
+        }}
+      >
         <SignInPage
           hasMetaMask={!!showMetaMaskOption}
           loading={status === 'loading'}
@@ -233,7 +232,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}>
+        }}
+      >
         <EmailPage
           hasMetaMask={!!showMetaMaskOption}
           email={email}
@@ -250,7 +250,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}>
+        }}
+      >
         <PasswordPage
           email={email}
           onPasswordChange={onPasswordChange}
@@ -264,7 +265,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}>
+        }}
+      >
         <ProfilePage
           name={name}
           handle={handle}
@@ -289,7 +291,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}>
+        }}
+      >
         <FollowPage
           users={suggestedFollowEntries}
           followedArtists={selectedUserIds}
@@ -308,7 +311,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}>
+        }}
+      >
         <LoadingPage />
       </animated.div>
     ),
@@ -318,7 +322,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.full
-        }}>
+        }}
+      >
         <StartPlatformPage
           onUploadTrack={onUploadTrack}
           onStartListening={onStartListening}
@@ -331,7 +336,8 @@ const SignOnProvider = ({
           ...style,
           ...animatedStyle.base,
           ...animatedStyle.pane
-        }}>
+        }}
+      >
         <AppCTA onNextPage={onNextPage} />
       </animated.div>
     )
@@ -395,7 +401,8 @@ const SignOnProvider = ({
       canonicalUrl={`${BASE_URL}${SIGN_UP_PAGE}`}
       containerClassName={styles.pageContainer}
       contentClassName={styles.pageContent}
-      fadeDuration={400}>
+      fadeDuration={400}
+    >
       <BackgroundWaves key={'bg-waves'} className={cn(styles.bgWaves)} />
       {isPageBeforeFollow ? (
         <IconRemove className={styles.closeIcon} onClick={closeModal} />
@@ -412,13 +419,15 @@ const SignOnProvider = ({
         animateImageIn={
           page !== Pages.SIGNIN && page !== Pages.EMAIL && hasOpened
         }
-        hideImageTransition={page === Pages.LOADING || page === Pages.START}>
+        hideImageTransition={page === Pages.LOADING || page === Pages.START}
+      >
         <form
           method='post'
           onSubmit={(e) => {
             e.preventDefault()
           }}
-          autoComplete='off'>
+          autoComplete='off'
+        >
           <Transition
             items={page}
             unique
@@ -449,7 +458,8 @@ const SignOnProvider = ({
                 : isPageBeforeFollow
                 ? {}
                 : { duration: 220 }
-            }>
+            }
+          >
             {(item) => pages[item]}
           </Transition>
         </form>

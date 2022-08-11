@@ -1,9 +1,10 @@
+import { Kind } from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
 import { all } from 'redux-saga/effects'
 
-import Kind from 'common/models/Kind'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { asCache, initialCacheState } from 'common/store/cache/reducer'
 import cacheSagas from 'common/store/cache/sagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -12,7 +13,6 @@ import { asLineup, initialLineupState } from 'common/store/lineup/reducer'
 import queueReducer, {
   initialState as initialQueueState
 } from 'common/store/queue/slice'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { initialState as initialConfirmerState } from 'store/confirmer/reducer'
 import { LineupSagas } from 'store/lineup/sagas'
 import playerReducer, {

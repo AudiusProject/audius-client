@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 
+import { Name, PlaylistLibraryFolder } from '@audius/common'
 import {
   IconFolder,
   Modal,
@@ -10,8 +11,6 @@ import {
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { Name } from 'common/models/Analytics'
-import { PlaylistLibraryFolder } from 'common/models/PlaylistLibrary'
 import { getPlaylistLibrary } from 'common/store/account/selectors'
 import {
   removePlaylistFolderInLibrary,
@@ -107,7 +106,8 @@ const EditFolderModal = () => {
         isOpen={isOpen}
         onClose={handleClose}
         zIndex={zIndex.EDIT_PLAYLIST_MODAL}
-        bodyClassName={styles.modalBody}>
+        bodyClassName={styles.modalBody}
+      >
         <ModalHeader onClose={handleClose}>
           <ModalTitle
             icon={<IconFolder />}

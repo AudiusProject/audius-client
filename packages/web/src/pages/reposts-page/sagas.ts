@@ -1,8 +1,6 @@
-import { ID } from '@audius/common'
+import { ID, Collection, Track } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
-import { Collection } from 'common/models/Collection'
-import { Track } from 'common/models/Track'
 import { getCollection } from 'common/store/cache/collections/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import {
@@ -16,12 +14,10 @@ import {
   getUserList,
   getUserIds
 } from 'common/store/user-list/reposts/selectors'
-import { RepostType } from 'common/store/user-list/reposts/types'
+import { RepostType, USER_LIST_TAG } from 'common/store/user-list/reposts/types'
 import UserListSagaFactory from 'common/store/user-list/sagas'
 import { createUserListProvider } from 'components/user-list/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-
-export const USER_LIST_TAG = 'REPOSTS'
+import { apiClient } from 'services/audius-api-client'
 
 const getPlaylistReposts = createUserListProvider<Collection>({
   getExistingEntity: getCollection,

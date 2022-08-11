@@ -1,10 +1,9 @@
-import { ComponentType, ReactElement, ReactNode, useCallback } from 'react'
+import type { ComponentType, ReactElement, ReactNode } from 'react'
+import { useCallback } from 'react'
 
-import { FeatureFlags } from 'audius-client/src/common/services/remote-config'
-import { SvgProps } from 'react-native-svg'
+import type { SvgProps } from 'react-native-svg'
 
 import { Screen } from 'app/components/core'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 
 import { UserListTitle } from './UserListTitle'
 
@@ -16,9 +15,6 @@ type UserListScreenProps = {
 
 export const UserListScreen = (props: UserListScreenProps) => {
   const { title, titleIcon, children } = props
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
 
   const headerTitle = useCallback(() => {
     if (!titleIcon) {
@@ -28,11 +24,7 @@ export const UserListScreen = (props: UserListScreenProps) => {
   }, [titleIcon, title])
 
   return (
-    <Screen
-      variant='white'
-      title={isTippingEnabled ? undefined : title}
-      headerTitle={isTippingEnabled ? headerTitle : undefined}
-      topbarRight={null}>
+    <Screen variant='white' headerTitle={headerTitle} topbarRight={null}>
       {children}
     </Screen>
   )

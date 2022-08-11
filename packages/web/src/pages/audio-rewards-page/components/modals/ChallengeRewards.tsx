@@ -20,6 +20,7 @@ import { getUserHandle } from 'common/store/account/selectors'
 import { getOptimisticUserChallenges } from 'common/store/challenges/selectors/optimistic-challenges'
 import { getCompletionStages } from 'common/store/challenges/selectors/profile-progress'
 import {
+  getAAOErrorCode,
   getChallengeRewardsModalType,
   getClaimStatus,
   getCognitoFlowStatus
@@ -32,6 +33,7 @@ import {
   CognitoFlowStatus,
   claimChallengeReward
 } from 'common/store/pages/audio-rewards/slice'
+import { getAAOErrorEmojis } from 'common/utils/aaoErrorCodes'
 import { fillString } from 'common/utils/fillString'
 import { formatNumberCommas } from 'common/utils/formatUtil'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -77,7 +79,9 @@ const messages = {
   rewardClaimed: 'Reward claimed successfully!',
   rewardAlreadyClaimed: 'Reward already claimed!',
   claimError:
-    'Something has gone wrong, not all your rewards were claimed. Please try again.',
+    'Something has gone wrong, not all your rewards were claimed. Please try again or contact support@audius.co.',
+  claimErrorAAO:
+    'Your account is unable to claim rewards at this time. Please try again later or contact support@audius.co. ',
   claimYourReward: 'Claim Your Reward',
   twitterShare: (modalType: 'referrals' | 'ref-v') =>
     `Share Invite With Your ${modalType === 'referrals' ? 'Friends' : 'Fans'}`,
@@ -115,7 +119,8 @@ const InviteLink = ({ className, inviteLink }: InviteLinkProps) => {
           text={messages.copiedLabel}
           delay={2000}
           placement={ComponentPlacement.TOP}
-          mount={MountPlacement.PARENT}>
+          mount={MountPlacement.PARENT}
+        >
           <PurpleBox
             className={wm(styles.inviteButtonContainer)}
             onClick={onButtonClick}
@@ -253,7 +258,8 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         [styles.inProgress]: challenge?.state === 'in_progress',
         [styles.complete]:
           challenge?.state === 'completed' || challenge?.state === 'disbursed'
-      })}>
+      })}
+    >
       {challenge?.state === 'incomplete' && (
         <h3 className={styles.incomplete}>Incomplete</h3>
       )}
@@ -275,6 +281,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   const { toast } = useContext(ToastContext)
   const claimStatus = useSelector(getClaimStatus)
+  const aaoErrorCode = useSelector(getAAOErrorCode)
   const claimInProgress =
     claimStatus === ClaimStatus.CLAIMING ||
     claimStatus === ClaimStatus.WAITING_FOR_RETRY
@@ -333,6 +340,18 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
     () => (userHandle ? fillString(messages.inviteLink, userHandle) : ''),
     [userHandle]
   )
+
+  const getErrorMessage = () => {
+    if (aaoErrorCode !== undefined) {
+      return (
+        <>
+          {messages.claimErrorAAO}
+          {getAAOErrorEmojis(aaoErrorCode)}
+        </>
+      )
+    }
+    return <>{messages.claimError}</>
+  }
 
   return (
     <div className={wm(styles.container)}>
@@ -440,7 +459,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         ) : null}
       </div>
       {claimStatus === ClaimStatus.ERROR && (
-        <div className={styles.claimError}>{messages.claimError}</div>
+        <div className={styles.claimError}>{getErrorMessage()}</div>
       )}
     </div>
   )
@@ -481,7 +500,8 @@ export const ChallengeRewardsModal = () => {
       }
       dismissOnClickOutside={
         !isHCaptchaModalOpen && cognitoFlowStatus === CognitoFlowStatus.CLOSED
-      }>
+      }
+    >
       <ChallengeRewardsBody dismissModal={onClose} />
     </ModalDrawer>
   )

@@ -1,6 +1,4 @@
-import { ID, UID } from '@audius/common'
-
-import { TrackMetadata } from 'common/models/Track'
+import { ID, UID, TrackMetadata } from '@audius/common'
 
 export const FETCH_LINEUP_METADATAS = 'FETCH_LINEUP_METADATAS'
 export const FETCH_LINEUP_METADATAS_REQUESTED =
@@ -75,15 +73,15 @@ export class LineupActions {
   /**
    * Fetches entity metadatas for the lineup.
    * Side-effect: Fetches relevant creators and caches loaded tracks.
-   * @param {number} [offset] the offset into the "get tracks" query
-   * @param {number} [limit] the limit for the "get tracks" query
-   * @param {boolean} [overwrite] a boolean indicating whether to overwrite cached entries the fetch may be refetching
-   * @param {*} [payload] keyword args payload to send to the "get tracks" query
    */
   fetchLineupMetadatas(
+    // the offset into the "get tracks" query
     offset = 0,
+    // the limit for the "get tracks" query
     limit = 10,
+    // a boolean indicating whether to overwrite cached entries the fetch may be refetching
     overwrite = false,
+    // keyword args payload to send to the "get tracks" query
     payload?: unknown
   ) {
     return {

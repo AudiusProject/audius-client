@@ -1,12 +1,10 @@
+import { UserCollectionMetadata, Kind, makeUid } from '@audius/common'
 import { uniqBy } from 'lodash'
 import { put, select } from 'redux-saga/effects'
 
-import { UserCollectionMetadata } from 'common/models/Collection'
-import Kind from 'common/models/Kind'
 import { getAccountUser } from 'common/store/account/selectors'
 import * as cacheActions from 'common/store/cache/actions'
 import { reformat as reformatUser } from 'common/store/cache/users/utils'
-import { makeUid } from 'common/utils/uid'
 
 /**
  * Adds users from collection metadata to cache.

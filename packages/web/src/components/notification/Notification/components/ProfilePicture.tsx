@@ -1,11 +1,10 @@
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
+import { SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { SquareSizes } from 'common/models/ImageSizes'
-import { User } from 'common/models/User'
 import { toggleNotificationPanel } from 'common/store/notifications/actions'
 import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -84,7 +83,8 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     <ArtistPopover
       handle={user.handle}
       component='span'
-      onNavigateAway={handleNavigateAway}>
+      onNavigateAway={handleNavigateAway}
+    >
       {profilePictureElement}
     </ArtistPopover>
   )

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 import Clipboard from '@react-native-clipboard/clipboard'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions'
 import querystring from 'query-string'
 import {
@@ -47,7 +47,7 @@ import { EventNames } from 'app/types/analytics'
 import { track, make } from 'app/utils/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
-import { SignOnStackParamList } from './types'
+import type { SignOnStackParamList } from './types'
 
 const isAndroid = Platform.OS === 'android'
 const image = backgImage
@@ -452,7 +452,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
     if (isSignin && isSigninError && showDefaultError) {
       return (
         <Animated.View
-          style={[styles.errorContainer, { opacity: errorOpacity }]}>
+          style={[styles.errorContainer, { opacity: errorOpacity }]}
+        >
           <ValidationIconX style={styles.errorIcon} />
           <Text style={styles.errorText}>{errorMessages.default}</Text>
         </Animated.View>
@@ -464,15 +465,18 @@ const SignOn = ({ navigation }: SignOnProps) => {
           style={styles.errorButton}
           onPress={() => {
             switchForm(true)
-          }}>
+          }}
+        >
           <Animated.View
-            style={[styles.errorContainer, { opacity: errorOpacity }]}>
+            style={[styles.errorContainer, { opacity: errorOpacity }]}
+          >
             <ValidationIconX style={styles.errorIcon} />
             <Text
               style={[
                 styles.errorText,
                 { flex: 0, textDecorationLine: 'underline' }
-              ]}>
+              ]}
+            >
               {errorMessages.emailInUse}
             </Text>
             <Text style={[styles.errorText, { fontSize: 13 }]}> ➔</Text>
@@ -483,7 +487,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
     if (showInvalidEmailError) {
       return (
         <Animated.View
-          style={[styles.errorContainer, { opacity: errorOpacity }]}>
+          style={[styles.errorContainer, { opacity: errorOpacity }]}
+        >
           <ValidationIconX style={styles.errorIcon} />
           <Text style={styles.errorText}>{errorMessages.invalidEmail}</Text>
         </Animated.View>
@@ -492,7 +497,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
     if (showEmptyPasswordError) {
       return (
         <Animated.View
-          style={[styles.errorContainer, { opacity: errorOpacity }]}>
+          style={[styles.errorContainer, { opacity: errorOpacity }]}
+        >
           <ValidationIconX style={styles.errorIcon} />
           <Text style={styles.errorText}>{errorMessages.emptyPassword}</Text>
         </Animated.View>
@@ -709,7 +715,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
               setcpaContainerHeight(
                 Dimensions.get('window').height - formContainerHeight
               )
-            }}>
+            }}
+          >
             <Image
               source={audiusLogoHorizontal}
               style={styles.audiusLogoHorizontal}
@@ -756,7 +763,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
           style={[
             styles.containerCTA,
             { height: cpaContainerHeight, opacity: opacityCTA }
-          ]}>
+          ]}
+        >
           {Dimensions.get('window').height < 720 ? (
             <></>
           ) : isAndroid && isKeyboardOpen ? (
@@ -774,7 +782,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
             activeOpacity={0.6}
             onPress={() => {
               switchForm()
-            }}>
+            }}
+          >
             {renderFormSwitchButton()}
           </TouchableOpacity>
           <TouchableOpacity
@@ -784,7 +793,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
               dispatch(
                 setVisibility({ drawer: 'ForgotPassword', visible: true })
               )
-            }}>
+            }}
+          >
             {renderForgotPasswordButton()}
           </TouchableOpacity>
         </Animated.View>

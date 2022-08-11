@@ -1,4 +1,16 @@
-import { ID } from '@audius/common'
+import {
+  Kind,
+  ID,
+  Name,
+  RecentTipsStorage,
+  Supporter,
+  Supporting,
+  UserTip,
+  User,
+  BNWei,
+  StringWei,
+  Nullable
+} from '@audius/common'
 import BN from 'bn.js'
 import {
   call,
@@ -10,17 +22,6 @@ import {
   cancel
 } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
-import Kind from 'common/models/Kind'
-import {
-  RecentTipsStorage,
-  Supporter,
-  Supporting,
-  UserTip
-} from 'common/models/Tipping'
-import { User } from 'common/models/User'
-import { BNWei, StringWei } from 'common/models/Wallet'
-import { FeatureFlags } from 'common/services/remote-config'
 import { getAccountUser } from 'common/store/account/selectors'
 import { update } from 'common/store/cache/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -51,14 +52,14 @@ import {
 } from 'common/store/tipping/slice'
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
-import { Nullable } from 'common/utils/typeUtils'
+import { decodeHashId, encodeHashId } from 'common/utils/hashIds'
 import {
   parseAudioInputToWei,
   stringWeiToBN,
   weiToAudioString,
   weiToString
 } from 'common/utils/wallet'
-import AudiusAPIClient from 'services/audius-api-client/AudiusAPIClient'
+import { apiClient } from 'services/audius-api-client'
 import {
   fetchRecentUserTips,
   fetchSupporters,
@@ -67,7 +68,6 @@ import {
   UserTipRequest
 } from 'services/audius-backend/Tipping'
 import { UpdateTipsStorageMessage } from 'services/native-mobile-interface/tipping'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import walletClient from 'services/wallet-client/WalletClient'
 import { make } from 'store/analytics/actions'
@@ -77,7 +77,6 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
-import { decodeHashId, encodeHashId } from 'utils/route/hashIds'
 
 import { updateTipsStorage } from './storageUtils'
 
@@ -205,10 +204,6 @@ function* overrideSupportersForUser({
 
 function* sendTipAsync() {
   yield call(waitForRemoteConfig)
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
-  if (!isTippingEnabled) {
-    return
-  }
 
   const sender = yield* select(getAccountUser)
   if (!sender) {
@@ -693,14 +688,11 @@ function* fetchUserSupporterAsync(
 ) {
   const { currentUserId, userId, supporterUserId } = action.payload
   try {
-    const response = yield* call(
-      [AudiusAPIClient, AudiusAPIClient.getUserSupporter],
-      {
-        currentUserId,
-        userId,
-        supporterUserId
-      }
-    )
+    const response = yield* call([apiClient, apiClient.getUserSupporter], {
+      currentUserId,
+      userId,
+      supporterUserId
+    })
     if (response) {
       const supportingMap = yield* select(getSupporting)
       yield put(

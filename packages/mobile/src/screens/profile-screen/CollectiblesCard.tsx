@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID } from '@audius/common'
-import { Collectible } from 'audius-client/src/common/models/Collectible'
+import type { ID, Collectible } from '@audius/common'
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import { setCollectible } from 'audius-client/src/common/store/ui/collectible-details/slice'
 import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import { ImageBackground, StyleProp, Text, View, ViewStyle } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
+import { ImageBackground, Text, View } from 'react-native'
 
 import LogoEth from 'app/assets/images/logoEth.svg'
 import LogoSol from 'app/assets/images/logoSol.svg'
@@ -14,11 +14,6 @@ import { Tile } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles, shadow } from 'app/styles'
-
-const messages = {
-  ownedStamp: 'owned',
-  createdStamp: 'created'
-}
 
 type UseStyleConfig = {
   isOwned: boolean
@@ -53,7 +48,7 @@ const useStyles = makeStyles(
     chain: {
       position: 'absolute',
       bottom: spacing(3),
-      right: spacing(3),
+      left: spacing(3),
       height: spacing(6),
       width: spacing(6),
       borderRadius: 30,
@@ -63,22 +58,6 @@ const useStyles = makeStyles(
       alignItems: 'center',
       justifyContent: 'center',
       ...shadow()
-    },
-    stamp: {
-      position: 'absolute',
-      bottom: spacing(3),
-      left: spacing(3),
-      paddingVertical: spacing(1),
-      paddingHorizontal: spacing(2),
-      borderRadius: 11,
-      overflow: 'hidden',
-      borderColor: palette.white,
-      borderWidth: 1,
-      backgroundColor: isOwned ? palette.secondary : palette.primary,
-      fontSize: 10,
-      fontFamily: typography.fontByWeight.bold,
-      textTransform: 'uppercase',
-      color: palette.white
     }
   })
 )
@@ -115,7 +94,8 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
   return (
     <Tile
       styles={{ root: style, content: styles.content }}
-      onPress={handlePress}>
+      onPress={handlePress}
+    >
       {url ? (
         <View>
           <ImageBackground style={styles.image} source={{ uri: url }}>
@@ -129,9 +109,6 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
                 />
               </View>
             ) : null}
-            <Text style={styles.stamp}>
-              {isOwned ? messages.ownedStamp : messages.createdStamp}
-            </Text>
             <View style={styles.chain}>
               {chain !== 'eth' ? (
                 <LogoEth height={18} />
