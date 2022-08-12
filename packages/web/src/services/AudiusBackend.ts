@@ -1465,8 +1465,6 @@ class AudiusBackend {
       const playlistEntityManagerIsEnabled = getFeatureEnabled(
         FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
       )
-      console.log('asdf backend', playlistEntityManagerIsEnabled)
-      console.log('asdf backend playlistId', playlistId)
 
       let response
       if (playlistEntityManagerIsEnabled) {
@@ -1488,7 +1486,6 @@ class AudiusBackend {
           trackIds
         )
       }
-      console.log('asdf createPlaylist response', response)
       const { blockHash, blockNumber, responsePlaylistId, error } = response
       if (error) return { responsePlaylistId, error }
 
@@ -1571,7 +1568,6 @@ class AudiusBackend {
         FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
       )
       if (playlistEntityManagerIsEnabled) {
-        console.log('asdf playlistId trackIds', { playlistId, trackIds })
         const { blockHash, blockNumber } =
           await audiusLibs.EntityManager.orderPlaylist({
             playlistId,
@@ -1622,7 +1618,6 @@ class AudiusBackend {
     timestamp: number
   ) {
     try {
-      console.log('asdf AudiusBackend addPlaylistTrack', playlistId)
       const playlistEntityManagerIsEnabled = getFeatureEnabled(
         FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
       )
@@ -1652,7 +1647,6 @@ class AudiusBackend {
     retries: number
   ) {
     try {
-      console.log('asdf deletePlaylistTrack')
       const playlistEntityManagerIsEnabled = getFeatureEnabled(
         FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
       )

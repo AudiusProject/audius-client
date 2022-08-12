@@ -345,7 +345,6 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        console.log('asdf editPlaylist', { confirmedPlaylistId, playlistId })
         const { blockHash, blockNumber, error } = yield call(
           AudiusBackend.updatePlaylist,
           confirmedPlaylistId,
@@ -473,12 +472,10 @@ function* confirmAddTrackToPlaylist(
   timestamp,
   count
 ) {
-  console.log('asdf confirmAddTrackToPlaylist', playlistId)
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        console.log('asdf adding track', trackId)
         const { blockHash, blockNumber, error } = yield call(
           AudiusBackend.addPlaylistTrack,
           confirmedPlaylistId,
@@ -488,7 +485,6 @@ function* confirmAddTrackToPlaylist(
         if (error) throw error
 
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
-        console.log('asdf confirmed transaction block', blockNumber)
 
         if (!confirmed) {
           throw new Error(
@@ -571,11 +567,7 @@ function* removeTrackFromPlaylistAsync(action) {
     yield put(signOnActions.openSignOn(false))
     return
   }
-  console.log('asdf removeTrackFromPlaylistAsync', action)
   const playlist = yield select(getCollection, { id: action.playlistId })
-  console.log('asdf removeTrackFromPlaylistAsync playlist', [
-    ...playlist.playlist_contents.track_ids
-  ])
 
   // Find the index of the track based on the track's id and timestamp
   const index = playlist.playlist_contents.track_ids.findIndex(
@@ -591,9 +583,6 @@ function* removeTrackFromPlaylistAsync(action) {
   const track = playlist.playlist_contents.track_ids[index]
   playlist.playlist_contents.track_ids.splice(index, 1)
   const count = countTrackIds(playlist.playlist_contents, action.trackId)
-  console.log('asdf removeTrackFromPlaylistAsync playlist', [
-    ...playlist.playlist_contents.track_ids
-  ])
 
   yield call(
     confirmRemoveTrackFromPlaylist,
@@ -660,7 +649,6 @@ function* confirmRemoveTrackFromPlaylist(
           timestamp,
           0
         )
-        console.log('asdf error', error)
         if (error) {
           const {
             error: tracksInPlaylistError,
@@ -693,9 +681,7 @@ function* confirmRemoveTrackFromPlaylist(
           blockHash = response.blockHash
           blockNumber = response.blockNumber
         }
-        console.log('asdf confirming delete', blockNumber)
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
-        console.log('asdf confirmed delete', blockNumber)
 
         if (!confirmed) {
           throw new Error(
@@ -746,9 +732,7 @@ function* orderPlaylistAsync(action) {
     yield put(signOnActions.openSignOn(false))
     return
   }
-  console.log('asdf orderPlaylistAsync')
   const playlist = yield select(getCollection, { id: action.playlistId })
-  console.log('asdf playlist', playlist)
 
   const trackIds = []
   const updatedPlaylist = {
@@ -763,7 +747,6 @@ function* orderPlaylistAsync(action) {
   }
   playlist.playlist_contents.track_ids =
     updatedPlaylist.playlist_contents.track_ids
-  console.log('asdf order playlist', trackIds)
 
   yield call(confirmOrderPlaylist, userId, action.playlistId, trackIds)
   yield put(
@@ -781,10 +764,6 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        console.log('asdf confirmedPlaylistId', {
-          confirmedPlaylistId,
-          playlistId
-        })
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the order playlist tracks once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to order playlist
         const { blockHash, blockNumber } = yield call(
@@ -793,9 +772,7 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
           trackIds,
           0
         )
-        console.log('asdf confirming', blockNumber)
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
-        console.log('asdf confirmed', blockNumber)
 
         if (!confirmed) {
           throw new Error(

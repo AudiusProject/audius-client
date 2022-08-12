@@ -655,8 +655,6 @@ export function* handleUploads({
 }
 
 function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
-  console.log('asdf upload collection')
-
   // First upload album art
   const coverArtResp = yield call(
     AudiusBackend.uploadImage,
@@ -672,14 +670,12 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
       metadata
     }
   })
-  console.log('asdf upload tracksWithMetadata', tracksWithMetadata)
 
   const { trackIds, error } = yield call(handleUploads, {
     tracks: tracksWithMetadata,
     isCollection: true,
     isAlbum
   })
-  console.log('asdf upload trackIds, error', { trackIds, error })
 
   // If we errored, return early
   if (error) {
@@ -696,7 +692,6 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         // Uploaded collections are always public
         const isPrivate = false
         const tempPlaylistId = getTempPlaylistId()
-        console.log('asdf upload tempPlaylistId', tempPlaylistId)
 
         const { blockHash, blockNumber, playlistId, error } = yield call(
           AudiusBackend.createPlaylist, // TODO pass playlistID
@@ -1070,7 +1065,6 @@ function* uploadTracksAsync(action) {
       action.stems
     )
   )
-  console.log('asdf upload action', action)
 
   // If user already has creator_node_endpoint, do not reselect replica set
   let newEndpoint = user.creator_node_endpoint || ''

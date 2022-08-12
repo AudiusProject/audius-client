@@ -184,7 +184,6 @@ const NavColumn = ({
   const onCreatePlaylist = useCallback(
     (metadata) => {
       const tempId = getTempPlaylistId()
-      console.log('asdf navcol tempId', tempId)
       createPlaylist(tempId, metadata)
       closeCreatePlaylistModal()
       if (account) {

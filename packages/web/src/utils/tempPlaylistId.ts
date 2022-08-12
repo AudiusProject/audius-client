@@ -3,14 +3,8 @@ import { FeatureFlags } from '@audius/common'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 
 export const getTempPlaylistId = () => {
-  console.log('asdf getTempPlaylistId')
-
   const playlistEntityManagerIsEnabled = getFeatureEnabled(
     FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-  )
-  console.log(
-    'asdf playlistEntityManagerIsEnabled',
-    playlistEntityManagerIsEnabled
   )
   if (playlistEntityManagerIsEnabled) {
     // Minimum playlist ID, intentionally higher than legacy playlist ID range
