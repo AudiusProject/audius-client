@@ -7,7 +7,7 @@ import { ReactComponent as IconTwitterBird } from 'assets/img/iconTwitterBird.sv
 import { useTwitterButtonStatus } from 'common/hooks/useTwitterButtonStatus'
 import { CommonState } from 'common/store'
 import { fetchUserSocials } from 'common/store/cache/users/actions'
-import { getUser, getUsers } from 'common/store/cache/users/selectors'
+import { getUser } from 'common/store/cache/users/selectors'
 import { make, useRecord } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
