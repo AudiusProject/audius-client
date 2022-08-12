@@ -1,4 +1,3 @@
-import accountSagas from 'common/store/account/sagas2'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import remoteConfig from 'common/store/remote-config/sagas'
 import { all, fork } from 'typed-redux-saga'
@@ -13,10 +12,7 @@ export default function* rootSaga() {
     ...backendSagas(),
     initKeyboardEvents,
     ...remoteConfig(),
-    ...oauthSagas(),
-
-    // Account
-    ...accountSagas()
+    ...oauthSagas()
   ]
 
   yield* all(sagas.map(fork))

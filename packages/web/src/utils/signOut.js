@@ -1,4 +1,3 @@
-import { AudiusBackend } from 'common/services/audius-backend'
 import { IS_MOBILE_USER_KEY } from 'common/store/account/mobileSagas'
 import { BADGE_LOCAL_STORAGE_KEY } from 'pages/audio-rewards-page/Tiers'
 import {
@@ -25,7 +24,7 @@ const removeLocalStorageItems = () => {
   items.map((k) => localStorage.removeItem(k))
 }
 
-export const signOut = async (audiusBackendInstance: AudiusBackend) => {
+export const signOut = async (audiusBackendInstance) => {
   removeLocalStorageItems()
   clearAudiusAccount()
   clearAudiusAccountUser()

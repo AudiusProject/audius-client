@@ -241,7 +241,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(settingPageActions.getNotificationSettings()),
     getPushNotificationSettings: () =>
       dispatch(settingPageActions.getPushNotificationSettings()),
-    onTwitterLogin: (uuid: string, profile: object) =>
+    onTwitterLogin: (uuid: string, profile: accountActions.TwitterProfile) =>
       dispatch(accountActions.twitterLogin({ uuid, profile })),
     onInstagramLogin: (
       uuid: string,

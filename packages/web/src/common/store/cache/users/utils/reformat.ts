@@ -1,4 +1,4 @@
-import { User, UserMetadata } from '@audius/common'
+import { UserMetadata } from '@audius/common'
 
 import { AudiusBackend } from 'common/services/audius-backend'
 
@@ -22,7 +22,7 @@ const setDisplayNameToHandleIfUnset = <T extends UserMetadata>(user: T) => {
 export const reformat = (
   user: UserMetadata,
   audiusBackendInstance: AudiusBackend
-): User => {
+) => {
   const withImages = audiusBackendInstance.getUserImages(user)
 
   const withNames = setDisplayNameToHandleIfUnset(withImages)

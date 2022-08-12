@@ -13,7 +13,7 @@ import {
 import cn from 'classnames'
 
 import audiusIcon from 'assets/img/audiusIcon.png'
-import { InstagramProfile } from 'common/store/account/reducer'
+import { InstagramProfile, TwitterProfile } from 'common/store/account/reducer'
 import {
   Notifications,
   BrowserNotificationSetting,
@@ -78,7 +78,7 @@ type OwnProps = {
   notificationSettings: Notifications
   getNotificationSettings: () => void
   onInstagramLogin: (uuid: string, profile: InstagramProfile) => void
-  onTwitterLogin: (uuid: string, profile: Record<string, any>) => void
+  onTwitterLogin: (uuid: string, profile: TwitterProfile) => void
   toggleBrowserPushNotificationPermissions: (
     notificationType: BrowserNotificationSetting,
     isOn: boolean

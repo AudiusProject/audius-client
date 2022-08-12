@@ -1,4 +1,4 @@
-import { User, ID, Status } from '@audius/common'
+import { ID, Status } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { keyBy } from 'lodash'
 
@@ -37,9 +37,9 @@ type RenameAccountPlaylistPayload = {
   name: string
 }
 
-export type AssociateTwitterAccountPayload = {
+export type TwitterAccountPayload = {
   uuid: string
-  profile: User
+  profile: TwitterProfile
 }
 
 export type InstagramAccountPayload = {
@@ -159,10 +159,7 @@ const slice = createSlice({
     fetchBrowserPushNotifications: () => {},
     subscribeBrowserPushNotifications: () => {},
     unsubscribeBrowserPushNotifications: () => {},
-    twitterLogin: (
-      state,
-      action: PayloadAction<AssociateTwitterAccountPayload>
-    ) => {},
+    twitterLogin: (state, action: PayloadAction<TwitterAccountPayload>) => {},
     instagramLogin: (
       state,
       action: PayloadAction<InstagramAccountPayload>

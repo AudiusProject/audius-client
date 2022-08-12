@@ -11,7 +11,6 @@ import {
   changePasswordSucceeded,
   changePasswordFailed
 } from 'common/store/change-password/slice'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { make, TrackEvent } from 'store/analytics/actions'
 
 function* handleConfirmCredentials(
