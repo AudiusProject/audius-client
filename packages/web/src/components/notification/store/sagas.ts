@@ -5,7 +5,8 @@ import {
   Track,
   FeatureFlags,
   IntKeys,
-  remoteConfigIntDefaults
+  remoteConfigIntDefaults,
+  RemoteConfigInstance
 } from '@audius/common'
 import moment from 'moment'
 import { eventChannel } from 'redux-saga'
@@ -48,7 +49,6 @@ import { getBalance } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
 import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { make } from 'store/analytics/actions'
 import { isElectron } from 'utils/clientUtil'
 import { waitForValue } from 'utils/sagaHelpers'
@@ -80,7 +80,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export const USER_INITIAL_LOAD_COUNT = 9
 
 // Gets the polling interval from remoteconfig
-const getPollingIntervalMs = () => {
+const getPollingIntervalMs = (remoteConfigInstance: RemoteConfigInstance) => {
   const pollingInterval = remoteConfigInstance.getRemoteVar(
     IntKeys.NOTIFICATION_POLLING_FREQ_MS
   )
@@ -495,6 +495,7 @@ const checkIfNotificationsChanged = (
  */
 export function* getNotifications(isFirstFetch: boolean) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   try {
     const isOpen: ReturnType<typeof getNotificationPanelIsOpen> = yield* select(
       getNotificationPanelIsOpen
@@ -538,7 +539,7 @@ export function* getNotifications(isFirstFetch: boolean) {
             )
           )
         }
-        yield* delay(getPollingIntervalMs())
+        yield* delay(getPollingIntervalMs(remoteConfigInstance))
         return
       }
       const {
@@ -594,6 +595,7 @@ export function* getNotifications(isFirstFetch: boolean) {
 
 function* notificationPollingDaemon() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   yield* call(waitForBackendSetup)
   yield* call(waitForValue, getHasAccount, {})
   yield* call(audiusBackendInstance.getEmailNotificationSettings)
@@ -647,7 +649,7 @@ function* notificationPollingDaemon() {
     if (!isBrowserInBackground || isElectron()) {
       yield* call(getNotifications, isFirstFetch)
     }
-    yield* delay(getPollingIntervalMs())
+    yield* delay(getPollingIntervalMs(remoteConfigInstance))
   }
 }
 

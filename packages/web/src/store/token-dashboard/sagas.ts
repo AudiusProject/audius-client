@@ -62,7 +62,6 @@ import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
 } from 'pages/profile-page/sagas'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import {
   loadWalletLink,
   loadBitski,
@@ -254,6 +253,7 @@ function* disconnectWeb3(web3Instance: any) {
 }
 
 function* connectWallet() {
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   let web3Instance: any
   try {
     const isBitSkiEnabled = Boolean(
