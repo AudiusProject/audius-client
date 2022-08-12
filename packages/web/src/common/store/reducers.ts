@@ -118,6 +118,7 @@ export const reducers = () => ({
     averageColor: averageColorReducer,
     addToPlaylist: addToPlaylistReducer,
     artistRecommendations: artistRecommendationsReducer,
+    buyAudio: buyAudioReducer,
     changePassword: changePasswordReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,

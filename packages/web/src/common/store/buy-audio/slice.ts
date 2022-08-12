@@ -1,6 +1,5 @@
+import { Status } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import Status from 'common/models/Status'
 
 export enum BuyAudioStage {
   START = 'START',
