@@ -3,7 +3,7 @@ import { RemoteConfigInstance } from '@audius/common'
 import { AudiusAPIClient } from 'common/services/audius-api-client'
 import { AudiusBackend } from 'common/services/audius-backend'
 import { FingerprintClient } from 'common/services/fingerprint'
-import { WalletClient } from 'services/wallet-client/WalletClient'
+import { WalletClient } from 'common/services/wallet-client'
 
 export type CommonStoreContext = {
   getLocalStorageItem: (key: string) => Promise<string | null>
