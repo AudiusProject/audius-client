@@ -363,9 +363,10 @@ function* connectSPLWallet(
       return
     }
 
-    const splWalletBalances = yield* call(walletClient.getSolWalletBalances, [
-      connectingWallet
-    ])
+    const splWalletBalances = yield* call(
+      [walletClient, 'getSolWalletBalances'],
+      [connectingWallet]
+    )
     const walletBalance = splWalletBalances[0].balance
 
     const collectiblesMap = yield* call(fetchSolanaCollectiblesForWallets, [
@@ -559,9 +560,10 @@ function* connectEthWallet(web3Instance: any) {
       )
       return
     }
-    const walletBalances = yield* call(walletClient.getEthWalletBalances, [
-      connectingWallet
-    ])
+    const walletBalances = yield* call(
+      [walletClient, 'getEthWalletBalances'],
+      [connectingWallet]
+    )
     const walletBalance = walletBalances[0].balance
 
     const collectiblesMap = yield* call(fetchOpenSeaAssetsForWallets, [

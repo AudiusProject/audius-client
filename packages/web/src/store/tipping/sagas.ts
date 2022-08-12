@@ -218,7 +218,7 @@ function* sendTipAsync() {
   const recipientWallet = recipient.spl_wallet
   const weiBNBalance: BNWei = yield select(getAccountBalance) ??
     (new BN('0') as BNWei)
-  const waudioWeiAmount = yield* call(walletClient.getCurrentWAudioBalance)
+  const waudioWeiAmount = yield* call([walletClient, 'getCurrentWAudioBalance'])
 
   if (weiBNAmount.gt(weiBNBalance)) {
     const errorMessage = 'Not enough $AUDIO'
@@ -245,7 +245,7 @@ function* sendTipAsync() {
         yield delay(1000)
         yield put(convert())
       })
-      yield call(walletClient.transferTokensFromEthToSol)
+      yield call([walletClient, 'transferTokensFromEthToSol'])
       // Cancel showing the notice if the conversion was magically super quick
       yield cancel(showConvertingMessage)
     }
