@@ -48,6 +48,7 @@ import {
   ConfirmRemoveWalletAction,
   ModalState
 } from 'common/store/pages/token-dashboard/types'
+import { fetchServices } from 'common/store/service-selection/slice'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import {
   send as walletSend,
@@ -57,7 +58,6 @@ import {
 } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
 import { weiToString } from 'common/utils/wallet'
-import { fetchServices } from 'components/service-selection/store/slice'
 import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
