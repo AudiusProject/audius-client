@@ -175,7 +175,7 @@ async function sendTransaction({
   console.debug(`Exchange: starting ${name} transaction...`)
   const result = await transactionHandler.handleTransaction({
     instructions: transaction.instructions,
-    feePayerOverride: feePayer.publicKey.toString(),
+    feePayerOverride: feePayer.publicKey,
     skipPreflight: true,
     errorMapping: {
       fromErrorCode: (errorCode) => {
