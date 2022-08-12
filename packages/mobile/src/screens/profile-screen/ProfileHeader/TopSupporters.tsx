@@ -1,10 +1,10 @@
-import { useCallback } from 'react'
+import { useCallback, useLayoutEffect, useRef } from 'react'
 
 import type { ID } from '@audius/common'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { getOptimisticSupportersForUser } from 'audius-client/src/common/store/tipping/selectors'
 import type { SupportersMapForUser } from 'audius-client/src/common/store/tipping/types'
-import { Text, View } from 'react-native'
+import { Text, View, LayoutAnimation } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
@@ -69,6 +69,7 @@ export const TopSupporters = () => {
     'user_id',
     'supporter_count'
   ])
+  const hasRankedSupportersLoaded = useRef(false)
   const supportersForProfile: SupportersMapForUser =
     useSelectorWeb((state) => getOptimisticSupportersForUser(state, user_id)) ||
     {}
@@ -96,6 +97,14 @@ export const TopSupporters = () => {
       }
     })
   }, [navigation, user_id])
+
+  useLayoutEffect(() => {
+    // Prevent multiple re-renders from rankedSupporters changing
+    if (rankedSupporters.length > 0 && !hasRankedSupportersLoaded.current) {
+      hasRankedSupportersLoaded.current = true
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    }
+  }, [rankedSupporters])
 
   return rankedSupporters.length > 0 ? (
     <TouchableOpacity style={styles.root} onPress={handlePress}>
