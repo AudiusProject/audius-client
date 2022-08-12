@@ -49,6 +49,6 @@
   transition: all 0.25s ease-in-out;
 }
 
-.overlay>div {
+.overlay > div {
   width: 56px !important;
 }
