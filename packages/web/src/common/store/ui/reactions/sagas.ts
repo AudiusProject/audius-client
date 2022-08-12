@@ -1,6 +1,7 @@
 import { removeNullable } from '@audius/common'
 import { call, takeEvery, all, put, select } from 'typed-redux-saga/macro'
 
+import { getContext } from 'common/store'
 import { apiClient } from 'services/audius-api-client'
 import { submitReaction } from 'services/audius-backend/Reactions'
 
@@ -16,6 +17,7 @@ import {
 function* fetchReactionValuesAsync({
   payload
 }: ReturnType<typeof fetchReactionValues>) {
+  const apiClient = yield* getContext('apiClient')
   // Fetch reactions
   // TODO: [PAY-305] This endpoint should be fixed to properly allow multiple reaction fetches
   const reactions = yield* all(

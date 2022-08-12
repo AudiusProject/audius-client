@@ -218,6 +218,7 @@ function* confirmEditTrack(
   currentTrack
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const apiClient = yield getContext('apiClient')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
@@ -338,6 +339,7 @@ function* deleteTrackAsync(action) {
 
 function* confirmDeleteTrack(trackId) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const apiClient = yield getContext('apiClient')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
