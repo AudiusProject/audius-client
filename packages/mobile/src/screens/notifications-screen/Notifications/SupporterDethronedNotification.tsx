@@ -4,8 +4,11 @@ import type { Nullable } from '@audius/common'
 import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
 import { getNotificationUser } from 'audius-client/src/common/store/notifications/selectors'
 import type { SupporterDethroned } from 'audius-client/src/common/store/notifications/types'
+import { beginTip } from 'audius-client/src/common/store/tipping/slice'
 
 import IconCrownSource from 'app/assets/images/crown2x.png'
+import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { EventNames } from 'app/types/analytics'
 import { make } from 'app/utils/analytics'
@@ -38,6 +41,8 @@ export const SupporterDethronedNotification = (
 ) => {
   const { notification } = props
   const { supportedUserId } = notification
+  const dispatchWeb = useDispatchWeb()
+  const navigation = useNavigation()
   const usurpingUser = useSelectorWeb((state) =>
     getNotificationUser(state, notification)
   )
@@ -46,7 +51,10 @@ export const SupporterDethronedNotification = (
     getUser(state, { id: supportedUserId })
   )
 
-  const handlePress = useCallback(() => {}, [])
+  const handlePress = useCallback(() => {
+    dispatchWeb(beginTip({ user: supportedUser, source: 'dethroned' }))
+    navigation.navigate({ native: { screen: 'TipArtist' } })
+  }, [dispatchWeb, supportedUser, navigation])
 
   const handleShare = useCallback(
     (usurpingHandle: string, supportingHandle?: Nullable<string>) => {

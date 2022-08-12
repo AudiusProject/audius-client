@@ -23,8 +23,9 @@ const useStyles = makeStyles(({ palette }) => ({
     marginRight: spacing(2)
   },
   image: {
-    height: 30,
-    width: 30
+    height: spacing(7),
+    width: spacing(7),
+    marginBottom: spacing(1)
   }
 }))
 
