@@ -60,7 +60,7 @@ const initialState: ModalsState = {
   AddToPlaylist: false,
   DeletePlaylistConfirmation: false,
   FeatureFlagOverride: false,
-  BuyAudio: true
+  BuyAudio: false
 }
 
 const slice = createSlice({
