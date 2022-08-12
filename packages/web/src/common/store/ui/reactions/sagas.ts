@@ -2,7 +2,6 @@ import { removeNullable } from '@audius/common'
 import { call, takeEvery, all, put, select } from 'typed-redux-saga/macro'
 
 import { getContext } from 'common/store'
-import { apiClient } from 'services/audius-api-client'
 import { submitReaction } from 'services/audius-backend/Reactions'
 
 import {
