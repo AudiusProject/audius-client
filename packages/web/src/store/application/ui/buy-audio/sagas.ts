@@ -71,6 +71,7 @@ const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
+const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
 let _jup: Jupiter
 
 /**
@@ -435,7 +436,11 @@ function* getAudioPurchaseInfo({
     )
 
     const estimatedLamports =
-      inSol + associatedAccountCreationFees + transactionFees - existingBalance
+      inSol +
+      associatedAccountCreationFees +
+      transactionFees +
+      MIN_PADDING -
+      existingBalance
 
     // Get SOL => USDC quote to estimate $USD cost
     const quoteUSD = yield* call(getQuote, {
@@ -545,7 +550,7 @@ function* startBuyAudioFlow({
       getSwapFees,
       { route: quote.route }
     )
-    const minSol = associatedAccountCreationFees + transactionFees
+    const minSol = associatedAccountCreationFees + transactionFees + MIN_PADDING
     const inputAmount = (newBalance - minSol) / LAMPORTS_PER_SOL
     console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
 
