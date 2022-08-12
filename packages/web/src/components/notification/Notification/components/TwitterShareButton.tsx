@@ -7,7 +7,7 @@ import { ReactComponent as IconTwitterBird } from 'assets/img/iconTwitterBird.sv
 import { useTwitterButtonStatus } from 'common/hooks/useTwitterButtonStatus'
 import { CommonState } from 'common/store'
 import { fetchUserSocials } from 'common/store/cache/users/actions'
-import { getUser } from 'common/store/cache/users/selectors'
+import { getUser, getUsers } from 'common/store/cache/users/selectors'
 import { make, useRecord } from 'store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 
@@ -26,8 +26,10 @@ type StaticTwitterProps = {
 type DynamicTwitterProps = {
   type: 'dynamic'
   handle: string
+  additionalHandle?: string
   shareData: (
-    twitterHandle: string
+    twitterHandle: string,
+    otherTwitterHandle?: Nullable<string>
   ) => Nullable<{ shareText: string; analytics: ReturnType<typeof make> }>
 }
 
@@ -40,12 +42,26 @@ export const TwitterShareButton = (props: TwitterShareButtonProps) => {
   const { url = null, ...other } = props
   const record = useRecord()
   const dispatch = useDispatch()
+
   const user = useSelector((state: CommonState) =>
     getUser(state, { handle: 'handle' in other ? other.handle : undefined })
   )
 
-  const { userName, shareTwitterStatus, twitterHandle, setLoading, setIdle } =
-    useTwitterButtonStatus(user)
+  const additionalUser = useSelector((state: CommonState) =>
+    getUser(state, {
+      handle: 'additionalHandle' in other ? other.additionalHandle : undefined
+    })
+  )
+
+  const {
+    userName,
+    additionalUserName,
+    shareTwitterStatus,
+    twitterHandle,
+    additionalTwitterHandle,
+    setLoading,
+    setIdle
+  } = useTwitterButtonStatus(user, additionalUser)
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -59,6 +75,9 @@ export const TwitterShareButton = (props: TwitterShareButtonProps) => {
       }
       if (other.type === 'dynamic') {
         dispatch(fetchUserSocials(other.handle))
+        if (other.additionalHandle) {
+          dispatch(fetchUserSocials(other.additionalHandle))
+        }
         setLoading()
       }
     },
@@ -68,10 +87,18 @@ export const TwitterShareButton = (props: TwitterShareButtonProps) => {
   if (
     other.type === 'dynamic' &&
     shareTwitterStatus === 'success' &&
-    userName
+    userName &&
+    (other.additionalHandle ? additionalUserName : true)
   ) {
     const handle = twitterHandle ? `@${twitterHandle}` : userName
-    const twitterData = other.shareData(handle)
+
+    const otherHandle = other.additionalHandle
+      ? additionalTwitterHandle
+        ? `@${additionalTwitterHandle}`
+        : additionalUserName
+      : null
+
+    const twitterData = other.shareData(handle, otherHandle)
     if (twitterData) {
       const { shareText, analytics } = twitterData
       openTwitterLink(url, shareText)
