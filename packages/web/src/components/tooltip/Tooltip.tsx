@@ -24,7 +24,7 @@ export const Tooltip = ({
   text = ''
 }: TooltipProps) => {
   // Keep track of a hidden state ourselves so we can dismiss the tooltip on click
-  const [isHidden, setIsHidden] = useState(false)
+  const [isHiddenOverride, setIsHiddenOverride] = useState(false)
 
   // Keep track of whether we are hovering over the tooltip to know when to
   // allow it to become visible again
@@ -32,14 +32,17 @@ export const Tooltip = ({
 
   const onClick = useCallback(() => {
     if (shouldDismissOnClick) {
-      setIsHidden(true)
+      setIsHiddenOverride(true)
     }
-  }, [shouldDismissOnClick, setIsHidden])
+  }, [shouldDismissOnClick, setIsHiddenOverride])
 
   const onMouseOut = useCallback(() => {
     mousedOver.current = false
-    setIsHidden(false)
-  }, [mousedOver, setIsHidden])
+    // Reset the hidden override if we are mousing
+    // out from the tooltip so that it can be used to
+    // hide the tooltip on the next hover.
+    setIsHiddenOverride(false)
+  }, [mousedOver, setIsHiddenOverride])
 
   const onMouseOver = useCallback(() => {
     mousedOver.current = true
@@ -50,10 +53,10 @@ export const Tooltip = ({
       // Reset the hidden override if we are becoming invisible or
       // the mouse is not overtop the tooltip
       if (!visible || !mousedOver.current) {
-        setIsHidden(false)
+        setIsHiddenOverride(false)
       }
     },
-    [setIsHidden]
+    [setIsHiddenOverride]
   )
 
   let popupContainer
@@ -71,11 +74,11 @@ export const Tooltip = ({
 
   // Keep track of visibility to override antd's native visibility.
   // Use an empty object when visible as to not trigger the antd component to update
-  const visibleProps = disabled || isHidden ? { visible: false } : {}
+  const visibleProps = disabled || isHiddenOverride ? { visible: false } : {}
   // Use a css property so that when we change visibility on click the tooltip
   // immediately disappears instead of animating out.
   const overlayStyle = {
-    visibility: isHidden ? 'hidden' : 'visible'
+    visibility: isHiddenOverride ? 'hidden' : 'visible'
   } as CSSProperties
 
   return (
