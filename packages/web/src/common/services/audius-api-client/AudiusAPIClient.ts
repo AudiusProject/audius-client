@@ -1404,7 +1404,7 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  init() {
+  async init() {
     if (this.initializationState.state === 'initialized') return
 
     // If override passed, use that and return
@@ -1421,7 +1421,7 @@ export class AudiusAPIClient {
     }
 
     // Set the state to the eager discprov
-    const eagerDiscprov = getEagerDiscprov()
+    const eagerDiscprov = await getEagerDiscprov()
     if (eagerDiscprov) {
       console.debug(`APIClient: setting to eager discprov: ${eagerDiscprov}`)
       this.initializationState = {

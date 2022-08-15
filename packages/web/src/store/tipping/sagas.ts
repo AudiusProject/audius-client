@@ -75,6 +75,7 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
+import { waitForValue } from 'utils/sagaHelpers'
 
 import { updateTipsStorage } from './storageUtils'
 
@@ -586,10 +587,7 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   const { storage } = action.payload
   const minSlot = storage?.minSlot ?? null
 
-  const account = yield* select(getAccountUser)
-  if (!account) {
-    return
-  }
+  const account: User = yield* call(waitForValue, getAccountUser)
 
   const encodedUserId = encodeHashId(account.user_id)
   if (!encodedUserId) {

@@ -39,7 +39,6 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
-import { setAudiusAccountUser } from 'services/LocalStorage'
 import { fetchCID } from 'services/audius-backend'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
@@ -431,6 +430,7 @@ export function* updateProfileAsync(action) {
 function* confirmUpdateProfile(userId, metadata) {
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const localStorage = yield getContext('localStorage')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
@@ -466,7 +466,7 @@ function* confirmUpdateProfile(userId, metadata) {
       },
       function* (confirmedUser) {
         // Store the update in local storage so it is correct upon reload
-        yield setAudiusAccountUser(confirmedUser)
+        yield call([localStorage, 'setAudiusAccountUser'], confirmedUser)
         // Update the cached user so it no longer contains image upload artifacts
         // and contains updated profile picture / cover photo sizes if any
         const newMetadata = {

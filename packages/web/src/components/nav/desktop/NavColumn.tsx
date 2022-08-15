@@ -27,13 +27,15 @@ import imageProfilePicEmpty from 'common/assets/img/imageProfilePicEmpty2X.png'
 import {
   getAccountStatus,
   getAccountUser,
-  getPlaylistLibrary
+  getPlaylistLibrary,
+  getUserId
 } from 'common/store/account/selectors'
 import { getDominantColorsByTrack } from 'common/store/average-color/slice'
 import {
   addTrackToPlaylist,
   createPlaylist
 } from 'common/store/cache/collections/actions'
+import { getUser } from 'common/store/cache/users/selectors'
 import {
   toggleNotificationPanel,
   updatePlaylistLastViewedAt
@@ -138,6 +140,7 @@ const NavColumn = ({
   showVisualizer,
   dominantColors
 }: NavColumnProps) => {
+  console.log({ account })
   const record = useRecord()
   const { location } = useHistory()
   const { pathname } = location
@@ -540,13 +543,14 @@ const mapStateToProps = (state: AppState) => {
   return {
     currentQueueItem,
     currentPlayerItem,
-    account: getAccountUser(state),
+    account: getUser(state, { id: getUserId(state) }),
     accountStatus: getAccountStatus(state),
     dragging: getIsDragging(state),
     notificationCount: getNotificationUnviewedCount(state),
     notificationPanelIsOpen: getNotificationPanelIsOpen(state),
     upload: state.upload,
     library: getPlaylistLibrary(state),
+
     showCreatePlaylistModal: getIsOpen(state),
     hideCreatePlaylistModalFolderTab: getHideFolderTab(state),
     dominantColors: getDominantColorsByTrack(state, {

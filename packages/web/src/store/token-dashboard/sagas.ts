@@ -819,6 +819,7 @@ const getSignableData = () => {
 
 function* watchForDiscordCode() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* call(audiusBackendInstance.waitForWeb3)
   yield* take(fetchAccountSucceeded.type)
   const data = getSignableData()
   const signature = yield* call(audiusBackendInstance.getSignature, data)

@@ -6,9 +6,10 @@ import {
   Kind,
   LineupTrack,
   TrackMetadata,
-  UserTrackMetadata
+  UserTrackMetadata,
+  User
 } from '@audius/common'
-import { select, all } from 'redux-saga/effects'
+import { select, all, call } from 'redux-saga/effects'
 
 import { GetSocialFeedArgs } from 'common/services/audius-api-client'
 import { CommonState, getContext } from 'common/store'
@@ -23,6 +24,7 @@ import {
   getStartedSignOnProcess
 } from 'pages/sign-on/store/selectors'
 import { LineupSagas } from 'store/lineup/sagas'
+import { waitForValue } from 'utils/sagaHelpers'
 
 type FeedItem = LineupTrack | Collection
 
@@ -39,7 +41,7 @@ function* getTracks({
   offset: number
   limit: number
 }): Generator<any, FeedItem[], any> {
-  const currentUser = yield select(getAccountUser)
+  const currentUser: User = yield call(waitForValue, getAccountUser)
   const filterEnum: FeedFilter = yield select(getFeedFilter)
   const apiClient = yield* getContext('apiClient')
   const filter = filterMap[filterEnum]

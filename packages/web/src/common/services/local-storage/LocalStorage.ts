@@ -56,8 +56,9 @@ export class LocalStorage {
   }
 
   getAudiusAccount = async () => this.getJSONValue(AUDIUS_ACCOUNT_KEY)
-  setAudiusAccount = async (value: object) =>
-    this.setJSONValue(AUDIUS_ACCOUNT_KEY, value)
+  setAudiusAccount = async (value: object) => {
+    await this.setJSONValue(AUDIUS_ACCOUNT_KEY, value)
+  }
 
   clearAudiusAccount = async () => this.removeItem(AUDIUS_ACCOUNT_KEY)
 
