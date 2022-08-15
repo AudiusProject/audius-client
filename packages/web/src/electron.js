@@ -187,8 +187,8 @@ const checkForWebUpdate = () => {
     // Additional check for the version from the build package.json
     // Needed after web updates because the local package.json version is not updated
     if (fs.existsSync(packageJsonPath)) {
-      const buidlPackageJson = JSON.parse(fs.readFileSync(packageJsonPath))
-      currentVersion = buidlPackageJson.version
+      const buildPackageJson = JSON.parse(fs.readFileSync(packageJsonPath))
+      currentVersion = buildPackageJson.version
     }
 
     // If there is a patch version update, download it and notify the user
