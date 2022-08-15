@@ -1737,8 +1737,18 @@ class AudiusBackend {
       const trackDeletionPromises = trackIds.map((t) =>
         audiusLibs.Track.deleteTrack(t.track)
       )
-      const playlistDeletionPromise =
-        audiusLibs.Playlist.deletePlaylist(playlistId)
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      let playlistDeletionPromise
+      if (playlistEntityManagerIsEnabled) {
+        playlistDeletionPromise = audiusLibs.EntityManager.deletePlaylist({
+          playlistId
+        })
+      } else {
+        playlistDeletionPromise = audiusLibs.Playlist.deletePlaylist(playlistId)
+      }
+
       const results = await Promise.all(
         trackDeletionPromises.concat(playlistDeletionPromise)
       )
