@@ -17,6 +17,7 @@ import { processAndCacheCollections } from 'common/store/cache/collections/utils
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { PREFIX, feedActions } from 'common/store/pages/feed/lineup/actions'
 import { getFeedFilter } from 'common/store/pages/feed/selectors'
+import { CommonState } from 'common/store/reducers'
 import {
   getAccountReady,
   getFollowIds,
