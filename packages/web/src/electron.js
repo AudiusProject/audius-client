@@ -478,7 +478,15 @@ autoUpdater.on('update-downloaded', (info) => {
 autoUpdater.on('update-available', (info) => {
   console.log('update-available', info)
   info.currentVersion = autoUpdater.currentVersion.version
-  if (mainWindow) mainWindow.webContents.send('updateAvailable', info)
+  const sameMajorAndMinor =
+    semver.major(info.currentVersion) === semver.major(info.version) &&
+    semver.minor(info.currentVersion) === semver.minor(info.version)
+
+  if (!sameMajorAndMinor && mainWindow) {
+    // Display an update available UI in the case that a non-patch version is
+    // available. Otherwise, result to install on quit.
+    mainWindow.webContents.send('updateAvailable', info)
+  }
 })
 
 autoUpdater.on('download-progress', (info) => {
