@@ -6,13 +6,12 @@ import {
   Kind,
   LineupTrack,
   TrackMetadata,
-  UserTrackMetadata,
-  User
+  UserTrackMetadata
 } from '@audius/common'
-import { select, all, call } from 'redux-saga/effects'
+import { select, all } from 'redux-saga/effects'
 
 import { GetSocialFeedArgs } from 'common/services/audius-api-client'
-import { CommonState, getContext } from 'common/store'
+import { getContext } from 'common/store'
 import { getAccountUser } from 'common/store/account/selectors'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'

@@ -1,4 +1,4 @@
-import { Collection, UserCollectionMetadata, StringKeys } from '@audius/common'
+import { UserCollectionMetadata, StringKeys } from '@audius/common'
 import { call, select } from 'typed-redux-saga'
 
 import { getContext } from 'common/store'
