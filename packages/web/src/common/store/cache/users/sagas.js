@@ -36,6 +36,7 @@ import { pruneBlobValues, reformat } from './utils'
  */
 export function* upgradeToCreator() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  yield waitForAccount()
   const user = yield select(getAccountUser)
 
   // If user already has creator_node_endpoint, do not reselect replica set
@@ -202,6 +203,7 @@ function* watchAdd() {
 function* watchSyncLocalStorageUser() {
   const localStorage = yield getContext('localStorage')
   function* syncLocalStorageUser(action) {
+    yield waitForAccount()
     const currentUser = yield select(getAccountUser)
     if (!currentUser) return
     const currentId = currentUser.user_id

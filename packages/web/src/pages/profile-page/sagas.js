@@ -159,6 +159,7 @@ export function* fetchSolanaCollectibles(user) {
 function* fetchSupportersAndSupporting(userId) {
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
   yield call(waitForRemoteConfig)
+  yield waitForAccount()
 
   /**
    * If the profile is that of the logged in user, then

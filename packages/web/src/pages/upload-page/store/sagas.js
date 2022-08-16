@@ -955,6 +955,8 @@ function* uploadSingleTrack(track) {
       kind: 'tracks'
     })
   )
+
+  yield waitForAccount()
   const account = yield select(getAccountUser)
   yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
 
@@ -1034,6 +1036,8 @@ function* uploadMultipleTracks(tracks) {
       kind: 'tracks'
     })
   )
+
+  yield waitForAccount()
   const account = yield select(getAccountUser)
 
   // If the hide remixes is turned on, send analytics event
@@ -1069,6 +1073,7 @@ function* uploadMultipleTracks(tracks) {
 
 function* uploadTracksAsync(action) {
   yield call(waitForBackendSetup)
+  yield waitForAccount()
   const user = yield select(getAccountUser)
   yield put(
     uploadActions.uploadTracksRequested(

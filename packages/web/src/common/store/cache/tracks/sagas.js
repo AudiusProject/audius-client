@@ -126,6 +126,7 @@ function* watchAdd() {
 }
 
 export function* trackNewRemixEvent(remixTrack) {
+  yield waitForAccount()
   const account = yield select(getAccountUser)
   const remixParentTrack = remixTrack.remix_of.tracks[0]
   const parentTrack = yield select(getTrack, {

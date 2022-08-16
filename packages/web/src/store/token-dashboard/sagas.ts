@@ -409,6 +409,7 @@ function* connectSPLWallet(
       return
     }
 
+    yield* waitForAccount()
     const userMetadata = yield* select(getAccountUser)
     let updatedMetadata = newUserMetadata({ ...userMetadata })
 

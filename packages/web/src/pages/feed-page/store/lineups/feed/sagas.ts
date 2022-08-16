@@ -41,7 +41,7 @@ function* getTracks({
   offset: number
   limit: number
 }): Generator<any, FeedItem[], any> {
-  yield waitForAccount()
+  yield* waitForAccount()
   const currentUser = yield select(getAccountUser)
   const filterEnum: FeedFilter = yield select(getFeedFilter)
   const apiClient = yield* getContext('apiClient')

@@ -75,7 +75,7 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import { updateTipsStorage } from './storageUtils'
 
@@ -203,6 +203,7 @@ function* sendTipAsync() {
   const walletClient = yield* getContext('walletClient')
   const { waitForRemoteConfig } = yield* getContext('remoteConfigInstance')
   yield call(waitForRemoteConfig)
+  yield* waitForAccount()
 
   const sender = yield* select(getAccountUser)
   if (!sender) {
@@ -331,6 +332,7 @@ function* refreshSupportAsync({
     if (supportingLimit) {
       supportingParams.limit = supportingLimit
     } else {
+      yield* waitForAccount()
       const account = yield* select(getAccountUser)
       supportingParams.limit =
         account?.user_id === senderUserId
@@ -414,6 +416,7 @@ function* fetchSupportingForUserAsync({
     return
   }
 
+  yield* waitForAccount()
   /**
    * If the user id is that of the logged in user, then
    * get all its supporting data so that when the logged in

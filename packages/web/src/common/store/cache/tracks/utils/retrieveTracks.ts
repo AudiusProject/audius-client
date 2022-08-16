@@ -169,6 +169,7 @@ export function* retrieveTracks({
       if (ids.length > 1) {
         console.warn('Stems endpoint only supports fetching single tracks')
         return
+      }
       const trackId = ids[0]
       if (!trackId) return
       yield* call(fetchAndProcessStems, trackId)
