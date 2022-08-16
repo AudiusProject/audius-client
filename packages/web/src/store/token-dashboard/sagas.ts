@@ -137,7 +137,7 @@ function* confirmSendAsync() {
 function* fetchEthWalletInfo(wallets: string[]) {
   const walletClient = yield* getContext('walletClient')
   const ethWalletBalances = yield* call(
-    walletClient.getEthWalletBalances,
+    [walletClient, 'getEthWalletBalances'],
     wallets
   )
 
@@ -156,7 +156,7 @@ function* fetchEthWalletInfo(wallets: string[]) {
 function* fetchSplWalletInfo(wallets: string[]) {
   const walletClient = yield* getContext('walletClient')
   const splWalletBalances = yield* call(
-    walletClient.getSolWalletBalances,
+    [walletClient, 'getSolWalletBalances'],
     wallets
   )
 
