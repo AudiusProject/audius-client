@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
+import { Nullable, BNWei } from '@audius/common'
 import { Button, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -12,7 +13,6 @@ import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconSettings } from 'assets/img/iconSettings.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import { useModalState } from 'common/hooks/useModalState'
-import { BNWei } from 'common/models/Wallet'
 import { getHasAssociatedWallets } from 'common/store/pages/token-dashboard/selectors'
 import {
   pressReceive,
@@ -23,7 +23,6 @@ import {
   getAccountBalance,
   getAccountTotalBalance
 } from 'common/store/wallet/selectors'
-import { Nullable } from 'common/utils/typeUtils'
 import { formatWei } from 'common/utils/wallet'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { isMobile } from 'utils/clientUtil'
@@ -152,7 +151,8 @@ const ToggleCollapseButton = ({
       {isCollapsed ? null : children}
       <div
         className={cn(styles.toggleCollapsedButton, className)}
-        onClick={handleToggle}>
+        onClick={handleToggle}
+      >
         <span>{isCollapsed ? showText : hideText}</span>
         {isCollapsed ? <IconCaretDownLine /> : <IconCaretUpLine />}
       </div>
@@ -176,14 +176,16 @@ export const WalletManagementTile = () => {
           <div
             className={cn(styles.balanceAmount, {
               [styles.hidden]: !totalBalance
-            })}>
+            })}
+          >
             {formatWei(totalBalance || (new BN(0) as BNWei), true, 0)}
           </div>
         </TokenHoverTooltip>
         <div
           className={cn(styles.balance, {
             [styles.hidden]: !totalBalance
-          })}>
+          })}
+        >
           {hasMultipleWallets ? (
             <div onClick={onClickOpen}>
               {messages.totalAudio}
@@ -218,7 +220,8 @@ export const WalletManagementTile = () => {
         <ToggleCollapseButton
           className={styles.advancedToggle}
           showText={messages.showAdvanced}
-          hideText={messages.hideAdvanced}>
+          hideText={messages.hideAdvanced}
+        >
           <AdvancedWalletActions />
         </ToggleCollapseButton>
       </div>
