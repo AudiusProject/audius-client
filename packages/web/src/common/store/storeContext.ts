@@ -8,7 +8,7 @@ import { WalletClient } from 'common/services/wallet-client'
 export type CommonStoreContext = {
   getLocalStorageItem: (key: string) => Promise<string | null>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
-  getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean>
+  getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean | null>
   remoteConfigInstance: RemoteConfigInstance
   audiusBackendInstance: AudiusBackend
   apiClient: AudiusAPIClient

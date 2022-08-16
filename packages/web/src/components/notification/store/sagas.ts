@@ -134,10 +134,11 @@ export function* fetchNotifications(
     const timeOffset = lastNotification
       ? lastNotification.timestamp
       : moment().toISOString()
-    const withDethroned = yield* call(
-      getFeatureEnabled,
-      FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-    ) ?? false
+    const withDethroned =
+      (yield* call(
+        getFeatureEnabled,
+        FeatureFlags.SUPPORTER_DETHRONED_ENABLED
+      )) ?? false
 
     const notificationsResponse: NotificationsResponse = yield* call(
       audiusBackendInstance.getNotifications,
@@ -522,10 +523,11 @@ export function* getNotifications(isFirstFetch: boolean) {
       )
       if (!hasAccount) return
       const timeOffset = moment().toISOString()
-      const withDethroned = yield* call(
-        getFeatureEnabled,
-        FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-      ) ?? false
+      const withDethroned =
+        (yield* call(
+          getFeatureEnabled,
+          FeatureFlags.SUPPORTER_DETHRONED_ENABLED
+        )) ?? false
 
       const notificationsResponse: NotificationsResponse | undefined =
         yield* call(audiusBackendInstance.getNotifications, {
