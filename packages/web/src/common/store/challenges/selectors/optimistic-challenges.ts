@@ -93,7 +93,7 @@ const toOptimisticChallenge = (
   // on DN, so optimistically mark this challenge as complete so the client
   // can start claiming
   if (challenge.challenge_id === 'mobile-install' && NATIVE_MOBILE) {
-    challenge.is_complete = true
+    challengeOverridden.is_complete = true
   }
 
   const state = getUserChallengeState(challengeOverridden)
