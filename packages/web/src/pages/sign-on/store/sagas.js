@@ -397,12 +397,12 @@ function* signUp() {
         yield call(waitForRemoteConfig)
 
         // Check feature flag to disable confirmation
-        if (
-          !(yield call(
-            getFeatureEnabled,
-            FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION
-          ))
-        ) {
+        const disableSignUpConfirmation = yield call(
+          getFeatureEnabled,
+          FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION
+        )
+
+        if (!disableSignUpConfirmation) {
           const confirmed = yield call(
             confirmTransaction,
             blockHash,
