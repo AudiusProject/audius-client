@@ -1,3 +1,4 @@
+import { Name } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
@@ -21,7 +22,6 @@ import {
   fork
 } from 'typed-redux-saga/macro'
 
-import { Name } from 'common/models/Analytics'
 import {
   JupiterTokenSymbol,
   TOKEN_LISTING_MAP
