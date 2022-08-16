@@ -24,7 +24,7 @@ import {
   getStartedSignOnProcess
 } from 'pages/sign-on/store/selectors'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForAccount } from 'utils/sagaHelpers'
 
 type FeedItem = LineupTrack | Collection
 
@@ -41,7 +41,8 @@ function* getTracks({
   offset: number
   limit: number
 }): Generator<any, FeedItem[], any> {
-  const currentUser: User = yield call(waitForValue, getAccountUser)
+  yield waitForAccount()
+  const currentUser = yield select(getAccountUser)
   const filterEnum: FeedFilter = yield select(getFeedFilter)
   const apiClient = yield* getContext('apiClient')
   const filter = filterMap[filterEnum]

@@ -123,7 +123,7 @@ export function* waitForAccount() {
  */
 export function requiresAccount(fn, route) {
   return function* (...args) {
-    yield waitForAccount()
+    yield* waitForAccount()
     const account = yield select(getAccountUser)
     if (!account) {
       if (route) yield put(updateRouteOnExit(route))

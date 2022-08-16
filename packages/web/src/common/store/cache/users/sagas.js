@@ -27,7 +27,7 @@ import {
   getStatus
 } from 'common/store/service-selection/selectors'
 import { fetchServicesFailed } from 'common/store/service-selection/slice'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
 
@@ -111,6 +111,7 @@ export function* fetchUsers(
 
 function* retrieveUserByHandle(handle) {
   const apiClient = yield getContext('apiClient')
+  yield waitForAccount()
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {
     handle = handle[0]

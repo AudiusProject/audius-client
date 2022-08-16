@@ -52,7 +52,7 @@ import {
   shouldRequestBrowserPermission
 } from 'utils/browserNotifications'
 import { isMobile, isElectron } from 'utils/clientUtil'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
@@ -408,6 +408,7 @@ function* associateTwitterAccount(action) {
   const { uuid, profile } = action.payload
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   try {
+    yield waitForAccount()
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
     yield call(

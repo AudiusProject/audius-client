@@ -51,6 +51,7 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
 import { dataURLtoFile } from 'utils/fileUtils'
+import { waitForAccount } from 'utils/sagaHelpers'
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -339,6 +340,7 @@ function* fetchFolloweeFollows(action) {
 }
 
 function* cacheUsers(users) {
+  yield waitForAccount()
   const currentUserId = yield select(getUserId)
   // Filter out the current user from the list to cache
   yield processAndCacheUsers(
@@ -357,6 +359,7 @@ export function* updateProfileAsync(action) {
   let metadata = { ...action.metadata }
   metadata.bio = squashNewLines(metadata.bio)
 
+  yield waitForAccount()
   const accountUserId = yield select(getUserId)
   yield put(
     cacheActions.update(Kind.USERS, [
@@ -457,6 +460,7 @@ function* confirmUpdateProfile(userId, metadata) {
             `Could not confirm update profile for user id ${userId}`
           )
         }
+        yield waitForAccount()
         const currentUserId = yield select(getUserId)
         const users = yield apiClient.getUser({
           userId,
@@ -507,6 +511,7 @@ function* watchUpdateCurrentUserFollows() {
 }
 
 function* updateCurrentUserFollows(action) {
+  yield waitForAccount()
   const userId = yield select(getUserId)
   const { userIds, status } = yield select(getProfileFollowers)
   let updatedUserIds = userIds
