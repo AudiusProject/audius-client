@@ -7,8 +7,17 @@ import { localStorage } from 'services/local-storage'
 
 export const LIBS_INITTED_EVENT = 'LIBS_INITTED_EVENT'
 
-export const getEagerDiscprov = async () => {
-  const cachedDiscprov = await localStorage.getCachedDiscoveryProvider()
+const DISCOVERY_PROVIDER_TIMESTAMP = '@audius/libs:discovery-node-timestamp'
+
+export const getEagerDiscprov = () => {
+  const cachedDiscProvData = window.localStorage.getItem(
+    DISCOVERY_PROVIDER_TIMESTAMP
+  )
+  if (!cachedDiscProvData) {
+    return null
+  }
+
+  const cachedDiscprov = JSON.parse(cachedDiscProvData)
 
   const EAGER_DISCOVERY_NODES = process.env.REACT_APP_EAGER_DISCOVERY_NODES
     ? process.env.REACT_APP_EAGER_DISCOVERY_NODES.split(',')
@@ -67,7 +76,7 @@ export const withEagerOption = async (
   },
   ...args: any
 ) => {
-  const disprovEndpoint = endpoint ?? (await getEagerDiscprov())
+  const disprovEndpoint = endpoint ?? getEagerDiscprov()
   // @ts-ignore
   if (window.audiusLibs) {
     // @ts-ignore
@@ -75,7 +84,11 @@ export const withEagerOption = async (
   } else {
     try {
       const req = eager(...args)
-      const res = await makeRequest(req, disprovEndpoint, requiresUser)
+      const res = await makeRequest(
+        req,
+        disprovEndpoint as string,
+        requiresUser
+      )
       return res
     } catch (e) {
       await waitForLibsInit()
@@ -120,7 +133,7 @@ const makeRequest = async (
   endpoint: string,
   requiresUser = false
 ) => {
-  const eagerDiscprov = await getEagerDiscprov()
+  const eagerDiscprov = getEagerDiscprov()
   const discprovEndpoint = endpoint ?? eagerDiscprov
   const user = await localStorage.getAudiusAccountUser()
   if (!user && requiresUser) throw new Error('User required to continue')
