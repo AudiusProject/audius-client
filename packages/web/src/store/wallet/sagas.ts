@@ -181,7 +181,10 @@ function* fetchBalanceAsync() {
     currentSolAudioWeiBalance
   ) as BNWei
 
-  const useSolAudio = getFeatureEnabled(FeatureFlags.ENABLE_SPL_AUDIO)
+  const useSolAudio = yield* call(
+    getFeatureEnabled,
+    FeatureFlags.ENABLE_SPL_AUDIO
+  )
   if (useSolAudio) {
     const totalBalance = audioWeiBalance.add(associatedWalletBalance) as BNWei
     yield* put(
