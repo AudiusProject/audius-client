@@ -47,8 +47,6 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { fetchReactionValues } from 'common/store/ui/reactions/slice'
 import { getBalance } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
-import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
 import { isElectron } from 'utils/clientUtil'
 import { waitForValue } from 'utils/sagaHelpers'
@@ -127,6 +125,7 @@ export function* fetchNotifications(
   action: notificationActions.FetchNotifications
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   try {
     yield* put(notificationActions.fetchNotificationsRequested())
     const limit = action.limit || NOTIFICATION_LIMIT_DEFAULT
@@ -501,6 +500,7 @@ const checkIfNotificationsChanged = (
 export function* getNotifications(isFirstFetch: boolean) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   try {
     const isOpen: ReturnType<typeof getNotificationPanelIsOpen> = yield* select(
       getNotificationPanelIsOpen
@@ -606,6 +606,8 @@ function* notificationPollingDaemon() {
   yield* call(waitForValue, getHasAccount, {})
   yield* call(audiusBackendInstance.getEmailNotificationSettings)
 
+  // TODO: Pass in daemon, attach to app foreground events
+
   // Set up daemon that will watch for browser into focus and refetch notifications
   // as soon as it goes into focus
   const visibilityChannel = eventChannel((emitter) => {
@@ -663,10 +665,6 @@ export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* call(waitForBackendSetup)
   yield* call(audiusBackendInstance.markAllNotificationAsViewed)
-  if (NATIVE_MOBILE) {
-    const message = new ResetNotificationsBadgeCount()
-    message.send()
-  }
 }
 
 function* watchTogglePanel() {

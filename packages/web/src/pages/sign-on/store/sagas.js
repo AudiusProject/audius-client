@@ -35,7 +35,6 @@ import { getFeePayer } from 'common/store/solana/selectors'
 import { ELECTRONIC_SUBGENRES, Genre } from 'common/utils/genres'
 import { getIGUserUrl } from 'components/instagram-auth/InstagramAuth'
 import { getCityAndRegion } from 'services/Location'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { identify, make } from 'store/analytics/actions'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
@@ -291,6 +290,7 @@ function* validateEmail(action) {
 function* signUp() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   yield call(waitForBackendSetup)
   const signOn = yield select(getSignOn)
   const location = yield call(getCityAndRegion)

@@ -10,17 +10,16 @@ import { CardStyleInterpolators } from '@react-navigation/stack'
 import { markAllAsViewed } from 'audius-client/src/common/store/notifications/actions'
 import { getNotificationUnviewedCount } from 'audius-client/src/common/store/notifications/selectors'
 import { Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconNotification from 'app/assets/images/iconNotification.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { IconButton } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
@@ -90,8 +89,8 @@ export const useAppScreenOptions = (
 ) => {
   const styles = useStyles()
   const { accentOrangeLight1, neutralLight4 } = useThemeColors()
-  const dispatchWeb = useDispatchWeb()
-  const notificationCount = useSelectorWeb(getNotificationUnviewedCount)
+  const dispatch = useDispatch()
+  const notificationCount = useSelector(getNotificationUnviewedCount)
   const navigation = useNavigation<
     AppScreenParamList & AppTabScreenParamList['Search']
   >()
@@ -99,8 +98,8 @@ export const useAppScreenOptions = (
 
   const handlePressNotification = useCallback(() => {
     drawerHelpers?.openDrawer()
-    dispatchWeb(markAllAsViewed())
-  }, [dispatchWeb, drawerHelpers])
+    dispatch(markAllAsViewed())
+  }, [dispatch, drawerHelpers])
 
   const handlePressHome = useCallback(() => {
     navigation.navigate({

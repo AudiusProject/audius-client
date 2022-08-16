@@ -25,7 +25,6 @@ import {
 } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
 
 // TODO: handle errors
@@ -148,6 +147,7 @@ function* getWalletBalanceAndWallets() {
 
 function* fetchBalanceAsync() {
   const walletClient = yield* getContext('walletClient')
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   const account = yield* select(getAccountUser)
   if (!account) return
