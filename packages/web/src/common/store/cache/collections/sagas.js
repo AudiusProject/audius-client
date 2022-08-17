@@ -34,9 +34,9 @@ import { make } from 'store/analytics/actions'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { dataURLtoFile } from 'utils/fileUtils'
+import { waitForAccount } from 'utils/sagaHelpers'
 
 import watchTrackErrors from './errorSagas'
-import { PlaylistOperations } from './types'
 import { reformat } from './utils'
 import {
   retrieveCollection,
@@ -157,7 +157,6 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, uid),
       function* () {
-
         const { blockHash, blockNumber, playlistId, error } = yield call(
           audiusBackendInstance.createPlaylist,
           uid,

@@ -45,8 +45,8 @@ import {
   actionChannelDispatcher,
   waitForValue
 } from 'utils/sagaHelpers'
-
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
+
 import * as uploadActions from './actions'
 import { watchUploadErrors } from './errorSagas'
 import { ProgressStatus } from './types'

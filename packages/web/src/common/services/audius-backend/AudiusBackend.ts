@@ -1516,6 +1516,9 @@ export const audiusBackend = ({
           isAlbum,
           isPrivate
         })
+        const { blockHash, blockNumber, error } = response
+        if (error) return { playlistId, error }
+        return { blockHash, blockNumber, playlistId }
       } else {
         response = await audiusLibs.Playlist.createPlaylist(
           userId,
@@ -1524,11 +1527,10 @@ export const audiusBackend = ({
           isAlbum,
           trackIds
         )
+        const { blockHash, blockNumber, responsePlaylistId, error } = response
+        if (error) return { responsePlaylistId, error }
+        return { blockHash, blockNumber, responsePlaylistId }
       }
-      const { blockHash, blockNumber, responsePlaylistId, error } = response
-      if (error) return { responsePlaylistId, error }
-
-      return { blockHash, blockNumber, responsePlaylistId }
     } catch (err) {
       // This code path should never execute
       console.debug('Reached client createPlaylist catch block')
@@ -1591,7 +1593,6 @@ export const audiusBackend = ({
         }
         return { blockHash, blockNumber }
       }
-
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
