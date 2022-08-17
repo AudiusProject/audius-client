@@ -6,16 +6,17 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { getHasAccount } from 'common/store/account/selectors'
-import { Pages } from 'pages/sign-on/store/types'
+import { Pages } from 'common/store/pages/signon/types'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import { TRENDING_PAGE } from 'utils/route'
 
+import * as signOnAction from '../../common/store/pages/signon/actions'
+import { getPage } from '../../common/store/pages/signon/selectors'
+
 import SignOnProvider from './SignOnProvider'
 import SignOnDesktopPage from './components/desktop/SignOnPage'
 import SignOnMobilePage from './components/mobile/SignOnPage'
-import * as signOnAction from './store/actions'
-import { getPage } from './store/selectors'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 

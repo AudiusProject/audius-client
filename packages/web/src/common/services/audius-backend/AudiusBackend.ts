@@ -590,6 +590,7 @@ export const audiusBackend = ({
     )
     const { ethWeb3Config } = getEthWeb3Config()
     const { solanaWeb3Config } = getSolanaWeb3Config()
+    console.log({ solanaWeb3Config })
     const { solanaAudiusDataConfig } = getSolanaAudiusDataConfig()
     const { wormholeConfig } = getWormholeConfig()
 
@@ -691,7 +692,6 @@ export const audiusBackend = ({
       !rewardsManagerProgramPda ||
       !rewardsManagerTokenPda
     ) {
-      console.error('Missing solana configs')
       return {
         error: true
       }
