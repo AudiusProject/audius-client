@@ -33,6 +33,7 @@ import { saveCollection } from 'common/store/social/collections/actions'
 import * as socialActions from 'common/store/social/users/actions'
 import { getFeePayer } from 'common/store/solana/selectors'
 import { ELECTRONIC_SUBGENRES, Genre } from 'common/utils/genres'
+import { MAX_HANDLE_LENGTH } from 'pages/sign-on/utils/formatSocialProfile'
 import { getCityAndRegion } from 'services/Location'
 import { identify, make } from 'store/analytics/actions'
 import * as confirmerActions from 'store/confirmer/actions'
@@ -43,8 +44,6 @@ import { withTimeout } from 'utils/network'
 import { restrictedHandles } from 'utils/restrictedHandles'
 import { ERROR_PAGE, FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
 import { waitForAccount } from 'utils/sagaHelpers'
-
-import { MAX_HANDLE_LENGTH } from '../../../../pages/sign-on/utils/formatSocialProfile'
 
 import * as signOnActions from './actions'
 import { watchSignOnError } from './errorSagas'
@@ -439,7 +438,6 @@ function* signIn(action) {
   yield call(waitForBackendSetup)
   try {
     const signOn = yield select(getSignOn)
-    console.log({ signOn })
     const signInResponse = yield call(
       audiusBackendInstance.signIn,
       signOn.email.value,
