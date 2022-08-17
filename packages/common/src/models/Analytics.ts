@@ -1261,6 +1261,18 @@ type AudiusOauthError = {
   error: string
 }
 
+type RewardsClaimStartCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
+  handle: string
+  source: string
+}
+
+type RewardsClaimFinishCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW
+  handle: string
+  source: string
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1430,3 +1442,5 @@ export type AllTrackingEvents =
   | AudiusOauthComplete
   | AudiusOauthSubmit
   | AudiusOauthError
+  | RewardsClaimStartCognitoFlow
+  | RewardsClaimFinishCognitoFlow

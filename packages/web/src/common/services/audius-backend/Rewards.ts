@@ -124,14 +124,17 @@ export class ClientRewardsReporter {
   }) {
     ;(async () => {
       try {
-        await this.recordAnalytics(Name.REWARDS_CLAIM_FAILURE, {
-          userId,
-          challengeId,
-          amount,
-          specifier,
-          error,
-          phase,
-          source: this.source
+        await this.recordAnalytics({
+          eventName: Name.REWARDS_CLAIM_FAILURE,
+          properties: {
+            userId,
+            challengeId,
+            amount,
+            specifier,
+            error,
+            phase,
+            source: this.source
+          }
         })
         const sentryError = `RewardsClaimFailure:${error}`
         await reportToSentry({
@@ -191,13 +194,16 @@ export class ClientRewardsReporter {
       const event = map[reason]
 
       try {
-        await this.recordAnalytics(event, {
-          userId,
-          challengeId,
-          amount,
-          specifier,
-          error,
-          source: this.source
+        await this.recordAnalytics({
+          eventName: event,
+          properties: {
+            userId,
+            challengeId,
+            amount,
+            specifier,
+            error,
+            source: this.source
+          }
         })
 
         await this.libs.Rewards.sendAttestationResult({

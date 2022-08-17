@@ -3,6 +3,7 @@ import { LOCATION_CHANGE } from 'connected-react-router'
 import { take } from 'redux-saga/effects'
 
 import { getContext } from 'common/store'
+import { ScreenAnalyticsEvent } from 'services/native-mobile-interface/analytics'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
