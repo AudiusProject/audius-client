@@ -12,7 +12,12 @@ import {
 
 import { SupportersMap, SupportingMap } from 'common/store/tipping/types'
 import { parseWeiNumber } from 'common/utils/formatUtil'
-import { parseAudioInputToWei, stringWeiToBN } from 'common/utils/wallet'
+import {
+  parseAudioInputToWei,
+  stringWeiToBN
+} from 'common/utils/wallet'
+// import { useDispatch } from 'react-redux'
+// import { refreshSupport } from 'common/store/tipping/slice'
 
 const zeroWei = stringWeiToBN('0' as StringWei)
 
@@ -38,12 +43,17 @@ export const useGetFirstOrTopSupporter = ({
   supportingMap,
   supportersMap
 }: UseGetSupportProps) => {
+  // const dispatch = useDispatch()
   const [amountToTipToBecomeTopSupporter, setAmountToTipToBecomeTopSupporter] =
     useState<Nullable<BNWei>>(null)
   const [supportingAmount, setSupportingAmount] =
     useState<Nullable<StringWei>>(null)
   const [shouldFetchUserSupporter, setShouldFetchUserSupporter] =
     useState(false)
+  const [
+    shouldFetchSupportersForReceiver,
+    setShouldFetchSupportersForReceiver
+  ] = useState(false)
   const [topSupporter, setTopSupporter] = useState<Nullable<Supporter>>(null)
   const [isFirstSupporter, setIsFirstSupporter] = useState(false)
   const tipAmountWei = parseToBNWei(tipAmount)
@@ -73,9 +83,27 @@ export const useGetFirstOrTopSupporter = ({
    * not the same as the current user
    */
   useEffect(() => {
-    if (!receiver) return
+    if (!account || !receiver) return
 
-    const supportersForReceiver = supportersMap[receiver.user_id] ?? {}
+    const supportersForReceiver = supportersMap[receiver.user_id]
+
+    // It's possible that the receiver's supporters have not yet
+    // been fetched, in this case we fetch that data.
+    // E.g. for a user whose top supporter changed, clicking on
+    // the dethroned notification will go to the send tip modal/drawer
+    // but that user's supporters may not have been fetched yet.
+    if (!supportersForReceiver) {
+      setShouldFetchSupportersForReceiver(true)
+      // dispatch(fetchSupportingForUser({ userId: account.user_id }))
+      // dispatch(
+      //   refreshSupport({
+      //     senderUserId: account.user_id,
+      //     receiverUserId: receiver.user_id
+      //   })
+      // )
+      return
+    }
+
     const rankedSupportersList = (
       Object.keys(supportersForReceiver) as unknown as ID[]
     )
@@ -93,7 +121,8 @@ export const useGetFirstOrTopSupporter = ({
     } else {
       setIsFirstSupporter(true)
     }
-  }, [receiver, supportersMap])
+  }, [account, receiver, supportersMap])
+  // }, [dispatch, account, receiver, supportersMap])
 
   /**
    * Check whether or not to display prompt to become top or first supporter
@@ -131,6 +160,7 @@ export const useGetFirstOrTopSupporter = ({
   return {
     amountToTipToBecomeTopSupporter,
     shouldFetchUserSupporter,
+    shouldFetchSupportersForReceiver,
     isFirstSupporter,
     tipAmountWei,
     hasInsufficientBalance
