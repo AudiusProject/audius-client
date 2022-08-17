@@ -82,7 +82,7 @@ export const useGetFirstOrTopSupporter = ({
     const supportersForReceiver = supportersMap[receiver.user_id]
 
     // It's possible that the receiver's supporters have not yet
-    // been fetched, in this case we fetch that data.
+    // been fetched, in this case we prompt to fetch that data.
     // E.g. for a user whose top supporter changed, clicking on
     // the dethroned notification will go to the send tip modal/drawer
     // but that user's supporters may not have been fetched yet.
