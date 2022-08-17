@@ -98,7 +98,7 @@ export const audiusBackendInstance = audiusBackend({
   recaptchaSiteKey: process.env.REACT_APP_RECAPTCHA_SITE_KEY,
   recordAnalytics: track,
   registryAddress: process.env.REACT_APP_REGISTRY_ADDRESS,
-  entityManagerAddress: process.env.REACT_APP_DATA_CONTRACT_ADDRESS,
+  entityManagerAddress: process.env.REACT_APP_ENTITY_MANAGER_ADDRESS,
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) =>
     window.localStorage.setItem(key, value),
