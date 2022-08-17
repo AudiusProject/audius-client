@@ -17,7 +17,7 @@ import {
 } from 'common/store/pages/audio-rewards/slice'
 import { useScript } from 'hooks/useScript'
 import { getCognitoSignature } from 'services/audius-backend/Cognito'
-import { track } from 'store/analytics/providers'
+import { make, useRecord } from 'store/analytics/actions'
 import { isElectron, isMobile } from 'utils/clientUtil'
 import { COGNITO_SCRIPT_URL } from 'utils/constants'
 import { useSelector } from 'utils/reducer'
@@ -33,6 +33,7 @@ declare global {
  */
 export const CognitoModal = () => {
   const dispatch = useDispatch()
+  const record = useRecord()
   const [isOpen] = useModalState('Cognito')
   const scriptLoaded = useScript(COGNITO_SCRIPT_URL)
   const handle = useSelector(getUserHandle)
@@ -62,17 +63,21 @@ export const CognitoModal = () => {
       switch (event.action) {
         case 'opened':
           dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.OPENED }))
-          track(Name.REWARDS_CLAIM_START_COGNITO_FLOW, {
-            handle,
-            source
-          })
+          record(
+            make(Name.REWARDS_CLAIM_START_COGNITO_FLOW, {
+              handle,
+              source
+            })
+          )
           break
         case 'closed':
           dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
-          track(Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW, {
-            handle,
-            source
-          })
+          record(
+            make(Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW, {
+              handle,
+              source
+            })
+          )
           break
       }
     })
@@ -103,7 +108,7 @@ export const CognitoModal = () => {
     })
 
     flow.open()
-  }, [dispatch, handle])
+  }, [dispatch, record, handle])
 
   useEffect(() => {
     if (isOpen && scriptLoaded && handle) {

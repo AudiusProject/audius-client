@@ -6,6 +6,13 @@ import { SolanaWalletAddress, StringAudio, WalletAddress } from 'models/Wallet'
 
 const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
+type JsonMap = Record<string, unknown>
+
+export type AnalyticsEvent = {
+  eventName: string
+  properties?: JsonMap
+}
+
 export enum Name {
   SESSION_START = 'Session Start',
   // Account creation

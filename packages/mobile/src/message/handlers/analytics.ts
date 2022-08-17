@@ -1,5 +1,5 @@
+import { track, screen, identify } from 'app/services/analytics'
 import type { Identify, Track, Screen } from 'app/types/analytics'
-import { track, screen, identify } from 'app/utils/analytics'
 
 import type { MessageHandlers } from '../types'
 import { MessageType } from '../types'

@@ -10,7 +10,7 @@ let analyticsSetupStatus: 'ready' | 'pending' | 'error' = 'pending'
 const AmplitudeWriteKey = Config.AMPLITUDE_WRITE_KEY
 const ampInstance = Amplitude.getInstance()
 
-export const setup = async () => {
+export const init = async () => {
   try {
     console.info('Analytics setup')
     if (AmplitudeWriteKey) {

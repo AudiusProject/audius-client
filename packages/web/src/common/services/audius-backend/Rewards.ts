@@ -1,4 +1,4 @@
-import { Name } from '@audius/common'
+import { AnalyticsEvent, Name } from '@audius/common'
 
 import { Level } from 'common/store/errors/level'
 import { reportToSentry } from 'common/store/errors/reportToSentry'
@@ -11,11 +11,7 @@ import { reportToSentry } from 'common/store/errors/reportToSentry'
 type ClientRewardsReporterParams = {
   libs: any
   source: 'mobile' | 'electron' | 'web'
-  recordAnalytics: (
-    event: string,
-    properties?: Record<string, any>,
-    callback?: () => void
-  ) => void
+  recordAnalytics: (event: AnalyticsEvent, callback?: () => void) => void
 }
 
 export class ClientRewardsReporter {
@@ -42,12 +38,15 @@ export class ClientRewardsReporter {
   }) {
     ;(async () => {
       try {
-        await this.recordAnalytics(Name.REWARDS_CLAIM_SUCCESS, {
-          userId,
-          challengeId,
-          amount,
-          specifier,
-          source: this.source
+        await this.recordAnalytics({
+          eventName: Name.REWARDS_CLAIM_SUCCESS,
+          properties: {
+            userId,
+            challengeId,
+            amount,
+            specifier,
+            source: this.source
+          }
         })
         await this.libs.Rewards.sendAttestationResult({
           status: 'success',
@@ -80,14 +79,17 @@ export class ClientRewardsReporter {
   }) {
     ;(async () => {
       try {
-        await this.recordAnalytics(Name.REWARDS_CLAIM_RETRY, {
-          userId,
-          challengeId,
-          amount,
-          specifier,
-          error,
-          phase,
-          source: this.source
+        await this.recordAnalytics({
+          eventName: Name.REWARDS_CLAIM_RETRY,
+          properties: {
+            userId,
+            challengeId,
+            amount,
+            specifier,
+            error,
+            phase,
+            source: this.source
+          }
         })
         await this.libs.Rewards.sendAttestationResult({
           status: 'retry',
