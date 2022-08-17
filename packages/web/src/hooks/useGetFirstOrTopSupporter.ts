@@ -16,8 +16,6 @@ import {
   parseAudioInputToWei,
   stringWeiToBN
 } from 'common/utils/wallet'
-// import { useDispatch } from 'react-redux'
-// import { refreshSupport } from 'common/store/tipping/slice'
 
 const zeroWei = stringWeiToBN('0' as StringWei)
 
@@ -43,7 +41,6 @@ export const useGetFirstOrTopSupporter = ({
   supportingMap,
   supportersMap
 }: UseGetSupportProps) => {
-  // const dispatch = useDispatch()
   const [amountToTipToBecomeTopSupporter, setAmountToTipToBecomeTopSupporter] =
     useState<Nullable<BNWei>>(null)
   const [supportingAmount, setSupportingAmount] =
@@ -94,13 +91,6 @@ export const useGetFirstOrTopSupporter = ({
     // but that user's supporters may not have been fetched yet.
     if (!supportersForReceiver) {
       setShouldFetchSupportersForReceiver(true)
-      // dispatch(fetchSupportingForUser({ userId: account.user_id }))
-      // dispatch(
-      //   refreshSupport({
-      //     senderUserId: account.user_id,
-      //     receiverUserId: receiver.user_id
-      //   })
-      // )
       return
     }
 
@@ -122,7 +112,6 @@ export const useGetFirstOrTopSupporter = ({
       setIsFirstSupporter(true)
     }
   }, [account, receiver, supportersMap])
-  // }, [dispatch, account, receiver, supportersMap])
 
   /**
    * Check whether or not to display prompt to become top or first supporter
