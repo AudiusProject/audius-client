@@ -41,7 +41,8 @@ import {
   swapStarted,
   transferStarted,
   transferCompleted,
-  clearFeesCache
+  clearFeesCache,
+  OnRampProvider
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import {
@@ -55,6 +56,7 @@ import {
   getAssociatedTokenRentExemptionMinimum,
   getAudioAccount,
   getAudioAccountInfo,
+  getRootAccountRentExemptionMinimum,
   getRootSolanaAccount,
   getSolanaConnection,
   pollForAudioBalanceChange,
@@ -71,8 +73,11 @@ const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
-const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
 let _jup: Jupiter
+
+const MEMO_MESSAGES = {
+  [OnRampProvider.COINBASE]: 'In-App Coinbase $AUDIO Purchase'
+}
 
 /**
  * Initializes Jupiter singleton if necessary and returns
@@ -320,7 +325,8 @@ function* getTransactionFees({
         userBank,
         fromAccount: rootAccount,
         // eslint-disable-next-line new-cap
-        amount: new u64(JSBI.toNumber(route.outAmount))
+        amount: new u64(JSBI.toNumber(route.outAmount)),
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     const connection = yield* call(getSolanaConnection)
@@ -367,6 +373,9 @@ function* getTransactionFees({
 function* getSwapFees({ route }: { route: RouteInfo }) {
   const feesCache = yield* select(getFeesCache)
   const rootAccount = yield* call(getRootSolanaAccount)
+
+  const rootAccountMinBalance = yield* call(getRootAccountRentExemptionMinimum)
+
   const associatedAccountCreationFees = yield* call(
     getAssociatedAccountCreationFees,
     { rootAccount: rootAccount.publicKey, route, feesCache }
@@ -386,7 +395,11 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
       (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
     }`
   )
-  return { transactionFees, associatedAccountCreationFees }
+  return {
+    rootAccountMinBalance,
+    transactionFees,
+    associatedAccountCreationFees
+  }
 }
 
 function* getAudioPurchaseInfo({
@@ -423,10 +436,11 @@ function* getAudioPurchaseInfo({
       inputAmount: inSol,
       slippage
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
 
     // Get existing solana balance
     const existingBalance = yield* call(
@@ -439,7 +453,7 @@ function* getAudioPurchaseInfo({
       inSol +
       associatedAccountCreationFees +
       transactionFees +
-      MIN_PADDING -
+      rootAccountMinBalance -
       existingBalance
 
     // Get SOL => USDC quote to estimate $USD cost
@@ -546,11 +560,13 @@ function* startBuyAudioFlow({
       inputAmount: newBalance / LAMPORTS_PER_SOL,
       slippage: SLIPPAGE
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
-    const minSol = associatedAccountCreationFees + transactionFees + MIN_PADDING
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
+    const minSol =
+      associatedAccountCreationFees + transactionFees + rootAccountMinBalance
     const inputAmount = (newBalance - minSol) / LAMPORTS_PER_SOL
     console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
 
@@ -615,7 +631,8 @@ function* startBuyAudioFlow({
       {
         userBank,
         fromAccount: rootAccount.publicKey,
-        amount: transferAmount
+        amount: transferAmount,
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     yield* call(sendTransaction, {
