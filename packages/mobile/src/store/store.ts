@@ -41,7 +41,7 @@ export type AppState = {
   oauth: OAuthState
   remoteConfig: RemoteConfigState
   search: SearchState
-  signonDeprecated: SignonState
+  signOnLegacy: SignonState
   web: WebState
 }
 
@@ -61,7 +61,7 @@ const createRootReducer = () =>
     // Sign on store that is part of the mobile client
     // Should be entirely removed in favor of the shared common
     // sign on store
-    signonDeprecated: signon,
+    signOnLegacy: signon,
     web
   })
 

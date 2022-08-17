@@ -590,7 +590,6 @@ export const audiusBackend = ({
     )
     const { ethWeb3Config } = getEthWeb3Config()
     const { solanaWeb3Config } = getSolanaWeb3Config()
-    console.log({ solanaWeb3Config })
     const { solanaAudiusDataConfig } = getSolanaAudiusDataConfig()
     const { wormholeConfig } = getWormholeConfig()
 
