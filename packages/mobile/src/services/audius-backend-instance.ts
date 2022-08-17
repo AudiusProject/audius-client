@@ -35,9 +35,12 @@ const waitForLibsInit = async () => {
   // so do nothing
   if (audiusLibs) return
   // Add an event listener and resolve when that returns
-  return new Promise((resolve) => {
-    if (audiusLibs) resolve()
-    libsInitEventEmitter.addListener(LIBS_INITTED_EVENT, resolve)
+  return new Promise<void>((resolve) => {
+    if (audiusLibs) {
+      resolve()
+    } else {
+      libsInitEventEmitter.addListener(LIBS_INITTED_EVENT, resolve)
+    }
   })
 }
 
