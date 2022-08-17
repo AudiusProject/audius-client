@@ -1512,6 +1512,7 @@ export const audiusBackend = ({
           playlistName,
           trackIds,
           coverArt,
+          coverArtSizes: metadata.cover_art_sizes,
           description,
           isAlbum,
           isPrivate
