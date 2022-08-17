@@ -33,10 +33,19 @@ export const audiusBackendInstance = audiusBackend({
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
   },
-  getWeb3Config: async (libs, registryAddress, web3ProviderUrls) => {
+  getWeb3Config: async (
+    libs,
+    registryAddress,
+    entityManagerAddress,
+    web3ProviderUrls
+  ) => {
     return {
       error: false,
-      web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
+      web3Config: libs.configInternalWeb3(
+        registryAddress,
+        entityManagerAddress,
+        web3ProviderUrls
+      )
     }
   },
   identityServiceUrl: Config.IDENTITY_SERVICE,

@@ -14,7 +14,8 @@ export enum FeatureFlags {
   TIPPING_ENABLED = 'tipping_enabled',
   WRITE_QUORUM_ENABLED = 'write_quorum_enabled',
   EARLY_ACCESS = 'early_access',
-  SUPPORTER_DETHRONED_ENABLED = 'supporter_dethroned_enabled'
+  SUPPORTER_DETHRONED_ENABLED = 'supporter_dethroned_enabled',
+  PLAYLIST_ENTITY_MANAGER_ENABLED = 'playlist_entity_manager_enabled'
 }
 
 /**
@@ -35,5 +36,6 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.TIPPING_ENABLED]: false,
   [FeatureFlags.WRITE_QUORUM_ENABLED]: false,
   [FeatureFlags.EARLY_ACCESS]: false,
-  [FeatureFlags.SUPPORTER_DETHRONED_ENABLED]: false
+  [FeatureFlags.SUPPORTER_DETHRONED_ENABLED]: false,
+  [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: false
 }

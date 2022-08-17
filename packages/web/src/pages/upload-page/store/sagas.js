@@ -42,6 +42,7 @@ import { confirmTransaction } from 'store/confirmer/sagas'
 import { ERROR_PAGE } from 'utils/route'
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
 
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import * as uploadActions from './actions'
 import { watchUploadErrors } from './errorSagas'
 import { ProgressStatus } from './types'
@@ -694,8 +695,10 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         console.debug('Creating playlist')
         // Uploaded collections are always public
         const isPrivate = false
+        const tempPlaylistId = getTempPlaylistId()
         const { blockHash, blockNumber, playlistId, error } = yield call(
           audiusBackendInstance.createPlaylist,
+          tempPlaylistId,
           userId,
           collectionMetadata,
           isAlbum,

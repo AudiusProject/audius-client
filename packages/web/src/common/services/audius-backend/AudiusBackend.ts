@@ -215,6 +215,7 @@ type AudiusBackendParams = {
   getWeb3Config: (
     libs: any,
     registryAddress: Maybe<string>,
+    entityManagerAddress: Maybe<string>,
     web3ProviderUrls: Maybe<string[]>,
     web3NetworkId: Maybe<string>
   ) => Promise<any>
@@ -234,6 +235,7 @@ type AudiusBackendParams = {
     callback?: () => void
   ) => void
   registryAddress: Maybe<string>
+  entityManagerAddress: Maybe<string>
   remoteConfigInstance: RemoteConfigInstance
   setLocalStorageItem: (key: string, value: string) => Promise<void>
   solanaConfig: AudiusBackendSolanaConfig
@@ -269,6 +271,7 @@ export const audiusBackend = ({
   recaptchaSiteKey,
   recordAnalytics,
   registryAddress,
+  entityManagerAddress,
   remoteConfigInstance,
   setLocalStorageItem,
   solanaConfig: {
@@ -573,12 +576,12 @@ export const audiusBackend = ({
     Utils = libsModule.Utils
     SanityChecks = libsModule.SanityChecks
     SolanaUtils = libsModule.SolanaUtils
-
     // initialize libs
     let libsError: Nullable<string> = null
     const { web3Config } = await getWeb3Config(
       AudiusLibs,
       registryAddress,
+      entityManagerAddress,
       web3ProviderUrls,
       web3NetworkId
     )
@@ -1484,6 +1487,7 @@ export const audiusBackend = ({
   }
 
   async function createPlaylist(
+    playlistId: ID,
     userId: ID,
     metadata: Collection,
     isAlbum = false,
@@ -1497,51 +1501,34 @@ export const audiusBackend = ({
     if (isAlbum) isPrivate = false
 
     try {
-      const response = await audiusLibs.Playlist.createPlaylist(
-        userId,
-        playlistName,
-        isPrivate,
-        isAlbum,
-        trackIds
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
       )
-      let { blockHash, blockNumber, playlistId, error } = response
 
-      if (error) return { playlistId, error }
-
-      const updatePromises: Promise<any>[] = []
-
-      // If this playlist is being created from an existing cover art, use it.
-      if (metadata.cover_art_sizes) {
-        updatePromises.push(
-          audiusLibs.contracts.PlaylistFactoryClient.updatePlaylistCoverPhoto(
-            playlistId,
-            Utils.formatOptionalMultihash(metadata.cover_art_sizes)
-          )
-        )
-      } else if (coverArt) {
-        updatePromises.push(
-          audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverArt)
-        )
-      }
-      if (description) {
-        updatePromises.push(
-          audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
+      let response
+      if (playlistEntityManagerIsEnabled) {
+        response = await audiusLibs.EntityManager.createPlaylist({
+          playlistId,
+          playlistName,
+          trackIds,
+          coverArt,
+          description,
+          isAlbum,
+          isPrivate
+        })
+      } else {
+        response = await audiusLibs.Playlist.createPlaylist(
+          userId,
+          playlistName,
+          isPrivate,
+          isAlbum,
+          trackIds
         )
       }
+      const { blockHash, blockNumber, responsePlaylistId, error } = response
+      if (error) return { responsePlaylistId, error }
 
-      /**
-       * find the latest transaction i.e. latest block number among the return transaction receipts
-       * and return that block number along with its corresponding block hash
-       */
-      if (updatePromises.length > 0) {
-        const latestReceipt = getLatestTxReceipt(
-          await Promise.all(updatePromises)
-        ) as TransactionReceipt
-        blockHash = latestReceipt.blockHash
-        blockNumber = latestReceipt.blockNumber
-      }
-
-      return { blockHash, blockNumber, playlistId }
+      return { blockHash, blockNumber, responsePlaylistId }
     } catch (err) {
       // This code path should never execute
       console.debug('Reached client createPlaylist catch block')
@@ -1556,35 +1543,55 @@ export const audiusBackend = ({
     const description = metadata.description
 
     try {
-      let blockHash, blockNumber
-      const promises: Promise<any>[] = []
-      if (playlistName) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
-        )
-      }
-      if (coverPhoto) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverPhoto)
-        )
-      }
-      if (description) {
-        promises.push(
-          audiusLibs.Playlist.updatePlaylistDescription(playlistId, description)
-        )
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      if (playlistEntityManagerIsEnabled) {
+        const { blockHash, blockNumber } =
+          await audiusLibs.EntityManager.editPlaylist({
+            playlistId,
+            playlistName,
+            coverArt: coverPhoto,
+            description
+          })
+
+        return { blockHash, blockNumber }
+      } else {
+        let blockHash, blockNumber
+        const promises = []
+        if (playlistName) {
+          promises.push(
+            audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
+          )
+        }
+        if (coverPhoto) {
+          promises.push(
+            audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverPhoto)
+          )
+        }
+        if (description) {
+          promises.push(
+            audiusLibs.Playlist.updatePlaylistDescription(
+              playlistId,
+              description
+            )
+          )
+        }
+
+        /**
+         * find the latest transaction i.e. latest block number among the return transaction receipts
+         * and return that block number along with its corresponding block hash
+         */
+        if (promises.length > 0) {
+          const latestReceipt = AudiusBackend.getLatestTxReceipt(
+            await Promise.all(promises)
+          ) as TransactionReceipt
+          blockHash = latestReceipt.blockHash
+          blockNumber = latestReceipt.blockNumber
+        }
+        return { blockHash, blockNumber }
       }
 
-      /**
-       * find the latest transaction i.e. latest block number among the return transaction receipts
-       * and return that block number along with its corresponding block hash
-       */
-      if (promises.length > 0) {
-        const latestReceipt = getLatestTxReceipt(await Promise.all(promises))
-        blockHash = latestReceipt.blockHash
-        blockNumber = latestReceipt.blockNumber
-      }
-
-      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
@@ -1597,13 +1604,25 @@ export const audiusBackend = ({
     retries: number
   ) {
     try {
-      const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.orderPlaylistTracks(
-          playlistId,
-          trackIds,
-          retries
-        )
-      return { blockHash, blockNumber }
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      if (playlistEntityManagerIsEnabled) {
+        const { blockHash, blockNumber } =
+          await audiusLibs.EntityManager.orderPlaylist({
+            playlistId,
+            trackIds
+          })
+        return { blockHash, blockNumber }
+      } else {
+        const { blockHash, blockNumber } =
+          await audiusLibs.Playlist.orderPlaylistTracks(
+            playlistId,
+            trackIds,
+            retries
+          )
+        return { blockHash, blockNumber }
+      }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
@@ -1612,20 +1631,49 @@ export const audiusBackend = ({
 
   async function publishPlaylist(playlistId: ID) {
     try {
-      const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.updatePlaylistPrivacy(playlistId, false)
-      return { blockHash, blockNumber }
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      if (playlistEntityManagerIsEnabled) {
+        const { blockHash, blockNumber } =
+          await audiusLibs.EntityManager.editPlaylist({
+            playlistId,
+            isPrivate: false
+          })
+        return { blockHash, blockNumber }
+      } else {
+        const { blockHash, blockNumber } =
+          await audiusLibs.Playlist.updatePlaylistPrivacy(playlistId, false)
+        return { blockHash, blockNumber }
+      }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
     }
   }
 
-  async function addPlaylistTrack(playlistId: ID, trackId: ID) {
+  async function addPlaylistTrack(
+    playlistId: ID,
+    trackId: ID,
+    timestamp: number
+  ) {
     try {
-      const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.addPlaylistTrack(playlistId, trackId)
-      return { blockHash, blockNumber }
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      if (playlistEntityManagerIsEnabled) {
+        const { blockHash, blockNumber } =
+          await audiusLibs.EntityManager.addPlaylistTrack({
+            playlistId,
+            trackId,
+            timestamp
+          })
+        return { blockHash, blockNumber }
+      } else {
+        const { blockHash, blockNumber } =
+          await audiusLibs.Playlist.addPlaylistTrack(playlistId, trackId)
+        return { blockHash, blockNumber }
+      }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
@@ -1639,14 +1687,27 @@ export const audiusBackend = ({
     retries: number
   ) {
     try {
-      const { blockHash, blockNumber } =
-        await audiusLibs.Playlist.deletePlaylistTrack(
-          playlistId,
-          trackId,
-          timestamp,
-          retries
-        )
-      return { blockHash, blockNumber }
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      if (playlistEntityManagerIsEnabled) {
+        const { blockHash, blockNumber } =
+          await audiusLibs.EntityManager.deletePlaylistTrack({
+            playlistId,
+            trackId,
+            timestamp
+          })
+        return { blockHash, blockNumber }
+      } else {
+        const { blockHash, blockNumber } =
+          await audiusLibs.Playlist.deletePlaylistTrack(
+            playlistId,
+            trackId,
+            timestamp,
+            retries
+          )
+        return { blockHash, blockNumber }
+      }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
@@ -1685,7 +1746,17 @@ export const audiusBackend = ({
 
   async function deletePlaylist(playlistId: ID) {
     try {
-      const { txReceipt } = await audiusLibs.Playlist.deletePlaylist(playlistId)
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      let txReceipt
+      if (playlistEntityManagerIsEnabled) {
+        txReceipt = await audiusLibs.EntityManager.deletePlaylist({
+          playlistId
+        })
+      } else {
+        txReceipt = await audiusLibs.Playlist.deletePlaylist(playlistId)
+      }
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber
@@ -1706,8 +1777,17 @@ export const audiusBackend = ({
       const trackDeletionPromises = trackIds.map((t) =>
         audiusLibs.Track.deleteTrack(t.track)
       )
-      const playlistDeletionPromise =
-        audiusLibs.Playlist.deletePlaylist(playlistId)
+      const playlistEntityManagerIsEnabled = getFeatureEnabled(
+        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+      )
+      let playlistDeletionPromise
+      if (playlistEntityManagerIsEnabled) {
+        playlistDeletionPromise = audiusLibs.EntityManager.deletePlaylist({
+          playlistId
+        })
+      } else {
+        playlistDeletionPromise = audiusLibs.Playlist.deletePlaylist(playlistId)
+      }
       const results = await Promise.all(
         trackDeletionPromises.concat(playlistDeletionPromise)
       )

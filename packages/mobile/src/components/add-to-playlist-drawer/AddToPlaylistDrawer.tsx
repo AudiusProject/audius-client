@@ -24,6 +24,7 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles, shadow } from 'app/styles'
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 const messages = {
   title: 'Add To Playlist',
@@ -67,7 +68,7 @@ export const AddToPlaylistDrawer = () => {
       playlist_name: trackTitle,
       is_private: false
     })
-    const tempId = `${Date.now()}`
+    const tempId = getTempPlaylistId()
     dispatchWeb(
       createPlaylist(tempId, metadata, CreatePlaylistSource.FROM_TRACK, trackId)
     )
