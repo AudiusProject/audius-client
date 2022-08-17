@@ -16,8 +16,13 @@ export type CommonStoreContext = {
   getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean | null>
   analytics: {
     init: () => Promise<void>
-    track: (event: AnalyticsEvent) => Promise<void>
-    identify: () => Promise<void>
+    track: (event: AnalyticsEvent, callback?: () => void) => Promise<void>
+    identify: (
+      handle: string,
+      traits?: Record<string, any>,
+      options?: Record<string, any>,
+      callback?: () => void
+    ) => Promise<void>
   }
   remoteConfigInstance: RemoteConfigInstance
   audiusBackendInstance: AudiusBackend
