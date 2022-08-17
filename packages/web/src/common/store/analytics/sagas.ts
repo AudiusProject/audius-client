@@ -5,11 +5,11 @@ import { getContext } from 'common/store'
 import {
   TRACK,
   IDENTIFY,
-  RecordAnalyticsAction,
-  IdentifyAnalyticsAction
+  TrackEvent,
+  IdentifyEvent
 } from 'common/store/analytics/actions'
 
-function* trackEventAsync(action: RecordAnalyticsAction) {
+function* trackEventAsync(action: TrackEvent) {
   const analytics = yield* getContext('analytics')
   const { callback, eventName, ...properties } = action
   yield call(
@@ -22,7 +22,7 @@ function* trackEventAsync(action: RecordAnalyticsAction) {
   )
 }
 
-function* identifyEventAsync(action: IdentifyAnalyticsAction) {
+function* identifyEventAsync(action: IdentifyEvent) {
   const analytics = yield* getContext('analytics')
   yield call(analytics.identify, action.handle, action.traits)
 }

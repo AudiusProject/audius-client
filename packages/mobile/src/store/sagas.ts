@@ -1,4 +1,6 @@
 import analyticsSagas from 'audius-client/src/common/store/analytics/sagas'
+// import signOnSagas from 'audius-client/src/common/store/pages/signon/sagas'
+// import accountSagas from 'common/store/account/sagas'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import remoteConfig from 'common/store/remote-config/sagas'
 import { all, fork } from 'typed-redux-saga'
@@ -12,6 +14,8 @@ export default function* rootSaga() {
     // config
     ...backendSagas(),
     ...analyticsSagas(),
+    // ...accountSagas(),
+    // ...signOnSagas(),
     initKeyboardEvents,
     ...remoteConfig(),
     ...oauthSagas()

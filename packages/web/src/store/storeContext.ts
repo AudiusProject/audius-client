@@ -19,5 +19,6 @@ export const storeContext: CommonStoreContext = {
   apiClient,
   fingerprintClient,
   walletClient,
-  localStorage
+  localStorage,
+  isNativeMobile: false
 }
