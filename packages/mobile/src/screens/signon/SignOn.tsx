@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions'
+import * as signOnActionsWeb from 'audius-client/src/common/store/pages/signon/actions'
 import querystring from 'query-string'
 import {
   Animated,
@@ -585,6 +585,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
             setAttemptedPassword(true)
             setShowDefaultError(false)
             setPassword(newText)
+            dispatch(signOnActionsWeb.setValueField('password', newText))
           }}
           onFocus={() => {
             setPassBorderColor('#7E1BCC')
@@ -665,6 +666,9 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }
 
   const validateEmail = (email: string) => {
+    dispatch(signOnActionsWeb.setValueField('email', email))
+    dispatch(signOnActionsWeb.validateEmail(email))
+    // TODO: Remove after reloaded
     dispatch(signonActions.setEmailStatus('editing'))
     dispatchWeb({
       type: MessageType.SIGN_UP_VALIDATE_AND_CHECK_EMAIL,
@@ -675,6 +679,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
 
   const signIn = () => {
     setIsWorking(true)
+    dispatch(signOnActionsWeb.signIn(email, password))
+    // TODO: Remove after reloaded
     dispatch(signonActions.signinFailedReset())
     dispatchWeb({
       type: MessageType.SUBMIT_SIGNIN,
