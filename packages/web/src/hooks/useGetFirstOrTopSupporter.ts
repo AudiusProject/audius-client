@@ -77,7 +77,7 @@ export const useGetFirstOrTopSupporter = ({
    * not the same as the current user
    */
   useEffect(() => {
-    if (!account || !receiver) return
+    if (!receiver) return
 
     const supportersForReceiver = supportersMap[receiver.user_id]
 
@@ -108,7 +108,7 @@ export const useGetFirstOrTopSupporter = ({
     } else {
       setIsFirstSupporter(true)
     }
-  }, [account, receiver, supportersMap])
+  }, [receiver, supportersMap])
 
   /**
    * Check whether or not to display prompt to become top or first supporter
