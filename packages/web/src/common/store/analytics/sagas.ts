@@ -7,7 +7,7 @@ import {
   IDENTIFY,
   RecordAnalyticsAction,
   IdentifyAnalyticsAction
-} from 'store/analytics/actions'
+} from 'common/store/analytics/actions'
 
 function* trackEventAsync(action: RecordAnalyticsAction) {
   const analytics = yield* getContext('analytics')

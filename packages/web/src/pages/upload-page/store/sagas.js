@@ -21,6 +21,7 @@ import {
   getUserHandle,
   getUserId
 } from 'common/store/account/selectors'
+import { make } from 'common/store/analytics/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { reformat } from 'common/store/cache/collections/utils'
@@ -36,7 +37,6 @@ import { formatUrlName } from 'common/utils/formatUtil'
 import UploadType from 'pages/upload-page/components/uploadType'
 import { getStems } from 'pages/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
-import { make } from 'store/analytics/actions'
 import * as confirmerActions from 'store/confirmer/actions'
 import { confirmTransaction } from 'store/confirmer/sagas'
 import { ERROR_PAGE } from 'utils/route'

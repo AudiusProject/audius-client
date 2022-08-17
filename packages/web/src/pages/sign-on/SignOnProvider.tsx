@@ -19,8 +19,8 @@ import {
   TwitterProfile
 } from 'common/store/account/reducer'
 import { getHasAccount } from 'common/store/account/selectors'
+import { make, TrackEvent } from 'common/store/analytics/actions'
 import { Pages, FollowArtistsCategory } from 'pages/sign-on/store/types'
-import { make, TrackEvent } from 'store/analytics/actions'
 import { AppState } from 'store/types'
 import { isElectron } from 'utils/clientUtil'
 import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
