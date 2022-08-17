@@ -389,10 +389,15 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   console.debug(
     `Estimated transaction fees: ${
       transactionFees / LAMPORTS_PER_SOL
-    } SOL. Estimated associated account creation fees: ${
+    } SOL. Estimated associated account rent-exemption fees: ${
       associatedAccountCreationFees / LAMPORTS_PER_SOL
+    } SOL. Estimated root account rent-exemption fee: ${
+      rootAccountMinBalance / LAMPORTS_PER_SOL
     } SOL. Total estimated fees: ${
-      (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+      (associatedAccountCreationFees +
+        transactionFees +
+        rootAccountMinBalance) /
+      LAMPORTS_PER_SOL
     }`
   )
   return {
@@ -470,7 +475,10 @@ Adjustment For Slippage (${slippage}%): ${
         (inSol - reverseQuote.outputAmount.amount) / LAMPORTS_PER_SOL
       } SOL
 Fees: ${
-        (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+        (associatedAccountCreationFees +
+          rootAccountMinBalance +
+          transactionFees) /
+        LAMPORTS_PER_SOL
       } SOL
 Existing Balance: ${existingBalance / LAMPORTS_PER_SOL} SOL
 Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
