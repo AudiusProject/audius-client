@@ -25,18 +25,21 @@ function* trackLocation() {
       }
 
       // TODO: record screen change analytics on mobile
-      // const message = new ScreenAnalyticsEvent(pathname)
-      // message.send()
-
-      // Dispatch a track event and then resolve page/screen events with segment
-      analytics.track({
-        eventName: Name.PAGE_VIEW,
-        properties: { route: pathname }
-      })
+      // see https://reactnavigation.org/docs/screen-tracking/
+      if (NATIVE_MOBILE) {
+        const message = new ScreenAnalyticsEvent(pathname)
+        message.send()
+      } else {
+        // Dispatch a track event and then resolve page/screen events with segment
+        analytics.track({
+          eventName: Name.PAGE_VIEW,
+          properties: { route: pathname }
+        })
+      }
     }
   }
 }
 
 export default function sagas() {
-  return !NATIVE_MOBILE ? [trackLocation] : []
+  return [trackLocation]
 }

@@ -73,6 +73,7 @@ export const track = async (
       clientVersion: version
     }
 
+    // TODO: This can be removed when the the web layer is removed from mobile
     if (NATIVE_MOBILE) {
       const message = new TrackAnalyticsEvent(eventName, propertiesWithContext)
       message.send()
