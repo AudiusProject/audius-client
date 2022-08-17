@@ -14,11 +14,8 @@ import {
   getServices,
   getPrimary,
   getSecondaries
-} from '../../common/store/service-selection/selectors'
-import {
-  setSelected,
-  closeModal
-} from '../../common/store/service-selection/slice'
+} from 'common/store/service-selection/selectors'
+import { setSelected, closeModal } from 'common/store/service-selection/slice'
 
 import styles from './ServiceSelectionModal.module.css'
 import Service from './components/Service'

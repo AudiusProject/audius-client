@@ -32,14 +32,14 @@ import {
   SIGN_UP_PAGE
 } from 'utils/route'
 
-import * as signOnAction from '../../common/store/pages/signon/actions'
+import * as signOnAction from 'common/store/pages/signon/actions'
 import {
   getSignOn,
   getIsMobileSignOnVisible,
   getToastText,
   makeGetFollowArtists,
   getRouteOnExit
-} from '../../common/store/pages/signon/selectors'
+} from 'common/store/pages/signon/selectors'
 
 import {
   SignOnProps as DesktopSignOnProps,

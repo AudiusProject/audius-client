@@ -62,7 +62,7 @@ const SUGGESTED_FOLLOW_USER_HANDLE_URL =
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
 
 // Route to fetch instagram user data w/ the username
-export const getIGUserUrl = (endpoint: string, username: string) => {
+export const getIGUserUrl = (endpoint, username) => {
   const url = endpoint.replace('$USERNAME$', username)
   return url
 }
