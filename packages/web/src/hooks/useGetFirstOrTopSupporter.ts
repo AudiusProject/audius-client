@@ -12,10 +12,7 @@ import {
 
 import { SupportersMap, SupportingMap } from 'common/store/tipping/types'
 import { parseWeiNumber } from 'common/utils/formatUtil'
-import {
-  parseAudioInputToWei,
-  stringWeiToBN
-} from 'common/utils/wallet'
+import { parseAudioInputToWei, stringWeiToBN } from 'common/utils/wallet'
 
 const zeroWei = stringWeiToBN('0' as StringWei)
 
