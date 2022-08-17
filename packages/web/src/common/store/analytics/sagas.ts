@@ -40,44 +40,6 @@ function* initProviders() {
   yield call(analytics.init)
 }
 
-// TODO: split track location across web & mobile
-// function* trackLocation() {
-//   const analytics = yield* getContext('analytics')
-//   while (true) {
-//     const {
-//       payload: {
-//         location: { pathname }
-//       }
-//     } = yield take(LOCATION_CHANGE)
-//     if (pathname) {
-//       if ((window as any).gtag) {
-//         ;(window as any).gtag('config', process.env.GA_MEASUREMENT_ID, {
-//           page_path: pathname
-//         })
-//       }
-//       if ((window as any).adroll) {
-//         ;(window as any).adroll.track('pageView')
-//       }
-
-//       if (NATIVE_MOBILE) {
-//         const message = new ScreenAnalyticsEvent(pathname)
-//         message.send()
-//       } else {
-//         // Dispatch a track event and then resolve page/screen events with segment
-//         analytics.track({
-//           eventName: Name.PAGE_VIEW,
-//           properties: { route: pathname }
-//         })
-//       }
-//     }
-//   }
-// }
-
 export default function sagas() {
-  return [
-    initProviders,
-    watchTrackEvent,
-    watchIdentifyEvent
-    // trackLocation
-  ]
+  return [initProviders, watchTrackEvent, watchIdentifyEvent]
 }
