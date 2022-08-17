@@ -1263,13 +1263,13 @@ type AudiusOauthError = {
 
 type RewardsClaimStartCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
-  handle: string
+  handle: string | null
   source: string
 }
 
 type RewardsClaimFinishCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW
-  handle: string
+  handle: string | null
   source: string
 }
 
