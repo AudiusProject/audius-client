@@ -734,7 +734,7 @@ export const audiusBackend = ({
       !ethTokenBridgeAddress ||
       !solTokenBridgeAddress
     ) {
-      console.error('Missing wormhole configs')
+      console.warn('Missing wormhole configs')
       return {
         error: true
       }

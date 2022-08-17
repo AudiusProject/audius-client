@@ -27,6 +27,7 @@ import { getErrorMessage } from 'common/utils/error'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { make } from 'store/analytics/actions'
+import { waitForAccount } from 'utils/sagaHelpers'
 
 // TODO: handle errors
 const errors = {
@@ -50,14 +51,17 @@ function* sendAsync({
   payload: { recipientWallet, amount: weiAudioAmount, chain }
 }: ReturnType<typeof send>) {
   const walletClient = yield* getContext('walletClient')
+
+  yield* waitForAccount()
   const account = yield* select(getAccountUser)
   const weiBNAmount = stringWeiToBN(weiAudioAmount)
   const accountBalance = yield* select(getAccountBalance)
   const weiBNBalance = accountBalance ?? (new BN('0') as BNWei)
 
-  const waudioWeiAmount: BNWei = yield* call(
-    walletClient.getCurrentWAudioBalance
-  )
+  const waudioWeiAmount: BNWei = yield* call([
+    walletClient,
+    'getCurrentWAudioBalance'
+  ])
   if (
     chain === Chain.Eth &&
     (!weiBNBalance || !weiBNBalance.gte(weiBNAmount))
@@ -86,11 +90,13 @@ function* sendAsync({
     }
 
     if (chain === Chain.Eth) {
-      yield* call(() => walletClient.sendTokens(recipientWallet, weiBNAmount))
+      yield* call([walletClient, 'sendTokens'], recipientWallet, weiBNAmount)
     } else {
       try {
-        yield* call(() =>
-          walletClient.sendWAudioTokens(recipientWallet, weiBNAmount)
+        yield* call(
+          [walletClient, 'sendWAudioTokens'],
+          recipientWallet,
+          weiBNAmount
         )
       } catch (e) {
         const errorMessage = getErrorMessage(e)
@@ -149,6 +155,7 @@ function* getWalletBalanceAndWallets() {
 function* fetchBalanceAsync() {
   const walletClient = yield* getContext('walletClient')
 
+  yield* waitForAccount()
   const account = yield* select(getAccountUser)
   if (!account) return
 
@@ -161,17 +168,17 @@ function* fetchBalanceAsync() {
     yield* select(getLocalBalanceDidChange)
 
   const [currentEthAudioWeiBalance, currentSolAudioWeiBalance] = yield* all([
-    call(() =>
-      walletClient.getCurrentBalance(/* bustCache */ localBalanceChange)
+    call(
+      [walletClient, 'getCurrentBalance'],
+      /* bustCache */ localBalanceChange
     ),
-    call(() => walletClient.getCurrentWAudioBalance())
+    call([walletClient, 'getCurrentWAudioBalance'])
   ])
 
-  const associatedWalletBalance: BNWei = yield* call(() =>
-    walletClient.getAssociatedWalletBalance(
-      account.user_id,
-      /* bustCache */ localBalanceChange
-    )
+  const associatedWalletBalance: BNWei = yield* call(
+    [walletClient, 'getAssociatedWalletBalance'],
+    account.user_id,
+    /* bustCache */ localBalanceChange
   )
 
   const audioWeiBalance = currentEthAudioWeiBalance.add(
