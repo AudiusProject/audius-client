@@ -13,22 +13,22 @@ import {
   FeedFilter,
   ID,
   IntKeys,
+  Maybe,
   Name,
   Nullable,
   PlaylistTrackId,
   ProfilePictureSizes,
+  RemoteConfigInstance,
   StringKeys,
   Track,
   TrackMetadata,
   User,
   UserMetadata,
   UserTrack,
-  uuid,
-  Maybe,
-  RemoteConfigInstance,
-  AnalyticsEvent
+  AnalyticsEvent,
+  uuid
 } from '@audius/common'
-import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
+import { DiscoveryAPI, IdentityAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -2233,7 +2233,9 @@ export const audiusBackend = ({
   async function signData() {
     const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
     const data = `Click sign to authenticate with identity service: ${unixTs}`
-    const signature = await audiusLibs.Account.web3Manager.sign(data)
+    const signature = await audiusLibs.Account.web3Manager.sign(
+      Buffer.from(data, 'utf-8')
+    )
     return { data, signature }
   }
 
@@ -2981,9 +2983,15 @@ export const audiusBackend = ({
     }
   }
 
+  async function getAudiusLibs() {
+    await waitForLibsInit()
+    return audiusLibs
+  }
+
   return {
     addDiscoveryProviderSelectionListener,
     addPlaylistTrack,
+    audiusLibs,
     associateAudiusUserForAuth,
     associateInstagramAccount,
     associateTwitterAccount,
@@ -3013,6 +3021,7 @@ export const audiusBackend = ({
     getAddressWAudioBalance,
     getAllTracks,
     getArtistTracks,
+    getAudiusLibs,
     getBalance,
     getBrowserPushNotificationSettings,
     getBrowserPushSubscription,
@@ -3105,6 +3114,7 @@ export const audiusBackend = ({
     uploadTrackToCreatorNode,
     userNodeUrl,
     validateTracksInPlaylist,
+    waitForLibsInit,
     waitForWeb3
   }
 }
