@@ -64,7 +64,7 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const metadata = yield call(
+    const { is_verified: ignored_is_verified, ...metadata } = yield call(
       fetchCID,
       cid,
       gateways,
@@ -86,7 +86,7 @@ function* fetchProfileCustomizedCollectibles(user) {
           {
             id: user.user_id,
             metadata: {
-              ...omit(metadata, 'is_verified'),
+              ...metadata,
               collectiblesOrderUnset: true
             }
           }
