@@ -1,3 +1,4 @@
+import { IntKeys } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
@@ -21,6 +22,7 @@ import {
   fork
 } from 'typed-redux-saga/macro'
 
+import { getContext } from 'common/store'
 import {
   JupiterTokenSymbol,
   TOKEN_LISTING_MAP
@@ -75,9 +77,6 @@ const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to sp
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
 const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
 let _jup: Jupiter
-
-const MIN_AUDIO_AMOUNT = 6
-const MAX_AUDIO_AMOUNT = 999
 
 /**
  * Initializes Jupiter singleton if necessary and returns
@@ -394,24 +393,41 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   return { transactionFees, associatedAccountCreationFees }
 }
 
+function* getAudioPurchaseBounds() {
+  const DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT = 5
+  const DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT = 999
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call([remoteConfigInstance, remoteConfigInstance.waitForRemoteConfig])
+  const minAudioAmount =
+    remoteConfigInstance.getRemoteVar(IntKeys.MIN_AUDIO_PURCHASE_AMOUNT) ??
+    DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT
+  const maxAudioAmount =
+    remoteConfigInstance.getRemoteVar(IntKeys.MAX_AUDIO_PURCHASE_AMOUNT) ??
+    DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT
+  return { minAudioAmount, maxAudioAmount }
+}
+
 function* getAudioPurchaseInfo({
   payload: { audioAmount }
 }: ReturnType<typeof calculateAudioPurchaseInfo>) {
   try {
     // Fail early if audioAmount is too small/large
-    if (audioAmount > MAX_AUDIO_AMOUNT) {
+    const { minAudioAmount, maxAudioAmount } = yield* call(
+      getAudioPurchaseBounds
+    )
+    if (audioAmount > maxAudioAmount) {
       yield* put(
         calculateAudioPurchaseInfoFailed({
           errorType: PurchaseInfoErrorType.MAX_AUDIO_EXCEEDED,
-          maxAudio: MAX_AUDIO_AMOUNT
+          maxAudio: maxAudioAmount
         })
       )
       return
-    } else if (audioAmount < MIN_AUDIO_AMOUNT) {
+    } else if (audioAmount < minAudioAmount) {
       yield* put(
         calculateAudioPurchaseInfoFailed({
           errorType: PurchaseInfoErrorType.MIN_AUDIO_EXCEEDED,
-          minAudio: MIN_AUDIO_AMOUNT
+          minAudio: minAudioAmount
         })
       )
       return
