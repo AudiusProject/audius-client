@@ -19,8 +19,8 @@ export type CommonStoreContext = {
     track: (event: AnalyticsEvent, callback?: () => void) => Promise<void>
     identify: (
       handle: string,
-      traits?: Record<string, any>,
-      options?: Record<string, any>,
+      traits?: Record<string, unknown>,
+      options?: Record<string, unknown>,
       callback?: () => void
     ) => Promise<void>
   }

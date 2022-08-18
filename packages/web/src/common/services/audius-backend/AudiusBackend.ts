@@ -25,7 +25,8 @@ import {
   UserTrack,
   uuid,
   Maybe,
-  RemoteConfigInstance
+  RemoteConfigInstance,
+  AnalyticsEvent
 } from '@audius/common'
 import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
@@ -233,10 +234,7 @@ type AudiusBackendParams = {
   nativeMobile: Maybe<boolean>
   onLibsInit: (libs: any) => void
   recaptchaSiteKey: Maybe<string>
-  recordAnalytics: (
-    event: { eventName: string; properties?: Record<string, any> },
-    callback?: () => void
-  ) => void
+  recordAnalytics: (event: AnalyticsEvent, callback?: () => void) => void
   registryAddress: Maybe<string>
   remoteConfigInstance: RemoteConfigInstance
   setLocalStorageItem: (key: string, value: string) => Promise<void>
@@ -1943,7 +1941,7 @@ export const audiusBackend = ({
       formFields.coverPhoto,
       hasWallet,
       getHostUrl(),
-      (eventName: string, properties: Record<string, any>) =>
+      (eventName: string, properties: Record<string, unknown>) =>
         recordAnalytics({ eventName, properties }),
       {
         Request: Name.CREATE_USER_BANK_REQUEST,

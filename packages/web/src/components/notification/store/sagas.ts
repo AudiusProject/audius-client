@@ -48,6 +48,7 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { fetchReactionValues } from 'common/store/ui/reactions/slice'
 import { getBalance } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
+import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { isElectron } from 'utils/clientUtil'
 import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
 
@@ -670,6 +671,10 @@ export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* call(waitForBackendSetup)
   yield* call(audiusBackendInstance.markAllNotificationAsViewed)
+  if (NATIVE_MOBILE) {
+    const message = new ResetNotificationsBadgeCount()
+    message.send()
+  }
 }
 
 function* watchTogglePanel() {
