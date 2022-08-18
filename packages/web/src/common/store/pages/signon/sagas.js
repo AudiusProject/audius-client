@@ -23,30 +23,27 @@ import {
 import * as accountActions from 'common/store/account/reducer'
 import { fetchAccountAsync, reCacheAccount } from 'common/store/account/sagas'
 import { getAccountUser } from 'common/store/account/selectors'
+import { identify, make } from 'common/store/analytics/actions'
 import * as backendActions from 'common/store/backend/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUserByHandle, fetchUsers } from 'common/store/cache/users/sagas'
 import { getUsers } from 'common/store/cache/users/selectors'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
+import * as confirmerActions from 'common/store/confirmer/actions'
+import { confirmTransaction } from 'common/store/confirmer/sagas'
 import { saveCollection } from 'common/store/social/collections/actions'
 import * as socialActions from 'common/store/social/users/actions'
 import { getFeePayer } from 'common/store/solana/selectors'
 import { ELECTRONIC_SUBGENRES, Genre } from 'common/utils/genres'
-import { getIGUserUrl } from 'components/instagram-auth/InstagramAuth'
+import { MAX_HANDLE_LENGTH } from 'pages/sign-on/utils/formatSocialProfile'
 import { getCityAndRegion } from 'services/Location'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { identify, make } from 'store/analytics/actions'
-import * as confirmerActions from 'store/confirmer/actions'
-import { confirmTransaction } from 'store/confirmer/sagas'
 import { setHasRequestedBrowserPermission } from 'utils/browserNotifications'
 import { isValidEmailString } from 'utils/email'
 import { withTimeout } from 'utils/network'
 import { restrictedHandles } from 'utils/restrictedHandles'
 import { ERROR_PAGE, FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
 import { waitForAccount } from 'utils/sagaHelpers'
-
-import { MAX_HANDLE_LENGTH } from '../utils/formatSocialProfile'
 
 import * as signOnActions from './actions'
 import { watchSignOnError } from './errorSagas'
@@ -63,6 +60,12 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const SUGGESTED_FOLLOW_USER_HANDLE_URL =
   process.env.REACT_APP_SUGGESTED_FOLLOW_HANDLES
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
+
+// Route to fetch instagram user data w/ the username
+export const getIGUserUrl = (endpoint, username) => {
+  const url = endpoint.replace('$USERNAME$', username)
+  return url
+}
 
 const messages = {
   incompleteAccount:
@@ -294,6 +297,7 @@ function* validateEmail(action) {
 function* signUp() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   yield call(waitForBackendSetup)
   const signOn = yield select(getSignOn)
   const location = yield call(getCityAndRegion)
@@ -397,7 +401,12 @@ function* signUp() {
         yield call(waitForRemoteConfig)
 
         // Check feature flag to disable confirmation
-        if (!getFeatureEnabled(FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION)) {
+        const disableSignUpConfirmation = yield call(
+          getFeatureEnabled,
+          FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION
+        )
+
+        if (!disableSignUpConfirmation) {
           const confirmed = yield call(
             confirmTransaction,
             blockHash,

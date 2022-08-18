@@ -6,6 +6,13 @@ import { SolanaWalletAddress, StringAudio, WalletAddress } from 'models/Wallet'
 
 const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
+type JsonMap = Record<string, unknown>
+
+export type AnalyticsEvent = {
+  eventName: string
+  properties?: JsonMap
+}
+
 export enum Name {
   SESSION_START = 'Session Start',
   // Account creation
@@ -1290,6 +1297,17 @@ type BuyAudioFailure = {
   requestedAudio: number
   stage: string
   error: string
+
+type RewardsClaimStartCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
+  handle: string | null
+  source: string
+}
+
+type RewardsClaimFinishCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW
+  handle: string | null
+  source: string
 }
 
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
@@ -1466,3 +1484,5 @@ export type AllTrackingEvents =
   | BuyAudioOnRampCanceled
   | BuyAudioSuccess
   | BuyAudioFailure
+  | RewardsClaimStartCognitoFlow
+  | RewardsClaimFinishCognitoFlow

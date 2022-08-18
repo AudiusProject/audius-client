@@ -1,15 +1,18 @@
 import { all, fork } from 'redux-saga/effects'
 
 import accountSagas from 'common/store/account/sagas'
+import analyticsSagas from 'common/store/analytics/sagas'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import { sagas as castSagas } from 'common/store/cast/sagas'
+import confirmerSagas from 'common/store/confirmer/sagas'
 import errorSagas from 'common/store/errors/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
+import signOnSaga from 'common/store/pages/signon/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import remoteConfigSagas from 'common/store/remote-config/sagas'
@@ -47,7 +50,6 @@ import repostPageSagas from 'pages/reposts-page/sagas'
 import savedSagas from 'pages/saved-page/store/sagas'
 import searchPageSagas from 'pages/search-page/store/sagas'
 import settingsSagas from 'pages/settings-page/store/sagas'
-import signOnSaga from 'pages/sign-on/store/sagas'
 import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
 import supportingPageSagas from 'pages/supporting-page/sagas'
 import topSupportersPageSagas from 'pages/top-supporters-page/sagas'
@@ -57,13 +59,12 @@ import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
 import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
 import uploadSagas from 'pages/upload-page/store/sagas'
 import { initInterface } from 'services/native-mobile-interface/helpers'
-import analyticsSagas from 'store/analytics/sagas'
+import webAnalyticsSagas from 'store/analytics/sagas'
 import cookieBannerSagas from 'store/application/ui/cookieBanner/sagas'
 import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
-import confirmerSagas from 'store/confirmer/sagas'
 import oauthSagas from 'store/oauth/sagas'
 import playerSagas from 'store/player/sagas'
 import playlistLibrarySagas from 'store/playlist-library/sagas'
@@ -82,6 +83,7 @@ export default function* rootSaga() {
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     // Config
     analyticsSagas(),
+    webAnalyticsSagas(),
     backendSagas(),
     confirmerSagas(),
     cookieBannerSagas(),

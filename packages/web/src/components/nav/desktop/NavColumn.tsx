@@ -29,6 +29,7 @@ import {
   getAccountUser,
   getPlaylistLibrary
 } from 'common/store/account/selectors'
+import { make, useRecord } from 'common/store/analytics/actions'
 import { getDominantColorsByTrack } from 'common/store/average-color/slice'
 import {
   addTrackToPlaylist,
@@ -42,6 +43,7 @@ import {
   getNotificationPanelIsOpen,
   getNotificationUnviewedCount
 } from 'common/store/notifications/selectors'
+import * as signOnActions from 'common/store/pages/signon/actions'
 import {
   addFolderToLibrary,
   constructPlaylistFolder
@@ -67,11 +69,9 @@ import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import * as signOnActions from 'pages/sign-on/store/actions'
 import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
-import { make, useRecord } from 'store/analytics/actions'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { makeGetCurrent as makeGetCurrentPlayer } from 'store/player/selectors'
 import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'

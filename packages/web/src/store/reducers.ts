@@ -3,6 +3,7 @@ import { History } from 'history'
 import { combineReducers } from 'redux'
 
 import { reducers as clientStoreReducers } from 'common/store'
+import confirmer from 'common/store/confirmer/reducer'
 import profile from 'common/store/pages/profile/reducer'
 import queue from 'common/store/queue/slice'
 import remoteConfig from 'common/store/remote-config/slice'
@@ -17,7 +18,6 @@ import unfollowConfirmation from 'components/unfollow-confirmation-modal/store/r
 import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import deactivateAccount from 'pages/deactivate-account-page/store/slice'
 import deleted from 'pages/deleted-page/store/slice'
-import signOn from 'pages/sign-on/store/reducer'
 import upload from 'pages/upload-page/store/reducer'
 import visualizer from 'pages/visualizer/store/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
@@ -29,7 +29,6 @@ import mobileKeyboard from 'store/application/ui/mobileKeyboard/reducer'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
-import confirmer from 'store/confirmer/reducer'
 import dragndrop from 'store/dragndrop/reducer'
 import player from 'store/player/slice'
 import playlistLibrary from 'store/playlist-library/slice'
@@ -58,7 +57,6 @@ const createRootReducer = (routeHistory: History) =>
     upload,
     profile,
     dashboard,
-    signOn,
     searchBar,
     serviceSelection,
 

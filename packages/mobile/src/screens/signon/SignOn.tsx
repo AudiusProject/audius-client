@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 
 import Clipboard from '@react-native-clipboard/clipboard'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions'
+import * as signOnActions from 'audius-client/src/common/store/pages/signon/actions'
 import querystring from 'query-string'
 import {
   Animated,
@@ -33,10 +33,11 @@ import { remindUserToTurnOnNotifications } from 'app/components/notification-rem
 import useAppState from 'app/hooks/useAppState'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { MessageType } from 'app/message/types'
+import { track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
 import { getIsKeyboardOpen } from 'app/store/keyboard/selectors'
 import { getIsSignedIn, getDappLoaded } from 'app/store/lifecycle/selectors'
-import * as signonActions from 'app/store/signon/actions'
+import * as signOnActionsLegacy from 'app/store/signon/actions'
 import {
   getEmailIsAvailable,
   getEmailIsValid,
@@ -44,7 +45,6 @@ import {
   getIsSigninError
 } from 'app/store/signon/selectors'
 import { EventNames } from 'app/types/analytics'
-import { track, make } from 'app/utils/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
 import type { SignOnStackParamList } from './types'
@@ -430,7 +430,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
         const parsed = querystring.parseUrl(contents)
         const handle = parsed.query?.ref as string
         if (handle) {
-          dispatchWeb(signOnActionsWeb.fetchReferrer(handle))
+          dispatchWeb(signOnActions.fetchReferrer(handle))
         }
       }
     }
@@ -561,7 +561,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
       setShowEmptyPasswordError(false)
       setAttemptedPassword(false)
       setisSignIn(!isSignin)
-      dispatch(signonActions.signinFailedReset())
+      dispatch(signOnActionsLegacy.signinFailedReset())
       Keyboard.dismiss()
     }
   }
@@ -585,6 +585,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
             setAttemptedPassword(true)
             setShowDefaultError(false)
             setPassword(newText)
+            dispatch(signOnActions.setValueField('password', newText))
           }}
           onFocus={() => {
             setPassBorderColor('#7E1BCC')
@@ -637,7 +638,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
                   setShowDefaultError(true)
                 }
               } else if (emailIsAvailable && emailStatus === 'done') {
-                dispatch(signonActions.signinFailedReset())
+                dispatch(signOnActionsLegacy.signinFailedReset())
                 setIsWorking(false)
                 navigation.replace('CreatePassword', { email })
               }
@@ -665,7 +666,10 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }
 
   const validateEmail = (email: string) => {
-    dispatch(signonActions.setEmailStatus('editing'))
+    dispatch(signOnActions.setValueField('email', email))
+    dispatch(signOnActions.validateEmail(email))
+    // TODO: Remove after reloaded
+    dispatch(signOnActionsLegacy.setEmailStatus('editing'))
     dispatchWeb({
       type: MessageType.SIGN_UP_VALIDATE_AND_CHECK_EMAIL,
       email,
@@ -675,7 +679,9 @@ const SignOn = ({ navigation }: SignOnProps) => {
 
   const signIn = () => {
     setIsWorking(true)
-    dispatch(signonActions.signinFailedReset())
+    dispatch(signOnActions.signIn(email, password))
+    // TODO: Remove after reloaded
+    dispatch(signOnActionsLegacy.signinFailedReset())
     dispatchWeb({
       type: MessageType.SUBMIT_SIGNIN,
       email,
