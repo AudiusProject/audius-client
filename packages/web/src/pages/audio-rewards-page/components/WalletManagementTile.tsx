@@ -24,7 +24,7 @@ import {
   getAccountTotalBalance
 } from 'common/store/wallet/selectors'
 import { formatWei } from 'common/utils/wallet'
-import { CoinbasePayButtonCustom } from 'components/coinbase-pay-button/CoinbasePayButtonCustom'
+import { CoinbasePayButtonCustom } from 'components/coinbase-pay-button'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { isMobile } from 'utils/clientUtil'
 
