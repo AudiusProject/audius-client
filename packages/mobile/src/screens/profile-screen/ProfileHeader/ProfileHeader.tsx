@@ -17,7 +17,7 @@ import { ProfileMetrics } from '../ProfileMetrics'
 import { ProfilePicture } from '../ProfilePicture'
 import { TipAudioButton } from '../TipAudioButton'
 import { UploadTrackButton } from '../UploadTrackButton'
-import { useSelectProfile, useSelectProfileRoot } from '../selectors'
+import { useSelectProfile } from '../selectors'
 
 import { CollapsedSection } from './CollapsedSection'
 import { ExpandHeaderToggleButton } from './ExpandHeaderToggleButton'
@@ -47,19 +47,15 @@ type ProfileHeaderProps = {
 export const ProfileHeader = (props: ProfileHeaderProps) => {
   const { scrollY } = props
   const styles = useStyles()
-  const profile = useSelectProfileRoot([
-    'user_id',
-    'does_current_user_follow',
-    'current_user_followee_follow_count'
-  ])
   const accountId = useSelectorWeb(getUserId)
-  const { tier = 'none' } = useSelectTierInfo(profile?.user_id ?? 0)
-  const hasTier = tier !== 'none'
-  const isOwner = profile?.user_id === accountId
-  const hasMutuals =
-    !isOwner && (profile?.current_user_followee_follow_count ?? 0) > 0
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
+  const [isExpanded, setIsExpanded] = useToggle(false)
+  const [isExpansible, setIsExpansible] = useState(false)
+
   const {
+    user_id: userId,
+    does_current_user_follow: doesCurrentUserFollow,
+    current_user_followee_follow_count: currentUserFolloweeFollowCount,
     website,
     donation,
     twitter_handle: twitterHandle,
@@ -67,6 +63,9 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
     tiktok_handle: tikTokHandle,
     supporting_count: supportingCount
   } = useSelectProfile([
+    'user_id',
+    'does_current_user_follow',
+    'current_user_followee_follow_count',
     'website',
     'donation',
     'twitter_handle',
@@ -74,46 +73,31 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
     'tiktok_handle',
     'supporting_count'
   ])
+  const { tier = 'none' } = useSelectTierInfo(userId)
+  const hasTier = tier !== 'none'
+  const isOwner = userId === accountId
+  const hasMutuals = !isOwner && currentUserFolloweeFollowCount > 0
   const hasMultipleSocials =
     [website, donation, twitterHandle, instagramHandle, tikTokHandle].filter(
       Boolean
     ).length > 1
   const isSupporting = supportingCount > 0
-  const [isExpanded, setIsExpanded] = useToggle(false)
-  const [isExpansible, setIsExpansible] = useState(false)
+  // Note: we also if the profile bio is longer than 3 lines, but that's handled in the Bio component.
+  const shouldExpand =
+    hasTier || hasMutuals || hasMultipleSocials || isSupporting
 
-  /**
-   * Collapse the component by default if:
-   * - profile has a badge tier
-   * - profile has mutuals followed accounts with current user
-   * - profile has more than one link
-   * - profile is supporting (has tipped) other users
-   *
-   * Note: we also collapse if the profile bio is longer than 3 lines,
-   * but that's handled in the Bio component.
-   */
   useEffect(() => {
-    if (
-      !isExpansible &&
-      (hasTier || hasMutuals || hasMultipleSocials || isSupporting)
-    ) {
+    if (!isExpansible && shouldExpand) {
       setIsExpansible(true)
     }
-  }, [
-    isExpansible,
-    setIsExpansible,
-    hasTier,
-    hasMutuals,
-    hasMultipleSocials,
-    isSupporting
-  ])
+  }, [shouldExpand, isExpansible, setIsExpansible])
 
   const handleFollow = useCallback(() => {
-    if (!profile?.does_current_user_follow) {
+    if (!doesCurrentUserFollow) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       setHasUserFollowed(true)
     }
-  }, [setHasUserFollowed, profile])
+  }, [setHasUserFollowed, doesCurrentUserFollow])
 
   const handleCloseArtistRecs = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
