@@ -1510,7 +1510,9 @@ export const audiusBackend = ({
         response = await audiusLibs.EntityManager.createPlaylist({
           ...metadata,
           playlist_id: playlistId,
-          playlist_contents: { track_ids: trackIds }
+          playlist_contents: { track_ids: trackIds },
+          is_album: isAlbum,
+          is_private: isPrivate
         })
         const { blockHash, blockNumber, error } = response
         if (error) return { playlistId, error }
