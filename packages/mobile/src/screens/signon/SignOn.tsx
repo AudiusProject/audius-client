@@ -649,7 +649,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
                   // in case email is what was wrong with the credentials
                   setShowDefaultError(true)
                 }
-              } else if (emailIsAvailable && emailStatus === 'done') {
+              } else if (emailIsAvailable && emailStatus === 'success') {
                 dispatch(signOnActionsLegacy.signinFailedReset())
                 setIsWorking(false)
                 navigation.replace('CreatePassword', { email })
