@@ -1297,6 +1297,7 @@ type BuyAudioFailure = {
   requestedAudio: number
   stage: string
   error: string
+}
 
 type RewardsClaimStartCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
