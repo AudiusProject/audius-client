@@ -41,7 +41,9 @@ import {
   swapStarted,
   transferStarted,
   transferCompleted,
-  clearFeesCache
+  clearFeesCache,
+  calculateAudioPurchaseInfoFailed,
+  PurchaseInfoErrorType
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import {
@@ -73,6 +75,9 @@ const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to sp
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
 const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
 let _jup: Jupiter
+
+const MIN_AUDIO_AMOUNT = 6
+const MAX_AUDIO_AMOUNT = 999
 
 /**
  * Initializes Jupiter singleton if necessary and returns
@@ -393,6 +398,25 @@ function* getAudioPurchaseInfo({
   payload: { audioAmount }
 }: ReturnType<typeof calculateAudioPurchaseInfo>) {
   try {
+    // Fail early if audioAmount is too small/large
+    if (audioAmount > MAX_AUDIO_AMOUNT) {
+      yield* put(
+        calculateAudioPurchaseInfoFailed({
+          errorType: PurchaseInfoErrorType.MAX_AUDIO_EXCEEDED,
+          maxAudio: MAX_AUDIO_AMOUNT
+        })
+      )
+      return
+    } else if (audioAmount < MIN_AUDIO_AMOUNT) {
+      yield* put(
+        calculateAudioPurchaseInfoFailed({
+          errorType: PurchaseInfoErrorType.MIN_AUDIO_EXCEEDED,
+          minAudio: MIN_AUDIO_AMOUNT
+        })
+      )
+      return
+    }
+
     // Ensure userbank is created
     yield* fork(function* () {
       yield* call(createUserBankIfNeeded)
