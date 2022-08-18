@@ -5,7 +5,7 @@ import {
   makeUid,
   makeKindId
 } from '@audius/common'
-import { merge } from 'lodash'
+import { omit, merge } from 'lodash'
 import {
   call,
   delay,
@@ -85,7 +85,10 @@ function* fetchProfileCustomizedCollectibles(user) {
         cacheActions.update(Kind.USERS, [
           {
             id: user.user_id,
-            metadata: { ...metadata, collectiblesOrderUnset: true }
+            metadata: {
+              ...omit(metadata, 'is_verified'),
+              collectiblesOrderUnset: true
+            }
           }
         ])
       )
