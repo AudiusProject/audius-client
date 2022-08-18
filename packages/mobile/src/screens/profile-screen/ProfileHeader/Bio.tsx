@@ -20,8 +20,8 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
 }))
 
 type BioProps = TextProps & {
-  isExpansible: boolean
-  setIsExpansible: (isExpansible: boolean) => void
+  isExpansible?: boolean
+  setIsExpansible?: (isExpansible: boolean) => void
 }
 
 export const Bio = (props: BioProps) => {
@@ -37,7 +37,7 @@ export const Bio = (props: BioProps) => {
       <View pointerEvents='none'>
         <Text
           onTextLayout={(e) => {
-            if (e.nativeEvent.lines.length > MAX_BIO_LINES) {
+            if (setIsExpansible && e.nativeEvent.lines.length > MAX_BIO_LINES) {
               setIsExpansible(true)
             }
           }}
