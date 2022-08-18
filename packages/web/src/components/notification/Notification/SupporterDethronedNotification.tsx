@@ -4,10 +4,10 @@ import { Name, Nullable } from '@audius/common'
 
 import crown from 'assets/img/crown2x.png'
 import { useSelector } from 'common/hooks/useSelector'
+import { make } from 'common/store/analytics/actions'
 import { getUser } from 'common/store/cache/users/selectors'
 import { getNotificationUser } from 'common/store/notifications/selectors'
 import { SupporterDethroned } from 'common/store/notifications/types'
-import { make } from 'store/analytics/actions'
 
 import styles from './SupporterDethronedNotification.module.css'
 import { NotificationBody } from './components/NotificationBody'
@@ -29,7 +29,7 @@ const messages = {
   body1: ' Dethroned You as ',
   body2: "'s #1 Top Supporter! Tip to Reclaim Your Spot?",
   twitterShare: (usurperHandle: string, supportingHandle: string) =>
-    `${usurperHandle} Dethroned Me as ${supportingHandle}'s #1 Top Supporter! #Audius $AUDIO #AUDIOTip`
+    `I've been dethroned! ${usurperHandle} dethroned me as ${supportingHandle}'s #1 Top Supporter! #Audius $AUDIO #AUDIOTip`
 }
 
 const Crown = () => (

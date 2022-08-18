@@ -1,3 +1,4 @@
+import { IntKeys, Name } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
@@ -21,6 +22,8 @@ import {
   fork
 } from 'typed-redux-saga/macro'
 
+import { getContext } from 'common/store'
+import { make } from 'common/store/analytics/actions'
 import {
   JupiterTokenSymbol,
   TOKEN_LISTING_MAP
@@ -42,12 +45,15 @@ import {
   transferStarted,
   transferCompleted,
   clearFeesCache,
-  OnRampProvider
+  OnRampProvider,
+  calculateAudioPurchaseInfoFailed,
+  PurchaseInfoErrorType
 } from 'common/store/buy-audio/slice'
 import { increaseBalance } from 'common/store/wallet/slice'
 import {
   convertJSBIToAmountObject,
   convertWAudioToWei,
+  formatWei,
   weiToString
 } from 'common/utils/wallet'
 import {
@@ -407,10 +413,46 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   }
 }
 
+function* getAudioPurchaseBounds() {
+  const DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT = 5
+  const DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT = 999
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call([remoteConfigInstance, remoteConfigInstance.waitForRemoteConfig])
+  const minAudioAmount =
+    remoteConfigInstance.getRemoteVar(IntKeys.MIN_AUDIO_PURCHASE_AMOUNT) ??
+    DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT
+  const maxAudioAmount =
+    remoteConfigInstance.getRemoteVar(IntKeys.MAX_AUDIO_PURCHASE_AMOUNT) ??
+    DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT
+  return { minAudioAmount, maxAudioAmount }
+}
+
 function* getAudioPurchaseInfo({
   payload: { audioAmount }
 }: ReturnType<typeof calculateAudioPurchaseInfo>) {
   try {
+    // Fail early if audioAmount is too small/large
+    const { minAudioAmount, maxAudioAmount } = yield* call(
+      getAudioPurchaseBounds
+    )
+    if (audioAmount > maxAudioAmount) {
+      yield* put(
+        calculateAudioPurchaseInfoFailed({
+          errorType: PurchaseInfoErrorType.MAX_AUDIO_EXCEEDED,
+          maxAudio: maxAudioAmount
+        })
+      )
+      return
+    } else if (audioAmount < minAudioAmount) {
+      yield* put(
+        calculateAudioPurchaseInfoFailed({
+          errorType: PurchaseInfoErrorType.MIN_AUDIO_EXCEEDED,
+          minAudio: minAudioAmount
+        })
+      )
+      return
+    }
+
     // Ensure userbank is created
     yield* fork(function* () {
       yield* call(createUserBankIfNeeded)
@@ -513,6 +555,13 @@ function* startBuyAudioFlow({
   payload: { desiredAudioAmount, estimatedSOL }
 }: ReturnType<typeof onRampOpened>) {
   try {
+    // Record start
+    yield* put(
+      make(Name.BUY_AUDIO_ON_RAMP_OPENED, {
+        provider: 'coinbase'
+      })
+    )
+
     // Setup
     const rootAccount: Keypair = yield* call(getRootSolanaAccount)
     const connection = yield* call(getSolanaConnection)
@@ -543,8 +592,12 @@ function* startBuyAudioFlow({
 
     // If the user didn't complete the on ramp flow, return early
     if (result.canceled) {
+      yield* put(
+        make(Name.BUY_AUDIO_ON_RAMP_CANCELED, { provider: 'coinbase' })
+      )
       return
     }
+    yield* put(make(Name.BUY_AUDIO_ON_RAMP_SUCCESS, { provider: 'coinbase' }))
 
     // Wait for the SOL funds to come through
     const newBalance = yield* call(pollForSolBalanceChange, {
@@ -652,15 +705,40 @@ function* startBuyAudioFlow({
     yield* put(transferCompleted())
 
     // Update wallet balance optimistically
-    const outputAmount = weiToString(convertWAudioToWei(transferAmount))
+    const outputAmount = convertWAudioToWei(transferAmount)
     yield* put(
       increaseBalance({
-        amount: outputAmount
+        amount: weiToString(outputAmount)
+      })
+    )
+
+    // Record success
+    yield* put(
+      make(Name.BUY_AUDIO_SUCCESS, {
+        provider: 'coinbase',
+        requestedAudio: desiredAudioAmount.uiAmount,
+        actualAudio: parseFloat(formatWei(outputAmount).replaceAll(',', '')),
+        surplusAudio: parseFloat(
+          formatWei(
+            convertWAudioToWei(
+              // eslint-disable-next-line new-cap
+              transferAmount.sub(new u64(desiredAudioAmount.amount))
+            )
+          ).replaceAll(',', '')
+        )
       })
     )
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudioFlow failed at stage', stage, 'with error:', e)
+    console.error('BuyAudio failed at stage', stage, 'with error:', e)
+    yield* put(
+      make(Name.BUY_AUDIO_FAILURE, {
+        provider: 'coinbase',
+        stage,
+        requestedAudio: desiredAudioAmount.uiAmount,
+        error: (e as Error).message
+      })
+    )
   }
 }
 

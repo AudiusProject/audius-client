@@ -18,6 +18,7 @@ import {
   getAccountOwnedPlaylistIds,
   getAccountToCache
 } from 'common/store/account/selectors'
+import { identify } from 'common/store/analytics/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
@@ -36,7 +37,6 @@ import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import { fingerprintClient } from 'services/fingerprint'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
 import { setSentryUser } from 'services/sentry'
-import { identify } from 'store/analytics/actions'
 import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
 import {
   Permission,
@@ -63,15 +63,17 @@ const IP_STORAGE_KEY = 'user-ip-timestamp'
 
 function* recordIPIfNotRecent(handle) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const localStorage = yield getContext('localStorage')
   const timeBetweenRefresh = 24 * 60 * 60 * 1000
   const now = Date.now()
   const minAge = now - timeBetweenRefresh
-  const storedIPStr = window.localStorage.getItem(IP_STORAGE_KEY)
+  const storedIPStr = yield call([localStorage, 'getItem'], IP_STORAGE_KEY)
   const storedIP = storedIPStr && JSON.parse(storedIPStr)
   if (!storedIP || !storedIP[handle] || storedIP[handle].timestamp < minAge) {
     const { userIP, error } = yield call(recordIP, audiusBackendInstance)
     if (!error) {
-      window.localStorage.setItem(
+      yield call(
+        [localStorage, 'setItem'],
         IP_STORAGE_KEY,
         JSON.stringify({ ...storedIP, [handle]: { userIP, timestamp: now } })
       )
@@ -83,6 +85,7 @@ function* recordIPIfNotRecent(handle) {
 // recording metrics, setting user data
 function* onFetchAccount(account) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const isNativeMobile = yield getContext('isNativeMobile')
   if (account && account.handle) {
     // Set analytics user context
     const traits = {
@@ -93,7 +96,7 @@ function* onFetchAccount(account) {
     setSentryUser(account, traits)
   }
 
-  if (shouldRequestBrowserPermission()) {
+  if (!isNativeMobile && shouldRequestBrowserPermission()) {
     setHasRequestedBrowserPermission()
     yield put(accountActions.showPushNotificationConfirmation())
   }
@@ -164,6 +167,7 @@ export function* fetchAccountAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const localStorage = yield getContext('localStorage')
+  const isNativeMobile = yield getContext('isNativeMobile')
 
   let fromSource = false
   if (action) {
@@ -205,28 +209,30 @@ export function* fetchAccountAsync(action) {
     yield call([localStorage, 'clearAudiusAccountUser'])
     // If the user is not signed in
     // Remove browser has requested push notifications.
-    removeHasRequestedBrowserPermission()
-    const browserPushSubscriptionStatus = yield call(
-      fetchBrowserPushNotifcationStatus
-    )
-    if (
-      browserPushSubscriptionStatus === Permission.GRANTED &&
-      isPushManagerAvailable
-    ) {
-      const subscription = yield call(getPushManagerBrowserSubscription)
-      yield call(audiusBackendInstance.disableBrowserNotifications, {
-        subscription
-      })
-    } else if (
-      browserPushSubscriptionStatus === Permission.GRANTED &&
-      isSafariPushAvailable
-    ) {
-      const safariSubscription = yield call(getSafariPushBrowser)
-      if (safariSubscription.permission === Permission.GRANTED) {
-        yield call(
-          audiusBackendInstance.deregisterDeviceToken,
-          safariSubscription.deviceToken
-        )
+    if (!isNativeMobile) {
+      removeHasRequestedBrowserPermission()
+      const browserPushSubscriptionStatus = yield call(
+        fetchBrowserPushNotifcationStatus
+      )
+      if (
+        browserPushSubscriptionStatus === Permission.GRANTED &&
+        isPushManagerAvailable
+      ) {
+        const subscription = yield call(getPushManagerBrowserSubscription)
+        yield call(audiusBackendInstance.disableBrowserNotifications, {
+          subscription
+        })
+      } else if (
+        browserPushSubscriptionStatus === Permission.GRANTED &&
+        isSafariPushAvailable
+      ) {
+        const safariSubscription = yield call(getSafariPushBrowser)
+        if (safariSubscription.permission === Permission.GRANTED) {
+          yield call(
+            audiusBackendInstance.deregisterDeviceToken,
+            safariSubscription.deviceToken
+          )
+        }
       }
     }
     return
@@ -257,6 +263,7 @@ function* cacheAccount(account) {
       { id: account.user_id, uid: 'USER_ACCOUNT', metadata: account }
     ])
   )
+
   const hasFavoritedItem =
     collections.some((playlist) => playlist.user.id !== account.user_id) ||
     account.track_save_count > 0

@@ -9,6 +9,7 @@ import { connect } from 'react-redux'
 import { withRouter, matchPath } from 'react-router-dom'
 
 import { getHasAccount } from 'common/store/account/selectors'
+import { make } from 'common/store/analytics/actions'
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import * as discoverPageAction from 'common/store/pages/feed/actions'
 import { feedActions } from 'common/store/pages/feed/lineup/actions'
@@ -17,9 +18,8 @@ import {
   makeGetSuggestedFollows,
   getFeedFilter
 } from 'common/store/pages/feed/selectors'
+import { openSignOn } from 'common/store/pages/signon/actions'
 import { makeGetCurrent } from 'common/store/queue/selectors'
-import { openSignOn } from 'pages/sign-on/store/actions'
-import { make } from 'store/analytics/actions'
 import { getPlaying, getBuffering } from 'store/player/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_PAGE } from 'utils/route'

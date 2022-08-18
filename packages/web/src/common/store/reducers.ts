@@ -16,6 +16,7 @@ import cast from 'common/store/cast/slice'
 import changePasswordReducer, {
   ChangePasswordState
 } from 'common/store/change-password/slice'
+import confirmer from 'common/store/confirmer/reducer'
 import notifications from 'common/store/notifications/reducer'
 import audioRewardsSlice from 'common/store/pages/audio-rewards/slice'
 import collection from 'common/store/pages/collection/reducer'
@@ -33,6 +34,7 @@ import searchResults from 'common/store/pages/search-results/reducer'
 import { SearchPageState } from 'common/store/pages/search-results/types'
 import settings from 'common/store/pages/settings/reducer'
 import { SettingsPageState } from 'common/store/pages/settings/types'
+import signOnReducer from 'common/store/pages/signon/reducer'
 import smartCollection from 'common/store/pages/smart-collection/slice'
 import tokenDashboardSlice from 'common/store/pages/token-dashboard/slice'
 import track from 'common/store/pages/track/reducer'
@@ -86,6 +88,8 @@ import supportingUserListReducer from 'common/store/user-list/supporting/reducer
 import topSupportersUserListReducer from 'common/store/user-list/top-supporters/reducers'
 import wallet from 'common/store/wallet/slice'
 
+import { ConfirmerState } from './confirmer/types'
+
 /**
  * A function that creates common reducers. The function takes
  * a CommonStoreContext as input such that platforms (native and web)
@@ -94,9 +98,12 @@ import wallet from 'common/store/wallet/slice'
  */
 export const reducers = () => ({
   account: accountSlice.reducer,
+  signOn: signOnReducer,
 
   // Config
   backend,
+  confirmer,
+
   reachability,
 
   // Cache
@@ -176,12 +183,14 @@ export const reducers = () => ({
 
 export type CommonState = {
   account: ReturnType<typeof accountSlice.reducer>
+  signOn: ReturnType<typeof signOnReducer>
 
   // Config
   backend: BackendState
   reachability: ReachabilityState
 
   // Cache
+  confirmer: ConfirmerState
   collections: Cache<Collection>
   tracks: TracksCacheState
   users: UsersCacheState
