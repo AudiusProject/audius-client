@@ -54,7 +54,7 @@ export const reportToSentry = async ({
         console.debug(
           `Additional error info: ${JSON.stringify(additionalInfo)}`
         )
-        scope.setExtras(additionalInfo)
+        scope.setExtra(additionalInfo)
       }
       if (name) {
         error.name = name
