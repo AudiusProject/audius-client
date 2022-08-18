@@ -5,7 +5,7 @@ import {
   makeUid,
   makeKindId
 } from '@audius/common'
-import { omit, merge } from 'lodash'
+import { merge } from 'lodash'
 import {
   call,
   delay,
