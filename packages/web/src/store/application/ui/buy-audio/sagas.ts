@@ -22,6 +22,7 @@ import {
   fork
 } from 'typed-redux-saga/macro'
 
+import { make } from 'common/store/analytics/actions'
 import {
   JupiterTokenSymbol,
   TOKEN_LISTING_MAP
@@ -66,7 +67,6 @@ import {
   createUserBankIfNeeded,
   getUserBank
 } from 'services/audius-backend/waudio'
-import { make } from 'store/analytics/actions'
 
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
