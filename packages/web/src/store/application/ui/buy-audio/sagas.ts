@@ -20,7 +20,7 @@ import {
   take,
   race,
   fork
-} from 'typed-redux-saga/macro'
+} from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import {
