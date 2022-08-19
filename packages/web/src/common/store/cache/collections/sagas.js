@@ -338,11 +338,17 @@ function* editPlaylistAsync(action) {
 
 function* confirmEditPlaylist(playlistId, userId, formFields) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
+
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.updatePlaylist,
           playlistId,
@@ -482,7 +488,13 @@ function* confirmAddTrackToPlaylist(
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.addPlaylistTrack,
           playlistId,
@@ -558,6 +570,7 @@ function* confirmAddTrackToPlaylist(
       {
         operationId: PlaylistOperations.ADD_TRACK,
         parallelizable: !playlistEntityManagerIsEnabled,
+        useOnlyLastSuccessCall: !playlistEntityManagerIsEnabled,
         squashable: playlistEntityManagerIsEnabled
       }
     )
@@ -664,7 +677,14 @@ function* confirmRemoveTrackFromPlaylist(
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
+
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the delete playlist track once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to delete track from playlist
         let { blockHash, blockNumber, error } = yield call(
@@ -746,6 +766,7 @@ function* confirmRemoveTrackFromPlaylist(
       {
         operationId: PlaylistOperations.REMOVE_TRACK,
         parallelizable: !playlistEntityManagerIsEnabled,
+        useOnlyLastSuccessCall: !playlistEntityManagerIsEnabled,
         squashable: playlistEntityManagerIsEnabled
       }
     )
@@ -780,8 +801,6 @@ function* orderPlaylistAsync(action) {
       })
     }
   }
-  playlist.playlist_contents.track_ids =
-    updatedPlaylist.playlist_contents.track_ids
 
   yield call(
     confirmOrderPlaylist,
@@ -805,9 +824,16 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the order playlist tracks once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to order playlist
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
+
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.orderPlaylist,
           playlistId,
@@ -922,7 +948,14 @@ function* confirmPublishPlaylist(userId, playlistId, playlist) {
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
+
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.publishPlaylist,
           playlistId,
@@ -1133,7 +1166,14 @@ function* confirmDeletePlaylist(userId, playlistId) {
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
-      function* () {
+      function* (confirmedPlaylistId) {
+        const playlistEntityManagerIsEnabled = getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )
+        if (!playlistEntityManagerIsEnabled) {
+          playlistId = confirmedPlaylistId
+        }
+
         // Optimistically mark playlist as removed
         yield all([
           put(

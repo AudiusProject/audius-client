@@ -1,3 +1,5 @@
+// get a temporary ID for legacy playlist creation flow
+// get a playlist ID to be used as the real one for entity manager playlist creation
 export const getTempPlaylistId = () => {
   // Minimum playlist ID, intentionally higher than legacy playlist ID range
   const MIN_PLAYLIST_ID = 400000
