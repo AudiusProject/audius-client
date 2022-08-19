@@ -26,6 +26,8 @@ import {
   fetchUserSocials
 } from 'common/store/cache/users/sagas'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
+import * as confirmerActions from 'common/store/confirmer/actions'
+import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as profileActions from 'common/store/pages/profile/actions'
 import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
@@ -42,8 +44,6 @@ import { squashNewLines } from 'common/utils/formatUtil'
 import { fetchCID } from 'services/audius-backend'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
-import * as confirmerActions from 'store/confirmer/actions'
-import { confirmTransaction } from 'store/confirmer/sagas'
 import { isMobile } from 'utils/clientUtil'
 import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
@@ -64,7 +64,7 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const metadata = yield call(
+    const { is_verified: ignored_is_verified, ...metadata } = yield call(
       fetchCID,
       cid,
       gateways,
@@ -85,7 +85,10 @@ function* fetchProfileCustomizedCollectibles(user) {
         cacheActions.update(Kind.USERS, [
           {
             id: user.user_id,
-            metadata: { ...metadata, collectiblesOrderUnset: true }
+            metadata: {
+              ...metadata,
+              collectiblesOrderUnset: true
+            }
           }
         ])
       )

@@ -21,8 +21,15 @@ import {
   getConnectivityFailure,
   getUserHandle
 } from 'common/store/account/selectors'
+import { make } from 'common/store/analytics/actions'
 import { getWeb3Error } from 'common/store/backend/selectors'
 import { ExploreCollectionsVariant } from 'common/store/pages/explore/types'
+import {
+  openSignOn,
+  updateRouteOnCompletion as updateRouteOnSignUpCompletion
+} from 'common/store/pages/signon/actions'
+import { getStatus as getSignOnStatus } from 'common/store/pages/signon/selectors'
+import { Pages as SignOnPages } from 'common/store/pages/signon/types'
 import { setTheme } from 'common/store/ui/theme/actions'
 import { getTheme } from 'common/store/ui/theme/selectors'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
@@ -63,12 +70,6 @@ import RepostsPage from 'pages/reposts-page/RepostsPage'
 import RequiresUpdate from 'pages/requires-update/RequiresUpdate'
 import SavedPage from 'pages/saved-page/SavedPage'
 import SearchPage from 'pages/search-page/SearchPage'
-import {
-  openSignOn,
-  updateRouteOnCompletion as updateRouteOnSignUpCompletion
-} from 'pages/sign-on/store/actions'
-import { getStatus as getSignOnStatus } from 'pages/sign-on/store/selectors'
-import { Pages as SignOnPages } from 'pages/sign-on/store/types'
 import TrackPage from 'pages/track-page/TrackPage'
 import TrendingPage from 'pages/trending-page/TrendingPage'
 import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage'
@@ -78,7 +79,6 @@ import Visualizer from 'pages/visualizer/Visualizer'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'
-import { make } from 'store/analytics/actions'
 import { setVisibility as setAppModalCTAVisibility } from 'store/application/ui/app-cta-modal/slice'
 import { getShowCookieBanner } from 'store/application/ui/cookieBanner/selectors'
 import {

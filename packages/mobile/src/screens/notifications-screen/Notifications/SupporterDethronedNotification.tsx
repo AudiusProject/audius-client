@@ -10,8 +10,8 @@ import IconCrownSource from 'app/assets/images/crown2x.png'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
-import { make } from 'app/utils/analytics'
 
 import {
   NotificationBody,
@@ -33,7 +33,7 @@ const messages = {
   body1: ' Dethroned You as ',
   body2: "'s #1 Top Supporter! Tip to Reclaim Your Spot?",
   twitterShare: (usurperHandle: string, supportingHandle: string) =>
-    `${usurperHandle} Dethroned Me as ${supportingHandle}'s #1 Top Supporter! #Audius $AUDIO #AUDIOTip`
+    `I've been dethroned! ${usurperHandle} dethroned me as ${supportingHandle}'s #1 Top Supporter! #Audius $AUDIO #AUDIOTip`
 }
 
 export const SupporterDethronedNotification = (

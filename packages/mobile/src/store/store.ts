@@ -41,7 +41,7 @@ export type AppState = {
   oauth: OAuthState
   remoteConfig: RemoteConfigState
   search: SearchState
-  signon: SignonState
+  signOnLegacy: SignonState
   web: WebState
 }
 
@@ -58,13 +58,16 @@ const createRootReducer = () =>
     oauth,
     remoteConfig,
     search,
-    signon,
+    // Sign on store that is part of the mobile client
+    // Should be entirely removed in favor of the shared common
+    // sign on store
+    signOnLegacy: signon,
     web
   })
 
 const sagaMiddleware = createSagaMiddleware({ context: storeContext })
 const middlewares = applyMiddleware(sagaMiddleware)
-const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 })
+const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 250 })
 export const store = createStore(
   createRootReducer(),
   composeEnhancers(middlewares)

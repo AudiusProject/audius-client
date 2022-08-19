@@ -13,21 +13,23 @@ import {
   FeedFilter,
   ID,
   IntKeys,
+  Maybe,
   Name,
   Nullable,
   PlaylistTrackId,
   ProfilePictureSizes,
+  RemoteConfigInstance,
   StringKeys,
   Track,
   TrackMetadata,
   User,
   UserMetadata,
   UserTrack,
-  uuid,
-  Maybe,
-  RemoteConfigInstance
+  AnalyticsEvent,
+  uuid
 } from '@audius/common'
-import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
+import { DiscoveryAPI, IdentityAPI } from '@audius/sdk/dist/core'
+import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import {
@@ -209,7 +211,7 @@ type AudiusBackendParams = {
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
-  getFeatureEnabled: (flag: FeatureFlags) => any
+  getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean | null>
   getHostUrl: () => Nullable<string>
   getLibs: () => Promise<any>
   getWeb3Config: (
@@ -220,6 +222,10 @@ type AudiusBackendParams = {
     web3NetworkId: Maybe<string>
   ) => Promise<any>
   fetchCID: FetchCID
+  // Not required on web
+  hedgehogConfig?: {
+    createKey: HedgehogConfig['createKey']
+  }
   identityServiceUrl: Maybe<string>
   isElectron: Maybe<boolean>
   isMobile: Maybe<boolean>
@@ -229,11 +235,7 @@ type AudiusBackendParams = {
   nativeMobile: Maybe<boolean>
   onLibsInit: (libs: any) => void
   recaptchaSiteKey: Maybe<string>
-  recordAnalytics: (
-    event: string,
-    properties?: Record<string, any>,
-    callback?: () => void
-  ) => void
+  recordAnalytics: (event: AnalyticsEvent, callback?: () => void) => void
   registryAddress: Maybe<string>
   entityManagerAddress: Maybe<string>
   remoteConfigInstance: RemoteConfigInstance
@@ -260,6 +262,7 @@ export const audiusBackend = ({
   getLibs,
   getWeb3Config,
   fetchCID,
+  hedgehogConfig,
   identityServiceUrl,
   isElectron,
   isMobile,
@@ -359,9 +362,12 @@ export const audiusBackend = ({
         },
         ({ name, duration }) => {
           console.info(`Recorded event ${name} with duration ${duration}`)
-          recordAnalytics(Name.PERFORMANCE, {
-            metric: name,
-            value: duration
+          recordAnalytics({
+            eventName: Name.PERFORMANCE,
+            properties: {
+              metric: name,
+              value: duration
+            }
           })
         }
       )
@@ -524,9 +530,12 @@ export const audiusBackend = ({
     endpoint: string,
     decisionTree: { stage: string }[]
   ) {
-    recordAnalytics(Name.DISCOVERY_PROVIDER_SELECTION, {
-      endpoint,
-      reason: decisionTree.map((reason) => reason.stage).join(' -> ')
+    recordAnalytics({
+      eventName: Name.DISCOVERY_PROVIDER_SELECTION,
+      properties: {
+        endpoint,
+        reason: decisionTree.map((reason) => reason.stage).join(' -> ')
+      }
     })
     didSelectDiscoveryProviderListeners.forEach((listener) =>
       listener(endpoint)
@@ -538,16 +547,22 @@ export const audiusBackend = ({
     secondaries: string[],
     reason: string
   ) {
-    recordAnalytics(Name.CREATOR_NODE_SELECTION, {
-      endpoint: primary,
-      selectedAs: 'primary',
-      reason
+    recordAnalytics({
+      eventName: Name.CREATOR_NODE_SELECTION,
+      properties: {
+        endpoint: primary,
+        selectedAs: 'primary',
+        reason
+      }
     })
     secondaries.forEach((secondary) => {
-      recordAnalytics(Name.CREATOR_NODE_SELECTION, {
-        endpoint: secondary,
-        selectedAs: 'secondary',
-        reason
+      recordAnalytics({
+        eventName: Name.CREATOR_NODE_SELECTION,
+        properties: {
+          endpoint: secondary,
+          selectedAs: 'secondary',
+          reason
+        }
       })
     })
   }
@@ -633,7 +648,7 @@ export const audiusBackend = ({
           /* passList */ null,
           contentNodeBlockList,
           monitoringCallbacks.contentNode,
-          /* writeQuorumEnabled */ getFeatureEnabled(
+          /* writeQuorumEnabled */ await getFeatureEnabled(
             FeatureFlags.WRITE_QUORUM_ENABLED
           )
         ),
@@ -642,12 +657,13 @@ export const audiusBackend = ({
         // i.e. there is no way to instruct captcha that the domain is "file://"
         captchaConfig: isElectron ? undefined : { siteKey: recaptchaSiteKey },
         isServer: false,
-        preferHigherPatchForPrimary: getFeatureEnabled(
+        preferHigherPatchForPrimary: await getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY
         ),
-        preferHigherPatchForSecondaries: getFeatureEnabled(
+        preferHigherPatchForSecondaries: await getFeatureEnabled(
           FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES
-        )
+        ),
+        hedgehogConfig
       })
       await audiusLibs.init()
       onLibsInit(audiusLibs)
@@ -687,7 +703,6 @@ export const audiusBackend = ({
       !rewardsManagerProgramPda ||
       !rewardsManagerTokenPda
     ) {
-      console.error('Missing solana configs')
       return {
         error: true
       }
@@ -1082,7 +1097,7 @@ export const audiusBackend = ({
       const listen = await audiusLibs.Track.logTrackListen(
         trackId,
         unauthenticatedUuid,
-        getFeatureEnabled(FeatureFlags.SOLANA_LISTEN_ENABLED)
+        await getFeatureEnabled(FeatureFlags.SOLANA_LISTEN_ENABLED)
       )
       return listen
     } catch (err) {
@@ -2030,7 +2045,8 @@ export const audiusBackend = ({
       formFields.coverPhoto,
       hasWallet,
       getHostUrl(),
-      recordAnalytics,
+      (eventName: string, properties: Record<string, unknown>) =>
+        recordAnalytics({ eventName, properties }),
       {
         Request: Name.CREATE_USER_BANK_REQUEST,
         Success: Name.CREATE_USER_BANK_SUCCESS,
@@ -2321,7 +2337,9 @@ export const audiusBackend = ({
   async function signData() {
     const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
     const data = `Click sign to authenticate with identity service: ${unixTs}`
-    const signature = await audiusLibs.Account.web3Manager.sign(data)
+    const signature = await audiusLibs.Account.web3Manager.sign(
+      Buffer.from(data, 'utf-8')
+    )
     return { data, signature }
   }
 
@@ -2667,7 +2685,8 @@ export const audiusBackend = ({
    * @param {playlistId} playlistId playlist id or folder id
    */
   async function updatePlaylistLastViewedAt(playlistId: ID) {
-    if (!getFeatureEnabled(FeatureFlags.PLAYLIST_UPDATES_ENABLED)) return
+    if (!(await getFeatureEnabled(FeatureFlags.PLAYLIST_UPDATES_ENABLED)))
+      return
 
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -3068,9 +3087,15 @@ export const audiusBackend = ({
     }
   }
 
+  async function getAudiusLibs() {
+    await waitForLibsInit()
+    return audiusLibs
+  }
+
   return {
     addDiscoveryProviderSelectionListener,
     addPlaylistTrack,
+    audiusLibs,
     associateAudiusUserForAuth,
     associateInstagramAccount,
     associateTwitterAccount,
@@ -3100,6 +3125,7 @@ export const audiusBackend = ({
     getAddressWAudioBalance,
     getAllTracks,
     getArtistTracks,
+    getAudiusLibs,
     getBalance,
     getBrowserPushNotificationSettings,
     getBrowserPushSubscription,
@@ -3192,6 +3218,7 @@ export const audiusBackend = ({
     uploadTrackToCreatorNode,
     userNodeUrl,
     validateTracksInPlaylist,
+    waitForLibsInit,
     waitForWeb3
   }
 }
