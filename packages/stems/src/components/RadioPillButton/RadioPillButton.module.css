@@ -13,6 +13,7 @@
   padding: 8px;
   border: 2px solid var(--neutral-light-7);
   border-radius: 999px;
+  outline: 0;
 
   font-size: var(--font-2xl);
   font-weight: var(--font-bold);
@@ -32,6 +33,10 @@
   color: var(--white);
   background-color: var(--secondary);
   border-color: var(--secondary);
+}
+.input:focus-within + .labelText:not(:hover) {
+  outline: 2px solid var(--secondary);
+  border-color: white;
 }
 
 .labelText:hover {
