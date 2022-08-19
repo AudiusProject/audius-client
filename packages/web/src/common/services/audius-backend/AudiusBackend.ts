@@ -1516,9 +1516,10 @@ export const audiusBackend = ({
     if (isAlbum) isPrivate = false
 
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
 
       let response
       if (playlistEntityManagerIsEnabled) {
@@ -1603,9 +1604,10 @@ export const audiusBackend = ({
     const description = metadata.description
 
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       if (playlistEntityManagerIsEnabled) {
         const { blockHash, blockNumber } =
           await audiusLibs.EntityManager.updatePlaylist(metadata)
@@ -1613,7 +1615,7 @@ export const audiusBackend = ({
         return { blockHash, blockNumber }
       } else {
         let blockHash, blockNumber
-        const promises = []
+        const promises: Promise<any>[] = []
         if (playlistName) {
           promises.push(
             audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
@@ -1657,9 +1659,10 @@ export const audiusBackend = ({
     playlist: any
   ) {
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       if (playlistEntityManagerIsEnabled) {
         const { blockHash, blockNumber } =
           await audiusLibs.EntityManager.updatePlaylist(playlist)
@@ -1681,9 +1684,10 @@ export const audiusBackend = ({
 
   async function publishPlaylist(playlistId: ID, playlist: Collection) {
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       if (playlistEntityManagerIsEnabled) {
         playlist.is_private = false
         const { blockHash, blockNumber } =
@@ -1709,9 +1713,10 @@ export const audiusBackend = ({
     playlist: Collection
   ) {
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       if (playlistEntityManagerIsEnabled) {
         const { blockHash, blockNumber } =
           await audiusLibs.EntityManager.updatePlaylist(playlist)
@@ -1788,9 +1793,10 @@ export const audiusBackend = ({
 
   async function deletePlaylist(playlistId: ID) {
     try {
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       let txReceipt
       if (playlistEntityManagerIsEnabled) {
         txReceipt = await audiusLibs.EntityManager.deletePlaylist(playlistId)
@@ -1817,9 +1823,10 @@ export const audiusBackend = ({
       const trackDeletionPromises = trackIds.map((t) =>
         audiusLibs.Track.deleteTrack(t.track)
       )
-      const playlistEntityManagerIsEnabled = getFeatureEnabled(
-        FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-      )
+      const playlistEntityManagerIsEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
+        )) ?? false
       let playlistDeletionPromise
       if (playlistEntityManagerIsEnabled) {
         playlistDeletionPromise =

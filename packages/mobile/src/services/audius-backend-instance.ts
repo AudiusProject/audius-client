@@ -127,6 +127,7 @@ export const audiusBackendInstance = audiusBackend({
   recordAnalytics: (event: any, properties: any) =>
     track({ eventName: event, properties }),
   registryAddress: Config.REGISTRY_ADDRESS,
+  entityManagerAddress: Config.ENTITY_MANAGER_ADDRESS,
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) => AsyncStorage.setItem(key, value),
   solanaConfig: {

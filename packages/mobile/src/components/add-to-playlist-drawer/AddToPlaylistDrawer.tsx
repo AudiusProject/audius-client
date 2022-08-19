@@ -14,6 +14,7 @@ import {
 import { FEED_PAGE, playlistPage } from 'audius-client/src/utils/route'
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import { View } from 'react-native'
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
@@ -24,7 +25,6 @@ import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles, shadow } from 'app/styles'
-import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 const messages = {
   title: 'Add To Playlist',

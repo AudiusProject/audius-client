@@ -32,11 +32,7 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { squashNewLines } from 'common/utils/formatUtil'
-import * as signOnActions from 'pages/sign-on/store/actions'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { make } from 'store/analytics/actions'
-import * as confirmerActions from 'store/confirmer/actions'
-import { confirmTransaction } from 'store/confirmer/sagas'
 import { dataURLtoFile } from 'utils/fileUtils'
 import { waitForAccount } from 'utils/sagaHelpers'
 
@@ -76,9 +72,8 @@ function* createPlaylistAsync(action) {
   yield waitForAccount()
   const userId = yield select(getUserId)
   const uid = action.playlistId
-  const playlistEntityManagerIsEnabled = getFeatureEnabled(
-    FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-  )
+  const playlistEntityManagerIsEnabled =
+    getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ?? false
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
     return
@@ -346,9 +341,9 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
+        const playlistEntityManagerIsEnabled =
+          getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ??
+          false
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }
@@ -435,7 +430,7 @@ function* addTrackToPlaylistAsync(action) {
     action.trackId,
     `collection:${action.playlistId}`
   )
-  const web3 = yield audiusLibs.web3Manager.getWeb3()
+  const web3 = yield window.audiusLibs.web3Manager.getWeb3()
   const currentBlockNumber = yield web3.eth.getBlockNumber()
   const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
 
@@ -485,17 +480,13 @@ function* confirmAddTrackToPlaylist(
   playlist
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const playlistEntityManagerIsEnabled = getFeatureEnabled(
-    FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-  )
+  const playlistEntityManagerIsEnabled =
+    getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ?? false
 
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }
@@ -674,17 +665,13 @@ function* confirmRemoveTrackFromPlaylist(
   playlist
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const playlistEntityManagerIsEnabled = getFeatureEnabled(
-    FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-  )
+  const playlistEntityManagerIsEnabled =
+    getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ?? false
 
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }
@@ -831,14 +818,14 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
       function* (confirmedPlaylistId) {
         // NOTE: In an attempt to fix playlists in a corrupted state, only attempt the order playlist tracks once,
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to order playlist
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
+        const playlistEntityManagerIsEnabled =
+          getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ??
+          false
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }
 
-        const { blockHash, blockNumber, error } = yield call(
+        let { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.orderPlaylist,
           playlistId,
           trackIds,
@@ -953,9 +940,9 @@ function* confirmPublishPlaylist(userId, playlistId, playlist) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
+        const playlistEntityManagerIsEnabled =
+          getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ??
+          false
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }
@@ -1171,9 +1158,9 @@ function* confirmDeletePlaylist(userId, playlistId) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        const playlistEntityManagerIsEnabled = getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )
+        const playlistEntityManagerIsEnabled =
+          getFeatureEnabled(FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED) ??
+          false
         if (!playlistEntityManagerIsEnabled) {
           playlistId = confirmedPlaylistId
         }

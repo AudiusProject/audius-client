@@ -34,7 +34,7 @@ try {
   const REACT_APP_USER_NODE = 'http://cn-um_creator-node_1:4099'
 
   const REACT_APP_REGISTRY_ADDRESS = configFile.registryAddress
-  const REACT_APP_DATA_CONTRACT_ADDRESS = configFile.entityManagerProxyAddress
+  const REACT_APP_ENTITY_MANAGER_ADDRESS = configFile.entityManagerProxyAddress
   const REACT_APP_WEB3_PROVIDER_URLS = `http://${HOST}:8545,http://${HOST}:8545`
 
   const REACT_APP_ETH_REGISTRY_ADDRESS = ethConfigFile.registryAddress
