@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import type { Animated } from 'react-native'
-import { LayoutAnimation, View } from 'react-native'
+import { LayoutAnimation, View, Platform, UIManager } from 'react-native'
 import { useToggle } from 'react-use'
 
 import { Divider } from 'app/components/core'
@@ -51,6 +51,12 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
   const isOwner = profile?.user_id === accountId
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const [isExpanded, setIsExpanded] = useToggle(false)
+
+  if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true)
+    }
+  }
 
   const handleFollow = useCallback(() => {
     if (!profile?.does_current_user_follow) {
