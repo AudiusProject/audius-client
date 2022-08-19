@@ -1,15 +1,14 @@
-import { useCallback } from 'react'
+import { useCallback, useRef, useLayoutEffect } from 'react'
 
 import type { ID } from '@audius/common'
 import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import { getOptimisticSupportersForUser } from 'audius-client/src/common/store/tipping/selectors'
 import type { SupportersMapForUser } from 'audius-client/src/common/store/tipping/types'
-import { Text, View } from 'react-native'
+import { LayoutAnimation, Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
-import useLoadingAnimation from 'app/hooks/useLoadingAnimation'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { ProfilePictureList } from 'app/screens/notifications-screen/Notification'
@@ -61,6 +60,18 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontFamily: typography.fontByWeight.bold
   }
 }))
+
+const useLoadingAnimation = (isDepLoaded: () => boolean, dependency: any) => {
+  // Prevents multiple re-renders if the dependency changes.
+  const isLoaded = useRef(false)
+
+  useLayoutEffect(() => {
+    if (isDepLoaded() && !isLoaded.current) {
+      isLoaded.current = true
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    }
+  }, [dependency, isDepLoaded])
+}
 
 export const TopSupporters = () => {
   const styles = useStyles()
