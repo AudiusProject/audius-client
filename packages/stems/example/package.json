@@ -14,14 +14,18 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts-ts": "^3.1.0",
-    "typescript": "^3.6.2"
+    "typescript": "^3.6.2",
+    "@snyk/protect": "latest"
   },
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom"
+    "test": "react-scripts-ts test --env=jsdom",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "devDependencies": {
     "eslint": "^6.3.0"
-  }
+  },
+  "snyk": true
 }
