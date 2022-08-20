@@ -2,29 +2,43 @@ import {
   ChangeEvent,
   ComponentPropsWithoutRef,
   ReactNode,
-  useCallback,
-  useState
+  useCallback
 } from 'react'
 
-import { RadioGroupContext } from './'
+import { useControlled } from 'hooks/useControlled'
+
+import { RadioGroupContext } from './RadioGroupContext'
 
 export type RadioButtonGroupProps = {
   name: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>, value: string) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   children?: ReactNode
+  defaultValue?: string
+  value?: string | null
 } & ComponentPropsWithoutRef<'div'>
 
 export const RadioButtonGroup = (props: RadioButtonGroupProps) => {
-  const { name, onChange, children, ...divProps } = props
-  const [value, setValue] = useState()
+  const {
+    name,
+    onChange,
+    children,
+    value: valueProp,
+    defaultValue,
+    ...divProps
+  } = props
+  const [value, setValueState] = useControlled({
+    controlledProp: valueProp,
+    defaultValue,
+    componentName: 'RadioButtonGroup'
+  })
   const handleChange = useCallback(
-    (value) => {
-      setValue(value)
+    (e) => {
+      setValueState(e.target.value)
       if (onChange) {
-        onChange(value)
+        onChange(e)
       }
     },
-    [setValue, onChange]
+    [setValueState, onChange]
   )
   return (
     <RadioGroupContext.Provider value={{ name, onChange: handleChange, value }}>

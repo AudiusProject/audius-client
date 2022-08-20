@@ -19,9 +19,9 @@ const defaultProps: RadioButtonGroupProps = {
 const Template: Story<RadioButtonGroupProps> = (args) => {
   return (
     <RadioButtonGroup {...defaultProps} {...args}>
-      <RadioPillButton label='5' value={5} />
-      <RadioPillButton label='10' value={10} />
-      <RadioPillButton label='100' value={100} />
+      {['5', '10', '25', '50', '100'].map((v) => (
+        <RadioPillButton label={v} key={v} value={v} />
+      ))}
     </RadioButtonGroup>
   )
 }

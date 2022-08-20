@@ -42,7 +42,7 @@ export const RadioPillButton = (props: RadioPillButtonProps) => {
   const handleChange = useCallback(
     (e) => {
       onChange?.(e.target.value)
-      radioGroup?.onChange?.(e.target.value)
+      radioGroup?.onChange?.(e)
     },
     [onChange, radioGroup]
   )
