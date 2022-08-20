@@ -12,7 +12,7 @@ import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconSettings } from 'assets/img/iconSettings.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
-import { useModalState } from 'common/hooks/useModalState'
+import { useModalState } from '@audius/common'
 import { getHasAssociatedWallets } from 'common/store/pages/token-dashboard/selectors'
 import {
   pressReceive,

@@ -3,8 +3,8 @@ import { ReactNode, useCallback } from 'react'
 import { ErrorBoundary, ErrorBoundaryProps } from 'react-error-boundary'
 import { useDispatch } from 'react-redux'
 
-import { handleError as handleErrorAction } from 'common/store/errors/actions'
-import { Level } from 'common/store/errors/level'
+import { handleError as handleErrorAction } from 'store/errors/actions'
+import { ErrorLevel } from '@audius/common'
 
 type HandleError = NonNullable<ErrorBoundaryProps['onError']>
 
@@ -23,7 +23,7 @@ export const AppErrorBoundary = ({ children }: AppErrorBoundaryProps) => {
           message: error.message,
           shouldRedirect: true,
           additionalInfo: errorInfo,
-          level: Level.Error
+          level: ErrorLevel.Error
         })
       )
     },

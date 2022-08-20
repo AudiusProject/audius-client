@@ -1,4 +1,5 @@
-import { makeGetExplore } from 'audius-client/src/common/store/pages/explore/selectors'
+import { explorePageSelectors } from '@audius/common'
+const { makeGetExplore } = explorePageSelectors
 import { EXPLORE_PAGE } from 'audius-client/src/utils/route'
 
 import { CollectionList } from 'app/components/collection-list'

@@ -1,12 +1,16 @@
+import {
+  profilePageReducer as profile,
+  queueReducer as queue,
+  remoteConfigReducer as remoteConfig,
+  reducers as clientStoreReducers
+} from '@audius/common'
 import { connectRouter } from 'connected-react-router'
 import { History } from 'history'
 import { combineReducers } from 'redux'
 
-import { reducers as clientStoreReducers } from 'common/store'
+import backend from 'common/store/backend/reducer'
+import buyAudioReducer from 'common/store/buy-audio/slice'
 import confirmer from 'common/store/confirmer/reducer'
-import profile from 'common/store/pages/profile/reducer'
-import queue from 'common/store/queue/slice'
-import remoteConfig from 'common/store/remote-config/slice'
 import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
@@ -39,6 +43,8 @@ const createRootReducer = (routeHistory: History) =>
   combineReducers({
     // Common store
     ...commonStoreReducers,
+    // TODO: should be in common
+    backend,
 
     // Router
     router: connectRouter(routeHistory),
@@ -66,7 +72,10 @@ const createRootReducer = (routeHistory: History) =>
 
     // Remote config/flags
     remoteConfig,
-
+    ui: combineReducers({
+      ...commonStoreReducers.ui,
+      buyAudio: buyAudioReducer
+    }),
     application: combineReducers({
       ui: combineReducers({
         appCTAModal,

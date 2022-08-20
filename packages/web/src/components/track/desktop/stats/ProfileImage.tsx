@@ -1,11 +1,12 @@
 import { memo } from 'react'
 
 import { ID, SquareSizes } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
+const { getUser } = cacheUsersSelectors
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { getUser } from 'common/store/cache/users/selectors'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'

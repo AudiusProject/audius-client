@@ -1,4 +1,5 @@
-import { makeGetSearchPlaylists } from 'audius-client/src/common/store/pages/search-results/selectors'
+import { searchResultsPageSelectors } from '@audius/common'
+const { makeGetSearchPlaylists } = searchResultsPageSelectors
 
 import { CollectionList } from 'app/components/collection-list/CollectionList'
 import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'

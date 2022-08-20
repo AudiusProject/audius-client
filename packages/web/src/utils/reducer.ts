@@ -1,7 +1,7 @@
+import { UseSelectorHook } from '@audius/common'
 import { useSelector as untypedUseSelector } from 'react-redux'
 import { Action } from 'redux'
 
-import { UseSelectorHook } from 'common/hooks/useSelector'
 import { AppState } from 'store/types'
 
 /**

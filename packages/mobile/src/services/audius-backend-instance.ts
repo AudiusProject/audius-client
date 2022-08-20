@@ -1,13 +1,14 @@
 import EventEmitter from 'events'
 
+import { audiusBackend } from '@audius/common'
 import * as nativeLibs from '@audius/sdk/dist/native-libs'
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { audiusBackend } from 'audius-client/src/common/services/audius-backend'
 import Config from 'react-native-config'
 import scrypt from 'react-native-scrypt'
 
 import { track } from 'app/services/analytics'
+import { reportToSentry } from 'app/utils/reportToSentry'
 
 import { monitoringCallbacks } from './monitoringCallbacks'
 import { getFeatureEnabled } from './remote-config'
@@ -126,6 +127,7 @@ export const audiusBackendInstance = audiusBackend({
   recaptchaSiteKey: Config.RECAPTCHA_SITE_KEY,
   recordAnalytics: (event: any, properties: any) =>
     track({ eventName: event, properties }),
+  reportError: reportToSentry,
   registryAddress: Config.REGISTRY_ADDRESS,
   entityManagerAddress: Config.ENTITY_MANAGER_ADDRESS,
   remoteConfigInstance,

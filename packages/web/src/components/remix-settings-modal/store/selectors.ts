@@ -1,5 +1,8 @@
-import { getTrack as getCachedTrack } from 'common/store/cache/tracks/selectors'
-import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import { cacheTracksSelectors } from '@audius/common'
+const {  getTrack as getCachedTrack  } = cacheTracksSelectors
+import { cacheUsersSelectors } from '@audius/common'
+const {  getUserFromTrack  } = cacheUsersSelectors
+
 import { AppState } from 'store/types'
 
 const getBaseState = (state: AppState) =>

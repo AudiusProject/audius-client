@@ -1,6 +1,8 @@
 import { useCallback } from 'react'
 
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
+import { modalsActions } from '@audius/common'
+const { setVisibility } = modalsActions
+
 import { View } from 'react-native'
 
 import { IconAudioBadge, TierText } from 'app/components/audio-rewards'

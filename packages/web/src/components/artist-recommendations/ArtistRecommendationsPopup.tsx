@@ -1,10 +1,11 @@
 import { MutableRefObject, useContext } from 'react'
 
 import { ID, User } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
+const { getUser } = cacheUsersSelectors
 import { Popup, PopupPosition } from '@audius/stems'
 import { useSelector } from 'react-redux'
 
-import { getUser } from 'common/store/cache/users/selectors'
 import { MainContentContext } from 'pages/MainContentContext'
 import { AppState } from 'store/types'
 import zIndex from 'utils/zIndex'

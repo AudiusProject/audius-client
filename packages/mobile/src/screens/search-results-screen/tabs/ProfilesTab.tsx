@@ -1,4 +1,5 @@
-import { makeGetSearchArtists } from 'audius-client/src/common/store/pages/search-results/selectors'
+import { searchResultsPageSelectors } from '@audius/common'
+const { makeGetSearchArtists } = searchResultsPageSelectors
 
 import { ArtistCard } from 'app/components/artist-card'
 import { CardList } from 'app/components/core'

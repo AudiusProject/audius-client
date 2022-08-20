@@ -1,13 +1,15 @@
 import { FormEvent, useEffect, useState } from 'react'
 
 import { Status } from '@audius/common'
+import { changePasswordSelectors } from '@audius/common'
+const { getConfirmCredentialsStatus } = changePasswordSelectors
+import { changePasswordActions } from '@audius/common'
+const { confirmCredentials } = changePasswordActions
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 import { Spring } from 'react-spring/renderprops'
 
-import { getConfirmCredentialsStatus } from 'common/store/change-password/selectors'
-import { confirmCredentials } from 'common/store/change-password/slice'
 import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import StatusMessage from 'components/status-message/StatusMessage'

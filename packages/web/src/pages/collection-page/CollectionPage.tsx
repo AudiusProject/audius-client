@@ -1,4 +1,4 @@
-import { SmartCollection } from '@audius/common'
+import { SmartCollection, CollectionsPageType } from '@audius/common'
 import { connect } from 'react-redux'
 
 import { CollectionsPageType } from 'common/store/pages/collection/types'

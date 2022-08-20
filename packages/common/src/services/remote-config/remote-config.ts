@@ -221,6 +221,12 @@ export const remoteConfig = <
    * that is enabled and supposed to return true.
    */
   const waitForUserRemoteConfig = async () => {
+    if (typeof window.addEventListener === 'undefined') {
+      console.error(
+        '`waitForUserRemoteConfig` not comptaible in non-browser environment.'
+      )
+      return
+    }
     if (state.id && state.id > 0) {
       await new Promise<void>((resolve) => onClientReady(resolve))
       return

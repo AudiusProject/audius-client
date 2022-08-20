@@ -1,6 +1,13 @@
 import { useCallback, useState } from 'react'
 
-import { Name, PlaylistLibraryFolder } from '@audius/common'
+import {
+  Name,
+  PlaylistLibraryFolder,
+  accountSelectors,
+  removePlaylistFolderInLibrary,
+  renamePlaylistFolderInLibrary,
+  useModalState
+} from '@audius/common'
 import {
   IconFolder,
   Modal,
@@ -10,13 +17,7 @@ import {
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
-import { useModalState } from 'common/hooks/useModalState'
-import { getPlaylistLibrary } from 'common/store/account/selectors'
 import { make, useRecord } from 'common/store/analytics/actions'
-import {
-  removePlaylistFolderInLibrary,
-  renamePlaylistFolderInLibrary
-} from 'common/store/playlist-library/helpers'
 import FolderForm from 'components/create-playlist/FolderForm'
 import DeleteConfirmationModal from 'components/delete-confirmation/DeleteConfirmationModal'
 import { getFolderId } from 'store/application/ui/editFolderModal/selectors'
@@ -26,6 +27,7 @@ import { useSelector } from 'utils/reducer'
 import { zIndex } from 'utils/zIndex'
 
 import styles from './EditFolderModal.module.css'
+const getPlaylistLibrary = accountSelectors.getPlaylistLibrary
 
 const messages = {
   editFolderModalTitle: 'Edit Folder',

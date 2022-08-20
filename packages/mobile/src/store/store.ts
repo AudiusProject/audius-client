@@ -1,7 +1,8 @@
-import type { CommonState } from 'audius-client/src/common/store'
-import type { RemoteConfigState } from 'audius-client/src/common/store/remote-config/slice'
-import remoteConfig from 'audius-client/src/common/store/remote-config/slice'
-import { reducers as commonReducers } from 'common/store/reducers'
+import type { RemoteConfigState, CommonState } from '@audius/common'
+import {
+  remoteConfigReducer as remoteConfig,
+  reducers as commonReducers
+} from '@audius/common'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'

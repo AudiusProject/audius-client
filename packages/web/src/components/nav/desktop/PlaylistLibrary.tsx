@@ -7,31 +7,24 @@ import {
   PlaylistLibrary as PlaylistLibraryType,
   PlaylistLibraryFolder,
   SmartCollectionVariant,
-  FeatureFlags
-} from '@audius/common'
-import cn from 'classnames'
-import { isEmpty } from 'lodash'
-import { useDispatch } from 'react-redux'
-
-import { useModalState } from 'common/hooks/useModalState'
-import {
-  getAccountCollectibles,
-  getAccountNavigationPlaylists,
-  getAccountUser,
-  getPlaylistLibrary
-} from 'common/store/account/selectors'
-import { make, useRecord } from 'common/store/analytics/actions'
-import { addTrackToPlaylist } from 'common/store/cache/collections/actions'
-import { getPlaylistUpdates } from 'common/store/notifications/selectors'
-import {
+  FeatureFlags,
+  accountSelectors,
+  cacheCollectionsActions,
+  notificationsSelectors,
   addPlaylistToFolder,
   containsTempPlaylist,
   findInPlaylistLibrary,
   getPlaylistsNotInLibrary,
   isInsideFolder,
-  reorderPlaylistLibrary
-} from 'common/store/playlist-library/helpers'
-import { saveSmartCollection } from 'common/store/social/collections/actions'
+  reorderPlaylistLibrary,
+  collectionsSocialActions,
+  useModalState
+} from '@audius/common'
+import cn from 'classnames'
+import { isEmpty } from 'lodash'
+import { useDispatch } from 'react-redux'
+
+import { make, useRecord } from 'common/store/analytics/actions'
 import Droppable from 'components/dragndrop/Droppable'
 import { ToastContext } from 'components/toast/ToastContext'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -50,6 +43,15 @@ import navColumnStyles from './NavColumn.module.css'
 import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
 import styles from './PlaylistLibrary.module.css'
 import { PlaylistNavItem, PlaylistNavLink } from './PlaylistNavItem'
+const { saveSmartCollection } = collectionsSocialActions
+const { getPlaylistUpdates } = notificationsSelectors
+const { addTrackToPlaylist } = cacheCollectionsActions
+const {
+  getAccountCollectibles,
+  getAccountNavigationPlaylists,
+  getAccountUser,
+  getPlaylistLibrary
+} = accountSelectors
 
 type PlaylistLibraryProps = {
   onClickNavLinkWithAccount: () => void

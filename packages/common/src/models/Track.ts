@@ -13,7 +13,7 @@ export interface TrackSegment {
   multihash: CID
 }
 
-interface Followee extends User {
+export interface Followee extends User {
   is_delete: boolean
   repost_item_id: string
   repost_type: string

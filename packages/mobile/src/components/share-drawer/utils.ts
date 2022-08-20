@@ -1,5 +1,5 @@
 import type { UserCollection } from '@audius/common'
-import type { ShareModalContent } from 'audius-client/src/common/store/ui/share-modal/types'
+import { ShareModalContent } from '@audius/common'
 
 import {
   getCollectionRoute,

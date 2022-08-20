@@ -1,5 +1,6 @@
 import { TimeRange } from '@audius/common'
-import { getTrendingGenre } from 'audius-client/src/common/store/pages/trending/selectors'
+import { trendingPageSelectors } from '@audius/common'
+const { getTrendingGenre } = trendingPageSelectors
 
 import IconAllTime from 'app/assets/images/iconAllTime.svg'
 import IconDay from 'app/assets/images/iconDay.svg'

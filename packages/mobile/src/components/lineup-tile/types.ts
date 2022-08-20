@@ -9,7 +9,7 @@ import type {
   Track,
   User
 } from '@audius/common'
-import type { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
+import { RepostType } from '@audius/common'
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 

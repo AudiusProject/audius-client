@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { useModalState } from '@audius/common'
 import {
   Button,
   ButtonType,
@@ -8,7 +9,6 @@ import {
   IconUpload
 } from '@audius/stems'
 
-import { useModalState } from 'common/hooks/useModalState'
 import { InstagramButton } from 'components/instagram-button/InstagramButton'
 import TwitterButton from 'components/twitter-button/TwitterButton'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'

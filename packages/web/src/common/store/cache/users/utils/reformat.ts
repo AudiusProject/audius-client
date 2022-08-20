@@ -1,6 +1,6 @@
 import { UserMetadata } from '@audius/common'
 
-import { AudiusBackend } from 'common/services/audius-backend'
+import { AudiusBackend } from '@audius/common'
 
 /**
  * Sets a user's display name to their handle if it is falsey.

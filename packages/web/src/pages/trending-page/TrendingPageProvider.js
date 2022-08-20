@@ -1,37 +1,46 @@
 import { PureComponent } from 'react'
 
-import { Name, TimeRange } from '@audius/common'
+import {
+  Name,
+  TimeRange,
+  GENRES,
+  accountSelectors,
+  lineupSelectors,
+  trendingPageLineupActions,
+  trendingPageSelectors
+} from '@audius/common'
+import { trendingPageActions as trendingPageActions } from '@audius/common'
 import {
   push as pushRoute,
   replace as replaceRoute
 } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { matchPath, withRouter } from 'react-router-dom'
-
-import { getHasAccount } from 'common/store/account/selectors'
-import { make } from 'common/store/analytics/actions'
-import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
 import { openSignOn } from 'common/store/pages/signon/actions'
-import * as trendingPageActions from 'common/store/pages/trending/actions'
-import {
-  trendingActions,
-  trendingAllTimeActions,
-  trendingMonthActions,
-  trendingWeekActions
-} from 'common/store/pages/trending/lineup/actions'
-import {
+import { make } from 'common/store/analytics/actions'
+
+import { makeGetCurrent } from 'common/store/queue/selectors'
+import { openSignOn } from 'pages/sign-on/store/actions'
+import { make } from 'store/analytics/actions'
+import { getBuffering, getPlaying } from 'store/player/selectors'
+import { isMobile } from 'utils/clientUtil'
+import { getPathname, TRENDING_GENRES } from 'utils/route'
+const {
   getDiscoverTrendingAllTimeLineup,
   getDiscoverTrendingMonthLineup,
   getDiscoverTrendingWeekLineup,
   getLastFetchedTrendingGenre,
   getTrendingGenre,
   getTrendingTimeRange
-} from 'common/store/pages/trending/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import { GENRES } from 'common/utils/genres'
-import { getBuffering, getPlaying } from 'store/player/selectors'
-import { isMobile } from 'utils/clientUtil'
-import { getPathname, TRENDING_GENRES } from 'utils/route'
+} = trendingPageSelectors
+const {
+  trendingActions,
+  trendingAllTimeActions,
+  trendingMonthActions,
+  trendingWeekActions
+} = trendingPageLineupActions
+const { makeGetLineupMetadatas } = lineupSelectors
+const getHasAccount = accountSelectors.getHasAccount
 
 const messages = {
   trendingTitle: 'Trending',

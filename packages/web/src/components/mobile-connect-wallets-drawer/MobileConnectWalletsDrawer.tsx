@@ -1,4 +1,5 @@
-import { useModalState } from 'common/hooks/useModalState'
+import { useModalState } from '@audius/common'
+
 import Drawer from 'components/drawer/Drawer'
 import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
 import { useSelector } from 'utils/reducer'

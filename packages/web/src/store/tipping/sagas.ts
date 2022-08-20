@@ -9,7 +9,21 @@ import {
   User,
   BNWei,
   StringWei,
-  Nullable
+  Nullable,
+  parseAudioInputToWei,
+  stringWeiToBN,
+  weiToAudioString,
+  weiToString,
+  decodeHashId,
+  encodeHashId,
+  accountSelectors,
+  cacheActions,
+  RefreshSupportPayloadAction,
+  tippingSelectors,
+  tippingActions,
+  walletSelectors,
+  walletActions,
+  getContext
 } from '@audius/common'
 import BN from 'bn.js'
 import {
@@ -22,45 +36,8 @@ import {
   cancel
 } from 'typed-redux-saga'
 
-import { getContext } from 'common/store'
-import { getAccountUser } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
-import { update } from 'common/store/cache/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import {
-  getOptimisticSupporters,
-  getOptimisticSupporting,
-  getSendTipData,
-  getSupporters,
-  getSupporting
-} from 'common/store/tipping/selectors'
-import {
-  confirmSendTip,
-  convert,
-  fetchRecentTips,
-  fetchSupportingForUser,
-  refreshSupport,
-  RefreshSupportPayloadAction,
-  sendTipFailed,
-  sendTipSucceeded,
-  setTipToDisplay,
-  setRecentTips,
-  setSupportersForUser,
-  setSupportingForUser,
-  hideTip,
-  setSupportingOverridesForUser,
-  setSupportersOverridesForUser,
-  fetchUserSupporter
-} from 'common/store/tipping/slice'
-import { getAccountBalance } from 'common/store/wallet/selectors'
-import { decreaseBalance } from 'common/store/wallet/slice'
-import { decodeHashId, encodeHashId } from 'common/utils/hashIds'
-import {
-  parseAudioInputToWei,
-  stringWeiToBN,
-  weiToAudioString,
-  weiToString
-} from 'common/utils/wallet'
 import {
   fetchRecentUserTips,
   fetchSupporters,
@@ -78,6 +55,34 @@ import {
 import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import { updateTipsStorage } from './storageUtils'
+const { decreaseBalance } = walletActions
+const { getAccountBalance } = walletSelectors
+const {
+  confirmSendTip,
+  convert,
+  fetchRecentTips,
+  fetchSupportingForUser,
+  refreshSupport,
+  sendTipFailed,
+  sendTipSucceeded,
+  setTipToDisplay,
+  setRecentTips,
+  setSupportersForUser,
+  setSupportingForUser,
+  hideTip,
+  setSupportingOverridesForUser,
+  setSupportersOverridesForUser,
+  fetchUserSupporter
+} = tippingActions
+const {
+  getOptimisticSupporters,
+  getOptimisticSupporting,
+  getSendTipData,
+  getSupporters,
+  getSupporting
+} = tippingSelectors
+const { update } = cacheActions
+const getAccountUser = accountSelectors.getAccountUser
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 

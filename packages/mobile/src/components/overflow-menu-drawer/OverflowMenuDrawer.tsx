@@ -1,8 +1,6 @@
-import { getMobileOverflowModal } from 'audius-client/src/common/store/ui/mobile-overflow-menu/selectors'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
+import { OverflowAction, OverflowSource } from '@audius/common'
+import { mobileOverflowMenuUISelectors } from '@audius/common'
+const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
 
 import ActionDrawer from 'app/components/action-drawer'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
