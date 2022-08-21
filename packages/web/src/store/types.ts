@@ -21,7 +21,7 @@ import {
 import { RouterState } from 'connected-react-router'
 
 import buyAudioReducer from 'common/store/buy-audio/slice'
-import SignOnPageState from 'common/store/pages/signon/types'
+import signOnReducer from 'common/store/pages/signon/reducer'
 import ServiceSelectionReducer from 'common/store/service-selection/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
@@ -110,7 +110,7 @@ export type AppState = CommonState & {
   // Pages
   upload: UploadPageState
   dashboard: ArtistDashboardState
-  signOn: SignOnPageState
+  signOn: ReturnType<typeof signOnReducer>
   history: HistoryPageState
   searchBar: SearchBarState
   collection: CollectionsPageState

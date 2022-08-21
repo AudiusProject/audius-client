@@ -11,6 +11,7 @@ import { combineReducers } from 'redux'
 import backend from 'common/store/backend/reducer'
 import buyAudioReducer from 'common/store/buy-audio/slice'
 import confirmer from 'common/store/confirmer/reducer'
+import signOnReducer from 'common/store/pages/signon/reducer'
 import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
@@ -65,6 +66,7 @@ const createRootReducer = (routeHistory: History) =>
     dashboard,
     searchBar,
     serviceSelection,
+    signOn: signOnReducer,
 
     // Playback
     queue,

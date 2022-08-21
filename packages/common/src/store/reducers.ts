@@ -1,5 +1,3 @@
-import confirmer from 'common/store/confirmer/reducer'
-import signOnReducer from 'common/store/pages/signon/reducer'
 import { combineReducers } from 'redux'
 
 import { Kind, Cache, Collection } from 'models/index'
@@ -15,7 +13,6 @@ import { UsersCacheState } from './cache/users/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
-import { ConfirmerState } from './confirmer/types'
 import notifications from './notifications/reducer'
 import audioRewardsSlice from './pages/audio-rewards/slice'
 import collection from './pages/collection/reducer'
@@ -92,11 +89,11 @@ import wallet from './wallet/slice'
  */
 export const reducers = () => ({
   account: accountSlice.reducer,
-  signOn: signOnReducer,
 
   // TODO: Move to common
+  // signOn: signOnReducer,
   // backend,
-  confirmer,
+  // confirmer,
 
   // Config
   reachability,
@@ -184,18 +181,17 @@ export const reducers = () => ({
 
 export type CommonState = {
   account: ReturnType<typeof accountSlice.reducer>
-  signOn: ReturnType<typeof signOnReducer>
+  // TODO: Migrate to common
+  // signOn: ReturnType<typeof signOnReducer>
 
   // TODO: Migrate to common
   // backend: BackendState
 
-  // TODO: Migrate to common
-  // buyAudio: ReturnType<typeof buyAudioReducer>
-
   // Config
   reachability: ReachabilityState
 
-  confirmer: ConfirmerState
+  // TODO: Migrate to common
+  // confirmer: ConfirmerState
 
   // Cache
   collections: Cache<Collection>
@@ -213,6 +209,8 @@ export type CommonState = {
 
   ui: {
     averageColor: ReturnType<typeof averageColorReducer>
+    // TODO: Migrate to common
+    // buyAudio: ReturnType<typeof buyAudioReducer>
     addToPlaylist: AddToPlaylistState
     artistRecommendations: ArtistRecommendationsState
     changePassword: ChangePasswordState
