@@ -59,7 +59,7 @@
     "gl-quad": "^1.0.0",
     "gl-shader-core": "^2.2.0",
     "glsl-random": "0.0.5",
-    "glslify": "^1.6.0",
+    "glslify": "^2.0.0",
     "inherits": "^2.0.1"
   },
   "deprecated": false,
