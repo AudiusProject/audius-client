@@ -28,10 +28,10 @@ import {
   TrackRecord,
   SavedPageCollection
 } from 'common/store/pages/saved-page/types'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import * as socialActions from 'common/store/social/tracks/actions'
 import { formatCount } from 'common/utils/formatUtil'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'

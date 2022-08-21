@@ -14,7 +14,7 @@ import { retrieve } from 'common/store/cache/sagas'
 import { getEntryTimestamp } from 'common/store/cache/selectors'
 import * as trackActions from 'common/store/cache/tracks/actions'
 import { getTracks as getTracksSelector } from 'common/store/cache/tracks/selectors'
-import { waitForAccount } from 'utils/sagaHelpers'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 
 import { setTracksIsBlocked } from './blocklist'
 import {

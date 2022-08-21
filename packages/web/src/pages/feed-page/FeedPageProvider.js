@@ -19,8 +19,8 @@ import {
   getFeedFilter
 } from 'common/store/pages/feed/selectors'
 import { openSignOn } from 'common/store/pages/signon/actions'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_PAGE } from 'utils/route'
 

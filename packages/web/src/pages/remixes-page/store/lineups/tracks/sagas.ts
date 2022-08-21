@@ -9,9 +9,9 @@ import {
 } from 'common/store/pages/remixes/lineup/actions'
 import { getTrackId, getLineup } from 'common/store/pages/remixes/selectors'
 import { setCount } from 'common/store/pages/remixes/slice'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
 import { AppState } from 'store/types'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* getTracks({
   offset,

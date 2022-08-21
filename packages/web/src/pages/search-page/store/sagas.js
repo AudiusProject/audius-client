@@ -9,8 +9,8 @@ import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import * as searchPageActions from 'common/store/pages/search-results/actions'
 import { tracksActions as tracksLineupActions } from 'common/store/pages/search-results/lineup/tracks/actions'
 import { trimToAlphaNumeric } from 'common/utils/formatUtil'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import tracksSagas from 'pages/search-page/store/lineups/tracks/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 export function* getTagSearchResults(tag, kind, limit, offset) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')

@@ -1,12 +1,12 @@
 import { TrackSegment } from '@audius/common'
 
+import { Info } from 'common/store/player/types'
 import {
   PlayTrackMessage,
   PauseTrackMessage,
   GetPositionMessage,
   SeekMessage
 } from 'services/native-mobile-interface/player'
-import { Info } from 'store/player/types'
 import { generateM3U8Variants } from 'utils/hlsUtil'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'

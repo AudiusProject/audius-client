@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import cn from 'classnames'
 
 import { makeGetCurrent } from 'common/store/queue/selectors'
-import { getAudio, getPlaying } from 'store/player/selectors'
+import { getAudio, getPlaying } from 'common/store/player/selectors'
 import Visualizer1 from 'utils/visualizer/visualizer-1.js'
 import Toast from 'components/toast/Toast'
 

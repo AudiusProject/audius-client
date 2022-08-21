@@ -60,12 +60,12 @@ import {
 import { getFeePayer } from 'common/store/solana/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
 import { getBalance, increaseBalance } from 'common/store/wallet/slice'
+import { waitForAccount, waitForValue } from 'common/utils/sagaHelpers'
 import { stringAudioToStringWei } from 'common/utils/wallet'
 import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import mobileSagas from 'pages/audio-rewards-page/store/mobileSagas'
 import { getCognitoExists } from 'services/audius-backend/Cognito'
 import { AUDIO_PAGE } from 'utils/route'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 import {
   foregroundPollingDaemon,
   visibilityPollingDaemon

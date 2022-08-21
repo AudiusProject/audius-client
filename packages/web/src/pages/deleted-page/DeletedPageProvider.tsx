@@ -6,9 +6,9 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import { LineupVariant } from 'components/lineup/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 

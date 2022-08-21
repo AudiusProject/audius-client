@@ -23,8 +23,8 @@ import {
   getStartedSignOnProcess
 } from 'common/store/pages/signon/selectors'
 import { CommonState } from 'common/store/reducers'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 type FeedItem = LineupTrack | Collection
 

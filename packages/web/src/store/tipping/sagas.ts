@@ -55,6 +55,7 @@ import {
 import { getAccountBalance } from 'common/store/wallet/selectors'
 import { decreaseBalance } from 'common/store/wallet/slice'
 import { decodeHashId, encodeHashId } from 'common/utils/hashIds'
+import { waitForAccount, waitForValue } from 'common/utils/sagaHelpers'
 import {
   parseAudioInputToWei,
   stringWeiToBN,
@@ -75,7 +76,6 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import { updateTipsStorage } from './storageUtils'
 

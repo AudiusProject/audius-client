@@ -4,7 +4,7 @@ import { all, put, select } from 'typed-redux-saga'
 
 import { getAccountUser } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
-import { waitForAccount } from 'utils/sagaHelpers'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 
 export function* reportSuccessAndFailureEvents({
   numSuccess,

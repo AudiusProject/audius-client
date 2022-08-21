@@ -6,7 +6,7 @@ import { Dispatch } from 'redux'
 
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { dismissCookieBanner } from 'store/application/ui/cookieBanner/actions'
-import { getUid } from 'store/player/selectors'
+import { getUid } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import { COOKIE_POLICY } from 'utils/route'

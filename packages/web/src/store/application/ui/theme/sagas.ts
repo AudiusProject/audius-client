@@ -7,10 +7,10 @@ import {
   ThemeActions,
   setTheme as setThemeAction
 } from 'common/store/ui/theme/actions'
+import { actionChannelDispatcher } from 'common/utils/sagaHelpers'
 import { PrefersColorSchemeMessage } from 'services/native-mobile-interface/android/theme'
 import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { getIsIOS } from 'utils/browser'
-import { actionChannelDispatcher } from 'utils/sagaHelpers'
 import { setTheme, PREFERS_DARK_MEDIA_QUERY } from 'utils/theme/theme'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE

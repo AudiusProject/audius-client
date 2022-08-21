@@ -13,6 +13,15 @@ import { connect } from 'react-redux'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
 import { getLineupHasTracks } from 'common/store/lineup/selectors'
+import {
+  getAudio,
+  getCollectible,
+  getPlaying,
+  getCounter,
+  getUid as getPlayingUid,
+  getBuffering
+} from 'common/store/player/selectors'
+import { seek, reset } from 'common/store/player/slice'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import {
   play,
@@ -41,15 +50,6 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import Tooltip from 'components/tooltip/Tooltip'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
-import {
-  getAudio,
-  getCollectible,
-  getPlaying,
-  getCounter,
-  getUid as getPlayingUid,
-  getBuffering
-} from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { collectibleDetailsPage, profilePage } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'

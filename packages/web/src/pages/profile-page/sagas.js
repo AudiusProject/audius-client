@@ -41,6 +41,7 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { refreshSupport } from 'common/store/tipping/slice'
 import * as artistRecommendationsActions from 'common/store/ui/artist-recommendations/slice'
 import { squashNewLines } from 'common/utils/formatUtil'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { fetchCID } from 'services/audius-backend'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
@@ -51,7 +52,6 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
 import { dataURLtoFile } from 'utils/fileUtils'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)

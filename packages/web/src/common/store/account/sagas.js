@@ -30,6 +30,7 @@ import {
 } from 'common/store/pages/settings/actions'
 import { getFeePayer } from 'common/store/solana/selectors'
 import { setVisibility } from 'common/store/ui/modals/slice'
+import { waitForAccount, waitForValue } from 'common/utils/sagaHelpers'
 import { updateProfileAsync } from 'pages/profile-page/sagas'
 import { fetchCID } from 'services/audius-backend'
 import { recordIP } from 'services/audius-backend/RecordIP'
@@ -52,7 +53,6 @@ import {
   shouldRequestBrowserPermission
 } from 'utils/browserNotifications'
 import { isMobile, isElectron } from 'utils/clientUtil'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'

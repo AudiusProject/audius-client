@@ -6,8 +6,8 @@ import { AudiusBackend } from 'common/services/audius-backend'
 import { getContext } from 'common/store'
 import { getAccountUser, getUserId } from 'common/store/account/selectors'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { AppState } from 'store/types'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 export type UserListProviderArgs<T, U = void> = {
   // Gets the track or playlist we're referencing.

@@ -30,7 +30,7 @@ import {
   getBuffering,
   getCounter,
   getPlaying
-} from 'store/player/selectors'
+} from 'common/store/player/selectors'
 import { AudioState } from 'store/player/types'
 import { AppState } from 'store/types'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'

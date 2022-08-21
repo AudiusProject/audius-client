@@ -29,6 +29,7 @@ import {
   TrackRecord
 } from 'common/store/pages/collection/types'
 import { fetchProfile } from 'common/store/pages/profile/actions'
+import { getPlaying, makeGetCurrent } from 'common/store/player/selectors'
 import { add, clear, pause, play } from 'common/store/queue/slice'
 import { Source } from 'common/store/queue/types'
 import { setCollectible } from 'common/store/ui/collectible-details/slice'
@@ -36,7 +37,6 @@ import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-moda
 import { formatSeconds } from 'common/utils/timeUtil'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
-import { getPlaying, makeGetCurrent } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { getHash, AUDIO_NFT_PLAYLIST_PAGE, profilePage } from 'utils/route'

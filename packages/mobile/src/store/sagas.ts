@@ -7,6 +7,8 @@ import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
+import playerSagas from 'common/store/player/sagas'
+import queueSagas from 'common/store/queue/sagas'
 import remoteConfig from 'common/store/remote-config/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import { all, fork } from 'typed-redux-saga'
@@ -22,6 +24,10 @@ export default function* rootSaga() {
     ...analyticsSagas(),
     ...accountSagas(),
     ...confirmerSagas(),
+
+    // Playback
+    ...queueSagas(),
+    ...playerSagas(),
 
     // Cache
     ...coreCacheSagas(),

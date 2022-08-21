@@ -14,16 +14,13 @@ import { getContext } from 'common/store'
 import * as cacheActions from 'common/store/cache/actions'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
-import * as queueActions from 'common/store/queue/slice'
-import { recordListen } from 'common/store/social/tracks/actions'
-import { encodeHashId } from 'common/utils/hashIds'
 import {
   getAudio,
   getTrackId,
   getUid,
   getCounter,
   getPlaying
-} from 'store/player/selectors'
+} from 'common/store/player/selectors'
 import {
   setAudioStream as setAudioStreamAction,
   play,
@@ -37,11 +34,16 @@ import {
   resetSuceeded,
   seek,
   error as errorAction
-} from 'store/player/slice'
-import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
+} from 'common/store/player/slice'
+import * as queueActions from 'common/store/queue/slice'
+import { recordListen } from 'common/store/social/tracks/actions'
+import { encodeHashId } from 'common/utils/hashIds'
+import { actionChannelDispatcher, waitForValue } from 'common/utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
-import { TAudioStream, AudioState } from './types'
+
+type AudioState = any
+type TAudioStream = any
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 

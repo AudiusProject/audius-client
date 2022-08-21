@@ -5,6 +5,7 @@ import { getContext } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
+import * as playerActions from 'common/store/player/slice'
 import {
   getOrder,
   getIndex,
@@ -21,15 +22,14 @@ import {
   shuffle,
   updateIndex
 } from 'common/store/queue/slice'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import {
   PersistQueueMessage,
   RepeatModeMessage,
   ShuffleMessage
 } from 'services/native-mobile-interface/queue'
 import { MessageType, Message } from 'services/native-mobile-interface/types'
-import * as playerActions from 'store/player/slice'
 import { generateM3U8Variants } from 'utils/hlsUtil'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
 const DEFAULT_IMAGE_URL =

@@ -9,8 +9,8 @@ import {
   trendingPlaylistLineupActions
 } from 'common/store/pages/trending-playlists/lineups/actions'
 import { getLineup } from 'common/store/pages/trending-playlists/lineups/selectors'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
   const apiClient = yield* getContext('apiClient')

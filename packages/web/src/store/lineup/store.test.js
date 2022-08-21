@@ -11,14 +11,14 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import { initialState as initialConfirmerState } from 'common/store/confirmer/reducer'
 import { LineupActions } from 'common/store/lineup/actions'
 import { asLineup, initialLineupState } from 'common/store/lineup/reducer'
+import playerReducer, {
+  initialState as initialPlayerState
+} from 'common/store/player/slice'
 import queueReducer, {
   initialState as initialQueueState
 } from 'common/store/queue/slice'
+import { noopReducer, allSagas } from 'common/store/testHelper'
 import { LineupSagas } from 'store/lineup/sagas'
-import playerReducer, {
-  initialState as initialPlayerState
-} from 'store/player/slice'
-import { noopReducer, allSagas } from 'store/testHelper'
 
 const PREFIX = 'tracks'
 const MOCK_TIMESTAMP = 1479427200000

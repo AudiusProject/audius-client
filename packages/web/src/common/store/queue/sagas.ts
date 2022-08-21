@@ -12,6 +12,7 @@ import {
 } from '@audius/common'
 import { all, call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
+import { getContext } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
 import * as cacheActions from 'common/store/cache/actions'
@@ -19,6 +20,11 @@ import { getCollection } from 'common/store/cache/collections/selectors'
 import { getId } from 'common/store/cache/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUser } from 'common/store/cache/users/selectors'
+import {
+  getTrackId as getPlayerTrackId,
+  getUid as getPlayerUid
+} from 'common/store/player/selectors'
+import * as playerActions from 'common/store/player/slice'
 import {
   getCollectible,
   getId as getQueueTrackId,
@@ -44,15 +50,8 @@ import {
   remove
 } from 'common/store/queue/slice'
 import { RepeatMode, Source } from 'common/store/queue/types'
-import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
-import {
-  getTrackId as getPlayerTrackId,
-  getUid as getPlayerUid
-} from 'store/player/selectors'
-import * as playerActions from 'store/player/slice'
-import { waitForAccount } from 'utils/sagaHelpers'
-
-import { getRecommendedTracks } from '../recommendation/sagas'
+import { getRecommendedTracks } from 'common/store/recommendation/sagas'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 
 import mobileSagas from './mobileSagas'
 
@@ -224,6 +223,11 @@ export function* watchPlay() {
       // If nothing is queued, grab the proper lineup, queue it and play it
       const index = yield* select(getIndex)
       if (index === -1) {
+        const getLineupSelectorForRoute = yield* getContext(
+          'getLineupSelectorForRoute'
+        )
+        if (!getLineupSelectorForRoute) return
+
         // @ts-ignore todo
         const lineup: LineupState<{ id: number }> = yield* select(
           getLineupSelectorForRoute()

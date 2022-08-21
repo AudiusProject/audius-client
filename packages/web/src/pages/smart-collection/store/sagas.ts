@@ -18,14 +18,14 @@ import {
   fetchSmartCollection,
   fetchSmartCollectionSucceeded
 } from 'common/store/pages/smart-collection/slice'
-import Explore from 'services/audius-backend/Explore'
-import { getLuckyTracks } from 'store/recommendation/sagas'
-import { EXPLORE_PAGE } from 'utils/route'
+import { getLuckyTracks } from 'common/store/recommendation/sagas'
 import {
   requiresAccount,
   waitForAccount,
   waitForValue
-} from 'utils/sagaHelpers'
+} from 'common/utils/sagaHelpers'
+import Explore from 'services/audius-backend/Explore'
+import { EXPLORE_PAGE } from 'utils/route'
 
 import {
   HEAVY_ROTATION,

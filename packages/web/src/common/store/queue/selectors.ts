@@ -7,8 +7,7 @@ import { getUser } from 'common/store/cache/users/selectors'
 import {
   getUid as getPlayerUid,
   getTrackId as getPlayerTrackId
-} from 'store/player/selectors'
-import { AppState } from 'store/types'
+} from 'common/store/player/selectors'
 
 export const getOrder = (state: CommonState) => state.queue.order
 export const getLength = (state: CommonState) => state.queue.order.length
@@ -41,9 +40,9 @@ export const getCollectible = (state: CommonState) => {
   return state.queue.order[state.queue.index].collectible ?? null
 }
 
-const getCurrentTrack = (state: AppState) =>
+const getCurrentTrack = (state: CommonState) =>
   getTrack(state, { id: getPlayerTrackId(state) })
-const getCurrentUser = (state: AppState) => {
+const getCurrentUser = (state: CommonState) => {
   const track = getCurrentTrack(state)
   const queueable = state.queue.order[state.queue.index]
   if (track || queueable?.artistId) {

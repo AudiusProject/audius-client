@@ -7,8 +7,12 @@ import { getAccountUser } from 'common/store/account/selectors'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
 import { getBalance } from 'common/store/wallet/slice'
+import {
+  doEvery,
+  requiresAccount,
+  waitForValue
+} from 'common/utils/sagaHelpers'
 import { DASHBOARD_PAGE } from 'utils/route'
-import { doEvery, requiresAccount, waitForValue } from 'utils/sagaHelpers'
 
 import * as dashboardActions from './actions'
 

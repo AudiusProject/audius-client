@@ -4,15 +4,14 @@ import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
 import { take } from 'redux-saga/effects'
 
-import AudioStream from 'audio/AudioStream'
 import accountSlice from 'common/store/account/reducer'
 import * as cacheActions from 'common/store/cache/actions'
+import playerReducer, * as playerActions from 'common/store/player/slice'
+import * as sagas from 'common/store/queue/sagas'
 import reducer, * as actions from 'common/store/queue/slice'
 import { RepeatMode, Source } from 'common/store/queue/types'
-import playerReducer, * as playerActions from 'store/player/slice'
-import * as sagas from 'store/queue/sagas'
-import { getRecommendedTracks } from 'store/recommendation/sagas'
-import { noopReducer } from 'store/testHelper'
+import { getRecommendedTracks } from 'common/store/recommendation/sagas'
+import { noopReducer } from 'common/store/testHelper'
 
 const initialTracks = {
   entries: {
@@ -55,7 +54,7 @@ const makeInitialPlayer = (config = {}) => ({
   // Identifier for the audio that's playing.
   uid: null,
   trackId: null,
-  audio: new AudioStream(),
+  audio: null,
   // Keep 'playing' in the store separately from the audio
   // object to allow components to subscribe to changes.
   playing: false,

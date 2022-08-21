@@ -3,8 +3,8 @@ import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
 
 import { waitForBackendSetup } from 'common/store/backend/sagas'
+import { noopReducer } from 'common/store/testHelper'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { noopReducer } from 'store/testHelper'
 
 import * as sagas from './sagas'
 import reducer, { fetchServices } from './slice'

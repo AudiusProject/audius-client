@@ -12,11 +12,11 @@ import {
   PushNotificationSetting
 } from 'common/store/pages/settings/types'
 import { getErrorMessage } from 'common/utils/error'
+import { waitForValue } from 'common/utils/sagaHelpers'
 import {
   EnablePushNotificationsMessage,
   DisablePushNotificationsMessage
 } from 'services/native-mobile-interface/notifications'
-import { waitForValue } from 'utils/sagaHelpers'
 
 function* watchGetPushNotificationSettings() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')

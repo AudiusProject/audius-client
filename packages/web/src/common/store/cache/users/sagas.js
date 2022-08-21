@@ -27,7 +27,7 @@ import {
   getStatus
 } from 'common/store/service-selection/selectors'
 import { fetchServicesFailed } from 'common/store/service-selection/slice'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
+import { waitForValue, waitForAccount } from 'common/utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
 

@@ -17,8 +17,8 @@ import {
   getProfileUserHandle
 } from 'common/store/pages/profile/selectors'
 import { SET_ARTIST_PICK } from 'common/store/social/tracks/actions'
+import { waitForValue, waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
 
 import { TracksSortMode } from '../../types'
 

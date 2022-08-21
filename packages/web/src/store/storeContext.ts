@@ -9,6 +9,8 @@ import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { walletClient } from 'services/wallet-client'
 
+import { getLineupSelectorForRoute } from './lineup/lineupForRoute'
+
 export const storeContext: CommonStoreContext = {
   getLocalStorageItem: async (key) => window.localStorage.getItem(key),
   setLocalStorageItem: async (key, value) =>
@@ -22,5 +24,6 @@ export const storeContext: CommonStoreContext = {
   walletClient,
   localStorage,
   isNativeMobile: false,
-  env
+  env,
+  getLineupSelectorForRoute
 }

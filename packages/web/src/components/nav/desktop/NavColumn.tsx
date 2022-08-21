@@ -73,7 +73,7 @@ import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
-import { makeGetCurrent as makeGetCurrentPlayer } from 'store/player/selectors'
+import { makeGetCurrent as makeGetCurrentPlayer } from 'common/store/player/selectors'
 import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import { AppState } from 'store/types'
 import {

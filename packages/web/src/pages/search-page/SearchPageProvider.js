@@ -19,8 +19,8 @@ import {
   getBaseState as getSearchResultsState
 } from 'common/store/pages/search-results/selectors'
 import { SearchKind } from 'common/store/pages/search-results/types'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import {
   NOT_FOUND_PAGE,
   SEARCH_CATEGORY_PAGE,

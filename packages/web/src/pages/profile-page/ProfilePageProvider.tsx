@@ -39,6 +39,7 @@ import {
   TracksSortMode,
   getTabForRoute
 } from 'common/store/pages/profile/types'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import * as socialActions from 'common/store/social/users/actions'
 import { makeGetRelatedArtists } from 'common/store/ui/artist-recommendations/selectors'
@@ -54,7 +55,6 @@ import { setFollowing } from 'common/store/user-list/following/actions'
 import { getErrorMessage } from 'common/utils/error'
 import { formatCount } from 'common/utils/formatUtil'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { verifiedHandleWhitelist } from 'utils/handleWhitelist'

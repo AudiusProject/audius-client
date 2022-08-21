@@ -27,9 +27,9 @@ import {
   getTrendingGenre,
   getTrendingTimeRange
 } from 'common/store/pages/trending/selectors'
+import { getBuffering, getPlaying } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import { GENRES } from 'common/utils/genres'
-import { getBuffering, getPlaying } from 'store/player/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_GENRES } from 'utils/route'
 

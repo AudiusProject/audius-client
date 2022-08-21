@@ -20,7 +20,7 @@ import {
   showRequiresAccountModal
 } from 'common/store/pages/signon/actions'
 
-import { SIGN_UP_PAGE } from './route'
+import { SIGN_UP_PAGE } from '../../utils/route'
 
 /**
  * Calls the provided array of calls in batches with delayMs milliseconds between each batch.

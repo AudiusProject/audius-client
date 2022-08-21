@@ -12,7 +12,7 @@ import {
   getShouldCancelCurrentCall,
   getAreRequisiteCallsComplete
 } from 'common/store/confirmer/selectors'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForValue } from 'common/utils/sagaHelpers'
 
 enum BlockConfirmation {
   CONFIRMED = 'CONFIRMED',

@@ -59,6 +59,7 @@ import {
   sendFailed
 } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { weiToString } from 'common/utils/wallet'
 import {
   fetchOpenSeaAssetsForWallets,
@@ -70,7 +71,6 @@ import {
   loadWalletConnect,
   createSession
 } from 'services/web3-modal'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 

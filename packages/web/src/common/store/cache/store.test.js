@@ -13,7 +13,7 @@ import {
   noopReducer,
   takeEverySaga,
   takeSaga
-} from 'store/testHelper'
+} from 'common/store/testHelper'
 
 const MOCK_TIMESTAMP = 1479427200000
 

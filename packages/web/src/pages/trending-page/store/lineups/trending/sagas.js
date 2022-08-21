@@ -11,9 +11,9 @@ import {
   trendingAllTimeActions
 } from 'common/store/pages/trending/lineup/actions'
 import { getTrendingGenre } from 'common/store/pages/trending/selectors'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { retrieveTrending } from 'pages/track-page/store/retrieveTrending'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function getTracks(timeRange) {
   return function* ({ offset, limit }) {

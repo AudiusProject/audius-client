@@ -1,7 +1,9 @@
 import {
   AnalyticsEvent,
   FeatureFlags,
-  RemoteConfigInstance
+  LineupState,
+  RemoteConfigInstance,
+  Track
 } from '@audius/common'
 
 import { AudiusAPIClient } from 'common/services/audius-api-client'
@@ -10,6 +12,8 @@ import { Env } from 'common/services/env'
 import { FingerprintClient } from 'common/services/fingerprint'
 import { LocalStorage } from 'common/services/local-storage'
 import { WalletClient } from 'common/services/wallet-client'
+
+import { CommonState } from './reducers'
 
 export type CommonStoreContext = {
   getLocalStorageItem: (key: string) => Promise<string | null>
@@ -33,4 +37,8 @@ export type CommonStoreContext = {
   localStorage: LocalStorage
   isNativeMobile: boolean
   env: Env
+
+  // A helper that returns the appropriate lineup selector for the current
+  // route or screen.
+  getLineupSelectorForRoute?: () => (state: CommonState) => LineupState<Track>
 }

@@ -34,10 +34,10 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { squashNewLines, formatUrlName } from 'common/utils/formatUtil'
+import { waitForValue, waitForAccount } from 'common/utils/sagaHelpers'
 import { fetchCID } from 'services/audius-backend'
 import TrackDownload from 'services/audius-backend/TrackDownload'
 import { dominantColor } from 'utils/imageProcessingUtil'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 

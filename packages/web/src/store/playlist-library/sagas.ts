@@ -34,8 +34,8 @@ import {
   removePlaylistLibraryDuplicates,
   replaceTempWithResolvedPlaylists
 } from 'common/store/playlist-library/helpers'
+import { waitForAccount, waitForValue } from 'common/utils/sagaHelpers'
 import { updateProfileAsync } from 'pages/profile-page/sagas'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import { update } from './slice'
 

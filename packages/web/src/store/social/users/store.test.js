@@ -7,8 +7,8 @@ import { waitForBackendSetup } from 'common/store/backend/sagas'
 import * as cacheActions from 'common/store/cache/actions'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as actions from 'common/store/social/users/actions'
+import { noopReducer } from 'common/store/testHelper'
 import * as sagas from 'store/social/users/sagas'
-import { noopReducer } from 'store/testHelper'
 
 const followedUser = { follower_count: 5 }
 const accountUser = { followee_count: 1 }

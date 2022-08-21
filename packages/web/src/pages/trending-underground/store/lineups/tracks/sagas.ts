@@ -9,8 +9,8 @@ import {
   trendingUndergroundLineupActions
 } from 'common/store/pages/trending-underground/lineup/actions'
 import { getLineup } from 'common/store/pages/trending-underground/lineup/selectors'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* getTrendingUnderground({
   limit,

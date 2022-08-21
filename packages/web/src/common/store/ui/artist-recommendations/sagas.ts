@@ -6,7 +6,7 @@ import { call, put, select, takeEvery } from 'redux-saga/effects'
 import { getContext } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
-import { waitForAccount } from 'utils/sagaHelpers'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 
 import * as artistRecommendationsActions from './slice'
 

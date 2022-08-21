@@ -59,8 +59,8 @@ import {
   getBuffering,
   getCounter,
   getPlaying
-} from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
+} from 'common/store/player/selectors'
+import { seek, reset } from 'common/store/player/slice'
 import { AudioState } from 'store/player/types'
 import { AppState } from 'store/types'
 import {

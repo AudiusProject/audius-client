@@ -15,9 +15,9 @@ import {
   getCount
 } from 'common/store/pages/remixes/selectors'
 import { fetchTrack, reset } from 'common/store/pages/remixes/slice'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import { LineupVariant } from 'components/lineup/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 

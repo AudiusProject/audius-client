@@ -25,8 +25,8 @@ import {
   decreaseBalance
 } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { stringWeiToBN, weiToString } from 'common/utils/wallet'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 // TODO: handle errors
 const errors = {

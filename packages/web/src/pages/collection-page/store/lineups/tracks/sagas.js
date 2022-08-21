@@ -16,8 +16,8 @@ import {
 } from 'common/store/pages/collection/selectors'
 import { getCollection as getSmartCollection } from 'common/store/pages/smart-collection/selectors'
 import { getPositions } from 'common/store/queue/selectors'
+import { waitForValue } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForValue } from 'utils/sagaHelpers'
 
 function* getCollectionTracks() {
   const smartCollectionVariant = yield select(getSmartCollectionVariant)

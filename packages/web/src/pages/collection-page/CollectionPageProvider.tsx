@@ -56,6 +56,7 @@ import {
   CollectionTrack,
   CollectionsPageType
 } from 'common/store/pages/collection/types'
+import { getPlaying, getBuffering } from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import * as socialCollectionsActions from 'common/store/social/collections/actions'
 import * as socialTracksActions from 'common/store/social/tracks/actions'
@@ -80,7 +81,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import {

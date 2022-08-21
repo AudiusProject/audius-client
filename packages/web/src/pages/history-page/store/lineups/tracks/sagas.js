@@ -8,8 +8,8 @@ import {
   PREFIX,
   tracksActions
 } from 'common/store/pages/history-page/lineups/tracks/actions'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* getHistoryTracks() {
   const apiClient = yield getContext('apiClient')

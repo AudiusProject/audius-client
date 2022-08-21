@@ -14,8 +14,8 @@ import {
   getProfileFeedLineup,
   getProfileUserHandle
 } from 'common/store/pages/profile/selectors'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 import { retrieveUserReposts } from './retrieveUserReposts'
 

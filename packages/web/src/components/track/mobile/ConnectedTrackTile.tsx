@@ -31,7 +31,7 @@ import { setFavorite } from 'common/store/user-list/favorites/actions'
 import { setRepost } from 'common/store/user-list/reposts/actions'
 import { RepostType } from 'common/store/user-list/reposts/types'
 import { TrackTileProps } from 'components/track/types'
-import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
+import { getUid, getPlaying, getBuffering } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import {
   profilePage,

@@ -2,13 +2,13 @@ import { call, select } from 'typed-redux-saga'
 
 import { getUserId } from 'common/store/account/selectors'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
+import { waitForAccount } from 'common/utils/sagaHelpers'
 import {
   PREFIX,
   moreByActions
 } from 'pages/deleted-page/store/lineups/more-by/actions'
 import { getLineup } from 'pages/deleted-page/store/selectors'
 import { LineupSagas } from 'store/lineup/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 function* getTracks({
   payload

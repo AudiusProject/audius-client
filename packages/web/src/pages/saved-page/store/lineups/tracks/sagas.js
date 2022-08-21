@@ -15,10 +15,10 @@ import {
   getSavedTracksLineupUid,
   getSaves
 } from 'common/store/pages/saved-page/selectors'
+import { getUid as getPlayerUid } from 'common/store/player/selectors'
 import * as queueActions from 'common/store/queue/slice'
 import { SAVE_TRACK, UNSAVE_TRACK } from 'common/store/social/tracks/actions'
 import { LineupSagas } from 'store/lineup/sagas'
-import { getUid as getPlayerUid } from 'store/player/selectors'
 
 const getSavedTracks = (state) => state.pages.savedPage.tracks
 

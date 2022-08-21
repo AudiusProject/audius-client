@@ -55,7 +55,7 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
+import { getUid, getBuffering, getPlaying } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import { isDescendantElementOf } from 'utils/domUtils'
 import {

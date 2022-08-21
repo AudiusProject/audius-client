@@ -5,7 +5,7 @@ import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { getModalVisibility } from 'common/store/ui/modals/slice'
 import NowPlayingDrawer from 'components/now-playing/NowPlayingDrawer'
 import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
-import { getCollectible, getUid as getPlayingUid } from 'store/player/selectors'
+import { getCollectible, getUid as getPlayingUid } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 

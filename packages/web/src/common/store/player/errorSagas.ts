@@ -1,5 +1,5 @@
+import { error } from 'common/store/player/slice'
 import createErrorSagas from 'common/utils/errorSagas'
-import { error } from 'store/player/slice'
 
 type PlayerErrors = ReturnType<typeof error>
 
