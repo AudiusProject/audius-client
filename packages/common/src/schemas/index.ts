@@ -80,7 +80,7 @@ const collectionMetadataSchema = {
   description: null
 }
 
-export const newCollectionMetadata = (fields, validate = false) => {
+export const newCollectionMetadata = (fields?: any, validate = false) => {
   const validFields = validate
     ? pick(
         fields,

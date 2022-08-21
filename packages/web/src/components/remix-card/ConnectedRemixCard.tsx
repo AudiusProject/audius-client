@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
 
-import { ID, SquareSizes } from '@audius/common'
-import { cacheTracksSelectors } from '@audius/common'
-const { getTrack } = cacheTracksSelectors
-import { cacheUsersSelectors } from '@audius/common'
-const { getUserFromTrack } = cacheUsersSelectors
+import {
+  ID,
+  SquareSizes,
+  cacheTracksSelectors,
+  cacheUsersSelectors
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
@@ -15,6 +16,8 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
+const { getTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
 
 type OwnProps = {
   trackId: ID

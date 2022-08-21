@@ -1,9 +1,8 @@
-import { cacheTracksSelectors } from '@audius/common'
-const {  getTrack as getCachedTrack  } = cacheTracksSelectors
-import { cacheUsersSelectors } from '@audius/common'
-const {  getUserFromTrack  } = cacheUsersSelectors
+import { cacheTracksSelectors, cacheUsersSelectors } from '@audius/common'
 
 import { AppState } from 'store/types'
+const { getTrack: getCachedTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
 
 const getBaseState = (state: AppState) =>
   state.application.ui.remixSettingsModal

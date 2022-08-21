@@ -16,10 +16,9 @@ import {
   shareModalUIActions,
   themeSelectors,
   RepostType,
-  repostsUserListActions
+  repostsUserListActions,
+  favoritesUserListActions
 } from '@audius/common'
-import { favoritesUserListActions } from '@audius/common'
-const { setFavorite } = favoritesUserListActions
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
@@ -37,6 +36,7 @@ import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 import { getTrackWithFallback, getUserWithFallback } from '../helpers'
 
 import TrackTile from './TrackTile'
+const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { getTheme } = themeSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions

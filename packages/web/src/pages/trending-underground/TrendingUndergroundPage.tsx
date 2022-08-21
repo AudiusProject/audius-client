@@ -6,8 +6,6 @@ import {
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { trendingUndergroundLineupActions } from 'common/store/pages/trending-underground/lineup/actions'
-import { getLineup } from 'common/store/pages/trending-underground/lineup/selectors'
 import DesktopHeader from 'components/header/desktop/Header'
 import { useMobileHeader } from 'components/header/mobile/hooks'
 import Lineup from 'components/lineup/Lineup'

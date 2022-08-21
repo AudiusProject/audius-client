@@ -1,4 +1,13 @@
-import { IntKeys, Name } from '@audius/common'
+import {
+  IntKeys,
+  Name,
+  getContext,
+  walletActions,
+  convertJSBIToAmountObject,
+  convertWAudioToWei,
+  formatWei,
+  weiToString
+} from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
@@ -22,7 +31,6 @@ import {
   fork
 } from 'typed-redux-saga'
 
-import { getContext } from 'common/store'
 import { make } from 'common/store/analytics/actions'
 import {
   JupiterTokenSymbol,
@@ -49,13 +57,6 @@ import {
   calculateAudioPurchaseInfoFailed,
   PurchaseInfoErrorType
 } from 'common/store/buy-audio/slice'
-import { increaseBalance } from 'common/store/wallet/slice'
-import {
-  convertJSBIToAmountObject,
-  convertWAudioToWei,
-  formatWei,
-  weiToString
-} from 'common/utils/wallet'
 import {
   createTransferToUserBankTransaction,
   getAssociatedTokenAccountInfo,
@@ -72,7 +73,7 @@ import {
   createUserBankIfNeeded,
   getUserBank
 } from 'services/audius-backend/waudio'
-
+const { increaseBalance } = walletActions
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 

@@ -9,7 +9,7 @@ import {
 import { pick } from 'lodash'
 import { all, call, put, select, takeEvery } from 'redux-saga/effects'
 
-import { getConfirmCalls } from 'store/confirmer/selectors'
+import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
 

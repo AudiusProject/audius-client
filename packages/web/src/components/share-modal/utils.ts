@@ -1,5 +1,4 @@
-import { ShareToTwitter } from '@audius/common'
-import { ShareModalContent } from '@audius/common'
+import { ShareToTwitter, ShareModalContent } from '@audius/common'
 
 import {
   fullAlbumPage,

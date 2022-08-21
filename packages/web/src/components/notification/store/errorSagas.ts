@@ -1,12 +1,12 @@
 import {
   notificationsActions as notificationActions,
   FetchNotificationsFailed,
-  FetchNotificationUsersFailed
+  FetchNotificationUsersFailed,
+  ErrorLevel
 } from '@audius/common'
 import { put, takeEvery } from 'redux-saga/effects'
 
 import * as errorActions from 'store/errors/actions'
-import { ErrorLevel } from '@audius/common'
 
 const noRedirectSet = new Set([
   // Failed to fetch notifications

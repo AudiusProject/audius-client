@@ -1,9 +1,4 @@
-import {
-  UserTip,
-  APIUser,
-  SupporterResponse,
-  SupportingResponse
-} from '@audius/common'
+import { UserTip, SupporterResponse, SupportingResponse } from '@audius/common'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 

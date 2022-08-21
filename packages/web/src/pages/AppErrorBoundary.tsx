@@ -1,10 +1,10 @@
 import { ReactNode, useCallback } from 'react'
 
+import { ErrorLevel } from '@audius/common'
 import { ErrorBoundary, ErrorBoundaryProps } from 'react-error-boundary'
 import { useDispatch } from 'react-redux'
 
 import { handleError as handleErrorAction } from 'store/errors/actions'
-import { ErrorLevel } from '@audius/common'
 
 type HandleError = NonNullable<ErrorBoundaryProps['onError']>
 

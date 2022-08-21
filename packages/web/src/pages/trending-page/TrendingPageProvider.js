@@ -7,21 +7,19 @@ import {
   accountSelectors,
   lineupSelectors,
   trendingPageLineupActions,
-  trendingPageSelectors
+  trendingPageSelectors,
+  trendingPageActions
 } from '@audius/common'
-import { trendingPageActions as trendingPageActions } from '@audius/common'
 import {
   push as pushRoute,
   replace as replaceRoute
 } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { matchPath, withRouter } from 'react-router-dom'
-import { openSignOn } from 'common/store/pages/signon/actions'
-import { make } from 'common/store/analytics/actions'
 
+import { make } from 'common/store/analytics/actions'
+import { openSignOn } from 'common/store/pages/signon/actions'
 import { makeGetCurrent } from 'common/store/queue/selectors'
-import { openSignOn } from 'pages/sign-on/store/actions'
-import { make } from 'store/analytics/actions'
 import { getBuffering, getPlaying } from 'store/player/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_GENRES } from 'utils/route'

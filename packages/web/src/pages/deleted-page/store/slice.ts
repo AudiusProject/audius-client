@@ -1,10 +1,10 @@
 import { lineupReducer } from '@audius/common'
-const { asLineup } = lineupReducer
 import { createSlice } from '@reduxjs/toolkit'
 import { combineReducers } from 'redux'
 
 import { PREFIX as moreByPrefix } from './lineups/more-by/actions'
 import moreByTracksReducer from './lineups/more-by/reducer'
+const { asLineup } = lineupReducer
 
 type State = {}
 

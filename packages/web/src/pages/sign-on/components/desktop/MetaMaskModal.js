@@ -1,6 +1,6 @@
 import { Component } from 'react'
 
-import { BackendUtils } from '@audius/common'
+import { BackendUtils as Utils } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import Tooltip from 'antd/lib/tooltip'
 import cn from 'classnames'

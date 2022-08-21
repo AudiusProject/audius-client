@@ -1,4 +1,10 @@
 import {
+  accountSelectors,
+  savedPageTracksLineupActions as tracksActions,
+  savedPageActions as actions,
+  savedPageSelectors
+} from '@audius/common'
+import {
   takeLatest,
   call,
   put,
@@ -7,16 +13,7 @@ import {
   getContext
 } from 'redux-saga/effects'
 
-import {
-  accountSelectors,
-  savedPageTracksLineupActions as tracksActions,
-  savedPageActions as actions,
-  savedPageSelectors
-} from '@audius/common'
-
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import * as actions from 'common/store/pages/saved-page/actions'
-import { getSaves } from 'common/store/pages/saved-page/selectors'
 import { waitForValue } from 'utils/sagaHelpers'
 
 import tracksSagas from './lineups/tracks/sagas'

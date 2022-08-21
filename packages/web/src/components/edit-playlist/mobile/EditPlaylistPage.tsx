@@ -11,15 +11,15 @@ import {
   cacheCollectionsActions,
   collectionPageLineupActions as tracksActions,
   createPlaylistModalUISelectors,
-  createPlaylistModalUIActions as createPlaylistActions
+  createPlaylistModalUIActions as createPlaylistActions,
+  imageBlank as placeholderCoverArt,
+  newCollectionMetadata
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCamera } from 'assets/img/iconCamera.svg'
-import { imageBlank as placeholderCoverArt } from '@audius/common'
-import * as schemas from 'common/schemas'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import EditableRow, { Format } from 'components/groupable-list/EditableRow'
 import GroupableList from 'components/groupable-list/GroupableList'
@@ -57,7 +57,7 @@ const messages = {
 
 const initialFormFields = {
   artwork: {},
-  ...schemas.newCollectionMetadata()
+  ...newCollectionMetadata()
 }
 
 type EditPlaylistPageProps = ReturnType<typeof mapStateToProps> &

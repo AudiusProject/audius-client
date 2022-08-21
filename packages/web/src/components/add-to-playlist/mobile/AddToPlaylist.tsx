@@ -7,13 +7,13 @@ import {
   accountSelectors,
   cacheCollectionsActions,
   addToPlaylistUIActions,
-  addToPlaylistUISelectors
+  addToPlaylistUISelectors,
+  newCollectionMetadata
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { newCollectionMetadata } from 'common/schemas'
 import Card from 'components/card/mobile/Card'
 import CardLineup from 'components/lineup/CardLineup'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'

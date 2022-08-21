@@ -3,10 +3,9 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   Status,
   ChangePasswordPageStep,
-  changePasswordSelectors
+  changePasswordSelectors,
+  changePasswordActions
 } from '@audius/common'
-import { changePasswordActions } from '@audius/common'
-const { changePage, changePassword } = changePasswordActions
 import { Button, ButtonType, IconLock } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,6 +15,7 @@ import EnterPassword from 'components/sign-on/EnterPassword'
 
 import styles from './ChangePassword.module.css'
 import { ConfirmCredentials } from './ConfirmCredentials'
+const { changePage, changePassword } = changePasswordActions
 const { getChangePasswordStatus, getCurrentPage } = changePasswordSelectors
 
 const messages = {

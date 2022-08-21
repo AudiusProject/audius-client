@@ -4,9 +4,9 @@ import {
   cacheReducer,
   Kind,
   makeKindId,
-  Status
+  Status,
+  cacheConfig as config
 } from '@audius/common'
-import { cacheConfig as config } from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 

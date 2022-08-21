@@ -6,11 +6,11 @@ import {
   PushNotifications,
   PushNotificationSetting,
   settingsPageActions as actions,
-  getContext
+  getContext,
+  AudiusBackend
 } from '@audius/common'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
-import { AudiusBackend } from '@audius/common'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   EnablePushNotificationsMessage,

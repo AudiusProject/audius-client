@@ -3,8 +3,8 @@ import { each } from 'lodash'
 import moment from 'moment'
 import { all, call, put, take, takeEvery, getContext } from 'redux-saga/effects'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
-import { waitForBackendSetup } from 'store/backend/sagas'
 import { DASHBOARD_PAGE } from 'utils/route'
 import { doEvery, requiresAccount, waitForValue } from 'utils/sagaHelpers'
 

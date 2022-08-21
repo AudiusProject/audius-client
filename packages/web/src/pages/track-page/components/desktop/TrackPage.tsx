@@ -4,9 +4,9 @@ import {
   LineupState,
   Track,
   User,
-  trackPageLineupActions
+  trackPageLineupActions,
+  QueueItem
 } from '@audius/common'
-import { QueueItem } from '@audius/common'
 import cn from 'classnames'
 
 import CoverPhoto from 'components/cover-photo/CoverPhoto'

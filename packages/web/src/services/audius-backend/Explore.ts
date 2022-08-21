@@ -6,7 +6,7 @@ import {
   UserTrack,
   removeNullable,
   encodeHashId,
-  responseAdapter,
+  responseAdapter as adapter,
   APIPlaylist,
   APITrack,
   AudiusAPIClient,

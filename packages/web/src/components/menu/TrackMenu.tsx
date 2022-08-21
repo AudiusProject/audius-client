@@ -11,14 +11,14 @@ import {
   cacheCollectionsActions,
   collectionPageSelectors,
   tracksSocialActions,
-  addToPlaylistUIActions
+  addToPlaylistUIActions,
+  newCollectionMetadata
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { newCollectionMetadata } from 'common/schemas'
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'

@@ -1,8 +1,14 @@
 import { Suspense, Component, useMemo, ReactNode } from 'react'
 
-import { ID, Status, Theme, Track, User, formatCount } from '@audius/common'
-import { themeSelectors } from '@audius/common'
-const { getTheme } = themeSelectors
+import {
+  ID,
+  Status,
+  Theme,
+  Track,
+  User,
+  formatCount,
+  themeSelectors
+} from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
@@ -34,6 +40,7 @@ import {
   getDashboardStatus,
   makeGetDashboard
 } from './store/selectors'
+const { getTheme } = themeSelectors
 
 const TotalPlaysChart = lazyWithPreload(
   () => import('./components/TotalPlaysChart')

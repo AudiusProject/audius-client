@@ -4,8 +4,8 @@ import {
   User,
   makeUid,
   accountSelectors,
-  cacheActions
-  getContext 
+  cacheActions,
+  getContext
 } from '@audius/common'
 import { uniqBy } from 'lodash'
 import { put, select } from 'typed-redux-saga'
