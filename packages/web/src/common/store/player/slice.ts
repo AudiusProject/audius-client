@@ -1,7 +1,11 @@
 import { UID, ID, Collectible, Nullable } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+import NativeMobileAudio from 'audio/NativeMobileAudio'
+
 import { AudioState } from './types'
+
+const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 type State = {
   // Identifiers for the audio that's playing.
@@ -31,7 +35,9 @@ export const initialState: State = {
 
   collectible: null,
 
-  audio: null,
+  // In the case of native mobile, use the native mobile audio
+  // player directly. Otherwise, it is set dynamically
+  audio: NATIVE_MOBILE ? new NativeMobileAudio() : null,
 
   playing: false,
   buffering: false,
