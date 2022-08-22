@@ -82,7 +82,7 @@ const SLIPPAGE = 3 // The slippage amount to allow for exchanges
 let _jup: Jupiter
 
 const MEMO_MESSAGES = {
-  [OnRampProvider.COINBASE]: 'In-App Coinbase $AUDIO Purchase'
+  [OnRampProvider.COINBASE]: 'In-App $AUDIO Purchase: Coinbase'
 }
 
 /**
