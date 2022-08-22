@@ -39,8 +39,8 @@ import {
   User,
   UserMetadata,
   UserTrack
-} from '../../models/index'
-import * as schemas from '../../schemas/index'
+} from '../../models'
+import * as schemas from '../../schemas'
 import { ClientRewardsReporter } from '../../services/audius-backend/Rewards'
 import {
   FeatureFlags,
@@ -53,7 +53,7 @@ import { CIDCache } from '../../store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
   PushNotificationSetting
-} from '../../store/index'
+} from '../../store'
 import {
   Nullable,
   getErrorMessage,
@@ -61,7 +61,7 @@ import {
   Maybe,
   encodeHashId,
   Timer
-} from '../../utils/index'
+} from '../../utils'
 
 import { MonitoringCallbacks } from './types'
 
