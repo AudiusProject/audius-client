@@ -45,11 +45,6 @@ import UploadType from 'pages/upload-page/components/uploadType'
 import { getStems } from 'pages/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
 import { ERROR_PAGE } from 'utils/route'
-import {
-  waitForAccount,
-  actionChannelDispatcher,
-  waitForValue
-} from 'utils/sagaHelpers'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import * as uploadActions from './actions'
