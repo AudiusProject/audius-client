@@ -53,7 +53,7 @@ export const getRootAccountRentExemptionMinimum = async () => {
   const connection = await getSolanaConnection()
   return await connection.getMinimumBalanceForRentExemption(
     ROOT_ACCOUNT_SIZE,
-    'finalized'
+    'processed'
   )
 }
 
@@ -62,7 +62,7 @@ export const getAssociatedTokenRentExemptionMinimum = async () => {
   const connection = await getSolanaConnection()
   return await connection.getMinimumBalanceForRentExemption(
     ATA_SIZE,
-    'finalized'
+    'processed'
   )
 }
 
