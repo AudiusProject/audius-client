@@ -7,6 +7,16 @@ export type AccountCollection = {
   user: { id: ID; handle: string }
 }
 
+export type TwitterAccountPayload = {
+  uuid: string
+  profile: TwitterProfile
+}
+
+export type InstagramAccountPayload = {
+  uuid: string
+  profile: InstagramProfile
+}
+
 export type InstagramProfile = {
   id: string
   username: string

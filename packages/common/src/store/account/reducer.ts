@@ -6,7 +6,11 @@ import { Nullable } from 'utils/typeUtils'
 import { ID } from '../../models/Identifiers'
 import { Status } from '../../models/Status'
 
-import { AccountCollection } from './types'
+import {
+  AccountCollection,
+  InstagramAccountPayload,
+  TwitterAccountPayload
+} from './types'
 type FailureReason = 'ACCOUNT_DEACTIVATED' | 'ACCOUNT_NOT_FOUND' | 'LIBS_ERROR'
 
 const initialState = {
@@ -37,42 +41,6 @@ type RenameAccountPlaylistPayload = {
   collectionId: ID
   name: string
 }
-
-export type TwitterAccountPayload = {
-  uuid: string
-  profile: TwitterProfile
-}
-
-export type InstagramAccountPayload = {
-  uuid: string
-  profile: InstagramProfile
-}
-
-export type InstagramProfile = {
-  id: string
-  username: string
-  biography?: string
-  business_email?: string
-  edge_follow?: { count: number }
-  edge_followed_by?: { count: number }
-  external_url?: string
-  full_name?: string
-  is_business_account?: boolean
-  is_private?: boolean
-  is_verified: boolean
-  profile_pic_url?: string
-  profile_pic_url_hd?: string
-}
-
-export type TwitterProfile = {
-  screen_name: string
-  name: string
-  verified: boolean
-  profile_image_url_https: string
-  profile_banner_url?: string
-}
-
-export type AccountImage = { url: string; file: any }
 
 const slice = createSlice({
   name: 'account',

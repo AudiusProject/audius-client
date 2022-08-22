@@ -94,6 +94,9 @@ export const AudioControls = ({
       case RepeatMode.SINGLE:
         mode = RepeatMode.OFF
         break
+      default:
+        // To appease ts - shouldn't actually hit this.
+        mode = RepeatMode.ALL
     }
     dispatchWeb(repeat({ mode }))
   }, [dispatchWeb, repeatMode])
