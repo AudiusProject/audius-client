@@ -198,6 +198,7 @@ export type CommonState = {
   users: UsersCacheState
 
   // Playback
+  player: ReturnType<typeof player>
   queue: ReturnType<typeof queue>
 
   // Wallet

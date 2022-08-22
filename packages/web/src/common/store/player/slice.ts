@@ -27,6 +27,9 @@ type State = {
   // Unique integer that increments every time something is "played."
   // E.g. replaying a track doesn't change uid or trackId, but counter changes.
   counter: number
+
+  // Seek time into the track when a user scrubs forward or backward
+  seek: number | null
 }
 
 export const initialState: State = {
@@ -41,7 +44,8 @@ export const initialState: State = {
 
   playing: false,
   buffering: false,
-  counter: 0
+  counter: 0,
+  seek: null
 }
 
 type SetAudioStreamPayload = {
@@ -160,8 +164,11 @@ const slice = createSlice({
       state.playing = shouldAutoplay
       state.counter = state.counter + 1
     },
-    seek: (state, actions: PayloadAction<SeekPayload>) => {},
-    error: (state, actions: PayloadAction<ErrorPayload>) => {},
+    seek: (state, action: PayloadAction<SeekPayload>) => {
+      const { seconds } = action.payload
+      state.seek = seconds
+    },
+    error: (state, action: PayloadAction<ErrorPayload>) => {},
     incrementCount: (state) => {
       state.counter = state.counter + 1
     }

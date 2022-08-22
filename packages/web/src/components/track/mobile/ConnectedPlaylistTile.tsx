@@ -21,6 +21,7 @@ import {
   getTracksFromCollection
 } from 'common/store/cache/collections/selectors'
 import { getUserFromCollection } from 'common/store/cache/users/selectors'
+import { getUid, getBuffering, getPlaying } from 'common/store/player/selectors'
 import {
   saveCollection,
   unsaveCollection,
@@ -38,7 +39,6 @@ import { setFavorite } from 'common/store/user-list/favorites/actions'
 import { setRepost } from 'common/store/user-list/reposts/actions'
 import { RepostType } from 'common/store/user-list/reposts/types'
 import { PlaylistTileProps } from 'components/track/types'
-import { getUid, getBuffering, getPlaying } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import {
   albumPage,

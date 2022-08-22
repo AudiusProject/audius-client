@@ -23,6 +23,7 @@ import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHoriz
 import { getUserHandle } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import { getUid, getPlaying, getBuffering } from 'common/store/player/selectors'
 import {
   saveTrack,
   unsaveTrack,
@@ -44,7 +45,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getUid, getPlaying, getBuffering } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import { isDescendantElementOf } from 'utils/domUtils'
 import { fullTrackPage, profilePage } from 'utils/route'

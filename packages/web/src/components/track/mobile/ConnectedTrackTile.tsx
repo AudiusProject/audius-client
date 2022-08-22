@@ -14,6 +14,7 @@ import { Dispatch } from 'redux'
 import { getUserId } from 'common/store/account/selectors'
 import { getTrack } from 'common/store/cache/tracks/selectors'
 import { getUserFromTrack } from 'common/store/cache/users/selectors'
+import { getUid, getPlaying, getBuffering } from 'common/store/player/selectors'
 import {
   saveTrack,
   unsaveTrack,
@@ -31,7 +32,6 @@ import { setFavorite } from 'common/store/user-list/favorites/actions'
 import { setRepost } from 'common/store/user-list/reposts/actions'
 import { RepostType } from 'common/store/user-list/reposts/types'
 import { TrackTileProps } from 'components/track/types'
-import { getUid, getPlaying, getBuffering } from 'common/store/player/selectors'
 import { AppState } from 'store/types'
 import {
   profilePage,

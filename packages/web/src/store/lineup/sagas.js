@@ -11,7 +11,6 @@ import {
   takeEvery,
   takeLatest
 } from 'redux-saga/effects'
-import { getToQueue } from 'common/store/queue/sagas'
 
 import * as cacheActions from 'common/store/cache/actions'
 import { getCollection } from 'common/store/cache/collections/selectors'
@@ -19,6 +18,7 @@ import { getTrack, getTracks } from 'common/store/cache/tracks/selectors'
 import { getUsers } from 'common/store/cache/users/selectors'
 import * as baseLineupActions from 'common/store/lineup/actions'
 import { getUid as getCurrentPlayerTrackUid } from 'common/store/player/selectors'
+import { getToQueue } from 'common/store/queue/sagas'
 import { getSource, getUid, getPositions } from 'common/store/queue/selectors'
 import * as queueActions from 'common/store/queue/slice'
 import { isMobile } from 'utils/clientUtil'

@@ -13,12 +13,20 @@ import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
+import { AudioState } from 'store/player/types'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
 import { getUserId } from 'common/store/account/selectors'
 import { useRecord, make } from 'common/store/analytics/actions'
 import { getDominantColorsByTrack } from 'common/store/average-color/slice'
 import { getIsCasting, getMethod } from 'common/store/cast/selectors'
+import {
+  getAudio,
+  getBuffering,
+  getCounter,
+  getPlaying
+} from 'common/store/player/selectors'
+import { seek, reset } from 'common/store/player/slice'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import {
   next,
@@ -54,14 +62,6 @@ import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'common/store/player/selectors'
-import { seek, reset } from 'common/store/player/slice'
-import { AudioState } from 'store/player/types'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,

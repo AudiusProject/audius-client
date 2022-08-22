@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 
-import { Genre } from 'common/utils/genres'
 import { makeGetCurrent } from 'common/store/player/selectors'
+import { Genre } from 'common/utils/genres'
 
 import ForwardSkipButton, { ForwardSkipButtonProps } from './ForwardSkipButton'
 import NextButton, { NextButtonProps } from './NextButton'

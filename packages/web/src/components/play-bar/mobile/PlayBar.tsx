@@ -10,8 +10,15 @@ import {
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
+import { AudioState } from 'store/player/types'
 
 import { make, useRecord } from 'common/store/analytics/actions'
+import {
+  getAudio,
+  getBuffering,
+  getCounter,
+  getPlaying
+} from 'common/store/player/selectors'
 import { makeGetCurrent } from 'common/store/queue/selectors'
 import { pause, play } from 'common/store/queue/slice'
 import {
@@ -25,13 +32,6 @@ import PlayButton from 'components/play-bar/PlayButton'
 import TrackingBar from 'components/play-bar/TrackingBar'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'common/store/player/selectors'
-import { AudioState } from 'store/player/types'
 import { AppState } from 'store/types'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 

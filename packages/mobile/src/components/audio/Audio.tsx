@@ -1,7 +1,24 @@
 import type { RefObject } from 'react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
-import { Genre } from 'audius-client/src/common/utils/genres'
+import type { CommonState } from 'common/store'
+import {
+  getCurrentTrack,
+  getPlaying,
+  getSeek,
+  makeGetCurrent
+} from 'common/store/player/selectors'
+import * as playerActions from 'common/store/player/slice'
+import {
+  getIndex,
+  getLength,
+  getQueueAutoplay,
+  getRepeat,
+  getShuffle,
+  getShuffleIndex
+} from 'common/store/queue/selectors'
+import * as queueActions from 'common/store/queue/slice'
+import { Genre } from 'common/utils/genres'
 import { Platform, StyleSheet, View } from 'react-native'
 import MusicControl from 'react-native-music-control'
 import { Command } from 'react-native-music-control/lib/types'
@@ -12,18 +29,7 @@ import type { Dispatch } from 'redux'
 
 import { MessageType } from 'app/message'
 import type { AppState } from 'app/store'
-import * as audioActions from 'app/store/audio/actions'
 import { RepeatMode } from 'app/store/audio/reducer'
-import {
-  getPlaying,
-  getSeek,
-  getQueueLength,
-  getRepeatMode,
-  getIsShuffleOn,
-  getShuffleIndex,
-  getQueueAutoplay,
-  getTrackAndIndex
-} from 'app/store/audio/selectors'
 import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
 import { postMessage } from 'app/utils/postMessage'
 
@@ -64,7 +70,9 @@ type Props = OwnProps &
 
 const Audio = ({
   webRef,
-  trackAndIndex: { track, index },
+  track,
+  user,
+  index,
   queueLength,
   playing,
   seek,
@@ -437,23 +445,30 @@ const Audio = ({
   )
 }
 
-const mapStateToProps = (state: AppState) => ({
-  trackAndIndex: getTrackAndIndex(state),
-  queueLength: getQueueLength(state),
-  playing: getPlaying(state),
-  seek: getSeek(state),
-  repeatMode: getRepeatMode(state),
-  isShuffleOn: getIsShuffleOn(state),
-  shuffleIndex: getShuffleIndex(state),
-  queueAutoplay: getQueueAutoplay(state)
-})
+const getCurrent = makeGetCurrent()
+
+const mapStateToProps = (state: CommonState) => {
+  const { track, user } = getCurrent(state)
+  return {
+    track,
+    user,
+    index: getIndex(state),
+    queueLength: getLength(state),
+    playing: getPlaying(state),
+    seek: getSeek(state),
+    repeatMode: getRepeat(state),
+    isShuffleOn: getShuffle(state),
+    shuffleIndex: getShuffleIndex(state),
+    queueAutoplay: getQueueAutoplay(state)
+  }
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  play: () => dispatch(audioActions.play()),
-  pause: () => dispatch(audioActions.pause()),
-  next: () => dispatch(audioActions.next()),
-  previous: () => dispatch(audioActions.previous()),
-  reset: () => dispatch(audioActions.reset())
+  play: () => dispatch(playerActions.play({})),
+  pause: () => dispatch(playerActions.pause({})),
+  next: () => dispatch(queueActions.next({})),
+  previous: () => dispatch(queueActions.previous({})),
+  reset: () => dispatch(playerActions.reset({ shouldAutoplay: false }))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Audio)
