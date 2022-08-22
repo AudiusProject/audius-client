@@ -6,7 +6,7 @@ export const getBuyAudioFlowStage = (state: CommonState) =>
 export const getAudioPurchaseInfo = (state: CommonState) =>
   state.ui.buyAudio.purchaseInfo
 
-export const getAudioPurchaseInfoStatus = (state: AppState) =>
+export const getAudioPurchaseInfoStatus = (state: CommonState) =>
   state.ui.buyAudio.purchaseInfoStatus
 
 export const getFeesCache = (state: CommonState) => state.ui.buyAudio.feesCache
