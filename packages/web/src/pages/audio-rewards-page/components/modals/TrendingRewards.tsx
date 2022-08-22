@@ -5,14 +5,14 @@ import {
   StringKeys,
   audioRewardsPageActions,
   TrendingRewardsModalType,
-  audioRewardsPageSelectors,
-  useModalState
+  audioRewardsPageSelectors
 } from '@audius/common'
 import { TabSlider } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 import { TwitterTweetEmbed } from 'react-twitter-embed'
 
+import { useModalState } from 'common/hooks/useModalState'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useRemoteVar } from 'hooks/useRemoteConfig'

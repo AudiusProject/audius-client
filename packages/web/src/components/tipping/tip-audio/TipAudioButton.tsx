@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import {
-  useSelector,
   accountSelectors,
   profilePageSelectors,
   tippingActions
@@ -12,6 +11,7 @@ import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
+import { useSelector } from 'common/hooks/useSelector'
 import { SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './TipAudio.module.css'

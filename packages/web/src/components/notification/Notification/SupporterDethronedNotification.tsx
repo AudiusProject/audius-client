@@ -3,13 +3,13 @@ import { useCallback } from 'react'
 import {
   Name,
   Nullable,
-  useSelector,
   cacheUsersSelectors,
   notificationsSelectors,
   SupporterDethronedNotification as SupporterDethroned
 } from '@audius/common'
 
 import crown from 'assets/img/crown2x.png'
+import { useSelector } from 'common/hooks/useSelector'
 import { make } from 'common/store/analytics/actions'
 
 import styles from './SupporterDethronedNotification.module.css'

@@ -2,7 +2,6 @@ import { useCallback, useEffect } from 'react'
 
 import {
   Nullable,
-  useSelector,
   tippingSelectors,
   tippingActions,
   TippingSendStatus,
@@ -15,6 +14,7 @@ import { usePrevious } from 'react-use'
 
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
+import { useSelector } from 'common/hooks/useSelector'
 
 import { ConfirmSendTip } from './ConfirmSendTip'
 import { SendTip } from './SendTip'

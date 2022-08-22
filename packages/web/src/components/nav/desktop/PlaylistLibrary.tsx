@@ -17,13 +17,13 @@ import {
   getPlaylistsNotInLibrary,
   isInsideFolder,
   reorderPlaylistLibrary,
-  collectionsSocialActions,
-  useModalState
+  collectionsSocialActions
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { make, useRecord } from 'common/store/analytics/actions'
 import Droppable from 'components/dragndrop/Droppable'
 import { ToastContext } from 'components/toast/ToastContext'

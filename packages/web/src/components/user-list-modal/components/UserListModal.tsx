@@ -1,7 +1,6 @@
 import { ReactElement, useRef } from 'react'
 
 import {
-  useSelector,
   cacheUsersSelectors,
   profilePageSelectors,
   topSupportersUserListSelectors,
@@ -31,6 +30,7 @@ import {
 } from '@audius/stems'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
+import { useSelector } from 'common/hooks/useSelector'
 import UserList from 'components/user-list/UserList'
 import { UserListType } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'

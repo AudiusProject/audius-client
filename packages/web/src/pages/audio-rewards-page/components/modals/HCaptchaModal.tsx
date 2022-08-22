@@ -1,13 +1,10 @@
 import { useCallback } from 'react'
 
-import {
-  audioRewardsPageActions,
-  HCaptchaStatus,
-  useModalState
-} from '@audius/common'
+import { audioRewardsPageActions, HCaptchaStatus } from '@audius/common'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import styles from './HCaptchaModal.module.css'

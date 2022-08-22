@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
-import { useModalState } from '@audius/common'
-
+import { useModalState } from 'common/hooks/useModalState'
 import Drawer from 'components/drawer/Drawer'
 import { useProfileTier } from 'hooks/wallet'
 import {

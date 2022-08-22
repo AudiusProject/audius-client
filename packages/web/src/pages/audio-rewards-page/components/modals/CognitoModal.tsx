@@ -8,11 +8,11 @@ import {
   FlowErrorEvent,
   accountSelectors,
   audioRewardsPageActions,
-  CognitoFlowStatus,
-  useModalState
+  CognitoFlowStatus
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { make, useRecord } from 'common/store/analytics/actions'
 import { useScript } from 'hooks/useScript'
 import { getCognitoSignature } from 'services/audius-backend/Cognito'

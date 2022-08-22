@@ -4,8 +4,7 @@ import {
   Nullable,
   ShareSoundToTiktokModalStatus,
   shareSoundToTiktokModalActions,
-  shareSoundToTiktokModalSelectors,
-  useModalState
+  shareSoundToTiktokModalSelectors
 } from '@audius/common'
 import {
   Button,
@@ -17,6 +16,7 @@ import {
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'

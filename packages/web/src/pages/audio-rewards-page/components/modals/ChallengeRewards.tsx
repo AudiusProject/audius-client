@@ -10,8 +10,7 @@ import {
   ClaimStatus,
   CognitoFlowStatus,
   audioRewardsPageSelectors,
-  getAAOErrorEmojis,
-  useModalState
+  getAAOErrorEmojis
 } from '@audius/common'
 import {
   Button,
@@ -28,6 +27,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconValidationCheck } from 'assets/img/iconValidationCheck.svg'
 import QRCode from 'assets/img/imageQR.png'
+import { useModalState } from 'common/hooks/useModalState'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { show as showConfetti } from 'components/music-confetti/store/slice'
 import Toast from 'components/toast/Toast'

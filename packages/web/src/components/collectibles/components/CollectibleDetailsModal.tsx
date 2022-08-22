@@ -15,8 +15,7 @@ import {
   accountSelectors,
   badgeTiers,
   collectibleDetailsUISelectors,
-  collectibleDetailsUIActions,
-  useModalState
+  collectibleDetailsUIActions
 } from '@audius/common'
 import {
   Button,
@@ -35,6 +34,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReactComponent as IconEmbed } from 'assets/img/iconEmbed.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import Drawer from 'components/drawer/Drawer'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'

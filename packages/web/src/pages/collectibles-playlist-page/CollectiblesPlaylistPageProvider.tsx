@@ -24,14 +24,14 @@ import {
   queueActions,
   QueueSource,
   collectibleDetailsUIActions,
-  shareModalUIActions,
-  useModalState
+  shareModalUIActions
 } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { matchPath } from 'react-router-dom'
 
+import { useModalState } from 'common/hooks/useModalState'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
 import { getPlaying, makeGetCurrent } from 'store/player/selectors'

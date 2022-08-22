@@ -3,7 +3,6 @@ import { useCallback, ReactNode, useState } from 'react'
 import {
   WidthSizes,
   SquareSizes,
-  useSelector,
   accountSelectors,
   CommonState,
   cacheUsersSelectors
@@ -11,6 +10,7 @@ import {
 import Popover from 'antd/lib/popover'
 import cn from 'classnames'
 
+import { useSelector } from 'common/hooks/useSelector'
 import { MountPlacement } from 'components/types'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'

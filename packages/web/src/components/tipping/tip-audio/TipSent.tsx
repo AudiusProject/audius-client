@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import {
   Name,
-  useSelector,
   formatNumberCommas,
   accountSelectors,
   tippingSelectors
@@ -10,6 +9,7 @@ import {
 import { Button, ButtonType, IconTwitterBird, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 
+import { useSelector } from 'common/hooks/useSelector'
 import { useRecord, make } from 'common/store/analytics/actions'
 import { openTwitterLink } from 'utils/tweet'
 

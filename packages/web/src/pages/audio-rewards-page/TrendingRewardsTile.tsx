@@ -3,11 +3,11 @@ import { ReactNode } from 'react'
 import {
   TrendingRewardID,
   StringKeys,
-  audioRewardsPageActions,
-  useSetVisibility
+  audioRewardsPageActions
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
+import { useSetVisibility } from 'common/hooks/useModalState'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 

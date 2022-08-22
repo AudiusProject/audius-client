@@ -3,7 +3,6 @@ import { useCallback, useEffect } from 'react'
 import {
   ID,
   User,
-  useSelector,
   stringWeiToBN,
   cacheUsersSelectors,
   tippingSelectors,
@@ -14,6 +13,7 @@ import {
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
+import { useSelector } from 'common/hooks/useSelector'
 import { UserProfilePictureList } from 'components/notification/Notification/components/UserProfilePictureList'
 import {
   setUsers,

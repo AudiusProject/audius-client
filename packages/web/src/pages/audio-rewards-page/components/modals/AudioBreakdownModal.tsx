@@ -1,12 +1,12 @@
 import {
   BNWei,
   tokenDashboardPageSelectors,
-  walletSelectors,
-  useModalState
+  walletSelectors
 } from '@audius/common'
 import { IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 
+import { useModalState } from 'common/hooks/useModalState'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { useSelector } from 'utils/reducer'

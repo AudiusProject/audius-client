@@ -5,8 +5,7 @@ import {
   PlaylistLibraryFolder,
   accountSelectors,
   removePlaylistFolderInLibrary,
-  renamePlaylistFolderInLibrary,
-  useModalState
+  renamePlaylistFolderInLibrary
 } from '@audius/common'
 import {
   IconFolder,
@@ -17,6 +16,7 @@ import {
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { make, useRecord } from 'common/store/analytics/actions'
 import FolderForm from 'components/create-playlist/FolderForm'
 import DeleteConfirmationModal from 'components/delete-confirmation/DeleteConfirmationModal'

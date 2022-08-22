@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
 
-import { ID, Name, useSelector, accountSelectors } from '@audius/common'
+import { ID, Name, accountSelectors } from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
 
+import { useSelector } from 'common/hooks/useSelector'
 import { make, useRecord } from 'common/store/analytics/actions'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'

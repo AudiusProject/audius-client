@@ -4,11 +4,11 @@ import {
   FeedFilter,
   Name,
   Status,
-  feedPageLineupActions as feedActions,
-  useModalState
+  feedPageLineupActions as feedActions
 } from '@audius/common'
 import cn from 'classnames'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { make, useRecord } from 'common/store/analytics/actions'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'

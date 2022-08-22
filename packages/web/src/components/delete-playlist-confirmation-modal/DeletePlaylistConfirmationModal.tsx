@@ -2,12 +2,12 @@ import { useCallback, useContext, useMemo } from 'react'
 
 import {
   cacheCollectionsActions,
-  deletePlaylistConfirmationModalUISelectors,
-  useModalState
+  deletePlaylistConfirmationModalUISelectors
 } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import ActionSheetModal from 'components/action-drawer/ActionDrawer'
 import { RouterContext } from 'components/animated-switch/RouterContextProvider'
 import { TRENDING_PAGE } from 'utils/route'

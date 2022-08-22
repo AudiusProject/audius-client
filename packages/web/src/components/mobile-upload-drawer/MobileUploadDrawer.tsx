@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
-import { useModalState } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconUpload } from 'assets/img/iconGradientUpload.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import Drawer from 'components/drawer/Drawer'
 import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
 

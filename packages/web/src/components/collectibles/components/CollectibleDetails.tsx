@@ -5,14 +5,14 @@ import {
   Collectible,
   CollectibleMediaType,
   profilePageSelectors,
-  collectibleDetailsUIActions,
-  useModalState
+  collectibleDetailsUIActions
 } from '@audius/common'
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'

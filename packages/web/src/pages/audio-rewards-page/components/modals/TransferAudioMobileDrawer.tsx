@@ -1,6 +1,5 @@
-import { useModalState } from '@audius/common'
-
 import { ReactComponent as IconGold } from 'assets/img/IconGoldBadge.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import Drawer from 'components/drawer/Drawer'
 
 import styles from './TransferAudioMobileDrawer.module.css'

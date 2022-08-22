@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   FeatureFlags,
   FEATURE_FLAG_OVERRIDE_KEY,
-  OverrideSetting,
-  useModalState
+  OverrideSetting
 } from '@audius/common'
 import {
   Modal,
@@ -14,6 +13,7 @@ import {
   SegmentedControl
 } from '@audius/stems'
 
+import { useModalState } from 'common/hooks/useModalState'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useDevModeHotkey } from 'hooks/useHotkey'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'

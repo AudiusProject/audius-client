@@ -13,8 +13,7 @@ import {
   useInstanceVar,
   ProfileUser,
   collectibleDetailsUISelectors,
-  collectibleDetailsUIActions,
-  useModalState
+  collectibleDetailsUIActions
 } from '@audius/common'
 import {
   Button,
@@ -38,6 +37,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import CollectibleDetails from 'components/collectibles/components/CollectibleDetails'
 import {
   HiddenCollectibleRow,

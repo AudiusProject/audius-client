@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import {
   ID,
-  useSelector,
   stringWeiToBN,
   profilePageSelectors,
   tippingSelectors
@@ -11,6 +10,7 @@ import { IconArrow } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
+import { useSelector } from 'common/hooks/useSelector'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import {
   setUsers,

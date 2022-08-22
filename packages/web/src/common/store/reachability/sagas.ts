@@ -65,6 +65,7 @@ function* updateReachability(isReachable: boolean) {
 function* reachabilityPollingDaemon() {
   if (NATIVE_MOBILE) {
     // Native mobile: use the system connectivity checks
+    console.log('polling')
     yield* takeEvery(
       MessageType.IS_NETWORK_CONNECTED,
       function* (action: Message) {

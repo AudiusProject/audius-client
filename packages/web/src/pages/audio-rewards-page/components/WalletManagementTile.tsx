@@ -3,7 +3,6 @@ import React, { useCallback, useState } from 'react'
 import {
   Nullable,
   BNWei,
-  useModalState,
   tokenDashboardPageActions,
   walletSelectors,
   tokenDashboardPageSelectors,
@@ -20,6 +19,7 @@ import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconSettings } from 'assets/img/iconSettings.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
+import { useModalState } from 'common/hooks/useModalState'
 import { CoinbasePayButtonCustom } from 'components/coinbase-pay-button'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { isMobile } from 'utils/clientUtil'
