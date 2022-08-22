@@ -94,6 +94,7 @@ declare global {
     phantom: any
     solana: PhantomProvider
     web3: any
+    Web3: any
   }
 }
 

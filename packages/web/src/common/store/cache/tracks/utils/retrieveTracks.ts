@@ -16,7 +16,6 @@ import * as trackActions from 'common/store/cache/tracks/actions'
 import { getTracks as getTracksSelector } from 'common/store/cache/tracks/selectors'
 import { waitForAccount } from 'utils/sagaHelpers'
 
-import { setTracksIsBlocked } from './blocklist'
 import {
   fetchAndProcessRemixes,
   fetchAndProcessRemixParents
@@ -105,14 +104,7 @@ export function* retrieveTrackByHandleAndSlug({
             }
           ])
         )
-        const checkedTracks = yield* call(
-          setTracksIsBlocked,
-          tracks,
-          audiusBackendInstance
-        )
-        return checkedTracks.map((track) =>
-          reformat(track, audiusBackendInstance)
-        )
+        return tracks.map((track) => reformat(track, audiusBackendInstance))
       }
     }
   )
@@ -268,14 +260,7 @@ export function* retrieveTracks({
     onBeforeAddToCache: function* <T extends TrackMetadata>(tracks: T[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       yield* addUsersFromTracks(tracks)
-      const checkedTracks = yield* call(
-        setTracksIsBlocked,
-        tracks,
-        audiusBackendInstance
-      )
-      return checkedTracks.map((track) =>
-        reformat(track, audiusBackendInstance)
-      )
+      return tracks.map((track) => reformat(track, audiusBackendInstance))
     }
   })
 

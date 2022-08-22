@@ -13,7 +13,6 @@ import {
 import { getUserId } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
-import { setTracksIsBlocked } from 'common/store/cache/tracks/utils/blocklist'
 import * as searchActions from 'components/search-bar/store/actions'
 import { waitForAccount } from 'utils/sagaHelpers'
 
@@ -24,7 +23,6 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export function* getSearchResults(searchText) {
   const apiClient = yield getContext('apiClient')
   yield waitForAccount()
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const userId = yield select(getUserId)
   const results = yield apiClient.getSearchAutocomplete({
     currentUserId: userId,
@@ -35,16 +33,11 @@ export function* getSearchResults(searchText) {
 
   const { tracks, albums, playlists, users } = results
   const checkedUsers = users.filter((t) => !t.is_deactivated)
-  const checkedTracks = (yield call(
-    setTracksIsBlocked,
-    tracks,
-    audiusBackendInstance
-  )).filter((t) => !t.is_delete && !t._blocked && !t.user.is_deactivated)
   const checkedPlaylists = playlists.filter((t) => !t.user?.is_deactivated)
   const checkedAlbums = albums.filter((t) => !t.user?.is_deactivated)
   return {
     users: checkedUsers,
-    tracks: checkedTracks,
+    tracks,
     albums: checkedAlbums,
     playlists: checkedPlaylists
   }
