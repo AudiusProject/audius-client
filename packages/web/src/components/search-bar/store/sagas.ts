@@ -1,15 +1,7 @@
 import { Name } from '@audius/common'
-import {
-  call,
-  cancel,
-  fork,
-  put,
-  race,
-  select,
-  take,
-  getContext
-} from 'redux-saga/effects'
+import { call, cancel, fork, put, race, select, take } from 'typed-redux-saga'
 
+import { getContext } from 'common/store'
 import { getUserId } from 'common/store/account/selectors'
 import { make } from 'common/store/analytics/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
@@ -20,11 +12,14 @@ import mobileSagas from './mobileSagas'
 import { getSearch } from './selectors'
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
-export function* getSearchResults(searchText) {
-  const apiClient = yield getContext('apiClient')
-  yield waitForAccount()
-  const userId = yield select(getUserId)
-  const results = yield apiClient.getSearchAutocomplete({
+export function* getSearchResults(searchText: string) {
+  const apiClient = yield* getContext('apiClient')
+  yield* waitForAccount()
+  const userId = yield* select(getUserId)
+
+  if (!userId) return
+
+  const results = yield* call([apiClient, 'getSearchAutocomplete'], {
     currentUserId: userId,
     query: searchText,
     limit: 3,
@@ -32,21 +27,24 @@ export function* getSearchResults(searchText) {
   })
 
   const { tracks, albums, playlists, users } = results
-  const checkedUsers = users.filter((t) => !t.is_deactivated)
-  const checkedPlaylists = playlists.filter((t) => !t.user?.is_deactivated)
-  const checkedAlbums = albums.filter((t) => !t.user?.is_deactivated)
+  const checkedUsers = users.filter((u) => !u.is_deactivated)
+  const checkedTracks = tracks.filter(
+    (t) => !t.is_delete && !t.user.is_deactivated
+  )
+  const checkedPlaylists = playlists.filter((p) => !p.user?.is_deactivated)
+  const checkedAlbums = albums.filter((a) => !a.user?.is_deactivated)
   return {
     users: checkedUsers,
-    tracks,
+    tracks: checkedTracks,
     albums: checkedAlbums,
     playlists: checkedPlaylists
   }
 }
 
-function* fetchSearchAsync(action) {
-  yield call(waitForBackendSetup)
-  yield put(searchActions.fetchSearchRequested(action.searchText))
-  const search = yield select(getSearch)
+function* fetchSearchAsync(action: searchActions.FetchSearchAction) {
+  yield* call(waitForBackendSetup)
+  yield* put(searchActions.fetchSearchRequested(action.searchText))
+  const search = yield* select(getSearch)
   if (action.searchText === search.searchText) {
     const previousResults = {
       tracks: search.tracks,
@@ -54,21 +52,21 @@ function* fetchSearchAsync(action) {
       playlists: search.playlists,
       users: search.users
     }
-    yield put(
+    yield* put(
       searchActions.fetchSearchSucceeded(previousResults, search.searchText)
     )
   } else {
-    const results = yield call(getSearchResults, action.searchText)
+    const results = yield* call(getSearchResults, action.searchText)
     if (results) {
-      yield put(searchActions.fetchSearchSucceeded(results, action.searchText))
-      yield put(
+      yield* put(searchActions.fetchSearchSucceeded(results, action.searchText))
+      yield* put(
         make(Name.SEARCH_SEARCH, {
           term: action.searchText,
           source: 'autocomplete'
         })
       )
     } else {
-      yield put(searchActions.fetchSearchFailed(action.searchText))
+      yield* put(searchActions.fetchSearchFailed(action.searchText))
     }
   }
 }
@@ -76,19 +74,21 @@ function* fetchSearchAsync(action) {
 function* watchSearch() {
   let lastTask
   while (true) {
-    const { searchAction, cancelSearch } = yield race({
-      searchAction: take(searchActions.FETCH_SEARCH),
+    const { searchAction, cancelSearch } = yield* race({
+      searchAction: take<searchActions.FetchSearchAction>(
+        searchActions.FETCH_SEARCH
+      ),
       cancelSearch: take(searchActions.CANCEL_FETCH_SEARCH)
     })
     if (lastTask) {
       // cancel is no-op if the task has already terminated
-      yield cancel(lastTask)
+      yield* cancel(lastTask)
 
       // Reset the search bar state
-      yield put(searchActions.clearSearch())
+      yield* put(searchActions.clearSearch())
     }
-    if (!cancelSearch) {
-      lastTask = yield fork(fetchSearchAsync, searchAction)
+    if (!cancelSearch && searchAction) {
+      lastTask = yield* fork(fetchSearchAsync, searchAction)
     }
   }
 }

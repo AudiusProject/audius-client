@@ -285,7 +285,7 @@ type GetRemixingArgs = {
 type GetSearchArgs = {
   currentUserId: ID
   query: string
-  kind: SearchKind
+  kind?: SearchKind
   limit?: number
   offset?: number
 }
