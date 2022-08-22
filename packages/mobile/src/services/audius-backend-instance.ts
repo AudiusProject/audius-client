@@ -103,11 +103,7 @@ export const audiusBackendInstance = audiusBackend({
   ) => {
     const config = {
       error: false,
-      web3Config: libs.configInternalWeb3(
-        registryAddress,
-        entityManagerAddress,
-        web3ProviderUrls
-      )
+      web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
     }
     console.log(config, 'HI')
     return config
@@ -127,8 +123,7 @@ export const audiusBackendInstance = audiusBackend({
     libsInitEventEmitter.emit(LIBS_INITTED_EVENT)
   },
   recaptchaSiteKey: Config.RECAPTCHA_SITE_KEY,
-  recordAnalytics: (event: any, properties: any) =>
-    track({ eventName: event, properties }),
+  recordAnalytics: track,
   reportError: reportToSentry,
   registryAddress: Config.REGISTRY_ADDRESS,
   entityManagerAddress: Config.ENTITY_MANAGER_ADDRESS,
