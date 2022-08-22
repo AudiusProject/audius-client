@@ -17,8 +17,6 @@ import utc from 'dayjs/plugin/utc'
 import placeholderCoverArt from '../../assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from '../../assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from '../../assets/img/imageProfilePicEmpty2X.png'
-import { AnalyticsEvent } from '../../models/Analytics'
-import { ReportToSentryArgs } from '../../models/ErrorReporting'
 import {
   BNWei,
   ChallengeRewardID,
@@ -40,6 +38,8 @@ import {
   UserMetadata,
   UserTrack
 } from '../../models'
+import { AnalyticsEvent } from '../../models/Analytics'
+import { ReportToSentryArgs } from '../../models/ErrorReporting'
 import * as schemas from '../../schemas'
 import { ClientRewardsReporter } from '../../services/audius-backend/Rewards'
 import {
@@ -49,11 +49,11 @@ import {
   StringKeys,
   RemoteConfigInstance
 } from '../../services/remote-config'
-import { CIDCache } from '../../store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
   PushNotificationSetting
 } from '../../store'
+import { CIDCache } from '../../store/cache/CIDCache'
 import {
   Nullable,
   getErrorMessage,
