@@ -115,8 +115,7 @@ export const audiusBackendInstance = audiusBackend({
     libsInitEventEmitter.emit(LIBS_INITTED_EVENT)
   },
   recaptchaSiteKey: Config.RECAPTCHA_SITE_KEY,
-  recordAnalytics: (event: any, properties: any) =>
-    track({ eventName: event, properties }),
+  recordAnalytics: track,
   registryAddress: Config.REGISTRY_ADDRESS,
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) => AsyncStorage.setItem(key, value),
