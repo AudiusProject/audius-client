@@ -1,4 +1,19 @@
-import { IntKeys, Name } from '@audius/common'
+import {
+  IntKeys,
+  Name,
+  getContext,
+  walletActions,
+  convertJSBIToAmountObject,
+  convertWAudioToWei,
+  formatWei,
+  weiToString,
+  JupiterTokenSymbol,
+  TOKEN_LISTING_MAP,
+  buyAudioSelectors,
+  PurchaseInfoErrorType,
+  buyAudioActions,
+  OnRampProvider
+} from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
@@ -22,17 +37,24 @@ import {
   fork
 } from 'typed-redux-saga'
 
-import { getContext } from 'common/store'
 import { make } from 'common/store/analytics/actions'
 import {
-  JupiterTokenSymbol,
-  TOKEN_LISTING_MAP
-} from 'common/store/buy-audio/constants'
+  createTransferToUserBankTransaction,
+  getAssociatedTokenAccountInfo,
+  getAssociatedTokenRentExemptionMinimum,
+  getAudioAccount,
+  getAudioAccountInfo,
+  getRootAccountRentExemptionMinimum,
+  getRootSolanaAccount,
+  getSolanaConnection,
+  pollForAudioBalanceChange,
+  pollForSolBalanceChange
+} from 'services/audius-backend/BuyAudio'
 import {
-  getBuyAudioFlowStage,
-  getFeesCache
-} from 'common/store/buy-audio/selectors'
-import {
+  createUserBankIfNeeded,
+  getUserBank
+} from 'services/audius-backend/waudio'
+const {
   calculateAudioPurchaseInfo,
   calculateAudioPurchaseInfoSucceeded,
   cacheAssociatedTokenAccount,
@@ -45,40 +67,21 @@ import {
   transferStarted,
   transferCompleted,
   clearFeesCache,
-  calculateAudioPurchaseInfoFailed,
-  PurchaseInfoErrorType
-} from 'common/store/buy-audio/slice'
-import { increaseBalance } from 'common/store/wallet/slice'
-import {
-  convertJSBIToAmountObject,
-  convertWAudioToWei,
-  formatWei,
-  weiToString
-} from 'common/utils/wallet'
-import {
-  createTransferToUserBankTransaction,
-  getAssociatedTokenAccountInfo,
-  getAssociatedTokenRentExemptionMinimum,
-  getAudioAccount,
-  getAudioAccountInfo,
-  getRootSolanaAccount,
-  getSolanaConnection,
-  pollForAudioBalanceChange,
-  pollForSolBalanceChange
-} from 'services/audius-backend/BuyAudio'
-import {
-  createUserBankIfNeeded,
-  getUserBank
-} from 'services/audius-backend/waudio'
-
+  calculateAudioPurchaseInfoFailed
+} = buyAudioActions
+const { getBuyAudioFlowStage, getFeesCache } = buyAudioSelectors
+const { increaseBalance } = walletActions
 const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
 const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
 
 const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
-const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
 let _jup: Jupiter
+
+const MEMO_MESSAGES = {
+  [OnRampProvider.COINBASE]: 'In-App $AUDIO Purchase: Coinbase'
+}
 
 /**
  * Initializes Jupiter singleton if necessary and returns
@@ -326,7 +329,8 @@ function* getTransactionFees({
         userBank,
         fromAccount: rootAccount,
         // eslint-disable-next-line new-cap
-        amount: new u64(JSBI.toNumber(route.outAmount))
+        amount: new u64(JSBI.toNumber(route.outAmount)),
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     const connection = yield* call(getSolanaConnection)
@@ -373,6 +377,9 @@ function* getTransactionFees({
 function* getSwapFees({ route }: { route: RouteInfo }) {
   const feesCache = yield* select(getFeesCache)
   const rootAccount = yield* call(getRootSolanaAccount)
+
+  const rootAccountMinBalance = yield* call(getRootAccountRentExemptionMinimum)
+
   const associatedAccountCreationFees = yield* call(
     getAssociatedAccountCreationFees,
     { rootAccount: rootAccount.publicKey, route, feesCache }
@@ -386,13 +393,22 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   console.debug(
     `Estimated transaction fees: ${
       transactionFees / LAMPORTS_PER_SOL
-    } SOL. Estimated associated account creation fees: ${
+    } SOL. Estimated associated account rent-exemption fees: ${
       associatedAccountCreationFees / LAMPORTS_PER_SOL
+    } SOL. Estimated root account rent-exemption fee: ${
+      rootAccountMinBalance / LAMPORTS_PER_SOL
     } SOL. Total estimated fees: ${
-      (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+      (associatedAccountCreationFees +
+        transactionFees +
+        rootAccountMinBalance) /
+      LAMPORTS_PER_SOL
     }`
   )
-  return { transactionFees, associatedAccountCreationFees }
+  return {
+    rootAccountMinBalance,
+    transactionFees,
+    associatedAccountCreationFees
+  }
 }
 
 function* getAudioPurchaseBounds() {
@@ -465,10 +481,11 @@ function* getAudioPurchaseInfo({
       inputAmount: inSol,
       slippage
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
 
     // Get existing solana balance
     const existingBalance = yield* call(
@@ -481,7 +498,7 @@ function* getAudioPurchaseInfo({
       inSol +
       associatedAccountCreationFees +
       transactionFees +
-      MIN_PADDING -
+      rootAccountMinBalance -
       existingBalance
 
     // Get SOL => USDC quote to estimate $USD cost
@@ -498,7 +515,10 @@ Adjustment For Slippage (${slippage}%): ${
         (inSol - reverseQuote.outputAmount.amount) / LAMPORTS_PER_SOL
       } SOL
 Fees: ${
-        (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+        (associatedAccountCreationFees +
+          rootAccountMinBalance +
+          transactionFees) /
+        LAMPORTS_PER_SOL
       } SOL
 Existing Balance: ${existingBalance / LAMPORTS_PER_SOL} SOL
 Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
@@ -599,11 +619,13 @@ function* startBuyAudioFlow({
       inputAmount: newBalance / LAMPORTS_PER_SOL,
       slippage: SLIPPAGE
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
-    const minSol = associatedAccountCreationFees + transactionFees + MIN_PADDING
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
+    const minSol =
+      associatedAccountCreationFees + transactionFees + rootAccountMinBalance
     const inputAmount = (newBalance - minSol) / LAMPORTS_PER_SOL
     console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
 
@@ -668,7 +690,8 @@ function* startBuyAudioFlow({
       {
         userBank,
         fromAccount: rootAccount.publicKey,
-        amount: transferAmount
+        amount: transferAmount,
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     yield* call(sendTransaction, {

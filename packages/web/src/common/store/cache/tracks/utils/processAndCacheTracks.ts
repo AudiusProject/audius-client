@@ -1,8 +1,12 @@
-import { Kind, Track, TrackMetadata, makeUid } from '@audius/common'
-import { call, put } from 'typed-redux-saga'
-
-import { getContext } from 'common/store'
-import * as cacheActions from 'common/store/cache/actions'
+import {
+  Kind,
+  Track,
+  TrackMetadata,
+  makeUid,
+  cacheActions,
+  getContext
+} from '@audius/common'
+import { put, call } from 'typed-redux-saga'
 
 import { addUsersFromTracks } from './helpers'
 import { reformat } from './reformat'
