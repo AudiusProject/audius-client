@@ -20,6 +20,11 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [rollupTypescript(), image()]
+    plugins: [rollupTypescript(), image()],
+
+    external: [
+      ...Object.keys(pkg.dependencies),
+      ...Object.keys(pkg.devDependencies)
+    ]
   }
 ]
