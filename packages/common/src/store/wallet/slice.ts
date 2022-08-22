@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 
-import { Chain } from 'models/Chain'
-import { StringWei } from 'models/Wallet'
 import { Nullable } from 'utils/typeUtils'
+
+import { Chain } from '../../models/Chain'
+import { StringWei } from '../../models/Wallet'
 
 type WalletState = {
   balance: Nullable<StringWei>

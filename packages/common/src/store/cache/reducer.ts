@@ -2,7 +2,7 @@
 // TODO(nkang) - convert to typescript
 import { mergeWith, add } from 'lodash'
 
-import { Kind } from 'models/Kind'
+import { Kind } from '../../models/Kind'
 
 import {
   ADD_SUCCEEDED,

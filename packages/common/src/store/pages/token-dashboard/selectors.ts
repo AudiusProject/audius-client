@@ -1,8 +1,8 @@
-import { Chain } from 'models/Chain'
-import { BNWei } from 'models/Wallet'
-import { CommonState } from 'store/commonStore'
-import { Nullable } from 'utils/typeUtils'
-import { stringWeiToBN } from 'utils/wallet'
+import { Chain } from '../../../models/Chain'
+import { BNWei } from '../../../models/Wallet'
+import { Nullable } from '../../../utils/typeUtils'
+import { stringWeiToBN } from '../../../utils/wallet'
+import { CommonState } from '../../commonStore'
 
 export const getSendData = (
   state: CommonState

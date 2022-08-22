@@ -7,7 +7,7 @@ import {
   Favorite,
   LineupState,
   LineupTrack
-} from 'models/index'
+} from '../../../models/index'
 
 export default interface SavesPageState {
   localSaves: { [id: number]: UID }

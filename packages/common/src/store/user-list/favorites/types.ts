@@ -1,5 +1,6 @@
-import { ID, FavoriteType } from 'models/index'
 import { UserListStoreState } from 'store/user-list/types'
+
+import { ID, FavoriteType } from '../../../models/index'
 
 export type FavoritesOwnState = {
   id: ID | null

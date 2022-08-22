@@ -1,3 +1,4 @@
+import image from '@rollup/plugin-image'
 import dts from 'rollup-plugin-dts'
 import rollupTypescript from 'rollup-plugin-typescript2'
 
@@ -21,7 +22,7 @@ export default [
         sourcemap: true
       }
     ],
-    plugins: [rollupTypescript()]
+    plugins: [rollupTypescript(), image()]
   }
   // {
   //   input: './dist/index.d.ts',

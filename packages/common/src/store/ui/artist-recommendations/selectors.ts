@@ -1,4 +1,4 @@
-import { ID } from 'models/index'
+import { ID } from '../../../models/index'
 import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { removeNullable, createDeepEqualSelector } from 'utils/index'

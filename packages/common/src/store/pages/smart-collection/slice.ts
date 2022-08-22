@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { SmartCollection } from 'models/Collection'
-import { SmartCollectionVariant } from 'models/SmartCollectionVariant'
+import { SmartCollection } from '../../../models/Collection'
+import { SmartCollectionVariant } from '../../../models/SmartCollectionVariant'
 
 import { SmartCollectionState } from './types'
 

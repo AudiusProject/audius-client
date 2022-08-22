@@ -14,11 +14,11 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-import placeholderCoverArt from 'assets/img/imageBlank2x.png'
-import imageCoverPhotoBlank from 'assets/img/imageCoverPhotoBlank.jpg'
-import placeholderProfilePicture from 'assets/img/imageProfilePicEmpty2X.png'
-import { AnalyticsEvent } from 'models/Analytics'
-import { ReportToSentryArgs } from 'models/ErrorReporting'
+import placeholderCoverArt from '../../assets/img/imageBlank2x.png'
+import imageCoverPhotoBlank from '../../assets/img/imageCoverPhotoBlank.jpg'
+import placeholderProfilePicture from '../../assets/img/imageProfilePicEmpty2X.png'
+import { AnalyticsEvent } from '../../models/Analytics'
+import { ReportToSentryArgs } from '../../models/ErrorReporting'
 import {
   BNWei,
   ChallengeRewardID,
@@ -39,21 +39,21 @@ import {
   User,
   UserMetadata,
   UserTrack
-} from 'models/index'
-import * as schemas from 'schemas/index'
-import { ClientRewardsReporter } from 'services/audius-backend/Rewards'
+} from '../../models/index'
+import * as schemas from '../../schemas/index'
+import { ClientRewardsReporter } from '../../services/audius-backend/Rewards'
 import {
   FeatureFlags,
   BooleanKeys,
   IntKeys,
   StringKeys,
   RemoteConfigInstance
-} from 'services/remote-config'
-import { CIDCache } from 'store/cache/CIDCache'
+} from '../../services/remote-config'
+import { CIDCache } from '../../store/cache/CIDCache'
 import {
   BrowserNotificationSetting,
   PushNotificationSetting
-} from 'store/index'
+} from '../../store/index'
 import {
   Nullable,
   getErrorMessage,
@@ -61,7 +61,7 @@ import {
   Maybe,
   encodeHashId,
   Timer
-} from 'utils/index'
+} from '../../utils/index'
 
 import { MonitoringCallbacks } from './types'
 
@@ -216,7 +216,9 @@ type AudiusBackendParams = {
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
-  getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean | null>
+  getFeatureEnabled: (
+    flag: FeatureFlags
+  ) => Promise<boolean | null> | null | boolean
   getHostUrl: () => Nullable<string>
   getLibs: () => Promise<any>
   getWeb3Config: (

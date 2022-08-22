@@ -1,6 +1,6 @@
 import { createCustomAction } from 'typesafe-actions'
 
-import { ID } from 'models/Identifiers'
+import { ID } from '../../../models/Identifiers'
 
 export const REQUEST_OPEN = 'ADD_TO_PLAYLIST/REQUEST_OPEN'
 export const OPEN = 'ADD_TO_PLAYLIST/OPEN'

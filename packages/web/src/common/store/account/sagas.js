@@ -8,8 +8,7 @@ import {
   settingsPageActions,
   profilePageActions,
   solanaSelectors,
-  modalsActions,
-  analyticsActions
+  modalsActions
 } from '@audius/common'
 import {
   call,
@@ -46,10 +45,11 @@ import {
 import { isElectron, isMobile } from 'utils/clientUtil'
 import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
+import { identify } from '../analytics/actions'
+
 import disconnectedWallets from './disconnected_wallet_fix.json'
 import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
-const { identify } = analyticsActions
 const { setVisibility } = modalsActions
 const { getFeePayer } = solanaSelectors
 const { fetchProfile } = profilePageActions

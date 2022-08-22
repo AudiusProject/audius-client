@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { TipSource } from 'models/Analytics'
-import { ID } from 'models/Identifiers'
-import { RecentTipsStorage, UserTip } from 'models/Tipping'
-import { User } from 'models/User'
 import { Nullable } from 'utils/typeUtils'
+
+import { TipSource } from '../../models/Analytics'
+import { ID } from '../../models/Identifiers'
+import { RecentTipsStorage, UserTip } from '../../models/Tipping'
+import { User } from '../../models/User'
 
 import {
   RefreshSupportPayloadAction,

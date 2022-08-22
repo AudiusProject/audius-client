@@ -1,4 +1,4 @@
-import { ID, FeedFilter, TimeRange, LineupState } from 'models/index'
+import { ID, FeedFilter, TimeRange, LineupState } from '../../../models/index'
 
 export type FeedPageState = {
   suggestedFollows: ID[]

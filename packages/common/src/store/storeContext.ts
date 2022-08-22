@@ -1,16 +1,18 @@
-import { AnalyticsEvent } from 'models/Analytics'
-import { AudiusAPIClient } from 'services/audius-api-client'
-import { AudiusBackend } from 'services/audius-backend'
-import { Env } from 'services/env'
-import { FingerprintClient } from 'services/fingerprint'
-import { LocalStorage } from 'services/local-storage'
-import { FeatureFlags, RemoteConfigInstance } from 'services/remote-config'
-import { WalletClient } from 'services/wallet-client'
+import { AnalyticsEvent } from '../models/Analytics'
+import { AudiusAPIClient } from '../services/audius-api-client'
+import { AudiusBackend } from '../services/audius-backend'
+import { Env } from '../services/env'
+import { FingerprintClient } from '../services/fingerprint'
+import { LocalStorage } from '../services/local-storage'
+import { FeatureFlags, RemoteConfigInstance } from '../services/remote-config'
+import { WalletClient } from '../services/wallet-client'
 
 export type CommonStoreContext = {
   getLocalStorageItem: (key: string) => Promise<string | null>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
-  getFeatureEnabled: (flag: FeatureFlags) => Promise<boolean | null>
+  getFeatureEnabled: (
+    flag: FeatureFlags
+  ) => Promise<boolean | null> | boolean | null
   analytics: {
     init: () => Promise<void>
     track: (event: AnalyticsEvent, callback?: () => void) => Promise<void>

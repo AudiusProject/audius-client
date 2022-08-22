@@ -7,9 +7,9 @@ import type {
   Collection,
   FavoriteType,
   Track,
-  User
+  User,
+  RepostType
 } from '@audius/common'
-import { RepostType } from '@audius/common'
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 

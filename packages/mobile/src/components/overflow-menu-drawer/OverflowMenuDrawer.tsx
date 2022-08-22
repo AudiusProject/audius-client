@@ -1,6 +1,8 @@
-import { OverflowAction, OverflowSource } from '@audius/common'
-import { mobileOverflowMenuUISelectors } from '@audius/common'
-const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
+import {
+  OverflowAction,
+  OverflowSource,
+  mobileOverflowMenuUISelectors
+} from '@audius/common'
 
 import ActionDrawer from 'app/components/action-drawer'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
@@ -8,6 +10,7 @@ import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import CollectionOverflowMenuDrawer from './CollectionOverflowMenuDrawer'
 import ProfileOverflowMenuDrawer from './ProfileOverflowMenuDrawer'
 import TrackOverflowMenuDrawer from './TrackOverflowMenuDrawer'
+const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
 
 const rowMessageMap = {
   [OverflowAction.REPOST]: 'Repost',

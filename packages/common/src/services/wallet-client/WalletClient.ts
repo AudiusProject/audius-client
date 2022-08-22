@@ -2,7 +2,7 @@ import BN from 'bn.js'
 
 import { ID } from 'models/Identifiers'
 import { BNWei, StringWei, WalletAddress } from 'models/Wallet'
-import { stringWeiToBN } from 'utils'
+import { stringWeiToBN } from 'utils/wallet'
 
 import { AudiusAPIClient } from '../audius-api-client'
 import { AudiusBackend } from '../audius-backend'

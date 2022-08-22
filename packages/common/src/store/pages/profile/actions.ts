@@ -1,4 +1,4 @@
-import { ID, User, UserMetadata } from 'models/index'
+import { ID, User, UserMetadata } from '../../../models/index'
 import { Nullable } from 'utils/index'
 
 import { CollectionSortMode } from './types'

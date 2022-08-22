@@ -3,7 +3,7 @@ import {
   makeUid,
   cacheActions,
   collectionPageActions as collectionActions,
-  collectionPageTracksActions as tracksActions
+  collectionPageLineupActions as tracksActions
 } from '@audius/common'
 import { call, put, takeLatest, takeEvery } from 'redux-saga/effects'
 

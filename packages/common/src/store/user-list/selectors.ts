@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { ID } from 'models/index'
+import { ID } from '../../models/index'
 import {
   getOptimisticSupporters,
   getOptimisticSupporting,

@@ -1,4 +1,4 @@
-import { TimeRange } from 'models/index'
+import { TimeRange } from '../../../models/index'
 import { Genre } from 'utils/index'
 
 export const SET_TRENDING_GENRE = 'TRENDING/SET_TRENDING_GENRE'

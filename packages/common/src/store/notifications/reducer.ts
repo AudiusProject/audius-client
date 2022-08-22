@@ -1,4 +1,4 @@
-import { Status } from 'models/Status'
+import { Status } from '../../models/Status'
 
 import * as actions from './actions'
 import * as types from './types'

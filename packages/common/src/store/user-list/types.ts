@@ -1,4 +1,4 @@
-import { ID } from 'models/index'
+import { ID } from '../../models/index'
 
 export type UserListStoreState = {
   tag: string

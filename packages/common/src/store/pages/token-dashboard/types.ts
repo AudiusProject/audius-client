@@ -1,9 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 
-import { Chain } from 'models/Chain'
-import { Nullable } from 'utils/typeUtils'
-
+import { Chain } from '../../../models/Chain'
 import { StringWei, WalletAddress } from '../../../models/Wallet'
+import { Nullable } from '../../../utils/typeUtils'
 // TODO(nkang) Figure out how to import BNWei from here without invalidating slice.ts
 // import { BNWei } from '../../../models/Wallet'
 

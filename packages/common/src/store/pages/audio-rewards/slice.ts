@@ -1,6 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Status, UserChallenge, ChallengeRewardID, Specifier } from 'models'
+import {
+  Status,
+  UserChallenge,
+  ChallengeRewardID,
+  Specifier
+} from '../../../models/index'
 
 import {
   AudioRewardsClaim,

@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 
-import { Kind, Cache, Collection } from 'models/index'
+import { Kind, Cache, Collection } from '../models/index'
 
 import accountSlice from './account/reducer'
 import averageColorReducer from './average-color/slice'
@@ -51,6 +51,7 @@ import addToPlaylistReducer, {
 import artistRecommendationsReducer, {
   ArtistRecommendationsState
 } from './ui/artist-recommendations/slice'
+import buyAudioReducer from './ui/buy-audio/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
 } from './ui/collectible-details/slice'
@@ -120,8 +121,7 @@ export const reducers = () => ({
   ui: combineReducers({
     averageColor: averageColorReducer,
     addToPlaylist: addToPlaylistReducer,
-    // TODO: migrate to common
-    // buyAudio: buyAudioReducer,
+    buyAudio: buyAudioReducer,
 
     artistRecommendations: artistRecommendationsReducer,
     changePassword: changePasswordReducer,
@@ -209,8 +209,7 @@ export type CommonState = {
 
   ui: {
     averageColor: ReturnType<typeof averageColorReducer>
-    // TODO: Migrate to common
-    // buyAudio: ReturnType<typeof buyAudioReducer>
+    buyAudio: ReturnType<typeof buyAudioReducer>
     addToPlaylist: AddToPlaylistState
     artistRecommendations: ArtistRecommendationsState
     changePassword: ChangePasswordState

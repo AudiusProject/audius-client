@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { Collection, Track } from 'models/index'
+import { Collection, Track } from '../../models/index'
 import { getAccountUser } from 'store/account/selectors'
 import {
   getCollection,

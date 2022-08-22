@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Collectible } from 'models/Collectible'
-import { ID } from 'models/Identifiers'
+import { Collectible } from '../../../models/Collectible'
+import { ID } from '../../../models/Identifiers'
 
 export type CollectibleDetailsState = {
   collectible: Collectible | null

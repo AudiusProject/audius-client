@@ -1,6 +1,6 @@
-import { ID } from 'models/Identifiers'
 import { CommonState } from 'store/commonStore'
 
+import { ID } from '../../../models/Identifiers'
 import { UserListStoreState } from '../types'
 
 export const getId = (state: CommonState): ID | null =>

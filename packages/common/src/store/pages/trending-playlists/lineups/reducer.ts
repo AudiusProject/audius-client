@@ -1,4 +1,4 @@
-import { Collection, LineupState } from 'models/index'
+import { Collection, LineupState } from '../../../../models/index'
 import { RESET_SUCCEEDED, stripPrefix } from 'store/lineup/actions'
 import { initialLineupState } from 'store/lineup/reducer'
 

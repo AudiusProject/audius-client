@@ -223,7 +223,7 @@ function* sendTipAsync() {
 
   const weiBNAmount = parseAudioInputToWei(amount) ?? (new BN('0') as BNWei)
   const recipientWallet = recipient.spl_wallet
-  const weiBNBalance: BNWei = yield select(getAccountBalance) ??
+  const weiBNBalance: BNWei = yield* select(getAccountBalance) ??
     (new BN('0') as BNWei)
   const waudioWeiAmount = yield* call([walletClient, 'getCurrentWAudioBalance'])
 
@@ -260,7 +260,7 @@ function* sendTipAsync() {
     yield call([walletClient, 'sendWAudioTokens'], recipientWallet, weiBNAmount)
 
     // Only decrease store balance if we haven't already changed
-    const newBalance: ReturnType<typeof getAccountBalance> = yield select(
+    const newBalance: ReturnType<typeof getAccountBalance> = yield* select(
       getAccountBalance
     )
     if (newBalance?.eq(weiBNBalance)) {
@@ -339,7 +339,7 @@ function* refreshSupportAsync({
       const account = yield* select(getAccountUser)
       supportingParams.limit =
         account?.user_id === senderUserId
-          ? account.supporting_count
+          ? account?.supporting_count
           : MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
     }
 

@@ -1,5 +1,6 @@
-import { ID } from 'models/index'
 import { UserListStoreState } from 'store/user-list/types'
+
+import { ID } from '../../../models/index'
 
 export enum RepostType {
   TRACK = 'TRACK',

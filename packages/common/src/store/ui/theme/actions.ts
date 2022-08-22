@@ -1,4 +1,4 @@
-import { Theme } from 'models/Theme'
+import { Theme } from '../../../models/Theme'
 
 import { SET_THEME } from './actionTypes'
 import { ThemeActions } from './types'

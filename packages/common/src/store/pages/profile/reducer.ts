@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO(nkang) - convert to TS
-import { Status } from 'models/index'
+import { Status } from '../../../models/index'
 import { asLineup } from 'store/lineup/reducer'
 import feedReducer from 'store/pages/profile/lineups/feed/reducer'
 import tracksReducer from 'store/pages/profile/lineups/tracks/reducer'

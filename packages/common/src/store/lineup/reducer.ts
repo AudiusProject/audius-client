@@ -1,7 +1,5 @@
 import { Reducer } from 'redux'
 
-import { UID } from 'models/Identifiers'
-import { LineupState, LineupStateTrack, Order } from 'models/Lineup'
 import { Status } from 'models/Status'
 import {
   FETCH_LINEUP_METADATAS_REQUESTED,
@@ -15,6 +13,9 @@ import {
   SET_PAGE,
   stripPrefix
 } from 'store/lineup/actions'
+
+import { UID } from '../../models/Identifiers'
+import { LineupState, LineupStateTrack, Order } from '../../models/Lineup'
 
 export const initialLineupState = {
   prefix: '',

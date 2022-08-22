@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-import { ID, UserCollection } from 'models/index'
+import { ID, UserCollection } from '../../../models/index'
 import { getCollections } from 'store/cache/collections/selectors'
 import { getUser, getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'

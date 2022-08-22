@@ -3,7 +3,7 @@ import {
   OptimisticUserChallenge,
   UserChallenge,
   UserChallengeState
-} from 'models/AudioRewards'
+} from '../../../models/AudioRewards'
 import {
   getUndisbursedUserChallenges,
   getUserChallenges,

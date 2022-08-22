@@ -1,7 +1,7 @@
 import { createCustomAction } from 'typesafe-actions'
 
-import { FollowSource, ShareSource } from 'models/Analytics'
-import { ID } from 'models/Identifiers'
+import { FollowSource, ShareSource } from '../../../models/Analytics'
+import { ID } from '../../../models/Identifiers'
 
 export const FOLLOW_USER = 'SOCIAL/FOLLOW_USER'
 export const FOLLOW_USER_SUCCEEDED = 'SOCIAL/FOLLOW_USER_SUCCEEDED'

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Status } from 'models/Status'
+import { Status } from '../../models/Status'
 
 import { ChangePasswordPageStep, ChangePasswordState } from './types'
 

@@ -1,4 +1,4 @@
-import { ID, LineupState, Status, Track } from 'models/index'
+import { ID, LineupState, Status, Track } from '../../../models/index'
 
 export type SearchPageState = {
   status: Status

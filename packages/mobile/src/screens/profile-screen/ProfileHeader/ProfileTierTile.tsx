@@ -1,8 +1,6 @@
 import { useCallback } from 'react'
 
 import { modalsActions } from '@audius/common'
-const { setVisibility } = modalsActions
-
 import { View } from 'react-native'
 
 import { IconAudioBadge, TierText } from 'app/components/audio-rewards'
@@ -13,6 +11,7 @@ import { useSelectTierInfo } from 'app/hooks/useSelectTierInfo'
 import { makeStyles } from 'app/styles/makeStyles'
 
 import { useSelectProfile } from '../selectors'
+const { setVisibility } = modalsActions
 
 const messages = {
   tier: 'tier'

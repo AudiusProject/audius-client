@@ -1,7 +1,7 @@
-import { FavoriteType } from 'models/Favorite'
-import { ID } from 'models/Identifiers'
 import { CommonState } from 'store/commonStore'
 
+import { FavoriteType } from '../../../models/Favorite'
+import { ID } from '../../../models/Identifiers'
 import { UserListStoreState } from '../types'
 
 export const getId = (state: CommonState): ID | null =>

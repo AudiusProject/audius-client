@@ -5,7 +5,7 @@ import {
   followersUserListSelectors,
   UserListSagaFactory,
   followersUserListActions,
-  FOLLOWERS_USER_TAG as USER_LIST_TAG
+  FOLLOWERS_USER_LIST_TAG as USER_LIST_TAG
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 

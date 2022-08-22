@@ -1,4 +1,4 @@
-import { Status } from 'models/index'
+import { Status } from '../../../models/index'
 import { asLineup } from 'store/lineup/reducer'
 import {
   FETCH_SEARCH_PAGE_RESULTS,

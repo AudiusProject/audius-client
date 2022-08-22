@@ -1,5 +1,4 @@
-import type { UserCollection } from '@audius/common'
-import { ShareModalContent } from '@audius/common'
+import type { UserCollection, ShareModalContent } from '@audius/common'
 
 import {
   getCollectionRoute,

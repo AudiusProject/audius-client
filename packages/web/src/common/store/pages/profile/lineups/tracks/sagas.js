@@ -7,7 +7,7 @@ import {
   profilePageSelectors,
   TracksSortMode,
   profilePageTracksLineupActions as tracksActions,
-  tracksActions as lineupActions,
+  profilePageTracksLineupActions as lineupActions,
   tracksSocialActions
 } from '@audius/common'
 import { all, call, select, takeEvery, put } from 'redux-saga/effects'

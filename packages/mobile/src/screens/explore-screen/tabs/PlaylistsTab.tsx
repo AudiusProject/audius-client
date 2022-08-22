@@ -1,11 +1,11 @@
 import { explorePageSelectors } from '@audius/common'
-const { makeGetExplore } = explorePageSelectors
 import { EXPLORE_PAGE } from 'audius-client/src/utils/route'
 
 import { CollectionList } from 'app/components/collection-list'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { TabInfo } from '../components/TabInfo'
+const { makeGetExplore } = explorePageSelectors
 
 const messages = {
   infoHeader: 'Featured Playlists'

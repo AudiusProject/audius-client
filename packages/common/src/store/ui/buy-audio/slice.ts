@@ -1,19 +1,8 @@
-import { Status } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export enum BuyAudioStage {
-  START = 'START',
-  PURCHASING = 'PURCHASING',
-  CONFIRMING_PURCHASE = 'CONFIRMING_PURCHASE',
-  SWAPPING = 'SWAPPING',
-  CONFIRMING_SWAP = 'CONFIRMING_SWAP',
-  TRANSFERRING = 'TRANSFERRING',
-  FINISH = 'FINISH'
-}
+import { Status } from '../../../models/Status'
 
-export enum OnRampProvider {
-  COINBASE = 'coinbase'
-}
+import { BuyAudioStage, PurchaseInfoErrorType } from './types'
 
 type AmountObject = {
   amount: number
@@ -27,11 +16,7 @@ type PurchaseInfo = {
   estimatedUSD: AmountObject
   desiredAudioAmount: AmountObject
 }
-export enum PurchaseInfoErrorType {
-  MAX_AUDIO_EXCEEDED = 'max_audio_exceeded',
-  MIN_AUDIO_EXCEEDED = 'min_audio_exceeded',
-  UNKNOWN = 'unknown'
-}
+
 type PurchaseInfoMaxAudioExceededError = {
   errorType: PurchaseInfoErrorType.MAX_AUDIO_EXCEEDED
   maxAudio: number
@@ -76,7 +61,7 @@ const slice = createSlice({
   reducers: {
     calculateAudioPurchaseInfo: (
       state,
-      action: PayloadAction<CalculateAudioPurchaseInfoPayload>
+      _action: PayloadAction<CalculateAudioPurchaseInfoPayload>
     ) => {
       state.purchaseInfoStatus = Status.LOADING
     },
@@ -161,3 +146,4 @@ export const {
 } = slice.actions
 
 export default slice.reducer
+export const actions = slice.actions

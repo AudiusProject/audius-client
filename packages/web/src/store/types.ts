@@ -20,7 +20,6 @@ import {
 } from '@audius/common'
 import { RouterState } from 'connected-react-router'
 
-import buyAudioReducer from 'common/store/buy-audio/slice'
 import signOnReducer from 'common/store/pages/signon/reducer'
 import ServiceSelectionReducer from 'common/store/service-selection/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
@@ -66,10 +65,6 @@ export type AppState = CommonState & {
   // UI
   dragndrop: DragNDropState
   serviceSelection: ReturnType<typeof ServiceSelectionReducer>
-
-  ui: CommonState['ui'] & {
-    buyAudio: ReturnType<typeof buyAudioReducer>
-  }
 
   // Global
   application: {

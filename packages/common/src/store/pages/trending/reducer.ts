@@ -1,6 +1,6 @@
 // @ts-nocheck
 // TODO(nkang) - convert to TS
-import { TimeRange } from 'models/index'
+import { TimeRange } from '../../../models/index'
 import { asLineup } from 'store/lineup/reducer'
 import {
   SET_TRENDING_GENRE,

@@ -1,4 +1,4 @@
-import { TimeRange } from 'models/index'
+import { TimeRange } from '../../../models/index'
 import { CommonState } from 'store/commonStore'
 
 export const getDiscoverTrendingWeekLineup = (state: CommonState) =>

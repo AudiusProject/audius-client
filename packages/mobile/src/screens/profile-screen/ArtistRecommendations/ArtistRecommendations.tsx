@@ -3,10 +3,9 @@ import { Fragment, useCallback } from 'react'
 import {
   FollowSource,
   usersSocialActions,
-  artistRecommendationsUISelectors
+  artistRecommendationsUISelectors,
+  artistRecommendationsUIActions
 } from '@audius/common'
-import { artistRecommendationsUIActions } from '@audius/common'
-const { fetchRelatedArtists } = artistRecommendationsUIActions
 import { TouchableOpacity, View } from 'react-native'
 import { useEffectOnce } from 'react-use'
 
@@ -25,6 +24,7 @@ import { EventNames } from 'app/types/analytics'
 import { useSelectProfile } from '../selectors'
 
 import { ArtistLink } from './ArtistLink'
+const { fetchRelatedArtists } = artistRecommendationsUIActions
 const { makeGetRelatedArtists } = artistRecommendationsUISelectors
 const { followUser, unfollowUser } = usersSocialActions
 

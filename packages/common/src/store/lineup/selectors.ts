@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { LineupState } from 'models/Lineup'
+import { LineupState } from '../../models/Lineup'
 import { getTracksByUid } from 'store/cache/tracks/selectors'
 import { getUsers } from 'store/cache/users/selectors'
 import { removeNullable } from 'utils/typeUtils'

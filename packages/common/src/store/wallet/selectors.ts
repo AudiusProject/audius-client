@@ -1,9 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { StringWei } from 'models/Wallet'
 import { CommonState } from 'store/commonStore'
 import { Nullable } from 'utils/typeUtils'
 import { stringWeiToBN } from 'utils/wallet'
+
+import { StringWei } from '../../models/Wallet'
 
 // Previously, the getAccountBalance selector would return different
 // values (although numerically the same) because of the return of a

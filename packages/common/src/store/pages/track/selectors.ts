@@ -1,4 +1,4 @@
-import { ID } from 'models/index'
+import { ID } from '../../../models/index'
 import {
   getTrack as getCachedTrack,
   getStatus as getCachedTrackStatus

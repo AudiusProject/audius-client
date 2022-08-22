@@ -79,3 +79,11 @@ export * from './theme/types'
 export { default as toastReducer, actions as toastActions } from './toast/slice'
 export * from './toast/types'
 export { default as toastSagas } from './toast/sagas'
+
+export {
+  default as buyAudioReducer,
+  actions as buyAudioActions
+} from './buy-audio/slice'
+export * from './buy-audio/types'
+export * from './buy-audio/constants'
+export * as buyAudioSelectors from './buy-audio/selectors'

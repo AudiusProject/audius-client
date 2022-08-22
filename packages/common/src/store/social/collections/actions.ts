@@ -1,7 +1,11 @@
 import { createCustomAction } from 'typesafe-actions'
 
-import { RepostSource, FavoriteSource, ShareSource } from 'models/Analytics'
-import { ID } from 'models/Identifiers'
+import {
+  RepostSource,
+  FavoriteSource,
+  ShareSource
+} from '../../../models/Analytics'
+import { ID } from '../../../models/Identifiers'
 
 export const REPOST_COLLECTION = 'SOCIAL/REPOST_COLLECTION'
 export const UNDO_REPOST_COLLECTION = 'SOCIAL/UNDO_REPOST_COLLECTION'

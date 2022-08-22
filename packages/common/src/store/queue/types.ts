@@ -1,4 +1,4 @@
-import { ID, UID, Collectible, Track, User } from 'models/index'
+import { ID, UID, Collectible, Track, User } from '../../models/index'
 
 export enum RepeatMode {
   OFF = 'OFF',

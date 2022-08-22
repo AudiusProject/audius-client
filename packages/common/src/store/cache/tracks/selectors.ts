@@ -1,6 +1,7 @@
-import { Kind, ID, UID, Status, Track } from 'models/index'
 import { getEntry, getAllEntries } from 'store/cache/selectors'
 import { CommonState } from 'store/commonStore'
+
+import { Kind, ID, UID, Status, Track } from '../../../models/index'
 
 export const getTrack = (
   state: CommonState,

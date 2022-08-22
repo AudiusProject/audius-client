@@ -1,13 +1,14 @@
 import { createSelector } from 'reselect'
 
-import { BadgeTier } from 'models/BadgeTier'
-import { ID } from 'models/Identifiers'
-import { User } from 'models/User'
-import { BNAudio, StringAudio, StringWei } from 'models/Wallet'
 import { getAccountUser } from 'store/account/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { stringAudioToBN, stringWeiToAudioBN } from 'utils/wallet'
+
+import { BadgeTier } from '../../models/BadgeTier'
+import { ID } from '../../models/Identifiers'
+import { User } from '../../models/User'
+import { BNAudio, StringAudio, StringWei } from '../../models/Wallet'
 
 export type BadgeTierInfo = {
   tier: BadgeTier

@@ -1,4 +1,4 @@
-import { ID } from 'models/Identifiers'
+import { ID } from '../../../models/Identifiers'
 
 import { OPEN, CLOSE } from './actions'
 import { CreatePlaylistModalState } from './types'

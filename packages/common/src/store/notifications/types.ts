@@ -7,7 +7,7 @@ import {
   Track,
   User,
   StringWei
-} from 'models/index'
+} from '../../models/index'
 import { Nullable } from 'utils/index'
 
 import {

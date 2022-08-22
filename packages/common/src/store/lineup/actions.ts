@@ -1,5 +1,5 @@
-import { ID, UID } from 'models/Identifiers'
-import { TrackMetadata } from 'models/Track'
+import { ID, UID } from '../../models/Identifiers'
+import { TrackMetadata } from '../../models/Track'
 
 export const FETCH_LINEUP_METADATAS = 'FETCH_LINEUP_METADATAS'
 export const FETCH_LINEUP_METADATAS_REQUESTED =

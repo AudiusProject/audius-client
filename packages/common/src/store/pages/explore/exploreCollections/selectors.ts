@@ -1,8 +1,8 @@
-import { Collection, Status } from 'models/index'
 import { getCollections as getCachedCollections } from 'store/cache/collections/selectors'
 import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 
+import { Collection, Status } from '../../../../models/index'
 import { ExploreCollectionsVariant } from '../types'
 
 const getBaseState = (state: CommonState) => state.pages.exploreCollections

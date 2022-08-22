@@ -1,11 +1,11 @@
 import { searchResultsPageSelectors } from '@audius/common'
-const { makeGetSearchArtists } = searchResultsPageSelectors
 
 import { ArtistCard } from 'app/components/artist-card'
 import { CardList } from 'app/components/core'
 import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { SearchResultsTab } from './SearchResultsTab'
+const { makeGetSearchArtists } = searchResultsPageSelectors
 
 const getSearchUsers = makeGetSearchArtists()
 

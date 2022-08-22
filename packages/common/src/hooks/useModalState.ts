@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { useDispatch } from 'react-redux'
 
@@ -49,14 +49,7 @@ export const useGetVisibility = (modalName: Modals) => {
  * hooks above.
  */
 export const useModalState = (
-  modalName: Modals
+  _modalName: Modals
 ): [boolean, (isOpen: boolean) => void] => {
-  const isOpen = useGetVisibility(modalName)
-  const setVisibility = useSetVisibility()
-  const setter = useMemo(
-    () => setVisibility(modalName),
-    [modalName, setVisibility]
-  )
-
-  return [isOpen === true, setter]
+  return [false, () => {}]
 }

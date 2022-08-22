@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 
-import { favoritesUserListActions } from '@audius/common'
-import { favoritesUserListSelectors } from '@audius/common'
-const { getUserList } = favoritesUserListSelectors
+import {
+  favoritesUserListActions,
+  favoritesUserListSelectors
+} from '@audius/common'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
@@ -10,6 +11,7 @@ import { useRoute } from 'app/hooks/useRoute'
 
 import { UserList } from './UserList'
 import { UserListScreen } from './UserListScreen'
+const { getUserList } = favoritesUserListSelectors
 const { setFavorite } = favoritesUserListActions
 
 const messages = {

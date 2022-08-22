@@ -1,6 +1,6 @@
 import { createReducer, ActionType } from 'typesafe-actions'
 
-import { ID } from 'models/Identifiers'
+import { ID } from '../../../models/Identifiers'
 
 import * as actions from './actions'
 

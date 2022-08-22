@@ -1,11 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { ID } from 'models/Identifiers'
-import { Supporter, Supporting } from 'models/Tipping'
-import { BNWei } from 'models/Wallet'
-import { CommonState } from 'store/commonStore'
-import { Nullable } from 'utils/typeUtils'
-import { stringWeiToBN } from 'utils/wallet'
+import { ID } from '../../models/Identifiers'
+import { Supporter, Supporting } from '../../models/Tipping'
+import { BNWei } from '../../models/Wallet'
+import { Nullable } from '../../utils/typeUtils'
+import { stringWeiToBN } from '../../utils/wallet'
+import { CommonState } from '../commonStore'
 
 import { SupportersMap, SupportersMapForUser, SupportingMap } from './types'
 

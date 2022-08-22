@@ -1,4 +1,4 @@
-import { ID, Kind, Status, UID, User } from 'models/index'
+import { ID, Kind, Status, UID, User } from '../../../models/index'
 import {
   getAllEntries,
   getEntry,

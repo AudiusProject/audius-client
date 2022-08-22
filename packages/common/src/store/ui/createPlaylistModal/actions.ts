@@ -1,4 +1,4 @@
-import { ID } from 'models/Identifiers'
+import { ID } from '../../../models/Identifiers'
 export const OPEN = 'APPLICATION/UI/CREATE_PLAYLIST_MODAL/OPEN'
 export const CLOSE = 'APPLICATION/UI/CREATE_PLAYLIST_MODAL/CLOSE'
 

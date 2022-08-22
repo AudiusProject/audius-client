@@ -1,7 +1,7 @@
 import { createCustomAction } from 'typesafe-actions'
 
-import { FavoriteType } from 'models/Favorite'
-import { ID } from 'models/Identifiers'
+import { FavoriteType } from '../../../models/Favorite'
+import { ID } from '../../../models/Identifiers'
 
 export const SET_FAVORITE = 'FAVORITING_USERS_PAGE/SET_FAVORITE'
 export const GET_TRACK_FAVORITE_ERROR =

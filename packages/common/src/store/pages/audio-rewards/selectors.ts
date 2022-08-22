@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 
-import { ChallengeRewardID } from 'models/AudioRewards'
-import { CommonState } from 'store/commonStore'
+import { ChallengeRewardID } from '../../../models/AudioRewards'
+import { CommonState } from '../../commonStore'
 
 import { ClaimStatus } from './types'
 

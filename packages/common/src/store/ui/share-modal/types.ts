@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 
-import { ID, ShareSource, Collection, Track, User } from 'models/index'
+import { ID, ShareSource, Collection, Track, User } from '../../../models/index'
 import { Nullable } from 'utils/typeUtils'
 
 export type ShareType =

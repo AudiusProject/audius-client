@@ -1,4 +1,4 @@
-import { Status } from 'models/Status'
+import { Status } from '../../../models/Status'
 import { getAccountUser } from 'store/account/selectors'
 
 import { CommonState } from '../../commonStore'

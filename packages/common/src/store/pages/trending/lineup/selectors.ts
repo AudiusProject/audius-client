@@ -1,4 +1,4 @@
-import { LineupStateTrack, TimeRange } from 'models/index'
+import { LineupStateTrack, TimeRange } from '../../../../models/index'
 import { CommonState } from 'store/commonStore'
 
 export const getTrendingEntries =

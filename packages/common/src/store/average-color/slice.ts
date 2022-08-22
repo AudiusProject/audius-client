@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Color } from 'models/Color'
-import { CID } from 'models/Identifiers'
-import { Track } from 'models/Track'
 import { Nullable } from 'utils/typeUtils'
 
+import { Color } from '../../models/Color'
+import { CID } from '../../models/Identifiers'
+import { Track } from '../../models/Track'
 import { CommonState } from '../commonStore'
 
 const initialState: {

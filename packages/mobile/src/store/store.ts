@@ -5,7 +5,6 @@ import {
 } from '@audius/common'
 import backend from 'audius-client/src/common/store/backend/reducer'
 import type { BackendState } from 'audius-client/src/common/store/backend/types'
-import buyAudioReducer from 'audius-client/src/common/store/buy-audio/slice'
 import confirmer from 'audius-client/src/common/store/confirmer/reducer'
 import type { ConfirmerState } from 'audius-client/src/common/store/confirmer/types'
 import signOnReducer from 'audius-client/src/common/store/pages/signon/reducer'
@@ -40,9 +39,6 @@ import web from './web/reducer'
 export type AppState = {
   audio: AudioState
   signOn: ReturnType<typeof signOnReducer>
-  ui: {
-    buyAudio: ReturnType<typeof buyAudioReducer>
-  }
   backend: BackendState
   confirmer: ConfirmerState
   common: CommonState
@@ -66,10 +62,6 @@ const createRootReducer = () =>
     audio,
     backend,
     confirmer,
-    ui: combineReducers({
-      ...commonStoreReducers.ui,
-      buyAudio: buyAudioReducer
-    }),
     signOn: signOnReducer,
     common,
     drawers,

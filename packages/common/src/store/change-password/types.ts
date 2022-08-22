@@ -1,4 +1,4 @@
-import { Status } from 'models/Status'
+import { Status } from '../../models/Status'
 
 export enum ChangePasswordPageStep {
   CONFIRM_CREDENTIALS = 0,

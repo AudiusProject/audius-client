@@ -1,8 +1,7 @@
 import { combineReducers } from 'redux'
 import { createReducer, ActionType } from 'typesafe-actions'
 
-import { FavoriteType } from 'models/Favorite'
-
+import { FavoriteType } from '../../../models/Favorite'
 import { UserListReducerFactory } from '../reducer'
 
 import * as actions from './actions'

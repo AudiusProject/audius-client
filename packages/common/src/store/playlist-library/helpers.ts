@@ -1,14 +1,14 @@
 import { isEmpty } from 'lodash'
 
-import { ID } from 'models/Identifiers'
+import { uuid } from 'utils/uid'
+
+import { ID } from '../../models/Identifiers'
 import {
   PlaylistLibrary,
   PlaylistLibraryIdentifier,
   PlaylistLibraryFolder
-} from 'models/PlaylistLibrary'
-import { SmartCollectionVariant } from 'models/SmartCollectionVariant'
-import { uuid } from 'utils/uid'
-
+} from '../../models/PlaylistLibrary'
+import { SmartCollectionVariant } from '../../models/SmartCollectionVariant'
 import { AccountCollection } from '../account/types'
 
 /**

@@ -141,18 +141,17 @@ export function* fetchNotifications(action: FetchNotifications) {
       ? lastNotification.timestamp
       : moment().toISOString()
     const withDethroned =
-      (yield* call(
+      ((yield* call(
         getFeatureEnabled,
         FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-      )) ?? false
+      )) as boolean | null) ?? false
 
-    const notificationsResponse: NotificationsResponse = yield* call(
-      audiusBackendInstance.getNotifications,
-      {
+    const notificationsResponse: NotificationsResponse = yield* call(() =>
+      audiusBackendInstance.getNotifications({
         limit,
         timeOffset,
         withDethroned
-      }
+      })
     )
     if ('error' in notificationsResponse) {
       yield* put(
@@ -525,17 +524,19 @@ export function* getNotifications(isFirstFetch: boolean) {
       if (!hasAccount) return
       const timeOffset = moment().toISOString()
       const withDethroned =
-        (yield* call(
+        ((yield* call(
           getFeatureEnabled,
           FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-        )) ?? false
+        )) as boolean | null) ?? false
 
       const notificationsResponse: NotificationsResponse | undefined =
-        yield* call(audiusBackendInstance.getNotifications, {
-          limit,
-          timeOffset,
-          withDethroned
-        })
+        yield* call(() =>
+          audiusBackendInstance.getNotifications({
+            limit,
+            timeOffset,
+            withDethroned
+          })
+        )
       if (
         !notificationsResponse ||
         ('error' in notificationsResponse &&

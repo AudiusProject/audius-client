@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { CommonState } from 'store/commonStore'
-import { Nullable } from 'utils/typeUtils'
+import { Nullable } from '../../../utils/typeUtils'
+import { CommonState } from '../../commonStore'
 
 import { ReactionTypes } from './types'
 

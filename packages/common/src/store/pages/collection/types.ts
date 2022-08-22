@@ -8,7 +8,7 @@ import {
   SmartCollectionVariant,
   Status,
   LineupTrack
-} from 'models/index'
+} from '../../../models/index'
 
 export type CollectionsPageState = {
   collectionId: ID | null

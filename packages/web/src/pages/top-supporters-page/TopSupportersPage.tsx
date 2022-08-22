@@ -1,10 +1,9 @@
-import {
-  useContext,
-  useEffect,
-  TOP_SUPPORTERS_USER_LIST_TAG as USER_LIST_TAG
-} from 'react'
+import { useContext, useEffect } from 'react'
 
-import { topSupportersUserListSelectors } from '@audius/common'
+import {
+  topSupportersUserListSelectors,
+  TOP_SUPPORTERS_USER_LIST_TAG as USER_LIST_TAG
+} from '@audius/common'
 
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import NavContext, { LeftPreset } from 'components/nav/store/context'

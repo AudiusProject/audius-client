@@ -1,4 +1,4 @@
-import { ID, UID, Collection, Kind, Status, User } from 'models/index'
+import { ID, UID, Collection, Kind, Status, User } from '../../../models/index'
 import { getAllEntries, getEntry } from 'store/cache/selectors'
 import { getTracks } from 'store/cache/tracks/selectors'
 import { getUser as getUserById, getUsers } from 'store/cache/users/selectors'

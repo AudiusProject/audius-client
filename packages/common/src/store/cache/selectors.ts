@@ -1,11 +1,12 @@
-import { Cache } from 'models/Cache'
-import { Collection } from 'models/Collection'
-import { ID, UID } from 'models/Identifiers'
-import { Kind } from 'models/Kind'
-import { Track } from 'models/Track'
-import { User } from 'models/User'
 import { CommonState } from 'store/commonStore'
 import { Uid } from 'utils/uid'
+
+import { Cache } from '../../models/Cache'
+import { Collection } from '../../models/Collection'
+import { ID, UID } from '../../models/Identifiers'
+import { Kind } from '../../models/Kind'
+import { Track } from '../../models/Track'
+import { User } from '../../models/User'
 
 import { TracksCacheState } from './tracks/types'
 import { UsersCacheState } from './users/types'

@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { keyBy } from 'lodash'
 
-import { ID } from 'models/Identifiers'
-import { Status } from 'models/Status'
 import { Nullable } from 'utils/typeUtils'
+
+import { ID } from '../../models/Identifiers'
+import { Status } from '../../models/Status'
 
 import { AccountCollection } from './types'
 type FailureReason = 'ACCOUNT_DEACTIVATED' | 'ACCOUNT_NOT_FOUND' | 'LIBS_ERROR'
