@@ -1,9 +1,7 @@
 import image from '@rollup/plugin-image'
-import dts from 'rollup-plugin-dts'
 import rollupTypescript from 'rollup-plugin-typescript2'
 
 import pkg from './package.json'
-import tsconfig from './tsconfig.json'
 
 export default [
   {
@@ -24,18 +22,4 @@ export default [
     ],
     plugins: [rollupTypescript(), image()]
   }
-  // {
-  //   input: './dist/index.d.ts',
-  //   output: [{ file: 'dist/index.d.ts', format: 'es' }],
-  //   plugins: [
-  //     dts({
-  //       compilerOptions: tsconfig.compilerOptions
-  //     })
-  //   ]
-  // }
-  // {
-  //   input: './dist/index.d.ts',
-  //   output: [{ file: 'dist/index.d.ts', format: 'es' }],
-  //   plugins: [rollupTypescript()]
-  // },
 ]
