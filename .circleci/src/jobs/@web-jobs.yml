@@ -206,11 +206,8 @@ web-deploy-staging-cloudflare:
   docker:
     - image: circleci/node:14.18
   steps:
-    - run:
-        name: Move sourcemaps
-        command: |
-          mkdir sourcemaps
-          mv build-staging/static/js/*.map sourcemaps
+    - web-move-sourcemaps:
+        build-type: staging
     - web-deploy-cloudflare:
         build-type: staging
         environment: staging
