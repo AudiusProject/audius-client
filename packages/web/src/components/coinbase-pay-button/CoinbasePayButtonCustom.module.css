@@ -16,10 +16,22 @@
   transition: all var(--quick);
 }
 
+/** Dark mode special cases **/
+.coinbaseButton.darkMode {
+  border: 1px solid var(--static-white);
+}
+.coinbaseButton.darkMode .textClassName {
+  color: var(--static-white);
+}
+.coinbaseButton.darkMode .coinbaseLogo path {
+  fill: var(--static-white);
+}
+
 /** Hover **/
 .coinbaseButton:hover:not(:disabled) {
   transform: perspective(1px) scale3d(1.02, 1.02, 1.02) !important;
   background: #0052ff !important;
+  border: 1px solid #0052ff;
   transform: none;
 }
 .coinbaseButton:hover:not(:disabled) .textClassName {
