@@ -61,7 +61,7 @@ export default {
           }),
           new SourceMapDevToolPlugin({
             publicPath:
-              'https://s3.us-west-1.amazonaws.com/sourcemaps.audius.co',
+              'https://s3.us-west-1.amazonaws.com/sourcemaps.audius.co/',
             filename: '[file].map'
           })
         ],
