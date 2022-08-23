@@ -11,15 +11,24 @@ import {
 } from 'components/coinbase-pay-button'
 import { getRootSolanaAccount } from 'services/audius-backend/BuyAudio'
 
-const { onRampOpened } = buyAudioActions
+const { onRampOpened, onRampCanceled, onRampSucceeded } = buyAudioActions
 const { getAudioPurchaseInfoStatus } = buyAudioSelectors
 
 export const CoinbaseBuyAudioButton = ({ amount }: { amount?: number }) => {
+  const dispatch = useDispatch()
   const rootAccount = useAsync(getRootSolanaAccount)
+  const handleExit = useCallback(() => {
+    dispatch(onRampCanceled)
+  }, [dispatch])
+  const handleSuccess = useCallback(() => {
+    dispatch(onRampSucceeded)
+  }, [dispatch])
   return (
     <CoinbasePayButtonProvider
       destinationWalletAddress={rootAccount.value?.publicKey.toString()}
       presetCryptoAmount={amount}
+      onSuccess={handleSuccess}
+      onExit={handleExit}
     >
       <CoinbaseBuyButton />
     </CoinbasePayButtonProvider>
