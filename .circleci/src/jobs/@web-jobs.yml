@@ -210,6 +210,8 @@ web-deploy-staging-cloudflare:
         build-type: staging
         environment: staging
         copy-robots: false
+    - web-deploy-sourcemaps-s3:
+        build-type: staging
 
 web-deploy-ipfs-staging:
   working_directory: ~/audius-client
