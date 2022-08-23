@@ -134,20 +134,16 @@ web-deploy-cloudflare:
         command: |
           cd packages/web
           echo ${GA_ACCESS_TOKEN} | npx wrangler secret put GA_ACCESS_TOKEN --env << parameters.environment >>
-          npx wrangler publish --env << parameters.environment >> --site-exclude *.map
+          npx wrangler publish --env << parameters.environment >>
 
 web-deploy-sourcemaps-s3:
-  parameters:
-    build-type:
-      default: 'production'
-      type: string
   steps:
     - web-install-awscli
     - attach_workspace:
         at: ./
     - run:
         name: Deploy to S3
-        command: aws s3 sync --exclude "*" --include "*.map" packages/web/build-<< parameters.build-type >>/static/js s3://sourcemaps.audius.co --delete --cache-control max-age=604800
+        command: aws s3 sync packages/web/sourcemaps s3://sourcemaps.audius.co --delete --cache-control max-age=604800
 
 web-deploy-ipfs:
   parameters:

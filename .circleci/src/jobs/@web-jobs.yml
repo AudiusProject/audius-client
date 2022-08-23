@@ -206,12 +206,16 @@ web-deploy-staging-cloudflare:
   docker:
     - image: circleci/node:14.18
   steps:
+    - run:
+        name: Move sourcemaps
+        command: |
+          mkdir sourcemaps
+          mv build-staging/static/js/*.map sourcemaps
     - web-deploy-cloudflare:
         build-type: staging
         environment: staging
         copy-robots: false
-    - web-deploy-sourcemaps-s3:
-        build-type: staging
+    - web-deploy-sourcemaps-s3
 
 web-deploy-ipfs-staging:
   working_directory: ~/audius-client
@@ -347,7 +351,7 @@ web-deploy-sentry-sourcemaps:
         name: upload-sourcemaps
         command: |
           cd packages/web
-          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite build-production
+          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite sourcemaps
     - run:
         name: finalize-release
         command: |
