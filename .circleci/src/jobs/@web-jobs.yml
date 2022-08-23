@@ -248,7 +248,7 @@ web-update-ipfs-staging-records:
 web-deploy-release-candidate:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/python:3.7.12-node
   steps:
     - web-deploy-cloudflare:
         build-type: production
