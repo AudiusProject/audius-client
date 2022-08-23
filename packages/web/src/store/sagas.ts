@@ -19,6 +19,7 @@ import confirmerSagas from 'common/store/confirmer/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
+import trackSagas from 'common/store/pages/track/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import serviceSelectionSagas from 'common/store/service-selection/sagas'
@@ -54,7 +55,7 @@ import settingsSagas from 'pages/settings-page/store/sagas'
 import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
 import supportingPageSagas from 'pages/supporting-page/sagas'
 import topSupportersPageSagas from 'pages/top-supporters-page/sagas'
-import trackSagas from 'pages/track-page/store/sagas'
+import trackLineupSagas from 'pages/track-page/store/lineups/tracks/sagas'
 import trendingPageSagas from 'pages/trending-page/store/sagas'
 import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
 import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
@@ -118,6 +119,7 @@ export default function* rootSaga() {
     signOnSaga(),
     socialSagas(),
     trackSagas(),
+    trackLineupSagas(),
     trendingPageSagas(),
     trendingPlaylistSagas(),
     trendingUndergroundSagas(),
