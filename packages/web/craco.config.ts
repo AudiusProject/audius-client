@@ -9,6 +9,8 @@ import {
 
 const isNative = process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
 
+const SOURCEMAP_URL = 'https://s3.us-west-1.amazonaws.com/sourcemaps.audius.co/'
+
 type ModuleScopePlugin = ResolvePluginInstance & {
   allowedPaths: string[]
 }
@@ -60,8 +62,7 @@ export default {
             Buffer: ['buffer', 'Buffer']
           }),
           new SourceMapDevToolPlugin({
-            publicPath:
-              'https://s3.us-west-1.amazonaws.com/sourcemaps.audius.co/',
+            publicPath: SOURCEMAP_URL,
             filename: '[file].map'
           })
         ],
