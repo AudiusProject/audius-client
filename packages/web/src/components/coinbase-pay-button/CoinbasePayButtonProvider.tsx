@@ -86,6 +86,7 @@ export const CoinbasePayButtonProvider = ({
           closeOnSuccess: true
         })
       }
+      return () => cbInstance.current?.destroy()
     },
     [cbInstance, setIsOpen]
   )
