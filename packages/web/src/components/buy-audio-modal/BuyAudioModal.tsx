@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { Modal, ModalContent, ModalHeader, ModalTitle } from '@audius/stems'
 

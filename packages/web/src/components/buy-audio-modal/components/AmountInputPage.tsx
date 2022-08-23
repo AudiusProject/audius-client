@@ -1,61 +1,21 @@
-import { useContext } from 'react'
-
-import { Status, buyAudioActions, buyAudioSelectors } from '@audius/common'
+import { buyAudioActions, buyAudioSelectors } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
-import { useAsync } from 'react-use'
-
-import {
-  CoinbasePayButtonProvider,
-  CoinbasePayButtonCustom,
-  CoinbasePayContext
-} from 'components/coinbase-pay-button'
-import { getRootSolanaAccount } from 'services/audius-backend/BuyAudio'
 
 import styles from './AmountInputPage.module.css'
 import { AudioAmountPicker } from './AudioAmountPicker'
+import { CoinbaseBuyAudioButton } from './CoinbaseBuyAudioButton'
 import { PurchaseQuote } from './PurchaseQuote'
+
+const { calculateAudioPurchaseInfo } = buyAudioActions
+const { getAudioPurchaseInfo } = buyAudioSelectors
 
 const messages = {
   intermediateSolNoticeCoinbase:
-    'An intermediate purchase of sol will be made via Coinbase Pay and then converted to $AUDIO.'
+    'An intermediate purchase of SOL will be made via Coinbase Pay and then converted to $AUDIO.'
 }
-
-const BuyButton = () => {
-  const rootAccount = useAsync(getRootSolanaAccount)
-  return (
-    <CoinbasePayButtonProvider
-      destinationWalletAddress={rootAccount.value?.publicKey.toString()}
-    >
-      <div className={styles.buyButtonContainer}>
-        <CoinbaseBuyButton />
-      </div>
-      <div className={styles.conversionNotice}>
-        {messages.intermediateSolNoticeCoinbase}
-      </div>
-    </CoinbasePayButtonProvider>
-  )
-}
-
-const CoinbaseBuyButton = () => {
-  const coinbasePay = useContext(CoinbasePayContext)
-  const purchaseInfoStatus = useSelector(
-    buyAudioSelectors.getAudioPurchaseInfoStatus
-  )
-  const isDisabled = purchaseInfoStatus === Status.ERROR
-  return (
-    <CoinbasePayButtonCustom
-      disabled={isDisabled}
-      isDisabled={isDisabled}
-      onClick={() => {
-        console.log('clicked')
-        coinbasePay.open()
-      }}
-    />
-  )
-}
-
 export const AmountInputPage = () => {
   const dispatch = useDispatch()
+  const purchaseInfo = useSelector(getAudioPurchaseInfo)
   return (
     <div className={styles.inputPage}>
       <AudioAmountPicker
@@ -64,7 +24,7 @@ export const AmountInputPage = () => {
           const audioAmount = parseInt(amount)
           if (!isNaN(audioAmount)) {
             dispatch(
-              buyAudioActions.calculateAudioPurchaseInfo({
+              calculateAudioPurchaseInfo({
                 audioAmount
               })
             )
@@ -72,7 +32,18 @@ export const AmountInputPage = () => {
         }}
       />
       <PurchaseQuote />
-      <BuyButton />
+      <div className={styles.buyButtonContainer}>
+        <CoinbaseBuyAudioButton
+          amount={
+            purchaseInfo?.isError === false
+              ? purchaseInfo.estimatedSOL.uiAmount
+              : undefined
+          }
+        />
+      </div>
+      <div className={styles.conversionNotice}>
+        {messages.intermediateSolNoticeCoinbase}
+      </div>
     </div>
   )
 }

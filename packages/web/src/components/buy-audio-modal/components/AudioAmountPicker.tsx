@@ -47,9 +47,11 @@ const AmountPreview = ({ amount }: { amount?: string }) => {
 
 export const AudioAmountPicker = ({
   presetAmounts,
+  hideCustomAmount,
   onAmountChanged
 }: {
   presetAmounts: string[]
+  hideCustomAmount?: boolean
   onAmountChanged: (amount: string) => void
 }) => {
   const [isCustomAmountInputVisible, setIsCustomAmountInputVisible] =
@@ -109,14 +111,18 @@ export const AudioAmountPicker = ({
             value={amount}
           />
         ))}
-        <RadioPillButton
-          className={styles.customAmountButton}
-          name={'amount'}
-          label={
-            <span className={styles.customAmountButtonText}>Custom Amount</span>
-          }
-          value={'custom'}
-        />
+        {hideCustomAmount ? null : (
+          <RadioPillButton
+            className={styles.customAmountButton}
+            name={'amount'}
+            label={
+              <span className={styles.customAmountButtonText}>
+                Custom Amount
+              </span>
+            }
+            value={'custom'}
+          />
+        )}
       </RadioButtonGroup>
       {isCustomAmountInputVisible ? (
         <TokenValueInput
