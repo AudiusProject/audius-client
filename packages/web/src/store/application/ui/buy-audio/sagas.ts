@@ -543,6 +543,7 @@ Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
     )
   } catch (e) {
     console.error('Failed to get AUDIO purchase info:', e)
+    calculateAudioPurchaseInfoFailed(PurchaseInfoErrorType.UNKNOWN)
   }
 }
 
