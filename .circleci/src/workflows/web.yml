@@ -45,9 +45,9 @@ jobs:
       context: Audius Client
       requires:
         - web-build-staging
-      filters:
-        branches:
-          only: /^main$/
+      # filters:
+      #   branches:
+      #     only: /^main$/
 
   - web-deploy-release-candidate:
       context: Audius Client
