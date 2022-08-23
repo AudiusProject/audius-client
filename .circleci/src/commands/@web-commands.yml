@@ -116,7 +116,6 @@ web-deploy-cloudflare:
     - checkout
     - attach_workspace:
         at: ./
-    - web-install-wrangler
     - run:
         name: Move sourcemaps
         command: |
