@@ -147,7 +147,7 @@ web-deploy-sourcemaps-s3:
         at: ./
     - run:
         name: Deploy to S3
-        command: aws s3 sync packages/web/build-<< parameters.build-type >>/static/js/*.map s3://sourcemaps.audius.co --delete --cache-control max-age=604800
+        command: aws s3 sync --exclude "*" --include "*.map" packages/web/build-<< parameters.build-type >>/static/js s3://sourcemaps.audius.co --delete --cache-control max-age=604800
 
 web-deploy-ipfs:
   parameters:
