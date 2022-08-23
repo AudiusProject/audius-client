@@ -107,6 +107,7 @@ web-move-sourcemaps:
       default: 'production'
       type: string
   steps:
+    - checkout
     - attach_workspace:
         at: ./
     - run:
