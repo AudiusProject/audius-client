@@ -206,8 +206,6 @@ web-deploy-staging-cloudflare:
   docker:
     - image: circleci/node:14.18
   steps:
-    - web-move-sourcemaps:
-        build-type: staging
     - web-deploy-cloudflare:
         build-type: staging
         environment: staging
