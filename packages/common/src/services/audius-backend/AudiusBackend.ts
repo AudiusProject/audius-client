@@ -167,8 +167,6 @@ const avoidGC: HTMLImageElement[] = []
 type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
-  anchorAdminAccount: string
-  anchorProgramId: string
   claimableTokenPda: string
   claimableTokenProgramAddress: string
   rewardsManagerProgramId: string
@@ -292,8 +290,6 @@ export const audiusBackend = ({
   remoteConfigInstance,
   setLocalStorageItem,
   solanaConfig: {
-    anchorAdminAccount,
-    anchorProgramId,
     claimableTokenPda,
     claimableTokenProgramAddress,
     rewardsManagerProgramId,
