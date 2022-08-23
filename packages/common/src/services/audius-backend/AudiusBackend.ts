@@ -617,7 +617,6 @@ export const audiusBackend = ({
     )
     const { ethWeb3Config } = getEthWeb3Config()
     const { solanaWeb3Config } = getSolanaWeb3Config()
-    const { solanaAudiusDataConfig } = getSolanaAudiusDataConfig()
     const { wormholeConfig } = getWormholeConfig()
 
     const contentNodeBlockList = getBlockList(
@@ -633,7 +632,6 @@ export const audiusBackend = ({
         web3Config,
         ethWeb3Config,
         solanaWeb3Config,
-        solanaAudiusDataConfig,
         wormholeConfig,
         discoveryProviderConfig: {
           blacklist: discoveryNodeBlockList,
@@ -735,23 +733,6 @@ export const audiusBackend = ({
         rewardsManagerProgramPDA: rewardsManagerProgramPda,
         rewardsManagerTokenPDA: rewardsManagerTokenPda,
         useRelay: true
-      })
-    }
-  }
-
-  function getSolanaAudiusDataConfig() {
-    if (!anchorProgramId || !anchorAdminAccount) {
-      console.warn('Missing solana audius data config')
-      return {
-        error: true
-      }
-    }
-
-    return {
-      error: false,
-      solanaAudiusDataConfig: AudiusLibs.configSolanaAudiusData({
-        programId: anchorProgramId,
-        adminAccount: anchorAdminAccount
       })
     }
   }
