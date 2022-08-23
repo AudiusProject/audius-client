@@ -1,12 +1,11 @@
-import { Cluster, Connection, PublicKey } from '@solana/web3.js'
 import {
   JupiterTokenSymbol,
   TOKEN_LISTING_MAP,
   convertJSBIToAmountObject
 } from '@audius/common'
-
-import JSBI from 'jsbi'
 import type { Jupiter as JupiterInstance } from '@jup-ag/core'
+import { Cluster, Connection, PublicKey } from '@solana/web3.js'
+import JSBI from 'jsbi'
 
 let _jup: JupiterInstance
 
@@ -49,7 +48,7 @@ const initJupiter = async () => {
  * Gets a quote from Jupiter for an exchange from inputTokenSymbol => outputTokenSymbol
  * @returns the best quote including the RouteInfo
  */
-export const getJupiterQuote = async ({
+const getQuote = async ({
   inputTokenSymbol,
   outputTokenSymbol,
   inputAmount,
@@ -98,9 +97,12 @@ export const getJupiterQuote = async ({
   return resultQuote
 }
 
-export const exchangeJupiter: JupiterInstance['exchange'] = async (
-  exchangeArgs
-) => {
+const exchange: JupiterInstance['exchange'] = async (exchangeArgs) => {
   const jup = await getInstance()
   return await jup.exchange(exchangeArgs)
+}
+
+export const JupiterSingleton = {
+  getQuote,
+  exchange
 }

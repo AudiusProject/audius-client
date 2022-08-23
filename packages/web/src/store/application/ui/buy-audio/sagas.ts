@@ -13,11 +13,8 @@ import {
   buyAudioActions,
   OnRampProvider
 } from '@audius/common'
-import {
-  exchangeJupiter,
-  getJupiterQuote
-} from 'services/audius-backend/Jupiter'
 import { TransactionHandler } from '@audius/sdk/dist/core'
+import type { RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
 import {
   Keypair,
@@ -50,11 +47,12 @@ import {
   pollForAudioBalanceChange,
   pollForSolBalanceChange
 } from 'services/audius-backend/BuyAudio'
+import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import {
   createUserBankIfNeeded,
   getUserBank
 } from 'services/audius-backend/waudio'
-import type { RouteInfo } from '@jup-ag/core'
+
 const {
   calculateAudioPurchaseInfo,
   calculateAudioPurchaseInfoSucceeded,
@@ -137,7 +135,7 @@ function* executeSwap({
 }) {
   const {
     transactions: { setupTransaction, swapTransaction, cleanupTransaction }
-  } = yield* call(exchangeJupiter, {
+  } = yield* call(JupiterSingleton.exchange, {
     routeInfo: route,
     userPublicKey: account.publicKey
   })
@@ -231,7 +229,7 @@ function* getTransactionFees({
   if (!transactionFees) {
     const {
       transactions: { setupTransaction, swapTransaction, cleanupTransaction }
-    } = yield* call(exchangeJupiter, {
+    } = yield* call(JupiterSingleton.exchange, {
       routeInfo: route,
       userPublicKey: rootAccount
     })
@@ -376,7 +374,7 @@ function* getAudioPurchaseInfo({
     const slippage = SLIPPAGE
 
     // Get AUDIO => SOL quote
-    const reverseQuote = yield* call(getJupiterQuote, {
+    const reverseQuote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'AUDIO',
       outputTokenSymbol: 'SOL',
       inputAmount: audioAmount,
@@ -388,7 +386,7 @@ function* getAudioPurchaseInfo({
     const inSol = Math.ceil(reverseQuote.outputAmount.amount * slippageFactor)
 
     // Get SOL => AUDIO quote to calculate fees
-    const quote = yield* call(getJupiterQuote, {
+    const quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount: inSol,
@@ -415,7 +413,7 @@ function* getAudioPurchaseInfo({
       existingBalance
 
     // Get SOL => USDC quote to estimate $USD cost
-    const quoteUSD = yield* call(getJupiterQuote, {
+    const quoteUSD = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'USDC',
       inputAmount: estimatedLamports / LAMPORTS_PER_SOL,
@@ -526,7 +524,7 @@ function* startBuyAudioFlow({
     }
 
     // Get dummy quote and calculate fees
-    let quote = yield* call(getJupiterQuote, {
+    let quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount: newBalance / LAMPORTS_PER_SOL,
@@ -543,7 +541,7 @@ function* startBuyAudioFlow({
     console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
 
     // Get new quote adjusted for fees
-    quote = yield* call(getJupiterQuote, {
+    quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount,
