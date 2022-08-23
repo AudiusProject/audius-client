@@ -121,8 +121,8 @@ web-deploy-cloudflare:
         name: Move sourcemaps
         command: |
           cd packages/web
-          mkdir sourcemaps
-          mv build-<< parameters.build-type >>/static/js/*.map sourcemaps
+          mkdir sourcemaps/static/js
+          mv build-<< parameters.build-type >>/static/js/*.map sourcemaps/static/js
     - run:
         name: Set up workers site
         command: |
