@@ -144,7 +144,9 @@ web-deploy-cloudflare:
 
 web-deploy-sourcemaps-s3:
   steps:
-    - web-install-awscli
+    - run:
+        name: install-awscli
+        command: pip install awscli
     - attach_workspace:
         at: ./
     - run:
