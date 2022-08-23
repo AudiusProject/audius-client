@@ -284,7 +284,7 @@ web-deploy-production-s3:
 web-deploy-production-cloudflare:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/python:3.10.6-node
   steps:
     - web-deploy-cloudflare:
         build-type: production
