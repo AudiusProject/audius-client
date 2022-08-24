@@ -7,6 +7,10 @@
   color: var(--neutral-light-4);
   padding: 8px 24px;
   gap: 5px;
+
+  background: transparent;
+  outline: 0;
+  border: 0;
 }
 .toggleCollapsedButton:hover {
   cursor: pointer;

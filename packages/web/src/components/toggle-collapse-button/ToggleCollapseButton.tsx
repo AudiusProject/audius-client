@@ -10,6 +10,7 @@ import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.sv
 import styles from './ToggleCollapseButton.module.css'
 
 export const ToggleCollapseButton = ({
+  id,
   className,
   toggleButtonClassName,
   showByDefault = false,
@@ -18,6 +19,7 @@ export const ToggleCollapseButton = ({
   hideText,
   children
 }: {
+  id: string
   className?: string
   toggleButtonClassName?: string
   showByDefault?: boolean
@@ -27,16 +29,20 @@ export const ToggleCollapseButton = ({
   children: React.ReactNode
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(!showByDefault)
+
   const handleToggle = useCallback(() => {
     setIsCollapsed((isCollapsed) => !isCollapsed)
   }, [setIsCollapsed])
+
   const [ref, bounds] = useMeasure({
     polyfill: ResizeObserver,
     offsetSize: true
   })
+
   return (
     <div className={cn(className, { collapsed: isCollapsed })}>
       <div
+        id={id}
         className={styles.toggleCollapsedContentsContainer}
         style={{ height: isCollapsed ? collapsedHeight : bounds.height }}
       >
@@ -44,13 +50,15 @@ export const ToggleCollapseButton = ({
           {children}
         </div>
       </div>
-      <div
+      <button
         className={cn(styles.toggleCollapsedButton, toggleButtonClassName)}
+        aria-controls={id}
+        aria-expanded={!isCollapsed}
         onClick={handleToggle}
       >
         <span>{isCollapsed ? showText : hideText}</span>
         {isCollapsed ? <IconCaretDownLine /> : <IconCaretUpLine />}
-      </div>
+      </button>
     </div>
   )
 }
