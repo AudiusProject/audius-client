@@ -6,11 +6,11 @@ import {
 import { IconCaretDown } from '@audius/stems'
 import { useSelector } from 'react-redux'
 
+import { CollapsibleContent } from 'components/collapsible-content'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { ToggleCollapseButton } from 'components/toggle-collapse-button'
 
 import { IconAUDIO, IconSOL, IconUSD } from './Icons'
-import styles from './InProgressPage.module.css'
+import styles from './InProgressContents.module.css'
 
 const { getAudioPurchaseInfo, getBuyAudioFlowStage } = buyAudioSelectors
 
@@ -28,7 +28,7 @@ const messages = {
   audio: '$AUDIO'
 }
 
-export const InProgressPage = () => {
+export const InProgressContents = () => {
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const buyAudioFlowStage = useSelector(getBuyAudioFlowStage)
   const isStepOne = buyAudioFlowStage === BuyAudioStage.PURCHASING
@@ -79,7 +79,7 @@ export const InProgressPage = () => {
           {messages.completeWithCoinbase}
         </div>
       ) : null}
-      <ToggleCollapseButton
+      <CollapsibleContent
         id='buy-audio-more-info'
         className={styles.showMoreToggle}
         toggleButtonClassName={styles.showMoreToggleButton}
@@ -100,7 +100,7 @@ export const InProgressPage = () => {
             <span className={styles.headerCaps}>{secondToken?.label}</span>
           </div>
         </div>
-      </ToggleCollapseButton>
+      </CollapsibleContent>
     </div>
   )
 }
