@@ -10,7 +10,7 @@ import { CollapsibleContent } from 'components/collapsible-content'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import { IconAUDIO, IconSOL, IconUSD } from './Icons'
-import styles from './InProgressContents.module.css'
+import styles from './InProgressPageContent.module.css'
 
 const { getAudioPurchaseInfo, getBuyAudioFlowStage } = buyAudioSelectors
 
@@ -28,7 +28,7 @@ const messages = {
   audio: '$AUDIO'
 }
 
-export const InProgressContent = () => {
+export const InProgressPageContent = () => {
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const buyAudioFlowStage = useSelector(getBuyAudioFlowStage)
   const isStepOne = buyAudioFlowStage === BuyAudioStage.PURCHASING
