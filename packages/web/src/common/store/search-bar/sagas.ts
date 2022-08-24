@@ -3,9 +3,9 @@ import { call, cancel, fork, put, race, select, take } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import { waitForBackendSetup } from 'common/store/backend/sagas'
-import * as searchActions from 'components/search-bar/store/actions'
 import { waitForAccount } from 'utils/sagaHelpers'
 
+import * as searchActions from './actions'
 import mobileSagas from './mobileSagas'
 import { getSearch } from './selectors'
 
@@ -97,3 +97,4 @@ export default function sagas() {
   const sagas = [watchSearch]
   return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
+// can go in common - mobile sagas should be in mobile

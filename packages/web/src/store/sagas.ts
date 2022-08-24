@@ -22,6 +22,7 @@ import signOnSaga from 'common/store/pages/signon/sagas'
 import trackSagas from 'common/store/pages/track/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import searchBarSagas from 'common/store/search-bar/sagas'
 import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
@@ -33,7 +34,6 @@ import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
 import notificationSagas from 'components/notification/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
 import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas'
-import searchBarSagas from 'components/search-bar/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
 import rewardsPageSagas from 'pages/audio-rewards-page/store/sagas'
@@ -89,6 +89,8 @@ export default function* rootSaga() {
     webAnalyticsSagas(),
     backendSagas(),
     confirmerSagas(),
+    searchBarSagas(),
+
     cookieBannerSagas(),
     reachabilitySagas(),
     routingSagas(),
@@ -112,7 +114,6 @@ export default function* rootSaga() {
     reactionSagas(),
     rewardsPageSagas(),
     savedSagas(),
-    searchBarSagas(),
     searchPageSagas(),
     serviceSelectionSagas(),
     settingsSagas(),

@@ -11,13 +11,13 @@ import { combineReducers } from 'redux'
 import backend from 'common/store/backend/reducer'
 import confirmer from 'common/store/confirmer/reducer'
 import signOnReducer from 'common/store/pages/signon/reducer'
+import searchBar from 'common/store/search-bar/reducer'
 import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
 import musicConfetti from 'components/music-confetti/store/slice'
 import passwordReset from 'components/password-reset/store/reducer'
 import remixSettingsModal from 'components/remix-settings-modal/store/slice'
-import searchBar from 'components/search-bar/store/reducer'
 import unfollowConfirmation from 'components/unfollow-confirmation-modal/store/reducers'
 import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import deactivateAccount from 'pages/deactivate-account-page/store/slice'
@@ -43,14 +43,16 @@ const createRootReducer = (routeHistory: History) =>
   combineReducers({
     // Common store
     ...commonStoreReducers,
-    // TODO: should be in common
+    // These also belong in common store reducers but are here until we move them to the @audius/common package.
     backend,
+    signOn: signOnReducer,
+    confirmer,
+    searchBar,
+
+    // (End common store)
 
     // Router
     router: connectRouter(routeHistory),
-
-    // Config
-    confirmer,
 
     // Account
     passwordReset,
@@ -63,9 +65,7 @@ const createRootReducer = (routeHistory: History) =>
     upload,
     profile,
     dashboard,
-    searchBar,
     serviceSelection,
-    signOn: signOnReducer,
 
     // Playback
     queue,
