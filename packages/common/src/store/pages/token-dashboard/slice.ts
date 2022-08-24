@@ -56,13 +56,7 @@ const slice = createSlice({
     },
     inputSendData: (
       state,
-      {
-        payload: { amount, wallet, chain }
-      }: PayloadAction<{
-        amount: StringWei
-        wallet: WalletAddress
-        chain: Chain
-      }>
+      { payload: { amount, wallet, chain } }: InputSendDataAction
     ) => {
       const newState: TokenDashboardPageModalState = {
         stage: 'SEND' as const,
@@ -71,7 +65,7 @@ const slice = createSlice({
           amount,
           recipientWallet: wallet,
           chain,
-          canRecipientReceiveWAudio: true
+          canRecipientReceiveWAudio: false
         }
       }
       state.modalState = newState

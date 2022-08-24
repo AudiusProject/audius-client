@@ -9,8 +9,8 @@ import {
   accountSelectors,
   accountActions,
   tokenDashboardPageActions,
-  tokenDashboardPageSelectors,
   walletSelectors,
+  InputSendDataAction,
   walletActions,
   getContext,
   waitForAccount
@@ -38,7 +38,6 @@ const {
   setCanRecipientReceiveWAudio,
   inputSendData
 } = tokenDashboardPageActions
-const { getSendData } = tokenDashboardPageSelectors
 const fetchAccountSucceeded = accountActions.fetchAccountSucceeded
 const getAccountUser = accountSelectors.getAccountUser
 
@@ -236,11 +235,9 @@ function* fetchBalanceAsync() {
  * Check if we can send WAudio to a recipient by checking if they already have
  * an associated WAudio token account, or if they have enough SOL to create one.
  */
-function* checkAssociatedTokenAccountOrSol() {
+function* checkAssociatedTokenAccountOrSol(action: InputSendDataAction) {
   const walletClient = yield* getContext('walletClient')
-  const ret = yield* select(getSendData)
-  const { recipientWallet: address } = ret as { recipientWallet: string }
-
+  const address = action.payload.wallet
   const associatedTokenAccount = yield* call(() =>
     walletClient.getAssociatedTokenAccountInfo(address)
   )

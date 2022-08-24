@@ -45,7 +45,5 @@ export const getCanRecipientReceiveWAudio = (state: CommonState) => {
     return state.pages.tokenDashboard.modalState.flowState
       .canRecipientReceiveWAudio
   }
-  throw new Error(
-    'Tried to access canRecipientReceiveWAudio outside of correct flow state.'
-  )
+  return false
 }
