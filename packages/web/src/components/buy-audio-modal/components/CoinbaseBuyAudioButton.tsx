@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useContext } from 'react'
 
 import { buyAudioActions, buyAudioSelectors, Status } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
