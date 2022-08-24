@@ -42,8 +42,9 @@
   border-top: 1px solid var(--neutral-light-8);
 }
 .showMoreToggle .showMoreToggleButton {
-  font-size: var(--large);
+  margin: 0 auto;
   padding: 24px 0;
+  font-size: var(--large);
 }
 
 .moreInfo {
