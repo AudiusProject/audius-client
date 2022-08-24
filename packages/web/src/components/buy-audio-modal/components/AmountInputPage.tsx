@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { buyAudioActions, buyAudioSelectors } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -16,20 +18,26 @@ const messages = {
 export const AmountInputPage = () => {
   const dispatch = useDispatch()
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
+
+  const handleAmountChange = useCallback(
+    (amount) => {
+      const audioAmount = parseInt(amount)
+      if (!isNaN(audioAmount)) {
+        dispatch(
+          calculateAudioPurchaseInfo({
+            audioAmount
+          })
+        )
+      }
+    },
+    [dispatch]
+  )
+
   return (
     <div className={styles.inputPage}>
       <AudioAmountPicker
         presetAmounts={['5', '10', '25', '50', '100']}
-        onAmountChanged={(amount) => {
-          const audioAmount = parseInt(amount)
-          if (!isNaN(audioAmount)) {
-            dispatch(
-              calculateAudioPurchaseInfo({
-                audioAmount
-              })
-            )
-          }
-        }}
+        onAmountChanged={handleAmountChange}
       />
       <PurchaseQuote />
       <div className={styles.buyButtonContainer}>

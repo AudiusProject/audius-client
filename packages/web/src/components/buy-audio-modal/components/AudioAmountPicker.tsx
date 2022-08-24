@@ -16,7 +16,9 @@ const messages = {
   selectAnAmount: 'Select an amount',
   buy: 'Buy',
   amountOfAudio: 'Amount of $AUDIO',
-  customAmount: 'Custom Amount'
+  customAmount: 'Custom Amount',
+  placeholder: 'Enter an amount',
+  inputLabel: '$AUDIO'
 }
 
 const INPUT_DEBOUNCE_MS = 200
@@ -59,6 +61,7 @@ export const AudioAmountPicker = ({
   const [value, setValue] = useState<string | null>(null)
   const [presetAmount, setPresetAmount] = useState<string>()
   const [customAmount, setCustomAmount] = useState<string>()
+
   const handleChange = useCallback(
     (e) => {
       const value = e.target.value
@@ -76,13 +79,16 @@ export const AudioAmountPicker = ({
     },
     [customAmount, onAmountChanged]
   )
+
   const debouncedOnAmountChange = useMemo(
-    () => debounce((amount) => onAmountChanged(amount), INPUT_DEBOUNCE_MS),
+    () => debounce(onAmountChanged, INPUT_DEBOUNCE_MS),
     [onAmountChanged]
   )
+
   useEffect(() => {
     debouncedOnAmountChange.cancel()
   }, [debouncedOnAmountChange])
+
   const handleCustomAmountChange = useCallback(
     (amount) => {
       setCustomAmount(amount)
@@ -129,11 +135,11 @@ export const AudioAmountPicker = ({
           rightLabelClassName={styles.customAmountLabel}
           inputClassName={styles.customAmountInput}
           format={Format.INPUT}
-          placeholder={'Enter an amount'}
-          rightLabel={'$AUDIO'}
+          placeholder={messages.placeholder}
+          rightLabel={messages.inputLabel}
           value={customAmount}
-          isNumeric={true}
-          isWhole={true}
+          isNumeric
+          isWhole
           onChange={handleCustomAmountChange}
         />
       ) : null}
