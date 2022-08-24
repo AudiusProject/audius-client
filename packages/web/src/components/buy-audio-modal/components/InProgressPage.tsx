@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import {
   buyAudioSelectors,
   BuyAudioStage,
@@ -28,11 +30,18 @@ const messages = {
   audio: '$AUDIO'
 }
 
+type Token = {
+  label: string
+  amount: string | null
+  icon: ReactNode
+}
+
 export const InProgressPageContent = () => {
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const buyAudioFlowStage = useSelector(getBuyAudioFlowStage)
   const isStepOne = buyAudioFlowStage === BuyAudioStage.PURCHASING
-  let firstToken, secondToken
+  let firstToken: Token | undefined
+  let secondToken: Token | undefined
   if (purchaseInfo?.isError === false) {
     const solToken = {
       label: messages.sol,
