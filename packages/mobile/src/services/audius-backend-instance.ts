@@ -99,18 +99,15 @@ export const audiusBackendInstance = audiusBackend({
     registryAddress,
     entityManagerAddress,
     web3ProviderUrls
-  ) => {
-    const config = {
-      error: false,
-      web3Config: libs.configInternalWeb3(
-        registryAddress,
-        web3ProviderUrls,
-        undefined,
-        entityManagerAddress
-      )
-    }
-    return config
-  },
+  ) => ({
+    error: false,
+    web3Config: libs.configInternalWeb3(
+      registryAddress,
+      web3ProviderUrls,
+      undefined,
+      entityManagerAddress
+    )
+  }),
   hedgehogConfig: {
     createKey
   },
@@ -163,5 +160,6 @@ export const audiusBackendInstance = audiusBackend({
     if (audiusLibs) {
       return normal(audiusLibs)(...args)
     }
-  }
+  },
+  disableImagePreload: true
 })
