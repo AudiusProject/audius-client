@@ -385,17 +385,9 @@
   font-size: var(--font-xs);
 }
 
-.textButton.medium .icon svg {
-  width: var(--font-s);
-  height: var(--font-s);
-}
-.textButton.small .icon svg {
-  width: var(--font-xs);
-  height: var(--font-xs);
-}
-.textButton.tiny .icon svg {
-  width: var(--font-2xs);
-  height: var(--font-2xs);
+.textButton.button .icon svg {
+  width: calc(1em - 2px);
+  height: calc(1em - 2px);
 }
 
 .textButton:hover .textLabel {
