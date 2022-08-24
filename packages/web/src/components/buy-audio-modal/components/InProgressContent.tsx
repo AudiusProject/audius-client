@@ -28,7 +28,7 @@ const messages = {
   audio: '$AUDIO'
 }
 
-export const InProgressContents = () => {
+export const InProgressContent = () => {
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const buyAudioFlowStage = useSelector(getBuyAudioFlowStage)
   const isStepOne = buyAudioFlowStage === BuyAudioStage.PURCHASING
