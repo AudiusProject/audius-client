@@ -61,11 +61,10 @@ export type ConfirmRemoveWalletAction = PayloadAction<{
 }>
 
 export type InputSendDataAction = PayloadAction<{
-    amount: StringWei
-    wallet: WalletAddress
-    chain: Chain
-  }>
-}
+  amount: StringWei
+  wallet: WalletAddress
+  chain: Chain
+}>
 
 export type AssociatedWalletsState = {
   status: Nullable<'Connecting' | 'Confirming' | 'Confirmed'>
