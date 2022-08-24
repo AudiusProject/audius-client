@@ -8,6 +8,7 @@ import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
+import trackPageSagas from 'common/store/pages/track/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import { all, fork } from 'typed-redux-saga'
 
@@ -32,6 +33,9 @@ export default function* rootSaga() {
     // Sign in / Sign out
     ...signOnSagas(),
     ...signOutSagas(),
+
+    // Pages
+    ...trackPageSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
