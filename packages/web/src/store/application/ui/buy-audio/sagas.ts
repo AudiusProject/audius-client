@@ -1,10 +1,22 @@
-import { IntKeys, Name } from '@audius/common'
+import {
+  IntKeys,
+  Name,
+  getContext,
+  walletActions,
+  convertJSBIToAmountObject,
+  convertWAudioToWei,
+  formatWei,
+  weiToString,
+  TOKEN_LISTING_MAP,
+  buyAudioSelectors,
+  PurchaseInfoErrorType,
+  buyAudioActions,
+  OnRampProvider
+} from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
-import { Jupiter, SwapMode, RouteInfo } from '@jup-ag/core'
+import type { RouteInfo } from '@jup-ag/core'
 import { u64 } from '@solana/spl-token'
 import {
-  Cluster,
-  Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -22,17 +34,26 @@ import {
   fork
 } from 'typed-redux-saga'
 
-import { getContext } from 'common/store'
 import { make } from 'common/store/analytics/actions'
 import {
-  JupiterTokenSymbol,
-  TOKEN_LISTING_MAP
-} from 'common/store/buy-audio/constants'
+  createTransferToUserBankTransaction,
+  getAssociatedTokenAccountInfo,
+  getAssociatedTokenRentExemptionMinimum,
+  getAudioAccount,
+  getAudioAccountInfo,
+  getRootAccountRentExemptionMinimum,
+  getRootSolanaAccount,
+  getSolanaConnection,
+  pollForAudioBalanceChange,
+  pollForSolBalanceChange
+} from 'services/audius-backend/BuyAudio'
+import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import {
-  getBuyAudioFlowStage,
-  getFeesCache
-} from 'common/store/buy-audio/selectors'
-import {
+  createUserBankIfNeeded,
+  getUserBank
+} from 'services/audius-backend/waudio'
+
+const {
   calculateAudioPurchaseInfo,
   calculateAudioPurchaseInfoSucceeded,
   cacheAssociatedTokenAccount,
@@ -45,123 +66,18 @@ import {
   transferStarted,
   transferCompleted,
   clearFeesCache,
-  calculateAudioPurchaseInfoFailed,
-  PurchaseInfoErrorType
-} from 'common/store/buy-audio/slice'
-import { increaseBalance } from 'common/store/wallet/slice'
-import {
-  convertJSBIToAmountObject,
-  convertWAudioToWei,
-  formatWei,
-  weiToString
-} from 'common/utils/wallet'
-import {
-  createTransferToUserBankTransaction,
-  getAssociatedTokenAccountInfo,
-  getAssociatedTokenRentExemptionMinimum,
-  getAudioAccount,
-  getAudioAccountInfo,
-  getRootSolanaAccount,
-  getSolanaConnection,
-  pollForAudioBalanceChange,
-  pollForSolBalanceChange
-} from 'services/audius-backend/BuyAudio'
-import {
-  createUserBankIfNeeded,
-  getUserBank
-} from 'services/audius-backend/waudio'
+  calculateAudioPurchaseInfoFailed
+} = buyAudioActions
 
-const SOLANA_CLUSTER_ENDPOINT = process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT
-const SOLANA_CLUSTER = process.env.REACT_APP_SOLANA_WEB3_CLUSTER
+const { getBuyAudioFlowStage, getFeesCache } = buyAudioSelectors
+const { increaseBalance } = walletActions
 
 const ERROR_CODE_INSUFFICIENT_FUNDS = 1 // Error code for when the swap fails due to insufficient funds in the wallet
 const ERROR_CODE_SLIPPAGE = 6000 // Error code for when the swap fails due to specified slippage being exceeded
 const SLIPPAGE = 3 // The slippage amount to allow for exchanges
-const MIN_PADDING = 0.00005 * LAMPORTS_PER_SOL // Buffer for SOL in wallet
-let _jup: Jupiter
 
-/**
- * Initializes Jupiter singleton if necessary and returns
- * @returns a Jupiter instance
- */
-function* initJupiterIfNecessary() {
-  if (!_jup) {
-    if (!SOLANA_CLUSTER_ENDPOINT) {
-      throw new Error('Solana Cluster Endpoint is not configured')
-    }
-    const connection = new Connection(SOLANA_CLUSTER_ENDPOINT, 'confirmed')
-    const cluster = (SOLANA_CLUSTER ?? 'mainnet-beta') as Cluster
-    try {
-      _jup = yield* call(Jupiter.load, {
-        connection,
-        cluster,
-        restrictIntermediateTokens: true,
-        wrapUnwrapSOL: true,
-        routeCacheDuration: 5_000 // 5 seconds
-      })
-      console.debug('Using', connection.rpcEndpoint, 'for onRamp RPC')
-    } catch (e) {
-      console.error(
-        'Jupiter failed to initialize with RPC',
-        connection.rpcEndpoint,
-        e
-      )
-      throw e
-    }
-  }
-  return _jup
-}
-
-/**
- * Gets a quote from Jupiter for an exchange from inputTokenSymbol => outputTokenSymbol
- * @returns the best quote including the RouteInfo
- */
-function* getQuote({
-  inputTokenSymbol,
-  outputTokenSymbol,
-  inputAmount,
-  forceFetch,
-  slippage
-}: {
-  inputTokenSymbol: JupiterTokenSymbol
-  outputTokenSymbol: JupiterTokenSymbol
-  inputAmount: number
-  forceFetch?: boolean
-  slippage: number
-}) {
-  const inputToken = TOKEN_LISTING_MAP[inputTokenSymbol]
-  const outputToken = TOKEN_LISTING_MAP[outputTokenSymbol]
-  const amount = JSBI.BigInt(Math.ceil(inputAmount * 10 ** inputToken.decimals))
-  if (!inputToken || !outputToken) {
-    throw new Error(
-      `Tokens not found: ${inputTokenSymbol} => ${outputTokenSymbol}`
-    )
-  }
-  const jup = yield* call(initJupiterIfNecessary)
-  const routes = yield* call([jup, jup.computeRoutes], {
-    inputMint: new PublicKey(inputToken.address),
-    outputMint: new PublicKey(outputToken.address),
-    amount,
-    slippage,
-    swapMode: SwapMode.ExactIn,
-    forceFetch
-  })
-  const bestRoute = routes.routesInfos[0]
-
-  const resultQuote = {
-    inputAmount: convertJSBIToAmountObject(
-      bestRoute.inAmount,
-      inputToken.decimals
-    ),
-    outputAmount: convertJSBIToAmountObject(
-      bestRoute.outAmount,
-      outputToken.decimals
-    ),
-    route: bestRoute,
-    inputTokenSymbol,
-    outputTokenSymbol
-  }
-  return resultQuote
+const MEMO_MESSAGES = {
+  [OnRampProvider.COINBASE]: 'In-App $AUDIO Purchase: Coinbase'
 }
 
 /**
@@ -217,10 +133,9 @@ function* executeSwap({
   account: Keypair
   transactionHandler: TransactionHandler
 }) {
-  const jup = yield* call(initJupiterIfNecessary)
   const {
     transactions: { setupTransaction, swapTransaction, cleanupTransaction }
-  } = yield* call([jup, jup.exchange], {
+  } = yield* call(JupiterSingleton.exchange, {
     routeInfo: route,
     userPublicKey: account.publicKey
   })
@@ -312,10 +227,9 @@ function* getTransactionFees({
 }) {
   let transactionFees = feesCache?.transactionFees ?? 0
   if (!transactionFees) {
-    const jup = yield* call(initJupiterIfNecessary)
     const {
       transactions: { setupTransaction, swapTransaction, cleanupTransaction }
-    } = yield* call([jup, jup.exchange], {
+    } = yield* call(JupiterSingleton.exchange, {
       routeInfo: route,
       userPublicKey: rootAccount
     })
@@ -326,7 +240,8 @@ function* getTransactionFees({
         userBank,
         fromAccount: rootAccount,
         // eslint-disable-next-line new-cap
-        amount: new u64(JSBI.toNumber(route.outAmount))
+        amount: new u64(JSBI.toNumber(route.outAmount)),
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     const connection = yield* call(getSolanaConnection)
@@ -373,6 +288,9 @@ function* getTransactionFees({
 function* getSwapFees({ route }: { route: RouteInfo }) {
   const feesCache = yield* select(getFeesCache)
   const rootAccount = yield* call(getRootSolanaAccount)
+
+  const rootAccountMinBalance = yield* call(getRootAccountRentExemptionMinimum)
+
   const associatedAccountCreationFees = yield* call(
     getAssociatedAccountCreationFees,
     { rootAccount: rootAccount.publicKey, route, feesCache }
@@ -386,13 +304,22 @@ function* getSwapFees({ route }: { route: RouteInfo }) {
   console.debug(
     `Estimated transaction fees: ${
       transactionFees / LAMPORTS_PER_SOL
-    } SOL. Estimated associated account creation fees: ${
+    } SOL. Estimated associated account rent-exemption fees: ${
       associatedAccountCreationFees / LAMPORTS_PER_SOL
+    } SOL. Estimated root account rent-exemption fee: ${
+      rootAccountMinBalance / LAMPORTS_PER_SOL
     } SOL. Total estimated fees: ${
-      (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+      (associatedAccountCreationFees +
+        transactionFees +
+        rootAccountMinBalance) /
+      LAMPORTS_PER_SOL
     }`
   )
-  return { transactionFees, associatedAccountCreationFees }
+  return {
+    rootAccountMinBalance,
+    transactionFees,
+    associatedAccountCreationFees
+  }
 }
 
 function* getAudioPurchaseBounds() {
@@ -447,7 +374,7 @@ function* getAudioPurchaseInfo({
     const slippage = SLIPPAGE
 
     // Get AUDIO => SOL quote
-    const reverseQuote = yield* call(getQuote, {
+    const reverseQuote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'AUDIO',
       outputTokenSymbol: 'SOL',
       inputAmount: audioAmount,
@@ -459,16 +386,17 @@ function* getAudioPurchaseInfo({
     const inSol = Math.ceil(reverseQuote.outputAmount.amount * slippageFactor)
 
     // Get SOL => AUDIO quote to calculate fees
-    const quote = yield* call(getQuote, {
+    const quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount: inSol,
       slippage
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
 
     // Get existing solana balance
     const existingBalance = yield* call(
@@ -481,11 +409,11 @@ function* getAudioPurchaseInfo({
       inSol +
       associatedAccountCreationFees +
       transactionFees +
-      MIN_PADDING -
+      rootAccountMinBalance -
       existingBalance
 
     // Get SOL => USDC quote to estimate $USD cost
-    const quoteUSD = yield* call(getQuote, {
+    const quoteUSD = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'USDC',
       inputAmount: estimatedLamports / LAMPORTS_PER_SOL,
@@ -498,7 +426,10 @@ Adjustment For Slippage (${slippage}%): ${
         (inSol - reverseQuote.outputAmount.amount) / LAMPORTS_PER_SOL
       } SOL
 Fees: ${
-        (associatedAccountCreationFees + transactionFees) / LAMPORTS_PER_SOL
+        (associatedAccountCreationFees +
+          rootAccountMinBalance +
+          transactionFees) /
+        LAMPORTS_PER_SOL
       } SOL
 Existing Balance: ${existingBalance / LAMPORTS_PER_SOL} SOL
 Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
@@ -593,22 +524,24 @@ function* startBuyAudioFlow({
     }
 
     // Get dummy quote and calculate fees
-    let quote = yield* call(getQuote, {
+    let quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount: newBalance / LAMPORTS_PER_SOL,
       slippage: SLIPPAGE
     })
-    const { associatedAccountCreationFees, transactionFees } = yield* call(
-      getSwapFees,
-      { route: quote.route }
-    )
-    const minSol = associatedAccountCreationFees + transactionFees + MIN_PADDING
+    const {
+      rootAccountMinBalance,
+      associatedAccountCreationFees,
+      transactionFees
+    } = yield* call(getSwapFees, { route: quote.route })
+    const minSol =
+      associatedAccountCreationFees + transactionFees + rootAccountMinBalance
     const inputAmount = (newBalance - minSol) / LAMPORTS_PER_SOL
     console.debug(`Exchanging ${inputAmount} SOL to AUDIO`)
 
     // Get new quote adjusted for fees
-    quote = yield* call(getQuote, {
+    quote = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'AUDIO',
       inputAmount,
@@ -668,7 +601,8 @@ function* startBuyAudioFlow({
       {
         userBank,
         fromAccount: rootAccount.publicKey,
-        amount: transferAmount
+        amount: transferAmount,
+        memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
     yield* call(sendTransaction, {

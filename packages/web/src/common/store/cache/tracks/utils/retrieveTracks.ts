@@ -4,19 +4,19 @@ import {
   Status,
   Track,
   TrackMetadata,
-  UserTrackMetadata
+  UserTrackMetadata,
+  accountSelectors,
+  CommonState,
+  getContext,
+  cacheSelectors,
+  cacheTracksActions as trackActions,
+  cacheTracksSelectors
 } from '@audius/common'
 import { call, put, select, spawn } from 'typed-redux-saga'
 
-import { CommonState, getContext } from 'common/store'
-import { getUserId } from 'common/store/account/selectors'
 import { retrieve } from 'common/store/cache/sagas'
-import { getEntryTimestamp } from 'common/store/cache/selectors'
-import * as trackActions from 'common/store/cache/tracks/actions'
-import { getTracks as getTracksSelector } from 'common/store/cache/tracks/selectors'
 import { waitForAccount } from 'utils/sagaHelpers'
 
-import { setTracksIsBlocked } from './blocklist'
 import {
   fetchAndProcessRemixes,
   fetchAndProcessRemixParents
@@ -24,6 +24,9 @@ import {
 import { fetchAndProcessStems } from './fetchAndProcessStems'
 import { addUsersFromTracks } from './helpers'
 import { reformat } from './reformat'
+const { getEntryTimestamp } = cacheSelectors
+const { getTracks: getTracksSelector } = cacheTracksSelectors
+const getUserId = accountSelectors.getUserId
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
 type RetrieveTracksArgs = {
@@ -105,14 +108,7 @@ export function* retrieveTrackByHandleAndSlug({
             }
           ])
         )
-        const checkedTracks = yield* call(
-          setTracksIsBlocked,
-          tracks,
-          audiusBackendInstance
-        )
-        return checkedTracks.map((track) =>
-          reformat(track, audiusBackendInstance)
-        )
+        return tracks.map((track) => reformat(track, audiusBackendInstance))
       }
     }
   )
@@ -268,14 +264,7 @@ export function* retrieveTracks({
     onBeforeAddToCache: function* <T extends TrackMetadata>(tracks: T[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       yield* addUsersFromTracks(tracks)
-      const checkedTracks = yield* call(
-        setTracksIsBlocked,
-        tracks,
-        audiusBackendInstance
-      )
-      return checkedTracks.map((track) =>
-        reformat(track, audiusBackendInstance)
-      )
+      return tracks.map((track) => reformat(track, audiusBackendInstance))
     }
   })
 
