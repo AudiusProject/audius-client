@@ -30,9 +30,12 @@ export const ToggleCollapseButton = ({
   const handleToggle = useCallback(() => {
     setIsCollapsed((isCollapsed) => !isCollapsed)
   }, [setIsCollapsed])
-  const [ref, bounds] = useMeasure({ polyfill: ResizeObserver })
+  const [ref, bounds] = useMeasure({
+    polyfill: ResizeObserver,
+    offsetSize: true
+  })
   return (
-    <div className={className}>
+    <div className={cn(className, { collapsed: isCollapsed })}>
       <div
         className={styles.toggleCollapsedContentsContainer}
         style={{ height: isCollapsed ? collapsedHeight : bounds.height }}
