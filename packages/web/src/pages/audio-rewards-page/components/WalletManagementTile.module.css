@@ -99,7 +99,7 @@
   align-self: flex-start;
 }
 
-.advancedToggle {
+.toggle .advancedToggle {
   width: 100%;
   border-top: 1px solid var(--neutral-light-8);
   padding-top: 20px;

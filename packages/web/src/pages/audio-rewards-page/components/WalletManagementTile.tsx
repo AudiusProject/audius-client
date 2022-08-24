@@ -186,6 +186,7 @@ export const WalletManagementTile = () => {
         </div>
         <CoinbasePayButtonCustom onClick={onBuyAudioClicked} />
         <ToggleCollapseButton
+          className={styles.toggle}
           toggleButtonClassName={styles.advancedToggle}
           showText={messages.showAdvanced}
           hideText={messages.hideAdvanced}
