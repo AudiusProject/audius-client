@@ -25,16 +25,6 @@ export const CoinbaseBuyAudioButton = ({
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const isDisabled = purchaseInfoStatus === Status.ERROR
 
-  const handleClick = useCallback(() => {
-    if (
-      purchaseInfoStatus === Status.SUCCESS &&
-      purchaseInfo?.isError === false
-    ) {
-      dispatch(onRampOpened(purchaseInfo))
-      coinbasePay.open()
-    }
-  }, [coinbasePay, dispatch, purchaseInfoStatus, purchaseInfo])
-
   const handleExit = useCallback(() => {
     dispatch(onRampCanceled())
   }, [dispatch])
@@ -42,14 +32,30 @@ export const CoinbaseBuyAudioButton = ({
     dispatch(onRampSucceeded())
   }, [dispatch])
 
-  useEffect(() => {
-    coinbasePay.resetParams({
-      destinationWalletAddress: rootAccount.value?.publicKey.toString(),
-      presetCryptoAmount: amount,
-      onSuccess: handleSuccess,
-      onExit: handleExit
-    })
-  }, [coinbasePay, rootAccount, amount, handleSuccess, handleExit])
+  const handleClick = useCallback(() => {
+    if (
+      purchaseInfoStatus === Status.SUCCESS &&
+      purchaseInfo?.isError === false
+    ) {
+      coinbasePay.resetParams({
+        destinationWalletAddress: rootAccount.value?.publicKey.toString(),
+        presetCryptoAmount: amount,
+        onSuccess: handleSuccess,
+        onExit: handleExit
+      })
+      dispatch(onRampOpened(purchaseInfo))
+      coinbasePay.open()
+    }
+  }, [
+    coinbasePay,
+    dispatch,
+    purchaseInfoStatus,
+    purchaseInfo,
+    rootAccount,
+    amount,
+    handleSuccess,
+    handleExit
+  ])
 
   return (
     <CoinbasePayButtonCustom
