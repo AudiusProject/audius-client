@@ -4,7 +4,7 @@ import type { EntityType } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { Text } from 'app/components/core'
-import { close } from 'app/store/notifications/actions'
+import { close } from 'app/store/notifications/slice'
 import { getCollectionRoute, getTrackRoute } from 'app/utils/routes'
 
 import { useDrawerNavigation } from '../useDrawerNavigation'

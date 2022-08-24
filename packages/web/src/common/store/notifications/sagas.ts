@@ -26,13 +26,11 @@ import {
   reactionsUIActions
 } from '@audius/common'
 import moment from 'moment'
-import { eventChannel } from 'redux-saga'
 import {
   call,
   delay,
   fork,
   all,
-  take,
   put,
   takeEvery,
   select,
@@ -44,8 +42,7 @@ import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { isElectron } from 'utils/clientUtil'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
+import { waitForAccount } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
 const { fetchReactionValues } = reactionsUIActions
@@ -82,17 +79,6 @@ type NotificationsResponse =
 // NOTE: the rest are loading in in the user list modal
 export const USER_INITIAL_LOAD_COUNT = 9
 
-// Gets the polling interval from remoteconfig
-const getPollingIntervalMs = (remoteConfigInstance: RemoteConfigInstance) => {
-  const pollingInterval = remoteConfigInstance.getRemoteVar(
-    IntKeys.NOTIFICATION_POLLING_FREQ_MS
-  )
-  return (
-    pollingInterval ??
-    (remoteConfigIntDefaults[IntKeys.NOTIFICATION_POLLING_FREQ_MS] as number)
-  )
-}
-
 const getTimeAgo = (now: moment.Moment, date: string) => {
   const notifDate = moment(date)
   const weeksAgo = now.diff(notifDate, 'weeks')
@@ -120,6 +106,19 @@ function* recordPlaylistUpdatesAnalytics(playlistUpdates: ID[]) {
     })
     yield* put(event)
   }
+}
+
+// Gets the polling interval from remoteconfig
+export const getPollingIntervalMs = (
+  remoteConfigInstance: RemoteConfigInstance
+) => {
+  const pollingInterval = remoteConfigInstance.getRemoteVar(
+    IntKeys.NOTIFICATION_POLLING_FREQ_MS
+  )
+  return (
+    pollingInterval ??
+    (remoteConfigIntDefaults[IntKeys.NOTIFICATION_POLLING_FREQ_MS] as number)
+  )
 }
 
 /**
@@ -604,108 +603,6 @@ export function* getNotifications(isFirstFetch: boolean) {
   }
 }
 
-// function* notificationPollingDaemon() {
-//   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-//   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-//   const isNativeMobile = yield* getContext('isNativeMobile')
-//   yield* call(waitForBackendSetup)
-//   yield* call(waitForValue, getHasAccount, {})
-//   yield* call(audiusBackendInstance.getEmailNotificationSettings)
-
-//   // Set up daemon that will watch for browser into focus and refetch notifications
-//   // as soon as it goes into focus
-//   const visibilityChannel = eventChannel((emitter) => {
-// TODO: attach via app foreground events
-//       // The focus and visibitychange events are wonky on native mobile webviews,
-//       // so poll for visiblity change instead
-//       let lastHidden = true
-//       setInterval(() => {
-//         if (!document.hidden && lastHidden) {
-//           emitter(true)
-//         }
-//         lastHidden = document.hidden
-//       }, 500)
-//     return () => {}
-//   })
-//   yield* fork(function* () {
-//     while (true) {
-//       yield* take(visibilityChannel)
-//       yield* call(getNotifications, false)
-//     }
-//   })
-
-//   // Set up daemon that will poll for notifications every 10s if the browser is
-//   // in the foreground
-//   const isFirstFetch = true
-//   let isBrowserInBackground = false
-//   document.addEventListener(
-//     'visibilitychange',
-//     () => {
-//       if (document.hidden) {
-//         isBrowserInBackground = true
-//       } else {
-//         isBrowserInBackground = false
-//       }
-//     },
-//     false
-//   )
-
-//   while (true) {
-//     if (!isBrowserInBackground || isElectron()) {
-//       yield* call(getNotifications, isFirstFetch)
-//     }
-//     yield* delay(getPollingIntervalMs(remoteConfigInstance))
-//   }
-// }
-
-function* notificationPollingDaemon() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  yield* call(waitForBackendSetup)
-  yield* call(waitForValue, getHasAccount, {})
-  yield* call(audiusBackendInstance.getEmailNotificationSettings)
-
-  // Set up daemon that will watch for browser into focus and refetch notifications
-  // as soon as it goes into focus
-  const visibilityChannel = eventChannel((emitter) => {
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        emitter(true)
-      }
-    })
-    return () => {}
-  })
-  yield* fork(function* () {
-    while (true) {
-      yield* take(visibilityChannel)
-      yield* call(getNotifications, false)
-    }
-  })
-
-  // Set up daemon that will poll for notifications every 10s if the browser is
-  // in the foreground
-  const isFirstFetch = true
-  let isBrowserInBackground = false
-  document.addEventListener(
-    'visibilitychange',
-    () => {
-      if (document.hidden) {
-        isBrowserInBackground = true
-      } else {
-        isBrowserInBackground = false
-      }
-    },
-    false
-  )
-
-  while (true) {
-    if (!isBrowserInBackground || isElectron()) {
-      yield* call(getNotifications, isFirstFetch)
-    }
-    yield* delay(getPollingIntervalMs(remoteConfigInstance))
-  }
-}
-
 export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* call(waitForBackendSetup)
@@ -733,7 +630,6 @@ export default function sagas() {
     watchMarkAllNotificationsViewed,
     watchSubscribeUserSettings,
     watchUnsubscribeUserSettings,
-    // notificationPollingDaemon,
     watchTogglePanel,
     watchNotificationError,
     watchUpdatePlaylistLastViewedAt

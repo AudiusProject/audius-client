@@ -7,11 +7,13 @@ import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
+import notificationsSagas from 'common/store/notifications/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import initKeyboardEvents from './keyboard/sagas'
+import notificationsSagasNative from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 
 export default function* rootSaga() {
@@ -32,6 +34,9 @@ export default function* rootSaga() {
     // Sign in / Sign out
     ...signOnSagas(),
     ...signOutSagas(),
+
+    ...notificationsSagas(),
+    ...notificationsSagasNative(),
 
     initKeyboardEvents,
     ...remoteConfig(),

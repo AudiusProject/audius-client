@@ -9,7 +9,7 @@ import PushNotification from 'react-native-push-notification'
 
 import { track, make } from 'app/services/analytics'
 import { dispatch } from 'app/store'
-import { open } from 'app/store/notifications/actions'
+import { open } from 'app/store/notifications/slice'
 import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
 import { EventNames } from 'app/types/analytics'
 

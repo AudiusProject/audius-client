@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 
 import type { ProfilePictureProps as ProfilePictureBaseProps } from 'app/components/user'
 import { ProfilePicture as ProfilePictureBase } from 'app/components/user'
-import { close } from 'app/store/notifications/actions'
+import { close } from 'app/store/notifications/slice'
 import { makeStyles } from 'app/styles'
 import { getUserRoute } from 'app/utils/routes'
 

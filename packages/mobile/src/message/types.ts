@@ -50,7 +50,6 @@ export enum MessageType {
   FETCH_NOTIFICATIONS_REPLACE = 'fetch-notifications-replace',
   FETCH_NOTIFICATIONS_FAILURE = 'fetch-notifications-failure',
   REFRESH_NOTIFICATIONS = 'refresh-notifications',
-  MARK_ALL_NOTIFICATIONS_AS_VIEWED = 'mark-all-notifications-as-viewed',
 
   // Search
   OPEN_SEARCH = 'open-search',

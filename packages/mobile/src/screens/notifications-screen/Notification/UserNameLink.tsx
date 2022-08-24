@@ -8,7 +8,7 @@ import type { TextProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
-import { close } from 'app/store/notifications/actions'
+import { close } from 'app/store/notifications/slice'
 import { getUserRoute } from 'app/utils/routes'
 
 type UserNameLinkProps = TextProps & {
