@@ -54,7 +54,6 @@ class ConnectedSearchBar extends Component {
 
   isTagSearch = () => this.state.value[0] === '#'
 
-  // here
   onSearchChange = (value, fetch) => {
     if (value.trim().length === 0) {
       // If the user erases the entire search content, clear the search store

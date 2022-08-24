@@ -39,8 +39,6 @@ export type SearchBarActions =
 export function openMobileSearchBar(): SearchBarActions {
   return { type: OPEN_MOBILE_SEARCH_BAR }
 }
-// instead of dispatching message( saga) use store state
-
 export function fetchSearch(searchText: string): SearchBarActions {
   return { type: FETCH_SEARCH, searchText }
 }
