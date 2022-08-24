@@ -23,7 +23,7 @@ export const CoinbaseBuyAudioButton = ({
   const rootAccount = useAsync(getRootSolanaAccount)
   const purchaseInfoStatus = useSelector(getAudioPurchaseInfoStatus)
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
-  const isDisabled = purchaseInfoStatus === Status.ERROR
+  const isDisabled = purchaseInfoStatus !== Status.SUCCESS
 
   const handleExit = useCallback(() => {
     dispatch(onRampCanceled())
