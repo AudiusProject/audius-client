@@ -20,7 +20,7 @@ import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import { useModalState } from 'common/hooks/useModalState'
 import { CoinbasePayButtonCustom } from 'components/coinbase-pay-button'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
-import { ToggleCollapseButton } from 'components/toggle-collapse-button/ToggleCollapseButton'
+import { ToggleCollapseButton } from 'components/toggle-collapse-button'
 import { isMobile } from 'utils/clientUtil'
 
 import TokenHoverTooltip from './TokenHoverTooltip'
