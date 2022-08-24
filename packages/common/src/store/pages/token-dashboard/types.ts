@@ -14,6 +14,7 @@ type SendingState =
       amount: StringWei
       recipientWallet: string
       chain: Chain
+      canRecipientReceiveWAudio: boolean
     }
   | {
       stage: 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'

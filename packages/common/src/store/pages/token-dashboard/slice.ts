@@ -70,10 +70,29 @@ const slice = createSlice({
           stage: 'AWAITING_CONFIRMATION',
           amount,
           recipientWallet: wallet,
-          chain
+          chain,
+          canRecipientReceiveWAudio: true
         }
       }
       state.modalState = newState
+    },
+    setCanRecipientReceiveWAudio: (
+      state,
+      {
+        payload: { canRecipientReceiveWAudio }
+      }: PayloadAction<{ canRecipientReceiveWAudio: boolean }>
+    ) => {
+      if (
+        state.modalState?.stage === 'SEND' &&
+        state.modalState.flowState.stage === 'AWAITING_CONFIRMATION'
+      ) {
+        state.modalState.flowState.canRecipientReceiveWAudio =
+          canRecipientReceiveWAudio
+      } else {
+        console.error(
+          'Tried to set canRecipientReceiveWAudio outside of correct flow state.'
+        )
+      }
     },
     transferEthAudioToSolWAudio: (state) => {
       if (
@@ -293,7 +312,8 @@ export const {
   updateWalletError,
   preloadWalletProviders,
   resetStatus,
-  transferEthAudioToSolWAudio
+  transferEthAudioToSolWAudio,
+  setCanRecipientReceiveWAudio
 } = slice.actions
 export const actions = slice.actions
 export default slice

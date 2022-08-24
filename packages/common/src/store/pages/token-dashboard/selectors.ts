@@ -36,3 +36,16 @@ export const getHasAssociatedWallets = (state: CommonState) => {
 }
 export const getRemoveWallet = (state: CommonState) =>
   state.pages.tokenDashboard.associatedWallets.removeWallet
+export const getCanRecipientReceiveWAudio = (state: CommonState) => {
+  if (
+    state.pages.tokenDashboard.modalState?.stage === 'SEND' &&
+    state.pages.tokenDashboard.modalState.flowState.stage ===
+      'AWAITING_CONFIRMATION'
+  ) {
+    return state.pages.tokenDashboard.modalState.flowState
+      .canRecipientReceiveWAudio
+  }
+  throw new Error(
+    'Tried to access canRecipientReceiveWAudio outside of correct flow state.'
+  )
+}

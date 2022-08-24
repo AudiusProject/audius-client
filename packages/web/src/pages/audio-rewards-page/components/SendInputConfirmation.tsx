@@ -3,19 +3,25 @@ import {
   StringAudio,
   WalletAddress,
   stringAudioToBN,
-  weiToAudio
+  weiToAudio,
+  tokenDashboardPageSelectors
 } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
+
+import { useSelector } from 'utils/reducer'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 
 import DashboardTokenValueSlider from './DashboardTokenValueSlider'
 import DisplayAudio from './DisplayAudio'
 import styles from './SendInputConfirmation.module.css'
+const { getCanRecipientReceiveWAudio } = tokenDashboardPageSelectors
 
 const messages = {
   title: "YOU'RE ABOUT TO SEND",
-  sendButton: 'SEND $AUDIO'
+  sendButton: 'SEND $AUDIO',
+  errorMessage:
+    'This account does not contain enough SOL to create an $AUDIO wallet.'
 }
 
 type SendInputConfirmationProps = {
@@ -40,6 +46,7 @@ const SendInputConfirmation = ({
   recipientAddress,
   onSend
 }: SendInputConfirmationProps) => {
+  const canRecipientReceiveWAudio = useSelector(getCanRecipientReceiveWAudio)
   return (
     <ModalBodyWrapper>
       <div className={styles.titleWrapper}>
@@ -57,8 +64,12 @@ const SendInputConfirmation = ({
           text={messages.sendButton}
           onClick={onSend}
           type={ButtonType.PRIMARY_ALT}
+          disabled={!canRecipientReceiveWAudio}
         />
       </div>
+      {canRecipientReceiveWAudio ? null : (
+        <div className={styles.errorMessage}>{messages.errorMessage}</div>
+      )}
     </ModalBodyWrapper>
   )
 }

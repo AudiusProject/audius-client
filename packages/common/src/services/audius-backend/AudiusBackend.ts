@@ -2916,13 +2916,10 @@ export const audiusBackend = ({
     return receipt
   }
 
-  /**
-   * Make a request to send solana wrapped audio
-   */
-  async function sendWAudioTokens(address: string, amount: BNWei) {
+  async function getAssociatedTokenAccountInfo(address: string) {
     await waitForLibsInit()
 
-    // Check when sending waudio if the user has a user bank acccount
+    // Check if the user has a user bank acccount
     let tokenAccountInfo =
       await audiusLibs.solanaWeb3Manager.getTokenAccountInfo(address)
     if (!tokenAccountInfo) {
@@ -2934,34 +2931,45 @@ export const audiusBackend = ({
         associatedTokenAccount.toString()
       )
 
-      // If it's not a valid token account, we need to make one first
-      if (!tokenAccountInfo) {
-        // We do not want to relay gas fees for this token account creation,
-        // so we ask the user to create one with phantom, showing an error
-        // if phantom is not found.
-        if (!window.phantom) {
-          return {
-            error:
-              'Recipient has no $AUDIO token account. Please install Phantom-Wallet to create one.'
-          }
-        }
-        if (!window.solana.isConnected) {
-          await window.solana.connect()
-        }
+    return tokenAccountInfo
+  }
 
-        const phantomWallet = window.solana.publicKey?.toString()
-        const tx = await getCreateAssociatedTokenAccountTransaction({
-          feePayerKey: SolanaUtils.newPublicKeyNullable(phantomWallet),
-          solanaWalletKey: SolanaUtils.newPublicKeyNullable(address),
-          mintKey: audiusLibs.solanaWeb3Manager.mintKey,
-          solanaTokenProgramKey: audiusLibs.solanaWeb3Manager.solanaTokenKey,
-          connection: audiusLibs.solanaWeb3Manager.connection
-        })
-        const { signature } = await window.solana.signAndSendTransaction(tx)
-        await audiusLibs.solanaWeb3Manager.connection.confirmTransaction(
-          signature
-        )
+  /**
+   * Make a request to send solana wrapped audio
+   */
+  async function sendWAudioTokens(address: string, amount: BNWei) {
+    await waitForLibsInit()
+
+    // Check when sending waudio if the user has a user bank acccount
+    const tokenAccountInfo = await getAssociatedTokenAccountInfo(address)
+
+    // If it's not a valid token account, we need to make one first
+    if (!tokenAccountInfo) {
+      // We do not want to relay gas fees for this token account creation,
+      // so we ask the user to create one with phantom, showing an error
+      // if phantom is not found.
+      if (!window.phantom) {
+        return {
+          error:
+            'Recipient has no $AUDIO token account. Please install Phantom-Wallet to create one.'
+        }
       }
+      if (!window.solana.isConnected) {
+        await window.solana.connect()
+      }
+
+      const phantomWallet = window.solana.publicKey?.toString()
+      const tx = await getCreateAssociatedTokenAccountTransaction({
+        feePayerKey: SolanaUtils.newPublicKeyNullable(phantomWallet),
+        solanaWalletKey: SolanaUtils.newPublicKeyNullable(address),
+        mintKey: audiusLibs.solanaWeb3Manager.mintKey,
+        solanaTokenProgramKey: audiusLibs.solanaWeb3Manager.solanaTokenKey,
+        connection: audiusLibs.solanaWeb3Manager.connection
+      })
+      const { signature } = await window.solana.signAndSendTransaction(tx)
+      await audiusLibs.solanaWeb3Manager.connection.confirmTransaction(
+        signature
+      )
     }
     return audiusLibs.solanaWeb3Manager.transferWAudio(address, amount)
   }
@@ -3016,6 +3024,17 @@ export const audiusBackend = ({
       return new BN('0')
     }
     return waudioBalance
+  }
+
+  /**
+   * Fetches the Sol balance for the given wallet address
+   * @param {string} The solana wallet address
+   * @returns {Promise<BNWei>}
+   */
+  async function getAddressSolBalance(address: string): Promise<BNWei> {
+    await waitForLibsInit()
+    const solBalance = await audiusLibs.solanaWeb3Manager.getSolBalance(address)
+    return solBalance
   }
 
   /**
@@ -3145,6 +3164,8 @@ export const audiusBackend = ({
     getAccount,
     getAddressTotalStakedBalance,
     getAddressWAudioBalance,
+    getAddressSolBalance,
+    getAssociatedTokenAccountInfo,
     getAllTracks,
     getArtistTracks,
     getAudiusLibs,

@@ -9,6 +9,7 @@ import {
   accountSelectors,
   accountActions,
   tokenDashboardPageActions,
+  tokenDashboardPageSelectors,
   walletSelectors,
   walletActions,
   getContext,
@@ -30,8 +31,13 @@ const {
 } = walletActions
 const { getAccountBalance, getFreezeUntilTime, getLocalBalanceDidChange } =
   walletSelectors
-const { fetchAssociatedWallets, transferEthAudioToSolWAudio } =
-  tokenDashboardPageActions
+const {
+  fetchAssociatedWallets,
+  transferEthAudioToSolWAudio,
+  setCanRecipientReceiveWAudio,
+  inputSendData
+} = tokenDashboardPageActions
+const { getSendData } = tokenDashboardPageSelectors
 const fetchAccountSucceeded = accountActions.fetchAccountSucceeded
 const getAccountUser = accountSelectors.getAccountUser
 
@@ -221,12 +227,40 @@ function* fetchBalanceAsync() {
   }
 }
 
+/**
+ * Check if we can send WAudio to a recipient by checking if they already have
+ * an associated WAudio token account, or if they have enough SOL to create one.
+ */
+function* checkAssociatedTokenAccountOrSol() {
+  const walletClient = yield* getContext('walletClient')
+  const ret = yield* select(getSendData)
+  const { recipientWallet: address } = ret as { recipientWallet: string }
+
+  const associatedTokenAccount = yield* call(() =>
+    walletClient.getAssociatedTokenAccountInfo(address)
+  )
+  if (!associatedTokenAccount) {
+    const balance = yield* call(() => walletClient.getWalletSolBalance(address))
+    if (balance.isZero()) {
+      yield* put(
+        setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: false })
+      )
+      return
+    }
+  }
+  yield* put(setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: true }))
+}
+
 function* watchSend() {
   yield* takeEvery(send.type, sendAsync)
 }
 
 function* watchGetBalance() {
   yield* takeEvery(getBalance.type, fetchBalanceAsync)
+}
+
+function* watchInputSendData() {
+  yield* takeEvery(inputSendData.type, checkAssociatedTokenAccountOrSol)
 }
 
 function* watchFetchAccountSucceeded() {
@@ -242,7 +276,12 @@ function* watchFetchAccountSucceeded() {
 }
 
 const sagas = () => {
-  return [watchGetBalance, watchSend, watchFetchAccountSucceeded]
+  return [
+    watchGetBalance,
+    watchInputSendData,
+    watchSend,
+    watchFetchAccountSucceeded
+  ]
 }
 
 export default sagas
