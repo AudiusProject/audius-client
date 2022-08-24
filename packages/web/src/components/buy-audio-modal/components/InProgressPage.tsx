@@ -80,6 +80,7 @@ export const InProgressPage = () => {
         </div>
       ) : null}
       <ToggleCollapseButton
+        id='buy-audio-more-info'
         className={styles.showMoreToggle}
         toggleButtonClassName={styles.showMoreToggleButton}
         showText={messages.moreInfo}
