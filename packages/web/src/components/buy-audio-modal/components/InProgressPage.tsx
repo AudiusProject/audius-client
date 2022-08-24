@@ -36,7 +36,7 @@ type Token = {
   icon: ReactNode
 }
 
-export const InProgressPageContent = () => {
+export const InProgressPage = () => {
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const buyAudioFlowStage = useSelector(getBuyAudioFlowStage)
   const isStepOne = buyAudioFlowStage === BuyAudioStage.PURCHASING
