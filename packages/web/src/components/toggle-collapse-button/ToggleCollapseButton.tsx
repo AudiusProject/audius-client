@@ -9,6 +9,17 @@ import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.sv
 
 import styles from './ToggleCollapseButton.module.css'
 
+type ToggleCollapseButtonProps = {
+  id: string
+  className?: string
+  toggleButtonClassName?: string
+  showByDefault?: boolean
+  collapsedHeight?: number
+  showText: string
+  hideText: string
+  children: React.ReactNode
+}
+
 export const ToggleCollapseButton = ({
   id,
   className,
@@ -18,16 +29,7 @@ export const ToggleCollapseButton = ({
   showText,
   hideText,
   children
-}: {
-  id: string
-  className?: string
-  toggleButtonClassName?: string
-  showByDefault?: boolean
-  collapsedHeight?: number
-  showText: string
-  hideText: string
-  children: React.ReactNode
-}) => {
+}: ToggleCollapseButtonProps) => {
   const [isCollapsed, setIsCollapsed] = useState(!showByDefault)
 
   const handleToggle = useCallback(() => {
