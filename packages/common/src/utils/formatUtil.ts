@@ -181,6 +181,7 @@ type FormatOptions = {
   maxDecimals?: number
   excludeCommas?: boolean
 }
+
 export const formatNumberString = (
   number?: string,
   options?: FormatOptions
