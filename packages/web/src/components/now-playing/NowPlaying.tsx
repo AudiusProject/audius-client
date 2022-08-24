@@ -19,7 +19,8 @@ import {
   OverflowActionCallbacks,
   OverflowSource,
   mobileOverflowMenuUIActions,
-  shareModalUIActions
+  shareModalUIActions,
+  Nullable
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -47,7 +48,7 @@ import {
   getPlaying
 } from 'store/player/selectors'
 import { seek, reset } from 'store/player/slice'
-import { AudioState } from 'store/player/types'
+import { Audio } from 'store/player/types'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,
@@ -72,7 +73,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 type OwnProps = {
   onClose: () => void
-  audio: AudioState
+  audio: Nullable<Audio>
 }
 
 type NowPlayingProps = OwnProps &

@@ -20,6 +20,7 @@ import {
   delay
 } from 'typed-redux-saga'
 
+import NativeMobileAudio from 'audio/NativeMobileAudio'
 import {
   getAudio,
   getTrackId,
@@ -44,7 +45,7 @@ import {
 import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
-import { TAudioStream, AudioState } from './types'
+import { TAudio, Audio } from './types'
 const { recordListen } = tracksSocialActions
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
@@ -56,8 +57,10 @@ const RECORD_LISTEN_SECONDS = 1
 const RECORD_LISTEN_INTERVAL = 1000
 
 function* setAudioStream() {
-  if (!NATIVE_MOBILE) {
-    const chan = eventChannel<TAudioStream>((emitter) => {
+  if (NATIVE_MOBILE) {
+    yield* put(setAudioStreamAction({ audio: new NativeMobileAudio() }))
+  } else {
+    const chan = eventChannel<TAudio>((emitter) => {
       import('audio/AudioStream').then((AudioStream) => {
         emitter(AudioStream.default)
         emitter(END)
@@ -90,7 +93,7 @@ export function* watchPlay() {
       )
     }
 
-    const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
 
     if (trackId) {
       // Load and set end action.
@@ -151,7 +154,7 @@ export function* watchCollectiblePlay() {
     playCollectible.type,
     function* (action: ReturnType<typeof playCollectible>) {
       const { collectible, onEnd } = action.payload
-      const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+      const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
       const endChannel = eventChannel((emitter) => {
         audio.load(
           [],
@@ -189,7 +192,7 @@ export function* watchPause() {
   yield* takeLatest(pause.type, function* (action: ReturnType<typeof pause>) {
     const { onlySetState } = action.payload
 
-    const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
     if (onlySetState) return
     audio.pause()
   })
@@ -199,7 +202,7 @@ export function* watchReset() {
   yield* takeLatest(reset.type, function* (action: ReturnType<typeof reset>) {
     const { shouldAutoplay } = action.payload
 
-    const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
 
     audio.seek(0)
     if (!shouldAutoplay) {
@@ -229,7 +232,7 @@ export function* watchStop() {
         { uid: PLAYER_SUBSCRIBER_NAME, id }
       ])
     )
-    const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
     audio.stop()
   })
 }
@@ -238,7 +241,7 @@ export function* watchSeek() {
   yield* takeLatest(seek.type, function* (action: ReturnType<typeof seek>) {
     const { seconds } = action.payload
 
-    const audio: NonNullable<AudioState> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
     audio.seek(seconds)
   })
 }

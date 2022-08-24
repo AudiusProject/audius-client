@@ -7,7 +7,8 @@ import {
   PlaybackSource,
   SquareSizes,
   queueActions,
-  tracksSocialActions
+  tracksSocialActions,
+  Nullable
 } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
@@ -27,7 +28,7 @@ import {
   getCounter,
   getPlaying
 } from 'store/player/selectors'
-import { AudioState } from 'store/player/types'
+import { Audio } from 'store/player/types'
 import { AppState } from 'store/types'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
@@ -38,7 +39,7 @@ const { pause, play } = queueActions
 const SEEK_INTERVAL = 200
 
 type OwnProps = {
-  audio: AudioState
+  audio: Nullable<Audio>
   onClickInfo: () => void
 }
 
