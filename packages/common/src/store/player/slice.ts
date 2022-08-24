@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { UID, ID, Collectible } from '../../models'
 import { Nullable } from '../../utils'
 
-import { Audio } from './types'
+import { AudioPlayer } from './types'
 
 export type PlayerState = {
   // Identifiers for the audio that's playing.
@@ -12,7 +12,7 @@ export type PlayerState = {
 
   collectible: Collectible | null
 
-  audio: Nullable<Audio>
+  audio: Nullable<AudioPlayer>
 
   // Keep 'playing' in the store separately from the audio
   // object to allow components to subscribe to changes.
@@ -43,7 +43,7 @@ export const initialState: PlayerState = {
 }
 
 type SetAudioStreamPayload = {
-  audio: Audio
+  audio: AudioPlayer
 }
 
 type PlayPayload = {

@@ -8,8 +8,8 @@ import {
   queueActions,
   tracksSocialActions,
   getContext,
-  TAudio,
-  Audio,
+  TAudioPlayer,
+  AudioPlayer,
   playerActions,
   playerSelectors
 } from '@audius/common'
@@ -58,7 +58,7 @@ function* setAudioStream() {
   if (NATIVE_MOBILE) {
     yield* put(setAudioStreamAction({ audio: new NativeMobileAudio() }))
   } else {
-    const chan = eventChannel<TAudio>((emitter) => {
+    const chan = eventChannel<TAudioPlayer>((emitter) => {
       import('audio/AudioStream').then((AudioStream) => {
         emitter(AudioStream.default)
         emitter(END)
@@ -91,7 +91,7 @@ export function* watchPlay() {
       )
     }
 
-    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<AudioPlayer> = yield* call(waitForValue, getAudio)
 
     if (trackId) {
       // Load and set end action.
@@ -152,7 +152,10 @@ export function* watchCollectiblePlay() {
     playCollectible.type,
     function* (action: ReturnType<typeof playCollectible>) {
       const { collectible, onEnd } = action.payload
-      const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+      const audio: NonNullable<AudioPlayer> = yield* call(
+        waitForValue,
+        getAudio
+      )
       const endChannel = eventChannel((emitter) => {
         audio.load(
           [],
@@ -190,7 +193,7 @@ export function* watchPause() {
   yield* takeLatest(pause.type, function* (action: ReturnType<typeof pause>) {
     const { onlySetState } = action.payload
 
-    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<AudioPlayer> = yield* call(waitForValue, getAudio)
     if (onlySetState) return
     audio.pause()
   })
@@ -200,7 +203,7 @@ export function* watchReset() {
   yield* takeLatest(reset.type, function* (action: ReturnType<typeof reset>) {
     const { shouldAutoplay } = action.payload
 
-    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<AudioPlayer> = yield* call(waitForValue, getAudio)
 
     audio.seek(0)
     if (!shouldAutoplay) {
@@ -230,7 +233,7 @@ export function* watchStop() {
         { uid: PLAYER_SUBSCRIBER_NAME, id }
       ])
     )
-    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<AudioPlayer> = yield* call(waitForValue, getAudio)
     audio.stop()
   })
 }
@@ -239,7 +242,7 @@ export function* watchSeek() {
   yield* takeLatest(seek.type, function* (action: ReturnType<typeof seek>) {
     const { seconds } = action.payload
 
-    const audio: NonNullable<Audio> = yield* call(waitForValue, getAudio)
+    const audio: NonNullable<AudioPlayer> = yield* call(waitForValue, getAudio)
     audio.seek(seconds)
   })
 }

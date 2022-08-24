@@ -9,7 +9,7 @@ import {
   queueActions,
   tracksSocialActions,
   Nullable,
-  Audio,
+  AudioPlayer,
   playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
@@ -35,7 +35,7 @@ const { pause, play } = queueActions
 const SEEK_INTERVAL = 200
 
 type OwnProps = {
-  audio: Nullable<Audio>
+  audio: Nullable<AudioPlayer>
   onClickInfo: () => void
 }
 

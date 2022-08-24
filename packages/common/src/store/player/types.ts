@@ -8,7 +8,7 @@ export type AudioInfo = {
   artwork?: string
 }
 
-export type Audio = {
+export type AudioPlayer = {
   load: (
     segments: TrackSegment[],
     onEnd: () => void,
@@ -27,6 +27,6 @@ export type Audio = {
   getDuration: () => number
 }
 
-export type TAudio = {
-  new (): Audio
+export type TAudioPlayer = {
+  new (): AudioPlayer
 }

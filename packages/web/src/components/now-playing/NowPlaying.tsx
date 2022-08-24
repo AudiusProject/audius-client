@@ -21,7 +21,7 @@ import {
   mobileOverflowMenuUIActions,
   shareModalUIActions,
   Nullable,
-  Audio,
+  AudioPlayer,
   playerActions,
   playerSelectors
 } from '@audius/common'
@@ -71,7 +71,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 type OwnProps = {
   onClose: () => void
-  audio: Nullable<Audio>
+  audio: Nullable<AudioPlayer>
 }
 
 type NowPlayingProps = OwnProps &
