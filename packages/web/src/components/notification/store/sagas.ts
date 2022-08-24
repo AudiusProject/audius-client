@@ -48,7 +48,6 @@ import { getIsReachable } from 'common/store/reachability/selectors'
 import { fetchReactionValues } from 'common/store/ui/reactions/slice'
 import { getBalance } from 'common/store/wallet/slice'
 import { getErrorMessage } from 'common/utils/error'
-import { ResetNotificationsBadgeCount } from 'services/native-mobile-interface/notifications'
 import { isElectron } from 'utils/clientUtil'
 import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
 
@@ -71,8 +70,6 @@ type NotificationsResponse =
       error: { message: string }
       isRequestError: true
     }
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 // The initial user count to load in for each notification
 // NOTE: the rest are loading in in the user list modal
@@ -607,6 +604,60 @@ export function* getNotifications(isFirstFetch: boolean) {
   }
 }
 
+// function* notificationPollingDaemon() {
+//   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+//   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+//   const isNativeMobile = yield* getContext('isNativeMobile')
+//   yield* call(waitForBackendSetup)
+//   yield* call(waitForValue, getHasAccount, {})
+//   yield* call(audiusBackendInstance.getEmailNotificationSettings)
+
+//   // Set up daemon that will watch for browser into focus and refetch notifications
+//   // as soon as it goes into focus
+//   const visibilityChannel = eventChannel((emitter) => {
+// TODO: attach via app foreground events
+//       // The focus and visibitychange events are wonky on native mobile webviews,
+//       // so poll for visiblity change instead
+//       let lastHidden = true
+//       setInterval(() => {
+//         if (!document.hidden && lastHidden) {
+//           emitter(true)
+//         }
+//         lastHidden = document.hidden
+//       }, 500)
+//     return () => {}
+//   })
+//   yield* fork(function* () {
+//     while (true) {
+//       yield* take(visibilityChannel)
+//       yield* call(getNotifications, false)
+//     }
+//   })
+
+//   // Set up daemon that will poll for notifications every 10s if the browser is
+//   // in the foreground
+//   const isFirstFetch = true
+//   let isBrowserInBackground = false
+//   document.addEventListener(
+//     'visibilitychange',
+//     () => {
+//       if (document.hidden) {
+//         isBrowserInBackground = true
+//       } else {
+//         isBrowserInBackground = false
+//       }
+//     },
+//     false
+//   )
+
+//   while (true) {
+//     if (!isBrowserInBackground || isElectron()) {
+//       yield* call(getNotifications, isFirstFetch)
+//     }
+//     yield* delay(getPollingIntervalMs(remoteConfigInstance))
+//   }
+// }
+
 function* notificationPollingDaemon() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -617,23 +668,11 @@ function* notificationPollingDaemon() {
   // Set up daemon that will watch for browser into focus and refetch notifications
   // as soon as it goes into focus
   const visibilityChannel = eventChannel((emitter) => {
-    if (NATIVE_MOBILE) {
-      // The focus and visibitychange events are wonky on native mobile webviews,
-      // so poll for visiblity change instead
-      let lastHidden = true
-      setInterval(() => {
-        if (!document.hidden && lastHidden) {
-          emitter(true)
-        }
-        lastHidden = document.hidden
-      }, 500)
-    } else {
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-          emitter(true)
-        }
-      })
-    }
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        emitter(true)
+      }
+    })
     return () => {}
   })
   yield* fork(function* () {
@@ -671,10 +710,7 @@ export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* call(waitForBackendSetup)
   yield* call(audiusBackendInstance.markAllNotificationAsViewed)
-  if (NATIVE_MOBILE) {
-    const message = new ResetNotificationsBadgeCount()
-    message.send()
-  }
+  yield* put(notificationActions.markedAllAsViewed())
 }
 
 function* watchTogglePanel() {
@@ -697,7 +733,7 @@ export default function sagas() {
     watchMarkAllNotificationsViewed,
     watchSubscribeUserSettings,
     watchUnsubscribeUserSettings,
-    notificationPollingDaemon,
+    // notificationPollingDaemon,
     watchTogglePanel,
     watchNotificationError,
     watchUpdatePlaylistLastViewedAt
