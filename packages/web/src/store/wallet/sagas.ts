@@ -15,6 +15,7 @@ import {
   getContext,
   waitForAccount
 } from '@audius/common'
+import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import BN from 'bn.js'
 import { all, call, put, take, takeEvery, select } from 'typed-redux-saga'
 
@@ -45,6 +46,10 @@ const getAccountUser = accountSelectors.getAccountUser
 const errors = {
   rateLimitError: 'Please wait before trying again'
 }
+
+const ASSOCIATED_TOKEN_ACCOUNT_CREATION_FEE = new BN(
+  0.02 * LAMPORTS_PER_SOL
+) as BNWei
 
 function* getIsBalanceFrozen() {
   const freezeUntil = yield* select(getFreezeUntilTime)
@@ -241,7 +246,7 @@ function* checkAssociatedTokenAccountOrSol() {
   )
   if (!associatedTokenAccount) {
     const balance = yield* call(() => walletClient.getWalletSolBalance(address))
-    if (balance.isZero()) {
+    if (balance.lt(ASSOCIATED_TOKEN_ACCOUNT_CREATION_FEE)) {
       yield* put(
         setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: false })
       )
