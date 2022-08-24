@@ -12,7 +12,8 @@ import {
   RepeatMode,
   tracksSocialActions,
   themeSelectors,
-  playerActions
+  playerActions,
+  playerSelectors
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -30,20 +31,20 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import Tooltip from 'components/tooltip/Tooltip'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
-import {
-  getAudio,
-  getCollectible,
-  getPlaying,
-  getCounter,
-  getUid as getPlayingUid,
-  getBuffering
-} from 'store/player/selectors'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { collectibleDetailsPage, profilePage } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 
 import styles from './PlayBar.module.css'
 import PlayingTrackInfo from './components/PlayingTrackInfo'
+const {
+  getAudio,
+  getCollectible,
+  getPlaying,
+  getCounter,
+  getUid: getPlayingUid,
+  getBuffering
+} = playerSelectors
 
 const { seek, reset } = playerActions
 const { getTheme } = themeSelectors

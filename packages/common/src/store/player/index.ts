@@ -4,3 +4,4 @@ export {
   actions as playerActions,
   initialState as initialPlayerState
 } from './slice'
+export * as playerSelectors from './selectors'

@@ -22,7 +22,8 @@ import {
   shareModalUIActions,
   Nullable,
   Audio,
-  playerActions
+  playerActions,
+  playerSelectors
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -43,12 +44,6 @@ import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'store/player/selectors'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,
@@ -60,6 +55,7 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
+const { getAudio, getBuffering, getCounter, getPlaying } = playerSelectors
 
 const { seek, reset } = playerActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
