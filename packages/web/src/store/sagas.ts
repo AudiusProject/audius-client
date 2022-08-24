@@ -20,6 +20,7 @@ import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreColle
 import explorePageSagas from 'common/store/pages/explore/sagas'
 import feedPageSagas from 'common/store/pages/feed/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
+import trackSagas from 'common/store/pages/track/sagas'
 import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
 import mobileQueueSagas from 'common/store/queue/mobileSagas'
@@ -58,7 +59,7 @@ import settingsSagas from 'pages/settings-page/store/sagas'
 import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
 import supportingPageSagas from 'pages/supporting-page/sagas'
 import topSupportersPageSagas from 'pages/top-supporters-page/sagas'
-import trackSagas from 'pages/track-page/store/sagas'
+import trackLineupSagas from 'pages/track-page/store/lineups/tracks/sagas'
 import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
 import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
 import uploadSagas from 'pages/upload-page/store/sagas'
@@ -120,6 +121,7 @@ export default function* rootSaga() {
     signOnSaga(),
     socialSagas(),
     trackSagas(),
+    trackLineupSagas(),
     trendingPageSagas(),
     trendingPlaylistSagas(),
     trendingUndergroundSagas(),
