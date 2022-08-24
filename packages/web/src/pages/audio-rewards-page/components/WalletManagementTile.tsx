@@ -100,7 +100,7 @@ const AdvancedWalletActions = () => {
           minWidth={200}
         />
         <Button
-          className={cn(styles.advancedButton, styles.receiveBtn)}
+          className={cn(styles.advancedButton)}
           text={messages.receiveLabel}
           textClassName={styles.textClassName}
           onClick={onClickReceive}
@@ -109,7 +109,7 @@ const AdvancedWalletActions = () => {
           minWidth={200}
         />
         <Button
-          className={cn(styles.advancedButton, styles.connectWalletsBtn)}
+          className={cn(styles.advancedButton, styles.manageWalletsButton)}
           text={
             hasMultipleWallets
               ? messages.manageWallets
@@ -184,7 +184,10 @@ export const WalletManagementTile = () => {
             </div>
           </div>
         </div>
-        <CoinbasePayButtonCustom onClick={onBuyAudioClicked} />
+        <CoinbasePayButtonCustom
+          className={styles.payWithCoinbaseButton}
+          onClick={onBuyAudioClicked}
+        />
         <ToggleCollapseButton
           id='advanced-wallet-actions'
           className={styles.toggle}

@@ -137,3 +137,8 @@
   opacity: 0.5;
   background-color: hsla(0, 0%, 100%, 0.1);
 }
+
+.manageWalletsButton:hover,
+.payWithCoinbaseButton:hover {
+  transform: perspective(1px) scale3d(1.02, 1.02, 1.02) !important;
+}
