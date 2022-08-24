@@ -11,7 +11,8 @@ import {
   queueActions,
   RepeatMode,
   tracksSocialActions,
-  themeSelectors
+  themeSelectors,
+  playerActions
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -37,13 +38,14 @@ import {
   getUid as getPlayingUid,
   getBuffering
 } from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { collectibleDetailsPage, profilePage } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 
 import styles from './PlayBar.module.css'
 import PlayingTrackInfo from './components/PlayingTrackInfo'
+
+const { seek, reset } = playerActions
 const { getTheme } = themeSelectors
 const { repostTrack, undoRepostTrack, saveTrack, unsaveTrack } =
   tracksSocialActions

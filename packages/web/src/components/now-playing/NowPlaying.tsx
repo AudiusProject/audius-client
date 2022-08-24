@@ -20,7 +20,9 @@ import {
   OverflowSource,
   mobileOverflowMenuUIActions,
   shareModalUIActions,
-  Nullable
+  Nullable,
+  Audio,
+  playerActions
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -47,8 +49,6 @@ import {
   getCounter,
   getPlaying
 } from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
-import { Audio } from 'store/player/types'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,
@@ -60,6 +60,8 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
+
+const { seek, reset } = playerActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =

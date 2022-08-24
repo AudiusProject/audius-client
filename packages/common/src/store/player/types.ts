@@ -1,6 +1,7 @@
-import { Nullable, TrackSegment } from '@audius/common'
+import { TrackSegment } from '../../models'
+import { Nullable } from '../../utils'
 
-export type Info = {
+export type AudioInfo = {
   id: string
   title: string
   artist: string
@@ -13,7 +14,7 @@ export type Audio = {
     onEnd: () => void,
     prefetchedSegments: string[],
     gateways: string[],
-    info: Info,
+    info: AudioInfo,
     forceStreamSrc?: Nullable<string>
   ) => void
   play: () => void

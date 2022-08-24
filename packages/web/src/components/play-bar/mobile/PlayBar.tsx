@@ -8,7 +8,8 @@ import {
   SquareSizes,
   queueActions,
   tracksSocialActions,
-  Nullable
+  Nullable,
+  Audio
 } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
@@ -28,7 +29,6 @@ import {
   getCounter,
   getPlaying
 } from 'store/player/selectors'
-import { Audio } from 'store/player/types'
 import { AppState } from 'store/types'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 

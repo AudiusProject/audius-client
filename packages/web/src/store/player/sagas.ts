@@ -7,7 +7,10 @@ import {
   cacheActions,
   queueActions,
   tracksSocialActions,
-  getContext
+  getContext,
+  TAudio,
+  Audio,
+  playerActions
 } from '@audius/common'
 import { eventChannel, END } from 'redux-saga'
 import {
@@ -28,8 +31,12 @@ import {
   getCounter,
   getPlaying
 } from 'store/player/selectors'
-import {
-  setAudioStream as setAudioStreamAction,
+import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
+
+import errorSagas from './errorSagas'
+
+const {
+  setAudioStream: setAudioStreamAction,
   play,
   playSucceeded,
   playCollectible,
@@ -40,12 +47,8 @@ import {
   reset,
   resetSuceeded,
   seek,
-  error as errorAction
-} from 'store/player/slice'
-import { actionChannelDispatcher, waitForValue } from 'utils/sagaHelpers'
-
-import errorSagas from './errorSagas'
-import { TAudio, Audio } from './types'
+  error: errorAction
+} = playerActions
 const { recordListen } = tracksSocialActions
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
