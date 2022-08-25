@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import {
   BNAudio,
   BNWei,
@@ -8,6 +10,7 @@ import {
 import { Button, ButtonSize, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
 
 import { IconAUDIO } from './Icons'
@@ -16,7 +19,8 @@ import styles from './SuccessPage.module.css'
 const messages = {
   successMessage: 'Transaction Was Successful!',
   audio: '$AUDIO',
-  review: 'Review Transaction'
+  review: 'Review Transaction',
+  done: 'Done'
 }
 
 const { getAccountTotalBalance } = walletSelectors
@@ -26,6 +30,11 @@ export const SuccessPage = () => {
   const totalBalance = useSelector<BNAudio>(getAccountTotalBalance)
   const uiBalance = formatWei(totalBalance || (new BN(0) as BNWei), true, 0)
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
+  const [, setModalVisibility] = useModalState('BuyAudio')
+
+  const handleDoneClicked = useCallback(() => {
+    setModalVisibility(false)
+  }, [setModalVisibility])
 
   return (
     <div className={styles.successPage}>
@@ -46,7 +55,11 @@ export const SuccessPage = () => {
           <span className={styles.label}>{messages.audio}</span>
         </div>
       </div>
-      <Button text='Done' type={ButtonType.PRIMARY_ALT} />
+      <Button
+        text={messages.done}
+        type={ButtonType.PRIMARY_ALT}
+        onClick={handleDoneClicked}
+      />
       <div className={styles.review}>
         <Button
           iconClassName={styles.reviewButtonIcon}
