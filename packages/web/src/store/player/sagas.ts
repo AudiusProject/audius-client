@@ -9,10 +9,8 @@ import {
   tracksSocialActions,
   getContext,
   actionChannelDispatcher,
-  AudioPlayer,
   playerActions,
-  playerSelectors,
-  waitForValue
+  playerSelectors
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
