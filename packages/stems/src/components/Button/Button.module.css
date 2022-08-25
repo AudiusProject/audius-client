@@ -375,12 +375,15 @@
   height: unset;
 }
 
+.textButton.medium,
 .textButton.medium .textLabel {
   font-size: var(--font-m);
 }
+.textButton.small,
 .textButton.small .textLabel {
   font-size: var(--font-s);
 }
+.textButton.tiny,
 .textButton.tiny .textLabel {
   font-size: var(--font-xs);
 }
