@@ -1,5 +1,4 @@
 import {
-  SmartCollection,
   SmartCollectionVariant,
   Status,
   Track,

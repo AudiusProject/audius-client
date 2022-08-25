@@ -8,7 +8,7 @@ import {
 } from 'common/store/pages/signon/actions'
 
 import { SIGN_UP_PAGE } from './route'
-const getAccountUser = accountSelectors.getAccountUser
+const { getAccountUser } = accountSelectors
 
 /**
  * Checks if the user is signed in with an account.

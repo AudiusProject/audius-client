@@ -4,8 +4,7 @@ import {
   accountSelectors,
   explorePageCollectionsActions,
   ExploreCollectionsVariant,
-  waitForValue,
-  UserCollectionMetadata
+  waitForValue
 } from '@audius/common'
 import { takeEvery, call, put } from 'typed-redux-saga'
 
