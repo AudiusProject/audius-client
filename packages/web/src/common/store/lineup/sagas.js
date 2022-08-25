@@ -22,7 +22,8 @@ import {
   select,
   take,
   takeEvery,
-  takeLatest
+  takeLatest,
+  getContext
 } from 'redux-saga/effects'
 
 import { getToQueue } from 'common/store/queue/sagas'
@@ -35,6 +36,9 @@ const { getCollection } = cacheCollectionsSelectors
 
 const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
+// This is copied from web/src/utils since moving it to common would require
+// changing 90+ files. This will be ignored in RN-reloaded, since we check
+// isNativeMobile from storeContext first.
 const isMobile = () => {
   // If we are running with the mobile env flag set, short-circuit to `true`
   if (IS_NATIVE_MOBILE) return true
@@ -155,7 +159,8 @@ function* fetchLineupMetadatasAsync(
 
       // Let page animations on mobile have time to breathe
       // TODO: Get rid of this once we figure out how to make loading better
-      if (isMobile()) {
+      const isNativeMobile = yield getContext('isNativeMobile')
+      if (!isNativeMobile && isMobile()) {
         yield delay(100)
       }
 
