@@ -14,8 +14,6 @@ import {
 } from 'typed-redux-saga'
 import { Action } from 'typesafe-actions'
 
-import { CommonState } from 'store'
-
 import { Status } from '../models/Status'
 
 /**
@@ -39,7 +37,7 @@ export function* batchYield(
  * dispatches the action.
  * @param {Object} channel
  */
-export function* actionChannelDispatcher(channel: EventChannel<Action<any>>) {
+export function* actionChannelDispatcher(channel: EventChannel<any>) {
   while (true) {
     const action: Action<any> = yield take(channel)
     yield put(action)
@@ -59,14 +57,15 @@ export function* channelCanceller(
  * @param {function} selector
  * @param {object} args passed on to the selector
  * @param {(v: any) => bool} customCheck special check to run rather than checking truthy-ness
+ *
+ * NOTE: Ideally this would have a type parameter for TValue returned from the selector, but
+ * typed-redux-saga `call` seems to just throw this away resulting in `unknown` type of the result.
+ * Leaving as any for now and can revisit
  */
-export function* waitForValue<TValue>(
-  selector: (
-    state: CommonState,
-    selectorArgs: Record<any, unknown> | null
-  ) => TValue,
-  args: Record<any, unknown> | null = {},
-  customCheck: (value: TValue) => boolean = () => true
+export function* waitForValue(
+  selector: (state: any, selectorArgs?: any) => any,
+  args?: any,
+  customCheck: (value: any) => boolean = () => true
 ) {
   let value = yield* select(selector, args)
   while (!value || !customCheck(value)) {
@@ -117,7 +116,7 @@ export function* doEvery(
 }
 
 export function* waitForAccount() {
-  yield call(
+  yield* call(
     waitForValue,
     (state) => state.account.status,
     null,

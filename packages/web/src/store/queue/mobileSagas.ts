@@ -20,6 +20,7 @@ import {
   getShuffleOrder,
   getQueueAutoplay
 } from 'common/store/queue/selectors'
+import TrackInfo from 'components/track/TrackInfo'
 import {
   PersistQueueMessage,
   RepeatModeMessage,

@@ -48,7 +48,7 @@ function* resolveTempPlaylists(
   playlist: PlaylistLibraryIdentifier | PlaylistLibraryFolder
 ) {
   if (playlist.type === 'temp_playlist') {
-    const { playlist_id }: { playlist_id: ID } = yield call(
+    const { playlist_id } = yield call(
       waitForValue,
       getResult,
       {

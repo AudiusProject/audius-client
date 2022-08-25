@@ -4,7 +4,8 @@ import {
   accountSelectors,
   explorePageCollectionsActions,
   ExploreCollectionsVariant,
-  waitForValue
+  waitForValue,
+  UserCollectionMetadata
 } from '@audius/common'
 import { takeEvery, call, put } from 'typed-redux-saga'
 
@@ -61,7 +62,7 @@ function* watchFetch() {
     } else if (variant === ExploreCollectionsVariant.DIRECT_LINK) {
       // no-op
     } else {
-      collections = yield* call(fetchMap[variant])
+      collections = yield* call(fetchMap[variant]) as any
     }
     if (!collections) return
 

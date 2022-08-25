@@ -248,9 +248,7 @@ function* watchFetch() {
 
       const { variant } = action.payload
 
-      const collection: SmartCollection | undefined = yield* call(
-        fetchMap[variant]
-      )
+      const collection: any = yield* call(fetchMap[variant])
 
       if (collection) {
         yield put(

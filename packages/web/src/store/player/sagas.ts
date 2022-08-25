@@ -9,7 +9,7 @@ import {
   tracksSocialActions,
   getContext,
   actionChannelDispatcher,
-  waitForValue
+  CommonState
 } from '@audius/common'
 import { eventChannel, END } from 'redux-saga'
 import {
@@ -275,6 +275,19 @@ export function* handleAudioBuffering() {
     return () => {}
   })
   yield* spawn(actionChannelDispatcher, chan)
+}
+
+export function* waitForValue(
+  selector: (state: any, selectorArgs: Record<any, unknown> | null) => any,
+  args: Record<any, unknown> | null = {},
+  customCheck: (value: any) => boolean = () => true
+) {
+  let value = yield* select(selector, args)
+  while (!value || !customCheck(value)) {
+    yield* take()
+    value = yield* select(selector, args)
+  }
+  return value
 }
 
 export function* handleAudioErrors() {
