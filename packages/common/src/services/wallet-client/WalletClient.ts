@@ -2,7 +2,6 @@ import BN from 'bn.js'
 
 import { ID } from 'models/Identifiers'
 import { BNWei, StringWei, WalletAddress } from 'models/Wallet'
-import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { stringWeiToBN } from 'utils/wallet'
 
 import { AudiusAPIClient } from '../audius-api-client'
@@ -13,7 +12,6 @@ export const MIN_TRANSFERRABLE_WEI = stringWeiToBN(
   '1000000000000000' as StringWei
 )
 
-const libs = () => window.audiusLibs
 const BN_ZERO = new BN('0') as BNWei
 
 type WalletClientConfig = {
@@ -141,9 +139,10 @@ export class WalletClient {
   }
 
   async getWalletSolBalance(wallet: string): Promise<BNWei> {
-    await waitForLibsInit()
     try {
-      const balance = await libs().solanaWeb3Manager.getSolBalance(wallet)
+      const balance = await this.audiusBackendInstance.getAddressSolBalance(
+        wallet
+      )
       return balance as BNWei
     } catch (err) {
       console.error(err)
