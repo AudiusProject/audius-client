@@ -10,13 +10,14 @@ import { generateM3U8Variants } from 'utils/hlsUtil'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
 
-class NativeMobileAudio {
+export class NativeMobileAudio {
   m3u8: string
   position: number
   duration: number
   // Whether or not the user has made a seek action.
   // We use this to make sure we don't read stale position values from the native layer.
   seekOverride: number | null
+  audioCtx = null
 
   constructor() {
     this.m3u8 = ''
@@ -85,5 +86,3 @@ class NativeMobileAudio {
     return this.duration
   }
 }
-
-export default NativeMobileAudio

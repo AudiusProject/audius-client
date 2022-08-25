@@ -72,7 +72,7 @@ const HlsConfig = {
   fLoader
 }
 
-class AudioStream {
+export class AudioPlayer {
   audio: HTMLAudioElement
   audioCtx: AudioContext | null
   source: MediaElementAudioSourceNode | null
@@ -435,5 +435,3 @@ class AudioStream {
     }
   }
 }
-
-export default AudioStream
