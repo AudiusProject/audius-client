@@ -11,14 +11,16 @@ import {
   queueActions,
   RepeatMode,
   tracksSocialActions,
-  themeSelectors
+  themeSelectors,
+  playerActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 
 import { make } from 'common/store/analytics/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -29,21 +31,23 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import Tooltip from 'components/tooltip/Tooltip'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
-import {
-  getAudio,
-  getCollectible,
-  getPlaying,
-  getCounter,
-  getUid as getPlayingUid,
-  getBuffering
-} from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { collectibleDetailsPage, profilePage } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 
 import styles from './PlayBar.module.css'
 import PlayingTrackInfo from './components/PlayingTrackInfo'
+const { makeGetCurrent } = queueSelectors
+const {
+  getAudio,
+  getCollectible,
+  getPlaying,
+  getCounter,
+  getUid: getPlayingUid,
+  getBuffering
+} = playerSelectors
+
+const { seek, reset } = playerActions
 const { getTheme } = themeSelectors
 const { repostTrack, undoRepostTrack, saveTrack, unsaveTrack } =
   tracksSocialActions
