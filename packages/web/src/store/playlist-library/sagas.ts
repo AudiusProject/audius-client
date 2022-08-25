@@ -14,7 +14,9 @@ import {
   extractTempPlaylistsFromLibrary,
   getPlaylistsNotInLibrary,
   removePlaylistLibraryDuplicates,
-  replaceTempWithResolvedPlaylists
+  replaceTempWithResolvedPlaylists,
+  waitForAccount,
+  waitForValue
 } from '@audius/common'
 import {
   all,
@@ -29,7 +31,6 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { getResult } from 'common/store/confirmer/selectors'
 import { updateProfileAsync } from 'pages/profile-page/sagas'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
 
 import { update } from './slice'
 

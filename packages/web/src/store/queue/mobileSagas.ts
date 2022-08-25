@@ -6,7 +6,8 @@ import {
   cacheTracksSelectors,
   cacheUsersSelectors,
   queueActions,
-  getContext
+  getContext,
+  waitForAccount
 } from '@audius/common'
 import { all, put, select, takeEvery, call } from 'typed-redux-saga'
 
@@ -27,7 +28,6 @@ import {
 import { MessageType, Message } from 'services/native-mobile-interface/types'
 import * as playerActions from 'store/player/slice'
 import { generateM3U8Variants } from 'utils/hlsUtil'
-import { waitForAccount } from 'utils/sagaHelpers'
 const { getUser } = cacheUsersSelectors
 const { persist, queueAutoplay, repeat, shuffle, updateIndex } = queueActions
 const { getTrack } = cacheTracksSelectors

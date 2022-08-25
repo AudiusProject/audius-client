@@ -3,15 +3,16 @@ import {
   Status,
   accountSelectors,
   explorePageCollectionsActions,
-  ExploreCollectionsVariant
+  ExploreCollectionsVariant,
+  waitForValue
 } from '@audius/common'
 import { takeEvery, call, put } from 'typed-redux-saga'
 
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import Explore from 'services/audius-backend/Explore'
+import { requiresAccount } from 'utils/requiresAccount'
 import { EXPLORE_PAGE } from 'utils/route'
-import { waitForValue, requiresAccount } from 'utils/sagaHelpers'
 const { fetch, fetchSucceeded } = explorePageCollectionsActions
 const getAccountStatus = accountSelectors.getAccountStatus
 
