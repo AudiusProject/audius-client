@@ -9,6 +9,8 @@ import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import notificationsSagas from 'common/store/notifications/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
+import trackPageSagas from 'common/store/pages/track/sagas'
+import searchBarSagas from 'common/store/search-bar/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import { all, fork } from 'typed-redux-saga'
 
@@ -24,6 +26,7 @@ export default function* rootSaga() {
     ...analyticsSagas(),
     ...accountSagas(),
     ...confirmerSagas(),
+    ...searchBarSagas(),
 
     // Cache
     ...coreCacheSagas(),
@@ -37,6 +40,9 @@ export default function* rootSaga() {
 
     ...notificationsSagas(),
     ...notificationsSagasNative(),
+
+    // Pages
+    ...trackPageSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

@@ -23,7 +23,8 @@ import {
   UpdatePlaylistLastViewedAt,
   reachabilitySelectors,
   walletActions,
-  reactionsUIActions
+  reactionsUIActions,
+  waitForAccount
 } from '@audius/common'
 import moment from 'moment'
 import {
@@ -42,7 +43,6 @@ import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
 const { fetchReactionValues } = reactionsUIActions

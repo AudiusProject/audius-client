@@ -19,7 +19,12 @@ import {
   OverflowActionCallbacks,
   OverflowSource,
   mobileOverflowMenuUIActions,
-  shareModalUIActions
+  shareModalUIActions,
+  Nullable,
+  AudioPlayer,
+  playerActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -28,7 +33,6 @@ import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
 import { useRecord, make } from 'common/store/analytics/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -40,14 +44,6 @@ import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
-import { AudioState } from 'store/player/types'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,
@@ -59,6 +55,10 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
+const { makeGetCurrent } = queueSelectors
+const { getAudio, getBuffering, getCounter, getPlaying } = playerSelectors
+
+const { seek, reset } = playerActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
@@ -72,7 +72,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 type OwnProps = {
   onClose: () => void
-  audio: AudioState
+  audio: Nullable<AudioPlayer>
 }
 
 type NowPlayingProps = OwnProps &

@@ -8,7 +8,9 @@ import {
   cacheActions,
   cacheUsersSelectors,
   lineupActions as baseLineupActions,
-  queueActions
+  queueActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import {
   all,
@@ -23,10 +25,11 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { getSource, getUid, getPositions } from 'common/store/queue/selectors'
-import { getUid as getCurrentPlayerTrackUid } from 'store/player/selectors'
 import { getToQueue } from 'store/queue/sagas'
 import { isMobile } from 'utils/clientUtil'
+
+const { getSource, getUid, getPositions } = queueSelectors
+const { getUid: getCurrentPlayerTrackUid } = playerSelectors
 const { getUsers } = cacheUsersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors

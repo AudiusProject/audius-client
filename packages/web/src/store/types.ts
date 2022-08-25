@@ -21,13 +21,13 @@ import {
 import { RouterState } from 'connected-react-router'
 
 import signOnReducer from 'common/store/pages/signon/reducer'
+import SearchBarState from 'common/store/search-bar/types'
 import ServiceSelectionReducer from 'common/store/service-selection/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
 import MusicConfetti from 'components/music-confetti/store/slice'
 import { PasswordResetState } from 'components/password-reset/store/types'
 import RemixSettingsModalReducer from 'components/remix-settings-modal/store/slice'
-import SearchBarState from 'components/search-bar/store/types'
 import { UnfollowConfirmationModalState } from 'components/unfollow-confirmation-modal/store/types'
 import ArtistDashboardState from 'pages/artist-dashboard-page/store/types'
 import { DeactivateAccountState } from 'pages/deactivate-account-page/store/slice'
@@ -35,7 +35,6 @@ import DeletedPageReducer from 'pages/deleted-page/store/slice'
 import { UploadPageState } from 'pages/upload-page/store/types'
 import VisualizerReducer from 'pages/visualizer/store/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
-import PlayerReducer from 'store/player/slice'
 import PlaylistLibraryReducer from 'store/playlist-library/slice'
 
 import { BackendState } from '../common/store/backend/types'
@@ -113,7 +112,6 @@ export type AppState = CommonState & {
 
   // Playback
   queue: ReturnType<typeof QueueReducer>
-  player: ReturnType<typeof PlayerReducer>
 
   // Misc
   router: RouterState

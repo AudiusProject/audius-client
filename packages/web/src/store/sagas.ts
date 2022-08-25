@@ -20,8 +20,10 @@ import notificationSagas from 'common/store/notifications/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
+import trackSagas from 'common/store/pages/track/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import searchBarSagas from 'common/store/search-bar/sagas'
 import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
@@ -32,7 +34,6 @@ import changePasswordSagas from 'components/change-password/store/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
 import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas'
-import searchBarSagas from 'components/search-bar/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
 import rewardsPageSagas from 'pages/audio-rewards-page/store/sagas'
@@ -54,7 +55,7 @@ import settingsSagas from 'pages/settings-page/store/sagas'
 import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
 import supportingPageSagas from 'pages/supporting-page/sagas'
 import topSupportersPageSagas from 'pages/top-supporters-page/sagas'
-import trackSagas from 'pages/track-page/store/sagas'
+import trackLineupSagas from 'pages/track-page/store/lineups/tracks/sagas'
 import trendingPageSagas from 'pages/trending-page/store/sagas'
 import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
 import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
@@ -91,6 +92,8 @@ export default function* rootSaga() {
     webAnalyticsSagas(),
     backendSagas(),
     confirmerSagas(),
+    searchBarSagas(),
+
     cookieBannerSagas(),
     reachabilitySagas(),
     routingSagas(),
@@ -115,13 +118,13 @@ export default function* rootSaga() {
     reactionSagas(),
     rewardsPageSagas(),
     savedSagas(),
-    searchBarSagas(),
     searchPageSagas(),
     serviceSelectionSagas(),
     settingsSagas(),
     signOnSaga(),
     socialSagas(),
     trackSagas(),
+    trackLineupSagas(),
     trendingPageSagas(),
     trendingPlaylistSagas(),
     trendingUndergroundSagas(),
