@@ -90,7 +90,7 @@ export class AudioPlayer {
   canPlayListener: ((this: HTMLAudioElement, e: Event) => void) | null
   url: string | null
   hls: Hls | null
-  onError: (e: AudioError, data: string | Event | Hls.errorData) => void
+  onError: (e: string, data: string | Event) => void
   errorRateLimiter: Set<string>
 
   constructor() {
@@ -241,7 +241,8 @@ export class AudioPlayer {
 
             // Only emit an error if we haven't errored on an error with the same "details"
             if (!this.errorRateLimiter.has(data.details)) {
-              this.onError(AudioError.HLS, data)
+              // typecasting here just to prevent having to put HLS types in common
+              this.onError(AudioError.HLS, data as unknown as Event)
             }
 
             // Only one "details" of error are allowed per HLS load

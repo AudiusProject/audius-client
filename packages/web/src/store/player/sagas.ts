@@ -260,8 +260,8 @@ export function* handleAudioErrors() {
   const audioPlayer = yield* getContext('audioPlayer')
 
   const chan = eventChannel<{ error: string; data: string }>((emitter) => {
-    audioPlayer.onError = (error: string, data: string) => {
-      emitter({ error, data })
+    audioPlayer.onError = (error: string, data: string | Event) => {
+      emitter({ error, data: data as string })
     }
     return () => {}
   })

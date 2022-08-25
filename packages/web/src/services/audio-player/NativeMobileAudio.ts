@@ -11,6 +11,7 @@ import { generateM3U8Variants } from 'utils/hlsUtil'
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
 
 export class NativeMobileAudio {
+  audio: any
   m3u8: string
   position: number
   duration: number
@@ -85,4 +86,7 @@ export class NativeMobileAudio {
   getDuration = () => {
     return this.duration
   }
+
+  onBufferingChange = () => {}
+  onError = () => {}
 }

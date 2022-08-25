@@ -32,6 +32,6 @@ export type AudioPlayer = {
   getPosition: () => number | Promise<number>
   getDuration: () => number
   onBufferingChange: (isBuffering: boolean) => void
-  onError: (error: string, data: string) => void
-  audioCtx: AudioContext
+  onError: (error: string, data: string | Event) => void
+  audioCtx: Nullable<AudioContext>
 }
