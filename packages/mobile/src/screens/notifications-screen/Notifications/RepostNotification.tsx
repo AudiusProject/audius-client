@@ -1,5 +1,6 @@
 import type { RepostNotification as RepostNotificationType } from '@audius/common'
 import { formatCount, notificationsSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconRepost from 'app/assets/images/iconRepost.svg'
 

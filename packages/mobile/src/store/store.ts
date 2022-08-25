@@ -8,8 +8,6 @@ import type { BackendState } from 'audius-client/src/common/store/backend/types'
 import confirmer from 'audius-client/src/common/store/confirmer/reducer'
 import type { ConfirmerState } from 'audius-client/src/common/store/confirmer/types'
 import signOnReducer from 'audius-client/src/common/store/pages/signon/reducer'
-import searchBar from 'audius-client/src/common/store/search-bar/reducer'
-import type SearchBarState from 'audius-client/src/common/store/search-bar/types'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
@@ -25,8 +23,8 @@ import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
 import type { LifecycleState } from './lifecycle/reducer'
 import lifecycle from './lifecycle/reducer'
-import type { NotificationsState } from './notifications/reducer'
-import notifications from './notifications/reducer'
+import type { NotificationsState } from './notifications/slice'
+import notifications from './notifications/slice'
 import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
 import rootSaga from './sagas'
@@ -39,13 +37,10 @@ import type { WebState } from './web/reducer'
 import web from './web/reducer'
 
 export type AppState = {
-  // These also belong in CommonState but are here until we move them to the @audius/common package:
+  audio: AudioState
   signOn: ReturnType<typeof signOnReducer>
   backend: BackendState
   confirmer: ConfirmerState
-  searchBar: SearchBarState
-
-  audio: AudioState
   common: CommonState
   drawers: DrawersState
   downloads: DownloadState
@@ -64,13 +59,10 @@ const commonStoreReducers = commonReducers()
 const createRootReducer = () =>
   combineReducers({
     ...commonStoreReducers,
-    // These also belong in common store reducers but are here until we move them to the @audius/common package:
+    audio,
     backend,
     confirmer,
     signOn: signOnReducer,
-    searchBar,
-
-    audio,
     common,
     drawers,
     downloads,

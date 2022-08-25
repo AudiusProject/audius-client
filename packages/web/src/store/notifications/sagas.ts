@@ -1,4 +1,4 @@
-import { accountSelectors, getContext } from '@audius/common'
+import { accountSelectors, getContext, waitForValue } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import { call, delay, fork, take } from 'typed-redux-saga'
 
@@ -8,7 +8,6 @@ import {
   getPollingIntervalMs
 } from 'common/store/notifications/sagas'
 import { isElectron } from 'utils/clientUtil'
-import { waitForValue } from 'utils/sagaHelpers'
 const { getHasAccount } = accountSelectors
 
 function* notificationPollingDaemon() {
