@@ -16,7 +16,6 @@ import { take } from 'redux-saga/effects'
 
 import * as sagas from 'common/store/queue/sagas'
 import { getRecommendedTracks } from 'common/store/recommendation/sagas'
-import AudioPlayer from 'services/audio-player'
 import { noopReducer } from 'store/testHelper'
 
 const initialTracks = {
