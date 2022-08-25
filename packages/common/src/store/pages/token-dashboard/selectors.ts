@@ -36,6 +36,16 @@ export const getHasAssociatedWallets = (state: CommonState) => {
 }
 export const getRemoveWallet = (state: CommonState) =>
   state.pages.tokenDashboard.associatedWallets.removeWallet
+export const getAwaitingConfirmationIsLoading = (state: CommonState) => {
+  if (
+    state.pages.tokenDashboard.modalState?.stage === 'SEND' &&
+    state.pages.tokenDashboard.modalState.flowState.stage ===
+      'AWAITING_CONFIRMATION'
+  ) {
+    return state.pages.tokenDashboard.modalState?.flowState.loading
+  }
+  return false
+}
 export const getCanRecipientReceiveWAudio = (state: CommonState) => {
   if (
     state.pages.tokenDashboard.modalState?.stage === 'SEND' &&

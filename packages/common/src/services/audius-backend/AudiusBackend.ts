@@ -3027,17 +3027,6 @@ export const audiusBackend = ({
   }
 
   /**
-   * Fetches the Sol balance for the given wallet address
-   * @param {string} The solana wallet address
-   * @returns {Promise<BNWei>}
-   */
-  async function getAddressSolBalance(address: string): Promise<BNWei> {
-    await waitForLibsInit()
-    const solBalance = await audiusLibs.solanaWeb3Manager.getSolBalance(address)
-    return solBalance
-  }
-
-  /**
    * Aggregate, submit, and evaluate attestations for a given challenge for a user
    */
   async function submitAndEvaluateAttestations({
@@ -3164,7 +3153,6 @@ export const audiusBackend = ({
     getAccount,
     getAddressTotalStakedBalance,
     getAddressWAudioBalance,
-    getAddressSolBalance,
     getAssociatedTokenAccountInfo,
     getAllTracks,
     getArtistTracks,

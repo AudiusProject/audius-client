@@ -8,6 +8,7 @@ import {
 } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useSelector } from 'utils/reducer'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
@@ -15,7 +16,8 @@ import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import DashboardTokenValueSlider from './DashboardTokenValueSlider'
 import DisplayAudio from './DisplayAudio'
 import styles from './SendInputConfirmation.module.css'
-const { getCanRecipientReceiveWAudio } = tokenDashboardPageSelectors
+const { getCanRecipientReceiveWAudio, getAwaitingConfirmationIsLoading } =
+  tokenDashboardPageSelectors
 
 const messages = {
   title: "YOU'RE ABOUT TO SEND",
@@ -47,6 +49,7 @@ const SendInputConfirmation = ({
   onSend
 }: SendInputConfirmationProps) => {
   const canRecipientReceiveWAudio = useSelector(getCanRecipientReceiveWAudio)
+  const isLoading = useSelector(getAwaitingConfirmationIsLoading)
   return (
     <ModalBodyWrapper>
       <div className={styles.titleWrapper}>
@@ -64,10 +67,15 @@ const SendInputConfirmation = ({
           text={messages.sendButton}
           onClick={onSend}
           type={ButtonType.PRIMARY_ALT}
-          disabled={!canRecipientReceiveWAudio}
+          disabled={!canRecipientReceiveWAudio || isLoading}
+          rightIcon={
+            isLoading ? (
+              <LoadingSpinner className={styles.loadingSpinner} />
+            ) : null
+          }
         />
       </div>
-      {canRecipientReceiveWAudio ? null : (
+      {canRecipientReceiveWAudio || isLoading ? null : (
         <div className={styles.errorMessage}>{messages.errorMessage}</div>
       )}
     </ModalBodyWrapper>

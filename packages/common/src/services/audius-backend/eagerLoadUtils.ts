@@ -3,6 +3,25 @@ import { LocalStorage } from '../local-storage'
 
 const DISCOVERY_PROVIDER_TIMESTAMP = '@audius/libs:discovery-node-timestamp'
 
+export const LIBS_INITTED_EVENT = 'LIBS_INITTED_EVENT'
+
+/**
+ * Wait for the `LIBS_INITTED_EVENT` or pass through if there
+ * already exists a mounted `window.audiusLibs` object.
+ */
+export const waitForLibsInit = async () => {
+  // If libs is already defined, it has already loaded & initted
+  // so do nothing
+  // @ts-ignore
+  if (window.audiusLibs) return
+  // Add an event listener and resolve when that returns
+  return new Promise((resolve) => {
+    // @ts-ignore
+    if (window.audiusLibs) resolve()
+    window.addEventListener(LIBS_INITTED_EVENT, resolve)
+  })
+}
+
 export const getEagerDiscprov = async (
   localStorage: LocalStorage,
   env: Env

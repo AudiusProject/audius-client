@@ -65,7 +65,8 @@ const slice = createSlice({
           amount,
           recipientWallet: wallet,
           chain,
-          canRecipientReceiveWAudio: false
+          canRecipientReceiveWAudio: false,
+          loading: true
         }
       }
       state.modalState = newState
@@ -82,6 +83,7 @@ const slice = createSlice({
       ) {
         state.modalState.flowState.canRecipientReceiveWAudio =
           canRecipientReceiveWAudio
+        state.modalState.flowState.loading = false
       } else {
         console.error(
           'Tried to set canRecipientReceiveWAudio outside of correct flow state.'
