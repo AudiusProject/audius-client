@@ -5,8 +5,7 @@ import {
   lineupSelectors,
   feedPageLineupActions as feedActions,
   feedPageSelectors,
-  modalsActions,
-  constructPlaylistFolder
+  modalsActions
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
