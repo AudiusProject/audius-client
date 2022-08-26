@@ -33,3 +33,12 @@
   line-height: 1.2;
   text-align: center;
 }
+
+.loadingSpinner {
+  height: 24px;
+  width: 24px;
+}
+
+.loadingSpinner g path {
+  stroke: var(--static-white) !important;
+}

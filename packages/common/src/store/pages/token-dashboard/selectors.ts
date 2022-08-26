@@ -43,7 +43,7 @@ export const getCanRecipientReceiveWAudio = (state: CommonState) => {
       'AWAITING_CONFIRMATION'
   ) {
     return state.pages.tokenDashboard.modalState.flowState
-      .canRecipientReceiveWAudio.state
+      .canRecipientReceiveWAudio
   }
-  return false
+  return 'false'
 }

@@ -8,7 +8,7 @@ import { BNWei, StringWei, WalletAddress } from '../../../models/Wallet'
 
 import {
   AssociatedWallets,
-  canReceiveWAudio,
+  CanReceiveWAudio,
   ConfirmRemoveWalletAction,
   TokenDashboardPageModalState,
   TokenDashboardState
@@ -66,7 +66,7 @@ const slice = createSlice({
           amount,
           recipientWallet: wallet,
           chain,
-          canRecipientReceiveWAudio: { state: 'false' }
+          canRecipientReceiveWAudio: 'loading'
         }
       }
       state.modalState = newState

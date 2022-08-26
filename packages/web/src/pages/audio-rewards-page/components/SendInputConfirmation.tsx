@@ -10,6 +10,7 @@ import {
 } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useSelector } from 'utils/reducer'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
@@ -48,13 +49,20 @@ const SendInputConfirmation = ({
   recipientAddress,
   onSend
 }: SendInputConfirmationProps) => {
-  const [isLongLoading, setIsLongLoading] = useState(false)
-
-  useEffect(() => {
-    setTimeout(() => setIsLongLoading(true), 1000)
-  }, [])
-
+  const [hasOneSecondElapsed, setHasOneSecondElapsed] = useState(false)
   const canRecipientReceiveWAudio = useSelector(getCanRecipientReceiveWAudio)
+  const isLongLoading =
+    hasOneSecondElapsed && canRecipientReceiveWAudio === 'loading'
+
+  // State to help determine whether to show a loading spinner,
+  // for example if Solana is being slow
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasOneSecondElapsed(true)
+    }, 1000)
+    return () => clearTimeout(timer)
+  })
+
   return (
     <ModalBodyWrapper>
       <div className={styles.titleWrapper}>
@@ -70,12 +78,17 @@ const SendInputConfirmation = ({
       <div className={styles.buttonWrapper}>
         <Button
           text={messages.sendButton}
-          onClick={onSend}
+          onClick={canRecipientReceiveWAudio === 'true' ? onSend : null}
           type={ButtonType.PRIMARY_ALT}
-          disabled={canRecipientReceiveWAudio !== 'true'}
+          disabled={canRecipientReceiveWAudio === 'false' || isLongLoading}
+          rightIcon={
+            isLongLoading ? (
+              <LoadingSpinner className={styles.loadingSpinner} />
+            ) : null
+          }
         />
       </div>
-      {canRecipientReceiveWAudio !== 'true' ? (
+      {canRecipientReceiveWAudio === 'false' ? (
         <div className={styles.errorMessage}>{messages.errorMessage}</div>
       ) : null}
     </ModalBodyWrapper>

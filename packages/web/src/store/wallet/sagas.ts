@@ -231,7 +231,7 @@ function* fetchBalanceAsync() {
  * Check if we can send WAudio to a recipient by checking if they already have
  * an associated WAudio token account, or if they have enough SOL to create one.
  */
-async function* checkAssociatedTokenAccountOrSol(action: InputSendDataAction) {
+function* checkAssociatedTokenAccountOrSol(action: InputSendDataAction) {
   const walletClient = yield* getContext('walletClient')
   const address = action.payload.wallet
   const associatedTokenAccount = yield* call(() =>
@@ -245,12 +245,14 @@ async function* checkAssociatedTokenAccountOrSol(action: InputSendDataAction) {
     const minRentBN = new BN(minRentForATA)
     if (balance.lt(minRentBN)) {
       yield* put(
-        setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: false })
+        setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: 'false' })
       )
       return
     }
   }
-  yield* put(setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: true }))
+  yield* put(
+    setCanRecipientReceiveWAudio({ canRecipientReceiveWAudio: 'true' })
+  )
 }
 
 function* watchSend() {

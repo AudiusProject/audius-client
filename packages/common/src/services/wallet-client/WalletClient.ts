@@ -140,7 +140,6 @@ export class WalletClient {
 
   async getWalletSolBalance(wallet: string): Promise<BNWei> {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 10000))
       const balance = await this.audiusBackendInstance.getAddressSolBalance(
         wallet
       )

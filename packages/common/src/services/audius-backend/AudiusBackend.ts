@@ -2941,7 +2941,7 @@ export const audiusBackend = ({
       tokenAccountInfo = await audiusLibs.solanaWeb3Manager.getTokenAccountInfo(
         associatedTokenAccount.toString()
       )
-
+    }
     return tokenAccountInfo
   }
 
