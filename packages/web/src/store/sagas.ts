@@ -24,7 +24,6 @@ import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
 import trackSagas from 'common/store/pages/track/sagas'
 import playerSagas from 'common/store/player/sagas'
-import mobileQueueSagas from 'common/store/queue/mobileSagas'
 import queueSagas from 'common/store/queue/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
@@ -86,7 +85,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export default function* rootSaga() {
   yield fork(setupBackend)
-  let sagas = ([] as (() => Generator<any, void, any>)[]).concat(
+  const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     // TODO(nkang): Move to common/store/pages/search-page/sagas once migrated
     searchPageTracksSagas(),
 
@@ -193,7 +192,6 @@ export default function* rootSaga() {
   )
   if (NATIVE_MOBILE) {
     sagas.push(initInterface)
-    sagas = sagas.concat(mobileQueueSagas())
   }
   yield all(sagas.map(fork))
 }

@@ -1,13 +1,5 @@
 export enum MessageType {
   LOADED = 'loaded',
-  PLAY_TRACK = 'play-track',
-  PAUSE_TRACK = 'pause-track',
-  GET_POSITION = 'get-position',
-  SEEK_TRACK = 'seek-track',
-  SET_INFO = 'set-info',
-  PERSIST_QUEUE = 'persist-queue',
-  SET_REPEAT_MODE = 'set-repeat-mode',
-  SHUFFLE = 'shuffle',
 
   // Linking
   OPEN_LINK = 'open-link',
