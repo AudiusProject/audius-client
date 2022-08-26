@@ -41,11 +41,8 @@ export const FeedScreen = () => {
   const feedFilter = useSelectorWeb(getFeedFilter)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  console.log('feed lineup!!', feedLineup)
-
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
-      console.log('load more!')
       dispatch(feedActions.fetchLineupMetadatas(offset, limit, overwrite))
       track(make({ eventName: Name.FEED_PAGINATE, offset, limit }))
     },
