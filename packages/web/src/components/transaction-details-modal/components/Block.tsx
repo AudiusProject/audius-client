@@ -4,23 +4,25 @@ import cn from 'classnames'
 
 import styles from './Block.module.css'
 
+type BlockProps = {
+  header: ReactNode
+  children: ReactNode
+} & ComponentPropsWithoutRef<'li'>
+
 export const Block = ({
   header,
   children,
   className,
   ...divProps
-}: {
-  header: ReactNode
-  children: ReactNode
-} & ComponentPropsWithoutRef<'div'>) => {
+}: BlockProps) => {
   return (
-    <div className={cn(styles.block, className)} {...divProps}>
+    <li className={cn(styles.block, className)} {...divProps}>
       <div className={styles.blockHeader}>{header}</div>
       <div className={styles.blockContent}>{children}</div>
-    </div>
+    </li>
   )
 }
 
 export const BlockContainer = ({ children }: { children: ReactNode }) => {
-  return <div className={styles.blockContainer}>{children}</div>
+  return <ul className={styles.blockContainer}>{children}</ul>
 }
