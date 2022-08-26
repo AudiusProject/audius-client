@@ -47,11 +47,7 @@ export type TokenDashboardPageModalState = Nullable<
   | { stage: 'DISCORD_CODE' }
 >
 
-export enum CanReceiveWAudio {
-  'false',
-  'loading',
-  'true'
-}
+export type CanReceiveWAudio = 'false' | 'loading' | 'true'
 
 export type AssociatedWallet = {
   address: string

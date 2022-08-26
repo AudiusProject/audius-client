@@ -78,7 +78,7 @@ const SendInputConfirmation = ({
       <div className={styles.buttonWrapper}>
         <Button
           text={messages.sendButton}
-          onClick={canRecipientReceiveWAudio === 'true' ? onSend : null}
+          onClick={canRecipientReceiveWAudio === 'true' ? onSend : undefined}
           type={ButtonType.PRIMARY_ALT}
           disabled={canRecipientReceiveWAudio === 'false' || isLongLoading}
           rightIcon={
