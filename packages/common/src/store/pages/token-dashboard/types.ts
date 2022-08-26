@@ -14,8 +14,7 @@ type SendingState =
       amount: StringWei
       recipientWallet: string
       chain: Chain
-      canRecipientReceiveWAudio: boolean
-      loading: false
+      canRecipientReceiveWAudio: CanReceiveWAudio
     }
   | {
       stage: 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
@@ -47,6 +46,11 @@ export type TokenDashboardPageModalState = Nullable<
   | { stage: 'SEND'; flowState: SendingState }
   | { stage: 'DISCORD_CODE' }
 >
+
+export type CanReceiveWAudio =
+  | { state: 'false' }
+  | { state: 'loading' }
+  | { state: 'true' }
 
 export type AssociatedWallet = {
   address: string

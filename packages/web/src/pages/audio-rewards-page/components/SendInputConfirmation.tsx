@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import {
   BNWei,
   StringAudio,
@@ -8,7 +10,6 @@ import {
 } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useSelector } from 'utils/reducer'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
@@ -16,8 +17,7 @@ import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 import DashboardTokenValueSlider from './DashboardTokenValueSlider'
 import DisplayAudio from './DisplayAudio'
 import styles from './SendInputConfirmation.module.css'
-const { getCanRecipientReceiveWAudio, getAwaitingConfirmationIsLoading } =
-  tokenDashboardPageSelectors
+const { getCanRecipientReceiveWAudio } = tokenDashboardPageSelectors
 
 const messages = {
   title: "YOU'RE ABOUT TO SEND",
@@ -48,8 +48,13 @@ const SendInputConfirmation = ({
   recipientAddress,
   onSend
 }: SendInputConfirmationProps) => {
+  const [isLongLoading, setIsLongLoading] = useState(false)
+
+  useEffect(() => {
+    setTimeout(() => setIsLongLoading(true), 1000)
+  }, [])
+
   const canRecipientReceiveWAudio = useSelector(getCanRecipientReceiveWAudio)
-  const isLoading = useSelector(getAwaitingConfirmationIsLoading)
   return (
     <ModalBodyWrapper>
       <div className={styles.titleWrapper}>
@@ -67,17 +72,12 @@ const SendInputConfirmation = ({
           text={messages.sendButton}
           onClick={onSend}
           type={ButtonType.PRIMARY_ALT}
-          disabled={!canRecipientReceiveWAudio || isLoading}
-          rightIcon={
-            isLoading ? (
-              <LoadingSpinner className={styles.loadingSpinner} />
-            ) : null
-          }
+          disabled={canRecipientReceiveWAudio !== 'true'}
         />
       </div>
-      {canRecipientReceiveWAudio || isLoading ? null : (
+      {canRecipientReceiveWAudio !== 'true' ? (
         <div className={styles.errorMessage}>{messages.errorMessage}</div>
-      )}
+      ) : null}
     </ModalBodyWrapper>
   )
 }

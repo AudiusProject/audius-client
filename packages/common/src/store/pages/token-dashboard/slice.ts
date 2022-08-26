@@ -8,6 +8,7 @@ import { BNWei, StringWei, WalletAddress } from '../../../models/Wallet'
 
 import {
   AssociatedWallets,
+  canReceiveWAudio,
   ConfirmRemoveWalletAction,
   TokenDashboardPageModalState,
   TokenDashboardState
@@ -65,8 +66,7 @@ const slice = createSlice({
           amount,
           recipientWallet: wallet,
           chain,
-          canRecipientReceiveWAudio: false,
-          loading: true
+          canRecipientReceiveWAudio: { state: 'false' }
         }
       }
       state.modalState = newState
@@ -75,7 +75,7 @@ const slice = createSlice({
       state,
       {
         payload: { canRecipientReceiveWAudio }
-      }: PayloadAction<{ canRecipientReceiveWAudio: boolean }>
+      }: PayloadAction<{ canRecipientReceiveWAudio: CanReceiveWAudio }>
     ) => {
       if (
         state.modalState?.stage === 'SEND' &&
@@ -83,7 +83,6 @@ const slice = createSlice({
       ) {
         state.modalState.flowState.canRecipientReceiveWAudio =
           canRecipientReceiveWAudio
-        state.modalState.flowState.loading = false
       } else {
         console.error(
           'Tried to set canRecipientReceiveWAudio outside of correct flow state.'
