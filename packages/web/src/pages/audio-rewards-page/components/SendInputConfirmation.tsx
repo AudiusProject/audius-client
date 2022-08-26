@@ -27,6 +27,8 @@ const messages = {
     'This account does not contain enough SOL to create an $AUDIO wallet.'
 }
 
+const LOADING_DURATION = 1000
+
 type SendInputConfirmationProps = {
   balance: BNWei
   amountToTransfer: BNWei
@@ -49,17 +51,18 @@ const SendInputConfirmation = ({
   recipientAddress,
   onSend
 }: SendInputConfirmationProps) => {
-  const [hasOneSecondElapsed, setHasOneSecondElapsed] = useState(false)
+  const [hasLoadingDurationElapsed, setHasLoadingDurationElapsed] =
+    useState(false)
   const canRecipientReceiveWAudio = useSelector(getCanRecipientReceiveWAudio)
   const isLongLoading =
-    hasOneSecondElapsed && canRecipientReceiveWAudio === 'loading'
+    hasLoadingDurationElapsed && canRecipientReceiveWAudio === 'loading'
 
   // State to help determine whether to show a loading spinner,
   // for example if Solana is being slow
   useEffect(() => {
     const timer = setTimeout(() => {
-      setHasOneSecondElapsed(true)
-    }, 1000)
+      setHasLoadingDurationElapsed(true)
+    }, LOADING_DURATION)
     return () => clearTimeout(timer)
   })
 
