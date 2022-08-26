@@ -25,10 +25,6 @@ export const TransactionPurchaseMetadata = ({
 }: {
   metadata: InAppAudioPurchaseMetadata
 }) => {
-  const handleSwapSolScanClicked = useCallback(() => {}, [])
-
-  const handlePurchaseSolScanClicked = useCallback(() => {}, [])
-
   return (
     <BlockContainer>
       <Block header={messages.cost}>
@@ -44,7 +40,8 @@ export const TransactionPurchaseMetadata = ({
               icon={<IconExternalLink />}
               title={messages.viewOnSolScan}
               aria-label={messages.viewOnSolScan}
-              onClick={handlePurchaseSolScanClicked}
+              href={`https://solscan.io/tx/${metadata.buyTransaction}`}
+              target='_blank'
             />
           </>
         }
@@ -61,7 +58,8 @@ export const TransactionPurchaseMetadata = ({
               icon={<IconExternalLink />}
               title={messages.viewOnSolScan}
               aria-label={messages.viewOnSolScan}
-              onClick={handleSwapSolScanClicked}
+              href={`https://solscan.io/tx/${metadata.swapTransaction}`}
+              target='_blank'
             />
           </>
         }
