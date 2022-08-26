@@ -418,6 +418,9 @@ function* addTrackToPlaylistAsync(action) {
     yield put(signOnActions.openSignOn(false))
     return
   }
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const audiusLibs = yield call([audiusBackendInstance, 'getAudiusLibs'])
+  const web3 = audiusLibs.web3Manager.web3
 
   // Retrieve tracks with the the collection so we confirm with the
   // most up-to-date information.
@@ -434,7 +437,6 @@ function* addTrackToPlaylistAsync(action) {
     action.trackId,
     `collection:${action.playlistId}`
   )
-  const web3 = yield window.audiusLibs.web3Manager.getWeb3()
   const currentBlockNumber = yield web3.eth.getBlockNumber()
   const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
 
@@ -1330,7 +1332,8 @@ function* watchFetchCoverArt() {
         )
       } catch (e) {
         console.error(
-          `Unable to fetch cover art for collection ${collectionId}`
+          `Unable to fetch cover art for collection ${collectionId}`,
+          e
         )
       } finally {
         inProgress.delete(key)
