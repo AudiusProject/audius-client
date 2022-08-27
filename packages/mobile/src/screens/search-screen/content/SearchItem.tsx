@@ -102,6 +102,7 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
         screen: 'Profile',
         params: { handle: user.handle }
       },
+      // TODO(nkang): Delete when ready (RN-reloaded)
       web: { route: userRoute, fromPage: 'search' }
     })
   }, [user, dispatch, navigation, appendSearchItem])
@@ -139,6 +140,7 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
         screen: 'Track',
         params: { id: track.track_id, searchTrack: track }
       },
+      // TODO(nkang): Delete when ready (RN-reloaded)
       web: { route: trackRoute, fromPage: 'search' }
     })
   }, [track, dispatch, navigation, appendSearchItem])
@@ -188,6 +190,7 @@ const PlaylistSearchResult = ({
         screen: 'Collection',
         params: { id: playlist.playlist_id, searchCollection: playlist }
       },
+      // TODO(nkang): Delete when ready (RN-reloaded)
       web: { route: collectionRoute, fromPage: 'search' }
     })
   }, [playlist, dispatch, navigation, appendSearchItem])
@@ -234,6 +237,7 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
         screen: 'Collection',
         params: { id: album.playlist_id, searchCollection: album }
       },
+      // TODO(nkang): Delete when ready (RN-reloaded)
       web: { route: collectionRoute, fromPage: 'search' }
     })
   }, [album, dispatch, navigation, appendSearchItem])

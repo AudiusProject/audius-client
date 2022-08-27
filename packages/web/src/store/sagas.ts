@@ -20,6 +20,7 @@ import collectionSagas from 'common/store/pages/collection/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
 import feedPageSagas from 'common/store/pages/feed/sagas'
+import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
 import trackSagas from 'common/store/pages/track/sagas'
 import playerSagas from 'common/store/player/sagas'
@@ -53,7 +54,7 @@ import profileSagas from 'pages/profile-page/sagas'
 import remixesSagas from 'pages/remixes-page/store/sagas'
 import repostPageSagas from 'pages/reposts-page/sagas'
 import savedSagas from 'pages/saved-page/store/sagas'
-import searchPageSagas from 'pages/search-page/store/sagas'
+import searchPageTracksSagas from 'pages/search-page/store/lineups/tracks/sagas'
 import settingsSagas from 'pages/settings-page/store/sagas'
 import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
 import supportingPageSagas from 'pages/supporting-page/sagas'
@@ -86,6 +87,9 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export default function* rootSaga() {
   yield fork(setupBackend)
   let sagas = ([] as (() => Generator<any, void, any>)[]).concat(
+    // TODO(nkang): Move to common/store/pages/search-page/sagas once migrated
+    searchPageTracksSagas(),
+
     // Config
     analyticsSagas(),
     webAnalyticsSagas(),
@@ -116,7 +120,7 @@ export default function* rootSaga() {
     reactionSagas(),
     rewardsPageSagas(),
     savedSagas(),
-    searchPageSagas(),
+    searchResultsSagas(),
     serviceSelectionSagas(),
     settingsSagas(),
     signOnSaga(),
