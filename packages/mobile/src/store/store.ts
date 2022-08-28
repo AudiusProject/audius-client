@@ -25,8 +25,6 @@ import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
 import type { LifecycleState } from './lifecycle/reducer'
 import lifecycle from './lifecycle/reducer'
-import type { NotificationsState } from './notifications/slice'
-import notifications from './notifications/slice'
 import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
 import rootSaga from './sagas'
@@ -51,7 +49,6 @@ export type AppState = {
   downloads: DownloadState
   keyboard: KeyboardState
   lifecycle: LifecycleState
-  notifications: NotificationsState
   oauth: OAuthState
   remoteConfig: RemoteConfigState
   search: SearchState
@@ -76,7 +73,6 @@ const createRootReducer = () =>
     downloads,
     keyboard,
     lifecycle,
-    notifications,
     oauth,
     remoteConfig,
     search,

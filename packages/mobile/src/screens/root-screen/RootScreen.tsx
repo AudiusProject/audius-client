@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { createDrawerNavigator } from '@react-navigation/drawer'
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import useAppState from 'app/hooks/useAppState'
 import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
+import PushNotifications from 'app/notifications'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { AppScreen } from 'app/screens/app-screen'
 import {
@@ -108,6 +109,11 @@ const NotificationsDrawerContents = (
     state
   } = props
   const drawerNavigation = useNavigation()
+
+  useEffect(() => {
+    PushNotifications.setDrawerHelpers(drawerHelpers)
+  }, [drawerHelpers])
+
   return (
     <NotificationsDrawerNavigationContextProvider
       drawerHelpers={drawerHelpers}
@@ -134,10 +140,10 @@ export const RootScreen = () => {
   const [disableGestures, setDisableGestures] = useState(false)
   const { updateRequired } = useUpdateRequired()
 
-  useAppState({
-    onEnterForeground: () => dispatch(enterForeground()),
-    onEnterBackground: () => dispatch(enterBackground())
-  })
+  useAppState(
+    () => dispatch(enterForeground()),
+    () => dispatch(enterBackground())
+  )
 
   if (updateRequired) return <UpdateStack />
 
