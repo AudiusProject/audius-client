@@ -44,13 +44,6 @@ export enum MessageType {
   ENABLE_PUSH_NOTIFICATIONS_REMINDER = 'action/enable-push-notifications-reminder',
   PROMPT_PUSH_NOTIFICATION_REMINDER = 'prompt-push-notifications-reminder',
 
-  OPEN_NOTIFICATIONS = 'open-notifications',
-  FETCH_NOTIFICATIONS = 'fetch-notifications',
-  FETCH_NOTIFICATIONS_SUCCESS = 'fetch-notifications-success',
-  FETCH_NOTIFICATIONS_REPLACE = 'fetch-notifications-replace',
-  FETCH_NOTIFICATIONS_FAILURE = 'fetch-notifications-failure',
-  REFRESH_NOTIFICATIONS = 'refresh-notifications',
-
   // Search
   OPEN_SEARCH = 'open-search',
   UPDATE_SEARCH_QUERY = 'update-search-query',
