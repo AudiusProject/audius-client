@@ -1,9 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { UID, ID, Collectible } from '../../models'
-import { Nullable } from '../../utils'
-
-import { AudioPlayer } from './types'
+import { Maybe, Nullable } from '../../utils'
 
 export type PlayerState = {
   // Identifiers for the audio that's playing.
@@ -11,8 +9,6 @@ export type PlayerState = {
   trackId: ID | null
 
   collectible: Collectible | null
-
-  audio: Nullable<AudioPlayer>
 
   // Keep 'playing' in the store separately from the audio
   // object to allow components to subscribe to changes.
@@ -25,6 +21,9 @@ export type PlayerState = {
   // Unique integer that increments every time something is "played."
   // E.g. replaying a track doesn't change uid or trackId, but counter changes.
   counter: number
+
+  // Seek time into the track when a user scrubs forward or backward
+  seek: number | null
 }
 
 export const initialState: PlayerState = {
@@ -33,24 +32,17 @@ export const initialState: PlayerState = {
 
   collectible: null,
 
-  // In the case of native mobile, use the native mobile audio
-  // player directly. Otherwise, it is set dynamically
-  audio: null,
-
   playing: false,
   buffering: false,
-  counter: 0
+  counter: 0,
+  seek: null
 }
 
-type SetAudioStreamPayload = {
-  audio: AudioPlayer
-}
-
-type PlayPayload = {
+type PlayPayload = Maybe<{
   uid?: Nullable<UID>
   trackId?: ID
   onEnd?: (...args: any) => any
-}
+}>
 
 type PlaySucceededPayload = {
   uid?: Nullable<UID>
@@ -66,12 +58,12 @@ type PlayCollectibleSucceededPayload = {
   collectible: Collectible
 }
 
-type PausePayload = {
+type PausePayload = Maybe<{
   // Optionally allow only setting state which doesn't actually
   // invoke a .pause on the internal audio object. This is used in
   // native mobile audio only.
   onlySetState?: boolean
-}
+}>
 
 type StopPayload = {}
 
@@ -106,11 +98,6 @@ const slice = createSlice({
   name: 'player',
   initialState,
   reducers: {
-    setAudioStream: (state, action: PayloadAction<SetAudioStreamPayload>) => {
-      const { audio } = action.payload
-      // Redux toolkit seems to do something to state.audio's type (some destructured form?)
-      state.audio = audio as typeof state.audio
-    },
     play: (_state, _action: PayloadAction<PlayPayload>) => {},
     playSucceeded: (state, action: PayloadAction<PlaySucceededPayload>) => {
       const { uid, trackId } = action.payload
@@ -158,8 +145,11 @@ const slice = createSlice({
       state.playing = shouldAutoplay
       state.counter = state.counter + 1
     },
-    seek: (_state, _actions: PayloadAction<SeekPayload>) => {},
-    error: (_state, _actions: PayloadAction<ErrorPayload>) => {},
+    seek: (state, action: PayloadAction<SeekPayload>) => {
+      const { seconds } = action.payload
+      state.seek = seconds
+    },
+    error: (_state, _action: PayloadAction<ErrorPayload>) => {},
     incrementCount: (state) => {
       state.counter = state.counter + 1
     }
@@ -167,7 +157,6 @@ const slice = createSlice({
 })
 
 export const {
-  setAudioStream,
   play,
   playSucceeded,
   playCollectible,

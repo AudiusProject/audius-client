@@ -1,6 +1,7 @@
 import { CommonStoreContext } from '@audius/common'
 
 import * as analytics from 'services/analytics'
+import { audioPlayer } from 'services/audio-player'
 import { apiClient } from 'services/audius-api-client'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { env } from 'services/env'
@@ -10,6 +11,8 @@ import { localStorage } from 'services/local-storage'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { walletClient } from 'services/wallet-client'
+
+import { getLineupSelectorForRoute } from './lineup/lineupForRoute'
 
 export const storeContext: CommonStoreContext = {
   getLocalStorageItem: async (key: string) => window.localStorage.getItem(key),
@@ -25,5 +28,7 @@ export const storeContext: CommonStoreContext = {
   localStorage,
   isNativeMobile: false,
   env,
-  explore
+  explore,
+  getLineupSelectorForRoute,
+  audioPlayer
 }

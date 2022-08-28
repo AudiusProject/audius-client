@@ -24,15 +24,7 @@ import {
 } from '@solana/web3.js'
 import JSBI from 'jsbi'
 import { takeLatest } from 'redux-saga/effects'
-import {
-  call,
-  select,
-  put,
-  takeEvery,
-  take,
-  race,
-  fork
-} from 'typed-redux-saga'
+import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import {
@@ -50,7 +42,7 @@ import {
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import {
   createUserBankIfNeeded,
-  getUserBank
+  deriveUserBank
 } from 'services/audius-backend/waudio'
 
 const {
@@ -66,7 +58,8 @@ const {
   transferStarted,
   transferCompleted,
   clearFeesCache,
-  calculateAudioPurchaseInfoFailed
+  calculateAudioPurchaseInfoFailed,
+  buyAudioFlowFailed
 } = buyAudioActions
 
 const { getBuyAudioFlowStage, getFeesCache } = buyAudioSelectors
@@ -233,7 +226,7 @@ function* getTransactionFees({
       routeInfo: route,
       userPublicKey: rootAccount
     })
-    const userBank = yield* call(getUserBank)
+    const userBank = yield* call(deriveUserBank)
     const transferTransaction = yield* call(
       createTransferToUserBankTransaction,
       {
@@ -594,7 +587,7 @@ function* startBuyAudioFlow({
     })
 
     // Transfer AUDIO to userbank
-    const userBank = yield* call(getUserBank)
+    const userBank = yield* call(deriveUserBank)
     yield* put(transferStarted())
     const transferTransaction = yield* call(
       createTransferToUserBankTransaction,
@@ -640,6 +633,7 @@ function* startBuyAudioFlow({
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
     console.error('BuyAudio failed at stage', stage, 'with error:', e)
+    yield* put(buyAudioFlowFailed())
     yield* put(
       make(Name.BUY_AUDIO_FAILURE, {
         provider: 'coinbase',
@@ -656,7 +650,7 @@ function* watchCalculateAudioPurchaseInfo() {
 }
 
 function* watchOnRampStarted() {
-  yield* takeEvery(onRampOpened, startBuyAudioFlow)
+  yield takeLatest(onRampOpened, startBuyAudioFlow)
 }
 
 export default function sagas() {

@@ -37,14 +37,16 @@
 .showMoreToggle {
   width: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 .showMoreToggle:global(.collapsed) {
   border-top: 1px solid var(--neutral-light-8);
 }
 .showMoreToggle .showMoreToggleButton {
-  margin: 0 auto;
-  padding: 24px 0;
-  font-size: var(--large);
+  padding-top: 24px;
+  padding-bottom: 24px;
 }
 
 .moreInfo {
@@ -75,4 +77,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.error {
+  white-space: pre-line;
+  color: var(--accent-red);
+  text-align: center;
+  font-weight: var(--font-demi-bold);
+  line-height: 150%;
 }

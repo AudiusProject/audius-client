@@ -1,8 +1,8 @@
-import { TrackSegment, decodeHashId } from '@audius/common'
+import { TrackSegment, decodeHashId, hlsUtils } from '@audius/common'
 import Hls from 'hls.js'
 
 import { fetchCID } from 'services/audius-backend'
-import { generateM3U8, generateM3U8Variants } from 'utils/hlsUtil'
+const { generateM3U8, generateM3U8Variants } = hlsUtils
 
 declare global {
   interface Window {
@@ -72,7 +72,7 @@ const HlsConfig = {
   fLoader
 }
 
-class AudioStream {
+export class AudioPlayer {
   audio: HTMLAudioElement
   audioCtx: AudioContext | null
   source: MediaElementAudioSourceNode | null
@@ -90,7 +90,7 @@ class AudioStream {
   canPlayListener: ((this: HTMLAudioElement, e: Event) => void) | null
   url: string | null
   hls: Hls | null
-  onError: (e: AudioError, data: string | Event | Hls.errorData) => void
+  onError: (e: string, data: string | Event) => void
   errorRateLimiter: Set<string>
 
   constructor() {
@@ -217,7 +217,7 @@ class AudioStream {
           this.hls.destroy()
         }
         // Hls.js via MediaExtensions
-        const m3u8 = generateM3U8(segments, prefetchedSegments)
+        const m3u8 = generateM3U8({ segments, prefetchedSegments })
         // eslint-disable-next-line
         class creatorFLoader extends fLoader {
           getFallbacks = () => gateways as never[]
@@ -241,7 +241,8 @@ class AudioStream {
 
             // Only emit an error if we haven't errored on an error with the same "details"
             if (!this.errorRateLimiter.has(data.details)) {
-              this.onError(AudioError.HLS, data)
+              // typecasting here just to prevent having to put HLS types in common
+              this.onError(AudioError.HLS, data as unknown as Event)
             }
 
             // Only one "details" of error are allowed per HLS load
@@ -272,11 +273,11 @@ class AudioStream {
         // Native HLS (ios Safari)
         const m3u8Gateways =
           gateways.length > 0 ? [gateways[0]] : [PUBLIC_IPFS_GATEWAY]
-        const m3u8 = generateM3U8Variants(
+        const m3u8 = generateM3U8Variants({
           segments,
           prefetchedSegments,
-          m3u8Gateways
-        )
+          gateways: m3u8Gateways
+        })
 
         this.audio.src = m3u8
         this.audio.title =
@@ -435,5 +436,3 @@ class AudioStream {
     }
   }
 }
-
-export default AudioStream

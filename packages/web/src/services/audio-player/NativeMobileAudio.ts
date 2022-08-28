@@ -1,4 +1,4 @@
-import { TrackSegment, AudioInfo } from '@audius/common'
+import { TrackSegment, AudioInfo, hlsUtils } from '@audius/common'
 
 import {
   PlayTrackMessage,
@@ -6,17 +6,19 @@ import {
   GetPositionMessage,
   SeekMessage
 } from 'services/native-mobile-interface/player'
-import { generateM3U8Variants } from 'utils/hlsUtil'
 
 const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
+const { generateM3U8Variants } = hlsUtils
 
-class NativeMobileAudio {
+export class NativeMobileAudio {
+  audio: any
   m3u8: string
   position: number
   duration: number
   // Whether or not the user has made a seek action.
   // We use this to make sure we don't read stale position values from the native layer.
   seekOverride: number | null
+  audioCtx = null
 
   constructor() {
     this.m3u8 = ''
@@ -33,7 +35,7 @@ class NativeMobileAudio {
     info: AudioInfo
   ) => {
     const m3u8Gateways = gateways.concat(PUBLIC_IPFS_GATEWAY)
-    this.m3u8 = generateM3U8Variants(segments, [], m3u8Gateways)
+    this.m3u8 = generateM3U8Variants({ segments, gateways: m3u8Gateways })
   }
 
   play = () => {
@@ -84,6 +86,7 @@ class NativeMobileAudio {
   getDuration = () => {
     return this.duration
   }
-}
 
-export default NativeMobileAudio
+  onBufferingChange = () => {}
+  onError = () => {}
+}

@@ -17,10 +17,15 @@ import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import notificationSagas from 'common/store/notifications/sagas'
+import collectionSagas from 'common/store/pages/collection/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
+import feedPageSagas from 'common/store/pages/feed/sagas'
 import signOnSaga from 'common/store/pages/signon/sagas'
 import trackSagas from 'common/store/pages/track/sagas'
+import playerSagas from 'common/store/player/sagas'
+import mobileQueueSagas from 'common/store/queue/mobileSagas'
+import queueSagas from 'common/store/queue/sagas'
 import reachabilitySagas from 'common/store/reachability/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
@@ -37,11 +42,9 @@ import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
 import rewardsPageSagas from 'pages/audio-rewards-page/store/sagas'
-import collectionSagas from 'pages/collection-page/store/sagas'
 import deactivateAccountSagas from 'pages/deactivate-account-page/store/sagas'
 import deletedSagas from 'pages/deleted-page/store/sagas'
 import favoritePageSagas from 'pages/favorites-page/sagas'
-import feedPageSagas from 'pages/feed-page/store/sagas'
 import followersPageSagas from 'pages/followers-page/sagas'
 import followingPageSagas from 'pages/following-page/sagas'
 import historySagas from 'pages/history-page/store/sagas'
@@ -70,9 +73,7 @@ import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
 import errorSagas from 'store/errors/sagas'
 import oauthSagas from 'store/oauth/sagas'
-import playerSagas from 'store/player/sagas'
 import playlistLibrarySagas from 'store/playlist-library/sagas'
-import queueSagas from 'store/queue/sagas'
 import routingSagas from 'store/routing/sagas'
 import socialSagas from 'store/social/sagas'
 import solanaSagas from 'store/solana/sagas'
@@ -86,7 +87,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export default function* rootSaga() {
   yield fork(setupBackend)
-  const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
+  let sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     // Config
     analyticsSagas(),
     webAnalyticsSagas(),
@@ -191,6 +192,7 @@ export default function* rootSaga() {
   )
   if (NATIVE_MOBILE) {
     sagas.push(initInterface)
+    sagas = sagas.concat(mobileQueueSagas())
   }
   yield all(sagas.map(fork))
 }
