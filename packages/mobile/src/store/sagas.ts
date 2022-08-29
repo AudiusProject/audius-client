@@ -13,6 +13,7 @@ import feedPageSagas from 'common/store/pages/feed/sagas'
 import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
 import trackPageSagas from 'common/store/pages/track/sagas'
+import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
@@ -55,6 +56,7 @@ export default function* rootSaga() {
     // Pages
     ...trackPageSagas(),
     ...trackPageSagas(),
+    ...trendingPageSagas(),
 
     // Pages
     ...trackPageSagas(),
