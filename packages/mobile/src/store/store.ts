@@ -14,8 +14,6 @@ import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
 
-import type { AudioState } from './audio/reducer'
-import audio from './audio/reducer'
 import { reducer as common } from './common/reducer'
 import type { DownloadState } from './download/slice'
 import downloads from './download/slice'
@@ -43,7 +41,6 @@ export type AppState = {
   confirmer: ConfirmerState
   searchBar: SearchBarState
 
-  audio: AudioState
   common: CommonState
   drawers: DrawersState
   downloads: DownloadState
@@ -67,7 +64,6 @@ const createRootReducer = () =>
     signOn: signOnReducer,
     searchBar,
 
-    audio,
     common,
     drawers,
     downloads,
