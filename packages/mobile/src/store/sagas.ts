@@ -55,13 +55,9 @@ export default function* rootSaga() {
 
     // Pages
     ...trackPageSagas(),
-    ...trackPageSagas(),
-    ...trendingPageSagas(),
-
-    // Pages
-    ...trackPageSagas(),
     ...collectionPageSagas(),
     ...feedPageSagas(),
+    ...trendingPageSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
