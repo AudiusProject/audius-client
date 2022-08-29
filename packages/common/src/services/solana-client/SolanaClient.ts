@@ -1,8 +1,7 @@
-import { Collectible } from '@audius/common'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
 
-import { CollectibleState } from 'components/collectibles/types'
+import { Collectible, CollectibleState } from '../../models'
 
 import { solanaNFTToCollectible } from './solCollectibleHelpers'
 import { SolanaNFTType } from './types'
@@ -50,7 +49,7 @@ class SolanaClient {
       const potentialNFTsByOwnerAddress = tokenAccountsByOwnerAddress
         .map((ta) => ta.value)
         // value is an array of parsed token info
-        .map((value, i) => {
+        .map((value) => {
           const mintAddresses = value
             .map((v) => ({
               mint: v.account.data.parsed.info.mint,
