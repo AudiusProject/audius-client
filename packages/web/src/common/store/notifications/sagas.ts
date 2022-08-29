@@ -24,7 +24,9 @@ import {
   reachabilitySelectors,
   walletActions,
   reactionsUIActions,
-  waitForAccount
+  waitForAccount,
+  RemixTrack,
+  Remix
 } from '@audius/common'
 import moment from 'moment'
 import {
@@ -286,7 +288,7 @@ export function* parseAndProcessNotifications(
     }
   })
 
-  const [tracks]: Track[][] = yield* all([
+  const [tracks] = yield* all([
     call(retrieveTracks, { trackIds: trackIdsToFetch }),
     call(
       retrieveCollections,
@@ -322,19 +324,19 @@ export function* parseAndProcessNotifications(
     ) {
       notif.entityId = userId
     } else if (notif.type === NotificationType.RemixCreate) {
-      const childTrack = tracks.find(
+      const childTrack = (tracks as Track[]).find(
         (track) => track.track_id === notif.childTrackId
       )
       if (childTrack) {
         notif.userId = childTrack.owner_id
       }
     } else if (notif.type === NotificationType.RemixCosign) {
-      const childTrack = tracks.find(
+      const childTrack = (tracks as Track[]).find(
         (track) => track.track_id === notif.childTrackId
       )
       if (childTrack && childTrack.remix_of) {
         const parentTrackIds = childTrack.remix_of.tracks.map(
-          (t) => t.parent_track_id
+          (t: Remix) => t.parent_track_id
         )
         remixTrackParents.push(...parentTrackIds)
         notif.entityIds.push(...parentTrackIds)
