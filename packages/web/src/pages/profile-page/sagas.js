@@ -38,7 +38,6 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
-import { fetchCID } from 'services/audius-backend'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
 import { isMobile } from 'utils/clientUtil'
@@ -67,7 +66,7 @@ function* fetchProfileCustomizedCollectibles(user) {
   const cid = user?.metadata_multihash ?? null
   if (cid) {
     const { is_verified: ignored_is_verified, ...metadata } = yield call(
-      fetchCID,
+      audiusBackendInstance.fetchCID,
       cid,
       gateways,
       /* cache */ false,
@@ -381,7 +380,7 @@ export function* updateProfileAsync(action) {
   if (cid) {
     try {
       const metadataFromIPFS = yield call(
-        fetchCID,
+        audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,

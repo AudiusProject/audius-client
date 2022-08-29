@@ -24,7 +24,6 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { updateProfileAsync } from 'pages/profile-page/sagas'
-import { fetchCID } from 'services/audius-backend'
 import { recordIP } from 'services/audius-backend/RecordIP'
 import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import { fingerprintClient } from 'services/fingerprint'
@@ -143,7 +142,7 @@ function* onFetchAccount(account) {
     const cid = account.metadata_multihash ?? null
     if (cid) {
       const contentNodeMetadata = yield call(
-        fetchCID,
+        audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,
