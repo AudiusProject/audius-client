@@ -16,6 +16,7 @@ import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
+import notificationSagas from 'common/store/notifications/sagas'
 import collectionSagas from 'common/store/pages/collection/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
@@ -43,7 +44,6 @@ import notificationUsersPageSagas from 'common/store/user-list/notifications/sag
 import addToPlaylistSagas from 'components/add-to-playlist/store/sagas'
 import changePasswordSagas from 'components/change-password/store/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
-import notificationSagas from 'components/notification/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
 import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
@@ -80,6 +80,8 @@ import tippingSagas from 'store/tipping/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
 import walletSagas from 'store/wallet/sagas'
 
+import notificationSagasWeb from './notifications/sagas'
+
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export default function* rootSaga() {
@@ -113,6 +115,7 @@ export default function* rootSaga() {
     feedPageSagas(),
     historySagas(),
     notificationSagas(),
+    notificationSagasWeb(),
     passwordResetSagas(),
     profileSagas(),
     reactionSagas(),
