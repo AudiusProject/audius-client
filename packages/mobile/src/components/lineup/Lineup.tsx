@@ -238,9 +238,6 @@ export const Lineup = ({
 
   const togglePlay = useCallback(
     ({ uid, id, source, isPlayingUid, isPlaying }: TogglePlayConfig) => {
-      // setImmediate prevents this cpu-intensive callback from firing until
-      // the lineup-tile press animation finishes. This may not be needed when
-      // we remove the web-view.
       if (!isPlayingUid || !isPlaying) {
         dispatch(actions.play(uid))
         track(

@@ -5,9 +5,6 @@ import type { AnalyticsMessage } from '../types/analytics'
 
 export enum MessageType {
   LOADED = 'loaded',
-  PLAY_TRACK = 'play-track',
-  PAUSE_TRACK = 'pause-track',
-  SEEK_TRACK = 'seek-track',
   SET_INFO = 'set-info',
   SET_REPEAT_MODE = 'set-repeat-mode',
   SHUFFLE = 'shuffle',
@@ -63,9 +60,6 @@ export enum MessageType {
   HAPTIC_FEEDBACK = 'haptic-feedback',
 
   // Action dispatchers
-  SYNC_QUEUE = 'action/sync-queue',
-  SYNC_PLAYER = 'action/sync-player',
-  REQUEST_QUEUE_AUTOPLAY = 'action/request-queue-autoplay',
   PUSH_ROUTE = 'action/push-route',
   SCROLL_TO_TOP = 'action/scroll-to-top',
 

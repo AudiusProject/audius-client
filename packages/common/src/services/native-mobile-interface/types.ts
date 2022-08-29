@@ -58,9 +58,6 @@ export enum MessageType {
   HAPTIC_FEEDBACK = 'haptic-feedback',
 
   // Action dispatchers
-  SYNC_QUEUE = 'action/sync-queue',
-  SYNC_PLAYER = 'action/sync-player',
-  REQUEST_QUEUE_AUTOPLAY = 'action/request-queue-autoplay',
   PUSH_ROUTE = 'action/push-route',
   POP_ROUTE = 'action/pop-route',
   SCROLL_TO_TOP = 'action/scroll-to-top',

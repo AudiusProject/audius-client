@@ -21,10 +21,8 @@ import Video from 'react-native-video'
 import { connect, useSelector } from 'react-redux'
 import type { Dispatch } from 'redux'
 
-import { MessageType } from 'app/message'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
-import { postMessage } from 'app/utils/postMessage'
 
 import { gateways as imageGateways } from '../image/utils'
 
@@ -33,14 +31,8 @@ import { logListen } from './listens'
 
 const { getUser } = cacheUsersSelectors
 const { getPlaying, getSeek, makeGetCurrent } = playerSelectors
-const {
-  getIndex,
-  getLength,
-  getQueueAutoplay,
-  getRepeat,
-  getShuffle,
-  getShuffleIndex
-} = queueSelectors
+const { getIndex, getLength, getRepeat, getShuffle, getShuffleIndex } =
+  queueSelectors
 
 const { getUserId } = accountSelectors
 
@@ -55,7 +47,6 @@ declare global {
 
 const SKIP_DURATION_SEC = 15
 
-const PUBLIC_IPFS_GATEWAY = 'http://cloudflare-ipfs.com/ipfs/'
 const DEFAULT_IMAGE_URL =
   'https://download.audius.co/static-resources/preview-image.jpg'
 
@@ -99,10 +90,8 @@ const Audio = ({
   reset,
   repeatMode,
   isShuffleOn,
-  shuffleIndex,
-  queueAutoplay
+  shuffleIndex
 }: AudioProps) => {
-  console.log({ track, index })
   const trackOwner = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
@@ -140,16 +129,6 @@ const Audio = ({
       reset()
     }
   }, [reset])
-
-  useEffect(() => {
-    if (!webRef.current) return
-    postMessage(webRef.current, {
-      type: MessageType.SYNC_QUEUE,
-      info: track,
-      index,
-      isAction: true
-    })
-  }, [webRef, track, index])
 
   useEffect(() => {
     isPlaying.current = playing
@@ -201,25 +180,9 @@ const Audio = ({
       }
     })
     MusicControl.on(Command.play, () => {
-      if (webRef.current) {
-        postMessage(webRef.current, {
-          type: MessageType.SYNC_PLAYER,
-          isPlaying: true,
-          incrementCounter: false,
-          isAction: true
-        })
-      }
       play()
     })
     MusicControl.on(Command.pause, () => {
-      if (webRef.current) {
-        postMessage(webRef.current, {
-          type: MessageType.SYNC_PLAYER,
-          isPlaying: false,
-          incrementCounter: false,
-          isAction: true
-        })
-      }
       pause()
     })
   }, [webRef, videoRef, seek, next, previous, play, pause])
@@ -256,25 +219,7 @@ const Audio = ({
         artist: trackOwner?.name,
         duration
       })
-      if (webRef.current) {
-        // Sync w/ isPlaying true in case it was previously false from a deleted track.
-        postMessage(webRef.current, {
-          type: MessageType.SYNC_PLAYER,
-          isPlaying: true,
-          incrementCounter: false,
-          isAction: true
-        })
-      }
     } else if (track && track.is_delete) {
-      if (webRef.current) {
-        // Sync w/ isPlaying false to set player state in dapp and hide drawer
-        postMessage(webRef.current, {
-          type: MessageType.SYNC_PLAYER,
-          isPlaying: false,
-          incrementCounter: false,
-          isAction: true
-        })
-      }
       MusicControl.resetNowPlaying()
     } else {
       if (Platform.OS === 'ios') {
@@ -363,53 +308,14 @@ const Audio = ({
     }
   }, [elapsedTime, isPlaying])
 
-  // handle triggering of autoplay when current track ends
-  // (this is the flow when the next button is NOT clicked by the user)
-  // (if the next button is clicked by the user, the dapp client will handle autoplay logic)
   const onNext = useCallback(() => {
-    // if autoplay is enabled and current song is close to end of queue,
-    // then trigger queueing of recommended tracks for autoplay
-    const isCloseToEndOfQueue = index + 2 >= queueLength
-    const isNotRepeating = repeatMode === RepeatMode.OFF
-    if (
-      webRef.current &&
-      queueAutoplay &&
-      !isShuffleOn &&
-      isNotRepeating &&
-      isCloseToEndOfQueue
-    ) {
-      postMessage(webRef.current, {
-        type: MessageType.REQUEST_QUEUE_AUTOPLAY,
-        genre: (track && track.genre) || undefined,
-        trackId: (track && track.track_id) || undefined,
-        isAction: true
-      })
-    }
-
     const isSingleRepeating = repeatMode === RepeatMode.SINGLE
     if (webRef.current && isSingleRepeating) {
       global.progress.currentTime = 0
-      // Sync w/ incrementCounter true to update mediaKey in client NowPlaying
-      // which will eventually restart the scrubber location
-      postMessage(webRef.current, {
-        type: MessageType.SYNC_PLAYER,
-        isPlaying: true,
-        incrementCounter: true,
-        isAction: true
-      })
     }
 
     next()
-  }, [
-    next,
-    webRef,
-    queueAutoplay,
-    index,
-    queueLength,
-    isShuffleOn,
-    repeatMode,
-    track
-  ])
+  }, [next, repeatMode, webRef])
 
   const onProgress = useCallback(
     (progress: OnProgressData) => {
@@ -451,10 +357,9 @@ const Audio = ({
       )
     : []
 
-  const m3u8Gateways = gateways.concat(PUBLIC_IPFS_GATEWAY)
   const m3u8 = hlsUtils.generateM3U8Variants({
     segments: track.track_segments,
-    gateways: m3u8Gateways
+    gateways
   })
 
   return (
@@ -506,8 +411,7 @@ const mapStateToProps = (state: CommonState) => {
     seek: getSeek(state),
     repeatMode: getRepeat(state),
     isShuffleOn: getShuffle(state),
-    shuffleIndex: getShuffleIndex(state),
-    queueAutoplay: getQueueAutoplay(state)
+    shuffleIndex: getShuffleIndex(state)
   }
 }
 
