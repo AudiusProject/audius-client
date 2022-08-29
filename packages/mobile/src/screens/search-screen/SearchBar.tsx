@@ -19,12 +19,12 @@ export const SearchBar = () => {
   const [clearable, setClearable] = useState(query !== '')
   const inputRef = useRef<TextInputRef>(null)
 
+  // Ignore rule because eslint complains that it can't determine the dependencies of the callback since it's not inline.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchSearchDebounced = useCallback(
     debounce((text: string) => {
       // Do nothing for tag search (no autocomplete)
       if (!text.startsWith('#')) {
-        console.log('text is', text)
         dispatch(fetchSearch(text))
       }
     }, 250),
