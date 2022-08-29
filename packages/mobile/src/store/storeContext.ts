@@ -2,6 +2,7 @@ import type { CommonStoreContext } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import * as analytics from 'app/services/analytics'
+import { audioPlayer } from 'app/services/audio-player'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 import { env } from 'app/services/env'
@@ -29,5 +30,5 @@ export const storeContext: CommonStoreContext = {
   env,
   explore,
   // Shim in main, but defined in native-reloaded branch
-  audioPlayer: {} as any
+  audioPlayer
 }
