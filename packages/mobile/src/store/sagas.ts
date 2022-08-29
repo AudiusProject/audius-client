@@ -7,6 +7,7 @@ import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
+import notificationsSagas from 'common/store/notifications/sagas'
 import collectionPageSagas from 'common/store/pages/collection/sagas'
 import feedPageSagas from 'common/store/pages/feed/sagas'
 import searchResultsSagas from 'common/store/pages/search-page/sagas'
@@ -19,6 +20,7 @@ import signOutSagas from 'common/store/sign-out/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import initKeyboardEvents from './keyboard/sagas'
+import notificationsSagasNative from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 
 export default function* rootSaga() {
@@ -39,12 +41,20 @@ export default function* rootSaga() {
     ...usersSagas(),
 
     // Playback
+    queueSagas(),
     ...playerSagas(),
     ...queueSagas(),
 
     // Sign in / Sign out
     ...signOnSagas(),
     ...signOutSagas(),
+
+    ...notificationsSagas(),
+    ...notificationsSagasNative(),
+
+    // Pages
+    ...trackPageSagas(),
+    ...trackPageSagas(),
 
     // Pages
     ...trackPageSagas(),
