@@ -14,7 +14,10 @@ import {
   tippingActions,
   artistRecommendationsUIActions as artistRecommendationsActions,
   waitForAccount,
-  dataURLtoFile
+  dataURLtoFile,
+  MAX_ARTIST_HOVER_TOP_SUPPORTING,
+  MAX_PROFILE_SUPPORTING_TILES,
+  MAX_PROFILE_TOP_SUPPORTERS
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -41,11 +44,6 @@ import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
-import {
-  MAX_ARTIST_HOVER_TOP_SUPPORTING,
-  MAX_PROFILE_SUPPORTING_TILES,
-  MAX_PROFILE_TOP_SUPPORTERS
-} from 'utils/constants'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
