@@ -25,7 +25,6 @@ import {
   walletActions,
   reactionsUIActions,
   waitForAccount,
-  RemixTrack,
   Remix
 } from '@audius/common'
 import moment from 'moment'
