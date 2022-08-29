@@ -13,7 +13,8 @@ import {
   reachabilitySelectors,
   tippingActions,
   artistRecommendationsUIActions as artistRecommendationsActions,
-  waitForAccount
+  waitForAccount,
+  dataURLtoFile
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -40,13 +41,11 @@ import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
 import OpenSeaClient from 'services/opensea-client/OpenSeaClient'
 import SolanaClient from 'services/solana-client/SolanaClient'
-import { isMobile } from 'utils/clientUtil'
 import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS
 } from 'utils/constants'
-import { dataURLtoFile } from 'utils/fileUtils'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -193,6 +192,7 @@ function* fetchSupportersAndSupporting(userId) {
 
 function* fetchProfileAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const isNativeMobile = yield getContext('isNativeMobile')
   const { getRemoteVar } = yield getContext('remoteConfigInstance')
 
   try {
@@ -250,8 +250,7 @@ function* fetchProfileAsync(action) {
       profileActions.setNotificationSubscription(user.user_id, isSubscribed)
     )
 
-    const isMobileClient = isMobile()
-    if (!isMobileClient) {
+    if (!isNativeMobile) {
       if (user.track_count > 0) {
         yield fork(fetchMostUsedTags, user.user_id, user.track_count)
       }
@@ -270,7 +269,7 @@ function* fetchProfileAsync(action) {
     // Delay so the page can load before we fetch mutual followers
     yield delay(2000)
 
-    if (!isMobileClient) {
+    if (!isNativeMobile) {
       yield put(profileActions.fetchFollowUsers(FollowType.FOLLOWEE_FOLLOWS))
     }
   } catch (err) {
