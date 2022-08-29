@@ -1,6 +1,5 @@
 import {
   Collection,
-  CommonState,
   LineupBaseActions,
   LineupState,
   LineupTrack
@@ -10,22 +9,21 @@ export class LineupSagas {
   constructor(
     prefix: string,
     actions: LineupBaseActions,
-    feedSelector: (
-      store: CommonState
-    ) => LineupState<{ id: number; activityTimestamp: number }>,
+    feedSelector: (store: any) => LineupState<any>,
     getTracks: (config: {
       offset: number
       limit: number
+      payload: any
     }) => Generator<any, any[], any>,
-    keepActivityTimestamp: (
-      entry: (LineupTrack | Collection) & { uid: string }
-    ) => {
+    retainSelector?: (entry: (LineupTrack | Collection) & { uid: string }) => {
       uid: string
       kind: string
       id: number
       activityTimestamp: string | undefined
-    }
+    },
+    removeDeleted?: boolean,
+    sourceSelector?: (state: any) => string
   ): void
 
-  getSagas(): Generator[]
+  getSagas(): any[]
 }
