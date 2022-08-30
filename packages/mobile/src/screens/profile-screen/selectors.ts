@@ -1,10 +1,9 @@
-import type { User } from '@audius/common'
+import type { CommonState, User } from '@audius/common'
 import { accountSelectors, profilePageSelectors } from '@audius/common'
-import { isEqual } from 'lodash'
+import { useSelector } from 'react-redux'
 import { createSelector } from 'reselect'
 
 import { useRoute } from 'app/hooks/useRoute'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 const {
   getProfileUser,
   getProfileUserHandle,
@@ -21,10 +20,8 @@ export const useSelectProfileRoot = (deps: Array<keyof User>) => {
   const { handle } = params
   const isAccountUser = handle === 'accountUser'
 
-  const profile = useSelectorWeb(
-    (state) =>
-      isAccountUser ? getAccountUser(state) : getProfileUser(state, params),
-    (a, b) => deps.every((arg) => isEqual(a?.[arg], b?.[arg]))
+  const profile = useSelector((state: CommonState) =>
+    isAccountUser ? getAccountUser(state) : getProfileUser(state, params)
   )
   return profile
 }
@@ -52,8 +49,8 @@ export const getIsOwner = createSelector(
 export const useIsProfileLoaded = () => {
   const { params } = useRoute<'Profile'>()
 
-  const profileHandle = useSelectorWeb(getProfileUserHandle)
-  const isOwner = useSelectorWeb(getIsOwner)
+  const profileHandle = useSelector(getProfileUserHandle)
+  const isOwner = useSelector(getIsOwner)
   return (
     profileHandle === params.handle ||
     (params.handle === 'accountUser' && isOwner)

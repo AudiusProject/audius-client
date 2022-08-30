@@ -10,6 +10,7 @@ import {
 } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
 import { Animated, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
@@ -18,7 +19,6 @@ import { IconButton, Screen } from 'app/components/core'
 import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { TopBarIconButton } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles/makeStyles'
 import { useThemeColors } from 'app/utils/theme'
@@ -55,9 +55,9 @@ export const ProfileScreen = () => {
   usePopToTopOnDrawerOpen()
   const styles = useStyles()
   const profile = useSelectProfileRoot(['user_id', 'does_current_user_follow'])
-  const accountId = useSelectorWeb(getUserId)
-  const dispatchWeb = useDispatchWeb()
-  const status = useSelectorWeb(getProfileStatus)
+  const accountId = useSelector(getUserId)
+  const dispatch = useDispatch()
+  const status = useSelector(getProfileStatus)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
@@ -78,7 +78,7 @@ export const ProfileScreen = () => {
 
   const handlePressShare = useCallback(() => {
     if (profile) {
-      dispatchWeb(
+      dispatch(
         requestOpenShareModal({
           type: 'profile',
           profileId: profile.user_id,
@@ -86,15 +86,15 @@ export const ProfileScreen = () => {
         })
       )
     }
-  }, [profile, dispatchWeb])
+  }, [profile, dispatch])
 
   const handleRefresh = useCallback(() => {
     if (profile) {
       setIsRefreshing(true)
       const { handle, user_id } = profile
-      dispatchWeb(fetchProfile(handle, user_id, true, true, false))
+      dispatch(fetchProfile(handle, user_id, true, true, false))
     }
-  }, [profile, dispatchWeb])
+  }, [profile, dispatch])
 
   useEffect(() => {
     if (status === Status.SUCCESS) {

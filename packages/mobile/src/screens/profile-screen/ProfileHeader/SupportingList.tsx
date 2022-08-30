@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
-import type { ID, Supporting } from '@audius/common'
+import type { CommonState, ID, Supporting } from '@audius/common'
 import { stringWeiToBN, tippingSelectors } from '@audius/common'
 import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'
 import { FlatList } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
@@ -30,7 +30,7 @@ const useStyles = makeStyles(() => ({
 export const SupportingList = () => {
   const styles = useStyles()
   const { user_id, supporting_count } = useSelectProfile(['user_id'])
-  const supportingForUser = useSelectorWeb((state) =>
+  const supportingForUser = useSelector((state: CommonState) =>
     getOptimisticSupportingForUser(state, user_id)
   )
   const supportingIdsSorted = useMemo(() => {
