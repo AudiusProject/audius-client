@@ -427,7 +427,9 @@ export const audiusBackend = ({
         trackId
       )
       if (asUrl) {
-        const url = isMobile ? res.config.url : URL.createObjectURL(res.data)
+        const url = nativeMobile
+          ? res.config.url
+          : URL.createObjectURL(res.data)
         if (cache) CIDCache.add(cid, url)
         return url
       }
@@ -477,7 +479,9 @@ export const audiusBackend = ({
         () => {}
       )
 
-      const url = isMobile ? image.config.url : URL.createObjectURL(image.data)
+      const url = nativeMobile
+        ? image.config.url
+        : URL.createObjectURL(image.data)
 
       if (cache) CIDCache.add(cid, url)
 

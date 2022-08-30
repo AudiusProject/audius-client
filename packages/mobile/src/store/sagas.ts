@@ -24,6 +24,7 @@ import trendingPlaylistSagas from 'common/store/pages/trending-playlists/sagas'
 import trendingUndergroundSagas from 'common/store/pages/trending-underground/sagas'
 import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
+import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
@@ -74,6 +75,7 @@ export default function* rootSaga() {
     ...trendingPlaylistSagas(),
     ...trendingUndergroundSagas(),
     ...savedSagas(),
+    ...profileSagas(),
 
     // Application
     ...smartCollectionPageSagas(),

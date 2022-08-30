@@ -13,9 +13,10 @@ const {
 const { getAccountUser, getUserId } = accountSelectors
 
 /*
- * Selects profile user and ensures rerenders occur only for changes specified in deps
+ * Assumes existance of user for convenience. To only be used for inner
+ * components that wouldn't render if user wasn't present
  */
-export const useSelectProfileRoot = (deps: Array<keyof User>) => {
+export const useSelectProfile = () => {
   const { params } = useRoute<'Profile'>()
   const { handle } = params
   const isAccountUser = handle === 'accountUser'
@@ -23,15 +24,7 @@ export const useSelectProfileRoot = (deps: Array<keyof User>) => {
   const profile = useSelector((state: CommonState) =>
     isAccountUser ? getAccountUser(state) : getProfileUser(state, params)
   )
-  return profile
-}
-
-/*
- * Assumes existance of user for convenience. To only be used for inner
- * components that wouldn't render if user wasn't present
- */
-export const useSelectProfile = (deps: Array<keyof User>) => {
-  return useSelectProfileRoot(deps) as User
+  return profile as User
 }
 
 export const getProfile = makeGetProfile()

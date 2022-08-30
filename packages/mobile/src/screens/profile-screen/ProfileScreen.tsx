@@ -16,7 +16,6 @@ import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { IconButton, Screen } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { TopBarIconButton } from 'app/screens/app-screen'
@@ -27,9 +26,9 @@ import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
-import { useSelectProfileRoot } from './selectors'
+import { useSelectProfile } from './selectors'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
-const { fetchProfile } = profilePageActions
+const { fetchProfile: fetchProfileAction } = profilePageActions
 const { getProfileStatus } = profilePageSelectors
 const getUserId = accountSelectors.getUserId
 
@@ -54,13 +53,36 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const ProfileScreen = () => {
   usePopToTopOnDrawerOpen()
   const styles = useStyles()
-  const profile = useSelectProfileRoot(['user_id', 'does_current_user_follow'])
+  const profile = useSelectProfile()
+  const { handle, user_id } = profile
   const accountId = useSelector(getUserId)
   const dispatch = useDispatch()
   const status = useSelector(getProfileStatus)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
+
+  const fetchProfile = useCallback(
+    () => dispatch(fetchProfileAction(handle, user_id, true, true, false)),
+    [dispatch, handle, user_id]
+  )
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
+
+  const handleRefresh = useCallback(() => {
+    if (profile) {
+      setIsRefreshing(true)
+      fetchProfile()
+    }
+  }, [profile, fetchProfile])
+
+  useEffect(() => {
+    if (status === Status.SUCCESS) {
+      setIsRefreshing(false)
+    }
+  }, [status])
 
   const handlePressSettings = useCallback(() => {
     navigation.push({
@@ -87,20 +109,6 @@ export const ProfileScreen = () => {
       )
     }
   }, [profile, dispatch])
-
-  const handleRefresh = useCallback(() => {
-    if (profile) {
-      setIsRefreshing(true)
-      const { handle, user_id } = profile
-      dispatch(fetchProfile(handle, user_id, true, true, false))
-    }
-  }, [profile, dispatch])
-
-  useEffect(() => {
-    if (status === Status.SUCCESS) {
-      setIsRefreshing(false)
-    }
-  }, [status])
 
   const isOwner = profile?.user_id === accountId
 
