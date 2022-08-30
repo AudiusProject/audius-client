@@ -7,8 +7,8 @@ import { solanaNFTToCollectible } from './solCollectibleHelpers'
 import { SolanaNFTType } from './types'
 
 type SolanaClientArgs = {
-  solanaClusterEndpoint: string
-  metadataProgramId: string
+  solanaClusterEndpoint: string | undefined
+  metadataProgramId: string | undefined
 }
 export class SolanaClient {
   private connection: Connection | null = null
