@@ -31,10 +31,16 @@ export const SuccessPage = () => {
   const uiBalance = formatWei(totalBalance || (new BN(0) as BNWei), true, 0)
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const [, setModalVisibility] = useModalState('BuyAudio')
+  const [, setTransactionDetailsModalVisibility] =
+    useModalState('TransactionDetails')
 
   const handleDoneClicked = useCallback(() => {
     setModalVisibility(false)
   }, [setModalVisibility])
+
+  const handleReviewTransactionClicked = useCallback(() => {
+    setTransactionDetailsModalVisibility(true)
+  }, [setTransactionDetailsModalVisibility])
 
   return (
     <div className={styles.successPage}>
@@ -67,6 +73,7 @@ export const SuccessPage = () => {
           size={ButtonSize.SMALL}
           text={messages.review}
           leftIcon={<IconInfo />}
+          onClick={handleReviewTransactionClicked}
         />
       </div>
     </div>
