@@ -24,8 +24,10 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { retrieveTrackByHandleAndSlug } from 'common/store/cache/tracks/utils/retrieveTracks'
-import tracksSagas from './lineups/sagas'
+
 import { NOT_FOUND_PAGE, trackRemixesPage } from '../../../../utils/route'
+
+import tracksSagas from './lineups/sagas'
 const { getIsReachable } = reachabilitySelectors
 const { tracksActions } = trackPageLineupActions
 const { getSourceSelector, getTrack, getTrendingTrackRanks, getUser } =
