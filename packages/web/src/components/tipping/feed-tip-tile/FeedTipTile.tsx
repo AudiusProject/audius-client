@@ -1,4 +1,10 @@
-import { useCallback, useEffect } from 'react'
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  MutableRefObject
+} from 'react'
 
 import {
   Name,
@@ -8,7 +14,7 @@ import {
   tippingSelectors,
   tippingActions
 } from '@audius/common'
-import { IconButton, PillButton, useMediaQueryListener } from '@audius/stems'
+import { IconButton, PillButton } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -117,9 +123,20 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
 type SendTipButtonProps = {
   user: User
   hideName?: boolean
+  sendTipRef: MutableRefObject<HTMLDivElement | null>
+  firstLoadRef: MutableRefObject<boolean>
+  maxTipButtonWidth: MutableRefObject<number>
+  handleResize: () => void
 }
 
-const SendTipButton = ({ user, hideName = false }: SendTipButtonProps) => {
+const SendTipButton = ({
+  user,
+  hideName = false,
+  sendTipRef,
+  firstLoadRef,
+  maxTipButtonWidth,
+  handleResize
+}: SendTipButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {
@@ -141,6 +158,17 @@ const SendTipButton = ({ user, hideName = false }: SendTipButtonProps) => {
         />
       </div>
     )
+
+  // On first load, save the max width of the send tip button
+  useEffect(() => {
+    if (!sendTipRef.current || !firstLoadRef.current) {
+      return
+    }
+    firstLoadRef.current = false
+    maxTipButtonWidth.current = sendTipRef.current.offsetWidth
+    // If the window is small on first load, downsize the button
+    handleResize()
+  })
 
   return (
     <PillButton
@@ -182,17 +210,9 @@ const DismissTipButton = () => {
   )
 }
 
-/**
- * When the screen is smaller than this width, we use the short
- * version of the button which does not include the name.
- */
-const MAX_WIDTH_FOR_SHORT_TIP_BUTTON = 884
+const SEND_TIP_BUTTON_PADDING = 40
 
 export const FeedTipTile = () => {
-  const { isMatch: useShortButtonFormat } = useMediaQueryListener(
-    `(max-width: ${MAX_WIDTH_FOR_SHORT_TIP_BUTTON}px)`
-  )
-
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
   const tipToDisplay = useSelector(getTipToDisplay)
@@ -207,6 +227,16 @@ export const FeedTipTile = () => {
     getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
   )
 
+  const [hasShortButtonChanged, setHasShortButtonChanged] = useState(false)
+  const containerRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
+  const containerLeftContentsRef: MutableRefObject<HTMLDivElement | null> =
+    useRef(null)
+  const sendTipRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
+  const firstLoadRef = useRef(true)
+  const maxTipButtonWidth = useRef(0)
+  const useShortButtonFormat = useRef(false)
+  let prevUseShortButton = useShortButtonFormat.current
+
   useEffect(() => {
     const storage = getRecentTipsStorage()
     dispatch(fetchRecentTips({ storage }))
@@ -218,6 +248,32 @@ export const FeedTipTile = () => {
     }
   }, [dispatch, usersMap, tipToDisplay])
 
+  const handleResize = () => {
+    if (
+      !containerRef.current ||
+      !containerLeftContentsRef.current ||
+      !maxTipButtonWidth.current
+    ) {
+      return null
+    }
+
+    useShortButtonFormat.current =
+      containerLeftContentsRef.current.offsetWidth +
+        maxTipButtonWidth.current >=
+      containerRef.current.clientWidth - SEND_TIP_BUTTON_PADDING
+
+    // Force re-render if we need to resize send tip button
+    if (useShortButtonFormat.current !== prevUseShortButton) {
+      prevUseShortButton = useShortButtonFormat.current
+      setHasShortButtonChanged(!hasShortButtonChanged)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  })
+
   if (!showTip) {
     return null
   }
@@ -225,8 +281,8 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container}>
-      <div className={styles.usersContainer}>
+    <div className={styles.container} ref={containerRef}>
+      <div className={styles.usersContainer} ref={containerLeftContentsRef}>
         <ProfilePicture
           key={tipToDisplay.receiver_id}
           className={styles.profilePicture}
@@ -257,10 +313,14 @@ export const FeedTipTile = () => {
           receiver={usersMap[tipToDisplay.receiver_id]}
         />
       </div>
-      <div className={styles.buttons}>
+      <div className={styles.buttons} ref={sendTipRef}>
         <SendTipButton
           user={usersMap[tipToDisplay.receiver_id]}
-          hideName={useShortButtonFormat}
+          hideName={useShortButtonFormat.current}
+          sendTipRef={sendTipRef}
+          firstLoadRef={firstLoadRef}
+          maxTipButtonWidth={maxTipButtonWidth}
+          handleResize={handleResize}
         />
         <DismissTipButton />
       </div>
