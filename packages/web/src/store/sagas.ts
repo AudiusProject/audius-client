@@ -88,7 +88,6 @@ export default function* rootSaga() {
   yield fork(setupBackend)
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     // TODO(nkang): Move to common/store/pages/search-page/sagas once migrated
-    searchPageTracksSagas(),
 
     // Config
     analyticsSagas(),
