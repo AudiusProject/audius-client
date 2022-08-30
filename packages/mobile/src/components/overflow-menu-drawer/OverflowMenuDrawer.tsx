@@ -35,7 +35,6 @@ const rowMessageMap = {
 
 export const OverflowMenuDrawer = () => {
   const overflowMenu = useSelector(getMobileOverflowModal)
-  console.log('uhhh', overflowMenu)
 
   if (!overflowMenu?.id) {
     return <></>

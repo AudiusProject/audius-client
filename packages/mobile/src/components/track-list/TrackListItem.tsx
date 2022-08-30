@@ -165,8 +165,6 @@ export const TrackListItem = ({
       OverflowAction.VIEW_ARTIST_PAGE
     ].filter(Boolean) as OverflowAction[]
 
-    console.log('opening overflow!')
-
     dispatch(
       openOverflowMenu({
         source: OverflowSource.TRACKS,

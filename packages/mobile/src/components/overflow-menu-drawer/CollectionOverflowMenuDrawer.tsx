@@ -1,4 +1,4 @@
-import type { ID, OverflowActionCallbacks, CommonState } from '@audius/common'
+import type { ID, OverflowActionCallbacks } from '@audius/common'
 import {
   FavoriteSource,
   RepostSource,
