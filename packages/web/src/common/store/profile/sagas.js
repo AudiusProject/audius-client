@@ -18,8 +18,7 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
-  OpenSeaClient,
-  SolanaClient
+  OpenSeaClient
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -126,8 +125,9 @@ export function* fetchOpenSeaAssets(user) {
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+  const solanaClient = yield getContext('solanaClient')
   yield call(waitForRemoteConfig)
-  return yield call(SolanaClient.getAllCollectibles, wallets)
+  return yield call(solanaClient.getAllCollectibles, wallets)
 }
 
 export function* fetchSolanaCollectibles(user) {

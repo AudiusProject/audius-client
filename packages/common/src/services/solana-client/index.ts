@@ -1,1 +1,1 @@
-export { default as SolanaClient } from './SolanaClient'
+export { SolanaClient } from './SolanaClient'
