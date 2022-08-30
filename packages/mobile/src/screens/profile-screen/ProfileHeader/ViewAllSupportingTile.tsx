@@ -3,10 +3,10 @@ import { useCallback } from 'react'
 import {
   stringWeiToBN,
   cacheUsersSelectors,
-  tippingSelectors
+  tippingSelectors,
+  MAX_PROFILE_SUPPORTING_TILES
 } from '@audius/common'
 import type { ID, SupportingMapForUser, CommonState } from '@audius/common'
-import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'
 import { useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'

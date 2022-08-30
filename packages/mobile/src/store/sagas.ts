@@ -1,4 +1,8 @@
-import { remoteConfigSagas as remoteConfig } from '@audius/common'
+import {
+  remoteConfigSagas as remoteConfig,
+  mobileOverflowMenuUISagas as overflowMenuSagas,
+  shareModalUISagas as shareModalSagas
+} from '@audius/common'
 import analyticsSagas from 'audius-client/src/common/store/analytics/sagas'
 import accountSagas from 'common/store/account/sagas'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
@@ -9,14 +13,21 @@ import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import notificationsSagas from 'common/store/notifications/sagas'
 import collectionPageSagas from 'common/store/pages/collection/sagas'
+import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
+import explorePageSagas from 'common/store/pages/explore/sagas'
 import feedPageSagas from 'common/store/pages/feed/sagas'
+import savedSagas from 'common/store/pages/saved/sagas'
 import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
 import trackPageSagas from 'common/store/pages/track/sagas'
+import trendingPlaylistSagas from 'common/store/pages/trending-playlists/sagas'
+import trendingUndergroundSagas from 'common/store/pages/trending-underground/sagas'
+import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
+import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import initKeyboardEvents from './keyboard/sagas'
@@ -54,12 +65,20 @@ export default function* rootSaga() {
 
     // Pages
     ...trackPageSagas(),
-    ...trackPageSagas(),
-
-    // Pages
-    ...trackPageSagas(),
     ...collectionPageSagas(),
     ...feedPageSagas(),
+    ...trendingPageSagas(),
+    ...exploreCollectionsPageSagas(),
+    ...trendingPageSagas(),
+    ...explorePageSagas(),
+    ...trendingPlaylistSagas(),
+    ...trendingUndergroundSagas(),
+    ...savedSagas(),
+
+    // Application
+    ...smartCollectionPageSagas(),
+    ...overflowMenuSagas(),
+    ...shareModalSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

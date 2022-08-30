@@ -14,7 +14,8 @@ import {
   cacheTracksSelectors,
   cacheUsersSelectors,
   cacheActions,
-  waitForAccount
+  waitForAccount,
+  dataURLtoFile
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -36,7 +37,6 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { dataURLtoFile } from 'utils/fileUtils'
 
 import { reformat } from './utils'
 import {
@@ -419,8 +419,7 @@ function* addTrackToPlaylistAsync(action) {
     return
   }
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const audiusLibs = yield call([audiusBackendInstance, 'getAudiusLibs'])
-  const web3 = audiusLibs.web3Manager.web3
+  const web3 = yield call(audiusBackendInstance.getWeb3)
 
   // Retrieve tracks with the the collection so we confirm with the
   // most up-to-date information.
@@ -599,11 +598,26 @@ function* removeTrackFromPlaylistAsync(action) {
   const playlist = yield select(getCollection, { id: action.playlistId })
 
   // Find the index of the track based on the track's id and timestamp
-  const index = playlist.playlist_contents.track_ids.findIndex(
-    (t) =>
-      t.time === (action.metadata_timestamp ?? action.timestamp) &&
-      t.track === action.trackId
-  )
+  const index = playlist.playlist_contents.track_ids.findIndex((t) => {
+    if (t.track !== action.trackId) {
+      return false
+    }
+
+    if (t.metadata_time) {
+      if (t.metadata_time === action.timestamp) {
+        // entity manager is enabled
+        return true
+      } else {
+        return false
+      }
+    }
+
+    if (t.time !== action.timestamp) {
+      return false
+    }
+
+    return true
+  })
   if (index === -1) {
     console.error('Could not find the index of to-be-deleted track')
     return
