@@ -23,7 +23,6 @@ import { SignOnScreen } from 'app/screens/signon'
 import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateRequiredScreen'
 import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
 import { getIsSignedIn, getOnSignUp } from 'app/store/lifecycle/selectors'
-import { getAccountAvailable } from 'app/store/signon/selectors'
 
 export type RootScreenParamList = {
   signOn: undefined
@@ -131,7 +130,6 @@ export const RootScreen = () => {
   const dispatch = useDispatch()
   const signedIn = useSelector(getIsSignedIn)
   const onSignUp = useSelector(getOnSignUp)
-  const isAccountAvailable = useSelector(getAccountAvailable)
   const [disableGestures, setDisableGestures] = useState(false)
   const { updateRequired } = useUpdateRequired()
 
@@ -145,8 +143,7 @@ export const RootScreen = () => {
   // This check is overly complicated and should probably just check `signedIn`.
   // However, this allows the feed screen to load initially so that when the
   // splash screen disappears there is already content (skeletons) on the screen
-  const isAuthed =
-    signedIn === null || (signedIn && !onSignUp) || isAccountAvailable
+  const isAuthed = signedIn === null || (signedIn && !onSignUp)
 
   return isAuthed ? (
     <Drawer.Navigator
