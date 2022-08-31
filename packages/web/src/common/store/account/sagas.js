@@ -1,6 +1,5 @@
 import {
   Kind,
-  Status,
   USER_ID_AVAILABLE_EVENT,
   accountSelectors,
   accountActions,
@@ -9,8 +8,7 @@ import {
   profilePageActions,
   solanaSelectors,
   modalsActions,
-  waitForAccount,
-  waitForValue
+  waitForAccount
 } from '@audius/common'
 import {
   call,
@@ -23,8 +21,7 @@ import {
 
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
-import { updateProfileAsync } from 'pages/profile-page/sagas'
-import { fetchCID } from 'services/audius-backend'
+import { updateProfileAsync } from 'common/store/profile/sagas'
 import { recordIP } from 'services/audius-backend/RecordIP'
 import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import { fingerprintClient } from 'services/fingerprint'
@@ -143,7 +140,7 @@ function* onFetchAccount(account) {
     const cid = account.metadata_multihash ?? null
     if (cid) {
       const contentNodeMetadata = yield call(
-        fetchCID,
+        audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,
@@ -482,13 +479,7 @@ function* associateInstagramAccount(action) {
 
 function* fetchSavedAlbumsAsync() {
   yield call(waitForBackendSetup)
-  const isAccountSet = (store) => store.account.status
-  yield call(
-    waitForValue,
-    isAccountSet,
-    null,
-    (status) => status === Status.SUCCESS
-  )
+  yield waitForAccount()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -497,13 +488,7 @@ function* fetchSavedAlbumsAsync() {
 
 function* fetchSavedPlaylistsAsync() {
   yield call(waitForBackendSetup)
-  const isAccountSet = (store) => store.account.status
-  yield call(
-    waitForValue,
-    isAccountSet,
-    null,
-    (status) => status === Status.SUCCESS
-  )
+  yield waitForAccount()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {
