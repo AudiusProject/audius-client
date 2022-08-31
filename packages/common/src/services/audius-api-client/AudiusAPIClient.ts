@@ -943,8 +943,7 @@ export class AudiusAPIClient {
 
     let headers = {}
     if (encodedCurrentUserId && getUnlisted) {
-      const { data, signature } =
-        await this.audiusBackendInstance.signDiscoveryNodeRequest()
+      const { data, signature } = await this.audiusBackendInstance.signData()
       headers = {
         [AuthHeaders.Message]: data,
         [AuthHeaders.Signature]: signature
