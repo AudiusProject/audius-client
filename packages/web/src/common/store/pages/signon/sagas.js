@@ -568,6 +568,7 @@ function* followCollections(collectionIds, favoriteSource) {
 }
 
 function* followArtists() {
+  console.log('follow artists')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield call(waitForBackendSetup)
   try {
@@ -587,6 +588,7 @@ function* followArtists() {
     ]
     for (const userId of userIdsToFollow) {
       yield put(socialActions.followUser(userId))
+      console.log('put actions', userId)
     }
     const hasFollowConfirmed = userIdsToFollow.map(() => false)
     while (!hasFollowConfirmed.every(Boolean)) {

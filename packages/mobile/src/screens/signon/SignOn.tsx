@@ -41,7 +41,6 @@ import useAppState from 'app/hooks/useAppState'
 import { track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
 import { getIsKeyboardOpen } from 'app/store/keyboard/selectors'
-import { getIsSignedIn } from 'app/store/lifecycle/selectors'
 import { EventNames } from 'app/types/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -336,8 +335,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
 
   const isKeyboardOpen = useSelector(getIsKeyboardOpen)
 
-  const lifecycleSignIn = useSelector(getIsSignedIn)
-
   const signOnStatus = useSelector(getStatus)
   const passwordField: EditableField = useSelector(getPasswordField)
   const emailField: EditableField = useSelector(getEmailField)
@@ -384,14 +381,14 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }, [isSigninError, isWorking])
 
   useEffect(() => {
-    if (signedIn && accountUser && lifecycleSignIn) {
+    if (signedIn && accountUser) {
       setIsWorking(false)
       setEmail('')
       setPassword('')
 
       remindUserToTurnOnNotifications(dispatch)
     }
-  }, [signedIn, accountUser, lifecycleSignIn, dispatch])
+  }, [signedIn, accountUser, dispatch])
 
   useEffect(() => {
     animateDrawer()
