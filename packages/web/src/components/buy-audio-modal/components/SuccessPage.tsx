@@ -34,7 +34,8 @@ export const SuccessPage = () => {
 
   const handleReviewTransactionClicked = useCallback(() => {
     setTransactionDetailsModalVisibility(true)
-  }, [setTransactionDetailsModalVisibility])
+    setModalVisibility(false)
+  }, [setModalVisibility, setTransactionDetailsModalVisibility])
 
   return (
     <div className={styles.successPage}>
