@@ -21,8 +21,6 @@ import type { DrawersState } from './drawers/slice'
 import drawers from './drawers/slice'
 import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
-import type { LifecycleState } from './lifecycle/reducer'
-import lifecycle from './lifecycle/reducer'
 import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
 import rootSaga from './sagas'
@@ -41,7 +39,6 @@ export type AppState = {
   drawers: DrawersState
   downloads: DownloadState
   keyboard: KeyboardState
-  lifecycle: LifecycleState
   oauth: OAuthState
   remoteConfig: RemoteConfigState
   search: SearchState
@@ -62,7 +59,6 @@ const createRootReducer = () =>
     drawers,
     downloads,
     keyboard,
-    lifecycle,
     oauth,
     remoteConfig,
     search

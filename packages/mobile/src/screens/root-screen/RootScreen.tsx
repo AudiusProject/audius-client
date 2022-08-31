@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { getHasAccount } from '@audius/common/dist/store/account/selectors'
+import { accountSelectors } from '@audius/common'
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 // eslint-disable-next-line import/no-unresolved
@@ -128,7 +128,7 @@ const NotificationsDrawerContents = (
  */
 export const RootScreen = () => {
   const dispatch = useDispatch()
-  const hasAccount = useSelector(getHasAccount)
+  const hasAccount = useSelector(accountSelectors.getHasAccount)
   const [disableGestures, setDisableGestures] = useState(false)
   const { updateRequired } = useUpdateRequired()
 

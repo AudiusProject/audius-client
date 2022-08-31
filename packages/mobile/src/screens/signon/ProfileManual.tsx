@@ -429,7 +429,6 @@ const ProfileManual = ({ navigation }: ProfileManualProps) => {
                         // Show a spinner after a delay while the handle validates
                         setShowHandleConfirmingSpinner(true)
                       }, HANDLE_VALIDATION_IN_PROGRESS_DELAY_MS)
-                      // dispatch(signonActions.setHandleStatus('editing'))
                       const newHandle = newText.trim()
                       dispatch(signOnActions.setValueField('handle', newHandle))
                       validateHandle(newHandle)
