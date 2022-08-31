@@ -24,6 +24,7 @@ import {
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
+import { u64 } from '@solana/spl-token'
 import {
   Keypair,
   LAMPORTS_PER_SOL,
@@ -243,7 +244,8 @@ function* getTransactionFees({
       {
         userBank,
         fromAccount: rootAccount,
-        amount: new BN(JSBI.toNumber(route.outAmount)),
+        // eslint-disable-next-line new-cap
+        amount: new u64(JSBI.toNumber(route.outAmount)),
         memo: MEMO_MESSAGES[OnRampProvider.COINBASE]
       }
     )
