@@ -641,7 +641,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
                   signOnActions.checkEmail(
                     email,
                     () => {
-                      navigation.replace('CreatePassword', { email })
+                      navigation.replace('CreatePassword')
                       setIsWorking(false)
                     },
                     () => {

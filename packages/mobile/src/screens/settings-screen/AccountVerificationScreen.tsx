@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { Status, accountSelectors } from '@audius/common'
-import { EditingStatus } from 'audius-client/src/common/store/pages/signon/types'
 import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { getHandleField } from 'common/store/pages/signon/selectors'
+import type { EditableField } from 'common/store/pages/signon/types'
+import { EditingStatus } from 'common/store/pages/signon/types'
 import { Image, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
