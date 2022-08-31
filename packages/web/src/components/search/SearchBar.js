@@ -185,7 +185,7 @@ class SearchBar extends Component {
           (this.props.isTagSearch && this.state.value.length > 1) ||
           (!this.props.isTagSearch &&
             this.state.value.length > 0 &&
-            this.props.resultsCount === 0)
+            this.props.resultsCount !== 0)
         ) {
           this.props.onSubmit(this.state.value)
           this.setState({ debounce: null })
