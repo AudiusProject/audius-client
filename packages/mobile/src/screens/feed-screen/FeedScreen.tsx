@@ -31,7 +31,6 @@ export const FeedScreen = () => {
   const dispatch = useDispatch()
 
   const feedLineup = useSelector(getFeedLineup)
-  const signedIn = useSelector(getIsSignedIn)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const loadMore = useCallback(
@@ -65,7 +64,7 @@ export const FeedScreen = () => {
         loadMore={loadMore}
         refresh={handleRefresh}
         refreshing={isRefreshing}
-        selfLoad={!!signedIn}
+        selfLoad
         showsVerticalScrollIndicator={false}
         isFeed
       />

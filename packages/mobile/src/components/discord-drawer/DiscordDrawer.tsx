@@ -6,13 +6,13 @@ import {
 } from '@audius/common'
 import { AUDIUS_DISCORD_LINK } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconDiscord from 'app/assets/images/iconDiscord.svg'
 import { CopyTextTile } from 'app/components/copy-text-tile'
 import { Text, Button } from 'app/components/core'
 import Drawer from 'app/components/drawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useSelectorWeb as useSelector } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 const { getDiscordCode, getModalState, getModalVisible } =
   tokenDashboardPageSelectors
@@ -45,20 +45,20 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 export const DiscordDrawer = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   // TODO: Discord modal state should probably be pulled out of token dashboard
-  const modalVisible = useSelectorWeb(getModalVisible)
-  const modalState = useSelectorWeb(getModalState)
-  const discordCode = useSelectorWeb(getDiscordCode)
+  const modalVisible = useSelector(getModalVisible)
+  const modalState = useSelector(getModalState)
+  const discordCode = useSelector(getDiscordCode)
 
   const isOpen =
     modalVisible && modalState !== null && modalState.stage === 'DISCORD_CODE'
 
   const handleClose = useCallback(() => {
-    dispatchWeb(setModalVisibility({ isVisible: false }))
-    dispatchWeb(setModalState({ modalState: null }))
-  }, [dispatchWeb])
+    dispatch(setModalVisibility({ isVisible: false }))
+    dispatch(setModalState({ modalState: null }))
+  }, [dispatch])
 
   return (
     <Drawer

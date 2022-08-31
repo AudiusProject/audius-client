@@ -7,9 +7,9 @@ import {
   getStateFromPath,
   NavigationContainer as RNNavigationContainer
 } from '@react-navigation/native'
+import { useSelector } from 'react-redux'
 
 import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import type { RootScreenParamList } from 'app/screens/root-screen/RootScreen'
 
 import { ThemeContext } from '../theme/ThemeContext'
@@ -27,7 +27,7 @@ type Props = {
 const NavigationContainer = ({ children }: Props) => {
   const { theme, isSystemDarkMode } = useContext(ThemeContext)
   const pushRouteWeb = usePushRouteWeb()
-  const account = useSelectorWeb(getAccountUser)
+  const account = useSelector(getAccountUser)
 
   const navigationTheme =
     theme === 'auto' ? (isSystemDarkMode ? 'dark' : 'default') : theme

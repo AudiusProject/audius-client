@@ -22,6 +22,7 @@ import {
 } from 'audius-client/src/utils/route'
 import { Animated } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { FULL_DRAWER_HEIGHT } from 'app/components/drawer'
 import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
@@ -34,7 +35,7 @@ import { makeStyles } from 'app/styles'
 import { BottomTabBarButton } from './BottomTabBarButton'
 import { BOTTOM_BAR_HEIGHT } from './constants'
 const { setTab } = explorePageActions
-const getUserHandle = accountSelectors.getUserHandle
+const { getUserHandle } = accountSelectors
 
 type NavigationRoute = RNBottomTabBarProps['state']['routes'][0]
 
@@ -93,22 +94,25 @@ export const BottomTabBar = ({
   const styles = useStyles()
   const [isNavigating, setIsNavigating] = useState(false)
   const pushRouteWeb = usePushRouteWeb()
-  const handle = useSelectorWeb(getUserHandle)
-  const dispatchWeb = useDispatchWeb()
+  const handle = useSelector(getUserHandle)
+  const dispatch = useDispatch()
+
   const openSignOn = useCallback(() => {
-    dispatchWeb(_openSignOn(false))
-    dispatchWeb(showRequiresAccountModal())
-  }, [dispatchWeb])
+    dispatch(_openSignOn(false))
+    dispatch(showRequiresAccountModal())
+  }, [dispatch])
+
   const resetExploreTab = useCallback(
-    () => dispatchWeb(setTab({ tab: ExplorePageTabs.FOR_YOU })),
-    [dispatchWeb]
+    () => dispatch(setTab({ tab: ExplorePageTabs.FOR_YOU })),
+    [dispatch]
   )
+
   const scrollToTop = useCallback(
     () =>
-      dispatchWeb({
+      dispatch({
         type: MessageType.SCROLL_TO_TOP
       }),
-    [dispatchWeb]
+    [dispatch]
   )
 
   const navigate = useCallback(
