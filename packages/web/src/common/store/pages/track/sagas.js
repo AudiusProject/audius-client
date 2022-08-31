@@ -8,8 +8,7 @@ import {
   trackPageActions,
   trackPageSelectors,
   trackPageLineupActions,
-  reachabilitySelectors,
-  tracksSagas
+  reachabilitySelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import moment from 'moment'
@@ -28,6 +27,7 @@ import { retrieveTrackByHandleAndSlug } from 'common/store/cache/tracks/utils/re
 
 import { NOT_FOUND_PAGE, trackRemixesPage } from '../../../../utils/route'
 
+import tracksSagas from './lineups/sagas'
 const { getIsReachable } = reachabilitySelectors
 const { tracksActions } = trackPageLineupActions
 const { getSourceSelector, getTrack, getTrendingTrackRanks, getUser } =
