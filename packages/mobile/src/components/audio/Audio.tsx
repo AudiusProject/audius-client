@@ -1,4 +1,3 @@
-import type { RefObject } from 'react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 import type { CommonState } from '@audius/common'
