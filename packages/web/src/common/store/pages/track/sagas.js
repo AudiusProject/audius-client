@@ -8,7 +8,8 @@ import {
   trackPageActions,
   trackPageSelectors,
   trackPageLineupActions,
-  reachabilitySelectors
+  reachabilitySelectors,
+  tracksSagas
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import moment from 'moment'
@@ -24,7 +25,8 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { retrieveTrackByHandleAndSlug } from 'common/store/cache/tracks/utils/retrieveTracks'
-import { NOT_FOUND_PAGE, trackRemixesPage } from 'utils/route'
+
+import { NOT_FOUND_PAGE, trackRemixesPage } from '../../../../utils/route'
 
 const { getIsReachable } = reachabilitySelectors
 const { tracksActions } = trackPageLineupActions
@@ -258,6 +260,7 @@ function* watchGoToRemixesOfParentPage() {
 
 export default function sagas() {
   return [
+    ...tracksSagas(),
     watchFetchTrack,
     watchFetchTrackSucceeded,
     watchRefetchLineup,
