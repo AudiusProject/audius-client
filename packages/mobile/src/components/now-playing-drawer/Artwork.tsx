@@ -1,6 +1,6 @@
 import React from 'react'
 
-import type { Track } from '@audius/common'
+import type { CommonState, Track } from '@audius/common'
 import { SquareSizes, averageColorSelectors } from '@audius/common'
 import { Dimensions, StyleSheet, View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
@@ -50,7 +50,7 @@ export const Artwork = ({ track }: ArtworkProps) => {
     size: SquareSizes.SIZE_1000_BY_1000
   })
 
-  const dominantColors = useSelector((state) =>
+  const dominantColors = useSelector((state: CommonState) =>
     getDominantColorsByTrack(state, {
       track
     })

@@ -13,7 +13,6 @@ import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
-import { getIsSignedIn } from 'app/store/lifecycle/selectors'
 
 import { FeedFilterButton } from './FeedFilterButton'
 const { getDiscoverFeedLineup } = feedPageSelectors

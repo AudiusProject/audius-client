@@ -1,41 +1,22 @@
 import { useCallback, useState } from 'react'
 
-import {
-  accountSelectors,
-  explorePageActions,
-  ExplorePageTabs
-} from '@audius/common'
+import { explorePageActions, ExplorePageTabs } from '@audius/common'
 import type { BottomTabBarProps as RNBottomTabBarProps } from '@react-navigation/bottom-tabs'
 // eslint-disable-next-line import/no-unresolved
 import type { BottomTabNavigationEventMap } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
 import type { NavigationHelpers, ParamListBase } from '@react-navigation/native'
-import {
-  openSignOn as _openSignOn,
-  showRequiresAccountModal
-} from 'audius-client/src/common/store/pages/signon/actions'
-import {
-  FEED_PAGE,
-  TRENDING_PAGE,
-  EXPLORE_PAGE,
-  FAVORITES_PAGE,
-  profilePage
-} from 'audius-client/src/utils/route'
 import { Animated } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { FULL_DRAWER_HEIGHT } from 'app/components/drawer'
 import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { MessageType } from 'app/message/types'
 import { makeStyles } from 'app/styles'
 
 import { BottomTabBarButton } from './BottomTabBarButton'
 import { BOTTOM_BAR_HEIGHT } from './constants'
 const { setTab } = explorePageActions
-const { getUserHandle } = accountSelectors
 
 type NavigationRoute = RNBottomTabBarProps['state']['routes'][0]
 
@@ -93,14 +74,7 @@ export const BottomTabBar = ({
 }: BottomTabBarProps & RNBottomTabBarProps) => {
   const styles = useStyles()
   const [isNavigating, setIsNavigating] = useState(false)
-  const pushRouteWeb = usePushRouteWeb()
-  const handle = useSelector(getUserHandle)
   const dispatch = useDispatch()
-
-  const openSignOn = useCallback(() => {
-    dispatch(_openSignOn(false))
-    dispatch(showRequiresAccountModal())
-  }, [dispatch])
 
   const resetExploreTab = useCallback(
     () => dispatch(setTab({ tab: ExplorePageTabs.FOR_YOU })),
@@ -133,38 +107,6 @@ export const BottomTabBar = ({
 
         resetExploreTab()
 
-        const webNavigationHandlers = {
-          feed: () => {
-            if (!handle) {
-              openSignOn()
-            } else {
-              pushRouteWeb(FEED_PAGE)
-            }
-          },
-          trending: () => {
-            pushRouteWeb(TRENDING_PAGE)
-          },
-          explore: () => {
-            pushRouteWeb(EXPLORE_PAGE)
-          },
-          favorites: () => {
-            if (!handle) {
-              openSignOn()
-            } else {
-              pushRouteWeb(FAVORITES_PAGE)
-            }
-          },
-          profile: () => {
-            if (!handle) {
-              openSignOn()
-            } else {
-              pushRouteWeb(profilePage(handle))
-            }
-          }
-        }
-
-        webNavigationHandlers[route.name]?.()
-
         // Native navigation
         if (!isFocused && !event.defaultPrevented) {
           navigation.navigate(route.name)
@@ -179,7 +121,7 @@ export const BottomTabBar = ({
       // new screen starts rendering
       setTimeout(performNavigation, 50)
     },
-    [navigation, pushRouteWeb, handle, openSignOn, resetExploreTab, scrollToTop]
+    [navigation, resetExploreTab, scrollToTop]
   )
 
   const handleLongPress = useCallback(() => {
