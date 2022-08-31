@@ -53,7 +53,7 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const ProfileScreen = () => {
   usePopToTopOnDrawerOpen()
   const styles = useStyles()
-  const profile = useSelectProfile()
+  const profile = useSelectProfile(['user_id', 'does_current_user_follow'])
   const { handle, user_id } = profile
   const accountId = useSelector(getUserId)
   const dispatch = useDispatch()
