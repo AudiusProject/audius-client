@@ -26,7 +26,6 @@ import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
-import { DiscordDrawer } from './components/discord-drawer'
 import { useDrawerState } from './components/drawer'
 import { useDrawer } from './hooks/useDrawer'
 import type { Drawer } from './store/drawers/slice'
@@ -117,7 +116,11 @@ export const Drawers = () => {
           drawer={Drawer}
         />
       ))}
-      <DiscordDrawer />
+      {/** For some reason, discord-drawer breaks the app during initial load.
+       * Commenting out for now, but we should refactor it's visibility usage to use
+       * the standard drawer code.
+       */}
+      {/* <DiscordDrawer /> */}
     </>
   )
 }
