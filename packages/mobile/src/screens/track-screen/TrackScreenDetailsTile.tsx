@@ -35,9 +35,7 @@ import IconHidden from 'app/assets/images/iconHidden.svg'
 import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { make, track as record } from 'app/services/analytics'
 import type { SearchTrack, SearchUser } from 'app/store/search/types'
@@ -55,7 +53,7 @@ const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { tracksActions } = trackPageLineupActions
-const getUserId = accountSelectors.getUserId
+const { getUserId } = accountSelectors
 
 const messages = {
   track: 'track',
@@ -127,8 +125,7 @@ export const TrackScreenDetailsTile = ({
   const navigation = useNavigation()
   const { accentOrange } = useThemeColors()
 
-  const currentUserId = useSelectorWeb(getUserId)
-  const dispatchWeb = useDispatchWeb()
+  const currentUserId = useSelector(getUserId)
   const dispatch = useDispatch()
   const playingUid = useSelector(getUid)
   const isPlaying = useSelector(getPlaying)
@@ -200,19 +197,19 @@ export const TrackScreenDetailsTile = ({
     if (isLineupLoading) return
 
     if (isPlaying && isPlayingUid) {
-      dispatchWeb(tracksActions.pause())
+      dispatch(tracksActions.pause())
       recordPlay(track_id, false)
     } else if (!isPlayingUid) {
-      dispatchWeb(tracksActions.play(uid))
+      dispatch(tracksActions.play(uid))
       recordPlay(track_id)
     } else {
-      dispatchWeb(tracksActions.play())
+      dispatch(tracksActions.play())
       recordPlay(track_id)
     }
-  }, [track_id, uid, isPlayingUid, dispatchWeb, isPlaying, isLineupLoading])
+  }, [track_id, uid, isPlayingUid, dispatch, isPlaying, isLineupLoading])
 
   const handlePressFavorites = useCallback(() => {
-    dispatchWeb(setFavorite(track_id, FavoriteType.TRACK))
+    dispatch(setFavorite(track_id, FavoriteType.TRACK))
     navigation.push({
       native: {
         screen: 'Favorited',
@@ -220,10 +217,10 @@ export const TrackScreenDetailsTile = ({
       },
       web: { route: FAVORITING_USERS_ROUTE }
     })
-  }, [dispatchWeb, track_id, navigation])
+  }, [dispatch, track_id, navigation])
 
   const handlePressReposts = useCallback(() => {
-    dispatchWeb(setRepost(track_id, RepostType.TRACK))
+    dispatch(setRepost(track_id, RepostType.TRACK))
     navigation.push({
       native: {
         screen: 'Reposts',
@@ -231,7 +228,7 @@ export const TrackScreenDetailsTile = ({
       },
       web: { route: REPOSTING_USERS_ROUTE }
     })
-  }, [dispatchWeb, track_id, navigation])
+  }, [dispatch, track_id, navigation])
 
   const handlePressTag = useCallback(
     (tag: string) => {
@@ -250,9 +247,9 @@ export const TrackScreenDetailsTile = ({
   const handlePressSave = () => {
     if (!isOwner) {
       if (has_current_user_saved) {
-        dispatchWeb(unsaveTrack(track_id, FavoriteSource.TRACK_PAGE))
+        dispatch(unsaveTrack(track_id, FavoriteSource.TRACK_PAGE))
       } else {
-        dispatchWeb(saveTrack(track_id, FavoriteSource.TRACK_PAGE))
+        dispatch(saveTrack(track_id, FavoriteSource.TRACK_PAGE))
       }
     }
   }
@@ -260,9 +257,9 @@ export const TrackScreenDetailsTile = ({
   const handlePressRepost = () => {
     if (!isOwner) {
       if (has_current_user_reposted) {
-        dispatchWeb(undoRepostTrack(track_id, RepostSource.TRACK_PAGE))
+        dispatch(undoRepostTrack(track_id, RepostSource.TRACK_PAGE))
       } else {
-        dispatchWeb(repostTrack(track_id, RepostSource.TRACK_PAGE))
+        dispatch(repostTrack(track_id, RepostSource.TRACK_PAGE))
       }
     }
   }
