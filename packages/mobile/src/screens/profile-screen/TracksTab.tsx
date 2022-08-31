@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   profilePageSelectors,
@@ -32,6 +32,12 @@ export const TracksTab = () => {
     'track_count',
     '_artist_pick'
   ])
+
+  useEffect(() => {
+    if (isProfileLoaded) {
+      dispatch(tracksActions.fetchLineupMetadatas())
+    }
+  }, [dispatch, isProfileLoaded])
 
   // TODO: use fetchPayload (or change Remixes page)
   const loadMore = useCallback(
