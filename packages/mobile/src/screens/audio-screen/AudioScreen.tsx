@@ -4,7 +4,6 @@ import type { BNWei, StringWei, Nullable } from '@audius/common'
 import {
   vipDiscordModalActions,
   formatWei,
-  tokenDashboardPageActions,
   tokenDashboardPageSelectors,
   walletSelectors,
   walletActions,

@@ -4,10 +4,7 @@ import { useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import {
-  ModalBodyWrapper,
-  TitleWrapper
-} from 'pages/audio-rewards-page/WalletModal'
+import { TitleWrapper } from 'pages/audio-rewards-page/WalletModal'
 import { isMobile } from 'utils/clientUtil'
 import { AUDIUS_DISCORD_LINK } from 'utils/route'
 
