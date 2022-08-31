@@ -15,8 +15,10 @@ import {
   tippingActions
 } from '@audius/common'
 import { IconButton, PillButton } from '@audius/stems'
+import { ResizeObserver } from '@juggle/resize-observer'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
+import useMeasure from 'react-use-measure'
 
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
@@ -123,20 +125,9 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
 type SendTipButtonProps = {
   user: User
   hideName?: boolean
-  sendTipRef: MutableRefObject<HTMLDivElement | null>
-  firstLoadRef: MutableRefObject<boolean>
-  maxTipButtonWidth: MutableRefObject<number>
-  handleResize: () => void
 }
 
-const SendTipButton = ({
-  user,
-  hideName = false,
-  sendTipRef,
-  firstLoadRef,
-  maxTipButtonWidth,
-  handleResize
-}: SendTipButtonProps) => {
+const SendTipButton = ({ user, hideName = false }: SendTipButtonProps) => {
   const dispatch = useDispatch()
 
   const handleClick = useCallback(() => {
@@ -158,17 +149,6 @@ const SendTipButton = ({
         />
       </div>
     )
-
-  // On first load, save the max width of the send tip button
-  useEffect(() => {
-    if (!sendTipRef.current || !firstLoadRef.current) {
-      return
-    }
-    firstLoadRef.current = false
-    maxTipButtonWidth.current = sendTipRef.current.offsetWidth
-    // If the window is small on first load, downsize the button
-    handleResize()
-  })
 
   return (
     <PillButton
@@ -210,8 +190,6 @@ const DismissTipButton = () => {
   )
 }
 
-const SEND_TIP_BUTTON_PADDING = 40
-
 export const FeedTipTile = () => {
   const dispatch = useDispatch()
   const showTip = useSelector(getShowTip)
@@ -227,15 +205,17 @@ export const FeedTipTile = () => {
     getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
   )
 
-  const [hasShortButtonChanged, setHasShortButtonChanged] = useState(false)
-  const containerRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
-  const containerLeftContentsRef: MutableRefObject<HTMLDivElement | null> =
-    useRef(null)
-  const sendTipRef: MutableRefObject<HTMLDivElement | null> = useRef(null)
-  const firstLoadRef = useRef(true)
+  const [tileRef, { width: tileWidth }] = useMeasure({
+    polyfill: ResizeObserver
+  })
+  const [tileLeftContentsRef, { width: tileLeftContentsWidth }] = useMeasure({
+    polyfill: ResizeObserver
+  })
+  const [sendTipButtonRef, { width: sendTipButtonWidth }] = useMeasure({
+    polyfill: ResizeObserver
+  })
   const maxTipButtonWidth = useRef(0)
   const useShortButtonFormat = useRef(false)
-  let prevUseShortButton = useShortButtonFormat.current
 
   useEffect(() => {
     const storage = getRecentTipsStorage()
@@ -248,31 +228,11 @@ export const FeedTipTile = () => {
     }
   }, [dispatch, usersMap, tipToDisplay])
 
-  const handleResize = () => {
-    if (
-      !containerRef.current ||
-      !containerLeftContentsRef.current ||
-      !maxTipButtonWidth.current
-    ) {
-      return null
-    }
-
-    useShortButtonFormat.current =
-      containerLeftContentsRef.current.offsetWidth +
-        maxTipButtonWidth.current >=
-      containerRef.current.clientWidth - SEND_TIP_BUTTON_PADDING
-
-    // Force re-render if we need to resize send tip button
-    if (useShortButtonFormat.current !== prevUseShortButton) {
-      prevUseShortButton = useShortButtonFormat.current
-      setHasShortButtonChanged(!hasShortButtonChanged)
-    }
+  if (sendTipButtonWidth > maxTipButtonWidth.current) {
+    maxTipButtonWidth.current = sendTipButtonWidth
   }
-
-  useEffect(() => {
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  })
+  useShortButtonFormat.current =
+    tileLeftContentsWidth + maxTipButtonWidth.current >= tileWidth
 
   if (!showTip) {
     return null
@@ -281,46 +241,46 @@ export const FeedTipTile = () => {
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (
-    <div className={styles.container} ref={containerRef}>
-      <div className={styles.usersContainer} ref={containerLeftContentsRef}>
-        <ProfilePicture
-          key={tipToDisplay.receiver_id}
-          className={styles.profilePicture}
-          user={usersMap[tipToDisplay.receiver_id]}
-        />
-        <ArtistPopover
-          handle={usersMap[tipToDisplay.receiver_id].handle}
-          component='div'
-        >
-          <div className={styles.name} onClick={handleClick}>
-            <span>{usersMap[tipToDisplay.receiver_id].name}</span>
-            <UserBadges
-              userId={tipToDisplay.receiver_id}
-              className={styles.badge}
-              badgeSize={12}
-              inline
-            />
-          </div>
-        </ArtistPopover>
-        <WasTippedBy />
-        <Tippers
-          tippers={[
-            tipToDisplay.sender_id,
-            ...tipToDisplay.followee_supporter_ids
-          ]
-            .map((id) => usersMap[id])
-            .filter((user): user is User => !!user)}
-          receiver={usersMap[tipToDisplay.receiver_id]}
-        />
+    <div className={styles.container} ref={tileRef}>
+      <div className={styles.usersContainer} ref={tileLeftContentsRef}>
+        <div className={styles.recipientContainer}>
+          <ProfilePicture
+            key={tipToDisplay.receiver_id}
+            className={styles.profilePicture}
+            user={usersMap[tipToDisplay.receiver_id]}
+          />
+          <ArtistPopover
+            handle={usersMap[tipToDisplay.receiver_id].handle}
+            component='div'
+          >
+            <div className={styles.name} onClick={handleClick}>
+              <span>{usersMap[tipToDisplay.receiver_id].name}</span>
+              <UserBadges
+                userId={tipToDisplay.receiver_id}
+                className={styles.badge}
+                badgeSize={12}
+                inline
+              />
+            </div>
+          </ArtistPopover>
+        </div>
+        <div className={styles.senderContainer}>
+          <WasTippedBy />
+          <Tippers
+            tippers={[
+              tipToDisplay.sender_id,
+              ...tipToDisplay.followee_supporter_ids
+            ]
+              .map((id) => usersMap[id])
+              .filter((user): user is User => !!user)}
+            receiver={usersMap[tipToDisplay.receiver_id]}
+          />
+        </div>
       </div>
-      <div className={styles.buttons} ref={sendTipRef}>
+      <div className={styles.buttons} ref={sendTipButtonRef}>
         <SendTipButton
           user={usersMap[tipToDisplay.receiver_id]}
           hideName={useShortButtonFormat.current}
-          sendTipRef={sendTipRef}
-          firstLoadRef={firstLoadRef}
-          maxTipButtonWidth={maxTipButtonWidth}
-          handleResize={handleResize}
         />
         <DismissTipButton />
       </div>
