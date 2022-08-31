@@ -3,9 +3,11 @@ import { useCallback } from 'react'
 import {
   BNAudio,
   BNWei,
-  buyAudioSelectors,
   formatWei,
-  walletSelectors
+  Status,
+  transactionDetailsSelectors,
+  walletSelectors,
+  formatNumberString
 } from '@audius/common'
 import { Button, ButtonSize, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
@@ -24,12 +26,12 @@ const messages = {
 }
 
 const { getAccountTotalBalance } = walletSelectors
-const { getAudioPurchaseInfo } = buyAudioSelectors
+const { getTransactionDetails } = transactionDetailsSelectors
 
 export const SuccessPage = () => {
   const totalBalance = useSelector<BNAudio>(getAccountTotalBalance)
   const uiBalance = formatWei(totalBalance || (new BN(0) as BNWei), true, 0)
-  const purchaseInfo = useSelector(getAudioPurchaseInfo)
+  const transactionDetails = useSelector(getTransactionDetails)
   const [, setModalVisibility] = useModalState('BuyAudio')
   const [, setTransactionDetailsModalVisibility] =
     useModalState('TransactionDetails')
@@ -51,8 +53,11 @@ export const SuccessPage = () => {
           <span className={styles.label}>{messages.audio}</span>
           <span>
             +
-            {purchaseInfo?.isError === false
-              ? purchaseInfo.desiredAudioAmount.uiAmountString
+            {transactionDetails.status === Status.SUCCESS
+              ? formatNumberString(
+                  transactionDetails.transactionDetails.change,
+                  { maxDecimals: 0 }
+                )
               : '0'}
           </span>
         </div>
