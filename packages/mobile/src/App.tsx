@@ -1,11 +1,8 @@
-import { useRef, useEffect } from 'react'
-
 import { PortalProvider } from '@gorhom/portal'
 import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
 import Config from 'react-native-config'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import type WebView from 'react-native-webview'
 import { Provider } from 'react-redux'
 
 import Audio from 'app/components/audio/Audio'
@@ -16,7 +13,6 @@ import { ReachabilityBar } from 'app/components/reachability-bar'
 import { ThemeProvider } from 'app/components/theme/ThemeContext'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
-import PushNotifications from 'app/notifications'
 import { RootScreen } from 'app/screens/root-screen'
 import { store } from 'app/store'
 
@@ -47,16 +43,6 @@ const Modals = () => {
 }
 
 const App = () => {
-  // Track the web view as a top-level ref so that any children can use it
-  // to send messages to the dapp
-  const webRef = useRef<WebView>(null)
-
-  // Configure push notifications so that it has access to the web view
-  // and can message pass to it
-  useEffect(() => {
-    PushNotifications.setWebRef(webRef)
-  }, [webRef])
-
   return (
     <SafeAreaProvider>
       <Provider store={store}>
@@ -70,8 +56,8 @@ const App = () => {
                   <RootScreen />
                   <Drawers />
                   <Modals />
-                  <Audio webRef={webRef} />
-                  <OAuth webRef={webRef} />
+                  <Audio />
+                  <OAuth />
                 </NavigationContainer>
               </ThemeProvider>
             </ErrorBoundary>

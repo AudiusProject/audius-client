@@ -7,7 +7,6 @@ import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 export const useUpdateRequired = () => {
   const { appVersion } = VersionNumber
   const minAppVersion = useRemoteVar(StringKeys.MIN_APP_VERSION)
-  console.log({ appVersion, minAppVersion })
 
   return { updateRequired: semver.lt(appVersion, minAppVersion) }
 }

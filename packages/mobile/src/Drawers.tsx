@@ -116,6 +116,11 @@ export const Drawers = () => {
           drawer={Drawer}
         />
       ))}
+      {/** For some reason, discord-drawer breaks the app during initial load.
+       * Commenting out for now, but we should refactor it's visibility usage to use
+       * the standard drawer code.
+       */}
+      {/* <DiscordDrawer /> */}
     </>
   )
 }

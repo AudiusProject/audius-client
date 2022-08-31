@@ -1,4 +1,3 @@
-import type { RefObject } from 'react'
 import { useCallback } from 'react'
 
 import type { NativeSyntheticEvent } from 'react-native'
@@ -178,11 +177,7 @@ const TIKTOK_POLLER = `
 })();
 `
 
-type Props = {
-  webRef: RefObject<MessagePostingWebView>
-}
-
-const OAuth = ({ webRef }: Props) => {
+const OAuth = () => {
   const dispatch = useDispatch()
   const url = useSelector(getUrl)
   const isOpen = useSelector(getIsOpen)
@@ -194,7 +189,7 @@ const OAuth = ({ webRef }: Props) => {
 
   // Handle messages coming from the web view
   const onMessageHandler = (event: NativeSyntheticEvent<WebViewMessage>) => {
-    if (event.nativeEvent.data && webRef.current) {
+    if (event.nativeEvent.data) {
       const data = JSON.parse(event.nativeEvent.data)
 
       if (data.type === AUTH_RESPONSE) {
