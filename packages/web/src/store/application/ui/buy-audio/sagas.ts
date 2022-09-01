@@ -19,8 +19,7 @@ import {
   TransactionDetails,
   walletSelectors,
   StringWei,
-  BNWei,
-  InAppAudioPurchaseMetadata
+  BNWei
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
@@ -43,7 +42,8 @@ import {
   getRootSolanaAccount,
   getSolanaConnection,
   pollForAudioBalanceChange,
-  pollForSolBalanceChange
+  pollForSolBalanceChange,
+  saveUserBankTransactionMetadata
 } from 'services/audius-backend/BuyAudio'
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import {
@@ -398,7 +398,7 @@ function* populateAndSaveTransactionDetails({
     .toString()
     .padStart(divisor.toString().length - 1, '0')}`
 
-  const transactionMetadata: InAppAudioPurchaseMetadata = {
+  const transactionMetadata = {
     discriminator: TransactionMetadataType.PURCHASE_SOL_AUDIO_SWAP,
     purchaseTransactionId,
     setupTransactionId,
@@ -424,6 +424,7 @@ function* populateAndSaveTransactionDetails({
       transactionDetails
     })
   )
+  yield* call(saveUserBankTransactionMetadata, transactionMetadata)
 }
 
 /**
