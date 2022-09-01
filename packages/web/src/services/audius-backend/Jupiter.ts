@@ -5,13 +5,7 @@ import {
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { Jupiter as JupiterInstance } from '@jup-ag/core'
-import {
-  Cluster,
-  Connection,
-  Keypair,
-  PublicKey,
-  Transaction
-} from '@solana/web3.js'
+import { Cluster, Connection, PublicKey, Transaction } from '@solana/web3.js'
 import JSBI from 'jsbi'
 
 let _jup: JupiterInstance
