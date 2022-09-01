@@ -247,5 +247,5 @@ export const saveUserBankTransactionMetadata = async (
   data: InAppAudioPurchaseMetadata
 ) => {
   await waitForLibsInit()
-  return await libs().identityService!.saveUserBankTransactionMetadata(data)
+  // return await libs().identityService!.saveUserBankTransactionMetadata(data)
 }
