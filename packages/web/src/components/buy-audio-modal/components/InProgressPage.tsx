@@ -20,9 +20,9 @@ const { getAudioPurchaseInfo, getBuyAudioFlowStage, getBuyAudioFlowError } =
 const messages = {
   pleaseHold: 'Please hold on. This may take a few moments.',
   completeWithCoinbase: 'Complete this step with Coinbase',
-  step1: 'Step 1',
-  step2: 'Step 2',
-  step3: 'Step 3',
+  step1: 'Step 1/3',
+  step2: 'Step 2/3',
+  step3: 'Step 3/3',
   purchasingSol: 'Purchasing SOL',
   convertingSol: 'Converting SOL to $AUDIO',
   finishingUp: 'Finalizing Transaction',
@@ -55,6 +55,7 @@ const stageToStep = (stage: BuyAudioStage) => {
     case BuyAudioStage.TRANSFERRING:
       return 3
   }
+  console.error('Reached unexpected stage in InProgressPage.tsx:', stage)
   return 1
 }
 
