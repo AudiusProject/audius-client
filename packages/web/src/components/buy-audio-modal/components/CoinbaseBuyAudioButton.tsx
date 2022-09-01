@@ -34,7 +34,7 @@ export const CoinbaseBuyAudioButton = ({
   const purchaseInfoStatus = useSelector(getAudioPurchaseInfoStatus)
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const belowSolThreshold =
-    !purchaseInfo?.isError && purchaseInfo?.estimatedSOL?.uiAmount
+    !purchaseInfo?.isError && purchaseInfo?.estimatedSOL
       ? purchaseInfo.estimatedSOL.uiAmount < 0.05
       : false
   const isDisabled = purchaseInfoStatus !== Status.SUCCESS || belowSolThreshold
