@@ -399,11 +399,14 @@ function* getAudioPurchaseInfo({
       'finalized'
     )
 
-    const estimatedLamports = new BN(inSol)
-      .add(new BN(associatedAccountCreationFees))
-      .add(new BN(transactionFees))
-      .add(new BN(rootAccountMinBalance))
-      .sub(new BN(existingBalance))
+    const estimatedLamports = BN.max(
+      new BN(inSol)
+        .add(new BN(associatedAccountCreationFees))
+        .add(new BN(transactionFees))
+        .add(new BN(rootAccountMinBalance))
+        .sub(new BN(existingBalance)),
+      new BN(0)
+    )
 
     // Get SOL => USDC quote to estimate $USD cost
     const quoteUSD = yield* call(JupiterSingleton.getQuote, {
