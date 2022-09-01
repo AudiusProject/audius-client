@@ -1,4 +1,9 @@
-import { Name, accountSelectors, getContext } from '@audius/common'
+import {
+  Name,
+  accountSelectors,
+  getContext,
+  waitForAccount
+} from '@audius/common'
 import { call, cancel, fork, put, race, select, take } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
@@ -13,6 +18,7 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export function* getSearchResults(searchText: string) {
   const apiClient = yield* getContext('apiClient')
+  yield* waitForAccount()
   const userId = yield* select(getUserId)
 
   const results = yield* call([apiClient, 'getSearchAutocomplete'], {
