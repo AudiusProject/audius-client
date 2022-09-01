@@ -27,8 +27,10 @@ export type InAppAudioPurchaseMetadata = {
   usd: string
   sol: string
   audio: StringAudio
-  swapTransaction: string
-  buyTransaction: string
+  purchaseTransactionId: string
+  setupTransactionId?: string
+  swapTransactionId: string
+  cleanupTransactionId?: string
 }
 
 export type TransactionDetails =
