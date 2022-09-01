@@ -9,7 +9,8 @@ import {
   TwitterProfile,
   Notifications,
   BrowserNotificationSetting,
-  EmailFrequency
+  EmailFrequency,
+  signOutActions
 } from '@audius/common'
 import {
   Modal,
@@ -21,6 +22,8 @@ import {
   IconSignOut
 } from '@audius/stems'
 import cn from 'classnames'
+import { connect } from 'react-redux'
+import { Dispatch } from 'redux'
 
 import audiusIcon from 'assets/img/audiusIcon.png'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
@@ -33,10 +36,8 @@ import Toast from 'components/toast/Toast'
 import { ComponentPlacement } from 'components/types'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import DownloadApp from 'services/download-app/DownloadApp'
-import { localStorage } from 'services/local-storage'
 import { isMobile, isElectron, getOS } from 'utils/clientUtil'
 import { COPYRIGHT_TEXT } from 'utils/copyright'
-import { signOut } from 'utils/signOut'
 
 import packageInfo from '../../../../../package.json'
 
@@ -44,6 +45,8 @@ import NotificationSettings from './NotificationSettings'
 import SettingsCard from './SettingsCard'
 import styles from './SettingsPage.module.css'
 import VerificationModal from './VerificationModal'
+
+const { signOut } = signOutActions
 const { version } = packageInfo
 
 const SIGN_OUT_MODAL_TEXT = `
@@ -109,7 +112,10 @@ type SettingsPageState = {
   showChangePasswordModal: boolean
 }
 
-class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
+class SettingsPage extends Component<
+  SettingsPageProps & ReturnType<typeof mapDispatchToProps>,
+  SettingsPageState
+> {
   state = {
     showNotificationSettings: false,
     showModalSignOut: false,
@@ -138,7 +144,9 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   }
 
   onSignOut = () => {
-    this.props.recordSignOut(() => signOut(audiusBackendInstance, localStorage))
+    const { recordSignOut, signOut } = this.props
+
+    recordSignOut(signOut)
   }
 
   showEmailToast = async () => {
@@ -381,4 +389,10 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   }
 }
 
-export default SettingsPage
+function mapDispatchToProps(dispatch: Dispatch) {
+  return {
+    signOut: () => dispatch(signOut())
+  }
+}
+
+export default connect(undefined, mapDispatchToProps)(SettingsPage)
