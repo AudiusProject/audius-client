@@ -110,7 +110,9 @@ const slice = createSlice({
       state.stage = BuyAudioStage.PURCHASING
     },
     onRampCanceled: (state) => {
-      state.error = true
+      if (state.stage === BuyAudioStage.PURCHASING) {
+        state.error = true
+      }
     },
     onRampSucceeded: (state) => {
       state.stage = BuyAudioStage.CONFIRMING_PURCHASE
