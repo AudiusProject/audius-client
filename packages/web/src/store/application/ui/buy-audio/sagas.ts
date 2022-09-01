@@ -22,6 +22,7 @@ import {
   PublicKey,
   Transaction
 } from '@solana/web3.js'
+import BN from 'bn.js'
 import JSBI from 'jsbi'
 import { takeLatest } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
@@ -398,18 +399,17 @@ function* getAudioPurchaseInfo({
       'finalized'
     )
 
-    const estimatedLamports =
-      inSol +
-      associatedAccountCreationFees +
-      transactionFees +
-      rootAccountMinBalance -
-      existingBalance
+    const estimatedLamports = new BN(inSol)
+      .add(new BN(associatedAccountCreationFees))
+      .add(new BN(transactionFees))
+      .add(new BN(rootAccountMinBalance))
+      .sub(new BN(existingBalance))
 
     // Get SOL => USDC quote to estimate $USD cost
     const quoteUSD = yield* call(JupiterSingleton.getQuote, {
       inputTokenSymbol: 'SOL',
       outputTokenSymbol: 'USDC',
-      inputAmount: estimatedLamports / LAMPORTS_PER_SOL,
+      inputAmount: estimatedLamports.toNumber() / LAMPORTS_PER_SOL,
       slippage: 0
     })
 
@@ -425,7 +425,7 @@ Fees: ${
         LAMPORTS_PER_SOL
       } SOL
 Existing Balance: ${existingBalance / LAMPORTS_PER_SOL} SOL
-Total: ${estimatedLamports / LAMPORTS_PER_SOL} SOL ($${
+Total: ${estimatedLamports.toNumber() / LAMPORTS_PER_SOL} SOL ($${
         quoteUSD.outputAmount.uiAmountString
       } USDC)`
     )
