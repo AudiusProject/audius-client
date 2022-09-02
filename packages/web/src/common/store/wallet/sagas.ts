@@ -234,9 +234,8 @@ function* fetchBalanceAsync() {
  */
 function* checkAssociatedTokenAccountOrSol(action: InputSendDataAction) {
   const walletClient = yield* getContext('walletClient')
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const { audiusLibs } = yield* getContext('audiusBackendInstance')
   const address = action.payload.wallet
-  const audiusLibs = yield* audiusBackendInstance.getAudiusLibs()
 
   const connection = audiusLibs.solanaWeb3Manager!.connection
 
