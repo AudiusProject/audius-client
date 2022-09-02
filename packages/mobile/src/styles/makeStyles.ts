@@ -1,15 +1,18 @@
-import { useContext, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
+import { themeSelectors } from '@audius/common'
 import { isEqual } from 'lodash'
 import type { TextStyle, ViewStyle, ImageStyle } from 'react-native'
 import { StyleSheet } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import { ThemeContext } from '../components/theme/ThemeContext'
 import type { ThemeColors } from '../utils/theme'
 import { Theme as ThemeType, useThemeColors } from '../utils/theme'
 
 import { spacing } from './spacing'
 import { typography } from './typography'
+
+const { getTheme, getSystemAppearance } = themeSelectors
 
 const useMemoCompare = <Next>(
   next: Next,
@@ -54,10 +57,11 @@ export const makeStyles = <PropsT, T extends NamedStyles<T> = NamedStyles<any>>(
   styles: Styles<T, PropsT>
 ) => {
   const useStyles = (props?: PropsT): T => {
-    const { theme: themeType, isSystemDarkMode } = useContext(ThemeContext)
+    const themeType = useSelector(getTheme)
+    const systemAppearance = useSelector(getSystemAppearance)
     const type =
       themeType === ThemeType.AUTO
-        ? isSystemDarkMode
+        ? systemAppearance === 'dark'
           ? ThemeType.DARK
           : ThemeType.DEFAULT
         : themeType
