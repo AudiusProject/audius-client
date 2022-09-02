@@ -87,8 +87,8 @@ export const FeedTipTile = () => {
     fetchRecentTipsAsync()
   }, [dispatchWeb])
 
-  const handlePressClose = useCallback(() => {
-    dismissRecentTip(localStorage)
+  const handlePressClose = useCallback(async () => {
+    await dismissRecentTip(localStorage)
     dispatchWeb(hideTip())
     if (account && tipToDisplay) {
       track(

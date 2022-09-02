@@ -11,7 +11,7 @@ export const updateTipsStorage = async (
   storage: RecentTipsStorage,
   localStorage: LocalStorage
 ) => {
-  localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(storage))
+  await localStorage.setItem(RECENT_TIPS_KEY, JSON.stringify(storage))
 }
 
 export const dismissRecentTip = async (localStorage: LocalStorage) => {
