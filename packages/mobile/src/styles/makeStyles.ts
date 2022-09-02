@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react'
 
-import { themeSelectors } from '@audius/common'
 import { isEqual } from 'lodash'
 import type { TextStyle, ViewStyle, ImageStyle } from 'react-native'
 import { StyleSheet } from 'react-native'
-import { useSelector } from 'react-redux'
 
-import type { ThemeColors } from '../utils/theme'
-import { Theme as ThemeType, useThemeColors } from '../utils/theme'
+import type { ThemeColors, Theme as ThemeType } from '../utils/theme'
+import { useThemeVariant, useThemeColors } from '../utils/theme'
 
 import { spacing } from './spacing'
 import { typography } from './typography'
-
-const { getTheme, getSystemAppearance } = themeSelectors
 
 const useMemoCompare = <Next>(
   next: Next,
@@ -57,23 +53,16 @@ export const makeStyles = <PropsT, T extends NamedStyles<T> = NamedStyles<any>>(
   styles: Styles<T, PropsT>
 ) => {
   const useStyles = (props?: PropsT): T => {
-    const themeType = useSelector(getTheme)
-    const systemAppearance = useSelector(getSystemAppearance)
-    const type =
-      themeType === ThemeType.AUTO
-        ? systemAppearance === 'dark'
-          ? ThemeType.DARK
-          : ThemeType.DEFAULT
-        : themeType ?? ThemeType.DEFAULT
+    const themeVariant = useThemeVariant()
     const palette = useThemeColors()
 
     const memoizedProps = useMemoCompare<PropsT | undefined>(props, isEqual)
 
     const stylesheet = useMemo(() => {
-      const theme = { palette, typography, spacing, type }
+      const theme = { palette, typography, spacing, type: themeVariant }
       const namedStyles = styles(theme, memoizedProps)
       return StyleSheet.create(namedStyles)
-    }, [palette, type, memoizedProps])
+    }, [palette, themeVariant, memoizedProps])
 
     return stylesheet
   }

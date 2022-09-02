@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { accountSelectors, Theme, themeSelectors } from '@audius/common'
+import { accountSelectors } from '@audius/common'
 import type { LinkingOptions } from '@react-navigation/native'
 import {
   getStateFromPath,
@@ -9,10 +9,10 @@ import {
 import { useSelector } from 'react-redux'
 
 import type { RootScreenParamList } from 'app/screens/root-screen/RootScreen'
+import { useThemeVariant } from 'app/utils/theme'
 
 import { navigationThemes } from './navigationThemes'
 const { getAccountUser } = accountSelectors
-const { getTheme, getSystemAppearance } = themeSelectors
 
 type NavigationContainerProps = {
   children: ReactNode
@@ -23,16 +23,8 @@ type NavigationContainerProps = {
  */
 const NavigationContainer = (props: NavigationContainerProps) => {
   const { children } = props
-  const theme = useSelector(getTheme)
-  const systemAppearance = useSelector(getSystemAppearance)
+  const theme = useThemeVariant()
   const account = useSelector(getAccountUser)
-
-  const navigationTheme =
-    theme === 'auto'
-      ? systemAppearance === 'dark'
-        ? 'dark'
-        : 'default'
-      : theme ?? 'default'
 
   const linking: LinkingOptions<RootScreenParamList> = {
     prefixes: [
@@ -159,10 +151,7 @@ const NavigationContainer = (props: NavigationContainerProps) => {
   }
 
   return (
-    <RNNavigationContainer
-      linking={linking}
-      theme={navigationThemes[navigationTheme]}
-    >
+    <RNNavigationContainer linking={linking} theme={navigationThemes[theme]}>
       {children}
     </RNNavigationContainer>
   )

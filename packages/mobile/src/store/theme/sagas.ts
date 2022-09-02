@@ -23,9 +23,6 @@ const waitForSystemAppearanceChange = async () => {
   return systemAppearance
 }
 
-// Watches for changes in the native OS theme by
-// dispatching a message request into the ether. If it comes back, we know
-// the user has actually changed their theme.
 function* watchSystemAppearanceChange() {
   while (true) {
     const systemAppearance = yield* select(getSystemAppearance)
