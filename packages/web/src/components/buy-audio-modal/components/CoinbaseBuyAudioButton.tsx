@@ -10,7 +10,6 @@ import {
 } from 'components/coinbase-pay-button'
 import Tooltip from 'components/tooltip/Tooltip'
 import { getRootSolanaAccount } from 'services/audius-backend/BuyAudio'
-import { getCurrentThemeColors } from 'utils/theme/theme'
 
 import styles from './CoinbaseBuyAudioButton.module.css'
 
@@ -20,8 +19,6 @@ const { getAudioPurchaseInfo, getAudioPurchaseInfoStatus } = buyAudioSelectors
 const messages = {
   belowSolThreshold: 'Coinbase requires a purchase minimum of 0.05 SOL'
 }
-
-const themeColors = getCurrentThemeColors()
 
 export const CoinbaseBuyAudioButton = ({
   amount
@@ -76,7 +73,7 @@ export const CoinbaseBuyAudioButton = ({
       className={styles.tooltip}
       text={messages.belowSolThreshold}
       disabled={!belowSolThreshold}
-      color={themeColors['--secondary']}
+      color={'--secondary'}
       shouldWrapContent={false}
     >
       <div>
