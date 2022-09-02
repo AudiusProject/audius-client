@@ -75,7 +75,6 @@ export default function* rootSaga() {
     ...signOutSagas(),
 
     ...notificationsSagas(),
-    ...notificationsSagas(),
 
     // Pages
     ...trackPageSagas(),
