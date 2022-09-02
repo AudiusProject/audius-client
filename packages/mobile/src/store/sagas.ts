@@ -28,6 +28,7 @@ import queueSagas from 'common/store/queue/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
+import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
 import { all, fork } from 'typed-redux-saga'
 
@@ -77,6 +78,7 @@ export default function* rootSaga() {
     ...trendingPlaylistSagas(),
     ...trendingUndergroundSagas(),
     ...savedSagas(),
+    ...socialSagas(),
 
     // Application
     ...smartCollectionPageSagas(),
