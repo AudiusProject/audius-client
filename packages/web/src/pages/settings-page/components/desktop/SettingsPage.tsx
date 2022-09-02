@@ -9,8 +9,7 @@ import {
   TwitterProfile,
   Notifications,
   BrowserNotificationSetting,
-  EmailFrequency,
-  signOutActions
+  EmailFrequency
 } from '@audius/common'
 import {
   Modal,
@@ -22,8 +21,6 @@ import {
   IconSignOut
 } from '@audius/stems'
 import cn from 'classnames'
-import { connect } from 'react-redux'
-import { Dispatch } from 'redux'
 
 import audiusIcon from 'assets/img/audiusIcon.png'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
@@ -46,7 +43,6 @@ import SettingsCard from './SettingsCard'
 import styles from './SettingsPage.module.css'
 import VerificationModal from './VerificationModal'
 
-const { signOut } = signOutActions
 const { version } = packageInfo
 
 const SIGN_OUT_MODAL_TEXT = `
@@ -101,6 +97,7 @@ type OwnProps = {
   recordAccountRecovery: () => void
   recordDownloadDesktopApp: () => void
   showMatrix: boolean
+  signOut: () => void
 }
 
 export type SettingsPageProps = OwnProps
@@ -112,10 +109,7 @@ type SettingsPageState = {
   showChangePasswordModal: boolean
 }
 
-class SettingsPage extends Component<
-  SettingsPageProps & ReturnType<typeof mapDispatchToProps>,
-  SettingsPageState
-> {
+class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   state = {
     showNotificationSettings: false,
     showModalSignOut: false,
@@ -389,10 +383,4 @@ class SettingsPage extends Component<
   }
 }
 
-function mapDispatchToProps(dispatch: Dispatch) {
-  return {
-    signOut: () => dispatch(signOut())
-  }
-}
-
-export default connect(undefined, mapDispatchToProps)(SettingsPage)
+export default SettingsPage
