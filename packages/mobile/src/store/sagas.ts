@@ -1,4 +1,5 @@
 import {
+  castSagas,
   remoteConfigSagas as remoteConfig,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
@@ -12,7 +13,6 @@ import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
-import notificationsSagas from 'common/store/notifications/sagas'
 import collectionPageSagas from 'common/store/pages/collection/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
@@ -42,7 +42,7 @@ import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import initKeyboardEvents from './keyboard/sagas'
-import notificationsSagasNative from './notifications/sagas'
+import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
@@ -75,7 +75,7 @@ export default function* rootSaga() {
     ...signOutSagas(),
 
     ...notificationsSagas(),
-    ...notificationsSagasNative(),
+    ...notificationsSagas(),
 
     // Pages
     ...trackPageSagas(),
@@ -100,6 +100,9 @@ export default function* rootSaga() {
     ...historySagas(),
     ...settingsSagas(),
     ...signOutSagas(),
+
+    // Cast
+    ...castSagas(),
 
     // Application
     ...smartCollectionPageSagas(),
