@@ -14,7 +14,8 @@ import {
   SUPPORTING_USER_LIST_TAG,
   SupportingResponse,
   responseAdapter as adapter,
-  fetchSupporting
+  fetchSupporting,
+  AudiusBackend
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
@@ -36,12 +37,14 @@ const provider = createUserListProvider<User, SupportingProcessExtraType>({
   fetchAllUsersForEntity: async ({
     limit,
     offset,
-    entityId
+    entityId,
+    audiusBackendInstance
   }: {
     limit: number
     offset: number
     entityId: ID
     currentUserId: ID | null
+    audiusBackendInstance: AudiusBackend
   }) => {
     const encodedUserId = encodeHashId(entityId)
     if (!encodedUserId) return { users: [] }
@@ -49,7 +52,8 @@ const provider = createUserListProvider<User, SupportingProcessExtraType>({
     const supporting = await fetchSupporting({
       encodedUserId,
       limit,
-      offset
+      offset,
+      audiusBackendInstance
     })
     const users = supporting
       .sort((s1, s2) => {
