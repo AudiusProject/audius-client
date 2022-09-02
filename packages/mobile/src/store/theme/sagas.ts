@@ -10,15 +10,16 @@ const { getSystemAppearance } = themeSelectors
 
 const waitForSystemAppearanceChange = async () => {
   let listener
+
   const systemAppearance = await new Promise<SystemAppearance>((resolve) => {
     listener = (mode: SystemAppearance) => {
       resolve(mode)
     }
     eventEmitter.on('currentModeChanged', listener)
   })
-  if (listener) {
-    eventEmitter.removeListener('currentModeChanged', listener)
-  }
+
+  eventEmitter.removeListener('currentModeChanged', listener)
+
   return systemAppearance
 }
 
