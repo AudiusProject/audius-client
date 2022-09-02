@@ -47,7 +47,6 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { UpdateTipsStorageMessage } from 'services/native-mobile-interface/tipping'
 
 import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
@@ -206,6 +205,8 @@ function* sendTipAsync() {
   yield call(waitForRemoteConfig)
   yield* waitForAccount()
 
+  const device = isNativeMobile ? 'native' : 'web'
+
   const sender = yield* select(getAccountUser)
   if (!sender) {
     return
@@ -236,7 +237,7 @@ function* sendTipAsync() {
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
-        device: isNativeMobile ? 'native' : 'web',
+        device,
         source
       })
     )
@@ -271,7 +272,7 @@ function* sendTipAsync() {
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
-        device: isNativeMobile ? 'native' : 'web',
+        device,
         source
       })
     )
@@ -308,7 +309,7 @@ function* sendTipAsync() {
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
         error,
-        device: isNativeMobile ? 'native' : 'web',
+        device,
         source
       })
     )
