@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { buyAudioActions, buyAudioSelectors } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,7 +8,7 @@ import { AudioAmountPicker } from './AudioAmountPicker'
 import { CoinbaseBuyAudioButton } from './CoinbaseBuyAudioButton'
 import { PurchaseQuote } from './PurchaseQuote'
 
-const { calculateAudioPurchaseInfo } = buyAudioActions
+const { calculateAudioPurchaseInfo, precalculateSwapFees } = buyAudioActions
 const { getAudioPurchaseInfo } = buyAudioSelectors
 
 const messages = {

@@ -65,7 +65,8 @@ const {
   transferCompleted,
   clearFeesCache,
   calculateAudioPurchaseInfoFailed,
-  buyAudioFlowFailed
+  buyAudioFlowFailed,
+  precalculateSwapFees
 } = buyAudioActions
 
 const { getBuyAudioFlowStage, getFeesCache } = buyAudioSelectors
@@ -669,6 +670,23 @@ function* watchOnRampStarted() {
   yield takeLatest(onRampOpened, startBuyAudioFlow)
 }
 
+function* watchPrecalculateSwapFees() {
+  yield takeLatest(precalculateSwapFees, function* () {
+    // Get SOL => AUDIO quote to calculate fees
+    const quote = yield* call(JupiterSingleton.getQuote, {
+      inputTokenSymbol: 'SOL',
+      outputTokenSymbol: 'AUDIO',
+      inputAmount: 0,
+      slippage: 0
+    })
+    yield* call(getSwapFees, { route: quote.route })
+  })
+}
+
 export default function sagas() {
-  return [watchOnRampStarted, watchCalculateAudioPurchaseInfo]
+  return [
+    watchOnRampStarted,
+    watchCalculateAudioPurchaseInfo,
+    watchPrecalculateSwapFees
+  ]
 }
