@@ -47,7 +47,9 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
+import { UpdateTipsStorageMessage } from 'services/native-mobile-interface/tipping'
 
+import mobileSagas from './mobileSagas'
 import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
 const { getAccountBalance } = walletSelectors
@@ -647,7 +649,12 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   })
   const { tip: tipToDisplay, newStorage } = result ?? {}
   if (newStorage) {
-    yield call(updateTipsStorage, newStorage, localStorage)
+    if (NATIVE_MOBILE) {
+      const message = new UpdateTipsStorageMessage(newStorage)
+      message.send()
+    } else {
+      yield call(updateTipsStorage, newStorage, localStorage)
+    }
   }
   if (tipToDisplay) {
     const userIds = [
@@ -755,13 +762,14 @@ function* watchFetchUserSupporter() {
 }
 
 const sagas = () => {
-  return [
+  const sagas = [
     watchFetchSupportingForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips,
     watchFetchUserSupporter
   ]
+  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
 
 export default sagas
