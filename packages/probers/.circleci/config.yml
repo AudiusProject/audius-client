@@ -92,7 +92,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - none
     jobs:
       - download-dapp
       - coverage:
