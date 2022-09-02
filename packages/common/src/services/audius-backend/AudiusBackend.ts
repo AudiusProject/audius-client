@@ -1146,7 +1146,7 @@ export const audiusBackend = ({
 
   async function repostTrack(trackId: ID) {
     try {
-      return audiusLibs.Track.addTrackRepost(trackId)
+      return audiusLibs.EntityManager.repostTrack(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1155,7 +1155,7 @@ export const audiusBackend = ({
 
   async function undoRepostTrack(trackId: ID) {
     try {
-      return audiusLibs.Track.deleteTrackRepost(trackId)
+      return audiusLibs.EntityManager.unrepostTrack(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1164,7 +1164,7 @@ export const audiusBackend = ({
 
   async function repostCollection(playlistId: ID) {
     try {
-      return audiusLibs.Playlist.addPlaylistRepost(playlistId)
+      return audiusLibs.EntityManager.repostPlaylist(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1173,7 +1173,7 @@ export const audiusBackend = ({
 
   async function undoRepostCollection(playlistId: ID) {
     try {
-      return audiusLibs.Playlist.deletePlaylistRepost(playlistId)
+      return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1483,7 +1483,9 @@ export const audiusBackend = ({
 
   async function followUser(followeeUserId: ID) {
     try {
-      return await audiusLibs.User.addUserFollow(followeeUserId)
+      // return await audiusLibs.User.addUserFollow(followeeUserId)
+      console.log('asdf audiusbackend followUser')
+      return await audiusLibs.EntityManager.followUser(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1492,7 +1494,7 @@ export const audiusBackend = ({
 
   async function unfollowUser(followeeUserId: ID) {
     try {
-      return await audiusLibs.User.deleteUserFollow(followeeUserId)
+      return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1941,7 +1943,7 @@ export const audiusBackend = ({
   // Favoriting a track
   async function saveTrack(trackId: ID) {
     try {
-      return await audiusLibs.Track.addTrackSave(trackId)
+      return await audiusLibs.EntityManager.saveTrack(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1964,7 +1966,7 @@ export const audiusBackend = ({
   // Favorite a playlist
   async function saveCollection(playlistId: ID) {
     try {
-      return await audiusLibs.Playlist.addPlaylistSave(playlistId)
+      return await audiusLibs.EntityManager.savePlaylist(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1974,7 +1976,7 @@ export const audiusBackend = ({
   // Unfavoriting a track
   async function unsaveTrack(trackId: ID) {
     try {
-      return await audiusLibs.Track.deleteTrackSave(trackId)
+      return await audiusLibs.EntityManager.unsaveTrack(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1984,7 +1986,7 @@ export const audiusBackend = ({
   // Unfavorite a playlist
   async function unsaveCollection(playlistId: ID) {
     try {
-      return await audiusLibs.Playlist.deletePlaylistSave(playlistId)
+      return await audiusLibs.EntityManager.unsavePlaylist(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
