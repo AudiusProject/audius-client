@@ -1,16 +1,17 @@
-import { Status } from '@audius/common'
 import { createSlice } from '@reduxjs/toolkit'
+
+import { Status } from '../../../models'
 
 export type DeactivateAccountState = {
   status?: Status
 }
 
 const initialState: DeactivateAccountState = {
-  status: undefined
+  status: Status.IDLE
 }
 
 const slice = createSlice({
-  name: 'application/ui/deactivateAccount',
+  name: 'application/pages/deactivateAccount',
   initialState,
   reducers: {
     deactivateAccount: (state) => {
@@ -28,4 +29,7 @@ export const {
   afterDeactivationSignOut,
   deactivateAccountFailed
 } = slice.actions
+
+export const actions = slice.actions
+
 export default slice.reducer
