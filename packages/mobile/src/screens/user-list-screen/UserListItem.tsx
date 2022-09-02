@@ -105,7 +105,7 @@ export const UserListItem = (props: UserListItemProps) => {
           <View style={styles.userInfo}>
             <Text variant='h3' style={styles.displayName}>
               {name}
-              <UserBadges user={user} badgeSize={14} hideName />
+              <UserBadges user={user} badgeSize={10} hideName />
             </Text>
             <Text variant='body' style={styles.handle}>
               @{handle}
