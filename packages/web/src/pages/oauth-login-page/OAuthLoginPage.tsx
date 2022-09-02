@@ -27,7 +27,6 @@ import Input from 'components/data-entry/Input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { ProfileInfo } from 'components/profile-info/ProfileInfo'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { localStorage } from 'services/local-storage'
 import { ERROR_PAGE, SIGN_UP_PAGE } from 'utils/route'
 
 import styles from '../styles/OAuthLoginPage.module.css'

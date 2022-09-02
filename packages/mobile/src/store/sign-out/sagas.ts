@@ -1,11 +1,9 @@
-import {
-  Name,
-  signOutActions,
-  accountActions,
-  getContext
-} from '@audius/common'
+import { Name, signOutActions, accountActions } from '@audius/common'
 import { make } from 'common/store/analytics/actions'
 import { takeLatest, put, call } from 'typed-redux-saga'
+
+import { audiusBackendInstance } from 'app/services/audius-backend-instance'
+import { localStorage } from 'app/services/local-storage'
 
 import { resetOAuthState } from '../oauth/actions'
 import { disablePushNotifications } from '../settings/sagas'
@@ -18,9 +16,6 @@ function* watchSignOut() {
     yield* put(resetAccount())
     yield* call(disablePushNotifications)
     yield* put(make(Name.SETTINGS_LOG_OUT, {}))
-
-    const localStorage = yield* getContext('localStorage')
-    const audiusBackendInstance = yield* getContext('audiusBackendInstance')
 
     yield* call([localStorage, 'clearAudiusAccount'])
     yield* call([localStorage, 'clearAudiusAccountUser'])
