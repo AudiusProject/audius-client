@@ -52,6 +52,7 @@ import notificationUsersPageSagas from 'common/store/user-list/notifications/sag
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
+import walletSagas from 'common/store/wallet/sagas'
 import addToPlaylistSagas from 'components/add-to-playlist/store/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
@@ -79,7 +80,8 @@ import routingSagas from 'store/routing/sagas'
 import signOutSagas from 'store/sign-out/sagas'
 import solanaSagas from 'store/solana/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
-import walletSagas from 'store/wallet/sagas'
+
+import notificationSagasWeb from './notifications/sagas'
 
 import notificationSagasWeb from './notifications/sagas'
 

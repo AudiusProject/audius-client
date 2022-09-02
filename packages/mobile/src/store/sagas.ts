@@ -42,6 +42,7 @@ import notificationUsersPageSagas from 'common/store/user-list/notifications/sag
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
+import walletSagas from 'common/store/wallet/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import initKeyboardEvents from './keyboard/sagas'
@@ -80,6 +81,8 @@ export default function* rootSaga() {
 
     // Tipping
     ...tippingSagas(),
+
+    ...walletSagas(),
 
     ...notificationsSagas(),
 
