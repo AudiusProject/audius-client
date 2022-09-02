@@ -9,6 +9,7 @@ import usersSagas from 'common/store/cache/users/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import collectionPageSagas from 'common/store/pages/collection/sagas'
 import feedPageSagas from 'common/store/pages/feed/sagas'
+import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
 import trackPageSagas from 'common/store/pages/track/sagas'
 import queueSagas from 'common/store/queue/sagas'
@@ -29,6 +30,7 @@ export default function* rootSaga() {
     ...accountSagas(),
     ...confirmerSagas(),
     ...searchBarSagas(),
+    ...searchResultsSagas(),
 
     // Cache
     ...coreCacheSagas(),
