@@ -12,13 +12,13 @@ import {
   topSupportersUserListActions,
   TOP_SUPPORTERS_USER_LIST_TAG,
   SupporterResponse,
-  responseAdapter as adapter
+  responseAdapter as adapter,
+  fetchSupporters
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
 import { watchTopSupportersError } from 'common/store/user-list/top-supporters/errorSagas'
 import { createUserListProvider } from 'common/store/user-list/utils'
-import { fetchSupporters } from 'services/audius-backend/Tipping'
 const { getTopSupportersError } = topSupportersUserListActions
 const { getId, getUserList, getUserIds } = topSupportersUserListSelectors
 const { setSupportersForUser } = tippingActions

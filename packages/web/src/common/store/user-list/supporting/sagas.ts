@@ -13,13 +13,13 @@ import {
   supportingUserListSelectors,
   SUPPORTING_USER_LIST_TAG,
   SupportingResponse,
-  responseAdapter as adapter
+  responseAdapter as adapter,
+  fetchSupporting
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
 import { watchSupportingError } from 'common/store/user-list/supporting/errorSagas'
 import { createUserListProvider } from 'common/store/user-list/utils'
-import { fetchSupporting } from 'services/audius-backend/Tipping'
 const { getId, getUserList, getUserIds } = supportingUserListSelectors
 const { getSupportingError } = supportingUserListActions
 const { setSupportingForUser } = tippingActions

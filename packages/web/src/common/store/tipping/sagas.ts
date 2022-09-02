@@ -27,7 +27,12 @@ import {
   waitForAccount,
   waitForValue,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
-  MAX_PROFILE_TOP_SUPPORTERS
+  MAX_PROFILE_TOP_SUPPORTERS,
+  fetchRecentUserTips,
+  fetchSupporters,
+  fetchSupporting,
+  SupportRequest,
+  UserTipRequest
 } from '@audius/common'
 import BN from 'bn.js'
 import {
@@ -42,16 +47,6 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import {
-  fetchRecentUserTips,
-  fetchSupporters,
-  fetchSupporting,
-  SupportRequest,
-  UserTipRequest
-} from 'services/audius-backend/Tipping'
-import { UpdateTipsStorageMessage } from 'services/native-mobile-interface/tipping'
-import mobileSagas from 'store/tipping/mobileSagas'
-import { FEED_TIP_DISMISSAL_TIME_LIMIT } from 'utils/constants'
 
 import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
@@ -83,6 +78,7 @@ const {
 const { update } = cacheActions
 const getAccountUser = accountSelectors.getAccountUser
 
+export const FEED_TIP_DISMISSAL_TIME_LIMIT = 30 * 24 * 60 * 60 * 1000 // 30 days
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 function* overrideSupportingForUser({
@@ -324,12 +320,14 @@ function* refreshSupportAsync({
   payload: RefreshSupportPayloadAction
   type: string
 }) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const encodedSenderUserId = encodeHashId(senderUserId)
   const encodedReceiverUserId = encodeHashId(receiverUserId)
 
   if (encodedSenderUserId && encodedReceiverUserId) {
     const supportingParams: SupportRequest = {
-      encodedUserId: encodedSenderUserId
+      encodedUserId: encodedSenderUserId,
+      audiusBackendInstance
     }
     if (supportingLimit) {
       supportingParams.limit = supportingLimit
@@ -343,7 +341,8 @@ function* refreshSupportAsync({
     }
 
     const supportersParams: SupportRequest = {
-      encodedUserId: encodedReceiverUserId
+      encodedUserId: encodedReceiverUserId,
+      audiusBackendInstance
     }
     if (supportersLimit) {
       supportersParams.limit = supportersLimit
@@ -413,6 +412,7 @@ function* fetchSupportingForUserAsync({
   payload: { userId: ID }
   type: string
 }) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const encodedUserId = encodeHashId(userId)
   if (!encodedUserId) {
     return
@@ -434,7 +434,8 @@ function* fetchSupportingForUserAsync({
       : MAX_ARTIST_HOVER_TOP_SUPPORTING + 1
   const supportingList = yield* call(fetchSupporting, {
     encodedUserId,
-    limit
+    limit,
+    audiusBackendInstance
   })
   const userIds = supportingList.map((supporting) =>
     decodeHashId(supporting.receiver.id)
@@ -589,6 +590,8 @@ export const checkTipToDisplay = ({
 }
 
 function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const localStorage = yield* getContext('localStorage')
   const { storage } = action.payload
   const minSlot = storage?.minSlot ?? null
 
@@ -602,7 +605,8 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   const params: UserTipRequest = {
     userId: encodedUserId,
     currentUserFollows: 'receiver',
-    uniqueBy: 'receiver'
+    uniqueBy: 'receiver',
+    audiusBackendInstance
   }
   if (minSlot) {
     params.minSlot = minSlot
@@ -643,12 +647,7 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   })
   const { tip: tipToDisplay, newStorage } = result ?? {}
   if (newStorage) {
-    if (NATIVE_MOBILE) {
-      const message = new UpdateTipsStorageMessage(newStorage)
-      message.send()
-    } else {
-      updateTipsStorage(newStorage)
-    }
+    yield call(updateTipsStorage, newStorage, localStorage)
   }
   if (tipToDisplay) {
     const userIds = [
@@ -756,14 +755,13 @@ function* watchFetchUserSupporter() {
 }
 
 const sagas = () => {
-  const sagas = [
+  return [
     watchFetchSupportingForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips,
     watchFetchUserSupporter
   ]
-  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }
 
 export default sagas

@@ -19,5 +19,9 @@
     "downlevelIteration": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "../common/src/services/audius-backend/Tipping.ts",
+    "../common/src/utils/fileUtils.ts"
+  ]
 }
