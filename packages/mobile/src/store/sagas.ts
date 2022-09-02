@@ -43,6 +43,7 @@ import { all, fork } from 'typed-redux-saga'
 import initKeyboardEvents from './keyboard/sagas'
 import notificationsSagasNative from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
+import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
 
 export default function* rootSaga() {
@@ -93,6 +94,7 @@ export default function* rootSaga() {
     ...repostPageSagas(),
     ...supportingPageSagas(),
     ...topSupportersPageSagas(),
+    ...settingsSagas(),
     ...signOutSagas(),
 
     // Application
