@@ -18,6 +18,7 @@ type AccountSettingsItemProps = {
   buttonIcon: ComponentType<SvgProps>
   onPress?: () => void
 }
+
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     marginBottom: spacing(6)
