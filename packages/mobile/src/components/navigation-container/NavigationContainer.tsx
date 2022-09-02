@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
-import { useContext } from 'react'
 
-import { accountSelectors, themeSelectors } from '@audius/common'
+import { accountSelectors, Theme, themeSelectors } from '@audius/common'
 import type { LinkingOptions } from '@react-navigation/native'
 import {
   getStateFromPath,
@@ -33,7 +32,7 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       ? systemAppearance === 'dark'
         ? 'dark'
         : 'default'
-      : theme
+      : theme ?? 'default'
 
   const linking: LinkingOptions<RootScreenParamList> = {
     prefixes: [

@@ -64,7 +64,7 @@ export const makeStyles = <PropsT, T extends NamedStyles<T> = NamedStyles<any>>(
         ? systemAppearance === 'dark'
           ? ThemeType.DARK
           : ThemeType.DEFAULT
-        : themeType
+        : themeType ?? ThemeType.DEFAULT
     const palette = useThemeColors()
 
     const memoizedProps = useMemoCompare<PropsT | undefined>(props, isEqual)

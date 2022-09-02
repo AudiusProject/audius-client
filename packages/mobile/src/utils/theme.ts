@@ -1,10 +1,6 @@
-import { useContext } from 'react'
-
 import { themeSelectors } from '@audius/common'
 import { StatusBar } from 'react-native'
 import { useSelector } from 'react-redux'
-
-import { ThemeContext } from 'app/components/theme/ThemeContext'
 
 const { getTheme, getSystemAppearance } = themeSelectors
 
