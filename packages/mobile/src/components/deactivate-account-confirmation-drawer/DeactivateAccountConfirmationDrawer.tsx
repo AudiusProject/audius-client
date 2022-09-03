@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   deactivateAccountActions,
@@ -44,9 +44,14 @@ export const DeactivateAccountConfirmationDrawer = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
   const status = useSelector(getDeactivateAccountStatus)
-  console.log('status??', status)
 
   const { onClose } = useDrawerState(MODAL_NAME)
+
+  useEffect(() => {
+    if (status === Status.SUCCESS) {
+      onClose()
+    }
+  }, [status, onClose])
 
   const handleConfirmation = useCallback(() => {
     dispatch(deactivateAccount())
@@ -80,7 +85,7 @@ export const DeactivateAccountConfirmationDrawer = () => {
           }}
           variant='destructive'
           onPress={handleConfirmation}
-          icon={status === Status.LOADING ? LoadingSpinner : null}
+          icon={status === Status.LOADING ? LoadingSpinner : undefined}
           disabled={status !== Status.IDLE}
         />
       </View>

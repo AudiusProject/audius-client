@@ -83,8 +83,6 @@ import tokenDashboardSagas from 'store/token-dashboard/sagas'
 
 import notificationSagasWeb from './notifications/sagas'
 
-import notificationSagasWeb from './notifications/sagas'
-
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export default function* rootSaga() {

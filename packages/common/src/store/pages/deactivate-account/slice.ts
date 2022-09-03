@@ -17,7 +17,9 @@ const slice = createSlice({
     deactivateAccount: (state) => {
       state.status = Status.LOADING
     },
-    afterDeactivationSignOut: () => {},
+    afterDeactivationSignOut: (state) => {
+      state.status = Status.SUCCESS
+    },
     deactivateAccountFailed: (state) => {
       state.status = Status.ERROR
     }
