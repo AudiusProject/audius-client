@@ -268,7 +268,10 @@ export enum StringKeys {
   REWARDS_ATTESTATION_ENDPOINTS = 'REWARDS_ATTESTATION_ENDPOINTS',
 
   /** Minimum required version for the app */
-  MIN_APP_VERSION = 'MIN_APP_VERSION'
+  MIN_APP_VERSION = 'MIN_APP_VERSION',
+
+  /** Preset amounts for the Buy Audio modal */
+  BUY_AUDIO_PRESET_AMOUNTS = 'BUY_AUDIO_PRESET_AMOUNTS'
 }
 
 export type AllRemoteConfigKeys =

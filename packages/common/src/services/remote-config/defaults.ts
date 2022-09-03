@@ -60,7 +60,8 @@ export const remoteConfigStringDefaults: {
   [StringKeys.ORACLE_ETH_ADDRESS]: null,
   [StringKeys.ORACLE_ENDPOINT]: null,
   [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: null,
-  [StringKeys.MIN_APP_VERSION]: '1.0.0'
+  [StringKeys.MIN_APP_VERSION]: '1.0.0',
+  [StringKeys.BUY_AUDIO_PRESET_AMOUNTS]: '5,10,25,50,100'
 }
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null
