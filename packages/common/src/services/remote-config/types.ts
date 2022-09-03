@@ -127,7 +127,17 @@ export enum IntKeys {
   /**
    * Maximum AUDIO required to purchase in the BuyAudio modal
    */
-  MAX_AUDIO_PURCHASE_AMOUNT = 'MAX_AUDIO_PURCHASE_AMOUNT'
+  MAX_AUDIO_PURCHASE_AMOUNT = 'MAX_AUDIO_PURCHASE_AMOUNT',
+
+  /**
+   * The time to delay between polls of the user wallet when performing a purchase of $AUDIO
+   */
+  BUY_AUDIO_WALLET_POLL_DELAY_MS = 'BUY_AUDIO_WALLET_POLL_DELAY_MS',
+
+  /**
+   * The maximum amount of times to poll the user wallet before giving up on an $AUDIO purchase
+   */
+  BUY_AUDIO_WALLET_POLL_MAX_RETRIES = 'BUY_AUDIO_WALLET_POLL_MAX_RETRIES'
 }
 
 export enum BooleanKeys {
