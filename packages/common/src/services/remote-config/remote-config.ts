@@ -27,6 +27,7 @@ const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 // Internal State
 type State = {
   didInitialize: boolean
+  didInitializeUser: boolean
   id: Nullable<number>
 }
 
@@ -55,6 +56,7 @@ export const remoteConfig = <
 }: RemoteConfigOptions<Client>) => {
   const state: State = {
     didInitialize: false,
+    didInitializeUser: false,
     id: null
   }
 
@@ -103,11 +105,27 @@ export const remoteConfig = <
   }
 
   /**
+   * Register a callback for user ready.
+   */
+  function onUserReady(cb: () => void) {
+    if (state.didInitializeUser) {
+      cb()
+    } else {
+      const handler = () => {
+        cb()
+        unlistenForUserId(handler)
+      }
+      listenForUserId(handler)
+    }
+  }
+
+  /**
    * Set the userId for calls to Optimizely.
    * Prior to calling, uses the ANONYMOUS_USER_ID constant.
    */
   function setUserId(userId: ID) {
     state.id = userId
+    state.didInitializeUser = true
     emitter.emit('setUserId')
   }
 
@@ -208,11 +226,11 @@ export const remoteConfig = <
    * Need this function for feature flags that depend on user id.
    * This is because the waitForRemoteConfig does not ensure that
    * user id is available before its promise resolution, meaning
-   * that it will sometimes return false for a feature flag
-   * that is enabled and supposed to return true.
+   * that it will sometimes fallback to the anonymous id
+   * that is set during initialization
    */
   const waitForUserRemoteConfig = async () => {
-    await new Promise<void>(listenForUserId)
+    await new Promise<void>(onUserReady)
   }
 
   // Type predicates
@@ -253,6 +271,7 @@ export const remoteConfig = <
     getRemoteVar,
     init,
     onClientReady,
+    onUserReady,
     setUserId,
     waitForRemoteConfig,
     waitForUserRemoteConfig,
