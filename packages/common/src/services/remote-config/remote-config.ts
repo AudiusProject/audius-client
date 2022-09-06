@@ -20,8 +20,6 @@ import {
   AllRemoteConfigKeys
 } from './types'
 
-export const USER_ID_AVAILABLE_EVENT = 'USER_ID_AVAILABLE_EVENT'
-
 // Constants
 // All optimizely feature keys are lowercase_snake
 const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
@@ -30,7 +28,6 @@ const REMOTE_CONFIG_FEATURE_KEY = 'remote_config'
 type State = {
   didInitialize: boolean
   id: Nullable<number>
-  initializationCallbacks: (() => void)[]
 }
 
 export type RemoteConfigOptions<Client> = {
@@ -58,14 +55,15 @@ export const remoteConfig = <
 }: RemoteConfigOptions<Client>) => {
   const state: State = {
     didInitialize: false,
-    id: null,
-    initializationCallbacks: []
+    id: null
   }
 
   setLogLevel()
 
   // Optimizely client
   let client: Client | undefined
+
+  const emitter = new EventEmitter()
 
   async function init() {
     // Set sessionId for feature flag bucketing
@@ -82,10 +80,7 @@ export const remoteConfig = <
 
     client.onReady().then(() => {
       state.didInitialize = true
-
-      // Call initializationCallbacks
-      state.initializationCallbacks.forEach((cb) => cb())
-      state.initializationCallbacks = []
+      emitter.emit('init')
     })
   }
 
@@ -93,23 +88,23 @@ export const remoteConfig = <
 
   /**
    * Register a callback for client ready.
-   * @param func
    */
-  function onClientReady(func: () => void) {
+  function onClientReady(cb: () => void) {
     if (state.didInitialize) {
-      func()
+      cb()
     } else {
-      state.initializationCallbacks = [...state.initializationCallbacks, func]
+      const handler = () => {
+        cb()
+        emitter.removeListener('init', handler)
+      }
+
+      emitter.addListener('init', handler)
     }
   }
-
-  // Use event emission to track setUser events
-  const emitter = new EventEmitter()
 
   /**
    * Set the userId for calls to Optimizely.
    * Prior to calling, uses the ANONYMOUS_USER_ID constant.
-   * @param userId
    */
   function setUserId(userId: ID) {
     state.id = userId
@@ -132,7 +127,6 @@ export const remoteConfig = <
 
   /**
    * Access a remotely configured value.
-   * @param key
    */
   function getRemoteVar(key: StringKeys): string | null
   function getRemoteVar(key: BooleanKeys): boolean | null
@@ -186,7 +180,6 @@ export const remoteConfig = <
 
   /**
    * Gets whether a given feature flag is enabled.
-   * @param flag
    */
   function getFeatureEnabled(flag: FeatureFlags) {
     // If the client is not ready yet, return early with `null`
@@ -208,7 +201,7 @@ export const remoteConfig = <
   }
 
   const waitForRemoteConfig = async () => {
-    await new Promise<void>((resolve) => onClientReady(() => resolve()))
+    await new Promise<void>(onClientReady)
   }
 
   /**
@@ -219,25 +212,7 @@ export const remoteConfig = <
    * that is enabled and supposed to return true.
    */
   const waitForUserRemoteConfig = async () => {
-    if (typeof window.addEventListener === 'undefined') {
-      console.error(
-        '`waitForUserRemoteConfig` not comptaible in non-browser environment.'
-      )
-      return
-    }
-    if (state.id && state.id > 0) {
-      await new Promise<void>((resolve) => onClientReady(resolve))
-      return
-    }
-    await new Promise<void>((resolve) => {
-      if (state.id && state.id > 0) {
-        onClientReady(resolve)
-      } else {
-        window.addEventListener(USER_ID_AVAILABLE_EVENT, () =>
-          onClientReady(resolve)
-        )
-      }
-    })
+    await new Promise<void>(listenForUserId)
   }
 
   // Type predicates
