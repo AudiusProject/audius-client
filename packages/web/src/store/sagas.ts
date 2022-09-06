@@ -4,7 +4,8 @@ import {
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
-  toastSagas
+  toastSagas,
+  vipDiscordModalSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
@@ -35,6 +36,7 @@ import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import signOutSagas from 'common/store/sign-out/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
+import tippingSagas from 'common/store/tipping/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
@@ -45,6 +47,7 @@ import notificationUsersPageSagas from 'common/store/user-list/notifications/sag
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
+import walletSagas from 'common/store/wallet/sagas'
 import addToPlaylistSagas from 'components/add-to-playlist/store/sagas'
 import changePasswordSagas from 'components/change-password/store/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
@@ -76,9 +79,7 @@ import oauthSagas from 'store/oauth/sagas'
 import playlistLibrarySagas from 'store/playlist-library/sagas'
 import routingSagas from 'store/routing/sagas'
 import solanaSagas from 'store/solana/sagas'
-import tippingSagas from 'store/tipping/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
-import walletSagas from 'store/wallet/sagas'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
@@ -171,6 +172,7 @@ export default function* rootSaga() {
     tokenDashboardSagas(),
     userListModalSagas(),
     oauthSagas(),
+    vipDiscordModalSagas(),
 
     // Remote config
     remoteConfigSagas(),
