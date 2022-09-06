@@ -1,5 +1,4 @@
 import { InAppAudioPurchaseMetadata, formatNumberString } from '@audius/common'
-import { Button, ButtonType, IconButton } from '@audius/stems'
 
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import {
