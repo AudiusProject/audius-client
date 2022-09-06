@@ -1483,8 +1483,6 @@ export const audiusBackend = ({
 
   async function followUser(followeeUserId: ID) {
     try {
-      // return await audiusLibs.User.addUserFollow(followeeUserId)
-      console.log('asdf audiusbackend followUser')
       return await audiusLibs.EntityManager.followUser(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
