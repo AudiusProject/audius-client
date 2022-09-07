@@ -717,8 +717,12 @@ export const audiusBackend = ({
   }
 
   function getEthWeb3Config() {
-    const providerUrls =
-      getRemoteVar(StringKeys.ETH_PROVIDER_URLS) || ethProviderUrls
+    // In a dev env, always ignore the remote var which is inherited from staging
+    const isDevelopment = process.env.REACT_APP_ENVIRONMENT === 'development'
+    const providerUrls = isDevelopment
+      ? ethProviderUrls
+      : getRemoteVar(StringKeys.ETH_PROVIDER_URLS) || ethProviderUrls
+
     return {
       ethWeb3Config: AudiusLibs.configEthWeb3(
         ethTokenAddress,
