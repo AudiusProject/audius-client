@@ -40,16 +40,11 @@
 
 .label {
   display: block;
+  margin-bottom: 12px;
   font-family: var(--font-family);
   font-weight: var(--font-bold);
-  text-align: left;
   font-size: var(--font-s);
-  line-height: 17px;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--neutral-light-4);
-  margin-bottom: 11px;
-
-  font-size: 14px;
-  margin-right: 8px;
 }
