@@ -3,7 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   RadioPillButton,
   RadioButtonGroup,
-  TokenValueInputV2
+  TokenValueInputV2,
+  TokenValueInputV2ChangeHandler
 } from '@audius/stems'
 import { debounce } from 'lodash'
 
@@ -90,7 +91,7 @@ export const AudioAmountPicker = ({
     debouncedOnAmountChange.cancel()
   }, [debouncedOnAmountChange])
 
-  const handleCustomAmountChange = useCallback(
+  const handleCustomAmountChange = useCallback<TokenValueInputV2ChangeHandler>(
     (amount) => {
       setCustomAmount(amount)
       debouncedOnAmountChange(amount)
