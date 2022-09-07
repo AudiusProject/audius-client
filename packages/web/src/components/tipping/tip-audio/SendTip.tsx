@@ -14,7 +14,11 @@ import {
   walletSelectors,
   getTierAndNumberForBalance
 } from '@audius/common'
-import { IconTrophy, TokenValueInputV2 } from '@audius/stems'
+import {
+  IconTrophy,
+  TokenValueInputV2,
+  TokenValueInputV2ChangeHandler
+} from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -98,8 +102,8 @@ export const SendTip = () => {
     setIsDisabled(hasInsufficientBalance || tipAmountWei.lte(zeroWei))
   }, [hasInsufficientBalance, tipAmountWei])
 
-  const handleTipAmountChange = useCallback(
-    (value: string) => {
+  const handleTipAmountChange = useCallback<TokenValueInputV2ChangeHandler>(
+    (value) => {
       setTipAmount(value as StringAudio)
     },
     [setTipAmount]
