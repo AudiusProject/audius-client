@@ -19,5 +19,5 @@
     "downlevelIteration": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "../common/src/store/music-confetti"]
 }

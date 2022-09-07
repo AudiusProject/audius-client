@@ -9,10 +9,9 @@ import type {
   Modals
 } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
-import { makeStyles } from 'app/styles'
 import { trendingRewardsConfig } from 'app/utils/challenges'
 
 import { Panel } from './Panel'
@@ -30,6 +29,7 @@ const validRewardIds: Set<TrendingRewardID> = new Set([
 /** Pulls rewards from remoteconfig */
 const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.TRENDING_REWARD_IDS)
+  console.log('getting rewards?', rewardsString)
   if (!rewardsString) return []
   const rewards = rewardsString.split(',') as TrendingRewardID[]
   const filteredRewards: TrendingRewardID[] = rewards.filter((reward) =>
@@ -38,15 +38,11 @@ const useRewardIds = () => {
   return filteredRewards
 }
 
-const useStyles = makeStyles(() => ({
-  root: {}
-}))
-
 export const TrendingRewards = () => {
-  const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const rewardIds = useRewardIds()
+  console.log('rewardsIds?', rewardIds)
 
   const openModal = (trendingRewardId: TrendingRewardID) => {
     let modal: Modals
@@ -72,14 +68,14 @@ export const TrendingRewards = () => {
         return
     }
     if (modalType) {
-      dispatchWeb(setTrendingRewardsModalType({ modalType }))
+      dispatch(setTrendingRewardsModalType({ modalType }))
     }
-    dispatchWeb(setVisibility({ modal, visible: true }))
+    dispatch(setVisibility({ modal, visible: true }))
   }
 
   const rewardsPanels = rewardIds.map((id) => {
     const props = trendingRewardsConfig[id]
     return <Panel {...props} onPress={() => openModal(id)} key={props.title} />
   })
-  return <View style={styles.root}>{rewardsPanels}</View>
+  return <View>{rewardsPanels}</View>
 }
