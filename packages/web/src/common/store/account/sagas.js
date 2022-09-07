@@ -7,7 +7,8 @@ import {
   profilePageActions,
   solanaSelectors,
   modalsActions,
-  waitForAccount
+  waitForAccount,
+  recordIP
 } from '@audius/common'
 import {
   call,
@@ -21,7 +22,6 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { updateProfileAsync } from 'common/store/profile/sagas'
-import { recordIP } from 'services/audius-backend/RecordIP'
 import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import { fingerprintClient } from 'services/fingerprint'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
