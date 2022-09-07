@@ -62,6 +62,10 @@ export {
   TokenValueInputProps,
   Format
 } from './components/TokenValueInput'
+export {
+  TokenValueInputV2,
+  TokenValueInputV2Props
+} from './components/TokenValueInputV2'
 
 export { useHotkeys } from './hooks/useHotKeys'
 export { useClickOutside } from './hooks/useClickOutside'
