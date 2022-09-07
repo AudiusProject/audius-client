@@ -64,7 +64,8 @@ export {
 } from './components/TokenValueInput'
 export {
   TokenValueInputV2,
-  TokenValueInputV2Props
+  TokenValueInputV2Props,
+  TokenValueInputV2ChangeHandler
 } from './components/TokenValueInputV2'
 
 export { useHotkeys } from './hooks/useHotKeys'

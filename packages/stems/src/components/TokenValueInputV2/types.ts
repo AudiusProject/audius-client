@@ -2,6 +2,11 @@ import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
 
 import BN from 'bn.js'
 
+export type TokenValueInputV2ChangeHandler = (
+  value: string,
+  valueBN: BN
+) => void
+
 type TokenValueInputV2BaseProps = {
   label?: ReactNode
   labelClassName?: string
@@ -14,7 +19,7 @@ type TokenValueInputV2BaseProps = {
   decimals?: number
   isWhole?: boolean
   value?: string
-  onChange?: (value: string, valueBN: BN) => void
+  onChange?: TokenValueInputV2ChangeHandler
 } & Omit<ComponentPropsWithoutRef<'input'>, 'onChange'>
 
 type TokenValueInputV2PropsWithLabel = TokenValueInputV2BaseProps & {
