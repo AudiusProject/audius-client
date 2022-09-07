@@ -86,8 +86,6 @@ export const remoteConfig = <
     })
   }
 
-  // API
-
   /**
    * Register a callback for client ready.
    */
@@ -119,9 +117,11 @@ export const remoteConfig = <
     }
   }
 
+  // API
+
   /**
    * Set the userId for calls to Optimizely.
-   * Prior to calling, uses the ANONYMOUS_USER_ID constant.
+   * Prior to calling, uses session ID
    */
   function setUserId(userId: ID) {
     state.id = userId
@@ -226,7 +226,7 @@ export const remoteConfig = <
    * Need this function for feature flags that depend on user id.
    * This is because the waitForRemoteConfig does not ensure that
    * user id is available before its promise resolution, meaning
-   * that it will sometimes fallback to the anonymous id
+   * that it will sometimes fallback to the session id
    * that is set during initialization
    */
   const waitForUserRemoteConfig = async () => {
@@ -270,8 +270,6 @@ export const remoteConfig = <
     getFeatureEnabled,
     getRemoteVar,
     init,
-    onClientReady,
-    onUserReady,
     setUserId,
     waitForRemoteConfig,
     waitForUserRemoteConfig,
