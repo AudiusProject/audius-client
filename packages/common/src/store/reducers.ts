@@ -143,8 +143,6 @@ export const reducers = () => ({
     mobileOverflowModal: mobileOverflowModalReducer,
     modals: modalsReducer,
     musicConfetti: musicConfettiReducer,
-import { CommonState } from '../commonStore'
-
     nowPlaying: nowPlayingReducer,
     reactions: reactionsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
