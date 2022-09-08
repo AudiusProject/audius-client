@@ -1,6 +1,6 @@
+import * as msgpack from '@msgpack/msgpack'
 import * as secp from '@noble/secp256k1'
 import * as aes from 'micro-aes-gcm'
-import * as msgpack from '@msgpack/msgpack'
 
 ///
 /// copy-pasted from:
@@ -47,12 +47,12 @@ export class ChantCodec {
   async decode<T>(
     bytes: Uint8Array
   ): Promise<{ data: T; publicKey: Uint8Array } | undefined> {
-    let [magic, ...rest] = msgpack.decode(bytes) as any[]
+    const [magic, ...rest] = msgpack.decode(bytes) as any[]
 
     // attempt to decrypt
     switch (magic) {
       case MAGIC.asym:
-        for (let key of this.keys) {
+        for (const key of this.keys) {
           try {
             const clear = await this.decryptAsym(rest, key)
             return this.decode(clear)
@@ -60,7 +60,7 @@ export class ChantCodec {
         }
         break
       case MAGIC.sym:
-        for (let key of this.keys) {
+        for (const key of this.keys) {
           try {
             const clear = await this.decryptSym(rest, key)
             return this.decode(clear)

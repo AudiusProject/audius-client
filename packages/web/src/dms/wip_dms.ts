@@ -2,9 +2,10 @@
 /// basic client
 ///
 
-import { base64 } from '@scure/base'
-import { ChantCodec } from './codec'
 import * as secp from '@noble/secp256k1'
+import { base64 } from '@scure/base'
+
+import { ChantCodec } from './codec'
 
 const baseUrl = `https://discoveryprovider3.staging.audius.co`
 
@@ -61,7 +62,7 @@ export async function dmGet() {
   const respBody = await resp.json()
 
   const codec = getCodec()
-  for (let rpc of respBody) {
+  for (const rpc of respBody) {
     if (rpc.params.encryptedMessage) {
       const decrypted = await codec.decode(rpc.params.encryptedMessage.data)
       if (decrypted) {
@@ -78,7 +79,7 @@ export async function dmGet() {
 
 async function getPublicKey(wallet: string): Promise<Uint8Array | undefined> {
   const got = await fetch(baseUrl + `/clusterizer/pubkey/${wallet}`)
-  if (got.status != 200) return
+  if (got.status !== 200) return
   const txt = await got.text()
   const pubkey = base64.decode(txt)
   // add 04 byte prefix to recovered public key
