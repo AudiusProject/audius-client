@@ -1197,9 +1197,8 @@ export const audiusBackend = ({
     onProgress: (loaded: number, total: number) => void
   ) {
     const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED
-      )) ?? false
+      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
+      false
 
     return await audiusLibs.Track.uploadTrack(
       trackFile,
@@ -1241,10 +1240,12 @@ export const audiusBackend = ({
     uploadedTracks: { metadataMultihash: string; metadataFileUUID: string }[]
   ) {
     const trackEntityManagerIsEnabled =
-    (await getFeatureEnabled(
-      FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED
-    )) ?? false
-    return audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks, trackEntityManagerIsEnabled)
+      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
+      false
+    return audiusLibs.Track.addTracksToChainAndCnode(
+      uploadedTracks,
+      trackEntityManagerIsEnabled
+    )
   }
 
   async function uploadImage(file: File) {
@@ -1262,11 +1263,13 @@ export const audiusBackend = ({
       cleanedMetadata.cover_art_sizes = resp.dirCID
     }
     const trackEntityManagerIsEnabled =
-    (await getFeatureEnabled(
-      FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED
-    )) ?? false
+      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
+      false
 
-    return await audiusLibs.Track.updateTrack(cleanedMetadata, trackEntityManagerIsEnabled)
+    return await audiusLibs.Track.updateTrack(
+      cleanedMetadata,
+      trackEntityManagerIsEnabled
+    )
   }
 
   async function getCreators(ids: ID[]) {
@@ -1875,9 +1878,8 @@ export const audiusBackend = ({
         )}`
       )
       const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED
-      )) ?? false
+        (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
+        false
 
       const trackDeletionPromises = trackIds.map((t) =>
         audiusLibs.Track.deleteTrack(t.track, trackEntityManagerIsEnabled)
@@ -1971,11 +1973,13 @@ export const audiusBackend = ({
   async function deleteTrack(trackId: ID) {
     try {
       const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED
-      )) ?? false
+        (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
+        false
 
-      const { txReceipt } = await audiusLibs.Track.deleteTrack(trackId, trackEntityManagerIsEnabled)
+      const { txReceipt } = await audiusLibs.Track.deleteTrack(
+        trackId,
+        trackEntityManagerIsEnabled
+      )
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber
