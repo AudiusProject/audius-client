@@ -1,3 +1,4 @@
+import { TrackDownload } from 'services'
 import { Cognito } from 'services/cognito'
 import { SolanaClient } from 'services/solana-client'
 
@@ -45,4 +46,5 @@ export type CommonStoreContext = {
   audioPlayer: AudioPlayer
   solanaClient: SolanaClient
   cognito: Cognito
+  trackDownload: TrackDownload
 }

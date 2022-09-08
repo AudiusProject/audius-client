@@ -16,6 +16,7 @@ import {
   getFeatureEnabled,
   remoteConfigInstance
 } from 'app/services/remote-config'
+import { trackDownload } from 'app/services/track-download'
 import { walletClient } from 'app/services/wallet-client'
 
 export const storeContext: CommonStoreContext = {
@@ -38,5 +39,6 @@ export const storeContext: CommonStoreContext = {
   }),
   // Shim in main, but defined in native-reloaded branch
   audioPlayer,
-  cognito
+  cognito,
+  trackDownload
 }
