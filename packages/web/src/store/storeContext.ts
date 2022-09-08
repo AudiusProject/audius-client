@@ -11,6 +11,7 @@ import { fingerprintClient } from 'services/fingerprint'
 import { localStorage } from 'services/local-storage'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { trackDownload } from 'services/track-download'
 import { walletClient } from 'services/wallet-client'
 
 import { getLineupSelectorForRoute } from './lineup/lineupForRoute'
@@ -36,5 +37,6 @@ export const storeContext: CommonStoreContext = {
     solanaClusterEndpoint: process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT,
     metadataProgramId: process.env.REACT_APP_METADATA_PROGRAM_ID
   }),
-  cognito
+  cognito,
+  trackDownload
 }
