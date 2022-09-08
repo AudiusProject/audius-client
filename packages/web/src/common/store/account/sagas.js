@@ -233,7 +233,7 @@ export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
 
     // If the user is not signed in
     // Remove browser has requested push notifications.
-    yield put(unsubscribeBrowserPushNotifications)
+    yield put(unsubscribeBrowserPushNotifications())
     return
   }
 
