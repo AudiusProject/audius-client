@@ -14,6 +14,8 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
+import { Env } from 'services/env'
+
 import placeholderCoverArt from '../../assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from '../../assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from '../../assets/img/imageProfilePicEmpty2X.png'
@@ -204,6 +206,7 @@ type WaitForLibsInit = () => Promise<unknown>
 type AudiusBackendParams = {
   claimDistributionContractAddress: Maybe<string>
   disableImagePreload?: boolean
+  env: Env
   ethOwnerWallet: Maybe<string>
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
@@ -257,6 +260,7 @@ type AudiusBackendParams = {
 export const audiusBackend = ({
   claimDistributionContractAddress,
   disableImagePreload,
+  env,
   ethOwnerWallet,
   ethProviderUrls,
   ethRegistryAddress,
@@ -718,7 +722,7 @@ export const audiusBackend = ({
 
   function getEthWeb3Config() {
     // In a dev env, always ignore the remote var which is inherited from staging
-    const isDevelopment = process.env.REACT_APP_ENVIRONMENT === 'development'
+    const isDevelopment = env.ENVIRONMENT === 'development'
     const providerUrls = isDevelopment
       ? ethProviderUrls
       : getRemoteVar(StringKeys.ETH_PROVIDER_URLS) || ethProviderUrls
