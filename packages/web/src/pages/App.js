@@ -209,10 +209,13 @@ class App extends Component {
     showCTABanner: false,
     showWeb3ErrorBanner: null,
 
-    showUpdateAppBanner: false,
+    // A patch version update of the web app is available
     showWebUpdateBanner: false,
-    showRequiresUpdate: false,
+    // A version update of the web app is required
     showRequiresWebUpdate: false,
+    // A minor version update of the entire electron app is required
+    showRequiresUpdate: false,
+
     isUpdating: false,
 
     initialPage: true,
@@ -255,7 +258,6 @@ class App extends Component {
       // We downloaded an update, the user can safely restart
       this.ipc.on('updateDownloaded', (event, arg) => {
         console.info('updateDownload', event, arg)
-        this.setState({ showUpdateAppBanner: true })
       })
 
       this.ipc.on('updateDownloadProgress', (event, arg) => {
@@ -437,9 +439,6 @@ class App extends Component {
   }
 
   acceptUpdateApp = () => {
-    if (this.state.showUpdateAppBanner) {
-      this.dismissUpdateAppBanner()
-    }
     this.setState({ isUpdating: true })
     this.ipc.send('update')
   }
@@ -452,10 +451,6 @@ class App extends Component {
     }
     this.setState({ isUpdating: true })
     this.ipc.send('web-update')
-  }
-
-  dismissUpdateAppBanner = () => {
-    this.setState({ showUpdateAppBanner: false })
   }
 
   dismissUpdateWebAppBanner = () => {
@@ -487,8 +482,7 @@ class App extends Component {
 
     const {
       showCTABanner,
-      showUpdateAppBanner,
-      showWebUpdate,
+      showWebUpdateBanner,
       showWeb3ErrorBanner,
       isUpdating,
       showRequiresUpdate,
@@ -517,7 +511,7 @@ class App extends Component {
       )
 
     const showBanner =
-      showCTABanner || showUpdateAppBanner || showWeb3ErrorBanner
+      showCTABanner || showWeb3ErrorBanner || showWebUpdateBanner
     if (this.headerGutterRef.current) {
       if (showBanner) {
         this.headerGutterRef.current.classList.add(styles.bannerMargin)
@@ -540,12 +534,6 @@ class App extends Component {
             onAccept={this.showDownloadAppModal}
           />
         ) : null}
-        {showUpdateAppBanner ? (
-          <UpdateAppBanner
-            onClose={this.dismissUpdateAppBanner}
-            onAccept={this.acceptUpdateApp}
-          />
-        ) : null}
         {showWeb3ErrorBanner ? (
           <Web3ErrorBanner
             alert
@@ -553,7 +541,7 @@ class App extends Component {
             onClose={this.dismissWeb3ErrorBanner}
           />
         ) : null}
-        {showWebUpdate ? (
+        {showWebUpdateBanner ? (
           <UpdateAppBanner
             onAccept={this.acceptWebUpdate}
             onClose={this.dismissUpdateWebAppBanner}

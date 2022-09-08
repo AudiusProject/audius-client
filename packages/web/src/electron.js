@@ -468,6 +468,7 @@ ipcMain.on('quit', (event, arg) => {
   app.exit(0)
 })
 
+// We have finished downloading the electron update
 autoUpdater.on('update-downloaded', (info) => {
   console.log('update-downloaded', info)
   canUpdate = true
@@ -475,18 +476,11 @@ autoUpdater.on('update-downloaded', (info) => {
   if (mainWindow) mainWindow.webContents.send('updateDownloaded', info)
 })
 
+// We have discovered that there is an available electron update
 autoUpdater.on('update-available', (info) => {
   console.log('update-available', info)
   info.currentVersion = autoUpdater.currentVersion.version
-  const sameMajorAndMinor =
-    semver.major(info.currentVersion) === semver.major(info.version) &&
-    semver.minor(info.currentVersion) === semver.minor(info.version)
-
-  if (!sameMajorAndMinor && mainWindow) {
-    // Display an update available UI in the case that a non-patch version is
-    // available. Otherwise, result to install on quit.
-    mainWindow.webContents.send('updateAvailable', info)
-  }
+  if (mainWindow) mainWindow.webContents.send('updateAvailable', info)
 })
 
 autoUpdater.on('download-progress', (info) => {
