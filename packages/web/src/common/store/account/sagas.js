@@ -44,7 +44,6 @@ const {
 const {
   unsubscribeBrowserPushNotifications,
   showPushNotificationConfirmation,
-  fetchAccountRequested,
   fetchAccountSucceeded,
   fetchAccountFailed,
   fetchAccount,

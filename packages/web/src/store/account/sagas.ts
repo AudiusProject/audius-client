@@ -12,7 +12,6 @@ import {
   Permission,
   isPushManagerAvailable,
   isSafariPushAvailable,
-  unsubscribePushManagerBrowser,
   getPushManagerPermission,
   getPushManagerBrowserSubscription,
   getSafariPushBrowser,
