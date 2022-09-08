@@ -4,13 +4,14 @@
 
 import { base64 } from '@scure/base'
 import { ChantCodec } from './codec'
+import * as secp from '@noble/secp256k1'
 
 const baseUrl = `https://discoveryprovider3.staging.audius.co`
 
 export async function dmSend(toWallet: string, message: string) {
-  const toPublicKey = await getPublicKey(toWallet)
+  const toPublicKey = await getPublicKey(toWallet.toLowerCase())
   if (!toPublicKey) {
-    console.error(`failed to get public key for wallet ${toWallet}`)
+    console.error(`dms failed to get public key for wallet ${toWallet}`)
     return
   }
 
@@ -41,7 +42,7 @@ export async function dmSend(toWallet: string, message: string) {
   })
   const respBody = await resp.json()
 
-  console.log('dms', resp.status, respBody)
+  console.log('dms sent', resp.status, respBody)
 }
 
 export async function dmGet() {
@@ -79,7 +80,13 @@ async function getPublicKey(wallet: string): Promise<Uint8Array | undefined> {
   const got = await fetch(baseUrl + `/clusterizer/pubkey/${wallet}`)
   if (got.status != 200) return
   const txt = await got.text()
-  return base64.decode(txt)
+  const pubkey = base64.decode(txt)
+  // add 04 byte prefix to recovered public key
+  // ethereum's weirdo signature conventions chops this off, so re-add so that getSharedSecret can work:
+  // see: https://github.com/ethereumjs/ethereumjs-monorepo/blob/master/packages/util/src/signature.ts#L34-L67
+  //
+  // maybe the recover code in clusterizer should do this
+  return secp.utils.concatBytes(new Uint8Array([4]), pubkey)
 }
 
 async function signRpc(rpc: any) {
