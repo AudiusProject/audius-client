@@ -5,7 +5,6 @@ import {
   profilePageActions,
   solanaSelectors,
   accountActions,
-  modalsActions,
   waitForAccount,
   recordIP,
   createUserBankIfNeeded
@@ -240,7 +239,7 @@ export function* fetchAccountAsync(action) {
   // Fire-and-forget fp identify
   const clientOrigin = isNativeMobile
     ? 'mobile'
-    : isElectron()
+    : isElectron
     ? 'desktop'
     : 'web'
   fingerprintClient.identify(account.user_id, clientOrigin)

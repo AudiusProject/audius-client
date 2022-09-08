@@ -31,7 +31,7 @@ import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { getResult } from 'common/store/confirmer/selectors'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 
-import actions from './slice'
+import { actions } from './slice'
 
 const { update } = actions
 
