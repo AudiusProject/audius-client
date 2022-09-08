@@ -7,6 +7,7 @@ import {
 } from '@audius/common'
 import analyticsSagas from 'audius-client/src/common/store/analytics/sagas'
 import accountSagas from 'common/store/account/sagas'
+import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
@@ -118,6 +119,7 @@ export default function* rootSaga() {
     ...castSagas(),
 
     // Application
+    ...addToPlaylistSagas(),
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),
