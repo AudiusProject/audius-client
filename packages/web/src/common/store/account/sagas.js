@@ -22,23 +22,22 @@ import {
 
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
+import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
-import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
-import {
-  Permission,
-  isPushManagerAvailable,
-  isSafariPushAvailable,
-  unsubscribePushManagerBrowser,
-  getPushManagerPermission,
-  getPushManagerBrowserSubscription,
-  getSafariPushBrowser,
-  subscribePushManagerBrowser,
-  setHasRequestedBrowserPermission,
-  removeHasRequestedBrowserPermission,
-  shouldRequestBrowserPermission
-} from 'utils/browserNotifications'
-import { isElectron, isMobile } from 'utils/clientUtil'
+// import {
+//   Permission,
+//   isPushManagerAvailable,
+//   isSafariPushAvailable,
+//   unsubscribePushManagerBrowser,
+//   getPushManagerPermission,
+//   getPushManagerBrowserSubscription,
+//   getSafariPushBrowser,
+//   subscribePushManagerBrowser,
+//   setHasRequestedBrowserPermission,
+//   removeHasRequestedBrowserPermission,
+//   shouldRequestBrowserPermission
+// } from 'utils/browserNotifications'
 
 import { identify } from '../analytics/actions'
 
@@ -200,6 +199,7 @@ export function* fetchAccountAsync(action) {
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
+  const isElectron = yield getContext('isElectron')
   const fingerprintClient = yield getContext('fingerprintClient')
 
   let fromSource = false
@@ -275,7 +275,11 @@ export function* fetchAccountAsync(action) {
   remoteConfigInstance.setUserId(account.user_id)
 
   // Fire-and-forget fp identify
-  const clientOrigin = isMobile() ? 'mobile' : isElectron() ? 'desktop' : 'web'
+  const clientOrigin = isNativeMobile
+    ? 'mobile'
+    : isElectron()
+    ? 'desktop'
+    : 'web'
   fingerprintClient.identify(account.user_id, clientOrigin)
 
   yield call(recordIPIfNotRecent, account.handle)

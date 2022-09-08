@@ -29,6 +29,7 @@ export const storeContext: CommonStoreContext = {
   walletClient,
   localStorage,
   isNativeMobile: true,
+  isElectron: false,
   env,
   explore,
   // Shim in main, but defined in native-reloaded branch

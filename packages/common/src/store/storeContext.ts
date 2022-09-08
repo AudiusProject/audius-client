@@ -36,6 +36,7 @@ export type CommonStoreContext = {
   walletClient: WalletClient
   localStorage: LocalStorage
   isNativeMobile: boolean
+  isElectron: boolean
   env: Env
   explore: Explore
   // A helper that returns the appropriate lineup selector for the current
