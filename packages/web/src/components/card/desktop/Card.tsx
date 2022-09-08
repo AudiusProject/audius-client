@@ -156,7 +156,7 @@ const Card = ({
   const handleClick = useCallback(
     (e) => {
       if (
-        menuActionsRef?.current &&
+        !menuActionsRef?.current ||
         !menuActionsRef.current.contains(e.target)
       ) {
         onClick()
@@ -180,7 +180,7 @@ const Card = ({
   let bottomActions = null
   if (menu && (size === 'large' || size === 'medium')) {
     bottomActions = (
-      <div className={sizeStyles.actionsContainer} onClick={handleClick}>
+      <div className={sizeStyles.actionsContainer} ref={menuActionsRef}>
         <ActionsTab
           handle={handle}
           standalone
