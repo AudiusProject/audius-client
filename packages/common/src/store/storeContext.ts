@@ -1,3 +1,4 @@
+import { Cognito } from 'services/cognito'
 import { SolanaClient } from 'services/solana-client'
 
 import { AnalyticsEvent, LineupState, Track } from '../models'
@@ -43,4 +44,5 @@ export type CommonStoreContext = {
   getLineupSelectorForRoute?: () => (state: CommonState) => LineupState<Track>
   audioPlayer: AudioPlayer
   solanaClient: SolanaClient
+  cognito: Cognito
 }
