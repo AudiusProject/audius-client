@@ -99,7 +99,7 @@ function* recordIPIfNotRecent(handle) {
 
 // Tasks to be run on account successfully fetched, e.g.
 // recording metrics, setting user data
-function* onFetchAccount(account) {
+function* onFetchAccount(account, isSignUp = false) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const analytics = yield getContext('analytics')
   const sentry = yield getContext('sentry')
@@ -138,6 +138,14 @@ function* onFetchAccount(account) {
     audiusBackendInstance,
     feePayerOverride
   )
+  if (!isSignUp) {
+    yield call(
+      createUserBankIfNeeded,
+      analytics.track,
+      audiusBackendInstance,
+      feePayerOverride
+    )
+  }
 
   // Repair users from flare-101 that were impacted and lost connected wallets
   // TODO: this should be removed after sufficient time has passed or users have gotten
@@ -182,7 +190,7 @@ function* onFetchAccount(account) {
   }
 }
 
-export function* fetchAccountAsync(action) {
+export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const localStorage = yield getContext('localStorage')
@@ -190,11 +198,7 @@ export function* fetchAccountAsync(action) {
   const isElectron = yield getContext('isElectron')
   const fingerprintClient = yield getContext('fingerprintClient')
 
-  let fromSource = false
-  if (action) {
-    fromSource = action.fromSource
-  }
-  yield put(fetchAccountRequested())
+  yield put(accountActions.fetchAccountRequested())
 
   if (!fromSource) {
     const cachedAccount = yield call([localStorage, 'getAudiusAccount'])
@@ -248,7 +252,7 @@ export function* fetchAccountAsync(action) {
 
   // Cache the account and fire the onFetch callback. We're done.
   yield call(cacheAccount, account)
-  yield call(onFetchAccount, account)
+  yield call(onFetchAccount, account, isSignUp)
 }
 
 function* cacheAccount(account) {
