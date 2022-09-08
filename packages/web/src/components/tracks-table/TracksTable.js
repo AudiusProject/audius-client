@@ -51,6 +51,7 @@ const favoriteButtonCell = (val, record, props) => {
             [styles.deleted]: deleted
           })}
           onClick={(e) => {
+            // TODO: remove
             e.stopPropagation()
             props.onClickFavorite(record)
           }}
@@ -67,6 +68,7 @@ const trackNameCell = (val, record, props) => {
     <div
       className={styles.textContainer}
       onClick={(e) => {
+        // This one is ok because it navigates
         e.stopPropagation()
         if (!deleted) props.onClickTrackName(record)
       }}
@@ -88,6 +90,7 @@ const artistNameCell = (val, record, props) => {
       <div
         className={styles.textContainer}
         onClick={(e) => {
+          // This one is ok because it navigates
           e.stopPropagation()
           props.onClickArtistName(record)
         }}
@@ -112,6 +115,8 @@ const repostButtonCell = (val, record, props) => {
       <div>
         <TableRepostButton
           onClick={(e) => {
+            // TODO: Check if this one should stay on the page or not
+            // probably okay?
             e.stopPropagation()
             props.onClickRepost(record)
           }}
@@ -128,6 +133,7 @@ const optionsButtonCell = (val, record, index, props) => {
     <TableOptionsButton
       className={styles.optionsButtonFormatting}
       onClick={(e) => {
+        // TODO: remove
         e.stopPropagation()
       }}
       isDeleted={deleted}
@@ -596,6 +602,7 @@ class TracksTable extends Component {
             onRow={(record, rowIndex) => ({
               index: rowIndex,
               onClick: () => {
+                // TODO: check for ref here
                 const deleted = record.is_delete || record.user?.is_deactivated
                 if (deleted) return
                 onClickRow(record, rowIndex)
