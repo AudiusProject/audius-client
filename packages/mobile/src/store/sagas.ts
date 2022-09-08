@@ -24,6 +24,7 @@ import historySagas from 'common/store/pages/history/sagas'
 import savedSagas from 'common/store/pages/saved/sagas'
 import searchResultsSagas from 'common/store/pages/search-page/sagas'
 import signOnSagas from 'common/store/pages/signon/sagas'
+import tokenDashboardSagas from 'common/store/pages/token-dashboard/sagas'
 import trackPageSagas from 'common/store/pages/track/sagas'
 import trendingPlaylistSagas from 'common/store/pages/trending-playlists/sagas'
 import trendingUndergroundSagas from 'common/store/pages/trending-underground/sagas'
@@ -124,6 +125,7 @@ export default function* rootSaga() {
     ...shareModalSagas(),
     ...vipDiscordModalSagas(),
     ...themeSagas(),
+    ...tokenDashboardSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

@@ -29,7 +29,6 @@ const validRewardIds: Set<TrendingRewardID> = new Set([
 /** Pulls rewards from remoteconfig */
 const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.TRENDING_REWARD_IDS)
-  console.log('getting rewards?', rewardsString)
   if (!rewardsString) return []
   const rewards = rewardsString.split(',') as TrendingRewardID[]
   const filteredRewards: TrendingRewardID[] = rewards.filter((reward) =>
@@ -42,7 +41,6 @@ export const TrendingRewards = () => {
   const dispatch = useDispatch()
 
   const rewardIds = useRewardIds()
-  console.log('rewardsIds?', rewardIds)
 
   const openModal = (trendingRewardId: TrendingRewardID) => {
     let modal: Modals

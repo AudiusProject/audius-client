@@ -606,6 +606,10 @@ function* pollUserChallenges(frequency: number) {
 
 function* userChallengePollingDaemon() {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+
+  const isNativeMobile = yield* getContext('isNativeMobile')
+  if (isNativeMobile) return
+
   yield* call(remoteConfigInstance.waitForRemoteConfig)
   const defaultChallengePollingTimeout = remoteConfigInstance.getRemoteVar(
     IntKeys.CHALLENGE_REFRESH_INTERVAL_MS
