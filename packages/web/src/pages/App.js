@@ -280,7 +280,7 @@ class App extends Component {
         if (semver.lt(currentVersion, minAppVersion)) {
           this.setState({ showRequiresWebUpdate: true })
         } else {
-          this.setState({ showWebUpdate: true })
+          this.setState({ showWebUpdateBanner: true })
         }
       })
 
