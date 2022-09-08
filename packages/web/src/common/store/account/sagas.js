@@ -8,7 +8,8 @@ import {
   solanaSelectors,
   modalsActions,
   waitForAccount,
-  recordIP
+  recordIP,
+  createUserBankIfNeeded
 } from '@audius/common'
 import {
   call,
@@ -22,7 +23,6 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { updateProfileAsync } from 'common/store/profile/sagas'
-import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
 import { fingerprintClient } from 'services/fingerprint'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
 import { setSentryUser } from 'services/sentry'
@@ -94,6 +94,7 @@ function* recordIPIfNotRecent(handle) {
 // recording metrics, setting user data
 function* onFetchAccount(account) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const analytics = yield getContext('analytics')
   const isNativeMobile = yield getContext('isNativeMobile')
   if (account && account.handle) {
     // Set analytics user context
@@ -127,7 +128,12 @@ function* onFetchAccount(account) {
   yield fork(addPlaylistsNotInLibrary)
 
   const feePayerOverride = yield select(getFeePayer)
-  yield call(createUserBankIfNeeded, feePayerOverride)
+  yield call(
+    createUserBankIfNeeded,
+    analytics.track,
+    audiusBackendInstance,
+    feePayerOverride
+  )
 
   // Repair users from flare-101 that were impacted and lost connected wallets
   // TODO: this should be removed after sufficient time has passed or users have gotten
