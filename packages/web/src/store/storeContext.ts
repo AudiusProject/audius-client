@@ -1,4 +1,5 @@
 import { SolanaClient, CommonStoreContext } from '@audius/common'
+import * as Sentry from '@sentry/browser'
 
 import * as analytics from 'services/analytics'
 import { audioPlayer } from 'services/audio-player'
@@ -34,5 +35,6 @@ export const storeContext: CommonStoreContext = {
   solanaClient: new SolanaClient({
     solanaClusterEndpoint: process.env.REACT_APP_SOLANA_CLUSTER_ENDPOINT,
     metadataProgramId: process.env.REACT_APP_METADATA_PROGRAM_ID
-  })
+  }),
+  sentry: Sentry
 }

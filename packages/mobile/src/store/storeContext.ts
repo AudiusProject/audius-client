@@ -1,6 +1,7 @@
 import type { CommonStoreContext } from '@audius/common'
 import { SolanaClient } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Sentry from '@sentry/react-native'
 import Config from 'react-native-config'
 
 import * as analytics from 'app/services/analytics'
@@ -35,5 +36,6 @@ export const storeContext: CommonStoreContext = {
   solanaClient: new SolanaClient({
     solanaClusterEndpoint: Config.SOLANA_CLUSTER_ENDPOINT,
     metadataProgramId: Config.METADATA_PROGRAM_ID
-  })
+  }),
+  sentry: Sentry
 }

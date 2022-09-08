@@ -23,9 +23,7 @@ import {
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { updateProfileAsync } from 'common/store/profile/sagas'
-import { fingerprintClient } from 'services/fingerprint'
 import { SignedIn } from 'services/native-mobile-interface/lifecycle'
-import { setSentryUser } from 'services/sentry'
 import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
 import {
   Permission,
@@ -70,6 +68,24 @@ const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const IP_STORAGE_KEY = 'user-ip-timestamp'
 
+/**
+ * Sets the sentry user so that alerts are tied to a user
+ * @param user
+ * @param traits an object of any key-value traits to associate with the user
+ */
+const setSentryUser = (sentry, user, traits) => {
+  if (traits.isVerified) {
+    sentry.setTag('isVerified', `${traits.isVerified}`)
+  }
+  sentry.configureScope((currentScope) => {
+    currentScope.setUser({
+      id: `${user.user_id}`,
+      username: user.handle,
+      ...traits
+    })
+  })
+}
+
 function* recordIPIfNotRecent(handle) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const localStorage = yield getContext('localStorage')
@@ -96,6 +112,7 @@ function* onFetchAccount(account) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const analytics = yield getContext('analytics')
   const isNativeMobile = yield getContext('isNativeMobile')
+  const sentry = yield getContext('sentry')
   if (account && account.handle) {
     // Set analytics user context
     const traits = {
@@ -103,7 +120,7 @@ function* onFetchAccount(account) {
       trackCount: account.track_count
     }
     yield put(identify(account.handle, traits))
-    setSentryUser(account, traits)
+    setSentryUser(sentry, account, traits)
   }
 
   if (!isNativeMobile && shouldRequestBrowserPermission()) {
@@ -183,6 +200,7 @@ export function* fetchAccountAsync(action) {
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
+  const fingerprintClient = yield getContext('fingerprintClient')
 
   let fromSource = false
   if (action) {

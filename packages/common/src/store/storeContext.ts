@@ -43,4 +43,8 @@ export type CommonStoreContext = {
   getLineupSelectorForRoute?: () => (state: CommonState) => LineupState<Track>
   audioPlayer: AudioPlayer
   solanaClient: SolanaClient
+  sentry: {
+    setTag: (key: string, value: string) => void
+    configureScope: (fn: (scope: { setUser: any }) => void) => void
+  }
 }
