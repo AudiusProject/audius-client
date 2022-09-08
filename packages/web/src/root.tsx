@@ -8,6 +8,8 @@ import { BackendDidSetup } from 'services/native-mobile-interface/lifecycle'
 import { useIsMobile, isElectron } from 'utils/clientUtil'
 import { getPathname, HOME_PAGE, publicSiteRoutes } from 'utils/route'
 
+import './dms/wip_dms'
+
 import Dapp from './app'
 
 const REACT_APP_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE

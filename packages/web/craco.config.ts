@@ -40,6 +40,12 @@ export default {
           rules: [
             ...(config.module?.rules ?? []),
             {
+              test: /\.m?js/,
+              resolve: {
+                fullySpecified: false
+              }
+            },
+            {
               test: /\.js$/,
               enforce: 'pre',
               use: ['source-map-loader']
