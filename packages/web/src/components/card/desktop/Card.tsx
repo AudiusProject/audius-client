@@ -1,4 +1,4 @@
-import { MouseEvent, useState, useEffect, useCallback, ReactNode } from 'react'
+import { MouseEvent, useState, useEffect, useCallback, ReactNode, useRef } from 'react'
 
 import {
   ID,
@@ -150,6 +150,21 @@ const Card = ({
   // The card is considered `setDidLoad` (and calls it) if the artwork has loaded and its
   // parent is no longer telling it that it is loading. This allows ordered loading.
   const [artworkLoaded, setArtworkLoaded] = useState(false)
+
+  // Don't call onClick if the click event comes from the menu actions
+  const menuActionsRef = useRef<HTMLDivElement>(null)
+  const handleClick = useCallback(
+    (e) => {
+      if (
+        menuActionsRef?.current &&
+        !menuActionsRef.current.contains(e.target)
+      ) {
+        onClick()
+      }
+    },
+    [menuActionsRef, onClick]
+  )
+
   useEffect(() => {
     if (artworkLoaded && setDidLoad) {
       setDidLoad(index!)
@@ -160,18 +175,12 @@ const Card = ({
     setArtworkLoaded(true)
   }, [setArtworkLoaded])
 
-  const onBottomActionsClick = (e: MouseEvent) => {
-    e.stopPropagation()
-  }
   const sizeStyles = cardSizeStyles[size]
 
   let bottomActions = null
   if (menu && (size === 'large' || size === 'medium')) {
     bottomActions = (
-      <div
-        className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}
-      >
+      <div className={sizeStyles.actionsContainer} onClick={handleClick}>
         <ActionsTab
           handle={handle}
           standalone
@@ -189,10 +198,7 @@ const Card = ({
     )
   } else if (menu && size === 'small') {
     bottomActions = (
-      <div
-        className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}
-      >
+      <div className={sizeStyles.actionsContainer} ref={menuActionsRef}>
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
             <div className={styles.iconContainer} onClick={triggerPopup}>
@@ -212,7 +218,7 @@ const Card = ({
   return (
     <div
       className={cn(className, styles.cardContainer, sizeStyles.cardContainer)}
-      onClick={onClick}
+      onClick={handleClick}
     >
       <div
         className={cn(styles.coverArt, sizeStyles.coverArt, {
