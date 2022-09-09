@@ -13,9 +13,6 @@ import styles from './Drawer.module.css'
 
 const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
-// Hide the drawer when the keyboard is down
-const DRAWER_KEYBOARD_UP = 50
-
 // Fraction of swipe up to fade (1 / FADE_FRACTION_DENOMINATOR)
 const FADE_FRACTION_DENOMINATOR = 2
 
@@ -60,7 +57,6 @@ const interpY = (y: number) => `translate3d(0, ${y}px, 0)`
 export type DrawerProps = {
   isOpen: boolean
   children: ReactNode
-  keyboardVisible?: boolean
   shouldClose?: boolean
   onClose?: () => void
   isFullscreen?: boolean
@@ -69,7 +65,6 @@ export type DrawerProps = {
 const DraggableDrawer = ({
   isOpen,
   children,
-  keyboardVisible,
   shouldClose,
   onClose
 }: DrawerProps) => {
@@ -192,9 +187,9 @@ const DraggableDrawer = ({
   }, [shouldClose, close])
 
   useEffect(() => {
-    // Toggle drawer if isOpen and keyboard visibility toggles
+    // Toggle drawer if isOpen
     if (isOpen) {
-      const drawerY = keyboardVisible ? DRAWER_KEYBOARD_UP : -1 * getHeight()
+      const drawerY = -1 * getHeight()
       setDrawerSlideProps({
         to: {
           y: drawerY
@@ -203,7 +198,7 @@ const DraggableDrawer = ({
         config: fast
       })
     }
-  }, [isOpen, keyboardVisible, setDrawerSlideProps, getHeight])
+  }, [isOpen, setDrawerSlideProps, getHeight])
 
   const bind = useDrag(
     ({

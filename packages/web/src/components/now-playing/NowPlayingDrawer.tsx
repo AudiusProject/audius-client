@@ -22,8 +22,6 @@ const DEFAULT_HEIGHT = window.innerHeight
 const DRAWER_HIDDEN_TRANSLATION = -48
 // Translation values for the play bar stub
 const STUB_HIDDEN_TRANSLATION = -96 // 20 //-96
-// Hide the drawer when the keyboard is down
-const DRAWER_KEYBOARD_UP = 50
 
 // Translations for the bottom bar
 const BOTTOM_BAR_INITIAL_TRANSLATION = 0
@@ -65,7 +63,6 @@ const interpY = (y: number) => `translate3d(0, ${y}px, 0)`
 
 type NowPlayingDrawerProps = {
   isPlaying: boolean
-  keyboardVisible: boolean
   shouldClose: boolean
 }
 
@@ -78,7 +75,6 @@ type NowPlayingDrawerProps = {
  */
 const NowPlayingDrawer = ({
   isPlaying,
-  keyboardVisible,
   shouldClose
 }: NowPlayingDrawerProps) => {
   const dispatch = useDispatch()
@@ -254,10 +250,8 @@ const NowPlayingDrawer = ({
   }, [shouldClose, close])
 
   useEffect(() => {
-    const bottomBarY = keyboardVisible
-      ? BOTTOM_BAR_HIDDEN_TRANSLATION
-      : BOTTOM_BAR_INITIAL_TRANSLATION
-    const drawerY = keyboardVisible ? DRAWER_KEYBOARD_UP : initialTranslation()
+    const bottomBarY = BOTTOM_BAR_INITIAL_TRANSLATION
+    const drawerY = initialTranslation()
 
     setBottomBarSlideProps({
       to: {
@@ -274,12 +268,7 @@ const NowPlayingDrawer = ({
       immediate: false,
       config: fast
     })
-  }, [
-    keyboardVisible,
-    setBottomBarSlideProps,
-    setDrawerSlideProps,
-    initialTranslation
-  ])
+  }, [setBottomBarSlideProps, setDrawerSlideProps, initialTranslation])
 
   const bind = useDrag(
     ({
