@@ -230,7 +230,7 @@ export const TestTable = ({
           )}
           {...props}
           key={key}
-          onClick={(e) => onClickRow?.(e, row, row.index)}
+          onClick={(e: MouseEvent) => onClickRow?.(e, row, row.index)}
         >
           {row.cells.map(renderCell)}
         </tr>
