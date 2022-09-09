@@ -40,24 +40,28 @@ export const alphaSortFn = function (a, b, aKey, bKey) {
   return a.toLowerCase() > b.toLowerCase() ? 1 : -1
 }
 
-const favoriteButtonRef = createRef()
+const allRowsActionButtonRefs = []
 const favoriteButtonCell = (val, record, props) => {
   const deleted = record.is_delete || !!record.user?.is_deactivated
   const isOwner = record.owner_id === props.userId
   if (deleted || isOwner) return null
+
+  const favoriteButtonRef = createRef()
+  allRowsActionButtonRefs.push(favoriteButtonRef)
   return (
-    <Tooltip text={record.has_current_user_saved ? 'Unfavorite' : 'Favorite'}>
-      <span>
-        <TableFavoriteButton
-          className={cn(styles.favoriteButtonFormatting, {
-            [styles.deleted]: deleted
-          })}
-          onClick={() => props.onClickFavorite(record)}
-          favorited={record.has_current_user_saved}
-          ref={favoriteButtonRef}
-        />
-      </span>
-    </Tooltip>
+    <div ref={favoriteButtonRef}>
+      <Tooltip text={record.has_current_user_saved ? 'Unfavorite' : 'Favorite'}>
+        <span>
+          <TableFavoriteButton
+            className={cn(styles.favoriteButtonFormatting, {
+              [styles.deleted]: deleted
+            })}
+            onClick={() => props.onClickFavorite(record)}
+            favorited={record.has_current_user_saved}
+          />
+        </span>
+      </Tooltip>
+    </div>
   )
 }
 
@@ -103,17 +107,18 @@ const artistNameCell = (val, record, props) => {
   )
 }
 
-const repostButtonRef = createRef()
 const repostButtonCell = (val, record, props) => {
   const deleted = record.is_delete || record.user?.is_deactivated
   if (deleted) return null
-  const isOwner = record.owner_id === props.userId
-  return isOwner ? null : (
+  if (record.owner_id === props.userId) return null
+
+  const repostButtonRef = createRef()
+  allRowsActionButtonRefs.push(repostButtonRef)
+  return (
     <Tooltip text={record.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
-      <div>
+      <div ref={repostButtonRef}>
         <TableRepostButton
           onClick={() => props.onClickRepost(record)}
-          ref={repostButtonRef}
           reposted={record.has_current_user_reposted}
         />
       </div>
@@ -121,30 +126,32 @@ const repostButtonCell = (val, record, props) => {
   )
 }
 
-const optionsButtonRef = createRef()
 const optionsButtonCell = (val, record, index, props) => {
   const deleted = record.is_delete || !!record.user.is_deactivated
+  const optionsButtonRef = createRef()
+  allRowsActionButtonRefs.push(optionsButtonRef)
   return (
-    <TableOptionsButton
-      className={styles.optionsButtonFormatting}
-      isDeleted={deleted}
-      onRemove={props.onClickRemove}
-      removeText={props.removeText}
-      handle={val.handle}
-      trackId={val.track_id}
-      uid={val.uid}
-      date={val.date}
-      isFavorited={val.has_current_user_saved}
-      isOwner={record.owner_id === props.userId}
-      isOwnerDeactivated={!!record.user.is_deactivated}
-      isArtistPick={val.user._artist_pick === val.track_id}
-      index={index}
-      trackTitle={val.name}
-      albumId={null}
-      albumName={null}
-      trackPermalink={val.permalink}
-      ref={optionsButtonRef}
-    />
+    <div ref={optionsButtonRef}>
+      <TableOptionsButton
+        className={styles.optionsButtonFormatting}
+        isDeleted={deleted}
+        onRemove={props.onClickRemove}
+        removeText={props.removeText}
+        handle={val.handle}
+        trackId={val.track_id}
+        uid={val.uid}
+        date={val.date}
+        isFavorited={val.has_current_user_saved}
+        isOwner={record.owner_id === props.userId}
+        isOwnerDeactivated={!!record.user.is_deactivated}
+        isArtistPick={val.user._artist_pick === val.track_id}
+        index={index}
+        trackTitle={val.name}
+        albumId={null}
+        albumName={null}
+        trackPermalink={val.permalink}
+      />
+    </div>
   )
 }
 
@@ -595,11 +602,9 @@ class TracksTable extends Component {
               index: rowIndex,
               onClick: (e) => {
                 const deleted = record.is_delete || record.user?.is_deactivated
-                const clickedActionButton = [
-                  favoriteButtonRef,
-                  repostButtonRef,
-                  optionsButtonRef
-                ].some((ref) => isDescendantElementOf(e?.target, ref.current))
+                const clickedActionButton = allRowsActionButtonRefs.some(
+                  (ref) => isDescendantElementOf(e?.target, ref.current)
+                )
 
                 if (deleted || clickedActionButton) return
                 onClickRow(record, rowIndex)
