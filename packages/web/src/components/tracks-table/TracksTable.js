@@ -22,6 +22,7 @@ import TableOptionsButton from 'components/tracks-table/TableOptionsButton'
 import TablePlayButton from 'components/tracks-table/TablePlayButton'
 import TableRepostButton from 'components/tracks-table/TableRepostButton'
 import UserBadges from 'components/user-badges/UserBadges'
+import { isDescendantElementOf } from 'utils/domUtils'
 import { fullTrackPage } from 'utils/route'
 
 import styles from './TracksTable.module.css'
@@ -594,13 +595,11 @@ class TracksTable extends Component {
               index: rowIndex,
               onClick: (e) => {
                 const deleted = record.is_delete || record.user?.is_deactivated
-                const clickedActionButton =
-                  !favoriteButtonRef?.current ||
-                  !favoriteButtonRef.current.contains(e.target) ||
-                  !repostButtonRef?.current ||
-                  !repostButtonRef.current.contains(e.target) ||
-                  !optionsButtonRef?.current ||
-                  !optionsButtonRef.current.contains(e.target)
+                const clickedActionButton = [
+                  favoriteButtonRef,
+                  repostButtonRef,
+                  optionsButtonRef
+                ].some((ref) => isDescendantElementOf(e?.target, ref.current))
 
                 if (deleted || clickedActionButton) return
                 onClickRow(record, rowIndex)

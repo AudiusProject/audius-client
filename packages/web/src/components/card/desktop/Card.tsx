@@ -1,4 +1,4 @@
-import { MouseEvent, useState, useEffect, useCallback, ReactNode, useRef } from 'react'
+import { useState, useEffect, useCallback, ReactNode, useRef } from 'react'
 
 import {
   ID,
@@ -20,6 +20,7 @@ import RepostFavoritesStats, {
 import UserBadges from 'components/user-badges/UserBadges'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 import styles from './Card.module.css'
 
@@ -151,14 +152,10 @@ const Card = ({
   // parent is no longer telling it that it is loading. This allows ordered loading.
   const [artworkLoaded, setArtworkLoaded] = useState(false)
 
-  // Don't call onClick if the click event comes from the menu actions
   const menuActionsRef = useRef<HTMLDivElement>(null)
   const handleClick = useCallback(
     (e) => {
-      if (
-        !menuActionsRef?.current ||
-        !menuActionsRef.current.contains(e.target)
-      ) {
+      if (isDescendantElementOf(e?.target, menuActionsRef.current)) {
         onClick()
       }
     },

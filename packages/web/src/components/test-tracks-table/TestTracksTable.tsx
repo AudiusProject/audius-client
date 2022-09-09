@@ -18,6 +18,7 @@ import {
 } from 'components/test-table'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 import styles from './TestTracksTable.module.css'
 
@@ -443,7 +444,7 @@ export const TestTracksTable = ({
         favoriteButtonRef,
         repostButtonRef,
         overflowMenuRef
-      ].some((ref) => ref?.current && !ref.current.contains(e.target))
+      ].some((ref) => isDescendantElementOf(e?.target, ref.current))
 
       if (deleted || clickedActionButton) return
       onClickRow?.(track, index)
