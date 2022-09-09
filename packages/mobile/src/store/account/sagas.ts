@@ -60,7 +60,7 @@ function* onSignedIn({
         metadata: { ...account, events: { is_mobile_user: true } }
       })
 
-      localStorage.setItem(IS_MOBILE_USER_KEY, 'true')
+      yield call(localStorage.setItem, IS_MOBILE_USER_KEY, 'true')
     } catch (e) {
       console.error(e)
       // Do nothing. A retry on the next session will suffice.
