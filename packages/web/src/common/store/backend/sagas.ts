@@ -4,25 +4,11 @@ import {
   reachabilitySelectors,
   getContext
 } from '@audius/common'
-import {
-  put,
-  all,
-  delay,
-  take,
-  takeEvery,
-  select,
-  call,
-  race
-} from 'typed-redux-saga'
-
-import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecycle'
+import { put, all, take, takeEvery, select, call } from 'typed-redux-saga'
 
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 const { getIsReachable } = reachabilitySelectors
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-
-const REACHABILITY_TIMEOUT_MS = 8 * 1000
 
 /**
  * Waits for the backend to be setup. Can be used as a blocking call in another saga,
@@ -47,34 +33,7 @@ export function* waitForBackendSetup() {
   }
 }
 
-function* awaitReachability() {
-  if (!NATIVE_MOBILE) return true
-  // Request network connection information.
-  // If we don't ask the native layer for it, it's possible that we never receive
-  // and update.
-  const message = new RequestNetworkConnected()
-  message.send()
-
-  const { action } = yield* race({
-    action: take(reachabilityActions.SET_REACHABLE),
-    delay: delay(REACHABILITY_TIMEOUT_MS)
-  })
-
-  return !!action
-}
-
 export function* setupBackend() {
-  const establishedReachability = yield* call(awaitReachability)
-
-  // If we couldn't connect, show the error page
-  // and just sit here waiting for reachability.
-  if (!establishedReachability) {
-    console.error('No internet connectivity')
-    yield* put(accountActions.fetchAccountNoInternet())
-    yield* take(reachabilityActions.SET_REACHABLE)
-    console.info('Reconnected')
-  }
-
   const apiClient = yield* getContext('apiClient')
   const fingerprintClient = yield* getContext('fingerprintClient')
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')

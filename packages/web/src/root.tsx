@@ -4,7 +4,6 @@ import { useAsync } from 'react-use'
 
 import { setupMobileLogging } from 'services/Logging'
 import { localStorage } from 'services/local-storage'
-import { BackendDidSetup } from 'services/native-mobile-interface/lifecycle'
 import { useIsMobile, isElectron } from 'utils/clientUtil'
 import { getPathname, HOME_PAGE, publicSiteRoutes } from 'utils/route'
 
@@ -48,12 +47,6 @@ const Root = () => {
   }, [])
 
   const setReady = useCallback(() => setDappReady(true), [])
-
-  useEffect(() => {
-    if (dappReady || connectivityFailure) {
-      new BackendDidSetup().send()
-    }
-  }, [connectivityFailure, dappReady])
 
   useEffect(() => {
     setupMobileLogging()
