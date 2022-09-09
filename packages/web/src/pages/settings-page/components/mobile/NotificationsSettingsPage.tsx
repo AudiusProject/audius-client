@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import { EmailFrequency, PushNotificationSetting } from '@audius/common'
 import cn from 'classnames'
@@ -9,7 +9,6 @@ import Grouping from 'components/groupable-list/Grouping'
 import Row from 'components/groupable-list/Row'
 import Page from 'components/page/Page'
 import Switch from 'components/switch/Switch'
-import { PromptPushNotificationPermissions } from 'services/native-mobile-interface/notifications'
 
 import styles from './NotificationsSettingsPage.module.css'
 import { SettingsPageProps } from './SettingsPage'
@@ -72,15 +71,6 @@ const emailOptions = [
   { key: EmailFrequency.Off, text: 'Off' }
 ]
 
-// Prompts the native layer to check if push notifications are
-// enabled, presenting a push notifications reminder if not
-const usePromptForPushNotifications = () => {
-  useEffect(() => {
-    const msg = new PromptPushNotificationPermissions()
-    msg.send()
-  }, [])
-}
-
 const NotificationsSettingsPage = ({
   notificationSettings,
   emailFrequency,
@@ -88,8 +78,6 @@ const NotificationsSettingsPage = ({
   togglePushNotificationSetting,
   updateEmailFrequency
 }: SettingsPageProps) => {
-  usePromptForPushNotifications()
-
   const notificationToggles = [
     {
       text: messages.enablePn,
