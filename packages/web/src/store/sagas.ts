@@ -64,10 +64,8 @@ import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
 import deletedSagas from 'pages/deleted-page/store/sagas'
 import remixesSagas from 'pages/remixes-page/store/sagas'
-import searchPageTracksSagas from 'pages/search-page/store/lineups/tracks/sagas'
 import settingsSagas from 'pages/settings-page/store/sagas'
 import uploadSagas from 'pages/upload-page/store/sagas'
-import { initInterface } from 'services/native-mobile-interface/helpers'
 import webAnalyticsSagas from 'store/analytics/sagas'
 import buyAudioSagas from 'store/application/ui/buy-audio/sagas'
 import cookieBannerSagas from 'store/application/ui/cookieBanner/sagas'
@@ -83,14 +81,9 @@ import tokenDashboardSagas from 'store/token-dashboard/sagas'
 
 import notificationSagasWeb from './notifications/sagas'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-
 export default function* rootSaga() {
   yield fork(setupBackend)
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
-    // TODO(nkang): Move to common/store/pages/search-page/sagas once migrated
-    searchPageTracksSagas(),
-
     // Config
     analyticsSagas(),
     webAnalyticsSagas(),
@@ -193,8 +186,5 @@ export default function* rootSaga() {
     // Error
     errorSagas()
   )
-  if (NATIVE_MOBILE) {
-    sagas.push(initInterface)
-  }
   yield all(sagas.map(fork))
 }
