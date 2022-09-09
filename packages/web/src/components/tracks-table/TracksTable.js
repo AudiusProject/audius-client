@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import { createRef, Component } from 'react'
 
 import { formatCount, formatSeconds } from '@audius/common'
 import Table from 'antd/lib/table'
@@ -39,6 +39,7 @@ export const alphaSortFn = function (a, b, aKey, bKey) {
   return a.toLowerCase() > b.toLowerCase() ? 1 : -1
 }
 
+const favoriteButtonRef = createRef()
 const favoriteButtonCell = (val, record, props) => {
   const deleted = record.is_delete || !!record.user?.is_deactivated
   const isOwner = record.owner_id === props.userId
@@ -50,12 +51,9 @@ const favoriteButtonCell = (val, record, props) => {
           className={cn(styles.favoriteButtonFormatting, {
             [styles.deleted]: deleted
           })}
-          onClick={(e) => {
-            // TODO: remove
-            e.stopPropagation()
-            props.onClickFavorite(record)
-          }}
+          onClick={() => props.onClickFavorite(record)}
           favorited={record.has_current_user_saved}
+          ref={favoriteButtonRef}
         />
       </span>
     </Tooltip>
@@ -68,7 +66,6 @@ const trackNameCell = (val, record, props) => {
     <div
       className={styles.textContainer}
       onClick={(e) => {
-        // This one is ok because it navigates
         e.stopPropagation()
         if (!deleted) props.onClickTrackName(record)
       }}
@@ -90,7 +87,6 @@ const artistNameCell = (val, record, props) => {
       <div
         className={styles.textContainer}
         onClick={(e) => {
-          // This one is ok because it navigates
           e.stopPropagation()
           props.onClickArtistName(record)
         }}
@@ -106,6 +102,7 @@ const artistNameCell = (val, record, props) => {
   )
 }
 
+const repostButtonRef = createRef()
 const repostButtonCell = (val, record, props) => {
   const deleted = record.is_delete || record.user?.is_deactivated
   if (deleted) return null
@@ -114,12 +111,8 @@ const repostButtonCell = (val, record, props) => {
     <Tooltip text={record.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
       <div>
         <TableRepostButton
-          onClick={(e) => {
-            // TODO: Check if this one should stay on the page or not
-            // probably okay?
-            e.stopPropagation()
-            props.onClickRepost(record)
-          }}
+          onClick={() => props.onClickRepost(record)}
+          ref={repostButtonRef}
           reposted={record.has_current_user_reposted}
         />
       </div>
@@ -127,15 +120,12 @@ const repostButtonCell = (val, record, props) => {
   )
 }
 
+const optionsButtonRef = createRef()
 const optionsButtonCell = (val, record, index, props) => {
   const deleted = record.is_delete || !!record.user.is_deactivated
   return (
     <TableOptionsButton
       className={styles.optionsButtonFormatting}
-      onClick={(e) => {
-        // TODO: remove
-        e.stopPropagation()
-      }}
       isDeleted={deleted}
       onRemove={props.onClickRemove}
       removeText={props.removeText}
@@ -152,6 +142,7 @@ const optionsButtonCell = (val, record, index, props) => {
       albumId={null}
       albumName={null}
       trackPermalink={val.permalink}
+      ref={optionsButtonRef}
     />
   )
 }
@@ -601,10 +592,17 @@ class TracksTable extends Component {
             fixed
             onRow={(record, rowIndex) => ({
               index: rowIndex,
-              onClick: () => {
-                // TODO: check for ref here
+              onClick: (e) => {
                 const deleted = record.is_delete || record.user?.is_deactivated
-                if (deleted) return
+                const clickedActionButton =
+                  !favoriteButtonRef?.current ||
+                  !favoriteButtonRef.current.contains(e.target) ||
+                  !repostButtonRef?.current ||
+                  !repostButtonRef.current.contains(e.target) ||
+                  !optionsButtonRef?.current ||
+                  !optionsButtonRef.current.contains(e.target)
+
+                if (deleted || clickedActionButton) return
                 onClickRow(record, rowIndex)
               }
             })}
