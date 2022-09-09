@@ -45,5 +45,9 @@ export const storeContext: CommonStoreContext = {
   audioPlayer,
   cognito,
   trackDownload,
+  generalAdmission: Config.GENERAL_ADMISSION,
+  identityService: Config.IDENTITY_SERVICE,
+  instagramAppId: Config.INSTAGRAM_APP_ID,
+  instagramRedirectUrl: Config.INSTAGRAM_REDIRECT_URL,
   share: (url: string, message?: string) => share({ url, message })
 }

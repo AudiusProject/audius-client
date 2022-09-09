@@ -58,7 +58,7 @@ function* handleRequestOpen(action: ReturnType<typeof requestOpen>) {
   yield* put(setVisibility({ modal: 'ShareSoundToTikTok', visible: true }))
 }
 
-async function* handleShare() {
+function* handleShare() {
   const apiClient = yield* getContext('apiClient')
   yield* put(make(Name.TIKTOK_START_SHARE_SOUND, {}))
 

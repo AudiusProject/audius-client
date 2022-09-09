@@ -44,5 +44,9 @@ export const storeContext: CommonStoreContext = {
   sentry: Sentry,
   cognito,
   trackDownload,
+  generalAdmission: process.env.REACT_APP_GENERAL_ADMISSION,
+  identityService: process.env.REACT_APP_IDENTITY_SERVICE,
+  instagramAppId: process.env.REACT_APP_INSTAGRAM_APP_ID,
+  instagramRedirectUrl: process.env.REACT_APP_INSTAGRAM_REDIRECT_URL,
   share
 }
