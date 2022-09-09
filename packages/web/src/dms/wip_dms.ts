@@ -7,7 +7,16 @@ import { base64 } from '@scure/base'
 
 import { ChantCodec } from './codec'
 
-const baseUrl = `https://discoveryprovider3.staging.audius.co`
+const baseUrls = [
+  'https://discoveryprovider.staging.audius.co',
+  'https://discoveryprovider2.staging.audius.co',
+  'https://discoveryprovider3.staging.audius.co',
+  'https://discoveryprovider5.staging.audius.co'
+]
+function baseUrl() {
+  const u = baseUrls[Math.floor(Math.random() * baseUrls.length)]
+  return u
+}
 
 export async function dmSend(toWallet: string, message: string) {
   const toPublicKey = await getPublicKey(toWallet.toLowerCase())
@@ -34,7 +43,7 @@ export async function dmSend(toWallet: string, message: string) {
     }
   })
 
-  const resp = await fetch(baseUrl + '/clusterizer/op', {
+  const resp = await fetch(baseUrl() + '/clusterizer/op', {
     method: 'POST',
     headers: {
       'content-type': 'application/x-audius-msg'
@@ -51,7 +60,7 @@ export async function dmGet() {
     method: 'dm.get'
   })
 
-  const resp = await fetch(baseUrl + '/clusterizer/query', {
+  const resp = await fetch(baseUrl() + '/clusterizer/query', {
     method: 'POST',
     headers: {
       'content-type': 'application/x-audius-msg'
@@ -78,16 +87,22 @@ export async function dmGet() {
 }
 
 async function getPublicKey(wallet: string): Promise<Uint8Array | undefined> {
-  const got = await fetch(baseUrl + `/clusterizer/pubkey/${wallet}`)
+  const got = await fetch(baseUrl() + `/clusterizer/pubkey/${wallet}`)
   if (got.status !== 200) return
   const txt = await got.text()
   const pubkey = base64.decode(txt)
-  // add 04 byte prefix to recovered public key
+  // add 4 byte prefix to recovered public key
   // ethereum's weirdo signature conventions chops this off, so re-add so that getSharedSecret can work:
   // see: https://github.com/ethereumjs/ethereumjs-monorepo/blob/master/packages/util/src/signature.ts#L34-L67
   //
   // maybe the recover code in clusterizer should do this
-  return secp.utils.concatBytes(new Uint8Array([4]), pubkey)
+  if (pubkey.length == 64) {
+    return secp.utils.concatBytes(new Uint8Array([4]), pubkey)
+  } else if (pubkey.length == 65) {
+    return pubkey
+  } else {
+    console.error(`pubkey wrong length: expected 65, got ${pubkey.length}`)
+  }
 }
 
 async function signRpc(rpc: any) {
