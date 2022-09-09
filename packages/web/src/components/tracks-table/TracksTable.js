@@ -40,14 +40,14 @@ export const alphaSortFn = function (a, b, aKey, bKey) {
   return a.toLowerCase() > b.toLowerCase() ? 1 : -1
 }
 
-const allRowsActionButtonRefs = []
+const allRowsFavoriteButtonRefs = {}
 const favoriteButtonCell = (val, record, props) => {
   const deleted = record.is_delete || !!record.user?.is_deactivated
   const isOwner = record.owner_id === props.userId
   if (deleted || isOwner) return null
 
   const favoriteButtonRef = createRef()
-  allRowsActionButtonRefs.push(favoriteButtonRef)
+  allRowsFavoriteButtonRefs[record.key] = favoriteButtonRef
   return (
     <div ref={favoriteButtonRef}>
       <Tooltip text={record.has_current_user_saved ? 'Unfavorite' : 'Favorite'}>
@@ -107,13 +107,15 @@ const artistNameCell = (val, record, props) => {
   )
 }
 
+const allRowsRepostButtonRefs = {}
 const repostButtonCell = (val, record, props) => {
   const deleted = record.is_delete || record.user?.is_deactivated
   if (deleted) return null
   if (record.owner_id === props.userId) return null
 
   const repostButtonRef = createRef()
-  allRowsActionButtonRefs.push(repostButtonRef)
+  allRowsRepostButtonRefs[record.key] = repostButtonRef
+
   return (
     <Tooltip text={record.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
       <div ref={repostButtonRef}>
@@ -126,10 +128,12 @@ const repostButtonCell = (val, record, props) => {
   )
 }
 
+const allRowsOptionsButtonRefs = {}
 const optionsButtonCell = (val, record, index, props) => {
   const deleted = record.is_delete || !!record.user.is_deactivated
   const optionsButtonRef = createRef()
-  allRowsActionButtonRefs.push(optionsButtonRef)
+  allRowsOptionsButtonRefs[record.key] = optionsButtonRef
+
   return (
     <div ref={optionsButtonRef}>
       <TableOptionsButton
@@ -602,7 +606,13 @@ class TracksTable extends Component {
               index: rowIndex,
               onClick: (e) => {
                 const deleted = record.is_delete || record.user?.is_deactivated
-                const clickedActionButton = allRowsActionButtonRefs.some(
+                const allRowsAllActionButtonRefs = [
+                  ...Object.values(allRowsFavoriteButtonRefs),
+                  ...Object.values(allRowsOptionsButtonRefs),
+                  ...Object.values(allRowsRepostButtonRefs)
+                ]
+
+                const clickedActionButton = allRowsAllActionButtonRefs.some(
                   (ref) => isDescendantElementOf(e?.target, ref.current)
                 )
 
