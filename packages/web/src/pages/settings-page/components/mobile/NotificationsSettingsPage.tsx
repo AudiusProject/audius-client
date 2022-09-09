@@ -9,7 +9,6 @@ import Grouping from 'components/groupable-list/Grouping'
 import Row from 'components/groupable-list/Row'
 import Page from 'components/page/Page'
 import Switch from 'components/switch/Switch'
-import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
 import { PromptPushNotificationPermissions } from 'services/native-mobile-interface/notifications'
 
 import styles from './NotificationsSettingsPage.module.css'
@@ -33,7 +32,6 @@ const ToggleNotification = ({
 }) => {
   const handleToggle = useCallback(() => {
     onToggle(type, !isOn)
-    new HapticFeedbackMessage().send()
   }, [isOn, onToggle, type])
 
   return (

@@ -8,10 +8,6 @@ import { useSpring, animated, useTransition } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 
 import { usePortal } from 'hooks/usePortal'
-import {
-  EnablePullToRefreshMessage,
-  DisablePullToRefreshMessage
-} from 'services/native-mobile-interface/android/pulltorefresh'
 
 import styles from './Drawer.module.css'
 
@@ -120,7 +116,6 @@ const DraggableDrawer = ({
 
   const open = useCallback(() => {
     setIsBackgroundVisible(true)
-    new DisablePullToRefreshMessage().send()
     setDrawerSlideProps({
       to: {
         y: -1 * getHeight()
@@ -152,7 +147,6 @@ const DraggableDrawer = ({
   ])
 
   const close = useCallback(() => {
-    new EnablePullToRefreshMessage(true).send()
     setDrawerSlideProps({
       to: {
         y: initialTranslation()

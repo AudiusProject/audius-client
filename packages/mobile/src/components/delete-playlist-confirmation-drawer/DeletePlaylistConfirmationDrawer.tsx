@@ -18,6 +18,7 @@ export const DeletePlaylistConfirmationDrawer = () => {
 
   const handleDelete = useCallback(() => {
     if (playlistId) {
+      console.log('dispatching action??')
       dispatch(deletePlaylist(playlistId))
       navigation.goBack()
     }

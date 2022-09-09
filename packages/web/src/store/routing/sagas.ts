@@ -23,7 +23,6 @@ import {
   getPathname
 } from 'utils/route'
 
-import mobileSagas from './mobileSagas'
 import { getLocationPathname } from './selectors'
 const getUserHandle = accountSelectors.getUserHandle
 
@@ -95,7 +94,7 @@ function* handleHardwareBack() {
 
 const sagas = () => {
   const sagas = [trackLocation, handleHardwareBack]
-  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
+  return sagas
 }
 
 export default sagas

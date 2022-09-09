@@ -9,7 +9,6 @@ import type {
 } from '@audius/common'
 import type { EventArg, NavigationState } from '@react-navigation/native'
 import type { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
 import { useDispatch } from 'react-redux'
 
 import { useDrawer } from 'app/hooks/useDrawer'
@@ -118,26 +117,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
             const isOnFirstTab = !e?.data?.state.routes[0].state?.index
             drawerNavigation?.setOptions({
               swipeEnabled: isOnFirstTab
-            })
-          }
-        },
-        beforeRemove: (e) => {
-          // hack for now to prevent pop for some pages
-          if (
-            !e.target?.includes('EditProfile') &&
-            !e.target?.includes('EditPlaylist') &&
-            !e.target?.includes('CreatePlaylist') &&
-            !(
-              e.target?.includes('Search') &&
-              !e.target?.includes('SearchResults')
-            ) &&
-            !e.target?.includes('TipArtist') &&
-            !e.target?.includes('TopSupporters') &&
-            !e.target?.includes('SupportingUsers')
-          ) {
-            // When a screen is removed, notify the web layer to pop navigation
-            dispatch({
-              type: MessageType.POP_ROUTE
             })
           }
         }

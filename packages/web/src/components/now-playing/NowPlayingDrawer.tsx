@@ -9,10 +9,6 @@ import { useDrag } from 'react-use-gesture'
 import { ReactComponent as AudiusLogo } from 'assets/img/audiusLogoHorizontal.svg'
 import ConnectedBottomBar from 'components/nav/mobile/ConnectedBottomBar'
 import MobilePlayBar from 'components/play-bar/mobile/PlayBar'
-import {
-  EnablePullToRefreshMessage,
-  DisablePullToRefreshMessage
-} from 'services/native-mobile-interface/android/pulltorefresh'
 
 import NowPlaying from './NowPlaying'
 import styles from './NowPlayingDrawer.module.css'
@@ -181,7 +177,6 @@ const NowPlayingDrawer = ({
   }, [setHeight])
 
   const open = () => {
-    new DisablePullToRefreshMessage().send()
     setIsOpen(true)
     setIsNowPlayingOpen(true)
     setDrawerSlideProps({
@@ -213,7 +208,6 @@ const NowPlayingDrawer = ({
   }
 
   const close = useCallback(() => {
-    new EnablePullToRefreshMessage(true).send()
     setIsNowPlayingOpen(false)
     setDrawerSlideProps({
       to: {
