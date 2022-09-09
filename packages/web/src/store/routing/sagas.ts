@@ -1,7 +1,6 @@
 import { LOCATION_CHANGE } from 'connected-react-router'
 import { take } from 'redux-saga/effects'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 enum LocationAction {
   PUSH = 'PUSH',
   POP = 'POP',

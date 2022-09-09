@@ -88,7 +88,6 @@ type AppTabScreenProps = {
  * like track and profile
  */
 export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
-  const dispatch = useDispatch()
   const screenOptions = useAppScreenOptions()
   const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
   const { isOpen: isNowPlayingDrawerOpen } = useDrawer('NowPlaying')
