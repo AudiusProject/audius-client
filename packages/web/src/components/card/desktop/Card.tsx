@@ -155,9 +155,8 @@ const Card = ({
   const menuActionsRef = useRef<HTMLDivElement>(null)
   const handleClick = useCallback(
     (e) => {
-      if (isDescendantElementOf(e?.target, menuActionsRef.current)) {
-        onClick()
-      }
+      if (isDescendantElementOf(e?.target, menuActionsRef.current)) return
+      onClick()
     },
     [menuActionsRef, onClick]
   )
