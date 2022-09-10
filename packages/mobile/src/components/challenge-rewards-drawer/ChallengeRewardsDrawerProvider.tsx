@@ -48,7 +48,9 @@ export const ChallengeRewardsDrawerProvider = () => {
   const dispatch = useDispatch()
   const { onClose } = useDrawerState(MODAL_NAME)
   const modalType = useSelector(getChallengeRewardsModalType)
-  const userChallenges = useSelector(getOptimisticUserChallenges)
+  const userChallenges = useSelector((state) =>
+    getOptimisticUserChallenges(state, true)
+  )
 
   const handleClose = useCallback(() => {
     dispatch(resetAndCancelClaimReward())

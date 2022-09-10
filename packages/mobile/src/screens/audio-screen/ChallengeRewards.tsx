@@ -70,7 +70,9 @@ export const ChallengeRewards = () => {
 
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const userChallenges = useSelector(getUserChallenges)
-  const optimisticUserChallenges = useSelector(getOptimisticUserChallenges)
+  const optimisticUserChallenges = useSelector((state) =>
+    getOptimisticUserChallenges(state, true)
+  )
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   // The referred challenge only needs a tile if the user was referred

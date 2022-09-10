@@ -20,7 +20,6 @@ import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecy
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 const { getIsReachable } = reachabilitySelectors
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const REACHABILITY_TIMEOUT_MS = 8 * 1000
 
@@ -48,7 +47,8 @@ export function* waitForBackendSetup() {
 }
 
 function* awaitReachability() {
-  if (!NATIVE_MOBILE) return true
+  const isNativeMobile = yield* getContext('isNativeMobile')
+  if (!isNativeMobile) return true
   // Request network connection information.
   // If we don't ask the native layer for it, it's possible that we never receive
   // and update.
