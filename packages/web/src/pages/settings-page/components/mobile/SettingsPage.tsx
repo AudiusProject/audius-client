@@ -25,7 +25,6 @@ import NavContext, { LeftPreset } from 'components/nav/store/context'
 import Page from 'components/page/Page'
 import useScrollToTop from 'hooks/useScrollToTop'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { getIsIOS } from 'utils/browser'
 import {
   ACCOUNT_SETTINGS_PAGE,
   HISTORY_PAGE,
@@ -165,7 +164,6 @@ const SettingsPage = (props: SettingsPageProps) => {
     const SubPageComponent = SubPages[subPage]
     return <SubPageComponent {...props} />
   }
-  const isIOS = getIsIOS()
 
   const renderThemeSlider = () => {
     const options = [
