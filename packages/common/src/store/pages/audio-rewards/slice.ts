@@ -160,12 +160,15 @@ const slice = createSlice({
         delete userChallengeOverride.current_step_count
       }
     },
-    setPlaylistChallengeOptimisticCompleted: (state) => {
-      if (state.userChallengesOverrides['first-playlist'] !== undefined) {
-        state.userChallengesOverrides['first-playlist'].is_complete = true
-        return
+    setOptimisticChallengeCompleted: (
+      state,
+      action: PayloadAction<{ challengeId: ChallengeRewardID }>
+    ) => {
+      const { challengeId } = action.payload
+      state.userChallengesOverrides[challengeId] = {
+        ...state.userChallengesOverrides[challengeId],
+        is_complete: true
       }
-      state.userChallengesOverrides['first-playlist'] = { is_complete: true }
     },
     setTrendingRewardsModalType: (
       state,
@@ -285,7 +288,7 @@ export const {
   updateOptimisticListenStreak,
   setUserChallengeCurrentStepCount,
   resetUserChallengeCurrentStepCount,
-  setPlaylistChallengeOptimisticCompleted
+  setOptimisticChallengeCompleted
 } = slice.actions
 
 export default slice

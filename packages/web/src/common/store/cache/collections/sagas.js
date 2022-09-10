@@ -47,7 +47,7 @@ const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { getAccountUser, getUserId } = accountSelectors
-const { setPlaylistChallengeOptimisticCompleted } = audioRewardsPageActions
+const { setOptimisticChallengeCompleted } = audioRewardsPageActions
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -478,7 +478,7 @@ function* addTrackToPlaylistAsync(action) {
   yield put(
     cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: action.trackId }])
   )
-  yield put(setPlaylistChallengeOptimisticCompleted())
+  yield put(setOptimisticChallengeCompleted({ challengeId: 'first-playlist' }))
 }
 
 function* confirmAddTrackToPlaylist(
