@@ -17,7 +17,6 @@
 		5983D8FED74747CCA45F8FC4 /* AvenirNextLTPro-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 33E11CC84EEA4109B8A1AE2C /* AvenirNextLTPro-Medium.otf */; };
 		717F36E82733C73F0017511F /* AvenirNextLTPro-DemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 717F36E72733C73F0017511F /* AvenirNextLTPro-DemiBold.otf */; };
 		838AABE023CE3813004B2DA3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 838AABDF23CE3813004B2DA3 /* GoogleService-Info.plist */; };
-		83D3A5322399E3290084E702 /* Web.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 83D3A5312399E3290084E702 /* Web.bundle */; };
 		83F7359F23C55C2D0040A4C5 /* AirplayViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 83F7359E23C55C2D0040A4C5 /* AirplayViewManager.m */; };
 		83F735A523C64C950040A4C5 /* AirplayEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 83F735A423C64C950040A4C5 /* AirplayEvent.m */; };
 		83FB60B623A4351D00DC2238 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
@@ -261,7 +260,6 @@
 			files = (
 				717F36E82733C73F0017511F /* AvenirNextLTPro-DemiBold.otf in Resources */,
 				83FB60B623A4351D00DC2238 /* main.jsbundle in Resources */,
-				83D3A5322399E3290084E702 /* Web.bundle in Resources */,
 				838AABE023CE3813004B2DA3 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
