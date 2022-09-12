@@ -1198,9 +1198,9 @@ export const audiusBackend = ({
   async function undoRepostCollection(playlistId: ID) {
     try {
       const socialFeatureEntityManagerEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-      )) ?? false
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
 
       if (socialFeatureEntityManagerEnabled) {
         return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
