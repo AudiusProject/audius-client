@@ -54,15 +54,15 @@ function* getOauthToken(
   oAuthVerifier: string,
   oauthToken: string,
   headers: any,
-  credentials: CredentialsType
+  credentialsType: CredentialsType
 ) {
   try {
     const response = yield call(
-      fetch,
+      fetch as any,
       `${loginUrl}?oauth_verifier=${oAuthVerifier}&oauth_token=${oauthToken}`,
       {
         method: 'POST',
-        credentials,
+        credentialsType,
         headers
       }
     )
@@ -84,7 +84,7 @@ function* doTwitterAuth({
   onFailure
 }: TwitterNativeMobileAuthProps) {
   try {
-    const tokenResp = yield call(fetch, requestTokenUrl, {
+    const tokenResp = yield call(fetch as any, requestTokenUrl, {
       method: 'POST',
       credentialsType,
       headers
@@ -132,7 +132,7 @@ function* doTwitterAuth({
 }
 
 function* watchTwitterAuth() {
-  const { IDENTITY_SERVICE } = yield* getContext('env')
+  const { IDENTITY_SERVICE } = yield getContext('env')
   yield takeEvery(oauthActions.REQUEST_TWITTER_AUTH, function* () {
     function* onFailure(error: any) {
       console.error(error)
@@ -143,7 +143,11 @@ function* watchTwitterAuth() {
       const { uuid, profile: twitterProfile } = yield twitterProfileRes.json()
       try {
         const { profile, profileImage, profileBanner, requiresUserReview } =
-          yield call(formatTwitterProfile, twitterProfile, (image) => image)
+          yield call(
+            formatTwitterProfile,
+            twitterProfile,
+            async (image) => image
+          )
         yield put(
           oauthActions.setTwitterInfo(
             uuid,
@@ -238,6 +242,7 @@ function* doInstagramAuth({
 }: InstagramNativeMobileAuthProps) {
   const instagramAppId = yield getContext('instagramAppId')
   const instagramRedirectUrl = yield getContext('instagramRedirectUrl')
+  const { IDENTITY_SERVICE } = yield getContext('env')
   const instagramAuthorizeUrl = `https://api.instagram.com/oauth/authorize?client_id=${instagramAppId}&redirect_uri=${encodeURIComponent(
     instagramRedirectUrl
   )}&scope=user_profile,user_media&response_type=code`
@@ -257,9 +262,8 @@ function* doInstagramAuth({
               const { username, igUserProfile } = yield call(
                 getProfile,
                 code,
-                onSuccess,
-                onFailure,
-                remoteConfigInstance
+                remoteConfigInstance,
+                IDENTITY_SERVICE
               )
               yield call(onSuccess, username, igUserProfile)
             } catch (e) {
@@ -279,8 +283,8 @@ function* doInstagramAuth({
 }
 
 function* watchInstagramAuth() {
-  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const { GENERAL_ADMISSION } = yield* getContext('env')
+  const remoteConfigInstance = yield getContext('remoteConfigInstance')
+  const { GENERAL_ADMISSION } = yield getContext('env')
   yield takeEvery(oauthActions.REQUEST_INSTAGRAM_AUTH, function* () {
     function* onFailure(error: any) {
       console.error(error)
@@ -293,7 +297,7 @@ function* watchInstagramAuth() {
           formatInstagramProfile,
           instagramProfile,
           GENERAL_ADMISSION,
-          (image) => image
+          async (image: File) => image
         )
         yield put(
           oauthActions.setInstagramInfo(

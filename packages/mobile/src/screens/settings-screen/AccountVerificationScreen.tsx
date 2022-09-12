@@ -140,7 +140,7 @@ export const AccountVerificationScreen = () => {
       const handle = type === 'twitter' ? profile.screen_name : profile.username
       const verified =
         type === 'twitter' ? profile.verified : profile.is_verified
-      dispatch(signOnActions.validateHandle(handle, verified, null))
+      dispatch(signOnActions.validateHandle(handle, verified))
     },
     [dispatch, twitterInfo, instagramInfo]
   )

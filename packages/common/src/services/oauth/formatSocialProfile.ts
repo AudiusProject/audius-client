@@ -10,7 +10,7 @@ export const formatTwitterProfile = async (
     maxWidth?: number,
     square?: boolean,
     key?: string
-  ) => File
+  ) => Promise<File>
 ) => {
   const profileUrl = twitterProfile.profile_image_url_https.replace(
     /_(normal|bigger|mini)/g,
@@ -68,7 +68,7 @@ export const formatInstagramProfile = async (
     maxWidth?: number,
     square?: boolean,
     key?: string
-  ) => File
+  ) => Promise<File>
 ) => {
   let profileImage
   if (instagramProfile.profile_pic_url_hd) {
