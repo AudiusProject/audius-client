@@ -97,7 +97,7 @@ const Tippers = ({ tippers, receiver }: TippersProps) => {
           <UserBadges
             userId={tipper.user_id}
             className={styles.badge}
-            badgeSize={12}
+            badgeSize={14}
             inline
           />
           {index < tippers.length - 1 &&
@@ -242,7 +242,8 @@ export const FeedTipTile = () => {
         <div className={styles.recipientContainer}>
           <ProfilePicture
             key={tipToDisplay.receiver_id}
-            className={styles.profilePicture}
+            className={styles.profilePictureWrapper}
+            innerClassName={styles.profilePicture}
             user={usersMap[tipToDisplay.receiver_id]}
           />
           <ArtistPopover
@@ -254,7 +255,7 @@ export const FeedTipTile = () => {
               <UserBadges
                 userId={tipToDisplay.receiver_id}
                 className={styles.badge}
-                badgeSize={12}
+                badgeSize={14}
                 inline
               />
             </div>
