@@ -1,5 +1,5 @@
 import { TrackMetadata, remixesPageActions, Track } from '@audius/common'
-import { call, put, takeEvery } from 'typed-redux-saga'
+import { takeEvery, call, put } from 'redux-saga/effects'
 
 import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
@@ -12,10 +12,10 @@ import tracksSagas from './lineups/tracks/sagas'
 const { fetchTrack, fetchTrackSucceeded } = remixesPageActions
 
 function* watchFetch() {
-  yield* takeEvery(
+  yield takeEvery(
     fetchTrack.type,
     function* (action: ReturnType<typeof fetchTrack>) {
-      yield* call(waitForBackendSetup)
+      yield call(waitForBackendSetup)
       const { handle, slug, id } = action.payload
       if (!id && (!handle || !slug)) {
         throw new Error(
@@ -24,17 +24,17 @@ function* watchFetch() {
       }
       let track: TrackMetadata | Track
       if (id) {
-        const res: Track[] = yield* call(retrieveTracks, { trackIds: [id] })
+        const res = yield call(retrieveTracks, { trackIds: [id] })
         track = res[0]
       } else {
         if (!handle || !slug) return // This line not needed, but is here to appease typescript
-        track = yield* call(retrieveTrackByHandleAndSlug, {
+        track = yield call(retrieveTrackByHandleAndSlug, {
           handle,
           slug
         })
       }
 
-      yield* put(fetchTrackSucceeded({ trackId: track.track_id }))
+      yield put(fetchTrackSucceeded({ trackId: track.track_id }))
     }
   )
 }
