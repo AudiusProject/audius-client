@@ -1,7 +1,7 @@
-import { Fragment, useMemo } from 'react'
+import { Fragment, useEffect, useMemo, useRef } from 'react'
 
 import { useSelectTierInfo } from '@audius/common'
-import { View } from 'react-native'
+import { View, Animated } from 'react-native'
 
 import { Divider } from 'app/components/core'
 import { makeStyles } from 'app/styles/makeStyles'
@@ -57,13 +57,25 @@ export const ProfileSocials = () => {
 
   const { tier } = useSelectTierInfo(user_id)
 
+  const opacity = useRef(new Animated.Value(0)).current
+  useEffect(() => {
+    if (socialsCount > 0) {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true
+      }).start()
+    }
+  }, [opacity, socialsCount])
+
   return (
     <View pointerEvents='box-none' style={styles.root}>
       <ProfileTierTile interactive={false} />
-      <View
+      <Animated.View
         style={[
           styles.socials,
-          tier !== 'none' && { justifyContent: 'center' }
+          tier !== 'none' && { justifyContent: 'center' },
+          { opacity }
         ]}
       >
         {socialLinks.map(([, SocialLink], index) => {
@@ -76,7 +88,7 @@ export const ProfileSocials = () => {
             </Fragment>
           )
         })}
-      </View>
+      </Animated.View>
     </View>
   )
 }
