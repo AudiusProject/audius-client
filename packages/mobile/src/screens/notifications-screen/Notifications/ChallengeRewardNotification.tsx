@@ -66,7 +66,7 @@ const challengeInfoMap: Record<
     amount: 2
   },
   'first-playlist': {
-    title: '✨ Create Your First Playlist',
+    title: '🎼 Create a Playlist',
     amount: 2
   }
 }
