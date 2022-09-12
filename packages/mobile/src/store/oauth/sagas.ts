@@ -11,8 +11,7 @@ import { takeEvery, put, takeLatest, call } from 'redux-saga/effects'
 import type { SetCredentialsAction } from './actions'
 import * as oauthActions from './actions'
 import { Provider } from './reducer'
-
-import type { TwitterCredentials, InstagramCredentials } from '/types'
+import type { TwitterCredentials, InstagramCredentials } from './types'
 
 // Route to fetch instagram user data w/ the username
 const getIGUserUrl = (endpoint: string, username: string) => {
@@ -133,7 +132,7 @@ function* doTwitterAuth({
 }
 
 function* watchTwitterAuth() {
-  const identityService = yield* getContext('identityService')
+  const { IDENTITY_SERVICE } = yield* getContext('env')
   yield takeEvery(oauthActions.REQUEST_TWITTER_AUTH, function* () {
     function* onFailure(error: any) {
       console.error(error)
@@ -160,8 +159,8 @@ function* watchTwitterAuth() {
     }
 
     yield call(doTwitterAuth, {
-      loginUrl: `${identityService}/twitter/callback`,
-      requestTokenUrl: `${identityService}/twitter`,
+      loginUrl: `${IDENTITY_SERVICE}/twitter/callback`,
+      requestTokenUrl: `${IDENTITY_SERVICE}/twitter`,
       forceLogin: true,
       screenName: '',
       credentialsType: 'same-origin' as CredentialsType,
@@ -281,7 +280,7 @@ function* doInstagramAuth({
 
 function* watchInstagramAuth() {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const generalAdmission = yield* getContext('generalAdmission')
+  const { GENERAL_ADMISSION } = yield* getContext('env')
   yield takeEvery(oauthActions.REQUEST_INSTAGRAM_AUTH, function* () {
     function* onFailure(error: any) {
       console.error(error)
@@ -293,7 +292,7 @@ function* watchInstagramAuth() {
         const { profile, profileImage, requiresUserReview } = yield call(
           formatInstagramProfile,
           instagramProfile,
-          generalAdmission,
+          GENERAL_ADMISSION,
           (image) => image
         )
         yield put(
