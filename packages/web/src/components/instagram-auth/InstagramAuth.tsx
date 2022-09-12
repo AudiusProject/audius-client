@@ -217,7 +217,7 @@ const InstagramAuth = ({
     }
   }, [openPopup, polling, onFailure])
 
-  const onButtonClick = useCallback(
+  const handleClick = useCallback(
     (e: MouseEvent) => {
       e.preventDefault()
       if (onClick) onClick()
@@ -230,7 +230,7 @@ const InstagramAuth = ({
 
   return (
     <div
-      onClick={onButtonClick}
+      onClick={handleClick}
       style={style}
       className={cn({
         [className!]: !!className,
