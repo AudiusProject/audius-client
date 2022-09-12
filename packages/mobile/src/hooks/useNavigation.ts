@@ -32,7 +32,6 @@ export const useNavigation = <
         ...config: UseNavigationConfig<ParamList, RouteName>
       ) => {
         const [screen, params] = config
-        console.log('stuff?', screen, params)
         method(screen, params)
       },
     []
