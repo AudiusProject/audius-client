@@ -1179,7 +1179,16 @@ export const audiusBackend = ({
 
   async function repostCollection(playlistId: ID) {
     try {
-      return audiusLibs.EntityManager.repostPlaylist(playlistId)
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return audiusLibs.EntityManager.repostPlaylist(playlistId)
+      }
+
+      return audiusLibs.Playlist.addPlaylistRepost(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1188,7 +1197,15 @@ export const audiusBackend = ({
 
   async function undoRepostCollection(playlistId: ID) {
     try {
-      return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
+      const socialFeatureEntityManagerEnabled =
+      (await getFeatureEnabled(
+        FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+      )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
+      }
+      return audiusLibs.Playlist.deletePlaylistRepost(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1516,7 +1533,16 @@ export const audiusBackend = ({
 
   async function unfollowUser(followeeUserId: ID) {
     try {
-      return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
+      }
+
+      return await audiusLibs.User.deleteUserFollow(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
