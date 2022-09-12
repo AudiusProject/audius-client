@@ -9,7 +9,6 @@ import { makeStyles } from 'app/styles/makeStyles'
 import { useSelectProfile } from '../selectors'
 
 import { ProfileTierTile } from './ProfileTierTile'
-import type { SocialLinkProps } from './SocialLink'
 import {
   InstagramSocialLink,
   TikTokSocialLink,
