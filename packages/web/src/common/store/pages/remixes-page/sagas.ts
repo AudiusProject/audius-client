@@ -24,6 +24,7 @@ function* watchFetch() {
       }
       let track: TrackMetadata | Track
       if (id) {
+        // @ts-ignore - TS complains about the generator lacking a return type annotation
         const res = yield call(retrieveTracks, { trackIds: [id] })
         track = res[0]
       } else {
@@ -34,6 +35,7 @@ function* watchFetch() {
         })
       }
 
+      // TODO: The track could potentially be null or undefined - should have a way to deal with that.
       yield put(fetchTrackSucceeded({ trackId: track.track_id }))
     }
   )
