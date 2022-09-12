@@ -27,7 +27,11 @@ const slice = createSlice({
     },
     fetchTrack: (
       _state,
-      _action: PayloadAction<{ handle?: string; slug?: string; id?: string }>
+      _action: PayloadAction<{
+        handle?: string
+        slug?: string
+        id?: string | number
+      }>
     ) => {},
     fetchTrackSucceeded: (state, action: PayloadAction<{ trackId: ID }>) => {
       const { trackId } = action.payload
