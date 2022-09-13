@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef } from 'react'
 
 import { useSelectTierInfo } from '@audius/common'
 import { View, Animated } from 'react-native'
@@ -15,7 +15,7 @@ import {
   TwitterSocialLink
 } from './SocialLink'
 
-const useStyles = makeStyles(({ spacing }, { socialsCount }) => ({
+const useStyles = makeStyles(({ spacing }, { socialsCountStyles }) => ({
   root: {
     display: 'flex',
     flexDirection: 'row',
@@ -29,7 +29,7 @@ const useStyles = makeStyles(({ spacing }, { socialsCount }) => ({
   },
   divider: {
     marginVertical: spacing(1),
-    marginHorizontal: spacing(socialsCount === 2 ? 6 : 4)
+    marginHorizontal: spacing(socialsCountStyles === 2 ? 6 : 4)
   }
 }))
 
@@ -50,16 +50,24 @@ export const ProfileSocials = () => {
     ] as const
     return links.filter(([handle]) => !(handle === null || handle === ''))
   }, [twitter_handle, instagram_handle, tiktok_handle])
+  const socialsCount = useMemo(() => {
+    return socialLinks.filter(([handle]) => !!handle).length
+  }, [socialLinks])
 
-  const socialsCount = socialLinks.length
-  const stylesOptions = useMemo(() => ({ socialsCount }), [socialsCount])
+  const socialsCountStyles = socialLinks.length
+  const stylesOptions = useMemo(
+    () => ({ socialsCountStyles }),
+    [socialsCountStyles]
+  )
   const styles = useStyles(stylesOptions)
 
   const { tier } = useSelectTierInfo(user_id)
 
-  const opacity = useRef(new Animated.Value(0)).current
-  useEffect(() => {
+  // Need to start opacity at 1 so skeleton is visible.
+  const opacity = useRef(new Animated.Value(1)).current
+  useLayoutEffect(() => {
     if (socialsCount > 0) {
+      opacity.setValue(0.2)
       Animated.timing(opacity, {
         toValue: 1,
         duration: 500,
