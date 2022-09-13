@@ -11,7 +11,7 @@ import {
   getSearchResults,
   getTagSearchResults
 } from 'common/store/pages/search-page/sagas'
-import { isMobileWeb } from 'common/utils/isMobile'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 
 const { getSearchTracksLineup, getSearchResultsPageTracks } =
   searchResultsPageSelectors

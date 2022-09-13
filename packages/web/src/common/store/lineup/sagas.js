@@ -27,7 +27,7 @@ import {
 } from 'redux-saga/effects'
 
 import { getToQueue } from 'common/store/queue/sagas'
-import { isMobileWeb } from 'common/utils/isMobile'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid } = playerSelectors
