@@ -1,12 +1,12 @@
 import {
+  getContext,
   reachabilityActions,
-  reachabilitySelectors,
-  getContext
+  reachabilitySelectors
 } from '@audius/common'
-import { takeEvery, call, put, race, select, delay } from 'typed-redux-saga'
+import { call, delay, put, race, select } from 'typed-redux-saga'
 
-import { MessageType, Message } from 'services/native-mobile-interface/types'
-import { isMobile } from 'utils/clientUtil'
+import { isMobileWeb } from 'common/utils/isMobile'
+
 const { getIsReachable } = reachabilitySelectors
 const { setUnreachable, setReachable } = reachabilityActions
 
@@ -67,20 +67,12 @@ function* updateReachability(isReachable: boolean) {
 
 function* reachabilityPollingDaemon() {
   const isNativeMobile = yield* getContext('isNativeMobile')
-  if (isNativeMobile) {
-    // Native mobile: use the system connectivity checks
-    console.log('polling')
-    yield* takeEvery(
-      MessageType.IS_NETWORK_CONNECTED,
-      function* (action: Message) {
-        const { isConnected } = action
+  if (!isNativeMobile) {
+    // Note: Don't need to do anything for native mobile case because the reachability state is updated via the event listener
+    // registered in utils/connectivity.ts
 
-        yield* call(updateReachability, isConnected)
-      }
-    )
-  } else {
     // Web/Desktop: poll for connectivity
-    if (!isMobile()) {
+    if (!isMobileWeb()) {
       // TODO: Remove this check when we have build out reachability UI for desktop.
       yield* put(setReachable())
       return
