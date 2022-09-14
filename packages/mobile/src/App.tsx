@@ -10,6 +10,7 @@ import HCaptcha from 'app/components/hcaptcha'
 import NavigationContainer from 'app/components/navigation-container'
 import OAuth from 'app/components/oauth/OAuth'
 import { ReachabilityBar } from 'app/components/reachability-bar'
+import 'app/utils/connectivity'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
@@ -18,6 +19,7 @@ import { store } from 'app/store'
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { WebAppAccountSync } from './components/web-app-account-sync/WebAppAccountSync'
+import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -58,6 +60,7 @@ const App = () => {
                 <Modals />
                 <Audio />
                 <OAuth />
+                <NotificationReminder />
               </NavigationContainer>
             </ErrorBoundary>
           </ToastContextProvider>
