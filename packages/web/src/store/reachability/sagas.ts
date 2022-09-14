@@ -1,8 +1,4 @@
-import {
-  getContext,
-  reachabilityActions,
-  reachabilitySelectors
-} from '@audius/common'
+import { reachabilityActions, reachabilitySelectors } from '@audius/common'
 import { call, delay, put, race, select } from 'typed-redux-saga'
 
 import { isMobileWeb } from 'common/utils/isMobileWeb'
@@ -65,30 +61,26 @@ function* updateReachability(isReachable: boolean) {
   }
 }
 
+// Note: We don't have an equivalent saga in native mobile because the reachability state is updated via the event listener
+// registered in packages/mobile/utils/connectivity.ts
 function* reachabilityPollingDaemon() {
-  const isNativeMobile = yield* getContext('isNativeMobile')
-  if (!isNativeMobile) {
-    // Note: Don't need to do anything for native mobile case because the reachability state is updated via the event listener
-    // registered in utils/connectivity.ts
+  // Web/Desktop: poll for connectivity
+  if (!isMobileWeb()) {
+    // TODO: Remove this check when we have build out reachability UI for desktop.
+    yield* put(setReachable())
+    return
+  }
 
-    // Web/Desktop: poll for connectivity
-    if (!isMobileWeb()) {
-      // TODO: Remove this check when we have build out reachability UI for desktop.
-      yield* put(setReachable())
-      return
-    }
+  let failures = 0
+  while (true) {
+    const isReachable = yield* call(ping)
+    if (!isReachable) failures += 1
+    if (isReachable) failures = 0
+    yield* call(updateReachability, failures < 2)
 
-    let failures = 0
-    while (true) {
-      const isReachable = yield* call(ping)
-      if (!isReachable) failures += 1
-      if (isReachable) failures = 0
-      yield* call(updateReachability, failures < 2)
-
-      yield* delay(
-        isReachable ? REACHABILITY_LONG_TIMEOUT : REACHABILITY_SHORT_TIMEOUT
-      )
-    }
+    yield* delay(
+      isReachable ? REACHABILITY_LONG_TIMEOUT : REACHABILITY_SHORT_TIMEOUT
+    )
   }
 }
 
