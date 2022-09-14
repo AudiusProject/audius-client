@@ -8,6 +8,7 @@ import type { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/types
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { useNavigation } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { setupBackend } from 'audius-client/src/common/store/backend/actions'
 import { Dimensions } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -126,16 +127,27 @@ const NotificationsDrawerContents = (
   )
 }
 
+type RootScreenProps = {
+  isReadyToSetupBackend: boolean
+}
+
 /**
  * The top level navigator. Switches between sign on screens and main tab navigator
  * based on if the user is authed
  */
-export const RootScreen = () => {
+export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   const dispatch = useDispatch()
   const hasAccount = useSelector(getHasAccount)
   const accountStatus = useSelector(getAccountStatus)
   const [disableGestures, setDisableGestures] = useState(false)
   const { updateRequired } = useUpdateRequired()
+
+  useEffect(() => {
+    // Setup the backend when ready
+    if (isReadyToSetupBackend) {
+      dispatch(setupBackend())
+    }
+  }, [dispatch, isReadyToSetupBackend])
 
   useAppState(
     () => dispatch(enterForeground()),

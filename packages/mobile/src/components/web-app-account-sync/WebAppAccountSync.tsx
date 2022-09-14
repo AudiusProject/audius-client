@@ -23,7 +23,19 @@ const injected = `
 })();
 `
 
-export const WebAppAccountSync = () => {
+type WebAppAccountSyncProps = {
+  setIsReadyToSetupBackend: (isReadyToSetupBackend: boolean) => void
+}
+
+/**
+ * Used to sync the entropy from the legacy WebView to AsyncStorage
+ * so that users don't need to sign in again
+ *
+ * This can be removed when a reasonable amount of time has passed
+ */
+export const WebAppAccountSync = ({
+  setIsReadyToSetupBackend
+}: WebAppAccountSyncProps) => {
   const [uri, setUri] = useState('')
   useEffect(() => {
     const server = new StaticServer(OLD_WEB_APP_STATIC_SERVER_PORT, {
@@ -41,10 +53,12 @@ export const WebAppAccountSync = () => {
     try {
       if (event.nativeEvent.data) {
         const { entropy } = JSON.parse(event.nativeEvent.data)
-        console.log('Found entropy')
         if (entropy) {
           await AsyncStorage.setItem(ENTROPY_KEY, entropy)
         }
+        // Once the check for entropy is complete
+        // the backend setup can begin
+        setIsReadyToSetupBackend(true)
       }
     } catch (e) {
       console.error(e)
