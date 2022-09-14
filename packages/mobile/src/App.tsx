@@ -17,6 +17,7 @@ import { store } from 'app/store'
 
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
+import { WebAppAccountSync } from './components/web-app-account-sync/WebAppAccountSync'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -49,6 +50,7 @@ const App = () => {
           <ToastContextProvider>
             <ErrorBoundary>
               <NavigationContainer>
+                <WebAppAccountSync />
                 <Airplay />
                 <ReachabilityBar />
                 <RootScreen />
