@@ -38,9 +38,6 @@ const NotificationReminderInternal = () => {
 export const remindUserToTurnOnNotifications = (dispatch: Dispatch) => {
   checkNotifications()
     .then(({ status }) => {
-      dispatch(
-        setVisibility({ drawer: 'EnablePushNotifications', visible: true })
-      )
       switch (status) {
         case RESULTS.UNAVAILABLE:
           // Notifications are not available (on this device / in this context).
