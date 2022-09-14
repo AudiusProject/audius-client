@@ -1,5 +1,3 @@
-import type { MessageType } from 'app/message'
-
 import type { OAuthActions } from './actions'
 import {
   NATIVE_OPEN_POPUP,
@@ -30,9 +28,6 @@ type InstagramInfo = {
 
 export type OAuthState = {
   isOpen: boolean
-  // Incoming message id to reply back to with OAuth results
-  messageId: string | null
-  messageType: MessageType | null
   url: string | null
   provider: Provider | null
   twitterInfo: TwitterInfo | null
@@ -49,8 +44,6 @@ export enum Provider {
 
 const initialState: OAuthState = {
   isOpen: false,
-  messageId: null,
-  messageType: null,
   url: null,
   provider: null,
   twitterInfo: null,
@@ -75,8 +68,6 @@ const reducer = (
       return {
         ...state,
         isOpen: false,
-        messageId: null,
-        messageType: null,
         url: null,
         provider: null
       }

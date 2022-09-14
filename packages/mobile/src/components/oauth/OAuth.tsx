@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import type { NativeSyntheticEvent } from 'react-native'
-import { Modal, View, Button } from 'react-native'
+import { Button, Modal, View } from 'react-native'
 import Config from 'react-native-config'
 import { WebView } from 'react-native-webview'
 import type { WebViewMessage } from 'react-native-webview/lib/WebViewTypes'
@@ -9,13 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { closePopup, setCredentials } from 'app/store/oauth/actions'
 import { Provider } from 'app/store/oauth/reducer'
-import {
-  getUrl,
-  getIsOpen,
-  getMessageId,
-  getAuthProvider,
-  getMessageType
-} from 'app/store/oauth/selectors'
+import { getAuthProvider, getIsOpen, getUrl } from 'app/store/oauth/selectors'
 import type { Credentials } from 'app/store/oauth/types'
 
 const AUTH_RESPONSE = 'auth-response'
@@ -180,8 +174,6 @@ const OAuth = () => {
   const dispatch = useDispatch()
   const url = useSelector(getUrl)
   const isOpen = useSelector(getIsOpen)
-  const messageId = useSelector(getMessageId)
-  const messageType = useSelector(getMessageType)
   const provider = useSelector(getAuthProvider)
 
   const close = useCallback(() => dispatch(closePopup()), [dispatch])
@@ -218,12 +210,8 @@ const OAuth = () => {
                 }
         }
 
-        const isNativeOAuth = !messageType && !messageId
         const payload = payloadByProvider[provider as Provider](data)
-
-        if (isNativeOAuth) {
-          dispatch(setCredentials(payload as Credentials))
-        }
+        dispatch(setCredentials(payload as Credentials))
         close()
       }
     }
