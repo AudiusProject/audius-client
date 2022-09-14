@@ -4,9 +4,10 @@ import {
   Name,
   lineupSelectors,
   feedPageLineupActions as feedActions,
-  feedPageSelectors
+  feedPageSelectors,
+  reachabilitySelectors
 } from '@audius/common'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
@@ -15,8 +16,10 @@ import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
 
 import { FeedFilterButton } from './FeedFilterButton'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 const { getDiscoverFeedLineup } = feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const getFeedLineup = makeGetLineupMetadatas(getDiscoverFeedLineup)
 
@@ -28,6 +31,7 @@ export const FeedScreen = () => {
   usePopToTopOnDrawerOpen()
 
   const dispatch = useDispatch()
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
@@ -42,16 +46,20 @@ export const FeedScreen = () => {
       <Header text={messages.header}>
         <FeedFilterButton />
       </Header>
-      <Lineup
-        isFeed
-        pullToRefresh
-        delineate
-        selfLoad
-        actions={feedActions}
-        lineupSelector={getFeedLineup}
-        loadMore={loadMore}
-        showsVerticalScrollIndicator={false}
-      />
+      {isNotReachable ? (
+        <OfflinePlaceholder />
+      ) : (
+        <Lineup
+          isFeed
+          pullToRefresh
+          delineate
+          selfLoad
+          actions={feedActions}
+          lineupSelector={getFeedLineup}
+          loadMore={loadMore}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </Screen>
   )
 }
