@@ -61,10 +61,7 @@ const trendingScreens = [
 
 export const TrendingScreen = () => {
   usePopToTopOnDrawerOpen()
-
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   return (
     <Screen>

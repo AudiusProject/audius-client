@@ -76,10 +76,7 @@ export const ProfileScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
-
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const fetchProfile = useCallback(() => {
     dispatch(fetchProfileAction(handle, null, true, true, false))

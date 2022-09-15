@@ -68,7 +68,7 @@ export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
         {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
       </Text>
       <Button
-        title={isRefreshing ? 'Realoding...' : 'Reload'}
+        title={isRefreshing ? 'Reloading...' : 'Reload'}
         disabled={isRefreshing}
         fullWidth
         icon={IconRefresh}

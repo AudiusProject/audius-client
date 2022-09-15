@@ -80,9 +80,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
   const { onFollow } = props
   const styles = useStyles()
   const isProfileLoaded = useIsProfileLoaded()
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const profile = useSelectProfile([
     'user_id',

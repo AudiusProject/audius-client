@@ -56,10 +56,7 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const [isExpanded, setIsExpanded] = useToggle(false)
   const [isExpansible, setIsExpansible] = useState(false)
-
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const {
     user_id: userId,

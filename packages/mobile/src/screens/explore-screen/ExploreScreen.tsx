@@ -47,12 +47,8 @@ const exploreScreens = [
 const ExploreScreen = () => {
   const dispatch = useDispatch()
   usePopToTopOnDrawerOpen()
+  const isNotReachable = useSelector(getIsReachable) === false
 
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
-
-  // TODO: check if we need to re-do this on reconnect
   useEffectOnce(() => {
     dispatch(fetchExplore())
   })

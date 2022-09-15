@@ -43,9 +43,7 @@ export const SearchScreen = () => {
   const searchQuery = useSelector(getSearchQuery)
   const searchResultQuery = useSelector(getSearchBarText)
   const searchState = useSelector(getSearch)
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const searchResults = pick(searchState, [
     'tracks',

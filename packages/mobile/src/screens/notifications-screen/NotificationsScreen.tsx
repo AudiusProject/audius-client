@@ -3,7 +3,7 @@ import { memo, useEffect } from 'react'
 import { notificationsActions, reachabilitySelectors } from '@audius/common'
 import { useDrawerStatus } from '@react-navigation/drawer'
 import { View } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { usePrevious } from 'react-use'
 import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 
@@ -30,10 +30,7 @@ export const NotificationsScreen = memo(() => {
   const dispatch = useDispatch()
   const isDrawerOpen = useDrawerStatus() === 'open'
   const wasDrawerOpen = usePrevious(isDrawerOpen)
-
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   useEffect(() => {
     if (wasDrawerOpen && !isDrawerOpen) {

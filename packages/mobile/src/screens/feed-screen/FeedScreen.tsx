@@ -31,9 +31,7 @@ export const FeedScreen = () => {
   usePopToTopOnDrawerOpen()
 
   const dispatch = useDispatch()
-  // TODO: put back the logic
-  // const isNotReachable = useSelector(getIsReachable) === false
-  const isNotReachable = true
+  const isNotReachable = useSelector(getIsReachable) === false
 
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
