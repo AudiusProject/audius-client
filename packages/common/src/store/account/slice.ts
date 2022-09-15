@@ -138,7 +138,10 @@ const slice = createSlice({
     ) => {},
     showPushNotificationConfirmation: () => {},
     resetAccount: () => {
-      return initialState
+      return {
+        ...initialState,
+        status: Status.SUCCESS
+      }
     },
     signedIn: (
       _state,
