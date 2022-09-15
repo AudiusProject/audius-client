@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useProxySelector } from 'app/hooks/useProxySelector'
 import { makeStyles } from 'app/styles'
 
 import { EmptyNotifications } from './EmptyNotifications'
@@ -102,10 +103,12 @@ const useIsViewable = () => {
 export const NotificationList = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const notifications = useSelector(getNotifications)
+  const notifications = useProxySelector(getNotifications, [])
   const status = useSelector(getNotificationStatus)
   const hasMore = useSelector(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  console.log('notif list!!!')
 
   const { gesturesDisabled } = useContext(NotificationsDrawerNavigationContext)
 
