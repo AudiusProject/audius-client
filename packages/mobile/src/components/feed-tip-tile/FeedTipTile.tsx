@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { User } from '@audius/common'
 import {
@@ -17,6 +17,7 @@ import { useAsync } from 'react-use'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { Tile } from 'app/components/core'
+import { useProxySelector } from 'app/hooks/useProxySelector'
 import { make, track } from 'app/services/analytics'
 import { localStorage } from 'app/services/local-storage'
 import { makeStyles } from 'app/styles'
@@ -64,15 +65,25 @@ export const FeedTipTile = () => {
   const account = useSelector(getAccountUser)
   const showTip = useSelector(getShowTip)
   const tipToDisplay = useSelector(getTipToDisplay)
-  const tipperIds = tipToDisplay
-    ? [
-        tipToDisplay.sender_id,
-        tipToDisplay.receiver_id,
-        ...tipToDisplay.followee_supporter_ids
-      ]
-    : []
-  const usersMap = useSelector((state) =>
-    getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
+
+  const tipperIds = useMemo(() => {
+    const ids = tipToDisplay
+      ? [
+          tipToDisplay.sender_id,
+          tipToDisplay.receiver_id,
+          ...tipToDisplay.followee_supporter_ids
+        ]
+      : []
+    return ids
+  }, [tipToDisplay])
+
+  const usersMap = useProxySelector(
+    (state) => {
+      if (tipperIds.length > 0) {
+        return getUsers(state, { ids: tipperIds })
+      }
+    },
+    [tipperIds]
   )
 
   useAsync(async () => {
