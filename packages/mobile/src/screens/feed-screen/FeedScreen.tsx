@@ -12,11 +12,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
 
 import { FeedFilterButton } from './FeedFilterButton'
-import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 const { getDiscoverFeedLineup } = feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
 const { getIsReachable } = reachabilitySelectors
@@ -31,7 +31,9 @@ export const FeedScreen = () => {
   usePopToTopOnDrawerOpen()
 
   const dispatch = useDispatch()
-  const isNotReachable = useSelector(getIsReachable) === false
+  // TODO: put back the logic
+  // const isNotReachable = useSelector(getIsReachable) === false
+  const isNotReachable = true
 
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {

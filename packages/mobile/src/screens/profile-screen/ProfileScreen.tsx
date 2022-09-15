@@ -6,6 +6,7 @@ import {
   accountSelectors,
   profilePageSelectors,
   profilePageActions,
+  reachabilitySelectors,
   shareModalUIActions,
   profilePageTracksLineupActions as tracksActions,
   profilePageFeedLineupActions as feedActions
@@ -31,9 +32,11 @@ import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { useSelectProfileRoot } from './selectors'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { fetchProfile: fetchProfileAction, resetProfile } = profilePageActions
 const { getProfileStatus } = profilePageSelectors
+const { getIsReachable } = reachabilitySelectors
 const getUserId = accountSelectors.getUserId
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -73,6 +76,10 @@ export const ProfileScreen = () => {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
+
+  // TODO: put back the logic
+  // const isNotReachable = useSelector(getIsReachable) === false
+  const isNotReachable = true
 
   const fetchProfile = useCallback(() => {
     dispatch(fetchProfileAction(handle, null, true, true, false))
@@ -163,13 +170,22 @@ export const ProfileScreen = () => {
       {!profile ? null : (
         <>
           <View style={styles.navigator}>
-            <PortalHost name='PullToRefreshPortalHost' />
-            <ProfileTabNavigator
-              renderHeader={renderHeader}
-              animatedValue={scrollY}
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-            />
+            {isNotReachable ? (
+              <>
+                {renderHeader()}
+                <OfflinePlaceholder />
+              </>
+            ) : (
+              <>
+                <PortalHost name='PullToRefreshPortalHost' />
+                <ProfileTabNavigator
+                  renderHeader={renderHeader}
+                  animatedValue={scrollY}
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                />
+              </>
+            )}
           </View>
         </>
       )}

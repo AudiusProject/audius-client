@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { accountSelectors, useSelectTierInfo } from '@audius/common'
+import {
+  accountSelectors,
+  reachabilitySelectors,
+  useSelectTierInfo
+} from '@audius/common'
 import type { Animated } from 'react-native'
 import { LayoutAnimation, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -22,6 +26,7 @@ import { CollapsedSection } from './CollapsedSection'
 import { ExpandHeaderToggleButton } from './ExpandHeaderToggleButton'
 import { ExpandedSection } from './ExpandedSection'
 import { TopSupporters } from './TopSupporters'
+const { getIsReachable } = reachabilitySelectors
 const getUserId = accountSelectors.getUserId
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -51,6 +56,10 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const [isExpanded, setIsExpanded] = useToggle(false)
   const [isExpansible, setIsExpansible] = useState(false)
+
+  // TODO: put back the logic
+  // const isNotReachable = useSelector(getIsReachable) === false
+  const isNotReachable = true
 
   const {
     user_id: userId,
@@ -108,6 +117,19 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
     setIsExpanded(!isExpanded)
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
   }, [isExpanded, setIsExpanded])
+
+  if (isNotReachable) {
+    return (
+      <>
+        <CoverPhoto scrollY={scrollY} />
+        <ProfilePicture style={styles.profilePicture} />
+        <View pointerEvents='box-none' style={styles.header}>
+          <ProfileInfo onFollow={handleFollow} />
+          <Divider style={styles.bottomDivider} />
+        </View>
+      </>
+    )
+  }
 
   return (
     <>

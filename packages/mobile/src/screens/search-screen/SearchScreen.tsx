@@ -1,3 +1,4 @@
+import { reachabilitySelectors } from '@audius/common'
 import {
   getSearch,
   getSearchBarText
@@ -15,6 +16,8 @@ import { SearchBar } from './SearchBar'
 import SearchHistory from './SearchHistory'
 import SearchResults from './SearchResults'
 import EmptySearch from './content/EmptySearch'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
+const { getIsReachable } = reachabilitySelectors
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 
@@ -40,6 +43,10 @@ export const SearchScreen = () => {
   const searchQuery = useSelector(getSearchQuery)
   const searchResultQuery = useSelector(getSearchBarText)
   const searchState = useSelector(getSearch)
+  // TODO: put back the logic
+  // const isNotReachable = useSelector(getIsReachable) === false
+  const isNotReachable = true
+
   const searchResults = pick(searchState, [
     'tracks',
     'users',
@@ -74,7 +81,7 @@ export const SearchScreen = () => {
       headerTitle={null}
     >
       <Header text='Search' />
-      {renderBody()}
+      {isNotReachable ? <OfflinePlaceholder unboxed /> : renderBody()}
     </Screen>
   )
 }

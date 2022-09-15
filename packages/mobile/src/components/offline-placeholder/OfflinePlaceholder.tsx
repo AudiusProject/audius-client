@@ -25,9 +25,6 @@ const useStyles = makeStyles(({ typography }) => ({
     width: spacing(4)
   },
   root: {
-    height: '100%'
-  },
-  tile: {
     display: 'flex',
     padding: spacing(4),
     paddingBottom: spacing(0),
@@ -44,7 +41,12 @@ const wait = (timeout: number) => {
   return new Promise((resolve) => setTimeout(resolve, timeout))
 }
 
-export const OfflinePlaceholder = () => {
+type OfflinePlaceholderProps = {
+  unboxed?: boolean
+}
+
+export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
+  const { unboxed } = props
   const styles = useStyles()
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -58,29 +60,35 @@ export const OfflinePlaceholder = () => {
     )
   }, [isRefreshing])
 
-  return (
+  const body = (
+    <View style={styles.container}>
+      <IconNoWifi />
+      <Text style={styles.header}>You're Offline</Text>
+      <Text style={styles.subHeading}>
+        {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
+      </Text>
+      <Button
+        title={isRefreshing ? 'Realoding...' : 'Reload'}
+        disabled={isRefreshing}
+        fullWidth
+        icon={IconRefresh}
+        iconPosition='left'
+        onPress={handleRefresh}
+        styles={{ root: styles.button, icon: styles.icon }}
+        size='large'
+      />
+    </View>
+  )
+
+  return unboxed ? (
+    <View style={styles.root}>{body}</View>
+  ) : (
     <Tile
       styles={{
-        tile: styles.tile
+        tile: styles.root
       }}
     >
-      <View style={styles.container}>
-        <IconNoWifi />
-        <Text style={styles.header}>You're Offline</Text>
-        <Text style={styles.subHeading}>
-          {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
-        </Text>
-        <Button
-          title={isRefreshing ? 'Realoding...' : 'Reload'}
-          disabled={isRefreshing}
-          fullWidth
-          icon={IconRefresh}
-          iconPosition='left'
-          onPress={handleRefresh}
-          styles={{ root: styles.button, icon: styles.icon }}
-          size='large'
-        />
-      </View>
+      {body}
     </Tile>
   )
 }

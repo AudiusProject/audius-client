@@ -1,15 +1,17 @@
 import { memo, useEffect } from 'react'
 
-import { notificationsActions } from '@audius/common'
+import { notificationsActions, reachabilitySelectors } from '@audius/common'
 import { useDrawerStatus } from '@react-navigation/drawer'
 import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 
 import { makeStyles } from 'app/styles'
 
 import { NotificationList } from './NotificationList'
 import { TopBar } from './TopBar'
+const { getIsReachable } = reachabilitySelectors
 const { markAllAsViewed } = notificationsActions
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -29,6 +31,10 @@ export const NotificationsScreen = memo(() => {
   const isDrawerOpen = useDrawerStatus() === 'open'
   const wasDrawerOpen = usePrevious(isDrawerOpen)
 
+  // TODO: put back the logic
+  // const isNotReachable = useSelector(getIsReachable) === false
+  const isNotReachable = true
+
   useEffect(() => {
     if (wasDrawerOpen && !isDrawerOpen) {
       dispatch(markAllAsViewed())
@@ -38,7 +44,7 @@ export const NotificationsScreen = memo(() => {
   return (
     <View style={styles.root}>
       <TopBar />
-      <NotificationList />
+      {isNotReachable ? <OfflinePlaceholder /> : <NotificationList />}
     </View>
   )
 })
