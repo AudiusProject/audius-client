@@ -32,7 +32,6 @@ export const SplashScreen = () => {
 
   useEffect(() => {
     if (![Status.IDLE, Status.LOADING].includes(accountStatus)) {
-      console.log('ACCOUNT STATUS', accountStatus)
       if (animationRef.current) {
         animationRef.current.play()
       }
