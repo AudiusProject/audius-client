@@ -2,15 +2,12 @@ import IconNoWifi from 'app/assets/images/iconNoWifi.svg'
 import IconRefresh from 'app/assets/images/iconRefresh.svg'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
-import { Button, Text, Tile } from 'app/components/core'
+import { Button, SectionList, Text, Tile } from 'app/components/core'
 import { View } from 'react-native'
-import { PullToRefresh } from '../core/PullToRefresh'
-import { ScrollView } from 'react-native-gesture-handler'
 import { useState, useCallback } from 'react'
 import NetInfo from '@react-native-community/netinfo'
-import Animated from 'react-native-reanimated'
 
-const useStyles = makeStyles(({ palette, typography }) => ({
+const useStyles = makeStyles(({ typography }) => ({
   button: {
     marginVertical: spacing(4)
   },
@@ -43,6 +40,10 @@ const useStyles = makeStyles(({ palette, typography }) => ({
   }
 }))
 
+const wait = (timeout: number) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout))
+}
+
 export const OfflinePlaceholder = () => {
   const styles = useStyles()
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -50,40 +51,36 @@ export const OfflinePlaceholder = () => {
   const handleRefresh = useCallback(() => {
     if (isRefreshing) return
     setIsRefreshing(true)
-    NetInfo.refresh().then(() => setIsRefreshing(false))
+    // NetInfo.refresh() usually returns almost instantly
+    // Introduce minimum wait to convince user we took action
+    Promise.all([NetInfo.refresh(), wait(1200)]).then(() =>
+      setIsRefreshing(false)
+    )
   }, [isRefreshing])
 
   return (
-    <Animated.View style={styles.root}>
-      {/* TODO: This doesn't trigger refresh correctly */}
-      <PullToRefresh onRefresh={handleRefresh} isRefreshing={isRefreshing} />
-      <ScrollView>
-        <Tile
-          styles={{
-            tile: styles.tile
-          }}
-        >
-          <View style={styles.container}>
-            <IconNoWifi />
-            <Text style={styles.header}>You're Offline</Text>
-            <Text style={styles.subHeading}>
-              {
-                'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'
-              }
-            </Text>
-            <Button
-              title={isRefreshing ? 'Realoding...' : 'Reload'}
-              disabled={isRefreshing}
-              fullWidth
-              icon={IconRefresh}
-              iconPosition='left'
-              onPress={handleRefresh}
-              styles={{ root: styles.button, icon: styles.icon }}
-              size='large'
-            />
-          </View>
-        </Tile>
-      </ScrollView>
-    </Animated.View>
+    <Tile
+      styles={{
+        tile: styles.tile
+      }}
+    >
+      <View style={styles.container}>
+        <IconNoWifi />
+        <Text style={styles.header}>You're Offline</Text>
+        <Text style={styles.subHeading}>
+          {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
+        </Text>
+        <Button
+          title={isRefreshing ? 'Realoding...' : 'Reload'}
+          disabled={isRefreshing}
+          fullWidth
+          icon={IconRefresh}
+          iconPosition='left'
+          onPress={handleRefresh}
+          styles={{ root: styles.button, icon: styles.icon }}
+          size='large'
+        />
+      </View>
+    </Tile>
   )
 }
