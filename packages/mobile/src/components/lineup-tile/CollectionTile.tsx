@@ -23,12 +23,8 @@ import {
   OverflowSource,
   mobileOverflowMenuUIActions,
   shareModalUIActions,
-  RepostType,
-  Uid,
-  removeNullable
+  RepostType
 } from '@audius/common'
-import { isEqual } from 'lodash'
-import memoize from 'proxy-memoize'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
