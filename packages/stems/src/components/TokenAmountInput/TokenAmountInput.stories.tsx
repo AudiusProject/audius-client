@@ -3,20 +3,20 @@ import { useRef, useState } from 'react'
 import { Story } from '@storybook/react'
 import BN from 'bn.js'
 
-import { TokenValueInputV2 } from './TokenValueInputV2'
-import { TokenValueInputV2Props } from './types'
+import { TokenAmountInput } from './TokenAmountInput'
+import { TokenAmountInputProps } from './types'
 
 export default {
-  component: TokenValueInputV2,
-  title: 'Components/TokenValueInputV2'
+  component: TokenAmountInput,
+  title: 'Components/TokenAmountInput'
 }
 
-const ControlledTemplate: Story<TokenValueInputV2Props> = (args) => {
+const ControlledTemplate: Story<TokenAmountInputProps> = (args) => {
   const [value, setValue] = useState<string>('')
   const [, setValueBN] = useState<BN | undefined>(new BN(0))
   const ref = useRef<HTMLInputElement>(null)
   return (
-    <TokenValueInputV2
+    <TokenAmountInput
       {...args}
       value={value}
       inputRef={ref}
@@ -28,8 +28,8 @@ const ControlledTemplate: Story<TokenValueInputV2Props> = (args) => {
   )
 }
 
-const UncontrolledTemplate: Story<TokenValueInputV2Props> = (args) => (
-  <TokenValueInputV2 {...args} />
+const UncontrolledTemplate: Story<TokenAmountInputProps> = (args) => (
+  <TokenAmountInput {...args} />
 )
 
 export const Default = ControlledTemplate.bind({})

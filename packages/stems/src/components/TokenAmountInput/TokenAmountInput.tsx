@@ -7,10 +7,10 @@ import { uniqueId } from 'lodash'
 
 import { useControlled } from 'hooks/useControlled'
 
-import styles from './TokenValueInputV2.module.css'
-import { TokenValueInputV2Props } from './types'
+import styles from './TokenAmountInput.module.css'
+import { TokenAmountInputProps } from './types'
 
-export const TokenValueInputV2 = (props: TokenValueInputV2Props) => {
+export const TokenAmountInput = (props: TokenAmountInputProps) => {
   const {
     id,
     label,
@@ -30,7 +30,7 @@ export const TokenValueInputV2 = (props: TokenValueInputV2Props) => {
   const [value, setValueState] = useControlled({
     controlledProp: valueProp ? formatNumberCommas(valueProp) : valueProp,
     defaultValue: '',
-    componentName: 'TokenValueInputV2'
+    componentName: 'TokenAmountInput'
   })
 
   const inputRefInternal = useRef<HTMLInputElement>(null)

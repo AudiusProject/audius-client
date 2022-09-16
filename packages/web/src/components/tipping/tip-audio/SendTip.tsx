@@ -17,8 +17,8 @@ import {
 } from '@audius/common'
 import {
   IconTrophy,
-  TokenValueInputV2,
-  TokenValueInputV2ChangeHandler
+  TokenAmountInput,
+  TokenAmountInputChangeHandler
 } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -102,7 +102,7 @@ export const SendTip = () => {
     setIsDisabled(hasInsufficientBalance || tipAmountWei.lte(zeroWei))
   }, [hasInsufficientBalance, tipAmountWei])
 
-  const handleTipAmountChange = useCallback<TokenValueInputV2ChangeHandler>(
+  const handleTipAmountChange = useCallback<TokenAmountInputChangeHandler>(
     (value) => {
       setTipAmount(value as StringAudio)
     },
@@ -172,7 +172,7 @@ export const SendTip = () => {
         ? renderBecomeTopSupporter()
         : null}
       <div className={styles.amountToSend}>
-        <TokenValueInputV2
+        <TokenAmountInput
           aria-label={messages.inputLabel}
           placeholder={messages.inputPlaceholder}
           tokenLabel={messages.inputTokenLabel}

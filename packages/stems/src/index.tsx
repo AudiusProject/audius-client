@@ -63,10 +63,10 @@ export {
   Format
 } from './components/TokenValueInput'
 export {
-  TokenValueInputV2,
-  TokenValueInputV2Props,
-  TokenValueInputV2ChangeHandler
-} from './components/TokenValueInputV2'
+  TokenAmountInput,
+  TokenAmountInputProps,
+  TokenAmountInputChangeHandler
+} from './components/TokenAmountInput'
 
 export { useHotkeys } from './hooks/useHotKeys'
 export { useClickOutside } from './hooks/useClickOutside'

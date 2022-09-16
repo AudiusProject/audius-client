@@ -28,7 +28,7 @@ const formatValue = (value: string | undefined) => {
 const inputPaddingRight = 16
 
 /**
- * @deprecated Use TokenValueInputV2 instead
+ * @deprecated Use TokenAmountInput instead
  */
 export const TokenValueInput = ({
   className,
