@@ -1,8 +1,9 @@
 import { useCallback, useMemo } from 'react'
 
-import { buyAudioActions, buyAudioSelectors, StringKeys } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import { buyAudioActions, OnRampProvider, StringKeys } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
+import { OnRampButton } from 'components/on-ramp-button'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 
 import styles from './AmountInputPage.module.css'
@@ -11,15 +12,17 @@ import { CoinbaseBuyAudioButton } from './CoinbaseBuyAudioButton'
 import { PurchaseQuote } from './PurchaseQuote'
 
 const { calculateAudioPurchaseInfo } = buyAudioActions
-const { getAudioPurchaseInfo } = buyAudioSelectors
 
 const messages = {
   intermediateSolNoticeCoinbase:
     'An intermediate purchase of SOL will be made via Coinbase Pay and then converted to $AUDIO.'
 }
-export const AmountInputPage = () => {
+export const AmountInputPage = ({
+  provider
+}: {
+  provider?: OnRampProvider
+}) => {
   const dispatch = useDispatch()
-  const purchaseInfo = useSelector(getAudioPurchaseInfo)
   const presetAmountsConfig = useRemoteVar(StringKeys.BUY_AUDIO_PRESET_AMOUNTS)
 
   const handleAmountChange = useCallback(
@@ -48,13 +51,12 @@ export const AmountInputPage = () => {
       />
       <PurchaseQuote />
       <div className={styles.buyButtonContainer}>
-        <CoinbaseBuyAudioButton
-          amount={
-            purchaseInfo?.isError === false
-              ? purchaseInfo.estimatedSOL.uiAmount
-              : undefined
-          }
-        />
+        {provider === OnRampProvider.COINBASE ? (
+          <CoinbaseBuyAudioButton />
+        ) : (
+          // TODO: Make stripe button
+          <OnRampButton provider={provider!} />
+        )}
       </div>
       <div className={styles.conversionNotice}>
         {messages.intermediateSolNoticeCoinbase}

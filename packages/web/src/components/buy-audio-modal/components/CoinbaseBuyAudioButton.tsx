@@ -23,20 +23,18 @@ const messages = {
   belowSolThreshold: 'Coinbase requires a purchase minimum of 0.05 SOL'
 }
 
-export const CoinbaseBuyAudioButton = ({
-  amount
-}: {
-  amount: number | undefined
-}) => {
+export const CoinbaseBuyAudioButton = () => {
   const dispatch = useDispatch()
   const coinbasePay = useContext(CoinbasePayContext)
   const rootAccount = useAsync(getRootSolanaAccount)
   const purchaseInfoStatus = useSelector(getAudioPurchaseInfoStatus)
   const purchaseInfo = useSelector(getAudioPurchaseInfo)
-  const belowSolThreshold =
-    !purchaseInfo?.isError && purchaseInfo?.estimatedSOL
-      ? purchaseInfo.estimatedSOL.uiAmount < 0.05
-      : false
+  const amount =
+    purchaseInfo?.isError === false
+      ? purchaseInfo.estimatedSOL.uiAmount
+      : undefined
+
+  const belowSolThreshold = amount ? amount < 0.05 : false
   const isDisabled = purchaseInfoStatus !== Status.SUCCESS || belowSolThreshold
 
   const handleExit = useCallback(() => {
