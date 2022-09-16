@@ -86,7 +86,7 @@ export const challenges = {
   // Send First Tip
   sendFirstTipTitle: 'Send Your First Tip',
   // NOTE: Send tip -> Send $AUDIO change
-  sendFirstTipTitleAlt: 'Send $AUDIO', // iOS only
+  sendFirstTipTitleAlt: 'Send Your First $AUDIO', // iOS only
   sendFirstTipDescription:
     'Show some love to your favorite artist and send them a tip',
   sendFirstTipShortDescription:

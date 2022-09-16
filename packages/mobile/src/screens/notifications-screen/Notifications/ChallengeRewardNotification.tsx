@@ -62,7 +62,7 @@ const challengeInfoMap: Record<
   'send-first-tip': {
     title: '🤑 Send Your First Tip',
     // NOTE: Send tip -> Send $AUDIO change
-    iosTitle: '🤑 Send $AUDIO',
+    iosTitle: '🤑 Send Your First $AUDIO',
     amount: 2
   },
   'first-playlist': {

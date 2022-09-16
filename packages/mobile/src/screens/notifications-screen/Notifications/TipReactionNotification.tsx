@@ -34,7 +34,8 @@ const messages = {
   reacted: 'reacted',
   // NOTE: Send tip -> Send $AUDIO change
   react: 'reacted to your tip of ',
-  reactAlt: 'reacted to you sending them ', // iOS only
+  reactAltPrefix: 'reacted to the ', // iOS only
+  reactAltSuffix: ' you sent them', // iOS only
   // NOTE: Send tip -> Send $AUDIO change
   twitterShare: (handle: string, ios: boolean) =>
     `I got a thanks from ${handle} for ${
@@ -120,8 +121,9 @@ export const TipReactionNotification = (
             <UserBadges user={user} hideName />
           </View>
           <NotificationText>
-            {Platform.OS === 'ios' ? messages.reactAlt : messages.react}
+            {Platform.OS === 'ios' ? messages.reactAltPrefix : messages.react}
             <TipText value={uiAmount} />
+            {Platform.OS === 'ios' ? messages.reactAltSuffix : ''}
           </NotificationText>
         </View>
       </View>
