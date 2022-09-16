@@ -6,6 +6,7 @@ import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import IconStars from 'app/assets/images/iconStars.svg'
+import { useProxySelector } from 'app/hooks/useProxySelector'
 
 import {
   NotificationHeader,
@@ -37,8 +38,9 @@ export const UserSubscriptionNotification = (
   const { entityType } = notification
   const navigation = useDrawerNavigation()
   const user = useSelector((state) => getNotificationUser(state, notification))
-  const entities = useSelector((state) =>
-    getNotificationEntities(state, notification)
+  const entities = useProxySelector(
+    (state) => getNotificationEntities(state, notification),
+    [notification]
   )
 
   const uploadCount = entities?.length ?? 0

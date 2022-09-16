@@ -1,9 +1,9 @@
-import type { CommonState, User } from '@audius/common'
+import type { Nullable, User } from '@audius/common'
 import { accountSelectors, profilePageSelectors } from '@audius/common'
-import { isEqual } from 'lodash'
 import { useSelector } from 'react-redux'
 import { createSelector } from 'reselect'
 
+import { useProxySelector } from 'app/hooks/useProxySelector'
 import { useRoute } from 'app/hooks/useRoute'
 const {
   getProfileUser,
@@ -13,7 +13,6 @@ const {
 } = profilePageSelectors
 const { getAccountUser, getUserId } = accountSelectors
 
-// TODO: Check if the equality check is still needed to prevent rerenders here
 /*
  * Selects profile user and ensures rerenders occur only for changes specified in deps
  */
@@ -22,12 +21,23 @@ export const useSelectProfileRoot = (deps: Array<keyof User>) => {
   const { handle } = params
   const isAccountUser = handle === 'accountUser'
 
-  const profile = useSelector(
-    (state: CommonState) =>
-      isAccountUser ? getAccountUser(state) : getProfileUser(state, params),
-    (a, b) => deps.every((arg) => isEqual(a?.[arg], b?.[arg]))
+  const profile = useProxySelector(
+    (state) => {
+      const profile = isAccountUser
+        ? getAccountUser(state)
+        : getProfileUser(state, params)
+      if (!profile) return {}
+
+      const profileSlice = {}
+      deps.forEach((dep) => {
+        profileSlice[dep] = profile[dep]
+      })
+
+      return profileSlice
+    },
+    [isAccountUser, ...deps]
   )
-  return profile
+  return profile as Nullable<User>
 }
 
 /*

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
 import {
@@ -63,28 +63,19 @@ export const FeedTipTile = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const account = useSelector(getAccountUser)
+
   const showTip = useSelector(getShowTip)
-  const tipToDisplay = useSelector(getTipToDisplay)
 
-  const tipperIds = useMemo(() => {
-    const ids = tipToDisplay
-      ? [
-          tipToDisplay.sender_id,
-          tipToDisplay.receiver_id,
-          ...tipToDisplay.followee_supporter_ids
-        ]
-      : []
-    return ids
-  }, [tipToDisplay])
-
-  const usersMap = useProxySelector(
-    (state) => {
-      if (tipperIds.length > 0) {
-        return getUsers(state, { ids: tipperIds })
-      }
-    },
-    [tipperIds]
-  )
+  const { tipToDisplay, usersMap, tipperIds } = useProxySelector((state) => {
+    const tipToDisplay = getTipToDisplay(state)
+    if (!tipToDisplay) {
+      return { tipToDisplay: null, usersMap: {}, tipperIds: [] }
+    }
+    const { sender_id, receiver_id, followee_supporter_ids } = tipToDisplay
+    const tipperIds = [sender_id, receiver_id, ...followee_supporter_ids]
+    const usersMap = getUsers(state, { ids: tipperIds })
+    return { tipToDisplay, usersMap, tipperIds }
+  }, [])
 
   useAsync(async () => {
     const storage = await getRecentTipsStorage(localStorage)

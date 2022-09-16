@@ -42,8 +42,6 @@ export const RepostNotification = (props: RepostNotificationProps) => {
     [notification]
   )
 
-  console.log('repost notif')
-
   const handlePress = useSocialActionHandler(notification, users)
 
   if (!users || !firstUser || !entity) return null

@@ -108,8 +108,6 @@ export const NotificationList = () => {
   const hasMore = useSelector(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  console.log('notif list!!!')
-
   const { gesturesDisabled } = useContext(NotificationsDrawerNavigationContext)
 
   const handleRefresh = useCallback(() => {
