@@ -5,8 +5,8 @@ import { useDrawerStatus } from '@react-navigation/drawer'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { usePrevious } from 'react-use'
-import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { makeStyles } from 'app/styles'
 
 import { NotificationList } from './NotificationList'

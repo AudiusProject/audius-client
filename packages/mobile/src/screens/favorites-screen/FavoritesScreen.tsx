@@ -1,4 +1,6 @@
 import { reachabilitySelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
+
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
@@ -7,7 +9,6 @@ import { Header } from 'app/components/header'
 import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useSelector } from 'react-redux'
 
 import { AlbumsTab } from './AlbumsTab'
 import { PlaylistsTab } from './PlaylistsTab'

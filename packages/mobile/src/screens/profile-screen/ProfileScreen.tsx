@@ -20,6 +20,7 @@ import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { IconButton, Screen } from 'app/components/core'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { useRoute } from 'app/hooks/useRoute'
@@ -32,7 +33,6 @@ import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { useSelectProfileRoot } from './selectors'
-import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { fetchProfile: fetchProfileAction, resetProfile } = profilePageActions
 const { getProfileStatus } = profilePageSelectors

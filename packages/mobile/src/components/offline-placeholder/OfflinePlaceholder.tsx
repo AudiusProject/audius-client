@@ -1,11 +1,14 @@
+import { useState, useCallback } from 'react'
+
+import NetInfo from '@react-native-community/netinfo'
+import { View } from 'react-native'
+
 import IconNoWifi from 'app/assets/images/iconNoWifi.svg'
 import IconRefresh from 'app/assets/images/iconRefresh.svg'
+import { Button, Text, Tile } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
-import { Button, SectionList, Text, Tile } from 'app/components/core'
-import { View } from 'react-native'
-import { useState, useCallback } from 'react'
-import NetInfo from '@react-native-community/netinfo'
+
 import { getRandomInt, wait } from './utils'
 
 const useStyles = makeStyles(({ typography }) => ({
@@ -60,7 +63,7 @@ export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
   const body = (
     <View style={styles.container}>
       <IconNoWifi />
-      <Text style={styles.header}>You're Offline</Text>
+      <Text style={styles.header}>You&apos;re Offline</Text>
       <Text style={styles.subHeading}>
         {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
       </Text>

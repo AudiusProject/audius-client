@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 
 import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { getSearchQuery } from 'app/store/search/selectors'
 import { makeStyles } from 'app/styles'
 
@@ -16,7 +17,6 @@ import { SearchBar } from './SearchBar'
 import SearchHistory from './SearchHistory'
 import SearchResults from './SearchResults'
 import EmptySearch from './content/EmptySearch'
-import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 const { getIsReachable } = reachabilitySelectors
 
 const SCREEN_WIDTH = Dimensions.get('window').width
