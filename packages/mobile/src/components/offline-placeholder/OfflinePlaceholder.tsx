@@ -6,6 +6,7 @@ import { Button, SectionList, Text, Tile } from 'app/components/core'
 import { View } from 'react-native'
 import { useState, useCallback } from 'react'
 import NetInfo from '@react-native-community/netinfo'
+import { getRandomInt, wait } from './utils'
 
 const useStyles = makeStyles(({ typography }) => ({
   button: {
@@ -37,10 +38,6 @@ const useStyles = makeStyles(({ typography }) => ({
   }
 }))
 
-const wait = (timeout: number) => {
-  return new Promise((resolve) => setTimeout(resolve, timeout))
-}
-
 type OfflinePlaceholderProps = {
   unboxed?: boolean
 }
@@ -55,7 +52,7 @@ export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
     setIsRefreshing(true)
     // NetInfo.refresh() usually returns almost instantly
     // Introduce minimum wait to convince user we took action
-    Promise.all([NetInfo.refresh(), wait(1200)]).then(() =>
+    Promise.all([NetInfo.refresh(), wait(getRandomInt(800, 1200))]).then(() =>
       setIsRefreshing(false)
     )
   }, [isRefreshing])
