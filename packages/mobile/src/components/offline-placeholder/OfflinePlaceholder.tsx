@@ -1,14 +1,15 @@
-import { useState, useCallback } from 'react'
-
 import { wait } from '@audius/common'
 import NetInfo from '@react-native-community/netinfo'
 import { View } from 'react-native'
+import { useAsyncFn } from 'react-use'
 
 import IconNoWifi from 'app/assets/images/iconNoWifi.svg'
 import IconRefresh from 'app/assets/images/iconRefresh.svg'
 import { Button, Text, Tile } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
+
+import { messages } from './messages'
 
 const useStyles = makeStyles(({ typography }) => ({
   button: {
@@ -28,7 +29,6 @@ const useStyles = makeStyles(({ typography }) => ({
     width: spacing(4)
   },
   root: {
-    display: 'flex',
     padding: spacing(4),
     paddingBottom: spacing(0),
     margin: spacing(3)
@@ -40,34 +40,26 @@ const useStyles = makeStyles(({ typography }) => ({
   }
 }))
 
-type OfflinePlaceholderProps = {
+export type OfflinePlaceholderProps = {
   unboxed?: boolean
 }
 
 export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
   const { unboxed } = props
   const styles = useStyles()
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const handleRefresh = useCallback(() => {
-    if (isRefreshing) return
-    setIsRefreshing(true)
+  const [{ loading: isRefreshing }, handleRefresh] = useAsyncFn(async () => {
     // NetInfo.refresh() usually returns almost instantly
     // Introduce minimum wait to convince user we took action
-    Promise.all([NetInfo.refresh(), wait(800)]).then(() =>
-      setIsRefreshing(false)
-    )
-  }, [isRefreshing])
+    return await Promise.all([NetInfo.refresh(), wait(800)])
+  })
 
   const body = (
     <View style={styles.container}>
       <IconNoWifi />
-      <Text style={styles.header}>You&apos;re Offline</Text>
-      <Text style={styles.subHeading}>
-        {'We Couldn’t Load the Page.\nConnect to the Internet and Try Again.'}
-      </Text>
+      <Text style={styles.header}>{messages.title}</Text>
+      <Text style={styles.subHeading}>{messages.subtitle}</Text>
       <Button
-        title={isRefreshing ? 'Reloading...' : 'Reload'}
+        title={messages.reloading(isRefreshing)}
         disabled={isRefreshing}
         fullWidth
         icon={IconRefresh}
@@ -82,12 +74,6 @@ export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
   return unboxed ? (
     <View style={styles.root}>{body}</View>
   ) : (
-    <Tile
-      styles={{
-        tile: styles.root
-      }}
-    >
-      {body}
-    </Tile>
+    <Tile styles={{ tile: styles.root }}>{body}</Tile>
   )
 }

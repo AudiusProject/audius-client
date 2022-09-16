@@ -1,8 +1,4 @@
-import {
-  TimeRange,
-  reachabilitySelectors,
-  trendingPageSelectors
-} from '@audius/common'
+import { TimeRange, trendingPageSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import IconAllTime from 'app/assets/images/iconAllTime.svg'
@@ -11,14 +7,14 @@ import IconMonth from 'app/assets/images/iconMonth.svg'
 import { RewardsBanner } from 'app/components/audio-rewards'
 import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
-import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+
+import { ScreenContent } from '../ScreenContent'
 
 import { TrendingFilterButton } from './TrendingFilterButton'
 import { TrendingLineup } from './TrendingLineup'
 const { getTrendingGenre } = trendingPageSelectors
-const { getIsReachable } = reachabilitySelectors
 
 const ThisWeekTab = () => {
   const trendingGenre = useSelector(getTrendingGenre)
@@ -61,18 +57,15 @@ const trendingScreens = [
 
 export const TrendingScreen = () => {
   usePopToTopOnDrawerOpen()
-  const isNotReachable = useSelector(getIsReachable) === false
 
   return (
     <Screen>
       <Header text='Trending'>
         <TrendingFilterButton />
       </Header>
-      {isNotReachable ? (
-        <OfflinePlaceholder />
-      ) : (
+      <ScreenContent>
         <TopTabNavigator screens={trendingScreens} />
-      )}
+      </ScreenContent>
     </Screen>
   )
 }
