@@ -23,7 +23,6 @@ const ControlledTemplate: Story<TokenValueInputV2Props> = (args) => {
       onChange={(value, valueBN) => {
         setValue(value)
         setValueBN(valueBN)
-        console.log({ value, valueBN: valueBN.toString() })
       }}
     />
   )
