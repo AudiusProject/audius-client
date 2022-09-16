@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 
+import { wait } from '@audius/common'
 import NetInfo from '@react-native-community/netinfo'
 import { View } from 'react-native'
 
@@ -8,8 +9,6 @@ import IconRefresh from 'app/assets/images/iconRefresh.svg'
 import { Button, Text, Tile } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
-
-import { getRandomInt, wait } from './utils'
 
 const useStyles = makeStyles(({ typography }) => ({
   button: {
@@ -55,7 +54,7 @@ export const OfflinePlaceholder = (props: OfflinePlaceholderProps) => {
     setIsRefreshing(true)
     // NetInfo.refresh() usually returns almost instantly
     // Introduce minimum wait to convince user we took action
-    Promise.all([NetInfo.refresh(), wait(getRandomInt(800, 1200))]).then(() =>
+    Promise.all([NetInfo.refresh(), wait(800)]).then(() =>
       setIsRefreshing(false)
     )
   }, [isRefreshing])

@@ -56,7 +56,7 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
   const [hasUserFollowed, setHasUserFollowed] = useToggle(false)
   const [isExpanded, setIsExpanded] = useToggle(false)
   const [isExpansible, setIsExpansible] = useState(false)
-  const isNotReachable = useSelector(getIsReachable) === false
+  const isReachable = useSelector(getIsReachable)
 
   const {
     user_id: userId,
@@ -115,46 +115,37 @@ export const ProfileHeader = (props: ProfileHeaderProps) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
   }, [isExpanded, setIsExpanded])
 
-  if (isNotReachable) {
-    return (
-      <>
-        <CoverPhoto scrollY={scrollY} />
-        <ProfilePicture style={styles.profilePicture} />
-        <View pointerEvents='box-none' style={styles.header}>
-          <ProfileInfo onFollow={handleFollow} />
-          <Divider style={styles.bottomDivider} />
-        </View>
-      </>
-    )
-  }
-
   return (
     <>
       <CoverPhoto scrollY={scrollY} />
       <ProfilePicture style={styles.profilePicture} />
       <View pointerEvents='box-none' style={styles.header}>
         <ProfileInfo onFollow={handleFollow} />
-        <ProfileMetrics />
-        {isExpanded ? (
-          <ExpandedSection />
-        ) : (
-          <CollapsedSection
-            isExpansible={isExpansible}
-            setIsExpansible={setIsExpansible}
-          />
+        {isReachable && (
+          <>
+            <ProfileMetrics />
+            {isExpanded ? (
+              <ExpandedSection />
+            ) : (
+              <CollapsedSection
+                isExpansible={isExpansible}
+                setIsExpansible={setIsExpansible}
+              />
+            )}
+            {isExpansible ? (
+              <ExpandHeaderToggleButton
+                isExpanded={isExpanded}
+                onPress={handleToggleExpand}
+              />
+            ) : null}
+            <Divider style={styles.divider} />
+            {!hasUserFollowed ? null : (
+              <ArtistRecommendations onClose={handleCloseArtistRecs} />
+            )}
+            {isOwner ? <UploadTrackButton /> : <TipAudioButton />}
+            <TopSupporters />
+          </>
         )}
-        {isExpansible ? (
-          <ExpandHeaderToggleButton
-            isExpanded={isExpanded}
-            onPress={handleToggleExpand}
-          />
-        ) : null}
-        <Divider style={styles.divider} />
-        {!hasUserFollowed ? null : (
-          <ArtistRecommendations onClose={handleCloseArtistRecs} />
-        )}
-        {isOwner ? <UploadTrackButton /> : <TipAudioButton />}
-        <TopSupporters />
         <Divider style={styles.bottomDivider} />
       </View>
     </>
