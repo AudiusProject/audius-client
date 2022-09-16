@@ -34,7 +34,8 @@ const messages = {
   done: 'Done',
   twitterCopyPrefix: 'I just tipped ',
   twitterCopyPrefixAlt: 'I just sent ', // iOS only
-  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip'
+  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip',
+  twitterCopySuffixAlt: ' $AUDIO on @AudiusProject #Audius #AUDIO' // iOS only
 }
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -67,7 +68,11 @@ export const TipSentScreen = () => {
         Platform.OS === 'ios'
           ? messages.twitterCopyPrefixAlt
           : messages.twitterCopyPrefix
-      }${recipientAndAmount}${messages.twitterCopySuffix}`
+      }${recipientAndAmount}${
+        Platform.OS === 'ios'
+          ? messages.twitterCopySuffixAlt
+          : messages.twitterCopySuffix
+      }`
     }
     return ''
   }

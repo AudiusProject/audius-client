@@ -34,7 +34,7 @@ const messages = {
   reacted: 'reacted',
   // NOTE: Send tip -> Send $AUDIO change
   react: 'reacted to your tip of ',
-  reactAlt: 'reacted to your sending of ', // iOS only
+  reactAlt: 'reacted to you sending them ', // iOS only
   // NOTE: Send tip -> Send $AUDIO change
   twitterShare: (handle: string, ios: boolean) =>
     `I got a thanks from ${handle} for ${
