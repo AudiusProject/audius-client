@@ -6,7 +6,7 @@ import {
   notificationsSelectors,
   getReactionFromRawValue
 } from '@audius/common'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import IconTip from 'app/assets/images/iconTip.svg'
@@ -32,9 +32,14 @@ const { getNotificationUser } = notificationsSelectors
 
 const messages = {
   reacted: 'reacted',
+  // NOTE: Send tip -> Send $AUDIO change
   react: 'reacted to your tip of ',
-  twitterShare: (handle: string) =>
-    `I got a thanks from ${handle} for tipping them $AUDIO on @audiusproject! #Audius #AUDIOTip`
+  reactAlt: 'reacted to your sending of ', // iOS only
+  // NOTE: Send tip -> Send $AUDIO change
+  twitterShare: (handle: string, ios: boolean) =>
+    `I got a thanks from ${handle} for ${
+      ios ? 'sending' : 'tipping'
+    } them $AUDIO on @audiusproject! #Audius ${ios ? '#AUDIO' : '#AUDIOTip'}`
 }
 
 const useStyles = makeStyles(() => ({
@@ -81,7 +86,7 @@ export const TipReactionNotification = (
   const handlePress = useGoToProfile(user)
 
   const handleTwitterShare = useCallback((handle: string) => {
-    const shareText = messages.twitterShare(handle)
+    const shareText = messages.twitterShare(handle, Platform.OS === 'ios')
     return {
       shareText,
       analytics: make({
@@ -115,7 +120,7 @@ export const TipReactionNotification = (
             <UserBadges user={user} hideName />
           </View>
           <NotificationText>
-            {messages.react}
+            {Platform.OS === 'ios' ? messages.reactAlt : messages.react}
             <TipText value={uiAmount} />
           </NotificationText>
         </View>
