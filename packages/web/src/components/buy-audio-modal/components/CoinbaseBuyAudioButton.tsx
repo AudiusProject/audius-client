@@ -1,13 +1,16 @@
 import { useCallback, useContext } from 'react'
 
-import { buyAudioActions, buyAudioSelectors, Status } from '@audius/common'
+import {
+  buyAudioActions,
+  buyAudioSelectors,
+  OnRampProvider,
+  Status
+} from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import {
-  CoinbasePayContext,
-  CoinbasePayButtonCustom
-} from 'components/coinbase-pay-button'
+import { CoinbasePayContext } from 'components/coinbase-pay-button'
+import { OnRampButton } from 'components/on-ramp-button'
 import Tooltip from 'components/tooltip/Tooltip'
 import { getRootSolanaAccount } from 'services/audius-backend/BuyAudio'
 
@@ -77,7 +80,8 @@ export const CoinbaseBuyAudioButton = ({
       shouldWrapContent={false}
     >
       <div>
-        <CoinbasePayButtonCustom
+        <OnRampButton
+          provider={OnRampProvider.COINBASE}
           className={styles.coinbasePayButton}
           disabled={isDisabled}
           isDisabled={isDisabled}
