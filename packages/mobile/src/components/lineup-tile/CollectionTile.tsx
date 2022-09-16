@@ -8,6 +8,7 @@ import type {
   CommonState
 } from '@audius/common'
 import {
+  useProxySelector,
   playerSelectors,
   FavoriteSource,
   PlaybackSource,
@@ -49,11 +50,20 @@ const getUserId = accountSelectors.getUserId
 export const CollectionTile = (props: LineupItemProps) => {
   const { uid } = props
 
-  const collection = useSelector((state) => getCollection(state, { uid }))
+  const collection = useProxySelector(
+    (state) => getCollection(state, { uid }),
+    [uid]
+  )
 
-  const tracks = useSelector((state) => getTracksFromCollection(state, { uid }))
+  const tracks = useProxySelector(
+    (state) => getTracksFromCollection(state, { uid }),
+    [uid]
+  )
 
-  const user = useSelector((state) => getUserFromCollection(state, { uid }))
+  const user = useProxySelector(
+    (state) => getUserFromCollection(state, { uid }),
+    [uid]
+  )
 
   if (!collection || !tracks || !user) {
     console.warn(
