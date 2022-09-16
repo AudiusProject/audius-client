@@ -251,3 +251,17 @@ export const saveUserBankTransactionMetadata = async (
   await waitForLibsInit()
   // return await libs().identityService!.saveUserBankTransactionMetadata(data)
 }
+
+export const createStripeSession = async ({
+  destinationWallet,
+  amount
+}: {
+  destinationWallet: string
+  amount: string
+}) => {
+  await waitForLibsInit()
+  return await libs().identityService!.createStripeSession({
+    destinationWallet,
+    amount
+  })
+}
