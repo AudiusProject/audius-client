@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 
 import { tippingSelectors, tippingActions } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { Platform } from 'react-native'
 
 import IconCaretLeft from 'app/assets/images/iconCaretLeft.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
@@ -22,7 +23,10 @@ const { getSendTipData } = tippingSelectors
 
 const messages = {
   title: 'Confirm Tip',
+  // NOTE: Send tip -> Send $AUDIO change
+  titleAlt: 'Confirm', // iOS only
   confirm: 'Confirm Tip',
+  confirmAlt: 'Confirm', // iOS only
   goBack: 'Go Back'
 }
 
@@ -83,7 +87,7 @@ export const ConfirmSendTipScreen = ({
 
   return (
     <TipScreen
-      title={messages.title}
+      title={Platform.OS === 'ios' ? messages.titleAlt : messages.title}
       topbarLeft={inProgress ? null : undefined}
     >
       <TipHeader status='confirm' />
@@ -92,7 +96,7 @@ export const ConfirmSendTipScreen = ({
       <Button
         variant='primary'
         size='large'
-        title={messages.confirm}
+        title={Platform.OS === 'ios' ? messages.confirmAlt : messages.confirm}
         onPress={handleConfirm}
         icon={inProgress ? loadingSpinner : IconCheck}
         disabled={inProgress}
