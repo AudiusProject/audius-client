@@ -3,13 +3,13 @@ import { useCallback, useMemo } from 'react'
 import { buyAudioActions, OnRampProvider, StringKeys } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { OnRampButton } from 'components/on-ramp-button'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 
 import styles from './AmountInputPage.module.css'
 import { AudioAmountPicker } from './AudioAmountPicker'
 import { CoinbaseBuyAudioButton } from './CoinbaseBuyAudioButton'
 import { PurchaseQuote } from './PurchaseQuote'
+import { StripeBuyAudioButton } from './StripeBuyAudioButton'
 
 const { calculateAudioPurchaseInfo } = buyAudioActions
 
@@ -54,8 +54,7 @@ export const AmountInputPage = ({
         {provider === OnRampProvider.COINBASE ? (
           <CoinbaseBuyAudioButton />
         ) : (
-          // TODO: Make stripe button
-          <OnRampButton provider={provider!} />
+          <StripeBuyAudioButton />
         )}
       </div>
       <div className={styles.conversionNotice}>
