@@ -5,7 +5,8 @@ import {
   accountSelectors,
   cacheUsersSelectors,
   tippingSelectors,
-  tippingActions
+  tippingActions,
+  useProxySelector
 } from '@audius/common'
 import {
   dismissRecentTip,
@@ -17,7 +18,6 @@ import { useAsync } from 'react-use'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { Tile } from 'app/components/core'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 import { make, track } from 'app/services/analytics'
 import { localStorage } from 'app/services/local-storage'
 import { makeStyles } from 'app/styles'

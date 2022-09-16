@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 
 import type { Notification } from '@audius/common'
 import {
+  useProxySelector,
   Status,
   notificationsSelectors,
   notificationsActions
@@ -12,7 +13,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 import { makeStyles } from 'app/styles'
 
 import { EmptyNotifications } from './EmptyNotifications'

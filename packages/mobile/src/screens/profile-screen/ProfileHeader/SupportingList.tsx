@@ -2,13 +2,13 @@ import { useMemo } from 'react'
 
 import type { ID, Supporting } from '@audius/common'
 import {
+  useProxySelector,
   stringWeiToBN,
   tippingSelectors,
   MAX_PROFILE_SUPPORTING_TILES
 } from '@audius/common'
 import { FlatList } from 'react-native'
 
-import { useProxySelector } from 'app/hooks/useProxySelector'
 import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from '../selectors'

@@ -1,13 +1,16 @@
 import { useCallback, useRef, useLayoutEffect } from 'react'
 
-import { cacheUsersSelectors, tippingSelectors } from '@audius/common'
+import {
+  cacheUsersSelectors,
+  tippingSelectors,
+  useProxySelector
+} from '@audius/common'
 import { LayoutAnimation, Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 import { ProfilePictureList } from 'app/screens/notifications-screen/Notification'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'

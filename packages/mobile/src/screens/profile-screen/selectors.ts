@@ -1,9 +1,12 @@
 import type { Nullable, User } from '@audius/common'
-import { accountSelectors, profilePageSelectors } from '@audius/common'
+import {
+  useProxySelector,
+  accountSelectors,
+  profilePageSelectors
+} from '@audius/common'
 import { useSelector } from 'react-redux'
 import { createSelector } from 'reselect'
 
-import { useProxySelector } from 'app/hooks/useProxySelector'
 import { useRoute } from 'app/hooks/useRoute'
 const {
   getProfileUser,

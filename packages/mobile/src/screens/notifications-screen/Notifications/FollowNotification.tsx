@@ -1,8 +1,11 @@
 import type { FollowNotification as FollowNotificationType } from '@audius/common'
-import { formatCount, notificationsSelectors } from '@audius/common'
+import {
+  useProxySelector,
+  formatCount,
+  notificationsSelectors
+} from '@audius/common'
 
 import IconUser from 'app/assets/images/iconUser.svg'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 
 import {
   NotificationHeader,

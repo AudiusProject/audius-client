@@ -1,8 +1,11 @@
 import type { RepostNotification as RepostNotificationType } from '@audius/common'
-import { formatCount, notificationsSelectors } from '@audius/common'
+import {
+  useProxySelector,
+  formatCount,
+  notificationsSelectors
+} from '@audius/common'
 
 import IconRepost from 'app/assets/images/iconRepost.svg'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 
 import {
   NotificationHeader,

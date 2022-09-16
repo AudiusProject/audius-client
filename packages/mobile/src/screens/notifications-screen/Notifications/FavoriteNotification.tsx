@@ -1,8 +1,11 @@
 import type { FavoriteNotification as FavoriteNotificationType } from '@audius/common'
-import { formatCount, notificationsSelectors } from '@audius/common'
+import {
+  formatCount,
+  notificationsSelectors,
+  useProxySelector
+} from '@audius/common'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
-import { useProxySelector } from 'app/hooks/useProxySelector'
 
 import {
   NotificationHeader,
