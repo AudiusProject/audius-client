@@ -30,13 +30,13 @@
 
 /** Dark mode special cases **/
 .button.darkMode {
-  border: 1px solid var(--static-white);
+  border: 1px solid var(--neutral);
 }
 .button.darkMode .textClassName {
-  color: var(--static-white);
+  color: var(--neutral);
 }
 .button.darkMode .logo path {
-  fill: var(--static-white);
+  fill: var(--neutral);
 }
 
 /** Hover **/
