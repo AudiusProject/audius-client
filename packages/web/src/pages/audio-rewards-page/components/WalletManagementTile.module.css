@@ -140,6 +140,7 @@
 }
 
 .manageWalletsButton:hover,
-.payWithCoinbaseButton:hover {
+.payWithCoinbaseButton:hover,
+.payWithStripeButton:hover {
   transform: perspective(1px) scale3d(1.02, 1.02, 1.02) !important;
 }
