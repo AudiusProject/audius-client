@@ -94,8 +94,13 @@ export function resetSignOn() {
   return { type: RESET_SIGN_ON }
 }
 
-export function checkEmail(email: string) {
-  return { type: CHECK_EMAIL, email }
+export function checkEmail(
+  email: string,
+  onAvailable?: () => void,
+  onUnavailable?: () => void,
+  onError?: () => void
+) {
+  return { type: CHECK_EMAIL, email, onAvailable, onUnavailable, onError }
 }
 
 /**

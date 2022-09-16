@@ -15,12 +15,9 @@ import {
   race
 } from 'typed-redux-saga'
 
-import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecycle'
-
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 const { getIsReachable } = reachabilitySelectors
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const REACHABILITY_TIMEOUT_MS = 8 * 1000
 
@@ -48,24 +45,17 @@ export function* waitForBackendSetup() {
 }
 
 function* awaitReachability() {
-  if (!NATIVE_MOBILE) return true
-  // Request network connection information.
-  // If we don't ask the native layer for it, it's possible that we never receive
-  // and update.
-  const message = new RequestNetworkConnected()
-  message.send()
-
+  const isNativeMobile = yield* getContext('isNativeMobile')
+  if (!isNativeMobile) return true
   const { action } = yield* race({
     action: take(reachabilityActions.SET_REACHABLE),
     delay: delay(REACHABILITY_TIMEOUT_MS)
   })
-
   return !!action
 }
 
 export function* setupBackend() {
   const establishedReachability = yield* call(awaitReachability)
-
   // If we couldn't connect, show the error page
   // and just sit here waiting for reachability.
   if (!establishedReachability) {

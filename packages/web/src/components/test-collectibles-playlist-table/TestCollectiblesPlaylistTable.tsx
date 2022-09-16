@@ -24,7 +24,6 @@ type TestCollectiblesPlaylistTableProps = {
   data: any[]
   isVirtualized?: boolean
   loading?: boolean
-  maxRowNum?: number
   onClickRow?: (collectible: any, index: number) => void
   onClickTrackName?: (collectible: any) => void
   playing?: boolean
@@ -45,7 +44,6 @@ export const TestCollectiblesPlaylistTable = ({
   data,
   isVirtualized = false,
   loading = false,
-  maxRowNum = 20,
   onClickRow,
   onClickTrackName: onClickCollectibleName,
   playing = false,
@@ -162,7 +160,7 @@ export const TestCollectiblesPlaylistTable = ({
   )
 
   const handleClickRow = useCallback(
-    (rowInfo, index: number) => {
+    (e, rowInfo, index: number) => {
       const collectible = rowInfo.original
       onClickRow?.(collectible, index)
     },
@@ -177,7 +175,6 @@ export const TestCollectiblesPlaylistTable = ({
       tableClassName={tableClassName}
       getRowClassName={getRowClassName}
       columns={tableColumns}
-      maxRowNum={maxRowNum}
       data={data}
       loading={loading}
       onClickRow={handleClickRow}

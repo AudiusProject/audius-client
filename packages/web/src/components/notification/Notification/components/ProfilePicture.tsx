@@ -23,14 +23,21 @@ const imageLoadDelay = 250
 type ProfilePictureProps = {
   user: User
   className?: string
+  innerClassName?: string
   disablePopover?: boolean
   disableClick?: boolean
   stopPropagation?: boolean
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { user, className, disablePopover, disableClick, stopPropagation } =
-    props
+  const {
+    user,
+    className,
+    innerClassName,
+    disablePopover,
+    disableClick,
+    stopPropagation
+  } = props
   const { user_id, _profile_picture_sizes, handle } = user
   const [loadImage, setLoadImage] = useState(false)
   const dispatch = useDispatch()
@@ -77,7 +84,7 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
       onClick={handleClick}
       wrapperClassName={cn(styles.profilePictureWrapper, className)}
       skeletonClassName={styles.profilePictureSkeleton}
-      className={styles.profilePicture}
+      className={cn(styles.profilePicture, innerClassName)}
       image={profilePicture}
     />
   )

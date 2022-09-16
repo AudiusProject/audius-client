@@ -83,6 +83,7 @@ const FULL_ENDPOINT_MAP = {
   topGenreUsers: '/users/genre/top',
   topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
+  getTracks: () => `/tracks`,
   getTrackByHandleAndSlug: `/tracks`,
   getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
   getRemixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
@@ -117,6 +118,11 @@ export type GetTrackArgs = {
     urlTitle: string
     handle: string
   }
+}
+
+type GetTracksArgs = {
+  ids: ID[]
+  currentUserId: Nullable<ID>
 }
 
 type GetTrackByHandleAndSlugArgs = {
@@ -235,6 +241,9 @@ type GetProfileListArgs = {
   currentUserId: Nullable<ID>
   limit?: number
   offset?: number
+  query?: string
+  sortMethod?: string
+  sortDirection?: string
 }
 
 type GetTopArtistGenresArgs = {
@@ -420,7 +429,7 @@ type GetUserSupporterArgs = {
 
 type AudiusAPIClientConfig = {
   audiusBackendInstance: AudiusBackend
-  audiusLibs?: AudiusLibs
+  getAudiusLibs: () => AudiusLibs
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
@@ -433,7 +442,7 @@ export class AudiusAPIClient {
   }
 
   audiusBackendInstance: AudiusBackend
-  audiusLibs?: AudiusLibs
+  getAudiusLibs: () => AudiusLibs
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
@@ -441,14 +450,14 @@ export class AudiusAPIClient {
 
   constructor({
     audiusBackendInstance,
-    audiusLibs,
+    getAudiusLibs,
     overrideEndpoint,
     remoteConfigInstance,
     localStorage,
     env
   }: AudiusAPIClientConfig) {
     this.audiusBackendInstance = audiusBackendInstance
-    this.audiusLibs = audiusLibs
+    this.getAudiusLibs = getAudiusLibs
     this.overrideEndpoint = overrideEndpoint
     this.remoteConfigInstance = remoteConfigInstance
     this.localStorage = localStorage
@@ -796,6 +805,26 @@ export class AudiusAPIClient {
     return adapted
   }
 
+  async getTracks({ ids, currentUserId }: GetTracksArgs) {
+    this._assertInitialized()
+    const encodedTrackIds = ids.map((id) => this._encodeOrThrow(id))
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const params = {
+      id: encodedTrackIds,
+      user_id: encodedCurrentUserId || undefined
+    }
+
+    const trackResponse: Nullable<APIResponse<APITrack[]>> =
+      await this._getResponse(FULL_ENDPOINT_MAP.getTracks(), params, true)
+    if (!trackResponse) {
+      return null
+    }
+    const adapted = trackResponse.data
+      .map((track) => adapter.makeTrack(track))
+      .filter(removeNullable)
+    return adapted
+  }
+
   async getTrackByHandleAndSlug({
     handle,
     slug,
@@ -943,8 +972,7 @@ export class AudiusAPIClient {
 
     let headers = {}
     if (encodedCurrentUserId && getUnlisted) {
-      const { data, signature } =
-        await this.audiusBackendInstance.signDiscoveryNodeRequest()
+      const { data, signature } = await this.audiusBackendInstance.signData()
       headers = {
         [AuthHeaders.Message]: data,
         [AuthHeaders.Signature]: signature
@@ -969,7 +997,10 @@ export class AudiusAPIClient {
     profileUserId,
     currentUserId,
     limit,
-    offset
+    offset,
+    query,
+    sortMethod,
+    sortDirection
   }: GetProfileListArgs) {
     this._assertInitialized()
     const encodedUserId = encodeHashId(currentUserId)
@@ -977,7 +1008,10 @@ export class AudiusAPIClient {
     const params = {
       user_id: encodedUserId || undefined,
       limit,
-      offset
+      offset,
+      ...(query && { query }),
+      ...(sortMethod && { sort_method: sortMethod }),
+      ...(sortDirection && { sort_direction: sortDirection })
     }
 
     const response: Nullable<APIResponse<APIActivity[]>> =
@@ -1332,14 +1366,16 @@ export class AudiusAPIClient {
   async getUserTrackHistory({
     currentUserId,
     userId,
-    limit
+    offset = 0,
+    limit = 100
   }: GetUserTrackHistoryArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
-    limit = limit || 100
     this._assertInitialized()
     const params = {
-      user_id: encodedCurrentUserId || undefined
+      user_id: encodedCurrentUserId || undefined,
+      limit,
+      offset
     }
 
     const response: Nullable<APIResponse<APIActivity[]>> =
@@ -1488,11 +1524,10 @@ export class AudiusAPIClient {
     }, {})
 
     const formattedPath = this._formatPath(pathType, path)
-    const audiusLibs =
-      this.audiusLibs ??
-      (this.initializationState.type === 'libs' && window.audiusLibs)
-    if (audiusLibs) {
-      const data = await audiusLibs.discoveryProvider._makeRequest(
+    const audiusLibs = this.getAudiusLibs()
+
+    if (audiusLibs && this.initializationState.type === 'libs') {
+      const data = await audiusLibs.discoveryProvider?._makeRequest(
         {
           endpoint: formattedPath,
           queryParams: sanitizedParams,

@@ -19,7 +19,9 @@ import {
   TransactionDetails,
   walletSelectors,
   StringWei,
-  BNWei
+  BNWei,
+  createUserBankIfNeeded,
+  deriveUserBank
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
@@ -32,6 +34,7 @@ import { takeLatest } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
+import { track } from 'services/analytics'
 import {
   createTransferToUserBankTransaction,
   getAssociatedTokenAccountInfo,
@@ -46,10 +49,7 @@ import {
   saveUserBankTransactionMetadata
 } from 'services/audius-backend/BuyAudio'
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
-import {
-  createUserBankIfNeeded,
-  deriveUserBank
-} from 'services/audius-backend/waudio'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 const {
   calculateAudioPurchaseInfo,
@@ -145,7 +145,7 @@ function* getTransactionFees({
       routeInfo: route,
       userPublicKey: rootAccount
     })
-    const userBank = yield* call(deriveUserBank)
+    const userBank = yield* call(deriveUserBank, audiusBackendInstance)
     const transferTransaction = yield* call(
       createTransferToUserBankTransaction,
       {
@@ -273,7 +273,7 @@ function* getAudioPurchaseInfo({
 
     // Ensure userbank is created
     yield* fork(function* () {
-      yield* call(createUserBankIfNeeded)
+      yield* call(createUserBankIfNeeded, track, audiusBackendInstance)
     })
 
     // Setup
@@ -453,10 +453,20 @@ function* startBuyAudioFlow({
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+    const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+    yield* call(remoteConfigInstance.waitForRemoteConfig)
+    const retryDelay =
+      remoteConfigInstance.getRemoteVar(
+        IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS
+      ) ?? undefined
+    const maxRetryCount =
+      remoteConfigInstance.getRemoteVar(
+        IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES
+      ) ?? undefined
 
     // Ensure userbank is created
     yield* fork(function* () {
-      yield* call(createUserBankIfNeeded)
+      yield* call(createUserBankIfNeeded, track, audiusBackendInstance)
     })
 
     // Cache current SOL balance
@@ -484,7 +494,9 @@ function* startBuyAudioFlow({
     // Wait for the SOL funds to come through
     const newBalance = yield* call(pollForSolBalanceChange, {
       rootAccount: rootAccount.publicKey,
-      initialBalance
+      initialBalance,
+      retryDelay,
+      maxRetryCount
     })
 
     // Get the purchase transaction
@@ -579,11 +591,13 @@ function* startBuyAudioFlow({
     // Wait for AUDIO funds to come through
     const transferAmount = yield* call(pollForAudioBalanceChange, {
       tokenAccount,
-      initialBalance: beforeSwapAudioBalance
+      initialBalance: beforeSwapAudioBalance,
+      retryDelay,
+      maxRetryCount
     })
 
     // Transfer AUDIO to userbank
-    const userBank = yield* call(deriveUserBank)
+    const userBank = yield* call(deriveUserBank, audiusBackendInstance)
     yield* put(transferStarted())
     const transferTransaction = yield* call(
       createTransferToUserBankTransaction,

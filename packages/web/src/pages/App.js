@@ -70,7 +70,6 @@ import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage
 import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergroundPage'
 import UploadType from 'pages/upload-page/components/uploadType'
 import Visualizer from 'pages/visualizer/Visualizer'
-import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'
 import { setVisibility as setAppModalCTAVisibility } from 'store/application/ui/app-cta-modal/slice'
@@ -193,7 +192,6 @@ const ConnectedMusicConfetti = lazyWithPreload(
   0
 )
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export const MAIN_CONTENT_ID = 'mainContent'
 
 const includeSearch = (search) => {
@@ -209,10 +207,13 @@ class App extends Component {
     showCTABanner: false,
     showWeb3ErrorBanner: null,
 
-    showUpdateAppBanner: false,
+    // A patch version update of the web app is available
     showWebUpdateBanner: false,
-    showRequiresUpdate: false,
+    // A version update of the web app is required
     showRequiresWebUpdate: false,
+    // A minor version update of the entire electron app is required
+    showRequiresUpdate: false,
+
     isUpdating: false,
 
     initialPage: true,
@@ -255,7 +256,6 @@ class App extends Component {
       // We downloaded an update, the user can safely restart
       this.ipc.on('updateDownloaded', (event, arg) => {
         console.info('updateDownload', event, arg)
-        this.setState({ showUpdateAppBanner: true })
       })
 
       this.ipc.on('updateDownloadProgress', (event, arg) => {
@@ -278,7 +278,7 @@ class App extends Component {
         if (semver.lt(currentVersion, minAppVersion)) {
           this.setState({ showRequiresWebUpdate: true })
         } else {
-          this.setState({ showWebUpdate: true })
+          this.setState({ showWebUpdateBanner: true })
         }
       })
 
@@ -354,9 +354,7 @@ class App extends Component {
       if (prevProps.accountStatus === Status.LOADING) {
         this.pushWithToken(TRENDING_PAGE)
         // If native mobile, a saga watches for fetch account failure to push route
-        if (!NATIVE_MOBILE) {
-          this.props.openSignOn(true, SignOnPages.SIGNIN)
-        }
+        this.props.openSignOn(true, SignOnPages.SIGNIN)
         this.props.updateRouteOnSignUpCompletion(this.state.entryRoute)
       } else {
         this.pushWithToken(TRENDING_PAGE)
@@ -410,15 +408,6 @@ class App extends Component {
     if (this.props.theme === null) {
       this.props.setTheme(getSystemTheme() || Theme.DEFAULT)
     }
-
-    // If we're on native mobile, dispatch
-    // a message to the native layer so it can properly
-    // set it's status bar color.
-    if (NATIVE_MOBILE) {
-      const theme = this.props.theme || Theme.DEFAULT
-      const themeMessage = new ThemeChangeMessage(theme)
-      themeMessage.send()
-    }
   }
 
   pushWithToken = (route) => {
@@ -437,9 +426,6 @@ class App extends Component {
   }
 
   acceptUpdateApp = () => {
-    if (this.state.showUpdateAppBanner) {
-      this.dismissUpdateAppBanner()
-    }
     this.setState({ isUpdating: true })
     this.ipc.send('update')
   }
@@ -452,10 +438,6 @@ class App extends Component {
     }
     this.setState({ isUpdating: true })
     this.ipc.send('web-update')
-  }
-
-  dismissUpdateAppBanner = () => {
-    this.setState({ showUpdateAppBanner: false })
   }
 
   dismissUpdateWebAppBanner = () => {
@@ -487,8 +469,7 @@ class App extends Component {
 
     const {
       showCTABanner,
-      showUpdateAppBanner,
-      showWebUpdate,
+      showWebUpdateBanner,
       showWeb3ErrorBanner,
       isUpdating,
       showRequiresUpdate,
@@ -517,7 +498,7 @@ class App extends Component {
       )
 
     const showBanner =
-      showCTABanner || showUpdateAppBanner || showWeb3ErrorBanner
+      showCTABanner || showWeb3ErrorBanner || showWebUpdateBanner
     if (this.headerGutterRef.current) {
       if (showBanner) {
         this.headerGutterRef.current.classList.add(styles.bannerMargin)
@@ -540,12 +521,6 @@ class App extends Component {
             onAccept={this.showDownloadAppModal}
           />
         ) : null}
-        {showUpdateAppBanner ? (
-          <UpdateAppBanner
-            onClose={this.dismissUpdateAppBanner}
-            onAccept={this.acceptUpdateApp}
-          />
-        ) : null}
         {showWeb3ErrorBanner ? (
           <Web3ErrorBanner
             alert
@@ -553,7 +528,7 @@ class App extends Component {
             onClose={this.dismissWeb3ErrorBanner}
           />
         ) : null}
-        {showWebUpdate ? (
+        {showWebUpdateBanner ? (
           <UpdateAppBanner
             onAccept={this.acceptWebUpdate}
             onClose={this.dismissUpdateWebAppBanner}
@@ -1017,7 +992,7 @@ class App extends Component {
         {/* Mobile-only */}
         {isMobileClient && <ConnectedReachabilityBar />}
 
-        {shouldShowPopover && isMobileClient && !NATIVE_MOBILE && (
+        {shouldShowPopover && isMobileClient && (
           <AppRedirectPopover
             enablePopover={isReady}
             incrementScroll={incrementScroll}
@@ -1042,7 +1017,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  setTheme: (theme) => dispatch(setTheme(theme)),
+  setTheme: (theme) => dispatch(setTheme({ theme })),
   updateRouteOnSignUpCompletion: (route) =>
     dispatch(updateRouteOnSignUpCompletion(route)),
   openSignOn: (signIn = true, page = null, fields = {}) =>

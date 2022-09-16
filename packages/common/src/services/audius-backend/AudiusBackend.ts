@@ -14,6 +14,8 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
+import { Env } from 'services/env'
+
 import placeholderCoverArt from '../../assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from '../../assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from '../../assets/img/imageProfilePicEmpty2X.png'
@@ -131,6 +133,7 @@ type DiscoveryAPIParams<Endpoint extends DiscoveryEndpoint> = SnakeKeysToCamel<
 let AudiusLibs: any = null
 export let BackendUtils: any = null
 let SanityChecks: any = null
+let RewardsAttester: any = null
 let SolanaUtils: any = null
 
 let audiusLibs: any = null
@@ -204,6 +207,7 @@ type WaitForLibsInit = () => Promise<unknown>
 type AudiusBackendParams = {
   claimDistributionContractAddress: Maybe<string>
   disableImagePreload?: boolean
+  env: Env
   ethOwnerWallet: Maybe<string>
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
@@ -257,6 +261,7 @@ type AudiusBackendParams = {
 export const audiusBackend = ({
   claimDistributionContractAddress,
   disableImagePreload,
+  env,
   ethOwnerWallet,
   ethProviderUrls,
   ethRegistryAddress,
@@ -427,7 +432,9 @@ export const audiusBackend = ({
         trackId
       )
       if (asUrl) {
-        const url = URL.createObjectURL(res.data)
+        const url = nativeMobile
+          ? res.config.url
+          : URL.createObjectURL(res.data)
         if (cache) CIDCache.add(cid, url)
         return url
       }
@@ -630,6 +637,7 @@ export const audiusBackend = ({
     BackendUtils = libsModule.Utils
     SanityChecks = libsModule.SanityChecks
     SolanaUtils = libsModule.SolanaUtils
+    RewardsAttester = libsModule.RewardsAttester
     // initialize libs
     let libsError: Nullable<string> = null
     const { web3Config } = await getWeb3Config(
@@ -717,8 +725,12 @@ export const audiusBackend = ({
   }
 
   function getEthWeb3Config() {
-    const providerUrls =
-      getRemoteVar(StringKeys.ETH_PROVIDER_URLS) || ethProviderUrls
+    // In a dev env, always ignore the remote var which is inherited from staging
+    const isDevelopment = env.ENVIRONMENT === 'development'
+    const providerUrls = isDevelopment
+      ? ethProviderUrls
+      : getRemoteVar(StringKeys.ETH_PROVIDER_URLS) || ethProviderUrls
+
     return {
       ethWeb3Config: AudiusLibs.configEthWeb3(
         ethTokenAddress,
@@ -1146,6 +1158,13 @@ export const audiusBackend = ({
 
   async function repostTrack(trackId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.repostTrack(trackId)
+      }
       return audiusLibs.Track.addTrackRepost(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
@@ -1155,6 +1174,14 @@ export const audiusBackend = ({
 
   async function undoRepostTrack(trackId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.unrepostTrack(trackId)
+      }
       return audiusLibs.Track.deleteTrackRepost(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
@@ -1164,6 +1191,15 @@ export const audiusBackend = ({
 
   async function repostCollection(playlistId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return audiusLibs.EntityManager.repostPlaylist(playlistId)
+      }
+
       return audiusLibs.Playlist.addPlaylistRepost(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
@@ -1173,6 +1209,14 @@ export const audiusBackend = ({
 
   async function undoRepostCollection(playlistId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
+      }
       return audiusLibs.Playlist.deletePlaylistRepost(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
@@ -1483,6 +1527,15 @@ export const audiusBackend = ({
 
   async function followUser(followeeUserId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.followUser(followeeUserId)
+      }
+
       return await audiusLibs.User.addUserFollow(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -1492,6 +1545,15 @@ export const audiusBackend = ({
 
   async function unfollowUser(followeeUserId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
+      }
+
       return await audiusLibs.User.deleteUserFollow(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -1941,6 +2003,15 @@ export const audiusBackend = ({
   // Favoriting a track
   async function saveTrack(trackId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.saveTrack(trackId)
+      }
+
       return await audiusLibs.Track.addTrackSave(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -1964,6 +2035,14 @@ export const audiusBackend = ({
   // Favorite a playlist
   async function saveCollection(playlistId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.savePlaylist(playlistId)
+      }
       return await audiusLibs.Playlist.addPlaylistSave(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -1974,6 +2053,15 @@ export const audiusBackend = ({
   // Unfavoriting a track
   async function unsaveTrack(trackId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.unsaveTrack(trackId)
+      }
+
       return await audiusLibs.Track.deleteTrackSave(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -1984,6 +2072,14 @@ export const audiusBackend = ({
   // Unfavorite a playlist
   async function unsaveCollection(playlistId: ID) {
     try {
+      const socialFeatureEntityManagerEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+        )) ?? false
+
+      if (socialFeatureEntityManagerEnabled) {
+        return await audiusLibs.EntityManager.unsavePlaylist(playlistId)
+      }
       return await audiusLibs.Playlist.deletePlaylistSave(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
@@ -2146,7 +2242,7 @@ export const audiusBackend = ({
       return emailExists
     } catch (error) {
       console.error(getErrorMessage(error))
-      return true
+      throw error
     }
   }
 
@@ -2381,6 +2477,7 @@ export const audiusBackend = ({
   }
 
   async function signData() {
+    await waitForLibsInit()
     const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
     const data = `Click sign to authenticate with identity service: ${unixTs}`
     const signature = await audiusLibs.Account.web3Manager.sign(
@@ -3103,8 +3200,7 @@ export const audiusBackend = ({
       })
 
       const encodedUserId = encodeHashId(userId)
-
-      const attester = new AudiusLibs.RewardsAttester({
+      const attester = new RewardsAttester({
         libs: audiusLibs,
         parallelization,
         quorumSize,

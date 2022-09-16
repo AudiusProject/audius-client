@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { formatCount, formatSeconds } from '@audius/common'
 import cn from 'classnames'
@@ -18,13 +18,9 @@ import {
 } from 'components/test-table'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 import styles from './TestTracksTable.module.css'
-
-/* TODO:
-  - Will need to be updated to remove the client side sorting and add state (probably in the table component) to sort which column is being sorted on and in which direction
-  - Need to add the scroll logic to handle the paginated calls to the backend
-*/
 
 export type TracksTableColumn =
   | 'artistName'
@@ -42,12 +38,12 @@ type TestTracksTableProps = {
   columns?: TracksTableColumn[]
   data: any[]
   defaultSorter?: (a: any, b: any) => number
+  fetchBatchSize?: number
+  fetchMoreTracks?: (offset: number, limit: number) => void
+  fetchThreshold?: number
   isVirtualized?: boolean
   isReorderable?: boolean
   loading?: boolean
-  // TODO: Need to add the rows and skeletons when the loadingRowCount is passed
-  // loadingRowCount?: number
-  maxRowNum?: number
   onClickArtistName?: (track: any) => void
   onClickFavorite?: (track: any) => void
   onClickRemove?: (
@@ -60,17 +56,15 @@ type TestTracksTableProps = {
   onClickRow?: (track: any, index: number) => void
   onClickTrackName?: (track: any) => void
   onReorderTracks?: (source: number, destination: number) => void
-  onSortTracks?: (sortProps: {
-    column: { sorter: (a: any, b: any) => number }
-    order: string
-  }) => void
+  onSortTracks?: (...props: any[]) => void
   playing?: boolean
   playingIndex?: number
   removeText?: string
+  scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
   tableClassName?: string
+  totalRowCount?: number
   userId?: number | null
   wrapperClassName?: string
-  // TODO: Need to add onReorderTracks
 }
 
 const defaultColumns: TracksTableColumn[] = [
@@ -90,10 +84,11 @@ export const TestTracksTable = ({
   data,
   defaultSorter,
   isReorderable = false,
+  fetchBatchSize,
+  fetchMoreTracks,
+  fetchThreshold,
   isVirtualized = false,
   loading = false,
-  // loadingRowCount = 0,
-  maxRowNum = 20,
   onClickArtistName,
   onClickFavorite,
   onClickRemove,
@@ -105,7 +100,9 @@ export const TestTracksTable = ({
   playing = false,
   playingIndex = -1,
   removeText,
+  scrollRef,
   tableClassName,
+  totalRowCount,
   userId,
   wrapperClassName
 }: TestTracksTableProps) => {
@@ -222,6 +219,7 @@ export const TestTracksTable = ({
     return moment(track.dateListened).format('M/D/YY')
   }, [])
 
+  const favoriteButtonRef = useRef<HTMLDivElement>(null)
   const renderFavoriteButtonCell = useCallback(
     (cellInfo) => {
       const track = cellInfo.row.original
@@ -233,15 +231,12 @@ export const TestTracksTable = ({
         <Tooltip
           text={track.has_current_user_saved ? 'Unfavorite' : 'Favorite'}
         >
-          <div>
+          <div ref={favoriteButtonRef}>
             <TableFavoriteButton
               className={cn(styles.tableActionButton, {
                 [styles.active]: track.has_current_user_saved
               })}
-              onClick={(e: any) => {
-                e.stopPropagation()
-                onClickFavorite?.(track)
-              }}
+              onClick={() => onClickFavorite?.(track)}
               favorited={track.has_current_user_saved}
             />
           </div>
@@ -251,6 +246,7 @@ export const TestTracksTable = ({
     [onClickFavorite, userId]
   )
 
+  const repostButtonRef = useRef<HTMLDivElement>(null)
   const renderRepostButtonCell = useCallback(
     (cellInfo) => {
       const track = cellInfo.row.original
@@ -259,15 +255,12 @@ export const TestTracksTable = ({
       const isOwner = track.owner_id === userId
       return isOwner ? null : (
         <Tooltip text={track.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
-          <div>
+          <div ref={repostButtonRef}>
             <TableRepostButton
               className={cn(styles.tableActionButton, {
                 [styles.active]: track.has_current_user_reposted
               })}
-              onClick={(e: any) => {
-                e.stopPropagation()
-                onClickRepost?.(track)
-              }}
+              onClick={() => onClickRepost?.(track)}
               reposted={track.has_current_user_reposted}
             />
           </div>
@@ -277,33 +270,33 @@ export const TestTracksTable = ({
     [onClickRepost, userId]
   )
 
+  const overflowMenuRef = useRef<HTMLDivElement>(null)
   const renderOverflowMenuCell = useCallback(
     (cellInfo) => {
       const track = cellInfo.row.original
       const deleted = track.is_delete || !!track.user.is_deactivated
       return (
-        <OverflowMenuButton
-          className={styles.tableActionButton}
-          onClick={(e: any) => {
-            e.stopPropagation()
-          }}
-          isDeleted={deleted}
-          onRemove={onClickRemove}
-          removeText={removeText}
-          handle={track.handle}
-          trackId={track.track_id}
-          uid={track.uid}
-          date={track.date}
-          isFavorited={track.has_current_user_saved}
-          isOwner={track.owner_id === userId}
-          isOwnerDeactivated={!!track.user.is_deactivated}
-          isArtistPick={track.user._artist_pick === track.track_id}
-          index={cellInfo.row.index}
-          trackTitle={track.name}
-          albumId={null}
-          albumName={null}
-          trackPermalink={track.permalink}
-        />
+        <div ref={overflowMenuRef}>
+          <OverflowMenuButton
+            className={styles.tableActionButton}
+            isDeleted={deleted}
+            onRemove={onClickRemove}
+            removeText={removeText}
+            handle={track.handle}
+            trackId={track.track_id}
+            uid={track.uid}
+            date={track.date}
+            isFavorited={track.has_current_user_saved}
+            isOwner={track.owner_id === userId}
+            isOwnerDeactivated={!!track.user.is_deactivated}
+            isArtistPick={track.user._artist_pick === track.track_id}
+            index={cellInfo.row.index}
+            trackTitle={track.name}
+            albumId={null}
+            albumName={null}
+            trackPermalink={track.permalink}
+          />
+        </div>
       )
     },
     [onClickRemove, removeText, userId]
@@ -440,10 +433,16 @@ export const TestTracksTable = ({
   )
 
   const handleClickRow = useCallback(
-    (rowInfo, index: number) => {
+    (e, rowInfo, index: number) => {
       const track = rowInfo.original
       const deleted = track.is_delete || track.user?.is_deactivated
-      if (deleted) return
+      const clickedActionButton = [
+        favoriteButtonRef,
+        repostButtonRef,
+        overflowMenuRef
+      ].some((ref) => isDescendantElementOf(e?.target, ref.current))
+
+      if (deleted || clickedActionButton) return
       onClickRow?.(track, index)
     },
     [onClickRow]
@@ -452,7 +451,7 @@ export const TestTracksTable = ({
   const getRowClassName = useCallback(
     (rowIndex) => {
       const track = data[rowIndex]
-      const deleted = track.is_delete || !!track.user?.is_deactivated
+      const deleted = track?.is_delete || !!track?.user?.is_deactivated
       return cn(styles.tableRow, { [styles.disabled]: deleted })
     },
     [data]
@@ -464,15 +463,19 @@ export const TestTracksTable = ({
       columns={tableColumns}
       data={data}
       defaultSorter={defaultSorter}
+      fetchBatchSize={fetchBatchSize}
+      fetchMore={fetchMoreTracks}
+      fetchThreshold={fetchThreshold}
       getRowClassName={getRowClassName}
       isReorderable={isReorderable}
       isVirtualized={isVirtualized}
       loading={loading}
-      maxRowNum={maxRowNum}
       onClickRow={handleClickRow}
       onReorder={onReorderTracks}
       onSort={onSortTracks}
+      scrollRef={scrollRef}
       tableClassName={tableClassName}
+      totalRowCount={totalRowCount}
       wrapperClassName={wrapperClassName}
     />
   )

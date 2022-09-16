@@ -1,10 +1,8 @@
 import { useCallback } from 'react'
 
-// Importing directly from audius-client temporarily until
-// settings page is migrated because we still need push notification logic to work
-// on settings page and it doesn't necessarily make sense in common
 import { settingsPageActions, PushNotificationSetting } from '@audius/common'
 import { StyleSheet, View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconCoSign from 'app/assets/images/iconCoSign.svg'
 import IconFollow from 'app/assets/images/iconFollow.svg'
@@ -16,7 +14,6 @@ import IconRepost from 'app/assets/images/iconRepost.svg'
 import { Button, GradientText } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import Text from 'app/components/text'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useDrawer } from 'app/hooks/useDrawer'
 import type { ThemeColors } from 'app/hooks/useThemedStyles'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
@@ -118,7 +115,7 @@ const createStyles = (themeColors: ThemeColors) =>
   })
 
 export const EnablePushNotificationsDrawer = () => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const { onClose } = useDrawer('EnablePushNotifications')
   const styles = useThemedStyles(createStyles)
   const {
@@ -129,11 +126,11 @@ export const EnablePushNotificationsDrawer = () => {
   } = useThemeColors()
 
   const enablePushNotifications = useCallback(() => {
-    dispatchWeb(
+    dispatch(
       togglePushNotificationSetting(PushNotificationSetting.MobilePush, true)
     )
     onClose()
-  }, [dispatchWeb, onClose])
+  }, [dispatch, onClose])
 
   return (
     <NativeDrawer drawerName='EnablePushNotifications'>

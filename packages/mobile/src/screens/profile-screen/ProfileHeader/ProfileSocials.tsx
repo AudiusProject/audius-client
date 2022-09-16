@@ -1,16 +1,14 @@
-import type { ComponentType } from 'react'
-import { Fragment, useMemo } from 'react'
+import { Fragment, useLayoutEffect, useMemo, useRef } from 'react'
 
-import { View } from 'react-native'
+import { useSelectTierInfo } from '@audius/common'
+import { View, Animated } from 'react-native'
 
 import { Divider } from 'app/components/core'
-import { useSelectTierInfo } from 'app/hooks/useSelectTierInfo'
 import { makeStyles } from 'app/styles/makeStyles'
 
 import { useSelectProfile } from '../selectors'
 
 import { ProfileTierTile } from './ProfileTierTile'
-import type { SocialLinkProps } from './SocialLink'
 import {
   InstagramSocialLink,
   TikTokSocialLink,
@@ -44,38 +42,50 @@ export const ProfileSocials = () => {
       'tiktok_handle'
     ])
 
-  const socialsCount = [twitter_handle, instagram_handle, tiktok_handle].filter(
-    Boolean
-  ).length
+  const socialLinks = useMemo(() => {
+    const links = [
+      [twitter_handle, TwitterSocialLink],
+      [instagram_handle, InstagramSocialLink],
+      [tiktok_handle, TikTokSocialLink]
+    ] as const
+    return links.filter(([handle]) => !(handle === null || handle === ''))
+  }, [twitter_handle, instagram_handle, tiktok_handle])
+
+  const socialsCount = useMemo(() => {
+    return socialLinks.filter(([handle]) => !!handle).length
+  }, [socialLinks])
 
   const stylesOptions = useMemo(() => ({ socialsCount }), [socialsCount])
   const styles = useStyles(stylesOptions)
 
   const { tier } = useSelectTierInfo(user_id)
 
-  const socialLinks: [
-    string | undefined,
-    ComponentType<Partial<SocialLinkProps>>
-  ][] = [
-    [twitter_handle, TwitterSocialLink],
-    [instagram_handle, InstagramSocialLink],
-    [tiktok_handle, TikTokSocialLink]
-  ]
+  // Need to start opacity at 1 so skeleton is visible.
+  const opacity = useRef(new Animated.Value(1)).current
+  useLayoutEffect(() => {
+    if (socialsCount > 0) {
+      opacity.setValue(0.2)
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true
+      }).start()
+    }
+  }, [opacity, socialsCount])
 
   return (
     <View pointerEvents='box-none' style={styles.root}>
       <ProfileTierTile interactive={false} />
-      <View
+      <Animated.View
         style={[
           styles.socials,
-          tier !== 'none' && { justifyContent: 'center' }
+          tier !== 'none' && { justifyContent: 'center' },
+          { opacity }
         ]}
       >
-        {socialLinks.map(([handle, Link], index) => {
-          const link = <Link key={index} showText={socialsCount === 1} />
-          if (handle === null || handle === '') return null
-          if (socialsCount === 1) return link
-          if (index === socialsCount - 1) return link
+        {socialLinks.map(([, SocialLink], index) => {
+          const link = <SocialLink key={index} showText={socialsCount === 1} />
+          if (index === socialLinks.length - 1) return link
           return (
             <Fragment key={index}>
               {link}
@@ -83,7 +93,7 @@ export const ProfileSocials = () => {
             </Fragment>
           )
         })}
-      </View>
+      </Animated.View>
     </View>
   )
 }
