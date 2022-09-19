@@ -2,7 +2,6 @@ import svgr from '@svgr/rollup'
 import postcssCustomProperties from 'postcss-custom-properties'
 import commonjs from 'rollup-plugin-commonjs'
 import copy from 'rollup-plugin-copy'
-import json from 'rollup-plugin-json'
 import resolve from 'rollup-plugin-node-resolve'
 import external from 'rollup-plugin-peer-deps-external'
 import postcss from 'rollup-plugin-postcss'
@@ -68,7 +67,6 @@ export default {
     }),
     copy({
       targets: [{ src: 'src/assets/fonts/avenir.css', dest: 'dist' }]
-    }),
-    json()
+    })
   ]
 }
