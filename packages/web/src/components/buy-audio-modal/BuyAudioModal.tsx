@@ -24,7 +24,7 @@ import { SuccessPage } from './components/SuccessPage'
 const { getBuyAudioFlowStage, getBuyAudioFlowError } = buyAudioSelectors
 
 const messages = {
-  buyAudio: 'Buy Audio'
+  buyAudio: 'Buy $AUDIO'
 }
 
 const IconGoldBadge = () => (
