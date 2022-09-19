@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react'
 
-import { formatNumberCommas } from '@audius/common'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { uniqueId } from 'lodash'
@@ -9,6 +8,17 @@ import { useControlled } from 'hooks/useControlled'
 
 import styles from './TokenAmountInput.module.css'
 import { TokenAmountInputProps } from './types'
+
+/**
+ * Format a number to have commas
+ */
+const formatNumberCommas = (num: number | string) => {
+  const parts = num.toString().split('.')
+  return (
+    parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
+    (parts[1] !== undefined ? '.' + parts[1] : '')
+  )
+}
 
 export const TokenAmountInput = (props: TokenAmountInputProps) => {
   const {
