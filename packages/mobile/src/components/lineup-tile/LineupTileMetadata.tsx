@@ -1,10 +1,9 @@
 import { useCallback } from 'react'
 
 import type { Remix, User } from '@audius/common'
-import { StyleSheet, Touchable, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 
 import IconVolume from 'app/assets/images/iconVolume.svg'
-import { Pressable } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'

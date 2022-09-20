@@ -6,7 +6,7 @@ import {
   repostsUserListActions,
   favoritesUserListActions
 } from '@audius/common'
-import { View, Pressable, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
