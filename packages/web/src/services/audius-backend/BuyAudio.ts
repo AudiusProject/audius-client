@@ -259,9 +259,11 @@ export const createStripeSession = async ({
   destinationWallet: string
   amount: string
 }) => {
-  await waitForLibsInit()
-  return await libs().identityService!.createStripeSession({
-    destinationWallet,
-    amount
-  })
+  throw new Error('createStripeSession: Not implemented')
+  // TODO: Update libs with this call
+  // await waitForLibsInit()
+  // return await libs().identityService!.createStripeSession({
+  //   destinationWallet,
+  //   amount
+  // })
 }
