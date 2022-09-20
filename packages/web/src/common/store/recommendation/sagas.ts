@@ -17,22 +17,3 @@ export function* getRecommendedTracks(
   yield* call(processAndCacheTracks, tracks)
   return tracks
 }
-
-export function* getLuckyTracks(limit: number) {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const explore = yield* getContext('explore')
-
-  const latestTrackID = yield* call([explore, 'getLatestTrackID'])
-  const ids = Array.from({ length: limit }, () =>
-    Math.floor(Math.random() * latestTrackID)
-  )
-
-  const tracks: UserTrack[] = yield* call(audiusBackendInstance.getAllTracks, {
-    offset: 0,
-    limit,
-    idsArray: ids,
-    filterDeletes: true
-  })
-  yield* call(processAndCacheTracks, tracks)
-  return tracks
-}

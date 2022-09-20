@@ -175,6 +175,23 @@ export class Explore {
     }
   }
 
+  async getFeelingLuckyTracks(userId: ID, limit = 25) {
+    try {
+      const encodedUserId = encodeHashId(userId)
+      const libs = await this.audiusBackendInstance.getAudiusLibs()
+      const tracks: APITrack[] =
+        await libs.discoveryProvider.getFeelingLuckyTracks(
+          encodedUserId,
+          limit,
+          true
+        )
+      return tracks.map(responseAdapter.makeTrack).filter(removeNullable)
+    } catch (e) {
+      console.error(e)
+      return []
+    }
+  }
+
   async getLatestTrackID(): Promise<number> {
     try {
       const libs = await this.audiusBackendInstance.getAudiusLibs()
