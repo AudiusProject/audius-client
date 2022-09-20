@@ -6,11 +6,11 @@ import {
   accountSelectors,
   buyAudioActions
 } from '@audius/common'
-import { AudiusLibs } from '@audius/sdk'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { OnRampButton } from 'components/on-ramp-button'
+import { createStripeSession } from 'services/audius-backend/BuyAudio'
 
 const { getAccountUser } = accountSelectors
 const { getAudioPurchaseInfo } = buyAudioSelectors
@@ -40,8 +40,7 @@ export const StripeBuyAudioButton = () => {
       dispatch(calculateAudioPurchaseInfo({ audioAmount: 0 }))
       return
     }
-    const libs: AudiusLibs = window.audiusLibs
-    const res = await libs.identityService!.createStripeSession({
+    const res = await createStripeSession({
       amount,
       destinationWallet: user.userBank
     })
@@ -50,6 +49,8 @@ export const StripeBuyAudioButton = () => {
       '<stripe key>'
     )
     const session = stripeOnRampInstance.createSession({
+      // TODO: Implement createStripeSession
+      // @ts-ignore
       clientSecret: res.client_secret
     })
     session.mount('#stripe-onramp-modal')
