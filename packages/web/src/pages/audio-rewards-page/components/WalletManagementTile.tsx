@@ -41,7 +41,7 @@ const messages = {
   connectWallets: 'Connect Other Wallets',
   totalAudio: 'Total $AUDIO',
   buyAudio: 'Buy $AUDIO',
-  checkoutWithCoinbase: 'Checkout with Coinbase',
+  checkoutWithCoinbase: 'Checkout with a credit card or Coinbase Pay',
   showAdvanced: 'Show Advanced',
   hideAdvanced: 'Hide Advanced',
   advancedOptions: 'Advanced Options'
@@ -199,16 +199,18 @@ export const WalletManagementTile = () => {
             </div>
           </div>
         </div>
-        <OnRampButton
-          provider={OnRampProvider.COINBASE}
-          className={styles.payWithCoinbaseButton}
-          onClick={onBuyWithCoinbaseClicked}
-        />
-        <OnRampButton
-          provider={OnRampProvider.STRIPE}
-          className={styles.payWithStripeButton}
-          onClick={onBuyWithStripeClicked}
-        />
+        <div className={styles.onRampButtons}>
+          <OnRampButton
+            provider={OnRampProvider.STRIPE}
+            className={styles.payWithStripeButton}
+            onClick={onBuyWithStripeClicked}
+          />
+          <OnRampButton
+            provider={OnRampProvider.COINBASE}
+            className={styles.payWithCoinbaseButton}
+            onClick={onBuyWithCoinbaseClicked}
+          />
+        </div>
         <CollapsibleContent
           id='advanced-wallet-actions'
           className={styles.toggle}
