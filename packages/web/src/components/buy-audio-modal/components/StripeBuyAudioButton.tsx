@@ -3,22 +3,25 @@ import { useCallback } from 'react'
 import {
   OnRampProvider,
   buyAudioSelectors,
-  accountSelectors
+  accountSelectors,
+  buyAudioActions
 } from '@audius/common'
 import { AudiusLibs } from '@audius/sdk'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { OnRampButton } from 'components/on-ramp-button'
 
 const { getAccountUser } = accountSelectors
 const { getAudioPurchaseInfo } = buyAudioSelectors
+const { calculateAudioPurchaseInfo } = buyAudioActions
 
 // TODO: Replace this with Stripe npm package when available
 // @ts-ignore
 const StripeOnRamp = window.StripeOnramp
 
 export const StripeBuyAudioButton = () => {
+  const dispatch = useDispatch()
   const [, setIsStripeModalVisible] = useModalState('StripeOnRamp')
   const user = useSelector(getAccountUser)
 
@@ -34,7 +37,7 @@ export const StripeBuyAudioButton = () => {
       return
     }
     if (!amount) {
-      console.error('Missing purchase amount')
+      dispatch(calculateAudioPurchaseInfo({ audioAmount: 0 }))
       return
     }
     const libs: AudiusLibs = window.audiusLibs
@@ -51,13 +54,7 @@ export const StripeBuyAudioButton = () => {
     })
     session.mount('#stripe-onramp-modal')
     setIsStripeModalVisible(true)
-  }, [setIsStripeModalVisible, amount, user])
+  }, [dispatch, setIsStripeModalVisible, amount, user])
 
-  return (
-    <OnRampButton
-      isDisabled={!user?.userBank || !amount}
-      provider={OnRampProvider.STRIPE}
-      onClick={handleClick}
-    />
-  )
+  return <OnRampButton provider={OnRampProvider.STRIPE} onClick={handleClick} />
 }
