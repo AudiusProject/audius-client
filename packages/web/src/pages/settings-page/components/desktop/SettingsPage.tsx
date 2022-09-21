@@ -338,7 +338,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
           <span>{messages.copyright}</span>
         </div>
         <div className={styles.selectedServices}>
-          {hasTracks && <SelectedServices variant='lighter' />}
+          <SelectedServices variant='lighter' />
         </div>
         <Modal
           title={

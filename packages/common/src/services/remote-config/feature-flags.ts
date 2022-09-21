@@ -18,6 +18,7 @@ export enum FeatureFlags {
   PLAYLIST_ENTITY_MANAGER_ENABLED = 'playlist_entity_manager_enabled',
   SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED = 'social_feature_entity_manager_enabled',
   TRACK_ENTITY_MANAGER_ENABLED = 'track_entity_manager_enabled',
+  USER_ENTITY_MANAGER_ENABLED = 'user_entity_manager_enabled',
   NEW_TABLES = 'new_tables',
   BUY_AUDIO_ENABLED = 'buy_audio_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
