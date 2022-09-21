@@ -60,7 +60,11 @@ export const getProfileTracksLineup = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.tracks ?? initialTracksState
 
 export const getProfileCollections = createDeepEqualSelector(
-  [getProfileUserId, getUsers, getCollections],
+  [
+    (state: CommonState, handle: string) => getProfileUserId(state, handle),
+    getUsers,
+    getCollections
+  ],
   (userId, users, collections) => {
     if (!userId) return []
     const user: User = users[userId]

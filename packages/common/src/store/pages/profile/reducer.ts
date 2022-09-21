@@ -1,5 +1,7 @@
 // @ts-nocheck
 // TODO(nkang) - convert to TS
+import { update } from 'lodash'
+
 import { asLineup } from 'store/lineup/reducer'
 import feedReducer from 'store/pages/profile/lineups/feed/reducer'
 import tracksReducer from 'store/pages/profile/lineups/tracks/reducer'
@@ -15,7 +17,6 @@ import {
   UPDATE_PROFILE,
   UPDATE_PROFILE_SUCCEEDED,
   UPDATE_PROFILE_FAILED,
-  RESET_PROFILE,
   UPDATE_COLLECTION_SORT_MODE,
   SET_PROFILE_FIELD,
   FETCH_FOLLOW_USERS,
@@ -48,6 +49,24 @@ const initialProfileState = {
   [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] }
 }
 
+const updateProfile = (state, action, data) => {
+  const { currentUser, entries } = state
+  const { handle } = action
+  const profileHandle = handle ?? currentUser
+  const newEntry = entries[profileHandle]
+
+  return {
+    ...state,
+    entries: {
+      ...entries,
+      [profileHandle]: {
+        ...newEntry,
+        ...data
+      }
+    }
+  }
+}
+
 const initialState = { currentUser: null, entries: {} }
 
 const actionsMap = {
@@ -55,10 +74,7 @@ const actionsMap = {
     const { fetchOnly, shouldSetLoading, handle, userId } = action
     if (fetchOnly) return state
 
-    const profileState = state.entries[handle] ?? initialProfileState
-
     const newState = {
-      ...profileState,
       status: shouldSetLoading ? Status.LOADING : state.status
     }
     if (handle) {
@@ -68,45 +84,36 @@ const actionsMap = {
       newState.userId = userId
     }
     return {
-      currentUser: handle,
-      entries: { ...state.entries, [handle]: newState }
+      ...updateProfile(state, action, newState),
+      currentUser: handle
     }
   },
   [FETCH_PROFILE_SUCCEEDED](state, action) {
-    const { currentUser, entries } = state
+    const { currentUser } = state
     const { fetchOnly, userId, handle } = action
     const profileHandle = handle ?? currentUser
     if (fetchOnly) return state
 
-    const profileState = entries[profileHandle]
-
-    return {
-      ...state,
-      entries: {
-        ...entries,
-        [profileHandle]: {
-          ...profileState,
-          status: Status.SUCCESS,
-          userId,
-          handle: profileHandle
-        }
-      }
-    }
+    return updateProfile(state, action, {
+      status: Status.SUCCESS,
+      userId,
+      handle: profileHandle
+    })
   },
   [FETCH_FOLLOW_USERS](state, action) {
     const { currentUser, entries } = state
     const { followerGroup, handle } = action
     const profileHandle = handle ?? currentUser
-    const profileState = entries[profileHandle]
+    const newEntry = entries[profileHandle]
 
     return {
       ...state,
       entries: {
         ...entries,
         [profileHandle]: {
-          ...profileState,
+          ...newEntry,
           [followerGroup]: {
-            ...profileState[followerGroup],
+            ...newEntry[followerGroup],
             status: Status.LOADING
           }
         }
@@ -121,17 +128,17 @@ const actionsMap = {
       state[followerGroup].userIds.every(({ id: userId }) => id !== userId)
     )
 
-    const profileState = entries[profileHandle]
+    const newEntry = entries[profileHandle]
 
     return {
       ...state,
       entries: {
         ...entries,
         [profileHandle]: {
-          ...profileState,
+          ...newEntry,
           [followerGroup]: {
             userIds:
-              profileState[followerGroup].userIds.concat(filteredAddedUserIds),
+              newEntry[followerGroup].userIds.concat(filteredAddedUserIds),
             status: Status.SUCCESS
           }
         }
@@ -142,15 +149,15 @@ const actionsMap = {
     const { currentUser, entries } = state
     const { followerGroup, handle } = action
     const profileHandle = handle ?? currentUser
-    const profileState = entries[profileHandle]
+    const newEntry = entries[profileHandle]
 
     return {
       ...state,
       entries: {
         [profileHandle]: {
-          ...profileState,
+          ...newEntry,
           [followerGroup]: {
-            ...profileState[followerGroup],
+            ...newEntry[followerGroup],
             status: Status.ERROR
           }
         }
@@ -158,121 +165,66 @@ const actionsMap = {
     }
   },
   [SET_PROFILE_FIELD](state, action) {
-    const { currentUser, entries } = state
-    const { field, value, handle } = action
-    const profileHandle = handle ?? currentUser
-    const profileState = entries[profileHandle]
-
-    return {
-      ...state,
-      entries: {
-        ...entries,
-        [handle]: {
-          ...profileState,
-          [field]: value
-        }
-      }
-    }
+    const { field, value } = action
+    return updateProfile(state, action, { [field]: value })
   },
   [FETCH_PROFILE_FAILED](state, action) {
-    const { currentUser, entries } = state
-    const { handle } = action
-    const profileHandle = handle ?? currentUser
-    const profileState = entries[profileHandle]
-
-    return {
-      ...state,
-      entries: {
-        ...entries,
-        [profileHandle]: {
-          ...profileState,
-          status: Status.ERROR
-        }
-      }
-    }
+    return updateProfile(state, action, { status: Status.ERROR })
   },
   [UPDATE_MOST_USED_TAGS](state, action) {
+    const { mostUsedTags } = action
+    return updateProfile(state, action, { mostUsedTags })
+  },
+  [UPDATE_PROFILE](state, action) {
+    return updateProfile(state, action, { updating: true })
+  },
+  [UPDATE_PROFILE_SUCCEEDED](state, action) {
+    return updateProfile(state, action, {
+      updating: false,
+      updateSuccess: true
+    })
+  },
+  [UPDATE_PROFILE_FAILED](state, action) {
+    return updateProfile(state, action, {
+      updating: false,
+      updateError: true
+    })
+  },
+  [UPDATE_COLLECTION_SORT_MODE](state, action) {
+    const { mode } = action
+    return updateProfile(state, action, { collectionSortMode: mode })
+  },
+  [DISMISS_PROFILE_METER](state, action) {
+    return updateProfile(state, action, { profileMeterDismissed: true })
+  },
+  [FOLLOW_USER](state, action) {
     const { currentUser, entries } = state
-    const { mostUsedTags, handle } = action
+    const { handle, userId } = action
     const profileHandle = handle ?? currentUser
-    const profileState = entries[profileHandle]
+    const newEntry = entries[profileHandle]
+    const profileFollowees = newEntry[FollowType.FOLLOWEES]
 
     return {
       ...state,
       entries: {
         ...entries,
         [profileHandle]: {
-          ...profileState,
-          mostUsedTags
+          ...newEntry,
+          [FollowType.FOLLOWEES]: {
+            ...profileFollowees,
+            userIds: profileFollowees.userIds.concat([userId])
+          }
         }
       }
     }
   },
-  [UPDATE_PROFILE](state, action) {
-    return {
-      ...state,
-      updating: true
-    }
-  },
-  [UPDATE_PROFILE_SUCCEEDED](state, action) {
-    return {
-      ...state,
-      updating: false,
-      updateSuccess: true
-    }
-  },
-  [UPDATE_PROFILE_FAILED](state, action) {
-    return {
-      ...state,
-      updating: false,
-      updateError: true
-    }
-  },
-  [RESET_PROFILE](state, action) {
-    return {
-      ...initialState,
-      profileMeterDismissed: state.profileMeterDismissed,
-      feed: feedLineupReducer(undefined, action),
-      tracks: tracksLineupReducer(undefined, action)
-    }
-  },
-  [UPDATE_COLLECTION_SORT_MODE](state, action) {
-    return {
-      ...state,
-      collectionSortMode: action.mode
-    }
-  },
-  [DISMISS_PROFILE_METER](state, action) {
-    return {
-      ...state,
-      profileMeterDismissed: true
-    }
-  },
-  [FOLLOW_USER](state, action) {
-    return {
-      ...state,
-      [FollowType.FOLLOWEES]: {
-        ...state[FollowType.FOLLOWEES],
-        userIds: state[FollowType.FOLLOWEES].userIds.concat([action.userId])
-      }
-    }
-  },
-  [FOLLOW_USER_FAILED](state, action) {
-    return {
-      ...state,
-      [FollowType.FOLLOWEES]: {
-        ...state[FollowType.FOLLOWEES],
-        userIds: state[FollowType.FOLLOWEES].userIds.filter(
-          (id) => id !== action.userId
-        )
-      }
-    }
-  },
+  [FOLLOW_USER_FAILED](state, action) {},
   [SET_NOTIFICATION_SUBSCRIPTION](state, action) {
-    return {
-      ...state,
-      isNotificationSubscribed: action.isSubscribed
-    }
+    const { isSubscribed } = action
+
+    return updateProfile(state, action, {
+      isNotificationSubscribed: isSubscribed
+    })
   }
 }
 
@@ -286,21 +238,21 @@ const reducer = (state = initialState, action) => {
   const profileHandle = handle ?? currentUser
   if (!profileHandle) return state
 
-  let profileState = entries[profileHandle] ?? initialProfileState
+  let newEntry = entries[profileHandle] ?? initialProfileState
 
-  const feed = feedLineupReducer(profileState.feed, action)
-  if (feed !== profileState.feed) {
-    profileState = { ...profileState, feed }
+  const feed = feedLineupReducer(newEntry.feed, action)
+  if (feed !== newEntry.feed) {
+    newEntry = { ...newEntry, feed }
   }
 
-  const tracks = tracksLineupReducer(profileState.tracks, action)
-  if (tracks !== profileState.tracks) {
-    profileState = { ...profileState, tracks }
+  const tracks = tracksLineupReducer(newEntry.tracks, action)
+  if (tracks !== newEntry.tracks) {
+    newEntry = { ...newEntry, tracks }
   }
 
   const newState = {
     ...state,
-    entries: { ...entries, [profileHandle]: profileState }
+    entries: { ...entries, [profileHandle]: newEntry }
   }
 
   const matchingReduceFunction = actionsMap[action.type]

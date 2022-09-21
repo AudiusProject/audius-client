@@ -12,8 +12,6 @@ export const UPDATE_PROFILE = 'PROFILE/UPDATE_PROFILE'
 export const UPDATE_PROFILE_SUCCEEDED = 'PROFILE/UPDATE_PROFILE_SUCCEEDED'
 export const UPDATE_PROFILE_FAILED = 'PROFILE/UPDATE_PROFILE_FAILED'
 
-export const RESET_PROFILE = 'PROFILE/RESET_PROFILE'
-
 export const UPDATE_COLLECTION_SORT_MODE = 'PROFILE/UPDATE_COLLECTION_SORT_MODE'
 export const SET_PROFILE_FIELD = 'PROFILE/SET_PROFILE_FIELD'
 export const UPDATE_CURRENT_USER_FOLLOWS = 'PROFILE/UPDATE_CURRENT_USER_FOLLOWS'
@@ -72,10 +70,6 @@ export function updateProfileSucceeded(userId: ID) {
 
 export function updateProfileFailed() {
   return { type: UPDATE_PROFILE_FAILED }
-}
-
-export function resetProfile() {
-  return { type: RESET_PROFILE }
 }
 
 export function updateCollectionSortMode(mode: CollectionSortMode) {

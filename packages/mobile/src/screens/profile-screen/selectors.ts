@@ -60,11 +60,6 @@ export const useIsProfileLoaded = () => {
   const { params } = useRoute<'Profile'>()
   const { handle } = params
   const profileStatus = useSelector((state) => getProfileStatus(state, handle))
-  const account = useSelector(getAccountUser)
-  const isOwner = handle === account?.handle
 
-  return (
-    (params.handle === 'accountUser' && isOwner) ||
-    profileStatus === Status.SUCCESS
-  )
+  return handle === 'accountUser' || profileStatus === Status.SUCCESS
 }
