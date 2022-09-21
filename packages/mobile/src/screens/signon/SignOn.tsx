@@ -552,7 +552,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
       }
 
       if (!keepEmail) {
-        console.log('guessing we arent keeping email?')
         setEmail('')
       }
 
@@ -564,8 +563,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
       Keyboard.dismiss()
     }
   }
-
-  console.log('email?', email)
 
   const passwordInputField = () => {
     if (isSignin) {
