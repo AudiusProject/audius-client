@@ -30,5 +30,5 @@ const updateConnectivity = (state: NetInfoState) => {
 }
 
 NetInfo.addEventListener(
-  debounce((state) => updateConnectivity(state), 2000, { maxWait: 5000 })
+  debounce(updateConnectivity, 2000, { maxWait: 5000 })
 )
