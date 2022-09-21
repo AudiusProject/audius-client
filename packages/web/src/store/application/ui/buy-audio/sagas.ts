@@ -686,7 +686,7 @@ function* watchCalculateAudioPurchaseInfo() {
   yield takeLatest(calculateAudioPurchaseInfo, getAudioPurchaseInfo)
 }
 
-function* watchOnRampStarted() {
+function* watchOnRampOpened() {
   yield takeLatest(onRampOpened, startBuyAudioFlow)
 }
 
@@ -705,7 +705,7 @@ function* watchPrecalculateSwapFees() {
 
 export default function sagas() {
   return [
-    watchOnRampStarted,
+    watchOnRampOpened,
     watchCalculateAudioPurchaseInfo,
     watchPrecalculateSwapFees
   ]

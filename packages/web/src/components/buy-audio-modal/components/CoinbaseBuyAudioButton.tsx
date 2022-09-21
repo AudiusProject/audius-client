@@ -16,7 +16,12 @@ import { getRootSolanaAccount } from 'services/audius-backend/BuyAudio'
 
 import styles from './CoinbaseBuyAudioButton.module.css'
 
-const { onRampOpened, onRampCanceled, onRampSucceeded } = buyAudioActions
+const {
+  onRampOpened,
+  onRampCanceled,
+  onRampSucceeded,
+  calculateAudioPurchaseInfo
+} = buyAudioActions
 const { getAudioPurchaseInfo, getAudioPurchaseInfoStatus } = buyAudioSelectors
 
 const messages = {
@@ -34,8 +39,8 @@ export const CoinbaseBuyAudioButton = () => {
       ? purchaseInfo.estimatedSOL.uiAmount
       : undefined
 
-  const belowSolThreshold = amount ? amount < 0.05 : false
-  const isDisabled = purchaseInfoStatus !== Status.SUCCESS || belowSolThreshold
+  const belowSolThreshold = amount && amount < 0.05
+  const isDisabled = purchaseInfoStatus === Status.LOADING || belowSolThreshold
 
   const handleExit = useCallback(() => {
     dispatch(onRampCanceled())
@@ -57,6 +62,10 @@ export const CoinbaseBuyAudioButton = () => {
       })
       dispatch(onRampOpened(purchaseInfo))
       coinbasePay.open()
+    } else if (purchaseInfoStatus === Status.IDLE) {
+      // Generally only possible if `amount` is still undefined,
+      // in which case we want to trigger the min audio exceeded error
+      dispatch(calculateAudioPurchaseInfo({ audioAmount: amount ?? 0 }))
     }
   }, [
     coinbasePay,
