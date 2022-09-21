@@ -325,6 +325,8 @@ describe('watchNext', () => {
     expect(storeState.queue.index).toEqual(0)
   })
 
+  // Note: This test is untested, as the unit testing process was broken when it was written
+  // If it breaks on first run, it may be bugged
   it('repeats the same track when in shuffle mode', async () => {
     const initialQueue = makeInitialQueue({
       index: 0,
