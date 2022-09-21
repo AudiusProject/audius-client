@@ -28,10 +28,10 @@ import {
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
 
-const initialState = {
+const initialProfileState = {
   handle: null,
   userId: null,
-  status: Status.LOADING,
+  status: Status.IDLE,
 
   isNotificationSubscribed: false,
   updating: false,
@@ -43,86 +43,169 @@ const initialState = {
 
   profileMeterDismissed: false,
 
-  [FollowType.FOLLOWERS]: { status: Status.LOADING, userIds: [] },
-  [FollowType.FOLLOWEES]: { status: Status.LOADING, userIds: [] },
-  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.LOADING, userIds: [] }
+  [FollowType.FOLLOWERS]: { status: Status.IDLE, userIds: [] },
+  [FollowType.FOLLOWEES]: { status: Status.IDLE, userIds: [] },
+  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] }
 }
+
+const initialState = { currentUser: null, entries: {} }
 
 const actionsMap = {
   [FETCH_PROFILE](state, action) {
-    if (action.fetchOnly) return state
+    const { fetchOnly, shouldSetLoading, handle, userId } = action
+    if (fetchOnly) return state
+
+    const profileState = state.entries[handle] ?? initialProfileState
 
     const newState = {
-      ...state,
-      status: action.shouldSetLoading ? Status.LOADING : state.status
+      ...profileState,
+      status: shouldSetLoading ? Status.LOADING : state.status
     }
-    if (action.handle) {
-      newState.handle = action.handle
+    if (handle) {
+      newState.handle = handle
     }
-    if (action.userId) {
-      newState.userId = action.userId
+    if (userId) {
+      newState.userId = userId
     }
-    return newState
+    return {
+      currentUser: handle,
+      entries: { ...state.entries, [handle]: newState }
+    }
   },
   [FETCH_PROFILE_SUCCEEDED](state, action) {
-    if (action.fetchOnly) return state
+    const { currentUser, entries } = state
+    const { fetchOnly, userId, handle } = action
+    const profileHandle = handle ?? currentUser
+    if (fetchOnly) return state
+
+    const profileState = entries[profileHandle]
 
     return {
       ...state,
-      status: Status.SUCCESS,
-      userId: action.userId,
-      handle: action.handle
+      entries: {
+        ...entries,
+        [profileHandle]: {
+          ...profileState,
+          status: Status.SUCCESS,
+          userId,
+          handle: profileHandle
+        }
+      }
     }
   },
   [FETCH_FOLLOW_USERS](state, action) {
+    const { currentUser, entries } = state
+    const { followerGroup, handle } = action
+    const profileHandle = handle ?? currentUser
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      [action.followerGroup]: {
-        ...state[action.followerGroup],
-        status: Status.LOADING
+      entries: {
+        ...entries,
+        [profileHandle]: {
+          ...profileState,
+          [followerGroup]: {
+            ...profileState[followerGroup],
+            status: Status.LOADING
+          }
+        }
       }
     }
   },
   [FETCH_FOLLOW_USERS_SUCCEEDED](state, action) {
-    const filteredAddedUserIds = action.userIds.filter(({ id }) =>
-      state[action.followerGroup].userIds.every(
-        ({ id: userId }) => id !== userId
-      )
+    const { currentUser, entries } = state
+    const { userIds, followerGroup, handle } = action
+    const profileHandle = handle ?? currentUser
+    const filteredAddedUserIds = userIds.filter(({ id }) =>
+      state[followerGroup].userIds.every(({ id: userId }) => id !== userId)
     )
+
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      [action.followerGroup]: {
-        userIds:
-          state[action.followerGroup].userIds.concat(filteredAddedUserIds),
-        status: Status.SUCCESS
+      entries: {
+        ...entries,
+        [profileHandle]: {
+          ...profileState,
+          [followerGroup]: {
+            userIds:
+              profileState[followerGroup].userIds.concat(filteredAddedUserIds),
+            status: Status.SUCCESS
+          }
+        }
       }
     }
   },
   [FETCH_FOLLOW_USERS_FAILED](state, action) {
+    const { currentUser, entries } = state
+    const { followerGroup, handle } = action
+    const profileHandle = handle ?? currentUser
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      [action.followerGroup]: {
-        ...state[action.followerGroup],
-        status: Status.ERROR
+      entries: {
+        [profileHandle]: {
+          ...profileState,
+          [followerGroup]: {
+            ...profileState[followerGroup],
+            status: Status.ERROR
+          }
+        }
       }
     }
   },
   [SET_PROFILE_FIELD](state, action) {
+    const { currentUser, entries } = state
+    const { field, value, handle } = action
+    const profileHandle = handle ?? currentUser
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      [action.field]: action.value
+      entries: {
+        ...entries,
+        [handle]: {
+          ...profileState,
+          [field]: value
+        }
+      }
     }
   },
   [FETCH_PROFILE_FAILED](state, action) {
+    const { currentUser, entries } = state
+    const { handle } = action
+    const profileHandle = handle ?? currentUser
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      status: Status.ERROR
+      entries: {
+        ...entries,
+        [profileHandle]: {
+          ...profileState,
+          status: Status.ERROR
+        }
+      }
     }
   },
   [UPDATE_MOST_USED_TAGS](state, action) {
+    const { currentUser, entries } = state
+    const { mostUsedTags, handle } = action
+    const profileHandle = handle ?? currentUser
+    const profileState = entries[profileHandle]
+
     return {
       ...state,
-      mostUsedTags: action.mustUsedTags
+      entries: {
+        ...entries,
+        [profileHandle]: {
+          ...profileState,
+          mostUsedTags
+        }
+      }
     }
   },
   [UPDATE_PROFILE](state, action) {
@@ -197,15 +280,32 @@ const feedLineupReducer = asLineup(feedPrefix, feedReducer)
 const tracksLineupReducer = asLineup(tracksPrefix, tracksReducer)
 
 const reducer = (state = initialState, action) => {
-  const feed = feedLineupReducer(state.feed, action)
-  if (feed !== state.feed) return { ...state, feed }
+  const { currentUser, entries } = state
+  const { handle } = action
 
-  const tracks = tracksLineupReducer(state.tracks, action)
-  if (tracks !== state.tracks) return { ...state, tracks }
+  const profileHandle = handle ?? currentUser
+  if (!profileHandle) return state
+
+  let profileState = entries[profileHandle] ?? initialProfileState
+
+  const feed = feedLineupReducer(profileState.feed, action)
+  if (feed !== profileState.feed) {
+    profileState = { ...profileState, feed }
+  }
+
+  const tracks = tracksLineupReducer(profileState.tracks, action)
+  if (tracks !== profileState.tracks) {
+    profileState = { ...profileState, tracks }
+  }
+
+  const newState = {
+    ...state,
+    entries: { ...entries, [profileHandle]: profileState }
+  }
 
   const matchingReduceFunction = actionsMap[action.type]
-  if (!matchingReduceFunction) return state
-  return matchingReduceFunction(state, action)
+  if (!matchingReduceFunction) return newState
+  return matchingReduceFunction(newState, action)
 }
 
 export default reducer
