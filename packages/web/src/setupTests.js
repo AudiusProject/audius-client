@@ -1,6 +1,9 @@
 // eslint-disable-next-line
 // import '__mocks__/Hls.js'
 
+// eslint-disable-next-line
+import '__mocks__/Hashids'
+
 // Mock Canvas / Context2D calls
 window.HTMLCanvasElement.prototype.getContext = function () {
   return {

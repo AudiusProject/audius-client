@@ -1,6 +1,7 @@
 import { parseUserRoute } from './userRouteParser'
-jest.mock('hashids')
 
+// eslint-disable-next-line
+import { mockDecode } from '__mocks__/Hashids'
 jest.mock('@audius/common', () => {
   const originalModule = jest.requireActual('@audius/common')
 
@@ -26,7 +27,7 @@ describe('parseUserRoute', () => {
   })
 
   it('can decode a hashed user id route', () => {
-    // Hashids.mockDecode.mockReturnValue([11845])
+    mockDecode.mockReturnValue([11845])
 
     const route = '/users/eP9k7'
     const { userId, handle } = parseUserRoute(route)
@@ -41,7 +42,7 @@ describe('parseUserRoute', () => {
   })
 
   it('returns null for an invalid hash id', () => {
-    // Hashids.mockDecode.mockReturnValue([NaN])
+    mockDecode.mockReturnValue([NaN])
 
     const route = '/users/asdf'
     const params = parseUserRoute(route)
