@@ -552,6 +552,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
       }
 
       if (!keepEmail) {
+        console.log('guessing we arent keeping email?')
         setEmail('')
       }
 
@@ -563,6 +564,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
       Keyboard.dismiss()
     }
   }
+
+  console.log('email?', email)
 
   const passwordInputField = () => {
     if (isSignin) {
@@ -648,7 +651,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
                     () => {
                       // On unavailable email (e.g. user exists with that email),
                       // Switch to the sign in form
-                      switchForm()
+                      switchForm(true)
                       setIsWorking(false)
                     },
                     () => {
