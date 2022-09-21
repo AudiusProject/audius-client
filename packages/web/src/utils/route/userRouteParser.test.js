@@ -1,7 +1,21 @@
 import { parseUserRoute } from './userRouteParser'
+jest.mock('hashids')
 
-// eslint-disable-next-line
-import { mockDecode } from '__mocks__/Hashids'
+jest.mock('@audius/common', () => {
+  const originalModule = jest.requireActual('@audius/common')
+
+  return {
+    __esModule: true,
+
+    ...originalModule,
+
+    AudiusBackend: {
+      recordTrackListen: jest.fn(),
+      getSelectableCreatorNodes: jest.fn(),
+      submitAndEvaluateAttestations: jest.fn()
+    }
+  }
+})
 
 describe('parseUserRoute', () => {
   it('can decode a user handle route', () => {
@@ -12,7 +26,7 @@ describe('parseUserRoute', () => {
   })
 
   it('can decode a hashed user id route', () => {
-    mockDecode.mockReturnValue([11845])
+    // Hashids.mockDecode.mockReturnValue([11845])
 
     const route = '/users/eP9k7'
     const { userId, handle } = parseUserRoute(route)
@@ -27,7 +41,7 @@ describe('parseUserRoute', () => {
   })
 
   it('returns null for an invalid hash id', () => {
-    mockDecode.mockReturnValue([NaN])
+    // Hashids.mockDecode.mockReturnValue([NaN])
 
     const route = '/users/asdf'
     const params = parseUserRoute(route)

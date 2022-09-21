@@ -1,8 +1,4 @@
 // eslint-disable-next-line
-import '__mocks__/AudiusBackend'
-// eslint-disable-next-line
-import '__mocks__/Hashids'
-// eslint-disable-next-line
 // import '__mocks__/Hls.js'
 
 // Mock Canvas / Context2D calls
