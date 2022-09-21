@@ -39,7 +39,7 @@ export const CoinbaseBuyAudioButton = () => {
       ? purchaseInfo.estimatedSOL.uiAmount
       : undefined
 
-  const belowSolThreshold = amount && amount < 0.05
+  const belowSolThreshold = amount !== undefined && amount < 0.05
   const isDisabled = purchaseInfoStatus === Status.LOADING || belowSolThreshold
 
   const handleExit = useCallback(() => {
