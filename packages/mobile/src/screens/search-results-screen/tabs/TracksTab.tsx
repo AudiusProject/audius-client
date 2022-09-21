@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 
 import {
   lineupSelectors,
@@ -7,6 +7,7 @@ import {
   searchResultsPageTracksLineupActions as tracksActions,
   trimToAlphaNumeric
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Lineup } from 'app/components/lineup'
@@ -24,6 +25,13 @@ const getSearchTracksLineupMetadatas = makeGetLineupMetadatas(
 export const TracksTab = () => {
   const lineup = useSelector(getSearchTracksLineupMetadatas)
   const dispatch = useDispatch()
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        dispatch(tracksActions.reset())
+      }
+    }, [dispatch])
+  )
   const { query, isTagSearch } = useContext(SearchQueryContext)
   const loadMore = useCallback(
     (offset: number, limit: number) => {
