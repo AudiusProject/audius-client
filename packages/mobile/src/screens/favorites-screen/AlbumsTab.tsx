@@ -1,7 +1,15 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { accountActions, accountSelectors } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import type {
+  Cacheable,
+  Collection,
+  CommonState,
+  ID,
+  User,
+  UserCollection
+} from '@audius/common'
+import { accountActions, useProxySelector } from '@audius/common'
+import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import { CollectionList } from 'app/components/collection-list'
@@ -9,9 +17,7 @@ import { VirtualizedScrollView } from 'app/components/core'
 
 import { EmptyTab } from './EmptyTab'
 import { FilterInput } from './FilterInput'
-import type { ExtendedCollection } from './types'
 
-const { getAccountWithAlbums } = accountSelectors
 const { fetchSavedAlbums } = accountActions
 
 const messages = {
@@ -27,24 +33,38 @@ export const AlbumsTab = () => {
   })
 
   const [filterValue, setFilterValue] = useState('')
-  const user = useSelector(getAccountWithAlbums)
 
-  const matchesFilter = (playlist: ExtendedCollection) => {
-    const matchValue = filterValue.toLowerCase()
-    return (
-      playlist.playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
-      playlist.ownerName.toLowerCase().indexOf(matchValue) > -1
-    )
-  }
+  const matchesFilter = useCallback(
+    (playlist: Collection, users: Record<ID, Cacheable<User>>) => {
+      const matchValue = filterValue.toLowerCase()
+      const { playlist_name, playlist_owner_id } = playlist
+      const playlistOwner = users[playlist_owner_id].metadata
 
-  const userAlbums = user?.albums
-    ?.filter(
-      (playlist) =>
-        playlist.is_album &&
-        playlist.ownerHandle !== user.handle &&
-        matchesFilter(playlist)
-    )
-    .map((playlist) => ({ ...playlist, user }))
+      return (
+        playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
+        playlistOwner.name.toLowerCase().indexOf(matchValue) > -1
+      )
+    },
+    [filterValue]
+  )
+
+  const userAlbums = useProxySelector(
+    (state: CommonState) => {
+      const { userId } = state.account
+      const collectionEntries = state.collections.entries
+      const { collections } = state.account
+      return Object.values(collections)
+        .map((collection) => collectionEntries[collection.id]?.metadata)
+        ?.filter(
+          (playlist) =>
+            playlist &&
+            playlist.is_album &&
+            playlist.playlist_owner_id !== userId &&
+            matchesFilter(playlist, state.users.entries)
+        )
+    },
+    [matchesFilter]
+  )
 
   return (
     <VirtualizedScrollView listKey='favorites-albums-view'>
@@ -60,7 +80,7 @@ export const AlbumsTab = () => {
           <CollectionList
             listKey='favorites-albums'
             scrollEnabled={false}
-            collection={userAlbums ?? []}
+            collection={(userAlbums as UserCollection[]) ?? []}
             style={{ marginVertical: 12 }}
           />
         </>
