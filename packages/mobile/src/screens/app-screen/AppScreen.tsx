@@ -16,6 +16,8 @@ import type { FeedTabScreenParamList } from './FeedTabScreen'
 import { FeedTabScreen } from './FeedTabScreen'
 import type { ProfileTabScreenParamList } from './ProfileTabScreen'
 import { ProfileTabScreen } from './ProfileTabScreen'
+import type { SearchTabScreenParamList } from './SearchTabScreen'
+import { SearchTabScreen } from './SearchTabScreen'
 import type { TrendingTabScreenParamList } from './TrendingTabScreen'
 import { TrendingTabScreen } from './TrendingTabScreen'
 const { getBalance } = walletActions
@@ -26,6 +28,7 @@ export type AppScreenParamList = {
   explore: NavigatorScreenParams<ExploreTabScreenParamList>
   favorites: NavigatorScreenParams<FavoritesTabScreenParamList>
   profile: NavigatorScreenParams<ProfileTabScreenParamList>
+  Search: NavigatorScreenParams<SearchTabScreenParamList>
 }
 
 const Tab = createBottomTabNavigator()
@@ -50,6 +53,7 @@ export const AppScreen = () => {
       <Tab.Screen name='explore' component={ExploreTabScreen} />
       <Tab.Screen name='favorites' component={FavoritesTabScreen} />
       <Tab.Screen name='profile' component={ProfileTabScreen} />
+      <Tab.Screen name='Search' component={SearchTabScreen} />
     </Tab.Navigator>
   )
 }

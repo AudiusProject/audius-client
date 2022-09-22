@@ -148,26 +148,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
       />
       <Stack.Group>
         <Stack.Screen
-          name='Search'
-          component={SearchScreen}
-          options={(props) => ({
-            ...screenOptions(props),
-            cardStyleInterpolator: forFade
-          })}
-        />
-        <Stack.Screen
-          name='SearchResults'
-          component={SearchResultsScreen}
-          options={screenOptions}
-        />
-        <Stack.Screen
-          name='TagSearch'
-          component={TagSearchScreen}
-          options={screenOptions}
-        />
-      </Stack.Group>
-      <Stack.Group>
-        <Stack.Screen
           name='Followers'
           component={FollowersScreen}
           options={screenOptions}
