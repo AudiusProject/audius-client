@@ -15,7 +15,7 @@ const messages = {
 }
 
 export const BuyAudioRecoveryModal = () => {
-  const [isOpen, setIsOpen] = useModalState('BuyAudio')
+  const [isOpen, setIsOpen] = useModalState('BuyAudioRecovery')
   const handleClose = useCallback(() => {
     setIsOpen(false)
   }, [setIsOpen])
