@@ -8,13 +8,8 @@ import type {
   User,
   UserCollection
 } from '@audius/common'
-import {
-  accountActions,
-  accountSelectors,
-  useProxySelector
-} from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
-import { useDispatch, useSelector } from 'react-redux'
+import { accountActions, useProxySelector } from '@audius/common'
+import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import { CollectionList } from 'app/components/collection-list'
@@ -25,6 +20,7 @@ import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScre
 
 import { EmptyTab } from './EmptyTab'
 import { FilterInput } from './FilterInput'
+import { getAccountCollections } from './selectors'
 
 const { fetchSavedPlaylists } = accountActions
 
@@ -36,44 +32,21 @@ const messages = {
 export const PlaylistsTab = () => {
   const navigation = useNavigation<FavoritesTabScreenParamList>()
   const [filterValue, setFilterValue] = useState('')
-
-  const matchesFilter = (
-    playlist: Collection,
-    users: Record<ID, Cacheable<User>>
-  ) => {
-    const matchValue = filterValue.toLowerCase()
-    const { playlist_name, playlist_owner_id } = playlist
-    const playlistOwner = users[playlist_owner_id].metadata
-    return (
-      playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
-      playlistOwner.name.toLowerCase().indexOf(matchValue) > -1
-    )
-  }
-
-  const userPlaylists = useProxySelector(
-    (state: CommonState) => {
-      const { userId } = state.account
-      const collectionEntries = state.collections.entries
-      const { collections } = state.account
-      return Object.values(collections)
-        .map((collection) => collectionEntries[collection.id]?.metadata)
-        ?.filter(
-          (playlist) =>
-            playlist &&
-            !playlist.is_album &&
-            playlist.playlist_owner_id !== userId &&
-            matchesFilter(playlist, state.users.entries)
-        )
-    },
-    [matchesFilter]
-  )
   const dispatch = useDispatch()
 
   const handleFetchSavedPlaylists = useCallback(() => {
     dispatch(fetchSavedPlaylists())
   }, [dispatch])
 
-  useFocusEffect(handleFetchSavedPlaylists)
+  useEffectOnce(handleFetchSavedPlaylists)
+
+  const userPlaylists = useProxySelector(
+    (state: CommonState) =>
+      getAccountCollections(state, filterValue).filter(
+        (collection) => !collection.is_album
+      ),
+    [filterValue]
+  )
 
   const handleNavigateToNewPlaylist = useCallback(() => {
     navigation.push('CreatePlaylist')

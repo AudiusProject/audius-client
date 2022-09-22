@@ -17,6 +17,7 @@ import { VirtualizedScrollView } from 'app/components/core'
 
 import { EmptyTab } from './EmptyTab'
 import { FilterInput } from './FilterInput'
+import { getAccountCollections } from './selectors'
 
 const { fetchSavedAlbums } = accountActions
 
@@ -34,36 +35,12 @@ export const AlbumsTab = () => {
 
   const [filterValue, setFilterValue] = useState('')
 
-  const matchesFilter = useCallback(
-    (playlist: Collection, users: Record<ID, Cacheable<User>>) => {
-      const matchValue = filterValue.toLowerCase()
-      const { playlist_name, playlist_owner_id } = playlist
-      const playlistOwner = users[playlist_owner_id].metadata
-
-      return (
-        playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
-        playlistOwner.name.toLowerCase().indexOf(matchValue) > -1
-      )
-    },
-    [filterValue]
-  )
-
   const userAlbums = useProxySelector(
-    (state: CommonState) => {
-      const { userId } = state.account
-      const collectionEntries = state.collections.entries
-      const { collections } = state.account
-      return Object.values(collections)
-        .map((collection) => collectionEntries[collection.id]?.metadata)
-        ?.filter(
-          (playlist) =>
-            playlist &&
-            playlist.is_album &&
-            playlist.playlist_owner_id !== userId &&
-            matchesFilter(playlist, state.users.entries)
-        )
-    },
-    [matchesFilter]
+    (state: CommonState) =>
+      getAccountCollections(state, filterValue).filter(
+        (collection) => collection.is_album
+      ),
+    [filterValue]
   )
 
   return (
