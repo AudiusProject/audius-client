@@ -1,13 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import type {
-  Cacheable,
-  Collection,
-  CommonState,
-  ID,
-  User,
-  UserCollection
-} from '@audius/common'
+import type { CommonState, UserCollection } from '@audius/common'
 import { accountActions, useProxySelector } from '@audius/common'
 import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
