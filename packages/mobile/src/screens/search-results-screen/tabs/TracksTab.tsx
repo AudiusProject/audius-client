@@ -1,7 +1,8 @@
 import {
-  searchResultsPageTracksLineupActions as tracksActions,
+  lineupSelectors,
+  SearchKind,
   searchResultsPageSelectors,
-  SearchKind
+  searchResultsPageTracksLineupActions as tracksActions
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -12,7 +13,22 @@ import { useFetchTabResultsEffect } from './useFetchTabResultsEffect'
 const { getSearchTracksLineup } = searchResultsPageSelectors
 
 export const TracksTab = () => {
-  const lineup = useSelector(getSearchTracksLineup)
+  const lineup = useSelector(getSearchTracksLineupMetadatas)
+  const dispatch = useDispatch()
+  const { query, isTagSearch } = useContext(SearchQueryContext)
+  const loadMore = useCallback(
+    (offset: number, limit: number) => {
+      dispatch(
+        tracksActions.fetchLineupMetadatas(offset, limit, false, {
+          category: SearchKind.TRACKS,
+          query,
+          isTagSearch
+        })
+      )
+    },
+    [dispatch, isTagSearch, query]
+  )
+
   useFetchTabResultsEffect(SearchKind.TRACKS)
   return (
     <SearchResultsTab
