@@ -93,7 +93,6 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
   const playCounter = useSelector(getCounter)
-  console.log({ playCounter })
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
@@ -165,18 +164,16 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   const [isGestureEnabled, setIsGestureEnabled] = useState(true)
 
   const track = useSelector(getCurrentTrack)
+  const trackId = track?.track_id
 
   const user = useSelector((state) =>
     getUser(state, track ? { id: track.owner_id } : {})
   )
-  console.log({ track })
-
-  const trackId = track?.track_id
   const [mediaKey, setMediaKey] = useState(0)
 
   useEffect(() => {
     setMediaKey((mediaKey) => mediaKey + 1)
-  }, [trackId, playCounter])
+  }, [playCounter])
 
   const onNext = useCallback(() => {
     if (track?.genre === Genre.PODCASTS) {
@@ -221,14 +218,12 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   }, [handleDrawerCloseFromSwipe, navigation, user])
 
   const handlePressTitle = useCallback(() => {
-    if (!track) {
+    if (!trackId) {
       return
     }
-    navigation.push('Track', { id: track.track_id })
+    navigation.push('Track', { id: trackId })
     handleDrawerCloseFromSwipe()
-  }, [handleDrawerCloseFromSwipe, navigation, track])
-
-  console.log('media key?', mediaKey)
+  }, [handleDrawerCloseFromSwipe, navigation, trackId])
 
   return (
     <Drawer
