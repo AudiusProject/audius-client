@@ -132,6 +132,8 @@ export const useAppScreenOptions = (
           'fromNotifications' in params &&
           (params as ContextualParams).fromNotifications
 
+        const handlePressSearch = () => navigation.push('Search')
+
         return {
           animation: isFromNotifs ? 'none' : 'default',
           gestureEnabled: !isFromNotifs,
@@ -215,7 +217,7 @@ export const useAppScreenOptions = (
                   icon={IconSearch}
                   fill={neutralLight4}
                   styles={{ icon: styles.iconSearch }}
-                  onPress={() => navigation.push('Search')}
+                  onPress={handlePressSearch}
                 />
               </View>
             )
