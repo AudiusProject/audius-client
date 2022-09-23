@@ -36,7 +36,7 @@ export const getAccountCollections = (
         playlist &&
         !playlist._marked_deleted &&
         !playlist.is_delete &&
-        playlist.is_album &&
+        !playlist.is_album &&
         playlist.playlist_owner_id !== userId &&
         matchesFilter(playlist, state.users.entries, filterValue)
     )
