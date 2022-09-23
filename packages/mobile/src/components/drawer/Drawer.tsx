@@ -339,7 +339,6 @@ export const Drawer: DrawerComponent = ({
 }: DrawerProps) => {
   const styles = useThemedStyles(createStyles(zIndex, shouldAnimateShadow))
   const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
-  console.log({ androidNavigationBarHeight })
 
   const [drawerHeight, setDrawerHeight] = useState(
     isFullscreen ? FULL_DRAWER_HEIGHT : 0

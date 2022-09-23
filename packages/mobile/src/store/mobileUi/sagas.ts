@@ -4,7 +4,7 @@ import { call, put } from 'typed-redux-saga'
 
 import { setAndroidNavigationBarHeight } from './slice'
 
-function* watchAndroidNavigationBarHeight() {
+function* calculateAndroidNavigationBarHeight() {
   if (Platform.OS === 'android') {
     const scale = Dimensions.get('screen').scale
     const navigationBarHeight = yield* call(getNavigationBarHeight)
@@ -18,5 +18,5 @@ function* watchAndroidNavigationBarHeight() {
 }
 
 export default function sagas() {
-  return [watchAndroidNavigationBarHeight]
+  return [calculateAndroidNavigationBarHeight]
 }
