@@ -37,7 +37,7 @@ import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
 const { seek } = playerActions
 
-const { getPlaying, getCurrentTrack } = playerSelectors
+const { getPlaying, getCurrentTrack, getCounter } = playerSelectors
 const { next, previous } = queueActions
 const { getUser } = cacheUsersSelectors
 
@@ -92,6 +92,8 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   const navigation = useNavigation()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
+  const playCounter = useSelector(getCounter)
+  console.log({ playCounter })
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
@@ -167,12 +169,14 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   const user = useSelector((state) =>
     getUser(state, track ? { id: track.owner_id } : {})
   )
+  console.log({ track })
 
   const trackId = track?.track_id
   const [mediaKey, setMediaKey] = useState(0)
+
   useEffect(() => {
     setMediaKey((mediaKey) => mediaKey + 1)
-  }, [trackId])
+  }, [trackId, playCounter])
 
   const onNext = useCallback(() => {
     if (track?.genre === Genre.PODCASTS) {
@@ -223,6 +227,8 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
     navigation.push('Track', { id: track.track_id })
     handleDrawerCloseFromSwipe()
   }, [handleDrawerCloseFromSwipe, navigation, track])
+
+  console.log('media key?', mediaKey)
 
   return (
     <Drawer
