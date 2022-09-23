@@ -8,7 +8,9 @@ import {
   cacheUsersSelectors,
   getContext,
   usersSocialActions as socialActions,
-  waitForAccount
+  waitForAccount,
+  FeatureFlags,
+  profilePageActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -18,11 +20,13 @@ import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { profilePage } from 'utils/route'
 
 import errorSagas from './errorSagas'
 const { getUsers, getUser } = cacheUsersSelectors
-const getUserId = accountSelectors.getUserId
+const { setNotificationSubscription } = profilePageActions
+const { getUserId } = accountSelectors
 
 /* FOLLOW */
 
@@ -73,6 +77,15 @@ export function* followUser(
   yield* put(event)
 
   yield* call(confirmFollowUser, action.userId, accountId)
+  const shouldAutoSubscribe =
+    ((yield* call(getFeatureEnabled, FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW)) as
+      | boolean
+      | null) ?? false
+  if (shouldAutoSubscribe) {
+    yield* put(
+      setNotificationSubscription(action.userId, /* isSubscribed */ true)
+    )
+  }
 }
 
 export function* confirmFollowUser(userId: ID, accountId: ID) {
@@ -182,6 +195,9 @@ export function* unfollowUser(
   yield* put(event)
 
   yield* call(confirmUnfollowUser, action.userId, accountId)
+  yield* put(
+    setNotificationSubscription(action.userId, /* isSubscribed */ false)
+  )
 }
 
 export function* confirmUnfollowUser(userId: ID, accountId: ID) {
