@@ -60,10 +60,9 @@ import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
-import themeSagas, { setupTheme } from './theme/sagas'
+import themeSagas from './theme/sagas'
 
 export default function* rootSaga() {
-  yield* fork(setupTheme)
   const sagas = [
     // Config
     ...backendSagas(),
