@@ -20,7 +20,6 @@ import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { profilePage } from 'utils/route'
 
 import errorSagas from './errorSagas'
@@ -37,9 +36,10 @@ export function* watchFollowUser() {
 export function* followUser(
   action: ReturnType<typeof socialActions.followUser>
 ) {
-  /* Make Async Backend Call */
   yield* call(waitForBackendSetup)
   yield* waitForAccount()
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+
   const accountId = yield* select(getUserId)
   if (!accountId) {
     yield* put(signOnActions.openSignOn(false))
