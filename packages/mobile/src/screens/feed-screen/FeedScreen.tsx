@@ -8,11 +8,12 @@ import {
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { Screen } from 'app/components/core'
+import { Button, Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
+import { downloadAnyOldTrack } from 'app/services/track-downloader'
 
 import { ScreenContent } from '../ScreenContent'
 
@@ -42,7 +43,10 @@ export const FeedScreen = () => {
   return (
     <Screen>
       <Header text={messages.header}>
-        <FeedFilterButton />
+        {/* <FeedFilterButton /> */}
+        <>
+          <Button onPress={downloadAnyOldTrack} title='Download File' />
+        </>
       </Header>
       <ScreenContent>
         <Lineup

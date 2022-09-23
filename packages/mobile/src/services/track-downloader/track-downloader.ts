@@ -7,6 +7,7 @@ import {
 import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
+import { pathJoin } from 'app/utils/fileSystem'
 
 import { apiClient } from '../audius-api-client'
 const { getUserId } = accountSelectors
@@ -14,7 +15,7 @@ const { getTracks, getTrack } = cacheTracksSelectors
 
 // TODO: make this CachesDirectoryPath, but Downloads is easier to test with
 // export const downloadsRoot = RNFS.CachesDirectoryPath
-export const downloadsRoot = RNFS.CachesDirectoryPath
+export const downloadsRoot = pathJoin(RNFS.CachesDirectoryPath, 'downloads')
 
 export const downloadAnyOldTrack = () => {
   const tracks = getTracks(store.getState(), {})
@@ -44,13 +45,14 @@ const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
       currentUserId: getUserId(state as any) // todo
     })
   )[0] as UserMetadata
-  console.log(user)
   const encodedTrackId = encodeHashId(track.track_id)
   const creatorNodeEndpoints = user.creator_node_endpoint.split(',')
   for (const creatorNodeEndpoint of creatorNodeEndpoints) {
     const uri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
     const [audioDirectory, audioFileName] = getAudioDestination(track)
-    await downloadIfNotExists(uri, audioDirectory, audioFileName)
+    if (audioDirectory && audioFileName) {
+      await downloadIfNotExists(uri, audioDirectory, audioFileName)
+    }
   }
 }
 
@@ -58,17 +60,24 @@ const getCoverArtUri = (track: Track) => {
   return track._cover_art_sizes?.['150x150']
 }
 
-const getCoverArtDestination = (track: Track) => {
+const getCoverArtDestination = (track: Track): [string?, string?] => {
   const uri = getCoverArtUri(track)
-  if (!uri) return [null, null]
+  if (!uri) return []
   const fileName = getFileNameFromUri(uri)
   return [`${downloadsRoot}/tracks/${track.track_id}`, fileName]
 }
 
-// TODO: why isn't route id on the type, even though it's populated in state
-const getAudioDestination = (track) => {
+export const getAudioDestination = (track: Track): [string?, string?] => {
+  // TODO: why isn't route id on the type, even though it's populated in state
+  // TODO: handle case where route_id isn't populated
+  // @ts-ignore route_id actually does exist in state
   const fileName = `${track.route_id.replaceAll('/', '_')}.mp3`
   return [`${downloadsRoot}/tracks/${track.track_id}`, fileName]
+}
+
+export const isTrackAvailableOffline = async (track: Track) => {
+  const fullFilePath = pathJoin(...getAudioDestination(track))
+  return await exists(fullFilePath)
 }
 
 const getFileNameFromUri = (uri: string) => {
@@ -82,9 +91,9 @@ const downloadIfNotExists = async (
   overwrite?: boolean
 ) => {
   if (!uri) return null
-  const fullFilePath = `${destinationDirectory}/${fileName}`
+  const fullFilePath = pathJoin(destinationDirectory, fileName)
   if (!overwrite && (await exists(fullFilePath))) {
-    console.log(`file at ${fullFilePath} exists`)
+    console.log(`skipping existing file at ${pathFromRoot(fullFilePath)}`)
     return null
   }
 
@@ -95,6 +104,32 @@ const downloadIfNotExists = async (
     toFile: fullFilePath
   })?.promise
 
-  console.log(result)
+  console.log(
+    `Successful download: ${pathFromRoot(fullFilePath)} - ${
+      result.bytesWritten
+    }`
+  )
   return result?.statusCode ?? null
+}
+
+export const purgeAllDownloads = async () => {
+  console.log(`Before purge:`)
+  await readDirRec(downloadsRoot)
+  await RNFS.mkdir(downloadsRoot)
+  await RNFS.unlink(downloadsRoot)
+  console.log(`Before purge:`)
+  await readDirRec(downloadsRoot)
+}
+
+export const readDirRec = async (path) => {
+  const files = await RNFS.readDir(path)
+  files.forEach((item) => {
+    item.isFile()
+      ? console.log(`${pathFromRoot(item.path)} - ${item.size} bytes`)
+      : readDirRec(item.path)
+  })
+}
+
+const pathFromRoot = (string) => {
+  return string.replace(downloadsRoot, '~')
 }

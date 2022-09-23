@@ -36,9 +36,9 @@ export const FavoritesScreen = () => {
   return (
     <Screen>
       <Header text='Favorites' />
-      <ScreenContent>
-        <TopTabNavigator screens={favoritesScreens} />
-      </ScreenContent>
+      {/* <ScreenContent> */}
+      <TopTabNavigator screens={favoritesScreens} />
+      {/* </ScreenContent> */}
     </Screen>
   )
 }

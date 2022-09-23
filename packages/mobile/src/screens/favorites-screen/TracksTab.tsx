@@ -17,7 +17,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Tile, VirtualizedScrollView } from 'app/components/core'
+import { Button, Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
@@ -26,6 +26,7 @@ import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
+import { downloadTrack, purgeAllDownloads } from 'app/services/track-downloader'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
@@ -72,6 +73,12 @@ export const TracksTab = () => {
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTracks = useProxySelector(getTracks, [])
+
+  const handleDownloadAllTracks = useCallback(() => {
+    savedTracks.entries.forEach((track) => {
+      downloadTrack(track.track_id)
+    })
+  }, [savedTracks])
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -125,6 +132,12 @@ export const TracksTab = () => {
           <EmptyTileCTA message={messages.emptyTabText} />
         ) : (
           <>
+            <Button
+              onPress={handleDownloadAllTracks}
+              title='Download All Favorites'
+            />
+            <Button onPress={purgeAllDownloads} title='Purge All Downloads' />
+
             <FilterInput
               value={filterValue}
               placeholder={messages.inputPlaceholder}

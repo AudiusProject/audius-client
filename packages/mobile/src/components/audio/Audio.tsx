@@ -18,6 +18,7 @@ import type { OnProgressData } from 'react-native-video'
 import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 import { useChromecast } from './GoogleCast'
@@ -331,6 +332,8 @@ export const Audio = () => {
     ]
   )
 
+  const offlineSrc = useOfflineTrackUri(track)
+
   if (!track || track.is_delete) return null
 
   const gateways = trackOwner
@@ -344,15 +347,27 @@ export const Audio = () => {
     gateways
   })
 
+  const source = offlineSrc
+    ? {
+        uri: offlineSrc
+      }
+    : m3u8
+    ? {
+        uri: m3u8,
+        type: 'm3u8'
+      }
+    : null
+
+  if (offlineSrc) {
+    console.log(`using offline src [${offlineSrc}]`)
+  }
+
   return (
     <View style={styles.backgroundVideo}>
-      {m3u8 && (
+      {source && (
         <Video
-          source={{
-            uri: m3u8,
-            // @ts-ignore: this is actually a valid prop override
-            type: 'm3u8'
-          }}
+          // @ts-ignore: type: m3u8 is actually a valid prop override
+          source={source}
           ref={videoRef}
           playInBackground
           playWhenInactive
