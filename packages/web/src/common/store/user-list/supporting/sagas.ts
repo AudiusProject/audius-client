@@ -4,7 +4,6 @@ import {
   UserMetadata,
   stringWeiToBN,
   decodeHashId,
-  encodeHashId,
   cacheUsersSelectors,
   tippingActions,
   SupportingMapForUser,
@@ -12,10 +11,9 @@ import {
   supportingUserListActions,
   supportingUserListSelectors,
   SUPPORTING_USER_LIST_TAG,
-  SupportingResponse,
   responseAdapter as adapter,
-  fetchSupporting,
-  AudiusBackend
+  AudiusBackend,
+  getContext
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
@@ -34,26 +32,11 @@ type SupportingProcessExtraType = {
 const provider = createUserListProvider<User, SupportingProcessExtraType>({
   getExistingEntity: getUser,
   extractUserIDSubsetFromEntity: () => [],
-  fetchAllUsersForEntity: async ({
-    limit,
-    offset,
-    entityId,
-    audiusBackendInstance
-  }: {
-    limit: number
-    offset: number
-    entityId: ID
-    currentUserId: ID | null
-    audiusBackendInstance: AudiusBackend
-  }) => {
-    const encodedUserId = encodeHashId(entityId)
-    if (!encodedUserId) return { users: [] }
-
-    const supporting = await fetchSupporting({
-      encodedUserId,
+  fetchAllUsersForEntity: async ({ limit, offset, entityId, apiClient }) => {
+    const supporting = await apiClient.getSupporting({
+      userId: entityId,
       limit,
-      offset,
-      audiusBackendInstance
+      offset
     })
     const users = supporting
       .sort((s1, s2) => {

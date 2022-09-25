@@ -33,26 +33,11 @@ type SupportersProcessExtraType = {
 const provider = createUserListProvider<User, SupportersProcessExtraType>({
   getExistingEntity: getUser,
   extractUserIDSubsetFromEntity: () => [],
-  fetchAllUsersForEntity: async ({
-    limit,
-    offset,
-    entityId,
-    audiusBackendInstance
-  }: {
-    limit: number
-    offset: number
-    entityId: ID
-    currentUserId: ID | null
-    audiusBackendInstance: AudiusBackend
-  }) => {
-    const encodedUserId = encodeHashId(entityId)
-    if (!encodedUserId) return { users: [] }
-
-    const supporters = await fetchSupporters({
-      encodedUserId,
+  fetchAllUsersForEntity: async ({ limit, offset, entityId, apiClient }) => {
+    const supporters = await apiClient.getSupporters({
+      userId: entityId,
       limit,
-      offset,
-      audiusBackendInstance
+      offset
     })
     const users = supporters
       .sort((s1, s2) => s1.rank - s2.rank)
