@@ -16,10 +16,7 @@ const injected = `
 (function() {
   const entropy = window.localStorage.getItem('${ENTROPY_KEY}')
   window.ReactNativeWebView.postMessage(
-    JSON.stringify({
-      test: 'hello world',
-      entropy
-    })
+    JSON.stringify({ entropy })
   )
 })();
 `
