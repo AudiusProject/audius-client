@@ -16,6 +16,9 @@ const { getAccountUser } = accountSelectors
 const { getAudioPurchaseInfo } = buyAudioSelectors
 const { calculateAudioPurchaseInfo } = buyAudioActions
 
+const STRIPE_PUBLISHABLE_KEY =
+  process.env.REACT_APP_STRIPE_CLIENT_PUBLISHABLE_KEY
+
 // TODO: Replace this with Stripe npm package when available
 // @ts-ignore
 const StripeOnRamp = window.StripeOnramp
@@ -33,7 +36,7 @@ export const StripeBuyAudioButton = () => {
 
   const handleClick = useCallback(async () => {
     if (!user?.userBank) {
-      console.error('Missing user wallet')
+      console.error('Missing user bank')
       return
     }
     if (!amount) {
@@ -44,10 +47,7 @@ export const StripeBuyAudioButton = () => {
       amount,
       destinationWallet: user.userBank
     })
-    const stripeOnRampInstance = StripeOnRamp(
-      // TODO: Put this in an env var
-      '<stripe key>'
-    )
+    const stripeOnRampInstance = StripeOnRamp(STRIPE_PUBLISHABLE_KEY)
     const session = stripeOnRampInstance.createSession({
       // TODO: Implement createStripeSession
       // @ts-ignore
