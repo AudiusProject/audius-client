@@ -17,12 +17,12 @@ const messages = {
   intermediateSolNoticeCoinbase:
     'An intermediate purchase of SOL will be made via Coinbase Pay and then converted to $AUDIO.'
 }
-export const AmountInputPage = ({
-  provider
-}: {
-  provider?: OnRampProvider
-}) => {
+
+const { getBuyAudioProvider } = buyAudioSelectors
+
+export const AmountInputPage = () => {
   const dispatch = useDispatch()
+  const provider = useSelector(getBuyAudioProvider)
   const presetAmountsConfig = useRemoteVar(StringKeys.BUY_AUDIO_PRESET_AMOUNTS)
 
   const handleAmountChange = useCallback(

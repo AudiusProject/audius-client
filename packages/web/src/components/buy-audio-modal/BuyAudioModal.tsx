@@ -93,7 +93,7 @@ export const BuyAudioModal = () => {
         contentClassName={styles.modalContent}
         currentPage={currentPage}
       >
-        <AmountInputPage provider={provider} />
+        <AmountInputPage />
         <InProgressPage />
         <SuccessPage />
       </ModalContentPages>
