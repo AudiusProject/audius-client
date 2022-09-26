@@ -1475,7 +1475,6 @@ export class AudiusAPIClient {
   }
 
   async getSupporting({ userId, limit = 25, offset = 0 }: GetSupportingArgs) {
-    console.log('get supporting')
     const encodedUserId = this._encodeOrThrow(userId)
     this._assertInitialized()
     const params = {
