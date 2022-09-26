@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react'
 
-import { buyAudioActions, OnRampProvider, StringKeys } from '@audius/common'
-import { useDispatch } from 'react-redux'
+import {
+  buyAudioActions,
+  buyAudioSelectors,
+  OnRampProvider,
+  StringKeys
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 
