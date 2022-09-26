@@ -13,7 +13,7 @@ import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
-import { downloadAnyOldTrack } from 'app/services/track-downloader'
+import { downloadAnyOldTrack } from 'app/services/offline-downloader'
 
 import { ScreenContent } from '../ScreenContent'
 

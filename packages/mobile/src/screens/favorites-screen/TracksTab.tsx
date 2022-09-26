@@ -26,7 +26,10 @@ import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
-import { downloadTrack, purgeAllDownloads } from 'app/services/track-downloader'
+import {
+  downloadTrack,
+  purgeAllDownloads
+} from 'app/services/offline-downloader'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors

@@ -5,7 +5,7 @@ import type { Track } from '@audius/common'
 import {
   getAudioDestination,
   isTrackAvailableOffline
-} from 'app/services/track-downloader'
+} from 'app/services/offline-downloader'
 import { pathJoin } from 'app/utils/fileSystem'
 
 export const useOfflineTrackUri = (track: Track | null) => {
