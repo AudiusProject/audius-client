@@ -1472,11 +1472,14 @@ export const audiusBackend = ({
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
       const userEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.USER_ENTITY_MANAGER_ENABLED
-                )) ?? false
+        (await getFeatureEnabled(FeatureFlags.USER_ENTITY_MANAGER_ENABLED)) ??
+        false
       const { blockHash, blockNumber, userId } =
-        await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata, userEntityManagerEnabled)
+        await audiusLibs.User.updateCreator(
+          newMetadata.user_id,
+          newMetadata,
+          userEntityManagerEnabled
+        )
       return { blockHash, blockNumber, userId }
     } catch (err) {
       console.error(getErrorMessage(err))
@@ -2212,9 +2215,8 @@ export const audiusBackend = ({
 
     // Returns { userId, error, phase }
     const userEntityManagerEnabled =
-    (await getFeatureEnabled(
-      FeatureFlags.USER_ENTITY_MANAGER_ENABLED
-            )) ?? false
+      (await getFeatureEnabled(FeatureFlags.USER_ENTITY_MANAGER_ENABLED)) ??
+      false
 
     return audiusLibs.Account.signUp(
       email,
