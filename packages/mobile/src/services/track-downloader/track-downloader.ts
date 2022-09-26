@@ -115,19 +115,29 @@ const downloadIfNotExists = async (
 export const purgeAllDownloads = async () => {
   console.log(`Before purge:`)
   await readDirRec(downloadsRoot)
-  await RNFS.mkdir(downloadsRoot)
   await RNFS.unlink(downloadsRoot)
-  console.log(`Before purge:`)
+  await RNFS.mkdir(downloadsRoot)
+  console.log(`After purge:`)
   await readDirRec(downloadsRoot)
 }
 
 export const readDirRec = async (path) => {
   const files = await RNFS.readDir(path)
+  if (files.length === 0) {
+    console.log(`${pathFromRoot(path)} - empty`)
+  }
   files.forEach((item) => {
-    item.isFile()
-      ? console.log(`${pathFromRoot(item.path)} - ${item.size} bytes`)
-      : readDirRec(item.path)
+    if (item.isFile()) {
+      console.log(`${pathFromRoot(item.path)} - ${item.size} bytes`)
+    }
   })
+  await Promise.all(
+    files.map(async (item) => {
+      if (item.isDirectory()) {
+        await readDirRec(item.path)
+      }
+    })
+  )
 }
 
 const pathFromRoot = (string) => {
