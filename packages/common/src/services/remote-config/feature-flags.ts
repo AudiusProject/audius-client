@@ -47,6 +47,7 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED]: false,
+  [FeatureFlags.USER_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.NEW_TABLES]: false,
   [FeatureFlags.BUY_AUDIO_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
