@@ -22,7 +22,7 @@ export const Connectivity: { netInfo: NetInfoState | null } = { netInfo: null }
 
 const updateConnectivity = (state: NetInfoState) => {
   Connectivity.netInfo = state
-  if (!(AppState.currentState === 'active')) return
+  if (AppState.currentState !== 'active') return
   const newValue = checkConnectivity(state)
   if (!newValue) {
     dispatch(reachabilityActions.setUnreachable())

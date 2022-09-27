@@ -24,7 +24,7 @@ import { refreshConnectivity } from 'app/utils/connectivity'
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
-import useAppState from './hooks/useAppState'
+import { useEnterForeground } from './hooks/useAppState'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -62,14 +62,9 @@ const App = () => {
     refreshConnectivity()
   })
 
-  useAppState(
-    // onEnterForeground
-    () => {
-      refreshConnectivity()
-    },
-    // onEnterBackground
-    () => {}
-  )
+  useEnterForeground(() => {
+    refreshConnectivity()
+  })
 
   return (
     <SafeAreaProvider>
