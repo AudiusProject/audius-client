@@ -61,7 +61,11 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const { is_verified: ignored_is_verified, ...metadata } = yield call(
+    const {
+      is_verified: ignored_is_verified,
+      creator_node_endpoint: ignored_creator_node_endpoint,
+      ...metadata
+    } = yield call(
       audiusBackendInstance.fetchCID,
       cid,
       gateways,
@@ -318,8 +322,10 @@ function* fetchMostUsedTags(userId, trackCount) {
 }
 
 function* fetchFolloweeFollows(action) {
+  const { handle } = action
+  if (!handle) return
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const profileUserId = yield select(getProfileUserId)
+  const profileUserId = yield select((state) => getProfileUserId(state, handle))
   if (!profileUserId) return
   const followeeFollows = yield call(
     audiusBackendInstance.getFolloweeFollows,

@@ -231,11 +231,14 @@ export const TestTracksTable = ({
       const track = cellInfo.row.original
       const deleted = track.is_delete || !!track.user?.is_deactivated
       const isOwner = track.owner_id === userId
-      if (deleted || isOwner) return null
+      if (deleted || isOwner) {
+        return <div className={styles.placeholderButton} />
+      }
 
       return (
         <Tooltip
           text={track.has_current_user_saved ? 'Unfavorite' : 'Favorite'}
+          mount='page'
         >
           <div ref={favoriteButtonRef}>
             <TableFavoriteButton
@@ -257,10 +260,16 @@ export const TestTracksTable = ({
     (cellInfo) => {
       const track = cellInfo.row.original
       const deleted = track.is_delete || track.user?.is_deactivated
-      if (deleted) return null
+      if (deleted) {
+        return <div className={styles.placeholderButton} />
+      }
+
       const isOwner = track.owner_id === userId
       return isOwner ? null : (
-        <Tooltip text={track.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
+        <Tooltip
+          text={track.has_current_user_reposted ? 'Unrepost' : 'Repost'}
+          mount='page'
+        >
           <div ref={repostButtonRef}>
             <TableRepostButton
               className={cn(styles.tableActionButton, {
@@ -393,7 +402,9 @@ export const TestTracksTable = ({
         Header: 'Plays',
         accessor: 'plays',
         Cell: renderPlaysCell,
-        maxWidth: 160,
+        maxWidth: 120,
+        width: 48,
+        minWidth: 48,
         sortTitle: 'Plays',
         sorter: numericSorter('plays'),
         align: 'right'
@@ -423,6 +434,7 @@ export const TestTracksTable = ({
         maxWidth: 160,
         sortTitle: 'Track Length',
         sorter: numericSorter('time'),
+        disableSortBy: isVirtualized,
         align: 'right'
       },
       trackName: {
@@ -438,6 +450,7 @@ export const TestTracksTable = ({
       }
     }),
     [
+      isVirtualized,
       renderAddedDateCell,
       renderArtistNameCell,
       renderDateCell,

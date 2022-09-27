@@ -8,14 +8,12 @@ mobile-init:
         name: copy staging env
         command: |
           cd packages/mobile
-          cp .env.stage.tmpl .env.stage
           echo "FCM_SENDER_ID=$FCM_SENDER_ID" >> .env.stage
           echo "AMPLITUDE_WRITE_KEY=$AMPLITUDE_WRITE_KEY_STAGE" >> .env.stage
     - run:
         name: copy production env
         command: |
           cd packages/mobile
-          cp .env.prod.tmpl .env.prod
           echo "FCM_SENDER_ID=$FCM_SENDER_ID" >> .env.prod
           echo "AMPLITUDE_WRITE_KEY=$AMPLITUDE_WRITE_KEY_PROD" >> .env.prod
 
@@ -58,7 +56,7 @@ mobile-init:
 mobile-build-upload-staging-ios:
   working_directory: ~/audius-client
   macos: # Run on osx so app can be created and signed.
-    xcode: '13.3.0'
+    xcode: '14.0.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -77,7 +75,7 @@ mobile-build-upload-staging-ios:
 mobile-build-upload-production-ios:
   working_directory: ~/audius-client
   macos: # Run on osx so app can be created and signed.
-    xcode: '13.3.0'
+    xcode: '14.0.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
