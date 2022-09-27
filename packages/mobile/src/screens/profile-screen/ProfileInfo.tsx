@@ -1,15 +1,14 @@
-import { FollowSource, reachabilitySelectors } from '@audius/common'
+import { FollowSource } from '@audius/common'
 import { View, Text } from 'react-native'
-import { useSelector } from 'react-redux'
 
 import { FollowButton, FollowsYouChip } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
+import { useRoute } from 'app/hooks/useRoute'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { EditProfileButton } from './EditProfileButton'
 import { SubscribeButton } from './SubscribeButton'
-import { getIsOwner, useIsProfileLoaded, useSelectProfile } from './selectors'
-const { getIsReachable } = reachabilitySelectors
+import { useSelectProfile } from './selectors'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   username: {
@@ -78,9 +77,9 @@ type ProfileInfoProps = {
 
 export const ProfileInfo = (props: ProfileInfoProps) => {
   const { onFollow } = props
+  const { params } = useRoute<'Profile'>()
+  const isOwner = params.handle === 'accountUser'
   const styles = useStyles()
-  const isProfileLoaded = useIsProfileLoaded()
-  const isReachable = useSelector(getIsReachable)
 
   const profile = useSelectProfile([
     'user_id',
@@ -93,8 +92,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
   const { name, handle, does_current_user_follow, does_follow_current_user } =
     profile
 
-  const isOwner = useSelector(getIsOwner)
-  const profileButton = isOwner ? (
+  const actionButtons = isOwner ? (
     <EditProfileButton style={styles.followButton} />
   ) : (
     <>
@@ -129,9 +127,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
           {does_follow_current_user ? <FollowsYouChip /> : null}
         </View>
       </View>
-      <View style={styles.actionButtons}>
-        {isProfileLoaded && isReachable ? profileButton : null}
-      </View>
+      <View style={styles.actionButtons}>{actionButtons}</View>
     </View>
   )
 }

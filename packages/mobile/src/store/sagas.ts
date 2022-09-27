@@ -40,6 +40,7 @@ import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
+import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
 import followersPageSagas from 'common/store/user-list/followers/sagas'
@@ -54,14 +55,14 @@ import { all, fork } from 'typed-redux-saga'
 
 import accountSagas from './account/sagas'
 import initKeyboardEvents from './keyboard/sagas'
+import mobileUiSagas from './mobileUi/sagas'
 import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
-import themeSagas, { setupTheme } from './theme/sagas'
+import themeSagas from './theme/sagas'
 
 export default function* rootSaga() {
-  yield* fork(setupTheme)
   const sagas = [
     // Config
     ...backendSagas(),
@@ -129,6 +130,7 @@ export default function* rootSaga() {
 
     // Application
     ...addToPlaylistSagas(),
+    ...artistRecommendationsSagas(),
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),
@@ -138,6 +140,7 @@ export default function* rootSaga() {
     ...vipDiscordModalSagas(),
     ...themeSagas(),
     ...tokenDashboardSagas(),
+    ...mobileUiSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

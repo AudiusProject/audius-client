@@ -1,20 +1,20 @@
 import { useCallback, useState } from 'react'
 
-import { accountActions, accountSelectors } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import type { CommonState, UserCollection } from '@audius/common'
+import { accountActions, useProxySelector } from '@audius/common'
+import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import { CollectionList } from 'app/components/collection-list'
 import { VirtualizedScrollView, Button } from 'app/components/core'
+import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
 
-import { EmptyTab } from './EmptyTab'
 import { FilterInput } from './FilterInput'
-import type { ExtendedCollection } from './types'
+import { getAccountCollections } from './selectors'
 
-const { getAccountWithPlaylists } = accountSelectors
 const { fetchSavedPlaylists } = accountActions
 
 const messages = {
@@ -25,29 +25,21 @@ const messages = {
 export const PlaylistsTab = () => {
   const navigation = useNavigation<FavoritesTabScreenParamList>()
   const [filterValue, setFilterValue] = useState('')
-  const user = useSelector(getAccountWithPlaylists)
   const dispatch = useDispatch()
 
-  useEffectOnce(() => {
+  const handleFetchSavedPlaylists = useCallback(() => {
     dispatch(fetchSavedPlaylists())
-  })
+  }, [dispatch])
 
-  const matchesFilter = (playlist: ExtendedCollection) => {
-    const matchValue = filterValue.toLowerCase()
-    return (
-      playlist.playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
-      playlist.ownerName.toLowerCase().indexOf(matchValue) > -1
-    )
-  }
+  useEffectOnce(handleFetchSavedPlaylists)
 
-  const userPlaylists = user?.playlists
-    ?.filter(
-      (playlist) =>
-        !playlist.is_album &&
-        playlist.ownerHandle !== user.handle &&
-        matchesFilter(playlist)
-    )
-    .map((playlist) => ({ ...playlist, user }))
+  const userPlaylists = useProxySelector(
+    (state: CommonState) =>
+      getAccountCollections(state, filterValue).filter(
+        (collection) => !collection.is_album
+      ),
+    [filterValue]
+  )
 
   const handleNavigateToNewPlaylist = useCallback(() => {
     navigation.push('CreatePlaylist')
@@ -56,7 +48,7 @@ export const PlaylistsTab = () => {
   return (
     <VirtualizedScrollView listKey='favorites-playlists-view'>
       {!userPlaylists?.length && !filterValue ? (
-        <EmptyTab message={messages.emptyTabText} />
+        <EmptyTileCTA message={messages.emptyTabText} />
       ) : (
         <FilterInput
           value={filterValue}
@@ -72,7 +64,7 @@ export const PlaylistsTab = () => {
       <CollectionList
         listKey='favorites-playlists'
         scrollEnabled={false}
-        collection={userPlaylists ?? []}
+        collection={(userPlaylists as UserCollection[]) ?? []}
       />
     </VirtualizedScrollView>
   )

@@ -9,21 +9,22 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import Audio from 'app/components/audio/Audio'
+import { Audio } from 'app/components/audio/Audio'
 import HCaptcha from 'app/components/hcaptcha'
 import NavigationContainer from 'app/components/navigation-container'
 import OAuth from 'app/components/oauth/OAuth'
-import 'app/utils/connectivity'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
+import { WebAppAccountSync } from 'app/components/web-app-account-sync'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
 import { store } from 'app/store'
 import { ENTROPY_KEY } from 'app/store/account/sagas'
 
+import 'app/utils/connectivity'
+
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
-import { WebAppAccountSync } from './components/web-app-account-sync/WebAppAccountSync'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -54,7 +55,7 @@ const App = () => {
   useAsync(async () => {
     // Require entropy to exist before setting up backend
     const entropy = await AsyncStorage.getItem(ENTROPY_KEY)
-    setIsReadyToSetupBackend(!!entropy)
+    setIsReadyToSetupBackend(!entropy)
   }, [])
 
   return (

@@ -51,9 +51,7 @@ target 'AudiusReactNative' do
   use_native_modules!
   use_flipper!({ "Flipper-DoubleConversion" => "1.1.7" })
 
-  pod 'RNFS', :path => '../node_modules/react-native-fs'
 
-  pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
 
   post_install do |installer|
     flipper_post_install(installer)
@@ -62,5 +60,15 @@ target 'AudiusReactNative' do
     installer.pods_project.build_configurations.each do |config|
       config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
     end
+
+    # https://github.com/CocoaPods/CocoaPods/issues/11402#issuecomment-1201464693
+    installer.pods_project.targets.each do |target|
+      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+        target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+
   end
 end

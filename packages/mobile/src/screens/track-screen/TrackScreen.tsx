@@ -1,11 +1,11 @@
-import { useEffect } from 'react'
+import { useCallback } from 'react'
 
 import {
-  lineupSelectors,
   trackPageLineupActions,
   trackPageActions,
   trackPageSelectors
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { Text, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -17,12 +17,9 @@ import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenMainContent } from './TrackScreenMainContent'
-const { fetchTrack, resetTrackPage } = trackPageActions
+const { fetchTrack } = trackPageActions
 const { tracksActions } = trackPageLineupActions
 const { getLineup, getRemixParentTrack, getTrack, getUser } = trackPageSelectors
-const { makeGetLineupMetadatas } = lineupSelectors
-
-const getMoreByArtistLineup = makeGetLineupMetadatas(getLineup)
 
 const messages = {
   moreBy: 'More By',
@@ -56,7 +53,7 @@ export const TrackScreen = () => {
   const dispatch = useDispatch()
 
   // params is incorrectly typed and can sometimes be undefined
-  const { searchTrack, id } = params ?? {}
+  const { searchTrack, id, canBeUnlisted = true } = params ?? {}
 
   const cachedTrack = useSelector((state) => getTrack(state, params))
 
@@ -68,16 +65,16 @@ export const TrackScreen = () => {
 
   const user = cachedUser ?? searchTrack?.user
 
-  const lineup = useSelector(getMoreByArtistLineup)
+  const lineup = useSelector(getLineup)
+
   const remixParentTrack = useSelector(getRemixParentTrack)
-  const trackUserExists = user != null
-  useEffect(() => {
-    dispatch(fetchTrack(id, undefined, user?.handle, true))
-    return () => {
-      dispatch(resetTrackPage())
-      dispatch(tracksActions.reset())
-    }
-  }, [dispatch, id, trackUserExists, user?.handle])
+
+  const handleFetchTrack = useCallback(() => {
+    dispatch(tracksActions.reset())
+    dispatch(fetchTrack(id, undefined, user?.handle, canBeUnlisted))
+  }, [dispatch, canBeUnlisted, id, user?.handle])
+
+  useFocusEffect(handleFetchTrack)
 
   if (!track || !user) {
     console.warn(
@@ -152,7 +149,6 @@ export const TrackScreen = () => {
         lineup={lineup}
         start={1}
         includeLineupStatus
-        selfLoad
       />
     </Screen>
   )

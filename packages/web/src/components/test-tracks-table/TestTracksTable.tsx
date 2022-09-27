@@ -23,6 +23,7 @@ import { isDescendantElementOf } from 'utils/domUtils'
 import styles from './TestTracksTable.module.css'
 
 export type TracksTableColumn =
+  | 'addedDate'
   | 'artistName'
   | 'date'
   | 'length'
@@ -209,6 +210,11 @@ export const TestTracksTable = ({
     return moment(track.date).format('M/D/YY')
   }, [])
 
+  const renderAddedDateCell = useCallback((cellInfo) => {
+    const track = cellInfo.row.original
+    return moment(track.dateSaved).format('M/D/YY')
+  }, [])
+
   const renderReleaseDateCell = useCallback((cellInfo) => {
     const track = cellInfo.row.original
     return moment(track.created_at).format('M/D/YY')
@@ -225,11 +231,14 @@ export const TestTracksTable = ({
       const track = cellInfo.row.original
       const deleted = track.is_delete || !!track.user?.is_deactivated
       const isOwner = track.owner_id === userId
-      if (deleted || isOwner) return null
+      if (deleted || isOwner) {
+        return <div className={styles.placeholderButton} />
+      }
 
       return (
         <Tooltip
           text={track.has_current_user_saved ? 'Unfavorite' : 'Favorite'}
+          mount='page'
         >
           <div ref={favoriteButtonRef}>
             <TableFavoriteButton
@@ -251,10 +260,16 @@ export const TestTracksTable = ({
     (cellInfo) => {
       const track = cellInfo.row.original
       const deleted = track.is_delete || track.user?.is_deactivated
-      if (deleted) return null
+      if (deleted) {
+        return <div className={styles.placeholderButton} />
+      }
+
       const isOwner = track.owner_id === userId
       return isOwner ? null : (
-        <Tooltip text={track.has_current_user_reposted ? 'Unrepost' : 'Repost'}>
+        <Tooltip
+          text={track.has_current_user_reposted ? 'Unrepost' : 'Repost'}
+          mount='page'
+        >
           <div ref={repostButtonRef}>
             <TableRepostButton
               className={cn(styles.tableActionButton, {
@@ -321,6 +336,16 @@ export const TestTracksTable = ({
     Partial<ColumnInstance>
   > = useMemo(
     () => ({
+      addedDate: {
+        id: 'dateAdded',
+        Header: 'Added',
+        accessor: 'dateSaved',
+        Cell: renderAddedDateCell,
+        maxWidth: 160,
+        sortTitle: 'Date Added',
+        sorter: dateSorter('dateSaved'),
+        align: 'right'
+      },
       artistName: {
         id: 'artistName',
         Header: 'Artist',
@@ -328,6 +353,7 @@ export const TestTracksTable = ({
         Cell: renderArtistNameCell,
         maxWidth: 300,
         width: 120,
+        sortTitle: 'Artist Name',
         sorter: alphaSorter('artist'),
         align: 'left'
       },
@@ -337,6 +363,7 @@ export const TestTracksTable = ({
         accessor: 'date',
         Cell: renderDateCell,
         maxWidth: 160,
+        sortTitle: 'Date Listened',
         sorter: dateSorter('date'),
         align: 'right'
       },
@@ -346,6 +373,7 @@ export const TestTracksTable = ({
         accessor: 'dateListened',
         Cell: renderListenDateCell,
         maxWidth: 160,
+        sortTitle: 'Date Listened',
         sorter: dateSorter('dateListened'),
         align: 'right'
       },
@@ -355,6 +383,7 @@ export const TestTracksTable = ({
         accessor: 'created_at',
         Cell: renderReleaseDateCell,
         maxWidth: 160,
+        sortTitle: 'Date Released',
         sorter: dateSorter('created_at'),
         align: 'right'
       },
@@ -364,6 +393,7 @@ export const TestTracksTable = ({
         accessor: 'repost_count',
         Cell: renderRepostsCell,
         maxWidth: 160,
+        sortTitle: 'Reposts',
         sorter: numericSorter('repost_count'),
         align: 'right'
       },
@@ -372,7 +402,10 @@ export const TestTracksTable = ({
         Header: 'Plays',
         accessor: 'plays',
         Cell: renderPlaysCell,
-        maxWidth: 160,
+        maxWidth: 120,
+        width: 48,
+        minWidth: 48,
+        sortTitle: 'Plays',
         sorter: numericSorter('plays'),
         align: 'right'
       },
@@ -399,7 +432,9 @@ export const TestTracksTable = ({
         accessor: 'time',
         Cell: renderLengthCell,
         maxWidth: 160,
+        sortTitle: 'Track Length',
         sorter: numericSorter('time'),
+        disableSortBy: isVirtualized,
         align: 'right'
       },
       trackName: {
@@ -409,11 +444,14 @@ export const TestTracksTable = ({
         Cell: renderTrackNameCell,
         maxWidth: 300,
         width: 120,
+        sortTitle: 'Track Name',
         sorter: alphaSorter('title'),
         align: 'left'
       }
     }),
     [
+      isVirtualized,
+      renderAddedDateCell,
       renderArtistNameCell,
       renderDateCell,
       renderLengthCell,

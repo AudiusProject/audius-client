@@ -24,6 +24,7 @@ import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Skeleton from 'components/skeleton/Skeleton'
+import Tooltip from 'components/tooltip/Tooltip'
 
 import styles from './TestTable.module.css'
 
@@ -195,8 +196,12 @@ export const TestTable = ({
             key={column.id}
           >
             {/* Sorting Container */}
-            <div {...column.getSortByToggleProps()}>
-              <div className={styles.textCell}>{column.render('Header')}</div>
+            <div {...column.getSortByToggleProps()} title=''>
+              <div className={styles.textCell}>
+                <Tooltip text={column.sortTitle} mount='page'>
+                  {column.render('Header')}
+                </Tooltip>
+              </div>
               {!column.disableSortBy ? (
                 <div className={styles.sortCaretContainer}>
                   {!column.isSorted || !column.isSortedDesc ? (
@@ -454,7 +459,7 @@ export const TestTable = ({
                             rowCount={
                               debouncedFetchMore ? totalRowCount : rows.length
                             }
-                            rowHeight={44}
+                            rowHeight={64}
                             rowRenderer={renderRow}
                           />
                         )}

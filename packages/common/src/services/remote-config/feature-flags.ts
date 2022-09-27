@@ -17,9 +17,11 @@ export enum FeatureFlags {
   SUPPORTER_DETHRONED_ENABLED = 'supporter_dethroned_enabled',
   PLAYLIST_ENTITY_MANAGER_ENABLED = 'playlist_entity_manager_enabled',
   SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED = 'social_feature_entity_manager_enabled',
+  TRACK_ENTITY_MANAGER_ENABLED = 'track_entity_manager_enabled',
   NEW_TABLES = 'new_tables',
   BUY_AUDIO_ENABLED = 'buy_audio_enabled',
-  OFFLINE_MODE_ENABLED = 'offline_mode_enabled'
+  OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
+  AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow'
 }
 
 /**
@@ -43,7 +45,9 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.SUPPORTER_DETHRONED_ENABLED]: false,
   [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED]: false,
+  [FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.NEW_TABLES]: false,
   [FeatureFlags.BUY_AUDIO_ENABLED]: false,
-  [FeatureFlags.OFFLINE_MODE_ENABLED]: false
+  [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
+  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false
 }

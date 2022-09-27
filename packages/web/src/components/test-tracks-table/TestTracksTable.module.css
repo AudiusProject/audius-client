@@ -12,7 +12,9 @@
   line-height: 1.2;
 }
 
+.artistName:hover,
 .trackName:hover {
+  cursor: pointer;
   transition: color 0.07s ease-out;
   color: var(--primary);
   text-decoration: underline;
@@ -34,6 +36,9 @@
 }
 .trackActionsContainer .tableActionButton {
   opacity: 0;
+}
+.trackActionsContainer .placeholderButton {
+  width: 14px;
 }
 
 .tableActionButton.active {

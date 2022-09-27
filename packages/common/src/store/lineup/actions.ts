@@ -83,14 +83,16 @@ export class LineupActions {
     // a boolean indicating whether to overwrite cached entries the fetch may be refetching
     overwrite = false,
     // keyword args payload to send to the "get tracks" query
-    payload?: unknown
+    payload?: unknown,
+    other?: Record<string, unknown>
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS),
       offset,
       limit,
       overwrite,
-      payload
+      payload,
+      ...other
     }
   }
 
@@ -98,14 +100,16 @@ export class LineupActions {
     offset = 0,
     limit = 10,
     overwrite = false,
-    payload: unknown
+    payload: unknown,
+    handle?: string
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS_REQUESTED),
       offset,
       limit,
       overwrite,
-      payload
+      payload,
+      handle
     }
   }
 
@@ -114,7 +118,8 @@ export class LineupActions {
     offset: number,
     limit: number,
     deleted: boolean,
-    nullCount: boolean
+    nullCount: boolean,
+    handle?: string
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS_SUCCEEDED),
@@ -122,7 +127,8 @@ export class LineupActions {
       offset,
       limit,
       deleted,
-      nullCount
+      nullCount,
+      handle
     }
   }
 
@@ -221,7 +227,11 @@ export class LineupActions {
   }
 
   // If limit is not provided, we use whatever is in the state
-  refreshInView(overwrite = false, payload?: unknown, limit = null) {
+  refreshInView(
+    overwrite = false,
+    payload?: unknown,
+    limit: number | null = null
+  ) {
     return {
       type: addPrefix(this.prefix, REFRESH_IN_VIEW),
       overwrite,
