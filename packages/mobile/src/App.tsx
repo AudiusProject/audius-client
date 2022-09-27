@@ -19,12 +19,12 @@ import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
 import { store } from 'app/store'
 import { ENTROPY_KEY } from 'app/store/account/sagas'
-
-import 'app/utils/connectivity'
+import { refreshConnectivity } from 'app/utils/connectivity'
 
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
+import useAppState from './hooks/useAppState'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -57,6 +57,15 @@ const App = () => {
     const entropy = await AsyncStorage.getItem(ENTROPY_KEY)
     setIsReadyToSetupBackend(!entropy)
   }, [])
+
+  useAppState(
+    // onEnterForeground
+    () => {
+      refreshConnectivity()
+    },
+    // onEnterBackground
+    () => {}
+  )
 
   return (
     <SafeAreaProvider>
