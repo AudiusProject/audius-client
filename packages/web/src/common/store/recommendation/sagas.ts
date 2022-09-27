@@ -1,4 +1,4 @@
-import { ID, UserTrack, Nullable, getContext } from '@audius/common'
+import { ID, Nullable, getContext } from '@audius/common'
 import { call } from 'typed-redux-saga'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
