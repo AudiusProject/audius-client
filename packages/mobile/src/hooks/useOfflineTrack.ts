@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import type { Track } from '@audius/common'
 
 import {
-  getAudioDestination,
-  isTrackAvailableOffline
+  getLocalAudioPath,
+  isAudioAvailableOffline
 } from 'app/services/offline-downloader'
 import { pathJoin } from 'app/utils/fileSystem'
 
@@ -13,8 +13,8 @@ export const useOfflineTrackUri = (track: Track | null) => {
   useEffect(() => {
     const checkTrackAvailableOffline = async () => {
       if (!track) return
-      if (!(await isTrackAvailableOffline(track))) return
-      const audioFilePath = pathJoin(...getAudioDestination(track))
+      if (!(await isAudioAvailableOffline(track))) return
+      const audioFilePath = pathJoin(...getLocalAudioPath(track))
       setOfflineSrc(`file://${audioFilePath}`)
     }
     checkTrackAvailableOffline()
