@@ -10,7 +10,7 @@ import { useAsync } from 'react-use'
 
 import { ENTROPY_KEY } from 'app/store/account/sagas'
 
-const OLD_WEB_APP_STATIC_SERVER_PORT = Config.OLD_WEB_APP_STATIC_SERVER_PORT
+// const OLD_WEB_APP_STATIC_SERVER_PORT = Config.OLD_WEB_APP_STATIC_SERVER_PORT
 
 const injected = `
 (function() {
@@ -35,7 +35,8 @@ export const WebAppAccountSync = (props: WebAppAccountSyncProps) => {
   const { setIsReadyToSetupBackend } = props
 
   const { value: uri, error } = useAsync(async () => {
-    const server = new StaticServer(OLD_WEB_APP_STATIC_SERVER_PORT, {
+    // Hardcoding port here to test bonce app loading issue
+    const server = new StaticServer(3101, {
       localOnly: true,
       keepAlive: true
     })
