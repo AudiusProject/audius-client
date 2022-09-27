@@ -38,7 +38,7 @@ export const refreshConnectivity = async () => {
 }
 
 NetInfo.addEventListener(
-  debounce(updateConnectivity, 2000, {
+  debounce(updateConnectivity, 2500, {
     maxWait: 5000
   })
 )
