@@ -7,7 +7,7 @@ import { Platform, UIManager } from 'react-native'
 import Config from 'react-native-config'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider } from 'react-redux'
-import { useAsync } from 'react-use'
+import { useAsync, useEffectOnce } from 'react-use'
 
 import { Audio } from 'app/components/audio/Audio'
 import HCaptcha from 'app/components/hcaptcha'
@@ -57,6 +57,10 @@ const App = () => {
     const entropy = await AsyncStorage.getItem(ENTROPY_KEY)
     setIsReadyToSetupBackend(!entropy)
   }, [])
+
+  useEffectOnce(() => {
+    refreshConnectivity()
+  })
 
   useAppState(
     // onEnterForeground
