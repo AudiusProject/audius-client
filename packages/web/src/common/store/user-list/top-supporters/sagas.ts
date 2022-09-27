@@ -3,18 +3,15 @@ import {
   User,
   removeNullable,
   decodeHashId,
-  encodeHashId,
   cacheUsersSelectors,
   tippingActions,
   SupportersMapForUser,
   UserListSagaFactory,
+  SupporterResponse,
   topSupportersUserListSelectors,
   topSupportersUserListActions,
   TOP_SUPPORTERS_USER_LIST_TAG,
-  SupporterResponse,
-  responseAdapter as adapter,
-  fetchSupporters,
-  AudiusBackend
+  responseAdapter as adapter
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
@@ -34,11 +31,12 @@ const provider = createUserListProvider<User, SupportersProcessExtraType>({
   getExistingEntity: getUser,
   extractUserIDSubsetFromEntity: () => [],
   fetchAllUsersForEntity: async ({ limit, offset, entityId, apiClient }) => {
-    const supporters = await apiClient.getSupporters({
-      userId: entityId,
-      limit,
-      offset
-    })
+    const supporters =
+      (await apiClient.getSupporters({
+        userId: entityId,
+        limit,
+        offset
+      })) || []
     const users = supporters
       .sort((s1, s2) => s1.rank - s2.rank)
       .map((s) => adapter.makeUser(s.sender))

@@ -12,8 +12,7 @@ import {
   supportingUserListSelectors,
   SUPPORTING_USER_LIST_TAG,
   responseAdapter as adapter,
-  AudiusBackend,
-  getContext
+  SupportingResponse
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
@@ -33,11 +32,12 @@ const provider = createUserListProvider<User, SupportingProcessExtraType>({
   getExistingEntity: getUser,
   extractUserIDSubsetFromEntity: () => [],
   fetchAllUsersForEntity: async ({ limit, offset, entityId, apiClient }) => {
-    const supporting = await apiClient.getSupporting({
-      userId: entityId,
-      limit,
-      offset
-    })
+    const supporting =
+      (await apiClient.getSupporting({
+        userId: entityId,
+        limit,
+        offset
+      })) || []
     const users = supporting
       .sort((s1, s2) => {
         const amount1BN = stringWeiToBN(s1.amount)

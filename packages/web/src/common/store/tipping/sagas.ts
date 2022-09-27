@@ -427,14 +427,14 @@ function* fetchSupportingForUserAsync({
     userId,
     limit
   })
-  const userIds = supportingList.map((supporting) =>
-    decodeHashId(supporting.receiver.id)
-  )
+  const userIds =
+    supportingList?.map((supporting) => decodeHashId(supporting.receiver.id)) ??
+    []
 
   yield call(fetchUsers, userIds)
 
   const map: Record<string, Supporting> = {}
-  supportingList.forEach((supporting) => {
+  supportingList?.forEach((supporting) => {
     const supportingUserId = decodeHashId(supporting.receiver.id)
     if (supportingUserId) {
       map[supportingUserId] = {
