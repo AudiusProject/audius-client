@@ -19,7 +19,10 @@ import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
 import { store } from 'app/store'
 import { ENTROPY_KEY } from 'app/store/account/sagas'
-import { refreshConnectivity } from 'app/utils/connectivity'
+import {
+  refreshConnectivity,
+  subscribeToNetworkStatusUpdates
+} from 'app/utils/connectivity'
 
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
@@ -59,7 +62,7 @@ const App = () => {
   }, [])
 
   useEffectOnce(() => {
-    refreshConnectivity()
+    subscribeToNetworkStatusUpdates()
   })
 
   useEnterForeground(() => {
