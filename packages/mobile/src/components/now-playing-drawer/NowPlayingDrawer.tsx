@@ -25,7 +25,7 @@ import Drawer, {
 import { Scrubber } from 'app/components/scrubber'
 import { useDrawer } from 'app/hooks/useDrawer'
 import type { AppTabScreenParamList } from 'app/screens/app-screen'
-import { AppTabNavigationContext } from 'app/screens/app-screen/AppTabNavigationProvider'
+import { AppTabNavigationContext } from 'app/screens/app-screen'
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
 import { makeStyles } from 'app/styles'
 
