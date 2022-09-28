@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import {
+  FeatureFlags,
   useProxySelector,
   savedPageActions,
   playerSelectors,
@@ -22,14 +23,15 @@ import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { make, track } from 'app/services/analytics'
-import { makeStyles } from 'app/styles'
-
-import { FilterInput } from './FilterInput'
 import {
   downloadTrack,
   purgeAllDownloads
 } from 'app/services/offline-downloader'
+import { makeStyles } from 'app/styles'
+
+import { FilterInput } from './FilterInput'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
@@ -64,7 +66,9 @@ const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
-
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
   const handleFetchSaves = useCallback(() => {
     dispatch(fetchSaves())
   }, [dispatch])
@@ -78,10 +82,11 @@ export const TracksTab = () => {
   const savedTracks = useProxySelector(getTracks, [])
 
   const handleDownloadAllTracks = useCallback(() => {
+    if (!isOfflineModeEnabled) return
     savedTracks.entries.forEach((track) => {
-      downloadTrack(track.track_id)
+      downloadTrack(track.track_id, 'favorites')
     })
-  }, [savedTracks])
+  }, [isOfflineModeEnabled, savedTracks])
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -135,12 +140,18 @@ export const TracksTab = () => {
           <EmptyTileCTA message={messages.emptyTabText} />
         ) : (
           <>
-            <Button
-              onPress={handleDownloadAllTracks}
-              title='Download All Favorites'
-            />
-            <Button onPress={purgeAllDownloads} title='Purge All Downloads' />
-
+            {isOfflineModeEnabled ? (
+              <>
+                <Button
+                  onPress={handleDownloadAllTracks}
+                  title='Download All Favorites'
+                />
+                <Button
+                  onPress={purgeAllDownloads}
+                  title='Purge All Downloads'
+                />
+              </>
+            ) : null}
             <FilterInput
               value={filterValue}
               placeholder={messages.inputPlaceholder}

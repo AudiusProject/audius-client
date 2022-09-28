@@ -6,6 +6,7 @@ import {
   accountSelectors,
   cacheTracksSelectors
 } from '@audius/common'
+import { uniq } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
@@ -40,11 +41,14 @@ export const downloadTrack = async (trackId: number, collection: string) => {
 const writeTrackJson = async (track: Track, collection: string) => {
   const trackToWrite: Track = {
     ...track,
-    downloaded_from_collection: [
-      ...new Set([collection, ...(track.downloaded_from_collection ?? [])])
-    ],
-    download_completed_time: Date.now(),
-    last_verified_time: Date.now()
+    offline: {
+      downloaded_from_collection: uniq([
+        collection,
+        ...(track?.offline?.downloaded_from_collection ?? [])
+      ]),
+      download_completed_time: Date.now(),
+      last_verified_time: Date.now()
+    }
   }
 
   const pathToWrite = getLocalTrackJsonPath(track)
@@ -56,6 +60,7 @@ const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
   const user = (
     await apiClient.getUser({
       userId: track?.owner_id,
+      // @ts-ignore mismatch in an irrelevant part of state
       currentUserId: getUserId(state)
     })
   )[0] as UserMetadata

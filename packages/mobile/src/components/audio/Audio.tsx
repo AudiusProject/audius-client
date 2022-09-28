@@ -358,10 +358,6 @@ export const Audio = () => {
       }
     : null
 
-  if (offlineSrc) {
-    console.log(`using offline src [${offlineSrc}]`)
-  }
-
   return (
     <View style={styles.backgroundVideo}>
       {source && (

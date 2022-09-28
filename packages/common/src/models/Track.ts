@@ -94,8 +94,9 @@ export type TrackMetadata = {
   // Added fields
   dateListened?: string
   duration: number
-} & OfflineTrackMetadata &
-  Timestamped
+
+  offline?: OfflineTrackMetadata
+} & Timestamped
 
 // This is available on mobile for offline tracks
 export type OfflineTrackMetadata = {
