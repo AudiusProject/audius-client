@@ -16,8 +16,7 @@ import { apiClient } from '../audius-api-client'
 import {
   getLocalAudioPath,
   getLocalCoverArtPath,
-  getLocalTrackJsonPath,
-  getPathFromRoot
+  getLocalTrackJsonPath
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
@@ -76,6 +75,7 @@ const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
 }
 
 export const getCoverArtUri = (track: Track) => {
+  // TODO: get other sizes
   return track._cover_art_sizes?.['150x150']
 }
 
@@ -88,7 +88,6 @@ const downloadIfNotExists = async (
   if (!uri) return null
   const fullFilePath = path.join(destinationDirectory, fileName)
   if (!overwrite && (await exists(fullFilePath))) {
-    console.log(`skipping existing file at ${getPathFromRoot(fullFilePath)}`)
     return null
   }
 
@@ -99,10 +98,5 @@ const downloadIfNotExists = async (
     toFile: fullFilePath
   })?.promise
 
-  console.log(
-    `Successful download: ${getPathFromRoot(fullFilePath)} - ${
-      result.bytesWritten
-    }`
-  )
   return result?.statusCode ?? null
 }

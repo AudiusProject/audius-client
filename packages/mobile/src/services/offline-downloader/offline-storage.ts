@@ -7,12 +7,12 @@ import { getCoverArtUri } from './offline-downloader'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
-export const getLocalTrackRoot = (track: any) => {
-  return path.join(downloadsRoot, `/tracks`)
-}
-
 export const getPathFromRoot = (string: string) => {
   return string.replace(downloadsRoot, '~')
+}
+
+export const getLocalTrackRoot = (track: any) => {
+  return path.join(downloadsRoot, `/tracks`)
 }
 
 // Track Json
@@ -37,6 +37,7 @@ export const getArtFileNameFromUri = (uri: string) => {
 // Audio
 
 export const getLocalAudioPath = (track: Track): [string, string] => {
+  // @ts-ignore route_id exists on track
   const fileName = `${track.route_id.replaceAll('/', '_')}.mp3`
   return [`${downloadsRoot}/tracks/${track.track_id}`, fileName]
 }
@@ -48,6 +49,7 @@ export const isAudioAvailableOffline = async (track: Track) => {
 
 // Storage management
 
+// Debugging method to clear all downloaded content
 export const purgeAllDownloads = async () => {
   console.log(`Before purge:`)
   await readDirRec(downloadsRoot)
@@ -57,6 +59,7 @@ export const purgeAllDownloads = async () => {
   await readDirRec(downloadsRoot)
 }
 
+// Debugging method to read cached files
 export const readDirRec = async (path: string) => {
   const files = await RNFS.readDir(path)
   if (files.length === 0) {
