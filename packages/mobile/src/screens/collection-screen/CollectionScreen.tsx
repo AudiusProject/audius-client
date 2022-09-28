@@ -61,7 +61,18 @@ export const CollectionScreen = () => {
   const dispatch = useDispatch()
 
   // params is incorrectly typed and can sometimes be undefined
-  const { id, searchCollection } = params ?? {}
+  const { id: idParam, searchCollection, collectionName } = params ?? {}
+
+  const id = useMemo(() => {
+    if (collectionName) {
+      // Use collectionName from params if provided
+      // This is to support deep linking
+      const nameParts = collectionName.split('-')
+      const collectionId = parseInt(nameParts[nameParts.length - 1], 10)
+      return collectionId as number
+    }
+    return idParam as number
+  }, [collectionName, idParam])
 
   const handleFetchCollection = useCallback(() => {
     dispatch(fetchCollection(id))
