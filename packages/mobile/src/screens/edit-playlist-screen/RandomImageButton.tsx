@@ -11,6 +11,14 @@ const messages = {
   getRandomArt: 'Get Random Artwork'
 }
 
+const blobToBase64 = (blob: Blob) => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.readAsDataURL(blob)
+  })
+}
+
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
     ...flexRowCentered(),
@@ -33,10 +41,11 @@ export const RandomImageInput = (props: RandomImageInputProps) => {
     onProcessing(true)
     const blob = await RandomImage.get()
     if (blob) {
-      const url = URL.createObjectURL(blob)
+      const file = await blobToBase64(blob)
+
       setValue({
-        url,
-        file: { uri: url, name: 'Artwork', type: 'image/jpeg' },
+        url: file,
+        file: { uri: file, name: 'Artwork', type: 'image/jpeg' },
         source: 'unsplash'
       })
       onProcessing(false)
