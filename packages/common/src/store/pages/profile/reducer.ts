@@ -75,8 +75,10 @@ const actionsMap = {
     if (fetchOnly) return state
     const lowerHandle = handle.toLowerCase()
 
-    const newState = {
-      status: shouldSetLoading ? Status.LOADING : state.status
+    const newState = {}
+
+    if (shouldSetLoading) {
+      newState.status = Status.LOADING
     }
     if (handle) {
       newState.handle = lowerHandle
@@ -125,11 +127,10 @@ const actionsMap = {
     const { currentUser, entries } = state
     const { userIds, followerGroup, handle } = action
     const profileHandle = handle?.toLowerCase() ?? currentUser
-    const filteredAddedUserIds = userIds.filter(({ id }) =>
-      state[followerGroup].userIds.every(({ id: userId }) => id !== userId)
-    )
-
     const newEntry = entries[profileHandle]
+    const filteredAddedUserIds = userIds.filter(({ id }) =>
+      newEntry[followerGroup].userIds.every(({ id: userId }) => id !== userId)
+    )
 
     return {
       ...state,
