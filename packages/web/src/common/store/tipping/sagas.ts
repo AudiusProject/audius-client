@@ -362,9 +362,8 @@ function* refreshSupportAsync({
 
   yield call(fetchUsers, userIds)
 
-  const supportingForSenderMap: Record<string, Supporting> = {}(
-    supportingForSenderList || []
-  ).forEach((supporting) => {
+  const supportingForSenderMap: Record<string, Supporting> = {}
+  ;(supportingForSenderList || []).forEach((supporting) => {
     const supportingUserId = decodeHashId(supporting.receiver.id)
     if (supportingUserId) {
       supportingForSenderMap[supportingUserId] = {
@@ -374,9 +373,8 @@ function* refreshSupportAsync({
       }
     }
   })
-  const supportersForReceiverMap: Record<string, Supporter> = {}(
-    supportersForReceiverList || []
-  ).forEach((supporter) => {
+  const supportersForReceiverMap: Record<string, Supporter> = {}
+  ;(supportersForReceiverList || []).forEach((supporter) => {
     const supporterUserId = decodeHashId(supporter.sender.id)
     if (supporterUserId) {
       supportersForReceiverMap[supporterUserId] = {
