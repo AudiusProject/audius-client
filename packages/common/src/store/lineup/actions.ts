@@ -203,12 +203,13 @@ export class LineupActions {
     }
   }
 
-  add(entry: unknown, id: ID, handle?: string) {
+  add(entry: unknown, id: ID, handle?: string, shouldPrepend?: boolean) {
     return {
       type: addPrefix(this.prefix, ADD),
       entry,
       id,
-      handle
+      handle,
+      shouldPrepend
     }
   }
 

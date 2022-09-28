@@ -114,7 +114,7 @@ function* addTrackRepost(action) {
     uid: makeUid(Kind.TRACKS, trackId, source)
   }
 
-  yield put(feedActions.add(formattedTrack, trackId, accountHandle))
+  yield put(feedActions.add(formattedTrack, trackId, accountHandle, true))
 }
 
 function* watchRepostTrack() {
@@ -149,7 +149,9 @@ function* addCollectionRepost(action) {
     uid: makeUid(Kind.COLLECTIONS, collectionId, source)
   }
 
-  yield* put(feedActions.add(formattedCollection, collectionId, accountHandle))
+  yield* put(
+    feedActions.add(formattedCollection, collectionId, accountHandle, true)
+  )
 }
 
 function* watchRepostCollection() {
