@@ -8,7 +8,9 @@ import {
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
+import { useSelector } from 'common/hooks/useSelector'
 import { make, useRecord } from 'common/store/analytics/actions'
+import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { AUDIO_PAGE } from 'utils/route'
 
 import { NotificationBody } from './components/NotificationBody'
@@ -18,8 +20,6 @@ import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { IconRewards } from './components/icons'
-import { getChallengeConfig } from 'pages/audio-rewards-page/config'
-import { useSelector } from 'common/hooks/useSelector'
 
 const { getUserChallenge } = audioRewardsPageSelectors
 
@@ -46,11 +46,10 @@ export const ChallengeRewardNotification = (
   const dispatch = useDispatch()
   const record = useRecord()
 
-  const {
-    title,
-    icon
-  } = getChallengeConfig(challengeId)
-  const { amount } = useSelector(state => getUserChallenge(state, { challengeId }))
+  const { title, icon } = getChallengeConfig(challengeId)
+  const { amount } = useSelector((state) =>
+    getUserChallenge(state, { challengeId })
+  )
 
   const handleClick = useCallback(() => {
     dispatch(push(AUDIO_PAGE))

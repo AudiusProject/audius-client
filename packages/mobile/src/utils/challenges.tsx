@@ -1,9 +1,5 @@
 import { challengeRewardsConfig } from '@audius/common'
-import type {
-  ChallengeRewardID,
-  Nullable,
-  OptimisticUserChallenge
-} from '@audius/common'
+import type { ChallengeRewardID, OptimisticUserChallenge } from '@audius/common'
 import type { ImageSourcePropType } from 'react-native'
 import { Platform } from 'react-native'
 

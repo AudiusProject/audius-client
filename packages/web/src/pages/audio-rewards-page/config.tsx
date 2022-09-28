@@ -81,7 +81,7 @@ const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
 }
 
 type WebChallengeInfo = {
-  icon: ReactNode,
+  icon: ReactNode
   modalButtonInfo?: {
     incomplete: LinkButtonInfo | null
     inProgress: LinkButtonInfo | null
@@ -89,17 +89,15 @@ type WebChallengeInfo = {
   }
 }
 
-const webChallengesConfig: Record<
-  ChallengeRewardID, WebChallengeInfo
-> = {
+const webChallengesConfig: Record<ChallengeRewardID, WebChallengeInfo> = {
   referrals: {
-    icon: <i className='emoji large incoming-envelope' />,
+    icon: <i className='emoji large incoming-envelope' />
   },
   'ref-v': {
-    icon: <i className='emoji large incoming-envelope' />,
+    icon: <i className='emoji large incoming-envelope' />
   },
   referred: {
-    icon: <i className='emoji large love-letter' />,
+    icon: <i className='emoji large love-letter' />
   },
   'connect-verified': {
     icon: <i className='emoji large white-heavy-check-mark' />,
@@ -117,8 +115,8 @@ const webChallengesConfig: Record<
       complete: linkButtonMap.trendingTracks
     }
   },
-  'mobile-install':{
-    icon: <i className='emoji large mobile-phone-with-arrow' />,
+  'mobile-install': {
+    icon: <i className='emoji large mobile-phone-with-arrow' />
   },
   'profile-completion': {
     icon: <i className='emoji large white-heavy-check-mark' />,
@@ -126,8 +124,7 @@ const webChallengesConfig: Record<
       incomplete: linkButtonMap.profile,
       inProgress: linkButtonMap.profile,
       complete: linkButtonMap.profile
-    },
-
+    }
   },
   'track-upload': {
     icon: <i className='emoji large multiple-musical-notes' />,
@@ -154,22 +151,21 @@ const webChallengesConfig: Record<
     }
   },
   'trending-playlist': {
-    icon: <i className='emoji large chart-increasing' />,
+    icon: <i className='emoji large chart-increasing' />
   },
   'trending-track': {
-    icon: <i className='emoji large chart-increasing' />,
+    icon: <i className='emoji large chart-increasing' />
   },
   'top-api': {
-    icon: <i className='emoji large nerd-face' />,
+    icon: <i className='emoji large nerd-face' />
   },
   'verified-upload': {
-    icon: <i className='emoji large white-heavy-check-mark' />,
+    icon: <i className='emoji large white-heavy-check-mark' />
   },
   'trending-underground': {
-    icon: <i className='emoji large chart-increasing' />,
+    icon: <i className='emoji large chart-increasing' />
   }
 }
-
 
 export const getChallengeConfig = (id: ChallengeRewardID) => ({
   ...challengeRewardsConfig[id],

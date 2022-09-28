@@ -36,6 +36,7 @@ import { ToastContext } from 'components/toast/ToastContext'
 import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
+import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
@@ -45,7 +46,6 @@ import PurpleBox from '../PurpleBox'
 
 import styles from './ChallengeRewards.module.css'
 import ModalDrawer from './ModalDrawer'
-import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 const { show: showConfetti } = musicConfettiActions
 const {
   getCognitoFlowStatus,

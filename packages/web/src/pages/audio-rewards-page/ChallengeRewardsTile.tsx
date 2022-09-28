@@ -10,8 +10,7 @@ import {
   challengesSelectors,
   audioRewardsPageActions,
   ChallengeRewardsModalType,
-  audioRewardsPageSelectors,
-  challengeRewardsConfig
+  audioRewardsPageSelectors
 } from '@audius/common'
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
@@ -90,11 +89,13 @@ const RewardPanel = ({
     )
   } else {
     // Count up
-    progressLabelFilled = progressLabel ? fillString(
-      progressLabel,
-      formatNumberCommas(challenge?.current_step_count?.toString() ?? ''),
-      formatNumberCommas(challenge?.max_steps?.toString() ?? '')
-    ) : ''
+    progressLabelFilled = progressLabel
+      ? fillString(
+          progressLabel,
+          formatNumberCommas(challenge?.current_step_count?.toString() ?? ''),
+          formatNumberCommas(challenge?.max_steps?.toString() ?? '')
+        )
+      : ''
   }
 
   return (

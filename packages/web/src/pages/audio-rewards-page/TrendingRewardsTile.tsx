@@ -4,8 +4,7 @@ import {
   ChallengeRewardID,
   StringKeys,
   audioRewardsPageActions,
-  ChallengeRewardsInfo,
-  OptimisticUserChallenge,
+  OptimisticUserChallenge
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
