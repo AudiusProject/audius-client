@@ -74,7 +74,6 @@ export const Panel = ({
   description,
   progressLabel,
   remainingLabel,
-  buttonInfo,
   challenge,
   panelButtonText
 }: PanelProps) => {

@@ -11,7 +11,7 @@ import MobilePhoneWithArrow from 'app/assets/images/emojis/mobile-phone-with-arr
 import MoneyMouthFace from 'app/assets/images/emojis/money-mouth-face.png'
 import MultipleMusicalNotes from 'app/assets/images/emojis/multiple-musical-notes.png'
 import NerdFace from 'app/assets/images/emojis/nerd-face.png'
-import Sparkles from 'app/assets/images/emojis/sparkles.png'
+import TrebleClef from 'app/assets/images/emojis/treble-clef.png'
 import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
@@ -127,7 +127,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       }
     },
     'first-playlist': {
-      icon: Sparkles,
+      icon: TrebleClef,
       buttonInfo: {
         navigation: {
           screen: 'favorites'
