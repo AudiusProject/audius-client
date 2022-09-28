@@ -143,9 +143,6 @@ function* fetchMostLoved() {
 function* fetchFeelingLucky() {
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
-  if (currentUserId == null) {
-    return
-  }
   const explore = yield* getContext('explore')
 
   const tracks = yield* call([explore, 'getFeelingLuckyTracks'], currentUserId)
