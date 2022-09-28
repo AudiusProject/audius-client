@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { Collection, User } from '@audius/common'
 import {
@@ -19,8 +19,7 @@ import {
   shareModalUIActions,
   RepostType,
   repostsUserListActions,
-  favoritesUserListActions,
-  collectionPageLineupActions as tracksActions
+  favoritesUserListActions
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
