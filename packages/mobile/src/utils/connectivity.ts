@@ -9,20 +9,21 @@ import { dispatch } from 'app/store'
 
 const REACHABILITY_URL = env.REACHABILITY_URL
 
-export const checkConnectivity = (netInfo: NetInfoState | null) => {
+// Latest connectivity value
+export const Connectivity: { netInfo: NetInfoState | null } = { netInfo: null }
+
+export const checkNetInfoReachability = (netInfo: NetInfoState | null) => {
   if (!netInfo) return true
 
   const { isInternetReachable } = netInfo
   return !!isInternetReachable
 }
 
-// Latest connectivity value
-export const Connectivity: { netInfo: NetInfoState | null } = { netInfo: null }
 // Check that a response from REACHABILITY_URL is valid
 const isResponseValid = (response: Response | undefined) =>
   response && response.ok
 
-const ping = async () => {
+const pingTest = async () => {
   // If there's no reachability url available, consider ourselves reachable
   if (!REACHABILITY_URL) {
     console.warn('No reachability url provided')
@@ -47,10 +48,10 @@ const ping = async () => {
 const updateConnectivity = async (state: NetInfoState) => {
   Connectivity.netInfo = state
   if (AppState.currentState !== 'active') return
-  const newValue = checkConnectivity(state)
+  const newValue = checkNetInfoReachability(state)
   if (!newValue) {
     // Perform our own reachability test to be extra sure we're offline
-    const reachable = await ping()
+    const reachable = await pingTest()
     if (!reachable) {
       dispatch(reachabilityActions.setUnreachable())
     }
@@ -59,12 +60,13 @@ const updateConnectivity = async (state: NetInfoState) => {
   }
 }
 
-export const refreshConnectivity = async () => {
+export const forceRefreshConnectivity = async () => {
   NetInfo.refresh()
-  const currentState = await NetInfo.fetch()
-  updateConnectivity(currentState)
+  const updatedNetInfoState = await NetInfo.fetch()
+  updateConnectivity(updatedNetInfoState)
 }
 
+/** Called on first app render */
 export const subscribeToNetworkStatusUpdates = () => {
   NetInfo.addEventListener(
     debounce(updateConnectivity, 2500, {

@@ -20,7 +20,7 @@ import { RootScreen } from 'app/screens/root-screen'
 import { store } from 'app/store'
 import { ENTROPY_KEY } from 'app/store/account/sagas'
 import {
-  refreshConnectivity,
+  forceRefreshConnectivity,
   subscribeToNetworkStatusUpdates
 } from 'app/utils/connectivity'
 
@@ -66,7 +66,7 @@ const App = () => {
   })
 
   useEnterForeground(() => {
-    refreshConnectivity()
+    forceRefreshConnectivity()
   })
 
   return (
