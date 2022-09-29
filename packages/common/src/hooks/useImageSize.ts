@@ -215,7 +215,7 @@ export function useImageSize<
   }, [getImageSize, handleFetchLargeImage])
 
   useEffect(() => {
-    if (!onDemand) {
+    if (!onDemand && imageType !== undefined) {
       handleFetchLargeImage(imageType)
     }
   }, [onDemand, handleFetchLargeImage, imageType])
