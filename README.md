@@ -32,7 +32,7 @@
 This repo is maintained using [`lerna`](https://github.com/lerna). After cloning run:
 
 ```bash
-npm install
+npm install 
 ```
 
 This will do the following:
