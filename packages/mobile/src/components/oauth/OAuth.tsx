@@ -183,7 +183,7 @@ const OAuth = () => {
   const messageType = useSelector(getMessageType)
   const provider = useSelector(getAuthProvider)
 
-  const close = useCallback(() => dispatch(closePopup()), [dispatch])
+  const handleClose = useCallback(() => dispatch(closePopup()), [dispatch])
 
   // Handle messages coming from the web view
   const onMessageHandler = (event: NativeSyntheticEvent<WebViewMessage>) => {
@@ -250,7 +250,7 @@ const OAuth = () => {
             marginBottom: 8
           }}
         >
-          <Button onPress={close} title='Close' />
+          <Button onPress={handleClose} title='Close' />
         </View>
         <WebView
           injectedJavaScript={injected}

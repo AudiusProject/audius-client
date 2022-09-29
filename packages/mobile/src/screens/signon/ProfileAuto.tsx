@@ -31,7 +31,8 @@ import {
   getInstagramError,
   getInstagramInfo,
   getTwitterError,
-  getTwitterInfo
+  getTwitterInfo,
+  getDidClose
 } from 'app/store/oauth/selectors'
 import { EventNames } from 'app/types/analytics'
 import { useColor } from 'app/utils/theme'
@@ -242,6 +243,7 @@ const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
   const twitterError = useSelector(getTwitterError)
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
+  const didClose = useSelector(getDidClose)
   const handleField: EditableField = useSelector(getHandleField)
   const emailField: EditableField = useSelector(getEmailField)
 
@@ -439,6 +441,12 @@ const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
       })
     )
   }
+
+  useEffect(() => {
+    if (didClose) {
+      setIsLoading(false)
+    }
+  }, [didClose])
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white' }}>
