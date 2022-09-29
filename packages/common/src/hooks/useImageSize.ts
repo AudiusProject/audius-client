@@ -69,6 +69,16 @@ type UseImageSizeOnDemandProps<
   onDemand: true
 }
 
+type ImageType =
+  | 'empty'
+  | 'none'
+  | 'override'
+  | 'default'
+  | 'desired'
+  | 'smaller'
+  | 'larger'
+  | 'undefined'
+
 /**
  * Custom hooks that allow a component to use an image size for a
  * track, collection, or user's image.
@@ -111,7 +121,10 @@ export function useImageSize<
     []
   )
 
-  const getImageSize = useCallback((): { url: Maybe<URL>; type: string } => {
+  const getImageSize = useCallback((): {
+    url: Maybe<URL>
+    type: ImageType
+  } => {
     if (id === null || id === undefined || typeof id === 'string') {
       return { url: '', type: 'empty' }
     }
@@ -181,7 +194,7 @@ export function useImageSize<
   const previousId = getPreviousId()
 
   const handleFetchLargeImage = useCallback(
-    (imageType) => {
+    (imageType: ImageType) => {
       if (
         load &&
         !(id === null || id === undefined || typeof id === 'string') &&

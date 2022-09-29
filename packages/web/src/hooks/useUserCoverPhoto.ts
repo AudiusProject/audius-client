@@ -27,6 +27,10 @@ export const useUserCoverPhoto = (
   })
 }
 
+/**
+ * Like useUserProfilePicture, but onDemand is set to true, which
+ * returns a callback that can be used to fetch the image on demand.
+ */
 export const useOnUserCoverPhoto = (
   userId: number | null,
   coverPhotoSizes: CoverPhotoSizes | null,

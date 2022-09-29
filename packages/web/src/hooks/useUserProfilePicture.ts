@@ -28,6 +28,10 @@ export const useUserProfilePicture = (
   })
 }
 
+/**
+ * Like useUserProfilePicture, but onDemand is set to true, which
+ * returns a callback that can be used to fetch the image on demand.
+ */
 export const useOnUserProfilePicture = (
   userId: number | null,
   profilePictureSizes: ProfilePictureSizes | null,
