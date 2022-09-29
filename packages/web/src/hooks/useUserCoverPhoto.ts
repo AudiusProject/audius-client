@@ -13,9 +13,25 @@ export const useUserCoverPhoto = (
   userId: number | null,
   coverPhotoSizes: CoverPhotoSizes | null,
   size: WidthSizes,
-  defaultImage: string = imageCoverPhotoBlank as string,
-  onDemand = false,
-  load = true
+  defaultImage: string = imageCoverPhotoBlank as string
+) => {
+  const dispatch = useDispatch()
+
+  return useImageSize({
+    dispatch,
+    id: userId,
+    sizes: coverPhotoSizes,
+    size,
+    action: fetchCoverPhoto,
+    defaultImage
+  })
+}
+
+export const useOnUserCoverPhoto = (
+  userId: number | null,
+  coverPhotoSizes: CoverPhotoSizes | null,
+  size: WidthSizes,
+  defaultImage: string = imageCoverPhotoBlank as string
 ) => {
   const dispatch = useDispatch()
 
@@ -26,7 +42,6 @@ export const useUserCoverPhoto = (
     size,
     action: fetchCoverPhoto,
     defaultImage,
-    onDemand,
-    load
+    onDemand: true
   })
 }
