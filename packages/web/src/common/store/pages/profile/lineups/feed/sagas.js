@@ -15,21 +15,18 @@ import { getConfirmCalls } from 'common/store/confirmer/selectors'
 import { LineupSagas } from 'common/store/lineup/sagas'
 
 import { retrieveUserReposts } from './retrieveUserReposts'
-const { getProfileUserId, getProfileFeedLineup, getProfileUserHandle } =
-  profilePageSelectors
+const { getProfileUserId, getProfileFeedLineup } = profilePageSelectors
 const { getTracks } = cacheTracksSelectors
 const { getCollections } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 function* getReposts({ offset, limit, handle }) {
-  const profileId = yield select(getProfileUserId)
-  const currentProfileHandle = yield select(getProfileUserHandle)
-  const profileHandle = handle ?? currentProfileHandle
+  const profileId = yield select((state) => getProfileUserId(state, handle))
 
   yield waitForAccount()
   const currentUserId = yield select(getUserId)
   let reposts = yield call(retrieveUserReposts, {
-    handle: profileHandle,
+    handle,
     currentUserId,
     offset,
     limit
