@@ -22,7 +22,7 @@ import { ENTROPY_KEY } from 'app/store/account/sagas'
 import {
   forceRefreshConnectivity,
   subscribeToNetworkStatusUpdates
-} from 'app/utils/connectivity'
+} from 'app/utils/reachability'
 
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'

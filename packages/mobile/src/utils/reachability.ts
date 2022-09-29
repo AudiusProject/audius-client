@@ -45,11 +45,16 @@ const pingTest = async () => {
   }
 }
 
-const updateConnectivity = async (state: NetInfoState) => {
-  Connectivity.netInfo = state
-  if (AppState.currentState !== 'active') return
-  const newValue = checkNetInfoReachability(state)
+const updateReachability = async (netInfoState: NetInfoState) => {
+  Connectivity.netInfo = netInfoState
+
+  const newValue = checkNetInfoReachability(netInfoState)
   if (!newValue) {
+    // Don't trust offline signal while app is not in focus
+    // We check on refocus
+    const appState = AppState.currentState
+    if (appState !== 'active') return
+
     // Perform our own reachability test to be extra sure we're offline
     const reachable = await pingTest()
     if (!reachable) {
@@ -63,13 +68,13 @@ const updateConnectivity = async (state: NetInfoState) => {
 export const forceRefreshConnectivity = async () => {
   NetInfo.refresh()
   const updatedNetInfoState = await NetInfo.fetch()
-  updateConnectivity(updatedNetInfoState)
+  updateReachability(updatedNetInfoState)
 }
 
 /** Called on first app render */
 export const subscribeToNetworkStatusUpdates = () => {
   NetInfo.addEventListener(
-    debounce(updateConnectivity, 2500, {
+    debounce(updateReachability, 2500, {
       maxWait: 5000
     })
   )
