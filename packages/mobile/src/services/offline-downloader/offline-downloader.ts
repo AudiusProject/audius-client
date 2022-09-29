@@ -51,6 +51,7 @@ const writeTrackJson = async (track: Track, collection: string) => {
 }
 
 const downloadCoverArt = async (track: Track) => {
+  // TODO: computed _cover_art_sizes isn't necessarily populated
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
     coverArtUris.map(async (coverArtUri) => {
@@ -93,7 +94,7 @@ const downloadIfNotExists = async (
     return null
   }
 
-  const destinationDirectory = path.parse(destination).base
+  const destinationDirectory = path.dirname(destination)
   await RNFS.mkdir(destinationDirectory)
 
   const result = await RNFS.downloadFile({

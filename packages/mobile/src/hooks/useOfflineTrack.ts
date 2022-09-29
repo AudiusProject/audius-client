@@ -18,5 +18,5 @@ export const useOfflineTrackUri = (track: Track | null) => {
     if (!(await isAudioAvailableOffline(track))) return
     const audioFilePath = getLocalAudioPath(track)
     return `file://${audioFilePath}`
-  }, [track])
+  }, [track]).value
 }
