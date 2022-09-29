@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     fontFamily: 'AvenirNextLTPro-Regular'
   },
   loadingIcon: {
+    alignItems: 'center',
     marginTop: 48,
     height: 48
   }
