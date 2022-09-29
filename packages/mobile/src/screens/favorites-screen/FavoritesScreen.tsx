@@ -42,13 +42,17 @@ export const FavoritesScreen = () => {
   return (
     <Screen>
       <Header text='Favorites' />
-      {isOfflineModeEnabled ? (
-        <TopTabNavigator screens={favoritesScreens} />
-      ) : (
-        <ScreenContent>
+      {
+        // ScreenContent handles the offline indicator.
+        // Show favorites screen anyway when offline so users can see their downloads
+        isOfflineModeEnabled ? (
           <TopTabNavigator screens={favoritesScreens} />
-        </ScreenContent>
-      )}
+        ) : (
+          <ScreenContent>
+            <TopTabNavigator screens={favoritesScreens} />
+          </ScreenContent>
+        )
+      }
     </Screen>
   )
 }

@@ -21,22 +21,18 @@ import {
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
 
-// Main entrypoint - perform all steps required to complete a download
+/** Main entrypoint - perform all steps required to complete a download */
 export const downloadTrack = async (trackId: number, collection: string) => {
   const state = store.getState()
   const track = getTrack(state, { id: trackId })
   if (!track) return false
 
-  const coverArtUri = getCoverArtUri(track)
-  const [coverArtDirectory, coverArtFileName] = getLocalCoverArtPath(track)
-  if (coverArtUri && coverArtDirectory && coverArtFileName) {
-    await downloadIfNotExists(coverArtUri, coverArtDirectory, coverArtFileName)
-  }
+  await downloadCoverArt(track)
   await tryDownloadTrackFromEachCreatorNode(track)
   await writeTrackJson(track, collection)
 }
 
-// Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest
+/** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
 const writeTrackJson = async (track: Track, collection: string) => {
   const trackToWrite: Track = {
     ...track,
@@ -54,6 +50,16 @@ const writeTrackJson = async (track: Track, collection: string) => {
   await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
 }
 
+const downloadCoverArt = async (track: Track) => {
+  const coverArtUris = Object.values(track._cover_art_sizes)
+  await Promise.all(
+    coverArtUris.map(async (coverArtUri) => {
+      const destination = getLocalCoverArtPath(track, coverArtUri)
+      await downloadIfNotExists(coverArtUri, destination)
+    })
+  )
+}
+
 const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
   const state = store.getState()
   const user = (
@@ -65,37 +71,34 @@ const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
   )[0] as UserMetadata
   const encodedTrackId = encodeHashId(track.track_id)
   const creatorNodeEndpoints = user.creator_node_endpoint.split(',')
+  const destination = getLocalAudioPath(track)
+
   for (const creatorNodeEndpoint of creatorNodeEndpoints) {
     const uri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
-    const [audioDirectory, audioFileName] = getLocalAudioPath(track)
-    if (audioDirectory && audioFileName) {
-      await downloadIfNotExists(uri, audioDirectory, audioFileName)
+    const statusCode = await downloadIfNotExists(uri, destination)
+    if (statusCode) {
+      return statusCode
     }
   }
 }
 
-export const getCoverArtUri = (track: Track) => {
-  // TODO: get other sizes
-  return track._cover_art_sizes?.['150x150']
-}
-
+/** Dowanload file at uri to destination unless there is already a file at that location or overwrite is true */
 const downloadIfNotExists = async (
   uri: string,
-  destinationDirectory: string,
-  fileName: string,
+  destination: string,
   overwrite?: boolean
 ) => {
-  if (!uri) return null
-  const fullFilePath = path.join(destinationDirectory, fileName)
-  if (!overwrite && (await exists(fullFilePath))) {
+  if (!uri || !destination) return null
+  if (!overwrite && (await exists(destination))) {
     return null
   }
 
+  const destinationDirectory = path.parse(destination).base
   await RNFS.mkdir(destinationDirectory)
 
   const result = await RNFS.downloadFile({
     fromUrl: uri,
-    toFile: fullFilePath
+    toFile: destination
   })?.promise
 
   return result?.statusCode ?? null

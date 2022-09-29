@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react'
-
 import type { Track } from '@audius/common'
+import { FeatureFlags } from '@audius/common'
+import { useAsync } from 'react-use'
 
 import {
   getLocalAudioPath,
   isAudioAvailableOffline
 } from 'app/services/offline-downloader'
-import { pathJoin } from 'app/utils/fileSystem'
+
+import { useFeatureFlag } from './useRemoteConfig'
 
 export const useOfflineTrackUri = (track: Track | null) => {
-  const [offlineSrc, setOfflineSrc] = useState<String | null>()
-  useEffect(() => {
-    const checkTrackAvailableOffline = async () => {
-      if (!track) return
-      if (!(await isAudioAvailableOffline(track))) return
-      const audioFilePath = pathJoin(...getLocalAudioPath(track))
-      setOfflineSrc(`file://${audioFilePath}`)
-    }
-    checkTrackAvailableOffline()
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
+  return useAsync(async () => {
+    if (!track || !isOfflineModeEnabled) return
+    if (!(await isAudioAvailableOffline(track))) return
+    const audioFilePath = getLocalAudioPath(track)
+    return `file://${audioFilePath}`
   }, [track])
-  return offlineSrc
 }

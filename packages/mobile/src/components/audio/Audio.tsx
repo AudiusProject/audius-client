@@ -331,8 +331,7 @@ export const Audio = () => {
       progressInvalidator
     ]
   )
-
-  const offlineSrc = useOfflineTrackUri(track)
+  const offlineTrackUri = useOfflineTrackUri(track)
 
   if (!track || track.is_delete) return null
 
@@ -347,16 +346,15 @@ export const Audio = () => {
     gateways
   })
 
-  const source = offlineSrc
-    ? {
-        uri: offlineSrc
-      }
-    : m3u8
-    ? {
-        uri: m3u8,
-        type: 'm3u8'
-      }
-    : null
+  let source
+  if (offlineTrackUri) {
+    source = { uri: offlineTrackUri }
+  } else if (m3u8) {
+    source = {
+      uri: m3u8,
+      type: 'm3u8'
+    }
+  }
 
   return (
     <View style={styles.backgroundVideo}>
