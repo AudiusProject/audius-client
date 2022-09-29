@@ -67,6 +67,8 @@ export const CollectionScreen = () => {
     if (collectionName) {
       // Use collectionName from params if provided
       // This is to support deep linking
+      // TODO: update this when collections are updated to use slug url format
+      // https://linear.app/audius/issue/C-1198/update-mobile-deep-linking-to-support-collection-slug-url-format
       const nameParts = collectionName.split('-')
       const collectionId = parseInt(nameParts[nameParts.length - 1], 10)
       return collectionId as number
