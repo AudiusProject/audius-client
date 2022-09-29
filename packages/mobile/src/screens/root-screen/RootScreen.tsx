@@ -78,18 +78,16 @@ const MainStack = (props: MainStackProps) => {
   const { navigation: drawerHelpers } = props
   const drawerNavigation = useNavigation()
   return (
-    <AppTabNavigationProvider>
-      <NotificationsDrawerNavigationContextProvider
-        drawerNavigation={drawerNavigation}
-        drawerHelpers={drawerHelpers}
+    <NotificationsDrawerNavigationContextProvider
+      drawerNavigation={drawerNavigation}
+      drawerHelpers={drawerHelpers}
+    >
+      <Stack.Navigator
+        screenOptions={{ gestureEnabled: false, headerShown: false }}
       >
-        <Stack.Navigator
-          screenOptions={{ gestureEnabled: false, headerShown: false }}
-        >
-          <Stack.Screen name='MainStack' component={AppScreen} />
-        </Stack.Navigator>
-      </NotificationsDrawerNavigationContextProvider>
-    </AppTabNavigationProvider>
+        <Stack.Screen name='MainStack' component={AppScreen} />
+      </Stack.Navigator>
+    </NotificationsDrawerNavigationContextProvider>
   )
 }
 
