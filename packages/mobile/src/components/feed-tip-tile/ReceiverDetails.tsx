@@ -77,7 +77,7 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
           {({ pressed }) => (
             <Text
               variant='h4'
-              style={[styles.receiverHandle, pressed && styles.textUnderline]}
+              style={[styles.receiverHandle, pressed && styles.pressed]}
             >
               @{receiver.handle}
             </Text>
