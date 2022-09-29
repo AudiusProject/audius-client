@@ -14,7 +14,8 @@ import {
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
-  waitForValue
+  waitForValue,
+  getPremiumContentHeaders
 } from '@audius/common'
 import {
   all,
@@ -33,7 +34,12 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { dominantColor } from 'utils/imageProcessingUtil'
+
+// @ts-ignore
+const libs = () => window.audiusLibs
+
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const setDominantColors = averageColorActions.setDominantColors
@@ -62,11 +68,23 @@ function* fetchSegment(metadata) {
   )
   if (!metadata.track_segments[0]) return
   const cid = metadata.track_segments[0].multihash
+
+  yield call(waitForLibsInit)
+  const web3Manager = libs().web3Manager
+  const premiumContentHeaders = yield call(
+    getPremiumContentHeaders,
+    metadata.premium_content_signature,
+    web3Manager.sign.bind(web3Manager)
+  )
+
   return yield call(
     audiusBackendInstance.fetchCID,
     cid,
     gateways,
-    /* cache */ false
+    /* cache */ false,
+    /* asUrl */ true,
+    /* trackId */ null,
+    premiumContentHeaders
   )
 }
 

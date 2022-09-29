@@ -11,8 +11,10 @@ import {
   actionChannelDispatcher,
   playerActions,
   playerSelectors,
-  Nullable
+  Nullable,
+  getPremiumContentHeaders
 } from '@audius/common'
+import { AudiusLibs } from '@audius/sdk'
 import { eventChannel } from 'redux-saga'
 import {
   select,
@@ -24,7 +26,13 @@ import {
   delay
 } from 'typed-redux-saga'
 
+import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+
 import errorSagas from './errorSagas'
+
+// @ts-ignore
+const libs = (): AudiusLibs => window.audiusLibs
+
 const {
   play,
   playSucceeded,
@@ -93,6 +101,14 @@ export function* watchPlay() {
         ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
         : null
 
+      yield* call(waitForLibsInit)
+      const web3Manager = libs().web3Manager!
+      const premiumContentHeaders = yield* call(
+        getPremiumContentHeaders,
+        track.premium_content_signature,
+        web3Manager.sign.bind(web3Manager)
+      )
+
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
           track.track_segments,
@@ -107,7 +123,8 @@ export function* watchPlay() {
           {
             id: encodedTrackId,
             title: track.title,
-            artist: owner?.name
+            artist: owner?.name,
+            premiumContentHeaders
           },
           forceStreamMp3Url
         )
