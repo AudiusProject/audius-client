@@ -16,7 +16,7 @@ import useAppState from 'app/hooks/useAppState'
 import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import PushNotifications from 'app/notifications'
 import type { AppScreenParamList } from 'app/screens/app-screen'
-import { AppScreen, AppTabNavigationProvider } from 'app/screens/app-screen'
+import { AppScreen } from 'app/screens/app-screen'
 import {
   NotificationsScreen,
   NotificationsDrawerNavigationContextProvider
