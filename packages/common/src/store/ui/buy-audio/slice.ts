@@ -2,13 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Status } from '../../../models/Status'
 
-import { BuyAudioStage, OnRampProvider, PurchaseInfoErrorType } from './types'
-
-type AmountObject = {
-  amount: number
-  uiAmount: number
-  uiAmountString: string
-}
+import {
+  AmountObject,
+  BuyAudioStage,
+  OnRampProvider,
+  PurchaseInfoErrorType
+} from './types'
 
 type PurchaseInfo = {
   isError: false
