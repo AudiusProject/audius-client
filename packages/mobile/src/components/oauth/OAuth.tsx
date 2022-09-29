@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { NativeSyntheticEvent } from 'react-native'
 import { Modal, View, Button } from 'react-native'
@@ -12,9 +12,11 @@ import { Provider } from 'app/store/oauth/reducer'
 import {
   getUrl,
   getIsOpen,
-  getMessageId,
   getAuthProvider,
-  getMessageType
+  getTwitterInfo,
+  getTwitterError,
+  getInstagramInfo,
+  getInstagramError
 } from 'app/store/oauth/selectors'
 import type { Credentials } from 'app/store/oauth/types'
 import { AUTH_RESPONSE_MESSAGE_TYPE } from 'app/store/oauth/types'
@@ -179,11 +181,7 @@ const OAuth = () => {
   const dispatch = useDispatch()
   const url = useSelector(getUrl)
   const isOpen = useSelector(getIsOpen)
-  const messageId = useSelector(getMessageId)
-  const messageType = useSelector(getMessageType)
   const provider = useSelector(getAuthProvider)
-
-  const handleClose = useCallback(() => dispatch(closePopup()), [dispatch])
 
   // Handle messages coming from the web view
   const onMessageHandler = (event: NativeSyntheticEvent<WebViewMessage>) => {
@@ -217,13 +215,10 @@ const OAuth = () => {
                 }
         }
 
-        const isNativeOAuth = !messageType && !messageId // i.e. if the Oauth flow occured in a native app (e.g. the Tiktok app) instead of a webview
         const payload = payloadByProvider[provider as Provider](data)
 
-        if (isNativeOAuth) {
-          dispatch(setCredentials(payload as Credentials))
-        }
-        close()
+        dispatch(setCredentials(payload as Credentials))
+        dispatch(closePopup(false))
       }
     }
   }
@@ -250,7 +245,7 @@ const OAuth = () => {
             marginBottom: 8
           }}
         >
-          <Button onPress={handleClose} title='Close' />
+          <Button onPress={() => dispatch(closePopup(true))} title='Close' />
         </View>
         <WebView
           injectedJavaScript={injected}
