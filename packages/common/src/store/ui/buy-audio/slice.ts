@@ -89,9 +89,6 @@ const slice = createSlice({
       }
       state.purchaseInfoStatus = Status.ERROR
     },
-    precalculateSwapFees: () => {
-      // Triggers a saga to calculate and cache swap fees
-    },
     cacheAssociatedTokenAccount: (
       state,
       {
@@ -159,8 +156,7 @@ export const {
   swapStarted,
   swapCompleted,
   transferStarted,
-  transferCompleted,
-  precalculateSwapFees
+  transferCompleted
 } = slice.actions
 
 export default slice.reducer

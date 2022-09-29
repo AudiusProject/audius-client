@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import {
   Nullable,
@@ -31,7 +31,7 @@ const { getHasAssociatedWallets } = tokenDashboardPageSelectors
 const { pressReceive, pressSend, pressConnectWallets } =
   tokenDashboardPageActions
 const { getAccountBalance, getAccountTotalBalance } = walletSelectors
-const { precalculateSwapFees, setProvider } = buyAudioActions
+const { setProvider } = buyAudioActions
 
 const messages = {
   receiveLabel: 'Receive',
@@ -153,10 +153,6 @@ export const WalletManagementTile = () => {
     dispatch(setProvider({ provider: OnRampProvider.STRIPE }))
     setBuyAudioModalOpen(true)
   }, [dispatch, setBuyAudioModalOpen])
-
-  useEffect(() => {
-    dispatch(precalculateSwapFees())
-  }, [dispatch])
 
   return (
     <div className={styles.walletManagementTile}>

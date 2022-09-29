@@ -73,8 +73,7 @@ const {
   transferCompleted,
   clearFeesCache,
   calculateAudioPurchaseInfoFailed,
-  buyAudioFlowFailed,
-  precalculateSwapFees
+  buyAudioFlowFailed
 } = buyAudioActions
 
 const { setVisibility } = modalsActions
@@ -945,19 +944,6 @@ function* watchOnRampOpened() {
   yield takeLatest(onRampOpened, startBuyAudioFlow)
 }
 
-function* watchPrecalculateSwapFees() {
-  yield takeLatest(precalculateSwapFees, function* () {
-    // Get SOL => AUDIO quote to calculate fees
-    const quote = yield* call(JupiterSingleton.getQuote, {
-      inputTokenSymbol: 'SOL',
-      outputTokenSymbol: 'AUDIO',
-      inputAmount: 0,
-      slippage: 0
-    })
-    yield* call(getSwapFees, { route: quote.route })
-  })
-}
-
 /**
  * There are three main steps that could have failed:
  * 1) The purchase went through, but the Jupiter swap failed, leaving some SOL in the root account
@@ -1084,10 +1070,5 @@ function* watchRecovery() {
 }
 
 export default function sagas() {
-  return [
-    watchOnRampOpened,
-    watchCalculateAudioPurchaseInfo,
-    watchPrecalculateSwapFees,
-    watchRecovery
-  ]
+  return [watchOnRampOpened, watchCalculateAudioPurchaseInfo, watchRecovery]
 }
