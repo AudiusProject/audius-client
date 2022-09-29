@@ -183,7 +183,7 @@ export function useImageSize<
   ])
 
   let imageUrl: Maybe<URL>
-  let imageType: Maybe<string>
+  let imageType: Maybe<ImageType>
 
   if (!onDemand) {
     const { url, type } = getImageSize()
