@@ -39,7 +39,9 @@ export const updateStatusBarTheme = (
       break
     }
     case Theme.AUTO: {
-      setStatusBarTheme(systemAppearance)
+      if (systemAppearance) {
+        setStatusBarTheme(systemAppearance)
+      }
       break
     }
   }
