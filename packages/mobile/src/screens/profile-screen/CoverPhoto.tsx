@@ -1,6 +1,6 @@
 import { WidthSizes } from '@audius/common'
 import { BlurView } from '@react-native-community/blur'
-import { Animated, Platform, StyleSheet } from 'react-native'
+import { Animated, StyleSheet } from 'react-native'
 
 import BadgeArtist from 'app/assets/images/badgeArtist.svg'
 import { DynamicImage } from 'app/components/core'
