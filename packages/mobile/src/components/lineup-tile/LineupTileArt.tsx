@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import type { Remix } from '@audius/common'
 import { useLoadImageWithTimeout } from '@audius/common'
 import type { ImageStyle, StyleProp, ViewStyle } from 'react-native'
@@ -23,14 +25,16 @@ export const LineupTileArt = ({
 }: LineupTileArtProps) => {
   const trackTileStyles = useTrackTileStyles()
 
+  const imageStyles = useMemo(
+    () => ({
+      image: trackTileStyles.image as ImageStyle
+    }),
+    [trackTileStyles]
+  )
+
   useLoadImageWithTimeout(imageUrl, onLoad)
 
-  const imageElement = (
-    <DynamicImage
-      uri={imageUrl}
-      styles={{ image: trackTileStyles.image as ImageStyle }}
-    />
-  )
+  const imageElement = <DynamicImage uri={imageUrl} styles={imageStyles} />
 
   return coSign ? (
     <CoSign size={Size.SMALL} style={[style, trackTileStyles.image]}>
