@@ -95,8 +95,9 @@ type MilestoneNotificationProps = {
 export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const { notification } = props
   const { achievement } = notification
-  const entity = useProxySelector((state) =>
-    getNotificationEntity(state, notification)
+  const entity = useProxySelector(
+    (state) => getNotificationEntity(state, notification),
+    [notification]
   )
   const user = useSelector((state) => getNotificationUser(state, notification))
 
