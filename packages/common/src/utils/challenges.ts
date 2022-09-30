@@ -10,7 +10,7 @@ export type ChallengeRewardsInfo = {
   progressLabel?: string
   remainingLabel?: string
   panelButtonText: string
-  verifiedChallenge?: boolean
+  isVerifiedChallenge?: boolean
 }
 
 export const challengeRewardsConfig: Record<
@@ -38,7 +38,7 @@ export const challengeRewardsConfig: Record<
     progressLabel: '%0/%1 Invites Accepted',
     remainingLabel: '%0/%1 Invites Remain',
     panelButtonText: 'Invite your Fans',
-    verifiedChallenge: true
+    isVerifiedChallenge: true
   },
   referred: {
     id: 'referred',
@@ -88,7 +88,7 @@ export const challengeRewardsConfig: Record<
     panelButtonText: 'More Info'
   },
   'track-upload': {
-    id: 'track-upload' as ChallengeRewardID,
+    id: 'track-upload',
     title: 'Upload 3 Tracks',
     description: (challenge) => `Earn ${challenge?.amount} $AUDIO`,
     fullDescription: () => 'Upload 3 tracks to your profile',

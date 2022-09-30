@@ -213,7 +213,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const userChallenges = useSelector(getOptimisticUserChallenges)
   const challenge = userChallenges[modalType]
 
-  const { fullDescription, progressLabel, verifiedChallenge } =
+  const { fullDescription, progressLabel, isVerifiedChallenge } =
     challengeRewardsConfig[modalType]
   const { modalButtonInfo } = getChallengeConfig(modalType)
 
@@ -239,7 +239,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressDescription = (
     <div className={wm(styles.progressDescription)}>
       <h3>
-        {verifiedChallenge ? (
+        {isVerifiedChallenge ? (
           <div className={styles.verifiedChallenge}>
             <IconVerified />
             {messages.verifiedChallenge}

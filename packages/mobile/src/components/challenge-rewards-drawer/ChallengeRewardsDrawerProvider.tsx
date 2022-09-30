@@ -129,7 +129,7 @@ export const ChallengeRewardsDrawerProvider = () => {
     case 'referrals':
     case 'ref-v':
       contents = (
-        <ReferralRewardContents isVerified={!!config.verifiedChallenge} />
+        <ReferralRewardContents isVerified={!!config.isVerifiedChallenge} />
       )
       break
     case 'track-upload':
@@ -190,7 +190,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       claimStatus={claimStatus}
       aaoErrorCode={aaoErrorCode}
       onClaim={hasConfig ? onClaim : undefined}
-      isVerifiedChallenge={!!config.verifiedChallenge}
+      isVerifiedChallenge={!!config.isVerifiedChallenge}
       showProgressBar={
         challenge.challenge_type !== 'aggregate' && challenge.max_steps > 1
       }
