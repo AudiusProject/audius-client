@@ -30,7 +30,7 @@ const { getCollectionTracksLineup, getCollectionUid, getUserUid } =
   collectionPageSelectors
 const { resetCollection } = collectionPageActions
 const { makeGetTableMetadatas } = lineupSelectors
-const { getPlaying, getUid, getCurrentTrack } = playerSelectors
+const { getPlaying, getCurrentTrack, getTrackId } = playerSelectors
 
 const messages = {
   album: 'Album',
@@ -129,11 +129,13 @@ export const CollectionScreenDetailsTile = ({
   }, [tracksLoading, numTracks, duration, extraDetails])
 
   const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getUid)
+  const playingId = useSelector(getTrackId)
   const playingTrack = useSelector(getCurrentTrack)
   const trackId = playingTrack?.track_id
 
-  const isQueued = entries.some((entry) => playingUid === entry.uid)
+  const isQueued = entries.some((entry) => {
+    return playingId === entry.track_id
+  })
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -150,10 +152,10 @@ export const CollectionScreenDetailsTile = ({
 
   const handlePressTrackListItemPlay = useCallback(
     (uid: UID, id: ID) => {
-      if (isPlaying && playingUid === uid) {
+      if (isPlaying && playingId === id) {
         dispatch(tracksActions.pause())
         recordPlay(id, false)
-      } else if (playingUid !== uid) {
+      } else if (playingId !== id) {
         dispatch(tracksActions.play(uid))
         recordPlay(id)
       } else {
@@ -161,7 +163,7 @@ export const CollectionScreenDetailsTile = ({
         recordPlay(id)
       }
     },
-    [dispatch, isPlaying, playingUid]
+    [dispatch, isPlaying, playingId]
   )
 
   const headerText = useMemo(() => {
@@ -199,6 +201,8 @@ export const CollectionScreenDetailsTile = ({
           showDivider
           togglePlay={handlePressTrackListItemPlay}
           tracks={entries}
+          getTrackId={(track) => track?.track_id}
+          playingIdSelector={getTrackId}
         />
       </>
     )
