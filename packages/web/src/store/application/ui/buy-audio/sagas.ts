@@ -64,6 +64,7 @@ const {
   calculateAudioPurchaseInfoSucceeded,
   cacheAssociatedTokenAccount,
   cacheTransactionFees,
+  startBuyAudioFlow,
   onRampOpened,
   onRampSucceeded,
   onRampCanceled,
@@ -92,6 +93,17 @@ const MEMO_MESSAGES = {
   [OnRampProvider.UNKNOWN]: 'In-App $AUDIO Purchase: Unknown'
 }
 
+const PROVIDER_METHOD_MAP: Record<
+  OnRampProvider,
+  | TransactionMethod.COINBASE
+  | TransactionMethod.STRIPE
+  | TransactionMethod.RECEIVE
+> = {
+  [OnRampProvider.COINBASE]: TransactionMethod.COINBASE,
+  [OnRampProvider.STRIPE]: TransactionMethod.STRIPE,
+  [OnRampProvider.UNKNOWN]: TransactionMethod.RECEIVE
+}
+
 type BuyAudioLocalStorageState = {
   transactionDetailsArgs: {
     purchaseTransactionId?: string
@@ -116,56 +128,6 @@ const defaultBuyAudioLocalStorageState: BuyAudioLocalStorageState = {
     purchasedAudioWei: ''
   },
   provider: OnRampProvider.UNKNOWN
-}
-
-const convertStateToTransactionDetailsArgs = (
-  state: BuyAudioLocalStorageState
-) => {
-  const { transactionDetailsArgs } = state
-  if (!transactionDetailsArgs) {
-    throw new Error('Missing transactionDetailsArgs')
-  }
-  const {
-    transferTransactionId,
-    setupTransactionId,
-    swapTransactionId,
-    cleanupTransactionId,
-    purchaseTransactionId,
-    estimatedUSD,
-    purchasedLamports,
-    purchasedAudioWei
-  } = transactionDetailsArgs
-
-  const requiredKeys = [
-    'transferTransactionId',
-    'swapTransactionId',
-    'purchaseTransactionId',
-    'estimatedUSD',
-    'purchasedLamports',
-    'purchasedAudioWei'
-  ]
-  const filtered = requiredKeys.filter((key) => {
-    const value = (transactionDetailsArgs as Record<string, any>)[key]
-    return value === undefined || value === null
-  })
-  if (filtered.length > 0) {
-    throw new Error(
-      `Missing ${filtered
-        .map((s) => `transactionDetailsArgs[${s}]`)
-        .join(', ')}`
-    )
-  }
-  // Can assert required args are non-null, non-undefined as we would have thrown
-  return {
-    purchaseTransactionId: purchaseTransactionId!,
-    swapTransactionId: swapTransactionId!,
-    transferTransactionId: transferTransactionId!,
-    setupTransactionId,
-    cleanupTransactionId,
-    estimatedUSD: estimatedUSD!,
-    purchasedLamports: new BN(purchasedLamports!),
-    purchasedAudioWei: new BN(purchasedAudioWei!) as BNWei
-  }
 }
 
 /**
@@ -478,7 +440,11 @@ function* populateAndSaveTransactionDetails() {
     estimatedUSD,
     purchasedLamports,
     purchasedAudioWei
-  } = convertStateToTransactionDetailsArgs(localStorageState)
+  } = localStorageState.transactionDetailsArgs
+
+  if (!transferTransactionId) {
+    throw new Error('Missing transactionDetailsArgs[transferTransactionId]')
+  }
 
   const postAUDIOBalanceWei: StringWei = yield* select(
     walletSelectors.getAccountTotalBalance
@@ -486,20 +452,27 @@ function* populateAndSaveTransactionDetails() {
   const postAUDIOBalance = formatWei(
     new BN(postAUDIOBalanceWei) as BNWei
   ).replaceAll(',', '')
-  const purchasedAUDIO = formatWei(purchasedAudioWei).replaceAll(',', '')
+  const purchasedAUDIO = purchasedAudioWei
+    ? formatWei(new BN(purchasedAudioWei)).replaceAll(',', '')
+    : ''
   const divisor = new BN(LAMPORTS_PER_SOL)
-  const purchasedSOL = `${purchasedLamports.div(divisor)}.${purchasedLamports
-    .mod(divisor)
-    .toString()
-    .padStart(divisor.toString().length - 1, '0')}`
+  const purchasedLamportsBN = purchasedLamports
+    ? new BN(purchasedLamports)
+    : new BN('0')
+  const purchasedSOL = purchasedLamports
+    ? `${purchasedLamportsBN.div(divisor)}.${purchasedLamportsBN
+        .mod(divisor)
+        .toString()
+        .padStart(divisor.toString().length - 1, '0')}`
+    : ''
 
   const transactionMetadata = {
     discriminator: TransactionMetadataType.PURCHASE_SOL_AUDIO_SWAP,
-    purchaseTransactionId,
+    purchaseTransactionId: purchaseTransactionId ?? '',
     setupTransactionId,
-    swapTransactionId,
+    swapTransactionId: swapTransactionId ?? '',
     cleanupTransactionId,
-    usd: estimatedUSD,
+    usd: estimatedUSD ?? '',
     sol: purchasedSOL,
     audio: purchasedAUDIO
   }
@@ -507,7 +480,8 @@ function* populateAndSaveTransactionDetails() {
     date: dayjs().format('MM/DD/YYYY'),
     signature: transferTransactionId,
     transactionType: TransactionType.PURCHASE,
-    method: TransactionMethod.COINBASE,
+    method:
+      PROVIDER_METHOD_MAP[localStorageState.provider ?? OnRampProvider.UNKNOWN],
     balance: postAUDIOBalance,
     change: purchasedAUDIO,
     metadata: transactionMetadata
@@ -798,7 +772,7 @@ function* transferStep({
 /**
  * Exchanges all but the minimum balance required for a swap from a wallet once a balance change is seen
  */
-function* startBuyAudioFlow({
+function* doBuyAudio({
   payload: { desiredAudioAmount, estimatedSOL, estimatedUSD }
 }: ReturnType<typeof onRampOpened>) {
   const provider = yield* select(getBuyAudioProvider)
@@ -941,7 +915,7 @@ function* watchCalculateAudioPurchaseInfo() {
 }
 
 function* watchOnRampOpened() {
-  yield takeLatest(onRampOpened, startBuyAudioFlow)
+  yield takeLatest(onRampOpened, doBuyAudio)
 }
 
 /**
@@ -952,7 +926,8 @@ function* watchOnRampOpened() {
  *
  * This function checks for the above conditions sequentially, and pops the modal as necessary.
  */
-function* watchRecovery() {
+function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
+  let didNeedRecovery = false
   try {
     // Setup
     const rootAccount: Keypair = yield* call(getRootSolanaAccount)
@@ -963,12 +938,27 @@ function* watchRecovery() {
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+
+    // Restore local storage state, lightly sanitizing
     const localStorage = yield* getContext('localStorage')
-    const localStorageState: BuyAudioLocalStorageState =
+    const savedLocalStorageState: BuyAudioLocalStorageState =
       (yield* call(
         [localStorage, localStorage.getJSONValue],
         BUY_AUDIO_LOCAL_STORAGE_KEY
-      )) ?? defaultBuyAudioLocalStorageState
+      )) ?? {}
+    const localStorageState: BuyAudioLocalStorageState = {
+      ...defaultBuyAudioLocalStorageState,
+      ...savedLocalStorageState,
+      transactionDetailsArgs: {
+        ...defaultBuyAudioLocalStorageState,
+        ...savedLocalStorageState.transactionDetailsArgs
+      }
+    }
+    yield* call(
+      [localStorage, localStorage.setJSONValue],
+      BUY_AUDIO_LOCAL_STORAGE_KEY,
+      localStorageState
+    )
 
     // Get config
     const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -1010,7 +1000,9 @@ function* watchRecovery() {
       )
 
       yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
-      console.log({ localStorageState })
+      yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
+      didNeedRecovery = true
+
       const { audioSwappedSpl } = yield* swapStep({
         exchangeAmount: exchangableBalance,
         desiredAudioAmount: localStorageState.desiredAudioAmount,
@@ -1039,6 +1031,11 @@ function* watchRecovery() {
         console.debug(
           `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
         )
+
+        yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
+        yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
+        didNeedRecovery = true
+
         const { audioTransferredWei } = yield* transferStep({
           transferAmount: audioBalance,
           rootAccount,
@@ -1048,10 +1045,7 @@ function* watchRecovery() {
         yield* call(populateAndSaveTransactionDetails)
       } else {
         // If we only failed to save the metadata, try that again
-        if (
-          localStorageState &&
-          localStorageState.transactionDetailsArgs.transferTransactionId
-        ) {
+        if (localStorageState?.transactionDetailsArgs?.transferTransactionId) {
           const metadata = yield* call(
             getUserBankTransactionMetadata,
             localStorageState.transactionDetailsArgs.transferTransactionId
@@ -1063,12 +1057,37 @@ function* watchRecovery() {
       }
     }
     yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
+    if (openBuyAudioModalOnSuccess && didNeedRecovery) {
+      // If we don't reset state here, this shows the success screen :)
+      yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
+    }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
     console.error('BuyAudioRecovery failed at stage', stage, 'with error:', e)
+    // For now, hide modal on error.
+    // TODO: add UI for failures later
+    yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
   }
 }
 
+function* doStartBuyAudioFlow(action: ReturnType<typeof startBuyAudioFlow>) {
+  yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
+  yield* call(recoverPurchaseIfNecessary, true)
+}
+
+function* watchStartBuyAudioFlow() {
+  yield takeLatest(startBuyAudioFlow, doStartBuyAudioFlow)
+}
+
+function* watchRecovery() {
+  yield* call(recoverPurchaseIfNecessary)
+}
+
 export default function sagas() {
-  return [watchOnRampOpened, watchCalculateAudioPurchaseInfo, watchRecovery]
+  return [
+    watchOnRampOpened,
+    watchCalculateAudioPurchaseInfo,
+    watchStartBuyAudioFlow,
+    watchRecovery
+  ]
 }
