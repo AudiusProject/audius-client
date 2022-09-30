@@ -1,4 +1,4 @@
-import type { SystemAppearance } from '@audius/common'
+import type { SystemAppearance, Nullable } from '@audius/common'
 import { themeSelectors } from '@audius/common'
 import { StatusBar } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -26,8 +26,8 @@ export const setStatusBarTheme = (theme: 'light' | 'dark') => {
 }
 
 export const updateStatusBarTheme = (
-  theme: Theme,
-  systemAppearance: SystemAppearance
+  theme: Nullable<Theme>,
+  systemAppearance: Nullable<SystemAppearance>
 ) => {
   switch (theme) {
     case Theme.DEFAULT: {
