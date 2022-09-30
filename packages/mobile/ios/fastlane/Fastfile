@@ -15,11 +15,13 @@
 
 default_platform(:ios)
 
-MY_APP_ID = "co.audius.audiusmusic"
-MY_STAGING_APP_ID = "co.audius.audiusmusic.bounce"
-MY_PROFILE = "match AppStore co.audius.audiusmusic"
-MY_STAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
-MY_TEAM = "LRFCG93S85"
+AUDIUSMUSIC_ID = "co.audius.audiusmusic"
+AUDIUSMUSIC_RELEASECANDIDATE_ID = "co.audius.audiusmusic.releasecandidate"
+AUDIUSSTAGING_ID = "co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_PROFILE = "match AppStore co.audius.audiusmusic"
+AUDIUSMUSIC_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.releasecandidate"
+AUDIUSSTAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
+TEAM = "LRFCG93S85"
 
 platform :ios do
   before_all do
@@ -28,18 +30,24 @@ platform :ios do
   desc "Build the app"
   lane :build do |options|
 
-    if options[:bundle_id] === 'co.audius.audiusmusic'  
-      appId = MY_APP_ID
-      provisioningProfile = MY_PROFILE
+    if options[:bundle_id] === AUDIUSMUSIC_ID
+      appId = AUDIUSMUSIC_ID
+      provisioningProfile = AUDIUSMUSIC_PROFILE
       environment = 'production'
       scheme = 'AudiusReactNative'
       configuration = 'Release'
-    else
-      appId = MY_STAGING_APP_ID
-      provisioningProfile = MY_STAGING_PROFILE
+    elsif options[:bundle_id] === AUDIUSSTAGING_ID
+      appId = AUDIUSSTAGING_ID
+      provisioningProfile = AUDIUSSTAGING_PROFILE
       environment = 'staging'
       scheme = 'Bounce'
       configuration = 'Bounce.Release'
+    elsif options[:bundle_id] === AUDIUSMUSIC_RELEASECANDIDATE_ID
+      appId = AUDIUSMUSIC_RELEASECANDIDATE_ID
+      provisioningProfile = AUDIUSMUSIC_RELEASECANDIDATE_PROFILE
+      environment = 'production'
+      scheme = 'AudiusReactNative'
+      configuration = 'Release'
     end
 
     match(
@@ -51,7 +59,7 @@ platform :ios do
     settings_to_override = {
       :BUNDLE_IDENTIFIER => appId,
       :PROVISIONING_PROFILE_SPECIFIER => provisioningProfile,
-      :DEVELOPMENT_TEAM => MY_TEAM
+      :DEVELOPMENT_TEAM => TEAM
     }
 
     if ENV["IS_PRODUCTION"] == "true"
@@ -109,7 +117,7 @@ platform :ios do
         initial_build_number: 1,
         version: versionNumber.to_s,
         live: false
-      ) + 2,
+      ) + 1,
     )
 
     # Build ios

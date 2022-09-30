@@ -87,6 +87,25 @@ mobile-build-upload-production-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
         env: '.env.prod'
+    - when:
+        condition:
+          matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
+        steps:
+          - mobile-upload-ios:
+          bundle-id: 'co.audius.audiusmusic'
+
+mobile-build-upload-releasecandidate-ios:
+  working_directory: ~/audius-client
+  macos: # Run on osx so app can be created and signed.
+    xcode: '14.0.0'
+  environment:
+    FL_OUTPUT_DIR: output
+  shell: /bin/bash --login -o pipefail
+  steps:
+    - mobile-build-ios:
+        build-directory: 'build-mobile-releasecandidate'
+        bundle-id: 'co.audius.audiusmusic.releasecandidate'
+        env: '.env.prod'
     - mobile-upload-ios:
         bundle-id: 'co.audius.audiusmusic.releasecandidate'
     # - when:
