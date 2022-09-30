@@ -134,9 +134,12 @@ platform :ios do
     if (options[:bundle_id] === 'co.audius.audiusmusic') 
       appleId = "1491270519"
       ipa = './output/gym/Audius Music.ipa'
-    else
+    elsif (options[:bundle_id] === 'co.audius.audiusmusic.bounce')
       appleId = "1510764836"
       ipa = './output/gym/Audius Bounce Music.ipa'
+    elsif (options[:bundle_id] === 'co.audius.audiusmusic.releasecandidate')
+      appleId = "6444068448"
+      ipa = './output/gym/Audius Music.ipa'
     end
    
     # Upload to test flight
