@@ -58,8 +58,7 @@
     "rollup": "2.76.0",
     "rollup-plugin-dts": "4.2.2",
     "rollup-plugin-typescript2": "0.32.1",
-    "react": "17.0.2",
-    "typescript": "4.4.4"
+    "react": "17.0.2"
   },
   "peerDependencies": {
     "@solana/spl-token": "0.1.8",
