@@ -67,23 +67,16 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
         styles={{ root: styles.imageRoot, image: styles.image }}
         resizeMode={isDefaultImage ? 'repeat' : undefined}
       >
-        {/*
-          Disable blur on android because it causes a crash.
-          See https://github.com/software-mansion/react-native-screens/pull/1406
-          TODO: C-423 pull in new version of react screens when the fix is released
-        */}
-        {Platform.OS === 'ios' ? (
-          <AnimatedBlurView
-            blurType={'dark'}
-            blurAmount={100}
-            style={[
-              { ...StyleSheet.absoluteFillObject, zIndex: 2 },
-              scrollY
-                ? { opacity: interpolateBlurViewOpacity(scrollY) }
-                : undefined
-            ]}
-          />
-        ) : null}
+        <AnimatedBlurView
+          blurType={'dark'}
+          blurAmount={100}
+          style={[
+            { ...StyleSheet.absoluteFillObject, zIndex: 2 },
+            scrollY
+              ? { opacity: interpolateBlurViewOpacity(scrollY) }
+              : undefined
+          ]}
+        />
       </DynamicImage>
       {isArtist ? (
         <Animated.View
