@@ -36,38 +36,38 @@ export function useNavigation<
   ParamList extends ParamListBase,
   NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<ParamList>
 >(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
-  const defaultNativeNavigation = useNativeNavigation<NavigationProp>()
+  const defaultNavigation = useNativeNavigation<NavigationProp>()
 
   const lastNavAction = useRef<PerformNavigationConfig<ParamList>>()
 
-  const nativeNavigation: NavigationProp =
-    options?.customNavigation ?? defaultNativeNavigation
+  const navigation: NavigationProp =
+    options?.customNavigation ?? defaultNavigation
 
   // Prevent duplicate pushes by de-duping
   // navigation actions
   const performCustomPush = useCallback(
     (...config: PerformNavigationConfig<ParamList>) => {
       if (!isEqual(lastNavAction.current, config)) {
-        ;(nativeNavigation as NativeStackNavigationProp<any>).push(...config)
+        ;(navigation as NativeStackNavigationProp<any>).push(...config)
         lastNavAction.current = config
         setTimeout(() => {
           lastNavAction.current = undefined
         }, 500)
       }
     },
-    [nativeNavigation, lastNavAction]
+    [navigation, lastNavAction]
   )
 
   return useMemo(
     () => ({
-      ...nativeNavigation,
+      ...navigation,
       push:
-        'push' in nativeNavigation
+        'push' in navigation
           ? performCustomPush
           : () => {
               console.error('Push is not implemented for this navigator')
             }
     }),
-    [nativeNavigation, performCustomPush]
+    [navigation, performCustomPush]
   )
 }
