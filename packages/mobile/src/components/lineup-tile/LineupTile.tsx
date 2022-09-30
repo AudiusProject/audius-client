@@ -18,7 +18,7 @@ import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
 const getUserId = accountSelectors.getUserId
-const { getUid, getPlaying } = playerSelectors
+const { getPlaying } = playerSelectors
 
 export const LineupTile = ({
   children,

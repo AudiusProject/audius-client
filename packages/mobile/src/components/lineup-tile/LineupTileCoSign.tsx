@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native'
 
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges/UserBadges'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { flexRowCentered } from 'app/styles'
 
 import { useStyles as useTrackTileStyles } from './styles'

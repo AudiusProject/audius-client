@@ -3,7 +3,6 @@ import { useCallback } from 'react'
 import type { AddTrackToPlaylistNotification as AddTrackToPlaylistNotificationType } from '@audius/common'
 import { useProxySelector, notificationsSelectors } from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
 
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 

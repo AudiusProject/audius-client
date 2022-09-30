@@ -1,5 +1,5 @@
 import type { Nullable, Track, User } from '@audius/common'
-import { TouchableOpacity, Pressable, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 
 import { Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
