@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react'
 
-import type { ExtractTypeParam } from '@audius/common'
 import type {
   ParamListBase,
   NavigationProp as RNNavigationProp
@@ -8,8 +7,6 @@ import type {
 import { useNavigation as useNativeNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { isEqual } from 'lodash'
-
-import type { AppTabScreenParamList } from 'app/screens/app-screen/AppTabScreen'
 
 export type ContextualParams = {
   fromNotifications?: boolean
@@ -20,8 +17,7 @@ export type ContextualizedParamList<ParamList extends ParamListBase> = {
 }
 
 type PerformNavigationConfig<
-  NavigationProp extends RNNavigationProp<any>,
-  ParamList = ExtractTypeParam<NavigationProp>,
+  ParamList extends ParamListBase,
   RouteName extends keyof ParamList = keyof ParamList
 > = [screen: RouteName, params?: ParamList[RouteName] & ContextualParams]
 
@@ -35,23 +31,14 @@ type UseNavigationOptions<NavigationProp extends RNNavigationProp<any>> = {
  * Features:
  * - Prevent duplicate navigation pushes
  * - Apply contextual params to all routes
- *
- * Overloaded to support supplying only a ParamList type parameter
- * or the entire NavigationProp itself
- * @param options
  */
 export function useNavigation<
   ParamList extends ParamListBase,
   NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<ParamList>
->(options?: UseNavigationOptions<NavigationProp>): NavigationProp
-export function useNavigation<
-  NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<
-    ContextualizedParamList<AppTabScreenParamList>
-  >
 >(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
   const defaultNativeNavigation = useNativeNavigation<NavigationProp>()
 
-  const lastNavAction = useRef<PerformNavigationConfig<NavigationProp>>()
+  const lastNavAction = useRef<PerformNavigationConfig<ParamList>>()
 
   const nativeNavigation: NavigationProp =
     options?.customNavigation ?? defaultNativeNavigation
@@ -59,7 +46,7 @@ export function useNavigation<
   // Prevent duplicate pushes by de-duping
   // navigation actions
   const performCustomPush = useCallback(
-    (...config: PerformNavigationConfig<NavigationProp>) => {
+    (...config: PerformNavigationConfig<ParamList>) => {
       if (!isEqual(lastNavAction.current, config)) {
         ;(nativeNavigation as NativeStackNavigationProp<any>).push(...config)
         lastNavAction.current = config
