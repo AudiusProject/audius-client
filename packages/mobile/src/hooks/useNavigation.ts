@@ -34,7 +34,7 @@ type UseNavigationOptions<NavigationProp extends RNNavigationProp<any>> = {
  */
 export function useNavigation<
   ParamList extends ParamListBase,
-  NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<ParamList>
+  NavigationProp extends RNNavigationProp<ParamListBase> = NativeStackNavigationProp<ParamList>
 >(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
   const defaultNavigation = useNativeNavigation<NavigationProp>()
 
