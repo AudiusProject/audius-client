@@ -23,7 +23,6 @@ import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -36,7 +35,7 @@ const { markAllAsViewed } = notificationsActions
 const { getNotificationUnviewedCount } = notificationsSelectors
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
-  headerLeft: { marginLeft: spacing(-2), width: 40 },
+  headerLeft: { marginLeft: spacing(-2) + 1, width: 40 },
   headerRight: {},
   title: {
     fontSize: 18,
@@ -174,7 +173,7 @@ export const useAppScreenOptions = (
             }
             if (isNavOverhaulEnabled) {
               return (
-                <View style={[styles.headerLeft, { marginLeft: spacing(-2) }]}>
+                <View style={[styles.headerLeft, { marginLeft: 0 }]}>
                   <AccountPictureHeader onPress={handlePressNotification} />
                 </View>
               )

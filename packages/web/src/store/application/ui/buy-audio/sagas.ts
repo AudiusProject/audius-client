@@ -23,7 +23,8 @@ import {
   createUserBankIfNeeded,
   deriveUserBank,
   modalsActions,
-  AmountObject
+  AmountObject,
+  FeatureFlags
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
@@ -117,7 +118,7 @@ type BuyAudioLocalStorageState = {
     purchasedLamports?: string
     purchasedAudioWei?: string
   }
-  provider?: OnRampProvider
+  provider: OnRampProvider
   desiredAudioAmount?: AmountObject
 }
 const defaultBuyAudioLocalStorageState: BuyAudioLocalStorageState = {
@@ -787,10 +788,6 @@ function* doBuyAudio({
   payload: { desiredAudioAmount, estimatedSOL, estimatedUSD }
 }: ReturnType<typeof onRampOpened>) {
   const provider = yield* select(getBuyAudioProvider)
-  if (provider === undefined) {
-    console.error('BuyAudio flow started without a provider - aborting...')
-    return
-  }
   try {
     // Record start
     yield* put(
@@ -937,6 +934,12 @@ function* doBuyAudio({
 function* recoverPurchaseIfNecessary() {
   let didNeedRecovery = false
   try {
+    // Bail if not enabled
+    const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+    if (!getFeatureEnabled(FeatureFlags.BUY_AUDIO_ENABLED)) {
+      return
+    }
+
     // Setup
     const rootAccount: Keypair = yield* call(getRootSolanaAccount)
     const connection = yield* call(getSolanaConnection)
