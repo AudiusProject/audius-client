@@ -12,6 +12,10 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { updateQuery } from 'app/store/search/actions'
 import { getSearchQuery } from 'app/store/search/selectors'
 
+// Amount of time to wait before focusing TextInput
+// after the SearchBar renders
+const TEXT_INPUT_FOCUS_DELAY = 350
+
 export const SearchBar = () => {
   const query = useSelector(getSearchQuery)
   const searchResultQuery = useSelector(getSearchBarText)
@@ -19,6 +23,16 @@ export const SearchBar = () => {
   const navigation = useNavigation()
   const [clearable, setClearable] = useState(query !== '')
   const inputRef = useRef<TextInputRef>(null)
+
+  // Wait to focus TextInput to prevent keyboard animation
+  // from causing UI stutter as the screen transitions in
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => inputRef.current?.focus(),
+      TEXT_INPUT_FOCUS_DELAY
+    )
+    return () => clearTimeout(timeout)
+  }, [])
 
   // Ignore rule because eslint complains that it can't determine the dependencies of the callback since it's not inline.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,7 +83,6 @@ export const SearchBar = () => {
 
   return (
     <TextInput
-      autoFocus
       ref={inputRef}
       value={query}
       onChangeText={handleChangeText}
