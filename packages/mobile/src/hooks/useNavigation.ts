@@ -29,6 +29,17 @@ type UseNavigationOptions<NavigationProp extends RNNavigationProp<any>> = {
   customNavigation?: NavigationProp
 }
 
+/**
+ * Custom wrapper around react-navigation `useNavigation`
+ *
+ * Features:
+ * - Prevent duplicate navigation pushes
+ * - Apply contextual params to all routes
+ *
+ * Overloaded to support supplying only a ParamList type parameter
+ * or the entire NavigationProp itself
+ * @param options
+ */
 export function useNavigation<
   ParamList extends ParamListBase,
   NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<ParamList>
