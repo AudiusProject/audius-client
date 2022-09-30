@@ -910,14 +910,6 @@ function* doBuyAudio({
   }
 }
 
-function* watchCalculateAudioPurchaseInfo() {
-  yield takeLatest(calculateAudioPurchaseInfo, getAudioPurchaseInfo)
-}
-
-function* watchOnRampOpened() {
-  yield takeLatest(onRampOpened, doBuyAudio)
-}
-
 /**
  * There are three main steps that could have failed:
  * 1) The purchase went through, but the Jupiter swap failed, leaving some SOL in the root account
@@ -1073,6 +1065,14 @@ function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
 function* doStartBuyAudioFlow(action: ReturnType<typeof startBuyAudioFlow>) {
   yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
   yield* call(recoverPurchaseIfNecessary, true)
+}
+
+function* watchCalculateAudioPurchaseInfo() {
+  yield takeLatest(calculateAudioPurchaseInfo, getAudioPurchaseInfo)
+}
+
+function* watchOnRampOpened() {
+  yield takeLatest(onRampOpened, doBuyAudio)
 }
 
 function* watchStartBuyAudioFlow() {
