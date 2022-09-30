@@ -25,7 +25,7 @@ export const setStatusBarTheme = (theme: 'light' | 'dark') => {
   }
 }
 
-export const handleThemeChange = (
+export const updateStatusBarTheme = (
   theme: Theme,
   systemAppearance: SystemAppearance
 ) => {
@@ -43,14 +43,6 @@ export const handleThemeChange = (
       break
     }
   }
-
-  // Fade in status bar after we
-  // get our first update, after a
-  // slight delay to allow Splash Screen
-  // to animate out.
-  setTimeout(() => {
-    StatusBar.setHidden(false, 'fade')
-  }, 500)
 }
 
 export const defaultTheme = {
