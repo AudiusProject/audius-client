@@ -107,6 +107,7 @@ export const ProfileTabNavigator = ({
       <CollapsibleTabNavigator
         renderHeader={renderHeader}
         animatedValue={animatedValue}
+        headerHeight={1000}
       >
         {trackScreen}
         {albumsScreen}
@@ -121,6 +122,7 @@ export const ProfileTabNavigator = ({
     <CollapsibleTabNavigator
       renderHeader={renderHeader}
       animatedValue={animatedValue}
+      headerHeight={1000}
     >
       {repostsScreen}
       {playlistsScreen}
