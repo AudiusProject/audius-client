@@ -4,6 +4,7 @@ import { fetchSearch } from 'audius-client/src/common/store/search-bar/actions'
 import { getSearchBarText } from 'audius-client/src/common/store/search-bar/selectors'
 import debounce from 'lodash/debounce'
 import { useDispatch, useSelector } from 'react-redux'
+import { useTimeoutFn } from 'react-use'
 
 import type { TextInputRef } from 'app/components/core'
 import { TextInput } from 'app/components/core'
@@ -26,13 +27,7 @@ export const SearchBar = () => {
 
   // Wait to focus TextInput to prevent keyboard animation
   // from causing UI stutter as the screen transitions in
-  useEffect(() => {
-    const timeout = setTimeout(
-      () => inputRef.current?.focus(),
-      TEXT_INPUT_FOCUS_DELAY
-    )
-    return () => clearTimeout(timeout)
-  }, [])
+  useTimeoutFn(() => inputRef.current?.focus(), TEXT_INPUT_FOCUS_DELAY)
 
   // Ignore rule because eslint complains that it can't determine the dependencies of the callback since it's not inline.
   // eslint-disable-next-line react-hooks/exhaustive-deps
