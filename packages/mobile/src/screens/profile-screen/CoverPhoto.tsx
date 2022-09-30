@@ -70,7 +70,8 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
         {/*
           Disable blur on android because it causes a crash.
           See https://github.com/software-mansion/react-native-screens/pull/1406
-          Updating to react-native-screens 3.16.0 did not seem to fix
+          Updating to react-native-screens 3.16.0 did not seem to fix (for certain images)
+          Still seems to be an outstanding issue: https://github.com/Kureev/react-native-blur/issues/461
         */}
         {Platform.OS === 'ios' ? (
           <AnimatedBlurView
