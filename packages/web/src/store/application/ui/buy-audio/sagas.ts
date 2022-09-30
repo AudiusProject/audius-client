@@ -1011,7 +1011,7 @@ function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
         maxRetryCount,
         retryDelayMs
       })
-      const { audioTransferredWei } = yield* transferStep({
+      yield* transferStep({
         transferAmount: audioSwappedSpl,
         rootAccount,
         transactionHandler,
@@ -1036,7 +1036,7 @@ function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
         yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
         didNeedRecovery = true
 
-        const { audioTransferredWei } = yield* transferStep({
+        yield* transferStep({
           transferAmount: audioBalance,
           rootAccount,
           transactionHandler,
