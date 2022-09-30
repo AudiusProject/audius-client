@@ -58,12 +58,25 @@ const updateReachability = async (netInfoState: NetInfoState) => {
     // Perform our own reachability test to be extra sure we're offline
     const reachable = await pingTest()
     if (!reachable) {
-      dispatch(reachabilityActions.setUnreachable())
+      setUnreachable(true)
     }
   } else {
+    // Supercede the setUnreachable debounce if necessary
+    setUnreachable(false)
     dispatch(reachabilityActions.setReachable())
   }
 }
+
+/** Debounce calls only for reachable -> unreachable */
+const setUnreachable = debounce(
+  (isUnreachable: boolean) => {
+    if (isUnreachable) {
+      dispatch(reachabilityActions.setUnreachable())
+    }
+  },
+  2500,
+  { maxWait: 5000 }
+)
 
 export const forceRefreshConnectivity = async () => {
   NetInfo.refresh()
@@ -73,9 +86,5 @@ export const forceRefreshConnectivity = async () => {
 
 /** Called on first app render */
 export const subscribeToNetworkStatusUpdates = () => {
-  NetInfo.addEventListener(
-    debounce(updateReachability, 2500, {
-      maxWait: 5000
-    })
-  )
+  NetInfo.addEventListener(updateReachability)
 }
