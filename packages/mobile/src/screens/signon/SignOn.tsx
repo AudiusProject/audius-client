@@ -27,6 +27,7 @@ import {
   View
 } from 'react-native'
 import RadialGradient from 'react-native-radial-gradient'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector, useDispatch } from 'react-redux'
 
 import backgImage from 'app/assets/images/DJportrait.jpg'
@@ -72,22 +73,19 @@ const styles = StyleSheet.create({
     width: '100%',
     zIndex: 5,
     backgroundColor: 'white',
-    alignItems: 'center',
     borderBottomRightRadius: 40,
     borderBottomLeftRadius: 40,
     padding: 28,
-    paddingBottom: 38,
-    paddingTop: 80
+    paddingBottom: 38
   },
-
+  drawerContent: { width: '100%', alignItems: 'center' },
   containerCTA: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     width: '100%',
     zIndex: 4,
-    alignItems: 'center',
-    paddingBottom: 20
+    alignItems: 'center'
   },
   containerBack: {
     flex: 1,
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
   },
   signupCTAContainer: {
     flex: 1,
-    marginTop: 16
+    marginTop: 32
   },
   signupCTA: {
     resizeMode: 'contain',
@@ -732,46 +730,48 @@ const SignOn = ({ navigation }: SignOnProps) => {
               )
             }}
           >
-            <Image
-              source={audiusLogoHorizontal}
-              style={styles.audiusLogoHorizontal}
-            />
-            <FormTitle isSignin={isSignin} />
-            <TextInput
-              style={[styles.input, { borderColor: emailBorderColor }]}
-              placeholderTextColor='#C2C0CC'
-              underlineColorAndroid='transparent'
-              placeholder='Email'
-              keyboardType='email-address'
-              autoComplete='off'
-              autoCorrect={false}
-              autoCapitalize='none'
-              enablesReturnKeyAutomatically={true}
-              maxLength={100}
-              textContentType='emailAddress'
-              onChangeText={(newText) => {
-                setShowDefaultError(false)
-                const newEmail = newText.trim()
-                setEmail(newEmail)
-                if (newEmail !== '') {
-                  validateEmail(newEmail)
-                }
-              }}
-              onFocus={() => {
-                setEmailBorderColor('#7E1BCC')
-              }}
-              onBlur={() => {
-                setEmailBorderColor(defaultBorderColor)
-                if (email !== '') {
-                  setShowInvalidEmailError(!isValidEmailString(email))
-                  // wait a bit for email validation to come back
-                  setTimeout(() => setAttemptedEmail(true), 1000)
-                }
-              }}
-            />
-            {passwordInputField()}
-            {errorView()}
-            <MainButton isWorking={isWorking} isSignin={isSignin} />
+            <SafeAreaView edges={['top']} style={styles.drawerContent}>
+              <Image
+                source={audiusLogoHorizontal}
+                style={styles.audiusLogoHorizontal}
+              />
+              <FormTitle isSignin={isSignin} />
+              <TextInput
+                style={[styles.input, { borderColor: emailBorderColor }]}
+                placeholderTextColor='#C2C0CC'
+                underlineColorAndroid='transparent'
+                placeholder='Email'
+                keyboardType='email-address'
+                autoComplete='off'
+                autoCorrect={false}
+                autoCapitalize='none'
+                enablesReturnKeyAutomatically={true}
+                maxLength={100}
+                textContentType='emailAddress'
+                onChangeText={(newText) => {
+                  setShowDefaultError(false)
+                  const newEmail = newText.trim()
+                  setEmail(newEmail)
+                  if (newEmail !== '') {
+                    validateEmail(newEmail)
+                  }
+                }}
+                onFocus={() => {
+                  setEmailBorderColor('#7E1BCC')
+                }}
+                onBlur={() => {
+                  setEmailBorderColor(defaultBorderColor)
+                  if (email !== '') {
+                    setShowInvalidEmailError(!isValidEmailString(email))
+                    // wait a bit for email validation to come back
+                    setTimeout(() => setAttemptedEmail(true), 1000)
+                  }
+                }}
+              />
+              {passwordInputField()}
+              {errorView()}
+              <MainButton isWorking={isWorking} isSignin={isSignin} />
+            </SafeAreaView>
           </Animated.View>
         </TouchableWithoutFeedback>
         <Animated.View
@@ -782,10 +782,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
         >
           {Dimensions.get('window').height < 720 ? (
             <></>
-          ) : isAndroid && isKeyboardOpen ? (
-            // on android, if keyboard is showing and user is navigating away to the next screen
-            // the image below shows up above the keyboard and causes a weird transition */
-            <View style={styles.signupCTAContainer} />
           ) : (
             <View style={styles.signupCTAContainer}>
               <Image source={signupCTA} style={styles.signupCTA} />
