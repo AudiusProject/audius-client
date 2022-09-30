@@ -11,12 +11,12 @@ function* calculateAndroidNavigationBarHeight() {
 
     // Account for statusBar height because it is translucent and `getNavigationbarHeight`
     // does not account for it
-    const statusBarHeight = StatusBar.currentHeight
+    const statusBarHeight = StatusBar.currentHeight ?? 0
 
     yield* put(
       setAndroidNavigationBarHeight({
         androidNavigationBarHeight:
-          navigationBarHeight / scale - (statusBarHeight ?? 0)
+          navigationBarHeight / scale - statusBarHeight
       })
     )
   }
