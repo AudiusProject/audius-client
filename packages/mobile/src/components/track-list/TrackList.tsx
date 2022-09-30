@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 
-import type { CommonState, ID, Nullable, UID } from '@audius/common'
+import type { ID, UID } from '@audius/common'
 import { playerSelectors } from '@audius/common'
 import type { FlatListProps } from 'react-native'
 import { FlatList, View } from 'react-native'
@@ -18,16 +18,13 @@ import type { TrackMetadata, TracksMetadata } from './types'
 const { getPlaying, getUid } = playerSelectors
 
 type TrackListProps = {
-  getTrackId?: (track?: TrackMetadata) => number | string
   hideArt?: boolean
   isReorderable?: boolean
   noDividerMargin?: boolean
   onRemove?: (index: number) => void
   onReorder?: DraggableFlatListProps<TrackMetadata>['onDragEnd']
   onSave?: (isSaved: boolean, trackId: ID) => void
-  // Optional selector for the currently playing id
-  // This is useful for matching on track id instead of track uid
-  playingIdSelector?: (state: CommonState) => Nullable<number | string>
+  playingUid?: UID
   showDivider?: boolean
   showSkeleton?: boolean
   showTopDivider?: boolean
@@ -60,8 +57,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
  */
 export const TrackList = ({
   hideArt,
-  playingIdSelector = getUid,
-  getTrackId = (track) => track?.uid,
   isReorderable,
   noDividerMargin,
   onRemove,
@@ -78,7 +73,7 @@ export const TrackList = ({
   const styles = useStyles()
 
   const isPlaying = useSelector(getPlaying)
-  const playingId = useSelector(playingIdSelector)
+  const playingUid = useSelector(getUid)
 
   const renderSkeletonTrack = ({ index }) => (
     <View>
@@ -93,12 +88,10 @@ export const TrackList = ({
 
   const renderDraggableTrack: DraggableFlatListProps<TrackMetadata>['renderItem'] =
     ({ item: track, index = -1, drag }) => {
-      const id = getTrackId(track)
-      const isActive = id !== undefined && id === playingId
+      const isActive = track.uid !== undefined && track.uid === playingUid
 
       // The dividers above and belove the active track should be hidden
-      const hideDivider =
-        isActive || getTrackId(tracks[index - 1]) === playingId
+      const hideDivider = isActive || tracks[index - 1]?.uid === playingUid
 
       return (
         <View>
