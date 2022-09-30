@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ParamListBase } from '@react-navigation/native'
+import type { ExtractTypeParam } from '@audius/common'
+import type {
+  ParamListBase,
+  NavigationProp as RNNavigationProp
+} from '@react-navigation/native'
 import { useNavigation as useNativeNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { isEqual } from 'lodash'
@@ -16,51 +20,38 @@ export type ContextualizedParamList<ParamList extends ParamListBase> = {
 }
 
 type PerformNavigationConfig<
-  ParamList extends ParamListBase,
-  RouteName extends keyof ParamList
+  NavigationProp extends RNNavigationProp<any>,
+  ParamList = ExtractTypeParam<NavigationProp>,
+  RouteName extends keyof ParamList = keyof ParamList
 > = [screen: RouteName, params?: ParamList[RouteName] & ContextualParams]
 
-type UseNavigationOptions<ParamList extends ParamListBase> = {
-  customNavigation?: NativeStackNavigationProp<
-    ContextualizedParamList<ParamList>
-  >
+type UseNavigationOptions<NavigationProp extends RNNavigationProp<any>> = {
+  customNavigation?: NavigationProp
 }
 
-export const useNavigation = <
-  ParamList extends ParamListBase = AppTabScreenParamList
->(
-  options?: UseNavigationOptions<ParamList>
-) => {
-  const defaultNativeNavigation =
-    useNativeNavigation<
-      NativeStackNavigationProp<ContextualizedParamList<ParamList>>
-    >()
+export function useNavigation<
+  ParamList extends ParamListBase,
+  NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<ParamList>
+>(options?: UseNavigationOptions<NavigationProp>): NavigationProp
+export function useNavigation<
+  NavigationProp extends RNNavigationProp<any> = NativeStackNavigationProp<
+    ContextualizedParamList<AppTabScreenParamList>
+  >
+>(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
+  const defaultNativeNavigation = useNativeNavigation<NavigationProp>()
 
   const [lastNavAction, setLastNavAction] =
-    useState<PerformNavigationConfig<ParamList, keyof ParamList>>()
+    useState<PerformNavigationConfig<NavigationProp>>()
 
-  // Allow navigation to be performed
-  // without passing a `params` argument
-  const performNavigation = useCallback(
-    (method) =>
-      <RouteName extends keyof ParamList>(
-        ...config: PerformNavigationConfig<ParamList, RouteName>
-      ) => {
-        const [screen, params] = config
-        method(screen, params)
-      },
-    []
-  )
-  const nativeNavigation: NativeStackNavigationProp<
-    ContextualizedParamList<ParamList>
-  > = options?.customNavigation ?? defaultNativeNavigation
+  const nativeNavigation: NavigationProp =
+    options?.customNavigation ?? defaultNativeNavigation
 
   // Prevent duplicate pushes by de-duping
   // navigation actions
   const performCustomPush = useCallback(
-    (...config: PerformNavigationConfig<ParamList, keyof ParamList>) => {
+    (...config: PerformNavigationConfig<NavigationProp>) => {
       if (!isEqual(lastNavAction, config)) {
-        ;(nativeNavigation as any).push(...config)
+        ;(nativeNavigation as NativeStackNavigationProp<any>).push(...config)
         setLastNavAction(config)
         setTimeout(() => setLastNavAction(undefined), 500)
       }
@@ -71,20 +62,13 @@ export const useNavigation = <
   return useMemo(
     () => ({
       ...nativeNavigation,
-      navigate: performNavigation(nativeNavigation.navigate),
       push:
         'push' in nativeNavigation
           ? performCustomPush
           : () => {
               console.error('Push is not implemented for this navigator')
-            },
-      replace:
-        'replace' in nativeNavigation
-          ? performNavigation(nativeNavigation.replace)
-          : () => {
-              console.error('Replace is not implemented for this navigator')
             }
     }),
-    [nativeNavigation, performNavigation, performCustomPush]
+    [nativeNavigation, performCustomPush]
   )
 }

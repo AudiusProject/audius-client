@@ -29,3 +29,8 @@ export type Maybe<T> = T | undefined
  *
  */
 export type Brand<T, U extends string> = T & { _brand: U }
+
+type ParameterizedType<T> = T[]
+export type ExtractTypeParam<Type> = Type extends ParameterizedType<infer X>
+  ? X
+  : never
