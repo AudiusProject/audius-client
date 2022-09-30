@@ -1,5 +1,3 @@
-import { useCallback, useEffect } from 'react'
-
 import type { NativeSyntheticEvent } from 'react-native'
 import { Modal, View, Button } from 'react-native'
 import Config from 'react-native-config'
@@ -9,15 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { closePopup, setCredentials } from 'app/store/oauth/actions'
 import { Provider } from 'app/store/oauth/reducer'
-import {
-  getUrl,
-  getIsOpen,
-  getAuthProvider,
-  getTwitterInfo,
-  getTwitterError,
-  getInstagramInfo,
-  getInstagramError
-} from 'app/store/oauth/selectors'
+import { getUrl, getIsOpen, getAuthProvider } from 'app/store/oauth/selectors'
 import type { Credentials } from 'app/store/oauth/types'
 import { AUTH_RESPONSE_MESSAGE_TYPE } from 'app/store/oauth/types'
 
