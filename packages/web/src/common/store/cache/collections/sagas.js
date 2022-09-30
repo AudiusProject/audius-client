@@ -222,15 +222,6 @@ function* confirmCreatePlaylist(
             }
           ])
         )
-        // yield put(
-        //   cacheActions.remove(Kind.COLLECTIONS, [
-        //     {
-        //       id: uid,
-        //       uid: subscribedUid,
-        //       metadata: reformattedPlaylist
-        //     }
-        //   ])
-        // )
         const user = yield select(getUser, { id: userId })
         yield put(
           cacheActions.update(Kind.USERS, [
@@ -318,11 +309,6 @@ function* editPlaylistAsync(action) {
   )
 
   const playlist = { ...action.formFields }
-
-  // // For base64 images (coming from native), convert to a blob
-  // if (playlist.artwork?.type === 'base64') {
-  //   playlist.artwork.file = dataURLtoFile(playlist.artwork.file)
-  // }
 
   yield call(confirmEditPlaylist, action.playlistId, userId, playlist)
 
