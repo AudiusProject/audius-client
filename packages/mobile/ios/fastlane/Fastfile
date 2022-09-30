@@ -19,7 +19,7 @@ AUDIUSMUSIC_ID = "co.audius.audiusmusic"
 AUDIUSMUSIC_RELEASECANDIDATE_ID = "co.audius.audiusmusic.releasecandidate"
 AUDIUSSTAGING_ID = "co.audius.audiusmusic.bounce"
 AUDIUSMUSIC_PROFILE = "match AppStore co.audius.audiusmusic"
-AUDIUSMUSIC_RELEASECANDIDATE_PROFILE = "co.audius.audiusmusic.releasecandidate"
+AUDIUSMUSIC_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.releasecandidate"
 AUDIUSSTAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
 TEAM = "LRFCG93S85"
 
