@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import type { ExtractTypeParam } from '@audius/common'
 import type {
@@ -51,8 +51,7 @@ export function useNavigation<
 >(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
   const defaultNativeNavigation = useNativeNavigation<NavigationProp>()
 
-  const [lastNavAction, setLastNavAction] =
-    useState<PerformNavigationConfig<NavigationProp>>()
+  const lastNavAction = useRef<PerformNavigationConfig<NavigationProp>>()
 
   const nativeNavigation: NavigationProp =
     options?.customNavigation ?? defaultNativeNavigation
@@ -61,10 +60,12 @@ export function useNavigation<
   // navigation actions
   const performCustomPush = useCallback(
     (...config: PerformNavigationConfig<NavigationProp>) => {
-      if (!isEqual(lastNavAction, config)) {
+      if (!isEqual(lastNavAction.current, config)) {
         ;(nativeNavigation as NativeStackNavigationProp<any>).push(...config)
-        setLastNavAction(config)
-        setTimeout(() => setLastNavAction(undefined), 500)
+        lastNavAction.current = config
+        setTimeout(() => {
+          lastNavAction.current = undefined
+        }, 500)
       }
     },
     [nativeNavigation, lastNavAction]
