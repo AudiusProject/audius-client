@@ -108,9 +108,13 @@ const slice = createSlice({
     clearFeesCache: (state) => {
       state.feesCache = initialState.feesCache
     },
-    restart: (state) => {
+    startBuyAudioFlow: (
+      state,
+      action: PayloadAction<{ provider: OnRampProvider }>
+    ) => {
       state.stage = BuyAudioStage.START
       state.error = undefined
+      state.provider = action.payload.provider
     },
     onRampOpened: (state, _action: PayloadAction<PurchaseInfo>) => {
       state.stage = BuyAudioStage.PURCHASING
@@ -149,7 +153,7 @@ export const {
   cacheAssociatedTokenAccount,
   cacheTransactionFees,
   clearFeesCache,
-  restart,
+  startBuyAudioFlow,
   onRampOpened,
   onRampSucceeded,
   onRampCanceled,
