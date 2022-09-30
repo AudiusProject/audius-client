@@ -48,7 +48,6 @@ import { useThemeColors } from 'app/utils/theme'
 import type { SignOnStackParamList } from './types'
 
 const { getAccountUser } = accountSelectors
-const isAndroid = Platform.OS === 'android'
 const image = backgImage
 const windowWidth = Dimensions.get('window').width
 const defaultBorderColor = '#F2F2F4'
@@ -331,8 +330,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
   const [showInvalidEmailError, setShowInvalidEmailError] = useState(false)
   const [showEmptyPasswordError, setShowEmptyPasswordError] = useState(false)
   const [showDefaultError, setShowDefaultError] = useState(false)
-
-  const isKeyboardOpen = useSelector(getIsKeyboardOpen)
 
   const signOnStatus = useSelector(getStatus)
   const passwordField: EditableField = useSelector(getPasswordField)
