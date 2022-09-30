@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 // eslint-disable-next-line import/no-unresolved
 import type { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
@@ -6,10 +6,13 @@ import type {
   ParamListBase,
   StackNavigationState
 } from '@react-navigation/native'
-import { StackActions, CommonActions } from '@react-navigation/native'
+import {
+  useNavigation as useNativeNavigation,
+  StackActions,
+  CommonActions
+} from '@react-navigation/native'
 import { isEqual } from 'lodash'
 
-import { AppTabNavigationContext } from 'app/screens/app-screen'
 import type { AppTabScreenParamList } from 'app/screens/app-screen/AppTabScreen'
 
 export type ContextualParams = { fromNotifications?: boolean }
@@ -28,12 +31,9 @@ export const useNavigation = <
 >(
   options?: UseNavigationOptions
 ) => {
-  const { navigation: defaultNativeNavigation } = useContext(
-    AppTabNavigationContext
-  )
+  const nativeNavigation = useNativeNavigation()
 
-  const nativeNavigation =
-    options?.customNativeNavigation || defaultNativeNavigation
+  const navigation = options?.customNativeNavigation || nativeNavigation
 
   const performNavigation = useCallback(
     (method) =>
@@ -64,32 +64,32 @@ export const useNavigation = <
         return StackActions.push(screen as string, params)
       }
 
-      nativeNavigation.dispatch(customPushAction)
+      navigation.dispatch(customPushAction)
     },
-    [nativeNavigation]
+    [navigation]
   )
 
   return useMemo(
     () => ({
-      ...nativeNavigation,
-      navigate: performNavigation(nativeNavigation.navigate),
+      ...navigation,
+      navigate: performNavigation(navigation.navigate),
       push:
-        'push' in nativeNavigation
+        'push' in navigation
           ? performCustomPush
           : () => {
               console.error('Push is not implemented for this navigator')
             },
       replace:
-        'replace' in nativeNavigation
-          ? performNavigation(nativeNavigation.replace)
+        'replace' in navigation
+          ? performNavigation(navigation.replace)
           : () => {
               console.error('Replace is not implemented for this navigator')
             },
 
       // Notifying the web layer of the pop action
       // is handled in `createStackScreen`
-      goBack: nativeNavigation.goBack
+      goBack: navigation.goBack
     }),
-    [nativeNavigation, performNavigation, performCustomPush]
+    [navigation, performNavigation, performCustomPush]
   )
 }
