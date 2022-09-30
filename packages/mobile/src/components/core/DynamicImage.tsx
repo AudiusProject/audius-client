@@ -11,7 +11,6 @@ import type {
   ViewStyle
 } from 'react-native'
 import { Animated, Image, StyleSheet, View } from 'react-native'
-import { usePrevious } from 'react-use'
 
 import Skeleton from 'app/components/skeleton'
 import type { StylesProp } from 'app/styles'
