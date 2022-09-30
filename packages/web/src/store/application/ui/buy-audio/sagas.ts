@@ -918,7 +918,7 @@ function* doBuyAudio({
  *
  * This function checks for the above conditions sequentially, and pops the modal as necessary.
  */
-function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
+function* recoverPurchaseIfNecessary() {
   let didNeedRecovery = false
   try {
     // Setup
@@ -1049,7 +1049,7 @@ function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
       }
     }
     yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
-    if (openBuyAudioModalOnSuccess && didNeedRecovery) {
+    if (didNeedRecovery) {
       // If we don't reset state here, this shows the success screen :)
       yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
     }
@@ -1064,7 +1064,7 @@ function* recoverPurchaseIfNecessary(openBuyAudioModalOnSuccess?: boolean) {
 
 function* doStartBuyAudioFlow(action: ReturnType<typeof startBuyAudioFlow>) {
   yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
-  yield* call(recoverPurchaseIfNecessary, true)
+  yield* call(recoverPurchaseIfNecessary)
 }
 
 function* watchCalculateAudioPurchaseInfo() {
