@@ -18,7 +18,6 @@ import {
   Image,
   ImageBackground,
   Keyboard,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -41,7 +40,6 @@ import { remindUserToTurnOnNotifications } from 'app/components/notification-rem
 import useAppState from 'app/hooks/useAppState'
 import { screen, track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
-import { getIsKeyboardOpen } from 'app/store/keyboard/selectors'
 import { EventNames } from 'app/types/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
