@@ -77,14 +77,14 @@ export const ProfileScreen = () => {
   const navigation = useNavigation<ProfileTabScreenParamList>()
   const isNotReachable = useSelector(getIsReachable) === false
   const editStatus = useSelector((state) => getProfileEditStatus(state, handle))
+  const isOwner = profile?.user_id === accountId
 
   const fetchProfile = useCallback(() => {
-    // If we fetch when profile edit is being confirmed, we override
-    // optimistic writes
-    if (editStatus !== Status.LOADING) {
-      dispatch(fetchProfileAction(handle, null, true, true, false))
-    }
-  }, [dispatch, handle, editStatus])
+    // When profile edited is being still confirmed, prevent fetch call so we
+    // don't override the optimistic profile metadata.
+    if (isOwner && editStatus === Status.LOADING) return
+    dispatch(fetchProfileAction(handle, null, true, true, false))
+  }, [dispatch, handle, isOwner, editStatus])
 
   useFocusEffect(fetchProfile)
 
@@ -120,8 +120,6 @@ export const ProfileScreen = () => {
       )
     }
   }, [profile, dispatch])
-
-  const isOwner = profile?.user_id === accountId
 
   const topbarLeft = isOwner ? (
     <View style={styles.topBarIcons}>
