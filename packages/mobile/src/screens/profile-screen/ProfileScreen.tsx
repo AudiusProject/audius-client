@@ -34,9 +34,9 @@ import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { useSelectProfileRoot } from './selectors'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { fetchProfile: fetchProfileAction } = profilePageActions
-const { getProfileStatus } = profilePageSelectors
+const { getProfileStatus, getProfileEditStatus } = profilePageSelectors
 const { getIsReachable } = reachabilitySelectors
-const getUserId = accountSelectors.getUserId
+const { getUserId } = accountSelectors
 
 const useStyles = makeStyles(({ spacing }) => ({
   navigator: {
@@ -76,10 +76,15 @@ export const ProfileScreen = () => {
   const { neutralLight4, accentOrange } = useThemeColors()
   const navigation = useNavigation<ProfileTabScreenParamList>()
   const isNotReachable = useSelector(getIsReachable) === false
+  const editStatus = useSelector((state) => getProfileEditStatus(state, handle))
 
   const fetchProfile = useCallback(() => {
-    dispatch(fetchProfileAction(handle, null, true, true, false))
-  }, [dispatch, handle])
+    // If we fetch when profile edit is being confirmed, we override
+    // optimistic writes
+    if (editStatus !== Status.LOADING) {
+      dispatch(fetchProfileAction(handle, null, true, true, false))
+    }
+  }, [dispatch, handle, editStatus])
 
   useFocusEffect(fetchProfile)
 
