@@ -262,7 +262,6 @@ class Upload extends Component {
       this.state.stems
     )
     this.changePage(Pages.FINISH)
-    this.setState({ tracks })
   }
 
   reset = () => {
