@@ -61,13 +61,15 @@ function* fetchRepostInfo(entries) {
 }
 
 function* fetchSegment(metadata) {
+  if (metadata.is_premium && !metadata.premium_content_signature) return
+  if (!metadata.track_segments[0]) return
+  const cid = metadata.track_segments[0].multihash
+
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const user = yield call(waitForValue, getUser, { id: metadata.owner_id })
   const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
     user.creator_node_endpoint
   )
-  if (!metadata.track_segments[0]) return
-  const cid = metadata.track_segments[0].multihash
 
   yield call(waitForLibsInit)
   const web3Manager = libs().web3Manager

@@ -84,6 +84,7 @@ export function* watchPlay() {
       // Load and set end action.
       const track = yield* select(getTrack, { id: trackId })
       if (!track) return
+      if (track.is_premium && !track.premium_content_signature) return
 
       const owner = yield* select(getUser, {
         id: track.owner_id
