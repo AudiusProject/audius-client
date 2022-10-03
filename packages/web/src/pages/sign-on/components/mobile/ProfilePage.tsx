@@ -21,7 +21,6 @@ const GENERAL_ADMISSION = process.env.REACT_APP_GENERAL_ADMISSION || ''
 const messages = {
   header: 'Tell Us About Yourself So Others Can Find You'
 }
-console.log('remove this')
 type ProfilePageProps = {
   profileImage?: AccountImage
   twitterId: any
