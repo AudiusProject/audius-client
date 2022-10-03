@@ -4,7 +4,7 @@ import { Nullable } from './typeUtils'
 
 export async function getPremiumContentHeaders(
   premiumContentSignature: Nullable<PremiumContentSignature>,
-  signatureFn: (data: string) => Promise<string>
+  signatureFn: (data: string | Buffer) => Promise<string | undefined>
 ) {
   if (premiumContentSignature) {
     const {

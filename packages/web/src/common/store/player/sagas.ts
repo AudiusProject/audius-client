@@ -125,6 +125,7 @@ export function* watchPlay() {
             id: encodedTrackId,
             title: track.title,
             artist: owner?.name,
+            artwork: '',
             premiumContentHeaders
           },
           forceStreamMp3Url
@@ -169,7 +170,8 @@ export function* watchCollectiblePlay() {
               collectible.imageUrl ??
               collectible.frameUrl ??
               collectible.gifUrl ??
-              ''
+              '',
+            premiumContentHeaders: {}
           },
           collectible.animationUrl
         )
