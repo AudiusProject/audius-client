@@ -34,11 +34,7 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { dominantColor } from 'utils/imageProcessingUtil'
-
-// @ts-ignore
-const libs = () => window.audiusLibs
 
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
@@ -71,8 +67,8 @@ function* fetchSegment(metadata) {
     user.creator_node_endpoint
   )
 
-  yield call(waitForLibsInit)
-  const web3Manager = libs().web3Manager
+  const libs = yield call(audiusBackendInstance.getAudiusLibs)
+  const web3Manager = libs.web3Manager
   const premiumContentHeaders = yield call(
     getPremiumContentHeaders,
     metadata.premium_content_signature,

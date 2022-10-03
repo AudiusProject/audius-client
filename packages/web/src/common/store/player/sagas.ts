@@ -14,7 +14,6 @@ import {
   Nullable,
   getPremiumContentHeaders
 } from '@audius/common'
-import { AudiusLibs } from '@audius/sdk'
 import { eventChannel } from 'redux-saga'
 import {
   select,
@@ -26,12 +25,7 @@ import {
   delay
 } from 'typed-redux-saga'
 
-import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
-
 import errorSagas from './errorSagas'
-
-// @ts-ignore
-const libs = (): AudiusLibs => window.audiusLibs
 
 const {
   play,
@@ -102,8 +96,8 @@ export function* watchPlay() {
         ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
         : null
 
-      yield* call(waitForLibsInit)
-      const web3Manager = libs().web3Manager!
+      const libs = yield* call(audiusBackendInstance.getAudiusLibs)
+      const web3Manager = libs.web3Manager
       const premiumContentHeaders = yield* call(
         getPremiumContentHeaders,
         track.premium_content_signature,
