@@ -1,11 +1,11 @@
 import { FingerprintClient } from '@audius/common'
-import FingerprintJS from '@fingerprintjs/fingerprintjs-pro'
+import FingerprintJS, { Agent } from '@fingerprintjs/fingerprintjs-pro'
 
 const apiKey = process.env.REACT_APP_FINGERPRINT_PUBLIC_API_KEY || ''
 const endpoint = process.env.REACT_APP_FINGERPRINT_ENDPOINT || ''
 const identityService = process.env.REACT_APP_IDENTITY_SERVICE || ''
 
-export const fingerprintClient = new FingerprintClient({
+export const fingerprintClient = new FingerprintClient<Agent>({
   apiKey,
   endpoint,
   identityService,
@@ -16,6 +16,6 @@ export const fingerprintClient = new FingerprintClient({
     })
   },
   getFingerprint: (client, { tag, linkedId }) => {
-    return client.get(tag, linkedId)
+    return client.get({ tag, linkedId })
   }
 })

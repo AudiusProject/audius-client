@@ -1,25 +1,33 @@
-import type { Agent } from '@fingerprintjs/fingerprintjs-pro'
-
-type FingerprintClientConfig = {
+type FingerprintClientConfig<TFingerprintClient> = {
   apiKey: string
   endpoint: string
   identityService: string
-  initFingerprint: (apiKey: string, endpoint: string) => any
-  getFingerprint: (linkedId: string, tag: any) => any
+  initFingerprint: (
+    apiKey: string,
+    endpoint: string
+  ) => Promise<TFingerprintClient>
+  getFingerprint: (
+    client: TFingerprintClient,
+    options: { linkedId: string; tag: any }
+  ) => Promise<any>
 }
 
-export class FingerprintClient {
+export class FingerprintClient<TFingerprintClient> {
   private apiKey: string
-  private fingerprint: Agent | null
+  private fingerprint: TFingerprintClient | null
   private endpoint: string
   private identityService: string
-  private initFingerprint: (apiKey: string, endpoint: string) => any
+  private initFingerprint: (
+    apiKey: string,
+    endpoint: string
+  ) => Promise<TFingerprintClient>
+
   private getFingerprint: (
-    client: any,
+    client: TFingerprintClient,
     options: { linkedId: string; tag: any }
   ) => Promise<any>
 
-  constructor(config: FingerprintClientConfig) {
+  constructor(config: FingerprintClientConfig<TFingerprintClient>) {
     const {
       apiKey,
       endpoint,
