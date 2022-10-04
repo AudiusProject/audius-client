@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { setImmediate } from 'timers'
-
 import LottieView from 'lottie-react-native'
 import type {
   FlatList,
@@ -38,6 +36,13 @@ const interpolateTranslateY = (scrollAnim: Animated.Value) =>
     inputRange: [-24, 0],
     outputRange: [10, 0],
     extrapolateLeft: 'extend',
+    extrapolateRight: 'clamp'
+  })
+
+const interpolateHitTopOpacity = (scrollAnim: Animated.Value) =>
+  scrollAnim.interpolate({
+    inputRange: [-60, -16, 0],
+    outputRange: [1, 1, 0],
     extrapolateRight: 'clamp'
   })
 
@@ -121,14 +126,16 @@ export const useOverflowHandlers = ({
     [setIsMomentumScroll, scrollTo, isRefreshing]
   )
 
-  const handleScrolll = attachToScroll(scrollAnim, { listener: handleScroll })
+  const attachedHandleScroll = attachToScroll(scrollAnim, {
+    listener: handleScroll
+  })
 
   return {
-    isRefreshing: onRefresh ? isRefreshing : undefined,
+    isRefreshing: onRefresh ? Boolean(isRefreshing) : undefined,
     isRefreshDisabled: isMomentumScroll,
     handleRefresh: onRefresh,
     scrollAnim,
-    handleScroll: handleScrolll,
+    handleScroll: attachedHandleScroll,
     onScrollBeginDrag,
     onScrollEndDrag
   }
@@ -186,7 +193,6 @@ export const PullToRefresh = ({
   const hitTop = useRef(false)
 
   const [shouldShowSpinner, setShouldShowSpinner] = useState(false)
-  const [shouldShowRefresh, setShouldShowRefresh] = useState(true)
   const animationRef = useRef<LottieView | null>()
 
   const icon = shouldShowSpinner ? IconRefreshSpin : IconRefreshPull
@@ -221,10 +227,7 @@ export const PullToRefresh = ({
     if (!isRefreshing && isRefreshDisabled) {
       hitTop.current = false
       setDidHitTop(false)
-      // Reset animation after a timeout so there's enough time
-      // to reset the scroll with the spinner animation showing.
       setShouldShowSpinner(false)
-      setShouldShowRefresh(true)
       animationRef.current?.reset()
     }
   }, [isRefreshing, hitTop, isRefreshDisabled])
@@ -245,13 +248,6 @@ export const PullToRefresh = ({
           onRefresh?.()
           animationRef.current?.play()
         }
-        if (value > 0 && didHitTop) {
-          setShouldShowRefresh(false)
-        }
-
-        if (value < -20 && didHitTop) {
-          setShouldShowRefresh(true)
-        }
       }
     )
     return () => {
@@ -261,7 +257,7 @@ export const PullToRefresh = ({
     }
   }, [scrollAnim, onRefresh, isRefreshDisabled, didHitTop])
 
-  return scrollAnim && shouldShowRefresh ? (
+  return scrollAnim ? (
     <Animated.View
       style={[
         styles.root,
@@ -271,7 +267,9 @@ export const PullToRefresh = ({
               translateY: interpolateTranslateY(scrollAnim)
             }
           ],
-          opacity: didHitTop ? 1 : interpolateOpacity(scrollAnim)
+          opacity: didHitTop
+            ? interpolateHitTopOpacity(scrollAnim)
+            : interpolateOpacity(scrollAnim)
         }
       ]}
     >
