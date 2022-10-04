@@ -309,6 +309,7 @@ const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
           twitterInfo.profile,
           twitterInfo.profile.profile_image_url_https
             ? {
+                // Replace twitter's returned image (which may vary) with the hd one
                 uri: twitterInfo.profile.profile_image_url_https.replace(
                   /_(normal|bigger|mini)/g,
                   ''
