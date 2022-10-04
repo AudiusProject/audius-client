@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { setImmediate } from 'timers'
+
 import LottieView from 'lottie-react-native'
 import type {
   FlatList,
@@ -19,7 +21,7 @@ import { colorize } from 'app/utils/colorizeLottie'
 import { useThemeColors } from 'app/utils/theme'
 
 const PULL_DISTANCE = 75
-const DEBOUNCE_TIME_MS = 1000
+const DEBOUNCE_TIME_MS = 0
 
 const useStyles = makeStyles((_, topOffset: number) => ({
   root: {
@@ -66,17 +68,8 @@ export const useOverflowHandlers = ({
   const scrollAnim = useRef(new Animated.Value(0)).current
 
   const [isMomentumScroll, setIsMomentumScroll] = useState(false)
-  const [isDebouncing, setIsDebouncing] = useState(false)
   const currentYOffset = useRef(0)
   const wasRefreshing = usePrevious(isRefreshing)
-
-  const handleRefresh = useCallback(() => {
-    onRefresh?.()
-    setIsDebouncing(true)
-    setTimeout(() => {
-      setIsDebouncing(false)
-    }, DEBOUNCE_TIME_MS)
-  }, [onRefresh])
 
   const scrollTo = useCallback(
     (y: number, animated = true) => {
@@ -91,22 +84,19 @@ export const useOverflowHandlers = ({
   )
 
   useEffect(() => {
-    console.log('currentYOffset', currentYOffset.current)
-    if (
-      !isRefreshing &&
-      wasRefreshing &&
-      // !isDebouncing &&
-      isMomentumScroll &&
-      currentYOffset.current <= -50
-    ) {
-      scrollTo(0)
+    if (!isRefreshing && wasRefreshing && isMomentumScroll) {
+      // If we don't wait, then this triggers too quickly causing scrollToTop
+      // when user is already engaging with content
+      const timeout = setTimeout(() => {
+        if (currentYOffset.current < 0) scrollTo(0)
+      }, DEBOUNCE_TIME_MS)
+      return () => clearTimeout(timeout)
     }
-  }, [isRefreshing, wasRefreshing, isDebouncing, scrollTo, isMomentumScroll])
+  }, [isRefreshing, wasRefreshing, scrollTo, isMomentumScroll])
 
   const handleScroll = useCallback(
     (e) => {
       currentYOffset.current = e.nativeEvent.contentOffset.y
-      console.log('handle scroll', e.nativeEvent.contentOffset)
       onScroll?.(e)
     },
     [onScroll]
@@ -115,7 +105,6 @@ export const useOverflowHandlers = ({
   const onScrollBeginDrag = useCallback(
     (e) => {
       currentYOffset.current = e.nativeEvent.contentOffset.y
-      console.log('handle begin drag', e.nativeEvent.contentOffset)
       setIsMomentumScroll(false)
     },
     [setIsMomentumScroll]
@@ -124,10 +113,9 @@ export const useOverflowHandlers = ({
   const onScrollEndDrag = useCallback(
     (e) => {
       currentYOffset.current = e.nativeEvent.contentOffset.y
-      console.log('handle end drag', e.nativeEvent.contentOffset)
       setIsMomentumScroll(true)
-      if (isRefreshing && currentYOffset.current < -50) {
-        scrollTo(-50, false)
+      if (isRefreshing && currentYOffset.current <= 0) {
+        scrollTo(-50)
       }
     },
     [setIsMomentumScroll, scrollTo, isRefreshing]
@@ -136,9 +124,9 @@ export const useOverflowHandlers = ({
   const handleScrolll = attachToScroll(scrollAnim, { listener: handleScroll })
 
   return {
-    isRefreshing: onRefresh ? isRefreshing || isDebouncing : undefined,
+    isRefreshing: onRefresh ? isRefreshing : undefined,
     isRefreshDisabled: isMomentumScroll,
-    handleRefresh: onRefresh ? handleRefresh : undefined,
+    handleRefresh: onRefresh,
     scrollAnim,
     handleScroll: handleScrolll,
     onScrollBeginDrag,
@@ -259,6 +247,10 @@ export const PullToRefresh = ({
         }
         if (value > 0 && didHitTop) {
           setShouldShowRefresh(false)
+        }
+
+        if (value < -20 && didHitTop) {
+          setShouldShowRefresh(true)
         }
       }
     )
