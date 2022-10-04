@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { useToggle } from 'react-use'
 
 import { Divider } from 'app/components/core'
-import { HideIfOffline } from 'app/components/offline-placeholder/HideIfOffline'
+import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { makeStyles } from 'app/styles'
 
 import { ArtistRecommendations } from '../ArtistRecommendations'
@@ -116,7 +116,7 @@ export const ProfileHeader = memo((props: ProfileHeaderProps) => {
       <ProfilePicture style={styles.profilePicture} />
       <View pointerEvents='box-none' style={styles.header}>
         <ProfileInfo onFollow={handleFollow} />
-        <HideIfOffline>
+        <OnlineOnly>
           <ProfileMetrics />
           {isExpanded ? (
             <ExpandedSection />
@@ -138,7 +138,7 @@ export const ProfileHeader = memo((props: ProfileHeaderProps) => {
           )}
           {isOwner ? <UploadTrackButton /> : <TipAudioButton />}
           <TopSupporters />
-        </HideIfOffline>
+        </OnlineOnly>
         <Divider style={styles.bottomDivider} />
       </View>
     </>

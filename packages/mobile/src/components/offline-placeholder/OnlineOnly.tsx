@@ -5,11 +5,11 @@ import { useSelector } from 'react-redux'
 
 const { getIsReachable } = reachabilitySelectors
 
-export type HideIfOfflineProps = {
+export type OnlineOnlyProps = {
   children: ReactNode
 }
 
-export const HideIfOffline = ({ children }: HideIfOfflineProps) => {
+export const OnlineOnly = ({ children }: OnlineOnlyProps) => {
   const isReachable = useSelector(getIsReachable)
   return <>{isReachable ? children : null}</>
 }
