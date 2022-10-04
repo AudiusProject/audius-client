@@ -46,16 +46,16 @@ export const useNavigation = <
   return useMemo(
     () => ({
       ...nativeNavigation,
-      navigate: performNavigation(nativeNavigation.navigate),
+      navigate: performNavigation(nativeNavigation.navigate)!,
       push:
         'push' in nativeNavigation
-          ? performNavigation(nativeNavigation.push)
+          ? performNavigation!(nativeNavigation.push)!
           : () => {
               console.error('Push is not implemented for this navigator')
             },
       replace:
         'replace' in nativeNavigation
-          ? performNavigation(nativeNavigation.replace)
+          ? performNavigation(nativeNavigation.replace)!
           : () => {
               console.error('Replace is not implemented for this navigator')
             },
