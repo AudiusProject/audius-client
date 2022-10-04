@@ -142,9 +142,14 @@ function* fetchLineupMetadatasAsync(
         yield delay(100)
       }
 
+      // TODO: await reachability (race vs timeout?)
       const lineupMetadatasResponse = yield call(lineupMetadatasCall, action)
+      console.log(`metadatasResponse: ${lineupMetadatasResponse}`)
 
-      if (lineupMetadatasResponse === null) return
+      if (lineupMetadatasResponse === null) {
+        yield put(lineupActions.fetchLineupMetadatasFailed())
+        return
+      }
       const lineup = yield select((state) =>
         lineupSelector(state, action.handle?.toLowerCase())
       )

@@ -20,6 +20,7 @@ import {
   TrackTile,
   LineupTileSkeleton
 } from 'app/components/lineup-tile'
+import { useBecomeReachable } from 'app/hooks/useReachability'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 import { make, track } from 'app/services/analytics'
 
@@ -213,7 +214,7 @@ export const Lineup = ({
 
     const shouldLoadMore =
       // Lineup has more items to load
-      hasMore &&
+      (hasMore || (!hasMore && pageItemCount === 0)) &&
       // Number of loaded items does not exceed max count
       lineupLength < countOrDefault &&
       // Page item count doesn't exceed current offset
@@ -268,11 +269,15 @@ export const Lineup = ({
     }
   }, [isPastLoadThreshold, status, handleLoadMore])
 
-  useEffect(() => {
+  const performSelfLoad = useCallback(() => {
     if (selfLoad && lineupLength === 0 && status !== Status.LOADING) {
       handleLoadMore()
     }
   }, [handleLoadMore, selfLoad, lineupLength, status])
+
+  useEffect(performSelfLoad, [performSelfLoad])
+
+  useBecomeReachable(performSelfLoad)
 
   const togglePlay = useCallback(
     ({ uid, id, source, isPlayingUid, isPlaying }: TogglePlayConfig) => {
