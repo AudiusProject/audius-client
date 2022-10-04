@@ -19,17 +19,17 @@ import { colorize } from 'app/utils/colorizeLottie'
 import { useThemeColors } from 'app/utils/theme'
 
 const PULL_DISTANCE = 75
+const DEBOUNCE_TIME_MS = 1000
 
-const useStyles = (topOffset: number) =>
-  makeStyles(() => ({
-    root: {
-      width: '100%',
-      position: 'absolute',
-      height: 20,
-      top: topOffset,
-      zIndex: 10
-    }
-  }))
+const useStyles = makeStyles((_, topOffset: number) => ({
+  root: {
+    width: '100%',
+    position: 'absolute',
+    height: 20,
+    top: topOffset,
+    zIndex: 10
+  }
+}))
 
 const interpolateTranslateY = (scrollAnim: Animated.Value) =>
   scrollAnim.interpolate({
@@ -66,46 +66,81 @@ export const useOverflowHandlers = ({
   const scrollAnim = useRef(new Animated.Value(0)).current
 
   const [isMomentumScroll, setIsMomentumScroll] = useState(false)
-
+  const [isDebouncing, setIsDebouncing] = useState(false)
+  const currentYOffset = useRef(0)
   const wasRefreshing = usePrevious(isRefreshing)
 
+  const handleRefresh = useCallback(() => {
+    onRefresh?.()
+    setIsDebouncing(true)
+    setTimeout(() => {
+      setIsDebouncing(false)
+    }, DEBOUNCE_TIME_MS)
+  }, [onRefresh])
+
   const scrollTo = useCallback(
-    (y: number) => {
+    (y: number, animated = true) => {
       if (scrollResponder && 'scrollTo' in scrollResponder) {
-        scrollResponder?.scrollTo({ y, animated: true })
+        scrollResponder?.scrollTo({ y, animated })
       }
       if (scrollResponder && 'scrollToOffset' in scrollResponder) {
-        scrollResponder?.scrollToOffset({ offset: y, animated: true })
+        scrollResponder?.scrollToOffset({ offset: y })
       }
     },
     [scrollResponder]
   )
 
   useEffect(() => {
-    if (!isRefreshing && wasRefreshing) {
+    console.log('currentYOffset', currentYOffset.current)
+    if (
+      !isRefreshing &&
+      wasRefreshing &&
+      // !isDebouncing &&
+      isMomentumScroll &&
+      currentYOffset.current <= -50
+    ) {
       scrollTo(0)
     }
-  }, [isRefreshing, wasRefreshing, scrollTo])
+  }, [isRefreshing, wasRefreshing, isDebouncing, scrollTo, isMomentumScroll])
 
-  const onScrollBeginDrag = useCallback(() => {
-    setIsMomentumScroll(false)
-  }, [setIsMomentumScroll])
+  const handleScroll = useCallback(
+    (e) => {
+      currentYOffset.current = e.nativeEvent.contentOffset.y
+      console.log('handle scroll', e.nativeEvent.contentOffset)
+      onScroll?.(e)
+    },
+    [onScroll]
+  )
 
-  const onScrollEndDrag = useCallback(() => {
-    setIsMomentumScroll(true)
-    if (isRefreshing) {
-      scrollTo(-50)
-    }
-  }, [setIsMomentumScroll, scrollTo, isRefreshing])
+  const onScrollBeginDrag = useCallback(
+    (e) => {
+      currentYOffset.current = e.nativeEvent.contentOffset.y
+      console.log('handle begin drag', e.nativeEvent.contentOffset)
+      setIsMomentumScroll(false)
+    },
+    [setIsMomentumScroll]
+  )
 
-  const handleScroll = attachToScroll(scrollAnim, { listener: onScroll })
+  const onScrollEndDrag = useCallback(
+    (e) => {
+      currentYOffset.current = e.nativeEvent.contentOffset.y
+      console.log('handle end drag', e.nativeEvent.contentOffset)
+      setIsMomentumScroll(true)
+      if (isRefreshing && currentYOffset.current < -50) {
+        scrollTo(-50, false)
+      }
+    },
+    [setIsMomentumScroll, scrollTo, isRefreshing]
+  )
+
+  const handleScrolll = attachToScroll(scrollAnim, { listener: handleScroll })
 
   return {
-    isRefreshing: onRefresh ? Boolean(isRefreshing) : undefined,
+    isRefreshing: onRefresh ? isRefreshing || isDebouncing : undefined,
     isRefreshDisabled: isMomentumScroll,
-    handleRefresh: onRefresh,
+    handleRefresh: onRefresh ? handleRefresh : undefined,
     scrollAnim,
-    handleScroll,
+    handleScroll: handleScrolll,
     onScrollBeginDrag,
     onScrollEndDrag
   }
@@ -156,13 +191,14 @@ export const PullToRefresh = ({
   topOffset = 0,
   color
 }: PullToRefreshProps) => {
-  const styles = useStyles(topOffset)()
+  const styles = useStyles(topOffset)
   const { neutralLight4 } = useThemeColors()
 
   const [didHitTop, setDidHitTop] = useState(false)
   const hitTop = useRef(false)
 
   const [shouldShowSpinner, setShouldShowSpinner] = useState(false)
+  const [shouldShowRefresh, setShouldShowRefresh] = useState(true)
   const animationRef = useRef<LottieView | null>()
 
   const icon = shouldShowSpinner ? IconRefreshSpin : IconRefreshPull
@@ -194,13 +230,16 @@ export const PullToRefresh = ({
   )
 
   useEffect(() => {
-    if (!isRefreshing) {
+    if (!isRefreshing && isRefreshDisabled) {
       hitTop.current = false
       setDidHitTop(false)
+      // Reset animation after a timeout so there's enough time
+      // to reset the scroll with the spinner animation showing.
       setShouldShowSpinner(false)
+      setShouldShowRefresh(true)
       animationRef.current?.reset()
     }
-  }, [isRefreshing, hitTop])
+  }, [isRefreshing, hitTop, isRefreshDisabled])
 
   const listenerRef = useRef<string>()
 
@@ -218,6 +257,9 @@ export const PullToRefresh = ({
           onRefresh?.()
           animationRef.current?.play()
         }
+        if (value > 0 && didHitTop) {
+          setShouldShowRefresh(false)
+        }
       }
     )
     return () => {
@@ -225,9 +267,9 @@ export const PullToRefresh = ({
         scrollAnim?.removeListener(listenerRef.current)
       }
     }
-  }, [scrollAnim, onRefresh, isRefreshDisabled])
+  }, [scrollAnim, onRefresh, isRefreshDisabled, didHitTop])
 
-  return scrollAnim ? (
+  return scrollAnim && shouldShowRefresh ? (
     <Animated.View
       style={[
         styles.root,
