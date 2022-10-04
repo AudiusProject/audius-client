@@ -46,8 +46,6 @@ export const SearchBar = () => {
 
   useEffect(() => {
     if (query !== searchResultQuery && searchResultQuery !== '') {
-      console.log('neq')
-      console.log(searchResultQuery, query)
       handleChangeText(query)
     }
   }, [searchResultQuery, query, handleChangeText])
