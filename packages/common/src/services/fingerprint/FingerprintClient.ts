@@ -1,9 +1,11 @@
-import FingerprintJS, { Agent } from '@fingerprintjs/fingerprintjs-pro'
+import type { Agent } from '@fingerprintjs/fingerprintjs-pro'
 
 type FingerprintClientConfig = {
   apiKey: string
   endpoint: string
   identityService: string
+  initFingerprint: (apiKey: string, endpoint: string) => any
+  getFingerprint: (linkedId: string, tag: any) => any
 }
 
 export class FingerprintClient {
@@ -11,22 +13,32 @@ export class FingerprintClient {
   private fingerprint: Agent | null
   private endpoint: string
   private identityService: string
+  private initFingerprint: (apiKey: string, endpoint: string) => any
+  private getFingerprint: (
+    client: any,
+    options: { linkedId: string; tag: any }
+  ) => Promise<any>
 
   constructor(config: FingerprintClientConfig) {
-    const { apiKey, endpoint, identityService } = config
+    const {
+      apiKey,
+      endpoint,
+      identityService,
+      initFingerprint,
+      getFingerprint
+    } = config
     this.apiKey = apiKey
     this.fingerprint = null
     this.endpoint = endpoint
     this.identityService = identityService
+    this.initFingerprint = initFingerprint
+    this.getFingerprint = getFingerprint
   }
 
   async init() {
     console.log('Initializing Fingerprint client')
     try {
-      const fp = await FingerprintJS.load({
-        apiKey: this.apiKey,
-        endpoint: this.endpoint
-      })
+      const fp = await this.initFingerprint(this.apiKey, this.endpoint)
       console.log(`Fingerprint loaded`)
       this.fingerprint = fp
     } catch (e) {
@@ -59,7 +71,7 @@ export class FingerprintClient {
       }
 
       // If we haven't, fingerprint 'em
-      await this.fingerprint.get({
+      await this.getFingerprint(this.fingerprint, {
         linkedId: userId.toString(),
         tag: { origin: clientOrigin }
       })

@@ -16,6 +16,7 @@ PODS:
     - React-Core (= 0.66.3)
     - React-jsi (= 0.66.3)
     - ReactCommon/turbomodule/core (= 0.66.3)
+  - FingerprintJSPro (1.1.0)
   - Firebase/Analytics (8.12.1):
     - Firebase/Core
   - Firebase/Core (8.12.1):
@@ -523,6 +524,9 @@ PODS:
     - Firebase/Crashlytics (= 8.12.1)
     - React-Core
     - RNFBApp
+  - RNFingerprintjsPro (1.0.4):
+    - FingerprintJSPro (~> 1.1.0)
+    - React-Core
   - RNFS (2.18.0):
     - React
   - RNGestureHandler (1.10.3):
@@ -634,6 +638,7 @@ DEPENDENCIES:
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
+  - "RNFingerprintjsPro (from `../node_modules/@fingerprintjs/fingerprintjs-pro-react-native`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -650,6 +655,7 @@ SPEC REPOS:
   trunk:
     - Amplitude
     - CocoaAsyncSocket
+    - FingerprintJSPro
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -796,6 +802,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBCrashlytics:
     :path: "../node_modules/@react-native-firebase/crashlytics"
+  RNFingerprintjsPro:
+    :path: "../node_modules/@fingerprintjs/fingerprintjs-pro-react-native"
   RNFS:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
@@ -828,6 +836,7 @@ SPEC CHECKSUMS:
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   FBLazyVector: de148e8310b8b878db304ceea2fec13f2c02e3a0
   FBReactNativeSpec: 6192956c9e346013d5f1809ba049af720b11c6a4
+  FingerprintJSPro: dbca8dd6123271518f61bbc19a19723d88df79c6
   Firebase: 580d09e8edafc3073ebf09c03fd42e4d80d35fe9
   FirebaseAnalytics: bd10d7706ba8d6e01ea2816f8fe9e9b881cb0918
   FirebaseCore: 8138de860a90ca7eec5e324da5788fb0ebf1d93c
@@ -906,6 +915,7 @@ SPEC CHECKSUMS:
   RNFBAnalytics: 74cd9c60531ed33e5347b2dccafa172ae1a851a4
   RNFBApp: 5bae3002117e55f3c9aa0fb38175dd16c8046c90
   RNFBCrashlytics: 33615211c6c6c4039ae71849091f6ac38ab65aba
+  RNFingerprintjsPro: f15244933cd2eab83d3b9767cf432869383d44c0
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
