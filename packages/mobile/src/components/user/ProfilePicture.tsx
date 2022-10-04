@@ -20,7 +20,7 @@ const useStyles = makeStyles(({ palette }) => ({
 }))
 
 export type ProfilePictureProps = Partial<DynamicImageProps> & {
-  profile: Nullable<Pick<User, 'user_id' | '_profile_picture_sizes'>>
+  profile: Nullable<Pick<User, 'user_id' | '_profile_picture_sizes' | 'handle'>>
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
