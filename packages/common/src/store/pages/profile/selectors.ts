@@ -22,6 +22,16 @@ const emptyList: any[] = []
 // Profile selectors
 export const getProfileStatus = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.status ?? Status.IDLE
+export const getProfileEditStatus = (state: CommonState, handle?: string) => {
+  const profile = getProfile(state, handle)
+  if (!profile) return Status.IDLE
+  const { updating, updateError, updateSuccess } = profile
+  if (!updating && !updateError && !updateSuccess) return Status.IDLE
+  if (updating) return Status.LOADING
+  if (!updating && updateSuccess) return Status.SUCCESS
+  if (!updating && updateError) return Status.ERROR
+  return Status.IDLE
+}
 export const getProfileError = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.error
 export const getProfileUserId = (state: CommonState, handle?: string) =>
@@ -75,7 +85,7 @@ export const getProfileCollections = createDeepEqualSelector(
       .filter((collection) => {
         if (collection) {
           const { is_delete, _marked_deleted, _moved } = collection
-          return !(is_delete || _marked_deleted) || _moved
+          return !(is_delete || _marked_deleted || _moved)
         }
         return false
       })
@@ -145,10 +155,10 @@ export const makeGetProfile = () => {
       // Filter out anything marked deleted on backend (is_delete) or locally (_marked_deleted)
       // Or locally moved playlists (_moved)
       let playlists = c.filter(
-        (c) => (!c.is_album && !(c.is_delete || c._marked_deleted)) || c._moved
+        (c) => !c.is_album && !(c.is_delete || c._marked_deleted) && !c._moved
       )
       let albums = c.filter(
-        (c) => (c.is_album && !(c.is_delete || c._marked_deleted)) || c._moved
+        (c) => c.is_album && !(c.is_delete || c._marked_deleted) && !c._moved
       )
 
       if (sortMode === CollectionSortMode.SAVE_COUNT) {

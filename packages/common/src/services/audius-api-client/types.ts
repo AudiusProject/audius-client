@@ -11,7 +11,10 @@ import {
   SolanaWalletAddress,
   WalletAddress,
   Supporter,
-  Supporting
+  Supporting,
+  UserTip,
+  PremiumConditions,
+  PremiumContentSignature
 } from 'models'
 import { Nullable } from 'utils'
 
@@ -127,6 +130,9 @@ export type APITrack = {
   play_count: number
   permalink: string
   is_available: boolean
+  is_premium: boolean
+  premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
 }
 
 export type APISearchTrack = Omit<
@@ -237,4 +243,11 @@ export type SupportingResponse = Omit<Supporting, 'receiver_id'> & {
 }
 export type SupporterResponse = Omit<Supporter, 'sender_id'> & {
   sender: APIUser
+}
+
+type UserTipOmitIds = 'sender_id' | 'receiver_id' | 'followee_supporter_ids'
+export type GetTipsResponse = Omit<UserTip, UserTipOmitIds> & {
+  sender: APIUser
+  receiver: APIUser
+  followee_supporters: APIUser[]
 }

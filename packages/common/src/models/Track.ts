@@ -49,6 +49,16 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
+export type PremiumConditions = {
+  nft_collection?: string
+  follow_user_id?: number
+}
+
+export type PremiumContentSignature = {
+  data: string
+  signature: string
+}
+
 export type TrackMetadata = {
   blocknumber: number
   activity_timestamp?: string
@@ -79,6 +89,9 @@ export type TrackMetadata = {
   cover_art_sizes: Nullable<CID>
   is_unlisted: boolean
   is_available: boolean
+  is_premium: boolean
+  premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
   field_visibility?: FieldVisibility
   listenCount?: number
   permalink: string
@@ -94,7 +107,16 @@ export type TrackMetadata = {
   // Added fields
   dateListened?: string
   duration: number
+
+  offline?: OfflineTrackMetadata
 } & Timestamped
+
+// This is available on mobile for offline tracks
+export type OfflineTrackMetadata = {
+  downloaded_from_collection: string[]
+  download_completed_time: EpochTimeStamp
+  last_verified_time: EpochTimeStamp
+}
 
 export type Stem = {
   track_id: ID
