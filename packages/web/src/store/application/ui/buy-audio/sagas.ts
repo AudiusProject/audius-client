@@ -995,7 +995,7 @@ function* recoverPurchaseIfNecessary() {
       yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
       didNeedRecovery = true
 
-      const { audioSwappedSpl } = yield* swapStep({
+      const { audioSwappedSpl } = yield* call(swapStep, {
         exchangeAmount: exchangableBalance,
         desiredAudioAmount: localStorageState.desiredAudioAmount,
         rootAccount,
@@ -1003,7 +1003,7 @@ function* recoverPurchaseIfNecessary() {
         maxRetryCount,
         retryDelayMs
       })
-      yield* transferStep({
+      yield* call(transferStep, {
         transferAmount: audioSwappedSpl,
         rootAccount,
         transactionHandler,
@@ -1028,7 +1028,7 @@ function* recoverPurchaseIfNecessary() {
         yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
         didNeedRecovery = true
 
-        yield* transferStep({
+        yield* call(transferStep, {
           transferAmount: audioBalance,
           rootAccount,
           transactionHandler,
