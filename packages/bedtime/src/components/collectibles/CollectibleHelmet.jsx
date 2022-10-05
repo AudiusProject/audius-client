@@ -1,5 +1,6 @@
 import { h } from "preact";
 import { Helmet } from "react-helmet";
+import { getAudiusHostname } from "../../util/getEnv";
 import { getHash } from "./collectibleHelpers";
 
 const CollectibleHelmet = ({ collectiblesInfo }) => {
@@ -10,7 +11,8 @@ const CollectibleHelmet = ({ collectiblesInfo }) => {
   const { collectible, user } = collectiblesInfo
   const title = `${collectible.name ? `${collectible.name} • ` : ''}NFT COLLECTIBLES • Audius`
   const description = collectible.description || (collectible.name ? `Check out ${collectible.name} on Audius · NFT COLLECTIBLES` : 'Check out NFT collectibles on Audius')
-  const url = `https://audius.co/${user.handle}/collectibles/${getHash(collectible.id)}`
+  const hostname = getAudiusHostname()
+  const url = `https://${hostname}/${user.handle}/collectibles/${getHash(collectible.id)}`
   let type 
   switch (collectible.mediaType) {
     case 'IMAGE':

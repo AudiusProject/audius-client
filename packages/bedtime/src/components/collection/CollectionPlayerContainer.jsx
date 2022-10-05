@@ -10,6 +10,7 @@ import { PlayingState } from '../playbutton/PlayButton'
 import { isMobile } from '../../util/isMobile'
 import { PlayerFlavor } from '../app'
 import { formatGateways } from '../../util/gatewayUtil'
+import CollectionHelmet from './CollectionHelmet'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -103,6 +104,10 @@ const CollectionPlayerContainer = ({
   if (flavor === PlayerFlavor.TINY) return null
 
   return (
+    <>
+      <CollectionHelmet
+        collectoin={collection}
+      />
     <CollectionPlayerCard
       activeTrackIndex={activeTrackIndex}
       backgroundColor={backgroundColor}
@@ -116,6 +121,7 @@ const CollectionPlayerContainer = ({
       seekTo={seekTo}
       isTwitter={isTwitter}
     />
+    </>
   )
 }
 

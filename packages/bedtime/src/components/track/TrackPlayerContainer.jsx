@@ -7,6 +7,7 @@ import TrackPlayerTiny from './TrackPlayerTiny'
 import usePlayback from '../../hooks/usePlayback'
 import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
+import TrackHelmet from './TrackHelmet'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
@@ -120,26 +121,34 @@ const TrackPlayerContainer = ({
     did404
   }
 
+  let trackPlayer
   if (flavor === PlayerFlavor.COMPACT) {
-    return (
+    trackPlayer = (
       <TrackPlayerCompact
         {...props}
       />
     )
   }
-
-  if (flavor === PlayerFlavor.TINY) {
-    return (
+  else if (flavor === PlayerFlavor.TINY) {
+    trackPlayer = (
       <TrackPlayerTiny
         {...props}
       />
     )
   }
-
+  else {
+    trackPlayer = (
+      <TrackPlayerCard
+        {...props}
+      />
+    )
+  }
+  console.log('in track palyer container')
   return (
-    <TrackPlayerCard
-      {...props}
-    />
+    <>
+      <TrackHelmet track={track} />
+      {trackPlayer}
+    </>
   )
 }
 
