@@ -44,7 +44,7 @@ export function* waitForBackendSetup() {
   }
 }
 
-function* awaitReachability() {
+export function* awaitReachability() {
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
   if (isReachable || !isNativeMobile) return true
@@ -56,16 +56,6 @@ function* awaitReachability() {
 }
 
 export function* setupBackend() {
-  const establishedReachability = yield* call(awaitReachability)
-  // If we couldn't connect, show the error page
-  // and just sit here waiting for reachability.
-  if (!establishedReachability) {
-    console.error('No internet connectivity')
-    yield* put(accountActions.fetchAccountNoInternet())
-    yield* take(reachabilityActions.SET_REACHABLE)
-    console.info('Reconnected')
-  }
-
   const apiClient = yield* getContext('apiClient')
   const fingerprintClient = yield* getContext('fingerprintClient')
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')

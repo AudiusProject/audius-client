@@ -4,9 +4,11 @@ import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { setupBackend } from 'audius-client/src/common/store/backend/actions'
+import { getIsSetup } from 'audius-client/src/common/store/backend/selectors'
 import { useDispatch, useSelector } from 'react-redux'
 
 import useAppState from 'app/hooks/useAppState'
+import { useBecomeReachable } from 'app/hooks/useReachability'
 import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { SignOnScreen } from 'app/screens/signon'
@@ -42,6 +44,7 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   const accountStatus = useSelector(getAccountStatus)
   const [isInitting, setIsInittng] = useState(true)
   const { updateRequired } = useUpdateRequired()
+  const isBackendSetup = useSelector(getIsSetup)
 
   useEffect(() => {
     // Setup the backend when ready
@@ -60,6 +63,10 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
       setIsInittng(false)
     }
   }, [accountStatus])
+
+  useBecomeReachable(() => {
+    if (isReadyToSetupBackend && !isBackendSetup) dispatch(setupBackend())
+  })
 
   return (
     <>
