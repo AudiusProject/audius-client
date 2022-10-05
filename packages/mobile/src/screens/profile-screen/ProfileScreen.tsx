@@ -106,15 +106,6 @@ export const ProfileScreen = () => {
     }
   }, [status])
 
-  // Record screen view
-  useEffect(() => {
-    if (handle) {
-      screen({
-        route: `/${encodeUrlName(handle)}`
-      })
-    }
-  }, [handle])
-
   const handlePressSettings = useCallback(() => {
     navigation.push('SettingsScreen')
   }, [navigation])
@@ -168,7 +159,11 @@ export const ProfileScreen = () => {
   )
 
   return (
-    <Screen topbarLeft={topbarLeft} topbarRight={topbarRight}>
+    <Screen
+      topbarLeft={topbarLeft}
+      topbarRight={topbarRight}
+      url={handle && `/${encodeUrlName(handle)}`}
+    >
       {!profile ? (
         <ProfileScreenSkeleton />
       ) : (

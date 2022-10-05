@@ -46,13 +46,6 @@ export const SettingsScreen = () => {
 
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
-  // Record screen view
-  useFocusEffect(() => {
-    screen({
-      route: `/settings`
-    })
-  })
-
   const handlePressHistory = useCallback(() => {
     navigation.push('ListeningHistoryScreen')
   }, [navigation])
@@ -66,7 +59,12 @@ export const SettingsScreen = () => {
   }, [navigation])
 
   return (
-    <Screen title={messages.title} topbarRight={null} variant='secondary'>
+    <Screen
+      title={messages.title}
+      topbarRight={null}
+      variant='secondary'
+      url='/settings'
+    >
       <ScrollView>
         <Image source={audiusLogoHorizontal} style={styles.logo} />
         <AccountSettingsRow />

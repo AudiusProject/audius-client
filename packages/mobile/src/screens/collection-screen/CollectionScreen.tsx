@@ -133,13 +133,10 @@ const CollectionScreenComponent = ({
     updated_at
   } = collection
 
-  // Record screen view
-  useEffect(() => {
-    screen({
-      route: `/${encodeUrlName(user.handle)}/${
-        is_album ? 'album' : 'playlist'
-      }/${encodeUrlName(playlist_name)}-${playlist_id}`
-    })
+  const url = useMemo(() => {
+    return `/${encodeUrlName(user.handle)}/${
+      is_album ? 'album' : 'playlist'
+    }/${encodeUrlName(playlist_name)}-${playlist_id}`
   }, [user.handle, is_album, playlist_name, playlist_id])
 
   const imageUrl = useCollectionCoverArt({
@@ -222,7 +219,7 @@ const CollectionScreenComponent = ({
   }, [dispatch, playlist_id, navigation])
 
   return (
-    <Screen>
+    <Screen url={url}>
       <VirtualizedScrollView
         listKey={`playlist-${collection.playlist_id}`}
         style={styles.root}

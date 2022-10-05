@@ -171,7 +171,7 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       onReady={() => {
         routeNameRef.current = getPrimaryRoute(navigationRef.getRootState())
       }}
-      onStateChange={async () => {
+      onStateChange={() => {
         // Record screen views for the primary routes
         // Secondary routes (e.g. Track, Collection, Profile) are recorded via
         // an effect in the corresponding component

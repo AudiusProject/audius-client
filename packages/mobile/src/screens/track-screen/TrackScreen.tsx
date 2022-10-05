@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import {
   trackPageLineupActions,
@@ -15,7 +15,6 @@ import { Button, Screen } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
-import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenMainContent } from './TrackScreenMainContent'
@@ -78,13 +77,6 @@ export const TrackScreen = () => {
 
   useFocusEffect(handleFetchTrack)
 
-  // Record screen view
-  useEffect(() => {
-    if (track?.permalink) {
-      screen({ route: track?.permalink })
-    }
-  }, [track?.permalink])
-
   if (!track || !user) {
     console.warn(
       'Track, user, or lineup missing for TrackScreen, preventing render'
@@ -121,7 +113,7 @@ export const TrackScreen = () => {
   )
 
   return (
-    <Screen>
+    <Screen url={track?.permalink}>
       <Lineup
         actions={tracksActions}
         count={6}

@@ -35,7 +35,6 @@ import {
   Tile
 } from 'app/components/core'
 import { Header } from 'app/components/header'
-import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -174,13 +173,6 @@ export const AudioScreen = () => {
   const { tierNumber } = getTierAndNumberForBalance(totalBalanceWei)
 
   const hasMultipleWallets = useSelector(getHasAssociatedWallets)
-
-  // Record screen view
-  useFocusEffect(() => {
-    screen({
-      route: `/audio`
-    })
-  })
 
   const onPressWalletInfo = useCallback(() => {
     dispatch(setVisibility({ modal: 'AudioBreakdown', visible: true }))
@@ -439,7 +431,7 @@ export const AudioScreen = () => {
   }
 
   return (
-    <Screen>
+    <Screen url='/audio'>
       <Header text={messages.title} />
       <ScrollView style={styles.tiles}>
         {renderAudioTile()}
