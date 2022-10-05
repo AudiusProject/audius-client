@@ -196,6 +196,9 @@ const TracksTableContainer = ({
 }: TracksTableProps) => {
   const [filterText, setFilterText] = useState('')
   const { isEnabled: isNewTablesEnabled } = useFlag(FeatureFlags.NEW_TABLES)
+  const { isEnabled: isNewArtistDashboardTableEnabled } = useFlag(
+    FeatureFlags.NEW_ARTIST_DASHBOARD_TABLE
+  )
   const dispatch = useDispatch()
   const tracksStatus = useSelector(getDashboardTracksStatus)
   const tabRecalculator = useTabRecalculator()
@@ -242,7 +245,7 @@ const TracksTableContainer = ({
         key='listed'
         className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
       >
-        {isNewTablesEnabled ? (
+        {isNewTablesEnabled && isNewArtistDashboardTableEnabled ? (
           <TestTracksTable
             data={filteredListedData}
             columns={tableColumns}
@@ -270,7 +273,7 @@ const TracksTableContainer = ({
         key='unlisted'
         className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
       >
-        {isNewTablesEnabled ? (
+        {isNewTablesEnabled && isNewArtistDashboardTableEnabled ? (
           <TestTracksTable
             data={filteredUnlistedData}
             columns={tableColumns}
@@ -300,6 +303,7 @@ const TracksTableContainer = ({
       filteredListedData,
       filteredUnlistedData,
       handleFetchPage,
+      isNewArtistDashboardTableEnabled,
       isNewTablesEnabled,
       onClickRow,
       tabRecalculator,
@@ -353,7 +357,12 @@ export class ArtistDashboardPage extends Component<
 
   componentDidMount() {
     const newTablesEnabled = getFeatureEnabled(FeatureFlags.NEW_TABLES) ?? false
-    this.props.fetchDashboard(0, newTablesEnabled ? tablePageSize : 500)
+    const newArtistDashboardTableEnabled =
+      getFeatureEnabled(FeatureFlags.NEW_ARTIST_DASHBOARD_TABLE) ?? false
+    this.props.fetchDashboard(
+      0,
+      newTablesEnabled && newArtistDashboardTableEnabled ? tablePageSize : 500
+    )
     TotalPlaysChart.preload()
   }
 
