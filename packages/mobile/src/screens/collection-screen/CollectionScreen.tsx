@@ -1,7 +1,8 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import type { Collection, User } from '@audius/common'
 import {
+  encodeUrlName,
   removeNullable,
   FavoriteSource,
   RepostSource,
@@ -28,6 +29,7 @@ import { Screen, VirtualizedScrollView } from 'app/components/core'
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
+import { screen } from 'app/services/analytics'
 import type { SearchPlaylist, SearchUser } from 'app/store/search/types'
 import { makeStyles } from 'app/styles'
 
@@ -130,6 +132,15 @@ const CollectionScreenComponent = ({
     save_count,
     updated_at
   } = collection
+
+  // Record screen view
+  useEffect(() => {
+    screen({
+      route: `/${encodeUrlName(user.handle)}/${
+        is_album ? 'album' : 'playlist'
+      }/${encodeUrlName(playlist_name)}-${playlist_id}`
+    })
+  }, [user.handle, is_album, playlist_name, playlist_id])
 
   const imageUrl = useCollectionCoverArt({
     id: playlist_id,

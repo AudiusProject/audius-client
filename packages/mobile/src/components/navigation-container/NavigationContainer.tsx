@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
+import { useRef } from 'react'
 
 import { accountSelectors } from '@audius/common'
 import type { LinkingOptions } from '@react-navigation/native'
 import {
+  useNavigationContainerRef,
   getStateFromPath,
   NavigationContainer as RNNavigationContainer
 } from '@react-navigation/native'
@@ -10,6 +12,8 @@ import { useSelector } from 'react-redux'
 
 import { AppTabNavigationProvider } from 'app/screens/app-screen'
 import type { RootScreenParamList } from 'app/screens/root-screen/RootScreen'
+import { screen } from 'app/services/analytics'
+import { getPrimaryRoute, getRoutePath } from 'app/utils/navigation'
 import { useThemeVariant } from 'app/utils/theme'
 
 import { navigationThemes } from './navigationThemes'
@@ -26,6 +30,9 @@ const NavigationContainer = (props: NavigationContainerProps) => {
   const { children } = props
   const theme = useThemeVariant()
   const account = useSelector(getAccountUser)
+
+  const navigationRef = useNavigationContainerRef()
+  const routeNameRef = useRef<string>()
 
   const linking: LinkingOptions<RootScreenParamList> = {
     prefixes: [
@@ -157,7 +164,27 @@ const NavigationContainer = (props: NavigationContainerProps) => {
   }
 
   return (
-    <RNNavigationContainer linking={linking} theme={navigationThemes[theme]}>
+    <RNNavigationContainer
+      linking={linking}
+      theme={navigationThemes[theme]}
+      ref={navigationRef}
+      onReady={() => {
+        routeNameRef.current = getPrimaryRoute(navigationRef.getRootState())
+      }}
+      onStateChange={async () => {
+        // Record screen views for the primary routes
+        // Secondary routes (e.g. Track, Collection, Profile) are recorded via
+        // an effect in the corresponding component
+        const previousRouteName = routeNameRef.current
+        const currentRouteName = getPrimaryRoute(navigationRef.getRootState())
+
+        if (currentRouteName && previousRouteName !== currentRouteName) {
+          screen({ route: `/${currentRouteName}` })
+        }
+
+        routeNameRef.current = currentRouteName
+      }}
+    >
       <AppTabNavigationProvider>{children}</AppTabNavigationProvider>
     </RNNavigationContainer>
   )

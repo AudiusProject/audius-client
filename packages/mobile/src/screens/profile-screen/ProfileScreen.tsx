@@ -7,7 +7,8 @@ import {
   profilePageSelectors,
   profilePageActions,
   reachabilitySelectors,
-  shareModalUIActions
+  shareModalUIActions,
+  encodeUrlName
 } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
@@ -23,6 +24,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { useRoute } from 'app/hooks/useRoute'
 import { TopBarIconButton } from 'app/screens/app-screen'
+import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles/makeStyles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -103,6 +105,15 @@ export const ProfileScreen = () => {
       setIsRefreshing(false)
     }
   }, [status])
+
+  // Record screen view
+  useEffect(() => {
+    if (handle) {
+      screen({
+        route: `/${encodeUrlName(handle)}`
+      })
+    }
+  }, [handle])
 
   const handlePressSettings = useCallback(() => {
     navigation.push('SettingsScreen')

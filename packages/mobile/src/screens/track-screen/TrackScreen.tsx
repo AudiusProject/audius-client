@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   trackPageLineupActions,
@@ -15,6 +15,7 @@ import { Button, Screen } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
+import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenMainContent } from './TrackScreenMainContent'
@@ -76,6 +77,13 @@ export const TrackScreen = () => {
   }, [dispatch, canBeUnlisted, id, slug, handle, user?.handle])
 
   useFocusEffect(handleFetchTrack)
+
+  // Record screen view
+  useEffect(() => {
+    if (track?.permalink) {
+      screen({ route: track?.permalink })
+    }
+  }, [track?.permalink])
 
   if (!track || !user) {
     console.warn(
