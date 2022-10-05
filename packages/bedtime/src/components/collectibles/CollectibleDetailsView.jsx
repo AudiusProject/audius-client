@@ -137,9 +137,9 @@ const CollectibleDetailsView = ({ collectible, user }) => {
 
         <div className={styles.nftInfo}>
           {collectible.name && (
-            <div className={styles.header}>
+            <h1 className={styles.header}>
               {collectible.name}
-            </div>
+            </h1>
           )}
           {collectible.description && (
             <div className={styles.desc}>

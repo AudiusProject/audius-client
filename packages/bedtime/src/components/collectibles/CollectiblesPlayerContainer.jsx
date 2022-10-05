@@ -4,6 +4,7 @@ import CollectibleGallery from './CollectibleGallery'
 import Card from '../card/Card'
 import CollectiblesHeader from './CollectiblesHeader'
 import styles from './CollectiblesPlayerContainer.module.css'
+import CollectibleHelmet from './CollectibleHelmet'
 
 const CollectiblesPlayerContainer = ({
   collectiblesInfo,
@@ -20,6 +21,9 @@ const CollectiblesPlayerContainer = ({
 
   return (
     <>
+      <CollectibleHelmet
+        collectiblesInfo={collectiblesInfo}
+      />
       {collectiblesInfo.type === 'gallery' && (
         <CollectibleGallery
           collectibles={getCollectiblesArray()}

@@ -76,6 +76,7 @@
     line-height: 36px;
     letter-spacing: 0.02em;
     color: #858199;
+    margin: 0;
 }
 .nftInfo .desc {
     position: relative;

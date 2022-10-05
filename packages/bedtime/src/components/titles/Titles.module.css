@@ -10,6 +10,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 18px;
+  margin: 0;
 }
 
 .title:hover {
@@ -24,6 +25,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+  margin: 0;
 }
 
 .artistName:hover {

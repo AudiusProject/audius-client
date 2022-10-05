@@ -88,7 +88,7 @@ const TrackPlayerTiny = ({
         <div className={styles.playContainer}>
         </div>
         <div className={styles.infoContainer}>
-          <div
+          <h1
             className={cn(styles.info, {
               [styles.animating]: animating
             })}
@@ -96,7 +96,7 @@ const TrackPlayerTiny = ({
             style={infoStyle}
           >
             {info}
-          </div>
+          </h1>
         </div>
         <div className={styles.logoContainer}>
           <AudiusLogoGlyph

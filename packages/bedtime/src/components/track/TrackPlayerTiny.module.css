@@ -74,6 +74,7 @@
   letter-spacing: 0.01em;
   color: var(--neutral);
   white-space: nowrap;
+  margin: 0;
   margin-left: 24px;
 
   display: inline-block;

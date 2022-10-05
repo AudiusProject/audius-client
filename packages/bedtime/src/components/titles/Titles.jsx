@@ -21,18 +21,18 @@ const Titles = ({
 
   return (
     <div className={styles.titles}>
-      <div
+      <h1
         className={styles.title}
         onClick={onClickTitle}>
         {title}
-      </div>
-      <div
+      </h1>
+      <h2
         className={styles.artistName}
         onClick={onClickArtist}
       >
         {artistName}
         {isVerified && <IconVerified />}
-      </div>
+      </h2>
     </div>
   )
 }
