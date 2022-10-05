@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { useRef } from 'react'
 
 import { accountSelectors } from '@audius/common'
-import type { LinkingOptions } from '@react-navigation/native'
 import {
   useNavigationContainerRef,
   getStateFromPath,
@@ -11,9 +10,8 @@ import {
 import { useSelector } from 'react-redux'
 
 import { AppTabNavigationProvider } from 'app/screens/app-screen'
-import type { RootScreenParamList } from 'app/screens/root-screen/RootScreen'
 import { screen } from 'app/services/analytics'
-import { getPrimaryRoute, getRoutePath } from 'app/utils/navigation'
+import { getPrimaryRoute } from 'app/utils/navigation'
 import { useThemeVariant } from 'app/utils/theme'
 
 import { navigationThemes } from './navigationThemes'
@@ -34,7 +32,7 @@ const NavigationContainer = (props: NavigationContainerProps) => {
   const navigationRef = useNavigationContainerRef()
   const routeNameRef = useRef<string>()
 
-  const linking: LinkingOptions<RootScreenParamList> = {
+  const linking = {
     prefixes: [
       'https://audius.co',
       'http://audius.co',
@@ -44,10 +42,9 @@ const NavigationContainer = (props: NavigationContainerProps) => {
     // configuration for matching screens with paths
     config: {
       screens: {
-        App: {
+        HomeStack: {
           screens: {
-            MainStack: {
-              initialRouteName: 'feed',
+            App: {
               screens: {
                 feed: {
                   initialRouteName: 'Feed',
