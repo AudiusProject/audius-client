@@ -271,7 +271,7 @@ const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
           { paddingTop: staticTopInset.current, paddingBottom: insets.bottom }
         ]}
       >
-        {track && user && (
+        {isPlayBarShowing ? (
           <>
             <View style={styles.playBarContainer}>
               <PlayBar
@@ -305,19 +305,19 @@ const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
                 isPlaying={isPlaying}
                 onPressIn={onPressScrubberIn}
                 onPressOut={onPressScrubberOut}
-                duration={track.duration}
+                duration={track?.duration ?? 0}
               />
             </View>
             <View style={styles.controlsContainer}>
               <AudioControls
                 onNext={onNext}
                 onPrevious={onPrevious}
-                isPodcast={track.genre === Genre.PODCASTS}
+                isPodcast={track?.genre === Genre.PODCASTS}
               />
               <ActionsBar track={track} />
             </View>
           </>
-        )}
+        ) : null}
       </View>
     </Drawer>
   )
