@@ -53,6 +53,7 @@ import {
   getSolanaConnection,
   getUserBankTransactionMetadata,
   pollForAudioBalanceChange,
+  pollForNewTransaction,
   pollForSolBalanceChange,
   saveUserBankTransactionMetadata
 } from 'services/audius-backend/BuyAudio'
@@ -525,12 +526,20 @@ function* purchaseStep({
   retryDelayMs,
   maxRetryCount
 }: PurchaseStepParams) {
-  // Cache current SOL balance
+  // Cache current SOL balance and tip of transaction history
   const initialBalance = yield* call(
     [connection, connection.getBalance],
     rootAccount.publicKey,
     'finalized'
   )
+  const initialTransactions = yield* call(
+    [connection, connection.getSignaturesForAddress],
+    rootAccount.publicKey,
+    {
+      limit: 1
+    }
+  )
+  const initialTransaction = initialTransactions[0].signature
 
   // Wait for on ramp finish
   const result = yield* race({
@@ -554,14 +563,12 @@ function* purchaseStep({
   })
 
   // Get the purchase transaction
-  const signatures = yield* call(
-    [connection, connection.getSignaturesForAddress],
-    rootAccount.publicKey,
-    {
-      limit: 1
-    }
-  )
-  const purchaseTransactionId = signatures[0].signature
+  const purchaseTransactionId = yield* call(pollForNewTransaction, {
+    initialTransaction,
+    rootAccount: rootAccount.publicKey,
+    retryDelayMs,
+    maxRetryCount
+  })
 
   // Check that we got the requested SOL
   const purchasedLamports = new BN(newBalance).sub(new BN(initialBalance))
