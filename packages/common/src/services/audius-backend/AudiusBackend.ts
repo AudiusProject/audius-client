@@ -464,17 +464,15 @@ export const audiusBackend = ({
     const primary = creatorNodeGateways[0]
     const firstImageUrl = `${primary}${cid}`
 
-    if (disableImagePreload) {
-      return firstImageUrl
-    }
+    if (!disableImagePreload) {
+      if (primary) {
+        // Attempt to fetch/load the image using the first creator node gateway
+        const preloadedImageUrl = await preloadImage(firstImageUrl)
 
-    if (primary) {
-      // Attempt to fetch/load the image using the first creator node gateway
-      const preloadedImageUrl = await preloadImage(firstImageUrl)
-
-      // If the image is loaded, add to cache and return
-      if (preloadedImageUrl && cache) CIDCache.add(cid, preloadedImageUrl)
-      if (preloadedImageUrl) return preloadedImageUrl
+        // If the image is loaded, add to cache and return
+        if (preloadedImageUrl && cache) CIDCache.add(cid, preloadedImageUrl)
+        if (preloadedImageUrl) return preloadedImageUrl
+      }
     }
 
     await waitForLibsInit()
