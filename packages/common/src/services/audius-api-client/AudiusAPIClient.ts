@@ -1373,32 +1373,25 @@ export class AudiusAPIClient {
           'X-User-ID': current_user_id.toString()
         }
       : undefined
-    try {
-      // TODO: throw if _getResponse doesn't ok
-      const response: Nullable<APIResponse<GetSocialFeedResponse>> =
-        await this._getResponse(
-          ROOT_ENDPOINT_MAP.feed,
-          {
-            offset,
-            limit,
-            with_users,
-            filter,
-            tracks_only,
-            followee_user_id: followee_user_ids
-              ? followee_user_ids.map((id) => id.toString())
-              : undefined
-          },
-          true,
-          PathType.RootPath,
-          headers
-        )
-      console.log(`getSocialFeed response: ${response}`)
-      if (!response) return null
-      return response.data
-    } catch (e) {
-      console.error(e)
-    }
-    return []
+    const response: Nullable<APIResponse<GetSocialFeedResponse>> =
+      await this._getResponse(
+        ROOT_ENDPOINT_MAP.feed,
+        {
+          offset,
+          limit,
+          with_users,
+          filter,
+          tracks_only,
+          followee_user_id: followee_user_ids
+            ? followee_user_ids.map((id) => id.toString())
+            : undefined
+        },
+        true,
+        PathType.RootPath,
+        headers
+      )
+    if (!response) return []
+    return response.data
   }
 
   async getUserTrackHistory({

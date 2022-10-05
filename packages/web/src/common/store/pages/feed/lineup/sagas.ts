@@ -42,7 +42,7 @@ function* getTracks({
 }: {
   offset: number
   limit: number
-}): Generator<any, FeedItem[] | null, any> {
+}): Generator<any, FeedItem[], any> {
   yield* waitForAccount()
   const currentUser = yield select(getAccountUser)
   const filterEnum: FeedFilter = yield select(getFeedFilter)
@@ -72,8 +72,6 @@ function* getTracks({
 
   const feed: (UserTrackMetadata | UserCollectionMetadata)[] =
     yield apiClient.getSocialFeed(params)
-  console.log(`getSocialFeed returned: ${feed}`)
-  if (!feed) return null
   if (!feed.length) return []
   const filteredFeed = feed.filter((record) => !record.user.is_deactivated)
   const [tracks, collections] = getTracksAndCollections(filteredFeed)

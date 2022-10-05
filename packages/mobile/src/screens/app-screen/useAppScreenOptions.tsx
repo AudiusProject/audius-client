@@ -19,7 +19,6 @@ import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconNotification from 'app/assets/images/iconNotification.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { IconButton } from 'app/components/core'
-import { ToggleReachability } from 'app/components/reachability/ToggleReachability'
 import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -35,7 +34,7 @@ const { getNotificationUnviewedCount } = notificationsSelectors
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   headerLeft: { marginLeft: spacing(-2), width: 40 },
-  headerRight: { flexDirection: 'row' },
+  headerRight: {},
   title: {
     fontSize: 18,
     fontFamily: typography.fontByWeight.heavy,
@@ -214,7 +213,6 @@ export const useAppScreenOptions = (
           headerRight: () => {
             return (
               <View style={styles.headerRight}>
-                <ToggleReachability />
                 <IconButton
                   icon={IconSearch}
                   fill={neutralLight4}
