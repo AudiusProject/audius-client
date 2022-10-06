@@ -8,7 +8,8 @@ import {
   tokenDashboardPageSelectors,
   formatWei,
   buyAudioActions,
-  OnRampProvider
+  OnRampProvider,
+  FeatureFlags
 } from '@audius/common'
 import { Button, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
@@ -23,6 +24,7 @@ import { useModalState } from 'common/hooks/useModalState'
 import { CollapsibleContent } from 'components/collapsible-content'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { OnRampButton } from 'components/on-ramp-button/OnRampButton'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { isMobile } from 'utils/clientUtil'
 
 import TokenHoverTooltip from './TokenHoverTooltip'
@@ -139,6 +141,10 @@ export const WalletManagementTile = () => {
   const hasMultipleWallets = useSelector(getHasAssociatedWallets)
   const [, setOpen] = useModalState('AudioBreakdown')
 
+  const { isEnabled: isCoinbaseEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_COINBASE_ENABLED
+  )
+
   const onClickOpen = useCallback(() => {
     setOpen(true)
   }, [setOpen])
@@ -198,11 +204,13 @@ export const WalletManagementTile = () => {
             className={styles.payWithStripeButton}
             onClick={onBuyWithStripeClicked}
           />
-          <OnRampButton
-            provider={OnRampProvider.COINBASE}
-            className={styles.payWithCoinbaseButton}
-            onClick={onBuyWithCoinbaseClicked}
-          />
+          {isCoinbaseEnabled ? (
+            <OnRampButton
+              provider={OnRampProvider.COINBASE}
+              className={styles.payWithCoinbaseButton}
+              onClick={onBuyWithCoinbaseClicked}
+            />
+          ) : null}
         </div>
         <CollapsibleContent
           id='advanced-wallet-actions'

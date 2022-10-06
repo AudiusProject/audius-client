@@ -22,6 +22,7 @@ export enum FeatureFlags {
   NEW_TABLES = 'new_tables',
   NEW_ARTIST_DASHBOARD_TABLE = 'new_artist_dashboard_table',
   BUY_AUDIO_ENABLED = 'buy_audio_enabled',
+  BUY_AUDIO_COINBASE_ENABLED = 'buy_audio_coinbase_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow'
 }
@@ -53,5 +54,6 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.NEW_ARTIST_DASHBOARD_TABLE]: false,
   [FeatureFlags.BUY_AUDIO_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
-  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false
+  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
+  [FeatureFlags.BUY_AUDIO_COINBASE_ENABLED]: false
 }
