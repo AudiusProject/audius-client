@@ -22,9 +22,8 @@ import { HomeScreen } from './HomeScreen'
 const { getHasAccount, getAccountStatus } = accountSelectors
 
 export type RootScreenParamList = {
-  signOn: undefined
-  App: NavigatorScreenParams<{
-    MainStack: NavigatorScreenParams<AppScreenParamList>
+  HomeStack: NavigatorScreenParams<{
+    App: NavigatorScreenParams<AppScreenParamList>
   }>
 }
 
@@ -80,7 +79,7 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
           ) : !hasAccount ? (
             <Stack.Screen name='SignOnStack' component={SignOnScreen} />
           ) : (
-            <Stack.Screen name='DrawerStack' component={HomeScreen} />
+            <Stack.Screen name='HomeStack' component={HomeScreen} />
           )}
         </Stack.Navigator>
       )}

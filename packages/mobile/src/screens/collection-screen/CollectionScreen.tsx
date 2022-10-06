@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, User } from '@audius/common'
+import type { Collection, Nullable, User } from '@audius/common'
 import {
+  encodeUrlName,
   removeNullable,
   FavoriteSource,
   RepostSource,
@@ -84,7 +85,7 @@ export const CollectionScreen = () => {
 
   const cachedCollection = useSelector((state) =>
     getCollection(state, { id })
-  ) as Collection
+  ) as Nullable<Collection>
 
   const cachedUser = useSelector((state) =>
     getUser(state, { id: cachedCollection?.playlist_owner_id })
@@ -94,9 +95,7 @@ export const CollectionScreen = () => {
   const user = cachedUser ?? searchCollection?.user
 
   if (!collection || !user) {
-    console.warn(
-      'Collection or user missing for CollectionScreen, preventing render'
-    )
+    // TODO: add collection-screen skeleton
     return null
   }
 
@@ -130,6 +129,12 @@ const CollectionScreenComponent = ({
     save_count,
     updated_at
   } = collection
+
+  const url = useMemo(() => {
+    return `/${encodeUrlName(user.handle)}/${
+      is_album ? 'album' : 'playlist'
+    }/${encodeUrlName(playlist_name)}-${playlist_id}`
+  }, [user.handle, is_album, playlist_name, playlist_id])
 
   const imageUrl = useCollectionCoverArt({
     id: playlist_id,
@@ -211,7 +216,7 @@ const CollectionScreenComponent = ({
   }, [dispatch, playlist_id, navigation])
 
   return (
-    <Screen>
+    <Screen url={url}>
       <VirtualizedScrollView
         listKey={`playlist-${collection.playlist_id}`}
         style={styles.root}
