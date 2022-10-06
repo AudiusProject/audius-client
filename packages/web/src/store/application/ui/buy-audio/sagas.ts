@@ -37,7 +37,7 @@ import {
 import BN from 'bn.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
-import { takeLatest } from 'redux-saga/effects'
+import { takeLatest, takeLeading } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
@@ -74,7 +74,8 @@ const {
   transferCompleted,
   clearFeesCache,
   calculateAudioPurchaseInfoFailed,
-  buyAudioFlowFailed
+  buyAudioFlowFailed,
+  startRecoveryIfNecessary
 } = buyAudioActions
 
 const { setVisibility } = modalsActions
@@ -1064,7 +1065,7 @@ function* recoverPurchaseIfNecessary() {
 
 function* doStartBuyAudioFlow(action: ReturnType<typeof startBuyAudioFlow>) {
   yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
-  yield* call(recoverPurchaseIfNecessary)
+  yield* put(startRecoveryIfNecessary())
 }
 
 function* watchCalculateAudioPurchaseInfo() {
@@ -1080,7 +1081,11 @@ function* watchStartBuyAudioFlow() {
 }
 
 function* watchRecovery() {
-  yield* call(recoverPurchaseIfNecessary)
+  yield takeLeading(startRecoveryIfNecessary, recoverPurchaseIfNecessary)
+}
+
+function* recoverOnPageLoad() {
+  yield* put(startRecoveryIfNecessary())
 }
 
 export default function sagas() {
@@ -1088,6 +1093,7 @@ export default function sagas() {
     watchOnRampOpened,
     watchCalculateAudioPurchaseInfo,
     watchStartBuyAudioFlow,
-    watchRecovery
+    watchRecovery,
+    recoverOnPageLoad
   ]
 }
