@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import {
   Genre,
@@ -83,7 +90,6 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 type NowPlayingDrawerProps = {
   translationAnim: Animated.Value
-  navigation: NativeStackNavigationProp<AppTabScreenParamList>
 }
 
 const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {

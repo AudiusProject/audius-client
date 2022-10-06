@@ -17,17 +17,10 @@ export const AppTabBar = (props: TabBarProps) => {
   // When the drawer is open, the bottom bar should hide (animated away).
   // When the drawer is closed, the bottom bar should reappear (animated in).
   const translationAnim = useRef(new Animated.Value(FULL_DRAWER_HEIGHT)).current
-  const { navigation } = props
-  // For some reason bottom-bar navigation doesn't have .push in type
-  const nowPlayingNavigation =
-    navigation as unknown as NativeStackNavigationProp<AppTabScreenParamList>
 
   return (
     <>
-      <NowPlayingDrawer
-        navigation={nowPlayingNavigation}
-        translationAnim={translationAnim}
-      />
+      <NowPlayingDrawer translationAnim={translationAnim} />
       <BottomTabBar {...props} translationAnim={translationAnim} />
     </>
   )
