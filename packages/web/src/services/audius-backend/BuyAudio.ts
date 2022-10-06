@@ -223,7 +223,7 @@ export const pollForNewTransaction = async ({
   const transactions = await connection.getSignaturesForAddress(rootAccount, {
     limit: 1
   })
-  let transaction = transactions[0].signature
+  let transaction = transactions?.[0]?.signature
   if (initialTransaction === undefined) {
     initialTransaction = transaction
   }
@@ -236,8 +236,8 @@ export const pollForNewTransaction = async ({
     const transactions = await connection.getSignaturesForAddress(rootAccount, {
       limit: 1
     })
-    transaction = transactions[0].signature
-    if (transaction !== initialTransaction) {
+    transaction = transactions?.[0]?.signature
+    if (transaction && transaction !== initialTransaction) {
       console.debug(`Found new transaction ${transaction}`)
       return transaction
     }
