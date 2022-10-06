@@ -4,18 +4,14 @@ import { useMemo, useCallback, useEffect, useRef, useState } from 'react'
 import type {
   GestureResponderEvent,
   ImageSourcePropType,
-  ImageStyle,
   LayoutChangeEvent,
   PanResponderGestureState,
   ViewStyle
 } from 'react-native'
 import {
   Animated,
-  Image,
   PanResponder,
   Platform,
-  Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View
 } from 'react-native'
@@ -23,11 +19,9 @@ import type { Edge } from 'react-native-safe-area-context'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
-import IconRemove from 'app/assets/images/iconRemove.svg'
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
 import { makeStyles } from 'app/styles'
 import { attachToDy } from 'app/utils/animation'
-import { useColor } from 'app/utils/theme'
 
 import { DrawerHeader } from './DrawerHeader'
 import { FULL_DRAWER_HEIGHT } from './constants'
