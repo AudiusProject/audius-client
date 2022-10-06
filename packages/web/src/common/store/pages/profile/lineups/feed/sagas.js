@@ -12,9 +12,10 @@ import {
   waitForAccount,
   makeUid
 } from '@audius/common'
+import { select, call, takeEvery, put } from 'typed-redux-saga'
+
 import { getConfirmCalls } from 'common/store/confirmer/selectors'
 import { LineupSagas } from 'common/store/lineup/sagas'
-import { select, call, takeEvery, put } from 'typed-redux-saga'
 
 import { retrieveUserReposts } from './retrieveUserReposts'
 const { getProfileUserId, getProfileFeedLineup } = profilePageSelectors

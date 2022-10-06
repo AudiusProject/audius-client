@@ -13,8 +13,6 @@ import {
   playerSelectors,
   queueSelectors
 } from '@audius/common'
-import { getToQueue } from 'common/store/queue/sagas'
-import { isMobileWeb } from 'common/utils/isMobileWeb'
 import {
   all,
   call,
@@ -28,6 +26,9 @@ import {
   takeLatest,
   getContext
 } from 'typed-redux-saga'
+
+import { getToQueue } from 'common/store/queue/sagas'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 
 import { awaitReachability } from '../backend/sagas'
 
