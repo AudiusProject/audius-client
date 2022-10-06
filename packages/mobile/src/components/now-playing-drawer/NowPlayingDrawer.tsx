@@ -1,11 +1,4 @@
-import {
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import {
   Genre,
@@ -14,7 +7,6 @@ import {
   playerSelectors,
   playerActions
 } from '@audius/common'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type {
   Animated,
   GestureResponderEvent,
@@ -31,7 +23,6 @@ import Drawer, {
 } from 'app/components/drawer'
 import { Scrubber } from 'app/components/scrubber'
 import { useDrawer } from 'app/hooks/useDrawer'
-import type { AppTabScreenParamList } from 'app/screens/app-screen'
 import { AppTabNavigationContext } from 'app/screens/app-screen'
 import { NotificationsDrawerNavigationContext } from 'app/screens/notifications-screen/NotificationsDrawerNavigationContext'
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
@@ -92,7 +83,7 @@ type NowPlayingDrawerProps = {
   translationAnim: Animated.Value
 }
 
-const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
+export const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
   const { translationAnim } = props
   const { navigation } = useContext(AppTabNavigationContext)
   const dispatch = useDispatch()
@@ -321,5 +312,3 @@ const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
     </Drawer>
   )
 }
-
-export default NowPlayingDrawer

@@ -1,14 +1,11 @@
 import { useRef } from 'react'
 
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Animated } from 'react-native'
 
 import { BottomTabBar } from 'app/components/bottom-tab-bar'
 import { FULL_DRAWER_HEIGHT } from 'app/components/drawer'
-import NowPlayingDrawer from 'app/components/now-playing-drawer'
-
-import type { AppTabScreenParamList } from './AppTabScreen'
+import { NowPlayingDrawer } from 'app/components/now-playing-drawer'
 
 type TabBarProps = BottomTabBarProps
 

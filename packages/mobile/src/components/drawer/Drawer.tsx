@@ -14,7 +14,6 @@ import {
   Image,
   PanResponder,
   Platform,
-  StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -25,13 +24,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
-import type { ThemeColors } from 'app/hooks/useThemedStyles'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
 import { makeStyles } from 'app/styles'
 import { attachToDy } from 'app/utils/animation'
 import { useColor } from 'app/utils/theme'
 
+import { DrawerHeader } from './DrawerHeader'
 import { FULL_DRAWER_HEIGHT } from './constants'
 
 const MAX_SHADOW_OPACITY = 0.15
@@ -43,7 +41,7 @@ const BACKGROUND_OPACITY = 0.5
 // Controls the amount of friction in swiping when overflowing up or down
 const OVERFLOW_FRICTION = 4
 
-const useStyles = makeStyles(
+export const useStyles = makeStyles(
   ({ palette }, { zIndex = 5, shouldAnimateShadow = true }) => ({
     drawer: {
       backgroundColor: palette.neutralLight10,
@@ -59,60 +57,21 @@ const useStyles = makeStyles(
       borderTopLeftRadius: BORDER_RADIUS,
       overflow: 'hidden'
     },
-
     fullDrawer: {
       top: 0,
       height: '100%'
     },
-
     content: {
       height: 'auto'
     },
-
     fullScreenContent: {
       height: '100%'
     },
-
-    titleBarContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24
-    },
-
     dismissContainer: {
       position: 'absolute',
       top: 24,
       left: 24
     },
-
-    titleContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingTop: 20
-    },
-
-    titleIcon: {
-      marginRight: 12,
-      height: 24,
-      width: 24
-    },
-
-    titleLabel: {
-      fontFamily: 'AvenirNextLTPro-Bold',
-      fontSize: 18,
-      color: palette.neutral
-    },
-
-    isOpen: {
-      shadowOpacity: 0.25,
-      shadowOffset: {
-        width: 50,
-        height: 15
-      }
-    },
-
     background: {
       position: 'absolute',
       backgroundColor: 'black',
@@ -273,48 +232,6 @@ export const springToValue = ({
     useNativeDriver: true,
     velocity
   }).start(finished)
-}
-
-const DrawerHeader = ({
-  onClose,
-  title,
-  titleIcon,
-  isFullscreen,
-  zIndex
-}: {
-  onClose: () => void
-  title?: string
-  titleIcon?: ImageSourcePropType
-  isFullscreen?: boolean
-  zIndex?: number
-}) => {
-  const stylesConfig = useMemo(() => ({ zIndex }), [zIndex])
-  const styles = useStyles(stylesConfig)
-  const closeColor = useColor('neutralLight4')
-
-  return title || isFullscreen ? (
-    <View style={styles.titleBarContainer}>
-      {isFullscreen && (
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={onClose}
-          style={styles.dismissContainer}
-        >
-          <IconRemove width={30} height={30} fill={closeColor} />
-        </TouchableOpacity>
-      )}
-      {title && (
-        <View style={styles.titleContainer}>
-          {titleIcon && (
-            <Image style={styles.titleIcon as ImageStyle} source={titleIcon} />
-          )}
-          <Text style={styles.titleLabel}>{title}</Text>
-        </View>
-      )}
-    </View>
-  ) : (
-    <View />
-  )
 }
 
 // Only allow titleIcon with title
@@ -760,7 +677,7 @@ export const Drawer: DrawerComponent = ({
         style={[
           styles.drawer,
           drawerStyle,
-          ...(isFullscreen ? [styles.fullDrawer] : []),
+          isFullscreen && styles.fullDrawer,
           {
             shadowOpacity: shouldAnimateShadow
               ? shadowAnim.current
