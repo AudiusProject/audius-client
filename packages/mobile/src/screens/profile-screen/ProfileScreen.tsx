@@ -24,7 +24,6 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { useRoute } from 'app/hooks/useRoute'
 import { TopBarIconButton } from 'app/screens/app-screen'
-import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles/makeStyles'
 import { useThemeColors } from 'app/utils/theme'
 

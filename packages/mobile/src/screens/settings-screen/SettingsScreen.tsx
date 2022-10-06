@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 
-import { useFocusEffect } from '@react-navigation/native'
 import { Image, Platform } from 'react-native'
 
 import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
@@ -9,7 +8,6 @@ import Headphone from 'app/assets/images/emojis/headphone.png'
 import SpeechBalloon from 'app/assets/images/emojis/speech-balloon.png'
 import { Screen, ScrollView } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { Theme } from 'app/utils/theme'
 
