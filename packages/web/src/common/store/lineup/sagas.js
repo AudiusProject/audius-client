@@ -30,7 +30,7 @@ import {
 import { getToQueue } from 'common/store/queue/sagas'
 import { isMobileWeb } from 'common/utils/isMobileWeb'
 
-import { awaitReachability } from '../backend/sagas'
+import { awaitReachability } from '../reachability/sagas'
 
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid } = playerSelectors

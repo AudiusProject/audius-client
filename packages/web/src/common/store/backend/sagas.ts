@@ -19,8 +19,6 @@ import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 const { getIsReachable } = reachabilitySelectors
 
-const REACHABILITY_TIMEOUT_MS = 8 * 1000
-
 /**
  * Waits for the backend to be setup. Can be used as a blocking call in another saga,
  * For example:
@@ -42,17 +40,6 @@ export function* waitForBackendSetup() {
   } else if (!isBackendSetup) {
     yield* take(backendActions.SETUP_BACKEND_SUCCEEDED)
   }
-}
-
-export function* awaitReachability() {
-  const isNativeMobile = yield* getContext('isNativeMobile')
-  const isReachable = yield* select(getIsReachable)
-  if (isReachable || !isNativeMobile) return true
-  const { action } = yield* race({
-    action: take(reachabilityActions.SET_REACHABLE),
-    delay: delay(REACHABILITY_TIMEOUT_MS)
-  })
-  return !!action
 }
 
 export function* setupBackend() {
