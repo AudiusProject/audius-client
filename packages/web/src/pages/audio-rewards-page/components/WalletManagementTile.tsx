@@ -43,7 +43,9 @@ const messages = {
   connectWallets: 'Connect Other Wallets',
   totalAudio: 'Total $AUDIO',
   buyAudio: 'Buy $AUDIO',
-  checkoutWithCoinbase: 'Checkout with a credit card or Coinbase Pay',
+  checkoutWithStripeOrCoinbase: 'Checkout with a credit card or Coinbase Pay',
+  checkoutWithStripe: 'Checkout with a credit card',
+  checkoutWithCoinbase: 'Checkout with Coinbase Pay',
   showAdvanced: 'Show Advanced',
   hideAdvanced: 'Hide Advanced',
   advancedOptions: 'Advanced Options'
@@ -144,6 +146,9 @@ export const WalletManagementTile = () => {
   const { isEnabled: isCoinbaseEnabled } = useFlag(
     FeatureFlags.BUY_AUDIO_COINBASE_ENABLED
   )
+  const { isEnabled: isStripeEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
+  )
 
   const onClickOpen = useCallback(() => {
     setOpen(true)
@@ -194,16 +199,22 @@ export const WalletManagementTile = () => {
           <div className={styles.headerText}>
             <div className={styles.title}>{messages.buyAudio}</div>
             <div className={styles.subtitle}>
-              {messages.checkoutWithCoinbase}
+              {isCoinbaseEnabled && isStripeEnabled
+                ? messages.checkoutWithStripeOrCoinbase
+                : isCoinbaseEnabled
+                ? messages.checkoutWithCoinbase
+                : messages.checkoutWithStripe}
             </div>
           </div>
         </div>
         <div className={styles.onRampButtons}>
-          <OnRampButton
-            provider={OnRampProvider.STRIPE}
-            className={styles.payWithStripeButton}
-            onClick={onBuyWithStripeClicked}
-          />
+          {isStripeEnabled ? (
+            <OnRampButton
+              provider={OnRampProvider.STRIPE}
+              className={styles.payWithStripeButton}
+              onClick={onBuyWithStripeClicked}
+            />
+          ) : null}
           {isCoinbaseEnabled ? (
             <OnRampButton
               provider={OnRampProvider.COINBASE}
