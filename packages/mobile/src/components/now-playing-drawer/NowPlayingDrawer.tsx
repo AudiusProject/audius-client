@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import {
   Genre,
@@ -83,7 +90,13 @@ type NowPlayingDrawerProps = {
   translationAnim: Animated.Value
 }
 
-export const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
+/**
+ * Memoized to prevent rerender during bottom-bar navigation.
+ * It's rerendering because bottomTab render function rerenders a lot.
+ */
+export const NowPlayingDrawer = memo(function NowPlayngDrawer(
+  props: NowPlayingDrawerProps
+) {
   const { translationAnim } = props
   const { navigation } = useContext(AppTabNavigationContext)
   const dispatch = useDispatch()
@@ -311,4 +324,4 @@ export const NowPlayingDrawer = (props: NowPlayingDrawerProps) => {
       </View>
     </Drawer>
   )
-}
+})
