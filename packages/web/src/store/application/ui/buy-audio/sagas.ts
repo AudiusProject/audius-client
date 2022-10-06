@@ -37,7 +37,7 @@ import {
 import BN from 'bn.js'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
-import { takeLatest } from 'redux-saga/effects'
+import { takeLatest, takeLeading } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
@@ -53,6 +53,7 @@ import {
   getSolanaConnection,
   getUserBankTransactionMetadata,
   pollForAudioBalanceChange,
+  pollForNewTransaction,
   pollForSolBalanceChange,
   saveUserBankTransactionMetadata
 } from 'services/audius-backend/BuyAudio'
@@ -74,7 +75,8 @@ const {
   transferCompleted,
   clearFeesCache,
   calculateAudioPurchaseInfoFailed,
-  buyAudioFlowFailed
+  buyAudioFlowFailed,
+  startRecoveryIfNecessary
 } = buyAudioActions
 
 const { setVisibility } = modalsActions
@@ -493,7 +495,10 @@ function* populateAndSaveTransactionDetails() {
       transactionDetails
     })
   )
-  yield* call(saveUserBankTransactionMetadata, transactionMetadata)
+  yield* call(saveUserBankTransactionMetadata, {
+    transactionSignature: transferTransactionId,
+    metadata: transactionMetadata
+  })
 
   // Clear local storage
   yield* call(
@@ -525,12 +530,20 @@ function* purchaseStep({
   retryDelayMs,
   maxRetryCount
 }: PurchaseStepParams) {
-  // Cache current SOL balance
+  // Cache current SOL balance and tip of transaction history
   const initialBalance = yield* call(
     [connection, connection.getBalance],
     rootAccount.publicKey,
     'finalized'
   )
+  const initialTransactions = yield* call(
+    [connection, connection.getSignaturesForAddress],
+    rootAccount.publicKey,
+    {
+      limit: 1
+    }
+  )
+  const initialTransaction = initialTransactions?.[0]?.signature
 
   // Wait for on ramp finish
   const result = yield* race({
@@ -554,14 +567,12 @@ function* purchaseStep({
   })
 
   // Get the purchase transaction
-  const signatures = yield* call(
-    [connection, connection.getSignaturesForAddress],
-    rootAccount.publicKey,
-    {
-      limit: 1
-    }
-  )
-  const purchaseTransactionId = signatures[0].signature
+  const purchaseTransactionId = yield* call(pollForNewTransaction, {
+    initialTransaction,
+    rootAccount: rootAccount.publicKey,
+    retryDelayMs,
+    maxRetryCount
+  })
 
   // Check that we got the requested SOL
   const purchasedLamports = new BN(newBalance).sub(new BN(initialBalance))
@@ -995,7 +1006,7 @@ function* recoverPurchaseIfNecessary() {
       yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
       didNeedRecovery = true
 
-      const { audioSwappedSpl } = yield* swapStep({
+      const { audioSwappedSpl } = yield* call(swapStep, {
         exchangeAmount: exchangableBalance,
         desiredAudioAmount: localStorageState.desiredAudioAmount,
         rootAccount,
@@ -1003,7 +1014,7 @@ function* recoverPurchaseIfNecessary() {
         maxRetryCount,
         retryDelayMs
       })
-      yield* transferStep({
+      yield* call(transferStep, {
         transferAmount: audioSwappedSpl,
         rootAccount,
         transactionHandler,
@@ -1028,7 +1039,7 @@ function* recoverPurchaseIfNecessary() {
         yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
         didNeedRecovery = true
 
-        yield* transferStep({
+        yield* call(transferStep, {
           transferAmount: audioBalance,
           rootAccount,
           transactionHandler,
@@ -1064,7 +1075,7 @@ function* recoverPurchaseIfNecessary() {
 
 function* doStartBuyAudioFlow(action: ReturnType<typeof startBuyAudioFlow>) {
   yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
-  yield* call(recoverPurchaseIfNecessary)
+  yield* put(startRecoveryIfNecessary())
 }
 
 function* watchCalculateAudioPurchaseInfo() {
@@ -1080,7 +1091,15 @@ function* watchStartBuyAudioFlow() {
 }
 
 function* watchRecovery() {
-  yield* call(recoverPurchaseIfNecessary)
+  // Use takeLeading since:
+  // 1) We don't want to run more than one recovery flow at a time (so not takeEvery)
+  // 2) We don't need to interrupt if already running (so not takeLatest)
+  // 3) We do want to be able to trigger more than one time per session in case of same-session failures (so not take)
+  yield takeLeading(startRecoveryIfNecessary, recoverPurchaseIfNecessary)
+}
+
+function* recoverOnPageLoad() {
+  yield* put(startRecoveryIfNecessary())
 }
 
 export default function sagas() {
@@ -1088,6 +1107,7 @@ export default function sagas() {
     watchOnRampOpened,
     watchCalculateAudioPurchaseInfo,
     watchStartBuyAudioFlow,
-    watchRecovery
+    watchRecovery,
+    recoverOnPageLoad
   ]
 }
