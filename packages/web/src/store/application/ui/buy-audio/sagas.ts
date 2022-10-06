@@ -539,7 +539,7 @@ function* purchaseStep({
       limit: 1
     }
   )
-  const initialTransaction = initialTransactions[0].signature
+  const initialTransaction = initialTransactions?.[0]?.signature
 
   // Wait for on ramp finish
   const result = yield* race({
