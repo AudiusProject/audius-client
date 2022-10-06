@@ -1081,6 +1081,10 @@ function* watchStartBuyAudioFlow() {
 }
 
 function* watchRecovery() {
+  // Use takeLeading since:
+  // 1) We don't want to run more than one recovery flow at a time (so not takeEvery)
+  // 2) We don't need to interrupt if already running (so not takeLatest)
+  // 3) We do want to be able to trigger more than one time per session in case of same-session failures (so not take)
   yield takeLeading(startRecoveryIfNecessary, recoverPurchaseIfNecessary)
 }
 
