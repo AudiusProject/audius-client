@@ -4,16 +4,7 @@ import {
   reachabilitySelectors,
   getContext
 } from '@audius/common'
-import {
-  put,
-  all,
-  delay,
-  take,
-  takeEvery,
-  select,
-  call,
-  race
-} from 'typed-redux-saga'
+import { put, all, take, takeEvery, select, call } from 'typed-redux-saga'
 
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
