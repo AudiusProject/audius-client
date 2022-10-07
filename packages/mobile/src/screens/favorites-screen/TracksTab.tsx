@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import {
-  FeatureFlags,
   useProxySelector,
   savedPageActions,
   playerSelectors,
@@ -18,19 +17,13 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Button, Tile, VirtualizedScrollView } from 'app/components/core'
+import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { make, track } from 'app/services/analytics'
-import {
-  downloadTrack,
-  loadStoredTracks,
-  purgeAllDownloads,
-  useLoadStoredTracks
-} from 'app/services/offline-downloader'
+import { useLoadStoredTracks } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
@@ -68,10 +61,6 @@ const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
-  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //     FeatureFlags.OFFLINE_MODE_ENABLED
-  //   )
-  const isOfflineModeEnabled = true
   const handleFetchSaves = useCallback(() => {
     dispatch(fetchSaves())
   }, [dispatch])
@@ -85,13 +74,6 @@ export const TracksTab = () => {
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTracks = useProxySelector(getTracks, [])
-
-  const handleDownloadAllTracks = useCallback(() => {
-    if (!isOfflineModeEnabled) return
-    savedTracks.entries.forEach((track) => {
-      downloadTrack(track.track_id, 'favorites')
-    })
-  }, [isOfflineModeEnabled, savedTracks])
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -145,18 +127,6 @@ export const TracksTab = () => {
           <EmptyTileCTA message={messages.emptyTabText} />
         ) : (
           <>
-            {isOfflineModeEnabled ? (
-              <>
-                <Button
-                  onPress={handleDownloadAllTracks}
-                  title='Download All Favorites'
-                />
-                <Button
-                  onPress={purgeAllDownloads}
-                  title='Purge All Downloads'
-                />
-              </>
-            ) : null}
             <FilterInput
               value={filterValue}
               placeholder={messages.inputPlaceholder}
