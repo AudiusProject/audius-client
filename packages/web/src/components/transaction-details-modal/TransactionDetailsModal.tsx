@@ -23,15 +23,19 @@ const { getTransactionDetails } = transactionDetailsSelectors
 
 const messages = {
   transactionDetails: 'Transaction Details',
-  done: 'Done',
+  done: 'Go Back',
   error: 'Something went wrong.'
 }
 
 export const TransactionDetailsModal = () => {
   const [isOpen, setIsOpen] = useModalState('TransactionDetails')
+  const [, setBuyAudioModalOpen] = useModalState('BuyAudio')
   const transactionDetails = useSelector(getTransactionDetails)
 
-  const handleClose = useCallback(() => setIsOpen(false), [setIsOpen])
+  const handleClose = useCallback(() => {
+    setIsOpen(false)
+    setBuyAudioModalOpen(true)
+  }, [setIsOpen, setBuyAudioModalOpen])
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} bodyClassName={styles.root}>

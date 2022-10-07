@@ -6,9 +6,12 @@ import {
   formatNumberString
 } from '@audius/common'
 import { Button, ButtonSize, ButtonType, IconInfo } from '@audius/stems'
+import { push as pushRoute } from 'connected-react-router'
+import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
+import { TRENDING_PAGE } from 'utils/route'
 
 import { IconAUDIO } from './Icons'
 import styles from './SuccessPage.module.css'
@@ -17,12 +20,12 @@ const messages = {
   successMessage: 'Transaction Was Successful!',
   audio: '$AUDIO',
   review: 'Review Transaction',
-  done: 'Done'
+  done: 'Go Support Your Favorite Artists'
 }
-
 const { getTransactionDetails } = transactionDetailsSelectors
 
 export const SuccessPage = () => {
+  const dispatch = useDispatch()
   const transactionDetails = useSelector(getTransactionDetails)
   const [, setModalVisibility] = useModalState('BuyAudio')
   const [, setTransactionDetailsModalVisibility] =
@@ -30,12 +33,13 @@ export const SuccessPage = () => {
 
   const handleDoneClicked = useCallback(() => {
     setModalVisibility(false)
-  }, [setModalVisibility])
+    dispatch(pushRoute(TRENDING_PAGE))
+  }, [setModalVisibility, dispatch])
 
   const handleReviewTransactionClicked = useCallback(() => {
     setTransactionDetailsModalVisibility(true)
     setModalVisibility(false)
-  }, [setModalVisibility, setTransactionDetailsModalVisibility])
+  }, [setTransactionDetailsModalVisibility, setModalVisibility])
 
   return (
     <div className={styles.successPage}>
