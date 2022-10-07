@@ -37,12 +37,12 @@ export const StripeBuyAudioButton = () => {
 
   const handleSessionUpdate = useCallback(
     (e) => {
-      console.log('Stripe Session updated:', e)
       if (e.payload.session.state === 'fulfillment_complete') {
         dispatch(onRampSucceeded())
+        setIsStripeModalVisible(false)
       }
     },
-    [dispatch]
+    [dispatch, setIsStripeModalVisible]
   )
 
   const handleClick = useCallback(async () => {
