@@ -23,6 +23,7 @@ import { useThemeColors } from 'app/utils/theme'
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
 import type { TrackMetadata } from './types'
+import { TrackDownloadIndicator } from '../offline-downloads/TrackDownloadIndicator'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
@@ -233,6 +234,7 @@ export const TrackListItem = ({
             <UserBadges user={track.user} badgeSize={12} hideName />
           </Text>
         </View>
+        <TrackDownloadIndicator trackId={track.id} />
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}

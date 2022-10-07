@@ -10,6 +10,11 @@ import { uniq } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
+import {
+  completeDownload,
+  errorDownload,
+  startDownload
+} from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
 
@@ -27,9 +32,15 @@ export const downloadTrack = async (trackId: number, collection: string) => {
   const track = getTrack(state, { id: trackId })
   if (!track) return false
 
-  await downloadCoverArt(track)
-  await tryDownloadTrackFromEachCreatorNode(track)
-  await writeTrackJson(track, collection)
+  store.dispatch(startDownload(trackId.toString()))
+  try {
+    await downloadCoverArt(track)
+    await tryDownloadTrackFromEachCreatorNode(track)
+    await writeTrackJson(track, collection)
+    store.dispatch(completeDownload(trackId.toString()))
+  } catch (e) {
+    store.dispatch(errorDownload(trackId.toString()))
+  }
 }
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
