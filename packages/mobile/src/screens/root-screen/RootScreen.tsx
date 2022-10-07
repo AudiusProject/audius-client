@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
@@ -45,12 +45,13 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   const { updateRequired } = useUpdateRequired()
   const isBackendSetup = useSelector(getIsSetup)
 
+  const handleSetupBackend = useCallback(() => {
+    if (isReadyToSetupBackend && !isBackendSetup) dispatch(setupBackend())
+  }, [dispatch, isBackendSetup, isReadyToSetupBackend])
+
   useEffect(() => {
-    // Setup the backend when ready
-    if (isReadyToSetupBackend) {
-      dispatch(setupBackend())
-    }
-  }, [dispatch, isReadyToSetupBackend])
+    handleSetupBackend()
+  }, [dispatch, handleSetupBackend, isBackendSetup, isReadyToSetupBackend])
 
   useAppState(
     () => dispatch(enterForeground()),
@@ -64,7 +65,7 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   }, [accountStatus])
 
   useBecomeReachable(() => {
-    if (isReadyToSetupBackend && !isBackendSetup) dispatch(setupBackend())
+    handleSetupBackend()
   })
 
   return (

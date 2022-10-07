@@ -6,6 +6,8 @@ import {
 } from '@audius/common'
 import { put, all, take, takeEvery, select, call } from 'typed-redux-saga'
 
+import { getReachability } from '../reachability/sagas'
+
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 const { getIsReachable } = reachabilitySelectors
@@ -42,7 +44,13 @@ export function* setupBackend() {
   apiClient.init()
   // Fire-and-forget init fp
   fingerprintClient.init()
+  const isReachable = yield* call(getReachability)
   yield* put(accountActions.fetchAccount())
+
+  if (!isReachable) {
+    yield* put(accountActions.fetchAccountNoInternet())
+  }
+
   const { web3Error, libsError } = yield* call(audiusBackendInstance.setup)
   if (libsError) {
     yield* put(accountActions.fetchAccountFailed({ reason: 'LIBS_ERROR' }))

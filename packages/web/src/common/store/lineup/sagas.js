@@ -120,13 +120,7 @@ function* fetchLineupMetadatasAsync(
   action
 ) {
   const initLineup = yield select(lineupSelector)
-  const establishedReachability = yield call(awaitReachability)
-  // If we couldn't connect, show the error page
-  // and just sit here waiting for reachability.
-  if (!establishedReachability) {
-    yield put(lineupActions.fetchLineupMetadatasFailed())
-    yield take(reachabilityActions.SET_REACHABLE)
-  }
+  yield call(awaitReachability)
 
   const initSource = sourceSelector
     ? yield select((state) =>
@@ -153,9 +147,7 @@ function* fetchLineupMetadatasAsync(
         yield delay(100)
       }
 
-      // TODO: await reachability (race vs timeout?)
       const lineupMetadatasResponse = yield call(lineupMetadatasCall, action)
-      console.log(`metadatasResponse: ${lineupMetadatasResponse}`)
 
       if (lineupMetadatasResponse === null) {
         yield put(lineupActions.fetchLineupMetadatasFailed())
