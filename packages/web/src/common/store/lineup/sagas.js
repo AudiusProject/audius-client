@@ -9,7 +9,6 @@ import {
   cacheUsersSelectors,
   lineupActions as baseLineupActions,
   queueActions,
-  reachabilityActions,
   playerSelectors,
   queueSelectors
 } from '@audius/common'
