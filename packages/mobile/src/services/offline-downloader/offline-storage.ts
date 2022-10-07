@@ -1,7 +1,7 @@
 import path from 'path'
 
 import type { Track } from '@audius/common'
-import RNFS, { exists } from 'react-native-fs'
+import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -13,14 +13,22 @@ export const getLocalTracksRoot = () => {
   return path.join(downloadsRoot, `/tracks`)
 }
 
+export const getLocalTrackDirById = (trackId: string): string => {
+  return path.join(getLocalTracksRoot(), trackId)
+}
+
 export const getLocalTrackDir = (track: Track): string => {
-  return path.join(getLocalTracksRoot(), track.track_id.toString())
+  return getLocalTrackDirById(track.track_id.toString())
 }
 
 // Track Json
 
+export const getLocalTrackJsonPathById = (trackId: string) => {
+  return path.join(getLocalTrackDirById(trackId), `${trackId}.json`)
+}
+
 export const getLocalTrackJsonPath = (track: Track) => {
-  return path.join(getLocalTrackDir(track), `${track.track_id}.json`)
+  return getLocalTrackJsonPathById(track.track_id.toString())
 }
 
 // Cover Art
@@ -45,6 +53,15 @@ export const isAudioAvailableOffline = async (track: Track) => {
 }
 
 // Storage management
+
+export const listTracks = async (): Promise<string[]> => {
+  const files = await readDir(getLocalTracksRoot())
+  return files.filter((file) => file.isDirectory).map((file) => file.name)
+}
+
+export const getTrackJson = async (trackId: string): Promise<Track> => {
+  return JSON.parse(await readFile(getLocalTrackJsonPathById(trackId))) as Track
+}
 
 /** Debugging method to clear all downloaded content */
 export const purgeAllDownloads = async () => {

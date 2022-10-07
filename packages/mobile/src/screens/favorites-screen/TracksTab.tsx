@@ -27,7 +27,9 @@ import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { make, track } from 'app/services/analytics'
 import {
   downloadTrack,
-  purgeAllDownloads
+  loadStoredTracks,
+  purgeAllDownloads,
+  useLoadStoredTracks
 } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
 
@@ -66,14 +68,17 @@ const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //     FeatureFlags.OFFLINE_MODE_ENABLED
+  //   )
+  const isOfflineModeEnabled = true
   const handleFetchSaves = useCallback(() => {
     dispatch(fetchSaves())
   }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
+
+  useLoadStoredTracks()
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
