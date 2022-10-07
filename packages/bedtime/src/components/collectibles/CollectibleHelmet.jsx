@@ -4,7 +4,6 @@ import { getAudiusHostname } from "../../util/getEnv";
 import { getHash } from "./collectibleHelpers";
 
 const CollectibleHelmet = ({ collectiblesInfo }) => {
-  console.log({ collectiblesInfo })
   if (!collectiblesInfo) {
         return null
     }

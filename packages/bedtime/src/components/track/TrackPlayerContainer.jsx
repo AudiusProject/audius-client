@@ -143,7 +143,6 @@ const TrackPlayerContainer = ({
       />
     )
   }
-  console.log('in track palyer container')
   return (
     <>
       <TrackHelmet track={track} />
