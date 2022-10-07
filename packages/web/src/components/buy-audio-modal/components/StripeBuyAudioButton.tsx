@@ -47,7 +47,6 @@ export const StripeBuyAudioButton = () => {
 
   const handleClick = useCallback(async () => {
     if (!amount || !purchaseInfo || purchaseInfo?.isError === true) {
-      dispatch(calculateAudioPurchaseInfo({ audioAmount: 0 }))
       return
     }
     dispatch(onRampOpened(purchaseInfo))
