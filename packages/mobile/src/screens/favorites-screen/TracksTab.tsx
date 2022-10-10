@@ -14,8 +14,8 @@ import {
   savedPageSelectors,
   tracksSocialActions
 } from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
@@ -66,8 +66,6 @@ export const TracksTab = () => {
   }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
-
-  useLoadStoredTracks()
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
