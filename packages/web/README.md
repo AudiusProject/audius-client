@@ -22,6 +22,7 @@
 ## Development
 
 There are 3 environments you can develop against
+
 - dev (local net, see the [Audius Protocol](https://github.com/AudiusProject/audius-protocol))
 - stage (test net)
 - prod (main net)
@@ -50,6 +51,7 @@ npm run build:<environment>
 To run audius-client/web with a local version of @audius/sdk run:
 
 - In a separate terminal for `audius-protocol/libs`
+
 ```bash
 npm link
 npm run dev
@@ -58,11 +60,14 @@ npm run dev
 This will link @audius/sdk, and also run it it dev mode, which will transpiles changes and triggers a hot-reload in web.
 
 - In terminal for `audius-client/packages/web`
+
 ```bash
 npm link @audius/sdk
 ```
 
 Then start the application using the start/build commands above.
+
+If those steps do not work, follow [these instructions](https://www.notion.so/audiusproject/Running-libs-sdk-locally-against-local-client-mobile-or-web-b7f0570dd03d48e896a7450078b051ce) to link @audius/libs using yalc.
 
 ### Electron (Desktop App)
 
@@ -114,7 +119,9 @@ npm run lint:fix  # Fix lint errors
 ```
 
 ### Web Workers
+
 Audius DApp supports [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) by default to perform heavyweight async tasks. In order to include a package dependency for a worker, a scripts exists:
+
 > ./scripts/publishScripts.sh
 
 that sources JS files from /node_modules and exports a copy to /public/scripts for the
@@ -122,8 +129,8 @@ worker to pull via ImportScripts. See /src/workers for examples.
 
 ## Useful links
 
-* [React](https://reactjs.org/tutorial/tutorial.html)
-* [Redux](https://redux.js.org/basics)
-* [Redux Saga](https://redux-saga.js.org/)
-* [Redux Saga Test Plan](https://github.com/jfairbank/redux-saga-test-plan)
-* [JavaScript Standard Style](https://standardjs.com)
+- [React](https://reactjs.org/tutorial/tutorial.html)
+- [Redux](https://redux.js.org/basics)
+- [Redux Saga](https://redux-saga.js.org/)
+- [Redux Saga Test Plan](https://github.com/jfairbank/redux-saga-test-plan)
+- [JavaScript Standard Style](https://standardjs.com)

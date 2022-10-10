@@ -55,6 +55,10 @@ If you run into issues, try cleaning the android build folder
 cd android && ./gradlew clean && cd ..
 ```
 
+### Using local linked version of @audius/libs (@audius/sdk)
+
+Follow [these instructions](https://www.notion.so/audiusproject/Running-libs-sdk-locally-against-local-client-mobile-or-web-b7f0570dd03d48e896a7450078b051ce).
+
 ## Debugging
 
 - To debug the app, install [React Native Debugger](https://github.com/jhen0409/react-native-debugger) and enable debugging (Cmd + D) in the simulator.
@@ -69,6 +73,8 @@ adb logcat '*:V'
 - Sometimes the app will crash due a configuration error or something outside of the realm of JS and you won't get any helpful information from React Native. In those cases, it's time to break open XCode and run from there to pinpoint the issue.
 
 ## Helpful
+
+- See [Mobile development tips/troubleshooting](https://www.notion.so/Mobile-development-tips-troubleshooting-b8466900a227495089864cf44c42e2d3)
 
 - If your app is crashing after running for a second, or crashing on startup with no error message, it's probably an environment variable problem, and you should check to make sure you have them all. Debug using XCode.
 
