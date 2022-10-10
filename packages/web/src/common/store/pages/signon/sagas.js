@@ -16,7 +16,8 @@ import {
   getContext,
   settingsPageActions,
   MAX_HANDLE_LENGTH,
-  PushNotificationSetting
+  PushNotificationSetting,
+  FollowSource
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import {
@@ -448,6 +449,11 @@ function* signUp() {
         yield put(signOnActions.signUpSucceeded())
         yield put(signOnActions.sendWelcomeEmail(name))
         yield call(fetchAccountAsync, { isSignUp: true })
+        if (referrer != null) {
+          yield put(
+            socialActions.followUser(referrer, FollowSource.REFERRAL_SIGN_UP)
+          )
+        }
       },
       function* ({ timeout }) {
         if (timeout) {
