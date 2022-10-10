@@ -2,6 +2,7 @@ import path from 'path'
 
 import type { Track } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
+import { track } from '../analytics'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -13,28 +14,20 @@ export const getLocalTracksRoot = () => {
   return path.join(downloadsRoot, `/tracks`)
 }
 
-export const getLocalTrackDirById = (trackId: string): string => {
+export const getLocalTrackDir = (trackId: string): string => {
   return path.join(getLocalTracksRoot(), trackId)
-}
-
-export const getLocalTrackDir = (track: Track): string => {
-  return getLocalTrackDirById(track.track_id.toString())
 }
 
 // Track Json
 
-export const getLocalTrackJsonPathById = (trackId: string) => {
-  return path.join(getLocalTrackDirById(trackId), `${trackId}.json`)
-}
-
-export const getLocalTrackJsonPath = (track: Track) => {
-  return getLocalTrackJsonPathById(track.track_id.toString())
+export const getLocalTrackJsonPath = (trackId: string) => {
+  return path.join(getLocalTrackDir(trackId), `${trackId}.json`)
 }
 
 // Cover Art
 
-export const getLocalCoverArtPath = (track: Track, uri: string) => {
-  return path.join(getLocalTrackDir(track), getArtFileNameFromUri(uri))
+export const getLocalCoverArtPath = (trackId: string, uri: string) => {
+  return path.join(getLocalTrackDir(trackId), getArtFileNameFromUri(uri))
 }
 
 export const getArtFileNameFromUri = (uri: string) => {
@@ -44,12 +37,12 @@ export const getArtFileNameFromUri = (uri: string) => {
 
 // Audio
 
-export const getLocalAudioPath = (track: Track): string => {
-  return path.join(getLocalTrackDir(track), `${track.track_id}.mp3`)
+export const getLocalAudioPath = (trackId: string): string => {
+  return path.join(getLocalTrackDir(trackId), `${trackId}.mp3`)
 }
 
-export const isAudioAvailableOffline = async (track: Track) => {
-  return await exists(getLocalAudioPath(track))
+export const isAudioAvailableOffline = async (trackId: string) => {
+  return await exists(getLocalAudioPath(trackId))
 }
 
 // Storage management
@@ -60,7 +53,24 @@ export const listTracks = async (): Promise<string[]> => {
 }
 
 export const getTrackJson = async (trackId: string): Promise<Track> => {
-  return JSON.parse(await readFile(getLocalTrackJsonPathById(trackId))) as Track
+  return JSON.parse(await readFile(getLocalTrackJsonPath(trackId))) as Track
+}
+
+export const verifyTrack = async (track: Track): Promise<boolean> => {
+  const trackId = track.track_id.toString()
+  const audioFile = exists(getLocalAudioPath(trackId))
+  // TODO: check for all required art
+  const artFile = exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
+  const jsonFile = exists(getLocalTrackJsonPath(trackId))
+
+  const results = await Promise.all([audioFile, artFile, jsonFile])
+  const [audioExists, artExists, jsonExists] = results
+
+  !audioExists && console.warn(`Missing audio for ${trackId}`)
+  !artExists && console.warn(`Missing art for ${trackId}`)
+  !jsonExists && console.warn(`Missing json for ${trackId}`)
+
+  return results.every((exists) => exists)
 }
 
 /** Debugging method to clear all downloaded content */

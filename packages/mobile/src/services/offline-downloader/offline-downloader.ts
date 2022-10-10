@@ -21,7 +21,8 @@ import { apiClient } from '../audius-api-client'
 import {
   getLocalAudioPath,
   getLocalCoverArtPath,
-  getLocalTrackJsonPath
+  getLocalTrackJsonPath,
+  verifyTrack
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
@@ -30,16 +31,25 @@ const { getTrack } = cacheTracksSelectors
 export const downloadTrack = async (trackId: number, collection: string) => {
   const state = store.getState()
   const track = getTrack(state, { id: trackId })
+  const trackIdString = trackId.toString()
   if (!track) return false
 
-  store.dispatch(startDownload(trackId.toString()))
+  store.dispatch(startDownload(trackIdString))
   try {
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
     await writeTrackJson(track, collection)
-    store.dispatch(completeDownload(trackId.toString()))
+    const verified = await verifyTrack(track)
+    store.dispatch(
+      verified ? completeDownload(trackIdString) : errorDownload(trackIdString)
+    )
+    console.log(
+      `Downloaded track ${trackIdString} ${verified ? 'success' : 'failed'}`
+    )
+    return verified
   } catch (e) {
-    store.dispatch(errorDownload(trackId.toString()))
+    store.dispatch(errorDownload(trackIdString))
+    return false
   }
 }
 

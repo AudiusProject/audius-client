@@ -27,6 +27,7 @@ import { useLoadStoredTracks } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
+import { useFocusEffect } from '@react-navigation/native'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
