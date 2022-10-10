@@ -450,9 +450,15 @@ function* signUp() {
         yield put(signOnActions.sendWelcomeEmail(name))
         yield call(fetchAccountAsync, { isSignUp: true })
         if (referrer != null) {
-          yield put(
-            socialActions.followUser(referrer, FollowSource.REFERRAL_SIGN_UP)
+          const shouldAutoFollowReferrer = yield call(
+            getFeatureEnabled,
+            FeatureFlags.AUTO_FOLLOW_REFERRER
           )
+          if (shouldAutoFollowReferrer) {
+            yield put(
+              socialActions.followUser(referrer, FollowSource.REFERRAL_SIGN_UP)
+            )
+          }
         }
       },
       function* ({ timeout }) {
