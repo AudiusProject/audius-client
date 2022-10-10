@@ -16,12 +16,16 @@ import {
   useGetFirstOrTopSupporter
 } from '@audius/common'
 import {
+  Button,
+  ButtonType,
+  IconCaretRight,
   IconTrophy,
   TokenAmountInput,
   TokenAmountInputChangeHandler
 } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
+import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
@@ -29,10 +33,13 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
+import { AUDIO_PAGE } from 'utils/route'
 
 import { ProfileInfo } from '../../profile-info/ProfileInfo'
 
 import styles from './TipAudio.module.css'
+
+const { resetSend } = tippingActions
 const { getAccountBalance } = walletSelectors
 const { getOptimisticSupporters, getOptimisticSupporting, getSendUser } =
   tippingSelectors
@@ -43,7 +50,8 @@ const messages = {
   availableToSend: 'AVAILABLE TO SEND',
   sendATip: 'Send Tip',
   enterAnAmount: 'Enter an amount',
-  insufficientBalance: 'Insufficient Balance',
+  insufficientBalance: 'Not enough $AUDIO',
+  buyMore: 'Buy More $AUDIO',
   tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
   becomeTopSupporterPrefix: 'Tip ',
   becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter',
@@ -191,11 +199,17 @@ export const SendTip = () => {
           disabled={isDisabled}
         />
       </div>
-      {hasInsufficientBalance && (
-        <div className={cn(styles.flexCenter, styles.error)}>
-          {messages.insufficientBalance}
-        </div>
-      )}
+      <div className={cn(styles.flexCenter)}>
+        <Button
+          type={ButtonType.TEXT}
+          text={messages.buyMore}
+          rightIcon={<IconCaretRight />}
+          onClick={() => {
+            dispatch(push(AUDIO_PAGE))
+            dispatch(resetSend())
+          }}
+        />
+      </div>
     </div>
   ) : null
 }
