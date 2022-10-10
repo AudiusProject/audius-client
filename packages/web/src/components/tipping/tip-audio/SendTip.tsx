@@ -50,7 +50,6 @@ const messages = {
   availableToSend: 'AVAILABLE TO SEND',
   sendATip: 'Send Tip',
   enterAnAmount: 'Enter an amount',
-  insufficientBalance: 'Not enough $AUDIO',
   buyMore: 'Buy More $AUDIO',
   tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
   becomeTopSupporterPrefix: 'Tip ',
