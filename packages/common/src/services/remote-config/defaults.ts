@@ -63,8 +63,13 @@ export const remoteConfigStringDefaults: {
   [StringKeys.ORACLE_ENDPOINT]: null,
   [StringKeys.REWARDS_ATTESTATION_ENDPOINTS]: null,
   [StringKeys.MIN_APP_VERSION]: '1.0.0',
-  [StringKeys.BUY_AUDIO_PRESET_AMOUNTS]: '5,10,25,50,100'
+  [StringKeys.BUY_AUDIO_PRESET_AMOUNTS]: '5,10,25,50,100',
+  [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES]: '',
+  [StringKeys.STRIPE_ALLOWED_COUNTRIES]:
+    'AUT,BEL,BGR,HRV,CYP,CZE,DNK,EST,FIN,FRA,DEU,GIB,GRC,HUN,IRL,ITA,LVA,LTU,LUX,MLT,NLD,NOR,POL,PRT,ROU,SVK,SVN,ESP,SWE,CHE,GBR,USA',
+  [StringKeys.STRIPE_DENIED_REGIONS]: 'NY'
 }
+
 export const remoteConfigDoubleDefaults: {
   [key in DoubleKeys]: number | null
 } = {
