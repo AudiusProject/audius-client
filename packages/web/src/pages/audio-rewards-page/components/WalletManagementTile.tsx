@@ -9,12 +9,14 @@ import {
   formatWei,
   buyAudioActions,
   OnRampProvider,
-  FeatureFlags
+  FeatureFlags,
+  StringKeys
 } from '@audius/common'
 import { Button, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
+import { useAsync } from 'react-use'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
@@ -24,7 +26,9 @@ import { useModalState } from 'common/hooks/useModalState'
 import { CollapsibleContent } from 'components/collapsible-content'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { OnRampButton } from 'components/on-ramp-button/OnRampButton'
-import { useFlag } from 'hooks/useRemoteConfig'
+import Tooltip from 'components/tooltip/Tooltip'
+import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
+import { getLocation } from 'services/Location'
 import { isMobile } from 'utils/clientUtil'
 
 import TokenHoverTooltip from './TokenHoverTooltip'
@@ -48,7 +52,11 @@ const messages = {
   checkoutWithCoinbase: 'Checkout with Coinbase Pay',
   showAdvanced: 'Show Advanced',
   hideAdvanced: 'Hide Advanced',
-  advancedOptions: 'Advanced Options'
+  advancedOptions: 'Advanced Options',
+  stripeRegionNotSupported:
+    'Stripe payments are not yet supported in your region',
+  coinbasePayRegionNotSupported:
+    'Coinbase Pay is not yet supported in your region'
 }
 
 const AdvancedWalletActions = () => {
@@ -149,6 +157,25 @@ export const WalletManagementTile = () => {
   const { isEnabled: isStripeEnabled } = useFlag(
     FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
   )
+  const coinbaseAllowedCountries = (
+    useRemoteVar(StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES) ?? ''
+  ).split(',')
+  const stripeAllowedCountries = (
+    useRemoteVar(StringKeys.STRIPE_ALLOWED_COUNTRIES) ?? ''
+  ).split(',')
+  const stripeDeniedRegions = (
+    useRemoteVar(StringKeys.STRIPE_DENIED_REGIONS) ?? ''
+  ).split(',')
+
+  const { value } = useAsync(getLocation, [])
+
+  const isCoinbaseAllowed =
+    !value ||
+    coinbaseAllowedCountries.some((c) => c === value.country_code_iso3)
+  const isStripeAllowed =
+    !value ||
+    (stripeAllowedCountries.some((c) => c === value.country_code_iso3) &&
+      !stripeDeniedRegions.some((r) => r === value.region_code))
 
   const onClickOpen = useCallback(() => {
     setOpen(true)
@@ -209,18 +236,42 @@ export const WalletManagementTile = () => {
         </div>
         <div className={styles.onRampButtons}>
           {isStripeEnabled ? (
-            <OnRampButton
-              provider={OnRampProvider.STRIPE}
-              className={styles.payWithStripeButton}
-              onClick={onBuyWithStripeClicked}
-            />
+            <Tooltip
+              disabled={isStripeAllowed}
+              className={styles.tooltip}
+              text={messages.stripeRegionNotSupported}
+              color={'--secondary'}
+              shouldWrapContent={false}
+            >
+              <div>
+                <OnRampButton
+                  provider={OnRampProvider.STRIPE}
+                  className={styles.onRampButton}
+                  disabled={!isStripeAllowed}
+                  isDisabled={!isStripeAllowed}
+                  onClick={onBuyWithStripeClicked}
+                />
+              </div>
+            </Tooltip>
           ) : null}
           {isCoinbaseEnabled ? (
-            <OnRampButton
-              provider={OnRampProvider.COINBASE}
-              className={styles.payWithCoinbaseButton}
-              onClick={onBuyWithCoinbaseClicked}
-            />
+            <Tooltip
+              disabled={isCoinbaseAllowed}
+              className={styles.tooltip}
+              text={messages.coinbasePayRegionNotSupported}
+              color={'--secondary'}
+              shouldWrapContent={false}
+            >
+              <div>
+                <OnRampButton
+                  provider={OnRampProvider.COINBASE}
+                  className={styles.onRampButton}
+                  disabled={!isCoinbaseAllowed}
+                  isDisabled={!isCoinbaseAllowed}
+                  onClick={onBuyWithCoinbaseClicked}
+                />
+              </div>
+            </Tooltip>
           ) : null}
         </div>
         <CollapsibleContent
