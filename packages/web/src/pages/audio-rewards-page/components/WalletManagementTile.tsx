@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   Nullable,
@@ -28,7 +28,7 @@ import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer
 import { OnRampButton } from 'components/on-ramp-button/OnRampButton'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
-import { getLocation } from 'services/Location'
+import { getLocation, Location } from 'services/Location'
 import { isMobile } from 'utils/clientUtil'
 
 import TokenHoverTooltip from './TokenHoverTooltip'
@@ -144,6 +144,22 @@ const AdvancedWalletActions = () => {
   )
 }
 
+const isLocationSupported = ({
+  location,
+  allowedCountries,
+  deniedRegions
+}: {
+  location?: Location | null
+  allowedCountries: string[]
+  deniedRegions: string[]
+}) => {
+  return (
+    !location ||
+    (allowedCountries.some((c) => c === location.country_code_iso3) &&
+      !deniedRegions.some((r) => r === location.region_code))
+  )
+}
+
 export const WalletManagementTile = () => {
   const dispatch = useDispatch()
   const totalBalance: Nullable<BNWei> =
@@ -160,6 +176,9 @@ export const WalletManagementTile = () => {
   const coinbaseAllowedCountries = (
     useRemoteVar(StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES) ?? ''
   ).split(',')
+  const coinbaseDeniedRegions = (
+    useRemoteVar(StringKeys.COINBASE_PAY_DENIED_REGIONS) ?? ''
+  ).split(',')
   const stripeAllowedCountries = (
     useRemoteVar(StringKeys.STRIPE_ALLOWED_COUNTRIES) ?? ''
   ).split(',')
@@ -169,13 +188,24 @@ export const WalletManagementTile = () => {
 
   const { value } = useAsync(getLocation, [])
 
-  const isCoinbaseAllowed =
-    !value ||
-    coinbaseAllowedCountries.some((c) => c === value.country_code_iso3)
-  const isStripeAllowed =
-    !value ||
-    (stripeAllowedCountries.some((c) => c === value.country_code_iso3) &&
-      !stripeDeniedRegions.some((r) => r === value.region_code))
+  const isCoinbaseAllowed = useMemo(
+    () =>
+      isLocationSupported({
+        location: value,
+        allowedCountries: coinbaseAllowedCountries,
+        deniedRegions: coinbaseDeniedRegions
+      }),
+    [value, coinbaseAllowedCountries, coinbaseDeniedRegions]
+  )
+  const isStripeAllowed = useMemo(
+    () =>
+      isLocationSupported({
+        location: value,
+        allowedCountries: stripeAllowedCountries,
+        deniedRegions: stripeDeniedRegions
+      }),
+    [value, stripeAllowedCountries, stripeDeniedRegions]
+  )
 
   const onClickOpen = useCallback(() => {
     setOpen(true)

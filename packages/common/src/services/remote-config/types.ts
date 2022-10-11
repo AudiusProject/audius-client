@@ -286,6 +286,9 @@ export enum StringKeys {
   /** Allowed Countries for Coinbase Pay */
   COINBASE_PAY_ALLOWED_COUNTRIES = 'COINBASE_PAY_ALLOWED_COUNTRIES',
 
+  /** Denied Regions for Coinbase Pay */
+  COINBASE_PAY_DENIED_REGIONS = 'COINBASE_PAY_DENIED_REGIONS',
+
   /** Allowed Countries for Link by Stripe */
   STRIPE_ALLOWED_COUNTRIES = 'STRIPE_ALLOWED_COUNTRIES',
 

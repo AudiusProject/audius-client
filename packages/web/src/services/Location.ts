@@ -1,4 +1,4 @@
-type Location = {
+export type Location = {
   asn: string
   city: string
   continent_code: string
