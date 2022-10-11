@@ -4,6 +4,8 @@ type Location = {
   continent_code: string
   country: string
   country_calling_code: string
+  country_code: string
+  country_code_iso3: string
   country_name: string
   currency: string
   in_eu: boolean
