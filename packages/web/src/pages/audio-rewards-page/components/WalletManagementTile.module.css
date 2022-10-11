@@ -152,7 +152,6 @@
 
 .manageWalletsButton:hover,
 div:only-child > .onRampButton:not(:disabled):hover {
-  border-color: red !important;
   transform: perspective(1px) scale3d(1.02, 1.02, 1.02) !important;
 }
 div:not(:only-child) > .onRampButton:not(:disabled):hover {
