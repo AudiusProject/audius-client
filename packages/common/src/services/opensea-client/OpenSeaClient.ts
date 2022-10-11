@@ -17,7 +17,6 @@ import {
   isNotFromNullAddress
 } from './ethCollectibleHelpers'
 
-// const OPENSEA_API_URL = process.env.REACT_APP_OPENSEA_API_URL
 const OPENSEA_NUM_ASSETS_LIMIT = 1000
 
 export class OpenSeaClient {
