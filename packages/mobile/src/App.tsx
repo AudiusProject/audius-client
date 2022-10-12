@@ -28,6 +28,7 @@ import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
 import { useEnterForeground } from './hooks/useAppState'
+import { OfflineLoader } from './components/offline-downloads/OfflineLoader'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -88,6 +89,7 @@ const App = () => {
                 <Audio />
                 <OAuth />
                 <NotificationReminder />
+                <OfflineLoader />
               </NavigationContainer>
             </ErrorBoundary>
           </ToastContextProvider>

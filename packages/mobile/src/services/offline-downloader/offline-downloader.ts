@@ -39,7 +39,7 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
     await writeTrackJson(track, collection)
-    const verified = await verifyTrack(track)
+    const verified = await verifyTrack(trackIdString)
     store.dispatch(
       verified ? completeDownload(trackIdString) : errorDownload(trackIdString)
     )
@@ -48,6 +48,7 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     )
     return verified
   } catch (e) {
+    console.error(e)
     store.dispatch(errorDownload(trackIdString))
     return false
   }
@@ -67,7 +68,10 @@ const writeTrackJson = async (track: Track, collection: string) => {
     }
   }
 
-  const pathToWrite = getLocalTrackJsonPath(track)
+  const pathToWrite = getLocalTrackJsonPath(track.track_id.toString())
+  if (await exists(pathToWrite)) {
+    await RNFS.unlink(pathToWrite)
+  }
   await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
 }
 
@@ -76,7 +80,10 @@ const downloadCoverArt = async (track: Track) => {
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
     coverArtUris.map(async (coverArtUri) => {
-      const destination = getLocalCoverArtPath(track, coverArtUri)
+      const destination = getLocalCoverArtPath(
+        track.track_id.toString(),
+        coverArtUri
+      )
       await downloadIfNotExists(coverArtUri, destination)
     })
   )
@@ -93,7 +100,7 @@ const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
   )[0] as UserMetadata
   const encodedTrackId = encodeHashId(track.track_id)
   const creatorNodeEndpoints = user.creator_node_endpoint.split(',')
-  const destination = getLocalAudioPath(track)
+  const destination = getLocalAudioPath(track.track_id.toString())
 
   for (const creatorNodeEndpoint of creatorNodeEndpoints) {
     const uri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`

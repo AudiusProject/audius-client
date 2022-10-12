@@ -12,10 +12,11 @@ import {
   lineupSelectors,
   savedPageTracksLineupActions as tracksActions,
   savedPageSelectors,
-  tracksSocialActions
+  tracksSocialActions,
+  reachabilitySelectors
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffectOnce } from 'react-use'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
@@ -24,15 +25,16 @@ import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { make, track } from 'app/services/analytics'
 import { useLoadStoredTracks } from 'app/services/offline-downloader'
+import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
-import { useFocusEffect } from '@react-navigation/native'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
 const { fetchSaves } = savedPageActions
 const { makeGetTableMetadatas } = lineupSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any tracks yet.",
@@ -67,6 +69,9 @@ export const TracksTab = () => {
   }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
+  useLoadStoredTracks()
+  const offlineTracks = useSelector(getOfflineTracks)
+  const isReachable = useSelector(getIsReachable)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
@@ -116,8 +121,13 @@ export const TracksTab = () => {
     [dispatch, isPlaying, playingUid]
   )
 
-  const isLoading = savedTracksStatus !== Status.SUCCESS
-  const hasNoFavorites = savedTracks.entries.length === 0
+  let isLoading = savedTracksStatus !== Status.SUCCESS
+  let tracks = savedTracks.entries
+  if (!isReachable) {
+    isLoading = false
+    tracks = Object.values(offlineTracks)
+  }
+  const hasNoFavorites = tracks.length === 0
 
   return (
     <WithLoader loading={isLoading}>
@@ -131,7 +141,7 @@ export const TracksTab = () => {
               placeholder={messages.inputPlaceholder}
               onChangeText={setFilterValue}
             />
-            {savedTracks.entries.length ? (
+            {tracks.length ? (
               <Tile
                 styles={{
                   root: styles.container,
@@ -143,7 +153,7 @@ export const TracksTab = () => {
                   showDivider
                   togglePlay={togglePlay}
                   trackItemAction='save'
-                  tracks={savedTracks.entries.filter(filterTrack)}
+                  tracks={tracks.filter(filterTrack)}
                   hideArt
                 />
               </Tile>

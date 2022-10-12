@@ -2,7 +2,6 @@ import path from 'path'
 
 import type { Track } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
-import { track } from '../analytics'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -48,22 +47,37 @@ export const isAudioAvailableOffline = async (trackId: string) => {
 // Storage management
 
 export const listTracks = async (): Promise<string[]> => {
-  const files = await readDir(getLocalTracksRoot())
+  const tracksDir = getLocalTracksRoot()
+  if (!(await exists(tracksDir))) {
+    return []
+  }
+  const files = await readDir(tracksDir)
   return files.filter((file) => file.isDirectory).map((file) => file.name)
 }
 
 export const getTrackJson = async (trackId: string): Promise<Track> => {
-  return JSON.parse(await readFile(getLocalTrackJsonPath(trackId))) as Track
+  const trackJson = await readFile(getLocalTrackJsonPath(trackId))
+  console.log(`got track json for ${trackId}`)
+  try {
+    const track = JSON.parse(trackJson)
+    console.log('parsed track', track.track_id)
+
+    return track
+  } catch (e) {
+    console.error(e)
+    console.log(trackJson)
+    return e
+  }
 }
 
-export const verifyTrack = async (track: Track): Promise<boolean> => {
-  const trackId = track.track_id.toString()
+export const verifyTrack = async (trackId: string): Promise<boolean> => {
   const audioFile = exists(getLocalAudioPath(trackId))
   // TODO: check for all required art
-  const artFile = exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
+  // const artFile = exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
+  const artFile = true
   const jsonFile = exists(getLocalTrackJsonPath(trackId))
 
-  const results = await Promise.all([audioFile, artFile, jsonFile])
+  const results = await Promise.allSettled([audioFile, artFile, jsonFile])
   const [audioExists, artExists, jsonExists] = results
 
   !audioExists && console.warn(`Missing audio for ${trackId}`)

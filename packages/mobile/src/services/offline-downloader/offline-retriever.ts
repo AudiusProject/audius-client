@@ -1,14 +1,11 @@
 // TODO: move to hooks
 
-import {
-  FeatureFlags,
-  savedPageTracksLineupActions,
-  reachabilitySelectors
-} from '@audius/common'
+import { FeatureFlags, reachabilitySelectors, Track } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { loadTracks } from 'app/store/offline-downloads/slice'
 
 import { getTrackJson, listTracks } from './offline-storage'
 const { getIsReachable } = reachabilitySelectors
@@ -22,21 +19,23 @@ export const useLoadStoredTracks = async () => {
   const isReachable = useSelector(getIsReachable)
 
   useAsync(async () => {
-    if (!isOfflineModeEnabled || isReachable) {
-      return
-    }
+    console.log('got here')
+    // if (!isOfflineModeEnabled || isReachable) {
+    //   console.log(
+    //     'skipping offline track load: ',
+    //     isOfflineModeEnabled ? 'offline enabled' : 'offline disabled',
+    //     isReachable ? 'reachable' : 'not reachable'
+    //   )
+    //   return
+    // }
+
     const trackIds = await listTracks()
-    const trackJsons = await Promise.all(
-      trackIds.map((trackId) => getTrackJson(trackId))
-    )
-    dispatch(
-      savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
-        trackJsons,
-        0,
-        0,
-        false,
-        false
-      )
-    )
-  })
+    const trackJsons: Track[] = []
+    for (const trackId of trackIds) {
+      getTrackJson(trackId)
+        .then((trackJson) => trackJsons.push(trackJson))
+        .catch(() => console.warn('Failed to load track from disk', trackId))
+    }
+    dispatch(loadTracks(trackJsons))
+  }, [isOfflineModeEnabled, isReachable, loadTracks])
 }
