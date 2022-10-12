@@ -12,14 +12,6 @@ export const bottomTabBarButtons = {
   profile: ProfileButton
 }
 
-export const bottomTabBarButtonz = [
-  ['feed', FeedButton],
-  ['trending', TrendingButton],
-  ['explore', ExploreButton],
-  ['favorites', FavoritesButton],
-  ['profile', ProfileButton]
-] as const
-
 export * from './ExploreButton'
 export * from './FavoritesButton'
 export * from './FeedButton'
