@@ -790,7 +790,6 @@ export const audiusBackend = ({
 
   function getSolanaAudiusDataConfig() {
     if (!anchorProgramId || !anchorAdminAccount) {
-      console.warn('Missing solana audius data config')
       return {
         error: true
       }
@@ -813,7 +812,6 @@ export const audiusBackend = ({
       !ethTokenBridgeAddress ||
       !solTokenBridgeAddress
     ) {
-      console.warn('Missing wormhole configs')
       return {
         error: true
       }

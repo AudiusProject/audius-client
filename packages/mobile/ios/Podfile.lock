@@ -414,6 +414,8 @@ PODS:
     - React
   - react-native-image-picker (4.7.3):
     - React-Core
+  - react-native-keep-awake (4.0.0):
+    - React
   - react-native-music-control (1.4.0):
     - React-Core
   - react-native-netinfo (9.3.0):
@@ -525,7 +527,7 @@ PODS:
     - React-Core
     - RNFBApp
   - RNFingerprintjsPro (1.0.4):
-    - FingerprintPro (~> 2.1.3)
+    - FingerprintPro (~> 2.1.2)
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -608,6 +610,7 @@ DEPENDENCIES:
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-google-cast (from `../node_modules/react-native-google-cast/ios`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
+  - react-native-keep-awake (from `../node_modules/react-native-keep-awake`)
   - react-native-music-control (from `../node_modules/react-native-music-control`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -742,6 +745,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-google-cast/ios"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
+  react-native-keep-awake:
+    :path: "../node_modules/react-native-keep-awake"
   react-native-music-control:
     :path: "../node_modules/react-native-music-control"
   react-native-netinfo:
@@ -885,6 +890,7 @@ SPEC CHECKSUMS:
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-google-cast: 553c31d49840e2f357fde9a3dd0977fbe28d79ba
   react-native-image-picker: ae1202414bd5c37c00b2a701daa5b6194a06b7d9
+  react-native-keep-awake: eba3137546b10003361b37c761f6c429b59814ae
   react-native-music-control: 0eef94942456152af21316afd53923e1dd6360b0
   react-native-netinfo: f473620bc118d6f44ce65669dd4810a7cfb36a7d
   react-native-pager-view: a9ba7d4218dcff32c0cdb41237c62fb487f013dd
@@ -915,7 +921,7 @@ SPEC CHECKSUMS:
   RNFBAnalytics: 74cd9c60531ed33e5347b2dccafa172ae1a851a4
   RNFBApp: 5bae3002117e55f3c9aa0fb38175dd16c8046c90
   RNFBCrashlytics: 33615211c6c6c4039ae71849091f6ac38ab65aba
-  RNFingerprintjsPro: 991a0049fba1c1778f8940a6360c23f6b3061075
+  RNFingerprintjsPro: 317426b3f0479c4737960f7aa90b0f8a02ac07f9
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92

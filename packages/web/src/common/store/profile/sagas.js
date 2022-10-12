@@ -17,8 +17,7 @@ import {
   dataURLtoFile,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
-  MAX_PROFILE_TOP_SUPPORTERS,
-  OpenSeaClient
+  MAX_PROFILE_TOP_SUPPORTERS
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -93,13 +92,13 @@ function* fetchProfileCustomizedCollectibles(user) {
           }
         ])
       )
-      console.log('something went wrong, could not get user collectibles order')
     }
   }
 }
 
 export function* fetchOpenSeaAssetsForWallets(wallets) {
-  return yield call(OpenSeaClient.getAllCollectibles, wallets)
+  const openSeaClient = yield getContext('openSeaClient')
+  return yield call([openSeaClient, openSeaClient.getAllCollectibles], wallets)
 }
 
 export function* fetchOpenSeaAssets(user) {
@@ -113,18 +112,20 @@ export function* fetchOpenSeaAssets(user) {
   ])
 
   const collectibleList = Object.values(collectiblesMap).flat()
-  if (collectibleList.length !== 0) {
-    yield put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: user.user_id,
-          metadata: {
-            collectibleList
-          }
-        }
-      ])
-    )
+  if (!collectibleList.length) {
+    console.log('profile has no assets in OpenSea')
   }
+
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: {
+          collectibleList
+        }
+      }
+    ])
+  )
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -147,16 +148,18 @@ export function* fetchSolanaCollectibles(user) {
   )
 
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
-  if (solanaCollectibleList.length !== 0) {
-    yield put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: user.user_id,
-          metadata: { solanaCollectibleList }
-        }
-      ])
-    )
+  if (!solanaCollectibleList.length) {
+    console.log('profile has no Solana NFTs')
   }
+
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: { solanaCollectibleList }
+      }
+    ])
+  )
 }
 
 function* fetchSupportersAndSupporting(userId) {

@@ -34,8 +34,8 @@
   "dependencies": {
     "@amplitude/react-native": "2.6.0",
     "@audius/common": "1.3.8",
-    "@audius/sdk": "1.0.8",
-    "@fingerprintjs/fingerprintjs-pro-react-native": "2.0.0",
+    "@audius/sdk": "1.0.12",
+    "@fingerprintjs/fingerprintjs-pro-react-native": "2.0.0-test.2",
     "@gorhom/portal": "1.0.9",
     "@hcaptcha/react-native-hcaptcha": "1.3.4",
     "@optimizely/optimizely-sdk": "4.0.0",
@@ -91,6 +91,7 @@
     "react-native-google-cast": "4.2.4",
     "react-native-haptic-feedback": "1.11.0",
     "react-native-image-picker": "4.7.3",
+    "react-native-keep-awake": "4.0.0",
     "react-native-linear-gradient": "github:react-native-linear-gradient/react-native-linear-gradient.git#9aece37cdf7d33ed52a1747b36e9e84f3c7a49ef",
     "react-native-markdown-display": "7.0.0-alpha.2",
     "react-native-modal": "11.5.4",
