@@ -41,6 +41,7 @@ export const downloadTrack = async (trackId: number, collection: string) => {
   const user = getUser(state, { id: track?.owner_id })
   const trackIdString = trackId.toString()
   if (!track || !user) {
+    // TODO: try getting it from the API
     store.dispatch(errorDownload(trackIdString))
     return false
   }
