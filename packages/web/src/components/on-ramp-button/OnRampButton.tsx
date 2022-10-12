@@ -2,14 +2,15 @@ import { OnRampProvider } from '@audius/common'
 import { Button, ButtonProps, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 
-import { ReactComponent as StripeLogo } from 'assets/img/LogoStripe.svg'
+import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as CoinbaseLogo } from 'assets/img/coinbase-pay/LogoCoinbase.svg'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import styles from './OnRampButton.module.css'
 
 const messages = {
-  buyWith: 'Buy with'
+  buyWith: 'Buy with',
+  buyUsing: 'Buy using'
 }
 
 export const OnRampButton = (
@@ -19,15 +20,16 @@ export const OnRampButton = (
   const darkMode = isDarkMode() || isMatrix()
   const isStripe = provider === OnRampProvider.STRIPE
   const isCoinbase = provider === OnRampProvider.COINBASE
+  const buttonPrefix = isStripe ? messages.buyUsing : messages.buyWith
 
   return (
     <Button
-      aria-label={`${messages.buyWith} ${provider}`}
+      aria-label={`${buttonPrefix} ${provider}`}
       text={
         <>
-          <span>{messages.buyWith}</span>
+          <span>{buttonPrefix}</span>
           {isStripe ? (
-            <StripeLogo className={styles.logo} width={67} height={28} />
+            <LogoStripeLink className={styles.logo} width={145} height={32} />
           ) : (
             <CoinbaseLogo className={styles.logo} width={97} height={18} />
           )}

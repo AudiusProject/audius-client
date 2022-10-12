@@ -1,3 +1,10 @@
+.coinbaseButton {
+  --brandColor: #0052ff;
+}
+.stripeButton {
+  --brandColor: #00aaf5;
+}
+
 /** Default **/
 .button:not(:disabled) {
   background: transparent !important;
@@ -14,18 +21,13 @@
 }
 .logo path {
   transition: all var(--quick);
+  fill: var(--brandColor);
 }
-.stripeButton:not(:disabled) {
-  border-color: #635bff;
+.button:not(:disabled) {
+  border-color: var(--brandColor);
 }
-.coinbaseButton:not(:disabled) {
-  border-color: #0052ff;
-}
-.stripeButton .textClassName {
-  color: #635bff;
-}
-.coinbaseButton .textClassName {
-  color: #0052ff;
+.button .textClassName {
+  color: var(--brandColor);
 }
 
 /** Dark mode special cases **/
@@ -43,13 +45,9 @@
 .button:hover:not(:disabled) {
   transform: none;
 }
-.stripeButton:hover:not(:disabled) {
-  background: #635bff !important;
-  border-color: #635bff;
-}
-.coinbaseButton:hover:not(:disabled) {
-  background: #0052ff !important;
-  border-color: #0052ff;
+.button:hover:not(:disabled) {
+  background: var(--brandColor) !important;
+  border-color: var(--brandColor);
 }
 .button:hover:not(:disabled) .textClassName {
   color: var(--static-white);
