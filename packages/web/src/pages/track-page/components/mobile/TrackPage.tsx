@@ -39,7 +39,7 @@ export type OwnProps = {
   title: string
   description: string
   canonicalUrl: string
-  structuredData?: object
+  structuredData?: Object
   hasValidRemixParent: boolean
   // Hero Track Props
   heroTrack: Track | null
