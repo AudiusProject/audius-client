@@ -20,10 +20,11 @@ import UserBadges from 'app/components/user-badges'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
+import { TrackDownloadIndicator } from '../offline-downloads/TrackDownloadIndicator'
+
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
 import type { TrackMetadata } from './types'
-import { TrackDownloadIndicator } from '../offline-downloads/TrackDownloadIndicator'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'

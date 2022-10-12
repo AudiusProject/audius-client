@@ -1,10 +1,16 @@
 import path from 'path'
 
-import type { Track, UserMetadata } from '@audius/common'
+import type {
+  Track,
+  User,
+  UserMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import {
   encodeHashId,
   accountSelectors,
-  cacheTracksSelectors
+  cacheTracksSelectors,
+  cacheUsersSelectors
 } from '@audius/common'
 import { uniq } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
@@ -26,19 +32,24 @@ import {
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
+const { getUser } = cacheUsersSelectors
 
 /** Main entrypoint - perform all steps required to complete a download */
 export const downloadTrack = async (trackId: number, collection: string) => {
   const state = store.getState()
   const track = getTrack(state, { id: trackId })
+  const user = getUser(state, { id: track?.owner_id })
   const trackIdString = trackId.toString()
-  if (!track) return false
+  if (!track || !user) {
+    store.dispatch(errorDownload(trackIdString))
+    return false
+  }
 
   store.dispatch(startDownload(trackIdString))
   try {
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
-    await writeTrackJson(track, collection)
+    await writeTrackJson(track, user, collection)
     const verified = await verifyTrack(trackIdString)
     store.dispatch(
       verified ? completeDownload(trackIdString) : errorDownload(trackIdString)
@@ -55,8 +66,8 @@ export const downloadTrack = async (trackId: number, collection: string) => {
 }
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
-const writeTrackJson = async (track: Track, collection: string) => {
-  const trackToWrite: Track = {
+const writeTrackJson = async (track: Track, user: User, collection: string) => {
+  const trackToWrite: UserTrackMetadata = {
     ...track,
     offline: {
       downloaded_from_collection: uniq([
@@ -65,7 +76,8 @@ const writeTrackJson = async (track: Track, collection: string) => {
       ]),
       download_completed_time: Date.now(),
       last_verified_time: Date.now()
-    }
+    },
+    user
   }
 
   const pathToWrite = getLocalTrackJsonPath(track.track_id.toString())
