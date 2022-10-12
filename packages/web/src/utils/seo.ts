@@ -2,41 +2,151 @@
  * SEO Utlity functions to generate titles and descriptions
  */
 
-export const getTrackPageTitle = ({
-  title,
-  handle
+import {
+  fullAlbumPage,
+  fullPlaylistPage,
+  fullProfilePage,
+  fullTrackPage
+} from './route'
+
+export const getUserPageSEOFields = ({
+  handle,
+  userName,
+  bio
 }: {
-  title: string
   handle: string
+  userName: string
+  bio: string
 }) => {
-  if (!title) return ''
-  if (!handle) return title
-  return `${title} by ${handle}`
+  const pageTitle = userName
+  const pageDescription = `Play ${userName} on Audius and discover followers on Audius | Stream tracks, albums, playlists on desktop and mobile`
+  const canonicalUrl = fullProfilePage(handle)
+  const structuredData = {
+    '@context': 'http://schema.googleapis.com/',
+    '@type': 'MusicGroup',
+    '@id': canonicalUrl,
+    datePublished: null,
+    url: canonicalUrl,
+    name: userName,
+    description: bio || pageDescription,
+    potentialAction: {
+      '@type': 'ListenAction',
+      target: [
+        {
+          '@type': 'EntryPoint',
+          urlTemplate: canonicalUrl
+        }
+      ],
+      expectsAcceptanceOf: {
+        '@type': 'Offer',
+        category: 'free',
+        eligibleRegion: []
+      }
+    }
+  }
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    canonicalUrl,
+    structuredData
+  }
 }
 
-type getTrackPageDescriptionProps = {
-  releaseDate: string
-  duration: string
-  tags: string[]
-  genre: string
-  mood: string
-  description: string
+export const getTrackPageSEOFields = ({
+  title,
+  userName,
+  permalink,
+  releaseDate
+}: {
+  title?: string
+  userName?: string
+  permalink?: string
+  releaseDate?: string
+}) => {
+  if (!title || !userName || !permalink) return {}
+  const pageTitle = `${title} by ${userName}`
+  const pageDescription = `Stream ${title} by ${userName} on Audius | Stream similar artists to ${userName} on desktop and mobile`
+  const canonicalUrl = fullTrackPage(permalink)
+  const structuredData = {
+    '@context': 'http://schema.googleapis.com/',
+    '@type': 'MusicRecording',
+    '@id': canonicalUrl,
+    url: canonicalUrl,
+    name: title,
+    description: pageDescription,
+    datePublished: releaseDate || null,
+    potentialAction: {
+      '@type': 'ListenAction',
+      target: [
+        {
+          '@type': 'EntryPoint',
+          urlTemplate: canonicalUrl
+        }
+      ],
+      expectsAcceptanceOf: {
+        '@type': 'Offer',
+        category: 'free',
+        eligibleRegion: []
+      }
+    }
+  }
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    canonicalUrl,
+    structuredData
+  }
 }
-export const getTrackPageDescription = ({
-  releaseDate,
-  tags,
-  duration,
-  genre,
-  mood,
-  description
-}: getTrackPageDescriptionProps) => {
-  // Note, release date and duration will be defined if the track metadata is fetched.
-  if (!releaseDate) return ''
-  const tagText =
-    Array.isArray(tags) && tags.length > 0 ? ` | Tags: ${tags.join(', ')}` : ''
-  const genreText = genre ? ` | Genre: ${genre}` : ''
-  const durationText = duration ? ` | Duration: ${duration}` : ''
-  const moodText = mood ? ` | Mood: ${mood}` : ''
-  const descriptionText = description ? ` | ${description}` : ''
-  return `Released: ${releaseDate}${genreText}${moodText}${durationText}${tagText}${descriptionText}`
+
+export const getCollectionPageSEOFields = ({
+  playlistName,
+  playlistId,
+  userName,
+  userHandle,
+  isAlbum
+}: {
+  playlistName?: string
+  playlistId?: number
+  userName?: string
+  userHandle?: string
+  isAlbum?: boolean
+}) => {
+  if (!playlistName || !playlistId || !userName || !userHandle) return {}
+
+  const pageTitle = `${playlistName} by ${userName}`
+  const pageDescription = `Listen to ${playlistName} by ${userName} on Audius | Stream tracks, albums, playlists on desktop and mobile`
+  const canonicalUrl = isAlbum
+    ? fullAlbumPage(userHandle, playlistName, playlistId)
+    : fullPlaylistPage(userHandle, playlistName, playlistId)
+  const structuredData = {
+    '@context': 'http://schema.googleapis.com/',
+    '@type': 'MusicAlbum',
+    '@id': canonicalUrl,
+    url: canonicalUrl,
+    name: playlistName,
+    description: pageDescription,
+    potentialAction: {
+      '@type': 'ListenAction',
+      target: [
+        {
+          '@type': 'EntryPoint',
+          urlTemplate: canonicalUrl
+        }
+      ],
+      expectsAcceptanceOf: {
+        '@type': 'Offer',
+        category: 'free',
+        eligibleRegion: []
+      }
+    }
+  }
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    canonicalUrl,
+    structuredData
+  }
 }
