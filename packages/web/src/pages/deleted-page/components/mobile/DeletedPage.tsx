@@ -82,6 +82,7 @@ const DeletedPage = g(
     title,
     description,
     canonicalUrl,
+    structuredData,
     playable,
     deletedByArtist = true,
     user,
@@ -165,6 +166,7 @@ const DeletedPage = g(
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
+        structuredData={structuredData}
       >
         <div className={styles.contentWrapper}>
           {renderTile()}
