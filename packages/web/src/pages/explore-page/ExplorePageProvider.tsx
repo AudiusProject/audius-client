@@ -21,7 +21,9 @@ const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   title: 'Explore',
-  description: 'Explore featured content on Audius'
+  pageTitle: 'Explore featured content on Audius',
+  description:
+    'Explore featured content on Audius | Stream tracks, albums, playlists on desktop and mobile'
 }
 
 type OwnProps = {
@@ -59,6 +61,7 @@ const ExplorePage = ({
 
   const childProps = {
     title: messages.title,
+    pageRitle: messages.pageTitle,
     description: messages.description,
     // Props from AppState
     account,

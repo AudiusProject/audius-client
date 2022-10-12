@@ -34,7 +34,8 @@ const useTrendingUndergroundLineup = (containerRef: HTMLElement) => {
 
 const messages = {
   trendingUndergroundTitle: 'Underground Trending',
-  description: "Listen to what's trending on the Audius platform"
+  description:
+    "Listen to what's trending on the Audius platform | Stream tracks, albums, playlists on desktop and mobile"
 }
 
 type TrendingUndergroundPageProps = {

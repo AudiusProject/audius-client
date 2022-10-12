@@ -22,7 +22,8 @@ const { getLineup } = trendingPlaylistsPageLineupSelectors
 
 const messages = {
   trendingPlaylistTile: 'Trending Playlists',
-  description: 'Trending Playlists on Audius'
+  description:
+    'Trending Playlists on Audius | Stream tracks, albums, playlists on desktop and mobile'
 }
 
 /** Wraps useLineupProps to return trending playlist lineup props */

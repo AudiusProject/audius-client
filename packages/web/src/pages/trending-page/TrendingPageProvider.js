@@ -45,7 +45,9 @@ const getHasAccount = accountSelectors.getHasAccount
 
 const messages = {
   trendingTitle: 'Trending',
-  trendingDescription: "Listen to what's trending on the Audius platform"
+  pageTitle: "Listen to what's trending on the Audius platform",
+  trendingDescription:
+    "Listen to what's trending on the Audius platform | Stream tracks, albums, playlists on desktop and mobile"
 }
 
 // Dynamically dispatch call to a lineup action based on a timeRange
@@ -178,6 +180,7 @@ class TrendingPageProvider extends PureComponent {
   render() {
     const childProps = {
       trendingTitle: messages.trendingTitle,
+      pageTitle: messages.pageTitle,
       trendingDescription: messages.trendingDescription,
       trending: this.props.trending,
       trendingWeek: this.props.trendingWeek,
