@@ -150,6 +150,11 @@
   width: 100%;
 }
 
+.payWithStripeButton:only-child,
+.payWithCoinbaseButton:only-child {
+  transition: all 120ms ease-in-out;
+}
+
 .manageWalletsButton:hover,
 div:only-child > .onRampButton:not(:disabled):hover {
   transform: perspective(1px) scale3d(1.02, 1.02, 1.02) !important;
