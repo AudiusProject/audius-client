@@ -149,10 +149,8 @@
 .onRampButton {
   width: 100%;
 }
-
-.payWithStripeButton:only-child,
-.payWithCoinbaseButton:only-child {
-  transition: all 120ms ease-in-out;
+.onRampButtons > div:only-child > .onRampButton {
+  transition: all 120ms ease-in-out !important;
 }
 
 .manageWalletsButton:hover,
