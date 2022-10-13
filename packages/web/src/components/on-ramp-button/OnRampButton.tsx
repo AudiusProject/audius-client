@@ -4,7 +4,6 @@ import cn from 'classnames'
 
 import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as CoinbaseLogo } from 'assets/img/coinbase-pay/LogoCoinbase.svg'
-import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import styles from './OnRampButton.module.css'
 
@@ -17,7 +16,6 @@ export const OnRampButton = (
   props: Omit<ButtonProps, 'text'> & { provider: OnRampProvider }
 ) => {
   const { className, textClassName, provider, ...otherProps } = props
-  const darkMode = isDarkMode() || isMatrix()
   const isStripe = provider === OnRampProvider.STRIPE
   const isCoinbase = provider === OnRampProvider.COINBASE
   const buttonPrefix = isStripe ? messages.buyUsing : messages.buyWith
@@ -41,7 +39,6 @@ export const OnRampButton = (
         styles.button,
         { [styles.stripeButton]: isStripe },
         { [styles.coinbaseButton]: isCoinbase },
-        { [styles.darkMode]: darkMode },
         className
       )}
       textClassName={cn(styles.textClassName, textClassName)}

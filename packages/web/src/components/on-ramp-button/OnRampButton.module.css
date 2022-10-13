@@ -11,6 +11,7 @@
   border: 1px solid var(--brandColor);
 }
 .button .textClassName {
+  color: var(--static-white);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -21,17 +22,6 @@
 .logo path {
   transition: all var(--quick);
   fill: var(--static-white);
-}
-
-/** Dark mode special cases **/
-.button.darkMode {
-  border: 1px solid var(--neutral);
-}
-.button.darkMode .textClassName {
-  color: var(--neutral);
-}
-.button.darkMode .logo path {
-  fill: var(--neutral);
 }
 
 /** Hover **/
