@@ -8,6 +8,7 @@
 /** Default **/
 .button:enabled {
   background: var(--brandColor);
+  border: 1px solid var(--brandColor);
 }
 .button .textClassName {
   display: inline-flex;
