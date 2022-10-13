@@ -17,10 +17,13 @@
   border-radius: 100%;
 }
 .transactionIconMini.stripe {
-  background: #635bff;
+  background: #00aaf5;
 }
 .transactionIconMini.coinbase {
   background-color: #0052ff;
+}
+.stripeLogo path {
+  fill: #00aaf5;
 }
 
 .method {
