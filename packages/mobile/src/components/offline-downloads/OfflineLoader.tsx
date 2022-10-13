@@ -1,25 +1,20 @@
+import type { Track } from '@audius/common'
 import {
   cacheActions,
-  cacheTracksSelectors,
   Kind,
-  LineupTrack,
   makeUid,
-  savedPageTracksLineupActions,
-  Track
+  savedPageTracksLineupActions
 } from '@audius/common'
+import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import {
-  getLocalTracksRoot,
   getTrackJson,
   listTracks,
-  readDirRec,
   verifyTrack
 } from 'app/services/offline-downloader'
 import { loadTrack } from 'app/store/offline-downloads/slice'
-import moment from 'moment'
-const {} = cacheTracksSelectors
 
 export const OfflineLoader = () => {
   //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(

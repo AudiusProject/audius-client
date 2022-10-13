@@ -1,4 +1,3 @@
-import type { Track } from '@audius/common'
 import { FeatureFlags } from '@audius/common'
 import { useAsync } from 'react-use'
 
@@ -9,15 +8,18 @@ import {
 
 import { useFeatureFlag } from './useRemoteConfig'
 
-export const useOfflineTrackUri = (track: Track | null) => {
+export const useOfflineTrackUri = (trackId?: string) => {
   //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
   //     FeatureFlags.OFFLINE_MODE_ENABLED
   //   )
   const isOfflineModeEnabled = true
   return useAsync(async () => {
-    if (!track || !isOfflineModeEnabled) return
-    if (!(await isAudioAvailableOffline(track))) return
-    const audioFilePath = getLocalAudioPath(track)
+    console.log('useOfflineTrack', trackId)
+    if (!trackId || !isOfflineModeEnabled) return
+    const available = await isAudioAvailableOffline(trackId)
+    console.log(available)
+    if (!(await isAudioAvailableOffline(trackId))) return
+    const audioFilePath = getLocalAudioPath(trackId)
     return `file://${audioFilePath}`
-  }, [track]).value
+  }, [trackId])
 }

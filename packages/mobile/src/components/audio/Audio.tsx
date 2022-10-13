@@ -331,7 +331,9 @@ export const Audio = () => {
       progressInvalidator
     ]
   )
-  const offlineTrackUri = useOfflineTrackUri(track)
+  const { value: offlineTrackUri, loading } = useOfflineTrackUri(
+    track?.track_id.toString()
+  )
 
   if (!track || track.is_delete) return null
 
@@ -356,6 +358,7 @@ export const Audio = () => {
     }
   }
 
+  if (loading) return null
   return (
     <View style={styles.backgroundVideo}>
       {source && (
