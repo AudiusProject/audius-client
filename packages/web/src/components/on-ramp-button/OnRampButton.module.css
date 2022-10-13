@@ -6,10 +6,8 @@
 }
 
 /** Default **/
-.button:not(:disabled) {
-  background: transparent !important;
-  border-width: 1px;
-  border-style: solid;
+.button:enabled {
+  background: var(--brandColor);
 }
 .button .textClassName {
   display: inline-flex;
@@ -21,13 +19,7 @@
 }
 .logo path {
   transition: all var(--quick);
-  fill: var(--brandColor);
-}
-.button:not(:disabled) {
-  border-color: var(--brandColor);
-}
-.button .textClassName {
-  color: var(--brandColor);
+  fill: var(--static-white);
 }
 
 /** Dark mode special cases **/
@@ -42,17 +34,15 @@
 }
 
 /** Hover **/
-.button:hover:not(:disabled) {
+.button:hover:enabled {
   transform: none;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+    var(--brandColor) !important;
 }
-.button:hover:not(:disabled) {
-  background: var(--brandColor) !important;
-  border-color: var(--brandColor);
-}
-.button:hover:not(:disabled) .textClassName {
+.button:hover:enabled .textClassName {
   color: var(--static-white);
 }
-.button:hover:not(:disabled) .logo path {
+.button:hover:enabled .logo path {
   fill: var(--static-white);
 }
 
