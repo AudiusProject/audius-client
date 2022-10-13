@@ -36,7 +36,6 @@ export const ProfileTabScreen =
         initialParams={{ handle: 'accountUser' }}
       />
       <Stack.Screen name='EditProfile' component={EditProfileScreen} />
-      <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
       <Stack.Screen name='AboutScreen' component={AboutScreen} />
       <Stack.Screen
         name='ListeningHistoryScreen'
@@ -50,7 +49,6 @@ export const ProfileTabScreen =
         name='NotificationSettingsScreen'
         component={NotificationSettingsScreen}
       />
-      <Stack.Screen name='AudioScreen' component={AudioScreen} />
       <Stack.Screen
         name='AccountVerificationScreen'
         component={AccountVerificationScreen}
