@@ -10,9 +10,10 @@ import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { AppDrawerContext } from '.'
 
-// Temporary navigation hook for notification components.
-// When MOBILE_NAV_OVERHAUL is true, use the native-drawer-nav
-// Otherwise use normal nav
+/** Temporary navigation hook for notification components.
+ * When MOBILE_NAV_OVERHAUL is true, use the normal nav
+ * Otherwise, use the native-drawer-nav
+ */
 export const useNotificationNavigation = () => {
   const { drawerHelpers } = useContext(AppDrawerContext)
   const { isEnabled: isNavOverhaulEnabled } = useFeatureFlag(
