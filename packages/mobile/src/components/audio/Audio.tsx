@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
+import type { Track, UserMetadata } from '@audius/common'
 import {
   accountSelectors,
   cacheUsersSelectors,
-  hlsUtils,
+  encodeHashId,
   Genre,
   playerSelectors,
   playerActions,
@@ -19,7 +20,6 @@ import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
-import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 import { useChromecast } from './GoogleCast'
 import { logListen } from './listens'
@@ -57,6 +57,12 @@ const styles = StyleSheet.create({
     right: 0
   }
 })
+
+const getStreamUri = (track: Track, trackOwner: UserMetadata) => {
+  const encodedTrackId = encodeHashId(track.track_id)
+  const creatorNodeEndpoint = trackOwner.creator_node_endpoint.split(',')[0]
+  return `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
+}
 
 export const Audio = () => {
   const track = useSelector(getCurrentTrack)
@@ -335,24 +341,14 @@ export const Audio = () => {
 
   if (!track || track.is_delete) return null
 
-  const gateways = trackOwner
-    ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-        trackOwner.creator_node_endpoint
-      )
-    : []
-
-  const m3u8 = hlsUtils.generateM3U8Variants({
-    segments: track.track_segments,
-    gateways
-  })
-
+  const streamUri = getStreamUri(track, trackOwner)
+  console.log(streamUri)
   let source
   if (offlineTrackUri) {
     source = { uri: offlineTrackUri }
-  } else if (m3u8) {
+  } else if (streamUri) {
     source = {
-      uri: m3u8,
-      type: 'm3u8'
+      uri: streamUri
     }
   }
 
