@@ -70,6 +70,7 @@ const Card = ({
   backgroundColor,
   twitterURL,
   children,
+  fillContainer,
   className
 }) => {
   const [cardStyle, setCardStyle] = useState({})
@@ -89,14 +90,21 @@ const Card = ({
   const { setDimensions } = useContext(CardDimensionsContext)
 
   useEffect(() => {
-    const resizeEventListener = () => {
-      setCardSize(setCardStyle, cardRef, mobileWebTwitter, isTwitter)
-    }
+    if (fillContainer) {
+      setCardStyle({
+        height: '100%',
+        width: '100%'
+      })
+    } else {
+      const resizeEventListener = () => {
+        setCardSize(setCardStyle, cardRef, mobileWebTwitter, isTwitter)
+      }
 
-    resizeEventListener()
-    window.addEventListener('resize', resizeEventListener);
-    return () => {
-      window.removeEventListener('resize', resizeEventListener);
+      resizeEventListener()
+      window.addEventListener('resize', resizeEventListener);
+      return () => {
+        window.removeEventListener('resize', resizeEventListener);
+      }
     }
   }, [setCardSize, setCardStyle, cardRef, mobileWebTwitter, isTwitter])
 
