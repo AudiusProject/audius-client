@@ -61,7 +61,7 @@ const ExplorePage = ({
 
   const childProps = {
     title: messages.title,
-    pageRitle: messages.pageTitle,
+    pageTitle: messages.pageTitle,
     description: messages.description,
     // Props from AppState
     account,

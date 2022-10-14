@@ -63,6 +63,7 @@ export type DeletedPageProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   deletedByArtist: boolean
 
   playable: Playable
