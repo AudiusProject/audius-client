@@ -8,7 +8,8 @@ import {
   profilePageActions,
   reachabilitySelectors,
   shareModalUIActions,
-  encodeUrlName
+  encodeUrlName,
+  FeatureFlags
 } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
 import { Animated, View } from 'react-native'
@@ -21,6 +22,7 @@ import { IconButton, Screen } from 'app/components/core'
 import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useRoute } from 'app/hooks/useRoute'
 import { TopBarIconButton } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles/makeStyles'
@@ -75,9 +77,12 @@ export const ProfileScreen = () => {
   const status = useSelector((state) => getProfileStatus(state, handleLower))
   const [isRefreshing, setIsRefreshing] = useState(false)
   const { neutralLight4, accentOrange } = useThemeColors()
-  const navigation = useNavigation<ProfileTabScreenParamList>()
+  const navigation = useNavigation()
   const isNotReachable = useSelector(getIsReachable) === false
   const isOwner = profile?.user_id === accountId
+  const { isEnabled: isNavbarOverhaulEnabled } = useFeatureFlag(
+    FeatureFlags.MOBILE_NAV_OVERHAUL
+  )
 
   const fetchProfile = useCallback(() => {
     dispatch(fetchProfileAction(handleLower, null, true, true, false))
@@ -120,22 +125,23 @@ export const ProfileScreen = () => {
     }
   }, [profile, dispatch])
 
-  const topbarLeft = isOwner ? (
-    <View style={styles.topBarIcons}>
-      <TopBarIconButton
-        icon={IconSettings}
-        onPress={handlePressSettings}
-        hitSlop={{ right: 2 }}
-      />
-      <TopBarIconButton
-        styles={{ root: styles.iconCrownRoot, icon: styles.iconCrown }}
-        fill={accentOrange}
-        icon={IconCrown}
-        onPress={handlePressAudio}
-        hitSlop={{ left: 2 }}
-      />
-    </View>
-  ) : undefined
+  const topbarLeft =
+    isOwner && !isNavbarOverhaulEnabled ? (
+      <View style={styles.topBarIcons}>
+        <TopBarIconButton
+          icon={IconSettings}
+          onPress={handlePressSettings}
+          hitSlop={{ right: 2 }}
+        />
+        <TopBarIconButton
+          styles={{ root: styles.iconCrownRoot, icon: styles.iconCrown }}
+          fill={accentOrange}
+          icon={IconCrown}
+          onPress={handlePressAudio}
+          hitSlop={{ left: 2 }}
+        />
+      </View>
+    ) : undefined
 
   const topbarRight = (
     <IconButton
