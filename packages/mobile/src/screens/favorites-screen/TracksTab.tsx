@@ -64,14 +64,16 @@ const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
+  const isReachable = useSelector(getIsReachable)
   const handleFetchSaves = useCallback(() => {
-    dispatch(fetchSaves())
-  }, [dispatch])
+    if (isReachable) {
+      dispatch(fetchSaves())
+    }
+  }, [dispatch, isReachable])
 
   useFocusEffect(handleFetchSaves)
   useLoadStoredTracks()
   const offlineTracks = useSelector(getOfflineTracks)
-  const isReachable = useSelector(getIsReachable)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)

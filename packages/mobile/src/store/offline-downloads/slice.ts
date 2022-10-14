@@ -51,6 +51,7 @@ const slice = createSlice({
     },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.tracks[trackId]
+      delete state.downloadStatus[trackId]
     }
   }
 })

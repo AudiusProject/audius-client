@@ -3,6 +3,9 @@ import path from 'path'
 import type { Track } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
+import { store } from 'app/store'
+import { unloadTrack } from 'app/store/offline-downloads/slice'
+
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
 export const getPathFromRoot = (string: string) => {
@@ -89,12 +92,16 @@ export const verifyTrack = async (trackId: string): Promise<boolean> => {
 
 /** Debugging method to clear all downloaded content */
 export const purgeAllDownloads = async () => {
+  const trackIds = await listTracks()
   console.log(`Before purge:`)
   await readDirRec(downloadsRoot)
   await RNFS.unlink(downloadsRoot)
   await RNFS.mkdir(downloadsRoot)
   console.log(`After purge:`)
   await readDirRec(downloadsRoot)
+  trackIds.forEach((trackId) => {
+    store.dispatch(unloadTrack(trackId))
+  })
 }
 
 /** Debugging method to read cached files */
