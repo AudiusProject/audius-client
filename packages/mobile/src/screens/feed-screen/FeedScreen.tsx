@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux'
 import { Screen } from 'app/components/core'
 import { Header } from 'app/components/header'
 import { Lineup } from 'app/components/lineup'
+import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
 
@@ -42,7 +43,9 @@ export const FeedScreen = () => {
   return (
     <Screen>
       <Header text={messages.header}>
-        <FeedFilterButton />
+        <OnlineOnly>
+          <FeedFilterButton />
+        </OnlineOnly>
       </Header>
       <ScreenContent>
         <Lineup

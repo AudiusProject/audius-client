@@ -1,5 +1,5 @@
-import { explorePageActions } from '@audius/common'
-import { useDispatch } from 'react-redux'
+import { explorePageActions, reachabilitySelectors } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import IconForYou from 'app/assets/images/iconExploreForYou.svg'
@@ -19,6 +19,7 @@ import { MoodsTab } from './tabs/MoodsTab'
 import { PlaylistsTab } from './tabs/PlaylistsTab'
 
 const { fetchExplore } = explorePageActions
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   header: 'Explore',
@@ -52,9 +53,12 @@ const exploreScreens = [
 const ExploreScreen = () => {
   const dispatch = useDispatch()
   usePopToTopOnDrawerOpen()
+  const isReachable = useSelector(getIsReachable)
 
   useEffectOnce(() => {
-    dispatch(fetchExplore())
+    if (isReachable) {
+      dispatch(fetchExplore())
+    }
   })
 
   return (
