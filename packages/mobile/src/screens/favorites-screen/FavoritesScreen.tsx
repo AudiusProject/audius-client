@@ -25,6 +25,10 @@ const { getSavedTracksLineup } = savedPageSelectors
 
 const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 
+const messages = {
+  header: 'Favorites'
+}
+
 const favoritesScreens = [
   {
     name: 'tracks',
@@ -54,7 +58,7 @@ export const FavoritesScreen = () => {
 
   return (
     <Screen>
-      <Header text='Favorites'>
+      <Header text={messages.header}>
         <DownloadToggle tracks={savedTracks.entries} />
       </Header>
       {

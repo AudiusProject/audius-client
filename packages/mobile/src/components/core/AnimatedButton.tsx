@@ -15,7 +15,7 @@ import { usePrevious } from 'react-use'
 import { light, medium } from 'app/haptics'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
-type IconJSON = AnimatedLottieViewProps['source']
+export type IconJSON = AnimatedLottieViewProps['source']
 
 export type Haptics = boolean | 'light' | 'medium'
 
@@ -176,11 +176,11 @@ export const AnimatedButton = ({
 
   return iconJSON ? (
     <Pressable
+      hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
       {...pressableProps}
       disabled={isDisabled}
       onPress={handlePress}
       onLongPress={handleLongPress}
-      hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
       style={style}
     >
       {(pressableState) => (
