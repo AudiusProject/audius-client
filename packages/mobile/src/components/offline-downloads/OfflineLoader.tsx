@@ -1,11 +1,5 @@
 import type { Track } from '@audius/common'
-import {
-  cacheActions,
-  Kind,
-  makeUid,
-  savedPageTracksLineupActions
-} from '@audius/common'
-import moment from 'moment'
+import { cacheActions, Kind, makeUid } from '@audius/common'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
@@ -26,18 +20,15 @@ export const OfflineLoader = () => {
   useAsync(async () => {
     if (isOfflineModeEnabled) {
       const trackIds = await listTracks()
-      const lineupTracks: (Track & { uid: string })[] = []
       for (const trackId of trackIds) {
-        console.log(`processing track ${trackId}`)
         const verified = await verifyTrack(trackId)
-        console.log(`track ${trackId} verified: ${verified}`)
+        if (!verified) continue
+
         const track = await getTrackJson(trackId)
-        console.log('loading track json: ', track)
         const lineupTrack = {
           uid: makeUid(Kind.TRACKS, track.track_id),
           ...track
         }
-        lineupTracks.push(lineupTrack)
         dispatch(loadTrack(lineupTrack))
         dispatch(
           cacheActions.add(
@@ -54,21 +45,6 @@ export const OfflineLoader = () => {
           )
         )
       }
-
-      dispatch(
-        savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
-          lineupTracks.map((track) => ({
-            uid: track.uid,
-            kind: Kind.TRACKS,
-            id: track.track_id,
-            dateSaved: moment()
-          })),
-          0,
-          lineupTracks.length,
-          false,
-          false
-        )
-      )
     }
   }, [])
 

@@ -35,15 +35,19 @@ const slice = createSlice({
       state.downloadStatus[trackId] = TrackDownloadStatus.SUCCESS
     },
     errorDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      state.downloadStatus[trackId] = TrackDownloadStatus.SUCCESS
+      state.downloadStatus[trackId] = TrackDownloadStatus.ERROR
     },
     loadTracks: (state, { payload: tracks }: PayloadAction<Track[]>) => {
       tracks.forEach((track) => {
-        state.tracks[track.track_id.toString()] = track
+        const trackIdStr = track.track_id.toString()
+        state.tracks[trackIdStr] = track
+        state.downloadStatus[trackIdStr] = TrackDownloadStatus.SUCCESS
       })
     },
     loadTrack: (state, { payload: track }: PayloadAction<Track>) => {
-      state.tracks[track.track_id.toString()] = track
+      const trackIdStr = track.track_id.toString()
+      state.tracks[trackIdStr] = track
+      state.downloadStatus[trackIdStr] = TrackDownloadStatus.SUCCESS
     },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.tracks[trackId]

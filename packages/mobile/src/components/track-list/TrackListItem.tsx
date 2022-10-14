@@ -235,7 +235,7 @@ export const TrackListItem = ({
             <UserBadges user={track.user} badgeSize={12} hideName />
           </Text>
         </View>
-        <TrackDownloadIndicator trackId={track.id} />
+        <TrackDownloadIndicator trackId={track_id} />
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}
