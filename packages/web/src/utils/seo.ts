@@ -9,6 +9,10 @@ import {
   fullTrackPage
 } from './route'
 
+export const createSeoDescription = (msg: string) => {
+  return `${msg} | Stream tracks, albums, playlists on desktop and mobile`
+}
+
 export const getUserPageSEOFields = ({
   handle,
   userName,
@@ -19,7 +23,9 @@ export const getUserPageSEOFields = ({
   bio: string
 }) => {
   const pageTitle = userName
-  const pageDescription = `Play ${userName} on Audius and discover followers on Audius | Stream tracks, albums, playlists on desktop and mobile`
+  const pageDescription = createSeoDescription(
+    `Play ${userName} on Audius and discover followers on Audius`
+  )
   const canonicalUrl = fullProfilePage(handle)
   const structuredData = {
     '@context': 'http://schema.googleapis.com/',
@@ -116,7 +122,9 @@ export const getCollectionPageSEOFields = ({
   if (!playlistName || !playlistId || !userName || !userHandle) return {}
 
   const pageTitle = `${playlistName} by ${userName}`
-  const pageDescription = `Listen to ${playlistName} by ${userName} on Audius | Stream tracks, albums, playlists on desktop and mobile`
+  const pageDescription = createSeoDescription(
+    `Listen to ${playlistName} by ${userName} on Audius`
+  )
   const canonicalUrl = isAlbum
     ? fullAlbumPage(userHandle, playlistName, playlistId)
     : fullPlaylistPage(userHandle, playlistName, playlistId)

@@ -12,6 +12,7 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { AppState } from 'store/types'
+import { createSeoDescription } from 'utils/seo'
 
 import { ExplorePageProps as DesktopExplorePageProps } from './components/desktop/ExplorePage'
 import { ExplorePageProps as MobileExplorePageProps } from './components/mobile/ExplorePage'
@@ -22,8 +23,7 @@ const getAccountUser = accountSelectors.getAccountUser
 const messages = {
   title: 'Explore',
   pageTitle: 'Explore featured content on Audius',
-  description:
-    'Explore featured content on Audius | Stream tracks, albums, playlists on desktop and mobile'
+  description: createSeoDescription('Explore featured content on Audius')
 }
 
 type OwnProps = {

@@ -23,6 +23,7 @@ import { make } from 'common/store/analytics/actions'
 import { openSignOn } from 'common/store/pages/signon/actions'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_GENRES } from 'utils/route'
+import { createSeoDescription } from 'utils/seo'
 const { makeGetCurrent } = queueSelectors
 
 const { getBuffering, getPlaying } = playerSelectors
@@ -46,8 +47,9 @@ const getHasAccount = accountSelectors.getHasAccount
 const messages = {
   trendingTitle: 'Trending',
   pageTitle: "Listen to what's trending on the Audius platform",
-  trendingDescription:
-    "Listen to what's trending on the Audius platform | Stream tracks, albums, playlists on desktop and mobile"
+  trendingDescription: createSeoDescription(
+    "Listen to what's trending on the Audius platform"
+  )
 }
 
 // Dynamically dispatch call to a lineup action based on a timeRange
