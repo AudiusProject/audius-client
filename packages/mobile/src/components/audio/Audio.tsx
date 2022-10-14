@@ -9,6 +9,7 @@ import {
   playerActions,
   queueActions,
   queueSelectors,
+  reachabilitySelectors,
   RepeatMode
 } from '@audius/common'
 import { Platform, StyleSheet, View } from 'react-native'
@@ -28,6 +29,7 @@ const { getUser } = cacheUsersSelectors
 const { getPlaying, getSeek, getCurrentTrack } = playerSelectors
 const { getIndex, getLength, getRepeat, getShuffle, getShuffleIndex } =
   queueSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const { getUserId } = accountSelectors
 
@@ -71,6 +73,11 @@ export const Audio = () => {
     getUser(state, { id: track?.owner_id })
   )
   const currentUserId = useSelector(getUserId)
+  const isReachable = useSelector(getIsReachable)
+  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //     FeatureFlags.OFFLINE_MODE_ENABLED
+  //   )
+  const isOfflineModeEnabled = true
 
   const dispatch = useDispatch()
 
@@ -313,7 +320,8 @@ export const Audio = () => {
       if (
         progress.currentTime > RECORD_LISTEN_SECONDS &&
         (track.owner_id !== currentUserId || track.play_count < 10) &&
-        !listenLoggedForTrack
+        !listenLoggedForTrack &&
+        (!isOfflineModeEnabled || isReachable)
       ) {
         // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
         setListenLoggedForTrack(true)
@@ -327,8 +335,8 @@ export const Audio = () => {
       track,
       currentUserId,
       listenLoggedForTrack,
-      setListenLoggedForTrack,
-      progressInvalidator
+      isOfflineModeEnabled,
+      isReachable
     ]
   )
   const { value: offlineTrackUri, loading } = useOfflineTrackUri(

@@ -100,6 +100,8 @@ export const TracksTab = () => {
     (uid: UID, id: ID) => {
       if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
         dispatch(tracksActions.play(uid))
+        // TODO: queue events locally
+        if (!isReachable) return
         track(
           make({
             eventName: Name.PLAYBACK_PLAY,
@@ -109,6 +111,7 @@ export const TracksTab = () => {
         )
       } else if (uid === playingUid && isPlaying) {
         dispatch(tracksActions.pause())
+        if (!isReachable) return
         track(
           make({
             eventName: Name.PLAYBACK_PAUSE,
@@ -118,7 +121,7 @@ export const TracksTab = () => {
         )
       }
     },
-    [dispatch, isPlaying, playingUid]
+    [dispatch, isPlaying, playingUid, isReachable]
   )
 
   let isLoading = savedTracksStatus !== Status.SUCCESS
