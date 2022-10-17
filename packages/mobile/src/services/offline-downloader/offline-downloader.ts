@@ -34,6 +34,8 @@ const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
 const { getUser } = cacheUsersSelectors
 
+export const DOWNLOAD_REASON_FAVORITES = 'favorites'
+
 /** Main entrypoint - perform all steps required to complete a download */
 export const downloadTrack = async (trackId: number, collection: string) => {
   const state = store.getState()

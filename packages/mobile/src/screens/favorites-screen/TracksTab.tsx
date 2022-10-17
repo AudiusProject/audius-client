@@ -126,10 +126,9 @@ export const TracksTab = () => {
     [dispatch, isPlaying, playingUid, isReachable]
   )
 
-  let isLoading = savedTracksStatus !== Status.SUCCESS
+  const isLoading = savedTracksStatus !== Status.SUCCESS
   let tracks = savedTracks.entries
   if (!isReachable) {
-    isLoading = false
     tracks = Object.values(offlineTracks)
   }
   const hasNoFavorites = tracks.length === 0

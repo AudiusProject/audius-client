@@ -5,6 +5,7 @@ import { View } from 'react-native'
 
 import {
   downloadTrack,
+  DOWNLOAD_REASON_FAVORITES,
   purgeAllDownloads
 } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
@@ -38,7 +39,7 @@ export const DownloadToggle = ({ tracks }: DownloadToggleProps) => {
       if (!isOfflineModeEnabled) return
       if (isDownloadFavoritesEnabled) {
         tracks.forEach((track) => {
-          downloadTrack(track.track_id, 'favorites')
+          downloadTrack(track.track_id, DOWNLOAD_REASON_FAVORITES)
         })
       } else {
         purgeAllDownloads()
