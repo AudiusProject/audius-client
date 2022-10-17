@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 
 import type { AddTrackToPlaylistNotification as AddTrackToPlaylistNotificationType } from '@audius/common'
-import { notificationsSelectors } from '@audius/common'
+import { useProxySelector, notificationsSelectors } from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
 
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 
-import { useAppDrawerNavigation } from '../../app-drawer-screen'
+import { useNotificationNavigation } from '../../app-drawer-screen'
 import {
   NotificationHeader,
   NotificationText,
@@ -33,13 +32,14 @@ export const AddTrackToPlaylistNotification = (
   props: AddTrackToPlaylistNotificationProps
 ) => {
   const { notification } = props
-  const entities = useSelector((state) =>
-    getNotificationEntities(state, notification)
+  const entities = useProxySelector(
+    (state) => getNotificationEntities(state, notification),
+    [notification]
   )
   const { track, playlist } = entities
   const playlistOwner = playlist.user
 
-  const navigation = useAppDrawerNavigation()
+  const navigation = useNotificationNavigation()
 
   const handlePress = useCallback(() => {
     if (playlist) {
