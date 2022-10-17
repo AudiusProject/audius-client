@@ -24,8 +24,7 @@ import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { make, track } from 'app/services/analytics'
-import { useLoadStoredTracks } from 'app/services/offline-downloader'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
+import { useLoadOfflineTracks } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
@@ -72,14 +71,13 @@ export const TracksTab = () => {
   }, [dispatch, isReachable])
 
   useFocusEffect(handleFetchSaves)
-  useLoadStoredTracks()
-  const offlineTracks = useSelector(getOfflineTracks)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTracks = useProxySelector(getTracks, [])
+  const offlineTracks = useLoadOfflineTracks()
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -102,7 +100,7 @@ export const TracksTab = () => {
     (uid: UID, id: ID) => {
       if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
         dispatch(tracksActions.play(uid))
-        // TODO: queue events locally
+        // TODO: store and queue events locally; upload on reconnect
         if (!isReachable) return
         track(
           make({

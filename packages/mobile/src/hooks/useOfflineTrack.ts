@@ -14,10 +14,7 @@ export const useOfflineTrackUri = (trackId?: string) => {
   //   )
   const isOfflineModeEnabled = true
   return useAsync(async () => {
-    console.log('useOfflineTrack', trackId)
     if (!trackId || !isOfflineModeEnabled) return
-    const available = await isAudioAvailableOffline(trackId)
-    console.log(available)
     if (!(await isAudioAvailableOffline(trackId))) return
     const audioFilePath = getLocalAudioPath(trackId)
     return `file://${audioFilePath}`

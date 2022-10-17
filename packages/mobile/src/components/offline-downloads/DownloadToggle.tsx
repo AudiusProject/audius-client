@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
 import { View } from 'react-native'
@@ -8,16 +8,13 @@ import {
   downloadTrack,
   purgeAllDownloads
 } from 'app/services/offline-downloader'
-import {
-  getOfflineDownloadStatus,
-  getOfflineTracks
-} from 'app/store/offline-downloads/selectors'
+import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
+import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 
 import IconDownload from '../../assets/images/iconDownloadPurple.svg'
 import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
 import { Switch } from '../core/Switch'
-import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
 
 type DownloadToggleProps = {
   collection: string
@@ -38,7 +35,7 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
   const isOfflineModeEnabled = true
   const styles = useStyles()
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
-  const isDownloadFavoritesEnabled = tracks.some(
+  const isDownloadEnabled = tracks.some(
     (track: Track) =>
       offlineDownloadStatus[track.track_id.toString()] ===
         TrackDownloadStatus.LOADING ||
@@ -46,10 +43,10 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
         TrackDownloadStatus.SUCCESS
   )
 
-  const handleToggleDownloadFavorites = useCallback(
-    (isDownloadFavoritesEnabled: boolean) => {
+  const handleToggleDownload = useCallback(
+    (isDownloadEnabled: boolean) => {
       if (!isOfflineModeEnabled) return
-      if (isDownloadFavoritesEnabled) {
+      if (isDownloadEnabled) {
         tracks.forEach((track) => {
           downloadTrack(track.track_id, collection)
         })
@@ -61,11 +58,8 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
   )
   return (
     <View style={styles.root}>
-      {isDownloadFavoritesEnabled ? <IconDownload /> : <IconNotDownloaded />}
-      <Switch
-        value={isDownloadFavoritesEnabled}
-        onValueChange={handleToggleDownloadFavorites}
-      />
+      {isDownloadEnabled ? <IconDownload /> : <IconNotDownloaded />}
+      <Switch value={isDownloadEnabled} onValueChange={handleToggleDownload} />
     </View>
   )
 }

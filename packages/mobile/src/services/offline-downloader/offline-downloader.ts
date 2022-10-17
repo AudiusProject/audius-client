@@ -61,9 +61,6 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     } else {
       store.dispatch(errorDownload(trackIdString))
     }
-    console.log(
-      `Downloaded track ${trackIdString} ${verified ? 'success' : 'failed'}`
-    )
     return verified
   } catch (e) {
     console.error(e)

@@ -33,20 +33,19 @@ export const TrackDownloadIndicator = ({
   const downloadStatus = useSelector(getTrackOfflineDownloadStatus(trackId))
   const styles = useStyles()
 
-  if (!isOfflineModeEnabled || !downloadStatus) return null
-  if (downloadStatus === TrackDownloadStatus.ERROR) {
-    return null
+  if (!isOfflineModeEnabled) return null
+
+  switch (downloadStatus) {
+    case TrackDownloadStatus.LOADING:
+      return (
+        <View>
+          <IconDownloading />
+          <LoadingSpinner style={styles.loadingSpinner} />
+        </View>
+      )
+    case TrackDownloadStatus.SUCCESS:
+      return <IconDownload />
+    default:
+      return null
   }
-  if (downloadStatus === TrackDownloadStatus.LOADING) {
-    return (
-      <View>
-        <IconDownloading />
-        <LoadingSpinner style={styles.loadingSpinner} />
-      </View>
-    )
-  }
-  if (downloadStatus === TrackDownloadStatus.SUCCESS) {
-    return <IconDownload />
-  }
-  return null
 }

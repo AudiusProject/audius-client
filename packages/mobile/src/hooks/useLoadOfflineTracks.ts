@@ -9,16 +9,21 @@ import {
   savedPageTracksLineupActions
 } from '@audius/common'
 import moment from 'moment'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { loadTracks } from 'app/store/offline-downloads/slice'
 
-import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
-import { getTrackJson, listTracks, verifyTrack } from './offline-storage'
+import { DOWNLOAD_REASON_FAVORITES } from '../services/offline-downloader/offline-downloader'
+import {
+  getTrackJson,
+  listTracks,
+  verifyTrack
+} from '../services/offline-downloader/offline-storage'
 
-export const useLoadStoredTracks = async () => {
+export const useLoadOfflineTracks = async () => {
   //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
   //     FeatureFlags.OFFLINE_MODE_ENABLED
   //   )
@@ -48,7 +53,7 @@ export const useLoadStoredTracks = async () => {
             metadata: track
           })
           if (
-            track.offline.downloaded_from_collection.includes(
+            track.offline?.downloaded_from_collection.includes(
               DOWNLOAD_REASON_FAVORITES
             )
           ) {
@@ -74,4 +79,6 @@ export const useLoadStoredTracks = async () => {
       )
     )
   }, [isOfflineModeEnabled, loadTracks])
+
+  return useSelector(getOfflineTracks)
 }
