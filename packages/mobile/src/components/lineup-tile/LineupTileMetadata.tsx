@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import { playerSelectors } from '@audius/common'
-import type { Remix, User, UID } from '@audius/common'
+import type { Remix, User, UID, CommonState } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -46,7 +46,7 @@ const useStyles = makeStyles(({ palette }) => ({
     textTransform: 'uppercase'
   }
 }))
-const { getUid, getPlaying } = playerSelectors
+const { getPlaying } = playerSelectors
 
 const messages = {
   coSign: 'Co-Sign'
@@ -61,6 +61,7 @@ type Props = {
   title: string
   user: User
   uid: UID
+  isPlayingUid: boolean
 }
 
 export const LineupTileMetadata = ({
@@ -71,23 +72,20 @@ export const LineupTileMetadata = ({
   setArtworkLoaded,
   title,
   user,
-  uid
+  isPlayingUid
 }: Props) => {
   const navigation = useNavigation()
   const styles = useStyles()
   const trackTileStyles = useTrackTileStyles()
   const { primary } = useThemeColors()
 
+  const isActive = useSelector(
+    (state: CommonState) => getPlaying(state) && isPlayingUid
+  )
+
   const handleArtistPress = useCallback(() => {
     navigation.push('Profile', { handle: user.handle })
   }, [navigation, user])
-
-  const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getUid)
-  const isPlayingUid = playingUid === uid
-
-  const isActive = Boolean(isPlayingUid && isPlaying)
-
   return (
     <View style={styles.metadata}>
       <LineupTileArt

@@ -95,4 +95,7 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
 
   /** User associated with the item */
   user: User
+
+  /** Does the tile uid match the playing uid */
+  isPlayingUid: boolean
 }

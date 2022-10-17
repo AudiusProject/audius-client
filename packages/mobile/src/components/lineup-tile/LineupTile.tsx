@@ -44,7 +44,8 @@ export const LineupTile = ({
   title,
   item,
   uid,
-  user
+  user,
+  isPlayingUid
 }: LineupTileProps) => {
   const {
     has_current_user_reposted,
@@ -98,6 +99,7 @@ export const LineupTile = ({
           uid={uid}
           title={title}
           user={user}
+          isPlayingUid={isPlayingUid}
         />
         {coSign ? <LineupTileCoSign coSign={coSign} /> : null}
         <LineupTileStats
