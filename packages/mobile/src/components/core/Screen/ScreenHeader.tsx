@@ -1,4 +1,4 @@
-import type { ComponentType, ReactChild } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 import { FeatureFlags } from '@audius/common'
 import type { TextStyle, ViewStyle } from 'react-native'
@@ -11,7 +11,7 @@ import type { StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles'
 
 type ScreenHeaderProps = {
-  children?: ReactChild
+  children?: ReactNode
   text: string
   styles?: StylesProp<{ root: ViewStyle; header: TextStyle; icon: ViewStyle }>
   icon?: ComponentType<SvgProps>
