@@ -9,7 +9,7 @@ import {
   savedPageTracksLineupActions
 } from '@audius/common'
 import moment from 'moment'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -52,7 +52,8 @@ export const useLoadOfflineTracks = async () => {
             metadata: track
           })
           if (
-            track.offline?.downloaded_from_collection.includes(
+            track.offline &&
+            track.offline.downloaded_from_collection.includes(
               DOWNLOAD_REASON_FAVORITES
             )
           ) {
