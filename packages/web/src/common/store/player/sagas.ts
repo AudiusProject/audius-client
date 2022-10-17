@@ -11,6 +11,7 @@ import {
   actionChannelDispatcher,
   playerActions,
   playerSelectors,
+  reachabilitySelectors,
   Nullable,
   getPremiumContentHeaders
 } from '@audius/common'
@@ -26,6 +27,7 @@ import {
 } from 'typed-redux-saga'
 
 import errorSagas from './errorSagas'
+const { getIsReachable } = reachabilitySelectors
 
 const {
   play,
@@ -59,6 +61,10 @@ export function* watchPlay() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  const isNativeMobile = yield* getContext('isNativeMobile')
+  const isReachable = yield* select(getIsReachable)
+  if (isReachable || !isNativeMobile) return true
+
   yield* takeLatest(play.type, function* (action: ReturnType<typeof play>) {
     const { uid, trackId, onEnd } = action.payload ?? {}
 
@@ -96,13 +102,16 @@ export function* watchPlay() {
         ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
         : null
 
-      const libs = yield* call(audiusBackendInstance.getAudiusLibs)
-      const web3Manager = libs.web3Manager
-      const premiumContentHeaders = yield* call(
-        getPremiumContentHeaders,
-        track.premium_content_signature,
-        web3Manager.sign.bind(web3Manager)
-      )
+      let premiumContentHeaders = {}
+      if (isReachable || !isNativeMobile) {
+        const libs = yield* call(audiusBackendInstance.getAudiusLibs)
+        const web3Manager = libs.web3Manager
+        premiumContentHeaders = yield* call(
+          getPremiumContentHeaders,
+          track.premium_content_signature,
+          web3Manager.sign.bind(web3Manager)
+        )
+      }
 
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
