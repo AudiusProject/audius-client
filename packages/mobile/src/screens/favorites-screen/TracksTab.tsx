@@ -23,8 +23,9 @@ import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
+import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
 import { make, track } from 'app/services/analytics'
-import { useLoadOfflineTracks } from 'app/services/offline-downloader'
+import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
@@ -71,13 +72,14 @@ export const TracksTab = () => {
   }, [dispatch, isReachable])
 
   useFocusEffect(handleFetchSaves)
+  useLoadOfflineTracks()
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTracks = useProxySelector(getTracks, [])
-  const offlineTracks = useLoadOfflineTracks()
+  const offlineTracks = useSelector(getOfflineTracks)
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -126,7 +128,7 @@ export const TracksTab = () => {
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
   let tracks = savedTracks.entries
-  if (!isReachable) {
+  if (!isReachable && Object.values(offlineTracks).length > 0) {
     tracks = Object.values(offlineTracks)
   }
   const hasNoFavorites = tracks.length === 0

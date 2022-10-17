@@ -13,7 +13,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { loadTracks } from 'app/store/offline-downloads/slice'
 
 import { DOWNLOAD_REASON_FAVORITES } from '../services/offline-downloader/offline-downloader'
@@ -79,6 +78,4 @@ export const useLoadOfflineTracks = async () => {
       )
     )
   }, [isOfflineModeEnabled, loadTracks])
-
-  return useSelector(getOfflineTracks)
 }
