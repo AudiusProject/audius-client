@@ -1,6 +1,6 @@
 import path from 'path'
 
-import type { Track } from '@audius/common'
+import type { UserTrackMetadata } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 import { store } from 'app/store'
@@ -58,7 +58,9 @@ export const listTracks = async (): Promise<string[]> => {
   return files.filter((file) => file.isDirectory).map((file) => file.name)
 }
 
-export const getTrackJson = async (trackId: string): Promise<Track> => {
+export const getTrackJson = async (
+  trackId: string
+): Promise<UserTrackMetadata> => {
   const trackJson = await readFile(getLocalTrackJsonPath(trackId))
   console.log(`got track json for ${trackId}`)
   try {

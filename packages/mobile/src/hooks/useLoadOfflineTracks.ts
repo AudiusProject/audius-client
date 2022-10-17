@@ -1,6 +1,6 @@
 // TODO: move to hooks
 
-import type { Track } from '@audius/common'
+import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
 import {
   // FeatureFlags,
   Kind,
@@ -33,14 +33,15 @@ export const useLoadOfflineTracks = async () => {
     if (!isOfflineModeEnabled) return
 
     const trackIds = await listTracks()
-    const tracks: Track[] = []
-    const savesLineupTracks: (Track & { uid: string })[] = []
+    const tracks: UserTrackMetadata[] = []
+    const savesLineupTracks: (UserTrackMetadata & { uid: string })[] = []
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
+    const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
     for (const trackId of trackIds) {
       const verified = await verifyTrack(trackId)
       if (!verified) continue
       getTrackJson(trackId)
-        .then((track) => {
+        .then((track: UserTrackMetadata) => {
           tracks.push(track)
           const lineupTrack = {
             uid: makeUid(Kind.TRACKS, track.track_id),
@@ -49,8 +50,15 @@ export const useLoadOfflineTracks = async () => {
           cacheTracks.push({
             id: track.track_id,
             uid: lineupTrack.uid,
-            metadata: track
+            metadata: track as unknown as Track
           })
+          if (track.user) {
+            cacheUsers.push({
+              id: track.user.user_id,
+              uid: makeUid(Kind.USERS, track.user.user_id),
+              metadata: track.user
+            })
+          }
           if (
             track.offline &&
             track.offline.downloaded_from_collection.includes(
@@ -62,8 +70,9 @@ export const useLoadOfflineTracks = async () => {
         })
         .catch(() => console.warn('Failed to load track from disk', trackId))
     }
-    dispatch(loadTracks(savesLineupTracks))
+    dispatch(loadTracks(savesLineupTracks as unknown as Track[]))
     dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
+    dispatch(cacheActions.add(Kind.USERS, cacheUsers, false, true))
     dispatch(
       savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
         savesLineupTracks.map((track) => ({
