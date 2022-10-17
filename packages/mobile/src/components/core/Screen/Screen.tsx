@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
-import { useEffect, useLayoutEffect } from 'react'
+import { useMemo, useEffect, useLayoutEffect } from 'react'
 
 import type { Nullable } from '@audius/common'
 import { useNavigation } from '@react-navigation/native'
@@ -52,15 +52,14 @@ export const Screen = (props: ScreenProps) => {
     variant = 'primary',
     style
   } = props
-  const styles = useStyles({ variant })
+  const stylesConfig = useMemo(() => ({ variant }), [variant])
+  const styles = useStyles(stylesConfig)
   const navigation = useNavigation()
 
   // Record screen view
   useEffect(() => {
     if (url) {
-      screen({
-        route: url
-      })
+      screen({ route: url })
     }
   }, [url])
 

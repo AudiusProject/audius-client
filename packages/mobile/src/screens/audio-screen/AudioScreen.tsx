@@ -32,9 +32,9 @@ import {
   Button,
   GradientText,
   Text,
-  Tile
+  Tile,
+  ScreenHeader
 } from 'app/components/core'
-import { Header } from 'app/components/header'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -432,7 +432,7 @@ export const AudioScreen = () => {
 
   return (
     <Screen url='/audio'>
-      <Header text={messages.title} />
+      <ScreenHeader text={messages.title} />
       <ScrollView style={styles.tiles}>
         {renderAudioTile()}
         {renderWalletTile()}
