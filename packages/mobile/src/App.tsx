@@ -27,8 +27,8 @@ import {
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
-import { useEnterForeground } from './hooks/useAppState'
 import { OfflineLoader } from './components/offline-downloads/OfflineLoader'
+import { useEnterForeground } from './hooks/useAppState'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
