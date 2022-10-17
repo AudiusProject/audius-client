@@ -19,6 +19,7 @@ import { store } from 'app/store'
 import {
   completeDownload,
   errorDownload,
+  loadTrack,
   startDownload
 } from 'app/store/offline-downloads/slice'
 
@@ -54,9 +55,12 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     await tryDownloadTrackFromEachCreatorNode(track)
     await writeTrackJson(track, user, collection)
     const verified = await verifyTrack(trackIdString)
-    store.dispatch(
-      verified ? completeDownload(trackIdString) : errorDownload(trackIdString)
-    )
+    if (verified) {
+      store.dispatch(completeDownload(trackIdString))
+      store.dispatch(loadTrack(track))
+    } else {
+      store.dispatch(errorDownload(trackIdString))
+    }
     console.log(
       `Downloaded track ${trackIdString} ${verified ? 'success' : 'failed'}`
     )
