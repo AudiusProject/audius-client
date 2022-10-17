@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
 
-import type { CommonState, Track, User } from '@audius/common'
+import type { Track, User } from '@audius/common'
 import {
   removeNullable,
-  playerSelectors,
   PlaybackSource,
   FavoriteSource,
   RepostSource,
@@ -27,7 +26,6 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 
 import { LineupTile } from './LineupTile'
-const { getUid } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
@@ -68,9 +66,6 @@ const TrackTileComponent = ({
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const currentScreen = useNavigationState((state) => state.history?.[0])
-  const isPlayingUid = useSelector(
-    (state: CommonState) => getUid(state) === lineupTileProps.uid
-  )
 
   const {
     _cover_art_sizes,
@@ -97,10 +92,9 @@ const TrackTileComponent = ({
     togglePlay({
       uid: lineupTileProps.uid,
       id: track_id,
-      source: PlaybackSource.TRACK_TILE,
-      isPlayingUid
+      source: PlaybackSource.TRACK_TILE
     })
-  }, [togglePlay, lineupTileProps.uid, track_id, isPlayingUid])
+  }, [togglePlay, lineupTileProps.uid, track_id])
 
   const handlePressTitle = useCallback(() => {
     navigation.push('Track', { id: track_id })
@@ -166,7 +160,6 @@ const TrackTileComponent = ({
   return (
     <LineupTile
       {...lineupTileProps}
-      isPlayingUid={isPlayingUid}
       duration={duration}
       favoriteType={FavoriteType.TRACK}
       repostType={RepostType.TRACK}

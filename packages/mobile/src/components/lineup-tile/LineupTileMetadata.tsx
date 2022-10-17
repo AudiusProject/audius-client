@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 
-import type { Remix, User } from '@audius/common'
+import { playerSelectors } from '@audius/common'
+import type { Remix, User, UID } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconVolume from 'app/assets/images/iconVolume.svg'
 import Text from 'app/components/text'
@@ -44,6 +46,7 @@ const useStyles = makeStyles(({ palette }) => ({
     textTransform: 'uppercase'
   }
 }))
+const { getUid, getPlaying } = playerSelectors
 
 const messages = {
   coSign: 'Co-Sign'
@@ -53,22 +56,22 @@ type Props = {
   artistName: string
   coSign?: Remix | null
   imageUrl?: string
-  isPlaying: boolean
   onPressTitle?: GestureResponderHandler
   setArtworkLoaded: (loaded: boolean) => void
   title: string
   user: User
+  uid: UID
 }
 
 export const LineupTileMetadata = ({
   artistName,
   coSign,
   imageUrl,
-  isPlaying,
   onPressTitle,
   setArtworkLoaded,
   title,
-  user
+  user,
+  uid
 }: Props) => {
   const navigation = useNavigation()
   const styles = useStyles()
@@ -78,6 +81,12 @@ export const LineupTileMetadata = ({
   const handleArtistPress = useCallback(() => {
     navigation.push('Profile', { handle: user.handle })
   }, [navigation, user])
+
+  const isPlaying = useSelector(getPlaying)
+  const playingUid = useSelector(getUid)
+  const isPlayingUid = playingUid === uid
+
+  const isActive = Boolean(isPlayingUid && isPlaying)
 
   return (
     <View style={styles.metadata}>
@@ -91,13 +100,13 @@ export const LineupTileMetadata = ({
         <TouchableOpacity style={trackTileStyles.title} onPress={onPressTitle}>
           <>
             <Text
-              style={[styles.titleText, isPlaying && styles.titlesActive]}
+              style={[styles.titleText, isActive && styles.titlesActive]}
               weight='bold'
               numberOfLines={1}
             >
               {title}
             </Text>
-            {!isPlaying ? null : (
+            {!isActive ? null : (
               <IconVolume fill={primary} style={styles.playingIndicator} />
             )}
           </>
@@ -108,7 +117,7 @@ export const LineupTileMetadata = ({
         >
           <>
             <Text
-              style={[styles.titleText, isPlaying && styles.titlesActive]}
+              style={[styles.titleText, isActive && styles.titlesActive]}
               weight='medium'
               numberOfLines={1}
             >
