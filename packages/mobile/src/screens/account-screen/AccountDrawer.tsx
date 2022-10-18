@@ -55,8 +55,8 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     justifyContent: 'space-between'
   },
   accountImage: {
-    height: spacing(12) + 2,
-    width: spacing(12) + 2,
+    height: spacing(12.5),
+    width: spacing(12.5),
     marginBottom: spacing(3),
     borderWidth: 1
   },
