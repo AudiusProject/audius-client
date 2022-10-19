@@ -39,6 +39,9 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       'https://staging.audius.co',
       'http://staging.audius.co'
     ],
+    filter: (url: string) => {
+      return !url.includes('/oauth/auth')
+    },
     // configuration for matching screens with paths
     config: {
       screens: {
