@@ -8,14 +8,12 @@ import {
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
+import IconFeed from 'app/assets/images/iconFeed.svg'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
-
-import { ScreenContent } from '../ScreenContent'
 
 import { FeedFilterButton } from './FeedFilterButton'
 const { getDiscoverFeedLineup } = feedPageSelectors
@@ -42,11 +40,15 @@ export const FeedScreen = () => {
 
   return (
     <Screen>
-      <Header text={messages.header}>
+      <ScreenHeader
+        text={messages.header}
+        icon={IconFeed}
+        styles={{ icon: { marginLeft: 2 } }}
+      >
         <OnlineOnly>
           <FeedFilterButton />
         </OnlineOnly>
-      </Header>
+      </ScreenHeader>
       <ScreenContent>
         <Lineup
           isFeed
