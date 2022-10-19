@@ -1,11 +1,20 @@
 {
-    "applinks": {
-        "apps": [],
-        "details": [
-            {
-                "appID": "LRFCG93S85.co.audius.audiusmusic",
-                "paths": ["*"]
-            }
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "LRFCG93S85.co.audius.audiusmusic",
+        "paths": [
+          "*"
+        ],
+        "components": [
+          {
+            "/": "/oauth/auth*",
+            "exclude": true,
+            "comment": "Matches any URL with a path that starts with /oauth/auth and instructs the system not to open it as a universal link."
+          }
         ]
-    }
+      }
+    ]
+  }
 }
