@@ -25,8 +25,7 @@ export enum FeatureFlags {
   BUY_AUDIO_COINBASE_ENABLED = 'buy_audio_coinbase_enabled',
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
-  AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  AUTO_FOLLOW_REFERRER = 'auto_follow_referrer'
+  AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow'
 }
 
 /**
@@ -58,6 +57,5 @@ export const flagDefaults: { [key in FeatureFlags]: boolean } = {
   [FeatureFlags.BUY_AUDIO_COINBASE_ENABLED]: false,
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
-  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
-  [FeatureFlags.AUTO_FOLLOW_REFERRER]: false
+  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false
 }

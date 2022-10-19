@@ -158,6 +158,7 @@ function* fetchReferrer(action) {
   if (handle) {
     try {
       const user = yield call(fetchUserByHandle, handle)
+      console.log('beep got referrer', user)
       if (!user) return
       yield put(signOnActions.setReferrer(user.user_id))
 
@@ -449,17 +450,6 @@ function* signUp() {
         yield put(signOnActions.signUpSucceeded())
         yield put(signOnActions.sendWelcomeEmail(name))
         yield call(fetchAccountAsync, { isSignUp: true })
-        if (referrer != null) {
-          const shouldAutoFollowReferrer = yield call(
-            getFeatureEnabled,
-            FeatureFlags.AUTO_FOLLOW_REFERRER
-          )
-          if (shouldAutoFollowReferrer) {
-            yield put(
-              socialActions.followUser(referrer, FollowSource.REFERRAL_SIGN_UP)
-            )
-          }
-        }
       },
       function* ({ timeout }) {
         if (timeout) {
@@ -616,11 +606,17 @@ function* followArtists() {
     }
 
     const signOn = yield select(getSignOn)
+    const referrer = signOn.referrer
+
     const {
       followArtists: { selectedUserIds }
     } = signOn
     const userIdsToFollow = [
-      ...new Set([...defaultFollowUserIds, ...selectedUserIds])
+      ...new Set([
+        ...defaultFollowUserIds,
+        ...selectedUserIds,
+        ...(referrer == null ? [] : [referrer])
+      ])
     ]
     for (const userId of userIdsToFollow) {
       yield put(socialActions.followUser(userId))
