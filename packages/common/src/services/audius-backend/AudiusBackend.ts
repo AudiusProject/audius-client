@@ -1154,7 +1154,7 @@ export const audiusBackend = ({
     }
   } 
   
-  // trackIds, start, end
+  // userId, start, end
   async function getUserListenCountsMonthly(
     currentUserId: number,
     startTime: string,
@@ -1172,7 +1172,7 @@ export const audiusBackend = ({
       )
       return userListenCountsMonthly
     } catch (e) {
-      console.error(e)
+      console.error(getErrorMessage(e))
       return []
     }
   }
