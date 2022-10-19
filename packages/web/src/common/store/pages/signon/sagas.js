@@ -16,8 +16,7 @@ import {
   getContext,
   settingsPageActions,
   MAX_HANDLE_LENGTH,
-  PushNotificationSetting,
-  FollowSource
+  PushNotificationSetting
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import {
@@ -158,7 +157,6 @@ function* fetchReferrer(action) {
   if (handle) {
     try {
       const user = yield call(fetchUserByHandle, handle)
-      console.log('beep got referrer', user)
       if (!user) return
       yield put(signOnActions.setReferrer(user.user_id))
 

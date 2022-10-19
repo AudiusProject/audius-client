@@ -504,8 +504,7 @@ export enum FollowSource {
   OVERFLOW = 'overflow',
   USER_LIST = 'user list',
   ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup',
-  EMPTY_FEED = 'empty feed',
-  REFERRAL_SIGN_UP = 'referral sign up'
+  EMPTY_FEED = 'empty feed'
 }
 
 type Share = {
