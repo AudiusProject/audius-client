@@ -48,6 +48,7 @@
             <data android:scheme="https" android:host="redirect.audius.co" />
             <data android:scheme="https" android:host="audius.co" />
             <data android:scheme="audius" android:host="/"/>
+            <data android:pathPattern="^(?!.*oauth\/auth).*$" />
         </intent-filter>
       </activity>
 
