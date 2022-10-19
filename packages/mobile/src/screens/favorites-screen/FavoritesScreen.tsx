@@ -13,6 +13,7 @@ import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
 import { PlaylistsTab } from './PlaylistsTab'
