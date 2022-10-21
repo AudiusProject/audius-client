@@ -509,7 +509,8 @@ function* connectEthWallet(web3Instance: any) {
         collectibleCount
       })
     )
-    const signature = yield* web3Instance.eth.personal.sign(
+    const signature = yield* call(
+      web3Instance.eth.personal.sign,
       `AudiusUserID:${accountUserId}`,
       accounts[0]
     )
