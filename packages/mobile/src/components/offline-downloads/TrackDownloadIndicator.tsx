@@ -1,6 +1,8 @@
+import { FeatureFlags } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
@@ -26,10 +28,9 @@ const useStyles = makeStyles(() => ({
 export const TrackDownloadIndicator = ({
   trackId
 }: TrackDownloadIndicatorProps) => {
-  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //     FeatureFlags.OFFLINE_MODE_ENABLED
-  //   )
-  const isOfflineModeEnabled = true
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
   const downloadStatus = useSelector(getTrackOfflineDownloadStatus(trackId))
   const styles = useStyles()
 

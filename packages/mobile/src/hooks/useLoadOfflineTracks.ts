@@ -2,7 +2,7 @@
 
 import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
 import {
-  // FeatureFlags,
+  FeatureFlags,
   Kind,
   makeUid,
   cacheActions,
@@ -12,7 +12,7 @@ import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
-// import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { loadTracks } from 'app/store/offline-downloads/slice'
 
 import { DOWNLOAD_REASON_FAVORITES } from '../services/offline-downloader/offline-downloader'
@@ -23,10 +23,9 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 export const useLoadOfflineTracks = async () => {
-  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //     FeatureFlags.OFFLINE_MODE_ENABLED
-  //   )
-  const isOfflineModeEnabled = true
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
   const dispatch = useDispatch()
 
   useAsync(async () => {

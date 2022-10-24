@@ -10,7 +10,8 @@ import {
   queueActions,
   queueSelectors,
   reachabilitySelectors,
-  RepeatMode
+  RepeatMode,
+  FeatureFlags
 } from '@audius/common'
 import { Platform, StyleSheet, View } from 'react-native'
 import MusicControl from 'react-native-music-control'
@@ -20,6 +21,7 @@ import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 import { useChromecast } from './GoogleCast'
@@ -74,10 +76,9 @@ export const Audio = () => {
   )
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
-  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //     FeatureFlags.OFFLINE_MODE_ENABLED
-  //   )
-  const isOfflineModeEnabled = true
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
 
   const dispatch = useDispatch()
 

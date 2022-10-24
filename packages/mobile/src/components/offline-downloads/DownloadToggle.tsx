@@ -1,9 +1,11 @@
 import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
+import { FeatureFlags } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import {
   downloadTrack,
   purgeAllDownloads
@@ -29,10 +31,9 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
-  //   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //     FeatureFlags.OFFLINE_MODE_ENABLED
-  //   )
-  const isOfflineModeEnabled = true
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
   const styles = useStyles()
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isDownloadEnabled = tracks.some(
