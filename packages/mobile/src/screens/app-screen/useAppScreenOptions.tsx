@@ -23,6 +23,7 @@ import type { ContextualParams } from 'app/hooks/useNavigation'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { formatCount } from 'app/utils/format'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -104,7 +105,7 @@ export const useAppScreenOptions = (
   const { accentOrangeLight1, neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()
   const notificationCount = useSelector(getNotificationUnviewedCount)
-  const navigation = useNavigation<AppScreenParamList>()
+  const navigation = useNavigation()
   const { drawerHelpers } = useContext(AppDrawerContext)
 
   const handlePressNotification = useCallback(() => {
@@ -133,6 +134,7 @@ export const useAppScreenOptions = (
         // Notifications uses this in order to remove animations when going from the drawer
         // to a nested stack screen.
         const isFromNotifs =
+          !isNavOverhaulEnabled &&
           params &&
           'fromNotifications' in params &&
           (params as ContextualParams).fromNotifications
@@ -172,7 +174,7 @@ export const useAppScreenOptions = (
             }
             if (isNavOverhaulEnabled) {
               return (
-                <View style={styles.headerLeft}>
+                <View style={[styles.headerLeft, { marginLeft: spacing(-2) }]}>
                   <AccountPictureHeader onPress={handlePressNotification} />
                 </View>
               )

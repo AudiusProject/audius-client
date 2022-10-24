@@ -2,6 +2,8 @@ import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
 import {
+  followersUserListActions,
+  followingUserListActions,
   StringKeys,
   formatCount,
   formatWei,
@@ -13,7 +15,7 @@ import {
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { DrawerContentScrollView } from '@react-navigation/drawer'
 import { Pressable, TouchableOpacity, View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
@@ -23,6 +25,7 @@ import IconUserList from 'app/assets/images/iconUserList.svg'
 import { IconAudioBadge } from 'app/components/audio-rewards'
 import { Divider, Text } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
+import UserBadges from 'app/components/user-badges'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -31,16 +34,20 @@ import { useThemeColors } from 'app/utils/theme'
 import { useAppDrawerNavigation } from '../app-drawer-screen'
 const { getAccountUser } = accountSelectors
 const { getAccountTotalBalance } = walletSelectors
+const { setFollowers } = followersUserListActions
+const { setFollowing } = followingUserListActions
 
 const messages = {
   audio: '$AUDIO & Rewards',
   settings: 'Settings'
 }
 
-type AccountDrawerProps = DrawerContentComponentProps
+type AccountDrawerProps = DrawerContentComponentProps & {
+  disableGestures: boolean
+  setDisableGestures: (disabled: boolean) => void
+}
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
-  root: {},
   header: {
     paddingLeft: spacing(4),
     flexDirection: 'row',
@@ -48,14 +55,16 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     justifyContent: 'space-between'
   },
   accountImage: {
-    height: spacing(12),
-    width: spacing(12),
-    marginBottom: spacing(3)
+    height: spacing(12.5),
+    width: spacing(12.5),
+    marginBottom: spacing(3),
+    borderWidth: 1
   },
   divider: {
     marginVertical: spacing(4)
   },
   accountInfo: {},
+  accountBadges: { alignSelf: 'center' },
   tokens: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -67,6 +76,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginRight: spacing(1)
   },
   accountStats: { flexDirection: 'row', paddingLeft: spacing(4) },
+  accountName: { flexDirection: 'row' },
   accountStat: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -105,6 +115,7 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
   const { neutral, neutralLight4 } = useThemeColors()
 
+  const dispatch = useDispatch()
   const navigation = useAppDrawerNavigation()
 
   const handlePressAccount = useCallback(() => {
@@ -115,46 +126,63 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
     navigation.navigate('AudioScreen')
   }, [navigation])
 
+  const handlePressFollowing = useCallback(() => {
+    dispatch(setFollowing(user_id))
+    navigation.navigate('Following', { userId: user_id })
+  }, [dispatch, user_id, navigation])
+
+  const handlePressFollowers = useCallback(() => {
+    dispatch(setFollowers(user_id))
+    navigation.navigate('Followers', { userId: user_id })
+  }, [dispatch, user_id, navigation])
+
   const handlePressSettings = useCallback(() => {
     navigation.navigate('SettingsScreen')
   }, [navigation])
 
   return (
-    <DrawerContentScrollView {...props} style={styles.root}>
+    <DrawerContentScrollView {...props}>
       <View style={styles.header}>
         <Pressable style={styles.accountInfo} onPress={handlePressAccount}>
           <ProfilePicture profile={accountUser} style={styles.accountImage} />
-          <Text variant='h1' noGutter>
-            {name}
-          </Text>
+          <View style={styles.accountName}>
+            <Text variant='h1' noGutter>
+              {name}
+            </Text>
+            <UserBadges
+              user={accountUser}
+              hideName
+              style={styles.accountBadges}
+            />
+          </View>
           <Text weight='medium' fontSize='medium'>
             @{handle}
           </Text>
         </Pressable>
-        <View style={styles.tokens}>
+        <Pressable style={styles.tokens} onPress={handlePressRewards}>
           <IconAudioBadge tier={tier} showNoTier style={styles.tokenBadge} />
           <Text fontSize='large' weight='heavy'>
             {totalBalance ? formatWei(totalBalance) : 0}
           </Text>
-        </View>
+        </Pressable>
       </View>
       <Divider style={styles.divider} />
       <View style={styles.accountStats}>
-        <View style={styles.accountStat}>
+        <Pressable style={styles.accountStat} onPress={handlePressAccount}>
           <IconNote fill={neutralLight4} style={styles.accountStatIcon} />
           <View>
             <Text fontSize='large' weight='heavy'>
               {formatCount(track_count)}
             </Text>
           </View>
-        </View>
-        <View style={styles.accountStat}>
+        </Pressable>
+        <Pressable style={styles.accountStat} onPress={handlePressFollowing}>
           <IconUserList fill={neutralLight4} style={styles.accountStatIcon} />
           <Text fontSize='large' weight='heavy'>
             {formatCount(followee_count)}
           </Text>
-        </View>
-        <View style={styles.accountStat}>
+        </Pressable>
+        <Pressable style={styles.accountStat} onPress={handlePressFollowers}>
           <IconUserFollowers
             fill={neutralLight4}
             style={styles.accountStatIcon}
@@ -162,7 +190,7 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
           <Text fontSize='large' weight='heavy'>
             {formatCount(follower_count)}
           </Text>
-        </View>
+        </Pressable>
       </View>
       <Divider style={styles.divider} />
       <TouchableOpacity

@@ -30,6 +30,7 @@ import Drawer, {
 } from 'app/components/drawer'
 import { Scrubber } from 'app/components/scrubber'
 import { useDrawer } from 'app/hooks/useDrawer'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { AppDrawerContext } from 'app/screens/app-drawer-screen'
 import { AppTabNavigationContext } from 'app/screens/app-screen'
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
@@ -94,11 +95,14 @@ type NowPlayingDrawerProps = {
  * Memoized to prevent rerender during bottom-bar navigation.
  * It's rerendering because bottomTab render function rerenders a lot.
  */
-export const NowPlayingDrawer = memo(function NowPlayngDrawer(
+export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   props: NowPlayingDrawerProps
 ) {
   const { translationAnim } = props
-  const { navigation } = useContext(AppTabNavigationContext)
+  const { navigation: contextNavigation } = useContext(AppTabNavigationContext)
+  const navigation = useNavigation({
+    customNavigation: contextNavigation
+  })
   const dispatch = useDispatch()
   const insets = useSafeAreaInsets()
   const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
