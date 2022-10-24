@@ -56,6 +56,8 @@ function* awaitReachability() {
 }
 
 export function* setupBackend() {
+  // Optimistically fetch account, then do it again later when we're sure we're connected
+  // This ensures we always get the cached account when starting offline if available
   yield* put(accountActions.fetchAccount())
   const establishedReachability = yield* call(awaitReachability)
   // If we couldn't connect, show the error page
