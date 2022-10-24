@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import { MouseEvent, ReactNode } from 'react'
 
 import {
   ID,
@@ -64,9 +64,9 @@ type CardProps = {
   favorites?: number
   onClickReposts?: () => void
   onClickFavorites?: () => void
-  onClick: (e: React.MouseEvent) => void
+  onClick: (e: MouseEvent) => void
   updateDot?: boolean
-  link?: string
+  href?: string
 }
 
 const Card = ({
@@ -84,7 +84,7 @@ const Card = ({
   onClickFavorites,
   onClick,
   updateDot,
-  link
+  href
 }: CardProps) => {
   const showRepostFavoriteStats =
     !isUser && reposts && favorites && onClickReposts && onClickFavorites
@@ -93,7 +93,7 @@ const Card = ({
       className={cn(styles.cardContainer, {
         [className!]: !!className
       })}
-      href={link}
+      href={href}
       onClick={onClick}
     >
       {updateDot && <UpdateDot />}

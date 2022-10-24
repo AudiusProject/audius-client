@@ -197,7 +197,7 @@ const ExplorePage = ({
     profileCards = []
   } else {
     playlistCards = playlists.map((playlist: UserCollection) => {
-      const link = playlist.is_album
+      const href = playlist.is_album
         ? albumPage(
             playlist.user.handle,
             playlist.playlist_name,
@@ -220,16 +220,16 @@ const ExplorePage = ({
             playlist.save_count,
             playlist.playlist_contents.track_ids.length
           )}
-          link={link}
+          href={href}
           onClick={(e: React.MouseEvent) => {
             e.preventDefault()
-            goToRoute(link)
+            goToRoute(href)
           }}
         />
       )
     })
     profileCards = profiles.map((profile: User) => {
-      const link = profilePage(profile.handle)
+      const href = profilePage(profile.handle)
       return (
         <Card
           key={profile.user_id}
@@ -239,10 +239,10 @@ const ExplorePage = ({
           isUser
           primaryText={profile.name}
           secondaryText={formatProfileCardSecondaryText(profile.follower_count)}
-          link={link}
+          href={href}
           onClick={(e: React.MouseEvent) => {
             e.preventDefault()
-            goToRoute(link)
+            goToRoute(href)
           }}
         />
       )

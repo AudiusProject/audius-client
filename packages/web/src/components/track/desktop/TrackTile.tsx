@@ -88,8 +88,7 @@ const TrackTile = memo(
     onClickShare,
     onTogglePlay,
     showRankIcon,
-    permalink,
-    handle
+    permalink
   }: TrackTileProps) => {
     const hasOrdering = order !== undefined
     const onStopPropagation = useCallback(

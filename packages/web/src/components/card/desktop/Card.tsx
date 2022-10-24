@@ -1,4 +1,5 @@
 import React, {
+  MouseEvent,
   useState,
   useEffect,
   useCallback,
@@ -73,14 +74,14 @@ type CardProps = {
   size: 'small' | 'medium' | 'large'
   menu?: MenuOptionType
   // For wrapping draggable
-  link?: string
+  href?: string
   // Socials
   reposts?: number
   favorites?: number
   onClickReposts?: () => void
   onClickFavorites?: () => void
   trackCount?: number
-  onClick: (e: React.MouseEvent) => void
+  onClick: (e: MouseEvent) => void
 }
 
 const UserImage = (props: {
@@ -153,7 +154,7 @@ const Card = ({
   onClickReposts,
   onClickFavorites,
   onClick,
-  link
+  href
 }: CardProps) => {
   // The card is considered `setDidLoad` (and calls it) if the artwork has loaded and its
   // parent is no longer telling it that it is loading. This allows ordered loading.
@@ -221,7 +222,7 @@ const Card = ({
   return (
     <a
       className={cn(className, styles.cardContainer, sizeStyles.cardContainer)}
-      href={link}
+      href={href}
       onClick={handleClick}
     >
       <div

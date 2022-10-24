@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, ReactNode } from 'react'
+import { useEffect, useContext, MouseEvent, ReactNode } from 'react'
 
 import {
   ID,
@@ -390,12 +390,12 @@ const ProfilePage = g(
             playlist.playlist_contents.track_ids.length,
             playlist.is_private
           )}
-          link={playlistPage(
+          href={playlistPage(
             profile.handle,
             playlist.playlist_name,
             playlist.playlist_id
           )}
-          onClick={(e: React.MouseEvent) => {
+          onClick={(e: MouseEvent) => {
             e.preventDefault()
             goToRoute(
               playlistPage(
@@ -419,12 +419,12 @@ const ProfilePage = g(
               album.save_count,
               album.playlist_contents.track_ids.length
             )}
-            link={albumPage(
+            href={albumPage(
               profile.handle,
               album.playlist_name,
               album.playlist_id
             )}
-            onClick={(e: React.MouseEvent) => {
+            onClick={(e: MouseEvent) => {
               e.preventDefault()
               goToRoute(
                 albumPage(

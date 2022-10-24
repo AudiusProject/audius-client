@@ -1,4 +1,4 @@
-import React, { useCallback, memo } from 'react'
+import { useCallback, memo, MouseEvent } from 'react'
 
 import {
   ID,
@@ -283,8 +283,8 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        link={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
-        onClick={(e: React.MouseEvent) => {
+        href={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
+        onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
             albumPage(profile.handle, album.playlist_name, album.playlist_id)
@@ -326,12 +326,12 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        link={playlistPage(
+        href={playlistPage(
           profile.handle,
           playlist.playlist_name,
           playlist.playlist_id
         )}
-        onClick={(e: React.MouseEvent) => {
+        onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
             playlistPage(
@@ -524,12 +524,12 @@ const ProfilePage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        link={playlistPage(
+        href={playlistPage(
           profile.handle,
           playlist.playlist_name,
           playlist.playlist_id
         )}
-        onClick={(e: React.MouseEvent) => {
+        onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
             playlistPage(
