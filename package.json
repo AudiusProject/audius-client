@@ -56,6 +56,6 @@
   },
   "dependencies": {
     "@escape.tech/mookme": "2.2.0",
-    "@types/keyv": "^4.2.0"
+    "@types/keyv": "4.2.0"
   }
 }
