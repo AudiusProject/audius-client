@@ -64,6 +64,7 @@ function* fetchHeavyRotation() {
 
 function* fetchBestNewReleases() {
   const explore = yield* getContext('explore')
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {

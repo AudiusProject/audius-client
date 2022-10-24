@@ -113,6 +113,7 @@ function* watchSetSelected() {
   yield* takeEvery(
     setSelected.type,
     function* (action: ReturnType<typeof setSelected>) {
+      yield* call(waitForBackendSetup)
       yield* waitForAccount()
       const user = yield* call(waitForValue, getAccountUser)
 

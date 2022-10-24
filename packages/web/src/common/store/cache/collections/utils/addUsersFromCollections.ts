@@ -8,8 +8,9 @@ import {
   waitForAccount
 } from '@audius/common'
 import { uniqBy } from 'lodash'
-import { put, select } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { reformat as reformatUser } from 'common/store/cache/users/utils'
 const getAccountUser = accountSelectors.getAccountUser
 
@@ -21,6 +22,7 @@ const getAccountUser = accountSelectors.getAccountUser
 export function* addUsersFromCollections(
   metadataArray: Array<UserCollectionMetadata>
 ) {
+  yield call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* waitForAccount()
   const accountUser = yield* select(getAccountUser)

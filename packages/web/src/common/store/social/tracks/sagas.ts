@@ -538,6 +538,7 @@ export function* watchSetArtistPick() {
   yield* takeEvery(
     socialActions.SET_ARTIST_PICK,
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
+      yield* call(waitForBackendSetup)
       yield* waitForAccount()
       const userId = yield* select(getUserId)
       yield* put(
@@ -559,6 +560,7 @@ export function* watchSetArtistPick() {
 export function* watchUnsetArtistPick() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(socialActions.UNSET_ARTIST_PICK, function* (action) {
+    yield* call(waitForBackendSetup)
     yield* waitForAccount()
     const userId = yield* select(getUserId)
     yield* put(
@@ -587,6 +589,7 @@ export function* watchRecordListen() {
       if (isNativeMobile) return
       console.debug('Listen recorded for track', action.trackId)
 
+      yield* call(waitForBackendSetup)
       yield* waitForAccount()
       const userId = yield* select(getUserId)
       const track = yield* select(getTrack, { id: action.trackId })

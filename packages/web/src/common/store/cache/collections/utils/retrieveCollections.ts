@@ -15,6 +15,7 @@ import {
 } from '@audius/common'
 import { call, select } from 'typed-redux-saga'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieve } from 'common/store/cache/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 
@@ -89,6 +90,7 @@ export function* retrieveTracksForCollections(
  * Retrieves a single collection via API client
  */
 export function* retrieveCollection(playlistId: ID) {
+  yield call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const userId = yield* select(getUserId)

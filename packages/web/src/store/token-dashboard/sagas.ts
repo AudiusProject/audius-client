@@ -31,6 +31,7 @@ import {
 } from 'typed-redux-saga'
 import { WalletLinkProvider } from 'walletlink'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { upgradeToCreator } from 'common/store/cache/users/sagas'
 import { requestConfirmation } from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
@@ -133,6 +134,7 @@ function* confirmSendAsync() {
 }
 
 function* getAccountMetadataCID(): Generator<any, Nullable<string>, any> {
+  yield call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* waitForAccount()
   const accountUserId = yield* select(getUserId)
@@ -255,6 +257,7 @@ function* connectSPLWallet(
   solana: PhantomProvider,
   disconnect: () => Promise<void>
 ) {
+  yield* call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
   const walletClient = yield* getContext('walletClient')
@@ -332,6 +335,7 @@ function* connectSPLWallet(
       return
     }
 
+    yield* call(waitForBackendSetup)
     yield* waitForAccount()
     const userMetadata = yield* select(getAccountUser)
     let updatedMetadata = newUserMetadata({ ...userMetadata })
@@ -451,6 +455,7 @@ function* connectSPLWallet(
 }
 
 function* connectEthWallet(web3Instance: any) {
+  yield* call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
   const walletClient = yield* getContext('walletClient')
@@ -632,6 +637,7 @@ function* connectEthWallet(web3Instance: any) {
 }
 
 function* removeWallet(action: ConfirmRemoveWalletAction) {
+  yield* call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   try {
     const removeWallet = action.payload.wallet

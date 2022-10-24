@@ -15,8 +15,9 @@ import {
   CommonState,
   waitForAccount
 } from '@audius/common'
-import { select, all } from 'redux-saga/effects'
+import { select, all, call } from 'redux-saga/effects'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
@@ -43,6 +44,7 @@ function* getTracks({
   offset: number
   limit: number
 }): Generator<any, FeedItem[], any> {
+  yield call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUser = yield select(getAccountUser)
   const filterEnum: FeedFilter = yield select(getFeedFilter)

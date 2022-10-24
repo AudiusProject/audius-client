@@ -22,6 +22,8 @@ import { all, call, put, take, takeEvery, select } from 'typed-redux-saga'
 import { make } from 'common/store/analytics/actions'
 import { SETUP_BACKEND_SUCCEEDED } from 'common/store/backend/actions'
 
+import { waitForBackendSetup } from '../backend/sagas'
+
 const ATA_SIZE = 165 // Size allocated for an associated token account
 
 const {
@@ -66,6 +68,7 @@ function* sendAsync({
 }: ReturnType<typeof send>) {
   const walletClient = yield* getContext('walletClient')
 
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const account = yield* select(getAccountUser)
   const weiBNAmount = stringWeiToBN(weiAudioAmount)
@@ -174,6 +177,7 @@ function* fetchBalanceAsync() {
   const walletClient = yield* getContext('walletClient')
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const account = yield* select(getAccountUser)
   if (!account) return

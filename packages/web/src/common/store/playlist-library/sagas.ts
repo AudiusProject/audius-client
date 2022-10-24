@@ -119,6 +119,7 @@ function* watchUpdatePlaylistLibraryWithTempPlaylist() {
       const playlistLibrary =
         removePlaylistLibraryDuplicates(rawPlaylistLibrary)
 
+      yield call(waitForBackendSetup)
       yield* waitForAccount()
       const account: User = yield select(getAccountUser)
 

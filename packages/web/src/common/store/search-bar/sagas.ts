@@ -16,6 +16,7 @@ const getUserId = accountSelectors.getUserId
 
 export function* getSearchResults(searchText: string) {
   const apiClient = yield* getContext('apiClient')
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const userId = yield* select(getUserId)
 

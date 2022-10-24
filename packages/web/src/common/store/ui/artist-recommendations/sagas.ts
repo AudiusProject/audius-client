@@ -11,6 +11,7 @@ import { Action } from '@reduxjs/toolkit'
 import { shuffle } from 'lodash'
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
 
 const getUserId = accountSelectors.getUserId
@@ -20,6 +21,7 @@ export function* fetchRelatedArtists(action: Action) {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   if (artistRecommendationsActions.fetchRelatedArtists.match(action)) {
     const userId = action.payload.userId
+    yield call(waitForBackendSetup)
     yield* waitForAccount()
     const currentUserId: ID = yield select(getUserId)
     const relatedArtists: User[] = yield apiClient.getRelatedArtists({
@@ -54,6 +56,7 @@ export function* fetchRelatedArtists(action: Action) {
 }
 
 function* fetchTopArtists() {
+  yield call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const currentUserId: ID = yield select(getUserId)
@@ -73,6 +76,7 @@ function* fetchTopArtists() {
 }
 
 function* cacheUsers(users: User[]) {
+  yield call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId: ID = yield select(getUserId)
   // Filter out the current user from the list to cache
