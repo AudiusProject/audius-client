@@ -56,6 +56,7 @@ function* awaitReachability() {
 }
 
 export function* setupBackend() {
+  yield* put(accountActions.fetchAccount())
   const establishedReachability = yield* call(awaitReachability)
   // If we couldn't connect, show the error page
   // and just sit here waiting for reachability.
