@@ -1,4 +1,4 @@
-import {
+import React, {
   Fragment,
   useContext,
   useEffect,
@@ -94,8 +94,8 @@ const TabBodyHeader = ({
   return (
     <div className={styles.tabBodyHeader}>
       <div className={styles.headerWrapper}>
-        <div className={styles.title}>{title}</div>
-        {description && <div className={styles.description}>{description}</div>}
+        <h2 className={styles.title}>{title}</h2>
+        {description && <p className={styles.description}>{description}</p>}
       </div>
       {children && <div className={styles.children}>{children}</div>}
     </div>
@@ -197,6 +197,18 @@ const ExplorePage = ({
     profileCards = []
   } else {
     playlistCards = playlists.map((playlist: UserCollection) => {
+      const link = playlist.is_album
+        ? albumPage(
+            playlist.user.handle,
+            playlist.playlist_name,
+            playlist.playlist_id
+          )
+        : playlistPage(
+            playlist.user.handle,
+            playlist.playlist_name,
+            playlist.playlist_id
+          )
+
       return (
         <Card
           key={playlist.playlist_id}
@@ -208,27 +220,16 @@ const ExplorePage = ({
             playlist.save_count,
             playlist.playlist_contents.track_ids.length
           )}
-          onClick={() =>
-            playlist.is_album
-              ? goToRoute(
-                  albumPage(
-                    playlist.user.handle,
-                    playlist.playlist_name,
-                    playlist.playlist_id
-                  )
-                )
-              : goToRoute(
-                  playlistPage(
-                    playlist.user.handle,
-                    playlist.playlist_name,
-                    playlist.playlist_id
-                  )
-                )
-          }
+          link={link}
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault()
+            goToRoute(link)
+          }}
         />
       )
     })
     profileCards = profiles.map((profile: User) => {
+      const link = profilePage(profile.handle)
       return (
         <Card
           key={profile.user_id}
@@ -238,7 +239,11 @@ const ExplorePage = ({
           isUser
           primaryText={profile.name}
           secondaryText={formatProfileCardSecondaryText(profile.follower_count)}
-          onClick={() => goToRoute(profilePage(profile.handle))}
+          link={link}
+          onClick={(e: React.MouseEvent) => {
+            e.preventDefault()
+            goToRoute(link)
+          }}
         />
       )
     })
