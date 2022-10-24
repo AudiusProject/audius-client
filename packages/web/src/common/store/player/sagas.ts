@@ -63,7 +63,6 @@ export function* watchPlay() {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
-  if (isReachable || !isNativeMobile) return true
 
   yield* takeLatest(play.type, function* (action: ReturnType<typeof play>) {
     const { uid, trackId, onEnd } = action.payload ?? {}

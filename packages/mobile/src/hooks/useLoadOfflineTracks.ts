@@ -1,5 +1,3 @@
-// TODO: move to hooks
-
 import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
 import {
   FeatureFlags,
@@ -15,14 +13,13 @@ import { useAsync } from 'react-use'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { loadTracks } from 'app/store/offline-downloads/slice'
 
-import { DOWNLOAD_REASON_FAVORITES } from '../services/offline-downloader/offline-downloader'
 import {
   getTrackJson,
   listTracks,
   verifyTrack
 } from '../services/offline-downloader/offline-storage'
 
-export const useLoadOfflineTracks = async () => {
+export const useLoadOfflineTracks = async (collection: string) => {
   const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
     FeatureFlags.OFFLINE_MODE_ENABLED
   )
@@ -36,6 +33,7 @@ export const useLoadOfflineTracks = async () => {
     const savesLineupTracks: (UserTrackMetadata & { uid: string })[] = []
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
     const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
+
     for (const trackId of trackIds) {
       const verified = await verifyTrack(trackId)
       if (!verified) continue
@@ -60,18 +58,19 @@ export const useLoadOfflineTracks = async () => {
           }
           if (
             track.offline &&
-            track.offline.downloaded_from_collection.includes(
-              DOWNLOAD_REASON_FAVORITES
-            )
+            track.offline.downloaded_from_collection.includes(collection)
           ) {
             savesLineupTracks.push(lineupTrack)
           }
         })
         .catch(() => console.warn('Failed to load track from disk', trackId))
     }
-    dispatch(loadTracks(savesLineupTracks as unknown as Track[]))
+
     dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
     dispatch(cacheActions.add(Kind.USERS, cacheUsers, false, true))
+    dispatch(loadTracks(savesLineupTracks as unknown as Track[]))
+
+    // TODO: support for collection lineups
     dispatch(
       savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
         savesLineupTracks.map((track) => ({

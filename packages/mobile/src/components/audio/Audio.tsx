@@ -20,7 +20,7 @@ import type { OnProgressData } from 'react-native-video'
 import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
+import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
@@ -322,6 +322,7 @@ export const Audio = () => {
         progress.currentTime > RECORD_LISTEN_SECONDS &&
         (track.owner_id !== currentUserId || track.play_count < 10) &&
         !listenLoggedForTrack &&
+        // TODO: log listens for offline plays when reconnected
         (!isOfflineModeEnabled || isReachable)
       ) {
         // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
@@ -344,7 +345,7 @@ export const Audio = () => {
     track?.track_id.toString()
   )
 
-  if (!track || track.is_delete) return null
+  if (loading || !track || track.is_delete) return null
 
   const gateways = trackOwner
     ? audiusBackendInstance.getCreatorNodeIPFSGateways(
@@ -367,7 +368,6 @@ export const Audio = () => {
     }
   }
 
-  if (loading) return null
   return (
     <View style={styles.backgroundVideo}>
       {source && (

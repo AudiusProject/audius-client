@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import {
+  FeatureFlags,
   useProxySelector,
   savedPageActions,
   playerSelectors,
@@ -24,7 +25,9 @@ import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { make, track } from 'app/services/analytics'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
@@ -65,6 +68,9 @@ export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
   const isReachable = useSelector(getIsReachable)
+  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+    FeatureFlags.OFFLINE_MODE_ENABLED
+  )
   const handleFetchSaves = useCallback(() => {
     if (isReachable) {
       dispatch(fetchSaves())
@@ -72,7 +78,7 @@ export const TracksTab = () => {
   }, [dispatch, isReachable])
 
   useFocusEffect(handleFetchSaves)
-  useLoadOfflineTracks()
+  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
@@ -103,7 +109,7 @@ export const TracksTab = () => {
       if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
         dispatch(tracksActions.play(uid))
         // TODO: store and queue events locally; upload on reconnect
-        if (!isReachable) return
+        if (!isReachable && isOfflineModeEnabled) return
         track(
           make({
             eventName: Name.PLAYBACK_PLAY,
@@ -113,7 +119,7 @@ export const TracksTab = () => {
         )
       } else if (uid === playingUid && isPlaying) {
         dispatch(tracksActions.pause())
-        if (!isReachable) return
+        if (!isReachable && isOfflineModeEnabled) return
         track(
           make({
             eventName: Name.PLAYBACK_PAUSE,
@@ -123,12 +129,12 @@ export const TracksTab = () => {
         )
       }
     },
-    [dispatch, isPlaying, playingUid, isReachable]
+    [playingUid, isPlaying, dispatch, isReachable, isOfflineModeEnabled]
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
   let tracks = savedTracks.entries
-  if (!isReachable) {
+  if (!isReachable && isOfflineModeEnabled) {
     tracks = Object.values(offlineTracks)
   }
   const hasNoFavorites = tracks.length === 0

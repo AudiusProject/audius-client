@@ -56,15 +56,15 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     await writeTrackJson(track, user, collection)
     const verified = await verifyTrack(trackIdString)
     if (verified) {
-      store.dispatch(completeDownload(trackIdString))
       store.dispatch(loadTrack(track))
+      store.dispatch(completeDownload(trackIdString))
     } else {
       store.dispatch(errorDownload(trackIdString))
     }
     return verified
   } catch (e) {
-    console.error(e)
     store.dispatch(errorDownload(trackIdString))
+    console.error(e)
     return false
   }
 }

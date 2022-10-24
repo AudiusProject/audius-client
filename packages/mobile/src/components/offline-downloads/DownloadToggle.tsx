@@ -36,13 +36,13 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
   )
   const styles = useStyles()
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
-  const isDownloadEnabled = tracks.some(
-    (track: Track) =>
-      offlineDownloadStatus[track.track_id.toString()] ===
-        TrackDownloadStatus.LOADING ||
-      offlineDownloadStatus[track.track_id.toString()] ===
-        TrackDownloadStatus.SUCCESS
-  )
+  const isToggleOn = tracks.some((track: Track) => {
+    const status = offlineDownloadStatus[track.track_id.toString()]
+    return (
+      status === TrackDownloadStatus.LOADING ||
+      status === TrackDownloadStatus.SUCCESS
+    )
+  })
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
@@ -52,15 +52,18 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
           downloadTrack(track.track_id, collection)
         })
       } else {
+        // TODO: remove only downloads associated with this collection
         purgeAllDownloads()
       }
     },
     [collection, isOfflineModeEnabled, tracks]
   )
+
+  if (!isOfflineModeEnabled) return null
   return (
     <View style={styles.root}>
-      {isDownloadEnabled ? <IconDownload /> : <IconNotDownloaded />}
-      <Switch value={isDownloadEnabled} onValueChange={handleToggleDownload} />
+      {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
+      <Switch value={isToggleOn} onValueChange={handleToggleDownload} />
     </View>
   )
 }

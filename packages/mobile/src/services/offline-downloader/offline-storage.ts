@@ -62,15 +62,10 @@ export const getTrackJson = async (
   trackId: string
 ): Promise<UserTrackMetadata> => {
   const trackJson = await readFile(getLocalTrackJsonPath(trackId))
-  console.log(`got track json for ${trackId}`)
   try {
-    const track = JSON.parse(trackJson)
-    console.log('parsed track', track.track_id)
-
-    return track
+    return JSON.parse(trackJson)
   } catch (e) {
     console.error(e)
-    console.log(trackJson)
     return e
   }
 }
@@ -89,7 +84,7 @@ export const verifyTrack = async (trackId: string): Promise<boolean> => {
   !artExists && console.warn(`Missing art for ${trackId}`)
   !jsonExists && console.warn(`Missing json for ${trackId}`)
 
-  return results.every((exists) => exists)
+  return results.every((exists) => !!exists)
 }
 
 /** Debugging method to clear all downloaded content */

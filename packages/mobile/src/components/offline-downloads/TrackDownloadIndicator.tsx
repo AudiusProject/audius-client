@@ -16,6 +16,7 @@ type TrackDownloadIndicatorProps = {
 }
 
 const useStyles = makeStyles(() => ({
+  // TODO: replace with animated icon
   loadingSpinner: {
     position: 'absolute',
     height: 11,

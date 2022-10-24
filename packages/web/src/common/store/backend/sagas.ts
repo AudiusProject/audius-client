@@ -57,6 +57,7 @@ function* awaitReachability() {
 
 export function* setupBackend() {
   // Optimistically fetch account, then do it again later when we're sure we're connected
+  // This ensures that when starting offline, we always fetch the locally stored account from entropy
   yield* put(accountActions.fetchAccount())
   const establishedReachability = yield* call(awaitReachability)
   // If we couldn't connect, show the error page
