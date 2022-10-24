@@ -99,7 +99,7 @@ const BottomBar = ({
         isActive={tempCurrentPage === userProfilePageRoute}
         darkMode={isDarkMode}
         onClick={onClick(onClickProfile, userProfilePageRoute)}
-        href={userProfilePageRoute}
+        href={userProfilePageRoute || undefined}
         isMatrixMode={isMatrixMode}
       />
     </div>

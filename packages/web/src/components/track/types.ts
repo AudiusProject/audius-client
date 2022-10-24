@@ -303,6 +303,9 @@ export type DesktopPlaylistTileProps = {
 
   /** Whether to show an icon indicating rank in lineup */
   showRankIcon: boolean
+
+  /** Relative link to playlist page */
+  href: string
 }
 
 export type SkeletonTileProps = {
