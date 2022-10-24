@@ -28,7 +28,7 @@ const INITIAL_FETCH_LIMIT = 6
  * @param trackId the parent track for which to fetch remixes
  */
 export function* fetchAndProcessRemixes(trackId: ID) {
-  yield call(waitForBackendSetup)
+  yield* call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
@@ -82,7 +82,7 @@ export function* fetchAndProcessRemixes(trackId: ID) {
  * @param trackId the track for which to fetch remix parents
  */
 export function* fetchAndProcessRemixParents(trackId: ID) {
-  yield call(waitForBackendSetup)
+  yield* call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)

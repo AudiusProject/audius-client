@@ -90,7 +90,7 @@ export function* retrieveTracksForCollections(
  * Retrieves a single collection via API client
  */
 export function* retrieveCollection(playlistId: ID) {
-  yield call(waitForBackendSetup)
+  yield* call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const userId = yield* select(getUserId)

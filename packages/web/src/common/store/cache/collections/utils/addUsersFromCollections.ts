@@ -22,7 +22,7 @@ const getAccountUser = accountSelectors.getAccountUser
 export function* addUsersFromCollections(
   metadataArray: Array<UserCollectionMetadata>
 ) {
-  yield call(waitForBackendSetup)
+  yield* call(waitForBackendSetup)
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* waitForAccount()
   const accountUser = yield* select(getAccountUser)

@@ -66,7 +66,7 @@ export function* retrieveTrackByHandleAndSlug({
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
-        yield call(waitForBackendSetup)
+        yield* call(waitForBackendSetup)
         const apiClient = yield* getContext('apiClient')
         yield* waitForAccount()
         const userId = yield* select(getUserId)
@@ -155,7 +155,7 @@ export function* retrieveTracks({
   withRemixes = false,
   withRemixParents = false
 }: RetrieveTracksArgs) {
-  yield call(waitForBackendSetup)
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
 

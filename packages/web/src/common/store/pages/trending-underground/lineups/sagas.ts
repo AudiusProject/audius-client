@@ -8,6 +8,7 @@ import {
 } from '@audius/common'
 import { call, select } from 'typed-redux-saga'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
 
@@ -32,6 +33,7 @@ function* getTrendingUnderground({
     remoteConfigInstance.getRemoteVar(StringKeys.UTF)?.split(',') ?? []
   )
 
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
 

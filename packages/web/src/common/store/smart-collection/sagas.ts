@@ -116,6 +116,7 @@ function* fetchUnderTheRadar() {
 }
 
 function* fetchMostLoved() {
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {
@@ -142,6 +143,7 @@ function* fetchMostLoved() {
 }
 
 function* fetchFeelingLucky() {
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   const explore = yield* getContext('explore')
@@ -164,6 +166,7 @@ function* fetchFeelingLucky() {
 
 function* fetchRemixables() {
   const explore = yield* getContext('explore')
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {

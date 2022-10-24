@@ -9,6 +9,7 @@ import {
 } from '@audius/common'
 import { call, select } from 'typed-redux-saga'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
 const { getLineup } = trendingPlaylistsPageLineupSelectors
@@ -27,6 +28,7 @@ function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
   )
 
   const time = 'week' as const
+  yield* call(waitForBackendSetup)
   yield* waitForAccount()
 
   const currentUserId = yield* select(getUserId)

@@ -8,6 +8,7 @@ import {
 } from '@audius/common'
 import { call, put, select, takeLatest } from 'typed-redux-saga'
 
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
@@ -62,6 +63,7 @@ function* fetchSplWalletInfo(wallets: string[]) {
 }
 
 function* fetchAccountAssociatedWallets() {
+  yield* call(waitForBackendSetup)
   const apiClient = yield* getContext('apiClient')
   yield* waitForAccount()
   const accountUserId = yield* select(getUserId)
