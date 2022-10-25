@@ -1128,31 +1128,6 @@ export const audiusBackend = ({
       }
     }
   }
-
-  // trackIds, start, end, period
-  async function getTrackListens(
-    ...args: Parameters<typeof IdentityAPI.getTrackListens>
-  ) {
-    const [period, trackIds, start, end] = args
-    if (trackIds?.length === 0) return []
-    try {
-      return withEagerOption(
-        {
-          normal: (libs) => libs.Track.getTrackListens,
-          eager: IdentityAPI.getTrackListens,
-          endpoint: identityServiceUrl
-        },
-        period,
-        trackIds,
-        start,
-        end,
-        trackIds?.length
-      )
-    } catch (err) {
-      console.error(getErrorMessage(err))
-      return []
-    }
-  } 
   
   // userId, start, end
   async function getUserListenCountsMonthly(
@@ -3395,7 +3370,6 @@ export const audiusBackend = ({
     getSignature,
     getSocialFeed,
     getTrackImages,
-    getTrackListens,
     getTracksIncludingUnlisted,
     getUserEmail,
     getUserFeed,
