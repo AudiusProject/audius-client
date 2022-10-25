@@ -942,8 +942,10 @@ function* doBuyAudio({
  * This function checks for the above conditions sequentially, and pops the modal as necessary.
  */
 function* recoverPurchaseIfNecessary() {
+  let provider = OnRampProvider.UNKNOWN
   let didNeedRecovery = false
   let userRootWallet = ''
+  let recoveredAudio: null | number = null
   try {
     // Bail if not enabled
     const getFeatureEnabled = yield* getContext('getFeatureEnabled')
@@ -982,6 +984,7 @@ function* recoverPurchaseIfNecessary() {
       BUY_AUDIO_LOCAL_STORAGE_KEY,
       localStorageState
     )
+    provider = localStorageState.provider
 
     // Get config
     const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -1014,6 +1017,13 @@ function* recoverPurchaseIfNecessary() {
     // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
     if (exchangableBalance.gt(new BN(0))) {
+      yield* put(
+        make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+          provider,
+          trigger: 'SOL',
+          balance: exchangableBalance.toString()
+        })
+      )
       console.debug(
         `Found existing SOL balance of ${
           existingBalance / LAMPORTS_PER_SOL
@@ -1034,12 +1044,15 @@ function* recoverPurchaseIfNecessary() {
         maxRetryCount,
         retryDelayMs
       })
-      yield* call(transferStep, {
+      const { audioTransferredWei } = yield* call(transferStep, {
         transferAmount: audioSwappedSpl,
         rootAccount,
         transactionHandler,
         provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
       })
+      recoveredAudio = parseFloat(
+        formatWei(audioTransferredWei).replaceAll(',', '')
+      )
       yield* call(populateAndSaveTransactionDetails)
     } else {
       // Check for $AUDIO in the account and transfer if necessary
@@ -1051,6 +1064,13 @@ function* recoverPurchaseIfNecessary() {
       })
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
       if (audioBalance.gt(new BN(0))) {
+        yield* put(
+          make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+            provider,
+            trigger: '$AUDIO',
+            balance: audioBalance.toString()
+          })
+        )
         console.debug(
           `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
         )
@@ -1059,12 +1079,15 @@ function* recoverPurchaseIfNecessary() {
         yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
         didNeedRecovery = true
 
-        yield* call(transferStep, {
+        const { audioTransferredWei } = yield* call(transferStep, {
           transferAmount: audioBalance,
           rootAccount,
           transactionHandler,
           provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
         })
+        recoveredAudio = parseFloat(
+          formatWei(audioTransferredWei).replaceAll(',', '')
+        )
         yield* call(populateAndSaveTransactionDetails)
       } else {
         // If we only failed to save the metadata, try that again
@@ -1083,6 +1106,14 @@ function* recoverPurchaseIfNecessary() {
     if (didNeedRecovery) {
       // If we don't reset state here, this shows the success screen :)
       yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
+
+      // Report Success
+      yield* put(
+        make(Name.BUY_AUDIO_RECOVERY_SUCCESS, {
+          provider,
+          recoveredAudio
+        })
+      )
     }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
@@ -1095,6 +1126,13 @@ function* recoverPurchaseIfNecessary() {
     // For now, hide modal on error.
     // TODO: add UI for failures later
     yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
+    yield* put(
+      make(Name.BUY_AUDIO_RECOVERY_FAILURE, {
+        provider,
+        stage,
+        error: (e as Error).message
+      })
+    )
   }
 }
 
