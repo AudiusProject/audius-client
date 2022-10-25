@@ -915,7 +915,7 @@ function* doBuyAudio({
     )
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    yield reportToSentry({
+    yield* call(reportToSentry, {
       level: ErrorLevel.Error,
       error: e as Error,
       additionalInfo: { stage, userRootWallet }
@@ -1118,7 +1118,7 @@ function* recoverPurchaseIfNecessary() {
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
     console.error('BuyAudioRecovery failed')
-    yield reportToSentry({
+    yield* call(reportToSentry, {
       level: ErrorLevel.Error,
       error: e as Error,
       additionalInfo: { stage, didNeedRecovery, userRootWallet }
