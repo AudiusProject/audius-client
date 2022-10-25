@@ -2048,7 +2048,8 @@ export const audiusBackend = ({
         )) ?? false
 
       if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.saveTrack(trackId)
+        const receipt = await audiusLibs.EntityManager.saveTrack(trackId)
+        console.log('receipt', receipt)
       }
 
       return await audiusLibs.Track.addTrackSave(trackId)
