@@ -18,7 +18,7 @@ import { AppDrawerContextProvider } from './AppDrawerContext'
 const SCREEN_WIDTH = Dimensions.get('window').width
 
 const baseDrawerScreenOptions = {
-  drawerType: 'slide' as const,
+  drawerType: 'front' as const,
   headerShown: false,
   swipeEdgeWidth: SCREEN_WIDTH
 }

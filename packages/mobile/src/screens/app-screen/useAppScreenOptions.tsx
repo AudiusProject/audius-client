@@ -174,7 +174,7 @@ export const useAppScreenOptions = (
             }
             if (isNavOverhaulEnabled) {
               return (
-                <View style={[styles.headerLeft, { marginLeft: spacing(-2) }]}>
+                <View style={[styles.headerLeft, { marginLeft: 0 }]}>
                   <AccountPictureHeader onPress={handlePressNotification} />
                 </View>
               )
