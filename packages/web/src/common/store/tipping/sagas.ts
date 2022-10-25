@@ -44,6 +44,7 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import { waitForBackendSetup } from '../backend/sagas'
 
@@ -202,8 +203,7 @@ function* sendTipAsync() {
   const { waitForRemoteConfig } = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
   yield call(waitForRemoteConfig)
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForBackendAndAccount()
 
   const device = isNativeMobile ? 'native' : 'web'
 
@@ -409,10 +409,9 @@ function* fetchSupportingForUserAsync({
   payload: { userId: ID }
   type: string
 }) {
-  yield* call(waitForBackendSetup)
+  yield* waitForBackendAndAccount()
   const apiClient = yield* getContext('apiClient')
 
-  yield* waitForAccount()
   /**
    * If the user id is that of the logged in user, then
    * get all its supporting data so that when the logged in

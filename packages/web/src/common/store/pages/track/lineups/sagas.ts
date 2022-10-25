@@ -3,14 +3,13 @@ import {
   cacheTracksSelectors,
   trackPageLineupActions,
   trackPageSelectors,
-  waitForValue,
-  waitForAccount
+  waitForValue
 } from '@audius/common'
 import { call, select } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { LineupSagas } from 'common/store/lineup/sagas'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 const { PREFIX, tracksActions } = trackPageLineupActions
 const { getLineup, getSourceSelector: sourceSelector } = trackPageSelectors
 const { getTrack } = cacheTracksSelectors
@@ -30,8 +29,7 @@ function* getTracks({
   limit?: number
 }) {
   const { ownerHandle, heroTrackPermalink } = payload
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForBackendAndAccount()
   const currentUserId = yield* select(getUserId)
 
   const lineup = []

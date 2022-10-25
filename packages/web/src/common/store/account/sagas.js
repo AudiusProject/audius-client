@@ -5,7 +5,6 @@ import {
   profilePageActions,
   solanaSelectors,
   accountActions,
-  waitForAccount,
   recordIP,
   createUserBankIfNeeded
 } from '@audius/common'
@@ -19,10 +18,10 @@ import {
 } from 'redux-saga/effects'
 
 import { identify } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
@@ -285,9 +284,9 @@ export function* reCacheAccount() {
 
 function* associateTwitterAccount(action) {
   const { uuid, profile } = action.payload
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   try {
-    yield waitForAccount()
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
     yield call(
@@ -339,8 +338,7 @@ function* associateInstagramAccount(action) {
 }
 
 function* fetchSavedAlbumsAsync() {
-  yield call(waitForBackendSetup)
-  yield waitForAccount()
+  yield* waitForBackendAndAccount()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -348,8 +346,7 @@ function* fetchSavedAlbumsAsync() {
 }
 
 function* fetchSavedPlaylistsAsync() {
-  yield call(waitForBackendSetup)
-  yield waitForAccount()
+  yield* waitForBackendAndAccount()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {

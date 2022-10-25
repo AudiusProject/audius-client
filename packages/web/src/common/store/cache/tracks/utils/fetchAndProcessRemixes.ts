@@ -7,12 +7,11 @@ import {
   cacheTracksSelectors,
   cacheActions,
   getContext,
-  waitForAccount,
   waitForValue
 } from '@audius/common'
 import { select, call, put } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import { processAndCacheTracks } from './processAndCacheTracks'
 const { getTrack } = cacheTracksSelectors
@@ -28,9 +27,8 @@ const INITIAL_FETCH_LIMIT = 6
  * @param trackId the parent track for which to fetch remixes
  */
 export function* fetchAndProcessRemixes(trackId: ID) {
-  yield* call(waitForBackendSetup)
+  yield* waitForBackendAndAccount()
   const apiClient = yield* getContext('apiClient')
-  yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   const {
     tracks: remixes,
@@ -82,9 +80,8 @@ export function* fetchAndProcessRemixes(trackId: ID) {
  * @param trackId the track for which to fetch remix parents
  */
 export function* fetchAndProcessRemixParents(trackId: ID) {
-  yield* call(waitForBackendSetup)
+  yield* waitForBackendAndAccount()
   const apiClient = yield* getContext('apiClient')
-  yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
   const remixParents = (yield* call([apiClient, 'getRemixing'], {
     trackId,

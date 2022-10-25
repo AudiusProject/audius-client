@@ -29,6 +29,7 @@ import {
   getStatus
 } from 'common/store/service-selection/selectors'
 import { fetchServicesFailed } from 'common/store/service-selection/slice'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
 const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
@@ -40,8 +41,8 @@ const { getAccountUser, getUserId } = accountSelectors
  * If the user is not a creator, upgrade the user to a creator node.
  */
 export function* upgradeToCreator() {
+  yield* waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield waitForAccount()
   const user = yield select(getAccountUser)
 
   // If user already has creator_node_endpoint, do not reselect replica set

@@ -9,13 +9,13 @@ import {
   profilePageFeedLineupActions as feedActions,
   tracksSocialActions,
   collectionsSocialActions,
-  waitForAccount,
   makeUid
 } from '@audius/common'
 import { select, call, takeEvery, put } from 'redux-saga/effects'
 
 import { getConfirmCalls } from 'common/store/confirmer/selectors'
 import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import { retrieveUserReposts } from './retrieveUserReposts'
 const { getProfileUserId, getProfileFeedLineup } = profilePageSelectors
@@ -24,9 +24,10 @@ const { getCollections } = cacheCollectionsSelectors
 const { getUserId, getUserHandle } = accountSelectors
 
 function* getReposts({ offset, limit, handle }) {
+  yield* waitForBackendAndAccount()
+
   const profileId = yield select((state) => getProfileUserId(state, handle))
 
-  yield waitForAccount()
   const currentUserId = yield select(getUserId)
   let reposts = yield call(retrieveUserReposts, {
     handle,
