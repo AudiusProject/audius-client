@@ -116,18 +116,23 @@ export enum Name {
   EMBED_OPEN = 'Embed: Open modal',
   EMBED_COPY = 'Embed: Copy',
 
-  // Upload
+  // Upload funnel / conversion
   TRACK_UPLOAD_OPEN = 'Track Upload: Open',
   TRACK_UPLOAD_START_UPLOADING = 'Track Upload: Start Upload',
   TRACK_UPLOAD_TRACK_UPLOADING = 'Track Upload: Track Uploading',
+  // Note that upload is considered complete if it is explicitly rejected
+  // by the node receiving the file (HTTP 403).
   TRACK_UPLOAD_COMPLETE_UPLOAD = 'Track Upload: Complete Upload',
   TRACK_UPLOAD_COPY_LINK = 'Track Upload: Copy Link',
   TRACK_UPLOAD_SHARE_WITH_FANS = 'Track Upload: Share with your fans',
   TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK = 'Track Upload: Share sound to TikTok',
   TRACK_UPLOAD_VIEW_TRACK_PAGE = 'Track Upload: View Track page',
+  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+
+  // Upload success tracking
   TRACK_UPLOAD_SUCCESS = 'Track Upload: Success',
   TRACK_UPLOAD_FAILURE = 'Track Upload: Failure',
-  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+  TRACK_UPLOAD_REJECTED = 'Track Upload: Rejected',
 
   // Trending
   TRENDING_CHANGE_VIEW = 'Trending: Change view',
@@ -687,6 +692,13 @@ type TrackUploadSuccess = {
 
 type TrackUploadFailure = {
   eventName: Name.TRACK_UPLOAD_FAILURE
+  endpoint: string
+  kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
+  error?: string
+}
+
+type TrackUploadRejected = {
+  eventName: Name.TRACK_UPLOAD_REJECTED
   endpoint: string
   kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
   error?: string
@@ -1395,6 +1407,7 @@ export type AllTrackingEvents =
   | TrackUploadCompleteUpload
   | TrackUploadSuccess
   | TrackUploadFailure
+  | TrackUploadRejected
   | TrackUploadCopyLink
   | TrackUploadShareWithFans
   | TrackUploadShareSoundToTikTok

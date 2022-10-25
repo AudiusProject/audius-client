@@ -456,6 +456,7 @@ export function* handleUploads({
   const trackIds = []
   const creatorNodeMetadata = []
   const failedRequests = [] // Array of shape [{ id, timeout, message }]
+  const rejectedRequests = [] // Array of shape [{ id, timeout, message }]
 
   // We should only stop the whole upload if a request fails
   // in the collection upload case.
@@ -483,8 +484,12 @@ export function* handleUploads({
         yield put(uploadActions.uploadSingleTrackFailed(index))
       }
 
-      // Save this out to the failedRequests array
-      failedRequests.push({ originalId, timeout, message, phase })
+      if (message === 'Request failed with status code 403') {
+        // This is a rejection not a failure, record it as so
+        rejectedRequests.push({ originalId, timeout, message, phase })
+      } else {
+        failedRequests.push({ originalId, timeout, message, phase })
+      }
       numOutstandingRequests -= 1
       continue
     }
@@ -527,6 +532,7 @@ export function* handleUploads({
     // Don't report non-uploaded tracks due to playlist upload abort
     numSuccess: numSuccessRequests,
     numFailure: failedRequests.length,
+    numRejected: rejectedRequests.length,
     errors: failedRequests.map((r) => r.message),
     uploadType
   })
@@ -926,15 +932,25 @@ function* uploadSingleTrack(track) {
   )
 
   const { confirmedTrack, error } = yield take(responseChan)
+  const isRejected = error === 'Request failed with status code 403'
 
   yield reportSuccessAndFailureEvents({
     numSuccess: error ? 0 : 1,
-    numFailure: error ? 1 : 0,
+    numFailure: error && !isRejected ? 1 : 0,
+    numRejected: isRejected ? 1 : 0,
     uploadType: 'single_track',
     errors: error ? [error] : []
   })
 
   if (error) {
+    if (isRejected) {
+      yield put(
+        make(Name.TRACK_UPLOAD_COMPLETE_UPLOAD, {
+          count: 1,
+          kind: 'tracks'
+        })
+      )
+    }
     return
   }
 
@@ -1089,52 +1105,6 @@ function* uploadTracksAsync(action) {
     )
   )
 
-  // If user already has creator_node_endpoint, do not reselect replica set
-  let newEndpoint = user.creator_node_endpoint || ''
-  if (!newEndpoint) {
-    const serviceSelectionStatus = yield select(getStatus)
-    if (serviceSelectionStatus === Status.ERROR) {
-      yield put(uploadActions.uploadTrackFailed())
-      yield put(
-        uploadActions.upgradeToCreatorError(
-          'Failed to find creator nodes to upload to'
-        )
-      )
-      return
-    }
-    // Wait for service selection to finish
-    const { selectedServices } = yield race({
-      selectedServices: call(
-        waitForValue,
-        getSelectedServices,
-        {},
-        (val) => val.length > 0
-      ),
-      failure: take(fetchServicesFailed.type)
-    })
-    if (!selectedServices) {
-      yield put(uploadActions.uploadTrackFailed())
-      yield put(
-        uploadActions.upgradeToCreatorError(
-          'Failed to find creator nodes to upload to, after taking a long time'
-        )
-      )
-      return
-    }
-    newEndpoint = selectedServices.join(',')
-  }
-
-  yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: {
-          creator_node_endpoint: newEndpoint
-        }
-      }
-    ])
-  )
-
   const uploadType = (() => {
     switch (action.uploadType) {
       case UploadType.PLAYLIST:
@@ -1155,11 +1125,10 @@ function* uploadTracksAsync(action) {
   yield put(recordEvent)
 
   // Upload content.
-  if (
-    action.uploadType === UploadType.PLAYLIST ||
-    action.uploadType === UploadType.ALBUM
-  ) {
-    const isAlbum = action.uploadType === UploadType.ALBUM
+  const isPlaylist = action.uploadType === UploadType.PLAYLIST
+  const isAlbum = action.uploadType === UploadType.ALBUM
+  const isSingleTrack = action.tracks.length === 1
+  if (isPlaylist || isAlbum) {
     yield call(
       uploadCollection,
       action.tracks,
@@ -1167,12 +1136,10 @@ function* uploadTracksAsync(action) {
       action.metadata,
       isAlbum
     )
+  } else if (isSingleTrack) {
+    yield call(uploadSingleTrack, action.tracks[0])
   } else {
-    if (action.tracks.length === 1) {
-      yield call(uploadSingleTrack, action.tracks[0])
-    } else {
-      yield call(uploadMultipleTracks, action.tracks)
-    }
+    yield call(uploadMultipleTracks, action.tracks)
   }
 }
 

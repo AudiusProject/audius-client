@@ -9,11 +9,13 @@ const getAccountUser = accountSelectors.getAccountUser
 export function* reportSuccessAndFailureEvents({
   numSuccess,
   numFailure,
+  numRejected,
   uploadType,
   errors
 }: {
   numSuccess: number
   numFailure: number
+  numRejected: number
   uploadType: 'single_track' | 'multi_track' | 'album' | 'playlist'
   errors: string[]
 }) {
@@ -37,5 +39,15 @@ export function* reportSuccessAndFailureEvents({
     })
   )
 
-  yield* all([...successEvents, ...failureEvents].map((e) => put(e)))
+  const rejectedEvents = range(numRejected).map((i) =>
+    make(Name.TRACK_UPLOAD_FAILURE, {
+      endpoint: primary,
+      kind: uploadType,
+      error: errors[i]
+    })
+  )
+
+  yield* all(
+    [...successEvents, ...failureEvents, ...rejectedEvents].map((e) => put(e))
+  )
 }
