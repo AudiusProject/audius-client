@@ -961,7 +961,7 @@ function* recoverPurchaseIfNecessary() {
       ...defaultBuyAudioLocalStorageState,
       ...savedLocalStorageState,
       transactionDetailsArgs: {
-        ...defaultBuyAudioLocalStorageState,
+        ...defaultBuyAudioLocalStorageState.transactionDetailsArgs,
         ...savedLocalStorageState.transactionDetailsArgs
       }
     }
@@ -1106,8 +1106,19 @@ function* watchRecovery() {
   yield takeLeading(startRecoveryIfNecessary, recoverPurchaseIfNecessary)
 }
 
+/**
+ * If the user closed the page or encountered an error in the BuyAudio flow, retry on refresh/next session.
+ * Gate on local storage existing for the previous purchase attempt to reduce RPC load.
+ */
 function* recoverOnPageLoad() {
-  yield* put(startRecoveryIfNecessary())
+  const localStorage = yield* getContext('localStorage')
+  const savedLocalStorageState: BuyAudioLocalStorageState | null = yield* call(
+    [localStorage, localStorage.getJSONValue],
+    BUY_AUDIO_LOCAL_STORAGE_KEY
+  )
+  if (savedLocalStorageState !== null) {
+    yield* put(startRecoveryIfNecessary())
+  }
 }
 
 export default function sagas() {
