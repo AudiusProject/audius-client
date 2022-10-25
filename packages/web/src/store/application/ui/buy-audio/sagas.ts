@@ -24,7 +24,8 @@ import {
   deriveUserBank,
   modalsActions,
   AmountObject,
-  FeatureFlags
+  FeatureFlags,
+  ErrorLevel
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
@@ -60,6 +61,7 @@ import {
 } from 'services/audius-backend/BuyAudio'
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { reportToSentry } from 'store/errors/reportToSentry'
 
 const {
   calculateAudioPurchaseInfo,
@@ -788,6 +790,7 @@ function* doBuyAudio({
   payload: { desiredAudioAmount, estimatedSOL, estimatedUSD }
 }: ReturnType<typeof onRampOpened>) {
   const provider = yield* select(getBuyAudioProvider)
+  let userRootWallet = ''
   try {
     // Record start
     yield* put(
@@ -822,6 +825,7 @@ function* doBuyAudio({
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+    userRootWallet = rootAccount.publicKey.toString()
 
     // Get config
     const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -910,7 +914,12 @@ function* doBuyAudio({
     )
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudio failed at stage', stage, 'with error:', e)
+    yield reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: { stage, userRootWallet }
+    })
+    console.error('BuyAudio failed')
     yield* put(buyAudioFlowFailed())
     yield* put(
       make(Name.BUY_AUDIO_FAILURE, {
@@ -933,6 +942,7 @@ function* doBuyAudio({
  */
 function* recoverPurchaseIfNecessary() {
   let didNeedRecovery = false
+  let userRootWallet = ''
   try {
     // Bail if not enabled
     const getFeatureEnabled = yield* getContext('getFeatureEnabled')
@@ -949,6 +959,7 @@ function* recoverPurchaseIfNecessary() {
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+    userRootWallet = rootAccount.publicKey.toString()
 
     // Restore local storage state, lightly sanitizing
     const localStorage = yield* getContext('localStorage')
@@ -1074,7 +1085,12 @@ function* recoverPurchaseIfNecessary() {
     }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudioRecovery failed at stage', stage, 'with error:', e)
+    console.error('BuyAudioRecovery failed')
+    yield reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: { stage, didNeedRecovery, userRootWallet }
+    })
     // For now, hide modal on error.
     // TODO: add UI for failures later
     yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
