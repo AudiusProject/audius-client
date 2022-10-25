@@ -349,7 +349,7 @@ function* deleteTrackAsync(action) {
         }
       ])
     )
-    const user = yield* select(getUser, { id: userId })
+    const user = yield call(waitForValue, getUser, { id: userId })
     yield call(
       audiusBackendInstance.setArtistPick,
       user,
