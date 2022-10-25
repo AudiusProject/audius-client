@@ -43,6 +43,7 @@ import { takeLatest, takeLeading } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 import { track } from 'services/analytics'
 import {
   createTransferToUserBankTransaction,
@@ -1132,7 +1133,7 @@ function* recoverOnPageLoad() {
     [localStorage, localStorage.getJSONValue],
     BUY_AUDIO_LOCAL_STORAGE_KEY
   )
-  if (savedLocalStorageState !== null) {
+  if (savedLocalStorageState !== null && !isMobileWeb()) {
     yield* put(startRecoveryIfNecessary())
   }
 }
