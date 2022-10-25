@@ -408,7 +408,7 @@ export function* fetchUserSocials({ handle }) {
           website: socials.website || null,
           donation: socials.donation || null,
           _artist_pick: socials.pinnedTrackId || null,
-          artist_pick_track_id: socials.pinnedTrackId | null
+          artist_pick_track_id: socials.pinnedTrackId || null
         }
       }
     ])
