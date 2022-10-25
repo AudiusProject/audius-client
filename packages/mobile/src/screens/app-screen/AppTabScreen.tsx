@@ -89,7 +89,7 @@ export type AppTabScreenParamList = {
   AccountVerificationScreen: undefined
   ChangePasswordScreen: undefined
   NotificationSettingsScreen: undefined
-  AudioScreen: Record<string, unknown>
+  AudioScreen: undefined
 }
 
 const forFade = ({ current }) => ({
