@@ -46,7 +46,6 @@
     "url": "https://github.com/AudiusProject/audius-client/issues"
   },
   "dependencies": {
-    "@audius/sdk": "1.0.18",
-    "@types/keyv": "3.1.4"
+    "@audius/sdk": "1.0.18"
   }
 }
