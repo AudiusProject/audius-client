@@ -117,8 +117,8 @@ export function* fetchUsers(
 }
 
 function* retrieveUserByHandle(handle) {
+  yield* call(waitForBackendAndAccount)
   const apiClient = yield getContext('apiClient')
-  yield waitForAccount()
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {
     handle = handle[0]

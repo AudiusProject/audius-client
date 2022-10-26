@@ -23,7 +23,6 @@ import {
   walletSelectors,
   walletActions,
   getContext,
-  waitForAccount,
   waitForValue,
   GetTipsArgs,
   GetSupportingArgs,
@@ -45,8 +44,6 @@ import {
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
-
-import { waitForBackendSetup } from '../backend/sagas'
 
 import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
@@ -322,7 +319,7 @@ function* refreshSupportAsync({
   payload: RefreshSupportPayloadAction
   type: string
 }) {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForBackendAndAccount)
   const apiClient = yield* getContext('apiClient')
 
   const supportingParams: GetSupportingArgs = {
@@ -331,7 +328,6 @@ function* refreshSupportAsync({
   if (supportingLimit) {
     supportingParams.limit = supportingLimit
   } else {
-    yield* waitForAccount()
     const account = yield* select(getAccountUser)
     supportingParams.limit =
       account?.user_id === senderUserId
