@@ -59,8 +59,6 @@ cd android && ./gradlew clean && cd ..
 
 - To debug the app, install [React Native Debugger](https://github.com/jhen0409/react-native-debugger) and enable debugging (Cmd + D) in the simulator.
 
-On iOS, make sure that [Hermes](https://reactnative.dev/docs/hermes) is disabled before starting the app in order to debug:
-
 ```bash
 npm run disable-hermes:ios && pod install
 ```
