@@ -23,7 +23,9 @@ import {
   createUserBankIfNeeded,
   deriveUserBank,
   modalsActions,
-  AmountObject
+  AmountObject,
+  FeatureFlags,
+  ErrorLevel
 } from '@audius/common'
 import { TransactionHandler } from '@audius/sdk/dist/core'
 import type { RouteInfo } from '@jup-ag/core'
@@ -41,6 +43,7 @@ import { takeLatest, takeLeading } from 'redux-saga/effects'
 import { call, select, put, take, race, fork } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 import { track } from 'services/analytics'
 import {
   createTransferToUserBankTransaction,
@@ -59,6 +62,7 @@ import {
 } from 'services/audius-backend/BuyAudio'
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { reportToSentry } from 'store/errors/reportToSentry'
 
 const {
   calculateAudioPurchaseInfo,
@@ -117,7 +121,7 @@ type BuyAudioLocalStorageState = {
     purchasedLamports?: string
     purchasedAudioWei?: string
   }
-  provider?: OnRampProvider
+  provider: OnRampProvider
   desiredAudioAmount?: AmountObject
 }
 const defaultBuyAudioLocalStorageState: BuyAudioLocalStorageState = {
@@ -787,10 +791,7 @@ function* doBuyAudio({
   payload: { desiredAudioAmount, estimatedSOL, estimatedUSD }
 }: ReturnType<typeof onRampOpened>) {
   const provider = yield* select(getBuyAudioProvider)
-  if (provider === undefined) {
-    console.error('BuyAudio flow started without a provider - aborting...')
-    return
-  }
+  let userRootWallet = ''
   try {
     // Record start
     yield* put(
@@ -825,6 +826,7 @@ function* doBuyAudio({
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+    userRootWallet = rootAccount.publicKey.toString()
 
     // Get config
     const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -913,7 +915,12 @@ function* doBuyAudio({
     )
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudio failed at stage', stage, 'with error:', e)
+    yield* call(reportToSentry, {
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: { stage, userRootWallet }
+    })
+    console.error('BuyAudio failed')
     yield* put(buyAudioFlowFailed())
     yield* put(
       make(Name.BUY_AUDIO_FAILURE, {
@@ -935,8 +942,17 @@ function* doBuyAudio({
  * This function checks for the above conditions sequentially, and pops the modal as necessary.
  */
 function* recoverPurchaseIfNecessary() {
+  let provider = OnRampProvider.UNKNOWN
   let didNeedRecovery = false
+  let userRootWallet = ''
+  let recoveredAudio: null | number = null
   try {
+    // Bail if not enabled
+    const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+    if (!getFeatureEnabled(FeatureFlags.BUY_AUDIO_ENABLED)) {
+      return
+    }
+
     // Setup
     const rootAccount: Keypair = yield* call(getRootSolanaAccount)
     const connection = yield* call(getSolanaConnection)
@@ -946,6 +962,7 @@ function* recoverPurchaseIfNecessary() {
       feePayerKeypairs: [rootAccount],
       skipPreflight: true
     })
+    userRootWallet = rootAccount.publicKey.toString()
 
     // Restore local storage state, lightly sanitizing
     const localStorage = yield* getContext('localStorage')
@@ -958,7 +975,7 @@ function* recoverPurchaseIfNecessary() {
       ...defaultBuyAudioLocalStorageState,
       ...savedLocalStorageState,
       transactionDetailsArgs: {
-        ...defaultBuyAudioLocalStorageState,
+        ...defaultBuyAudioLocalStorageState.transactionDetailsArgs,
         ...savedLocalStorageState.transactionDetailsArgs
       }
     }
@@ -967,6 +984,7 @@ function* recoverPurchaseIfNecessary() {
       BUY_AUDIO_LOCAL_STORAGE_KEY,
       localStorageState
     )
+    provider = localStorageState.provider
 
     // Get config
     const remoteConfigInstance = yield* getContext('remoteConfigInstance')
@@ -999,6 +1017,13 @@ function* recoverPurchaseIfNecessary() {
     // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
     if (exchangableBalance.gt(new BN(0))) {
+      yield* put(
+        make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+          provider,
+          trigger: 'SOL',
+          balance: exchangableBalance.toString()
+        })
+      )
       console.debug(
         `Found existing SOL balance of ${
           existingBalance / LAMPORTS_PER_SOL
@@ -1019,12 +1044,15 @@ function* recoverPurchaseIfNecessary() {
         maxRetryCount,
         retryDelayMs
       })
-      yield* call(transferStep, {
+      const { audioTransferredWei } = yield* call(transferStep, {
         transferAmount: audioSwappedSpl,
         rootAccount,
         transactionHandler,
         provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
       })
+      recoveredAudio = parseFloat(
+        formatWei(audioTransferredWei).replaceAll(',', '')
+      )
       yield* call(populateAndSaveTransactionDetails)
     } else {
       // Check for $AUDIO in the account and transfer if necessary
@@ -1036,6 +1064,13 @@ function* recoverPurchaseIfNecessary() {
       })
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
       if (audioBalance.gt(new BN(0))) {
+        yield* put(
+          make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+            provider,
+            trigger: '$AUDIO',
+            balance: audioBalance.toString()
+          })
+        )
         console.debug(
           `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
         )
@@ -1044,12 +1079,15 @@ function* recoverPurchaseIfNecessary() {
         yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
         didNeedRecovery = true
 
-        yield* call(transferStep, {
+        const { audioTransferredWei } = yield* call(transferStep, {
           transferAmount: audioBalance,
           rootAccount,
           transactionHandler,
           provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
         })
+        recoveredAudio = parseFloat(
+          formatWei(audioTransferredWei).replaceAll(',', '')
+        )
         yield* call(populateAndSaveTransactionDetails)
       } else {
         // If we only failed to save the metadata, try that again
@@ -1068,13 +1106,33 @@ function* recoverPurchaseIfNecessary() {
     if (didNeedRecovery) {
       // If we don't reset state here, this shows the success screen :)
       yield* put(setVisibility({ modal: 'BuyAudio', visible: true }))
+
+      // Report Success
+      yield* put(
+        make(Name.BUY_AUDIO_RECOVERY_SUCCESS, {
+          provider,
+          recoveredAudio
+        })
+      )
     }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudioRecovery failed at stage', stage, 'with error:', e)
+    console.error('BuyAudioRecovery failed')
+    yield* call(reportToSentry, {
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: { stage, didNeedRecovery, userRootWallet }
+    })
     // For now, hide modal on error.
     // TODO: add UI for failures later
     yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: false }))
+    yield* put(
+      make(Name.BUY_AUDIO_RECOVERY_FAILURE, {
+        provider,
+        stage,
+        error: (e as Error).message
+      })
+    )
   }
 }
 
@@ -1103,8 +1161,19 @@ function* watchRecovery() {
   yield takeLeading(startRecoveryIfNecessary, recoverPurchaseIfNecessary)
 }
 
+/**
+ * If the user closed the page or encountered an error in the BuyAudio flow, retry on refresh/next session.
+ * Gate on local storage existing for the previous purchase attempt to reduce RPC load.
+ */
 function* recoverOnPageLoad() {
-  yield* put(startRecoveryIfNecessary())
+  const localStorage = yield* getContext('localStorage')
+  const savedLocalStorageState: BuyAudioLocalStorageState | null = yield* call(
+    [localStorage, localStorage.getJSONValue],
+    BUY_AUDIO_LOCAL_STORAGE_KEY
+  )
+  if (savedLocalStorageState !== null && !isMobileWeb()) {
+    yield* put(startRecoveryIfNecessary())
+  }
 }
 
 export default function sagas() {
