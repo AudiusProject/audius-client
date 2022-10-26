@@ -57,6 +57,7 @@
     "@types/react-dom": "^17.0.2",
     "@types/storybook__addon-knobs": "^5.0.4",
     "@types/storybook__react": "^4.0.2",
+    "@types/keyv": "3.1.4",
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
@@ -97,7 +98,7 @@
     "dist"
   ],
   "dependencies": {
-    "@audius/sdk": "1.0.8",
+    "@audius/sdk": "1.0.18",
     "@juggle/resize-observer": "3.3.1",
     "react-perfect-scrollbar": "1.5.8",
     "react-use": "15.3.8",
