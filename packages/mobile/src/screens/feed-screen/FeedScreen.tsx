@@ -36,6 +36,7 @@ export const FeedScreen = () => {
     },
     [dispatch]
   )
+  console.log('remove me')
 
   return (
     <Screen>

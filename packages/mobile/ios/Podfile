@@ -52,7 +52,7 @@ target 'AudiusReactNative' do
   use_react_native!(
     :path => config[:reactNativePath],
     # Do NOT commit local changes (including corresponding Podfile.lock changes) to this value!:
-    :hermes_enabled => true
+    :hermes_enabled => false
   )
 
 
