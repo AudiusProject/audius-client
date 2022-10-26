@@ -22,17 +22,19 @@ export const useNotificationNavigation = () => {
   const navigation = useNavigation()
 
   const notificationNavigation = useMemo(
-    () => ({
-      ...navigation,
-      ...drawerHelpers
-    }),
-    [drawerHelpers, navigation]
+    () =>
+      isNavOverhaulEnabled
+        ? navigation
+        : {
+            ...navigation,
+            ...drawerHelpers
+          },
+    [isNavOverhaulEnabled, drawerHelpers, navigation]
   )
 
   if (isNavOverhaulEnabled) {
     notificationNavigation.navigate = notificationNavigation.push as any
   }
-
   return notificationNavigation
 }
 
