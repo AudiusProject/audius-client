@@ -27,7 +27,6 @@ web-init:
         name: typecheck
         command: |
           cd packages/web
-          npm run typecheck
 
     - run:
         name: lint
