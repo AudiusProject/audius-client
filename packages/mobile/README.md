@@ -76,7 +76,7 @@ adb logcat '*:V'
 
 ## Hermes
 
-Note that on iOS, use of Hermes is disabled by default in this repo in order to allow debugging with React Native Debugger. However, Hermes is enabled in app releases. To ensure your changes will work with the Hermes engine, you can enable Hermes locally with the following command:
+Note that on iOS, use of [Hermes](https://reactnative.dev/docs/hermes) is disabled by default in this repo in order to allow debugging with React Native Debugger. However, Hermes is enabled in app releases. To ensure your changes will work with the Hermes engine, you can enable Hermes locally with the following command:
 
 ```bash
 npm run enable-hermes:ios && pod install
