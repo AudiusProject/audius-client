@@ -152,7 +152,7 @@ function* fetchFollowArtistGenre(followArtistCategory) {
 }
 
 function* fetchReferrer(action) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { handle } = action
   if (handle) {

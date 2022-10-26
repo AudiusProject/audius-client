@@ -23,7 +23,7 @@ const getUserId = accountSelectors.getUserId
 
 function getTracks(timeRange) {
   return function* ({ offset, limit }) {
-    yield* waitForBackendAndAccount()
+    yield waitForBackendAndAccount()
     const genreAtStart = yield select(getTrendingGenre)
     const userId = yield select(getUserId)
     try {

@@ -41,7 +41,7 @@ const { getAccountUser, getUserId } = accountSelectors
  * If the user is not a creator, upgrade the user to a creator node.
  */
 export function* upgradeToCreator() {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const user = yield select(getAccountUser)
 
@@ -117,7 +117,7 @@ export function* fetchUsers(
 }
 
 function* retrieveUserByHandle(handle) {
-  yield* call(waitForBackendAndAccount)
+  yield waitForBackendAndAccount()
   const apiClient = yield getContext('apiClient')
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {

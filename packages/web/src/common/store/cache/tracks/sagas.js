@@ -238,7 +238,7 @@ function* confirmEditTrack(
   isNowListed,
   currentTrack
 ) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(
@@ -325,7 +325,7 @@ function* watchEditTrack() {
 
 function* deleteTrackAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -361,7 +361,7 @@ function* deleteTrackAsync(action) {
 }
 
 function* confirmDeleteTrack(trackId) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(

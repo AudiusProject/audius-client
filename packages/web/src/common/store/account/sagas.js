@@ -193,7 +193,7 @@ export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
   yield put(accountActions.fetchAccountRequested())
 
   if (!fromSource) {
-    yield* fetchLocalAccountAsync()
+    yield fetchLocalAccountAsync()
   }
 
   const account = yield call(audiusBackendInstance.getAccount, fromSource)
@@ -343,7 +343,7 @@ function* associateInstagramAccount(action) {
 }
 
 function* fetchSavedAlbumsAsync() {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -351,7 +351,7 @@ function* fetchSavedAlbumsAsync() {
 }
 
 function* fetchSavedPlaylistsAsync() {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {

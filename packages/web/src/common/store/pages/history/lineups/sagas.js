@@ -13,7 +13,7 @@ const { getUserId } = accountSelectors
 const { prefix: PREFIX } = tracksActions
 
 function* getHistoryTracks() {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
 
   const apiClient = yield getContext('apiClient')
   try {

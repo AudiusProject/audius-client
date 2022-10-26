@@ -27,7 +27,7 @@ const { getUserId, getUserHandle } = accountSelectors
 const PREFIX = tracksActions.prefix
 
 function* getTracks({ offset, limit, payload, handle }) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const currentUserId = yield select(getUserId)
   const profileHandle = handle.toLowerCase()
 

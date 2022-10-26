@@ -24,7 +24,7 @@ const DEACTIVATE_CONFIRMATION_UID = 'DEACTIVATE'
 function* handleDeactivateAccount() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   try {
-    yield* call(waitForBackendAndAccount)
+    yield* waitForBackendAndAccount()
 
     const accountUserId = yield* select(getUserId)
     const userMetadata = yield* select(getAccountUser)

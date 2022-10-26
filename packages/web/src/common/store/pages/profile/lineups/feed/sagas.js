@@ -24,7 +24,7 @@ const { getCollections } = cacheCollectionsSelectors
 const { getUserId, getUserHandle } = accountSelectors
 
 function* getReposts({ offset, limit, handle }) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
 
   const profileId = yield select((state) => getProfileUserId(state, handle))
 
@@ -147,7 +147,7 @@ function* addCollectionRepost(action) {
     uid: makeUid(Kind.COLLECTIONS, collectionId, source)
   }
 
-  yield* put(
+  yield put(
     feedActions.add(formattedCollection, collectionId, accountHandle, true)
   )
 }

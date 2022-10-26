@@ -378,7 +378,7 @@ function* watchUpdateProfile() {
 }
 
 export function* updateProfileAsync(action) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   let metadata = { ...action.metadata }
   metadata.bio = squashNewLines(metadata.bio)
@@ -453,7 +453,7 @@ export function* updateProfileAsync(action) {
 }
 
 function* confirmUpdateProfile(userId, metadata) {
-  yield* call(waitForBackendAndAccount)
+  yield waitForBackendAndAccount()
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const localStorage = yield getContext('localStorage')

@@ -319,7 +319,7 @@ function* refreshSupportAsync({
   payload: RefreshSupportPayloadAction
   type: string
 }) {
-  yield* call(waitForBackendAndAccount)
+  yield* waitForBackendAndAccount()
   const apiClient = yield* getContext('apiClient')
 
   const supportingParams: GetSupportingArgs = {

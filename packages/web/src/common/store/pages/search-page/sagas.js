@@ -90,7 +90,7 @@ export function* fetchSearchPageTags(action) {
 }
 
 export function* getSearchResults(searchText, kind, limit, offset) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
 
   const apiClient = yield getContext('apiClient')
   const userId = yield select(getUserId)

@@ -827,7 +827,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
 }
 
 function* uploadSingleTrack(track) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   // Need an object to hold phase error info that
@@ -883,7 +883,7 @@ function* uploadSingleTrack(track) {
           throw new Error(error)
         }
 
-        yield* waitForBackendAndAccount()
+        yield waitForBackendAndAccount()
         const userId = yield select(getUserId)
         const handle = yield select(getUserHandle)
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
@@ -1078,7 +1078,7 @@ function* uploadMultipleTracks(tracks) {
 }
 
 function* uploadTracksAsync(action) {
-  yield* waitForBackendAndAccount()
+  yield waitForBackendAndAccount()
   const user = yield select(getAccountUser)
   yield put(
     uploadActions.uploadTracksRequested(
