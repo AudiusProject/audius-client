@@ -9,10 +9,13 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { OnRampButton } from 'components/on-ramp-button'
+import Tooltip from 'components/tooltip/Tooltip'
 import {
   createStripeSession,
   getRootSolanaAccount
 } from 'services/audius-backend/BuyAudio'
+
+import styles from './StripeBuyAudioButton.module.css'
 
 const { getAudioPurchaseInfo } = buyAudioSelectors
 const { onRampOpened, onRampSucceeded } = buyAudioActions
@@ -24,6 +27,10 @@ const STRIPE_PUBLISHABLE_KEY =
 // @ts-ignore
 const StripeOnRamp = window.StripeOnramp
 
+const messages = {
+  belowThreshold: 'Link by Stripe requires a purchase minimum of $1 USD'
+}
+
 export const StripeBuyAudioButton = () => {
   const dispatch = useDispatch()
   const [, setIsStripeModalVisible] = useModalState('StripeOnRamp')
@@ -33,6 +40,9 @@ export const StripeBuyAudioButton = () => {
     purchaseInfo?.isError === false
       ? purchaseInfo.estimatedSOL.uiAmountString
       : undefined
+  const belowThreshold =
+    purchaseInfo?.isError === false && purchaseInfo.estimatedUSD.uiAmount < 1
+  console.log({ belowThreshold, purchaseInfo })
 
   const handleSessionUpdate = useCallback(
     (e) => {
@@ -68,5 +78,23 @@ export const StripeBuyAudioButton = () => {
     purchaseInfo
   ])
 
-  return <OnRampButton provider={OnRampProvider.STRIPE} onClick={handleClick} />
+  return (
+    <Tooltip
+      className={styles.tooltip}
+      text={messages.belowThreshold}
+      disabled={!belowThreshold}
+      color={'--secondary'}
+      shouldWrapContent={false}
+    >
+      <div>
+        <OnRampButton
+          isDisabled={belowThreshold}
+          disabled={belowThreshold}
+          className={styles.button}
+          provider={OnRampProvider.STRIPE}
+          onClick={handleClick}
+        />
+      </div>
+    </Tooltip>
+  )
 }
