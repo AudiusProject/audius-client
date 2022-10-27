@@ -40,7 +40,7 @@ export function* reportSuccessAndFailureEvents({
   )
 
   const rejectedEvents = range(numRejected).map((i) =>
-    make(Name.TRACK_UPLOAD_FAILURE, {
+    make(Name.TRACK_UPLOAD_REJECTED, {
       endpoint: primary,
       kind: uploadType,
       error: errors[i]
