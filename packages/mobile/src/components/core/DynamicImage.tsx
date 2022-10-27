@@ -31,6 +31,7 @@ export type DynamicImageProps = Omit<ImageProps, 'source'> & {
   // callback when image finishes loading
   onLoad?: () => void
   animatedValue?: Animated.Value
+  firstOpacity?: number
 }
 
 const styles = StyleSheet.create({
@@ -94,14 +95,14 @@ export const DynamicImage = memo(function DynamicImage({
   children,
   onLoad,
   animatedValue,
+  firstOpacity: firstOpacityProp = 0.5,
   ...imageProps
 }: DynamicImageProps) {
-  const [firstSize, setFirstSize] = useState(0)
-  const [secondSize, setSecondSize] = useState(0)
+  const [size, setSize] = useState(0)
   const [firstImage, setFirstImage] = useState<string>()
   const [secondImage, setSecondImage] = useState<string>()
 
-  const firstOpacity = useRef(new Animated.Value(0.5)).current
+  const firstOpacity = useRef(new Animated.Value(firstOpacityProp)).current
   const secondOpacity = useRef(new Animated.Value(0.5)).current
 
   const [isFirstImageActive, setIsFirstImageActive] = useState(true)
@@ -150,12 +151,8 @@ export const DynamicImage = memo(function DynamicImage({
     onLoad
   ])
 
-  const handleSetFirstSize = useCallback((event: LayoutChangeEvent) => {
-    setFirstSize(event.nativeEvent.layout.width)
-  }, [])
-
-  const handleSetSecondSize = useCallback((event: LayoutChangeEvent) => {
-    setSecondSize(event.nativeEvent.layout.width)
+  const handleSetSize = useCallback((event: LayoutChangeEvent) => {
+    setSize(event.nativeEvent.layout.width)
   }, [])
 
   return (
@@ -184,11 +181,11 @@ export const DynamicImage = memo(function DynamicImage({
           styles.imageContainer,
           { opacity: firstOpacity }
         ]}
-        onLayout={handleSetFirstSize}
+        onLayout={handleSetSize}
       >
         <ImageWithPlaceholder
           uri={firstImage}
-          style={[{ width: firstSize, height: firstSize }, stylesProp?.image]}
+          style={[{ width: size, height: size }, stylesProp?.image]}
           {...imageProps}
         />
       </Animated.View>
@@ -198,11 +195,10 @@ export const DynamicImage = memo(function DynamicImage({
           styles.imageContainer,
           { opacity: secondOpacity, zIndex: isFirstImageActive ? -1 : 0 }
         ]}
-        onLayout={handleSetSecondSize}
       >
         <ImageWithPlaceholder
           uri={secondImage}
-          style={[{ width: secondSize, height: secondSize }, stylesProp?.image]}
+          style={[{ width: size, height: size }, stylesProp?.image]}
           {...imageProps}
         />
       </Animated.View>

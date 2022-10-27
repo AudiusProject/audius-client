@@ -35,7 +35,7 @@ const { markAllAsViewed } = notificationsActions
 const { getNotificationUnviewedCount } = notificationsSelectors
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
-  headerLeft: { marginLeft: spacing(-2), width: 40 },
+  headerLeft: { marginLeft: spacing(-2) + 1, width: 40 },
   headerRight: {},
   title: {
     fontSize: 18,
@@ -104,7 +104,7 @@ export const useAppScreenOptions = (
   const { accentOrangeLight1, neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()
   const notificationCount = useSelector(getNotificationUnviewedCount)
-  const navigation = useNavigation<AppScreenParamList>()
+  const navigation = useNavigation()
   const { drawerHelpers } = useContext(AppDrawerContext)
 
   const handlePressNotification = useCallback(() => {
@@ -133,6 +133,7 @@ export const useAppScreenOptions = (
         // Notifications uses this in order to remove animations when going from the drawer
         // to a nested stack screen.
         const isFromNotifs =
+          !isNavOverhaulEnabled &&
           params &&
           'fromNotifications' in params &&
           (params as ContextualParams).fromNotifications
@@ -172,7 +173,7 @@ export const useAppScreenOptions = (
             }
             if (isNavOverhaulEnabled) {
               return (
-                <View style={styles.headerLeft}>
+                <View style={[styles.headerLeft, { marginLeft: 0 }]}>
                   <AccountPictureHeader onPress={handlePressNotification} />
                 </View>
               )

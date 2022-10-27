@@ -12,13 +12,13 @@ import {
   collectionsSocialActions,
   solanaSelectors,
   usersSocialActions as socialActions,
-  waitForAccount,
   getContext,
   settingsPageActions,
   MAX_HANDLE_LENGTH,
   PushNotificationSetting
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
+import { isEmpty } from 'lodash'
 import {
   all,
   call,
@@ -47,6 +47,7 @@ import { isValidEmailString } from 'utils/email'
 import { withTimeout } from 'utils/network'
 import { restrictedHandles } from 'utils/restrictedHandles'
 import { ERROR_PAGE, FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import * as signOnActions from './actions'
 import { watchSignOnError } from './errorSagas'
@@ -152,6 +153,7 @@ function* fetchFollowArtistGenre(followArtistCategory) {
 }
 
 function* fetchReferrer(action) {
+  yield waitForBackendAndAccount()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { handle } = action
   if (handle) {
@@ -163,7 +165,6 @@ function* fetchReferrer(action) {
       // Check if the user is already signed in
       // If so, apply retroactive referrals
 
-      yield waitForAccount()
       const currentUser = yield select(getAccountUser)
       if (
         currentUser &&
@@ -232,10 +233,11 @@ function* validateHandle(action) {
     }
     yield delay(300) // Wait 300 ms to debounce user input
 
-    let handleInUse
+    const user = yield call(fetchUserByHandle, handle)
+    const handleInUse = !isEmpty(user)
+
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
-      const [inUse, twitterUserQuery, instagramUser] = yield all([
-        call(audiusBackendInstance.handleInUse, handle),
+      const [twitterUserQuery, instagramUser] = yield all([
         call(audiusBackendInstance.twitterHandle, handle),
         call(getInstagramUser, handle, remoteConfigInstance)
       ])
@@ -250,9 +252,6 @@ function* validateHandle(action) {
         if (onValidate) onValidate(true)
         return
       }
-      handleInUse = inUse
-    } else {
-      handleInUse = yield call(audiusBackendInstance.handleInUse, handle)
     }
 
     if (handleInUse) {
@@ -604,11 +603,17 @@ function* followArtists() {
     }
 
     const signOn = yield select(getSignOn)
+    const referrer = signOn.referrer
+
     const {
       followArtists: { selectedUserIds }
     } = signOn
     const userIdsToFollow = [
-      ...new Set([...defaultFollowUserIds, ...selectedUserIds])
+      ...new Set([
+        ...defaultFollowUserIds,
+        ...selectedUserIds,
+        ...(referrer == null ? [] : [referrer])
+      ])
     ]
     for (const userId of userIdsToFollow) {
       yield put(socialActions.followUser(userId))

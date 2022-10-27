@@ -14,17 +14,25 @@ const { getAccountUser } = accountSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    height: spacing(8),
-    width: spacing(8)
+    height: spacing(8) + 2,
+    width: spacing(8) + 2,
+    borderWidth: 1
+  },
+  notificationBubbleRoot: {
+    height: spacing(4),
+    width: spacing(4),
+    borderColor: palette.white,
+    borderWidth: 2,
+    borderRadius: 10,
+    position: 'absolute',
+    top: 0,
+    right: 0
   },
   notificationBubble: {
-    height: spacing(2),
-    width: spacing(2),
-    borderRadius: spacing(2),
+    flex: 1,
     backgroundColor: palette.secondary,
-    position: 'absolute',
-    top: 2,
-    right: 10
+    overflow: 'hidden',
+    borderRadius: 10
   }
 }))
 
@@ -41,8 +49,16 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
 
   return (
     <TouchableOpacity onPress={onPress}>
-      <ProfilePicture profile={accountUser} style={styles.root} />
-      {hasClaimableRewards ? <View style={styles.notificationBubble} /> : null}
+      <ProfilePicture
+        profile={accountUser}
+        style={styles.root}
+        firstOpacity={0}
+      />
+      {hasClaimableRewards ? (
+        <View style={styles.notificationBubbleRoot}>
+          <View style={styles.notificationBubble} />
+        </View>
+      ) : null}
     </TouchableOpacity>
   )
 }

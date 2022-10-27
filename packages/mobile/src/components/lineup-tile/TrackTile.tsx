@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
 
-import type { Track, User } from '@audius/common'
+import type { Track, User, CommonState } from '@audius/common'
 import {
   removeNullable,
-  playerSelectors,
   PlaybackSource,
   FavoriteSource,
   RepostSource,
@@ -17,7 +16,8 @@ import {
   OverflowSource,
   mobileOverflowMenuUIActions,
   shareModalUIActions,
-  RepostType
+  RepostType,
+  playerSelectors
 } from '@audius/common'
 import { useNavigationState } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,6 +27,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 
 import { LineupTile } from './LineupTile'
+
 const { getUid } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
@@ -68,8 +69,9 @@ const TrackTileComponent = ({
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const currentScreen = useNavigationState((state) => state.history?.[0])
-  const playingUid = useSelector(getUid)
-  const isPlayingUid = playingUid === lineupTileProps.uid
+  const isPlayingUid = useSelector(
+    (state: CommonState) => getUid(state) === lineupTileProps.uid
+  )
 
   const {
     _cover_art_sizes,
@@ -92,18 +94,13 @@ const TrackTileComponent = ({
     size: SquareSizes.SIZE_150_BY_150
   })
 
-  const handlePress = useCallback(
-    ({ isPlaying }) => {
-      togglePlay({
-        uid: lineupTileProps.uid,
-        id: track_id,
-        source: PlaybackSource.TRACK_TILE,
-        isPlaying,
-        isPlayingUid
-      })
-    },
-    [togglePlay, lineupTileProps.uid, track_id, isPlayingUid]
-  )
+  const handlePress = useCallback(() => {
+    togglePlay({
+      uid: lineupTileProps.uid,
+      id: track_id,
+      source: PlaybackSource.TRACK_TILE
+    })
+  }, [togglePlay, lineupTileProps.uid, track_id])
 
   const handlePressTitle = useCallback(() => {
     navigation.push('Track', { id: track_id })
@@ -169,8 +166,8 @@ const TrackTileComponent = ({
   return (
     <LineupTile
       {...lineupTileProps}
-      isPlayingUid={isPlayingUid}
       duration={duration}
+      isPlayingUid={isPlayingUid}
       favoriteType={FavoriteType.TRACK}
       repostType={RepostType.TRACK}
       hideShare={hideShare}

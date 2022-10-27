@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { BottomTabBarProps as RNBottomTabBarProps } from '@react-navigation/bottom-tabs'
 import type { BottomTabNavigationEventMap } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
@@ -8,6 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { FULL_DRAWER_HEIGHT } from 'app/components/drawer'
 import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
+import PushNotifications from 'app/notifications'
 import { makeStyles } from 'app/styles'
 
 import { bottomTabBarButtons } from './bottom-tab-bar-buttons'
@@ -74,6 +75,14 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
   const { routes, index: activeIndex } = state
   const insets = useSafeAreaInsets()
 
+  // Provide PushNotification the bottom-bar navigation context to
+  // switch to notification stack
+  useEffect(() => {
+    if (navigation) {
+      PushNotifications.setBottomTabNavigation(navigation as any)
+    }
+  }, [navigation])
+
   const handlePress = useCallback(
     (isFocused: boolean, routeName: string, routeKey: string) => {
       const event = navigation.emit({
@@ -115,7 +124,6 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
           return (
             <BottomButton
               key={key}
-              routeName={name}
               routeKey={key}
               isActive={index === activeIndex}
               onPress={handlePress}

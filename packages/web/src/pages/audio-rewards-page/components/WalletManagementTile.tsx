@@ -23,6 +23,7 @@ import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconSettings } from 'assets/img/iconSettings.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import { useModalState } from 'common/hooks/useModalState'
+import { isMobileWeb } from 'common/utils/isMobileWeb'
 import { CollapsibleContent } from 'components/collapsible-content'
 import MobileConnectWalletsDrawer from 'components/mobile-connect-wallets-drawer/MobileConnectWalletsDrawer'
 import { OnRampButton } from 'components/on-ramp-button/OnRampButton'
@@ -54,9 +55,14 @@ const messages = {
   hideAdvanced: 'Hide Advanced',
   advancedOptions: 'Advanced Options',
   stripeRegionNotSupported:
-    'Stripe payments are not yet supported in your region',
+    'Link by Stripe is not yet supported in your region',
   coinbasePayRegionNotSupported:
-    'Coinbase Pay is not yet supported in your region'
+    'Coinbase Pay is not yet supported in your region',
+  stripeStateNotSupported: (state: string) =>
+    `Link by Stripe is not supported in the state of ${state}`,
+  coinbaseStateNotSupported: (state: string) =>
+    `Coinbase Pay is not supported in the state of ${state}`,
+  goldAudioToken: 'Gold $AUDIO token'
 }
 
 const AdvancedWalletActions = () => {
@@ -206,6 +212,11 @@ export const WalletManagementTile = () => {
       }),
     [value, stripeAllowedCountries, stripeDeniedRegions]
   )
+  // Assume USA is supported, so if in USA but still not supported, it's a state ban
+  const isBannedStripeState =
+    value && value.country_code_iso3 === 'USA' && !isStripeAllowed
+  const isBannedCoinbaseState =
+    value && value.country_code_iso3 === 'USA' && !isCoinbaseAllowed
 
   const onClickOpen = useCallback(() => {
     setOpen(true)
@@ -247,63 +258,75 @@ export const WalletManagementTile = () => {
         </div>
       </div>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <img
-            className={styles.headerIcon}
-            src={IconGoldBadge}
-            alt='Gold $AUDIO token'
-          />
-          <div className={styles.headerText}>
-            <div className={styles.title}>{messages.buyAudio}</div>
-            <div className={styles.subtitle}>
-              {isCoinbaseEnabled && isStripeEnabled
-                ? messages.checkoutWithStripeOrCoinbase
-                : isCoinbaseEnabled
-                ? messages.checkoutWithCoinbase
-                : messages.checkoutWithStripe}
+        {!isMobileWeb() ? (
+          <>
+            <div className={styles.header}>
+              <img
+                className={styles.headerIcon}
+                src={IconGoldBadge}
+                alt={messages.goldAudioToken}
+              />
+              <div className={styles.headerText}>
+                <div className={styles.title}>{messages.buyAudio}</div>
+                <div className={styles.subtitle}>
+                  {isCoinbaseEnabled && isStripeEnabled
+                    ? messages.checkoutWithStripeOrCoinbase
+                    : isCoinbaseEnabled
+                    ? messages.checkoutWithCoinbase
+                    : messages.checkoutWithStripe}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className={styles.onRampButtons}>
-          {isStripeEnabled ? (
-            <Tooltip
-              disabled={isStripeAllowed}
-              className={styles.tooltip}
-              text={messages.stripeRegionNotSupported}
-              color={'--secondary'}
-              shouldWrapContent={false}
-            >
-              <div>
-                <OnRampButton
-                  provider={OnRampProvider.STRIPE}
-                  className={styles.onRampButton}
-                  disabled={!isStripeAllowed}
-                  isDisabled={!isStripeAllowed}
-                  onClick={onBuyWithStripeClicked}
-                />
-              </div>
-            </Tooltip>
-          ) : null}
-          {isCoinbaseEnabled ? (
-            <Tooltip
-              disabled={isCoinbaseAllowed}
-              className={styles.tooltip}
-              text={messages.coinbasePayRegionNotSupported}
-              color={'--secondary'}
-              shouldWrapContent={false}
-            >
-              <div>
-                <OnRampButton
-                  provider={OnRampProvider.COINBASE}
-                  className={styles.onRampButton}
-                  disabled={!isCoinbaseAllowed}
-                  isDisabled={!isCoinbaseAllowed}
-                  onClick={onBuyWithCoinbaseClicked}
-                />
-              </div>
-            </Tooltip>
-          ) : null}
-        </div>
+            <div className={styles.onRampButtons}>
+              {isStripeEnabled ? (
+                <Tooltip
+                  disabled={isStripeAllowed}
+                  className={styles.tooltip}
+                  text={
+                    isBannedStripeState
+                      ? messages.stripeStateNotSupported(value.region_code)
+                      : messages.stripeRegionNotSupported
+                  }
+                  color={'--secondary'}
+                  shouldWrapContent={false}
+                >
+                  <div>
+                    <OnRampButton
+                      provider={OnRampProvider.STRIPE}
+                      className={styles.onRampButton}
+                      disabled={!isStripeAllowed}
+                      isDisabled={!isStripeAllowed}
+                      onClick={onBuyWithStripeClicked}
+                    />
+                  </div>
+                </Tooltip>
+              ) : null}
+              {isCoinbaseEnabled ? (
+                <Tooltip
+                  disabled={isCoinbaseAllowed}
+                  className={styles.tooltip}
+                  text={
+                    isBannedCoinbaseState
+                      ? messages.stripeStateNotSupported(value.region_code)
+                      : messages.coinbasePayRegionNotSupported
+                  }
+                  color={'--secondary'}
+                  shouldWrapContent={false}
+                >
+                  <div>
+                    <OnRampButton
+                      provider={OnRampProvider.COINBASE}
+                      className={styles.onRampButton}
+                      disabled={!isCoinbaseAllowed}
+                      isDisabled={!isCoinbaseAllowed}
+                      onClick={onBuyWithCoinbaseClicked}
+                    />
+                  </div>
+                </Tooltip>
+              ) : null}
+            </div>
+          </>
+        ) : null}
         <CollapsibleContent
           id='advanced-wallet-actions'
           className={styles.toggle}
