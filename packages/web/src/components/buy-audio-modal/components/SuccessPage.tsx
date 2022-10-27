@@ -5,7 +5,8 @@ import {
   transactionDetailsSelectors,
   formatNumberString,
   transactionDetailsActions,
-  modalsActions
+  modalsActions,
+  buyAudioSelectors
 } from '@audius/common'
 import { Button, ButtonSize, ButtonType, IconInfo } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -26,18 +27,23 @@ const messages = {
 const { getTransactionDetails } = transactionDetailsSelectors
 const { setModalClosedAction: setOnTransactionDetailsModalClosedAction } =
   transactionDetailsActions
+const { getOnSuccessAction } = buyAudioSelectors
 const { setVisibility } = modalsActions
 
 export const SuccessPage = () => {
   const dispatch = useDispatch()
   const transactionDetails = useSelector(getTransactionDetails)
+  const onSuccessAction = useSelector(getOnSuccessAction)
   const [, setModalVisibility] = useModalState('BuyAudio')
   const [, setTransactionDetailsModalVisibility] =
     useModalState('TransactionDetails')
 
   const handleDoneClicked = useCallback(() => {
+    if (onSuccessAction) {
+      dispatch(onSuccessAction)
+    }
     setModalVisibility(false)
-  }, [setModalVisibility])
+  }, [dispatch, setModalVisibility, onSuccessAction])
 
   const handleReviewTransactionClicked = useCallback(() => {
     dispatch(

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Status } from '../../../models/Status'
 
@@ -45,6 +45,7 @@ type BuyAudioState = {
     transactionFees: number
   }
   provider: OnRampProvider
+  onSuccessAction?: Action
 }
 
 const initialState: BuyAudioState = {
@@ -105,11 +106,15 @@ const slice = createSlice({
     },
     startBuyAudioFlow: (
       state,
-      action: PayloadAction<{ provider: OnRampProvider }>
+      action: PayloadAction<{
+        provider: OnRampProvider
+        onSuccessAction?: Action
+      }>
     ) => {
       state.stage = BuyAudioStage.START
       state.error = undefined
       state.provider = action.payload.provider
+      state.onSuccessAction = action.payload.onSuccessAction
     },
     onRampOpened: (state, _action: PayloadAction<PurchaseInfo>) => {
       state.stage = BuyAudioStage.PURCHASING
