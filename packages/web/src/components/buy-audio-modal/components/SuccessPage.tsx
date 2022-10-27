@@ -41,6 +41,7 @@ export const SuccessPage = () => {
   const handleDoneClicked = useCallback(() => {
     if (onSuccessAction) {
       dispatch(onSuccessAction)
+      dispatch(setOnTransactionDetailsModalClosedAction())
     }
     setModalVisibility(false)
   }, [dispatch, setModalVisibility, onSuccessAction])
