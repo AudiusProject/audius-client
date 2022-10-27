@@ -42,7 +42,6 @@ export const StripeBuyAudioButton = () => {
       : undefined
   const belowThreshold =
     purchaseInfo?.isError === false && purchaseInfo.estimatedUSD.uiAmount < 1
-  console.log({ belowThreshold, purchaseInfo })
 
   const handleSessionUpdate = useCallback(
     (e) => {
