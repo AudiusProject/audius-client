@@ -59,10 +59,6 @@ cd android && ./gradlew clean && cd ..
 
 - To debug the app, install [React Native Debugger](https://github.com/jhen0409/react-native-debugger) and enable debugging (Cmd + D) in the simulator.
 
-```bash
-npm run disable-hermes:ios && pod install
-```
-
 On Android, you can use the adb Android Studio tool or
 
 ```bash
