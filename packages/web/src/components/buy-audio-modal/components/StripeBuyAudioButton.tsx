@@ -18,7 +18,8 @@ import {
 import styles from './StripeBuyAudioButton.module.css'
 
 const { getAudioPurchaseInfo } = buyAudioSelectors
-const { onRampOpened, onRampSucceeded } = buyAudioActions
+const { onRampOpened, onRampSucceeded, stripeSessionStatusChanged } =
+  buyAudioActions
 
 const STRIPE_PUBLISHABLE_KEY =
   process.env.REACT_APP_STRIPE_CLIENT_PUBLISHABLE_KEY
@@ -45,9 +46,14 @@ export const StripeBuyAudioButton = () => {
 
   const handleSessionUpdate = useCallback(
     (e) => {
-      if (e.payload.session.status === 'fulfillment_complete') {
-        dispatch(onRampSucceeded())
-        setIsStripeModalVisible(false)
+      if (e?.payload?.session?.status) {
+        dispatch(
+          stripeSessionStatusChanged({ status: e.payload.session.status })
+        )
+        if (e.payload.session.status === 'fulfillment_complete') {
+          dispatch(onRampSucceeded())
+          setIsStripeModalVisible(false)
+        }
       }
     },
     [dispatch, setIsStripeModalVisible]
