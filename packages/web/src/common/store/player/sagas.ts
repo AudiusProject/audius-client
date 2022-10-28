@@ -125,7 +125,7 @@ export function* watchCollectiblePlay() {
       const audioPlayer = yield* getContext('audioPlayer')
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
-          [],
+          '',
           () => {
             if (onEnd) {
               emitter(onEnd({}))
