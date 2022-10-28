@@ -220,7 +220,7 @@ export const SendTip = () => {
       })}
     >
       {topBanner}
-      <div className={styles.divider}></div>
+      {topBanner !== null ? <div className={styles.divider}></div> : null}
       <ProfileInfo user={receiver} />
       <div className={styles.amountToSend}>
         <TokenAmountInput
