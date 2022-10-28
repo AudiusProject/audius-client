@@ -21,7 +21,8 @@ import {
   getTierAndNumberForBalance,
   useGetFirstOrTopSupporter,
   OnRampProvider,
-  buyAudioActions
+  buyAudioActions,
+  FeatureFlags
 } from '@audius/common'
 import {
   IconTrophy,
@@ -37,6 +38,7 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { OnRampButton } from 'components/on-ramp-button'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import { ProfileInfo } from '../../profile-info/ProfileInfo'
@@ -103,6 +105,13 @@ export const SendTip = () => {
     supportingMap,
     supportersMap
   })
+
+  const { isEnabled: isBuyAudioEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_ENABLED
+  )
+  const { isEnabled: isStripeBuyAudioEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
+  )
 
   useEffect(() => {
     if (shouldFetchUserSupporter && account && receiver) {
@@ -172,42 +181,45 @@ export const SendTip = () => {
     </div>
   )
 
+  const topBanner =
+    !hasInsufficientBalance && isFirstSupporter ? (
+      <TopBanner icon={<IconTrophy />} text={messages.becomeFirstSupporter} />
+    ) : !hasInsufficientBalance && amountToTipToBecomeTopSupporter ? (
+      <TopBanner
+        icon={<IconTrophy />}
+        text={
+          <>
+            {messages.becomeTopSupporterPrefix}
+            <span className={styles.amount}>
+              {formatWei(
+                amountToTipToBecomeTopSupporter ?? new BN('0'),
+                true,
+                0
+              )}
+            </span>
+            {messages.becomeTopSupporterSuffix}
+          </>
+        }
+      />
+    ) : isBuyAudioEnabled && isStripeBuyAudioEnabled ? (
+      <div>
+        <OnRampButton
+          buttonPrefix={messages.buyAudioPrefix}
+          provider={OnRampProvider.STRIPE}
+          className={styles.buyAudioButton}
+          textClassName={styles.buyAudioButtonText}
+          onClick={handleBuyWithStripeClicked}
+        />
+      </div>
+    ) : null
+
   return receiver ? (
     <div
       className={cn(styles.container, styles.containerFill, {
         [styles.containerDense]: hasInsufficientBalance
       })}
     >
-      {!hasInsufficientBalance && isFirstSupporter ? (
-        <TopBanner icon={<IconTrophy />} text={messages.becomeFirstSupporter} />
-      ) : !hasInsufficientBalance && amountToTipToBecomeTopSupporter ? (
-        <TopBanner
-          icon={<IconTrophy />}
-          text={
-            <>
-              {messages.becomeTopSupporterPrefix}
-              <span className={styles.amount}>
-                {formatWei(
-                  amountToTipToBecomeTopSupporter ?? new BN('0'),
-                  true,
-                  0
-                )}
-              </span>
-              {messages.becomeTopSupporterSuffix}
-            </>
-          }
-        />
-      ) : (
-        <div>
-          <OnRampButton
-            buttonPrefix={messages.buyAudioPrefix}
-            provider={OnRampProvider.STRIPE}
-            className={styles.buyAudioButton}
-            textClassName={styles.buyAudioButtonText}
-            onClick={handleBuyWithStripeClicked}
-          />
-        </div>
-      )}
+      {topBanner}
       <div className={styles.divider}></div>
       <ProfileInfo user={receiver} />
       <div className={styles.amountToSend}>
