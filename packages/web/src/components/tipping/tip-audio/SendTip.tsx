@@ -21,8 +21,7 @@ import {
   getTierAndNumberForBalance,
   useGetFirstOrTopSupporter,
   OnRampProvider,
-  buyAudioActions,
-  modalsActions
+  buyAudioActions
 } from '@audius/common'
 import {
   IconTrophy,
@@ -47,7 +46,7 @@ import styles from './TipAudio.module.css'
 const { getAccountBalance } = walletSelectors
 const { getOptimisticSupporters, getOptimisticSupporting, getSendUser } =
   tippingSelectors
-const { beginTip, resetSend, fetchUserSupporter, sendTip } = tippingActions
+const { fetchUserSupporter, sendTip } = tippingActions
 const { startBuyAudioFlow } = buyAudioActions
 const getAccountUser = accountSelectors.getAccountUser
 
