@@ -297,7 +297,7 @@ export const Audio = () => {
             'Error streaming track. Trying next endpoint ' + JSON.stringify(e)
           )
           streamUris.shift()
-          setStreamUris(streamUris)
+          setStreamUris([...streamUris])
         }
       }
     },
@@ -360,10 +360,10 @@ export const Audio = () => {
   const offlineTrackUri = useOfflineTrackUri(track)
 
   useEffect(() => {
-    if (streamUris === null && track && trackOwner) {
+    if (track && trackOwner) {
       setStreamUris(getStreamUris(track, trackOwner))
     }
-  }, [streamUris, track, trackOwner])
+  }, [track, trackOwner])
 
   if (!track || track.is_delete) return null
 
