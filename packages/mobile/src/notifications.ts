@@ -1,9 +1,4 @@
-import type { Nullable } from '@audius/common'
-import { FeatureFlags } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
-import type { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
-import type { ParamListBase } from '@react-navigation/native'
 import type { PushNotificationPermissions } from 'react-native'
 import { Platform } from 'react-native'
 import Config from 'react-native-config'
@@ -11,18 +6,12 @@ import Config from 'react-native-config'
 import PushNotification from 'react-native-push-notification'
 
 import { track, make } from 'app/services/analytics'
-import {
-  getFeatureEnabled,
-  remoteConfigInstance
-} from 'app/services/remote-config'
 import { EventNames } from 'app/types/analytics'
 
 type Token = {
   token: string
   os: string
 }
-
-type BottomTabNavigation = BottomTabNavigationProp<ParamListBase>
 
 // Set to true while the push notification service is registering with the os
 let isRegistering = false
@@ -54,8 +43,7 @@ const getPlatformConfiguration = () => {
 class PushNotifications {
   lastId: number
   token: Token | null
-  drawerHelpers: DrawerNavigationHelpers | null
-  bottomTabNavigation: Nullable<BottomTabNavigation>
+  navigation: any | null
 
   // onNotification is a function passed in that is to be called when a
   // notification is to be emitted.
@@ -63,18 +51,14 @@ class PushNotifications {
     this.configure()
     this.lastId = 0
     this.token = null
-    this.bottomTabNavigation = null
+    this.navigation = null
   }
 
-  setDrawerHelpers(helpers: DrawerNavigationHelpers) {
-    this.drawerHelpers = helpers
+  setNavigation = (navigation: any) => {
+    this.navigation = navigation
   }
 
-  setBottomTabNavigation = (bottomTabNavigation: BottomTabNavigation) => {
-    this.bottomTabNavigation = bottomTabNavigation
-  }
-
-  onNotification = async (notification: any) => {
+  onNotification = (notification: any) => {
     console.info(`Received notification ${JSON.stringify(notification)}`)
     if (notification.userInteraction || Platform.OS === 'android') {
       track(
@@ -82,23 +66,14 @@ class PushNotifications {
           eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
           ...(notification.message
             ? {
-                title: notification.message.title,
-                body: notification.message.body
+                title: notification.message.title ?? notification.title,
+                body: notification.message.body ?? notification.message
               }
             : {})
         })
       )
 
-      await remoteConfigInstance.waitForRemoteConfig()
-      const isNavOverhaulEnabled = await getFeatureEnabled(
-        FeatureFlags.MOBILE_NAV_OVERHAUL
-      )
-
-      if (isNavOverhaulEnabled) {
-        this.bottomTabNavigation?.navigate('notifications')
-      } else {
-        this.drawerHelpers?.openDrawer()
-      }
+      this.navigation?.navigate(notification.data.data)
     }
   }
 
