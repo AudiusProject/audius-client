@@ -58,10 +58,12 @@ const styles = StyleSheet.create({
   }
 })
 
-const getStreamUri = (track: Track, trackOwner: UserMetadata) => {
+const getStreamUris = (track: Track, trackOwner: UserMetadata) => {
   const encodedTrackId = encodeHashId(track.track_id)
-  const creatorNodeEndpoint = trackOwner.creator_node_endpoint.split(',')[0]
-  return `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
+  const creatorNodeEndpoints = trackOwner.creator_node_endpoint.split(',')
+  return creatorNodeEndpoints.map(
+    (endpoint: string) => `${endpoint}/tracks/stream/${encodedTrackId}`
+  )
 }
 
 export const Audio = () => {
@@ -79,6 +81,8 @@ export const Audio = () => {
   const currentUserId = useSelector(getUserId)
 
   const dispatch = useDispatch()
+
+  const [streamUris, setStreamUris] = useState<string[] | null>(null)
 
   const play = useCallback(() => dispatch(playerActions.play()), [dispatch])
   const pause = useCallback(() => dispatch(playerActions.pause()), [dispatch])
@@ -280,9 +284,25 @@ export const Audio = () => {
     setListenLoggedForTrack(false)
   }, [track, setListenLoggedForTrack])
 
-  const handleError = (e: any) => {
-    console.error('err ' + JSON.stringify(e))
-  }
+  const handleError = useCallback(
+    (e: any) => {
+      if (streamUris) {
+        if (streamUris.length === 1) {
+          console.error(
+            'Error streaming track. No endpoints remaining' + JSON.stringify(e)
+          )
+        }
+        if (streamUris.length > 1) {
+          console.warn(
+            'Error streaming track. Trying next endpoint ' + JSON.stringify(e)
+          )
+          streamUris.shift()
+          setStreamUris(streamUris)
+        }
+      }
+    },
+    [streamUris]
+  )
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -339,16 +359,20 @@ export const Audio = () => {
   )
   const offlineTrackUri = useOfflineTrackUri(track)
 
+  useEffect(() => {
+    if (streamUris === null && track && trackOwner) {
+      setStreamUris(getStreamUris(track, trackOwner))
+    }
+  }, [streamUris, track, trackOwner])
+
   if (!track || track.is_delete) return null
 
-  const streamUri = getStreamUri(track, trackOwner)
-  console.log(streamUri)
   let source
   if (offlineTrackUri) {
     source = { uri: offlineTrackUri }
-  } else if (streamUri) {
+  } else if (streamUris && streamUris.length > 0) {
     source = {
-      uri: streamUri
+      uri: streamUris[0]
     }
   }
 
@@ -356,7 +380,6 @@ export const Audio = () => {
     <View style={styles.backgroundVideo}>
       {source && (
         <Video
-          // @ts-ignore: type: m3u8 is actually a valid prop override
           source={source}
           ref={videoRef}
           playInBackground
