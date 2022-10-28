@@ -1,7 +1,6 @@
 import {
   Kind,
   Name,
-  Status,
   makeUid,
   formatUrlName,
   accountSelectors,
@@ -10,8 +9,7 @@ import {
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
-  actionChannelDispatcher,
-  waitForValue
+  actionChannelDispatcher
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -25,7 +23,6 @@ import {
   fork,
   cancel,
   all,
-  race,
   getContext
 } from 'redux-saga/effects'
 
@@ -34,11 +31,6 @@ import { reformat } from 'common/store/cache/collections/utils'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
-import {
-  getSelectedServices,
-  getStatus
-} from 'common/store/service-selection/selectors'
-import { fetchServicesFailed } from 'common/store/service-selection/slice'
 import UploadType from 'pages/upload-page/components/uploadType'
 import { getStems } from 'pages/upload-page/store/selectors'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
