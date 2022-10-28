@@ -46,7 +46,7 @@ import styles from './TipAudio.module.css'
 const { getAccountBalance } = walletSelectors
 const { getOptimisticSupporters, getOptimisticSupporting, getSendUser } =
   tippingSelectors
-const { fetchUserSupporter, sendTip } = tippingActions
+const { beginTip, resetSend, fetchUserSupporter, sendTip } = tippingActions
 const { startBuyAudioFlow } = buyAudioActions
 const getAccountUser = accountSelectors.getAccountUser
 
@@ -135,10 +135,12 @@ export const SendTip = () => {
   const handleBuyWithStripeClicked = useCallback(() => {
     dispatch(
       startBuyAudioFlow({
-        provider: OnRampProvider.STRIPE
+        provider: OnRampProvider.STRIPE,
+        onSuccessAction: beginTip({ user: receiver, source: 'buyAudio' })
       })
     )
-  }, [dispatch])
+    dispatch(resetSend())
+  }, [dispatch, receiver])
 
   const renderAvailableAmount = () => (
     <div className={styles.amountAvailableContainer}>
