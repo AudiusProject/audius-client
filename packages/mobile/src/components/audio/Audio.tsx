@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
-import type { Track, UserMetadata } from '@audius/common'
 import {
   accountSelectors,
   cacheUsersSelectors,
@@ -20,6 +19,7 @@ import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
+import { apiClient } from 'app/services/audius-api-client'
 
 import { useChromecast } from './GoogleCast'
 import { logListen } from './listens'
@@ -58,14 +58,6 @@ const styles = StyleSheet.create({
   }
 })
 
-const getStreamUris = (track: Track, trackOwner: UserMetadata) => {
-  const encodedTrackId = encodeHashId(track.track_id)
-  const creatorNodeEndpoints = trackOwner.creator_node_endpoint.split(',')
-  return creatorNodeEndpoints.map(
-    (endpoint: string) => `${endpoint}/tracks/stream/${encodedTrackId}`
-  )
-}
-
 export const Audio = () => {
   const track = useSelector(getCurrentTrack)
   const index = useSelector(getIndex)
@@ -81,8 +73,6 @@ export const Audio = () => {
   const currentUserId = useSelector(getUserId)
 
   const dispatch = useDispatch()
-
-  const [streamUris, setStreamUris] = useState<string[] | null>(null)
 
   const play = useCallback(() => dispatch(playerActions.play()), [dispatch])
   const pause = useCallback(() => dispatch(playerActions.pause()), [dispatch])
@@ -284,25 +274,9 @@ export const Audio = () => {
     setListenLoggedForTrack(false)
   }, [track, setListenLoggedForTrack])
 
-  const handleError = useCallback(
-    (e: any) => {
-      if (streamUris) {
-        if (streamUris.length === 1) {
-          console.error(
-            'Error streaming track. No endpoints remaining' + JSON.stringify(e)
-          )
-        }
-        if (streamUris.length > 1) {
-          console.warn(
-            'Error streaming track. Trying next endpoint ' + JSON.stringify(e)
-          )
-          streamUris.shift()
-          setStreamUris([...streamUris])
-        }
-      }
-    },
-    [streamUris]
-  )
+  const handleError = (e: any) => {
+    console.error('err ' + JSON.stringify(e))
+  }
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -358,21 +332,20 @@ export const Audio = () => {
     ]
   )
   const offlineTrackUri = useOfflineTrackUri(track)
-
-  useEffect(() => {
-    if (track && trackOwner) {
-      setStreamUris(getStreamUris(track, trackOwner))
-    }
-  }, [track, trackOwner])
+  const streamingUri = useMemo(() => {
+    return track
+      ? apiClient.makeUrl(`/tracks/${encodeHashId(track.track_id)}/stream`)
+      : null
+  }, [track])
 
   if (!track || track.is_delete) return null
 
   let source
   if (offlineTrackUri) {
     source = { uri: offlineTrackUri }
-  } else if (streamUris && streamUris.length > 0) {
+  } else if (streamingUri) {
     source = {
-      uri: streamUris[0]
+      uri: streamingUri
     }
   }
 
