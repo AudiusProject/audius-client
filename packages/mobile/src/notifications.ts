@@ -13,6 +13,8 @@ type Token = {
   os: string
 }
 
+type NotificationNavigation = { navigate: (notification: any) => void }
+
 // Set to true while the push notification service is registering with the os
 let isRegistering = false
 
@@ -43,7 +45,7 @@ const getPlatformConfiguration = () => {
 class PushNotifications {
   lastId: number
   token: Token | null
-  navigation: any | null
+  navigation: NotificationNavigation | null
 
   // onNotification is a function passed in that is to be called when a
   // notification is to be emitted.
@@ -54,7 +56,7 @@ class PushNotifications {
     this.navigation = null
   }
 
-  setNavigation = (navigation: any) => {
+  setNavigation = (navigation: NotificationNavigation) => {
     this.navigation = navigation
   }
 

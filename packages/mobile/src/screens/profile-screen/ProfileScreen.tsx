@@ -68,7 +68,7 @@ export const ProfileScreen = () => {
   ])
   const handle =
     userHandle && userHandle !== 'accountUser' ? userHandle : profile?.handle
-  const handleLower = handle ? handle?.toLowerCase() : ''
+  const handleLower = handle?.toLowerCase() ?? ''
   const accountId = useSelector(getUserId)
   const dispatch = useDispatch()
   const status = useSelector((state) => getProfileStatus(state, handleLower))
