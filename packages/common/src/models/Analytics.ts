@@ -677,6 +677,9 @@ type TrackUploadTrackUploading = {
   genre: string
   mood: string
   downloadable: 'yes' | 'no' | 'follow'
+  size: number
+  type: string
+  name: string
 }
 type TrackUploadCompleteUpload = {
   eventName: Name.TRACK_UPLOAD_COMPLETE_UPLOAD

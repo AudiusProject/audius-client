@@ -41,7 +41,7 @@ import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import * as uploadActions from './actions'
 import { watchUploadErrors } from './errorSagas'
 import { ProgressStatus } from './types'
-import { reportSuccessAndFailureEvents } from './utils/sagaHelpers'
+import { reportResultEvents } from './utils/sagaHelpers'
 
 const { getUser } = cacheUsersSelectors
 const { getAccountUser, getUserHandle, getUserId } = accountSelectors
@@ -416,6 +416,9 @@ export function* handleUploads({
         artworkSource: value.metadata.artwork.source,
         genre: value.metadata.genre,
         mood: value.metadata.mood,
+        size: value.track.file.size,
+        type: value.track.file.type,
+        name: value.track.file.name,
         downloadable:
           value.metadata.download && value.metadata.download.is_downloadable
             ? value.metadata.download.requires_follow
@@ -476,7 +479,7 @@ export function* handleUploads({
         yield put(uploadActions.uploadSingleTrackFailed(index))
       }
 
-      if (message === 'Request failed with status code 403') {
+      if (message.includes('403')) {
         // This is a rejection not a failure, record it as so
         rejectedRequests.push({ originalId, timeout, message, phase })
       } else {
@@ -520,7 +523,7 @@ export function* handleUploads({
       ? 'album'
       : 'playlist'
     : 'multi_track'
-  yield reportSuccessAndFailureEvents({
+  yield reportResultEvents({
     // Don't report non-uploaded tracks due to playlist upload abort
     numSuccess: numSuccessRequests,
     numFailure: failedRequests.length,
@@ -844,6 +847,9 @@ function* uploadSingleTrack(track) {
     artworkSource: track.metadata.artwork.source,
     genre: track.metadata.genre,
     mood: track.metadata.mood,
+    size: track.file.size,
+    type: track.file.type,
+    name: track.file.name,
     downloadable:
       track.metadata.download && track.metadata.download.is_downloadable
         ? track.metadata.download.requires_follow
@@ -926,7 +932,7 @@ function* uploadSingleTrack(track) {
   const { confirmedTrack, error } = yield take(responseChan)
   const isRejected = error === 'Request failed with status code 403'
 
-  yield reportSuccessAndFailureEvents({
+  yield reportResultEvents({
     numSuccess: error ? 0 : 1,
     numFailure: error && !isRejected ? 1 : 0,
     numRejected: isRejected ? 1 : 0,

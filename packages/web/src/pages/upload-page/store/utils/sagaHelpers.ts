@@ -6,7 +6,7 @@ import { make } from 'common/store/analytics/actions'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 const getAccountUser = accountSelectors.getAccountUser
 
-export function* reportSuccessAndFailureEvents({
+export function* reportResultEvents({
   numSuccess,
   numFailure,
   numRejected,
