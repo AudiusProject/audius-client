@@ -215,9 +215,18 @@ export const SendTip = () => {
 
   return receiver ? (
     <div
-      className={cn(styles.container, styles.containerFill, {
-        [styles.containerDense]: hasInsufficientBalance
-      })}
+      className={cn(
+        styles.container,
+        {
+          [styles.containerFill]: !!topBanner
+        },
+        {
+          [styles.containerDense]:
+            hasInsufficientBalance &&
+            isBuyAudioEnabled &&
+            isStripeBuyAudioEnabled
+        }
+      )}
     >
       {topBanner}
       {topBanner !== null ? <div className={styles.divider}></div> : null}
