@@ -20,9 +20,9 @@ const useStyles = makeStyles(({ palette }) => ({
   inner: {},
   innerInactive: {},
   innerActive: {
-    height: 14,
-    width: 14,
-    borderRadius: 14,
+    height: spacing(3.5),
+    width: spacing(3.5),
+    borderRadius: spacing(3.5),
     backgroundColor: palette.white
   }
 }))
