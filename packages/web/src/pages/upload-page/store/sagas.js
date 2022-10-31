@@ -659,8 +659,8 @@ export function* handleUploads({
 
   console.debug('Finished upload')
 
-  yield call(progressChan.close)
   yield cancel(actionDispatcherTask)
+  yield call(progressChan.close)
   return returnVal
 }
 
