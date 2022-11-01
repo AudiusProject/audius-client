@@ -38,6 +38,8 @@ import { AppDrawerContext } from '../app-drawer-screen'
 import { AudioScreen } from '../audio-screen'
 import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
 import { EditProfileScreen } from '../edit-profile-screen'
+import type { ListSelectionParams } from '../list-selection-screen'
+import { ListSelectionScreen } from '../list-selection-screen'
 import {
   AboutScreen,
   AccountSettingsScreen,
@@ -49,6 +51,8 @@ import {
 } from '../settings-screen'
 import { TipArtistModal } from '../tip-artist-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
+import type { UploadParamList } from '../upload-screen'
+import { uploadScreens } from '../upload-screen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
 
@@ -61,7 +65,7 @@ export type AppTabScreenParamList = {
     slug?: string
   }
   TrackRemixes: { id: ID }
-  Profile: { handle: string }
+  Profile: { handle: string; id?: ID } | { handle?: string; id: ID }
   Collection: {
     id?: ID
     collectionName?: string
@@ -92,7 +96,8 @@ export type AppTabScreenParamList = {
   ChangePasswordScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
-}
+  ListSelection: ListSelectionParams
+} & UploadParamList
 
 const forFade = ({ current }) => ({
   cardStyle: {
@@ -278,6 +283,8 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           component={ChangePasswordScreen}
         />
       </Stack.Group>
+      <Stack.Screen name='ListSelection' component={ListSelectionScreen} />
+      {uploadScreens(Stack)}
     </Stack.Navigator>
   )
 }

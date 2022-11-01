@@ -16,3 +16,8 @@ export const getAudioPurchaseInfoStatus = (state: CommonState) =>
   state.ui.buyAudio.purchaseInfoStatus
 
 export const getFeesCache = (state: CommonState) => state.ui.buyAudio.feesCache
+
+export const getOnSuccess = (state: CommonState) => state.ui.buyAudio.onSuccess
+
+export const getStripeSessionStatus = (state: CommonState) =>
+  state.ui.buyAudio.stripeSessionStatus

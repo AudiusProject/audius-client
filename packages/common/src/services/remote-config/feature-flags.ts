@@ -28,7 +28,9 @@ export enum FeatureFlags {
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  MOBILE_NAV_OVERHAUL = 'mobile_nav_overhaul'
+  MOBILE_NAV_OVERHAUL = 'mobile_nav_overhaul_final',
+  MOBILE_UPLOAD = 'mobile_upload',
+  STREAM_MP3 = 'stream_mp3'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -37,11 +39,15 @@ export const environmentFlagDefaults: Record<
   Environment,
   Partial<FlagDefaults>
 > = {
-  development: {},
+  development: {
+    [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
+  },
   staging: {
     [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
   },
-  production: {}
+  production: {
+    [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
+  }
 }
 
 /**
@@ -74,5 +80,7 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
   [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
-  [FeatureFlags.MOBILE_NAV_OVERHAUL]: false
+  [FeatureFlags.MOBILE_NAV_OVERHAUL]: false,
+  [FeatureFlags.MOBILE_UPLOAD]: false,
+  [FeatureFlags.STREAM_MP3]: false
 }

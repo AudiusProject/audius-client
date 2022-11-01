@@ -3,9 +3,13 @@ import { useCallback } from 'react'
 import {
   Status,
   transactionDetailsSelectors,
-  formatNumberString
+  formatNumberString,
+  transactionDetailsActions,
+  modalsActions,
+  buyAudioSelectors
 } from '@audius/common'
 import { Button, ButtonSize, ButtonType, IconInfo } from '@audius/stems'
+import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
@@ -21,21 +25,36 @@ const messages = {
 }
 
 const { getTransactionDetails } = transactionDetailsSelectors
+const { setModalClosedAction: setOnTransactionDetailsModalClosedAction } =
+  transactionDetailsActions
+const { getOnSuccess } = buyAudioSelectors
+const { setVisibility } = modalsActions
 
 export const SuccessPage = () => {
+  const dispatch = useDispatch()
   const transactionDetails = useSelector(getTransactionDetails)
+  const onSuccess = useSelector(getOnSuccess)
   const [, setModalVisibility] = useModalState('BuyAudio')
   const [, setTransactionDetailsModalVisibility] =
     useModalState('TransactionDetails')
 
   const handleDoneClicked = useCallback(() => {
+    if (onSuccess?.action) {
+      dispatch(onSuccess.action)
+      dispatch(setOnTransactionDetailsModalClosedAction())
+    }
     setModalVisibility(false)
-  }, [setModalVisibility])
+  }, [dispatch, setModalVisibility, onSuccess])
 
   const handleReviewTransactionClicked = useCallback(() => {
+    dispatch(
+      setOnTransactionDetailsModalClosedAction(
+        setVisibility({ modal: 'BuyAudio', visible: true })
+      )
+    )
     setTransactionDetailsModalVisibility(true)
     setModalVisibility(false)
-  }, [setModalVisibility, setTransactionDetailsModalVisibility])
+  }, [dispatch, setModalVisibility, setTransactionDetailsModalVisibility])
 
   return (
     <div className={styles.successPage}>
@@ -65,7 +84,7 @@ export const SuccessPage = () => {
         </div>
       </div>
       <Button
-        text={messages.done}
+        text={onSuccess?.message ?? messages.done}
         type={ButtonType.PRIMARY_ALT}
         onClick={handleDoneClicked}
       />

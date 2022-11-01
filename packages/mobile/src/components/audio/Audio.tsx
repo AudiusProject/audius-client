@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
 import {
   accountSelectors,
@@ -11,7 +11,8 @@ import {
   queueSelectors,
   reachabilitySelectors,
   RepeatMode,
-  FeatureFlags
+  FeatureFlags,
+  encodeHashId
 } from '@audius/common'
 import { Platform, StyleSheet, View } from 'react-native'
 import MusicControl from 'react-native-music-control'
@@ -22,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 import { useChromecast } from './GoogleCast'
@@ -63,6 +65,9 @@ const styles = StyleSheet.create({
 })
 
 export const Audio = () => {
+  const { isEnabled: isStreamMp3Enabled } = useFeatureFlag(
+    FeatureFlags.STREAM_MP3
+  )
   const track = useSelector(getCurrentTrack)
   const index = useSelector(getIndex)
   const queueLength = useSelector(getLength)
@@ -344,6 +349,11 @@ export const Audio = () => {
   const { value: offlineTrackUri, loading } = useOfflineTrackUri(
     track?.track_id.toString()
   )
+  const streamingUri = useMemo(() => {
+    return track
+      ? apiClient.makeUrl(`/tracks/${encodeHashId(track.track_id)}/stream`)
+      : null
+  }, [track])
 
   if (loading || !track || track.is_delete) return null
 
@@ -361,6 +371,11 @@ export const Audio = () => {
   let source
   if (offlineTrackUri) {
     source = { uri: offlineTrackUri }
+    // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
+  } else if (isStreamMp3Enabled && streamingUri) {
+    source = {
+      uri: streamingUri
+    }
   } else if (m3u8) {
     source = {
       uri: m3u8,

@@ -10,7 +10,8 @@ import {
   walletSelectors,
   accountSelectors,
   useSelectTierInfo,
-  useAccountHasClaimableRewards
+  useAccountHasClaimableRewards,
+  FeatureFlags
 } from '@audius/common'
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { DrawerContentScrollView } from '@react-navigation/drawer'
@@ -18,8 +19,10 @@ import { TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCrown from 'app/assets/images/iconCrown.svg'
+import IconListeningHistory from 'app/assets/images/iconListeningHistory.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
+import IconUpload from 'app/assets/images/iconUpload.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import IconUserFollowers from 'app/assets/images/iconUserFollowers.svg'
 import IconUserList from 'app/assets/images/iconUserList.svg'
@@ -27,7 +30,7 @@ import { IconAudioBadge } from 'app/components/audio-rewards'
 import { Divider, Text } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
-import { useRemoteVar } from 'app/hooks/useRemoteConfig'
+import { useFeatureFlag, useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
@@ -41,6 +44,8 @@ const { setFollowing } = followingUserListActions
 const messages = {
   profile: 'Profile',
   audio: '$AUDIO & Rewards',
+  upload: 'Upload Track',
+  listeningHistory: 'Listening History',
   settings: 'Settings'
 }
 
@@ -98,6 +103,9 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     paddingLeft: spacing(6),
     paddingVertical: spacing(4)
   },
+  accountListItemIconRoot: {
+    width: spacing(10)
+  },
   accountListItemIcon: {
     marginRight: spacing(2),
     paddingVertical: spacing(1)
@@ -126,6 +134,10 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
   const dispatch = useDispatch()
   const navigation = useAppDrawerNavigation()
 
+  const { isEnabled: isMobileUploadEnabled } = useFeatureFlag(
+    FeatureFlags.MOBILE_UPLOAD
+  )
+
   const handlePressAccount = useCallback(() => {
     navigation.push('Profile', { handle: 'accountUser' })
     drawerHelpers.closeDrawer()
@@ -150,6 +162,16 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
 
   const handlePressSettings = useCallback(() => {
     navigation.push('SettingsScreen')
+    drawerHelpers.closeDrawer()
+  }, [navigation, drawerHelpers])
+
+  const handlePressListeningHistory = useCallback(() => {
+    navigation.push('ListeningHistoryScreen')
+    drawerHelpers.closeDrawer()
+  }, [navigation, drawerHelpers])
+
+  const handlePressUpload = useCallback(() => {
+    navigation.push('Upload')
     drawerHelpers.closeDrawer()
   }, [navigation, drawerHelpers])
 
@@ -184,7 +206,7 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
             width={spacing(7)}
           />
           <Text fontSize='large' weight='heavy'>
-            {totalBalance ? formatWei(totalBalance) : 0}
+            {totalBalance ? formatWei(totalBalance, true) : 0}
           </Text>
         </TouchableOpacity>
       </View>
@@ -236,12 +258,14 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
         style={styles.accountListItem}
         onPress={handlePressAccount}
       >
-        <IconUser
-          fill={neutral}
-          height={spacing(7)}
-          width={spacing(7)}
-          style={styles.accountListItemIcon}
-        />
+        <View style={styles.accountListItemIconRoot}>
+          <IconUser
+            fill={neutral}
+            height={spacing(7)}
+            width={spacing(7)}
+            style={styles.accountListItemIcon}
+          />
+        </View>
         <Text
           fontSize='large'
           weight='demiBold'
@@ -254,12 +278,14 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
         style={styles.accountListItem}
         onPress={handlePressRewards}
       >
-        <IconCrown
-          fill={neutral}
-          height={spacing(7)}
-          width={spacing(7)}
-          style={styles.accountListItemIcon}
-        />
+        <View style={styles.accountListItemIconRoot}>
+          <IconCrown
+            fill={neutral}
+            height={spacing(7)}
+            width={spacing(7)}
+            style={styles.accountListItemIcon}
+          />
+        </View>
         <Text
           fontSize='large'
           weight='demiBold'
@@ -271,16 +297,56 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
           <View style={styles.notificationBubble} />
         ) : null}
       </TouchableOpacity>
+      {isMobileUploadEnabled ? (
+        <TouchableOpacity
+          style={styles.accountListItem}
+          onPress={handlePressUpload}
+        >
+          <View style={styles.accountListItemIconRoot}>
+            <IconUpload
+              fill={neutral}
+              height={spacing(8)}
+              width={spacing(8)}
+              style={[styles.accountListItemIcon, { marginLeft: -2 }]}
+            />
+          </View>
+          <Text fontSize='large' weight='demiBold' style={{ marginTop: 2 }}>
+            {messages.upload}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      <TouchableOpacity
+        style={styles.accountListItem}
+        onPress={handlePressListeningHistory}
+      >
+        <View style={styles.accountListItemIconRoot}>
+          <IconListeningHistory
+            fill={neutral}
+            height={spacing(7)}
+            width={spacing(7)}
+            style={styles.accountListItemIcon}
+          />
+        </View>
+        <Text
+          fontSize='large'
+          weight='demiBold'
+          style={{ marginTop: spacing(1) }}
+        >
+          {messages.listeningHistory}
+        </Text>
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.accountListItem}
         onPress={handlePressSettings}
       >
-        <IconSettings
-          fill={neutral}
-          height={spacing(9)}
-          width={spacing(9)}
-          style={[styles.accountListItemIcon, { marginLeft: spacing(-1) }]}
-        />
+        <View style={styles.accountListItemIconRoot}>
+          <IconSettings
+            fill={neutral}
+            height={spacing(9)}
+            width={spacing(9)}
+            style={[styles.accountListItemIcon, { marginLeft: spacing(-1) }]}
+          />
+        </View>
         <Text fontSize='large' weight='demiBold' style={{ marginTop: 2 }}>
           {messages.settings}
         </Text>

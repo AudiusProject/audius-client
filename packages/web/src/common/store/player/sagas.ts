@@ -13,7 +13,8 @@ import {
   playerSelectors,
   reachabilitySelectors,
   Nullable,
-  getPremiumContentHeaders
+  getPremiumContentHeaders,
+  FeatureFlags
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -63,6 +64,11 @@ export function* watchPlay() {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const streamMp3IsEnabled = yield* call(
+    getFeatureEnabled,
+    FeatureFlags.STREAM_MP3
+  ) ?? false
 
   yield* takeLatest(play.type, function* (action: ReturnType<typeof play>) {
     const { uid, trackId, onEnd } = action.payload ?? {}
@@ -96,7 +102,9 @@ export function* watchPlay() {
         : []
       const encodedTrackId = encodeHashId(trackId)
       const forceStreamMp3 =
-        encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId)
+        // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
+        streamMp3IsEnabled ||
+        (encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId))
       const forceStreamMp3Url = forceStreamMp3
         ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
         : null

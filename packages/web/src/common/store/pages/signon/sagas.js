@@ -18,6 +18,7 @@ import {
   PushNotificationSetting
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
+import { isEmpty } from 'lodash'
 import {
   all,
   call,
@@ -232,10 +233,21 @@ function* validateHandle(action) {
     }
     yield delay(300) // Wait 300 ms to debounce user input
 
-    let handleInUse
+    // Call fetch user by handle and do not retry if the user is not created, it will
+    // return 404 and force discovery reselection
+    const user = yield call(
+      fetchUserByHandle,
+      handle,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      false
+    )
+    const handleInUse = !isEmpty(user)
+
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
-      const [inUse, twitterUserQuery, instagramUser] = yield all([
-        call(audiusBackendInstance.handleInUse, handle),
+      const [twitterUserQuery, instagramUser] = yield all([
         call(audiusBackendInstance.twitterHandle, handle),
         call(getInstagramUser, handle, remoteConfigInstance)
       ])
@@ -250,9 +262,6 @@ function* validateHandle(action) {
         if (onValidate) onValidate(true)
         return
       }
-      handleInUse = inUse
-    } else {
-      handleInUse = yield call(audiusBackendInstance.handleInUse, handle)
     }
 
     if (handleInUse) {
