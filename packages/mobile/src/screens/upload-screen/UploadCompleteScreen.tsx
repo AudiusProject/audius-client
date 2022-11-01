@@ -121,7 +121,6 @@ export const UploadCompleteScreen = () => {
           />
           <TextButton
             variant='neutralLight4'
-            iconPosition='left'
             icon={IconShare}
             title={messages.copyLink}
             style={styles.shareButton}
