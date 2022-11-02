@@ -47,7 +47,7 @@ platform :ios do
       provisioningProfile = AUDIUSMUSIC_RELEASECANDIDATE_PROFILE
       environment = 'production'
       scheme = 'AudiusReactNative'
-      configuration = 'Release'
+      configuration = 'ReleaseCandidate'
     end
 
     match(
