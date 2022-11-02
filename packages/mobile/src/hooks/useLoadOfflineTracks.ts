@@ -29,7 +29,6 @@ export const useLoadOfflineTracks = (collection: string) => {
     if (!isOfflineModeEnabled) return
 
     const trackIds = await listTracks()
-    const tracks: UserTrackMetadata[] = []
     const savesLineupTracks: (Track & UserTrackMetadata & { uid: string })[] =
       []
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
@@ -41,7 +40,6 @@ export const useLoadOfflineTracks = (collection: string) => {
         if (!verified) continue
         getTrackJson(trackId)
           .then((track: Track & UserTrackMetadata) => {
-            tracks.push(track)
             const lineupTrack = {
               uid: makeUid(Kind.TRACKS, track.track_id),
               ...track
