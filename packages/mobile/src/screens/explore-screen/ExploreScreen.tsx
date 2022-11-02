@@ -1,5 +1,5 @@
-import { explorePageActions, reachabilitySelectors } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import { explorePageActions } from '@audius/common'
+import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import IconExplore from 'app/assets/images/iconExplore.svg'
@@ -17,7 +17,6 @@ import { MoodsTab } from './tabs/MoodsTab'
 import { PlaylistsTab } from './tabs/PlaylistsTab'
 
 const { fetchExplore } = explorePageActions
-const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   header: 'Explore',

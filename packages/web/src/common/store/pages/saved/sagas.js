@@ -6,7 +6,6 @@ import {
   waitForValue,
   FeatureFlags
 } from '@audius/common'
-import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import {
   takeLatest,
   call,
@@ -15,6 +14,8 @@ import {
   select,
   getContext
 } from 'redux-saga/effects'
+
+import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import tracksSagas from './lineups/sagas'
