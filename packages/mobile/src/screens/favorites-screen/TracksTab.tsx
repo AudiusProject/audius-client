@@ -72,10 +72,8 @@ export const TracksTab = () => {
     FeatureFlags.OFFLINE_MODE_ENABLED
   )
   const handleFetchSaves = useCallback(() => {
-    if (isReachable) {
-      dispatch(fetchSaves())
-    }
-  }, [dispatch, isReachable])
+    dispatch(fetchSaves())
+  }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
   useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
@@ -133,10 +131,10 @@ export const TracksTab = () => {
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
-  let tracks = savedTracks.entries
-  if (!isReachable && isOfflineModeEnabled) {
-    tracks = Object.values(offlineTracks)
-  }
+  const tracks =
+    !isReachable && isOfflineModeEnabled
+      ? Object.values(offlineTracks)
+      : savedTracks.entries
   const hasNoFavorites = tracks.length === 0
 
   return (

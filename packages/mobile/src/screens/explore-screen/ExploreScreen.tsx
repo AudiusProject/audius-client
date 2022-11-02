@@ -51,12 +51,9 @@ const exploreScreens = [
 const ExploreScreen = () => {
   const dispatch = useDispatch()
   usePopToTopOnDrawerOpen()
-  const isReachable = useSelector(getIsReachable)
 
   useEffectOnce(() => {
-    if (isReachable) {
-      dispatch(fetchExplore())
-    }
+    dispatch(fetchExplore())
   })
 
   return (

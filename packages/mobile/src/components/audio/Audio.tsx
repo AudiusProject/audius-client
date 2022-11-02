@@ -350,10 +350,10 @@ export const Audio = () => {
     track?.track_id.toString()
   )
   const streamingUri = useMemo(() => {
-    return track
+    return track && isReachable
       ? apiClient.makeUrl(`/tracks/${encodeHashId(track.track_id)}/stream`)
       : null
-  }, [track])
+  }, [isReachable, track])
 
   if (loading || !track || track.is_delete) return null
 

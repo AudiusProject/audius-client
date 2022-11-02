@@ -1,15 +1,14 @@
 import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
-import { FeatureFlags } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import {
   downloadTrack,
   purgeAllDownloads
 } from 'app/services/offline-downloader'
+import type { AppState } from 'app/store'
 import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
@@ -31,22 +30,20 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
   const styles = useStyles()
-  const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
-  const isToggleOn = tracks.some((track: Track) => {
-    const status = offlineDownloadStatus[track.track_id.toString()]
-    return (
-      status === TrackDownloadStatus.LOADING ||
-      status === TrackDownloadStatus.SUCCESS
-    )
+  const isToggleOn = useSelector((state: AppState) => {
+    const offlineDownloadStatus = getOfflineDownloadStatus(state)
+    return tracks.some((track: Track) => {
+      const status = offlineDownloadStatus[track.track_id.toString()]
+      return (
+        status === TrackDownloadStatus.LOADING ||
+        status === TrackDownloadStatus.SUCCESS
+      )
+    })
   })
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!isOfflineModeEnabled) return
       if (isDownloadEnabled) {
         tracks.forEach((track) => {
           downloadTrack(track.track_id, collection)
@@ -56,10 +53,9 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
         purgeAllDownloads()
       }
     },
-    [collection, isOfflineModeEnabled, tracks]
+    [collection, tracks]
   )
 
-  if (!isOfflineModeEnabled) return null
   return (
     <View style={styles.root}>
       {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}

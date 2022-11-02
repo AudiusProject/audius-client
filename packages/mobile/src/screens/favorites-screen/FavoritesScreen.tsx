@@ -62,10 +62,12 @@ export const FavoritesScreen = () => {
         icon={IconFavorite}
         styles={{ icon: { marginLeft: 3 } }}
       >
-        <DownloadToggle
-          collection={DOWNLOAD_REASON_FAVORITES}
-          tracks={savedTracks.entries}
-        />
+        {isOfflineModeEnabled && (
+          <DownloadToggle
+            collection={DOWNLOAD_REASON_FAVORITES}
+            tracks={savedTracks.entries}
+          />
+        )}
       </ScreenHeader>
       {
         // ScreenContent handles the offline indicator.
