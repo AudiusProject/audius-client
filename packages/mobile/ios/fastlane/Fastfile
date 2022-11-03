@@ -17,10 +17,12 @@ default_platform(:ios)
 
 AUDIUSMUSIC_ID = "co.audius.audiusmusic"
 AUDIUSMUSIC_RELEASECANDIDATE_ID = "co.audius.audiusmusic.releasecandidate"
-AUDIUSSTAGING_ID = "co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_ID = "co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID = "co.audius.audiusmusic.staging.releasecandidate"
 AUDIUSMUSIC_PROFILE = "match AppStore co.audius.audiusmusic"
 AUDIUSMUSIC_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.releasecandidate"
-AUDIUSSTAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.staging.releasecandidate"
 TEAM = "LRFCG93S85"
 
 platform :ios do
@@ -36,9 +38,9 @@ platform :ios do
       environment = 'production'
       scheme = 'AudiusReactNative'
       configuration = 'Release'
-    elsif options[:bundle_id] === AUDIUSSTAGING_ID
-      appId = AUDIUSSTAGING_ID
-      provisioningProfile = AUDIUSSTAGING_PROFILE
+    elsif options[:bundle_id] === AUDIUSMUSIC_STAGING_ID
+      appId = AUDIUsMUSIC_STAGING_ID
+      provisioningProfile = AUDIUSMUSIC_STAGING_PROFILE
       environment = 'staging'
       scheme = 'Bounce'
       configuration = 'Bounce.Release'
@@ -48,6 +50,12 @@ platform :ios do
       environment = 'production'
       scheme = 'AudiusReactNative'
       configuration = 'ReleaseCandidate'
+    elsif options[:bundle_id] === AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
+      appId = AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
+      provisioningProfile = AUDIUSMUSIC_STAGING_RELEASECANDIDATE_PROFILE
+      environment = 'staging'
+      scheme = 'Bounce'
+      configuration = 'Staging.ReleaseCandidate'
     end
 
     match(
@@ -147,6 +155,9 @@ platform :ios do
       ipa = './output/gym/Audius Bounce Music.ipa'
     elsif (options[:bundle_id] === 'co.audius.audiusmusic.releasecandidate')
       appleId = "6444068448"
+      ipa = './output/gym/Audius Music.ipa'
+    elsif (options[:bundle_id] === 'co.audius.audiusmusic.staging.releasecandidate')
+      appleId = "6444190971"
       ipa = './output/gym/Audius Music.ipa'
     end
    
