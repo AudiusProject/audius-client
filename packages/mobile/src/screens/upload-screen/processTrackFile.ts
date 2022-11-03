@@ -10,7 +10,7 @@ export const processTrackFile = (
 ): UploadTrack => {
   const { name, size } = trackFile
   if (size && size > ALLOWED_MAX_AUDIO_SIZE_BYTES) {
-    throw new Error('File to large')
+    throw new Error('File too large')
   }
 
   const title = name?.replace(/\.[^/.]+$/, '') ?? null // strip file extension
