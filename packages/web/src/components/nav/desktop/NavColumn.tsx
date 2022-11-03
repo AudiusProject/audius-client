@@ -7,7 +7,6 @@ import {
   SquareSizes,
   PlaylistLibrary as PlaylistLibraryType,
   Status,
-  FeatureFlags,
   accountSelectors,
   averageColorSelectors,
   cacheCollectionsActions,
@@ -50,7 +49,6 @@ import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
@@ -92,8 +90,7 @@ const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
   accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder',
-  newPlaylistTooltip: 'New Playlist'
+  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
 
 type OwnProps = {
@@ -154,9 +151,6 @@ const NavColumn = ({
       record(make(Name.CREATE_ACCOUNT_OPEN, { source }))
     },
     [record, routeToSignup]
-  )
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
   )
 
   const onClickNavProfile = useCallback(() => goToSignIn(), [goToSignIn])
@@ -461,11 +455,7 @@ const NavColumn = ({
                     Playlists
                     <div className={styles.newPlaylist}>
                       <Tooltip
-                        text={
-                          isPlaylistFoldersEnabled
-                            ? messages.newPlaylistOrFolderTooltip
-                            : messages.newPlaylistTooltip
-                        }
+                        text={messages.newPlaylistOrFolderTooltip}
                         getPopupContainer={() =>
                           scrollbarRef.current?.parentNode
                         }
