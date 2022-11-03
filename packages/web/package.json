@@ -50,6 +50,7 @@
     "install-dmg-license": "npx lerna add dmg-license --scope=audius-client --no-bootstrap && npx lerna bootstrap --no-ci"
   },
   "dependencies": {
+    "@apollo/client": "^3.7.1",
     "@audius/common": "1.3.11",
     "@audius/sdk": "1.0.19",
     "@audius/stems": "1.3.11",
@@ -80,6 +81,7 @@
     "@walletconnect/web3-provider": "1.4.1",
     "amplitude-js": "8.10.0",
     "antd": "4.20.6",
+    "apollo-link-rest": "^0.9.0-rc.2",
     "array-pack-2d": "0.1.1",
     "array-range": "1.0.1",
     "bitski": "0.10.9",
@@ -104,6 +106,8 @@
     "glsl-noise": "0.0.0",
     "glsl-random": "0.0.4",
     "glslify-loader": "1.0.2",
+    "graphql": "^16.6.0",
+    "graphql-anywhere": "^4.2.8",
     "hashids": "2.2.1",
     "hex-rgb": "1.0.0",
     "history": "4.10.1",
@@ -121,6 +125,7 @@
     "perspective-camera": "2.0.1",
     "pixi.js": "4.8.9",
     "prop-types": "15.7.2",
+    "qs": "^6.11.0",
     "query-string": "6.13.5",
     "raw-loader": "0.5.1",
     "react": "17.0.2",
