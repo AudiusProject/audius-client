@@ -17,11 +17,11 @@ default_platform(:ios)
 
 AUDIUSMUSIC_ID = "co.audius.audiusmusic"
 AUDIUSMUSIC_RELEASECANDIDATE_ID = "co.audius.audiusmusic.releasecandidate"
-AUDIUSMUSIC_STAGING_ID = "co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_ID = "co.audius.audiusmusic.staging"
 AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID = "co.audius.audiusmusic.staging.releasecandidate"
 AUDIUSMUSIC_PROFILE = "match AppStore co.audius.audiusmusic"
 AUDIUSMUSIC_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.releasecandidate"
-AUDIUSMUSIC_STAGING_PROFILE = "match AppStore co.audius.audiusmusic.bounce"
+AUDIUSMUSIC_STAGING_PROFILE = "match AppStore co.audius.audiusmusic.staging"
 AUDIUSMUSIC_STAGING_RELEASECANDIDATE_PROFILE = "match AppStore co.audius.audiusmusic.staging.releasecandidate"
 TEAM = "LRFCG93S85"
 
@@ -42,8 +42,8 @@ platform :ios do
       appId = AUDIUsMUSIC_STAGING_ID
       provisioningProfile = AUDIUSMUSIC_STAGING_PROFILE
       environment = 'staging'
-      scheme = 'Bounce'
-      configuration = 'Bounce.Release'
+      scheme = 'Staging'
+      configuration = 'Staging.Release'
     elsif options[:bundle_id] === AUDIUSMUSIC_RELEASECANDIDATE_ID
       appId = AUDIUSMUSIC_RELEASECANDIDATE_ID
       provisioningProfile = AUDIUSMUSIC_RELEASECANDIDATE_PROFILE
@@ -54,7 +54,7 @@ platform :ios do
       appId = AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
       provisioningProfile = AUDIUSMUSIC_STAGING_RELEASECANDIDATE_PROFILE
       environment = 'staging'
-      scheme = 'Bounce'
+      scheme = 'Staging'
       configuration = 'Staging.ReleaseCandidate'
     end
 
@@ -150,15 +150,15 @@ platform :ios do
     if (options[:bundle_id] === 'co.audius.audiusmusic') 
       appleId = "1491270519"
       ipa = './output/gym/Audius Music.ipa'
-    elsif (options[:bundle_id] === 'co.audius.audiusmusic.bounce')
-      appleId = "1510764836"
-      ipa = './output/gym/Audius Bounce Music.ipa'
+    elsif (options[:bundle_id] === 'co.audius.audiusmusic.staging')
+      appleId = "6444191594"
+      ipa = './output/gym/Audius Music (Staging).ipa'
     elsif (options[:bundle_id] === 'co.audius.audiusmusic.releasecandidate')
       appleId = "6444068448"
-      ipa = './output/gym/Audius Music.ipa'
+      ipa = './output/gym/Audius Music (Release Candidate).ipa'
     elsif (options[:bundle_id] === 'co.audius.audiusmusic.staging.releasecandidate')
       appleId = "6444190971"
-      ipa = './output/gym/Audius Music.ipa'
+      ipa = './output/gym/Audius Music (Release Candidate Staging).ipa'
     end
    
     # Upload to test flight
