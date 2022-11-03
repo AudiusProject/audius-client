@@ -894,6 +894,10 @@ export const audiusBackend = ({
           (readArtistPickFromDiscoveryEnabled
             ? account.artist_pick_track_id
             : body.pinnedTrackId) || null
+        account.artist_pick_track_id =
+          (readArtistPickFromDiscoveryEnabled
+            ? account.artist_pick_track_id
+            : body.pinnedTrackId) || null
         account.twitterVerified = body.twitterVerified || false
         account.instagramVerified = body.instagramVerified || false
       } catch (e) {
