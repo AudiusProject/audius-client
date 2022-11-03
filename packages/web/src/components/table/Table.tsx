@@ -201,7 +201,7 @@ export const Table = ({
     }
   }, [columns, defaultSorter, isVirtualized, onSort, sortBy, useLocalSort])
 
-  useEffect(handleSortChange, [sortBy])
+  useEffect(() => handleSortChange(), [handleSortChange, sortBy])
 
   const renderTableHeader = useCallback((column) => {
     return (

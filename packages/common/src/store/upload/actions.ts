@@ -1,6 +1,7 @@
 import { TrackMetadata } from '../../models'
 
 import {
+  ExtendedCollectionMetadata,
   ExtendedTrackMetadata,
   Progress,
   UploadTrack,
@@ -46,7 +47,7 @@ export const COLLECTION_POLL_PLAYLIST_TIMEOUT_ERROR =
 
 export const uploadTracks = (
   tracks: UploadTrack[],
-  metadata?: unknown,
+  metadata?: ExtendedCollectionMetadata,
   uploadType?: UploadType,
   stems?: TrackMetadata[]
 ) => {
@@ -59,7 +60,7 @@ export const uploadSingleTrackFailed = (index: number) => {
 
 export const uploadTracksRequested = (
   tracks: UploadTrack[],
-  metadata?: ExtendedTrackMetadata,
+  metadata?: ExtendedCollectionMetadata,
   uploadType?: UploadType,
   stems?: TrackMetadata[]
 ) => {
@@ -74,7 +75,7 @@ export const uploadTracksRequested = (
 
 export const uploadTracksSucceeded = (
   id: number,
-  trackMetadatas: TrackMetadata[]
+  trackMetadatas: ExtendedTrackMetadata[]
 ) => {
   return { type: UPLOAD_TRACKS_SUCCEEDED, id, trackMetadatas }
 }

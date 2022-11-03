@@ -340,5 +340,15 @@ class FinishPage extends Component {
     )
   }
 }
+FinishPage.propTypes = {
+  account: PropTypes.object,
+  tracks: PropTypes.array,
+  uploadType: PropTypes.oneOf(Object.values(UploadType)),
+  uploadProgress: PropTypes.array,
+  /** Whether an upload is in progress. Only shows actions after upload is 'done.' */
+  inProgress: PropTypes.bool,
+  onContinue: PropTypes.func,
+  isFirstUpload: PropTypes.bool
+}
 
 export default FinishPage
