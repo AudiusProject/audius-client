@@ -23,8 +23,14 @@ export type Location = {
 
 export const getLocation = async (): Promise<Location | null> => {
   try {
+    const cached_location = localStorage.getItem('ipapi_location')
+    if (cached_location) {
+      return JSON.parse(cached_location)
+    }
     const res = await fetch('https://ipapi.co/json/')
-    return res.json()
+    const json = res.json()
+    localStorage.setItem('ipapi_location', JSON.stringify(json))
+    return json
   } catch (e) {
     console.error(
       `Got error during getLocation call: ${e} | Error message is: ${
