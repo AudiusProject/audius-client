@@ -52,7 +52,7 @@ import {
 import { TipArtistModal } from '../tip-artist-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
 import type { UploadParamList } from '../upload-screen'
-import { uploadScreens } from '../upload-screen'
+import { UploadScreen } from '../upload-screen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
 
@@ -284,7 +284,14 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         />
       </Stack.Group>
       <Stack.Screen name='ListSelection' component={ListSelectionScreen} />
-      {uploadScreens(Stack)}
+      <Stack.Screen
+        name='Upload'
+        component={UploadScreen}
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal'
+        }}
+      />
     </Stack.Navigator>
   )
 }
