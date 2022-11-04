@@ -14,11 +14,9 @@ import {
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
-  waitForValue,
-  getPremiumContentHeaders
+  waitForValue
 } from '@audius/common'
 import {
-  all,
   call,
   fork,
   getContext,
