@@ -11,7 +11,8 @@ import {
   savedPageSelectors,
   SavedPageTrack,
   SavedPageCollection,
-  QueueItem
+  QueueItem,
+  Collection
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import { useSelector } from 'react-redux'
@@ -31,6 +32,7 @@ import { MainContentContext } from 'pages/MainContentContext'
 import { albumPage } from 'utils/route'
 
 import styles from './SavedPage.module.css'
+import { sortBy } from 'lodash'
 
 const { getInitialFetchStatus } = savedPageSelectors
 
@@ -174,44 +176,46 @@ const SavedPage = ({
     </div>
   )
 
-  const cards = account
-    ? account.albums.map((album, i) => {
-        return (
-          <Card
-            index={i}
-            isLoading={isLoadingAlbums(i)}
-            setDidLoad={setDidLoadAlbums}
-            key={album.playlist_id}
-            id={album.playlist_id}
-            userId={album.playlist_owner_id}
-            imageSize={album._cover_art_sizes}
-            size='medium'
-            playlistName={album.playlist_name}
-            playlistId={album.playlist_id}
-            isPlaylist={false}
-            isPublic={!album.is_private}
-            handle={album.ownerHandle}
-            primaryText={album.playlist_name}
-            secondaryText={formatCardSecondaryText(
-              album.save_count,
-              album.playlist_contents.track_ids.length
-            )}
-            isReposted={album.has_current_user_reposted}
-            isSaved={album.has_current_user_saved}
-            cardCoverImageSizes={album._cover_art_sizes}
-            onClick={() =>
-              goToRoute(
-                albumPage(
-                  album.ownerHandle,
-                  album.playlist_name,
-                  album.playlist_id
-                )
-              )
-            }
-          />
-        )
-      })
+  const albums = account
+    ? sortBy(
+        account.collections.filter(
+          (collection: Collection) => collection.is_album
+        ),
+        (album) => album.playlist_name?.toLowerCase()
+      )
     : []
+  const cards = albums.map((album, i) => {
+    return (
+      <Card
+        index={i}
+        isLoading={isLoadingAlbums(i)}
+        setDidLoad={setDidLoadAlbums}
+        key={album.playlist_id}
+        id={album.playlist_id}
+        userId={album.playlist_owner_id}
+        imageSize={album._cover_art_sizes}
+        size='medium'
+        playlistName={album.playlist_name}
+        playlistId={album.playlist_id}
+        isPlaylist={false}
+        isPublic={!album.is_private}
+        handle={album.ownerHandle}
+        primaryText={album.playlist_name}
+        secondaryText={formatCardSecondaryText(
+          album.save_count,
+          album.playlist_contents.track_ids.length
+        )}
+        isReposted={album.has_current_user_reposted}
+        isSaved={album.has_current_user_saved}
+        cardCoverImageSizes={album._cover_art_sizes}
+        onClick={() =>
+          goToRoute(
+            albumPage(album.ownerHandle, album.playlist_name, album.playlist_id)
+          )
+        }
+      />
+    )
+  })
 
   const { tabs, body } = useTabs({
     isMobile: false,
@@ -265,7 +269,7 @@ const SavedPage = ({
         />
       ),
       <div className={styles.albumsWrapper} key='albums'>
-        {account && account.albums.length > 0 ? (
+        {albums.length > 0 ? (
           <CardLineup cards={cards} cardsClassName={styles.cardsContainer} />
         ) : (
           <EmptyTable
