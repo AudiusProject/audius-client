@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import { useDrawerStatus } from '@react-navigation/drawer'
 import type { AnimatedLottieViewProps } from 'lottie-react-native'
 import LottieView from 'lottie-react-native'
@@ -8,6 +9,7 @@ import { Animated } from 'react-native'
 import { usePrevious } from 'react-use'
 
 import { light, medium } from 'app/haptics'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -45,9 +47,12 @@ export const Reaction = (props: ReactionProps) => {
   const ref = useRef<View | null>(null)
   const scale = useRef(new Animated.Value(1)).current
   const previousStatus = usePrevious(status)
+  const { isEnabled: isNavOverhaulEnabled } = useFeatureFlag(
+    FeatureFlags.MOBILE_NAV_OVERHAUL
+  )
 
   const drawerStatus = useDrawerStatus()
-  const isOpen = drawerStatus === 'open'
+  const isOpen = isNavOverhaulEnabled ? true : drawerStatus === 'open'
 
   useEffect(() => {
     setStatus(statusProp)
