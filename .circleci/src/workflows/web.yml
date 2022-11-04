@@ -63,9 +63,9 @@ jobs:
       requires:
         - web-init
         - web-build-staging
-      # filters:
-      #   branches:
-      #     only: /(^release.*)$/
+      filters:
+        branches:
+          only: /(^release.*)$/
 
   # Release production web.
   - web-hold-production:
