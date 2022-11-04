@@ -127,8 +127,6 @@ const SavedPage = ({
     status === Status.SUCCESS || entries.length
       ? getFilteredData(entries)
       : [[], -1]
-  const { isLoading: isLoadingAlbums, setDidLoad: setDidLoadAlbums } =
-    useOrderedLoad(account ? account.albums.length : 0)
   const isEmpty =
     entries.length === 0 ||
     !entries.some((entry: SavedPageTrack) => Boolean(entry.track_id))
@@ -184,6 +182,8 @@ const SavedPage = ({
         (album) => album.playlist_name?.toLowerCase()
       )
     : []
+  const { isLoading: isLoadingAlbums, setDidLoad: setDidLoadAlbums } =
+    useOrderedLoad(albums.length)
   const cards = albums.map((album, i) => {
     return (
       <Card

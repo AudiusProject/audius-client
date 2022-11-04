@@ -10,10 +10,12 @@ import {
   SavedPageTabs,
   SavedPageTrack,
   SavedPageCollection,
-  QueueItem
+  QueueItem,
+  Collection
 } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
+import { sortBy } from 'lodash'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconFilter } from 'assets/img/iconFilter.svg'
@@ -441,6 +443,14 @@ const SavedPage = ({
   const queuedAndPlaying = playing && isQueued
 
   const goToTrending = () => goToRoute(TRENDING_PAGE)
+  const albums = account
+    ? sortBy(
+        account.collections.filter(
+          (collection: Collection) => collection.is_album
+        ),
+        (album) => album.playlist_name?.toLowerCase()
+      )
+    : []
   const elements = [
     <TracksLineup
       key='tracksLineup'
@@ -457,7 +467,7 @@ const SavedPage = ({
     <AlbumCardLineup
       key='albumLineup'
       getFilteredAlbums={getFilteredAlbums}
-      albums={account ? account.albums : []}
+      albums={albums}
       goToTrending={goToTrending}
       onFilterChange={onFilterChange}
       filterText={filterText}
