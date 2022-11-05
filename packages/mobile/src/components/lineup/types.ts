@@ -9,7 +9,7 @@ import type {
   LineupBaseActions,
   CommonState
 } from '@audius/common'
-import type { SectionListProps } from 'react-native'
+import type { SectionList, SectionListProps } from 'react-native'
 
 import type { PlaybackSource } from 'app/types/analytics'
 
@@ -68,6 +68,12 @@ export type LineupProps = {
    * will scroll with the rest of the content
    */
   header?: SectionListProps<unknown>['ListHeaderComponent']
+
+  /**
+   * An optional component to render when the lineup has no contents
+   * in it.
+   */
+  LineupEmptyComponent?: SectionList<unknown>['ListEmptyComponent']
 
   /** Are we in a trending lineup? Allows tiles to specialize their rendering */
   isTrending?: boolean

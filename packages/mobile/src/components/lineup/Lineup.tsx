@@ -5,7 +5,7 @@ import { Kind, Status, tippingSelectors } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { range } from 'lodash'
 import type { SectionList as RNSectionList } from 'react-native'
-import { Dimensions, StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { SectionList } from 'app/components/core'
@@ -108,6 +108,9 @@ const styles = StyleSheet.create({
   }
 })
 
+const areSectionsEmpty = (sections: Section[]) =>
+  sections.every((section) => section.data.length === 0)
+
 type Section = {
   delineate: boolean
   hasLeadingElement?: boolean
@@ -208,6 +211,7 @@ export const Lineup = ({
   disableTopTabScroll,
   fetchPayload,
   header,
+  LineupEmptyComponent,
   isTrending,
   isFeed,
   leadingElementId,
@@ -229,7 +233,7 @@ export const Lineup = ({
   extraFetchOptions,
   ...listProps
 }: LineupProps) => {
-  const showTip = useSelector(getShowTip)
+  const showTip = false // useSelector(getShowTip)
   const dispatch = useDispatch()
   const ref = useRef<RNSectionList>(null)
   const [isPastLoadThreshold, setIsPastLoadThreshold] = useState(false)
@@ -514,9 +518,10 @@ export const Lineup = ({
         onScroll={handleScroll}
         ListHeaderComponent={header}
         ListFooterComponent={<View style={{ height: 16 }} />}
+        ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
-        sections={sections}
+        sections={areSectionsEmpty(sections) ? [] : sections}
         stickySectionHeadersEnabled={false}
         keyExtractor={(item, index) => `${item?.id}  ${index}`}
         renderItem={renderItem}
