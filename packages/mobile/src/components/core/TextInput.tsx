@@ -12,7 +12,8 @@ import {
   Animated,
   TextInput as RNTextInput,
   View,
-  Pressable
+  Pressable,
+  StyleSheet
 } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import type { SvgProps } from 'react-native-svg'
@@ -22,9 +23,9 @@ import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import type { StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
+import { convertHexToRGBA } from 'app/utils/convertHexToRGBA'
 import { mergeRefs } from 'app/utils/mergeRefs'
-
-import { Text } from './Text'
+import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   root: {
@@ -52,13 +53,6 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   labelText: {
     color: palette.neutral,
     fontFamily: typography.fontByWeight.medium
-  },
-  labelTextInactive: {
-    fontSize: 18
-  },
-  labelTextActive: {
-    fontSize: 16,
-    color: palette.neutralLight4
   },
   input: {
     flex: 1,
@@ -134,16 +128,28 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       new Animated.Value(isLabelActive ? activeLabelY : inactiveLabelY)
     )
 
+    const labelAnimation = useRef(new Animated.Value(isLabelActive ? 16 : 18))
+
     const handleFocus = useCallback(
       (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
         onFocus?.(e)
         setIsFocused(true)
 
         if (!isLabelActive) {
-          Animated.spring(labelY.current, {
+          const labelYAnimation = Animated.spring(labelY.current, {
             toValue: activeLabelY,
-            useNativeDriver: false
-          }).start()
+            useNativeDriver: true
+          })
+
+          const labelFontSizeAnimation = Animated.spring(
+            labelAnimation.current,
+            {
+              toValue: 16,
+              useNativeDriver: false
+            }
+          )
+
+          Animated.parallel([labelYAnimation, labelFontSizeAnimation]).start()
         }
       },
       [onFocus, isLabelActive]
@@ -155,10 +161,20 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         setIsFocused(false)
 
         if (isFocused && !value) {
-          Animated.spring(labelY.current, {
+          const labelYAnimation = Animated.spring(labelY.current, {
             toValue: inactiveLabelY,
-            useNativeDriver: false
-          }).start()
+            useNativeDriver: true
+          })
+
+          const labelFontSizeAnimation = Animated.spring(
+            labelAnimation.current,
+            {
+              toValue: 18,
+              useNativeDriver: false
+            }
+          )
+
+          Animated.parallel([labelYAnimation, labelFontSizeAnimation]).start()
         }
       },
       [onBlur, isFocused, value]
@@ -174,8 +190,10 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       onClear?.()
     }, [onClear])
 
+    const { neutral, neutralLight4 } = useThemeColors()
+
     return (
-      <Pressable style={{ flex: 1 }} onPress={handlePressRoot}>
+      <Pressable onPress={handlePressRoot}>
         <View
           style={[
             styles.root,
@@ -191,17 +209,23 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
                 { transform: [{ translateY: labelY.current }] }
               ]}
             >
-              <Text
+              <Animated.Text
                 style={[
                   styles.labelText,
                   stylesProp?.labelText,
-                  isLabelActive
-                    ? styles.labelTextActive
-                    : styles.labelTextInactive
+                  {
+                    fontSize: labelAnimation.current,
+                    color: labelAnimation.current.interpolate({
+                      inputRange: [16, 18],
+                      outputRange: [neutralLight4, neutral].map((color) =>
+                        convertHexToRGBA(color)
+                      )
+                    })
+                  }
                 ]}
               >
                 {label}
-              </Text>
+              </Animated.Text>
             </Animated.View>
           ) : null}
           <RNTextInput

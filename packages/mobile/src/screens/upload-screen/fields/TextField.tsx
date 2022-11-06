@@ -3,7 +3,7 @@ import { capitalize } from 'lodash'
 import { View } from 'react-native'
 
 import type { TextInputProps } from 'app/components/core'
-import { TextInput, Text } from 'app/components/core'
+import { TextInput } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { makeStyles } from 'app/styles'
 
