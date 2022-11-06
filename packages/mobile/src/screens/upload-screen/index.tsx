@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { useAppScreenOptions } from '../app-screen/useAppScreenOptions'
+import { ListSelectionScreen } from '../list-selection-screen'
 
 import { CompleteTrackScreen } from './CompleteTrackScreen'
 import { SelectTrackScreen } from './SelectTrackScreen'
@@ -23,6 +24,7 @@ export const UploadScreen = () => {
       <Stack.Screen name='CompleteTrack' component={CompleteTrackScreen} />
       <Stack.Screen name='UploadingTracks' component={UploadingTracksScreen} />
       <Stack.Screen name='UploadComplete' component={UploadCompleteScreen} />
+      <Stack.Screen name='ListSelection' component={ListSelectionScreen} />
     </Stack.Navigator>
   )
 }

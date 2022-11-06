@@ -2,6 +2,8 @@ import { useCallback } from 'react'
 
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
+import { KeyboardAvoidingView, Platform } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import * as Yup from 'yup'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -16,13 +18,17 @@ import { makeStyles } from 'app/styles'
 import { TopBarIconButton } from '../app-screen'
 
 import { UploadStackScreen } from './UploadStackScreen'
-import { PickArtworkField, SelectGenreField, TextField } from './fields'
+import {
+  PickArtworkField,
+  SelectGenreField,
+  TextField,
+  DescriptionField
+} from './fields'
 import type { UploadTrack, UploadTrackMetadata } from './types'
 
 const messages = {
   screenTitle: 'Complete Track',
   name: 'Track Name',
-  description: 'Description',
   continue: 'Continue',
   fixErrors: 'Fix Errors To Continue'
 }
@@ -82,12 +88,14 @@ const CompleteTrackForm = (props: FormikProps<UploadTrackMetadata>) => {
       }
     >
       <ScrollView>
-        <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
-          <PickArtworkField />
-          <TextField name='title' label={messages.name} required />
-          <TextField name='description' label={messages.description} />
-          <SelectGenreField />
-        </Tile>
+        <KeyboardAvoidingView behavior='position'>
+          <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
+            <PickArtworkField />
+            <TextField name='title' label={messages.name} required />
+            <DescriptionField />
+            <SelectGenreField />
+          </Tile>
+        </KeyboardAvoidingView>
       </ScrollView>
     </UploadStackScreen>
   )

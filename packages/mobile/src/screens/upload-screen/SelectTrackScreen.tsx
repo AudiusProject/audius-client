@@ -51,17 +51,18 @@ export const SelectTrackScreen = () => {
 
   const [{ value: track, loading, error }, handlePickTrack] =
     useAsyncFn(async () => {
-      const trackFile = await DocumentPicker.pickSingle({
-        type: DocumentPicker.types.audio
-      })
-      return processTrackFile(trackFile)
+      // const trackFile = await DocumentPicker.pickSingle({
+      //   type: DocumentPicker.types.audio
+      // })
+      // return processTrackFile(trackFile)
+      return processTrackFile({ name: 'test', size: 10 })
     }, [])
 
-  // useEffect(() => {
-  //   if (track) {
-  //     navigation.push('CompleteTrack', track)
-  //   }
-  // }, [track, navigation])
+  useEffect(() => {
+    if (track) {
+      navigation.push('CompleteTrack', track)
+    }
+  }, [track, navigation])
 
   useFocusEffect(
     useCallback(() => {
@@ -80,6 +81,8 @@ export const SelectTrackScreen = () => {
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
+
+  const isLoading = loading || (track && !navigatedBack)
 
   return (
     <Screen
@@ -111,8 +114,8 @@ export const SelectTrackScreen = () => {
           fullWidth
           variant='primary'
           size='large'
-          icon={loading ? LoadingSpinner : undefined}
-          disabled={loading || (track && !navigatedBack)}
+          icon={isLoading ? LoadingSpinner : undefined}
+          disabled={isLoading}
           onPress={handlePickTrack}
         />
         {error && !loading ? (

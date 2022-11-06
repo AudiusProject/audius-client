@@ -39,7 +39,6 @@ import { AudioScreen } from '../audio-screen'
 import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
 import { EditProfileScreen } from '../edit-profile-screen'
 import type { ListSelectionParams } from '../list-selection-screen'
-import { ListSelectionScreen } from '../list-selection-screen'
 import {
   AboutScreen,
   AccountSettingsScreen,
@@ -283,7 +282,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           component={ChangePasswordScreen}
         />
       </Stack.Group>
-      <Stack.Screen name='ListSelection' component={ListSelectionScreen} />
       <Stack.Screen
         name='Upload'
         component={UploadScreen}

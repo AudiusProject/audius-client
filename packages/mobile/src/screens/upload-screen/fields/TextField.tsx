@@ -19,6 +19,11 @@ const useStyles = makeStyles(({ spacing, typography }) => ({
   input: {
     fontSize: typography.fontSize.large,
     fontFamily: typography.fontByWeight.demiBold
+  },
+  labelText: {
+    fontSize: typography.fontSize.large,
+    fontFamily: typography.fontByWeight.demiBold,
+    top: 4
   }
 }))
 
@@ -28,6 +33,7 @@ export const TextField = (props: TextFieldProps) => {
     label: labelProp,
     required,
     errorMessage: errorMessageProp,
+    styles: stylesProp,
     ...other
   } = props
 
@@ -39,16 +45,13 @@ export const TextField = (props: TextFieldProps) => {
 
   return (
     <View style={styles.root}>
-      <Text
-        fontSize='medium'
-        weight='demiBold'
-        color='neutralLight4'
-        style={styles.label}
-      >
-        {label}
-      </Text>
       <TextInput
-        styles={{ input: styles.input }}
+        label={label}
+        styles={{
+          ...stylesProp,
+          input: [styles.input, stylesProp?.input],
+          labelText: [styles.labelText, stylesProp?.labelText]
+        }}
         value={value}
         onChangeText={onChange(name)}
         onBlur={onBlur(name)}
