@@ -4,6 +4,7 @@ import type { Track } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
+import { Text } from 'app/components/core'
 import {
   downloadTrack,
   purgeAllDownloads
@@ -18,21 +19,55 @@ import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
 import { Switch } from '../core/Switch'
 
 type DownloadToggleProps = {
-  collection: string
+  collection?: string
+  labelText?: string
   tracks: Track[]
 }
 
-const useStyles = makeStyles(() => ({
+const messages = {
+  downloading: 'Downloading'
+}
+
+const useStyles = makeStyles(({ palette }) => ({
   root: {
     flexDirection: 'row',
-    alignItems: 'center'
+    justifyContent: 'space-between',
+    width: '100%'
+  },
+  oneThirdContainer: {
+    flex: 1
+  },
+  iconTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    justifyContent: 'center'
+  },
+  labelText: {
+    color: palette.neutralLight4,
+    fontSize: 14,
+    letterSpacing: 2,
+    textAlign: 'center',
+    textTransform: 'uppercase'
+  },
+  toggle: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end'
   }
 }))
 
-export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
+export const DownloadToggle = ({
+  tracks,
+  collection,
+  labelText
+}: DownloadToggleProps) => {
   const styles = useStyles()
+  const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
+  const isAnyDownloadInProgress = tracks.some((track: Track) => {
+    const status = offlineDownloadStatus[track.track_id.toString()]
+    return status === TrackDownloadStatus.LOADING
+  })
   const isToggleOn = useSelector((state: AppState) => {
-    const offlineDownloadStatus = getOfflineDownloadStatus(state)
     return tracks.some((track: Track) => {
       const status = offlineDownloadStatus[track.track_id.toString()]
       return (
@@ -44,6 +79,7 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
+      if (!collection) return
       if (isDownloadEnabled) {
         tracks.forEach((track) => {
           downloadTrack(track.track_id, collection)
@@ -58,8 +94,23 @@ export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
 
   return (
     <View style={styles.root}>
-      {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
-      <Switch value={isToggleOn} onValueChange={handleToggleDownload} />
+      {labelText && <View style={styles.oneThirdContainer} />}
+      <View style={[styles.oneThirdContainer, styles.iconTitle]}>
+        {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
+        {!!labelText && (
+          <Text style={styles.labelText}>
+            {isAnyDownloadInProgress ? messages.downloading : labelText}
+          </Text>
+        )}
+      </View>
+      <View style={styles.oneThirdContainer}>
+        <Switch
+          style={styles.toggle}
+          value={isToggleOn}
+          onValueChange={handleToggleDownload}
+          disabled={!collection}
+        />
+      </View>
     </View>
   )
 }
