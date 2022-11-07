@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import DocumentPicker from 'react-native-document-picker'
 import { useAsyncFn } from 'react-use'
 
-import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
+import IconRemove from 'app/assets/images/iconRemove.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button, ErrorText, Screen, Text, Tile } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
@@ -52,10 +52,15 @@ export const SelectTrackScreen = () => {
 
   const [{ value: track, loading, error }, handlePickTrack] =
     useAsyncFn(async () => {
-      const trackFile = await DocumentPicker.pickSingle({
-        type: DocumentPicker.types.audio
-      })
-      return processTrackFile(trackFile)
+      try {
+        const trackFile = await DocumentPicker.pickSingle({
+          type: DocumentPicker.types.audio
+        })
+        return processTrackFile(trackFile)
+      } catch (error) {
+        DocumentPicker.isCancel(error)
+        return null
+      }
     }, [])
 
   useEffect(() => {
@@ -89,13 +94,7 @@ export const SelectTrackScreen = () => {
       title={messages.title}
       icon={IconUpload}
       variant='secondary'
-      topbarLeft={
-        <TopBarIconButton
-          icon={IconCaretRight}
-          style={{ transform: [{ rotate: '180deg' }] }}
-          onPress={handleBack}
-        />
-      }
+      topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}
     >
       <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
         <IconUpload

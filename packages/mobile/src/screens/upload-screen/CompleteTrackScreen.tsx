@@ -8,14 +8,11 @@ import { KeyboardAvoidingView } from 'react-native'
 import * as Yup from 'yup'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import IconRemove from 'app/assets/images/iconRemove.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button, ScrollView, Tile } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-
-import { TopBarIconButton } from '../app-screen'
 
 import type { UploadParamList, UploadRouteProp } from './ParamList'
 import { UploadStackScreen } from './UploadStackScreen'
@@ -59,17 +56,11 @@ const CompleteTrackForm = (props: FormikProps<TrackMetadata>) => {
   const hasErrors =
     errorsKeys.length > 0 && errorsKeys.every((errorKey) => touched[errorKey])
   const styles = useStyles()
-  const navigation = useNavigation()
-
-  const handleBack = useCallback(() => {
-    navigation.goBack()
-  }, [navigation])
 
   return (
     <UploadStackScreen
       title={messages.screenTitle}
       icon={IconUpload}
-      topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}
       bottomSection={
         <>
           {hasErrors ? (
