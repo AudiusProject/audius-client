@@ -2,8 +2,7 @@ import { useCallback } from 'react'
 
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
-import { KeyboardAvoidingView, Platform } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { KeyboardAvoidingView } from 'react-native'
 import * as Yup from 'yup'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'

@@ -51,11 +51,10 @@ export const SelectTrackScreen = () => {
 
   const [{ value: track, loading, error }, handlePickTrack] =
     useAsyncFn(async () => {
-      // const trackFile = await DocumentPicker.pickSingle({
-      //   type: DocumentPicker.types.audio
-      // })
-      // return processTrackFile(trackFile)
-      return processTrackFile({ name: 'test', size: 10 })
+      const trackFile = await DocumentPicker.pickSingle({
+        type: DocumentPicker.types.audio
+      })
+      return processTrackFile(trackFile)
     }, [])
 
   useEffect(() => {

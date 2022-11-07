@@ -12,8 +12,7 @@ import {
   Animated,
   TextInput as RNTextInput,
   View,
-  Pressable,
-  StyleSheet
+  Pressable
 } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import type { SvgProps } from 'react-native-svg'
@@ -104,7 +103,7 @@ const inactiveLabelY = spacing(3)
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   (props, ref) => {
     const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.8)
-    const innerInputRef = useRef()
+    const innerInputRef = useRef<RNTextInput>()
 
     const {
       style,
