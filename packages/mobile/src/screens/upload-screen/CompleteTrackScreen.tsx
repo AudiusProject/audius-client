@@ -1,5 +1,7 @@
 import { useCallback } from 'react'
 
+import type { TrackMetadata, UploadTrack } from '@audius/common'
+import { useRoute } from '@react-navigation/native'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import { KeyboardAvoidingView } from 'react-native'
@@ -11,11 +13,11 @@ import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button, ScrollView, Tile } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
 
 import { TopBarIconButton } from '../app-screen'
 
+import type { UploadParamList, UploadRouteProp } from './ParamList'
 import { UploadStackScreen } from './UploadStackScreen'
 import {
   PickArtworkField,
@@ -23,7 +25,6 @@ import {
   TextField,
   DescriptionField
 } from './fields'
-import type { UploadTrack, UploadTrackMetadata } from './types'
 
 const messages = {
   screenTitle: 'Complete Track',
@@ -42,7 +43,7 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 const CompleteTrackSchema = Yup.object().shape({
-  name: Yup.string().required('Required'),
+  title: Yup.string().required('Required'),
   artwork: Yup.object({
     url: Yup.string().nullable().required('Required')
   }),
@@ -52,7 +53,7 @@ const CompleteTrackSchema = Yup.object().shape({
 
 export type CompleteTrackParams = UploadTrack
 
-const CompleteTrackForm = (props: FormikProps<UploadTrackMetadata>) => {
+const CompleteTrackForm = (props: FormikProps<TrackMetadata>) => {
   const { handleSubmit, isSubmitting, errors, touched } = props
   const errorsKeys = Object.keys(errors)
   const hasErrors =
@@ -80,7 +81,9 @@ const CompleteTrackForm = (props: FormikProps<UploadTrackMetadata>) => {
             icon={IconArrow}
             fullWidth
             title={messages.continue}
-            onPress={() => handleSubmit()}
+            onPress={() => {
+              handleSubmit()
+            }}
             disabled={isSubmitting || hasErrors}
           />
         </>
@@ -101,16 +104,16 @@ const CompleteTrackForm = (props: FormikProps<UploadTrackMetadata>) => {
 }
 
 export const CompleteTrackScreen = () => {
-  const { params } = useRoute<'CompleteTrack'>()
+  const { params } = useRoute<UploadRouteProp<'CompleteTrack'>>()
   const { metadata, file } = params
-  const navigation = useNavigation()
+  const navigation = useNavigation<UploadParamList>()
 
   const initialValues = metadata
 
   const handleSubmit = useCallback(
     (values) => {
       navigation.push('UploadingTracks', {
-        tracks: [{ file, metadata: { ...metadata, ...values } }]
+        tracks: [{ file, preview: null, metadata: { ...metadata, ...values } }]
       })
     },
     [navigation, file, metadata]

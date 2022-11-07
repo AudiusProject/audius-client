@@ -41,8 +41,6 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   labelRoot: {
     paddingTop: spacing(8),
     paddingBottom: spacing(3)
-    // paddingBottom: 0
-    // height: spacing(16)
   },
   label: {
     position: 'absolute',
@@ -67,9 +65,7 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     color: palette.neutralLight4
   },
   endAdornment: {
-    position: 'absolute',
-    right: spacing(4),
-    bottom: spacing(4)
+    alignSelf: 'flex-end'
   }
 }))
 

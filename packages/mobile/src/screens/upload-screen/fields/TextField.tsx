@@ -13,7 +13,7 @@ type TextFieldProps = FieldProps & TextInputProps
 
 const useStyles = makeStyles(({ spacing, typography }) => ({
   root: {
-    marginVertical: spacing(4)
+    marginVertical: spacing(2)
   },
   label: { marginBottom: spacing(2) },
   input: {
@@ -55,6 +55,7 @@ export const TextField = (props: TextFieldProps) => {
         value={value}
         onChangeText={onChange(name)}
         onBlur={onBlur(name)}
+        returnKeyType='done'
         {...other}
       />
       {errorMessage && touched ? (

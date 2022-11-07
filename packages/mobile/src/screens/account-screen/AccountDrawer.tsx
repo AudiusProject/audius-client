@@ -171,7 +171,7 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
   }, [navigation, drawerHelpers])
 
   const handlePressUpload = useCallback(() => {
-    navigation.push('SelectTrack')
+    navigation.push('Upload')
     drawerHelpers.closeDrawer()
   }, [navigation, drawerHelpers])
 

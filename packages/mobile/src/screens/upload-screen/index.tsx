@@ -9,7 +9,6 @@ import { UploadCompleteScreen } from './UploadCompleteScreen'
 import { UploadingTracksScreen } from './UploadingTracksScreen'
 
 export * from './SelectTrackScreen'
-export * from './ParamList'
 
 const Stack = createNativeStackNavigator()
 

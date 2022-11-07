@@ -15,6 +15,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { TopBarIconButton } from '../app-screen'
 
+import type { UploadParamList } from './ParamList'
 import { processTrackFile } from './processTrackFile'
 
 const messages = {
@@ -46,7 +47,7 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const SelectTrackScreen = () => {
   const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
-  const navigation = useNavigation()
+  const navigation = useNavigation<UploadParamList>()
   const [navigatedBack, setNavigatedBack] = useState(false)
 
   const [{ value: track, loading, error }, handlePickTrack] =

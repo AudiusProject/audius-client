@@ -50,7 +50,6 @@ import {
 } from '../settings-screen'
 import { TipArtistModal } from '../tip-artist-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
-import type { UploadParamList } from '../upload-screen'
 import { UploadScreen } from '../upload-screen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
@@ -96,7 +95,8 @@ export type AppTabScreenParamList = {
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
   ListSelection: ListSelectionParams
-} & UploadParamList
+  Upload: undefined
+}
 
 const forFade = ({ current }) => ({
   cardStyle: {

@@ -37,6 +37,7 @@ export const DescriptionField = () => {
           {value?.length ?? 0}/{maxCharCount}
         </Text>
       }
+      returnKeyType='default'
     />
   )
 }
