@@ -37,6 +37,14 @@ jobs:
         branches:
           only: /(^release.*)$/
 
+  - mobile-build-upload-releasecandidate-android:
+      context: Audius Mobile Client
+      requires:
+        - mobile-init
+      # filters:
+      #   branches:
+      #     only: /(^release.*)$/
+
   - mobile-build-upload-production-android:
       context: Audius Mobile Client
       requires:

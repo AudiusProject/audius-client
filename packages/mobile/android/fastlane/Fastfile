@@ -16,7 +16,19 @@
 default_platform(:android)
 
 platform :android do
-  desc "Deploy a new version to the Google Play"
+  desc "Upload a new version to the Google Play"
+  lane :releaseCandidate do
+    upload_to_play_store(
+      track: "alpha",
+      package_name: "co.audius.app.releasecandidate",
+      aab: "./app/build/outputs/bundle/bounceRelease/app-releasecandidate-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
   lane :bounce do
     upload_to_play_store(
       track: "alpha",
@@ -39,29 +51,6 @@ platform :android do
       skip_upload_screenshots: true
     )
   end
-
-  lane :beta do
-    upload_to_play_store(
-      track: "beta",
-      aab: "./app/build/outputs/bundle/prodRelease/app-prod-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
-  end
-
-  lane :deploy do
-    upload_to_play_store(
-      track: "production",
-      aab: "./app/build/outputs/bundle/prodRelease/app-prod-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
-  end
-
 
   lane :incrementVersionCode do |options|
       # Get the max existing version code

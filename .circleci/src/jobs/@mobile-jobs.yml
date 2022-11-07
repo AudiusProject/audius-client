@@ -143,6 +143,27 @@ mobile-build-upload-staging-android:
           - mobile-upload-android:
               upload-type: 'bounce'
 
+mobile-build-upload-releasecandidate-android:
+  working_directory: ~/audius-client
+  resource_class: large
+  docker:
+    - image: circleci/android:api-30-node
+  steps:
+    - mobile-build-android:
+        build-directory: 'build-mobile-releasecandidate'
+        build-type: 'bundleReleaseCandidateRelease'
+        bundle-id: 'co.audius.app.releasecandidate'
+        track: 'alpha'
+        remote-directory: 'audius-mobile-releasecandidate'
+    - mobile-upload-android:
+        upload-type: 'releaseCandidate'
+    # - when:
+    #     condition:
+    #       matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
+    #     steps:
+    #       - mobile-upload-android:
+    #           upload-type: 'releaseCandidate'
+
 mobile-build-upload-production-android:
   working_directory: ~/audius-client
   resource_class: large

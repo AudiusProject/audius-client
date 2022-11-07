@@ -166,6 +166,12 @@ android {
                 appIcon: "@mipmap/ic_launcher"
             ]
         }
+        releaseCandidate {
+            applicationIdSuffix ".releasecandidate"
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher"
+            ]
+        }
         bounce {
             // Pre-compile run ENVFILE=.env.stage
             applicationIdSuffix ".bounce"

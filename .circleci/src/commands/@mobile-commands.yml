@@ -123,7 +123,7 @@ mobile-build-android:
 mobile-upload-android:
   parameters:
     upload-type:
-      default: 'prod'
+      default: 'alpha'
       type: string
   steps:
     - run:
