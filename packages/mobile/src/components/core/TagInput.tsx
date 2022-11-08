@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { trimToAlphaNumeric } from '@audius/common'
+import { uniq } from 'lodash'
 import type {
   NativeSyntheticEvent,
   TextInputFocusEventData,
@@ -111,7 +112,9 @@ export const TagInput = (props: TagInputProps) => {
       if (!inputValue && keyValue === 'Backspace') {
         onChangeText?.(tags.slice(0, -1).join(','))
       } else if (inputValue && (keyValue === ' ' || keyValue === ',')) {
-        onChangeText?.([...tags, trimToAlphaNumeric(inputValue)].join(','))
+        onChangeText?.(
+          uniq([...tags, trimToAlphaNumeric(inputValue)]).join(',')
+        )
         setInputValue('')
       }
     },
