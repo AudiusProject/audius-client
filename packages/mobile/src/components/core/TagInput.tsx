@@ -7,7 +7,6 @@ import type {
   TextInputKeyPressEventData
 } from 'react-native'
 import { View } from 'react-native'
-import { onChange } from 'react-native-reanimated'
 
 import IconSave from 'app/assets/images/iconSave.svg'
 import { makeStyles } from 'app/styles'
