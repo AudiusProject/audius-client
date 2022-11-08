@@ -21,6 +21,9 @@ type Error = {
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
+    marginBottom: spacing(2)
+  },
+  image: {
     aspectRatio: 1,
     backgroundColor: palette.neutralLight6,
     borderRadius: 8
@@ -50,7 +53,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 const messages = {
-  addArtwork: 'Add Artwork'
+  addArtwork: 'Add Artwork',
+  changeArtwork: 'Change Artwork'
 }
 
 export const PickArtworkField = () => {
@@ -59,7 +63,7 @@ export const PickArtworkField = () => {
   const name = 'artwork'
   const [{ value }, { error, touched }, { setValue }] = useField(name)
   const { url } = value
-  const uri = url === null ? ' ' : url
+  const uri = url === null || url === '' ? ' ' : url
   const { secondary } = useThemeColors()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -81,11 +85,11 @@ export const PickArtworkField = () => {
   }, [secondary, setValue])
 
   return (
-    <View>
+    <View style={styles.root}>
       <DynamicImage
         uri={uri}
         onLoad={() => setIsLoading(false)}
-        style={styles.root}
+        style={styles.image}
       >
         <View style={styles.iconPicture}>
           {isLoading ? (
@@ -98,7 +102,7 @@ export const PickArtworkField = () => {
           <Button
             variant='commonAlt'
             styles={{ root: { zIndex: 1000 }, icon: styles.buttonIcon }}
-            title={messages.addArtwork}
+            title={url ? messages.changeArtwork : messages.addArtwork}
             icon={IconCamera}
             iconPosition='left'
             onPress={handlePress}
