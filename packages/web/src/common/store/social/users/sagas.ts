@@ -303,7 +303,10 @@ export function* confirmSubscribeToUser(userId: ID, accountId: ID) {
       function* () {},
       function* ({ timeout, message }: { timeout: boolean; message: string }) {
         yield* put(
-          socialActions.subscribeUserFailed(userId, timeout ? 'Timeout' : message)
+          socialActions.subscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
         )
       }
     )
@@ -346,7 +349,10 @@ export function* confirmUnsubscribeFromUser(userId: ID, accountId: ID) {
       function* () {},
       function* ({ timeout, message }: { timeout: boolean; message: string }) {
         yield* put(
-          socialActions.unsubscribeUserFailed(userId, timeout ? 'Timeout' : message)
+          socialActions.unsubscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
         )
       }
     )
