@@ -1,17 +1,21 @@
-import { makeStyles } from 'app/styles'
 import { useCallback, useState } from 'react'
-import IconSave from 'app/assets/images/iconSave.svg'
-import {
+
+import { trimToAlphaNumeric } from '@audius/common'
+import type {
   NativeSyntheticEvent,
   TextInputFocusEventData,
-  TextInputKeyPressEventData,
-  View
+  TextInputKeyPressEventData
 } from 'react-native'
+import { View } from 'react-native'
+import { onChange } from 'react-native-reanimated'
+
+import IconSave from 'app/assets/images/iconSave.svg'
+import { makeStyles } from 'app/styles'
+import { useThemeColors } from 'app/utils/theme'
+
 import { Text } from './Text'
 import type { TextInputProps } from './TextInput'
 import { TextInput } from './TextInput'
-import { useThemeColors } from 'app/utils/theme'
-import { trimToAlphaNumeric } from '@audius/common'
 
 type TagInputProps = TextInputProps
 
@@ -107,12 +111,12 @@ export const TagInput = (props: TagInputProps) => {
 
       if (!inputValue && keyValue === 'Backspace') {
         onChangeText?.(tags.slice(0, -1).join(','))
-      } else if (inputValue && (keyValue == ' ' || keyValue === ',')) {
+      } else if (inputValue && (keyValue === ' ' || keyValue === ',')) {
         onChangeText?.([...tags, trimToAlphaNumeric(inputValue)].join(','))
         setInputValue('')
       }
     },
-    [inputValue, tags, setInputValue]
+    [inputValue, tags, setInputValue, onChangeText]
   )
 
   return (
