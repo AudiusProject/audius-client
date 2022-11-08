@@ -29,17 +29,21 @@ export type ContextualSubmenuProps = {
   onChange: (value: string) => void
   value: string
   ListSelectionProps: ListSelectionProps
-  styles?: StylesProp<{ divider: ViewStyle }>
+  styles?: StylesProp<{
+    root: ViewStyle
+    divider: ViewStyle
+    content: ViewStyle
+  }>
   error?: boolean
   errorMessage?: string
   lastItem?: boolean
 }
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
-  root: {
+  content: {
     marginVertical: spacing(4)
   },
-  content: {
+  select: {
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
@@ -89,10 +93,10 @@ export const ContextualSubmenu = (props: ContextualSubmenuProps) => {
   }, [navigation, ListSelectionProps, data, value, onChange])
 
   return (
-    <TouchableOpacity onPress={handlePress}>
+    <TouchableOpacity onPress={handlePress} style={stylesProp?.root}>
       <Divider style={stylesProp?.divider} />
-      <View style={styles.root}>
-        <View style={styles.content}>
+      <View style={[styles.content, stylesProp?.content]}>
+        <View style={styles.select}>
           <Text fontSize='large' weight='demiBold'>
             {label}
           </Text>

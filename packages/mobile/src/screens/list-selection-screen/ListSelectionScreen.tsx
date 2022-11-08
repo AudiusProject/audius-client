@@ -109,9 +109,7 @@ export const ListSelectionScreen = () => {
         >
           <View style={styles.listItemContent}>
             <RadioButton checked={isSelected} style={styles.radio} />
-            <Text fontSize='large' weight='bold' color='neutralLight4'>
-              {renderItemProp(info)}
-            </Text>
+            {renderItemProp(info)}
           </View>
           {isSelected ? (
             <Text variant='body' color='secondary'>

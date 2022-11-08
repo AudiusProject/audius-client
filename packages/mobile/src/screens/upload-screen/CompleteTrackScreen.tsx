@@ -21,6 +21,7 @@ import {
   SelectGenreField,
   TextField,
   DescriptionField,
+  SelectMoodField,
   TagField
 } from './fields'
 
@@ -87,6 +88,7 @@ const CompleteTrackForm = (props: FormikProps<TrackMetadata>) => {
             <PickArtworkField />
             <TextField name='title' label={messages.name} required />
             <SelectGenreField />
+            <SelectMoodField />
             <TagField />
             <DescriptionField />
           </Tile>
