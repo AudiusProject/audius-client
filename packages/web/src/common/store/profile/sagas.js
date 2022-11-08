@@ -573,7 +573,7 @@ function* watchSetNotificationSubscription() {
     function* (action) {
       if (action.update) {
         try {
-          const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+          const getFeatureEnabled = yield getContext('getFeatureEnabled')
 
           yield call(
             audiusBackendInstance.updateUserSubscription,
