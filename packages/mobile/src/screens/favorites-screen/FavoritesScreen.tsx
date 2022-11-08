@@ -49,9 +49,10 @@ const favoritesScreens = [
 
 export const FavoritesScreen = () => {
   usePopToTopOnDrawerOpen()
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  // const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //   FeatureFlags.OFFLINE_MODE_ENABLED
+  // )
+  const isOfflineModeEnabled = true
 
   const savedTracks = useProxySelector(getTracks, [])
 

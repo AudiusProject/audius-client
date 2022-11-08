@@ -14,14 +14,16 @@ import {
   collectionPageSelectors
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
+import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
 import { TrackList } from 'app/components/track-list'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
@@ -178,6 +180,18 @@ export const CollectionScreenDetailsTile = ({
     return messages.playlist
   }, [isAlbum, isPrivate, isPublishing])
 
+  const renderHeader = useCallback(() => {
+    return (
+      <View>
+        <DownloadToggle
+          collection={collectionUid?.toString()}
+          tracks={entries}
+          labelText={headerText}
+        />
+      </View>
+    )
+  }, [collectionUid, entries, headerText])
+
   const renderTrackList = () => {
     if (tracksLoading)
       return (
@@ -208,10 +222,10 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
-      headerText={headerText}
       hideListenCount={true}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
+      renderHeader={renderHeader}
       onPressPlay={handlePressPlay}
     />
   )

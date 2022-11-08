@@ -29,9 +29,11 @@ const useStyles = makeStyles(() => ({
 export const TrackDownloadIndicator = ({
   trackId
 }: TrackDownloadIndicatorProps) => {
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  // const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //   FeatureFlags.OFFLINE_MODE_ENABLED
+  // )
+  const isOfflineModeEnabled = true
+
   const downloadStatus = useSelector(getTrackOfflineDownloadStatus(trackId))
   const styles = useStyles()
 

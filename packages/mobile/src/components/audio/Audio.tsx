@@ -81,9 +81,10 @@ export const Audio = () => {
   )
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  // const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //   FeatureFlags.OFFLINE_MODE_ENABLED
+  // )
+  const isOfflineModeEnabled = true
 
   const dispatch = useDispatch()
 

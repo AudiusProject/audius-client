@@ -35,8 +35,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   topContent: {
     paddingHorizontal: spacing(6),
     paddingTop: spacing(4),
-    width: '100%',
-    alignItems: 'center'
+    width: '100%'
   },
 
   typeLabel: {
@@ -56,7 +55,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     height: 195,
     width: 195,
     marginBottom: spacing(6),
-    backgroundColor: palette.neutralLight7
+    backgroundColor: palette.neutralLight7,
+    alignSelf: 'center'
   },
 
   coverArt: {
@@ -72,7 +72,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
   artistContainer: {
     ...flexRowCentered(),
-    marginBottom: spacing(4)
+    marginBottom: spacing(4),
+    alignSelf: 'center'
   },
 
   artist: {

@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { Track } from '@audius/common'
 import { View } from 'react-native'
@@ -9,10 +9,10 @@ import {
   downloadTrack,
   purgeAllDownloads
 } from 'app/services/offline-downloader'
-import type { AppState } from 'app/store'
 import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 import IconDownload from '../../assets/images/iconDownloadPurple.svg'
 import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
@@ -28,7 +28,22 @@ const messages = {
   downloading: 'Downloading'
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useUnlabeledStyles = makeStyles(() => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  toggle: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }]
+  },
+  toggleContainer: {},
+  oneThirdContainer: {},
+  iconTitle: {},
+  labelText: {},
+  purple: {}
+}))
+
+const useLabeledStyles = makeStyles(({ palette }) => ({
   root: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -48,11 +63,15 @@ const useStyles = makeStyles(({ palette }) => ({
     fontSize: 14,
     letterSpacing: 2,
     textAlign: 'center',
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
+    paddingLeft: spacing(1)
   },
-  toggle: {
+  toggleContainer: {
     flexDirection: 'row',
-    alignSelf: 'flex-end'
+    justifyContent: 'flex-end'
+  },
+  purple: {
+    color: palette.secondary
   }
 }))
 
@@ -61,13 +80,15 @@ export const DownloadToggle = ({
   collection,
   labelText
 }: DownloadToggleProps) => {
-  const styles = useStyles()
+  const unlabeledStyles = useUnlabeledStyles()
+  const labeledStyles = useLabeledStyles()
+  const styles = labelText ? labeledStyles : unlabeledStyles
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = tracks.some((track: Track) => {
     const status = offlineDownloadStatus[track.track_id.toString()]
     return status === TrackDownloadStatus.LOADING
   })
-  const isToggleOn = useSelector((state: AppState) => {
+  const isToggleOn = useMemo(() => {
     return tracks.some((track: Track) => {
       const status = offlineDownloadStatus[track.track_id.toString()]
       return (
@@ -75,7 +96,7 @@ export const DownloadToggle = ({
         status === TrackDownloadStatus.SUCCESS
       )
     })
-  })
+  }, [offlineDownloadStatus, tracks])
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
@@ -97,15 +118,18 @@ export const DownloadToggle = ({
       {labelText && <View style={styles.oneThirdContainer} />}
       <View style={[styles.oneThirdContainer, styles.iconTitle]}>
         {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
-        {!!labelText && (
-          <Text style={styles.labelText}>
+        {labelText && (
+          <Text
+            style={
+              isToggleOn ? [styles.labelText, styles.purple] : styles.labelText
+            }
+          >
             {isAnyDownloadInProgress ? messages.downloading : labelText}
           </Text>
         )}
       </View>
-      <View style={styles.oneThirdContainer}>
+      <View style={[styles.oneThirdContainer, styles.toggleContainer]}>
         <Switch
-          style={styles.toggle}
           value={isToggleOn}
           onValueChange={handleToggleDownload}
           disabled={!collection}

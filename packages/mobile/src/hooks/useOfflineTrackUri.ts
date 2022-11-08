@@ -9,9 +9,11 @@ import {
 import { useFeatureFlag } from './useRemoteConfig'
 
 export const useOfflineTrackUri = (trackId?: string) => {
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  // const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
+  //   FeatureFlags.OFFLINE_MODE_ENABLED
+  // )
+  const isOfflineModeEnabled = true
+
   return useAsync(async () => {
     if (!trackId || !isOfflineModeEnabled) return
     if (!(await isAudioAvailableOffline(trackId))) return
