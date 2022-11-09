@@ -8,6 +8,7 @@ export type UploadParamList = {
   CompleteTrack: CompleteTrackParams
   UploadingTracks: UploadingTracksParams
   UploadComplete: undefined
+  RemixSettings: 
 }
 
 export type UploadRouteProp<Screen extends keyof UploadParamList> = RouteProp<

@@ -22,13 +22,16 @@ import { makeStyles } from 'app/styles'
 export type ListSelectionData = { label: string; value: string }
 
 export type ListSelectionParams = {
+  onChange: (value: string) => void
+  value: string
+}
+
+export type ListSelectionProps = {
   screenTitle: string
   icon: ComponentType<SvgProps>
   searchText: string
   data: ListSelectionData[]
   renderItem: ListRenderItem<ListSelectionData>
-  onChange: (value: string) => void
-  value: string
 }
 
 const messages = {
@@ -71,18 +74,16 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   }
 }))
 
-export const ListSelectionScreen = () => {
-  const { params } = useRoute<'ListSelection'>()
+export const ListSelectionScreen = (props: ListSelectionProps) => {
   const {
     screenTitle,
     icon,
     searchText,
     renderItem: renderItemProp,
-    onChange,
-    value: valueProp,
-    data,
-    ...other
-  } = params
+    data
+  } = props
+  const { params } = useRoute<'ListSelection'>()
+  const { onChange, value: valueProp } = params
 
   const styles = useStyles()
 
@@ -136,7 +137,6 @@ export const ListSelectionScreen = () => {
           renderItem={renderItem}
           ItemSeparatorComponent={Divider}
           data={filteredData}
-          {...other}
         />
       </View>
       <View style={styles.confirmSelection}>

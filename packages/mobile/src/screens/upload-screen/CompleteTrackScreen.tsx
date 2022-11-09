@@ -22,7 +22,9 @@ import {
   TextField,
   DescriptionField,
   SelectMoodField,
-  TagField
+  TagField,
+  SubmenuList,
+  RemixSettingsField
 } from './fields'
 
 const messages = {
@@ -87,10 +89,15 @@ const CompleteTrackForm = (props: FormikProps<TrackMetadata>) => {
           <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
             <PickArtworkField />
             <TextField name='title' label={messages.name} required />
-            <SelectGenreField />
-            <SelectMoodField />
+            <SubmenuList>
+              <SelectGenreField />
+              <SelectMoodField />
+            </SubmenuList>
             <TagField />
             <DescriptionField />
+            <SubmenuList>
+              <RemixSettingsField />
+            </SubmenuList>
           </Tile>
         </KeyboardAvoidingView>
       </ScrollView>
@@ -104,6 +111,8 @@ export const CompleteTrackScreen = () => {
   const navigation = useNavigation<UploadParamList>()
 
   const initialValues = metadata
+
+  console.log('initialValues', initialValues)
 
   const handleSubmit = useCallback(
     (values) => {
