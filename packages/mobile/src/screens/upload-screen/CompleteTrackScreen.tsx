@@ -112,8 +112,6 @@ export const CompleteTrackScreen = () => {
 
   const initialValues = metadata
 
-  console.log('initialValues', initialValues)
-
   const handleSubmit = useCallback(
     (values) => {
       navigation.push('UploadingTracks', {

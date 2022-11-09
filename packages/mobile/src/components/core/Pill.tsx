@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import type { StyleProp, ViewStyle } from 'react-native'
 import { View } from 'react-native'
 
 import { makeStyles } from 'app/styles'
@@ -19,11 +20,12 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 type PillProps = {
   children: ReactNode
+  style?: StyleProp<ViewStyle>
 }
 
 export const Pill = (props: PillProps) => {
-  const { children } = props
+  const { children, style } = props
   const styles = useStyles()
 
-  return <View style={styles.optionPill}>{children}</View>
+  return <View style={[styles.optionPill, style]}>{children}</View>
 }

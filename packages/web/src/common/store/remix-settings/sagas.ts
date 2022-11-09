@@ -1,4 +1,9 @@
-import { TrackMetadata, remixSettingsActions, getContext } from '@audius/common'
+import {
+  TrackMetadata,
+  remixSettingsActions,
+  getContext,
+  Track
+} from '@audius/common'
 import { takeLatest, call, put } from 'typed-redux-saga'
 
 import { parseTrackRoute } from 'utils/route/trackRouteParser'
@@ -22,13 +27,20 @@ const getHandleAndSlug = (
     // Decode the extracted pathname so we don't end up
     // double encoding it later on
     const decodedPathname = decodeURIComponent(pathname)
+
+    if (isNativeMobile && hostname !== publicHostname) {
+      return null
+    }
+
     if (
-      trackUrl.hostname !== process.env.REACT_APP_PUBLIC_HOSTNAME &&
-      trackUrl.hostname !== window.location.hostname
+      !isNativeMobile &&
+      hostname !== publicHostname &&
+      hostname !== window.location.hostname
     ) {
       return null
     }
-    return parseTrackRoute()
+
+    return parseTrackRoute(decodedPathname)
   } catch (err) {
     return null
   }
@@ -39,10 +51,9 @@ function* watchFetchTrack() {
     fetchTrack.type,
     function* (action: ReturnType<typeof fetchTrack>) {
       const { url } = action.payload
-      const { PUBLIC_HOSTAME } = yield* getContext('env')
+      const { PUBLIC_HOSTNAME } = yield* getContext('env')
       const isNativeMobile = yield* getContext('isNativeMobile')
-      const params = getHandleAndSlug(url, PUBLIC_HOSTAME, isNativeMobile)
-      console.log('params', params)
+      const params = getHandleAndSlug(url, PUBLIC_HOSTNAME!, isNativeMobile)
       if (params) {
         const { handle, slug, trackId } = params
         let track: TrackMetadata | null = null
@@ -52,7 +63,9 @@ function* watchFetchTrack() {
             slug
           })
         } else if (trackId) {
-          track = yield* call(retrieveTracks, { trackIds: [trackId] })
+          track = (yield* call(retrieveTracks, {
+            trackIds: [trackId]
+          })) as unknown as Track
         }
         if (track) {
           yield* put(fetchTrackSucceeded({ trackId: track.track_id }))

@@ -1,37 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import type { Nullable } from '@audius/common'
 import {
   remixSettingsActions,
   remixSettingsSelectors,
   Status
 } from '@audius/common'
-import { useRoute } from '@react-navigation/native'
+import { useFocusEffect, useRoute } from '@react-navigation/native'
 import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconRemix from 'app/assets/images/iconRemix.svg'
 import type { TextProps } from 'app/components/core'
-import {
-  Pill,
-  Tag,
-  ErrorText,
-  TextInput,
-  Divider,
-  Button,
-  Switch,
-  Text
-} from 'app/components/core'
+import { TextInput, Divider, Button, Switch, Text } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { dispatch } from 'app/store'
 import { makeStyles } from 'app/styles'
+import { getTrackRoute } from 'app/utils/routes'
 
 import type { UploadRouteProp } from '../ParamList'
 import { UploadStackScreen } from '../UploadStackScreen'
+import { RemixTrackPill } from '../components'
 
 const { getTrack, getUser, getStatus } = remixSettingsSelectors
-const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
+const { fetchTrack, reset } = remixSettingsActions
 
 const remixLinkInputDebounceMs = 1000
 
@@ -43,11 +36,10 @@ const messages = {
   hideRemixDescription:
     'Hide remixes of this track to prevent them showing on your track page.',
   done: 'Done',
-  invalidRemixLink: 'Please paste a valid Audius track URL',
-  trackBy: 'by'
+  invalidRemixLink: 'Please paste a valid Audius track URL'
 }
 
-const useStyles = makeStyles(({ spacing }) => ({
+const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   setting: {
     paddingHorizontal: spacing(6),
     paddingVertical: spacing(8)
@@ -57,6 +49,15 @@ const useStyles = makeStyles(({ spacing }) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing(5)
+  },
+  inputRoot: {
+    marginTop: spacing(4),
+    paddingVertical: spacing(4),
+    paddingLeft: spacing(4)
+  },
+  input: {
+    fontSize: typography.fontSize.large,
+    color: palette.neutralLight4
   }
 }))
 
@@ -71,7 +72,7 @@ const descriptionProps: TextProps = {
 }
 
 export type RemixSettingsValue = {
-  remixOf: string
+  remixOf: Nullable<string>
   remixesVisible: boolean
 }
 
@@ -86,6 +87,7 @@ export const RemixSettingsScreen = () => {
   const { value, onChange } = params
   const [isTrackRemix, setIsTrackRemix] = useState(Boolean(value.remixOf))
   const [remixOf, setRemixOf] = useState(value.remixOf)
+  const [remixOfInput, setRemixOfInput] = useState(value.remixOf ?? '')
   const [hideRemixes, setHideRemixes] = useState(!value.remixesVisible)
   const navigation = useNavigation()
   const dispatch = useDispatch()
@@ -94,11 +96,10 @@ export const RemixSettingsScreen = () => {
   const parentTrackStatus = useSelector(getStatus)
   const isInvalidParentTrack = parentTrackStatus === Status.ERROR
 
-  const handleRemixLink = useMemo(
+  const handleFetchParentTrack = useMemo(
     () =>
       debounce(
         (url: string) => {
-          console.log('calling fetch track')
           dispatch(fetchTrack({ url: decodeURI(url) }))
         },
         remixLinkInputDebounceMs,
@@ -107,13 +108,37 @@ export const RemixSettingsScreen = () => {
     [dispatch]
   )
 
+  const handleFocus = useCallback(() => {
+    if (remixOfInput) {
+      handleFetchParentTrack(remixOfInput)
+    }
+    return () => {
+      dispatch(reset())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleFetchParentTrack, dispatch])
+
+  useFocusEffect(handleFocus)
+
+  const handleLinkInput = useCallback(
+    (value: string) => {
+      setRemixOfInput(value)
+      handleFetchParentTrack(value)
+    },
+    [handleFetchParentTrack]
+  )
+
   const handleSubmit = useCallback(() => {
-    onChange({ remixOf, remixesVisible: !hideRemixes })
+    onChange({
+      remixOf: isTrackRemix ? remixOf : null,
+      remixesVisible: !hideRemixes
+    })
     navigation.goBack()
-  }, [onChange, remixOf, hideRemixes, navigation])
+    dispatch(reset())
+  }, [onChange, remixOf, hideRemixes, navigation, isTrackRemix, dispatch])
 
   useEffect(() => {
-    setRemixOf(parentTrack?.permalink ?? null)
+    setRemixOf(parentTrack ? getTrackRoute(parentTrack, true) : null)
   }, [parentTrack])
 
   return (
@@ -143,13 +168,14 @@ export const RemixSettingsScreen = () => {
               <Text {...descriptionProps}>
                 {messages.isRemixLinkDescription}
               </Text>
-              <TextInput value={remixOf} onChangeText={handleRemixLink} />
-              {parentTrack && parentTrackArtist ? (
-                <Pill>
-                  <Text>{parentTrack.title}</Text>
-                  {messages.trackBy}
-                  <Text>{parentTrackArtist.name}</Text>
-                </Pill>
+              <TextInput
+                styles={{ root: styles.inputRoot, input: styles.input }}
+                value={remixOfInput}
+                onChangeText={handleLinkInput}
+                returnKeyType='default'
+              />
+              {parentTrack && parentTrackArtist && !isInvalidParentTrack ? (
+                <RemixTrackPill track={parentTrack} user={parentTrackArtist} />
               ) : null}
               {isInvalidParentTrack ? (
                 <InputErrorMessage message={messages.invalidRemixLink} />
