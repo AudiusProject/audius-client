@@ -33,8 +33,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     paddingBottom: spacing(1)
   },
   topContent: {
-    paddingHorizontal: spacing(6),
-    paddingTop: spacing(4),
+    paddingHorizontal: spacing(2),
+    paddingTop: spacing(2),
     width: '100%'
   },
 
@@ -251,6 +251,7 @@ export const DetailsTile = ({
             {headerText}
           </Text>
         )}
+        {/* TODO: add layer with padding */}
         <View style={styles.coverArtWrapper}>
           {renderImage ? renderImage() : imageElement}
         </View>
