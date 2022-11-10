@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import type { Nullable } from '@audius/common'
-import { Theme, themeSelectors } from '@audius/common'
+import { Theme } from '@audius/common'
 import { useField } from 'formik'
 import moment from 'moment'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -10,12 +10,10 @@ import type {
   CustomConfirmButtonPropTypes
 } from 'react-native-modal-datetime-picker'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
-import { useSelector } from 'react-redux'
 
 import { Button, Divider, Pill, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { useThemeColors, useThemeVariant } from 'app/utils/theme'
-const { getTheme } = themeSelectors
 
 const isToday = (date: Date) => {
   const today = new Date()
