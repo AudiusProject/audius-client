@@ -84,7 +84,19 @@ function* getTokenIdMap({
       // Set the token ids for ERC1155 nfts as the balanceOf contract method
       // which will be used to determine ownership requires the user's
       // wallet address and token ids
-      const { nft_collection: nftCollection } = premiumConditions
+
+      // todo: fix the string nft_collection to be an object
+      // temporarily parse it into object here for now
+      let { nft_collection: nftCollection } = premiumConditions
+      if (typeof nftCollection === 'string') {
+        nftCollection = JSON.parse(
+          (premiumConditions.nft_collection as unknown as string).replaceAll(
+            "'",
+            '"'
+          )
+        )
+      }
+
       if (nftCollection.chain === Chain.Eth) {
         const tokenIds = 'address' in nftCollection ? ethContractMap[nftCollection.address] : undefined
         if (!tokenIds) return
