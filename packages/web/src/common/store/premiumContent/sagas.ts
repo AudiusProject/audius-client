@@ -99,10 +99,16 @@ function* getTokenIdMap({
       }
 
       if (nftCollection.chain === Chain.Eth) {
-        const tokenIds = 'address' in nftCollection ? ethContractMap[nftCollection.address] : undefined
+        const tokenIds =
+          'address' in nftCollection
+            ? ethContractMap[nftCollection.address]
+            : undefined
         if (!tokenIds) return
 
-        if ('standard' in nftCollection && nftCollection.standard === 'ERC1155') {
+        if (
+          'standard' in nftCollection &&
+          nftCollection.standard === 'ERC1155'
+        ) {
           trackMap[trackId] = ethContractMap[nftCollection.address]
         } else {
           trackMap[trackId] = []
@@ -193,10 +199,16 @@ function* updateNFTGatedTrackAccess(
 
   const allTracks = {
     ...cachedTracks,
-    ...newlyAddedTracks.reduce((acc: { [id: ID]: Track }, curr: { id: number, uid: string, metadata: Track }) => {
-      acc[curr.metadata.track_id] = curr.metadata
-      return acc
-    }, [])
+    ...newlyAddedTracks.reduce(
+      (
+        acc: { [id: ID]: Track },
+        curr: { id: number; uid: string; metadata: Track }
+      ) => {
+        acc[curr.metadata.track_id] = curr.metadata
+        return acc
+      },
+      []
+    )
   }
 
   const trackMap = yield* call(getTokenIdMap, {

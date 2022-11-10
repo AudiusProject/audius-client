@@ -10,6 +10,7 @@ import { combineReducers } from 'redux'
 import backend from 'common/store/backend/reducer'
 import confirmer from 'common/store/confirmer/reducer'
 import signOnReducer from 'common/store/pages/signon/reducer'
+import premiumContent from 'common/store/premiumContent/reducer'
 import searchBar from 'common/store/search-bar/reducer'
 import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
@@ -28,7 +29,6 @@ import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
-import premiumContent from 'common/store/premiumContent/reducer'
 
 export const commonStoreReducers = clientStoreReducers()
 

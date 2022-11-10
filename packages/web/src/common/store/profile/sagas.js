@@ -44,14 +44,14 @@ import { confirmTransaction } from 'common/store/confirmer/sagas'
 import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
 import {
+  ethNFTsFetched,
+  solNFTsFetched
+} from 'common/store/premiumContent/actions'
+import {
   subscribeToUserAsync,
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
-import {
-  ethNFTsFetched,
-  solNFTsFetched
-} from 'common/store/premiumContent/actions'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -130,7 +130,6 @@ export function* fetchOpenSeaAssets(user) {
   if (currentUserId === user.user_id) {
     yield put(ethNFTsFetched())
   }
-
 
   yield put(
     cacheActions.update(Kind.USERS, [

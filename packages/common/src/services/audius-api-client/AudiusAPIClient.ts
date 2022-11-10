@@ -102,7 +102,8 @@ const FULL_ENDPOINT_MAP = {
   getSupporting: (userId: OpaqueID) => `/users/${userId}/supporting`,
   getSupporters: (userId: OpaqueID) => `/users/${userId}/supporters`,
   getTips: '/tips',
-  getPremiumContentSignatures: (userId: OpaqueID) => `/tracks/${userId}/nft-gated-signatures`
+  getPremiumContentSignatures: (userId: OpaqueID) =>
+    `/tracks/${userId}/nft-gated-signatures`
 }
 
 const ENDPOINT_MAP = {
@@ -430,7 +431,7 @@ export type GetPremiumContentSignaturesArgs = {
   userId: ID
   trackMap: {
     [id: ID]: {
-      chain: Chain,
+      chain: Chain
       tokenIds?: string[]
     }
   }
@@ -1556,7 +1557,10 @@ export class AudiusAPIClient {
     return response ? response.data : null
   }
 
-  async getPremiumContentSignatures({ userId, trackMap }: GetPremiumContentSignaturesArgs) {
+  async getPremiumContentSignatures({
+    userId,
+    trackMap
+  }: GetPremiumContentSignaturesArgs) {
     if (!Object.keys(trackMap).length) return null
 
     const encodedUserId = this._encodeOrThrow(userId)
@@ -1573,11 +1577,10 @@ export class AudiusAPIClient {
     // query params: '?track_ids=1&token_ids=1-2&track_ids=2&token_ids=&track_ids=3&token_ids=1'
     const trackIdParams: string[] = []
     const tokenIdParams: string[] = []
-    Object.keys(trackMap)
-      .forEach(trackId => {
-        trackIdParams.push(trackId)
-        tokenIdParams.push(trackMap[trackId].join('-'))
-      })
+    Object.keys(trackMap).forEach((trackId) => {
+      trackIdParams.push(trackId)
+      tokenIdParams.push(trackMap[trackId].join('-'))
+    })
     const params = {
       track_ids: trackIdParams,
       token_ids: tokenIdParams
