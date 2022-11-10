@@ -9,7 +9,8 @@ import {
   Kind,
   PremiumContentSignature,
   ID,
-  Chain
+  Chain,
+  FeatureFlags
 } from '@audius/common'
 import { takeLatest, select, call, put } from 'typed-redux-saga'
 
@@ -155,6 +156,12 @@ function* updateNFTGatedTrackAccess(
     | ReturnType<typeof solNFTsFetched>
     | ReturnType<typeof cacheActions.add>
 ) {
+  // Halt if premium content not enabled
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  if (!getFeatureEnabled(FeatureFlags.PREMIUM_CONTENT_ENABLED)) {
+    return
+  }
+
   // get tracks for which we already previously got the signatures
   // filter out those tracks from the ones that need to be passed in to the DN request
   const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
