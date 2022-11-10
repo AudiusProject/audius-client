@@ -48,6 +48,10 @@ import {
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import {
+  ethNFTsFetched,
+  solNFTsFetched
+} from 'common/store/premiumContent/actions'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -122,6 +126,12 @@ export function* fetchOpenSeaAssets(user) {
     console.log('profile has no assets in OpenSea')
   }
 
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(ethNFTsFetched())
+  }
+
+
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -156,6 +166,11 @@ export function* fetchSolanaCollectibles(user) {
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
   if (!solanaCollectibleList.length) {
     console.log('profile has no Solana NFTs')
+  }
+
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(solNFTsFetched())
   }
 
   yield put(

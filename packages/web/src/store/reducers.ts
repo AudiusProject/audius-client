@@ -28,6 +28,7 @@ import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
+import premiumContent from 'common/store/premiumContent/reducer'
 
 export const commonStoreReducers = clientStoreReducers()
 
@@ -58,6 +59,9 @@ const createRootReducer = (routeHistory: History) =>
 
     // Playback
     queue,
+
+    // Premium content
+    premiumContent,
 
     // Remote config/flags
     remoteConfig,
