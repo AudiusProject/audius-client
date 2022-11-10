@@ -37,7 +37,7 @@ const useUnlabeledStyles = makeStyles(() => ({
     transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }]
   },
   toggleContainer: {},
-  oneThirdContainer: {},
+  flex1: {},
   iconTitle: {},
   labelText: {},
   purple: {}
@@ -49,7 +49,7 @@ const useLabeledStyles = makeStyles(({ palette }) => ({
     justifyContent: 'space-between',
     width: '100%'
   },
-  oneThirdContainer: {
+  flex1: {
     flex: 1
   },
   iconTitle: {
@@ -64,7 +64,8 @@ const useLabeledStyles = makeStyles(({ palette }) => ({
     letterSpacing: 2,
     textAlign: 'center',
     textTransform: 'uppercase',
-    paddingLeft: spacing(1)
+    paddingLeft: spacing(1),
+    flexBasis: 'auto'
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -115,8 +116,8 @@ export const DownloadToggle = ({
 
   return (
     <View style={styles.root}>
-      {labelText && <View style={styles.oneThirdContainer} />}
-      <View style={[styles.oneThirdContainer, styles.iconTitle]}>
+      {labelText && <View style={styles.flex1} />}
+      <View style={[styles.iconTitle]}>
         {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
         {labelText && (
           <Text
@@ -128,7 +129,7 @@ export const DownloadToggle = ({
           </Text>
         )}
       </View>
-      <View style={[styles.oneThirdContainer, styles.toggleContainer]}>
+      <View style={[styles.flex1, styles.toggleContainer]}>
         <Switch
           value={isToggleOn}
           onValueChange={handleToggleDownload}
