@@ -1,13 +1,21 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import type { Nullable } from '@audius/common'
+import { Theme, themeSelectors } from '@audius/common'
 import { useField } from 'formik'
 import moment from 'moment'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import type {
+  CustomCancelButtonPropTypes,
+  CustomConfirmButtonPropTypes
+} from 'react-native-modal-datetime-picker'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import { useSelector } from 'react-redux'
 
-import { Divider, Pill, Text } from 'app/components/core'
+import { Button, Divider, Pill, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
+import { useThemeColors, useThemeVariant } from 'app/utils/theme'
+const { getTheme } = themeSelectors
 
 const isToday = (date: Date) => {
   const today = new Date()
@@ -41,13 +49,47 @@ const useStyles = makeStyles(({ spacing }) => ({
   },
   divider: {
     marginHorizontal: spacing(-4)
+  },
+  datePickerModal: {
+    // Specific padding to hide the underlying "done" button with the "cancel" button
+    paddingBottom: 37
   }
 }))
+
+const ConfirmDateButton = (props: CustomConfirmButtonPropTypes) => {
+  const { label, onPress } = props
+  return (
+    <Button
+      style={{ borderRadius: 0 }}
+      variant='primary'
+      size='large'
+      title={label}
+      fullWidth
+      onPress={onPress}
+      pressScale={1}
+    />
+  )
+}
+
+const CancelDateButton = (props: CustomCancelButtonPropTypes) => {
+  const { label, onPress } = props
+  return (
+    <Button
+      variant='commonAlt'
+      size='large'
+      title={label}
+      fullWidth
+      onPress={onPress}
+    />
+  )
+}
 
 export const ReleaseDateField = () => {
   const styles = useStyles()
   const [{ value, onChange }] = useField<Nullable<string>>('release_date')
   const [isOpen, setIsOpen] = useState(false)
+  const { primary } = useThemeColors()
+  const theme = useThemeVariant()
 
   const releaseDate = useMemo(
     () => (value ? new Date(value) : new Date()),
@@ -65,7 +107,6 @@ export const ReleaseDateField = () => {
   const handleChange = useCallback(
     (selectedDate: Date) => {
       const dateString = moment(selectedDate).toString()
-      console.log('hello?', dateString)
       if (dateString) {
         onChange('release_date')(dateString)
       }
@@ -96,9 +137,13 @@ export const ReleaseDateField = () => {
         onConfirm={handleChange}
         onCancel={handleClose}
         display='inline'
-        themeVariant='light'
-        accentColor='red'
+        themeVariant={theme === Theme.DEFAULT ? 'light' : 'dark'}
+        isDarkModeEnabled={theme !== Theme.DEFAULT}
+        accentColor={primary}
         maximumDate={new Date()}
+        modalStyleIOS={styles.datePickerModal}
+        customConfirmButtonIOS={ConfirmDateButton}
+        customCancelButtonIOS={CancelDateButton}
       />
     </>
   )
