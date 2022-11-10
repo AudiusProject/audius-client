@@ -11,7 +11,6 @@ export enum FeatureFlags {
   PREFER_HIGHER_PATCH_FOR_PRIMARY = 'prefer_higher_patch_for_primary',
   PREFER_HIGHER_PATCH_FOR_SECONDARIES = 'prefer_higher_patch_for_secondaries',
   ENABLE_SPL_AUDIO = 'enable_spl_audio',
-  PLAYLIST_FOLDERS = 'playlist_folders',
   DISABLE_SIGN_UP_CONFIRMATION = 'disable_sign_up_confirmation',
   TIPPING_ENABLED = 'tipping_enabled',
   WRITE_QUORUM_ENABLED = 'write_quorum_enabled',
@@ -30,7 +29,8 @@ export enum FeatureFlags {
   MOBILE_NAV_OVERHAUL = 'mobile_nav_overhaul_final',
   MOBILE_UPLOAD = 'mobile_upload',
   STREAM_MP3 = 'stream_mp3',
-  READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery'
+  READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
+  SHARE_TO_STORY = 'share_to_story'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -63,7 +63,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_PRIMARY]: true,
   [FeatureFlags.PREFER_HIGHER_PATCH_FOR_SECONDARIES]: true,
   [FeatureFlags.ENABLE_SPL_AUDIO]: false,
-  [FeatureFlags.PLAYLIST_FOLDERS]: false,
   [FeatureFlags.DISABLE_SIGN_UP_CONFIRMATION]: false,
   [FeatureFlags.TIPPING_ENABLED]: false,
   [FeatureFlags.WRITE_QUORUM_ENABLED]: false,
@@ -82,5 +81,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.MOBILE_NAV_OVERHAUL]: false,
   [FeatureFlags.MOBILE_UPLOAD]: false,
   [FeatureFlags.STREAM_MP3]: false,
-  [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false
+  [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
+  [FeatureFlags.SHARE_TO_STORY]: false
 }
