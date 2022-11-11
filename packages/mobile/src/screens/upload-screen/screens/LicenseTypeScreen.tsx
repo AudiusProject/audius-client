@@ -17,11 +17,13 @@ import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 const messages = {
   title: 'License Type',
+  allowAttributionLabel: 'Allow Attribution?',
   allowAttribution: 'Allow Attribution',
   noAttribution: 'No Attribution',
+  commercialUseLabel: 'Commercial Use?',
   commercialUse: 'Commercial Use',
   nonCommercialUse: 'Non-Commercial Use',
-  derivativeWorks: 'Derivative Works',
+  derivativeWorksLabel: 'Derivative Works?',
   allowed: 'Allowed',
   shareAlike: 'Share-Alike',
   notAllowed: 'Not Allowed'
@@ -119,7 +121,7 @@ export const LicenseTypeScreen = () => {
     >
       <View style={styles.content}>
         <View style={styles.licenseSection}>
-          <Text {...labelProps}>{messages.allowAttribution}?</Text>
+          <Text {...labelProps}>{messages.allowAttributionLabel}</Text>
           <SegmentedControl
             fullWidth
             selected={allowAttribution}
@@ -129,7 +131,7 @@ export const LicenseTypeScreen = () => {
         </View>
         <Divider style={styles.divider} />
         <View style={styles.licenseSection}>
-          <Text {...labelProps}>{messages.commercialUse}?</Text>
+          <Text {...labelProps}>{messages.commercialUseLabel}</Text>
           <SegmentedControl
             fullWidth
             selected={commercialUse}
@@ -139,7 +141,7 @@ export const LicenseTypeScreen = () => {
         </View>
         <Divider style={styles.divider} />
         <View style={styles.licenseSection}>
-          <Text {...labelProps}>{messages.derivativeWorks}?</Text>
+          <Text {...labelProps}>{messages.derivativeWorksLabel}</Text>
           <SegmentedControl
             fullWidth
             selected={derivativeWorks}
@@ -151,9 +153,9 @@ export const LicenseTypeScreen = () => {
         <View>
           {licenseIcons ? (
             <View style={styles.licenseIcons}>
-              {licenseIcons.map(([Icon, label]) => (
+              {licenseIcons.map(([Icon, key]) => (
                 <Icon
-                  key={label}
+                  key={key}
                   fill={neutral}
                   style={styles.licenseIcon}
                   height={spacing(7)}

@@ -67,8 +67,6 @@ export const LicenseTypeField = (props: LicenseTypeFieldProps) => {
     ) : null
   }, [allowAttribution, commercialUse, derivativeWorks, styles, neutral])
 
-  console.log('license', license)
-
   return (
     <ContextualSubmenu
       value={license || messages.noLicense}
