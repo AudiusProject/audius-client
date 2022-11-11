@@ -7,8 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Text } from 'app/components/core'
 import {
   downloadTrack,
-  purgeAllDownloads,
-  purgeDownloadedTrack
+  removeCollectionDownload
 } from 'app/services/offline-downloader'
 import {
   getOfflineDownloadStatus,
@@ -121,10 +120,10 @@ export const DownloadToggle = ({
           })
           .catch((e) => errorDownload(collection))
       } else {
-        // TODO: remove only downloads associated with this collection
         dispatch(removeDownload(collection))
-        tracks.forEach((track) =>
-          purgeDownloadedTrack(track.track_id.toString())
+        removeCollectionDownload(
+          collection,
+          tracks.map((track) => track.track_id.toString())
         )
       }
     },
