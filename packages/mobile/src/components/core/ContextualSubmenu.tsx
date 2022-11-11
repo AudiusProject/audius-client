@@ -17,7 +17,6 @@ import { Pill } from './Pill'
 
 export type ContextualSubmenuProps = {
   label: string
-  onChange: (value: any) => void
   value: any
   submenuScreenName: string
   styles?: StylesProp<{
@@ -28,7 +27,7 @@ export type ContextualSubmenuProps = {
   error?: boolean
   errorMessage?: string
   lastItem?: boolean
-  renderValue?: (value: any) => void
+  renderValue?: (value: any) => JSX.Element | null
 }
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -42,7 +41,11 @@ const useStyles = makeStyles(({ spacing }) => ({
   optionPills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: spacing(4)
+    marginTop: spacing(2)
+  },
+  pill: {
+    marginTop: spacing(2),
+    marginRight: spacing(2)
   },
   optionPillText: {
     textTransform: 'uppercase'
@@ -53,7 +56,6 @@ export const ContextualSubmenu = (props: ContextualSubmenuProps) => {
   const {
     label,
     value,
-    onChange,
     submenuScreenName,
     styles: stylesProp,
     errorMessage,
@@ -67,19 +69,29 @@ export const ContextualSubmenu = (props: ContextualSubmenuProps) => {
   const navigation = useNavigation()
 
   const handlePress = useCallback(() => {
-    const params = { value, onChange }
-    navigation.push(submenuScreenName, params)
-  }, [navigation, value, onChange, submenuScreenName])
+    navigation.push(submenuScreenName)
+  }, [navigation, submenuScreenName])
 
-  const defaultRenderValue = (value: any) => (
-    <View style={styles.optionPills}>
-      <Pill>
-        <Text fontSize='small' weight='demiBold' style={styles.optionPillText}>
-          {value}
-        </Text>
-      </Pill>
-    </View>
-  )
+  const defaultRenderValue = (value: string | string[]) => {
+    const values = typeof value === 'string' ? [value] : value
+
+    return (
+      <View style={styles.optionPills}>
+        {values.map((value) => (
+          <Pill key={value} style={styles.pill}>
+            <Text
+              fontSize='small'
+              weight='demiBold'
+              style={styles.optionPillText}
+            >
+              {value}
+            </Text>
+          </Pill>
+        ))}
+      </View>
+    )
+  }
+
   const renderValue = renderValueProp ?? defaultRenderValue
 
   return (
