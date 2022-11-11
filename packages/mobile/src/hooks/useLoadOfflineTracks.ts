@@ -18,11 +18,10 @@ import {
   verifyTrack
 } from '../services/offline-downloader/offline-storage'
 
+import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
+
 export const useLoadOfflineTracks = (collection: string) => {
-  // const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-  //   FeatureFlags.OFFLINE_MODE_ENABLED
-  // )
-  const isOfflineModeEnabled = true
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const dispatch = useDispatch()
 
