@@ -34,7 +34,6 @@ import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 import ActionDrawer from '../action-drawer'
 import { ToastContext } from '../toast/ToastContext'
 
-import { image } from './imageTest'
 import { messages } from './messages'
 import { getContentUrl, getTwitterShareUrl } from './utils'
 const { getShareState } = shareModalUISelectors
@@ -43,8 +42,6 @@ const { shareUser } = usersSocialActions
 const { shareTrack } = tracksSocialActions
 const { shareCollection } = collectionsSocialActions
 const { getAccountUser } = accountSelectors
-
-// const videoPath = path.join(RNFS.DocumentDirectoryPath)
 
 const useStyles = makeStyles(({ palette }) => ({
   shareToTwitterAction: {
@@ -146,7 +143,7 @@ export const ShareDrawer = () => {
 
       const shareOptions = {
         backgroundVideo: storyVideoPath,
-        stickerImage: image, // TODO(nkang): Base64 sticker image goes here
+        // stickerImage: image, TODO(nkang): Base64 sticker image goes here
         attributionURL: Config.AUDIUS_URL,
         social: Share.Social.INSTAGRAM_STORIES,
         appId: Config.INSTAGRAM_APP_ID
@@ -252,9 +249,9 @@ export const ShareDrawer = () => {
     if (shouldIncludeTikTokAction) {
       result.push(shareToTikTokAction)
     }
-    // if (shouldIncludeInstagramStoryAction) {
-    result.push(shareToInstagramStoriesAction)
-    // }
+    if (shouldIncludeInstagramStoryAction) {
+      result.push(shareToInstagramStoriesAction)
+    }
 
     result.push(copyLinkAction, shareSheetAction)
 
@@ -265,6 +262,7 @@ export const ShareDrawer = () => {
     styles.shareToTikTokAction,
     styles.shareToTikTokActionDark,
     styles.copyLinkAction,
+    styles.shareToInstagramStoryAction,
     handleShareToTwitter,
     isLightMode,
     handleShareToTikTok,
@@ -272,6 +270,7 @@ export const ShareDrawer = () => {
     secondary,
     handleCopyLink,
     handleOpenShareSheet,
+    primary,
     handleShareToInstagramStory,
     shouldIncludeTikTokAction,
     shouldIncludeInstagramStoryAction
