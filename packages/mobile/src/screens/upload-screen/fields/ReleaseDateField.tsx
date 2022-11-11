@@ -11,18 +11,11 @@ import type {
 } from 'react-native-modal-datetime-picker'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
 
-import { Button, Divider, Pill, Text } from 'app/components/core'
+import { Button, Pill, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { useThemeColors, useThemeVariant } from 'app/utils/theme'
 
-const isToday = (date: Date) => {
-  const today = new Date()
-  return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-  )
-}
+const isToday = (date: Date) => moment(date).isSame(moment(), 'day')
 
 const messages = {
   label: 'Release Date',
@@ -44,9 +37,6 @@ const useStyles = makeStyles(({ spacing }) => ({
   dateText: {
     marignTop: spacing(1),
     textTransform: 'uppercase'
-  },
-  divider: {
-    marginHorizontal: spacing(-4)
   },
   datePickerModal: {
     // Specific padding to hide the underlying "done" button with the "cancel" button
@@ -127,7 +117,6 @@ export const ReleaseDateField = () => {
           </Text>
         </Pill>
       </TouchableOpacity>
-      <Divider style={styles.divider} />
       <DateTimePickerModal
         isVisible={isOpen}
         date={releaseDate}
