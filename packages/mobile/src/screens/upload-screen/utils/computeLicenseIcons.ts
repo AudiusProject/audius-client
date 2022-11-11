@@ -15,7 +15,7 @@ export const computeLicenseIcons = (
   derivativeWorks: Nullable<boolean>
 ) => {
   if (!allowAttribution) return null
-  const icons: [ComponentType<SvgProps>, string][] = [
+  const icons: [Icon: ComponentType<SvgProps>, key: string][] = [
     [IconCreativeCommons, 'cc'],
     [IconAllowAttribution, 'by']
   ]
