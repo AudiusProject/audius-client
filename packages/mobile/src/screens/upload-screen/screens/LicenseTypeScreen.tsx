@@ -124,7 +124,7 @@ export const LicenseTypeScreen = () => {
           <Text {...labelProps}>{messages.allowAttributionLabel}</Text>
           <SegmentedControl
             fullWidth
-            selected={allowAttribution}
+            defaultSelected={allowAttribution}
             options={allowAttributionValues}
             onSelectOption={setAllowAttribution}
           />
@@ -134,7 +134,7 @@ export const LicenseTypeScreen = () => {
           <Text {...labelProps}>{messages.commercialUseLabel}</Text>
           <SegmentedControl
             fullWidth
-            selected={commercialUse}
+            defaultSelected={commercialUse}
             options={commercialUseValues}
             onSelectOption={setCommercialUse}
           />
@@ -144,7 +144,7 @@ export const LicenseTypeScreen = () => {
           <Text {...labelProps}>{messages.derivativeWorksLabel}</Text>
           <SegmentedControl
             fullWidth
-            selected={derivativeWorks}
+            defaultSelected={derivativeWorks}
             options={derivativeWorksValues}
             onSelectOption={setDerivateWorks}
           />
