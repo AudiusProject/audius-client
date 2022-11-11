@@ -1,6 +1,5 @@
 import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
 import {
-  FeatureFlags,
   Kind,
   makeUid,
   cacheActions,
@@ -10,7 +9,6 @@ import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { loadTracks } from 'app/store/offline-downloads/slice'
 
 import {

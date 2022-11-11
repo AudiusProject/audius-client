@@ -1,16 +1,26 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import {
   downloadTrack,
-  purgeAllDownloads
+  purgeAllDownloads,
+  purgeDownloadedTrack
 } from 'app/services/offline-downloader'
-import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
-import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
+import {
+  getOfflineDownloadStatus,
+  getItemOfflineDownloadStatus
+} from 'app/store/offline-downloads/selectors'
+import {
+  completeDownload,
+  errorDownload,
+  OfflineItemDownloadStatus,
+  startDownload,
+  removeDownload
+} from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
@@ -47,7 +57,8 @@ const useLabeledStyles = makeStyles(({ palette }) => ({
   root: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%'
+    width: '100%',
+    marginBottom: spacing(1)
   },
   flex1: {
     flex: 1
@@ -87,31 +98,37 @@ export const DownloadToggle = ({
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = tracks.some((track: Track) => {
     const status = offlineDownloadStatus[track.track_id.toString()]
-    return status === TrackDownloadStatus.LOADING
+    return status === OfflineItemDownloadStatus.LOADING
   })
-  const isToggleOn = useMemo(() => {
-    return tracks.some((track: Track) => {
-      const status = offlineDownloadStatus[track.track_id.toString()]
-      return (
-        status === TrackDownloadStatus.LOADING ||
-        status === TrackDownloadStatus.SUCCESS
-      )
-    })
-  }, [offlineDownloadStatus, tracks])
+  const collectionDownloadStatus = useSelector(
+    getItemOfflineDownloadStatus(collection)
+  )
+  const isToggleOn =
+    collectionDownloadStatus === OfflineItemDownloadStatus.SUCCESS ||
+    collectionDownloadStatus === OfflineItemDownloadStatus.LOADING
+  const dispatch = useDispatch()
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (!collection) return
       if (isDownloadEnabled) {
-        tracks.forEach((track) => {
-          downloadTrack(track.track_id, collection)
-        })
+        dispatch(startDownload(collection))
+        Promise.allSettled(
+          tracks.map((track) => downloadTrack(track.track_id, collection))
+        )
+          .then(() => {
+            dispatch(completeDownload(collection))
+          })
+          .catch((e) => errorDownload(collection))
       } else {
         // TODO: remove only downloads associated with this collection
-        purgeAllDownloads()
+        dispatch(removeDownload(collection))
+        tracks.forEach((track) =>
+          purgeDownloadedTrack(track.track_id.toString())
+        )
       }
     },
-    [collection, tracks]
+    [collection, dispatch, tracks]
   )
 
   return (

@@ -70,21 +70,35 @@ export const getTrackJson = async (
   }
 }
 
+export const writeTrackJson = async (
+  trackId: string,
+  trackToWrite: UserTrackMetadata
+) => {
+  const pathToWrite = getLocalTrackJsonPath(trackId)
+  if (await exists(pathToWrite)) {
+    await RNFS.unlink(pathToWrite)
+  }
+  await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
+}
+
 export const verifyTrack = async (trackId: string): Promise<boolean> => {
-  const audioFile = exists(getLocalAudioPath(trackId))
+  const audioFile = await exists(getLocalAudioPath(trackId))
   // TODO: check for all required art
-  // const artFile = exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
+  // const artFile = await exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
   const artFile = true
-  const jsonFile = exists(getLocalTrackJsonPath(trackId))
+  const jsonFile = await exists(getLocalTrackJsonPath(trackId))
 
   const results = await Promise.allSettled([audioFile, artFile, jsonFile])
-  const [audioExists, artExists, jsonExists] = results
+  const booleanResults = results.map(
+    (result) => result.status === 'fulfilled' && !!result.value
+  )
+  const [audioExists, artExists, jsonExists] = booleanResults
 
   !audioExists && console.warn(`Missing audio for ${trackId}`)
   !artExists && console.warn(`Missing art for ${trackId}`)
   !jsonExists && console.warn(`Missing json for ${trackId}`)
 
-  return results.every((exists) => !!exists)
+  return booleanResults.every((result) => result)
 }
 
 /** Debugging method to clear all downloaded content */
@@ -99,6 +113,41 @@ export const purgeAllDownloads = async () => {
   trackIds.forEach((trackId) => {
     store.dispatch(unloadTrack(trackId))
   })
+}
+
+export const removeCollectionDownload = async (
+  collection: string,
+  trackIds: string[]
+) => {
+  trackIds.forEach(async (trackId) => {
+    const diskTrack = await getTrackJson(trackId)
+    const collections = diskTrack.offline?.downloaded_from_collection ?? []
+    const otherCollections = collections.filter(
+      (downloadReasonCollection) => downloadReasonCollection !== collection
+    )
+    if (otherCollections.length === 0) {
+      purgeDownloadedTrack(trackId)
+    } else {
+      const trackToWrite = {
+        ...diskTrack,
+        offline: {
+          download_completed_time:
+            diskTrack.offline?.download_completed_time ?? Date.now(),
+          last_verified_time:
+            diskTrack.offline?.last_verified_time ?? Date.now(),
+          downloaded_from_collection: otherCollections
+        }
+      }
+      await writeTrackJson(trackId, trackToWrite)
+    }
+  })
+}
+
+export const purgeDownloadedTrack = async (trackId: string) => {
+  const trackDir = getLocalTrackDir(trackId)
+  if (!(await exists(trackDir))) return
+  await RNFS.unlink(trackDir)
+  store.dispatch(unloadTrack(trackId))
 }
 
 /** Debugging method to read cached files */
@@ -120,3 +169,5 @@ export const readDirRec = async (path: string) => {
     })
   )
 }
+
+export const readDirRoot = async () => await readDirRec(downloadsRoot)

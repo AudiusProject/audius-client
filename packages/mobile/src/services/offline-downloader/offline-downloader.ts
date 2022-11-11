@@ -29,7 +29,11 @@ import {
   getLocalAudioPath,
   getLocalCoverArtPath,
   getLocalTrackJsonPath,
-  verifyTrack
+  getTrackJson,
+  readDirRec,
+  readDirRoot,
+  verifyTrack,
+  writeTrackJson
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
@@ -51,9 +55,33 @@ export const downloadTrack = async (trackId: number, collection: string) => {
 
   store.dispatch(startDownload(trackIdString))
   try {
+    const trackExists = await verifyTrack(trackIdString)
+    console.log('track', trackIdString, 'exists', trackExists)
+    if (await verifyTrack(trackIdString)) {
+      await readDirRoot()
+      const trackJson = await getTrackJson(trackIdString)
+      const trackToWrite: UserTrackMetadata = {
+        ...trackJson,
+        offline: {
+          download_completed_time:
+            trackJson.offline?.download_completed_time ?? Date.now(),
+          last_verified_time:
+            trackJson.offline?.last_verified_time ?? Date.now(),
+          downloaded_from_collection:
+            trackJson.offline?.downloaded_from_collection?.concat(
+              collection
+            ) ?? [collection]
+        }
+      }
+      await writeTrackJson(trackIdString, trackToWrite)
+      store.dispatch(loadTrack(track))
+      store.dispatch(completeDownload(trackIdString))
+      return
+    }
+
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
-    await writeTrackJson(track, user, collection)
+    await writeUserTrackJson(track, user, collection)
     const verified = await verifyTrack(trackIdString)
     if (verified) {
       store.dispatch(loadTrack(track))
@@ -70,7 +98,11 @@ export const downloadTrack = async (trackId: number, collection: string) => {
 }
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
-const writeTrackJson = async (track: Track, user: User, collection: string) => {
+const writeUserTrackJson = async (
+  track: Track,
+  user: User,
+  collection: string
+) => {
   const trackToWrite: UserTrackMetadata = {
     ...track,
     offline: {
