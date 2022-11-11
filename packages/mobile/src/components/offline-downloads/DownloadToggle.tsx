@@ -137,7 +137,7 @@ export const DownloadToggle = ({
         <Switch
           value={isToggleOn}
           onValueChange={handleToggleDownload}
-          disabled={!collection}
+          disabled={!collection || isAnyDownloadInProgress}
         />
       </View>
     </View>
