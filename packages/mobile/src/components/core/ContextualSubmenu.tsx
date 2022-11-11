@@ -93,7 +93,6 @@ export const ContextualSubmenu = (props: ContextualSubmenuProps) => {
   }
 
   const renderValue = renderValueProp ?? defaultRenderValue
-  console.log('renderValue?', renderValue)
 
   return (
     <TouchableOpacity onPress={handlePress} style={stylesProp?.root}>
