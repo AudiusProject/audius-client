@@ -28,8 +28,12 @@ import { TrackList } from 'app/components/track-list'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
-const { getCollectionTracksLineup, getCollectionUid, getUserUid } =
-  collectionPageSelectors
+const {
+  getCollectionTracksLineup,
+  getCollectionId,
+  getCollectionUid,
+  getUserUid
+} = collectionPageSelectors
 const { resetCollection } = collectionPageActions
 const { makeGetTableMetadatas } = lineupSelectors
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
@@ -91,6 +95,7 @@ export const CollectionScreenDetailsTile = ({
   const dispatch = useDispatch()
 
   const collectionUid = useSelector(getCollectionUid)
+  const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
   const { entries, status } = useProxySelector(getTracksLineup, [])
   const tracksLoading = status === Status.LOADING
@@ -184,13 +189,13 @@ export const CollectionScreenDetailsTile = ({
     return (
       <View>
         <DownloadToggle
-          collection={collectionUid?.toString()}
+          collection={collectionId?.toString()}
           tracks={entries}
           labelText={headerText}
         />
       </View>
     )
-  }, [collectionUid, entries, headerText])
+  }, [collectionId, entries, headerText])
 
   const renderTrackList = () => {
     if (tracksLoading)

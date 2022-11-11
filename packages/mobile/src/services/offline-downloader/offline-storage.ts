@@ -1,10 +1,11 @@
 import path from 'path'
 
 import type { UserTrackMetadata } from '@audius/common'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 import { store } from 'app/store'
-import { unloadTrack } from 'app/store/offline-downloads/slice'
+import { removeDownload, unloadTrack } from 'app/store/offline-downloads/slice'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -81,10 +82,15 @@ export const writeTrackJson = async (
   await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
 }
 
-export const verifyTrack = async (trackId: string): Promise<boolean> => {
+export const verifyTrack = async (
+  trackId: string,
+  expectTrue?: boolean
+): Promise<boolean> => {
   const audioFile = await exists(getLocalAudioPath(trackId))
   // TODO: check for all required art
-  // const artFile = await exists(path.join(getLocalTrackDir(trackId), '150x150.jpg'))
+  // const artFile = await exists(
+  //   path.join(getLocalTrackDir(trackId), '150x150.jpg')
+  // )
   const artFile = true
   const jsonFile = await exists(getLocalTrackJsonPath(trackId))
 
@@ -94,9 +100,11 @@ export const verifyTrack = async (trackId: string): Promise<boolean> => {
   )
   const [audioExists, artExists, jsonExists] = booleanResults
 
-  !audioExists && console.warn(`Missing audio for ${trackId}`)
-  !artExists && console.warn(`Missing art for ${trackId}`)
-  !jsonExists && console.warn(`Missing json for ${trackId}`)
+  if (expectTrue) {
+    !audioExists && console.warn(`Missing audio for ${trackId}`)
+    !artExists && console.warn(`Missing art for ${trackId}`)
+    !jsonExists && console.warn(`Missing json for ${trackId}`)
+  }
 
   return booleanResults.every((result) => result)
 }
@@ -119,6 +127,8 @@ export const removeCollectionDownload = async (
   collection: string,
   trackIds: string[]
 ) => {
+  store.dispatch(removeDownload(collection))
+  markCollectionDownloaded(collection, false)
   trackIds.forEach(async (trackId) => {
     const diskTrack = await getTrackJson(trackId)
     const collections = diskTrack.offline?.downloaded_from_collection ?? []
@@ -141,6 +151,38 @@ export const removeCollectionDownload = async (
       await writeTrackJson(trackId, trackToWrite)
     }
   })
+}
+
+export const markCollectionDownloaded = async (
+  collection: string,
+  downloaded: boolean
+) => {
+  try {
+    await AsyncStorage.mergeItem(
+      '@offline_collections',
+      JSON.stringify({
+        [collection]: downloaded
+      })
+    )
+  } catch (e) {
+    console.warn('Error writing offline collections', e)
+  }
+}
+
+export const getOfflineCollections = async () => {
+  try {
+    const offlineCollectionsAsync = await AsyncStorage.getItem(
+      '@offline_collections'
+    )
+
+    if (!offlineCollectionsAsync) return []
+
+    return Object.entries(JSON.parse(offlineCollectionsAsync))
+      .filter(([collection, downloaded]) => downloaded)
+      .map(([collection, downloaded]) => collection)
+  } catch (e) {
+    console.warn('Error reading offline collections', e)
+  }
 }
 
 export const purgeDownloadedTrack = async (trackId: string) => {

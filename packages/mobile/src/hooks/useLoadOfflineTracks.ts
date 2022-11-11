@@ -9,9 +9,10 @@ import moment from 'moment'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import { loadTracks } from 'app/store/offline-downloads/slice'
+import { completeDownload, loadTracks } from 'app/store/offline-downloads/slice'
 
 import {
+  getOfflineCollections,
   getTrackJson,
   listTracks,
   verifyTrack
@@ -28,6 +29,11 @@ export const useLoadOfflineTracks = (collection: string) => {
   useAsync(async () => {
     if (!isOfflineModeEnabled) return
 
+    const offlineCollections = await getOfflineCollections()
+    offlineCollections?.forEach((collection) => {
+      dispatch(completeDownload(collection))
+    })
+
     const trackIds = await listTracks()
     const savesLineupTracks: (Track & UserTrackMetadata & { uid: string })[] =
       []
@@ -36,7 +42,7 @@ export const useLoadOfflineTracks = (collection: string) => {
 
     for (const trackId of trackIds) {
       try {
-        const verified = await verifyTrack(trackId)
+        const verified = await verifyTrack(trackId, true)
         if (!verified) continue
         getTrackJson(trackId)
           .then((track: Track & UserTrackMetadata) => {

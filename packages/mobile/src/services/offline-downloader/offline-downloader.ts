@@ -30,8 +30,7 @@ import {
   getLocalCoverArtPath,
   getLocalTrackJsonPath,
   getTrackJson,
-  readDirRec,
-  readDirRoot,
+  markCollectionDownloaded,
   verifyTrack,
   writeTrackJson
 } from './offline-storage'
@@ -41,8 +40,24 @@ const { getUser } = cacheUsersSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
-/** Main entrypoint - perform all steps required to complete a download */
-export const downloadTrack = async (trackId: number, collection: string) => {
+/** Main entrypoint - perform all steps required to complete a download for each track */
+export const downloadCollection = async (
+  collection: string,
+  trackIds: number[]
+) => {
+  store.dispatch(startDownload(collection))
+  markCollectionDownloaded(collection, true)
+
+  Promise.allSettled(
+    trackIds.map((trackId) => downloadTrack(trackId, collection))
+  )
+    .then(() => {
+      store.dispatch(completeDownload(collection))
+    })
+    .catch((e) => store.dispatch(errorDownload(collection)))
+}
+
+const downloadTrack = async (trackId: number, collection: string) => {
   const state = store.getState()
   const track = getTrack(state, { id: trackId })
   const user = getUser(state, { id: track?.owner_id })
@@ -55,10 +70,7 @@ export const downloadTrack = async (trackId: number, collection: string) => {
 
   store.dispatch(startDownload(trackIdString))
   try {
-    const trackExists = await verifyTrack(trackIdString)
-    console.log('track', trackIdString, 'exists', trackExists)
-    if (await verifyTrack(trackIdString)) {
-      await readDirRoot()
+    if (await verifyTrack(trackIdString, false)) {
       const trackJson = await getTrackJson(trackIdString)
       const trackToWrite: UserTrackMetadata = {
         ...trackJson,
@@ -82,7 +94,7 @@ export const downloadTrack = async (trackId: number, collection: string) => {
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
     await writeUserTrackJson(track, user, collection)
-    const verified = await verifyTrack(trackIdString)
+    const verified = await verifyTrack(trackIdString, true)
     if (verified) {
       store.dispatch(loadTrack(track))
       store.dispatch(completeDownload(trackIdString))

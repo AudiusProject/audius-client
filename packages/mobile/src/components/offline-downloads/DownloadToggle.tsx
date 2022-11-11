@@ -2,24 +2,18 @@ import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
 import { View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import {
-  downloadTrack,
+  downloadCollection,
   removeCollectionDownload
 } from 'app/services/offline-downloader'
 import {
   getOfflineDownloadStatus,
   getItemOfflineDownloadStatus
 } from 'app/store/offline-downloads/selectors'
-import {
-  completeDownload,
-  errorDownload,
-  OfflineItemDownloadStatus,
-  startDownload,
-  removeDownload
-} from 'app/store/offline-downloads/slice'
+import { OfflineItemDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
@@ -105,29 +99,23 @@ export const DownloadToggle = ({
   const isToggleOn =
     collectionDownloadStatus === OfflineItemDownloadStatus.SUCCESS ||
     collectionDownloadStatus === OfflineItemDownloadStatus.LOADING
-  const dispatch = useDispatch()
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (!collection) return
       if (isDownloadEnabled) {
-        dispatch(startDownload(collection))
-        Promise.allSettled(
-          tracks.map((track) => downloadTrack(track.track_id, collection))
+        downloadCollection(
+          collection,
+          tracks.map((track) => track.track_id)
         )
-          .then(() => {
-            dispatch(completeDownload(collection))
-          })
-          .catch((e) => errorDownload(collection))
       } else {
-        dispatch(removeDownload(collection))
         removeCollectionDownload(
           collection,
           tracks.map((track) => track.track_id.toString())
         )
       }
     },
-    [collection, dispatch, tracks]
+    [collection, tracks]
   )
 
   return (
