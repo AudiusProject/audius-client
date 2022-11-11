@@ -200,17 +200,6 @@ export class Explore {
     }
   }
 
-  async getLatestTrackID(): Promise<number> {
-    try {
-      const libs = await this.audiusBackendInstance.getAudiusLibs()
-      const latestTrackID = await libs.discoveryProvider.getLatest('track')
-      return latestTrackID
-    } catch (e) {
-      console.error(e)
-      return 0
-    }
-  }
-
   /** PLAYLIST ENDPOINTS */
   async getTopCollections(
     type?: 'playlist' | 'album',
