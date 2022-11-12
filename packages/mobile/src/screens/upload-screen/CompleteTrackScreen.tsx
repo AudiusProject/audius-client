@@ -48,6 +48,11 @@ const useStyles = makeStyles(({ spacing }) => ({
   },
   tileContent: {
     padding: spacing(4)
+  },
+  errorText: {
+    alignSelf: 'center',
+    marginTop: 0,
+    marginBottom: spacing(4)
   }
 }))
 
@@ -84,7 +89,10 @@ export const CompleteTrackForm = (props: FormikProps<TrackMetadata>) => {
       bottomSection={
         <>
           {hasErrors ? (
-            <InputErrorMessage message={messages.fixErrors} />
+            <InputErrorMessage
+              message={messages.fixErrors}
+              style={styles.errorText}
+            />
           ) : null}
           <Button
             variant='primary'

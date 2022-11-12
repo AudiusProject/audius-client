@@ -2,12 +2,11 @@ import type { ComponentType } from 'react'
 import { useState, useCallback } from 'react'
 
 import type { ListRenderItem } from 'react-native'
-import { View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import type { SvgProps } from 'react-native-svg'
 
 import {
-  FlatList,
   Screen,
   TextInput,
   Text,
@@ -17,6 +16,7 @@ import {
 } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 export type ListSelectionData = { label: string; value: string }
 
@@ -42,11 +42,14 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   content: { flex: 1 },
   search: {
     marginHorizontal: spacing(2),
-    marginVertical: spacing(6)
+    marginTop: spacing(6)
   },
   searchInput: {
     paddingVertical: spacing(3),
     fontSize: typography.fontSize.large
+  },
+  listHeader: {
+    height: spacing(6)
   },
   listItem: {
     flexDirection: 'row',
@@ -131,19 +134,20 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         />
         <FlatList
           renderItem={renderItem}
+          ListHeaderComponent={<View style={styles.listHeader} />}
           ItemSeparatorComponent={Divider}
           data={filteredData}
         />
-      </View>
-      <View style={styles.confirmSelection}>
-        <Button
-          variant='primary'
-          size='large'
-          title={messages.done}
-          onPress={handleSubmit}
-          fullWidth
-          disabled={!value}
-        />
+        <View style={styles.confirmSelection}>
+          <Button
+            variant='primary'
+            size='large'
+            title={messages.done}
+            onPress={handleSubmit}
+            fullWidth
+            disabled={!value}
+          />
+        </View>
       </View>
     </Screen>
   )
