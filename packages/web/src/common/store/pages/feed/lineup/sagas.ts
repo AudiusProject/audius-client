@@ -67,7 +67,6 @@ function* getTracks({
   const feed: (UserTrackMetadata | UserCollectionMetadata)[] =
     yield apiClient.getSocialFeed(params)
 
-  if (!feed.length) return []
   const filteredFeed = feed.filter((record) => !record.user.is_deactivated)
   const [tracks, collections] = getTracksAndCollections(filteredFeed)
   const trackIds = tracks.map((t) => t.track_id)
