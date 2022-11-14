@@ -3,10 +3,8 @@
     package="co.audius.app"
     android:versionCode="2"
     android:versionName="1.0.1"
-    xmlns:tools="http://schemas.android.com/tools"
 >
 
-    <uses-sdk android:targetSdkVersion="30" android:minSdkVersion="21" tools:overrideLibrary="com.arthenica.ffmpegkit.reactnative" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
