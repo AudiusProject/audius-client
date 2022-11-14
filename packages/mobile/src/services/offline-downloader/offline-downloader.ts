@@ -20,6 +20,7 @@ import {
   completeDownload,
   errorDownload,
   loadTrack,
+  removeDownload,
   startDownload
 } from 'app/store/offline-downloads/slice'
 
@@ -31,6 +32,7 @@ import {
   getLocalTrackJsonPath,
   getTrackJson,
   markCollectionDownloaded,
+  purgeDownloadedTrack,
   verifyTrack,
   writeTrackJson
 } from './offline-storage'
@@ -107,6 +109,37 @@ const downloadTrack = async (trackId: number, collection: string) => {
     console.error(e)
     return false
   }
+}
+
+export const removeCollectionDownload = async (
+  collection: string,
+  trackIds: number[]
+) => {
+  store.dispatch(removeDownload(collection))
+  markCollectionDownloaded(collection, false)
+  trackIds.forEach(async (trackId) => {
+    const trackIdStr = trackId.toString()
+    const diskTrack = await getTrackJson(trackIdStr)
+    const collections = diskTrack.offline?.downloaded_from_collection ?? []
+    const otherCollections = collections.filter(
+      (downloadReasonCollection) => downloadReasonCollection !== collection
+    )
+    if (otherCollections.length === 0) {
+      purgeDownloadedTrack(trackIdStr)
+    } else {
+      const trackToWrite = {
+        ...diskTrack,
+        offline: {
+          download_completed_time:
+            diskTrack.offline?.download_completed_time ?? Date.now(),
+          last_verified_time:
+            diskTrack.offline?.last_verified_time ?? Date.now(),
+          downloaded_from_collection: otherCollections
+        }
+      }
+      await writeTrackJson(trackIdStr, trackToWrite)
+    }
+  })
 }
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */

@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 import { store } from 'app/store'
-import { removeDownload, unloadTrack } from 'app/store/offline-downloads/slice'
+import { unloadTrack } from 'app/store/offline-downloads/slice'
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -120,36 +120,6 @@ export const purgeAllDownloads = async () => {
   await readDirRec(downloadsRoot)
   trackIds.forEach((trackId) => {
     store.dispatch(unloadTrack(trackId))
-  })
-}
-
-export const removeCollectionDownload = async (
-  collection: string,
-  trackIds: string[]
-) => {
-  store.dispatch(removeDownload(collection))
-  markCollectionDownloaded(collection, false)
-  trackIds.forEach(async (trackId) => {
-    const diskTrack = await getTrackJson(trackId)
-    const collections = diskTrack.offline?.downloaded_from_collection ?? []
-    const otherCollections = collections.filter(
-      (downloadReasonCollection) => downloadReasonCollection !== collection
-    )
-    if (otherCollections.length === 0) {
-      purgeDownloadedTrack(trackId)
-    } else {
-      const trackToWrite = {
-        ...diskTrack,
-        offline: {
-          download_completed_time:
-            diskTrack.offline?.download_completed_time ?? Date.now(),
-          last_verified_time:
-            diskTrack.offline?.last_verified_time ?? Date.now(),
-          downloaded_from_collection: otherCollections
-        }
-      }
-      await writeTrackJson(trackId, trackToWrite)
-    }
   })
 }
 

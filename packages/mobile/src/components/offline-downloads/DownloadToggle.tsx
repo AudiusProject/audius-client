@@ -17,9 +17,9 @@ import { OfflineItemDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
-import IconDownload from '../../assets/images/iconDownloadPurple.svg'
-import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
 import { Switch } from '../core/Switch'
+
+import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 
 type DownloadToggleProps = {
   collection?: string
@@ -35,9 +35,6 @@ const useUnlabeledStyles = makeStyles(() => ({
   root: {
     flexDirection: 'row',
     alignItems: 'center'
-  },
-  toggle: {
-    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }]
   },
   toggleContainer: {},
   flex1: {},
@@ -111,18 +108,19 @@ export const DownloadToggle = ({
       } else {
         removeCollectionDownload(
           collection,
-          tracks.map((track) => track.track_id.toString())
+          tracks.map((track) => track.track_id)
         )
       }
     },
     [collection, tracks]
   )
 
+  if (!collection) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}
       <View style={[styles.iconTitle]}>
-        {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
+        <DownloadStatusIndicator itemId={collection} showNotDownloaded />
         {labelText && (
           <Text
             style={
@@ -137,7 +135,9 @@ export const DownloadToggle = ({
         <Switch
           value={isToggleOn}
           onValueChange={handleToggleDownload}
-          disabled={!collection || isAnyDownloadInProgress}
+          disabled={
+            collectionDownloadStatus === OfflineItemDownloadStatus.LOADING
+          }
         />
       </View>
     </View>

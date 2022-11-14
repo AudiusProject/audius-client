@@ -8,10 +8,12 @@ import { makeStyles } from 'app/styles'
 
 import IconDownload from '../../assets/images/iconDownloadPurple.svg'
 import IconDownloading from '../../assets/images/iconDownloading.svg'
+import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
 import LoadingSpinner from '../loading-spinner'
 
 type TrackDownloadIndicatorProps = {
-  trackId: string
+  itemId: string
+  showNotDownloaded?: boolean
 }
 
 const useStyles = makeStyles(() => ({
@@ -25,12 +27,13 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-export const TrackDownloadIndicator = ({
-  trackId
+export const DownloadStatusIndicator = ({
+  itemId,
+  showNotDownloaded
 }: TrackDownloadIndicatorProps) => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
-  const downloadStatus = useSelector(getItemOfflineDownloadStatus(trackId))
+  const downloadStatus = useSelector(getItemOfflineDownloadStatus(itemId))
   const styles = useStyles()
 
   if (!isOfflineModeEnabled) return null
@@ -46,6 +49,6 @@ export const TrackDownloadIndicator = ({
     case OfflineItemDownloadStatus.SUCCESS:
       return <IconDownload />
     default:
-      return null
+      return showNotDownloaded ? <IconNotDownloaded /> : null
   }
 }

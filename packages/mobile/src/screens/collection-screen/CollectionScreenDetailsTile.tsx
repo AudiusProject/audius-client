@@ -25,6 +25,7 @@ import type {
 } from 'app/components/details-tile/types'
 import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
 import { TrackList } from 'app/components/track-list'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
@@ -93,6 +94,8 @@ export const CollectionScreenDetailsTile = ({
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
+
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const collectionUid = useSelector(getCollectionUid)
   const collectionId = useSelector(getCollectionId)
@@ -230,7 +233,8 @@ export const CollectionScreenDetailsTile = ({
       hideListenCount={true}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
-      renderHeader={renderHeader}
+      headerText={!isOfflineModeEnabled ? headerText : undefined}
+      renderHeader={isOfflineModeEnabled && renderHeader}
       onPressPlay={handlePressPlay}
     />
   )
