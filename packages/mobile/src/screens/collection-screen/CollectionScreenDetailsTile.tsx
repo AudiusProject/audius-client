@@ -23,7 +23,7 @@ import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
-import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
+import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { make, track } from 'app/services/analytics'
