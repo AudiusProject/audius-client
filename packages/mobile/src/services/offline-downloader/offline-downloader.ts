@@ -50,13 +50,14 @@ export const downloadCollection = async (
   store.dispatch(startDownload(collection))
   markCollectionDownloaded(collection, true)
 
-  Promise.allSettled(
-    trackIds.map((trackId) => downloadTrack(trackId, collection))
-  )
-    .then(() => {
-      store.dispatch(completeDownload(collection))
-    })
-    .catch((e) => store.dispatch(errorDownload(collection)))
+  try {
+    await Promise.allSettled(
+      trackIds.map((trackId) => downloadTrack(trackId, collection))
+    )
+    store.dispatch(completeDownload(collection))
+  } catch (e) {
+    store.dispatch(errorDownload(collection))
+  }
 }
 
 const downloadTrack = async (trackId: number, collection: string) => {
@@ -73,6 +74,8 @@ const downloadTrack = async (trackId: number, collection: string) => {
   store.dispatch(startDownload(trackIdString))
   try {
     if (await verifyTrack(trackIdString, false)) {
+      // Track already downloaded, so rewrite the json
+      // to include this collection in the downloaded_from_collection list
       const trackJson = await getTrackJson(trackIdString)
       const trackToWrite: UserTrackMetadata = {
         ...trackJson,

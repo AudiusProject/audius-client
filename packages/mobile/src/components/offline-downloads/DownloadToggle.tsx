@@ -121,15 +121,11 @@ export const DownloadToggle = ({
       {labelText && <View style={styles.flex1} />}
       <View style={[styles.iconTitle]}>
         <DownloadStatusIndicator itemId={collection} showNotDownloaded />
-        {labelText && (
-          <Text
-            style={
-              isToggleOn ? [styles.labelText, styles.purple] : styles.labelText
-            }
-          >
+        {labelText ? (
+          <Text style={[styles.labelText, isToggleOn && styles.purple]}>
             {isAnyDownloadInProgress ? messages.downloading : labelText}
           </Text>
-        )}
+        ) : null}
       </View>
       <View style={[styles.flex1, styles.toggleContainer]}>
         <Switch

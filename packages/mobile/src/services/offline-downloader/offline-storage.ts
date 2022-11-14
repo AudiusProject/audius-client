@@ -86,13 +86,13 @@ export const verifyTrack = async (
   trackId: string,
   expectTrue?: boolean
 ): Promise<boolean> => {
-  const audioFile = await exists(getLocalAudioPath(trackId))
+  const audioFile = exists(getLocalAudioPath(trackId))
   // TODO: check for all required art
-  // const artFile = await exists(
+  // const artFile = exists(
   //   path.join(getLocalTrackDir(trackId), '150x150.jpg')
   // )
   const artFile = true
-  const jsonFile = await exists(getLocalTrackJsonPath(trackId))
+  const jsonFile = exists(getLocalTrackJsonPath(trackId))
 
   const results = await Promise.allSettled([audioFile, artFile, jsonFile])
   const booleanResults = results.map(

@@ -190,13 +190,11 @@ export const CollectionScreenDetailsTile = ({
 
   const renderHeader = useCallback(() => {
     return (
-      <View>
-        <DownloadToggle
-          collection={collectionId?.toString()}
-          tracks={entries}
-          labelText={headerText}
-        />
-      </View>
+      <DownloadToggle
+        collection={collectionId?.toString()}
+        tracks={entries}
+        labelText={headerText}
+      />
     )
   }, [collectionId, entries, headerText])
 
