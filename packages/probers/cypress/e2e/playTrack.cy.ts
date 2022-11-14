@@ -6,12 +6,12 @@ describe("Play Track", () => {
   it("should play a trending track", () => {
     cy.visit("trending");
     cy.findByRole("list", { name: /weekly trending tracks/i }).within(() => {
+      // Wait for skeletons to not exist to indicate we are done loading
+      cy.get("[aria-busy]").should("not.exist");
+
       cy.findAllByRole("listitem").first().click("left");
     });
 
-    cy.findByRole("button", { name: /track loading/i, timeout: 20000 }).should(
-      "be.disabled"
-    );
     cy.findByRole("button", {
       name: /pause track/i,
       timeout: 20000,
