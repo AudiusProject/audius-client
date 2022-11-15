@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import type { TrackMetadata, UploadTrack } from '@audius/common'
 import { useRoute } from '@react-navigation/native'

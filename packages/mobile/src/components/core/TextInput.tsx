@@ -24,7 +24,7 @@ import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { convertHexToRGBA } from 'app/utils/convertHexToRGBA'
 import { mergeRefs } from 'app/utils/mergeRefs'
-import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   root: {

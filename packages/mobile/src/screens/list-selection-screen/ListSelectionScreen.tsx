@@ -16,7 +16,6 @@ import {
 } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 
 export type ListSelectionData = { label: string; value: string }
 

@@ -1,7 +1,6 @@
 import { View } from 'react-native'
 
 import IconIndent from 'app/assets/images/iconIndent.svg'
-import { makeStyles } from 'app/styles'
 
 import { UploadStackScreen } from '../UploadStackScreen'
 import {
