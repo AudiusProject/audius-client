@@ -155,8 +155,8 @@ export class AudioPlayer {
           this.source.connect(this.gainNode)
           this.gainNode.connect(this.audioCtx.destination)
         } catch (e) {
-          console.log('error setting up audio context')
-          console.log(e)
+          console.error('error setting up audio context')
+          console.error(e)
         }
       }
 
@@ -221,6 +221,7 @@ export class AudioPlayer {
       this.gainNode = null
       this.source = null
       this.audioCtx = null
+
       this._initContext()
       this.audio.preload = 'none'
       this.audio.crossOrigin = 'anonymous'
@@ -373,7 +374,9 @@ export class AudioPlayer {
   }
 
   pause = () => {
-    this.gainNode.gain.setValueAtTime(1, 0)
+    if (this.gainNode) {
+      this.gainNode.gain.setValueAtTime(1, 0)
+    }
     this.audio.addEventListener('fade-out', this._pauseInternal)
     this._fadeOut()
   }
