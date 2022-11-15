@@ -15,8 +15,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   },
   icon: {
     marginRight: spacing(2)
-  },
-  text: { lineHeight: 14, marginTop: 2 }
+  }
 }))
 
 type InputErrorMessageProps = {
@@ -32,9 +31,7 @@ export const InputErrorMessage = (props: InputErrorMessageProps) => {
   return (
     <View style={[styles.root, style]}>
       <IconInfo fill={accentRed} style={styles.icon} height={14} width={14} />
-      <ErrorText fontSize='small' style={styles.text}>
-        {message}
-      </ErrorText>
+      <ErrorText fontSize='small'>{message}</ErrorText>
     </View>
   )
 }

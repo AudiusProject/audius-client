@@ -12,19 +12,11 @@ import {
   TrackVisibilityField
 } from '../fields'
 
-const useStyles = makeStyles(({ spacing }) => ({
-  content: {
-    marginTop: spacing(6),
-    paddingHorizontal: spacing(4)
-  }
-}))
-
 const messages = {
   screenTitle: 'Advanced'
 }
 
 export const AdvancedOptionsScreen = () => {
-  const styles = useStyles()
   return (
     <UploadStackScreen
       title={messages.screenTitle}
@@ -32,7 +24,7 @@ export const AdvancedOptionsScreen = () => {
       bottomSection={null}
       variant='white'
     >
-      <View style={styles.content}>
+      <View>
         <SubmenuList>
           <TrackVisibilityField />
         </SubmenuList>
