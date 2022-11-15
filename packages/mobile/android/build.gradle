@@ -43,7 +43,7 @@ allprojects {
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         maven {
-            url("https://maven.fpregistry.io/releases")
+            url("https://maven.fpregistry.io/#/releases")
         }
 
         google()
