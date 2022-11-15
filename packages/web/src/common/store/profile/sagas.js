@@ -126,11 +126,6 @@ export function* fetchOpenSeaAssets(user) {
     console.log('profile has no assets in OpenSea')
   }
 
-  const currentUserId = yield select(getUserId)
-  if (currentUserId === user.user_id) {
-    yield put(ethNFTsFetched())
-  }
-
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -141,6 +136,11 @@ export function* fetchOpenSeaAssets(user) {
       }
     ])
   )
+
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(ethNFTsFetched())
+  }
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -167,11 +167,6 @@ export function* fetchSolanaCollectibles(user) {
     console.log('profile has no Solana NFTs')
   }
 
-  const currentUserId = yield select(getUserId)
-  if (currentUserId === user.user_id) {
-    yield put(solNFTsFetched())
-  }
-
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -180,6 +175,11 @@ export function* fetchSolanaCollectibles(user) {
       }
     ])
   )
+
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(solNFTsFetched())
+  }
 }
 
 function* fetchSupportersAndSupporting(userId) {
