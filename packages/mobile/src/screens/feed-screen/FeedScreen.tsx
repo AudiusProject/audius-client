@@ -4,6 +4,7 @@ import {
   Name,
   lineupSelectors,
   feedPageLineupActions as feedActions,
+  feedPageActions,
   feedPageSelectors
 } from '@audius/common'
 import type { FollowArtists } from 'audius-client/src/common/store/pages/signon/types'
@@ -48,8 +49,11 @@ export const FeedScreen = () => {
 
   const followArtists: FollowArtists = useSelector(getFollowArtists)
   const onPressFollow = () => {
+    // Set eager users and refetch lineup
     dispatch(signOnActions.followArtists(followArtists.selectedUserIds))
     dispatch(feedActions.fetchLineupMetadatas())
+    // Async go follow users
+    dispatch(feedPageActions.followUsers(followArtists.selectedUserIds))
   }
 
   return (

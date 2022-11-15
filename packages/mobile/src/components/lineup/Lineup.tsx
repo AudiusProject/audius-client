@@ -233,7 +233,7 @@ export const Lineup = ({
   extraFetchOptions,
   ...listProps
 }: LineupProps) => {
-  const showTip = false // useSelector(getShowTip)
+  const showTip = useSelector(getShowTip)
   const dispatch = useDispatch()
   const ref = useRef<RNSectionList>(null)
   const [isPastLoadThreshold, setIsPastLoadThreshold] = useState(false)

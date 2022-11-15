@@ -59,7 +59,6 @@ function* getTracks({
   // hint to the API.
   const followeeUserIds = yield select(getFollowIds)
   if (followeeUserIds && followeeUserIds.length > 0) {
-    console.log({ followeeUserIds })
     // Get the artists the user selected in signup or on their empty feed
     params.followee_user_ids = followeeUserIds
   }
