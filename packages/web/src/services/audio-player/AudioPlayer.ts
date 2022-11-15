@@ -222,8 +222,8 @@ export class AudioPlayer {
       this.source = null
       this.audioCtx = null
       this._initContext()
-      this.audio.setAttribute('preload', 'none')
-      this.audio.setAttribute('crossOrigin', 'anonymous')
+      this.audio.preload = 'none'
+      this.audio.crossOrigin = 'anonymous'
       this.audio.src = forceStreamSrc
       this.audio.volume = prevVolume
       this.audio.onloadedmetadata = () => (this.duration = this.audio.duration)
