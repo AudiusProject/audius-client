@@ -14,7 +14,6 @@ import {
   playerSelectors,
   playerActions
 } from '@audius/common'
-import { play } from '@audius/common/dist/store/player/slice'
 import type {
   Animated,
   GestureResponderEvent,
