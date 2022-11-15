@@ -28,106 +28,54 @@ const messages = {
   downloading: 'Downloading'
 }
 
-const useUnlabeledStyles = makeStyles(() => ({
-  root: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  toggleContainer: {},
-  flex1: {},
-  iconTitle: {},
-  labelText: {},
-  purple: {}
-}))
-
-const useLabeledStyles = makeStyles(({ palette, spacing }) => ({
-  root: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: spacing(1)
-  },
-  flex1: {
-    flex: 1
-  },
-  iconTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 'auto',
-    justifyContent: 'center'
-  },
-  labelText: {
-    color: palette.neutralLight4,
-    fontSize: 14,
-    letterSpacing: 2,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    paddingLeft: spacing(1),
-    flexBasis: 'auto'
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end'
-  },
-  purple: {
-    color: palette.secondary
-  }
-}))
-
-const useStyles = makeStyles<{ labeled: boolean }>(
+const useStyles = makeStyles<{ labelText?: string }>(
   ({ palette, spacing }, props) => ({
-    root: props.labeled
+    root: props.labelText
       ? {
-          backgroundColor: 'red',
           flexDirection: 'row',
           justifyContent: 'space-between',
           width: '100%',
           marginBottom: spacing(1)
         }
       : {
-          backgroundColor: 'blue',
           flexDirection: 'row',
           alignItems: 'center'
         },
-    flex1: props.labeled
+    flex1: props.labelText
       ? {
           flex: 1
         }
       : {},
-    iconTitle: (props) =>
-      props.labeled
-        ? {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginLeft: 'auto',
-            justifyContent: 'center'
-          }
-        : {},
-    labelText: (props) =>
-      props.labeled
-        ? {
-            color: palette.neutralLight4,
-            fontSize: 14,
-            letterSpacing: 2,
-            textAlign: 'center',
-            textTransform: 'uppercase',
-            paddingLeft: spacing(1),
-            flexBasis: 'auto'
-          }
-        : {},
-    toggleContainer: (props) =>
-      props.labeled
-        ? {
-            flexDirection: 'row',
-            justifyContent: 'flex-end'
-          }
-        : {},
-    purple: (props) =>
-      props.labeled
-        ? {
-            color: palette.secondary
-          }
-        : {}
+    iconTitle: props.labelText
+      ? {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginLeft: 'auto',
+          justifyContent: 'center'
+        }
+      : {},
+    labelText: props.labelText
+      ? {
+          color: palette.neutralLight4,
+          fontSize: 14,
+          letterSpacing: 2,
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          paddingLeft: spacing(1),
+          flexBasis: 'auto'
+        }
+      : {},
+    toggleContainer: props.labelText
+      ? {
+          flexDirection: 'row',
+          justifyContent: 'flex-end'
+        }
+      : {},
+    purple: props.labelText
+      ? {
+          color: palette.secondary
+        }
+      : {}
   })
 )
 
@@ -136,12 +84,8 @@ export const DownloadToggle = ({
   collection,
   labelText
 }: DownloadToggleProps) => {
-  // const unlabeledStyles = useUnlabeledStyles()
-  const labeledStyles = useLabeledStyles()
-  // const styles = useStyles({ labeled: !!labelText })
-  const styles = useStyles({ labeled: !!labelText })
+  const styles = useStyles({ labelText })
 
-  // const styles = labelText ? labeledStyles : unlabeledStyles
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = tracks.some((track: Track) => {
     const status = offlineDownloadStatus[track.track_id.toString()]
