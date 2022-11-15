@@ -4,7 +4,7 @@ import type { Track } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { Text } from 'app/components/core'
+import { Switch, Text } from 'app/components/core'
 import {
   downloadCollection,
   removeCollectionDownload
@@ -15,9 +15,6 @@ import {
 } from 'app/store/offline-downloads/selectors'
 import { OfflineItemDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
-
-import { Switch } from '../core/Switch'
 
 import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 
@@ -43,7 +40,7 @@ const useUnlabeledStyles = makeStyles(() => ({
   purple: {}
 }))
 
-const useLabeledStyles = makeStyles(({ palette }) => ({
+const useLabeledStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -77,14 +74,74 @@ const useLabeledStyles = makeStyles(({ palette }) => ({
   }
 }))
 
+const useStyles = makeStyles<{ labeled: boolean }>(
+  ({ palette, spacing }, props) => ({
+    root: props.labeled
+      ? {
+          backgroundColor: 'red',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: '100%',
+          marginBottom: spacing(1)
+        }
+      : {
+          backgroundColor: 'blue',
+          flexDirection: 'row',
+          alignItems: 'center'
+        },
+    flex1: props.labeled
+      ? {
+          flex: 1
+        }
+      : {},
+    iconTitle: (props) =>
+      props.labeled
+        ? {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginLeft: 'auto',
+            justifyContent: 'center'
+          }
+        : {},
+    labelText: (props) =>
+      props.labeled
+        ? {
+            color: palette.neutralLight4,
+            fontSize: 14,
+            letterSpacing: 2,
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            paddingLeft: spacing(1),
+            flexBasis: 'auto'
+          }
+        : {},
+    toggleContainer: (props) =>
+      props.labeled
+        ? {
+            flexDirection: 'row',
+            justifyContent: 'flex-end'
+          }
+        : {},
+    purple: (props) =>
+      props.labeled
+        ? {
+            color: palette.secondary
+          }
+        : {}
+  })
+)
+
 export const DownloadToggle = ({
   tracks,
   collection,
   labelText
 }: DownloadToggleProps) => {
-  const unlabeledStyles = useUnlabeledStyles()
+  // const unlabeledStyles = useUnlabeledStyles()
   const labeledStyles = useLabeledStyles()
-  const styles = labelText ? labeledStyles : unlabeledStyles
+  // const styles = useStyles({ labeled: !!labelText })
+  const styles = useStyles({ labeled: !!labelText })
+
+  // const styles = labelText ? labeledStyles : unlabeledStyles
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = tracks.some((track: Track) => {
     const status = offlineDownloadStatus[track.track_id.toString()]
