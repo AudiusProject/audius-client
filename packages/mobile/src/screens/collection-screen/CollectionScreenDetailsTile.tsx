@@ -232,7 +232,7 @@ export const CollectionScreenDetailsTile = ({
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}
-      renderHeader={isOfflineModeEnabled && renderHeader}
+      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
       onPressPlay={handlePressPlay}
     />
   )
