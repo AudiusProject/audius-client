@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 
-import type { NestedNonNullableNonOptional } from '@audius/common'
 import type { TextProps as RNTextProps } from 'react-native'
 import { Text as RNText } from 'react-native'
 
@@ -26,7 +25,7 @@ export type TextProps = RNTextProps & {
 
 const useStyles = makeStyles<
   Pick<TextProps, 'noGutter' | 'weight' | 'fontSize'> &
-    NestedNonNullableNonOptional<Pick<TextProps, 'variant' | 'color'>>
+    Required<Pick<TextProps, 'variant' | 'color'>>
 >(
   (
     { typography, palette },

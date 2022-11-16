@@ -1,7 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import type { NestedNonNullableNonOptional } from '@audius/common'
 import { merge } from 'lodash'
 import type {
   ButtonProps as RNButtonProps,
@@ -24,7 +23,7 @@ import { useThemeColors } from 'app/utils/theme'
 import { Link } from './Link'
 
 const useStyles = makeStyles<
-  NestedNonNullableNonOptional<
+  Required<
     Pick<ButtonProps, 'size' | 'variant' | 'corners'> & { isPressing: boolean }
   >
 >(

@@ -20,40 +20,42 @@ const USER_LENGTH_LIMIT = 9
  */
 const defaultImageDimensions = { width: 38, height: 38 }
 
-const useStyles = makeStyles<{
-  imageDimensions: typeof defaultImageDimensions
-}>(({ spacing, palette, typography }, { imageDimensions }) => ({
-  root: {
-    flexDirection: 'row'
-  },
-  image: {
-    marginRight: spacing(-2)
-  },
-  imageExtraRoot: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  imageExtraDim: {
-    marginLeft: spacing(2.5) - imageDimensions.width,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: 15,
-    width: 24,
-    height: 24
-  },
-  imageCount: {
-    width: imageDimensions.width,
-    marginLeft: spacing(0.5) - imageDimensions.width,
-    textAlign: 'center',
-    color: palette.staticWhite,
-    fontSize: typography.fontSize.small,
-    fontFamily: typography.fontByWeight.bold,
-    textShadowColor: 'rgba(0,0,0,0.25)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 1
-  }
-}))
+type MakeStylesProps = { imageDimensions: { height: number; width: number } }
+
+const useStyles = makeStyles<MakeStylesProps>(
+  ({ spacing, palette, typography }, { imageDimensions }) => ({
+    root: {
+      flexDirection: 'row'
+    },
+    image: {
+      marginRight: spacing(-2)
+    },
+    imageExtraRoot: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    imageExtraDim: {
+      marginLeft: spacing(2.5) - imageDimensions.width,
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      borderRadius: 15,
+      width: 24,
+      height: 24
+    },
+    imageCount: {
+      width: imageDimensions.width,
+      marginLeft: spacing(0.5) - imageDimensions.width,
+      textAlign: 'center',
+      color: palette.staticWhite,
+      fontSize: typography.fontSize.small,
+      fontFamily: typography.fontByWeight.bold,
+      textShadowColor: 'rgba(0,0,0,0.25)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 1
+    }
+  })
+)
 
 type ProfilePictureListProps = {
   users: User[]

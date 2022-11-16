@@ -18,22 +18,26 @@ import { SecondaryScreenTitle } from './SecondaryScreenTitle'
 const removeUndefined = (object: Record<string, unknown>) =>
   pickBy(object, negate(isUndefined))
 
-const useStyles = makeStyles<
-  Pick<ScreenProps, 'variant'> & { isNavOverhaulEnabled: boolean }
->(({ palette }, { variant, isNavOverhaulEnabled }) => ({
-  root: {
-    flex: 1,
-    backgroundColor:
-      variant === 'primary'
-        ? palette.background
-        : (variant === 'secondary' && !isNavOverhaulEnabled) ||
-          variant === 'secondaryAlt'
-        ? palette.backgroundSecondary
-        : variant === 'secondary' && isNavOverhaulEnabled
-        ? palette.background
-        : palette.white
-  }
-}))
+type MakeStylesProps = Pick<ScreenProps, 'variant'> & {
+  isNavOverhaulEnabled: boolean
+}
+
+const useStyles = makeStyles<MakeStylesProps>(
+  ({ palette }, { variant, isNavOverhaulEnabled }) => ({
+    root: {
+      flex: 1,
+      backgroundColor:
+        variant === 'primary'
+          ? palette.background
+          : (variant === 'secondary' && !isNavOverhaulEnabled) ||
+            variant === 'secondaryAlt'
+          ? palette.backgroundSecondary
+          : variant === 'secondary' && isNavOverhaulEnabled
+          ? palette.background
+          : palette.white
+    }
+  })
+)
 
 export type ScreenProps = {
   children: ReactNode
