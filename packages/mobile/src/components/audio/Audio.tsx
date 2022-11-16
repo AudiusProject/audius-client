@@ -31,7 +31,7 @@ import { useChromecast } from './GoogleCast'
 import { logListen } from './listens'
 
 const { getUser } = cacheUsersSelectors
-const { getPlaying, getSeek, getCurrentTrack } = playerSelectors
+const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
 const { getIndex, getLength, getRepeat, getShuffle, getShuffleIndex } =
   queueSelectors
 const { getIsReachable } = reachabilitySelectors
@@ -74,6 +74,7 @@ export const Audio = () => {
   const queueLength = useSelector(getLength)
   const playing = useSelector(getPlaying)
   const seek = useSelector(getSeek)
+  const counter = useSelector(getCounter)
   const repeatMode = useSelector(getRepeat)
   const isShuffleOn = useSelector(getShuffle)
   const shuffleIndex = useSelector(getShuffleIndex)
@@ -263,24 +264,38 @@ export const Audio = () => {
 
   const { isCasting } = useChromecast()
 
+  const setSeekPosition = useCallback(
+    (seek = 0) => {
+      if (videoRef.current) {
+        progressInvalidator.current = true
+        videoRef.current.seek(seek)
+        elapsedTime.current = seek
+
+        // If we are casting, don't update the internal
+        // seek clock
+        if (!isCasting) {
+          global.progress.currentTime = seek
+        }
+
+        MusicControl.updatePlayback({
+          elapsedTime: elapsedTime.current
+        })
+      }
+    },
+    [progressInvalidator, elapsedTime, isCasting]
+  )
+
   // Seek handler
   useEffect(() => {
-    if (seek !== null && videoRef.current) {
-      progressInvalidator.current = true
-      videoRef.current.seek(seek)
-      elapsedTime.current = seek
-
-      // If we are casting, don't update the internal
-      // seek clock
-      if (!isCasting) {
-        global.progress.currentTime = seek
-      }
-
-      MusicControl.updatePlayback({
-        elapsedTime: elapsedTime.current
-      })
+    if (seek !== null) {
+      setSeekPosition(seek)
     }
-  }, [seek, progressInvalidator, elapsedTime, isCasting])
+  }, [seek, setSeekPosition])
+
+  // Restart (counter) handler
+  useEffect(() => {
+    setSeekPosition(0)
+  }, [counter, setSeekPosition])
 
   useEffect(() => {
     setListenLoggedForTrack(false)

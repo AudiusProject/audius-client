@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import type { CommonState, UploadTrack } from '@audius/common'
 import { uploadSelectors, UploadType, uploadActions } from '@audius/common'
 import { useRoute } from '@react-navigation/native'
+import { useKeepAwake } from '@sayem314/react-native-keep-awake'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
@@ -13,8 +14,8 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-import type { UploadRouteProp } from './ParamList'
-import { UploadingTrackTile } from './UploadingTrackTile'
+import { UploadingTrackTile } from '../components'
+import type { UploadRouteProp } from '../types'
 const { uploadTracks } = uploadActions
 const { getUploadProgress, getUploadSuccess } = uploadSelectors
 
@@ -51,6 +52,7 @@ const messages = {
 export type UploadingTracksParams = { tracks: UploadTrack[] }
 
 export const UploadingTracksScreen = () => {
+  useKeepAwake()
   const { params } = useRoute<UploadRouteProp<'UploadingTracks'>>()
   const { tracks } = params
   const styles = useStyles()
@@ -73,10 +75,14 @@ export const UploadingTracksScreen = () => {
   const uploadSuccess = useSelector(getUploadSuccess)
 
   useEffect(() => {
+    if (!uploadSuccess) {
+      navigation.setOptions({ gestureEnabled: false })
+    }
     if (uploadSuccess) {
+      navigation.setOptions({ gestureEnabled: true })
       navigation.navigate('UploadComplete')
     }
-  })
+  }, [uploadSuccess, navigation])
 
   return (
     <Screen
