@@ -160,7 +160,7 @@ export const TagInput = (props: TagInputProps) => {
       onKeyPress={handleKeyPress}
       startAdornment={startAdornment}
       endAdornment={endAdornment}
-      returnKeyType='default'
+      returnKeyType='done'
       onFocus={handleFocus}
       onBlur={handleBlur}
       styles={{ input: styles.input }}

@@ -170,7 +170,7 @@ export const RemixSettingsScreen = () => {
                 styles={{ root: styles.inputRoot, input: styles.input }}
                 value={remixOfInput}
                 onChangeText={handleLinkInput}
-                returnKeyType='default'
+                returnKeyType='done'
               />
               {parentTrack && parentTrackArtist && !isInvalidParentTrack ? (
                 <RemixTrackPill track={parentTrack} user={parentTrackArtist} />
