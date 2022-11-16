@@ -346,7 +346,6 @@ function* recordListenWorker() {
     const position = audioPlayer.getPosition()
 
     const newPlay = lastSeenPlayCounter !== playCounter
-    console.log(lastSeenPlayCounter, playCounter)
 
     if (newPlay && position > RECORD_LISTEN_SECONDS) {
       if (trackId) yield* put(recordListen(trackId))
