@@ -41,7 +41,7 @@ const {
   stop,
   setBuffering,
   reset,
-  resetSuceeded,
+  resetSucceeded,
   seek,
   error: errorAction
 } = playerActions
@@ -93,7 +93,6 @@ export function* watchPlay() {
       const track = yield* select(getTrack, { id: trackId })
       if (!track) return
       if (track.is_premium && !track.premium_content_signature) return
-
       const owner = yield* select(getUser, {
         id: track.owner_id
       })
@@ -230,7 +229,7 @@ export function* watchReset() {
         )
       }
     }
-    yield* put(resetSuceeded({ shouldAutoplay }))
+    yield* put(resetSucceeded({ shouldAutoplay }))
   })
 }
 
@@ -347,6 +346,7 @@ function* recordListenWorker() {
     const position = audioPlayer.getPosition()
 
     const newPlay = lastSeenPlayCounter !== playCounter
+    console.log(lastSeenPlayCounter, playCounter)
 
     if (newPlay && position > RECORD_LISTEN_SECONDS) {
       if (trackId) yield* put(recordListen(trackId))
