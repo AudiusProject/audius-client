@@ -381,9 +381,8 @@ export class AudioPlayer {
     if (this.audioCtx && IS_CHROME_LIKE) {
       // See comment above in the `play()` method.
       this.source!.disconnect()
-    } else {
-      this.audio.pause()
     }
+    this.audio.pause()
   }
 
   stop = () => {
