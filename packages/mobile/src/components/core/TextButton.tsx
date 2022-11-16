@@ -17,7 +17,7 @@ import { makeStyles } from 'app/styles'
 import type { TextProps } from './Text'
 
 const useStyles = makeStyles<Pick<TextButtonProps, 'variant'>>(
-  // @ts-ignore nested NamedStyles<NamedStyles<T>> issue
+  // @ts-ignore need support for IconStyles in NamedStyles<T>
   ({ palette, spacing }, { variant }) => {
     const variantStyles = {
       primary: {
@@ -38,7 +38,7 @@ const useStyles = makeStyles<Pick<TextButtonProps, 'variant'>>(
     }
 
     const baseStyles = {
-      root: { flexDirection: 'row', alignItems: 'center' },
+      root: { flexDirection: 'row' as const, alignItems: 'center' as const },
       iconLeft: { marginRight: spacing(1) },
       iconRight: { marginLeft: spacing(1) },
       disabled: { color: palette.neutralLight7 }
