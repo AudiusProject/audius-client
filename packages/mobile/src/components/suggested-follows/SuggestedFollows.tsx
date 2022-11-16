@@ -1,24 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { User } from '@audius/common'
-import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
-  getEmailField,
-  getHandleField,
   getFollowArtists,
   makeGetFollowArtists
 } from 'common/store/pages/signon/selectors'
 import type {
   FollowArtists,
-  EditableField,
   FollowArtistsCategory
 } from 'common/store/pages/signon/types'
 import { artistCategories } from 'common/store/pages/signon/types'
 import { sampleSize } from 'lodash'
 import {
   Animated,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -33,8 +28,6 @@ import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconWand from 'app/assets/images/iconWand.svg'
 import Button from 'app/components/button'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { track, make } from 'app/services/analytics'
-import { EventNames } from 'app/types/analytics'
 
 import UserImage from '../../components/image/UserImage'
 import UserBadges from '../../components/user-badges/UserBadges'

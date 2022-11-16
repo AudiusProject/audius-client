@@ -5,7 +5,7 @@ import { Kind, Status, tippingSelectors } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { range } from 'lodash'
 import type { SectionList as RNSectionList } from 'react-native'
-import { Dimensions, StyleSheet, View, Text } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { SectionList } from 'app/components/core'
@@ -107,9 +107,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0
   }
 })
-
-const areSectionsEmpty = (sections: Section[]) =>
-  sections.every((section) => section.data.length === 0)
 
 type Section = {
   delineate: boolean
@@ -521,7 +518,7 @@ export const Lineup = ({
         ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
-        sections={areSectionsEmpty(sections) ? [] : sections}
+        sections={sections}
         stickySectionHeadersEnabled={false}
         keyExtractor={(item, index) => `${item?.id}  ${index}`}
         renderItem={renderItem}
