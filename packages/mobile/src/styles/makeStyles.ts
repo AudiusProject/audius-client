@@ -43,6 +43,7 @@ type Theme = {
   type: ThemeType
 }
 
+// TODO: This doesn't cover style props for icons
 type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle }
 
 type Styles<T extends NamedStyles<T>, PropsT> = (

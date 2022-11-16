@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
+import type { NestedNonNullableNonOptional } from '@audius/common'
 import { merge } from 'lodash'
 import type {
   ButtonProps as RNButtonProps,
@@ -22,7 +23,11 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { Link } from './Link'
 
-const useStyles = makeStyles(
+const useStyles = makeStyles<
+  NestedNonNullableNonOptional<
+    Pick<ButtonProps, 'size' | 'variant' | 'corners'> & { isPressing: boolean }
+  >
+>(
   (
     { palette, spacing, typography },
     { isPressing, size, variant, corners }
@@ -177,7 +182,9 @@ const useStyles = makeStyles(
       root: {
         ...flexRowCentered(),
         justifyContent: 'center',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        // this should never be used, but helps merge with the types
+        backgroundColor: palette.primary
       },
       button: {
         ...flexRowCentered(),
@@ -273,7 +280,10 @@ export const Button = (props: ButtonProps) => {
     color,
     handlePressIn: handlePressInColor,
     handlePressOut: handlePressOutColor
-  } = useColorAnimation(styles.root.backgroundColor, pressColor[variant])
+  } = useColorAnimation(
+    styles.root.backgroundColor as string,
+    pressColor[variant]
+  )
 
   const handlePressIn = useCallback(
     (event) => {
@@ -317,6 +327,7 @@ export const Button = (props: ButtonProps) => {
     [rootHeightRef]
   )
 
+  // @ts-ignore type issue with flattened style. iconColor prop is optional
   const { color: iconColor, ...iconStyles } = StyleSheet.flatten([
     styles.icon,
     stylesProp?.icon
