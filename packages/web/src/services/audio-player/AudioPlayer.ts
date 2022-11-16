@@ -16,8 +16,8 @@ const FADE_IN_EVENT = new Event('fade-in')
 const FADE_OUT_EVENT = new Event('fade-out')
 const VOLUME_CHANGE_BASE = 10
 const BUFFERING_DELAY_MILLISECONDS = 1000
-const FADE_IN_TIME = 320
-const FADE_OUT_TIME = 400
+const FADE_IN_TIME_MILLISECONDS = 320
+const FADE_OUT_TIME_MILLISECONDS = 400
 
 // In the case of audio errors, try to resume playback
 // by nudging the playhead this many seconds ahead.
@@ -375,7 +375,7 @@ export class AudioPlayer {
 
   pause = () => {
     if (this.gainNode) {
-      this.gainNode.gain.setValueAtTime(1, 0)
+      this.gainNode.gain.setValueAtTime(1, this.audioCtx?.currentTime ?? 0)
     }
     this.audio.addEventListener('fade-out', this._pauseInternal)
     this._fadeOut()
@@ -433,10 +433,10 @@ export class AudioPlayer {
     if (this.gainNode) {
       setTimeout(() => {
         this.audio.dispatchEvent(FADE_IN_EVENT)
-      }, FADE_IN_TIME)
+      }, FADE_IN_TIME_MILLISECONDS)
       this.gainNode.gain.exponentialRampToValueAtTime(
         1,
-        this.audioCtx!.currentTime + FADE_IN_TIME / 1000.0
+        this.audioCtx!.currentTime + FADE_IN_TIME_MILLISECONDS / 1000.0
       )
     } else {
       this.audio.dispatchEvent(FADE_IN_EVENT)
@@ -447,10 +447,10 @@ export class AudioPlayer {
     if (this.gainNode) {
       setTimeout(() => {
         this.audio.dispatchEvent(FADE_OUT_EVENT)
-      }, FADE_OUT_TIME)
+      }, FADE_OUT_TIME_MILLISECONDS)
       this.gainNode.gain.exponentialRampToValueAtTime(
         0.001,
-        this.audioCtx!.currentTime + FADE_OUT_TIME / 1000.0
+        this.audioCtx!.currentTime + FADE_OUT_TIME_MILLISECONDS / 1000.0
       )
     } else {
       this.audio.dispatchEvent(FADE_OUT_EVENT)
