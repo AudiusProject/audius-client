@@ -22,6 +22,7 @@ import {
   updatePremiumContentSignatures
 } from 'common/store/premiumContent/actions'
 import { getPremiumTrackSignatureMap } from 'common/store/premiumContent/selectors'
+import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 const { getAccountUser } = accountSelectors
 const { getTracks } = cacheTracksSelectors
@@ -163,6 +164,7 @@ function* updateNFTGatedTrackAccess(
     | ReturnType<typeof cacheActions.add>
 ) {
   // Halt if premium content not enabled
+  yield waitForBackendAndAccount()
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   if (!getFeatureEnabled(FeatureFlags.PREMIUM_CONTENT_ENABLED)) {
     return
