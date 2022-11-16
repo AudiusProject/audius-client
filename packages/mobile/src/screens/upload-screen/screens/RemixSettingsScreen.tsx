@@ -20,8 +20,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
 
-import { UploadStackScreen } from '../UploadStackScreen'
-import { RemixTrackPill } from '../components'
+import { UploadStackScreen, RemixTrackPill } from '../components'
 
 const { getTrack, getUser, getStatus } = remixSettingsSelectors
 const { fetchTrack, reset } = remixSettingsActions

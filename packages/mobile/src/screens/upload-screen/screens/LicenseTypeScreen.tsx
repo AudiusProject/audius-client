@@ -12,7 +12,7 @@ import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
-import { UploadStackScreen } from '../UploadStackScreen'
+import { UploadStackScreen } from '../components'
 import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 const messages = {
