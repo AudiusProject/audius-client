@@ -1,1 +1,1 @@
-export * from './ListSelectionScreen'
+export * from '../upload-screen/screens/ListSelectionScreen'
