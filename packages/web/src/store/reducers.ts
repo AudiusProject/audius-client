@@ -28,6 +28,7 @@ import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
+import error from 'store/errors/reducers'
 
 export const commonStoreReducers = clientStoreReducers()
 
@@ -58,6 +59,9 @@ const createRootReducer = (routeHistory: History) =>
 
     // Playback
     queue,
+
+    // Error Page
+    error,
 
     // Remote config/flags
     remoteConfig,
