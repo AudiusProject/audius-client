@@ -10,6 +10,7 @@ import { combineReducers } from 'redux'
 import backend from 'common/store/backend/reducer'
 import confirmer from 'common/store/confirmer/reducer'
 import signOnReducer from 'common/store/pages/signon/reducer'
+import premiumContent from 'common/store/premiumContent/reducer'
 import searchBar from 'common/store/search-bar/reducer'
 import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
@@ -62,6 +63,9 @@ const createRootReducer = (routeHistory: History) =>
 
     // Error Page
     error,
+    
+    // Premium content
+    premiumContent,
 
     // Remote config/flags
     remoteConfig,

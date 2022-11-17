@@ -25,12 +25,13 @@ export enum FeatureFlags {
   BUY_AUDIO_COINBASE_ENABLED = 'buy_audio_coinbase_enabled',
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
+  PREMIUM_CONTENT_ENABLED = 'premium_content_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  MOBILE_NAV_OVERHAUL = 'mobile_nav_overhaul_final',
   MOBILE_UPLOAD = 'mobile_upload',
   STREAM_MP3 = 'stream_mp3',
   READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
-  SHARE_TO_STORY = 'share_to_story'
+  SHARE_TO_STORY = 'share_to_story',
+  READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -39,15 +40,9 @@ export const environmentFlagDefaults: Record<
   Environment,
   Partial<FlagDefaults>
 > = {
-  development: {
-    [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
-  },
-  staging: {
-    [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
-  },
-  production: {
-    [FeatureFlags.MOBILE_NAV_OVERHAUL]: true
-  }
+  development: {},
+  staging: {},
+  production: {}
 }
 
 /**
@@ -77,10 +72,11 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.BUY_AUDIO_COINBASE_ENABLED]: false,
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
+  [FeatureFlags.PREMIUM_CONTENT_ENABLED]: false,
   [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
-  [FeatureFlags.MOBILE_NAV_OVERHAUL]: false,
   [FeatureFlags.MOBILE_UPLOAD]: false,
   [FeatureFlags.STREAM_MP3]: false,
   [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
-  [FeatureFlags.SHARE_TO_STORY]: false
+  [FeatureFlags.SHARE_TO_STORY]: false,
+  [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false
 }
