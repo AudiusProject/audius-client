@@ -202,11 +202,16 @@ export const AnimatedButton = ({
               source={source}
               resizeMode={resizeMode}
             />
+            {/**
+             * Secondary animation that is visible when inactive. This ensures
+             * active->inactive transition is smooth, since Lottie onAnimationFinish
+             * does not do this smoothly and results in partially inactive states.
+             */}
             {!hasMultipleStates ? (
               <LottieView
                 key={isActive ? 'active' : 'inactive'}
                 style={{ opacity: isActive ? 0 : 1 }}
-                progress={isActive ? 1 : 0}
+                progress={0}
                 loop={false}
                 source={source}
                 resizeMode={resizeMode}
