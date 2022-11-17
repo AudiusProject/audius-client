@@ -553,10 +553,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
       sortDirection?: string,
       offset?: number,
       limit?: number
-    ) =>
+    ) => {
+      console.log('MARCUS fetchSavedTracks')
       dispatch(
         saveActions.fetchSaves(query, sortMethod, sortDirection, offset, limit)
-      ),
+      )
+    },
     fetchMoreSavedTracks: (
       query?: string,
       sortMethod?: string,
