@@ -63,7 +63,7 @@ const createRootReducer = (routeHistory: History) =>
 
     // Error Page
     error,
-    
+
     // Premium content
     premiumContent,
 
