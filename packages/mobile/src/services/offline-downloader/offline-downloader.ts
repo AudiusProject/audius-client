@@ -146,7 +146,7 @@ export const removeCollectionDownload = async (
 }
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
-const writeUserTrackJson = async (
+export const writeUserTrackJson = async (
   track: Track,
   user: User,
   collection: string
@@ -171,7 +171,7 @@ const writeUserTrackJson = async (
   await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
 }
 
-const downloadCoverArt = async (track: Track) => {
+export const downloadCoverArt = async (track: Track) => {
   // TODO: computed _cover_art_sizes isn't necessarily populated
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
@@ -185,7 +185,7 @@ const downloadCoverArt = async (track: Track) => {
   )
 }
 
-const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
+export const tryDownloadTrackFromEachCreatorNode = async (track: Track) => {
   const state = store.getState()
   const user = (
     await apiClient.getUser({
