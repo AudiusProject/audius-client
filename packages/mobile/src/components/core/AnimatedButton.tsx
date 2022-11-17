@@ -191,6 +191,9 @@ export const AnimatedButton = ({
           <View style={wrapperStyle}>
             {/* The key is needed for animations to work on android  */}
             <LottieView
+              style={
+                !hasMultipleStates ? { opacity: isActive ? 1 : 0 } : undefined
+              }
               key={hasMultipleStates ? iconIndex : undefined}
               ref={(animation) => (animationRef.current = animation)}
               onAnimationFinish={handleAnimationFinish}
@@ -199,6 +202,16 @@ export const AnimatedButton = ({
               source={source}
               resizeMode={resizeMode}
             />
+            {!hasMultipleStates ? (
+              <LottieView
+                key={isActive ? 'active' : 'inactive'}
+                style={{ opacity: isActive ? 0 : 1 }}
+                progress={isActive ? 1 : 0}
+                loop={false}
+                source={source}
+                resizeMode={resizeMode}
+              />
+            ) : null}
           </View>
           {children}
         </>
