@@ -17,6 +17,7 @@ import { OfflineItemDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 
 import { DownloadStatusIndicator } from './DownloadStatusIndicator'
+import { enqueueCollectionDownload } from 'app/services/offline-downloader/offline-download-queue'
 
 type DownloadToggleProps = {
   collection?: string
@@ -102,7 +103,7 @@ export const DownloadToggle = ({
     (isDownloadEnabled: boolean) => {
       if (!collection) return
       if (isDownloadEnabled) {
-        downloadCollection(
+        enqueueCollectionDownload(
           collection,
           tracks.map((track) => track.track_id)
         )

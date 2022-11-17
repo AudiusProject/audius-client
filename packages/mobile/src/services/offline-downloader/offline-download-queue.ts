@@ -1,6 +1,7 @@
 import type { UserTrackMetadata, Track, User } from '@audius/common'
 import { cacheTracksSelectors, cacheUsersSelectors } from '@audius/common'
 import queue, { Worker } from 'react-native-job-queue'
+import type { Job } from 'react-native-job-queue/lib/typescript/src/models/Job'
 
 import { store } from 'app/store'
 import {
@@ -15,7 +16,12 @@ import {
   tryDownloadTrackFromEachCreatorNode,
   writeUserTrackJson
 } from './offline-downloader'
-import { getTrackJson, verifyTrack, writeTrackJson } from './offline-storage'
+import {
+  getTrackJson,
+  markCollectionDownloaded,
+  verifyTrack,
+  writeTrackJson
+} from './offline-storage'
 const { getTrack } = cacheTracksSelectors
 const { getUser } = cacheUsersSelectors
 
@@ -27,7 +33,29 @@ type TrackDownloadWorkerPayload = {
   collection: string
 }
 
-export const enqueueDownload = async (trackId: number, collection: string) => {
+/** Main entrypoint - perform all steps required to complete a download for each track */
+export const enqueueCollectionDownload = async (
+  collection: string,
+  trackIds: number[]
+) => {
+  store.dispatch(startDownload(collection))
+  markCollectionDownloaded(collection, true)
+
+  try {
+    // TODO: separate queue for collections
+    await Promise.allSettled(
+      trackIds.map((trackId) => enqueueTrackDownload(trackId, collection))
+    )
+    store.dispatch(completeDownload(collection))
+  } catch (e) {
+    store.dispatch(errorDownload(collection))
+  }
+}
+
+export const enqueueTrackDownload = async (
+  trackId: number,
+  collection: string
+) => {
   const state = store.getState()
   const track = getTrack(state, { id: trackId })
   const user = getUser(state, { id: track?.owner_id })
@@ -52,6 +80,16 @@ export const enqueueDownload = async (trackId: number, collection: string) => {
 }
 
 export const startDownloadWorker = () => {
+  queue.configure({
+    onQueueFinish: (executedJobs) => {
+      console.log('Queue stopped and executed', executedJobs)
+    },
+    concurrency: 5,
+    updateInterval: 10
+  })
+
+  const worker = queue.registeredWorkers[TRACK_DOWNLOAD_WORKER]
+  if (worker) queue.removeWorker(TRACK_DOWNLOAD_WORKER, true)
   queue.addWorker(
     new Worker(
       TRACK_DOWNLOAD_WORKER,
@@ -107,4 +145,9 @@ export const startDownloadWorker = () => {
       }
     )
   )
+  queue.start()
 }
+
+// TODO: remove -- debugging only
+global.workQueue = queue
+global.startDownloadWorker = startDownloadWorker
