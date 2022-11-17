@@ -1,4 +1,4 @@
-import type { NavigationState } from '@react-navigation/native'
+import type { NavigationProp, NavigationState } from '@react-navigation/native'
 
 /**
  * Navigation state selector that selects the current route
@@ -20,4 +20,20 @@ export const getRoutePath = (state: NavigationState, routePath?: string[]) => {
 export const getPrimaryRoute = (state: NavigationState) => {
   // The route at index 2 is the primary route
   return getRoutePath(state)?.[2]
+}
+
+/**
+ * Given a navigator, get the nearest stack navigator in the hierarchy
+ */
+export const getNearestStackNavigator = (navigator: NavigationProp<any>) => {
+  if (navigator.getState?.()?.type === 'stack') {
+    return navigator
+  }
+  const parent = navigator.getParent()
+
+  if (!parent) {
+    return undefined
+  }
+
+  return getNearestStackNavigator(parent)
 }
