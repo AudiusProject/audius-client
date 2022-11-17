@@ -50,17 +50,21 @@ export function useNavigation<
   const performCustomPush = useCallback(
     (...config: PerformNavigationConfig<ParamList>) => {
       if (!isEqual(lastNavAction.current, config)) {
-        const stackNavigator: NativeStackNavigationProp<any> =
-          getNearestStackNavigator(navigation)
+        const stackNavigator = getNearestStackNavigator(navigation)
 
-        // Reset lastNavAction when the transition ends
-        const unsubscribe = stackNavigator.addListener('transitionEnd', (e) => {
-          lastNavAction.current = undefined
-          unsubscribe()
-        })
+        if (stackNavigator) {
+          // Reset lastNavAction when the transition ends
+          const unsubscribe = stackNavigator.addListener(
+            'transitionEnd',
+            (e) => {
+              lastNavAction.current = undefined
+              unsubscribe()
+            }
+          )
 
-        stackNavigator.push(...config)
-        lastNavAction.current = config
+          stackNavigator.push(...config)
+          lastNavAction.current = config
+        }
       }
     },
     [navigation, lastNavAction]
