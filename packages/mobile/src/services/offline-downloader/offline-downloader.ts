@@ -11,22 +11,85 @@ import { uniq } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
-import { removeDownload } from 'app/store/offline-downloads/slice'
+import {
+  completeDownload,
+  errorDownload,
+  loadTrack,
+  removeDownload
+} from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
 
+import type { TrackDownloadWorkerPayload } from './offline-download-queue'
 import {
   getLocalAudioPath,
   getLocalCoverArtPath,
   getLocalTrackJsonPath,
+  purgeDownloadedTrack,
   getTrackJson,
   markCollectionDownloaded,
-  purgeDownloadedTrack,
+  verifyTrack,
   writeTrackJson
 } from './offline-storage'
 const { getUserId } = accountSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
+
+export const downloadTrack = async ({
+  track,
+  user,
+  collection
+}: TrackDownloadWorkerPayload) => {
+  const trackIdStr = track.track_id.toString()
+  console.log(
+    'Queue downloading track',
+    trackIdStr,
+    'from collection',
+    collection,
+    'by',
+    user.user_id
+  )
+  try {
+    if (await verifyTrack(trackIdStr, false)) {
+      // Track already downloaded, so rewrite the json
+      // to include this collection in the downloaded_from_collection list
+      const trackJson = await getTrackJson(trackIdStr)
+      const trackToWrite: UserTrackMetadata = {
+        ...trackJson,
+        offline: {
+          download_completed_time:
+            trackJson.offline?.download_completed_time ?? Date.now(),
+          last_verified_time:
+            trackJson.offline?.last_verified_time ?? Date.now(),
+          downloaded_from_collection:
+            trackJson.offline?.downloaded_from_collection?.concat(
+              collection
+            ) ?? [collection]
+        }
+      }
+      await writeTrackJson(trackIdStr, trackToWrite)
+      store.dispatch(loadTrack(track))
+      store.dispatch(completeDownload(trackIdStr))
+      return
+    }
+
+    await downloadCoverArt(track)
+    await tryDownloadTrackFromEachCreatorNode(track)
+    await writeUserTrackJson(track, user, collection)
+    const verified = await verifyTrack(trackIdStr, true)
+    if (verified) {
+      store.dispatch(loadTrack(track))
+      store.dispatch(completeDownload(trackIdStr))
+    } else {
+      store.dispatch(errorDownload(trackIdStr))
+    }
+    return verified
+  } catch (e) {
+    store.dispatch(errorDownload(trackIdStr))
+    console.error(e)
+    return false
+  }
+}
 
 export const removeCollectionDownload = async (
   collection: string,
