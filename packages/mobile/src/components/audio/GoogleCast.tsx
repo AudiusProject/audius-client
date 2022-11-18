@@ -76,7 +76,7 @@ export const useChromecast = () => {
                 }
               ],
               title: track.title,
-              artist: owner?.name
+              artist: owner.name
             }
           },
           startTime
