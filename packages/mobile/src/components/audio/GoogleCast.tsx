@@ -14,6 +14,7 @@ import {
   useStreamPosition
 } from 'react-native-google-cast'
 import { useDispatch, useSelector } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
@@ -28,6 +29,7 @@ export const useChromecast = () => {
 
   // Data hooks
   const track = useSelector(getCurrentTrack)
+  const prevTrack = usePrevious(track)
   const playing = useSelector(getPlaying)
   const seek = useSelector(getSeek)
 
@@ -102,12 +104,20 @@ export const useChromecast = () => {
     }
   }, [castState, dispatch])
 
+  // Ensure that the progress gets reset to 0
+  // when a new track is played
+  useEffect(() => {
+    if (prevTrack && prevTrack !== track) {
+      global.progress.currentTime = 0
+    }
+  }, [prevTrack, track])
+
   // Load media when the cast connects
   useEffect(() => {
     if (castState === CastState.CONNECTED) {
       loadCast(track, global.progress.currentTime ?? 0)
     }
-  }, [loadCast, track, castState])
+  }, [loadCast, track, prevTrack, castState])
 
   // Play & pause the cast device
   useEffect(() => {
@@ -120,7 +130,7 @@ export const useChromecast = () => {
     }
   }, [playing, playCast, pauseCast, castState])
 
-  // Update the audius seek with the stream position from
+  // Update the currentTime with the stream position from
   // the cast device
   useEffect(() => {
     if (streamPosition !== null) {
