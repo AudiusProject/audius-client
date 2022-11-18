@@ -355,7 +355,7 @@ export const Audio = () => {
         // If we aren't casting, update the progress
         global.progress = progress
       } else {
-        // If we are casting, only update the seekable duration
+        // If we are casting, only update the seekableDuration
         // The currentTime is set via the effect in GoogleCast.tsx
         global.progress.seekableDuration = progress.seekableDuration
       }

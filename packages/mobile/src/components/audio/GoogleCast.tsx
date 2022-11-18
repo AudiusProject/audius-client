@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   castActions,
@@ -20,7 +20,7 @@ import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 const { setIsCasting } = castActions
-const { getCurrentTrack, getPlaying, getSeek } = playerSelectors
+const { getCurrentTrack, getPlaying, getSeek, getCounter } = playerSelectors
 
 const { getUser } = cacheUsersSelectors
 
@@ -28,6 +28,7 @@ export const useChromecast = () => {
   const dispatch = useDispatch()
 
   // Data hooks
+  const counter = useSelector(getCounter)
   const track = useSelector(getCurrentTrack)
   const prevTrack = usePrevious(track)
   const playing = useSelector(getPlaying)
@@ -44,6 +45,7 @@ export const useChromecast = () => {
   const castState = useCastState()
   const streamPosition = useStreamPosition(0.5)
 
+  const [internalCounter, setInternalCounter] = useState(0)
   const streamingUri = useMemo(() => {
     return track
       ? apiClient.makeUrl(`/tracks/${encodeHashId(track.track_id)}/stream`)
@@ -107,10 +109,11 @@ export const useChromecast = () => {
   // Ensure that the progress gets reset to 0
   // when a new track is played
   useEffect(() => {
-    if (prevTrack && prevTrack !== track) {
+    if (prevTrack && prevTrack !== track && counter !== internalCounter) {
       global.progress.currentTime = 0
+      setInternalCounter(0)
     }
-  }, [prevTrack, track])
+  }, [prevTrack, track, counter, internalCounter, setInternalCounter])
 
   // Load media when the cast connects
   useEffect(() => {
