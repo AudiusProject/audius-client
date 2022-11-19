@@ -124,6 +124,9 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       }
     },
     getStateFromPath: (path, options) => {
+      // Add leading slash if it is missing
+      if (path[0] !== '/') path = `/${path}`
+
       // Strip the trending query param because `/trending` will
       // always go to ThisWeek
       if (path.match(/^\/trending/)) {

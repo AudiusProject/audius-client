@@ -6,7 +6,7 @@ import { animated, useTransition } from 'react-spring'
 
 import AppIcon from 'assets/img/appIcon240.png'
 import { isMobile } from 'utils/clientUtil'
-import { APP_REDIRECT, getPathname, SIGN_UP_PAGE } from 'utils/route'
+import { getPathname, SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './AppRedirectPopover.module.css'
 
@@ -119,7 +119,8 @@ const AppRedirectPopover = ({
   const onClick = () => {
     onBeforeClickApp()
     const pathname = getPathname()
-    const newHref = `https://redirect.audius.co${APP_REDIRECT}${pathname}`
+    const newHref = `audius://${pathname}`
+
     // If we're on the signup page, copy the URL to clipboard on app redirect
     // The app can then read the URL on load, persisting through install, to associate referrals
     if (
