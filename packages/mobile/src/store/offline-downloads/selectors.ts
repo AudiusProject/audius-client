@@ -1,5 +1,3 @@
-import { State } from 'react-native-gesture-handler'
-
 import type { AppState } from 'app/store'
 
 export const getOfflineDownloadStatus = (state: AppState) =>
