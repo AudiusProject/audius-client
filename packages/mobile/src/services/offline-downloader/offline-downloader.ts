@@ -12,28 +12,40 @@ import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
 import {
+  addCollection,
   completeDownload,
   errorDownload,
   loadTrack,
-  removeDownload
+  removeCollection
 } from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
 
 import type { TrackDownloadWorkerPayload } from './offline-download-queue'
+import { enqueueTrackDownload } from './offline-download-queue'
 import {
   getLocalAudioPath,
   getLocalCoverArtPath,
   getLocalTrackJsonPath,
   purgeDownloadedTrack,
   getTrackJson,
-  markCollectionDownloaded,
+  persistCollectionDownloadStatus,
   verifyTrack,
   writeTrackJson
 } from './offline-storage'
 const { getUserId } = accountSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
+
+/** Main entrypoint - perform all steps required to complete a download for each track */
+export const downloadCollection = async (
+  collection: string,
+  trackIds: number[]
+) => {
+  store.dispatch(addCollection(collection))
+  persistCollectionDownloadStatus(collection, true)
+  trackIds.forEach((trackId) => enqueueTrackDownload(trackId, collection))
+}
 
 export const downloadTrack = async ({
   track,
@@ -95,8 +107,8 @@ export const removeCollectionDownload = async (
   collection: string,
   trackIds: number[]
 ) => {
-  store.dispatch(removeDownload(collection))
-  markCollectionDownloaded(collection, false)
+  store.dispatch(removeCollection(collection))
+  persistCollectionDownloadStatus(collection, false)
   trackIds.forEach(async (trackId) => {
     const trackIdStr = trackId.toString()
     const diskTrack = await getTrackJson(trackIdStr)
