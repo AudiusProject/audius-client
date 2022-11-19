@@ -97,11 +97,15 @@ export class SolanaClient {
             .filter(Boolean) as { type: SolanaNFTType; url: string }[]
 
           const results = await Promise.all(
-            metadataUrls.map(async (item) =>
-              fetch(item!.url)
+            metadataUrls.map(async (item) => {
+              // Remove control characters from url
+              // eslint-disable-next-line
+              const sanitizedURL = item.url.replace(/[^\x00-\x7F]/g, '')
+
+              return fetch(sanitizedURL)
                 .then((res) => res.json())
                 .catch(() => null)
-            )
+            })
           )
 
           const metadatas = results.filter(Boolean).map((metadata, i) => ({
