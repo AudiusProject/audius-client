@@ -28,6 +28,7 @@ import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
 import { useEnterForeground } from './hooks/useAppState'
+import { useIsOfflineModeEnabled } from './hooks/useIsOfflineModeEnabled'
 import { startDownloadWorker } from './services/offline-downloader/offline-download-queue'
 
 Sentry.init({
@@ -55,6 +56,7 @@ const Modals = () => {
 
 const App = () => {
   const [isReadyToSetupBackend, setIsReadyToSetupBackend] = useState(false)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   useAsync(async () => {
     // Require entropy to exist before setting up backend
@@ -64,7 +66,7 @@ const App = () => {
 
   useEffectOnce(() => {
     subscribeToNetworkStatusUpdates()
-    startDownloadWorker()
+    isOfflineModeEnabled && startDownloadWorker()
   })
 
   useEnterForeground(() => {
