@@ -66,7 +66,9 @@ const App = () => {
 
   useEffectOnce(() => {
     subscribeToNetworkStatusUpdates()
-    isOfflineModeEnabled && startDownloadWorker()
+    if (isOfflineModeEnabled) {
+      startDownloadWorker()
+    }
   })
 
   useEnterForeground(() => {

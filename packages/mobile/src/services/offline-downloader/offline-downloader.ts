@@ -53,14 +53,6 @@ export const downloadTrack = async ({
   collection
 }: TrackDownloadWorkerPayload) => {
   const trackIdStr = track.track_id.toString()
-  console.log(
-    'Queue downloading track',
-    trackIdStr,
-    'from collection',
-    collection,
-    'by',
-    user.user_id
-  )
   try {
     if (await verifyTrack(trackIdStr, false)) {
       // Track already downloaded, so rewrite the json
