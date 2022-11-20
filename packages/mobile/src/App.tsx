@@ -8,6 +8,7 @@ import Config from 'react-native-config'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { Provider } from 'react-redux'
 import { useAsync, useEffectOnce } from 'react-use'
+import { initialWindowMetrics } from 'react-native-safe-area-context'
 
 import { Audio } from 'app/components/audio/Audio'
 import HCaptcha from 'app/components/hcaptcha'
@@ -70,7 +71,7 @@ const App = () => {
   })
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics} >
       <Provider store={store}>
         <PortalProvider>
           <ToastContextProvider>
