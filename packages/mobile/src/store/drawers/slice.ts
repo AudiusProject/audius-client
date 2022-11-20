@@ -7,7 +7,7 @@ export type Drawer =
   | 'DownloadTrackProgress'
   | 'ForgotPassword'
   | 'NowPlaying'
-  | 'CancelUpload'
+  | 'CancelEditTrack'
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' }
 

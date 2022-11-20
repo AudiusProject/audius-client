@@ -3,6 +3,9 @@ import type { FormikProps } from 'formik'
 
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
 
+import type { FormValues } from '../upload-screen/types'
+
+import { EditTrackForm } from './EditTrackForm'
 import {
   AdvancedOptionsScreen,
   IsrcIswcScreen,
@@ -11,22 +14,19 @@ import {
   SelectGenreScreen,
   SelectMoodScreen,
   TrackVisibilityScreen
-} from '..'
-import type { FormValues } from '../../types'
-
-import { CompleteTrackForm } from './CompleteTrackForm'
+} from './screens'
 
 const Stack = createNativeStackNavigator()
 
 const screenOptionOverrides = { headerRight: () => null }
 
-export const CompleteTrackStack = (props: FormikProps<FormValues>) => {
+export const EditTrackNavigator = (props: FormikProps<FormValues>) => {
   const screenOptions = useAppScreenOptions(screenOptionOverrides)
 
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen name='CompleteTrackForm'>
-        {() => <CompleteTrackForm {...props} />}
+        {() => <EditTrackForm {...props} />}
       </Stack.Screen>
       <Stack.Screen name='SelectGenre' component={SelectGenreScreen} />
       <Stack.Screen name='SelectMood' component={SelectMoodScreen} />

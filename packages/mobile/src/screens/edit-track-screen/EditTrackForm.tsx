@@ -15,8 +15,10 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
-import { TopBarIconButton } from '../../../app-screen'
-import { CancelUploadDrawer, UploadStackScreen } from '../../components'
+import { TopBarIconButton } from '../app-screen'
+import { CancelEditTrackDrawer, FormScreen } from '../upload-screen/components'
+import type { FormValues } from '../upload-screen/types'
+
 import {
   PickArtworkField,
   SelectGenreField,
@@ -27,8 +29,7 @@ import {
   SubmenuList,
   RemixSettingsField,
   AdvancedOptionsField
-} from '../../fields'
-import type { FormValues } from '../../types'
+} from './fields'
 
 const messages = {
   screenTitle: 'Complete Track',
@@ -53,9 +54,9 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-export type CompleteTrackParams = UploadTrack
+export type EditTrackParams = UploadTrack
 
-export const CompleteTrackForm = (props: FormikProps<FormValues>) => {
+export const EditTrackForm = (props: FormikProps<FormValues>) => {
   const { handleSubmit, isSubmitting, errors, touched, dirty } = props
   const errorsKeys = Object.keys(errors)
   const hasErrors =
@@ -71,7 +72,7 @@ export const CompleteTrackForm = (props: FormikProps<FormValues>) => {
       Keyboard.dismiss()
       dispatch(
         setVisibility({
-          drawer: 'CancelUpload',
+          drawer: 'CancelEditTrack',
           visible: true
         })
       )
@@ -79,7 +80,7 @@ export const CompleteTrackForm = (props: FormikProps<FormValues>) => {
   }, [dirty, navigation, dispatch])
 
   return (
-    <UploadStackScreen
+    <FormScreen
       title={messages.screenTitle}
       icon={IconUpload}
       topbarLeft={
@@ -133,8 +134,8 @@ export const CompleteTrackForm = (props: FormikProps<FormValues>) => {
             </SubmenuList>
           </Tile>
         </KeyboardAwareScrollView>
-        <CancelUploadDrawer />
+        <CancelEditTrackDrawer />
       </>
-    </UploadStackScreen>
+    </FormScreen>
   )
 }
