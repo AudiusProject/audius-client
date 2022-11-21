@@ -50,7 +50,7 @@ import {
   playlistLibraryReducer,
   PlaylistLibraryState
 } from './playlist-library'
-import premiumContentReducer from './premiumContent/reducer'
+import premiumContentReducer from './premium-content/reducer'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
