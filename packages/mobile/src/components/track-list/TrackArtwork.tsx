@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import IconPause from 'app/assets/images/pbIconPauseAlt.svg'
 import IconPlay from 'app/assets/images/pbIconPlayAlt.svg'
-import { TrackImage } from 'app/components/track-image'
+import { TrackImage } from 'app/components/image/TrackImage'
 import { makeStyles } from 'app/styles'
 
 type TrackArtworkProps = {

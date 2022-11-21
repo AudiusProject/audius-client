@@ -6,8 +6,8 @@ import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import { FavoriteButton } from 'app/components/favorite-button'
+import { TrackImage } from 'app/components/image/TrackImage'
 import Text from 'app/components/text'
-import { TrackImage } from 'app/components/track-image/TrackImage'
 import { makeStyles } from 'app/styles'
 import { zIndex } from 'app/utils/zIndex'
 

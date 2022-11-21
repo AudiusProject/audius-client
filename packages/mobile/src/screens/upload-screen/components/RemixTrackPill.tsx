@@ -2,7 +2,7 @@ import type { Track, User } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 
 import { Pill, Text } from 'app/components/core'
-import { TrackImage } from 'app/components/track-image'
+import { TrackImage } from 'app/components/image/TrackImage'
 import UserBadges from 'app/components/user-badges'
 import { makeStyles } from 'app/styles'
 

@@ -3,9 +3,9 @@ import { useCallback } from 'react'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import PlaylistImage from 'app/components/image/PlaylistImage'
-import TrackImage from 'app/components/image/TrackImage'
-import UserImage from 'app/components/image/UserImage'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { TrackImage } from 'app/components/image/TrackImage'
+import { UserImage } from 'app/components/image/UserImage'
 import UserBadges from 'app/components/user-badges/UserBadges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import useSearchHistory from 'app/store/search/hooks'
@@ -92,7 +92,7 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <UserImage user={user} imageStyle={imageStyle} />
+      <UserImage user={user} style={imageStyle} />
       <UserBadges
         style={styles.badgeContainer}
         nameStyle={nameStyle}
@@ -124,11 +124,7 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <TrackImage
-        track={track}
-        user={track.user}
-        imageStyle={squareImageStyles}
-      />
+      <TrackImage track={track} style={squareImageStyles} />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {track.title}
@@ -167,11 +163,7 @@ const PlaylistSearchResult = ({
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <PlaylistImage
-        playlist={playlist}
-        user={playlist.user}
-        imageStyle={squareImageStyles}
-      />
+      <CollectionImage collection={playlist} style={squareImageStyles} />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {playlist.playlist_name}
@@ -207,11 +199,7 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <PlaylistImage
-        playlist={album}
-        user={album.user}
-        imageStyle={squareImageStyles}
-      />
+      <CollectionImage collection={album} style={squareImageStyles} />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {album.playlist_name}

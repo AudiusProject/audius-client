@@ -4,7 +4,7 @@ import type { User } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 
 import { Card } from 'app/components/card'
-import { UserImage } from 'app/components/user-image'
+import { UserImage } from 'app/components/image/UserImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { formatCount } from 'app/utils/format'
 

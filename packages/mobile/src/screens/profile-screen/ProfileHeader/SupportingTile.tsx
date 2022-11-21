@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 
 import type { Supporting } from '@audius/common'
-import { WidthSizes, cacheUsersSelectors } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
+import { useUserCoverImage } from 'app/components/image/UserCoverImage'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'audius-client/src/utils/constants'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { ImageBackground, View } from 'react-native'
@@ -13,7 +14,6 @@ import { Text, Tile } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
@@ -95,7 +95,7 @@ export const SupportingTile = (props: SupportingTileProps) => {
     supporting.rank >= 1 && supporting.rank <= TIPPING_TOP_RANK_THRESHOLD
 
   const { source: coverPhotoSource, handleError: handleCoverPhotoError } =
-    useUserCoverPhoto(user)
+    useUserCoverImage(user)
 
   const handlePress = useCallback(() => {
     if (handle) {

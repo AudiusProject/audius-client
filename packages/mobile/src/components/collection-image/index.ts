@@ -1,1 +1,0 @@
-export { CollectionImage } from './CollectionImage'

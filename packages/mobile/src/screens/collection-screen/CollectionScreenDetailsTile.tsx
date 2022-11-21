@@ -17,7 +17,6 @@ import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { CollectionImage } from 'app/components/collection-image'
 import type { DynamicImageProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
@@ -25,6 +24,7 @@ import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'

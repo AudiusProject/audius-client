@@ -11,7 +11,6 @@ import type {
   RepostType
 } from '@audius/common'
 
-import type { TrackImage } from 'app/components/track-image'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
 import type { DynamicImageProps, TileProps } from '../core'

@@ -24,9 +24,9 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { CollectionImage } from 'app/components/collection-image'
 import type { DynamicImageProps } from 'app/components/core'
 import { Screen, VirtualizedScrollView } from 'app/components/core'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import type { SearchPlaylist, SearchUser } from 'app/store/search/types'

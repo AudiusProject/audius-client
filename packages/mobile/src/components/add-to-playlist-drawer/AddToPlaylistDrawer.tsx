@@ -16,10 +16,10 @@ import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
 import { CardList } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { ToastContext } from 'app/components/toast/ToastContext'
 import { makeStyles, shadow } from 'app/styles'
 
-import { CollectionImage } from '../collection-image'
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
 const { getAccountWithOwnPlaylists } = accountSelectors

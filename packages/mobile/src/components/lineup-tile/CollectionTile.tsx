@@ -28,8 +28,8 @@ import {
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { CollectionImage } from 'app/components/collection-image'
 import type { DynamicImageProps } from 'app/components/core/DynamicImage'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'

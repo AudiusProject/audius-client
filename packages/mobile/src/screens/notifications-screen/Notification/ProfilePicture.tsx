@@ -2,9 +2,9 @@ import { useCallback } from 'react'
 
 import { TouchableOpacity } from 'react-native'
 
+import type { UserImageProps } from 'app/components/image/UserImage'
 import type { ProfilePictureProps as ProfilePictureBaseProps } from 'app/components/user'
 import { ProfilePicture as ProfilePictureBase } from 'app/components/user'
-import type { UserImageProps } from 'app/components/user-image'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 

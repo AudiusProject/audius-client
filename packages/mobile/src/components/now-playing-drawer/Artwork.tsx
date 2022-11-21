@@ -4,7 +4,7 @@ import { Dimensions, View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
 import { useSelector } from 'react-redux'
 
-import { TrackImage } from 'app/components/track-image/TrackImage'
+import { TrackImage } from 'app/components/image/TrackImage'
 import { makeStyles } from 'app/styles'
 const { getDominantColorsByTrack } = averageColorSelectors
 

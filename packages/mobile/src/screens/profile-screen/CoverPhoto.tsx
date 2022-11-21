@@ -2,7 +2,7 @@ import { BlurView } from '@react-native-community/blur'
 import { Animated, Platform, StyleSheet } from 'react-native'
 
 import BadgeArtist from 'app/assets/images/badgeArtist.svg'
-import { CoverPhotoImage } from 'app/components/cover-photo-image'
+import { UserCoverImage } from 'app/components/image/UserCoverImage'
 import { makeStyles } from 'app/styles/makeStyles'
 
 import { useSelectProfile } from './selectors'
@@ -55,7 +55,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
 
   return (
     <>
-      <CoverPhotoImage
+      <UserCoverImage
         animatedValue={scrollY}
         styles={{ root: styles.imageRoot, image: styles.image }}
         user={user}
@@ -78,7 +78,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
             ]}
           />
         ) : null}
-      </CoverPhotoImage>
+      </UserCoverImage>
       {isArtist ? (
         <Animated.View
           style={[

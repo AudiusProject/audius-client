@@ -1,6 +1,6 @@
 import type { DynamicImageProps } from 'app/components/core'
-import type { UserImageProps } from 'app/components/user-image'
-import { UserImage } from 'app/components/user-image'
+import type { UserImageProps } from 'app/components/image/UserImage'
+import { UserImage } from 'app/components/image/UserImage'
 import { makeStyles } from 'app/styles/makeStyles'
 
 const useStyles = makeStyles(({ palette }) => ({

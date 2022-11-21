@@ -21,8 +21,8 @@ import {
 import { useNavigationState } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
-import { TrackImage } from 'app/components/track-image'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { DynamicImageProps, TileProps } from '../core'
