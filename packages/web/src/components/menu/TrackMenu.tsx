@@ -35,6 +35,7 @@ const { getAccountOwnedPlaylists } = accountSelectors
 const messages = {
   addToNewPlaylist: 'Add to New Playlist',
   addToPlaylist: 'Add to Playlist',
+  addToQueue: 'Add to Queue',
   copiedToClipboard: 'Copied To Clipboard!',
   embed: 'Embed',
   favorite: 'Favorite',
@@ -151,6 +152,13 @@ const TrackMenu = (props: TrackMenuProps) => {
       }
     }
 
+    const addToQueueMenuItem = {
+      text: messages.addToQueue,
+      onClick: () => {
+        // add functionality later
+      }
+    }
+
     const trackPageMenuItem = {
       text: messages.visitTrackPage,
       onClick: () => goToRoute(trackPermalink)
@@ -185,6 +193,8 @@ const TrackMenu = (props: TrackMenuProps) => {
     }
 
     const menu: { items: PopupMenuItem[] } = { items: [] }
+    
+    menu.items.push(addToQueueMenuItem)
 
     if (includeShare && !isDeleted) {
       menu.items.push(shareMenuItem)
