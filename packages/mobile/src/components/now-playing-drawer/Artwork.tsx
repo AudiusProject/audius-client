@@ -1,7 +1,7 @@
 import React from 'react'
 
 import type { CommonState, Nullable, Track } from '@audius/common'
-import { SquareSizes, averageColorSelectors } from '@audius/common'
+import { averageColorSelectors } from '@audius/common'
 import { Dimensions, View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
 import { useSelector } from 'react-redux'
@@ -42,11 +42,8 @@ type ArtworkProps = {
 
 export const Artwork = ({ track }: ArtworkProps) => {
   const styles = useStyles()
-  const image = useTrackCoverArt({
-    id: track?.track_id,
-    sizes: track?._cover_art_sizes ?? null,
-    size: SquareSizes.SIZE_1000_BY_1000
-  })
+
+  const { source, handleError } = useTrackCoverArt(track)
 
   const dominantColors = useSelector((state: CommonState) =>
     getDominantColorsByTrack(state, {
@@ -71,7 +68,7 @@ export const Artwork = ({ track }: ArtworkProps) => {
         startColor={shadowColor}
       >
         <View style={styles.image}>
-          <DynamicImage source={{ uri: image }} />
+          <DynamicImage source={source} onError={handleError} />
         </View>
       </Shadow>
     </View>

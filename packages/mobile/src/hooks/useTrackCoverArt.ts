@@ -1,26 +1,18 @@
-import type { Track, SquareSizes } from '@audius/common'
-import { cacheTracksActions, cacheUsersSelectors } from '@audius/common'
+import type { Track, Nullable } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
-import imageEmpty from 'app/assets/images/imageBlank2x.png'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
-import { getUseImageSizeHook } from 'app/hooks/useImageSize'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 const { getUser } = cacheUsersSelectors
-const { fetchCoverArt } = cacheTracksActions
 
-export const useTrackCoverArt = getUseImageSizeHook<SquareSizes>({
-  action: fetchCoverArt,
-  defaultImageSource: imageEmpty
-})
-
-export const useTrackCoverArtSource = (
-  track: Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+export const useTrackCoverArt = (
+  track: Nullable<Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>>
 ) => {
-  const cid = track.cover_art_sizes || track.cover_art
+  const cid = track ? track.cover_art_sizes || track.cover_art : null
 
-  const user = useSelector((state) => getUser(state, { id: track.owner_id }))
+  const user = useSelector((state) => getUser(state, { id: track?.owner_id }))
   // TODO: handle legacy format?
   // const coverArtSize = multihash === track.cover_art_sizes ? size : null
 

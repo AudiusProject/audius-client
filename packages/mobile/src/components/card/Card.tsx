@@ -5,7 +5,7 @@ import type {
   User
 } from '@audius/common'
 import { SquareSizes } from '@audius/common'
-import type { StyleProp, ViewStyle } from 'react-native'
+import type { ImageSourcePropType, StyleProp, ViewStyle } from 'react-native'
 import { Text, View } from 'react-native'
 
 import { DynamicImage, Tile } from 'app/components/core'
@@ -51,8 +51,8 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
 }))
 
 export type CardProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
+  imageSource: ImageSourcePropType
+  onImageError?: () => void
   onPress: () => void
   primaryText: string
   secondaryText?: string
@@ -61,29 +61,20 @@ export type CardProps = {
   user: User
 }
 
-type CardImageProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
-  type: CardType
-}
+// const CardImage = ({ id, type, imageSize }: CardImageProps) => {
+//   const useImage =
+//     type === 'user' ? useUserProfilePicture : useCollectionCoverArt
 
-const CardImage = ({ id, type, imageSize }: CardImageProps) => {
-  const useImage =
-    type === 'user' ? useUserProfilePicture : useCollectionCoverArt
+//   const image = useImage({
+//   })
 
-  const image = useImage({
-    id,
-    sizes: imageSize,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-
-  return <DynamicImage source={{ uri: image }} />
-}
+//   return <DynamicImage source={{ uri: image }} />
+// }
 
 export const Card = (props: CardProps) => {
   const {
-    id,
-    imageSize,
+    imageSource,
+    onImageError,
     onPress,
     primaryText,
     secondaryText,
@@ -101,7 +92,7 @@ export const Card = (props: CardProps) => {
     >
       <View style={styles.imgContainer}>
         <View style={[styles.cardImg, type === 'user' && styles.userImg]}>
-          <CardImage imageSize={imageSize} type={type} id={id} />
+          <DynamicImage source={imageSource} onError={onImageError} />
         </View>
       </View>
       <View style={styles.textContainer}>

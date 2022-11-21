@@ -33,7 +33,7 @@ import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArtSource } from 'app/hooks/useTrackCoverArt'
+import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { make, track as record } from 'app/services/analytics'
 import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -151,7 +151,7 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const { source: imageSource, handleError: handleImageError } =
-    useTrackCoverArtSource(track)
+    useTrackCoverArt(track)
 
   const isOwner = owner_id === currentUserId
 

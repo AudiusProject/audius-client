@@ -11,6 +11,7 @@ import {
 } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
+import type { ImageURISource } from 'react-native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -130,11 +131,7 @@ export const EditProfileScreen = () => {
     size: WidthSizes.SIZE_2000
   })
 
-  const profilePicture = useUserProfilePicture({
-    id: profile?.user_id ?? null,
-    sizes: profile?._profile_picture_sizes ?? null,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const { source: imageSource } = useUserProfilePicture(profile)
 
   const handleSubmit = useCallback(
     (values: ProfileValues) => {
@@ -183,7 +180,7 @@ export const EditProfileScreen = () => {
     website,
     donation,
     cover_photo: { url: coverPhoto },
-    profile_picture: { url: profilePicture }
+    profile_picture: { url: (imageSource as ImageURISource).uri }
   }
 
   return (

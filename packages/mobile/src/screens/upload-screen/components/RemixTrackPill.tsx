@@ -1,5 +1,4 @@
 import type { Track, User } from '@audius/common'
-import { SquareSizes } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 
 import { DynamicImage, Pill, Text } from 'app/components/core'
@@ -44,16 +43,14 @@ export const RemixTrackPill = (props: RemixTrackPillProps) => {
   const { track, user, style } = props
   const styles = useStyles()
 
-  const trackCoverArt = useTrackCoverArt({
-    id: track?.track_id,
-    sizes: track?._cover_art_sizes ?? null,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const { source: imageSource, handleError: handleImageError } =
+    useTrackCoverArt(track)
 
   return (
     <Pill style={[styles.trackPill, style]}>
       <DynamicImage
-        source={{ uri: trackCoverArt }}
+        source={imageSource}
+        onError={handleImageError}
         style={styles.trackArtwork}
       />
       <Text style={styles.trackText}>

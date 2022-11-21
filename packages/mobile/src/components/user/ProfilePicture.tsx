@@ -20,23 +20,28 @@ const useStyles = makeStyles(({ palette }) => ({
 }))
 
 export type ProfilePictureProps = Partial<DynamicImageProps> & {
-  profile: Nullable<Pick<User, 'user_id' | '_profile_picture_sizes' | 'handle'>>
+  profile: Nullable<
+    Pick<
+      User,
+      | 'user_id'
+      | 'profile_picture_sizes'
+      | 'profile_picture'
+      | 'creator_node_endpoint'
+    >
+  >
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
   const { styles: stylesProp, profile, ...other } = props
   const styles = useStyles()
 
-  const profilePicture = useUserProfilePicture({
-    id: profile?.user_id,
-    sizes: profile?._profile_picture_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const { source, handleError } = useUserProfilePicture(profile)
 
   return (
     <DynamicImage
       immediate
-      source={{ uri: profilePicture }}
+      source={source}
+      onError={handleError}
       styles={{
         ...stylesProp,
         root: {

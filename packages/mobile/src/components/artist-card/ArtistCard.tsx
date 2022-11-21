@@ -5,6 +5,7 @@ import type { StyleProp, ViewStyle } from 'react-native'
 
 import { Card } from 'app/components/card'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
 import { formatCount } from 'app/utils/format'
 
 const formatProfileCardSecondaryText = (followers: number) => {
@@ -24,11 +25,14 @@ export const ArtistCard = ({ artist, style }: ArtistCardProps) => {
     navigation.push('Profile', { handle })
   }, [navigation, handle])
 
+  const { source: imageSource, handleError: handleImageError } =
+    useUserProfilePicture(artist)
+
   return (
     <Card
       style={style}
-      id={artist.user_id}
-      imageSize={artist._profile_picture_sizes}
+      imageSource={imageSource}
+      onImageError={handleImageError}
       primaryText={artist.name}
       secondaryText={formatProfileCardSecondaryText(artist.follower_count)}
       onPress={handlePress}

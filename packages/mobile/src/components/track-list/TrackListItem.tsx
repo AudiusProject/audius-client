@@ -113,7 +113,6 @@ export const TrackListItem = ({
   trackItemAction
 }: TrackListItemProps) => {
   const {
-    _cover_art_sizes,
     has_current_user_saved,
     is_delete,
     is_unlisted,
@@ -190,8 +189,7 @@ export const TrackListItem = ({
       >
         {!hideArt ? (
           <TrackArtwork
-            trackId={track_id}
-            coverArtSizes={_cover_art_sizes}
+            track={track}
             isActive={isActive}
             isPlaying={isPlaying}
           />

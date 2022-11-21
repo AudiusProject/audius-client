@@ -1,11 +1,7 @@
 import { useCallback } from 'react'
 
 import type { Nullable, Track, User } from '@audius/common'
-import {
-  FavoriteSource,
-  SquareSizes,
-  tracksSocialActions
-} from '@audius/common'
+import { FavoriteSource, tracksSocialActions } from '@audius/common'
 import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -91,12 +87,8 @@ type PlayBarProps = {
 }
 
 const PlayBarArtwork = ({ track }: { track: Track }) => {
-  const image = useTrackCoverArt({
-    id: track.track_id,
-    sizes: track._cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-  return <DynamicImage source={{ uri: image }} />
+  const { source, handleError } = useTrackCoverArt(track)
+  return <DynamicImage source={source} onError={handleError} />
 }
 
 export const PlayBar = ({
