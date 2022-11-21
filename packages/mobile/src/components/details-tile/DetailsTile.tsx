@@ -59,7 +59,6 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     height: 195,
     width: 195,
     marginBottom: spacing(6),
-    backgroundColor: palette.neutralLight7,
     alignSelf: 'center'
   },
 
@@ -170,8 +169,9 @@ export const DetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
-  imageUrl,
+  imageSource,
   isPlaying,
+  onImageError,
   onPressFavorites,
   onPressOverflow,
   onPressPlay,
@@ -231,18 +231,18 @@ export const DetailsTile = ({
     })
   }
 
-  const imageElement = coSign ? (
-    <CoSign size={Size.LARGE}>
-      <DynamicImage
-        source={{ uri: imageUrl }}
-        styles={{ image: styles.coverArt as ImageStyle }}
-      />
-    </CoSign>
-  ) : (
+  const innerImageElement = (
     <DynamicImage
-      source={{ uri: imageUrl }}
+      source={imageSource}
+      onError={onImageError}
       styles={{ image: styles.coverArt as ImageStyle }}
     />
+  )
+
+  const imageElement = coSign ? (
+    <CoSign size={Size.LARGE}>{innerImageElement}</CoSign>
+  ) : (
+    innerImageElement
   )
 
   return (

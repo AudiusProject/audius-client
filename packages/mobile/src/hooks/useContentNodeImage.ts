@@ -9,6 +9,10 @@ export type ContentNodeImageSource = {
   handleError: () => void
 }
 
+/**
+ * Load an image hosted on content nodes
+ * Returns props for the Image component
+ */
 export const useContentNodeImage = (
   cid: Nullable<CID>,
   endpoints: string[]
@@ -27,10 +31,7 @@ export const useContentNodeImage = (
           return {
             width,
             height: width,
-            uri:
-              i === 0
-                ? `${gateway}${cid}/${size}.jpg`
-                : `${gateway}${cid}/${size}.jpg`
+            uri: `${gateway}${cid}/${size}.jpg`
           }
         })
       ],

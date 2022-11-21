@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import type { Track, User } from '@audius/common'
-import type { TextStyle } from 'react-native'
+import type { ImageSourcePropType, TextStyle } from 'react-native'
 
 import type { SearchUser } from 'app/store/search/types'
 import type { GestureResponderHandler } from 'app/types/gesture'
@@ -57,11 +57,14 @@ export type DetailsTileProps = {
   /** Hide the share button */
   hideShare?: boolean
 
-  /** Url of the image */
-  imageUrl?: string
+  /** Source of the image */
+  imageSource?: ImageSourcePropType
 
   /** Is the item playing */
   isPlaying?: boolean
+
+  /** Function to call when there is an error loading the image */
+  onImageError?: () => void
 
   /** Function to call when the favorites count is pressed */
   onPressFavorites?: GestureResponderHandler

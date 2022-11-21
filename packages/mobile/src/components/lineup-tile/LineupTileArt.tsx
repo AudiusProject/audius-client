@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
 import type { Remix } from '@audius/common'
-import { useLoadImageWithTimeout } from '@audius/common'
 import type {
   ImageSourcePropType,
   ImageStyle,
@@ -39,10 +38,16 @@ export const LineupTileArt = ({
     [trackTileStyles]
   )
 
-  useLoadImageWithTimeout(imageSource, onLoad)
+  // TODO: do this in a different way
+  // useLoadImageWithTimeout(imageSource, onLoad)
 
   const imageElement = (
-    <DynamicImage source={imageSource} styles={imageStyles} onError={onError} />
+    <DynamicImage
+      source={imageSource}
+      styles={imageStyles}
+      onError={onError}
+      onLoad={onLoad}
+    />
   )
 
   return coSign ? (

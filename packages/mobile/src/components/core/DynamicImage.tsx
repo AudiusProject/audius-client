@@ -135,7 +135,11 @@ export const DynamicImage = memo(function DynamicImage({
         ]}
         onLayout={handleSetSize}
       >
-        <Skeleton style={[{ width: size, height: size }, stylesProp?.image]} />
+        <Skeleton
+          width={size}
+          height={size}
+          style={[{ width: size, height: size }, stylesProp?.image]}
+        />
       </Animated.View>
       {children ? <View style={styles.children}>{children}</View> : null}
     </Animated.View>

@@ -33,7 +33,7 @@ import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+import { useTrackCoverArtSource } from 'app/hooks/useTrackCoverArt'
 import { make, track as record } from 'app/services/analytics'
 import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -129,7 +129,6 @@ export const TrackScreenDetailsTile = ({
 
   const {
     _co_sign,
-    _cover_art_sizes,
     created_at,
     credits_splits,
     description,
@@ -151,11 +150,8 @@ export const TrackScreenDetailsTile = ({
     track_id
   } = track
 
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_480_BY_480
-  })
+  const { source: imageSource, handleError: handleImageError } =
+    useTrackCoverArtSource(track)
 
   const isOwner = owner_id === currentUserId
 
@@ -327,7 +323,8 @@ export const TrackScreenDetailsTile = ({
       details={details}
       hasReposted={has_current_user_reposted}
       hasSaved={has_current_user_saved}
-      imageUrl={imageUrl}
+      imageSource={imageSource}
+      onImageError={handleImageError}
       user={user}
       renderBottomContent={renderBottomContent}
       renderHeader={is_unlisted ? renderHiddenHeader : undefined}

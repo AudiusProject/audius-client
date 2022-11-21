@@ -15,10 +15,13 @@ export const useTrackCoverArt = getUseImageSizeHook<SquareSizes>({
   defaultImageSource: imageEmpty
 })
 
-export const useTrackCoverArtUrls = (track: Track) => {
+export const useTrackCoverArtSource = (
+  track: Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+) => {
   const cid = track.cover_art_sizes || track.cover_art
 
   const user = useSelector((state) => getUser(state, { id: track.owner_id }))
+  // TODO: handle legacy format?
   // const coverArtSize = multihash === track.cover_art_sizes ? size : null
 
   const gateways = user

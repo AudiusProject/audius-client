@@ -8,7 +8,6 @@ import {
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes,
   cacheTracksSelectors,
   cacheUsersSelectors,
   tracksSocialActions,
@@ -24,10 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
-import {
-  useTrackCoverArt,
-  useTrackCoverArtUrls
-} from 'app/hooks/useTrackCoverArt'
+import { useTrackCoverArtSource } from 'app/hooks/useTrackCoverArt'
 
 import type { TileProps } from '../core'
 
@@ -94,7 +90,7 @@ export const TrackTileComponent = ({
   const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
 
   const { source: imageSource, handleError: handleImageError } =
-    useTrackCoverArtUrls(track)
+    useTrackCoverArtSource(track)
 
   const handlePress = useCallback(() => {
     togglePlay({
