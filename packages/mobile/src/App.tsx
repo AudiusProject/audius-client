@@ -28,6 +28,7 @@ import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
 import { useEnterForeground } from './hooks/useAppState'
+import { MostListenedCache } from './services/most-listened-cache'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -63,6 +64,7 @@ const App = () => {
 
   useEffectOnce(() => {
     subscribeToNetworkStatusUpdates()
+    MostListenedCache.initialize()
   })
 
   useEnterForeground(() => {
