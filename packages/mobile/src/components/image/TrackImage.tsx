@@ -3,8 +3,8 @@ import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
-import { DynamicImage } from 'app/components/core'
-import type { DynamicImageProps } from 'app/components/core'
+import { ImageLoader } from 'app/components/core'
+import type { ImageLoaderProps } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
 const { getUser } = cacheUsersSelectors
@@ -27,12 +27,12 @@ export const useTrackImage = (
 
 type TrackImageProps = {
   track: Parameters<typeof useTrackImage>[0]
-} & DynamicImageProps
+} & ImageLoaderProps
 
 export const TrackImage = (props: TrackImageProps) => {
   const { track, ...imageProps } = props
 
   const { source, handleError } = useTrackImage(track)
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return <ImageLoader {...imageProps} source={source} onError={handleError} />
 }

@@ -25,7 +25,7 @@ import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
 
-import type { DynamicImageProps, TileProps } from '../core'
+import type { ImageLoaderProps, TileProps } from '../core'
 
 import { LineupTile } from './LineupTile'
 
@@ -90,7 +90,7 @@ export const TrackTileComponent = ({
   const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    (props: ImageLoaderProps) => <TrackImage track={track} {...props} />,
     [track]
   )
 

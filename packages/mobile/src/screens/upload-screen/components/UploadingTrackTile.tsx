@@ -2,7 +2,7 @@ import type { UploadTrack } from '@audius/common'
 import { View } from 'react-native'
 
 import IconImage from 'app/assets/images/iconImage.svg'
-import { DynamicImage, LinearProgress, Text, Tile } from 'app/components/core'
+import { ImageLoader, LinearProgress, Text, Tile } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
@@ -44,7 +44,7 @@ export const UploadingTrackTile = (props: UploadingTrackTileProps) => {
   return (
     <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
       <View style={styles.content}>
-        <DynamicImage source={{ uri: artwork.url }} style={styles.artwork}>
+        <ImageLoader source={{ uri: artwork.url }} style={styles.artwork}>
           {artwork.url ? null : (
             <IconImage
               fill={neutralLight8}
@@ -52,7 +52,7 @@ export const UploadingTrackTile = (props: UploadingTrackTileProps) => {
               width={spacing(8)}
             />
           )}
-        </DynamicImage>
+        </ImageLoader>
         <Text weight='demiBold' style={styles.title}>
           {title}
         </Text>

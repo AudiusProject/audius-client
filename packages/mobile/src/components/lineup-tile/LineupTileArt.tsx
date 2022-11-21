@@ -10,7 +10,7 @@ import type {
 import { View } from 'react-native'
 
 import CoSign, { Size } from 'app/components/co-sign'
-import { DynamicImage } from 'app/components/core'
+import { ImageLoader } from 'app/components/core'
 
 import { useStyles as useTrackTileStyles } from './styles'
 import type { LineupTileProps } from './types'

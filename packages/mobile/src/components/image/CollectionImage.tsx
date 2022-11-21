@@ -3,8 +3,8 @@ import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
-import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage } from 'app/components/core'
+import type { ImageLoaderProps } from 'app/components/core'
+import { ImageLoader } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
 const { getUser } = cacheUsersSelectors
@@ -35,11 +35,11 @@ type CollectionImageProps = {
   collection: Nullable<
     Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
   >
-} & DynamicImageProps
+} & ImageLoaderProps
 
 export const CollectionImage = (props: CollectionImageProps) => {
   const { collection, ...imageProps } = props
   const { source, handleError } = useCollectionImage(collection)
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return <ImageLoader {...imageProps} source={source} onError={handleError} />
 }

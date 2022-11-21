@@ -2,8 +2,8 @@ import type { Nullable, User } from '@audius/common'
 import { WidthSizes } from '@audius/common'
 
 import imageCoverPhotoBlank from 'app/assets/images/imageCoverPhotoBlank.jpg'
-import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage } from 'app/components/core'
+import type { ImageLoaderProps } from 'app/components/core'
+import { ImageLoader } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
 export const useUserCoverImage = (
@@ -27,12 +27,12 @@ type UserCoverImageProps = {
   user: Nullable<
     Pick<User, 'cover_photo_sizes' | 'cover_photo' | 'creator_node_endpoint'>
   >
-} & DynamicImageProps
+} & ImageLoaderProps
 
 export const UserCoverImage = (props: UserCoverImageProps) => {
   const { user, ...imageProps } = props
 
   const { source, handleError } = useUserCoverImage(user)
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return <ImageLoader {...imageProps} source={source} onError={handleError} />
 }

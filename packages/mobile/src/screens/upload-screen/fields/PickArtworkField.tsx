@@ -7,7 +7,7 @@ import type { Asset } from 'react-native-image-picker'
 
 import IconCamera from 'app/assets/images/iconCamera.svg'
 import IconImage from 'app/assets/images/iconImage.svg'
-import { Button, DynamicImage } from 'app/components/core'
+import { Button, ImageLoader } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { makeStyles } from 'app/styles'
@@ -88,7 +88,7 @@ export const PickArtworkField = () => {
 
   return (
     <View style={styles.root}>
-      <DynamicImage
+      <ImageLoader
         source={{ uri }}
         onLoad={() => setIsLoading(false)}
         style={styles.image}
@@ -110,7 +110,7 @@ export const PickArtworkField = () => {
             onPress={handlePress}
           />
         </View>
-      </DynamicImage>
+      </ImageLoader>
       {error && touched ? (
         <InputErrorMessage
           message={`${capitalize(name)} ${(error as unknown as Error).url}`}

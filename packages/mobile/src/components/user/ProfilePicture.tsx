@@ -1,4 +1,4 @@
-import type { DynamicImageProps } from 'app/components/core'
+import type { ImageLoaderProps } from 'app/components/core'
 import type { UserImageProps } from 'app/components/image/UserImage'
 import { UserImage } from 'app/components/image/UserImage'
 import { makeStyles } from 'app/styles/makeStyles'
@@ -16,7 +16,7 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export type ProfilePictureProps = Partial<DynamicImageProps> & {
+export type ProfilePictureProps = Partial<ImageLoaderProps> & {
   profile: UserImageProps['user']
 }
 

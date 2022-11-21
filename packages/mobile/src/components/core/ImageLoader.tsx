@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react'
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 
-import type { Maybe } from '@audius/common'
-import { useInstanceVar } from '@audius/common'
 import type {
   ImageProps,
   ImageSourcePropType,
@@ -16,7 +14,7 @@ import { Animated, Image, StyleSheet, View } from 'react-native'
 import Skeleton from 'app/components/skeleton'
 import type { StylesProp } from 'app/styles'
 
-export type DynamicImageProps = Omit<ImageProps, 'source'> & {
+export type ImageLoaderProps = Omit<ImageProps, 'source'> & {
   source?: ImageSourcePropType
   styles?: StylesProp<{
     root: ViewStyle
@@ -68,9 +66,9 @@ const interpolateImageTranslate = (animatedValue: Animated.Value) =>
   })
 
 /**
- * A dynamic image that transitions between changes to the `uri` prop.
+ * Displays a skeleton while loading and image and then fades in the image
  */
-export const DynamicImage = memo(function DynamicImage({
+export const ImageLoader = memo(function ImageLoader({
   source,
   style,
   styles: stylesProp,
@@ -79,7 +77,7 @@ export const DynamicImage = memo(function DynamicImage({
   onLoad,
   animatedValue,
   ...imageProps
-}: DynamicImageProps) {
+}: ImageLoaderProps) {
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
   const [animationFinished, setAnimationFinished] = useState(false)

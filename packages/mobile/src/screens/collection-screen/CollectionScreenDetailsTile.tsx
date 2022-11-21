@@ -17,7 +17,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core'
+import type { ImageLoaderProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
@@ -150,7 +150,7 @@ export const CollectionScreenDetailsTile = ({
   const isQueued = entries.some((entry) => playingUid === entry.uid)
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => (
+    (props: ImageLoaderProps) => (
       <CollectionImage collection={collection as Collection} {...props} />
     ),
     [collection]

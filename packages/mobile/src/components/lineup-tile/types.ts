@@ -13,7 +13,7 @@ import type {
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 
-import type { DynamicImageProps, TileProps } from '../core'
+import type { ImageLoaderProps, TileProps } from '../core'
 
 export type LineupItemProps = {
   /** Index of tile in lineup */
@@ -63,7 +63,7 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   id: ID
 
   /** Render function for the image */
-  renderImage: (props: DynamicImageProps) => ReactNode
+  renderImage: (props: ImageLoaderProps) => ReactNode
 
   /** The item (track or collection) */
   item: Track | Collection
