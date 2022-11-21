@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import type { UploadTrack } from '@audius/common'
-import type { FormikProps } from 'formik'
 import { Keyboard } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useDispatch } from 'react-redux'
@@ -16,9 +15,8 @@ import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
 import { TopBarIconButton } from '../app-screen'
-import { CancelEditTrackDrawer, FormScreen } from '../upload-screen/components'
-import type { FormValues } from '../upload-screen/types'
 
+import { CancelEditTrackDrawer, FormScreen } from './components'
 import {
   PickArtworkField,
   SelectGenreField,
@@ -30,9 +28,9 @@ import {
   RemixSettingsField,
   AdvancedOptionsField
 } from './fields'
+import type { EditTrackFormProps } from './types'
 
 const messages = {
-  screenTitle: 'Complete Track',
   trackName: 'Track Name',
   trackNameError: 'Track Name Required',
   continue: 'Continue',
@@ -56,8 +54,8 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export type EditTrackParams = UploadTrack
 
-export const EditTrackForm = (props: FormikProps<FormValues>) => {
-  const { handleSubmit, isSubmitting, errors, touched, dirty } = props
+export const EditTrackForm = (props: EditTrackFormProps) => {
+  const { handleSubmit, isSubmitting, errors, touched, dirty, title } = props
   const errorsKeys = Object.keys(errors)
   const hasErrors =
     errorsKeys.length > 0 && errorsKeys.every((errorKey) => touched[errorKey])
@@ -81,7 +79,7 @@ export const EditTrackForm = (props: FormikProps<FormValues>) => {
 
   return (
     <FormScreen
-      title={messages.screenTitle}
+      title={title}
       icon={IconUpload}
       topbarLeft={
         <TopBarIconButton

@@ -1,5 +1,8 @@
+import type { Nullable } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+
+export type DrawerData = Record<string, unknown>
 
 export type Drawer =
   | 'EnablePushNotifications'
@@ -8,8 +11,11 @@ export type Drawer =
   | 'ForgotPassword'
   | 'NowPlaying'
   | 'CancelEditTrack'
+  | 'DeleteConfirmation'
 
-export type DrawersState = { [drawer in Drawer]: boolean | 'closing' }
+export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
+  data: Nullable<DrawerData>
+}
 
 const initialState: DrawersState = {
   EnablePushNotifications: false,
@@ -17,22 +23,29 @@ const initialState: DrawersState = {
   DownloadTrackProgress: false,
   ForgotPassword: false,
   NowPlaying: false,
-  CancelUpload: false
+  CancelEditTrack: false,
+  DeleteConfirmation: false,
+  data: null
 }
+
+type SetVisibilityAction = PayloadAction<{
+  drawer: Drawer
+  visible: boolean | 'closing'
+  data?: DrawerData
+}>
 
 const slice = createSlice({
   name: 'DRAWERS',
   initialState,
   reducers: {
-    setVisibility: (
-      state,
-      action: PayloadAction<{
-        drawer: Drawer
-        visible: boolean | 'closing'
-      }>
-    ) => {
-      const { drawer, visible } = action.payload
+    setVisibility: (state, action: SetVisibilityAction) => {
+      const { drawer, visible, data } = action.payload
       state[drawer] = visible
+      if (visible && data) {
+        state.data = data
+      } else if (!visible) {
+        state.data = null
+      }
     }
   }
 })

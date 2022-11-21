@@ -1,9 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import type { FormikProps } from 'formik'
 
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
-
-import type { FormValues } from '../upload-screen/types'
 
 import { EditTrackForm } from './EditTrackForm'
 import {
@@ -15,12 +12,15 @@ import {
   SelectMoodScreen,
   TrackVisibilityScreen
 } from './screens'
+import type { EditTrackFormProps } from './types'
 
 const Stack = createNativeStackNavigator()
 
 const screenOptionOverrides = { headerRight: () => null }
 
-export const EditTrackNavigator = (props: FormikProps<FormValues>) => {
+type EditTrackNavigatorProps = EditTrackFormProps
+
+export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
   const screenOptions = useAppScreenOptions(screenOptionOverrides)
 
   return (

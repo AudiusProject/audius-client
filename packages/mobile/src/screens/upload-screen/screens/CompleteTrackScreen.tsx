@@ -4,9 +4,14 @@ import type { UploadTrack } from '@audius/common'
 import { useRoute } from '@react-navigation/native'
 
 import { useNavigation } from 'app/hooks/useNavigation'
+import type { FormValues } from 'app/screens/edit-track-screen/types'
 
 import { EditTrackScreen } from '../../edit-track-screen'
-import type { FormValues, UploadParamList, UploadRouteProp } from '../types'
+import type { UploadParamList, UploadRouteProp } from '../types'
+
+const messages = {
+  title: 'Complete Track'
+}
 
 export type CompleteTrackParams = UploadTrack
 
@@ -24,5 +29,11 @@ export const CompleteTrackScreen = () => {
     [navigation, file]
   )
 
-  return <EditTrackScreen initialValues={metadata} onSubmit={handleSubmit} />
+  return (
+    <EditTrackScreen
+      initialValues={metadata}
+      onSubmit={handleSubmit}
+      title={messages.title}
+    />
+  )
 }

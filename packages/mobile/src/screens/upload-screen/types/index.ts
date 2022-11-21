@@ -1,2 +1,2 @@
 export * from './ParamList'
-export * from './FormValues'
+export * from '../../edit-track-screen/types/FormValues'

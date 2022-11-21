@@ -21,6 +21,8 @@ export const NativeDrawer = (props: NativeDrawerProps) => {
 
   const { isOpen, onClose, onClosed } = useDrawer(drawerName)
 
+  console.log('isopen?', isOpen)
+
   const handleClose = useCallback(() => {
     onCloseProp?.()
     onClose()

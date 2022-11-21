@@ -1,29 +1,29 @@
-import type { ExtendedTrackMetadata, UploadTrack } from '@audius/common'
+import type { UploadTrack } from '@audius/common'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 
-import type { FormValues } from '../upload-screen/types'
-
 import { EditTrackNavigator } from './EditTrackNavigator'
+import type { FormValues, EditTrackScreenProps } from './types'
 
 const EditTrackSchema = Yup.object().shape({
   title: Yup.string().required('Required'),
   artwork: Yup.object({
-    url: Yup.string().nullable().required('Required')
-  }),
+    url: Yup.string()
+  })
+    .when('trackArtwork', {
+      is: undefined,
+      then: Yup.object().required('Required').nullable()
+    })
+    .nullable(),
+  trackArtwork: Yup.string().nullable(),
   genre: Yup.string().required('Required'),
   description: Yup.string().max(1000).nullable()
 })
 
 export type EditTrackParams = UploadTrack
 
-export type EditTrackScreenProps = {
-  onSubmit: (values: ExtendedTrackMetadata) => void
-  initialValues: ExtendedTrackMetadata
-}
-
 export const EditTrackScreen = (props: EditTrackScreenProps) => {
-  const { initialValues: initialValuesProp, onSubmit } = props
+  const { initialValues: initialValuesProp, onSubmit, ...screenProps } = props
 
   const initialValues: FormValues = {
     ...initialValuesProp,
@@ -38,8 +38,11 @@ export const EditTrackScreen = (props: EditTrackScreenProps) => {
     <Formik<FormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
-      component={EditTrackNavigator}
       validationSchema={EditTrackSchema}
-    />
+    >
+      {(formikProps) => (
+        <EditTrackNavigator {...formikProps} {...screenProps} />
+      )}
+    </Formik>
   )
 }
