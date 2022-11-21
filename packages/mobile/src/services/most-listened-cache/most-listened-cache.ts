@@ -4,8 +4,8 @@ import { orderBy, take } from 'lodash'
 const MOST_LISTENED_CACHE_TOP_N_LIMIT = 4
 
 type MostListenedCategoryCache = {
-  topN: { id: string; count: number }[]
-  counts: { [key: string]: number }
+  topN: { id: number; count: number }[]
+  counts: { [key: number]: number }
 }
 
 type MostListenedCacheData = {
@@ -21,15 +21,23 @@ export class MostListenedCache {
   }
 
   static async initialize() {
-    getStoredMostListenedCache().then((storedCache) => {
-      return new MostListenedCache(storedCache)
-    })
+    const storedCache = await MostListenedCache.getStoredMostListenedCache()
+    return new MostListenedCache(storedCache)
   }
 
-  incrementCount(
-    idToIncrement: string,
+  incrementTrack(trackId: number) {
+    return this.incrementCount(trackId, this.cache.tracks)
+  }
+
+  incrementCollection(collectionId: number) {
+    return this.incrementCount(collectionId, this.cache.collections)
+  }
+
+  private incrementCount(
+    idToIncrement: number,
     categoryCache: MostListenedCategoryCache
   ) {
+    console.log('MostListenedCache - incrementing count', idToIncrement)
     // TODO: test this logic
     const newCount = ++categoryCache.counts[idToIncrement]
     const existing = categoryCache.topN.find(
@@ -48,30 +56,15 @@ export class MostListenedCache {
         )
       }
     }
+    console.log('MostListenedCache - updatedCache', this.cache)
+    this.updateStoredCache()
   }
 
-  async logLocalTrackListen(trackId: string) {
+  async updateStoredCache() {
     try {
-      this.cache.tracks[trackId]++
-      await AsyncStorage.mergeItem(
+      await AsyncStorage.setItem(
         '@offline_collections',
-        JSON.stringify({
-          [trackId]: this.cache.tracks[trackId]
-        })
-      )
-    } catch (e) {
-      console.warn('Error updating most_listened_cache', e)
-    }
-  }
-
-  async logLocalCollectionListen(collectionId: string) {
-    try {
-      this.cache.collections[collectionId]++
-      await AsyncStorage.mergeItem(
-        '@offline_collections',
-        JSON.stringify({
-          [collectionId]: this.cache.collections[collectionId]
-        })
+        JSON.stringify(this.cache)
       )
     } catch (e) {
       console.warn('Error updating most_listened_cache', e)
@@ -79,18 +72,25 @@ export class MostListenedCache {
   }
 
   getMostListenedCollections = () => {
-    this.cache.collections.orderBy()
+    return this.cache.collections.topN.map(({ id, count }) => id)
+  }
+
+  static async getStoredMostListenedCache() {
+    try {
+      const mostListenedCache = await AsyncStorage.getItem(
+        '@most_listened_cache'
+      )
+
+      if (!mostListenedCache) return {}
+
+      return JSON.parse(mostListenedCache)
+    } catch (e) {
+      console.warn('Error reading most_listened_cache', e)
+    }
   }
 }
 
-export const getStoredMostListenedCache = async () => {
-  try {
-    const mostListenedCache = await AsyncStorage.getItem('@most_listened_cache')
-
-    if (!mostListenedCache) return {}
-
-    return JSON.parse(mostListenedCache)
-  } catch (e) {
-    console.warn('Error reading most_listened_cache', e)
-  }
-}
+export let mostListenedCache: MostListenedCache
+MostListenedCache.initialize().then(
+  (initializedCache) => (mostListenedCache = initializedCache)
+)

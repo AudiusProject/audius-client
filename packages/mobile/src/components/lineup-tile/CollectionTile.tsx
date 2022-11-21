@@ -31,6 +31,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { mostListenedCache } from 'app/services/most-listened-cache'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
@@ -133,12 +134,19 @@ const CollectionTileComponent = ({
   const handlePress = useCallback(() => {
     if (!tracks.length) return
 
+    mostListenedCache.incrementCollection(collection.playlist_id)
     togglePlay({
       uid: currentTrack?.uid ?? tracks[0]?.uid ?? null,
       id: currentTrack?.track_id ?? tracks[0]?.track_id ?? null,
       source: PlaybackSource.PLAYLIST_TILE_TRACK
     })
-  }, [currentTrack, togglePlay, tracks])
+  }, [
+    collection.playlist_id,
+    currentTrack?.track_id,
+    currentTrack?.uid,
+    togglePlay,
+    tracks
+  ])
 
   const handlePressTitle = useCallback(() => {
     navigation.push('Collection', { id: playlist_id })
