@@ -41,3 +41,9 @@ export const getAccountCollections = (
       a.playlist_name.toLowerCase().localeCompare(b.playlist_name.toLowerCase())
     )
 }
+
+export const getCollectionList = (state: CommonState, ids: number[]) => {
+  const collections = state.collections.entries
+
+  return ids.map((id) => collections[id].metadata)
+}

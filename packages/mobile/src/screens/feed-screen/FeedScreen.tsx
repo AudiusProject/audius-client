@@ -22,6 +22,7 @@ import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
 
 import { FeedFilterButton } from './FeedFilterButton'
+import { FeedMostPlayedTile } from 'app/components/feed-most-played-tile/FeedMostPlayedTile'
 const { getDiscoverFeedLineup } = feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
 
@@ -31,6 +32,7 @@ const dimensions = Dimensions.get('window')
 
 const messages = {
   header: 'Your Feed',
+  listenNow: 'Listen Now',
   emptyFeed: `Oops! There's nothing here.`
 }
 
@@ -58,6 +60,14 @@ export const FeedScreen = () => {
 
   return (
     <Screen>
+      <ScreenHeader
+        text={messages.listenNow}
+        icon={IconFeed}
+        styles={{ icon: { marginLeft: 2 } }}
+      />
+      <ScreenContent>
+        <FeedMostPlayedTile />
+      </ScreenContent>
       <ScreenHeader
         text={messages.header}
         icon={IconFeed}
