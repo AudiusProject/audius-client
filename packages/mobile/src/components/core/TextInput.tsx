@@ -10,6 +10,7 @@ import type {
   ViewStyle
 } from 'react-native'
 import {
+  Keyboard,
   InputAccessoryView,
   Animated,
   TextInput as RNTextInput,
@@ -26,7 +27,7 @@ import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { convertHexToRGBA } from 'app/utils/convertHexToRGBA'
 import { mergeRefs } from 'app/utils/mergeRefs'
-import { useThemeColors } from 'app/utils/theme'
+import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import { TextButton } from './TextButton'
 
@@ -77,6 +78,14 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   startAdornment: {},
   endAdornment: {
     alignSelf: 'flex-end'
+  },
+  inputAccessory: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  doneButton: {
+    marginRight: spacing(4),
+    marginVertical: spacing(3)
   }
 }))
 
@@ -241,6 +250,8 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const { neutral, neutralLight4, secondary, neutralLight7 } =
       useThemeColors()
 
+    const themeVariant = useThemeVariant()
+
     return (
       <Pressable onPress={handlePressRoot}>
         <Animated.View
@@ -341,20 +352,22 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         </Animated.View>
         {hideInputAccessory ? null : (
           <InputAccessoryView nativeID={inputAccessoryViewID}>
-            <BlurView blurType='thinMaterial' blurAmount={20}>
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'flex-end' }}
-              >
-                <TextButton
-                  variant='secondary'
-                  title={messages.done}
-                  TextProps={{ fontSize: 'large', weight: 'demiBold' }}
-                  style={{
-                    marginRight: spacing(4),
-                    marginVertical: spacing(4)
-                  }}
-                />
-              </View>
+            <BlurView
+              blurType={
+                themeVariant === Theme.DEFAULT
+                  ? 'thinMaterialLight'
+                  : 'thinMaterialDark'
+              }
+              blurAmount={20}
+              style={styles.inputAccessory}
+            >
+              <TextButton
+                variant='secondary'
+                title={messages.done}
+                TextProps={{ fontSize: 'large', weight: 'demiBold' }}
+                style={styles.doneButton}
+                onPress={Keyboard.dismiss}
+              />
             </BlurView>
           </InputAccessoryView>
         )}
