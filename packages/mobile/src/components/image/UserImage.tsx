@@ -13,8 +13,6 @@ export const useUserImage = (
     >
   >
 ) => {
-  // TODO: handle legacy format?
-  // const cid = multihash === track.cover_art_sizes ? size : null
   const cid = user ? user.profile_picture_sizes || user.profile_picture : null
   const useLegacyImagePath = !user?.profile_picture_sizes
 

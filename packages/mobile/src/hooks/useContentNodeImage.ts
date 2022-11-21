@@ -38,12 +38,12 @@ export const useContentNodeImage = ({
 
   const endpoints = useMemo(
     () =>
-      user
+      user?.creator_node_endpoint
         ? audiusBackendInstance.getCreatorNodeIPFSGateways(
             user.creator_node_endpoint
           )
         : [],
-    [user]
+    [user?.creator_node_endpoint]
   )
 
   const imageUrisByNode = useMemo(() => {
@@ -84,10 +84,21 @@ export const useContentNodeImage = ({
 
   const result = useMemo(
     () => ({
-      source: failedToLoad ? fallbackImageSource : imageUrisByNode[nodeIndex],
+      source:
+        !user || !cid || failedToLoad
+          ? fallbackImageSource
+          : imageUrisByNode[nodeIndex],
       handleError
     }),
-    [imageUrisByNode, nodeIndex, handleError, fallbackImageSource, failedToLoad]
+    [
+      imageUrisByNode,
+      nodeIndex,
+      handleError,
+      fallbackImageSource,
+      failedToLoad,
+      user,
+      cid
+    ]
   )
 
   return result
