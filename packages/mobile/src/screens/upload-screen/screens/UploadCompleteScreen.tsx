@@ -27,7 +27,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
 
-import { FormScreenProps } from '../components'
+import { FormScreen } from '../components'
 const { getTracks } = uploadSelectors
 const { reset } = uploadActions
 const { getAccountUser } = accountSelectors
