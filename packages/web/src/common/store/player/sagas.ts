@@ -11,10 +11,10 @@ import {
   actionChannelDispatcher,
   playerActions,
   playerSelectors,
-  reachabilitySelectors,
   Nullable,
-  getPremiumContentHeaders,
-  FeatureFlags
+  FeatureFlags,
+  premiumContentSelectors,
+  QueryParams
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -30,7 +30,6 @@ import {
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
-const { getIsReachable } = reachabilitySelectors
 
 const {
   play,
@@ -51,6 +50,7 @@ const { getTrackId, getUid, getCounter, getPlaying } = playerSelectors
 const { recordListen } = tracksSocialActions
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
@@ -65,12 +65,14 @@ export function* watchPlay() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const isNativeMobile = yield* getContext('isNativeMobile')
-  const isReachable = yield* select(getIsReachable)
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   const streamMp3IsEnabled = yield* call(
     getFeatureEnabled,
     FeatureFlags.STREAM_MP3
+  ) ?? false
+  const isPremiumContentEnabled = yield* call(
+    getFeatureEnabled,
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
   ) ?? false
 
   yield* takeLatest(play.type, function* (action: ReturnType<typeof play>) {
@@ -92,7 +94,11 @@ export function* watchPlay() {
       // Load and set end action.
       const track = yield* select(getTrack, { id: trackId })
       if (!track) return
-      if (track.is_premium && !track.premium_content_signature) return
+      if (track.is_premium && !track.premium_content_signature) {
+        console.warn(
+          'Should have signature for premium track to reduce potential DN latency'
+        )
+      }
 
       const owner = yield* select(getUser, {
         id: track.owner_id
@@ -108,20 +114,27 @@ export function* watchPlay() {
         // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
         streamMp3IsEnabled ||
         (encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId))
-      const forceStreamMp3Url = forceStreamMp3
-        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
-        : null
-
-      let premiumContentHeaders = {}
-      if (isReachable || !isNativeMobile) {
-        const libs = yield* call(audiusBackendInstance.getAudiusLibs)
-        const web3Manager = libs.web3Manager
-        premiumContentHeaders = yield* call(
-          getPremiumContentHeaders,
-          track.premium_content_signature,
-          web3Manager.sign.bind(web3Manager)
+      let queryParams: QueryParams = {}
+      if (isPremiumContentEnabled && track.is_premium) {
+        const data = `Premium content user signature at ${Date.now()}`
+        const signature = yield* call(audiusBackendInstance.getSignature, data)
+        const premiumTrackSignatureMap = yield* select(
+          getPremiumTrackSignatureMap
         )
+        const premiumContentSignature = premiumTrackSignatureMap[track.track_id]
+        queryParams = {
+          user_data: data,
+          user_signature: signature
+        }
+        if (premiumContentSignature) {
+          queryParams.premium_content_signature = JSON.stringify(
+            premiumContentSignature
+          )
+        }
       }
+      const forceStreamMp3Url = forceStreamMp3
+        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
+        : null
 
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
@@ -138,8 +151,7 @@ export function* watchPlay() {
             id: encodedTrackId,
             title: track.title,
             artist: owner?.name,
-            artwork: '',
-            premiumContentHeaders
+            artwork: ''
           },
           forceStreamMp3Url
         )
@@ -183,8 +195,7 @@ export function* watchCollectiblePlay() {
               collectible.imageUrl ??
               collectible.frameUrl ??
               collectible.gifUrl ??
-              '',
-            premiumContentHeaders: {}
+              ''
           },
           collectible.animationUrl
         )

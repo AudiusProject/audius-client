@@ -1,12 +1,13 @@
-import { ID, PremiumContentSignature } from '@audius/common'
 import { createReducer, ActionType } from 'typesafe-actions'
+
+import { ID, PremiumContentSignature } from 'models'
 
 import * as actions from './actions'
 import { UPDATE_PREMIUM_CONTENT_SIGNATURES } from './actions'
 
-type NFTActions = ActionType<typeof actions>
+type PremiumContentActions = ActionType<typeof actions>
 
-type NFTState = {
+type PremiumContentState = {
   premiumTrackSignatureMap: { [id: ID]: PremiumContentSignature }
 }
 
@@ -14,7 +15,10 @@ const initialState = {
   premiumTrackSignatureMap: {}
 }
 
-const nftReducer = createReducer<NFTState, NFTActions>(initialState, {
+const premiumContentReducer = createReducer<
+  PremiumContentState,
+  PremiumContentActions
+>(initialState, {
   [UPDATE_PREMIUM_CONTENT_SIGNATURES](state, action) {
     return {
       ...state,
@@ -26,4 +30,4 @@ const nftReducer = createReducer<NFTState, NFTActions>(initialState, {
   }
 })
 
-export default nftReducer
+export default premiumContentReducer
