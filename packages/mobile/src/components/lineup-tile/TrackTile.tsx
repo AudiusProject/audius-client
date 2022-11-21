@@ -24,7 +24,10 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+import {
+  useTrackCoverArt,
+  useTrackCoverArtUrls
+} from 'app/hooks/useTrackCoverArt'
 
 import type { TileProps } from '../core'
 
@@ -77,7 +80,6 @@ export const TrackTileComponent = ({
   )
 
   const {
-    _cover_art_sizes,
     duration,
     field_visibility,
     is_unlisted,
@@ -91,11 +93,8 @@ export const TrackTileComponent = ({
   // @ts-expect-error -- history returning unknown[]
   const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
 
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const { source: imageSource, handleError: handleImageError } =
+    useTrackCoverArtUrls(track)
 
   const handlePress = useCallback(() => {
     togglePlay({
@@ -176,7 +175,8 @@ export const TrackTileComponent = ({
       hideShare={hideShare}
       hidePlays={hidePlays}
       id={track_id}
-      imageUrl={imageUrl}
+      imageSource={imageSource}
+      onImageError={handleImageError}
       isUnlisted={is_unlisted}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

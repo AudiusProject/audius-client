@@ -36,7 +36,7 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
   return (
     <DynamicImage
       immediate
-      uri={profilePicture}
+      source={{ uri: profilePicture }}
       styles={{
         ...stylesProp,
         root: {

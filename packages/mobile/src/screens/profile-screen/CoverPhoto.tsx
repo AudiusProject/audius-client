@@ -63,7 +63,9 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
     <>
       <DynamicImage
         animatedValue={scrollY}
-        uri={isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto}
+        source={{
+          uri: isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto
+        }}
         styles={{ root: styles.imageRoot, image: styles.image }}
         resizeMode={isDefaultImage ? 'repeat' : undefined}
       >

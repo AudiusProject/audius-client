@@ -44,7 +44,7 @@ export const UploadingTrackTile = (props: UploadingTrackTileProps) => {
   return (
     <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
       <View style={styles.content}>
-        <DynamicImage uri={artwork.url} style={styles.artwork}>
+        <DynamicImage source={{ uri: artwork.url }} style={styles.artwork}>
           {artwork.url ? null : (
             <IconImage
               fill={neutralLight8}

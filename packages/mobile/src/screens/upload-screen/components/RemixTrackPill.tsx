@@ -52,7 +52,10 @@ export const RemixTrackPill = (props: RemixTrackPillProps) => {
 
   return (
     <Pill style={[styles.trackPill, style]}>
-      <DynamicImage uri={trackCoverArt} style={styles.trackArtwork} />
+      <DynamicImage
+        source={{ uri: trackCoverArt }}
+        style={styles.trackArtwork}
+      />
       <Text style={styles.trackText}>
         {track.title}{' '}
         <Text style={[styles.trackText, styles.byText]}>

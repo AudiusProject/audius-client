@@ -26,10 +26,11 @@ export const LineupTile = ({
   hidePlays,
   hideShare,
   id,
-  imageUrl,
+  imageSource,
   index,
   isTrending,
   isUnlisted,
+  onImageError,
   onLoad,
   onPress,
   onPressOverflow,
@@ -94,7 +95,8 @@ export const LineupTile = ({
         <LineupTileMetadata
           artistName={name}
           coSign={coSign}
-          imageUrl={imageUrl}
+          imageSource={imageSource}
+          onImageError={onImageError}
           onPressTitle={onPressTitle}
           setArtworkLoaded={setArtworkLoaded}
           uid={uid}

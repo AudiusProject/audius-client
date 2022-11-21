@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import { playerSelectors } from '@audius/common'
 import type { Remix, User, UID, CommonState } from '@audius/common'
+import type { ImageSourcePropType } from 'react-native'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -55,7 +56,8 @@ const messages = {
 type Props = {
   artistName: string
   coSign?: Remix | null
-  imageUrl?: string
+  imageSource?: ImageSourcePropType
+  onImageError?: () => void
   onPressTitle?: GestureResponderHandler
   setArtworkLoaded: (loaded: boolean) => void
   title: string
@@ -67,7 +69,8 @@ type Props = {
 export const LineupTileMetadata = ({
   artistName,
   coSign,
-  imageUrl,
+  imageSource,
+  onImageError,
   onPressTitle,
   setArtworkLoaded,
   title,
@@ -89,7 +92,8 @@ export const LineupTileMetadata = ({
   return (
     <View style={styles.metadata}>
       <LineupTileArt
-        imageUrl={imageUrl}
+        imageSource={imageSource}
+        onError={onImageError}
         onLoad={() => setArtworkLoaded(true)}
         coSign={coSign}
         style={trackTileStyles.imageContainer}

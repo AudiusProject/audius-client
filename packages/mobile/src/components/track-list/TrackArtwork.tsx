@@ -47,7 +47,7 @@ export const TrackArtwork = (props: TrackArtworkProps) => {
 
   return (
     <DynamicImage
-      uri={image}
+      source={{ uri: image }}
       styles={{ root: styles.artworkContainer, image: styles.image }}
     >
       {isActive ? (

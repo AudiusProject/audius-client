@@ -10,6 +10,7 @@ import type {
   User,
   RepostType
 } from '@audius/common'
+import type { ImageSourcePropType } from 'react-native'
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 
@@ -62,11 +63,14 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   /** ID of the item */
   id: ID
 
-  /** Url of the image */
-  imageUrl?: string
+  /** Source of the image */
+  imageSource?: ImageSourcePropType
 
   /** The item (track or collection) */
   item: Track | Collection
+
+  /** Function to call when there is an error loading the image */
+  onImageError?: () => void
 
   /** Function to call when tile is pressed */
   onPress?: () => void
