@@ -82,6 +82,7 @@ export const DynamicImage = memo(function DynamicImage({
 }: DynamicImageProps) {
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
+  const [animationFinished, setAnimationFinished] = useState(false)
 
   const handleSetSize = useCallback((event: LayoutChangeEvent) => {
     setSize(event.nativeEvent.layout.width)
@@ -92,7 +93,10 @@ export const DynamicImage = memo(function DynamicImage({
       toValue: 0,
       duration: immediate ? 100 : 500,
       useNativeDriver: true
-    }).start(onLoad)
+    }).start(() => {
+      onLoad?.()
+      setAnimationFinished(true)
+    })
   }, [skeletonOpacity, onLoad, immediate])
 
   return (
@@ -127,20 +131,22 @@ export const DynamicImage = memo(function DynamicImage({
           />
         ) : null}
       </Animated.View>
-      <Animated.View
-        style={[
-          stylesProp?.imageContainer,
-          styles.imageContainer,
-          { opacity: skeletonOpacity }
-        ]}
-        onLayout={handleSetSize}
-      >
-        <Skeleton
-          width={size}
-          height={size}
-          style={[{ width: size, height: size }, stylesProp?.image]}
-        />
-      </Animated.View>
+      {!animationFinished ? (
+        <Animated.View
+          style={[
+            stylesProp?.imageContainer,
+            styles.imageContainer,
+            { opacity: skeletonOpacity }
+          ]}
+          onLayout={handleSetSize}
+        >
+          <Skeleton
+            width={size}
+            height={size}
+            style={[{ width: size, height: size }, stylesProp?.image]}
+          />
+        </Animated.View>
+      ) : null}
       {children ? <View style={styles.children}>{children}</View> : null}
     </Animated.View>
   )
