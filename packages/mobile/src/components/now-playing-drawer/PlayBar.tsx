@@ -5,10 +5,9 @@ import { FavoriteSource, tracksSocialActions } from '@audius/common'
 import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
 import { useDispatch } from 'react-redux'
 
-import { DynamicImage } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import Text from 'app/components/text'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+import { TrackImage } from 'app/components/track-image/TrackImage'
 import { makeStyles } from 'app/styles'
 import { zIndex } from 'app/utils/zIndex'
 
@@ -86,11 +85,6 @@ type PlayBarProps = {
   translationAnim: Animated.Value
 }
 
-const PlayBarArtwork = ({ track }: { track: Track }) => {
-  const { source, handleError } = useTrackCoverArt(track)
-  return <DynamicImage source={source} onError={handleError} />
-}
-
 export const PlayBar = ({
   track,
   user,
@@ -148,7 +142,7 @@ export const PlayBar = ({
           onPress={onPress}
         >
           <View style={styles.artwork}>
-            {track && <PlayBarArtwork track={track} />}
+            {track && <TrackImage track={track} />}
           </View>
           <View style={styles.trackText}>
             <Text numberOfLines={1} weight='bold' style={styles.title}>

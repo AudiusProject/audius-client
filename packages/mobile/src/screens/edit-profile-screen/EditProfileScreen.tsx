@@ -125,11 +125,8 @@ export const EditProfileScreen = () => {
 
   const dispatch = useDispatch()
 
-  const coverPhoto = useUserCoverPhoto({
-    id: profile?.user_id ?? null,
-    sizes: profile?._cover_photo_sizes ?? null,
-    size: WidthSizes.SIZE_2000
-  })
+  const { source: coverPhotoSource, handleError: handleCoverPhotoError } =
+    useUserCoverPhoto(profile)
 
   const { source: imageSource } = useUserProfilePicture(profile)
 
@@ -179,7 +176,7 @@ export const EditProfileScreen = () => {
     tiktok_handle,
     website,
     donation,
-    cover_photo: { url: coverPhoto },
+    cover_photo: { url: coverPhotoSource[0][0].uri },
     profile_picture: { url: (imageSource as ImageURISource).uri }
   }
 

@@ -90,16 +90,12 @@ export const SupportingTile = (props: SupportingTileProps) => {
   const user = useSelector((state) => {
     return getUser(state, { id: supporting.receiver_id })
   })
-  const { user_id, handle, name, _cover_photo_sizes } = user || {}
+  const { handle, name } = user || {}
   const isTopRank =
     supporting.rank >= 1 && supporting.rank <= TIPPING_TOP_RANK_THRESHOLD
 
-  const coverPhoto = useUserCoverPhoto({
-    id: user_id,
-    sizes: _cover_photo_sizes ?? null,
-    size: WidthSizes.SIZE_640
-  })
-  const isDefaultImage = coverPhoto && /imageCoverPhotoBlank/.test(coverPhoto)
+  const { source: coverPhotoSource, handleError: handleCoverPhotoError } =
+    useUserCoverPhoto(user)
 
   const handlePress = useCallback(() => {
     if (handle) {
@@ -116,9 +112,8 @@ export const SupportingTile = (props: SupportingTileProps) => {
     <Tile style={[styles.root, style]} onPress={handlePress} scaleTo={scaleTo}>
       <ImageBackground
         style={styles.backgroundImage}
-        source={{
-          uri: isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto
-        }}
+        source={coverPhotoSource}
+        onError={handleCoverPhotoError}
       >
         <LinearGradient
           colors={['#0000001A', '#0000004D']}

@@ -1,7 +1,6 @@
 import type { Nullable, User } from '@audius/common'
 
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
-import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 export const useUserProfilePicture = (
   user: Nullable<
@@ -18,11 +17,5 @@ export const useUserProfilePicture = (
   // TODO: handle fallback
   // import profilePicEmpty from 'app/assets/images/imageProfilePicEmpty2X.png'
 
-  const gateways = user
-    ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-        user.creator_node_endpoint
-      )
-    : []
-
-  return useContentNodeImage(cid, gateways)
+  return useContentNodeImage({ cid, user })
 }

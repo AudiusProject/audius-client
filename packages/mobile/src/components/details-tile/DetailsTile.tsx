@@ -9,7 +9,7 @@ import IconPause from 'app/assets/images/iconPause.svg'
 import IconPlay from 'app/assets/images/iconPlay.svg'
 import CoSign from 'app/components/co-sign/CoSign'
 import { Size } from 'app/components/co-sign/types'
-import { Button, DynamicImage, Hyperlink, Tile } from 'app/components/core'
+import { Button, Hyperlink, Tile } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
@@ -169,9 +169,7 @@ export const DetailsTile = ({
   hideRepost,
   hideRepostCount,
   hideShare,
-  imageSource,
   isPlaying,
-  onImageError,
   onPressFavorites,
   onPressOverflow,
   onPressPlay,
@@ -231,13 +229,9 @@ export const DetailsTile = ({
     })
   }
 
-  const innerImageElement = (
-    <DynamicImage
-      source={imageSource}
-      onError={onImageError}
-      styles={{ image: styles.coverArt as ImageStyle }}
-    />
-  )
+  const innerImageElement = renderImage({
+    styles: { image: styles.coverArt as ImageStyle }
+  })
 
   const imageElement = coSign ? (
     <CoSign size={Size.LARGE}>{innerImageElement}</CoSign>
@@ -256,9 +250,7 @@ export const DetailsTile = ({
           </Text>
         )}
         <View style={styles.topContentBody}>
-          <View style={styles.coverArtWrapper}>
-            {renderImage ? renderImage() : imageElement}
-          </View>
+          <View style={styles.coverArtWrapper}>{imageElement}</View>
           <Text style={styles.title} weight='bold'>
             {title}
           </Text>

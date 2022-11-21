@@ -6,6 +6,8 @@ import type { ImageSourcePropType, TextStyle } from 'react-native'
 import type { SearchUser } from 'app/store/search/types'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
+import type { DynamicImageProps } from '../core'
+
 export type DetailsTileDetail = {
   icon?: ReactNode
   isHidden?: boolean
@@ -57,14 +59,8 @@ export type DetailsTileProps = {
   /** Hide the share button */
   hideShare?: boolean
 
-  /** Source of the image */
-  imageSource?: ImageSourcePropType
-
   /** Is the item playing */
   isPlaying?: boolean
-
-  /** Function to call when there is an error loading the image */
-  onImageError?: () => void
 
   /** Function to call when the favorites count is pressed */
   onPressFavorites?: GestureResponderHandler
@@ -97,7 +93,7 @@ export type DetailsTileProps = {
   renderHeader?: () => ReactNode
 
   /** Render function for the image */
-  renderImage?: () => ReactNode
+  renderImage: (props: DynamicImageProps) => ReactNode
 
   /** Amount of reposts on this item */
   repostCount?: number

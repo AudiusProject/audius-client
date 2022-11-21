@@ -3,7 +3,6 @@ import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
-import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 const { getUser } = cacheUsersSelectors
 
@@ -16,11 +15,5 @@ export const useTrackCoverArt = (
   // TODO: handle legacy format?
   // const coverArtSize = multihash === track.cover_art_sizes ? size : null
 
-  const gateways = user
-    ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-        user.creator_node_endpoint
-      )
-    : []
-
-  return useContentNodeImage(cid, gateways)
+  return useContentNodeImage({ cid, user })
 }

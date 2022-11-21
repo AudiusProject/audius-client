@@ -22,10 +22,10 @@ import { useNavigationState } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
+import { TrackImage } from 'app/components/track-image'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 
-import type { TileProps } from '../core'
+import type { DynamicImageProps, TileProps } from '../core'
 
 import { LineupTile } from './LineupTile'
 
@@ -89,8 +89,10 @@ export const TrackTileComponent = ({
   // @ts-expect-error -- history returning unknown[]
   const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
 
-  const { source: imageSource, handleError: handleImageError } =
-    useTrackCoverArt(track)
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    [track]
+  )
 
   const handlePress = useCallback(() => {
     togglePlay({
@@ -171,8 +173,7 @@ export const TrackTileComponent = ({
       hideShare={hideShare}
       hidePlays={hidePlays}
       id={track_id}
-      imageSource={imageSource}
-      onImageError={handleImageError}
+      renderImage={renderImage}
       isUnlisted={is_unlisted}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

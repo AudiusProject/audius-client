@@ -1,11 +1,25 @@
-import type { SquareSizes } from '@audius/common'
-import { cacheCollectionsActions } from '@audius/common'
+import type { Nullable, Collection } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
-import imageEmpty from 'app/assets/images/imageBlank2x.png'
-import { getUseImageSizeHook } from 'app/hooks/useImageSize'
-const { fetchCoverArt } = cacheCollectionsActions
+import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
-export const useCollectionCoverArt = getUseImageSizeHook<SquareSizes>({
-  action: fetchCoverArt,
-  defaultImageSource: imageEmpty
-})
+const { getUser } = cacheUsersSelectors
+
+export const useCollectionCoverArt = (
+  collection: Nullable<
+    Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
+  >
+) => {
+  const cid = collection
+    ? collection.cover_art_sizes || collection.cover_art
+    : null
+
+  const user = useSelector((state) =>
+    getUser(state, { id: collection?.playlist_owner_id })
+  )
+  // TODO: handle legacy format?
+  // const coverArtSize = multihash === track.cover_art_sizes ? size : null
+
+  return useContentNodeImage({ cid, user })
+}

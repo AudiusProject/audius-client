@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ID } from '@audius/common'
+import type { ID, Track } from '@audius/common'
 import {
   removeNullable,
   OverflowAction,
@@ -189,7 +189,7 @@ export const TrackListItem = ({
       >
         {!hideArt ? (
           <TrackArtwork
-            track={track}
+            track={track as Track}
             isActive={isActive}
             isPlaying={isPlaying}
           />

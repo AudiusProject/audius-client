@@ -1,11 +1,19 @@
-import type { WidthSizes } from '@audius/common'
-import { cacheUsersActions } from '@audius/common'
+import type { Nullable, User } from '@audius/common'
+import { WidthSizes } from '@audius/common'
 
-import imageCoverPhotoBlank from 'app/assets/images/imageCoverPhotoBlank.jpg'
-import { getUseImageSizeHook } from 'app/hooks/useImageSize'
-const { fetchCoverPhoto } = cacheUsersActions
+import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
-export const useUserCoverPhoto = getUseImageSizeHook<WidthSizes>({
-  defaultImageSource: imageCoverPhotoBlank,
-  action: fetchCoverPhoto
-})
+export const useUserCoverPhoto = (
+  user: Nullable<
+    Pick<User, 'cover_photo_sizes' | 'cover_photo' | 'creator_node_endpoint'>
+  >
+) => {
+  // TODO: handle legacy format?
+  // const cid = multihash === track.cover_art_sizes ? size : null
+  const cid = user ? user.cover_photo_sizes || user.cover_photo : null
+
+  // TODO: handle fallback
+  // import imageCoverPhotoBlank from 'app/assets/images/imageCoverPhotoBlank.jpg'
+
+  return useContentNodeImage({ cid, user, sizes: WidthSizes })
+}

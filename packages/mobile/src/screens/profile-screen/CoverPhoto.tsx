@@ -1,10 +1,8 @@
-import { WidthSizes } from '@audius/common'
 import { BlurView } from '@react-native-community/blur'
 import { Animated, Platform, StyleSheet } from 'react-native'
 
 import BadgeArtist from 'app/assets/images/badgeArtist.svg'
-import { DynamicImage } from 'app/components/core'
-import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
+import { CoverPhotoImage } from 'app/components/cover-photo-image'
 import { makeStyles } from 'app/styles/makeStyles'
 
 import { useSelectProfile } from './selectors'
@@ -43,31 +41,24 @@ const interpolateBadgeImagePosition = (scrollY: Animated.Value) =>
 
 export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
   const styles = useStyles()
-  const { user_id, _cover_photo_sizes, track_count } = useSelectProfile([
+  const user = useSelectProfile([
     'user_id',
-    '_cover_photo_sizes',
+    'cover_photo_sizes',
+    'cover_photo',
+    'creator_node_endpoint',
     'track_count'
   ])
 
-  const coverPhoto = useUserCoverPhoto({
-    id: user_id,
-    sizes: _cover_photo_sizes,
-    size: WidthSizes.SIZE_2000
-  })
-
-  const isDefaultImage = coverPhoto && /imageCoverPhotoBlank/.test(coverPhoto)
+  const { track_count } = user
 
   const isArtist = track_count > 0
 
   return (
     <>
-      <DynamicImage
+      <CoverPhotoImage
         animatedValue={scrollY}
-        source={{
-          uri: isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto
-        }}
         styles={{ root: styles.imageRoot, image: styles.image }}
-        resizeMode={isDefaultImage ? 'repeat' : undefined}
+        user={user}
       >
         {/*
           Disable blur on android because it causes a crash.
@@ -87,7 +78,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
             ]}
           />
         ) : null}
-      </DynamicImage>
+      </CoverPhotoImage>
       {isArtist ? (
         <Animated.View
           style={[

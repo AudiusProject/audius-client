@@ -10,11 +10,11 @@ import type {
   User,
   RepostType
 } from '@audius/common'
-import type { ImageSourcePropType } from 'react-native'
 
+import type { TrackImage } from 'app/components/track-image'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
-import type { TileProps } from '../core'
+import type { DynamicImageProps, TileProps } from '../core'
 
 export type LineupItemProps = {
   /** Index of tile in lineup */
@@ -63,14 +63,11 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   /** ID of the item */
   id: ID
 
-  /** Source of the image */
-  imageSource?: ImageSourcePropType
+  /** Render function for the image */
+  renderImage: (props: DynamicImageProps) => ReactNode
 
   /** The item (track or collection) */
   item: Track | Collection
-
-  /** Function to call when there is an error loading the image */
-  onImageError?: () => void
 
   /** Function to call when tile is pressed */
   onPress?: () => void
