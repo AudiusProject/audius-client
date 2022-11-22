@@ -105,10 +105,11 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
       style={[styles.root, interpolatePostion(translationAnim, insets.bottom)]}
     >
       <View
-        style={{
-          ...styles.bottomBar,
-          paddingBottom: insets.bottom
-        }}
+        pointerEvents='auto'
+        style={[
+          styles.bottomBar,
+          { paddingBottom: insets.bottom }
+        ]}
       >
         {routes.map(({ name, key }, index) => {
           const BottomButton = bottomTabBarButtons[name]

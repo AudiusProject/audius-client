@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 
-import { Animated, StyleSheet } from 'react-native'
+import { Animated, StatusBar, StyleSheet } from 'react-native'
 import * as BootSplash from 'react-native-bootsplash'
 
 import SplashLogo from 'app/assets/images/bootsplash_logo.svg'
 import { makeStyles } from 'app/styles'
 import { zIndex } from 'app/utils/zIndex'
+import { useEffectOnce } from 'react-use'
+import { useColor } from 'app/utils/theme'
 
 /**
  * Assets for this splash screen are generated with
@@ -47,35 +49,42 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
   const scale = useRef(new Animated.Value(START_SIZE)).current
   const [isShowing, setIsShowing] = useState(true)
 
+  const secondary = useColor('secondary')
+  const statusBarColor = useColor('white')
+  useEffect(() => {
+    StatusBar.setBackgroundColor(secondary)
+  }, [])
+
   useEffect(() => {
     if (canDismiss) {
       // Hide bootsplash and replace with our own splash screen
       BootSplash.hide()
       // Animate smaller, then bigger with a fade out at the same time
-      Animated.sequence([
+
         Animated.spring(scale, {
           useNativeDriver: true,
           tension: 10,
           friction: 200,
           toValue: START_SIZE * 0.8
-        }),
-        Animated.parallel([
-          Animated.spring(scale, {
-            useNativeDriver: true,
-            tension: 100,
-            friction: 50,
-            toValue: END_SIZE
-          }),
-          Animated.spring(opacity, {
-            useNativeDriver: true,
-            tension: 100,
-            friction: 50,
-            toValue: 0
+        }).start(() => {
+          StatusBar.setBackgroundColor(statusBarColor, true)
+          Animated.parallel([
+            Animated.spring(scale, {
+              useNativeDriver: true,
+              tension: 100,
+              friction: 50,
+              toValue: END_SIZE
+            }),
+            Animated.spring(opacity, {
+              useNativeDriver: true,
+              tension: 100,
+              friction: 50,
+              toValue: 0
+            })
+          ]).start(() => {
+            setIsShowing(false)
           })
-        ])
-      ]).start(() => {
-        setIsShowing(false)
-      })
+        })
     }
   }, [canDismiss, scale, opacity])
 
