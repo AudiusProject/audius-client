@@ -20,6 +20,8 @@ export default class WebWorker {
     ])
     if (typeof Worker !== 'undefined') {
       this.worker = new Worker(URL.createObjectURL(blob))
+      this.postMessage = this.worker.postMessage.bind(this.worker)
+      this.addEventListener = this.worker.addEventListener.bind(this.worker)
     }
     this.terminateOnResult = terminateOnResult
   }
@@ -51,5 +53,13 @@ export default class WebWorker {
         }
       })
     })
+  }
+
+  postMessage = (args) => {
+    throw new Error('postMessage not bound')
+  }
+
+  addEventListener = (name, callback) => {
+    throw new Error('addEventListener not bound')
   }
 }

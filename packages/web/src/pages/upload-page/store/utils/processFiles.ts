@@ -3,7 +3,7 @@ import jsmediatags from 'jsmediatags'
 
 import { resizeImage } from 'utils/imageProcessingUtil'
 
-import { getKeyAndBpm } from './keyfinder'
+import { detectKey } from './keyFinder'
 
 const ALLOWED_MAX_AUDIO_SIZE_BYTES = 250 * 1000 * 1000
 
@@ -129,7 +129,7 @@ export const processFiles = (
     audio.src = file.preview
 
     // Get key
-    const { key } = getKeyAndBpm(file)
+    const key = await detectKey(file)
     console.log('KEY DETECTED:', { key })
 
     return {
