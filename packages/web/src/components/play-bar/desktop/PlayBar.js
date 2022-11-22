@@ -439,7 +439,7 @@ class PlayBar extends Component {
               granularity={VOLUME_GRANULARITY}
               onChange={this.updateVolume}
             />
-            <div className={styles.toggleRepostContainer}>
+            <div className={styles.toggleQueueContainer}>
               <Tooltip
                 text={viewQueueText}
                 disabled={isFavoriteAndRepostDisabled}

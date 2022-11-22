@@ -76,13 +76,18 @@
 /* Favorite / Remove Icons */
 
 .toggleRepostContainer {
-  margin-left: 36px;
+  margin-left: 16px;
 }
 
 .toggleFavoriteContainer {
   margin-left: 16px;
 }
 
+.toggleQueueContainer {
+  margin-left: 20px;
+}
+
+.toggleQueueContainer,
 .toggleRepostContainer,
 .toggleFavoriteContainer {
   position: relative;
