@@ -1,4 +1,5 @@
 import detect from 'bpm-detective'
+
 import WebWorker from 'services/WebWorker'
 
 const initializeKeyFinder = async ({
