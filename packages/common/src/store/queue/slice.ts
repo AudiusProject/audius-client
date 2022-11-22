@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { RepeatMode, Queueable } from 'store/queue/types'
+import { RepeatMode, Queueable, QueueSource } from 'store/queue/types'
 
 import { ID, UID, Collectible } from '../../models'
 import { Maybe, Nullable } from '../../utils'
@@ -93,8 +93,54 @@ type AddPayload = {
   index?: number
 }
 
+type UserAddToQueuePayload = {
+  entries: Queueable[]
+}
+
+type UserClearOwnQueuePayload = {}
+
 type RemovePayload = {
   uid: UID
+}
+
+const calculateNewPositions = (
+  state: State,
+  newEntriesStartIndex: number,
+  newEntries: Queueable[]
+) => {
+  const addedPositions = newEntries.reduce((mapping, entry, i) => {
+    mapping[entry.uid ?? entry.id] = newEntriesStartIndex + i
+    return mapping
+  }, {} as { [uid: string]: number })
+
+  return Object.keys(state.positions).reduce((updated, uid) => {
+    if (state.positions[uid] >= newEntriesStartIndex) {
+      updated[uid] = state.positions[uid] + newEntries.length
+    } else {
+      updated[uid] = state.positions[uid]
+    }
+    return updated
+  }, addedPositions)
+}
+
+const calculateNewShuffleOrder = (
+  newOrder: Queueable[],
+  userQueueEndIndex: number // Exclusive
+) => {
+  return [
+    ...(userQueueEndIndex ? newOrder.slice(0, userQueueEndIndex) : []),
+    ...newOrder
+      .slice(userQueueEndIndex)
+      .map(Number.call, Number)
+      .sort(() => Math.random() - 0.5)
+  ] as number[]
+}
+
+const getUserQueueEndIndex = (state: State) => {
+  return (
+    state.order.findIndex(({ source }) => source !== QueueSource.USER_ADDED) ??
+    0
+  )
 }
 
 const slice = createSlice({
@@ -130,8 +176,11 @@ const slice = createSlice({
       }
 
       if (state.shuffle) {
+        // ??? Used to be (state.shuffleIndex + 1) % state.shuffleOrder.length
+
         const newShuffleIndex =
           (state.shuffleIndex + 1) % state.shuffleOrder.length
+
         state.shuffleIndex = newShuffleIndex
         state.index = state.shuffleOrder[newShuffleIndex]
         return
@@ -210,6 +259,51 @@ const slice = createSlice({
       state.positions = newPositions
       state.index = newIndex
     },
+    // Adds a track to the user's queue (which comes before tracks added by us)
+    userAddToQueue: (state, action: PayloadAction<UserAddToQueuePayload>) => {
+      const { entries } = action.payload
+
+      const insertIndex = getUserQueueEndIndex(state)
+      const newOrder = [...state.order]
+      newOrder.splice(insertIndex, 0, ...entries)
+
+      const newPositions = calculateNewPositions(state, insertIndex, entries)
+
+      // Don't shuffle queued songs
+      const newShuffleOrder = calculateNewShuffleOrder(
+        newOrder,
+        insertIndex + entries.length
+      )
+
+      state.order = newOrder
+      state.positions = newPositions
+      state.shuffleOrder = newShuffleOrder
+    },
+    // Clears the user's queue
+    userClearOwnQueue: (
+      state,
+      _action: PayloadAction<UserClearOwnQueuePayload>
+    ) => {
+      const userQueueEndIndex = getUserQueueEndIndex(state)
+      const newOrder = state.order.slice(userQueueEndIndex)
+
+      const newPositions = Object.keys(state.positions).reduce(
+        (updated, uid) => {
+          if (state.positions[uid] < userQueueEndIndex) {
+            return updated
+          } else {
+            updated[uid] = state.positions[uid] - userQueueEndIndex
+          }
+          return updated
+        },
+        {} as { [uid: string]: number }
+      )
+
+      const newShuffleOrder = calculateNewShuffleOrder(newOrder, 0)
+      state.order = newOrder
+      state.positions = newPositions
+      state.shuffleOrder = newShuffleOrder
+    },
     // Adds a track to the queue either at the end or the given index.
     add: (state, action: PayloadAction<AddPayload>) => {
       const { entries, index } = action.payload
@@ -219,25 +313,12 @@ const slice = createSlice({
       const newOrder = [...state.order]
       newOrder.splice(newIndex, 0, ...entries)
 
-      const addedPositions = entries.reduce((mapping, entry, i) => {
-        mapping[entry.uid ?? entry.id] = newIndex + i
-        return mapping
-      }, {} as { [uid: string]: number })
-      const newPositions = Object.keys(state.positions).reduce(
-        (updated, uid) => {
-          if (state.positions[uid] >= newIndex) {
-            updated[uid] = state.positions[uid] + entries.length
-          } else {
-            updated[uid] = state.positions[uid]
-          }
-          return updated
-        },
-        addedPositions
-      )
+      const newPositions = calculateNewPositions(state, newIndex, entries)
 
-      const newShuffleOrder = newOrder
-        .map(Number.call, Number)
-        .sort(() => Math.random() - 0.5) as number[]
+      const newShuffleOrder = calculateNewShuffleOrder(
+        newOrder,
+        getUserQueueEndIndex(state)
+      )
 
       state.order = newOrder
       state.positions = newPositions
@@ -264,10 +345,10 @@ const slice = createSlice({
         {} as { [uid: string]: number }
       )
 
-      const newShuffleOrder = newOrder
-        .map(Number.call, Number)
-        .sort(() => Math.random() - 0.5) as number[]
-
+      const newShuffleOrder = calculateNewShuffleOrder(
+        newOrder,
+        getUserQueueEndIndex(state)
+      )
       state.order = newOrder
       state.positions = newPositions
       state.shuffleOrder = newShuffleOrder
