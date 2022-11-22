@@ -24,7 +24,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { ImageLoaderProps } from 'app/components/core'
+import type { DynamicImageProps } from 'app/components/core'
 import { Screen, VirtualizedScrollView } from 'app/components/core'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
@@ -137,7 +137,7 @@ const CollectionScreenComponent = ({
   }, [user.handle, is_album, playlist_name, playlist_id])
 
   const renderImage = useCallback(
-    (props: ImageLoaderProps) => (
+    (props: DynamicImageProps) => (
       <CollectionImage collection={collection} {...props} />
     ),
     [collection]

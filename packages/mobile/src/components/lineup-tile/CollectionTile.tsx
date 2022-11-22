@@ -28,7 +28,7 @@ import {
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { ImageLoaderProps } from 'app/components/core/ImageLoader'
+import type { DynamicImageProps } from 'app/components/core/DynamicImage'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 
@@ -124,7 +124,7 @@ const CollectionTileComponent = ({
   const isOwner = playlist_owner_id === currentUserId
 
   const renderImage = useCallback(
-    (props: ImageLoaderProps) => (
+    (props: DynamicImageProps) => (
       <CollectionImage collection={collection} {...props} />
     ),
     [collection]

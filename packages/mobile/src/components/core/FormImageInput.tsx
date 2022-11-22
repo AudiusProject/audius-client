@@ -6,7 +6,7 @@ import { Animated, Pressable, View } from 'react-native'
 import type { Asset } from 'react-native-image-picker'
 
 import IconUpload from 'app/assets/images/iconUpload.svg'
-import { ImageLoader } from 'app/components/core'
+import { DynamicImage } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import type { StylesProps } from 'app/styles'
@@ -96,7 +96,7 @@ export const FormImageInput = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
-      <ImageLoader
+      <DynamicImage
         source={{ uri: isDefaultImage ? `https://audius.co/${url}` : url }}
         styles={{
           root: [styles.imageContainer, stylesProp?.imageContainer],
@@ -113,7 +113,7 @@ export const FormImageInput = ({
             <IconUpload fill={styles.centerIcon.fill} height={32} width={32} />
           )}
         </Animated.View>
-      </ImageLoader>
+      </DynamicImage>
     </Pressable>
   )
 }

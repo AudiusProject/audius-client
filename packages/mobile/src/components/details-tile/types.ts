@@ -6,7 +6,7 @@ import type { ImageSourcePropType, TextStyle } from 'react-native'
 import type { SearchUser } from 'app/store/search/types'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
-import type { ImageLoaderProps } from '../core'
+import type { DynamicImageProps } from '../core'
 
 export type DetailsTileDetail = {
   icon?: ReactNode
@@ -93,7 +93,7 @@ export type DetailsTileProps = {
   renderHeader?: () => ReactNode
 
   /** Render function for the image */
-  renderImage: (props: ImageLoaderProps) => ReactNode
+  renderImage: (props: DynamicImageProps) => ReactNode
 
   /** Amount of reposts on this item */
   repostCount?: number

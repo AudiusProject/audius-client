@@ -66,7 +66,7 @@ type UseContentNodeImageOptions = {
  *
  * If the image fails to load, try the next node in the replica set
  *
- * Returns props for the ImageLoader component
+ * Returns props for the DynamicImage component
  * @returns {
  *  source: ImageSource
  *  onError: () => void

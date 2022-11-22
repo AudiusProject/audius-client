@@ -28,7 +28,7 @@ import { Image, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import type { ImageLoaderProps } from 'app/components/core'
+import type { DynamicImageProps } from 'app/components/core'
 import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
@@ -185,7 +185,7 @@ export const TrackScreenDetailsTile = ({
   ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const renderImage = useCallback(
-    (props: ImageLoaderProps) => <TrackImage track={track} {...props} />,
+    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
     [track]
   )
 

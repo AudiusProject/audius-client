@@ -1,8 +1,8 @@
 import type { Nullable, User } from '@audius/common'
 
 import profilePicEmpty from 'app/assets/images/imageProfilePicEmpty2X.png'
-import type { ImageLoaderProps } from 'app/components/core'
-import { ImageLoader } from 'app/components/core'
+import type { DynamicImageProps } from 'app/components/core'
+import { DynamicImage } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
 export const useUserImage = (
@@ -24,11 +24,11 @@ export const useUserImage = (
 
 export type UserImageProps = {
   user: Parameters<typeof useUserImage>[0]
-} & ImageLoaderProps
+} & DynamicImageProps
 
 export const UserImage = (props: UserImageProps) => {
   const { user, ...imageProps } = props
   const { source, handleError } = useUserImage(user)
 
-  return <ImageLoader {...imageProps} source={source} onError={handleError} />
+  return <DynamicImage {...imageProps} source={source} onError={handleError} />
 }
