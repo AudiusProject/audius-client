@@ -33,6 +33,7 @@ export const CompleteTrackScreen = () => {
       initialValues={metadata}
       onSubmit={handleSubmit}
       title={messages.title}
+      url='/complete-track'
     />
   )
 }
