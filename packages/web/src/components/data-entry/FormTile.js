@@ -442,6 +442,7 @@ const AdvancedForm = (props) => {
                 label='BPM'
                 defaultValue={props.defaultFields.bpm ?? ''}
                 size='small'
+                onChange={(value) => props.onChangeField('bpm', value)}
               />
             </div>
           ) : null}
