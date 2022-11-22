@@ -115,7 +115,6 @@ const CollectionScreenComponent = ({
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const {
-    _cover_art_sizes,
     _is_publishing,
     description,
     has_current_user_reposted,

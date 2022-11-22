@@ -9,7 +9,6 @@ import {
 } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
-import type { ImageURISource } from 'react-native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 

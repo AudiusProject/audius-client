@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import { playerSelectors } from '@audius/common'
 import type { Remix, User, UID, CommonState } from '@audius/common'
-import type { ImageSourcePropType } from 'react-native'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
