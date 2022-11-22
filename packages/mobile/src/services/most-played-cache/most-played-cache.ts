@@ -107,8 +107,8 @@ export class MostPlayedCache {
 }
 
 // Debug methods
-global.clearMostPlayedCounts = async () => {
-  console.log('clearing')
-  await AsyncStorage.removeItem('@most_Played_cache')
-  MostPlayedCache.initialize()
-}
+// global.clearMostPlayedCounts = async () => {
+//   console.log('clearing')
+//   await AsyncStorage.removeItem('@most_Played_cache')
+//   MostPlayedCache.initialize()
+// }
