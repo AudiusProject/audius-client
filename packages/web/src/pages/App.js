@@ -165,12 +165,12 @@ import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccou
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
 import FollowersPage from './followers-page/FollowersPage'
 import FollowingPage from './following-page/FollowingPage'
+import { QueuePage } from './queue-page/QueuePage'
 import SettingsPage from './settings-page/SettingsPage'
 import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
-import QueuePage from './queue-page/QueuePage'
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
