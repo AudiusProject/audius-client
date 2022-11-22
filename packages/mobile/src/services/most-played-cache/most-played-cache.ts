@@ -1,30 +1,30 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { orderBy, take } from 'lodash'
 
-export const MOST_LISTENED_CACHE_TOP_N_LIMIT = 4
+export const MOST_PLAYED_CACHE_TOP_N_LIMIT = 4
 
-type MostListenedCategoryCache = {
+type MostPlayedCategoryCache = {
   topN: { id: number; count: number }[]
   counts: { [key: number]: number }
 }
 
-type MostListenedCacheData = {
-  tracks: MostListenedCategoryCache
-  collections: MostListenedCategoryCache
+type MostPlayedCacheData = {
+  tracks: MostPlayedCategoryCache
+  collections: MostPlayedCategoryCache
 }
 
 // shared instance
-export let mostListenedCache: MostListenedCache
-export class MostListenedCache {
-  cache: MostListenedCacheData
+export let mostPlayedCache: MostPlayedCache | undefined
+export class MostPlayedCache {
+  cache: MostPlayedCacheData
 
-  constructor(cache: MostListenedCacheData) {
+  constructor(cache: MostPlayedCacheData) {
     this.cache = cache
   }
 
   static async initialize() {
-    const storedCache = await MostListenedCache.getStoredMostListenedCache()
-    mostListenedCache = new MostListenedCache(storedCache)
+    const storedCache = await MostPlayedCache.getStoredMostPlayedCache()
+    mostPlayedCache = new MostPlayedCache(storedCache)
   }
 
   incrementTrack(trackId: number) {
@@ -37,9 +37,9 @@ export class MostListenedCache {
 
   private incrementCount(
     idToIncrement: number,
-    categoryCache: MostListenedCategoryCache
+    categoryCache: MostPlayedCategoryCache
   ) {
-    console.log('MostListenedCache - incrementing count', idToIncrement)
+    console.log('MostPlayedCache - incrementing count', idToIncrement)
     // TODO: test this logic
     const newCount = (categoryCache.counts[idToIncrement] ?? 0) + 1
     categoryCache.counts[idToIncrement] = newCount
@@ -50,8 +50,8 @@ export class MostListenedCache {
       // already in top N
       existing.count = newCount
     } else if (
-      categoryCache.topN.length < MOST_LISTENED_CACHE_TOP_N_LIMIT ||
-      newCount > categoryCache.topN[MOST_LISTENED_CACHE_TOP_N_LIMIT - 1].count
+      categoryCache.topN.length < MOST_PLAYED_CACHE_TOP_N_LIMIT ||
+      newCount > categoryCache.topN[MOST_PLAYED_CACHE_TOP_N_LIMIT - 1].count
     ) {
       // top N not full or belongs in top N
       categoryCache.topN.push({ id: idToIncrement, count: newCount })
@@ -59,47 +59,45 @@ export class MostListenedCache {
 
     categoryCache.topN = take(
       orderBy(categoryCache.topN, 'count', 'desc'),
-      MOST_LISTENED_CACHE_TOP_N_LIMIT
+      MOST_PLAYED_CACHE_TOP_N_LIMIT
     )
-    console.log('MostListenedCache - updatedCache', this.cache)
+    console.log('MostPlayedCache - updatedCache', this.cache)
     this.updateStoredCache()
   }
 
   async updateStoredCache() {
     try {
       await AsyncStorage.setItem(
-        '@most_listened_cache',
+        '@most_Played_cache',
         JSON.stringify(this.cache)
       )
     } catch (e) {
-      console.warn('Error updating most_listened_cache', e)
+      console.warn('Error updating most_Played_cache', e)
     }
   }
 
-  getMostListenedCollections = () => {
+  getMostPlayedCollections = () => {
     return this.cache.collections.topN.map(({ id, count }) => id)
   }
 
-  static async getStoredMostListenedCache() {
+  static async getStoredMostPlayedCache() {
     try {
-      console.log('MostListenedCache - init')
-      const mostListenedCache = await AsyncStorage.getItem(
-        '@most_listened_cache'
-      )
+      console.log('MostPlayedCache - init')
+      const storedCache = await AsyncStorage.getItem('@most_Played_cache')
 
-      if (!mostListenedCache) {
-        console.log('MostListenedCache - empty')
+      if (!storedCache) {
+        console.log('MostPlayedCache - empty')
         return {
           tracks: { topN: [], counts: {} },
           collections: { topN: [], counts: {} }
         }
       }
 
-      console.log('MostListenedCache - found stored string', mostListenedCache)
+      console.log('MostPlayedCache - found stored string', storedCache)
 
-      return JSON.parse(mostListenedCache)
+      return JSON.parse(storedCache)
     } catch (e) {
-      console.warn('Error reading most_listened_cache', e)
+      console.warn('Error reading most_Played_cache', e)
       return {
         tracks: { topN: [], counts: {} },
         collections: { topN: [], counts: {} }
@@ -111,6 +109,6 @@ export class MostListenedCache {
 // Debug methods
 global.clearMostPlayedCounts = async () => {
   console.log('clearing')
-  await AsyncStorage.removeItem('@most_listened_cache')
-  MostListenedCache.initialize()
+  await AsyncStorage.removeItem('@most_Played_cache')
+  MostPlayedCache.initialize()
 }

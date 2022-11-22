@@ -6,8 +6,8 @@ import { useDispatch } from 'react-redux'
 
 import { getCollectionList } from 'app/screens/favorites-screen/selectors'
 import {
-  mostListenedCache,
-  MOST_LISTENED_CACHE_TOP_N_LIMIT
+  mostPlayedCache,
+  MOST_PLAYED_CACHE_TOP_N_LIMIT
 } from 'app/services/most-played-cache'
 
 import { CollectionList } from '../collection-list'
@@ -20,7 +20,7 @@ export const FeedMostPlayed = () => {
   const dispatch = useDispatch()
 
   const topPlays = useMemo(() => {
-    return mostListenedCache.getMostListenedCollections()
+    return mostPlayedCache?.getMostPlayedCollections() ?? []
   }, [])
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const FeedMostPlayed = () => {
   // TODO: fallback to favorited collections or similar if there are no top plays
   return collections.length === 0 ? (
     <FeedMostPlayedSkeleton
-      length={topPlays?.length ?? MOST_LISTENED_CACHE_TOP_N_LIMIT}
+      length={topPlays?.length ?? MOST_PLAYED_CACHE_TOP_N_LIMIT}
     />
   ) : (
     <CollectionList
