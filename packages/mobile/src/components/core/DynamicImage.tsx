@@ -66,7 +66,7 @@ const ImageLoader = memo(function ImageLoader({
 }: DynamicImageProps) {
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
-  const [animationFinished, setAnimationFinished] = useState(false)
+  const [isAnimationFinished, setIsAnimationFinished] = useState(false)
 
   const handleSetSize = useCallback((event: LayoutChangeEvent) => {
     setSize(event.nativeEvent.layout.width)
@@ -79,20 +79,20 @@ const ImageLoader = memo(function ImageLoader({
       useNativeDriver: true
     }).start(() => {
       onLoad?.()
-      setAnimationFinished(true)
+      setIsAnimationFinished(true)
     })
   }, [skeletonOpacity, onLoad, immediate])
 
   useEffect(() => {
-    // Reset the animation when there is no source
-    if (!source) {
-      setAnimationFinished(false)
+    // Reset the animation when there is a source
+    if (source) {
+      setIsAnimationFinished(false)
       skeletonOpacity.setValue(1)
     }
   }, [source, skeletonOpacity])
 
   return (
-    <View>
+    <View onLayout={handleSetSize}>
       {source ? (
         <Image
           source={source}
@@ -101,14 +101,13 @@ const ImageLoader = memo(function ImageLoader({
           onLoad={handleLoad}
         />
       ) : null}
-      {!animationFinished ? (
+      {!isAnimationFinished ? (
         <Animated.View
           style={[
             stylesProp?.imageContainer,
             styles.imageContainer,
             { opacity: skeletonOpacity }
           ]}
-          onLayout={handleSetSize}
         >
           <Skeleton
             width={size}
