@@ -41,7 +41,9 @@ const trackMetadataSchema = {
   license: null,
   isrc: null,
   iswc: null,
-  download: null
+  download: null,
+  key: null,
+  bpm: null
 }
 
 export const newTrackMetadata = (fields, validate = false) => {

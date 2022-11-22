@@ -130,14 +130,14 @@ export const processFiles = (
 
     // Get key
     const key = await detectKey(file)
-    console.log('KEY DETECTED:', { key })
 
     return {
       file,
       preview: audio,
       metadata: newTrackMetadata({
         title,
-        artwork
+        artwork,
+        key
       })
     }
   })
