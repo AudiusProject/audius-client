@@ -28,7 +28,7 @@ export const useTrackImage = (
 
 type TrackImageProps = {
   track: Parameters<typeof useTrackImage>[0]
-  user: Parameters<typeof useTrackImage>[1]
+  user?: Parameters<typeof useTrackImage>[1]
 } & ImageLoaderProps
 
 export const TrackImage = (props: TrackImageProps) => {
