@@ -24,9 +24,7 @@ export const useUserCoverImage = (
 }
 
 type UserCoverImageProps = {
-  user: Nullable<
-    Pick<User, 'cover_photo_sizes' | 'cover_photo' | 'creator_node_endpoint'>
-  >
+  user: Parameters<typeof useUserCoverImage>[0]
 } & ImageLoaderProps
 
 export const UserCoverImage = (props: UserCoverImageProps) => {

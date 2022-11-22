@@ -46,6 +46,8 @@ export const useContentNodeImage = ({
     [user?.creator_node_endpoint]
   )
 
+  // Create an array of nodes that
+  // each contain an array of ImageSources
   const imageUrisByNode = useMemo(() => {
     if (!cid) {
       return []
@@ -69,16 +71,11 @@ export const useContentNodeImage = ({
 
   const handleError = useCallback(() => {
     if (nodeIndex < imageUrisByNode.length - 1) {
+      // Image failed to load from the current node
       setNodeIndex(nodeIndex + 1)
-
-      // TODO: potentially record analytics here
-      console.log('IMAGE LOAD ERROR, attempt', nodeIndex)
     } else {
-      // This resolves a statically imported image into a uri
-      // const defaultImage = Image.resolveAssetSource(defaultImageSource).uri
-
+      // Image failed to load from any node in replica set
       setFailedToLoad(true)
-      console.log('IMAGE LOAD FAILURE')
     }
   }, [nodeIndex, imageUrisByNode.length])
 

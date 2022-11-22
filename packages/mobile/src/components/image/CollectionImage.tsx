@@ -1,4 +1,4 @@
-import type { Collection, Nullable } from '@audius/common'
+import type { Collection, Nullable, User } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -12,34 +12,34 @@ const { getUser } = cacheUsersSelectors
 export const useCollectionImage = (
   collection: Nullable<
     Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
-  >
+  >,
+  user?: Pick<User, 'creator_node_gateways'>
 ) => {
   const cid = collection
     ? collection.cover_art_sizes || collection.cover_art
     : null
   const useLegacyImagePath = !collection?.cover_art_sizes
 
-  const user = useSelector((state) =>
+  const selectedUser = useSelector((state) =>
     getUser(state, { id: collection?.playlist_owner_id })
   )
 
   return useContentNodeImage({
     cid,
-    user,
+    user: selectedUser ?? user,
     useLegacyImagePath,
     fallbackImageSource: imageEmpty
   })
 }
 
 type CollectionImageProps = {
-  collection: Nullable<
-    Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
-  >
+  collection: Parameters<typeof useCollectionImage>[0]
+  user?: Parameters<typeof useCollectionImage>[1]
 } & ImageLoaderProps
 
 export const CollectionImage = (props: CollectionImageProps) => {
-  const { collection, ...imageProps } = props
-  const { source, handleError } = useCollectionImage(collection)
+  const { collection, user, ...imageProps } = props
+  const { source, handleError } = useCollectionImage(collection, user)
 
   return <ImageLoader {...imageProps} source={source} onError={handleError} />
 }

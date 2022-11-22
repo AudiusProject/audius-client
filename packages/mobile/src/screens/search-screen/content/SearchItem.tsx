@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import type { User } from '@audius/common'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -92,7 +93,7 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <UserImage user={user} style={imageStyle} />
+      <UserImage user={user} styles={{ image: imageStyle, root: imageStyle }} />
       <UserBadges
         style={styles.badgeContainer}
         nameStyle={nameStyle}
@@ -124,7 +125,11 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <TrackImage track={track} style={squareImageStyles} />
+      <TrackImage
+        track={track}
+        user={track.user as User}
+        styles={{ root: squareImageStyles, image: squareImageStyles }}
+      />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {track.title}
@@ -163,7 +168,11 @@ const PlaylistSearchResult = ({
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <CollectionImage collection={playlist} style={squareImageStyles} />
+      <CollectionImage
+        collection={playlist}
+        user={playlist.user as User}
+        styles={{ root: squareImageStyles, image: squareImageStyles }}
+      />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {playlist.playlist_name}
@@ -199,7 +208,11 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <CollectionImage collection={album} style={squareImageStyles} />
+      <CollectionImage
+        collection={album}
+        user={album.user as User}
+        styles={{ root: squareImageStyles, image: squareImageStyles }}
+      />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {album.playlist_name}
