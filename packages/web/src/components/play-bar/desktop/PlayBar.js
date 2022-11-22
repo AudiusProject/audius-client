@@ -33,11 +33,12 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { audioPlayer } from 'services/audio-player'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
 import { setupHotkeys } from 'utils/hotkeyUtil'
-import { collectibleDetailsPage, profilePage } from 'utils/route'
+import { collectibleDetailsPage, profilePage, QUEUE_PAGE } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 
 import styles from './PlayBar.module.css'
 import PlayingTrackInfo from './components/PlayingTrackInfo'
+import QueueButton from 'components/alt-button/QueueButton'
 const { makeGetCurrent } = queueSelectors
 const {
   getCollectible,
@@ -64,7 +65,8 @@ const messages = {
   favorite: 'Favorite',
   unfavorite: 'Unfavorite',
   reposted: 'Reposted',
-  repost: 'Repost'
+  repost: 'Repost',
+  viewQueue: 'View Queue',
 }
 
 class PlayBar extends Component {
@@ -144,6 +146,13 @@ class PlayBar extends Component {
     } else if (collectible && user) {
       goToRoute(collectibleDetailsPage(user.handle, collectible.id))
     }
+  }
+
+  goToQueuePage = () => {
+    const {
+      goToRoute
+    } = this.props
+    goToRoute(QUEUE_PAGE)
   }
 
   goToArtistPage = () => {
@@ -349,6 +358,7 @@ class PlayBar extends Component {
     const isFavoriteAndRepostDisabled = !uid || isOwner
     const favoriteText = favorited ? messages.unfavorite : messages.favorite
     const repostText = reposted ? messages.reposted : messages.repost
+    const viewQueueText = messages.viewQueue
     const matrix = isMatrix()
 
     return (
@@ -429,6 +439,24 @@ class PlayBar extends Component {
               granularity={VOLUME_GRANULARITY}
               onChange={this.updateVolume}
             />
+            <div className={styles.toggleRepostContainer}>
+              <Tooltip
+                text={viewQueueText}
+                disabled={isFavoriteAndRepostDisabled}
+                mount='parent'
+                placement='top'
+              >
+                <span>
+                  <QueueButton
+                    isDisabled={isFavoriteAndRepostDisabled}
+                    isMatrixMode={matrix}
+                    isDarkMode={shouldShowDark(theme)}
+                    onClick={this.goToQueuePage}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+
             <div className={styles.toggleRepostContainer}>
               <Tooltip
                 text={repostText}

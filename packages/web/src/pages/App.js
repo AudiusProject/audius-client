@@ -149,7 +149,8 @@ import {
   DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
   TOP_SUPPORTERS_USERS_ROUTE,
-  publicSiteRoutes
+  publicSiteRoutes,
+  QUEUE_PAGE
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -169,6 +170,7 @@ import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
+import QueuePage from './queue-page/QueuePage'
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
@@ -778,6 +780,12 @@ class App extends Component {
                 path={DASHBOARD_PAGE}
                 isMobile={isMobileClient}
                 component={ArtistDashboardPage}
+              />
+              <DesktopRoute
+                exact
+                path={QUEUE_PAGE}
+                isMobile={isMobileClient}
+                component={QueuePage}
               />
               <Route
                 exact
