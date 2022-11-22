@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { findLastIndex } from 'lodash'
 
 import { RepeatMode, Queueable, QueueSource } from 'store/queue/types'
 
@@ -128,7 +129,7 @@ const calculateNewShuffleOrder = (
   userQueueEndIndex: number // Exclusive
 ) => {
   return [
-    ...(userQueueEndIndex ? newOrder.slice(0, userQueueEndIndex) : []),
+    ...(userQueueEndIndex > 0 ? newOrder.slice(0, userQueueEndIndex) : []),
     ...newOrder
       .slice(userQueueEndIndex)
       .map(Number.call, Number)
@@ -136,11 +137,15 @@ const calculateNewShuffleOrder = (
   ] as number[]
 }
 
+// Find the last user-enqueued entry after
 const getUserQueueEndIndex = (state: State) => {
-  return (
-    state.order.findIndex(({ source }) => source !== QueueSource.USER_ADDED) ??
-    0
+  const found = findLastIndex(
+    state.order,
+    ({ source }, index) =>
+      source === QueueSource.USER_ADDED || index === state.index
   )
+
+  return found + 1
 }
 
 const slice = createSlice({
@@ -176,8 +181,6 @@ const slice = createSlice({
       }
 
       if (state.shuffle) {
-        // ??? Used to be (state.shuffleIndex + 1) % state.shuffleOrder.length
-
         const newShuffleIndex =
           (state.shuffleIndex + 1) % state.shuffleOrder.length
 
