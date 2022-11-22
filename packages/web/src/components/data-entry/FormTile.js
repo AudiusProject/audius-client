@@ -435,6 +435,7 @@ const AdvancedForm = (props) => {
                 label='Key'
                 defaultValue={props.defaultFields.key ?? ''}
                 size='small'
+                onChange={(value) => props.onChangeField('key', value)}
               />
               <LabeledInput
                 className={styles.miniInput}
