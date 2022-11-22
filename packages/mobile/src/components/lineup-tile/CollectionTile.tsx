@@ -31,7 +31,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { mostListenedCache } from 'app/services/most-listened-cache'
+import { mostListenedCache } from 'app/services/most-played-cache'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'

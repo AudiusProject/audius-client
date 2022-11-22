@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { orderBy, take } from 'lodash'
 
-const MOST_LISTENED_CACHE_TOP_N_LIMIT = 4
+export const MOST_LISTENED_CACHE_TOP_N_LIMIT = 4
 
 type MostListenedCategoryCache = {
   topN: { id: number; count: number }[]

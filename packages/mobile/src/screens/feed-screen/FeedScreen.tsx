@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconFeed from 'app/assets/images/iconFeed.svg'
 import IconVolume from 'app/assets/images/iconVolume.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { FeedMostPlayedTile } from 'app/components/feed-tip-tile/FeedMostPlayedTile'
+import { FeedMostPlayed } from 'app/components/feed-tip-tile/FeedMostPlayed'
 import { Lineup } from 'app/components/lineup'
 import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { SuggestedFollows } from 'app/components/suggested-follows'
@@ -70,7 +70,7 @@ export const FeedScreen = () => {
         <Lineup
           header={
             <>
-              <FeedMostPlayedTile />
+              <FeedMostPlayed />
               <ScreenHeader
                 text={messages.yourFeed}
                 icon={IconFeed}

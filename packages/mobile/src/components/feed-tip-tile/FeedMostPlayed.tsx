@@ -5,13 +5,18 @@ import { useProxySelector, collectionPageActions } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { getCollectionList } from 'app/screens/favorites-screen/selectors'
-import { mostListenedCache } from 'app/services/most-listened-cache'
+import {
+  mostListenedCache,
+  MOST_LISTENED_CACHE_TOP_N_LIMIT
+} from 'app/services/most-played-cache'
 
 import { CollectionList } from '../collection-list'
 
+import { FeedMostPlayedSkeleton } from './FeedMostPlayedSkeleton'
+
 const { fetchCollectionList } = collectionPageActions
 
-export const FeedMostPlayedTile = () => {
+export const FeedMostPlayed = () => {
   const dispatch = useDispatch()
 
   const topPlays = useMemo(() => {
@@ -27,8 +32,12 @@ export const FeedMostPlayedTile = () => {
     [topPlays]
   )
 
-  if (topPlays?.length === 0) return null
-  return (
+  // TODO: fallback to favorited collections or similar if there are no top plays
+  return collections.length === 0 ? (
+    <FeedMostPlayedSkeleton
+      length={topPlays?.length ?? MOST_LISTENED_CACHE_TOP_N_LIMIT}
+    />
+  ) : (
     <CollectionList
       listKey='most-played-albums'
       collection={(collections as UserCollection[]) ?? []}
