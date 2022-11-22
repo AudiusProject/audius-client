@@ -27,8 +27,8 @@ const useStyles = makeStyles(({ palette }) => {
     splash: {
       zIndex: zIndex.SPLASH_SCREEN,
       flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: 'center',
+      alignItems: 'center',
       backgroundColor: palette.secondary
     },
     logo: {
@@ -57,7 +57,7 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
           useNativeDriver: true,
           tension: 10,
           friction: 200,
-          toValue: START_SIZE * 0.80
+          toValue: START_SIZE * 0.8
         }),
         Animated.parallel([
           Animated.spring(scale, {
@@ -77,23 +77,16 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
         setIsShowing(false)
       })
     }
-  }, [canDismiss])
+  }, [canDismiss, scale, opacity])
 
   return isShowing ? (
     <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        styles.splash,
-        { opacity: opacity }
-      ]}
+      style={[StyleSheet.absoluteFill, styles.splash, { opacity }]}
     >
       <Animated.View
         style={[
           styles.logo,
-          { transform: [
-            { scaleX: scale },
-            { scaleY: scale },
-          ] }
+          { transform: [{ scaleX: scale }, { scaleY: scale }] }
         ]}
       >
         <SplashLogo />

@@ -10,8 +10,8 @@ import { useAsync } from 'react-use'
 import useAppState from 'app/hooks/useAppState'
 import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import type { AppScreenParamList } from 'app/screens/app-screen'
-import { SplashScreen } from 'app/screens/splash-screen'
 import { SignOnScreen } from 'app/screens/signon'
+import { SplashScreen } from 'app/screens/splash-screen'
 import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateRequiredScreen'
 import { localStorage } from 'app/services/local-storage'
 import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
@@ -59,22 +59,24 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
 
   return (
     <>
-      <SplashScreen canDismiss={accountStatus === Status.SUCCESS || accountStatus === Status.ERROR}/>
-      { foundUser
-        ?
-          <Stack.Navigator
-            screenOptions={{ gestureEnabled: false, headerShown: false }}
-          >
-            {updateRequired ? (
-              <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
-            ) : !foundUser ? (
-              <Stack.Screen name='SignOnStack' component={SignOnScreen} />
-            ) : (
-              <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
-            )}
-          </Stack.Navigator>
-        : null
-      }
+      <SplashScreen
+        canDismiss={
+          accountStatus === Status.SUCCESS || accountStatus === Status.ERROR
+        }
+      />
+      {foundUser ? (
+        <Stack.Navigator
+          screenOptions={{ gestureEnabled: false, headerShown: false }}
+        >
+          {updateRequired ? (
+            <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
+          ) : !foundUser ? (
+            <Stack.Screen name='SignOnStack' component={SignOnScreen} />
+          ) : (
+            <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
+          )}
+        </Stack.Navigator>
+      ) : null}
     </>
   )
 }
