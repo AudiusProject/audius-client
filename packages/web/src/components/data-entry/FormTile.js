@@ -429,6 +429,21 @@ const AdvancedForm = (props) => {
               onChange={(value) => props.onChangeField('upc', value)}
             />
           )}
+          {props.type === 'track' ? (
+            <div className={styles.keyAndBpm}>
+              <LabeledInput
+                label='Key'
+                defaultValue={props.defaultFields.key ?? ''}
+                size='small'
+              />
+              <LabeledInput
+                className={styles.miniInput}
+                label='BPM'
+                defaultValue={props.defaultFields.bpm ?? ''}
+                size='small'
+              />
+            </div>
+          ) : null}
         </div>
         {props.type === 'track' ? (
           <div className={styles.trackId}>

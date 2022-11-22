@@ -215,3 +215,9 @@
   font-weight: var(--font-medium);
   margin-right: 8px;
 }
+
+.keyAndBpm {
+  display: flex;
+  gap: 38px;
+  margin-left: 38px;
+}
