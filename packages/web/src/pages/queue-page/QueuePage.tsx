@@ -41,13 +41,38 @@ import styles from './QueuePage.module.css'
 
 export const QueuePage = (props: { }) => {
   const header = <Header primary='Queue' />
+  const tableColumns: TracksTableColumn[] = [
+    'spacer',
+    'trackName',
+    'releaseDate',
+    'length',
+    'plays',
+    'reposts',
+    'overflowMenu'
+  ]
+
   return (
       <Page
-        title='Dashboard'
-        description='View important stats like plays, reposts, and more.'
+        title='Queue'
+        description='View and edit your queue.'
         contentClassName={styles.pageContainer}
         header={header}
       >
+        <TracksTable
+          data={[]}
+          disabledTrackEdit
+          columns={tableColumns}
+          onClickRow={() => {}}
+          onClickTrackName={() => {}}
+          fetchPage={() => {}}
+          pageSize={50}
+          showMoreLimit={5}
+          userId={3}
+          onShowMoreToggle={() => {}}
+          totalRowCount={0}
+          isPaginated
+        />
+        
       </Page>
     )
   }
