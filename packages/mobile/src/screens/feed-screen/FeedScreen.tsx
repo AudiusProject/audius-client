@@ -14,8 +14,9 @@ import { Dimensions, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconFeed from 'app/assets/images/iconFeed.svg'
+import IconVolume from 'app/assets/images/iconVolume.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { FeedMostPlayedTile } from 'app/components/feed-most-played-tile/FeedMostPlayedTile'
+import { FeedMostPlayedTile } from 'app/components/feed-tip-tile/FeedMostPlayedTile'
 import { Lineup } from 'app/components/lineup'
 import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { SuggestedFollows } from 'app/components/suggested-follows'
@@ -31,8 +32,8 @@ const getFeedLineup = makeGetLineupMetadatas(getDiscoverFeedLineup)
 const dimensions = Dimensions.get('window')
 
 const messages = {
-  header: 'Your Feed',
-  listenNow: 'Listen Now',
+  header: 'Hit it!',
+  yourFeed: 'Your feed',
   emptyFeed: `Oops! There's nothing here.`
 }
 
@@ -61,24 +62,26 @@ export const FeedScreen = () => {
   return (
     <Screen>
       <ScreenHeader
-        text={messages.listenNow}
-        icon={IconFeed}
+        text={messages.header}
+        icon={IconVolume}
         styles={{ icon: { marginLeft: 2 } }}
       />
       <ScreenContent>
-        <FeedMostPlayedTile />
-      </ScreenContent>
-      {/* <ScreenHeader
-        text={messages.header}
-        icon={IconFeed}
-        styles={{ icon: { marginLeft: 2 } }}
-      >
-        <OnlineOnly>
-          <FeedFilterButton />
-        </OnlineOnly>
-      </ScreenHeader>
-      <ScreenContent>
         <Lineup
+          header={
+            <>
+              <FeedMostPlayedTile />
+              <ScreenHeader
+                text={messages.yourFeed}
+                icon={IconFeed}
+                styles={{ icon: { marginLeft: 2 } }}
+              >
+                <OnlineOnly>
+                  <FeedFilterButton />
+                </OnlineOnly>
+              </ScreenHeader>
+            </>
+          }
           isFeed
           pullToRefresh
           delineate
@@ -96,7 +99,7 @@ export const FeedScreen = () => {
           loadMore={loadMore}
           showsVerticalScrollIndicator={false}
         />
-      </ScreenContent> */}
+      </ScreenContent>
     </Screen>
   )
 }
