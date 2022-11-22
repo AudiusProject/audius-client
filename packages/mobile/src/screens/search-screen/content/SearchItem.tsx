@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 
-import type { User } from '@audius/common'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
