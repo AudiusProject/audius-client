@@ -41,7 +41,7 @@ export const FeedMostPlayed = () => {
     <CollectionList
       listKey='most-played-albums'
       collection={(collections as UserCollection[]) ?? []}
-      style={{ backgroundColor: '#ddbbfc' }} // TODO: theme this color
+      style={{ backgroundColor: '#edd9ff' }} // TODO: theme this color
     />
   )
 }

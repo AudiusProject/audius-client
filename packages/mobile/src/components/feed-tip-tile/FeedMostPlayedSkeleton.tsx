@@ -11,7 +11,7 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: spacing(3),
-    backgroundColor: '#ddbbfc' // TODO: theme this color
+    backgroundColor: '#edd9ff' // TODO: theme this color
   },
   cardRoot: {
     paddingTop: 12,
