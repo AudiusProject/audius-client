@@ -8,7 +8,7 @@ import type { ContextualSubmenuProps } from 'app/components/core'
 import { Text, ContextualSubmenu } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
-import { RemixTrackPill } from '../../upload-screen/components'
+import { RemixTrackPill } from '../components'
 const { getTrack } = cacheTracksSelectors
 const { getUser } = cacheUsersSelectors
 
