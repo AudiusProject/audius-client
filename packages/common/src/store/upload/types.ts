@@ -1,7 +1,7 @@
 import { CollectionMetadata, TrackMetadata } from '../../models'
 import { Nullable } from '../../utils/typeUtils'
 
-type NativeFile = {
+export type NativeFile = {
   uri: string
   name: string | null
   copyError?: string
@@ -24,10 +24,10 @@ export interface UploadTrack {
 }
 
 export interface ExtendedTrackMetadata extends TrackMetadata {
-  artwork: {
+  artwork: Nullable<{
     file: Blob | NativeFile
     url: string
-  }
+  }>
 }
 
 export interface ExtendedCollectionMetadata extends CollectionMetadata {

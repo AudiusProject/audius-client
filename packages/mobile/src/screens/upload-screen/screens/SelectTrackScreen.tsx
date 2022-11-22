@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { Name } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import DocumentPicker from 'react-native-document-picker'
 import { useAsyncFn } from 'react-use'
@@ -9,12 +10,13 @@ import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button, ErrorText, Screen, Text, Tile } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { make, track as trackAnalytcs } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
 import { TopBarIconButton } from '../../app-screen'
-import type { UploadParamList } from '../types/ParamList'
+import type { UploadParamList } from '../types'
 import { processTrackFile } from '../utils/processTrackFile'
 
 const messages = {
@@ -53,7 +55,8 @@ export const SelectTrackScreen = () => {
     useAsyncFn(async () => {
       try {
         const trackFile = await DocumentPicker.pickSingle({
-          type: DocumentPicker.types.audio
+          type: DocumentPicker.types.audio,
+          copyTo: 'cachesDirectory'
         })
         return processTrackFile(trackFile)
       } catch (error) {
@@ -72,6 +75,10 @@ export const SelectTrackScreen = () => {
     useCallback(() => {
       if (track) {
         setNavigatedBack(true)
+      } else {
+        trackAnalytcs(
+          make({ eventName: Name.TRACK_UPLOAD_OPEN, source: 'nav' })
+        )
       }
     }, [track])
   )
@@ -92,6 +99,7 @@ export const SelectTrackScreen = () => {
       topbarLeft={
         <TopBarIconButton icon={IconRemove} onPress={navigation.goBack} />
       }
+      url='/select-track'
     >
       <Tile styles={{ root: styles.tile, content: styles.tileContent }}>
         <IconUpload

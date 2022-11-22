@@ -1,14 +1,15 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useState } from 'react'
 
 import type { CommonState } from '@audius/common'
 import {
+  uploadActions,
   cacheTracksSelectors,
   accountSelectors,
   trackPageActions,
   uploadSelectors
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { View, Image, Pressable } from 'react-native'
+import { View, Image } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 import { parseTrackRoute } from 'utils/route/trackRouteParser'
@@ -21,14 +22,14 @@ import {
   LineupTileSkeleton,
   TrackTileComponent
 } from 'app/components/lineup-tile'
-import { ToastContext } from 'app/components/toast/ToastContext'
 import { TwitterButton } from 'app/components/twitter-button'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { FormScreen } from 'app/screens/edit-track-screen/components'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
 
-import { UploadStackScreen } from '../components'
 const { getTracks } = uploadSelectors
+const { reset } = uploadActions
 const { getAccountUser } = accountSelectors
 const { fetchTrack } = trackPageActions
 const { getTrack } = cacheTracksSelectors
@@ -40,6 +41,7 @@ const messages = {
   twitterShareText: (title: string) =>
     `Check out my new track, ${title} on @AudiusProject #Audius`,
   copyLink: 'Copy Link',
+  linkCopied: 'Link Copied!',
   shareToast: 'Copied Link to Track',
   close: 'Close'
 }
@@ -80,12 +82,12 @@ export const UploadCompleteScreen = () => {
     (state: CommonState) => getTracks(state)?.[0]?.metadata
   )
   const { title, permalink } = track!
-  const { toast } = useContext(ToastContext)
   const navigation = useNavigation()
   const dispatch = useDispatch()
   const accountUser = useSelector(getAccountUser)
   const uploadedTrack = useSelector((state) => getTrack(state, { permalink }))
   const trackRoute = getTrackRoute(track!, true)
+  const [isLinkCopied, setIsLinkCopied] = useState(false)
 
   useEffectOnce(() => {
     const params = parseTrackRoute(permalink)
@@ -97,12 +99,13 @@ export const UploadCompleteScreen = () => {
 
   const handleCopyLink = useCallback(() => {
     Clipboard.setString(trackRoute)
-    toast({ content: messages.shareToast, type: 'info' })
-  }, [trackRoute, toast])
+    setIsLinkCopied(true)
+  }, [trackRoute])
 
   const handleClose = useCallback(() => {
-    navigation.navigate('Feed')
-  }, [navigation])
+    navigation.getParent()?.goBack()
+    dispatch(reset())
+  }, [navigation, dispatch])
 
   const handlePressTrack = useCallback(() => {
     handleClose()
@@ -115,10 +118,12 @@ export const UploadCompleteScreen = () => {
   }, [handleClose, navigation])
 
   return (
-    <UploadStackScreen
+    <FormScreen
       title={messages.title}
       icon={IconUpload}
       variant='secondary'
+      topbarLeft={null}
+      url='/upload-complete'
       bottomSection={
         <Button
           variant='primary'
@@ -155,7 +160,7 @@ export const UploadCompleteScreen = () => {
           <TextButton
             variant='neutralLight4'
             icon={IconShare}
-            title={messages.copyLink}
+            title={isLinkCopied ? messages.linkCopied : messages.copyLink}
             style={styles.shareButton}
             onPress={handleCopyLink}
             TextProps={{ variant: 'h3', noGutter: true }}
@@ -163,23 +168,21 @@ export const UploadCompleteScreen = () => {
           />
         </Tile>
         {accountUser && uploadedTrack ? (
-          <Pressable>
-            <TrackTileComponent
-              uid={''}
-              index={0}
-              togglePlay={() => {}}
-              track={uploadedTrack}
-              user={accountUser}
-              TileProps={{
-                pointerEvents: 'box-only',
-                onPress: handlePressTrack
-              }}
-            />
-          </Pressable>
+          <TrackTileComponent
+            uid={''}
+            index={0}
+            togglePlay={() => {}}
+            track={uploadedTrack}
+            user={accountUser}
+            TileProps={{
+              pointerEvents: 'box-only',
+              onPress: handlePressTrack
+            }}
+          />
         ) : (
           <LineupTileSkeleton />
         )}
       </View>
-    </UploadStackScreen>
+    </FormScreen>
   )
 }

@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { useAppScreenOptions } from '../../app-screen/useAppScreenOptions'
 
-import { CompleteTrackScreen } from './CompleteTrackScreen/CompleteTrackScreen'
+import { CompleteTrackScreen } from './CompleteTrackScreen'
 import { SelectTrackScreen } from './SelectTrackScreen'
 import { UploadCompleteScreen } from './UploadCompleteScreen'
 import { UploadingTracksScreen } from './UploadingTracksScreen'
@@ -20,7 +20,7 @@ export const UploadScreen = () => {
       <Stack.Screen
         name='CompleteTrack'
         component={CompleteTrackScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen name='UploadingTracks' component={UploadingTracksScreen} />
       <Stack.Screen name='UploadComplete' component={UploadCompleteScreen} />
