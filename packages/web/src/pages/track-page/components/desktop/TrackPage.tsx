@@ -195,6 +195,8 @@ const TrackPage = ({
       makePublic={makePublic}
       onClickReposts={onClickReposts}
       onClickFavorites={onClickFavorites}
+      musicalKey={defaults.key}
+      bpm={defaults.bpm}
     />
   )
 

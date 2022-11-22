@@ -257,6 +257,34 @@ class GiantTrackTile extends PureComponent {
     )
   }
 
+  renderKey() {
+    // TODO: Add to fieldVisibility
+    const shouldShow = !!this.props.musicalKey
+    return (
+      shouldShow && (
+        <InfoLabel
+          className={styles.infoLabelPlacement}
+          labelName='key'
+          labelValue={this.props.musicalKey}
+        />
+      )
+    )
+  }
+
+  renderBPM() {
+    // TODO: Add to fieldVisibility
+    const shouldShow = !!this.props.bpm
+    return (
+      shouldShow && (
+        <InfoLabel
+          className={styles.infoLabelPlacement}
+          labelName='bpm'
+          labelValue={this.props.bpm}
+        />
+      )
+    )
+  }
+
   renderListenCount() {
     const { listenCount, isUnlisted, fieldVisibility } = this.props
     const shouldShow = !isUnlisted || fieldVisibility.play_count
@@ -515,6 +543,8 @@ class GiantTrackTile extends PureComponent {
             {this.renderReleased()}
             {this.renderGenre()}
             {this.renderMood()}
+            {this.renderKey()}
+            {this.renderBPM()}
             {credits ? (
               <InfoLabel
                 className={styles.infoLabelPlacement}
