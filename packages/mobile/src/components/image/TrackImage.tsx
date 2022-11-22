@@ -18,12 +18,10 @@ export const useTrackImage = (
   const selectedUser = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
-  const useLegacyImagePath = !track?.cover_art_sizes
 
   return useContentNodeImage({
     cid,
     user: user ?? selectedUser,
-    useLegacyImagePath,
     fallbackImageSource: imageEmpty
   })
 }
@@ -37,7 +35,6 @@ export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
   const { source, handleError } = useTrackImage(track, user)
-  console.log('IMAGE track', source, track)
 
   return <ImageLoader {...imageProps} source={source} onError={handleError} />
 }

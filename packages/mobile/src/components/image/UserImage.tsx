@@ -14,13 +14,11 @@ export const useUserImage = (
   >
 ) => {
   const cid = user ? user.profile_picture_sizes || user.profile_picture : null
-  const useLegacyImagePath = !user?.profile_picture_sizes
 
   return useContentNodeImage({
     cid,
     user,
-    fallbackImageSource: profilePicEmpty,
-    useLegacyImagePath
+    fallbackImageSource: profilePicEmpty
   })
 }
 

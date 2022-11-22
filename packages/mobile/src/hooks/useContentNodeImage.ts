@@ -12,28 +12,73 @@ export type ContentNodeImageSource = {
   handleError: () => void
 }
 
+/**
+ * Create an ImageSourceUri[] containing the available
+ * images sizes
+ */
+const createImageSourceWithSizes = ({
+  sizes,
+  createUri
+}: {
+  sizes: UseContentNodeImageOptions['sizes']
+  createUri: (size: string) => string
+}) => {
+  return Object.values(sizes).map((size: string) => {
+    const width = Number(size.split('x')[0])
+    return {
+      width,
+      height: width,
+      uri: createUri(size)
+    }
+  })
+}
+
+/**
+ * Create an array of ImageSources for an endpoint and sizes
+ */
+const createImageSourcesForEndpoints = ({
+  endpoints,
+  sizes,
+  createUri
+}: {
+  endpoints: string[]
+  sizes: UseContentNodeImageOptions['sizes']
+  createUri: (endpoint: string) => (size: string) => string
+}) =>
+  endpoints.reduce((result, endpoint) => {
+    const source = createImageSourceWithSizes({
+      sizes,
+      createUri: createUri(endpoint)
+    })
+
+    return [...result, source]
+  }, [])
+
 type UseContentNodeImageOptions = {
   cid: Nullable<CID>
   user: Nullable<Pick<User, 'creator_node_endpoint'>>
   sizes?: typeof SquareSizes | typeof WidthSizes
-  useLegacyImagePath?: boolean
   fallbackImageSource: ImageSourcePropType
 }
 
 /**
  * Load an image from a user's replica set
- * Returns props for the ImageLoader component
  *
  * If the image fails to load, try the next node in the replica set
+ *
+ * Returns props for the ImageLoader component
+ * @returns {
+ *  source: ImageSource
+ *  onError: () => void
+ * }
  */
 export const useContentNodeImage = ({
   cid,
   user,
   sizes = SquareSizes,
-  useLegacyImagePath,
   fallbackImageSource
 }: UseContentNodeImageOptions): ContentNodeImageSource => {
-  const [nodeIndex, setNodeIndex] = useState(0)
+  const [imageSourceIndex, setImageSourceIndex] = useState(0)
   const [failedToLoad, setFailedToLoad] = useState(false)
 
   const endpoints = useMemo(
@@ -46,50 +91,51 @@ export const useContentNodeImage = ({
     [user?.creator_node_endpoint]
   )
 
-  // Create an array of nodes that
-  // each contain an array of ImageSources
-  const imageUrisByNode = useMemo(() => {
+  // Create an array of ImageSources
+  // based on the content node endpoints
+  const imageSources = useMemo(() => {
     if (!cid) {
       return []
     }
 
-    return endpoints.reduce((result, gateway) => {
-      const source = useLegacyImagePath
-        ? { uri: `${gateway}${cid}` }
-        : Object.values(sizes).map((size) => {
-            const width = Number(size.split('x')[0])
-            return {
-              width,
-              height: width,
-              uri: `${gateway}${cid}/${size}.jpg`
-            }
-          })
+    const newImageSources = createImageSourcesForEndpoints({
+      endpoints,
+      sizes,
+      createUri: (endpoint) => (size) => `${endpoint}${cid}/${size}.jpg`
+    })
 
-      return [...result, source]
-    }, [])
-  }, [cid, endpoints, sizes, useLegacyImagePath])
+    // These can be removed when all the data on Content Node has
+    // been migrated to the new path
+    const legacyImageSources = createImageSourcesForEndpoints({
+      endpoints,
+      sizes,
+      createUri: (endpoint) => () => `${endpoint}${cid}`
+    })
+
+    return [...newImageSources, ...legacyImageSources]
+  }, [cid, endpoints, sizes])
 
   const handleError = useCallback(() => {
-    if (nodeIndex < imageUrisByNode.length - 1) {
+    if (imageSourceIndex < imageSources.length - 1) {
       // Image failed to load from the current node
-      setNodeIndex(nodeIndex + 1)
+      setImageSourceIndex(imageSourceIndex + 1)
     } else {
       // Image failed to load from any node in replica set
       setFailedToLoad(true)
     }
-  }, [nodeIndex, imageUrisByNode.length])
+  }, [imageSourceIndex, imageSources.length])
 
   const result = useMemo(
     () => ({
       source:
         !user || !cid || failedToLoad
           ? fallbackImageSource
-          : imageUrisByNode[nodeIndex],
+          : imageSources[imageSourceIndex],
       handleError
     }),
     [
-      imageUrisByNode,
-      nodeIndex,
+      imageSources,
+      imageSourceIndex,
       handleError,
       fallbackImageSource,
       failedToLoad,

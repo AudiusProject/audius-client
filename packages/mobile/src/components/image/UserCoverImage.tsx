@@ -12,13 +12,11 @@ export const useUserCoverImage = (
   >
 ) => {
   const cid = user ? user.cover_photo_sizes || user.cover_photo : null
-  const useLegacyImagePath = !user?.cover_photo_sizes
 
   return useContentNodeImage({
     cid,
     user,
     sizes: WidthSizes,
-    useLegacyImagePath,
     fallbackImageSource: imageCoverPhotoBlank
   })
 }

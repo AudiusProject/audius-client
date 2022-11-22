@@ -18,7 +18,6 @@ export const useCollectionImage = (
   const cid = collection
     ? collection.cover_art_sizes || collection.cover_art
     : null
-  const useLegacyImagePath = !collection?.cover_art_sizes
 
   const selectedUser = useSelector((state) =>
     getUser(state, { id: collection?.playlist_owner_id })
@@ -27,7 +26,6 @@ export const useCollectionImage = (
   return useContentNodeImage({
     cid,
     user: selectedUser ?? user,
-    useLegacyImagePath,
     fallbackImageSource: imageEmpty
   })
 }
