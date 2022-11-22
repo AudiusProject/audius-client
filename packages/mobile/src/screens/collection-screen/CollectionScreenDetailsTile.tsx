@@ -101,7 +101,6 @@ export const CollectionScreenDetailsTile = ({
 
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
-  // TODO: make sure this isn't causing extra renders
   const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
   const collectionId = useSelector(getCollectionId)
