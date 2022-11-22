@@ -32,7 +32,7 @@ const getFeedLineup = makeGetLineupMetadatas(getDiscoverFeedLineup)
 const dimensions = Dimensions.get('window')
 
 const messages = {
-  header: 'Hit it!',
+  header: 'Listen again',
   yourFeed: 'Your feed',
   emptyFeed: `Oops! There's nothing here.`
 }
