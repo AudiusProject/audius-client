@@ -62,6 +62,52 @@ function* watchResetCollection() {
   })
 }
 
+function* watchFetchCollectionList() {
+  yield takeLatest(collectionActions.FETCH_COLLECTION_LIST, function* (action) {
+    const collectionIds = action.ids
+
+    const { collections, uids: collectionUids } = yield call(
+      retrieveCollections,
+      null,
+      collectionIds,
+      /* fetchTracks */ false,
+      /* requiresAllTracks */ true
+    )
+
+    const collectionValues = Object.values(collections)
+    if (collectionValues.length === 0) {
+      yield put(collectionActions.fetchCollectionFailed())
+      return
+    }
+    for (const collection of collectionValues) {
+      const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)
+      const collectionUid = collectionUids[collection.playlist_id]
+      if (collection) {
+        yield put(
+          cacheActions.subscribe(Kind.USERS, [
+            { uid: userUid, id: collection.playlist_owner_id }
+          ])
+        )
+        yield put(
+          collectionActions.fetchCollectionSucceeded(
+            collection.playlist_id,
+            collectionUid,
+            userUid,
+            collection.playlist_contents.track_ids.length
+          )
+        )
+      } else {
+        yield put(collectionActions.fetchCollectionFailed(userUid))
+      }
+    }
+  })
+}
+
 export default function sagas() {
-  return [...tracksSagas(), watchFetchCollection, watchResetCollection]
+  return [
+    ...tracksSagas(),
+    watchFetchCollection,
+    watchResetCollection,
+    watchFetchCollectionList
+  ]
 }

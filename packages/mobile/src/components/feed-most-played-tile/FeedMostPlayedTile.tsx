@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react'
 
-import type { UserCollection } from '@audius/common'
+import type { CommonState, UserCollection } from '@audius/common'
 import { useProxySelector, collectionPageActions } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import { Tile } from 'app/components/core'
 import { getCollectionList } from 'app/screens/favorites-screen/selectors'
@@ -12,7 +13,7 @@ import { makeStyles } from 'app/styles'
 import { CollectionList } from '../collection-list'
 
 import { FeedMostPlayedTileSkeleton } from './FeedMostPlayedTileSkeleton'
-const { fetchCollection } = collectionPageActions
+const { fetchCollectionList } = collectionPageActions
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   tile: {
@@ -40,19 +41,23 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 export const FeedMostPlayedTile = () => {
   const styles = useStyles()
+  const dispatch = useDispatch()
 
   const topPlays = useMemo(() => {
     return mostListenedCache.getMostListenedCollections()
   }, []) // [] to get only once
 
   useEffect(() => {
-    topPlays.forEach((collectionId) => fetchCollection(collectionId))
-  }, [topPlays])
+    dispatch(fetchCollectionList(topPlays))
+  }, [dispatch, topPlays])
 
   const collections = useProxySelector(
-    (state) => getCollectionList(state, topPlays),
+    (state: CommonState) => getCollectionList(state, topPlays),
     [topPlays]
   )
+
+  console.log('MostPlayedTile - topPlays', topPlays)
+  console.log('MostPlayedTile - collections', collections)
 
   return !collections ? (
     <View style={styles.skeleton}>

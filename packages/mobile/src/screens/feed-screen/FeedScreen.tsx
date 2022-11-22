@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconFeed from 'app/assets/images/iconFeed.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
+import { FeedMostPlayedTile } from 'app/components/feed-most-played-tile/FeedMostPlayedTile'
 import { Lineup } from 'app/components/lineup'
 import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
 import { SuggestedFollows } from 'app/components/suggested-follows'
@@ -22,7 +23,6 @@ import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { make, track } from 'app/services/analytics'
 
 import { FeedFilterButton } from './FeedFilterButton'
-import { FeedMostPlayedTile } from 'app/components/feed-most-played-tile/FeedMostPlayedTile'
 const { getDiscoverFeedLineup } = feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
 
@@ -68,7 +68,7 @@ export const FeedScreen = () => {
       <ScreenContent>
         <FeedMostPlayedTile />
       </ScreenContent>
-      <ScreenHeader
+      {/* <ScreenHeader
         text={messages.header}
         icon={IconFeed}
         styles={{ icon: { marginLeft: 2 } }}
@@ -96,7 +96,7 @@ export const FeedScreen = () => {
           loadMore={loadMore}
           showsVerticalScrollIndicator={false}
         />
-      </ScreenContent>
+      </ScreenContent> */}
     </Screen>
   )
 }

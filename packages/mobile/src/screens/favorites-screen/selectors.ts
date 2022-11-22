@@ -45,5 +45,7 @@ export const getAccountCollections = (
 export const getCollectionList = (state: CommonState, ids: number[]) => {
   const collections = state.collections.entries
 
-  return ids.map((id) => collections[id].metadata)
+  return ids
+    .map((id) => collections[id]?.metadata)
+    .filter((collection) => !!collection)
 }

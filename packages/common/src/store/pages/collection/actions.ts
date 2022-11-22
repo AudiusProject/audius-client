@@ -2,6 +2,7 @@ import { ID, SmartCollectionVariant, UID } from '../../../models'
 import { Nullable } from '../../../utils'
 
 export const FETCH_COLLECTION = 'FETCH_COLLECTION'
+export const FETCH_COLLECTION_LIST = 'FETCH_COLLECTION_LIST'
 export const FETCH_COLLECTION_SUCCEEDED = 'FETCH_COLLECTION_SUCCEEDED'
 export const FETCH_COLLECTION_FAILED = 'FETCH_COLLECTION_FAILED'
 export const RESET_COLLECTION = 'RESET_COLLECTION'
@@ -10,6 +11,11 @@ export const SET_SMART_COLLECTION = 'SET_SMART_COLLECTION'
 export const fetchCollection = (id: number) => ({
   type: FETCH_COLLECTION,
   id
+})
+
+export const fetchCollectionList = (ids: number[]) => ({
+  type: FETCH_COLLECTION_LIST,
+  ids
 })
 
 export const fetchCollectionSucceeded = (
