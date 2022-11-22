@@ -106,10 +106,7 @@ export const BottomTabBar = (props: BottomTabBarProps) => {
     >
       <View
         pointerEvents='auto'
-        style={[
-          styles.bottomBar,
-          { paddingBottom: insets.bottom }
-        ]}
+        style={[styles.bottomBar, { paddingBottom: insets.bottom }]}
       >
         {routes.map(({ name, key }, index) => {
           const BottomButton = bottomTabBarButtons[name]
