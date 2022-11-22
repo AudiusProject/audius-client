@@ -12,6 +12,7 @@ import type {
   ViewStyle
 } from 'react-native'
 import { Animated, Image, StyleSheet, View } from 'react-native'
+import { useAsync, usePrevious } from 'react-use'
 
 import Skeleton from 'app/components/skeleton'
 import type { StylesProp } from 'app/styles'
@@ -52,9 +53,10 @@ const styles = StyleSheet.create({
 })
 
 /*
- * Displays a skeleton while loading and image and then fades in the image
+ * Displays a skeleton while loading an image
+ * then fades in the image
  */
-const ImageLoader = memo(function ImageLoader({
+const ImageLoader = ({
   source,
   style,
   styles: stylesProp,
@@ -63,7 +65,7 @@ const ImageLoader = memo(function ImageLoader({
   onLoad,
   animatedValue,
   ...imageProps
-}: DynamicImageProps) {
+}: DynamicImageProps) => {
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
   const [isAnimationFinished, setIsAnimationFinished] = useState(false)
@@ -84,7 +86,7 @@ const ImageLoader = memo(function ImageLoader({
   }, [skeletonOpacity, onLoad, immediate])
 
   useEffect(() => {
-    // Reset the animation when there is a source
+    // Reset the animation when the source changes
     if (source) {
       setIsAnimationFinished(false)
       skeletonOpacity.setValue(1)
@@ -119,7 +121,7 @@ const ImageLoader = memo(function ImageLoader({
       {children ? <View style={styles.children}>{children}</View> : null}
     </View>
   )
-})
+}
 
 const interpolateImageScale = (animatedValue: Animated.Value) =>
   animatedValue.interpolate({
@@ -240,15 +242,21 @@ export const DynamicImage = memo(function DynamicImage({
       >
         <ImageLoader source={firstImage} styles={stylesProp} {...imageProps} />
       </Animated.View>
-      <Animated.View
-        style={[
-          stylesProp?.imageContainer,
-          styles.imageContainer,
-          { opacity: secondOpacity }
-        ]}
-      >
-        <ImageLoader source={secondImage} styles={stylesProp} {...imageProps} />
-      </Animated.View>
+      {secondImage ? (
+        <Animated.View
+          style={[
+            stylesProp?.imageContainer,
+            styles.imageContainer,
+            { opacity: secondOpacity }
+          ]}
+        >
+          <ImageLoader
+            source={secondImage}
+            styles={stylesProp}
+            {...imageProps}
+          />
+        </Animated.View>
+      ) : null}
       {children ? <View style={styles.children}>{children}</View> : null}
     </Animated.View>
   )

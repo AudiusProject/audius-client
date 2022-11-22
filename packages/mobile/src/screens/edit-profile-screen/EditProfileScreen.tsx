@@ -7,7 +7,6 @@ import {
   profilePageSelectors,
   Status
 } from '@audius/common'
-import { useUserCoverImage } from 'app/components/image/UserCoverImage'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import type { ImageURISource } from 'react-native'
@@ -21,6 +20,7 @@ import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
 import { FormTextInput, FormImageInput } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
+import { useUserCoverImage } from 'app/components/image/UserCoverImage'
 import { useUserImage } from 'app/components/image/UserImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
@@ -174,7 +174,7 @@ export const EditProfileScreen = () => {
     website,
     donation,
     cover_photo: { url: coverPhotoSource[0].uri },
-    profile_picture: { url: (imageSource as ImageURISource).uri }
+    profile_picture: { url: imageSource[0].uri }
   }
 
   return (

@@ -335,7 +335,10 @@ export const FollowArtistCard = ({
         style={styles.card}
       >
         <View style={styles.cardImage}>
-          <UserImage user={user} style={styles.userImage} />
+          <UserImage
+            user={user}
+            styles={{ image: styles.userImage, root: styles.userImage }}
+          />
         </View>
         <UserBadges
           style={styles.cardNameContainer}
