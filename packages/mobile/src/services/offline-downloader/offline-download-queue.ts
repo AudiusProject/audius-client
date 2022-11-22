@@ -44,7 +44,8 @@ export const enqueueTrackDownload = async (
   )
 }
 
-export const startDownloadWorker = () => {
+export const startDownloadWorker = async () => {
+  queue.stop()
   queue.configure({
     concurrency: 10,
     updateInterval: 10
@@ -54,4 +55,17 @@ export const startDownloadWorker = () => {
   // Reset worker to improve devEx. Forces the worker to take code updates across reloads
   if (worker) queue.removeWorker(TRACK_DOWNLOAD_WORKER, true)
   queue.addWorker(new Worker(TRACK_DOWNLOAD_WORKER, downloadTrack))
+  const jobs = await queue.getJobs()
+  jobs
+    .filter((job) => job.workerName === TRACK_DOWNLOAD_WORKER)
+    .forEach(({ payload }) => {
+      try {
+        const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
+        const trackId = parsedPayload.track.track_id
+        store.dispatch(startDownload(trackId.toString()))
+      } catch (e) {
+        console.warn(e)
+      }
+    })
+  queue.start()
 }
