@@ -54,7 +54,7 @@ export const UploadingTrackTile = (props: UploadingTrackTileProps) => {
           source={{ uri: artwork.url }}
           styles={{ root: styles.artwork, imageContainer: styles.image }}
         >
-          {artwork.url ? null : (
+          {artwork?.url ? null : (
             <IconImage
               fill={neutralLight8}
               height={spacing(8)}
