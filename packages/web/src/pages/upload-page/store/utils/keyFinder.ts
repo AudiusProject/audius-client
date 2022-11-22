@@ -1,3 +1,4 @@
+import detect from 'bpm-detective'
 import WebWorker from 'services/WebWorker'
 
 const initializeKeyFinder = async ({
@@ -108,15 +109,23 @@ const detectBufferKey = async (buffer: AudioBuffer) => {
   })
 }
 
-export const detectKey = async (file: File) => {
+const readFile = async (file: File, callback: Function) => {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader()
     fileReader.addEventListener('load', (event) => {
       const context = new AudioContext()
       context.decodeAudioData(event.target?.result as ArrayBuffer, (buffer) => {
-        resolve(detectBufferKey(buffer))
+        resolve(callback(buffer))
       })
     })
     fileReader.readAsArrayBuffer(file)
   })
+}
+
+export const detectKey = async (file: File) => {
+  return readFile(file, detectBufferKey)
+}
+
+export const detectBpm = async (file: File) => {
+  return readFile(file, detect)
 }

@@ -3,7 +3,7 @@ import jsmediatags from 'jsmediatags'
 
 import { resizeImage } from 'utils/imageProcessingUtil'
 
-import { detectKey } from './keyFinder'
+import { detectKey, detectBpm } from './keyFinder'
 
 const ALLOWED_MAX_AUDIO_SIZE_BYTES = 250 * 1000 * 1000
 
@@ -130,6 +130,11 @@ export const processFiles = (
 
     // Get key
     const key = await detectKey(file)
+    console.log(`key: ${key}`)
+
+    // Get bpm
+    const bpm = await detectBpm(file)
+    console.log(`bpm: ${bpm}`)
 
     return {
       file,
@@ -137,7 +142,8 @@ export const processFiles = (
       metadata: newTrackMetadata({
         title,
         artwork,
-        key
+        key,
+        bpm
       })
     }
   })
