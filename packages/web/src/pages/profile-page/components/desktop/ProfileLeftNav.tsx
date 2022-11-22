@@ -12,6 +12,7 @@ import { SupportingList } from 'components/tipping/support/SupportingList'
 import { TopSupporters } from 'components/tipping/support/TopSupporters'
 import { TipAudioButton } from 'components/tipping/tip-audio/TipAudioButton'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
+import { TwitterSuggestions } from 'components/twitter-user-suggestion/TwitterUserSuggestion'
 import UploadChip from 'components/upload/UploadChip'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import { Type } from 'pages/profile-page/components/SocialLink'
@@ -204,6 +205,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
         ) : null}
         <SupportingList />
         <TopSupporters />
+        <TwitterSuggestions />
         <ProfileMutuals />
         {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
         {isOwner && !isArtist && (

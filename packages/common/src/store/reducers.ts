@@ -99,6 +99,7 @@ import followingUserListReducer from './user-list/following/reducers'
 import mutualsUserListReducer from './user-list/mutuals/reducers'
 import notificationsUserListReducer from './user-list/notifications/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
+import suggestedFollowsUserListReducer from './user-list/suggested-follows/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
 import wallet from './wallet/slice'
@@ -171,7 +172,8 @@ export const reducers = () => ({
       topSupporters: topSupportersUserListReducer,
       supporting: supportingUserListReducer,
       mutuals: mutualsUserListReducer,
-      notifications: notificationsUserListReducer
+      notifications: notificationsUserListReducer,
+      suggestedFollows: suggestedFollowsUserListReducer
     }),
     theme,
     vipDiscordModal: vipDiscordModalReducer,
@@ -275,6 +277,7 @@ export type CommonState = {
       favorites: ReturnType<typeof favoritesUserListReducer>
       topSupporters: ReturnType<typeof topSupportersUserListReducer>
       supporting: ReturnType<typeof supportingUserListReducer>
+      suggestedFollows: ReturnType<typeof suggestedFollowsUserListReducer>
     }
     theme: ThemeState
     vipDiscordModal: VipDiscordModalState

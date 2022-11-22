@@ -11,6 +11,7 @@ import {
   NOTIFICATIONS_USER_LIST_TAG as NOTIFICATION_TAG,
   mutualsUserListSelectors,
   MUTUALS_USER_LIST_TAG as MUTUALS_TAG,
+  suggestedFollowsListSelectors,
   followingUserListSelectors,
   followersUserListSelectors,
   favoritesUserListSelectors,
@@ -40,6 +41,7 @@ const { getUserList: favoritesSelector } = favoritesUserListSelectors
 const { getUserList: followersSelector } = followersUserListSelectors
 const { getUserList: followingSelector } = followingUserListSelectors
 const { getUserList: mutualsSelector } = mutualsUserListSelectors
+const { getUserList: suggestedFollowsSelector } = suggestedFollowsListSelectors
 const { getPageTitle, getUserList: notificationSelector } =
   notificationsUserListSelectors
 const { getUserList: repostsSelector } = repostsUserListSelectors
@@ -62,7 +64,8 @@ const messages = {
   following: 'Following',
   topSupporters: 'Top Supporters',
   supporting: 'Supporting',
-  mutuals: 'Mutuals'
+  mutuals: 'Mutuals',
+  sugestedFollows: 'Recommended Follows'
 }
 
 const UserListModal = ({
@@ -155,6 +158,16 @@ const UserListModal = ({
         <div className={styles.titleContainer}>
           <IconFollowing className={styles.icon} />
           <span>{messages.mutuals}</span>
+        </div>
+      )
+      break
+    case UserListType.SUGGESTED_FOLLOWS:
+      tag = 'RECOMMENDED FOLLOWS'
+      selector = suggestedFollowsSelector
+      title = (
+        <div className={styles.titleContainer}>
+          <IconFollowing className={styles.icon} />
+          <span>{messages.sugestedFollows}</span>
         </div>
       )
       break

@@ -37,3 +37,8 @@ export * from './followers/types'
 export * as favoritesUserListActions from './favorites/actions'
 export * as favoritesUserListSelectors from './favorites/selectors'
 export * from './favorites/types'
+
+export * as suggestedFollowsListActions from './suggested-follows/actions'
+export * as suggestedFollowsListSelectors from './suggested-follows/selectors'
+export * from './suggested-follows/types'
+export { default as suggestedFollowsListReducer } from './suggested-follows/reducers'
