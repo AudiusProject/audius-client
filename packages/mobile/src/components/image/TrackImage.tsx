@@ -11,7 +11,7 @@ const { getUser } = cacheUsersSelectors
 
 export const useTrackImage = (
   track: Nullable<Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>>,
-  user?: Pick<User, 'creator_node_gateways'>
+  user?: Pick<User, 'creator_node_endpoint'>
 ) => {
   const cid = track ? track.cover_art_sizes || track.cover_art : null
 

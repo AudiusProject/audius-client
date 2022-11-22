@@ -13,7 +13,7 @@ export const useCollectionImage = (
   collection: Nullable<
     Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
   >,
-  user?: Pick<User, 'creator_node_gateways'>
+  user?: Pick<User, 'creator_node_endpoint'>
 ) => {
   const cid = collection
     ? collection.cover_art_sizes || collection.cover_art
@@ -25,7 +25,7 @@ export const useCollectionImage = (
 
   return useContentNodeImage({
     cid,
-    user: selectedUser ?? user,
+    user: selectedUser ?? user ?? null,
     fallbackImageSource: imageEmpty
   })
 }

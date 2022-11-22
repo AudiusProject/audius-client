@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useEffect, memo, useCallback, useRef, useState } from 'react'
 
 import { useInstanceVar } from '@audius/common'
-import type { Maybe } from '@udius/common'
+import type { Maybe } from '@audius/common'
 import type {
   ImageProps,
   ImageSourcePropType,
@@ -160,7 +160,8 @@ export const DynamicImage = memo(function DynamicImage({
 
   const [isFirstImageActive, setIsFirstImageActive] = useState(true)
 
-  const [getPrevImage, setPrevImage] = useInstanceVar<Maybe<string>>(source)
+  const [getPrevImage, setPrevImage] =
+    useInstanceVar<Maybe<ImageSourcePropType>>(source)
 
   const animateTo = useCallback(
     (anim: Animated.Value, toValue: number, callback?: () => void) =>

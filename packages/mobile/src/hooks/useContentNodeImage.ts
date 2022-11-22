@@ -20,7 +20,7 @@ const createImageSourceWithSizes = ({
   sizes,
   createUri
 }: {
-  sizes: UseContentNodeImageOptions['sizes']
+  sizes: typeof SquareSizes | typeof WidthSizes
   createUri: (size: string) => string
 }) => {
   return Object.values(sizes).map((size: string) => {
@@ -42,7 +42,7 @@ const createImageSourcesForEndpoints = ({
   createUri
 }: {
   endpoints: string[]
-  sizes: UseContentNodeImageOptions['sizes']
+  sizes: typeof SquareSizes | typeof WidthSizes
   createUri: (endpoint: string) => (size: string) => string
 }) =>
   endpoints.reduce((result, endpoint) => {

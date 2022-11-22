@@ -127,7 +127,7 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <TrackImage
         track={track}
-        user={track.user as User}
+        user={track.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />
       <View style={styles.nameContainer}>
@@ -170,7 +170,7 @@ const PlaylistSearchResult = ({
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={playlist}
-        user={playlist.user as User}
+        user={playlist.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />
       <View style={styles.nameContainer}>
@@ -210,7 +210,7 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={album}
-        user={album.user as User}
+        user={album.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />
       <View style={styles.nameContainer}>
