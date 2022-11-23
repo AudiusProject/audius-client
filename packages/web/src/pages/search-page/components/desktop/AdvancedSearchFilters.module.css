@@ -1,0 +1,43 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: -12px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background-color: var(--white);
+  box-shadow: 0px px 2px 5px var(--tile-shadow-3),
+    0px 1px 0px var(--tile-shadow-2), 0px 0px 1px rgba(133, 129, 153, 0.1);
+  border-radius: 8px;
+}
+
+.switchGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.switch {
+  flex: 1 0 auto;
+}
+
+.input {
+  width: 5em;
+  font-size: var(--font-xs);
+  border-radius: 4px;
+  border: 1px solid var(--neutral-light-8);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--neutral);
+  mix-blend-mode: normal;
+  box-sizing: border-box;
+
+  text-align: right;
+  -moz-appearance: textfield;
+}
+
+.input::-webkit-inner-spin-button,
+.input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -6,6 +6,7 @@ import {
   searchResultsPageTracksLineupActions as tracksActions,
   SearchKind
 } from '@audius/common'
+import { Button, ButtonSize, ButtonType, IconFilter } from '@audius/stems'
 import { Redirect } from 'react-router'
 
 import { ReactComponent as IconBigSearch } from 'assets/img/iconBigSearch.svg'
@@ -27,9 +28,15 @@ import {
   NOT_FOUND_PAGE
 } from 'utils/route'
 
+import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 import styles from './SearchPageContent.module.css'
 
 const SEARCH_HEADER_MAX_WIDTH_PX = 720
+
+const messages = {
+  advanced: (areFiltersVisible) =>
+    `${areFiltersVisible ? 'Hide' : 'Show'} Advanced Options`
+}
 
 const SearchHeader = (props) => {
   const secondary = (
@@ -38,6 +45,17 @@ const SearchHeader = (props) => {
   return (
     <Header
       {...props}
+      rightDecorator={
+        props.onAdvancedClicked ? (
+          <Button
+            text={messages.advanced(props.areFiltersVisible)}
+            type={ButtonType.COMMON}
+            size={ButtonSize.TINY}
+            rightIcon={<IconFilter width={12} height={12} />}
+            onClick={props.onAdvancedClicked}
+          />
+        ) : undefined
+      }
       primary={props.title}
       secondary={secondary}
       overrideWidth={SEARCH_HEADER_MAX_WIDTH_PX}
@@ -51,7 +69,8 @@ class SearchPageContent extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      cardToast: {}
+      cardToast: {},
+      areFiltersVisible: false
     }
   }
 
@@ -59,6 +78,12 @@ class SearchPageContent extends Component {
     Object.keys(this.state.cardToast).forEach((toastId) =>
       this.clearCardToast(toastId)
     )
+  }
+
+  onAdvancedClicked = () => {
+    this.setState((state) => ({
+      areFiltersVisible: !state.areFiltersVisible
+    }))
   }
 
   onShare = (category, id) => () => {
@@ -319,6 +344,7 @@ class SearchPageContent extends Component {
       content = (
         <>
           <div className={styles.trackSearchResultsContainer}>
+            {this.state.areFiltersVisible ? <AdvancedSearchFilters /> : null}
             <CategoryHeader categoryName='Tracks' />
             <Lineup
               search
@@ -350,7 +376,14 @@ class SearchPageContent extends Component {
           </div>
         </>
       )
-      header = <SearchHeader searchText={searchText} title={searchTitle} />
+      header = (
+        <SearchHeader
+          searchText={searchText}
+          title={searchTitle}
+          areFiltersVisible={this.state.areFiltersVisible}
+          onAdvancedClicked={this.onAdvancedClicked}
+        />
+      )
     } else if (searchResultsCategory === 'playlists') {
       content = isTagSearch ? (
         <Redirect to={NOT_FOUND_PAGE} />
