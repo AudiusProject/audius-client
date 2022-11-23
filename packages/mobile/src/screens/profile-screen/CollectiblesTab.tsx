@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 
 import IconShare from 'app/assets/images/iconShare.svg'
 import { Tile, GradientText, FlatList, Button } from 'app/components/core'
+import LoadingSpinner from 'app/components/loading-spinner'
 import { ToastContext } from 'app/components/toast/ToastContext'
 import UserBadges from 'app/components/user-badges'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
@@ -65,6 +66,12 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   collectibleListItem: {
     marginHorizontal: spacing(4),
     paddingVertical: spacing(2)
+  },
+  loadingSpinner: {
+    marginTop: spacing(4),
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 }))
 
@@ -148,6 +155,11 @@ export const CollectiblesTab = () => {
         </Tile>
       }
       data={collectibles}
+      ListEmptyComponent={
+        <View style={styles.loadingSpinner}>
+          <LoadingSpinner />
+        </View>
+      }
       renderItem={({ item }) => (
         <View style={styles.collectibleListItem}>
           <CollectiblesCard collectible={item} ownerId={profile.user_id} />
