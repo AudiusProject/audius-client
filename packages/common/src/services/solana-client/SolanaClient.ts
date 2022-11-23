@@ -99,8 +99,11 @@ export class SolanaClient {
           const results = await Promise.all(
             metadataUrls.map(async (item) => {
               // Remove control characters from url
-              // eslint-disable-next-line
-              const sanitizedURL = item.url.replace(/[^\x00-\x7F]/g, '')
+              const sanitizedURL = item.url.replace(
+                // eslint-disable-next-line
+                /[\u0000-\u001F\u007F-\u009F]/g,
+                ''
+              )
 
               return fetch(sanitizedURL)
                 .then((res) => res.json())
