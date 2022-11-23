@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 import {
   profilePageSelectors,
@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux'
 import { ReactComponent as IconWand } from 'assets/img/iconWand.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import {
   setUsers,
   setVisibility
@@ -37,24 +38,43 @@ export const TwitterSuggestions = () => {
   const [userIds, setUserIds] = useState<number[]>([])
   useEffect(() => {
     // todo: fetch user handles from isaac's identity service
-    setUserIds([1222, 213212, 3, 4, 5])
-  }, [])
+    const fetchAndSet = async () => {
+      // const domain = ''
+      // const res = await fetch(`${domain}/import_following`)
+      // const users: { userId: number }[] = await res.json()
+      // const userIds = users.map(({ userId }) => userId)
+      const userIds = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+      ]
+      const users = await audiusBackendInstance.getCreators(userIds)
+      const usersNotFollowed = users.filter(
+        (user) => !user.does_current_user_follow
+      )
+      console.log({ users })
+      const recommendedUserIds = usersNotFollowed.map((u) => u.user_id)
+      console.log({ recommendedUserIds })
+      dispatch({ type: 'FETCH_USERS_CUSTOM', userIds: recommendedUserIds })
+      // Set users
+      setUserIds(recommendedUserIds)
+    }
+    fetchAndSet()
+  }, [setUserIds, dispatch])
 
   const handleClick = useCallback(() => {
     if (profile) {
-      dispatch(
-        userListActions.setUserIds(
-          UserListType.SUGGESTED_FOLLOWS,
-          userIds,
-          false
-        )
-      )
       dispatch(
         setUsers({
           userListType: UserListType.SUGGESTED_FOLLOWS,
           entityType: UserListEntityType.USER,
           id: profile.user_id
         })
+      )
+      dispatch(
+        userListActions.setUserIds(
+          UserListType.SUGGESTED_FOLLOWS,
+          userIds,
+          false
+        )
       )
       dispatch(setVisibility(true))
     }

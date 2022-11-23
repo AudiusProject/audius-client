@@ -55,6 +55,7 @@ import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
 import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
+import recommendedFollowsSaga from 'common/store/user-list/recommended-follows/sagas'
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
@@ -151,6 +152,7 @@ export default function* rootSaga() {
     deletedSagas(),
     deletePlaylistConfirmationModalSagas(),
     favoritePageSagas(),
+    recommendedFollowsSaga(),
     firstUploadModalSagas(),
     followersPageSagas(),
     followingPageSagas(),

@@ -23,11 +23,13 @@ const UserListSagaFactory = {
       action: ReturnType<typeof userListActions.loadMore>
     ) {
       try {
+        console.log({ action, tag })
         if (action.tag !== tag) return
         yield put(userListActions.setLoading(tag, true))
         const ownState: UserListStoreState = yield select(stateSelector)
         const { page, pageSize } = ownState
         const { userIds, hasMore } = yield call(fetchUsers, page, pageSize)
+        console.log({ userIds, hasMore })
         yield all([
           put(userListActions.setUserIds(tag, userIds, hasMore)),
           put(userListActions.incrementPage(tag))

@@ -207,6 +207,12 @@ function* watchAdd() {
   })
 }
 
+function* watchFechUsersAdd() {
+  yield takeEvery('FETCH_USERS_CUSTOM', function* (action) {
+    yield call(fetchUsers, action.userIds)
+  })
+}
+
 // For updates and adds, sync the account user to local storage.
 // We use the same mergeCustomizer we use in cacheSagas to merge
 // with the local state.
@@ -445,6 +451,7 @@ function* watchFetchUserSocials() {
 const sagas = () => {
   return [
     watchAdd,
+    watchFechUsersAdd,
     watchFetchProfilePicture,
     watchFetchCoverPhoto,
     watchSyncLocalStorageUser,

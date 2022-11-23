@@ -11,6 +11,7 @@ import {
   NOTIFICATIONS_USER_LIST_TAG as NOTIFICATION_TAG,
   mutualsUserListSelectors,
   MUTUALS_USER_LIST_TAG as MUTUALS_TAG,
+  SUGGESTED_FOLLOWS_USER_LIST_TAG,
   suggestedFollowsListSelectors,
   followingUserListSelectors,
   followersUserListSelectors,
@@ -162,7 +163,7 @@ const UserListModal = ({
       )
       break
     case UserListType.SUGGESTED_FOLLOWS:
-      tag = 'RECOMMENDED FOLLOWS'
+      tag = SUGGESTED_FOLLOWS_USER_LIST_TAG
       selector = suggestedFollowsSelector
       title = (
         <div className={styles.titleContainer}>
