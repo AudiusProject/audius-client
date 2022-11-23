@@ -81,6 +81,26 @@ export const getSearchText = () => {
   }
 }
 
+let lastPath = ''
+let searchParams = {}
+export const getSearchParams = () => {
+  if (lastPath === window.location.search) {
+    return searchParams
+  }
+  const params = new URLSearchParams(window.location.search)
+  const result: Record<string, any> = {}
+  for (const [key, value] of params.entries()) {
+    result[key] = result[key]
+      ? Array.isArray(result[key])
+        ? [...result[key], value]
+        : [result[key], value]
+      : value
+  }
+  lastPath = window.location.search
+  searchParams = result
+  return result
+}
+
 // Returns a full query (e.g. `#rap` or `rap`), as opposed to
 // `getSearchTag` which strips leading # from tags
 export const getQuery = () =>

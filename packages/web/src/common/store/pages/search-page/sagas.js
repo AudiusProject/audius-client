@@ -89,17 +89,25 @@ export function* fetchSearchPageTags(action) {
   }
 }
 
-export function* getSearchResults(searchText, kind, limit, offset) {
+export function* getSearchResults(searchText, kind, limit, offset, filters) {
   yield waitForBackendAndAccount()
 
   const apiClient = yield getContext('apiClient')
   const userId = yield select(getUserId)
+  console.log('MARCUS getSearchResults', {
+    searchText,
+    kind,
+    limit,
+    offset,
+    filters
+  })
   const results = yield apiClient.getSearchFull({
     currentUserId: userId,
     query: searchText,
     kind,
     limit,
-    offset
+    offset,
+    filters
   })
   const { tracks, albums, playlists, users } = results
 
@@ -119,12 +127,14 @@ export function* getSearchResults(searchText, kind, limit, offset) {
 function* fetchSearchPageResults(action) {
   yield call(waitForBackendSetup)
 
+  console.log('MARCUS fetchSearchPageResults', action)
   const rawResults = yield call(
     getSearchResults,
     action.searchText,
     action.searchKind,
     action.limit,
-    action.offset
+    action.offset,
+    action.filters
   )
   if (rawResults) {
     const results = {
@@ -163,7 +173,8 @@ function* fetchSearchPageResults(action) {
         tracksLineupActions.fetchLineupMetadatas(0, 10, false, {
           category: action.searchKind,
           query: action.searchText,
-          isTagSearch: false
+          isTagSearch: false,
+          filters: action.filters
         })
       )
     }

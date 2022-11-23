@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Button, ButtonSize, ButtonType } from '@audius/stems'
+import { push } from 'connected-react-router'
+import { useDispatch } from 'react-redux'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Switch from 'components/switch/Switch'
@@ -49,6 +51,7 @@ const MINOR_KEYS = [
 const KEYS = [...MAJOR_KEYS, ...MINOR_KEYS]
 
 const getHarmonicKeys = (key: string | undefined) => {
+  console.log(key)
   if (!key) {
     return []
   }
@@ -69,14 +72,77 @@ const getHarmonicKeys = (key: string | undefined) => {
   }
 }
 
-export const AdvancedSearchFilters = () => {
-  const [shouldFilterKey, setShouldFilterKey] = useState(false)
-  const [filterKey, setFilterKey] = useState<string>()
-  const [shouldFilterHarmonicKey, setShouldFilterHarmonicKey] = useState(false)
+const getDefaults = (filters: Record<string, any>) => {
+  if (typeof filters.filter_keys === 'string') {
+    filters.filter_keys = [filters.filter_keys]
+  }
+  return {
+    filterKey: filters.filter_keys?.[0],
+    harmonicKeys:
+      filters.filter_keys?.length > 1
+        ? filters.filter_keys.slice(1)
+        : undefined,
+    bpmMin: filters.bpm_min,
+    bpmMax: filters.bpm_max
+  }
+}
+
+export const AdvancedSearchFilters = ({
+  filters
+}: {
+  filters: Record<string, any>
+}) => {
+  const dispatch = useDispatch()
+  const defaults = getDefaults(filters)
+  console.log(filters)
+  console.log(defaults)
+  const [shouldFilterKey, setShouldFilterKey] = useState(!!defaults.filterKey)
+  const [filterKey, setFilterKey] = useState<string>(defaults.filterKey)
+  const [shouldFilterHarmonicKey, setShouldFilterHarmonicKey] = useState(
+    !!defaults.harmonicKeys
+  )
   const harmonicKeys = getHarmonicKeys(filterKey)
-  const [shouldFilterBPM, setShouldFilterBPM] = useState(false)
-  const [bpmMin, setBpmMin] = useState<number>(0)
-  const [bpmMax, setBpmMax] = useState<number>(200)
+  const [shouldFilterBPM, setShouldFilterBPM] = useState(
+    !!defaults.bpmMax || !!defaults.bpmMin
+  )
+  const [bpmMin, setBpmMin] = useState(defaults.bpmMin)
+  const [bpmMax, setBpmMax] = useState(defaults.bpmMax)
+
+  const doSearch = useCallback(() => {
+    const searchParams = new URLSearchParams()
+    if (shouldFilterKey) {
+      searchParams.append('filter_keys', filterKey)
+    }
+    if (shouldFilterHarmonicKey) {
+      for (const harmonicKey of harmonicKeys) {
+        searchParams.append('filter_keys', harmonicKey)
+      }
+    }
+    if (shouldFilterBPM) {
+      if (bpmMin) {
+        searchParams.append('bpm_min', bpmMin)
+      }
+      if (bpmMax) {
+        searchParams.append('bpm_max', bpmMax)
+      }
+    }
+    dispatch(
+      push({
+        pathname: window.location.pathname,
+        search: searchParams.toString()
+      })
+    )
+  }, [
+    dispatch,
+    shouldFilterKey,
+    shouldFilterHarmonicKey,
+    shouldFilterBPM,
+    filterKey,
+    harmonicKeys,
+    bpmMin,
+    bpmMax
+  ])
+
   return (
     <div className={styles.root}>
       <div className={styles.switchGroup}>
@@ -89,6 +155,7 @@ export const AdvancedSearchFilters = () => {
           }}
         />
         <DropdownInput
+          defaultValue={filterKey}
           placeholder={messages.filterKeyPlaceholder}
           menu={{ items: KEYS }}
           aria-label={messages.filterKeyInputLabel}
@@ -139,6 +206,7 @@ export const AdvancedSearchFilters = () => {
         text={messages.apply}
         type={ButtonType.PRIMARY_ALT}
         size={ButtonSize.SMALL}
+        onClick={doSearch}
       />
     </div>
   )

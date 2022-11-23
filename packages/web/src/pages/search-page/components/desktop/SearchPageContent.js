@@ -70,7 +70,7 @@ class SearchPageContent extends Component {
     super(props)
     this.state = {
       cardToast: {},
-      areFiltersVisible: false
+      areFiltersVisible: props.filters
     }
   }
 
@@ -344,7 +344,9 @@ class SearchPageContent extends Component {
       content = (
         <>
           <div className={styles.trackSearchResultsContainer}>
-            {this.state.areFiltersVisible ? <AdvancedSearchFilters /> : null}
+            {this.state.areFiltersVisible ? (
+              <AdvancedSearchFilters filters={this.props.filters} />
+            ) : null}
             <CategoryHeader categoryName='Tracks' />
             <Lineup
               search
@@ -365,7 +367,8 @@ class SearchPageContent extends Component {
                   tracksActions.fetchLineupMetadatas(offset, limit, false, {
                     category: searchResultsCategory,
                     query: searchText,
-                    isTagSearch
+                    isTagSearch,
+                    filters: this.props.filters
                   })
                 )
               }}
@@ -459,7 +462,8 @@ class SearchPageContent extends Component {
                     tracksActions.fetchLineupMetadatas(offset, limit, false, {
                       category: SearchKind.ALL,
                       query: searchText,
-                      isTagSearch
+                      isTagSearch,
+                      filters: this.props.filters
                     })
                   )
                 }

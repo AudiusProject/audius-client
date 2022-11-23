@@ -6,7 +6,6 @@ import {
   lineupSelectors,
   searchResultsPageActions as searchPageActions,
   searchResultsPageSelectors,
-  SearchKind,
   searchResultsPageTracksLineupActions as tracksActions,
   playerSelectors,
   queueSelectors
@@ -61,11 +60,11 @@ class SearchPageProvider extends Component {
 
       if (!!searchMatch || isTagSearch) {
         const query = isTagSearch ? helpers.getSearchTag() : searchMatch
+        const filters = helpers.getSearchParams()
+        console.log('MARCUS onMount', { filters, category })
         this.props.dispatch(tracksActions.reset())
-        if (category !== SearchKind.TRACKS) {
-          const limit = helpers.getResultsLimit(this.props.isMobile, category)
-          query && this.search(isTagSearch, query, category, limit)
-        }
+        const limit = helpers.getResultsLimit(this.props.isMobile, category)
+        query && this.search(isTagSearch, query, category, limit, 0, filters)
       }
       // TODO: Is this call necessary?
       this.props.scrollToTop()
@@ -73,11 +72,11 @@ class SearchPageProvider extends Component {
 
     const isTagSearch = helpers.isTagSearch()
     const query = isTagSearch ? helpers.getSearchTag() : helpers.getSearchText()
+    const filters = helpers.getSearchParams()
+    console.log('MARCUS onMount2', { filters, category })
     const category = helpers.getCategory()
-    if (category !== SearchKind.TRACKS) {
-      const limit = helpers.getResultsLimit(this.props.isMobile, category)
-      query && this.search(isTagSearch, query, category, limit)
-    }
+    const limit = helpers.getResultsLimit(this.props.isMobile, category)
+    query && this.search(isTagSearch, query, category, limit, 0, filters)
   }
 
   componentWillUnmount() {
@@ -85,19 +84,28 @@ class SearchPageProvider extends Component {
     this.unlisten()
   }
 
-  search = (isTagSearch, query, searchKind, limit, offset) => {
+  search = (isTagSearch, query, searchKind, limit, offset, filters) => {
+    console.log('MARCUS', { isTagSearch })
     if (isTagSearch) {
       this.props.dispatch(
         searchPageActions.fetchSearchPageTags(query, searchKind, limit, offset)
       )
       this.props.recordTagSearch(query)
     } else {
+      console.log('MARCUS search', {
+        isTagSearch,
+        query,
+        limit,
+        offset,
+        filters
+      })
       this.props.dispatch(
         searchPageActions.fetchSearchPageResults(
           query,
           searchKind,
           limit,
-          offset
+          offset,
+          filters
         )
       )
       this.props.recordSearch(query)
@@ -157,7 +165,8 @@ const makeMapStateToProps = (initialState, ownProps) => {
     currentQueueItem: getCurrentQueueItem(state),
     playing: getPlaying(state),
     buffering: getBuffering(state),
-    userId: getUserId(state)
+    userId: getUserId(state),
+    filters: helpers.getSearchParams()
   })
   return mapStateToProps
 }

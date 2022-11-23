@@ -21,8 +21,9 @@ const { getTracks } = cacheTracksSelectors
 function* getSearchPageResultsTracks({
   offset,
   limit,
-  payload: { category, query, isTagSearch }
+  payload: { category, query, isTagSearch, filters }
 }) {
+  console.log('MARCUS lineups', filters)
   const isNativeMobile = yield getContext('isNativeMobile')
   if (category === SearchKind.TRACKS || isNativeMobile || isMobileWeb()) {
     // If we are on the tracks sub-page of search or mobile, which we should paginate on
@@ -42,7 +43,8 @@ function* getSearchPageResultsTracks({
         query,
         category,
         limit,
-        offset
+        offset,
+        filters
       )
       results = tracks
     }

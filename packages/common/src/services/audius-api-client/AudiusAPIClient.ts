@@ -302,6 +302,7 @@ type GetSearchArgs = {
   kind?: SearchKind
   limit?: number
   offset?: number
+  filters: Record<string, any>
 }
 
 type TrendingIdsResponse = {
@@ -1192,8 +1193,9 @@ export class AudiusAPIClient {
     currentUserId,
     query,
     kind,
+    limit,
     offset,
-    limit
+    filters = {}
   }: GetSearchArgs) {
     this._assertInitialized()
     const encodedUserId = encodeHashId(currentUserId)
@@ -1204,6 +1206,14 @@ export class AudiusAPIClient {
       offset,
       limit
     }
+
+    if (filters) {
+      for (const key of Object.keys(filters)) {
+        params[key] = filters[key]
+      }
+    }
+
+    console.log('MARCUS apiClient', params)
 
     const searchResponse: Nullable<APIResponse<APISearch>> =
       (await this._getResponse(FULL_ENDPOINT_MAP.searchFull, params)) ??

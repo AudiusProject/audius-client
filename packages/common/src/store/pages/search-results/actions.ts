@@ -18,6 +18,7 @@ export type FetchSearchPageResultsAction = {
   searchKind: SearchKind
   limit: number
   offset: number
+  filters: Record<string, any>
 }
 
 export type FetchSearchPageResultsSuceededAction = {
@@ -62,13 +63,15 @@ export const fetchSearchPageResults = (
   searchText: string,
   searchKind: SearchKind,
   limit: number,
-  offset: number
+  offset: number,
+  filters: Record<string, any>
 ): SearchPageActions => ({
   type: FETCH_SEARCH_PAGE_RESULTS,
   searchText,
   searchKind,
   limit,
-  offset
+  offset,
+  filters
 })
 
 export const fetchSearchPageResultsSucceeded = (
