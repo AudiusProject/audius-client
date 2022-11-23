@@ -88,7 +88,8 @@ export const DownloadToggle = ({
 
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = tracks.some((track: Track) => {
-    const status = offlineDownloadStatus[track.track_id.toString()]
+    const status =
+      track?.track_id && offlineDownloadStatus[track.track_id.toString()]
     return status === OfflineDownloadStatus.LOADING
   })
   const isCollectionMarkedForDownload = useSelector(
