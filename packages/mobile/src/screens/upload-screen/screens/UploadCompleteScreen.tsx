@@ -24,10 +24,10 @@ import {
 } from 'app/components/lineup-tile'
 import { TwitterButton } from 'app/components/twitter-button'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { FormScreen } from 'app/screens/edit-track-screen/components'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
 
-import { UploadStackScreen } from '../components'
 const { getTracks } = uploadSelectors
 const { reset } = uploadActions
 const { getAccountUser } = accountSelectors
@@ -118,11 +118,12 @@ export const UploadCompleteScreen = () => {
   }, [handleClose, navigation])
 
   return (
-    <UploadStackScreen
+    <FormScreen
       title={messages.title}
       icon={IconUpload}
       variant='secondary'
       topbarLeft={null}
+      url='/upload-complete'
       bottomSection={
         <Button
           variant='primary'
@@ -182,6 +183,6 @@ export const UploadCompleteScreen = () => {
           <LineupTileSkeleton />
         )}
       </View>
-    </UploadStackScreen>
+    </FormScreen>
   )
 }

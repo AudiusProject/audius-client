@@ -120,6 +120,12 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 }))
 
 export const AccountDrawer = (props: AccountDrawerProps) => {
+  const accountUser = useSelector(getAccountUser) as User
+  if (!accountUser) return null
+  return <WrappedAccountDrawer {...props} />
+}
+
+const WrappedAccountDrawer = (props: AccountDrawerProps) => {
   const { navigation: drawerHelpers } = props
   const styles = useStyles()
   const accountUser = useSelector(getAccountUser) as User
@@ -206,7 +212,7 @@ export const AccountDrawer = (props: AccountDrawerProps) => {
             width={spacing(7)}
           />
           <Text fontSize='large' weight='heavy'>
-            {totalBalance ? formatWei(totalBalance, true) : 0}
+            {totalBalance ? formatWei(totalBalance, true, 0) : 0}
           </Text>
         </TouchableOpacity>
       </View>

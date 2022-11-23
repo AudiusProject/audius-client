@@ -16,7 +16,7 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
-const getUserId = accountSelectors.getUserId
+const { getUserId } = accountSelectors
 
 export const LineupTile = ({
   children,
@@ -26,7 +26,6 @@ export const LineupTile = ({
   hidePlays,
   hideShare,
   id,
-  imageUrl,
   index,
   isTrending,
   isUnlisted,
@@ -38,6 +37,7 @@ export const LineupTile = ({
   onPressShare,
   onPressTitle,
   playCount,
+  renderImage,
   repostType,
   showArtistPick,
   showRankIcon,
@@ -94,7 +94,7 @@ export const LineupTile = ({
         <LineupTileMetadata
           artistName={name}
           coSign={coSign}
-          imageUrl={imageUrl}
+          renderImage={renderImage}
           onPressTitle={onPressTitle}
           setArtworkLoaded={setArtworkLoaded}
           uid={uid}
