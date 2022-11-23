@@ -6,10 +6,12 @@ import {
   userListActions
 } from '@audius/common'
 import { IconArrow } from '@audius/stems'
+import { bool } from 'prop-types'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconWand } from 'assets/img/iconWand.svg'
 import { useSelector } from 'common/hooks/useSelector'
+import DiscoveryNodeSelection from 'components/discovery-node-selection/DiscoveryNodeSelection'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import {
@@ -36,29 +38,28 @@ export const TwitterSuggestions = () => {
   const profile = useSelector(getProfileUser)
 
   const [userIds, setUserIds] = useState<number[]>([])
+  const [didDo, setDidDo] = useState<boolean>(false)
   useEffect(() => {
+    if (!profile || didDo) return
     // todo: fetch user handles from isaac's identity service
     const fetchAndSet = async () => {
-      // const domain = ''
-      // const res = await fetch(`${domain}/import_following`)
-      // const users: { userId: number }[] = await res.json()
-      // const userIds = users.map(({ userId }) => userId)
-      const userIds = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
-      ]
+      setDidDo(true)
+      const url = `https://a5d0-75-140-15-163.ngrok.io/import_following?handle=${profile.handle}`
+      const res = await fetch(url)
+      const resUsers: { userId: number }[] = await res.json()
+      const userIds = resUsers.map(({ userId }) => userId)
       const users = await audiusBackendInstance.getCreators(userIds)
       const usersNotFollowed = users.filter(
         (user) => !user.does_current_user_follow
       )
-      console.log({ users })
+
       const recommendedUserIds = usersNotFollowed.map((u) => u.user_id)
-      console.log({ recommendedUserIds })
       dispatch({ type: 'FETCH_USERS_CUSTOM', userIds: recommendedUserIds })
       // Set users
       setUserIds(recommendedUserIds)
     }
     fetchAndSet()
-  }, [setUserIds, dispatch])
+  }, [profile, setUserIds, dispatch, didDo, setDidDo])
 
   const handleClick = useCallback(() => {
     if (profile) {
@@ -66,7 +67,7 @@ export const TwitterSuggestions = () => {
         setUsers({
           userListType: UserListType.SUGGESTED_FOLLOWS,
           entityType: UserListEntityType.USER,
-          id: profile.user_id
+          id: profile.handle
         })
       )
       dispatch(

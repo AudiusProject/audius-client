@@ -21,11 +21,11 @@ function* errorDispatcher(error: Error) {
 }
 
 async function getUserIds(): Promise<number[]> {
-  const domain = ''
-  //   yield fetch(`${domain}/import_following`)
-  //     .then((resp) => resp.json())
-  //     .then((users) => users.map((u: any) => u.user_id))
-  const userIds = [12, 3, 5, 12, 1241]
+  const handle = window.location.pathname.substring(1)
+  const url = `https://a5d0-75-140-15-163.ngrok.io/import_following?handle=${handle}`
+  const res = await fetch(url)
+  const jsonRes = await res.json()
+  const userIds = jsonRes.map((u: any) => u.user_id)
   const users = await audiusBackendInstance.getCreators(userIds)
   const usersNotFollowed = users.filter(
     (user) => !user.does_current_user_follow
@@ -36,12 +36,8 @@ async function getUserIds(): Promise<number[]> {
 }
 
 function* fetchUsers(currentPage: number, pageSize: number) {
-  console.log('in fetch users saga')
   const userIds = yield getUserIds()
-  console.log('got user ids in fetch users')
-  console.log({ userIds })
   yield* call(retrieveUsers, userIds)
-  console.log('got the users')
 
   // Append new users to existing ones
   return { userIds, hasMore: false }
