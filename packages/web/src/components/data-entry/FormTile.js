@@ -433,16 +433,20 @@ const AdvancedForm = (props) => {
             <div className={styles.keyAndBpm}>
               <LabeledInput
                 label='Key'
+                placeholder='e.g. C Major'
                 defaultValue={props.defaultFields.key ?? ''}
                 size='small'
                 onChange={(value) => props.onChangeField('key', value)}
               />
               <LabeledInput
                 className={styles.miniInput}
+                placeholder='e.g. 120'
                 label='BPM'
                 defaultValue={props.defaultFields.bpm ?? ''}
                 size='small'
-                onChange={(value) => props.onChangeField('bpm', value)}
+                onChange={(value) =>
+                  props.onChangeField('bpm', parseInt(value))
+                }
               />
             </div>
           ) : null}
