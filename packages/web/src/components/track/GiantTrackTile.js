@@ -587,6 +587,8 @@ GiantTrackTile.propTypes = {
   credits: PropTypes.string,
   genre: PropTypes.string,
   mood: PropTypes.string,
+  musicalKey: PropTypes.string,
+  bpm: PropTypes.number,
   repostCount: PropTypes.number,
   saveCount: PropTypes.number,
   isOwner: PropTypes.bool,

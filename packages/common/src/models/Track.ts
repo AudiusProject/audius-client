@@ -114,8 +114,8 @@ export type TrackMetadata = {
   field_visibility?: FieldVisibility
   listenCount?: number
   permalink: string
-  key?: string
-  bpm?: number
+  key: Nullable<string>
+  bpm: Nullable<number>
 
   // Optional Fields
   is_invalid?: boolean

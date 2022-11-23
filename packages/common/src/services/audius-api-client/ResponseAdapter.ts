@@ -422,7 +422,9 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     is_available: true,
     is_premium: false,
     premium_conditions: null,
-    premium_content_signature: null
+    premium_content_signature: null,
+    key: null,
+    bpm: null
   }
 }
 

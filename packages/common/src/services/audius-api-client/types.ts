@@ -135,6 +135,8 @@ export type APITrack = {
   is_premium: boolean
   premium_conditions: Nullable<PremiumConditions>
   premium_content_signature: Nullable<PremiumContentSignature>
+  key: Nullable<string>
+  bpm: Nullable<number>
 }
 
 export type APISearchTrack = Omit<
