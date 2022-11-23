@@ -88,7 +88,7 @@ export const TrackScreen = () => {
     console.warn(
       'Track, user, or lineup missing for TrackScreen, preventing render'
     )
-    return <Text>sup</Text>
+    return null
   }
 
   const handlePressGoToRemixes = () => {
