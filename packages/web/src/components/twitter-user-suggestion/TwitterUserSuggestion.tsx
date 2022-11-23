@@ -48,15 +48,15 @@ export const TwitterSuggestions = () => {
       const res = await fetch(url)
       const resUsers: { userId: number }[] = await res.json()
       const userIds = resUsers.map(({ userId }) => userId)
-      const users = await audiusBackendInstance.getCreators(userIds)
-      const usersNotFollowed = users.filter(
-        (user) => !user.does_current_user_follow
-      )
+      // const users = await audiusBackendInstance.getCreators(userIds)
+      // const usersNotFollowed = users.filter(
+      //   (user) => !user.does_current_user_follow
+      // )
 
-      const recommendedUserIds = usersNotFollowed.map((u) => u.user_id)
-      dispatch({ type: 'FETCH_USERS_CUSTOM', userIds: recommendedUserIds })
+      // const recommendedUserIds = usersNotFollowed.map((u) => u.user_id)
+      dispatch({ type: 'FETCH_USERS_CUSTOM', userIds })
       // Set users
-      setUserIds(recommendedUserIds)
+      setUserIds(userIds)
     }
     fetchAndSet()
   }, [profile, setUserIds, dispatch, didDo, setDidDo])

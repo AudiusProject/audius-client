@@ -22,17 +22,20 @@ function* errorDispatcher(error: Error) {
 
 async function getUserIds(): Promise<number[]> {
   const handle = window.location.pathname.substring(1)
+  console.log({ handle })
+  if (!(window as any).handleUsers) {
+    ;(window as any).handleUsers = {}
+  } else if ((window as any).handleUsers[handle]) {
+    return (window as any).handleUsers[handle]
+  }
   const url = `https://a5d0-75-140-15-163.ngrok.io/import_following?handle=${handle}`
   const res = await fetch(url)
+  console.log({ res })
   const jsonRes = await res.json()
-  const userIds = jsonRes.map((u: any) => u.user_id)
-  const users = await audiusBackendInstance.getCreators(userIds)
-  const usersNotFollowed = users.filter(
-    (user) => !user.does_current_user_follow
-  )
-  const recommendedUserIds = usersNotFollowed.map((u) => u.user_id)
-
-  return recommendedUserIds
+  const userIds = jsonRes.map((u: any) => u.userId)
+  ;(window as any).handleUsers[handle] = userIds
+  console.log({ userIds })
+  return userIds
 }
 
 function* fetchUsers(currentPage: number, pageSize: number) {
