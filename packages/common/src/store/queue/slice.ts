@@ -108,7 +108,7 @@ type RemovePayload = {
 }
 
 const calculateNewPositions = (
-  state: State,
+  oldPositions: { [uid: string]: number },
   newEntriesStartIndex: number,
   newEntries: Queueable[],
   excludeAddedPositions?: boolean
@@ -118,12 +118,12 @@ const calculateNewPositions = (
     return mapping
   }, {} as { [uid: string]: number })
   console.log('addedPositions', addedPositions)
-  const res = Object.keys(state.positions).reduce(
+  const res = Object.keys(oldPositions).reduce(
     (updated, uid) => {
-      if (state.positions[uid] >= newEntriesStartIndex) {
-        updated[uid] = state.positions[uid] + newEntries.length
+      if (oldPositions[uid] >= newEntriesStartIndex) {
+        updated[uid] = oldPositions[uid] + newEntries.length
       } else {
-        updated[uid] = state.positions[uid]
+        updated[uid] = oldPositions[uid]
       }
       return updated
     },
@@ -278,7 +278,39 @@ const slice = createSlice({
       state.positions = newPositions
       state.index = newIndex
     },
-    userAddToPlayNext: () => {},
+    userAddToPlayNext: (
+      state,
+      action: PayloadAction<UserAddToQueuePayload>
+    ) => {
+      const { entries } = action.payload
+      const insertIndex = state.index + 1
+      const newOrder = [...state.order]
+      newOrder.splice(insertIndex, 0, ...entries)
+
+      const newPositions = calculateNewPositions(
+        state.positions,
+        insertIndex,
+        entries,
+        true
+      )
+
+      const addedPositions = calculateNewPositions(
+        state.userQueuePositions,
+        insertIndex,
+        entries
+      )
+
+      // Don't shuffle user-enqueued songs
+      const newShuffleOrder = calculateNewShuffleOrder(
+        newOrder,
+        insertIndex + entries.length
+      )
+
+      state.order = newOrder
+      state.positions = newPositions
+      state.shuffleOrder = newShuffleOrder
+      state.userQueuePositions = addedPositions
+    },
     // Adds a track to the user's queue (which comes before tracks added by us)
     userAddToQueue: (state, action: PayloadAction<UserAddToQueuePayload>) => {
       const { entries } = action.payload
@@ -288,16 +320,19 @@ const slice = createSlice({
       newOrder.splice(insertIndex, 0, ...entries)
 
       const newPositions = calculateNewPositions(
-        state,
+        state.positions,
         insertIndex,
         entries,
         true
       )
 
-      const addedPositions = entries.reduce((mapping, entry, i) => {
-        mapping[entry.uid ?? entry.id] = insertIndex + i
-        return mapping
-      }, {} as { [uid: string]: number })
+      const addedPositions = {
+        ...state.userQueuePositions,
+        ...entries.reduce((mapping, entry, i) => {
+          mapping[entry.uid ?? entry.id] = insertIndex + i
+          return mapping
+        }, {} as { [uid: string]: number })
+      }
 
       // Don't shuffle user-enqueued songs
       const newShuffleOrder = calculateNewShuffleOrder(
@@ -344,7 +379,11 @@ const slice = createSlice({
       const newOrder = [...state.order]
       newOrder.splice(newIndex, 0, ...entries)
 
-      const newPositions = calculateNewPositions(state, newIndex, entries)
+      const newPositions = calculateNewPositions(
+        state.positions,
+        newIndex,
+        entries
+      )
 
       const newShuffleOrder = calculateNewShuffleOrder(
         newOrder,

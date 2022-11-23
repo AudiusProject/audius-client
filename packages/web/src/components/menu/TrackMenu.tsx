@@ -1,28 +1,26 @@
 import { useContext } from 'react'
 
 import {
-  ID,
-  PlayableType,
-  FavoriteSource,
-  RepostSource,
-  ShareSource,
-  CreatePlaylistSource,
   accountSelectors,
+  addToPlaylistUIActions,
   cacheCollectionsActions,
   collectionPageSelectors,
-  tracksSocialActions,
-  addToPlaylistUIActions,
+  CreatePlaylistSource,
+  FavoriteSource,
+  ID,
   newCollectionMetadata,
+  PlayableType,
   queueActions,
-  Kind,
-  QueueSource
+  QueueSource,
+  RepostSource,
+  ShareSource,
+  tracksSocialActions
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { getToQueue } from 'common/store/queue/sagas'
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
@@ -52,7 +50,8 @@ const messages = {
   unreposted: 'Un-Reposted!',
   unsetArtistPick: 'Unset as Artist Pick',
   visitArtistPage: 'Visit Artist Page',
-  visitTrackPage: 'Visit Track Page'
+  visitTrackPage: 'Visit Track Page',
+  addToPlayNext: 'Play Next'
 }
 
 export type OwnProps = {
@@ -106,6 +105,7 @@ const TrackMenu = (props: TrackMenuProps) => {
       isOwner,
       isOwnerDeactivated,
       isReposted,
+      dispatchUserAddToPlayNext,
       openAddToPlaylistModal,
       openEditTrackModal,
       openEmbedModal,
@@ -174,6 +174,21 @@ const TrackMenu = (props: TrackMenuProps) => {
       }
     }
 
+    const addToPlayNextMenuItem = {
+      text: messages.addToPlayNext,
+      onClick: () => {
+        dispatchUserAddToPlayNext({
+          entries: [
+            {
+              id: trackId,
+              uid: trackUid,
+              source: QueueSource.USER_ADDED
+            }
+          ]
+        })
+      }
+    }
+
     const trackPageMenuItem = {
       text: messages.visitTrackPage,
       onClick: () => goToRoute(trackPermalink)
@@ -209,6 +224,7 @@ const TrackMenu = (props: TrackMenuProps) => {
 
     const menu: { items: PopupMenuItem[] } = { items: [] }
 
+    menu.items.push(addToPlayNextMenuItem)
     menu.items.push(addToQueueMenuItem)
 
     if (includeShare && !isDeleted) {
@@ -281,6 +297,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
     unsetArtistPick: () => dispatch(showSetAsArtistPickConfirmation()),
     dispatchUserAddToQueue: (payload: any) =>
       dispatch(queueActions.userAddToQueue(payload)),
+    dispatchUserAddToPlayNext: (payload: any) =>
+      dispatch(queueActions.userAddToPlayNext(payload)),
     createEmptyPlaylist: (tempId: ID, name: string, trackId: ID) =>
       dispatch(
         createPlaylist(

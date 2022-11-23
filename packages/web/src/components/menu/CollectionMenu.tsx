@@ -53,7 +53,8 @@ export type CollectionMenuProps = OwnProps &
 
 const messages = {
   embed: 'Embed',
-  addToQueue: 'Add to Queue'
+  addToQueue: 'Add to Queue',
+  addToPlayNext: 'Play Next'
 }
 
 const CollectionMenu = (props: CollectionMenuProps) => {
@@ -84,6 +85,7 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       unsaveCollection,
       repostCollection,
       undoRepostCollection,
+      dispatchUserAddToPlayNext,
       onRepost,
       extraMenuItems,
       dispatchUserAddToQueue
@@ -130,6 +132,19 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       }
     }
 
+    const addToPlayNextMenuItem = {
+      text: messages.addToPlayNext,
+      onClick: () => {
+        dispatchUserAddToPlayNext({
+          entries: tracks.map((t) => ({
+            id: t.track_id,
+            uid: t.uid,
+            source: QueueSource.USER_ADDED
+          }))
+        })
+      }
+    }
+
     const artistPageMenuItem = {
       text: `Visit ${isArtist ? 'Artist' : 'User'} Page`,
       onClick: () => goToRoute(profilePage(handle))
@@ -155,7 +170,8 @@ const CollectionMenu = (props: CollectionMenuProps) => {
     }
 
     const menu: { items: PopupMenuItem[] } = { items: [] }
-
+    menu.items.push(addToQueueMenuItem)
+    menu.items.push(addToPlayNextMenuItem)
     if (menu) {
       if (includeShare) menu.items.push(shareMenuItem)
     }
@@ -163,7 +179,6 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       if (includeRepost) menu.items.push(repostMenuItem)
       if (includeFavorite) menu.items.push(favoriteMenuItem)
     }
-    menu.items.push(addToQueueMenuItem)
     menu.items.push(artistPageMenuItem)
     if (includeVisitPage) {
       menu.items.push(playlistPageMenuItem)
@@ -222,7 +237,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
     openEmbedModal: (playlistId: ID, kind: PlayableType) =>
       dispatch(embedModalActions.open(playlistId, kind)),
     dispatchUserAddToQueue: (payload: any) =>
-      dispatch(queueActions.userAddToQueue(payload))
+      dispatch(queueActions.userAddToQueue(payload)),
+    dispatchUserAddToPlayNext: (payload: any) =>
+      dispatch(queueActions.userAddToPlayNext(payload))
   }
 }
 
