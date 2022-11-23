@@ -138,7 +138,10 @@ const calculateNewShuffleOrder = (
   userQueueEndIndex: number // Exclusive
 ) => {
   return [
-    ...(userQueueEndIndex > 0 ? newOrder.slice(0, userQueueEndIndex) : []),
+    ...(userQueueEndIndex > 0 ? newOrder.slice(0, userQueueEndIndex) : []).map(
+      Number.call,
+      Number
+    ),
     ...newOrder
       .slice(userQueueEndIndex)
       .map(Number.call, Number)
