@@ -11,6 +11,7 @@ import styles from './QueuePage.module.css'
 
 export const QueuePage = () => {
   const queue = useSelector(queueSelectors.getOrder)
+  const index = useSelector(queueSelectors.getIndex)
   const tracks = useSelector((state) => {
     const tracksMap = cacheTracksSelectors.getTracks(state, {
       ids: queue.map((item) => item.id as number)
@@ -55,6 +56,8 @@ export const QueuePage = () => {
     >
       <TracksTable
         data={formattedData}
+        playing={true}
+        playingIndex={index}
         disabledTrackEdit
         columns={tableColumns}
         onClickRow={() => {}}
