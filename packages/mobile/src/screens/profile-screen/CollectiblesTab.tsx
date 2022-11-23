@@ -1,5 +1,6 @@
-import { useCallback, useContext, useRef } from 'react'
+import { useCallback, useContext, useMemo, useRef } from 'react'
 
+import type { Collectible } from '@audius/common'
 import { accountSelectors, useProxySelector } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
 import type { FlatList as RNFlatList } from 'react-native'
@@ -94,11 +95,30 @@ export const CollectiblesTab = () => {
     }
   }, [profile, toast])
 
+  const collectibles = useMemo(() => {
+    if (!profile) return []
+
+    const { collectibleList = [], solanaCollectibleList = [] } = profile
+    const allCollectibles = [...collectibleList, ...solanaCollectibleList]
+
+    if (!profile?.collectibles?.order) {
+      return allCollectibles
+    }
+
+    const collectibleMap: {
+      [key: string]: Collectible
+    } = allCollectibles.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {})
+
+    const collectibleKeySet = new Set(Object.keys(collectibleMap))
+
+    const visible = profile.collectibles.order
+      .filter((id) => collectibleKeySet.has(id))
+      .map((id) => collectibleMap[id])
+
+    return visible || []
+  }, [profile])
+
   if (!profile) return null
-
-  const { collectibleList = [], solanaCollectibleList = [], user_id } = profile
-
-  const collectibles = [...collectibleList, ...solanaCollectibleList]
 
   return (
     <FlatList
@@ -130,7 +150,7 @@ export const CollectiblesTab = () => {
       data={collectibles}
       renderItem={({ item }) => (
         <View style={styles.collectibleListItem}>
-          <CollectiblesCard collectible={item} ownerId={user_id} />
+          <CollectiblesCard collectible={item} ownerId={profile.user_id} />
         </View>
       )}
     />
