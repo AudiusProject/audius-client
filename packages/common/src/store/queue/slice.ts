@@ -11,6 +11,8 @@ type State = {
 
   // Maps track UIDs to the index
   positions: { [uid: string]: number }
+  //
+  userQueuePositions: { [uid: string]: number }
 
   // Active index
   index: number
@@ -38,6 +40,7 @@ type State = {
 export const initialState: State = {
   order: [],
   positions: {},
+  userQueuePositions: {},
   index: -1,
   repeat: RepeatMode.OFF,
   shuffle: false,
@@ -107,21 +110,27 @@ type RemovePayload = {
 const calculateNewPositions = (
   state: State,
   newEntriesStartIndex: number,
-  newEntries: Queueable[]
+  newEntries: Queueable[],
+  excludeAddedPositions?: boolean
 ) => {
   const addedPositions = newEntries.reduce((mapping, entry, i) => {
     mapping[entry.uid ?? entry.id] = newEntriesStartIndex + i
     return mapping
   }, {} as { [uid: string]: number })
-
-  return Object.keys(state.positions).reduce((updated, uid) => {
-    if (state.positions[uid] >= newEntriesStartIndex) {
-      updated[uid] = state.positions[uid] + newEntries.length
-    } else {
-      updated[uid] = state.positions[uid]
-    }
-    return updated
-  }, addedPositions)
+  console.log('addedPositions', addedPositions)
+  const res = Object.keys(state.positions).reduce(
+    (updated, uid) => {
+      if (state.positions[uid] >= newEntriesStartIndex) {
+        updated[uid] = state.positions[uid] + newEntries.length
+      } else {
+        updated[uid] = state.positions[uid]
+      }
+      return updated
+    },
+    excludeAddedPositions ? {} : addedPositions
+  )
+  console.log(res)
+  return res
 }
 
 const calculateNewShuffleOrder = (
@@ -158,7 +167,14 @@ const slice = createSlice({
       let newIndex
 
       if (uid) {
-        newIndex = state.positions[uid]
+        if (
+          state.order[state.index] &&
+          state.order[state.index].source === QueueSource.USER_ADDED
+        ) {
+          newIndex = state.userQueuePositions[uid]
+        } else {
+          newIndex = state.positions[uid]
+        }
       } else if (collectible) {
         newIndex = state.positions[collectible.id]
       }
@@ -262,17 +278,28 @@ const slice = createSlice({
       state.positions = newPositions
       state.index = newIndex
     },
+    userAddToPlayNext: () => {},
     // Adds a track to the user's queue (which comes before tracks added by us)
     userAddToQueue: (state, action: PayloadAction<UserAddToQueuePayload>) => {
       const { entries } = action.payload
-
+      console.log('hi entries', entries)
       const insertIndex = getUserQueueEndIndex(state)
       const newOrder = [...state.order]
       newOrder.splice(insertIndex, 0, ...entries)
 
-      const newPositions = calculateNewPositions(state, insertIndex, entries)
+      const newPositions = calculateNewPositions(
+        state,
+        insertIndex,
+        entries,
+        true
+      )
 
-      // Don't shuffle queued songs
+      const addedPositions = entries.reduce((mapping, entry, i) => {
+        mapping[entry.uid ?? entry.id] = insertIndex + i
+        return mapping
+      }, {} as { [uid: string]: number })
+
+      // Don't shuffle user-enqueued songs
       const newShuffleOrder = calculateNewShuffleOrder(
         newOrder,
         insertIndex + entries.length
@@ -281,6 +308,7 @@ const slice = createSlice({
       state.order = newOrder
       state.positions = newPositions
       state.shuffleOrder = newShuffleOrder
+      state.userQueuePositions = addedPositions
     },
     // Clears the user's queue
     userClearOwnQueue: (

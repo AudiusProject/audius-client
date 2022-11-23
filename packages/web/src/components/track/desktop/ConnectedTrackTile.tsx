@@ -196,6 +196,7 @@ const ConnectedTrackTile = memo(
         trackId,
         trackTitle: title,
         trackPermalink: permalink,
+        trackUid: uid,
         type: 'track'
       }
 

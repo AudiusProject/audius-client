@@ -133,7 +133,8 @@ const ConnectedPlaylistTile = memo(
     saveCollection,
     unsaveCollection,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    uid
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
@@ -275,6 +276,8 @@ const ConnectedPlaylistTile = memo(
         isReposted,
         type: isAlbum ? 'album' : 'playlist', // playlist or album
         playlistId: id,
+        playlistUid: uid,
+        tracks,
         playlistName: title,
         isPublic: !isPrivate,
         isOwner,

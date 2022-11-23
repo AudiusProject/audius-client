@@ -1,11 +1,14 @@
 import {
-  PlayableType,
-  ID,
-  ShareSource,
-  FavoriteSource,
-  RepostSource,
   cacheUsersSelectors,
-  collectionsSocialActions as socialActions
+  collectionsSocialActions as socialActions,
+  EnhancedCollectionTrack,
+  FavoriteSource,
+  ID,
+  PlayableType,
+  queueActions,
+  QueueSource,
+  RepostSource,
+  ShareSource
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -36,8 +39,10 @@ export type OwnProps = {
   isReposted: boolean
   onClose?: () => void
   onRepost?: () => void
+  tracks: EnhancedCollectionTrack[]
   onShare?: () => void
   playlistId: PlaylistId
+  playlistUid: string
   playlistName: string
   type: 'album' | 'playlist'
 }
@@ -47,7 +52,8 @@ export type CollectionMenuProps = OwnProps &
   ReturnType<typeof mapDispatchToProps>
 
 const messages = {
-  embed: 'Embed'
+  embed: 'Embed',
+  addToQueue: 'Add to Queue'
 }
 
 const CollectionMenu = (props: CollectionMenuProps) => {
@@ -68,6 +74,7 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       includeVisitPage,
       isPublic,
       isArtist,
+      tracks,
       onShare,
       goToRoute,
       openEmbedModal,
@@ -78,7 +85,8 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       repostCollection,
       undoRepostCollection,
       onRepost,
-      extraMenuItems
+      extraMenuItems,
+      dispatchUserAddToQueue
     } = props
 
     const routePage = type === 'album' ? albumPage : playlistPage
@@ -106,6 +114,19 @@ const CollectionMenu = (props: CollectionMenuProps) => {
           repostCollection(playlistId)
           if (onRepost) onRepost()
         }
+      }
+    }
+
+    const addToQueueMenuItem = {
+      text: messages.addToQueue,
+      onClick: () => {
+        dispatchUserAddToQueue({
+          entries: tracks.map((t) => ({
+            id: t.track_id,
+            uid: t.uid,
+            source: QueueSource.USER_ADDED
+          }))
+        })
       }
     }
 
@@ -142,10 +163,12 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       if (includeRepost) menu.items.push(repostMenuItem)
       if (includeFavorite) menu.items.push(favoriteMenuItem)
     }
+    menu.items.push(addToQueueMenuItem)
     menu.items.push(artistPageMenuItem)
     if (includeVisitPage) {
       menu.items.push(playlistPageMenuItem)
     }
+
     if (extraMenuItems.length > 0) {
       menu.items = menu.items.concat(extraMenuItems)
     }
@@ -197,7 +220,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
         socialActions.undoRepostCollection(playlistId, RepostSource.OVERFLOW)
       ),
     openEmbedModal: (playlistId: ID, kind: PlayableType) =>
-      dispatch(embedModalActions.open(playlistId, kind))
+      dispatch(embedModalActions.open(playlistId, kind)),
+    dispatchUserAddToQueue: (payload: any) =>
+      dispatch(queueActions.userAddToQueue(payload))
   }
 }
 

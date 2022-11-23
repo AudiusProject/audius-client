@@ -12,13 +12,17 @@ import {
   collectionPageSelectors,
   tracksSocialActions,
   addToPlaylistUIActions,
-  newCollectionMetadata
+  newCollectionMetadata,
+  queueActions,
+  Kind,
+  QueueSource
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import { getToQueue } from 'common/store/queue/sagas'
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
@@ -72,6 +76,7 @@ export type OwnProps = {
   trackId: ID
   trackTitle: string
   trackPermalink: string
+  trackUid: string
   type: 'track'
 }
 
@@ -109,11 +114,13 @@ const TrackMenu = (props: TrackMenuProps) => {
       setArtistPick,
       shareTrack,
       trackId,
+      trackUid,
       trackTitle,
       trackPermalink,
       undoRepostTrack,
       unsaveTrack,
-      unsetArtistPick
+      unsetArtistPick,
+      dispatchUserAddToQueue
     } = props
 
     const shareMenuItem = {
@@ -155,7 +162,15 @@ const TrackMenu = (props: TrackMenuProps) => {
     const addToQueueMenuItem = {
       text: messages.addToQueue,
       onClick: () => {
-        // add functionality later
+        dispatchUserAddToQueue({
+          entries: [
+            {
+              id: trackId,
+              uid: trackUid,
+              source: QueueSource.USER_ADDED
+            }
+          ]
+        })
       }
     }
 
@@ -193,7 +208,7 @@ const TrackMenu = (props: TrackMenuProps) => {
     }
 
     const menu: { items: PopupMenuItem[] } = { items: [] }
-    
+
     menu.items.push(addToQueueMenuItem)
 
     if (includeShare && !isDeleted) {
@@ -264,6 +279,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
     setArtistPick: (trackId: ID) =>
       dispatch(showSetAsArtistPickConfirmation(trackId)),
     unsetArtistPick: () => dispatch(showSetAsArtistPickConfirmation()),
+    dispatchUserAddToQueue: (payload: any) =>
+      dispatch(queueActions.userAddToQueue(payload)),
     createEmptyPlaylist: (tempId: ID, name: string, trackId: ID) =>
       dispatch(
         createPlaylist(
