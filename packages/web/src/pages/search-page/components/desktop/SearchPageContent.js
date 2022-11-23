@@ -70,7 +70,8 @@ class SearchPageContent extends Component {
     super(props)
     this.state = {
       cardToast: {},
-      areFiltersVisible: props.filters
+      areFiltersVisible:
+        !!props.filters && Object.keys(props.filters).length > 0
     }
   }
 
@@ -344,9 +345,6 @@ class SearchPageContent extends Component {
       content = (
         <>
           <div className={styles.trackSearchResultsContainer}>
-            {this.state.areFiltersVisible ? (
-              <AdvancedSearchFilters filters={this.props.filters} />
-            ) : null}
             <CategoryHeader categoryName='Tracks' />
             <Lineup
               search
@@ -528,6 +526,9 @@ class SearchPageContent extends Component {
         contentClassName={styles.searchResults}
         header={header}
       >
+        {this.state.areFiltersVisible ? (
+          <AdvancedSearchFilters filters={this.props.filters} />
+        ) : null}
         {status === Status.ERROR ? (
           <p>Oh no! Something went wrong!</p>
         ) : status === Status.LOADING ? (
