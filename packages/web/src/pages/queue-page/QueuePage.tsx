@@ -1,23 +1,64 @@
 import { useCallback } from 'react'
 
-import { cacheTracksSelectors, queueSelectors, Track } from '@audius/common'
-import { useSelector } from 'react-redux'
+import { cacheTracksSelectors, collectionPageLineupActions as tracksActions,
+  queueSelectors, Track, CollectionPageTrackRecord, Name, PlaybackSource, playerSelectors } from '@audius/common'
+import { useSelector, useDispatch } from 'react-redux'
+import { TrackEvent, make } from 'common/store/analytics/actions'
 
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
+const { getPlaying, getUid } = playerSelectors
+const { makeGetCurrent } = queueSelectors
 
 import styles from './QueuePage.module.css'
 
+
 export const QueuePage = () => {
+  const dispatch = useDispatch()
   const queue = useSelector(queueSelectors.getOrder)
   const index = useSelector(queueSelectors.getIndex)
-  const tracks = useSelector((state) => {
-    const tracksMap = cacheTracksSelectors.getTracks(state, {
+  const tracksMap = useSelector((state) => {
+    return cacheTracksSelectors.getTracks(state, {
       ids: queue.map((item) => item.id as number)
     })
-    return queue.map((item) => tracksMap[item.id as number])
   })
+  const tracks = queue.map((item) => tracksMap[item.id as number])
+  const playing = useSelector((state) => getPlaying(state))
+  const playingUid = useSelector((state) => getUid(state))
+
+  const play = (uid?: string) => dispatch(tracksActions.play(uid)) 
+  const pause = () => dispatch(tracksActions.pause()) 
+  const record = (event: TrackEvent) => dispatch(event)
+
+  const onClickRow = (trackRecord: CollectionPageTrackRecord, index: number) => {
+    if (playing && playingUid === queue[index].uid) {
+      pause()
+      record(
+        make(Name.PLAYBACK_PAUSE, {
+          id: `${trackRecord.track_id}`,
+          source: PlaybackSource.PLAYLIST_TRACK
+        })
+      )
+    } else if (playingUid !== queue[index].uid) {
+      // todo: play action erases the queue
+      play(queue[index].uid)
+      record(
+        make(Name.PLAYBACK_PLAY, {
+          id: `${trackRecord.track_id}`,
+          source: PlaybackSource.PLAYLIST_TRACK
+        })
+      )
+    } else {
+      play()
+      record(
+        make(Name.PLAYBACK_PLAY, {
+          id: `${trackRecord.track_id}`,
+          source: PlaybackSource.PLAYLIST_TRACK
+        })
+      )
+    }
+  }
 
   const header = <Header primary='Queue' />
   const tableColumns: TracksTableColumn[] = [
@@ -43,10 +84,9 @@ export const QueuePage = () => {
         plays: metadata.play_count
       }))
       .filter((meta) => !meta.is_invalid)
-  }, [])
+  }, [tracks])
 
   const formattedData = formatMetadata(tracks)
-
   return (
     <Page
       title='Queue'
@@ -60,7 +100,7 @@ export const QueuePage = () => {
         playingIndex={index}
         disabledTrackEdit
         columns={tableColumns}
-        onClickRow={() => {}}
+        onClickRow={onClickRow}
         onClickTrackName={() => {}}
         fetchPage={() => {}}
         pageSize={50}
