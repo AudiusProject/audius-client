@@ -7,6 +7,11 @@ import { useDispatch } from 'react-redux'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Switch from 'components/switch/Switch'
+import {
+  getHarmonicKeys,
+  MAJOR_KEYS,
+  MINOR_KEYS
+} from 'pages/upload-page/store/utils/keyFinder'
 import { moodMap } from 'utils/moods'
 
 import styles from './AdvancedSearchFilters.module.css'
@@ -27,61 +32,11 @@ const messages = {
   apply: 'Search'
 }
 
-const MAJOR_KEYS = [
-  'B Major',
-  'Gb Major',
-  'Db Major',
-  'Ab Major',
-  'Eb Major',
-  'Bb Major',
-  'F Major',
-  'C Major',
-  'G Major',
-  'D Major',
-  'A Major',
-  'E Major'
-]
-const MINOR_KEYS = [
-  'Ab Minor',
-  'Eb Minor',
-  'Bb Minor',
-  'F Minor',
-  'C Minor',
-  'G Minor',
-  'D Minor',
-  'A Minor',
-  'E Minor',
-  'B Minor',
-  'Gb Minor',
-  'Db Minor'
-]
 const KEYS = [...MAJOR_KEYS, ...MINOR_KEYS].sort()
 const MOODS = Object.keys(moodMap).map((k) => ({
   text: k,
   el: (moodMap as Record<string, JSX.Element>)[k]
 }))
-
-const getHarmonicKeys = (key: string | undefined) => {
-  console.log(key)
-  if (!key) {
-    return []
-  }
-  if (key.split(' ')[1] === 'Major') {
-    const index = MAJOR_KEYS.findIndex((k) => k === key)
-    return [
-      MINOR_KEYS[index],
-      MAJOR_KEYS[(index + 11) % 12],
-      MAJOR_KEYS[(index + 1) % 12]
-    ]
-  } else {
-    const index = MINOR_KEYS.findIndex((k) => k === key)
-    return [
-      MAJOR_KEYS[index],
-      MINOR_KEYS[(index + 11) % 12],
-      MINOR_KEYS[(index + 1) % 12]
-    ]
-  }
-}
 
 type GetDefaultsResult = {
   filterKey: string
@@ -154,7 +109,7 @@ export const AdvancedSearchFilters = ({
     if (shouldFilterKey) {
       searchParams.append('filter_keys', filterKey)
     }
-    if (shouldFilterHarmonicKey) {
+    if (shouldFilterKey && shouldFilterHarmonicKey) {
       for (const harmonicKey of harmonicKeys) {
         searchParams.append('filter_keys', harmonicKey)
       }

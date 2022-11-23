@@ -21,6 +21,7 @@ import { Dispatch } from 'redux'
 
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
+import { getHarmonicKeys } from 'pages/upload-page/store/utils/keyFinder'
 import * as editTrackModalActions from 'store/application/ui/editTrackModal/actions'
 import { showSetAsArtistPickConfirmation } from 'store/application/ui/setAsArtistPickConfirmation/actions'
 import { AppState } from 'store/types'
@@ -112,7 +113,8 @@ const TrackMenu = (props: TrackMenuProps) => {
       trackPermalink,
       undoRepostTrack,
       unsaveTrack,
-      unsetArtistPick
+      unsetArtistPick,
+      findSimilar
     } = props
 
     const shareMenuItem = {
@@ -220,6 +222,12 @@ const TrackMenu = (props: TrackMenuProps) => {
     if (includeEmbed && !isDeleted) {
       menu.items.push(embedMenuItem)
     }
+    menu.items.push({
+      text: 'Find Similar',
+      onClick: () => {
+        findSimilar(trackId)
+      }
+    })
 
     return menu
   }
@@ -268,7 +276,43 @@ function mapDispatchToProps(dispatch: Dispatch) {
     openEditTrackModal: (trackId: ID) =>
       dispatch(editTrackModalActions.open(trackId)),
     openEmbedModal: (trackId: ID) =>
-      dispatch(embedModalActions.open(trackId, PlayableType.TRACK))
+      dispatch(embedModalActions.open(trackId, PlayableType.TRACK)),
+    findSimilar: (trackId: ID) => {
+      const track = (window.store.getState() as unknown as AppState).tracks
+        .entries[trackId].metadata
+      const filters: Record<
+        string,
+        string | string[] | number | null | undefined
+      > = {
+        genre: track.genre,
+        mood: track.mood,
+        filter_keys: track.key
+          ? [track.key, ...getHarmonicKeys(track.key)]
+          : null,
+        bpm_min: track.bpm ? Math.round(track.bpm * 0.95) : null,
+        bpm_max: track.bpm ? Math.round(track.bpm * 1.05) : null
+      }
+      const searchParams = new URLSearchParams()
+
+      Object.keys(filters).forEach((key) => {
+        const value = filters[key]
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            for (const v of value) {
+              searchParams.append(key, v)
+            }
+          } else {
+            searchParams.append(key, value.toString())
+          }
+        }
+      })
+      dispatch(
+        pushRoute({
+          pathname: '/search/t/tracks',
+          search: searchParams.toString()
+        })
+      )
+    }
   }
 }
 
