@@ -21,6 +21,9 @@ const messages = {
   genrePlaceholder: 'e.g. Electronic',
   mood: 'Filter by Mood:',
   moodPlaceholder: 'e.g. Energizing',
+  within: 'within',
+  of: '% of',
+  bpm: 'bpm',
   apply: 'Search'
 }
 
@@ -80,9 +83,27 @@ const getHarmonicKeys = (key: string | undefined) => {
   }
 }
 
-const getDefaults = (filters: Record<string, any>) => {
+type GetDefaultsResult = {
+  filterKey: string
+  harmonicKeys: string[]
+  bpmMidpoint: number
+  bpmTolerance: number
+  genre: string
+  mood: string
+}
+
+const getDefaults = (filters: Record<string, any>): GetDefaultsResult => {
   if (typeof filters.filter_keys === 'string') {
     filters.filter_keys = [filters.filter_keys]
+  }
+  if (filters.bpm_max && filters.bpm_min) {
+    filters._bpmMidpoint = Math.round(
+      (parseInt(filters.bpm_min) + parseInt(filters.bpm_max)) / 2.0
+    )
+    filters._bpmTolerance = Math.round(
+      ((parseInt(filters.bpm_max) - filters._bpmMidpoint) * 100.0) /
+        filters._bpmMidpoint
+    )
   }
   return {
     filterKey: filters.filter_keys?.[0],
@@ -90,8 +111,8 @@ const getDefaults = (filters: Record<string, any>) => {
       filters.filter_keys?.length > 1
         ? filters.filter_keys.slice(1)
         : undefined,
-    bpmMin: filters.bpm_min,
-    bpmMax: filters.bpm_max,
+    bpmMidpoint: filters._bpmMidpoint,
+    bpmTolerance: filters._bpmTolerance ?? 5,
     genre: filters.genre,
     mood: filters.mood
   }
@@ -113,14 +134,20 @@ export const AdvancedSearchFilters = ({
   )
   const harmonicKeys = getHarmonicKeys(filterKey)
   const [shouldFilterBPM, setShouldFilterBPM] = useState(
-    !!defaults.bpmMax || !!defaults.bpmMin
+    !!defaults.bpmMidpoint && !!defaults.bpmTolerance
   )
-  const [bpmMin, setBpmMin] = useState(defaults.bpmMin)
-  const [bpmMax, setBpmMax] = useState(defaults.bpmMax)
+  const [bpmMidpoint, setBpmMidpoint] = useState(defaults.bpmMidpoint)
+  const [bpmTolerance, setBpmTolerance] = useState(defaults.bpmTolerance)
   const [shouldFilterGenre, setShouldFilterGenre] = useState(!!defaults.genre)
   const [genre, setGenre] = useState(defaults.genre)
   const [shouldFilterMood, setShouldFilterMood] = useState(!!defaults.mood)
   const [mood, setMood] = useState(defaults.mood)
+
+  const bpmMin = Math.max(
+    Math.round(bpmMidpoint - (bpmTolerance / 100.0) * bpmMidpoint),
+    0
+  )
+  const bpmMax = Math.round(bpmMidpoint + (bpmTolerance / 100.0) * bpmMidpoint)
 
   const doSearch = useCallback(() => {
     const searchParams = new URLSearchParams()
@@ -132,13 +159,9 @@ export const AdvancedSearchFilters = ({
         searchParams.append('filter_keys', harmonicKey)
       }
     }
-    if (shouldFilterBPM) {
-      if (bpmMin) {
-        searchParams.append('bpm_min', bpmMin)
-      }
-      if (bpmMax) {
-        searchParams.append('bpm_max', bpmMax)
-      }
+    if (shouldFilterBPM && bpmMin !== undefined && bpmMax !== undefined) {
+      searchParams.append('bpm_min', bpmMin.toString())
+      searchParams.append('bpm_max', bpmMax.toString())
     }
     if (shouldFilterGenre) {
       searchParams.append('genre', genre)
@@ -251,19 +274,29 @@ export const AdvancedSearchFilters = ({
             setShouldFilterBPM(!shouldFilterBPM)
           }}
         />
+        {messages.within}
         <input
           className={styles.input}
           type='number'
-          value={bpmMin}
-          onChange={(e) => setBpmMin(parseInt(e.target.value))}
+          value={bpmTolerance}
+          onChange={(e) => setBpmTolerance(parseInt(e.target.value))}
         />
-        to
+        {messages.of}
         <input
           className={styles.input}
           type='number'
-          value={bpmMax}
-          onChange={(e) => setBpmMax(parseInt(e.target.value))}
+          value={bpmMidpoint}
+          onChange={(e) => {
+            setBpmMidpoint(parseInt(e.target.value))
+            if (bpmMidpoint !== undefined && bpmTolerance !== undefined) {
+              setShouldFilterBPM(true)
+            }
+          }}
         />
+        {messages.bpm}
+        {bpmMidpoint !== undefined && bpmTolerance !== undefined
+          ? ` (${bpmMin} to ${bpmMax} bpm)`
+          : null}
       </div>
       <Button
         text={messages.apply}
