@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react'
 
+import { ELECTRONIC_PREFIX, GENRES, getCanonicalName } from '@audius/common'
 import { Button, ButtonSize, ButtonType } from '@audius/stems'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Switch from 'components/switch/Switch'
+import { moodMap } from 'utils/moods'
 
 import styles from './AdvancedSearchFilters.module.css'
 
@@ -15,6 +17,10 @@ const messages = {
   filterKeyInputLabel: 'Key Filter',
   includeHarmonic: 'Include Harmonic Keys',
   filterBPM: 'Filter by BPM:',
+  genre: 'Filter by Genre:',
+  genrePlaceholder: 'e.g. Electronic',
+  mood: 'Filter by Mood:',
+  moodPlaceholder: 'e.g. Energizing',
   apply: 'Search'
 }
 
@@ -32,7 +38,6 @@ const MAJOR_KEYS = [
   'A Major',
   'E Major'
 ]
-
 const MINOR_KEYS = [
   'Ab Minor',
   'Eb Minor',
@@ -47,8 +52,11 @@ const MINOR_KEYS = [
   'Gb Minor',
   'Db Minor'
 ]
-
-const KEYS = [...MAJOR_KEYS, ...MINOR_KEYS]
+const KEYS = [...MAJOR_KEYS, ...MINOR_KEYS].sort()
+const MOODS = Object.keys(moodMap).map((k) => ({
+  text: k,
+  el: (moodMap as Record<string, JSX.Element>)[k]
+}))
 
 const getHarmonicKeys = (key: string | undefined) => {
   console.log(key)
@@ -83,7 +91,9 @@ const getDefaults = (filters: Record<string, any>) => {
         ? filters.filter_keys.slice(1)
         : undefined,
     bpmMin: filters.bpm_min,
-    bpmMax: filters.bpm_max
+    bpmMax: filters.bpm_max,
+    genre: filters.genre,
+    mood: filters.mood
   }
 }
 
@@ -107,6 +117,10 @@ export const AdvancedSearchFilters = ({
   )
   const [bpmMin, setBpmMin] = useState(defaults.bpmMin)
   const [bpmMax, setBpmMax] = useState(defaults.bpmMax)
+  const [shouldFilterGenre, setShouldFilterGenre] = useState(!!defaults.genre)
+  const [genre, setGenre] = useState(defaults.genre)
+  const [shouldFilterMood, setShouldFilterMood] = useState(!!defaults.mood)
+  const [mood, setMood] = useState(defaults.mood)
 
   const doSearch = useCallback(() => {
     const searchParams = new URLSearchParams()
@@ -126,6 +140,12 @@ export const AdvancedSearchFilters = ({
         searchParams.append('bpm_max', bpmMax)
       }
     }
+    if (shouldFilterGenre) {
+      searchParams.append('genre', genre)
+    }
+    if (shouldFilterMood) {
+      searchParams.append('mood', mood)
+    }
     dispatch(
       push({
         pathname: window.location.pathname,
@@ -137,14 +157,57 @@ export const AdvancedSearchFilters = ({
     shouldFilterKey,
     shouldFilterHarmonicKey,
     shouldFilterBPM,
+    shouldFilterGenre,
+    shouldFilterMood,
     filterKey,
     harmonicKeys,
     bpmMin,
-    bpmMax
+    bpmMax,
+    genre,
+    mood
   ])
 
   return (
     <div className={styles.root}>
+      <div className={styles.switchGroup}>
+        <Switch
+          className={styles.switch}
+          label={messages.genre}
+          isOn={shouldFilterGenre}
+          handleToggle={() => {
+            setShouldFilterGenre(!shouldFilterGenre)
+          }}
+        />
+        <DropdownInput
+          aria-label={messages.genre}
+          placeholder={messages.genrePlaceholder}
+          mount='parent'
+          menu={{ items: GENRES }}
+          defaultValue={getCanonicalName(genre) || ''}
+          onSelect={(value: string) =>
+            setGenre(value.replace(ELECTRONIC_PREFIX, ''))
+          }
+        />
+      </div>
+
+      <div className={styles.switchGroup}>
+        <Switch
+          className={styles.switch}
+          label={messages.mood}
+          isOn={shouldFilterMood}
+          handleToggle={() => {
+            setShouldFilterMood(!shouldFilterMood)
+          }}
+        />
+        <DropdownInput
+          aria-label={messages.mood}
+          placeholder={messages.moodPlaceholder}
+          mount='parent'
+          menu={{ items: MOODS }}
+          defaultValue={mood}
+          onSelect={(value: string) => setMood(value)}
+        />
+      </div>
       <div className={styles.switchGroup}>
         <Switch
           className={styles.switch}
