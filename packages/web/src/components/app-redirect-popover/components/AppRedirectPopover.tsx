@@ -98,7 +98,11 @@ const AppRedirectPopover = ({
     enablePopover && setTimeout(() => setAnimDelay(true), 500)
   }, [enablePopover])
 
-  const shouldShow = animDelay && !isDismissed && isMobile()
+  const shouldShow =
+    !matchPath(window.location.pathname, { path: '/', exact: true }) &&
+    animDelay &&
+    !isDismissed &&
+    isMobile()
 
   useEffect(() => {
     shouldShow && incrementScroll()
