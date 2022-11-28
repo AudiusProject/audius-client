@@ -16,13 +16,14 @@ const messages = {
   audio: '$AUDIO'
 }
 
-const useStyles = makeStyles(({ spacing, typography, palette }) => ({
+const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     marginTop: spacing(6)
   },
   linkedWalletsHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginHorizontal: spacing(2)
   },
   divider: {
     marginVertical: spacing(2)
@@ -98,8 +99,22 @@ export const LinkedWallets = () => {
   return (
     <View style={styles.root}>
       <View style={styles.linkedWalletsHeader}>
-        <Text>{messages.linkedWallets}</Text>
-        <Text>{messages.audio}</Text>
+        <Text
+          fontSize='small'
+          textTransform='uppercase'
+          weight='bold'
+          color='neutralLight4'
+        >
+          {messages.linkedWallets}
+        </Text>
+        <Text
+          fontSize='small'
+          textTransform='uppercase'
+          weight='bold'
+          color='neutralLight4'
+        >
+          {messages.audio}
+        </Text>
       </View>
       <Divider style={styles.divider} />
       <FlatList

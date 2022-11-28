@@ -84,7 +84,7 @@ const App = () => {
               <WalletConnectProvider
                 redirectUrl='audius://'
                 storageOptions={{
-                  // @ts-ignore
+                  // @ts-ignore: IAsyncStorage isn't up to date
                   asyncStorage: AsyncStorage
                 }}
                 renderQrcodeModal={WalletConnectProviderRenderModal}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useCallback, useEffect } from 'react'
 
 import type {
@@ -6,11 +7,13 @@ import type {
 } from '@walletconnect/react-native-dapp'
 import { useWalletConnectContext } from '@walletconnect/react-native-dapp'
 import bs58 from 'bs58'
-import { Linking, View, Image, Text, TouchableOpacity } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { Linking, View, Image, TouchableOpacity } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
-// import IconPhantom from 'app/assets/images/iconPhantom.svg'
+import IconPhantom from 'app/assets/images/iconPhantom.svg'
+import { Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { getVisibility } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
@@ -21,22 +24,42 @@ const MODAL_NAME = 'ConnectWallets'
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    marginVertical: spacing(8),
-    marginHorizontal: spacing(4)
-  }
+    marginTop: spacing(8),
+    marginBottom: spacing(2),
+    marginHorizontal: spacing(4),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start'
+  },
+  wallet: {
+    marginHorizontal: spacing(2),
+    marginVertical: spacing(1),
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  walletIcon: {
+    display: 'flex',
+    height: 50,
+    width: 50,
+    marginBottom: spacing(1)
+  },
+  walletText: {}
 }))
 
 type WalletOptionProps = {
   name: string
-  imageUri: string
+  icon: ReactNode
   onPress: () => void
 }
 
-const WalletOption = ({ name, imageUri, onPress }: WalletOptionProps) => {
+const WalletOption = ({ name, icon, onPress }: WalletOptionProps) => {
+  const styles = useStyles()
   return (
-    <TouchableOpacity onPress={onPress}>
-      <Image height={200} width={200} source={{ uri: imageUri }} />
-      <Text>{name}</Text>
+    <TouchableOpacity style={styles.wallet} onPress={onPress}>
+      <View style={styles.walletIcon}>{icon}</View>
+      <Text fontSize='medium' style={styles.walletText}>
+        {name}
+      </Text>
     </TouchableOpacity>
   )
 }
@@ -72,8 +95,13 @@ export const WalletsDrawer = () => {
               <WalletOption
                 key={i}
                 name={walletService.name}
-                // @ts-ignore
-                imageUri={walletService.image_url.sm}
+                icon={
+                  <Image
+                    source={{
+                      uri: 'https://registry.walletconnect.org/v2/logo/sm/5195e9db-94d8-4579-6f11-ef553be95100'
+                    }}
+                  />
+                }
                 onPress={() =>
                   connectToWalletService?.(walletService, redirectUrl)
                 }
@@ -83,7 +111,7 @@ export const WalletsDrawer = () => {
         )}
         <WalletOption
           name='Phantom'
-          imageUri={'app/assets/images/iconPhantom.svg'}
+          icon={<IconPhantom height={50} width={50} />}
           onPress={handleConnectWallet}
         />
         {/* TODO: Add Solana Phone as an option */}
@@ -93,14 +121,25 @@ export const WalletsDrawer = () => {
 }
 
 export const WalletConnectProviderRenderModal = ({
-  visible
+  visible,
+  onDismiss
 }: RenderQrcodeModalProps) => {
   const dispatch = useDispatch()
+  const isDrawerVisible = useSelector(getVisibility('ConnectWallets'))
+  // When wallet connect visibility changes, show drawer
   useEffect(() => {
     if (visible) {
       dispatch(setVisibility({ drawer: MODAL_NAME, visible: true }))
     }
   }, [visible, dispatch])
+
+  // When the drawer gets dismissed, dismiss the wallet connect popup
+  useEffect(() => {
+    if (visible && !isDrawerVisible) {
+      onDismiss()
+    }
+  }, [visible, isDrawerVisible, onDismiss])
+
   // Must be an element to comply with interface
   return <></>
 }

@@ -30,7 +30,6 @@ import { useDrawerState } from './components/drawer'
 import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
 import { VipDiscordDrawer } from './components/vip-discord-drawer'
 import { useDrawer } from './hooks/useDrawer'
-import { WalletsDrawer } from './screens/wallet-connect/components'
 import type { Drawer } from './store/drawers/slice'
 
 type CommonDrawerProps = {
@@ -57,7 +56,10 @@ type NativeDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to native store/drawers slice
  */
-const NativeDrawer = ({ drawer: Drawer, drawerName }: NativeDrawerProps) => {
+export const NativeDrawer = ({
+  drawer: Drawer,
+  drawerName
+}: NativeDrawerProps) => {
   const { visibleState } = useDrawer(drawerName)
 
   if (visibleState === false) return null
@@ -93,8 +95,7 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
-  DeleteConfirmation: DeleteConfirmationDrawer,
-  ConnectWallets: WalletsDrawer
+  DeleteConfirmation: DeleteConfirmationDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [

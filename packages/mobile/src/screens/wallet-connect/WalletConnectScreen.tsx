@@ -51,7 +51,6 @@ export const WalletConnectScreen = () => {
   const styles = useStyles()
   const navigation = useNavigation<WalletConnectParamList>()
   const connector = useWalletConnect()
-  console.log({ connector })
 
   const handleConnectWallet = useCallback(() => {
     connector.connect()
