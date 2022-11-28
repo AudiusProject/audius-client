@@ -30,6 +30,7 @@ import { useDrawerState } from './components/drawer'
 import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
 import { VipDiscordDrawer } from './components/vip-discord-drawer'
 import { useDrawer } from './hooks/useDrawer'
+import { WalletsDrawer } from './screens/wallet-connect/components'
 import type { Drawer } from './store/drawers/slice'
 
 type CommonDrawerProps = {
@@ -92,7 +93,8 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
-  DeleteConfirmation: DeleteConfirmationDrawer
+  DeleteConfirmation: DeleteConfirmationDrawer,
+  ConnectWallets: WalletsDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [
