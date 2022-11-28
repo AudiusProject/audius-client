@@ -101,24 +101,6 @@ const TwitterOverlay = (props) => {
                     onSuccess={props.onTwitterLogin}
                     onFailure={props.onFailure}
                   />
-                  <div className={styles.divider} />
-                  <div className={styles.autofillContainer}>
-                    <div className={styles.autofill}>
-                      {messages.linkProfile}
-                    </div>
-                    <div className={styles.autofillChecklist}>
-                      {messages.twitterChecks.map((check, ind) => (
-                        <div key={ind} className={styles.checkItem}>
-                          <div className={styles.checkIcon}>
-                            {' '}
-                            <IconGradientSave />
-                          </div>
-                          {check}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={cn(styles.divider, styles.lowerDivider)} />
                   <div
                     className={styles.manualText}
                     onClick={props.onToggleTwitterOverlay}

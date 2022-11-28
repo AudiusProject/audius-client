@@ -1,3 +1,13 @@
+.header {
+  margin: 40px 0px 16px;
+  color: #7e1bcc;
+  font-size: var(--font-l);
+  font-weight: bold;
+  text-align: center;
+  line-height: 26px;
+  width: 320px;
+}
+
 /* Twitter Button */
 .twitterOverlayContainer {
   width: 100%;
@@ -5,13 +15,12 @@
   display: inline-flex;
   align-items: center;
   flex-direction: column;
-  padding-top: 32px;
   background-color: rgba(255, 255, 255, 0.75);
   transition: all 0.07s ease-in-out;
 }
 
 .twitterButton {
-  margin-bottom: 40px;
+  margin-bottom: 16px;
   height: 80px !important;
   width: 320px !important;
   border-radius: 6px;
@@ -40,9 +49,6 @@
   height: 80px !important;
   width: 320px !important;
   margin-bottom: 16px;
-}
-
-.instagramButton .instagramText {
 }
 
 .instagramButton .btnIcon svg {

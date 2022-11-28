@@ -159,19 +159,7 @@ export class ProfilePage extends Component {
           [styles.isMobile]: isMobile
         })}
       >
-        {isMobile ? null : (
-          <>
-            <h2 className={styles.header}>{messages.header}</h2>
-            <BackButton
-              light
-              onClickBack={this.onToggleTwitterOverlay}
-              className={cn(styles.backButton, {
-                [styles.hide]: showTwitterOverlay
-              })}
-            />
-          </>
-        )}
-        <div className={styles.profileContentContainer}>
+        {showTwitterOverlay ? (
           <TwitterOverlay
             header={messages.header}
             isMobile={isMobile}
@@ -186,25 +174,42 @@ export class ProfilePage extends Component {
             onInstagramLogin={this.onInstagramLogin}
             onToggleTwitterOverlay={this.onToggleTwitterOverlay}
           />
-          <ProfileForm
-            isMobile={isMobile}
-            header={messages.header}
-            showTwitterOverlay={showTwitterOverlay}
-            profileImage={profileImage}
-            name={name}
-            onTwitterLogin={this.onTwitterLogin}
-            onInstagramLogin={this.onInstagramLogin}
-            onToggleTwitterOverlay={this.onToggleTwitterOverlay}
-            canUpdateHandle={canUpdateHandle}
-            handle={handle}
-            setProfileImage={setProfileImage}
-            profileValid={profileValid}
-            onHandleKeyDown={this.onHandleKeyDown}
-            onHandleChange={this.props.onHandleChange}
-            onNameChange={this.props.onNameChange}
-            onContinue={this.onContinue}
-          />
-        </div>
+        ) : (
+          <>
+            {isMobile ? null : (
+              <>
+                <h2 className={styles.header}>{messages.header}</h2>
+                <BackButton
+                  light
+                  onClickBack={this.onToggleTwitterOverlay}
+                  className={cn(styles.backButton, {
+                    [styles.hide]: showTwitterOverlay
+                  })}
+                />
+              </>
+            )}
+            <div className={styles.profileContentContainer}>
+              <ProfileForm
+                isMobile={isMobile}
+                header={messages.header}
+                showTwitterOverlay={showTwitterOverlay}
+                profileImage={profileImage}
+                name={name}
+                onTwitterLogin={this.onTwitterLogin}
+                onInstagramLogin={this.onInstagramLogin}
+                onToggleTwitterOverlay={this.onToggleTwitterOverlay}
+                canUpdateHandle={canUpdateHandle}
+                handle={handle}
+                setProfileImage={setProfileImage}
+                profileValid={profileValid}
+                onHandleKeyDown={this.onHandleKeyDown}
+                onHandleChange={this.props.onHandleChange}
+                onNameChange={this.props.onNameChange}
+                onContinue={this.onContinue}
+              />
+            </div>
+          </>
+        )}
       </div>
     )
   }

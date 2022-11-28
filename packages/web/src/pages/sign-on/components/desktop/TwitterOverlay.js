@@ -3,20 +3,20 @@ import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { Transition } from 'react-spring/renderprops'
 
-import { ReactComponent as IconGradientSave } from 'assets/img/gradientSave.svg'
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import InstagramButton from 'components/instagram-button/InstagramButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { TikTokButton } from 'components/tiktok-button/TikTokButton'
 import TwitterAuthButton from 'components/twitter-auth/TwitterAuthButton'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 
 import styles from './TwitterOverlay.module.css'
 
 const messages = {
-  instagramButton: 'Complete With Instagram',
-  twitterButton: 'Complete With Twitter',
-  linkProfile:
-    'Quickly complete your profile by linking one of your social accounts.',
+  instagramButton: 'Complete with Instagram',
+  twitterButton: 'Complete with Twitter',
+  tiktokButton: 'Complete with TikTok',
+  header: 'Quickly Complete Your Account by Linking Your Other Socials',
   twitterChecks: [
     'Display Name',
     'Handle',
@@ -47,6 +47,7 @@ const TwitterOverlay = (props) => {
     props.onClick()
   }
 
+  // TODO: doesn't need to be abs positioned anymore
   return (
     <Transition
       items={props.showTwitterOverlay}
@@ -79,6 +80,7 @@ const TwitterOverlay = (props) => {
                   [styles.isMobile]: props.isMobile
                 })}
               >
+                <h2 className={styles.header}>{messages.header}</h2>
                 {displayInstagram && (
                   <InstagramButton
                     className={styles.instagramButton}
@@ -100,21 +102,12 @@ const TwitterOverlay = (props) => {
                   onSuccess={props.onTwitterLogin}
                   onFailure={props.onFailure}
                 />
-                <div className={styles.autofillContainer}>
-                  <div className={styles.autofill}>{messages.linkProfile}</div>
-                  <div className={styles.autofillChecklist}>
-                    {messages.twitterChecks.map((check, ind) => (
-                      <div key={ind} className={styles.checkItem}>
-                        <div className={styles.checkIcon}>
-                          {' '}
-                          <IconGradientSave />
-                        </div>
-                        {check}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className={styles.divider}></div>
+                <TikTokButton
+                  className={styles.instagramButton}
+                  textClassName={styles.btnText}
+                  iconClassName={styles.btnIcon}
+                  text={messages.tiktokButton}
+                />
                 <button
                   className={styles.manualText}
                   onClick={props.onToggleTwitterOverlay}

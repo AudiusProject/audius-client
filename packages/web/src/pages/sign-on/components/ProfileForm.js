@@ -66,7 +66,6 @@ const ProfileForm = (props) => {
     <div
       className={cn(styles.profileFormContainer, {
         [styles.isMobile]: props.isMobile,
-        [styles.blur]: props.showTwitterOverlay,
         [styles.moveFormUp]: suggestTwitterLogin || suggestInstagramLogin
       })}
     >
@@ -88,7 +87,6 @@ const ProfileForm = (props) => {
       </div>
       <div
         className={cn(styles.inputContainer, {
-          [styles.hide]: props.showTwitterOverlay,
           [styles.errorInput]: handle.error
         })}
       >
@@ -219,9 +217,7 @@ const ProfileForm = (props) => {
         isDisabled={!profileValid}
         onClick={onContinue}
         textClassName={styles.continueButtonText}
-        className={cn(styles.continueButton, {
-          [styles.hide]: props.showTwitterOverlay
-        })}
+        className={cn(styles.continueButton)}
       />
     </div>
   )
@@ -236,7 +232,6 @@ const field = PropTypes.shape({
 ProfileForm.propTypes = {
   header: PropTypes.string,
   isMobile: PropTypes.bool,
-  showTwitterOverlay: PropTypes.bool,
   profileImage: PropTypes.any,
   name: field,
   onTwitterLogin: PropTypes.func,
