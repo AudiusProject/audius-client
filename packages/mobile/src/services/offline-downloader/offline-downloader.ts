@@ -27,7 +27,7 @@ import type { TrackDownloadWorkerPayload } from './offline-download-queue'
 import { enqueueTrackDownload } from './offline-download-queue'
 import {
   getLocalAudioPath,
-  getLocalCoverArtPath,
+  getLocalCoverArtDestination,
   getLocalTrackJsonPath,
   purgeDownloadedTrack,
   getTrackJson,
@@ -207,7 +207,7 @@ export const downloadCoverArt = async (track: Track) => {
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
     coverArtUris.map(async (coverArtUri) => {
-      const destination = getLocalCoverArtPath(
+      const destination = getLocalCoverArtDestination(
         track.track_id.toString(),
         coverArtUri
       )

@@ -6,6 +6,7 @@ import imageEmpty from 'app/assets/images/imageBlank2x.png'
 import { DynamicImage } from 'app/components/core'
 import type { DynamicImageProps } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
+import { useLocalTrackImage } from 'app/hooks/useLocalTrackImage'
 
 const { getUser } = cacheUsersSelectors
 
@@ -27,14 +28,24 @@ export const useTrackImage = (
 }
 
 type TrackImageProps = {
-  track: Parameters<typeof useTrackImage>[0]
+  track: Track
   user?: Parameters<typeof useTrackImage>[1]
 } & DynamicImageProps
 
 export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
+  const { source: localSource, handleError: localHandleError } =
+    useLocalTrackImage(track?.track_id?.toString())
   const { source, handleError } = useTrackImage(track, user)
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return localSource ? (
+    <DynamicImage
+      {...imageProps}
+      source={localSource}
+      onError={localHandleError}
+    />
+  ) : (
+    <DynamicImage {...imageProps} source={source} onError={handleError} />
+  )
 }
