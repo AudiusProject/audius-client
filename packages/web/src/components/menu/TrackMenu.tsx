@@ -308,7 +308,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       })
       dispatch(
         pushRoute({
-          pathname: '/search/t/tracks',
+          pathname: '/search/Local Dialect/tracks',
           search: searchParams.toString()
         })
       )
