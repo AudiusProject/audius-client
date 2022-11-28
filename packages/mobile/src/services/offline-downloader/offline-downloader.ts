@@ -1,18 +1,19 @@
 import path from 'path'
 
-import type {
-  Track,
-  User,
-  UserMetadata,
-  UserTrackMetadata
+import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
+import {
+  DefaultSizes,
+  SquareSizes,
+  encodeHashId,
+  accountSelectors
 } from '@audius/common'
-import { encodeHashId, accountSelectors } from '@audius/common'
 import { uniq } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import { store } from 'app/store'
 import {
   addCollection,
+  startDownload,
   completeDownload,
   errorDownload,
   loadTrack,
@@ -20,6 +21,7 @@ import {
 } from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
+import { audiusBackendInstance } from '../audius-backend-instance'
 
 import type { TrackDownloadWorkerPayload } from './offline-download-queue'
 import { enqueueTrackDownload } from './offline-download-queue'
@@ -47,15 +49,65 @@ export const downloadCollection = async (
   trackIds.forEach((trackId) => enqueueTrackDownload(trackId, collection))
 }
 
+const populateCoverArtSizes = async (track: UserTrackMetadata & Track) => {
+  if (!track || !track.user || (!track.cover_art_sizes && !track.cover_art))
+    return
+  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+    track.user.creator_node_endpoint
+  )
+  const multihash = track.cover_art_sizes || track.cover_art
+  await Promise.allSettled(
+    Object.values(SquareSizes).map(async (size) => {
+      const coverArtSize = multihash === track.cover_art_sizes ? size : null
+      const url = await audiusBackendInstance.getImageUrl(
+        // @ts-ignore the if above should cover this
+        multihash,
+        coverArtSize,
+        gateways
+      )
+      track._cover_art_sizes = {
+        ...track._cover_art_sizes,
+        [coverArtSize || DefaultSizes.OVERRIDE]: url
+      }
+    })
+  )
+  return track
+}
+
 export const downloadTrack = async ({
-  track,
-  user,
+  trackId,
   collection
 }: TrackDownloadWorkerPayload) => {
-  const trackIdStr = track.track_id.toString()
+  const trackIdStr = trackId.toString()
+
+  const failJob = (message?: string) => {
+    store.dispatch(errorDownload(trackIdStr))
+    throw new Error(message)
+  }
+
+  const state = store.getState()
+  // @ts-ignore state should match CommonState
+  const currentUserId = getUserId(state)
+
+  let track: (UserTrackMetadata & Track) | undefined = await apiClient.getTrack(
+    {
+      id: trackId,
+      currentUserId
+    }
+  )
+
+  if (!track) {
+    store.dispatch(errorDownload(trackIdStr))
+    throw new Error(`track to download not found on discovery - ${trackIdStr}`)
+  }
+  console.log('DownloadQueueWorker - got api track', track)
+
+  track = (await populateCoverArtSizes(track)) ?? track
+
   try {
+    store.dispatch(startDownload(trackIdStr))
     if (await verifyTrack(trackIdStr, false)) {
-      // Track already downloaded, so rewrite the json
+      // Track is already downloaded, so rewrite the json
       // to include this collection in the downloaded_from_collection list
       const trackJson = await getTrackJson(trackIdStr)
       const trackToWrite: UserTrackMetadata = {
@@ -79,19 +131,20 @@ export const downloadTrack = async ({
 
     await downloadCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
-    await writeUserTrackJson(track, user, collection)
+    await writeUserTrackJson(track, collection)
     const verified = await verifyTrack(trackIdStr, true)
     if (verified) {
       store.dispatch(loadTrack(track))
       store.dispatch(completeDownload(trackIdStr))
     } else {
       store.dispatch(errorDownload(trackIdStr))
+      throw new Error(
+        `DownloadQueueWorker - download verification failed ${trackIdStr}`
+      )
     }
     return verified
   } catch (e) {
-    store.dispatch(errorDownload(trackIdStr))
-    console.error(e)
-    return false
+    failJob(e.message)
   }
 }
 
@@ -128,8 +181,7 @@ export const removeCollectionDownload = async (
 
 /** Unlike mp3 and album art, here we overwrite even if the file exists to ensure we have the latest */
 export const writeUserTrackJson = async (
-  track: Track,
-  user: User,
+  track: UserTrackMetadata,
   collection: string
 ) => {
   const trackToWrite: UserTrackMetadata = {
@@ -141,8 +193,7 @@ export const writeUserTrackJson = async (
       ]),
       download_completed_time: Date.now(),
       last_verified_time: Date.now()
-    },
-    user
+    }
   }
 
   const pathToWrite = getLocalTrackJsonPath(track.track_id.toString())
@@ -153,7 +204,6 @@ export const writeUserTrackJson = async (
 }
 
 export const downloadCoverArt = async (track: Track) => {
-  // TODO: computed _cover_art_sizes isn't necessarily populated
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
     coverArtUris.map(async (coverArtUri) => {
@@ -162,6 +212,12 @@ export const downloadCoverArt = async (track: Track) => {
         coverArtUri
       )
       await downloadIfNotExists(coverArtUri, destination)
+      console.log(
+        'DownlaodWorker - downloaded cover art',
+        coverArtUri,
+        'to',
+        destination
+      )
     })
   )
 }

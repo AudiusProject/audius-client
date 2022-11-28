@@ -1,6 +1,7 @@
 import path from 'path'
 
 import type { UserTrackMetadata } from '@audius/common'
+import { SquareSizes } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
@@ -87,23 +88,21 @@ export const verifyTrack = async (
   expectTrue?: boolean
 ): Promise<boolean> => {
   const audioFile = exists(getLocalAudioPath(trackId))
-  // TODO: check for all required art
-  // const artFile = exists(
-  //   path.join(getLocalTrackDir(trackId), '150x150.jpg')
-  // )
-  const artFile = true
   const jsonFile = exists(getLocalTrackJsonPath(trackId))
+  const artFiles = Object.values(SquareSizes).map((size) =>
+    exists(path.join(getLocalTrackDir(trackId), `${size}.jpg`))
+  )
 
-  const results = await Promise.allSettled([audioFile, artFile, jsonFile])
+  const results = await Promise.allSettled([audioFile, jsonFile, ...artFiles])
   const booleanResults = results.map(
     (result) => result.status === 'fulfilled' && !!result.value
   )
-  const [audioExists, artExists, jsonExists] = booleanResults
+  const [audioExists, jsonExists, ...artExists] = booleanResults
 
   if (expectTrue) {
     !audioExists && console.warn(`Missing audio for ${trackId}`)
-    !artExists && console.warn(`Missing art for ${trackId}`)
     !jsonExists && console.warn(`Missing json for ${trackId}`)
+    !artExists?.length && console.warn(`Missing art for ${trackId}`)
   }
 
   return booleanResults.every((result) => result)
