@@ -98,8 +98,10 @@ export const WalletsDrawer = () => {
                 icon={
                   <Image
                     source={{
-                      uri: 'https://registry.walletconnect.org/v2/logo/sm/5195e9db-94d8-4579-6f11-ef553be95100'
+                      // @ts-ignore: image_url is valid
+                      uri: `${walletService.image_url.sm}`
                     }}
+                    onError={(error) => console.error(error)}
                   />
                 }
                 onPress={() =>
