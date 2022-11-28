@@ -178,7 +178,6 @@
     "jest": "24.9.0",
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.67.0",
-    "npm-force-resolutions": "0.0.10",
     "patch-package": "6.4.7",
     "react-devtools-core": "4.14.0",
     "react-test-renderer": "16.9.0",
