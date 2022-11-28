@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { User } from '@audius/common'
+import { formatCount } from '@audius/common'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
   getFollowArtists,
@@ -27,9 +28,9 @@ import { useEffectOnce } from 'react-use'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconWand from 'app/assets/images/iconWand.svg'
 import Button from 'app/components/button'
+import { UserImage } from 'app/components/image/UserImage'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 
-import UserImage from '../../components/image/UserImage'
 import UserBadges from '../../components/user-badges/UserBadges'
 
 const styles = StyleSheet.create({
@@ -335,7 +336,10 @@ export const FollowArtistCard = ({
         style={styles.card}
       >
         <View style={styles.cardImage}>
-          <UserImage user={user} imageStyle={styles.userImage} />
+          <UserImage
+            user={user}
+            styles={{ image: styles.userImage, root: styles.userImage }}
+          />
         </View>
         <UserBadges
           style={styles.cardNameContainer}
@@ -349,7 +353,7 @@ export const FollowArtistCard = ({
           ]}
           numberOfLines={1}
         >
-          {user.follower_count} Followers
+          {formatCount(user.follower_count)} Followers
         </Text>
       </LinearGradient>
     </View>
