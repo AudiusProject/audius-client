@@ -78,7 +78,6 @@ export const SearchBar = () => {
 
   return (
     <TextInput
-      styles={{ input: { padding: 0 } }}
       ref={inputRef}
       value={query}
       onChangeText={handleChangeText}
