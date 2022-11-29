@@ -3,7 +3,7 @@ import { useState, useMemo, useCallback } from 'react'
 import type { Nullable, CID, WidthSizes } from '@audius/common'
 import { SquareSizes } from '@audius/common'
 import type { User } from '@sentry/react-native'
-import type { ImageSourcePropType } from 'react-native'
+import type { ImageSourcePropType, ImageURISource } from 'react-native'
 
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
@@ -63,6 +63,7 @@ type UseContentNodeImageOptions = {
   user: Nullable<Pick<User, 'creator_node_endpoint'>>
   sizes?: typeof SquareSizes | typeof WidthSizes
   fallbackImageSource: ImageSourcePropType
+  localSource?: ImageURISource[] | null
 }
 
 /**
@@ -80,7 +81,8 @@ export const useContentNodeImage = ({
   cid,
   user,
   sizes = SquareSizes,
-  fallbackImageSource
+  fallbackImageSource,
+  localSource
 }: UseContentNodeImageOptions): ContentNodeImageSource => {
   const [imageSourceIndex, setImageSourceIndex] = useState(0)
   const [failedToLoad, setFailedToLoad] = useState(false)
@@ -116,10 +118,15 @@ export const useContentNodeImage = ({
       createUri: (endpoint) => () => `${endpoint}${cid}`
     })
 
-    return [...newImageSources, ...legacyImageSources]
-  }, [cid, endpoints, sizes])
+    return [
+      ...(localSource ? [localSource] : []),
+      ...newImageSources,
+      ...legacyImageSources
+    ]
+  }, [cid, endpoints, localSource, sizes])
 
   const handleError = useCallback(() => {
+    console.log('handleError called', imageSources[imageSourceIndex])
     if (imageSourceIndex < imageSources.length - 1) {
       // Image failed to load from the current node
       setImageSourceIndex(imageSourceIndex + 1)
@@ -127,7 +134,7 @@ export const useContentNodeImage = ({
       // Image failed to load from any node in replica set
       setFailedToLoad(true)
     }
-  }, [imageSourceIndex, imageSources.length])
+  }, [imageSourceIndex, imageSources])
 
   const result = useMemo(
     () => ({
@@ -148,5 +155,6 @@ export const useContentNodeImage = ({
     ]
   )
 
+  console.log('imageSources', imageSources)
   return result
 }

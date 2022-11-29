@@ -18,7 +18,7 @@ export const useLocalTrackImage = (trackId?: string) => {
 
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
-): ImageURISource[] => {
+): ImageURISource[] | null => {
   const imageSources = Object.values(SquareSizes)
     .reverse()
     .map(
@@ -34,12 +34,11 @@ export const useLocalImage = (
     const verifiedSources: ImageURISource[] = []
     for (const source of imageSources) {
       if (source?.uri && (await exists(source.uri))) {
-        console.log('verified', source.uri)
         verifiedSources.push(source)
       }
     }
     return verifiedSources
   }, [getLocalPath])
 
-  return loading || !verifiedSources ? [] : verifiedSources
+  return loading || !verifiedSources?.length ? null : verifiedSources
 }

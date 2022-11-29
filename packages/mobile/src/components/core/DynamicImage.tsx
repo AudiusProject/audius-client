@@ -94,6 +94,7 @@ const ImageLoader = ({
     }
   }, [source, skeletonOpacity])
 
+  console.log('imageloader source', source[0].uri)
   return (
     <View onLayout={handleSetSize}>
       {source ? (

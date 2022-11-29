@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import type { User, Track, Nullable } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
@@ -21,11 +23,13 @@ export const useTrackImage = (
   const selectedUser = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
+  const localSource = useLocalTrackImage(track?.track_id.toString())
 
   return useContentNodeImage({
     cid,
     user: user ?? selectedUser,
-    fallbackImageSource: imageEmpty
+    fallbackImageSource: imageEmpty,
+    localSource
   })
 }
 
@@ -38,11 +42,7 @@ export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
   const { source, handleError } = useTrackImage(track, user)
-  const localSource = useLocalTrackImage(track?.track_id.toString())
+  console.log('using source', source)
 
-  return localSource.length > 0 ? (
-    <DynamicImage {...imageProps} source={localSource} />
-  ) : (
-    <DynamicImage {...imageProps} source={source} onError={handleError} />
-  )
+  return <DynamicImage {...imageProps} source={source} onError={handleError} />
 }
