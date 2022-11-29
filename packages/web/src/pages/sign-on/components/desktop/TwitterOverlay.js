@@ -1,4 +1,6 @@
-import { BooleanKeys } from '@audius/common'
+import { useCallback } from 'react'
+
+import { BooleanKeys, FeatureFlags } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { Transition } from 'react-spring/renderprops'
@@ -8,7 +10,8 @@ import InstagramButton from 'components/instagram-button/InstagramButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { TikTokButton } from 'components/tiktok-button/TikTokButton'
 import TwitterAuthButton from 'components/twitter-auth/TwitterAuthButton'
-import { useRemoteVar } from 'hooks/useRemoteConfig'
+import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
+import { useTikTokAuth } from 'hooks/useTikTokAuth'
 
 import styles from './TwitterOverlay.module.css'
 
@@ -33,9 +36,19 @@ const messages = {
 }
 
 const TwitterOverlay = (props) => {
+  const { onTikTokLogin } = props
+  const { isEnabled: isTikTokEnabled } = useFlag(
+    FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
+  )
   const displayInstagram = useRemoteVar(
     BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP
   )
+
+  const withTikTokAuth = useTikTokAuth({
+    onError: () => {
+      // TODO
+    }
+  })
 
   const onClickTwitter = () => {
     props.onTwitterStart()
@@ -46,6 +59,36 @@ const TwitterOverlay = (props) => {
     props.onInstagramStart()
     props.onClick()
   }
+
+  const handleTikTokLogin = useCallback(() => {
+
+    withTikTokAuth(async (accessToken) => {
+      try {
+        // Using TikTok v1 api because v2 does not have CORS headers set
+        const result = await fetch(
+          `https://open-api.tiktok.com/user/info/?access_token=${accessToken}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              fields: [
+                'display_name',
+                'avatar_url',
+                'avatar_large_url',
+                'profile_deep_link',
+                'is_verified'
+              ]
+            })
+          }
+        )
+        const resultJson = await result.json()
+        console.log(resultJson)
+        const tikTokProfile = resultJson.data.user
+        onTikTokLogin(tikTokProfile.open_id, tikTokProfile)
+      } catch (e) {
+        console.log(e)
+      }
+    })
+  }, [withTikTokAuth, onTikTokLogin])
 
   // TODO: doesn't need to be abs positioned anymore
   return (
@@ -102,12 +145,15 @@ const TwitterOverlay = (props) => {
                   onSuccess={props.onTwitterLogin}
                   onFailure={props.onFailure}
                 />
-                <TikTokButton
-                  className={styles.instagramButton}
-                  textClassName={styles.btnText}
-                  iconClassName={styles.btnIcon}
-                  text={messages.tiktokButton}
-                />
+                {isTikTokEnabled || true ? (
+                  <TikTokButton
+                    className={styles.instagramButton}
+                    textClassName={styles.btnText}
+                    iconClassName={styles.btnIcon}
+                    text={messages.tiktokButton}
+                    onClick={handleTikTokLogin}
+                  />
+                ) : null}
                 <button
                   className={styles.manualText}
                   onClick={props.onToggleTwitterOverlay}

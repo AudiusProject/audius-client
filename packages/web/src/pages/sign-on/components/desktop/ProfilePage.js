@@ -1,6 +1,10 @@
 import { Component } from 'react'
 
-import { formatInstagramProfile, formatTwitterProfile } from '@audius/common'
+import {
+  formatInstagramProfile,
+  formatTwitterProfile,
+  formatTikTokProfile
+} from '@audius/common'
 import cn from 'classnames'
 
 import BackButton from 'components/back-button/BackButton'
@@ -125,6 +129,36 @@ export class ProfilePage extends Component {
     }
   }
 
+  onTikTokLogin = async (uuid, tikTokProfile) => {
+    try {
+      const { profile, profileImage, requiresUserReview } =
+        await formatTikTokProfile(tikTokProfile, resizeImage)
+      this.props.validateHandle(
+        profile.display_name,
+        profile.is_verified,
+        (error) => {
+          this.props.setTikTokProfile(
+            uuid,
+            profile,
+            profileImage,
+            !error && !requiresUserReview
+          )
+          this.setState({
+            showTwitterOverlay: false,
+            initial: false,
+            isLoading: false
+          })
+        }
+      )
+    } catch (err) {
+      this.setState({
+        showTwitterOverlay: false,
+        initial: false,
+        isLoading: false
+      })
+    }
+  }
+
   onHandleKeyDown = (e) => {
     if (e.keyCode === 13 /** enter */) {
       this.onContinue()
@@ -172,6 +206,7 @@ export class ProfilePage extends Component {
             onFailure={this.setDidFinishLoading}
             onTwitterLogin={this.onTwitterLogin}
             onInstagramLogin={this.onInstagramLogin}
+            onTikTokLogin={this.onTikTokLogin}
             onToggleTwitterOverlay={this.onToggleTwitterOverlay}
           />
         ) : (
