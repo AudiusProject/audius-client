@@ -60,7 +60,6 @@ const populateCoverArtSizes = async (track: UserTrackMetadata & Track) => {
     Object.values(SquareSizes).map(async (size) => {
       const coverArtSize = multihash === track.cover_art_sizes ? size : null
       const url = await audiusBackendInstance.getImageUrl(
-        // @ts-ignore the if above should cover this
         multihash,
         coverArtSize,
         gateways
@@ -85,8 +84,8 @@ export const downloadTrack = async ({
     throw new Error(message)
   }
 
-  const state = store.getState()
-  // @ts-ignore state should match CommonState
+  // @ts-ignore mismatch in an irrelevant part of state
+  const state = store.getState() as CommonState
   const currentUserId = getUserId(state)
 
   let track: (UserTrackMetadata & Track) | undefined = await apiClient.getTrack(
@@ -100,7 +99,6 @@ export const downloadTrack = async ({
     store.dispatch(errorDownload(trackIdStr))
     throw new Error(`track to download not found on discovery - ${trackIdStr}`)
   }
-  console.log('DownloadQueueWorker - got api track', track)
 
   track = (await populateCoverArtSizes(track)) ?? track
 
@@ -212,12 +210,6 @@ export const downloadCoverArt = async (track: Track) => {
         coverArtUri
       )
       await downloadIfNotExists(coverArtUri, destination)
-      console.log(
-        'DownlaodWorker - downloaded cover art',
-        coverArtUri,
-        'to',
-        destination
-      )
     })
   )
 }
