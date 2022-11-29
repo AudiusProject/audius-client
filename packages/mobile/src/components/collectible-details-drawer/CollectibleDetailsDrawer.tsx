@@ -104,12 +104,6 @@ export const CollectibleDetailsDrawer = () => {
 
   const handleShare = useCallback(() => {
     if (owner && collectible) {
-      console.log(
-        'handle share',
-        owner.handle,
-        collectible.id,
-        getCollectiblesRoute(owner.handle, collectible.id)
-      )
       const url = getCollectiblesRoute(owner.handle, collectible.id)
       share({ url })
     }
