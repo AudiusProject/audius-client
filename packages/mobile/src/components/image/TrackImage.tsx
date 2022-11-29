@@ -6,12 +6,14 @@ import imageEmpty from 'app/assets/images/imageBlank2x.png'
 import { DynamicImage } from 'app/components/core'
 import type { DynamicImageProps } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
-import { useLocalTrackImage } from 'app/hooks/useLocalTrackImage'
+import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 
 const { getUser } = cacheUsersSelectors
 
 export const useTrackImage = (
-  track: Nullable<Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>>,
+  track: Nullable<
+    Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+  >,
   user?: Pick<User, 'creator_node_endpoint'>
 ) => {
   const cid = track ? track.cover_art_sizes || track.cover_art : null
@@ -35,16 +37,11 @@ type TrackImageProps = {
 export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
-  const { source: localSource, handleError: localHandleError } =
-    useLocalTrackImage(track?.track_id?.toString())
   const { source, handleError } = useTrackImage(track, user)
+  const localSource = useLocalTrackImage(track?.track_id.toString())
 
-  return localSource ? (
-    <DynamicImage
-      {...imageProps}
-      source={localSource}
-      onError={localHandleError}
-    />
+  return localSource.length > 0 ? (
+    <DynamicImage {...imageProps} source={localSource} />
   ) : (
     <DynamicImage {...imageProps} source={source} onError={handleError} />
   )
