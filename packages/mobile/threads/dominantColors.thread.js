@@ -124,18 +124,7 @@ const dominantRgb = (imageUrl) => {
     })
 }
 
-const defaultDominantColors = [
-  { r: 82, g: 224, b: 222 },
-  { r: 110, g: 82, b: 224 },
-  { r: 224, g: 82, b: 167 }
-]
-
 // listen for messages
 self.onmessage = (imageUrl) => {
   dominantRgb(imageUrl)
-  // console.log('received message from thread:', message)
-  // self.postMessage(JSON.stringify(defaultDominantColors))
 }
-
-// send a message, strings only
-self.postMessage('hello')
