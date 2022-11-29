@@ -1,7 +1,7 @@
-import { Color } from '@audius/common';
+import type { Color } from '@audius/common'
 import { Thread } from 'react-native-threads'
 
-const dominantColorsThread = new Thread('dominantColors.thread.js')
+const dominantColorsThread = new Thread('threads/dominantColors.thread.js')
 
 export const getDominantColors = (imageUrl: string) => {
   dominantColorsThread.postMessage(imageUrl)
