@@ -58,7 +58,7 @@ const messages = {
   totalAudio: 'Total $AUDIO',
   send: 'Send $AUDIO',
   receive: 'Receive $AUDIO',
-  connect: 'Connect Other Wallets',
+  connect: 'Connect Wallets',
   rewards: '$AUDIO Rewards',
   rewardsBody1: 'Complete tasks to earn $AUDIO tokens!',
   rewardsBody2:
@@ -181,7 +181,7 @@ export const AudioScreen = () => {
 
   const hasMultipleWallets = useSelector(getHasAssociatedWallets)
 
-  const onPressWalletInfo = useCallback(() => {
+  const handlePressWalletInfo = useCallback(() => {
     dispatch(setVisibility({ modal: 'AudioBreakdown', visible: true }))
   }, [dispatch])
 
@@ -208,12 +208,12 @@ export const AudioScreen = () => {
           {formatWei((totalBalance || new BN(0)) as BNWei, true, 0)}{' '}
         </Text>
         <View style={styles.audioInfo}>
-          {!hasMultipleWallets ? (
+          {hasMultipleWallets ? (
             <>
               <Text style={styles.audioText}>{messages.totalAudio}</Text>
               <TouchableOpacity
                 hitSlop={{ left: 4, top: 4, bottom: 4, right: 4 }}
-                onPress={onPressWalletInfo}
+                onPress={handlePressWalletInfo}
                 activeOpacity={0.7}
               >
                 <IconInfo
