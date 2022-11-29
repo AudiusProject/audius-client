@@ -32,7 +32,7 @@ const createImageSourceWithSizes = ({
       // A CID is a unique identifier of a piece of content,
       // so we can always rely on a cached value
       // https://reactnative.dev/docs/images#cache-control-ios-only
-      cache: 'force-cache'
+      cache: 'force-cache' as const
     }
   })
 }
