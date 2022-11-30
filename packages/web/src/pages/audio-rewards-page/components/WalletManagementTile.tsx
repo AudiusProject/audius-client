@@ -161,7 +161,6 @@ const isLocationSupported = ({
   allowedCountries: string[]
   deniedRegions: string[]
 }) => {
-  console.log('MARCUS', { location })
   return (
     !location ||
     (allowedCountries.some((c) => c === location.country_code_iso3) &&
