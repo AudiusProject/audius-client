@@ -37,7 +37,8 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     marginVertical: spacing(6)
   },
   text: {
-    textAlign: 'center'
+    textAlign: 'center',
+    lineHeight: 24
   },
   connectButton: {
     marginTop: spacing(4)
