@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
 import { BooleanKeys, FeatureFlags } from '@audius/common'
+import { IconImage, IconUser, IconVerified } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { Transition } from 'react-spring/renderprops'
 
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import InstagramButton from 'components/instagram-button/InstagramButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { TikTokButton } from 'components/tiktok-button/TikTokButton'
@@ -20,18 +20,9 @@ const messages = {
   twitterButton: 'Complete with Twitter',
   tiktokButton: 'Complete with TikTok',
   header: 'Quickly Complete Your Account by Linking Your Other Socials',
-  twitterChecks: [
-    'Display Name',
-    'Handle',
-    'Profile Picture',
-    'Cover Photo',
-    <div key={'verify'}>
-      <div>
-        {'Verification'} <IconVerified className={styles.verified} />
-      </div>
-      <div className={styles.ifApplicable}>{'(if applicable)'}</div>
-    </div>
-  ],
+  importTileHeader: 'We will import these details',
+  importTileItemHandle: 'Handle & Display Name',
+  importTileItemPicture: 'Profile Picture & Cover Photo',
   manual: "I'd rather fill out my profile manually"
 }
 
@@ -124,6 +115,25 @@ const TwitterOverlay = (props) => {
                 })}
               >
                 <h2 className={styles.header}>{messages.header}</h2>
+                <div className={styles.tile}>
+                  <div className={styles.tileHeader}>
+                    {messages.importTileHeader}
+                  </div>
+                  <ul>
+                    <li className={styles.tileListItem}>
+                      <div className={styles.tileListItemIcon}>
+                        <IconUser />
+                      </div>
+                      <span>{messages.importTileItemHandle}</span>
+                    </li>
+                    <li className={styles.tileListItem}>
+                      <div className={styles.tileListItemIcon}>
+                        <IconImage height={24} width={24} />
+                      </div>
+                      <span>{messages.importTileItemPicture}</span>
+                    </li>
+                  </ul>
+                </div>
                 {displayInstagram && (
                   <InstagramButton
                     className={styles.socialButton}
