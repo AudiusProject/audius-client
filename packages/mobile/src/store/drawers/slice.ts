@@ -28,7 +28,7 @@ const initialState: DrawersState = {
   CancelEditTrack: false,
   DeleteConfirmation: false,
   ConnectWallets: false,
-  ConfirmRemoveWallet: false,
+  ConfirmRemoveWallet: true,
   data: null
 }
 

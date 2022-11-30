@@ -8,7 +8,6 @@ import {
   tokenDashboardPageActions
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { BN } from 'bn.js'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
@@ -218,40 +217,25 @@ export const LinkedWallets = () => {
     }
   }, [toast, dispatch, errorMessage])
 
-  // const wallets: Array<AssociatedWallet & { chain: Chain, isConfirming?: boolean }> = [
-  //   ...(connectedEthWallets
-  //     ? connectedEthWallets.map((wallet) => ({ ...wallet, chain: Chain.Eth }))
-  //     : []),
-  //   ...(connectedSolWallets
-  //     ? connectedSolWallets.map((wallet) => ({ ...wallet, chain: Chain.Sol }))
-  //     : [])
-  // ]
-  // if (confirmingWallet && confirmingWallet.wallet) {
-  //   wallets.push({
-  //     address: confirmingWallet.wallet,
-  //     balance: confirmingWallet.balance,
-  //     collectibleCount: confirmingWallet.collectibleCount || 0,
-  //     isConfirming: true
-  //   })
-  // }
   const wallets: Array<
     AssociatedWallet & { chain: Chain; isConfirming?: boolean }
   > = [
-    {
-      chain: Chain.Eth,
-      address: '0x766Dc6025B055Cc6477b724E48Ef8B4cdcCF8Bc5',
-      balance: new BN('100000000000000000000'),
-      isConfirming: false,
-      collectibleCount: 0
-    },
-    {
-      chain: Chain.Sol,
-      address: '0x766Dc6025B055Cc6477b724E48Ef8B4cdcCF8Bc5',
-      balance: new BN('1000'),
-      isConfirming: false,
-      collectibleCount: 0
-    }
+    ...(connectedEthWallets
+      ? connectedEthWallets.map((wallet) => ({ ...wallet, chain: Chain.Eth }))
+      : []),
+    ...(connectedSolWallets
+      ? connectedSolWallets.map((wallet) => ({ ...wallet, chain: Chain.Sol }))
+      : [])
   ]
+  if (confirmingWallet && confirmingWallet.wallet && confirmingWallet.chain) {
+    wallets.push({
+      chain: confirmingWallet.chain,
+      address: confirmingWallet.wallet,
+      balance: confirmingWallet.balance,
+      collectibleCount: confirmingWallet.collectibleCount || 0,
+      isConfirming: true
+    })
+  }
 
   if (!(wallets.length > 0)) {
     return null
