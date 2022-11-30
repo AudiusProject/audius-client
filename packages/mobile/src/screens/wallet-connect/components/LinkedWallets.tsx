@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect } from 'react'
 
-import type { BNWei } from '@audius/common'
+import type { AssociatedWallet, BNWei } from '@audius/common'
 import {
   Chain,
   formatWei,
@@ -8,6 +8,7 @@ import {
   tokenDashboardPageActions
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
+import { BN } from 'bn.js'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,7 +28,7 @@ const { getAssociatedWallets, getRemoveWallet } = tokenDashboardPageSelectors
 const { requestRemoveWallet, resetStatus } = tokenDashboardPageActions
 
 const messages = {
-  linkedWallets: 'Linked Wallets',
+  linkedWallets: 'Linked Wallet',
   newWalletConnected: 'New Wallet Connected!',
   audio: '$AUDIO',
   copied: 'Copied To Clipboard!'
@@ -44,17 +45,24 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginRight: spacing(14)
   },
   divider: {
-    marginVertical: spacing(2)
+    marginVertical: spacing(3)
   },
   linkedWallet: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+  linkedWalletData: {
+    flexDirection: 'row',
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginRight: spacing(5)
+  },
   linkedWalletKey: {
     flexDirection: 'row',
     alignItems: 'center',
-    maxWidth: 150
+    maxWidth: 80
   },
   linkedWalletLogo: {
     marginRight: spacing(2)
@@ -73,22 +81,26 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   copyIcon: {
     lineHeight: 16,
     marginBottom: 2,
-    color: palette.neutralLight4,
+    color: palette.accentGreen,
+    backgroundColor: 'red',
     marginLeft: 10
   },
   audioAmount: {
     marginRight: spacing(2)
   },
   iconContainer: {
-    marginLeft: spacing(2)
+    marginLeft: spacing(2),
+    backgroundColor: palette.neutralLight10,
+    padding: spacing(3),
+    borderColor: palette.neutralLight8,
+    borderWidth: 1,
+    borderRadius: 6
   },
   removeIcon: {
     height: 20,
     width: 20
   },
-  loading: {
-    marginVertical: spacing(2)
-  }
+  loading: {}
 }))
 
 type WalletProps = {
@@ -115,36 +127,51 @@ const Wallet = ({ chain, address, audioBalance, isLoading }: WalletProps) => {
   }, [toast, address])
 
   return (
-    <View style={styles.linkedWallet}>
-      <View style={styles.linkedWalletKey}>
-        <View style={styles.chainIcon}>
-          {chain === Chain.Eth ? (
-            <LogoEth height={spacing(5)} width={spacing(5)} />
-          ) : (
-            <LogoSol height={spacing(5)} width={spacing(5)} />
-          )}
-        </View>
-        <TouchableOpacity style={styles.address} onPress={handlePressAddress}>
-          <Text ellipsizeMode='middle' numberOfLines={1}>
-            {address}
+    <>
+      <Divider style={styles.divider} />
+      <View style={styles.linkedWallet}>
+        <View style={styles.linkedWalletData}>
+          <View style={styles.linkedWalletKey}>
+            <View style={styles.chainIcon}>
+              {chain === Chain.Eth ? (
+                <LogoEth height={spacing(5)} width={spacing(5)} />
+              ) : (
+                <LogoSol height={spacing(5)} width={spacing(5)} />
+              )}
+            </View>
+            <TouchableOpacity
+              style={styles.address}
+              onPress={handlePressAddress}
+            >
+              <Text
+                fontSize='medium'
+                weight='demiBold'
+                ellipsizeMode='middle'
+                numberOfLines={1}
+              >
+                {address}
+              </Text>
+              <IconCopy style={styles.copyIcon} height={16} width={16} />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.audioAmount}>
+            {formatWei(audioBalance, true)}
           </Text>
-          <IconCopy style={styles.copyIcon} height={16} width={16} />
-        </TouchableOpacity>
+        </View>
+        {isLoading ? (
+          <LoadingSpinner style={styles.loading} />
+        ) : (
+          <IconButton
+            icon={IconRemoveTrack}
+            styles={{
+              root: styles.iconContainer,
+              icon: styles.removeIcon
+            }}
+            onPress={onRequestRemoveWallet}
+          />
+        )}
       </View>
-      <Text style={styles.audioAmount}>{formatWei(audioBalance, true)}</Text>
-      {isLoading ? (
-        <LoadingSpinner style={styles.loading} />
-      ) : (
-        <IconButton
-          icon={IconRemoveTrack}
-          styles={{
-            root: styles.iconContainer,
-            icon: styles.removeIcon
-          }}
-          onPress={onRequestRemoveWallet}
-        />
-      )}
-    </View>
+    </>
   )
 }
 
@@ -187,14 +214,39 @@ export const LinkedWallets = () => {
     }
   }, [toast, dispatch, errorMessage])
 
-  const wallets = [
-    ...(connectedEthWallets
-      ? connectedEthWallets.map((wallet) => ({ ...wallet, chain: Chain.Eth }))
-      : []),
-    ...(connectedSolWallets
-      ? connectedSolWallets.map((wallet) => ({ ...wallet, chain: Chain.Sol }))
-      : []),
-    { ...confirmingWallet, isConfirming: true }
+  // const wallets: Array<AssociatedWallet & { chain: Chain, isConfirming?: boolean }> = [
+  //   ...(connectedEthWallets
+  //     ? connectedEthWallets.map((wallet) => ({ ...wallet, chain: Chain.Eth }))
+  //     : []),
+  //   ...(connectedSolWallets
+  //     ? connectedSolWallets.map((wallet) => ({ ...wallet, chain: Chain.Sol }))
+  //     : [])
+  // ]
+  // if (confirmingWallet && confirmingWallet.wallet) {
+  //   wallets.push({
+  //     address: confirmingWallet.wallet,
+  //     balance: confirmingWallet.balance,
+  //     collectibleCount: confirmingWallet.collectibleCount || 0,
+  //     isConfirming: true
+  //   })
+  // }
+  const wallets: Array<
+    AssociatedWallet & { chain: Chain; isConfirming?: boolean }
+  > = [
+    {
+      chain: Chain.Eth,
+      address: '0x766Dc6025B055Cc6477b724E48Ef8B4cdcCF8Bc5',
+      balance: new BN('100000000000000000000'),
+      isConfirming: false,
+      collectibleCount: 0
+    },
+    {
+      chain: Chain.Sol,
+      address: '0x766Dc6025B055Cc6477b724E48Ef8B4cdcCF8Bc5',
+      balance: new BN('1000'),
+      isConfirming: false,
+      collectibleCount: 0
+    }
   ]
 
   if (!(wallets.length > 0)) {
@@ -205,7 +257,7 @@ export const LinkedWallets = () => {
     <View style={styles.root}>
       <View style={styles.linkedWalletsHeader}>
         <Text
-          fontSize='small'
+          fontSize='medium'
           textTransform='uppercase'
           weight='bold'
           color='neutralLight4'
@@ -213,7 +265,7 @@ export const LinkedWallets = () => {
           {messages.linkedWallets}
         </Text>
         <Text
-          fontSize='small'
+          fontSize='medium'
           textTransform='uppercase'
           weight='bold'
           color='neutralLight4'
@@ -221,7 +273,6 @@ export const LinkedWallets = () => {
           {messages.audio}
         </Text>
       </View>
-      <Divider style={styles.divider} />
       <FlatList
         renderItem={({ item }) => (
           <Wallet

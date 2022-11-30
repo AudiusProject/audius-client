@@ -29,8 +29,14 @@ const messages = {
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     marginTop: spacing(4),
-    marginBottom: spacing(2),
     marginHorizontal: spacing(4),
+    marginBottom: spacing(6),
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start'
+  },
+  container: {
+    marginTop: spacing(4),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start'
@@ -101,38 +107,40 @@ export const WalletsDrawer = () => {
           style={styles.title}
           fontSize='xl'
           weight='heavy'
-          textTransform='capitalize'
+          textTransform='uppercase'
         >
           {messages.title}
         </Text>
-        {supportedWalletServices.map(
-          (walletService: WalletService, i: number) => {
-            return (
-              <WalletOption
-                key={i}
-                name={walletService.name}
-                icon={
-                  <Image
-                    source={{
-                      // @ts-ignore: image_url is valid
-                      uri: `${walletService.image_url.sm}`
-                    }}
-                    onError={(error) => console.error(error)}
-                  />
-                }
-                onPress={() =>
-                  connectToWalletService?.(walletService, redirectUrl)
-                }
-              />
-            )
-          }
-        )}
-        <WalletOption
-          name='Phantom'
-          icon={<IconPhantom height={50} width={50} />}
-          onPress={handleConnectWallet}
-        />
-        {/* TODO: Add Solana Phone as an option */}
+        <View style={styles.container}>
+          {supportedWalletServices.map(
+            (walletService: WalletService, i: number) => {
+              return (
+                <WalletOption
+                  key={i}
+                  name={walletService.name}
+                  icon={
+                    <Image
+                      source={{
+                        // @ts-ignore: image_url is valid
+                        uri: `${walletService.image_url.sm}`
+                      }}
+                      onError={(error) => console.error(error)}
+                    />
+                  }
+                  onPress={() =>
+                    connectToWalletService?.(walletService, redirectUrl)
+                  }
+                />
+              )
+            }
+          )}
+          <WalletOption
+            name='Phantom'
+            icon={<IconPhantom height={50} width={50} />}
+            onPress={handleConnectWallet}
+          />
+          {/* TODO: Add Solana Phone as an option */}
+        </View>
       </View>
     </NativeDrawer>
   )
