@@ -23,6 +23,7 @@ import { ToastContext } from 'app/components/toast/ToastContext'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
+import { useThemeColors } from 'app/utils/theme'
 
 const { getAssociatedWallets, getRemoveWallet } = tokenDashboardPageSelectors
 const { requestRemoveWallet, resetStatus } = tokenDashboardPageActions
@@ -79,10 +80,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     alignItems: 'center'
   },
   copyIcon: {
-    lineHeight: 16,
     marginBottom: 2,
-    color: palette.accentGreen,
-    backgroundColor: 'red',
     marginLeft: 10
   },
   audioAmount: {
@@ -114,6 +112,7 @@ const Wallet = ({ chain, address, audioBalance, isLoading }: WalletProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const { toast } = useContext(ToastContext)
+  const { neutralLight4 } = useThemeColors()
 
   const { onOpen: onOpenConfirmationDrawer } = useDrawer('ConfirmRemoveWallet')
   const onRequestRemoveWallet = useCallback(() => {
@@ -151,7 +150,12 @@ const Wallet = ({ chain, address, audioBalance, isLoading }: WalletProps) => {
               >
                 {address}
               </Text>
-              <IconCopy style={styles.copyIcon} height={16} width={16} />
+              <IconCopy
+                fill={neutralLight4}
+                style={styles.copyIcon}
+                height={16}
+                width={16}
+              />
             </TouchableOpacity>
           </View>
           <Text style={styles.audioAmount}>
