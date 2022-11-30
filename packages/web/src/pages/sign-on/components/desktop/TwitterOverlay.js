@@ -126,7 +126,7 @@ const TwitterOverlay = (props) => {
                 <h2 className={styles.header}>{messages.header}</h2>
                 {displayInstagram && (
                   <InstagramButton
-                    className={styles.instagramButton}
+                    className={styles.socialButton}
                     textClassName={styles.btnText}
                     iconClassName={styles.btnIcon}
                     onClick={onClickInstagram}
@@ -137,7 +137,7 @@ const TwitterOverlay = (props) => {
                 )}
                 <TwitterAuthButton
                   showIcon={false}
-                  className={styles.twitterButton}
+                  className={styles.socialButton}
                   textLabel={messages.twitterButton}
                   textClassName={styles.btnText}
                   iconClassName={styles.btnIcon}
@@ -147,7 +147,7 @@ const TwitterOverlay = (props) => {
                 />
                 {isTikTokEnabled || true ? (
                   <TikTokButton
-                    className={styles.instagramButton}
+                    className={styles.socialButton}
                     textClassName={styles.btnText}
                     iconClassName={styles.btnIcon}
                     text={messages.tiktokButton}
