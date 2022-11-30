@@ -96,6 +96,10 @@ export const LinkedWallets = () => {
       : [])
   ]
 
+  if (!(wallets.length > 0)) {
+    return null
+  }
+
   return (
     <View style={styles.root}>
       <View style={styles.linkedWalletsHeader}>
