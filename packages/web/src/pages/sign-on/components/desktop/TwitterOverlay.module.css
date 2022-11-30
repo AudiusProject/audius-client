@@ -27,13 +27,14 @@
   padding: 16px 24px;
   margin-bottom: 24px;
   text-align: left;
+  font-size: var(--font-s);
+  line-height: 21px;
 }
 
 .tileHeader {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-weight: var(--font-bold);
   text-transform: uppercase;
-  font-size: var(--font-s);
 }
 
 .tileListItem {
@@ -47,6 +48,10 @@
   width: 24px;
   height: 24px;
   margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.tileListItemIconCircle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,6 +66,10 @@
 
 .tileListItemIcon svg path {
   fill: var(--white);
+}
+
+.buttonContainer {
+  margin-bottom: 16px;
 }
 
 /* Twitter Button */

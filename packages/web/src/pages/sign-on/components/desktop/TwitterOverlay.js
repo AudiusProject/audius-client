@@ -23,6 +23,9 @@ const messages = {
   importTileHeader: 'We will import these details',
   importTileItemHandle: 'Handle & Display Name',
   importTileItemPicture: 'Profile Picture & Cover Photo',
+  verifiedTileHeader: 'Verified?',
+  verifiedTileContent:
+    'If the linked account is verified, your Audius account will be verified to match!',
   manual: "I'd rather fill out my profile manually"
 }
 
@@ -52,7 +55,6 @@ const TwitterOverlay = (props) => {
   }
 
   const handleTikTokLogin = useCallback(() => {
-
     withTikTokAuth(async (accessToken) => {
       try {
         // Using TikTok v1 api because v2 does not have CORS headers set
@@ -121,49 +123,76 @@ const TwitterOverlay = (props) => {
                   </div>
                   <ul>
                     <li className={styles.tileListItem}>
-                      <div className={styles.tileListItemIcon}>
+                      <div
+                        className={cn(
+                          styles.tileListItemIcon,
+                          styles.tileListItemIconCircle
+                        )}
+                      >
                         <IconUser />
                       </div>
                       <span>{messages.importTileItemHandle}</span>
                     </li>
                     <li className={styles.tileListItem}>
-                      <div className={styles.tileListItemIcon}>
-                        <IconImage height={24} width={24} />
+                      <div
+                        className={cn(
+                          styles.tileListItemIcon,
+                          styles.tileListItemIconCircle
+                        )}
+                      >
+                        <IconImage />
                       </div>
                       <span>{messages.importTileItemPicture}</span>
                     </li>
                   </ul>
                 </div>
-                {displayInstagram && (
-                  <InstagramButton
+                <div className={styles.buttonContainer}>
+                  <TwitterAuthButton
+                    showIcon={false}
                     className={styles.socialButton}
+                    textLabel={messages.twitterButton}
                     textClassName={styles.btnText}
                     iconClassName={styles.btnIcon}
-                    onClick={onClickInstagram}
-                    onSuccess={props.onInstagramLogin}
+                    onClick={onClickTwitter}
+                    onSuccess={props.onTwitterLogin}
                     onFailure={props.onFailure}
-                    text={messages.instagramButton}
                   />
-                )}
-                <TwitterAuthButton
-                  showIcon={false}
-                  className={styles.socialButton}
-                  textLabel={messages.twitterButton}
-                  textClassName={styles.btnText}
-                  iconClassName={styles.btnIcon}
-                  onClick={onClickTwitter}
-                  onSuccess={props.onTwitterLogin}
-                  onFailure={props.onFailure}
-                />
-                {isTikTokEnabled || true ? (
-                  <TikTokButton
-                    className={styles.socialButton}
-                    textClassName={styles.btnText}
-                    iconClassName={styles.btnIcon}
-                    text={messages.tiktokButton}
-                    onClick={handleTikTokLogin}
-                  />
-                ) : null}
+                  {displayInstagram && (
+                    <InstagramButton
+                      className={styles.socialButton}
+                      textClassName={styles.btnText}
+                      iconClassName={styles.btnIcon}
+                      onClick={onClickInstagram}
+                      onSuccess={props.onInstagramLogin}
+                      onFailure={props.onFailure}
+                      text={messages.instagramButton}
+                    />
+                  )}
+                  {isTikTokEnabled || true ? (
+                    <TikTokButton
+                      className={styles.socialButton}
+                      textClassName={styles.btnText}
+                      iconClassName={styles.btnIcon}
+                      text={messages.tiktokButton}
+                      onClick={handleTikTokLogin}
+                    />
+                  ) : null}
+                </div>
+                <div className={styles.tile}>
+                  <div className={styles.tileHeader}>
+                    {messages.verifiedTileHeader}
+                  </div>
+                  <ul>
+                    <li className={styles.tileListItem}>
+                      <IconVerified
+                        height={24}
+                        width={24}
+                        className={styles.tileListItemIcon}
+                      />
+                      <span>{messages.verifiedTileContent}</span>
+                    </li>
+                  </ul>
+                </div>
                 <button
                   className={styles.manualText}
                   onClick={props.onToggleTwitterOverlay}
