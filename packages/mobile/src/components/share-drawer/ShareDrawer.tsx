@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useRef, useState } from 'react'
 import EventEmitter from 'events'
 import path from 'path'
 
+import type { Color } from '@audius/common'
 import {
   encodeHashId,
   FeatureFlags,
@@ -34,11 +35,14 @@ import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
 import DeprecatedText from 'app/components/text'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
+import { getDominantColors } from 'app/services/threads/getDominantColors'
 import { makeStyles } from 'app/styles'
+import { convertRGBToHex } from 'app/utils/convertRGBtoHex'
 import { reportToSentry } from 'app/utils/reportToSentry'
 import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import ActionDrawer from '../action-drawer'
+import { useTrackImage } from '../image/TrackImage'
 import { ToastContext } from '../toast/ToastContext'
 
 import { ShareToStorySticker } from './ShareToStorySticker'
@@ -98,6 +102,8 @@ const useStyles = makeStyles(({ palette }) => ({
 const stickerLoadedEventEmitter = new EventEmitter()
 const STICKER_LOADED_EVENT = 'loaded' as const
 
+const DEFAULT_DOMINANT_COLORS = ['000000', '434343']
+
 export const ShareDrawer = () => {
   const styles = useStyles()
   const viewShotRef = useRef() as React.RefObject<ViewShot>
@@ -130,7 +136,8 @@ export const ShareDrawer = () => {
     account &&
     account.user_id === content.artist.user_id
   const shareType = content?.type ?? 'track'
-
+  const { source: trackImageSource } = useTrackImage(content?.track)
+  const trackImageUri = trackImageSource[2]?.uri
   const captureStickerImage = useCallback(async () => {
     if (!isStickerImageLoadedRef.current) {
       // Wait for the sticker component and image inside it to load. If this hasn't happened in 5 seconds, assume that it failed.
@@ -186,14 +193,62 @@ export const ShareDrawer = () => {
       )
       const audioStartOffsetConfig =
         content.track.duration && content.track.duration >= 20 ? '-ss 10 ' : ''
-      let session: FFmpegSession
-      let stickerUri: string | undefined
+
+      let stickerUri: string | undefined // Have to capture the sticker image first because it doesn't work if you get the dominant colors first (mysterious).
+
       try {
-        ;[session, stickerUri] = await Promise.all([
+        stickerUri = await captureStickerImage()
+      } catch (e) {
+        reportToSentry({
+          level: ErrorLevel.Error,
+          error: new Error(e),
+          name: 'Share to IG Story error - generate sticker step'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
+        return
+      }
+      if (!stickerUri) {
+        reportToSentry({
+          level: ErrorLevel.Error,
+          error: new Error('Sticker screenshot unsuccessful'),
+          name: 'Share to IG Story error - generate sticker step (sticker undefined)'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
+        return
+      }
+      let dominantColorsResult: Color[]
+      let dominantColorHex1: string
+      let dominantColorHex2: string
+      if (trackImageUri) {
+        try {
+          dominantColorsResult = await getDominantColors(trackImageUri)
+        } catch (e) {
+          reportToSentry({
+            level: ErrorLevel.Error,
+            error: e,
+            name: 'Share to IG Story error - calculate dominant colors step'
+          })
+          toast({ content: messages.shareToStoryError, type: 'error' })
+          return
+        }
+
+        ;[dominantColorHex1, dominantColorHex2] = Array.isArray(
+          dominantColorsResult
+        )
+          ? [
+              convertRGBToHex(dominantColorsResult[0]),
+              convertRGBToHex(dominantColorsResult[1])
+            ]
+          : DEFAULT_DOMINANT_COLORS
+      } else {
+        ;[dominantColorHex1, dominantColorHex2] = DEFAULT_DOMINANT_COLORS
+      }
+      let session: FFmpegSession
+      try {
+        ;[session] = await Promise.all([
           FFmpegKit.execute(
-            `${audioStartOffsetConfig}-i ${streamMp3Url} -filter_complex "gradients=s=1080x1920:c0=000000:c1=434343:x0=0:x1=0:y0=0:y1=1920:duration=10:speed=0.0225:rate=60[bg];[0:a]aformat=channel_layouts=mono,showwaves=mode=cline:n=1:s=1080x200:scale=cbrt:colors=#ffffff[fg];[bg][fg]overlay=format=auto:x=0:y=H-h-100" -pix_fmt yuv420p -vb 50M -t 10 ${storyVideoPath}`
-          ),
-          captureStickerImage()
+            `${audioStartOffsetConfig}-i ${streamMp3Url} -filter_complex "gradients=s=1080x1920:c0=${dominantColorHex1}:c1=${dominantColorHex2}:duration=10:speed=0.0225:rate=60[bg];[0:a]aformat=channel_layouts=mono,showwaves=mode=cline:n=1:s=1080x200:scale=cbrt:colors=#ffffff[fg];[bg][fg]overlay=format=auto:x=0:y=H-h-100" -pix_fmt yuv420p -vb 50M -t 10 ${storyVideoPath}`
+          )
         ])
       } catch (e) {
         reportToSentry({
@@ -204,22 +259,15 @@ export const ShareDrawer = () => {
         toast({ content: messages.shareToStoryError, type: 'error' })
         return
       }
+
       const returnCode = await session.getReturnCode()
 
       if (!ReturnCode.isSuccess(returnCode)) {
         const output = await session.getOutput()
         reportToSentry({
           level: ErrorLevel.Error,
-          output,
+          error: new Error(output),
           name: 'Share to IG Story error - generate video background step'
-        })
-        toast({ content: messages.shareToStoryError, type: 'error' })
-        return
-      }
-      if (!stickerUri) {
-        reportToSentry({
-          level: ErrorLevel.Error,
-          name: 'Share to IG Story error - generate sticker step (sticker undefined)'
         })
         toast({ content: messages.shareToStoryError, type: 'error' })
         return
@@ -242,7 +290,13 @@ export const ShareDrawer = () => {
         toast({ content: messages.shareToStoryError, type: 'error' })
       }
     }
-  }, [content, captureStickerImage, toast, shouldRenderShareToStorySticker])
+  }, [
+    trackImageUri,
+    content,
+    captureStickerImage,
+    toast,
+    shouldRenderShareToStorySticker
+  ])
 
   const handleCopyLink = useCallback(() => {
     if (!content) return
@@ -374,6 +428,7 @@ export const ShareDrawer = () => {
           <ShareToStorySticker
             onLoad={handleShareToStoryStickerLoad}
             track={content.track}
+            // TODO(nkang): Not sure if this helps or hurts chances of successful image:
             // user={account}
             artist={content.artist}
           />
