@@ -1074,9 +1074,7 @@ function* recoverPurchaseIfNecessary() {
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
       if (
         audioBalance.gt(new BN(0)) &&
-        new BN(existingBalance)
-          .sub(new BN(rootAccountMinBalance))
-          .gt(new BN(5_000))
+        new BN(existingBalance).sub(new BN(rootAccountMinBalance)).gt(new BN(0))
       ) {
         yield* put(
           make(Name.BUY_AUDIO_RECOVERY_OPENED, {
