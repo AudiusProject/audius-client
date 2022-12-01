@@ -7,7 +7,6 @@ import {
   u64
 } from '@solana/spl-token'
 import {
-  Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
