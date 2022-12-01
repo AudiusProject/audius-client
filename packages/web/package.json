@@ -8,6 +8,7 @@
   "scripts": {
     "publish-scripts": "./scripts/publishScripts.sh",
     "start": "craco --max-old-space-size=8076 start",
+    "start:m1": "npm run write-sha && npm run publish-scripts && env-cmd --no-override ./.env/.env.m1 npm start",
     "start:dev": "npm run write-sha && npm run publish-scripts && env-cmd --no-override ./.env/.env.dev npm start",
     "start:stage": "npm run write-sha && npm run publish-scripts && env-cmd --no-override ./.env/.env.stage npm start",
     "start:prod": "npm run write-sha && npm run publish-scripts && env-cmd --no-override ./.env/.env.prod npm start",
