@@ -1120,6 +1120,7 @@ function* recoverPurchaseIfNecessary() {
         localStorageState?.transactionDetailsArgs?.transferTransactionId
       ) {
         // If we only failed to save the metadata, try that again
+        console.debug('Only need to resend metadata...')
         const metadata = yield* call(
           getUserBankTransactionMetadata,
           localStorageState.transactionDetailsArgs.transferTransactionId
