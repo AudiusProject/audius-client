@@ -1,5 +1,6 @@
-import React, { useCallback, useContext } from 'react'
+import React, { useCallback, useContext, useRef, useState } from 'react'
 
+import EventEmitter from 'events'
 import path from 'path'
 
 import {
@@ -11,14 +12,17 @@ import {
   usersSocialActions,
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
-  uuid
+  uuid,
+  ErrorLevel
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
+import type { FFmpegSession } from 'ffmpeg-kit-react-native'
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native'
 import { Linking, View } from 'react-native'
 import Config from 'react-native-config'
 import RNFS from 'react-native-fs'
 import Share from 'react-native-share'
+import ViewShot from 'react-native-view-shot'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
@@ -27,15 +31,17 @@ import IconShare from 'app/assets/images/iconShare.svg'
 import IconTikTok from 'app/assets/images/iconTikTok.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import Text from 'app/components/text'
+import DeprecatedText from 'app/components/text'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { makeStyles } from 'app/styles'
+import { reportToSentry } from 'app/utils/reportToSentry'
 import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import ActionDrawer from '../action-drawer'
 import { ToastContext } from '../toast/ToastContext'
 
+import { ShareToStorySticker } from './ShareToStorySticker'
 import { messages } from './messages'
 import { getContentUrl, getTwitterShareUrl } from './utils'
 const { getShareContent, getShareSource } = shareModalUISelectors
@@ -81,17 +87,36 @@ const useStyles = makeStyles(({ palette }) => ({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 24
+  },
+  viewShot: {
+    position: 'absolute',
+    // Position the container off-screen (264px is the width of the whole thing)
+    right: -264 - 5
   }
 }))
 
+const stickerLoadedEventEmitter = new EventEmitter()
+const STICKER_LOADED_EVENT = 'loaded' as const
+
 export const ShareDrawer = () => {
   const styles = useStyles()
+  const viewShotRef = useRef() as React.RefObject<ViewShot>
+  const [shouldRenderShareToStorySticker, setShouldRenderShareToStorySticker] =
+    useState(false)
+
   const { isEnabled: isShareToTikTokEnabled } = useFeatureFlag(
     FeatureFlags.SHARE_SOUND_TO_TIKTOK
   )
   const { isEnabled: isShareToInstagramStoryEnabled } = useFeatureFlag(
     FeatureFlags.SHARE_TO_STORY
   )
+
+  const isStickerImageLoadedRef = useRef(false)
+  const handleShareToStoryStickerLoad = () => {
+    isStickerImageLoadedRef.current = true
+    stickerLoadedEventEmitter.emit(STICKER_LOADED_EVENT)
+  }
+
   const { primary, secondary, neutral, staticTwitterBlue } = useThemeColors()
   const themeVariant = useThemeVariant()
   const isLightMode = themeVariant === Theme.DEFAULT
@@ -105,6 +130,31 @@ export const ShareDrawer = () => {
     account &&
     account.user_id === content.artist.user_id
   const shareType = content?.type ?? 'track'
+
+  const captureStickerImage = useCallback(async () => {
+    if (!isStickerImageLoadedRef.current) {
+      // Wait for the sticker component and image inside it to load. If this hasn't happened in 5 seconds, assume that it failed.
+      await Promise.race([
+        new Promise((resolve) =>
+          stickerLoadedEventEmitter.once(STICKER_LOADED_EVENT, resolve)
+        ),
+        new Promise((resolve) => {
+          setTimeout(resolve, 5000)
+        })
+      ])
+
+      if (!isStickerImageLoadedRef.current) {
+        // Loading the sticker failed; return undefined
+        throw new Error('The sticker component did not load successfully.')
+      }
+    }
+
+    let res: string | undefined
+    if (viewShotRef && viewShotRef.current && viewShotRef.current.capture) {
+      res = await viewShotRef.current.capture()
+    }
+    return res
+  }, [])
 
   const handleShareToTwitter = useCallback(async () => {
     if (!content) return
@@ -123,9 +173,11 @@ export const ShareDrawer = () => {
     }
   }, [content, dispatch])
 
-  // nkang: WIP, will probably be moved:
   const handleShareToInstagramStory = useCallback(async () => {
     if (content?.type === 'track') {
+      if (!shouldRenderShareToStorySticker) {
+        setShouldRenderShareToStorySticker(true)
+      }
       const encodedTrackId = encodeHashId(content.track.track_id)
       const streamMp3Url = apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
       const storyVideoPath = path.join(
@@ -134,23 +186,47 @@ export const ShareDrawer = () => {
       )
       const audioStartOffsetConfig =
         content.track.duration && content.track.duration >= 20 ? '-ss 10 ' : ''
-      const session = await FFmpegKit.execute(
-        `${audioStartOffsetConfig}-i ${streamMp3Url} -filter_complex "gradients=s=1080x1920:c0=000000:c1=434343:x0=0:x1=0:y0=0:y1=1920:duration=10:speed=0.0225:rate=60[bg];[0:a]aformat=channel_layouts=mono,showwaves=mode=cline:n=1:s=1080x200:scale=cbrt:colors=#ffffff[fg];[bg][fg]overlay=format=auto:x=0:y=1275" -pix_fmt yuv420p -vb 50M -t 10 ${storyVideoPath}`
-      )
-      // TODO(nkang): Add loading state
-      const returnCode = await session.getReturnCode()
-
-      if (ReturnCode.isSuccess(returnCode)) {
-      } else {
-        const output = await session.getOutput()
-        // TODO(nkang): Make this a toast?
-        console.error('Error sharing story: ', output)
+      let session: FFmpegSession
+      let stickerUri: string | undefined
+      try {
+        ;[session, stickerUri] = await Promise.all([
+          FFmpegKit.execute(
+            `${audioStartOffsetConfig}-i ${streamMp3Url} -filter_complex "gradients=s=1080x1920:c0=000000:c1=434343:x0=0:x1=0:y0=0:y1=1920:duration=10:speed=0.0225:rate=60[bg];[0:a]aformat=channel_layouts=mono,showwaves=mode=cline:n=1:s=1080x200:scale=cbrt:colors=#ffffff[fg];[bg][fg]overlay=format=auto:x=0:y=H-h-100" -pix_fmt yuv420p -vb 50M -t 10 ${storyVideoPath}`
+          ),
+          captureStickerImage()
+        ])
+      } catch (e) {
+        reportToSentry({
+          level: ErrorLevel.Error,
+          error: e,
+          name: 'Share to IG Story error'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
         return
       }
+      const returnCode = await session.getReturnCode()
 
+      if (!ReturnCode.isSuccess(returnCode)) {
+        const output = await session.getOutput()
+        reportToSentry({
+          level: ErrorLevel.Error,
+          output,
+          name: 'Share to IG Story error - generate video background step'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
+        return
+      }
+      if (!stickerUri) {
+        reportToSentry({
+          level: ErrorLevel.Error,
+          name: 'Share to IG Story error - generate sticker step (sticker undefined)'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
+        return
+      }
       const shareOptions = {
         backgroundVideo: storyVideoPath,
-        // stickerImage: image, TODO(nkang): Base64 sticker image goes here
+        stickerImage: stickerUri,
         attributionURL: Config.AUDIUS_URL,
         social: Share.Social.INSTAGRAM_STORIES,
         appId: Config.INSTAGRAM_APP_ID
@@ -158,11 +234,15 @@ export const ShareDrawer = () => {
       try {
         await Share.shareSingle(shareOptions)
       } catch (error) {
-        // TODO (nkang): Make this a toast?
-        console.error('Error sharing story: ', error)
+        reportToSentry({
+          level: ErrorLevel.Error,
+          error,
+          name: 'Share to IG Story error - share to IG step'
+        })
+        toast({ content: messages.shareToStoryError, type: 'error' })
       }
     }
-  }, [content])
+  }, [content, captureStickerImage, toast, shouldRenderShareToStorySticker])
 
   const handleCopyLink = useCallback(() => {
     if (!content) return
@@ -284,23 +364,39 @@ export const ShareDrawer = () => {
   ])
 
   return (
-    <ActionDrawer
-      modalName='Share'
-      rows={getRows()}
-      renderTitle={() => (
-        <View style={styles.title}>
-          <IconShare
-            style={styles.titleIcon}
-            fill={neutral}
-            height={18}
-            width={20}
+    <>
+      {shouldRenderShareToStorySticker ? (
+        <ViewShot
+          style={styles.viewShot}
+          ref={viewShotRef}
+          options={{ format: 'png' }}
+        >
+          <ShareToStorySticker
+            onLoad={handleShareToStoryStickerLoad}
+            track={content.track}
+            // user={account}
+            artist={content.artist}
           />
-          <Text weight='bold' style={styles.titleText}>
-            {messages.modalTitle(shareType)}
-          </Text>
-        </View>
-      )}
-      styles={{ row: styles.row }}
-    />
+        </ViewShot>
+      ) : null}
+      <ActionDrawer
+        modalName='Share'
+        rows={getRows()}
+        renderTitle={() => (
+          <View style={styles.title}>
+            <IconShare
+              style={styles.titleIcon}
+              fill={neutral}
+              height={18}
+              width={20}
+            />
+            <DeprecatedText weight='bold' style={styles.titleText}>
+              {messages.modalTitle(shareType)}
+            </DeprecatedText>
+          </View>
+        )}
+        styles={{ row: styles.row }}
+      />
+    </>
   )
 }
