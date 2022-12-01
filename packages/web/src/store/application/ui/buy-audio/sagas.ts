@@ -1112,7 +1112,11 @@ function* recoverPurchaseIfNecessary() {
             yield* call(populateAndSaveTransactionDetails)
           }
         } else {
-          throw new Error('User is bricked')
+          console.debug(
+            `OWNED: ${audioBalance.toString()} $AUDIO (spl wei) ${existingBalance.toString()} SOL (lamports)\n` +
+              `NEED: ${totalFees.toString()} SOL (lamports)`
+          )
+          throw new Error(`User is bricked`)
         }
       }
     }
