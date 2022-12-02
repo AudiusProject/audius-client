@@ -102,6 +102,7 @@ const ProfileForm = (props: ProfileFormProps) => {
     }
   }
 
+  // TODO: Handle tiktok here
   const suggestTwitterLogin = handle.error === 'twitterReserved'
   const suggestInstagramLogin = handle.error === 'instagramReserved'
 

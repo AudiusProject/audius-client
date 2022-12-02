@@ -248,6 +248,7 @@ function* validateHandle(action) {
     const handleInUse = !isEmpty(user)
 
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
+      // TODO: add tiktok here
       const [twitterUserQuery, instagramUser] = yield all([
         call(audiusBackendInstance.twitterHandle, handle),
         call(getInstagramUser, handle, remoteConfigInstance)

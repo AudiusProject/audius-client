@@ -197,7 +197,7 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
                       onFailure={onFailure}
                     />
                   )}
-                  {isTikTokEnabled || true ? (
+                  {isTikTokEnabled ? (
                     <TikTokButton
                       className={styles.socialButton}
                       textClassName={styles.btnText}
