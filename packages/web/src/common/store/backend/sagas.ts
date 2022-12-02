@@ -82,6 +82,7 @@ export function* setupBackend() {
   yield* put(accountActions.fetchAccount())
   const { web3Error, libsError } = yield* call(audiusBackendInstance.setup)
   if (libsError) {
+    alert('OH NO')
     yield* put(accountActions.fetchAccountFailed({ reason: 'LIBS_ERROR' }))
     yield* put(backendActions.setupBackendFailed())
     yield* put(backendActions.libsError(libsError))
