@@ -16,6 +16,10 @@
   margin: 20px auto;
 }
 
+.lowerDivider {
+  margin: 16px auto;
+}
+
 /* Twitter Button */
 .twitterOverlayContainer {
   padding-top: 72px;
@@ -47,9 +51,6 @@
   align-items: center;
 }
 
-.lowerDivider {
-  margin: 16px auto;
-}
 .twitterButton svg {
   height: 48px !important;
   width: 48px !important;
