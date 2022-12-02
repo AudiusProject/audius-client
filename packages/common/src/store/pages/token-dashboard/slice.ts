@@ -24,7 +24,8 @@ const initialState: TokenDashboardState = {
       wallet: null,
       chain: null,
       balance: null,
-      collectibleCount: null
+      collectibleCount: null,
+      signature: null
     },
     connectedSolWallets: null,
     errorMessage: null,
@@ -158,9 +159,20 @@ const slice = createSlice({
       state.associatedWallets.removeWallet.wallet = null
       state.associatedWallets.errorMessage = null
     },
+    addWallet: (state) => {
+      state.associatedWallets.status = 'Connecting'
+      state.associatedWallets.errorMessage = null
+    },
     connectNewWallet: (state) => {
       state.associatedWallets.status = 'Connecting'
       state.associatedWallets.errorMessage = null
+    },
+    addConnectedWallet: (
+      state,
+      action: PayloadAction<{ signature: string; publicKey: string }>
+    ) => {
+      state.associatedWallets.confirmingWallet.signature =
+        action.payload.signature
     },
     setIsConnectingWallet: (
       state,
@@ -276,6 +288,7 @@ const slice = createSlice({
 })
 
 export const {
+  addWallet,
   setModalState,
   setModalVisibility,
   pressReceive,

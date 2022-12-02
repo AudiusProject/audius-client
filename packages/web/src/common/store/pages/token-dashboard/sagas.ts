@@ -3,7 +3,8 @@ import {
   accountSelectors,
   tokenDashboardPageActions,
   getContext,
-  CollectibleState
+  CollectibleState,
+  tokenDashboardPageSelectors
 } from '@audius/common'
 import { call, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -12,10 +13,13 @@ import {
   fetchSolanaCollectiblesForWallets
 } from 'common/store/profile/sagas'
 import { waitForBackendAndAccount } from 'utils/sagaHelpers'
-const { fetchAssociatedWallets, setAssociatedWallets } =
+
+import { addNewSplWallet } from './addNewSplWallet'
+const { fetchAssociatedWallets, setAssociatedWallets, addWallet } =
   tokenDashboardPageActions
 
 const { getUserId } = accountSelectors
+const { getConfirmingWallet } = tokenDashboardPageSelectors
 
 function* fetchEthWalletInfo(wallets: string[]) {
   const walletClient = yield* getContext('walletClient')
@@ -99,8 +103,20 @@ function* watchGetAssociatedWallets() {
   yield* takeLatest(fetchAssociatedWallets.type, fetchAccountAssociatedWallets)
 }
 
+function* addNewWalletAsync() {
+  const confirmingWallet = yield* select(getConfirmingWallet)
+  const { chain } = confirmingWallet
+  if (chain === Chain.Sol) {
+    yield* call(addNewSplWallet)
+  }
+}
+
+function* watchAddWallet() {
+  yield* takeLatest(addWallet.type, addNewWalletAsync)
+}
+
 const sagas = () => {
-  return [watchGetAssociatedWallets]
+  return [watchGetAssociatedWallets, watchAddWallet]
 }
 
 export default sagas
