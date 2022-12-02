@@ -78,7 +78,7 @@ npm run android:stage
 npm run android:prod
 # on a physical device
 adb devices
-npm run android:<env> -- --deviceId "A38M608KHBK"
+npm run android:<env> -- --device "A38M608KHBK"
 
 # stems in watch mode
 npm run stems
