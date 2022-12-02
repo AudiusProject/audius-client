@@ -5,18 +5,23 @@ import {
   InstagramProfile,
   TwitterProfile,
   formatInstagramProfile,
-  formatTwitterProfile
+  formatTwitterProfile,
+  formatTikTokProfile,
+  TikTokProfile
 } from '@audius/common'
 import cn from 'classnames'
 
+import BackButton from 'components/back-button/BackButton'
 import { MAIN_CONTENT_ID } from 'pages/App'
-import ProfileForm from 'pages/sign-on/components/ProfileForm'
-import TwitterOverlay from 'pages/sign-on/components/mobile/TwitterOverlay'
+import ProfileForm, {
+  ProfileFormProps
+} from 'pages/sign-on/components/ProfileForm'
+import CompleteProfileWithSocial from 'pages/sign-on/components/desktop/CompleteProfileWithSocial'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
 import styles from './ProfilePage.module.css'
 
-const GENERAL_ADMISSION = process.env.REACT_APP_GENERAL_ADMISSION || ''
+const GENERAL_ADMISSION = process.env.REACT_APP_GENERAL_ADMISSION ?? ''
 
 const messages = {
   header: 'Tell Us About Yourself So Others Can Find You'
@@ -26,8 +31,6 @@ type ProfilePageProps = {
   profileImage?: AccountImage
   twitterId: any
   isVerified: boolean
-  name: { value: any; status: any; error: any }
-  handle: { value: any; status: any; error: any }
   onNextPage: () => void
   setTwitterProfile: (
     uuid: string,
@@ -42,9 +45,12 @@ type ProfilePageProps = {
     profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
-  onHandleChange: (handle: string) => void
-  onNameChange: (name: string) => void
-  setProfileImage: (img: AccountImage) => void
+  setTikTokProfile: (
+    uuid: string,
+    profile: TikTokProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => void
   recordTwitterStart: () => void
   recordInstagramStart: () => void
   validateHandle: (
@@ -52,7 +58,10 @@ type ProfilePageProps = {
     isOauthVerified: boolean,
     onValidate?: (error: boolean) => void
   ) => void
-}
+} & Pick<
+  ProfileFormProps,
+  'name' | 'handle' | 'onHandleChange' | 'onNameChange' | 'setProfileImage'
+>
 
 const ProfilePage = (props: ProfilePageProps) => {
   const {
@@ -69,13 +78,13 @@ const ProfilePage = (props: ProfilePageProps) => {
     recordInstagramStart,
     setTwitterProfile,
     setInstagramProfile,
+    setTikTokProfile,
     validateHandle
   } = props
 
-  // If the handle field is disabled, don't let the user twitter auth
-  const [showTwitterOverlay, setShowTwitterOverlay] = useState(
-    props.handle.status !== 'disabled'
-  )
+  // If the handle field is disabled, don't let the user social auth
+  const [showCompleteProfileWithSocial, setShowCompleteProfileWithSocial] =
+    useState(handle.status !== 'disabled')
   const [isInitial, setIsInitial] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const setLoading = useCallback(() => setIsLoading(true), [setIsLoading])
@@ -98,13 +107,13 @@ const ProfilePage = (props: ProfilePageProps) => {
     }
   }, [])
 
-  const onToggleTwitterOverlay = useCallback(() => {
-    setShowTwitterOverlay((show) => !show)
+  const onToggleCompleteProfileWithSocial = useCallback(() => {
+    setShowCompleteProfileWithSocial((show) => !show)
     setIsInitial(false)
   }, [])
 
   const getProfileValid = useCallback(() => {
-    return (
+    return !!(
       name.value &&
       (handle.status === 'success' || handle.status === 'disabled')
     )
@@ -131,14 +140,14 @@ const ProfilePage = (props: ProfilePageProps) => {
             profileBanner,
             !error && !requiresUserReview
           )
-          setShowTwitterOverlay(false)
+          setShowCompleteProfileWithSocial(false)
           setIsInitial(false)
           setIsLoading(false)
         }
       )
     } catch (err) {
       console.error(err)
-      setShowTwitterOverlay(false)
+      setShowCompleteProfileWithSocial(false)
       setIsInitial(false)
       setIsLoading(false)
     }
@@ -170,7 +179,30 @@ const ProfilePage = (props: ProfilePageProps) => {
     } catch (err) {
       // Continue if error
     } finally {
-      setShowTwitterOverlay(false)
+      setShowCompleteProfileWithSocial(false)
+      setIsInitial(false)
+      setIsLoading(false)
+    }
+  }
+
+  const onTikTokLogin = async (uuid: string, tikTokProfile: TikTokProfile) => {
+    try {
+      const { profile, profileImage, requiresUserReview } =
+        await formatTikTokProfile(tikTokProfile, resizeImage)
+      validateHandle(
+        profile.username,
+        profile.is_verified,
+        (error: boolean) => {
+          setTikTokProfile(
+            uuid,
+            profile,
+            profileImage,
+            !error && !requiresUserReview
+          )
+        }
+      )
+    } catch (err) {
+      setShowCompleteProfileWithSocial(false)
       setIsInitial(false)
       setIsLoading(false)
     }
@@ -191,44 +223,53 @@ const ProfilePage = (props: ProfilePageProps) => {
     handle.status === 'success'
   )
   const profileValid = getProfileValid()
+
   return (
     <div className={cn(styles.container)}>
-      <div
-        className={cn(styles.profileContentContainer, {
-          [styles.authOverlay]: showTwitterOverlay
-        })}
-      >
-        <TwitterOverlay
-          header={messages.header}
-          isMobile
+      {showCompleteProfileWithSocial ? (
+        <CompleteProfileWithSocial
+          isMobile={false}
           initial={isInitial}
           onClick={setLoading}
-          isLoading={isLoading}
           onFailure={setFinishedLoading}
-          showTwitterOverlay={showTwitterOverlay}
-          onTwitterStart={recordTwitterStart}
-          onInstagramStart={recordInstagramStart}
-          onTwitterLogin={onTwitterLogin}
           onInstagramLogin={onInstagramLogin}
-          onToggleTwitterOverlay={onToggleTwitterOverlay}
-        />
-        <ProfileForm
-          isMobile
-          header={messages.header}
-          profileImage={profileImage}
-          name={name}
+          onInstagramStart={recordInstagramStart}
+          onTikTokLogin={onTikTokLogin}
+          onToggleVisible={onToggleCompleteProfileWithSocial}
           onTwitterLogin={onTwitterLogin}
-          onToggleTwitterOverlay={onToggleTwitterOverlay}
-          canUpdateHandle={canUpdateHandle}
-          handle={handle}
-          setProfileImage={setProfileImage}
-          profileValid={profileValid}
-          onHandleKeyDown={onHandleKeyDown}
-          onHandleChange={onHandleChange}
-          onNameChange={onNameChange}
-          onContinue={onContinue}
+          onTwitterStart={recordTwitterStart}
+          showCompleteProfileWithSocial={showCompleteProfileWithSocial}
         />
-      </div>
+      ) : (
+        <>
+          <h2 className={styles.header}>{messages.header}</h2>
+          <BackButton
+            light
+            onClickBack={onToggleCompleteProfileWithSocial}
+            className={cn(styles.backButton, {
+              [styles.hide]: showCompleteProfileWithSocial
+            })}
+          />
+          <div className={styles.profileContentContainer}>
+            <ProfileForm
+              canUpdateHandle={canUpdateHandle}
+              handle={handle}
+              header={messages.header}
+              name={name}
+              onContinue={onContinue}
+              onHandleChange={onHandleChange}
+              onHandleKeyDown={onHandleKeyDown}
+              onInstagramLogin={onInstagramLogin}
+              onNameChange={onNameChange}
+              onToggleTwitterOverlay={onToggleCompleteProfileWithSocial}
+              onTwitterLogin={onTwitterLogin}
+              profileImage={profileImage}
+              profileValid={profileValid}
+              setProfileImage={setProfileImage}
+            />
+          </div>
+        </>
+      )}
     </div>
   )
 }

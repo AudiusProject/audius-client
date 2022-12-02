@@ -1,9 +1,14 @@
 import { useCallback } from 'react'
 
-import { BooleanKeys, FeatureFlags } from '@audius/common'
+import {
+  BooleanKeys,
+  FeatureFlags,
+  TwitterProfile,
+  InstagramProfile,
+  TikTokProfile
+} from '@audius/common'
 import { IconImage, IconUser, IconVerified } from '@audius/stems'
 import cn from 'classnames'
-import PropTypes from 'prop-types'
 import { Transition } from 'react-spring/renderprops'
 
 import InstagramButton from 'components/instagram-button/InstagramButton'
@@ -13,7 +18,7 @@ import TwitterAuthButton from 'components/twitter-auth/TwitterAuthButton'
 import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 
-import styles from './TwitterOverlay.module.css'
+import styles from './CompleteProfileWithSocial.module.css'
 
 const messages = {
   instagramButton: 'Complete with Instagram',
@@ -29,8 +34,34 @@ const messages = {
   manual: "I'd rather fill out my profile manually"
 }
 
-const TwitterOverlay = (props) => {
-  const { onTikTokLogin } = props
+type TwitterOverlayProps = {
+  initial: boolean
+  isMobile: boolean
+  onClick: () => void
+  onFailure: () => void
+  onInstagramLogin: (uuid: string, profile: InstagramProfile) => Promise<void>
+  onInstagramStart: () => void
+  onTikTokLogin: (uuid: string, profile: TikTokProfile) => void
+  onToggleVisible: () => void
+  onTwitterLogin: (res: Body) => Promise<void>
+  onTwitterStart: () => void
+  showCompleteProfileWithSocial: boolean
+}
+
+const CompleteProfileWithSocial = (props: TwitterOverlayProps) => {
+  const {
+    initial,
+    isMobile,
+    onClick,
+    onFailure,
+    onInstagramLogin,
+    onInstagramStart,
+    onTikTokLogin,
+    onToggleVisible,
+    onTwitterLogin,
+    onTwitterStart,
+    showCompleteProfileWithSocial
+  } = props
   const { isEnabled: isTikTokEnabled } = useFlag(
     FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
   )
@@ -39,23 +70,21 @@ const TwitterOverlay = (props) => {
   )
 
   const withTikTokAuth = useTikTokAuth({
-    onError: () => {
-      // TODO
-    }
+    onError: onFailure
   })
 
   const onClickTwitter = () => {
-    props.onTwitterStart()
-    props.onClick()
+    onTwitterStart()
+    onClick()
   }
 
   const onClickInstagram = () => {
-    props.onInstagramStart()
-    props.onClick()
+    onInstagramStart()
+    onClick()
   }
 
   const handleTikTokLogin = useCallback(() => {
-    withTikTokAuth(async (accessToken) => {
+    withTikTokAuth(async (accessToken: string) => {
       try {
         // Using TikTok v1 api because v2 does not have CORS headers set
         const result = await fetch(
@@ -86,8 +115,8 @@ const TwitterOverlay = (props) => {
   // TODO: doesn't need to be abs positioned anymore
   return (
     <Transition
-      items={props.showTwitterOverlay}
-      from={{ opacity: props.initial ? 1 : 0 }}
+      items={showCompleteProfileWithSocial}
+      from={{ opacity: initial ? 1 : 0 }}
       enter={{ opacity: 1 }}
       leave={{ opacity: 0 }}
       config={{ duration: 100 }}
@@ -106,14 +135,14 @@ const TwitterOverlay = (props) => {
               height: '100%'
             }}
           >
-            {props.isLoading || !props.showTwitterOverlay ? (
+            {!showCompleteProfileWithSocial ? (
               <div className={styles.loadingContainer}>
                 <LoadingSpinner className={styles.loadingSpinner} />
               </div>
             ) : (
               <div
                 className={cn(styles.twitterOverlayContainer, {
-                  [styles.isMobile]: props.isMobile
+                  [styles.isMobile]: isMobile
                 })}
               >
                 <h2 className={styles.header}>{messages.header}</h2>
@@ -148,14 +177,13 @@ const TwitterOverlay = (props) => {
                 </div>
                 <div className={styles.buttonContainer}>
                   <TwitterAuthButton
-                    showIcon={false}
                     className={styles.socialButton}
                     textLabel={messages.twitterButton}
                     textClassName={styles.btnText}
                     iconClassName={styles.btnIcon}
                     onClick={onClickTwitter}
-                    onSuccess={props.onTwitterLogin}
-                    onFailure={props.onFailure}
+                    onSuccess={onTwitterLogin}
+                    onFailure={onFailure}
                   />
                   {displayInstagram && (
                     <InstagramButton
@@ -163,9 +191,9 @@ const TwitterOverlay = (props) => {
                       textClassName={styles.btnText}
                       iconClassName={styles.btnIcon}
                       onClick={onClickInstagram}
-                      onSuccess={props.onInstagramLogin}
-                      onFailure={props.onFailure}
+                      onSuccess={onInstagramLogin}
                       text={messages.instagramButton}
+                      onFailure={onFailure}
                     />
                   )}
                   {isTikTokEnabled || true ? (
@@ -193,10 +221,7 @@ const TwitterOverlay = (props) => {
                     </li>
                   </ul>
                 </div>
-                <button
-                  className={styles.manualText}
-                  onClick={props.onToggleTwitterOverlay}
-                >
+                <button className={styles.manualText} onClick={onToggleVisible}>
                   {messages.manual}
                 </button>
               </div>
@@ -207,21 +232,4 @@ const TwitterOverlay = (props) => {
     </Transition>
   )
 }
-
-TwitterOverlay.propTypes = {
-  showTwitterOverlay: PropTypes.bool,
-  initial: PropTypes.bool,
-  onClick: PropTypes.func,
-  onTwitterStart: PropTypes.func,
-  onInstagramStart: PropTypes.func,
-  onTwitterLogin: PropTypes.func,
-  onInstagramLogin: PropTypes.func,
-  isMobile: PropTypes.bool
-}
-
-TwitterOverlay.defaultProps = {
-  initial: false,
-  isMobile: false
-}
-
-export default TwitterOverlay
+export default CompleteProfileWithSocial
