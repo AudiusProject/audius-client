@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, KeyboardEvent } from 'react'
+import { useState, useCallback, KeyboardEvent } from 'react'
 
 import {
   AccountImage,
@@ -12,7 +12,6 @@ import {
 import cn from 'classnames'
 
 import BackButton from 'components/back-button/BackButton'
-import { MAIN_CONTENT_ID } from 'pages/App'
 import ProfileForm, {
   ProfileFormProps
 } from 'pages/sign-on/components/ProfileForm'
@@ -92,20 +91,6 @@ const ProfilePage = (props: ProfilePageProps) => {
     () => setIsLoading(false),
     [setIsLoading]
   )
-
-  /**
-   * The margin top causes a secondary scroll for mobile web causing the container to be larger than 100vh
-   * This removes the margin top to make the container height 100vh
-   */
-  useEffect(() => {
-    const mainContent = document.getElementById(MAIN_CONTENT_ID)
-    if (mainContent) {
-      mainContent.classList.add(styles.removeMarginTop)
-      return () => {
-        mainContent.classList.remove(styles.removeMarginTop)
-      }
-    }
-  }, [])
 
   const onToggleCompleteProfileWithSocial = useCallback(() => {
     setShowCompleteProfileWithSocial((show) => !show)

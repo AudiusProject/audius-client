@@ -46,6 +46,10 @@
   display: inline-flex;
   align-items: center;
 }
+
+.lowerDivider {
+  margin: 16px auto;
+}
 .twitterButton svg {
   height: 48px !important;
   width: 48px !important;
