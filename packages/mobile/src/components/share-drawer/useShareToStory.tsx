@@ -3,7 +3,7 @@ import { useCallback, useContext, useRef, useState } from 'react'
 import EventEmitter from 'events'
 import path from 'path'
 
-import type { Color, ShareModalContent } from '@audius/common'
+import type { Color, Nullable, ShareModalContent } from '@audius/common'
 import { encodeHashId, ErrorLevel, uuid } from '@audius/common'
 import {
   activateKeepAwake,
@@ -34,7 +34,7 @@ export const useShareToStory = ({
   content,
   viewShotRef
 }: {
-  content: ShareModalContent
+  content: Nullable<ShareModalContent>
   viewShotRef: React.RefObject<ViewShot>
 }) => {
   const { toast } = useContext(ToastContext)
