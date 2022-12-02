@@ -24,25 +24,22 @@ type ShareToStoryStickerProps = {
   onLoad: () => void
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
     width: 264,
     backgroundColor: palette.staticWhite,
-    paddingTop: 16,
-    paddingBottom: 18,
-    paddingHorizontal: 12,
-    display: 'flex',
+    paddingTop: spacing(4),
+    paddingBottom: spacing(4.5),
+    paddingHorizontal: spacing(3),
     borderRadius: 8
   },
   infoContainer: {
-    marginBottom: 8,
-    display: 'flex',
+    marginBottom: spacing(2),
     flexDirection: 'row',
     alignItems: 'center'
   },
   belowDividerContainer: {
-    marginTop: 10,
-    display: 'flex',
+    marginTop: spacing(2.5),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
