@@ -217,6 +217,7 @@ const ProfilePage = (props: ProfilePageProps) => {
           header={messages.header}
           profileImage={profileImage}
           name={name}
+          onInstagramLogin={onInstagramLogin}
           onTwitterLogin={onTwitterLogin}
           onToggleTwitterOverlay={onToggleTwitterOverlay}
           canUpdateHandle={canUpdateHandle}

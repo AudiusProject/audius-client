@@ -3,7 +3,6 @@ import { useCallback } from 'react'
 import {
   BooleanKeys,
   FeatureFlags,
-  TwitterProfile,
   InstagramProfile,
   TikTokProfile
 } from '@audius/common'
@@ -34,8 +33,9 @@ const messages = {
   manual: "I'd rather fill out my profile manually"
 }
 
-type TwitterOverlayProps = {
+type CompleteProfileWithSocialProps = {
   initial: boolean
+  isLoading: boolean
   isMobile: boolean
   onClick: () => void
   onFailure: () => void
@@ -48,9 +48,10 @@ type TwitterOverlayProps = {
   showCompleteProfileWithSocial: boolean
 }
 
-const CompleteProfileWithSocial = (props: TwitterOverlayProps) => {
+const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
   const {
     initial,
+    isLoading,
     isMobile,
     onClick,
     onFailure,
@@ -135,7 +136,7 @@ const CompleteProfileWithSocial = (props: TwitterOverlayProps) => {
               height: '100%'
             }}
           >
-            {!showCompleteProfileWithSocial ? (
+            {isLoading || !showCompleteProfileWithSocial ? (
               <div className={styles.loadingContainer}>
                 <LoadingSpinner className={styles.loadingSpinner} />
               </div>

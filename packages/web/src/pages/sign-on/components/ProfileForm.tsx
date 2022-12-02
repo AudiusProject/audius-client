@@ -54,7 +54,7 @@ export type ProfileFormProps = {
   onInstagramLogin: InstagramAuthProps['onSuccess']
   onHandleChange: (value: any) => void
   onHandleKeyDown: KeyboardEventHandler
-  onNameChange: () => void
+  onNameChange: (name: string) => void
   onToggleTwitterOverlay: () => void
   onTwitterLogin: TwitterAuthProps['onSuccess']
   // TODO: type profileImage
@@ -209,8 +209,8 @@ const ProfileForm = (props: ProfileFormProps) => {
               <div style={animProps} className={styles.suggestTwitter}>
                 <TwitterLogin
                   onFailure={console.log}
-                  onSuccess={onTwitterLogin}
-                  className={styles.hideTwitterButton}
+                  onSuccess={onTwitterLogin as any}
+                  // className={styles.hideTwitterButton}
                   requestTokenUrl={`${audiusBackendInstance.identityServiceUrl}/twitter`}
                   loginUrl={`${audiusBackendInstance.identityServiceUrl}/twitter/callback`}
                 >

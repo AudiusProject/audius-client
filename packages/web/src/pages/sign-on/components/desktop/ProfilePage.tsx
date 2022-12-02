@@ -174,6 +174,8 @@ const ProfilePage = (props: ProfilePageProps) => {
             profileImage,
             !error && !requiresUserReview
           )
+          setShowCompleteProfileWithSocial(false)
+          setIsInitial(false)
         }
       )
     } catch (err) {
@@ -199,6 +201,9 @@ const ProfilePage = (props: ProfilePageProps) => {
             profileImage,
             !error && !requiresUserReview
           )
+          setShowCompleteProfileWithSocial(false)
+          setIsInitial(false)
+          setIsLoading(false)
         }
       )
     } catch (err) {
@@ -228,6 +233,7 @@ const ProfilePage = (props: ProfilePageProps) => {
     <div className={cn(styles.container)}>
       {showCompleteProfileWithSocial ? (
         <CompleteProfileWithSocial
+          isLoading={isLoading}
           isMobile={false}
           initial={isInitial}
           onClick={setLoading}
