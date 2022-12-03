@@ -19,17 +19,14 @@ const slice = createSlice({
   initialState,
   reducers: {
     setProgress: (state, action: PayloadAction<number>) => {
-      console.log('setting progress to', action.payload)
       state.progress = action.payload
     },
     setCancel: (state, action: PayloadAction<() => Promise<void>>) => {
       state.cancel = action.payload
     },
     reset: (state) => {
-      console.log('resetting')
       state.progress = 0
       state.cancel = initialState.cancel
-      console.log('reset to', state.progress)
     }
   }
 })
