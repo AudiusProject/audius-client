@@ -60,11 +60,11 @@ export const WalletConnectScreen = () => {
   useEffect(() => {
     if (!params) return
     if (params.path === 'wallet-connect') {
-      dispatch(connectNewWallet(params))
+      dispatch(connectNewWallet({ connector, ...params }))
     } else if (params.path === 'wallet-sign-message') {
       dispatch(signMessage(params))
     }
-  }, [params?.path, params, dispatch])
+  }, [params?.path, params, dispatch, connector])
 
   const handleConnectWallet = useCallback(() => {
     connector.connect()
