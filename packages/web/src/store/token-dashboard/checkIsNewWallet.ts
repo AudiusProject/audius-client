@@ -1,4 +1,5 @@
 import {
+  Chain,
   getContext,
   tokenDashboardPageActions,
   tokenDashboardPageSelectors
@@ -8,7 +9,7 @@ import { call, put, select } from 'typed-redux-saga'
 const { getAssociatedWallets } = tokenDashboardPageSelectors
 const { updateWalletError } = tokenDashboardPageActions
 
-export function* checkIsNewWallet(walletAddress: string) {
+export function* checkIsNewWallet(walletAddress: string, chain: Chain) {
   const apiClient = yield* getContext('apiClient')
   const { connectedEthWallets, connectedSolWallets } = yield* select(
     getAssociatedWallets
@@ -21,14 +22,12 @@ export function* checkIsNewWallet(walletAddress: string) {
     }
   )
 
-  const associatedWallets = [
-    ...(connectedEthWallets ?? []),
-    ...(connectedSolWallets ?? [])
-  ]
+  const associatedWallets =
+    chain === Chain.Eth ? connectedEthWallets : connectedSolWallets
 
   if (
     associatedUserId ||
-    associatedWallets.some(({ address }) => address === walletAddress)
+    associatedWallets?.some(({ address }) => address === walletAddress)
   ) {
     // The wallet already exists in the associated wallets set
     yield* put(

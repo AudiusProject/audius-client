@@ -50,9 +50,14 @@ function* disconnectPhantomWallet(connection: PhantomWalletConnection) {
 }
 
 export function* disconnectWallet(connection: WalletConnection) {
-  if (connection.chain === Chain.Eth) {
-    yield* call(disconnectEthWallet, connection)
-  } else {
-    yield* call(disconnectPhantomWallet, connection)
+  switch (connection.chain) {
+    case Chain.Eth: {
+      yield* call(disconnectEthWallet, connection)
+      break
+    }
+    case Chain.Sol: {
+      yield* call(disconnectPhantomWallet, connection)
+      break
+    }
   }
 }

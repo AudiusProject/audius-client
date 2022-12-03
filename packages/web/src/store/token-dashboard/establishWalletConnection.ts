@@ -56,7 +56,7 @@ export function* establishWalletConnection() {
     if (provider === window.solana) {
       return { chain: Chain.Sol, provider }
     } else {
-      return { chain: Chain.Sol, provider: web3Instance }
+      return { chain: Chain.Eth, provider: web3Instance }
     }
   } catch (error) {
     // if error is "Cannot use 'in' operator to search for 'message' in Modal closed by user",

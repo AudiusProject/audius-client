@@ -1,18 +1,19 @@
 import { tokenDashboardPageActions } from '@audius/common'
 import { put, takeEvery } from 'typed-redux-saga'
 
+import { addWalletToUser } from './addWalletToUser'
 import { associateNewWallet } from './associateNewWallet'
 import { checkIsNewWallet } from './checkIsNewWallet'
+import { disconnectWallet } from './disconnectWallet'
 import { establishWalletConnection } from './establishWalletConnection'
 import { getWalletAddress } from './getWalletAddress'
 import { getWalletInfo } from './getWalletInfo'
 import { signMessage } from './signMessage'
-import { transactAddWallet } from './transactAddWallet'
-const { addWallet } = tokenDashboardPageActions
+const { connectNewWallet } = tokenDashboardPageActions
 
 const { setIsConnectingWallet } = tokenDashboardPageActions
 
-function* handleAddWallet() {
+function* handleConnectNewWallet() {
   const connection = yield* establishWalletConnection()
   if (!connection) return
 
@@ -21,7 +22,7 @@ function* handleAddWallet() {
   const walletAddress = yield* getWalletAddress(connection)
   if (!walletAddress) return
 
-  const isNewWallet = yield* checkIsNewWallet(walletAddress)
+  const isNewWallet = yield* checkIsNewWallet(walletAddress, chain)
   if (!isNewWallet) return
 
   const { balance, collectibleCount } = yield* getWalletInfo(
@@ -39,14 +40,13 @@ function* handleAddWallet() {
   )
 
   const signature = yield* signMessage(connection)
-  const updatedUserMetadata = yield* associateNewWallet(
-    walletAddress,
-    signature
-  )
+  const updatedUserMetadata = yield* associateNewWallet(signature)
 
-  yield* transactAddWallet(updatedUserMetadata, () => {})
+  const disconnect = () => disconnectWallet(connection)
+
+  yield* addWalletToUser(updatedUserMetadata, disconnect)
 }
 
-export function* watchAddwallet() {
-  yield* takeEvery(addWallet, handleAddWallet)
+export function* watchConnectNewWallet() {
+  yield* takeEvery(connectNewWallet.type, handleConnectNewWallet)
 }

@@ -4,7 +4,6 @@ import {
   getContext,
   Kind,
   tokenDashboardPageActions,
-  tokenDashboardPageSelectors,
   User,
   walletActions
 } from '@audius/common'
@@ -17,13 +16,12 @@ import { getAccountMetadataCID } from './getAccountMetadataCID'
 const { getUserId } = accountSelectors
 const { getBalance } = walletActions
 const { setWalletAddedConfirmed, updateWalletError } = tokenDashboardPageActions
-const { getConfirmingWallet } = tokenDashboardPageSelectors
 
 const CONNECT_WALLET_CONFIRMATION_UID = 'CONNECT_WALLET'
 
-export function* transactAddWallet(
+export function* addWalletToUser(
   updatedMetadata: User,
-  disconnect: () => void
+  disconnect: () => Generator
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const accountUserId = yield* select(getUserId)
@@ -36,7 +34,9 @@ export function* transactAddWallet(
       accountUserId!
     )
     if (!result) {
-      return
+      throw new Error(
+        `Could not confirm connect wallet for account user id ${accountUserId}`
+      )
     }
     const { blockHash, blockNumber } = result
 
@@ -46,32 +46,16 @@ export function* transactAddWallet(
         `Could not confirm connect wallet for account user id ${accountUserId}`
       )
     }
-
-    const updatedWallets = updatedMetadata.associated_sol_wallets
-    return Object.keys(updatedWallets)
   }
 
   function* onSuccess() {
-    const confirmingWallet = yield* select(getConfirmingWallet)
-    const {
-      wallet: walletAddress,
-      balance,
-      collectibleCount,
-      chain
-    } = confirmingWallet
-    if (!walletAddress || !balance || !collectibleCount || !chain) return
     // Update the user's balance w/ the new wallet
     yield* put(getBalance())
 
-    yield* put(
-      setWalletAddedConfirmed({
-        wallet: walletAddress,
-        balance,
-        collectibleCount,
-        chain
-      })
-    )
+    yield* put(setWalletAddedConfirmed({}))
+
     const updatedCID = yield* call(getAccountMetadataCID)
+
     if (updatedCID) {
       yield* put(
         cacheActions.update(Kind.USERS, [
@@ -82,6 +66,7 @@ export function* transactAddWallet(
         ])
       )
     }
+
     // Disconnect the web3 instance because after we've linked, we no longer need it
     yield* call(disconnect)
   }
