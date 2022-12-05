@@ -1,4 +1,4 @@
-import { useCallback, useContext, useRef, useState } from 'react'
+import { useCallback, useContext, useMemo, useRef, useState } from 'react'
 
 import EventEmitter from 'events'
 import path from 'path'
@@ -340,6 +340,13 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 export const ShareToStoryProgressDrawer = () => {
   const styles = useStyles()
+  const progressBarStyles = useMemo(
+    () => ({
+      root: styles.progressBarContainer,
+      progress: styles.progressBar
+    }),
+    [styles.progressBar, styles.progressBarContainer]
+  )
   const { neutralLight2 } = useThemeColors()
   const progress = useSelector(getProgressPercentage)
   const cancel = useSelector(getCancel)
@@ -368,11 +375,7 @@ export const ShareToStoryProgressDrawer = () => {
           </View>
         </View>
         <View style={styles.progress}>
-          <LinearProgress
-            value={progress}
-            progressStyle={styles.progressBar}
-            containerStyle={styles.progressBarContainer}
-          />
+          <LinearProgress value={progress} styles={progressBarStyles} />
         </View>
         <Text weight='medium' fontSize={'large'} style={styles.subtitleText}>
           {messages.loadingInstagramStorySubtitle}

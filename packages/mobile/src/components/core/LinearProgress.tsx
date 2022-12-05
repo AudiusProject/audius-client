@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native'
+import type { LayoutChangeEvent, ViewStyle } from 'react-native'
 import { Animated, View } from 'react-native'
 
+import type { StylesProp } from 'app/styles'
 import { makeStyles } from 'app/styles'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
@@ -22,16 +23,14 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 type LinearProgressProps = {
   value: number
-  containerStyle?: StyleProp<ViewStyle>
-  progressStyle: StyleProp<ViewStyle>
+  styles?: StylesProp<{
+    root: ViewStyle
+    progress: ViewStyle
+  }>
 }
 
 export const LinearProgress = (props: LinearProgressProps) => {
-  const {
-    value,
-    containerStyle: rootStyleProp,
-    progressStyle: progressStyleProp
-  } = props
+  const { value, styles: stylesProp } = props
   const styles = useStyles()
   const [barWidth, setBarWidth] = useState(0)
   const progress = useRef(new Animated.Value(value))
@@ -60,9 +59,9 @@ export const LinearProgress = (props: LinearProgressProps) => {
   }, [value])
 
   return (
-    <View style={[styles.root, rootStyleProp]} onLayout={handleGetBarWidth}>
+    <View style={[styles.root, stylesProp?.root]} onLayout={handleGetBarWidth}>
       <Animated.View
-        style={[styles.progressBar, progressBarStyles, progressStyleProp]}
+        style={[styles.progressBar, progressBarStyles, stylesProp?.progress]}
       />
     </View>
   )
