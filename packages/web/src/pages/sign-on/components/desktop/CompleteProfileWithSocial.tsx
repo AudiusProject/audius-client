@@ -104,7 +104,6 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
           }
         )
         const resultJson = await result.json()
-        console.log(resultJson)
         const tikTokProfile = resultJson.data.user
         onTikTokLogin(tikTokProfile.open_id, tikTokProfile)
       } catch (e) {

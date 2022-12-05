@@ -96,15 +96,15 @@ const TwitterAuth = (props: TwitterAuthProps) => {
   }
 
   const polling = (popup: Window) => {
-    const polling = setInterval(() => {
+    const pollingInterval = setInterval(() => {
       if (!popup || popup.closed || popup.closed === undefined) {
-        clearInterval(polling)
+        clearInterval(pollingInterval)
         onFailure(new Error('Popup has been closed by user'))
         return
       }
 
       const closeDialog = () => {
-        clearInterval(polling)
+        clearInterval(pollingInterval)
         popup.close()
       }
       try {

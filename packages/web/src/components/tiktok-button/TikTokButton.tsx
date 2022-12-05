@@ -22,11 +22,9 @@ export const TikTokButton = (props: TikTokButtonProps) => {
     <Button
       type={ButtonType.PRIMARY_ALT}
       leftIcon={<IconTikTokInverted className={styles.icon} />}
-      className={cn(styles.button, styles.includeHoverAnimations, {
-        [className!]: !!className
-      })}
-      textClassName={cn(styles.text, { [textClassName!]: !!textClassName })}
-      iconClassName={cn(styles.icon, { [iconClassName!]: !!iconClassName })}
+      className={cn(styles.button, styles.includeHoverAnimations, className)}
+      textClassName={cn(styles.text, textClassName)}
+      iconClassName={cn(styles.icon, iconClassName)}
       size={ButtonSize.MEDIUM}
       text={text}
       onClick={onClick ?? (() => {})}

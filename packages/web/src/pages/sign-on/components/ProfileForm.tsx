@@ -211,7 +211,8 @@ const ProfileForm = (props: ProfileFormProps) => {
                 <TwitterLogin
                   onFailure={console.log}
                   onSuccess={onTwitterLogin as any}
-                  // className={styles.hideTwitterButton}
+                  /* @ts-ignore */
+                  className={styles.hideTwitterButton}
                   requestTokenUrl={`${audiusBackendInstance.identityServiceUrl}/twitter`}
                   loginUrl={`${audiusBackendInstance.identityServiceUrl}/twitter/callback`}
                 >
