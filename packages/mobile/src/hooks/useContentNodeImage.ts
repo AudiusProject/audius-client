@@ -126,7 +126,6 @@ export const useContentNodeImage = ({
   }, [cid, endpoints, localSource, sizes])
 
   const handleError = useCallback(() => {
-    console.log('handleError called', imageSources[imageSourceIndex])
     if (imageSourceIndex < imageSources.length - 1) {
       // Image failed to load from the current node
       setImageSourceIndex(imageSourceIndex + 1)
@@ -155,6 +154,5 @@ export const useContentNodeImage = ({
     ]
   )
 
-  console.log('imageSources', imageSources)
   return result
 }

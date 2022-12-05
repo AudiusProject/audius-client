@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { SquareSizes } from '@audius/common'
 import type { ImageURISource } from 'react-native'
@@ -19,16 +19,20 @@ export const useLocalTrackImage = (trackId?: string) => {
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
 ): ImageURISource[] | null => {
-  const imageSources = Object.values(SquareSizes)
-    .reverse()
-    .map(
-      (size): ImageURISource => ({
-        uri: `file://${getLocalPath(size.toString())}`,
-        width: parseInt(size.split('x')[0]),
-        height: parseInt(size.split('x')[1])
-      })
-    )
-    .filter((source) => !!source.uri)
+  const imageSources = useMemo(
+    () =>
+      Object.values(SquareSizes)
+        .reverse()
+        .map(
+          (size): ImageURISource => ({
+            uri: `file://${getLocalPath(size.toString())}`,
+            width: parseInt(size.split('x')[0]),
+            height: parseInt(size.split('x')[1])
+          })
+        )
+        .filter((source) => !!source.uri),
+    [getLocalPath]
+  )
 
   const { value: verifiedSources, loading } = useAsync(async () => {
     const verifiedSources: ImageURISource[] = []
@@ -38,7 +42,11 @@ export const useLocalImage = (
       }
     }
     return verifiedSources
-  }, [getLocalPath])
+  }, [getLocalPath, imageSources])
 
-  return loading || !verifiedSources?.length ? null : verifiedSources
+  console.log('verifiedSources', verifiedSources)
+  return useMemo(
+    () => (loading || !verifiedSources?.length ? null : verifiedSources),
+    [loading, verifiedSources?.length]
+  )
 }

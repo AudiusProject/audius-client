@@ -42,7 +42,6 @@ export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
   const { source, handleError } = useTrackImage(track, user)
-  console.log('using source', source)
 
   return <DynamicImage {...imageProps} source={source} onError={handleError} />
 }

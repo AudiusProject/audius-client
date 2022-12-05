@@ -3,6 +3,7 @@ import { useEffect, memo, useCallback, useRef, useState } from 'react'
 
 import { useInstanceVar } from '@audius/common'
 import type { Maybe } from '@audius/common'
+import { isEqual } from 'lodash'
 import type {
   ImageProps,
   ImageSourcePropType,
@@ -94,7 +95,6 @@ const ImageLoader = ({
     }
   }, [source, skeletonOpacity])
 
-  console.log('imageloader source', source[0].uri)
   return (
     <View onLayout={handleSetSize}>
       {source ? (
@@ -154,6 +154,7 @@ export const DynamicImage = memo(function DynamicImage({
   animatedValue,
   ...imageProps
 }: DynamicImageProps) {
+  const { debug } = imageProps
   const [firstImage, setFirstImage] =
     useState<Maybe<ImageSourcePropType>>(source)
   const [secondImage, setSecondImage] = useState<Maybe<ImageSourcePropType>>()
@@ -180,12 +181,19 @@ export const DynamicImage = memo(function DynamicImage({
     // Skip animation for subsequent loads where the image hasn't changed
     const previousImage = getPrevImage()
     if (previousImage === source) {
+      debug && console.log('equal check passed', previousImage, source)
+      if (debug) {
+        debugger
+      }
       return
     }
 
     setPrevImage(source)
 
     if (isFirstImageActive) {
+      if (debug) {
+        debugger
+      }
       setIsFirstImageActive(false)
       setSecondImage(source)
       animateTo(secondOpacity, 1, () => {
@@ -194,6 +202,9 @@ export const DynamicImage = memo(function DynamicImage({
         setFirstImage(undefined)
       })
     } else {
+      if (debug) {
+        debugger
+      }
       setIsFirstImageActive(true)
       setFirstImage(source)
       firstOpacity.setValue(1)
