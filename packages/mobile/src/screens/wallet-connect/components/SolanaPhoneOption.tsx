@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import { accountSelectors } from '@audius/common'
 import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconSolana from 'app/assets/images/iconSolana.svg'
@@ -49,7 +50,20 @@ export const SolanaPhoneOption = () => {
   return (
     <WalletConnectOption
       name='Solana'
-      icon={<IconSolana height={50} width={50} />}
+      icon={
+        <View
+          style={{
+            backgroundColor: 'black',
+            height: 50,
+            width: 50,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 25
+          }}
+        >
+          <IconSolana height={30} width={30} />
+        </View>
+      }
       onPress={handleConnectWallet}
     />
   )

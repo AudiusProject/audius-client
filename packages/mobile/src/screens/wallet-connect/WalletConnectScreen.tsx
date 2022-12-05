@@ -67,6 +67,9 @@ export const WalletConnectScreen = () => {
   }, [params?.path, params, dispatch, connector])
 
   const handleConnectWallet = useCallback(() => {
+    // The wallet connect modal houses all of our wallet
+    // connections, so asking it to connect opens the
+    // drawer to connect any wallet.
     connector.connect()
   }, [connector])
 
