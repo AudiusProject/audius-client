@@ -21,7 +21,7 @@ import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 type DownloadToggleProps = {
   collection?: string
   labelText?: string
-  tracks: Track[]
+  trackIds: number[]
 }
 
 const messages = {
@@ -80,16 +80,15 @@ const useStyles = makeStyles<{ labelText?: string }>(
 )
 
 export const DownloadToggle = ({
-  tracks,
+  trackIds,
   collection,
   labelText
 }: DownloadToggleProps) => {
   const styles = useStyles({ labelText })
 
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
-  const isAnyDownloadInProgress = tracks.some((track: Track) => {
-    const status =
-      track?.track_id && offlineDownloadStatus[track.track_id.toString()]
+  const isAnyDownloadInProgress = trackIds.some((trackId: number) => {
+    const status = offlineDownloadStatus[trackId.toString()]
     return status === OfflineDownloadStatus.LOADING
   })
   const isCollectionMarkedForDownload = useSelector(
@@ -99,18 +98,12 @@ export const DownloadToggle = ({
     (isDownloadEnabled: boolean) => {
       if (!collection) return
       if (isDownloadEnabled) {
-        downloadCollection(
-          collection,
-          tracks.map((track) => track.track_id)
-        )
+        downloadCollection(collection, trackIds)
       } else {
-        removeCollectionDownload(
-          collection,
-          tracks.map((track) => track.track_id)
-        )
+        removeCollectionDownload(collection, trackIds)
       }
     },
-    [collection, tracks]
+    [collection, trackIds]
   )
 
   if (!collection) return null
