@@ -9,6 +9,7 @@ import * as BootSplash from 'react-native-bootsplash'
 import { useDispatch, useSelector } from 'react-redux'
 
 import useAppState from 'app/hooks/useAppState'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { SignOnScreen } from 'app/screens/signon'
@@ -45,6 +46,7 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   const accountStatus = useSelector(getAccountStatus)
   const { updateRequired } = useUpdateRequired()
   const hasAccount = useSelector(getHasAccount)
+  const navigation = useNavigation()
 
   useEffect(() => {
     // Setup the backend when ready
@@ -70,6 +72,16 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
     }
   }, [accountFetchResolved])
 
+  useEffect(() => {
+    if (accountFetchResolved) {
+      if (hasAccount) {
+        navigation.navigate('HomeStack')
+      } else {
+        navigation.navigate('SignOnStack')
+      }
+    }
+  }, [navigation, accountFetchResolved, hasAccount])
+
   return (
     <>
       {IS_IOS ? (
@@ -83,10 +95,11 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
       >
         {updateRequired ? (
           <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
-        ) : accountFetchResolved && !hasAccount ? (
-          <Stack.Screen name='SignOnStack' component={SignOnScreen} />
         ) : (
-          <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
+          <>
+            <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
+            <Stack.Screen name='SignOnStack' component={SignOnScreen} />
+          </>
         )}
       </Stack.Navigator>
     </>
