@@ -1,3 +1,5 @@
+import { addWalletToUser } from 'common/store/pages/token-dashboard/addWalletToUser'
+import { associateNewWallet } from 'common/store/pages/token-dashboard/associateNewWallet'
 import { takeEvery, select, put } from 'typed-redux-saga'
 
 import { setVisibility } from 'app/store/drawers/slice'
@@ -30,10 +32,11 @@ function* signMessageAsync(action: SignMessageAction) {
         nonce,
         sharedSecret
       )
+      function* disconnect() {}
 
-      // TODO: Refactor token-dashboard sagas #
-      // yield* put(addNewWallet({ signature, publicKey }))
-      console.log('signedMessagPayload', signature, publicKey)
+      const updatedUserMetadata = yield* associateNewWallet(signature)
+      console.log('updated metadata ', updatedUserMetadata)
+      yield* addWalletToUser(updatedUserMetadata, disconnect)
       break
     }
     case 'solana-phone-wallet-adapter': {

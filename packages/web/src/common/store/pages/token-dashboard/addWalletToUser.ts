@@ -33,14 +33,19 @@ export function* addWalletToUser(
       updatedMetadata,
       accountUserId!
     )
+    console.log('result?', result)
     if (!result) {
       throw new Error(
         `Could not confirm connect wallet for account user id ${accountUserId}`
       )
     }
+
     const { blockHash, blockNumber } = result
 
     const confirmed = yield* call(confirmTransaction, blockHash, blockNumber)
+
+    console.log('confirmed', confirmed)
+
     if (!confirmed) {
       throw new Error(
         `Could not confirm connect wallet for account user id ${accountUserId}`
@@ -49,12 +54,14 @@ export function* addWalletToUser(
   }
 
   function* onSuccess() {
+    console.log('success!!')
     // Update the user's balance w/ the new wallet
     yield* put(getBalance())
 
     yield* put(setWalletAddedConfirmed({}))
 
     const updatedCID = yield* call(getAccountMetadataCID)
+    console.log('success!', updatedCID)
 
     if (updatedCID) {
       yield* put(
