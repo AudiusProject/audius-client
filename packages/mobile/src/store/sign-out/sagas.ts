@@ -1,4 +1,5 @@
 import { Name, signOutActions, accountActions } from '@audius/common'
+import { setupBackend } from 'audius-client/src/common/store/backend/actions'
 import { make } from 'common/store/analytics/actions'
 import { takeLatest, put, call } from 'typed-redux-saga'
 
@@ -25,6 +26,12 @@ function* watchSignOut() {
     yield* put(resetAccount())
     yield* put(clearHistory())
     yield* put(resetOAuthState())
+
+    // On web we reload the page to get the app into a state
+    // where it is acting like first-load. On mobile, in order to
+    // get the same behavior, call to set up the backend again,
+    // which will discover that we have no account
+    yield* put(setupBackend())
   })
 }
 
