@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
+import { useLayoutEffect, useState } from 'react'
 
-import { View } from 'react-native'
+import { Keyboard, Platform, View } from 'react-native'
 
 import type { ScreenProps } from 'app/components/core'
 import { Button, Screen } from 'app/components/core'
@@ -32,6 +33,26 @@ export const FormScreen = (props: FormScreenProps) => {
   const { children, bottomSection, style: styleProp, ...other } = props
   const styles = useStyles()
   const navigation = useNavigation()
+  const [hideBottomSection, setHideBottomSection] = useState(false)
+
+  // // On android, explicitly hide bottomSection when keydoard shown.
+  // // This will prevent users from accidently pressing "continue".
+  useLayoutEffect(() => {
+    if (Platform.OS === 'android') {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+        setHideBottomSection(true)
+      })
+
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setHideBottomSection(false)
+      })
+
+      return () => {
+        showSubscription.remove()
+        hideSubscription.remove()
+      }
+    }
+  }, [])
 
   const defaultBottomSection = (
     <Button
@@ -46,9 +67,11 @@ export const FormScreen = (props: FormScreenProps) => {
   return (
     <Screen variant='secondary' style={[styles.root, styleProp]} {...other}>
       {children}
-      <View style={styles.bottomSection}>
-        {bottomSection ?? defaultBottomSection}
-      </View>
+      {hideBottomSection ? null : (
+        <View style={styles.bottomSection}>
+          {bottomSection ?? defaultBottomSection}
+        </View>
+      )}
     </Screen>
   )
 }
