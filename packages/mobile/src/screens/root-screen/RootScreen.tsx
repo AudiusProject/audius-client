@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 import { accountSelectors, Status } from '@audius/common'
-import { getHasAccount } from '@audius/common/dist/store/account/selectors'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { setupBackend } from 'audius-client/src/common/store/backend/actions'
@@ -20,7 +19,7 @@ import { AppDrawerScreen } from '../app-drawer-screen'
 
 import { ThemedStatusBar } from './StatusBar'
 
-const { getAccountStatus } = accountSelectors
+const { getAccountStatus, getHasAccount } = accountSelectors
 
 const IS_IOS = Platform.OS === 'ios'
 
