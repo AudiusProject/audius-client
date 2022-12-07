@@ -3,7 +3,6 @@ import {
   Chain,
   tokenDashboardPageActions
 } from '@audius/common'
-import BN from 'bn.js'
 import bs58 from 'bs58'
 import { checkIsNewWallet } from 'common/store/pages/token-dashboard/checkIsNewWallet'
 import { getWalletInfo } from 'common/store/pages/token-dashboard/getWalletInfo'
