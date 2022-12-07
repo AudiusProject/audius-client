@@ -1,6 +1,5 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import type { Track } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -87,10 +86,14 @@ export const DownloadToggle = ({
   const styles = useStyles({ labelText })
 
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
-  const isAnyDownloadInProgress = trackIds.some((trackId: number) => {
-    const status = offlineDownloadStatus[trackId.toString()]
-    return status === OfflineDownloadStatus.LOADING
-  })
+  const isAnyDownloadInProgress = useMemo(
+    () =>
+      trackIds.some((trackId: number) => {
+        const status = offlineDownloadStatus[trackId.toString()]
+        return status === OfflineDownloadStatus.LOADING
+      }),
+    [offlineDownloadStatus, trackIds]
+  )
   const isCollectionMarkedForDownload = useSelector(
     getIsCollectionMarkedForDownload(collection)
   )
