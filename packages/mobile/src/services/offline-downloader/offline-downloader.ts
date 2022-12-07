@@ -80,9 +80,10 @@ export const downloadTrack = async ({
 }: TrackDownloadWorkerPayload) => {
   const trackIdStr = trackId.toString()
 
+  // Throw this
   const failJob = (message?: string) => {
     store.dispatch(errorDownload(trackIdStr))
-    throw new Error(message)
+    return new Error(message)
   }
 
   // @ts-ignore mismatch in an irrelevant part of state
@@ -97,8 +98,7 @@ export const downloadTrack = async ({
   )
 
   if (!track) {
-    store.dispatch(errorDownload(trackIdStr))
-    throw new Error(`track to download not found on discovery - ${trackIdStr}`)
+    throw failJob(`track to download not found on discovery - ${trackIdStr}`)
   }
 
   track = (await populateCoverArtSizes(track)) ?? track
@@ -136,14 +136,13 @@ export const downloadTrack = async ({
       store.dispatch(loadTrack(track))
       store.dispatch(completeDownload(trackIdStr))
     } else {
-      store.dispatch(errorDownload(trackIdStr))
-      throw new Error(
+      throw failJob(
         `DownloadQueueWorker - download verification failed ${trackIdStr}`
       )
     }
     return verified
   } catch (e) {
-    failJob(e.message)
+    throw failJob(e.message)
   }
 }
 
