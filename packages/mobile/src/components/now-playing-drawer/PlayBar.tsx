@@ -52,7 +52,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     height: 26,
     width: 26,
     overflow: 'hidden',
-    // backgroundColor: palette.neutralLight7,
+    backgroundColor: palette.neutralLight7,
     borderRadius: 2
   },
   trackText: {

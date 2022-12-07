@@ -40,13 +40,11 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { getDominantRgb } from '../../../threads/dominantColors.thread'
 import { NativeDrawer } from '../drawer'
-import { useTrackImage } from '../image/TrackImage'
+import { DEFAULT_IMAGE_URL, useTrackImage } from '../image/TrackImage'
 import { ToastContext } from '../toast/ToastContext'
 
 import { messages } from './messages'
 
-const DEFAULT_IMAGE_URL =
-  'https://download.audius.co/static-resources/preview-image.jpg'
 const DEFAULT_DOMINANT_COLORS = ['000000', '434343']
 const stickerLoadedEventEmitter = new EventEmitter()
 const cancelRequestedEventEmitter = new EventEmitter()
