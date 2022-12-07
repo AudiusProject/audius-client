@@ -168,13 +168,7 @@ export const ShareDrawer = () => {
       !content.track.is_delete
   )
 
-  const shouldIncludeInstagramStoryAction = Boolean(
-    isShareToInstagramStoryEnabled &&
-      content?.type === 'track' &&
-      !content.track.is_unlisted &&
-      !content.track.is_invalid &&
-      !content.track.is_delete
-  )
+  const shouldIncludeInstagramStoryAction = true
 
   const getRows = useCallback(() => {
     const shareToTwitterAction = {
