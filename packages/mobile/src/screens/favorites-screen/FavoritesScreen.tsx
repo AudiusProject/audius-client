@@ -78,7 +78,6 @@ export const FavoritesScreen = () => {
   )
 
   const allSavesTrackIds = useMemo(() => {
-    console.log(savedTracks)
     const allIds = (savedTracks?.entries ?? [])
       .map((track: Track) => track.track_id)
       .concat(
@@ -86,7 +85,6 @@ export const FavoritesScreen = () => {
           collection.playlist_contents.track_ids.map((trackId) => trackId.track)
         )
       )
-    console.log('All trackIds', allIds)
     return allIds
   }, [savedTracks, userCollections])
 
