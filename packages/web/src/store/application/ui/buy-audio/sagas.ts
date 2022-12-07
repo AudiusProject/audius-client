@@ -522,10 +522,10 @@ function* populateAndSaveTransactionDetails() {
   })
 
   // Clear local storage
+  console.debug('Clearing BUY_AUDIO_LOCAL_STORAGE...')
   yield* call(
-    [localStorage, localStorage.setJSONValue],
-    BUY_AUDIO_LOCAL_STORAGE_KEY,
-    {}
+    [localStorage, localStorage.removeItem],
+    BUY_AUDIO_LOCAL_STORAGE_KEY
   )
 }
 
@@ -1053,7 +1053,7 @@ function* recoverPurchaseIfNecessary() {
           existingBalance / LAMPORTS_PER_SOL
         } SOL, converting ${
           exchangableBalance.toNumber() / LAMPORTS_PER_SOL
-        } SOL to AUDIO...`
+        } SOL to AUDIO... (~${estimatedAudio.toString()} $AUDIO SPL)`
       )
 
       yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
