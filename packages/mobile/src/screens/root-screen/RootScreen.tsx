@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { accountSelectors, Status } from '@audius/common'
+import { getHasAccount } from '@audius/common/dist/store/account/selectors'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { setupBackend } from 'audius-client/src/common/store/backend/actions'
@@ -42,6 +43,7 @@ type RootScreenProps = {
 export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
   const dispatch = useDispatch()
   const accountStatus = useSelector(getAccountStatus)
+  const hasAccount = useSelector(getHasAccount)
   const { updateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -81,7 +83,7 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
         >
           {updateRequired ? (
             <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
-          ) : accountStatus === Status.SUCCESS ? (
+          ) : hasAccount ? (
             <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
           ) : (
             <Stack.Screen name='SignOnStack' component={SignOnScreen} />

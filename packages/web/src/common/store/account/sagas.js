@@ -193,19 +193,20 @@ export function* fetchAccountAsync({ isSignUp = false }) {
   yield put(accountActions.fetchAccountRequested())
 
   const account = yield call(audiusBackendInstance.getAccount)
-  if (!account || account.is_deactivated) {
+  if (!account) {
     yield put(
       fetchAccountFailed({
-        reason: account ? 'ACCOUNT_DEACTIVATED' : 'ACCOUNT_NOT_FOUND'
+        reason: 'ACCOUNT_NOT_FOUND'
       })
     )
-    // Clear local storage users if present
-    yield call([localStorage, 'clearAudiusAccount'])
-    yield call([localStorage, 'clearAudiusAccountUser'])
-
-    // If the user is not signed in
-    // Remove browser has requested push notifications.
-    yield put(unsubscribeBrowserPushNotifications())
+    return
+  }
+  if (account.is_deactivated) {
+    yield put(
+      fetchAccountFailed({
+        reason: 'ACCOUNT_DEACTIVATED'
+      })
+    )
     return
   }
 
