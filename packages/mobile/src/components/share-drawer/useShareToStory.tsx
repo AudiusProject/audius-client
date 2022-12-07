@@ -45,6 +45,8 @@ import { ToastContext } from '../toast/ToastContext'
 
 import { messages } from './messages'
 
+const DEFAULT_IMAGE_URL =
+  'https://download.audius.co/static-resources/preview-image.jpg'
 const DEFAULT_DOMINANT_COLORS = ['000000', '434343']
 const stickerLoadedEventEmitter = new EventEmitter()
 const cancelRequestedEventEmitter = new EventEmitter()
@@ -68,7 +70,7 @@ export const useShareToStory = ({
   const artistHandle =
     content?.type === 'track' ? content?.artist.handle : undefined
 
-  const { source: trackImageSource } = useTrackImage(
+  const trackImage = useTrackImage(
     content?.type === 'track' ? content.track : null
   )
   const isStickerImageLoadedRef = useRef(false)
@@ -76,7 +78,8 @@ export const useShareToStory = ({
     isStickerImageLoadedRef.current = true
     stickerLoadedEventEmitter.emit(STICKER_LOADED_EVENT)
   }
-  const trackImageUri = trackImageSource[2]?.uri
+  const trackImageUri =
+    (trackImage && trackImage?.source[2].uri) ?? DEFAULT_IMAGE_URL
   const captureStickerImage = useCallback(async () => {
     if (!isStickerImageLoadedRef.current) {
       // Wait for the sticker component and image inside it to load. If this hasn't happened in 5 seconds, assume that it failed.

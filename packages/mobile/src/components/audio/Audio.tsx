@@ -21,7 +21,10 @@ import type { OnProgressData } from 'react-native-video'
 import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useTrackImage } from 'app/components/image/TrackImage'
+import {
+  DEFAULT_IMAGE_URL,
+  useTrackImage
+} from 'app/components/image/TrackImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -49,9 +52,6 @@ declare global {
 }
 
 const SKIP_DURATION_SEC = 15
-
-const DEFAULT_IMAGE_URL =
-  'https://download.audius.co/static-resources/preview-image.jpg'
 
 const RECORD_LISTEN_SECONDS = 1
 

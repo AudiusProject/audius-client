@@ -56,6 +56,7 @@ const populateCoverArtSizes = async (track: UserTrackMetadata & Track) => {
     track.user.creator_node_endpoint
   )
   const multihash = track.cover_art_sizes || track.cover_art
+  if (!multihash) return track
   await Promise.allSettled(
     Object.values(SquareSizes).map(async (size) => {
       const coverArtSize = multihash === track.cover_art_sizes ? size : null

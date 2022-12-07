@@ -4,11 +4,14 @@ import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
 import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage, Text } from 'app/components/core'
+import { DynamicImage } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 
 const { getUser } = cacheUsersSelectors
+
+export const DEFAULT_IMAGE_URL =
+  'https://download.audius.co/static-resources/preview-image.jpg'
 
 export const useTrackImage = (
   track: Nullable<
@@ -36,7 +39,7 @@ export const useTrackImage = (
 }
 
 type TrackImageProps = {
-  track: Track
+  track: Parameters<typeof useTrackImage>[0]
   user?: Parameters<typeof useTrackImage>[1]
 } & DynamicImageProps
 
@@ -51,7 +54,5 @@ export const TrackImage = (props: TrackImageProps) => {
       source={trackImageSource.source}
       onError={trackImageSource.handleError}
     />
-  ) : (
-    <Text>null</Text>
-  )
+  ) : null
 }
