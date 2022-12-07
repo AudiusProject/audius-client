@@ -42,7 +42,8 @@ export const startDownloadWorker = async () => {
   queue.addWorker(
     new Worker(TRACK_DOWNLOAD_WORKER, downloadTrack, {
       onFailure: ({ payload }) =>
-        store.dispatch(errorDownload(payload.trackId.toString()))
+        store.dispatch(errorDownload(payload.trackId.toString())),
+      concurrency: 10
     })
   )
   const jobs = await queue.getJobs()
@@ -57,5 +58,6 @@ export const startDownloadWorker = async () => {
         console.warn(e)
       }
     })
-  queue.start()
+
+  setTimeout(queue.start, 1000)
 }
