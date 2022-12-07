@@ -1026,7 +1026,7 @@ function* recoverPurchaseIfNecessary() {
     // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
     // Usually indicates Swap Failed
-    if (exchangableBalance.gt(new BN(0))) {
+    if (exchangableBalance.gt(new BN(0)) && quote.outputAmount.uiAmount >= 1) {
       yield* put(
         make(Name.BUY_AUDIO_RECOVERY_OPENED, {
           provider,
