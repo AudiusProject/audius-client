@@ -1030,13 +1030,17 @@ function* recoverPurchaseIfNecessary() {
     const estimatedAudio =
       existingBalance > 0
         ? exchangableBalance
-            .muln(quote.outputAmount.uiAmount)
-            .divn(existingBalance)
+            .mul(new BN(quote.outputAmount.amountString))
+            .div(new BN(existingBalance))
         : new BN(0)
 
     // Check if there's a non-zero exchangeble amount of SOL and at least one $AUDIO would be output
     // Should only occur as the result of a previously failed Swap
-    if (exchangableBalance.gt(new BN(0)) && estimatedAudio.gt(new BN(1))) {
+    if (
+      exchangableBalance.gt(new BN(0)) &&
+      // $AUDIO has 8 decimals
+      estimatedAudio.gt(new BN('1'.padEnd(9, '0')))
+    ) {
       yield* put(
         make(Name.BUY_AUDIO_RECOVERY_OPENED, {
           provider,
