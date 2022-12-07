@@ -60,8 +60,7 @@ const NavigationContainer = (props: NavigationContainerProps) => {
                     WalletConnect: {
                       initialRouteName: 'Wallets',
                       screens: {
-                        Wallets: 'wallets',
-                        ConfirmWalletConnection: 'wallet-connect'
+                        Wallets: 'wallets'
                       }
                     },
                     Feed: 'feed',
@@ -141,8 +140,24 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       // Add leading slash if it is missing
       if (path[0] !== '/') path = `/${path}`
 
-      // Remove the app-redirect prefix if present
+      const walletConnectPath = /^\/(wallet-connect)/
+      if (path.match(walletConnectPath)) {
+        path = `${path.replace(
+          walletConnectPath,
+          '/wallets'
+        )}&path=wallet-connect`
+      }
+
+      const walletSignPath = /^\/(wallet-sign-message)/
+      if (path.match(walletSignPath)) {
+        path = `${path.replace(
+          walletSignPath,
+          '/wallets'
+        )}&path=wallet-sign-message`
+      }
+
       if (path.match(`^/app-redirect`)) {
+        // Remove the app-redirect prefix if present
         path = path.replace(`/app-redirect`, '')
       }
 

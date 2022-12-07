@@ -13,6 +13,8 @@ export type Drawer =
   | 'CancelEditTrack'
   | 'DeleteConfirmation'
   | 'ConnectWallets'
+  | 'ConfirmRemoveWallet'
+  | 'ShareToStoryProgress'
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
   data: Nullable<DrawerData>
@@ -27,6 +29,8 @@ const initialState: DrawersState = {
   CancelEditTrack: false,
   DeleteConfirmation: false,
   ConnectWallets: false,
+  ConfirmRemoveWallet: false,
+  ShareToStoryProgress: false,
   data: null
 }
 

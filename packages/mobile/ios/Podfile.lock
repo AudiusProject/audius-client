@@ -361,7 +361,7 @@ PODS:
     - React
   - react-native-keep-awake (1.1.0):
     - React-Core
-  - react-native-music-control (1.4.0):
+  - react-native-music-control (1.4.1):
     - React-Core
   - react-native-netinfo (9.3.0):
     - React-Core
@@ -381,6 +381,8 @@ PODS:
     - react-native-video/Video (= 5.1.0-alpha2)
   - react-native-video/Video (5.1.0-alpha2):
     - React
+  - react-native-view-shot (3.4.0):
+    - React-Core
   - react-native-webview (11.13.1):
     - React-Core
   - React-perflogger (0.66.5)
@@ -500,6 +502,8 @@ PODS:
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
+  - RNThread (0.0.19):
+    - React
   - Sentry (7.5.4):
     - Sentry/Core (= 7.5.4)
   - Sentry/Core (7.5.4)
@@ -550,6 +554,7 @@ DEPENDENCIES:
   - react-native-static-server (from `../node_modules/react-native-static-server`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
   - react-native-video (from `../node_modules/react-native-video`)
+  - react-native-view-shot (from `../node_modules/react-native-view-shot`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -585,6 +590,7 @@ DEPENDENCIES:
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - RNThread (from `../node_modules/react-native-threads/ios`)
   - SRSRadialGradient (from `../node_modules/react-native-radial-gradient/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -691,6 +697,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-version-number"
   react-native-video:
     :path: "../node_modules/react-native-video"
+  react-native-view-shot:
+    :path: "../node_modules/react-native-view-shot"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-perflogger:
@@ -761,6 +769,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  RNThread:
+    :path: "../node_modules/react-native-threads/ios"
   SRSRadialGradient:
     :path: "../node_modules/react-native-radial-gradient/ios"
   Yoga:
@@ -817,7 +827,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: ae1202414bd5c37c00b2a701daa5b6194a06b7d9
   react-native-job-queue: b5ab7a599f4cdef5b20905172972f0a4bbd69770
   react-native-keep-awake: 16f22b2dc09f7ede9f46e3b187a824a1841f1ddf
-  react-native-music-control: 0eef94942456152af21316afd53923e1dd6360b0
+  react-native-music-control: 70cfb4520a2244818a61c92f3b00ee674d8c7a73
   react-native-netinfo: f473620bc118d6f44ce65669dd4810a7cfb36a7d
   react-native-pager-view: a9ba7d4218dcff32c0cdb41237c62fb487f013dd
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
@@ -825,6 +835,7 @@ SPEC CHECKSUMS:
   react-native-static-server: 201b2a945a35096be3ae7f43e367c65bcbd61343
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
   react-native-video: 5673415bcb2e77e232decb11775c2a7fef60a615
+  react-native-view-shot: a021cdada3371efd6e28776b0931ba58ebe6ba72
   react-native-webview: cea67b82dd5fbdf0f5c821b4ca0ca0b01e954c0b
   React-perflogger: 169fb34f60c5fd793b370002ee9c916eba9bc4ae
   React-RCTActionSheet: 2355539e02ad5cd4b1328682ab046487e1e1e920
@@ -860,6 +871,7 @@ SPEC CHECKSUMS:
   RNSentry: fe878ca3982d7871e502ccbb90072fe764c8d07d
   RNShare: 36aa3e6958373a0ad1c95a1c960adef589da3794
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
+  RNThread: bb5ef8bc1ec52f1d1a9c8dc1ce78f6b1bcdf892a
   Sentry: 5c5dd4005f3b7b9765d5a8871232cddbd0d888b7
   SRSRadialGradient: 71378a83e52b616c40367c37ee7cb6865f9f7c6e
   Yoga: b316a990bb6d115afa1b436b5626ac7c61717d17

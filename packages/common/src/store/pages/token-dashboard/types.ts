@@ -70,7 +70,7 @@ export type InputSendDataAction = PayloadAction<{
 }>
 
 export type AssociatedWalletsState = {
-  status: Nullable<'Connecting' | 'Confirming' | 'Confirmed'>
+  status: Nullable<'Connecting' | 'Connected' | 'Confirming' | 'Confirmed'>
   connectedEthWallets: Nullable<AssociatedWallets>
   connectedSolWallets: Nullable<AssociatedWallets>
   confirmingWallet: {
@@ -78,6 +78,7 @@ export type AssociatedWalletsState = {
     chain: Nullable<Chain>
     balance: Nullable<any> // TODO(nkang) `any` should be `BNWei`
     collectibleCount: Nullable<number>
+    signature: Nullable<string>
   }
   errorMessage: Nullable<string>
   removeWallet: {

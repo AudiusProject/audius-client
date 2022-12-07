@@ -26,8 +26,10 @@ import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
+import { ConfirmRemoveWalletDrawer } from './components/confirm-remove-wallet-drawer'
 import { useDrawerState } from './components/drawer'
 import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
+import { ShareToStoryProgressDrawer } from './components/share-drawer/useShareToStory'
 import { VipDiscordDrawer } from './components/vip-discord-drawer'
 import { useDrawer } from './hooks/useDrawer'
 import type { Drawer } from './store/drawers/slice'
@@ -95,7 +97,9 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
-  DeleteConfirmation: DeleteConfirmationDrawer
+  DeleteConfirmation: DeleteConfirmationDrawer,
+  ConfirmRemoveWallet: ConfirmRemoveWalletDrawer,
+  ShareToStoryProgress: ShareToStoryProgressDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [

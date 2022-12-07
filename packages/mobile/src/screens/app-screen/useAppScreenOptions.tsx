@@ -11,7 +11,7 @@ import { CardStyleInterpolators } from '@react-navigation/stack'
 import { Text, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
-import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
+import AudiusLogo from 'app/assets/images/audiusLogoHorizontalDeprecated.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
 import { IconButton } from 'app/components/core'
@@ -24,8 +24,8 @@ import { useThemeColors } from 'app/utils/theme'
 import { AppDrawerContext } from '../app-drawer-screen'
 
 import { AccountPictureHeader } from './AccountPictureHeader'
-import type { AppScreenParamList } from './AppScreen'
 import type { AppTabScreenParamList } from './AppTabScreen'
+import type { AppScreenParamList } from './AppTabsScreen'
 const { markAllAsViewed } = notificationsActions
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({

@@ -5,8 +5,9 @@
         <!-- Customize your theme here. -->
         <item name="android:textColor">#7E1BCC</item>
 
-        <!-- Set system bars background transparent -->
+        <!-- Set status bar background transparent -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+
         <!-- Navigation bar will stay translucent on Android < 8.1 -->
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
@@ -17,12 +18,8 @@
         <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
 
-        <!-- Set system bars background transparent -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-
         <!-- Status bar initial style: true = dark-content, false = light-content -->
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <!-- Navigation bar will stay translucent on Android < 8.1 -->
         <item name="android:windowTranslucentNavigation">true</item>

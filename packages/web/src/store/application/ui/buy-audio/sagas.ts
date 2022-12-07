@@ -239,7 +239,9 @@ function* getTransactionFees({
           [transaction, transaction.getEstimatedFee],
           connection
         )
-        console.debug(`Fee for "${names[i]}" transaction: ${fee} Lamports`)
+        console.debug(
+          `Fee for "${names[i]}" transaction: ${fee ?? 5000} Lamports`
+        )
         transactionFees += fee ?? 5000 // For some reason, swap transactions don't have fee estimates??
       }
       i++
@@ -763,11 +765,13 @@ function* transferStep({
     {
       instructions: transferTransaction.instructions,
       feePayerOverride: rootAccount.publicKey,
-      skipPreflight: true
+      skipPreflight: false
     }
   )
   if (transferError) {
-    console.debug(`Transfer transaction stringified: ${transferTransaction}`)
+    console.debug(
+      `Transfer transaction stringified: ${JSON.stringify(transferTransaction)}`
+    )
     throw new Error(`Transfer transaction failed: ${transferError}`)
   }
   const audioTransferredWei = convertWAudioToWei(transferAmount)
@@ -840,7 +844,7 @@ function* doBuyAudio({
       connection,
       useRelay: false,
       feePayerKeypairs: [rootAccount],
-      skipPreflight: true
+      skipPreflight: false
     })
     userRootWallet = rootAccount.publicKey.toString()
 
@@ -970,7 +974,7 @@ function* recoverPurchaseIfNecessary() {
       connection,
       useRelay: false,
       feePayerKeypairs: [rootAccount],
-      skipPreflight: true
+      skipPreflight: false
     })
     userRootWallet = rootAccount.publicKey.toString()
 
@@ -1015,10 +1019,13 @@ function* recoverPurchaseIfNecessary() {
       inputAmount: existingBalance / LAMPORTS_PER_SOL,
       slippage
     })
-    const { totalFees } = yield* call(getSwapFees, { route: quote.route })
+    const { totalFees, rootAccountMinBalance } = yield* call(getSwapFees, {
+      route: quote.route
+    })
 
     // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
+    // Usually indicates Swap Failed
     if (exchangableBalance.gt(new BN(0))) {
       yield* put(
         make(Name.BUY_AUDIO_RECOVERY_OPENED, {
@@ -1066,42 +1073,60 @@ function* recoverPurchaseIfNecessary() {
         tokenAccount
       })
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
+      // Usually indicates Transfer Failed
       if (audioBalance.gt(new BN(0))) {
-        yield* put(
-          make(Name.BUY_AUDIO_RECOVERY_OPENED, {
-            provider,
-            trigger: '$AUDIO',
-            balance: audioBalance.toString()
-          })
-        )
-        console.debug(
-          `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
-        )
-
-        yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
-        yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
-        didNeedRecovery = true
-
-        const { audioTransferredWei } = yield* call(transferStep, {
-          transferAmount: audioBalance,
-          rootAccount,
-          transactionHandler,
-          provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
-        })
-        recoveredAudio = parseFloat(
-          formatWei(audioTransferredWei).replaceAll(',', '')
-        )
-        yield* call(populateAndSaveTransactionDetails)
-      } else {
-        // If we only failed to save the metadata, try that again
-        if (localStorageState?.transactionDetailsArgs?.transferTransactionId) {
-          const metadata = yield* call(
-            getUserBankTransactionMetadata,
-            localStorageState.transactionDetailsArgs.transferTransactionId
+        // Check we can afford to transfer
+        if (
+          new BN(existingBalance)
+            .sub(new BN(rootAccountMinBalance))
+            .gt(new BN(0))
+        ) {
+          yield* put(
+            make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+              provider,
+              trigger: '$AUDIO',
+              balance: audioBalance.toString()
+            })
           )
-          if (!metadata) {
-            yield* call(populateAndSaveTransactionDetails)
-          }
+          console.debug(
+            `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
+          )
+
+          yield* put(
+            setVisibility({ modal: 'BuyAudioRecovery', visible: true })
+          )
+          yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
+          didNeedRecovery = true
+
+          const { audioTransferredWei } = yield* call(transferStep, {
+            transferAmount: audioBalance,
+            rootAccount,
+            transactionHandler,
+            provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
+          })
+          recoveredAudio = parseFloat(
+            formatWei(audioTransferredWei).replaceAll(',', '')
+          )
+          yield* call(populateAndSaveTransactionDetails)
+        } else {
+          // User can't afford to transfer their $AUDIO
+          console.debug(
+            `OWNED: ${audioBalance.toString()} $AUDIO (spl wei) ${existingBalance.toString()} SOL (lamports)\n` +
+              `NEED: ${totalFees.toString()} SOL (lamports)`
+          )
+          throw new Error(`User is bricked`)
+        }
+      } else if (
+        localStorageState?.transactionDetailsArgs?.transferTransactionId
+      ) {
+        // If we only failed to save the metadata, try that again
+        console.debug('Only need to resend metadata...')
+        const metadata = yield* call(
+          getUserBankTransactionMetadata,
+          localStorageState.transactionDetailsArgs.transferTransactionId
+        )
+        if (!metadata) {
+          yield* call(populateAndSaveTransactionDetails)
         }
       }
     }

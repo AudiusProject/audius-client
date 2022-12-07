@@ -27,12 +27,13 @@ export enum FeatureFlags {
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
   PREMIUM_CONTENT_ENABLED = 'premium_content_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  MOBILE_UPLOAD = 'mobile_upload',
+  MOBILE_UPLOAD = 'mobile_upload_final',
   STREAM_MP3 = 'stream_mp3',
   READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
   SHARE_TO_STORY = 'share_to_story',
   READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled',
-  MOBILE_WALLET_CONNECT = 'mobile_wallet_connect'
+  MOBILE_WALLET_CONNECT = 'mobile_wallet_connect',
+  COMPLETE_PROFILE_WITH_TIKTOK = 'complete_profile_with_tiktok'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -80,5 +81,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
   [FeatureFlags.SHARE_TO_STORY]: false,
   [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false,
-  [FeatureFlags.MOBILE_WALLET_CONNECT]: false
+  [FeatureFlags.MOBILE_WALLET_CONNECT]: false,
+  [FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK]: false
 }
