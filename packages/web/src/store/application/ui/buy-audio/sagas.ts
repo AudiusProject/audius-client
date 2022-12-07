@@ -1023,10 +1023,20 @@ function* recoverPurchaseIfNecessary() {
       route: quote.route
     })
 
-    // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
+    // Subtract fees and rent to see how much SOL is available to exchange
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
-    // Usually indicates Swap Failed
-    if (exchangableBalance.gt(new BN(0)) && quote.outputAmount.uiAmount >= 1) {
+
+    // Use proportion to guesstimate an $AUDIO quote for the exchangeable balance
+    const estimatedAudio =
+      existingBalance > 0
+        ? exchangableBalance
+            .muln(quote.outputAmount.uiAmount)
+            .divn(existingBalance)
+        : new BN(0)
+
+    // Check if there's a non-zero exchangeble amount of SOL and at least one $AUDIO would be output
+    // Should only occur as the result of a previously failed Swap
+    if (exchangableBalance.gt(new BN(0)) && estimatedAudio.gt(new BN(1))) {
       yield* put(
         make(Name.BUY_AUDIO_RECOVERY_OPENED, {
           provider,
@@ -1073,7 +1083,8 @@ function* recoverPurchaseIfNecessary() {
         tokenAccount
       })
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
-      // Usually indicates Transfer Failed
+
+      // If the user's root wallet has $AUDIO, that usually indicates a failed transfer
       if (audioBalance.gt(new BN(0))) {
         // Check we can afford to transfer
         if (
@@ -1119,7 +1130,7 @@ function* recoverPurchaseIfNecessary() {
       } else if (
         localStorageState?.transactionDetailsArgs?.transferTransactionId
       ) {
-        // If we only failed to save the metadata, try that again
+        // If we previously just failed to save the metadata, try that again
         console.debug('Only need to resend metadata...')
         const metadata = yield* call(
           getUserBankTransactionMetadata,
