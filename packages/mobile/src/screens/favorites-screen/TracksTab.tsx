@@ -74,7 +74,6 @@ export const TracksTab = () => {
   }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
-  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
