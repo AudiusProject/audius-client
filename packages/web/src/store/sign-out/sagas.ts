@@ -8,7 +8,7 @@ import { takeLatest, put } from 'redux-saga/effects'
 
 import { make } from 'common/store/analytics/actions'
 import { signOut } from 'store/sign-out/signOut'
-const { resetAccount, unsubscribeBrowserPushNotifcations } = accountActions
+const { resetAccount, unsubscribeBrowserPushNotifications } = accountActions
 const { signOut: signOutAction } = signOutActions
 
 function* watchSignOut() {
@@ -16,7 +16,7 @@ function* watchSignOut() {
   const localStorage = yield* getContext('localStorage')
   yield takeLatest(signOutAction.type, function* () {
     yield put(resetAccount())
-    yield put(unsubscribeBrowserPushNotifcations())
+    yield put(unsubscribeBrowserPushNotifications())
     yield put(
       make(Name.SETTINGS_LOG_OUT, {
         callback: () => signOut(audiusBackendInstance, localStorage)

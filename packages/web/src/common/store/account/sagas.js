@@ -40,7 +40,6 @@ const {
 
 const {
   signedIn,
-  unsubscribeBrowserPushNotifications,
   showPushNotificationConfirmation,
   fetchAccountSucceeded,
   fetchAccountFailed,
@@ -185,7 +184,6 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
 export function* fetchAccountAsync({ isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
   const isElectron = yield getContext('isElectron')
   const fingerprintClient = yield getContext('fingerprintClient')
