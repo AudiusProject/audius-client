@@ -60,40 +60,46 @@ declare global {
 const SKIP_DURATION_SEC = 15
 const RECORD_LISTEN_SECONDS = 1
 
-// Perform initial setup for the track player
-const setupTrackPlayer = async () => {
-  await TrackPlayer.setupPlayer()
+const defaultCapabilities = [
+  Capability.Play,
+  Capability.Pause,
+  Capability.SkipToNext,
+  Capability.SkipToNext
+]
+const podcastCapabilities = [
+  ...defaultCapabilities,
+  Capability.JumpForward,
+  Capability.JumpBackward
+]
 
-  // Set options for controlling music on the lock screen when the app is in the background
-  TrackPlayer.updateOptions({
+// Set options for controlling music on the lock screen when the app is in the background
+const updatePlayerOptions = async (isPodcast = false) => {
+  return await TrackPlayer.updateOptions({
     // Media controls capabilities
     capabilities: [
-      Capability.Play,
-      Capability.Pause,
-      Capability.SkipToNext,
-      Capability.SkipToPrevious,
+      ...(isPodcast ? podcastCapabilities : defaultCapabilities),
       Capability.Stop,
       Capability.SeekTo
     ],
     // Capabilities that will show up when the notification is in the compact form on Android
     compactCapabilities: [
-      Capability.Play,
-      Capability.Pause,
-      Capability.SkipToNext,
-      Capability.SkipToPrevious
+      ...(isPodcast ? podcastCapabilities : defaultCapabilities)
     ],
     // Notification form capabilities
     notificationCapabilities: [
-      Capability.Play,
-      Capability.Pause,
-      Capability.SkipToNext,
-      Capability.SkipToPrevious
+      ...(isPodcast ? podcastCapabilities : defaultCapabilities)
     ],
     android: {
-      // Default behavior for Android
-      appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback
+      appKilledPlaybackBehavior:
+        AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification
     }
   })
+}
+
+// Perform initial setup for the track player
+const setupTrackPlayer = async () => {
+  await TrackPlayer.setupPlayer()
+  await updatePlayerOptions()
 }
 
 const playerEvents = [
@@ -104,6 +110,8 @@ const playerEvents = [
   Event.RemotePause,
   Event.RemoteNext,
   Event.RemotePrevious,
+  Event.RemoteJumpForward,
+  Event.RemoteJumpBackward,
   Event.RemoteSeek
 ]
 
@@ -166,25 +174,19 @@ export const Audio = () => {
 
     if (event.type === Event.RemotePlay) play()
     if (event.type === Event.RemotePause) pause()
-    if (event.type === Event.RemoteNext) {
-      if (track?.genre === Genre.PODCASTS) {
-        setSeekPosition(
-          Math.min(progress.duration, progress.position + SKIP_DURATION_SEC)
-        )
-      } else {
-        next()
-      }
-    }
-    if (event.type === Event.RemotePrevious) {
-      if (track?.genre === Genre.PODCASTS) {
-        setSeekPosition(Math.max(0, progress.position - SKIP_DURATION_SEC))
-      } else {
-        previous()
-      }
-    }
+    if (event.type === Event.RemoteNext) next()
+    if (event.type === Event.RemotePrevious) previous()
 
     if (event.type === Event.RemoteSeek) {
       setSeekPosition(event.position)
+    }
+    if (event.type === Event.RemoteJumpForward) {
+      setSeekPosition(
+        Math.min(progress.duration, progress.position + SKIP_DURATION_SEC)
+      )
+    }
+    if (event.type === Event.RemoteJumpBackward) {
+      setSeekPosition(Math.max(0, progress.position - SKIP_DURATION_SEC))
     }
 
     // TODO: Need to listen for different event when the queue is used for more than one track
@@ -318,12 +320,11 @@ export const Audio = () => {
   }
 
   const currentUriRef = useRef<string | null>(null)
+  const isPodcastRef = useRef<boolean>(false)
 
   const handleSourceChange = useCallback(
     async (newUri: string) => {
-      const currentUri = currentUriRef.current
-
-      if (currentUri !== newUri) {
+      if (currentUriRef.current !== newUri) {
         currentUriRef.current = newUri
         const imageUrl = trackImageSource?.source[2].uri ?? DEFAULT_IMAGE_URL
         await TrackPlayer.reset()
@@ -336,6 +337,12 @@ export const Audio = () => {
           artwork: imageUrl,
           duration: track?.duration
         })
+
+        const isPodcast = track?.genre === Genre.PODCASTS
+        if (isPodcast !== isPodcastRef.current) {
+          isPodcastRef.current = isPodcast
+          await updatePlayerOptions(isPodcast)
+        }
         if (playing) await TrackPlayer.play()
       }
     },
@@ -343,10 +350,10 @@ export const Audio = () => {
   )
 
   const handleTogglePlay = useCallback(
-    async (playVal) => {
-      if (playbackState === State.Playing && !playVal) {
+    async (isPlaying: boolean) => {
+      if (playbackState === State.Playing && !isPlaying) {
         await TrackPlayer.pause()
-      } else if (playbackState === State.Paused && playVal) {
+      } else if (playbackState === State.Paused && isPlaying) {
         await TrackPlayer.play()
       }
     },
@@ -355,7 +362,7 @@ export const Audio = () => {
 
   useEffect(() => {
     handleSourceChange(source.uri)
-  }, [handleSourceChange, source])
+  }, [handleSourceChange, source.uri])
 
   useEffect(() => {
     handleTogglePlay(playing)
