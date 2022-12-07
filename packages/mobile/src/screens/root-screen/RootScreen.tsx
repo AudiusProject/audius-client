@@ -59,7 +59,6 @@ export const RootScreen = ({ isReadyToSetupBackend }: RootScreenProps) => {
     () => dispatch(enterBackground())
   )
 
-  console.reportErrorsAsExceptions = false
   useEffect(() => {
     if (
       !isLoaded &&
