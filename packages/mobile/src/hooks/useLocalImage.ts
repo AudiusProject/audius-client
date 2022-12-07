@@ -4,6 +4,7 @@ import { SquareSizes } from '@audius/common'
 import type { ImageURISource } from 'react-native'
 import { exists } from 'react-native-fs'
 import { useAsync } from 'react-use'
+import type { AsyncState } from 'react-use/lib/useAsync'
 
 import { getLocalCoverArtPath } from 'app/services/offline-downloader'
 
@@ -18,7 +19,7 @@ export const useLocalTrackImage = (trackId?: string) => {
 
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
-): ImageURISource[] | null => {
+): AsyncState<ImageURISource[]> => {
   const imageSources = useMemo(
     () =>
       Object.values(SquareSizes)
@@ -34,7 +35,7 @@ export const useLocalImage = (
     [getLocalPath]
   )
 
-  const { value: verifiedSources, loading } = useAsync(async () => {
+  return useAsync(async () => {
     const verifiedSources: ImageURISource[] = []
     for (const source of imageSources) {
       if (source?.uri && (await exists(source.uri))) {
@@ -43,10 +44,4 @@ export const useLocalImage = (
     }
     return verifiedSources
   }, [getLocalPath, imageSources])
-
-  console.log('verifiedSources', verifiedSources)
-  return useMemo(
-    () => (loading || !verifiedSources?.length ? null : verifiedSources),
-    [loading, verifiedSources?.length]
-  )
 }

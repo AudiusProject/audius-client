@@ -1,12 +1,10 @@
-import { useMemo } from 'react'
-
 import type { User, Track, Nullable } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
-import { DynamicImage } from 'app/components/core'
 import type { DynamicImageProps } from 'app/components/core'
+import { DynamicImage, Text } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 
@@ -23,14 +21,18 @@ export const useTrackImage = (
   const selectedUser = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
-  const localSource = useLocalTrackImage(track?.track_id.toString())
+  const { value: localSource, loading } = useLocalTrackImage(
+    track?.track_id.toString()
+  )
 
-  return useContentNodeImage({
+  const contentNodeSource = useContentNodeImage({
     cid,
     user: user ?? selectedUser,
     fallbackImageSource: imageEmpty,
     localSource
   })
+
+  return loading ? null : contentNodeSource
 }
 
 type TrackImageProps = {
@@ -41,7 +43,15 @@ type TrackImageProps = {
 export const TrackImage = (props: TrackImageProps) => {
   const { track, user, ...imageProps } = props
 
-  const { source, handleError } = useTrackImage(track, user)
+  const trackImageSource = useTrackImage(track, user)
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return trackImageSource ? (
+    <DynamicImage
+      {...imageProps}
+      source={trackImageSource.source}
+      onError={trackImageSource.handleError}
+    />
+  ) : (
+    <Text>null</Text>
+  )
 }

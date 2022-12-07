@@ -118,11 +118,12 @@ export const useContentNodeImage = ({
       createUri: (endpoint) => () => `${endpoint}${cid}`
     })
 
-    return [
-      ...(localSource ? [localSource] : []),
+    const sourceList = [
+      ...(localSource && localSource.length > 0 ? [localSource] : []),
       ...newImageSources,
       ...legacyImageSources
     ]
+    return sourceList
   }, [cid, endpoints, localSource, sizes])
 
   const handleError = useCallback(() => {
