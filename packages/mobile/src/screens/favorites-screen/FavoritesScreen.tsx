@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import type { CommonState, Track } from '@audius/common'
 import {
@@ -61,17 +61,10 @@ export const FavoritesScreen = () => {
 
   const savedTracks = useProxySelector(getTracks, [])
 
-  const handleFetchSavedPlaylists = useCallback(() => {
+  useEffectOnce(() => {
     dispatch(fetchSavedPlaylists())
-  }, [dispatch])
-
-  useEffectOnce(handleFetchSavedPlaylists)
-
-  const handleFetchSavedAlbums = useCallback(() => {
     dispatch(fetchSavedAlbums())
-  }, [dispatch])
-
-  useEffectOnce(handleFetchSavedAlbums)
+  })
 
   const userCollections = useSelector((state: CommonState) =>
     getAccountCollections(state, '')
