@@ -163,6 +163,10 @@ export const pollForAudioBalanceChange = async ({
     )
     return tokenAccountInfo.amount
   }
+  console.debug(
+    'AUDIO balance polling exceeded maximum retries:',
+    tokenAccount.toString()
+  )
   throw new Error('AUDIO balance polling exceeded maximum retries')
 }
 
@@ -200,6 +204,10 @@ export const pollForSolBalanceChange = async ({
     )
     return balance
   }
+  console.debug(
+    'SOL balance polling exceeded maximum retries:',
+    rootAccount.toString()
+  )
   throw new Error('SOL balance polling exceeded maximum retries')
 }
 
