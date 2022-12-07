@@ -182,7 +182,7 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
   }
 }
 
-export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
+export function* fetchAccountAsync({ isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const localStorage = yield getContext('localStorage')
@@ -192,11 +192,7 @@ export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
 
   yield put(accountActions.fetchAccountRequested())
 
-  if (!fromSource) {
-    yield fetchLocalAccountAsync()
-  }
-
-  const account = yield call(audiusBackendInstance.getAccount, fromSource)
+  const account = yield call(audiusBackendInstance.getAccount)
   if (!account || account.is_deactivated) {
     yield put(
       fetchAccountFailed({
