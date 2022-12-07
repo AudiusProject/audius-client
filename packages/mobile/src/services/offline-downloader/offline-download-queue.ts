@@ -46,7 +46,7 @@ export const startDownloadWorker = async () => {
     .forEach(({ payload }) => {
       try {
         const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
-        const trackId = parsedPayload.track.track_id
+        const trackId = parsedPayload.trackId
         store.dispatch(startDownload(trackId.toString()))
       } catch (e) {
         console.warn(e)
