@@ -933,13 +933,13 @@ function* doBuyAudio({
       error: e as Error,
       additionalInfo: { stage, userRootWallet }
     })
-    console.error('BuyAudio failed')
     yield* put(buyAudioFlowFailed())
     yield* put(
       make(Name.BUY_AUDIO_FAILURE, {
         provider,
         stage,
         requestedAudio: desiredAudioAmount.uiAmount,
+        name: 'BuyAudio failed',
         error: (e as Error).message
       })
     )
@@ -1160,9 +1160,9 @@ function* recoverPurchaseIfNecessary() {
     }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudioRecovery failed')
     yield* call(reportToSentry, {
       level: ErrorLevel.Error,
+      name: 'BuyAudioRecovery failed',
       error: e as Error,
       additionalInfo: { stage, didNeedRecovery, userRootWallet }
     })
