@@ -87,7 +87,7 @@ export const ShareToStorySticker = ({
         ) : null}
         <Text
           color='staticNeutral'
-          maxFontSizeMultiplier={1}
+          allowFontScaling={false}
           variant='h2'
           numberOfLines={1}
           style={styles.title}
@@ -96,7 +96,7 @@ export const ShareToStorySticker = ({
         </Text>
         <View style={styles.infoContainer}>
           <Text
-            maxFontSizeMultiplier={1}
+            allowFontScaling={false}
             color='staticNeutral'
             weight='medium'
             fontSize='medium'
@@ -116,7 +116,7 @@ export const ShareToStorySticker = ({
         <Divider color='staticNeutralLight8' width={2} />
         <View style={styles.belowDividerContainer}>
           <Text
-            maxFontSizeMultiplier={1}
+            allowFontScaling={false}
             color='staticNeutralLight2'
             weight='bold'
             fontSize='xs'
