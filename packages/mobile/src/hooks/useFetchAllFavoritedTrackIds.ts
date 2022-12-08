@@ -5,11 +5,15 @@ import { useAsync } from 'react-use'
 
 import { apiClient } from 'app/services/audius-api-client'
 
+import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
+
 const { getUserId } = accountSelectors
 
 export const useFetchAllFavoritedTrackIds = () => {
   const currentUserId = useSelector(getUserId)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   return useAsync(async () => {
+    if (!isOfflineModeEnabled) return []
     let trackIds: number[] = []
     let loadMore = true
     let offset = 0
