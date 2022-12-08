@@ -48,7 +48,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     justifyContent: 'space-between'
   },
   title: {
-    marginTop: 8
+    marginTop: spacing(2)
   },
   subtitle: {
     flexGrow: 0
