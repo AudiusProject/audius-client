@@ -1,10 +1,5 @@
 import type { APIFavorite } from '@audius/common'
-import {
-  FavoriteType,
-  decodeHashId,
-  encodeHashId,
-  accountSelectors
-} from '@audius/common'
+import { decodeHashId, encodeHashId, accountSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
