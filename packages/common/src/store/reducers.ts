@@ -50,10 +50,14 @@ import {
   playlistLibraryReducer,
   PlaylistLibraryState
 } from './playlist-library'
+import premiumContentReducer from './premium-content/reducer'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
 import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
+import remixSettingsReducer, {
+  RemixSettingsState
+} from './remix-settings/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
@@ -87,6 +91,8 @@ import toastReducer from './ui/toast/slice'
 import transactionDetailsReducer from './ui/transaction-details/slice'
 import vipDiscordModalReducer from './ui/vip-discord-modal/slice'
 import { VipDiscordModalState } from './ui/vip-discord-modal/types'
+import upload from './upload/reducer'
+import { UploadState } from './upload/types'
 import favoritesUserListReducer from './user-list/favorites/reducers'
 import followersUserListReducer from './user-list/followers/reducers'
 import followingUserListReducer from './user-list/following/reducers'
@@ -152,6 +158,7 @@ export const reducers = () => ({
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
     reactions: reactionsReducer,
+    remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
     toast: toastReducer,
@@ -175,6 +182,7 @@ export const reducers = () => ({
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
     collection,
+    deactivateAccount: deactivateAccountReducer,
     feed,
     explore: explorePageReducer,
     exploreCollections: exploreCollectionsReducer,
@@ -190,8 +198,7 @@ export const reducers = () => ({
     trendingUnderground,
     settings,
     notifications,
-    remixes,
-    deactivateAccount: deactivateAccountReducer
+    remixes
   }),
 
   // Solana
@@ -200,7 +207,12 @@ export const reducers = () => ({
   stemsUpload,
 
   // Tipping
-  tipping: tippingReducer
+  tipping: tippingReducer,
+
+  // Premium content
+  premiumContent: premiumContentReducer,
+
+  upload
 })
 
 export type CommonState = {
@@ -249,6 +261,7 @@ export type CommonState = {
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
+    remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     shareModal: ShareModalState
     toast: ToastState
@@ -271,6 +284,7 @@ export type CommonState = {
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
     collection: CollectionsPageState
+    deactivateAccount: DeactivateAccountState
     feed: FeedPageState
     explore: ReturnType<typeof explorePageReducer>
     exploreCollections: ReturnType<typeof exploreCollectionsReducer>
@@ -287,13 +301,16 @@ export type CommonState = {
     trendingUnderground: ReturnType<typeof trendingUnderground>
     notifications: ReturnType<typeof notifications>
     remixes: ReturnType<typeof remixes>
-    deactivateAccount: DeactivateAccountState
   }
-
   solana: ReturnType<typeof solanaReducer>
 
   stemsUpload: ReturnType<typeof stemsUpload>
 
   // Tipping
   tipping: ReturnType<typeof tippingReducer>
+
+  // Premium content
+  premiumContent: ReturnType<typeof premiumContentReducer>
+
+  upload: UploadState
 }

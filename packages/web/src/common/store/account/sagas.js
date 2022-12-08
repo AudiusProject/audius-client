@@ -5,7 +5,6 @@ import {
   profilePageActions,
   solanaSelectors,
   accountActions,
-  waitForAccount,
   recordIP,
   createUserBankIfNeeded
 } from '@audius/common'
@@ -19,10 +18,10 @@ import {
 } from 'redux-saga/effects'
 
 import { identify } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
@@ -41,11 +40,11 @@ const {
 
 const {
   signedIn,
-  unsubscribeBrowserPushNotifications,
   showPushNotificationConfirmation,
   fetchAccountSucceeded,
   fetchAccountFailed,
   fetchAccount,
+  fetchLocalAccount,
   twitterLogin,
   instagramLogin,
   fetchSavedAlbums,
@@ -182,50 +181,30 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
   }
 }
 
-export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
+export function* fetchAccountAsync({ isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
   const isElectron = yield getContext('isElectron')
   const fingerprintClient = yield getContext('fingerprintClient')
 
   yield put(accountActions.fetchAccountRequested())
 
-  if (!fromSource) {
-    const cachedAccount = yield call([localStorage, 'getAudiusAccount'])
-    const cachedAccountUser = yield call([localStorage, 'getAudiusAccountUser'])
-    const currentUserExists = yield call([localStorage, 'getCurrentUserExists'])
-    if (
-      cachedAccount &&
-      cachedAccountUser &&
-      !cachedAccountUser.is_deactivated
-    ) {
-      yield call(
-        cacheAccount,
-        cachedAccountUser,
-        cachedAccountUser.orderedPlaylists
-      )
-      yield put(fetchAccountSucceeded(cachedAccount))
-    } else if (!currentUserExists) {
-      yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' }))
-    }
-  }
-
-  const account = yield call(audiusBackendInstance.getAccount, fromSource)
-  if (!account || account.is_deactivated) {
+  const account = yield call(audiusBackendInstance.getAccount)
+  if (!account) {
     yield put(
       fetchAccountFailed({
-        reason: account ? 'ACCOUNT_DEACTIVATED' : 'ACCOUNT_NOT_FOUND'
+        reason: 'ACCOUNT_NOT_FOUND'
       })
     )
-    // Clear local storage users if present
-    yield call([localStorage, 'clearAudiusAccount'])
-    yield call([localStorage, 'clearAudiusAccountUser'])
-
-    // If the user is not signed in
-    // Remove browser has requested push notifications.
-    yield put(unsubscribeBrowserPushNotifications())
+    return
+  }
+  if (account.is_deactivated) {
+    yield put(
+      fetchAccountFailed({
+        reason: 'ACCOUNT_DEACTIVATED'
+      })
+    )
     return
   }
 
@@ -247,6 +226,25 @@ export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
   yield put(signedIn({ account, isSignUp }))
 }
 
+export function* fetchLocalAccountAsync() {
+  const localStorage = yield getContext('localStorage')
+
+  yield put(accountActions.fetchAccountRequested())
+
+  const cachedAccount = yield call([localStorage, 'getAudiusAccount'])
+  const cachedAccountUser = yield call([localStorage, 'getAudiusAccountUser'])
+  const currentUserExists = yield call([localStorage, 'getCurrentUserExists'])
+  if (cachedAccount && cachedAccountUser && !cachedAccountUser.is_deactivated) {
+    yield call(
+      cacheAccount,
+      cachedAccountUser,
+      cachedAccountUser.orderedPlaylists
+    )
+  } else if (!currentUserExists) {
+    yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' }))
+  }
+}
+
 function* cacheAccount(account) {
   const localStorage = yield getContext('localStorage')
   const collections = account.playlists || []
@@ -257,14 +255,9 @@ function* cacheAccount(account) {
     ])
   )
 
-  const hasFavoritedItem =
-    collections.some((playlist) => playlist.user.id !== account.user_id) ||
-    account.track_save_count > 0
-
   const formattedAccount = {
     userId: account.user_id,
-    collections,
-    hasFavoritedItem
+    collections
   }
 
   yield call([localStorage, 'setAudiusAccount'], formattedAccount)
@@ -285,9 +278,9 @@ export function* reCacheAccount() {
 
 function* associateTwitterAccount(action) {
   const { uuid, profile } = action.payload
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   try {
-    yield waitForAccount()
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
     yield call(
@@ -339,8 +332,7 @@ function* associateInstagramAccount(action) {
 }
 
 function* fetchSavedAlbumsAsync() {
-  yield call(waitForBackendSetup)
-  yield waitForAccount()
+  yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -348,8 +340,7 @@ function* fetchSavedAlbumsAsync() {
 }
 
 function* fetchSavedPlaylistsAsync() {
-  yield call(waitForBackendSetup)
-  yield waitForAccount()
+  yield waitForRead()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {
@@ -370,6 +361,10 @@ function* fetchSavedPlaylistsAsync() {
 
 function* watchFetchAccount() {
   yield takeEvery(fetchAccount.type, fetchAccountAsync)
+}
+
+function* watchFetchLocalAccount() {
+  yield takeEvery(fetchLocalAccount.type, fetchLocalAccountAsync)
 }
 
 function* watchSignedIn() {
@@ -399,6 +394,7 @@ function* watchAddAccountPlaylist() {
 export default function sagas() {
   return [
     watchFetchAccount,
+    watchFetchLocalAccount,
     watchSignedIn,
     watchTwitterLogin,
     watchInstagramLogin,

@@ -6,8 +6,8 @@ import {
   shareModalUISagas as shareModalSagas,
   vipDiscordModalSagas
 } from '@audius/common'
-import analyticsSagas from 'audius-client/src/common/store/analytics/sagas'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
+import analyticsSagas from 'common/store/analytics/sagas'
 import backendSagas from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
@@ -36,12 +36,14 @@ import playlistLibrarySagas from 'common/store/playlist-library/sagas'
 import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import remixSettingsSagas from 'common/store/remix-settings/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
+import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
 import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
@@ -61,6 +63,7 @@ import oauthSagas from './oauth/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
 import themeSagas from './theme/sagas'
+import walletsSagas from './wallet-connect/sagas'
 
 export default function* rootSaga() {
   const sagas = [
@@ -72,7 +75,6 @@ export default function* rootSaga() {
     ...searchResultsSagas(),
 
     // Account
-
     ...accountSagas(),
     ...recoveryEmailSagas(),
     ...playlistLibrarySagas(),
@@ -122,7 +124,6 @@ export default function* rootSaga() {
     ...historySagas(),
     ...rewardsPageSagas(),
     ...settingsSagas(),
-    ...signOutSagas(),
 
     // Cast
     ...castSagas(),
@@ -141,10 +142,13 @@ export default function* rootSaga() {
     ...themeSagas(),
     ...tokenDashboardSagas(),
     ...mobileUiSagas(),
+    ...uploadSagas(),
+    ...remixSettingsSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
-    ...oauthSagas()
+    ...oauthSagas(),
+    ...walletsSagas()
   ]
 
   yield* all(sagas.map(fork))

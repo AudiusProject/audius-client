@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 
 import {
   accountSelectors,
@@ -9,7 +9,10 @@ import {
   playerActions,
   queueActions,
   queueSelectors,
-  RepeatMode
+  reachabilitySelectors,
+  RepeatMode,
+  FeatureFlags,
+  encodeHashId
 } from '@audius/common'
 import { Platform, StyleSheet, View } from 'react-native'
 import MusicControl from 'react-native-music-control'
@@ -18,16 +21,24 @@ import type { OnProgressData } from 'react-native-video'
 import Video from 'react-native-video'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useOfflineTrackUri } from 'app/hooks/useOfflineTrack'
+import {
+  DEFAULT_IMAGE_URL,
+  useTrackImage
+} from 'app/components/image/TrackImage'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 import { useChromecast } from './GoogleCast'
 import { logListen } from './listens'
 
 const { getUser } = cacheUsersSelectors
-const { getPlaying, getSeek, getCurrentTrack } = playerSelectors
+const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
 const { getIndex, getLength, getRepeat, getShuffle, getShuffleIndex } =
   queueSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const { getUserId } = accountSelectors
 
@@ -41,9 +52,6 @@ declare global {
 }
 
 const SKIP_DURATION_SEC = 15
-
-const DEFAULT_IMAGE_URL =
-  'https://download.audius.co/static-resources/preview-image.jpg'
 
 const RECORD_LISTEN_SECONDS = 1
 
@@ -59,18 +67,25 @@ const styles = StyleSheet.create({
 })
 
 export const Audio = () => {
+  const { isEnabled: isStreamMp3Enabled } = useFeatureFlag(
+    FeatureFlags.STREAM_MP3
+  )
   const track = useSelector(getCurrentTrack)
   const index = useSelector(getIndex)
   const queueLength = useSelector(getLength)
   const playing = useSelector(getPlaying)
   const seek = useSelector(getSeek)
+  const counter = useSelector(getCounter)
   const repeatMode = useSelector(getRepeat)
   const isShuffleOn = useSelector(getShuffle)
   const shuffleIndex = useSelector(getShuffleIndex)
   const trackOwner = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
+  const trackImageSource = useTrackImage(track, trackOwner ?? undefined)
   const currentUserId = useSelector(getUserId)
+  const isReachable = useSelector(getIsReachable)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const dispatch = useDispatch()
 
@@ -189,9 +204,13 @@ export const Audio = () => {
 
   // Track Info handler
   useEffect(() => {
-    if (track && !track.is_delete && duration !== null) {
-      const imageUrl =
-        track._cover_art_sizes?.['1000x1000'] ?? DEFAULT_IMAGE_URL
+    if (
+      track &&
+      !track.is_delete &&
+      duration !== null &&
+      trackImageSource?.source[2]
+    ) {
+      const imageUrl = trackImageSource?.source[2].uri ?? DEFAULT_IMAGE_URL
       // Set the background mode when a song starts
       // playing to ensure audio outside app
       // continues when music isn't being played.
@@ -209,7 +228,14 @@ export const Audio = () => {
         MusicControl.handleAudioInterruptions(false)
       }
     }
-  }, [track, index, duration, trackOwner])
+  }, [
+    track,
+    index,
+    duration,
+    trackOwner,
+    trackImageSource?.source,
+    trackImageSource
+  ])
 
   // Next and Previous handler
   useEffect(() => {
@@ -251,24 +277,38 @@ export const Audio = () => {
 
   const { isCasting } = useChromecast()
 
+  const setSeekPosition = useCallback(
+    (seek = 0) => {
+      if (videoRef.current) {
+        progressInvalidator.current = true
+        videoRef.current.seek(seek)
+        elapsedTime.current = seek
+
+        // If we are casting, don't update the internal
+        // seek clock. This is already handled by the effect in GoogleCast.tsx
+        if (!isCasting) {
+          global.progress.currentTime = seek
+        }
+
+        MusicControl.updatePlayback({
+          elapsedTime: elapsedTime.current
+        })
+      }
+    },
+    [progressInvalidator, elapsedTime, isCasting]
+  )
+
   // Seek handler
   useEffect(() => {
-    if (seek !== null && videoRef.current) {
-      progressInvalidator.current = true
-      videoRef.current.seek(seek)
-      elapsedTime.current = seek
-
-      // If we are casting, don't update the internal
-      // seek clock
-      if (!isCasting) {
-        global.progress.currentTime = seek
-      }
-
-      MusicControl.updatePlayback({
-        elapsedTime: elapsedTime.current
-      })
+    if (seek !== null) {
+      setSeekPosition(seek)
     }
-  }, [seek, progressInvalidator, elapsedTime, isCasting])
+  }, [seek, setSeekPosition])
+
+  // Restart (counter) handler
+  useEffect(() => {
+    setSeekPosition(0)
+  }, [counter, setSeekPosition])
 
   useEffect(() => {
     setListenLoggedForTrack(false)
@@ -313,7 +353,9 @@ export const Audio = () => {
       if (
         progress.currentTime > RECORD_LISTEN_SECONDS &&
         (track.owner_id !== currentUserId || track.play_count < 10) &&
-        !listenLoggedForTrack
+        !listenLoggedForTrack &&
+        // TODO: log listens for offline plays when reconnected
+        (!isOfflineModeEnabled || isReachable)
       ) {
         // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
         setListenLoggedForTrack(true)
@@ -321,19 +363,35 @@ export const Audio = () => {
           setListenLoggedForTrack(false)
         )
       }
-      global.progress = progress
+
+      if (!isCasting) {
+        // If we aren't casting, update the progress
+        global.progress = progress
+      } else {
+        // If we are casting, only update the seekableDuration
+        // The currentTime is set via the effect in GoogleCast.tsx
+        global.progress.seekableDuration = progress.seekableDuration
+      }
     },
     [
       track,
       currentUserId,
       listenLoggedForTrack,
-      setListenLoggedForTrack,
-      progressInvalidator
+      isOfflineModeEnabled,
+      isReachable,
+      isCasting
     ]
   )
-  const offlineTrackUri = useOfflineTrackUri(track)
+  const { value: offlineTrackUri, loading } = useOfflineTrackUri(
+    track?.track_id.toString()
+  )
+  const streamingUri = useMemo(() => {
+    return track && isReachable
+      ? apiClient.makeUrl(`/tracks/${encodeHashId(track.track_id)}/stream`)
+      : null
+  }, [isReachable, track])
 
-  if (!track || track.is_delete) return null
+  if (loading || !track || track.is_delete) return null
 
   const gateways = trackOwner
     ? audiusBackendInstance.getCreatorNodeIPFSGateways(
@@ -349,6 +407,11 @@ export const Audio = () => {
   let source
   if (offlineTrackUri) {
     source = { uri: offlineTrackUri }
+    // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
+  } else if (isStreamMp3Enabled && streamingUri) {
+    source = {
+      uri: streamingUri
+    }
   } else if (m3u8) {
     source = {
       uri: m3u8,

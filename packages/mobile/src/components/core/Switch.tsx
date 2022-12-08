@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import type { SwitchProps as RNSwitchProps } from 'react-native'
-import { Switch as RNSwitch } from 'react-native'
+import { Platform, Switch as RNSwitch } from 'react-native'
 import { useToggle } from 'react-use'
 
 import { light } from 'app/haptics'
@@ -11,6 +11,10 @@ type SwitchProps = RNSwitchProps & {
   defaultValue?: boolean
 }
 
+const switchStyle = Platform.OS === 'ios' && {
+  transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }]
+}
+
 export const Switch = (props: SwitchProps) => {
   const {
     defaultValue = false,
@@ -18,7 +22,7 @@ export const Switch = (props: SwitchProps) => {
     onValueChange: onValueChangeProp,
     ...other
   } = props
-  const { neutralLight6, neutralLight9, secondary } = useThemeColors()
+  const { neutralLight6, white, secondary } = useThemeColors()
   const [isEnabledState, setIsEnabled] = useToggle(defaultValue)
 
   const isEnabled = value ?? isEnabledState
@@ -34,9 +38,9 @@ export const Switch = (props: SwitchProps) => {
 
   return (
     <RNSwitch
-      style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+      style={switchStyle}
       trackColor={{ false: neutralLight6, true: secondary }}
-      thumbColor={neutralLight9}
+      thumbColor={white}
       value={isEnabled}
       onValueChange={handleValueChange}
       {...other}

@@ -137,7 +137,12 @@ export enum IntKeys {
   /**
    * The maximum amount of times to poll the user wallet before giving up on an $AUDIO purchase
    */
-  BUY_AUDIO_WALLET_POLL_MAX_RETRIES = 'BUY_AUDIO_WALLET_POLL_MAX_RETRIES'
+  BUY_AUDIO_WALLET_POLL_MAX_RETRIES = 'BUY_AUDIO_WALLET_POLL_MAX_RETRIES',
+
+  /**
+   * The allowed slippage percentage/padding percentage for the BuyAudio Modal
+   */
+  BUY_AUDIO_SLIPPAGE = 'BUY_AUDIO_SLIPPAGE'
 }
 
 export enum BooleanKeys {
@@ -174,7 +179,12 @@ export enum BooleanKeys {
   /**
    * Boolean to use amplitude as the metrics tracking.
    */
-  USE_AMPLITUDE = 'USE_AMPLITUDE'
+  USE_AMPLITUDE = 'USE_AMPLITUDE',
+
+  /**
+   * Boolean to enable "Transactions" button on Audio page.
+   */
+  AUDIO_TRANSACTIONS_ENABLED = 'AUDIO_TRANSACTIONS_ENABLED'
 }
 
 export enum DoubleKeys {

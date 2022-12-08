@@ -4,8 +4,11 @@ import {
   AccountImage,
   InstagramProfile,
   TwitterProfile,
-  NativeAccountImage
+  NativeAccountImage,
+  TikTokProfile
 } from '@audius/common'
+
+import { UiErrorCode } from 'store/errors/actions'
 
 import { FollowArtistsCategory, Pages } from './types'
 
@@ -41,6 +44,8 @@ export const SET_TWITTER_PROFILE = 'SIGN_ON/SET_TWITTER_PROFILE'
 export const SET_TWITTER_PROFILE_ERROR = 'SIGN_ON/SET_TWITTER_PROFILE_ERROR'
 export const SET_INSTAGRAM_PROFILE = 'SIGN_ON/SET_INSTAGRAM_PROFILE'
 export const SET_INSTAGRAM_PROFILE_ERROR = 'SIGN_ON/SET_INSTAGRAM_PROFILE_ERROR'
+export const SET_TIKTOK_PROFILE = 'SIGN_ON/SET_TIKTOK_PROFILE'
+export const SET_TIKTOK_PROFILE_ERROR = 'SIGN_ON/SET_TIKTOK_PROFILE_ERROR'
 
 export const SET_STATUS = 'SIGN_ON/SET_STATUS'
 export const CONFIGURE_META_MASK = 'SIGN_ON/CONFIGURE_META_MASK'
@@ -176,6 +181,7 @@ type SignUpFailedParams = {
   shouldReport: boolean
   shouldToast: boolean
   message?: string
+  uiErrorCode?: UiErrorCode
 }
 
 export const signUpFailed = ({
@@ -184,7 +190,8 @@ export const signUpFailed = ({
   redirectRoute,
   shouldReport,
   shouldToast,
-  message
+  message,
+  uiErrorCode
 }: SignUpFailedParams) => ({
   type: SIGN_UP_FAILED,
   error,
@@ -192,7 +199,8 @@ export const signUpFailed = ({
   redirectRoute,
   shouldReport,
   shouldToast,
-  message
+  message,
+  uiErrorCode
 })
 
 /**
@@ -208,12 +216,14 @@ export const signInSucceeded = () => ({ type: SIGN_IN_SUCCEEDED })
 export const signInFailed = (
   error: string,
   phase: string,
-  shouldReport = true
+  shouldReport = true,
+  uiErrorCode?: UiErrorCode
 ) => ({
   type: SIGN_IN_FAILED,
   error,
   phase,
-  shouldReport
+  shouldReport,
+  uiErrorCode
 })
 
 /**
@@ -299,6 +309,23 @@ export function setInstagramProfile(
 
 export function setInstagramProfileError(error: string) {
   return { type: SET_INSTAGRAM_PROFILE_ERROR, error }
+}
+
+export function setTikTokProfile(
+  tikTokId: string,
+  profile: TikTokProfile,
+  profileImage?: AccountImage | NativeAccountImage | null
+) {
+  return {
+    type: SET_TIKTOK_PROFILE,
+    tikTokId,
+    profile,
+    profileImage
+  }
+}
+
+export function setTikTokProfileError(error: string) {
+  return { type: SET_TIKTOK_PROFILE_ERROR, error }
 }
 
 /**

@@ -8,19 +8,18 @@ import {
   cacheUsersSelectors,
   getContext,
   usersSocialActions as socialActions,
-  waitForAccount,
   FeatureFlags,
   profilePageActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { profilePage } from 'utils/route'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
 const { getUsers, getUser } = cacheUsersSelectors
@@ -36,8 +35,7 @@ export function* watchFollowUser() {
 export function* followUser(
   action: ReturnType<typeof socialActions.followUser>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   const accountId = yield* select(getUserId)
@@ -158,8 +156,7 @@ export function* unfollowUser(
   action: ReturnType<typeof socialActions.unfollowUser>
 ) {
   /* Make Async Backend Call */
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const accountId = yield* select(getUserId)
   if (!accountId) {
     yield* put(signOnActions.openSignOn(false))
@@ -267,6 +264,102 @@ export function* confirmUnfollowUser(userId: ID, accountId: ID) {
     )
   )
 }
+
+/* SUBSCRIBE */
+
+export function* subscribeToUserAsync(userId: ID) {
+  yield* waitForWrite()
+
+  const accountId = yield* select(getUserId)
+  if (!accountId) {
+    return
+  }
+
+  yield* call(confirmSubscribeToUser, userId, accountId)
+}
+
+export function* confirmSubscribeToUser(userId: ID, accountId: ID) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* put(
+    confirmerActions.requestConfirmation(
+      makeKindId(Kind.USERS, userId),
+      function* () {
+        const { blockHash, blockNumber } = yield* call(
+          audiusBackendInstance.subscribeToUser,
+          userId
+        )
+        const confirmed = yield* call(
+          confirmTransaction,
+          blockHash,
+          blockNumber
+        )
+        if (!confirmed) {
+          throw new Error(
+            `Could not confirm subscribe to user for user id ${userId} and account id ${accountId}`
+          )
+        }
+        return accountId
+      },
+      function* () {},
+      function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        yield* put(
+          socialActions.subscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
+        )
+      }
+    )
+  )
+}
+
+export function* unsubscribeFromUserAsync(userId: ID) {
+  yield* waitForWrite()
+
+  const accountId = yield* select(getUserId)
+  if (!accountId) {
+    return
+  }
+
+  yield* call(confirmUnsubscribeFromUser, userId, accountId)
+}
+
+export function* confirmUnsubscribeFromUser(userId: ID, accountId: ID) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* put(
+    confirmerActions.requestConfirmation(
+      makeKindId(Kind.USERS, userId),
+      function* () {
+        const { blockHash, blockNumber } = yield* call(
+          audiusBackendInstance.unsubscribeFromUser,
+          userId
+        )
+        const confirmed = yield* call(
+          confirmTransaction,
+          blockHash,
+          blockNumber
+        )
+        if (!confirmed) {
+          throw new Error(
+            `Could not confirm unsubscribe from user for user id ${userId} and account id ${accountId}`
+          )
+        }
+        return accountId
+      },
+      function* () {},
+      function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        yield* put(
+          socialActions.unsubscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
+        )
+      }
+    )
+  )
+}
+
+/* SHARE */
 
 export function* watchShareUser() {
   yield* takeEvery(

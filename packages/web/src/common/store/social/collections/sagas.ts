@@ -16,19 +16,18 @@ import {
   notificationsActions as notificationActions,
   getContext,
   collectionsSocialActions as socialActions,
-  waitForAccount,
   playlistLibraryActions,
   playlistLibraryHelpers
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { albumPage, audioNftPlaylistPage, playlistPage } from 'utils/route'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 import watchCollectionErrors from './errorSagas'
 const { update: updatePlaylistLibrary } = playlistLibraryActions
@@ -47,8 +46,7 @@ export function* watchRepostCollection() {
 export function* repostCollectionAsync(
   action: ReturnType<typeof socialActions.repostCollection>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
@@ -154,8 +152,7 @@ export function* watchUndoRepostCollection() {
 export function* undoRepostCollectionAsync(
   action: ReturnType<typeof socialActions.undoRepostCollection>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
@@ -271,8 +268,7 @@ export function* watchSaveSmartCollection() {
 export function* saveSmartCollection(
   action: ReturnType<typeof socialActions.saveSmartCollection>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
@@ -304,8 +300,7 @@ export function* saveSmartCollection(
 export function* saveCollectionAsync(
   action: ReturnType<typeof socialActions.saveCollection>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
@@ -320,8 +315,6 @@ export function* saveCollectionAsync(
   const collection = collections[action.collectionId]
   const user = yield* select(getUser, { id: collection.playlist_owner_id })
   if (!user) return
-
-  yield* put(accountActions.didFavoriteItem())
 
   const event = make(Name.FAVORITE, {
     kind: collection.is_album ? 'album' : 'playlist',
@@ -432,7 +425,7 @@ export function* watchUnsaveSmartCollection() {
 export function* unsaveSmartCollection(
   action: ReturnType<typeof socialActions.unsaveSmartCollection>
 ) {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
 
   const playlistLibrary = yield* select(getPlaylistLibrary)
   if (!playlistLibrary) return
@@ -453,7 +446,7 @@ export function* unsaveSmartCollection(
 export function* unsaveCollectionAsync(
   action: ReturnType<typeof socialActions.unsaveCollection>
 ) {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   const collections = yield* select(getCollections, {
     ids: [action.collectionId]
   })

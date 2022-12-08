@@ -10,12 +10,20 @@ import {
   profilePageTracksLineupActions as lineupActions,
   tracksSocialActions,
   waitForValue,
-  waitForAccount
+  FeatureFlags
 } from '@audius/common'
-import { all, call, select, takeEvery, put } from 'redux-saga/effects'
+import {
+  all,
+  call,
+  select,
+  takeEvery,
+  put,
+  getContext
+} from 'redux-saga/effects'
 
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { retrieveUserTracks } from './retrieveUserTracks'
 const { SET_ARTIST_PICK } = tracksSocialActions
@@ -27,7 +35,7 @@ const { getUserId, getUserHandle } = accountSelectors
 const PREFIX = tracksActions.prefix
 
 function* getTracks({ offset, limit, payload, handle }) {
-  yield waitForAccount()
+  yield waitForRead()
   const currentUserId = yield select(getUserId)
   const profileHandle = handle.toLowerCase()
 
@@ -43,8 +51,13 @@ function* getTracks({ offset, limit, payload, handle }) {
   )
   const sort = payload?.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
   const getUnlisted = true
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const readArtistPickFromDiscoveryEnabled = yield call(
+    getFeatureEnabled,
+    FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
+  ) ?? false
 
-  if (user._artist_pick) {
+  if (!readArtistPickFromDiscoveryEnabled && user._artist_pick) {
     let [pinnedTrack, processed] = yield all([
       call(retrieveTracks, { trackIds: [user._artist_pick] }),
       call(retrieveUserTracks, {

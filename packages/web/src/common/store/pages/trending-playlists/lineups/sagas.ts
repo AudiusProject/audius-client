@@ -4,21 +4,21 @@ import {
   accountSelectors,
   trendingPlaylistsPageLineupSelectors,
   trendingPlaylistsPageLineupActions,
-  getContext,
-  waitForAccount
+  getContext
 } from '@audius/common'
+import { keccak_256 } from 'js-sha3'
 import { call, select } from 'typed-redux-saga'
 
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 const { getLineup } = trendingPlaylistsPageLineupSelectors
 const getUserId = accountSelectors.getUserId
 
 function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const web3 = yield* call(audiusBackendInstance.getWeb3)
 
   yield* call(remoteConfigInstance.waitForRemoteConfig)
 
@@ -27,7 +27,6 @@ function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
   )
 
   const time = 'week' as const
-  yield* waitForAccount()
 
   const currentUserId = yield* select(getUserId)
 
@@ -43,7 +42,7 @@ function* getPlaylists({ limit, offset }: { limit: number; offset: number }) {
 
   if (TF.size > 0) {
     playlists = playlists.filter((p) => {
-      const shaId = web3.utils.sha3(p.playlist_id.toString())
+      const shaId = keccak_256(p.playlist_id.toString())
       return !TF.has(shaId)
     })
   }

@@ -9,7 +9,8 @@ import {
   cacheUsersActions as userActions,
   waitForValue,
   waitForAccount,
-  playlistLibraryHelpers
+  playlistLibraryHelpers,
+  FeatureFlags
 } from '@audius/common'
 import { mergeWith } from 'lodash'
 import {
@@ -29,6 +30,7 @@ import {
   getStatus
 } from 'common/store/service-selection/selectors'
 import { fetchServicesFailed } from 'common/store/service-selection/slice'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
 const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
@@ -40,8 +42,8 @@ const { getAccountUser, getUserId } = accountSelectors
  * If the user is not a creator, upgrade the user to a creator node.
  */
 export function* upgradeToCreator() {
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield waitForAccount()
   const user = yield select(getAccountUser)
 
   // If user already has creator_node_endpoint, do not reselect replica set
@@ -115,16 +117,17 @@ export function* fetchUsers(
   })
 }
 
-function* retrieveUserByHandle(handle) {
+function* retrieveUserByHandle(handle, retry) {
+  yield waitForRead()
   const apiClient = yield getContext('apiClient')
-  yield waitForAccount()
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {
     handle = handle[0]
   }
   const user = yield apiClient.getUserByHandle({
     handle,
-    currentUserId: userId
+    currentUserId: userId,
+    retry
   })
   return user
 }
@@ -134,9 +137,11 @@ export function* fetchUserByHandle(
   requiredFields,
   forceRetrieveFromSource = false,
   shouldSetLoading = true,
-  deleteExistingEntry = false
+  deleteExistingEntry = false,
+  retry = true
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const retrieveFromSource = (handle) => retrieveUserByHandle(handle, retry)
   const { entries: users } = yield call(retrieve, {
     ids: [handle],
     selectFromCache: function* (handles) {
@@ -145,7 +150,7 @@ export function* fetchUserByHandle(
     getEntriesTimestamp: function* (handles) {
       return yield select(getUserTimestamps, { handles })
     },
-    retrieveFromSource: retrieveUserByHandle,
+    retrieveFromSource,
     onBeforeAddToCache: function (users) {
       return users.map((user) => reformat(user, audiusBackendInstance))
     },
@@ -397,6 +402,18 @@ export function* fetchUserSocials({ handle }) {
     audiusBackendInstance.getCreatorSocialHandle,
     user.handle
   )
+
+  // If reading the artist pick from discovery, set _artist_pick on
+  // the user to the value from discovery (set in artist_pick_track_id
+  // on the user).
+  // TODO after migration is complete: replace all usages of
+  // _artist_pick with artist_pick_track_id
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const readArtistPickFromDiscoveryEnabled = yield call(
+    getFeatureEnabled,
+    FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
+  ) ?? false
+
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -407,8 +424,14 @@ export function* fetchUserSocials({ handle }) {
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
           donation: socials.donation || null,
-          _artist_pick: socials.pinnedTrackId || null,
-          artist_pick_track_id: socials.pinnedTrackId || null
+          _artist_pick:
+            (readArtistPickFromDiscoveryEnabled
+              ? user.artist_pick_track_id
+              : socials.pinnedTrackId) || null,
+          artist_pick_track_id:
+            (readArtistPickFromDiscoveryEnabled
+              ? user.artist_pick_track_id
+              : socials.pinnedTrackId) || null
         }
       }
     ])

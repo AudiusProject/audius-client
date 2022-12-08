@@ -15,11 +15,9 @@ import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
 import passwordReset from 'components/password-reset/store/reducer'
-import remixSettingsModal from 'components/remix-settings-modal/store/slice'
 import unfollowConfirmation from 'components/unfollow-confirmation-modal/store/reducers'
 import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import deleted from 'pages/deleted-page/store/slice'
-import upload from 'pages/upload-page/store/reducer'
 import visualizer from 'pages/visualizer/store/slice'
 import appCTAModal from 'store/application/ui/app-cta-modal/slice'
 import cookieBanner from 'store/application/ui/cookieBanner/reducer'
@@ -30,6 +28,7 @@ import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
+import error from 'store/errors/reducers'
 
 export const commonStoreReducers = clientStoreReducers()
 
@@ -55,12 +54,14 @@ const createRootReducer = (routeHistory: History) =>
     dragndrop,
 
     // Pages
-    upload,
     dashboard,
     serviceSelection,
 
     // Playback
     queue,
+
+    // Error Page
+    error,
 
     // Remote config/flags
     remoteConfig,
@@ -73,7 +74,6 @@ const createRootReducer = (routeHistory: History) =>
         editTrackModal,
         embedModal,
         firstUploadModal,
-        remixSettingsModal,
         scrollLock,
         setAsArtistPickConfirmation,
         userListModal,

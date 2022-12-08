@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ID } from '@audius/common'
+import type { ID, Track } from '@audius/common'
 import {
   removeNullable,
   OverflowAction,
@@ -16,6 +16,7 @@ import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
+import { DownloadStatusIndicator } from 'app/components/offline-downloads'
 import UserBadges from 'app/components/user-badges'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -112,7 +113,6 @@ export const TrackListItem = ({
   trackItemAction
 }: TrackListItemProps) => {
   const {
-    _cover_art_sizes,
     has_current_user_saved,
     is_delete,
     is_unlisted,
@@ -189,8 +189,7 @@ export const TrackListItem = ({
       >
         {!hideArt ? (
           <TrackArtwork
-            trackId={track_id}
-            coverArtSizes={_cover_art_sizes}
+            track={track as Track}
             isActive={isActive}
             isPlaying={isPlaying}
           />
@@ -233,6 +232,7 @@ export const TrackListItem = ({
             <UserBadges user={track.user} badgeSize={12} hideName />
           </Text>
         </View>
+        <DownloadStatusIndicator trackId={track_id} />
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}

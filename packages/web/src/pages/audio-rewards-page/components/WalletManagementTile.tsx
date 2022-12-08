@@ -10,17 +10,20 @@ import {
   buyAudioActions,
   OnRampProvider,
   FeatureFlags,
+  BooleanKeys,
   StringKeys
 } from '@audius/common'
 import { Button, ButtonType, IconInfo } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
+import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
 import { ReactComponent as IconSettings } from 'assets/img/iconSettings.svg'
+import { ReactComponent as IconTransaction } from 'assets/img/iconTransaction.svg'
 import IconGoldBadge from 'assets/img/tokenBadgeGold40@2x.png'
 import { useModalState } from 'common/hooks/useModalState'
 import { isMobileWeb } from 'common/utils/isMobileWeb'
@@ -31,6 +34,11 @@ import Tooltip from 'components/tooltip/Tooltip'
 import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
 import { getLocation, Location } from 'services/Location'
 import { isMobile } from 'utils/clientUtil'
+import {
+  AUDIO_TRANSACTIONS_PAGE,
+  pushUniqueRoute,
+  TRENDING_PAGE
+} from 'utils/route'
 
 import TokenHoverTooltip from './TokenHoverTooltip'
 import styles from './WalletManagementTile.module.css'
@@ -43,6 +51,7 @@ const { startBuyAudioFlow } = buyAudioActions
 const messages = {
   receiveLabel: 'Receive',
   sendLabel: 'Send',
+  transactionsLabel: 'View Transactions',
   audio: '$AUDIO',
   manageWallets: 'Manage Wallets',
   connectWallets: 'Connect Other Wallets',
@@ -55,10 +64,15 @@ const messages = {
   hideAdvanced: 'Hide Advanced',
   advancedOptions: 'Advanced Options',
   stripeRegionNotSupported:
-    'Stripe payments are not yet supported in your region',
+    'Link by Stripe is not yet supported in your region',
   coinbasePayRegionNotSupported:
     'Coinbase Pay is not yet supported in your region',
-  goldAudioToken: 'Gold $AUDIO token'
+  stripeStateNotSupported: (state: string) =>
+    `Link by Stripe is not supported in the state of ${state}`,
+  coinbaseStateNotSupported: (state: string) =>
+    `Coinbase Pay is not supported in the state of ${state}`,
+  goldAudioToken: 'Gold $AUDIO token',
+  findArtists: 'Find Artists to Support on Trending'
 }
 
 const AdvancedWalletActions = () => {
@@ -68,6 +82,9 @@ const AdvancedWalletActions = () => {
   const [, openTransferDrawer] = useModalState('TransferAudioMobileWarning')
 
   const mobile = isMobile()
+  const isTransactionsEnabled = useRemoteVar(
+    BooleanKeys.AUDIO_TRANSACTIONS_ENABLED
+  )
   const onClickReceive = useCallback(() => {
     if (mobile) {
       openTransferDrawer(true)
@@ -84,6 +101,10 @@ const AdvancedWalletActions = () => {
     }
   }, [mobile, dispatch, openTransferDrawer])
   const [, setOpen] = useModalState('MobileConnectWalletsDrawer')
+
+  const onClickTransactions = useCallback(() => {
+    dispatch(pushRoute(AUDIO_TRANSACTIONS_PAGE))
+  }, [dispatch])
 
   const onClickConnectWallets = useCallback(() => {
     if (mobile) {
@@ -124,6 +145,17 @@ const AdvancedWalletActions = () => {
           type={ButtonType.GLASS}
           minWidth={200}
         />
+        {!mobile && isTransactionsEnabled && (
+          <Button
+            className={cn(styles.advancedButton)}
+            text={messages.transactionsLabel}
+            textClassName={styles.textClassName}
+            onClick={onClickTransactions}
+            leftIcon={<IconTransaction className={styles.iconStyle} />}
+            type={ButtonType.GLASS}
+            minWidth={200}
+          />
+        )}
         <Button
           className={cn(styles.advancedButton, styles.manageWalletsButton)}
           text={
@@ -208,17 +240,38 @@ export const WalletManagementTile = () => {
       }),
     [value, stripeAllowedCountries, stripeDeniedRegions]
   )
+  // Assume USA is supported, so if in USA but still not supported, it's a state ban
+  const isBannedStripeState =
+    value && value.country_code_iso3 === 'USA' && !isStripeAllowed
+  const isBannedCoinbaseState =
+    value && value.country_code_iso3 === 'USA' && !isCoinbaseAllowed
 
   const onClickOpen = useCallback(() => {
     setOpen(true)
   }, [setOpen])
 
   const onBuyWithCoinbaseClicked = useCallback(() => {
-    dispatch(startBuyAudioFlow({ provider: OnRampProvider.COINBASE }))
+    dispatch(
+      startBuyAudioFlow({
+        provider: OnRampProvider.COINBASE,
+        onSuccess: {
+          action: pushUniqueRoute(TRENDING_PAGE),
+          message: messages.findArtists
+        }
+      })
+    )
   }, [dispatch])
 
   const onBuyWithStripeClicked = useCallback(() => {
-    dispatch(startBuyAudioFlow({ provider: OnRampProvider.STRIPE }))
+    dispatch(
+      startBuyAudioFlow({
+        provider: OnRampProvider.STRIPE,
+        onSuccess: {
+          action: pushUniqueRoute(TRENDING_PAGE),
+          message: messages.findArtists
+        }
+      })
+    )
   }, [dispatch])
 
   return (
@@ -273,7 +326,11 @@ export const WalletManagementTile = () => {
                 <Tooltip
                   disabled={isStripeAllowed}
                   className={styles.tooltip}
-                  text={messages.stripeRegionNotSupported}
+                  text={
+                    isBannedStripeState
+                      ? messages.stripeStateNotSupported(value.region_code)
+                      : messages.stripeRegionNotSupported
+                  }
                   color={'--secondary'}
                   shouldWrapContent={false}
                 >
@@ -292,7 +349,11 @@ export const WalletManagementTile = () => {
                 <Tooltip
                   disabled={isCoinbaseAllowed}
                   className={styles.tooltip}
-                  text={messages.coinbasePayRegionNotSupported}
+                  text={
+                    isBannedCoinbaseState
+                      ? messages.stripeStateNotSupported(value.region_code)
+                      : messages.coinbasePayRegionNotSupported
+                  }
                   color={'--secondary'}
                   shouldWrapContent={false}
                 >

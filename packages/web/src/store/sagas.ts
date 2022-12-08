@@ -37,9 +37,11 @@ import trendingUndergroundSagas from 'common/store/pages/trending-underground/sa
 import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
 import playlistLibrarySagas from 'common/store/playlist-library/sagas'
+import premiumContentSagas from 'common/store/premiumContent/sagas'
 import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import remixSettingsSagas from 'common/store/remix-settings/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
@@ -47,6 +49,7 @@ import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
+import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
 import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
@@ -58,12 +61,10 @@ import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
-import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
 import deletedSagas from 'pages/deleted-page/store/sagas'
 import settingsSagas from 'pages/settings-page/store/sagas'
-import uploadSagas from 'pages/upload-page/store/sagas'
 import webAnalyticsSagas from 'store/analytics/sagas'
 import buyAudioSagas from 'store/application/ui/buy-audio/sagas'
 import cookieBannerSagas from 'store/application/ui/cookieBanner/sagas'
@@ -158,7 +159,7 @@ export default function* rootSaga() {
     mutualsPageSagas(),
     notificationUsersPageSagas(),
     remixesSagas(),
-    remixSettingsModalSagas(),
+    remixSettingsSagas(),
     repostPageSagas(),
     scrollLockSagas(),
     shareModalSagas(),
@@ -180,6 +181,9 @@ export default function* rootSaga() {
 
     // Tipping
     tippingSagas(),
+
+    // Premium content
+    premiumContentSagas(),
 
     // Error
     errorSagas()

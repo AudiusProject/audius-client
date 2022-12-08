@@ -2,11 +2,11 @@ import { useCallback } from 'react'
 
 import { TouchableOpacity } from 'react-native'
 
+import type { UserImageProps } from 'app/components/image/UserImage'
 import type { ProfilePictureProps as ProfilePictureBaseProps } from 'app/components/user'
 import { ProfilePicture as ProfilePictureBase } from 'app/components/user'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-
-import { useNotificationNavigation } from '../../app-drawer-screen'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   image: {
@@ -22,6 +22,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type ProfilePictureProps = ProfilePictureBaseProps & {
+  profile: UserImageProps['user'] & { handle: string }
   navigationType?: 'push' | 'navigate'
   interactive?: boolean
 }
@@ -35,7 +36,7 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     ...other
   } = props
   const styles = useStyles()
-  const navigation = useNotificationNavigation()
+  const navigation = useNavigation()
 
   const handlePress = useCallback(() => {
     if (profile) {

@@ -1,5 +1,6 @@
-import { useContext } from 'react'
+import { useCallback, useContext } from 'react'
 
+import type { User } from '@audius/common'
 import {
   CreatePlaylistSource,
   accountSelectors,
@@ -15,11 +16,13 @@ import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
 import { CardList } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { ToastContext } from 'app/components/toast/ToastContext'
 import { makeStyles, shadow } from 'app/styles'
+
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
-const getAccountWithOwnPlaylists = accountSelectors.getAccountWithOwnPlaylists
+const { getAccountWithOwnPlaylists } = accountSelectors
 
 const messages = {
   title: 'Add To Playlist',
@@ -50,6 +53,11 @@ export const AddToPlaylistDrawer = () => {
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
   const user = useSelector(getAccountWithOwnPlaylists)
+
+  const renderImage = useCallback(
+    (item) => () => <CollectionImage collection={item} />,
+    []
+  )
 
   if (!user || !trackId || !trackTitle) {
     return null
@@ -92,9 +100,7 @@ export const AddToPlaylistDrawer = () => {
           renderItem={({ item }) => (
             <Card
               key={item.playlist_id}
-              id={item.playlist_id}
               type='collection'
-              imageSize={item._cover_art_sizes}
               primaryText={item.playlist_name}
               secondaryText={user.name}
               onPress={() => {
@@ -102,7 +108,8 @@ export const AddToPlaylistDrawer = () => {
                 dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
                 onClose()
               }}
-              user={user}
+              renderImage={renderImage(item)}
+              user={user as unknown as User}
             />
           )}
         />

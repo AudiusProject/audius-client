@@ -21,7 +21,7 @@ cd ..
 # Run a simulator using a prod configuration
 npm run ios
 # Run a simulator using a stage configuration
-npm run ios:bounce
+npm run ios:stage
 # Run a simulator using a dev configuration
 npm run ios:dev
 
@@ -37,7 +37,7 @@ xcrun xctrace list devices
 # Run a simulator using a prod configuration
 npm run android
 # Run a simulator using a stage configuration
-npm run android:bounce
+npm run android:stage
 # Run a simulator using a dev configuration
 npm run android:dev
 
@@ -67,6 +67,16 @@ adb logcat '*:V'
 ```
 
 - Sometimes the app will crash due a configuration error or something outside of the realm of JS and you won't get any helpful information from React Native. In those cases, it's time to break open XCode and run from there to pinpoint the issue.
+
+## Hermes
+
+Note that on iOS, use of [Hermes](https://reactnative.dev/docs/hermes) is disabled by default in this repo in order to allow debugging with React Native Debugger. However, Hermes is enabled in app releases. To ensure your changes will work with the Hermes engine, you can enable Hermes locally with the following command:
+
+```bash
+npm run enable-hermes:ios && pod install
+```
+
+...and then restart the app.
 
 ## Helpful
 

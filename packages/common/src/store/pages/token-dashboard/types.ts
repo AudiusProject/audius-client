@@ -1,4 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
+import BN from 'bn.js'
 
 import { Chain } from '../../../models/Chain'
 import { StringWei, WalletAddress } from '../../../models/Wallet'
@@ -51,7 +52,7 @@ export type CanReceiveWAudio = 'false' | 'loading' | 'true'
 
 export type AssociatedWallet = {
   address: string
-  balance: any // TODO(nkang) `any` should be `BNWei`
+  balance: BN
   collectibleCount: number
 }
 
@@ -69,7 +70,7 @@ export type InputSendDataAction = PayloadAction<{
 }>
 
 export type AssociatedWalletsState = {
-  status: Nullable<'Connecting' | 'Confirming' | 'Confirmed'>
+  status: Nullable<'Connecting' | 'Connected' | 'Confirming' | 'Confirmed'>
   connectedEthWallets: Nullable<AssociatedWallets>
   connectedSolWallets: Nullable<AssociatedWallets>
   confirmingWallet: {
@@ -77,6 +78,7 @@ export type AssociatedWalletsState = {
     chain: Nullable<Chain>
     balance: Nullable<any> // TODO(nkang) `any` should be `BNWei`
     collectibleCount: Nullable<number>
+    signature: Nullable<string>
   }
   errorMessage: Nullable<string>
   removeWallet: {

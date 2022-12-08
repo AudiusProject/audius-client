@@ -40,6 +40,8 @@ export enum Name {
   CREATE_ACCOUNT_FINISH = 'Create Account: Finish',
   // When the user gets rate limited during signup auth
   CREATE_ACCOUNT_RATE_LIMIT = 'Create Account: Rate Limit',
+  // When the user gets blocked by AAO during the signup path
+  CREATE_ACCOUNT_BLOCKED = 'Create Account: Blocked',
 
   // Sign in
   SIGN_IN_OPEN = 'Sign In: Open',
@@ -116,18 +118,23 @@ export enum Name {
   EMBED_OPEN = 'Embed: Open modal',
   EMBED_COPY = 'Embed: Copy',
 
-  // Upload
+  // Upload funnel / conversion
   TRACK_UPLOAD_OPEN = 'Track Upload: Open',
   TRACK_UPLOAD_START_UPLOADING = 'Track Upload: Start Upload',
   TRACK_UPLOAD_TRACK_UPLOADING = 'Track Upload: Track Uploading',
+  // Note that upload is considered complete if it is explicitly rejected
+  // by the node receiving the file (HTTP 403).
   TRACK_UPLOAD_COMPLETE_UPLOAD = 'Track Upload: Complete Upload',
   TRACK_UPLOAD_COPY_LINK = 'Track Upload: Copy Link',
   TRACK_UPLOAD_SHARE_WITH_FANS = 'Track Upload: Share with your fans',
   TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK = 'Track Upload: Share sound to TikTok',
   TRACK_UPLOAD_VIEW_TRACK_PAGE = 'Track Upload: View Track page',
+  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+
+  // Upload success tracking
   TRACK_UPLOAD_SUCCESS = 'Track Upload: Success',
   TRACK_UPLOAD_FAILURE = 'Track Upload: Failure',
-  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+  TRACK_UPLOAD_REJECTED = 'Track Upload: Rejected',
 
   // Trending
   TRENDING_CHANGE_VIEW = 'Trending: Change view',
@@ -672,6 +679,9 @@ type TrackUploadTrackUploading = {
   genre: string
   mood: string
   downloadable: 'yes' | 'no' | 'follow'
+  size: number
+  type: string
+  name: string
 }
 type TrackUploadCompleteUpload = {
   eventName: Name.TRACK_UPLOAD_COMPLETE_UPLOAD
@@ -687,6 +697,13 @@ type TrackUploadSuccess = {
 
 type TrackUploadFailure = {
   eventName: Name.TRACK_UPLOAD_FAILURE
+  endpoint: string
+  kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
+  error?: string
+}
+
+type TrackUploadRejected = {
+  eventName: Name.TRACK_UPLOAD_REJECTED
   endpoint: string
   kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
   error?: string
@@ -1176,7 +1193,7 @@ type RewardsClaimUnknown = {
   error: string
 }
 
-export type TipSource = 'profile' | 'feed' | 'dethroned'
+export type TipSource = 'profile' | 'feed' | 'dethroned' | 'buyAudio'
 
 type TipAudioRequest = {
   eventName: Name.TIP_AUDIO_REQUEST
@@ -1307,6 +1324,8 @@ type BuyAudioFailure = {
 type BuyAudioRecoveryOpened = {
   eventName: Name.BUY_AUDIO_RECOVERY_OPENED
   provider: string
+  trigger: string
+  balance: string
 }
 
 type BuyAudioRecoverySuccess = {
@@ -1395,6 +1414,7 @@ export type AllTrackingEvents =
   | TrackUploadCompleteUpload
   | TrackUploadSuccess
   | TrackUploadFailure
+  | TrackUploadRejected
   | TrackUploadCopyLink
   | TrackUploadShareWithFans
   | TrackUploadShareSoundToTikTok

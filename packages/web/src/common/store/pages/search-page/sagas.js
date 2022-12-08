@@ -3,17 +3,16 @@ import {
   accountSelectors,
   searchResultsPageActions as searchPageActions,
   searchResultsPageTracksLineupActions as tracksLineupActions,
-  waitForAccount,
   SearchKind
 } from '@audius/common'
 import { select, call, takeLatest, put, getContext } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import tracksSagas from 'common/store/pages/search-page/lineups/tracks/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 
 const getUserId = accountSelectors.getUserId
 
@@ -46,7 +45,7 @@ export function* getTagSearchResults(tag, kind, limit, offset) {
 }
 
 export function* fetchSearchPageTags(action) {
-  yield call(waitForBackendSetup)
+  yield call(waitForRead)
   const query = trimToAlphaNumeric(action.tag)
 
   const rawResults = yield call(
@@ -90,8 +89,9 @@ export function* fetchSearchPageTags(action) {
 }
 
 export function* getSearchResults(searchText, kind, limit, offset) {
+  yield waitForRead()
+
   const apiClient = yield getContext('apiClient')
-  yield waitForAccount()
   const userId = yield select(getUserId)
   const results = yield apiClient.getSearchFull({
     currentUserId: userId,
@@ -116,7 +116,7 @@ export function* getSearchResults(searchText, kind, limit, offset) {
 }
 
 function* fetchSearchPageResults(action) {
-  yield call(waitForBackendSetup)
+  yield call(waitForRead)
 
   const rawResults = yield call(
     getSearchResults,

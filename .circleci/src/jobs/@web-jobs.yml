@@ -41,6 +41,7 @@ web-init:
     - persist_to_workspace:
         root: ./
         paths:
+          - node_modules
           - packages/web/node_modules
           - packages/stems/node_modules
           - packages/stems/dist
@@ -187,6 +188,17 @@ web-deploy-release-candidate:
     - web-deploy-cloudflare:
         build-type: production
         environment: release
+        copy-robots: true
+    - web-deploy-sourcemaps-s3
+
+web-deploy-staging-release-candidate:
+  working_directory: ~/audius-client
+  docker:
+    - image: cimg/python:3.7.12-node
+  steps:
+    - web-deploy-cloudflare:
+        build-type: staging
+        environment: staging-release
         copy-robots: true
     - web-deploy-sourcemaps-s3
 

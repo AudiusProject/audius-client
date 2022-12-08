@@ -10,7 +10,8 @@ import {
   accountSelectors,
   ExploreCollectionsVariant,
   themeSelectors,
-  themeActions
+  themeActions,
+  UploadType
 } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
@@ -27,7 +28,7 @@ import {
 import { getStatus as getSignOnStatus } from 'common/store/pages/signon/selectors'
 import { Pages as SignOnPages } from 'common/store/pages/signon/types'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
-import AppRedirectPopover from 'components/app-redirect-popover/components/AppRedirectPopover'
+import { AppRedirectPopover } from 'components/app-redirect-popover/components/AppRedirectPopover'
 import MobileDesktopBanner from 'components/banner/CTABanner'
 import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
@@ -69,7 +70,6 @@ import TrackPage from 'pages/track-page/TrackPage'
 import TrendingPage from 'pages/trending-page/TrendingPage'
 import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage'
 import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergroundPage'
-import UploadType from 'pages/upload-page/components/uploadType'
 import Visualizer from 'pages/visualizer/Visualizer'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'

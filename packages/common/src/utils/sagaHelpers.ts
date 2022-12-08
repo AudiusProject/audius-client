@@ -39,8 +39,10 @@ export function* batchYield(
  */
 export function* actionChannelDispatcher(channel: EventChannel<any>) {
   while (true) {
-    const action: Action<any> = yield take(channel)
-    yield put(action)
+    const action: Action<any> | undefined = yield take(channel)
+    if (action) {
+      yield put(action)
+    }
   }
 }
 
@@ -120,6 +122,6 @@ export function* waitForAccount() {
     waitForValue,
     (state) => state.account.status,
     null,
-    (status) => status !== Status.LOADING
+    (status) => status !== Status.LOADING && status !== Status.IDLE
   )
 }

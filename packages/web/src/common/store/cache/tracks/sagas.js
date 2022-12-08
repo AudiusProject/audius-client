@@ -14,11 +14,9 @@ import {
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
-  waitForValue,
-  getPremiumContentHeaders
+  waitForValue
 } from '@audius/common'
 import {
-  all,
   call,
   fork,
   getContext,
@@ -29,12 +27,13 @@ import {
 } from 'redux-saga/effects'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import { updateProfileAsync } from 'common/store/profile/sagas'
 import { dominantColor } from 'utils/imageProcessingUtil'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
@@ -56,72 +55,6 @@ function* fetchRepostInfo(entries) {
   }
 }
 
-function* fetchSegment(metadata) {
-  if (metadata.is_premium && !metadata.premium_content_signature) return
-  if (!metadata.track_segments[0]) return
-  const cid = metadata.track_segments[0].multihash
-
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const user = yield call(waitForValue, getUser, { id: metadata.owner_id })
-  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-    user.creator_node_endpoint
-  )
-
-  const libs = yield call(audiusBackendInstance.getAudiusLibs)
-  const web3Manager = libs.web3Manager
-  const premiumContentHeaders = yield call(
-    getPremiumContentHeaders,
-    metadata.premium_content_signature,
-    web3Manager.sign.bind(web3Manager)
-  )
-
-  return yield call(
-    audiusBackendInstance.fetchCID,
-    cid,
-    gateways,
-    /* cache */ false,
-    /* asUrl */ true,
-    /* trackId */ null,
-    premiumContentHeaders
-  )
-}
-
-// TODO(AUD-1837) -- we should not rely on this logic anymore of fetching first
-// segments, particularly to flag unauthorized content, but it should probably
-// just be removed altogether since first segment fetch is usually fast.
-function* fetchFirstSegments(entries) {
-  // Segments aren't part of the critical path so let them resolve later.
-  try {
-    const firstSegments = yield all(
-      entries.map((e) => call(fetchSegment, e.metadata))
-    )
-
-    yield put(
-      cacheActions.update(
-        Kind.TRACKS,
-        firstSegments.map((s, i) => {
-          if (s === 'Unauthorized') {
-            return {
-              id: entries[i].id,
-              metadata: {
-                is_delete: true,
-                _blocked: true,
-                _marked_deleted: true
-              }
-            }
-          }
-          return {
-            id: entries[i].id,
-            metadata: { _first_segment: s }
-          }
-        })
-      )
-    )
-  } catch (err) {
-    console.error(err)
-  }
-}
-
 function* watchAdd() {
   yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
     if (action.kind === Kind.TRACKS) {
@@ -139,7 +72,6 @@ function* watchAdd() {
       const isNativeMobile = yield getContext('isNativeMobile')
       if (!isNativeMobile) {
         yield fork(fetchRepostInfo, action.entries)
-        yield fork(fetchFirstSegments, action.entries)
       }
     }
   })
@@ -168,7 +100,7 @@ export function* trackNewRemixEvent(remixTrack) {
 }
 
 function* editTrackAsync(action) {
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   action.formFields.description = squashNewLines(action.formFields.description)
 
   const currentTrack = yield select(getTrack, { id: action.trackId })
@@ -237,6 +169,7 @@ function* confirmEditTrack(
   isNowListed,
   currentTrack
 ) {
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(
@@ -323,8 +256,7 @@ function* watchEditTrack() {
 
 function* deleteTrackAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield call(waitForBackendSetup)
-  yield waitForAccount()
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -338,6 +270,10 @@ function* deleteTrackAsync(action) {
     handle
   )
   if (socials.pinnedTrackId === action.trackId) {
+    // Dual write to the artist_pick_track_id field in the
+    // users table in the discovery DB. Part of the migration
+    // of the artist pick feature from the identity service
+    // to the entity manager in discovery.
     yield put(
       cacheActions.update(Kind.USERS, [
         {
@@ -349,8 +285,9 @@ function* deleteTrackAsync(action) {
         }
       ])
     )
+    yield call(audiusBackendInstance.setArtistPick)
     const user = yield call(waitForValue, getUser, { id: userId })
-    yield call(audiusBackendInstance.setArtistPick, user, userId)
+    yield fork(updateProfileAsync, { metadata: user })
   }
 
   const track = yield select(getTrack, { id: action.trackId })
@@ -364,6 +301,7 @@ function* deleteTrackAsync(action) {
 }
 
 function* confirmDeleteTrack(trackId) {
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(

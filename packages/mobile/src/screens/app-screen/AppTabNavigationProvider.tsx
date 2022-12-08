@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react'
-import { useMemo, createContext, useState } from 'react'
+import { useEffect, useMemo, createContext, useState } from 'react'
 
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useInterval } from 'react-use'
+
+import { navigationRef } from 'app/components/navigation-container/NavigationContainer'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
+import PushNotifications from 'app/notifications'
 
 import type { AppTabScreenParamList } from './AppTabScreen'
 
@@ -27,6 +32,8 @@ export const SetAppTabNavigationContext =
 
 type AppTabNavigationProviderProps = { children: ReactNode }
 
+const checkNavReadyInterval = 1000
+
 /**
  * Context that provides the AppTabNavigation to any components
  * that need it outside of the AppTabScreen stack context
@@ -36,6 +43,8 @@ export const AppTabNavigationProvider = (
 ) => {
   const { children } = props
   const [navigation, setNavigation] = useState({} as AppTabNavigation)
+  const notifNavigation = useNotificationNavigation()
+  const [isNavigationReady, setIsNavigationReady] = useState(false)
 
   const navigationContext = useMemo(
     () => ({ navigation, setNavigation }),
@@ -45,6 +54,20 @@ export const AppTabNavigationProvider = (
   const setNavigationContext = useMemo(
     () => ({ setNavigation }),
     [setNavigation]
+  )
+
+  useEffect(() => {
+    PushNotifications.setNavigation(notifNavigation)
+  }, [notifNavigation])
+
+  useInterval(
+    () => {
+      if (navigationRef.isReady()) {
+        PushNotifications.openInitialNotification()
+        setIsNavigationReady(true)
+      }
+    },
+    isNavigationReady ? null : checkNavReadyInterval
   )
 
   return (

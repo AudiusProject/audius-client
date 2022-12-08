@@ -2,6 +2,7 @@ import {
   DefaultSizes,
   Kind,
   DoubleKeys,
+  FeatureFlags,
   makeUid,
   makeKindId,
   squashNewLines,
@@ -17,7 +18,8 @@ import {
   dataURLtoFile,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
-  MAX_PROFILE_TOP_SUPPORTERS
+  MAX_PROFILE_TOP_SUPPORTERS,
+  premiumContentActions
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -30,7 +32,6 @@ import {
   takeEvery
 } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   fetchUsers,
   fetchUserByHandle,
@@ -42,12 +43,19 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import feedSagas from 'common/store/pages/profile/lineups/feed/sagas.js'
 import tracksSagas from 'common/store/pages/profile/lineups/tracks/sagas.js'
+import {
+  subscribeToUserAsync,
+  unsubscribeFromUserAsync
+} from 'common/store/social/users/sagas'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
   profilePageSelectors
 
 const { getUserId, getAccountUser } = accountSelectors
+
+const { ethNFTsFetched, solNFTsFetched } = premiumContentActions
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -126,6 +134,11 @@ export function* fetchOpenSeaAssets(user) {
       }
     ])
   )
+
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(ethNFTsFetched())
+  }
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -160,6 +173,11 @@ export function* fetchSolanaCollectibles(user) {
       }
     ])
   )
+
+  const currentUserId = yield select(getUserId)
+  if (currentUserId === user.user_id) {
+    yield put(solNFTsFetched())
+  }
 }
 
 function* fetchSupportersAndSupporting(userId) {
@@ -296,7 +314,7 @@ function* fetchProfileAsync(action) {
 
 function* watchFetchFollowUsers(action) {
   yield takeEvery(profileActions.FETCH_FOLLOW_USERS, function* (action) {
-    yield call(waitForBackendSetup)
+    yield call(waitForRead)
     switch (action.followerGroup) {
       case FollowType.FOLLOWEE_FOLLOWS:
         yield call(fetchFolloweeFollows, action)
@@ -377,12 +395,11 @@ function* watchUpdateProfile() {
 }
 
 export function* updateProfileAsync(action) {
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield call(waitForBackendSetup)
   let metadata = { ...action.metadata }
   metadata.bio = squashNewLines(metadata.bio)
 
-  yield waitForAccount()
   const accountUserId = yield select(getUserId)
   yield put(
     cacheActions.update(Kind.USERS, [
@@ -453,6 +470,7 @@ export function* updateProfileAsync(action) {
 }
 
 function* confirmUpdateProfile(userId, metadata) {
+  yield waitForWrite()
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const localStorage = yield getContext('localStorage')
@@ -567,11 +585,28 @@ function* watchSetNotificationSubscription() {
     function* (action) {
       if (action.update) {
         try {
+          const getFeatureEnabled = yield getContext('getFeatureEnabled')
+
           yield call(
             audiusBackendInstance.updateUserSubscription,
             action.userId,
             action.isSubscribed
           )
+
+          // Dual write to discovery. Part of the migration of subscriptions
+          // from identity to discovery.
+          const socialFeatureEntityManagerEnabled =
+            (yield call(
+              getFeatureEnabled,
+              FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
+            )) ?? false
+          if (socialFeatureEntityManagerEnabled) {
+            if (action.isSubscribed) {
+              yield fork(subscribeToUserAsync, action.userId)
+            } else {
+              yield fork(unsubscribeFromUserAsync, action.userId)
+            }
+          }
         } catch (err) {
           const isReachable = yield select(getIsReachable)
           if (!isReachable) return

@@ -9,13 +9,21 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { OnRampButton } from 'components/on-ramp-button'
+import Tooltip from 'components/tooltip/Tooltip'
 import {
   createStripeSession,
   getRootSolanaAccount
 } from 'services/audius-backend/BuyAudio'
 
+import styles from './StripeBuyAudioButton.module.css'
+
 const { getAudioPurchaseInfo } = buyAudioSelectors
-const { onRampOpened, onRampSucceeded } = buyAudioActions
+const {
+  onRampOpened,
+  onRampSucceeded,
+  onRampCanceled,
+  stripeSessionStatusChanged
+} = buyAudioActions
 
 const STRIPE_PUBLISHABLE_KEY =
   process.env.REACT_APP_STRIPE_CLIENT_PUBLISHABLE_KEY
@@ -23,6 +31,10 @@ const STRIPE_PUBLISHABLE_KEY =
 // TODO: Replace this with Stripe npm package when available
 // @ts-ignore
 const StripeOnRamp = window.StripeOnramp
+
+const messages = {
+  belowThreshold: 'Link by Stripe requires a purchase minimum of $1 USD'
+}
 
 export const StripeBuyAudioButton = () => {
   const dispatch = useDispatch()
@@ -33,12 +45,19 @@ export const StripeBuyAudioButton = () => {
     purchaseInfo?.isError === false
       ? purchaseInfo.estimatedSOL.uiAmountString
       : undefined
+  const belowThreshold =
+    purchaseInfo?.isError === false && purchaseInfo.estimatedUSD.uiAmount < 1
 
   const handleSessionUpdate = useCallback(
     (e) => {
-      if (e.payload.session.status === 'fulfillment_complete') {
-        dispatch(onRampSucceeded())
-        setIsStripeModalVisible(false)
+      if (e?.payload?.session?.status) {
+        dispatch(
+          stripeSessionStatusChanged({ status: e.payload.session.status })
+        )
+        if (e.payload.session.status === 'fulfillment_complete') {
+          dispatch(onRampSucceeded())
+          setIsStripeModalVisible(false)
+        }
       }
     },
     [dispatch, setIsStripeModalVisible]
@@ -49,17 +68,22 @@ export const StripeBuyAudioButton = () => {
       return
     }
     dispatch(onRampOpened(purchaseInfo))
-    const res = await createStripeSession({
-      amount,
-      destinationWallet: (await getRootSolanaAccount()).publicKey.toString()
-    })
-    const stripeOnRampInstance = StripeOnRamp(STRIPE_PUBLISHABLE_KEY)
-    const session = stripeOnRampInstance.createSession({
-      clientSecret: res.client_secret
-    })
-    session.mount('#stripe-onramp-modal')
-    session.addEventListener('onramp_session_updated', handleSessionUpdate)
-    setIsStripeModalVisible(true)
+    try {
+      const res = await createStripeSession({
+        amount,
+        destinationWallet: (await getRootSolanaAccount()).publicKey.toString()
+      })
+      const stripeOnRampInstance = StripeOnRamp(STRIPE_PUBLISHABLE_KEY)
+      const session = stripeOnRampInstance.createSession({
+        clientSecret: res.client_secret
+      })
+      session.mount('#stripe-onramp-modal')
+      session.addEventListener('onramp_session_updated', handleSessionUpdate)
+      setIsStripeModalVisible(true)
+    } catch (e) {
+      dispatch(onRampCanceled())
+      console.error(e)
+    }
   }, [
     dispatch,
     setIsStripeModalVisible,
@@ -68,5 +92,23 @@ export const StripeBuyAudioButton = () => {
     purchaseInfo
   ])
 
-  return <OnRampButton provider={OnRampProvider.STRIPE} onClick={handleClick} />
+  return (
+    <Tooltip
+      className={styles.tooltip}
+      text={messages.belowThreshold}
+      disabled={!belowThreshold}
+      color={'--secondary'}
+      shouldWrapContent={false}
+    >
+      <div>
+        <OnRampButton
+          isDisabled={belowThreshold}
+          disabled={belowThreshold}
+          className={styles.button}
+          provider={OnRampProvider.STRIPE}
+          onClick={handleClick}
+        />
+      </div>
+    </Tooltip>
+  )
 }

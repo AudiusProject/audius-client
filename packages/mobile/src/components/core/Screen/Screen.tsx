@@ -2,14 +2,12 @@ import type { ComponentType, ReactElement, ReactNode } from 'react'
 import { useMemo, useEffect, useLayoutEffect } from 'react'
 
 import type { Nullable } from '@audius/common'
-import { FeatureFlags } from '@audius/common'
 import { useNavigation } from '@react-navigation/native'
 import { pickBy, negate, isUndefined } from 'lodash'
 import type { Animated, StyleProp, ViewStyle } from 'react-native'
 import { View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
 
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { screen } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 
@@ -18,17 +16,21 @@ import { SecondaryScreenTitle } from './SecondaryScreenTitle'
 const removeUndefined = (object: Record<string, unknown>) =>
   pickBy(object, negate(isUndefined))
 
-const useStyles = makeStyles(({ palette }, { variant }) => ({
-  root: {
-    flex: 1,
-    backgroundColor:
-      variant === 'primary'
-        ? palette.background
-        : variant === 'secondary'
-        ? palette.backgroundSecondary
-        : palette.white
-  }
-}))
+const useStyles = makeStyles<Pick<ScreenProps, 'variant'>>(
+  ({ palette }, { variant }) => ({
+    root: {
+      flex: 1,
+      backgroundColor:
+        variant === 'primary'
+          ? palette.background
+          : variant === 'secondary'
+          ? palette.background
+          : variant === 'secondaryAlt'
+          ? palette.backgroundSecondary
+          : palette.white
+    }
+  })
+)
 
 export type ScreenProps = {
   children: ReactNode
@@ -38,11 +40,12 @@ export type ScreenProps = {
   topbarRightStyle?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>
   title?: Nullable<ReactNode>
   icon?: ComponentType<SvgProps>
+  IconProps?: SvgProps
   headerTitle?: ReactNode
   style?: StyleProp<ViewStyle>
   // url used for screen view analytics
   url?: string
-  variant?: 'primary' | 'secondary' | 'white'
+  variant?: 'primary' | 'secondary' | 'secondaryAlt' | 'white'
 }
 
 export const Screen = (props: ScreenProps) => {
@@ -52,6 +55,7 @@ export const Screen = (props: ScreenProps) => {
     topbarRight,
     title: titleProp = null,
     icon,
+    IconProps,
     headerTitle: headerTitleProp,
     topbarRightStyle,
     topbarLeftStyle,
@@ -63,9 +67,6 @@ export const Screen = (props: ScreenProps) => {
   const styles = useStyles(stylesConfig)
   const navigation = useNavigation()
   const isSecondary = variant === 'secondary' || variant === 'white'
-  const { isEnabled: isNavOverhaulEnabled } = useFeatureFlag(
-    FeatureFlags.MOBILE_NAV_OVERHAUL
-  )
 
   // Record screen view
   useEffect(() => {
@@ -75,38 +76,27 @@ export const Screen = (props: ScreenProps) => {
   }, [url])
 
   useLayoutEffect(() => {
-    if (isNavOverhaulEnabled) {
-      navigation.setOptions(
-        removeUndefined({
-          headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
-          headerRight: topbarRight
-            ? () => topbarRight
-            : isSecondary
-            ? null
-            : topbarRight,
-          title: isSecondary ? undefined : titleProp,
-          headerTitle: isSecondary
-            ? () => <SecondaryScreenTitle icon={icon!} title={titleProp} />
-            : headerTitleProp
-        })
-      )
-    } else {
-      navigation.setOptions(
-        removeUndefined({
-          headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
-          headerRight:
-            topbarRight === undefined
-              ? undefined
-              : topbarRight === null
-              ? null
-              : () => topbarRight,
-          title: titleProp,
-          headerTitle: headerTitleProp
-        })
-      )
-    }
+    navigation.setOptions(
+      removeUndefined({
+        headerLeft: topbarLeft === undefined ? undefined : () => topbarLeft,
+        headerRight: topbarRight
+          ? () => topbarRight
+          : isSecondary
+          ? null
+          : topbarRight,
+        title: isSecondary ? undefined : titleProp,
+        headerTitle: isSecondary
+          ? () => (
+              <SecondaryScreenTitle
+                icon={icon!}
+                title={titleProp}
+                IconProps={IconProps}
+              />
+            )
+          : headerTitleProp
+      })
+    )
   }, [
-    isNavOverhaulEnabled,
     navigation,
     topbarLeftStyle,
     topbarLeft,
@@ -115,7 +105,8 @@ export const Screen = (props: ScreenProps) => {
     titleProp,
     isSecondary,
     headerTitleProp,
-    icon
+    icon,
+    IconProps
   ])
 
   return <View style={[styles.root, style]}>{children}</View>

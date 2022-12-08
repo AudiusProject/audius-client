@@ -10,7 +10,7 @@ import { Timestamped } from './Timestamped'
 
 export type UserMetadata = {
   album_count: number
-  artist_pick_track_id: number | null,
+  artist_pick_track_id: number | null
   bio: string | null
   cover_photo: Nullable<CID>
   creator_node_endpoint: Nullable<string>
@@ -68,7 +68,6 @@ export type ComputedUserProperties = {
   _collectionIds?: string[]
   _profile_picture_color?: Color
   _artist_pick?: ID
-  _has_reposted?: boolean
   updatedProfilePicture?: { file: File; url: string }
   updatedCoverPhoto?: { file: File; url: string }
 }

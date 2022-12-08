@@ -5,7 +5,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
 import Config from 'react-native-config'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import {
+  SafeAreaProvider,
+  initialWindowMetrics
+} from 'react-native-safe-area-context'
 import { Provider } from 'react-redux'
 import { useAsync, useEffectOnce } from 'react-use'
 
@@ -27,6 +30,7 @@ import {
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
+import { OfflineDownloader } from './components/offline-downloads/OfflineDownloader'
 import { useEnterForeground } from './hooks/useAppState'
 
 Sentry.init({
@@ -70,7 +74,7 @@ const App = () => {
   })
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <Provider store={store}>
         <PortalProvider>
           <ToastContextProvider>
@@ -88,6 +92,7 @@ const App = () => {
                 <Audio />
                 <OAuth />
                 <NotificationReminder />
+                <OfflineDownloader />
               </NavigationContainer>
             </ErrorBoundary>
           </ToastContextProvider>

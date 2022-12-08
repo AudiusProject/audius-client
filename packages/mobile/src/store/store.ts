@@ -24,10 +24,16 @@ import mobileUi from './mobileUi/slice'
 import type { MobileUiState } from './mobileUi/slice'
 import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
+import type { OfflineDownloadsState } from './offline-downloads/slice'
+import offlineDownloads from './offline-downloads/slice'
 import rootSaga from './sagas'
 import type { SearchState } from './search/reducer'
 import search from './search/reducer'
+import shareToStoryProgress from './share-to-story-progress/slice'
+import type { ShareToStoryProgressState } from './share-to-story-progress/slice'
 import { storeContext } from './storeContext'
+import type { WalletConnectState } from './wallet-connect/slice'
+import walletConnect from './wallet-connect/slice'
 
 export type AppState = {
   // These also belong in CommonState but are here until we move them to the @audius/common package:
@@ -40,9 +46,12 @@ export type AppState = {
   downloads: DownloadState
   keyboard: KeyboardState
   oauth: OAuthState
+  offlineDownloads: OfflineDownloadsState
   remoteConfig: RemoteConfigState
   search: SearchState
   mobileUi: MobileUiState
+  walletConnect: WalletConnectState
+  shareToStoryProgress: ShareToStoryProgressState
 }
 
 const commonStoreReducers = commonReducers()
@@ -60,9 +69,12 @@ const createRootReducer = () =>
     downloads,
     keyboard,
     oauth,
+    offlineDownloads,
     remoteConfig,
     search,
-    mobileUi
+    mobileUi,
+    walletConnect,
+    shareToStoryProgress
   })
 
 const sagaMiddleware = createSagaMiddleware({ context: storeContext })

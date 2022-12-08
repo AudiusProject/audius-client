@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Maybe, UID } from '@audius/common'
+import type { Collection, ID, Maybe, UID } from '@audius/common'
 import {
   useProxySelector,
   collectionPageActions,
@@ -14,20 +14,30 @@ import {
   collectionPageSelectors
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import type { DynamicImageProps } from 'app/components/core'
+import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
-const { getCollectionTracksLineup, getCollectionUid, getUserUid } =
-  collectionPageSelectors
+const {
+  getCollection,
+  getCollectionTracksLineup,
+  getCollectionId,
+  getCollectionUid,
+  getUserUid
+} = collectionPageSelectors
 const { resetCollection } = collectionPageActions
 const { makeGetTableMetadatas } = lineupSelectors
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
@@ -83,12 +93,17 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
+  renderImage: renderCustomImage,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
 
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+
+  const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
+  const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
   const { entries, status } = useProxySelector(getTracksLineup, [])
   const tracksLoading = status === Status.LOADING
@@ -132,6 +147,13 @@ export const CollectionScreenDetailsTile = ({
   const trackId = playingTrack?.track_id
 
   const isQueued = entries.some((entry) => playingUid === entry.uid)
+
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => (
+      <CollectionImage collection={collection as Collection} {...props} />
+    ),
+    [collection]
+  )
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -178,6 +200,21 @@ export const CollectionScreenDetailsTile = ({
     return messages.playlist
   }, [isAlbum, isPrivate, isPublishing])
 
+  const trackIds = useMemo(
+    () => entries.map((track) => track.track_id),
+    [entries]
+  )
+
+  const renderHeader = useCallback(() => {
+    return (
+      <DownloadToggle
+        collection={collectionId?.toString()}
+        trackIds={trackIds}
+        labelText={headerText}
+      />
+    )
+  }, [collectionId, headerText, trackIds])
+
   const renderTrackList = () => {
     if (tracksLoading)
       return (
@@ -208,10 +245,12 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
-      headerText={headerText}
       hideListenCount={true}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
+      headerText={!isOfflineModeEnabled ? headerText : undefined}
+      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
+      renderImage={renderCustomImage ?? renderImage}
       onPressPlay={handlePressPlay}
     />
   )

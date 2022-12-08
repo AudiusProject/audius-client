@@ -3,8 +3,7 @@ import {
   savedPageTracksLineupActions as tracksActions,
   savedPageActions as actions,
   savedPageSelectors,
-  waitForValue,
-  FeatureFlags
+  waitForValue
 } from '@audius/common'
 import {
   takeLatest,
@@ -16,6 +15,7 @@ import {
 } from 'redux-saga/effects'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import tracksSagas from './lineups/sagas'
 const { getSaves } = savedPageSelectors
@@ -26,12 +26,13 @@ function* fetchTracksLineup() {
 }
 
 function* watchFetchSaves() {
-  const apiClient = yield getContext('apiClient')
   let currentQuery = ''
   let currentSortMethod = ''
   let currentSortDirection = ''
 
   yield takeLatest(actions.FETCH_SAVES, function* (props) {
+    yield waitForRead()
+    const apiClient = yield getContext('apiClient')
     const account = yield call(waitForValue, getAccountUser)
     const userId = account.user_id
     const offset = props.offset ?? 0
@@ -40,11 +41,6 @@ function* watchFetchSaves() {
     const sortMethod = props.sortMethod ?? ''
     const sortDirection = props.sortDirection ?? ''
     const saves = yield select(getSaves)
-    const getFeatureEnabled = yield getContext('getFeatureEnabled')
-    const newTablesEnabled = yield call(
-      getFeatureEnabled,
-      FeatureFlags.NEW_TABLES
-    ) ?? false
 
     const isSameParams =
       query === currentQuery &&
@@ -85,9 +81,7 @@ function* watchFetchSaves() {
 
         fullSaves.splice(offset, saves.length, ...saves)
 
-        yield put(
-          actions.fetchSavesSucceeded(newTablesEnabled ? fullSaves : saves)
-        )
+        yield put(actions.fetchSavesSucceeded(fullSaves))
         if (limit > 0 && saves.length < limit) {
           yield put(actions.endFetching(offset + saves.length))
         }
@@ -100,6 +94,7 @@ function* watchFetchSaves() {
 }
 
 function* watchFetchMoreSaves() {
+  yield waitForRead()
   const apiClient = yield getContext('apiClient')
   yield takeLatest(actions.FETCH_MORE_SAVES, function* (props) {
     const account = yield call(waitForValue, getAccountUser)

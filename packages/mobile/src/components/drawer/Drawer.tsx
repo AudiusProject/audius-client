@@ -16,7 +16,7 @@ import {
   View
 } from 'react-native'
 import type { Edge } from 'react-native-safe-area-context'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import { useSelector } from 'react-redux'
 
 import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
@@ -35,7 +35,9 @@ const BACKGROUND_OPACITY = 0.5
 // Controls the amount of friction in swiping when overflowing up or down
 const OVERFLOW_FRICTION = 4
 
-export const useStyles = makeStyles(
+type MakeStylesProps = Pick<DrawerProps, 'zIndex' | 'shouldAnimateShadow'>
+
+export const useStyles = makeStyles<MakeStylesProps>(
   ({ palette }, { zIndex = 5, shouldAnimateShadow = true }) => ({
     drawer: {
       backgroundColor: palette.neutralLight10,
@@ -195,7 +197,8 @@ export const springToValue = ({
   animationStyle,
   drawerHeight,
   finished,
-  velocity
+  velocity,
+  overshootClamping
 }: {
   animation: Animated.Value
   value: number
@@ -203,6 +206,7 @@ export const springToValue = ({
   drawerHeight: number
   finished?: ({ finished }: { finished: boolean }) => void
   velocity?: number
+  overshootClamping?: boolean
 }) => {
   let tension: number
   let friction: number
@@ -215,8 +219,8 @@ export const springToValue = ({
       // Factor the height of the drawer into the spring physics.
       // Without this, short drawers tend to feel sluggish while
       // tall drawers really get going.
-      tension = 70 + 60 * (1 - drawerHeight / FULL_DRAWER_HEIGHT)
-      friction = 10 + 2 * (1 - drawerHeight / FULL_DRAWER_HEIGHT)
+      tension = 70 + 60 * (1 - Math.min(drawerHeight / FULL_DRAWER_HEIGHT, 1))
+      friction = 10 + 2 * (1 - Math.min(drawerHeight / FULL_DRAWER_HEIGHT, 1))
       break
   }
   Animated.spring(animation, {
@@ -224,7 +228,8 @@ export const springToValue = ({
     tension,
     friction,
     useNativeDriver: true,
-    velocity
+    velocity,
+    overshootClamping
   }).start(finished)
 }
 
@@ -263,6 +268,7 @@ export const Drawer: DrawerComponent = ({
   )
   const styles = useStyles(stylesConfig)
   const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
+  const insets = useSafeAreaInsets()
 
   const [drawerHeight, setDrawerHeight] = useState(
     isFullscreen ? FULL_DRAWER_HEIGHT : 0
@@ -271,7 +277,7 @@ export const Drawer: DrawerComponent = ({
   const [isBackgroundVisible, setIsBackgroundVisible] = useState(false)
 
   // Initial position of the drawer when closed
-  const initialPosition = FULL_DRAWER_HEIGHT
+  const initialPosition = FULL_DRAWER_HEIGHT + insets.bottom
   // Position of the drawer when it is in an offset but closed state
   const initialOffsetOpenPosition = FULL_DRAWER_HEIGHT - initialOffsetPosition
   // Position of the fully opened drawer
@@ -320,13 +326,15 @@ export const Drawer: DrawerComponent = ({
           animation: shadowAnim.current,
           value: MAX_SHADOW_OPACITY,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
         springToValue({
           animation: backgroundOpacityAnim.current,
           value: BACKGROUND_OPACITY,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
       }
     },
@@ -368,13 +376,15 @@ export const Drawer: DrawerComponent = ({
           animation: shadowAnim.current,
           value: 0,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
         springToValue({
           animation: backgroundOpacityAnim.current,
           value: 0,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
       }
     },

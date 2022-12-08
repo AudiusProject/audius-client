@@ -3,13 +3,14 @@ import {
   accountSelectors,
   trendingUndergroundPageLineupSelectors,
   trendingUndergroundPageLineupActions,
-  getContext,
-  waitForAccount
+  getContext
 } from '@audius/common'
+import { keccak_256 } from 'js-sha3'
 import { call, select } from 'typed-redux-saga'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 
 const { getLineup } = trendingUndergroundPageLineupSelectors
 const getUserId = accountSelectors.getUserId
@@ -21,10 +22,9 @@ function* getTrendingUnderground({
   limit: number
   offset: number
 }) {
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const web3 = yield* call(audiusBackendInstance.getWeb3)
 
   yield call(remoteConfigInstance.waitForRemoteConfig)
 
@@ -32,7 +32,6 @@ function* getTrendingUnderground({
     remoteConfigInstance.getRemoteVar(StringKeys.UTF)?.split(',') ?? []
   )
 
-  yield* waitForAccount()
   const currentUserId = yield* select(getUserId)
 
   let tracks = yield* call((args) => apiClient.getTrendingUnderground(args), {
@@ -43,7 +42,7 @@ function* getTrendingUnderground({
 
   if (TF.size > 0) {
     tracks = tracks.filter((t) => {
-      const shaId = web3.utils.sha3(t.track_id.toString())
+      const shaId = keccak_256(t.track_id.toString())
       return !TF.has(shaId)
     })
   }

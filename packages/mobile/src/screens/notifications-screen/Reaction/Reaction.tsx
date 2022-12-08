@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { useDrawerStatus } from '@react-navigation/drawer'
 import type { AnimatedLottieViewProps } from 'lottie-react-native'
 import LottieView from 'lottie-react-native'
 import type { StyleProp, View, ViewProps, ViewStyle } from 'react-native'
@@ -46,34 +45,24 @@ export const Reaction = (props: ReactionProps) => {
   const scale = useRef(new Animated.Value(1)).current
   const previousStatus = usePrevious(status)
 
-  const drawerStatus = useDrawerStatus()
-  const isOpen = drawerStatus === 'open'
-
   useEffect(() => {
     setStatus(statusProp)
   }, [statusProp])
 
   useEffect(() => {
-    if (status === 'unselected' || !isVisible || !isOpen) {
-      // Pause if off screen or unselected
+    if (status === 'unselected' || !isVisible) {
       animationRef.current?.pause()
     } else if (isVisible && autoPlay) {
       animationRef.current?.play()
     }
-  }, [status, autoPlay, isVisible, isOpen])
+  }, [status, autoPlay, isVisible])
 
   useEffect(() => {
-    if (ref.current && isOpen) {
-      // We need to wait until drawer finishes opening before calculating
-      // layout, otherwise we calculate off-screen values
-      setTimeout(() => {
-        ref.current?.measureInWindow((x, _, width) => {
-          onMeasure?.({ x, width })
-        })
-      }, 500)
-    }
+    ref.current?.measureInWindow((x, _, width) => {
+      onMeasure?.({ x, width })
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onMeasure changes too much
-  }, [ref, isOpen])
+  }, [])
 
   useEffect(() => {
     if (previousStatus !== 'interacting' && status === 'interacting') {

@@ -62,8 +62,10 @@ import {
   uuid,
   Maybe,
   encodeHashId,
+  decodeHashId,
   Timer
 } from '../../utils'
+import { APIUser } from '../audius-api-client/types'
 
 import { MonitoringCallbacks } from './types'
 
@@ -510,7 +512,11 @@ export const audiusBackend = ({
     }
   }
 
-  async function getImageUrl(cid: CID, size: string, gateways: string[]) {
+  async function getImageUrl(
+    cid: Nullable<CID>,
+    size: Nullable<string>,
+    gateways: string[]
+  ) {
     if (!cid) return ''
     try {
       return size
@@ -522,7 +528,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getTrackImages(track: TrackMetadata) {
+  function getTrackImages(track: TrackMetadata): Track {
     const coverArtSizes: CoverArtSizes = {}
     if (!track.cover_art_sizes && !track.cover_art) {
       coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt as string
@@ -861,18 +867,21 @@ export const audiusBackend = ({
     )
   }
 
-  async function getAccount(fromSource = false) {
+  async function getAccount() {
     await waitForLibsInit()
     try {
-      let account
-      if (fromSource) {
-        const wallet = audiusLibs.Account.getCurrentUser().wallet
-        account = await audiusLibs.discoveryProvider.getUserAccount(wallet)
-        audiusLibs.userStateManager.setCurrentUser(account)
-      } else {
-        account = audiusLibs.Account.getCurrentUser()
-        if (!account) return null
-      }
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return null
+
+      // If reading the artist pick from discovery, set _artist_pick on
+      // the user to the value from discovery (set in artist_pick_track_id
+      // on the user).
+      // TODO after migration is complete: replace all usages of
+      // _artist_pick with artist_pick_track_id
+      const readArtistPickFromDiscoveryEnabled =
+        (await getFeatureEnabled(
+          FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
+        )) ?? false
       try {
         const body = await getCreatorSocialHandle(account.handle)
         account.twitter_handle = body.twitterHandle || null
@@ -880,7 +889,14 @@ export const audiusBackend = ({
         account.tiktok_handle = body.tikTokHandle || null
         account.website = body.website || null
         account.donation = body.donation || null
-        account._artist_pick = body.pinnedTrackId || null
+        account._artist_pick =
+          (readArtistPickFromDiscoveryEnabled
+            ? account.artist_pick_track_id
+            : body.pinnedTrackId) || null
+        account.artist_pick_track_id =
+          (readArtistPickFromDiscoveryEnabled
+            ? account.artist_pick_track_id
+            : body.pinnedTrackId) || null
         account.twitterVerified = body.twitterVerified || false
         account.instagramVerified = body.instagramVerified || false
       } catch (e) {
@@ -1133,7 +1149,7 @@ export const audiusBackend = ({
   async function getUserListenCountsMonthly(
     currentUserId: number,
     startTime: string,
-    endTime: string,
+    endTime: string
   ) {
     try {
       const userListenCountsMonthly = await withEagerOption(
@@ -2133,23 +2149,11 @@ export const audiusBackend = ({
 
   /**
    * Sets the artist pick for a user
-   * @param {User} userMetadata
-   * @param {number} userId
    * @param {number?} trackId if null, unsets the artist pick
    */
-  async function setArtistPick(
-    userMetadata: User,
-    userId: ID,
-    trackId: Nullable<ID> = null
-  ) {
+  async function setArtistPick(trackId: Nullable<ID> = null) {
     await waitForLibsInit()
     try {
-      // Dual write to the artist_pick_track_id field in the
-      // users table in the discovery DB. Part of the migration
-      // of the artist pick feature from the identity service
-      // to the entity manager in discovery.
-      updateCreator(userMetadata, userId)
-
       const { data, signature } = await signData()
       return await fetch(`${identityServiceUrl}/artist_pick`, {
         method: 'POST',
@@ -2745,29 +2749,55 @@ export const audiusBackend = ({
     }
   }
 
+  /**
+   * Returns whether the current user is subscribed to userId.
+   */
   async function getUserSubscribed(userId: ID) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
-    try {
-      const { data, signature } = await signData()
-      return await fetch(
-        `${identityServiceUrl}/notifications/subscription?userId=${userId}`,
-        {
-          headers: {
-            [AuthHeaders.Message]: data,
-            [AuthHeaders.Signature]: signature
-          }
-        }
-      )
-        .then((res) => res.json())
-        .then((res) =>
-          res.users && res.users[userId.toString()]
-            ? res.users[userId.toString()].isSubscribed
-            : false
+
+    const isreadSubscribersFromDiscoveryEnabled =
+      (await getFeatureEnabled(
+        FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED
+      )) ?? false
+
+    if (isreadSubscribersFromDiscoveryEnabled) {
+      // Read subscribers from discovery
+      try {
+        const subscribers: APIUser[] = await audiusLibs.User.getUserSubscribers(
+          encodeHashId(userId)
         )
-    } catch (e) {
-      console.error(e)
+        const subscriberIds = subscribers.map((subscriber) =>
+          decodeHashId(subscriber.id)
+        )
+        return subscriberIds.includes(account.user_id)
+      } catch (e) {
+        console.error(getErrorMessage(e))
+        return false
+      }
+    } else {
+      // Read subscribers from identity
+      try {
+        const { data, signature } = await signData()
+        return await fetch(
+          `${identityServiceUrl}/notifications/subscription?userId=${userId}`,
+          {
+            headers: {
+              [AuthHeaders.Message]: data,
+              [AuthHeaders.Signature]: signature
+            }
+          }
+        )
+          .then((res) => res.json())
+          .then((res) =>
+            res.users && res.users[userId.toString()]
+              ? res.users[userId.toString()].isSubscribed
+              : false
+          )
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
@@ -2815,6 +2845,30 @@ export const audiusBackend = ({
       }).then((res) => res.json())
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  async function subscribeToUser(userId: ID) {
+    try {
+      await waitForLibsInit()
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return
+      return await audiusLibs.User.addUserSubscribe(userId)
+    } catch (err) {
+      console.error(getErrorMessage(err))
+      throw err
+    }
+  }
+
+  async function unsubscribeFromUser(userId: ID) {
+    try {
+      await waitForLibsInit()
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return
+      return await audiusLibs.User.deleteUserSubscribe(userId)
+    } catch (err) {
+      console.error(getErrorMessage(err))
+      throw err
     }
   }
 
@@ -3320,6 +3374,11 @@ export const audiusBackend = ({
     return audiusLibs.web3Manager.getWeb3()
   }
 
+  async function setUserHandleForRelay(handle: string) {
+    const audiusLibs = await getAudiusLibs()
+    audiusLibs.web3Manager.setUserSuppliedHandle(handle)
+  }
+
   return {
     addDiscoveryProviderSelectionListener,
     addPlaylistTrack,
@@ -3417,6 +3476,7 @@ export const audiusBackend = ({
     setArtistPick,
     setCreatorNodeEndpoint,
     setup,
+    setUserHandleForRelay,
     signData,
     signDiscoveryNodeRequest,
     signIn,
@@ -3444,6 +3504,8 @@ export const audiusBackend = ({
     updateUserEvent,
     updateUserLocationTimezone,
     updateUserSubscription,
+    subscribeToUser,
+    unsubscribeFromUser,
     upgradeToCreator,
     uploadImage,
     uploadTrack,

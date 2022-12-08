@@ -7,24 +7,24 @@ import {
   makeKindId,
   formatShareText,
   accountSelectors,
-  accountActions,
   cacheTracksSelectors,
   cacheUsersSelectors,
   cacheActions,
   audioRewardsPageActions,
   getContext,
   tracksSocialActions as socialActions,
-  waitForValue,
-  waitForAccount
+  waitForValue
 } from '@audius/common'
+import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import { updateProfileAsync } from 'common/store/profile/sagas'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import watchTrackErrors from './errorSagas'
 const { updateOptimisticListenStreak } = audioRewardsPageActions
@@ -41,8 +41,7 @@ export function* watchRepostTrack() {
 export function* repostTrackAsync(
   action: ReturnType<typeof socialActions.repostTrack>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
@@ -51,22 +50,11 @@ export function* repostTrackAsync(
     return
   }
 
-  //  Increment the repost count on the user
+  // Increment the repost count on the user
   const user = yield* select(getUser, { id: userId })
   if (!user) return
 
   yield* call(adjustUserField, { user, fieldName: 'repost_count', delta: 1 })
-  // Indicates that the user has reposted `this` session
-  yield* put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: {
-          _has_reposted: true
-        }
-      }
-    ])
-  )
 
   const event = make(Name.REPOST, {
     kind: 'track',
@@ -197,8 +185,7 @@ export function* watchUndoRepostTrack() {
 export function* undoRepostTrackAsync(
   action: ReturnType<typeof socialActions.undoRepostTrack>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
@@ -311,8 +298,7 @@ export function* watchSaveTrack() {
 export function* saveTrackAsync(
   action: ReturnType<typeof socialActions.saveTrack>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
@@ -325,7 +311,16 @@ export function* saveTrackAsync(
   const track = tracks[action.trackId]
 
   if (track.has_current_user_saved) return
-  yield* put(accountActions.didFavoriteItem())
+
+  // Increment the save count on the user
+  const user = yield* select(getUser, { id: userId })
+  if (!user) return
+
+  yield* call(adjustUserField, {
+    user,
+    fieldName: 'track_save_count',
+    delta: 1
+  })
 
   const event = make(Name.FAVORITE, {
     kind: 'track',
@@ -334,7 +329,7 @@ export function* saveTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmSaveTrack, action.trackId)
+  yield* call(confirmSaveTrack, action.trackId, user)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_saved: true,
@@ -396,7 +391,7 @@ export function* saveTrackAsync(
   }
 }
 
-export function* confirmSaveTrack(trackId: ID) {
+export function* confirmSaveTrack(trackId: ID, user: User) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -421,6 +416,13 @@ export function* confirmSaveTrack(trackId: ID) {
       function* () {},
       // @ts-ignore: remove when confirmer is typed
       function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        // Revert the incremented save count
+        yield* call(adjustUserField, {
+          user,
+          fieldName: 'track_save_count',
+          delta: -1
+        })
+
         yield* put(
           socialActions.saveTrackFailed(trackId, timeout ? 'Timeout' : message)
         )
@@ -436,8 +438,7 @@ export function* watchUnsaveTrack() {
 export function* unsaveTrackAsync(
   action: ReturnType<typeof socialActions.unsaveTrack>
 ) {
-  yield* call(waitForBackendSetup)
-  yield* waitForAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
@@ -446,6 +447,16 @@ export function* unsaveTrackAsync(
     return
   }
 
+  // Decrement the save count
+  const user = yield* select(getUser, { id: userId })
+  if (!user) return
+
+  yield* call(adjustUserField, {
+    user,
+    fieldName: 'track_save_count',
+    delta: -1
+  })
+
   const event = make(Name.UNFAVORITE, {
     kind: 'track',
     source: action.source,
@@ -453,7 +464,7 @@ export function* unsaveTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmUnsaveTrack, action.trackId)
+  yield* call(confirmUnsaveTrack, action.trackId, user)
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
@@ -464,7 +475,7 @@ export function* unsaveTrackAsync(
     }
 
     if (track.remix_of?.tracks?.[0]?.user?.user_id === userId) {
-      // This repost is a co-sign
+      // This save is a co-sign
       const remixOf = {
         tracks: [
           {
@@ -497,7 +508,7 @@ export function* unsaveTrackAsync(
   yield* put(socialActions.unsaveTrackSucceeded(action.trackId))
 }
 
-export function* confirmUnsaveTrack(trackId: ID) {
+export function* confirmUnsaveTrack(trackId: ID, user: User) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -522,6 +533,12 @@ export function* confirmUnsaveTrack(trackId: ID) {
       function* () {},
       // @ts-ignore: remove when confirmer is typed
       function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        // revert the decremented save count
+        yield* call(adjustUserField, {
+          user,
+          fieldName: 'track_save_count',
+          delta: 1
+        })
         yield* put(
           socialActions.unsaveTrackFailed(
             trackId,
@@ -538,9 +555,13 @@ export function* watchSetArtistPick() {
   yield* takeEvery(
     socialActions.SET_ARTIST_PICK,
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
-      yield* waitForAccount()
+      yield* waitForWrite()
       const userId = yield* select(getUserId)
-      if (!userId) return
+
+      // Dual write to the artist_pick_track_id field in the
+      // users table in the discovery DB. Part of the migration
+      // of the artist pick feature from the identity service
+      // to the entity manager in discovery.
       yield* put(
         cacheActions.update(Kind.USERS, [
           {
@@ -552,13 +573,9 @@ export function* watchSetArtistPick() {
           }
         ])
       )
+      yield* call(audiusBackendInstance.setArtistPick, action.trackId)
       const user = yield* call(waitForValue, getUser, { id: userId })
-      yield* call(
-        audiusBackendInstance.setArtistPick,
-        user,
-        userId,
-        action.trackId
-      )
+      yield fork(updateProfileAsync, { metadata: user })
 
       const event = make(Name.ARTIST_PICK_SELECT_TRACK, { id: action.trackId })
       yield* put(event)
@@ -569,9 +586,13 @@ export function* watchSetArtistPick() {
 export function* watchUnsetArtistPick() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(socialActions.UNSET_ARTIST_PICK, function* (action) {
-    yield* waitForAccount()
+    yield* waitForWrite()
     const userId = yield* select(getUserId)
-    if (!userId) return
+
+    // Dual write to the artist_pick_track_id field in the
+    // users table in the discovery DB. Part of the migration
+    // of the artist pick feature from the identity service
+    // to the entity manager in discovery.
     yield* put(
       cacheActions.update(Kind.USERS, [
         {
@@ -583,8 +604,9 @@ export function* watchUnsetArtistPick() {
         }
       ])
     )
+    yield* call(audiusBackendInstance.setArtistPick)
     const user = yield* call(waitForValue, getUser, { id: userId })
-    yield* call(audiusBackendInstance.setArtistPick, user, userId)
+    yield fork(updateProfileAsync, { metadata: user })
 
     const event = make(Name.ARTIST_PICK_SELECT_TRACK, { id: 'none' })
     yield* put(event)
@@ -602,7 +624,7 @@ export function* watchRecordListen() {
       if (isNativeMobile) return
       console.debug('Listen recorded for track', action.trackId)
 
-      yield* waitForAccount()
+      yield* waitForWrite()
       const userId = yield* select(getUserId)
       const track = yield* select(getTrack, { id: action.trackId })
       if (!userId || !track) return
@@ -628,7 +650,7 @@ function* watchDownloadTrack() {
     socialActions.DOWNLOAD_TRACK,
     function* (action: ReturnType<typeof socialActions.downloadTrack>) {
       const trackDownload = yield* getContext('trackDownload')
-      yield* call(waitForBackendSetup)
+      yield* call(waitForRead)
 
       // Check if there is a logged in account and if not,
       // wait for one so we can trigger the download immediately after

@@ -22,7 +22,11 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { Link } from './Link'
 
-const useStyles = makeStyles(
+const useStyles = makeStyles<
+  Required<
+    Pick<ButtonProps, 'size' | 'variant' | 'corners'> & { isPressing: boolean }
+  >
+>(
   (
     { palette, spacing, typography },
     { isPressing, size, variant, corners }
@@ -152,10 +156,10 @@ const useStyles = makeStyles(
           width: spacing(8)
         },
         iconLeft: {
-          marginRight: spacing(1)
+          marginRight: spacing(2)
         },
         iconRight: {
-          marginLeft: spacing(1)
+          marginLeft: spacing(2)
         }
       }
     }
@@ -177,7 +181,9 @@ const useStyles = makeStyles(
       root: {
         ...flexRowCentered(),
         justifyContent: 'center',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        // this should never be used, but helps merge with the types
+        backgroundColor: palette.primary
       },
       button: {
         ...flexRowCentered(),
@@ -219,6 +225,7 @@ export type ButtonProps = Omit<RNButtonProps, 'title'> &
     url?: string
     corners?: 'rounded' | 'pill'
     title: ReactNode
+    pressScale?: number
   }
 
 export const Button = (props: ButtonProps) => {
@@ -241,6 +248,7 @@ export const Button = (props: ButtonProps) => {
     url,
     corners = 'rounded',
     disabled,
+    pressScale = 0.97,
     ...other
   } = props
   const [isPressing, setIsPressing] = useState(false)
@@ -254,7 +262,7 @@ export const Button = (props: ButtonProps) => {
     scale,
     handlePressIn: handlePressInScale,
     handlePressOut: handlePressOutScale
-  } = usePressScaleAnimation(0.97, false)
+  } = usePressScaleAnimation(pressScale, false)
 
   const { primaryDark1, neutralLight10, neutralLight7, accentRedDark1 } =
     useThemeColors()
@@ -271,7 +279,10 @@ export const Button = (props: ButtonProps) => {
     color,
     handlePressIn: handlePressInColor,
     handlePressOut: handlePressOutColor
-  } = useColorAnimation(styles.root.backgroundColor, pressColor[variant])
+  } = useColorAnimation(
+    styles.root.backgroundColor as string,
+    pressColor[variant]
+  )
 
   const handlePressIn = useCallback(
     (event) => {
@@ -315,7 +326,11 @@ export const Button = (props: ButtonProps) => {
     [rootHeightRef]
   )
 
-  const iconStyles = StyleSheet.flatten([styles.icon, stylesProp?.icon])
+  // @ts-ignore type issue with flattened style. iconColor prop is optional
+  const { color: iconColor, ...iconStyles } = StyleSheet.flatten([
+    styles.icon,
+    stylesProp?.icon
+  ])
 
   const icon = Icon ? (
     <Icon
@@ -326,7 +341,7 @@ export const Button = (props: ButtonProps) => {
       ]}
       height={iconStyles.height}
       width={iconStyles.width}
-      fill={iconStyles.color}
+      fill={iconColor}
       {...IconProps}
     />
   ) : null
