@@ -20,12 +20,15 @@ export const WalletConnectStack = () => {
   return (
     <ToastContextProvider>
       <WalletConnectProvider
-        redirectUrl='audius://'
+        redirectUrl='audius://wallets'
         storageOptions={{
           // @ts-ignore: IAsyncStorage isn't up to date
           asyncStorage: AsyncStorage
         }}
-        renderQrcodeModal={WalletConnectProviderRenderModal}
+        renderQrcodeModal={(props) => {
+          console.log('qr props', props)
+          return <WalletConnectProviderRenderModal {...props} />
+        }}
       >
         <Stack.Navigator screenOptions={screenOptions}>
           <Stack.Screen name='Wallets' component={WalletConnectScreen} />
