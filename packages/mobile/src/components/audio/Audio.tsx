@@ -21,7 +21,8 @@ import TrackPlayer, {
   State,
   usePlaybackState,
   useTrackPlayerEvents,
-  useProgress
+  useProgress,
+  TrackType
 } from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
@@ -64,7 +65,7 @@ const defaultCapabilities = [
   Capability.Play,
   Capability.Pause,
   Capability.SkipToNext,
-  Capability.SkipToNext
+  Capability.SkipToPrevious
 ]
 const podcastCapabilities = [
   ...defaultCapabilities,
@@ -306,30 +307,35 @@ export const Audio = () => {
 
   let source
   if (offlineTrackUri) {
-    source = { uri: offlineTrackUri }
+    source = {
+      type: TrackType.Default,
+      uri: offlineTrackUri
+    }
     // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
   } else if (isStreamMp3Enabled && streamingUri) {
     source = {
+      type: TrackType.Default,
       uri: streamingUri
     }
   } else if (m3u8) {
     source = {
-      uri: m3u8,
-      type: 'm3u8'
+      type: TrackType.HLS,
+      uri: m3u8
     }
   }
-
   const currentUriRef = useRef<string | null>(null)
   const isPodcastRef = useRef<boolean>(false)
 
   const handleSourceChange = useCallback(
-    async (newUri: string) => {
+    async (newSource: { uri: string; type?: TrackType }) => {
+      const newUri = newSource.uri
       if (currentUriRef.current !== newUri) {
         currentUriRef.current = newUri
         const imageUrl = trackImageSource?.source[2].uri ?? DEFAULT_IMAGE_URL
         await TrackPlayer.reset()
         await TrackPlayer.add({
           url: newUri,
+          type: newSource.type ?? TrackType.Default,
           title: track?.title,
           artist: trackOwner?.name,
           genre: track?.genre,
@@ -361,8 +367,8 @@ export const Audio = () => {
   )
 
   useEffect(() => {
-    handleSourceChange(source.uri)
-  }, [handleSourceChange, source.uri])
+    handleSourceChange(source)
+  }, [handleSourceChange, source])
 
   useEffect(() => {
     handleTogglePlay(playing)
