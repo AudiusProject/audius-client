@@ -81,7 +81,7 @@ export const WalletConnectScreen = () => {
       const message = `AudiusUserID:${accountUserId}`
       const messageParams = [message, wallet]
 
-      const signMessagetTimeout = setTimeout(() => {
+      setTimeout(() => {
         connector
           .signPersonalMessage(messageParams)
           .then((result) => {
@@ -93,7 +93,7 @@ export const WalletConnectScreen = () => {
             console.log('personal sign error', e)
           })
       }, 1000)
-      return () => clearTimeout(signMessagetTimeout)
+      // return () => clearTimeout(signMessagetTimeout)
     }
   }, [wallet, accountUserId, connector, dispatch, connectionStatus])
 
@@ -110,7 +110,7 @@ export const WalletConnectScreen = () => {
       )
     })
     return () => {
-      connector.off('connect')
+      connector?.off('connect')
     }
   }, [connector, dispatch])
 

@@ -105,8 +105,6 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
     }
     case 'wallet-connect': {
       const { publicKey } = action.payload
-      // console.log('connected?', connector.session.connected)
-      // const accountKey = connector?.session.accounts[0]
       const wallet = yield* call(convertToChecksumAddress, publicKey)
 
       const isNewWallet = yield* checkIsNewWallet(wallet, Chain.Eth)

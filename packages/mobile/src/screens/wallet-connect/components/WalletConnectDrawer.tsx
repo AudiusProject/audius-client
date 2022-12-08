@@ -109,6 +109,7 @@ export const WalletConnectProviderRenderModal = ({
   // When the drawer gets dismissed, dismiss the wallet connect popup
   useEffect(() => {
     if (visible && !isDrawerVisible) {
+      // TODO: this isn't working properly
       // onDismiss()
     }
   }, [visible, isDrawerVisible, onDismiss, connector])
