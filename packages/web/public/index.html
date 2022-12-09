@@ -48,6 +48,14 @@
 
     <title>Audius</title>
 
+    <script>
+      const time = Date.now()
+      window.localStorage.setItem("@audius/libs:discovery-node-timestamp", JSON.stringify({
+        endpoint : "https://discoveryprovider4.audius.co/",
+        timestamp : time
+      }))
+
+    </script>
     <script async type="text/javascript">
       // Account recovery
       try{
