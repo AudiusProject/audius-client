@@ -6,7 +6,7 @@ import { takeEvery, select, put } from 'typed-redux-saga'
 import { setVisibility } from 'app/store/drawers/slice'
 
 import { getSharedSecret } from '../selectors'
-import { signMessage } from '../slice'
+import { setConnectionStatus, signMessage } from '../slice'
 import type { SignMessageAction } from '../types'
 import { decryptPayload } from '../utils'
 
@@ -66,6 +66,7 @@ function* signMessageAsync(action: SignMessageAction) {
       break
     }
   }
+  yield* put(setConnectionStatus({ status: 'done' }))
   yield* put(setVisibility({ drawer: 'ConnectWallets', visible: false }))
 }
 

@@ -100,8 +100,10 @@ export const WalletConnectScreen = () => {
           .catch((e) => {
             console.log('personal sign error', e)
           })
-      }, 1000)
+      }, 1000) // is this necessary?
       // return () => clearTimeout(signMessagetTimeout)
+    } else if (connectionStatus === 'done') {
+      connector.killSession()
     }
   }, [wallet, accountUserId, connector, dispatch, connectionStatus])
 

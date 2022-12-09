@@ -73,7 +73,6 @@ export const WalletConnectDrawer = () => {
         <View style={styles.container}>
           {supportedWalletServices?.map((walletService: WalletService) => {
             const uri = data?.uri as string
-            console.log('getting data uri??', uri)
             return (
               <EthWalletConnectOption
                 key={walletService.name}
@@ -98,6 +97,7 @@ export const WalletConnectProviderRenderModal = ({
   const dispatch = useDispatch()
   const isDrawerVisible = useSelector(getVisibility('ConnectWallets'))
   const connector = useWalletConnect()
+
   // When wallet connect visibility changes, show drawer
   useEffect(() => {
     if (visible) {
