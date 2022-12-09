@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { BNWei, StringWei, Nullable, CommonState } from '@audius/common'
 import {
@@ -11,6 +11,7 @@ import {
   modalsActions,
   FeatureFlags
 } from '@audius/common'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native'
 import BN from 'bn.js'
 import { Image, Linking, View } from 'react-native'
@@ -184,6 +185,12 @@ export const AudioScreen = () => {
   const handlePressWalletInfo = useCallback(() => {
     dispatch(setVisibility({ modal: 'AudioBreakdown', visible: true }))
   }, [dispatch])
+
+  useEffect(() => {
+    AsyncStorage.removeItem(
+      '@walletconnect/qrcode-modal-react-native:walletService'
+    )
+  }, [])
 
   useFocusEffect(
     useCallback(() => {

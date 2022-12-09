@@ -17,6 +17,7 @@ const { getConfirmingWallet } = tokenDashboardPageSelectors
 export function* associateNewWallet(signature: string) {
   const { wallet, chain } = yield* select(getConfirmingWallet)
   if (!wallet || !chain) return
+  console.log('getting wallet and chain??', wallet, chain, signature)
 
   const audiusBackend = yield* getContext('audiusBackendInstance')
   const userMetadata = yield* select(getAccountUser)
@@ -52,6 +53,8 @@ export function* associateNewWallet(signature: string) {
     ...currentWalletSignatures,
     [wallet]: { signature }
   }
+
+  console.log('associated wallets??', associatedWallets)
 
   const associatedWalletsKey =
     chain === Chain.Eth ? 'associated_wallets' : 'associated_sol_wallets'

@@ -73,6 +73,7 @@ export const WalletConnectDrawer = () => {
         <View style={styles.container}>
           {supportedWalletServices?.map((walletService: WalletService) => {
             const uri = data?.uri as string
+            console.log('getting data uri??', uri)
             return (
               <EthWalletConnectOption
                 key={walletService.name}

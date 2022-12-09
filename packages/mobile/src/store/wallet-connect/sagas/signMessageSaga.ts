@@ -43,15 +43,22 @@ function* signMessageAsync(action: SignMessageAction) {
       break
     }
     case 'solana-phone-wallet-adapter': {
-      const { data: signature, publicKey } = action.payload
-      // TODO: connect to account
-      console.log('signedMessagPayload', signature, publicKey)
+      const { data: signature } = action.payload
+
+      const updatedUserMetadata = yield* associateNewWallet(signature)
+
+      function* disconnect() {}
+
+      yield* addWalletToUser(updatedUserMetadata, disconnect)
       break
     }
     case 'wallet-connect': {
       const { data: signature } = action.payload
+      console.log('signature?', signature)
 
       const updatedUserMetadata = yield* associateNewWallet(signature)
+
+      console.log('updated metadata', updatedUserMetadata)
 
       function* disconnect() {}
 

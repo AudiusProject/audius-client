@@ -1,15 +1,20 @@
 import { useCallback, useEffect } from 'react'
 
-import { accountSelectors, tokenDashboardPageSelectors } from '@audius/common'
+import {
+  accountSelectors,
+  tokenDashboardPageSelectors,
+  deletePlaylistConfirmationModalUIActions
+} from '@audius/common'
 import { useRoute } from '@react-navigation/native'
 import { useWalletConnect } from '@walletconnect/react-native-dapp'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { Button, Text, Screen } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { setVisibility } from 'app/store/drawers/slice'
 import { getStatus } from 'app/store/wallet-connect/selectors'
 import {
   connectNewWallet,
@@ -70,12 +75,15 @@ export const WalletConnectScreen = () => {
   const { wallet } = useSelector(getConfirmingWallet)
   const accountUserId = useSelector(getUserId)
 
+  console.log(
+    'status',
+    connectionStatus === 'connected',
+    connector.session.connected,
+    wallet
+  )
+
   useEffect(() => {
-    if (
-      connectionStatus === 'connected' &&
-      connector.session.connected &&
-      wallet
-    ) {
+    if (connectionStatus === 'connected' && wallet) {
       dispatch(setConnectionStatus({ status: 'signing' }))
 
       const message = `AudiusUserID:${accountUserId}`
@@ -101,6 +109,7 @@ export const WalletConnectScreen = () => {
     connector.on('connect', (_, payload) => {
       const { accounts } = payload.params[0]
       const wallet = accounts[0]
+      console.log('connecting happening?')
 
       dispatch(
         connectNewWallet({
@@ -127,7 +136,16 @@ export const WalletConnectScreen = () => {
     // The wallet connect modal houses all of our wallet
     // connections, so asking it to connect opens the
     // drawer to connect any wallet.
+    // if (Platform.OS === 'android') {
+    //   dispatch(
+    //     setVisibility({
+    //       drawer: 'ConnectWallets',
+    //       visible: true
+    //     })
+    //   )
+    // } else {
     connector.connect()
+    // }
   }, [connector])
 
   return (
