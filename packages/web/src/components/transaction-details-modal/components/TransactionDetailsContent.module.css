@@ -2,8 +2,18 @@
   fill: #00aaf5;
 }
 
-.method {
+.header {
   gap: 8px;
+}
+
+.icon {
+  margin-bottom: 0px !important;
+  /* width: 1px; */
+}
+
+.badge {
+  height: 12px;
+  margin-left: 4px;
 }
 
 .flexHorizontal {
@@ -18,4 +28,26 @@
 }
 .change.negative {
   color: var(--accent-red);
+}
+
+.link {
+  transition: color var(--quick);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+}
+.link svg {
+  width: 1em;
+  height: 1em;
+}
+.link svg path {
+  transition: fill var(--quick);
+  fill: var(--neutral-light-4);
+}
+.link:hover {
+  color: var(--secondary);
+}
+.link:hover svg path {
+  fill: var(--secondary);
 }
