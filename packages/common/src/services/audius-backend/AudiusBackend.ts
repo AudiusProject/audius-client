@@ -1210,7 +1210,7 @@ export const audiusBackend = ({
   }
 
   async function repostTrack(trackId: ID) {
-    try{
+    try {
       return await audiusLibs.EntityManager.repostTrack(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))

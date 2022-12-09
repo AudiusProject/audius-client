@@ -396,7 +396,6 @@ export function* fetchNotificationUsers(action: FetchNotificationUsers) {
 
 export function* subscribeUserSettings(action: SubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   yield* call(audiusBackendInstance.updateUserSubscription, action.userId, true)
 
@@ -407,7 +406,6 @@ export function* subscribeUserSettings(action: SubscribeUser) {
 
 export function* unsubscribeUserSettings(action: UnsubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   yield* call(
     audiusBackendInstance.updateUserSubscription,

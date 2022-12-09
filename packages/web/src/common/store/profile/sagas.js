@@ -2,7 +2,6 @@ import {
   DefaultSizes,
   Kind,
   DoubleKeys,
-  FeatureFlags,
   makeUid,
   makeKindId,
   squashNewLines,
@@ -586,8 +585,6 @@ function* watchSetNotificationSubscription() {
     function* (action) {
       if (action.update) {
         try {
-          const getFeatureEnabled = yield getContext('getFeatureEnabled')
-
           yield call(
             audiusBackendInstance.updateUserSubscription,
             action.userId,
