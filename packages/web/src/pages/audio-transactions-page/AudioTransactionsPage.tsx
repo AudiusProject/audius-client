@@ -41,11 +41,11 @@ const messages = {
   headerText: '$AUDIO Transactions'
 }
 
-const AUDIO_TRANSACTIONS_INITIAL_PAGE_SIZE = 50
+const AUDIO_TRANSACTIONS_BATCH_SIZE = 50
 
 export const AudioTransactionsPage = () => {
   const [offset, setOffset] = useState(0)
-  const [limit, setLimit] = useState(AUDIO_TRANSACTIONS_INITIAL_PAGE_SIZE)
+  const [limit, setLimit] = useState(AUDIO_TRANSACTIONS_BATCH_SIZE)
   const [sortMethod, setSortMethod] = useState(
     GetAudioTransactionHistorySortMethodEnum.Date
   )
@@ -56,6 +56,10 @@ export const AudioTransactionsPage = () => {
   const dispatch = useDispatch()
   const setVisibility = useSetVisibility()
 
+  const audioTransactions: (TransactionDetails | {})[] =
+    useSelector(getAudioTransactions)
+  const audioTransactionsCount: number = useSelector(getAudioTransactionsCount)
+
   useEffect(() => {
     dispatch(fetchAudioTransactionsCount())
   }, [dispatch])
@@ -63,8 +67,13 @@ export const AudioTransactionsPage = () => {
   // Reset audio transactions data on sort change, but not on offset and
   // limit change to allow pagination.
   useEffect(() => {
-    dispatch(setAudioTransactions([]))
-  }, [dispatch, sortMethod, sortDirection])
+    dispatch(
+      setAudioTransactions({
+        tx_details: Array(audioTransactionsCount ?? 0).fill({}) as {}[],
+        offset: 0
+      })
+    )
+  }, [dispatch, sortMethod, sortDirection, audioTransactionsCount])
 
   useEffect(() => {
     dispatch(
@@ -91,7 +100,10 @@ export const AudioTransactionsPage = () => {
     setLimit(limit)
   }
 
-  const onClickRow = (_: any, { original: tx_details }: TransactionDetails) => {
+  const onClickRow = (
+    _: any,
+    { original: tx_details }: { original: TransactionDetails }
+  ) => {
     dispatch(
       fetchTransactionDetailsSucceeded({
         transactionId: tx_details.signature,
@@ -108,10 +120,6 @@ export const AudioTransactionsPage = () => {
     }
     setVisibility('TransactionDetails')(true)
   }
-
-  const audioTransactions: TransactionDetails[] =
-    useSelector(getAudioTransactions)
-  const audioTransactionsCount: number = useSelector(getAudioTransactionsCount)
 
   const tableLoading = audioTransactions.every(
     (transaction: any) => !transaction.signature
@@ -141,6 +149,7 @@ export const AudioTransactionsPage = () => {
             isVirtualized={true}
             totalRowCount={audioTransactionsCount}
             scrollRef={mainContentRef}
+            fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
           />
         )}
       </div>

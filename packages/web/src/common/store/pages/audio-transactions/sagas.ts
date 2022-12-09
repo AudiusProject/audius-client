@@ -6,28 +6,23 @@ import {
   formatDate,
   transactionDetailsActions
 } from '@audius/common'
-import { AudiusLibs, full } from '@audius/sdk'
-import BN from 'bn.js'
+import { AudiusLibs } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
 
+import { purchaseTransactionTypes } from 'components/audio-transactions-table/AudioTransactionsTable'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { audiusSdk } from 'services/audius-sdk/audiusSdk'
 const {
   fetchAudioTransactions,
-  appendAudioTransactions,
   fetchAudioTransactionMetadata,
   fetchAudioTransactionsCount,
+  setAudioTransactions,
   setAudioTransactionsCount
 } = audioTransactionsPageActions
 const { fetchTransactionDetailsSucceeded } = transactionDetailsActions
 
-const AUDIO_DIVIDER = new BN('100000000')
 const { transactions } = audiusSdk.full
-const {
-  GetAudioTransactionHistorySortMethodEnum,
-  GetAudioTransactionHistorySortDirectionEnum
-} = full
 
 const transactionTypeMap: Record<string, TransactionType> = {
   purchase_stripe: TransactionType.PURCHASE,
@@ -44,23 +39,6 @@ const transactionMethodMap: Record<string, TransactionMethod> = {
   receive: TransactionMethod.RECEIVE
 }
 
-const purchaseTransactionTypes: Set<string> = new Set([
-  'purchase_coinbase',
-  'purchase_stripe'
-])
-
-const splAudioToIntString = (amount: string): string => {
-  const bnAudio = new BN(amount)
-  const audioOut = bnAudio.div(AUDIO_DIVIDER)
-  return audioOut.toString()
-}
-
-const parseChange = (method: string, amountBN: string) => {
-  const negative = method === 'send'
-  const amountInt = splAudioToIntString(amountBN)
-  return negative ? '-' + amountInt : amountInt
-}
-
 const parseTransaction = (tx: any): TransactionDetails => {
   const tx_detail: TransactionDetails = {
     signature: tx.signature as string,
@@ -69,8 +47,10 @@ const parseTransaction = (tx: any): TransactionDetails => {
       ? transactionMethodMap[tx.transaction_type]
       : transactionMethodMap[tx.method],
     date: formatDate(tx.transaction_date),
-    change: parseChange(tx.method, tx.change),
-    balance: splAudioToIntString(tx.balance),
+    // change: parseChange(tx.method, tx.change),
+    // balance: splAudioToIntString(tx.balance),
+    change: tx.change,
+    balance: tx.balance,
     metadata: tx.metadata
   }
   return tx_detail
@@ -91,15 +71,15 @@ function* fetchAudioTransactionsAsync() {
       console.log('REED in saga action: ', action)
       yield* call(waitForLibsInit)
       const [data, signature] = yield* call(signAuthData)
-      // transactions.getAudioTransactionHistory({
-      //   encodedDataMessage: data,
-      //   encodedDataSignature: signature!,
-      //   ...action.payload
-      // })
+      //   transactions.getAudioTransactionHistory({
+      //     encodedDataMessage: data!,
+      //     encodedDataSignature: signature!,
+      //     ...action.payload
+      //   })
       const response = yield* call(
         [transactions, transactions.getAudioTransactionHistory],
         {
-          encodedDataMessage: data,
+          encodedDataMessage: data!,
           encodedDataSignature: signature!,
           ...action.payload
         }
@@ -111,7 +91,8 @@ function* fetchAudioTransactionsAsync() {
         parseTransaction(tx)
       )
       console.log('REED data in saga: ', tx_details)
-      yield put(appendAudioTransactions(tx_details))
+      const { offset } = action.payload
+      yield put(setAudioTransactions({ tx_details, offset }))
     }
   )
 }
@@ -161,7 +142,6 @@ function* fetchTransactionsCount() {
     yield put(
       setAudioTransactionsCount({
         count: response as number
-        // count: 113
       })
     )
   })

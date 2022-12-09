@@ -11,7 +11,7 @@ type FetchAudioTransactionsPayload = {
 
 type TransactionsUIState = {
   transactionsCount: number
-  transactions: Partial<TransactionDetails[]>
+  transactions: (TransactionDetails | {})[]
 }
 
 const initialState: TransactionsUIState = {
@@ -23,9 +23,7 @@ const slice = createSlice({
   name: 'audio-transactions-page',
   initialState,
   reducers: {
-    fetchAudioTransactionsCount: () => {
-      console.log('REED in fetchAudioTransactionsCount')
-    },
+    fetchAudioTransactionsCount: () => {},
     setAudioTransactionsCount: (
       state,
       action: PayloadAction<{ count: number }>
@@ -34,29 +32,24 @@ const slice = createSlice({
     },
     fetchAudioTransactions: (
       _state,
-      action: PayloadAction<FetchAudioTransactionsPayload>
-    ) => {
-      console.log('REED in audio transactions action', action)
-    },
+      _action: PayloadAction<FetchAudioTransactionsPayload>
+    ) => {},
     fetchAudioTransactionMetadata: (
       _state,
-      action: PayloadAction<{ tx_details: TransactionDetails }>
-    ) => {
-      console.log('REED in fetchAudioTransactionMetadata', action)
-    },
+      _action: PayloadAction<{ tx_details: TransactionDetails }>
+    ) => {},
     setAudioTransactions: (
       state,
-      action: PayloadAction<TransactionDetails[]>
+      action: PayloadAction<{
+        tx_details: (TransactionDetails | {})[]
+        offset: number
+      }>
     ) => {
-      state.transactions = action.payload
-      console.log('REED resetting transactions')
-    },
-    appendAudioTransactions: (
-      state,
-      action: PayloadAction<TransactionDetails[]>
-    ) => {
-      state.transactions = [...state.transactions, ...action.payload]
-      console.log('REED appended', state.transactions)
+      const { tx_details, offset } = action.payload
+      const transactionsCopy = state.transactions.slice()
+      transactionsCopy.splice(offset, tx_details.length, ...tx_details)
+
+      state.transactions = transactionsCopy
     }
   }
 })
@@ -66,8 +59,8 @@ export const {
   setAudioTransactions,
   fetchAudioTransactionMetadata,
   fetchAudioTransactionsCount,
-  setAudioTransactionsCount,
-  appendAudioTransactions
+  setAudioTransactionsCount
+  // appendAudioTransactions
 } = slice.actions
 
 export default slice
