@@ -115,6 +115,12 @@ export const WalletConnectProviderRenderModal = ({
     }
   }, [visible, isDrawerVisible, onDismiss, connector])
 
+  useEffect(() => {
+    if (!isDrawerVisible && connector.connected) {
+      connector.killSession()
+    }
+  }, [isDrawerVisible, connector])
+
   // Must be an element to comply with interface
   return <></>
 }
