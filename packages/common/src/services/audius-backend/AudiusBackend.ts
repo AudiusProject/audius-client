@@ -1346,6 +1346,22 @@ export const audiusBackend = ({
     }
   }
 
+  async function getTransactionDetailsMetadata(tx_id: string) {
+    try {
+      const headers = await audiusLibs.identityService._signData()
+      const res = await fetch(
+        `${identityServiceUrl}/transaction_metadata?id=${tx_id}`,
+        {
+          headers
+        }
+      ).then((res) => res.json())
+      return res
+    } catch (e) {
+      console.error(e)
+      return {}
+    }
+  }
+
   /**
    * Retrieves the user's eth associated wallets from IPFS using the user's metadata CID and creator node endpoints
    * @param user The user metadata which contains the CID for the metadata multihash
@@ -3190,6 +3206,28 @@ export const audiusBackend = ({
     return waudioBalance
   }
 
+  async function getAudioTransactionsCount() {
+    try {
+      await waitForLibsInit()
+      const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
+      const data = `Click sign to authenticate with discovery node: ${unixTs}`
+      const signature = audiusLibs.Account!.web3Manager!.sign(data)
+      const res = await fetch(
+        `${currentDiscoveryProvider}/v1/full/transactions`,
+        {
+          headers: {
+            encodedDataMessage: data,
+            encodedDataSignature: signature
+          }
+        }
+      ).then((res) => res.json())
+      return res
+    } catch (e) {
+      console.error(e)
+      return 0
+    }
+  }
+
   /**
    * Aggregate, submit, and evaluate attestations for a given challenge for a user
    */
@@ -3327,6 +3365,7 @@ export const audiusBackend = ({
     getAccount,
     getAddressTotalStakedBalance,
     getAddressWAudioBalance,
+    getAudioTransactionsCount,
     getAddressSolBalance,
     getAssociatedTokenAccountInfo,
     getAllTracks,
@@ -3340,6 +3379,7 @@ export const audiusBackend = ({
     getCreatorNodeIPFSGateways,
     getCreators,
     getCreatorSocialHandle,
+    getTransactionDetailsMetadata,
     getEmailNotificationSettings,
     getFolloweeFollows,
     getHasClaimed,
