@@ -200,3 +200,9 @@ export const formatNumberString = (
       : parts[0]
   return options?.excludeCommas ? res : formatNumberCommas(res)
 }
+
+export const formatCapitalizeString = (word: string) => {
+  const lowerCase = word.toLowerCase()
+  const firstChar = word.charAt(0).toUpperCase()
+  return firstChar + lowerCase.slice(1)
+}

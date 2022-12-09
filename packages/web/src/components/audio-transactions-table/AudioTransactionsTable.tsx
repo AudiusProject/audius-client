@@ -9,10 +9,16 @@ import cn from 'classnames'
 import moment from 'moment'
 import { ColumnInstance } from 'react-table'
 
+import { full } from '@audius/sdk'
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
 import { Table } from 'components/table'
 
 import styles from './AudioTransactionsTable.module.css'
+
+const {
+  GetAudioTransactionHistorySortMethodEnum,
+  GetAudioTransactionHistorySortDirectionEnum
+} = full
 
 const transactionTypeLabelMap: Record<TransactionType, string> = {
   [TransactionType.TRANSFER]: '$AUDIO',
@@ -44,8 +50,12 @@ type AudioTransactionsTableProps = {
   isVirtualized?: boolean
   loading?: boolean
   onClickRow?: (collectible: any, index: number) => void
+  onSort: (sortMethod: string, sortDirection: string) => void
+  fetchMore: (offset: number, limit: number) => void
   tableClassName?: string
   wrapperClassName?: string
+  totalRowCount: number
+  scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
 }
 
 const defaultColumns: AudioTransactionsTableColumn[] = [
@@ -64,8 +74,12 @@ export const AudioTransactionsTable = ({
   isVirtualized = false,
   loading = false,
   onClickRow,
+  onSort,
+  fetchMore,
   tableClassName,
-  wrapperClassName
+  wrapperClassName,
+  totalRowCount,
+  scrollRef
 }: AudioTransactionsTableProps) => {
   // Cell Render Functions
   const renderTransactionIconCell = useCallback((cellInfo) => {
@@ -105,8 +119,7 @@ export const AudioTransactionsTable = ({
           [styles.decrease]: Number(change) < 0
         })}
       >
-        {Number(change) > 0 ? '+' : ''}
-        {change}
+        {formatNumberCommas(change)}
       </div>
     )
   }, [])
@@ -132,7 +145,7 @@ export const AudioTransactionsTable = ({
         accessor: 'type',
         Cell: renderTransactionTypeCell,
         width: 150,
-        disableSortBy: true,
+        disableSortBy: false,
         align: 'left'
       },
       date: {
@@ -140,7 +153,7 @@ export const AudioTransactionsTable = ({
         Header: 'Date',
         accessor: 'date',
         Cell: renderDateCell,
-        disableSortBy: true,
+        disableSortBy: false,
         align: 'right'
       },
       change: {
@@ -207,7 +220,11 @@ export const AudioTransactionsTable = ({
       data={data}
       loading={loading}
       onClickRow={handleClickRow}
+      onSort={onSort}
+      fetchMore={fetchMore}
       isVirtualized={isVirtualized}
+      totalRowCount={totalRowCount}
+      scrollRef={scrollRef}
     />
   )
 }
