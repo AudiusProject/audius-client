@@ -85,7 +85,7 @@ type TableProps = {
   onReorder?: (source: number, destination: number) => void
   onShowMoreToggle?: (setting: boolean) => void
   onSort?: (...props: any[]) => void
-  isEmptyRow: (row: any) => boolean
+  isEmptyRow?: (row: any) => boolean
   pageSize?: number
   scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
   showMoreLimit?: number
@@ -441,7 +441,8 @@ export const Table = ({
       renderSkeletonRow,
       isReorderable,
       renderDraggableRow,
-      renderTableRow
+      renderTableRow,
+      isEmptyRow
     ]
   )
 
@@ -477,7 +478,7 @@ export const Table = ({
 
   const isRowLoaded = useCallback(
     ({ index }) => !isEmptyRow(rows[index]),
-    [rows]
+    [rows, isEmptyRow]
   )
 
   // Pagination Functions
