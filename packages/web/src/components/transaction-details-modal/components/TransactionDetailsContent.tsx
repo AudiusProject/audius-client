@@ -3,7 +3,7 @@ import {
   cacheUsersSelectors,
   TransactionDetails,
   TransactionMethod,
-  formatNumberString,
+  formatAudio,
   TransactionType,
   formatCapitalizeString,
   ChallengeRewardID
@@ -15,6 +15,7 @@ import { ReactComponent as LogoCoinbase } from 'assets/img/LogoCoinbase.svg'
 import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
+import { isChangePositive } from 'components/audio-transactions-table/AudioTransactionsTable'
 import UserBadges from 'components/user-badges/UserBadges'
 import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { AppState } from 'store/types'
@@ -165,7 +166,7 @@ export const TransactionDetailsContent = ({
 }: {
   transactionDetails: TransactionDetails
 }) => {
-  const isNegative = transactionDetails.change.substring(0, 1) === '-'
+  const isNegative = !isChangePositive(transactionDetails)
   return (
     <BlockContainer>
       <div className={styles.flexHorizontal}>
@@ -202,12 +203,12 @@ export const TransactionDetailsContent = ({
 
       <Block header={messages.change}>
         <span className={cn(styles.change, { [styles.negative]: isNegative })}>
-          {!isNegative ? '+' : ''}
-          {formatNumberString(transactionDetails.change, { maxDecimals: 2 })}
+          {isNegative ? '-' : '+'}
+          {formatAudio(transactionDetails.change)}
         </span>
       </Block>
       <Block header={messages.balance}>
-        {formatNumberString(transactionDetails.balance, { maxDecimals: 2 })}
+        {formatAudio(transactionDetails.balance, 2)}
       </Block>
     </BlockContainer>
   )

@@ -100,14 +100,16 @@ export const pluralize = (
 ) => `${message}${(count ?? 0) > 1 || pluralizeAnyway ? suffix : ''}`
 
 /**
- * Format a BN to the shortened $AUDIO currency without decimals
+ * Format a BN string to the shortened $AUDIO currency
  * @param amount The wei amount
+ * @param decimals Number of decimal places to return
  * @returns $AUDIO The $AUDIO amount
  */
-export const formatAudio = (amount: BN) => {
-  if (!BN.isBN(amount)) return ''
-  let aud = amount.div(WEI).toString()
-  aud = numeral(aud).format('0,0')
+export const formatAudio = (amount: string, decimals?: number) => {
+  const amount_num: number = parseFloat(amount)
+  let aud = (amount_num / AUDIO).toString()
+  const formatString = '0,0' + (decimals ? '.' + '0'.repeat(decimals!) : '')
+  aud = numeral(aud).format(formatString)
   return aud
 }
 
@@ -133,6 +135,7 @@ export const trimRightZeros = (number: string) => {
   return number.replace(/(\d)0+$/gm, '$1')
 }
 
+export const AUDIO = 100000000
 export const WEI = new BN('1000000000000000000')
 
 export const checkOnlyNumeric = (number: string) => {

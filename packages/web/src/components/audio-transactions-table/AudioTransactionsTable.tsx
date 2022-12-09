@@ -1,24 +1,20 @@
 import { useCallback, useMemo } from 'react'
 
 import {
-  formatNumberCommas,
+  formatAudio,
   TransactionMethod,
-  TransactionType
+  TransactionType,
+  Kind,
+  TransactionDetails
 } from '@audius/common'
 import cn from 'classnames'
 import moment from 'moment'
 import { ColumnInstance } from 'react-table'
 
-import { full } from '@audius/sdk'
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
 import { Table } from 'components/table'
 
 import styles from './AudioTransactionsTable.module.css'
-
-const {
-  GetAudioTransactionHistorySortMethodEnum,
-  GetAudioTransactionHistorySortDirectionEnum
-} = full
 
 const transactionTypeLabelMap: Record<TransactionType, string> = {
   [TransactionType.TRANSFER]: '$AUDIO',
@@ -56,6 +52,7 @@ type AudioTransactionsTableProps = {
   wrapperClassName?: string
   totalRowCount: number
   scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
+  fetchBatchSize: number
 }
 
 const defaultColumns: AudioTransactionsTableColumn[] = [
@@ -68,6 +65,19 @@ const defaultColumns: AudioTransactionsTableColumn[] = [
   'spacer2'
 ]
 
+export const purchaseTransactionTypes: Set<string> = new Set([
+  'purchase_coinbase',
+  'purchase_stripe',
+  'purchase_unknown'
+])
+
+export const isChangePositive = (tx: TransactionDetails) => {
+  if (purchaseTransactionTypes.has(tx.transactionType)) {
+    return true
+  }
+  return tx.method === TransactionMethod.RECEIVE
+}
+
 export const AudioTransactionsTable = ({
   columns = defaultColumns,
   data,
@@ -79,7 +89,8 @@ export const AudioTransactionsTable = ({
   tableClassName,
   wrapperClassName,
   totalRowCount,
-  scrollRef
+  scrollRef,
+  fetchBatchSize
 }: AudioTransactionsTableProps) => {
   // Cell Render Functions
   const renderTransactionIconCell = useCallback((cellInfo) => {
@@ -102,7 +113,7 @@ export const AudioTransactionsTable = ({
 
   const renderBalanceCell = useCallback((cellInfo) => {
     const transaction = cellInfo.row.original
-    return formatNumberCommas(transaction.balance)
+    return formatAudio(transaction.balance)
   }, [])
 
   const renderDateCell = useCallback((cellInfo) => {
@@ -111,18 +122,27 @@ export const AudioTransactionsTable = ({
   }, [])
 
   const renderChangeCell = useCallback((cellInfo) => {
-    const { change } = cellInfo.row.original
+    const tx = cellInfo.row.original
+    const isPositive = isChangePositive(tx)
+    const { change } = tx
     return (
       <div
-        className={cn(styles.changeCell, {
-          [styles.increase]: Number(change) > 0,
-          [styles.decrease]: Number(change) < 0
-        })}
+        className={cn(
+          styles.changeCell,
+          isChangePositive(tx) ? styles.increase : styles.decrease
+        )}
       >
-        {formatNumberCommas(change)}
+        {isPositive ? '' : '-'}
+        {formatAudio(change)}
       </div>
     )
   }, [])
+
+  const isEmptyRow = (row: any) => {
+    return Boolean(
+      !row?.original?.signature || row?.original?.kind === Kind.EMPTY
+    )
+  }
 
   // Columns
   const tableColumnMap: Record<
@@ -221,10 +241,12 @@ export const AudioTransactionsTable = ({
       loading={loading}
       onClickRow={handleClickRow}
       onSort={onSort}
+      isEmptyRow={isEmptyRow}
       fetchMore={fetchMore}
       isVirtualized={isVirtualized}
       totalRowCount={totalRowCount}
       scrollRef={scrollRef}
+      fetchBatchSize={fetchBatchSize}
     />
   )
 }
