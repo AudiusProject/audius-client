@@ -15,8 +15,6 @@ export function* checkIsNewWallet(walletAddress: string, chain: Chain) {
     getAssociatedWallets
   )
 
-  console.log('geting here?')
-
   const associatedUserId = yield* call(
     [apiClient, apiClient.getAssociatedWalletUserId],
     {
@@ -24,13 +22,8 @@ export function* checkIsNewWallet(walletAddress: string, chain: Chain) {
     }
   )
 
-  console.log('geting here 2?')
-
   const associatedWallets =
     chain === Chain.Eth ? connectedEthWallets : connectedSolWallets
-
-  console.log('geting here 3?')
-
 
   if (
     associatedUserId ||
