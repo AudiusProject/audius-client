@@ -10,6 +10,7 @@ import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { addCollection, loadTracks } from 'app/store/offline-downloads/slice'
 
 import {
@@ -66,7 +67,11 @@ export const useLoadOfflineTracks = (collection: string) => {
             }
             if (
               track.offline &&
-              track.offline.downloaded_from_collection.includes(collection)
+              track.offline.reasons_for_download.some(
+                (reason) =>
+                  reason.is_from_favorites &&
+                  reason.collection_id === DOWNLOAD_REASON_FAVORITES
+              )
             ) {
               savesLineupTracks.push(lineupTrack)
             }

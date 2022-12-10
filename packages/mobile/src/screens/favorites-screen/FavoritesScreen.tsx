@@ -10,6 +10,7 @@ import IconFavorite from 'app/assets/images/iconFavorite.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
+import type { TrackForDownload } from 'app/components/offline-downloads'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
@@ -63,13 +64,28 @@ export const FavoritesScreen = () => {
     getAccountCollections(state, '')
   )
 
-  const allSavesTrackIds = useMemo(() => {
-    const allIds = (allFavoritedTrackIds ?? []).concat(
+  const tracksForDownload: TrackForDownload[] = useMemo(() => {
+    const trackFavoritesToDownload: TrackForDownload[] = (
+      allFavoritedTrackIds ?? []
+    ).map((trackId) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: 'favorites'
+      }
+    }))
+    const collectionFavoritesToDownload: TrackForDownload[] =
       userCollections.flatMap((collection) =>
-        collection.playlist_contents.track_ids.map((trackId) => trackId.track)
+        collection.playlist_contents.track_ids.map(({ track: trackId }) => ({
+          trackId,
+          downloadReason: {
+            is_from_favorites: true,
+            collection_id: collection.playlist_id.toString()
+          }
+        }))
       )
-    )
-    return allIds
+
+    return trackFavoritesToDownload.concat(collectionFavoritesToDownload)
   }, [allFavoritedTrackIds, userCollections])
 
   return (
@@ -82,7 +98,7 @@ export const FavoritesScreen = () => {
         {isOfflineModeEnabled && (
           <DownloadToggle
             collection={DOWNLOAD_REASON_FAVORITES}
-            trackIds={allSavesTrackIds}
+            tracksForDownload={tracksForDownload}
           />
         )}
       </ScreenHeader>
