@@ -61,7 +61,6 @@ const RECORD_LISTEN_INTERVAL = 1000
 let FORCE_MP3_STREAM_TRACK_IDS: Set<string> | null = null
 
 export function* watchPlay() {
-  yield* waitForWrite()
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
