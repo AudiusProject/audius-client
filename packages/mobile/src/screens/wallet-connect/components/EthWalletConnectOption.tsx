@@ -37,11 +37,8 @@ export const EthWalletConnectOption = (props: EthWalletConnectOptionProps) => {
     dispatch(setConnectionType({ connectionType: 'wallet-connect' }))
     dispatch(setConnectionStatus({ status: 'connecting' }))
     if (Platform.OS === 'android') {
-      console.log('defined?', connectToWalletService, walletService, uri)
-      // await connectToWalletService?.(walletService, uri)
       await Linking.openURL(uri)
-      console.log('in this context??')
-    } else {
+    } else if (Platform.OS === 'ios') {
       connectToWalletService?.(walletService, uri)
     }
   }, [dispatch, walletService, connectToWalletService, uri])

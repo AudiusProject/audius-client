@@ -1,3 +1,5 @@
+import type { CommonState } from '@audius/common'
+import { tokenDashboardPageSelectors, waitForValue } from '@audius/common'
 import bs58 from 'bs58'
 import { addWalletToUser } from 'common/store/pages/token-dashboard/addWalletToUser'
 import { associateNewWallet } from 'common/store/pages/token-dashboard/associateNewWallet'
@@ -9,6 +11,7 @@ import { getSharedSecret } from '../selectors'
 import { setConnectionStatus, signMessage } from '../slice'
 import type { SignMessageAction } from '../types'
 import { decryptPayload } from '../utils'
+const { getError, getConfirmingWallet } = tokenDashboardPageSelectors
 
 type SignMessagePayload = {
   signature: string
@@ -36,6 +39,7 @@ function* signMessageAsync(action: SignMessageAction) {
       const sigHexString = sigBuffer.toString('hex')
 
       const updatedUserMetadata = yield* associateNewWallet(sigHexString)
+      if (!updatedUserMetadata) return
 
       function* disconnect() {}
 
@@ -45,23 +49,36 @@ function* signMessageAsync(action: SignMessageAction) {
     case 'solana-phone-wallet-adapter': {
       const { data: signature } = action.payload
 
-      const updatedUserMetadata = yield* associateNewWallet(signature)
+      // With solana phone, connectWallet saga doesn't finish in time before
+      // signMessage starts
+      yield* waitForValue((state: CommonState) => {
+        const { wallet, chain } = getConfirmingWallet(state)
+        const error = getError(state)
+        return wallet || chain || error
+      })
+
+      // Check for cases where an error has occured, like if the wallet is already connected
+      const walletError = yield* select(getError)
+      if (walletError) return
+
+      const signatureEncoded = Buffer.from(signature, 'base64')
+        .slice(-64)
+        .toString('hex')
+
+      const updatedUserMetadata = yield* associateNewWallet(signatureEncoded)
+      if (!updatedUserMetadata) return
 
       function* disconnect() {}
-
       yield* addWalletToUser(updatedUserMetadata, disconnect)
       break
     }
     case 'wallet-connect': {
       const { data: signature } = action.payload
-      console.log('signature?', signature)
 
       const updatedUserMetadata = yield* associateNewWallet(signature)
-
-      console.log('updated metadata', updatedUserMetadata)
+      if (!updatedUserMetadata) return
 
       function* disconnect() {}
-
       yield* addWalletToUser(updatedUserMetadata, disconnect)
       break
     }
