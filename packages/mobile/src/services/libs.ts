@@ -12,7 +12,7 @@ declare global {
 
 export const libsInitEventEmitter = new EventEmitter()
 
-export let audiusLibs: Nullable<AudiusLibs>
+export let audiusLibs: Nullable<AudiusLibs> = null
 
 export const LIBS_INITTED_EVENT = 'LIBS_INITTED_EVENT'
 
