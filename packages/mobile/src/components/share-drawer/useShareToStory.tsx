@@ -40,7 +40,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import {
   getDominantRgb,
-  pickTwoMostDominantAndColorful
+  pickTwoMostDominantAndVibrant
 } from '../../../threads/dominantColors.thread'
 import { NativeDrawer } from '../drawer'
 import { DEFAULT_IMAGE_URL, useTrackImage } from '../image/TrackImage'
@@ -221,7 +221,7 @@ export const useShareToStory = ({
           return
         }
         const finalDominantColorsResult = Array.isArray(rawDominantColorsResult)
-          ? pickTwoMostDominantAndColorful(rawDominantColorsResult).map(
+          ? pickTwoMostDominantAndVibrant(rawDominantColorsResult).map(
               (c: Color) => convertRGBToHex(c)
             )
           : DEFAULT_DOMINANT_COLORS

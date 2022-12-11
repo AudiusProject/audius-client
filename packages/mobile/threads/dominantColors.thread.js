@@ -56,7 +56,7 @@ const findIndexOfMaxEuclideanDistance = (existing, selectFrom) => {
   return indexOfMaxDistance
 }
 
-const calculateColorfulness = (color) => {
+const calculateVibrancy = (color) => {
   // Reference: https://stackoverflow.com/questions/61705774/mathematically-calculate-vibrancy-of-a-color
   const max = Math.max(color.r, color.g, color.b)
   const min = Math.min(color.r, color.g, color.b)
@@ -64,18 +64,18 @@ const calculateColorfulness = (color) => {
 }
 
 /**  Picks the two most dominant colors that meet a min threshold of colorfulness. */
-export const pickTwoMostDominantAndColorful = (colors) => {
-  const filtered = colors.filter((c) => {
-    return calculateColorfulness(c) >= 50.0
+export const pickTwoMostDominantAndVibrant = (colors) => {
+  const vibrantColors = colors.filter((c) => {
+    return calculateVibrancy(c) >= 50.0
   })
-  if (filtered.length < 2) {
-    return colors
+  if (vibrantColors.length < 2) {
+    return [...colors]
       .sort((a, b) => {
-        return calculateColorfulness(b) - calculateColorfulness(a)
+        return calculateVibrancy(b) - calculateVibrancy(a)
       })
       .slice(0, 2)
   }
-  return filtered
+  return vibrantColors
 }
 
 const findDominantColors = (selectFrom) => {
