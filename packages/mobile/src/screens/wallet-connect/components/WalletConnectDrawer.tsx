@@ -4,18 +4,22 @@ import type {
   RenderQrcodeModalProps,
   WalletService
 } from '@walletconnect/react-native-dapp'
-import { useWalletConnectContext } from '@walletconnect/react-native-dapp'
-import { View, Image } from 'react-native'
+import {
+  useWalletConnect,
+  useWalletConnectContext
+} from '@walletconnect/react-native-dapp'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
-import { getVisibility } from 'app/store/drawers/selectors'
+import { getVisibility, getData } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
+import { EthWalletConnectOption } from './EthWalletConnectOption'
 import { PhantomWalletConnectOption } from './PhantomWalletConnectOption'
-import { WalletConnectOption } from './WalletConnectOption'
+import { SolanaPhoneOption } from './SolanaPhoneOption'
 
 const SUPPORTED_SERVICES = new Set(['MetaMask', 'Rainbow'])
 const MODAL_NAME = 'ConnectWallets'
@@ -28,7 +32,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     marginTop: spacing(4),
     marginHorizontal: spacing(4),
-    marginBottom: spacing(6),
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start'
@@ -38,27 +41,21 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginBottom: spacing(2),
     color: palette.neutralLight2
   },
-  container: {
-    marginTop: spacing(4),
-    flex: 1,
+  walletConnectionList: {
     flexDirection: 'row',
+    justifyContent: 'center',
     flexWrap: 'wrap'
-  },
-  walletImage: {
-    height: 50,
-    width: 50,
-    borderRadius: 25
   }
 }))
 
 export const WalletConnectDrawer = () => {
   const styles = useStyles()
-  const { walletServices, connectToWalletService, redirectUrl } =
-    useWalletConnectContext()
+  const { walletServices } = useWalletConnectContext()
 
-  const supportedWalletServices = (walletServices || []).filter((service) =>
+  const supportedWalletServices = walletServices?.filter((service) =>
     SUPPORTED_SERVICES.has(service.name)
   )
+  const data = useSelector(getData)
 
   return (
     <NativeDrawer drawerName={MODAL_NAME}>
@@ -71,30 +68,19 @@ export const WalletConnectDrawer = () => {
         >
           {messages.title}
         </Text>
-        <View style={styles.container}>
-          {supportedWalletServices.map((walletService: WalletService) => {
+        <View style={styles.walletConnectionList}>
+          <SolanaPhoneOption />
+          <PhantomWalletConnectOption />
+          {supportedWalletServices?.map((walletService: WalletService) => {
+            const uri = data?.uri as string
             return (
-              <WalletConnectOption
+              <EthWalletConnectOption
                 key={walletService.name}
-                name={walletService.name}
-                icon={
-                  <Image
-                    style={styles.walletImage}
-                    source={{
-                      // @ts-ignore: image_url is valid
-                      uri: `${walletService.image_url.sm}`
-                    }}
-                    onError={(error) => console.error(error)}
-                  />
-                }
-                onPress={() =>
-                  connectToWalletService?.(walletService, redirectUrl)
-                }
+                walletService={walletService}
+                uri={uri}
               />
             )
           })}
-          <PhantomWalletConnectOption />
-          {/* TODO: Add Solana Phone as an option */}
         </View>
       </View>
     </NativeDrawer>
@@ -103,23 +89,35 @@ export const WalletConnectDrawer = () => {
 
 export const WalletConnectProviderRenderModal = ({
   visible,
-  onDismiss
+  onDismiss,
+  uri
 }: RenderQrcodeModalProps) => {
   const dispatch = useDispatch()
   const isDrawerVisible = useSelector(getVisibility('ConnectWallets'))
+  const connector = useWalletConnect()
+
   // When wallet connect visibility changes, show drawer
   useEffect(() => {
     if (visible) {
-      dispatch(setVisibility({ drawer: MODAL_NAME, visible: true }))
+      dispatch(
+        setVisibility({ drawer: MODAL_NAME, visible: true, data: { uri } })
+      )
     }
-  }, [visible, dispatch])
+  }, [visible, dispatch, uri])
 
   // When the drawer gets dismissed, dismiss the wallet connect popup
   useEffect(() => {
     if (visible && !isDrawerVisible) {
-      onDismiss()
+      // TODO: this isn't working properly
+      // onDismiss()
     }
-  }, [visible, isDrawerVisible, onDismiss])
+  }, [visible, isDrawerVisible, onDismiss, connector])
+
+  useEffect(() => {
+    if (!isDrawerVisible && connector.connected) {
+      connector.killSession()
+    }
+  }, [isDrawerVisible, connector])
 
   // Must be an element to comply with interface
   return <></>

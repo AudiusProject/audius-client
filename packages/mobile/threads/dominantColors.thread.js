@@ -56,6 +56,28 @@ const findIndexOfMaxEuclideanDistance = (existing, selectFrom) => {
   return indexOfMaxDistance
 }
 
+const calculateVibrancy = (color) => {
+  // Reference: https://stackoverflow.com/questions/61705774/mathematically-calculate-vibrancy-of-a-color
+  const max = Math.max(color.r, color.g, color.b)
+  const min = Math.min(color.r, color.g, color.b)
+  return ((max + min) * (max - min)) / max
+}
+
+/**  Picks the two most dominant colors that meet a min threshold of colorfulness. */
+export const pickTwoMostDominantAndVibrant = (colors) => {
+  const vibrantColors = colors.filter((c) => {
+    return calculateVibrancy(c) >= 50.0
+  })
+  if (vibrantColors.length < 2) {
+    return [...colors]
+      .sort((a, b) => {
+        return calculateVibrancy(b) - calculateVibrancy(a)
+      })
+      .slice(0, 2)
+  }
+  return vibrantColors
+}
+
 const findDominantColors = (selectFrom) => {
   const domColors = [selectFrom.shift()]
 
@@ -74,8 +96,8 @@ const findDominantColors = (selectFrom) => {
  * Returns the 3 dominant RGB colors of an image.
  * @param {string} imageUrl url of the image to use
  */
-const dominantRgb = (imageUrl) => {
-  Jimp.read(imageUrl)
+export const getDominantRgb = (imageUrl) => {
+  return Jimp.read(imageUrl)
     .then((img) => {
       img.posterize(15)
       const imageData = img.bitmap
@@ -114,14 +136,18 @@ const dominantRgb = (imageUrl) => {
       } else {
         result = findDominantColors(sortedResult)
       }
-
-      self.postMessage(JSON.stringify(result))
+      return result
     })
     .catch((err) => {
       console.error(imageUrl, err)
-      // eslint-disable-next-line
-      self.postMessage(DEFAULT_RGB)
+      return DEFAULT_RGB
     })
+}
+
+export const dominantRgb = (imageUrl) => {
+  getDominantRgb(imageUrl).then((result) => {
+    self.postMessage(JSON.stringify(result))
+  })
 }
 
 // listen for messages

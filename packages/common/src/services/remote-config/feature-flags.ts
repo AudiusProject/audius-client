@@ -17,22 +17,21 @@ export enum FeatureFlags {
   EARLY_ACCESS = 'early_access',
   SUPPORTER_DETHRONED_ENABLED = 'supporter_dethroned_enabled',
   PLAYLIST_ENTITY_MANAGER_ENABLED = 'playlist_entity_manager_enabled',
-  SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED = 'social_feature_entity_manager_enabled',
   TRACK_ENTITY_MANAGER_ENABLED = 'track_entity_manager_enabled',
   USER_ENTITY_MANAGER_ENABLED = 'user_entity_manager_enabled',
   NEW_ARTIST_DASHBOARD_TABLE = 'new_artist_dashboard_table',
-  BUY_AUDIO_ENABLED = 'buy_audio_enabled',
   BUY_AUDIO_COINBASE_ENABLED = 'buy_audio_coinbase_enabled',
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
   PREMIUM_CONTENT_ENABLED = 'premium_content_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  MOBILE_UPLOAD = 'mobile_upload_final',
+  MOBILE_UPLOAD = 'mobile_upload_final_2',
   STREAM_MP3 = 'stream_mp3',
   READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
   SHARE_TO_STORY = 'share_to_story',
   READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled',
-  MOBILE_WALLET_CONNECT = 'mobile_wallet_connect'
+  MOBILE_WALLET_CONNECT = 'mobile_wallet_connect',
+  COMPLETE_PROFILE_WITH_TIKTOK = 'complete_profile_with_tiktok'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -65,11 +64,9 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.EARLY_ACCESS]: false,
   [FeatureFlags.SUPPORTER_DETHRONED_ENABLED]: false,
   [FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED]: false,
-  [FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.USER_ENTITY_MANAGER_ENABLED]: false,
   [FeatureFlags.NEW_ARTIST_DASHBOARD_TABLE]: false,
-  [FeatureFlags.BUY_AUDIO_ENABLED]: false,
   [FeatureFlags.BUY_AUDIO_COINBASE_ENABLED]: false,
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
@@ -80,5 +77,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
   [FeatureFlags.SHARE_TO_STORY]: false,
   [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false,
-  [FeatureFlags.MOBILE_WALLET_CONNECT]: false
+  [FeatureFlags.MOBILE_WALLET_CONNECT]: false,
+  [FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK]: false
 }

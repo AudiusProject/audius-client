@@ -3,10 +3,11 @@ import {
   Kind,
   makeUid,
   cacheActions,
-  savedPageTracksLineupActions
+  savedPageTracksLineupActions,
+  reachabilitySelectors
 } from '@audius/common'
 import moment from 'moment'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { addCollection, loadTracks } from 'app/store/offline-downloads/slice'
@@ -19,9 +20,11 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
+const { getIsReachable } = reachabilitySelectors
 
 export const useLoadOfflineTracks = (collection: string) => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
 
   const dispatch = useDispatch()
 
@@ -78,20 +81,22 @@ export const useLoadOfflineTracks = (collection: string) => {
     dispatch(cacheActions.add(Kind.USERS, cacheUsers, false, true))
     dispatch(loadTracks(savesLineupTracks))
 
-    // TODO: support for collection lineups
-    dispatch(
-      savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
-        savesLineupTracks.map((track) => ({
-          uid: track.uid,
-          kind: Kind.TRACKS,
-          id: track.track_id,
-          dateSaved: moment()
-        })),
-        0,
-        savesLineupTracks.length,
-        false,
-        false
+    if (!isReachable) {
+      // TODO: support for collection lineups
+      dispatch(
+        savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
+          savesLineupTracks.map((track) => ({
+            uid: track.uid,
+            kind: Kind.TRACKS,
+            id: track.track_id,
+            dateSaved: moment()
+          })),
+          0,
+          savesLineupTracks.length,
+          false,
+          false
+        )
       )
-    )
-  }, [isOfflineModeEnabled, loadTracks])
+    }
+  }, [isOfflineModeEnabled, isReachable, loadTracks])
 }

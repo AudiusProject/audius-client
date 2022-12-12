@@ -1,8 +1,9 @@
-import {
-  useProxySelector,
-  savedPageSelectors,
-  lineupSelectors
-} from '@audius/common'
+import { useMemo } from 'react'
+
+import type { CommonState } from '@audius/common'
+import { accountActions } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconFavorite from 'app/assets/images/iconFavorite.svg'
@@ -11,18 +12,17 @@ import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
+import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
 import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
 import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
-const { makeGetTableMetadatas } = lineupSelectors
-
-const { getSavedTracksLineup } = savedPageSelectors
-
-const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
+import { getAccountCollections } from './selectors'
+const { fetchSavedPlaylists, fetchSavedAlbums } = accountActions
 
 const messages = {
   header: 'Favorites'
@@ -48,9 +48,29 @@ const favoritesScreens = [
 
 export const FavoritesScreen = () => {
   usePopToTopOnDrawerOpen()
+  const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
-  const savedTracks = useProxySelector(getTracks, [])
+  const { value: allFavoritedTrackIds } = useFetchAllFavoritedTrackIds()
+
+  useEffectOnce(() => {
+    dispatch(fetchSavedPlaylists())
+    dispatch(fetchSavedAlbums())
+  })
+  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
+
+  const userCollections = useSelector((state: CommonState) =>
+    getAccountCollections(state, '')
+  )
+
+  const allSavesTrackIds = useMemo(() => {
+    const allIds = (allFavoritedTrackIds ?? []).concat(
+      userCollections.flatMap((collection) =>
+        collection.playlist_contents.track_ids.map((trackId) => trackId.track)
+      )
+    )
+    return allIds
+  }, [allFavoritedTrackIds, userCollections])
 
   return (
     <Screen>
@@ -62,7 +82,7 @@ export const FavoritesScreen = () => {
         {isOfflineModeEnabled && (
           <DownloadToggle
             collection={DOWNLOAD_REASON_FAVORITES}
-            tracks={savedTracks.entries}
+            trackIds={allSavesTrackIds}
           />
         )}
       </ScreenHeader>

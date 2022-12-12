@@ -14,6 +14,7 @@ export const messages = {
   instagramStory: 'Share to Instagram Story',
   tikTok: 'Share Sound to TikTok',
   copyLink: (asset: ShareType) => `Copy Link to ${shareTypeMap[asset]}`,
+  shareToStoryError: 'Sorry, something went wrong.',
   shareSheet: (asset: ShareType) => `Share ${asset} via...`,
   toast: (asset: ShareType) => `Copied Link to ${shareTypeMap[asset]}`,
   trackShareText: (title: string, handle: string) =>
@@ -24,5 +25,8 @@ export const messages = {
     `Check out ${albumName} by ${handle} @AudiusProject #Audius`,
   playlistShareText: (playlistName: string, handle: string) =>
     `Check out ${playlistName} by ${handle} @AudiusProject #Audius`,
+  loadingStoryModalTitle: 'Generating Story',
+  loadingInstagramStorySubtitle: 'Preparing to open Instagram',
+  cancel: 'Cancel',
   nftPlaylistShareText: ''
 }

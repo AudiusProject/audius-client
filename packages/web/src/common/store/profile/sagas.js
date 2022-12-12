@@ -2,7 +2,6 @@ import {
   DefaultSizes,
   Kind,
   DoubleKeys,
-  FeatureFlags,
   makeUid,
   makeKindId,
   squashNewLines,
@@ -32,7 +31,6 @@ import {
   takeEvery
 } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   fetchUsers,
   fetchUserByHandle,
@@ -48,7 +46,7 @@ import {
   subscribeToUserAsync,
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -315,7 +313,7 @@ function* fetchProfileAsync(action) {
 
 function* watchFetchFollowUsers(action) {
   yield takeEvery(profileActions.FETCH_FOLLOW_USERS, function* (action) {
-    yield call(waitForBackendSetup)
+    yield call(waitForRead)
     switch (action.followerGroup) {
       case FollowType.FOLLOWEE_FOLLOWS:
         yield call(fetchFolloweeFollows, action)
@@ -396,7 +394,7 @@ function* watchUpdateProfile() {
 }
 
 export function* updateProfileAsync(action) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   let metadata = { ...action.metadata }
   metadata.bio = squashNewLines(metadata.bio)
@@ -471,7 +469,7 @@ export function* updateProfileAsync(action) {
 }
 
 function* confirmUpdateProfile(userId, metadata) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const localStorage = yield getContext('localStorage')
@@ -586,8 +584,6 @@ function* watchSetNotificationSubscription() {
     function* (action) {
       if (action.update) {
         try {
-          const getFeatureEnabled = yield getContext('getFeatureEnabled')
-
           yield call(
             audiusBackendInstance.updateUserSubscription,
             action.userId,
@@ -596,17 +592,10 @@ function* watchSetNotificationSubscription() {
 
           // Dual write to discovery. Part of the migration of subscriptions
           // from identity to discovery.
-          const socialFeatureEntityManagerEnabled =
-            (yield call(
-              getFeatureEnabled,
-              FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-            )) ?? false
-          if (socialFeatureEntityManagerEnabled) {
-            if (action.isSubscribed) {
-              yield fork(subscribeToUserAsync, action.userId)
-            } else {
-              yield fork(unsubscribeFromUserAsync, action.userId)
-            }
+          if (action.isSubscribed) {
+            yield fork(subscribeToUserAsync, action.userId)
+          } else {
+            yield fork(unsubscribeFromUserAsync, action.userId)
           }
         } catch (err) {
           const isReachable = yield select(getIsReachable)

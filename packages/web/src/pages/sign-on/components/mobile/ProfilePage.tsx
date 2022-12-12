@@ -55,6 +55,23 @@ type ProfilePageProps = {
 }
 
 const ProfilePage = (props: ProfilePageProps) => {
+  const {
+    name,
+    handle,
+    isVerified,
+    profileImage,
+    setProfileImage,
+    onHandleChange,
+    onNameChange,
+    onNextPage,
+    twitterId,
+    recordTwitterStart,
+    recordInstagramStart,
+    setTwitterProfile,
+    setInstagramProfile,
+    validateHandle
+  } = props
+
   // If the handle field is disabled, don't let the user twitter auth
   const [showTwitterOverlay, setShowTwitterOverlay] = useState(
     props.handle.status !== 'disabled'
@@ -80,23 +97,6 @@ const ProfilePage = (props: ProfilePageProps) => {
       }
     }
   }, [])
-
-  const {
-    name,
-    handle,
-    isVerified,
-    profileImage,
-    setProfileImage,
-    onHandleChange,
-    onNameChange,
-    onNextPage,
-    twitterId,
-    recordTwitterStart,
-    recordInstagramStart,
-    setTwitterProfile,
-    setInstagramProfile,
-    validateHandle
-  } = props
 
   const onToggleTwitterOverlay = useCallback(() => {
     setShowTwitterOverlay((show) => !show)
@@ -215,9 +215,9 @@ const ProfilePage = (props: ProfilePageProps) => {
         <ProfileForm
           isMobile
           header={messages.header}
-          showTwitterOverlay={showTwitterOverlay}
           profileImage={profileImage}
           name={name}
+          onInstagramLogin={onInstagramLogin}
           onTwitterLogin={onTwitterLogin}
           onToggleTwitterOverlay={onToggleTwitterOverlay}
           canUpdateHandle={canUpdateHandle}

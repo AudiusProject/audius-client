@@ -5,9 +5,9 @@ import type { ScreenProps } from 'app/components/core'
 
 export type FormValues = ExtendedTrackMetadata & {
   licenseType: {
-    allowAttribution: boolean
-    commercialUse: boolean
-    derivativeWorks: boolean
+    allowAttribution: Nullable<boolean>
+    commercialUse: Nullable<boolean>
+    derivativeWorks: Nullable<boolean>
   }
   trackArtwork?: string
 }
@@ -15,8 +15,12 @@ export type FormValues = ExtendedTrackMetadata & {
 export type EditTrackScreenProps = {
   onSubmit: (values: ExtendedTrackMetadata) => void
   initialValues: ExtendedTrackMetadata & { trackArtwork?: string }
+  doneText?: string
 } & Partial<ScreenProps>
 
-export type EditTrackFormProps = FormikProps<FormValues> & Partial<ScreenProps>
+export type EditTrackFormProps = FormikProps<FormValues> &
+  Partial<ScreenProps> & {
+    doneText?: string
+  }
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id }[] }>

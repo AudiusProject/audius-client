@@ -11,7 +11,8 @@ import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
 } from 'common/store/profile/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
+
 const { fetchAssociatedWallets, setAssociatedWallets } =
   tokenDashboardPageActions
 
@@ -62,7 +63,7 @@ function* fetchSplWalletInfo(wallets: string[]) {
 }
 
 function* fetchAccountAssociatedWallets() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const accountUserId = yield* select(getUserId)
   if (!accountUserId) return

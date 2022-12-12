@@ -40,7 +40,6 @@ import {
 } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
@@ -48,7 +47,7 @@ import {
   subscribeToUserAsync,
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
 const { fetchReactionValues } = reactionsUIActions
@@ -195,7 +194,7 @@ export function* fetchNotifications(action: FetchNotifications) {
 export function* parseAndProcessNotifications(
   notifications: Notification[]
 ): Generator<any, Notification[], any> {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   /**
    * Parse through the notifications & collect user /track / collection IDs
    * that the notification references to fetch
@@ -396,25 +395,16 @@ export function* fetchNotificationUsers(action: FetchNotificationUsers) {
 
 export function* subscribeUserSettings(action: SubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   yield* call(audiusBackendInstance.updateUserSubscription, action.userId, true)
 
   // Dual write to discovery. Part of the migration of subscriptions
   // from identity to discovery.
-  const socialFeatureEntityManagerEnabled =
-    ((yield* call(
-      getFeatureEnabled,
-      FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-    )) as boolean | null) ?? false
-  if (socialFeatureEntityManagerEnabled) {
-    yield* fork(subscribeToUserAsync, action.userId)
-  }
+  yield* fork(subscribeToUserAsync, action.userId)
 }
 
 export function* unsubscribeUserSettings(action: UnsubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   yield* call(
     audiusBackendInstance.updateUserSubscription,
@@ -424,14 +414,7 @@ export function* unsubscribeUserSettings(action: UnsubscribeUser) {
 
   // Dual write to discovery. Part of the migration of subscriptions
   // from identity to discovery.
-  const socialFeatureEntityManagerEnabled =
-    ((yield* call(
-      getFeatureEnabled,
-      FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-    )) as boolean | null) ?? false
-  if (socialFeatureEntityManagerEnabled) {
-    yield* fork(unsubscribeFromUserAsync, action.userId)
-  }
+  yield* fork(unsubscribeFromUserAsync, action.userId)
 }
 
 export function* updatePlaylistLastViewedAt(
@@ -638,13 +621,13 @@ export function* getNotifications(isFirstFetch: boolean) {
 
 export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   yield* call(audiusBackendInstance.markAllNotificationAsViewed)
   yield* put(notificationActions.markedAllAsViewed())
 }
 
 function* watchTogglePanel() {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   yield* takeEvery(notificationActions.TOGGLE_NOTIFICATION_PANEL, function* () {
     const isOpen = yield* select(getNotificationPanelIsOpen)
     if (isOpen) {

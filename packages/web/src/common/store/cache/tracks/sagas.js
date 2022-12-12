@@ -27,14 +27,13 @@ import {
 } from 'redux-saga/effects'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { dominantColor } from 'utils/imageProcessingUtil'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
@@ -101,7 +100,7 @@ export function* trackNewRemixEvent(remixTrack) {
 }
 
 function* editTrackAsync(action) {
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   action.formFields.description = squashNewLines(action.formFields.description)
 
   const currentTrack = yield select(getTrack, { id: action.trackId })
@@ -170,7 +169,7 @@ function* confirmEditTrack(
   isNowListed,
   currentTrack
 ) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(
@@ -257,7 +256,7 @@ function* watchEditTrack() {
 
 function* deleteTrackAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -302,7 +301,7 @@ function* deleteTrackAsync(action) {
 }
 
 function* confirmDeleteTrack(trackId) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   yield put(
