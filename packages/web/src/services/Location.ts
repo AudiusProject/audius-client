@@ -1,3 +1,5 @@
+import { audiusBackendInstance } from './audius-backend/audius-backend-instance'
+
 export type Location = {
   asn: string
   city: string
@@ -22,12 +24,13 @@ export type Location = {
 }
 
 let cachedLocation: Location | null = null
+const identityServiceUrl = audiusBackendInstance.identityServiceUrl
 export const getLocation = async (): Promise<Location | null> => {
   try {
     if (cachedLocation) {
       return cachedLocation
     }
-    const res = await fetch('https://ipapi.co/json/')
+    const res = await fetch(`${identityServiceUrl}/location`)
     const json = await res.json()
     if (json.error) {
       throw new Error(json.reason)
