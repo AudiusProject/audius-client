@@ -1,5 +1,5 @@
 import { audiusBackend } from '@audius/common'
-import { AudiusLibs } from '@audius/sdk'
+import type { AudiusLibs } from '@audius/sdk'
 
 import { track } from 'services/analytics'
 import {
