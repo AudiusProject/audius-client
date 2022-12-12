@@ -6,11 +6,9 @@ import {
   savedPageTracksLineupActions,
   reachabilitySelectors
 } from '@audius/common'
-import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { addCollection, loadTracks } from 'app/store/offline-downloads/slice'
 
