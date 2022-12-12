@@ -1,4 +1,4 @@
-import type { Track } from '@audius/common'
+import type { Track, UserTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
@@ -9,7 +9,7 @@ type State = {
     [key: string]: OfflineTrackDownloadStatus
   }
   tracks: {
-    [key: string]: Track
+    [key: string]: Track & UserTrackMetadata & { uid: string }
   }
   collections: {
     [key: string]: boolean
