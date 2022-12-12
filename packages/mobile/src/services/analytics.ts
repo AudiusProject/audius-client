@@ -8,7 +8,8 @@ import { EventNames } from '../types/analytics'
 let analyticsSetupStatus: 'ready' | 'pending' | 'error' = 'pending'
 
 const AmplitudeWriteKey = Config.AMPLITUDE_WRITE_KEY
-const ampInstance = Amplitude.getInstance()
+const AmplitudeProxy = Config.AMPLITUDE_PROXY
+const ampInstance = Amplitude.getInstance().setServerUrl(AmplitudeProxy)
 
 export const init = async () => {
   try {
