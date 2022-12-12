@@ -33,8 +33,6 @@ export const useAccountHasClaimableRewards = (challengeRewardsIds: string) => {
         optimisticUserChallenges
       ).filter((challenge) => activeRewardIds.includes(challenge.challenge_id))
 
-      console.log('wayyy to many')
-
       return activeUserChallenges.some(
         (challenge) => challenge.claimableAmount > 0
       )
