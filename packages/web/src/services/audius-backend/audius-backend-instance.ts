@@ -7,7 +7,6 @@ import {
   waitForLibsInit,
   withEagerOption
 } from 'services/audius-backend/eagerLoadUtils'
-import { initSdk } from 'services/audius-sdk'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { monitoringCallbacks } from 'services/serviceMonitoring'
@@ -19,7 +18,6 @@ import { env } from '../env'
 declare global {
   interface Window {
     audiusLibs: any
-    audiusSdk: any
   }
 }
 
@@ -89,7 +87,6 @@ export const audiusBackendInstance = audiusBackend({
   monitoringCallbacks,
   nativeMobile: false,
   onLibsInit: (libs: AudiusLibs) => {
-    initSdk()
     window.audiusLibs = libs
     const event = new CustomEvent(LIBS_INITTED_EVENT)
     window.dispatchEvent(event)
