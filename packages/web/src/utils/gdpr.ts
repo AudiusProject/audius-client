@@ -10,14 +10,12 @@ const IS_EU_CACHE_TTL_MS = 7 * 24 * 3600 * 1000
 const getCachedIsEU = () => {
   const cachedIsEU = localStorage.getItem(IS_EU_KEY)
   if (!cachedIsEU) {
-    console.debug('loc: no cached location')
     return null
   }
   const { isEU, expiry }: { isEU: boolean; expiry: number } =
     JSON.parse(cachedIsEU)
 
   if (Date.now() > expiry) {
-    console.debug('loc: expired, removd')
     localStorage.removeItem(IS_EU_KEY)
     return null
   }
@@ -27,7 +25,6 @@ const getCachedIsEU = () => {
 export const getIsInEU = async () => {
   const cachedIsEU = getCachedIsEU()
   if (cachedIsEU !== null) {
-    console.debug('loc: found cached loc')
     return cachedIsEU
   }
   const location = await getLocation()
