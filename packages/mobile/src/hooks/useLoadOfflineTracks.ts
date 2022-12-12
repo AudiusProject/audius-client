@@ -22,10 +22,8 @@ import {
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
 const { getIsReachable } = reachabilitySelectors
 
-export const useLoadOfflineTracks = (collection: string) => {
+export const useLoadOfflineTracks = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isReachable = useSelector(getIsReachable)
-
   const dispatch = useDispatch()
 
   useAsync(async () => {
@@ -37,8 +35,56 @@ export const useLoadOfflineTracks = (collection: string) => {
     })
 
     const trackIds = await listTracks()
-    const savesLineupTracks: (Track & UserTrackMetadata & { uid: string })[] =
-      []
+    const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
+    const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
+    const lineupTracks: (Track & UserTrackMetadata & { uid: string })[] = []
+    for (const trackId of trackIds) {
+      try {
+        const verified = await verifyTrack(trackId, true)
+        if (!verified) continue
+        getTrackJson(trackId)
+          .then((track: Track & UserTrackMetadata) => {
+            const lineupTrack = {
+              uid: makeUid(Kind.TRACKS, track.track_id),
+              ...track
+            }
+            cacheTracks.push({
+              id: track.track_id,
+              uid: lineupTrack.uid,
+              metadata: track
+            })
+            if (track.user) {
+              cacheUsers.push({
+                id: track.user.user_id,
+                uid: makeUid(Kind.USERS, track.user.user_id),
+                metadata: track.user
+              })
+            }
+            lineupTracks.push(lineupTrack)
+          })
+          .catch(() => console.warn('Failed to load track from disk', trackId))
+      } catch (e) {
+        console.warn('Error verifying track', trackId, e)
+      }
+    }
+
+    dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
+    dispatch(cacheActions.add(Kind.USERS, cacheUsers, false, true))
+    dispatch(loadTracks(lineupTracks))
+  })
+}
+
+export const useOfflineCollectionLineup = (collection: string) => {
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
+
+  const dispatch = useDispatch()
+
+  useAsync(async () => {
+    if (!isOfflineModeEnabled) return
+
+    const trackIds = await listTracks()
+    const lineupTracks: (Track & UserTrackMetadata & { uid: string })[] = []
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
     const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
 
