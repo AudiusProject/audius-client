@@ -15,7 +15,7 @@ import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
@@ -47,7 +47,7 @@ const favoritesScreens = [
 ]
 
 export const FavoritesScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
