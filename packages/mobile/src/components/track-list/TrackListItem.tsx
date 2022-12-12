@@ -68,7 +68,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     color: palette.neutral
   },
   downloadIndicator: {
-    marginTop: -3
+    marginTop: -3,
+    marginLeft: spacing(1)
   },
   artistName: {
     ...font('medium'),
