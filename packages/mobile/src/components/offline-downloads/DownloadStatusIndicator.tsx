@@ -6,6 +6,7 @@ import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selec
 import { OfflineTrackDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 
+import IconDownloadFailed from '../../assets/images/iconDownloadFailed.svg'
 import IconDownload from '../../assets/images/iconDownloadPurple.svg'
 import IconDownloading from '../../assets/images/iconDownloading.svg'
 import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
@@ -53,6 +54,9 @@ export const DownloadStatusIndicator = ({
       )
     case OfflineTrackDownloadStatus.SUCCESS:
       return <IconDownload />
+    case OfflineTrackDownloadStatus.ERROR:
+      // TODO: clickable to retry
+      return <IconDownloadFailed />
     default:
       return showNotDownloaded ? <IconNotDownloaded /> : null
   }
