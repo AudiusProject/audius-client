@@ -3,6 +3,7 @@ import { sdk } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 
+import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 declare global {
@@ -73,6 +74,7 @@ const initSdk = async () => {
     },
     walletApi: {
       sign: async (data: string) => {
+        await waitForLibsInit()
         return await secp.sign(
           keccak_256(data),
           window.audiusLibs.hedgehog.getWallet().privateKey,
@@ -83,6 +85,7 @@ const initSdk = async () => {
         )
       },
       getSharedSecret: async (publicKey: string | Uint8Array) => {
+        await waitForLibsInit()
         return secp.getSharedSecret(
           window.audiusLibs.hedgehog.getWallet().privateKey,
           publicKey
