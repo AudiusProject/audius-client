@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import { Switch, Text } from 'app/components/core'
 import {
   downloadCollection,
+  DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
 } from 'app/services/offline-downloader'
 import {
@@ -24,9 +25,10 @@ export type TrackForDownload = {
 }
 
 type DownloadToggleProps = {
-  labelText?: string
   tracksForDownload: TrackForDownload[]
-  collection?: string
+  labelText?: string
+  collectionId?: number
+  isFavoritesDownlaod?: boolean
 }
 
 const messages = {
@@ -86,10 +88,14 @@ const useStyles = makeStyles<{ labelText?: string }>(
 
 export const DownloadToggle = ({
   tracksForDownload,
-  collection,
-  labelText
+  collectionId,
+  labelText,
+  isFavoritesDownlaod
 }: DownloadToggleProps) => {
   const styles = useStyles({ labelText })
+  const collectionIdStr = isFavoritesDownlaod
+    ? DOWNLOAD_REASON_FAVORITES
+    : collectionId?.toString()
 
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = useMemo(
@@ -101,21 +107,22 @@ export const DownloadToggle = ({
     [offlineDownloadStatus, tracksForDownload]
   )
   const isCollectionMarkedForDownload = useSelector(
-    getIsCollectionMarkedForDownload(collection)
+    getIsCollectionMarkedForDownload(collectionIdStr)
   )
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!collection) return
+      if (!collectionId) return
       if (isDownloadEnabled) {
-        downloadCollection(collection, tracksForDownload)
+        downloadCollection(collectionId, tracksForDownload)
       } else {
-        removeCollectionDownload(collection, tracksForDownload)
+        collectionIdStr &&
+          removeCollectionDownload(collectionIdStr, tracksForDownload)
       }
     },
-    [collection, tracksForDownload]
+    [collectionId, collectionIdStr, tracksForDownload]
   )
 
-  if (!collection) return null
+  if (!collectionId) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}

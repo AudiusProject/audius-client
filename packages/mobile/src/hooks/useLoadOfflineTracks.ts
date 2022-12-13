@@ -1,4 +1,9 @@
-import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
+import type {
+  Collection,
+  Track,
+  UserMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import {
   Kind,
   makeUid,
@@ -13,6 +18,7 @@ import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { addCollection, loadTracks } from 'app/store/offline-downloads/slice'
 
 import {
+  getCollectionJson,
   getOfflineCollections,
   getTrackJson,
   listTracks,
@@ -30,9 +36,13 @@ export const useLoadOfflineTracks = () => {
     if (!isOfflineModeEnabled) return
 
     const offlineCollections = await getOfflineCollections()
-    offlineCollections?.forEach((collection) => {
-      dispatch(addCollection(collection))
-    })
+    const cacheCollections: Collection[] = []
+    for (const collectionId of offlineCollections) {
+      const collection = await getCollectionJson(collectionId)
+      cacheCollections.push(collection)
+      dispatch(addCollection(collectionId))
+    }
+    dispatch(cacheActions.add(Kind.COLLECTIONS, cacheCollections, false, true))
 
     const trackIds = await listTracks()
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []

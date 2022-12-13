@@ -7,6 +7,7 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  cacheCollectionsSelectors,
   Kind,
   makeUid,
   DefaultSizes,
@@ -40,28 +41,38 @@ import {
   getLocalTrackJsonPath,
   purgeDownloadedTrack,
   getTrackJson,
-  persistCollectionDownloadStatus,
   verifyTrack,
-  writeTrackJson
+  writeTrackJson,
+  writeCollectionJson,
+  writeFavoritesCollectionJson,
+  purgeDownloadedCollection
 } from './offline-storage'
 const { getUserId } = accountSelectors
+const { getCollection } = cacheCollectionsSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
 /** Main entrypoint - perform all steps required to complete a download for each track */
 export const downloadCollection = async (
-  collection: string,
+  collectionId: number,
   tracksForDownload: TrackForDownload[]
 ) => {
-  store.dispatch(addCollection(collection))
-  persistCollectionDownloadStatus(collection, true)
+  const state = store.getState()
+  const collection = getCollection(state, { id: collectionId })
+  const collectionIdStr = collectionId.toString()
+  const isFavoritesDownload = collectionIdStr !== DOWNLOAD_REASON_FAVORITES
+  if (!collection && !isFavoritesDownload) return
+  isFavoritesDownload
+    ? await writeFavoritesCollectionJson()
+    : await writeCollectionJson(collectionIdStr, collection!)
+  store.dispatch(addCollection(collectionIdStr))
   store.dispatch(
     batchStartDownload(
       tracksForDownload.map(({ trackId }) => trackId.toString())
     )
   )
   tracksForDownload.forEach((trackForDownload) =>
-    enqueueTrackDownload(trackForDownload, collection)
+    enqueueTrackDownload(trackForDownload, collectionIdStr)
   )
 }
 
@@ -173,11 +184,10 @@ export const downloadTrack = async ({
 }
 
 export const removeCollectionDownload = async (
-  collection: string,
+  collectionId: string,
   tracksForDownload: TrackForDownload[]
 ) => {
-  store.dispatch(removeCollection(collection))
-  persistCollectionDownloadStatus(collection, false)
+  purgeDownloadedCollection(collectionId)
   tracksForDownload.forEach(async ({ trackId, downloadReason }) => {
     try {
       const trackIdStr = trackId.toString()
@@ -203,7 +213,7 @@ export const removeCollectionDownload = async (
       }
     } catch (e) {
       console.debug(
-        `failed to remove track ${trackId} from collection ${collection}`
+        `failed to remove track ${trackId} from collection ${collectionId}`
       )
     }
   })

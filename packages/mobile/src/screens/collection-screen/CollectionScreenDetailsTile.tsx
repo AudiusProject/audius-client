@@ -213,13 +213,13 @@ export const CollectionScreenDetailsTile = ({
   )
 
   const renderHeader = useCallback(() => {
-    return (
+    return collectionId ? (
       <DownloadToggle
-        collection={collectionId?.toString()}
+        collectionId={collectionId}
         tracksForDownload={tracksForDownload}
         labelText={headerText}
       />
-    )
+    ) : null
   }, [collectionId, headerText, tracksForDownload])
 
   const renderTrackList = () => {
