@@ -1,3 +1,4 @@
+import { full } from '@audius/sdk'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { TransactionDetails } from '../../ui/transaction-details/types'
@@ -5,8 +6,8 @@ import { TransactionDetails } from '../../ui/transaction-details/types'
 type FetchAudioTransactionsPayload = {
   offset?: number
   limit?: number
-  sortMethod?: 'transaction_type' | 'date'
-  sortDirection?: 'asc' | 'desc'
+  sortMethod?: full.GetAudioTransactionHistorySortMethodEnum
+  sortDirection?: full.GetAudioTransactionHistorySortDirectionEnum
 }
 
 type TransactionsUIState = {
@@ -42,12 +43,12 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         tx_details: (TransactionDetails | {})[]
-        offset: number
+        offset?: number
       }>
     ) => {
       const { tx_details, offset } = action.payload
       const transactionsCopy = state.transactions.slice()
-      transactionsCopy.splice(offset, tx_details.length, ...tx_details)
+      transactionsCopy.splice(offset ?? 0, tx_details.length, ...tx_details)
 
       state.transactions = transactionsCopy
     }

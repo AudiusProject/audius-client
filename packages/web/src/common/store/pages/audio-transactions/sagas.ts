@@ -4,12 +4,13 @@ import {
   TransactionMethod,
   TransactionType,
   formatDate,
-  transactionDetailsActions
+  StringAudio,
+  transactionDetailsActions,
+  InAppAudioPurchaseMetadata
 } from '@audius/common'
-import { AudiusLibs } from '@audius/sdk'
+import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
 
-import { purchaseTransactionTypes } from 'components/audio-transactions-table/AudioTransactionsTable'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { audiusSdk } from 'services/audius-sdk/audiusSdk'
@@ -32,28 +33,56 @@ const transactionTypeMap: Record<string, TransactionType> = {
   transfer: TransactionType.TRANSFER
 }
 
-const transactionMethodMap: Record<string, TransactionMethod> = {
-  purchase_coinbase: TransactionMethod.COINBASE,
-  purchase_stripe: TransactionMethod.STRIPE,
+const sendReceiveMethods: Record<
+  string,
+  TransactionMethod.SEND | TransactionMethod.RECEIVE
+> = {
   send: TransactionMethod.SEND,
   receive: TransactionMethod.RECEIVE
 }
 
-const parseTransaction = (tx: any): TransactionDetails => {
-  const tx_detail: TransactionDetails = {
-    signature: tx.signature as string,
-    transactionType: transactionTypeMap[tx.transaction_type],
-    method: purchaseTransactionTypes.has(tx.transaction_type)
-      ? transactionMethodMap[tx.transaction_type]
-      : transactionMethodMap[tx.method],
-    date: formatDate(tx.transaction_date),
-    // change: parseChange(tx.method, tx.change),
-    // balance: splAudioToIntString(tx.balance),
-    change: tx.change,
-    balance: tx.balance,
-    metadata: tx.metadata
+const challengeMethods: Record<string, TransactionMethod.RECEIVE> = {
+  receive: TransactionMethod.RECEIVE
+}
+
+const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
+  const txType = transactionTypeMap[tx.transaction_type]
+  switch (txType) {
+    case TransactionType.CHALLENGE_REWARD:
+    case TransactionType.TRENDING_REWARD:
+      return {
+        signature: tx.signature,
+        transactionType: txType,
+        method: challengeMethods[tx.method],
+        date: formatDate(tx.transaction_date),
+        change: tx.change as StringAudio,
+        balance: tx.balance as StringAudio,
+        metadata: tx.metadata as unknown as string
+      }
+    case TransactionType.PURCHASE:
+      return {
+        signature: tx.signature,
+        transactionType: txType,
+        method: challengeMethods[tx.method],
+        date: formatDate(tx.transaction_date),
+        change: tx.change as StringAudio,
+        balance: tx.balance as StringAudio,
+        metadata: tx.metadata as InAppAudioPurchaseMetadata
+      }
+    case TransactionType.TIP:
+    case TransactionType.TRANSFER:
+      return {
+        signature: tx.signature,
+        transactionType: txType,
+        method: sendReceiveMethods[tx.method],
+        date: formatDate(tx.transaction_date),
+        change: tx.change as StringAudio,
+        balance: tx.balance as StringAudio,
+        metadata: tx.metadata as unknown as string
+      }
+    default:
+      throw new Error('Unknown Transaction')
   }
-  return tx_detail
 }
 
 function* signAuthData() {
@@ -68,14 +97,8 @@ function* fetchAudioTransactionsAsync() {
   yield* takeLatest(
     fetchAudioTransactions.type,
     function* (action: ReturnType<typeof fetchAudioTransactions>): any {
-      console.log('REED in saga action: ', action)
       yield* call(waitForLibsInit)
       const [data, signature] = yield* call(signAuthData)
-      //   transactions.getAudioTransactionHistory({
-      //     encodedDataMessage: data!,
-      //     encodedDataSignature: signature!,
-      //     ...action.payload
-      //   })
       const response = yield* call(
         [transactions, transactions.getAudioTransactionHistory],
         {
@@ -87,10 +110,7 @@ function* fetchAudioTransactionsAsync() {
       if (!response) {
         return
       }
-      const tx_details: TransactionDetails[] = (response as any[]).map((tx) =>
-        parseTransaction(tx)
-      )
-      console.log('REED data in saga: ', tx_details)
+      const tx_details = response.map((tx) => parseTransaction(tx))
       const { offset } = action.payload
       yield put(setAudioTransactions({ tx_details, offset }))
     }
@@ -109,7 +129,6 @@ function* fetchTransactionMetadata() {
         ],
         tx_details.signature
       )
-      console.log('REED fetchTransactionMetadata: ', response)
       yield put(
         fetchTransactionDetailsSucceeded({
           transactionId: tx_details.signature,
@@ -123,11 +142,6 @@ function* fetchTransactionMetadata() {
 function* fetchTransactionsCount() {
   yield* takeLatest(fetchAudioTransactionsCount.type, function* () {
     const [data, signature] = yield* call(signAuthData)
-    // transactions.getAudioTransactionHistoryCount({
-    //   encodedDataMessage: data!,
-    //   encodedDataSignature: signature!
-    // })
-    console.log('REED inside fetchTransaction: ', data, signature)
     const response = yield* call(
       [transactions, transactions.getAudioTransactionHistoryCount],
       {
@@ -135,7 +149,6 @@ function* fetchTransactionsCount() {
         encodedDataSignature: signature!
       }
     )
-    console.log('REED in fetch count saga: ', response)
     if (!response) {
       return
     }
