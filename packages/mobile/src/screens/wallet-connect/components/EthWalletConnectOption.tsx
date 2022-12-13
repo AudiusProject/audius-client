@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import type { WalletService } from '@walletconnect/react-native-dapp'
 import { useWalletConnectContext } from '@walletconnect/react-native-dapp'
-import { Image } from 'react-native'
+import { Image, Linking, Platform } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import {
@@ -20,9 +20,9 @@ type EthWalletConnectOptionProps = {
 
 const useStyles = makeStyles(() => ({
   walletImage: {
-    height: 50,
-    width: 50,
-    borderRadius: 25
+    height: 64,
+    width: 64,
+    borderRadius: 32
   }
 }))
 
@@ -33,10 +33,14 @@ export const EthWalletConnectOption = (props: EthWalletConnectOptionProps) => {
   const context = useWalletConnectContext()
   const { connectToWalletService } = context
 
-  const handleConnectWallet = useCallback(() => {
+  const handleConnectWallet = useCallback(async () => {
     dispatch(setConnectionType({ connectionType: 'wallet-connect' }))
     dispatch(setConnectionStatus({ status: 'connecting' }))
-    connectToWalletService?.(walletService, uri)
+    if (Platform.OS === 'android') {
+      await Linking.openURL(uri)
+    } else if (Platform.OS === 'ios') {
+      connectToWalletService?.(walletService, uri)
+    }
   }, [dispatch, walletService, connectToWalletService, uri])
 
   return (
@@ -47,7 +51,7 @@ export const EthWalletConnectOption = (props: EthWalletConnectOptionProps) => {
           style={styles.walletImage}
           source={{
             // @ts-ignore: image_url is valid
-            uri: `${walletService.image_url.sm}`
+            uri: `${walletService.image_url.lg}`
           }}
         />
       }
