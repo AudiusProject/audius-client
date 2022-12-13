@@ -432,6 +432,10 @@ ipcMain.on('update', async (event, arg) => {
     console.log('cannot update')
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
+  fs.rmdirSync(appDataPath(buildName), {
+    recursive: true,
+    force: true
+  })
   autoUpdater.quitAndInstall()
 })
 
