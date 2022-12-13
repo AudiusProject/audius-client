@@ -16,7 +16,6 @@ import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
@@ -58,7 +57,6 @@ export const FavoritesScreen = () => {
     dispatch(fetchSavedPlaylists())
     dispatch(fetchSavedAlbums())
   })
-  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
 
   const userCollections = useSelector((state: CommonState) =>
     getAccountCollections(state, '')
