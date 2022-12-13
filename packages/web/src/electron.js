@@ -154,7 +154,7 @@ const getNewestBuildDirectory = () => {
     const buildPackageJsonPath = path.resolve(
       app.getAppPath(),
       buildName,
-      '/package.json'
+      'package.json'
     )
     const buildPackageJson = JSON.parse(fs.readFileSync(buildPackageJsonPath))
     const buildVersion = buildPackageJson.version
