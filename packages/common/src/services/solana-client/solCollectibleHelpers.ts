@@ -1,3 +1,4 @@
+import type { Metadata } from '@metaplex-foundation/mpl-token-metadata'
 import { Chain, Collectible, CollectibleMediaType } from '../../models'
 import { Nullable } from '../../utils/typeUtils'
 
@@ -259,6 +260,7 @@ const nftComputedMedia = async (
 
 const metaplexNFTToCollectible = async (
   nft: MetaplexNFT,
+  chainMetadata: Nullable<Metadata>,
   address: string
 ): Promise<Collectible> => {
   const identifier = [nft.symbol, nft.name, nft.image]
@@ -272,8 +274,9 @@ const metaplexNFTToCollectible = async (
     description: nft.description,
     externalLink: nft.external_url,
     isOwned: true,
-    chain: Chain.Sol
-  } as Collectible
+    chain: Chain.Sol,
+    chainMetadata
+  } as unknown as Collectible
 
   if (
     (nft.properties?.creators ?? []).some(
@@ -304,7 +307,8 @@ const metaplexNFTToCollectible = async (
 }
 
 const starAtlasNFTToCollectible = async (
-  nft: StarAtlasNFT
+  nft: StarAtlasNFT,
+  chainMetadata: Nullable<Metadata>
 ): Promise<Collectible> => {
   const identifier = [nft._id, nft.symbol, nft.name, nft.image]
     .filter(Boolean)
@@ -316,8 +320,9 @@ const starAtlasNFTToCollectible = async (
     name: nft.name,
     description: nft.description,
     isOwned: true,
-    chain: Chain.Sol
-  } as Collectible
+    chain: Chain.Sol,
+    chainMetadata
+  } as unknown as Collectible
 
   // todo: check if there are gif or video nfts for star atlas
   const is3DObj = [nft.image, nft.media?.thumbnailUrl]
@@ -357,13 +362,14 @@ const starAtlasNFTToCollectible = async (
 export const solanaNFTToCollectible = async (
   nft: SolanaNFT,
   address: string,
-  type: SolanaNFTType
+  type: SolanaNFTType,
+  chainMetadata: Nullable<Metadata>
 ): Promise<Nullable<Collectible>> => {
   switch (type) {
     case SolanaNFTType.METAPLEX:
-      return metaplexNFTToCollectible(nft as MetaplexNFT, address)
+      return metaplexNFTToCollectible(nft as MetaplexNFT, chainMetadata, address)
     case SolanaNFTType.STAR_ATLAS:
-      return starAtlasNFTToCollectible(nft as StarAtlasNFT)
+      return starAtlasNFTToCollectible(nft as StarAtlasNFT, chainMetadata)
     default:
       return null
   }

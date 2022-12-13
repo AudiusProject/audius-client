@@ -1,4 +1,5 @@
 import { Nullable } from '../../utils/typeUtils'
+import type { Metadata } from "@metaplex-foundation/mpl-token-metadata"
 
 export enum SolanaNFTType {
   METAPLEX = 'METAPLEX',
@@ -36,6 +37,7 @@ export type MetaplexNFT = {
   animation_url: Nullable<string>
   external_url: Nullable<string>
   properties: Nullable<MetaplexNFTProperties>
+  chainMetadata: Metadata
 }
 
 // example: https://galaxy.staratlas.com/nfts/2iMhgB4pbdKvwJHVyitpvX5z1NBNypFonUgaSAt9dtDt
@@ -50,6 +52,7 @@ export type StarAtlasNFT = {
   }
   deactivated: boolean
   createdAt: string
+  chainMetadata: Metadata
 }
 
 export type SolanaNFT = MetaplexNFT | StarAtlasNFT

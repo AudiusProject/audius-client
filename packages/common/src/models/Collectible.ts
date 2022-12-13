@@ -32,8 +32,13 @@ export type Collectible = {
   dateLastTransferred: Nullable<string>
   externalLink: Nullable<string>
   permaLink: Nullable<string>
-  assetContractAddress: Nullable<string>
   chain: Chain
   wallet: string
   duration?: number
+
+  // ethereum nfts
+  assetContractAddress: Nullable<string>
+
+  // solana nfts
+  chainMetadata: Nullable<string>
 }
