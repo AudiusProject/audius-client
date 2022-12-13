@@ -7,6 +7,8 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  Kind,
+  makeUid,
   DefaultSizes,
   SquareSizes,
   encodeHashId,
@@ -123,6 +125,10 @@ export const downloadTrack = async ({
   }
 
   track = (await populateCoverArtSizes(track)) ?? track
+  const lineupTrack = {
+    uid: makeUid(Kind.TRACKS, track.track_id),
+    ...track
+  }
 
   try {
     store.dispatch(startDownload(trackIdStr))
@@ -143,7 +149,7 @@ export const downloadTrack = async ({
         }
       }
       await writeTrackJson(trackIdStr, trackToWrite)
-      store.dispatch(loadTrack(track))
+      store.dispatch(loadTrack(lineupTrack))
       store.dispatch(completeDownload(trackIdStr))
       return
     }
@@ -153,7 +159,7 @@ export const downloadTrack = async ({
     await writeUserTrackJson(track, downloadReason)
     const verified = await verifyTrack(trackIdStr, true)
     if (verified) {
-      store.dispatch(loadTrack(track))
+      store.dispatch(loadTrack(lineupTrack))
       store.dispatch(completeDownload(trackIdStr))
     } else {
       throw failJob(
