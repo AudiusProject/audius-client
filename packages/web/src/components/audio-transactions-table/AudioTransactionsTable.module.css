@@ -12,6 +12,10 @@
   line-height: 1.2;
 }
 
+.icon {
+  margin-right: 22px;
+}
+
 .changeCell.increase {
   color: var(--accent-green);
 }

@@ -16,6 +16,7 @@ import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
 import { isChangePositive } from 'components/audio-transactions-table/AudioTransactionsTable'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { AppState } from 'store/types'
@@ -62,17 +63,22 @@ const UserDetails = ({ userId }: UserDetailsProps) => {
   const usersMap = useSelector<AppState, { [id: number]: User }>((state) =>
     getUsers(state, { ids: [userId] })
   )
+  const isLoading = Object.keys(usersMap).length === 0
   return (
     <>
-      <div className={styles.name}>
-        <span>{usersMap[userId].name}</span>
-        <UserBadges
-          userId={userId}
-          className={styles.badge}
-          badgeSize={14}
-          inline
-        />
-      </div>
+      {isLoading ? (
+        <LoadingSpinner className={styles.spinnerSmall} />
+      ) : (
+        <div className={styles.name}>
+          <span>{usersMap[userId].name}</span>
+          <UserBadges
+            userId={userId}
+            className={styles.badge}
+            badgeSize={14}
+            inline
+          />
+        </div>
+      )}
     </>
   )
 }
@@ -82,7 +88,9 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
     case TransactionType.PURCHASE: {
       return (
         <>
-          <TransactionPurchaseMetadata metadata={transactionDetails.metadata} />
+          <TransactionPurchaseMetadata
+            metadata={transactionDetails.metadata!}
+          />
           <Block header={messages.date}>{transactionDetails.date}</Block>
         </>
       )
@@ -90,13 +98,14 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
     case TransactionType.CHALLENGE_REWARD: {
       const challengeId = transactionDetails.metadata as ChallengeRewardID
       const challengeConfig = getChallengeConfig(challengeId)
+      console.log('REED icon: ', challengeConfig.icon)
       return (
         <>
           <Block
             className={styles.header}
             header={messages.challengeRewardHeader}
           >
-            <div className={styles.icon}>{challengeConfig.icon}</div>
+            <div>{challengeConfig.icon}</div>
             {challengeConfig.title}
           </Block>
           <Block header={messages.dateEarned}>{transactionDetails.date}</Block>
@@ -166,50 +175,62 @@ export const TransactionDetailsContent = ({
 }: {
   transactionDetails: TransactionDetails
 }) => {
+  const isLoading =
+    transactionDetails.transactionType === TransactionType.PURCHASE
+      ? transactionDetails.metadata === undefined
+      : false
   const isNegative = !isChangePositive(transactionDetails)
   return (
-    <BlockContainer>
-      <div className={styles.flexHorizontal}>
-        <Block header={messages.transaction}>
-          {transactionDescriptions[transactionDetails.transactionType] +
-            ([TransactionType.TIP, TransactionType.TRANSFER].includes(
-              transactionDetails.transactionType
-            )
-              ? formatCapitalizeString(transactionDetails.method)
-              : '')}
-        </Block>
-        <AudioTransactionIcon
-          type={transactionDetails.transactionType}
-          method={transactionDetails.method}
-        />
-      </div>
-      {dateAndMetadataBlocks(transactionDetails)}
-
-      {transactionDetails.transactionType === TransactionType.PURCHASE ? (
-        <Block className={styles.header} header={messages.method}>
-          {transactionDetails.method === TransactionMethod.COINBASE ? (
-            <LogoCoinbase />
-          ) : transactionDetails.method === TransactionMethod.STRIPE ? (
-            <LogoStripeLink
-              width={145}
-              height={32}
-              className={styles.stripeLogo}
+    <>
+      {isLoading ? (
+        <LoadingSpinner className={styles.spinner} />
+      ) : (
+        <BlockContainer>
+          <div className={styles.flexHorizontal}>
+            <Block header={messages.transaction}>
+              {transactionDescriptions[transactionDetails.transactionType] +
+                ([TransactionType.TIP, TransactionType.TRANSFER].includes(
+                  transactionDetails.transactionType
+                )
+                  ? formatCapitalizeString(transactionDetails.method)
+                  : '')}
+            </Block>
+            <AudioTransactionIcon
+              type={transactionDetails.transactionType}
+              method={transactionDetails.method}
             />
-          ) : (
-            messages.unknown
-          )}
-        </Block>
-      ) : null}
+          </div>
+          {dateAndMetadataBlocks(transactionDetails)}
 
-      <Block header={messages.change}>
-        <span className={cn(styles.change, { [styles.negative]: isNegative })}>
-          {isNegative ? '-' : '+'}
-          {formatAudio(transactionDetails.change)}
-        </span>
-      </Block>
-      <Block header={messages.balance}>
-        {formatAudio(transactionDetails.balance, 2)}
-      </Block>
-    </BlockContainer>
+          {transactionDetails.transactionType === TransactionType.PURCHASE ? (
+            <Block className={styles.header} header={messages.method}>
+              {transactionDetails.method === TransactionMethod.COINBASE ? (
+                <LogoCoinbase />
+              ) : transactionDetails.method === TransactionMethod.STRIPE ? (
+                <LogoStripeLink
+                  width={145}
+                  height={32}
+                  className={styles.stripeLogo}
+                />
+              ) : (
+                messages.unknown
+              )}
+            </Block>
+          ) : null}
+
+          <Block header={messages.change}>
+            <span
+              className={cn(styles.change, { [styles.negative]: isNegative })}
+            >
+              {isNegative ? '-' : '+'}
+              {formatAudio(transactionDetails.change)}
+            </span>
+          </Block>
+          <Block header={messages.balance}>
+            {formatAudio(transactionDetails.balance, 2)}
+          </Block>
+        </BlockContainer>
+      )}
+    </>
   )
 }
