@@ -214,9 +214,8 @@ export const AudioTransactionsTable = ({
   )
 
   const handleClickRow = useCallback(
-    (rowInfo, index: number) => {
-      const transaction = rowInfo.original
-      onClickRow?.(transaction, index)
+    (_: any, rowInfo, index: number) => {
+      onClickRow?.(rowInfo.original, index)
     },
     [onClickRow]
   )

@@ -69,7 +69,7 @@ export const AudioTransactionsPage = () => {
   useEffect(() => {
     dispatch(
       setAudioTransactions({
-        tx_details: Array(audioTransactionsCount ?? 0).fill({}) as {}[],
+        txDetails: Array(audioTransactionsCount ?? 0).fill({}) as {}[],
         offset: 0
       })
     )
@@ -100,21 +100,17 @@ export const AudioTransactionsPage = () => {
     setLimit(limit)
   }
 
-  const onClickRow = (
-    _: any,
-    { original: tx_details }: { original: TransactionDetails }
-  ) => {
+  const onClickRow = (txDetails: TransactionDetails, index: number) => {
     dispatch(
       fetchTransactionDetailsSucceeded({
-        transactionId: tx_details.signature,
-        transactionDetails: tx_details
+        transactionId: txDetails.signature,
+        transactionDetails: txDetails
       })
     )
-    console.log('REED tx_type: ', tx_details)
-    if (tx_details.transactionType === TransactionType.PURCHASE) {
+    if (txDetails.transactionType === TransactionType.PURCHASE) {
       dispatch(
         fetchAudioTransactionMetadata({
-          tx_details
+          txDetails
         })
       )
     }

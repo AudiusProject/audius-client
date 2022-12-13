@@ -98,7 +98,6 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
     case TransactionType.CHALLENGE_REWARD: {
       const challengeId = transactionDetails.metadata as ChallengeRewardID
       const challengeConfig = getChallengeConfig(challengeId)
-      console.log('REED icon: ', challengeConfig.icon)
       return (
         <>
           <Block
