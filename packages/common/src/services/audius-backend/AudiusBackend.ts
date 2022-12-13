@@ -1338,8 +1338,9 @@ export const audiusBackend = ({
     try {
       const res = await fetch(
         `${identityServiceUrl}/social_handles?handle=${handle}`
-      ).then((res) => res.json())
-      return res
+      )
+      const json = await res.json()
+      return json
     } catch (e) {
       console.error(e)
       return {}
@@ -1350,14 +1351,15 @@ export const audiusBackend = ({
     try {
       const res = await fetch(
         `${identityServiceUrl}/health_check/entity_manager_replica_set_enabled`
-      ).then((res) => res.json())
-      return res.entityManagerReplicaSetEnabled
+      )
+      const json = await res.json()
+      return json.entityManagerReplicaSetEnabled
     } catch (e) {
       console.error(e)
       return false
     }
   }
-  
+
   /**
    * Retrieves the user's eth associated wallets from IPFS using the user's metadata CID and creator node endpoints
    * @param user The user metadata which contains the CID for the metadata multihash
