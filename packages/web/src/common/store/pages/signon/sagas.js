@@ -428,11 +428,7 @@ function* signUp() {
           }
         }
 
-        if (
-          !signOn.useMetaMask &&
-          signOn.tikTokId &&
-          handle.toLowerCase() === (signOn.tikTokId || '').toLowerCase()
-        ) {
+        if (!signOn.useMetaMask && signOn.tikTokId) {
           const { error } = yield call(
             audiusBackendInstance.associateTikTokAccount,
             handle.toLowerCase(),
