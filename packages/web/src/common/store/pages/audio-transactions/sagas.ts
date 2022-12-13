@@ -6,7 +6,7 @@ import {
   formatDate,
   StringAudio,
   transactionDetailsActions,
-  InAppAudioPurchaseMetadata
+  InAppPurchaseMetadata
 } from '@audius/common'
 import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
@@ -14,6 +14,7 @@ import { call, takeLatest, put } from 'typed-redux-saga'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { audiusSdk } from 'services/audius-sdk/audiusSdk'
+
 const {
   fetchAudioTransactions,
   fetchAudioTransactionMetadata,
@@ -45,6 +46,12 @@ const challengeMethods: Record<string, TransactionMethod.RECEIVE> = {
   receive: TransactionMethod.RECEIVE
 }
 
+const purchaseMethods: Record<TransactionType, TransactionMethod> = {
+  purchase_stripe: TransactionMethod.STRIPE,
+  purchase_coinbase: TransactionMethod.COINBASE,
+  purchase_unknown: TransactionMethod.RECEIVE
+}
+
 const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
   const txType = transactionTypeMap[tx.transaction_type]
   switch (txType) {
@@ -63,11 +70,11 @@ const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
       return {
         signature: tx.signature,
         transactionType: txType,
-        method: challengeMethods[tx.method],
+        method: purchaseMethods[tx.transaction_type],
         date: formatDate(tx.transaction_date),
         change: tx.change as StringAudio,
         balance: tx.balance as StringAudio,
-        metadata: tx.metadata as InAppAudioPurchaseMetadata
+        metadata: undefined
       }
     case TransactionType.TIP:
     case TransactionType.TRANSFER:
@@ -132,7 +139,10 @@ function* fetchTransactionMetadata() {
       yield put(
         fetchTransactionDetailsSucceeded({
           transactionId: tx_details.signature,
-          transactionDetails: { ...tx_details, metadata: response[0].metadata }
+          transactionDetails: {
+            ...tx_details,
+            metadata: (response as any[])[0].metadata as InAppPurchaseMetadata
+          }
         })
       )
     }
