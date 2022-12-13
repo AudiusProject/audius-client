@@ -88,12 +88,14 @@ const initSdk = async () => {
         await waitForLibsInit()
         return secp.getSharedSecret(
           window.audiusLibs.hedgehog.getWallet().privateKey,
-          publicKey
+          publicKey,
+          true
         )
       }
     }
   })
   window.audiusSdk = audiusSdk
+  inProgress = false
   window.dispatchEvent(new CustomEvent(SDK_LOADED_EVENT_NAME))
   return audiusSdk
 }
