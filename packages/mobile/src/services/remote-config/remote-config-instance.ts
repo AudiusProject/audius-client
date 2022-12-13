@@ -1,8 +1,10 @@
 import type { Environment } from '@audius/common'
-import { remoteConfig } from '@audius/common'
+import { ErrorLevel, remoteConfig } from '@audius/common'
 import * as optimizely from '@optimizely/optimizely-sdk'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Config from 'react-native-config'
+
+import { reportToSentry } from 'app/utils/reportToSentry'
 
 export const FEATURE_FLAG_ASYNC_STORAGE_SESSION_KEY = 'featureFlagSessionId-2'
 
@@ -15,6 +17,15 @@ export const remoteConfigInstance = remoteConfig({
       sdkKey: OPTIMIZELY_KEY,
       datafileOptions: {
         urlTemplate: DATA_FILE_URL
+      },
+      errorHandler: {
+        handleError: (error) => {
+          reportToSentry({
+            level: ErrorLevel.Error,
+            error,
+            name: 'Optimizely failed to load'
+          })
+        }
       }
     })
   },
