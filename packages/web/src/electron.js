@@ -143,6 +143,27 @@ const registerBuild = (directory) => {
     }
   )
 }
+const getNewestBuildDirectory = () => {
+  const buildDirectory = path.resolve(app.getAppPath(), buildName)
+  const updateBuildDirectory = appDataPath(buildName)
+  if (fs.existsSync(updateBuildDirectory)) {
+    const updatePackageJsonPath = appDataPath(`${buildName}/package.json`)
+    const updatePackageJson = JSON.parse(fs.readFileSync(updatePackageJsonPath))
+    const updateVersion = updatePackageJson.version
+
+    const buildPackageJsonPath = path.resolve(
+      app.getAppPath(),
+      buildName,
+      '/package.json'
+    )
+    const buildPackageJson = JSON.parse(fs.readFileSync(buildPackageJsonPath))
+    const buildVersion = buildPackageJson.version
+    if (semver.gt(updateVersion, buildVersion)) {
+      return updateBuildDirectory
+    }
+  }
+  return buildDirectory
+}
 
 const downloadWebUpdateAndNotify = async (newVersion) => {
   const newBuildPath = appDataPath(`${buildName}.tar.gz`)
@@ -255,15 +276,7 @@ const createWindow = () => {
   if (appEnvironment === Environment.LOCALHOST) {
     mainWindow.loadURL(`http://localhost:${localhostPort}`)
   } else {
-    const buildDirectory = path.resolve(app.getAppPath(), buildName)
-    const updateBuildDirectory = appDataPath(buildName)
-
-    // Register the updated build if it exists, otherwise use the default build found via `getAppPath`
-    registerBuild(
-      fs.existsSync(updateBuildDirectory)
-        ? updateBuildDirectory
-        : buildDirectory
-    )
+    getNewestBuildDirectory()
     checkForWebUpdate()
 
     // Win protocol handler
