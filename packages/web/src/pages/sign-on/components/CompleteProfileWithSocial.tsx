@@ -84,7 +84,8 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
     onClick()
   }
 
-  const handleTikTokLogin = useCallback(() => {
+  const handleClickTikTok = useCallback(() => {
+    onClick()
     withTikTokAuth(async (accessToken: string) => {
       try {
         // Using TikTok v1 api because v2 does not have CORS headers set
@@ -110,7 +111,7 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
         console.log(e)
       }
     })
-  }, [withTikTokAuth, onTikTokLogin])
+  }, [withTikTokAuth, onTikTokLogin, onClick])
 
   return (
     <Transition
