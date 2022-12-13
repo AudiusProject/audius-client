@@ -13,6 +13,7 @@ import { ColumnInstance } from 'react-table'
 
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
 import { Table } from 'components/table'
+import Tooltip from 'components/tooltip/Tooltip'
 
 import styles from './AudioTransactionsTable.module.css'
 
@@ -35,7 +36,6 @@ export type AudioTransactionsTableColumn =
   | 'balance'
   | 'change'
   | 'date'
-  | 'transactionIcon'
   | 'transactionType'
   | 'spacer'
   | 'spacer2'
@@ -57,7 +57,6 @@ type AudioTransactionsTableProps = {
 
 const defaultColumns: AudioTransactionsTableColumn[] = [
   'spacer',
-  'transactionIcon',
   'transactionType',
   'date',
   'change',
@@ -93,11 +92,6 @@ export const AudioTransactionsTable = ({
   fetchBatchSize
 }: AudioTransactionsTableProps) => {
   // Cell Render Functions
-  const renderTransactionIconCell = useCallback((cellInfo) => {
-    const { transactionType, method } = cellInfo.row.original
-    return <AudioTransactionIcon type={transactionType} method={method} />
-  }, [])
-
   const renderTransactionTypeCell = useCallback((cellInfo) => {
     const { transactionType, method } = cellInfo.row.original
     const typeText = transactionTypeLabelMap[transactionType as TransactionType]
@@ -107,8 +101,14 @@ export const AudioTransactionsTable = ({
     const isTransferType =
       transactionType === TransactionType.TIP ||
       transactionType === TransactionType.TRANSFER
-
-    return `${typeText} ${isTransferType ? methodText : ''}`.trim()
+    return (
+      <>
+        <div className={styles.icon}>
+          <AudioTransactionIcon type={transactionType} method={method} />
+        </div>
+        <p>{`${typeText} ${isTransferType ? methodText : ''}`.trim()}</p>
+      </>
+    )
   }, [])
 
   const renderBalanceCell = useCallback((cellInfo) => {
@@ -126,15 +126,17 @@ export const AudioTransactionsTable = ({
     const isPositive = isChangePositive(tx)
     const { change } = tx
     return (
-      <div
-        className={cn(
-          styles.changeCell,
-          isChangePositive(tx) ? styles.increase : styles.decrease
-        )}
-      >
-        {isPositive ? '' : '-'}
-        {formatAudio(change)}
-      </div>
+      <Tooltip text={`${formatAudio(tx.change, 2)} $AUDIO`} mount={'body'}>
+        <div
+          className={cn(
+            styles.changeCell,
+            isChangePositive(tx) ? styles.increase : styles.decrease
+          )}
+        >
+          {isPositive ? '' : '-'}
+          {formatAudio(change)}
+        </div>
+      </Tooltip>
     )
   }, [])
 
@@ -150,15 +152,6 @@ export const AudioTransactionsTable = ({
     Partial<ColumnInstance>
   > = useMemo(
     () => ({
-      transactionIcon: {
-        id: 'transactionIcon',
-        accessor: '',
-        Cell: renderTransactionIconCell,
-        minWidth: 64,
-        maxWidth: 64,
-        disableResizing: true,
-        disableSortBy: true
-      },
       transactionType: {
         id: 'transactionType',
         Header: 'Transaction Type',
@@ -208,7 +201,6 @@ export const AudioTransactionsTable = ({
       }
     }),
     [
-      renderTransactionIconCell,
       renderTransactionTypeCell,
       renderDateCell,
       renderChangeCell,

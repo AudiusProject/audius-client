@@ -6,9 +6,11 @@
   gap: 8px;
 }
 
-.icon {
-  margin-bottom: 0px !important;
-  /* width: 1px; */
+i {
+  margin: auto !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin-right: 2px !important;
 }
 
 .badge {
@@ -28,6 +30,15 @@
 }
 .change.negative {
   color: var(--static-secondary);
+}
+
+.spinner {
+  width: 48px;
+  margin: 0 auto;
+}
+.spinnerSmall {
+  width: 16px;
+  margin: 0 auto;
 }
 
 .link {
