@@ -276,7 +276,8 @@ const createWindow = () => {
   if (appEnvironment === Environment.LOCALHOST) {
     mainWindow.loadURL(`http://localhost:${localhostPort}`)
   } else {
-    getNewestBuildDirectory()
+    const buildDir = getNewestBuildDirectory()
+    registerBuild(buildDir)
     checkForWebUpdate()
 
     // Win protocol handler
