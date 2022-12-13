@@ -12,12 +12,12 @@ import {
 import cn from 'classnames'
 
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
+import CompleteProfileWithSocial, {
+  CompleteProfileWithSocialProps
+} from 'pages/sign-on/components/CompleteProfileWithSocial'
 import ProfileForm, {
   ProfileFormProps
 } from 'pages/sign-on/components/ProfileForm'
-import CompleteProfileWithSocial, {
-  CompleteProfileWithSocialProps
-} from 'pages/sign-on/components/desktop/CompleteProfileWithSocial'
 import { isMobile as getIsMobile } from 'utils/clientUtil'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
