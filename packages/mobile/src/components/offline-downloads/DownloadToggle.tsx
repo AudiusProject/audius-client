@@ -94,7 +94,7 @@ export const DownloadToggle = ({
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = useMemo(
     () =>
-      tracksForDownload.some(({ trackId }: TrackForDownload) => {
+      tracksForDownload.some(({ trackId }) => {
         const status = offlineDownloadStatus[trackId.toString()]
         return status === OfflineDownloadStatus.LOADING
       }),
