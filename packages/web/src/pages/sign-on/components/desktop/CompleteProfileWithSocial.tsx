@@ -33,7 +33,8 @@ const messages = {
   manual: "I'd rather fill out my profile manually"
 }
 
-type CompleteProfileWithSocialProps = {
+export type CompleteProfileWithSocialProps = {
+  displayInstagramRemoteVarKey?: BooleanKeys
   initial: boolean
   isLoading: boolean
   isMobile: boolean
@@ -50,6 +51,7 @@ type CompleteProfileWithSocialProps = {
 
 const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
   const {
+    displayInstagramRemoteVarKey = BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP,
     initial,
     isLoading,
     isMobile,
@@ -66,9 +68,7 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
   const { isEnabled: isTikTokEnabled } = useFlag(
     FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
   )
-  const displayInstagram = useRemoteVar(
-    BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP
-  )
+  const displayInstagram = useRemoteVar(displayInstagramRemoteVarKey)
 
   const withTikTokAuth = useTikTokAuth({
     onError: onFailure
@@ -112,7 +112,6 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
     })
   }, [withTikTokAuth, onTikTokLogin])
 
-  // TODO: doesn't need to be abs positioned anymore
   return (
     <Transition
       items={showCompleteProfileWithSocial}
@@ -128,9 +127,6 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
             style={{
               ...transitionProps,
               zIndex: 10,
-              position: 'absolute',
-              top: 0,
-              left: 0,
               width: '100%',
               height: '100%'
             }}
@@ -141,7 +137,7 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
               </div>
             ) : (
               <div
-                className={cn(styles.twitterOverlayContainer, {
+                className={cn(styles.completProfileWithSocialContainer, {
                   [styles.isMobile]: isMobile
                 })}
               >
@@ -215,7 +211,10 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
                       <IconVerified
                         height={24}
                         width={24}
-                        className={styles.tileListItemIcon}
+                        className={cn([
+                          styles.tileListItemIcon,
+                          styles.verifiedIcon
+                        ])}
                       />
                       <span>{messages.verifiedTileContent}</span>
                     </li>
