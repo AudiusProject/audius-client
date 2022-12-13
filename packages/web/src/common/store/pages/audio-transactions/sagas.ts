@@ -5,8 +5,7 @@ import {
   TransactionType,
   formatDate,
   StringAudio,
-  transactionDetailsActions,
-  InAppPurchaseMetadata
+  transactionDetailsActions
 } from '@audius/common'
 import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
@@ -46,7 +45,12 @@ const challengeMethods: Record<string, TransactionMethod.RECEIVE> = {
   receive: TransactionMethod.RECEIVE
 }
 
-const purchaseMethods: Record<TransactionType, TransactionMethod> = {
+const purchaseMethods: Record<
+  string,
+  | TransactionMethod.STRIPE
+  | TransactionMethod.COINBASE
+  | TransactionMethod.RECEIVE
+> = {
   purchase_stripe: TransactionMethod.STRIPE,
   purchase_coinbase: TransactionMethod.COINBASE,
   purchase_unknown: TransactionMethod.RECEIVE
@@ -117,9 +121,9 @@ function* fetchAudioTransactionsAsync() {
       if (!response) {
         return
       }
-      const tx_details = response.map((tx) => parseTransaction(tx))
+      const txDetails = response.map((tx) => parseTransaction(tx))
       const { offset } = action.payload
-      yield put(setAudioTransactions({ tx_details, offset }))
+      yield put(setAudioTransactions({ txDetails, offset }))
     }
   )
 }
@@ -128,20 +132,20 @@ function* fetchTransactionMetadata() {
   yield* takeLatest(
     fetchAudioTransactionMetadata.type,
     function* (action: ReturnType<typeof fetchAudioTransactionMetadata>) {
-      const { tx_details } = action.payload
+      const { txDetails } = action.payload
       const response = yield* call(
         [
           audiusBackendInstance,
           audiusBackendInstance.getTransactionDetailsMetadata
         ],
-        tx_details.signature
+        txDetails.signature
       )
       yield put(
         fetchTransactionDetailsSucceeded({
-          transactionId: tx_details.signature,
+          transactionId: txDetails.signature,
           transactionDetails: {
-            ...tx_details,
-            metadata: (response as any[])[0].metadata as InAppPurchaseMetadata
+            ...txDetails,
+            metadata: (response as any[])[0].metadata
           }
         })
       )

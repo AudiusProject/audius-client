@@ -37,18 +37,18 @@ const slice = createSlice({
     ) => {},
     fetchAudioTransactionMetadata: (
       _state,
-      _action: PayloadAction<{ tx_details: TransactionDetails }>
+      _action: PayloadAction<{ txDetails: TransactionDetails }>
     ) => {},
     setAudioTransactions: (
       state,
       action: PayloadAction<{
-        tx_details: (TransactionDetails | {})[]
+        txDetails: (TransactionDetails | {})[]
         offset?: number
       }>
     ) => {
-      const { tx_details, offset } = action.payload
+      const { txDetails, offset } = action.payload
       const transactionsCopy = state.transactions.slice()
-      transactionsCopy.splice(offset ?? 0, tx_details.length, ...tx_details)
+      transactionsCopy.splice(offset ?? 0, txDetails.length, ...txDetails)
 
       state.transactions = transactionsCopy
     }
