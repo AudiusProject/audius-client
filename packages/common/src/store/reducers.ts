@@ -18,6 +18,7 @@ import musicConfettiReducer, {
 } from './music-confetti/slice'
 import notifications from './notifications/reducer'
 import audioRewardsSlice from './pages/audio-rewards/slice'
+import { chatReducer } from './pages/chat'
 import collection from './pages/collection/reducer'
 import { CollectionsPageState } from './pages/collection/types'
 import {
@@ -181,6 +182,7 @@ export const reducers = () => ({
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
+    chat: chatReducer,
     collection,
     deactivateAccount: deactivateAccountReducer,
     feed,
@@ -283,6 +285,7 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    chat: ReturnType<typeof chatReducer>
     collection: CollectionsPageState
     deactivateAccount: DeactivateAccountState
     feed: FeedPageState

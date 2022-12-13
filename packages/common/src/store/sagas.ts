@@ -81,6 +81,7 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   // notifications/store/mobileSagas.ts
   // pages/remixes-page/store/sagas.ts
   // pages/remixes-page/store/lineups/tracks/sagas.ts
+  // common/store/pages/chat/sagas.ts
   //
   // pull in the following from web
   // once the player and dependencies are migrated

@@ -122,3 +122,5 @@ export {
 } from './audio-rewards/slice'
 export * from './audio-rewards/types'
 export * from './deactivate-account'
+
+export * from './chat'
