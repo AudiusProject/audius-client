@@ -67,7 +67,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     alignItems: 'center'
   },
   copyIcon: {
-    marginBottom: 2,
+    marginBottom: spacing(0.5),
     marginLeft: 10
   },
   audioAmount: {

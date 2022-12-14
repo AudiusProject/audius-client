@@ -20,7 +20,6 @@ export type SignedMessageParams = {
 
 export type WalletConnectParamList = {
   Wallets:
-    | undefined
     | ConnectNewWalletParams
     | CancelPhantomConnectParams
     | SignedMessageParams
