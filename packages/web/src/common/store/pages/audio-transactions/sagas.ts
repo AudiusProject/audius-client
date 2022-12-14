@@ -27,6 +27,9 @@ const { transactions } = audiusSdk.full
 
 const transactionTypeMap: Record<string, TransactionType> = {
   purchase_stripe: TransactionType.PURCHASE,
+  purchase_coinbase: TransactionType.PURCHASE,
+  purchase_unknown: TransactionType.PURCHASE,
+  'purchase unknown': TransactionType.PURCHASE,
   tip: TransactionType.TIP,
   user_reward: TransactionType.CHALLENGE_REWARD,
   trending_reward: TransactionType.TRENDING_REWARD,
@@ -53,7 +56,8 @@ const purchaseMethods: Record<
 > = {
   purchase_stripe: TransactionMethod.STRIPE,
   purchase_coinbase: TransactionMethod.COINBASE,
-  purchase_unknown: TransactionMethod.RECEIVE
+  purchase_unknown: TransactionMethod.RECEIVE,
+  'purchase unknown': TransactionMethod.RECEIVE
 }
 
 const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
