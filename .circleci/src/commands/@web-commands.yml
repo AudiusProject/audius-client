@@ -86,8 +86,6 @@ web-distribute:
     - run:
         name: distribute
         command: |
-          export CSC_FOR_PULL_REQUEST=true
-          export PUBLISH_FOR_PULL_REQUEST=true
           cd packages/web
           npm run dist:<< parameters.build-type >>
 
