@@ -164,8 +164,12 @@ export class SolanaClient {
           this.metadataProgramIdPublicKey
         )
       )[0]
-      const { collection, collectionDetails } = await Metadata.fromAccountAddress(this.connection, programAddress)
-      return !collection && !!collectionDetails
+      const { collectionDetails } = await Metadata.fromAccountAddress(this.connection, programAddress)
+
+      // "If the CollectionDetails field is set, it means the NFT is a Collection NFT
+      // and additional attributes can be found inside this field."
+      // https://docs.metaplex.com/programs/token-metadata/certified-collections#differentiating-regular-nfts-from-collection-nfts
+      return !!collectionDetails
     } catch (e) {
       return null
     }
