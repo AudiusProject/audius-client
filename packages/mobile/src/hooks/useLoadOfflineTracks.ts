@@ -61,10 +61,6 @@ export const useLoadOfflineTracks = () => {
         })
       }
     }
-    console.log(
-      'OfflineDownloads - adding collections to cache',
-      cacheCollections
-    )
     dispatch(cacheActions.add(Kind.COLLECTIONS, cacheCollections, false, true))
 
     const trackIds = await listTracks()
