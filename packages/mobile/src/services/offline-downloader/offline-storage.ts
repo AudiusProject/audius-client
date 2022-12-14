@@ -130,11 +130,31 @@ export const getLocalTrackJsonPath = (trackId: string) => {
 
 // Cover Art
 
-export const getLocalCoverArtDestination = (trackId: string, uri: string) => {
+export const getLocalCollectionCoverArtDestination = (
+  collectionId: string,
+  uri: string
+) => {
+  return path.join(
+    getLocalCollectionDir(collectionId),
+    getArtFileNameFromUri(uri)
+  )
+}
+
+export const getLocalCollectionCoverArtPath = (
+  collectionId: string,
+  size: string
+) => {
+  return path.join(getLocalCollectionDir(collectionId), `${size}.jpg`)
+}
+
+export const getLocalTrackCoverArtDestination = (
+  trackId: string,
+  uri: string
+) => {
   return path.join(getLocalTrackDir(trackId), getArtFileNameFromUri(uri))
 }
 
-export const getLocalCoverArtPath = (trackId: string, size: string) => {
+export const getLocalTrackCoverArtPath = (trackId: string, size: string) => {
   return path.join(getLocalTrackDir(trackId), `${size}.jpg`)
 }
 

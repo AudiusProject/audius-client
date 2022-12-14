@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, DownloadReason } from '@audius/common'
+import type { DownloadReason } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 

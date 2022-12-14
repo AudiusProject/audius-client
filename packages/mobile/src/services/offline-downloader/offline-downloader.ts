@@ -1,7 +1,9 @@
 import path from 'path'
 
 import type {
+  Collection,
   CommonState,
+  CoverArtSizes,
   DownloadReason,
   Track,
   UserMetadata,
@@ -39,7 +41,7 @@ import type { TrackDownloadWorkerPayload } from './offline-download-queue'
 import { enqueueTrackDownload } from './offline-download-queue'
 import {
   getLocalAudioPath,
-  getLocalCoverArtDestination,
+  getLocalTrackCoverArtDestination,
   getLocalTrackJsonPath,
   purgeDownloadedTrack,
   getTrackJson,
@@ -47,7 +49,8 @@ import {
   writeTrackJson,
   writeCollectionJson,
   writeFavoritesCollectionJson,
-  purgeDownloadedCollection
+  purgeDownloadedCollection,
+  getLocalCollectionCoverArtDestination
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
@@ -62,20 +65,26 @@ export const downloadCollection = async (
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
-  const collection = getCollection(state, { id: collectionId })
+  let collection = getCollection(state, { id: collectionId })
   const user = getUserFromCollection(state, { id: collectionId })
   const collectionIdStr: string = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES
     : collectionId!.toString()
   if (isFavoritesDownload) {
-    await writeFavoritesCollectionJson()
+    writeFavoritesCollectionJson()
     // @ts-ignore state is CommonState
     const userCollections = getAccountCollections(state as CommonState, '')
-    userCollections.forEach((userCollection) => {
+    userCollections.forEach(async (userCollection) => {
       const user = getUserFromCollection(state, {
         id: userCollection.playlist_id
       })
       if (!user) return
+      userCollection =
+        (await populateCoverArtSizes({
+          ...userCollection,
+          user
+        })) ?? userCollection
+      downloadCollectionCoverArt(userCollection)
       writeCollectionJson(
         userCollection.playlist_id.toString(),
         userCollection,
@@ -84,6 +93,12 @@ export const downloadCollection = async (
     })
   } else {
     if (!collection || !user) return
+    collection =
+      (await populateCoverArtSizes({
+        ...collection,
+        user
+      })) ?? collection
+    downloadCollectionCoverArt(collection)
     await writeCollectionJson(collectionIdStr, collection!, user)
   }
   store.dispatch(addCollection(collectionIdStr))
@@ -97,29 +112,35 @@ export const downloadCollection = async (
   )
 }
 
-const populateCoverArtSizes = async (track: UserTrackMetadata & Track) => {
-  if (!track || !track.user || (!track.cover_art_sizes && !track.cover_art))
+const populateCoverArtSizes = async <
+  T extends Pick<Track, 'cover_art_sizes' | 'cover_art'> & {
+    user: UserMetadata
+  }
+>(
+  entity: T & { _cover_art_sizes: CoverArtSizes }
+) => {
+  if (!entity || !entity.user || (!entity.cover_art_sizes && !entity.cover_art))
     return
   const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-    track.user.creator_node_endpoint
+    entity.user.creator_node_endpoint
   )
-  const multihash = track.cover_art_sizes || track.cover_art
-  if (!multihash) return track
+  const multihash = entity.cover_art_sizes || entity.cover_art
+  if (!multihash) return entity
   await Promise.allSettled(
     Object.values(SquareSizes).map(async (size) => {
-      const coverArtSize = multihash === track.cover_art_sizes ? size : null
+      const coverArtSize = multihash === entity.cover_art_sizes ? size : null
       const url = await audiusBackendInstance.getImageUrl(
         multihash,
         coverArtSize,
         gateways
       )
-      track._cover_art_sizes = {
-        ...track._cover_art_sizes,
+      entity._cover_art_sizes = {
+        ...entity._cover_art_sizes,
         [coverArtSize || DefaultSizes.OVERRIDE]: url
       }
     })
   )
-  return track
+  return entity
 }
 
 export const downloadTrack = async ({
@@ -186,7 +207,7 @@ export const downloadTrack = async ({
       return
     }
 
-    await downloadCoverArt(track)
+    await downloadTrackCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
     await writeUserTrackJson(track, downloadReason)
     const verified = await verifyTrack(trackIdStr, true)
@@ -264,12 +285,25 @@ export const writeUserTrackJson = async (
   await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
 }
 
-export const downloadCoverArt = async (track: Track) => {
+export const downloadTrackCoverArt = async (track: Track) => {
   const coverArtUris = Object.values(track._cover_art_sizes)
   await Promise.all(
     coverArtUris.map(async (coverArtUri) => {
-      const destination = getLocalCoverArtDestination(
+      const destination = getLocalTrackCoverArtDestination(
         track.track_id.toString(),
+        coverArtUri
+      )
+      await downloadIfNotExists(coverArtUri, destination)
+    })
+  )
+}
+
+export const downloadCollectionCoverArt = async (collection: Collection) => {
+  const coverArtUris = Object.values(collection._cover_art_sizes)
+  await Promise.all(
+    coverArtUris.map(async (coverArtUri) => {
+      const destination = getLocalCollectionCoverArtDestination(
+        collection.playlist_id.toString(),
         coverArtUri
       )
       await downloadIfNotExists(coverArtUri, destination)
