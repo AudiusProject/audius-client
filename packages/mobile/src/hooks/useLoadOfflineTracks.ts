@@ -1,5 +1,6 @@
 import type {
   Collection,
+  CollectionMetadata,
   Track,
   UserMetadata,
   UserTrackMetadata
@@ -14,6 +15,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { addCollection, loadTracks } from 'app/store/offline-downloads/slice'
 
@@ -36,12 +38,27 @@ export const useLoadOfflineTracks = () => {
     if (!isOfflineModeEnabled) return
 
     const offlineCollections = await getOfflineCollections()
-    const cacheCollections: Collection[] = []
+    const cacheCollections: {
+      id: string
+      uid: string
+      metadata: CollectionMetadata
+    }[] = []
+    console.log('OfflineDownloads - offline collections', offlineCollections)
     for (const collectionId of offlineCollections) {
-      const collection = await getCollectionJson(collectionId)
-      cacheCollections.push(collection)
+      console.log('OfflineDownloads - loading offline collection', collectionId)
       dispatch(addCollection(collectionId))
+      if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
+      const collection = await getCollectionJson(collectionId)
+      cacheCollections.push({
+        id: collectionId,
+        uid: makeUid(Kind.COLLECTIONS, collectionId),
+        metadata: collection
+      })
     }
+    console.log(
+      'OfflineDownloads - adding collections to cache',
+      cacheCollections
+    )
     dispatch(cacheActions.add(Kind.COLLECTIONS, cacheCollections, false, true))
 
     const trackIds = await listTracks()

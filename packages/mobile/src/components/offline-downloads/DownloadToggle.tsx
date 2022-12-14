@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { DownloadReason } from '@audius/common'
+import type { Collection, DownloadReason } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -111,18 +111,18 @@ export const DownloadToggle = ({
   )
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!collectionId) return
+      if (!collectionId && !isFavoritesDownlaod) return
       if (isDownloadEnabled) {
-        downloadCollection(collectionId, tracksForDownload)
+        downloadCollection(tracksForDownload, collectionId, isFavoritesDownlaod)
       } else {
         collectionIdStr &&
           removeCollectionDownload(collectionIdStr, tracksForDownload)
       }
     },
-    [collectionId, collectionIdStr, tracksForDownload]
+    [collectionId, collectionIdStr, isFavoritesDownlaod, tracksForDownload]
   )
 
-  if (!collectionId) return null
+  if (!collectionId && !isFavoritesDownlaod) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}

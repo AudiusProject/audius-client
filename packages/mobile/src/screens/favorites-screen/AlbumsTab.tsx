@@ -19,10 +19,11 @@ export const AlbumsTab = () => {
   const [filterValue, setFilterValue] = useState('')
 
   const userAlbums = useProxySelector(
-    (state: CommonState) =>
-      getAccountCollections(state, filterValue).filter(
+    (state: CommonState) => {
+      return getAccountCollections(state, filterValue).filter(
         (collection) => collection.is_album
-      ),
+      )
+    },
     [filterValue]
   )
 

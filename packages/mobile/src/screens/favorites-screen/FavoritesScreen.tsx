@@ -16,7 +16,6 @@ import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
 import { PlaylistsTab } from './PlaylistsTab'

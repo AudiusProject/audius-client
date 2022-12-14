@@ -1,6 +1,7 @@
 import path from 'path'
 
 import type {
+  CommonState,
   DownloadReason,
   Track,
   UserMetadata,
@@ -19,6 +20,7 @@ import { uniq, isEqual } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
+import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
   addCollection,
@@ -26,8 +28,7 @@ import {
   startDownload,
   completeDownload,
   errorDownload,
-  loadTrack,
-  removeCollection
+  loadTrack
 } from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
@@ -54,18 +55,27 @@ export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
 /** Main entrypoint - perform all steps required to complete a download for each track */
 export const downloadCollection = async (
-  collectionId: number,
-  tracksForDownload: TrackForDownload[]
+  tracksForDownload: TrackForDownload[],
+  collectionId?: number,
+  isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
   const collection = getCollection(state, { id: collectionId })
-  const collectionIdStr = collectionId.toString()
-  const isFavoritesDownload = collectionIdStr !== DOWNLOAD_REASON_FAVORITES
+  const collectionIdStr: string = isFavoritesDownload
+    ? DOWNLOAD_REASON_FAVORITES
+    : collectionId!.toString()
   if (!collection && !isFavoritesDownload) return
   isFavoritesDownload
     ? await writeFavoritesCollectionJson()
     : await writeCollectionJson(collectionIdStr, collection!)
   store.dispatch(addCollection(collectionIdStr))
+  if (isFavoritesDownload) {
+    // @ts-ignore state is CommonState
+    const userCollections = getAccountCollections(state as CommonState, '')
+    userCollections.forEach((userCollection) => {
+      writeCollectionJson(userCollection.playlist_id.toString(), userCollection)
+    })
+  }
   store.dispatch(
     batchStartDownload(
       tracksForDownload.map(({ trackId }) => trackId.toString())

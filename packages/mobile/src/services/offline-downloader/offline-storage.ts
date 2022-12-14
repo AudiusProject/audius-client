@@ -44,29 +44,45 @@ export const writeCollectionJson = async (
   collectionId: string,
   collectionToWrite: Collection
 ) => {
-  const pathToWrite = getLocalTrackJsonPath(collectionId)
+  const pathToWrite = getLocalCollectionJsonPath(collectionId)
+  console.log(
+    'OfflineDownloads - Writing collection json',
+    collectionId,
+    'to path',
+    pathToWrite
+  )
   if (await exists(pathToWrite)) {
     await RNFS.unlink(pathToWrite)
   }
+  await RNFS.mkdir(getLocalCollectionDir(collectionId))
   await RNFS.write(pathToWrite, JSON.stringify(collectionToWrite))
 }
 
 // Special case for favorites which is not a real collection with metadata
 export const writeFavoritesCollectionJson = async () => {
-  const pathToWrite = getLocalTrackJsonPath(DOWNLOAD_REASON_FAVORITES)
+  const pathToWrite = getLocalCollectionDir(DOWNLOAD_REASON_FAVORITES)
+  console.log(
+    'OfflineDownloads - Writing collection favorites json to path',
+    pathToWrite
+  )
   if (await exists(pathToWrite)) {
     await RNFS.unlink(pathToWrite)
   }
-  RNFS.touch(pathToWrite)
+  RNFS.mkdir(pathToWrite)
 }
 
 export const getCollectionJson = async (
   collectionId: string
 ): Promise<Collection> => {
   try {
+    console.log(
+      'OfflineDownloads - getting collection json at',
+      getLocalCollectionJsonPath(collectionId)
+    )
     const collectionJson = await readFile(
       getLocalCollectionJsonPath(collectionId)
     )
+    console.log('OfflineDownloads - found collection json')
     return JSON.parse(collectionJson)
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -82,7 +98,7 @@ export const getOfflineCollections = async () => {
     return []
   }
   const files = await readDir(collectionsDir)
-  return files.filter((file) => file.isDirectory).map((file) => file.name)
+  return files.filter((file) => file.isDirectory()).map((file) => file.name)
 }
 
 export const purgeDownloadedCollection = async (collectionId: string) => {
@@ -131,7 +147,7 @@ export const listTracks = async (): Promise<string[]> => {
     return []
   }
   const files = await readDir(tracksDir)
-  return files.filter((file) => file.isDirectory).map((file) => file.name)
+  return files.filter((file) => file.isDirectory()).map((file) => file.name)
 }
 
 export const getTrackJson = async (
