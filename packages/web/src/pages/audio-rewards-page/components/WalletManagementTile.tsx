@@ -312,7 +312,6 @@ export const WalletManagementTile = () => {
   const [, setOpen] = useModalState('AudioBreakdown')
 
   const onRampProviders = useOnRampProviderInfo()
-  console.log({ onRampProviders })
   const isStripeEnabled = onRampProviders[OnRampProvider.STRIPE].isEnabled
   const isCoinbaseEnabled = onRampProviders[OnRampProvider.COINBASE].isEnabled
   const primaryProvider =
@@ -325,7 +324,6 @@ export const WalletManagementTile = () => {
     primaryProvider === OnRampProvider.COINBASE
       ? OnRampProvider.STRIPE
       : OnRampProvider.COINBASE
-  console.log({ primaryProvider, secondaryProvider })
 
   const onClickOpen = useCallback(() => {
     setOpen(true)
