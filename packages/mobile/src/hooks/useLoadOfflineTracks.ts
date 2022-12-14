@@ -5,10 +5,11 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  collectionPageLineupActions,
+  savedPageTracksLineupActions,
   Kind,
   makeUid,
   cacheActions,
-  savedPageTracksLineupActions,
   reachabilitySelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
@@ -108,7 +109,7 @@ export const useLoadOfflineTracks = () => {
   })
 }
 
-export const useOfflineCollectionLineup = (collection: string) => {
+export const useOfflineCollectionLineup = (collectionId?: string) => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
   const offlineTracks = useSelector(getOfflineTracks)
@@ -116,25 +117,32 @@ export const useOfflineCollectionLineup = (collection: string) => {
   const dispatch = useDispatch()
 
   useAsync(async () => {
-    if (!isOfflineModeEnabled) return
+    if (!isOfflineModeEnabled || !collectionId) return
 
     const lineupTracks = Object.values(offlineTracks).filter((track) =>
       track.offline?.reasons_for_download.some(
-        (reason) => reason.collection_id === collection
+        (reason) => reason.collection_id === collectionId
       )
     )
 
     if (!isReachable) {
-      // TODO: support for collection lineups
-      dispatch(
-        savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
-          lineupTracks,
-          0,
-          lineupTracks.length,
-          false,
-          false
-        )
-      )
+      const populateLinupAction =
+        collectionId === DOWNLOAD_REASON_FAVORITES
+          ? savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
+              lineupTracks,
+              0,
+              lineupTracks.length,
+              false,
+              false
+            )
+          : collectionPageLineupActions.fetchLineupMetadatasSucceeded(
+              lineupTracks,
+              0,
+              lineupTracks.length,
+              false,
+              false
+            )
+      dispatch(populateLinupAction)
     }
-  }, [isOfflineModeEnabled, isReachable, loadTracks])
+  }, [isOfflineModeEnabled, isReachable, loadTracks, collectionId])
 }
