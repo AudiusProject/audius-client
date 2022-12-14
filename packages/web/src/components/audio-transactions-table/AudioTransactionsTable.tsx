@@ -64,17 +64,11 @@ const defaultColumns: AudioTransactionsTableColumn[] = [
   'spacer2'
 ]
 
-export const purchaseTransactionTypes: Set<string> = new Set([
-  'purchase_coinbase',
-  'purchase_stripe',
-  'purchase_unknown'
-])
-
 export const isChangePositive = (tx: TransactionDetails) => {
-  if (purchaseTransactionTypes.has(tx.transactionType)) {
-    return true
-  }
-  return tx.method === TransactionMethod.RECEIVE
+  return (
+    tx.transactionType === TransactionType.PURCHASE ||
+    tx.method === TransactionMethod.RECEIVE
+  )
 }
 
 export const AudioTransactionsTable = ({
