@@ -14,7 +14,8 @@ import {
   DefaultSizes,
   SquareSizes,
   encodeHashId,
-  accountSelectors
+  accountSelectors,
+  cacheUsersSelectors
 } from '@audius/common'
 import { uniq, isEqual } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
@@ -50,6 +51,7 @@ import {
 } from './offline-storage'
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
+const { getUserFromCollection } = cacheUsersSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
@@ -61,21 +63,30 @@ export const downloadCollection = async (
 ) => {
   const state = store.getState()
   const collection = getCollection(state, { id: collectionId })
+  const user = getUserFromCollection(state, { id: collectionId })
   const collectionIdStr: string = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES
     : collectionId!.toString()
-  if (!collection && !isFavoritesDownload) return
-  isFavoritesDownload
-    ? await writeFavoritesCollectionJson()
-    : await writeCollectionJson(collectionIdStr, collection!)
-  store.dispatch(addCollection(collectionIdStr))
   if (isFavoritesDownload) {
+    await writeFavoritesCollectionJson()
     // @ts-ignore state is CommonState
     const userCollections = getAccountCollections(state as CommonState, '')
     userCollections.forEach((userCollection) => {
-      writeCollectionJson(userCollection.playlist_id.toString(), userCollection)
+      const user = getUserFromCollection(state, {
+        id: userCollection.playlist_id
+      })
+      if (!user) return
+      writeCollectionJson(
+        userCollection.playlist_id.toString(),
+        userCollection,
+        user
+      )
     })
+  } else {
+    if (!collection || !user) return
+    await writeCollectionJson(collectionIdStr, collection!, user)
   }
+  store.dispatch(addCollection(collectionIdStr))
   store.dispatch(
     batchStartDownload(
       tracksForDownload.map(({ trackId }) => trackId.toString())

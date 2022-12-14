@@ -1,6 +1,11 @@
 import path from 'path'
 
-import type { Collection, UserTrackMetadata } from '@audius/common'
+import type {
+  Collection,
+  User,
+  UserMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import { SquareSizes } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
@@ -11,6 +16,8 @@ import {
 } from 'app/store/offline-downloads/slice'
 
 import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
+
+export type OfflineCollection = Collection & { user: UserMetadata }
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
 
@@ -42,7 +49,8 @@ export const getLocalCollectionJsonPath = (collectionId: string) => {
 
 export const writeCollectionJson = async (
   collectionId: string,
-  collectionToWrite: Collection
+  collectionToWrite: Collection,
+  user: User
 ) => {
   const pathToWrite = getLocalCollectionJsonPath(collectionId)
   console.log(
@@ -55,7 +63,13 @@ export const writeCollectionJson = async (
     await RNFS.unlink(pathToWrite)
   }
   await RNFS.mkdir(getLocalCollectionDir(collectionId))
-  await RNFS.write(pathToWrite, JSON.stringify(collectionToWrite))
+  await RNFS.write(
+    pathToWrite,
+    JSON.stringify({
+      ...collectionToWrite,
+      user
+    })
+  )
 }
 
 // Special case for favorites which is not a real collection with metadata
@@ -73,7 +87,7 @@ export const writeFavoritesCollectionJson = async () => {
 
 export const getCollectionJson = async (
   collectionId: string
-): Promise<Collection> => {
+): Promise<OfflineCollection> => {
   try {
     console.log(
       'OfflineDownloads - getting collection json at',

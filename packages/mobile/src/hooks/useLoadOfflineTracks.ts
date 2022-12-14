@@ -33,6 +33,7 @@ const { getIsReachable } = reachabilitySelectors
 export const useLoadOfflineTracks = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
+  const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
 
   useAsync(async () => {
     if (!isOfflineModeEnabled) return
@@ -54,6 +55,14 @@ export const useLoadOfflineTracks = () => {
         uid: makeUid(Kind.COLLECTIONS, collectionId),
         metadata: collection
       })
+      if (collection.user) {
+        console.log('OfflineDownloads - adding user from collection')
+        cacheUsers.push({
+          id: collection.user.user_id,
+          uid: makeUid(Kind.USERS, collection.user.user_id),
+          metadata: collection.user
+        })
+      }
     }
     console.log(
       'OfflineDownloads - adding collections to cache',
@@ -63,7 +72,6 @@ export const useLoadOfflineTracks = () => {
 
     const trackIds = await listTracks()
     const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
-    const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
     const lineupTracks: (Track & UserTrackMetadata & { uid: string })[] = []
     for (const trackId of trackIds) {
       try {
