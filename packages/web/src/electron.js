@@ -70,6 +70,7 @@ switch (env) {
     s3Bucket = ''
     break
   case 'staging':
+    console.log('in staging')
     appEnvironment = Environment.STAGING
     scheme = 'audius-staging'
     buildName = 'build-staging'
@@ -126,6 +127,7 @@ const reformatURL = (url) => {
 }
 
 const registerBuild = (directory) => {
+  console.log('register build', directory)
   const handler = async (request, cb) => {
     const indexPath = path.join(directory, 'index.html')
     const filePath = path.join(directory, new url.URL(request.url).pathname)
@@ -143,6 +145,7 @@ const registerBuild = (directory) => {
     }
   )
 }
+
 const getNewestBuildDirectory = () => {
   const buildDirectory = path.resolve(app.getAppPath(), buildName)
   const updateBuildDirectory = appDataPath(buildName)
@@ -203,13 +206,16 @@ const checkForWebUpdate = () => {
     const newVersion = packageJson.version
 
     let currentVersion = appVersion
+
     const packageJsonPath = appDataPath(`${buildName}/package.json`)
 
     // Additional check for the version from the build package.json
     // Needed after web updates because the local package.json version is not updated
     if (fs.existsSync(packageJsonPath)) {
       const buildPackageJson = JSON.parse(fs.readFileSync(packageJsonPath))
-      currentVersion = buildPackageJson.version
+      if (semver.gt(buildPackageJson.version, currentVersion)) {
+        currentVersion = buildPackageJson.version
+      }
     }
 
     // If there is a patch version update, download it and notify the user
@@ -446,10 +452,6 @@ ipcMain.on('update', async (event, arg) => {
     console.log('cannot update')
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
-  fs.rmdirSync(appDataPath(buildName), {
-    recursive: true,
-    force: true
-  })
   autoUpdater.quitAndInstall()
 })
 
