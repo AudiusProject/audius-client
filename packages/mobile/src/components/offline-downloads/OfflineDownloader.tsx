@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
-import { startDownloadWorker } from 'app/services/offline-downloader/offline-download-queue'
+import { startDownloadWorker } from 'app/services/offline-downloader'
 
 export const OfflineDownloader = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
