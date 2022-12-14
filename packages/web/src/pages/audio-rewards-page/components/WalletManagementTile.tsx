@@ -60,8 +60,9 @@ const messages = {
   checkoutWithStripeOrCoinbase: 'Checkout with a credit card or Coinbase Pay',
   checkoutWithStripe: 'Checkout with a credit card',
   checkoutWithCoinbase: 'Checkout with Coinbase Pay',
-  showAdvanced: 'Show Advanced',
-  hideAdvanced: 'Hide Advanced',
+  showAdvanced: 'Show More Options',
+  hideAdvanced: 'Hide More Options',
+  additionalPaymentMethods: 'Additional Payment Methods',
   advancedOptions: 'Advanced Options',
   stripeRegionNotSupported:
     'Link by Stripe is not yet supported in your region',
@@ -120,7 +121,7 @@ const AdvancedWalletActions = () => {
 
   const hasMultipleWallets = useSelector(getHasAssociatedWallets)
   return (
-    <div className={styles.advancedSection}>
+    <div className={styles.moreOptionsSection}>
       <div className={styles.subtitle}>{messages.advancedOptions}</div>
       <div className={styles.advancedOptions}>
         <Button
@@ -345,6 +346,21 @@ export const WalletManagementTile = () => {
                   </div>
                 </Tooltip>
               ) : null}
+            </div>
+          </>
+        ) : null}
+        <CollapsibleContent
+          id='advanced-wallet-actions'
+          className={styles.toggle}
+          toggleButtonClassName={styles.advancedToggle}
+          showText={messages.showAdvanced}
+          hideText={messages.hideAdvanced}
+        >
+          <div className={styles.moreOptions}>
+            <div className={styles.moreOptionsSection}>
+              <div className={styles.subtitle}>
+                {messages.additionalPaymentMethods}
+              </div>
               {isCoinbaseEnabled ? (
                 <Tooltip
                   disabled={isCoinbaseAllowed}
@@ -357,7 +373,7 @@ export const WalletManagementTile = () => {
                   color={'--secondary'}
                   shouldWrapContent={false}
                 >
-                  <div>
+                  <div className={styles.onRampButtonTooltipContainer}>
                     <OnRampButton
                       provider={OnRampProvider.COINBASE}
                       className={styles.onRampButton}
@@ -369,16 +385,8 @@ export const WalletManagementTile = () => {
                 </Tooltip>
               ) : null}
             </div>
-          </>
-        ) : null}
-        <CollapsibleContent
-          id='advanced-wallet-actions'
-          className={styles.toggle}
-          toggleButtonClassName={styles.advancedToggle}
-          showText={messages.showAdvanced}
-          hideText={messages.hideAdvanced}
-        >
-          <AdvancedWalletActions />
+            <AdvancedWalletActions />
+          </div>
         </CollapsibleContent>
       </div>
     </div>
