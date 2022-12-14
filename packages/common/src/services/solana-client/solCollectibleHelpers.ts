@@ -1,4 +1,5 @@
 import type { Metadata } from '@metaplex-foundation/mpl-token-metadata'
+
 import { Chain, Collectible, CollectibleMediaType } from '../../models'
 import { Nullable } from '../../utils/typeUtils'
 
@@ -367,7 +368,11 @@ export const solanaNFTToCollectible = async (
 ): Promise<Nullable<Collectible>> => {
   switch (type) {
     case SolanaNFTType.METAPLEX:
-      return metaplexNFTToCollectible(nft as MetaplexNFT, chainMetadata, address)
+      return metaplexNFTToCollectible(
+        nft as MetaplexNFT,
+        chainMetadata,
+        address
+      )
     case SolanaNFTType.STAR_ATLAS:
       return starAtlasNFTToCollectible(nft as StarAtlasNFT, chainMetadata)
     default:

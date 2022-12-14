@@ -1,3 +1,4 @@
+import { Metadata } from '@metaplex-foundation/mpl-token-metadata'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { Connection, PublicKey } from '@solana/web3.js'
 
@@ -5,7 +6,6 @@ import { Collectible, CollectibleState } from '../../models'
 
 import { solanaNFTToCollectible } from './solCollectibleHelpers'
 import { SolanaNFTType } from './types'
-import { Metadata } from "@metaplex-foundation/mpl-token-metadata"
 
 type SolanaClientArgs = {
   solanaClusterEndpoint: string | undefined
@@ -89,7 +89,7 @@ export class SolanaClient {
           )
 
           const chainMetadatas = await Promise.all(
-            programAddresses.map(async address => {
+            programAddresses.map(async (address) => {
               try {
                 return await Metadata.fromAccountAddress(connection, address)
               } catch (e) {
@@ -97,7 +97,7 @@ export class SolanaClient {
               }
             })
           )
-          const metadataUris = chainMetadatas.map(m => m?.data.uri)
+          const metadataUris = chainMetadatas.map((m) => m?.data.uri)
 
           const results = await Promise.all(
             metadataUris.map(async (url) => {
@@ -119,9 +119,11 @@ export class SolanaClient {
             .map((nftMetadata, i) => ({
               metadata: nftMetadata,
               chainMetadata: chainMetadatas[i],
-              type: chainMetadatas[i]?.data.uri.includes('staratlas') ? SolanaNFTType.STAR_ATLAS : SolanaNFTType.METAPLEX
+              type: chainMetadatas[i]?.data.uri.includes('staratlas')
+                ? SolanaNFTType.STAR_ATLAS
+                : SolanaNFTType.METAPLEX
             }))
-            .filter(r => !!r.metadata && !!r.chainMetadata && !!r.type)
+            .filter((r) => !!r.metadata && !!r.chainMetadata && !!r.type)
         })
       )
 
@@ -130,7 +132,12 @@ export class SolanaClient {
           const collectibles = await Promise.all(
             nftsForAddress.map(
               async (nft) =>
-                await solanaNFTToCollectible(nft.metadata, wallets[i], nft.type, nft.chainMetadata)
+                await solanaNFTToCollectible(
+                  nft.metadata,
+                  wallets[i],
+                  nft.type,
+                  nft.chainMetadata
+                )
             )
           )
           return collectibles.filter(Boolean) as Collectible[]
@@ -164,7 +171,10 @@ export class SolanaClient {
           this.metadataProgramIdPublicKey
         )
       )[0]
-      const { collectionDetails } = await Metadata.fromAccountAddress(this.connection, programAddress)
+      const { collectionDetails } = await Metadata.fromAccountAddress(
+        this.connection,
+        programAddress
+      )
 
       // "If the CollectionDetails field is set, it means the NFT is a Collection NFT
       // and additional attributes can be found inside this field."

@@ -120,9 +120,10 @@ function* getTokenIdMap({
 
         // add trackId <> tokenIds entry if track is gated on ERC1155 nft collection,
         // otherwsise, set tokenIds for trackId to empty array
-        trackMap[trackId] = nftCollection.standard === 'ERC1155'
-          ? ethContractMap[nftCollection.address]
-          : []
+        trackMap[trackId] =
+          nftCollection.standard === 'ERC1155'
+            ? ethContractMap[nftCollection.address]
+            : []
       } else if (nftCollection.chain === Chain.Sol) {
         if (solCollectionMintSet.has(nftCollection.address)) {
           // add trackId to trackMap, no need for tokenIds here
