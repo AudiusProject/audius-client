@@ -28,7 +28,7 @@ type DownloadToggleProps = {
   tracksForDownload: TrackForDownload[]
   labelText?: string
   collectionId?: number
-  isFavoritesDownlaod?: boolean
+  isFavoritesDownload?: boolean
 }
 
 const messages = {
@@ -90,10 +90,10 @@ export const DownloadToggle = ({
   tracksForDownload,
   collectionId,
   labelText,
-  isFavoritesDownlaod
+  isFavoritesDownload
 }: DownloadToggleProps) => {
   const styles = useStyles({ labelText })
-  const collectionIdStr = isFavoritesDownlaod
+  const collectionIdStr = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES
     : collectionId?.toString()
 
@@ -111,18 +111,18 @@ export const DownloadToggle = ({
   )
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!collectionId && !isFavoritesDownlaod) return
+      if (!collectionId && !isFavoritesDownload) return
       if (isDownloadEnabled) {
-        downloadCollection(tracksForDownload, collectionId, isFavoritesDownlaod)
+        downloadCollection(tracksForDownload, collectionId, isFavoritesDownload)
       } else {
         collectionIdStr &&
           removeCollectionDownload(collectionIdStr, tracksForDownload)
       }
     },
-    [collectionId, collectionIdStr, isFavoritesDownlaod, tracksForDownload]
+    [collectionId, collectionIdStr, isFavoritesDownload, tracksForDownload]
   )
 
-  if (!collectionId && !isFavoritesDownlaod) return null
+  if (!collectionId && !isFavoritesDownload) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}

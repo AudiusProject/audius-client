@@ -95,7 +95,7 @@ export const FavoritesScreen = () => {
         {isOfflineModeEnabled && (
           <DownloadToggle
             tracksForDownload={tracksForDownload}
-            isFavoritesDownlaod
+            isFavoritesDownload
           />
         )}
       </ScreenHeader>
