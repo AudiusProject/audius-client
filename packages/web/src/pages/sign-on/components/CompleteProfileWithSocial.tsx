@@ -200,7 +200,7 @@ const CompleteProfileWithSocial = (props: CompleteProfileWithSocialProps) => {
                       textClassName={styles.btnText}
                       iconClassName={styles.btnIcon}
                       text={messages.tiktokButton}
-                      onClick={handleTikTokLogin}
+                      onClick={handleClickTikTok}
                     />
                   ) : null}
                 </div>
