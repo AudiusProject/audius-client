@@ -44,9 +44,7 @@ export const useLoadOfflineTracks = () => {
       uid: string
       metadata: CollectionMetadata
     }[] = []
-    console.log('OfflineDownloads - offline collections', offlineCollections)
     for (const collectionId of offlineCollections) {
-      console.log('OfflineDownloads - loading offline collection', collectionId)
       dispatch(addCollection(collectionId))
       if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
       const collection = await getCollectionJson(collectionId)
@@ -56,7 +54,6 @@ export const useLoadOfflineTracks = () => {
         metadata: collection
       })
       if (collection.user) {
-        console.log('OfflineDownloads - adding user from collection')
         cacheUsers.push({
           id: collection.user.user_id,
           uid: makeUid(Kind.USERS, collection.user.user_id),

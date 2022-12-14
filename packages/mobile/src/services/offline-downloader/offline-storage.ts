@@ -53,12 +53,6 @@ export const writeCollectionJson = async (
   user: User
 ) => {
   const pathToWrite = getLocalCollectionJsonPath(collectionId)
-  console.log(
-    'OfflineDownloads - Writing collection json',
-    collectionId,
-    'to path',
-    pathToWrite
-  )
   if (await exists(pathToWrite)) {
     await RNFS.unlink(pathToWrite)
   }
@@ -75,10 +69,6 @@ export const writeCollectionJson = async (
 // Special case for favorites which is not a real collection with metadata
 export const writeFavoritesCollectionJson = async () => {
   const pathToWrite = getLocalCollectionDir(DOWNLOAD_REASON_FAVORITES)
-  console.log(
-    'OfflineDownloads - Writing collection favorites json to path',
-    pathToWrite
-  )
   if (await exists(pathToWrite)) {
     await RNFS.unlink(pathToWrite)
   }
@@ -89,14 +79,9 @@ export const getCollectionJson = async (
   collectionId: string
 ): Promise<OfflineCollection> => {
   try {
-    console.log(
-      'OfflineDownloads - getting collection json at',
-      getLocalCollectionJsonPath(collectionId)
-    )
     const collectionJson = await readFile(
       getLocalCollectionJsonPath(collectionId)
     )
-    console.log('OfflineDownloads - found collection json')
     return JSON.parse(collectionJson)
   } catch (e) {
     if (e instanceof SyntaxError) {
