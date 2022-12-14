@@ -127,7 +127,6 @@ const reformatURL = (url) => {
 }
 
 const registerBuild = (directory) => {
-  console.log('register build', directory)
   const handler = async (request, cb) => {
     const indexPath = path.join(directory, 'index.html')
     const filePath = path.join(directory, new url.URL(request.url).pathname)
@@ -149,21 +148,15 @@ const registerBuild = (directory) => {
 const getNewestBuildDirectory = () => {
   const buildDirectory = path.resolve(app.getAppPath(), buildName)
   const updateBuildDirectory = appDataPath(buildName)
-  if (fs.existsSync(updateBuildDirectory)) {
+  try {
     const updatePackageJsonPath = appDataPath(`${buildName}/package.json`)
     const updatePackageJson = JSON.parse(fs.readFileSync(updatePackageJsonPath))
     const updateVersion = updatePackageJson.version
-
-    const buildPackageJsonPath = path.resolve(
-      app.getAppPath(),
-      buildName,
-      'package.json'
-    )
-    const buildPackageJson = JSON.parse(fs.readFileSync(buildPackageJsonPath))
-    const buildVersion = buildPackageJson.version
-    if (semver.gt(updateVersion, buildVersion)) {
+    if (semver.gt(updateVersion, appVersion)) {
       return updateBuildDirectory
     }
+  } catch (e) {
+    // do nothing
   }
   return buildDirectory
 }
@@ -449,7 +442,6 @@ let canUpdate = false
 ipcMain.on('update', async (event, arg) => {
   // eslint-disable-next-line
   while (!canUpdate) {
-    console.log('cannot update')
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
   autoUpdater.quitAndInstall()
