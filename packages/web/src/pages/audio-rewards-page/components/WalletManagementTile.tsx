@@ -357,11 +357,11 @@ export const WalletManagementTile = () => {
           hideText={messages.hideAdvanced}
         >
           <div className={styles.moreOptions}>
-            <div className={styles.moreOptionsSection}>
-              <div className={styles.subtitle}>
-                {messages.additionalPaymentMethods}
-              </div>
-              {isCoinbaseEnabled ? (
+            {isCoinbaseEnabled ? (
+              <div className={styles.moreOptionsSection}>
+                <div className={styles.subtitle}>
+                  {messages.additionalPaymentMethods}
+                </div>
                 <Tooltip
                   disabled={isCoinbaseAllowed}
                   className={styles.tooltip}
@@ -383,8 +383,8 @@ export const WalletManagementTile = () => {
                     />
                   </div>
                 </Tooltip>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
             <AdvancedWalletActions />
           </div>
         </CollapsibleContent>
