@@ -37,7 +37,7 @@ import { WalletConnectProvider } from './screens/wallet-connect'
 import { setLibs } from './services/libs'
 
 allPromisesSettled.shim()
-console.log('SHIMMED')
+
 Sentry.init({
   dsn: Config.SENTRY_DSN
 })
