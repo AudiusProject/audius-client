@@ -1,5 +1,4 @@
 import 'react-native-gesture-handler'
-import allPromisesSettled from 'promise.allsettled'
 import { AppRegistry, LogBox } from 'react-native'
 import TrackPlayer from 'react-native-track-player'
 
@@ -12,7 +11,6 @@ require('node-libs-react-native/globals')
 // Needed for @solana/web3.js to run correctly
 require('react-native-get-random-values')
 require('react-native-url-polyfill/auto')
-allPromisesSettled.shim()
 
 const App = require('./src/App').default
 
