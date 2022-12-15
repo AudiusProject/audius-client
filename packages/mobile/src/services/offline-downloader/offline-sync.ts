@@ -7,6 +7,7 @@ import {
 import moment from 'moment'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
+import { fetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
@@ -17,10 +18,12 @@ import {
   batchDownloadTrack,
   downloadCollection,
   downloadCollectionCoverArt,
+  DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
 } from './offline-downloader'
 
 const { getCollections } = cacheCollectionsSelectors
+const { getTracks } = cacheTracksSelectors
 const { getAccountUser } = accountSelectors
 
 /**
@@ -30,7 +33,8 @@ const { getAccountUser } = accountSelectors
  */
 export const startSyncWorker = () => {
   const state = store.getState()
-  // TODO: fetch all favorites, download new tracks and collections
+
+  syncFavorites()
   const collections = getCollections(state)
   const offlineCollections = Object.entries(getOfflineCollections(state))
     .filter(([id, isDownloaded]) => isDownloaded)
@@ -42,13 +46,42 @@ export const startSyncWorker = () => {
   })
 }
 
+const syncFavorites = async () => {
+  const state = store.getState()
+
+  const currentUserId = getAccountUser(state as unknown as CommonState)?.user_id
+  if (!currentUserId) return
+
+  const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
+  const cacheTracks = getTracks(state, {})
+
+  const cachedFavoritedTrackIds = Object.entries(cacheTracks)
+    .filter(([id, track]) =>
+      track.offline?.reasons_for_download.some(
+        (downloadReason) =>
+          downloadReason.is_from_favorites &&
+          downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
+      )
+    )
+    .map(([id, track]) => track.track_id)
+
+  const oldTrackIds = new Set(favoritedTrackIds)
+  const newTrackIds = new Set(cachedFavoritedTrackIds)
+  const addedTrackIds = [...newTrackIds].filter(
+    (trackId) => !oldTrackIds.has(trackId)
+  )
+  const removedTrackIds = [...oldTrackIds].filter(
+    (trackId) => !newTrackIds.has(trackId)
+  )
+}
+
 const syncCollection = async (
   offlineCollection: Collection,
   isFavoritesDownload?: boolean
 ) => {
   // TODO: record and check last verified time for collections
   const state = store.getState()
-  const currentUserId = getAccountUser(state as unknown as CommonState)
+  const currentUserId = getAccountUser(state as unknown as CommonState)?.user_id
   const collectionId = offlineCollection.playlist_id
   const collectionIdStr = offlineCollection.playlist_id.toString()
   // Fetch latest metadata
