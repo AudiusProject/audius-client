@@ -8,6 +8,7 @@ import {
   transactionDetailsActions
 } from '@audius/common'
 import { full } from '@audius/sdk'
+import { IconCaretRight } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
@@ -34,14 +35,33 @@ const {
 } = full
 
 const messages = {
-  pageTitle: 'AudioTransactions',
+  pageTitle: 'Audio Transactions History',
   pageDescription: 'View your transactions history',
   emptyTableText: 'You don’t have any $AUDIO transactions yet.',
   emptyTableSecondaryText: 'Once you have, this is where you’ll find them!',
-  headerText: '$AUDIO Transactions'
+  headerText: '$AUDIO Transactions',
+  disclaimer:
+    'Transactions history does not include balances from linked wallets',
+  moreInfo: 'More Info'
 }
 
 const AUDIO_TRANSACTIONS_BATCH_SIZE = 50
+
+const Disclaimer = () => {
+  const setVisibility = useSetVisibility()
+  return (
+    <div className={styles.container}>
+      <span className={styles.disclaimerMessage}>{messages.disclaimer}</span>
+      <div
+        className={styles.moreInfoContainer}
+        onClick={() => setVisibility('AudioBreakdown')(true)}
+      >
+        <span className={styles.moreInfo}>{messages.moreInfo}</span>
+        <IconCaretRight className={styles.iconCaretRight} />
+      </div>
+    </div>
+  )
+}
 
 export const AudioTransactionsPage = () => {
   const [offset, setOffset] = useState(0)
@@ -120,6 +140,7 @@ export const AudioTransactionsPage = () => {
   const tableLoading = audioTransactions.every(
     (transaction: any) => !transaction.signature
   )
+  console.log('REED tableLoading: ', tableLoading)
   const isEmpty = audioTransactions.length === 0
 
   return (
@@ -135,18 +156,21 @@ export const AudioTransactionsPage = () => {
             secondaryText={messages.emptyTableSecondaryText}
           />
         ) : (
-          <AudioTransactionsTable
-            key='audioTransactions'
-            data={audioTransactions}
-            loading={tableLoading}
-            onSort={onSort}
-            onClickRow={onClickRow}
-            fetchMore={fetchMore}
-            isVirtualized={true}
-            totalRowCount={audioTransactionsCount}
-            scrollRef={mainContentRef}
-            fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
-          />
+          <>
+            <Disclaimer />
+            <AudioTransactionsTable
+              key='audioTransactions'
+              data={audioTransactions}
+              loading={tableLoading}
+              onSort={onSort}
+              onClickRow={onClickRow}
+              fetchMore={fetchMore}
+              isVirtualized={true}
+              totalRowCount={audioTransactionsCount}
+              scrollRef={mainContentRef}
+              fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
+            />
+          </>
         )}
       </div>
     </Page>

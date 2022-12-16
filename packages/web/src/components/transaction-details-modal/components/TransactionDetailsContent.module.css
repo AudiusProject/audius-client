@@ -29,7 +29,7 @@ i {
   color: var(--accent-green);
 }
 .change.negative {
-  color: var(--static-secondary);
+  color: var(--accent-orange);
 }
 
 .spinner {

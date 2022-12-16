@@ -125,6 +125,7 @@ function* fetchAudioTransactionsAsync() {
       if (!response) {
         return
       }
+      console.log('REED got response in saga: ', response)
       const txDetails = response.map((tx) => parseTransaction(tx))
       const { offset } = action.payload
       yield put(setAudioTransactions({ txDetails, offset }))
