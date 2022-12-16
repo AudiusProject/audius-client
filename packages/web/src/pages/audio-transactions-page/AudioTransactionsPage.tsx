@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, useContext, useLayoutEffect } from 'react'
 
 import {
   TransactionDetails,
@@ -95,7 +95,7 @@ export const AudioTransactionsPage = () => {
     )
   }, [dispatch, sortMethod, sortDirection, audioTransactionsCount])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     dispatch(
       fetchAudioTransactions({ offset, limit, sortMethod, sortDirection })
     )

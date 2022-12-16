@@ -10,6 +10,7 @@ import {
 import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
 
+import { fetchUsers } from 'common/store/cache/users/sagas'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { audiusSdk } from 'services/audius-sdk/audiusSdk'
@@ -125,10 +126,25 @@ function* fetchAudioTransactionsAsync() {
       if (!response) {
         return
       }
-      console.log('REED got response in saga: ', response)
-      const txDetails = response.map((tx) => parseTransaction(tx))
+      const txDetails: TransactionDetails[] = response.map((tx) =>
+        parseTransaction(tx)
+      )
       const { offset } = action.payload
       yield put(setAudioTransactions({ txDetails, offset }))
+      const userIds = txDetails
+        .map((tx) => {
+          if (tx.transactionType === TransactionType.TIP) {
+            return tx.metadata
+          }
+          return null
+        })
+        .filter((tx) => tx !== null)
+      yield* call(
+        fetchUsers,
+        userIds,
+        undefined, // requiredFields
+        false // forceRetrieveFromSource
+      )
     }
   )
 }

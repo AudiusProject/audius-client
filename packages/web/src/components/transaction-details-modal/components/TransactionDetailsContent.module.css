@@ -32,6 +32,10 @@ i {
   color: var(--accent-orange);
 }
 
+.name:hover {
+  cursor: pointer;
+}
+
 .spinner {
   width: 48px;
   margin: 0 auto;

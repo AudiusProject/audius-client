@@ -9,17 +9,20 @@ import {
   ChallengeRewardID
 } from '@audius/common'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
+import { push as pushRoute } from 'connected-react-router'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { ReactComponent as LogoCoinbase } from 'assets/img/LogoCoinbase.svg'
 import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
+import { useSetVisibility } from 'common/hooks/useModalState'
 import { AudioTransactionIcon } from 'components/audio-transaction-icon'
 import { isChangePositive } from 'components/audio-transactions-table/AudioTransactionsTable'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { AppState } from 'store/types'
+import { profilePage } from 'utils/route'
 
 import { Block, BlockContainer } from './Block'
 import styles from './TransactionDetailsContent.module.css'
@@ -60,6 +63,8 @@ type UserDetailsProps = {
 }
 
 const UserDetails = ({ userId }: UserDetailsProps) => {
+  const setVisibility = useSetVisibility()
+  const dispatch = useDispatch()
   const usersMap = useSelector<AppState, { [id: number]: User }>((state) =>
     getUsers(state, { ids: [userId] })
   )
@@ -69,7 +74,13 @@ const UserDetails = ({ userId }: UserDetailsProps) => {
       {isLoading ? (
         <LoadingSpinner className={styles.spinnerSmall} />
       ) : (
-        <div className={styles.name}>
+        <div
+          className={styles.name}
+          onClick={() => {
+            setVisibility('TransactionDetails')(false)
+            dispatch(pushRoute(profilePage(usersMap[userId].handle)))
+          }}
+        >
           <span>{usersMap[userId].name}</span>
           <UserBadges
             userId={userId}
