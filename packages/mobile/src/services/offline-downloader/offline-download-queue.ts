@@ -13,16 +13,14 @@ const TRACK_DOWNLOAD_WORKER = 'track_download_worker'
 
 export type TrackDownloadWorkerPayload = {
   trackForDownload: TrackForDownload
-  collection: string
 }
 
 export const enqueueTrackDownload = async (
-  trackForDownload: TrackForDownload,
-  collection: string
+  trackForDownload: TrackForDownload
 ) => {
   queue.addJob<TrackDownloadWorkerPayload>(
     TRACK_DOWNLOAD_WORKER,
-    { trackForDownload, collection },
+    { trackForDownload },
     {
       attempts: 3,
       priority: 1,

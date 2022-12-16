@@ -16,6 +16,7 @@ import { apiClient } from '../audius-api-client'
 
 import {
   batchDownloadTrack,
+  batchRemoveTrackDownload,
   downloadCollection,
   downloadCollectionCoverArt,
   DOWNLOAD_REASON_FAVORITES,
@@ -24,20 +25,25 @@ import {
 
 const { getCollections } = cacheCollectionsSelectors
 const { getTracks } = cacheTracksSelectors
-const { getAccountUser } = accountSelectors
+const { getUserId } = accountSelectors
 
 /**
  * Favorites
  *  Check for new and removed track favorites
  *  Check for new and removed collections
  */
-export const startSyncWorker = () => {
+export const startSyncWorker = async () => {
   const state = store.getState()
 
-  syncFavorites()
   const collections = getCollections(state)
-  const offlineCollections = Object.entries(getOfflineCollections(state))
-    .filter(([id, isDownloaded]) => isDownloaded)
+  const offlineCollectionsState = getOfflineCollections(state)
+  if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
+    await syncFavorites()
+  }
+  const offlineCollections = Object.entries(offlineCollectionsState)
+    .filter(
+      ([id, isDownloaded]) => isDownloaded && id !== DOWNLOAD_REASON_FAVORITES
+    )
     .map(([id, isDownloaded]) => collections[id] ?? null)
     .filter((collection) => !!collection)
 
@@ -49,7 +55,8 @@ export const startSyncWorker = () => {
 const syncFavorites = async () => {
   const state = store.getState()
 
-  const currentUserId = getAccountUser(state as unknown as CommonState)?.user_id
+  const currentUserId = getUserId(state as unknown as CommonState)
+  debugger
   if (!currentUserId) return
 
   const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
@@ -73,6 +80,28 @@ const syncFavorites = async () => {
   const removedTrackIds = [...oldTrackIds].filter(
     (trackId) => !newTrackIds.has(trackId)
   )
+
+  const tracksForDownload: TrackForDownload[] = addedTrackIds.map(
+    (addedTrack) => ({
+      trackId: addedTrack,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES
+      }
+    })
+  )
+  batchDownloadTrack(tracksForDownload)
+
+  const tracksForDelete: TrackForDownload[] = removedTrackIds.map(
+    (removedTrack) => ({
+      trackId: removedTrack,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES
+      }
+    })
+  )
+  batchRemoveTrackDownload(tracksForDelete)
 }
 
 const syncCollection = async (
@@ -155,12 +184,5 @@ const syncCollection = async (
       }
     })
   )
-  batchDownloadTrack(tracksForDownload, collectionIdStr)
-}
-
-const syncTrack = () => {
-  // Fetch latest metadata
-  // Save metadata to cache and disk
-  // If cover_art_sizes changed, get latest cover art
-  // Redownload audio?
+  batchDownloadTrack(tracksForDownload)
 }
