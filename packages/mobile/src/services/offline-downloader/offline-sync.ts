@@ -56,7 +56,6 @@ const syncFavorites = async () => {
   const state = store.getState()
 
   const currentUserId = getUserId(state as unknown as CommonState)
-  debugger
   if (!currentUserId) return
 
   const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
@@ -110,7 +109,7 @@ const syncCollection = async (
 ) => {
   // TODO: record and check last verified time for collections
   const state = store.getState()
-  const currentUserId = getAccountUser(state as unknown as CommonState)?.user_id
+  const currentUserId = getUserId(state as unknown as CommonState)
   const collectionId = offlineCollection.playlist_id
   const collectionIdStr = offlineCollection.playlist_id.toString()
   // Fetch latest metadata
