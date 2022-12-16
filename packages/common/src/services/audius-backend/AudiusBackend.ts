@@ -1646,9 +1646,7 @@ export const audiusBackend = ({
     }
   }
 
-  async function orderPlaylist(
-    playlist: any
-  ) {
+  async function orderPlaylist(playlist: any) {
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(playlist)
@@ -1674,9 +1672,7 @@ export const audiusBackend = ({
     }
   }
 
-  async function addPlaylistTrack(
-    playlist: Collection
-  ) {
+  async function addPlaylistTrack(playlist: Collection) {
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(playlist)
@@ -1687,9 +1683,7 @@ export const audiusBackend = ({
     }
   }
 
-  async function deletePlaylistTrack(
-    playlist: Collection
-  ) {
+  async function deletePlaylistTrack(playlist: Collection) {
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(playlist)

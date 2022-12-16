@@ -4,7 +4,6 @@ import {
   Kind,
   makeKindId,
   makeUid,
-  FeatureFlags,
   squashNewLines,
   accountSelectors,
   accountActions,
@@ -146,12 +145,7 @@ function* createPlaylistAsync(action) {
   )
 }
 
-function* confirmCreatePlaylist(
-  uid,
-  userId,
-  formFields,
-  source
-) {
+function* confirmCreatePlaylist(uid, userId, formFields, source) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
 
   yield put(
@@ -458,7 +452,6 @@ function* confirmAddTrackToPlaylist(
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
 
-
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
@@ -649,7 +642,6 @@ function* confirmRemoveTrackFromPlaylist(
   playlist
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const getFeatureEnabled = yield getContext('getFeatureEnabled')
 
   yield put(
     confirmerActions.requestConfirmation(
