@@ -14,7 +14,6 @@ i {
 }
 
 .badge {
-  height: 12px;
   margin-left: 4px;
 }
 
@@ -30,6 +29,12 @@ i {
 }
 .change.negative {
   color: var(--accent-orange);
+}
+
+.name {
+  align-items: center;
+  line-height: 1px;
+  display: flex;
 }
 
 .name:hover {

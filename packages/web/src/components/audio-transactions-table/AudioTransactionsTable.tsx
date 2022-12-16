@@ -42,10 +42,10 @@ export type AudioTransactionsTableColumn =
 
 type AudioTransactionsTableProps = {
   columns?: AudioTransactionsTableColumn[]
-  data: any[]
+  data: (TransactionDetails | {})[]
   isVirtualized?: boolean
   loading?: boolean
-  onClickRow?: (collectible: any, index: number) => void
+  onClickRow?: (txDetails: TransactionDetails, index: number) => void
   onSort: (sortMethod: string, sortDirection: string) => void
   fetchMore: (offset: number, limit: number) => void
   tableClassName?: string
@@ -100,7 +100,9 @@ export const AudioTransactionsTable = ({
         <div className={styles.icon}>
           <AudioTransactionIcon type={transactionType} method={method} />
         </div>
-        <p>{`${typeText} ${isTransferType ? methodText : ''}`.trim()}</p>
+        <span className={styles.typeText}>
+          {`${typeText} ${isTransferType ? methodText : ''}`.trim()}
+        </span>
       </>
     )
   }, [])

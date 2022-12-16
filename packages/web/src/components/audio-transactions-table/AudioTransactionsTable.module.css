@@ -22,3 +22,7 @@
 .changeCell.decrease {
   color: var(--accent-orange);
 }
+
+.typeText {
+  line-height: 150%;
+}

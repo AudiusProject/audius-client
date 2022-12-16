@@ -140,7 +140,6 @@ export const AudioTransactionsPage = () => {
   const tableLoading = audioTransactions.every(
     (transaction: any) => !transaction.signature
   )
-  console.log('REED tableLoading: ', tableLoading)
   const isEmpty = audioTransactions.length === 0
 
   return (
