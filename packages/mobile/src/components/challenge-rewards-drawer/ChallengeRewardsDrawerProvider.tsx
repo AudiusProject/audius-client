@@ -96,8 +96,8 @@ export const ChallengeRewardsDrawerProvider = () => {
 
   const openUploadModal = useCallback(() => {
     handleClose()
-    dispatch(setVisibility({ modal: 'MobileUpload', visible: true }))
-  }, [dispatch, handleClose])
+    navigate('Upload')
+  }, [handleClose, navigate])
 
   // Claim rewards button config
   const quorumSize = useRemoteVar(IntKeys.ATTESTATION_QUORUM_SIZE)
