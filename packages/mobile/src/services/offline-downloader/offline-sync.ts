@@ -2,7 +2,8 @@ import type {
   Collection,
   CommonState,
   User,
-  DownloadReason
+  DownloadReason,
+  UserTrackMetadata
 } from '@audius/common'
 import {
   cacheCollectionsSelectors,
@@ -30,10 +31,14 @@ import {
   DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
 } from './offline-downloader'
+import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
 
 const { getCollections } = cacheCollectionsSelectors
 const { getTracks } = cacheTracksSelectors
 const { getUserId } = accountSelectors
+
+// const STALE_DURATION_TRACKS = moment.duration(7, 'days')
+const STALE_DURATION_TRACKS = moment.duration(7, 'seconds')
 
 /**
  * Favorites
@@ -60,7 +65,7 @@ export const startSyncWorker = async () => {
     syncCollection(collection)
   })
 
-  // TODO: check for individual stale tracks
+  syncStaleTracks()
 }
 
 const syncFavorites = async () => {
@@ -203,4 +208,49 @@ const syncCollection = async (
     })
   )
   batchDownloadTrack(tracksForDownload)
+}
+
+const syncStaleTracks = () => {
+  const state = store.getState()
+  const cacheTracks = getTracks(state, {})
+  const currentUserId = getUserId(state as unknown as CommonState)
+  if (!currentUserId) return
+
+  const staleCachedTracks = Object.entries(cacheTracks)
+    .filter(
+      ([id, track]) =>
+        track.offline &&
+        moment()
+          .subtract(STALE_DURATION_TRACKS)
+          .isAfter(moment(track.offline?.last_verified_time))
+    )
+    .map(([id, track]) => track)
+
+  staleCachedTracks.forEach(async (staleTrack) => {
+    const updatedTrack: UserTrackMetadata = await apiClient.getTrack({
+      id: staleTrack.track_id,
+      currentUserId
+    })
+
+    // If track should not be available
+    if (
+      !updatedTrack.is_available ||
+      updatedTrack.is_delete ||
+      updatedTrack.is_invalid ||
+      (updatedTrack.is_unlisted && updatedTrack.owner_id !== currentUserId)
+    ) {
+      purgeDownloadedTrack(staleTrack.track_id.toString())
+      return
+    }
+
+    writeTrackJson(updatedTrack.track_id.toString(), {
+      ...updatedTrack,
+      offline: {
+        download_completed_time:
+          staleTrack.offline?.download_completed_time ?? Date.now(),
+        reasons_for_download: staleTrack.offline?.reasons_for_download ?? [],
+        last_verified_time: Date.now()
+      }
+    })
+  })
 }
