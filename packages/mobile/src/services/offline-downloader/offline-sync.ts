@@ -1,19 +1,28 @@
-import type { Collection, CommonState, User } from '@audius/common'
+import type {
+  Collection,
+  CommonState,
+  User,
+  DownloadReason
+} from '@audius/common'
 import {
   cacheCollectionsSelectors,
   accountSelectors,
   cacheTracksSelectors
 } from '@audius/common'
 import moment from 'moment'
+import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
+import type { OfflineDownloadsState } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
 import { apiClient } from '../audius-api-client'
 
+import type { TrackDownloadWorkerPayload } from './offline-download-queue'
+import { TRACK_DOWNLOAD_WORKER } from './offline-download-queue'
 import {
   batchDownloadTrack,
   batchRemoveTrackDownload,
@@ -48,8 +57,11 @@ export const startSyncWorker = async () => {
     .filter((collection) => !!collection)
 
   offlineCollections.forEach((collection) => {
+    // TODO: should we await this? Maybe race condition
     syncCollection(collection)
   })
+
+  // TODO: check for individual stale tracks
 }
 
 const syncFavorites = async () => {
@@ -59,20 +71,31 @@ const syncFavorites = async () => {
   if (!currentUserId) return
 
   const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
-  const cacheTracks = getTracks(state, {})
+  const cacheTracks: OfflineDownloadsState['tracks'] = getTracks(state, {})
 
+  const isTrackFavoriteReason = (downloadReason: DownloadReason) =>
+    downloadReason.is_from_favorites &&
+    downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
+
+  // TODO: should count tracks in download queue.
+  const queuedTracks = (await queue.getJobs()).filter(
+    ({ workerName, payload }) => {
+      const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
+      const { downloadReason } = parsedPayload.trackForDownload
+      return (
+        workerName === TRACK_DOWNLOAD_WORKER &&
+        isTrackFavoriteReason(downloadReason)
+      )
+    }
+  )
   const cachedFavoritedTrackIds = Object.entries(cacheTracks)
     .filter(([id, track]) =>
-      track.offline?.reasons_for_download.some(
-        (downloadReason) =>
-          downloadReason.is_from_favorites &&
-          downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
-      )
+      track.offline?.reasons_for_download.some(isTrackFavoriteReason)
     )
     .map(([id, track]) => track.track_id)
 
-  const oldTrackIds = new Set(favoritedTrackIds)
-  const newTrackIds = new Set(cachedFavoritedTrackIds)
+  const oldTrackIds = new Set([...queuedTracks, ...cachedFavoritedTrackIds])
+  const newTrackIds = new Set(favoritedTrackIds)
   const addedTrackIds = [...newTrackIds].filter(
     (trackId) => !oldTrackIds.has(trackId)
   )
