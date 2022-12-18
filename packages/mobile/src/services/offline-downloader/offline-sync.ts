@@ -16,7 +16,6 @@ import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
-import type { OfflineDownloadsState } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
 import { apiClient } from '../audius-api-client'
@@ -71,23 +70,20 @@ const syncFavorites = async () => {
   if (!currentUserId) return
 
   const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
-  const cacheTracks: OfflineDownloadsState['tracks'] = getTracks(state, {})
+  const cacheTracks = getTracks(state, {})
 
   const isTrackFavoriteReason = (downloadReason: DownloadReason) =>
     downloadReason.is_from_favorites &&
     downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
 
   // TODO: should count tracks in download queue.
-  const queuedTracks = (await queue.getJobs()).filter(
-    ({ workerName, payload }) => {
-      const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
-      const { downloadReason } = parsedPayload.trackForDownload
-      return (
-        workerName === TRACK_DOWNLOAD_WORKER &&
-        isTrackFavoriteReason(downloadReason)
-      )
-    }
-  )
+  const queuedTracks = (await queue.getJobs())
+    .filter(({ workerName }) => workerName === TRACK_DOWNLOAD_WORKER)
+    .map(({ payload }) => JSON.parse(payload) as TrackDownloadWorkerPayload)
+    .filter(({ trackForDownload }) =>
+      isTrackFavoriteReason(trackForDownload.downloadReason)
+    )
+    .map(({ trackForDownload: { trackId } }) => trackId)
   const cachedFavoritedTrackIds = Object.entries(cacheTracks)
     .filter(([id, track]) =>
       track.offline?.reasons_for_download.some(isTrackFavoriteReason)

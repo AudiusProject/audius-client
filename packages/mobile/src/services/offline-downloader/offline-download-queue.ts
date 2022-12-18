@@ -9,7 +9,7 @@ import {
 
 import { downloadTrack } from './offline-downloader'
 
-const TRACK_DOWNLOAD_WORKER = 'track_download_worker'
+export const TRACK_DOWNLOAD_WORKER = 'track_download_worker'
 
 export type TrackDownloadWorkerPayload = {
   trackForDownload: TrackForDownload

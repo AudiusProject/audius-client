@@ -32,7 +32,6 @@ import {
 } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
-import { track } from '../analytics'
 import { apiClient } from '../audius-api-client'
 
 import type { TrackDownloadWorkerPayload } from './offline-download-queue'
