@@ -34,7 +34,6 @@ import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
 import { apiClient } from '../audius-api-client'
 
-import type { TrackDownloadWorkerPayload } from './offline-download-queue'
 import { enqueueTrackDownload } from './offline-download-queue'
 import {
   getLocalAudioPath,
@@ -85,11 +84,10 @@ export const downloadCollection = async (
         id: userCollection.playlist_id
       })
       if (!user) return
-      userCollection =
-        (await populateCoverArtSizes({
-          ...userCollection,
-          user
-        })) ?? userCollection
+      userCollection = await populateCoverArtSizes({
+        ...userCollection,
+        user
+      })
       downloadCollectionCoverArt(userCollection)
       writeCollectionJson(
         userCollection.playlist_id.toString(),
@@ -99,11 +97,10 @@ export const downloadCollection = async (
     })
   } else {
     if (!collection || !user) return
-    collection =
-      (await populateCoverArtSizes({
-        ...collection,
-        user
-      })) ?? collection
+    collection = await populateCoverArtSizes({
+      ...collection,
+      user
+    })
     downloadCollectionCoverArt(collection)
     await writeCollectionJson(collectionIdStr, collection!, user)
   }
@@ -120,9 +117,7 @@ export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
   )
 }
 
-export const downloadTrack = async ({
-  trackForDownload
-}: TrackDownloadWorkerPayload) => {
+export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   const { trackId, downloadReason } = trackForDownload
   const trackIdStr = trackId.toString()
 
@@ -153,7 +148,7 @@ export const downloadTrack = async ({
     throw failJob(`track to download is not available - ${trackIdStr}`)
   }
 
-  track = (await populateCoverArtSizes(track)) ?? track
+  track = await populateCoverArtSizes(track)
   const lineupTrack = {
     uid: makeUid(Kind.TRACKS, track.track_id),
     ...track

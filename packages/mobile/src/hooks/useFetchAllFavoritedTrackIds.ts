@@ -13,7 +13,7 @@ export const fetchAllFavoritedTrackIds = async (currentUserId: number) => {
   let trackIds: number[] = []
   let loadMore = true
   let offset = 0
-  // TODO: store results in state and return state instead if loading is completed
+  // TODO: store results in state to avoid duplicate fetching
   while (loadMore) {
     const url = apiClient.makeUrl(
       `/users/${encodeHashId(currentUserId)}/favorites`,

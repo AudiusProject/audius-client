@@ -13,15 +13,16 @@ export const populateCoverArtSizes = async <
     user: UserMetadata
   }
 >(
-  entity: T & { _cover_art_sizes: CoverArtSizes }
-) => {
+  entity: T
+): Promise<T & { _cover_art_sizes: CoverArtSizes }> => {
+  const newEntity = { ...entity, _cover_art_sizes: {} }
   if (!entity || !entity.user || (!entity.cover_art_sizes && !entity.cover_art))
-    return
+    return newEntity
   const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
     entity.user.creator_node_endpoint
   )
   const multihash = entity.cover_art_sizes || entity.cover_art
-  if (!multihash) return entity
+  if (!multihash) return newEntity
   await Promise.allSettled(
     Object.values(SquareSizes).map(async (size) => {
       const coverArtSize = multihash === entity.cover_art_sizes ? size : null
@@ -30,11 +31,11 @@ export const populateCoverArtSizes = async <
         coverArtSize,
         gateways
       )
-      entity._cover_art_sizes = {
-        ...entity._cover_art_sizes,
+      newEntity._cover_art_sizes = {
+        ...newEntity._cover_art_sizes,
         [coverArtSize || DefaultSizes.OVERRIDE]: url
       }
     })
   )
-  return entity
+  return newEntity
 }

@@ -1,9 +1,9 @@
 import type {
   Collection,
   CommonState,
-  User,
   DownloadReason,
-  UserTrackMetadata
+  UserTrackMetadata,
+  UserCollectionMetadata
 } from '@audius/common'
 import {
   cacheCollectionsSelectors,
@@ -28,6 +28,7 @@ import {
   batchRemoveTrackDownload,
   downloadCollection,
   downloadCollectionCoverArt,
+  downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
 } from './offline-downloader'
@@ -37,8 +38,7 @@ const { getCollections } = cacheCollectionsSelectors
 const { getTracks } = cacheTracksSelectors
 const { getUserId } = accountSelectors
 
-// const STALE_DURATION_TRACKS = moment.duration(7, 'days')
-const STALE_DURATION_TRACKS = moment.duration(7, 'seconds')
+const STALE_DURATION_TRACKS = moment.duration(7, 'days')
 
 /**
  * Favorites
@@ -51,7 +51,8 @@ export const startSyncWorker = async () => {
   const collections = getCollections(state)
   const offlineCollectionsState = getOfflineCollections(state)
   if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
-    await syncFavorites()
+    // TODO: should we await all the sync calls? Potential race conditions
+    syncFavorites()
   }
   const offlineCollections = Object.entries(offlineCollectionsState)
     .filter(
@@ -61,7 +62,6 @@ export const startSyncWorker = async () => {
     .filter((collection) => !!collection)
 
   offlineCollections.forEach((collection) => {
-    // TODO: should we await this? Maybe race condition
     syncCollection(collection)
   })
 
@@ -81,14 +81,11 @@ const syncFavorites = async () => {
     downloadReason.is_from_favorites &&
     downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
 
-  // TODO: should count tracks in download queue.
   const queuedTracks = (await queue.getJobs())
     .filter(({ workerName }) => workerName === TRACK_DOWNLOAD_WORKER)
     .map(({ payload }) => JSON.parse(payload) as TrackDownloadWorkerPayload)
-    .filter(({ trackForDownload }) =>
-      isTrackFavoriteReason(trackForDownload.downloadReason)
-    )
-    .map(({ trackForDownload: { trackId } }) => trackId)
+    .filter(({ downloadReason }) => isTrackFavoriteReason(downloadReason))
+    .map(({ trackId }) => trackId)
   const cachedFavoritedTrackIds = Object.entries(cacheTracks)
     .filter(([id, track]) =>
       track.offline?.reasons_for_download.some(isTrackFavoriteReason)
@@ -136,8 +133,7 @@ const syncCollection = async (
   const currentUserId = getUserId(state as unknown as CommonState)
   const collectionId = offlineCollection.playlist_id
   const collectionIdStr = offlineCollection.playlist_id.toString()
-  // Fetch latest metadata
-  const updatedCollection: Collection | undefined = (
+  const updatedCollection: UserCollectionMetadata | undefined = (
     await apiClient.getPlaylist({
       playlistId: collectionId,
       currentUserId
@@ -146,32 +142,25 @@ const syncCollection = async (
 
   // TODO: will discovery serve a removed playlist?
   if (!updatedCollection) return
-  // Save metadata to cache and disk
+
   if (
-    !moment(updatedCollection.updated_at).isAfter(offlineCollection.updated_at)
+    moment(updatedCollection.updated_at).isSameOrBefore(
+      offlineCollection.updated_at
+    )
   ) {
     return
   }
 
-  const updatedUser: User = (
-    await apiClient.getUser({
-      userId: updatedCollection.playlist_owner_id,
-      currentUserId
-    })
-  )?.[0]
-  let updatedUserCollection: Collection & { user: User } = {
-    ...updatedCollection,
-    user: updatedUser
-  }
-  updatedUserCollection =
-    (await populateCoverArtSizes(updatedUserCollection)) ??
-    updatedUserCollection
+  const updatedCollectionWithArt = await populateCoverArtSizes(
+    updatedCollection
+  )
 
-  downloadCollection(updatedUserCollection)
+  downloadCollection(updatedCollectionWithArt)
   if (
-    updatedUserCollection.cover_art_sizes !== offlineCollection.cover_art_sizes
+    updatedCollectionWithArt.cover_art_sizes !==
+    offlineCollection.cover_art_sizes
   ) {
-    downloadCollectionCoverArt(updatedUserCollection)
+    downloadCollectionCoverArt(updatedCollectionWithArt)
   }
 
   const oldTrackIds = new Set(
@@ -241,6 +230,14 @@ const syncStaleTracks = () => {
     ) {
       purgeDownloadedTrack(staleTrack.track_id.toString())
       return
+    }
+
+    if (moment(updatedTrack.updated_at).isAfter(staleTrack.updated_at)) {
+      const updatedTrackWithArt = await populateCoverArtSizes(updatedTrack)
+
+      if (updatedTrackWithArt.cover_art_sizes !== staleTrack.cover_art_sizes) {
+        downloadTrackCoverArt(updatedTrackWithArt)
+      }
     }
 
     writeTrackJson(updatedTrack.track_id.toString(), {
