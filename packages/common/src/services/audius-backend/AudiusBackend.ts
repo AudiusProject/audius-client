@@ -1360,22 +1360,6 @@ export const audiusBackend = ({
     }
   }
 
-  async function getTransactionDetailsMetadata(tx_id: string) {
-    try {
-      const headers = await audiusLibs.identityService._signData()
-      const res = await fetch(
-        `${identityServiceUrl}/transaction_metadata?id=${tx_id}`,
-        {
-          headers
-        }
-      ).then((res) => res.json())
-      return res
-    } catch (e) {
-      console.error(e)
-      return {}
-    }
-  }
-
   /**
    * Retrieves the user's eth associated wallets from IPFS using the user's metadata CID and creator node endpoints
    * @param user The user metadata which contains the CID for the metadata multihash
@@ -3233,10 +3217,7 @@ export const audiusBackend = ({
 
   async function getAudioTransactionsCount() {
     try {
-      await waitForLibsInit()
-      const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
-      const data = `Click sign to authenticate with discovery node: ${unixTs}`
-      const signature = audiusLibs.Account!.web3Manager!.sign(data)
+      const { data, signature } = await signDiscoveryNodeRequest()
       const res = await fetch(
         `${currentDiscoveryProvider}/v1/full/transactions`,
         {
@@ -3245,8 +3226,9 @@ export const audiusBackend = ({
             encodedDataSignature: signature
           }
         }
-      ).then((res) => res.json())
-      return res
+      )
+      const json = await res.json()
+      return json
     } catch (e) {
       console.error(e)
       return 0
@@ -3405,7 +3387,6 @@ export const audiusBackend = ({
     getCreatorNodeIPFSGateways,
     getCreators,
     getCreatorSocialHandle,
-    getTransactionDetailsMetadata,
     getEmailNotificationSettings,
     getFolloweeFollows,
     getHasClaimed,

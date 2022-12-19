@@ -101,25 +101,19 @@ const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
   }
 }
 
-function* signAuthData() {
-  const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
-  const unixTs = Math.round(new Date().getTime() / 1000) // current unix timestamp (sec)
-  const data = `Click sign to authenticate with discovery node: ${unixTs}`
-  const signature = yield* call([libs!.Account!.web3Manager, 'sign'], data)
-  return [data, signature]
-}
-
 function* fetchAudioTransactionsAsync() {
   yield* takeLatest(
     fetchAudioTransactions.type,
     function* (action: ReturnType<typeof fetchAudioTransactions>): any {
-      yield* call(waitForLibsInit)
-      const [data, signature] = yield* call(signAuthData)
+      const { data, signature } = yield* call([
+        audiusBackendInstance,
+        audiusBackendInstance.signDiscoveryNodeRequest
+      ])
       const response = yield* call(
         [transactions, transactions.getAudioTransactionHistory],
         {
-          encodedDataMessage: data!,
-          encodedDataSignature: signature!,
+          encodedDataMessage: data,
+          encodedDataSignature: signature,
           ...action.payload
         }
       )
@@ -154,10 +148,12 @@ function* fetchTransactionMetadata() {
     fetchAudioTransactionMetadata.type,
     function* (action: ReturnType<typeof fetchAudioTransactionMetadata>) {
       const { txDetails } = action.payload
+      yield* call(waitForLibsInit)
+      const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
       const response = yield* call(
         [
-          audiusBackendInstance,
-          audiusBackendInstance.getTransactionDetailsMetadata
+          libs.identityService!,
+          libs.identityService!.getUserBankTransactionMetadata
         ],
         txDetails.signature
       )
@@ -176,12 +172,15 @@ function* fetchTransactionMetadata() {
 
 function* fetchTransactionsCount() {
   yield* takeLatest(fetchAudioTransactionsCount.type, function* () {
-    const [data, signature] = yield* call(signAuthData)
+    const { data, signature } = yield* call([
+      audiusBackendInstance,
+      audiusBackendInstance.signDiscoveryNodeRequest
+    ])
     const response = yield* call(
       [transactions, transactions.getAudioTransactionHistoryCount],
       {
-        encodedDataMessage: data!,
-        encodedDataSignature: signature!
+        encodedDataMessage: data,
+        encodedDataSignature: signature
       }
     )
     if (!response) {

@@ -100,10 +100,10 @@ export const pluralize = (
 ) => `${message}${(count ?? 0) > 1 || pluralizeAnyway ? suffix : ''}`
 
 /**
- * Format a BN string to the shortened $AUDIO currency
- * @param amount The wei amount
- * @param decimals Number of decimal places to return
- * @returns $AUDIO The $AUDIO amount
+ * Format a $AUDIO string with commas and decimals
+ * @param amount The $AUDIO amount
+ * @param decimals Number of decimal places to display
+ * @returns The formatted $AUDIO amount
  */
 export const formatAudio = (amount: string, decimals?: number) => {
   const amount_num: number = parseFloat(amount)

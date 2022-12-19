@@ -1,4 +1,10 @@
-import { useEffect, useState, useContext, useLayoutEffect } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useContext,
+  useLayoutEffect
+} from 'react'
 
 import {
   TransactionDetails,
@@ -102,40 +108,49 @@ export const AudioTransactionsPage = () => {
   }, [dispatch, offset, limit, sortMethod, sortDirection])
 
   // Defaults: sort method = date, sort direction = desc
-  const onSort = (sortMethodInner: string, sortDirectionInner: string) => {
-    const sortMethodRes =
-      sortMethodInner === 'type'
-        ? GetAudioTransactionHistorySortMethodEnum.TransactionType
-        : GetAudioTransactionHistorySortMethodEnum.Date
-    setSortMethod(sortMethodRes)
-    const sortDirectionRes =
-      sortDirectionInner === 'asc'
-        ? GetAudioTransactionHistorySortDirectionEnum.Asc
-        : GetAudioTransactionHistorySortDirectionEnum.Desc
-    setSortDirection(sortDirectionRes)
-  }
+  const onSort = useCallback(
+    (sortMethodInner: string, sortDirectionInner: string) => {
+      const sortMethodRes =
+        sortMethodInner === 'type'
+          ? GetAudioTransactionHistorySortMethodEnum.TransactionType
+          : GetAudioTransactionHistorySortMethodEnum.Date
+      setSortMethod(sortMethodRes)
+      const sortDirectionRes =
+        sortDirectionInner === 'asc'
+          ? GetAudioTransactionHistorySortDirectionEnum.Asc
+          : GetAudioTransactionHistorySortDirectionEnum.Desc
+      setSortDirection(sortDirectionRes)
+    },
+    [setSortMethod, setSortDirection]
+  )
 
-  const fetchMore = (offset: number, limit: number) => {
-    setOffset(offset)
-    setLimit(limit)
-  }
+  const fetchMore = useCallback(
+    (offset: number, limit: number) => {
+      setOffset(offset)
+      setLimit(limit)
+    },
+    [setOffset, setLimit]
+  )
 
-  const onClickRow = (txDetails: TransactionDetails, index: number) => {
-    dispatch(
-      fetchTransactionDetailsSucceeded({
-        transactionId: txDetails.signature,
-        transactionDetails: txDetails
-      })
-    )
-    if (txDetails.transactionType === TransactionType.PURCHASE) {
+  const onClickRow = useCallback(
+    (txDetails: TransactionDetails, index: number) => {
       dispatch(
-        fetchAudioTransactionMetadata({
-          txDetails
+        fetchTransactionDetailsSucceeded({
+          transactionId: txDetails.signature,
+          transactionDetails: txDetails
         })
       )
-    }
-    setVisibility('TransactionDetails')(true)
-  }
+      if (txDetails.transactionType === TransactionType.PURCHASE) {
+        dispatch(
+          fetchAudioTransactionMetadata({
+            txDetails
+          })
+        )
+      }
+      setVisibility('TransactionDetails')(true)
+    },
+    [dispatch, setVisibility]
+  )
 
   const tableLoading = audioTransactions.every(
     (transaction: any) => !transaction.signature

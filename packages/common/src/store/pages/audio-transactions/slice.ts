@@ -47,9 +47,8 @@ const slice = createSlice({
       }>
     ) => {
       const { txDetails, offset } = action.payload
-      const transactionsCopy = state.transactions.slice()
+      const transactionsCopy = [...state.transactions]
       transactionsCopy.splice(offset ?? 0, txDetails.length, ...txDetails)
-
       state.transactions = transactionsCopy
     }
   }
@@ -61,7 +60,6 @@ export const {
   fetchAudioTransactionMetadata,
   fetchAudioTransactionsCount,
   setAudioTransactionsCount
-  // appendAudioTransactions
 } = slice.actions
 
 export default slice
