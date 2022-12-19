@@ -315,7 +315,7 @@ export const assetToCollectible = async (
     assetContractAddress: asset.asset_contract?.address ?? null,
     chain: Chain.Eth,
     wallet: asset.wallet,
-    chainMetadata: null
+    solanaChainMetadata: null
   }
 }
 

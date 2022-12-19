@@ -74,11 +74,11 @@ function* getTokenIdMap({
   // Build a set of sol nft collection mint addresses
   const solCollectionMintSet: Set<string> = new Set()
   solCollectibles.forEach((c: Collectible) => {
-    if (!c.chainMetadata) return
+    if (!c.solanaChainMetadata) return
 
     // "If the Collection field is set, it means the NFT is part of the collection specified within that field."
     // https://docs.metaplex.com/programs/token-metadata/certified-collections#linking-regular-nfts-to-collection-nfts
-    const { collection } = c.chainMetadata
+    const { collection } = c.solanaChainMetadata
     if (collection?.verified) {
       solCollectionMintSet.add(collection.key.toBase58())
     }

@@ -261,7 +261,7 @@ const nftComputedMedia = async (
 
 const metaplexNFTToCollectible = async (
   nft: MetaplexNFT,
-  chainMetadata: Nullable<Metadata>,
+  solanaChainMetadata: Nullable<Metadata>,
   address: string
 ): Promise<Collectible> => {
   const identifier = [nft.symbol, nft.name, nft.image]
@@ -276,7 +276,7 @@ const metaplexNFTToCollectible = async (
     externalLink: nft.external_url,
     isOwned: true,
     chain: Chain.Sol,
-    chainMetadata
+    solanaChainMetadata
   } as Collectible
 
   if (
@@ -309,7 +309,7 @@ const metaplexNFTToCollectible = async (
 
 const starAtlasNFTToCollectible = async (
   nft: StarAtlasNFT,
-  chainMetadata: Nullable<Metadata>
+  solanaChainMetadata: Nullable<Metadata>
 ): Promise<Collectible> => {
   const identifier = [nft._id, nft.symbol, nft.name, nft.image]
     .filter(Boolean)
@@ -322,7 +322,7 @@ const starAtlasNFTToCollectible = async (
     description: nft.description,
     isOwned: true,
     chain: Chain.Sol,
-    chainMetadata
+    solanaChainMetadata
   } as Collectible
 
   // todo: check if there are gif or video nfts for star atlas
@@ -364,17 +364,17 @@ export const solanaNFTToCollectible = async (
   nft: SolanaNFT,
   address: string,
   type: SolanaNFTType,
-  chainMetadata: Nullable<Metadata>
+  solanaChainMetadata: Nullable<Metadata>
 ): Promise<Nullable<Collectible>> => {
   switch (type) {
     case SolanaNFTType.METAPLEX:
       return metaplexNFTToCollectible(
         nft as MetaplexNFT,
-        chainMetadata,
+        solanaChainMetadata,
         address
       )
     case SolanaNFTType.STAR_ATLAS:
-      return starAtlasNFTToCollectible(nft as StarAtlasNFT, chainMetadata)
+      return starAtlasNFTToCollectible(nft as StarAtlasNFT, solanaChainMetadata)
     default:
       return null
   }

@@ -42,5 +42,5 @@ export type Collectible = {
   assetContractAddress: Nullable<string>
 
   // solana nfts
-  chainMetadata: Nullable<Metadata>
+  solanaChainMetadata: Nullable<Metadata>
 }
