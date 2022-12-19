@@ -18,6 +18,7 @@ import { fetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackId
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
+import { isAvailableForPlay } from 'app/utils/trackUtils'
 
 import { apiClient } from '../audius-api-client'
 
@@ -64,6 +65,8 @@ export const startSyncWorker = async () => {
   offlineCollections.forEach((collection) => {
     syncCollection(collection)
   })
+
+  // TODO: diff favorited collections with discovery, queue/remove them for download
 
   syncStaleTracks()
 }
@@ -222,12 +225,7 @@ const syncStaleTracks = () => {
     })
 
     // If track should not be available
-    if (
-      !updatedTrack.is_available ||
-      updatedTrack.is_delete ||
-      updatedTrack.is_invalid ||
-      (updatedTrack.is_unlisted && updatedTrack.owner_id !== currentUserId)
-    ) {
+    if (!isAvailableForPlay(updatedTrack, currentUserId)) {
       purgeDownloadedTrack(staleTrack.track_id.toString())
       return
     }
@@ -240,6 +238,7 @@ const syncStaleTracks = () => {
       }
     }
 
+    // TODO: re-download the mp3 if it's changed
     writeTrackJson(updatedTrack.track_id.toString(), {
       ...updatedTrack,
       offline: {
