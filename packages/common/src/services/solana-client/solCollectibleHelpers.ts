@@ -277,7 +277,7 @@ const metaplexNFTToCollectible = async (
     isOwned: true,
     chain: Chain.Sol,
     chainMetadata
-  } as unknown as Collectible
+  } as Collectible
 
   if (
     (nft.properties?.creators ?? []).some(
@@ -323,7 +323,7 @@ const starAtlasNFTToCollectible = async (
     isOwned: true,
     chain: Chain.Sol,
     chainMetadata
-  } as unknown as Collectible
+  } as Collectible
 
   // todo: check if there are gif or video nfts for star atlas
   const is3DObj = [nft.image, nft.media?.thumbnailUrl]
