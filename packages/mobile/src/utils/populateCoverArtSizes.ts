@@ -8,11 +8,14 @@ import { DefaultSizes, SquareSizes } from '@audius/common'
 
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
-export const populateCoverArtSizes = async <
-  T extends Pick<Track | Collection, 'cover_art_sizes' | 'cover_art'> & {
-    user: UserMetadata
-  }
->(
+type EntityWithArt = Pick<
+  Track | Collection,
+  'cover_art_sizes' | 'cover_art'
+> & {
+  user: UserMetadata
+}
+
+export const populateCoverArtSizes = async <T extends EntityWithArt>(
   entity: T
 ): Promise<T & { _cover_art_sizes: CoverArtSizes }> => {
   const newEntity = { ...entity, _cover_art_sizes: {} }
