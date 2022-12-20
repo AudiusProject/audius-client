@@ -15,7 +15,7 @@ type TikTokUser = {
 type HandleCheckStatus =
   | 'twitterReserved'
   | 'instagramReserved'
-  | 'tiktokReserved'
+  | 'tikTokReserved'
   | 'notReserved'
 
 export const checkHandle = (
@@ -41,7 +41,7 @@ export const checkHandle = (
       return 'instagramReserved'
     }
     if (isEquivalentTikTokHandleVerified) {
-      return 'tiktokReserved'
+      return 'tikTokReserved'
     }
   }
   return 'notReserved'

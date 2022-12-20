@@ -80,10 +80,10 @@ const InstagramAuth = ({
           return onFailure(new Error('Unable to fetch information'))
         }
 
-        const igUserProfile = igUserFields.reduce((profile, field) => {
-          ;(profile as any)[field] = profileRespJson[field]
+        const igUserProfile = igUserFields.reduce((profile: any, field) => {
+          profile[field] = profileRespJson[field]
           return profile
-        })
+        }, {})
 
         return onSuccess(profileRespJson.username, igUserProfile)
       } catch (err) {
