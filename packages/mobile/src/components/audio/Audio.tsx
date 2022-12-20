@@ -376,7 +376,7 @@ export const Audio = () => {
   })
 
   let source
-  if (offlineTrackUri) {
+  if (offlineTrackUri && trackImageSource) {
     source = {
       type: TrackType.Default,
       uri: offlineTrackUri
@@ -395,7 +395,7 @@ export const Audio = () => {
   }
 
   let nextSource
-  if (nextOfflineTrackUri) {
+  if (nextOfflineTrackUri && nextTrackImageSource) {
     nextSource = {
       type: TrackType.Default,
       uri: nextOfflineTrackUri
@@ -420,9 +420,9 @@ export const Audio = () => {
     const newUri = source.uri
     if (currentUriRef.current !== newUri) {
       currentUriRef.current = newUri
-      const imageUrl = trackImageSource?.source[2].uri ?? DEFAULT_IMAGE_URL
+      const imageUrl = trackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
       const nextImageUrl =
-        nextTrackImageSource?.source[2].uri ?? DEFAULT_IMAGE_URL
+        nextTrackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
       await TrackPlayer.reset()
       // NOTE: Adding two tracks into the queue to make sure that android has a next button on the lock screen and notification controls
