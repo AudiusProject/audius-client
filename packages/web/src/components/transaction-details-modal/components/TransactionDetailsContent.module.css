@@ -6,13 +6,6 @@
   gap: 8px;
 }
 
-i {
-  margin: auto !important;
-  width: 18px !important;
-  height: 18px !important;
-  margin-right: 2px !important;
-}
-
 .badge {
   margin-left: 4px;
 }
