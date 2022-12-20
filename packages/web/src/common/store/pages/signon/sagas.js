@@ -196,7 +196,7 @@ function* validateHandle(action) {
       if (onValidate) onValidate(true)
       return
     }
-    yield delay(300) // Wait 300 ms to debounce user input
+    yield delay(1000) // Wait 1000ms to debounce user input
 
     // Call fetch user by handle and do not retry if the user is not created, it will
     // return 404 and force discovery reselection
