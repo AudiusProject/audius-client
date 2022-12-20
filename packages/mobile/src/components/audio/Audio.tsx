@@ -337,12 +337,10 @@ export const Audio = () => {
     setListenLoggedForTrack(false)
   }, [track, setListenLoggedForTrack])
 
-  const { value: offlineTrackUri } = useOfflineTrackUri(
-    track?.track_id.toString()
-  )
-  const { value: nextOfflineTrackUri } = useOfflineTrackUri(
-    nextTrack?.track_id.toString()
-  )
+  const { loading: offlineLoading, value: offlineTrackUri } =
+    useOfflineTrackUri(track?.track_id.toString())
+  const { loading: offlineNextLoading, value: nextOfflineTrackUri } =
+    useOfflineTrackUri(nextTrack?.track_id.toString())
 
   const streamingUri = useMemo(() => {
     return track && isReachable
@@ -418,6 +416,7 @@ export const Audio = () => {
 
   const handleSourceChange = useCallback(async () => {
     const newUri = source.uri
+    if (offlineLoading || offlineNextLoading) return
     if (currentUriRef.current !== newUri) {
       currentUriRef.current = newUri
       const imageUrl = trackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
@@ -459,13 +458,23 @@ export const Audio = () => {
       }
     }
   }, [
-    nextSource,
-    nextTrack,
+    nextSource.type,
+    nextSource.uri,
+    nextTrack?.created_at,
+    nextTrack?.duration,
+    nextTrack?.genre,
+    nextTrack?.title,
     nextTrackImageSource?.source,
     nextTrackOwner?.name,
+    offlineLoading,
+    offlineNextLoading,
     playing,
-    source,
-    track,
+    source.type,
+    source.uri,
+    track?.created_at,
+    track?.duration,
+    track?.genre,
+    track?.title,
     trackImageSource?.source,
     trackOwner?.name
   ])
@@ -483,7 +492,7 @@ export const Audio = () => {
 
   useEffect(() => {
     handleSourceChange()
-  }, [handleSourceChange, source])
+  }, [handleSourceChange, source, offlineLoading, offlineNextLoading])
 
   useEffect(() => {
     handleTogglePlay(playing)
