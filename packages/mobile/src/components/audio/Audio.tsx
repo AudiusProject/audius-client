@@ -376,7 +376,7 @@ export const Audio = () => {
   })
 
   let source
-  if (offlineTrackUri && trackImageSource) {
+  if (offlineTrackUri) {
     source = {
       type: TrackType.Default,
       uri: offlineTrackUri
@@ -395,7 +395,7 @@ export const Audio = () => {
   }
 
   let nextSource
-  if (nextOfflineTrackUri && nextTrackImageSource) {
+  if (nextOfflineTrackUri) {
     nextSource = {
       type: TrackType.Default,
       uri: nextOfflineTrackUri
