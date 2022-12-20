@@ -6,6 +6,13 @@
   gap: 8px;
 }
 
+.header .challengeIcon > i {
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+}
+
 .badge {
   margin-left: 4px;
 }
