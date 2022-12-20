@@ -3,7 +3,7 @@ import { FeatureFlags } from '@audius/common'
 import { useFeatureFlag } from './useRemoteConfig'
 
 // DO NOT CHECK IN VALUE: true
-const hardCodeOverride = false
+const hardCodeOverride = true
 
 // TODO: remove helpers when feature is shipped
 export const useIsOfflineModeEnabled = () =>
