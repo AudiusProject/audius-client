@@ -51,6 +51,9 @@ const slice = createSlice({
       state.chatList.data = state.chatList.data.concat(action.payload.data)
       state.chatList.summary = action.payload.summary
     },
+    fetchMoreChatsFailed: (state) => {
+      state.chatList.status = Status.ERROR
+    },
     fetchNewChatMessages: (
       state,
       action: PayloadAction<{ chatId: string }>
@@ -81,6 +84,13 @@ const slice = createSlice({
         state.chatMessages[chatId].data
       )
       state.chatMessages[chatId].summary = summary
+    },
+    fetchNewChatMessagesFailed: (
+      state,
+      action: PayloadAction<{ chatId: string }>
+    ) => {
+      const { chatId } = action.payload
+      state.chatMessages[chatId].status = Status.ERROR
     }
   }
 })
